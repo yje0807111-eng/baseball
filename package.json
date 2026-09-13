@@ -1,0 +1,27 @@
+{
+  "name": "kbo-dream-draft",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build-data-index.mjs && vite",
+    "build": "node scripts/build-data-index.mjs && vite build",
+    "preview": "vite preview",
+    "test": "node scripts/build-data-index.mjs && vitest run",
+    "build:artifact": "node scripts/build-data-index.mjs && esbuild artifact/entry.jsx --bundle --format=iife --tsconfig-raw={} --alias:react=./artifact/react-shim.js --jsx=transform --jsx-factory=React.createElement --jsx-fragment=React.Fragment --loader:.json=json --minify --target=es2019 --outfile=artifact/dist/app.js",
+    "data:check": "node scripts/validate-series.mjs"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.6.0",
+    "esbuild": "^0.28.2",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
+  }
+}
