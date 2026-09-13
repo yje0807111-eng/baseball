@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { SERIES } from './data/seriesPlayers.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -11,29 +12,28 @@ export const SLOT_LIMITS = { SP: 3, RP: 1, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 
 export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 11
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const AUGMENT_AT = [3, 8]; // n명 영입 직후 증강 선택
-const EVENT_AT = [5]; // n명 영입 직후 시즌 돌발 이벤트
-const SHOP_SIZE = 6;
+const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
+const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
    hand: 타자는 타석(L/R/S), 투수는 투구 손(L/R). 능력치는 40~99. */
 const B = (id, name, year, team, position, hand, overall, [power, contact, speed, defense], o = {}) => ({
   id, name, year, team, position, hand, overall, type: 'batter',
-  isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '',
+  isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '', face: o.face,
   stats: { power, contact, speed, defense },
 });
 const P = (id, name, year, team, position, hand, overall, [stuff, control, stamina, stability], o = {}) => ({
   id, name, year, team, position, hand, overall, type: 'pitcher',
-  isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '',
+  isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '', face: o.face,
   stats: { stuff, control, stamina, stability },
 });
 const KR = '대한민국';
 
 export const PLAYERS = [
   // 선발
-  P('ryu06', '류현진', 2006, '한화', 'SP', 'L', 92, [92, 84, 93, 88], { note: '데뷔 시즌 투수 3관왕·MVP' }),
-  P('ryu08', '류현진', 2008, KR, 'SP', 'L', 90, [90, 85, 88, 90], { nat: 1, note: '베이징 올림픽 결승전 선발' }),
+  P('ryu06', '류현진', 2006, '한화', 'SP', 'L', 92, [92, 84, 93, 88], { note: '데뷔 시즌 투수 3관왕·MVP', face: '53% 12%' }),
+  P('ryu08', '류현진', 2008, KR, 'SP', 'L', 90, [90, 85, 88, 90], { nat: 1, note: '베이징 올림픽 결승전 선발', face: '52% 16%' }),
   P('kkh08', '김광현', 2008, 'SK', 'SP', 'L', 88, [90, 74, 84, 82], { note: '정규시즌 MVP' }),
   P('kkh08n', '김광현', 2008, KR, 'SP', 'L', 87, [89, 74, 82, 86], { nat: 1, note: '베이징 올림픽 일본전 선발' }),
   P('choi84', '최동원', 1984, '롯데', 'SP', 'R', 95, [93, 86, 99, 92], { note: '한국시리즈 4승' }),
@@ -93,6 +93,17 @@ export const PLAYERS = [
   B('hsh10', '홍성흔', 2010, '롯데', 'DH', 'R', 82, [80, 90, 40, 50]),
 ];
 
+/** 드래프트 시리즈: 올타임 레전드 모음 + 시즌·대회별 실제 로스터 (src/data/series/*.json) */
+export const LEGEND_SERIES = {
+  id: 'legend-allstar', kind: 'legend', year: null, title: 'KBO 올타임 레전드',
+  subtitle: '시대를 대표한 레전드 시즌',
+  blurb: '연도와 구단을 넘나드는 KBO 역대 최고의 시즌들이 한 자리에 모였어요.',
+  players: PLAYERS.map((p) => ({ ...p, seriesId: 'legend-allstar' })),
+};
+export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
+export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
+const personKey = (p) => p.personId || p.name;
+
 /* ───────────── 3. 유틸 ───────────── */
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -117,23 +128,18 @@ function poisson(lambda, rng) {
    반환: null = 영입 가능, 문자열 = 잠금 사유 (우선순위 순) */
 export function getLockReason(player, roster, cp) {
   if (roster.some((p) => p.id === player.id)) return '영입 완료';
-  if (roster.some((p) => p.name === player.name)) return '동일인 영입됨';
+  if (roster.some((p) => personKey(p) === personKey(player))) return '동일인 영입됨';
   if (roster.filter((p) => p.position === player.position).length >= SLOT_LIMITS[player.position]) return `${POS_LABEL[player.position]} 마감`;
   if (player.isForeign && roster.filter((p) => p.isForeign).length >= FOREIGN_LIMIT) return `외국인 한도 ${FOREIGN_LIMIT}/${FOREIGN_LIMIT}`;
   if (player.overall > cp) return `CP 부족 (${player.overall - cp} 모자람)`;
   return null;
 }
 
-export function rollShop(roster, cp, rng = Math.random) {
-  const pool = shuffle(PLAYERS.filter((p) => !roster.some((r) => r.id === p.id)), rng);
-  const open = pool.filter((p) => !getLockReason(p, roster, cp));
-  const locked = pool.filter((p) => getLockReason(p, roster, cp));
-  const picks = [...open.slice(0, 4), ...locked.slice(0, 2)];
-  for (const p of [...open.slice(4), ...locked.slice(2)]) {
-    if (picks.length >= SHOP_SIZE) break;
-    picks.push(p);
-  }
-  return shuffle(picks, rng);
+/** 영입 가능한 선수가 한 명 이상 있는 시리즈 중 하나를 무작위로. 직전 시리즈는 가능하면 피한다. */
+export function rollSeries(roster, cp, avoidId = null, rng = Math.random) {
+  const open = DRAFT_SERIES.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp)));
+  const pool = open.length > 1 ? open.filter((s) => s.id !== avoidId) : open;
+  return pool.length ? pickOne(rng, pool) : null;
 }
 
 /** 빈 자리를 퓨처스 유망주(능력치 55)로 채운다 */
@@ -157,9 +163,9 @@ export function aiDraft(rng = Math.random) {
   let cp = SALARY_CAP;
   for (const pos of shuffle(POS_ORDER.flatMap((p) => Array(SLOT_LIMITS[p]).fill(p)), rng)) {
     const slotsAfter = ROSTER_SIZE - roster.length - 1;
-    const cands = PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.overall >= slotsAfter * 78)
+    const cands = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.overall >= slotsAfter * 78)
       .sort((a, b) => b.overall - a.overall);
-    const fallback = PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.overall - b.overall);
+    const fallback = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.overall - b.overall);
     const choice = cands.length ? cands[Math.floor(rng() * Math.min(3, cands.length))] : fallback[0];
     if (choice) { roster = [...roster, choice]; cp -= choice.overall; }
   }
@@ -493,16 +499,66 @@ const LockIcon = () => (
   </svg>
 );
 
-/** 얼굴 중심 흉상 일러스트 자리 (정방형) */
-function Portrait({ player, size = 'w-16' }) {
+/* ───── 선수 일러스트 ─────
+   카드 한 장 = public/cards/<선수 id>.webp 한 장 (세로 2:3, 시즌·구단별 유니폼과 포즈).
+   같은 그림을 카드 배경(전신)과 얼굴 칩(확대 크롭)에 함께 쓴다.
+   얼굴 위치가 그림마다 다르면 선수 데이터에 face: '가로% 세로%' 로 지정. */
+const TEAM_COLOR = {
+  한화: '#f37321', 대한민국: '#1d4ed8', SK: '#ce0e2d', 롯데: '#1f3a8a', KIA: '#ea0029', 해태: '#ea0029', 두산: '#1e1b4b',
+  OB: '#1e1b4b', NC: '#315288', 삼성: '#074ca1', 넥센: '#820024', 키움: '#820024', KT: '#3f3f46', LG: '#c30452', 현대: '#1e40af', 퓨처스: '#374151',
+};
+const teamColor = (p) => TEAM_COLOR[p.team] || '#374151';
+
+const artCache = new Map();
+
+/** 카드 그림을 미리 불러와 캐시에 채운다 (첫 렌더부터 그림이 보이게) */
+export function preloadArt(players) {
+  return Promise.all(players.map((p) => new Promise((resolve) => {
+    const src = `cards/${encodeURIComponent(p.id)}.webp`;
+    if (artCache.has(src)) { resolve(); return; }
+    const img = new Image();
+    img.onload = () => { artCache.set(src, true); resolve(); };
+    img.onerror = () => { artCache.set(src, false); resolve(); };
+    img.src = src;
+  })));
+}
+/** 그림 파일이 있으면 경로, 없으면 null */
+function useArt(player) {
+  const src = player && !player.isReplacement ? `cards/${encodeURIComponent(player.id)}.webp` : null;
+  const [ok, setOk] = useState(() => (src ? artCache.get(src) ?? false : false));
+  useEffect(() => {
+    if (!src) { setOk(false); return undefined; }
+    if (artCache.has(src)) { setOk(artCache.get(src)); return undefined; }
+    let live = true;
+    const img = new Image();
+    img.onload = () => { artCache.set(src, true); if (live) setOk(true); };
+    img.onerror = () => { artCache.set(src, false); if (live) setOk(false); };
+    img.src = src;
+    return () => { live = false; };
+  }, [src]);
+  return ok ? src : null;
+}
+
+/** 얼굴 칩: 카드 그림의 얼굴 부분을 확대. 그림이 없으면 팀 컬러 + 이니셜 */
+function FaceChip({ player, className = 'h-16 w-16' }) {
+  const src = useArt(player);
   return (
-    <div data-art="portrait-bust" title="흉상 일러스트 영역"
-      className={`relative aspect-square ${size} shrink-0 overflow-hidden rounded-md border border-dashed border-gray-600 bg-[repeating-linear-gradient(135deg,#1f2937_0_6px,#172030_6px_12px)]`}>
-      <span className="absolute inset-0 grid place-items-center font-display text-2xl font-bold text-gray-500">{player ? player.name[0] : ''}</span>
-      <span className="absolute bottom-0 inset-x-0 bg-gray-900/80 text-center text-[8px] font-semibold tracking-[0.2em] text-gray-500">BUST</span>
+    <div className={`relative shrink-0 overflow-hidden rounded-md border border-white/25 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.9)] ${className}`}
+      style={{ background: src ? `url(${src}) ${player.face || '50% 14%'} / 300% auto no-repeat, #111827` : `linear-gradient(150deg, ${teamColor(player)}, #111827 85%)` }}>
+      {!src && <span className="absolute inset-0 grid place-items-center text-xl font-black text-white/75">{player.name[0]}</span>}
     </div>
   );
 }
+
+/* 카드 프레임 네온 색: 그림의 림 라이트와 같은 계열로 맞춘다 (구단 컬러를 어두운 배경에서 빛나게 올린 값) */
+const TEAM_NEON = {
+  한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff',
+  NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff',
+};
+const neonOf = (p) => TEAM_NEON[p.team] || '#10b981';
+const cutCorners = (n) => `polygon(${n}px 0,100% 0,100% calc(100% - ${n}px),calc(100% - ${n}px) 100%,0 100%,0 ${n}px)`;
+const POS_EN = { SP: 'Starter', RP: 'Closer', C: 'Catcher', '1B': '1st Base', '2B': '2nd Base', '3B': '3rd Base', SS: 'Shortstop', OF: 'Outfield', DH: 'Designated' };
+const handLabel = (p) => (p.hand === 'S' ? '양타' : p.type === 'batter' ? `${p.hand === 'L' ? '좌' : '우'}타` : `${p.hand === 'L' ? '좌' : '우'}투`);
 
 const STAT_LABELS = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', stability: '안정' };
 
@@ -581,44 +637,91 @@ function CapDashboard({ round, cp, roster, rerolls, buff, phase }) {
 }
 
 /* ───── 드래프트 상점 카드 ───── */
-function PlayerCard({ player, reason, shaking, onSelect, style }) {
+export function PlayerCard({ player, reason, shaking, onSelect, style }) {
   const locked = !!reason;
+  const art = useArt(player);
+  const acc = neonOf(player);
   const statKeys = player.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
   return (
-    <button type="button" onClick={() => onSelect(player)} aria-disabled={locked} style={style}
-      className={`group relative flex flex-col rounded-lg border bg-[#1f2937] p-3 text-left transition duration-150 animate-[rise_.35s_ease-out_both]
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]
-        ${locked ? 'cursor-not-allowed border-gray-800' : 'border-gray-700 hover:-translate-y-0.5 hover:border-[#10b981]/70 hover:shadow-[0_10px_30px_-12px_rgba(16,185,129,0.45)]'}`}>
-      <div className={`flex h-full flex-col gap-2.5 ${locked ? 'opacity-40' : ''}`} style={shaking ? { animation: 'shake .3s' } : undefined}>
-        <div className="flex gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="font-display text-sm font-bold text-white">{player.position}</span>
-              <span className="text-[11px] text-gray-500">{POS_LABEL[player.position]} · {player.hand === 'S' ? '양타' : player.type === 'batter' ? `${player.hand === 'L' ? '좌' : '우'}타` : `${player.hand === 'L' ? '좌' : '우'}투`}</span>
+    <button type="button" onClick={() => onSelect(player)} aria-disabled={locked}
+      aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.overall} CP${locked ? `, ${reason}` : ''}`}
+      style={{ ...style, clipPath: cutCorners(18) }}
+      className={`group relative block aspect-[2/3] w-full bg-[#05080f] text-left animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none
+        ${locked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}>
+      <div className="absolute inset-0" style={shaking ? { animation: 'shake .3s' } : undefined}>
+        {/* ① 전신 일러스트 */}
+        <div className={`absolute inset-0 overflow-hidden ${locked ? 'opacity-45 grayscale' : ''}`}>
+          {art ? (
+            <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[60%_20%] transition duration-500 group-hover:scale-[1.05]" />
+          ) : (
+            <div className="absolute inset-0" style={{ background: `radial-gradient(90% 60% at 65% 35%, ${acc}40, transparent 70%), linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }}>
+              <span className="absolute right-4 top-1/4 select-none text-[9rem] font-black leading-none text-white/[0.07]">{player.name[0]}</span>
             </div>
-            <p className="mt-0.5 truncate text-lg font-bold text-white">{player.name}</p>
-            <p className="font-display text-sm tabular-nums text-gray-400">{player.year} · {player.team}</p>
-            <div className="mt-1 flex gap-1">
-              {player.isNational && <Badge>국대</Badge>}
-              {player.isForeign && <Badge>외인</Badge>}
+          )}
+          {/* 그림과 UI를 한 장으로 묶는 톤: 구단 네온 광원 + 좌상단·하단 암부 + 스캔라인 */}
+          <div className="absolute inset-0 mix-blend-screen" style={{ background: `radial-gradient(70% 45% at 75% 25%, ${acc}26, transparent 70%)` }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.5) 0%, rgba(5,8,15,0) 28%, rgba(5,8,15,0) 50%, rgba(5,8,15,.82) 76%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.55) 0%, rgba(5,8,15,0) 48%)' }} />
+          <div className="absolute inset-0 opacity-60" style={{ background: 'repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px)' }} />
+        </div>
+
+        {/* ② HUD 프레임 */}
+        <svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true"
+          className={`pointer-events-none absolute inset-[6px] h-[calc(100%-12px)] w-[calc(100%-12px)] transition-opacity duration-200 ${locked ? 'opacity-30' : 'opacity-70 group-hover:opacity-100 group-focus-visible:opacity-100'}`}>
+          <path d="M13 1H199V287L187 299H1V13Z" fill="none" stroke={acc} strokeOpacity=".45" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+          <path d="M1 46V13L13 1H62" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+          <path d="M199 254V287L187 299H138" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+          <path d="M199 70V104M199 112V118" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+          <path d="M1 196V230" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+        </svg>
+
+        <div className={`absolute inset-0 ${locked ? 'opacity-50' : ''}`}>
+          {/* ③ 좌상단: 종합 · 포지션 · 스탯 패널 */}
+          <div className="absolute left-5 top-5 w-[44%] [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]">
+            <p className="font-display text-5xl font-bold leading-[0.85] tabular-nums" style={{ color: acc, textShadow: `0 0 18px ${acc}99, 0 2px 6px #000` }}>{player.overall}</p>
+            <p className="mt-1 font-display text-[13px] font-bold uppercase tracking-[0.18em] text-white">{POS_EN[player.position]}</p>
+            {/* 시즌 캡션: 인물은 오른쪽 절반에 배치되므로 왼쪽 열에 둔다 */}
+            <p className="mt-0.5 whitespace-nowrap font-display text-[11px] font-semibold tracking-[0.12em] text-white/60">{player.year} · {player.team} · {handLabel(player)}</p>
+            <dl className="mt-2.5 px-2.5 py-1.5 backdrop-blur-[3px]"
+              style={{ background: 'rgba(5,8,15,.58)', boxShadow: `inset 0 0 0 1px ${acc}4d`, clipPath: cutCorners(7) }}>
+              {statKeys.map((k) => {
+                const v = player.stats[k];
+                return (
+                  <div key={k} className="flex items-baseline justify-between gap-2 py-[2px]">
+                    <dt className="text-[11px] font-semibold text-gray-300">{STAT_LABELS[k]}</dt>
+                    <dd className="font-display text-[15px] font-bold leading-none tabular-nums" style={{ color: v >= 90 ? acc : '#f3f4f6' }}>{v}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+
+
+          {/* ⑤ 하단: 이름 · 노트 · 영입가 */}
+          <div className="absolute inset-x-5 bottom-5">
+            {player.note && <p className="mb-1 truncate text-xs font-medium text-gray-200 [text-shadow:0_1px_4px_#000]">{player.note}</p>}
+            <h3 className="truncate text-[2rem] font-bold leading-none tracking-tight text-white" style={{ textShadow: `0 0 22px ${acc}80, 0 2px 8px #000` }}>{player.name}</h3>
+            <div className="mt-2.5 h-px" style={{ background: `linear-gradient(90deg, ${acc}, ${acc}33 60%, transparent)` }} />
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <div className="flex gap-1">
+                <span className="px-1.5 py-0.5 font-display text-[11px] font-bold text-white" style={{ boxShadow: `inset 0 0 0 1px ${acc}80` }}>{player.position}</span>
+                {player.isNational && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>국대</span>}
+                {player.isForeign && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>외인</span>}
+              </div>
+              <span className="flex items-baseline gap-1 px-2.5 py-1 font-display font-bold tabular-nums text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>
+                <span className="text-[10px] font-semibold tracking-widest">영입</span>
+                <span className="text-lg leading-none">{player.overall}</span>
+                <span className="text-[10px]">CP</span>
+              </span>
             </div>
           </div>
-          <Portrait player={player} />
         </div>
-        <p className="min-h-[2.25rem] text-xs leading-snug text-gray-400">{player.note || '—'}</p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-          {statKeys.map((k) => <StatBar key={k} label={STAT_LABELS[k]} value={player.stats[k]} />)}
-        </div>
-        <div className="mt-auto flex items-end justify-between border-t border-gray-700/70 pt-2">
-          <span className="text-[11px] text-gray-500">종합 · 영입가</span>
-          <span className="font-display text-2xl font-bold leading-none tabular-nums text-white">{player.overall}<span className="ml-0.5 text-xs text-gray-400">CP</span></span>
-        </div>
+
+        {locked && (
+          <div className="absolute inset-0 grid place-items-center">
+            <span className="flex items-center gap-1.5 bg-[#05080f]/90 px-3 py-1.5 text-xs font-semibold text-gray-100" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.3)', clipPath: cutCorners(5) }}><LockIcon />{reason}</span>
+          </div>
+        )}
       </div>
-      {locked && (
-        <div className="absolute inset-0 grid place-items-center rounded-lg bg-gray-950/30 backdrop-blur-[2px]">
-          <span className="flex items-center gap-1.5 rounded border border-gray-600 bg-gray-900/90 px-2.5 py-1 text-xs font-semibold text-gray-200"><LockIcon />{reason}</span>
-        </div>
-      )}
     </button>
   );
 }
@@ -648,7 +751,7 @@ function RosterPanel({ roster }) {
             <span className="w-7 font-display text-sm font-bold text-gray-400">{pos}</span>
             {player ? (
               <>
-                <Portrait player={player} size="w-8" />
+                <FaceChip player={player} className="h-8 w-8" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-white">{player.name}</span>
                   <span className="block font-display text-xs tabular-nums text-gray-500">{player.year} {player.team}</span>
@@ -690,9 +793,9 @@ function SynergyPanel({ roster }) {
 function AugmentShelf({ augments }) {
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
-      <PanelTitle aside={`${augments.length}/${AUGMENT_AT.length}`}>보유 증강</PanelTitle>
+      <PanelTitle aside={`${augments.length}/${SEASON_AUGMENTS}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-xs leading-relaxed text-gray-500">{AUGMENT_AT[0]}번째, {AUGMENT_AT[1]}번째 영입 직후 증강을 고릅니다.</p>
+        <p className="text-xs leading-relaxed text-gray-500">엔트리 {ROSTER_SIZE}명을 모두 뽑으면 시즌 개막과 함께 증강 {SEASON_AUGMENTS}개를 고릅니다.</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
@@ -841,18 +944,20 @@ function HighlightToast({ toast }) {
 /* ───── 경기 정산 · 오늘의 MVP ───── */
 function MvpStage({ result }) {
   const { mvp, mvpPlayer: p } = result;
+  const art = useArt(p);
   const lines = p.type === 'pitcher'
     ? [['무실점 이닝', mvp.zero], ['증강 발동', mvp.fires], ['종합', p.overall]]
     : [['득점 이닝', mvp.runs], ['증강 발동', mvp.fires], ['종합', p.overall]];
   return (
     <section className="grid overflow-hidden rounded-xl border border-[#10b981]/30 bg-[#1f2937]/70 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <div data-art="mvp-dynamic-pose" title="MVP 역동적 포즈 일러스트 영역"
-        className="relative aspect-[4/5] max-h-[30rem] w-full overflow-hidden bg-gradient-to-br from-emerald-500/10 to-transparent md:aspect-auto md:min-h-[26rem]">
-        <div className="absolute inset-4 rounded-lg border border-dashed border-[#10b981]/30" />
-        <span className="absolute -bottom-6 -left-2 select-none font-display text-[12rem] font-black leading-none text-white/[0.04]">MVP</span>
-        <span className="absolute inset-0 grid place-items-center text-[7rem] font-black text-white/10">{p.name[0]}</span>
+      <div className="relative aspect-[4/5] max-h-[30rem] w-full overflow-hidden bg-gradient-to-br from-emerald-500/10 to-transparent md:aspect-auto md:min-h-[26rem]"
+        style={art ? undefined : { background: `radial-gradient(90% 70% at 40% 20%, ${teamColor(p)}55, transparent 70%), linear-gradient(135deg, rgba(16,185,129,0.1), transparent)` }}>
+        <span className="absolute -bottom-6 -left-2 select-none font-display text-[12rem] font-black leading-none text-white/[0.05]">MVP</span>
+        {art
+          ? <img src={art} alt={`${p.year} ${p.team} ${p.name}`} className="absolute inset-0 h-full w-full object-cover object-[50%_15%]" />
+          : <span className="absolute inset-0 grid place-items-center text-[7rem] font-black text-white/15">{p.name[0]}</span>}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#1f2937]/70" />
         <span className="absolute left-7 top-7 rounded bg-[#10b981] px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.3em] text-[#111827]">Today&apos;s MVP</span>
-        <span className="absolute bottom-7 right-7 text-[11px] font-semibold tracking-wider text-gray-500">역동적 포즈 일러스트 영역</span>
       </div>
       <div className="flex flex-col justify-center gap-5 p-7">
         <div>
@@ -878,7 +983,7 @@ function MvpStage({ result }) {
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
-const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '영입가 = 종합 능력치'];
+const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '영입가 = 종합 능력치', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
@@ -888,7 +993,8 @@ export default function KboAugmentDraft() {
   const [rerolls, setRerolls] = useState(START_REROLLS);
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
-  const [shop, setShop] = useState(() => rollShop([], SALARY_CAP));
+  const [series, setSeries] = useState(() => rollSeries([], SALARY_CAP));
+  const [augPicksLeft, setAugPicksLeft] = useState(0);
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   // 경기 상태
@@ -908,7 +1014,11 @@ export default function KboAugmentDraft() {
   useEffect(() => () => { runIdRef.current += 1; }, []);
 
   const full = roster.length >= ROSTER_SIZE;
-  const canPickAny = useMemo(() => PLAYERS.some((p) => !getLockReason(p, roster, cp)), [roster, cp]);
+  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp)), [roster, cp]);
+  const seriesCards = useMemo(() => (series
+    ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
+    : []), [series]);
+  const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
@@ -925,36 +1035,36 @@ export default function KboAugmentDraft() {
     setRoster(next);
     setCp(nextCp);
     if (next.length >= ROSTER_SIZE) {
-      setShop([]);
+      // 엔트리 완성 → 시즌 개막: 증강을 차례로 고른다
+      setSeries(null);
       setPhase('ready');
+      setAugPicksLeft(SEASON_AUGMENTS);
+      setChoice({ kind: 'augment', options: augmentOptions(augments) });
     } else {
-      setShop(rollShop(next, nextCp));
+      setSeries(rollSeries(next, nextCp, series?.id));
     }
-    if (AUGMENT_AT.includes(next.length)) {
-      setChoice({ kind: 'augment', options: shuffle(AUGMENTS.filter((a) => !augments.some((x) => x.id === a.id))).slice(0, 3) });
-    } else if (EVENT_AT.includes(next.length)) {
-      setChoice({ kind: 'event', options: shuffle(EVENTS).slice(0, 3) });
-    }
-  }, [phase, choice, roster, cp, augments]);
+  }, [phase, choice, roster, cp, augments, series]);
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment') {
-      setAugments((a) => [...a, option]);
-    } else {
-      const s = option.apply({ cp, rerolls, buff });
-      const nextCp = Math.max(0, s.cp);
-      setCp(nextCp);
-      setRerolls(s.rerolls);
-      setBuff(s.buff);
-      if (!full) setShop(rollShop(roster, nextCp));
+      const owned = [...augments, option];
+      const left = augPicksLeft - 1;
+      setAugments(owned);
+      setAugPicksLeft(left);
+      setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
+      return;
     }
+    const s = option.apply({ cp, rerolls, buff });
+    setCp(Math.max(0, s.cp));
+    setRerolls(s.rerolls);
+    setBuff(s.buff);
     setChoice(null);
   };
 
   const handleReroll = () => {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
-    setShop(rollShop(roster, cp));
+    setSeries(rollSeries(roster, cp, series?.id));
   };
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
@@ -996,7 +1106,7 @@ export default function KboAugmentDraft() {
   const newDraft = () => {
     runIdRef.current += 1;
     setPhase('draft'); setRoster([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    setShop(rollShop([], SALARY_CAP)); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
+    setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
     setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
   };
 
@@ -1016,11 +1126,11 @@ export default function KboAugmentDraft() {
             <section>
               <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">드래프트 상점</h2>
-                  <p className="mt-1 text-sm text-gray-400">라운드마다 6명이 등장합니다. 한 명을 영입하면 다음 라운드로 넘어갑니다.</p>
+                  <h2 className="text-2xl font-bold text-white">시리즈 드래프트</h2>
+                  <p className="mt-1 text-sm text-gray-400">라운드마다 시리즈 하나의 멤버 전원이 등장합니다. 한 명을 영입하면 다음 시리즈로 넘어갑니다.</p>
                 </div>
                 <button type="button" className={btnGhost} onClick={handleReroll} disabled={rerolls <= 0}>
-                  상점 새로고침 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
+                  다른 시리즈 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
                 </button>
               </div>
               <ul className="mb-4 flex flex-wrap gap-1.5">
@@ -1032,10 +1142,26 @@ export default function KboAugmentDraft() {
                   <button type="button" className={btnPrimary} onClick={() => startGame()}>이대로 경기 시작</button>
                 </div>
               )}
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {shop.map((p, i) => (
+              {series && (
+                <div key={series.id} className="mb-4 animate-[rise_.35s_ease-out_both] rounded-lg border border-gray-800 bg-[#1f2937]/60 px-5 py-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-2 py-0.5 text-xs font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
+                    {series.subtitle && <span className="text-xs text-gray-400">{series.subtitle}</span>}
+                    <span className="ml-auto font-display text-sm tabular-nums text-gray-400">
+                      영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp)).length} / {seriesCards.length}명
+                    </span>
+                  </div>
+                  <h3 className="mt-1.5 flex flex-wrap items-baseline gap-x-3 text-2xl font-black text-white">
+                    {series.year && <span className="font-display text-3xl font-bold tabular-nums text-[#10b981]">{series.year}</span>}
+                    {series.title}
+                  </h3>
+                  {series.blurb && <p className="mt-1 text-sm leading-relaxed text-gray-400">{series.blurb}</p>}
+                </div>
+              )}
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                {seriesCards.map((p, i) => (
                   <PlayerCard key={p.id} player={p} reason={getLockReason(p, roster, cp)} shaking={shake === p.id}
-                    onSelect={handleSelectPlayer} style={{ animationDelay: `${i * 45}ms` }} />
+                    onSelect={handleSelectPlayer} style={{ animationDelay: `${i * 30}ms` }} />
                 ))}
               </div>
             </section>

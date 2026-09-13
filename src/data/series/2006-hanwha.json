@@ -1,0 +1,27 @@
+{
+  "id": "2006-hanwha",
+  "kind": "team",
+  "year": 2006,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "한국시리즈 준우승·류현진 트리플크라운",
+  "blurb": "괴물 신인 류현진이 투수 3관왕과 MVP를 휩쓴 해, 한화는 삼성에 밀려 한국시리즈 준우승에 머물렀다.",
+  "notes": [
+    "최영필(RP)은 소스 명단에 없어 추가함: 2006년 11홀드만 확인되고 방어율·이닝은 미확인 — namu. stuff/control/stamina/stability는 불펜 평균 수준으로 추정."
+  ],
+  "players": [
+    { "personId": "류현진", "name": "류현진", "year": 2006, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 91, "control": 80, "stamina": 93, "stability": 92 }, "note": "신인 투수 트리플크라운·MVP", "source": "30G 18승6패 201.2IP ERA2.23 204K 52BB WHIP1.05 — kowiki/namu" },
+    { "personId": "문동환", "name": "문동환", "year": 2006, "team": "한화", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 64, "stamina": 90, "stability": 85 }, "note": "", "source": "31G 16승9패 189IP ERA3.05 85K 78BB — kowiki" },
+    { "personId": "정민철", "name": "정민철", "year": 2006, "team": "한화", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 59, "control": 73, "stamina": 74, "stability": 75 }, "note": "", "source": "25G 7승13패 130.2IP ERA3.93 62K 42BB WHIP1.41 — kowiki" },
+    { "personId": "구대성", "name": "구대성", "year": 2006, "team": "한화", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 90, "control": 81, "stamina": 55, "stability": 95 }, "note": "37세이브", "source": "59G 37SV 69.1IP ERA1.82 76K 18BB WHIP1.07 — kowiki" },
+    { "personId": "최영필", "name": "최영필", "year": 2006, "team": "한화", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 60, "control": 65, "stamina": 48, "stability": 72 }, "note": "", "source": "불펜 11홀드 (방어율·이닝 미확인) — namu" },
+    { "personId": "김태균", "name": "김태균", "year": 2006, "team": "한화", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 77, "speed": 44, "defense": 60 }, "note": "", "source": ".291/.405 13HR 82BB 2SB 124G — kowiki" },
+    { "personId": "이범호", "name": "이범호", "year": 2006, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 66, "speed": 42, "defense": 78 }, "note": "", "source": ".257/.363 20HR 65BB 0SB 126G — kowiki" },
+    { "personId": "한상훈", "name": "한상훈", "year": 2006, "team": "한화", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 42, "contact": 60, "speed": 48, "defense": 80 }, "note": "", "source": ".242/.307 1HR 15BB 2SB 95G(2B) — kowiki" },
+    { "personId": "김민재", "name": "김민재", "year": 2006, "team": "한화", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 50, "speed": 65, "defense": 84 }, "note": "", "source": ".211/.277 5HR 35BB 11SB 121G — kowiki/namu" },
+    { "personId": "데이비스", "name": "데이비스", "year": 2006, "team": "한화", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 74, "contact": 75, "speed": 58, "defense": 70 }, "note": "", "source": ".284/.370 21HR 59BB 7SB 117G(중견수) — namu" },
+    { "personId": "고동진", "name": "고동진", "year": 2006, "team": "한화", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 60, "speed": 72, "defense": 74 }, "note": "", "source": ".241/.303 4HR 21BB 16SB 120G — kowiki" },
+    { "personId": "신경현", "name": "신경현", "year": 2006, "team": "한화", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 60, "speed": 50, "defense": 76 }, "note": "", "source": ".243/.308 2HR 25BB 4SB 100G(C) — kowiki" },
+    { "personId": "이도형", "name": "이도형", "year": 2006, "team": "한화", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 65, "speed": 40, "defense": 56 }, "note": "", "source": ".256/.306 19HR 26BB 0SB 119G(C/DH) — kowiki" }
+  ]
+}

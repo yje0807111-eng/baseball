@@ -1,0 +1,28 @@
+{
+  "id": "2024-kia",
+  "kind": "team",
+  "year": 2024,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "통합우승",
+  "blurb": "김도영의 40-40 도전과 MVP 시즌을 앞세운 KIA가 정규시즌·한국시리즈 통합우승을 차지했다.",
+  "notes": [
+    "14명 제한으로 윤영철·장현식·최원준·이우성은 제외."
+  ],
+  "players": [
+    { "personId": "네일", "name": "네일", "year": 2024, "team": "KIA", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 82, "control": 82, "stamina": 78, "stability": 90 }, "note": "", "source": "26G 149.1IP ERA2.53 138K 35BB WHIP1.27 12승 — KBO 기록실" },
+    { "personId": "양현종", "name": "양현종", "year": 2024, "team": "KIA", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 82, "stamina": 86, "stability": 73 }, "note": "", "source": "171.1IP ERA4.10 129K 41BB WHIP1.25 11승 — KBO 기록실" },
+    { "personId": "황동하", "name": "황동하", "year": 2024, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 62, "stamina": 67, "stability": 69 }, "note": "", "source": "25G 103.1IP ERA4.44 81K 44BB WHIP1.48 5승 — KBO 기록실" },
+    { "personId": "정해영", "name": "정해영", "year": 2024, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 75, "stamina": 50, "stability": 90 }, "note": "31세이브·세이브왕", "source": "53G 50.2IP ERA2.49 50K 16BB WHIP1.24 31SV — KBO 기록실" },
+    { "personId": "전상현", "name": "전상현", "year": 2024, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 76, "stamina": 55, "stability": 73 }, "note": "", "source": "66G 66IP ERA4.09 54K 20BB WHIP1.14 19HLD 7SV 10승 — KBO 기록실" },
+    { "personId": "곽도규", "name": "곽도규", "year": 2024, "team": "KIA", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 90, "control": 47, "stamina": 50, "stability": 79 }, "note": "16홀드", "source": "71G 55.2IP ERA3.56 64K 34BB WHIP1.38 16HLD — KBO 기록실" },
+    { "personId": "김태군", "name": "김태군", "year": 2024, "team": "KIA", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 68, "speed": 40, "defense": 82 }, "note": "", "source": ".264/.328 7HR 0SB 270PA(105G) — KBO 기록실" },
+    { "personId": "서건창", "name": "서건창", "year": 2024, "team": "KIA", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 83, "speed": 50, "defense": 68 }, "note": "", "source": ".310/.416 1HR 3SB(1CS) 248PA(94G) — KBO 기록실" },
+    { "personId": "김선빈", "name": "김선빈", "year": 2024, "team": "KIA", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 59, "contact": 88, "speed": 52, "defense": 78 }, "note": "", "source": ".329/.380 9HR 5SB(1CS) 466PA(116G) — KBO 기록실" },
+    { "personId": "김도영", "name": "김도영", "year": 2024, "team": "KIA", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 96, "speed": 93, "defense": 74 }, "note": "38-40·정규시즌 MVP", "source": ".347/.420 38HR 40SB(4CS) 625PA 143득점, 3루수 GG — KBO 기록실" },
+    { "personId": "박찬호(유격수)", "name": "박찬호", "year": 2024, "team": "KIA", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 82, "speed": 74, "defense": 88 }, "note": "유격수 골든글러브", "source": ".307/.363 5HR 20SB(13CS) 577PA — KBO 기록실" },
+    { "personId": "나성범", "name": "나성범", "year": 2024, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 78, "contact": 77, "speed": 42, "defense": 66 }, "note": "", "source": ".291/.357 21HR 0SB 424PA(102G) 80타점 — KBO 기록실" },
+    { "personId": "소크라테스", "name": "소크라테스", "year": 2024, "team": "KIA", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 79, "contact": 83, "speed": 68, "defense": 70 }, "note": "", "source": ".310/.359 26HR 13SB(5CS) 602PA 97타점 — KBO 기록실" },
+    { "personId": "최형우", "name": "최형우", "year": 2024, "team": "KIA", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 73, "speed": 40, "defense": 50 }, "note": "지명타자 골든글러브", "source": ".280/.361 22HR 1SB 487PA 109타점 — KBO 기록실" }
+  ]
+}

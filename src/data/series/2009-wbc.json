@@ -1,0 +1,252 @@
+{
+  "id": "2009-wbc",
+  "kind": "national",
+  "year": 2009,
+  "title": "WBC 국가대표",
+  "franchise": null,
+  "subtitle": "WBC 준우승",
+  "blurb": "일본과 연장 접전 끝에 아쉽게 준우승했지만 세계 야구 강국 반열에 올랐음을 증명한 대회였다.",
+  "notes": [
+    "14명 제한으로 봉중근·장원삼·정현욱·강민호·고영민·최정·이종욱·이진영·이택근은 제외."
+  ],
+  "players": [
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2009,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 70,
+        "stamina": 90,
+        "stability": 79
+      },
+      "note": "탈삼진 1위",
+      "source": "27GS 13승12패 ERA3.57 189.1IP 188K 67BB WHIP1.31 — wikipedia"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 68,
+        "stamina": 76,
+        "stability": 87
+      },
+      "note": "평균자책점 1위",
+      "source": "21GS 12승2패 ERA2.80 138.1IP 112K 53BB WHIP1.26 — wikipedia"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2009,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 69,
+        "stamina": 70,
+        "stability": 80
+      },
+      "note": "",
+      "source": "16GS 9승4패 7SV ERA3.46 119.2IP 117K 44BB — wikipedia"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2009,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 54,
+        "stamina": 45,
+        "stability": 64
+      },
+      "note": "어깨 부상 시즌",
+      "source": "35G 2승2패 19SV ERA4.83 31.2IP 51K 17BB WHIP1.42 — wikipedia"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 73,
+        "stamina": 50,
+        "stability": 99
+      },
+      "note": "",
+      "source": "56G 2승3패 10SV 13HLD ERA1.20 52.2IP 43K 17BB — wikipedia"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 2009,
+      "team": "야쿠르트",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 72,
+        "stamina": 50,
+        "stability": 94
+      },
+      "note": "",
+      "source": "NPB 야쿠르트 57G 5승4패 28SV 5HLD ERA2.05 57IP 52K 19BB — wikipedia"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2009,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 69,
+        "speed": 46,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".268/.375 12HR 33BB 3SB 65G — wikipedia"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2009,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 88,
+        "speed": 40,
+        "defense": 60
+      },
+      "note": "",
+      "source": ".330/.417 19HR 45BB 0SB 95G — wikipedia"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2009,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 94,
+        "speed": 95,
+        "defense": 84
+      },
+      "note": "2루수 골든글러브",
+      "source": ".350 9HR 168H 67BB 53SB 127G — wikipedia"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 40,
+        "contact": 52,
+        "speed": 58,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".217 0HR 28BB 7SB 109G(2008 유격수 GG) — wikipedia"
+    },
+    {
+      "personId": "이범호",
+      "name": "이범호",
+      "year": 2009,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 75,
+        "speed": 46,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".284/.369 25HR 53BB 3SB 126G — wikipedia"
+    },
+    {
+      "personId": "추신수",
+      "name": "추신수",
+      "year": 2009,
+      "team": "MLB 클리블랜드",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 84,
+        "contact": 86,
+        "speed": 77,
+        "defense": 80
+      },
+      "note": "20-20(20HR·21SB)",
+      "source": ".300/.394 20HR 78BB 21SB 156G — wikipedia"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2009,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 75,
+        "contact": 96,
+        "speed": 56,
+        "defense": 66
+      },
+      "note": "안타 1위",
+      "source": ".357/.448 23HR 104RBI 80BB 6SB 133G — wikipedia"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2009,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 40,
+        "contact": 84,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".316 0HR 22BB 50G — wikipedia"
+    }
+  ]
+}

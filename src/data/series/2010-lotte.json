@@ -1,0 +1,28 @@
+{
+  "id": "2010-lotte",
+  "kind": "team",
+  "year": 2010,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "이대호 타격 7관왕",
+  "blurb": "이대호가 9경기 연속 홈런과 타격 7관왕을 달성하며 롯데 역사에 남을 한 해를 만들었다.",
+  "notes": [
+    "14명 제한으로 이재곤·김사율·김주찬은 제외."
+  ],
+  "players": [
+    { "personId": "송승준", "name": "송승준", "year": 2010, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 65, "control": 70, "stamina": 84, "stability": 69 }, "note": "", "source": "27G 14승6패 ERA4.39 168IP 113K 60BB — wikipedia" },
+    { "personId": "사도스키", "name": "사도스키", "year": 2010, "team": "롯데", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 68, "control": 73, "stamina": 85, "stability": 76 }, "note": "", "source": "26GS 10승8패 ERA3.87 169.2IP 120K 54BB WHIP1.22 — wikipedia" },
+    { "personId": "장원준", "name": "장원준", "year": 2010, "team": "롯데", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 72, "control": 72, "stamina": 78, "stability": 69 }, "note": "", "source": "26G 12승6패 ERA4.43 144.1IP 113K 48BB — wikipedia" },
+    { "personId": "임경완", "name": "임경완", "year": 2010, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 56, "control": 59, "stamina": 50, "stability": 82 }, "note": "", "source": "47G 3승4패 7SV 1HLD ERA3.30 43.2IP 19K 20BB — wikipedia" },
+    { "personId": "강영식", "name": "강영식", "year": 2010, "team": "롯데", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 58, "stamina": 48, "stability": 69 }, "note": "좌완 셋업", "source": "63G 3승3패 2SV 7HLD ERA4.44 53.2IP 58K 25BB — wikipedia" },
+    { "personId": "강민호", "name": "강민호", "year": 2010, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 76, "contact": 81, "speed": 44, "defense": 80 }, "note": "", "source": ".305 23HR 72RBI 42BB 3SB 117G — wikipedia" },
+    { "personId": "박종윤", "name": "박종윤", "year": 2010, "team": "롯데", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 64, "speed": 55, "defense": 66 }, "note": "", "source": ".257 8HR 51RBI 10BB 5SB 110G, 올스타 선발 — wikipedia" },
+    { "personId": "조성환", "name": "조성환", "year": 2010, "team": "롯데", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 56, "contact": 90, "speed": 60, "defense": 82 }, "note": "2루수 골든글러브", "source": ".336/.390 8HR 31 2B 35BB 8SB 111G — wikipedia" },
+    { "personId": "이대호", "name": "이대호", "year": 2010, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 96, "contact": 98, "speed": 40, "defense": 58 }, "note": "타격 7관왕·정규시즌 MVP", "source": ".364/.444/.667 44HR 133RBI 61BB 0SB 127G — wikipedia" },
+    { "personId": "황재균", "name": "황재균", "year": 2010, "team": "롯데", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 75, "speed": 84, "defense": 76 }, "note": "", "source": "2010 합산(넥센+롯데) .284/.349 18HR 30SB — wikipedia/namu" },
+    { "personId": "가르시아", "name": "가르시아", "year": 2010, "team": "롯데", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 80, "contact": 63, "speed": 46, "defense": 72 }, "note": "", "source": ".252/.328/.476 26HR 83RBI 49BB 3SB 118G — wikipedia" },
+    { "personId": "전준우", "name": "전준우", "year": 2010, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 72, "contact": 77, "speed": 72, "defense": 74 }, "note": "", "source": ".289 19HR 57RBI 26BB 16SB 114G — wikipedia" },
+    { "personId": "손아섭", "name": "손아섭", "year": 2010, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 81, "speed": 56, "defense": 70 }, "note": "", "source": ".306 11HR 47RBI 50BB 6SB 121G — wikipedia" },
+    { "personId": "홍성흔", "name": "홍성흔", "year": 2010, "team": "롯데", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 80, "contact": 94, "speed": 44, "defense": 50 }, "note": "지명타자 골든글러브", "source": ".350/.427/.601 26HR 116RBI 54BB 2SB 111G — wikipedia" }
+  ]
+}
