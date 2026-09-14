@@ -2418,8 +2418,9 @@ export default function KboAugmentDraft() {
   const [shelfFilter, setShelfFilter] = useState('all'); // 선반: 전체 · 영입 가능만
   const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
   const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
-  const [shelfKey, setShelfKey] = useState(0); // 거르기가 바뀌면 선반을 다시 그려 남은 카드가 차례로 떠오르게
   const leaveTimerRef = useRef(null);
+  const shelfRef = useRef(null);
+  const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
   const openOnly = (p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released);
   const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter || p.position === posFilter.pos);
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
@@ -2429,11 +2430,38 @@ export default function KboAugmentDraft() {
     const keep = new Set(seriesCards.filter(openOnly).filter((p) => !next || p.position === next.pos).map((p) => p.id));
     const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
     clearTimeout(leaveTimerRef.current);
-    const commit = () => { setShelfLeaving(null); setPosFilter(next); setShelfKey((k) => k + 1); };
+    const commit = () => {
+      const first = new Map();
+      shelfRef.current?.querySelectorAll('[data-card]').forEach((el) => { if (!leaving.has(el.dataset.card)) first.set(el.dataset.card, el.getBoundingClientRect()); });
+      flipRef.current = first;
+      setShelfLeaving(null);
+      setPosFilter(next);
+    };
     if (!leaving.size) { commit(); return; }
     setShelfLeaving(leaving);
     leaveTimerRef.current = setTimeout(commit, 180);
   };
+  // 거르기가 바뀐 직후: 남아 있던 카드는 옛 자리에서 새 자리로 슉 미끄러지고(제자리면 그대로), 새로 나타나는 카드는 rise 로 떠오른다
+  useLayoutEffect(() => {
+    const first = flipRef.current;
+    flipRef.current = null;
+    if (!first || !shelfRef.current) return;
+    shelfRef.current.querySelectorAll('[data-card]').forEach((el) => {
+      const a = first.get(el.dataset.card);
+      if (!a) return;
+      const b = el.getBoundingClientRect();
+      const dx = a.left - b.left;
+      const dy = a.top - b.top;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+      el.style.transition = 'none';
+      el.style.transform = `translate(${dx}px, ${dy}px)`;
+      el.getBoundingClientRect(); // 옛 자리를 먼저 그리게 한 번 계산
+      el.style.transition = 'transform .38s cubic-bezier(.2,.8,.2,1)';
+      el.style.transform = '';
+      const done = () => { el.style.transition = ''; el.removeEventListener('transitionend', done); };
+      el.addEventListener('transitionend', done);
+    });
+  }, [posFilter]);
   const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -2688,18 +2716,21 @@ export default function KboAugmentDraft() {
                   </div>
                 </div>
               )}
-              <div key={shelfKey} className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
+              <div ref={shelfRef} className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
                 {shownCards.length === 0 && (
                   <p className="col-span-full py-6 text-center text-sm text-gray-400">
                     {posFilter ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
                   </p>
                 )}
                 {shownCards.map((p, i) => (
-                  <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
+                  // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
+                  <div key={p.id} data-card={p.id} className="min-w-0">
+                  <MiniCard player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
+                  </div>
                 ))}
               </div>
               </div>
