@@ -14,6 +14,9 @@ export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
+const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
+/** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
+const PHASE_BG = { draft: 'stadium', ready: 'stadium', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -604,7 +607,7 @@ export async function runSimulation({
         used[fired.id] = (used[fired.id] || 0) + 1;
         addCredit(res.hero, 4, 'fires');
         if (!isTop) addCredit(res.hero, runs * 2, null);
-        log({ kind: 'augment', tier: fired.tier, inning, isTop, runs, text: `[증강 발동: ${fired.name}!] ${res.text}` });
+        log({ kind: 'augment', tier: fired.tier, inning, isTop, runs, text: `[증강 발동: ${fired.name}!] ${res.text}`, hero: res.hero, pitcher: defPitcher });
         await onHighlight({ augment: fired, text: res.text, hero: res.hero });
         await sleep(500); // 하이라이트 일시정지 (배속 무관)
       } else {
@@ -612,7 +615,9 @@ export async function runSimulation({
         runs = baseRuns;
         const d = describeHalf(runs, offense, defPitcher, rng);
         if (!isTop && d.hitter) addCredit(d.hitter, runs * 3 + (d.text.includes('홈런') ? 2 : 0), 'runs');
-        log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: d.text });
+        // 중계 자막용: 이 하프 이닝의 타석(득점 타자, 없으면 공격 팀 타순을 도는 타자)과 마운드 투수
+        const atBat = d.hitter || offense.batters[(inning * 2 + (isTop ? 0 : 1)) % Math.max(1, offense.batters.length)];
+        log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: d.text, hero: atBat, pitcher: defPitcher });
       }
 
       if (isTop) {
@@ -639,7 +644,8 @@ export async function runSimulation({
   const mvp = ranked[0] || { player: fallback, pts: 0, runs: 0, zero: 0, fires: 0 };
   log({ kind: 'system', inning: 9, text: `경기 종료 — ${my.name} ${score.my} : ${score.opp} ${opp.name}` });
 
-  return { board, score, winner, logs, used, mvpPlayer: mvp.player, mvp };
+  // credits: 이번 경기 기여도 순 (결과 화면 선수 평점에 쓴다)
+  return { board, score, winner, logs, used, mvpPlayer: mvp.player, mvp, credits: ranked };
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -650,7 +656,7 @@ const KEYFRAMES = `
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes toast { 0% { opacity: 0; transform: scale(1.25); } 12% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.97) translateY(-12px); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-@keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: #111827; } }
+@keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: transparent; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* PICK 카드가 빠질 때: 등장(rise)을 거꾸로 — 조용히 가라앉으며 흐려진다. 영입이면 라인업 쪽(오른쪽)으로 살짝 흘러간다 */
@@ -677,7 +683,7 @@ const KEYFRAMES = `
 .lf-in { position: absolute; left: -24px; right: -24px; top: -14px; bottom: -20px; pointer-events: none; }
 .lf-in > * { pointer-events: auto; }
 .lf-bp { position: absolute; left: 26px; bottom: 30px; width: 62px; height: 82px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
-.lf-bar { position: absolute; left: 38px; right: 24px; bottom: 20px; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, #0f1724, #1a2436); box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
+.lf-bar { position: absolute; left: 38px; right: 24px; bottom: 20px; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, rgba(9,14,26,.95), rgba(16,24,40,.9)); box-shadow: inset 4px 0 0 var(--n), inset 0 0 0 1px color-mix(in srgb, var(--n) 28%, transparent), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
 .lf-bar > * { transform: skewX(10deg); }
 .lf-bx { min-width: 0; flex: 1; line-height: 1.15; }
 .lf-bx small { display: block; font-size: 10px; letter-spacing: .04em; color: #8791a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -721,9 +727,62 @@ const KEYFRAMES = `
 .syn-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.55), rgba(16,185,129,.35)); border-radius: 99px; border: 1px solid rgba(5,8,15,.6); }
 .syn-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.85), rgba(52,211,153,.6)); }
 @supports not selector(::-webkit-scrollbar) { .syn-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.5) transparent; } }
-/* 중계 그래픽 묶음: 각진 판 + 초록 윗줄 + 라벨 탭 */
-.bc-grp { position: relative; border-top: 3px solid #10b981; background: #0b111b; padding: 26px 10px 10px; }
-.bc-label { position: absolute; left: 0; top: -3px; padding: 3px 14px 3px 10px; background: #10b981; color: #04150e; font-size: 11px; font-weight: 700; letter-spacing: .2em; clip-path: polygon(0 0,100% 0,88% 100%,0 100%); }
+/* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
+   --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
+.ui-cut { --c: 14px; clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+.ui-glass { background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.ui-glass2 { background: rgba(9,14,26,.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+/* 프레임: 얇은 외곽선 + 좌상·우하 굵은 브래킷 + 컷 대각선. 자식 위에 얹히는 가상 요소라 내용과 상관없이 붙는다 */
+.ui-frame { position: relative; }
+.ui-frame::after {
+  content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a, #10b981) calc(50% - 1px), var(--a, #10b981) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a, #10b981) calc(50% - 1px), var(--a, #10b981) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(var(--a, #10b981), var(--a, #10b981)) left var(--c) top 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a, #10b981), var(--a, #10b981)) left 0 top var(--c) / 2px 30px no-repeat,
+    linear-gradient(var(--a, #10b981), var(--a, #10b981)) right var(--c) bottom 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a, #10b981), var(--a, #10b981)) right 0 bottom var(--c) / 2px 30px no-repeat;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 32%, transparent);
+}
+.ui-frame.hot::after { box-shadow: inset 0 0 0 2px var(--a, #10b981), inset 0 0 36px color-mix(in srgb, var(--a, #10b981) 30%, transparent); }
+.ui-lab { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; color: var(--a, #10b981); }
+.ui-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.ui-btn { --c: 9px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; font-size: 15px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); transition: background .15s, box-shadow .15s, filter .15s; }
+.ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
+.ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
+.ui-btn:disabled { opacity: .4; cursor: not-allowed; }
+.ui-btn.pri { background: var(--a, #10b981); color: #05080f; box-shadow: none; }
+.ui-btn.pri:hover:not(:disabled) { background: var(--a, #10b981); filter: brightness(1.12); box-shadow: none; }
+.ui-btn.pri:focus-visible { box-shadow: inset 0 0 0 2px #05080f; }
+.ui-btn.sm { --c: 7px; min-height: 32px; padding: 0 12px; font-size: 13px; }
+.ui-chip { --c: 6px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; font-size: 12px; font-weight: 600; color: #cbd5e1; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 45%, transparent); }
+.ui-seg { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; height: 10px; }
+.ui-seg i { background: rgba(255,255,255,.07); transform: skewX(-24deg); transition: background .4s, box-shadow .4s; }
+.ui-seg i.on { background: var(--a, #10b981); box-shadow: 0 0 8px var(--a, #10b981); }
+.ui-scan { background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
+/* 화면 배경: 단계마다 Higgsfield 구장 이미지 + 가장자리 암부 + 스캔라인 */
+.ui-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #05080f center / cover no-repeat; }
+.ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,.4), rgba(5,8,15,.93) 78%), repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px); }
+.ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%), repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px); }
+/* 중계 그래픽 묶음 → HUD 판: 컷 코너 유리 판 + 브래킷 프레임 + 왼쪽 위 라벨 */
+.bc-grp { --c: 16px; --a: #10b981; position: relative; padding: 30px 10px 10px; background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+.bc-grp::after {
+  content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+    linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent);
+}
+.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+.bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+/* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
+.ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
+.ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
 .dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
@@ -743,6 +802,10 @@ const TIER = {
   gold: { border: 'border-amber-400', text: 'text-amber-300', glow: 'shadow-[0_0_36px_-8px_rgba(251,191,36,0.6)]', chip: 'border-amber-400/50 bg-amber-400/10 text-amber-300', bar: 'bg-amber-400' },
   prismatic: { border: 'border-transparent', text: 'text-fuchsia-200', glow: 'shadow-[0_0_44px_-8px_rgba(232,121,249,0.6)]', chip: 'border-fuchsia-300/50 bg-fuchsia-400/10 text-fuchsia-200', bar: 'bg-gradient-to-b from-fuchsia-400 via-sky-300 to-emerald-400' },
 };
+
+/* 카드 문법 UI의 등급 네온: 실버 · 골드 · 프리즘 */
+const TIER_NEON = { silver: '#cbd5e1', gold: '#fbbf24', prismatic: '#e879f9' };
+const TIER_EN = { silver: 'SILVER', gold: 'GOLD', prismatic: 'PRISM' };
 
 /** 등급 테두리. 프리즘은 흐르는 그라데이션 2px 링 */
 function TierFrame({ tier, className = '', innerClassName = '', style, children }) {
@@ -863,51 +926,49 @@ function Badge({ children }) {
 /* ───── 상단 샐러리 캡 대시보드 ───── */
 function CapDashboard({ round, cp, roster, phase, onOpenRules, wide = false }) {
   const pct = Math.max(0, Math.min(1, cp / SALARY_CAP));
-  const fill = pct > 0.5 ? 'bg-[#10b981]' : pct > 0.2 ? 'bg-yellow-400' : 'bg-red-500';
-  const cpText = pct > 0.5 ? 'text-[#10b981]' : pct > 0.2 ? 'text-yellow-300' : 'text-red-400';
+  const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
+  const lit = Math.round(pct * 24);
   const foreign = roster.filter((p) => p.isForeign).length;
-  const phaseLabel = { draft: '드래프트', ready: '경기 준비', sim: '경기 중', result: '경기 종료' }[phase];
+  const phaseLabel = { draft: '드래프트', ready: '경기 준비', matchup: '경기 전', sim: '경기 중', result: '경기 종료' }[phase];
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 border-b border-gray-800 bg-[#111827]/95 backdrop-blur">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.74))] backdrop-blur">
+      <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
         <div className="leading-none">
-          <p className="font-display text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Legend Draft</p>
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
           <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">Round</span>
-          <span className="font-display text-4xl font-bold leading-none tabular-nums text-white">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
+          <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
+          <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
-          <span className="ml-2 rounded border border-gray-700 px-2 py-0.5 text-xs font-semibold text-gray-300">{phaseLabel}</span>
+          <span className="ui-chip ui-cut ml-2 self-center">{phaseLabel}</span>
         </div>
 
         <div className="min-w-[260px] flex-1">
-          <div className="mb-1.5 flex items-baseline justify-between">
+          <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
-              <span className={`text-2xl font-bold ${cpText}`}>{cp}</span>
+              <span className="text-2xl font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
               <span className="text-sm text-gray-500"> / {SALARY_CAP} CP</span>
             </span>
           </div>
-          <div className="relative h-2.5 overflow-hidden rounded-full bg-gray-800">
-            <div className={`h-full rounded-full transition-all duration-500 ${fill}`} style={{ width: `${pct * 100}%` }} />
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <span key={i} className="absolute top-0 h-full w-px bg-[#111827]/80" style={{ left: `${(i * 100) / 9}%` }} />
-            ))}
+          <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={SALARY_CAP} aria-valuenow={cp}>
+            {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : ''} />)}
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {foreign > 0 && (
             <span title={foreign >= FOREIGN_LIMIT ? '외국인 한도에 도달해 외국인 후보는 잠깁니다' : `외국인 선수는 최대 ${FOREIGN_LIMIT}명`}
-              className={`rounded-md border px-2.5 py-1.5 font-display text-base font-bold tabular-nums ${foreign >= FOREIGN_LIMIT ? 'border-amber-400/50 bg-amber-400/10 text-amber-300' : 'border-gray-700 bg-[#1f2937] text-gray-100'}`}>
-              <span className="mr-1.5 font-sans text-xs font-semibold text-gray-400">외국인</span>{foreign}/{FOREIGN_LIMIT}
+              className="ui-chip ui-cut font-display text-base font-bold tabular-nums" style={{ '--a': foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#94a3b8' }}>
+              <span className="font-sans text-xs font-semibold text-gray-400">외국인</span>
+              <span style={{ color: foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#fff' }}>{foreign}/{FOREIGN_LIMIT}</span>
             </span>
           )}
-          <button type="button" onClick={onOpenRules}
-            className="flex items-center gap-2 rounded-md border border-gray-600 bg-[#1f2937] px-3 py-2 text-sm font-bold text-gray-100 transition hover:border-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">
+          <button type="button" onClick={onOpenRules} className="ui-btn ui-cut sm">
             <span className="grid h-5 w-5 place-items-center rounded-full border border-gray-500 font-display text-xs leading-none" aria-hidden="true">?</span>
             드래프트 규칙
           </button>
@@ -1058,20 +1119,30 @@ const Silhouette = () => (
 );
 const bustStyle = (src, p, size = '300%') => (src ? { backgroundImage: `url(${src})`, backgroundSize: `${size} auto`, backgroundPosition: p.face || '50% 14%' } : undefined);
 
+/* 야간 조명 아래 구장: 줄무늬 잔디 · 붉은 흙 내야 · 빛나는 파울 라인과 베이스 (카드 문법 UI와 같은 톤) */
 function FieldArt() {
   const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
   const fair = `M${hx} ${hy} L${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r} Z`;
   const base = (x, y) => <rect key={`${x}-${y}`} x={x - 7} y={y - 7} width="14" height="14" transform={`rotate(45 ${x} ${y})`} />;
   return (
     <svg className="absolute inset-0" width={FIELD_W} height={FIELD_H} viewBox={`0 0 ${FIELD_W} ${FIELD_H}`} aria-hidden="true">
-      <defs><pattern id="lf-mow" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="#fff" opacity=".022" /></pattern></defs>
-      <path d={fair} fill="#10231a" /><path d={fair} fill="url(#lf-mow)" />
-      <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#2f4a3a" strokeWidth="10" />
-      <polygon points={`${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}`} fill="#2a2119" opacity=".85" />
-      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="#10231a" />
-      <path d={`M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}`} stroke="#ffffff38" strokeWidth="2" />
-      <circle cx={hx} cy={hy - s} r={s * 0.11} fill="#2a2119" />
-      <g fill="#e5e7eb" opacity=".85">{base(hx + s, hy - s)}{base(hx, hy - 2 * s)}{base(hx - s, hy - s)}<path d={`M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z`} /></g>
+      <defs>
+        <radialGradient id="lf-grass" cx="50%" cy="78%" r="80%"><stop offset="0" stopColor="#1d6b3c" /><stop offset=".55" stopColor="#135230" /><stop offset="1" stopColor="#0a2e1b" /></radialGradient>
+        <radialGradient id="lf-dirt" cx="50%" cy="60%" r="70%"><stop offset="0" stopColor="#8a5a34" /><stop offset="1" stopColor="#5b3a22" /></radialGradient>
+        <pattern id="lf-mow" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="#fff" opacity=".045" /></pattern>
+        <filter id="lf-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+      </defs>
+      <path d={fair} fill="url(#lf-grass)" /><path d={fair} fill="url(#lf-mow)" />
+      <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#6b4a2f" strokeOpacity=".75" strokeWidth="12" />
+      <polygon points={`${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}`} fill="url(#lf-dirt)" opacity=".9" />
+      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="url(#lf-grass)" />
+      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="url(#lf-mow)" />
+      <g filter="url(#lf-glow)">
+        <path d={`M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}`} stroke="#e8f7ff" strokeOpacity=".75" strokeWidth="2.4" />
+        <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#5eead4" strokeOpacity=".35" strokeWidth="2" />
+      </g>
+      <circle cx={hx} cy={hy - s} r={s * 0.11} fill="url(#lf-dirt)" />
+      <g fill="#ffffff" filter="url(#lf-glow)">{base(hx + s, hy - s)}{base(hx, hy - 2 * s)}{base(hx - s, hy - s)}<path d={`M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z`} /></g>
     </svg>
   );
 }
@@ -1217,8 +1288,11 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   });
 
   return (
-    <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[radial-gradient(120%_95%_at_32%_62%,#13291e_0,#0c1711_52%,#070c09_100%)] ${className}`}
+    <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[#05080f] ${className}`}
       style={filling ? undefined : { height: FIELD_H * scale }}>
+      {/* 구장 둘레: 관중석·조명 야경을 은은하게 깔아 필드가 경기장 안에 있는 느낌을 준다 */}
+      <div className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_80%_at_45%_62%,transparent_30%,rgba(5,8,15,.85)_100%)]" aria-hidden="true" />
       <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
         <FieldArt />
         {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted} />)}
@@ -1265,11 +1339,11 @@ function RosterPanel({ roster }) {
   const rows = SLOTS.map((s) => ({ pos: s.id, key: s.id, player: placed.find((p) => p.slot === s.id) }));
   const spent = roster.reduce((s, p) => s + p.cost, 0);
   return (
-    <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+    <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${roster.length}/${ROSTER_SIZE} · ${spent} CP`}>나의 엔트리</PanelTitle>
       <ul className="flex flex-col gap-1">
         {rows.map(({ pos, key, player }) => (
-          <li key={key} className={`flex items-center gap-2.5 rounded-md px-2 py-1 ${player ? 'bg-[#111827]' : 'border border-dashed border-gray-700'}`}>
+          <li key={key} className={`ui-cut flex items-center gap-2.5 px-2 py-1 ${player ? 'bg-white/[0.045]' : 'shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`} style={{ '--c': '6px' }}>
             <span className="w-9 shrink-0 font-display text-sm font-bold text-gray-400">{pos}</span>
             {player ? (
               <>
@@ -1372,7 +1446,7 @@ function SynergyRow({ s, after, candidate, focused, onFocus }) {
 function SynergyPanel({ roster, focusId, onFocus }) {
   const list = sortSynergies(checkSynergies(roster)).filter((s) => s.active);
   return (
-    <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+    <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${list.length} On`}>적용 중인 시너지</PanelTitle>
       {list.length
         ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
@@ -1415,20 +1489,20 @@ function Modal({ title, eyebrow, onClose, children }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 px-4 py-10 backdrop-blur-[2px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
       <section role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg animate-[rise_.25s_ease-out_both] rounded-xl border border-gray-700 bg-[#111827] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]">
-        <header className="flex items-start justify-between gap-4 border-b border-gray-800 px-5 py-4">
+        className="ui-cut ui-frame ui-glass2 w-full max-w-lg animate-[rise_.25s_ease-out_both] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '22px' }}>
+        <header className="flex items-start justify-between gap-4 border-b border-white/10 px-6 pb-4 pt-5">
           <div>
-            {eyebrow && <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-[#10b981]">{eyebrow}</p>}
-            <h2 className="mt-0.5 text-xl font-black text-white">{title}</h2>
+            {eyebrow && <p className="ui-lab font-display">{eyebrow}</p>}
+            <h2 className="mt-1 text-2xl font-black text-white">{title}</h2>
           </div>
           <button type="button" onClick={onClose} aria-label="닫기" autoFocus
-            className="grid h-8 w-8 place-items-center rounded-md text-gray-400 hover:bg-gray-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">
+            className="grid h-9 w-9 place-items-center text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
           </button>
         </header>
-        <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-4">{children}</div>
       </section>
     </div>
   );
@@ -1468,14 +1542,14 @@ function SynergySheet({ roster, candidate, focusId, onFocus, draft = false }) {
 
 function AugmentShelf({ augments }) {
   return (
-    <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+    <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${augments.length}/${SEASON_AUGMENTS}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
         <p className="text-xs leading-relaxed text-gray-500">엔트리를 채우고 정비를 마친 뒤 시즌을 시작하면 증강 {SEASON_AUGMENTS}개를 고릅니다.</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
-            <li key={a.id} className={`rounded-md border px-2.5 py-2 ${TIER[a.tier].chip}`}>
+            <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
               <span className="text-sm font-bold">{a.name}</span>
               <p className="mt-0.5 text-xs text-gray-400">[{a.cond}]</p>
             </li>
@@ -1486,36 +1560,59 @@ function AugmentShelf({ augments }) {
   );
 }
 
-/* ───── TFT 스타일 증강 / 이벤트 선택 오버레이 ───── */
-function ChoiceOverlay({ choice, onChoose }) {
+/* ───── 증강 / 이벤트 선택 오버레이: 선수 카드와 같은 틀에 등급 네온 + 전면 일러스트(public/augments/<id>.webp) ───── */
+const TierIcon = ({ tier }) => (
+  <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="currentColor" aria-hidden="true">
+    {tier === 'prismatic' ? <path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" />
+      : tier === 'gold' ? <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.3l-5.9 3.2 1.3-6.5-4.9-4.6 6.6-.8z" />
+        : <path d="M13 2 4 14h6l-1 8 9-12h-6z" />}
+  </svg>
+);
+
+function ChoiceCard({ option: o, index, onChoose }) {
+  const art = useImage(`augments/${o.id}.webp`);
+  const acc = TIER_NEON[o.tier];
+  return (
+    <section style={{ '--a': acc, '--c': '22px', animationDelay: `${120 + index * 110}ms` }}
+      className="ui-choice ui-cut ui-frame group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left animate-[rise_.45s_ease-out_both] transition-transform duration-200 hover:-translate-y-2 focus-within:-translate-y-2">
+      {art
+        ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] transition duration-300 group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
+        : <span className="absolute inset-0" style={{ background: `radial-gradient(80% 50% at 50% 30%, ${acc}40, transparent 70%)` }} />}
+      <span className="absolute inset-0" style={{ background: `radial-gradient(80% 45% at 50% 28%, ${acc}33, transparent 70%), linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%)` }} />
+      <span className="ui-scan absolute inset-0 opacity-70" />
+      <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between">
+        <span className="ui-cut px-3 py-0.5 font-display text-[13px] font-extrabold tracking-[0.34em] text-[#05080f]" style={{ '--c': '6px', background: acc }}>{TIER_EN[o.tier]}</span>
+        <span className="grid h-12 w-[42px] place-items-center" style={{ color: acc, background: `color-mix(in srgb, ${acc} 22%, rgba(5,8,15,.75))`, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}><TierIcon tier={o.tier} /></span>
+      </div>
+      <div className="relative z-10 mt-auto px-6 pb-5">
+        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>{o.name}</h3>
+        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{o.desc}</p>
+        <p className="mt-3 border-t pt-2.5 text-xs font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>조건 · {o.cond}</p>
+        <button type="button" onClick={() => onChoose(o)} className="ui-btn ui-cut mt-3 w-full">선택</button>
+      </div>
+    </section>
+  );
+}
+
+function ChoiceOverlay({ choice, onChoose, picksLeft = 0 }) {
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
+  const nth = SEASON_AUGMENTS - picksLeft + 1;
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
-      <div className="flex min-h-full flex-col items-center justify-center gap-8 px-4 py-10">
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
+      <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
+      <div className="fixed inset-0 bg-[#03050a]/70 backdrop-blur-[3px]" />
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-4 py-10">
         <div className="text-center animate-[rise_.4s_ease-out_both]">
-          <p className="font-display text-sm font-semibold uppercase tracking-[0.4em] text-[#10b981]">{isAug ? 'Choose an Augment' : 'Season Event'}</p>
-          <h2 className="mt-2 text-3xl font-black text-white">{isAug ? '증강을 하나 선택하세요' : '시즌 돌발 이벤트 발생'}</h2>
+          <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? 'Season Augment' : 'Season Event'}</p>
+          <h2 className="mt-2 text-4xl font-black text-white">
+            {isAug ? '시즌 증강을 고르세요' : '시즌 돌발 이벤트'}
+            {isAug && picksLeft > 0 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {SEASON_AUGMENTS}</span>}
+          </h2>
           <p className="mt-2 text-sm text-gray-400">{isAug ? '경기 중 조건이 충족되면 난수 판정을 무시하고 이닝 결과를 확정합니다.' : '구단 운영 방향을 결정하세요. 선택은 되돌릴 수 없습니다.'}</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-5">
-          {choice.options.map((o, i) => (
-            <TierFrame key={o.id} tier={o.tier} style={{ animationDelay: `${120 + i * 110}ms` }}
-              className="w-[15.5rem] animate-[rise_.45s_ease-out_both] transition hover:-translate-y-1.5" innerClassName="flex h-[25rem] flex-col items-center p-5 text-center">
-              <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${TIER[o.tier].chip}`}>{TIER_LABEL[o.tier]}</span>
-              <div className="relative mt-6 grid h-20 w-20 place-items-center">
-                <span className={`absolute h-14 w-14 rotate-45 rounded-md border-2 ${o.tier === 'prismatic' ? 'border-fuchsia-300' : TIER[o.tier].border}`} />
-                <span className={`absolute h-7 w-7 rotate-45 rounded-sm ${TIER[o.tier].bar}`} />
-              </div>
-              <h3 className={`mt-5 text-xl font-black leading-tight ${TIER[o.tier].text}`} style={{ textWrap: 'balance' }}>{o.name}</h3>
-              <p className="mt-3 rounded border border-[#10b981]/40 bg-[#10b981]/10 px-2 py-1 text-[13px] font-semibold text-[#10b981]">[{o.cond}]</p>
-              <p className="mt-3 text-sm leading-relaxed text-gray-300">{o.desc}</p>
-              <button type="button" onClick={() => onChoose(o)}
-                className="mt-auto w-full rounded-md border border-gray-600 bg-[#1f2937] py-2.5 text-sm font-bold text-white transition hover:border-[#10b981] hover:text-[#10b981] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">
-                선택
-              </button>
-            </TierFrame>
-          ))}
+        <div className="flex flex-wrap justify-center gap-6">
+          {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
         </div>
       </div>
     </div>
@@ -1531,31 +1628,32 @@ function Scoreboard({ board, half, myName, oppName }) {
   ];
   const leader = total(board.home) > total(board.away) ? 'home' : total(board.away) > total(board.home) ? 'away' : null;
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-800 bg-[#0b1120] p-2 shadow-[inset_0_0_40px_rgba(0,0,0,0.6)]">
-      <table className="w-full min-w-[600px] border-separate border-spacing-1 font-display">
+    <div className="ui-cut ui-frame ui-glass2 overflow-x-auto px-3 py-2.5" style={{ '--c': '14px' }}>
+      <table className="w-full min-w-[600px] border-collapse font-display">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-            <th className="px-2 text-left">Team</th>
-            {Array.from({ length: 9 }, (_, i) => <th key={i} className="w-12">{i + 1}</th>)}
-            <th className="w-16 text-[#10b981]">R</th>
+            <th className="px-3 pb-1 text-left">Team</th>
+            {Array.from({ length: 9 }, (_, i) => <th key={i} className="w-11 pb-1">{i + 1}</th>)}
+            <th className="w-14 pb-1 text-[#10b981]">R</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.key}>
-              <td className="whitespace-nowrap rounded bg-[#111827] px-3 text-base font-bold text-white">
-                <span className="mr-2 text-[10px] font-semibold tracking-widest text-gray-500">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
+            <tr key={r.key} className="border-t border-white/[0.07]">
+              <td className="whitespace-nowrap px-3 py-1 font-sans text-base font-bold text-white">
+                <span className="mr-2.5 inline-block h-5 w-1.5 -skew-x-12 align-middle" style={{ background: r.top ? '#f87171' : '#10b981' }} />
+                <span className="mr-2 font-display text-[10px] font-semibold tracking-widest text-gray-500">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
               </td>
               {r.arr.map((v, i) => {
                 const live = half && half.inning === i + 1 && half.isTop === r.top;
                 return (
                   <td key={i} style={v !== null ? { animation: 'cellIn .8s ease-out' } : undefined}
-                    className={`h-12 rounded bg-[#111827] text-center text-2xl font-bold tabular-nums ${live ? 'ring-2 ring-[#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-400' : 'text-white'}`}>
+                    className={`h-11 text-center text-2xl font-bold tabular-nums ${live ? 'bg-[#10b981]/15 shadow-[inset_0_-2px_0_#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-500' : 'text-white'}`}>
                     {v === null ? (live ? <span className="text-base text-[#10b981]">●</span> : '') : v}
                   </td>
                 );
               })}
-              <td className={`rounded bg-[#1f2937] text-center text-3xl font-bold tabular-nums ${leader === r.key ? 'text-[#10b981]' : 'text-white'}`}>{total(r.arr)}</td>
+              <td className={`text-center text-3xl font-bold tabular-nums ${leader === r.key ? 'text-[#10b981] [text-shadow:0_0_14px_rgba(16,185,129,.6)]' : 'text-white'}`}>{total(r.arr)}</td>
             </tr>
           ))}
         </tbody>
@@ -1569,20 +1667,20 @@ function LiveLog({ logs, paused }) {
   const ref = useRef(null);
   useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [logs.length]);
   return (
-    <section className="flex min-h-0 flex-col rounded-lg border border-gray-800 bg-[#1f2937]/60">
-      <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2">
-        <h3 className="text-sm font-bold text-white">문자 중계</h3>
+    <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col" style={{ '--c': '14px' }}>
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+        <h3 className="ui-lab font-display">Play-by-Play <span className="font-sans text-sm normal-case tracking-normal text-white">문자 중계</span></h3>
         {paused && <span className="text-xs font-bold text-[#10b981]">하이라이트 · 일시정지</span>}
       </div>
-      <ol ref={ref} className="flex max-h-[26rem] flex-col gap-1 overflow-y-auto p-2">
+      <ol ref={ref} className="syn-scroll flex max-h-[26rem] flex-col gap-1 overflow-y-auto p-2">
         {logs.map((l) => {
           const inn = l.inning ? `${l.inning}회${l.isTop ? '초' : '말'}` : '';
           if (l.kind === 'augment') {
             const cut = l.text.indexOf('] ');
             return (
-              <li key={l.id} className={`animate-[rise_.3s_ease-out_both] rounded-md border-l-4 bg-[#111827] px-3 py-2 text-sm ${l.tier === 'prismatic' ? 'border-fuchsia-300' : TIER[l.tier].border}`}>
+              <li key={l.id} className="animate-[rise_.3s_ease-out_both] bg-white/[0.045] px-3 py-2 text-sm" style={{ boxShadow: `inset 3px 0 0 ${TIER_NEON[l.tier]}` }}>
                 <span className="mr-2 font-display text-xs font-semibold text-gray-500">{inn}</span>
-                <span className="font-bold text-[#10b981]">{cut > 0 ? l.text.slice(0, cut + 1) : ''}</span>
+                <span className="font-bold" style={{ color: TIER_NEON[l.tier] }}>{cut > 0 ? l.text.slice(0, cut + 1) : ''}</span>
                 <span className="text-white"> {cut > 0 ? l.text.slice(cut + 2) : l.text}</span>
               </li>
             );
@@ -1601,55 +1699,258 @@ function LiveLog({ logs, paused }) {
 }
 
 /* ───── 증강 발동 토스트 ───── */
+/* 중계 하이라이트: 활약 선수 카드 그림 + 증강 이름을 굵은 기울임 글자로 */
 function HighlightToast({ toast }) {
+  const art = useArt(toast?.hero);
   if (!toast) return null;
-  const { augment, text } = toast;
+  const { augment, text, hero } = toast;
+  const acc = TIER_NEON[augment.tier];
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 grid place-items-center bg-black/40 px-4" aria-live="assertive">
-      <div key={toast.key} className="w-full max-w-lg animate-[toast_1.7s_ease_both]">
-        <TierFrame tier={augment.tier} innerClassName="px-8 py-7 text-center">
-          <p className="font-display text-xs font-semibold uppercase tracking-[0.45em] text-[#10b981]">Augment Activated</p>
-          <p className={`mt-3 text-4xl font-black leading-tight ${TIER[augment.tier].text}`} style={{ textWrap: 'balance' }}>{augment.name}!</p>
-          <p className="mt-3 text-base text-gray-200">{text}</p>
-        </TierFrame>
+    <div className="pointer-events-none fixed inset-x-0 top-[16vh] z-40 flex justify-center px-4" aria-live="assertive">
+      <div key={toast.key} className="flex w-full max-w-3xl animate-[toast_1.7s_ease_both] drop-shadow-[0_18px_40px_rgba(0,0,0,.6)]" style={{ '--a': acc }}>
+        {hero && (
+          <div className="ui-cut ui-frame relative hidden w-44 shrink-0 bg-[#0b1220] bg-cover bg-no-repeat sm:block"
+            style={{ '--c': '18px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }} />
+        )}
+        <div className={`ui-glass2 relative flex-1 py-5 pr-8 ${hero ? 'pl-10 sm:-ml-4' : 'pl-8'}`}
+          style={{ clipPath: 'polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%)' }}>
+          <p className="ui-lab font-display">Highlight · {TIER_EN[augment.tier]} Augment</p>
+          <p className="mt-1 font-display text-5xl font-extrabold italic leading-none text-white" style={{ textShadow: `0 0 30px ${acc}`, textWrap: 'balance' }}>{augment.name}!</p>
+          <p className="mt-2 text-base text-gray-100">{text}</p>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ───── 경기 정산 · 오늘의 MVP ───── */
-function MvpStage({ result }) {
-  const { mvp, mvpPlayer: p } = result;
-  const art = useArt(p);
-  const lines = p.type === 'pitcher'
-    ? [['무실점 이닝', mvp.zero], ['증강 발동', mvp.fires], ['종합', p.overall]]
-    : [['득점 이닝', mvp.runs], ['증강 발동', mvp.fires], ['종합', p.overall]];
+/* ───── 공통: 컷 코너 프로필 얼굴 ───── */
+function Portrait({ player, className = 'h-10 w-8' }) {
+  const bust = useBust(player, '300%');
   return (
-    <section className="grid overflow-hidden rounded-xl border border-[#10b981]/30 bg-[#1f2937]/70 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <div className="relative aspect-[4/5] max-h-[30rem] w-full overflow-hidden bg-gradient-to-br from-emerald-500/10 to-transparent md:aspect-auto md:min-h-[26rem]"
-        style={art ? undefined : { background: `radial-gradient(90% 70% at 40% 20%, ${teamColor(p)}55, transparent 70%), linear-gradient(135deg, rgba(16,185,129,0.1), transparent)` }}>
-        <span className="absolute -bottom-6 -left-2 select-none font-display text-[12rem] font-black leading-none text-white/[0.05]">MVP</span>
-        {art
-          ? <img src={art} alt={`${p.year} ${p.team} ${p.name}`} className="absolute inset-0 h-full w-full object-cover object-[50%_15%]" />
-          : <span className="absolute inset-0 grid place-items-center text-[7rem] font-black text-white/15">{p.name[0]}</span>}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#1f2937]/70" />
-        <span className="absolute left-7 top-7 rounded bg-[#10b981] px-2.5 py-1 font-display text-xs font-bold uppercase tracking-[0.3em] text-[#111827]">Today&apos;s MVP</span>
-      </div>
-      <div className="flex flex-col justify-center gap-5 p-7">
-        <div>
-          <p className="font-display text-sm font-semibold uppercase tracking-[0.3em] text-[#10b981]">오늘의 MVP</p>
-          <h2 className="mt-2 text-5xl font-black leading-none text-white">{p.name}</h2>
-          <p className="mt-2 font-display text-lg tabular-nums text-gray-400">{p.year} {p.team} · {POS_LABEL[p.position]}</p>
-          {p.note && <p className="mt-3 text-sm text-gray-300">{p.note}</p>}
+    <span className={`ui-cut relative block shrink-0 bg-[#0b1220] bg-no-repeat ${className}`}
+      style={{ '--c': '6px', ...bust, boxShadow: `inset 0 0 0 1px ${player && !player.isReplacement ? neonOf(player) : '#334155'}99` }} />
+  );
+}
+
+/* ───── 새 시리즈 공개: 시리즈 선수 전원을 딜링하듯 펼친다 ───── */
+function SeriesReveal({ series, roster, cp, released, rerolls, round, onOpen, onReroll }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' || e.key === 'Enter') onOpen(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onOpen]);
+  const cards = [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall);
+  const cols = cards.length > 14 ? 14 : 7; // 14명 이하는 7장씩 두 줄, 레전드 28명은 14장씩 두 줄
+  const acc = SERIES_NEON[series.kind];
+  const open = cards.filter((p) => !getLockReason(p, roster, cp, released)).length;
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={`새 시리즈 ${series.title}`}>
+      <div className="ui-bg soft" style={{ backgroundImage: 'url(ui/tunnel.webp)' }} />
+      <div className="pointer-events-none fixed left-1/2 top-1/2 h-[75vh] w-[92vw] -translate-x-1/2 -translate-y-1/2" style={{ background: `radial-gradient(closest-side, ${acc}33, ${acc}0d 55%, transparent)` }} />
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-6 px-4 py-8" style={{ '--a': acc }}>
+        <div className="text-center animate-[rise_.4s_ease-out_both]">
+          <p className="ui-lab font-display">Round {String(round).padStart(2, '0')} · New Series</p>
+          <h2 className="mt-2 font-display text-5xl font-extrabold leading-none text-white sm:text-6xl" style={{ textShadow: `0 0 40px ${acc}88` }}>{series.year ? `${series.year} ` : ''}{series.title}</h2>
+          <p className="mt-2 text-base text-gray-300">{SERIES_KIND_LABEL[series.kind]}{series.subtitle ? ` · ${series.subtitle}` : ''} · 선수 {cards.length}명 전원 · 영입 가능 {open}명</p>
         </div>
-        <dl className="grid grid-cols-3 gap-2">
-          {lines.map(([k, v]) => (
-            <div key={k} className="rounded-md border border-gray-700 bg-[#111827] px-3 py-2">
-              <dt className="text-[11px] text-gray-500">{k}</dt>
-              <dd className="font-display text-3xl font-bold tabular-nums text-white">{v}</dd>
+        <div inert className="grid w-full justify-center gap-2.5" style={{ gridTemplateColumns: `repeat(${cols}, min(8.5rem, calc((100vw - ${cols * 0.625 + 3}rem) / ${cols})))` }}>
+          {cards.map((p, i) => (
+            <div key={p.id} style={{ transform: `rotate(${(((i * 37) % 7) - 3) * 0.7}deg)` }}>
+              <MiniCard player={p} reason={getLockReason(p, roster, cp, released)} onPick={() => {}} style={{ animationDelay: `${150 + i * 40}ms` }} />
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-2 animate-[rise_.4s_ease-out_both]" style={{ animationDelay: '450ms' }}>
+          <button type="button" className="ui-btn ui-cut" onClick={onReroll} disabled={rerolls <= 0}>다른 시리즈 <span className="font-display text-gray-400">×{rerolls}</span></button>
+          <button type="button" className="ui-btn ui-cut pri" onClick={onOpen} autoFocus>시리즈 열기</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───── 경기 전 매치업: 두 팀 타순 · 선발 맞대결 · 예상 승리 확률 ───── */
+const teamOvr = (team) => Math.round(avg(team.roster.map((p) => p.overall)));
+const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.defense * 0.2;
+const winChance = (my, opp) => 1 / (1 + Math.exp(-(teamPower(my) - teamPower(opp)) / 3.2));
+
+function MatchRow({ player, label, mine }) {
+  return (
+    <div className={`ui-cut flex h-11 items-center gap-2.5 bg-white/[0.045] px-2 ${mine ? '' : 'flex-row-reverse text-right'}`} style={{ '--c': '6px' }}>
+      <span className="w-6 shrink-0 text-center font-display text-sm font-bold text-gray-500">{label}</span>
+      <Portrait player={player} className="h-9 w-7" />
+      <span className="min-w-0 flex-1 truncate text-sm font-bold text-white">{player.name} <small className="font-display text-[11px] font-semibold text-gray-500">{player.slot || player.position}</small></span>
+      <span className="font-display text-lg font-bold tabular-nums" style={{ color: player.isReplacement ? '#64748b' : neonOf(player) }}>{player.overall}</span>
+    </div>
+  );
+}
+
+function DuelCard({ player, label }) {
+  const bust = useBust(player, '260%');
+  const acc = neonOf(player);
+  return (
+    <div className="ui-cut ui-frame relative h-[19rem] w-[13rem] overflow-hidden bg-[#0b1220] bg-no-repeat" style={{ '--c': '20px', '--a': acc, ...bust }}>
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#05080f] via-[#05080f]/90 to-transparent px-4 pb-3 pt-10 text-left">
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
+        <p className="text-2xl font-black text-white">{player.name}</p>
+        <p className="text-xs text-gray-300">{player.year} {player.team} · 구위 {player.stats.stuff} · 체력 {player.stats.stamina}</p>
+      </div>
+    </div>
+  );
+}
+
+function MatchupScreen({ roster, oppRoster, buff, augments, onStart, onBack }) {
+  const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
+  const opp = useMemo(() => buildTeam('AI 올스타', fillRoster(oppRoster), 0), [oppRoster]);
+  const pct = Math.round(winChance(my, opp) * 100);
+  const side = (team, name, acc, mine) => (
+    <section className="ui-cut ui-frame ui-glass flex flex-col gap-1.5 p-4" style={{ '--c': '18px', '--a': acc }}>
+      <div className={`mb-1 flex items-end justify-between border-b border-white/10 pb-2.5 ${mine ? '' : 'flex-row-reverse text-right'}`}>
+        <div>
+          <p className="font-display text-[11px] font-bold uppercase tracking-[0.3em] text-gray-500">{mine ? 'My Team' : 'AI Opponent'}</p>
+          <h3 className="text-2xl font-black text-white">{name}</h3>
+        </div>
+        <p className="font-display text-5xl font-extrabold leading-none tabular-nums" style={{ color: acc, textShadow: `0 0 22px ${acc}88` }}>{teamOvr(team)}</p>
+      </div>
+      {team.batters.map((b, i) => <MatchRow key={b.id} player={b} label={i + 1} mine={mine} />)}
+      <p className={`mt-1 font-display text-[11px] font-bold tracking-[0.3em] text-gray-500 ${mine ? '' : 'text-right'}`}>MOUND</p>
+      {[team.sps[0], team.mr, team.rp].filter(Boolean).map((x) => <MatchRow key={x.id} player={x} label={x.slot} mine={mine} />)}
+    </section>
+  );
+  return (
+    <section className="grid gap-5 animate-[fade_.3s_ease-out_both] lg:grid-cols-[21rem_minmax(0,1fr)_21rem]">
+      {side(my, '나의 드림팀', '#10b981', true)}
+      <div className="flex flex-col items-center text-center">
+        <p className="ui-lab font-display">Play Ball</p>
+        <h2 className="mt-1 text-4xl font-black text-white">선발 맞대결</h2>
+        <div className="relative mt-6 flex items-end justify-center gap-5">
+          <DuelCard player={my.sps[0]} label="My Starter" />
+          <span className="absolute left-1/2 top-[42%] z-10 -translate-x-1/2 -translate-y-1/2 font-display text-7xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
+          <DuelCard player={opp.sps[0]} label="AI Starter" />
+        </div>
+        <div className="mt-6 w-full max-w-md">
+          <div className="flex justify-between font-display text-2xl font-bold tabular-nums"><span className="text-[#10b981]">{pct}%</span><span className="text-red-400">{100 - pct}%</span></div>
+          <div className="mt-1.5 flex h-3 gap-1">
+            <i className="-skew-x-12 bg-[#10b981] shadow-[0_0_10px_#10b981]" style={{ flex: pct }} />
+            <i className="-skew-x-12 bg-red-400" style={{ flex: 100 - pct }} />
+          </div>
+          <p className="mt-1.5 text-xs text-gray-400">예상 승리 확률 · 타선 · 에이스 · 수비력 비교 (증강 발동은 제외)</p>
+        </div>
+        {augments.length > 0 && (
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {augments.map((a) => <span key={a.id} className="ui-chip ui-cut" style={{ '--a': TIER_NEON[a.tier] }}><b className="font-display" style={{ color: TIER_NEON[a.tier] }}>{TIER_EN[a.tier]}</b>{a.name}</span>)}
+          </div>
+        )}
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <button type="button" className="ui-btn ui-cut min-h-[3.25rem]" onClick={onBack}>라인업 다시 보기</button>
+          <button type="button" className="ui-btn ui-cut pri min-h-[3.25rem] px-12 text-lg" onClick={onStart} autoFocus>경기 시작 ▶</button>
+        </div>
+      </div>
+      {side(opp, 'AI 올스타', '#f87171', false)}
+    </section>
+  );
+}
+
+/* ───── 경기 중 중계 자막: 지금 타석의 타자 · 마운드의 투수 ───── */
+function Plate({ player, label }) {
+  const bust = useBust(player, '300%');
+  if (!player) return <div />;
+  const acc = player.isReplacement ? '#64748b' : neonOf(player);
+  const keys = player.type === 'batter' ? ['power', 'contact', 'speed'] : ['stuff', 'control', 'stamina'];
+  return (
+    <div className="ui-cut ui-glass2 flex gap-3 p-2.5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '14px' }}>
+      <span className="ui-cut ui-frame relative block h-[5.5rem] w-[4.5rem] shrink-0 bg-[#0b1220] bg-no-repeat" style={{ '--c': '10px', '--a': acc, ...bust }} />
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
+        <p className="truncate text-xl font-black leading-tight text-white">{player.name}</p>
+        <p className="truncate text-xs text-gray-400">{player.year} {player.team} · {POS_LABEL[player.position]}</p>
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {keys.map((k) => (
+            <span key={k} className="ui-cut bg-white/[0.05] px-2 py-0.5 text-[10px] text-gray-400" style={{ '--c': '4px' }}>{STAT_LABELS[k]} <b className="font-display text-sm text-white">{player.stats[k]}</b></span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BroadcastPlates({ log }) {
+  if (!log) return null;
+  const mineAtBat = !log.isTop; // 사용자 팀은 홈(말 공격)
+  const batter = log.hero?.type === 'batter' ? log.hero : null;
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Plate key={`b-${batter?.id || 'none'}`} player={batter} label={`At Bat · ${mineAtBat ? '나의 드림팀' : 'AI 올스타'}`} />
+      <Plate key={`p-${log.pitcher?.id || 'none'}`} player={log.pitcher} label={`Pitching · ${mineAtBat ? 'AI 올스타' : '나의 드림팀'}`} />
+    </div>
+  );
+}
+
+/* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
+const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
+
+function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) {
+  const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
+  const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
+  const moments = logs.filter((l) => l.kind === 'augment' || (l.kind === 'score' && l.runs >= 2)).slice(-3);
+  const lines = mvp.type === 'pitcher'
+    ? [['무실점 이닝', stat.zero], ['증강 발동', stat.fires], ['종합', mvp.overall]]
+    : [['득점 이닝', stat.runs], ['증강 발동', stat.fires], ['종합', mvp.overall]];
+  return (
+    <section className="ui-cut ui-frame ui-glass2 grid gap-6 p-6 animate-[rise_.35s_ease-out_both] lg:grid-cols-[16rem_minmax(0,1fr)_19rem]" style={{ '--c': '26px', '--a': tone }}>
+      <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
+        <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? 'WIN' : winner === 'opp' ? 'LOSE' : 'DRAW'}</p>
+        <div>
+          <p className="mb-1 text-xs text-gray-400">나의 드림팀 vs AI 올스타</p>
+          <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-600">:</span>{score.opp}</p>
+        </div>
+        <div className="ml-auto text-right">
+          <p className="font-display text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-500">Season</p>
+          <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
+        </div>
+      </div>
+      <div className="relative">
+        <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-lg font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
+        <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
+      </div>
+      <div className="flex min-w-0 flex-col gap-3">
+        <p className="font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">MVP · {mvp.name}</p>
+        <dl className="ui-cut grid grid-cols-3 bg-white/[0.045]" style={{ '--c': '10px' }}>
+          {lines.map(([k, v], i) => (
+            <div key={k} className={`px-4 py-2.5 ${i ? 'border-l border-white/10' : ''}`}>
+              <dt className="text-[11px] text-gray-400">{k}</dt>
+              <dd className="font-display text-3xl font-bold tabular-nums" style={{ color: neonOf(mvp) }}>{v}</dd>
             </div>
           ))}
         </dl>
+        <p className="mt-2 font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">결정적 순간</p>
+        {moments.length ? moments.map((l) => {
+          const c = l.kind === 'augment' ? TIER_NEON[l.tier] : '#10b981';
+          return (
+            <div key={l.id} className="ui-cut grid grid-cols-[3.5rem_1fr] items-center gap-3 bg-white/[0.045] px-3 py-2" style={{ '--c': '8px', boxShadow: `inset 3px 0 0 ${c}` }}>
+              <span className="font-display text-sm font-bold" style={{ color: c }}>{l.inning}회{l.isTop ? '초' : '말'}</span>
+              <span className="text-sm text-gray-100">{l.text}</span>
+            </div>
+          );
+        }) : <p className="text-sm text-gray-500">큰 장면 없이 끝난 경기입니다.</p>}
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">선수 평점</p>
+        {credits.slice(0, 7).map((c) => (
+          <div key={c.player.id} className="grid grid-cols-[2rem_minmax(0,1fr)_2.75rem] items-center gap-2.5 py-1">
+            <Portrait player={c.player} className="h-10 w-8" />
+            <span className="min-w-0">
+              <b className="block truncate text-sm text-white">{c.player.name}</b>
+              <small className="block truncate text-[11px] text-gray-500">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
+            </span>
+            <span className="text-center font-display text-2xl font-extrabold" style={{ color: neonOf(c.player) }}>{gradeOf(c.pts)}</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-wrap justify-end gap-2 lg:col-span-3">
+        <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
+        <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
+        <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
       </div>
     </section>
   );
@@ -1681,6 +1982,7 @@ export default function KboAugmentDraft() {
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
+  const [reveal, setReveal] = useState(true); // 새 시리즈가 열릴 때 선수 전원을 펼쳐 보여 주는 공개 화면
   const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [focusSynergy, setFocusSynergy] = useState(null); // 누른 시너지 — 해당 선수를 화면에서 강조
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
@@ -1719,6 +2021,20 @@ export default function KboAugmentDraft() {
   const runIdRef = useRef(0); // 값이 바뀌면 진행 중인 시뮬레이션은 스스로 중단
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
+  // 개발 전용 바로가기: ?demo=ready | augment | matchup — AI 드래프트로 엔트리를 채워 뒤 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const demo = new URLSearchParams(window.location.search).get('demo');
+    if (!demo) return;
+    const r = aiDraft();
+    setRoster(r);
+    setCp(Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0)));
+    setSeries(null);
+    setReveal(false);
+    if (demo === 'ready') setPhase('ready');
+    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: shuffle(AUGMENTS).slice(0, 3) }); }
+    if (demo === 'matchup') { setAugments(shuffle(AUGMENTS).slice(0, SEASON_AUGMENTS)); setOpponent(aiDraft()); setPhase('matchup'); }
+  }, []);
 
   const full = roster.length >= ROSTER_SIZE;
   const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released)), [roster, cp, released]);
@@ -1749,6 +2065,7 @@ export default function KboAugmentDraft() {
       setPhase('ready');
     } else {
       setSeries(rollSeries(next, nextCp, series?.id, released));
+      setReveal(true);
     }
   }, [phase, choice, roster, cp, augments, series, released]);
 
@@ -1759,7 +2076,7 @@ export default function KboAugmentDraft() {
       setAugments(owned);
       setAugPicksLeft(left);
       setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
-      if (left <= 0) startGame(false, owned); // 마지막 증강을 고르면 곧바로 플레이볼
+      if (left <= 0) prepareMatch(false); // 마지막 증강을 고르면 경기 전 매치업 화면으로
       return;
     }
     const s = option.apply({ cp, rerolls, buff });
@@ -1785,7 +2102,7 @@ export default function KboAugmentDraft() {
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
   /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
   const startSeason = () => {
-    if (augments.length >= SEASON_AUGMENTS) { startGame(); return; }
+    if (augments.length >= SEASON_AUGMENTS) { prepareMatch(!!opponent); return; }
     runIdRef.current += 1;
     setPhase('sim');
     setBoard(emptyBoard());
@@ -1795,6 +2112,15 @@ export default function KboAugmentDraft() {
     setToast(null);
     setAugPicksLeft(SEASON_AUGMENTS - augments.length);
     setChoice({ kind: 'augment', options: augmentOptions(augments) });
+  };
+
+  /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
+  const prepareMatch = (rematch = false) => {
+    runIdRef.current += 1;
+    if (!(rematch && opponent)) setOpponent(aiDraft());
+    setChoice(null);
+    setToast(null);
+    setPhase('matchup');
   };
 
   const startGame = async (rematch = false, owned = augments) => {
@@ -1817,10 +2143,10 @@ export default function KboAugmentDraft() {
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
       onLog: (e) => setLogs((l) => [...l, e]),
-      onHighlight: async ({ augment, text }) => {
+      onHighlight: async ({ augment, text, hero }) => {
         const key = Date.now() + Math.random();
         setPaused(true);
-        setToast({ key, augment, text });
+        setToast({ key, augment, text, hero });
         setTimeout(() => setPaused(false), 500);
         setTimeout(() => setToast((t) => (t && t.key === key ? null : t)), 1700);
       },
@@ -1835,14 +2161,13 @@ export default function KboAugmentDraft() {
   const newDraft = () => {
     runIdRef.current += 1;
     setPhase('draft'); setRoster([]); setPicked(null); setReleased([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
+    setSeries(rollSeries([], SALARY_CAP)); setReveal(true); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
     setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
   };
 
   const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
-  const btn = 'rounded-md px-4 py-2.5 text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] disabled:cursor-not-allowed disabled:opacity-40';
-  const btnPrimary = `${btn} bg-[#10b981] text-[#062a1f] hover:bg-emerald-400`;
-  const btnGhost = `${btn} border border-gray-600 bg-[#1f2937] text-gray-100 hover:border-gray-400`;
+  const btnGhost = 'ui-btn ui-cut';
+  const btnPrimary = `${btnGhost} pri`;
   const pickedReason = picked ? getLockReason(picked, roster, cp, released) : null;
   const offPositionPlayers = withSlots(roster).map(playAt).filter((p) => p.naturalPosition);
 
@@ -1892,17 +2217,19 @@ export default function KboAugmentDraft() {
     setPicked(null);
     setFocusSynergy(null);
     setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned));
+    setReveal(true);
   };
 
   return (
     // 드래프트는 넓은 화면(lg+)에서 창 높이에 딱 맞는 한 화면 앱으로: 스크롤 없이 머리 · 시리즈 · 영입+라인업이 들어간다
-    <div className={`min-h-screen bg-[#111827] font-sans text-gray-100 antialiased ${phase === 'draft' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
       <style>{KEYFRAMES}</style>
+      <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
 
-      <main className={`mx-auto grid px-4 ${phase === 'draft'
+      <main className={`relative mx-auto grid px-4 ${phase === 'draft'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
-        : 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
+        : phase === 'ready' ? 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]' : 'w-full max-w-[1600px] gap-5 py-5'}`}>
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           {phase === 'draft' && (
             // --card-w: 선수 카드 폭을 창 높이에 맞추되, 한 시리즈 14장이 한 줄에 들어가도록 창 폭으로도 제한
@@ -1914,19 +2241,19 @@ export default function KboAugmentDraft() {
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
-              <div className="bc-grp">
+              <div className="bc-grp" style={series ? { '--a': SERIES_NEON[series.kind] } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
                 <div key={series.id} className="mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-2.5 gap-y-1 px-1">
-                  <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-1.5 py-px text-[11px] font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
-                  {series.year && <span className="font-display text-lg font-bold leading-none tabular-nums text-[#10b981]">{series.year}</span>}
+                  <span className="ui-cut px-2 py-px text-[11px] font-bold text-[#05080f]" style={{ '--c': '5px', background: SERIES_NEON[series.kind] }}>{SERIES_KIND_LABEL[series.kind]}</span>
+                  {series.year && <span className="font-display text-lg font-bold leading-none tabular-nums" style={{ color: SERIES_NEON[series.kind] }}>{series.year}</span>}
                   <h2 className="text-base font-black leading-none text-white">{series.title}</h2>
                   {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
                   <span className="ml-auto font-display text-xs tabular-nums text-gray-400">
                     영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp, released)).length} / {seriesCards.length}명
                   </span>
                   <button type="button" onClick={handleReroll} disabled={rerolls <= 0}
-                    className="rounded-md border border-gray-600 bg-[#1f2937] px-2.5 py-1 text-xs font-bold text-gray-100 transition hover:border-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] disabled:cursor-not-allowed disabled:opacity-40">
+                    className="ui-btn ui-cut sm">
                     다른 시리즈 <span className="ml-0.5 font-display tabular-nums text-gray-400">×{rerolls}</span>
                   </button>
                 </div>
@@ -1997,8 +2324,8 @@ export default function KboAugmentDraft() {
           )}
 
           {phase === 'ready' && (
-            <section className="rounded-xl border border-gray-800 bg-[#1f2937]/60 p-6">
-              <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-[#10b981]">Final Check</p>
+            <section className="ui-cut ui-frame ui-glass p-6" style={{ '--c': '20px' }}>
+              <p className="ui-lab font-display">Final Check</p>
               <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
               <p className="mt-2 text-sm text-gray-400">
                 선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
@@ -2007,7 +2334,7 @@ export default function KboAugmentDraft() {
               {offPositionPlayers.length > 0 && (
                 <ul className="mt-3 flex flex-wrap gap-1.5">
                   {offPositionPlayers.map((p) => (
-                    <li key={p.id} className="rounded border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-xs text-amber-200">
+                    <li key={p.id} className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>
                       {p.name} {p.naturalPosition}→{p.position} <b className="font-display">{p.overall}</b>
                     </li>
                   ))}
@@ -2021,7 +2348,7 @@ export default function KboAugmentDraft() {
                   ['에이스 투구', myTeam.pitchValue(myTeam.sps[0]).toFixed(1)],
                   ['우타 비중', `${Math.round(myTeam.rightRatio * 100)}%`],
                 ].map(([k, v]) => (
-                  <div key={k} className="rounded-lg border border-gray-700 bg-[#111827] px-4 py-3">
+                  <div key={k} className="ui-cut bg-white/[0.045] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" style={{ '--c': '10px' }}>
                     <dt className="text-xs text-gray-500">{k}</dt>
                     <dd className="font-display text-3xl font-bold tabular-nums text-white">{v}</dd>
                   </div>
@@ -2034,21 +2361,31 @@ export default function KboAugmentDraft() {
             </section>
           )}
 
+          {phase === 'matchup' && opponent && (
+            <MatchupScreen roster={roster} oppRoster={opponent} buff={buff} augments={augments}
+              onStart={() => startGame(true)} onBack={() => setPhase('ready')} />
+          )}
+
           {(phase === 'sim' || phase === 'result') && (
             <>
+              {result && (
+                <ResultPanel result={result} record={record} logs={logs}
+                  onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
+              )}
+
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-gray-500">{phase === 'sim' ? 'Live' : 'Final'}</p>
-                  <h2 className="text-2xl font-bold text-white">AI 올스타 <span className="text-gray-500">vs</span> 나의 드림팀</h2>
+                  <p className="ui-lab font-display" style={{ '--a': phase === 'sim' ? '#f87171' : '#10b981' }}>{phase === 'sim' ? 'Live' : 'Final'}</p>
+                  <h2 className="mt-1 text-2xl font-black text-white">AI 올스타 <span className="font-display text-gray-500">vs</span> 나의 드림팀</h2>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="font-display text-lg tabular-nums text-gray-400">{record.w}승 {record.l}패 {record.d}무</span>
+                  <span className="font-display text-lg tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
                   {phase === 'sim' && (
-                    <div className="flex rounded-md border border-gray-700 bg-[#1f2937] p-0.5" role="group" aria-label="중계 배속">
+                    <div className="ui-cut ui-glass2 flex gap-1 p-1" style={{ '--c': '8px' }} role="group" aria-label="중계 배속">
                       {[1, 2, 4].map((s) => (
-                        <button key={s} type="button" onClick={() => setSpeed(s)}
-                          className={`rounded px-3 py-1 font-display text-sm font-bold ${speed === s ? 'bg-[#111827] text-[#10b981]' : 'text-gray-400 hover:text-white'}`}>
-                          {s}x
+                        <button key={s} type="button" onClick={() => setSpeed(s)} aria-pressed={speed === s}
+                          className={`ui-cut px-3.5 py-1 font-display text-sm font-bold ${speed === s ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>
+                          ×{s}
                         </button>
                       ))}
                     </div>
@@ -2056,20 +2393,12 @@ export default function KboAugmentDraft() {
                 </div>
               </div>
 
-              {result && (
-                <div className={`rounded-xl border px-6 py-5 text-center ${result.winner === 'my' ? 'border-[#10b981]/50 bg-[#10b981]/10' : result.winner === 'opp' ? 'border-red-500/40 bg-red-500/10' : 'border-gray-700 bg-[#1f2937]'}`}>
-                  <p className={`text-4xl font-black ${result.winner === 'my' ? 'text-[#10b981]' : result.winner === 'opp' ? 'text-red-400' : 'text-gray-200'}`}>
-                    {result.winner === 'my' ? '승리' : result.winner === 'opp' ? '패배' : '무승부'}
-                  </p>
-                  <p className="mt-1 font-display text-2xl font-bold tabular-nums text-white">{result.score.my} : {result.score.opp}</p>
-                </div>
-              )}
-
               <Scoreboard board={board} half={half} myName="나의 드림팀" oppName="AI 올스타" />
+              {phase === 'sim' && <BroadcastPlates log={[...logs].reverse().find((l) => l.pitcher)} />}
 
               <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
                 <LiveLog logs={logs} paused={paused} />
-                <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+                <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
                   <PanelTitle>증강 리스너</PanelTitle>
                   {augments.length === 0 ? <p className="text-xs text-gray-500">보유한 증강이 없습니다.</p> : (
                     <ul className="flex flex-col gap-1.5">
@@ -2090,21 +2419,11 @@ export default function KboAugmentDraft() {
                 </section>
               </div>
 
-              {result && (
-                <>
-                  <MvpStage result={result} />
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" className={btnPrimary} onClick={() => startGame(true)}>같은 상대와 재경기</button>
-                    <button type="button" className={btnGhost} onClick={() => startGame(false)}>새 AI 상대와 경기</button>
-                    <button type="button" className={btnGhost} onClick={newDraft}>새 드래프트</button>
-                  </div>
-                </>
-              )}
             </>
           )}
         </div>
 
-        {phase !== 'draft' && (
+        {phase === 'ready' && (
           <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
             <RosterPanel roster={roster} />
             <SynergyPanel roster={roster} focusId={focusSynergy} onFocus={toggleFocus} />
@@ -2115,7 +2434,11 @@ export default function KboAugmentDraft() {
 
       {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
       {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
-      <ChoiceOverlay choice={choice} onChoose={handleChoose} />
+      {phase === 'draft' && series && reveal && !modal && (
+        <SeriesReveal series={series} roster={roster} cp={cp} released={released} rerolls={rerolls} round={roster.length + 1}
+          onOpen={() => setReveal(false)} onReroll={handleReroll} />
+      )}
+      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} />
       <HighlightToast toast={toast} />
     </div>
   );
