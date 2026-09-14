@@ -957,7 +957,6 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
   const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
   const lit = Math.round(pct * 24);
   const foreign = roster.filter((p) => p.isForeign).length;
-  const phaseLabel = { draft: '드래프트', ready: '경기 준비', matchup: '경기 전', sim: '경기 중', result: '경기 종료' }[phase];
 
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.74))] backdrop-blur">
@@ -972,7 +971,6 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
-          <span className="ui-chip ui-cut ml-2 self-center">{phaseLabel}</span>
         </div>
 
         <div className="min-w-[260px] flex-1">
@@ -1007,11 +1005,17 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
 }
 
 /* ───── 드래프트 상점 카드 ───── */
-export function PlayerCard({ player, reason, shaking, onSelect, style }) {
+/** owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆에 변화량, 아래에 받은 시너지 */
+export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null }) {
   const locked = !!reason;
   const art = useArt(player);
   const acc = neonOf(player);
-  const statKeys = player.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
+  const eff = owned?.eff || player;
+  const statKeys = eff.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
+  const overallDiff = owned ? eff.overall - player.overall : 0;
+  const diffTag = (d, cls = 'text-[11px]') => (d ? (
+    <span className={`ml-1 font-display font-bold tabular-nums ${cls}`} style={{ color: d > 0 ? '#34d399' : '#fbbf24', textShadow: 'none' }}>{d > 0 ? `+${d}` : `−${-d}`}</span>
+  ) : null);
   return (
     <button type="button" onClick={() => onSelect(player)} aria-disabled={locked}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
@@ -1047,18 +1051,19 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
         <div className={`absolute inset-0 ${locked ? 'opacity-50' : ''}`}>
           {/* ③ 좌상단: 종합 · 포지션 · 스탯 패널 */}
           <div className="absolute left-5 top-5 w-[44%] [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]">
-            <p className="font-display text-5xl font-bold leading-[0.85] tabular-nums" style={{ color: acc, textShadow: `0 0 18px ${acc}99, 0 2px 6px #000` }}>{player.overall}</p>
+            <p className="whitespace-nowrap font-display text-5xl font-bold leading-[0.85] tabular-nums" style={{ color: acc, textShadow: `0 0 18px ${acc}99, 0 2px 6px #000` }}>{eff.overall}{diffTag(overallDiff, 'align-top text-base')}</p>
             <p className="mt-1 font-display text-[13px] font-bold uppercase tracking-[0.18em] text-white">{POS_EN[player.position]}</p>
             {/* 시즌 캡션: 인물은 오른쪽 절반에 배치되므로 왼쪽 열에 둔다 */}
             <p className="mt-0.5 whitespace-nowrap font-display text-[11px] font-semibold tracking-[0.12em] text-white/60">{player.year} · {player.team} · {handLabel(player)}</p>
             <dl className="mt-2.5 px-2.5 py-1.5 backdrop-blur-[3px]"
               style={{ background: 'rgba(5,8,15,.58)', boxShadow: `inset 0 0 0 1px ${acc}4d`, clipPath: cutCorners(7) }}>
               {statKeys.map((k) => {
-                const v = player.stats[k];
+                const v = eff.stats[k];
+                const d = owned && player.stats[k] != null ? v - player.stats[k] : 0; // 원래 능력치 대비 (시너지 +, 제자리 밖 −)
                 return (
                   <div key={k} className="flex items-baseline justify-between gap-2 py-[2px]">
                     <dt className="text-[11px] font-semibold text-gray-300">{STAT_LABELS[k]}</dt>
-                    <dd className="font-display text-[15px] font-bold leading-none tabular-nums" style={{ color: v >= 90 ? acc : '#f3f4f6' }}>{v}</dd>
+                    <dd className="whitespace-nowrap font-display text-[15px] font-bold leading-none tabular-nums" style={{ color: v >= 90 ? acc : '#f3f4f6' }}>{v}{diffTag(d)}</dd>
                   </div>
                 );
               })}
@@ -1068,6 +1073,16 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
 
           {/* ⑤ 하단: 이름 · 노트 · 영입가 */}
           <div className="absolute inset-x-5 bottom-5">
+            {owned && (eff.synergyBoost?.length > 0 || eff.naturalPosition) && (
+              <div className="mb-1.5 flex flex-wrap gap-1">
+                {eff.synergyBoost?.map((n) => (
+                  <span key={n} className="px-1.5 py-0.5 text-[10px] font-bold text-emerald-200" style={{ background: 'rgba(5,8,15,.7)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.5)' }}>▲ {n}</span>
+                ))}
+                {eff.naturalPosition && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold text-amber-200" style={{ background: 'rgba(5,8,15,.7)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5)' }}>원래 {POS_LABEL[eff.naturalPosition]}</span>
+                )}
+              </div>
+            )}
             {player.note && <p className="mb-1 truncate text-xs font-medium text-gray-200 [text-shadow:0_1px_4px_#000]">{player.note}</p>}
             <h3 className="truncate text-[2rem] font-bold leading-none tracking-tight text-white" style={{ textShadow: `0 0 22px ${acc}80, 0 2px 8px #000` }}>{player.name}</h3>
             <div className="mt-2.5 h-px" style={{ background: `linear-gradient(90deg, ${acc}, ${acc}33 60%, transparent)` }} />
@@ -1077,11 +1092,15 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
                 {player.isNational && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>국대</span>}
                 {player.isForeign && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>외인</span>}
               </div>
-              <span className="flex items-baseline gap-1 px-2.5 py-1 font-display font-bold tabular-nums text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>
-                <span className="text-[10px] font-semibold tracking-widest">영입</span>
-                <span className="text-lg leading-none">{player.cost}</span>
-                <span className="text-[10px]">CP</span>
-              </span>
+              {owned ? (
+                <span className="px-2.5 py-1 text-xs font-bold text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>{owned.slotLabel}</span>
+              ) : (
+                <span className="flex items-baseline gap-1 px-2.5 py-1 font-display font-bold tabular-nums text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>
+                  <span className="text-[10px] font-semibold tracking-widest">영입</span>
+                  <span className="text-lg leading-none">{player.cost}</span>
+                  <span className="text-[10px]">CP</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -1226,7 +1245,13 @@ function DragGhost({ player, x, y }) {
  * 내 라인업 필드. 선수를 끌어 다른 자리에 놓거나(빈 자리면 이동, 사람이 있으면 맞교환),
  * 한 명을 누른 뒤 다른 자리를 눌러도 바뀐다. candidate 가 있으면 들어갈 자리를 초록으로 미리 보여준다.
  */
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+/** 화면에 반영할 시너지: 드래프트 중이면 드래프트 뒤에만 공개하는 시너지를 뺀다 */
+function visibleSynergies(roster, draftView) {
+  const all = checkSynergies(roster);
+  return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
+}
+
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -1237,6 +1262,9 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const [drag, setDrag] = useState(null);
   const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
   useEffect(() => setConfirmOut(false), [pick]);
+  useEffect(() => { if (candidate) setPick(null); }, [candidate]); // 선반에서 후보를 고르면 라인업 선택은 푼다
+  // 누른(이동 대기) 선수를 바깥에 알린다 — 드래프트 화면은 PICK 구역에 그 선수 스탯 카드를 띄운다
+  useLayoutEffect(() => { onInspect?.(pick ? withSlots(roster).find((p) => p.slot === pick)?.id ?? null : null); }, [pick, roster]); // eslint-disable-line react-hooks/exhaustive-deps
   // 막 영입된 선수의 자리: 이전 엔트리에 없던 id 가 생기면 잠깐 'joined' 효과 (자리 이동·교환은 id 가 그대로라 제외)
   const [joined, setJoined] = useState(() => new Set());
   const prevIdsRef = useRef(null);
@@ -1271,10 +1299,12 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
 
   const placed = withSlots(roster);
   const at = (id) => placed.find((p) => p.slot === id);
-  const boosted = new Map(applySynergies(placed.map(playAt)).map((p) => [p.id, p]));
+  // 드래프트 중에는 드래프트 뒤에만 공개하는 시너지(프랜차이즈의 기억)의 상승분을 빼고 보여 준다
+  const boostOf = (r) => { const on = r.map(playAt); return new Map(applySynergies(on, visibleSynergies(on, draftView)).map((p) => [p.id, p])); };
+  const boosted = boostOf(placed);
   const target = candidate && !candidateReason ? freeSlot(roster, candidate.position)?.id : null;
   // 미리보기 선수는 영입된 뒤의 종합(시너지 포함)으로 보여 준다
-  const boostedPreview = target ? new Map(applySynergies([...placed, { ...candidate, slot: target }].map(playAt)).map((p) => [p.id, p])) : null;
+  const boostedPreview = target ? boostOf([...placed, { ...candidate, slot: target }]) : null;
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
@@ -2126,19 +2156,32 @@ export default function KboAugmentDraft() {
   const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [focusSynergy, setFocusSynergy] = useState(null); // 누른 시너지 — 해당 선수를 화면에서 강조
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
+  // 내 라인업에서 누른 선수: PICK 구역에 선 자리·시너지까지 반영한 스탯 카드로 보여 준다 (선반 후보가 있으면 후보가 먼저)
+  const [inspectId, setInspectId] = useState(null);
+  const handleInspect = useCallback((id) => { setInspectId(id); if (id) setPicked(null); }, []);
+  const inspected = useMemo(() => {
+    const placed = withSlots(roster);
+    const me = inspectId && placed.find((p) => p.id === inspectId);
+    if (!me) return null;
+    const on = placed.map(playAt);
+    const eff = applySynergies(on, visibleSynergies(on, true)).find((p) => p.id === me.id); // PICK 카드는 드래프트 화면에만 있다
+    return { player: me, owned: { eff, slotLabel: SLOTS.find((s) => s.id === me.slot)?.label } };
+  }, [roster, inspectId]);
   const [pickLeave, setPickLeave] = useState(null);
-  const prevPickRef = useRef(null);
+  const prevShownRef = useRef(null);
+  const shown = picked ? { player: picked, kind: 'pick' } : inspected ? { ...inspected, kind: 'own' } : null;
+  const shownKey = shown ? `${shown.kind}-${shown.player.id}` : '';
   // 레이아웃 단계에서 바로 남겨야 카드가 빈 칸으로 한 프레임 비었다가 다시 나타나는 깜빡임이 없다
   useLayoutEffect(() => {
-    const prev = prevPickRef.current;
-    prevPickRef.current = picked;
-    if (!prev || picked) { if (picked) setPickLeave(null); return undefined; }
-    const mode = roster.some((p) => p.id === prev.id) ? 'sign' : 'drop';
-    const leave = { player: prev, mode, key: `${prev.id}-${Date.now()}` };
+    const prev = prevShownRef.current;
+    prevShownRef.current = shown;
+    if (!prev || shown) { if (shown) setPickLeave(null); return undefined; }
+    const mode = prev.kind === 'pick' && roster.some((p) => p.id === prev.player.id) ? 'sign' : 'drop';
+    const leave = { player: prev.player, owned: prev.owned, mode, key: `${prev.player.id}-${Date.now()}` };
     setPickLeave(leave);
     const t = setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 380 : 330);
     return () => clearTimeout(t);
-  }, [picked]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shownKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!focusSynergy) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') setFocusSynergy(null); };
@@ -2450,26 +2493,36 @@ export default function KboAugmentDraft() {
                         </button>
                       )}
                     </>
-                  ) : (
+                  ) : inspected ? (
                     <>
-                      <div className="grid aspect-[2/3] animate-[fade_.3s_ease-out_both] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
-                        위 카드를 누르면 여기서 자세히 보고 영입합니다. 들어갈 자리는 필드에 초록으로 표시됩니다.
-                      </div>
-                      {pickLeave && (
-                        <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.5rem+0.5rem)]" aria-hidden="true">
-                          <div className={`pick-leave ${pickLeave.mode} aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full`}>
-                            <PlayerCard player={pickLeave.player} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
-                          </div>
+                      {/* 내 라인업에서 누른 선수: 선 자리·시너지까지 반영한 스탯 카드 */}
+                      <div className="flex min-h-0 justify-center lg:flex-1">
+                        <div key={`own-${inspected.player.id}`} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
+                          <PlayerCard player={inspected.player} owned={inspected.owned} onSelect={() => {}} />
                         </div>
-                      )}
+                      </div>
+                      <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+                        <b className="text-gray-200">{inspected.owned.slotLabel}</b> · 다른 자리를 누르면 자리를 바꿉니다
+                      </p>
                     </>
+                  ) : (
+                    <div className="grid aspect-[2/3] animate-[fade_.3s_ease-out_both] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
+                      위 카드를 누르면 여기서 자세히 보고 영입합니다. 내 라인업 선수를 누르면 그 선수의 스탯을 봅니다.
+                    </div>
+                  )}
+                  {!picked && !inspected && pickLeave && (
+                    <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.5rem+0.5rem)]" aria-hidden="true">
+                      <div className={`pick-leave ${pickLeave.mode} aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full`}>
+                        <PlayerCard player={pickLeave.player} owned={pickLeave.owned} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
+                      </div>
+                    </div>
                   )}
                 </div>
                 </div>
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease}
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
