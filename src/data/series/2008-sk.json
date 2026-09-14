@@ -7,7 +7,7 @@
   "subtitle": "한국시리즈 우승",
   "blurb": "김광현을 앞세운 SK가 두산을 꺾고 통합우승을 차지하며 2000년대 후반 왕조의 시작을 알렸다.",
   "notes": [
-    "14명 제한으로 레이번·조웅천·이승호·김강민·조동화·박재홍은 제외."
+    "18명 구성. 이승호·조동화는 제외."
   ],
   "players": [
     {
@@ -62,6 +62,23 @@
       "source": "27G 8승6패 114.2IP ERA3.77 77K 34BB — kowiki"
     },
     {
+      "personId": "레이번",
+      "name": "레이번",
+      "year": 2008,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 60,
+        "control": 55,
+        "stamina": 74,
+        "stability": 80
+      },
+      "note": "",
+      "source": "26G 5승3패 133.2IP ERA3.30 68K 65BB WHIP1.45 — namu"
+    },
+    {
       "personId": "정대현",
       "name": "정대현",
       "year": 2008,
@@ -111,6 +128,23 @@
       },
       "note": "85경기·25홀드 홀드왕",
       "source": "85G 9승2패 5SV 25HLD 77.2IP ERA2.09 64K 32BB — kowiki"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2008,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 72,
+        "stamina": 48,
+        "stability": 87
+      },
+      "note": "13홀드",
+      "source": "52G 1승2패 4SV 13HLD 47IP ERA2.68 33K 15BB — kowiki"
     },
     {
       "personId": "박경완",
@@ -230,6 +264,40 @@
       },
       "note": "",
       "source": "95G .315 8HR 31BB 12SB — kowiki"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2008,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 79,
+        "speed": 72,
+        "defense": 90
+      },
+      "note": "",
+      "source": "80G .298 14HR 22BB 10SB 235AB — kowiki"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2008,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 85,
+        "speed": 55,
+        "defense": 72
+      },
+      "note": "",
+      "source": "112G .318/.420 19HR 69BB 5SB — kowiki"
     },
     {
       "personId": "김재현",

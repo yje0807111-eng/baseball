@@ -40,7 +40,8 @@ for (const file of files) {
   if (typeof s.subtitle !== 'string' || !s.subtitle || s.subtitle.length > 30) err('subtitle 1~30자');
   if (typeof s.blurb !== 'string' || !s.blurb || s.blurb.length > 90) err('blurb 1~90자');
   if (!Array.isArray(s.notes)) err('notes 배열 필요');
-  if (!Array.isArray(s.players) || s.players.length < 10 || s.players.length > 14) err('players 10~14명');
+  // 드래프트 선반이 한 줄 18칸이라 시리즈는 18명까지 (18명보다 많으면 게임이 포지션별로 섞어 18명을 뽑는다)
+  if (!Array.isArray(s.players) || s.players.length < 10 || s.players.length > 18) err('players 10~18명');
 
   const players = Array.isArray(s.players) ? s.players : [];
   const pids = new Set();
