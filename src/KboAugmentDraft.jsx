@@ -763,6 +763,70 @@ const KEYFRAMES = `
 .pop-scroll::-webkit-scrollbar-thumb { background: rgba(16,185,129,.45); border-radius: 99px; }
 .pop-scroll::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,.8); }
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
+/* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
+.rl-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size: 13px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); transition: background .15s, color .15s; }
+.rl-tabs button:hover { color: #fff; background: rgba(255,255,255,.08); }
+.rl-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.rl-tabs svg { width: 18px; height: 18px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rl-tabs button.on { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
+.rl-tabs button.on svg { stroke: #34d399; }
+@media (max-width: 420px) { .rl-tabs { gap: 5px; } .rl-tabs button { gap: 5px; padding: 8px 7px; font-size: 12px; } .rl-tabs svg { width: 16px; height: 16px; } }
+.rl-lead { margin: 0 0 12px; padding: 10px 12px; font-size: 13.5px; line-height: 1.65; color: #e5e7eb; background: rgba(16,185,129,.07); box-shadow: inset 2px 0 0 #10b981; }
+.rl-lead b, .rl-bd b { color: #fff; font-weight: 700; }
+.rl-grp + .rl-grp { border-top: 1px solid rgba(255,255,255,.06); }
+.rl-hd { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 11px 0; text-align: left; }
+.rl-hd::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 8px; background: #374151; transform: rotate(45deg); transition: background .2s; }
+.rl-hd:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+.rl-grp.open .rl-hd::before { background: #10b981; box-shadow: 0 0 8px #10b981; }
+.rl-tx { flex: 1; min-width: 0; }
+.rl-t { display: block; font-size: 14px; font-weight: 700; color: #fff; }
+.rl-sm { display: block; margin-top: 1px; font-size: 12.5px; color: #9ca3af; }
+.rl-grp.open .rl-sm { color: #6ee7b7; }
+.rl-chev { flex: none; width: 16px; height: 16px; margin-top: 3px; fill: none; stroke: #6b7280; stroke-width: 1.8; transition: transform .2s; }
+.rl-grp.open .rl-chev { transform: rotate(180deg); stroke: #10b981; }
+.rl-bd { margin: 0 0 14px 3px; padding: 2px 0 2px 15px; border-left: 1px solid rgba(16,185,129,.3); font-size: 13px; line-height: 1.7; color: #d1d5db; animation: fade .18s ease-out both; }
+.rl-bd p { margin: 0 0 8px; }
+.rl-bd > :last-child { margin-bottom: 0; }
+.rl-bd em { font-style: normal; font-weight: 600; color: #6ee7b7; }
+.rl-tag { display: inline-block; padding: 0 6px; font-size: 12px; font-weight: 600; line-height: 1.6; color: #fcd34d; background: rgba(251,191,36,.1); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); }
+.rl-chip { display: inline-block; padding: 1px 8px; font-size: 12px; font-weight: 600; line-height: 1.6; color: #e5e7eb; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.rl-chip.g { color: #bbf7d0; background: rgba(16,185,129,.12); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); }
+.rl-tip { display: flex; gap: 8px; margin: 10px 0 2px; padding: 7px 10px; font-size: 12.5px; line-height: 1.6; color: #bae6fd; background: rgba(56,189,248,.07); }
+.rl-tip::before { content: "TIP"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
+.rl-slots { display: grid; gap: 6px; margin: 4px 0 10px; }
+.rl-slots > div { display: grid; grid-template-columns: 58px minmax(0, 1fr); align-items: center; gap: 8px; }
+.rl-slots > div > span:first-child { font-size: 12px; font-weight: 700; color: #9ca3af; }
+.rl-slots i { margin-left: 3px; font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; }
+.rl-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.rl-steps { display: grid; gap: 6px; margin: 4px 0 8px; counter-reset: rl; }
+.rl-steps > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
+.rl-steps > div::before { counter-increment: rl; content: counter(rl); display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rl-yn { display: grid; gap: 4px; margin: 4px 0 8px; }
+.rl-yn > div { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
+.rl-yn > div::before { font-weight: 800; text-align: center; }
+.rl-yn .y::before { content: "✓"; color: #34d399; }
+.rl-yn .n::before { content: "✕"; color: #f87171; }
+.rl-tbl { display: grid; grid-template-columns: auto auto minmax(0, 1fr); margin: 4px 0 8px; font-size: 12.5px; background: rgba(255,255,255,.03); }
+.rl-tbl > span { padding: 5px 10px; border-top: 1px solid rgba(255,255,255,.05); }
+.rl-tbl > span.h { border-top: 0; font-size: 11px; font-weight: 700; color: #6b7280; background: rgba(255,255,255,.03); }
+.rl-tbl .n { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; color: #fff; text-align: right; }
+.rl-tbl .up { color: #fca5a5; }
+.rl-tbl .dn { color: #6ee7b7; }
+.rl-ladder { display: grid; gap: 5px; margin: 4px 0 8px; }
+.rl-ladder > div { display: grid; grid-template-columns: 34px 56px minmax(0, 1fr); align-items: center; gap: 8px; font-size: 12.5px; line-height: 1.45; }
+.rl-ladder b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-weight: 800; text-align: right; }
+.rl-ladder i { display: block; height: 6px; background: rgba(255,255,255,.06); }
+.rl-ladder i::after { content: ""; display: block; height: 100%; width: var(--w); background: var(--k); }
+.rl-tiers { display: flex; gap: 4px; margin: 6px 0 8px; }
+.rl-tiers > span { flex: 1; min-width: 0; padding: 5px 4px; text-align: center; font-size: 12px; line-height: 1.35; color: #d1d5db; background: rgba(255,255,255,.04); box-shadow: inset 0 2px 0 rgba(16,185,129,.35); }
+.rl-tiers > span b { display: block; font-family: 'Saira Condensed', sans-serif; font-size: 15px; }
+.rl-tiers > span:nth-child(2) { box-shadow: inset 0 2px 0 rgba(16,185,129,.65); }
+.rl-tiers > span:nth-child(3) { background: rgba(16,185,129,.08); box-shadow: inset 0 2px 0 #10b981; }
+.rl-syn { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 6px 0; padding: 7px 10px; background: rgba(255,255,255,.035); }
+.rl-syn b { display: block; font-size: 13px; }
+.rl-syn small { font-size: 12px; color: #9ca3af; }
+.rl-syn em { flex: none; font-size: 12px; }
 /* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
    --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
 .ui-cut { --c: 14px; clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
@@ -1757,7 +1821,7 @@ function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
 }
 
 /* ───── 가운데 팝업 카드 (배경 어둡게 · 바깥 클릭/Esc 로 닫기) ───── */
-function Modal({ title, eyebrow, onClose, children }) {
+function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -1767,7 +1831,7 @@ function Modal({ title, eyebrow, onClose, children }) {
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
       <section role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
         className="ui-cut ui-frame ui-glass2 w-full max-w-lg animate-[rise_.25s_ease-out_both] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '22px' }}>
-        <header className="flex items-start justify-between gap-4 border-b border-white/10 px-6 pb-4 pt-5">
+        <header className={`flex items-start justify-between gap-4 px-6 pt-5 ${bar ? 'pb-3' : 'border-b border-white/10 pb-4'}`}>
           <div>
             {eyebrow && <p className="ui-lab font-display">{eyebrow}</p>}
             <h2 className="mt-1 text-2xl font-black text-white">{title}</h2>
@@ -1777,32 +1841,47 @@ function Modal({ title, eyebrow, onClose, children }) {
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
           </button>
         </header>
-        <div className="pop-scroll max-h-[70vh] overflow-y-auto py-4 pl-6 pr-5">{children}</div>
+        {bar}
+        {/* bodyKey 가 바뀌면(규칙 탭 전환) 스크롤을 맨 위로 */}
+        <div key={bodyKey} className="pop-scroll max-h-[70vh] overflow-y-auto py-4 pl-6 pr-5">{children}</div>
       </section>
     </div>
   );
 }
 
-function RulesSheet() {
-  return (
-    <div className="flex flex-col gap-5">
-      {RULE_SECTIONS.map((sec) => (
-        <section key={sec.title}>
-          <h3 className="mb-2 flex items-center gap-2.5 text-sm font-bold text-[#10b981]">
-            {sec.title}<span className="h-px flex-1 bg-white/10" aria-hidden="true" />
-          </h3>
-          {/* 왼쪽 짧은 제목 · 오른쪽 한 줄 설명 */}
-          <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm leading-relaxed">
-            {sec.items.map(([k, v]) => (
-              <React.Fragment key={k}>
-                <dt className="font-semibold text-white">{k}</dt>
-                <dd className="m-0 text-gray-300">{v}</dd>
-              </React.Fragment>
-            ))}
-          </dl>
-        </section>
+/* 드래프트 규칙 팝업: 위 큰 탭 카드(3×2)로 섹션을 고르고, 섹션 안 구역은 눌러 열고 닫는다 (섹션을 열면 첫 구역만 펼침) */
+function RulesModal({ onClose }) {
+  const [tab, setTab] = useState(RULE_TABS[0].id);
+  const [open, setOpen] = useState(() => new Set([`${RULE_TABS[0].id}:0`]));
+  const sec = RULE_TABS.find((s) => s.id === tab);
+  const pickTab = (id) => { setTab(id); setOpen(new Set([`${id}:0`])); };
+  const toggle = (key) => setOpen((o) => { const n = new Set(o); if (n.has(key)) n.delete(key); else n.add(key); return n; });
+  const bar = (
+    <nav className="rl-tabs border-b border-white/10 px-4 pb-3 sm:px-6" role="tablist" aria-label="규칙 섹션">
+      {RULE_TABS.map((s) => (
+        <button key={s.id} type="button" role="tab" aria-selected={s.id === tab} className={s.id === tab ? 'on' : ''} onClick={() => pickTab(s.id)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">{s.icon}</svg>{s.label}
+        </button>
       ))}
-    </div>
+    </nav>
+  );
+  return (
+    <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={onClose} bar={bar} bodyKey={tab}>
+      <p className="rl-lead">{sec.lead}</p>
+      {sec.groups.map((g, i) => {
+        const key = `${tab}:${i}`;
+        const on = open.has(key);
+        return (
+          <div key={key} className={`rl-grp${on ? ' open' : ''}`}>
+            <button type="button" className="rl-hd" aria-expanded={on} onClick={() => toggle(key)}>
+              <span className="rl-tx"><span className="rl-t">{g.t}</span><span className="rl-sm">{g.s}</span></span>
+              <svg className="rl-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+            </button>
+            {on && <div className="rl-bd">{g.b}</div>}
+          </div>
+        );
+      })}
+    </Modal>
   );
 }
 
@@ -2343,36 +2422,170 @@ function ModeSelect({ initialMode, record, onStart }) {
   );
 }
 
-const RULE_SECTIONS = [
-  // [짧은 제목, 한 줄 설명] — 화면만 봐도 알 수 있는 조작 설명은 넣지 않는다
-  { title: '엔트리', items: [
-    [`${ROSTER_SIZE}명`, '투수 3 (선발 · 중간계투 · 마무리) + 야수 9 (외야수만 3명)'],
-    ['외국인', `최대 ${FOREIGN_LIMIT}명`],
-    ['동일인', '시즌이 달라도 한 번만 영입'],
-  ] },
-  { title: '드래프트', items: [
-    [`${ROSTER_SIZE}라운드`, '라운드마다 한 명씩 영입'],
-    ['샐러리 캡', '모드에서 정한 CP 안에서만 영입'],
-    ['영입가', '종합 85 이상은 비싸고, 71 이하는 쌈'],
-    ['빈 자리', '드래프트가 끝나면 퓨처스 유망주(종합 55)로 채움'],
-  ] },
-  { title: '방출 · 교체', items: [
-    ['방출', '드래프트 중에만 · 영입가 절반 환불 · 다시 영입 불가'],
-    ['교체 영입', '찬 포지션의 선수를 고르면 가장 약한 선수(또는 먼저 누른 자리)와 바로 교체'],
-    ['라운드', '방출해도 돌아오지 않음'],
-  ] },
-  { title: '포지션', items: [
-    ['제자리 밖', '종합 감소 — 비슷한 자리 −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20'],
-    ['지명타자', '야수는 감소 없음'],
-  ] },
-  { title: '시너지', items: [
-    ['효과', `완성한 선수만 능력치 상승 (능력치마다 최대 +${SYNERGY_STAT_CAP})`],
-    ['단계', '인원이 늘수록 더 강해짐'],
-    ['같은 선수', '카드 시즌이 달라도 인정'],
-  ] },
-  { title: '시즌', items: [
-    ['증강', '시즌을 시작할 때 모드 설정만큼 선택'],
-  ] },
+/* 드래프트 규칙: 탭(섹션) → 구역 { t 질문, s 한 줄 답, b 펼친 내용 }. 문장은 합니다체 */
+const RL_REFUND_EX = { cost: 95 };
+const RULE_TABS = [
+  { id: 'entry', label: '엔트리',
+    icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
+    lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 한 팀을 만듭니다. 포지션마다 정해진 자리에 한 명씩 채웁니다.</>,
+    groups: [
+      { t: '어떤 자리를 채우나요?', s: `투수 3명과 야수 9명, 모두 ${ROSTER_SIZE}자리입니다.`, b: <>
+        <div className="rl-slots">
+          <div><span>투수<i>3</i></span><span className="rl-chips"><span className="rl-chip">선발투수</span><span className="rl-chip">중간계투</span><span className="rl-chip">마무리</span></span></div>
+          <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루수</span><span className="rl-chip">2루수</span><span className="rl-chip">3루수</span><span className="rl-chip">유격수</span></span></div>
+          <div><span>외야<i>3</i></span><span className="rl-chips"><span className="rl-chip">외야수</span><span className="rl-chip">외야수</span><span className="rl-chip">외야수</span></span></div>
+          <div><span>지명<i>1</i></span><span className="rl-chips"><span className="rl-chip g">지명타자 · 야수 누구나</span></span></div>
+        </div>
+        <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시됩니다.</p>
+      </> },
+      { t: '외국인 선수는 몇 명까지 되나요?', s: `최대 ${FOREIGN_LIMIT}명까지 뽑을 수 있습니다.`, b: <>
+        <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠깁니다.</p>
+        <p>한 명을 방출하면 다시 뽑을 수 있습니다.</p>
+      </> },
+      { t: '같은 선수를 또 뽑을 수 있나요?', s: '시즌이 달라도 한 사람은 한 번만 뽑습니다.', b: <>
+        <div className="rl-yn">
+          <div className="y"><span><b>2006 류현진</b>을 영입합니다.</span></div>
+          <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠깁니다.</span></div>
+        </div>
+      </> },
+    ] },
+  { id: 'draft', label: '드래프트',
+    icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
+    lead: <><b>{ROSTER_SIZE}라운드</b> 동안 라운드마다 한 명씩 영입합니다. 정해진 CP 안에서 스타와 가성비 선수를 섞는 것이 핵심입니다.</>,
+    groups: [
+      { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈를 보고, 고르고, 영입합니다.', b: <>
+        <div className="rl-steps">
+          <div><span>시리즈 하나가 열립니다. 구단의 한 시즌, 국가대표, 레전드 중 하나입니다.</span></div>
+          <div><span>선수 카드를 누르면 <b>PICK</b>에 올라 능력치와 영입가를 볼 수 있습니다.</span></div>
+          <div><span><b>영입</b>을 누르면 내 라인업에 들어가고 다음 라운드로 넘어갑니다.</span></div>
+        </div>
+        <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈를 엽니다. 드래프트마다 {START_REROLLS}번 쓸 수 있습니다.</span></div>
+      </> },
+      { t: 'CP는 얼마나 쓸 수 있나요?', s: '모드 화면에서 정한 샐러리 캡만큼 씁니다.', b: <>
+        <p>샐러리 캡은 <span className="rl-chip">700</span> <span className="rl-chip g">800</span> <span className="rl-chip">900</span> CP 중에서 고릅니다.</p>
+        <p>영입할 때마다 영입가만큼 줄어들고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠깁니다.</p>
+        <div className="rl-tip"><span>PICK에 선수를 올리면 위쪽 캡 막대에 쓰일 CP가 미리 표시됩니다.</span></div>
+      </> },
+      { t: '영입가는 어떻게 정해지나요?', s: '종합이 높을수록 점수보다 더 비싸집니다.', b: <>
+        <div className="rl-tbl">
+          <span className="h">종합</span><span className="h">영입가</span><span className="h">차이</span>
+          {[95, 90, 80, 65].map((o) => {
+            const d = costOf(o) - o;
+            return (
+              <React.Fragment key={o}>
+                <span className="n">{o}</span><span className="n">{costOf(o)}</span>
+                <span className={d > 0 ? 'up' : d < 0 ? 'dn' : ''}>{d > 0 ? `${d} CP 더 비쌉니다` : d < 0 ? `${-d} CP 더 쌉니다` : '점수와 같습니다'}</span>
+              </React.Fragment>
+            );
+          })}
+        </div>
+        <p><b>72~84</b>는 종합과 같은 값이고, <b>85 이상</b>은 비싸지며 <b>71 이하</b>는 쌉니다.</p>
+      </> },
+      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 55)가 채웁니다.', b: <>
+        <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없으면</b> 끝납니다.</p>
+        <p>이때 비어 있는 자리는 모두 종합 55의 퓨처스 유망주로 채워집니다.</p>
+        <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리를 유망주로 채우게 됩니다.</span></div>
+      </> },
+    ] },
+  { id: 'swap', label: '방출 · 교체',
+    icon: <path d="M5 8h13l-3-3M19 16H6l3 3" />,
+    lead: <>뽑은 선수를 내보내거나, 이미 찬 자리에 더 좋은 선수를 바로 들일 수 있습니다. 대신 <b>손해</b>가 있습니다.</>,
+    groups: [
+      { t: '방출은 어떻게 하나요?', s: '내 라인업에서 선수를 누르고 방출을 두 번 누릅니다.', b: <>
+        <div className="rl-steps">
+          <div><span>내 라인업에서 내보낼 선수를 누릅니다.</span></div>
+          <div><span><b>방출</b>을 누르면 <b>한 번 더 누르면 방출</b>로 바뀝니다.</span></div>
+          <div><span>한 번 더 누르면 방출됩니다.</span></div>
+        </div>
+      </> },
+      { t: '방출하면 무엇이 달라지나요?', s: '영입가의 절반을 돌려받지만 되돌릴 수 없습니다.', b: <>
+        <div className="rl-yn">
+          <div className="y"><span>영입가의 <b>절반</b>을 CP로 돌려받습니다. ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
+          <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입할 수 없습니다.</b></span></div>
+          <div className="n"><span>이미 쓴 라운드는 <b>돌아오지 않습니다.</b></span></div>
+          <div className="n"><span>드래프트가 끝난 뒤(정비 화면)에는 방출할 수 없습니다.</span></div>
+        </div>
+      </> },
+      { t: '찬 자리에 선수를 데려오려면?', s: '교체 영입으로 한 번에 맞바꿉니다.', b: <>
+        <p>이미 찬 포지션의 선수를 PICK에 올리면 버튼이 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>처럼 바뀝니다.</p>
+        <div className="rl-steps">
+          <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 바꿉니다.</span></div>
+          <div><span>누르지 않았다면 그 포지션에서 <b>가장 약한 선수</b>와 바꿉니다.</span></div>
+        </div>
+        <p>나가는 선수는 방출과 같이 처리되고, 교체 영입도 한 라운드를 씁니다.</p>
+      </> },
+    ] },
+  { id: 'pos', label: '포지션',
+    icon: <><path d="M12 20 4 12l8-8 8 8z" /><circle cx="12" cy="12" r="1.6" /></>,
+    lead: <>선수는 <b>원래 포지션</b>에서 가장 잘합니다. 다른 자리에 세우면 종합이 떨어집니다.</>,
+    groups: [
+      { t: '다른 자리에 세우면 얼마나 약해지나요?', s: '원래 자리와 멀수록 많이 떨어집니다.', b: <>
+        <div className="rl-ladder">
+          {[
+            ['0', 2, '#34d399', '제자리 · 야수가 지명타자일 때'],
+            ['−3', 15, '#a3e635', '비슷한 자리 — 2루↔유격, 1루↔3루, 선발↔불펜, 1루↔지명'],
+            ['−6', 30, '#fbbf24', '그 밖의 같은 계열 — 내야↔외야 등'],
+            ['−8', 40, '#fb923c', '포수 자리로 가거나 포수가 다른 자리로'],
+            ['−20', 100, '#f87171', '투수 ↔ 야수'],
+          ].map(([v, w, k, txt]) => (
+            <div key={v}><b style={{ color: k }}>{v}</b><i style={{ '--w': `${w}%`, '--k': k }} /><span>{txt}</span></div>
+          ))}
+        </div>
+        <p>내 라인업 선수를 누르면 선 자리에서 달라진 능력치를 볼 수 있습니다.</p>
+      </> },
+      { t: '지명타자에는 누구를 세우나요?', s: '야수라면 누구든 감소 없이 설 수 있습니다.', b: <>
+        <p>수비가 약하지만 방망이가 좋은 선수를 두기 좋은 자리입니다.</p>
+      </> },
+      { t: '선수 자리는 어떻게 바꾸나요?', s: '선수를 끌어서 다른 자리에 놓습니다.', b: <>
+        <div className="rl-yn">
+          <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b>합니다.</span></div>
+          <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b>됩니다.</span></div>
+        </div>
+        <div className="rl-tip"><span>라인업의 자리를 누르면 선반에 그 포지션 선수만 모아 보여 줍니다.</span></div>
+      </> },
+    ] },
+  { id: 'syn', label: '시너지',
+    icon: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
+    lead: <>실제로 함께 뛰었던 선수나 조건이 맞는 선수를 모으면 <b>그 선수들이 강해집니다.</b></>,
+    groups: [
+      { t: '시너지를 만들면 무엇이 좋아지나요?', s: '시너지에 속한 선수만 능력치가 오릅니다.', b: <>
+        <p>팀 전체가 아니라 <b>조건을 채운 선수들만</b> 능력치가 오릅니다.</p>
+        <p>여러 시너지가 겹쳐도 한 능력치는 <em>최대 +{SYNERGY_STAT_CAP}</em>까지만 오릅니다.</p>
+      </> },
+      { t: '실화 조합', s: '실제로 함께한 선수들을 모읍니다.', b: <>
+        <div className="rl-syn"><span><b>클린업 트리오</b><small>이승엽 · 이대호 · 김동주 중 2명</small></span><em>파워 +5</em></div>
+        <div className="rl-syn"><span><b>SK 왕조 배터리</b><small>김광현 · 박경완</small></span><em>안정 · 수비 +4</em></div>
+        <p>카드 시즌이 달라도 같은 사람이면 인정됩니다.</p>
+      </> },
+      { t: '팀 구성', s: '조건에 맞는 선수가 많을수록 단계가 오릅니다.', b: <>
+        <p><b>홈런 군단</b> — 파워 80 이상 타자</p>
+        <div className="rl-tiers"><span><b>3명</b>파워 +2</span><span><b>4명</b>파워 +4</span><span><b>6명</b>파워 +7</span></div>
+        <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸이 표시됩니다.</span></div>
+      </> },
+      { t: '프랜차이즈의 기억', s: '가장 많이 뽑은 구단의 선수들이 강해집니다.', b: <>
+        <div className="rl-tiers"><span><b>3명</b>능력치 +1</span><span><b>5명</b>+2 · 수비·안정 +2</span><span><b>7명</b>+4 · 수비·안정 +3</span></div>
+        <p>드래프트 중에는 보이지 않고, <b>드래프트가 끝나면 공개</b>됩니다. 인원이 같은 구단이 여럿이면 모두 혜택을 받습니다.</p>
+      </> },
+    ] },
+  { id: 'season', label: '시즌',
+    icon: <><path d="M7 4h10v3a5 5 0 0 1-10 0z" /><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7" /></>,
+    lead: <>{ROSTER_SIZE}명을 모두 채우면 라인업을 다듬고, 증강을 골라 <b>AI 올스타</b>와 경기합니다.</>,
+    groups: [
+      { t: '드래프트가 끝나면 무엇을 하나요?', s: '정비 화면에서 선수 자리를 다듬습니다.', b: <>
+        <div className="rl-yn">
+          <div className="y"><span>선수를 끌어 자리를 옮길 수 있습니다.</span></div>
+          <div className="n"><span>방출과 영입은 할 수 없습니다.</span></div>
+        </div>
+      </> },
+      { t: '증강은 언제 고르나요?', s: '시즌을 시작할 때 모드에서 정한 개수만큼 고릅니다.', b: <>
+        <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중에서 정합니다.</p>
+        <p>매번 <b>3장 중 1장</b>을 고르고, 경기 중 조건이 맞으면 발동합니다.</p>
+      </> },
+      { t: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타입니다.', b: <>
+        <p>AI 난이도 <span className="rl-chip">쉬움</span> <span className="rl-chip g">보통</span> <span className="rl-chip">강함</span>에 따라 상대 능력치가 달라집니다.</p>
+        <p>경기 결과는 전적에 쌓이고, 같은 상대와 다시 겨룰 수도 있습니다.</p>
+      </> },
+    ] },
 ];
 
 export default function KboAugmentDraft() {
@@ -3007,7 +3220,7 @@ export default function KboAugmentDraft() {
       </main>
       )}
 
-      {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
+      {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
       <HighlightToast toast={toast} />
