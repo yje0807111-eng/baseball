@@ -7,7 +7,7 @@
   "subtitle": "9전 전승 금메달",
   "blurb": "예선부터 결승까지 전승으로 올림픽 금메달을 따내며 병역 혜택과 국민적 환호를 동시에 얻었다.",
   "notes": [
-    "14명 제한으로 봉중근·송승준·장원삼·권혁·진갑용·이대호·고영민·김민재·이택근은 제외."
+    "18명 구성: 봉중근·권혁·진갑용·이대호 추가. 송승준·장원삼·고영민·김민재·이택근은 미수록."
   ],
   "players": [
     {
@@ -62,6 +62,23 @@
       "source": "24G(23GS) 14승5패 154.2IP ERA2.33 119K 42BB WHIP1.05 — kowiki"
     },
     {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 68,
+        "stamina": 89,
+        "stability": 88
+      },
+      "note": "",
+      "source": "28G 11승8패 186.1IP ERA2.66 140K 68BB WHIP1.19 — kowiki"
+    },
+    {
       "personId": "오승환",
       "name": "오승환",
       "year": 2008,
@@ -113,6 +130,23 @@
       "source": "46G 26SV 58IP ERA1.71 46K 16BB — kowiki"
     },
     {
+      "personId": "권혁",
+      "name": "권혁",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 59,
+        "stamina": 50,
+        "stability": 97
+      },
+      "note": "15홀드",
+      "source": "43G 6승0패 15HLD 47.2IP ERA1.32 37K 22BB — kowiki"
+    },
+    {
       "personId": "강민호",
       "name": "강민호",
       "year": 2008,
@@ -128,6 +162,23 @@
       },
       "note": "포수 골든글러브",
       "source": "122G .292 19HR 49BB 2SB — kowiki"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2008,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 73,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": "105G .279 11HR 30BB 1SB — kowiki"
     },
     {
       "personId": "이승엽",
@@ -247,6 +298,23 @@
       },
       "note": "",
       "source": "106G .312 0HR 47BB 28SB — kowiki"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2008,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 80,
+        "speed": 40,
+        "defense": 60
+      },
+      "note": "",
+      "source": "122G .301/.400 18HR 0SB 94RBI — kowiki"
     }
   ]
 }

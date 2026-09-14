@@ -7,7 +7,7 @@
   "subtitle": "WBC 4강 진출",
   "blurb": "한국 야구가 처음으로 국제무대 경쟁력을 증명한 대회, 4강 신화를 쓰며 세계를 놀라게 했다.",
   "notes": [
-    "원소스 20명 중 14명으로 압축(최대 14명 제한). 2루수 공백을 메우기 위해 김종국(KIA)을 추가 — 2006 WBC 최종 엔트리 내야수로 ko.wikipedia에서 확인.",
+    "원소스 20명 중 18명으로 구성. 서재응·홍성흔·이병규·김태균은 enwiki 2006 WBC 로스터에서 확인. 2루수 공백을 메우기 위해 김종국(KIA)을 추가 — 2006 WBC 최종 엔트리 내야수로 ko.wikipedia에서 확인.",
     "봉중근: 2005년 어깨 수술로 결장, 2006년 5월 신시내티에서 방출돼 2006년 클럽 기록이 없음. 2007년 LG 복귀 후 기록(111.2IP ERA5.32)을 참고해 보수적으로 추정."
   ],
   "players": [
@@ -61,6 +61,23 @@
       },
       "note": "",
       "source": "2006 삼성 32G 157.1IP ERA2.92 133K 38BB — kowiki"
+    },
+    {
+      "personId": "서재응",
+      "name": "서재응",
+      "year": 2006,
+      "team": "MLB 다저스",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 70,
+        "stamina": 80,
+        "stability": 56
+      },
+      "note": "",
+      "source": "2006 LAD·TB 36G(26GS) 3승12패 157IP ERA5.33 88K 56BB WHIP1.61 — kowiki"
     },
     {
       "personId": "구대성",
@@ -248,6 +265,57 @@
       },
       "note": "",
       "source": "2006 삼성 110G .288 6HR 29BB 1SB, 포수 골든글러브 — kowiki"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2006,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 60,
+        "contact": 75,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": "2006 두산 119G .287/.336 10HR 26BB 1SB — kowiki"
+    },
+    {
+      "personId": "이병규(1974)",
+      "name": "이병규",
+      "year": 2006,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 55,
+        "contact": 78,
+        "speed": 48,
+        "defense": 78
+      },
+      "note": "",
+      "source": "2006 LG 120G .297/.344 7HR 31BB 3SB — kowiki"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2006,
+      "team": "한화",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 77,
+        "speed": 40,
+        "defense": 58
+      },
+      "note": "",
+      "source": "2006 한화 124G .291/.405 13HR 82BB 2SB — kowiki"
     }
   ]
 }

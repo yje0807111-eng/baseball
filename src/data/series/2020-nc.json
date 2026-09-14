@@ -7,22 +7,26 @@
   "subtitle": "창단 첫 통합우승",
   "blurb": "양의지와 나성범을 앞세운 NC 다이노스가 창단 첫 정규시즌·한국시리즈 통합우승을 달성했다.",
   "notes": [
-    "14명 제한으로 송명기·이명기는 제외. 2020년 타고투저 시즌 보정으로 투수 stability +3 반영."
+    "18명 구성: 송명기·이명기·김태군·임창민 추가. 2020년 타고투저 시즌 보정으로 투수 stability +3 반영."
   ],
   "players": [
     { "personId": "루친스키", "name": "루친스키", "year": 2020, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 81, "control": 75, "stamina": 89, "stability": 88 }, "note": "19승", "source": "183IP ERA3.05 167K 57BB WHIP1.26 — KBO 기록실" },
     { "personId": "구창모", "name": "구창모", "year": 2020, "team": "NC", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 93, "control": 87, "stamina": 64, "stability": 99 }, "note": "ERA1.74·부상 이탈", "source": "15G 93.1IP ERA1.74 102K 18BB WHIP0.81 9승 — KBO 기록실" },
     { "personId": "라이트", "name": "라이트", "year": 2020, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 73, "control": 66, "stamina": 82, "stability": 69 }, "note": "", "source": "157.2IP ERA4.68 125K 63BB WHIP1.44 11승 — KBO 기록실" },
+    { "personId": "송명기", "name": "송명기", "year": 2020, "team": "NC", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 60, "stamina": 62, "stability": 80 }, "note": "", "source": "36G 87.2IP ERA3.70 72K 39BB WHIP1.33 9승 — kowiki" },
     { "personId": "원종현", "name": "원종현", "year": 2020, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 71, "stamina": 50, "stability": 74 }, "note": "30세이브", "source": "58G 57IP ERA4.26 41K 20BB WHIP1.33 30SV — KBO 기록실" },
     { "personId": "김진성", "name": "김진성", "year": 2020, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 85, "stamina": 48, "stability": 91 }, "note": "", "source": "48G 47.1IP ERA2.66 56K 10BB WHIP1.08 6HLD — KBO 기록실" },
     { "personId": "임정호", "name": "임정호", "year": 2020, "team": "NC", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 80, "control": 57, "stamina": 45, "stability": 70 }, "note": "22홀드", "source": "69G 41IP ERA4.61 38K 20BB WHIP1.27 22HLD — KBO 기록실" },
+    { "personId": "임창민", "name": "임창민", "year": 2020, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 50, "stamina": 45, "stability": 59 }, "note": "", "source": "44G 37.2IP ERA5.26 44K 23BB WHIP1.65 11HLD — kowiki" },
     { "personId": "양의지", "name": "양의지", "year": 2020, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 86, "contact": 88, "speed": 52, "defense": 92 }, "note": "KS MVP·포수 골든글러브", "source": ".328/.400 33HR 5SB(2CS) 528PA 124타점 — KBO 기록실" },
+    { "personId": "김태군", "name": "김태군", "year": 2020, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 72, "speed": 40, "defense": 82 }, "note": "", "source": ".292 1HR 0SB 113AB(80G) — kowiki" },
     { "personId": "강진성", "name": "강진성", "year": 2020, "team": "NC", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 82, "speed": 62, "defense": 62 }, "note": "", "source": ".309/.351 12HR 9SB(1CS) 432PA(121G) — KBO 기록실" },
     { "personId": "박민우", "name": "박민우", "year": 2020, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 55, "contact": 93, "speed": 72, "defense": 82 }, "note": "2루수 골든글러브", "source": ".345/.402 8HR 13SB(6CS) 530PA — KBO 기록실" },
     { "personId": "박석민", "name": "박석민", "year": 2020, "team": "NC", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 68, "contact": 82, "speed": 40, "defense": 72 }, "note": "", "source": ".306/.436 14HR 0SB 448PA 75BB — KBO 기록실" },
     { "personId": "노진혁", "name": "노진혁", "year": 2020, "team": "NC", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 73, "contact": 71, "speed": 42, "defense": 76 }, "note": "", "source": ".274/.356 20HR 0SB 484PA — KBO 기록실" },
     { "personId": "알테어", "name": "알테어", "year": 2020, "team": "NC", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 85, "contact": 73, "speed": 78, "defense": 82 }, "note": "", "source": ".278/.352 31HR 22SB(3CS) 546PA 108타점 — KBO 기록실" },
     { "personId": "나성범", "name": "나성범", "year": 2020, "team": "NC", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 87, "contact": 87, "speed": 52, "defense": 68 }, "note": "", "source": ".324/.390 34HR 3SB 584PA 115득점 112타점 — KBO 기록실" },
-    { "personId": "권희동", "name": "권희동", "year": 2020, "team": "NC", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 67, "speed": 48, "defense": 70 }, "note": "", "source": ".260/.379 12HR 3SB 426PA 58BB — KBO 기록실" }
+    { "personId": "권희동", "name": "권희동", "year": 2020, "team": "NC", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 67, "speed": 48, "defense": 70 }, "note": "", "source": ".260/.379 12HR 3SB 426PA 58BB — KBO 기록실" },
+    { "personId": "이명기", "name": "이명기", "year": 2020, "team": "NC", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 81, "speed": 64, "defense": 72 }, "note": "", "source": ".306 2HR 12SB(7CS) 477AB(136G) 50BB — kowiki" }
   ]
 }

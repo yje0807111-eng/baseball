@@ -20,7 +20,7 @@
 | `franchise` | string \| null | team만. `KIA`(해태 포함) `SAMSUNG` `LG` `DOOSAN`(OB 포함) `SSG`(SK 포함) `LOTTE` `HANWHA`(빙그레 포함) `KIWOOM`(넥센·히어로즈 포함) `NC` `KT` `HYUNDAI`(현대 유니콘스). national·legend는 `null` |
 | `subtitle` | string | 30자 이하, 검증된 성과. 예: `"한국시리즈 우승 · 정규시즌 1위"`, `"9전 전승 금메달"` |
 | `blurb` | string | 90자 이하, 야구를 잘 모르는 사람에게 이 팀/대회가 왜 유명한지 1~2문장 |
-| `players` | array | 10~14명 |
+| `players` | array | 10~18명 (드래프트 선반이 한 줄 18칸. 18명보다 많은 시리즈는 게임이 포지션마다 1명씩 넣고 섞어 18명을 뽑는다) |
 | `notes` | string[] | 검증 못 한 부분, 추정한 수치. 없으면 `[]` |
 
 ### 포지션 구성 (시리즈마다 최소)
