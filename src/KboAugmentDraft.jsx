@@ -1246,7 +1246,12 @@ function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
           className="rounded px-1.5 py-0.5 text-xs font-semibold text-[#10b981] hover:bg-[#10b981]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">전체 보기</button>
       </div>
       {list.length
-        ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
+        ? (
+          // 6줄까지 보이고 나머지는 스크롤 (한 줄 약 3.5rem + 간격)
+          <ul className="flex max-h-[23rem] flex-col gap-1.5 overflow-y-auto pr-1 [scrollbar-width:thin]">
+            {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} focused={focusId === s.id} onFocus={onFocus} />)}
+          </ul>
+        )
         : <p className="text-xs text-gray-500">선수를 영입하면 시너지가 나타납니다.</p>}
     </section>
   );
@@ -1513,7 +1518,7 @@ const RULE_SECTIONS = [
   { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 선발 3명, 나머지 포지션은 1명씩`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
   { title: '영입가', items: [`샐러리 캡 ${SALARY_CAP} CP 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
-  { title: '방출', items: ['영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
+  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
   { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
   { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, `시즌을 시작하면 경기 화면에서 증강 ${SEASON_AUGMENTS}개를 고름`, '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
 ];
@@ -1578,6 +1583,7 @@ export default function KboAugmentDraft() {
     setRoster(next);
     setCp(nextCp);
     setPicked(null);
+    setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
     if (next.length >= ROSTER_SIZE) {
       // 엔트리 완성 → 정비 화면. 증강은 시즌을 시작할 때 고른다
       setSeries(null);
@@ -1699,16 +1705,12 @@ export default function KboAugmentDraft() {
     return out ? { out, roster: placed.filter((p) => p !== out), refund: releaseRefund(out), banned: [...released, personKey(out)] } : null;
   };
   const handleRelease = (slot) => {
-    if ((phase !== 'draft' && phase !== 'ready') || choice) return;
+    if (phase !== 'draft' || choice) return; // 정비 화면에서는 방출 불가
     const r = releaseFrom(roster, slot);
     if (!r) return;
     setRoster(r.roster);
     setCp(cp + r.refund);
     setReleased(r.banned);
-    if (phase === 'ready') { // 정비 중 방출하면 빈 자리를 채우러 드래프트로 돌아간다
-      setPhase('draft');
-      setSeries(rollSeries(r.roster, cp + r.refund, null, r.banned));
-    }
   };
   /* 교체 영입: 마감된 포지션의 후보를 고르면, 그 자리에서 실전 종합이 가장 낮은 선수를 방출하고 곧바로 들인다 */
   const swapPlan = (() => {
@@ -1725,6 +1727,7 @@ export default function KboAugmentDraft() {
     setCp(nextCp);
     setReleased(swapPlan.banned);
     setPicked(null);
+    setFocusSynergy(null);
     setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned));
   };
 
@@ -1806,7 +1809,7 @@ export default function KboAugmentDraft() {
               <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-[#10b981]">Final Check</p>
               <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
               <p className="mt-2 text-sm text-gray-400">
-                선수를 끌어 자리를 바꾸고, 필요하면 방출한 뒤 드래프트로 돌아가 빈 자리를 다시 채울 수 있습니다.
+                선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
                 시즌을 시작하면 경기 화면에서 증강 {SEASON_AUGMENTS}개를 고르고 곧바로 플레이볼합니다. 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
               </p>
               {offPositionPlayers.length > 0 && (
@@ -1818,7 +1821,7 @@ export default function KboAugmentDraft() {
                   ))}
                 </ul>
               )}
-              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} onRelease={handleRelease} highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)} /></div>
+              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)} /></div>
               <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
                   ['타선 공격력', myTeam.offense.toFixed(1)],
