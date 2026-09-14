@@ -8,10 +8,10 @@ import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 /* ───────────── 1. 규칙 상수 ───────────── */
 export const SALARY_CAP = 800;
 export const FOREIGN_LIMIT = 3;
-export const SLOT_LIMITS = { SP: 3, RP: 1, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 1, DH: 1 };
-export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 11
+export const SLOT_LIMITS = { SP: 1, RP: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 3, DH: 1 };
+export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 12
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
-export const POS_LABEL = { SP: '선발', RP: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
+export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const START_REROLLS = 3;
@@ -107,7 +107,21 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 const personKey = (p) => p.personId || p.name;
 
 /* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
-export const SLOTS = POS_ORDER.flatMap((pos) => Array.from({ length: SLOT_LIMITS[pos] }, (_, i) => ({ id: SLOT_LIMITS[pos] > 1 ? `${pos}${i + 1}` : pos, pos })));
+/* 자리 12개: 투수는 역할(선발투수·중간계투·마무리), 외야는 셋. pos 는 제자리로 받는 원래 포지션(불펜 둘은 RP, 외야 셋은 OF) */
+export const SLOTS = [
+  { id: 'SP', pos: 'SP', label: '선발투수' },
+  { id: 'MR', pos: 'RP', label: '중간계투' },
+  { id: 'CL', pos: 'RP', label: '마무리' },
+  { id: 'C', pos: 'C', label: '포수' },
+  { id: '1B', pos: '1B', label: '1루수' },
+  { id: '2B', pos: '2B', label: '2루수' },
+  { id: '3B', pos: '3B', label: '3루수' },
+  { id: 'SS', pos: 'SS', label: '유격수' },
+  { id: 'OF1', pos: 'OF', label: '외야수1' },
+  { id: 'OF2', pos: 'OF', label: '외야수2' },
+  { id: 'OF3', pos: 'OF', label: '외야수3' },
+  { id: 'DH', pos: 'DH', label: '지명타자' },
+];
 export const slotPos = (id) => SLOTS.find((s) => s.id === id)?.pos;
 
 /** slot 이 없는 선수(AI 드래프트 등)는 원래 포지션의 빈 자리에 세운다 */
@@ -369,13 +383,14 @@ export function buildTeam(name, roster, buff = 0) {
   const bonus = { bat: buff, pit: buff };
 
   const batters = roster.filter((p) => p.type === 'batter');
-  const sps = roster.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall);
-  const rp = roster.find((p) => p.position === 'RP');
+  const sps = roster.filter((p) => p.slot === 'SP'); // 선발투수 자리
+  const mr = roster.find((p) => p.slot === 'MR'); // 중간계투
+  const rp = roster.find((p) => p.slot === 'CL'); // 마무리
   const batValue = (p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2;
   const handShare = (h) => (batters.length ? batters.reduce((s, p) => s + (p.hand === h ? 1 : p.hand === 'S' ? 0.5 : 0), 0) / batters.length : 0);
 
   return {
-    name, roster, synergies, bonus, batters, sps, rp,
+    name, roster, synergies, bonus, batters, sps, mr, rp,
     offense: avg(batters.map(batValue)) + bonus.bat,
     defense: avg(batters.map((p) => p.stats.defense)),
     rightRatio: handShare('R'),
@@ -384,13 +399,14 @@ export function buildTeam(name, roster, buff = 0) {
   };
 }
 
-/** 이닝별 등판 투수: 에이스 → 2선발 → 9회 마무리 */
+/** 이닝별 등판 투수: 선발투수(체력만큼) → 중간계투 → 9회 마무리 */
 function pitcherFor(team, inning) {
   const ace = team.sps[0];
   const aceInnings = ace.stats.stamina >= 90 ? 7 : ace.stats.stamina >= 80 ? 6 : 5;
   if (inning === 9 && team.rp) return { pitcher: team.rp, tired: false };
   if (inning <= aceInnings) return { pitcher: ace, tired: inning === aceInnings };
-  return { pitcher: team.sps[1] || ace, tired: !team.sps[1] };
+  if (team.mr) return { pitcher: team.mr, tired: false };
+  return { pitcher: team.rp || ace, tired: !team.rp };
 }
 
 /* ───────────── 7. 증강 & 시즌 이벤트 정의 ─────────────
@@ -815,8 +831,8 @@ function CapDashboard({ round, cp, roster, phase, onOpenRules, wide = false }) {
     <header className="sticky top-0 z-30 shrink-0 border-b border-gray-800 bg-[#111827]/95 backdrop-blur">
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
         <div className="leading-none">
-          <p className="font-display text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">KBO All-Time</p>
-          <p className="mt-1 text-lg font-bold text-white">드래프트 &amp; 증강</p>
+          <p className="font-display text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Legend Draft</p>
+          <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
         </div>
 
         <div className="flex items-baseline gap-2">
@@ -986,8 +1002,13 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
    900×580 설계 크기로 그리고 컨테이너 폭에 맞춰 축소한다. 초상은 지금 카드 그림의 얼굴 크롭(정면 상체 초상이 생기면 교체) */
 const FIELD_W = 900;
 const FIELD_H = 580;
-const SLOT_XY = { RP: [790, 515], C: [450, 515], '1B': [750, 370], '2B': [615, 215], '3B': [150, 370], SS: [285, 215], OF: [450, 90], DH: [110, 515] };
-const ROTATION_XY = [450, 365];
+/* 자리별 토큰 중심 (900×580 설계 좌표): 외야 셋은 좌·중·우, 선발은 마운드, 불펜 둘은 1루 쪽 파울 지역 */
+const SLOT_XY = {
+  OF1: [215, 150], OF2: [450, 70], OF3: [685, 150],
+  SS: [300, 245], '2B': [600, 245], '3B': [150, 370], '1B': [730, 352],
+  SP: [450, 360], C: [450, 520], DH: [110, 515],
+  MR: [790, 448], CL: [790, 536],
+};
 
 const Silhouette = () => (
   <svg className="lf-sil" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -1023,46 +1044,27 @@ function tokenView(slot, player, kind, boosted) {
   const sub = kind === 'ghost' ? '영입 시'
     : kind === 'clash' ? '마감'
       : moved ? `원래 ${moved} −${player.overall - base.overall}`
-        : player ? `${player.year} ${player.team}` : POS_LABEL[slot.pos];
+        : player ? `${player.year} ${player.team}` : slot.label;
   return { eff, moved, color, sub, boost: eff?.synergyBoost };
 }
 
 function SlotToken({ slot, player, kind, flags, bind, boosted }) {
   const bust = useBust(player, '260%');
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
-  const [x, y] = SLOT_XY[slot.pos];
+  const [x, y] = SLOT_XY[slot.id];
   return (
     <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
-      aria-label={player ? `${POS_LABEL[slot.pos]} 자리 ${player.name} ${eff.overall}` : `${POS_LABEL[slot.pos]} 빈 자리`}
+      aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
       className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
       <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
       <div className="lf-bar">
-        <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.pos} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
+        <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.id} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
         {eff && (
           <em className="lf-ov font-display not-italic tabular-nums" style={boost ? { color: '#34d399' } : undefined} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
             {boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}
           </em>
         )}
       </div>
-    </div>
-  );
-}
-
-function RotationRow({ slot, index, player, kind, flags, bind, boosted }) {
-  const bust = useBust(player, '260%');
-  const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
-  return (
-    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
-      aria-label={player ? `${index + 1}선발 ${player.name} ${eff.overall}` : `${index + 1}선발 빈 자리`}
-      className={`lf-row ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
-      <span className="rn font-display">{index + 1}</span>
-      <span className="rb" style={bust}>{!bust && <Silhouette />}</span>
-      <span className="nm">{player ? player.name : '빈 자리'}{(kind !== 'mine' || moved) && player && <small className={moved && kind === 'mine' ? 'lf-off' : ''}>{sub}</small>}</span>
-      {eff && (
-        <em className="ov font-display not-italic tabular-nums" style={boost ? { color: '#34d399' } : undefined} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
-          {boost && <span className="mr-0.5 text-[10px]">▲</span>}{eff.overall}
-        </em>
-      )}
     </div>
   );
 }
@@ -1149,18 +1151,12 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
     },
   });
 
-  const rotation = SLOTS.filter((s) => s.pos === 'SP');
-  const others = SLOTS.filter((s) => s.pos !== 'SP');
   return (
     <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[radial-gradient(120%_95%_at_32%_62%,#13291e_0,#0c1711_52%,#070c09_100%)] ${className}`}
       style={filling ? undefined : { height: FIELD_H * scale }}>
       <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
         <FieldArt />
-        <div className="lf-rot" style={{ left: ROTATION_XY[0], top: ROTATION_XY[1] }}>
-          <div className="lf-rh font-display"><span>선발 로테이션</span><span>{rotation.filter((s) => at(s.id)).length}/{rotation.length}</span></div>
-          {rotation.map((s, i) => <RotationRow key={s.id} slot={s} index={i} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={boosted} />)}
-        </div>
-        {others.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={boosted} />)}
+        {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={boosted} />)}
       </div>
       {overlay && <div className="syn-dock" style={{ width: reserve }}>{overlay}</div>}
       {highlight && (
@@ -1201,7 +1197,7 @@ function PanelTitle({ children, aside }) {
 
 function RosterPanel({ roster }) {
   const placed = applySynergies(withSlots(roster).map(playAt));
-  const rows = SLOTS.map((s) => ({ pos: s.pos, key: s.id, player: placed.find((p) => p.slot === s.id) }));
+  const rows = SLOTS.map((s) => ({ pos: s.id, key: s.id, player: placed.find((p) => p.slot === s.id) }));
   const spent = roster.reduce((s, p) => s + p.cost, 0);
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
@@ -1209,7 +1205,7 @@ function RosterPanel({ roster }) {
       <ul className="flex flex-col gap-1">
         {rows.map(({ pos, key, player }) => (
           <li key={key} className={`flex items-center gap-2.5 rounded-md px-2 py-1 ${player ? 'bg-[#111827]' : 'border border-dashed border-gray-700'}`}>
-            <span className="w-7 font-display text-sm font-bold text-gray-400">{pos}</span>
+            <span className="w-9 shrink-0 font-display text-sm font-bold text-gray-400">{pos}</span>
             {player ? (
               <>
                 <FaceChip player={player} className="h-8 w-8" />
@@ -1595,7 +1591,7 @@ function MvpStage({ result }) {
    ════════════════════════════════════════════════════════════════════ */
 
 const RULE_SECTIONS = [
-  { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 선발 3명, 나머지 포지션은 1명씩`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
+  { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
   { title: '영입가', items: [`샐러리 캡 ${SALARY_CAP} CP 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
   { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
