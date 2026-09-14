@@ -265,7 +265,7 @@ function biggestFranchise(roster) {
 const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
 const PREMIER12_2015 = DRAFT_SERIES.find((s) => s.id === '2015-premier12')?.players.map(personKey) || [];
 const tier = (need, effect, bonus) => ({ need, effect, bonus });
-const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, tiers, members: (r) => personMembers(r, names) });
+const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, names, tiers, members: (r) => personMembers(r, names) });
 const build = (id, name, cond, members, tiers) => ({ id, kind: 'build', name, cond, tiers, members });
 
 /* members(r): 조건을 채우는 선수들. 단계(tiers)를 넘으면 그 단계 보너스가 이 선수들에게만 붙는다
@@ -664,6 +664,17 @@ const KEYFRAMES = `
 .syn-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.55), rgba(16,185,129,.35)); border-radius: 99px; border: 1px solid rgba(5,8,15,.6); }
 .syn-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.85), rgba(52,211,153,.6)); }
 @supports not selector(::-webkit-scrollbar) { .syn-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.5) transparent; } }
+/* 중계 그래픽 묶음: 각진 판 + 초록 윗줄 + 라벨 탭 */
+.bc-grp { position: relative; border-top: 3px solid #10b981; background: #0b111b; padding: 26px 10px 10px; }
+.bc-label { position: absolute; left: 0; top: -3px; padding: 3px 14px 3px 10px; background: #10b981; color: #04150e; font-size: 11px; font-weight: 700; letter-spacing: .2em; clip-path: polygon(0 0,100% 0,88% 100%,0 100%); }
+/* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
+.syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
+.dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
+.dock-row:hover { background: rgba(255,255,255,.03); }
+.dock-row.on { background: linear-gradient(90deg, rgba(16,185,129,.16), transparent); box-shadow: inset 2px 0 0 #10b981; }
+.dock-row.open { background: rgba(56,189,248,.07); box-shadow: inset 2px 0 0 #38bdf8; }
+.dock-row.on.open { background: linear-gradient(90deg, rgba(16,185,129,.16), rgba(56,189,248,.06)); box-shadow: inset 2px 0 0 #10b981; }
+.dock-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
 .lf-drag { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -60%) rotate(-3deg); display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: #0f1724; box-shadow: 0 0 0 2px #10b981, 0 12px 28px rgba(0,0,0,.6); color: #fff; font-weight: 700; font-size: 14px; }
 .lf-drag i { width: 36px; height: 44px; background-color: #0b111b; background-repeat: no-repeat; }
@@ -1049,10 +1060,11 @@ function DragGhost({ player, x, y }) {
  * 내 라인업 필드. 선수를 끌어 다른 자리에 놓거나(빈 자리면 이동, 사람이 있으면 맞교환),
  * 한 명을 누른 뒤 다른 자리를 눌러도 바뀐다. candidate 가 있으면 들어갈 자리를 초록으로 미리 보여준다.
  */
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, highlight, focusLabel, onClearFocus, locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState(0); // 오른쪽 도크(reserve)를 뺀 폭 안에서 구장을 가운데로
   const [pick, setPick] = useState(null);
   const [drag, setDrag] = useState(null);
   const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
@@ -1061,10 +1073,15 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return undefined;
-    const ro = new ResizeObserver(([e]) => setScale(Math.min(1, e.contentRect.width / FIELD_W)));
+    const ro = new ResizeObserver(([e]) => {
+      const room = Math.max(0, e.contentRect.width - reserve);
+      const k = Math.min(1, room / FIELD_W);
+      setScale(k);
+      setOffset(Math.max(0, (room - FIELD_W * k) / 2));
+    });
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [reserve]);
 
   const placed = withSlots(roster);
   const at = (id) => placed.find((p) => p.slot === id);
@@ -1113,8 +1130,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const rotation = SLOTS.filter((s) => s.pos === 'SP');
   const others = SLOTS.filter((s) => s.pos !== 'SP');
   return (
-    <div ref={wrapRef} className="relative w-full overflow-hidden border border-gray-800 bg-[#0b140f]" style={{ height: FIELD_H * scale }}>
-      <div className="lf-field" style={{ transform: `scale(${scale})` }}>
+    <div ref={wrapRef} className="relative w-full overflow-hidden bg-[radial-gradient(120%_95%_at_32%_62%,#13291e_0,#0c1711_52%,#070c09_100%)]" style={{ height: FIELD_H * scale }}>
+      <div className="lf-field" style={{ transform: `translateX(${offset}px) scale(${scale})` }}>
         <FieldArt />
         <div className="lf-rot" style={{ left: ROTATION_XY[0], top: ROTATION_XY[1] }}>
           <div className="lf-rh font-display"><span>선발 로테이션</span><span>{rotation.filter((s) => at(s.id)).length}/{rotation.length}</span></div>
@@ -1122,6 +1139,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
         </div>
         {others.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={boosted} />)}
       </div>
+      {overlay && <div className="syn-dock" style={{ width: reserve }}>{overlay}</div>}
       {highlight && (
         <button type="button" onClick={onClearFocus}
           className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
@@ -1134,7 +1152,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
         </p>
       )}
       {onRelease && pick && at(pick) && (
-        <div className="absolute right-3 top-2 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
+        <div className="absolute left-3 top-9 z-10 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
           <span>{at(pick).name} 방출 시 <b className="font-display text-sm text-white">+{releaseRefund(at(pick))}</b> CP 환불 · 다시 영입 불가</span>
           <button type="button"
             onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } onRelease(pick); setPick(null); }}
@@ -1198,8 +1216,10 @@ const synergyGrows = (s, after) => !!after && (after.cur > s.cur || (!s.count &&
 /** 완성 뒤 추가로 혜택을 받는 인원 */
 const extraOf = (s) => (s.count ? 0 : Math.max(0, s.members.length - s.top));
 
-/* 칸: 채움(회색·완성 초록) · 영입 미리보기(파랑) · 완성 뒤 추가 인원은 +N */
-function SynergyRow({ s, after, focused, onFocus }) {
+/* 한 줄: 이름 · 단계 · 칸(채움 회색/완성 초록 · 영입 미리보기 파랑 · 완성 뒤 추가 인원 +N)
+   아랫줄은 내 라인업에 있는 해당 선수 이름(흰색) + 고른 후보가 들어가면 그 이름(파랑).
+   누르면 펼쳐져 그 시너지의 선수 전원: 라인업에 있으면 흰색, 고른 후보는 파랑, 남은 선수는 회색 + 효과 */
+function SynergyRow({ s, after, candidate, focused, onFocus }) {
   const next = after ? after.cur : s.cur;
   const extra = extraOf(s);
   const nextExtra = after ? extraOf(after) : extra;
@@ -1208,18 +1228,21 @@ function SynergyRow({ s, after, focused, onFocus }) {
   const from = stage > 0 ? s.tiers[stage - 1].need : 0;
   const to = s.tiers[stage].need;
   const maxed = s.level === s.tiers.length;
+  const mine = new Set(s.members.map(personKey));
+  const candKey = candidate && synergyGrows(s, after) ? personKey(candidate) : null;
+  const inLineup = [
+    ...s.members.map((p) => ({ key: p.id, label: p.name, cls: 'text-gray-100' })),
+    ...(candKey ? [{ key: 'candidate', label: candidate.name, cls: 'font-semibold text-sky-300' }] : []),
+  ];
   const Box = onFocus ? 'button' : 'div';
   return (
     <li>
-      <Box {...(onFocus ? { type: 'button', onClick: () => onFocus(s.id), 'aria-pressed': !!focused } : {})}
-        className={`block w-full rounded-md border px-2.5 py-2 text-left transition ${s.active ? 'border-[#10b981]/60 bg-[#10b981]/10' : 'border-gray-700 bg-[#111827]'} ${focused ? 'ring-2 ring-sky-400' : ''} ${onFocus ? 'hover:border-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400' : ''}`}>
-        <span className="flex items-center justify-between gap-2">
-          <span className="flex min-w-0 items-center gap-1.5">
-            <span className={`truncate text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-100'}`}>{s.name}</span>
-            <span className={`shrink-0 rounded-sm px-1 py-px text-[10px] font-semibold ${s.kind === 'story' ? 'bg-amber-400/15 text-amber-200' : 'bg-white/10 text-gray-300'}`}>{s.kind === 'story' ? '실화' : '팀 구성'}</span>
-            {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-[11px] font-bold text-[#10b981]">{s.level}단계</span>}
-          </span>
-          <span className="flex shrink-0 items-center gap-1"
+      <Box {...(onFocus ? { type: 'button', onClick: () => onFocus(s.id), 'aria-expanded': !!focused } : {})}
+        className={`dock-row ${s.active ? 'on' : ''} ${focused ? 'open' : ''}`}>
+        <span className="flex items-center gap-2">
+          <span className={`whitespace-nowrap text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-100'}`}>{s.name}</span>
+          {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-[11px] font-bold text-[#10b981]">{s.level}단계</span>}
+          <span className="ml-auto flex shrink-0 items-center gap-1"
             aria-label={`${maxed ? '최종 단계' : `${stage + 1}단계까지 ${to - s.cur}명`}${next > s.cur ? `, 영입하면 ${Math.min(next, to) - s.cur}칸` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
             <span className="flex gap-0.5">
               {Array.from({ length: to - from }, (_, i) => (
@@ -1231,10 +1254,31 @@ function SynergyRow({ s, after, focused, onFocus }) {
             )}
           </span>
         </span>
-        <span className="mt-0.5 flex items-baseline justify-between gap-2 text-xs">
-          <span className="truncate text-gray-400">{s.cond}</span>
-          <span className={`shrink-0 font-semibold ${s.active ? 'text-[#10b981]' : 'text-gray-300'}`}>{s.effect}</span>
-        </span>
+        {focused ? (
+          <span className="mt-1.5 block">
+            {s.names ? (
+              <span className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs">
+                {s.names.map((k) => (
+                  <span key={k} className={mine.has(k) ? 'font-semibold text-gray-100' : k === candKey ? 'font-semibold text-sky-300' : 'text-gray-500'}>{k}</span>
+                ))}
+              </span>
+            ) : (
+              <span className="block text-xs">
+                <span className="text-gray-500">{s.cond}</span>
+                {inLineup.length > 0 && (
+                  <span className="mt-0.5 flex flex-wrap gap-x-2">{inLineup.map((x) => <span key={x.key} className={x.cls}>{x.label}</span>)}</span>
+                )}
+              </span>
+            )}
+            <span className="mt-1 block text-[11px] font-semibold text-[#10b981]">{s.effect}</span>
+          </span>
+        ) : (
+          <span className="mt-0.5 block truncate text-xs">
+            {inLineup.length
+              ? inLineup.map((x, i) => <span key={x.key} className={x.cls}>{i ? ' · ' : ''}{x.label}</span>)
+              : <span className="text-gray-500">{s.cond}</span>}
+          </span>
+        )}
       </Box>
     </li>
   );
@@ -1253,25 +1297,24 @@ function SynergyPanel({ roster, focusId, onFocus }) {
   );
 }
 
-/** 드래프트용: 한 칸이라도 채운 시너지 + 고른 후보가 올려 줄 시너지 */
+/** 드래프트용 (구장 위 도크 안): 한 칸이라도 채운 시너지 + 고른 후보가 올려 줄 시너지 */
 function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
   const after = candidate ? previewSynergies(roster, candidate) : null;
   const list = sortSynergies(checkSynergies(roster)).filter((s) => s.cur > 0 || synergyGrows(s, after?.get(s.id)));
   return (
-    <section className="flex min-h-0 flex-col rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3 lg:h-full">
-      <div className="mb-2 flex items-center justify-between gap-2">
+    <section className="flex h-full min-h-0 flex-col">
+      <div className="mb-1 flex items-center justify-between gap-2 pl-3">
         <h3 className="text-sm font-bold text-white">시너지 <span className="ml-1 font-display text-sm tabular-nums text-gray-400">{list.filter((s) => s.active).length} On</span></h3>
         <button type="button" onClick={onOpenAll}
           className="rounded px-1.5 py-0.5 text-xs font-semibold text-[#10b981] hover:bg-[#10b981]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">전체 보기</button>
       </div>
       {list.length
         ? (
-          // 좁은 화면은 6줄 높이까지, 넓은 화면은 옆 필드 높이에 맞춰 남는 만큼 보이고 나머지는 스크롤
-          <ul className="syn-scroll flex max-h-[23rem] flex-col gap-1.5 overflow-y-auto pr-1.5 lg:max-h-none lg:min-h-0 lg:flex-1">
-            {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} focused={focusId === s.id} onFocus={onFocus} />)}
+          <ul className="syn-scroll min-h-0 flex-1 overflow-y-auto pr-1.5">
+            {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} candidate={candidate} focused={focusId === s.id} onFocus={onFocus} />)}
           </ul>
         )
-        : <p className="text-xs text-gray-500">선수를 영입하면 시너지가 나타납니다.</p>}
+        : <p className="pl-3 text-xs text-gray-400">선수를 영입하면 시너지가 나타납니다.</p>}
     </section>
   );
 }
@@ -1327,15 +1370,10 @@ function SynergySheet({ roster, candidate, focusId, onFocus }) {
   const list = sortSynergies(checkSynergies(roster));
   return (
     <>
-      <p className="mb-3 text-xs text-gray-400">완성하면 해당 선수만 강해집니다. 누르면 해당 선수를 보여줍니다.</p>
-      {[['story', '실화'], ['build', '팀 구성']].map(([kind, label]) => (
-        <section key={kind} className="mb-4 last:mb-0">
-          <h3 className="mb-1.5 font-display text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">{label}</h3>
-          <ul className="flex flex-col gap-2">
-            {list.filter((s) => s.kind === kind).map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} focused={focusId === s.id} onFocus={onFocus} />)}
-          </ul>
-        </section>
-      ))}
+      <p className="mb-2 text-xs text-gray-400">완성하면 해당 선수만 강해집니다. 누르면 해당 선수를 보여줍니다.</p>
+      <ul>
+        {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} candidate={candidate} focused={focusId === s.id} onFocus={onFocus} />)}
+      </ul>
     </>
   );
 }
@@ -1765,21 +1803,25 @@ export default function KboAugmentDraft() {
                   <button type="button" className={btnPrimary} onClick={() => { setSeries(null); setPhase('ready'); }}>이대로 정비하러 가기</button>
                 </div>
               )}
+              {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
+              <div className="bc-grp">
+                <span className="bc-label font-display">SERIES</span>
               {series && (
-                <div key={series.id} className="flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-gray-800 bg-[#1f2937]/60 px-4 py-2.5">
-                  <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-2 py-0.5 text-xs font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
-                  {series.year && <span className="font-display text-2xl font-bold tabular-nums text-[#10b981]">{series.year}</span>}
-                  <h2 className="text-xl font-black text-white">{series.title}</h2>
+                <div key={series.id} className="mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-2.5 gap-y-1 px-1">
+                  <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-1.5 py-px text-[11px] font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
+                  {series.year && <span className="font-display text-lg font-bold leading-none tabular-nums text-[#10b981]">{series.year}</span>}
+                  <h2 className="text-base font-black leading-none text-white">{series.title}</h2>
                   {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
-                  <span className="ml-auto font-display text-sm tabular-nums text-gray-400">
+                  <span className="ml-auto font-display text-xs tabular-nums text-gray-400">
                     영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp, released)).length} / {seriesCards.length}명
                   </span>
-                  <button type="button" className={btnGhost} onClick={handleReroll} disabled={rerolls <= 0}>
-                    다른 시리즈 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
+                  <button type="button" onClick={handleReroll} disabled={rerolls <= 0}
+                    className="rounded-md border border-gray-600 bg-[#1f2937] px-2.5 py-1 text-xs font-bold text-gray-100 transition hover:border-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] disabled:cursor-not-allowed disabled:opacity-40">
+                    다른 시리즈 <span className="ml-0.5 font-display tabular-nums text-gray-400">×{rerolls}</span>
                   </button>
                 </div>
               )}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.9rem,1fr))] gap-2">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5">
                 {seriesCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={!getLockReason(p, roster, cp, released) && growsFor(p).some((s) => s.cur > 0)}
@@ -1787,10 +1829,12 @@ export default function KboAugmentDraft() {
                     onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
               </div>
-              {/* 넓은 화면: 필드가 줄 높이를 정하고, 왼쪽(카드+영입)과 오른쪽(시너지)은 그 높이에 맞춰 아랫선을 맞춘다 */}
-              <div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)_13.5rem]">
-                <div className="relative lg:min-h-0">
-                <div className="flex flex-col gap-2 lg:absolute lg:inset-0">
+              </div>
+              {/* 넓은 화면: 구장이 줄 높이를 정하고, 영입 카드 묶음은 그 높이에 맞춘다 */}
+              <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
+                <div className="bc-grp lg:min-h-0">
+                  <span className="bc-label font-display">PICK</span>
+                <div className="flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
                   {picked ? (
                     <>
                       <div className="flex min-h-0 justify-center lg:flex-1">
@@ -1821,12 +1865,13 @@ export default function KboAugmentDraft() {
                   )}
                 </div>
                 </div>
-                <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease}
-                  highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)} />
-                <div className="relative lg:min-h-0">
-                  <div className="flex flex-col gap-3 lg:absolute lg:inset-0">
-                    <SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />
-                  </div>
+                {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
+                <div className="bc-grp !px-0 !pb-0">
+                  <span className="bc-label font-display">MY LINEUP</span>
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease}
+                    highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
+                    reserve={300}
+                    overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
                 </div>
               </div>
             </section>
