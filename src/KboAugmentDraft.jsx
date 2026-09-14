@@ -814,7 +814,7 @@ const KEYFRAMES = `
 .ser-ttl { position: relative; min-width: 0; display: flex; align-items: center; gap: 12px; }
 .ser-kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
 .ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size: 26px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
-.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 16px 4px 10px; font-size: 13px; font-weight: 600; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
 .ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
@@ -1469,9 +1469,13 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   const tap = (id) => {
     if (locked) return;
     // 자리를 누르면(빈 자리든 선수가 있는 자리든) 선반을 그 자리 포지션으로 거른다. 같은 자리를 다시 누르면 해제, 다른 자리로 옮기면 해제
-    if (pick) {
-      if (pick !== id) { onMove(pick, id); onSlotFilter?.(null); } else onSlotFilter?.(id);
+    // 자리 이동은 끌어다 놓기로만. 선수를 고른 채 다른 자리를 누르면 그 자리를 새로 고른다
+    if (pick === id) {
       setPick(null);
+      onSlotFilter?.(id);
+    } else if (pick) {
+      setPick(at(id) ? id : null);
+      onSlotFilter?.(id, true);
     } else {
       if (at(id)) { setPick(id); onSlotFilter?.(id, true); } // 선수가 있는 자리는 고를 때마다 거르기를 켠다(해제는 다시 눌러 선택을 풀 때)
       else onSlotFilter?.(id);
@@ -1526,7 +1530,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
       )}
       {!locked && !highlight && (
         <p className="pointer-events-none absolute left-3 top-2 bg-[#05080f]/70 px-2 py-0.5 text-[11px] text-gray-300">
-          {pick ? '바꿀 자리를 누르세요 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션 밖이면 종합 −3~−20'}
+          {pick ? '끌어서 다른 자리에 놓으면 이동 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션 밖이면 종합 −3~−20'}
         </p>
       )}
       {onRelease && pick && at(pick) && (
