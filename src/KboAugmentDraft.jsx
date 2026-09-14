@@ -932,6 +932,10 @@ const KEYFRAMES = `
 .pk.lock .pk-ov, .pk.lock .pk-tb { animation: none; }
 .pk-lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 1cqw; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
 .pk-lk svg { width: 5.5cqw; height: 5.5cqw; flex: none; }
+/* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
+.pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: linear-gradient(180deg, #0a1120, #070c16); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
+.pk-sk { position: absolute; background: rgba(148,163,184,.09); }
+.pk-ghostbtn { flex: none; height: 44px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
 /* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
 .pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
 .pk-go:hover:not(:disabled) { filter: brightness(1.1); }
@@ -1164,6 +1168,25 @@ const PickIcon = ({ kind }) => (
     {kind === 'lock' && <><rect x="4.5" y="9" width="11" height="8" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></>}
   </svg>
 );
+
+/** 빈 PICK 구역의 스켈레톤 블록: PICK 카드의 윗줄 · 종합 · 연도줄 · 능력치 판 · 노트 · 포지션 칩 · 구분선 · 이름 · CP 자리 */
+const PK_SKELETON = [
+  { left: '6cqw', right: '1.6cqw', top: '1.6cqw', height: '1.3cqw', background: 'rgba(148,163,184,.22)' },
+  { left: '6cqw', top: '7cqw', width: '26cqw', height: '19cqw' },
+  { left: '6.5cqw', top: '29cqw', width: '34cqw', height: '3.4cqw' },
+  { left: '5cqw', top: '36cqw', width: '42cqw', height: '44cqw', background: 'rgba(148,163,184,.05)', boxShadow: 'inset 0 0 0 1px rgba(148,163,184,.1)' },
+  { left: '9cqw', top: '41cqw', width: '20cqw', height: '3cqw' }, { left: '9cqw', top: '47cqw', width: '30cqw', height: '1.4cqw' },
+  { left: '9cqw', top: '52cqw', width: '18cqw', height: '3cqw' }, { left: '9cqw', top: '58cqw', width: '26cqw', height: '1.4cqw' },
+  { left: '9cqw', top: '63cqw', width: '22cqw', height: '3cqw' }, { left: '9cqw', top: '69cqw', width: '33cqw', height: '1.4cqw' },
+  { left: '9cqw', top: '74cqw', width: '16cqw', height: '3cqw' },
+  { left: '6cqw', bottom: '43cqw', width: '44cqw', height: '3cqw' },
+  { left: '6cqw', bottom: '35.5cqw', width: '8cqw', height: '5cqw', background: 'rgba(16,185,129,.2)' },
+  { left: '16cqw', bottom: '36.2cqw', width: '34cqw', height: '3.4cqw' },
+  { left: '6cqw', right: '6cqw', bottom: '32.5cqw', height: '1px', background: 'rgba(16,185,129,.3)' },
+  { left: '6cqw', bottom: '8cqw', width: '46cqw', height: '12cqw' },
+  { right: '6cqw', bottom: '18cqw', width: '8cqw', height: '3cqw' },
+  { right: '6cqw', bottom: '8cqw', width: '14cqw', height: '9cqw', background: 'rgba(16,185,129,.16)' },
+];
 
 /* ───── PICK 카드 (막대 그래프 판) ───── */
 /** 긴 포지션 영문의 글자 크기(cqw, 기본 4.6) — 칩 옆 한 줄에 맞춘 값 */
@@ -2773,9 +2796,20 @@ export default function KboAugmentDraft() {
                       </p>
                     </>
                   ) : (
-                    <div className="grid aspect-[2/3] animate-[fade_.3s_ease-out_both] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
-                      위 카드를 누르면 여기서 자세히 보고 영입합니다. 내 라인업 선수를 누르면 그 선수의 스탯을 봅니다.
-                    </div>
+                    <>
+                      {/* 비어 있을 때: 설명 글 없이 PICK 카드의 자리만 흐린 블록(스켈레톤)으로 + 버튼 자리 빈 틀 */}
+                      <div className="flex min-h-0 animate-[fade_.3s_ease-out_both] justify-center lg:flex-1" aria-hidden="true">
+                        {/* 실제 PICK 카드와 같은 감싸는 틀 → 안쪽은 늘 2:3 (좁아져도 카드와 같은 크기·위치) */}
+                        <div className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
+                          <div className="pk-empty aspect-[2/3] w-full">
+                            {PK_SKELETON.map((s, i) => <span key={i} className="pk-sk" style={s} />)}
+                            <span className="pk-fr" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pk-ghostbtn" aria-hidden="true" />
+                      <span className="sr-only">위 선반에서 선수를 고르거나 내 라인업 선수를 누르면 여기에 표시됩니다</span>
+                    </>
                   )}
                   {!picked && !inspected && pickLeave && (
                     <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.75rem+0.5rem)]" aria-hidden="true">
