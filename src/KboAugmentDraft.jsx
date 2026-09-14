@@ -239,9 +239,9 @@ export function rollSeries(roster, cp, avoidId = null, banned = [], seriesPool =
   return sampleSeries(pickOne(rng, pool), roster, cp, banned, rng);
 }
 
-export const SHELF_SIZE = 18; // 드래프트 선반은 늘 한 줄 18칸
+export const SHELF_SIZE = 17; // 드래프트 선반은 늘 한 줄 17칸 (선반 그리드의 lg:grid-cols-[repeat(17,…)] 와 같이 바꿀 것)
 /**
- * 선수가 SHELF_SIZE 보다 많은 시리즈는 열릴 때마다 18명만 뽑는다: 포지션마다 1명씩 먼저 넣고 나머지는 무작위.
+ * 선수가 SHELF_SIZE 보다 많은 시리즈는 열릴 때마다 SHELF_SIZE 명만 뽑는다: 포지션마다 1명씩 먼저 넣고 나머지는 무작위.
  * 영입 가능한 선수가 한 명도 없으면 같은 포지션 자리와 바꿔 최소 1명은 들어가게 한다
  */
 function sampleSeries(series, roster, cp, banned, rng) {
@@ -808,6 +808,23 @@ const KEYFRAMES = `
 }
 .bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
 .bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+/* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
+.ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
+.ser-ttl { position: relative; min-width: 0; display: flex; align-items: center; gap: 12px; }
+.ser-kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
+.ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size: 26px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
+.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 16px 4px 10px; font-size: 13px; font-weight: 600; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.ser-seg { display: inline-flex; padding: 2px; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.ser-seg button { padding: 4px 10px; font-size: 12px; font-weight: 600; color: #9ca3af; transition: color .15s, background-color .15s; }
+.ser-seg button:hover { color: #e5e7eb; }
+.ser-seg button.on { color: #05080f; background: var(--a); }
+.ser-seg button:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+.ser-refresh { position: relative; display: grid; place-items: center; width: 32px; height: 32px; color: #e5e7eb; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: color .15s, box-shadow .15s; }
+.ser-refresh svg { width: 17px; height: 17px; transition: transform .45s cubic-bezier(.3,0,.2,1); }
+.ser-refresh:hover:not(:disabled) { color: var(--a); box-shadow: inset 0 0 0 1px var(--a); }
+.ser-refresh:hover:not(:disabled) svg { transform: rotate(200deg); }
+.ser-refresh b { position: absolute; right: -6px; top: -6px; min-width: 16px; height: 16px; padding: 0 4px; display: grid; place-items: center; font-size: 11px; line-height: 1; color: #05080f; background: var(--a); border-radius: 8px; }
+.ser-refresh:disabled { opacity: .4; cursor: not-allowed; }
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
@@ -952,7 +969,7 @@ function Badge({ children }) {
 }
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false }) {
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981' }) {
   const pct = Math.max(0, Math.min(1, cp / cap));
   const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
   const lit = Math.round(pct * 24);
@@ -967,13 +984,21 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
         </div>
 
+        {/* 지금 드래프트 모드 (가을의 왕조 · 전체 믹스 …) */}
+        {modeName && (
+          <div className="border-l border-white/10 pl-6 leading-none">
+            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Mode</p>
+            <p className="mt-1 whitespace-nowrap text-lg font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
+          </div>
+        )}
+
         <div className="flex items-baseline gap-2">
           <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
         </div>
 
-        <div className="min-w-[260px] flex-1">
+        <div className="ml-auto w-[clamp(220px,26vw,420px)]">
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
@@ -2248,6 +2273,8 @@ export default function KboAugmentDraft() {
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
+  const [shelfFilter, setShelfFilter] = useState('all'); // 선반: 전체 · 영입 가능만
+  const shownCards = shelfFilter === 'open' ? seriesCards.filter((p) => !getLockReason(p, roster, cp, released)) : seriesCards;
   const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -2443,7 +2470,7 @@ export default function KboAugmentDraft() {
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (
-        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon} />
       )}
 
       {phase !== 'mode' && (
@@ -2452,8 +2479,8 @@ export default function KboAugmentDraft() {
         : phase === 'ready' ? 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]' : 'w-full max-w-[1600px] gap-5 py-5'}`}>
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           {phase === 'draft' && (
-            // --card-w: 선수 카드 폭을 창 높이에 맞추되, 선반 18장이 늘 한 줄에 들어가도록 창 폭으로도 제한
-            <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': `min(clamp(4.2rem, 10.5vh, 6.4rem), calc((100vw - 190px) / ${SHELF_SIZE}))` }}>
+            // --card-w: 선수 카드 폭의 상한(창 높이 기준). 실제 폭은 선반 그리드가 판 안쪽 폭을 17칸으로 나눠 정하고 가운데 정렬 — 좌우 여백이 늘 같다
+            <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'clamp(4.2rem, 13vh, 8rem)' }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
@@ -2461,26 +2488,35 @@ export default function KboAugmentDraft() {
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
-              <div className="bc-grp" style={series ? { '--a': SERIES_NEON[series.kind] } : undefined}>
+              <div className="bc-grp lg:!px-1.5" style={series ? { '--a': SERIES_NEON[series.kind] } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
-                <div key={series.id} className="mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-2.5 gap-y-1 px-1">
-                  <span className="ui-cut px-2 py-px text-[11px] font-bold text-[#05080f]" style={{ '--c': '5px', background: SERIES_NEON[series.kind] }}>{SERIES_KIND_LABEL[series.kind]}</span>
-                  {series.year && <span className="font-display text-lg font-bold leading-none tabular-nums" style={{ color: SERIES_NEON[series.kind] }}>{series.year}</span>}
-                  <h2 className="text-base font-black leading-none text-white">{series.title}</h2>
-                  {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
-                  <span className="ui-chip ui-cut ml-auto" style={{ '--a': mode.neon }}>{mode.name}</span>
-                  <span className="font-display text-xs tabular-nums text-gray-400">
-                    영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp, released)).length} / {seriesCards.length}명
-                  </span>
-                  <button type="button" onClick={handleReroll} disabled={rerolls <= 0}
-                    className="ui-btn ui-cut sm">
-                    다른 시리즈 <span className="ml-0.5 font-display tabular-nums text-gray-400">×{rerolls}</span>
-                  </button>
+                /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
+                <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] items-center gap-3 px-1.5">
+                  <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
+                  <div className="ser-ttl">
+                    <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
+                    <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
+                    {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
+                  </div>
+                  <div className="ml-auto flex shrink-0 items-center gap-2.5">
+                    <div className="ser-seg" role="group" aria-label="선반에 보일 선수">
+                      {[['all', '전체'], ['open', '영입 가능']].map(([k, label]) => (
+                        <button key={k} type="button" aria-pressed={shelfFilter === k} onClick={() => setShelfFilter(k)} className={shelfFilter === k ? 'on' : ''}>{label}</button>
+                      ))}
+                    </div>
+                    <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
+                      title={rerolls > 0 ? `다른 시리즈로 새로고침 · ${rerolls}회 남음` : '새로고침을 모두 썼습니다'} aria-label={`다른 시리즈로 새로고침, ${rerolls}회 남음`}>
+                      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M16.2 10.4A6.2 6.2 0 1 1 14.4 5.6" /><path d="M16.2 2.8v3.9h-3.9" />
+                      </svg>
+                      <b className="font-display tabular-nums">{rerolls}</b>
+                    </button>
+                  </div>
                 </div>
               )}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(18,var(--card-w))]">
-                {seriesCards.map((p, i) => (
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
+                {shownCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={!getLockReason(p, roster, cp, released) && growsFor(p).some((s) => s.cur > 0)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
