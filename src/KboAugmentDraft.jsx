@@ -538,6 +538,7 @@ const KEYFRAMES = `
 @keyframes toast { 0% { opacity: 0; transform: scale(1.25); } 12% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.97) translateY(-12px); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: #111827; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* 라인업 필드 토큰 (중계 자막 스타일) */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
@@ -1075,27 +1076,108 @@ function RosterPanel({ roster }) {
   );
 }
 
+/** 완성된 시너지가 맨 위, 그다음 진행률 높은 순 */
+const sortSynergies = (list) => [...list].sort((a, b) => b.active - a.active || b.cur / b.need - a.cur / a.need);
+
+function SynergyRow({ s }) {
+  return (
+    <li className={`rounded-md border px-2.5 py-2 ${s.active ? 'border-[#10b981]/60 bg-[#10b981]/10' : 'border-gray-700 bg-[#111827]'}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className={`text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-200'}`}>{s.name}{s.active && <span className="ml-1.5 font-display text-[11px] font-semibold tracking-widest">ON</span>}</span>
+        <span className="flex items-center gap-1.5" aria-label={`${s.cur}/${s.need}`}>
+          <span className="flex gap-0.5">
+            {Array.from({ length: s.need }, (_, i) => (
+              <i key={i} className={`h-2 w-3 rounded-sm ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : 'bg-gray-700'}`} />
+            ))}
+          </span>
+          <span className="font-display text-xs tabular-nums text-gray-400">{s.cur}/{s.need}</span>
+        </span>
+      </div>
+      <p className="mt-0.5 text-xs text-gray-400"><span className="text-gray-300">[{s.cond}]</span> {s.effect}</p>
+    </li>
+  );
+}
+
 function SynergyPanel({ roster }) {
-  const list = checkSynergies(roster);
+  const list = sortSynergies(checkSynergies(roster));
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
       <PanelTitle aside={`${list.filter((s) => s.active).length} On`}>시너지</PanelTitle>
-      <ul className="flex flex-col gap-1.5">
-        {list.map((s) => (
-          <li key={s.id} className={`rounded-md border px-2.5 py-2 ${s.active ? 'border-[#10b981]/60 bg-[#10b981]/10' : 'border-gray-700 bg-[#111827]'}`}>
-            <div className="flex items-center justify-between gap-2">
-              <span className={`text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-200'}`}>{s.name}</span>
-              <span className="flex gap-0.5" aria-label={`${s.cur}/${s.need}`}>
-                {Array.from({ length: s.need }, (_, i) => (
-                  <i key={i} className={`h-2 w-3 rounded-sm ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : 'bg-gray-700'}`} />
-                ))}
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs text-gray-400"><span className="text-gray-300">[{s.cond}]</span> {s.effect}</p>
-          </li>
-        ))}
-      </ul>
+      <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} />)}</ul>
     </section>
+  );
+}
+
+/** 드래프트용: 영입한 선수로 한 칸이라도 채워진 시너지만 보여준다 */
+function SynergyTracker({ roster, onOpenAll }) {
+  const list = sortSynergies(checkSynergies(roster)).filter((s) => s.cur > 0);
+  return (
+    <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h3 className="text-sm font-bold text-white">시너지 <span className="ml-1 font-display text-sm tabular-nums text-gray-400">{list.filter((s) => s.active).length} On</span></h3>
+        <button type="button" onClick={onOpenAll}
+          className="rounded px-1.5 py-0.5 text-xs font-semibold text-[#10b981] hover:bg-[#10b981]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">전체 보기</button>
+      </div>
+      {list.length
+        ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} />)}</ul>
+        : <p className="text-xs leading-relaxed text-gray-500">선수를 영입하면 가까워진 시너지가 여기에 나타납니다.</p>}
+    </section>
+  );
+}
+
+/* ───── 가운데 팝업 카드 (배경 어둡게 · 바깥 클릭/Esc 로 닫기) ───── */
+function Modal({ title, eyebrow, onClose, children }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 px-4 py-10 backdrop-blur-[2px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
+      <section role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg animate-[rise_.25s_ease-out_both] rounded-xl border border-gray-700 bg-[#111827] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]">
+        <header className="flex items-start justify-between gap-4 border-b border-gray-800 px-5 py-4">
+          <div>
+            {eyebrow && <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-[#10b981]">{eyebrow}</p>}
+            <h2 className="mt-0.5 text-xl font-black text-white">{title}</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="닫기" autoFocus
+            className="grid h-8 w-8 place-items-center rounded-md text-gray-400 hover:bg-gray-800 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">
+            <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+          </button>
+        </header>
+        <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
+      </section>
+    </div>
+  );
+}
+
+function RulesSheet() {
+  return (
+    <div className="flex flex-col gap-4">
+      {RULE_SECTIONS.map((sec) => (
+        <section key={sec.title}>
+          <h3 className="mb-1.5 font-display text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">{sec.title}</h3>
+          <ul className="flex flex-col gap-1">
+            {sec.items.map((t) => (
+              <li key={t} className="flex gap-2 text-sm leading-relaxed text-gray-200">
+                <span className="mt-[0.6rem] h-1 w-1 shrink-0 rounded-full bg-[#10b981]" aria-hidden="true" />{t}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function SynergySheet({ roster }) {
+  const list = sortSynergies(checkSynergies(roster));
+  return (
+    <>
+      <p className="mb-3 text-xs text-gray-400">조건을 채우면 경기에서 효과가 켜집니다. 완성된 시너지가 위로 올라옵니다.</p>
+      <ul className="flex flex-col gap-2">{list.map((s) => <SynergyRow key={s.id} s={s} />)}</ul>
+    </>
   );
 }
 
@@ -1292,7 +1374,13 @@ function MvpStage({ result }) {
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
-const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', '제 포지션 밖이면 종합 −3~−20', '방출: 영입가 절반 환불 · 재영입 불가', `정비 후 시즌 시작 때 증강 ${SEASON_AUGMENTS}개`];
+const RULE_SECTIONS = [
+  { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 선발 3명, 나머지 포지션은 1명씩`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
+  { title: '영입가', items: [`샐러리 캡 ${SALARY_CAP} CP 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
+  { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
+  { title: '방출', items: ['영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
+  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, `시즌을 시작하면 경기 화면에서 증강 ${SEASON_AUGMENTS}개를 고름`, '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
+];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
@@ -1307,6 +1395,7 @@ export default function KboAugmentDraft() {
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
+  const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [released, setReleased] = useState([]); // 방출한 선수(동일인 키) — 이번 드래프트 동안 재영입 불가
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
@@ -1549,11 +1638,11 @@ export default function KboAugmentDraft() {
                 </div>
                 <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} />
                 <div className="flex flex-col gap-3">
-                  <ul className="flex flex-wrap gap-1.5">
-                    {RULES.map((r) => <li key={r} className="rounded border border-gray-700 px-2 py-0.5 text-xs text-gray-400">{r}</li>)}
-                  </ul>
-                  <SynergyPanel roster={roster} />
-                  <AugmentShelf augments={augments} />
+                  <button type="button" onClick={() => setModal('rules')} className={`${btnGhost} flex items-center justify-center gap-2`}>
+                    <span className="grid h-5 w-5 place-items-center rounded-full border border-gray-500 font-display text-xs leading-none" aria-hidden="true">?</span>
+                    드래프트 규칙
+                  </button>
+                  <SynergyTracker roster={roster} onOpenAll={() => setModal('synergy')} />
                 </div>
               </div>
             </section>
@@ -1676,6 +1765,8 @@ export default function KboAugmentDraft() {
         )}
       </main>
 
+      {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
+      {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} /></Modal>}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} />
       <HighlightToast toast={toast} />
     </div>
