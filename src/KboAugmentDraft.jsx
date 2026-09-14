@@ -263,6 +263,7 @@ function biggestFranchise(roster) {
   return Object.values(groups).sort((a, b) => b.length - a.length)[0] || [];
 }
 const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
+const PREMIER12_2015 = DRAFT_SERIES.find((s) => s.id === '2015-premier12')?.players.map(personKey) || [];
 const tier = (need, effect, bonus) => ({ need, effect, bonus });
 const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, tiers, members: (r) => personMembers(r, names) });
 const build = (id, name, cond, members, tiers) => ({ id, kind: 'build', name, cond, tiers, members });
@@ -283,28 +284,39 @@ export const SYNERGIES = [
   story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
   story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
   story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '안정 +3 · 파워 +4', { stability: 3, power: 4 })]),
+  story('changeup', '체인지업 전수', '구대성 · 류현진 (2006 한화)', ['구대성', '류현진'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('premier12', '프리미어12 초대 우승', '2015 대표팀 멤버', PREMIER12_2015, [
+    tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +3', { bat: 3, pit: 3 }),
+  ]),
+  story('beijingFinal', '베이징 결승전', '류현진 · 정대현 (선발과 병살 마무리)', ['류현진', '정대현'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('fantastic4', '판타스틱 4', '2016 두산 선발진', ['니퍼트', '보우덴', '장원준', '유희관'], [
+    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }),
+  ]),
+  story('lotte10', '2010 롯데 폭격', '이대호·홍성흔·강민호·손아섭·전준우', ['이대호', '홍성흔', '강민호', '손아섭', '전준우'], [
+    tier(2, '파워 +3', { power: 3 }), tier(3, '파워 +5', { power: 5 }),
+  ]),
+  story('samsung14', '통합 4연패', '최형우·박석민·나바로·채태인·박해민', ['최형우', '박석민', '나바로', '채태인', '박해민'], [
+    tier(2, '파워·컨택 +2', { power: 2, contact: 2 }), tier(3, '파워·컨택 +4', { power: 4, contact: 4 }),
+  ]),
+  story('nc20', 'NC 창단 첫 우승', '양의지·나성범·박민우·알테어·루친스키', ['양의지', '나성범', '박민우', '알테어', '루친스키'], [
+    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +4', { bat: 4, pit: 4 }),
+  ]),
+  story('lg23', 'LG 29년의 한', '오지환·김현수·박해민·홍창기·오스틴', ['오지환', '김현수', '박해민', '홍창기', '오스틴'], [
+    tier(2, '컨택 +3', { contact: 3 }), tier(3, '컨택 +5 · 수비 +3', { contact: 5, defense: 3 }),
+  ]),
+  story('kia24', 'KIA V12', '김도영·최형우·양현종·나성범·소크라테스', ['김도영', '최형우', '양현종', '나성범', '소크라테스'], [
+    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +4', { bat: 4, pit: 4 }),
+  ]),
   // ── 팀 구성 (인원이 늘면 단계가 오른다)
   build('power', '홈런 군단', '파워 80+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 80), [
-    tier(2, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
-  ]),
-  build('speed', '육상부', '주루 75+ 야수', (r) => battersOf(r).filter((p) => p.stats.speed >= 75), [
-    tier(2, '주루 +2', { speed: 2 }), tier(3, '주루 +4', { speed: 4 }), tier(4, '주루 +7', { speed: 7 }),
-  ]),
-  build('glove', '철벽 수비', '수비 85+ 야수', (r) => battersOf(r).filter((p) => p.stats.defense >= 85), [
-    tier(2, '수비 +2', { defense: 2 }), tier(3, '수비 +4', { defense: 4 }), tier(4, '수비 +7', { defense: 7 }),
-  ]),
-  build('lefties', '좌타 라인업', '좌타자 (양타 포함)', (r) => battersOf(r).filter((p) => p.hand === 'L' || p.hand === 'S'), [
-    tier(3, '파워·컨택 +1', { bat: 1 }), tier(4, '파워·컨택 +3', { bat: 3 }), tier(5, '파워·컨택 +5', { bat: 5 }),
-  ]),
-  build('pitchingStaff', '투수 왕국', '종합 80+ 투수', (r) => realOnly(r).filter((p) => (posOf(p) === 'SP' || posOf(p) === 'RP') && p.type === 'pitcher' && p.overall >= 80), [
-    tier(2, '투수 +1', { pit: 1 }), tier(3, '투수 +2', { pit: 2 }), tier(4, '투수 +4', { pit: 4 }),
+    tier(3, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
   ]),
   build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
     tier(2, '능력치 +1', { bat: 1, pit: 1 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   build('franchise', '프랜차이즈의 기억', '같은 구단 (해태=KIA)', biggestFranchise, [
-    tier(3, '수비·안정 +1', { defense: 1, stability: 1 }), tier(5, '수비·안정 +3', { defense: 3, stability: 3 }),
-    tier(7, '수비·안정 +4 · 능력치 +2', { defense: 4, stability: 4, bat: 2, pit: 2 }),
+    tier(4, '수비·안정 +1', { defense: 1, stability: 1 }), tier(6, '수비·안정 +3', { defense: 3, stability: 3 }),
+    tier(8, '수비·안정 +4 · 능력치 +2', { defense: 4, stability: 4, bat: 2, pit: 2 }),
   ]),
 ];
 
@@ -645,6 +657,13 @@ const KEYFRAMES = `
 .lf-tok.focus .lf-bar { box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.45); }
 .lf-row.focus { background: rgba(56,189,248,.16); box-shadow: inset 3px 0 0 #38bdf8, inset 0 0 0 1px #38bdf8; }
 .lf-tok.dim, .lf-row.dim { opacity: .28; }
+/* 시너지 목록 스크롤: 얇은 캡슐 손잡이, 트랙은 거의 보이지 않게 */
+.syn-scroll { overscroll-behavior: contain; }
+.syn-scroll::-webkit-scrollbar { width: 6px; }
+.syn-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.035); border-radius: 99px; margin: 4px 0; }
+.syn-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.55), rgba(16,185,129,.35)); border-radius: 99px; border: 1px solid rgba(5,8,15,.6); }
+.syn-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.85), rgba(52,211,153,.6)); }
+@supports not selector(::-webkit-scrollbar) { .syn-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.5) transparent; } }
 .lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
 .lf-drag { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -60%) rotate(-3deg); display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: #0f1724; box-shadow: 0 0 0 2px #10b981, 0 12px 28px rgba(0,0,0,.6); color: #fff; font-weight: 700; font-size: 14px; }
 .lf-drag i { width: 36px; height: 44px; background-color: #0b111b; background-repeat: no-repeat; }
@@ -1239,7 +1258,7 @@ function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
   const after = candidate ? previewSynergies(roster, candidate) : null;
   const list = sortSynergies(checkSynergies(roster)).filter((s) => s.cur > 0 || synergyGrows(s, after?.get(s.id)));
   return (
-    <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
+    <section className="flex min-h-0 flex-col rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3 lg:h-full">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-sm font-bold text-white">시너지 <span className="ml-1 font-display text-sm tabular-nums text-gray-400">{list.filter((s) => s.active).length} On</span></h3>
         <button type="button" onClick={onOpenAll}
@@ -1247,8 +1266,8 @@ function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
       </div>
       {list.length
         ? (
-          // 6줄까지 보이고 나머지는 스크롤 (한 줄 약 3.5rem + 간격)
-          <ul className="flex max-h-[23rem] flex-col gap-1.5 overflow-y-auto pr-1 [scrollbar-width:thin]">
+          // 좁은 화면은 6줄 높이까지, 넓은 화면은 옆 필드 높이에 맞춰 남는 만큼 보이고 나머지는 스크롤
+          <ul className="syn-scroll flex max-h-[23rem] flex-col gap-1.5 overflow-y-auto pr-1.5 lg:max-h-none lg:min-h-0 lg:flex-1">
             {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} focused={focusId === s.id} onFocus={onFocus} />)}
           </ul>
         )
@@ -1768,11 +1787,17 @@ export default function KboAugmentDraft() {
                     onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
               </div>
-              <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_15rem]">
-                <div className="flex flex-col gap-2">
+              {/* 넓은 화면: 필드가 줄 높이를 정하고, 왼쪽(카드+영입)과 오른쪽(시너지)은 그 높이에 맞춰 아랫선을 맞춘다 */}
+              <div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)_13.5rem]">
+                <div className="relative lg:min-h-0">
+                <div className="flex flex-col gap-2 lg:absolute lg:inset-0">
                   {picked ? (
                     <>
-                      <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
+                      <div className="flex min-h-0 justify-center lg:flex-1">
+                        <div className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
+                        </div>
+                      </div>
                       {swapPlan ? (
                         <>
                           <button type="button" className={btnPrimary} disabled={!!swapPlan.reason} onClick={handleSwapIn}>
@@ -1790,15 +1815,18 @@ export default function KboAugmentDraft() {
                       )}
                     </>
                   ) : (
-                    <div className="grid aspect-[2/3] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500">
+                    <div className="grid aspect-[2/3] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
                       위 카드를 누르면 여기서 자세히 보고 영입합니다. 들어갈 자리는 필드에 초록으로 표시됩니다.
                     </div>
                   )}
                 </div>
+                </div>
                 <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease}
                   highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)} />
-                <div className="flex flex-col gap-3">
-                  <SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />
+                <div className="relative lg:min-h-0">
+                  <div className="flex flex-col gap-3 lg:absolute lg:inset-0">
+                    <SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />
+                  </div>
                 </div>
               </div>
             </section>
