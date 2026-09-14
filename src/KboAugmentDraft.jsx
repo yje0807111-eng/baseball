@@ -841,7 +841,7 @@ const KEYFRAMES = `
 .mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 5px #000); animation: prism 3s linear infinite; }
 .mc-pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 34cqw; display: flex; align-items: center; gap: 2.5cqw; line-height: 1; white-space: nowrap; overflow: hidden; }
 .mc-pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
-.mc-pos span { min-width: 0; overflow: hidden; font-size: 9cqw; font-weight: 700; letter-spacing: .03em; color: #cbd5e1; }
+.mc-pos span { min-width: 0; overflow: hidden; font-size: 9.5cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; } /* 가는 획 + 넓은 자간 — 작은 크기에서도 뭉치지 않게 */
 .mc-rule { position: absolute; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 20%, transparent)); }
 .mc-nm { position: absolute; left: 7cqw; right: 31cqw; bottom: 7cqw; font-size: 20.5cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 1px 4px #000; }
 .mc-cp { position: absolute; right: 8cqw; bottom: 8cqw; text-align: right; line-height: .9; }
@@ -1175,6 +1175,8 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
 
 /* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
 const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+/** 칩 옆 한 줄에 다 들어가게 줄이는 긴 포지션의 글자 크기(cqw, 기본 9.5) — Saira Condensed 500 · 자간 .07em 기준으로 잰 값 */
+const POS_FS = { SP: 9.3, DH: 8.4 };
 
 /**
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
@@ -1198,7 +1200,7 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <span className="absolute right-[6cqw] top-[6cqw] rounded-sm bg-[#10b981] px-[2.5cqw] py-[1cqw] text-[7.5cqw] font-bold leading-none text-[#062a1f]" title="진행 중인 시너지를 채웁니다">시너지</span>}
-        <span className="mc-pos font-display"><em>{player.position}</em><span>{POS_FULL[player.position]}</span></span>
+        <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
         <span className="mc-rule" />
         <span className={`mc-nm ${player.name.length >= 6 ? 'l6' : player.name.length >= 5 ? 'l5' : player.name.length >= 4 ? 'l4' : ''}`}>{player.name}</span>
         <span className="mc-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>
