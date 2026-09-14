@@ -176,7 +176,22 @@ export function getLockReason(player, roster, cp) {
 export function rollSeries(roster, cp, avoidId = null, rng = Math.random) {
   const open = DRAFT_SERIES.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp)));
   const pool = open.length > 1 ? open.filter((s) => s.id !== avoidId) : open;
-  return pool.length ? pickOne(rng, pool) : null;
+  if (!pool.length) return null;
+  const s = pickOne(rng, pool);
+  return s.id === LEGEND_SERIES.id ? sampleLegend(roster, cp, rng) : s;
+}
+
+export const LEGEND_SHOWN = 30;
+/** 올타임 레전드는 나올 때마다 30명만: 포지션마다 2명(선발 4명)을 먼저 채우고 나머지는 무작위. 영입 가능한 선수가 최소 1명은 들어간다 */
+function sampleLegend(roster, cp, rng) {
+  const all = shuffle(LEGEND_SERIES.players, rng);
+  const picked = POS_ORDER.flatMap((pos) => all.filter((p) => p.position === pos).slice(0, pos === 'SP' ? 4 : 2));
+  picked.push(...all.filter((p) => !picked.includes(p)).slice(0, Math.max(0, LEGEND_SHOWN - picked.length)));
+  if (!picked.some((p) => !getLockReason(p, roster, cp))) {
+    const open = all.find((p) => !getLockReason(p, roster, cp));
+    if (open) picked[picked.length - 1] = open;
+  }
+  return { ...LEGEND_SERIES, players: picked };
 }
 
 /** 빈 자리를 퓨처스 유망주(능력치 55)로 채운다 */
