@@ -229,25 +229,32 @@ export function getLockReason(player, roster, cp, banned = []) {
 }
 
 /** 영입 가능한 선수가 한 명 이상 있는 시리즈 중 하나를 무작위로. 직전 시리즈는 가능하면 피한다. */
-export function rollSeries(roster, cp, avoidId = null, banned = [], seriesPool = DRAFT_SERIES, rng = Math.random) {
+export function rollSeries(roster, cp, avoidId = null, banned = [], seriesPool = DRAFT_SERIES, seen = [], rng = Math.random) {
   const open = seriesPool.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp, banned)));
-  const pool = open.length > 1 ? open.filter((s) => s.id !== avoidId) : open;
+  // 이번 드래프트에서 아직 안 나온 시리즈 우선. 모두 나왔으면 다시 섞되 직전 시리즈는 피한다
+  const fresh = open.filter((s) => !seen.includes(s.id));
+  const base = fresh.length ? fresh : open;
+  const pool = base.length > 1 ? base.filter((s) => s.id !== avoidId) : base;
   if (!pool.length) return null;
-  const s = pickOne(rng, pool);
-  return s.id === LEGEND_SERIES.id ? sampleLegend(roster, cp, banned, rng) : s;
+  return sampleSeries(pickOne(rng, pool), roster, cp, banned, rng);
 }
 
-export const LEGEND_SHOWN = 28; // 선반 14칸 × 두 줄
-/** 올타임 레전드는 나올 때마다 28명만: 포지션마다 2명(선발 4명)을 먼저 채우고 나머지는 무작위. 영입 가능한 선수가 최소 1명은 들어간다 */
-function sampleLegend(roster, cp, banned, rng) {
-  const all = shuffle(LEGEND_SERIES.players, rng);
-  const picked = POS_ORDER.flatMap((pos) => all.filter((p) => p.position === pos).slice(0, pos === 'SP' ? 4 : 2));
-  picked.push(...all.filter((p) => !picked.includes(p)).slice(0, Math.max(0, LEGEND_SHOWN - picked.length)));
+export const SHELF_SIZE = 18; // 드래프트 선반은 늘 한 줄 18칸
+/**
+ * 선수가 SHELF_SIZE 보다 많은 시리즈는 열릴 때마다 18명만 뽑는다: 포지션마다 1명씩 먼저 넣고 나머지는 무작위.
+ * 영입 가능한 선수가 한 명도 없으면 같은 포지션 자리와 바꿔 최소 1명은 들어가게 한다
+ */
+function sampleSeries(series, roster, cp, banned, rng) {
+  if (series.players.length <= SHELF_SIZE) return series;
+  const all = shuffle(series.players, rng);
+  const core = POS_ORDER.map((pos) => all.find((p) => p.position === pos)).filter(Boolean);
+  const rest = all.filter((p) => !core.includes(p)).slice(0, SHELF_SIZE - core.length);
+  const picked = [...core, ...rest];
   if (!picked.some((p) => !getLockReason(p, roster, cp, banned))) {
     const open = all.find((p) => !getLockReason(p, roster, cp, banned));
-    if (open) picked[picked.length - 1] = open;
+    if (open) picked[rest.length ? picked.length - 1 : picked.findIndex((p) => p.position === open.position)] = open;
   }
-  return { ...LEGEND_SERIES, players: picked };
+  return { ...series, players: picked };
 }
 
 /** 빈 자리를 퓨처스 유망주(능력치 55)로 채운다 */
@@ -2042,7 +2049,7 @@ function ModeSelect({ initialMode, record, onStart }) {
           <div className="flex flex-wrap items-baseline gap-3">
             <p className="ui-lab font-display">Series in Mode</p>
             <p className="text-sm text-gray-400">
-              {mode.id === 'legend' ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${LEGEND_SHOWN}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
+              {mode.id === 'legend' ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${SHELF_SIZE}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
               {mode.planned ? ` · ${mode.planned.length}개 준비 중` : ''}
             </p>
           </div>
@@ -2107,6 +2114,11 @@ export default function KboAugmentDraft() {
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
+  const [seenSeries, setSeenSeries] = useState([]); // 이번 드래프트에서 이미 열린 시리즈 — 모드의 시리즈를 다 돌기 전에는 다시 나오지 않는다
+  const openSeries = (s) => {
+    setSeries(s);
+    if (s) setSeenSeries((v) => (v.includes(s.id) ? v : [...v, s.id]));
+  };
   const [augPicksLeft, setAugPicksLeft] = useState(0);
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
@@ -2191,9 +2203,9 @@ export default function KboAugmentDraft() {
       setSeries(null);
       setPhase('ready');
     } else {
-      setSeries(rollSeries(next, nextCp, series?.id, released, mode.series));
+      openSeries(rollSeries(next, nextCp, series?.id, released, mode.series, seenSeries));
     }
-  }, [phase, choice, roster, cp, augments, series, released, mode]);
+  }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment') {
@@ -2216,7 +2228,7 @@ export default function KboAugmentDraft() {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
     setPicked(null);
-    setSeries(rollSeries(roster, cp, series?.id, released, mode.series));
+    openSeries(rollSeries(roster, cp, series?.id, released, mode.series, seenSeries));
   };
 
   /* 라인업 자리 바꾸기: 빈 자리면 이동, 사람이 있으면 맞교환. 자리가 비고 차는 대로 후보 잠금이 다시 계산된다 */
@@ -2295,7 +2307,8 @@ export default function KboAugmentDraft() {
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
     setRoster([]); setPicked(null); setReleased([]); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    setSeries(rollSeries([], cfg.cap, null, [], m.series)); setAugPicksLeft(0); setChoice(null); setOpponent(null);
+    const first = rollSeries([], cfg.cap, null, [], m.series);
+    setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null);
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
   };
@@ -2351,7 +2364,7 @@ export default function KboAugmentDraft() {
     setReleased(swapPlan.banned);
     setPicked(null);
     setFocusSynergy(null);
-    setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned, mode.series));
+    openSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned, mode.series, seenSeries));
   };
 
   return (
@@ -2373,8 +2386,8 @@ export default function KboAugmentDraft() {
         : phase === 'ready' ? 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]' : 'w-full max-w-[1600px] gap-5 py-5'}`}>
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           {phase === 'draft' && (
-            // --card-w: 선수 카드 폭을 창 높이에 맞추되, 한 시리즈 14장이 한 줄에 들어가도록 창 폭으로도 제한
-            <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'min(clamp(4.2rem, 10.5vh, 6.4rem), calc((100vw - 140px) / 14))' }}>
+            // --card-w: 선수 카드 폭을 창 높이에 맞추되, 선반 18장이 늘 한 줄에 들어가도록 창 폭으로도 제한
+            <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': `min(clamp(4.2rem, 10.5vh, 6.4rem), calc((100vw - 190px) / ${SHELF_SIZE}))` }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
@@ -2400,7 +2413,7 @@ export default function KboAugmentDraft() {
                   </button>
                 </div>
               )}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(auto-fill,var(--card-w))]">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(18,var(--card-w))]">
                 {seriesCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={!getLockReason(p, roster, cp, released) && growsFor(p).some((s) => s.cur > 0)}
