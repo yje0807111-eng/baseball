@@ -814,17 +814,22 @@ const KEYFRAMES = `
 .ser-kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
 .ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size: 26px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
 .ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 16px 4px 10px; font-size: 13px; font-weight: 600; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
-.ser-seg { display: inline-flex; padding: 2px; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
-.ser-seg button { padding: 4px 10px; font-size: 12px; font-weight: 600; color: #9ca3af; transition: color .15s, background-color .15s; }
-.ser-seg button:hover { color: #e5e7eb; }
-.ser-seg button.on { color: #05080f; background: var(--a); }
-.ser-seg button:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
-.ser-refresh { position: relative; display: grid; place-items: center; width: 32px; height: 32px; color: #e5e7eb; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: color .15s, box-shadow .15s; }
-.ser-refresh svg { width: 17px; height: 17px; transition: transform .45s cubic-bezier(.3,0,.2,1); }
-.ser-refresh:hover:not(:disabled) { color: var(--a); box-shadow: inset 0 0 0 1px var(--a); }
+/* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
+.ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
+.ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
+.ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
+.ser-sw:hover { color: #fff; }
+.ser-sw[aria-pressed="true"] { color: #fff; }
+.ser-sw[aria-pressed="true"] .tr { background: color-mix(in srgb, var(--a) 35%, transparent); box-shadow: inset 0 0 0 1px var(--a); }
+.ser-sw[aria-pressed="true"] .tr::after { transform: translateX(16px); background: var(--a); }
+/* 새로고침: 네온 테두리 텍스트 버튼 “새로고침 · N회” */
+.ser-refresh { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--a); background: color-mix(in srgb, var(--a) 8%, transparent); box-shadow: inset 0 0 0 1px var(--a); transition: background-color .15s; }
+.ser-refresh em { font-style: normal; font-weight: 600; color: #cbd5e1; }
+.ser-refresh svg { width: 16px; height: 16px; transition: transform .45s cubic-bezier(.3,0,.2,1); }
+.ser-refresh:hover:not(:disabled) { background: color-mix(in srgb, var(--a) 18%, transparent); }
 .ser-refresh:hover:not(:disabled) svg { transform: rotate(200deg); }
-.ser-refresh b { position: absolute; right: -6px; top: -6px; min-width: 16px; height: 16px; padding: 0 4px; display: grid; place-items: center; font-size: 11px; line-height: 1; color: #05080f; background: var(--a); border-radius: 8px; }
 .ser-refresh:disabled { opacity: .4; cursor: not-allowed; }
+.ser-sw:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
@@ -998,7 +1003,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
         </div>
 
-        <div className="ml-auto w-[clamp(220px,26vw,420px)]">
+        <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
@@ -2500,17 +2505,16 @@ export default function KboAugmentDraft() {
                     {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
                   </div>
                   <div className="ml-auto flex shrink-0 items-center gap-2.5">
-                    <div className="ser-seg" role="group" aria-label="선반에 보일 선수">
-                      {[['all', '전체'], ['open', '영입 가능']].map(([k, label]) => (
-                        <button key={k} type="button" aria-pressed={shelfFilter === k} onClick={() => setShelfFilter(k)} className={shelfFilter === k ? 'on' : ''}>{label}</button>
-                      ))}
-                    </div>
+                    <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'open'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
+                      <span className="tr" aria-hidden="true" />영입 가능한 선수만
+                    </button>
+                    <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                     <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
                       title={rerolls > 0 ? `다른 시리즈로 새로고침 · ${rerolls}회 남음` : '새로고침을 모두 썼습니다'} aria-label={`다른 시리즈로 새로고침, ${rerolls}회 남음`}>
                       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M16.2 10.4A6.2 6.2 0 1 1 14.4 5.6" /><path d="M16.2 2.8v3.9h-3.9" />
                       </svg>
-                      <b className="font-display tabular-nums">{rerolls}</b>
+                      새로고침 <em>· {rerolls}회</em>
                     </button>
                   </div>
                 </div>
