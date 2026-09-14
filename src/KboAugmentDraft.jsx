@@ -1395,7 +1395,7 @@ function PanelTitle({ children, aside }) {
 function RosterPanel({ roster }) {
   const placed = applySynergies(withSlots(roster).map(playAt));
   const rows = SLOTS.map((s) => ({ pos: s.id, key: s.id, player: placed.find((p) => p.slot === s.id) }));
-  const spent = roster.reduce((s, p) => s + p.cost, 0);
+  const spent = roster.reduce((s, p) => s + (p.isReplacement ? 0 : p.cost), 0);
   return (
     <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${roster.length}/${ROSTER_SIZE} · ${spent} CP`}>나의 엔트리</PanelTitle>
@@ -2133,9 +2133,9 @@ const RULE_SECTIONS = [
   { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
   { title: '영입가', items: [`샐러리 캡(모드별 · 기본 ${SALARY_CAP} CP) 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
-  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출한 만큼 라운드가 되돌아가 12명을 채울 기회가 더 주어짐 (이미 나온 팀도 다시 나올 수 있음)','마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
+  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출해도 라운드는 돌아오지 않음 — 남은 빈 자리는 드래프트가 끝날 때 퓨처스 유망주로 채움', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
   { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
-  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
+  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '12라운드를 다 쓰거나 샐러리 캡이 모자라 더 영입할 수 없으면 드래프트가 끝나고, 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채움'] },
 ];
 
 export default function KboAugmentDraft() {
@@ -2150,9 +2150,26 @@ export default function KboAugmentDraft() {
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
+  const [round, setRound] = useState(1); // 드래프트 라운드 (영입·교체 영입마다 +1, 방출해도 되돌아가지 않음)
+  const [autoFilled, setAutoFilled] = useState(0); // 드래프트가 끝날 때 퓨처스 유망주로 채운 자리 수
   const [seenSeries, setSeenSeries] = useState([]); // 이번 드래프트에서 이미 열린 시리즈 — 모드의 시리즈를 다 돌기 전에는 다시 나오지 않는다
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
   const nextSeries = (r, c, banned) => rollSeries(r, c, series?.id, banned, mode.series, seenSeries) || rollSeries(r, c, series?.id, banned, DRAFT_SERIES, seenSeries);
+  /** 드래프트 종료: 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채우고 정비 화면으로 */
+  const finishDraft = (r) => {
+    const filled = fillRoster(r);
+    setAutoFilled(filled.length - r.length);
+    setRoster(filled); setSeries(null); setPicked(null); setPhase('ready');
+  };
+  /** 영입·교체 뒤: 12라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
+  const advanceRound = (next, nextCp, banned) => {
+    if (round >= ROSTER_SIZE || next.length >= ROSTER_SIZE || !ALL_PLAYERS.some((p) => !getLockReason(p, next, nextCp, banned))) {
+      finishDraft(next);
+      return;
+    }
+    setRound(round + 1);
+    openSeries(nextSeries(next, nextCp, banned));
+  };
   const openSeries = (s) => {
     setSeries(s);
     if (s) setSeenSeries((v) => (v.includes(s.id) ? v : [...v, s.id]));
@@ -2249,14 +2266,8 @@ export default function KboAugmentDraft() {
     setCp(nextCp);
     setPicked(null);
     setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
-    if (next.length >= ROSTER_SIZE) {
-      // 엔트리 완성 → 정비 화면. 증강은 시즌을 시작할 때 고른다
-      setSeries(null);
-      setPhase('ready');
-    } else {
-      openSeries(nextSeries(next, nextCp, released));
-    }
-  }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries]); // eslint-disable-line react-hooks/exhaustive-deps
+    advanceRound(next, nextCp, released); // 끝나면 정비 화면(증강은 시즌을 시작할 때 고른다)
+  }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries, round]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment') {
@@ -2357,7 +2368,7 @@ export default function KboAugmentDraft() {
     const m = DRAFT_MODES.find((x) => x.id === id);
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
-    setRoster([]); setPicked(null); setReleased([]); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
+    setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     const first = rollSeries([], cfg.cap, null, [], m.series);
     setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null);
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
@@ -2398,7 +2409,7 @@ export default function KboAugmentDraft() {
     setRoster(r.roster);
     setCp(cp + r.refund);
     setReleased(r.banned);
-    // 방출한 만큼 라운드가 되돌아간다(라운드 = 엔트리 + 1). 지금 선반에 고를 선수가 없으면 새 시리즈를 열어 그 기회를 쓸 수 있게 한다
+    // 방출해도 라운드는 그대로. 지금 선반에 고를 선수가 없으면(방출로 자리·캡이 바뀐 뒤 등) 새 시리즈를 연다
     if (!series || !series.players.some((p) => !getLockReason(p, r.roster, cp + r.refund, r.banned))) {
       openSeries(nextSeries(r.roster, cp + r.refund, r.banned));
     }
@@ -2419,7 +2430,7 @@ export default function KboAugmentDraft() {
     setReleased(swapPlan.banned);
     setPicked(null);
     setFocusSynergy(null);
-    openSeries(nextSeries(next, nextCp, swapPlan.banned));
+    advanceRound(next, nextCp, swapPlan.banned);
   };
 
   return (
@@ -2432,7 +2443,7 @@ export default function KboAugmentDraft() {
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (
-        <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
       )}
 
       {phase !== 'mode' && (
@@ -2446,7 +2457,7 @@ export default function KboAugmentDraft() {
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
-                  <button type="button" className={btnPrimary} onClick={() => { setSeries(null); setPhase('ready'); }}>이대로 정비하러 가기</button>
+                  <button type="button" className={btnPrimary} onClick={() => finishDraft(roster)}>이대로 정비하러 가기</button>
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
@@ -2548,6 +2559,7 @@ export default function KboAugmentDraft() {
             <section className="ui-cut ui-frame ui-glass p-6" style={{ '--c': '20px' }}>
               <p className="ui-lab font-display">Final Check</p>
               <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
+              {autoFilled > 0 && <p className="mt-2 text-sm font-semibold text-amber-200">채우지 못한 {autoFilled}자리는 퓨처스 유망주(종합 55)로 채웠습니다.</p>}
               <p className="mt-2 text-sm text-gray-400">
                 선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
                 {match.aug ? `시즌을 시작하면 증강 ${match.aug}개를 고른 뒤 매치업 화면으로 갑니다.` : '이번 모드는 증강 없이 바로 매치업 화면으로 갑니다.'} 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
