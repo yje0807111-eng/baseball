@@ -109,15 +109,13 @@ export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
 export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
-export const CHAMPION_IDS = new Set(['1993-haitai', '2008-sk', '2009-kia', '2014-samsung', '2016-doosan', '2020-nc', '2023-lg', '2024-kia']);
 export const DRAFT_MODES = [
   { id: 'legend', name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 950,
     desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
   { id: 'champ', name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 800,
-    desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => CHAMPION_IDS.has(s.id) },
+    desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => s.champion },
   { id: 'recent', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 800,
-    desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021,
-    planned: ['2021 KT 위즈', '2022 SSG 랜더스', '2025 LG 트윈스', '2026 시즌'] },
+    desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021 },
   { id: 'national', name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 760,
     desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
   { id: 'mix', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 800,
@@ -2284,13 +2282,14 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
 /* ───── 첫 화면: 드래프트 모드 선택 (모드 탭 · 모드 안 시리즈 미리보기 · 경기 설정) ───── */
 /** 모드에서 열리는 시리즈를 대표 선수 카드로. 레전드 모드는 시리즈가 하나라 대표 선수들을, 최근 시즌은 준비 중인 시즌까지 */
 function ticketsOf(mode) {
-  if (mode.id === 'legend') {
+  // 레전드가 한 묶음뿐일 때는 대표 선수로 티켓을 만든다 (구단별 레전드 시리즈가 생기면 시리즈 티켓)
+  if (mode.id === 'legend' && mode.series.length === 1) {
     return [...mode.players].sort((a, b) => b.overall - a.overall).slice(0, 12)
       .map((p) => ({ key: p.id, year: p.year, title: p.name, sub: `${p.team} · ${POS_LABEL[p.position]} · 종합 ${p.overall}`, star: p }));
   }
   const list = mode.series.map((s) => ({
     key: s.id, year: s.year || 'ALL', title: s.title, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
-    star: [...s.players].sort((a, b) => b.overall - a.overall)[0], champ: CHAMPION_IDS.has(s.id),
+    star: [...s.players].sort((a, b) => b.overall - a.overall)[0], champ: !!s.champion,
   }));
   return [...list, ...(mode.planned || []).map((t) => ({ key: t, year: t.slice(0, 4), title: t.slice(5), sub: '데이터 조사 후 공개', locked: true }))];
 }
@@ -2379,7 +2378,7 @@ function ModeSelect({ initialMode, record, onStart }) {
           <div className="flex flex-wrap items-baseline gap-3">
             <p className="ui-lab font-display">Series in Mode</p>
             <p className="text-sm text-gray-400">
-              {mode.id === 'legend' ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${SHELF_SIZE}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
+              {mode.id === 'legend' && mode.series.length === 1 ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${SHELF_SIZE}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
               {mode.planned ? ` · ${mode.planned.length}개 준비 중` : ''}
             </p>
           </div>
