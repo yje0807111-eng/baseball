@@ -858,6 +858,15 @@ const KEYFRAMES = `
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
 .mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
 .mc-lk span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 시너지 칸 (선반 카드 오른쪽 위) */
+@keyframes mcPip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.mc-syn { position: absolute; z-index: 5; right: 5cqw; top: 7cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+.mc-syn svg { width: 8cqw; height: 8cqw; margin-right: .6cqw; color: #6ee7b7; }
+.mc-syn i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
+.mc-syn i.on { background: #e5e7eb; }
+.mc-syn i.max { background: #10b981; }
+.mc-syn i.nx { background: #38bdf8; animation: mcPip 1.2s ease-in-out infinite; }
+.mc-syn em { margin-left: .6cqw; font-style: normal; font-size: 7.5cqw; font-weight: 800; color: #7dd3fc; }
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
@@ -1179,6 +1188,30 @@ const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '
 const POS_FS = { SP: 9.3, DH: 8.4 };
 
 /**
+ * 선반 카드 오른쪽 위 시너지 칸: 목록(도크)의 단계 칸을 축소한 것.
+ * 흰 칸 = 이미 채움(최종 단계면 초록), 하늘 칸 = 이 선수가 들어오면 채울 칸(깜빡), 최종 단계를 넘어 추가 혜택이면 +N
+ */
+function SynergyPips({ s, after }) {
+  const stage = Math.min(s.level, s.tiers.length - 1);
+  const from = stage > 0 ? s.tiers[stage - 1].need : 0;
+  const to = s.tiers[stage].need;
+  const maxed = s.level === s.tiers.length;
+  const next = after ? Math.min(after.cur, to) : s.cur;
+  const extraGain = after ? extraOf(after) - extraOf(s) : 0;
+  return (
+    <span className="mc-syn" title={`${s.name} · 영입하면 ${maxed ? '추가 혜택' : `${stage + 1}단계까지 ${Math.max(0, to - next)}명`}`}>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-1 1" /><path d="M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l1-1" />
+      </svg>
+      {Array.from({ length: to - from }, (_, i) => (
+        <i key={i} className={i < s.cur - from ? (maxed ? 'max' : 'on') : i < next - from ? 'nx' : ''} />
+      ))}
+      {extraGain > 0 && <em className="font-display">+{extraGain}</em>}
+    </span>
+  );
+}
+
+/**
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
@@ -1199,7 +1232,7 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
         <span className="mc-sh" />
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
-        {hint && <span className="absolute right-[6cqw] top-[6cqw] rounded-sm bg-[#10b981] px-[2.5cqw] py-[1cqw] text-[7.5cqw] font-bold leading-none text-[#062a1f]" title="진행 중인 시너지를 채웁니다">시너지</span>}
+        {hint && <SynergyPips {...hint} />}
         <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
         <span className="mc-rule" />
         <span className={`mc-nm ${player.name.length >= 6 ? 'l6' : player.name.length >= 5 ? 'l5' : player.name.length >= 4 ? 'l4' : ''}`}>{player.name}</span>
@@ -2462,6 +2495,12 @@ export default function KboAugmentDraft() {
     const after = previewSynergies(roster, player);
     return synergyNow.filter((s) => !(phase === 'draft' && DRAFT_HIDDEN.has(s.id)) && synergyGrows(s, after.get(s.id)));
   };
+  /** 카드의 시너지 칸 표시: 이 선수가 채우는 진행 중 시너지 중 목록 정렬 기준으로 가장 위의 것 하나 ({ s, after }) */
+  const hintFor = (player) => {
+    const after = previewSynergies(roster, player);
+    const [top] = sortSynergies(growsFor(player).filter((s) => s.cur > 0));
+    return top ? { s: top, after: after.get(top.id) } : null;
+  };
   const previewTarget = picked && !pickedReason ? picked : null;
 
   /* 방출: 영입가 절반 환불 · 동일인 재영입 금지 · 드래프트 중에만 */
@@ -2558,7 +2597,7 @@ export default function KboAugmentDraft() {
               <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
                 {shownCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
-                    hint={!getLockReason(p, roster, cp, released) && growsFor(p).some((s) => s.cur > 0)}
+                    hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
