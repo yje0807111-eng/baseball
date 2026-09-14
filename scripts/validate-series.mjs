@@ -36,7 +36,8 @@ for (const file of files) {
   if (!KINDS.includes(s.kind)) err('kind는 team|national|legend');
   if (s.kind === 'legend' ? s.year !== null : !Number.isInteger(s.year)) err('year: legend는 null, 그 외 정수');
   if (typeof s.title !== 'string' || !s.title) err('title 필요');
-  if (s.kind === 'team' ? !FRANCHISES.includes(s.franchise) : s.franchise !== null) err(`franchise: team은 ${FRANCHISES.join('|')}, 그 외 null`);
+  if (s.kind === 'team' ? !FRANCHISES.includes(s.franchise) : s.kind === 'legend' ? s.franchise !== null && !FRANCHISES.includes(s.franchise) : s.franchise !== null) err(`franchise: team은 ${FRANCHISES.join('|')}, legend는 구단 코드나 null, national은 null`);
+  if ('champion' in s && (s.kind !== 'team' || s.champion !== true)) err('champion: 한국시리즈 우승 구단 시즌만 true (아니면 필드를 뺀다)');
   if (typeof s.subtitle !== 'string' || !s.subtitle || s.subtitle.length > 30) err('subtitle 1~30자');
   if (typeof s.blurb !== 'string' || !s.blurb || s.blurb.length > 90) err('blurb 1~90자');
   if (!Array.isArray(s.notes)) err('notes 배열 필요');

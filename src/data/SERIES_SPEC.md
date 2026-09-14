@@ -17,7 +17,8 @@
 | `kind` | `"team"` \| `"national"` \| `"legend"` | 구단 시즌 / 국가대표 대회 / 레전드 모음 |
 | `year` | number \| null | team·national은 그 해. legend는 `null` (선수별 `year`가 따로 있음) |
 | `title` | string | **그 해 당시** 이름. 예: `"해태 타이거즈"`, `"SK 와이번스"`, `"넥센 히어로즈"`, `"베이징 올림픽 국가대표"`, `"외국인 레전드"` |
-| `franchise` | string \| null | team만. `KIA`(해태 포함) `SAMSUNG` `LG` `DOOSAN`(OB 포함) `SSG`(SK 포함) `LOTTE` `HANWHA`(빙그레 포함) `KIWOOM`(넥센·히어로즈 포함) `NC` `KT` `HYUNDAI`(현대 유니콘스). national·legend는 `null` |
+| `franchise` | string \| null | team은 필수: `KIA`(해태 포함) `SAMSUNG` `LG`(MBC 포함) `DOOSAN`(OB 포함) `SSG`(SK 포함) `LOTTE` `HANWHA`(빙그레 포함) `KIWOOM`(넥센·히어로즈 포함) `NC` `KT` `HYUNDAI`(현대 유니콘스). 구단별 legend는 그 구단 코드, 외국인 레전드 등 구단 없는 legend와 national은 `null` |
+| `champion` | `true` (선택) | 한국시리즈 우승 구단 시즌만 넣는다. 아니면 필드를 뺀다. 게임의 "가을의 왕조" 모드가 이 필드로 팀을 고른다 |
 | `subtitle` | string | 30자 이하, 검증된 성과. 예: `"한국시리즈 우승 · 정규시즌 1위"`, `"9전 전승 금메달"` |
 | `blurb` | string | 90자 이하, 야구를 잘 모르는 사람에게 이 팀/대회가 왜 유명한지 1~2문장 |
 | `players` | array | 10~18명 (드래프트 선반이 한 줄 18칸. 18명보다 많은 시리즈는 게임이 포지션마다 1명씩 넣고 섞어 18명을 뽑는다) |
@@ -45,6 +46,9 @@
 
 - **국가대표(national)** 시리즈: 능력치는 **그 해 소속팀 시즌 기록** 기준 (KBO / NPB / MLB). `team`은 그 소속팀.
 - **레전드(legend)** 시리즈: 각 선수의 **커리어 최고 시즌 하나**를 골라 `year`에 넣는다.
+  구단별 레전드는 id `legend-<구단 코드 소문자>` (예: `legend-kia`, `legend-doosan`), title `"해태·KIA 레전드"`처럼 옛 이름까지.
+  그 구단 소속 시즌 기록만 쓴다 (`team`은 그 해 이름: 해태/KIA). 외국인 레전드는 `legend-foreign`, franchise `null`.
+  역사가 짧아 18명을 못 채우는 구단(NC·KT)은 `legend-nc-kt` 한 시리즈로 합친다 (franchise `null`).
 
 ## 능력치 기준 (KBO 리그 평균 ≈ 70)
 
