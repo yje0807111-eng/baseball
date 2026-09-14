@@ -659,10 +659,9 @@ const KEYFRAMES = `
 .pick-leave { pointer-events: none; }
 .pick-leave.drop { animation: pickDrop .3s ease-in both; }
 .pick-leave.sign { animation: pickSign .35s ease-in both; }
-/* 라인업에 막 들어온 선수: 상체와 자막 바가 부드럽게 떠오르고, 바 위에 옅은 초록 그라데이션이 잠깐 머물다 사라진다 */
-@keyframes tokUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes tokBarIn { from { opacity: 0; transform: skewX(-10deg) translateX(-14px); } to { opacity: 1; transform: skewX(-10deg); } }
-@keyframes tokSheen { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
+/* 라인업 합류: PICK 미리보기(무채색)로 서 있던 자리에 아래에서부터 색이 차오르고, 이어서 자막 바에 색이 든다 */
+@keyframes tokFill { from { -webkit-mask-position: 0 0, 0 0%; mask-position: 0 0, 0 0%; } to { -webkit-mask-position: 0 0, 0 100%; mask-position: 0 0, 0 100%; } }
+@keyframes tokBarColor { from { filter: grayscale(1) brightness(.8); } to { filter: none; } }
 /* 라인업 필드 토큰 (중계 자막 스타일) */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
 .lf-tok { position: absolute; width: 168px; height: 84px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
@@ -697,9 +696,20 @@ const KEYFRAMES = `
 .lf-tok.focus .lf-bar { box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.45); }
 .lf-row.focus { background: rgba(56,189,248,.16); box-shadow: inset 3px 0 0 #38bdf8, inset 0 0 0 1px #38bdf8; }
 .lf-tok.dim, .lf-row.dim { opacity: .28; }
-.lf-tok.joined .lf-bar { animation: tokBarIn .45s ease-out both; }
-.lf-tok.joined .lf-bp { animation: tokUp .55s ease-out .1s both; }
-.lf-tok.joined .lf-bar::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(16,185,129,.26), rgba(16,185,129,.08) 55%, transparent); animation: tokSheen 1.3s ease-out both; }
+/* 미리보기(ghost)는 무채색. 합류(joined)하면 회색 사본을 깔고 그 위 컬러 흉상을 아래에서 위로 부드럽게 드러낸다 */
+.lf-bp-gray { display: none; }
+.lf-tok.ghost .lf-bp, .lf-tok.joined .lf-bp-gray { filter: grayscale(1) brightness(.72); opacity: .8; }
+.lf-tok.ghost .lf-bar { filter: grayscale(1) brightness(.8); }
+.lf-tok.joined .lf-bp-gray { display: block; }
+.lf-tok.joined .lf-bp:not(.lf-bp-gray) {
+  -webkit-mask-image: linear-gradient(#000 72%, transparent), linear-gradient(to top, #000 42%, transparent 58%);
+  mask-image: linear-gradient(#000 72%, transparent), linear-gradient(to top, #000 42%, transparent 58%);
+  -webkit-mask-size: 100% 100%, 100% 300%; mask-size: 100% 100%, 100% 300%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+  animation: tokFill .8s cubic-bezier(.4,0,.2,1) both;
+}
+.lf-tok.joined .lf-bar { animation: tokBarColor .5s ease-out .45s both; }
 /* 시너지 목록 스크롤: 얇은 캡슐 손잡이, 트랙은 거의 보이지 않게 */
 .syn-scroll { overscroll-behavior: contain; }
 .syn-scroll::-webkit-scrollbar { width: 6px; }
@@ -1083,6 +1093,7 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
     <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
       aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
       className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
+      {player && <div className="lf-bp lf-bp-gray" style={bust} aria-hidden="true">{!bust && <Silhouette />}</div>}
       <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
       <div className="lf-bar">
         <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.id} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
