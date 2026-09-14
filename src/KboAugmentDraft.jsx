@@ -838,6 +838,9 @@ const KEYFRAMES = `
 .ser-pf:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
 /* 선반 카드 (MiniCard) — 단위는 카드 폭 기준 cqw */
 .mc-in { position: absolute; inset: 0; }
+/* 자리 거르기로 선반에서 빠지는 카드: 살짝 가라앉으며 사라짐 (남는 카드는 선반을 다시 그려 rise 로 차례로 떠오름) */
+@keyframes mcLeave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(.9); } }
+.mc.mc-leave { pointer-events: none; animation: mcLeave .18s ease-in both; }
 .mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
 .mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: rgba(255,255,255,.55); }
 .mc.t75 .mc-tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
@@ -1268,7 +1271,7 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
-function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
+function MiniCard({ player, reason, selected, hint, focus, onPick, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -1277,7 +1280,7 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
     <button type="button" onClick={() => onPick(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, '--n': acc, clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
-      className={`mc ${tier} ${locked ? 'lock' : ''} ${player.cost >= 100 ? 'c3' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
+      className={`mc ${tier} ${locked ? 'lock' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
       <span className="mc-in">
         {art
           ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
@@ -1403,7 +1406,7 @@ function visibleSynergies(roster, draftView) {
   return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
 }
 
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onEmptySlot, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onSlotFilter, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -1460,12 +1463,19 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
-  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', wantSlot === s.id && !at(s.id) && 'want', pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
+  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', wantSlot === s.id && 'want', /* 거르기 중인 자리(선수가 있으면 교체 대상) */ pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
   const slotUnder = (e) => document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-slot]')?.dataset.slot || null;
 
   const tap = (id) => {
     if (locked) return;
-    if (pick) { if (pick !== id) onMove(pick, id); setPick(null); } else if (at(id)) setPick(id); else onEmptySlot?.(id); // 빈 자리: 선반을 그 포지션으로 거르기
+    // 자리를 누르면(빈 자리든 선수가 있는 자리든) 선반을 그 자리 포지션으로 거른다. 같은 자리를 다시 누르면 해제, 다른 자리로 옮기면 해제
+    if (pick) {
+      if (pick !== id) { onMove(pick, id); onSlotFilter?.(null); } else onSlotFilter?.(id);
+      setPick(null);
+    } else {
+      if (at(id)) { setPick(id); onSlotFilter?.(id, true); } // 선수가 있는 자리는 고를 때마다 거르기를 켠다(해제는 다시 눌러 선택을 풀 때)
+      else onSlotFilter?.(id);
+    }
   };
   const bind = (id) => ({
     onPointerDown: (e) => {
@@ -1486,7 +1496,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
       if (!d) return;
       if (!d.moved) { tap(id); return; }
       const to = slotUnder(e);
-      if (to && to !== d.from) onMove(d.from, to);
+      if (to && to !== d.from) { onMove(d.from, to); onSlotFilter?.(null); }
       setDrag(null);
       setPick(null);
     },
@@ -2285,7 +2295,7 @@ const RULE_SECTIONS = [
   { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
   { title: '영입가', items: [`샐러리 캡(모드별 · 기본 ${SALARY_CAP} CP) 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
-  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출해도 라운드는 돌아오지 않음 — 남은 빈 자리는 드래프트가 끝날 때 퓨처스 유망주로 채움', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
+  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출해도 라운드는 돌아오지 않음 — 남은 빈 자리는 드래프트가 끝날 때 퓨처스 유망주로 채움', '마감된 포지션의 후보를 고르면 “교체 영입”으로 바로 교체 — 내 라인업에서 자리를 먼저 누르면 그 자리 선수와, 아니면 그 포지션에서 가장 약한 선수와 바꾸며, 방출 선수는 영입가 절반 환불 · 다시 영입 불가'] },
   { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
   { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '12라운드를 다 쓰거나 샐러리 캡이 모자라 더 영입할 수 없으면 드래프트가 끝나고, 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채움'] },
 ];
@@ -2402,11 +2412,24 @@ export default function KboAugmentDraft() {
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
   const [shelfFilter, setShelfFilter] = useState('all'); // 선반: 전체 · 영입 가능만
-  const [posFilter, setPosFilter] = useState(null); // 내 라인업의 빈 자리를 누르면 { slot, pos } — 선반에 그 포지션만
-  const shownCards = seriesCards
-    .filter((p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released))
-    .filter((p) => !posFilter || p.position === posFilter.pos);
-  const handleEmptySlot = (slot) => setPosFilter((f) => (f?.slot === slot ? null : { slot, pos: slotPos(slot) }));
+  const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
+  const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
+  const [shelfKey, setShelfKey] = useState(0); // 거르기가 바뀌면 선반을 다시 그려 남은 카드가 차례로 떠오르게
+  const leaveTimerRef = useRef(null);
+  const openOnly = (p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released);
+  const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter || p.position === posFilter.pos);
+  /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
+  const handleSlotFilter = (slot, force = false) => {
+    const next = slot == null || (!force && posFilter?.slot === slot) ? null : { slot, pos: slotPos(slot) };
+    if ((next?.slot ?? null) === (posFilter?.slot ?? null)) return;
+    const keep = new Set(seriesCards.filter(openOnly).filter((p) => !next || p.position === next.pos).map((p) => p.id));
+    const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
+    clearTimeout(leaveTimerRef.current);
+    const commit = () => { setShelfLeaving(null); setPosFilter(next); setShelfKey((k) => k + 1); };
+    if (!leaving.size) { commit(); return; }
+    setShelfLeaving(leaving);
+    leaveTimerRef.current = setTimeout(commit, 180);
+  };
   const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -2582,7 +2605,10 @@ export default function KboAugmentDraft() {
   /* 교체 영입: 마감된 포지션의 후보를 고르면, 그 자리에서 실전 종합이 가장 낮은 선수를 방출하고 곧바로 들인다 */
   const swapPlan = (() => {
     if (phase !== 'draft' || !picked || !pickedReason?.endsWith('마감')) return null;
-    const [weakest] = withSlots(roster).filter((p) => slotPos(p.slot) === picked.position).sort((a, b) => playAt(a).overall - playAt(b).overall);
+    // 내 라인업에서 같은 포지션 자리를 골라 둔 상태면 그 자리 선수와, 아니면 그 포지션에서 실전 종합이 가장 낮은 선수와 바꾼다
+    const samePos = withSlots(roster).filter((p) => slotPos(p.slot) === picked.position);
+    const chosen = posFilter && samePos.find((p) => p.slot === posFilter.slot);
+    const [weakest] = chosen ? [chosen] : samePos.sort((a, b) => playAt(a).overall - playAt(b).overall);
     const r = weakest && releaseFrom(roster, weakest.slot);
     return r ? { ...r, reason: getLockReason(picked, r.roster, cp + r.refund, r.banned) } : null;
   })();
@@ -2640,8 +2666,8 @@ export default function KboAugmentDraft() {
                   </div>
                   <div className="ml-auto flex shrink-0 items-center gap-2.5">
                     {posFilter && (
-                      <button type="button" className="ser-pf" onClick={() => setPosFilter(null)} aria-label={`${POS_LABEL[posFilter.pos]} 선수만 보기 해제`}>
-                        {POS_LABEL[posFilter.pos]} 선수만 <span aria-hidden="true">✕</span>
+                      <button type="button" className="ser-pf" onClick={() => handleSlotFilter(null)} aria-label={`${SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 선수만 보기 해제`}>
+                        {SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 <span aria-hidden="true">✕</span>
                       </button>
                     )}
                     <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'open'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
@@ -2658,7 +2684,7 @@ export default function KboAugmentDraft() {
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
+              <div key={shelfKey} className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
                 {shownCards.length === 0 && (
                   <p className="col-span-full py-6 text-center text-sm text-gray-400">
                     {posFilter ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
@@ -2668,7 +2694,8 @@ export default function KboAugmentDraft() {
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
-                    onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} style={{ animationDelay: `${i * 20}ms` }} />
+                    onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
+                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
                 ))}
               </div>
               </div>
@@ -2686,12 +2713,10 @@ export default function KboAugmentDraft() {
                       </div>
                       {swapPlan ? (
                         <>
-                          <button type="button" className="pk-go swap" disabled={!!swapPlan.reason} onClick={handleSwapIn}>
-                            <PickIcon kind={swapPlan.reason ? 'lock' : 'swap'} /><span>{swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : '교체 영입'}</span>
+                          <button type="button" className="pk-go" disabled={!!swapPlan.reason} onClick={handleSwapIn}
+                            title={swapPlan.reason ? undefined : `${swapPlan.out.name}(${playAt(swapPlan.out).overall}) 방출 · 영입가 절반 환불 · 다시 영입 불가`}>
+                            <PickIcon kind={swapPlan.reason ? 'lock' : 'swap'} /><span>{swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : `교체 영입 (+${swapPlan.refund} CP 환불)`}</span>
                           </button>
-                          <p className="pl-2.5 text-xs leading-relaxed text-gray-400 shadow-[inset_2px_0_0_#fbbf24]">
-                            {swapPlan.out.name}({playAt(swapPlan.out).overall}) 방출 → <b className="text-[#34d399]">+{swapPlan.refund} CP</b> 환불(영입가 절반), 다시 영입할 수 없습니다.
-                          </p>
                         </>
                       ) : (
                         <button type="button" className="pk-go" disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
@@ -2729,7 +2754,7 @@ export default function KboAugmentDraft() {
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onEmptySlot={handleEmptySlot} wantSlot={posFilter?.slot} draftView
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} wantSlot={posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
