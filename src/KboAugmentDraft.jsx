@@ -1104,7 +1104,7 @@ function AugmentShelf({ augments }) {
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
       <PanelTitle aside={`${augments.length}/${SEASON_AUGMENTS}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-xs leading-relaxed text-gray-500">엔트리 {ROSTER_SIZE}명을 모두 뽑으면 시즌 개막과 함께 증강 {SEASON_AUGMENTS}개를 고릅니다.</p>
+        <p className="text-xs leading-relaxed text-gray-500">엔트리를 채우고 정비를 마친 뒤 시즌을 시작하면 증강 {SEASON_AUGMENTS}개를 고릅니다.</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
@@ -1292,7 +1292,7 @@ function MvpStage({ result }) {
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
-const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', '제 포지션 밖이면 종합 −3~−20', '방출: 영입가 절반 환불 · 재영입 불가', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
+const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', '제 포지션 밖이면 종합 −3~−20', '방출: 영입가 절반 환불 · 재영입 불가', `정비 후 시즌 시작 때 증강 ${SEASON_AUGMENTS}개`];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
@@ -1347,11 +1347,9 @@ export default function KboAugmentDraft() {
     setCp(nextCp);
     setPicked(null);
     if (next.length >= ROSTER_SIZE) {
-      // 엔트리 완성 → 시즌 개막: 증강을 차례로 고른다
+      // 엔트리 완성 → 정비 화면. 증강은 시즌을 시작할 때 고른다
       setSeries(null);
       setPhase('ready');
-      setAugPicksLeft(SEASON_AUGMENTS);
-      setChoice({ kind: 'augment', options: augmentOptions(augments) });
     } else {
       setSeries(rollSeries(next, nextCp, series?.id, released));
     }
@@ -1364,6 +1362,7 @@ export default function KboAugmentDraft() {
       setAugments(owned);
       setAugPicksLeft(left);
       setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
+      if (left <= 0) startGame(false, owned); // 마지막 증강을 고르면 곧바로 플레이볼
       return;
     }
     const s = option.apply({ cp, rerolls, buff });
@@ -1387,7 +1386,21 @@ export default function KboAugmentDraft() {
   };
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
-  const startGame = async (rematch = false) => {
+  /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
+  const startSeason = () => {
+    if (augments.length >= SEASON_AUGMENTS) { startGame(); return; }
+    runIdRef.current += 1;
+    setPhase('sim');
+    setBoard(emptyBoard());
+    setHalf(null);
+    setLogs([]);
+    setResult(null);
+    setToast(null);
+    setAugPicksLeft(SEASON_AUGMENTS - augments.length);
+    setChoice({ kind: 'augment', options: augmentOptions(augments) });
+  };
+
+  const startGame = async (rematch = false, owned = augments) => {
     const oppRoster = rematch && opponent ? opponent : aiDraft();
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
@@ -1402,7 +1415,7 @@ export default function KboAugmentDraft() {
     setPaused(false);
 
     const res = await runSimulation({
-      my, opp, augments,
+      my, opp, augments: owned,
       getSpeed: () => speedRef.current,
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
@@ -1434,6 +1447,7 @@ export default function KboAugmentDraft() {
   const btnPrimary = `${btn} bg-[#10b981] text-[#062a1f] hover:bg-emerald-400`;
   const btnGhost = `${btn} border border-gray-600 bg-[#1f2937] text-gray-100 hover:border-gray-400`;
   const pickedReason = picked ? getLockReason(picked, roster, cp, released) : null;
+  const offPositionPlayers = withSlots(roster).map(playAt).filter((p) => p.naturalPosition);
 
   /* 방출: 영입가 절반 환불 · 동일인 재영입 금지 · 드래프트 중에만 */
   const releaseFrom = (base, slot) => {
@@ -1442,12 +1456,16 @@ export default function KboAugmentDraft() {
     return out ? { out, roster: placed.filter((p) => p !== out), refund: releaseRefund(out), banned: [...released, personKey(out)] } : null;
   };
   const handleRelease = (slot) => {
-    if (phase !== 'draft' || choice) return;
+    if ((phase !== 'draft' && phase !== 'ready') || choice) return;
     const r = releaseFrom(roster, slot);
     if (!r) return;
     setRoster(r.roster);
     setCp(cp + r.refund);
     setReleased(r.banned);
+    if (phase === 'ready') { // 정비 중 방출하면 빈 자리를 채우러 드래프트로 돌아간다
+      setPhase('draft');
+      setSeries(rollSeries(r.roster, cp + r.refund, null, r.banned));
+    }
   };
   /* 교체 영입: 마감된 포지션의 후보를 고르면, 그 자리에서 실전 종합이 가장 낮은 선수를 방출하고 곧바로 들인다 */
   const swapPlan = (() => {
@@ -1479,7 +1497,7 @@ export default function KboAugmentDraft() {
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
-                  <button type="button" className={btnPrimary} onClick={() => startGame()}>이대로 경기 시작</button>
+                  <button type="button" className={btnPrimary} onClick={() => { setSeries(null); setPhase('ready'); }}>이대로 정비하러 가기</button>
                 </div>
               )}
               {series && (
@@ -1543,10 +1561,22 @@ export default function KboAugmentDraft() {
 
           {phase === 'ready' && (
             <section className="rounded-xl border border-gray-800 bg-[#1f2937]/60 p-6">
-              <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-[#10b981]">Draft Complete</p>
-              <h2 className="mt-2 text-3xl font-black text-white">엔트리 {ROSTER_SIZE}명 확정</h2>
-              <p className="mt-2 text-sm text-gray-400">잔여 {cp} CP · 시너지와 팀 보정이 반영된 전력입니다. 상대는 같은 규칙으로 드래프트한 AI 올스타입니다.</p>
-              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} /></div>
+              <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-[#10b981]">Final Check</p>
+              <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
+              <p className="mt-2 text-sm text-gray-400">
+                선수를 끌어 자리를 바꾸고, 필요하면 방출한 뒤 드래프트로 돌아가 빈 자리를 다시 채울 수 있습니다.
+                시즌을 시작하면 경기 화면에서 증강 {SEASON_AUGMENTS}개를 고르고 곧바로 플레이볼합니다. 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
+              </p>
+              {offPositionPlayers.length > 0 && (
+                <ul className="mt-3 flex flex-wrap gap-1.5">
+                  {offPositionPlayers.map((p) => (
+                    <li key={p.id} className="rounded border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-xs text-amber-200">
+                      {p.name} {p.naturalPosition}→{p.position} <b className="font-display">{p.overall}</b>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} onRelease={handleRelease} /></div>
               <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
                   ['타선 공격력', myTeam.offense.toFixed(1)],
@@ -1561,7 +1591,7 @@ export default function KboAugmentDraft() {
                 ))}
               </dl>
               <div className="mt-6 flex flex-wrap gap-2">
-                <button type="button" className={btnPrimary} onClick={() => startGame()}>플레이볼</button>
+                <button type="button" className={btnPrimary} onClick={startSeason}>시즌 시작 · 증강 고르기</button>
                 <button type="button" className={btnGhost} onClick={newDraft}>처음부터 다시 드래프트</button>
               </div>
             </section>
