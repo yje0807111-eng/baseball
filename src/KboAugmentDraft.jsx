@@ -1732,43 +1732,6 @@ function Portrait({ player, className = 'h-10 w-8' }) {
   );
 }
 
-/* ───── 새 시리즈 공개: 시리즈 선수 전원을 딜링하듯 펼친다 ───── */
-function SeriesReveal({ series, roster, cp, released, rerolls, round, onOpen, onReroll }) {
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape' || e.key === 'Enter') onOpen(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onOpen]);
-  const cards = [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall);
-  const cols = cards.length > 14 ? 14 : 7; // 14명 이하는 7장씩 두 줄, 레전드 28명은 14장씩 두 줄
-  const acc = SERIES_NEON[series.kind];
-  const open = cards.filter((p) => !getLockReason(p, roster, cp, released)).length;
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={`새 시리즈 ${series.title}`}>
-      <div className="ui-bg soft" style={{ backgroundImage: 'url(ui/tunnel.webp)' }} />
-      <div className="pointer-events-none fixed left-1/2 top-1/2 h-[75vh] w-[92vw] -translate-x-1/2 -translate-y-1/2" style={{ background: `radial-gradient(closest-side, ${acc}33, ${acc}0d 55%, transparent)` }} />
-      <div className="relative flex min-h-full flex-col items-center justify-center gap-6 px-4 py-8" style={{ '--a': acc }}>
-        <div className="text-center animate-[rise_.4s_ease-out_both]">
-          <p className="ui-lab font-display">Round {String(round).padStart(2, '0')} · New Series</p>
-          <h2 className="mt-2 font-display text-5xl font-extrabold leading-none text-white sm:text-6xl" style={{ textShadow: `0 0 40px ${acc}88` }}>{series.year ? `${series.year} ` : ''}{series.title}</h2>
-          <p className="mt-2 text-base text-gray-300">{SERIES_KIND_LABEL[series.kind]}{series.subtitle ? ` · ${series.subtitle}` : ''} · 선수 {cards.length}명 전원 · 영입 가능 {open}명</p>
-        </div>
-        <div inert className="grid w-full justify-center gap-2.5" style={{ gridTemplateColumns: `repeat(${cols}, min(8.5rem, calc((100vw - ${cols * 0.625 + 3}rem) / ${cols})))` }}>
-          {cards.map((p, i) => (
-            <div key={p.id} style={{ transform: `rotate(${(((i * 37) % 7) - 3) * 0.7}deg)` }}>
-              <MiniCard player={p} reason={getLockReason(p, roster, cp, released)} onPick={() => {}} style={{ animationDelay: `${150 + i * 40}ms` }} />
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-2 animate-[rise_.4s_ease-out_both]" style={{ animationDelay: '450ms' }}>
-          <button type="button" className="ui-btn ui-cut" onClick={onReroll} disabled={rerolls <= 0}>다른 시리즈 <span className="font-display text-gray-400">×{rerolls}</span></button>
-          <button type="button" className="ui-btn ui-cut pri" onClick={onOpen} autoFocus>시리즈 열기</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ───── 경기 전 매치업: 두 팀 타순 · 선발 맞대결 · 예상 승리 확률 ───── */
 const teamOvr = (team) => Math.round(avg(team.roster.map((p) => p.overall)));
 const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.defense * 0.2;
@@ -1982,8 +1945,6 @@ export default function KboAugmentDraft() {
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
-  // 드래프트 첫 화면에서만 첫 시리즈 선수 전원을 펼쳐 보여 준다. 라운드 사이에는 띄우지 않고 위 선반의 시리즈만 바로 바뀐다
-  const [reveal, setReveal] = useState(true);
   const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [focusSynergy, setFocusSynergy] = useState(null); // 누른 시너지 — 해당 선수를 화면에서 강조
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
@@ -2031,7 +1992,6 @@ export default function KboAugmentDraft() {
     setRoster(r);
     setCp(Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0)));
     setSeries(null);
-    setReveal(false);
     if (demo === 'ready') setPhase('ready');
     if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: shuffle(AUGMENTS).slice(0, 3) }); }
     if (demo === 'matchup') { setAugments(shuffle(AUGMENTS).slice(0, SEASON_AUGMENTS)); setOpponent(aiDraft()); setPhase('matchup'); }
@@ -2161,7 +2121,7 @@ export default function KboAugmentDraft() {
   const newDraft = () => {
     runIdRef.current += 1;
     setPhase('draft'); setRoster([]); setPicked(null); setReleased([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    setSeries(rollSeries([], SALARY_CAP)); setReveal(true); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
+    setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
     setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
   };
 
@@ -2433,10 +2393,6 @@ export default function KboAugmentDraft() {
 
       {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
       {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
-      {phase === 'draft' && series && reveal && !modal && (
-        <SeriesReveal series={series} roster={roster} cp={cp} released={released} rerolls={rerolls} round={roster.length + 1}
-          onOpen={() => setReveal(false)} onReroll={handleReroll} />
-      )}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} />
       <HighlightToast toast={toast} />
     </div>
