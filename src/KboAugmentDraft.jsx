@@ -867,6 +867,70 @@ const KEYFRAMES = `
 .mc-syn i.max { background: #10b981; }
 .mc-syn i.nx { background: #38bdf8; animation: mcPip 1.2s ease-in-out infinite; }
 .mc-syn em { margin-left: .6cqw; font-style: normal; font-size: 7.5cqw; font-weight: 800; color: #7dd3fc; }
+/* 상단 샐러리 캡: PICK 선수를 영입하면 깎일 칸 */
+@keyframes capBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.ui-seg i.spend { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: capBlink 1.2s ease-in-out infinite; }
+/* PICK 카드 (PlayerCard) — 막대 그래프 판. 단위는 카드 폭 기준 cqw */
+.pk { container-type: inline-size; background: #05080f; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
+.pk-body, .pk-in { position: absolute; inset: 0; }
+.pk-in { overflow: hidden; }
+.pk-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; transition: transform .5s; }
+.pk:hover .pk-art { transform: scale(1.04); }
+.pk-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 44%, rgba(5,8,15,.9) 70%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.5) 0, rgba(5,8,15,0) 50%); }
+.pk-fr { position: absolute; inset: 1.6cqw; border: 1px solid color-mix(in srgb, var(--n) 45%, transparent); pointer-events: none; }
+.pk-tb { position: absolute; left: 6cqw; right: 1.6cqw; top: 1.6cqw; height: 1.3cqw; background: rgba(255,255,255,.55); }
+.pk.t75 .pk-tb { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.7); }
+.pk.t90 .pk-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
+.pk-ov { position: absolute; left: 6cqw; top: 6cqw; font-size: 24cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
+.pk.t75 .pk-ov { color: #34d399; }
+.pk.t90 .pk-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+.pk-ov em { margin-left: 1cqw; font-style: normal; font-size: .32em; vertical-align: top; -webkit-text-fill-color: currentColor; }
+.pk-ov em.dn, .pk-st dd em.dn { color: #fbbf24; }
+.pk-ov em.up { color: #34d399; }
+.pk-meta { position: absolute; left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; font-weight: 600; letter-spacing: .08em; color: rgba(255,255,255,.75); white-space: nowrap; text-shadow: 0 1px 4px #000; }
+.pk-stats { position: absolute; left: 5cqw; top: 35cqw; width: 42cqw; margin: 0; padding: 2.4cqw 3cqw 1cqw; background: rgba(5,8,15,.66); backdrop-filter: blur(3px); }
+.pk-st { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; padding-bottom: 1.6cqw; }
+.pk-st dt { font-size: 4cqw; font-weight: 600; color: #cbd5e1; }
+.pk-st dd { margin: 0; font-size: 6cqw; font-weight: 700; line-height: 1; color: #f3f4f6; }
+.pk-st dd.hi { color: var(--n); }
+.pk-st dd em { margin-left: .8cqw; font-style: normal; font-size: .62em; }
+.pk-st dd em.up { color: #34d399; }
+.pk-bar { display: block; flex-basis: 100%; height: 1.2cqw; margin-top: .8cqw; background: rgba(255,255,255,.12); }
+.pk-bar b { display: block; height: 100%; background: var(--n); box-shadow: 0 0 4px color-mix(in srgb, var(--n) 60%, transparent); }
+.pk .mc-syn { right: 4cqw; top: 5cqw; gap: .8cqw; padding: 1.4cqw 1.8cqw; }
+.pk .mc-syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; }
+.pk .mc-syn i { width: 2cqw; height: 3.6cqw; }
+.pk .mc-syn em { font-size: 3.6cqw; }
+.mc-syn b { margin-left: 1cqw; font-size: 3.6cqw; font-weight: 700; color: #a7f3d0; white-space: nowrap; }
+.pk-chips { position: absolute; left: 6cqw; right: 6cqw; bottom: 50cqw; display: flex; flex-wrap: wrap; gap: 1.2cqw; }
+.pk-chips span { padding: .8cqw 2cqw; font-size: 3.4cqw; font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
+.pk-chips .sy { color: #a7f3d0; box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+.pk-chips .off { color: #fde68a; box-shadow: inset 0 0 0 1px rgba(251,191,36,.55); }
+.pk-note { position: absolute; left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; font-weight: 500; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px #000; }
+.pk-pos { position: absolute; left: 6cqw; right: 6cqw; bottom: 35.5cqw; display: flex; align-items: center; gap: 1.8cqw; line-height: 1; white-space: nowrap; }
+.pk-pos em { flex: none; padding: .8cqw 1.6cqw; font-style: normal; font-size: 4.4cqw; font-weight: 800; color: #05080f; background: var(--n); }
+.pk-pos > span:not(.tg) { min-width: 0; overflow: hidden; font-size: 4.6cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; }
+.pk-pos .tg { margin-left: auto; display: flex; gap: 1cqw; }
+.pk-pos .tg b { padding: .7cqw 1.6cqw; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; font-size: 3.6cqw; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.45); }
+.pk-rule { position: absolute; left: 6cqw; right: 6cqw; bottom: 32.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent)); }
+.pk-nm { position: absolute; left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 2px 8px #000; }
+.pk-nm.l5 { font-size: 11cqw; }
+.pk-cp { position: absolute; right: 6cqw; bottom: 7.5cqw; text-align: right; line-height: .9; }
+.pk-cp small { display: block; font-size: 3.8cqw; font-weight: 700; letter-spacing: .1em; color: #9ca3af; }
+.pk-cp b { display: block; font-size: 12cqw; font-weight: 800; color: var(--n); text-shadow: 0 0 10px color-mix(in srgb, var(--n) 55%, transparent); }
+.pk-slot { position: absolute; right: 6cqw; bottom: 9cqw; padding: 1.2cqw 2.6cqw; font-size: 4.4cqw; font-weight: 800; line-height: 1; color: #05080f; background: var(--n); clip-path: polygon(1.6cqw 0,100% 0,100% calc(100% - 1.6cqw),calc(100% - 1.6cqw) 100%,0 100%,0 1.6cqw); }
+.pk.lock .pk-in { filter: grayscale(1) brightness(.55); }
+.pk.lock .pk-ov, .pk.lock .pk-tb { animation: none; }
+.pk-lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 1cqw; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
+.pk-lk svg { width: 5.5cqw; height: 5.5cqw; flex: none; }
+/* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
+.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
+.pk-go:hover:not(:disabled) { filter: brightness(1.1); }
+.pk-go:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #05080f; }
+.pk-go:disabled { color: #d1d5db; background: #1f2937; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); cursor: not-allowed; }
+.pk-go.swap { color: #1f1302; background: #fbbf24; }
+.pk-go svg { width: 17px; height: 17px; flex: none; }
+.pk-go span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
@@ -1011,10 +1075,14 @@ function Badge({ children }) {
 }
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981' }) {
-  const pct = Math.max(0, Math.min(1, cp / cap));
+/** capAfter: PICK 에 올린 선수를 영입하면 남을 캡 — 있으면 “지금 → 영입 후” 숫자와, 깎일 칸이 노랗게 깜빡이는 게이지 */
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null }) {
+  const preview = capAfter != null && capAfter !== cp;
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const pct = clamp01((preview ? capAfter : cp) / cap);
   const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
-  const lit = Math.round(pct * 24);
+  const now = Math.round(clamp01(cp / cap) * 24);
+  const lit = preview ? Math.min(now, Math.round(pct * 24)) : now;
   const foreign = roster.filter((p) => p.isForeign).length;
 
   return (
@@ -1044,12 +1112,20 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
-              <span className="text-2xl font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
+              {preview ? (
+                <>
+                  <span className="text-lg font-bold text-gray-400">{cp}</span>
+                  <span className="mx-1 text-sm font-bold text-gray-500" aria-hidden="true">→</span>
+                  <span className="text-2xl font-bold text-[#34d399]" style={{ textShadow: '0 0 14px rgba(52,211,153,.5)' }} aria-label={`영입하면 ${capAfter}`}>{capAfter}</span>
+                </>
+              ) : (
+                <span className="text-2xl font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
+              )}
               <span className="text-sm text-gray-500"> / {cap} CP</span>
             </span>
           </div>
           <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
-            {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : ''} />)}
+            {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
           </div>
         </div>
 
@@ -1071,113 +1147,83 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
   );
 }
 
-/* ───── 드래프트 상점 카드 ───── */
-/** owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆에 변화량, 아래에 받은 시너지 */
-export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null }) {
+/** PICK 영입 버튼 아이콘 */
+const PickIcon = ({ kind }) => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {kind === 'plus' && <path d="M10 4v12M4 10h12" />}
+    {kind === 'swap' && <path d="M4 7h11l-3-3M16 13H5l3 3" />}
+    {kind === 'lock' && <><rect x="4.5" y="9" width="11" height="8" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></>}
+  </svg>
+);
+
+/* ───── PICK 카드 (막대 그래프 판) ───── */
+/** 긴 포지션 영문의 글자 크기(cqw, 기본 4.6) — 칩 옆 한 줄에 맞춘 값 */
+const PK_FS = { SP: 4.4, DH: 4.1 };
+/**
+ * PICK 구역 카드: 위 등급 줄 · 종합(흰/초록/90+ 무지개) · 연도·구단·투타 · 능력치 막대 판 · 시너지 칸(이름) ·
+ * 노트 · 포지션 칩+영문(+국대/외인) · 구분선 · 이름 · CP/숫자.
+ * owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆 변화량, 받은 시너지·원래 포지션 칩, 코스트 대신 자리 이름.
+ * hint: 영입하면 채우는 시너지 { s, after }
+ */
+export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null }) {
   const locked = !!reason;
   const art = useArt(player);
   const acc = neonOf(player);
   const eff = owned?.eff || player;
   const statKeys = eff.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
   const overallDiff = owned ? eff.overall - player.overall : 0;
-  const diffTag = (d, cls = 'text-[11px]') => (d ? (
-    <span className={`ml-1 font-display font-bold tabular-nums ${cls}`} style={{ color: d > 0 ? '#34d399' : '#fbbf24', textShadow: 'none' }}>{d > 0 ? `+${d}` : `−${-d}`}</span>
-  ) : null);
+  const tier = eff.overall >= 90 ? 't90' : eff.overall >= 75 ? 't75' : '';
+  const pos = eff.position || player.position;
+  const diffTag = (d) => (d ? <em className={d > 0 ? 'up' : 'dn'}>{d > 0 ? `+${d}` : `−${-d}`}</em> : null);
   return (
     <button type="button" onClick={() => onSelect(player)} aria-disabled={locked}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
-      style={{ ...style, clipPath: cutCorners(18) }}
-      className={`group relative block aspect-[2/3] w-full bg-[#05080f] text-left animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none
-        ${locked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}>
-      <div className="absolute inset-0" style={shaking ? { animation: 'shake .3s' } : undefined}>
-        {/* ① 전신 일러스트 */}
-        <div className={`absolute inset-0 overflow-hidden ${locked ? 'opacity-45 grayscale' : ''}`}>
-          {art ? (
-            <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[60%_20%] transition duration-500 group-hover:scale-[1.05]" />
-          ) : (
-            <div className="absolute inset-0" style={{ background: `radial-gradient(90% 60% at 65% 35%, ${acc}40, transparent 70%), linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }}>
-              <span className="absolute right-4 top-1/4 select-none text-[9rem] font-black leading-none text-white/[0.07]">{player.name[0]}</span>
-            </div>
+      style={{ ...style, '--n': acc }}
+      className={`pk ${tier} ${locked ? 'lock' : ''} group relative block aspect-[2/3] w-full text-left animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none ${locked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}>
+      <span className="pk-body" style={shaking ? { animation: 'shake .3s' } : undefined}>
+        <span className="pk-in">
+          {art
+            ? <img src={art} alt="" className="pk-art" />
+            : <span className="absolute inset-0" style={{ background: `radial-gradient(90% 60% at 65% 35%, ${acc}40, transparent 70%), linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }} />}
+          <span className="pk-sh" />
+          <span className="pk-tb" />
+          <span className="pk-ov font-display tabular-nums">{eff.overall}{overallDiff ? <em className={overallDiff > 0 ? 'up' : 'dn'}>{overallDiff > 0 ? `+${overallDiff}` : `−${-overallDiff}`}</em> : null}</span>
+          <span className="pk-meta font-display">{player.year} · {player.team} · {handLabel(player)}</span>
+          <dl className="pk-stats">
+            {statKeys.map((k) => {
+              const v = eff.stats[k];
+              const d = owned && player.stats[k] != null ? v - player.stats[k] : 0; // 원래 능력치 대비 (시너지 +, 제자리 밖 −)
+              return (
+                <div key={k} className="pk-st">
+                  <dt>{STAT_LABELS[k]}</dt>
+                  <dd className={`font-display tabular-nums ${v >= 90 ? 'hi' : ''}`}>{v}{diffTag(d)}</dd>
+                  <i className="pk-bar"><b style={{ width: `${Math.min(100, v)}%` }} /></i>
+                </div>
+              );
+            })}
+          </dl>
+          {hint && <SynergyPips {...hint} named />}
+          {owned && (eff.synergyBoost?.length > 0 || eff.naturalPosition) && (
+            <span className="pk-chips">
+              {eff.synergyBoost?.map((n) => <span key={n} className="sy">▲ {n}</span>)}
+              {eff.naturalPosition && <span className="off">원래 {POS_LABEL[eff.naturalPosition]}</span>}
+            </span>
           )}
-          {/* 그림과 UI를 한 장으로 묶는 톤: 구단 네온 광원 + 좌상단·하단 암부 + 스캔라인 */}
-          <div className="absolute inset-0 mix-blend-screen" style={{ background: `radial-gradient(70% 45% at 75% 25%, ${acc}26, transparent 70%)` }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.5) 0%, rgba(5,8,15,0) 28%, rgba(5,8,15,0) 50%, rgba(5,8,15,.82) 76%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.55) 0%, rgba(5,8,15,0) 48%)' }} />
-          <div className="absolute inset-0 opacity-60" style={{ background: 'repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px)' }} />
-        </div>
-
-        {/* ② HUD 프레임 */}
-        <svg viewBox="0 0 200 300" preserveAspectRatio="none" aria-hidden="true"
-          className={`pointer-events-none absolute inset-[6px] h-[calc(100%-12px)] w-[calc(100%-12px)] transition-opacity duration-200 ${locked ? 'opacity-30' : 'opacity-70 group-hover:opacity-100 group-focus-visible:opacity-100'}`}>
-          <path d="M13 1H199V287L187 299H1V13Z" fill="none" stroke={acc} strokeOpacity=".45" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-          <path d="M1 46V13L13 1H62" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-          <path d="M199 254V287L187 299H138" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-          <path d="M199 70V104M199 112V118" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-          <path d="M1 196V230" fill="none" stroke={acc} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
-        </svg>
-
-        <div className={`absolute inset-0 ${locked ? 'opacity-50' : ''}`}>
-          {/* ③ 좌상단: 종합 · 포지션 · 스탯 패널 */}
-          <div className="absolute left-5 top-5 w-[44%] [text-shadow:0_2px_8px_rgba(0,0,0,0.9)]">
-            <p className="whitespace-nowrap font-display text-5xl font-bold leading-[0.85] tabular-nums" style={{ color: acc, textShadow: `0 0 18px ${acc}99, 0 2px 6px #000` }}>{eff.overall}{diffTag(overallDiff, 'align-top text-base')}</p>
-            <p className="mt-1 font-display text-[13px] font-bold uppercase tracking-[0.18em] text-white">{POS_EN[player.position]}</p>
-            {/* 시즌 캡션: 인물은 오른쪽 절반에 배치되므로 왼쪽 열에 둔다 */}
-            <p className="mt-0.5 whitespace-nowrap font-display text-[11px] font-semibold tracking-[0.12em] text-white/60">{player.year} · {player.team} · {handLabel(player)}</p>
-            <dl className="mt-2.5 px-2.5 py-1.5 backdrop-blur-[3px]"
-              style={{ background: 'rgba(5,8,15,.58)', boxShadow: `inset 0 0 0 1px ${acc}4d`, clipPath: cutCorners(7) }}>
-              {statKeys.map((k) => {
-                const v = eff.stats[k];
-                const d = owned && player.stats[k] != null ? v - player.stats[k] : 0; // 원래 능력치 대비 (시너지 +, 제자리 밖 −)
-                return (
-                  <div key={k} className="flex items-baseline justify-between gap-2 py-[2px]">
-                    <dt className="text-[11px] font-semibold text-gray-300">{STAT_LABELS[k]}</dt>
-                    <dd className="whitespace-nowrap font-display text-[15px] font-bold leading-none tabular-nums" style={{ color: v >= 90 ? acc : '#f3f4f6' }}>{v}{diffTag(d)}</dd>
-                  </div>
-                );
-              })}
-            </dl>
-          </div>
-
-
-          {/* ⑤ 하단: 이름 · 노트 · 영입가 */}
-          <div className="absolute inset-x-5 bottom-5">
-            {owned && (eff.synergyBoost?.length > 0 || eff.naturalPosition) && (
-              <div className="mb-1.5 flex flex-wrap gap-1">
-                {eff.synergyBoost?.map((n) => (
-                  <span key={n} className="px-1.5 py-0.5 text-[10px] font-bold text-emerald-200" style={{ background: 'rgba(5,8,15,.7)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.5)' }}>▲ {n}</span>
-                ))}
-                {eff.naturalPosition && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-bold text-amber-200" style={{ background: 'rgba(5,8,15,.7)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5)' }}>원래 {POS_LABEL[eff.naturalPosition]}</span>
-                )}
-              </div>
-            )}
-            {player.note && <p className="mb-1 truncate text-xs font-medium text-gray-200 [text-shadow:0_1px_4px_#000]">{player.note}</p>}
-            <h3 className="truncate text-[2rem] font-bold leading-none tracking-tight text-white" style={{ textShadow: `0 0 22px ${acc}80, 0 2px 8px #000` }}>{player.name}</h3>
-            <div className="mt-2.5 h-px" style={{ background: `linear-gradient(90deg, ${acc}, ${acc}33 60%, transparent)` }} />
-            <div className="mt-2 flex items-center justify-between gap-2">
-              <div className="flex gap-1">
-                <span className="px-1.5 py-0.5 font-display text-[11px] font-bold text-white" style={{ boxShadow: `inset 0 0 0 1px ${acc}80` }}>{player.position}</span>
-                {player.isNational && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>국대</span>}
-                {player.isForeign && <span className="px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.4)' }}>외인</span>}
-              </div>
-              {owned ? (
-                <span className="px-2.5 py-1 text-xs font-bold text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>{owned.slotLabel}</span>
-              ) : (
-                <span className="flex items-baseline gap-1 px-2.5 py-1 font-display font-bold tabular-nums text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>
-                  <span className="text-[10px] font-semibold tracking-widest">영입</span>
-                  <span className="text-lg leading-none">{player.cost}</span>
-                  <span className="text-[10px]">CP</span>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {locked && (
-          <div className="absolute inset-0 grid place-items-center">
-            <span className="flex items-center gap-1.5 bg-[#05080f]/90 px-3 py-1.5 text-xs font-semibold text-gray-100" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.3)', clipPath: cutCorners(5) }}><LockIcon />{reason}</span>
-          </div>
-        )}
-      </div>
+          {player.note && <span className="pk-note">{player.note}</span>}
+          <span className="pk-pos font-display">
+            <em>{pos}</em>
+            <span style={PK_FS[pos] ? { fontSize: `${PK_FS[pos]}cqw` } : undefined}>{POS_FULL[pos]}</span>
+            {(player.isNational || player.isForeign) && <span className="tg">{player.isNational && <b>국대</b>}{player.isForeign && <b>외인</b>}</span>}
+          </span>
+          <span className="pk-rule" />
+          <span className={`pk-nm ${player.name.length >= 5 ? 'l5' : ''}`}>{player.name}</span>
+          {owned
+            ? <span className="pk-slot">{owned.slotLabel}</span>
+            : <span className="pk-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>}
+        </span>
+        <span className="pk-fr" />
+        {locked && <span className="pk-lk"><LockIcon />{reason.replace(/\s*\(.*\)$/, '')}</span>}
+      </span>
     </button>
   );
 }
@@ -1191,7 +1237,7 @@ const POS_FS = { SP: 9.3, DH: 8.4 };
  * 선반 카드 오른쪽 위 시너지 칸: 목록(도크)의 단계 칸을 축소한 것.
  * 흰 칸 = 이미 채움(최종 단계면 초록), 하늘 칸 = 이 선수가 들어오면 채울 칸(깜빡), 최종 단계를 넘어 추가 혜택이면 +N
  */
-function SynergyPips({ s, after }) {
+function SynergyPips({ s, after, named = false }) {
   const stage = Math.min(s.level, s.tiers.length - 1);
   const from = stage > 0 ? s.tiers[stage - 1].need : 0;
   const to = s.tiers[stage].need;
@@ -1207,6 +1253,7 @@ function SynergyPips({ s, after }) {
         <i key={i} className={i < s.cur - from ? (maxed ? 'max' : 'on') : i < next - from ? 'nx' : ''} />
       ))}
       {extraGain > 0 && <em className="font-display">+{extraGain}</em>}
+      {named && <b>{s.name}</b>}
     </span>
   );
 }
@@ -2550,7 +2597,8 @@ export default function KboAugmentDraft() {
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (
-        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon} />
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
+          capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
       {phase !== 'mode' && (
@@ -2572,7 +2620,7 @@ export default function KboAugmentDraft() {
                 <span className="bc-label font-display">SERIES</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
-                <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] items-center gap-3 px-1.5">
+                <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
@@ -2612,22 +2660,21 @@ export default function KboAugmentDraft() {
                     <>
                       <div className="flex min-h-0 justify-center lg:flex-1">
                         <div key={picked.id} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} hint={pickedReason ? null : hintFor(picked)} />
                         </div>
                       </div>
                       {swapPlan ? (
                         <>
-                          <button type="button" className={btnPrimary} disabled={!!swapPlan.reason} onClick={handleSwapIn}>
-                            {swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : `교체 영입 · ${swapPlan.out.name} 방출`}
+                          <button type="button" className="pk-go swap" disabled={!!swapPlan.reason} onClick={handleSwapIn}>
+                            <PickIcon kind={swapPlan.reason ? 'lock' : 'swap'} /><span>{swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : '교체 영입'}</span>
                           </button>
-                          <p className="text-xs leading-relaxed text-gray-400">
-                            {swapPlan.out.name}({playAt(swapPlan.out).overall}) 방출 → <b className="text-gray-200">+{swapPlan.refund} CP</b> 환불(영입가 절반), 다시 영입할 수 없습니다.
-                            {' '}{picked.name} 영입 {picked.cost} CP.
+                          <p className="pl-2.5 text-xs leading-relaxed text-gray-400 shadow-[inset_2px_0_0_#fbbf24]">
+                            {swapPlan.out.name}({playAt(swapPlan.out).overall}) 방출 → <b className="text-[#34d399]">+{swapPlan.refund} CP</b> 환불(영입가 절반), 다시 영입할 수 없습니다.
                           </p>
                         </>
                       ) : (
-                        <button type="button" className={btnPrimary} disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
-                          {pickedReason || `${picked.name} 영입 · ${picked.cost} CP`}
+                        <button type="button" className="pk-go" disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
+                          <PickIcon kind={pickedReason ? 'lock' : 'plus'} /><span>{pickedReason || '영입하기'}</span>
                         </button>
                       )}
                     </>
@@ -2650,7 +2697,7 @@ export default function KboAugmentDraft() {
                     </div>
                   )}
                   {!picked && !inspected && pickLeave && (
-                    <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.5rem+0.5rem)]" aria-hidden="true">
+                    <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.75rem+0.5rem)]" aria-hidden="true">
                       <div className={`pick-leave ${pickLeave.mode} aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full`}>
                         <PlayerCard player={pickLeave.player} owned={pickLeave.owned} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
                       </div>
