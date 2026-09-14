@@ -2501,8 +2501,9 @@ export default function KboAugmentDraft() {
                           <PlayerCard player={inspected.player} owned={inspected.owned} onSelect={() => {}} />
                         </div>
                       </div>
-                      <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
-                        <b className="text-gray-200">{inspected.owned.slotLabel}</b> · 다른 자리를 누르면 자리를 바꿉니다
+                      <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+                        <b className="shrink-0 text-gray-200">{inspected.owned.slotLabel}</b>
+                        <span className="truncate">· 다른 자리를 누르면 이동</span>
                       </p>
                     </>
                   ) : (
