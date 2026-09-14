@@ -830,6 +830,34 @@ const KEYFRAMES = `
 .ser-refresh:hover:not(:disabled) svg { transform: rotate(200deg); }
 .ser-refresh:disabled { opacity: .4; cursor: not-allowed; }
 .ser-sw:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+/* 선반 카드 (MiniCard) — 단위는 카드 폭 기준 cqw */
+.mc-in { position: absolute; inset: 0; }
+.mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
+.mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 1.2cqw; background: rgba(255,255,255,.55); }
+.mc.t75 .mc-tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
+.mc.t90 .mc-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
+.mc-ov { position: absolute; left: 7cqw; top: 7.5cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
+.mc.t75 .mc-ov { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+.mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 5px #000); animation: prism 3s linear infinite; }
+.mc-pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 34cqw; display: flex; align-items: center; gap: 2.5cqw; line-height: 1; white-space: nowrap; overflow: hidden; }
+.mc-pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
+.mc-pos span { min-width: 0; overflow: hidden; font-size: 9cqw; font-weight: 700; letter-spacing: .03em; color: #cbd5e1; }
+.mc-rule { position: absolute; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 20%, transparent)); }
+.mc-nm { position: absolute; left: 7cqw; right: 31cqw; bottom: 7cqw; font-size: 20.5cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 1px 4px #000; }
+.mc-cp { position: absolute; right: 8cqw; bottom: 8cqw; text-align: right; line-height: .9; }
+.mc-cp small { display: block; font-size: 7cqw; font-weight: 700; letter-spacing: .08em; color: #9ca3af; }
+.mc-cp b { display: block; font-size: 18cqw; font-weight: 800; letter-spacing: -.02em; color: var(--n); text-shadow: 0 0 8px color-mix(in srgb, var(--n) 55%, transparent); }
+.mc.c3 .mc-cp b { font-size: 14.5cqw; } /* 세 자리 코스트는 이름 칸을 침범하지 않게 */
+.mc:not(.c3) .mc-nm { right: 27cqw; } /* 두 자리 코스트면 이름 칸을 조금 더 넓게 */
+/* 긴 이름(외국인 등)은 글자 수만큼 줄여 한 줄에 다 보이게 */
+.mc-nm.l4 { font-size: 16.5cqw; }
+.mc-nm.l5 { font-size: 13cqw; }
+.mc-nm.l6 { font-size: 11cqw; }
+.mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
+.mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
+.mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
+.mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
+.mc-lk span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
@@ -1146,33 +1174,39 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
 }
 
 /* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+
+/**
+ * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
+ * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
+ */
 function MiniCard({ player, reason, selected, hint, focus, onPick, style }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
+  const tier = player.overall >= 90 ? 't90' : player.overall >= 75 ? 't75' : '';
   return (
     <button type="button" onClick={() => onPick(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
-      style={{ ...style, clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
-      className={`group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
-      {art
-        ? <img src={art} alt="" className={`absolute inset-0 h-full w-full object-cover object-[62%_18%] ${locked ? 'opacity-40 grayscale' : ''}`} />
-        : <span className="absolute inset-0" style={{ background: `linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }} />}
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 30%, rgba(5,8,15,0) 52%, rgba(5,8,15,.85) 80%, #05080f 100%)' }} />
+      style={{ ...style, '--n': acc, clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
+      className={`mc ${tier} ${locked ? 'lock' : ''} ${player.cost >= 100 ? 'c3' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
+      <span className="mc-in">
+        {art
+          ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
+          : <span className="absolute inset-0" style={{ background: `linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }} />}
+        <span className="mc-sh" />
+        <span className="mc-tb" />
+        <span className="mc-ov font-display tabular-nums">{player.overall}</span>
+        {hint && <span className="absolute right-[6cqw] top-[6cqw] rounded-sm bg-[#10b981] px-[2.5cqw] py-[1cqw] text-[7.5cqw] font-bold leading-none text-[#062a1f]" title="진행 중인 시너지를 채웁니다">시너지</span>}
+        <span className="mc-pos font-display"><em>{player.position}</em><span>{POS_FULL[player.position]}</span></span>
+        <span className="mc-rule" />
+        <span className={`mc-nm ${player.name.length >= 6 ? 'l6' : player.name.length >= 5 ? 'l5' : player.name.length >= 4 ? 'l4' : ''}`}>{player.name}</span>
+        <span className="mc-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>
+      </span>
+      {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
       <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected || focus === 'on' ? 'border-2' : 'border'}`}
         style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : `${acc}66` }} />
-      <span className={`absolute left-[8cqw] top-[6cqw] font-display text-[26cqw] font-bold leading-[.85] tabular-nums ${locked ? 'opacity-50' : ''}`} style={{ color: acc, textShadow: '0 1px 3px #000' }}>{player.overall}</span>
-      <span className="absolute left-[8cqw] top-[31cqw] font-display text-[8.5cqw] font-bold tracking-[0.1em] text-white [text-shadow:0_1px_3px_#000]">{player.position}</span>
-      {hint && <span className="absolute right-[6cqw] top-[6cqw] rounded-sm bg-[#10b981] px-[2.5cqw] py-[1cqw] text-[7.5cqw] font-bold leading-none text-[#062a1f]" title="진행 중인 시너지를 채웁니다">시너지</span>}
-      <span className={`absolute inset-x-[8cqw] bottom-[19cqw] truncate text-[14cqw] font-bold leading-none tracking-tight text-white [text-shadow:0_1px_4px_#000] ${locked ? 'opacity-60' : ''}`}>{player.name}</span>
-      {locked ? (
-        <span className="absolute inset-x-[5cqw] bottom-[6cqw] truncate bg-[#05080f]/90 py-[2cqw] text-center text-[8cqw] font-semibold leading-none text-gray-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,.28)]">{reason}</span>
-      ) : (
-        <span className="absolute inset-x-[8cqw] bottom-[6.5cqw] flex items-center justify-between">
-          <span className="font-display text-[8cqw] font-bold text-white/80">{player.isForeign ? '외인' : player.isNational ? '국대' : handLabel(player)}</span>
-          <span className="px-[3.4cqw] py-[1.2cqw] font-display text-[10cqw] font-bold leading-none text-[#05080f]" style={{ background: acc }}>{player.cost}</span>
-        </span>
-      )}
+      {locked && <span className="mc-lk" title={reason}><LockIcon /><span>{reason.replace(/\s*\(.*\)$/, '')}</span></span>}
     </button>
   );
 }
