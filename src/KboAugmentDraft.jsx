@@ -242,32 +242,94 @@ export function aiDraft(rng = Math.random) {
 }
 
 /* ───────────── 5. 시너지 체크 엔진 ───────────── */
-const CLEANUP = ['이승엽', '이대호', '김동주'];
-function dynastyGroup(roster) {
+/* kind: story = 실제 있었던 일·선수 조합 (같은 선수면 카드 시즌과 상관없이 인정) · build = 팀 구성 */
+const posOf = (p) => slotPos(p.slot) || p.position;
+const realOnly = (r) => r.filter((p) => !p.isReplacement);
+const battersOf = (r) => realOnly(r).filter((p) => p.type === 'batter');
+const personsIn = (r, names) => new Set(realOnly(r).map(personKey).filter((k) => names.includes(k))).size;
+const FRANCHISE = { 해태: 'KIA', OB: '두산', 넥센: '키움' };
+function biggestFranchise(roster) {
   const groups = {};
-  roster.filter((p) => p.team !== KR && !p.isReplacement).forEach((p) => {
-    const k = `${p.year} ${p.team}`;
-    groups[k] = [...(groups[k] || []), p];
-  });
-  return Object.entries(groups).sort((a, b) => b[1].length - a[1].length)[0] || ['', []];
+  realOnly(roster).filter((p) => p.team !== KR).forEach((p) => { const k = FRANCHISE[p.team] || p.team; groups[k] = (groups[k] || 0) + 1; });
+  return Math.max(0, ...Object.values(groups));
 }
+const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
 
 export const SYNERGIES = [
+  // ── 실화 · 선수 조합
   {
-    id: 'beijing', name: '베이징 9전 전승', cond: '국가대표 4명 이상', effect: '전 선수 능력치 +3',
-    progress: (r) => [r.filter((p) => p.isNational).length, 4], bonus: { bat: 3, pit: 3 },
+    id: 'beijing', kind: 'story', name: '베이징 9전 전승', cond: '2008 베이징 금메달 멤버 4명', effect: '전 선수 능력치 +3',
+    progress: (r) => [personsIn(r, BEIJING_2008), 4], bonus: { bat: 3, pit: 3 },
   },
   {
-    id: 'cleanup', name: '클린업 트리오', cond: '이승엽 · 이대호 · 김동주', effect: '타선 파워 +6',
-    progress: (r) => [CLEANUP.filter((n) => r.some((p) => p.name === n)).length, 3], bonus: { power: 6 },
+    id: 'cleanup', kind: 'story', name: '클린업 트리오', cond: '이승엽 · 이대호 · 김동주 중 2명 (베이징 중심타선)', effect: '타선 파워 +4',
+    progress: (r) => [personsIn(r, ['이승엽', '이대호', '김동주']), 2], bonus: { power: 4 },
   },
   {
-    id: 'mercenary', name: '용병 트리오', cond: '외국인 선수 3명', effect: '전 선수 능력치 +2',
-    progress: (r) => [r.filter((p) => p.isForeign).length, 3], bonus: { bat: 2, pit: 2 },
+    id: 'lefty3', kind: 'story', name: '좌완 트로이카', cond: '류현진 · 김광현 · 양현종 중 2명', effect: '투수 능력치 +3',
+    progress: (r) => [personsIn(r, ['류현진', '김광현', '양현종']), 2], bonus: { pit: 3 },
   },
   {
-    id: 'dynasty', name: '왕조의 기억', cond: '같은 팀·같은 연도 3명', effect: '수비 +4 · 투수 안정성 +4',
-    progress: (r) => [dynastyGroup(r)[1].length, 3], bonus: { defense: 4, stability: 4 },
+    id: 'haitai', kind: 'story', name: '해태 왕조의 원투', cond: '선동열 · 이종범', effect: '전 선수 능력치 +2',
+    progress: (r) => [personsIn(r, ['선동열', '이종범']), 2], bonus: { bat: 2, pit: 2 },
+  },
+  {
+    id: 'tableSetter', kind: 'story', name: '국민 테이블세터', cond: '이용규 · 정근우 (베이징·WBC·프리미어12)', effect: '컨택 +3 · 주루 +4',
+    progress: (r) => [personsIn(r, ['이용규', '정근우']), 2], bonus: { contact: 3, speed: 4 },
+  },
+  {
+    id: 'nexen14', kind: 'story', name: '2014 넥센 핵타선', cond: '박병호 · 강정호 · 서건창 중 2명', effect: '파워 +3 · 컨택 +3',
+    progress: (r) => [personsIn(r, ['박병호', '강정호', '서건창']), 2], bonus: { power: 3, contact: 3 },
+  },
+  {
+    id: 'skBattery', kind: 'story', name: 'SK 왕조 배터리', cond: '김광현 · 박경완', effect: '투수 안정 +3 · 수비 +2',
+    progress: (r) => [personsIn(r, ['김광현', '박경완']), 2], bonus: { stability: 3, defense: 2 },
+  },
+  {
+    id: 'doosanBattery', kind: 'story', name: '22승 배터리', cond: '니퍼트 · 양의지 (2016 두산)', effect: '투수 안정 +4',
+    progress: (r) => [personsIn(r, ['니퍼트', '양의지']), 2], bonus: { stability: 4 },
+  },
+  {
+    id: 'samsungDuo', kind: 'story', name: '삼성 왕조의 투타', cond: '오승환 · 이승엽 (2012·2013 삼성 통합우승)', effect: '투수 안정 +2 · 파워 +2',
+    progress: (r) => [personsIn(r, ['오승환', '이승엽']), 2], bonus: { stability: 2, power: 2 },
+  },
+  // ── 팀 구성
+  {
+    id: 'mercenary', kind: 'build', name: '용병 트리오', cond: '외국인 선수 3명', effect: '전 선수 능력치 +2',
+    progress: (r) => [realOnly(r).filter((p) => p.isForeign).length, 3], bonus: { bat: 2, pit: 2 },
+  },
+  {
+    id: 'franchise', kind: 'build', name: '프랜차이즈의 기억', cond: '같은 구단 4명 (연도 무관 · 해태=KIA, OB=두산, 넥센=키움)', effect: '수비 +3 · 투수 안정 +3',
+    progress: (r) => [biggestFranchise(r), 4], bonus: { defense: 3, stability: 3 },
+  },
+  {
+    id: 'leftRotation', kind: 'build', name: '좌완 로테이션', cond: '선발 자리에 좌완 투수 2명', effect: '투수 능력치 +2',
+    progress: (r) => [realOnly(r).filter((p) => posOf(p) === 'SP' && p.type === 'pitcher' && p.hand === 'L').length, 2], bonus: { pit: 2 },
+  },
+  {
+    id: 'pitchingStaff', kind: 'build', name: '투수 왕국', cond: '투수 자리 4명(선발 3 · 불펜 1) 모두 종합 80+', effect: '투수 능력치 +3',
+    progress: (r) => [realOnly(r).filter((p) => (posOf(p) === 'SP' || posOf(p) === 'RP') && p.type === 'pitcher' && p.overall >= 80).length, 4], bonus: { pit: 3 },
+  },
+  {
+    id: 'speed', kind: 'build', name: '육상부', cond: '주루 75+ 야수 3명', effect: '주루 +5',
+    progress: (r) => [battersOf(r).filter((p) => p.stats.speed >= 75).length, 3], bonus: { speed: 5 },
+  },
+  {
+    id: 'power', kind: 'build', name: '홈런 군단', cond: '파워 80+ 타자 3명', effect: '파워 +4',
+    progress: (r) => [battersOf(r).filter((p) => p.stats.power >= 80).length, 3], bonus: { power: 4 },
+  },
+  {
+    id: 'glove', kind: 'build', name: '철벽 수비', cond: '수비 85+ 야수 3명', effect: '수비 +4',
+    progress: (r) => [battersOf(r).filter((p) => p.stats.defense >= 85).length, 3], bonus: { defense: 4 },
+  },
+  {
+    id: 'zigzag', kind: 'build', name: '좌타 라인업', cond: '좌타 4명 · 우타 3명 (야수 7자리 · 양타는 양쪽)', effect: '타선 능력치 +2',
+    progress: (r) => {
+      const b = battersOf(r);
+      const side = (h) => b.filter((p) => p.hand === h || p.hand === 'S').length;
+      return [Math.min(4, side('L')) + Math.min(3, side('R')), 7];
+    },
+    bonus: { bat: 2 },
   },
 ];
 
@@ -282,13 +344,13 @@ export function checkSynergies(roster) {
 export function buildTeam(name, roster, buff = 0) {
   roster = withSlots(roster).map(playAt); // 선 자리 기준 능력치로 경기를 치른다
   const synergies = checkSynergies(roster);
-  const bonus = { bat: buff, pit: buff, power: 0, defense: 0, stability: 0 };
+  const bonus = { bat: buff, pit: buff, power: 0, contact: 0, speed: 0, defense: 0, stability: 0 };
   synergies.filter((s) => s.active).forEach((s) => Object.entries(s.bonus).forEach(([k, v]) => { bonus[k] += v; }));
 
   const batters = roster.filter((p) => p.type === 'batter');
   const sps = roster.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall);
   const rp = roster.find((p) => p.position === 'RP');
-  const batValue = (p) => p.stats.contact * 0.4 + Math.min(99, p.stats.power + bonus.power) * 0.4 + p.stats.speed * 0.2;
+  const batValue = (p) => Math.min(99, p.stats.contact + bonus.contact) * 0.4 + Math.min(99, p.stats.power + bonus.power) * 0.4 + Math.min(99, p.stats.speed + bonus.speed) * 0.2;
   const handShare = (h) => (batters.length ? batters.reduce((s, p) => s + (p.hand === h ? 1 : p.hand === 'S' ? 0.5 : 0), 0) / batters.length : 0);
 
   return {
@@ -832,7 +894,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
 }
 
 /* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
-function MiniCard({ player, reason, selected, onPick, style }) {
+function MiniCard({ player, reason, selected, hint, onPick, style }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -848,6 +910,7 @@ function MiniCard({ player, reason, selected, onPick, style }) {
       <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected ? 'border-2' : 'border'}`} style={{ borderColor: selected ? '#10b981' : `${acc}66` }} />
       <span className={`absolute left-[8cqw] top-[6cqw] font-display text-[26cqw] font-bold leading-[.85] tabular-nums ${locked ? 'opacity-50' : ''}`} style={{ color: acc, textShadow: '0 1px 3px #000' }}>{player.overall}</span>
       <span className="absolute left-[8cqw] top-[31cqw] font-display text-[8.5cqw] font-bold tracking-[0.1em] text-white [text-shadow:0_1px_3px_#000]">{player.position}</span>
+      {hint && <span className="absolute right-[6cqw] top-[6cqw] rounded-sm bg-[#10b981] px-[2.5cqw] py-[1cqw] text-[7.5cqw] font-bold leading-none text-[#062a1f]" title="진행 중인 시너지를 채웁니다">시너지</span>}
       <span className={`absolute inset-x-[8cqw] bottom-[19cqw] truncate text-[14cqw] font-bold leading-none tracking-tight text-white [text-shadow:0_1px_4px_#000] ${locked ? 'opacity-60' : ''}`}>{player.name}</span>
       {locked ? (
         <span className="absolute inset-x-[5cqw] bottom-[6cqw] truncate bg-[#05080f]/90 py-[2cqw] text-center text-[8cqw] font-semibold leading-none text-gray-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,.28)]">{reason}</span>
@@ -1085,15 +1148,20 @@ function SynergyRow({ s }) {
       <div className="flex items-center justify-between gap-2">
         <span className={`text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-200'}`}>{s.name}{s.active && <span className="ml-1.5 font-display text-[11px] font-semibold tracking-widest">ON</span>}</span>
         <span className="flex items-center gap-1.5" aria-label={`${s.cur}/${s.need}`}>
-          <span className="flex gap-0.5">
-            {Array.from({ length: s.need }, (_, i) => (
-              <i key={i} className={`h-2 w-3 rounded-sm ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : 'bg-gray-700'}`} />
-            ))}
-          </span>
+          {s.need <= 6 && (
+            <span className="flex gap-0.5">
+              {Array.from({ length: s.need }, (_, i) => (
+                <i key={i} className={`h-2 w-3 rounded-sm ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : 'bg-gray-700'}`} />
+              ))}
+            </span>
+          )}
           <span className="font-display text-xs tabular-nums text-gray-400">{s.cur}/{s.need}</span>
         </span>
       </div>
-      <p className="mt-0.5 text-xs text-gray-400"><span className="text-gray-300">[{s.cond}]</span> {s.effect}</p>
+      <p className="mt-0.5 text-xs text-gray-400">
+        <span className={`mr-1 rounded-sm px-1 py-px text-[10px] font-semibold ${s.kind === 'story' ? 'bg-amber-400/15 text-amber-200' : 'bg-sky-400/10 text-sky-200'}`}>{s.kind === 'story' ? '실화' : '팀 구성'}</span>
+        <span className="text-gray-300">[{s.cond}]</span> {s.effect}
+      </p>
     </li>
   );
 }
@@ -1175,8 +1243,15 @@ function SynergySheet({ roster }) {
   const list = sortSynergies(checkSynergies(roster));
   return (
     <>
-      <p className="mb-3 text-xs text-gray-400">조건을 채우면 경기에서 효과가 켜집니다. 완성된 시너지가 위로 올라옵니다.</p>
-      <ul className="flex flex-col gap-2">{list.map((s) => <SynergyRow key={s.id} s={s} />)}</ul>
+      <p className="mb-3 text-xs leading-relaxed text-gray-400">
+        조건을 채우면 경기에서 효과가 켜집니다. 선수 조합은 카드 시즌과 상관없이 같은 선수면 인정됩니다. 완성된 시너지가 위로 올라옵니다.
+      </p>
+      {[['story', '실화 · 선수 조합'], ['build', '팀 구성']].map(([kind, label]) => (
+        <section key={kind} className="mb-4 last:mb-0">
+          <h3 className="mb-1.5 font-display text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">{label}</h3>
+          <ul className="flex flex-col gap-2">{list.filter((s) => s.kind === kind).map((s) => <SynergyRow key={s.id} s={s} />)}</ul>
+        </section>
+      ))}
     </>
   );
 }
@@ -1538,6 +1613,14 @@ export default function KboAugmentDraft() {
   const pickedReason = picked ? getLockReason(picked, roster, cp, released) : null;
   const offPositionPlayers = withSlots(roster).map(playAt).filter((p) => p.naturalPosition);
 
+  /* 이 선수를 영입하면 한 칸 이상 오르는 시너지 (from → cur) */
+  const synergyNow = checkSynergies(roster);
+  const synergyGain = (player) => {
+    const after = checkSynergies([...roster, { ...player, slot: freeSlot(roster, player.position)?.id }]);
+    return after.map((s, i) => ({ ...s, from: synergyNow[i].cur })).filter((s) => s.cur > s.from);
+  };
+  const pickedGains = picked ? synergyGain(picked) : [];
+
   /* 방출: 영입가 절반 환불 · 동일인 재영입 금지 · 드래프트 중에만 */
   const releaseFrom = (base, slot) => {
     const placed = withSlots(base);
@@ -1606,6 +1689,7 @@ export default function KboAugmentDraft() {
               <div className="grid grid-cols-[repeat(auto-fill,minmax(4.9rem,1fr))] gap-2">
                 {seriesCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
+                    hint={!getLockReason(p, roster, cp, released) && synergyGain(p).some((s) => s.from > 0 || s.active)}
                     onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
               </div>
@@ -1614,6 +1698,19 @@ export default function KboAugmentDraft() {
                   {picked ? (
                     <>
                       <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
+                      {pickedGains.length > 0 && (
+                        <ul className="flex flex-col gap-1 rounded-lg border border-[#10b981]/30 bg-[#10b981]/5 p-2">
+                          <li className="text-[11px] font-semibold text-[#10b981]">영입하면 시너지</li>
+                          {pickedGains.map((s) => (
+                            <li key={s.id} className="flex items-center justify-between gap-2 text-xs text-gray-200">
+                              <span className="truncate">{s.name}</span>
+                              <span className={`shrink-0 font-display tabular-nums ${s.active ? 'font-bold text-[#10b981]' : 'text-gray-400'}`}>
+                                {s.active ? '완성 · ' : ''}{s.from}→{s.cur}/{s.need}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                       {swapPlan ? (
                         <>
                           <button type="button" className={btnPrimary} disabled={!!swapPlan.reason} onClick={handleSwapIn}>
