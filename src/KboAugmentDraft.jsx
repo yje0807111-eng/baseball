@@ -1982,7 +1982,8 @@ export default function KboAugmentDraft() {
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
-  const [reveal, setReveal] = useState(true); // 새 시리즈가 열릴 때 선수 전원을 펼쳐 보여 주는 공개 화면
+  // 드래프트 첫 화면에서만 첫 시리즈 선수 전원을 펼쳐 보여 준다. 라운드 사이에는 띄우지 않고 위 선반의 시리즈만 바로 바뀐다
+  const [reveal, setReveal] = useState(true);
   const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [focusSynergy, setFocusSynergy] = useState(null); // 누른 시너지 — 해당 선수를 화면에서 강조
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
@@ -2065,7 +2066,6 @@ export default function KboAugmentDraft() {
       setPhase('ready');
     } else {
       setSeries(rollSeries(next, nextCp, series?.id, released));
-      setReveal(true);
     }
   }, [phase, choice, roster, cp, augments, series, released]);
 
@@ -2217,7 +2217,6 @@ export default function KboAugmentDraft() {
     setPicked(null);
     setFocusSynergy(null);
     setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned));
-    setReveal(true);
   };
 
   return (
