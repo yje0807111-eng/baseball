@@ -804,7 +804,7 @@ function Badge({ children }) {
 }
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
-function CapDashboard({ round, cp, roster, phase, onOpenRules }) {
+function CapDashboard({ round, cp, roster, phase, onOpenRules, wide = false }) {
   const pct = Math.max(0, Math.min(1, cp / SALARY_CAP));
   const fill = pct > 0.5 ? 'bg-[#10b981]' : pct > 0.2 ? 'bg-yellow-400' : 'bg-red-500';
   const cpText = pct > 0.5 ? 'text-[#10b981]' : pct > 0.2 ? 'text-yellow-300' : 'text-red-400';
@@ -812,8 +812,8 @@ function CapDashboard({ round, cp, roster, phase, onOpenRules }) {
   const phaseLabel = { draft: '드래프트', ready: '경기 준비', sim: '경기 중', result: '경기 종료' }[phase];
 
   return (
-    <header className="sticky top-0 z-30 border-b border-gray-800 bg-[#111827]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-8 gap-y-3 px-4 py-3">
+    <header className="sticky top-0 z-30 shrink-0 border-b border-gray-800 bg-[#111827]/95 backdrop-blur">
+      <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
         <div className="leading-none">
           <p className="font-display text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">KBO All-Time</p>
           <p className="mt-1 text-lg font-bold text-white">드래프트 &amp; 증강</p>
@@ -1076,11 +1076,13 @@ function DragGhost({ player, x, y }) {
  * 내 라인업 필드. 선수를 끌어 다른 자리에 놓거나(빈 자리면 이동, 사람이 있으면 맞교환),
  * 한 명을 누른 뒤 다른 자리를 눌러도 바뀐다. candidate 가 있으면 들어갈 자리를 초록으로 미리 보여준다.
  */
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState(0); // 오른쪽 도크(reserve)를 뺀 폭 안에서 구장을 가운데로
+  const [offset, setOffset] = useState({ x: 0, y: 0 }); // 오른쪽 도크(reserve)를 뺀 영역 안에서 구장을 가운데로
+  // fill + 넓은 화면: 부모 높이를 채우고 구장을 그 안에 맞춘다. 첫 렌더부터 켜 둬야 고정 높이를 한 번 거치지 않는다
+  const [filling, setFilling] = useState(() => fill && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const [pick, setPick] = useState(null);
   const [drag, setDrag] = useState(null);
   const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
@@ -1091,13 +1093,17 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
     if (!el) return undefined;
     const ro = new ResizeObserver(([e]) => {
       const room = Math.max(0, e.contentRect.width - reserve);
-      const k = Math.min(1, room / FIELD_W);
+      // 넓은 화면에서만 높이 채우기 (좁은 화면은 부모 높이가 내용에서 나오므로 폭 기준으로 둔다)
+      const fitHeight = fill && window.matchMedia('(min-width: 1024px)').matches;
+      const h = e.contentRect.height;
+      const k = fitHeight ? Math.max(0.3, Math.min(1.3, room / FIELD_W, h / FIELD_H)) : Math.min(1, room / FIELD_W);
+      setFilling(fitHeight);
       setScale(k);
-      setOffset(Math.max(0, (room - FIELD_W * k) / 2));
+      setOffset({ x: Math.max(0, (room - FIELD_W * k) / 2), y: fitHeight ? Math.max(0, (h - FIELD_H * k) / 2) : 0 });
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [reserve]);
+  }, [reserve, fill]);
 
   const placed = withSlots(roster);
   const at = (id) => placed.find((p) => p.slot === id);
@@ -1146,8 +1152,9 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const rotation = SLOTS.filter((s) => s.pos === 'SP');
   const others = SLOTS.filter((s) => s.pos !== 'SP');
   return (
-    <div ref={wrapRef} className="relative w-full overflow-hidden bg-[radial-gradient(120%_95%_at_32%_62%,#13291e_0,#0c1711_52%,#070c09_100%)]" style={{ height: FIELD_H * scale }}>
-      <div className="lf-field" style={{ transform: `translateX(${offset}px) scale(${scale})` }}>
+    <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[radial-gradient(120%_95%_at_32%_62%,#13291e_0,#0c1711_52%,#070c09_100%)] ${className}`}
+      style={filling ? undefined : { height: FIELD_H * scale }}>
+      <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
         <FieldArt />
         <div className="lf-rot" style={{ left: ROTATION_XY[0], top: ROTATION_XY[1] }}>
           <div className="lf-rh font-display"><span>선발 로테이션</span><span>{rotation.filter((s) => at(s.id)).length}/{rotation.length}</span></div>
@@ -1805,14 +1812,18 @@ export default function KboAugmentDraft() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111827] font-sans text-gray-100 antialiased">
+    // 드래프트는 넓은 화면(lg+)에서 창 높이에 딱 맞는 한 화면 앱으로: 스크롤 없이 머리 · 시리즈 · 영입+라인업이 들어간다
+    <div className={`min-h-screen bg-[#111827] font-sans text-gray-100 antialiased ${phase === 'draft' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
       <style>{KEYFRAMES}</style>
-      <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} />
+      <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
 
-      <main className={`mx-auto grid max-w-7xl gap-5 px-4 py-5 ${phase === 'draft' ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
-        <div className="flex min-w-0 flex-col gap-5">
+      <main className={`mx-auto grid px-4 ${phase === 'draft'
+        ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
+        : 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
+        <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           {phase === 'draft' && (
-            <section className="flex flex-col gap-4">
+            // --card-w: 선수 카드 폭을 창 높이에 맞추되, 한 시리즈 14장이 한 줄에 들어가도록 창 폭으로도 제한
+            <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'min(clamp(4.2rem, 10.5vh, 6.4rem), calc((100vw - 140px) / 14))' }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
@@ -1837,7 +1848,7 @@ export default function KboAugmentDraft() {
                   </button>
                 </div>
               )}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(auto-fill,var(--card-w))]">
                 {seriesCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={!getLockReason(p, roster, cp, released) && growsFor(p).some((s) => s.cur > 0)}
@@ -1847,7 +1858,7 @@ export default function KboAugmentDraft() {
               </div>
               </div>
               {/* 넓은 화면: 구장이 줄 높이를 정하고, 영입 카드 묶음은 그 높이에 맞춘다 */}
-              <div className="grid gap-4 lg:grid-cols-[16rem_minmax(0,1fr)]">
+              <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
                 <div className="bc-grp lg:min-h-0">
                   <span className="bc-label font-display">PICK</span>
                 <div className="flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
@@ -1882,11 +1893,11 @@ export default function KboAugmentDraft() {
                 </div>
                 </div>
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
-                <div className="bc-grp !px-0 !pb-0">
+                <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
                   <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease}
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
-                    reserve={300}
+                    reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
                 </div>
               </div>
