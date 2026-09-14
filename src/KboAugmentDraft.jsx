@@ -723,6 +723,7 @@ const KEYFRAMES = `
 .lf-tok.clash .lf-bx small, .lf-row.clash .nm small, .lf-off { color: #fbbf24 !important; }
 .lf-tok.picked .lf-bar, .lf-tok.over .lf-bar { background: linear-gradient(90deg, #0f2a22, #15352b); box-shadow: inset 4px 0 0 #10b981, 0 0 0 2px #10b981; }
 .lf-tok.lifted, .lf-row.lifted { opacity: .35; }
+.lf-tok.want .lf-bar { background: linear-gradient(90deg, #0c2233, #11304a); box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 14px rgba(56,189,248,.45); } /* 선반을 이 자리 포지션으로 거르는 중 */
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
 .lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
@@ -830,6 +831,11 @@ const KEYFRAMES = `
 .ser-refresh:hover:not(:disabled) svg { transform: rotate(200deg); }
 .ser-refresh:disabled { opacity: .4; cursor: not-allowed; }
 .ser-sw:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
+/* 빈 자리 포지션 거르기 칩 (누르면 해제) */
+.ser-pf { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; font-size: 13px; font-weight: 700; white-space: nowrap; color: #bae6fd; background: rgba(12,34,51,.85); box-shadow: inset 0 0 0 1px #38bdf8; transition: background-color .15s; }
+.ser-pf:hover { background: rgba(17,48,74,.95); }
+.ser-pf span { font-size: 11px; color: #7dd3fc; }
+.ser-pf:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
 /* 선반 카드 (MiniCard) — 단위는 카드 폭 기준 cqw */
 .mc-in { position: absolute; inset: 0; }
 .mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
@@ -1397,7 +1403,7 @@ function visibleSynergies(roster, draftView) {
   return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
 }
 
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onEmptySlot, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -1454,12 +1460,12 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
-  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
+  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', wantSlot === s.id && !at(s.id) && 'want', pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
   const slotUnder = (e) => document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-slot]')?.dataset.slot || null;
 
   const tap = (id) => {
     if (locked) return;
-    if (pick) { if (pick !== id) onMove(pick, id); setPick(null); } else if (at(id)) setPick(id);
+    if (pick) { if (pick !== id) onMove(pick, id); setPick(null); } else if (at(id)) setPick(id); else onEmptySlot?.(id); // 빈 자리: 선반을 그 포지션으로 거르기
   };
   const bind = (id) => ({
     onPointerDown: (e) => {
@@ -2309,6 +2315,7 @@ export default function KboAugmentDraft() {
   };
   /** 영입·교체 뒤: 12라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
   const advanceRound = (next, nextCp, banned) => {
+    setPosFilter(null); // 영입했으면 빈 자리 거르기는 풀고 다음 라운드는 전체 선반으로
     if (round >= ROSTER_SIZE || next.length >= ROSTER_SIZE || !ALL_PLAYERS.some((p) => !getLockReason(p, next, nextCp, banned))) {
       finishDraft(next);
       return;
@@ -2395,7 +2402,11 @@ export default function KboAugmentDraft() {
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
   const [shelfFilter, setShelfFilter] = useState('all'); // 선반: 전체 · 영입 가능만
-  const shownCards = shelfFilter === 'open' ? seriesCards.filter((p) => !getLockReason(p, roster, cp, released)) : seriesCards;
+  const [posFilter, setPosFilter] = useState(null); // 내 라인업의 빈 자리를 누르면 { slot, pos } — 선반에 그 포지션만
+  const shownCards = seriesCards
+    .filter((p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released))
+    .filter((p) => !posFilter || p.position === posFilter.pos);
+  const handleEmptySlot = (slot) => setPosFilter((f) => (f?.slot === slot ? null : { slot, pos: slotPos(slot) }));
   const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -2516,7 +2527,7 @@ export default function KboAugmentDraft() {
     const m = DRAFT_MODES.find((x) => x.id === id);
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
-    setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
+    setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     const first = rollSeries([], cfg.cap, null, [], m.series);
     setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null);
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
@@ -2628,6 +2639,11 @@ export default function KboAugmentDraft() {
                     {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
                   </div>
                   <div className="ml-auto flex shrink-0 items-center gap-2.5">
+                    {posFilter && (
+                      <button type="button" className="ser-pf" onClick={() => setPosFilter(null)} aria-label={`${POS_LABEL[posFilter.pos]} 선수만 보기 해제`}>
+                        {POS_LABEL[posFilter.pos]} 선수만 <span aria-hidden="true">✕</span>
+                      </button>
+                    )}
                     <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'open'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
                       <span className="tr" aria-hidden="true" />영입 가능한 선수만
                     </button>
@@ -2643,11 +2659,16 @@ export default function KboAugmentDraft() {
                 </div>
               )}
               <div className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
+                {shownCards.length === 0 && (
+                  <p className="col-span-full py-6 text-center text-sm text-gray-400">
+                    {posFilter ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
+                  </p>
+                )}
                 {shownCards.map((p, i) => (
                   <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
-                    onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
+                    onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
               </div>
               </div>
@@ -2660,7 +2681,7 @@ export default function KboAugmentDraft() {
                     <>
                       <div className="flex min-h-0 justify-center lg:flex-1">
                         <div key={picked.id} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} hint={pickedReason ? null : hintFor(picked)} />
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} />
                         </div>
                       </div>
                       {swapPlan ? (
@@ -2708,7 +2729,7 @@ export default function KboAugmentDraft() {
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} draftView
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onEmptySlot={handleEmptySlot} wantSlot={posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
