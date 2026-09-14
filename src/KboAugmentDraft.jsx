@@ -271,16 +271,24 @@ const personMembers = (r, names) => {
   });
 };
 const FRANCHISE = { 해태: 'KIA', OB: '두산', 넥센: '키움' };
-function biggestFranchise(roster) {
+/** 구단별로 묶어 인원이 가장 많은 구단(동률이면 그 구단들 모두)의 크기 · 이름 · 선수. 뽑은 순서와 상관없이 지금 엔트리 기준 */
+function topFranchises(roster) {
   const groups = {};
   realOnly(roster).filter((p) => p.team !== KR).forEach((p) => { const k = FRANCHISE[p.team] || p.team; (groups[k] = groups[k] || []).push(p); });
-  return Object.values(groups).sort((a, b) => b.length - a.length)[0] || [];
+  const size = Math.max(0, ...Object.values(groups).map((g) => g.length));
+  const top = Object.entries(groups).filter(([, g]) => size > 0 && g.length === size);
+  return { size, names: top.map(([k]) => k), players: top.flatMap(([, g]) => g) };
 }
 const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
 const PREMIER12_2015 = DRAFT_SERIES.find((s) => s.id === '2015-premier12')?.players.map(personKey) || [];
 const tier = (need, effect, bonus) => ({ need, effect, bonus });
 const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, names, tiers, members: (r) => personMembers(r, names) });
 const build = (id, name, cond, members, tiers) => ({ id, kind: 'build', name, cond, tiers, members });
+/* 프랜차이즈의 기억: 인원은 가장 큰 구단 한 곳의 크기로 세고(동률 구단 선수는 모두 혜택), 조건 문구에 그 구단 이름을 보여준다 */
+const FRANCHISE_EXTRA = {
+  count: (r) => topFranchises(r).size,
+  condOf: (r) => { const t = topFranchises(r); return t.size ? `최다 구단: ${t.names.join('·')} ${t.size}명 (해태=KIA)` : '가장 많이 뽑은 구단 (해태=KIA)'; },
+};
 
 /* members(r): 조건을 채우는 선수들. 단계(tiers)를 넘으면 그 단계 보너스가 이 선수들에게만 붙는다
    bonus 키 → 타자: bat(파워·컨택) power contact speed defense / 투수: pit(구위·제구·안정) stability
@@ -291,7 +299,9 @@ export const SYNERGIES = [
     tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +2', { bat: 2, pit: 2 }), tier(7, '능력치 +4', { bat: 4, pit: 4 }),
   ]),
   story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', ['이승엽', '이대호', '김동주'], [tier(2, '파워 +5', { power: 5 })]),
-  story('lefty3', '좌완 트로이카', '류현진·김광현·양현종 중 2명', ['류현진', '김광현', '양현종'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('skMound', 'SK 왕조 마운드', '김광현·정우람·정대현 (2008 선발·셋업·마무리)', ['김광현', '정우람', '정대현'], [
+    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }),
+  ]),
   story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +3', { bat: 3, pit: 3 })]),
   story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택 +4 · 주루 +5', { contact: 4, speed: 5 })]),
   story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +4', { power: 4, contact: 4 })]),
@@ -303,7 +313,7 @@ export const SYNERGIES = [
     tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   story('beijingFinal', '베이징 결승전', '류현진 · 정대현 (선발과 병살 마무리)', ['류현진', '정대현'], [tier(2, '투수 +4', { pit: 4 })]),
-  story('fantastic4', '판타스틱 4', '2016 두산 선발진', ['니퍼트', '보우덴', '장원준', '유희관'], [
+  story('doosanMound', '2016 두산 마운드', '니퍼트·정재훈·이현승 (선발·셋업·마무리)', ['니퍼트', '정재훈', '이현승'], [
     tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }),
   ]),
   story('lotte10', '2010 롯데 폭격', '이대호·홍성흔·강민호·손아섭·전준우', ['이대호', '홍성흔', '강민호', '손아섭', '전준우'], [
@@ -328,22 +338,26 @@ export const SYNERGIES = [
   build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
     tier(2, '능력치 +1', { bat: 1, pit: 1 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
-  build('franchise', '프랜차이즈의 기억', '같은 구단 (해태=KIA)', biggestFranchise, [
-    tier(4, '수비·안정 +1', { defense: 1, stability: 1 }), tier(6, '수비·안정 +3', { defense: 3, stability: 3 }),
-    tier(8, '수비·안정 +4 · 능력치 +2', { defense: 4, stability: 4, bat: 2, pit: 2 }),
+  // 가장 많이 뽑힌 구단의 인원 수로 단계가 정해지고, 그 구단(동률이면 모두) 선수들이 혜택을 받는다
+  build('franchise', '프랜차이즈의 기억', '가장 많이 뽑은 구단', (r) => topFranchises(r).players, [
+    tier(3, '능력치 +1', { bat: 1, pit: 1 }),
+    tier(5, '능력치 +2 · 수비·안정 +2', { bat: 2, pit: 2, defense: 2, stability: 2 }),
+    tier(7, '능력치 +4 · 수비·안정 +3', { bat: 4, pit: 4, defense: 3, stability: 3 }),
   ]),
 ];
 
 /** 시너지 현황: level(넘은 단계 수) · cur(채운 칸, 최종 단계에서 멈춤) · top(최종 단계 인원) · 지금 단계의 effect/bonus */
 export function checkSynergies(roster) {
   return SYNERGIES.map((s) => {
+    const extra = s.id === 'franchise' ? FRANCHISE_EXTRA : null;
     const members = s.members(roster);
-    const count = members.length;
+    const count = extra ? extra.count(roster) : members.length;
     const top = s.tiers[s.tiers.length - 1].need;
     const level = s.tiers.filter((t) => count >= t.need).length;
     const shown = s.tiers[Math.max(0, level - 1)];
     return {
-      ...s, members, top, level, active: level > 0,
+      ...s, members, top, level, active: level > 0, count,
+      cond: extra ? extra.condOf(roster) : s.cond,
       cur: Math.min(count, top),
       need: level < s.tiers.length ? s.tiers[level].need : top,
       effect: shown.effect, bonus: level ? shown.bonus : {},
@@ -1231,9 +1245,9 @@ function previewSynergies(roster, player) {
   return new Map(checkSynergies([...roster, { ...player, slot: freeSlot(roster, player.position)?.id }]).map((s) => [s.id, s]));
 }
 /** 영입하면 칸이 오르거나(미완성), 혜택 받는 선수가 늘어나는(완성) 시너지인가 */
-const synergyGrows = (s, after) => !!after && (after.cur > s.cur || (!s.count && after.members.length > s.members.length));
-/** 완성 뒤 추가로 혜택을 받는 인원 */
-const extraOf = (s) => (s.count ? 0 : Math.max(0, s.members.length - s.top));
+const synergyGrows = (s, after) => !!after && (after.cur > s.cur || after.members.length > s.members.length);
+/** 완성 뒤 추가로 혜택을 받는 인원 (프랜차이즈는 최다 구단 인원 기준) */
+const extraOf = (s) => Math.max(0, s.count - s.top);
 
 /* 한 줄: 이름 · 단계 · 칸(채움 회색/완성 초록 · 영입 미리보기 파랑 · 완성 뒤 추가 인원 +N)
    아랫줄은 내 라인업에 있는 해당 선수 이름(흰색) + 고른 후보가 들어가면 그 이름(파랑).
