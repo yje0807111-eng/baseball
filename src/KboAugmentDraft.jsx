@@ -659,16 +659,25 @@ const KEYFRAMES = `
 .pick-leave { pointer-events: none; }
 .pick-leave.drop { animation: pickDrop .3s ease-in both; }
 .pick-leave.sign { animation: pickSign .35s ease-in both; }
-/* 라인업 합류: PICK 미리보기(무채색)로 서 있던 자리에 아래에서부터 색이 차오르고, 이어서 자막 바에 색이 든다 */
-@keyframes tokFill { from { -webkit-mask-position: 0 0, 0 0%; mask-position: 0 0, 0 0%; } to { -webkit-mask-position: 0 0, 0 100%; mask-position: 0 0, 0 100%; } }
-@keyframes tokBarColor { from { filter: grayscale(1) brightness(.8); } to { filter: none; } }
+/* 라인업 합류: 무채색 미리보기 위로 자막 바 → 흉상 순서(아래 → 위)로 색이 한 덩어리로 차오르고,
+   맨 위까지 차면 한 번 또렷하게 튀어 올랐다 자리 잡으며(밝기·크기·테두리) 완료를 알린다 */
+@keyframes tokFill { from { -webkit-mask-position: 0 0%; mask-position: 0 0%; } to { -webkit-mask-position: 0 100%; mask-position: 0 100%; } }
+@keyframes tokDone { 0% { transform: none; filter: brightness(1); } 35% { transform: scale(1.07); filter: brightness(1.4); } 100% { transform: none; filter: brightness(1); } }
+@keyframes tokEdge {
+  0% { box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); }
+  30% { box-shadow: inset 4px 0 0 var(--n), 0 0 0 2px var(--n), 0 6px 14px rgba(0,0,0,.5); }
+  100% { box-shadow: inset 4px 0 0 var(--n), 0 0 0 2px transparent, 0 6px 14px rgba(0,0,0,.5); }
+}
 /* 라인업 필드 토큰 (중계 자막 스타일) */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
 .lf-tok { position: absolute; width: 168px; height: 84px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
 .lf-tok.empty { cursor: pointer; }
 .lf-tok:focus-visible .lf-bar { outline: 2px solid #10b981; outline-offset: 2px; }
-.lf-bp { position: absolute; left: 2px; bottom: 10px; width: 62px; height: 82px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
-.lf-bar { position: absolute; left: 14px; right: 0; bottom: 0; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, #0f1724, #1a2436); box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
+/* 흉상+자막 바를 담는 한 덩어리. 흉상 머리·바 그림자가 마스크에 잘리지 않게 토큰보다 사방으로 넉넉하게 잡는다 */
+.lf-in { position: absolute; left: -24px; right: -24px; top: -14px; bottom: -20px; pointer-events: none; }
+.lf-in > * { pointer-events: auto; }
+.lf-bp { position: absolute; left: 26px; bottom: 30px; width: 62px; height: 82px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
+.lf-bar { position: absolute; left: 38px; right: 24px; bottom: 20px; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, #0f1724, #1a2436); box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
 .lf-bar > * { transform: skewX(10deg); }
 .lf-bx { min-width: 0; flex: 1; line-height: 1.15; }
 .lf-bx small { display: block; font-size: 10px; letter-spacing: .04em; color: #8791a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -696,20 +705,15 @@ const KEYFRAMES = `
 .lf-tok.focus .lf-bar { box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.45); }
 .lf-row.focus { background: rgba(56,189,248,.16); box-shadow: inset 3px 0 0 #38bdf8, inset 0 0 0 1px #38bdf8; }
 .lf-tok.dim, .lf-row.dim { opacity: .28; }
-/* 미리보기(ghost)는 무채색. 합류(joined)하면 회색 사본을 깔고 그 위 컬러 흉상을 아래에서 위로 부드럽게 드러낸다 */
-.lf-bp-gray { display: none; }
-.lf-tok.ghost .lf-bp, .lf-tok.joined .lf-bp-gray { filter: grayscale(1) brightness(.72); opacity: .8; }
-.lf-tok.ghost .lf-bar { filter: grayscale(1) brightness(.8); }
-.lf-tok.joined .lf-bp-gray { display: block; }
-.lf-tok.joined .lf-bp:not(.lf-bp-gray) {
-  -webkit-mask-image: linear-gradient(#000 72%, transparent), linear-gradient(to top, #000 42%, transparent 58%);
-  mask-image: linear-gradient(#000 72%, transparent), linear-gradient(to top, #000 42%, transparent 58%);
-  -webkit-mask-size: 100% 100%, 100% 300%; mask-size: 100% 100%, 100% 300%;
-  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-  -webkit-mask-composite: source-in; mask-composite: intersect;
-  animation: tokFill .8s cubic-bezier(.4,0,.2,1) both;
+/* 미리보기(ghost)와 합류 중 밑에 깔린 사본은 무채색 */
+.lf-tok.ghost .lf-in, .lf-in.lf-gray { filter: grayscale(1) brightness(.72); opacity: .85; }
+.lf-in.lf-color {
+  -webkit-mask-image: linear-gradient(to top, #000 44%, transparent 56%); mask-image: linear-gradient(to top, #000 44%, transparent 56%);
+  -webkit-mask-size: 100% 300%; mask-size: 100% 300%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  transform-origin: 50% 70%;
+  animation: tokFill .8s cubic-bezier(.45,0,.25,1) both, tokDone .42s cubic-bezier(.3,0,.2,1) .8s both;
 }
-.lf-tok.joined .lf-bar { animation: tokBarColor .5s ease-out .45s both; }
+.lf-in.lf-color .lf-bar { animation: tokEdge .5s ease-out .8s both; }
 /* 시너지 목록 스크롤: 얇은 캡슐 손잡이, 트랙은 거의 보이지 않게 */
 .syn-scroll { overscroll-behavior: contain; }
 .syn-scroll::-webkit-scrollbar { width: 6px; }
@@ -1074,12 +1078,12 @@ function FieldArt() {
 
 /** 토큰 한 칸의 표시값: 색 · 보조 문구 · 실전 종합 */
 function tokenView(slot, player, kind, boosted) {
-  const base = player && kind !== 'ghost' ? playAt({ ...player, slot: slot.id }) : player;
-  const eff = ((kind === 'mine' || kind === 'clash') && boosted?.get(player.id)) || base; // 시너지 보너스까지 반영한 종합
+  // 미리보기(ghost)도 영입 뒤와 같은 글·숫자로 보여 준다 — 영입할 때 색만 차오르고 글자가 바뀌며 튀지 않게
+  const base = player ? playAt({ ...player, slot: slot.id }) : player;
+  const eff = (player && kind !== 'empty' && boosted?.get(player.id)) || base; // 시너지 보너스까지 반영한 종합
   const moved = base?.naturalPosition;
-  const color = kind === 'ghost' ? '#10b981' : kind === 'clash' ? '#fbbf24' : player ? neonOf(player) : '#344055';
-  const sub = kind === 'ghost' ? '영입 시'
-    : kind === 'clash' ? '마감'
+  const color = kind === 'clash' ? '#fbbf24' : player ? neonOf(player) : '#344055';
+  const sub = kind === 'clash' ? '마감'
       : moved ? `원래 ${moved} −${player.overall - base.overall}`
         : player ? `${player.year} ${player.team}` : slot.label;
   return { eff, moved, color, sub, boost: eff?.synergyBoost };
@@ -1089,11 +1093,9 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
   const bust = useBust(player, '260%');
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
   const [x, y] = SLOT_XY[slot.id];
-  return (
-    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
-      aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
-      className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
-      {player && <div className="lf-bp lf-bp-gray" style={bust} aria-hidden="true">{!bust && <Silhouette />}</div>}
+  const joined = /\bjoined\b/.test(flags);
+  const body = (
+    <>
       <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
       <div className="lf-bar">
         <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.id} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
@@ -1103,6 +1105,15 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
           </em>
         )}
       </div>
+    </>
+  );
+  return (
+    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
+      aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
+      className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
+      {/* 합류 중에는 무채색 사본을 깔고, 그 위 컬러 본(흉상+자막 바 한 덩어리)을 아래에서 위로 드러낸다 */}
+      {joined && <div key="gray" className="lf-in lf-gray" aria-hidden="true">{body}</div>}
+      <div key="main" className={`lf-in ${joined ? 'lf-color' : ''}`}>{body}</div>
     </div>
   );
 }
@@ -1163,6 +1174,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const at = (id) => placed.find((p) => p.slot === id);
   const boosted = new Map(applySynergies(placed.map(playAt)).map((p) => [p.id, p]));
   const target = candidate && !candidateReason ? freeSlot(roster, candidate.position)?.id : null;
+  // 미리보기 선수는 영입된 뒤의 종합(시너지 포함)으로 보여 준다
+  const boostedPreview = target ? new Map(applySynergies([...placed, { ...candidate, slot: target }].map(playAt)).map((p) => [p.id, p])) : null;
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
@@ -1208,7 +1221,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
       style={filling ? undefined : { height: FIELD_H * scale }}>
       <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
         <FieldArt />
-        {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={boosted} />)}
+        {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted} />)}
       </div>
       {overlay && <div className="syn-dock" style={{ width: reserve }}>{overlay}</div>}
       {highlight && (
