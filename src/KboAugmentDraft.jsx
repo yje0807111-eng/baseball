@@ -756,6 +756,13 @@ const KEYFRAMES = `
 .syn-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.55), rgba(16,185,129,.35)); border-radius: 99px; border: 1px solid rgba(5,8,15,.6); }
 .syn-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.85), rgba(52,211,153,.6)); }
 @supports not selector(::-webkit-scrollbar) { .syn-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.5) transparent; } }
+/* 팝업(드래프트 규칙 · 전체 시너지) 스크롤: 더 얇게 · 트랙 없이 · 판의 초록 선과 같은 색 */
+.pop-scroll { overscroll-behavior: contain; }
+.pop-scroll::-webkit-scrollbar { width: 3px; }
+.pop-scroll::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
+.pop-scroll::-webkit-scrollbar-thumb { background: rgba(16,185,129,.45); border-radius: 99px; }
+.pop-scroll::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,.8); }
+@supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
    --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
 .ui-cut { --c: 14px; clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
@@ -1770,7 +1777,7 @@ function Modal({ title, eyebrow, onClose, children }) {
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
           </button>
         </header>
-        <div className="max-h-[70vh] overflow-y-auto px-6 py-4">{children}</div>
+        <div className="pop-scroll max-h-[70vh] overflow-y-auto py-4 pl-6 pr-5">{children}</div>
       </section>
     </div>
   );
@@ -1778,17 +1785,21 @@ function Modal({ title, eyebrow, onClose, children }) {
 
 function RulesSheet() {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {RULE_SECTIONS.map((sec) => (
         <section key={sec.title}>
-          <h3 className="mb-1.5 font-display text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">{sec.title}</h3>
-          <ul className="flex flex-col gap-1">
-            {sec.items.map((t) => (
-              <li key={t} className="flex gap-2 text-sm leading-relaxed text-gray-200">
-                <span className="mt-[0.6rem] h-1 w-1 shrink-0 rounded-full bg-[#10b981]" aria-hidden="true" />{t}
-              </li>
+          <h3 className="mb-2 flex items-center gap-2.5 text-sm font-bold text-[#10b981]">
+            {sec.title}<span className="h-px flex-1 bg-white/10" aria-hidden="true" />
+          </h3>
+          {/* 왼쪽 짧은 제목 · 오른쪽 한 줄 설명 */}
+          <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm leading-relaxed">
+            {sec.items.map(([k, v]) => (
+              <React.Fragment key={k}>
+                <dt className="font-semibold text-white">{k}</dt>
+                <dd className="m-0 text-gray-300">{v}</dd>
+              </React.Fragment>
             ))}
-          </ul>
+          </dl>
         </section>
       ))}
     </div>
@@ -2333,13 +2344,35 @@ function ModeSelect({ initialMode, record, onStart }) {
 }
 
 const RULE_SECTIONS = [
-  { title: '모드', items: ['첫 화면에서 드래프트 모드를 고르면 그 모드의 시리즈만 열림', '상대 AI도 같은 모드의 선수로 드래프트', '샐러리 캡 · AI 난이도 · 시즌 증강 수는 모드 화면에서 조정'] },
-  { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
-  { title: '영입가', items: [`샐러리 캡(모드별 · 기본 ${SALARY_CAP} CP) 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
-  { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
-  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출해도 라운드는 돌아오지 않음 — 남은 빈 자리는 드래프트가 끝날 때 퓨처스 유망주로 채움', '마감된 포지션의 후보를 고르면 “교체 영입”으로 바로 교체 — 내 라인업에서 자리를 먼저 누르면 그 자리 선수와, 아니면 그 포지션에서 가장 약한 선수와 바꾸며, 방출 선수는 영입가 절반 환불 · 다시 영입 불가'] },
-  { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
-  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '12라운드를 다 쓰거나 샐러리 캡이 모자라 더 영입할 수 없으면 드래프트가 끝나고, 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채움'] },
+  // [짧은 제목, 한 줄 설명] — 화면만 봐도 알 수 있는 조작 설명은 넣지 않는다
+  { title: '엔트리', items: [
+    [`${ROSTER_SIZE}명`, '투수 3 (선발 · 중간계투 · 마무리) + 야수 9 (외야수만 3명)'],
+    ['외국인', `최대 ${FOREIGN_LIMIT}명`],
+    ['동일인', '시즌이 달라도 한 번만 영입'],
+  ] },
+  { title: '드래프트', items: [
+    [`${ROSTER_SIZE}라운드`, '라운드마다 한 명씩 영입'],
+    ['샐러리 캡', '모드에서 정한 CP 안에서만 영입'],
+    ['영입가', '종합 85 이상은 비싸고, 71 이하는 쌈'],
+    ['빈 자리', '드래프트가 끝나면 퓨처스 유망주(종합 55)로 채움'],
+  ] },
+  { title: '방출 · 교체', items: [
+    ['방출', '드래프트 중에만 · 영입가 절반 환불 · 다시 영입 불가'],
+    ['교체 영입', '찬 포지션의 선수를 고르면 가장 약한 선수(또는 먼저 누른 자리)와 바로 교체'],
+    ['라운드', '방출해도 돌아오지 않음'],
+  ] },
+  { title: '포지션', items: [
+    ['제자리 밖', '종합 감소 — 비슷한 자리 −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20'],
+    ['지명타자', '야수는 감소 없음'],
+  ] },
+  { title: '시너지', items: [
+    ['효과', `완성한 선수만 능력치 상승 (능력치마다 최대 +${SYNERGY_STAT_CAP})`],
+    ['단계', '인원이 늘수록 더 강해짐'],
+    ['같은 선수', '카드 시즌이 달라도 인정'],
+  ] },
+  { title: '시즌', items: [
+    ['증강', '시즌을 시작할 때 모드 설정만큼 선택'],
+  ] },
 ];
 
 export default function KboAugmentDraft() {
