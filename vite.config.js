@@ -5,4 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: './',
   plugins: [react()],
+  // 미리보기 도구가 배정한 포트(PORT)를 쓴다. 없으면 Vite 기본값.
+  server: process.env.PORT ? { port: Number(process.env.PORT), strictPort: true } : undefined,
 });

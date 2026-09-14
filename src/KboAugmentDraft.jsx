@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { SERIES } from './data/seriesPlayers.js';
+import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
    ════════════════════════════════════════════════════════════════════ */
 
 /* ───────────── 1. 규칙 상수 ───────────── */
-export const SALARY_CAP = 900;
+export const SALARY_CAP = 800;
 export const FOREIGN_LIMIT = 3;
 export const SLOT_LIMITS = { SP: 3, RP: 1, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 1, DH: 1 };
 export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 11
@@ -18,13 +18,15 @@ const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
    hand: 타자는 타석(L/R/S), 투수는 투구 손(L/R). 능력치는 40~99. */
-const B = (id, name, year, team, position, hand, overall, [power, contact, speed, defense], o = {}) => ({
-  id, name, year, team, position, hand, overall, type: 'batter',
+// 종합 능력치는 세부 스탯에서 계산한다 (시리즈 선수와 같은 공식). 7번째 인자는 예전 수기 값이라 쓰지 않는다.
+const withRatings = (p) => ({ ...p, overall: overallOf(p.position, p.stats), cost: costOf(overallOf(p.position, p.stats)) });
+const B = (id, name, year, team, position, hand, _legacyOverall, [power, contact, speed, defense], o = {}) => withRatings({
+  id, name, year, team, position, hand, type: 'batter',
   isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '', face: o.face,
   stats: { power, contact, speed, defense },
 });
-const P = (id, name, year, team, position, hand, overall, [stuff, control, stamina, stability], o = {}) => ({
-  id, name, year, team, position, hand, overall, type: 'pitcher',
+const P = (id, name, year, team, position, hand, _legacyOverall, [stuff, control, stamina, stability], o = {}) => withRatings({
+  id, name, year, team, position, hand, type: 'pitcher',
   isNational: !!o.nat, isForeign: !!o.fgn, note: o.note || '', face: o.face,
   stats: { stuff, control, stamina, stability },
 });
@@ -131,7 +133,7 @@ export function getLockReason(player, roster, cp) {
   if (roster.some((p) => personKey(p) === personKey(player))) return '동일인 영입됨';
   if (roster.filter((p) => p.position === player.position).length >= SLOT_LIMITS[player.position]) return `${POS_LABEL[player.position]} 마감`;
   if (player.isForeign && roster.filter((p) => p.isForeign).length >= FOREIGN_LIMIT) return `외국인 한도 ${FOREIGN_LIMIT}/${FOREIGN_LIMIT}`;
-  if (player.overall > cp) return `CP 부족 (${player.overall - cp} 모자람)`;
+  if (player.cost > cp) return `CP 부족 (${player.cost - cp} 모자람)`;
   return null;
 }
 
@@ -163,11 +165,11 @@ export function aiDraft(rng = Math.random) {
   let cp = SALARY_CAP;
   for (const pos of shuffle(POS_ORDER.flatMap((p) => Array(SLOT_LIMITS[p]).fill(p)), rng)) {
     const slotsAfter = ROSTER_SIZE - roster.length - 1;
-    const cands = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.overall >= slotsAfter * 78)
+    const cands = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.cost >= slotsAfter * 70)
       .sort((a, b) => b.overall - a.overall);
-    const fallback = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.overall - b.overall);
+    const fallback = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.cost - b.cost);
     const choice = cands.length ? cands[Math.floor(rng() * Math.min(3, cands.length))] : fallback[0];
-    if (choice) { roster = [...roster, choice]; cp -= choice.overall; }
+    if (choice) { roster = [...roster, choice]; cp -= choice.cost; }
   }
   return roster;
 }
@@ -283,8 +285,8 @@ export const AUGMENTS = [
   },
   {
     id: 'ace', name: '에이스의 품격', tier: 'gold', side: 'defense', chance: 0.4, max: 2,
-    cond: '1~3회 수비 · 선발 종합 92+', desc: '40% 확률로 수비 이닝 무실점을 확정합니다. (경기당 2회)',
-    when: (c) => c.inning <= 3 && c.myPitcher.overall >= 92,
+    cond: '1~3회 수비 · 선발 종합 88+', desc: '40% 확률로 수비 이닝 무실점을 확정합니다. (경기당 2회)',
+    when: (c) => c.inning <= 3 && c.myPitcher.overall >= 88,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}의 삼진 쇼, 이닝 무실점 확정` }),
   },
   {
@@ -644,7 +646,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
   const statKeys = player.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
   return (
     <button type="button" onClick={() => onSelect(player)} aria-disabled={locked}
-      aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.overall} CP${locked ? `, ${reason}` : ''}`}
+      aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, clipPath: cutCorners(18) }}
       className={`group relative block aspect-[2/3] w-full bg-[#05080f] text-left animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none
         ${locked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}>
@@ -709,7 +711,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
               </div>
               <span className="flex items-baseline gap-1 px-2.5 py-1 font-display font-bold tabular-nums text-[#05080f]" style={{ background: acc, clipPath: cutCorners(5) }}>
                 <span className="text-[10px] font-semibold tracking-widest">영입</span>
-                <span className="text-lg leading-none">{player.overall}</span>
+                <span className="text-lg leading-none">{player.cost}</span>
                 <span className="text-[10px]">CP</span>
               </span>
             </div>
@@ -741,7 +743,7 @@ function RosterPanel({ roster }) {
     const mine = roster.filter((p) => p.position === pos);
     return Array.from({ length: SLOT_LIMITS[pos] }, (_, i) => ({ pos, key: `${pos}${i}`, player: mine[i] }));
   });
-  const spent = roster.reduce((s, p) => s + p.overall, 0);
+  const spent = roster.reduce((s, p) => s + p.cost, 0);
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
       <PanelTitle aside={`${roster.length}/${ROSTER_SIZE} · ${spent} CP`}>나의 엔트리</PanelTitle>
@@ -983,7 +985,7 @@ function MvpStage({ result }) {
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
-const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '영입가 = 종합 능력치', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
+const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
@@ -1031,7 +1033,7 @@ export default function KboAugmentDraft() {
       return;
     }
     const next = [...roster, player];
-    const nextCp = cp - player.overall;
+    const nextCp = cp - player.cost;
     setRoster(next);
     setCp(nextCp);
     if (next.length >= ROSTER_SIZE) {
