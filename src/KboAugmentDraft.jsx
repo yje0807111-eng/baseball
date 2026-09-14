@@ -833,7 +833,7 @@ const KEYFRAMES = `
 /* 선반 카드 (MiniCard) — 단위는 카드 폭 기준 cqw */
 .mc-in { position: absolute; inset: 0; }
 .mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
-.mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 1.2cqw; background: rgba(255,255,255,.55); }
+.mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: rgba(255,255,255,.55); }
 .mc.t75 .mc-tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
 .mc.t90 .mc-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
 .mc-ov { position: absolute; left: 7cqw; top: 7.5cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
