@@ -731,9 +731,23 @@ export function preloadArt(players) {
     img.src = src;
   })));
 }
-/** 그림 파일이 있으면 경로, 없으면 null */
+/** 카드 그림(public/cards/<id>.webp) 경로. 없으면 null */
 function useArt(player) {
-  const src = player && !player.isReplacement ? `cards/${encodeURIComponent(player.id)}.webp` : null;
+  return useImage(player && !player.isReplacement ? `cards/${encodeURIComponent(player.id)}.webp` : null);
+}
+/** 정면 상체 프로필(public/profiles/<id>.webp, 3:4) 경로. 없으면 null */
+function useProfile(player) {
+  return useImage(player && !player.isReplacement ? `profiles/${encodeURIComponent(player.id)}.webp` : null);
+}
+/** 필드·드래그용 흉상 배경: 프로필이 있으면 위쪽 기준으로 꽉 채우고, 없으면 카드 그림에서 얼굴을 확대해 대신한다 */
+function useBust(player, cropSize = '260%') {
+  const profile = useProfile(player);
+  const art = useArt(player);
+  if (profile) return { backgroundImage: `url(${profile})`, backgroundSize: 'cover', backgroundPosition: '50% 0%' };
+  return bustStyle(art, player || {}, cropSize);
+}
+/** 이미지 파일이 있으면 경로, 없으면 null (한 번 확인한 결과는 캐시) */
+function useImage(src) {
   const [ok, setOk] = useState(() => (src ? artCache.get(src) ?? false : false));
   useEffect(() => {
     if (!src) { setOk(false); return undefined; }
@@ -750,11 +764,13 @@ function useArt(player) {
 
 /** 얼굴 칩: 카드 그림의 얼굴 부분을 확대. 그림이 없으면 팀 컬러 + 이니셜 */
 function FaceChip({ player, className = 'h-16 w-16' }) {
+  const profile = useProfile(player);
   const src = useArt(player);
   return (
     <div className={`relative shrink-0 overflow-hidden rounded-md border border-white/25 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.9)] ${className}`}
-      style={{ background: src ? `url(${src}) ${player.face || '50% 14%'} / 300% auto no-repeat, #111827` : `linear-gradient(150deg, ${teamColor(player)}, #111827 85%)` }}>
-      {!src && <span className="absolute inset-0 grid place-items-center text-xl font-black text-white/75">{player.name[0]}</span>}
+      style={{ background: profile ? `url(${profile}) 50% 8% / cover no-repeat, #111827`
+        : src ? `url(${src}) ${player.face || '50% 14%'} / 300% auto no-repeat, #111827` : `linear-gradient(150deg, ${teamColor(player)}, #111827 85%)` }}>
+      {!src && !profile && <span className="absolute inset-0 grid place-items-center text-xl font-black text-white/75">{player.name[0]}</span>}
     </div>
   );
 }
@@ -1012,14 +1028,14 @@ function tokenView(slot, player, kind, boosted) {
 }
 
 function SlotToken({ slot, player, kind, flags, bind, boosted }) {
-  const src = useArt(player);
+  const bust = useBust(player, '260%');
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
   const [x, y] = SLOT_XY[slot.pos];
   return (
     <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
       aria-label={player ? `${POS_LABEL[slot.pos]} 자리 ${player.name} ${eff.overall}` : `${POS_LABEL[slot.pos]} 빈 자리`}
       className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
-      <div className="lf-bp" style={bustStyle(src, player || {}, '260%')}>{!src && <Silhouette />}</div>
+      <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
       <div className="lf-bar">
         <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.pos} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
         {eff && (
@@ -1033,14 +1049,14 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
 }
 
 function RotationRow({ slot, index, player, kind, flags, bind, boosted }) {
-  const src = useArt(player);
+  const bust = useBust(player, '260%');
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
   return (
     <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
       aria-label={player ? `${index + 1}선발 ${player.name} ${eff.overall}` : `${index + 1}선발 빈 자리`}
       className={`lf-row ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
       <span className="rn font-display">{index + 1}</span>
-      <span className="rb" style={bustStyle(src, player || {}, '260%')}>{!src && <Silhouette />}</span>
+      <span className="rb" style={bust}>{!bust && <Silhouette />}</span>
       <span className="nm">{player ? player.name : '빈 자리'}{(kind !== 'mine' || moved) && player && <small className={moved && kind === 'mine' ? 'lf-off' : ''}>{sub}</small>}</span>
       {eff && (
         <em className="ov font-display not-italic tabular-nums" style={boost ? { color: '#34d399' } : undefined} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
@@ -1052,8 +1068,8 @@ function RotationRow({ slot, index, player, kind, flags, bind, boosted }) {
 }
 
 function DragGhost({ player, x, y }) {
-  const src = useArt(player);
-  return <div className="lf-drag" style={{ left: x, top: y }}><i style={bustStyle(src, player)} />{player.name}</div>;
+  const bust = useBust(player, '300%');
+  return <div className="lf-drag" style={{ left: x, top: y }}><i style={bust} />{player.name}</div>;
 }
 
 /**
