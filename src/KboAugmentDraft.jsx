@@ -1421,7 +1421,13 @@ function RosterPanel({ roster }) {
 }
 
 /** 완성된 시너지가 맨 위, 그다음 진행률 높은 순 */
-const sortSynergies = (list) => [...list].sort((a, b) => b.active - a.active || b.level - a.level || b.cur / b.top - a.cur / a.top);
+/**
+ * 시너지 정렬: 켜진 시너지가 먼저, 그 안팎 모두 '다음 단계까지 남은 인원'이 적은 순(곧 따낼 수 있는 것부터).
+ * 남은 인원이 같으면 채운 비율이 높은 쪽(2/3 > 1/2), 마지막 단계까지 다 채운 것은 남은 인원 0으로 맨 위.
+ */
+const leftOf = (s) => (s.level < s.tiers.length ? Math.max(0, s.need - s.count) : 0);
+const fillOf = (s) => (s.level < s.tiers.length ? s.count / s.need : 1);
+const sortSynergies = (list) => [...list].sort((a, b) => b.active - a.active || leftOf(a) - leftOf(b) || fillOf(b) - fillOf(a) || b.level - a.level);
 
 /** 이 선수를 영입했을 때의 시너지 (id → 결과) */
 function previewSynergies(roster, player) {
@@ -2127,7 +2133,7 @@ const RULE_SECTIONS = [
   { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
   { title: '영입가', items: [`샐러리 캡(모드별 · 기본 ${SALARY_CAP} CP) 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
-  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
+  { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '방출한 만큼 라운드가 되돌아가 12명을 채울 기회가 더 주어짐 (이미 나온 팀도 다시 나올 수 있음)','마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
   { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
   { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
 ];
@@ -2145,6 +2151,8 @@ export default function KboAugmentDraft() {
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
   const [seenSeries, setSeenSeries] = useState([]); // 이번 드래프트에서 이미 열린 시리즈 — 모드의 시리즈를 다 돌기 전에는 다시 나오지 않는다
+  /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
+  const nextSeries = (r, c, banned) => rollSeries(r, c, series?.id, banned, mode.series, seenSeries) || rollSeries(r, c, series?.id, banned, DRAFT_SERIES, seenSeries);
   const openSeries = (s) => {
     setSeries(s);
     if (s) setSeenSeries((v) => (v.includes(s.id) ? v : [...v, s.id]));
@@ -2219,7 +2227,7 @@ export default function KboAugmentDraft() {
   }, []);
 
   const full = roster.length >= ROSTER_SIZE;
-  const canPickAny = useMemo(() => mode.players.some((p) => !getLockReason(p, roster, cp, released)), [mode, roster, cp, released]);
+  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released)), [roster, cp, released]);
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
@@ -2246,7 +2254,7 @@ export default function KboAugmentDraft() {
       setSeries(null);
       setPhase('ready');
     } else {
-      openSeries(rollSeries(next, nextCp, series?.id, released, mode.series, seenSeries));
+      openSeries(nextSeries(next, nextCp, released));
     }
   }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -2271,7 +2279,7 @@ export default function KboAugmentDraft() {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
     setPicked(null);
-    openSeries(rollSeries(roster, cp, series?.id, released, mode.series, seenSeries));
+    openSeries(nextSeries(roster, cp, released));
   };
 
   /* 라인업 자리 바꾸기: 빈 자리면 이동, 사람이 있으면 맞교환. 자리가 비고 차는 대로 후보 잠금이 다시 계산된다 */
@@ -2390,6 +2398,10 @@ export default function KboAugmentDraft() {
     setRoster(r.roster);
     setCp(cp + r.refund);
     setReleased(r.banned);
+    // 방출한 만큼 라운드가 되돌아간다(라운드 = 엔트리 + 1). 지금 선반에 고를 선수가 없으면 새 시리즈를 열어 그 기회를 쓸 수 있게 한다
+    if (!series || !series.players.some((p) => !getLockReason(p, r.roster, cp + r.refund, r.banned))) {
+      openSeries(nextSeries(r.roster, cp + r.refund, r.banned));
+    }
   };
   /* 교체 영입: 마감된 포지션의 후보를 고르면, 그 자리에서 실전 종합이 가장 낮은 선수를 방출하고 곧바로 들인다 */
   const swapPlan = (() => {
@@ -2407,7 +2419,7 @@ export default function KboAugmentDraft() {
     setReleased(swapPlan.banned);
     setPicked(null);
     setFocusSynergy(null);
-    openSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned, mode.series, seenSeries));
+    openSeries(nextSeries(next, nextCp, swapPlan.banned));
   };
 
   return (
