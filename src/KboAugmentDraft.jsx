@@ -106,6 +106,41 @@ export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
 export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 const personKey = (p) => p.personId || p.name;
 
+/* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
+export const SLOTS = POS_ORDER.flatMap((pos) => Array.from({ length: SLOT_LIMITS[pos] }, (_, i) => ({ id: SLOT_LIMITS[pos] > 1 ? `${pos}${i + 1}` : pos, pos })));
+export const slotPos = (id) => SLOTS.find((s) => s.id === id)?.pos;
+
+/** slot 이 없는 선수(AI 드래프트 등)는 원래 포지션의 빈 자리에 세운다 */
+export function withSlots(roster) {
+  const used = new Set(roster.map((p) => p.slot).filter(Boolean));
+  return roster.map((p) => {
+    if (p.slot) return p;
+    const s = SLOTS.find((x) => x.pos === p.position && !used.has(x.id)) || SLOTS.find((x) => !used.has(x.id));
+    if (s) used.add(s.id);
+    return { ...p, slot: s?.id };
+  });
+}
+
+/** 해당 포지션의 빈 자리. 없으면 null (= 그 포지션 후보는 잠김) */
+export function freeSlot(roster, pos) {
+  const used = new Set(withSlots(roster).map((p) => p.slot));
+  return SLOTS.find((s) => s.pos === pos && !used.has(s.id)) || null;
+}
+
+export const OFF_POSITION_PENALTY = 10;
+/** 선 자리 기준의 실전 능력치: 같은 투수/야수끼리 다른 자리면 −10, 투타가 바뀌면 35. 야수의 지명타자는 그대로 */
+export function playAt(p) {
+  const pos = slotPos(p.slot);
+  if (!pos || pos === p.position || (pos === 'DH' && p.type === 'batter')) return p;
+  const pitchSlot = pos === 'SP' || pos === 'RP';
+  if ((p.type === 'pitcher') === pitchSlot) {
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - OFF_POSITION_PENALTY)]));
+    return { ...p, position: pos, naturalPosition: p.position, stats, overall: Math.max(30, p.overall - OFF_POSITION_PENALTY) };
+  }
+  const stats = pitchSlot ? { stuff: 35, control: 35, stamina: 35, stability: 35 } : { power: 35, contact: 35, speed: 35, defense: 35 };
+  return { ...p, position: pos, type: pitchSlot ? 'pitcher' : 'batter', naturalPosition: p.position, stats, overall: 35 };
+}
+
 /* ───────────── 3. 유틸 ───────────── */
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const avg = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -131,7 +166,7 @@ function poisson(lambda, rng) {
 export function getLockReason(player, roster, cp) {
   if (roster.some((p) => p.id === player.id)) return '영입 완료';
   if (roster.some((p) => personKey(p) === personKey(player))) return '동일인 영입됨';
-  if (roster.filter((p) => p.position === player.position).length >= SLOT_LIMITS[player.position]) return `${POS_LABEL[player.position]} 마감`;
+  if (!freeSlot(roster, player.position)) return `${POS_LABEL[player.position]} 마감`;
   if (player.isForeign && roster.filter((p) => p.isForeign).length >= FOREIGN_LIMIT) return `외국인 한도 ${FOREIGN_LIMIT}/${FOREIGN_LIMIT}`;
   if (player.cost > cp) return `CP 부족 (${player.cost - cp} 모자람)`;
   return null;
@@ -146,15 +181,14 @@ export function rollSeries(roster, cp, avoidId = null, rng = Math.random) {
 
 /** 빈 자리를 퓨처스 유망주(능력치 55)로 채운다 */
 export function fillRoster(roster) {
-  const out = [...roster];
-  for (const pos of POS_ORDER) {
-    const need = SLOT_LIMITS[pos] - out.filter((p) => p.position === pos).length;
-    for (let i = 0; i < need; i++) {
-      const id = `rep-${pos}-${i}`;
-      out.push(pos === 'SP' || pos === 'RP'
-        ? { ...P(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 55, [55, 55, 60, 55]), isReplacement: true }
-        : { ...B(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 55, [55, 55, 55, 55]), isReplacement: true });
-    }
+  const out = withSlots(roster);
+  const used = new Set(out.map((p) => p.slot));
+  for (const { id: slot, pos } of SLOTS) {
+    if (used.has(slot)) continue;
+    const id = `rep-${slot}`;
+    out.push(pos === 'SP' || pos === 'RP'
+      ? { ...P(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 55, [55, 55, 60, 55]), isReplacement: true, slot }
+      : { ...B(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 55, [55, 55, 55, 55]), isReplacement: true, slot });
   }
   return out;
 }
@@ -213,6 +247,7 @@ export function checkSynergies(roster) {
 
 /* ───────────── 6. 팀 전력 산출 ───────────── */
 export function buildTeam(name, roster, buff = 0) {
+  roster = withSlots(roster).map(playAt); // 선 자리 기준 능력치로 경기를 치른다
   const synergies = checkSynergies(roster);
   const bonus = { bat: buff, pit: buff, power: 0, defense: 0, stability: 0 };
   synergies.filter((s) => s.active).forEach((s) => Object.entries(s.bonus).forEach(([k, v]) => { bonus[k] += v; }));
@@ -471,6 +506,40 @@ const KEYFRAMES = `
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: #111827; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+/* 라인업 필드 토큰 (중계 자막 스타일) */
+.lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
+.lf-tok { position: absolute; width: 168px; height: 84px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
+.lf-tok.empty { cursor: pointer; }
+.lf-tok:focus-visible .lf-bar { outline: 2px solid #10b981; outline-offset: 2px; }
+.lf-bp { position: absolute; left: 2px; bottom: 10px; width: 62px; height: 82px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
+.lf-bar { position: absolute; left: 14px; right: 0; bottom: 0; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, #0f1724, #1a2436); box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
+.lf-bar > * { transform: skewX(10deg); }
+.lf-bx { min-width: 0; flex: 1; line-height: 1.15; }
+.lf-bx small { display: block; font-size: 10px; letter-spacing: .04em; color: #8791a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-bx b { display: block; font-size: 14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-ov { font-size: 22px; font-weight: 700; line-height: 1; color: var(--n); }
+.lf-tok.empty .lf-bar { background: rgba(12,18,28,.85); box-shadow: inset 4px 0 0 #3b4656; }
+.lf-tok.empty .lf-bx b { color: #5b6577; font-weight: 500; }
+.lf-tok.ghost .lf-bx small, .lf-row.ghost .nm small { color: #10b981; }
+.lf-tok.clash .lf-bx small, .lf-row.clash .nm small, .lf-off { color: #fbbf24 !important; }
+.lf-tok.picked .lf-bar, .lf-tok.over .lf-bar { background: linear-gradient(90deg, #0f2a22, #15352b); box-shadow: inset 4px 0 0 #10b981, 0 0 0 2px #10b981; }
+.lf-tok.lifted, .lf-row.lifted { opacity: .35; }
+.lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
+.lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
+.lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
+.lf-row { position: relative; display: grid; grid-template-columns: 12px 34px minmax(0,1fr) auto; align-items: end; gap: 8px; height: 46px; padding: 0 10px; border-bottom: 1px solid #1a2333; box-shadow: inset 3px 0 0 var(--n); touch-action: none; user-select: none; cursor: grab; outline: none; }
+.lf-row:focus-visible { outline: 2px solid #10b981; outline-offset: -2px; }
+.lf-row.empty { cursor: pointer; }
+.lf-row .rn { align-self: center; font-size: 13px; color: #8791a3; }
+.lf-row .rb { position: relative; display: block; width: 34px; height: 42px; overflow: hidden; background-repeat: no-repeat; }
+.lf-row .nm { align-self: center; min-width: 0; font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-row .nm small { display: block; font-size: 10px; font-weight: 600; color: #8791a3; }
+.lf-row.empty .nm { color: #5b6577; font-weight: 500; }
+.lf-row.ghost { background: rgba(16,185,129,.12); }
+.lf-row.picked, .lf-row.over { background: rgba(16,185,129,.2); box-shadow: inset 3px 0 0 #10b981, inset 0 0 0 1px #10b981; }
+.lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
+.lf-drag { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -60%) rotate(-3deg); display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: #0f1724; box-shadow: 0 0 0 2px #10b981, 0 12px 28px rgba(0,0,0,.6); color: #fff; font-weight: 700; font-size: 14px; }
+.lf-drag i { width: 36px; height: 44px; background-color: #0b111b; background-repeat: no-repeat; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 `;
 
@@ -728,6 +797,201 @@ export function PlayerCard({ player, reason, shaking, onSelect, style }) {
   );
 }
 
+/* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
+function MiniCard({ player, reason, selected, onPick, style }) {
+  const art = useArt(player);
+  const acc = neonOf(player);
+  const locked = !!reason;
+  return (
+    <button type="button" onClick={() => onPick(player)} aria-pressed={selected}
+      aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
+      style={{ ...style, clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
+      className={`group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'}`}>
+      {art
+        ? <img src={art} alt="" className={`absolute inset-0 h-full w-full object-cover object-[62%_18%] ${locked ? 'opacity-40 grayscale' : ''}`} />
+        : <span className="absolute inset-0" style={{ background: `linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }} />}
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 30%, rgba(5,8,15,0) 52%, rgba(5,8,15,.85) 80%, #05080f 100%)' }} />
+      <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected ? 'border-2' : 'border'}`} style={{ borderColor: selected ? '#10b981' : `${acc}66` }} />
+      <span className={`absolute left-[8cqw] top-[6cqw] font-display text-[26cqw] font-bold leading-[.85] tabular-nums ${locked ? 'opacity-50' : ''}`} style={{ color: acc, textShadow: '0 1px 3px #000' }}>{player.overall}</span>
+      <span className="absolute left-[8cqw] top-[31cqw] font-display text-[8.5cqw] font-bold tracking-[0.1em] text-white [text-shadow:0_1px_3px_#000]">{player.position}</span>
+      <span className={`absolute inset-x-[8cqw] bottom-[19cqw] truncate text-[14cqw] font-bold leading-none tracking-tight text-white [text-shadow:0_1px_4px_#000] ${locked ? 'opacity-60' : ''}`}>{player.name}</span>
+      {locked ? (
+        <span className="absolute inset-x-[5cqw] bottom-[6cqw] truncate bg-[#05080f]/90 py-[2cqw] text-center text-[8cqw] font-semibold leading-none text-gray-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,.28)]">{reason}</span>
+      ) : (
+        <span className="absolute inset-x-[8cqw] bottom-[6.5cqw] flex items-center justify-between">
+          <span className="font-display text-[8cqw] font-bold text-white/80">{player.isForeign ? '외인' : player.isNational ? '국대' : handLabel(player)}</span>
+          <span className="px-[3.4cqw] py-[1.2cqw] font-display text-[10cqw] font-bold leading-none text-[#05080f]" style={{ background: acc }}>{player.cost}</span>
+        </span>
+      )}
+    </button>
+  );
+}
+
+/* ───── 라인업 필드: 중계 자막 스타일 토큰 · 끌어서 자리 바꾸기 ─────
+   900×580 설계 크기로 그리고 컨테이너 폭에 맞춰 축소한다. 초상은 지금 카드 그림의 얼굴 크롭(정면 상체 초상이 생기면 교체) */
+const FIELD_W = 900;
+const FIELD_H = 580;
+const SLOT_XY = { RP: [790, 515], C: [450, 515], '1B': [750, 370], '2B': [615, 215], '3B': [150, 370], SS: [285, 215], OF: [450, 90], DH: [110, 515] };
+const ROTATION_XY = [450, 365];
+
+const Silhouette = () => (
+  <svg className="lf-sil" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <circle cx="50" cy="40" r="18" /><path d="M12 104 C14 74 30 64 50 64 C70 64 86 74 88 104 Z" />
+  </svg>
+);
+const bustStyle = (src, p, size = '300%') => (src ? { backgroundImage: `url(${src})`, backgroundSize: `${size} auto`, backgroundPosition: p.face || '50% 14%' } : undefined);
+
+function FieldArt() {
+  const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
+  const fair = `M${hx} ${hy} L${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r} Z`;
+  const base = (x, y) => <rect key={`${x}-${y}`} x={x - 7} y={y - 7} width="14" height="14" transform={`rotate(45 ${x} ${y})`} />;
+  return (
+    <svg className="absolute inset-0" width={FIELD_W} height={FIELD_H} viewBox={`0 0 ${FIELD_W} ${FIELD_H}`} aria-hidden="true">
+      <defs><pattern id="lf-mow" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="#fff" opacity=".022" /></pattern></defs>
+      <path d={fair} fill="#10231a" /><path d={fair} fill="url(#lf-mow)" />
+      <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#2f4a3a" strokeWidth="10" />
+      <polygon points={`${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}`} fill="#2a2119" opacity=".85" />
+      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="#10231a" />
+      <path d={`M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}`} stroke="#ffffff38" strokeWidth="2" />
+      <circle cx={hx} cy={hy - s} r={s * 0.11} fill="#2a2119" />
+      <g fill="#e5e7eb" opacity=".85">{base(hx + s, hy - s)}{base(hx, hy - 2 * s)}{base(hx - s, hy - s)}<path d={`M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z`} /></g>
+    </svg>
+  );
+}
+
+/** 토큰 한 칸의 표시값: 색 · 보조 문구 · 실전 종합 */
+function tokenView(slot, player, kind) {
+  const eff = player && kind !== 'ghost' ? playAt({ ...player, slot: slot.id }) : player;
+  const moved = eff?.naturalPosition;
+  const color = kind === 'ghost' ? '#10b981' : kind === 'clash' ? '#fbbf24' : player ? neonOf(player) : '#344055';
+  const sub = kind === 'ghost' ? '영입 시'
+    : kind === 'clash' ? '마감'
+      : moved ? `원래 ${moved} −${player.overall - eff.overall}`
+        : player ? `${player.year} ${player.team}` : POS_LABEL[slot.pos];
+  return { eff, moved, color, sub };
+}
+
+function SlotToken({ slot, player, kind, flags, bind }) {
+  const src = useArt(player);
+  const { eff, moved, color, sub } = tokenView(slot, player, kind);
+  const [x, y] = SLOT_XY[slot.pos];
+  return (
+    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
+      aria-label={player ? `${POS_LABEL[slot.pos]} 자리 ${player.name} ${eff.overall}` : `${POS_LABEL[slot.pos]} 빈 자리`}
+      className={`lf-tok ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ left: x, top: y, '--n': color }}>
+      <div className="lf-bp" style={bustStyle(src, player || {}, '260%')}>{!src && <Silhouette />}</div>
+      <div className="lf-bar">
+        <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.pos} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
+        {eff && <em className="lf-ov font-display not-italic tabular-nums">{eff.overall}</em>}
+      </div>
+    </div>
+  );
+}
+
+function RotationRow({ slot, index, player, kind, flags, bind }) {
+  const src = useArt(player);
+  const { eff, moved, color, sub } = tokenView(slot, player, kind);
+  return (
+    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
+      aria-label={player ? `${index + 1}선발 ${player.name} ${eff.overall}` : `${index + 1}선발 빈 자리`}
+      className={`lf-row ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
+      <span className="rn font-display">{index + 1}</span>
+      <span className="rb" style={bustStyle(src, player || {}, '260%')}>{!src && <Silhouette />}</span>
+      <span className="nm">{player ? player.name : '빈 자리'}{(kind !== 'mine' || moved) && player && <small className={moved && kind === 'mine' ? 'lf-off' : ''}>{sub}</small>}</span>
+      {eff && <em className="ov font-display not-italic tabular-nums">{eff.overall}</em>}
+    </div>
+  );
+}
+
+function DragGhost({ player, x, y }) {
+  const src = useArt(player);
+  return <div className="lf-drag" style={{ left: x, top: y }}><i style={bustStyle(src, player)} />{player.name}</div>;
+}
+
+/**
+ * 내 라인업 필드. 선수를 끌어 다른 자리에 놓거나(빈 자리면 이동, 사람이 있으면 맞교환),
+ * 한 명을 누른 뒤 다른 자리를 눌러도 바뀐다. candidate 가 있으면 들어갈 자리를 초록으로 미리 보여준다.
+ */
+function LineupField({ roster, candidate, candidateReason, onMove, locked = false }) {
+  const wrapRef = useRef(null);
+  const dragRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [pick, setPick] = useState(null);
+  const [drag, setDrag] = useState(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return undefined;
+    const ro = new ResizeObserver(([e]) => setScale(Math.min(1, e.contentRect.width / FIELD_W)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const placed = withSlots(roster);
+  const at = (id) => placed.find((p) => p.slot === id);
+  const target = candidate && !candidateReason ? freeSlot(roster, candidate.position)?.id : null;
+  const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
+  const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
+  const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
+  const flagsOf = (s) => [pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted'].filter(Boolean).join(' ');
+  const slotUnder = (e) => document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-slot]')?.dataset.slot || null;
+
+  const tap = (id) => {
+    if (locked) return;
+    if (pick) { if (pick !== id) onMove(pick, id); setPick(null); } else if (at(id)) setPick(id);
+  };
+  const bind = (id) => ({
+    onPointerDown: (e) => {
+      if (locked || e.button > 0) return;
+      dragRef.current = { from: id, sx: e.clientX, sy: e.clientY, moved: false, filled: !!at(id) };
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    },
+    onPointerMove: (e) => {
+      const d = dragRef.current;
+      if (!d || !d.filled) return;
+      if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return;
+      d.moved = true;
+      setDrag({ from: d.from, x: e.clientX, y: e.clientY, over: slotUnder(e) });
+    },
+    onPointerUp: (e) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      if (!d) return;
+      if (!d.moved) { tap(id); return; }
+      const to = slotUnder(e);
+      if (to && to !== d.from) onMove(d.from, to);
+      setDrag(null);
+      setPick(null);
+    },
+    onPointerCancel: () => { dragRef.current = null; setDrag(null); },
+    onKeyDown: (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(id); }
+      if (e.key === 'Escape') setPick(null);
+    },
+  });
+
+  const rotation = SLOTS.filter((s) => s.pos === 'SP');
+  const others = SLOTS.filter((s) => s.pos !== 'SP');
+  return (
+    <div ref={wrapRef} className="relative w-full overflow-hidden border border-gray-800 bg-[#0b140f]" style={{ height: FIELD_H * scale }}>
+      <div className="lf-field" style={{ transform: `scale(${scale})` }}>
+        <FieldArt />
+        <div className="lf-rot" style={{ left: ROTATION_XY[0], top: ROTATION_XY[1] }}>
+          <div className="lf-rh font-display"><span>선발 로테이션</span><span>{rotation.filter((s) => at(s.id)).length}/{rotation.length}</span></div>
+          {rotation.map((s, i) => <RotationRow key={s.id} slot={s} index={i} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} />)}
+        </div>
+        {others.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} />)}
+      </div>
+      {!locked && (
+        <p className="pointer-events-none absolute left-3 top-2 bg-[#05080f]/70 px-2 py-0.5 text-[11px] text-gray-300">
+          {pick ? '바꿀 자리를 누르세요 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션이 아니면 종합 −10'}
+        </p>
+      )}
+      {drag && at(drag.from) && <DragGhost player={at(drag.from)} x={drag.x} y={drag.y} />}
+    </div>
+  );
+}
+
 /* ───── 우측 패널: 로스터 · 시너지 · 증강 ───── */
 function PanelTitle({ children, aside }) {
   return (
@@ -739,10 +1003,8 @@ function PanelTitle({ children, aside }) {
 }
 
 function RosterPanel({ roster }) {
-  const rows = POS_ORDER.flatMap((pos) => {
-    const mine = roster.filter((p) => p.position === pos);
-    return Array.from({ length: SLOT_LIMITS[pos] }, (_, i) => ({ pos, key: `${pos}${i}`, player: mine[i] }));
-  });
+  const placed = withSlots(roster).map(playAt);
+  const rows = SLOTS.map((s) => ({ pos: s.pos, key: s.id, player: placed.find((p) => p.slot === s.id) }));
   const spent = roster.reduce((s, p) => s + p.cost, 0);
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
@@ -756,7 +1018,7 @@ function RosterPanel({ roster }) {
                 <FaceChip player={player} className="h-8 w-8" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-white">{player.name}</span>
-                  <span className="block font-display text-xs tabular-nums text-gray-500">{player.year} {player.team}</span>
+                  <span className="block font-display text-xs tabular-nums text-gray-500">{player.year} {player.team}{player.naturalPosition && <span className="text-amber-300"> · 원래 {player.naturalPosition}</span>}</span>
                 </span>
                 <span className="font-display text-lg font-bold tabular-nums text-gray-100">{player.overall}</span>
               </>
@@ -999,6 +1261,7 @@ export default function KboAugmentDraft() {
   const [augPicksLeft, setAugPicksLeft] = useState(0);
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
+  const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
   const [board, setBoard] = useState(emptyBoard);
@@ -1032,10 +1295,11 @@ export default function KboAugmentDraft() {
       setTimeout(() => setShake((s) => (s === player.id ? null : s)), 320);
       return;
     }
-    const next = [...roster, player];
+    const next = [...roster, { ...player, slot: freeSlot(roster, player.position).id }];
     const nextCp = cp - player.cost;
     setRoster(next);
     setCp(nextCp);
+    setPicked(null);
     if (next.length >= ROSTER_SIZE) {
       // 엔트리 완성 → 시즌 개막: 증강을 차례로 고른다
       setSeries(null);
@@ -1066,7 +1330,14 @@ export default function KboAugmentDraft() {
   const handleReroll = () => {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
+    setPicked(null);
     setSeries(rollSeries(roster, cp, series?.id));
+  };
+
+  /* 라인업 자리 바꾸기: 빈 자리면 이동, 사람이 있으면 맞교환. 자리가 비고 차는 대로 후보 잠금이 다시 계산된다 */
+  const handleMove = (from, to) => {
+    if (phase !== 'draft' && phase !== 'ready') return;
+    setRoster((r) => withSlots(r).map((p) => (p.slot === from ? { ...p, slot: to } : p.slot === to ? { ...p, slot: from } : p)));
   };
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
@@ -1107,7 +1378,7 @@ export default function KboAugmentDraft() {
 
   const newDraft = () => {
     runIdRef.current += 1;
-    setPhase('draft'); setRoster([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
+    setPhase('draft'); setRoster([]); setPicked(null); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
     setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
   };
@@ -1116,55 +1387,66 @@ export default function KboAugmentDraft() {
   const btn = 'rounded-md px-4 py-2.5 text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] disabled:cursor-not-allowed disabled:opacity-40';
   const btnPrimary = `${btn} bg-[#10b981] text-[#062a1f] hover:bg-emerald-400`;
   const btnGhost = `${btn} border border-gray-600 bg-[#1f2937] text-gray-100 hover:border-gray-400`;
+  const pickedReason = picked ? getLockReason(picked, roster, cp) : null;
 
   return (
     <div className="min-h-screen bg-[#111827] font-sans text-gray-100 antialiased">
       <style>{KEYFRAMES}</style>
       <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} roster={roster} rerolls={rerolls} buff={buff} phase={phase} />
 
-      <main className="mx-auto grid max-w-7xl gap-5 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <main className={`mx-auto grid max-w-7xl gap-5 px-4 py-5 ${phase === 'draft' ? '' : 'lg:grid-cols-[minmax(0,1fr)_20rem]'}`}>
         <div className="flex min-w-0 flex-col gap-5">
           {phase === 'draft' && (
-            <section>
-              <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-2xl font-bold text-white">시리즈 드래프트</h2>
-                  <p className="mt-1 text-sm text-gray-400">라운드마다 시리즈 하나의 멤버 전원이 등장합니다. 한 명을 영입하면 다음 시리즈로 넘어갑니다.</p>
-                </div>
-                <button type="button" className={btnGhost} onClick={handleReroll} disabled={rerolls <= 0}>
-                  다른 시리즈 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
-                </button>
-              </div>
-              <ul className="mb-4 flex flex-wrap gap-1.5">
-                {RULES.map((r) => <li key={r} className="rounded border border-gray-700 px-2 py-0.5 text-xs text-gray-400">{r}</li>)}
-              </ul>
+            <section className="flex flex-col gap-4">
               {!canPickAny && (
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
                   <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
                   <button type="button" className={btnPrimary} onClick={() => startGame()}>이대로 경기 시작</button>
                 </div>
               )}
               {series && (
-                <div key={series.id} className="mb-4 animate-[rise_.35s_ease-out_both] rounded-lg border border-gray-800 bg-[#1f2937]/60 px-5 py-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-2 py-0.5 text-xs font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
-                    {series.subtitle && <span className="text-xs text-gray-400">{series.subtitle}</span>}
-                    <span className="ml-auto font-display text-sm tabular-nums text-gray-400">
-                      영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp)).length} / {seriesCards.length}명
-                    </span>
-                  </div>
-                  <h3 className="mt-1.5 flex flex-wrap items-baseline gap-x-3 text-2xl font-black text-white">
-                    {series.year && <span className="font-display text-3xl font-bold tabular-nums text-[#10b981]">{series.year}</span>}
-                    {series.title}
-                  </h3>
-                  {series.blurb && <p className="mt-1 text-sm leading-relaxed text-gray-400">{series.blurb}</p>}
+                <div key={series.id} className="flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-gray-800 bg-[#1f2937]/60 px-4 py-2.5">
+                  <span className="rounded border border-[#10b981]/50 bg-[#10b981]/10 px-2 py-0.5 text-xs font-bold text-[#10b981]">{SERIES_KIND_LABEL[series.kind]}</span>
+                  {series.year && <span className="font-display text-2xl font-bold tabular-nums text-[#10b981]">{series.year}</span>}
+                  <h2 className="text-xl font-black text-white">{series.title}</h2>
+                  {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
+                  <span className="ml-auto font-display text-sm tabular-nums text-gray-400">
+                    영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp)).length} / {seriesCards.length}명
+                  </span>
+                  <button type="button" className={btnGhost} onClick={handleReroll} disabled={rerolls <= 0}>
+                    다른 시리즈 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
+                  </button>
                 </div>
               )}
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(4.9rem,1fr))] gap-2">
                 {seriesCards.map((p, i) => (
-                  <PlayerCard key={p.id} player={p} reason={getLockReason(p, roster, cp)} shaking={shake === p.id}
-                    onSelect={handleSelectPlayer} style={{ animationDelay: `${i * 30}ms` }} />
+                  <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp)} selected={picked?.id === p.id}
+                    onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
+              </div>
+              <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)_15rem]">
+                <div className="flex flex-col gap-2">
+                  {picked ? (
+                    <>
+                      <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
+                      <button type="button" className={btnPrimary} disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
+                        {pickedReason || `${picked.name} 영입 · ${picked.cost} CP`}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="grid aspect-[2/3] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500">
+                      위 카드를 누르면 여기서 자세히 보고 영입합니다. 들어갈 자리는 필드에 초록으로 표시됩니다.
+                    </div>
+                  )}
+                </div>
+                <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} />
+                <div className="flex flex-col gap-3">
+                  <ul className="flex flex-wrap gap-1.5">
+                    {RULES.map((r) => <li key={r} className="rounded border border-gray-700 px-2 py-0.5 text-xs text-gray-400">{r}</li>)}
+                  </ul>
+                  <SynergyPanel roster={roster} />
+                  <AugmentShelf augments={augments} />
+                </div>
               </div>
             </section>
           )}
@@ -1174,6 +1456,7 @@ export default function KboAugmentDraft() {
               <p className="font-display text-sm font-semibold uppercase tracking-[0.35em] text-[#10b981]">Draft Complete</p>
               <h2 className="mt-2 text-3xl font-black text-white">엔트리 {ROSTER_SIZE}명 확정</h2>
               <p className="mt-2 text-sm text-gray-400">잔여 {cp} CP · 시너지와 팀 보정이 반영된 전력입니다. 상대는 같은 규칙으로 드래프트한 AI 올스타입니다.</p>
+              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} /></div>
               <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[
                   ['타선 공격력', myTeam.offense.toFixed(1)],
@@ -1264,11 +1547,13 @@ export default function KboAugmentDraft() {
           )}
         </div>
 
-        <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
-          <RosterPanel roster={roster} />
-          <SynergyPanel roster={roster} />
-          <AugmentShelf augments={augments} />
-        </aside>
+        {phase !== 'draft' && (
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
+            <RosterPanel roster={roster} />
+            <SynergyPanel roster={roster} />
+            <AugmentShelf augments={augments} />
+          </aside>
+        )}
       </main>
 
       <ChoiceOverlay choice={choice} onChoose={handleChoose} />
