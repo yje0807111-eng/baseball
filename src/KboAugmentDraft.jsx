@@ -16,7 +16,7 @@ const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 �
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
-const PHASE_BG = { draft: 'stadium', ready: 'stadium', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
+const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'stadium', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -107,6 +107,27 @@ export const LEGEND_SERIES = {
 };
 export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
 export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
+
+/* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
+export const CHAMPION_IDS = new Set(['1993-haitai', '2008-sk', '2009-kia', '2014-samsung', '2016-doosan', '2020-nc', '2023-lg', '2024-kia']);
+export const DRAFT_MODES = [
+  { id: 'legend', name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 950,
+    desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
+  { id: 'champ', name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 800,
+    desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => CHAMPION_IDS.has(s.id) },
+  { id: 'recent', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 800,
+    desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021,
+    planned: ['2021 KT 위즈', '2022 SSG 랜더스', '2025 LG 트윈스', '2026 시즌'] },
+  { id: 'national', name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 760,
+    desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
+  { id: 'mix', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 800,
+    desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
+].map((m) => {
+  const series = DRAFT_SERIES.filter(m.filter);
+  return { ...m, series, players: series.flatMap((s) => s.players) };
+});
+/** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 */
+export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
 const personKey = (p) => p.personId || p.name;
 
 /* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
@@ -208,8 +229,8 @@ export function getLockReason(player, roster, cp, banned = []) {
 }
 
 /** 영입 가능한 선수가 한 명 이상 있는 시리즈 중 하나를 무작위로. 직전 시리즈는 가능하면 피한다. */
-export function rollSeries(roster, cp, avoidId = null, banned = [], rng = Math.random) {
-  const open = DRAFT_SERIES.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp, banned)));
+export function rollSeries(roster, cp, avoidId = null, banned = [], seriesPool = DRAFT_SERIES, rng = Math.random) {
+  const open = seriesPool.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp, banned)));
   const pool = open.length > 1 ? open.filter((s) => s.id !== avoidId) : open;
   if (!pool.length) return null;
   const s = pickOne(rng, pool);
@@ -244,14 +265,14 @@ export function fillRoster(roster) {
 }
 
 /** AI: 900 CP 안에서 남은 자리를 채울 여유분을 남기며 상위권 선수를 무작위로 고른다 */
-export function aiDraft(rng = Math.random) {
+export function aiDraft({ players = ALL_PLAYERS, cap = SALARY_CAP, rng = Math.random } = {}) {
   let roster = [];
-  let cp = SALARY_CAP;
+  let cp = cap;
   for (const pos of shuffle(POS_ORDER.flatMap((p) => Array(SLOT_LIMITS[p]).fill(p)), rng)) {
     const slotsAfter = ROSTER_SIZE - roster.length - 1;
-    const cands = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.cost >= slotsAfter * 70)
+    const cands = players.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.cost >= slotsAfter * 70)
       .sort((a, b) => b.overall - a.overall);
-    const fallback = ALL_PLAYERS.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.cost - b.cost);
+    const fallback = players.filter((p) => p.position === pos && !getLockReason(p, roster, cp)).sort((a, b) => a.cost - b.cost);
     const choice = cands.length ? cands[Math.floor(rng() * Math.min(3, cands.length))] : fallback[0];
     if (choice) { roster = [...roster, choice]; cp -= choice.cost; }
   }
@@ -924,8 +945,8 @@ function Badge({ children }) {
 }
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
-function CapDashboard({ round, cp, roster, phase, onOpenRules, wide = false }) {
-  const pct = Math.max(0, Math.min(1, cp / SALARY_CAP));
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false }) {
+  const pct = Math.max(0, Math.min(1, cp / cap));
   const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
   const lit = Math.round(pct * 24);
   const foreign = roster.filter((p) => p.isForeign).length;
@@ -952,10 +973,10 @@ function CapDashboard({ round, cp, roster, phase, onOpenRules, wide = false }) {
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
               <span className="text-2xl font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
-              <span className="text-sm text-gray-500"> / {SALARY_CAP} CP</span>
+              <span className="text-sm text-gray-500"> / {cap} CP</span>
             </span>
           </div>
-          <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={SALARY_CAP} aria-valuenow={cp}>
+          <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
             {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : ''} />)}
           </div>
         </div>
@@ -1540,12 +1561,12 @@ function SynergySheet({ roster, candidate, focusId, onFocus, draft = false }) {
   );
 }
 
-function AugmentShelf({ augments }) {
+function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
   return (
     <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
-      <PanelTitle aside={`${augments.length}/${SEASON_AUGMENTS}`}>보유 증강</PanelTitle>
+      <PanelTitle aside={`${augments.length}/${total}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-xs leading-relaxed text-gray-500">엔트리를 채우고 정비를 마친 뒤 시즌을 시작하면 증강 {SEASON_AUGMENTS}개를 고릅니다.</p>
+        <p className="text-xs leading-relaxed text-gray-500">{total ? `엔트리를 채우고 정비를 마친 뒤 시즌을 시작하면 증강 ${total}개를 고릅니다.` : '이번 모드는 증강 없이 경기합니다.'}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
@@ -1594,10 +1615,10 @@ function ChoiceCard({ option: o, index, onChoose }) {
   );
 }
 
-function ChoiceOverlay({ choice, onChoose, picksLeft = 0 }) {
+function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS }) {
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
-  const nth = SEASON_AUGMENTS - picksLeft + 1;
+  const nth = total - picksLeft + 1;
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
       <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
@@ -1607,7 +1628,7 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0 }) {
           <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? 'Season Augment' : 'Season Event'}</p>
           <h2 className="mt-2 text-4xl font-black text-white">
             {isAug ? '시즌 증강을 고르세요' : '시즌 돌발 이벤트'}
-            {isAug && picksLeft > 0 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {SEASON_AUGMENTS}</span>}
+            {isAug && picksLeft > 0 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
           </h2>
           <p className="mt-2 text-sm text-gray-400">{isAug ? '경기 중 조건이 충족되면 난수 판정을 무시하고 이닝 결과를 확정합니다.' : '구단 운영 방향을 결정하세요. 선택은 되돌릴 수 없습니다.'}</p>
         </div>
@@ -1762,9 +1783,9 @@ function DuelCard({ player, label }) {
   );
 }
 
-function MatchupScreen({ roster, oppRoster, buff, augments, onStart, onBack }) {
+function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart, onBack }) {
   const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
-  const opp = useMemo(() => buildTeam('AI 올스타', fillRoster(oppRoster), 0), [oppRoster]);
+  const opp = useMemo(() => buildTeam('AI 올스타', fillRoster(oppRoster), oppBuff), [oppRoster, oppBuff]);
   const pct = Math.round(winChance(my, opp) * 100);
   const side = (team, name, acc, mine) => (
     <section className="ui-cut ui-frame ui-glass flex flex-col gap-1.5 p-4" style={{ '--c': '18px', '--a': acc }}>
@@ -1923,24 +1944,169 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
+/* ───── 첫 화면: 드래프트 모드 선택 (모드 탭 · 모드 안 시리즈 미리보기 · 경기 설정) ───── */
+/** 모드에서 열리는 시리즈를 대표 선수 카드로. 레전드 모드는 시리즈가 하나라 대표 선수들을, 최근 시즌은 준비 중인 시즌까지 */
+function ticketsOf(mode) {
+  if (mode.id === 'legend') {
+    return [...mode.players].sort((a, b) => b.overall - a.overall).slice(0, 12)
+      .map((p) => ({ key: p.id, year: p.year, title: p.name, sub: `${p.team} · ${POS_LABEL[p.position]} · 종합 ${p.overall}`, star: p }));
+  }
+  const list = mode.series.map((s) => ({
+    key: s.id, year: s.year || 'ALL', title: s.title, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
+    star: [...s.players].sort((a, b) => b.overall - a.overall)[0], champ: CHAMPION_IDS.has(s.id),
+  }));
+  return [...list, ...(mode.planned || []).map((t) => ({ key: t, year: t.slice(0, 4), title: t.slice(5), sub: '데이터 조사 후 공개', locked: true }))];
+}
+
+function SeriesTicket({ t, acc }) {
+  const art = useArt(t.star);
+  return (
+    <div className="ui-cut relative h-full min-h-[11rem] overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat"
+      style={{ '--c': '12px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
+      {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-xs font-semibold text-gray-500">준비 중</span>}
+      <span className={`absolute left-3 top-2 font-display text-3xl font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
+        style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
+      {t.champ && <span className="ui-cut absolute right-2.5 top-2.5 bg-amber-400 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px' }} title="한국시리즈 우승">V</span>}
+      <div className="absolute inset-x-3 bottom-2.5">
+        <p className={`truncate text-base font-black ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
+        <p className="truncate text-[11px] text-gray-400">{t.sub}</p>
+      </div>
+    </div>
+  );
+}
+
+function SettingRow({ label, options, labels, value, onChange }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+      <span>{label}</span>
+      <div className="flex gap-1" role="radiogroup" aria-label={label}>
+        {options.map((o) => (
+          <button key={o} type="button" role="radio" aria-checked={value === o} onClick={() => onChange(o)}
+            className={`ui-cut px-2.5 py-0.5 font-display text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${value === o ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+            style={{ '--c': '5px', background: value === o ? 'var(--a)' : undefined }}>
+            {labels ? labels[o] : o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModeSelect({ initialMode, record, onStart }) {
+  const [id, setId] = useState(initialMode);
+  const mode = DRAFT_MODES.find((m) => m.id === id);
+  const [cap, setCap] = useState(mode.cap);
+  const [ai, setAi] = useState('normal');
+  const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const pick = (m) => { setId(m.id); setCap(m.cap); };
+  const tickets = ticketsOf(mode);
+  const seen = new Set();
+  const stars = [...mode.players].sort((a, b) => b.overall - a.overall).filter((p) => !seen.has(personKey(p)) && seen.add(personKey(p))).slice(0, 6);
+  return (
+    <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
+      <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
+        <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
+        <div className="leading-none">
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
+          <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
+        </div>
+        <ol className="hidden items-center gap-1.5 font-display text-xs font-bold tracking-[0.2em] text-gray-500 md:flex" aria-label="진행 단계">
+          {['모드', '드래프트', '정비', '시즌'].map((s, i) => (
+            <li key={s} className={`ui-cut px-2 py-0.5 ${i === 0 ? 'bg-[#10b981] text-[#05080f]' : 'shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]'}`} style={{ '--c': '4px' }}>0{i + 1} {s}</li>
+          ))}
+        </ol>
+        {record && <p className="ml-auto text-sm text-gray-400">최근 기록 <b className="font-display text-lg text-white">{record}</b></p>}
+      </header>
+
+      <div role="tablist" aria-label="드래프트 모드" className="relative grid grid-cols-2 gap-2 px-6 pt-4 sm:grid-cols-3 lg:grid-cols-5">
+        {DRAFT_MODES.map((m) => {
+          const on = m.id === id;
+          return (
+            <button key={m.id} type="button" role="tab" aria-selected={on} onClick={() => pick(m)}
+              className={`ui-cut relative flex h-[4.4rem] items-center gap-3 overflow-hidden px-3.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${on ? '' : 'ui-glass hover:brightness-125'}`}
+              style={{ '--c': '10px', background: on ? `linear-gradient(180deg, ${m.neon}38, rgba(6,10,19,.92))` : undefined }}>
+              <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(modes/${m.id}.webp)`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
+              <span className="min-w-0">
+                <b className="block truncate text-base font-black text-white">{m.name}</b>
+                <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{m.series.length} 시리즈 · {m.players.length}명</small>
+              </span>
+              {on && <span className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: m.neon, boxShadow: `0 0 12px ${m.neon}` }} />}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[minmax(0,1fr)_24rem]" style={{ '--a': mode.neon }}>
+        <section key={mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
+          <div className="flex flex-wrap items-baseline gap-3">
+            <p className="ui-lab font-display">Series in Mode</p>
+            <p className="text-sm text-gray-400">
+              {mode.id === 'legend' ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${LEGEND_SHOWN}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
+              {mode.planned ? ` · ${mode.planned.length}개 준비 중` : ''}
+            </p>
+          </div>
+          <div className="syn-scroll mt-3 grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 xl:grid-cols-4"
+            style={{ gridAutoRows: tickets.length > 8 ? '12.5rem' : 'minmax(11rem, 1fr)' }}>
+            {tickets.map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
+          </div>
+        </section>
+
+        <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
+          <p className="ui-lab font-display">{mode.en}</p>
+          <h2 className="-mt-2 text-3xl font-black text-white">{mode.name}</h2>
+          <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
+          <dl className="grid grid-cols-3 gap-1.5">
+            {[['시리즈', mode.series.length], ['선수', mode.players.length], ['난이도', mode.tag]].map(([k, v]) => (
+              <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
+                <dt className="text-[10px] text-gray-400">{k}</dt>
+                <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <div>
+            <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+            <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
+            <SettingRow label="시즌 증강" options={[0, 2, 3]} labels={{ 0: '없음', 2: '2개', 3: '3개' }} value={aug} onChange={setAug} />
+            <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
+              <span>다른 시리즈 새로고침</span>
+              <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
+            {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
+          </div>
+          <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug })}>
+            드래프트 시작 ▶
+          </button>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 const RULE_SECTIONS = [
+  { title: '모드', items: ['첫 화면에서 드래프트 모드를 고르면 그 모드의 시리즈만 열림', '상대 AI도 같은 모드의 선수로 드래프트', '샐러리 캡 · AI 난이도 · 시즌 증강 수는 모드 화면에서 조정'] },
   { title: '엔트리', items: [`총 ${ROSTER_SIZE}명 — 투수는 선발투수·중간계투·마무리, 야수는 포지션마다 1명(외야수만 3명)`, `외국인 선수는 최대 ${FOREIGN_LIMIT}명`, '같은 선수(동일인)는 시즌이 달라도 한 번만'] },
-  { title: '영입가', items: [`샐러리 캡 ${SALARY_CAP} CP 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
+  { title: '영입가', items: [`샐러리 캡(모드별 · 기본 ${SALARY_CAP} CP) 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
   { title: '방출', items: ['드래프트 중에만 가능 (정비 화면에서는 불가)', '영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
   { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
-  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, `시즌을 시작하면 경기 화면에서 증강 ${SEASON_AUGMENTS}개를 고름`, '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
+  { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, '시즌을 시작하면 모드 설정만큼(없음 · 2개 · 3개) 증강을 고른 뒤 매치업', '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
 ];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
-  const [phase, setPhase] = useState('draft'); // draft | ready | sim | result
+  const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
+  const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
+  const [match, setMatch] = useState({ cap: SALARY_CAP, ai: 'normal', aug: SEASON_AUGMENTS }); // 모드 화면 설정
+  const mode = DRAFT_MODES.find((m) => m.id === modeId);
   const [roster, setRoster] = useState([]);
   const [cp, setCp] = useState(SALARY_CAP);
   const [rerolls, setRerolls] = useState(START_REROLLS);
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
-  const [series, setSeries] = useState(() => rollSeries([], SALARY_CAP));
+  const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
   const [augPicksLeft, setAugPicksLeft] = useState(0);
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
@@ -1998,7 +2164,7 @@ export default function KboAugmentDraft() {
   }, []);
 
   const full = roster.length >= ROSTER_SIZE;
-  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released)), [roster, cp, released]);
+  const canPickAny = useMemo(() => mode.players.some((p) => !getLockReason(p, roster, cp, released)), [mode, roster, cp, released]);
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
@@ -2025,9 +2191,9 @@ export default function KboAugmentDraft() {
       setSeries(null);
       setPhase('ready');
     } else {
-      setSeries(rollSeries(next, nextCp, series?.id, released));
+      setSeries(rollSeries(next, nextCp, series?.id, released, mode.series));
     }
-  }, [phase, choice, roster, cp, augments, series, released]);
+  }, [phase, choice, roster, cp, augments, series, released, mode]);
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment') {
@@ -2050,7 +2216,7 @@ export default function KboAugmentDraft() {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
     setPicked(null);
-    setSeries(rollSeries(roster, cp, series?.id, released));
+    setSeries(rollSeries(roster, cp, series?.id, released, mode.series));
   };
 
   /* 라인업 자리 바꾸기: 빈 자리면 이동, 사람이 있으면 맞교환. 자리가 비고 차는 대로 후보 잠금이 다시 계산된다 */
@@ -2062,7 +2228,7 @@ export default function KboAugmentDraft() {
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
   /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
   const startSeason = () => {
-    if (augments.length >= SEASON_AUGMENTS) { prepareMatch(!!opponent); return; }
+    if (augments.length >= match.aug) { prepareMatch(!!opponent); return; }
     runIdRef.current += 1;
     setPhase('sim');
     setBoard(emptyBoard());
@@ -2070,24 +2236,24 @@ export default function KboAugmentDraft() {
     setLogs([]);
     setResult(null);
     setToast(null);
-    setAugPicksLeft(SEASON_AUGMENTS - augments.length);
+    setAugPicksLeft(match.aug - augments.length);
     setChoice({ kind: 'augment', options: augmentOptions(augments) });
   };
 
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
   const prepareMatch = (rematch = false) => {
     runIdRef.current += 1;
-    if (!(rematch && opponent)) setOpponent(aiDraft());
+    if (!(rematch && opponent)) setOpponent(aiDraft({ players: mode.players, cap: match.cap }));
     setChoice(null);
     setToast(null);
     setPhase('matchup');
   };
 
   const startGame = async (rematch = false, owned = augments) => {
-    const oppRoster = rematch && opponent ? opponent : aiDraft();
+    const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
-    const opp = buildTeam('AI 올스타', fillRoster(oppRoster), 0);
+    const opp = buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
     const runId = ++runIdRef.current;
     setPhase('sim');
     setBoard(emptyBoard());
@@ -2120,9 +2286,18 @@ export default function KboAugmentDraft() {
 
   const newDraft = () => {
     runIdRef.current += 1;
-    setPhase('draft'); setRoster([]); setPicked(null); setReleased([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
-    setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
+    setPhase('mode'); setPicked(null); setChoice(null); setToast(null); setModal(null); // 모드 화면으로 돌아가 다시 고른다 (기록은 모드 화면에 남겨 둔다)
+  };
+
+  /* 모드 화면에서 시작: 그 모드의 시리즈와 설정으로 드래프트를 새로 연다 */
+  const startDraft = (id, cfg) => {
+    const m = DRAFT_MODES.find((x) => x.id === id);
+    runIdRef.current += 1;
+    setModeId(id); setMatch(cfg);
+    setRoster([]); setPicked(null); setReleased([]); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
+    setSeries(rollSeries([], cfg.cap, null, [], m.series)); setAugPicksLeft(0); setChoice(null); setOpponent(null);
+    setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
+    setPhase('draft');
   };
 
   const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
@@ -2176,16 +2351,23 @@ export default function KboAugmentDraft() {
     setReleased(swapPlan.banned);
     setPicked(null);
     setFocusSynergy(null);
-    setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned));
+    setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned, mode.series));
   };
 
   return (
     // 드래프트는 넓은 화면(lg+)에서 창 높이에 딱 맞는 한 화면 앱으로: 스크롤 없이 머리 · 시리즈 · 영입+라인업이 들어간다
-    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' || phase === 'mode' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
-      <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
+      {phase === 'mode' && (
+        <ModeSelect initialMode={modeId} onStart={startDraft}
+          record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
+      )}
+      {phase !== 'mode' && (
+        <CapDashboard round={roster.length + (phase === 'draft' ? 1 : 0)} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} />
+      )}
 
+      {phase !== 'mode' && (
       <main className={`relative mx-auto grid px-4 ${phase === 'draft'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
         : phase === 'ready' ? 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]' : 'w-full max-w-[1600px] gap-5 py-5'}`}>
@@ -2208,7 +2390,8 @@ export default function KboAugmentDraft() {
                   {series.year && <span className="font-display text-lg font-bold leading-none tabular-nums" style={{ color: SERIES_NEON[series.kind] }}>{series.year}</span>}
                   <h2 className="text-base font-black leading-none text-white">{series.title}</h2>
                   {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
-                  <span className="ml-auto font-display text-xs tabular-nums text-gray-400">
+                  <span className="ui-chip ui-cut ml-auto" style={{ '--a': mode.neon }}>{mode.name}</span>
+                  <span className="font-display text-xs tabular-nums text-gray-400">
                     영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp, released)).length} / {seriesCards.length}명
                   </span>
                   <button type="button" onClick={handleReroll} disabled={rerolls <= 0}
@@ -2288,7 +2471,7 @@ export default function KboAugmentDraft() {
               <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
               <p className="mt-2 text-sm text-gray-400">
                 선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
-                시즌을 시작하면 경기 화면에서 증강 {SEASON_AUGMENTS}개를 고르고 곧바로 플레이볼합니다. 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
+                {match.aug ? `시즌을 시작하면 증강 ${match.aug}개를 고른 뒤 매치업 화면으로 갑니다.` : '이번 모드는 증강 없이 바로 매치업 화면으로 갑니다.'} 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
               </p>
               {offPositionPlayers.length > 0 && (
                 <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -2321,7 +2504,7 @@ export default function KboAugmentDraft() {
           )}
 
           {phase === 'matchup' && opponent && (
-            <MatchupScreen roster={roster} oppRoster={opponent} buff={buff} augments={augments}
+            <MatchupScreen roster={roster} oppRoster={opponent} buff={buff} oppBuff={AI_BUFF[match.ai]} augments={augments}
               onStart={() => startGame(true)} onBack={() => setPhase('ready')} />
           )}
 
@@ -2386,14 +2569,15 @@ export default function KboAugmentDraft() {
           <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
             <RosterPanel roster={roster} />
             <SynergyPanel roster={roster} focusId={focusSynergy} onFocus={toggleFocus} />
-            <AugmentShelf augments={augments} />
+            <AugmentShelf augments={augments} total={match.aug} />
           </aside>
         )}
       </main>
+      )}
 
       {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
       {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
-      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} />
+      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
       <HighlightToast toast={toast} />
     </div>
   );
