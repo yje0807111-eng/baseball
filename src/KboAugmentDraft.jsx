@@ -1330,10 +1330,14 @@ function SynergyPanel({ roster, focusId, onFocus }) {
   );
 }
 
+/** 드래프트 중에는 숨기고 드래프트가 끝난 뒤(정비·시즌)에만 보여 주는 시너지 — 최종 엔트리로 정해지는 것 */
+const DRAFT_HIDDEN = new Set(['franchise']);
+
 /** 드래프트용 (구장 위 도크 안): 한 칸이라도 채운 시너지 + 고른 후보가 올려 줄 시너지 */
 function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
   const after = candidate ? previewSynergies(roster, candidate) : null;
-  const list = sortSynergies(checkSynergies(roster)).filter((s) => s.cur > 0 || synergyGrows(s, after?.get(s.id)));
+  const list = sortSynergies(checkSynergies(roster))
+    .filter((s) => !DRAFT_HIDDEN.has(s.id) && (s.cur > 0 || synergyGrows(s, after?.get(s.id))));
   return (
     <section className="flex h-full min-h-0 flex-col">
       <div className="mb-1 flex items-center justify-between gap-2 pl-3">
@@ -1398,9 +1402,9 @@ function RulesSheet() {
   );
 }
 
-function SynergySheet({ roster, candidate, focusId, onFocus }) {
+function SynergySheet({ roster, candidate, focusId, onFocus, draft = false }) {
   const after = candidate ? previewSynergies(roster, candidate) : null;
-  const list = sortSynergies(checkSynergies(roster));
+  const list = sortSynergies(checkSynergies(roster)).filter((s) => !(draft && DRAFT_HIDDEN.has(s.id)));
   return (
     <>
       <p className="mb-2 text-xs text-gray-400">완성하면 해당 선수만 강해집니다. 누르면 해당 선수를 보여줍니다.</p>
@@ -1781,10 +1785,14 @@ export default function KboAugmentDraft() {
   const synergyNow = checkSynergies(roster);
   const focused = focusSynergy ? synergyNow.find((s) => s.id === focusSynergy) : null;
   const focusIds = focused ? new Set(focused.members.map((p) => p.id)) : null;
-  const toggleFocus = (id) => setFocusSynergy((f) => (f === id ? null : id));
+  // 시너지를 눌러 해당 선수를 볼 때는 PICK 에 올려 둔 선수를 내린다 (고른 카드의 초록 테두리와 헷갈리지 않게)
+  const toggleFocus = (id) => {
+    if (focusSynergy !== id) setPicked(null);
+    setFocusSynergy(focusSynergy === id ? null : id);
+  };
   const growsFor = (player) => {
     const after = previewSynergies(roster, player);
-    return synergyNow.filter((s) => synergyGrows(s, after.get(s.id)));
+    return synergyNow.filter((s) => !(phase === 'draft' && DRAFT_HIDDEN.has(s.id)) && synergyGrows(s, after.get(s.id)));
   };
   const previewTarget = picked && !pickedReason ? picked : null;
 
@@ -2032,7 +2040,7 @@ export default function KboAugmentDraft() {
       </main>
 
       {modal === 'rules' && <Modal eyebrow="How to Draft" title="드래프트 규칙" onClose={() => setModal(null)}><RulesSheet /></Modal>}
-      {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={(id) => { setFocusSynergy(id); setModal(null); }} /></Modal>}
+      {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} />
       <HighlightToast toast={toast} />
     </div>
