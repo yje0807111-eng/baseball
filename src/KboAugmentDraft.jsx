@@ -127,19 +127,36 @@ export function freeSlot(roster, pos) {
   return SLOTS.find((s) => s.pos === pos && !used.has(s.id)) || null;
 }
 
-export const OFF_POSITION_PENALTY = 10;
-/** 선 자리 기준의 실전 능력치: 같은 투수/야수끼리 다른 자리면 −10, 투타가 바뀌면 35. 야수의 지명타자는 그대로 */
+/* 포지션 이탈 감소폭: 비슷한 자리 3 · 같은 계열 6 · 포수로/포수에서 8 · 투수↔야수 20. 야수의 지명타자는 0 */
+const NEAR_POS = [['2B', 'SS'], ['1B', '3B'], ['SP', 'RP'], ['DH', '1B']];
+export function offPositionPenalty(p, pos) {
+  if (!pos || pos === p.position) return 0;
+  const pitchSlot = pos === 'SP' || pos === 'RP';
+  if ((p.type === 'pitcher') !== pitchSlot) return 20;
+  if (pos === 'DH') return 0;
+  if (NEAR_POS.some(([a, b]) => (a === p.position && b === pos) || (b === p.position && a === pos))) return 3;
+  if (pos === 'C' || p.position === 'C') return 8;
+  return 6;
+}
+
+/** 선 자리 기준의 실전 능력치 */
 export function playAt(p) {
   const pos = slotPos(p.slot);
-  if (!pos || pos === p.position || (pos === 'DH' && p.type === 'batter')) return p;
+  const pen = offPositionPenalty(p, pos);
+  if (!pen) return p;
+  const overall = Math.max(30, p.overall - pen);
   const pitchSlot = pos === 'SP' || pos === 'RP';
   if ((p.type === 'pitcher') === pitchSlot) {
-    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - OFF_POSITION_PENALTY)]));
-    return { ...p, position: pos, naturalPosition: p.position, stats, overall: Math.max(30, p.overall - OFF_POSITION_PENALTY) };
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - pen)]));
+    return { ...p, position: pos, naturalPosition: p.position, stats, overall };
   }
-  const stats = pitchSlot ? { stuff: 35, control: 35, stamina: 35, stability: 35 } : { power: 35, contact: 35, speed: 35, defense: 35 };
-  return { ...p, position: pos, type: pitchSlot ? 'pitcher' : 'batter', naturalPosition: p.position, stats, overall: 35 };
+  // 투타가 바뀌면 원래 스탯을 쓸 수 없으니, 깎인 종합을 새 역할의 네 능력치에 고르게 둔다
+  const keys = pitchSlot ? ['stuff', 'control', 'stamina', 'stability'] : ['power', 'contact', 'speed', 'defense'];
+  return { ...p, position: pos, type: pitchSlot ? 'pitcher' : 'batter', naturalPosition: p.position, stats: Object.fromEntries(keys.map((k) => [k, overall])), overall };
 }
+
+/** 방출 환불액: 영입가의 절반 */
+export const releaseRefund = (p) => Math.floor(p.cost / 2);
 
 /* ───────────── 3. 유틸 ───────────── */
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -163,8 +180,9 @@ function poisson(lambda, rng) {
 
 /* ───────────── 4. 드래프트 판정 레이어 ─────────────
    반환: null = 영입 가능, 문자열 = 잠금 사유 (우선순위 순) */
-export function getLockReason(player, roster, cp) {
+export function getLockReason(player, roster, cp, banned = []) {
   if (roster.some((p) => p.id === player.id)) return '영입 완료';
+  if (banned.includes(personKey(player))) return '방출한 선수';
   if (roster.some((p) => personKey(p) === personKey(player))) return '동일인 영입됨';
   if (!freeSlot(roster, player.position)) return `${POS_LABEL[player.position]} 마감`;
   if (player.isForeign && roster.filter((p) => p.isForeign).length >= FOREIGN_LIMIT) return `외국인 한도 ${FOREIGN_LIMIT}/${FOREIGN_LIMIT}`;
@@ -173,22 +191,22 @@ export function getLockReason(player, roster, cp) {
 }
 
 /** 영입 가능한 선수가 한 명 이상 있는 시리즈 중 하나를 무작위로. 직전 시리즈는 가능하면 피한다. */
-export function rollSeries(roster, cp, avoidId = null, rng = Math.random) {
-  const open = DRAFT_SERIES.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp)));
+export function rollSeries(roster, cp, avoidId = null, banned = [], rng = Math.random) {
+  const open = DRAFT_SERIES.filter((s) => s.players.some((p) => !getLockReason(p, roster, cp, banned)));
   const pool = open.length > 1 ? open.filter((s) => s.id !== avoidId) : open;
   if (!pool.length) return null;
   const s = pickOne(rng, pool);
-  return s.id === LEGEND_SERIES.id ? sampleLegend(roster, cp, rng) : s;
+  return s.id === LEGEND_SERIES.id ? sampleLegend(roster, cp, banned, rng) : s;
 }
 
-export const LEGEND_SHOWN = 30;
-/** 올타임 레전드는 나올 때마다 30명만: 포지션마다 2명(선발 4명)을 먼저 채우고 나머지는 무작위. 영입 가능한 선수가 최소 1명은 들어간다 */
-function sampleLegend(roster, cp, rng) {
+export const LEGEND_SHOWN = 28; // 선반 14칸 × 두 줄
+/** 올타임 레전드는 나올 때마다 28명만: 포지션마다 2명(선발 4명)을 먼저 채우고 나머지는 무작위. 영입 가능한 선수가 최소 1명은 들어간다 */
+function sampleLegend(roster, cp, banned, rng) {
   const all = shuffle(LEGEND_SERIES.players, rng);
   const picked = POS_ORDER.flatMap((pos) => all.filter((p) => p.position === pos).slice(0, pos === 'SP' ? 4 : 2));
   picked.push(...all.filter((p) => !picked.includes(p)).slice(0, Math.max(0, LEGEND_SHOWN - picked.length)));
-  if (!picked.some((p) => !getLockReason(p, roster, cp))) {
-    const open = all.find((p) => !getLockReason(p, roster, cp));
+  if (!picked.some((p) => !getLockReason(p, roster, cp, banned))) {
+    const open = all.find((p) => !getLockReason(p, roster, cp, banned));
     if (open) picked[picked.length - 1] = open;
   }
   return { ...LEGEND_SERIES, players: picked };
@@ -927,12 +945,14 @@ function DragGhost({ player, x, y }) {
  * 내 라인업 필드. 선수를 끌어 다른 자리에 놓거나(빈 자리면 이동, 사람이 있으면 맞교환),
  * 한 명을 누른 뒤 다른 자리를 눌러도 바뀐다. candidate 가 있으면 들어갈 자리를 초록으로 미리 보여준다.
  */
-function LineupField({ roster, candidate, candidateReason, onMove, locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [pick, setPick] = useState(null);
   const [drag, setDrag] = useState(null);
+  const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
+  useEffect(() => setConfirmOut(false), [pick]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -999,8 +1019,18 @@ function LineupField({ roster, candidate, candidateReason, onMove, locked = fals
       </div>
       {!locked && (
         <p className="pointer-events-none absolute left-3 top-2 bg-[#05080f]/70 px-2 py-0.5 text-[11px] text-gray-300">
-          {pick ? '바꿀 자리를 누르세요 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션이 아니면 종합 −10'}
+          {pick ? '바꿀 자리를 누르세요 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션 밖이면 종합 −3~−20'}
         </p>
+      )}
+      {onRelease && pick && at(pick) && (
+        <div className="absolute right-3 top-2 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
+          <span>{at(pick).name} 방출 시 <b className="font-display text-sm text-white">+{releaseRefund(at(pick))}</b> CP 환불 · 다시 영입 불가</span>
+          <button type="button"
+            onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } onRelease(pick); setPick(null); }}
+            className={`px-2 py-1 font-bold ${confirmOut ? 'bg-red-500 text-white' : 'border border-red-400/60 text-red-300 hover:bg-red-500/10'}`}>
+            {confirmOut ? '한 번 더 누르면 방출' : '방출'}
+          </button>
+        </div>
       )}
       {drag && at(drag.from) && <DragGhost player={at(drag.from)} x={drag.x} y={drag.y} />}
     </div>
@@ -1262,7 +1292,7 @@ function MvpStage({ result }) {
    메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
    ════════════════════════════════════════════════════════════════════ */
 
-const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
+const RULES = ['SP 최대 3명', '그 외 포지션 1명', `외국인 최대 ${FOREIGN_LIMIT}명`, '동일인 1회만', '종합 85+ 스타는 영입가 할증 · 71 이하는 할인', '제 포지션 밖이면 종합 −3~−20', '방출: 영입가 절반 환불 · 재영입 불가', `엔트리 완성 후 증강 ${SEASON_AUGMENTS}개`];
 
 export default function KboAugmentDraft() {
   // 드래프트 상태
@@ -1277,6 +1307,7 @@ export default function KboAugmentDraft() {
   const [choice, setChoice] = useState(null); // { kind: 'augment' | 'event', options }
   const [shake, setShake] = useState(null);
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
+  const [released, setReleased] = useState([]); // 방출한 선수(동일인 키) — 이번 드래프트 동안 재영입 불가
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
   const [board, setBoard] = useState(emptyBoard);
@@ -1294,7 +1325,7 @@ export default function KboAugmentDraft() {
   useEffect(() => () => { runIdRef.current += 1; }, []);
 
   const full = roster.length >= ROSTER_SIZE;
-  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp)), [roster, cp]);
+  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released)), [roster, cp, released]);
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
@@ -1304,7 +1335,7 @@ export default function KboAugmentDraft() {
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
   const handleSelectPlayer = useCallback((player) => {
     if (phase !== 'draft' || choice) return;
-    const reason = getLockReason(player, roster, cp);
+    const reason = getLockReason(player, roster, cp, released);
     if (reason) {
       setShake(player.id);
       setTimeout(() => setShake((s) => (s === player.id ? null : s)), 320);
@@ -1322,9 +1353,9 @@ export default function KboAugmentDraft() {
       setAugPicksLeft(SEASON_AUGMENTS);
       setChoice({ kind: 'augment', options: augmentOptions(augments) });
     } else {
-      setSeries(rollSeries(next, nextCp, series?.id));
+      setSeries(rollSeries(next, nextCp, series?.id, released));
     }
-  }, [phase, choice, roster, cp, augments, series]);
+  }, [phase, choice, roster, cp, augments, series, released]);
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment') {
@@ -1346,7 +1377,7 @@ export default function KboAugmentDraft() {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
     setPicked(null);
-    setSeries(rollSeries(roster, cp, series?.id));
+    setSeries(rollSeries(roster, cp, series?.id, released));
   };
 
   /* 라인업 자리 바꾸기: 빈 자리면 이동, 사람이 있으면 맞교환. 자리가 비고 차는 대로 후보 잠금이 다시 계산된다 */
@@ -1393,7 +1424,7 @@ export default function KboAugmentDraft() {
 
   const newDraft = () => {
     runIdRef.current += 1;
-    setPhase('draft'); setRoster([]); setPicked(null); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
+    setPhase('draft'); setRoster([]); setPicked(null); setReleased([]); setCp(SALARY_CAP); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     setSeries(rollSeries([], SALARY_CAP)); setAugPicksLeft(0); setChoice(null); setOpponent(null); setBoard(emptyBoard()); setHalf(null);
     setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
   };
@@ -1402,7 +1433,39 @@ export default function KboAugmentDraft() {
   const btn = 'rounded-md px-4 py-2.5 text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981] disabled:cursor-not-allowed disabled:opacity-40';
   const btnPrimary = `${btn} bg-[#10b981] text-[#062a1f] hover:bg-emerald-400`;
   const btnGhost = `${btn} border border-gray-600 bg-[#1f2937] text-gray-100 hover:border-gray-400`;
-  const pickedReason = picked ? getLockReason(picked, roster, cp) : null;
+  const pickedReason = picked ? getLockReason(picked, roster, cp, released) : null;
+
+  /* 방출: 영입가 절반 환불 · 동일인 재영입 금지 · 드래프트 중에만 */
+  const releaseFrom = (base, slot) => {
+    const placed = withSlots(base);
+    const out = placed.find((p) => p.slot === slot);
+    return out ? { out, roster: placed.filter((p) => p !== out), refund: releaseRefund(out), banned: [...released, personKey(out)] } : null;
+  };
+  const handleRelease = (slot) => {
+    if (phase !== 'draft' || choice) return;
+    const r = releaseFrom(roster, slot);
+    if (!r) return;
+    setRoster(r.roster);
+    setCp(cp + r.refund);
+    setReleased(r.banned);
+  };
+  /* 교체 영입: 마감된 포지션의 후보를 고르면, 그 자리에서 실전 종합이 가장 낮은 선수를 방출하고 곧바로 들인다 */
+  const swapPlan = (() => {
+    if (phase !== 'draft' || !picked || !pickedReason?.endsWith('마감')) return null;
+    const [weakest] = withSlots(roster).filter((p) => slotPos(p.slot) === picked.position).sort((a, b) => playAt(a).overall - playAt(b).overall);
+    const r = weakest && releaseFrom(roster, weakest.slot);
+    return r ? { ...r, reason: getLockReason(picked, r.roster, cp + r.refund, r.banned) } : null;
+  })();
+  const handleSwapIn = () => {
+    if (!swapPlan || swapPlan.reason || choice) return;
+    const next = [...swapPlan.roster, { ...picked, slot: swapPlan.out.slot }];
+    const nextCp = cp + swapPlan.refund - picked.cost;
+    setRoster(next);
+    setCp(nextCp);
+    setReleased(swapPlan.banned);
+    setPicked(null);
+    setSeries(rollSeries(next, nextCp, series?.id, swapPlan.banned));
+  };
 
   return (
     <div className="min-h-screen bg-[#111827] font-sans text-gray-100 antialiased">
@@ -1426,7 +1489,7 @@ export default function KboAugmentDraft() {
                   <h2 className="text-xl font-black text-white">{series.title}</h2>
                   {series.subtitle && <span className="min-w-0 truncate text-xs text-gray-400">{series.subtitle}</span>}
                   <span className="ml-auto font-display text-sm tabular-nums text-gray-400">
-                    영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp)).length} / {seriesCards.length}명
+                    영입 가능 {seriesCards.filter((p) => !getLockReason(p, roster, cp, released)).length} / {seriesCards.length}명
                   </span>
                   <button type="button" className={btnGhost} onClick={handleReroll} disabled={rerolls <= 0}>
                     다른 시리즈 <span className="ml-1 font-display tabular-nums text-gray-400">×{rerolls}</span>
@@ -1435,7 +1498,7 @@ export default function KboAugmentDraft() {
               )}
               <div className="grid grid-cols-[repeat(auto-fill,minmax(4.9rem,1fr))] gap-2">
                 {seriesCards.map((p, i) => (
-                  <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp)} selected={picked?.id === p.id}
+                  <MiniCard key={p.id} player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
                     onPick={setPicked} style={{ animationDelay: `${i * 20}ms` }} />
                 ))}
               </div>
@@ -1444,9 +1507,21 @@ export default function KboAugmentDraft() {
                   {picked ? (
                     <>
                       <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
-                      <button type="button" className={btnPrimary} disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
-                        {pickedReason || `${picked.name} 영입 · ${picked.cost} CP`}
-                      </button>
+                      {swapPlan ? (
+                        <>
+                          <button type="button" className={btnPrimary} disabled={!!swapPlan.reason} onClick={handleSwapIn}>
+                            {swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : `교체 영입 · ${swapPlan.out.name} 방출`}
+                          </button>
+                          <p className="text-xs leading-relaxed text-gray-400">
+                            {swapPlan.out.name}({playAt(swapPlan.out).overall}) 방출 → <b className="text-gray-200">+{swapPlan.refund} CP</b> 환불(영입가 절반), 다시 영입할 수 없습니다.
+                            {' '}{picked.name} 영입 {picked.cost} CP.
+                          </p>
+                        </>
+                      ) : (
+                        <button type="button" className={btnPrimary} disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
+                          {pickedReason || `${picked.name} 영입 · ${picked.cost} CP`}
+                        </button>
+                      )}
                     </>
                   ) : (
                     <div className="grid aspect-[2/3] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500">
@@ -1454,7 +1529,7 @@ export default function KboAugmentDraft() {
                     </div>
                   )}
                 </div>
-                <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} />
+                <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} />
                 <div className="flex flex-col gap-3">
                   <ul className="flex flex-wrap gap-1.5">
                     {RULES.map((r) => <li key={r} className="rounded border border-gray-700 px-2 py-0.5 text-xs text-gray-400">{r}</li>)}
