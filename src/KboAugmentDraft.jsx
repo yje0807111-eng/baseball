@@ -1184,7 +1184,11 @@ function SynergyRow({ s, after, focused, onFocus }) {
   const next = after ? after.cur : s.cur;
   const extra = extraOf(s);
   const nextExtra = after ? extraOf(after) : extra;
-  const tierStarts = new Set(s.tiers.slice(0, -1).map((t) => t.need)); // 단계 경계마다 칸 사이를 벌린다
+  // 칸은 지금 도전 중인 단계 몫만: 이전 단계 인원(from) → 이번 단계 인원(to). 최종 단계를 넘으면 마지막 구간을 꽉 채워 둔다
+  const stage = Math.min(s.level, s.tiers.length - 1);
+  const from = stage > 0 ? s.tiers[stage - 1].need : 0;
+  const to = s.tiers[stage].need;
+  const maxed = s.level === s.tiers.length;
   const Box = onFocus ? 'button' : 'div';
   return (
     <li>
@@ -1197,10 +1201,10 @@ function SynergyRow({ s, after, focused, onFocus }) {
             {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-[11px] font-bold text-[#10b981]">{s.level}단계</span>}
           </span>
           <span className="flex shrink-0 items-center gap-1"
-            aria-label={`${s.cur}/${s.top}${next > s.cur ? `, 영입하면 ${next}` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
+            aria-label={`${maxed ? '최종 단계' : `${stage + 1}단계까지 ${to - s.cur}명`}${next > s.cur ? `, 영입하면 ${Math.min(next, to) - s.cur}칸` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
             <span className="flex gap-0.5">
-              {Array.from({ length: s.top }, (_, i) => (
-                <i key={i} className={`h-2 ${s.top > 5 ? 'w-2' : 'w-3'} rounded-sm ${tierStarts.has(i) ? 'ml-1' : ''} ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : i < next ? 'bg-sky-400' : 'bg-gray-700'}`} />
+              {Array.from({ length: to - from }, (_, i) => (
+                <i key={`${stage}-${i}`} className={`h-2 w-3 rounded-sm ${i < s.cur - from ? (maxed ? 'bg-[#10b981]' : 'bg-gray-300') : i < Math.min(next, to) - from ? 'bg-sky-400' : 'bg-gray-700'}`} />
               ))}
             </span>
             {nextExtra > 0 && (
