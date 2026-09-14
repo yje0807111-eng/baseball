@@ -263,69 +263,69 @@ function biggestFranchise(roster) {
   return Object.values(groups).sort((a, b) => b.length - a.length)[0] || [];
 }
 const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
-const story = (id, name, cond, effect, names, need, bonus) => ({ id, kind: 'story', name, cond, effect, need, bonus, members: (r) => personMembers(r, names) });
+const tier = (need, effect, bonus) => ({ need, effect, bonus });
+const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, tiers, members: (r) => personMembers(r, names) });
+const build = (id, name, cond, members, tiers) => ({ id, kind: 'build', name, cond, tiers, members });
 
-/* members(r): 조건을 채우는 선수들. 시너지가 완성되면 이 선수들에게만 bonus 가 붙는다 (count 가 있으면 진행도는 그것으로 센다)
-   bonus 키 → 타자: bat(파워·컨택) power contact speed defense / 투수: pit(구위·제구·안정) stability */
+/* members(r): 조건을 채우는 선수들. 단계(tiers)를 넘으면 그 단계 보너스가 이 선수들에게만 붙는다
+   bonus 키 → 타자: bat(파워·컨택) power contact speed defense / 투수: pit(구위·제구·안정) stability
+   단계 인원의 상한은 포지션별로 실제로 뽑을 수 있는 카드 수를 보고 정했다 (예: 주루 75+ 는 포수·지명 카드가 없어 4명이 끝) */
 export const SYNERGIES = [
   // ── 실화 · 선수 조합 (같은 선수면 카드 시즌과 상관없이 인정)
-  story('beijing', '베이징 9전 전승', '베이징 금메달 멤버 4명', '능력치 +3', BEIJING_2008, 4, { bat: 3, pit: 3 }),
-  story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', '파워 +5', ['이승엽', '이대호', '김동주'], 2, { power: 5 }),
-  story('lefty3', '좌완 트로이카', '류현진·김광현·양현종 중 2명', '투수 +4', ['류현진', '김광현', '양현종'], 2, { pit: 4 }),
-  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', '능력치 +3', ['선동열', '이종범'], 2, { bat: 3, pit: 3 }),
-  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', '컨택 +4 · 주루 +5', ['이용규', '정근우'], 2, { contact: 4, speed: 5 }),
-  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', '파워·컨택 +4', ['박병호', '강정호', '서건창'], 2, { power: 4, contact: 4 }),
-  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', '안정·수비 +4', ['김광현', '박경완'], 2, { stability: 4, defense: 4 }),
-  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', '안정·수비 +4', ['니퍼트', '양의지'], 2, { stability: 4, defense: 4 }),
-  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', '안정 +3 · 파워 +4', ['오승환', '이승엽'], 2, { stability: 3, power: 4 }),
-  // ── 팀 구성
-  {
-    id: 'mercenary', kind: 'build', name: '용병 트리오', cond: '외국인 3명', effect: '능력치 +3', need: 3,
-    members: (r) => realOnly(r).filter((p) => p.isForeign), bonus: { bat: 3, pit: 3 },
-  },
-  {
-    id: 'franchise', kind: 'build', name: '프랜차이즈의 기억', cond: '같은 구단 4명', effect: '수비·안정 +3', need: 4,
-    members: biggestFranchise, bonus: { defense: 3, stability: 3 },
-  },
-  {
-    id: 'leftRotation', kind: 'build', name: '좌완 로테이션', cond: '좌완 선발 2명', effect: '투수 +3', need: 2,
-    members: (r) => realOnly(r).filter((p) => posOf(p) === 'SP' && p.type === 'pitcher' && p.hand === 'L'), bonus: { pit: 3 },
-  },
-  {
-    id: 'pitchingStaff', kind: 'build', name: '투수 왕국', cond: '투수 4명 모두 80+', effect: '투수 +3', need: 4,
-    members: (r) => realOnly(r).filter((p) => (posOf(p) === 'SP' || posOf(p) === 'RP') && p.type === 'pitcher' && p.overall >= 80), bonus: { pit: 3 },
-  },
-  {
-    id: 'speed', kind: 'build', name: '육상부', cond: '주루 75+ 3명', effect: '주루 +5', need: 3,
-    members: (r) => battersOf(r).filter((p) => p.stats.speed >= 75), bonus: { speed: 5 },
-  },
-  {
-    id: 'power', kind: 'build', name: '홈런 군단', cond: '파워 80+ 3명', effect: '파워 +4', need: 3,
-    members: (r) => battersOf(r).filter((p) => p.stats.power >= 80), bonus: { power: 4 },
-  },
-  {
-    id: 'glove', kind: 'build', name: '철벽 수비', cond: '수비 85+ 3명', effect: '수비 +4', need: 3,
-    members: (r) => battersOf(r).filter((p) => p.stats.defense >= 85), bonus: { defense: 4 },
-  },
-  {
-    id: 'zigzag', kind: 'build', name: '좌타 라인업', cond: '좌타 4 · 우타 3', effect: '파워·컨택 +2', need: 7,
-    members: battersOf,
-    count: (r) => {
-      const b = battersOf(r);
-      const side = (h) => b.filter((p) => p.hand === h || p.hand === 'S').length;
-      return Math.min(4, side('L')) + Math.min(3, side('R'));
-    },
-    bonus: { bat: 2 },
-  },
+  story('beijing', '베이징 9전 전승', '베이징 금메달 멤버', BEIJING_2008, [
+    tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +2', { bat: 2, pit: 2 }), tier(7, '능력치 +4', { bat: 4, pit: 4 }),
+  ]),
+  story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', ['이승엽', '이대호', '김동주'], [tier(2, '파워 +5', { power: 5 })]),
+  story('lefty3', '좌완 트로이카', '류현진·김광현·양현종 중 2명', ['류현진', '김광현', '양현종'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +3', { bat: 3, pit: 3 })]),
+  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택 +4 · 주루 +5', { contact: 4, speed: 5 })]),
+  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +4', { power: 4, contact: 4 })]),
+  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
+  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
+  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '안정 +3 · 파워 +4', { stability: 3, power: 4 })]),
+  // ── 팀 구성 (인원이 늘면 단계가 오른다)
+  build('power', '홈런 군단', '파워 80+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 80), [
+    tier(2, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
+  ]),
+  build('speed', '육상부', '주루 75+ 야수', (r) => battersOf(r).filter((p) => p.stats.speed >= 75), [
+    tier(2, '주루 +2', { speed: 2 }), tier(3, '주루 +4', { speed: 4 }), tier(4, '주루 +7', { speed: 7 }),
+  ]),
+  build('glove', '철벽 수비', '수비 85+ 야수', (r) => battersOf(r).filter((p) => p.stats.defense >= 85), [
+    tier(2, '수비 +2', { defense: 2 }), tier(3, '수비 +4', { defense: 4 }), tier(4, '수비 +7', { defense: 7 }),
+  ]),
+  build('lefties', '좌타 라인업', '좌타자 (양타 포함)', (r) => battersOf(r).filter((p) => p.hand === 'L' || p.hand === 'S'), [
+    tier(3, '파워·컨택 +1', { bat: 1 }), tier(4, '파워·컨택 +3', { bat: 3 }), tier(5, '파워·컨택 +5', { bat: 5 }),
+  ]),
+  build('pitchingStaff', '투수 왕국', '종합 80+ 투수', (r) => realOnly(r).filter((p) => (posOf(p) === 'SP' || posOf(p) === 'RP') && p.type === 'pitcher' && p.overall >= 80), [
+    tier(2, '투수 +1', { pit: 1 }), tier(3, '투수 +2', { pit: 2 }), tier(4, '투수 +4', { pit: 4 }),
+  ]),
+  build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
+    tier(2, '능력치 +1', { bat: 1, pit: 1 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
+  ]),
+  build('franchise', '프랜차이즈의 기억', '같은 구단 (해태=KIA)', biggestFranchise, [
+    tier(3, '수비·안정 +1', { defense: 1, stability: 1 }), tier(5, '수비·안정 +3', { defense: 3, stability: 3 }),
+    tier(7, '수비·안정 +4 · 능력치 +2', { defense: 4, stability: 4, bat: 2, pit: 2 }),
+  ]),
 ];
 
+/** 시너지 현황: level(넘은 단계 수) · cur(채운 칸, 최종 단계에서 멈춤) · top(최종 단계 인원) · 지금 단계의 effect/bonus */
 export function checkSynergies(roster) {
   return SYNERGIES.map((s) => {
     const members = s.members(roster);
-    const cur = s.count ? s.count(roster) : members.length;
-    return { ...s, members, cur: Math.min(cur, s.need), active: cur >= s.need };
+    const count = members.length;
+    const top = s.tiers[s.tiers.length - 1].need;
+    const level = s.tiers.filter((t) => count >= t.need).length;
+    const shown = s.tiers[Math.max(0, level - 1)];
+    return {
+      ...s, members, top, level, active: level > 0,
+      cur: Math.min(count, top),
+      need: level < s.tiers.length ? s.tiers[level].need : top,
+      effect: shown.effect, bonus: level ? shown.bonus : {},
+    };
   });
 }
+
+export const SYNERGY_STAT_CAP = 8; // 한 선수가 시너지로 받는 보너스는 능력치마다 이만큼까지
 
 const BONUS_STATS = {
   batter: { bat: ['power', 'contact'], power: ['power'], contact: ['contact'], speed: ['speed'], defense: ['defense'] },
@@ -343,7 +343,7 @@ export function applySynergies(roster, synergies = checkSynergies(roster)) {
   return roster.map((p) => {
     const a = adds.get(p.id);
     if (!a) return p;
-    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(99, v + (a.stats[k] || 0))]));
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(99, v + Math.min(SYNERGY_STAT_CAP, a.stats[k] || 0))]));
     const gain = overallOf(p.position, stats) - overallOf(p.position, p.stats);
     return { ...p, stats, overall: Math.min(99, p.overall + Math.max(0, gain)), synergyBoost: a.names };
   });
@@ -1168,7 +1168,7 @@ function RosterPanel({ roster }) {
 }
 
 /** 완성된 시너지가 맨 위, 그다음 진행률 높은 순 */
-const sortSynergies = (list) => [...list].sort((a, b) => b.active - a.active || b.cur / b.need - a.cur / a.need);
+const sortSynergies = (list) => [...list].sort((a, b) => b.active - a.active || b.level - a.level || b.cur / b.top - a.cur / a.top);
 
 /** 이 선수를 영입했을 때의 시너지 (id → 결과) */
 function previewSynergies(roster, player) {
@@ -1177,13 +1177,14 @@ function previewSynergies(roster, player) {
 /** 영입하면 칸이 오르거나(미완성), 혜택 받는 선수가 늘어나는(완성) 시너지인가 */
 const synergyGrows = (s, after) => !!after && (after.cur > s.cur || (!s.count && after.members.length > s.members.length));
 /** 완성 뒤 추가로 혜택을 받는 인원 */
-const extraOf = (s) => (s.count ? 0 : Math.max(0, s.members.length - s.need));
+const extraOf = (s) => (s.count ? 0 : Math.max(0, s.members.length - s.top));
 
 /* 칸: 채움(회색·완성 초록) · 영입 미리보기(파랑) · 완성 뒤 추가 인원은 +N */
 function SynergyRow({ s, after, focused, onFocus }) {
   const next = after ? after.cur : s.cur;
   const extra = extraOf(s);
   const nextExtra = after ? extraOf(after) : extra;
+  const tierStarts = new Set(s.tiers.slice(0, -1).map((t) => t.need)); // 단계 경계마다 칸 사이를 벌린다
   const Box = onFocus ? 'button' : 'div';
   return (
     <li>
@@ -1193,12 +1194,13 @@ function SynergyRow({ s, after, focused, onFocus }) {
           <span className="flex min-w-0 items-center gap-1.5">
             <span className={`truncate text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-100'}`}>{s.name}</span>
             <span className={`shrink-0 rounded-sm px-1 py-px text-[10px] font-semibold ${s.kind === 'story' ? 'bg-amber-400/15 text-amber-200' : 'bg-white/10 text-gray-300'}`}>{s.kind === 'story' ? '실화' : '팀 구성'}</span>
+            {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-[11px] font-bold text-[#10b981]">{s.level}단계</span>}
           </span>
           <span className="flex shrink-0 items-center gap-1"
-            aria-label={`${s.cur}/${s.need}${next > s.cur ? `, 영입하면 ${next}` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
+            aria-label={`${s.cur}/${s.top}${next > s.cur ? `, 영입하면 ${next}` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
             <span className="flex gap-0.5">
-              {Array.from({ length: s.need }, (_, i) => (
-                <i key={i} className={`h-2 ${s.need > 5 ? 'w-2' : 'w-3'} rounded-sm ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : i < next ? 'bg-sky-400' : 'bg-gray-700'}`} />
+              {Array.from({ length: s.top }, (_, i) => (
+                <i key={i} className={`h-2 ${s.top > 5 ? 'w-2' : 'w-3'} rounded-sm ${tierStarts.has(i) ? 'ml-1' : ''} ${i < s.cur ? (s.active ? 'bg-[#10b981]' : 'bg-gray-300') : i < next ? 'bg-sky-400' : 'bg-gray-700'}`} />
               ))}
             </span>
             {nextExtra > 0 && (
@@ -1215,12 +1217,15 @@ function SynergyRow({ s, after, focused, onFocus }) {
   );
 }
 
+/** 정비·경기 화면용: 실제로 적용되는(완성된) 시너지만 */
 function SynergyPanel({ roster, focusId, onFocus }) {
-  const list = sortSynergies(checkSynergies(roster));
+  const list = sortSynergies(checkSynergies(roster)).filter((s) => s.active);
   return (
     <section className="rounded-lg border border-gray-800 bg-[#1f2937]/60 p-3">
-      <PanelTitle aside={`${list.filter((s) => s.active).length} On`}>시너지</PanelTitle>
-      <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
+      <PanelTitle aside={`${list.length} On`}>적용 중인 시너지</PanelTitle>
+      {list.length
+        ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
+        : <p className="text-xs text-gray-500">완성된 시너지가 없습니다.</p>}
     </section>
   );
 }
@@ -1505,7 +1510,7 @@ const RULE_SECTIONS = [
   { title: '영입가', items: [`샐러리 캡 ${SALARY_CAP} CP 안에서 영입`, '종합 85 이상 스타는 영입가 할증, 71 이하는 할인', '라운드마다 시리즈 하나가 열리고, 한 명을 뽑으면 다음 시리즈로 넘어감'] },
   { title: '라인업', items: ['필드에서 선수를 끌어 자리를 옮기거나 맞교환', '제 포지션이 아니면 종합 감소 — 비슷한 자리(2루↔유격, 1루↔3루, 선발↔불펜) −3 · 같은 계열 −6 · 포수 −8 · 투수↔야수 −20', '야수를 지명타자에 세우면 감소 없음'] },
   { title: '방출', items: ['영입가의 절반을 CP로 돌려받음', '방출한 선수는 이번 드래프트에서 다시 영입할 수 없음', '마감된 포지션의 후보를 고르면 “교체 영입”으로 그 자리 가장 약한 선수와 바로 교체'] },
-  { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시'] },
+  { title: '시너지', items: ['완성하면 그 시너지를 만든 선수만 능력치가 오름 (필드에 초록 ▲로 표시)', '선수 조합(실화)은 카드 시즌과 상관없이 같은 선수면 인정', '“시너지” 표시가 붙은 카드는 진행 중인 시너지를 채움', '시너지를 누르면 해당 선수 강조 · 카드를 고르면 오를 칸이 파랗게 표시', '팀 구성 시너지는 인원이 늘면 단계가 올라 더 강해짐', `한 선수가 시너지로 받는 보너스는 능력치마다 최대 +${SYNERGY_STAT_CAP}`] },
   { title: '시즌', items: [`${ROSTER_SIZE}명을 채우면 정비 화면에서 마지막 조정`, `시즌을 시작하면 경기 화면에서 증강 ${SEASON_AUGMENTS}개를 고름`, '채우지 못한 자리는 퓨처스 유망주(종합 55)가 맡음'] },
 ];
 
