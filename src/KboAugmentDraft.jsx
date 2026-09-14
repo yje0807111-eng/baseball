@@ -932,6 +932,21 @@ const KEYFRAMES = `
 .pk.lock .pk-ov, .pk.lock .pk-tb { animation: none; }
 .pk-lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 1cqw; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
 .pk-lk svg { width: 5.5cqw; height: 5.5cqw; flex: none; }
+/* PICK 카드 무대 · 뒤집기 (반쪽 0.22초, 옆면일 때 4% 들어 올림) */
+.pk-stage { position: relative; perspective: 1000px; }
+.pk-face { position: absolute; inset: 0; backface-visibility: hidden; }
+.pk-face > * { width: 100%; }
+@keyframes pkFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
+@keyframes pkFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
+@keyframes pkBackAway { from { transform: rotateY(0) scale(1); } to { transform: rotateY(-90deg) scale(1.04); } }
+@keyframes pkBackReturn { from { transform: rotateY(90deg) scale(1.04); } to { transform: rotateY(0) scale(1); } }
+.pkf-in { animation: pkFlipIn .44s ease-in-out both; } /* pk-in 은 PlayerCard 안쪽 층 이름이라 겹치지 않게 pkf- */
+.pkf-out { pointer-events: none; }
+.pkf-out.flip { animation: pkFlipOut .44s ease-in-out both; }
+.pkf-out.sign { animation: pickSign .35s ease-in both; }
+.pk-back.away { animation: pkBackAway .22s ease-in both; }
+.pk-back.hidden { visibility: hidden; transform: rotateY(-90deg); }
+.pk-back.return { animation: pkBackReturn .22s ease-out .22s both; }
 /* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
 .pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: linear-gradient(180deg, #0a1120, #070c16); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
 .pk-sk { position: absolute; background: rgba(148,163,184,.09); }
@@ -2382,20 +2397,41 @@ export default function KboAugmentDraft() {
     const eff = applySynergies(on, visibleSynergies(on, true)).find((p) => p.id === me.id); // PICK 카드는 드래프트 화면에만 있다
     return { player: me, owned: { eff, slotLabel: SLOTS.find((s) => s.id === me.slot)?.label } };
   }, [roster, inspectId]);
-  const [pickLeave, setPickLeave] = useState(null);
+  /*
+   * PICK 카드 뒤집기: 스켈레톤이 카드 뒷면. 빈 칸→카드는 뒷면이 돌아가며 카드가 나오고, 카드→빈 칸은 반대로,
+   * 카드→다른 카드는 뒷면을 거치지 않고 한 번에(지금 카드가 옆면까지 돌면 새 카드가 이어서 돌아 나옴). 영입은 라인업 쪽으로 흘러가며 사라짐.
+   */
+  const PK_FLIP_MS = 440; // 한 번 뒤집기(반쪽 0.22초 × 2)
+  const [pickLeave, setPickLeave] = useState(null); // 빠지는 카드 { player, owned, mode: 'flip' | 'sign', key }
+  const [pickBack, setPickBack] = useState('shown'); // 뒷면(스켈레톤): shown · away · hidden · return
   const prevShownRef = useRef(null);
   const shown = picked ? { player: picked, kind: 'pick' } : inspected ? { ...inspected, kind: 'own' } : null;
   const shownKey = shown ? `${shown.kind}-${shown.player.id}` : '';
-  // 레이아웃 단계에서 바로 남겨야 카드가 빈 칸으로 한 프레임 비었다가 다시 나타나는 깜빡임이 없다
+  // 레이아웃 단계에서 바로 정해야 카드가 한 프레임 비었다가 나타나는 깜빡임이 없다
   useLayoutEffect(() => {
     const prev = prevShownRef.current;
     prevShownRef.current = shown;
-    if (!prev || shown) { if (shown) setPickLeave(null); return undefined; }
-    const mode = prev.kind === 'pick' && roster.some((p) => p.id === prev.player.id) ? 'sign' : 'drop';
-    const leave = { player: prev.player, owned: prev.owned, mode, key: `${prev.player.id}-${Date.now()}` };
-    setPickLeave(leave);
-    const t = setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 380 : 330);
-    return () => clearTimeout(t);
+    if (!prev && !shown) return undefined;
+    const timers = [];
+    const leaveOf = (mode) => {
+      const leave = { player: prev.player, owned: prev.owned, mode, key: `${prev.kind}-${prev.player.id}-${Date.now()}` };
+      setPickLeave(leave);
+      timers.push(setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 380 : PK_FLIP_MS));
+    };
+    if (shown && !prev) {
+      setPickLeave(null);
+      setPickBack('away');
+      timers.push(setTimeout(() => setPickBack('hidden'), PK_FLIP_MS));
+    } else if (shown && prev) {
+      setPickBack('hidden');
+      leaveOf('flip');
+    } else {
+      const signed = prev.kind === 'pick' && roster.some((p) => p.id === prev.player.id);
+      leaveOf(signed ? 'sign' : 'flip');
+      setPickBack(signed ? 'shown' : 'return');
+      if (!signed) timers.push(setTimeout(() => setPickBack('shown'), PK_FLIP_MS));
+    }
+    return () => timers.forEach(clearTimeout);
   }, [shownKey]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!focusSynergy) return undefined;
@@ -2762,13 +2798,33 @@ export default function KboAugmentDraft() {
                 <div className="bc-grp lg:min-h-0">
                   <span className="bc-label font-display">PICK</span>
                 <div className="relative flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
-                  {picked ? (
-                    <>
-                      <div className="flex min-h-0 justify-center lg:flex-1">
-                        <div key={picked.id} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} />
+                  {/* 카드 무대: 뒷면(스켈레톤) · 빠지는 카드 · 지금 카드가 같은 자리에 겹쳐 뒤집힌다 (실제 PICK 카드와 같은 감싸는 틀 → 늘 2:3) */}
+                  <div className="flex min-h-0 justify-center lg:flex-1">
+                    <div className="pk-stage aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
+                      <div className={`pk-face pk-back ${pickBack}`} aria-hidden="true">
+                        <div className="pk-empty aspect-[2/3] w-full">
+                          {PK_SKELETON.map((s, i) => <span key={i} className="pk-sk" style={s} />)}
+                          <span className="pk-fr" />
                         </div>
                       </div>
+                      {pickLeave && (
+                        <div key={pickLeave.key} className={`pk-face pkf-out ${pickLeave.mode}`} aria-hidden="true">
+                          <PlayerCard player={pickLeave.player} owned={pickLeave.owned} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
+                        </div>
+                      )}
+                      {picked ? (
+                        <div key={`pick-${picked.id}`} className="pk-face pkf-in">
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
+                        </div>
+                      ) : inspected ? (
+                        <div key={`own-${inspected.player.id}`} className="pk-face pkf-in">
+                          <PlayerCard player={inspected.player} owned={inspected.owned} onSelect={() => {}} style={{ animation: 'none' }} />
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                  {picked ? (
+                    <>
                       {swapPlan ? (
                         <>
                           <button type="button" className="pk-go" disabled={!!swapPlan.reason} onClick={handleSwapIn}
@@ -2783,40 +2839,15 @@ export default function KboAugmentDraft() {
                       )}
                     </>
                   ) : inspected ? (
-                    <>
-                      {/* 내 라인업에서 누른 선수: 선 자리·시너지까지 반영한 스탯 카드 */}
-                      <div className="flex min-h-0 justify-center lg:flex-1">
-                        <div key={`own-${inspected.player.id}`} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
-                          <PlayerCard player={inspected.player} owned={inspected.owned} onSelect={() => {}} />
-                        </div>
-                      </div>
-                      <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
-                        <b className="shrink-0 text-gray-200">{inspected.owned.slotLabel}</b>
-                        <span className="truncate">· 다른 자리를 누르면 이동</span>
-                      </p>
-                    </>
+                    <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+                      <b className="shrink-0 text-gray-200">{inspected.owned.slotLabel}</b>
+                      <span className="truncate">· 다른 자리를 누르면 이동</span>
+                    </p>
                   ) : (
                     <>
-                      {/* 비어 있을 때: 설명 글 없이 PICK 카드의 자리만 흐린 블록(스켈레톤)으로 + 버튼 자리 빈 틀 */}
-                      <div className="flex min-h-0 animate-[fade_.3s_ease-out_both] justify-center lg:flex-1" aria-hidden="true">
-                        {/* 실제 PICK 카드와 같은 감싸는 틀 → 안쪽은 늘 2:3 (좁아져도 카드와 같은 크기·위치) */}
-                        <div className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
-                          <div className="pk-empty aspect-[2/3] w-full">
-                            {PK_SKELETON.map((s, i) => <span key={i} className="pk-sk" style={s} />)}
-                            <span className="pk-fr" />
-                          </div>
-                        </div>
-                      </div>
                       <div className="pk-ghostbtn" aria-hidden="true" />
                       <span className="sr-only">위 선반에서 선수를 고르거나 내 라인업 선수를 누르면 여기에 표시됩니다</span>
                     </>
-                  )}
-                  {!picked && !inspected && pickLeave && (
-                    <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.75rem+0.5rem)]" aria-hidden="true">
-                      <div className={`pick-leave ${pickLeave.mode} aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full`}>
-                        <PlayerCard player={pickLeave.player} owned={pickLeave.owned} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
-                      </div>
-                    </div>
                   )}
                 </div>
                 </div>
