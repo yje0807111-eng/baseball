@@ -29,17 +29,18 @@ for (const key of LEGEND_NAMES) add(key, key.replace(/\(.*\)/, ''), null, null, 
 
 const api = async (params) => {
   const url = `https://www.wikidata.org/w/api.php?format=json&${new URLSearchParams(params)}`;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 6; i++) {
     const res = await fetch(url, { headers: UA });
     if (res.ok) return res.json();
-    await sleep(1500);
+    await sleep(3000 * (i + 1)); // 429 등 요청 제한 시 점점 길게 대기
   }
   throw new Error(`Wikidata ${params.action} 실패`);
 };
 const BASEBALL_PLAYER = 'Q10871364';
 const claimIds = (e, p) => (e.claims?.[p] || []).map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean);
 const birthYear = (e) => Number((e.claims?.P569?.[0]?.mainsnak?.datavalue?.value?.time || '').slice(1, 5)) || null;
-const thumbUrl = (file, width = 600) => {
+// Wikimedia 썸네일은 표준 너비(960 등)만 허용한다
+const thumbUrl = (file, width = 960) => {
   const name = file.replace(/ /g, '_');
   const md5 = createHash('md5').update(name).digest('hex');
   const enc = encodeURIComponent(name);
@@ -49,7 +50,8 @@ const thumbUrl = (file, width = 600) => {
 const existing = existsSync(join(root, 'art-src', 'refs.json')) ? JSON.parse(readFileSync(join(root, 'art-src', 'refs.json'), 'utf8')) : {};
 const result = { ...existing };
 for (const p of people.values()) {
-  if (result[p.key]?.file) continue;
+  const prev = result[p.key];
+  if (prev?.local || ['대표 사진 없음', '야구선수 항목 없음', '검색 결과 없음'].includes(prev?.reason)) continue;
   try {
     const search = await api({ action: 'wbsearchentities', search: p.name, language: 'ko', uselang: 'ko', type: 'item', limit: '10' });
     const ids = (search.search || []).map((x) => x.id);
@@ -71,7 +73,7 @@ for (const p of people.values()) {
   } catch (e) {
     result[p.key] = { name: p.name, reason: e.message };
   }
-  await sleep(200);
+  await sleep(1200);
 }
 writeFileSync(join(root, 'art-src', 'refs.json'), JSON.stringify(result, null, 1));
 
