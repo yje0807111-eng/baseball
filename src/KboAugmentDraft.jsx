@@ -653,6 +653,25 @@ const KEYFRAMES = `
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: #111827; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+/* PICK 카드가 빠질 때: 지정 해제는 가라앉으며 흐려지고, 영입은 초록으로 번쩍인 뒤 라인업 쪽(오른쪽 아래)으로 빨려 든다 */
+@keyframes pickDrop { from { opacity: 1; transform: none; filter: blur(0); } to { opacity: 0; transform: translateY(22px) scale(.93); filter: blur(3px); } }
+@keyframes pickSign {
+  0% { opacity: 1; transform: none; filter: drop-shadow(0 0 0 rgba(16,185,129,0)); }
+  28% { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 22px rgba(52,211,153,.95)) brightness(1.25); }
+  100% { opacity: 0; transform: translate(70%, 38%) scale(.35); filter: drop-shadow(0 0 10px rgba(52,211,153,.6)) brightness(1.1); }
+}
+.pick-leave { pointer-events: none; }
+.pick-leave.drop { animation: pickDrop .26s ease-in both; }
+.pick-leave.sign { animation: pickSign .55s cubic-bezier(.5,0,.75,.2) both; }
+/* 라인업에 막 들어온 선수: 상체가 솟아오르고, 자막 바가 초록으로 번쩍, 원형 파동 + '영입' 꼬리표 */
+@keyframes tokBust { 0% { opacity: 0; transform: translateY(26px) scale(.8); } 60% { opacity: 1; transform: translateY(-4px) scale(1.06); } 100% { opacity: 1; transform: none; } }
+@keyframes tokBar {
+  0% { transform: skewX(-10deg) scale(.7); opacity: 0; }
+  35% { transform: skewX(-10deg) scale(1.1); opacity: 1; background: linear-gradient(90deg, #0f4a36, #1b6b50); box-shadow: inset 4px 0 0 #34d399, 0 0 0 3px #34d399, 0 0 38px rgba(16,185,129,.95); }
+  100% { transform: skewX(-10deg); }
+}
+@keyframes tokRing { 0% { opacity: .95; transform: translate(-50%, -50%) scale(.2); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.9); } }
+@keyframes tokTag { 0% { opacity: 0; transform: translate(-50%, 8px) scale(.6); } 18% { opacity: 1; transform: translate(-50%, -6px) scale(1.08); } 75% { opacity: 1; transform: translate(-50%, -10px); } 100% { opacity: 0; transform: translate(-50%, -22px); } }
 /* 라인업 필드 토큰 (중계 자막 스타일) */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
 .lf-tok { position: absolute; width: 168px; height: 84px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
@@ -687,6 +706,11 @@ const KEYFRAMES = `
 .lf-tok.focus .lf-bar { box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.45); }
 .lf-row.focus { background: rgba(56,189,248,.16); box-shadow: inset 3px 0 0 #38bdf8, inset 0 0 0 1px #38bdf8; }
 .lf-tok.dim, .lf-row.dim { opacity: .28; }
+.lf-tok.joined { z-index: 5; }
+.lf-tok.joined .lf-bp { animation: tokBust .6s cubic-bezier(.2,.8,.3,1.2) .12s both; }
+.lf-tok.joined .lf-bar { animation: tokBar 1.1s ease-out .05s both; }
+.lf-tok.joined::after { content: ''; position: absolute; left: 50%; top: 62%; width: 150px; height: 150px; border-radius: 50%; border: 3px solid #34d399; box-shadow: 0 0 24px rgba(52,211,153,.7), inset 0 0 18px rgba(52,211,153,.5); pointer-events: none; animation: tokRing .9s ease-out .15s both; }
+.lf-tok.joined::before { content: '영입!'; position: absolute; left: 50%; top: -14px; z-index: 3; padding: 2px 10px; background: #10b981; color: #04150e; font-size: 13px; font-weight: 800; letter-spacing: .08em; white-space: nowrap; pointer-events: none; box-shadow: 0 4px 14px rgba(16,185,129,.55); animation: tokTag 1.6s ease-out .2s both; }
 /* 시너지 목록 스크롤: 얇은 캡슐 손잡이, 트랙은 거의 보이지 않게 */
 .syn-scroll { overscroll-behavior: contain; }
 .syn-scroll::-webkit-scrollbar { width: 6px; }
@@ -1103,6 +1127,20 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const [drag, setDrag] = useState(null);
   const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
   useEffect(() => setConfirmOut(false), [pick]);
+  // 막 영입된 선수의 자리: 이전 엔트리에 없던 id 가 생기면 잠깐 'joined' 효과 (자리 이동·교환은 id 가 그대로라 제외)
+  const [joined, setJoined] = useState(() => new Set());
+  const prevIdsRef = useRef(null);
+  useEffect(() => {
+    const ids = new Set(roster.map((p) => p.id));
+    const prev = prevIdsRef.current;
+    prevIdsRef.current = ids;
+    if (!prev) return undefined;
+    const fresh = new Set(withSlots(roster).filter((p) => !prev.has(p.id)).map((p) => p.slot));
+    if (!fresh.size) return undefined;
+    setJoined(fresh);
+    const t = setTimeout(() => setJoined(new Set()), 1800);
+    return () => clearTimeout(t);
+  }, [roster]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -1128,7 +1166,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, hi
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
-  const flagsOf = (s) => [pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
+  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
   const slotUnder = (e) => document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-slot]')?.dataset.slot || null;
 
   const tap = (id) => {
@@ -1632,6 +1670,19 @@ export default function KboAugmentDraft() {
   const [picked, setPicked] = useState(null); // 선반에서 살펴보는 후보
   const [modal, setModal] = useState(null); // 'rules' | 'synergy'
   const [focusSynergy, setFocusSynergy] = useState(null); // 누른 시너지 — 해당 선수를 화면에서 강조
+  // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
+  const [pickLeave, setPickLeave] = useState(null);
+  const prevPickRef = useRef(null);
+  useEffect(() => {
+    const prev = prevPickRef.current;
+    prevPickRef.current = picked;
+    if (!prev || picked) { if (picked) setPickLeave(null); return undefined; }
+    const mode = roster.some((p) => p.id === prev.id) ? 'sign' : 'drop';
+    const leave = { player: prev, mode, key: `${prev.id}-${Date.now()}` };
+    setPickLeave(leave);
+    const t = setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 560 : 270);
+    return () => clearTimeout(t);
+  }, [picked]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!focusSynergy) return undefined;
     const onKey = (e) => { if (e.key === 'Escape') setFocusSynergy(null); };
@@ -1879,11 +1930,11 @@ export default function KboAugmentDraft() {
               <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
                 <div className="bc-grp lg:min-h-0">
                   <span className="bc-label font-display">PICK</span>
-                <div className="flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
+                <div className="relative flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
                   {picked ? (
                     <>
                       <div className="flex min-h-0 justify-center lg:flex-1">
-                        <div className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
+                        <div key={picked.id} className="aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full">
                           <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={handleSelectPlayer} />
                         </div>
                       </div>
@@ -1904,9 +1955,18 @@ export default function KboAugmentDraft() {
                       )}
                     </>
                   ) : (
-                    <div className="grid aspect-[2/3] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
-                      위 카드를 누르면 여기서 자세히 보고 영입합니다. 들어갈 자리는 필드에 초록으로 표시됩니다.
-                    </div>
+                    <>
+                      <div className="grid aspect-[2/3] animate-[fade_.3s_ease-out_both] place-items-center rounded-lg border border-dashed border-gray-700 p-4 text-center text-sm leading-relaxed text-gray-500 lg:aspect-auto lg:flex-1">
+                        위 카드를 누르면 여기서 자세히 보고 영입합니다. 들어갈 자리는 필드에 초록으로 표시됩니다.
+                      </div>
+                      {pickLeave && (
+                        <div key={pickLeave.key} className="pointer-events-none absolute inset-x-0 top-0 flex justify-center lg:bottom-[calc(2.5rem+0.5rem)]" aria-hidden="true">
+                          <div className={`pick-leave ${pickLeave.mode} aspect-[2/3] w-full lg:h-full lg:w-auto lg:max-w-full`}>
+                            <PlayerCard player={pickLeave.player} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 </div>
