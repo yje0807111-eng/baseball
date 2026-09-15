@@ -578,6 +578,22 @@ function describeHalf(runs, off, defPitcher, rng) {
   return { hitter, text: runs >= 5 ? `타자 일순 빅이닝, ${hitter.name} 쐐기 적시타 (${runs}점)` : pickOne(rng, byRuns[runs]) };
 }
 
+/* ───── 승부처 개입 (1단계: 판정 흐름만) ───── */
+export const CLUTCH_MAX = 2; // 경기당 최대 발동
+export const CLUTCH_CHANCE = 0.5; // 7·8회 조건 충족 시 발동 확률 (9회는 반드시)
+/** 찬스: 7회 이후 말 공격, 지거나 동점인데 0~2점 차 · 위기: 8회 이후 초 수비, 동점이거나 0~2점 리드 */
+export function clutchKind(inning, isTop, score) {
+  const lead = score.my - score.opp;
+  if (!isTop && inning >= 7 && lead <= 0 && lead >= -2) return 'chance';
+  if (isTop && inning >= 8 && lead >= 0 && lead <= 2) return 'crisis';
+  return null;
+}
+/** 개입 결과로 원래 굴린 득점을 보정 */
+export function clutchRuns(kind, grade, base) {
+  if (kind === 'chance') return grade === 'perfect' ? base + 2 : grade === 'good' ? base + 1 : Math.floor(base / 2);
+  return grade === 'perfect' ? 0 : grade === 'good' ? Math.max(0, base - 1) : base + 1;
+}
+
 /**
  * 비동기 경기 루프. 사용자 팀(my)은 홈(말 공격).
  * 매 하프 이닝마다 ① 증강 리스너 판정 → 발동 시 점수 확정·로그 주입·하이라이트 정지
@@ -588,7 +604,9 @@ export async function runSimulation({
   getSpeed = () => 1, isCancelled = () => false,
   onBoard = () => {}, onLog = () => {}, onHighlight = async () => {},
   beforeInning = async () => null, // 이닝 시작 전 훅: 새 증강 목록을 돌려주면 그걸로 바꾼다
+  onClutch = null, // 승부처 개입 훅: ({ kind, inning, isTop, score, baseRuns }) → 'perfect' | 'good' | 'miss'
 }) {
+  let clutchLeft = CLUTCH_MAX;
   const board = emptyBoard();
   const score = { my: 0, opp: 0 };
   const used = {};
@@ -629,8 +647,30 @@ export async function runSimulation({
 
       onBoard({ board: { away: [...board.away], home: [...board.home] }, score: { ...score }, half: { inning, isTop } });
 
-      // ① 증강 리스너 (우선순위: 등급 높은 순)
+      // ⓪ 승부처 개입: 조건을 채우면 경기를 멈추고 결과(PERFECT/GOOD/MISS)로 이번 하프 이닝 득점을 보정. 이때는 증강 판정을 건너뛴다
       const side = isTop ? 'defense' : 'offense';
+      const clutch = onClutch && clutchLeft > 0 ? clutchKind(inning, isTop, score) : null;
+      if (clutch && (inning === 9 || rng() < CLUTCH_CHANCE)) {
+        clutchLeft -= 1;
+        const grade = await onClutch({ kind: clutch, inning, isTop, score: { ...score }, baseRuns });
+        if (isCancelled()) return null;
+        const runs = clutchRuns(clutch, grade, baseRuns);
+        const d = describeHalf(runs, offense, defPitcher, rng);
+        if (!isTop && d.hitter) addCredit(d.hitter, runs * 3, 'runs');
+        const label = { perfect: 'PERFECT', good: 'GOOD', miss: 'MISS' }[grade] || 'MISS';
+        log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: `[${clutch === 'chance' ? '찬스' : '위기'} ${label}] ${d.text}`, hero: d.hitter || offense.batters[0], pitcher: defPitcher });
+        if (isTop) {
+          board.away[inning - 1] = runs; score.opp += runs;
+          addCredit(defPitcher, runs === 0 ? 1.5 : -runs, runs === 0 ? 'zero' : null);
+        } else {
+          board.home[inning - 1] = runs; score.my += runs;
+        }
+        onBoard({ board: { away: [...board.away], home: [...board.home] }, score: { ...score }, half: { inning, isTop } });
+        await halfDelay();
+        continue;
+      }
+
+      // ① 증강 리스너 (우선순위: 등급 높은 순)
       const ctx = { inning, isTop, my, opp, score: { ...score }, rng, baseRuns, myPitcher, oppPitcher };
       const fired = [...augments]
         .sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier])
@@ -2445,6 +2485,32 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
   );
 }
 
+/* ───── 승부처 개입 창 (1단계 임시: 결과를 직접 고른다. 2·3단계에서 스페이스 키 미니게임으로 바뀐다) ───── */
+function ClutchOverlay({ clutch, onPick }) {
+  if (!clutch) return null;
+  const chance = clutch.kind === 'chance';
+  const acc = chance ? '#10b981' : '#f87171';
+  const opts = chance
+    ? [['perfect', 'PERFECT', '+2점'], ['good', 'GOOD', '+1점'], ['miss', 'MISS', '득점 절반']]
+    : [['perfect', 'PERFECT', '무실점'], ['good', 'GOOD', '실점 −1'], ['miss', 'MISS', '실점 +1']];
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#03050a]/75 px-4 backdrop-blur-[3px]" role="dialog" aria-modal="true" aria-label="승부처 개입">
+      <div className="ui-cut ui-frame ui-glass w-full max-w-lg p-6 text-center animate-[rise_.35s_ease-out_both]" style={{ '--c': '18px', '--a': acc }}>
+        <p className="ui-lab font-display" style={{ '--a': acc }}>{chance ? 'Clutch Chance' : 'Clutch Crisis'}</p>
+        <h2 className="mt-2 text-3xl font-black text-white">{clutch.inning}회{clutch.isTop ? '초' : '말'} {chance ? '찬스' : '위기'}</h2>
+        <p className="mt-1 font-display text-xl tabular-nums text-gray-300">나 {clutch.score.my} : {clutch.score.opp} 상대</p>
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {opts.map(([g, label, sub]) => (
+            <button key={g} type="button" onClick={() => onPick(g)} className="ui-btn ui-cut flex flex-col py-3">
+              <b className="font-display text-lg">{label}</b><small className="text-xs text-gray-400">{sub}</small>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ───── 전광판 ───── */
 function Scoreboard({ board, half, myName, oppName }) {
   const total = (arr) => arr.reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
@@ -3281,6 +3347,8 @@ export default function KboAugmentDraft() {
   }, [posFilter]);
   const augmentOptions = (owned) => rollAugmentOptions(owned);
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
+  const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
+  const pickClutch = (grade) => { const c = clutch; setClutch(null); c?.resolve(grade); };
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
@@ -3366,6 +3434,7 @@ export default function KboAugmentDraft() {
 
   const startGame = async (rematch = false, owned = augments.slice(0, match.aug)) => {
     setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
+    setClutch(null);
     const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
@@ -3385,6 +3454,7 @@ export default function KboAugmentDraft() {
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
       onLog: (e) => setLogs((l) => [...l, e]),
+      onClutch: (info) => (runIdRef.current !== runId ? 'miss' : new Promise((resolve) => setClutch({ ...info, resolve }))),
       beforeInning: (inning, cur) => {
         if (!match.aug || !MID_AUG_INNINGS.includes(inning) || runIdRef.current !== runId) return null;
         const options = rollAugmentOptions(cur);
@@ -3765,6 +3835,7 @@ export default function KboAugmentDraft() {
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
+      <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       <HighlightToast toast={toast} />
     </div>
   );
