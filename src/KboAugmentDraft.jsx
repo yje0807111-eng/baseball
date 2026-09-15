@@ -1067,6 +1067,9 @@ const KEYFRAMES = `
 /* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
 .pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
 .pk-go:hover:not(:disabled) { filter: brightness(1.1); }
+/* 내 라인업 선수 방출: 같은 버튼 틀을 붉은 테두리로, 한 번 누르면 붉게 채워져 확정 대기 */
+.pk-go.out { color: #fecaca; background: rgba(239,68,68,.14); box-shadow: inset 0 0 0 1.5px rgba(248,113,113,.7); }
+.pk-go.out.confirm { color: #fff; background: #ef4444; box-shadow: none; }
 .pk-go:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #05080f; }
 .pk-go:disabled { color: #d1d5db; background: #1f2937; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); cursor: not-allowed; }
 .pk-go.swap { color: #1f1302; background: #fbbf24; }
@@ -1313,6 +1316,7 @@ const PickIcon = ({ kind }) => (
     {kind === 'plus' && <path d="M10 4v12M4 10h12" />}
     {kind === 'swap' && <path d="M4 7h11l-3-3M16 13H5l3 3" />}
     {kind === 'lock' && <><rect x="4.5" y="9" width="11" height="8" rx="1.5" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></>}
+    {kind === 'out' && <path d="M11 4.5H5v11h6M9 10h8m-3-3 3 3-3 3" />}
   </svg>
 );
 
@@ -1627,7 +1631,7 @@ function visibleSynergies(roster, draftView) {
   return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
 }
 
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onSlotFilter, onClearCandidate, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onInspect, onSlotFilter, onClearCandidate, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -1636,8 +1640,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   const [filling, setFilling] = useState(() => fill && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
   const [pick, setPick] = useState(null);
   const [drag, setDrag] = useState(null);
-  const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
-  useEffect(() => setConfirmOut(false), [pick]);
+  // 방출 등으로 고른 자리가 비면 선택을 푼다 (빈 자리가 지정된 채 남지 않게)
+  useEffect(() => { if (pick && !withSlots(roster).some((p) => p.slot === pick)) setPick(null); }, [roster, pick]);
   // 선반에서 후보를 골라도 라인업 선택은 남겨 둔다 — PICK 은 후보를 먼저 보여 주고, 후보를 해제하면 다시 이 선수로 돌아간다.
   // 후보를 보는 중에 선택한 자리를 다시 누르면 그 자리만 바로 해제된다(아래 tap). 영입이 일어나면 선택을 푼다(합류 효과 쪽)
   // 누른(이동 대기) 선수를 바깥에 알린다 — 드래프트 화면은 PICK 구역에 그 선수 스탯 카드를 띄운다
@@ -1763,16 +1767,6 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
           className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
           {focusLabel} · {highlight.size}명 <span aria-hidden="true">✕</span>
         </button>
-      )}
-      {onRelease && pick && at(pick) && (
-        <div className="absolute left-3 top-2 z-10 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
-          <span>{at(pick).name} 방출 시 <b className="font-display text-sm text-white">+{releaseRefund(at(pick))}</b> CP 환불 · 다시 영입 불가</span>
-          <button type="button"
-            onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } onRelease(pick); setPick(null); }}
-            className={`px-2 py-1 font-bold ${confirmOut ? 'bg-red-500 text-white' : 'border border-red-400/60 text-red-300 hover:bg-red-500/10'}`}>
-            {confirmOut ? '한 번 더 누르면 방출' : '방출'}
-          </button>
-        </div>
       )}
       {drag && at(drag.from) && (
         <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} delta={dropPlan?.me} x={drag.x} y={drag.y} k={scale}
@@ -2760,6 +2754,8 @@ export default function KboAugmentDraft() {
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
   // 내 라인업에서 누른 선수: PICK 구역에 선 자리·시너지까지 반영한 스탯 카드로 보여 준다 (선반 후보가 있으면 후보가 먼저)
   const [inspectId, setInspectId] = useState(null);
+  const [confirmOut, setConfirmOut] = useState(false); // PICK 의 방출 버튼은 두 번 눌러야 확정 — 다른 선수를 보면 처음으로
+  useEffect(() => setConfirmOut(false), [inspectId]);
   const handleInspect = useCallback((id) => { setInspectId(id); if (id) setPicked(null); }, []);
   const inspected = useMemo(() => {
     const placed = withSlots(roster);
@@ -3223,10 +3219,13 @@ export default function KboAugmentDraft() {
                       )}
                     </>
                   ) : inspected ? (
-                    <p className="flex h-10 shrink-0 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap px-2 text-xs text-gray-400 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
-                      <b className="shrink-0 text-gray-200">{inspected.owned.slotLabel}</b>
-                      <span className="truncate">· 다른 자리를 누르면 이동</span>
-                    </p>
+                    // 내 라인업 선수: 교체 영입 버튼과 같은 자리 · 같은 모양의 방출 버튼 (두 번 눌러 확정)
+                    <button type="button" className={`pk-go out ${confirmOut ? 'confirm' : ''}`}
+                      onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } setConfirmOut(false); handleRelease(inspected.player.slot); }}
+                      title={`${inspected.player.name} 방출 · 영입가 절반 환불 · 다시 영입 불가`}>
+                      <PickIcon kind="out" />
+                      <span>{confirmOut ? `한 번 더 누르면 방출 (+${releaseRefund(inspected.player)} CP)` : `방출 (+${releaseRefund(inspected.player)} CP 환불)`}</span>
+                    </button>
                   ) : (
                     <>
                       <div className="pk-ghostbtn" aria-hidden="true" />
@@ -3238,7 +3237,7 @@ export default function KboAugmentDraft() {
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
