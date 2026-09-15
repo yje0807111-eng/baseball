@@ -81,5 +81,25 @@ for (const file of files) {
   }
 }
 
+// 시리즈 사이 검사: 같은 구단·같은 해 시리즈 중복, 같은 선수·같은 해 기록 불일치
+const loaded = files.map((f) => { try { return JSON.parse(readFileSync(f, 'utf8').replace(/^﻿/, '')); } catch { return null; } }).filter(Boolean);
+const cross = [];
+const slot = new Map();
+for (const s of loaded) {
+  const key = s.kind === 'team' ? `${s.franchise} ${s.year}` : s.kind === 'legend' ? `legend ${s.franchise ?? s.id}` : `national ${s.id}`;
+  if (slot.has(key)) cross.push(`시리즈 중복: ${key} (${slot.get(key)}, ${s.id})`);
+  slot.set(key, s.id);
+}
+const seasons = new Map();
+for (const s of loaded) for (const p of s.players || []) {
+  const key = `${p.personId}|${p.year}`;
+  const prev = seasons.get(key);
+  if (!prev) { seasons.set(key, { s, p }); continue; }
+  const diff = ['position', 'hand', 'isForeign'].filter((k) => prev.p[k] !== p[k])
+    .concat(Object.keys(p.stats || {}).filter((k) => prev.p.stats?.[k] !== p.stats[k]));
+  if (diff.length) cross.push(`${p.name} ${p.year}: ${prev.s.id}·${s.id} 에서 ${diff.join(',')} 다름 (같은 시즌은 같은 값)`);
+}
+if (cross.length) { failed++; console.log(`FAIL 시리즈 사이\n  - ${cross.join('\n  - ')}`); }
+
 if (!files.length) console.log('검사할 파일이 없어요.');
 process.exit(failed ? 1 : 0);
