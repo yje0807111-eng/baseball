@@ -422,7 +422,9 @@ export function buildTeam(name, roster, buff = 0) {
   roster = applySynergies(roster, synergies); // 시너지 보너스는 그 시너지를 만든 선수에게만
   const bonus = { bat: buff, pit: buff };
 
-  const batters = roster.filter((p) => p.type === 'batter');
+  // 타순: 정비 화면에서 정한 batOrder, 없으면 로스터 순서
+  const batters = roster.map((p, i) => ({ p, i })).filter(({ p }) => p.type === 'batter')
+    .sort((a, b) => (a.p.batOrder ?? 99 + a.i) - (b.p.batOrder ?? 99 + b.i)).map(({ p }) => p);
   const sps = roster.filter((p) => p.slot === 'SP'); // 선발투수 자리
   const mr = roster.find((p) => p.slot === 'MR'); // 중간계투
   const rp = roster.find((p) => p.slot === 'CL'); // 마무리
@@ -1211,6 +1213,90 @@ const KEYFRAMES = `
 @keyframes dgFlow { 25% { opacity: 1; filter: drop-shadow(0 0 3px #38bdf8); } 55% { opacity: .2; } }
 .lf-route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,.65); animation: dgPop .24s cubic-bezier(.3,1.6,.55,1) both; }
 @keyframes dgPop { from { transform: scale(.5); opacity: 0; } }
+/* ───── 정비 화면 (ReadyScreen): 선수 판 rp-* 은 라인업 토큰 lf-* 과 같은 판을 낮게 · 공격/수비/시너지 탭 · 오른쪽 미리보기·지표·마운드 ───── */
+.rd { --rh: clamp(36px, calc((100dvh - 300px) / 11), 52px); }
+.rp { position: relative; display: block; width: 100%; height: var(--h, 52px); min-width: 0; user-select: none; touch-action: none; outline: none; }
+.rp.can { cursor: grab; }
+.rp:focus-visible .rp-bar { outline: 2px solid #10b981; outline-offset: 2px; }
+.rp-bar { position: absolute; left: 0; right: 0; top: 9px; bottom: 0; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 56px; border-radius: 4px; background: rgba(15,23,42,.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 10px 20px -12px color-mix(in srgb, var(--n) 60%, transparent); transition: background .15s, box-shadow .15s; }
+.rp-bar::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 10px var(--n); }
+.rp-bp { position: absolute; left: 5px; bottom: 3px; z-index: 2; width: 44px; height: calc(var(--h, 52px) - 1px); overflow: hidden; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.rp-chip { position: absolute; left: 54px; top: 1px; z-index: 3; padding: 0 6px; font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 15px; color: var(--n); background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); }
+.rp-chip.off { color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.6); }
+.rp-bx { flex: 1; min-width: 0; padding-top: 4px; line-height: 1.18; }
+.rp-bx b { display: block; font-size: 14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-bx small { display: block; font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-bx small.off { color: #fbbf24; }
+.rp-ov { display: flex; align-items: baseline; gap: 4px; font-style: normal; font-size: 24px; font-weight: 700; line-height: 1; color: var(--n); font-variant-numeric: tabular-nums; text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
+.rp-ov small { font-family: 'IBM Plex Sans KR', system-ui, sans-serif; font-size: 10px; font-weight: 600; color: #9ca3af; text-shadow: none; }
+.rp-ov.lo { color: #fbbf24; text-shadow: 0 0 12px rgba(251,191,36,.5); }
+.rp.can:hover .rp-bar { background: rgba(30,41,59,.65); }
+.rp:is(.sel, .over) .rp-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.5); }
+.rp:is(.sel, .over) .rp-bar::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.rp:is(.sel, .over) .rp-chip { color: #05080f; background: #38bdf8; box-shadow: none; }
+.rp.lifted { opacity: .3; }
+.rp-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
+.rp-ghost .rp-bar { background: rgba(15,23,42,.72); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.rp-ghost .rp-bar::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.ui-seg i.ch { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+.ui-seg i.lo { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+.rd-tabs { display: flex; gap: 6px; }
+.rd-tabs button { display: flex; align-items: center; gap: 9px; padding: 8px 16px; font-size: 15px; font-weight: 800; color: #9ca3af; background: rgba(255,255,255,.04); clip-path: polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); }
+.rd-tabs button:hover { color: #fff; }
+.rd-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.rd-tabs svg { width: 19px; height: 19px; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rd-tabs em { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 600; font-style: normal; letter-spacing: .2em; color: #4b5563; }
+.rd-tabs i { padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; font-style: normal; color: #05080f; background: #34d399; }
+.rd-tabs button[aria-selected="true"] { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.28), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
+.rd-tabs button[aria-selected="true"] svg { stroke: #34d399; }
+.rd-tabs button[aria-selected="true"] em { color: #6ee7b7; }
+.rd-row { display: grid; grid-template-columns: 20px 26px minmax(0,260px) minmax(0,1fr); align-items: center; gap: 10px; height: 100%; max-height: 56px; min-height: 0; }
+.rd-arw { display: flex; flex-direction: column; gap: 2px; }
+.rd-arw button { display: grid; place-items: center; width: 20px; height: 15px; font-size: 8px; color: #9ca3af; background: rgba(255,255,255,.06); clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); }
+.rd-arw button:hover:not(:disabled) { color: #05080f; background: #10b981; }
+.rd-arw button:disabled { opacity: .25; cursor: default; }
+.rd-no { font-size: 26px; font-weight: 800; line-height: 1; text-align: center; color: #fff; }
+.rd-no.ts { color: #34d399; text-shadow: 0 0 14px rgba(52,211,153,.4); }
+.rd-no.cu { color: #ff8a3d; text-shadow: 0 0 14px rgba(255,138,61,.35); }
+.rd-bars { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+.rd-st { min-width: 0; }
+.rd-st > span { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; font-weight: 600; color: #6b7280; }
+.rd-st b { font-family: 'Saira Condensed', sans-serif; font-size: 17px; color: #e5e7eb; }
+.rd-st b.up { color: #34d399; }
+.rd-st i { display: block; height: 3px; margin-top: 3px; background: rgba(255,255,255,.08); }
+.rd-st i::after { content: ""; display: block; width: var(--w); height: 100%; background: #94a3b8; }
+.rd-st i.up::after { background: #34d399; box-shadow: 0 0 6px #34d399; }
+.rd-dl { font-size: 14px; font-weight: 700; white-space: nowrap; color: #4b5563; }
+.rd-dl.up { color: #34d399; }
+.rd-dl.dn { color: #fbbf24; }
+.rd-hud { --c: 12px; min-width: 0; padding: 7px 11px 8px; }
+.rd-hud > p { margin: 0; font-size: 11px; font-weight: 700; color: #9ca3af; white-space: nowrap; }
+.rd-hud > div:first-of-type { display: flex; align-items: baseline; gap: 7px; margin-bottom: 5px; }
+.rd-hud b { font-family: 'Saira Condensed', sans-serif; font-size: 24px; line-height: 1.05; color: #fff; font-variant-numeric: tabular-nums; }
+.rd-pn { position: relative; min-height: 0; padding: 32px 12px 12px; }
+.rd-ttl { position: absolute; z-index: 8; left: 20px; right: 16px; top: 9px; display: flex; justify-content: space-between; align-items: center; }
+.rd-mini { position: relative; display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; padding: 32px 12px 12px; text-align: left; transition: filter .15s; }
+.rd-mini * { pointer-events: none; }
+.rd-mini:hover { filter: brightness(1.15); }
+.rd-mini:hover::after { box-shadow: inset 0 0 0 2px #38bdf8, inset 0 0 30px rgba(56,189,248,.25); }
+.rd-mini:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+.rd-mrow { display: grid; grid-template-columns: 20px 22px minmax(0,1fr) 30px 38px; align-items: center; gap: 7px; height: 22px; padding: 0 8px; }
+.rd-mgrp { display: flex; justify-content: space-between; padding: 4px 8px 1px; font-size: 10.5px; font-weight: 700; letter-spacing: .24em; }
+.rd-face { position: relative; flex: none; overflow: hidden; background-color: #1e293b; background-repeat: no-repeat; }
+.rd-badge { display: flex; align-items: center; gap: 12px; padding: 8px 10px; text-align: left; background: rgba(255,255,255,.03); }
+.rd-badge:hover { background: rgba(255,255,255,.06); }
+.rd-badge[aria-pressed="true"] { background: linear-gradient(90deg, color-mix(in srgb, var(--s) 22%, transparent), transparent); box-shadow: inset 3px 0 0 var(--s); }
+.rd-hex { position: relative; flex: none; display: grid; place-items: center; width: 54px; height: 60px; background: color-mix(in srgb, var(--s) 32%, #0b1220); clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+.rd-hex::before { content: ""; position: absolute; inset: 3px; background: #0b1220; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+.rd-hex b { position: relative; font-size: 24px; color: var(--s); }
+.rd-pips { display: flex; gap: 3px; margin: 4px 0; }
+.rd-pips i { width: 18px; height: 6px; transform: skewX(-20deg); background: rgba(255,255,255,.12); }
+.rd-pips i.on { background: var(--s); box-shadow: 0 0 6px var(--s); }
+.rd-tier { display: flex; gap: 3px; }
+.rd-tier span { flex: 1; min-width: 0; padding: 3px 6px; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px; font-weight: 700; color: #6b7280; background: rgba(255,255,255,.04); box-shadow: inset 0 2px 0 rgba(255,255,255,.1); }
+.rd-tier span.on { color: #fff; background: color-mix(in srgb, var(--s) 16%, transparent); box-shadow: inset 0 2px 0 var(--s); }
+.rd-mem { display: grid; grid-template-columns: 40px minmax(0,1fr); align-items: center; gap: 10px; padding: 6px 10px; background: rgba(255,255,255,.03); box-shadow: inset 0 -2px 0 var(--s); }
+.rd-warn { padding: 5px 10px; font-size: 12.5px; color: #fde68a; background: rgba(251,191,36,.08); box-shadow: inset 2px 0 0 #fbbf24; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 `;
 
@@ -3070,6 +3156,400 @@ const RULE_TABS = [
     ] },
 ];
 
+/* ───────────── 정비 화면 ───────────── */
+const PITCH_SLOTS = ['SP', 'MR', 'CL'];
+const RD_PITCH = [['SP', '선발'], ['MR', '중간계투'], ['CL', '마무리']];
+const RD_CHIP = { OF1: 'LF', OF2: 'CF', OF3: 'RF' };
+/* 수비 배치 (900×580 설계 좌표): 외야 셋은 잔디 호, 내야 넷은 베이스 안쪽, 포수는 홈 뒤, 지명타자는 3루 쪽 파울 지역 */
+const RD_XY = { OF1: [200, 158], OF2: [450, 68], OF3: [700, 158], SS: [318, 268], '2B': [582, 268], '3B': [176, 388], '1B': [724, 388], C: [450, 522], DH: [142, 522] };
+const RD_ORDER_W = [1.1, 1.08, 1.07, 1.06, 1, 0.97, 0.94, 0.92, 0.9];
+const RD_SYN_TONES = ['#fbbf24', '#ff8a3d', '#34d399', '#e879f9', '#60a5fa', '#f472b6', '#a78bfa', '#2dd4bf'];
+const RD_STAT = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stability: '안정' };
+const rdBat = (p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2;
+
+/** 타순: batOrder 가 있으면 그 순서, 없으면 로스터 순서 (buildTeam 과 같은 규칙) */
+const lineupOf = (roster) => withSlots(roster).map((p, i) => ({ p, i })).filter(({ p }) => !PITCH_SLOTS.includes(p.slot))
+  .sort((a, b) => (a.p.batOrder ?? 99 + a.i) - (b.p.batOrder ?? 99 + b.i)).map(({ p }) => p);
+
+/** 정비 화면 지표: 경기 계산(buildTeam)과 같은 값 + 타순 가중 · 묶음 점수 */
+function readyStats(roster, buff) {
+  const t = buildTeam('나의 드림팀', roster, buff);
+  const b = t.batters;
+  const part = (a, z, f) => (b.slice(a, z).length ? avg(b.slice(a, z).map(f)) : 0);
+  const w = b.map((_, i) => RD_ORDER_W[i] ?? 0.9);
+  return {
+    t, off: t.offense, def: t.defense, R: t.rightRatio, power: teamPower(t),
+    flow: b.reduce((s, p, i) => s + rdBat(p) * w[i], 0) / (w.reduce((x, y) => x + y, 0) || 1),
+    ace: t.sps[0] ? t.pitchValue(t.sps[0]) : 0,
+    bull: avg([t.mr, t.rp].filter(Boolean).map(t.pitchValue)),
+    table: part(0, 2, (p) => p.stats.contact * 0.5 + p.stats.speed * 0.5), clean: part(2, 5, (p) => p.stats.power), low: part(5, 9, rdBat),
+  };
+}
+
+/** 판 크기(w×h)를 상자에 맞추는 배율. dep 가 바뀌면(탭 전환으로 상자가 새로 생기면) 다시 잰다 */
+function useFit(w, h, dep) {
+  const ref = useRef(null);
+  const [k, setK] = useState(0.5);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const fit = () => setK(Math.min(el.clientWidth / w, el.clientHeight / h) || 0.5);
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [w, h, dep]);
+  return [ref, k];
+}
+
+function RdDelta({ v, v0, pct = false }) {
+  const d = pct ? Math.round(v * 100) - Math.round(v0 * 100) : Math.round((v - v0) * 10) / 10;
+  return <span className={`rd-dl font-display ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}`}>{d ? `${d > 0 ? '▲' : '▼'}${Math.abs(d)}${pct ? '%p' : ''}` : '±0'}</span>;
+}
+function RdSeg({ v, v0, tone = '#10b981' }) {
+  const n = (x) => Math.round(Math.max(0, Math.min(24, ((x - 60) / 40) * 24)));
+  const a = n(v), b = n(v0);
+  return <div className="ui-seg" style={{ '--a': tone }}>{Array.from({ length: 24 }, (_, i) => <i key={i} className={i < Math.min(a, b) ? 'on' : i < a ? 'ch' : i < b ? 'lo' : ''} />)}</div>;
+}
+const RdStat = ({ label, v, up }) => (
+  <span className="rd-st"><span>{label}<b className={up ? 'up' : ''}>{v}</b></span><i className={up ? 'up' : ''} style={{ '--w': `${Math.max(4, ((v - 40) / 59) * 100)}%` }} /></span>
+);
+function RdFace({ player, className }) {
+  const bust = useBust(player, '260%');
+  return <span className={`rd-face ${className}`} style={bust}>{!bust && <Silhouette />}</span>;
+}
+
+/** 정비 화면 선수 판. rk(종류: ord·def·pit)가 있으면 누르기·끌기로 맞바꾼다 */
+function RdPlate({ player, chip, sub, num, numLab, off, lo, h, rk, rv, sel, over, lifted, onDown, onKey }) {
+  const bust = useBust(player, '260%');
+  return (
+    <div className={`rp ${rk ? 'can' : ''} ${sel ? 'sel' : ''} ${over ? 'over' : ''} ${lifted ? 'lifted' : ''}`} style={{ '--h': h, '--n': neonOf(player) }}
+      data-rk={rk} data-rv={rv} onPointerDown={onDown} onKeyDown={onKey} role={rk ? 'button' : undefined} tabIndex={rk ? 0 : undefined}
+      aria-label={rk ? `${chip} ${player.name}` : undefined} aria-pressed={rk ? !!sel : undefined}>
+      <span className={`rp-chip font-display ${off ? 'off' : ''}`}>{chip}</span>
+      <span className="rp-bp" style={bust}>{!bust && <Silhouette />}</span>
+      <span className="rp-bar">
+        <span className="rp-bx"><b>{player.name}</b><small className={off ? 'off' : ''}>{sub}</small></span>
+        {num != null && <em className={`rp-ov font-display ${lo ? 'lo' : ''}`}>{numLab && <small>{numLab}</small>}{num}</em>}
+      </span>
+    </div>
+  );
+}
+
+const RD_ICON = {
+  atk: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 L16 8" /><path d="M14 4l6 6-3 3-6-6z" /><circle cx="6" cy="6" r="2" /></svg>,
+  def: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21 L3 12 12 3l9 9z" /><path d="M12 15l-3-3 3-3 3 3z" /></svg>,
+  syn: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7a4 4 0 1 0 0 10M15 7a4 4 0 1 1 0 10" /><path d="M9 12h6" /></svg>,
+};
+
+/**
+ * 정비 화면: 공격(타순 묶음) · 수비(구장) · 시너지 탭 + 오른쪽 반대 모드 미리보기 · 지표 · 마운드.
+ * 타순 · 수비 자리 · 투수 보직은 두 판을 차례로 누르거나 끌어다 놓아 맞바꾼다.
+ */
+function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart }) {
+  const init = useRef(roster);
+  const [tab, setTab] = useState('atk');
+  const [pick, setPick] = useState(null); // { k, v }
+  const [synId, setSynId] = useState(null);
+  const dragRef = useRef(null);
+  const [, redraw] = useState(0);
+
+  const now = useMemo(() => readyStats(roster, buff), [roster, buff]);
+  const was = useMemo(() => readyStats(init.current, buff), [buff]);
+  const slotted = useMemo(() => withSlots(roster), [roster]);
+  const base = useMemo(() => new Map(slotted.map((p) => [p.id, playAt(p)])), [slotted]); // 시너지 전 · 선 자리 기준
+  const eff = useMemo(() => new Map(now.t.roster.map((p) => [p.id, p])), [now]); // 시너지까지 반영
+  const lineup = useMemo(() => lineupOf(roster), [roster]);
+  const bySlot = (s) => slotted.find((p) => p.slot === s);
+  const effOf = (p) => eff.get(p.id) || base.get(p.id);
+  const [fieldRef, fk] = useFit(FIELD_W, FIELD_H, tab);
+  const [miniRef, mk] = useFit(FIELD_W, FIELD_H, tab);
+
+  const swap = (k, a, b) => {
+    if (a === b) return;
+    if (k === 'ord') {
+      const ids = lineup.map((p) => p.id);
+      const i = ids.indexOf(a), j = ids.indexOf(b);
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      onOrder(ids);
+    } else onMove(a, b);
+  };
+  const tap = (k, v) => {
+    if (pick && pick.k === k && pick.v !== v) { swap(k, pick.v, v); setPick(null); } else setPick(pick && pick.k === k && pick.v === v ? null : { k, v });
+  };
+  const step = (i, d) => {
+    const j = i + d;
+    if (j < 0 || j >= lineup.length) return;
+    swap('ord', lineup[i].id, lineup[j].id);
+    setPick(null);
+  };
+  const tapRef = useRef(tap);
+  const swapRef = useRef(swap);
+  tapRef.current = tap;
+  swapRef.current = swap;
+
+  // 끌기: 6px 넘게 움직이면 끌기 카드를 띄우고, 같은 종류의 판 위에서 놓으면 맞바꾼다. 안 움직이고 떼면 누르기
+  useEffect(() => {
+    const move = (e) => {
+      const d = dragRef.current;
+      if (!d || (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 6)) return;
+      d.moved = true; d.x = e.clientX; d.y = e.clientY;
+      const t = document.elementsFromPoint(e.clientX, e.clientY).map((el) => el.closest?.(`[data-rk="${d.k}"]`)).find((el) => el && el.dataset.rv !== d.v);
+      d.over = t ? t.dataset.rv : null;
+      redraw((n) => n + 1);
+    };
+    const up = () => {
+      const d = dragRef.current;
+      if (!d) return;
+      dragRef.current = null;
+      if (!d.moved) tapRef.current(d.k, d.v);
+      else if (d.over) { swapRef.current(d.k, d.v, d.over); setPick(null); }
+      redraw((n) => n + 1);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+  }, []);
+
+  const drag = dragRef.current?.moved ? dragRef.current : null;
+  const plate = (k, v, view) => (
+    <RdPlate {...view} rk={k} rv={v} sel={pick?.k === k && pick?.v === v} over={drag?.k === k && drag.over === v} lifted={drag?.k === k && drag.v === v}
+      onKey={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(k, v); } }}
+      onDown={(e) => {
+        if (e.button !== 0) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        dragRef.current = { k, v, view, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, w: e.currentTarget.offsetWidth, sc: r.width / e.currentTarget.offsetWidth, moved: false, over: null };
+      }} />
+  );
+
+  const orderNo = (p) => lineup.findIndex((q) => q.id === p.id) + 1;
+  const groups = [['TABLE SETTER', '테이블세터', 0, 2, 'table', '#10b981'], ['CLEAN-UP', '클린업', 2, 5, 'clean', '#ff8a3d'], ['BOTTOM', '하위 타선', 5, lineup.length, 'low', '#94a3b8']];
+  const offField = slotted.filter((p) => !PITCH_SLOTS.includes(p.slot) && p.slot !== 'DH' && base.get(p.id).naturalPosition);
+  const defView = (s, p) => {
+    const b = base.get(p.id), e = effOf(p), dh = s === 'DH', moved = b.naturalPosition;
+    return {
+      player: p, chip: RD_CHIP[s] || s, off: !!moved, lo: !!moved && !dh, h: '58px',
+      sub: dh ? `${orderNo(p)}번 · 지명` : moved ? `원래 ${moved} −${p.overall - b.overall}` : `${orderNo(p)}번 · ${handLabel(p)}`,
+      num: dh ? rdBat(e).toFixed(1) : e.stats.defense, numLab: dh ? '타격' : '수비',
+    };
+  };
+
+  const fieldBoard = (ref, k, still) => (
+    <div ref={ref} className="relative min-h-0 flex-1 overflow-hidden">
+      <div className="absolute left-1/2 top-1/2" style={{ width: FIELD_W, height: FIELD_H, transform: `translate(-50%, -50%) scale(${k})` }}>
+        <FieldArt />
+        {Object.entries(RD_XY).map(([s, [x, y]]) => {
+          const p = bySlot(s);
+          if (!p) return null;
+          const view = defView(s, p);
+          return (
+            <div key={s} className="absolute w-[206px]" style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}>
+              {still ? <RdPlate {...view} /> : plate('def', s, view)}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const attack = (
+    <div className="flex min-h-0 flex-1 flex-col gap-2">
+      {groups.map(([en, ko, a, z, key, tone]) => (
+        <section key={key} className="ui-cut ui-glass2 ui-frame flex min-h-0 gap-3.5 px-3.5 py-1" style={{ '--c': '12px', '--a': tone, flex: `${Math.max(1, z - a)} 1 0` }}>
+          <div className="flex w-[130px] flex-none flex-col justify-center">
+            <span className="ui-lab font-display" style={{ '--a': tone, letterSpacing: '.18em', fontSize: 11 }}>{en}</span>
+            <b className="mt-0.5 text-[17px]">{ko}</b>
+            <span className="flex items-baseline gap-1.5">
+              <b className="font-display text-3xl leading-tight tabular-nums" style={{ color: tone }}>{now[key].toFixed(1)}</b>
+              <RdDelta v={now[key]} v0={was[key]} />
+            </span>
+          </div>
+          <div className="grid min-h-0 flex-1 items-center" style={{ gridTemplateRows: `repeat(${Math.max(1, z - a)}, minmax(0, 1fr))` }}>
+            {lineup.slice(a, z).map((p, n) => {
+              const i = a + n, b = base.get(p.id), e = effOf(p);
+              return (
+                <div key={p.id} className="rd-row">
+                  <span className="rd-arw">
+                    <button type="button" onClick={() => step(i, -1)} disabled={i === 0} aria-label={`${p.name} 타순 올리기`}>▲</button>
+                    <button type="button" onClick={() => step(i, 1)} disabled={i === lineup.length - 1} aria-label={`${p.name} 타순 내리기`}>▼</button>
+                  </span>
+                  <span className={`rd-no font-display ${i < 2 ? 'ts' : i < 5 ? 'cu' : ''}`}>{i + 1}</span>
+                  {plate('ord', p.id, { player: p, chip: RD_CHIP[p.slot] || p.slot, off: !!b.naturalPosition, sub: handLabel(p), num: rdBat(e).toFixed(1), numLab: '타격', h: 'var(--rh)' })}
+                  <span className="rd-bars">
+                    {['power', 'contact', 'speed'].map((s) => <RdStat key={s} label={RD_STAT[s]} v={e.stats[s]} up={e.stats[s] > b.stats[s]} />)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+
+  const syns = now.t.synergies.filter((s) => s.active);
+  const curIdx = Math.max(0, syns.findIndex((s) => s.id === synId));
+  const cur = syns[curIdx];
+  const synergy = !cur ? (
+    <div className="grid flex-1 place-items-center text-gray-500">완성된 시너지가 없습니다</div>
+  ) : (
+    <div className="flex min-h-0 flex-1 gap-3">
+      <div className="syn-scroll flex w-[290px] flex-none flex-col gap-1.5 overflow-y-auto">
+        {syns.map((s, i) => {
+          const tone = RD_SYN_TONES[i % RD_SYN_TONES.length];
+          return (
+            <button key={s.id} type="button" className="rd-badge" style={{ '--s': tone }} aria-pressed={i === curIdx} onClick={() => setSynId(s.id)}>
+              <span className="rd-hex"><b className="font-display">{s.members.length}</b></span>
+              <span className="min-w-0">
+                <b className="block truncate text-[15px]">{s.name}</b>
+                <span className="rd-pips">{s.tiers.map((_, j) => <i key={j} className={j < s.level ? 'on' : ''} />)}</span>
+                <span className="block truncate text-xs font-bold" style={{ color: tone }}>{s.effect}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {(() => {
+        const tone = RD_SYN_TONES[curIdx % RD_SYN_TONES.length];
+        return (
+          <section className="ui-cut ui-glass2 ui-frame flex min-h-0 flex-1 flex-col gap-3 px-[18px] py-4" style={{ '--c': '16px', '--a': tone, '--s': tone }}>
+            <div className="flex items-end justify-between gap-4">
+              <div className="min-w-0">
+                <span className="ui-lab font-display" style={{ '--a': tone }}>{cur.cond}</span>
+                <p className="truncate text-[28px] font-black leading-tight">{cur.name}</p>
+              </div>
+              <span className="font-display whitespace-nowrap text-[44px] font-extrabold leading-none" style={{ color: tone, textShadow: `0 0 14px ${tone}73` }}>{cur.effect}</span>
+            </div>
+            <div className="rd-tier">{cur.tiers.map((t, j) => <span key={t.need} className={j < cur.level ? 'on' : ''}>{t.need}명 · {t.effect}</span>)}</div>
+            <div className="grid min-h-0 flex-1 content-start gap-2 overflow-hidden" style={{ gridTemplateColumns: `repeat(${cur.members.length > 4 ? 3 : 2}, minmax(0, 1fr))`, gridAutoRows: 'minmax(0, 62px)' }}>
+              {cur.members.map((m) => {
+                const p = slotted.find((x) => x.id === m.id) || m;
+                const b = base.get(m.id) || m, e = eff.get(m.id) || m;
+                const keys = [...new Set(Object.keys(cur.bonus).flatMap((k) => BONUS_STATS[b.type]?.[k] || []))];
+                return (
+                  <div key={m.id} className="rd-mem">
+                    <RdFace player={p} className="h-11 w-10" />
+                    <span className="min-w-0">
+                      <b className="text-sm">{p.name}</b> <span className="font-display text-xs text-[#60a5fa]">{RD_CHIP[p.slot] || p.slot}</span>
+                      <span className="mt-0.5 flex flex-wrap gap-x-2.5">
+                        {keys.map((k) => (
+                          <span key={k} className="font-display text-sm text-gray-400">{RD_STAT[k]} <s className="text-gray-500">{b.stats[k]}</s> <b style={{ color: tone }}>{e.stats[k]}</b></span>
+                        ))}
+                      </span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })()}
+    </div>
+  );
+
+  const to = tab === 'atk' ? 'def' : 'atk';
+  const sp = bySlot('SP');
+  const spStamina = sp ? effOf(sp).stats.stamina ?? 0 : 0;
+  const inn = spStamina >= 90 ? 7 : spStamina >= 80 ? 6 : 5;
+  const inning = { SP: `1–${inn}회`, MR: `${inn + 1}–8회`, CL: '9회' };
+  const hud = [
+    ['타선 공격력', 'off'], ['타순 효율', 'flow'], ['야수 수비력', 'def'], ['에이스 투구', 'ace'], ['우타 비중', 'R', true], ['팀 전력', 'power'],
+  ];
+
+  return (
+    <div className="rd grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_clamp(340px,24vw,430px)]">
+      <section className="ui-cut ui-glass ui-frame flex min-h-0 flex-col gap-2 px-3.5 pb-3 pt-2.5" style={{ '--c': '18px' }}>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="rd-tabs" role="tablist">
+            {[['atk', '공격', 'ORDER'], ['def', '수비', 'FIELD'], ['syn', '시너지', 'SYNERGY']].map(([id, ko, en]) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => { setTab(id); setPick(null); }}>
+                {RD_ICON[id]}<span>{ko}</span>{id === 'syn' && <i>{syns.length}</i>}<em>{en}</em>
+              </button>
+            ))}
+          </div>
+          <span className="flex-1" />
+          {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
+          <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
+          <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
+          <button type="button" className="ui-btn ui-cut sm pri" onClick={onStart}>시즌 시작 · 증강 고르기 ›</button>
+        </div>
+        {tab === 'atk' && attack}
+        {tab === 'def' && (
+          <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+            {fieldBoard(fieldRef, fk, false)}
+            {offField.length > 0 && <p className="rd-warn">{offField.map((p) => `${p.name} ${p.position}→${RD_CHIP[p.slot] || p.slot} 수비 −${p.overall - base.get(p.id).overall}`).join(' · ')}</p>}
+          </div>
+        )}
+        {tab === 'syn' && synergy}
+      </section>
+
+      <aside className="flex min-h-0 min-w-0 flex-col gap-2.5">
+        <button type="button" className="rd-mini ui-cut ui-glass ui-frame" style={{ '--c': '16px', '--a': '#38bdf8' }} onClick={() => { setTab(to); setPick(null); }} aria-label={to === 'def' ? '수비 탭으로' : '공격 탭으로'}>
+          <span className="rd-ttl"><span className="ui-lab font-display" style={{ '--a': '#38bdf8' }}>{to === 'def' ? 'Field' : 'Order'}</span></span>
+          {to === 'def' ? fieldBoard(miniRef, mk, true) : (
+            <span className="flex min-h-0 flex-1 flex-col justify-between">
+              {groups.map(([en, , a, z, key, tone]) => (
+                <span key={key} className="block">
+                  <span className="rd-mgrp font-display" style={{ color: tone }}><span>{en}</span><span className="text-sm tracking-normal text-white">{now[key].toFixed(1)}</span></span>
+                  {lineup.slice(a, z).map((p, n) => {
+                    const e = effOf(p), moved = base.get(p.id).naturalPosition;
+                    return (
+                      <span key={p.id} className="rd-mrow" style={{ boxShadow: `inset 2px 0 0 ${tone}` }}>
+                        <span className="font-display text-[15px] font-extrabold">{a + n + 1}</span>
+                        <RdFace player={p} className="h-[22px] w-[22px]" />
+                        <b className="truncate text-[12.5px]">{p.name}</b>
+                        <span className="font-display text-xs font-bold" style={{ color: moved ? '#fbbf24' : '#60a5fa' }}>{RD_CHIP[p.slot] || p.slot}</span>
+                        <span className="font-display text-right text-[15px] font-bold tabular-nums">{rdBat(e).toFixed(1)}</span>
+                      </span>
+                    );
+                  })}
+                </span>
+              ))}
+            </span>
+          )}
+        </button>
+
+        <div className="grid flex-none grid-cols-3 gap-1.5">
+          {hud.map(([label, key, pct]) => {
+            const changed = Math.abs(now[key] - was[key]) > 0.005;
+            return (
+              <div key={key} className="rd-hud ui-cut ui-glass ui-frame" style={changed ? { '--a': '#38bdf8' } : undefined}>
+                <p>{label}</p>
+                <div><b>{pct ? `${Math.round(now[key] * 100)}%` : now[key].toFixed(1)}</b><RdDelta v={now[key]} v0={was[key]} pct={pct} /></div>
+                {pct ? (
+                  <div className="ui-seg" style={{ '--a': '#60a5fa' }}>{Array.from({ length: 24 }, (_, i) => <i key={i} className={i < Math.round(now.R * 24) ? 'on' : ''} />)}</div>
+                ) : <RdSeg v={now[key]} v0={was[key]} />}
+              </div>
+            );
+          })}
+        </div>
+
+        <section className="rd-pn ui-cut ui-glass ui-frame flex-none" style={{ '--c': '16px' }}>
+          <div className="rd-ttl">
+            <span className="ui-lab font-display">Mound</span>
+            <span className="font-display text-[13px] text-gray-400">불펜 <b className="text-base text-white">{now.bull.toFixed(1)}</b> <RdDelta v={now.bull} v0={was.bull} /></span>
+          </div>
+          <div className="flex flex-col gap-[3px]">
+            {RD_PITCH.map(([s, label]) => {
+              const p = bySlot(s);
+              if (!p) return null;
+              const e = effOf(p);
+              return <React.Fragment key={s}>{plate('pit', s, { player: p, chip: label, off: !!base.get(p.id).naturalPosition, sub: `${inning[s]} · ${handLabel(p)}`, num: now.t.pitchValue(e).toFixed(1), numLab: '투구', h: '46px' })}</React.Fragment>;
+            })}
+          </div>
+        </section>
+      </aside>
+
+      {drag && createPortal(
+        <div className="rp-ghost" style={{ left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w, transform: `scale(${drag.sc})` }}>
+          <RdPlate {...drag.view} />
+        </div>,
+        document.body,
+      )}
+    </div>
+  );
+}
+
 export default function KboAugmentDraft() {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
@@ -3314,6 +3794,8 @@ export default function KboAugmentDraft() {
     if (phase !== 'draft' && phase !== 'ready') return;
     setRoster((r) => withSlots(r).map((p) => (p.slot === from ? { ...p, slot: to } : p.slot === to ? { ...p, slot: from } : p)));
   };
+  /* 정비 화면 타순: 선수 id 순서대로 batOrder 를 매긴다 */
+  const handleOrder = (ids) => setRoster((r) => r.map((p) => (ids.includes(p.id) ? { ...p, batOrder: ids.indexOf(p.id) } : p)));
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
   /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
@@ -3460,7 +3942,7 @@ export default function KboAugmentDraft() {
 
   return (
     // 드래프트는 넓은 화면(lg+)에서 창 높이에 딱 맞는 한 화면 앱으로: 스크롤 없이 머리 · 시리즈 · 영입+라인업이 들어간다
-    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' || phase === 'mode' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' || phase === 'mode' || phase === 'ready' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
@@ -3473,9 +3955,9 @@ export default function KboAugmentDraft() {
       )}
 
       {phase !== 'mode' && (
-      <main className={`relative mx-auto grid px-4 ${phase === 'draft'
+      <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
-        : phase === 'ready' ? 'max-w-7xl gap-5 py-5 lg:grid-cols-[minmax(0,1fr)_20rem]' : 'w-full max-w-[1600px] gap-5 py-5'}`}>
+        : 'w-full max-w-[1600px] gap-5 py-5'}`}>
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           {phase === 'draft' && (
             // --card-w: 선수 카드 폭의 상한(창 높이 기준). 실제 폭은 선반 그리드가 판 안쪽 폭을 17칸으로 나눠 정하고 가운데 정렬 — 좌우 여백이 늘 같다
@@ -3617,42 +4099,8 @@ export default function KboAugmentDraft() {
           )}
 
           {phase === 'ready' && (
-            <section className="ui-cut ui-frame ui-glass p-6" style={{ '--c': '20px' }}>
-              <p className="ui-lab font-display">Final Check</p>
-              <h2 className="mt-2 text-3xl font-black text-white">정비 · 엔트리 {roster.length}/{ROSTER_SIZE}</h2>
-              {autoFilled > 0 && <p className="mt-2 text-sm font-semibold text-amber-200">채우지 못한 {autoFilled}자리는 퓨처스 유망주(종합 55)로 채웠습니다.</p>}
-              <p className="mt-2 text-sm text-gray-400">
-                선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
-                {match.aug ? `시즌을 시작하면 증강 ${match.aug}개를 고른 뒤 매치업 화면으로 갑니다.` : '이번 모드는 증강 없이 바로 매치업 화면으로 갑니다.'} 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
-              </p>
-              {offPositionPlayers.length > 0 && (
-                <ul className="mt-3 flex flex-wrap gap-1.5">
-                  {offPositionPlayers.map((p) => (
-                    <li key={p.id} className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>
-                      {p.name} {p.naturalPosition}→{p.position} <b className="font-display">{p.overall}</b>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="mt-5"><LineupField roster={roster} onMove={handleMove} highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)} /></div>
-              <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[
-                  ['타선 공격력', myTeam.offense.toFixed(1)],
-                  ['야수 수비력', myTeam.defense.toFixed(1)],
-                  ['에이스 투구', myTeam.pitchValue(myTeam.sps[0]).toFixed(1)],
-                  ['우타 비중', `${Math.round(myTeam.rightRatio * 100)}%`],
-                ].map(([k, v]) => (
-                  <div key={k} className="ui-cut bg-white/[0.045] px-4 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" style={{ '--c': '10px' }}>
-                    <dt className="text-xs text-gray-500">{k}</dt>
-                    <dd className="font-display text-3xl font-bold tabular-nums text-white">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <button type="button" className={btnPrimary} onClick={startSeason}>시즌 시작 · 증강 고르기</button>
-                <button type="button" className={btnGhost} onClick={newDraft}>처음부터 다시 드래프트</button>
-              </div>
-            </section>
+            <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled} onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
+              onStart={startSeason} onRestart={newDraft} />
           )}
 
           {phase === 'matchup' && opponent && (
@@ -3717,13 +4165,6 @@ export default function KboAugmentDraft() {
           )}
         </div>
 
-        {phase === 'ready' && (
-          <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
-            <RosterPanel roster={roster} />
-            <SynergyPanel roster={roster} focusId={focusSynergy} onFocus={toggleFocus} />
-            <AugmentShelf augments={augments} total={match.aug} />
-          </aside>
-        )}
       </main>
       )}
 
