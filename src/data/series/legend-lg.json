@@ -1,0 +1,38 @@
+{
+  "id": "legend-lg",
+  "kind": "legend",
+  "year": null,
+  "title": "MBC·LG 레전드",
+  "franchise": "LG",
+  "subtitle": "MBC 청룡부터 LG 트윈스까지",
+  "blurb": "KBO 유일의 4할 타자 백인천, 선발 20승 이상훈, 30-30 이병규까지. MBC 청룡과 LG 트윈스의 전설을 모았다.",
+  "notes": [
+    "김용수 1986 볼넷 미확인 — control 81은 '정교한 제구' 평판 기반 추정. 60경기 178이닝 스윙맨이지만 구원 1위 시즌이라 RP로 넣음.",
+    "켈리 2019 볼넷 57은 사사구 기준(몸맞는공 포함 가능).",
+    "백인천 1982 타석 방향(우타) 미확인. 80경기 시즌(본인 72경기)이라 홈런·도루는 126경기 기준으로 비율 환산.",
+    "박종호 1994 타율 .260은 기사 인용치(나무위키 요약), 세부 타수 미확인.",
+    "김현수 2018 주 포지션은 좌익수로 판단(1루 병행).",
+    "수비 능력치는 골든글러브·평판 기반 추정.",
+    "1982~1995 시즌은 투고타저 보정, 1999·2018 시즌은 타고투저 보정 적용."
+  ],
+  "players": [
+    { "personId": "이상훈(1971)", "name": "이상훈", "year": 1995, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 85, "stamina": 95, "stability": 94 }, "note": "선발 20승·승률 1위", "source": "30G 20승5패 228.1IP ERA2.01 142K 48BB 150피안타 — kowiki" },
+    { "personId": "켈리", "name": "켈리", "year": 2019, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 68, "control": 74, "stamina": 88, "stability": 89 }, "note": "KBO 첫해 14승", "source": "29G 14승12패 180.1IP ERA2.55 126K 57사사구 — kowiki·기사" },
+    { "personId": "봉중근", "name": "봉중근", "year": 2008, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 69, "stamina": 89, "stability": 88 }, "note": "리그 최다 186.1이닝", "source": "28G 11승8패 186.1IP ERA2.66 140K 68BB — kowiki" },
+    { "personId": "정삼흠", "name": "정삼흠", "year": 1994, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 55, "control": 84, "stamina": 89, "stability": 82 }, "note": "2년 연속 15승·우승", "source": "27G 15승8패 186.1IP ERA2.95 76K 41BB — kowiki" },
+    { "personId": "김용수", "name": "김용수", "year": 1986, "team": "MBC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 60, "control": 81, "stamina": 60, "stability": 94 }, "note": "구원 1위·26세이브", "source": "60G 178IP 9승 26SV ERA1.67 74K — kowiki·기사" },
+    { "personId": "고우석", "name": "고우석", "year": 2022, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 71, "stamina": 55, "stability": 98 }, "note": "42세이브 세이브왕", "source": "4승2패 42SV 60.2IP ERA1.48 80K 21BB WHIP0.96 — 기사·namu" },
+    { "personId": "조인성", "name": "조인성", "year": 2010, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 85, "speed": 44, "defense": 86 }, "note": "포수 첫 100타점·GG", "source": ".317/.374 28HR 107타점 2SB 133G — kowiki" },
+    { "personId": "오스틴", "name": "오스틴", "year": 2024, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 86, "contact": 86, "speed": 64, "defense": 66 }, "note": "타점왕·1루수 골든글러브", "source": ".319/.384 32HR 132타점 12SB 140G — KBO 기록실" },
+    { "personId": "박종호", "name": "박종호", "year": 1994, "team": "LG", "position": "2B", "hand": "S", "isForeign": false, "stats": { "power": 56, "contact": 69, "speed": 79, "defense": 84 }, "note": "2루수 골든글러브·우승", "source": ".260 6HR 56타점 21SB 105G — namu·기사" },
+    { "personId": "문보경", "name": "문보경", "year": 2024, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 80, "speed": 59, "defense": 80 }, "note": "첫 3할-20홈런-100타점", "source": ".301 22HR 101타점 7SB 65BB 144G — KBO 기록실" },
+    { "personId": "유지현", "name": "유지현", "year": 1994, "team": "LG", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 68, "contact": 83, "speed": 97, "defense": 82 }, "note": "신인왕·51도루", "source": ".305 15HR 51SB — kowiki(KBO 신인상)" },
+    { "personId": "오지환", "name": "오지환", "year": 2022, "team": "LG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 78, "contact": 70, "speed": 76, "defense": 92 }, "note": "유격수 20-20·골든글러브", "source": ".269 25HR 87타점 20SB 142G — 기사·namu" },
+    { "personId": "이병규(1974)", "name": "이병규", "year": 1999, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 84, "contact": 93, "speed": 85, "defense": 88 }, "note": "30-30·최다안타 192개", "source": ".349 30HR 99타점 31SB 192안타 117득점 — 기사·namu" },
+    { "personId": "박용택", "name": "박용택", "year": 2009, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 97, "speed": 78, "defense": 74 }, "note": "타율 .372 타격왕", "source": ".372 18HR 74타점 22SB 111G 452타수 — kowiki" },
+    { "personId": "홍창기", "name": "홍창기", "year": 2021, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 90, "speed": 78, "defense": 76 }, "note": "출루율 .456·골든글러브", "source": ".328/.456 4HR 23SB 109BB 144G 전경기 — kowiki" },
+    { "personId": "김재현", "name": "김재현", "year": 1994, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 78, "speed": 79, "defense": 76 }, "note": "신인 최초 20-20", "source": ".289 21HR 80타점 21SB 125G — kowiki·한국경제" },
+    { "personId": "김현수", "name": "김현수", "year": 2018, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 95, "speed": 42, "defense": 72 }, "note": "타율 .362 타격왕", "source": ".362 20HR 101타점 1SB 47BB 117G — KBO 기록실" },
+    { "personId": "백인천", "name": "백인천", "year": 1982, "team": "MBC", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 88, "contact": 99, "speed": 66, "defense": 55 }, "note": "KBO 유일 4할 타율", "source": ".412/.497 19HR 64타점 11SB 72G 250타수 — 기사·namu" }
+  ]
+}
