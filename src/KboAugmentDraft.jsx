@@ -1092,15 +1092,6 @@ const KEYFRAMES = `
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
 /* 넓은 화면: 시너지는 구장 바로 오른쪽(판 끝까지), 그늘은 옅게 해 사진이 뒤로 이어 보이게 */
 .syn-dock.wide { right: auto; padding: 12px 16px 10px 22px; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)); }
-/* 라인업 평균 카드 (구장 오른쪽 위 · 시너지 왼쪽) */
-.lf-avg { position: absolute; z-index: 7; top: 12px; width: 168px; padding: 5px 10px 6px; pointer-events: none; background: rgba(6,10,19,.64); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); border-radius: 4px; }
-.lf-avg div { display: grid; grid-template-columns: 26px 1fr 30px; align-items: center; gap: 7px; line-height: 16px; }
-.lf-avg div + div { margin-top: 1px; }
-.lf-avg small { font-size: 10.5px; color: #9ca3af; }
-.lf-avg i { display: block; height: 4px; background: rgba(255,255,255,.1); }
-.lf-avg i b { display: block; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); }
-.lf-avg .t i b { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
-.lf-avg em { font-style: normal; font-size: 15px; font-weight: 700; line-height: 1; text-align: right; color: #fff; }
 /* 오른쪽 LINEUP 명단: 묶음 상자 위 “선 위 라벨”(이름만) · 줄은 판 높이에 맞춰 늘고 줄어 12줄이 늘 들어감 */
 /* 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] */
 .mt-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
@@ -1150,7 +1141,11 @@ const KEYFRAMES = `
 .mt-rec tbody tr { cursor: pointer; transition: background .12s; }
 .mt-rec tbody tr:hover { background: rgba(255,255,255,.05); }
 .mt-rec tbody tr:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
-.mt-rec tr.on { background: rgba(56,189,248,.14); }
+/* 고른 줄: 바탕은 아주 옅게, 사진에 카드 색(투수 하늘 · 타자 초록) 빛 고리 · 이름은 카드 색 · 종합은 카드 색 알약 */
+.mt-rec tr.on { background: rgba(255,255,255,.06); }
+.mt-rec tr.on .mt-face { box-shadow: 0 0 0 2px var(--ac), 0 0 10px 1px color-mix(in srgb, var(--ac) 60%, transparent); }
+.mt-rec tr.on .who b { color: var(--ac); }
+.mt-rec tr.on td.ov b { display: inline-block; min-width: 26px; padding: 2px 4px; text-align: center; border-radius: 3px; background: color-mix(in srgb, var(--ac) 22%, transparent); }
 .mt-rec tr.e td { height: 24px; font-size: 11.5px; color: #4b5563; }
 .mt-rec .pos { font-size: 11.5px; color: #9ca3af; }
 .mt-face { display: inline-block; width: 22px; height: 22px; vertical-align: middle; border-radius: 50%; background-color: #1b2537; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
@@ -1162,8 +1157,8 @@ const KEYFRAMES = `
 .mt-rec .st.best { font-weight: 700; color: #34d399; }
 .mt-rec td.ov b { font-size: 17px; font-weight: 700; color: #fff; }
 /* 종합 수치 색 등급 (선반 · PICK 카드와 같게) */
-.mt-trio b.t75, .mt-rec td.ov b.t75, .lf-avg em.t75 { color: #34d399; }
-.mt-trio b.t90, .mt-rec td.ov b.t90, .lf-avg em.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+.mt-trio b.t75, .mt-rec td.ov b.t75 { color: #34d399; }
+.mt-trio b.t90, .mt-rec td.ov b.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
 @media (min-width: 1024px) {
   .mt-panel { flex: 1; }
   .mt-body { flex: 1; min-height: 0; overflow-y: auto; }
@@ -1873,7 +1868,6 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       {overlay && (
         <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>{overlay}</div>
       )}
-      {dockL != null && <LineupAvg placed={placed} boosted={boosted} style={{ right: box.w - dockL + 14 }} />}
       {highlight && (
         <button type="button" onClick={onClearFocus}
           className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
@@ -1884,25 +1878,6 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
         <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} delta={dropPlan?.me} x={drag.x} y={drag.y} k={scale * TOK_SCALE}
           to={drag.over && drag.over !== drag.from ? { slot: drag.over, swap: !!at(drag.over) } : null} />
       )}
-    </div>
-  );
-}
-
-/** 구장 오른쪽 위(시너지 왼쪽)의 라인업 평균 카드: 팀 · 투수 · 야수 평균 종합(시너지 · 제자리 밖 반영) + 막대 */
-function LineupAvg({ placed, boosted, style }) {
-  const effs = placed.map((p) => boosted.get(p.id) || playAt(p));
-  const mean = (a) => (a.length ? a.reduce((s, p) => s + p.overall, 0) / a.length : null);
-  const isPitch = (p) => ['SP', 'MR', 'CL'].includes(p.slot);
-  const rows = [['팀', mean(effs), 't'], ['투수', mean(effs.filter(isPitch)), ''], ['야수', mean(effs.filter((p) => !isPitch(p))), '']];
-  return (
-    <div className="lf-avg" style={style} aria-label="라인업 평균 종합">
-      {rows.map(([k, v, c]) => (
-        <div key={k} className={c}>
-          <small>{k}</small>
-          <i><b style={{ width: `${v ?? 0}%` }} /></i>
-          <em className={`font-display tabular-nums ${v != null ? tierOf(v) : ''}`}>{v != null ? v.toFixed(1) : '-'}</em>
-        </div>
-      ))}
     </div>
   );
 }
