@@ -590,7 +590,7 @@ export function clutchKind(inning, isTop, score) {
 }
 /** 개입 결과로 원래 굴린 득점을 보정 */
 export function clutchRuns(kind, grade, base) {
-  if (kind === 'chance') return grade === 'perfect' ? base + 2 : grade === 'good' ? base + 1 : Math.floor(base / 2);
+  if (kind === 'chance') return { hr: base + 3, double: base + 2, single: base + 1, perfect: base + 2, good: base + 1 }[grade] ?? Math.floor(base / 2);
   return grade === 'perfect' ? 0 : grade === 'good' ? Math.max(0, base - 1) : base + 1;
 }
 
@@ -657,14 +657,15 @@ export async function runSimulation({
         if (isCancelled()) return null;
         const runs = clutchRuns(clutch, grade, baseRuns);
         const d = describeHalf(runs, offense, defPitcher, rng);
-        const label = { perfect: 'PERFECT', good: 'GOOD', miss: 'MISS' }[grade] || 'MISS';
+        const label = { perfect: 'PERFECT', good: 'GOOD', miss: 'MISS', hr: '홈런', double: '2루타', single: '안타', out: '아웃' }[grade] || 'MISS';
         let text = d.text;
         let hero = d.hitter || batter;
-        if (clutch === 'chance' && grade !== 'miss' && batter) {
+        const clutchText = { hr: '승부처에서 담장을 넘기는 한 방!', double: '승부처 적시 2루타!', single: '승부처 적시타!', out: '잘 맞은 타구가 잡히고 말았다' };
+        if (clutch === 'chance' && batter && clutchText[grade]) {
           hero = batter;
-          text = grade === 'perfect' ? `${batter.name}, 승부처에서 담장을 넘기는 한 방! ${runs}점` : `${batter.name}, 승부처 적시타! ${runs}점`;
+          text = `${batter.name}, ${clutchText[grade]}${runs ? ` ${runs}점` : ''}`;
         }
-        if (!isTop && runs) addCredit(hero, runs * 3 + (grade === 'perfect' ? 3 : 0), 'runs');
+        if (!isTop && runs) addCredit(hero, runs * 3 + (grade === 'hr' ? 3 : 0), 'runs');
         log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: `[${clutch === 'chance' ? '찬스' : '위기'} ${label}] ${text}`, hero, pitcher: defPitcher });
         if (isTop) {
           board.away[inning - 1] = runs; score.opp += runs;
@@ -2503,6 +2504,27 @@ const PITCH_TYPES = [
 const BALL_R = 24; // 공 요소 반지름(px, scale 1 기준)
 const RING_R0 = 110; // 링 시작 반지름(px)
 const RING_SPEED = 0.153; // 링이 좁아지는 속도(px/ms) — 직구면 공이 존의 90% 지점일 때 접한다
+/** 맞힌 타구의 결과. 잘 칠수록(PERFECT)·컨택이 높을수록 아웃이 줄고, 파워가 높을수록 장타가 는다 */
+export function rollContact(quality, batter, rng = Math.random) {
+  const s = batter?.stats || {};
+  const contact = s.contact ?? 70;
+  const power = s.power ?? 70;
+  const perfect = quality === 'perfect';
+  const out = perfect ? Math.max(0.05, 0.4 - (contact - 60) * 0.012) : Math.max(0.25, 0.68 - (contact - 60) * 0.013);
+  const hr = perfect ? Math.max(0.05, 0.12 + (power - 60) * 0.013) : Math.max(0, (power - 78) * 0.006);
+  const dbl = perfect ? 0.3 : 0.18;
+  const r = rng();
+  if (r < out) {
+    return rng() < 0.5 + (power - 70) * 0.01
+      ? { grade: 'out', label: 'FLY OUT', tone: '#f87171', sub: perfect ? '잘 맞았는데 펜스 앞에서 잡혔다' : '높이 떴지만 외야 뜬공' }
+      : { grade: 'out', label: 'GROUND OUT', tone: '#f87171', sub: perfect ? '총알 타구가 내야수 정면으로' : '땅볼, 1루에서 아웃' };
+  }
+  const h = (r - out) / (1 - out);
+  if (h < hr) return { grade: 'hr', label: 'HOME RUN!', tone: '#fde047', sub: '담장 너머로!' };
+  if (h < hr + dbl) return { grade: 'double', label: '2루타', tone: '#34d399', sub: '외야 틈을 가르는 장타' };
+  return { grade: 'single', label: '안타', tone: '#34d399', sub: '깔끔한 적시타' };
+}
+
 export function battingWindows(batter, pitch = 86) {
   const s = batter?.stats || {};
   const perfect = Math.max(22, Math.min(70, 34 + ((s.contact || 70) - 75) * 0.9 + ((s.power || 70) - 75) * 0.5));
@@ -2572,8 +2594,24 @@ function ClutchBatting({ clutch, onPick }) {
     st.current.swung = true;
     setPhase('judged');
     const abs = err == null ? Infinity : Math.abs(err);
-    if (abs <= win.perfect) { setFlash({ label: 'PERFECT', tone: '#fde047', sub: '담장 너머로!' }); finish('perfect'); return; }
-    if (abs <= win.good) { setFlash({ label: 'GOOD', tone: '#34d399', sub: err < 0 ? '살짝 빨랐지만 안타!' : '밀어서 안타!' }); finish('good'); return; }
+    // 맞힘(PERFECT 또는 살짝 빠른 GOOD): 타이밍 판정을 먼저 보여 주고, 타구 결과(선수 능력치 + 난수)를 이어서 공개
+    if (abs <= win.perfect || (err < 0 && abs <= win.good)) {
+      const quality = abs <= win.perfect ? 'perfect' : 'good';
+      const hit = rollContact(quality, batter);
+      setFlash(quality === 'perfect' ? { label: 'PERFECT', tone: '#fde047', sub: '제대로 걸렸다!' } : { label: 'GOOD', tone: '#34d399', sub: '살짝 빨랐다…' });
+      later(() => setFlash(hit), 700);
+      later(() => finish(hit.grade), 700);
+      return;
+    }
+    // 링이 공보다 조금 좁을 때(살짝 늦음): 파울 — 2스트라이크면 카운트 유지
+    if (err > 0 && abs <= win.good) {
+      const f = Math.min(2, strikesRef.current + 1);
+      strikesRef.current = f;
+      setStrikes(f);
+      setFlash({ label: 'FOUL', tone: '#fbbf24', sub: `${Math.round(err)}ms 늦어 뒤로 튀었다` });
+      later(nextPitch, 1000);
+      return;
+    }
     const k = strikesRef.current + 1;
     strikesRef.current = k;
     setStrikes(k);
