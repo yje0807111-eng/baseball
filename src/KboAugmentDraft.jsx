@@ -1638,7 +1638,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   const [drag, setDrag] = useState(null);
   const [confirmOut, setConfirmOut] = useState(false); // 방출은 두 번 눌러야 확정
   useEffect(() => setConfirmOut(false), [pick]);
-  useEffect(() => { if (candidate) setPick(null); }, [candidate]); // 선반에서 후보를 고르면 라인업 선택은 푼다
+  // 선반에서 후보를 골라도 라인업 선택은 남겨 둔다 — PICK 은 후보를 먼저 보여 주고, 후보를 해제하면 다시 이 선수로 돌아간다.
+  // 후보를 보는 중에 선택한 자리를 다시 누르면 그 자리만 바로 해제된다(아래 tap). 영입이 일어나면 선택을 푼다(합류 효과 쪽)
   // 누른(이동 대기) 선수를 바깥에 알린다 — 드래프트 화면은 PICK 구역에 그 선수 스탯 카드를 띄운다
   useLayoutEffect(() => { onInspect?.(pick ? withSlots(roster).find((p) => p.slot === pick)?.id ?? null : null); }, [pick, roster]); // eslint-disable-line react-hooks/exhaustive-deps
   // 막 영입된 선수의 자리: 이전 엔트리에 없던 id 가 생기면 잠깐 'joined' 효과 (자리 이동·교환은 id 가 그대로라 제외)
@@ -1651,6 +1652,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
     if (!prev) return undefined;
     const fresh = new Set(withSlots(roster).filter((p) => !prev.has(p.id)).map((p) => p.slot));
     if (!fresh.size) return undefined;
+    setPick(null); // 영입(교체 영입 포함)으로 새 선수가 들어오면 라인업 선택은 푼다
     setJoined(fresh);
     const t = setTimeout(() => setJoined(new Set()), 1400);
     return () => clearTimeout(t);
