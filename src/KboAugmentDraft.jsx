@@ -806,7 +806,7 @@ const KEYFRAMES = `
 .pop-scroll::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,.8); }
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
-.rl-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.rl-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } /* 탭 7개: 4 + 3 */
 .rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size: 13px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); transition: background .15s, color .15s; }
 .rl-tabs button:hover { color: #fff; background: rgba(255,255,255,.08); }
 .rl-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
@@ -1102,29 +1102,72 @@ const KEYFRAMES = `
 .lf-avg .t i b { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
 .lf-avg em { font-style: normal; font-size: 15px; font-weight: 700; line-height: 1; text-align: right; color: #fff; }
 /* 오른쪽 LINEUP 명단: 묶음 상자 위 “선 위 라벨”(이름만) · 줄은 판 높이에 맞춰 늘고 줄어 12줄이 늘 들어감 */
-.ll-body { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-.ll-box { position: relative; min-height: 0; display: flex; flex-direction: column; gap: 1px; padding-top: 22px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
-.ll-gl { position: absolute; left: 10px; right: 10px; top: 6px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; line-height: 12px; letter-spacing: .06em; color: #6ee7b7; white-space: nowrap; }
-.ll-gl::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(16,185,129,.45), rgba(16,185,129,.08)); }
-.ll-row { display: grid; grid-template-columns: 58px 32px minmax(0,1fr) 86px 30px; align-items: center; column-gap: 8px; width: 100%; min-height: 38px; padding: 3px 8px; text-align: left; overflow: hidden; cursor: pointer; transition: background .12s; }
-.ll-row + .ll-row { border-top: 1px solid rgba(255,255,255,.05); }
-.ll-row:hover { background: rgba(255,255,255,.07); }
-.ll-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
-.ll-row.on { background: rgba(56,189,248,.15); box-shadow: inset 0 0 0 1px rgba(56,189,248,.55); }
-.ll-pos { font-size: 12px; font-weight: 600; color: #cbd5e1; white-space: nowrap; }
-.ll-fc { align-self: stretch; min-height: 26px; border-radius: 2px; background-color: #1b2537; background-repeat: no-repeat; background-size: cover !important; background-position: 50% 8% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
-.ll-fc.nof { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") 50% 70% / 64% auto no-repeat, linear-gradient(180deg, #2c3749, #222c3e) !important; opacity: .85; }
-.ll-nm { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ll-row.e .ll-nm { color: #6b7280; font-weight: 500; }
-.ll-sea { font-size: 11.5px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ll-ov { font-size: 21px; font-weight: 700; line-height: 1; text-align: right; color: #fff; }
+/* 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] */
+.mt-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.mt-tabs { flex: none; display: flex; gap: 20px; padding: 0 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.16); }
+.mt-tabs button { position: relative; padding: 3px 1px 8px; font-size: 13px; font-weight: 600; color: #6b7280; transition: color .15s; }
+.mt-tabs button:hover { color: #cbd5e1; }
+.mt-tabs button.on { color: #fff; }
+.mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
+.mt-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
+.mt-team { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
+.mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
+.mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.mt-trio > div + div { box-shadow: inset 1px 0 0 rgba(148,163,184,.12); }
+.mt-trio small { font-size: 11px; color: #6b7280; }
+.mt-trio b { font-size: 30px; font-weight: 700; line-height: 1; color: #fff; }
+.mt-radar { position: relative; }
+.mt-rd { display: block; width: 100%; height: auto; }
+.mt-rd text { font-size: 11px; fill: #cbd5e1; }
+.mt-rd text.v { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; fill: #fff; }
+.mt-rd tspan.d { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; }
+.mt-lgd { position: absolute; right: 0; bottom: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 9.5px; color: #6b7280; pointer-events: none; }
+.mt-lgd i { display: inline-block; width: 9px; margin-right: 4px; vertical-align: 2px; border-top: 2px solid #34d399; }
+.mt-lgd i.ai { border-top: 2px dashed #f87171; }
+.mt-lgd b { margin-left: 3px; font-size: 11px; font-weight: 700; color: #cbd5e1; }
+.mt-style { font-size: 17px; font-weight: 700; color: #fff; }
+.mt-style .g { color: #34d399; }
+.mt-style .o { color: #fb923c; }
+.mt-style i { margin: 0 6px; font-style: normal; color: #4b5563; }
+.mt-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.mt-chips span { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 8px; font-size: 12px; color: #cbd5e1; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); }
+.mt-chips b { font-size: 15px; font-weight: 700; }
+.mt-chips .up b { color: #34d399; }
+.mt-chips .dn b { color: #fb923c; }
+.mt-rec { display: flex; flex-direction: column; gap: 10px; }
+.mt-card { --c: 10px; --ac: #38bdf8; padding: 6px 8px 4px 11px; background: rgba(255,255,255,.028); box-shadow: inset 3px 0 0 var(--ac); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+.mt-card.bat { --ac: #34d399; }
+.mt-gh { display: flex; align-items: center; gap: 8px; height: 22px; padding: 0 2px; }
+.mt-gh::after { content: ""; flex: 1; height: 1px; background: rgba(148,163,184,.2); order: 2; }
+.mt-gh .en { font-size: 14px; font-weight: 800; letter-spacing: .18em; color: var(--ac); }
+.mt-gh b { order: 1; font-size: 12px; color: #cbd5e1; }
+.mt-gh em { order: 3; font-style: normal; font-size: 11px; color: #6b7280; }
+.mt-rec table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.mt-rec th { height: 22px; padding: 0 4px; font-size: 10.5px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
+.mt-rec td { height: 29px; padding: 0 4px; font-size: 13px; text-align: right; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
+.mt-rec tbody tr:last-child td { box-shadow: none; }
+.mt-rec .l { text-align: left; }
+.mt-rec tbody tr { cursor: pointer; transition: background .12s; }
+.mt-rec tbody tr:hover { background: rgba(255,255,255,.05); }
+.mt-rec tbody tr:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.mt-rec tr.on { background: rgba(56,189,248,.14); }
+.mt-rec tr.e td { height: 24px; font-size: 11.5px; color: #4b5563; }
+.mt-rec .pos { font-size: 11.5px; color: #9ca3af; }
+.mt-face { display: inline-block; width: 22px; height: 22px; vertical-align: middle; border-radius: 50%; background-color: #1b2537; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.mt-rec .who { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.mt-rec .who b { font-size: 13px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
+.mt-rec .who small { font-size: 10px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; }
+.mt-rec .st { font-size: 15px; font-weight: 600; }
+.mt-rec .st.none { color: #4b5563; }
+.mt-rec .st.best { font-weight: 700; color: #34d399; }
+.mt-rec td.ov b { font-size: 17px; font-weight: 700; color: #fff; }
 /* 종합 수치 색 등급 (선반 · PICK 카드와 같게) */
-.ll-ov.t75, .lf-avg em.t75 { color: #34d399; }
-.ll-ov.t90, .lf-avg em.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+.mt-trio b.t75, .mt-rec td.ov b.t75, .lf-avg em.t75 { color: #34d399; }
+.mt-trio b.t90, .mt-rec td.ov b.t90, .lf-avg em.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
 @media (min-width: 1024px) {
-  .ll-body { flex: 1; }
-  .ll-box { flex: var(--k) 1 0; }
-  .ll-row { flex: 1 1 0; min-height: 26px; max-height: 48px; }
+  .mt-panel { flex: 1; }
+  .mt-body { flex: 1; min-height: 0; overflow-y: auto; }
+  .mt-team { height: 100%; }
 }
 .dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
 .dock-row:hover { background: rgba(255,255,255,.03); }
@@ -1864,34 +1907,212 @@ function LineupAvg({ placed, boosted, style }) {
   );
 }
 
-/* ───── 드래프트 화면 오른쪽 LINEUP 명단: 투수 · 내야 · 외야·지명 묶음, 줄마다 포지션 · 프로필 · 선수 · 시즌 · 종합 ───── */
-const LIST_LABEL = { SP: '선발', MR: '중간계투', CL: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자' };
-const LIST_GROUPS = [['투수', ['SP', 'MR', 'CL']], ['내야', ['C', '1B', '2B', '3B', 'SS']], ['외야 · 지명', ['OF1', 'OF2', 'OF3', 'DH']]];
-function LineupList({ roster, selectedSlot, onTap }) {
+/* ───── 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] ───── */
+const TEAM_AXES = [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense'], ['선발', 'sp'], ['불펜', 'pen']];
+const STYLE_STRONG = { 파워: '홈런 타선', 컨택: '컨택 타선', 주루: '발 빠른 야구', 수비: '짠물 수비', 선발: '선발 야구', 불펜: '철벽 불펜' };
+const STYLE_WEAK = { 파워: '장타 부족', 컨택: '정교함 부족', 주루: '느린 발', 수비: '불안한 수비', 선발: '얇은 선발', 불펜: '불안한 뒷문' };
+const meanOf = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
+const signed = (d) => `${d >= 0 ? '+' : ''}${Math.round(d)}`;
+const pitchPower = (p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3; // buildTeam 의 pitchValue 와 같은 식
+
+/** 팀 지표: 종합 · 투수 · 야수 평균과 레이더 여섯 축 (선 자리 · 시너지 반영) */
+function teamMetrics(roster, draftView = false) {
+  const on = withSlots(roster).map(playAt);
+  const eff = applySynergies(on, visibleSynergies(on, draftView));
+  const at = (slot) => eff.find((p) => p.slot === slot);
+  const isPitch = (p) => ['SP', 'MR', 'CL'].includes(p.slot);
+  const bats = eff.filter((p) => p.type === 'batter');
+  const bat = (k) => meanOf(bats.map((p) => p.stats[k]));
+  const pens = ['MR', 'CL'].map(at).filter(Boolean);
+  return {
+    team: meanOf(eff.map((p) => p.overall)),
+    pitch: meanOf(eff.filter(isPitch).map((p) => p.overall)),
+    field: meanOf(eff.filter((p) => !isPitch(p)).map((p) => p.overall)),
+    power: bat('power'), contact: bat('contact'), speed: bat('speed'), defense: bat('defense'),
+    sp: at('SP') ? pitchPower(at('SP')) : null,
+    pen: meanOf(pens.map(pitchPower)),
+  };
+}
+const seededRng = (seed) => () => { // mulberry32
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+/** 비교 기준: 같은 모드 · 같은 캡으로 AI 가 드래프트한 팀 24개의 평균 (고정 시드라 늘 같은 값, 한 번만 계산) */
+const aiBenchCache = new Map();
+function aiBenchmark(mode, cap) {
+  const key = `${mode.id}:${cap}`;
+  if (!aiBenchCache.has(key)) {
+    const teams = Array.from({ length: 24 }, (_, i) => teamMetrics(aiDraft({ players: mode.players, cap, rng: seededRng(1000 + i * 7919) })));
+    aiBenchCache.set(key, Object.fromEntries(['team', ...TEAM_AXES.map(([, k]) => k)].map((k) => [k, meanOf(teams.map((t) => t[k]).filter((v) => v != null))])));
+  }
+  return aiBenchCache.get(key);
+}
+
+/** 실제 시즌 기록(source 한 줄)에서 표 칸 값. 레전드 카드처럼 기록이 없으면 null */
+function seasonRecord(p) {
+  if (!p?.source) return null;
+  const s = p.source.split('—')[0];
+  const g = (re) => (s.match(re) || [])[1];
+  return p.type === 'pitcher'
+    ? { era: g(/ERA\s?([\d.]+)/), w: g(/(\d+)승/), sv: g(/(\d+)SV/), hld: g(/(\d+)HLD/), k: g(/(\d+)K\b/) }
+    : { avg: g(/(\.\d{3})/), hr: g(/(\d+)HR/), sb: g(/(\d+)SB/), rbi: g(/(\d+)타점/) };
+}
+/** 표 열: 머리 · 보일 값 · 비교용 숫자(열마다 우리 팀 1등을 초록으로, ERA 는 낮을수록) */
+const REC_COLS = {
+  pitch: [
+    { h: 'ERA', show: (r) => r.era, num: (r) => +r.era, low: true },
+    { h: '승', show: (r) => r.w, num: (r) => +r.w },
+    { h: 'S/H', show: (r) => (r.sv && +r.sv >= +(r.hld || 0) ? `${r.sv}S` : r.hld ? `${r.hld}H` : null), num: (r) => Math.max(+(r.sv || 0), +(r.hld || 0)) || NaN },
+    { h: 'K', show: (r) => r.k, num: (r) => +r.k },
+  ],
+  bat: [
+    { h: '타율', show: (r) => r.avg, num: (r) => +r.avg },
+    { h: 'HR', show: (r) => r.hr, num: (r) => +r.hr },
+    { h: '도루', show: (r) => r.sb, num: (r) => +r.sb },
+    { h: '타점', show: (r) => r.rbi, num: (r) => +r.rbi },
+  ],
+};
+const REC_GROUPS = [['pitch', 'PITCHERS', '투수', ['SP', 'MR', 'CL']], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']]];
+const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
+
+function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
+  const [tab, setTab] = useState('team');
+  return (
+    <div className="mt-panel">
+      <div className="mt-tabs" role="tablist">
+        {[['team', '팀 분석'], ['rec', '선수 기록']].map(([k, t]) => (
+          <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
+        ))}
+      </div>
+      <div className="mt-body" role="tabpanel">
+        {tab === 'team' ? <TeamReport roster={roster} mode={mode} cap={cap} /> : <RecordCards roster={roster} selectedSlot={selectedSlot} onTap={onTap} />}
+      </div>
+    </div>
+  );
+}
+
+function TeamReport({ roster, mode, cap }) {
+  const me = teamMetrics(roster, true);
+  const ai = aiBenchmark(mode, cap);
+  const axes = TEAM_AXES.map(([k, key]) => ({ k, m: me[key], a: ai[key], d: me[key] == null ? null : me[key] - ai[key] }));
+  const ranked = axes.filter((x) => x.d != null).sort((x, y) => y.d - x.d);
+  const fmt1 = (v) => (v == null ? '-' : v.toFixed(1));
+  return (
+    <div className="mt-team">
+      <div className="mt-trio">
+        {[['팀 종합', me.team], ['투수', me.pitch], ['야수', me.field]].map(([k, v]) => (
+          <div key={k}><small>{k}</small><b className={`font-display tabular-nums ${v != null ? tierOf(v) : ''}`}>{fmt1(v)}</b></div>
+        ))}
+      </div>
+      <div className="mt-radar">
+        <TeamRadar axes={axes} />
+        <div className="mt-lgd" aria-hidden="true">
+          <span><i />우리 팀<b className="font-display tabular-nums">{fmt1(me.team)}</b></span>
+          <span><i className="ai" />AI 평균<b className="font-display tabular-nums">{fmt1(ai.team)}</b></span>
+        </div>
+      </div>
+      {ranked.length > 0 && (
+        <div className="mt-style"><span className="g">{STYLE_STRONG[ranked[0].k]}</span><i>·</i><span className="o">{STYLE_WEAK[ranked[ranked.length - 1].k]}</span></div>
+      )}
+      <div className="mt-chips">
+        {ranked.map((x) => (
+          <span key={x.k} className={x.d >= 0 ? 'up' : 'dn'}>{x.d >= 0 ? '▲' : '▼'} {x.k}<b className="font-display tabular-nums">{signed(x.d)}</b></span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** 여섯 축 레이더: 초록 면 = 우리 팀, 붉은 점선 = AI 평균. 꼭짓점에 우리 값과 AI 평균과의 차이 */
+function TeamRadar({ axes }) {
+  const W = 340, H = 266, R = 90, lo = 40, cx = W / 2;
+  const cy = R + 40 + Math.max(0, (H - R - 42 - (R + 40)) / 2); // 위 꼭짓점 이름과 아래 꼭짓점 값이 틀 안에 들도록
+  const at = (i, r) => { const a = -Math.PI / 2 + (i * Math.PI * 2) / axes.length; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  const rOf = (v) => (R * (Math.max(lo, Math.min(100, v ?? lo)) - lo)) / (100 - lo);
+  const pts = (f) => axes.map((_, i) => at(i, f(i)).map((n) => n.toFixed(1)).join(',')).join(' ');
+  return (
+    <svg className="mt-rd" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={axes.map((x) => `${x.k} ${x.m == null ? '-' : Math.round(x.m)}`).join(', ')}>
+      {[0.25, 0.5, 0.75, 1].map((k) => <polygon key={k} points={pts(() => R * k)} fill="none" stroke={`rgba(148,163,184,${k === 1 ? 0.3 : 0.12})`} />)}
+      {axes.map((x, i) => { const [ex, ey] = at(i, R); return <line key={x.k} x1={cx} y1={cy} x2={ex} y2={ey} stroke="rgba(148,163,184,.12)" />; })}
+      <polygon points={pts((i) => rOf(axes[i].a))} fill="none" stroke="#f87171" strokeWidth="1.5" strokeDasharray="4 3" />
+      <polygon points={pts((i) => rOf(axes[i].m))} fill="#34d399" fillOpacity=".2" stroke="#34d399" strokeWidth="2" strokeLinejoin="round" />
+      {axes.map((x, i) => {
+        const [lx, ly] = at(i, R + 24);
+        const anchor = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end';
+        const tx = lx + (anchor === 'start' ? -10 : anchor === 'end' ? 10 : 0);
+        return (
+          <g key={x.k}>
+            <text x={tx} y={ly - 4} textAnchor={anchor}>{x.k}</text>
+            <text className="v" x={tx} y={ly + 12} textAnchor={anchor}>
+              {x.m == null ? '-' : Math.round(x.m)}
+              {x.d != null && <tspan className="d" dx="4" fill={x.d >= 0 ? '#34d399' : '#fb923c'}>{signed(x.d)}</tspan>}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function RecordCards({ roster, selectedSlot, onTap }) {
   const placed = withSlots(roster);
   const on = placed.map(playAt);
   const effBySlot = new Map(applySynergies(on, visibleSynergies(on, true)).map((p) => [p.slot, p]));
   return (
-    <div className="ll-body">
-      {LIST_GROUPS.map(([g, slots]) => (
-        <div key={g} className="ll-box" style={{ '--k': slots.length }}>
-          <span className="ll-gl">{g}</span>
-          {slots.map((s) => <LineupListRow key={s} slot={s} player={placed.find((p) => p.slot === s)} eff={effBySlot.get(s)} on={selectedSlot === s} onTap={onTap} />)}
-        </div>
-      ))}
+    <div className="mt-rec">
+      {REC_GROUPS.map(([kind, en, ko, slots]) => {
+        const cols = REC_COLS[kind];
+        const rows = slots.map((slot) => {
+          const player = placed.find((p) => p.slot === slot);
+          // 투수 자리에 선 타자(또는 반대)는 표 열과 기록 종류가 달라 기록을 비운다
+          const rec = player && (player.type === 'pitcher') === (kind === 'pitch') ? seasonRecord(player) : null;
+          return { slot, player, rec };
+        });
+        const best = cols.map((c) => {
+          const vals = rows.filter((x) => x.rec).map((x) => c.num(x.rec)).filter((n) => !Number.isNaN(n));
+          return vals.length > 1 ? (c.low ? Math.min(...vals) : Math.max(...vals)) : null;
+        });
+        return (
+          <section key={kind} className={`mt-card ${kind}`}>
+            <div className="mt-gh"><span className="en font-display">{en}</span><b>{ko}</b><em>{rows.filter((x) => x.player).length}/{slots.length}</em></div>
+            <table>
+              <colgroup><col style={{ width: 44 }} /><col style={{ width: 30 }} /><col />{cols.map((c) => <col key={c.h} style={{ width: 38 }} />)}<col style={{ width: 30 }} /></colgroup>
+              <thead><tr><th className="l">자리</th><th /><th className="l">선수</th>{cols.map((c) => <th key={c.h}>{c.h}</th>)}<th>종합</th></tr></thead>
+              <tbody>
+                {rows.map(({ slot, player, rec }) => (
+                  <RecordRow key={slot} slot={slot} player={player} eff={effBySlot.get(slot)} rec={rec} cols={cols} best={best} on={selectedSlot === slot} onTap={onTap} />
+                ))}
+              </tbody>
+            </table>
+          </section>
+        );
+      })}
     </div>
   );
 }
-function LineupListRow({ slot, player, eff, on, onTap }) {
+function RecordRow({ slot, player, eff, rec, cols, best, on, onTap }) {
   const bust = useBust(player, '260%');
+  const tap = () => onTap?.(slot);
   return (
-    <button type="button" className={`ll-row ${player ? '' : 'e'} ${on ? 'on' : ''}`} aria-pressed={on} onClick={() => onTap?.(slot)}>
-      <span className="ll-pos">{LIST_LABEL[slot]}</span>
-      <span className={`ll-fc ${bust ? '' : 'nof'}`} style={bust} aria-hidden="true" />
-      <span className="ll-nm">{player ? player.name : '빈 자리'}</span>
-      <span className="ll-sea">{player ? `${player.year} ${player.team}` : '—'}</span>
-      <b className={`ll-ov font-display tabular-nums ${eff ? tierOf(eff.overall) : ''}`}>{eff ? eff.overall : ''}</b>
-    </button>
+    <tr className={`${player ? '' : 'e'} ${on ? 'on' : ''}`} tabIndex={0} onClick={tap}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}>
+      <td className="l pos">{REC_SLOT[slot]}</td>
+      {player ? (
+        <>
+          <td className="l"><i className="mt-face" style={bust || undefined} aria-hidden="true" /></td>
+          <td className="l"><span className="who"><b>{player.name}</b><small>{player.year} {player.team}</small></span></td>
+          {cols.map((c, i) => {
+            const v = rec ? c.show(rec) : null;
+            return <td key={c.h}><span className={`st font-display tabular-nums ${v == null ? 'none' : best[i] != null && c.num(rec) === best[i] ? 'best' : ''}`}>{v ?? '-'}</span></td>;
+          })}
+          <td className="ov"><b className={`font-display tabular-nums ${eff ? tierOf(eff.overall) : ''}`}>{eff?.overall}</b></td>
+        </>
+      ) : (
+        <><td /><td className="l" colSpan={cols.length + 2}>비어 있음</td></>
+      )}
+    </tr>
   );
 }
 
@@ -2825,6 +3046,34 @@ const RULE_TABS = [
         <p>경기 결과는 전적에 쌓이고, 같은 상대와 다시 겨룰 수도 있습니다.</p>
       </> },
     ] },
+  { id: 'team', label: '내 팀',
+    icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
+    lead: <>드래프트 화면 오른쪽 <b>MY TEAM</b> 판에서 지금 라인업의 전력과 선수들의 실제 시즌 기록을 봅니다.</>,
+    groups: [
+      { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 선수들의 평균 종합입니다.', b: <>
+        <p>선수를 세운 자리와 시너지가 반영된 종합의 평균입니다. 비어 있는 자리는 빼고 계산합니다.</p>
+        <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지입니다.</p>
+        <p>타자 넷은 야수들의 평균 능력치이고, 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력입니다.</p>
+      </> },
+      { t: '초록 면과 붉은 점선은 무엇인가요?', s: '초록 면은 우리 팀, 붉은 점선은 AI 평균입니다.', b: <>
+        <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균입니다.</p>
+        <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼입니다. 아래 칩은 차이가 큰 순서입니다.</p>
+      </> },
+      { t: '홈런 타선 · 불안한 뒷문은 무엇인가요?', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력입니다.', b: <>
+        <div className="rl-tbl">
+          <span className="h">능력</span><span className="h">가장 앞설 때</span><span className="h">가장 밀릴 때</span>
+          {TEAM_AXES.map(([k]) => (
+            <React.Fragment key={k}><span>{k}</span><span className="up">{STYLE_STRONG[k]}</span><span className="dn">{STYLE_WEAK[k]}</span></React.Fragment>
+          ))}
+        </div>
+      </> },
+      { t: '선수 기록은 어떻게 보나요?', s: '투수와 타자의 실제 시즌 기록을 따로 봅니다.', b: <>
+        <p>투수는 <b>ERA · 승 · 세이브(S) 또는 홀드(H) · 삼진</b>, 타자는 <b>타율 · 홈런 · 도루 · 타점</b>입니다.</p>
+        <p>초록 기록은 그 열에서 <b>우리 팀 1등</b>입니다. ERA는 가장 낮은 값이 초록입니다.</p>
+        <p>레전드 카드처럼 시즌 기록 자료가 없는 선수는 <b>-</b>로 표시됩니다.</p>
+        <div className="rl-tip"><span>기록 줄을 누르면 내 라인업에서 그 자리를 누른 것과 같습니다.</span></div>
+      </> },
+    ] },
 ];
 
 export default function KboAugmentDraft() {
@@ -3362,10 +3611,11 @@ export default function KboAugmentDraft() {
                     reserve={320} fill wide tapRef={lineupTapRef} className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
                 </div>
-                {/* 라인업 명단: 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
+                {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
-                  <span className="bc-label font-display">LINEUP</span>
-                  <LineupList roster={roster} selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
+                  <span className="bc-label font-display">MY TEAM</span>
+                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap}
+                    selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
                     onTap={(slot) => lineupTapRef.current?.(slot)} />
                 </div>
               </div>

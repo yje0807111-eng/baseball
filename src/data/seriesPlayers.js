@@ -39,6 +39,7 @@ export const SERIES = Object.values(modules)
       isNational: s.kind === 'national',
       isForeign: p.isForeign,
       note: p.note,
+      source: p.source, // 실제 시즌 기록 한 줄 (내 팀 판의 선수 기록 표가 읽는다)
       stats: p.stats,
     })),
   }));
