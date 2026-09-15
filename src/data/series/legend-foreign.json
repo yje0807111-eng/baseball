@@ -1,0 +1,38 @@
+{
+  "id": "legend-foreign",
+  "kind": "legend",
+  "year": null,
+  "title": "외국인 레전드",
+  "franchise": null,
+  "subtitle": "역대 KBO 외국인 스타",
+  "blurb": "1998년 외국인 선수 제도 도입 이후 KBO를 뒤흔든 외국인 스타 모음. 우즈·테임즈·로하스·폰세 등 MVP 시즌 포함.",
+  "notes": [
+    "포수: KBO 외국인 포수는 극소수 — 실제 포수로 뛴 베탄코트(2019 NC, 53경기 후 방출)를 채택. 짧은 표본이라 보수적으로 산정, defense 70은 추정치.",
+    "퀸란 2000 3루 수비 평판 기반 defense 82는 추정치.",
+    "로하스 2020 도루 미확인 — speed 55는 추정치.",
+    "브리또는 2001 SK(.320/.425 22HR) 시즌 채택 — 2000 SK(.338 15HR 103G), 2002 삼성(25HR·유격수 GG)도 후보.",
+    "외국인 불펜은 드물어 프록터(2012 두산 35SV)·애킨스(2009 롯데 26SV 구원왕) 채택.",
+    "리오스·우즈·폰세·페디·밴헤켄·밴덴헐크·나바로·오스틴·데이비스·호세·버나디나는 기존 시리즈 수치 복사.",
+    "1999~2000·2014~2018·2020 시즌은 타고투저 보정 적용."
+  ],
+  "players": [
+    { "personId": "리오스", "name": "리오스", "year": 2007, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 69, "control": 81, "stamina": 96, "stability": 94 }, "note": "22승·ERA 2.07·MVP", "source": "33G 22승5패 234.1IP ERA2.07 147K 58BB — 위키백과" },
+    { "personId": "폰세", "name": "폰세", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 97, "control": 84, "stamina": 88, "stability": 98 }, "note": "투수 4관왕·MVP", "source": "29G 17승1패 180.2IP ERA1.89 252K WHIP0.94 — KBO" },
+    { "personId": "페디", "name": "페디", "year": 2023, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 94, "control": 87, "stamina": 88, "stability": 97 }, "note": "투수 3관왕·MVP", "source": "30G 180.1IP 20승6패 ERA2.00 209K 35BB WHIP0.95 — KBO" },
+    { "personId": "밴헤켄", "name": "밴헤켄", "year": 2014, "team": "넥센", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 81, "control": 77, "stamina": 90, "stability": 83 }, "note": "20승·투수 골든글러브", "source": "20승6패 ERA3.51 187IP 178K 53BB WHIP1.32 — kowiki" },
+    { "personId": "밴덴헐크", "name": "밴덴헐크", "year": 2014, "team": "삼성", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 91, "control": 76, "stamina": 80, "stability": 86 }, "note": "평균자책점·탈삼진 1위", "source": "13승4패 ERA3.18 152.2IP 180K 45BB WHIP1.11 — kowiki" },
+    { "personId": "프록터", "name": "프록터", "year": 2012, "team": "두산", "position": "RP", "hand": "R", "isForeign": true, "stats": { "stuff": 79, "control": 65, "stamina": 52, "stability": 95 }, "note": "35세이브·외국인 최다", "source": "57G 4승4패35SV 55.1IP ERA1.79 46K 22BB WHIP1.16 — namu" },
+    { "personId": "애킨스", "name": "애킨스", "year": 2009, "team": "롯데", "position": "RP", "hand": "R", "isForeign": true, "stats": { "stuff": 63, "control": 60, "stamina": 50, "stability": 76 }, "note": "외국인 첫 구원왕", "source": "50G 3승5패26SV 49.1IP ERA3.83 29K 22BB WHIP1.44 — namu" },
+    { "personId": "베탄코트", "name": "베탄코트", "year": 2019, "team": "NC", "position": "C", "hand": "R", "isForeign": true, "stats": { "power": 66, "contact": 62, "speed": 44, "defense": 70 }, "note": "", "source": "53G .246/.308 8HR 1SB 19BB — namu" },
+    { "personId": "테임즈", "name": "테임즈", "year": 2015, "team": "NC", "position": "1B", "hand": "L", "isForeign": true, "stats": { "power": 97, "contact": 98, "speed": 90, "defense": 65 }, "note": "KBO 첫 40-40·MVP", "source": "142G .381/.497 47HR 140RBI 40SB 103BB — 위키백과" },
+    { "personId": "우즈", "name": "우즈", "year": 1998, "team": "OB", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 95, "contact": 82, "speed": 45, "defense": 62 }, "note": "42홈런 신기록·MVP", "source": "126G .305 42HR 103RBI — SPOTV NEWS" },
+    { "personId": "오스틴", "name": "오스틴", "year": 2024, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 86, "contact": 86, "speed": 64, "defense": 66 }, "note": "타점왕·1루수 골든글러브", "source": ".319/.384 32HR 132타점 12SB 140G — KBO 기록실" },
+    { "personId": "나바로", "name": "나바로", "year": 2015, "team": "삼성", "position": "2B", "hand": "R", "isForeign": true, "stats": { "power": 96, "contact": 74, "speed": 76, "defense": 78 }, "note": "2루수 최다 48홈런·GG", "source": "140G .287 48HR 137RBI 22SB 126득점 — 기사·namu" },
+    { "personId": "퀸란", "name": "퀸란", "year": 2000, "team": "현대", "position": "3B", "hand": "R", "isForeign": true, "stats": { "power": 88, "contact": 57, "speed": 43, "defense": 82 }, "note": "37홈런·한국시리즈 MVP", "source": "133G .236/.302 37HR 91RBI 2SB 36BB — namu" },
+    { "personId": "브리또", "name": "브리또", "year": 2001, "team": "SK", "position": "SS", "hand": "R", "isForeign": true, "stats": { "power": 74, "contact": 86, "speed": 59, "defense": 80 }, "note": "", "source": "122G .320/.425 22HR 80RBI 7SB 81BB — namu" },
+    { "personId": "로하스", "name": "로하스", "year": 2020, "team": "KT", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 95, "contact": 92, "speed": 55, "defense": 72 }, "note": "타격 4관왕·MVP", "source": "142G .349/.417 47HR 135RBI 116득점 SLG.680 — 기사·namu" },
+    { "personId": "데이비스", "name": "데이비스", "year": 1999, "team": "한화", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 84, "contact": 86, "speed": 87, "defense": 86 }, "note": "30-30·우승 멤버", "source": ".328 30HR 106타점 35SB 93득점 — 기사" },
+    { "personId": "호세", "name": "호세", "year": 1999, "team": "롯데", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 87, "contact": 86, "speed": 64, "defense": 70 }, "note": "외야수 골든글러브", "source": ".327 36HR 122타점 12SB 79BB 132G — kowiki" },
+    { "personId": "버나디나", "name": "버나디나", "year": 2017, "team": "KIA", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 78, "contact": 84, "speed": 83, "defense": 88 }, "note": "득점왕·외야수 GG", "source": "139G .320/.372 27HR 111RBI 32SB 118득점 — namu·위키백과" }
+  ]
+}
