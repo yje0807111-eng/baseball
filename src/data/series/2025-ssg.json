@@ -1,0 +1,39 @@
+{
+  "id": "2025-ssg",
+  "kind": "team",
+  "year": 2025,
+  "title": "SSG 랜더스",
+  "franchise": "SSG",
+  "subtitle": "정규시즌 3위 · 준플레이오프 탈락",
+  "blurb": "팀 평균자책점 리그 1위 마운드로 3위에 올랐지만, 준플레이오프에서 삼성에 1승 3패로 져 탈락했다.",
+  "notes": [
+    "정규시즌 75승 4무 65패(.536) 3위, 준플레이오프 삼성에 1승 3패(4차전 2-5) — namu·위키백과·중부일보.",
+    "팀 평균자책점 3.36 리그 1위 — 위키백과.",
+    "선수 기록은 KBO 기록실 연도별 통산 표 기준.",
+    "조병현 stability는 ERA 1.60·WHIP 0.89로 기준표 밖이라 상한 가까이 추정. 앤더슨 stuff는 K/9 12.8을 반영해 기준보다 +2.",
+    "김건우는 35경기 66이닝으로 선발·구원 비중을 확인 못 해 RP 표기, 볼넷이 많아 control은 하한 40.",
+    "최정(95경기 23홈런)·에레디아(96경기 13홈런)는 부분 출전이라 power를 풀시즌 환산보다 보수적으로 잡음. 최정·한유섬 주 포지션(3루/외야 vs 지명) 비중은 미확인.",
+    "박성한·최지훈 타석 방향은 기록실 표기를 확인 못 해 알려진 정보(좌타)로 넣음. defense는 전부 평판 기반 추정.",
+    "18명 구성: 선발 4·불펜 5·야수 9. 오태곤은 229타석 벤치 자원이라 1루/외야 비중 미확인 — 등록 포지션(외야수)으로 OF 표기, power는 5홈런을 보수적으로 환산. 류효승(27경기)은 제외."
+  ],
+  "players": [
+    { "personId": "앤더슨", "name": "앤더슨", "year": 2025, "team": "SSG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 96, "control": 76, "stamina": 86, "stability": 92 }, "note": "245탈삼진·ERA 2.25", "source": "30G 12승7패 ERA2.25 171.2IP 245K 51BB WHIP1.00 — KBO 기록실" },
+    { "personId": "화이트", "name": "화이트", "year": 2025, "team": "SSG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 85, "control": 73, "stamina": 75, "stability": 86 }, "note": "11승4패", "source": "24G 11승4패 ERA2.87 134.2IP 137K 44BB WHIP1.15 — KBO 기록실" },
+    { "personId": "김광현", "name": "김광현", "year": 2025, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 82, "control": 70, "stamina": 78, "stability": 62 }, "note": "10승", "source": "28G 10승10패 ERA5.00 144IP 138K 50BB WHIP1.49 — KBO 기록실" },
+    { "personId": "문승원", "name": "문승원", "year": 2025, "team": "SSG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 59, "control": 69, "stamina": 67, "stability": 60 }, "note": "", "source": "23G 4승7패 ERA5.13 105.1IP 61K 38BB WHIP1.40 — KBO 기록실" },
+    { "personId": "조병현", "name": "조병현", "year": 2025, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 79, "stamina": 50, "stability": 98 }, "note": "30세이브 ERA 1.60", "source": "69G 5승4패 30SV ERA1.60 67.1IP 79K 18BB WHIP0.89 — KBO 기록실" },
+    { "personId": "노경은", "name": "노경은", "year": 2025, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 74, "stamina": 58, "stability": 93 }, "note": "77경기 35홀드", "source": "77G 3승6패 3SV 35HLD ERA2.14 80IP 68K 25BB WHIP1.06 — KBO 기록실" },
+    { "personId": "이로운", "name": "이로운", "year": 2025, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 72, "stamina": 57, "stability": 94 }, "note": "33홀드 ERA 1.99", "source": "75G 6승5패 1SV 33HLD ERA1.99 77IP 66K 26BB WHIP1.06 — KBO 기록실" },
+    { "personId": "김민", "name": "김민", "year": 2025, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 85, "control": 79, "stamina": 52, "stability": 85 }, "note": "22홀드", "source": "70G 5승2패 1SV 22HLD ERA2.97 63.2IP 65K 17BB WHIP1.21 — KBO 기록실" },
+    { "personId": "김건우", "name": "김건우", "year": 2025, "team": "SSG", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 40, "stamina": 55, "stability": 73 }, "note": "", "source": "35G 5승4패 2HLD ERA3.82 66IP 68K 49BB WHIP1.55 — KBO 기록실" },
+    { "personId": "조형우", "name": "조형우", "year": 2025, "team": "SSG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 59, "speed": 42, "defense": 80 }, "note": "", "source": ".238/.294 4HR 29타점 0SB 294PA(102G) — KBO 기록실" },
+    { "personId": "고명준", "name": "고명준", "year": 2025, "team": "SSG", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 68, "contact": 73, "speed": 44, "defense": 64 }, "note": "17홈런", "source": ".278/.306 17HR 64타점 2SB 500PA(130G) — KBO 기록실" },
+    { "personId": "정준재", "name": "정준재", "year": 2025, "team": "SSG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 62, "speed": 88, "defense": 76 }, "note": "37도루", "source": ".245/.340 0HR 25타점 37SB 442PA(132G) — KBO 기록실" },
+    { "personId": "최정", "name": "최정", "year": 2025, "team": "SSG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 61, "speed": 42, "defense": 76 }, "note": "95경기 23홈런", "source": ".244/.360 23HR 63타점 1SB 406PA(95G) — KBO 기록실" },
+    { "personId": "박성한", "name": "박성한", "year": 2025, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 71, "speed": 52, "defense": 86 }, "note": "출루율 .384", "source": ".274/.384 7HR 48타점 5SB 79BB 538PA(127G) — KBO 기록실" },
+    { "personId": "에레디아", "name": "에레디아", "year": 2025, "team": "SSG", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 68, "contact": 91, "speed": 44, "defense": 74 }, "note": "타율 .339", "source": ".339/.398 13HR 54타점 1SB 415PA(96G) — KBO 기록실" },
+    { "personId": "최지훈", "name": "최지훈", "year": 2025, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 75, "speed": 82, "defense": 90 }, "note": "147안타·28도루", "source": ".284/.342 7HR 45타점 28SB 574PA(140G) — KBO 기록실" },
+    { "personId": "한유섬", "name": "한유섬", "year": 2025, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 66, "contact": 71, "speed": 42, "defense": 68 }, "note": "71타점", "source": ".273/.347 15HR 71타점 1SB 511PA(128G) — KBO 기록실" },
+    { "personId": "오태곤", "name": "오태곤", "year": 2025, "team": "SSG", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 56, "contact": 47, "speed": 80, "defense": 72 }, "note": "25도루", "source": ".201/.310 5HR 26타점 25SB 229PA(122G) — KBO 기록실" }
+  ]
+}
