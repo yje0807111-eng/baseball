@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 
 /* ════════════════════════════════════════════════════════════════════
@@ -744,7 +745,7 @@ const KEYFRAMES = `
 .lf-tok.want.empty .lf-ph::before { opacity: .85; }
 .lf-tok.ghost .lf-bx small, .lf-row.ghost .nm small { color: #10b981; }
 .lf-tok.clash .lf-bx small, .lf-row.clash .nm small, .lf-off { color: #fbbf24 !important; }
-.lf-tok.over .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 16px rgba(16,185,129,.5); } /* 끌어다 놓을 자리 */
+.lf-tok.over .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.55); } /* 끌어다 놓을 자리: 끌기 카드의 하늘색과 같게 */
 .lf-tok.lifted, .lf-row.lifted { opacity: .35; }
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
@@ -1064,8 +1065,27 @@ const KEYFRAMES = `
 .dock-row.on.open { background: linear-gradient(90deg, rgba(16,185,129,.16), rgba(56,189,248,.06)); box-shadow: inset 2px 0 0 #10b981; }
 .dock-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
-.lf-drag { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -60%) rotate(-3deg); display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: #0f1724; box-shadow: 0 0 0 2px #10b981, 0 12px 28px rgba(0,0,0,.6); color: #fff; font-weight: 700; font-size: 14px; }
-.lf-drag i { width: 36px; height: 44px; background-color: #0b111b; background-repeat: no-repeat; }
+/* 끌기 카드(body 포털): 토큰과 같은 판을 반투명 + 하늘색 브래킷으로. 커서는 흉상 가슴께, 크기는 필드 배율에 맞춘 뒤 조금 작게(×0.92)
+   판 위 칩이 “SS ››› 2B” 로 놓을 자리까지 이어진다 — 셰브론이 차례로 흐르고 놓을 자리 칩이 톡 튀어나옴, 사람이 있으면 양쪽 셰브론(맞바꿈) */
+.lf-drag { position: fixed; z-index: 60; left: 0; top: 0; width: 214px; height: 72px; pointer-events: none; transform-origin: 0 0; transform: scale(calc(var(--k, 1) * .92)) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
+.lf-drag .lf-bar { background: rgba(15,23,42,.62); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.lf-drag .lf-bar::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.lf-drag .lf-ov, .lf-drag .lf-ov.up { color: #fff; text-shadow: 0 0 10px rgba(56,189,248,.8); }
+.lf-drag::after { content: ""; position: absolute; left: -7px; right: -7px; top: -5px; bottom: -3px;
+  background: linear-gradient(#38bdf8, #38bdf8) 0 0 / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 0 0 / 2px 14px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 0 / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 0 / 2px 14px no-repeat,
+    linear-gradient(#38bdf8, #38bdf8) 0 100% / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 0 100% / 2px 14px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 100% / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 100% / 2px 14px no-repeat; }
+.lf-route { position: absolute; left: 58px; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
+.lf-route .a, .lf-route .b { padding: 0 7px; }
+.lf-route .a { color: var(--n); background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 60%, transparent); }
+.lf-route .a.on { color: #05080f; background: var(--n); box-shadow: none; }
+.lf-route .fl { display: inline-flex; gap: 1px; }
+.lf-route .fl i { width: 6px; height: 10px; background: #38bdf8; opacity: .2; animation: dgFlow .9s linear infinite; clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%); }
+.lf-route .fl.sw i:first-child { clip-path: polygon(100% 0, 55% 0, 0 50%, 55% 100%, 100% 100%, 45% 50%); }
+.lf-route .fl i:nth-child(2) { animation-delay: .15s; }
+.lf-route .fl i:nth-child(3) { animation-delay: .3s; }
+@keyframes dgFlow { 25% { opacity: 1; filter: drop-shadow(0 0 3px #38bdf8); } 55% { opacity: .2; } }
+.lf-route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,.65); animation: dgPop .24s cubic-bezier(.3,1.6,.55,1) both; }
+@keyframes dgPop { from { transform: scale(.5); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 `;
 
@@ -1528,9 +1548,29 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
   );
 }
 
-function DragGhost({ player, x, y }) {
-  const bust = useBust(player, '300%');
-  return <div className="lf-drag" style={{ left: x, top: y }}><i style={bust} />{player.name}</div>;
+/** 끌기 카드. body 에 포털로 붙인다 — 라인업 판(backdrop-filter)이 fixed 의 기준이 되어 카드가 커서보다 오른쪽 아래로 밀리던 문제. k = 필드 배율 */
+function DragGhost({ player, eff, from, to, x, y, k }) {
+  const bust = useBust(player, '260%');
+  const boost = eff.synergyBoost;
+  return createPortal(
+    <div className="lf-drag" style={{ left: x, top: y, '--k': k, '--n': neonOf(player) }} aria-hidden="true">
+      <span className="lf-route">
+        {to ? (
+          <>
+            <span className="a">{from}</span>
+            <span className={`fl ${to.swap ? 'sw' : 'go'}`}>{(to.swap ? [0, 1] : [0, 1, 2]).map((i) => <i key={i} />)}</span>
+            <span key={to.slot} className="b">{to.slot}</span>
+          </>
+        ) : <span className="a on">{from}</span>}
+      </span>
+      <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
+      <div className="lf-bar">
+        <div className="lf-bx"><b>{player.name}</b><small>{player.year} {player.team}</small></div>
+        <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}</em>
+      </div>
+    </div>,
+    document.body,
+  );
 }
 
 /**
@@ -1680,7 +1720,10 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
           </button>
         </div>
       )}
-      {drag && at(drag.from) && <DragGhost player={at(drag.from)} x={drag.x} y={drag.y} />}
+      {drag && at(drag.from) && (
+        <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} x={drag.x} y={drag.y} k={scale}
+          to={drag.over && drag.over !== drag.from ? { slot: drag.over, swap: !!at(drag.over) } : null} />
+      )}
     </div>
   );
 }
