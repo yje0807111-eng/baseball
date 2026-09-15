@@ -8,6 +8,8 @@
 
 - 시리즈 하나당 JSON 파일 하나: `C:\Users\Home\Desktop\baseball\src\data\series\<id>.json` (UTF-8, 들여쓰기 2칸)
 - 작성 후 반드시 검증: `node C:\Users\Home\Desktop\baseball\scripts\validate-series.mjs <파일경로...>` → `OK`가 나와야 한다.
+  인자 없이 돌리면 시리즈 사이도 검사한다: 같은 구단·같은 해 시리즈 중복 금지, **같은 선수의 같은 시즌은 어느 시리즈에서든 포지션·투타·능력치가 같아야 한다.**
+- 형식: 선수 한 명당 한 줄. 시리즈를 추가·삭제하면 `node scripts/series-catalog.mjs`로 구단별·연도별 목록(`SERIES_CATALOG.md`)을 다시 만든다.
 
 ## 시리즈 필드
 

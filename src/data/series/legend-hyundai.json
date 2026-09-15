@@ -1,0 +1,39 @@
+{
+  "id": "legend-hyundai",
+  "kind": "legend",
+  "year": null,
+  "title": "현대 유니콘스 레전드",
+  "franchise": "HYUNDAI",
+  "subtitle": "한국시리즈 우승 4회",
+  "blurb": "1996~2007년 12시즌 동안 한국시리즈를 4번 제패한 현대 유니콘스. 정민태·박경완·심정수 등 왕조의 주역 모음.",
+  "notes": [
+    "현대 유니콘스 시절(1996~2007)만 포함 — 전신 삼미·청보·태평양 시즌은 제외.",
+    "캘러웨이 2006 탈삼진 95·볼넷 35는 namu 요약 기반 — stuff·control 추정치.",
+    "쿨바 1998 경기·도루 미확인 — speed 50은 추정치.",
+    "브룸바 2004 경기·도루 미확인, 주 포지션(1루·외야·3루 병행) 불확실해 DH로 등록.",
+    "심정수 2003 도루 미확인 — speed 55는 추정치.",
+    "이숭용 좌타 여부는 따로 확인하지 못함.",
+    "위재영 2000은 39세이브·ERA 2.09지만 짧은 표본이라 stability를 보정 후 96에서 93으로 낮춤.",
+    "1999·2000 시즌은 타고투저 보정 적용(새로 산정한 선수만, 기존 시리즈 복사 선수는 원래 값)."
+  ],
+  "players": [
+    { "personId": "정민태", "name": "정민태", "year": 1999, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 79, "stamina": 95, "stability": 93 }, "note": "20승 다승왕·투수 GG", "source": "33G 20승7패3SV 230.2IP ERA2.54 178K 63BB 208H — KBO 기록실" },
+    { "personId": "임선동", "name": "임선동", "year": 2000, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 74, "stamina": 91, "stability": 84 }, "note": "다승·탈삼진 1위, GG", "source": "29G 18승4패 195.1IP ERA3.36 174K 61BB 177H — KBO 기록실" },
+    { "personId": "김수경", "name": "김수경", "year": 2000, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 58, "stamina": 91, "stability": 80 }, "note": "18승 다승 공동 1위", "source": "29G 18승8패 195IP ERA3.74 172K 91BB 167H — KBO 기록실" },
+    { "personId": "정명원", "name": "정명원", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 73, "stamina": 89, "stability": 95 }, "note": "평균자책점 1위(1.86)", "source": "28G 14승8패 184IP ERA1.86 123K 60BB 141H — KBO 기록실" },
+    { "personId": "캘러웨이", "name": "캘러웨이", "year": 2006, "team": "현대", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 63, "control": 85, "stamina": 84, "stability": 86 }, "note": "14승·ERA 2.87", "source": "27G 14승7패 166.1IP ERA2.87 95K 35BB — namu" },
+    { "personId": "조용준", "name": "조용준", "year": 2002, "team": "현대", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 88, "control": 70, "stamina": 52, "stability": 93 }, "note": "28세이브", "source": "64G 9승5패28SV4HLD 109IP ERA1.90 116K 38BB 80H — KBO 기록실" },
+    { "personId": "위재영", "name": "위재영", "year": 2000, "team": "현대", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 72, "stamina": 55, "stability": 93 }, "note": "39세이브", "source": "54G 3승2패39SV 73.1IP ERA2.09 71K 24BB 62H — KBO 기록실" },
+    { "personId": "박경완", "name": "박경완", "year": 2000, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 92, "contact": 72, "speed": 52, "defense": 92 }, "note": "40홈런 MVP", "source": "130G .282/.419 40HR 95RBI 7SB — KBO 기록실" },
+    { "personId": "김동수", "name": "김동수", "year": 2003, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 83, "speed": 45, "defense": 86 }, "note": "타율 .308·포수 GG", "source": "117G .308 16HR 68RBI 3SB 45BB — KBO 기록실" },
+    { "personId": "이숭용", "name": "이숭용", "year": 2003, "team": "현대", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 78, "speed": 50, "defense": 70 }, "note": "", "source": "133G .294 18HR 76RBI 4SB 47BB — KBO 기록실" },
+    { "personId": "박종호", "name": "박종호", "year": 2000, "team": "현대", "position": "2B", "hand": "S", "isForeign": false, "stats": { "power": 58, "contact": 91, "speed": 60, "defense": 84 }, "note": "타격왕 .340, 골든글러브", "source": "121G .340/.428 10HR 58RBI 9SB — KBO 기록실" },
+    { "personId": "쿨바", "name": "쿨바", "year": 1998, "team": "현대", "position": "3B", "hand": "R", "isForeign": true, "stats": { "power": 79, "contact": 85, "speed": 50, "defense": 76 }, "note": "26홈런·97타점", "source": ".317 26HR 97RBI (G·SB 미확인) — 뉴시스" },
+    { "personId": "박진만", "name": "박진만", "year": 2000, "team": "현대", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 74, "speed": 45, "defense": 90 }, "note": "", "source": "129G .288/.350 15HR 58RBI 0SB — KBO 기록실" },
+    { "personId": "박재홍", "name": "박재홍", "year": 2000, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 81, "speed": 82, "defense": 82 }, "note": "32홈런·30도루", "source": "132G .309/.388 32HR 115RBI 30SB — KBO 기록실" },
+    { "personId": "심정수", "name": "심정수", "year": 2003, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 99, "contact": 90, "speed": 55, "defense": 74 }, "note": "53홈런·142타점", "source": ".335/.478/.720 53HR 142RBI, 외야수 GG — 위키백과·THE FACT" },
+    { "personId": "전준호", "name": "전준호", "year": 2004, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 77, "speed": 95, "defense": 84 }, "note": "53도루 도루왕", "source": "132G .292 4HR 48RBI 53SB 63BB — KBO 기록실" },
+    { "personId": "송지만", "name": "송지만", "year": 2005, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 77, "contact": 70, "speed": 48, "defense": 76 }, "note": "24홈런", "source": "123G .271 24HR 74RBI 3SB 43BB — KBO 기록실" },
+    { "personId": "브룸바", "name": "브룸바", "year": 2004, "team": "현대", "position": "DH", "hand": "R", "isForeign": true, "stats": { "power": 87, "contact": 94, "speed": 50, "defense": 60 }, "note": "외국인 첫 타격왕", "source": ".343/.468/.608 33HR 105RBI 163H — 경기일보·경향신문" }
+  ]
+}

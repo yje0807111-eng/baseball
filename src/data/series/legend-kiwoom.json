@@ -1,0 +1,38 @@
+{
+  "id": "legend-kiwoom",
+  "kind": "legend",
+  "year": null,
+  "title": "넥센·키움 레전드",
+  "franchise": "KIWOOM",
+  "subtitle": "한국시리즈 준우승 3회",
+  "blurb": "모기업 없이 선수를 키워 낸 히어로즈. 박병호·강정호·김하성·이정후 등 메이저리그로 간 스타들의 산실.",
+  "notes": [
+    "나이트 2012는 16승4패·ERA 2.20(1위)만 확인 — 이닝·탈삼진·볼넷 미확인, stuff·control·stamina 추정치.",
+    "손승락 2013 탈삼진·볼넷 미확인 — stuff 80·control 80은 추정치.",
+    "조상우 2020 이닝·탈삼진·볼넷 미확인 — stuff 86·control 70은 추정치, stability는 짧은 표본이라 보정 후 94로 제한.",
+    "유한준 2015·샌즈 2019 도루 미확인 — speed 추정치.",
+    "요키시는 기존 시리즈의 2022 값을 사용 — 2020(ERA 1위 2.14)·2021(16승)의 세부 기록은 확인하지 못함.",
+    "이택근 2014는 기존 시리즈 값 복사(hand L 포함) — 커리어 최고 시즌 여부는 따로 확인하지 못함.",
+    "2014·2015·2020 시즌은 타고투저 보정 적용(새로 산정한 선수만)."
+  ],
+  "players": [
+    { "personId": "밴헤켄", "name": "밴헤켄", "year": 2014, "team": "넥센", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 81, "control": 77, "stamina": 90, "stability": 83 }, "note": "20승·투수 골든글러브", "source": "20승6패 ERA3.51 187IP 178K 53BB WHIP1.32 — kowiki" },
+    { "personId": "안우진", "name": "안우진", "year": 2022, "team": "키움", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 95, "control": 78, "stamina": 92, "stability": 96 }, "note": "평균자책·탈삼진 1위", "source": "30G 196IP ERA2.11 224K 55BB WHIP0.95 15승 — KBO 기록실" },
+    { "personId": "요키시", "name": "요키시", "year": 2022, "team": "키움", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 75, "control": 89, "stamina": 89, "stability": 89 }, "note": "", "source": "30G 185.1IP ERA2.57 154K 33BB WHIP1.09 10승 — KBO 기록실" },
+    { "personId": "나이트", "name": "나이트", "year": 2012, "team": "넥센", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 70, "control": 82, "stamina": 90, "stability": 92 }, "note": "평균자책점 1위(2.20)", "source": "16승4패 ERA2.20 (이닝·K·BB 미확인) — 이데일리" },
+    { "personId": "손승락", "name": "손승락", "year": 2013, "team": "넥센", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 80, "stamina": 55, "stability": 91 }, "note": "46세이브·구원왕·GG", "source": "57G 3승2패46SV 62.2IP ERA2.30 (K·BB 미확인) — 아시아경제" },
+    { "personId": "조상우", "name": "조상우", "year": 2020, "team": "키움", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 70, "stamina": 52, "stability": 94 }, "note": "33세이브·구원왕", "source": "53G 5승3패33SV ERA2.15 (IP·K·BB 미확인) — 뉴시스" },
+    { "personId": "한현희", "name": "한현희", "year": 2014, "team": "넥센", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 59, "stamina": 58, "stability": 86 }, "note": "홀드 1위(31)", "source": "66G 4승2패 31HLD ERA3.20 78.2IP 83K 31BB WHIP1.35 — KBO 기록실" },
+    { "personId": "박동원", "name": "박동원", "year": 2021, "team": "키움", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 75, "contact": 63, "speed": 42, "defense": 74 }, "note": "22홈런", "source": "131G .249/.342/.460 22HR 83RBI — namu" },
+    { "personId": "박병호", "name": "박병호", "year": 2015, "team": "넥센", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 99, "contact": 90, "speed": 60, "defense": 62 }, "note": "53홈런·146타점", "source": ".343/.436/.714 53HR 146RBI 10SB, 1루수 GG — kowiki" },
+    { "personId": "서건창", "name": "서건창", "year": 2014, "team": "넥센", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 98, "speed": 94, "defense": 80 }, "note": "201안타·정규시즌 MVP", "source": ".370 201H 7HR 48SB 59BB/543AB, 2루수 GG — kowiki" },
+    { "personId": "김혜성", "name": "김혜성", "year": 2023, "team": "키움", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 90, "speed": 80, "defense": 88 }, "note": "타율 .335·186안타", "source": ".335 7HR 57RBI 25SB 186H 621PA(137G) — KBO 기록실" },
+    { "personId": "송성문", "name": "송성문", "year": 2024, "team": "키움", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 71, "contact": 92, "speed": 77, "defense": 78 }, "note": "타율 .340·104타점", "source": "142G .340 19HR 104RBI 21SB OPS.927 — daum" },
+    { "personId": "강정호", "name": "강정호", "year": 2014, "team": "넥센", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 94, "speed": 50, "defense": 86 }, "note": "유격수 40홈런", "source": ".356/.459/.739 40HR 117RBI 3SB 68BB, 유격수 GG — kowiki" },
+    { "personId": "김하성", "name": "김하성", "year": 2020, "team": "키움", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 79, "speed": 76, "defense": 86 }, "note": "30홈런·유격수 GG", "source": "138G .306/.397/.523 30HR 109RBI 23SB — namu" },
+    { "personId": "이정후", "name": "이정후", "year": 2022, "team": "키움", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 76, "contact": 94, "speed": 55, "defense": 86 }, "note": "MVP·타격 5관왕", "source": ".349/.421 23HR 5SB(0CS) 627PA(142G) — KBO 기록실" },
+    { "personId": "유한준", "name": "유한준", "year": 2015, "team": "넥센", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 95, "speed": 46, "defense": 72 }, "note": "최다안타·외야수 GG", "source": "139G .362/.430/.579 23HR 116RBI 188H — SPOTV NEWS" },
+    { "personId": "샌즈", "name": "샌즈", "year": 2019, "team": "키움", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 82, "contact": 81, "speed": 55, "defense": 74 }, "note": "타점왕·외야수 GG", "source": "139G .305 28HR 113RBI 160H OPS.939 — MK스포츠" },
+    { "personId": "이택근", "name": "이택근", "year": 2014, "team": "넥센", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 80, "speed": 65, "defense": 72 }, "note": "", "source": ".306 21HR 91RBI 11SB 51BB/441AB — kowiki" }
+  ]
+}

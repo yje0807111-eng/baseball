@@ -33,7 +33,7 @@
     { "personId": "하주석", "name": "하주석", "year": 2025, "team": "한화", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 51, "contact": 79, "speed": 45, "defense": 76 }, "note": "", "source": ".297/.337/.391 4HR 28타점 2SB(95G) — KBO" },
     { "personId": "문현빈", "name": "문현빈", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 86, "speed": 72, "defense": 72 }, "note": "타율 .320·17도루", "source": ".320/.370/.453 12HR 80타점 17SB(141G) — KBO" },
     { "personId": "리베라토", "name": "리베라토", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 75, "contact": 84, "speed": 50, "defense": 80 }, "note": "6월 대체 영입", "source": ".313/.366/.524 10HR 39타점(62G) — KBO" },
-    { "personId": "이진영", "name": "이진영", "year": 2025, "team": "한화", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 71, "speed": 45, "defense": 74 }, "note": "", "source": ".274/.350/.417 11HR 43타점 1SB(115G) — KBO" },
+    { "personId": "이진영(1997)", "name": "이진영", "year": 2025, "team": "한화", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 71, "speed": 45, "defense": 74 }, "note": "", "source": ".274/.350/.417 11HR 43타점 1SB(115G) — KBO" },
     { "personId": "플로리얼", "name": "플로리얼", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 68, "contact": 70, "speed": 76, "defense": 78 }, "note": "부상 후 7월 웨이버", "source": ".271/.333/.450 8HR 29타점 13SB(65G) — KBO" }
   ]
 }
