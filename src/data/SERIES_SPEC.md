@@ -51,6 +51,9 @@
   구단별 레전드는 id `legend-<구단 코드 소문자>` (예: `legend-kia`, `legend-doosan`), title `"해태·KIA 레전드"`처럼 옛 이름까지.
   그 구단 소속 시즌 기록만 쓴다 (`team`은 그 해 이름: 해태/KIA). 외국인 레전드는 `legend-foreign`, franchise `null`.
   역사가 짧아 18명을 못 채우는 구단(NC·KT)은 `legend-nc-kt` 한 시리즈로 합친다 (franchise `null`).
+  테마 레전드는 franchise `null`, id는 `legend-1980s`·`legend-ace`·`legend-hr`·`legend-mvp`처럼 테마 이름.
+  시대별(`legend-1980s` 등)은 그 연대 시즌만, 테마별은 테마에 맞는 시즌만 고르고 여러 구단에서 고르게 뽑는다.
+  이미 다른 시리즈에 같은 선수·같은 시즌이 있으면 그 값을 그대로 쓴다.
 
 ## 능력치 기준 (KBO 리그 평균 ≈ 70)
 
