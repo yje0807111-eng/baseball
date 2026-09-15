@@ -1,0 +1,37 @@
+{
+  "id": "2018-jakarta",
+  "kind": "national",
+  "year": 2018,
+  "title": "자카르타 아시안게임 국가대표",
+  "franchise": null,
+  "subtitle": "금메달 · 결승 일본 3-0",
+  "blurb": "첫 경기에서 대만에 1-2로 졌지만 이후 5연승, 결승에서 일본을 3-0으로 꺾고 아시안게임 3연패를 이뤘다.",
+  "notes": [
+    "대회 성적: 예선 대만 1-2 패, 인도네시아 15-0, 홍콩 21-3 / 슈퍼라운드 일본 5-1, 중국 10-1 / 결승 일본 3-0 (5승 1패) — namu.",
+    "최종 엔트리는 KBO 발표(6월) 뒤 8월 13일 교체 반영: 차우찬→최원태, 정찬헌→장필준, 박건우→이정후, 최정→황재균 — KBO·namu·부산일보.",
+    "18명 구성: 선발 4·불펜 3·야수 11. 임찬규·임기영·박치국·장필준·이재원·오지환은 미수록.",
+    "기록은 KBO 기록실(koreabaseball.com) 2018 정규시즌 기준. 2018 타고투저 보정(타격 con/pow -2, 투수 stability +3) 반영.",
+    "정우람 세이브 1위(35), 김재환 홈런왕·MVP, 김현수 타격왕은 KBO 기록실 수치와 널리 알려진 수상 내역 기준. 박병호(113G)·이정후(109G)는 부분 시즌이지만 power를 크게 올리지 않음.",
+    "수비(defense)는 수비 이닝·실책·평판 기반 추정, 투타(hand)는 일반 알려진 정보로 넣음."
+  ],
+  "players": [
+    { "personId": "양현종", "name": "양현종", "year": 2018, "team": "KIA", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 75, "control": 83, "stamina": 89, "stability": 75 }, "note": "13승", "source": "29G 13승11패 ERA4.15 184.1IP 152K 43BB WHIP1.31 — KBO 기록실" },
+    { "personId": "이용찬", "name": "이용찬", "year": 2018, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 81, "stamina": 78, "stability": 81 }, "note": "15승", "source": "25G 15승3패 ERA3.63 144IP 102K 36BB WHIP1.30 — KBO 기록실" },
+    { "personId": "최원태", "name": "최원태", "year": 2018, "team": "넥센", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 80, "stamina": 75, "stability": 78 }, "note": "13승·대체 발탁", "source": "23G 13승7패 ERA3.95 134.1IP 101K 35BB WHIP1.33 — KBO 기록실" },
+    { "personId": "박종훈", "name": "박종훈", "year": 2018, "team": "SK", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 71, "stamina": 82, "stability": 75 }, "note": "14승", "source": "30G 14승8패 ERA4.18 159.1IP 133K 54BB WHIP1.33 — KBO 기록실" },
+    { "personId": "정우람", "name": "정우람", "year": 2018, "team": "한화", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 87, "control": 83, "stamina": 52, "stability": 84 }, "note": "세이브 1위(35)", "source": "55G 5승3패 35SV ERA3.40 53IP 56K 12BB WHIP1.15 — KBO 기록실" },
+    { "personId": "함덕주", "name": "함덕주", "year": 2018, "team": "두산", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 90, "control": 48, "stamina": 55, "stability": 88 }, "note": "27세이브", "source": "62G 6승3패 27SV ERA2.96 67IP 75K 37BB WHIP1.42 — KBO 기록실" },
+    { "personId": "최충연", "name": "최충연", "year": 2018, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 75, "stamina": 58, "stability": 82 }, "note": "16홀드", "source": "70G 2승6패 8SV 16HLD ERA3.60 85IP 101K 26BB WHIP1.16 — KBO 기록실" },
+    { "personId": "양의지", "name": "양의지", "year": 2018, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 94, "speed": 57, "defense": 92 }, "note": "타율 .358", "source": ".358 23HR 77RBI 6SB 503PA(133G, 포수 118G) — KBO 기록실" },
+    { "personId": "박병호", "name": "박병호", "year": 2018, "team": "넥센", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 92, "contact": 91, "speed": 42, "defense": 64 }, "note": "43홈런", "source": ".345 43HR 112RBI 0SB 488PA(113G) — KBO 기록실" },
+    { "personId": "안치홍", "name": "안치홍", "year": 2018, "team": "KIA", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 90, "speed": 55, "defense": 80 }, "note": "타율 .342·118타점", "source": ".342 23HR 118RBI 5SB 549PA(130G) — KBO 기록실" },
+    { "personId": "박민우", "name": "박민우", "year": 2018, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 85, "speed": 72, "defense": 78 }, "note": "", "source": ".324 5HR 33RBI 17SB 460PA(115G) — KBO 기록실" },
+    { "personId": "황재균", "name": "황재균", "year": 2018, "team": "KT", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 76, "contact": 77, "speed": 69, "defense": 76 }, "note": "대체 발탁", "source": ".296 25HR 88RBI 14SB 588PA(142G) — KBO 기록실" },
+    { "personId": "김하성", "name": "김하성", "year": 2018, "team": "넥센", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 74, "speed": 60, "defense": 84 }, "note": "", "source": ".288 20HR 84RBI 8SB 576PA(129G) — KBO 기록실" },
+    { "personId": "김재환", "name": "김재환", "year": 2018, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 94, "contact": 88, "speed": 45, "defense": 64 }, "note": "44홈런 홈런왕·MVP", "source": ".334 44HR 133RBI 2SB 602PA(139G) — KBO 기록실" },
+    { "personId": "김현수", "name": "김현수", "year": 2018, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 95, "speed": 43, "defense": 68 }, "note": "타격왕(.362)", "source": ".362 20HR 101RBI 1SB 511PA(117G, 좌익 75G·1루 68G) — KBO 기록실" },
+    { "personId": "손아섭", "name": "손아섭", "year": 2018, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 77, "contact": 87, "speed": 76, "defense": 76 }, "note": "", "source": ".329 26HR 93RBI 20SB 625PA(141G) — KBO 기록실" },
+    { "personId": "이정후", "name": "이정후", "year": 2018, "team": "넥센", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 93, "speed": 65, "defense": 78 }, "note": "타율 .355·대체 발탁", "source": ".355 6HR 57RBI 11SB 520PA(109G) — KBO 기록실" },
+    { "personId": "박해민", "name": "박해민", "year": 2018, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 56, "contact": 78, "speed": 88, "defense": 94 }, "note": "36도루", "source": ".299 9HR 68RBI 36SB 649PA(144G, 중견 141G) — KBO 기록실" }
+  ]
+}
