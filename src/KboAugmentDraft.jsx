@@ -746,7 +746,26 @@ const KEYFRAMES = `
 .lf-tok.ghost .lf-bx small, .lf-row.ghost .nm small { color: #10b981; }
 .lf-tok.clash .lf-bx small, .lf-row.clash .nm small, .lf-off { color: #fbbf24 !important; }
 .lf-tok.over .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.55); } /* 끌어다 놓을 자리: 끌기 카드의 하늘색과 같게 */
-.lf-tok.lifted, .lf-row.lifted { opacity: .35; }
+.lf-tok.lifted > .lf-in, .lf-row.lifted { opacity: .35; }
+/* 끌기 중 맞바꿈 미리보기: 끌고 있는 선수의 원래 자리에 맞바꿀 선수가 들어온 모습(하늘색 = 미리보기). 흐린 원래 모습은 감춘다 */
+.lf-tok.swapin > .lf-in { opacity: 0; }
+.lf-pv { position: absolute; inset: 0; z-index: 4; pointer-events: none; animation: lfPvIn .24s cubic-bezier(.3,1.4,.55,1) both; }
+@keyframes lfPvIn { from { opacity: 0; transform: translateY(-10px) scale(.94); } }
+.lf-pv .lf-bp { animation: lfPvFace .3s ease-out both; }
+@keyframes lfPvFace { from { transform: translateY(8px); opacity: 0; } }
+.lf-pv .lf-chip { color: #05080f; background: var(--n); box-shadow: none; }
+.lf-pv .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.32), rgba(56,189,248,.1)); box-shadow: inset 0 0 0 1px #38bdf8, 0 0 18px -4px #38bdf8; }
+.lf-pv .lf-bar::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.lf-pv .lf-bx small { color: #e0f2fe; }
+.lf-pv .lf-ov { color: #fff; text-shadow: 0 0 10px rgba(56,189,248,.8); }
+/* 놓기 전 수치 변화: 원래 수치(취소선) → 놓았을 때 수치 · 줄면 노랑, −8 이상 빨강, 오르면 초록 */
+.lf-ovx { display: flex; align-items: baseline; gap: 3px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; white-space: nowrap; }
+.lf-ovx s { font-size: 16px; color: #94a3b8; text-decoration-thickness: 2px; }
+.lf-ovx i { font-style: normal; font-size: 13px; color: #7dd3fc; }
+.lf-ovx em { font-style: normal; font-size: 29px; color: #fff; }
+.lf-ovx.up em { color: #34d399; }
+.lf-ovx.dn em { color: #fbbf24; }
+.lf-ovx.dn2 em { color: #f87171; }
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
 .lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
@@ -1513,7 +1532,7 @@ function tokenView(slot, player, kind, boosted) {
   return { eff, moved, color, sub, boost: eff?.synergyBoost };
 }
 
-function SlotToken({ slot, player, kind, flags, bind, boosted }) {
+function SlotToken({ slot, player, kind, flags, bind, boosted, swapIn = null }) {
   const bust = useBust(player, '260%');
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
   const [x, y] = SLOT_XY[slot.id];
@@ -1544,12 +1563,35 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
       {/* 합류 중에는 무채색 사본을 깔고, 그 위 컬러 본(흉상+자막 바 한 덩어리)을 아래에서 위로 드러낸다 */}
       {joined && <div key="gray" className="lf-in lf-gray" aria-hidden="true">{body}</div>}
       <div key="main" className={`lf-in ${joined ? 'lf-color' : ''}`}>{body}</div>
+      {swapIn && <SwapPreview slot={slot} {...swapIn} />}
     </div>
   );
 }
 
 /** 끌기 카드. body 에 포털로 붙인다 — 라인업 판(backdrop-filter)이 fixed 의 기준이 되어 카드가 커서보다 오른쪽 아래로 밀리던 문제. k = 필드 배율 */
-function DragGhost({ player, eff, from, to, x, y, k }) {
+/** 놓기 전 수치: 바뀌면 “78 → 75”(줄면 노랑 · −8 이상 빨강 · 오르면 초록), 그대로면 숫자 하나 */
+function DeltaOv({ before, after }) {
+  const dv = after - before;
+  if (!dv) return <em className="lf-ov font-display not-italic tabular-nums">{after}</em>;
+  return <span className={`lf-ovx tabular-nums ${dv > 0 ? 'up' : dv > -8 ? 'dn' : 'dn2'}`}><s>{before}</s><i>→</i><em>{after}</em></span>;
+}
+
+/** 맞바꿈 미리보기: 끌고 있는 선수의 원래 자리(slot)에 맞바꿀 선수가 들어온 토큰 */
+function SwapPreview({ slot, player, before, after }) {
+  const bust = useBust(player, '260%');
+  return (
+    <div className="lf-pv" style={{ '--n': neonOf(player) }} aria-hidden="true">
+      <span className="lf-chip">{slot.id}</span>
+      <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
+      <div className="lf-bar">
+        <div className="lf-bx"><b>{player.name}</b><small>{player.year} {player.team}</small></div>
+        <DeltaOv before={before} after={after} />
+      </div>
+    </div>
+  );
+}
+
+function DragGhost({ player, eff, from, to, delta, x, y, k }) {
   const bust = useBust(player, '260%');
   const boost = eff.synergyBoost;
   return createPortal(
@@ -1566,7 +1608,9 @@ function DragGhost({ player, eff, from, to, x, y, k }) {
       <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
       <div className="lf-bar">
         <div className="lf-bx"><b>{player.name}</b><small>{player.year} {player.team}</small></div>
-        <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}</em>
+        {to && delta
+          ? <DeltaOv before={delta.before} after={delta.after} />
+          : <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}</em>}
       </div>
     </div>,
     document.body,
@@ -1634,13 +1678,24 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
   // 드래프트 중에는 드래프트 뒤에만 공개하는 시너지(프랜차이즈의 기억)의 상승분을 빼고 보여 준다
   const boostOf = (r) => { const on = r.map(playAt); return new Map(applySynergies(on, visibleSynergies(on, draftView)).map((p) => [p.id, p])); };
   const boosted = boostOf(placed);
+  // 끌어서 다른 자리 위에 있을 때: 거기 놓으면 바뀌는 실전 종합(제자리 밖 감소 · 시너지 반영). 사람이 있으면 맞바꿈이라 그 선수 몫도 계산
+  const dropPlan = (() => {
+    const me = drag && drag.over && drag.over !== drag.from ? at(drag.from) : null;
+    if (!me) return null;
+    const occ = at(drag.over);
+    const next = boostOf(placed.map((p) => (p.id === me.id ? { ...p, slot: drag.over } : occ && p.id === occ.id ? { ...p, slot: drag.from } : p)));
+    return {
+      me: { before: boosted.get(me.id).overall, after: next.get(me.id).overall },
+      occ: occ ? { player: occ, before: boosted.get(occ.id).overall, after: next.get(occ.id).overall } : null,
+    };
+  })();
   const target = candidate && !candidateReason ? freeSlot(roster, candidate.position)?.id : null;
   // 미리보기 선수는 영입된 뒤의 종합(시너지 포함)으로 보여 준다
   const boostedPreview = target ? boostOf([...placed, { ...candidate, slot: target }]) : null;
   const clashPos = candidate && candidateReason?.endsWith('마감') ? candidate.position : null;
   const kindOf = (s) => (at(s.id) ? (clashPos === s.pos ? 'clash' : 'mine') : s.id === target ? 'ghost' : 'empty');
   const playerOf = (s) => at(s.id) || (s.id === target ? candidate : null);
-  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', wantSlot === s.id && 'want', /* 거르기 중인 자리(선수가 있으면 교체 대상) */ pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
+  const flagsOf = (s) => [joined.has(s.id) && at(s.id) && 'joined', wantSlot === s.id && 'want', /* 거르기 중인 자리(선수가 있으면 교체 대상) */ pick === s.id && 'picked', drag && drag.over === s.id && drag.from !== s.id && 'over', drag?.from === s.id && 'lifted', drag?.from === s.id && dropPlan?.occ && 'swapin', highlight && (highlight.has(at(s.id)?.id) ? 'focus' : 'dim')].filter(Boolean).join(' ');
   const slotUnder = (e) => document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-slot]')?.dataset.slot || null;
 
   const tap = (id) => {
@@ -1696,7 +1751,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_80%_at_45%_62%,transparent_30%,rgba(5,8,15,.85)_100%)]" aria-hidden="true" />
       <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
         <FieldArt />
-        {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted} />)}
+        {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted}
+          swapIn={drag?.from === s.id ? dropPlan?.occ : null} />)}
       </div>
       {overlay && <div className="syn-dock" style={{ width: reserve }}>{overlay}</div>}
       {highlight && (
@@ -1721,7 +1777,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
         </div>
       )}
       {drag && at(drag.from) && (
-        <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} x={drag.x} y={drag.y} k={scale}
+        <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} delta={dropPlan?.me} x={drag.x} y={drag.y} k={scale}
           to={drag.over && drag.over !== drag.from ? { slot: drag.over, swap: !!at(drag.over) } : null} />
       )}
     </div>
