@@ -1061,12 +1061,12 @@ const KEYFRAMES = `
 .pk-back.hidden { visibility: hidden; transform: rotateY(-90deg); }
 .pk-back.return { animation: pkBackReturn .22s ease-out .22s both; }
 /* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
-.pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); animation: pkRing 3s linear infinite; }
+.pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); animation: pkRing 4.5s linear infinite; }
 .pk-empty::before { content: ""; position: absolute; inset: 1.5px; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); background: linear-gradient(180deg, #0a1120, #070c16); } /* 카드 면: 둘레 1.5px 만 남겨 빛이 잘린 모서리까지 따라 돎 */
 .pk-sk { position: absolute; background: rgba(148,163,184,.09); }
 .pk-ghostbtn { flex: none; height: 44px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); animation: pkBtnBreath 2.4s ease-in-out 1.6s infinite; }
 /* 빈 PICK 대기 움직임: 스켈레톤 블록이 위(종합)→아래(이름·CP) 차례로 밝아졌다 가라앉고(끝에 버튼 틀이 초록으로 살짝),
-   카드 둘레를 초록 빛 한 점이 3초에 한 바퀴 돈다(.pk-empty 배경의 회전 빛 + 1.5px 안쪽 카드 면) — 카드 크기 · 2:3 비율은 그대로 */
+   카드 둘레를 초록 빛 한 점이 4.5초에 한 바퀴 돈다(.pk-empty 배경의 회전 빛 + 1.5px 안쪽 카드 면) — 카드 크기 · 2:3 비율은 그대로 */
 @property --pkr { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 .pk-sk { animation: pkSkBreath 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * .09s); }
 .pk-back.hidden .pk-empty, .pk-back.hidden .pk-sk { animation-play-state: paused; }
