@@ -1,0 +1,39 @@
+{
+  "id": "2022-ssg",
+  "champion": true,
+  "kind": "team",
+  "year": 2022,
+  "title": "SSG 랜더스",
+  "franchise": "SSG",
+  "subtitle": "통합우승 · 최초 와이어 투 와이어",
+  "blurb": "KBO 최초로 개막일부터 끝까지 1위를 지킨 와이어 투 와이어로 정규시즌을 제패하고, 한국시리즈에서 키움을 4승 2패로 꺾었다.",
+  "notes": [
+    "기록은 KBO 기록실(koreabaseball.com) 2022 SSG 필터 기준.",
+    "포수는 이재원(포수 100경기). 김민식은 5월 KIA에서 트레이드돼 SSG분 기록 분리를 확인하지 못해 제외.",
+    "모리만도는 시즌 중 합류해 12경기 75.1이닝 — stamina는 경기당 이닝으로 추정, stability는 표본이 작아 기준보다 낮춤.",
+    "이태양은 30경기 112이닝으로 선발·구원을 오갔고 선발 등판 수는 확인하지 못함 — SP로 분류.",
+    "김강민(202타석)·라가레스(202타석)·전의산(266타석)은 부분 출장이라 power를 타석 비율로 환산.",
+    "서진용 BB/9 4.8은 기준표 범위 밖이라 외삽한 값.",
+    "투타(hand)는 일반 알려진 정보로 넣었고 KBO 선수 페이지에서 개별 확인은 하지 않음."
+  ],
+  "players": [
+    { "personId": "김광현", "name": "김광현", "year": 2022, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 82, "control": 80, "stamina": 86, "stability": 93 }, "note": "13승 ERA 2.13", "source": "28G 173.1IP ERA2.13 153K 45BB WHIP1.07 13승 — KBO 기록실" },
+    { "personId": "폰트", "name": "폰트", "year": 2022, "team": "SSG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 80, "control": 88, "stamina": 89, "stability": 91 }, "note": "개막전 9이닝 퍼펙트", "source": "28G 184IP ERA2.69 170K 34BB WHIP0.95 13승 — KBO 기록실" },
+    { "personId": "모리만도", "name": "모리만도", "year": 2022, "team": "SSG", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 82, "control": 75, "stamina": 76, "stability": 94 }, "note": "7승 1패 ERA 1.67", "source": "12G 75.1IP ERA1.67 67K 23BB WHIP1.06 7승 — KBO 기록실" },
+    { "personId": "오원석", "name": "오원석", "year": 2022, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 72, "control": 64, "stamina": 78, "stability": 68 }, "note": "", "source": "31G 144IP ERA4.50 112K 58BB WHIP1.50 6승 — KBO 기록실" },
+    { "personId": "이태양", "name": "이태양", "year": 2022, "team": "SSG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 61, "control": 85, "stamina": 69, "stability": 79 }, "note": "", "source": "30G 112IP ERA3.62 61K 24BB WHIP1.25 8승 — KBO 기록실" },
+    { "personId": "서진용", "name": "서진용", "year": 2022, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 52, "stamina": 55, "stability": 74 }, "note": "21세이브 12홀드", "source": "68G 67.1IP ERA4.01 55K 36BB WHIP1.49 21SV 12HLD — KBO 기록실" },
+    { "personId": "노경은", "name": "노경은", "year": 2022, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 77, "stamina": 58, "stability": 84 }, "note": "12승 7홀드", "source": "41G 79.2IP ERA3.05 55K 23BB WHIP1.15 12승 7HLD — KBO 기록실" },
+    { "personId": "김택형", "name": "김택형", "year": 2022, "team": "SSG", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 85, "control": 69, "stamina": 50, "stability": 63 }, "note": "17세이브 10홀드", "source": "64G 60.1IP ERA4.92 62K 22BB WHIP1.31 17SV 10HLD — KBO 기록실" },
+    { "personId": "이재원", "name": "이재원", "year": 2022, "team": "SSG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 51, "speed": 42, "defense": 76 }, "note": "", "source": ".201/.296 4HR 1SB 279PA(105G) 포수 100G — KBO 기록실" },
+    { "personId": "전의산", "name": "전의산", "year": 2022, "team": "SSG", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 63, "speed": 42, "defense": 60 }, "note": "", "source": ".249/.316 13HR 0SB 266PA(77G) — KBO 기록실" },
+    { "personId": "김성현", "name": "김성현", "year": 2022, "team": "SSG", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 46, "contact": 53, "speed": 50, "defense": 80 }, "note": "", "source": ".219/.295 2HR 3SB(3CS) 359PA(130G) 2루 105G — KBO 기록실" },
+    { "personId": "최정", "name": "최정", "year": 2022, "team": "SSG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 81, "contact": 69, "speed": 66, "defense": 78 }, "note": "26홈런·3루수 골든글러브", "source": ".266/.386 26HR 12SB(5CS) 505PA(121G) 87타점 — KBO 기록실" },
+    { "personId": "박성한", "name": "박성한", "year": 2022, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 79, "speed": 66, "defense": 84 }, "note": "", "source": ".298/.375 2HR 12SB(8CS) 564PA(140G) — KBO 기록실" },
+    { "personId": "최지훈", "name": "최지훈", "year": 2022, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 81, "speed": 84, "defense": 86 }, "note": "144경기 31도루", "source": ".304/.362 10HR 31SB(7CS) 640PA(144G) — KBO 기록실" },
+    { "personId": "한유섬", "name": "한유섬", "year": 2022, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 73, "contact": 68, "speed": 42, "defense": 74 }, "note": "100타점", "source": ".264/.372 21HR 1SB 545PA(135G) 100타점 — KBO 기록실" },
+    { "personId": "김강민", "name": "김강민", "year": 2022, "team": "SSG", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 80, "speed": 48, "defense": 84 }, "note": "한국시리즈 MVP", "source": ".303/.375 5HR 1SB(3CS) 202PA(84G) — KBO 기록실" },
+    { "personId": "라가레스", "name": "라가레스", "year": 2022, "team": "SSG", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 66, "contact": 84, "speed": 55, "defense": 76 }, "note": "", "source": ".315/.362 6HR 3SB(1CS) 202PA(49G) 좌익수 — KBO 기록실" },
+    { "personId": "추신수", "name": "추신수", "year": 2022, "team": "SSG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 66, "speed": 71, "defense": 52 }, "note": "", "source": ".259/.382 16HR 15SB(5CS) 499PA(112G) — KBO 기록실" }
+  ]
+}
