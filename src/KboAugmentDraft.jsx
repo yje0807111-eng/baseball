@@ -2500,6 +2500,9 @@ const PITCH_TYPES = [
   { id: 'change', name: '체인지업', dur: 860, ease: (p) => p * p * 0.55 + p * 0.45 }, // 느리게 오다 막판에 들어온다
   { id: 'slider', name: '슬라이더', dur: 740, ease: (p) => Math.sqrt(p) * 0.6 + p * 0.4, curve: 1 }, // 빨리 오다 휘며 늦게 닿는다
 ];
+const BALL_R = 24; // 공 요소 반지름(px, scale 1 기준)
+const RING_R0 = 110; // 링 시작 반지름(px)
+const RING_SPEED = 0.153; // 링이 좁아지는 속도(px/ms) — 직구면 공이 존의 90% 지점일 때 접한다
 export function battingWindows(batter, pitch = 86) {
   const s = batter?.stats || {};
   const perfect = Math.max(22, Math.min(70, 34 + ((s.contact || 70) - 75) * 0.9 + ((s.power || 70) - 75) * 0.5));
@@ -2535,24 +2538,30 @@ function ClutchBatting({ clutch, onPick }) {
     const type = PITCH_TYPES[Math.floor(Math.random() * PITCH_TYPES.length)];
     later(() => {
       const dur = type.dur / win.speed;
-      st.current = { ...st.current, t0: performance.now(), dur, type, swung: false };
+      // 링은 공을 따라다니며 일정한 속도로 좁아지고, 공은 구종마다 다르게 커진다 → 링이 공에 접하는 순간이 PERFECT
+      const v = RING_SPEED * win.speed;
+      const ballR = (t) => BALL_R * (0.18 + 0.95 * type.ease(Math.min(1, t / dur)));
+      let target = dur;
+      for (let t = 0; t < dur * 1.15; t += 1) if (RING_R0 - v * t <= ballR(t)) { target = t; break; }
+      st.current = { ...st.current, t0: performance.now(), dur: target, type, swung: false };
       setPitchType(type);
       setPhase('flight');
       const tick = (now) => {
         const t = now - st.current.t0;
         const p = Math.min(1.15, t / dur);
         const e = p <= 1 ? type.ease(p) : p;
+        const x = type.curve ? Math.sin(Math.min(1, p) * Math.PI) * 38 * (1 - p * 0.3) : 0;
+        const y = -150 + e * 150;
         if (ballRef.current) {
-          const x = type.curve ? Math.sin(Math.min(1, p) * Math.PI) * 38 * (1 - p * 0.3) : 0;
-          ballRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${-150 + e * 150}px)) scale(${0.18 + e * 0.95})`;
+          ballRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${0.18 + e * 0.95})`;
           ballRef.current.style.opacity = p > 1.08 ? '0' : '1';
         }
         if (ringRef.current) {
-          const r = Math.max(0, 1 - Math.min(1, p));
-          ringRef.current.style.transform = `translate(-50%, -50%) scale(${1 + r * 2.4})`;
-          ringRef.current.style.opacity = String(p > 1 ? 0 : 0.35 + (1 - r) * 0.65);
+          const r = Math.max(0, RING_R0 - v * t);
+          ringRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${r / 60})`;
+          ringRef.current.style.opacity = t > target + win.good ? '0' : String(Math.min(1, 0.35 + t / target * 0.65));
         }
-        if (!st.current.swung && t > dur + win.good) { judge(null); return; }
+        if (!st.current.swung && t > target + win.good) { judge(null); return; }
         if (p < 1.15) st.current.raf = requestAnimationFrame(tick);
       };
       st.current.raf = requestAnimationFrame(tick);
@@ -2628,7 +2637,7 @@ function ClutchBatting({ clutch, onPick }) {
           {pitchType && phase !== 'ready' && <span className="ml-3 text-sm text-gray-400">{phase === 'windup' ? '와인드업…' : pitchType.name}</span>}
         </div>
         <p className="h-6 text-base font-bold text-emerald-300">
-          {phase === 'ready' ? '[SPACE] 로 타석에 들어서기' : phase === 'windup' ? '기다려…' : phase === 'flight' ? '링이 존에 닿는 순간 [SPACE]!' : ''}
+          {phase === 'ready' ? '[SPACE] 로 타석에 들어서기' : phase === 'windup' ? '기다려…' : phase === 'flight' ? '링이 공에 딱 붙는 순간 [SPACE]!' : ''}
         </p>
       </div>
     </div>
