@@ -13,7 +13,8 @@ export const SLOT_LIMITS = { SP: 1, RP: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 
 export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 12
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
+const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
+const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전에 증강을 하나씩 더 고른다 (그 경기에만)
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
@@ -532,6 +533,15 @@ export const AUGMENTS = [
   },
 ];
 
+/** 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다 */
+export function rollAugmentOptions(owned = [], rng = Math.random) {
+  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id));
+  const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
+  if (!tiers.length) return [];
+  const t = tiers[Math.floor(rng() * tiers.length)];
+  return shuffle(left.filter((a) => a.tier === t)).slice(0, 3);
+}
+
 export const EVENTS = [
   { id: 'fund', name: '긴급 트레이드 자금', tier: 'gold', cond: '구단주 특별 지원', desc: '샐러리 캡 +60 CP', apply: (s) => ({ ...s, cp: s.cp + 60 }) },
   { id: 'scout', name: '스카우트 특명', tier: 'silver', cond: '전국 스카우트망 가동', desc: '상점 새로고침 +3회', apply: (s) => ({ ...s, rerolls: s.rerolls + 3 }) },
@@ -577,6 +587,7 @@ export async function runSimulation({
   my, opp, augments = [], rng = Math.random,
   getSpeed = () => 1, isCancelled = () => false,
   onBoard = () => {}, onLog = () => {}, onHighlight = async () => {},
+  beforeInning = async () => null, // 이닝 시작 전 훅: 새 증강 목록을 돌려주면 그걸로 바꾼다
 }) {
   const board = emptyBoard();
   const score = { my: 0, opp: 0 };
@@ -596,6 +607,8 @@ export async function runSimulation({
   log({ kind: 'system', inning: 0, text: `플레이볼! ${opp.name} vs ${my.name}` });
 
   for (let inning = 1; inning <= 9; inning++) {
+    const nextAugs = await beforeInning(inning, augments);
+    if (nextAugs) augments = nextAugs;
     for (const isTop of [true, false]) {
       if (isCancelled()) return null;
       if (!isTop && inning === 9 && score.my > score.opp) {
@@ -2409,6 +2422,7 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
+  const tier = isAug && choice.options[0]?.tier;
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
       <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
@@ -2417,8 +2431,9 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
         <div className="text-center animate-[rise_.4s_ease-out_both]">
           <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? 'Season Augment' : 'Season Event'}</p>
           <h2 className="mt-2 text-4xl font-black text-white">
-            {isAug ? '시즌 증강을 고르세요' : '시즌 돌발 이벤트'}
-            {isAug && picksLeft > 0 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
+            {isAug ? (choice.inning ? `${choice.inning}회 증강을 고르세요` : '시즌 증강을 고르세요') : '시즌 돌발 이벤트'}
+            {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
+            {tier && <span className="ml-3 font-display font-extrabold" style={{ color: TIER_NEON[tier] }}>{TIER_EN[tier]}</span>}
           </h2>
           <p className="mt-2 text-sm text-gray-400">{isAug ? '경기 중 조건이 충족되면 난수 판정을 무시하고 이닝 결과를 확정합니다.' : '구단 운영 방향을 결정하세요. 선택은 되돌릴 수 없습니다.'}</p>
         </div>
@@ -2858,7 +2873,7 @@ function ModeSelect({ initialMode, record, onStart }) {
           <div>
             <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
             <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-            <SettingRow label="시즌 증강" options={[0, 2, 3]} labels={{ 0: '없음', 2: '2개', 3: '3개' }} value={aug} onChange={setAug} />
+            <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
             <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
               <span>다른 시리즈 새로고침</span>
               <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
@@ -3203,7 +3218,7 @@ export default function KboAugmentDraft() {
     setCp(Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0)));
     setSeries(null);
     if (demo === 'ready') setPhase('ready');
-    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: shuffle(AUGMENTS).slice(0, 3) }); }
+    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: rollAugmentOptions() }); }
     if (demo === 'matchup') { setAugments(shuffle(AUGMENTS).slice(0, SEASON_AUGMENTS)); setOpponent(aiDraft()); setPhase('matchup'); }
   }, []);
 
@@ -3264,7 +3279,8 @@ export default function KboAugmentDraft() {
       el.addEventListener('transitionend', done);
     });
   }, [posFilter]);
-  const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
+  const augmentOptions = (owned) => rollAugmentOptions(owned);
+  const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
@@ -3286,6 +3302,15 @@ export default function KboAugmentDraft() {
   }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries, round]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoose = (option) => {
+    if (choice.kind === 'augment' && choice.inning) {
+      const owned = [...augments, option];
+      setAugments(owned);
+      setChoice(null);
+      const resolve = midPickRef.current;
+      midPickRef.current = null;
+      resolve?.(owned);
+      return;
+    }
     if (choice.kind === 'augment') {
       const owned = [...augments, option];
       const left = augPicksLeft - 1;
@@ -3339,7 +3364,8 @@ export default function KboAugmentDraft() {
     setPhase('matchup');
   };
 
-  const startGame = async (rematch = false, owned = augments) => {
+  const startGame = async (rematch = false, owned = augments.slice(0, match.aug)) => {
+    setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
     const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
@@ -3359,6 +3385,15 @@ export default function KboAugmentDraft() {
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
       onLog: (e) => setLogs((l) => [...l, e]),
+      beforeInning: (inning, cur) => {
+        if (!match.aug || !MID_AUG_INNINGS.includes(inning) || runIdRef.current !== runId) return null;
+        const options = rollAugmentOptions(cur);
+        if (!options.length) return null;
+        return new Promise((resolve) => {
+          midPickRef.current = resolve;
+          setChoice({ kind: 'augment', inning, options });
+        });
+      },
       onHighlight: async ({ augment, text, hero }) => {
         const key = Date.now() + Math.random();
         setPaused(true);
@@ -3623,7 +3658,7 @@ export default function KboAugmentDraft() {
               {autoFilled > 0 && <p className="mt-2 text-sm font-semibold text-amber-200">채우지 못한 {autoFilled}자리는 퓨처스 유망주(종합 55)로 채웠습니다.</p>}
               <p className="mt-2 text-sm text-gray-400">
                 선수를 끌어 자리를 바꾸며 마지막 조정을 합니다. 방출은 드래프트 중에만 할 수 있습니다.
-                {match.aug ? `시즌을 시작하면 증강 ${match.aug}개를 고른 뒤 매치업 화면으로 갑니다.` : '이번 모드는 증강 없이 바로 매치업 화면으로 갑니다.'} 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
+                {match.aug ? `시즌을 시작하면 증강 1개를 고른 뒤 매치업 화면으로 갑니다. 경기 중 ${MID_AUG_INNINGS.join('·')}회 시작 전에도 하나씩 고릅니다.`: '이번 모드는 증강 없이 바로 매치업 화면으로 갑니다.'} 잔여 {cp} CP · 상대는 같은 규칙으로 드래프트한 AI 올스타.
               </p>
               {offPositionPlayers.length > 0 && (
                 <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -3721,7 +3756,7 @@ export default function KboAugmentDraft() {
           <aside className="flex flex-col gap-4 lg:sticky lg:top-[6.5rem] lg:self-start">
             <RosterPanel roster={roster} />
             <SynergyPanel roster={roster} focusId={focusSynergy} onFocus={toggleFocus} />
-            <AugmentShelf augments={augments} total={match.aug} />
+            <AugmentShelf augments={augments} total={match.aug ? match.aug + MID_AUG_INNINGS.length : 0} />
           </aside>
         )}
       </main>
