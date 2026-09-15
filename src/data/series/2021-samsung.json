@@ -1,0 +1,38 @@
+{
+  "id": "2021-samsung",
+  "kind": "team",
+  "year": 2021,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "정규시즌 2위 · 6년 만의 가을야구",
+  "blurb": "KT와 같은 승률로 정규시즌을 마쳤으나 1위 결정전에서 져 2위가 됐다. 오승환이 44세이브로 최고령 세이브왕에 올랐다.",
+  "notes": [
+    "정규시즌 76승 9무 59패(.563), KT와 동률 후 1위 결정전 패배로 2위. 플레이오프에서 두산에 2패로 탈락(최종 3위) — namu·영문 위키백과.",
+    "선수 기록은 KBO 기록실(koreabaseball.com) 정규시즌 팀별 기본·주루·수비 기록 기준. namu 요약 수치(구자욱 .284 21HR 등)는 KBO 기록실과 달라 KBO 수치를 썼다.",
+    "최채흥은 2025년 11월 최지명으로 개명(KBO 기록실은 새 이름으로 표시). 이 시즌 기준 이름 최채흥으로 표기.",
+    "타석·투구 방향(hand)은 널리 알려진 정보로 넣었고 개별 출처로 확인하지 않았다.",
+    "도루 3개 미만 선수(강민호·오재일·이원석)는 주루 기록 표에 없어 speed를 0~2도루로 보고 추정. 수비 수치는 수비 이닝·실책·평판 기반 추정.",
+    "피렐라는 좌익수 38경기뿐이라 지명타자로 표기. 강한울은 3루 82경기·유격 23경기로 3B 표기.",
+    "18명 구성: 선발 4·불펜 4·야수 10. 라이블리(6경기)·몽고메리(11경기)·이학주는 제외."
+  ],
+  "players": [
+    { "personId": "뷰캐넌", "name": "뷰캐넌", "year": 2021, "team": "삼성", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 79, "control": 72, "stamina": 87, "stability": 84 }, "note": "팀 최다 16승", "source": "30G 177IP 16승5패 ERA3.10 162K 59BB WHIP1.31 — KBO" },
+    { "personId": "원태인", "name": "원태인", "year": 2021, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 73, "stamina": 82, "stability": 84 }, "note": "14승 ERA 3.06", "source": "26G 158.2IP 14승7패 ERA3.06 129K 51BB WHIP1.25 — KBO" },
+    { "personId": "백정현", "name": "백정현", "year": 2021, "team": "삼성", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 68, "control": 71, "stamina": 81, "stability": 89 }, "note": "14승 ERA 2.63", "source": "27G 157.2IP 14승5패 ERA2.63 109K 54BB WHIP1.24 — KBO" },
+    { "personId": "최채흥", "name": "최채흥", "year": 2021, "team": "삼성", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 67, "control": 75, "stamina": 72, "stability": 67 }, "note": "", "source": "26G 122.1IP 5승9패 ERA4.56 82K 37BB WHIP1.47 — KBO(현 최지명)" },
+    { "personId": "오승환", "name": "오승환", "year": 2021, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 84, "control": 80, "stamina": 52, "stability": 94 }, "note": "44세이브 최고령 세이브왕", "source": "64G 62IP 0승2패 44SV ERA2.03 57K 16BB WHIP1.16 — KBO" },
+    { "personId": "우규민", "name": "우규민", "year": 2021, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 88, "stamina": 50, "stability": 82 }, "note": "24홀드", "source": "60G 49IP 3승3패 2SV 24HLD ERA3.31 35K 9BB WHIP1.37 — KBO" },
+    { "personId": "최지광", "name": "최지광", "year": 2021, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 52, "stamina": 52, "stability": 60 }, "note": "", "source": "60G 51.1IP 7승1패 14HLD ERA4.91 49K 27BB WHIP1.56 — KBO" },
+    { "personId": "심창민", "name": "심창민", "year": 2021, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 44, "stamina": 52, "stability": 58 }, "note": "16홀드", "source": "59G 51.1IP 3승2패 16HLD ERA5.08 58K 32BB WHIP1.54 — KBO" },
+    { "personId": "강민호", "name": "강민호", "year": 2021, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 77, "speed": 42, "defense": 86 }, "note": "포수 골든글러브", "source": ".291/.361/.478 18HR 67타점(123G) — KBO" },
+    { "personId": "오재일", "name": "오재일", "year": 2021, "team": "삼성", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 80, "contact": 75, "speed": 42, "defense": 64 }, "note": "25홈런 97타점", "source": ".285/.366/.512 25HR 97타점(120G) — KBO" },
+    { "personId": "김상수", "name": "김상수", "year": 2021, "team": "삼성", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 46, "contact": 58, "speed": 55, "defense": 80 }, "note": "", "source": ".235/.320/.301 3HR 42타점 4SB(132G) — KBO" },
+    { "personId": "이원석", "name": "이원석", "year": 2021, "team": "삼성", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 57, "speed": 41, "defense": 76 }, "note": "", "source": ".231/.341/.346 9HR 59타점(131G) — KBO" },
+    { "personId": "김지찬", "name": "김지찬", "year": 2021, "team": "삼성", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 71, "speed": 78, "defense": 72 }, "note": "23도루", "source": ".274/.331/.304 1HR 26타점 23SB(120G, 유격 90G) — KBO" },
+    { "personId": "구자욱", "name": "구자욱", "year": 2021, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 82, "speed": 82, "defense": 80 }, "note": "20-20·외야 골든글러브", "source": ".306/.361/.519 22HR 88타점 27SB 107득점(139G) — KBO" },
+    { "personId": "박해민", "name": "박해민", "year": 2021, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 77, "speed": 89, "defense": 94 }, "note": "36도루", "source": ".291/.383/.377 5HR 54타점 36SB(127G) — KBO" },
+    { "personId": "김헌곤", "name": "김헌곤", "year": 2021, "team": "삼성", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 73, "speed": 55, "defense": 78 }, "note": "", "source": ".281/.355/.356 4HR 27타점 5SB(118G) — KBO" },
+    { "personId": "피렐라", "name": "피렐라", "year": 2021, "team": "삼성", "position": "DH", "hand": "R", "isForeign": true, "stats": { "power": 83, "contact": 75, "speed": 62, "defense": 55 }, "note": "29홈런 97타점", "source": ".286/.359/.495 29HR 97타점 9SB(140G) — KBO" },
+    { "personId": "강한울", "name": "강한울", "year": 2021, "team": "삼성", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 67, "speed": 45, "defense": 76 }, "note": "내야 유틸리티", "source": ".260/.341/.283 0HR 27타점 2SB(124G) — KBO" }
+  ]
+}
