@@ -1,0 +1,34 @@
+{
+  "id": "2023-ssg",
+  "kind": "team",
+  "year": 2023,
+  "title": "SSG 랜더스",
+  "franchise": "SSG",
+  "subtitle": "정규시즌 3위 · 준플레이오프 진출",
+  "blurb": "전년도 통합우승팀으로 서진용이 42세이브를 올리며 3위를 지켰지만, 준플레이오프에서 NC에 3연패했다.",
+  "notes": [
+    "박성한·최지훈은 2023-hangzhou, 서진용은 legend-ssg의 같은 시즌 값을 그대로 썼다.",
+    "엘리아스는 로메로 대체로 시즌 중 합류해 131.1이닝만 던졌다.",
+    "하재훈(229타석)은 표본이 작아 타율·파워를 보수적으로 잡았다. 고효준 control은 BB/9 6.5를 기준표 아래로 연장한 추정치."
+  ],
+  "players": [
+    { "personId": "김광현", "name": "김광현", "year": 2023, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 69, "control": 63, "stamina": 85, "stability": 80 }, "note": "", "source": "30G 168.1IP ERA3.53 119K 70BB WHIP1.38 9승 — KBO 기록실" },
+    { "personId": "맥카티", "name": "맥카티", "year": 2023, "team": "SSG", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 78, "control": 71, "stamina": 74, "stability": 81 }, "note": "", "source": "24G 130IP ERA3.39 116K 45BB WHIP1.30 9승 — KBO 기록실" },
+    { "personId": "엘리아스", "name": "엘리아스", "year": 2023, "team": "SSG", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 69, "control": 81, "stamina": 74, "stability": 78 }, "note": "", "source": "22G 131.1IP ERA3.70 93K 33BB WHIP1.32 8승 — KBO 기록실" },
+    { "personId": "오원석", "name": "오원석", "year": 2023, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 61, "control": 57, "stamina": 78, "stability": 56 }, "note": "", "source": "28G 144.2IP ERA5.23 88K 69BB WHIP1.57 8승 — KBO 기록실" },
+    { "personId": "서진용", "name": "서진용", "year": 2023, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 58, "stamina": 55, "stability": 87 }, "note": "42세이브·세이브왕", "source": "69G 73IP ERA2.59 64K 49BB WHIP1.53 5승 42SV — KBO 기록실" },
+    { "personId": "노경은", "name": "노경은", "year": 2023, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 61, "stamina": 60, "stability": 79 }, "note": "30홀드", "source": "76G 83IP ERA3.58 65K 36BB WHIP1.37 30HLD 9승 — KBO 기록실" },
+    { "personId": "고효준", "name": "고효준", "year": 2023, "team": "SSG", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 90, "control": 42, "stamina": 50, "stability": 65 }, "note": "", "source": "73G 58IP ERA4.50 66K 42BB WHIP1.57 13HLD — KBO 기록실" },
+    { "personId": "문승원", "name": "문승원", "year": 2023, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 61, "control": 72, "stamina": 60, "stability": 56 }, "note": "", "source": "50G 105IP ERA5.23 65K 35BB WHIP1.65 9HLD 1SV — KBO 기록실" },
+    { "personId": "김민식", "name": "김민식", "year": 2023, "team": "SSG", "position": "C", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 53, "speed": 42, "defense": 76 }, "note": "", "source": ".218/.302 5HR 0SB(0CS) 318PA(122G) 포수 121G — KBO 기록실" },
+    { "personId": "오태곤", "name": "오태곤", "year": 2023, "team": "SSG", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 60, "speed": 76, "defense": 66 }, "note": "20도루", "source": ".239/.293 7HR 20SB(1CS) 305PA(123G) 1루 80G — KBO 기록실" },
+    { "personId": "최주환", "name": "최주환", "year": 2023, "team": "SSG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 72, "contact": 58, "speed": 42, "defense": 70 }, "note": "20홈런", "source": ".235/.310 20HR 0SB(0CS) 478PA(134G) 2루 78G·1루 47G — KBO 기록실" },
+    { "personId": "최정", "name": "최정", "year": 2023, "team": "SSG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 83, "contact": 79, "speed": 58, "defense": 78 }, "note": "29홈런", "source": ".297/.388 29HR 7SB(3CS) 552PA(128G) 87타점 — KBO 기록실" },
+    { "personId": "박성한", "name": "박성한", "year": 2023, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 69, "speed": 51, "defense": 82 }, "note": "", "source": ".266/.347 9HR 4SB(1CS) 529PA(128G) — KBO 기록실" },
+    { "personId": "최지훈", "name": "최지훈", "year": 2023, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 69, "speed": 77, "defense": 86 }, "note": "", "source": ".268/.315 2HR 21SB(2CS) 503PA(117G) 중견수 109G — KBO 기록실" },
+    { "personId": "에레디아", "name": "에레디아", "year": 2023, "team": "SSG", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 62, "contact": 87, "speed": 64, "defense": 88 }, "note": "타율 .323·수비상", "source": ".323/.385 12HR 12SB(8CS) 523PA(122G) 좌익수 101G — KBO 기록실" },
+    { "personId": "한유섬", "name": "한유섬", "year": 2023, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 71, "speed": 42, "defense": 74 }, "note": "", "source": ".273/.355 7HR 2SB(1CS) 388PA(109G) — KBO 기록실" },
+    { "personId": "하재훈", "name": "하재훈", "year": 2023, "team": "SSG", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 78, "speed": 64, "defense": 72 }, "note": "", "source": ".303/.374 7HR 11SB(0CS) 229PA(77G) — KBO 기록실" },
+    { "personId": "추신수", "name": "추신수", "year": 2023, "team": "SSG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 64, "contact": 64, "speed": 56, "defense": 52 }, "note": "", "source": ".254/.379 12HR 6SB(4CS) 462PA(112G) 65BB — KBO 기록실" }
+  ]
+}
