@@ -1,0 +1,37 @@
+{
+  "id": "2019-premier12",
+  "kind": "national",
+  "year": 2019,
+  "title": "2019 프리미어12 국가대표",
+  "franchise": null,
+  "subtitle": "준우승 · 도쿄올림픽 출전권",
+  "blurb": "조별리그 3전 전승 후 결승에서 일본에 3-5로 져 준우승했지만, 아시아·오세아니아 최상위로 도쿄올림픽 출전권을 땄다.",
+  "notes": [
+    "대회 성적: 조별리그 호주 5-0, 캐나다 3-1, 쿠바 7-0 / 슈퍼라운드 미국 5-1, 대만 0-7 패, 멕시코 7-3, 일본 8-10 패 / 결승 일본 3-5 패, 준우승 — enwiki. 일본 제외 아시아·오세아니아 최상위로 올림픽 출전권 획득 — enwiki.",
+    "최종 엔트리 28명은 KBO 발표(10월 2일) 기준, 구창모(NC)는 허리 부상으로 빠지고 이승호(키움)가 대신 합류한 것으로 보도됨(검색 결과 요약 기준, 원문 기사 직접 확인은 못 함). 둘 다 이 18명에는 없음.",
+    "18명 구성: 선발 4·불펜 3·야수 11. 차우찬·함덕주·한현희·문경찬·원종현·이승호·박세혁·김상수·허경민·황재균은 미수록.",
+    "기록은 KBO 기록실(koreabaseball.com) 2019 정규시즌 기준(시대 보정 없음). 조상우(47.1IP)·하재훈(59IP)·고우석(71IP)은 표본이 작아 기준보다 2~4 낮춤.",
+    "양현종 평균자책점 1위, 양의지 타격왕, 박병호 홈런왕, 하재훈 세이브 1위는 KBO 기록실 수치와 널리 알려진 타이틀 기준.",
+    "수비(defense)는 수비 이닝·실책·평판 기반 추정, 투타(hand)는 일반 알려진 정보로 넣음."
+  ],
+  "players": [
+    { "personId": "김광현", "name": "김광현", "year": 2019, "team": "SK", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 81, "control": 86, "stamina": 90, "stability": 90 }, "note": "17승", "source": "31G 17승6패 ERA2.51 190.1IP 180K 38BB WHIP1.24 — KBO 기록실" },
+    { "personId": "양현종", "name": "양현종", "year": 2019, "team": "KIA", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 82, "control": 89, "stamina": 89, "stability": 92 }, "note": "평균자책점 1위(2.29)", "source": "29G 16승8패 ERA2.29 184.2IP 163K 33BB WHIP1.07 — KBO 기록실" },
+    { "personId": "이영하", "name": "이영하", "year": 2019, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 68, "stamina": 83, "stability": 78 }, "note": "17승", "source": "29G 17승4패 ERA3.64 163.1IP 90K 61BB WHIP1.28 — KBO 기록실" },
+    { "personId": "박종훈", "name": "박종훈", "year": 2019, "team": "SK", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 64, "stamina": 78, "stability": 75 }, "note": "", "source": "28G 8승11패 ERA3.88 144IP 100K 59BB WHIP1.50 — KBO 기록실" },
+    { "personId": "조상우", "name": "조상우", "year": 2019, "team": "키움", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 86, "stamina": 50, "stability": 86 }, "note": "20세이브", "source": "48G 2승4패 20SV 8HLD ERA2.66 47.1IP 46K 8BB WHIP1.12 — KBO 기록실" },
+    { "personId": "하재훈", "name": "하재훈", "year": 2019, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 60, "stamina": 52, "stability": 92 }, "note": "세이브 1위(36)", "source": "61G 5승3패 36SV ERA1.98 59IP 64K 26BB WHIP1.24 — KBO 기록실" },
+    { "personId": "고우석", "name": "고우석", "year": 2019, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 62, "stamina": 55, "stability": 94 }, "note": "35세이브", "source": "65G 8승2패 35SV ERA1.52 71IP 76K 30BB WHIP1.08 — KBO 기록실" },
+    { "personId": "양의지", "name": "양의지", "year": 2019, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 95, "speed": 51, "defense": 92 }, "note": "타격왕(.354)", "source": ".354 20HR 68RBI 4SB 459PA(118G, 포수 91G) — KBO 기록실" },
+    { "personId": "박병호", "name": "박병호", "year": 2019, "team": "키움", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 88, "contact": 73, "speed": 42, "defense": 64 }, "note": "홈런왕(33)", "source": ".280 33HR 98RBI 0SB 532PA(122G) — KBO 기록실" },
+    { "personId": "박민우", "name": "박민우", "year": 2019, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 43, "contact": 93, "speed": 74, "defense": 80 }, "note": "타율 .344", "source": ".344 1HR 45RBI 18SB 526PA(125G) — KBO 기록실" },
+    { "personId": "최정", "name": "최정", "year": 2019, "team": "SK", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 83, "contact": 77, "speed": 49, "defense": 80 }, "note": "29홈런", "source": ".292 29HR 99RBI 3SB 606PA(141G) — KBO 기록실" },
+    { "personId": "김하성", "name": "김하성", "year": 2019, "team": "키움", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 82, "speed": 86, "defense": 84 }, "note": "대회 올스타(유격수)", "source": ".307 19HR 104RBI 33SB 625PA(139G) — KBO 기록실" },
+    { "personId": "이정후", "name": "이정후", "year": 2019, "team": "키움", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 91, "speed": 68, "defense": 80 }, "note": "대회 올스타(외야수)", "source": ".336 6HR 68RBI 13SB 193H 630PA(140G) — KBO 기록실" },
+    { "personId": "김현수", "name": "김현수", "year": 2019, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 61, "contact": 81, "speed": 49, "defense": 70 }, "note": "", "source": ".304 11HR 82RBI 3SB 595PA(140G) — KBO 기록실" },
+    { "personId": "김재환", "name": "김재환", "year": 2019, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 66, "contact": 74, "speed": 49, "defense": 64 }, "note": "", "source": ".283 15HR 91RBI 3SB 574PA(136G) — KBO 기록실" },
+    { "personId": "민병헌", "name": "민병헌", "year": 2019, "team": "롯데", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 81, "speed": 68, "defense": 80 }, "note": "", "source": ".304 9HR 43RBI 13SB 420PA(101G) — KBO 기록실" },
+    { "personId": "박건우", "name": "박건우", "year": 2019, "team": "두산", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 86, "speed": 66, "defense": 78 }, "note": "", "source": ".319 10HR 64RBI 12SB 537PA(127G) — KBO 기록실" },
+    { "personId": "강백호", "name": "강백호", "year": 2019, "team": "KT", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 65, "contact": 91, "speed": 62, "defense": 68 }, "note": "", "source": ".336 13HR 65RBI 9SB 505PA(116G, 우익 72G) — KBO 기록실" }
+  ]
+}
