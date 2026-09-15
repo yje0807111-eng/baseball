@@ -696,32 +696,56 @@ const KEYFRAMES = `
 @keyframes tokFill { from { -webkit-mask-position: 0 0%; mask-position: 0 0%; } to { -webkit-mask-position: 0 100%; mask-position: 0 100%; } }
 @keyframes tokDone { 0% { transform: none; filter: brightness(1); } 35% { transform: scale(1.07); filter: brightness(1.4); } 100% { transform: none; filter: brightness(1); } }
 @keyframes tokEdge {
-  0% { box-shadow: inset 4px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); }
-  30% { box-shadow: inset 4px 0 0 var(--n), 0 0 0 2px var(--n), 0 6px 14px rgba(0,0,0,.5); }
-  100% { box-shadow: inset 4px 0 0 var(--n), 0 0 0 2px transparent, 0 6px 14px rgba(0,0,0,.5); }
+  0% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  30% { box-shadow: inset 0 0 0 2px var(--n), 0 0 22px color-mix(in srgb, var(--n) 70%, transparent); }
+  100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); }
 }
-/* 라인업 필드 토큰 (중계 자막 스타일) */
+/* 라인업 필드 토큰: 유리 판(이름 · 시즌) + 판 위로 솟는 흉상 + 판 위 포지션 칩 + 빛나는 종합 · 아래 팀 색 네온 밑줄.
+   빈 자리는 칩 없이 흉상과 같은 크기의 사진 칸(빈 프로필 아이콘) + 옅은 판 */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
-.lf-tok { position: absolute; width: 168px; height: 84px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
+.lf-tok { position: absolute; width: 214px; height: 72px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
 .lf-tok.empty { cursor: pointer; }
+.lf-tok.picked, .lf-tok.want { z-index: 5; }
 .lf-tok:focus-visible .lf-bar { outline: 2px solid #10b981; outline-offset: 2px; }
-/* 흉상+자막 바를 담는 한 덩어리. 흉상 머리·바 그림자가 마스크에 잘리지 않게 토큰보다 사방으로 넉넉하게 잡는다 */
+/* 흉상+판을 담는 한 덩어리. 합류 마스크에 흉상 머리 · 지정 시 떠오름 · 그림자가 잘리지 않게 토큰보다 사방으로 넉넉하게 잡고, 안쪽 .lf-k 가 토큰 크기 */
 .lf-in { position: absolute; left: -24px; right: -24px; top: -14px; bottom: -20px; pointer-events: none; }
 .lf-in > * { pointer-events: auto; }
-.lf-bp { position: absolute; left: 26px; bottom: 30px; width: 62px; height: 82px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
-.lf-bar { position: absolute; left: 38px; right: 24px; bottom: 20px; height: 48px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 54px; background: linear-gradient(90deg, rgba(9,14,26,.95), rgba(16,24,40,.9)); box-shadow: inset 4px 0 0 var(--n), inset 0 0 0 1px color-mix(in srgb, var(--n) 28%, transparent), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); transition: box-shadow .15s, background .15s; }
-.lf-bar > * { transform: skewX(10deg); }
-.lf-bx { min-width: 0; flex: 1; line-height: 1.15; }
-.lf-bx small { display: block; font-size: 10px; letter-spacing: .04em; color: #8791a3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lf-bx b { display: block; font-size: 14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lf-ov { font-size: 22px; font-weight: 700; line-height: 1; color: var(--n); }
-.lf-tok.empty .lf-bar { background: rgba(12,18,28,.85); box-shadow: inset 4px 0 0 #3b4656; }
-.lf-tok.empty .lf-bx b { color: #5b6577; font-weight: 500; }
+.lf-k { position: absolute; left: 24px; right: 24px; top: 14px; bottom: 20px; transform-origin: 50% 100%; transition: transform .09s ease-in; }
+.lf-k::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: -16px; height: 12px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.72), transparent); opacity: 0; transition: opacity .09s; pointer-events: none; }
+.lf-chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); transition: background .09s, color .09s; }
+.lf-bar { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: rgba(15,23,42,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); transition: background .09s, box-shadow .09s; }
+.lf-bar::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 10px var(--n); }
+.lf-bp { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+/* 빈 사진 칸: 흉상과 같은 자리 · 크기. 불투명하게 칠해 뒤 판 테두리를 가리고 아래는 판 속으로 흐려져 네모 두 개로 겹쳐 보이지 않게 */
+.lf-ph { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: inset 0 1px 0 rgba(148,163,184,.3); -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); transition: background .09s; }
+.lf-ph::before { content: ""; position: absolute; left: 50%; top: 44%; width: 30px; height: 33px; transform: translate(-50%, -50%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") center / contain no-repeat; opacity: .5; }
+.lf-bx { min-width: 0; flex: 1; line-height: 1.25; }
+.lf-bx b { display: block; font-size: 15px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-bx small { display: block; font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-ov { font-size: 29px; font-weight: 700; line-height: 1; color: var(--n); text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
+.lf-ov.up { color: #34d399; text-shadow: 0 0 12px rgba(52,211,153,.6); }
+.lf-tok.empty .lf-bar { background: rgba(10,15,26,.5); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
+.lf-tok.empty .lf-bar::after { background: linear-gradient(90deg, transparent, rgba(148,163,184,.3) 30%, rgba(148,163,184,.3) 70%, transparent); box-shadow: none; }
+.lf-tok.empty .lf-bx b { color: #9aa4b5; font-weight: 600; }
+.lf-tok.empty .lf-bx small { color: #6b7280; }
+/* 지정(선수를 누름 · 자리로 선반을 거름): 판이 팀 색(빈 자리는 하늘색)으로 차오르며 떠오르고 살짝 커진다.
+   전환 시간은 도착하는 상태의 값이 쓰이므로 지정은 .22s 로 튀어 오르고, 해제는 위 기본값 .09s 로 빨리 돌아가
+   다른 자리를 새로 지정할 때 두 개가 동시에 지정된 것처럼 보이지 않는다 */
+.lf-tok.picked .lf-k, .lf-tok.want .lf-k { transform: translateY(-7px) scale(1.06); transition: transform .22s cubic-bezier(.3,1.5,.55,1); }
+.lf-tok.picked .lf-k::before, .lf-tok.want .lf-k::before { opacity: 1; transition: opacity .22s; }
+.lf-tok:is(.picked, .want):not(.empty) .lf-bar { background: linear-gradient(90deg, color-mix(in srgb, var(--n) 55%, #0b1220), color-mix(in srgb, var(--n) 22%, #0b1220)); box-shadow: inset 0 0 0 1px var(--n), 0 18px 30px -10px rgba(0,0,0,.85), 0 8px 26px -8px var(--n); transition: background .22s, box-shadow .22s; }
+.lf-tok:is(.picked, .want):not(.empty) .lf-bx small { color: #fff; }
+.lf-tok:is(.picked, .want):not(.empty) .lf-ov { color: #fff; text-shadow: 0 0 12px var(--n); }
+.lf-tok:is(.picked, .want):not(.empty) .lf-chip { color: #05080f; background: var(--n); transition: background .22s, color .22s; }
+.lf-tok.want.empty .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 1px #38bdf8, 0 18px 30px -10px rgba(0,0,0,.85), 0 8px 26px -8px #38bdf8; transition: background .22s, box-shadow .22s; }
+.lf-tok.want.empty .lf-bar::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.lf-tok.want.empty .lf-bx b, .lf-tok.want.empty .lf-bx small { color: #e0f2fe; }
+.lf-tok.want.empty .lf-ph { background: linear-gradient(180deg, #2b5470, #214259 70%); transition: background .22s; }
+.lf-tok.want.empty .lf-ph::before { opacity: .85; }
 .lf-tok.ghost .lf-bx small, .lf-row.ghost .nm small { color: #10b981; }
 .lf-tok.clash .lf-bx small, .lf-row.clash .nm small, .lf-off { color: #fbbf24 !important; }
-.lf-tok.picked .lf-bar, .lf-tok.over .lf-bar { background: linear-gradient(90deg, #0f2a22, #15352b); box-shadow: inset 4px 0 0 #10b981, 0 0 0 2px #10b981; }
+.lf-tok.over .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 16px rgba(16,185,129,.5); } /* 끌어다 놓을 자리 */
 .lf-tok.lifted, .lf-row.lifted { opacity: .35; }
-.lf-tok.want .lf-bar { background: linear-gradient(90deg, #0c2233, #11304a); box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 14px rgba(56,189,248,.45); } /* 선반을 이 자리 포지션으로 거르는 중 */
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
 .lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
@@ -735,7 +759,7 @@ const KEYFRAMES = `
 .lf-row.empty .nm { color: #5b6577; font-weight: 500; }
 .lf-row.ghost { background: rgba(16,185,129,.12); }
 .lf-row.picked, .lf-row.over { background: rgba(16,185,129,.2); box-shadow: inset 3px 0 0 #10b981, inset 0 0 0 1px #10b981; }
-.lf-tok.focus .lf-bar { box-shadow: inset 4px 0 0 #38bdf8, 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.45); }
+.lf-tok.focus .lf-bar { box-shadow: inset 0 0 0 2px #38bdf8, 0 0 22px rgba(56,189,248,.5); }
 .lf-row.focus { background: rgba(56,189,248,.16); box-shadow: inset 3px 0 0 #38bdf8, inset 0 0 0 1px #38bdf8; }
 .lf-tok.dim, .lf-row.dim { opacity: .28; }
 /* 미리보기(ghost)와 합류 중 밑에 깔린 사본은 무채색 */
@@ -1474,18 +1498,24 @@ function SlotToken({ slot, player, kind, flags, bind, boosted }) {
   const { eff, moved, color, sub, boost } = tokenView(slot, player, kind, boosted);
   const [x, y] = SLOT_XY[slot.id];
   const joined = /\bjoined\b/.test(flags);
+  // 선수 자리: 판 위 포지션 칩 + 솟는 흉상 · 빈 자리: 칩 없이 같은 크기의 빈 사진 칸 (포지션 이름은 판 안 아랫줄)
   const body = (
-    <>
-      <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
+    <div className="lf-k">
+      {player ? (
+        <>
+          <span className="lf-chip">{slot.id}</span>
+          <div className="lf-bp" style={bust}>{!bust && <Silhouette />}</div>
+        </>
+      ) : <span className="lf-ph" />}
       <div className="lf-bar">
-        <div className="lf-bx"><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{slot.id} · {sub}</small><b>{player ? player.name : '빈 자리'}</b></div>
+        <div className="lf-bx"><b>{player ? player.name : '빈 자리'}</b><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{sub}</small></div>
         {eff && (
-          <em className="lf-ov font-display not-italic tabular-nums" style={boost ? { color: '#34d399' } : undefined} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
+          <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
             {boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}
           </em>
         )}
       </div>
-    </>
+    </div>
   );
   return (
     <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
@@ -2700,11 +2730,18 @@ export default function KboAugmentDraft() {
   const runIdRef = useRef(0); // 값이 바뀌면 진행 중인 시뮬레이션은 스스로 중단
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
-  // 개발 전용 바로가기: ?demo=ready | augment | matchup — AI 드래프트로 엔트리를 채워 뒤 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  // 개발 전용 바로가기: ?demo=draft | ready | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const demo = new URLSearchParams(window.location.search).get('demo');
     if (!demo) return;
+    if (demo === 'draft') { // 늘 같은 8명(2루수 · 외야 둘 · 마무리는 빈 자리)으로 9라운드 드래프트 화면 — 디자인 비교용
+      const r = [['송승준', 2010], ['심창민', 2014], ['강민호', 2008], ['강진성', 2020], ['김동주', 2008], ['이종범', 1993], ['이용규', 2008], ['에반스', 2016]]
+        .map(([n, y]) => ALL_PLAYERS.find((p) => p.name === n && p.year === y)).filter(Boolean);
+      const c = Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0));
+      setRoster(r); setCp(c); setRound(r.length + 1); openSeries(nextSeries(r, c, [])); setPhase('draft');
+      return;
+    }
     const r = aiDraft();
     setRoster(r);
     setCp(Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0)));
@@ -2723,14 +2760,17 @@ export default function KboAugmentDraft() {
   const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
   const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
   const leaveTimerRef = useRef(null);
+  // 곧 바뀔 거르기 자리(빠지는 카드를 기다리는 0.18초 동안). 라인업의 지정 표시는 기다리지 않고 이 값을 바로 따른다 — 옛 자리 해제가 늦어 두 자리가 동시에 지정돼 보이지 않게
+  const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
   const openOnly = (p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released);
   const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter || p.position === posFilter.pos);
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
-    const next = slot == null || (!force && posFilter?.slot === slot) ? null : { slot, pos: slotPos(slot) };
-    if ((next?.slot ?? null) === (posFilter?.slot ?? null)) return;
+    const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
+    const next = slot == null || (!force && cur === slot) ? null : { slot, pos: slotPos(slot) };
+    if ((next?.slot ?? null) === cur) return;
     const keep = new Set(seriesCards.filter(openOnly).filter((p) => !next || p.position === next.pos).map((p) => p.id));
     const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
     clearTimeout(leaveTimerRef.current);
@@ -2739,9 +2779,11 @@ export default function KboAugmentDraft() {
       shelfRef.current?.querySelectorAll('[data-card]').forEach((el) => { if (!leaving.has(el.dataset.card)) first.set(el.dataset.card, el.getBoundingClientRect()); });
       flipRef.current = first;
       setShelfLeaving(null);
+      setPendingSlot(undefined);
       setPosFilter(next);
     };
     if (!leaving.size) { commit(); return; }
+    setPendingSlot(next?.slot ?? null);
     setShelfLeaving(leaving);
     leaveTimerRef.current = setTimeout(commit, 180);
   };
@@ -3099,7 +3141,7 @@ export default function KboAugmentDraft() {
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} wantSlot={posFilter?.slot} draftView
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
