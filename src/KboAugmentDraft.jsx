@@ -1764,13 +1764,8 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
           {focusLabel} · {highlight.size}명 <span aria-hidden="true">✕</span>
         </button>
       )}
-      {!locked && !highlight && (
-        <p className="pointer-events-none absolute left-3 top-2 bg-[#05080f]/70 px-2 py-0.5 text-[11px] text-gray-300">
-          {pick ? '끌어서 다른 자리에 놓으면 이동 · Esc 취소' : '선수를 끌어 다른 자리에 놓으면 자리를 바꿉니다 · 제 포지션 밖이면 종합 −3~−20'}
-        </p>
-      )}
       {onRelease && pick && at(pick) && (
-        <div className="absolute left-3 top-9 z-10 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
+        <div className="absolute left-3 top-2 z-10 flex items-center gap-2 bg-[#05080f]/90 px-2 py-1.5 text-xs text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]">
           <span>{at(pick).name} 방출 시 <b className="font-display text-sm text-white">+{releaseRefund(at(pick))}</b> CP 환불 · 다시 영입 불가</span>
           <button type="button"
             onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } onRelease(pick); setPick(null); }}
