@@ -1159,10 +1159,33 @@ const KEYFRAMES = `
 /* 종합 수치 색 등급 (선반 · PICK 카드와 같게) */
 .mt-trio b.t75, .mt-rec td.ov b.t75 { color: #34d399; }
 .mt-trio b.t90, .mt-rec td.ov b.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+/* 넓은 화면: 판 높이에 맞춰 늘어난다 — 레이더는 남는 높이만큼 커지고, 기록표 줄은 카드 높이를 나눠 가진다(한 줄 26~42px) */
 @media (min-width: 1024px) {
   .mt-panel { flex: 1; }
   .mt-body { flex: 1; min-height: 0; overflow-y: auto; }
-  .mt-team { height: 100%; }
+  .mt-team { height: 100%; justify-content: flex-start; gap: 14px; }
+  .mt-radar { flex: 1 1 0; min-height: 200px; display: grid; place-items: center; container-type: size; }
+  .mt-rd { width: min(100cqw, 100cqh * 340 / 294); }
+  .mt-rec { height: 100%; }
+  .mt-card { flex-shrink: 0; flex-basis: 0; min-height: calc(60px + var(--n) * 26px); container-type: size; }
+  .mt-rec td, .mt-rec tr.e td { height: clamp(26px, calc((100cqh - 60px) / var(--n)), 42px); }
+  /* 판이 큰 만큼 글자 · 사진도 한 단계 크게 */
+  .mt-trio { padding-bottom: 12px; }
+  .mt-trio small { font-size: 12px; }
+  .mt-trio b { font-size: 36px; }
+  .mt-style { font-size: 20px; }
+  .mt-chips { gap: 6px; }
+  .mt-chips span { padding: 10px; font-size: 13px; }
+  .mt-chips b { font-size: 17px; }
+  .mt-gh { height: 26px; }
+  .mt-gh .en { font-size: 15.5px; }
+  .mt-gh b { font-size: 13px; }
+  .mt-rec th { font-size: 11px; }
+  .mt-face { width: 28px; height: 28px; }
+  .mt-rec .who b { font-size: 14px; }
+  .mt-rec .who small { font-size: 10.5px; }
+  .mt-rec .st { font-size: 17px; }
+  .mt-rec td.ov b { font-size: 19px; }
 }
 .dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
 .dock-row:hover { background: rgba(255,255,255,.03); }
@@ -2002,7 +2025,7 @@ function TeamReport({ roster, mode, cap }) {
 
 /** 여섯 축 레이더: 초록 면 = 우리 팀, 붉은 점선 = AI 평균. 꼭짓점에 우리 값과 AI 평균과의 차이 */
 function TeamRadar({ axes }) {
-  const W = 340, H = 266, R = 90, lo = 40, cx = W / 2;
+  const W = 340, H = 294, R = 106, lo = 40, cx = W / 2; // 옆 꼭짓점 글자가 틀 안에 드는 가장 큰 반지름
   const cy = R + 40 + Math.max(0, (H - R - 42 - (R + 40)) / 2); // 위 꼭짓점 이름과 아래 꼭짓점 값이 틀 안에 들도록
   const at = (i, r) => { const a = -Math.PI / 2 + (i * Math.PI * 2) / axes.length; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
   const rOf = (v) => (R * (Math.max(lo, Math.min(100, v ?? lo)) - lo)) / (100 - lo);
@@ -2050,10 +2073,10 @@ function RecordCards({ roster, selectedSlot, onTap }) {
           return vals.length > 1 ? (c.low ? Math.min(...vals) : Math.max(...vals)) : null;
         });
         return (
-          <section key={kind} className={`mt-card ${kind}`}>
+          <section key={kind} className={`mt-card ${kind}`} style={{ '--n': slots.length, flexGrow: slots.length + 2 }}>
             <div className="mt-gh"><span className="en font-display">{en}</span><b>{ko}</b><em>{rows.filter((x) => x.player).length}/{slots.length}</em></div>
             <table>
-              <colgroup><col style={{ width: 44 }} /><col style={{ width: 30 }} /><col />{cols.map((c) => <col key={c.h} style={{ width: 38 }} />)}<col style={{ width: 30 }} /></colgroup>
+              <colgroup><col style={{ width: 44 }} /><col style={{ width: 36 }} /><col />{cols.map((c) => <col key={c.h} style={{ width: 38 }} />)}<col style={{ width: 30 }} /></colgroup>
               <thead><tr><th className="l">자리</th><th /><th className="l">선수</th>{cols.map((c) => <th key={c.h}>{c.h}</th>)}<th>종합</th></tr></thead>
               <tbody>
                 {rows.map(({ slot, player, rec }) => (
