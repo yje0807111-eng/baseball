@@ -1627,7 +1627,7 @@ function visibleSynergies(roster, draftView) {
   return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
 }
 
-function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onSlotFilter, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onRelease, onInspect, onSlotFilter, onClearCandidate, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -1707,6 +1707,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onRelease, on
     if (pick === id) {
       setPick(null);
       onSlotFilter?.(id);
+      if (candidate) onClearCandidate?.(); // 이 자리를 골라 둔 채 선반에서 본 후보도 함께 해제 — PICK 은 빈 칸으로
     } else if (pick) {
       setPick(at(id) ? id : null);
       onSlotFilter?.(id, true);
@@ -3242,7 +3243,7 @@ export default function KboAugmentDraft() {
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY LINEUP</span>
-                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
+                  <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onRelease={handleRelease} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
