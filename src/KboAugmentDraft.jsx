@@ -1051,15 +1051,16 @@ const KEYFRAMES = `
 .pk-face > * { width: 100%; }
 @keyframes pkFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
 @keyframes pkFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
-@keyframes pkBackAway { from { transform: rotateY(0) scale(1); } to { transform: rotateY(-90deg) scale(1.04); } }
-@keyframes pkBackReturn { from { transform: rotateY(90deg) scale(1.04); } to { transform: rotateY(0) scale(1); } }
+/* 빈 칸(뒷면)도 카드끼리 넘어갈 때와 같은 방향으로 돈다: 나갈 때는 +90°까지, 들어올 때는 −90°에서 — 방향이 반대면 반쯤 돌다 되돌아가는 느낌이 난다 */
+@keyframes pkBackAway { from { transform: rotateY(0) scale(1); } to { transform: rotateY(90deg) scale(1.04); } }
+@keyframes pkBackReturn { from { transform: rotateY(-90deg) scale(1.04); } to { transform: rotateY(0) scale(1); } }
 .pkf-in { animation: pkFlipIn .44s ease-in-out both; } /* pk-in 은 PlayerCard 안쪽 층 이름이라 겹치지 않게 pkf- */
 .pkf-out { pointer-events: none; }
 .pkf-out.flip { animation: pkFlipOut .44s ease-in-out both; }
 .pkf-out.sign { animation: pickSign .35s ease-in both; }
-.pk-back.away { animation: pkBackAway .22s ease-in both; }
-.pk-back.hidden { visibility: hidden; transform: rotateY(-90deg); }
-.pk-back.return { animation: pkBackReturn .22s ease-out .22s both; }
+.pk-back.away { animation: pkBackAway .22s ease-in-out both; }
+.pk-back.hidden { visibility: hidden; transform: rotateY(90deg); }
+.pk-back.return { animation: pkBackReturn .22s ease-in-out .22s both; }
 /* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
 .pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); animation: pkRing 4.5s linear infinite; }
 .pk-empty::before { content: ""; position: absolute; inset: 1.5px; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); background: linear-gradient(180deg, #0a1120, #070c16); } /* 카드 면: 둘레 1.5px 만 남겨 빛이 잘린 모서리까지 따라 돎 */
