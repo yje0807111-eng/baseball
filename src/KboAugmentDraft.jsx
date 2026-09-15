@@ -1090,6 +1090,42 @@ const KEYFRAMES = `
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
+/* 넓은 화면: 시너지는 구장 바로 오른쪽(판 끝까지), 그늘은 옅게 해 사진이 뒤로 이어 보이게 */
+.syn-dock.wide { right: auto; padding: 12px 16px 10px 22px; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)); }
+/* 라인업 평균 카드 (구장 오른쪽 위 · 시너지 왼쪽) */
+.lf-avg { position: absolute; z-index: 7; top: 12px; width: 168px; padding: 5px 10px 6px; pointer-events: none; background: rgba(6,10,19,.64); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); border-radius: 4px; }
+.lf-avg div { display: grid; grid-template-columns: 26px 1fr 30px; align-items: center; gap: 7px; line-height: 16px; }
+.lf-avg div + div { margin-top: 1px; }
+.lf-avg small { font-size: 10.5px; color: #9ca3af; }
+.lf-avg i { display: block; height: 4px; background: rgba(255,255,255,.1); }
+.lf-avg i b { display: block; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); }
+.lf-avg .t i b { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.lf-avg em { font-style: normal; font-size: 15px; font-weight: 700; line-height: 1; text-align: right; color: #fff; }
+/* 오른쪽 LINEUP 명단: 묶음 상자 위 “선 위 라벨”(이름만) · 줄은 판 높이에 맞춰 늘고 줄어 12줄이 늘 들어감 */
+.ll-body { display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.ll-box { position: relative; min-height: 0; display: flex; flex-direction: column; gap: 1px; padding-top: 22px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
+.ll-gl { position: absolute; left: 10px; right: 10px; top: 6px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; line-height: 12px; letter-spacing: .06em; color: #6ee7b7; white-space: nowrap; }
+.ll-gl::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(16,185,129,.45), rgba(16,185,129,.08)); }
+.ll-row { display: grid; grid-template-columns: 58px 32px minmax(0,1fr) 86px 30px; align-items: center; column-gap: 8px; width: 100%; min-height: 38px; padding: 3px 8px; text-align: left; overflow: hidden; cursor: pointer; transition: background .12s; }
+.ll-row + .ll-row { border-top: 1px solid rgba(255,255,255,.05); }
+.ll-row:hover { background: rgba(255,255,255,.07); }
+.ll-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.ll-row.on { background: rgba(56,189,248,.15); box-shadow: inset 0 0 0 1px rgba(56,189,248,.55); }
+.ll-pos { font-size: 12px; font-weight: 600; color: #cbd5e1; white-space: nowrap; }
+.ll-fc { align-self: stretch; min-height: 26px; border-radius: 2px; background-color: #1b2537; background-repeat: no-repeat; background-size: cover !important; background-position: 50% 8% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.ll-fc.nof { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") 50% 70% / 64% auto no-repeat, linear-gradient(180deg, #2c3749, #222c3e) !important; opacity: .85; }
+.ll-nm { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ll-row.e .ll-nm { color: #6b7280; font-weight: 500; }
+.ll-sea { font-size: 11.5px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ll-ov { font-size: 21px; font-weight: 700; line-height: 1; text-align: right; color: #fff; }
+/* 종합 수치 색 등급 (선반 · PICK 카드와 같게) */
+.ll-ov.t75, .lf-avg em.t75 { color: #34d399; }
+.ll-ov.t90, .lf-avg em.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+@media (min-width: 1024px) {
+  .ll-body { flex: 1; }
+  .ll-box { flex: var(--k) 1 0; }
+  .ll-row { flex: 1 1 0; min-height: 26px; max-height: 48px; }
+}
 .dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
 .dock-row:hover { background: rgba(255,255,255,.03); }
 .dock-row.on { background: linear-gradient(90deg, rgba(16,185,129,.16), transparent); box-shadow: inset 2px 0 0 #10b981; }
@@ -1501,6 +1537,12 @@ const SLOT_XY = {
 };
 /** 이 구장에서 토큰 크기 (CSS .lf-tok 의 scale 과 같은 값 — 끌기 카드 크기도 여기에 맞춘다) */
 const TOK_SCALE = 0.8;
+/** 좌우로 넓힌 구장 사진(ui/field-wide.webp)이 필드 좌표(900×580)에서 차지하는 자리 — 원본 사진(field-night)과 구장이 정확히 겹치도록 정합한 값 */
+const WIDE_ART = { l: -201.6, t: 7.35, w: 1303.5, h: 553 };
+const SLOT_MIN_X = Math.min(...Object.values(SLOT_XY).map(([x]) => x));
+const SLOT_MAX_X = Math.max(...Object.values(SLOT_XY).map(([x]) => x));
+/** 종합 수치 색 등급: 75 미만 흰색 · 75~89 초록 · 90 이상 무지개 (선반 · PICK 카드와 같은 기준) */
+const tierOf = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
 
 const Silhouette = () => (
   <svg className="lf-sil" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -1510,6 +1552,15 @@ const Silhouette = () => (
 const bustStyle = (src, p, size = '300%') => (src ? { backgroundImage: `url(${src})`, backgroundSize: `${size} auto`, backgroundPosition: p.face || '50% 14%' } : undefined);
 
 /* 야간 조명 아래 구장: 줄무늬 잔디 · 붉은 흙 내야 · 빛나는 파울 라인과 베이스 (카드 문법 UI와 같은 톤) */
+/** 넓은 화면의 구장: 좌우로 넓힌 사진을 필드 좌표에 붙이고, fade=[시작%, 끝%] 구간에서 오른쪽(시너지 쪽)으로 어둠에 녹아든다 */
+function WideFieldArt({ fade }) {
+  const mask = `linear-gradient(90deg, #000 ${fade[0]}%, transparent ${fade[1]}%)`;
+  return (
+    <img src="ui/field-wide.webp" alt="" aria-hidden="true" draggable="false" className="pointer-events-none absolute max-w-none select-none"
+      style={{ left: WIDE_ART.l, top: WIDE_ART.t, width: WIDE_ART.w, height: WIDE_ART.h, WebkitMaskImage: mask, maskImage: mask }} />
+  );
+}
+
 function FieldArt() {
   // 조명탑 아래 밤 경기장을 위에서 내려다본 사진. 900×580 판을 꽉 채우고(위아래 약간 잘림) 가장자리는 둘레 야경으로 흐려진다
   return (
@@ -1627,10 +1678,11 @@ function visibleSynergies(roster, draftView) {
   return draftView ? all.filter((s) => !DRAFT_HIDDEN.has(s.id)) : all;
 }
 
-function LineupField({ roster, candidate, candidateReason, onMove, onInspect, onSlotFilter, onClearCandidate, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, className = '', locked = false }) {
+function LineupField({ roster, candidate, candidateReason, onMove, onInspect, onSlotFilter, onClearCandidate, wantSlot = null, draftView = false, highlight, focusLabel, onClearFocus, reserve = 0, overlay = null, fill = false, wide = false, tapRef = null, className = '', locked = false }) {
   const wrapRef = useRef(null);
   const dragRef = useRef(null);
   const [scale, setScale] = useState(1);
+  const [box, setBox] = useState({ w: 0, h: 0 }); // wide: 판 크기 (시너지 · 평균 카드 자리 계산)
   const [offset, setOffset] = useState({ x: 0, y: 0 }); // 오른쪽 도크(reserve)를 뺀 영역 안에서 구장을 가운데로
   // fill + 넓은 화면: 부모 높이를 채우고 구장을 그 안에 맞춘다. 첫 렌더부터 켜 둬야 고정 높이를 한 번 거치지 않는다
   const [filling, setFilling] = useState(() => fill && typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches);
@@ -1666,6 +1718,15 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       // 넓은 화면에서만 높이 채우기 (좁은 화면은 부모 높이가 내용에서 나오므로 폭 기준으로 둔다)
       const fitHeight = fill && window.matchMedia('(min-width: 1024px)').matches;
       const h = e.contentRect.height;
+      if (wide && fitHeight) {
+        // 넓힌 사진이 판 높이를 빈틈 없이 채우는 배율 · 가장 왼쪽 토큰이 판 왼쪽 끝에서 14px 에 오도록 왼쪽 정렬(사진 왼쪽 관중석은 판 밖으로)
+        const kw = (h / WIDE_ART.h) * 1.003;
+        const x = 14 - (SLOT_MIN_X - 107 * TOK_SCALE) * kw;
+        const y = Math.min(Math.max((h - FIELD_H * kw) / 2, h - (WIDE_ART.t + WIDE_ART.h) * kw), -WIDE_ART.t * kw);
+        setFilling(true); setScale(kw); setOffset({ x, y }); setBox({ w: e.contentRect.width, h });
+        return;
+      }
+      setBox({ w: 0, h: 0 });
       const k = fitHeight ? Math.max(0.3, Math.min(1.3, room / FIELD_W, h / FIELD_H)) : Math.min(1, room / FIELD_W);
       setFilling(fitHeight);
       setScale(k);
@@ -1673,7 +1734,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [reserve, fill]);
+  }, [reserve, fill, wide]);
 
   const placed = withSlots(roster);
   const at = (id) => placed.find((p) => p.slot === id);
@@ -1745,6 +1806,15 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       if (e.key === 'Escape') setPick(null);
     },
   });
+  if (tapRef) tapRef.current = tap; // 오른쪽 LINEUP 명단에서 줄을 누르면 필드에서 그 자리를 누른 것과 같게
+
+  // wide(넓은 화면): 구장 오른쪽 끝 토큰 바로 옆부터 시너지, 사진은 시너지 구역에 들어서며 어둠으로 녹아든다
+  const dockL = wide && filling && box.w ? Math.round(offset.x + (SLOT_MAX_X + 107 * TOK_SCALE) * scale + 16) : null;
+  const wideFade = dockL == null ? null : (() => {
+    const imgL = offset.x + WIDE_ART.l * scale, imgW = WIDE_ART.w * scale;
+    const pct = (px) => Math.min(100, Math.max(0, ((px - imgL) / imgW) * 100));
+    return [pct(dockL + 40), pct(dockL + (box.w - dockL) * 0.8)];
+  })();
 
   return (
     <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[#05080f] ${className}`}
@@ -1753,11 +1823,14 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       <div className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_80%_at_45%_62%,transparent_30%,rgba(5,8,15,.85)_100%)]" aria-hidden="true" />
       <div className="lf-field" style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})` }}>
-        <FieldArt />
+        {wideFade ? <WideFieldArt fade={wideFade} /> : <FieldArt />}
         {SLOTS.map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted}
           swapIn={drag?.from === s.id ? dropPlan?.occ : null} />)}
       </div>
-      {overlay && <div className="syn-dock" style={{ width: reserve }}>{overlay}</div>}
+      {overlay && (
+        <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>{overlay}</div>
+      )}
+      {dockL != null && <LineupAvg placed={placed} boosted={boosted} style={{ right: box.w - dockL + 14 }} />}
       {highlight && (
         <button type="button" onClick={onClearFocus}
           className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
@@ -1769,6 +1842,56 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
           to={drag.over && drag.over !== drag.from ? { slot: drag.over, swap: !!at(drag.over) } : null} />
       )}
     </div>
+  );
+}
+
+/** 구장 오른쪽 위(시너지 왼쪽)의 라인업 평균 카드: 팀 · 투수 · 야수 평균 종합(시너지 · 제자리 밖 반영) + 막대 */
+function LineupAvg({ placed, boosted, style }) {
+  const effs = placed.map((p) => boosted.get(p.id) || playAt(p));
+  const mean = (a) => (a.length ? a.reduce((s, p) => s + p.overall, 0) / a.length : null);
+  const isPitch = (p) => ['SP', 'MR', 'CL'].includes(p.slot);
+  const rows = [['팀', mean(effs), 't'], ['투수', mean(effs.filter(isPitch)), ''], ['야수', mean(effs.filter((p) => !isPitch(p))), '']];
+  return (
+    <div className="lf-avg" style={style} aria-label="라인업 평균 종합">
+      {rows.map(([k, v, c]) => (
+        <div key={k} className={c}>
+          <small>{k}</small>
+          <i><b style={{ width: `${v ?? 0}%` }} /></i>
+          <em className={`font-display tabular-nums ${v != null ? tierOf(v) : ''}`}>{v != null ? v.toFixed(1) : '-'}</em>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ───── 드래프트 화면 오른쪽 LINEUP 명단: 투수 · 내야 · 외야·지명 묶음, 줄마다 포지션 · 프로필 · 선수 · 시즌 · 종합 ───── */
+const LIST_LABEL = { SP: '선발', MR: '중간계투', CL: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자' };
+const LIST_GROUPS = [['투수', ['SP', 'MR', 'CL']], ['내야', ['C', '1B', '2B', '3B', 'SS']], ['외야 · 지명', ['OF1', 'OF2', 'OF3', 'DH']]];
+function LineupList({ roster, selectedSlot, onTap }) {
+  const placed = withSlots(roster);
+  const on = placed.map(playAt);
+  const effBySlot = new Map(applySynergies(on, visibleSynergies(on, true)).map((p) => [p.slot, p]));
+  return (
+    <div className="ll-body">
+      {LIST_GROUPS.map(([g, slots]) => (
+        <div key={g} className="ll-box" style={{ '--k': slots.length }}>
+          <span className="ll-gl">{g}</span>
+          {slots.map((s) => <LineupListRow key={s} slot={s} player={placed.find((p) => p.slot === s)} eff={effBySlot.get(s)} on={selectedSlot === s} onTap={onTap} />)}
+        </div>
+      ))}
+    </div>
+  );
+}
+function LineupListRow({ slot, player, eff, on, onTap }) {
+  const bust = useBust(player, '260%');
+  return (
+    <button type="button" className={`ll-row ${player ? '' : 'e'} ${on ? 'on' : ''}`} aria-pressed={on} onClick={() => onTap?.(slot)}>
+      <span className="ll-pos">{LIST_LABEL[slot]}</span>
+      <span className={`ll-fc ${bust ? '' : 'nof'}`} style={bust} aria-hidden="true" />
+      <span className="ll-nm">{player ? player.name : '빈 자리'}</span>
+      <span className="ll-sea">{player ? `${player.year} ${player.team}` : '—'}</span>
+      <b className={`ll-ov font-display tabular-nums ${eff ? tierOf(eff.overall) : ''}`}>{eff ? eff.overall : ''}</b>
+    </button>
   );
 }
 
@@ -2750,6 +2873,7 @@ export default function KboAugmentDraft() {
   // PICK 에서 빠지는 카드: 잠깐 남겨 두고 사라지는 효과를 준다 (영입이면 sign, 그냥 해제면 drop)
   // 내 라인업에서 누른 선수: PICK 구역에 선 자리·시너지까지 반영한 스탯 카드로 보여 준다 (선반 후보가 있으면 후보가 먼저)
   const [inspectId, setInspectId] = useState(null);
+  const lineupTapRef = useRef(null); // 내 라인업 필드의 자리 누르기 — 오른쪽 LINEUP 명단에서도 같은 동작을 부른다
   const [confirmOut, setConfirmOut] = useState(false); // PICK 의 방출 버튼은 두 번 눌러야 확정 — 다른 선수를 보면 처음으로
   useEffect(() => setConfirmOut(false), [inspectId]);
   const handleInspect = useCallback((id) => { setInspectId(id); if (id) setPicked(null); }, []);
@@ -3170,7 +3294,7 @@ export default function KboAugmentDraft() {
               </div>
               </div>
               {/* 넓은 화면: 구장이 줄 높이를 정하고, 영입 카드 묶음은 그 높이에 맞춘다 */}
-              <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
+              <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)_clamp(20rem,21vw,25rem)] lg:grid-rows-[minmax(0,1fr)]">
                 <div className="bc-grp lg:min-h-0">
                   <span className="bc-label font-display">PICK</span>
                 <div className="relative flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
@@ -3235,8 +3359,14 @@ export default function KboAugmentDraft() {
                   <span className="bc-label font-display">MY LINEUP</span>
                   <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
-                    reserve={320} fill className="lg:min-h-0 lg:flex-1"
+                    reserve={320} fill wide tapRef={lineupTapRef} className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
+                </div>
+                {/* 라인업 명단: 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
+                <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
+                  <span className="bc-label font-display">LINEUP</span>
+                  <LineupList roster={roster} selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
+                    onTap={(slot) => lineupTapRef.current?.(slot)} />
                 </div>
               </div>
             </section>
