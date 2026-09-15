@@ -597,6 +597,65 @@ export function clutchRuns(kind, grade, base) {
   return crisis[grade] ?? base + 1;
 }
 
+/* ───── 그라운드 중계 대본: 하프 이닝 득점(확정값)에 맞춰 타석별 플레이를 만든다 ─────
+   주자는 [1루, 2루, 3루]. 안타는 모든 주자가 친 만큼 진루, 볼넷은 밀어내기만. 득점이 정해진 수를 넘지 않게 고른다 */
+export const PLAY_LABEL = { K: '삼진', GO: '땅볼 아웃', FO: '뜬공 아웃', BB: '볼넷', '1B': '안타', '2B': '2루타', '3B': '3루타', HR: '홈런' };
+function advanceBases(bases, kind, batter) {
+  const next = [null, null, null];
+  const scored = [];
+  if (kind === 'BB') {
+    next[0] = batter;
+    if (bases[0]) {
+      if (bases[1]) { if (bases[2]) scored.push(bases[2]); next[2] = bases[1]; } else next[2] = bases[2];
+      next[1] = bases[0];
+    } else { next[1] = bases[1]; next[2] = bases[2]; }
+    return { bases: next, scored };
+  }
+  const n = { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind];
+  for (let i = 2; i >= 0; i--) {
+    if (!bases[i]) continue;
+    if (i + n >= 3) scored.push(bases[i]); else next[i + n] = bases[i];
+  }
+  if (n === 4) scored.push(batter); else next[n - 1] = batter;
+  return { bases: next, scored };
+}
+export function scriptHalf(runs, offense, startIdx = 0, rng = Math.random) {
+  const lineup = offense.batters.length ? offense.batters : offense.roster;
+  let idx = startIdx;
+  let bases = [null, null, null];
+  let outs = 0;
+  let left = runs;
+  const events = [];
+  while (outs < 3 && events.length < 24) {
+    const batter = lineup[idx % lineup.length];
+    idx += 1;
+    const pa = events.length;
+    let kind;
+    if (left <= 0) {
+      const r = rng();
+      kind = r < 0.3 ? 'K' : r < 0.65 ? 'GO' : 'FO';
+    } else if (outs < 2 && pa < 14 && rng() < 0.35) {
+      kind = rng() < 0.5 ? 'GO' : 'FO';
+    } else {
+      const opts = ['1B', '2B', '3B', 'HR', 'BB']
+        .map((k) => ({ k, s: advanceBases(bases, k, batter).scored.length, w: { '1B': 5, '2B': 2, '3B': 0.4, HR: 1, BB: 1.5 }[k] }))
+        .filter((o) => o.s <= left);
+      const scoring = opts.filter((o) => o.s > 0);
+      const pool = pa >= 14 && scoring.length ? scoring : opts; // 너무 길어지면 점수 나는 쪽으로
+      let r = rng() * pool.reduce((a, o) => a + o.w * (o.s ? 1.6 : 1), 0);
+      kind = pool[pool.length - 1].k;
+      for (const o of pool) { r -= o.w * (o.s ? 1.6 : 1); if (r <= 0) { kind = o.k; break; } }
+    }
+    const before = bases;
+    let scored = [];
+    if (['K', 'GO', 'FO'].includes(kind)) outs += 1;
+    else ({ bases, scored } = advanceBases(bases, kind, batter));
+    left -= scored.length;
+    events.push({ id: `${pa}`, batter, kind, before, bases, scored, outs, ms: kind === 'HR' ? 2600 : ['K', 'GO', 'FO'].includes(kind) ? 1500 : 1900 + scored.length * 250 });
+  }
+  return { events, nextIdx: idx };
+}
+
 /**
  * 비동기 경기 루프. 사용자 팀(my)은 홈(말 공격).
  * 매 하프 이닝마다 ① 증강 리스너 판정 → 발동 시 점수 확정·로그 주입·하이라이트 정지
@@ -608,7 +667,20 @@ export async function runSimulation({
   onBoard = () => {}, onLog = () => {}, onHighlight = async () => {},
   beforeInning = async () => null, // 이닝 시작 전 훅: 새 증강 목록을 돌려주면 그걸로 바꾼다
   onClutch = null, // 승부처 개입 훅: ({ kind, inning, isTop, score, baseRuns }) → 'perfect' | 'good' | 'miss'
+  onPlay = null, // 그라운드 중계: 타석마다 { batter, kind, before, bases, scored, outs, inning, isTop, offense, defense } — 없으면 기존처럼 수치만
 }) {
+  const order = { my: 0, opp: 0 };
+  const playHalf = async (runs, offense, defense, isTop, inning) => {
+    if (!onPlay) return;
+    const side = isTop ? 'opp' : 'my';
+    const { events, nextIdx } = scriptHalf(runs, offense, order[side], rng);
+    order[side] = nextIdx;
+    for (const ev of events) {
+      if (isCancelled()) return;
+      onPlay({ ...ev, key: `${inning}${isTop ? 't' : 'b'}${ev.id}`, inning, isTop, offense, defense });
+      await sleep(ev.ms / getSpeed());
+    }
+  };
   let clutchLeft = CLUTCH_MAX;
   const board = emptyBoard();
   const score = { my: 0, opp: 0 };
@@ -673,6 +745,8 @@ export async function runSimulation({
         }
         if (!isTop && runs) addCredit(hero, runs * 3 + (grade === 'hr' ? 3 : 0), 'runs');
         log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: `[${clutch === 'chance' ? '찬스' : '위기'} ${label}] ${text}`, hero, pitcher: defPitcher });
+        await playHalf(runs, offense, defense, isTop, inning);
+        if (isCancelled()) return null;
         if (isTop) {
           board.away[inning - 1] = runs; score.opp += runs;
           addCredit(defPitcher, runs === 0 ? 1.5 : -runs, runs === 0 ? 'zero' : null);
@@ -710,6 +784,8 @@ export async function runSimulation({
         log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: d.text, hero: atBat, pitcher: defPitcher });
       }
 
+      await playHalf(runs, offense, defense, isTop, inning);
+      if (isCancelled()) return null;
       if (isTop) {
         board.away[inning - 1] = runs;
         score.opp += runs;
@@ -3397,6 +3473,125 @@ function ClutchOverlay({ clutch, onPick }) {
   );
 }
 
+/* ───── 그라운드 중계: 수비 9명 배치, 타구가 날아가고 수비수가 쫓고 주자가 베이스를 돈다 ───── */
+const FIELD_SPOT = { P: [200, 262], C: [200, 372], '1B': [288, 240], '2B': [246, 184], SS: [154, 184], '3B': [112, 240], LF: [82, 122], CF: [200, 72], RF: [318, 122] };
+const BASE_SPOT = [[272, 272], [200, 200], [128, 272], [200, 344]]; // 1루 · 2루 · 3루 · 홈
+const shortName = (p) => (p?.name || '').slice(0, 3);
+/** 수비 팀 로스터를 자리에 앉힌다: 선발 투수 · 포수 · 내야 · 외야 3명(좌·중·우) */
+function fieldersOf(team) {
+  if (!team) return [];
+  const pool = [...(team.roster || [])];
+  const take = (pos) => { const i = pool.findIndex((p) => p.position === pos); return i < 0 ? null : pool.splice(i, 1)[0]; };
+  const out = [['P', take('SP') || take('RP')], ['C', take('C')], ['1B', take('1B')], ['2B', take('2B')], ['SS', take('SS')], ['3B', take('3B')]];
+  ['LF', 'CF', 'RF'].forEach((s) => out.push([s, take('OF') || take('DH')]));
+  return out.map(([spot, p]) => ({ spot, p }));
+}
+/** 타구가 떨어지는 곳(결과마다 방향을 조금씩 흔든다) */
+function landingOf(play) {
+  const h = [...play.key].reduce((a, ch) => a + ch.charCodeAt(0), 0);
+  const pick = (arr) => arr[h % arr.length];
+  switch (play.kind) {
+    case 'GO': return { at: FIELD_SPOT[pick(['SS', '2B', '3B', '1B'])], chaser: pick(['SS', '2B', '3B', '1B']) };
+    case 'FO': { const s = pick(['LF', 'CF', 'RF']); return { at: FIELD_SPOT[s], chaser: s }; }
+    case '1B': { const s = pick([[140, 140], [260, 140], [200, 120]]); return { at: s, chaser: s[0] < 200 ? 'LF' : s[0] > 200 ? 'RF' : 'CF' }; }
+    case '2B': { const s = pick([[130, 70], [270, 70]]); return { at: s, chaser: s[0] < 200 ? 'LF' : 'RF' }; }
+    case '3B': { const s = pick([[40, 110], [360, 110]]); return { at: s, chaser: s[0] < 200 ? 'LF' : 'RF' }; }
+    case 'HR': return { at: pick([[110, 6], [200, -4], [290, 6]]), chaser: null };
+    case 'K': return { at: FIELD_SPOT.C, chaser: null };
+    default: return null;
+  }
+}
+
+function FieldView({ play, myName }) {
+  const land = play ? landingOf(play) : null;
+  const fielders = fieldersOf(play?.defense);
+  const offColor = play?.isTop ? '#f87171' : '#10b981';
+  const runners = play ? play.bases.map((p, i) => (p ? { p, i } : null)).filter(Boolean) : [];
+  const good = play && !['K', 'GO', 'FO'].includes(play.kind);
+  return (
+    <section className="ui-cut ui-frame ui-glass2 relative overflow-hidden p-2" style={{ '--c': '14px' }}>
+      <div className="flex flex-col items-center gap-3 md:flex-row md:items-stretch">
+        <svg viewBox="-10 -20 420 410" className="w-full max-w-[34rem] shrink-0">
+          <defs>
+            <radialGradient id="fvGrass" cx="50%" cy="85%" r="90%"><stop offset="0" stopColor="#15803d" /><stop offset="1" stopColor="#052e16" /></radialGradient>
+          </defs>
+          {/* 외야 · 파울 라인 · 담장 */}
+          <path d="M200 372 L-2 170 A 290 290 0 0 1 402 170 Z" fill="url(#fvGrass)" />
+          {Array.from({ length: 7 }, (_, i) => <path key={i} d={`M200 372 L${-2 + i * 67} 60`} stroke="rgba(255,255,255,.035)" strokeWidth="26" />)}
+          <path d="M-2 170 A 290 290 0 0 1 402 170" fill="none" stroke="#fde047" strokeOpacity=".55" strokeWidth="3" />
+          <path d="M200 372 L-2 170 M200 372 L402 170" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
+          {/* 내야 흙 · 잔디 · 마운드 */}
+          <path d="M200 372 L296 276 A 130 130 0 0 0 104 276 Z" fill="#92400e" fillOpacity=".75" />
+          <path d="M200 334 L262 272 L200 210 L138 272 Z" fill="#166534" />
+          <circle cx="200" cy="266" r="12" fill="#92400e" />
+          {BASE_SPOT.map(([x, y], i) => <rect key={i} x={x - 5} y={y - 5} width="10" height="10" fill={play?.bases[i] ? offColor : '#fff'} transform={`rotate(45 ${x} ${y})`} />)}
+
+          {/* 수비수: 타구 쪽 수비수는 공을 쫓아 달려간다 */}
+          {fielders.map(({ spot, p }) => {
+            const [x, y] = FIELD_SPOT[spot];
+            const chase = land && land.chaser === spot;
+            const [tx, ty] = chase ? [x + (land.at[0] - x) * 0.8, y + (land.at[1] - y) * 0.8] : [x, y];
+            return (
+              <g key={spot} style={{ transform: `translate(${tx}px, ${ty}px)`, transition: 'transform .7s cubic-bezier(.3,.7,.3,1)' }}>
+                <circle r="7" fill={play?.isTop ? '#10b981' : '#f87171'} stroke="#05080f" strokeWidth="2" />
+                <text y="19" textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(p) || spot}</text>
+              </g>
+            );
+          })}
+
+          {/* 주자: 선수별로 이어서 움직인다 (득점한 주자는 홈으로 들어가 사라진다) */}
+          {runners.map(({ p, i }) => (
+            <g key={p.id} style={{ transform: `translate(${BASE_SPOT[i][0]}px, ${BASE_SPOT[i][1] - 12}px)`, transition: 'transform .9s ease-in-out' }}>
+              <circle r="7" fill={offColor} stroke="#fff" strokeWidth="2" />
+              <text y="-11" textAnchor="middle" fontSize="10" fontWeight="800" fill="#fff" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(p)}</text>
+            </g>
+          ))}
+          {play && (
+            <g key={`bat${play.key}`}>
+              <circle cx="186" cy="352" r="7" fill={offColor} stroke="#fde047" strokeWidth="2" opacity={play.kind === 'K' ? 1 : 0.35} />
+              <text x="186" y="336" textAnchor="middle" fontSize="11" fontWeight="800" fill="#fde047" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(play.batter)}</text>
+            </g>
+          )}
+
+          {/* 공: 투수 → 홈 → 타구 */}
+          {play && (
+            <g key={`ball${play.key}`}>
+              <circle r="4" fill="#fff" style={{ filter: 'drop-shadow(0 0 4px #fff)' }}>
+                <animateMotion dur=".35s" fill="freeze" path="M200 262 L200 350" />
+              </circle>
+              {land && play.kind !== 'K' && (
+                <circle r="4.5" fill="#fff" opacity="0" style={{ filter: 'drop-shadow(0 0 6px #fde047)' }}>
+                  <set attributeName="opacity" to="1" begin=".35s" fill="freeze" />
+                  <animateMotion begin=".35s" dur={play.kind === 'HR' ? '1.1s' : '.7s'} fill="freeze"
+                    path={`M200 350 Q ${(200 + land.at[0]) / 2} ${play.kind === 'GO' ? (350 + land.at[1]) / 2 : Math.min(land.at[1], 350) - (play.kind === 'HR' ? 160 : 90)} ${land.at[0]} ${land.at[1]}`} />
+                </circle>
+              )}
+            </g>
+          )}
+        </svg>
+
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 px-3 pb-3 md:py-4">
+          {!play ? <p className="text-sm text-gray-500">플레이볼을 기다리는 중…</p> : (
+            <>
+              <p className="font-display text-xs tracking-[0.3em] text-gray-400">{play.inning}회{play.isTop ? '초' : '말'} · {play.isTop ? 'AI 올스타' : myName} 공격</p>
+              <div className="flex items-center gap-2 font-display text-sm text-gray-300">
+                OUT {[0, 1, 2].map((i) => <span key={i} className={`h-3.5 w-3.5 rounded-full ${i < play.outs ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}
+              </div>
+              <div key={play.key} className="animate-[rise_.35s_ease-out_both]">
+                <p className="text-lg font-bold text-white">{play.batter?.name}</p>
+                <p className="font-display text-4xl font-extrabold" style={{ color: play.kind === 'HR' ? '#fde047' : good ? offColor : '#9ca3af', textShadow: play.kind === 'HR' ? '0 0 24px rgba(253,224,71,.7)' : undefined }}>
+                  {PLAY_LABEL[play.kind]}{play.scored.length ? <span className="ml-2 text-2xl text-white">+{play.scored.length}</span> : null}
+                </p>
+                {play.scored.length > 0 && <p className="mt-1 text-sm text-gray-300">홈인 · {play.scored.map((p) => p.name).join(', ')}</p>}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ───── 전광판 ───── */
 function Scoreboard({ board, half, myName, oppName }) {
   const total = (arr) => arr.reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
@@ -4682,6 +4877,7 @@ export default function KboAugmentDraft() {
   const augmentOptions = (owned) => rollAugmentOptions(owned);
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
+  const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
   const pickClutch = (grade) => { const c = clutch; setClutch(null); c?.resolve(grade); };
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -4771,6 +4967,7 @@ export default function KboAugmentDraft() {
   const startGame = async (rematch = false, owned = augments.slice(0, match.aug)) => {
     setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
     setClutch(null);
+    setPlay(null);
     const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
@@ -4790,6 +4987,7 @@ export default function KboAugmentDraft() {
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
       onLog: (e) => setLogs((l) => [...l, e]),
+      onPlay: setPlay,
       onClutch: (info) => (runIdRef.current !== runId ? 'miss' : new Promise((resolve) => setClutch({ ...info, resolve }))),
       beforeInning: (inning, cur) => {
         if (!match.aug || !MID_AUG_INNINGS.includes(inning) || runIdRef.current !== runId) return null;
@@ -5095,6 +5293,7 @@ export default function KboAugmentDraft() {
               </div>
 
               <Scoreboard board={board} half={half} myName="나의 드림팀" oppName="AI 올스타" />
+              {phase === 'sim' && <FieldView play={play} myName="나의 드림팀" />}
               {phase === 'sim' && <BroadcastPlates log={[...logs].reverse().find((l) => l.pitcher)} />}
 
               <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
