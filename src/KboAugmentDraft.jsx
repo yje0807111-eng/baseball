@@ -1256,6 +1256,94 @@ const KEYFRAMES = `
 .dock-row.open { background: rgba(56,189,248,.07); box-shadow: inset 2px 0 0 #38bdf8; }
 .dock-row.on.open { background: linear-gradient(90deg, rgba(16,185,129,.16), rgba(56,189,248,.06)); box-shadow: inset 2px 0 0 #10b981; }
 .dock-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+/* 시너지 아이콘 단계 색: 0 없음 · 1 브론즈 · 2 실버 · 3 골드 · 4 프리즘 */
+.sy0 { --fr: linear-gradient(160deg, #2b3445, #161c27); --bd: #3a4556; --gc: #6b7280; }
+.sy1 { --fr: linear-gradient(160deg, #d69a62, #8a5428); --bd: #e7b184; --gc: #1a0f07; }
+.sy2 { --fr: linear-gradient(160deg, #eef2f6, #8d99a6); --bd: #f8fafc; --gc: #0f172a; }
+.sy3 { --fr: linear-gradient(160deg, #fde68a, #c08a0e); --bd: #fef3c7; --gc: #1c1402; }
+.sy4 { --fr: linear-gradient(135deg, #f0abfc, #7dd3fc 45%, #6ee7b7 70%, #fde68a); --bd: #fff; --gc: #0b0f1a; }
+.sy-ico { position: relative; flex: none; width: 38px; height: 33px; display: grid; place-items: center; background: var(--bd); clip-path: polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); }
+.sy-ico::before { content: ""; position: absolute; inset: 2px 2.3px; background: var(--fr); clip-path: polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%); }
+.sy-ico i { position: relative; width: 58%; height: 66%; background: var(--gc); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+/* 드래프트 시너지 도크 */
+.sd { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.syn-dock.wide .sd { padding-top: 60px; } /* 넓은 구장 사진의 전광판 조명 아래부터 */
+.sd-hd { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-left: 4px; }
+.sd-lab { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
+.sd-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.sd-hd em { padding: 0 6px; font-style: normal; font-size: 12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
+.sd-hd button { margin-left: auto; padding: 2px 6px; font-size: 12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
+.sd-hd button:hover { background: rgba(16,185,129,.12); }
+.sd-hd button:focus-visible { outline: 2px solid #10b981; outline-offset: 1px; }
+.sd-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
+.sd-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 4px; text-align: left; border-radius: 3px; transition: background .12s; }
+.sd-row:hover, .sd-row.hv { background: rgba(255,255,255,.06); }
+.sd-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.sd-row.fo { background: rgba(56,189,248,.1); box-shadow: inset 0 0 0 1px rgba(56,189,248,.45); }
+.sd-row.on .sy-ico { animation: synShine 3s ease-in-out infinite; }
+@keyframes synShine { 50% { filter: brightness(1.22); } }
+.sd-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.sd-tx b { font-size: 13px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-row.on .sd-tx b { color: #fff; }
+.sd-stp { font-size: 12px; font-weight: 600; color: #4b5563; }
+.sd-stp .ok { color: #e5e7eb; }
+.sd-stp i { margin: 0 3px; font-style: normal; color: #374151; }
+.sd-fr, .ss-fr { flex: none; font-size: 18px; font-weight: 700; color: #fff; }
+.sd-fr small, .ss-fr small { font-size: 12px; color: #6b7280; }
+.sd-row.sy0 .sd-fr { color: #6b7280; }
+.sd-fr u, .ss-fr u { margin-left: 2px; font-size: .8em; text-decoration: none; color: #38bdf8; }
+.sd-row.gr .sd-fr { color: #7dd3fc; }
+.sd-tip { position: absolute; z-index: 30; right: calc(100% + 26px); width: 262px; padding: 12px 13px; background: rgba(6,10,19,.97); box-shadow: 0 0 0 1px rgba(148,163,184,.28), 0 18px 40px -8px rgba(0,0,0,.9); pointer-events: none; }
+.sd-th { display: flex; align-items: center; gap: 9px; }
+.sd-th b { font-size: 16px; color: #fff; }
+.sd-th .sy-ico { width: 32px; height: 28px; }
+.sd-tip p { margin: 9px 0 8px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+.sd-tip p b { color: #fff; }
+.sd-tip ul { margin: 0 0 10px; font-size: 12.5px; line-height: 1.6; color: #6b7280; }
+.sd-tip li span { display: inline-block; min-width: 28px; font-weight: 700; }
+.sd-tip li.ok { color: #fff; }
+.sd-tip li.ok span { color: #34d399; }
+.sd-tip li.nx { color: #9ca3af; }
+.sd-pfs { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 5px; }
+.sd-pf { width: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.sd-pf i { width: 40px; height: 40px; border-radius: 3px; background-color: #1b2537; background-repeat: no-repeat; box-shadow: 0 0 0 2px var(--bd); }
+.sy0 .sd-pf.in i { box-shadow: 0 0 0 2px #9ca3af; }
+.sd-pf small { max-width: 44px; font-size: 10px; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-pf.out i { filter: grayscale(1) brightness(.5); box-shadow: 0 0 0 1px #374151; }
+.sd-pf.out small { color: #6b7280; }
+.sd-pf.cd i { box-shadow: 0 0 0 2px #38bdf8; }
+.sd-pf.cd small { color: #7dd3fc; }
+/* 전체 시너지 창 */
+.ss-flt { display: flex; gap: 6px; }
+.ss-flt button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; color: #9ca3af; background: rgba(255,255,255,.05); border-radius: 3px; }
+.ss-flt button b { font-size: 14px; color: #e5e7eb; }
+.ss-flt button.on { color: #05080f; background: #10b981; }
+.ss-flt button.on b { color: #05080f; }
+.ss-flt button:focus-visible { outline: 2px solid #10b981; outline-offset: 1px; }
+.ss-list { display: flex; flex-direction: column; gap: 8px; }
+.ss-card { display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 12px 14px 12px 12px; text-align: left; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); transition: background .12s; }
+.ss-card:hover { background: rgba(255,255,255,.06); }
+.ss-card:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.ss-card.on { background: linear-gradient(90deg, color-mix(in srgb, var(--bd) 13%, transparent), rgba(255,255,255,.02)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bd) 45%, transparent); }
+.ss-card.fo { box-shadow: inset 0 0 0 1px rgba(56,189,248,.6); }
+.ss-card.zero { opacity: .72; }
+.ss-card > .sy-ico { width: 48px; height: 42px; margin-top: 2px; }
+.ss-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.ss-l1 { display: flex; align-items: baseline; gap: 8px; }
+.ss-l1 b { font-size: 15.5px; color: #fff; }
+.ss-card.sy0 .ss-l1 b { color: #cbd5e1; }
+.ss-fr { margin-left: auto; font-size: 19px; }
+.ss-cond { font-size: 12px; color: #6b7280; }
+.ss-tiers { display: flex; flex-wrap: wrap; gap: 5px; }
+.ss-tiers > span { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px 1px 2px; font-size: 12px; line-height: 19px; color: #6b7280; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16); }
+.ss-tiers em { min-width: 19px; padding: 0 4px; font-style: normal; font-weight: 700; text-align: center; color: #9ca3af; background: rgba(148,163,184,.12); border-radius: 2px; }
+.ss-tiers .ok { color: #fff; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bd) 60%, transparent); }
+.ss-tiers .ok em { color: #05080f; background: var(--bd); }
+.ss-tiers .nx { color: #cbd5e1; box-shadow: inset 0 0 0 1px rgba(56,189,248,.5); }
+.ss-pfs { margin-top: 1px; }
+.ss-pfs .sd-pf { width: 42px; }
+.ss-pfs .sd-pf i { width: 36px; height: 36px; }
+.ss-more { align-self: center; padding: 0 6px; font-size: 13px; font-weight: 700; color: #6b7280; }
 .lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
 /* 끌기 카드(body 포털): 토큰과 같은 판을 반투명 + 하늘색 브래킷으로. 커서는 흉상 가슴께, 크기는 필드 배율에 맞춘 뒤 조금 작게(×0.92)
    판 위 칩이 “SS ››› 2B” 로 놓을 자리까지 이어진다 — 셰브론이 차례로 흐르고 놓을 자리 칩이 톡 튀어나옴, 사람이 있으면 양쪽 셰브론(맞바꿈) */
@@ -1765,7 +1853,7 @@ const SLOT_XY = {
   OF1: [220, 132], OF2: [450, 78], OF3: [680, 132],
   SS: [338, 228], '2B': [562, 228], '3B': [252, 306], '1B': [648, 306],
   SP: [450, 346], C: [450, 522], DH: [140, 470],
-  MR: [760, 432], CL: [760, 512],
+  MR: [680, 432], CL: [680, 512], // 불펜 두 자리는 안쪽으로 — 넓어진 시너지 도크 앞에서 선수 구역이 끝나도록(원래 760)
 };
 /** 이 구장에서 토큰 크기 (CSS .lf-tok 의 scale 과 같은 값 — 끌기 카드 크기도 여기에 맞춘다) */
 const TOK_SCALE = 0.8;
@@ -2425,26 +2513,88 @@ function SynergyPanel({ roster, focusId, onFocus }) {
 /** 드래프트 중에는 숨기고 드래프트가 끝난 뒤(정비·시즌)에만 보여 주는 시너지 — 최종 엔트리로 정해지는 것 */
 const DRAFT_HIDDEN = new Set(['franchise']);
 
-/** 드래프트용 (구장 위 도크 안): 한 칸이라도 채운 시너지 + 고른 후보가 올려 줄 시너지 */
-function SynergyTracker({ roster, candidate, focusId, onFocus, onOpenAll }) {
+/* ───── 드래프트 시너지 도크 (롤토체스식): 단계 색 정육각 아이콘 · 이름 · 인원, 올리면 말풍선(조건 · 단계 효과 · 선수) ───── */
+const SYN_ICON = (id) => `ui/synergy/${id}.png`;
+/** 아이콘 테두리 단계: 0 없음 · 1 브론즈 · 2 실버 · 3 골드(최종) · 4 프리즘(3단계 이상 시너지의 최종) */
+const synTier = (s) => (!s.level ? 0 : s.level === s.tiers.length ? (s.tiers.length >= 3 ? 4 : 3) : Math.min(s.level, 2));
+const synRank = (a, b) => b.active - a.active || synTier(b) - synTier(a) || (b.count > 0) - (a.count > 0) || leftOf(a) - leftOf(b) || fillOf(b) - fillOf(a);
+/** 시너지 선수 목록: 라인업 선수 → 고른 후보 → 아직 없는 선수(실화 조합만) 순 */
+function synPeople(s, after, candidate) {
+  const candKey = candidate && synergyGrows(s, after) ? personKey(candidate) : null;
+  const mine = new Map(s.members.map((m) => [personKey(m), m]));
+  const rank = { in: 0, cd: 1, out: 2 };
+  const people = s.names
+    ? s.names.map((k) => ({ key: k, player: mine.get(k) || (k === candKey ? candidate : ALL_PLAYERS.find((p) => personKey(p) === k) || null), st: mine.has(k) ? 'in' : k === candKey ? 'cd' : 'out' }))
+    : [...s.members.map((m) => ({ key: m.id, player: m, st: 'in' })), ...(candKey && !mine.has(candKey) ? [{ key: 'cand', player: candidate, st: 'cd' }] : [])];
+  return people.sort((a, b) => rank[a.st] - rank[b.st]).map((p) => ({ ...p, name: p.player?.name || p.key.replace(/\(.*\)$/, '') }));
+}
+const SynIcon = ({ id }) => (
+  <span className="sy-ico" aria-hidden="true"><i style={{ WebkitMaskImage: `url(${SYN_ICON(id)})`, maskImage: `url(${SYN_ICON(id)})` }} /></span>
+);
+function SynFace({ p }) {
+  const bust = useBust(p.player, '260%');
+  return <span className={`sd-pf ${p.st}`}><i style={bust || undefined} /><small>{p.name}</small></span>;
+}
+const synCount = (s, after) => (
+  <>{s.count}{synergyGrows(s, after) && after.count > s.count && <u>+{after.count - s.count}</u>}<small>/{s.need}</small></>
+);
+
+function SynergyDock({ roster, candidate, focusId, onFocus, onOpenAll }) {
+  const rootRef = useRef(null);
+  const [hover, setHover] = useState(null); // { id, top }
   const after = candidate ? previewSynergies(roster, candidate) : null;
-  const list = sortSynergies(checkSynergies(roster))
-    .filter((s) => !DRAFT_HIDDEN.has(s.id) && (s.cur > 0 || synergyGrows(s, after?.get(s.id))));
+  const list = checkSynergies(roster)
+    .filter((s) => !DRAFT_HIDDEN.has(s.id) && (s.cur > 0 || synergyGrows(s, after?.get(s.id))))
+    .sort(synRank);
+  const show = (id, el) => setHover({ id, top: el.getBoundingClientRect().top - rootRef.current.getBoundingClientRect().top });
+  const hv = hover && list.find((s) => s.id === hover.id);
   return (
-    <section className="flex h-full min-h-0 flex-col">
-      <div className="mb-1 flex items-center justify-between gap-2 pl-3">
-        <h3 className="text-sm font-bold text-white">시너지 <span className="ml-1 font-display text-sm tabular-nums text-gray-400">{list.filter((s) => s.active).length} On</span></h3>
-        <button type="button" onClick={onOpenAll}
-          className="rounded px-1.5 py-0.5 text-xs font-semibold text-[#10b981] hover:bg-[#10b981]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#10b981]">전체 보기</button>
+    <section ref={rootRef} className="sd" onMouseLeave={() => setHover(null)}>
+      <div className="sd-hd">
+        <span className="sd-lab font-display">SYNERGY</span>
+        <em className="font-display tabular-nums">{list.filter((s) => s.active).length}</em>
+        <button type="button" onClick={onOpenAll}>전체 보기</button>
       </div>
-      {list.length
-        ? (
-          <ul className="syn-scroll min-h-0 flex-1 overflow-y-auto pr-1.5">
-            {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} candidate={candidate} focused={focusId === s.id} onFocus={onFocus} />)}
-          </ul>
-        )
-        : <p className="pl-3 text-xs text-gray-400">선수를 영입하면 시너지가 나타납니다.</p>}
+      <ul className="sd-list syn-scroll">
+        {list.map((s) => {
+          const a = after?.get(s.id);
+          return (
+            <li key={s.id}>
+              <button type="button" aria-expanded={focusId === s.id}
+                className={`sd-row sy${synTier(s)} ${s.active ? 'on' : ''} ${focusId === s.id ? 'fo' : ''} ${hover?.id === s.id ? 'hv' : ''} ${synergyGrows(s, a) ? 'gr' : ''}`}
+                onMouseEnter={(e) => show(s.id, e.currentTarget)} onFocus={(e) => show(s.id, e.currentTarget)} onBlur={() => setHover(null)}
+                onClick={() => onFocus(s.id)}>
+                <SynIcon id={s.id} />
+                <span className="sd-tx">
+                  <b>{s.name}</b>
+                  <span className="sd-stp font-display">{s.tiers.map((t, k) => <React.Fragment key={t.need}>{k > 0 && <i>›</i>}<span className={k < s.level ? 'ok' : ''}>{t.need}</span></React.Fragment>)}</span>
+                </span>
+                <span className="sd-fr font-display tabular-nums">{synCount(s, a)}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {hv && <SynergyTip s={hv} after={after?.get(hv.id)} candidate={candidate} top={hover.top} />}
     </section>
+  );
+}
+
+function SynergyTip({ s, after, candidate, top }) {
+  const ref = useRef(null);
+  const [y, setY] = useState(Math.max(0, top - 12));
+  // 도크 아래로 넘치면 올려서 붙인다
+  useLayoutEffect(() => {
+    const el = ref.current; const box = el?.offsetParent;
+    if (el && box) setY(Math.max(0, Math.min(top - 12, box.clientHeight - el.offsetHeight - 6)));
+  }, [top, s.id]);
+  return (
+    <div ref={ref} className={`sd-tip sy${synTier(s)}`} style={{ top: y }} role="tooltip">
+      <div className="sd-th"><SynIcon id={s.id} /><b>{s.name}</b></div>
+      <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 함께 모이면 이 선수들의 능력치가 오릅니다.' : '라인업에 많을수록 이 선수들이 강해집니다.'}</p>
+      <ul>{s.tiers.map((t, k) => <li key={t.need} className={k < s.level ? 'ok' : k === s.level ? 'nx' : ''}><span className="font-display">({t.need})</span>{t.effect}</li>)}</ul>
+      <div className="sd-pfs">{synPeople(s, after, candidate).slice(0, 12).map((p) => <SynFace key={p.key} p={p} />)}</div>
+    </div>
   );
 }
 
@@ -2513,16 +2663,46 @@ function RulesModal({ onClose }) {
   );
 }
 
-function SynergySheet({ roster, candidate, focusId, onFocus, draft = false }) {
+/** 전체 시너지 창: 도크와 같은 아이콘 · 단계 색, 카드마다 조건 · 단계 칩 · 선수 얼굴. 위에서 [전체 · 켜짐 · 진행 · 없음] 거르기 */
+function SynergySheetModal({ roster, candidate, focusId, onFocus, onClose, draft = false }) {
+  const [filter, setFilter] = useState('all');
   const after = candidate ? previewSynergies(roster, candidate) : null;
-  const list = sortSynergies(checkSynergies(roster)).filter((s) => !(draft && DRAFT_HIDDEN.has(s.id)));
+  const all = checkSynergies(roster).filter((s) => !(draft && DRAFT_HIDDEN.has(s.id))).sort(synRank);
+  const groups = { all: all, on: all.filter((s) => s.active), go: all.filter((s) => !s.active && s.count > 0), none: all.filter((s) => s.count === 0) };
+  const bar = (
+    <nav className="ss-flt border-b border-white/10 px-6 pb-3" aria-label="시너지 거르기">
+      {[['all', '전체'], ['on', '켜짐'], ['go', '진행'], ['none', '없음']].map(([k, t]) => (
+        <button key={k} type="button" className={filter === k ? 'on' : ''} aria-pressed={filter === k} onClick={() => setFilter(k)}>{t}<b className="font-display tabular-nums">{groups[k].length}</b></button>
+      ))}
+    </nav>
+  );
   return (
-    <>
-      <p className="mb-2 text-xs text-gray-400">완성하면 해당 선수만 강해집니다. 누르면 해당 선수를 보여줍니다.</p>
-      <ul>
-        {list.map((s) => <SynergyRow key={s.id} s={s} after={after?.get(s.id)} candidate={candidate} focused={focusId === s.id} onFocus={onFocus} />)}
-      </ul>
-    </>
+    <Modal eyebrow="Synergy" title="전체 시너지" onClose={onClose} bar={bar} bodyKey={filter}>
+      <div className="ss-list">
+        {groups[filter].map((s) => {
+          const a = after?.get(s.id);
+          const people = synPeople(s, a, candidate);
+          return (
+            <button key={s.id} type="button" onClick={() => onFocus(s.id)}
+              className={`ss-card sy${synTier(s)} ${s.active ? 'on' : ''} ${s.count ? '' : 'zero'} ${focusId === s.id ? 'fo' : ''}`}>
+              <SynIcon id={s.id} />
+              <span className="ss-body">
+                <span className="ss-l1"><b>{s.name}</b><span className="ss-fr font-display tabular-nums">{synCount(s, a)}</span></span>
+                <span className="ss-cond">{s.cond}</span>
+                <span className="ss-tiers">{s.tiers.map((t, k) => <span key={t.need} className={k < s.level ? 'ok' : k === s.level ? 'nx' : ''}><em className="font-display">{t.need}</em>{t.effect}</span>)}</span>
+                {people.length > 0 && (
+                  <span className="sd-pfs ss-pfs">
+                    {people.slice(0, 9).map((p) => <SynFace key={p.key} p={p} />)}
+                    {people.length > 9 && <span className="ss-more font-display">+{people.length - 9}</span>}
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+        {!groups[filter].length && <p className="py-6 text-center text-gray-600">-</p>}
+      </div>
+    </Modal>
   );
 }
 
@@ -3803,6 +3983,11 @@ const RULE_TABS = [
         <div className="rl-tiers"><span><b>3명</b>파워 +2</span><span><b>4명</b>파워 +4</span><span><b>6명</b>파워 +7</span></div>
         <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸이 표시됩니다.</span></div>
       </> },
+      { t: '아이콘 테두리 색은 무엇인가요?', s: '시너지 단계가 오를수록 색이 바뀝니다.', b: <>
+        <div className="rl-tiers"><span><b>회색</b>아직 없음</span><span><b>브론즈</b>1단계</span><span><b>실버</b>2단계</span><span><b>골드</b>최종 단계</span><span><b>프리즘</b>3단계 이상 시너지의 최종</span></div>
+        <p>이름 아래 <b>3 › 5 › 7</b>은 단계마다 필요한 인원이고, 오른쪽 숫자는 지금 인원 / 다음 단계 인원입니다.</p>
+        <p>시너지에 마우스를 올리면 조건 · 단계별 효과 · 해당 선수가 나오고, 누르면 구장에서 그 선수들을 보여줍니다.</p>
+      </> },
       { t: '프랜차이즈의 기억', s: '가장 많이 뽑은 구단의 선수들이 강해집니다.', b: <>
         <div className="rl-tiers"><span><b>3명</b>능력치 +1</span><span><b>5명</b>+2 · 수비·안정 +2</span><span><b>7명</b>+4 · 수비·안정 +3</span></div>
         <p>드래프트 중에는 보이지 않고, <b>드래프트가 끝나면 공개</b>됩니다. 인원이 같은 구단이 여럿이면 모두 혜택을 받습니다.</p>
@@ -4859,7 +5044,7 @@ export default function KboAugmentDraft() {
                   <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill wide tapRef={lineupTapRef} className="lg:min-h-0 lg:flex-1"
-                    overlay={<SynergyTracker roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
+                    overlay={<SynergyDock roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
                 </div>
                 {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
@@ -4943,7 +5128,7 @@ export default function KboAugmentDraft() {
       )}
 
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
-      {modal === 'synergy' && <Modal eyebrow="Synergy" title="전체 시너지" onClose={() => setModal(null)}><SynergySheet roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} /></Modal>}
+      {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
       <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       <HighlightToast toast={toast} />
