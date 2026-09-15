@@ -704,7 +704,7 @@ const KEYFRAMES = `
 /* 라인업 필드 토큰: 유리 판(이름 · 시즌) + 판 위로 솟는 흉상 + 판 위 포지션 칩 + 빛나는 종합 · 아래 팀 색 네온 밑줄.
    빈 자리는 칩 없이 흉상과 같은 크기의 사진 칸(빈 프로필 아이콘) + 옅은 판 */
 .lf-field { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
-.lf-tok { position: absolute; width: 214px; height: 72px; transform: translate(-50%, -50%); touch-action: none; user-select: none; cursor: grab; outline: none; }
+.lf-tok { position: absolute; width: 214px; height: 72px; transform: translate(-50%, -50%) scale(.8); /* 구장 사진 위에서는 조금 작게 — JS 의 TOK_SCALE 과 같은 값 */ touch-action: none; user-select: none; cursor: grab; outline: none; }
 .lf-tok.empty { cursor: pointer; }
 .lf-tok.picked, .lf-tok.want { z-index: 5; }
 .lf-tok:focus-visible .lf-bar { outline: 2px solid #10b981; outline-offset: 2px; }
@@ -1490,13 +1490,17 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, style, leavin
    900×580 설계 크기로 그리고 컨테이너 폭에 맞춰 축소한다. 초상은 지금 카드 그림의 얼굴 크롭(정면 상체 초상이 생기면 교체) */
 const FIELD_W = 900;
 const FIELD_H = 580;
-/* 자리별 토큰 중심 (900×580 설계 좌표): 외야 셋은 좌·중·우, 선발은 마운드, 불펜 둘은 1루 쪽 파울 지역 */
+/* 자리별 토큰 중심 (900×580 설계 좌표) — 구장 사진(ui/field-night.webp)의 실제 수비 위치에 맞춤:
+   홈 (450,469) · 마운드 (450,341) · 1루 (611,332) · 2루 (450,235) · 3루 (288,330).
+   외야 셋은 좌·중·우 잔디, 선발은 마운드, 포수는 홈 뒤, 지명은 3루 쪽 파울 지역, 불펜 둘은 1루 쪽 파울 지역 */
 const SLOT_XY = {
-  OF1: [215, 150], OF2: [450, 70], OF3: [685, 150],
-  SS: [300, 245], '2B': [600, 245], '3B': [150, 370], '1B': [730, 352],
-  SP: [450, 360], C: [450, 520], DH: [110, 515],
-  MR: [790, 448], CL: [790, 536],
+  OF1: [220, 132], OF2: [450, 78], OF3: [680, 132],
+  SS: [338, 228], '2B': [562, 228], '3B': [252, 306], '1B': [648, 306],
+  SP: [450, 346], C: [450, 522], DH: [140, 470],
+  MR: [760, 432], CL: [760, 512],
 };
+/** 이 구장에서 토큰 크기 (CSS .lf-tok 의 scale 과 같은 값 — 끌기 카드 크기도 여기에 맞춘다) */
+const TOK_SCALE = 0.8;
 
 const Silhouette = () => (
   <svg className="lf-sil" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -1507,29 +1511,11 @@ const bustStyle = (src, p, size = '300%') => (src ? { backgroundImage: `url(${sr
 
 /* 야간 조명 아래 구장: 줄무늬 잔디 · 붉은 흙 내야 · 빛나는 파울 라인과 베이스 (카드 문법 UI와 같은 톤) */
 function FieldArt() {
-  const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
-  const fair = `M${hx} ${hy} L${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r} Z`;
-  const base = (x, y) => <rect key={`${x}-${y}`} x={x - 7} y={y - 7} width="14" height="14" transform={`rotate(45 ${x} ${y})`} />;
+  // 조명탑 아래 밤 경기장을 위에서 내려다본 사진. 900×580 판을 꽉 채우고(위아래 약간 잘림) 가장자리는 둘레 야경으로 흐려진다
   return (
-    <svg className="absolute inset-0" width={FIELD_W} height={FIELD_H} viewBox={`0 0 ${FIELD_W} ${FIELD_H}`} aria-hidden="true">
-      <defs>
-        <radialGradient id="lf-grass" cx="50%" cy="78%" r="80%"><stop offset="0" stopColor="#1d6b3c" /><stop offset=".55" stopColor="#135230" /><stop offset="1" stopColor="#0a2e1b" /></radialGradient>
-        <radialGradient id="lf-dirt" cx="50%" cy="60%" r="70%"><stop offset="0" stopColor="#8a5a34" /><stop offset="1" stopColor="#5b3a22" /></radialGradient>
-        <pattern id="lf-mow" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="#fff" opacity=".045" /></pattern>
-        <filter id="lf-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-      </defs>
-      <path d={fair} fill="url(#lf-grass)" /><path d={fair} fill="url(#lf-mow)" />
-      <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#6b4a2f" strokeOpacity=".75" strokeWidth="12" />
-      <polygon points={`${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}`} fill="url(#lf-dirt)" opacity=".9" />
-      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="url(#lf-grass)" />
-      <polygon points={`${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`} fill="url(#lf-mow)" />
-      <g filter="url(#lf-glow)">
-        <path d={`M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}`} stroke="#e8f7ff" strokeOpacity=".75" strokeWidth="2.4" />
-        <path d={`M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}`} fill="none" stroke="#5eead4" strokeOpacity=".35" strokeWidth="2" />
-      </g>
-      <circle cx={hx} cy={hy - s} r={s * 0.11} fill="url(#lf-dirt)" />
-      <g fill="#ffffff" filter="url(#lf-glow)">{base(hx + s, hy - s)}{base(hx, hy - 2 * s)}{base(hx - s, hy - s)}<path d={`M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z`} /></g>
-    </svg>
+    <img src="ui/field-night.webp" alt="" aria-hidden="true" draggable="false"
+      className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
+      style={{ WebkitMaskImage: 'radial-gradient(120% 110% at 50% 70%, #000 60%, transparent 100%)', maskImage: 'radial-gradient(120% 110% at 50% 70%, #000 60%, transparent 100%)' }} />
   );
 }
 
@@ -1779,7 +1765,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
         </button>
       )}
       {drag && at(drag.from) && (
-        <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} delta={dropPlan?.me} x={drag.x} y={drag.y} k={scale}
+        <DragGhost player={at(drag.from)} eff={boosted.get(at(drag.from).id) || playAt(at(drag.from))} from={drag.from} delta={dropPlan?.me} x={drag.x} y={drag.y} k={scale * TOK_SCALE}
           to={drag.over && drag.over !== drag.from ? { slot: drag.over, swap: !!at(drag.over) } : null} />
       )}
     </div>
