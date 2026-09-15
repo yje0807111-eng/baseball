@@ -1746,13 +1746,13 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
-function MiniCard({ player, reason, selected, hint, focus, onPick, style, leaving = false }) {
+function MiniCard({ player, reason, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
   const tier = player.overall >= 90 ? 't90' : player.overall >= 75 ? 't75' : '';
   return (
-    <button type="button" onClick={() => onPick(player)} aria-pressed={selected}
+    <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, '--n': acc, clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
       className={`mc ${tier} ${locked ? 'lock' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
@@ -4261,6 +4261,8 @@ export default function KboAugmentDraft() {
                     hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
+                    // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
+                    onSign={(pl) => (getLockReason(pl, roster, cp, released) ? setPicked(pl) : handleSelectPlayer(pl))}
                     style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
                   </div>
                 ))}
