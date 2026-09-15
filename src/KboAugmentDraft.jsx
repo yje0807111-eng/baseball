@@ -1250,22 +1250,46 @@ const KEYFRAMES = `
 .rd-tabs button[aria-selected="true"] { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.28), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
 .rd-tabs button[aria-selected="true"] svg { stroke: #34d399; }
 .rd-tabs button[aria-selected="true"] em { color: #6ee7b7; }
-.rd-row { display: grid; grid-template-columns: 20px 26px minmax(0,260px) minmax(0,1fr); align-items: center; gap: 10px; height: 100%; max-height: 56px; min-height: 0; }
+/* 공격 줄: 줄 전체가 옅은 판 하나 · 선은 1px · 누르기/끌기 대상 */
+.rd-row { display: grid; grid-template-columns: 20px 24px 160px minmax(0,1fr); align-items: center; gap: 12px; height: calc(100% - 6px); max-height: 50px; min-height: 0; padding: 0 12px 0 6px; background: rgba(15,23,42,.42); box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); cursor: grab; user-select: none; touch-action: none; outline: none; transition: background .15s, box-shadow .15s; }
+.rd-row:hover { background: rgba(30,41,59,.5); }
+.rd-row:focus-visible { box-shadow: inset 0 0 0 1px #10b981; }
+.rd-row.dh { box-shadow: inset 2px 0 0 #ff8a3d, inset 0 0 0 1px rgba(255,255,255,.05); }
+.rd-row:is(.sel, .over) { background: linear-gradient(90deg, rgba(56,189,248,.2), rgba(56,189,248,.05)); box-shadow: inset 0 0 0 1px #38bdf8; }
+.rd-row.lifted { opacity: .3; }
+.rd-pf { display: flex; align-items: center; gap: 9px; height: 100%; min-width: 0; padding-right: 12px; border-right: 1px solid rgba(255,255,255,.06); }
+.rd-ghost-pf { display: flex; align-items: center; height: 48px; padding: 0 12px 0 6px; background: rgba(15,23,42,.85); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.rd-ghost-pf .rd-pf { border-right: 0; }
+.rd-pface { position: relative; flex: none; width: 34px; height: 38px; overflow: hidden; background-color: #1e293b; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 85%, transparent); mask-image: linear-gradient(#000 85%, transparent); }
+.rd-nm { min-width: 0; line-height: 1.15; }
+.rd-nm b { display: block; font-size: 14.5px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-tags { display: flex; gap: 4px; margin-top: 3px; }
+.rd-pchip { display: inline-flex; align-items: center; gap: 3px; padding: 0 5px; font-size: 10.5px; font-weight: 800; line-height: 14px; letter-spacing: .04em; color: #93c5fd; background: rgba(5,8,15,.7); box-shadow: inset 0 0 0 1px rgba(96,165,250,.3); }
+.rd-pchip.off { color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.4); }
+.rd-pchip.dh { color: #ffb27a; box-shadow: inset 0 0 0 1px rgba(255,138,61,.45); }
+.rd-pchip svg { width: 10px; height: 10px; flex: none; }
+.rd-hand { padding: 0 4px; font-size: 10.5px; font-weight: 700; line-height: 14px; color: #9ca3af; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
 .rd-arw { display: flex; flex-direction: column; gap: 2px; }
 .rd-arw button { display: grid; place-items: center; width: 20px; height: 15px; font-size: 8px; color: #9ca3af; background: rgba(255,255,255,.06); clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); }
 .rd-arw button:hover:not(:disabled) { color: #05080f; background: #10b981; }
 .rd-arw button:disabled { opacity: .25; cursor: default; }
-.rd-no { font-size: 26px; font-weight: 800; line-height: 1; text-align: center; color: #fff; }
+.rd-no { font-size: 24px; font-weight: 800; line-height: 1; text-align: center; color: #e5e7eb; }
 .rd-no.ts { color: #34d399; text-shadow: 0 0 14px rgba(52,211,153,.4); }
 .rd-no.cu { color: #ff8a3d; text-shadow: 0 0 14px rgba(255,138,61,.35); }
-.rd-bars { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+/* 능력치 4열 + 타격: 막대 색은 능력치 종류가 아니라 수치 구간(49↓ 빨강 → 90↑ 카드 최상위 프리즘) */
+.rd-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)) 70px; align-items: center; gap: 18px; min-width: 0; }
 .rd-st { min-width: 0; }
-.rd-st > span { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; font-weight: 600; color: #6b7280; }
-.rd-st b { font-family: 'Saira Condensed', sans-serif; font-size: 17px; color: #e5e7eb; }
-.rd-st b.up { color: #34d399; }
-.rd-st i { display: block; height: 3px; margin-top: 3px; background: rgba(255,255,255,.08); }
-.rd-st i::after { content: ""; display: block; width: var(--w); height: 100%; background: #94a3b8; }
-.rd-st i.up::after { background: #34d399; box-shadow: 0 0 6px #34d399; }
+.rd-st > span { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; color: #9ca3af; }
+.rd-st b { font-family: 'Saira Condensed', sans-serif; font-size: 22px; font-weight: 700; line-height: 1; color: #f3f4f6; font-variant-numeric: tabular-nums; }
+.rd-st sup { margin-left: 2px; font-size: 10px; font-weight: 800; color: #34d399; }
+.rd-st i { display: block; height: 3px; margin-top: 5px; background: rgba(255,255,255,.07); }
+.rd-st i::after { content: ""; display: block; width: var(--w); height: 100%; background: var(--t); }
+.rd-st i.t90::after { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
+.rd-dh { display: flex; align-items: center; justify-content: center; gap: 6px; height: 28px; font-size: 12px; font-weight: 700; color: #ffb27a; background: repeating-linear-gradient(135deg, rgba(255,138,61,.08) 0 5px, transparent 5px 10px); box-shadow: inset 0 0 0 1px rgba(255,138,61,.25); }
+.rd-dh svg { width: 14px; height: 14px; flex: none; }
+.rd-bat { display: flex; flex-direction: column; align-items: flex-end; line-height: 1; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.06); }
+.rd-bat small { margin-bottom: 3px; font-size: 10.5px; font-weight: 600; color: #6b7280; }
+.rd-bat b { font-size: 24px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
 .rd-dl { font-size: 14px; font-weight: 700; white-space: nowrap; color: #4b5563; }
 .rd-dl.up { color: #34d399; }
 .rd-dl.dn { color: #fbbf24; }
@@ -3211,9 +3235,36 @@ function RdSeg({ v, v0, tone = '#10b981' }) {
   const a = n(v), b = n(v0);
   return <div className="ui-seg" style={{ '--a': tone }}>{Array.from({ length: 24 }, (_, i) => <i key={i} className={i < Math.min(a, b) ? 'on' : i < a ? 'ch' : i < b ? 'lo' : ''} />)}</div>;
 }
-const RdStat = ({ label, v, up }) => (
-  <span className="rd-st"><span>{label}<b className={up ? 'up' : ''}>{v}</b></span><i className={up ? 'up' : ''} style={{ '--w': `${Math.max(4, ((v - 40) / 59) * 100)}%` }} /></span>
+/** 수치 구간 색: 낮을수록 빨강, 높을수록 초록, 90 이상은 카드 최상위 등급과 같은 프리즘 */
+const rdTone = (v) => (v >= 90 ? 'prism' : v >= 80 ? '#34d399' : v >= 70 ? '#a3e635' : v >= 60 ? '#facc15' : v >= 50 ? '#f97316' : '#ef4444');
+const RdStat = ({ label, v, up }) => {
+  const t = rdTone(v);
+  return (
+    <span className="rd-st">
+      <span>{label}<b>{v}{up && <sup>▲</sup>}</b></span>
+      <i className={t === 'prism' ? 't90' : ''} style={{ '--w': `${Math.max(4, ((v - 30) / 69) * 100)}%`, '--t': t }} />
+    </span>
+  );
+};
+const RdBatIcon = () => (
+  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 13.5l2-2M4 12L12.5 3.5a1.8 1.8 0 0 1 2.5 2.5L6.5 14.5z" fill="currentColor" /><circle cx="3" cy="3.5" r="1.8" fill="currentColor" /></svg>
 );
+/** 공격 줄 프로필: 얼굴 · 이름 · 포지션 칩(지명타자는 방망이) · 투타 */
+function RdProfile({ player, chip, dh = false, off = false }) {
+  const bust = useBust(player, '260%');
+  return (
+    <span className="rd-pf">
+      <span className="rd-pface" style={bust}>{!bust && <Silhouette />}</span>
+      <span className="rd-nm">
+        <b>{player.name}</b>
+        <span className="rd-tags">
+          <span className={`rd-pchip font-display ${dh ? 'dh' : off ? 'off' : ''}`}>{dh && <RdBatIcon />}{chip}</span>
+          <span className="rd-hand font-display">{player.hand}</span>
+        </span>
+      </span>
+    </span>
+  );
+}
 function RdFace({ player, className }) {
   const bust = useBust(player, '260%');
   return <span className={`rd-face ${className}`} style={bust}>{!bust && <Silhouette />}</span>;
@@ -3367,16 +3418,28 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
           <div className="grid min-h-0 flex-1 items-center" style={{ gridTemplateRows: `repeat(${Math.max(1, z - a)}, minmax(0, 1fr))` }}>
             {lineup.slice(a, z).map((p, n) => {
               const i = a + n, b = base.get(p.id), e = effOf(p);
+              const dh = p.slot === 'DH', off = !!b.naturalPosition, chip = RD_CHIP[p.slot] || p.slot;
+              const sel = pick?.k === 'ord' && pick?.v === p.id;
               return (
-                <div key={p.id} className="rd-row">
+                <div key={p.id} role="button" tabIndex={0} aria-pressed={sel} aria-label={`${i + 1}번 ${p.name}`} data-rk="ord" data-rv={p.id}
+                  className={`rd-row ${dh ? 'dh' : ''} ${sel ? 'sel' : ''} ${drag?.k === 'ord' && drag.over === p.id ? 'over' : ''} ${drag?.k === 'ord' && drag.v === p.id ? 'lifted' : ''}`}
+                  onKeyDown={(ev) => { if (ev.target === ev.currentTarget && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); tap('ord', p.id); } }}
+                  onPointerDown={(ev) => {
+                    if (ev.button !== 0 || ev.target.closest('button')) return;
+                    const r = ev.currentTarget.getBoundingClientRect();
+                    dragRef.current = { k: 'ord', v: p.id, view: { player: p, chip, dh, off }, x0: ev.clientX, y0: ev.clientY, x: ev.clientX, y: ev.clientY, dx: Math.min(ev.clientX - r.left, 110), dy: ev.clientY - r.top, w: 220, sc: 1, moved: false, over: null };
+                  }}>
                   <span className="rd-arw">
                     <button type="button" onClick={() => step(i, -1)} disabled={i === 0} aria-label={`${p.name} 타순 올리기`}>▲</button>
                     <button type="button" onClick={() => step(i, 1)} disabled={i === lineup.length - 1} aria-label={`${p.name} 타순 내리기`}>▼</button>
                   </span>
                   <span className={`rd-no font-display ${i < 2 ? 'ts' : i < 5 ? 'cu' : ''}`}>{i + 1}</span>
-                  {plate('ord', p.id, { player: p, chip: RD_CHIP[p.slot] || p.slot, off: !!b.naturalPosition, sub: handLabel(p), num: rdBat(e).toFixed(1), numLab: '타격', h: 'var(--rh)' })}
-                  <span className="rd-bars">
-                    {['power', 'contact', 'speed'].map((s) => <RdStat key={s} label={RD_STAT[s]} v={e.stats[s]} up={e.stats[s] > b.stats[s]} />)}
+                  <RdProfile player={p} chip={chip} dh={dh} off={off} />
+                  <span className="rd-stats">
+                    {['power', 'contact', 'speed', 'defense'].map((s) => (dh && s === 'defense'
+                      ? <span key={s} className="rd-dh"><RdBatIcon />지명</span>
+                      : <RdStat key={s} label={RD_STAT[s]} v={e.stats[s]} up={e.stats[s] > b.stats[s]} />))}
+                    <span className="rd-bat"><small>타격</small><b className="font-display">{rdBat(e).toFixed(1)}</b></span>
                   </span>
                 </div>
               );
@@ -3541,8 +3604,8 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
       </aside>
 
       {drag && createPortal(
-        <div className="rp-ghost" style={{ left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w, transform: `scale(${drag.sc})` }}>
-          <RdPlate {...drag.view} />
+        <div className={`rp-ghost ${drag.k === 'ord' ? 'rd-ghost-pf' : ''}`} style={{ left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w, transform: `scale(${drag.sc})` }}>
+          {drag.k === 'ord' ? <RdProfile {...drag.view} /> : <RdPlate {...drag.view} />}
         </div>,
         document.body,
       )}
