@@ -1,6 +1,8 @@
-// 시리즈 선수 카드 그림 계획: 이미 있는 그림은 재사용, 없는 선수는 생성 프롬프트를 만든다.
-// 사용법: node scripts/art-plan.mjs  → art-src/plan.json ([{ id, prompt }])
-import { readdirSync, readFileSync, existsSync, copyFileSync, writeFileSync, mkdirSync } from 'node:fs';
+// 카드 그림 계획 (유니폼 레퍼런스 방식): 같은 팀·시즌 선수는 같은 유니폼 레퍼런스 그림을 입혀 옷을 통일한다.
+// 사용법: node scripts/art-plan.mjs
+//   → art-src/uniform-plan.json  [{ key, label, players, prompt }]  팀·시즌(국가대표는 대회)마다 유니폼 레퍼런스 1장
+//   → art-src/plan.json          [{ id, uniform, prompt }]           카드가 없는 선수. 생성할 때 uniform 레퍼런스를 Image 1 로 넣는다
+import { readdirSync, readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,51 +13,26 @@ mkdirSync(join(root, 'art-src'), { recursive: true });
 
 const safeId = (s) => s.replace(/[^\p{L}\p{N}-]/gu, '');
 
-// 게임 내장 레전드 카드 [id, 이름, 연도, 팀] — 같은 시즌·같은 팀(국가대표 포함)이면 그림 재사용
-const LEGENDS = [
-  ['ryu06', '류현진', 2006, '한화'], ['ryu08', '류현진', 2008, '대한민국'], ['kkh08', '김광현', 2008, 'SK'], ['kkh08n', '김광현', 2008, '대한민국'],
-  ['yoon11', '윤석민', 2011, 'KIA'], ['yang17', '양현종', 2017, 'KIA'], ['nip16', '니퍼트', 2016, '두산'], ['lind19', '린드블럼', 2019, '두산'],
-  ['alc20', '알칸타라', 2020, '두산'], ['ruc20', '루친스키', 2020, 'NC'], ['yhk16', '유희관', 2016, '두산'], ['jws08', '장원삼', 2008, '대한민국'],
-  ['ssj08', '송승준', 2008, '대한민국'], ['sun93', '선동열', 1993, '해태'], ['oh06', '오승환', 2006, '삼성'], ['koo06', '구대성', 2006, '한화'],
-  ['jdh08', '정대현', 2008, '대한민국'], ['jwr08', '정우람', 2008, 'SK'], ['yej20', '양의지', 2020, 'NC'], ['pkw00', '박경완', 2000, '현대'],
-  ['jgy08', '진갑용', 2008, '대한민국'], ['ktg24', '김태군', 2024, 'KIA'], ['lsy03', '이승엽', 2003, '삼성'], ['lsy08', '이승엽', 2008, '대한민국'],
-  ['thm15', '테임즈', 2015, 'NC'], ['pbh14', '박병호', 2014, '넥센'], ['ojl16', '오재일', 2016, '두산'], ['sgc14', '서건창', 2014, '넥센'],
-  ['nav14', '나바로', 2014, '삼성'], ['jkw08', '정근우', 2008, '대한민국'], ['kym08', '고영민', 2008, '대한민국'], ['ksb24', '김선빈', 2024, 'KIA'],
-  ['ldh10', '이대호', 2010, '롯데'], ['kdy24', '김도영', 2024, 'KIA'], ['kdj08', '김동주', 2008, '대한민국'], ['hkm16', '허경민', 2016, '두산'],
-  ['ljb94', '이종범', 1994, '해태'], ['kjh14', '강정호', 2014, '넥센'], ['pjm08', '박진만', 2008, '대한민국'], ['pch24', '박찬호', 2024, 'KIA'],
-  ['ljh22', '이정후', 2022, '키움'], ['roh20', '로하스', 2020, 'KT'], ['khs08', '김현수', 2008, '대한민국'], ['ljw08', '이종욱', 2008, '대한민국'],
-  ['lyk08', '이용규', 2008, '대한민국'], ['phm23', '박해민', 2023, 'LG'], ['chw16', '최형우', 2016, '삼성'], ['woo98', '우즈', 1998, 'OB'],
-  ['ldh08', '이대호', 2008, '대한민국'], ['hsh10', '홍성흔', 2010, '롯데'],
-];
-
-const KOREA = "white jersey with 'KOREA' in red outlined in navy on the chest, navy trim, navy cap with red 'K' logo";
-const UNIFORM = {
-  '1993-haitai': "early-1990s Haitai Tigers home uniform, white jersey with red and black trim, 'HAITAI' in red outlined in black on the chest, red cap with black brim and tiger logo",
-  '2006-hanwha': "2006 Hanwha Eagles home uniform, white jersey with orange and black trim, 'Eagles' in orange outlined in black on the chest, orange cap with black brim",
-  '2006-wbc': `2006 World Baseball Classic South Korea national team uniform, ${KOREA}`,
-  '2008-beijing': `2008 Beijing Olympics South Korea national team uniform, ${KOREA}`,
-  '2008-sk': "2008 SK Wyverns home uniform, white jersey with red trim and red 'SK' on the chest, red cap with white SK logo",
-  '2009-kia': "2009 KIA Tigers home uniform, white jersey with red and black trim, 'TIGERS' in red outlined in black on the chest, black cap with red brim and 'T' logo",
-  '2009-wbc': `2009 World Baseball Classic South Korea national team uniform, ${KOREA}`,
-  '2010-lotte': "2010 Lotte Giants home uniform, white jersey with navy and red trim, 'Giants' script in navy outlined in red on the chest, navy cap",
-  '2014-nexen': "2014 Nexen Heroes home uniform, white jersey with burgundy trim, 'HEROES' in burgundy on the chest, burgundy cap",
-  '2014-samsung': "2014 Samsung Lions home uniform, white jersey with blue trim, 'SAMSUNG' in blue on the chest, blue cap with white 'S' logo",
-  '2015-premier12': `2015 WBSC Premier12 South Korea national team uniform, ${KOREA}`,
-  '2016-doosan': "2016 Doosan Bears home uniform, white jersey with navy trim, 'BEARS' in navy on the chest, navy cap with white 'D' logo",
-  '2020-nc': "2020 NC Dinos home uniform, white jersey with navy and gold trim, 'DINOS' in navy outlined in gold on the chest, navy cap with 'D' logo",
-  '2023-lg': "2023 LG Twins home uniform, white jersey with thin black pinstripes, 'TWINS' in black outlined in red on the chest, black cap with red and white 'LG' logo",
-  '2024-kia': "2024 KIA Tigers home uniform, white jersey with red and black trim, 'TIGERS' in red outlined in black on the chest, black cap with red 'T' logo",
+// 팀 약칭 → 영문 구단명, 카드 네온 색
+const TEAM = {
+  KIA: ['KIA Tigers', 'crimson red'], 해태: ['Haitai Tigers', 'crimson red'], 삼성: ['Samsung Lions', 'electric blue'],
+  LG: ['LG Twins', 'hot pink'], MBC: ['MBC Blue Dragons', 'electric blue'], 두산: ['Doosan Bears', 'violet blue'], OB: ['OB Bears', 'violet blue'],
+  SK: ['SK Wyverns', 'crimson red'], SSG: ['SSG Landers', 'crimson red'], 롯데: ['Lotte Giants', 'light blue'],
+  한화: ['Hanwha Eagles', 'bright orange'], 빙그레: ['Binggrae Eagles', 'bright orange'], 현대: ['Hyundai Unicorns', 'teal'],
+  우리: ['Woori Heroes', 'magenta pink'], 히어로즈: ['Seoul Heroes', 'magenta pink'], 넥센: ['Nexen Heroes', 'magenta pink'], 키움: ['Kiwoom Heroes', 'magenta pink'],
+  NC: ['NC Dinos', 'sky blue'], KT: ['KT Wiz', 'scarlet red'],
 };
-const NEON = {
-  한화: 'bright orange', SK: 'crimson red', KIA: 'crimson red', 해태: 'crimson red', 롯데: 'light blue', 넥센: 'magenta pink',
-  삼성: 'electric blue', 두산: 'violet blue', NC: 'sky blue', LG: 'hot pink', 대한민국: 'royal blue',
+const EVENT = {
+  '1998-bangkok': '1998 Bangkok Asian Games', '2000-sydney': '2000 Sydney Olympics', '2002-busan': '2002 Busan Asian Games',
+  '2006-wbc': '2006 World Baseball Classic', '2008-beijing': '2008 Beijing Olympics', '2009-wbc': '2009 World Baseball Classic',
+  '2010-guangzhou': '2010 Guangzhou Asian Games', '2014-incheon': '2014 Incheon Asian Games', '2015-premier12': '2015 WBSC Premier12',
+  '2018-jakarta': '2018 Jakarta-Palembang Asian Games', '2019-premier12': '2019 WBSC Premier12', '2023-hangzhou': '2022 Hangzhou Asian Games (held in 2023)',
 };
-const EVENT = { '2006-wbc': '2006 World Baseball Classic', '2008-beijing': '2008 Beijing Olympics', '2009-wbc': '2009 World Baseball Classic', '2015-premier12': '2015 WBSC Premier12' };
 
 const POSES = {
   SP: ['high leg-kick windup at the peak of the delivery', 'explosive follow-through lunging toward the plate', 'set position, glaring at the batter over the glove', 'roaring fist pump after a strikeout'],
   RP: ['max-effort fastball release, arm whipping through', 'calm cold stare holding the ball at chest before the pitch', 'shouting celebration after closing out the game'],
-  C: ["standing in full catcher's gear with the mask flipped up, pointing to the infield", "popping up from the crouch to throw to second base, mask pushed up"],
+  C: ["standing in full catcher's gear with the mask flipped up, pointing to the infield", 'popping up from the crouch to throw to second base, mask pushed up'],
   '1B': ['powerful home run swing follow-through, watching the ball fly', 'compact line-drive swing at contact'],
   '3B': ['strong swing at contact driving the ball', 'backhanding a hard grounder and rising to throw'],
   DH: ['towering home run swing follow-through', 'home run trot pointing to the sky'],
@@ -65,32 +42,48 @@ const POSES = {
 };
 const POS_WORD = { SP: 'starting pitcher', RP: 'relief pitcher', C: 'catcher', '1B': 'first baseman', '2B': 'second baseman', '3B': 'third baseman', SS: 'shortstop', OF: 'outfielder', DH: 'designated hitter' };
 
-let reused = 0;
+const uniforms = new Map();
 const plan = [];
+const unknown = new Set();
 for (const file of readdirSync(seriesDir).filter((f) => f.endsWith('.json')).sort()) {
   const s = JSON.parse(readFileSync(join(seriesDir, file), 'utf8').replace(/^﻿/, ''));
   const national = s.kind === 'national';
   s.players.forEach((p, i) => {
     const id = `${s.id}_${safeId(p.personId)}`;
-    const out = join(cardsDir, `${id}.webp`);
-    if (existsSync(out)) return;
-    const team = national ? '대한민국' : p.team;
-    const legend = LEGENDS.find(([, name, year, t]) => name === p.name && year === p.year && t === team);
-    if (legend && existsSync(join(cardsDir, `${legend[0]}.webp`))) {
-      copyFileSync(join(cardsDir, `${legend[0]}.webp`), out);
-      reused++;
-      return;
+    if (existsSync(join(cardsDir, `${id}.webp`))) return;
+    if (!national && !TEAM[p.team]) { unknown.add(p.team); return; }
+    const key = national ? s.id : `${safeId(p.team)}-${p.year}`;
+    const label = national ? `South Korea national team at the ${EVENT[s.id] || s.title}` : `${p.year} ${TEAM[p.team][0]}`;
+    if (!uniforms.has(key)) {
+      const what = national
+        ? `the South Korea national baseball team uniform worn at the ${EVENT[s.id] || s.title}`
+        : `the ${label} home uniform exactly as worn in the ${p.year} KBO season`;
+      uniforms.set(key, {
+        key, label, players: 0,
+        prompt: `Uniform reference sheet, semi-realistic digital painting in collectible trading card style: ${what}. Show the home jersey front view, the jersey back view without name or number, and the baseball cap from the front and from the side, neatly arranged with no mannequin and no person. Accurate team colors, chest lettering, trim and piping, sleeve patch and cap logo for that season. Flat deep navy (#0b1220) background, even soft light. No faces, no other text.`,
+      });
     }
+    uniforms.get(key).players++;
     const pitcher = p.position === 'SP' || p.position === 'RP';
     const hand = pitcher ? `${p.hand === 'L' ? 'left' : 'right'}-handed` : `bats ${p.hand === 'S' ? 'switch' : p.hand === 'L' ? 'left' : 'right'}-handed`;
     const origin = p.isForeign ? 'foreign (non-Korean)' : 'Korean';
-    const who = national
-      ? `${origin} ${POS_WORD[p.position]} ${p.name} (${hand}) of the South Korea national team at the ${EVENT[s.id]}`
-      : `${origin} KBO ${POS_WORD[p.position]} ${p.name} (${hand}) of the ${p.year} ${s.title}`;
+    const neon = national ? 'royal blue' : TEAM[p.team][1];
     const poses = POSES[p.position];
-    const prompt = `Collectible sports trading card art, semi-realistic digital painting, crisp detail. ${who}. Uniform: ${UNIFORM[s.id]}; authentic to that season with real chest lettering and cap logo. Pose: ${poses[i % poses.length]}. Composition 2:3: player in the RIGHT half, face about 65% from the left edge and never in the left half; top-left quadrant empty dark bokeh; head in upper 40%; dark simple bottom 20%. Near-black navy stadium floodlight bokeh background, strong ${NEON[team] || 'emerald'} neon rim light, cinematic contrast. No border, no frame, no text except uniform lettering.`;
-    plan.push({ id, prompt });
+    plan.push({
+      id, uniform: key,
+      prompt: `Collectible sports trading card art, semi-realistic digital painting, crisp detail. ${origin} ${POS_WORD[p.position]} ${p.name} (${hand}), ${label}. Uniform and cap: exactly the uniform and cap shown in Image 1 — same colors, chest lettering, trim and cap logo; no name or number on the back. Pose: ${poses[i % poses.length]}. Composition 2:3: player in the RIGHT half, face about 65% from the left edge and never in the left half; top-left quadrant empty dark bokeh; head in upper 40%; dark simple bottom 20%. Near-black navy stadium floodlight bokeh background, strong ${neon} neon rim light, cinematic contrast. No border, no frame, no text except uniform lettering.`,
+    });
   });
 }
-writeFileSync(join(root, 'art-src', 'plan.json'), JSON.stringify(plan, null, 1));
-console.log(`재사용 ${reused}장, 생성 필요 ${plan.length}장 → art-src/plan.json`);
+if (unknown.size) console.log(`영문 구단명이 없는 팀 약칭 (TEAM 에 추가 필요): ${[...unknown].join(', ')}`);
+// 순번(#번호)으로 내려받으므로, 시리즈가 추가돼도 기존 항목 순서는 유지하고 새 항목만 뒤에 붙인다
+const stable = (file, list, keyOf) => {
+  const prev = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')).map(keyOf) : [];
+  const rank = (x) => { const i = prev.indexOf(keyOf(x)); return i < 0 ? Infinity : i; };
+  return list.map((x, i) => [x, i]).sort(([a, i], [b, j]) => rank(a) - rank(b) || i - j).map(([x]) => x);
+};
+const uniformFile = join(root, 'art-src', 'uniform-plan.json');
+const planFile = join(root, 'art-src', 'plan.json');
+writeFileSync(uniformFile, JSON.stringify(stable(uniformFile, [...uniforms.values()], (u) => u.key), null, 1));
+writeFileSync(planFile, JSON.stringify(stable(planFile, plan, (p) => p.id), null, 1));
+console.log(`유니폼 레퍼런스 ${uniforms.size}장, 카드 생성 필요 ${plan.length}장 → art-src/uniform-plan.json, art-src/plan.json`);

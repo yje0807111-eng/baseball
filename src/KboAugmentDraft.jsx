@@ -13,7 +13,8 @@ export const SLOT_LIMITS = { SP: 1, RP: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 
 export const ROSTER_SIZE = Object.values(SLOT_LIMITS).reduce((a, b) => a + b, 0); // 12
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
+const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
+const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전에 증강을 하나씩 더 고른다 (그 경기에만)
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
@@ -534,6 +535,15 @@ export const AUGMENTS = [
   },
 ];
 
+/** 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다 */
+export function rollAugmentOptions(owned = [], rng = Math.random) {
+  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id));
+  const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
+  if (!tiers.length) return [];
+  const t = tiers[Math.floor(rng() * tiers.length)];
+  return shuffle(left.filter((a) => a.tier === t)).slice(0, 3);
+}
+
 export const EVENTS = [
   { id: 'fund', name: '긴급 트레이드 자금', tier: 'gold', cond: '구단주 특별 지원', desc: '샐러리 캡 +60 CP', apply: (s) => ({ ...s, cp: s.cp + 60 }) },
   { id: 'scout', name: '스카우트 특명', tier: 'silver', cond: '전국 스카우트망 가동', desc: '상점 새로고침 +3회', apply: (s) => ({ ...s, rerolls: s.rerolls + 3 }) },
@@ -570,6 +580,23 @@ function describeHalf(runs, off, defPitcher, rng) {
   return { hitter, text: runs >= 5 ? `타자 일순 빅이닝, ${hitter.name} 쐐기 적시타 (${runs}점)` : pickOne(rng, byRuns[runs]) };
 }
 
+/* ───── 승부처 개입 (1단계: 판정 흐름만) ───── */
+export const CLUTCH_MAX = 2; // 경기당 최대 발동
+export const CLUTCH_CHANCE = 0.5; // 7·8회 조건 충족 시 발동 확률 (9회는 반드시)
+/** 찬스: 7회 이후 말 공격, 지거나 동점인데 0~2점 차 · 위기: 8회 이후 초 수비, 동점이거나 0~2점 리드 */
+export function clutchKind(inning, isTop, score) {
+  const lead = score.my - score.opp;
+  if (!isTop && inning >= 7 && lead <= 0 && lead >= -2) return 'chance';
+  if (isTop && inning >= 8 && lead >= 0 && lead <= 2) return 'crisis';
+  return null;
+}
+/** 개입 결과로 원래 굴린 득점을 보정 */
+export function clutchRuns(kind, grade, base) {
+  if (kind === 'chance') return { hr: base + 3, double: base + 2, single: base + 1, perfect: base + 2, good: base + 1 }[grade] ?? Math.floor(base / 2);
+  const crisis = { k: 0, out: Math.max(0, base - 1), walk: base, single: base, double: base + 1, hr: base + 2, perfect: 0, good: Math.max(0, base - 1) };
+  return crisis[grade] ?? base + 1;
+}
+
 /**
  * 비동기 경기 루프. 사용자 팀(my)은 홈(말 공격).
  * 매 하프 이닝마다 ① 증강 리스너 판정 → 발동 시 점수 확정·로그 주입·하이라이트 정지
@@ -579,7 +606,10 @@ export async function runSimulation({
   my, opp, augments = [], rng = Math.random,
   getSpeed = () => 1, isCancelled = () => false,
   onBoard = () => {}, onLog = () => {}, onHighlight = async () => {},
+  beforeInning = async () => null, // 이닝 시작 전 훅: 새 증강 목록을 돌려주면 그걸로 바꾼다
+  onClutch = null, // 승부처 개입 훅: ({ kind, inning, isTop, score, baseRuns }) → 'perfect' | 'good' | 'miss'
 }) {
+  let clutchLeft = CLUTCH_MAX;
   const board = emptyBoard();
   const score = { my: 0, opp: 0 };
   const used = {};
@@ -598,6 +628,8 @@ export async function runSimulation({
   log({ kind: 'system', inning: 0, text: `플레이볼! ${opp.name} vs ${my.name}` });
 
   for (let inning = 1; inning <= 9; inning++) {
+    const nextAugs = await beforeInning(inning, augments);
+    if (nextAugs) augments = nextAugs;
     for (const isTop of [true, false]) {
       if (isCancelled()) return null;
       if (!isTop && inning === 9 && score.my > score.opp) {
@@ -618,8 +650,41 @@ export async function runSimulation({
 
       onBoard({ board: { away: [...board.away], home: [...board.home] }, score: { ...score }, half: { inning, isTop } });
 
-      // ① 증강 리스너 (우선순위: 등급 높은 순)
+      // ⓪ 승부처 개입: 조건을 채우면 경기를 멈추고 결과(PERFECT/GOOD/MISS)로 이번 하프 이닝 득점을 보정. 이때는 증강 판정을 건너뛴다
       const side = isTop ? 'defense' : 'offense';
+      const clutch = onClutch && clutchLeft > 0 ? clutchKind(inning, isTop, score) : null;
+      if (clutch && (inning === 9 || rng() < CLUTCH_CHANCE)) {
+        clutchLeft -= 1;
+        const batter = offense.batters[(inning * 2 + (isTop ? 0 : 1)) % Math.max(1, offense.batters.length)];
+        const grade = await onClutch({ kind: clutch, inning, isTop, score: { ...score }, baseRuns, batter, pitcher: defPitcher, pitch });
+        if (isCancelled()) return null;
+        const runs = clutchRuns(clutch, grade, baseRuns);
+        const d = describeHalf(runs, offense, defPitcher, rng);
+        const label = { perfect: 'PERFECT', good: 'GOOD', miss: 'MISS', hr: '홈런', double: '2루타', single: '안타', out: '아웃', k: '삼진', walk: '볼넷' }[grade] || 'MISS';
+        let text = d.text;
+        let hero = d.hitter || batter;
+        const clutchText = { hr: '승부처에서 담장을 넘기는 한 방!', double: '승부처 적시 2루타!', single: '승부처 적시타!', out: '잘 맞은 타구가 잡히고 말았다' };
+        if (clutch === 'crisis' && batter && (grade === 'k' || grade === 'walk')) {
+          text = grade === 'k' ? `${defPitcher.name}, 승부처에서 ${batter.name} 헛스윙 삼진!${runs ? ` 그래도 ${runs}실점` : ''}` : `${batter.name} 볼넷 출루${runs ? `, ${runs}실점` : ''}`;
+        }
+        if (clutch === 'chance' && batter && clutchText[grade]) {
+          hero = batter;
+          text = `${batter.name}, ${clutchText[grade]}${runs ? ` ${runs}점` : ''}`;
+        }
+        if (!isTop && runs) addCredit(hero, runs * 3 + (grade === 'hr' ? 3 : 0), 'runs');
+        log({ kind: runs ? 'score' : 'normal', inning, isTop, runs, text: `[${clutch === 'chance' ? '찬스' : '위기'} ${label}] ${text}`, hero, pitcher: defPitcher });
+        if (isTop) {
+          board.away[inning - 1] = runs; score.opp += runs;
+          addCredit(defPitcher, runs === 0 ? 1.5 : -runs, runs === 0 ? 'zero' : null);
+        } else {
+          board.home[inning - 1] = runs; score.my += runs;
+        }
+        onBoard({ board: { away: [...board.away], home: [...board.home] }, score: { ...score }, half: { inning, isTop } });
+        await halfDelay();
+        continue;
+      }
+
+      // ① 증강 리스너 (우선순위: 등급 높은 순)
       const ctx = { inning, isTop, my, opp, score: { ...score }, rng, baseRuns, myPitcher, oppPitcher };
       const fired = [...augments]
         .sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier])
@@ -2682,6 +2747,7 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
+  const tier = isAug && choice.options[0]?.tier;
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
       <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
@@ -2690,13 +2756,624 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
         <div className="text-center animate-[rise_.4s_ease-out_both]">
           <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? 'Season Augment' : 'Season Event'}</p>
           <h2 className="mt-2 text-4xl font-black text-white">
-            {isAug ? '시즌 증강을 고르세요' : '시즌 돌발 이벤트'}
-            {isAug && picksLeft > 0 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
+            {isAug ? (choice.inning ? `${choice.inning}회 증강을 고르세요` : '시즌 증강을 고르세요') : '시즌 돌발 이벤트'}
+            {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
+            {tier && <span className="ml-3 font-display font-extrabold" style={{ color: TIER_NEON[tier] }}>{TIER_EN[tier]}</span>}
           </h2>
           <p className="mt-2 text-sm text-gray-400">{isAug ? '경기 중 조건이 충족되면 난수 판정을 무시하고 이닝 결과를 확정합니다.' : '구단 운영 방향을 결정하세요. 선택은 되돌릴 수 없습니다.'}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-6">
           {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───── 승부처 개입 창 (1단계 임시: 결과를 직접 고른다. 2·3단계에서 스페이스 키 미니게임으로 바뀐다) ───── */
+/* 찬스 타격 미니게임: 3구 삼진 전에 공이 존에 닿는 순간 스페이스.
+   판정 폭은 타자 컨택·파워, 공 속도는 투수 구위가 정한다. 링은 정직하고 공은 구종마다 속인다 */
+const PITCH_TYPES = [
+  { id: 'fast', name: '직구', key: 'q', desc: '빠르고 곧다', color: '#e5e7eb', cells: [0, 1, 2, 4], dur: 620, ease: (p) => p },
+  { id: 'slider', name: '슬라이더', key: 'w', desc: '바깥으로 휜다', color: '#7dd3fc', cells: [5, 8, 7], dur: 740, ease: (p) => Math.sqrt(p) * 0.6 + p * 0.4, curve: 1 }, // 빨리 오다 휘며 늦게 닿는다
+  { id: 'change', name: '체인지업', key: 'e', desc: '느리게 떨어진다', color: '#c4b5fd', cells: [6, 7, 8], dur: 860, ease: (p) => p * p * 0.55 + p * 0.45 }, // 느리게 오다 막판에 들어온다
+];
+/** 투수의 구종 비율: 구위가 좋을수록 직구가 많다 (노림수 카드에 그대로 보여 주고, 실제 투구도 이 비율로 뽑는다) */
+export function pitchMix(pitcher) {
+  const fast = Math.max(0.3, Math.min(0.65, 0.4 + ((pitcher?.stats?.stuff ?? 80) - 80) * 0.015));
+  return { fast, slider: (1 - fast) * 0.6, change: (1 - fast) * 0.4 };
+}
+const PITCH_ICON = {
+  fast: <><circle cx="40" cy="32" r="11" fill="currentColor" /><path d="M6 32H24M8 25H20M8 39H20" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity=".45" /></>,
+  slider: <><path d="M8 12Q44 16 50 48" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="4 4" /><circle cx="50" cy="48" r="8" fill="currentColor" /></>,
+  change: <><path d="M10 14Q34 12 38 48" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="2 6" /><circle cx="38" cy="48" r="8" fill="currentColor" /></>,
+};
+const BALL_R = 24; // 공 요소 반지름(px, scale 1 기준)
+const RING_R0 = 110; // 링 시작 반지름(px)
+const RING_SPEED = 0.153; // 링이 좁아지는 속도(px/ms) — 직구면 공이 존의 90% 지점일 때 접한다
+/** 맞힌 타구의 결과. 잘 칠수록(PERFECT)·컨택이 높을수록 아웃이 줄고, 파워가 높을수록 장타가 는다 */
+export function rollContact(quality, batter, rng = Math.random, shift = 0) {
+  const s = batter?.stats || {};
+  const contact = s.contact ?? 70;
+  const power = s.power ?? 70;
+  const perfect = quality === 'perfect';
+  const out = Math.max(0.03, (perfect ? Math.max(0.05, 0.4 - (contact - 60) * 0.012) : Math.max(0.25, 0.68 - (contact - 60) * 0.013)) + shift);
+  const hr = perfect ? Math.max(0.05, 0.12 + (power - 60) * 0.013) : Math.max(0, (power - 78) * 0.006);
+  const dbl = perfect ? 0.3 : 0.18;
+  const r = rng();
+  if (r < out) {
+    return rng() < 0.5 + (power - 70) * 0.01
+      ? { grade: 'out', label: 'FLY OUT', tone: '#f87171', sub: perfect ? '잘 맞았는데 펜스 앞에서 잡혔다' : '높이 떴지만 외야 뜬공' }
+      : { grade: 'out', label: 'GROUND OUT', tone: '#f87171', sub: perfect ? '총알 타구가 내야수 정면으로' : '땅볼, 1루에서 아웃' };
+  }
+  const h = (r - out) / (1 - out);
+  if (h < hr) return { grade: 'hr', label: 'HOME RUN!', tone: '#fde047', sub: '담장 너머로!' };
+  if (h < hr + dbl) return { grade: 'double', label: '2루타', tone: '#34d399', sub: '외야 틈을 가르는 장타' };
+  return { grade: 'single', label: '안타', tone: '#34d399', sub: '깔끔한 적시타' };
+}
+
+export function battingWindows(batter, pitch = 86) {
+  const s = batter?.stats || {};
+  const perfect = Math.max(22, Math.min(70, 34 + ((s.contact || 70) - 75) * 0.9 + ((s.power || 70) - 75) * 0.5));
+  return { perfect, good: perfect * 2.6, speed: Math.max(0.8, Math.min(1.25, 1 + (pitch - 86) * 0.015)) };
+}
+
+/** 작은 3×3 존: 노린 칸(하늘색 테두리)과 방금 공이 들어온 칸(흰 점) */
+function MiniZone({ guess, last }) {
+  return (
+    <span className="grid h-10 w-9 grid-cols-3 grid-rows-3 border border-white/50">
+      {Array.from({ length: 9 }, (_, i) => (
+        <span key={i} className="relative grid place-items-center border border-white/10" style={i === guess ? { boxShadow: 'inset 0 0 0 1.5px #7dd3fc', background: 'rgba(125,211,252,.2)' } : undefined}>
+          {i === last && <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_6px_#fff]" />}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* 타석 준비(노림수): 왼쪽 구종 카드 3장(키 · 궤적 · 이 투수의 비율), 오른쪽 존 판(구종별 코스 경향 점 · 노림 칸) */
+function BattingPrep({ mix, guess, setGuess, pitcher }) {
+  const typeOn = PITCH_TYPES.find((t) => t.id === guess.type);
+  const cellName = guess.cell == null ? null : `${['높은', '가운데', '낮은'][Math.floor(guess.cell / 3)]} ${['몸쪽', '한가운데', '바깥쪽'][guess.cell % 3]}`;
+  return (
+    <div className="flex w-full max-w-4xl flex-wrap items-start justify-center gap-10">
+      <div>
+        <p className="font-display text-xs tracking-[0.3em] text-gray-400">① 구종 노리기 <span className="text-gray-600">Q · W · E</span></p>
+        <div className="mt-6 flex gap-3">
+          {PITCH_TYPES.map((t) => {
+            const on = guess.type === t.id;
+            const pct = Math.round(mix[t.id] * 100);
+            return (
+              <button key={t.id} type="button" onClick={() => setGuess((g) => ({ ...g, type: on ? null : t.id }))}
+                className="ui-cut relative flex h-[12.5rem] w-[9.5rem] flex-col p-3 text-left transition-transform"
+                style={{ '--c': '14px', transform: on ? 'translateY(-10px)' : undefined, background: on ? `linear-gradient(180deg, color-mix(in srgb, ${t.color} 26%, #0b1220), rgba(5,8,15,.95))` : 'linear-gradient(180deg, rgba(17,24,39,.9), rgba(5,8,15,.95))', boxShadow: on ? `inset 0 0 0 2px ${t.color}` : 'inset 0 0 0 1px rgba(255,255,255,.1)' }}>
+                {on && <span className="absolute left-3 top-3 px-1.5 font-display text-[11px] font-extrabold tracking-[0.2em] text-[#05080f]" style={{ background: t.color }}>노림</span>}
+                <span className="absolute right-2.5 top-2.5 grid h-6 w-6 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: on ? t.color : '#e5e7eb' }}>{t.key.toUpperCase()}</span>
+                <svg viewBox="0 0 64 64" className="mb-1.5 mt-7 h-14 w-14" style={{ color: t.color }}>{PITCH_ICON[t.id]}</svg>
+                <b className="text-lg text-white">{t.name}</b>
+                <small className="text-xs text-gray-400">{t.desc}</small>
+                <span className="mt-auto flex items-end justify-between"><small className="text-[11px] text-gray-500">{pitcher?.name}</small><b className="font-display text-3xl leading-none" style={{ color: on ? t.color : '#fff' }}>{pct}%</b></span>
+                <span className="mt-1.5 h-1 bg-white/10"><span className="block h-full" style={{ width: `${pct}%`, background: t.color }} /></span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-2.5">
+          <p className="bg-emerald-400/10 px-3 py-2 shadow-[inset_3px_0_0_#34d399]"><span className="font-display text-[11px] tracking-[0.3em] text-emerald-400">맞히면</span><b className="block text-white">PERFECT 폭 ×1.5</b></p>
+          <p className="bg-red-400/10 px-3 py-2 shadow-[inset_3px_0_0_#f87171]"><span className="font-display text-[11px] tracking-[0.3em] text-red-400">틀리면</span><b className="block text-white">PERFECT 폭 ×0.6</b></p>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <p className="font-display text-xs tracking-[0.3em] text-gray-400">② 코스 노리기 <span className="text-gray-600">방향키 · 선택</span></p>
+        <div className="relative mt-6 grid h-[16.5rem] w-[14rem] grid-cols-3 grid-rows-3 border-2 border-white/70 bg-white/[0.04]">
+          {Array.from({ length: 9 }, (_, i) => {
+            const on = guess.cell === i;
+            return (
+              <button key={i} type="button" onClick={() => setGuess((g) => ({ ...g, cell: on ? null : i }))} className="relative border border-white/15"
+                style={on ? { background: 'rgba(125,211,252,.22)', boxShadow: 'inset 0 0 0 2px #7dd3fc, inset 0 0 22px rgba(125,211,252,.45)' } : undefined}>
+                {/* 구종별 코스 경향 점 */}
+                <span className="absolute inset-0 flex flex-wrap content-center justify-center gap-1">
+                  {PITCH_TYPES.filter((t) => t.cells.includes(i)).map((t) => (
+                    <span key={t.id} className="rounded-full" style={{ width: 6 + mix[t.id] * 12, height: 6 + mix[t.id] * 12, background: t.color, opacity: !typeOn || typeOn.id === t.id ? 0.9 : 0.2 }} />
+                  ))}
+                </span>
+                {on && <span className="absolute bottom-1 right-1 px-1.5 font-display text-[10px] font-extrabold tracking-[0.2em] text-[#05080f] bg-sky-300">노림</span>}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-center text-xs text-gray-400">점 = 구종별로 자주 들어오는 코스 · 노린 칸으로 오면 맞혔을 때 아웃 확률 −12%p</p>
+        <p className="mt-4 font-display text-lg text-white">노림수 <b style={{ color: typeOn?.color || '#9ca3af' }}>{typeOn?.name || '구종 없음'}</b>{cellName && <> · <b className="text-sky-300">{cellName}</b></>}</p>
+      </div>
+    </div>
+  );
+}
+
+function ClutchBatting({ clutch, onPick }) {
+  const { batter, pitcher, score, inning } = clutch;
+  const win = useMemo(() => battingWindows(batter, clutch.pitch), [batter, clutch.pitch]);
+  const [strikes, setStrikes] = useState(0);
+  const [phase, setPhase] = useState('ready'); // ready → windup → flight → judged → done
+  const [flash, setFlash] = useState(null); // { label, tone, sub }
+  const [pitchType, setPitchType] = useState(null);
+  const [guess, setGuess] = useState({ type: null, cell: null }); // 노림수: 구종(Q·W·E) · 코스(방향키, 3×3 칸)
+  const [lastCell, setLastCell] = useState(null); // 방금 공이 들어온 칸
+  const mix = useMemo(() => pitchMix(pitcher), [pitcher]);
+  const ballRef = useRef(null);
+  const ringRef = useRef(null);
+  const st = useRef({ t0: 0, dur: 0, type: null, swung: false, raf: 0, timers: [] });
+  const strikesRef = useRef(0);
+  const doneRef = useRef(false);
+
+  const later = (fn, ms) => st.current.timers.push(setTimeout(fn, ms));
+  useEffect(() => () => { cancelAnimationFrame(st.current.raf); st.current.timers.forEach(clearTimeout); }, []);
+
+  const finish = (grade) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    setPhase('done');
+    later(() => onPick(grade), grade === 'miss' ? 1100 : 1500);
+  };
+
+  const nextPitch = () => {
+    setFlash(null);
+    setPhase('windup');
+    const roll = Math.random();
+    const type = roll < mix.fast ? PITCH_TYPES[0] : roll < mix.fast + mix.slider ? PITCH_TYPES[1] : PITCH_TYPES[2];
+    const cell = type.cells[Math.floor(Math.random() * type.cells.length)];
+    // 노린 구종이 오면 판정 폭 ×1.5, 틀리면 ×0.6 · 노린 칸으로 오면 맞혔을 때 아웃 확률 −12%p
+    const k = guess.type ? (guess.type === type.id ? 1.5 : 0.6) : 1;
+    st.current.perfect = win.perfect * k;
+    st.current.good = win.good * k;
+    st.current.guessHit = guess.type === type.id;
+    st.current.cellHit = guess.cell === cell;
+    st.current.cell = cell;
+    later(() => {
+      const dur = type.dur / win.speed;
+      // 링은 공을 따라다니며 일정한 속도로 좁아지고, 공은 구종마다 다르게 커진다 → 링이 공에 접하는 순간이 PERFECT
+      const v = RING_SPEED * win.speed;
+      const ballR = (t) => BALL_R * (0.18 + 0.95 * type.ease(Math.min(1, t / dur)));
+      let target = dur;
+      for (let t = 0; t < dur * 1.15; t += 1) if (RING_R0 - v * t <= ballR(t)) { target = t; break; }
+      st.current = { ...st.current, t0: performance.now(), dur: target, type, swung: false };
+      setPitchType(type);
+      setPhase('flight');
+      const tick = (now) => {
+        const t = now - st.current.t0;
+        const p = Math.min(1.15, t / dur);
+        const e = p <= 1 ? type.ease(p) : p;
+        const x = type.curve ? Math.sin(Math.min(1, p) * Math.PI) * 38 * (1 - p * 0.3) : 0;
+        const y = -150 + e * 150;
+        if (ballRef.current) {
+          ballRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${0.18 + e * 0.95})`;
+          ballRef.current.style.opacity = p > 1.08 ? '0' : '1';
+        }
+        if (ringRef.current) {
+          const r = Math.max(0, RING_R0 - v * t);
+          ringRef.current.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${r / 60})`;
+          ringRef.current.style.opacity = t > target + st.current.good ? '0' : String(Math.min(1, 0.35 + t / target * 0.65));
+        }
+        if (!st.current.swung && t > target + st.current.good) { judge(null); return; }
+        if (p < 1.15) st.current.raf = requestAnimationFrame(tick);
+      };
+      st.current.raf = requestAnimationFrame(tick);
+    }, 650 + Math.random() * 900); // 와인드업 길이를 흔들어 박자로 못 치게
+  };
+
+  const judge = (err) => {
+    st.current.swung = true;
+    setPhase('judged');
+    setLastCell(st.current.cell);
+    const abs = err == null ? Infinity : Math.abs(err);
+    const wP = st.current.perfect ?? win.perfect;
+    const wG = st.current.good ?? win.good;
+    // 맞힘(PERFECT 또는 살짝 빠른 GOOD): 타이밍 판정을 먼저 보여 주고, 타구 결과(선수 능력치 + 난수)를 이어서 공개
+    if (abs <= wP || (err < 0 && abs <= wG)) {
+      const quality = abs <= wP ? 'perfect' : 'good';
+      const hit = rollContact(quality, batter, Math.random, st.current.cellHit ? -0.12 : 0);
+      const read = st.current.guessHit ? ' · 노림수 적중' : '';
+      setFlash(quality === 'perfect' ? { label: 'PERFECT', tone: '#fde047', sub: `제대로 걸렸다!${read}` } : { label: 'GOOD', tone: '#34d399', sub: `살짝 빨랐다…${read}` });
+      later(() => setFlash(hit), 700);
+      later(() => finish(hit.grade), 700);
+      return;
+    }
+    // 링이 공보다 조금 좁을 때(살짝 늦음): 파울 — 2스트라이크면 카운트 유지
+    if (err > 0 && abs <= wG) {
+      const f = Math.min(2, strikesRef.current + 1);
+      strikesRef.current = f;
+      setStrikes(f);
+      setFlash({ label: 'FOUL', tone: '#fbbf24', sub: `${Math.round(err)}ms 늦어 뒤로 튀었다` });
+      later(nextPitch, 1000);
+      return;
+    }
+    const k = strikesRef.current + 1;
+    strikesRef.current = k;
+    setStrikes(k);
+    const sub = err == null ? '루킹 스트라이크' : err <= -999 ? '공이 오기도 전에 휘둘렀다' : err < 0 ?`헛스윙 · ${Math.round(-err)}ms 빨랐다` : `헛스윙 · ${Math.round(err)}ms 늦었다`;
+    setFlash({ label: k >= 3 ? 'STRIKE OUT' : 'STRIKE', tone: '#f87171', sub });
+    if (k >= 3) finish('miss');
+    else later(nextPitch, 1000);
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (phase === 'ready' || phase === 'judged') { // 투구 사이에도 노림수를 바꿀 수 있다
+        const t = PITCH_TYPES.find((x) => x.key === e.key.toLowerCase());
+        if (t) { setGuess((g) => ({ ...g, type: g.type === t.id ? null : t.id })); return; }
+        const mv = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -3, ArrowDown: 3 }[e.key];
+        if (mv) {
+          e.preventDefault();
+          setGuess((g) => {
+            if (g.cell == null) return { ...g, cell: 4 };
+            const col = g.cell % 3;
+            if ((mv === -1 && col === 0) || (mv === 1 && col === 2)) return g;
+            const n = g.cell + mv;
+            return n < 0 || n > 8 ? g : { ...g, cell: n };
+          });
+          return;
+        }
+        if (e.key === 'Backspace') { setGuess((g) => ({ ...g, cell: null })); return; }
+      }
+      if (e.code !== 'Space' && e.key !== ' ') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      if (phase === 'ready') { nextPitch(); return; }
+      if (phase === 'windup') { st.current.timers.forEach(clearTimeout); st.current.timers = []; judge(-999); return; } // 공도 안 왔는데 휘두름
+      if (phase === 'flight' && !st.current.swung) { cancelAnimationFrame(st.current.raf); judge(performance.now() - st.current.t0 - st.current.dur); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  const s = batter?.stats || {};
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#03050a]/85 backdrop-blur-[3px]" role="dialog" aria-modal="true" aria-label="승부처 개입">
+      <style>{`
+        @keyframes clutchPulse { 0%,100% { box-shadow: inset 0 0 80px rgba(16,185,129,.18); } 50% { box-shadow: inset 0 0 160px rgba(16,185,129,.42); } }
+        @keyframes clutchPop { 0% { transform: scale(2.2); opacity: 0; } 60% { transform: scale(.92); opacity: 1; } 100% { transform: scale(1); } }
+        @keyframes clutchShake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-8px,4px); } 40% { transform: translate(7px,-5px); } 60% { transform: translate(-5px,-3px); } 80% { transform: translate(4px,5px); } }
+        @keyframes clutchFlash { 0% { opacity: .85; } 100% { opacity: 0; } }
+      `}</style>
+      <div className="fixed inset-0 bg-cover bg-[50%_35%]" style={{ backgroundImage: 'url(ui/clutch-bat.webp)', filter: phase === 'ready' ? 'brightness(.5) saturate(.8)' : 'brightness(.3)' }} />
+      <div className="fixed inset-0" style={{ animation: 'clutchPulse 1.1s ease-in-out infinite' }} />
+      {flash?.label === 'PERFECT' && <div className="pointer-events-none absolute inset-0 bg-yellow-100" style={{ animation: 'clutchFlash .5s ease-out forwards' }} />}
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-5 px-4 py-6" style={flash?.label === 'PERFECT' ? { animation: 'clutchShake .45s' } : undefined}>
+        <div className="text-center">
+          <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>Clutch Chance · {inning}회말</p>
+          <p className="mt-1 font-display text-2xl tabular-nums text-gray-300">나 {score.my} : {score.opp} 상대</p>
+          <h2 className="mt-1 text-3xl font-black text-white">{batter?.name || '타자'} <span className="text-lg font-bold text-gray-400">vs {pitcher?.name || '투수'}</span></h2>
+          <p className="mt-1 text-xs text-gray-400">컨택 {s.contact ?? '-'} · 파워 {s.power ?? '-'} · PERFECT ±{Math.round(win.perfect)}ms</p>
+        </div>
+
+        {phase === 'ready' ? <BattingPrep mix={mix} guess={guess} setGuess={setGuess} pitcher={pitcher} /> : (<div className="flex flex-col items-center gap-5">
+        <div className="relative h-[20rem] w-[18rem]">
+          <div className="absolute left-1/2 top-[8%] h-3 w-10 -translate-x-1/2 rounded-full bg-amber-900/60" />
+          <div className="absolute left-1/2 top-[62%] h-[7.5rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2 border-2 border-white/40 bg-white/[0.03]" />
+          <div ref={ringRef} className="absolute left-1/2 top-[62%] h-[7.5rem] w-[7.5rem] rounded-full border-4 border-emerald-400" style={{ opacity: 0, transform: 'translate(-50%,-50%) scale(3)' }} />
+          <div ref={ballRef} className="absolute left-1/2 top-[62%] h-12 w-12 rounded-full bg-white shadow-[0_0_18px_rgba(255,255,255,.8)]"
+            style={{ opacity: phase === 'flight' ? 1 : 0, transform: 'translate(-50%, calc(-50% - 150px)) scale(.18)' }}>
+            <span className="absolute inset-[18%] rounded-full border-2 border-dashed border-red-500/70" />
+          </div>
+          {flash && (
+            <div className="absolute inset-x-0 top-[40%] text-center" key={`${flash.label}${strikes}`} style={{ animation: 'clutchPop .35s ease-out both' }}>
+              <b className="font-display text-5xl font-black" style={{ color: flash.tone, textShadow: `0 0 24px ${flash.tone}` }}>{flash.label}</b>
+              <p className="mt-1 text-sm font-semibold text-white [text-shadow:0_1px_4px_#000]">{flash.sub}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="font-display text-sm tracking-widest text-gray-400">STRIKE</span>
+          {[0, 1, 2].map((i) => <span key={i} className={`h-4 w-4 rounded-full ${i < strikes ? 'bg-red-500 shadow-[0_0_10px_#ef4444]' : 'bg-white/15'}`} />)}
+          {pitchType && phase !== 'ready' && <span className="ml-3 text-sm text-gray-400">{phase === 'windup' ? '와인드업…' : pitchType.name}</span>}
+          <MiniZone guess={guess.cell} last={phase === 'judged' || phase === 'done' ? lastCell : null} />
+          <span className="text-sm text-gray-400">노림 <b style={{ color: PITCH_TYPES.find((t) => t.id === guess.type)?.color || '#9ca3af' }}>{PITCH_TYPES.find((t) => t.id === guess.type)?.name || '없음'}</b></span>
+        </div>
+        </div>)}
+        <p className="h-6 text-base font-bold text-emerald-300">
+          {phase === 'ready' ? '[Q·W·E] 구종 노리기 · [←↑↓→] 코스 노리기 · [SPACE] 타석에 들어서기' : phase === 'windup' ? '기다려…' : phase === 'flight' ? '링이 공에 딱 붙는 순간 [SPACE]!' : ''}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* 위기 투구판: 1·2·3 구종 → 방향키로 5×5 판에 공 놓기 → SPACE 게이지 출발 → 가운데에서 SPACE.
+   판 가운데 3×3 이 스트라이크 존, 바깥 칸은 유인구. 칸마다 상대 타자의 강·약(타율)이 보이고 구종마다 추천 칸이 있다.
+   노란 칸 너비는 내 투수 제구·안정(추천 칸이면 넓어짐), 게이지 속도는 상대 컨택. 3S 삼진 · 4B 볼넷 · 맞으면 구위·파워·칸 타율로 결과 */
+const PITCH_COURSES = [
+  { id: 'in', name: '몸쪽 하이 직구', short: '직구', rec: [6, 7, 11], width: 0.8, outBonus: 0.08 },
+  { id: 'out', name: '바깥쪽 슬라이더', short: '슬라이더', rec: [18, 19, 23], width: 1, outBonus: 0.04 },
+  { id: 'low', name: '낮은 체인지업', short: '체인지업', rec: [17, 21, 22], width: 1.2, outBonus: -0.02 },
+];
+const inZone = (i) => { const r = Math.floor(i / 5); const c = i % 5; return r >= 1 && r <= 3 && c >= 1 && c <= 3; };
+const hashStr = (s) => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+/** 타자의 5×5 칸별 타율(추정). 컨택이 전체 높이를, 파워가 몸쪽 높은 쪽 강세를 정하고 이름으로 고정된 흔들림을 준다. 바깥 칸(유인구)은 null */
+export function batterHeatmap(batter) {
+  const s = batter?.stats || {};
+  const base = 0.2 + ((s.contact ?? 70) - 60) * 0.004;
+  const pw = ((s.power ?? 70) - 70) * 0.003;
+  let h = hashStr(batter?.name || 'x');
+  return Array.from({ length: 25 }, (_, i) => {
+    if (!inZone(i)) return null;
+    const r = Math.floor(i / 5) - 1; // 0 위 ~ 2 아래
+    const c = (i % 5) - 1; // 0 몸쪽 ~ 2 바깥
+    h = Math.imul(h ^ (h >>> 13), 1103515245) >>> 0;
+    const noise = ((h % 1000) / 1000 - 0.5) * 0.06;
+    return Math.max(0.08, Math.min(0.45, base + pw * (2 - r - c) + (1 - r) * 0.015 + noise));
+  });
+}
+export function pitchingWindows(pitcher, batter) {
+  const p = pitcher?.stats || {};
+  const b = batter?.stats || {};
+  const perfect = Math.max(0.05, Math.min(0.16, 0.09 + ((p.control ?? 75) - 80) * 0.003 + ((p.stability ?? 75) - 80) * 0.0015));
+  return { perfect, good: perfect * 2.4, ball: 0.62, period: Math.max(700, Math.min(1400, 1100 - ((b.contact ?? 70) - 70) * 12)) };
+}
+/** 상대가 맞힌 타구. quality: 'good'(결정구가 조금 빗나감) | 'bad'(한가운데 실투). shift: 아웃 확률 보정(구종·칸 타율) */
+export function rollPitchContact(quality, pitcher, batter, shift = 0, rng = Math.random) {
+  const p = pitcher?.stats || {};
+  const b = batter?.stats || {};
+  const base = quality === 'good' ? 0.66 : 0.34;
+  const out = Math.max(0.12, Math.min(0.9, base + ((p.stuff ?? 80) - 80) * 0.01 - ((b.contact ?? 70) - 75) * 0.008 + shift));
+  if (rng() < out) {
+    return rng() < 0.5
+      ? { grade: 'out', label: 'FLY OUT', tone: '#34d399', sub: '높이 뜬 공, 외야수가 잡았다' }
+      : { grade: 'out', label: 'GROUND OUT', tone: '#34d399', sub: '빗맞은 땅볼, 1루에서 아웃' };
+  }
+  const hr = Math.max(0.03, ((b.power ?? 70) - 60) * 0.012) * (quality === 'bad' ? 1.6 : 0.6);
+  const h = rng();
+  if (h < hr) return { grade: 'hr', label: 'HOME RUN', tone: '#f87171', sub: '실투가 담장 밖으로…' };
+  if (h < hr + 0.28) return { grade: 'double', label: '2루타 허용', tone: '#f87171', sub: '외야 틈을 갈랐다' };
+  return { grade: 'single', label: '안타 허용', tone: '#fbbf24', sub: '내야를 빠져나갔다' };
+}
+const cellShift = (heat, i, course) => course.outBonus + (heat[i] == null ? 0 : (0.27 - heat[i]) * 1.6);
+
+function ClutchPitching({ clutch, onPick }) {
+  const { batter, pitcher, score, inning } = clutch;
+  const win = useMemo(() => pitchingWindows(pitcher, batter), [pitcher, batter]);
+  const heat = useMemo(() => batterHeatmap(batter), [batter]);
+  const [course, setCourse] = useState(1);
+  const [cell, setCell] = useState(18);
+  const [count, setCount] = useState({ b: 0, s: 0 });
+  const [phase, setPhase] = useState('aim'); // aim → gauge → judged → done
+  const [flash, setFlash] = useState(null);
+  const [stopAt, setStopAt] = useState(null);
+  const markerRef = useRef(null);
+  const st = useRef({ t0: 0, raf: 0, timers: [] });
+  const countRef = useRef({ b: 0, s: 0 });
+  const doneRef = useRef(false);
+  const later = (fn, ms) => st.current.timers.push(setTimeout(fn, ms));
+  useEffect(() => () => { cancelAnimationFrame(st.current.raf); st.current.timers.forEach(clearTimeout); }, []);
+
+  const c = PITCH_COURSES[course];
+  const isRec = c.rec.includes(cell);
+  const perfectW = win.perfect * c.width * (isRec ? 1.3 : 1);
+  const goodW = win.good * c.width * (isRec ? 1.3 : 1);
+  const shift = cellShift(heat, cell, c);
+  const chase = Math.max(0.15, Math.min(0.7, 0.5 - ((batter?.stats?.contact ?? 70) - 70) * 0.012 + (isRec ? 0.1 : 0)));
+  // 이 자리에 GOOD 로 들어갔을 때 기준 예상치(판에 보여 주는 숫자)
+  const oddsOut = inZone(cell)
+    ? Math.round(Math.max(0.12, Math.min(0.9, 0.66 + ((pitcher?.stats?.stuff ?? 80) - 80) * 0.01 - ((batter?.stats?.contact ?? 70) - 75) * 0.008 + shift)) * 100)
+    : Math.round(chase * 100);
+  const oddsXbh = inZone(cell) ? Math.round((1 - oddsOut / 100) * (Math.max(0.03, ((batter?.stats?.power ?? 70) - 60) * 0.012) * 0.6 + 0.28) * 100) : 0;
+
+  const posAt = (t) => { const x = (t / win.period) % 2; return x < 1 ? -1 + 2 * x : 3 - 2 * x; }; // 시간만으로 −1~1 핑퐁
+
+  const finish = (grade) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    setPhase('done');
+    later(() => onPick(grade), 1500);
+  };
+  const setC = (n) => { countRef.current = n; setCount(n); };
+  const again = () => later(() => { setFlash(null); setStopAt(null); setPhase('aim'); }, 1000);
+  const contact = (quality, lead) => {
+    const hit = rollPitchContact(quality, pitcher, batter, quality === 'good' ? shift : c.outBonus);
+    setFlash(lead);
+    later(() => setFlash(hit), 700);
+    later(() => finish(hit.grade), 700);
+  };
+  const strike = (sub) => {
+    const n = { ...countRef.current, s: countRef.current.s + 1 };
+    setC(n);
+    if (n.s >= 3) { setFlash({ label: 'STRIKE OUT!', tone: '#fde047', sub: `${c.short}에 헛스윙 삼진` }); finish('k'); return; }
+    setFlash({ label: 'STRIKE', tone: '#fde047', sub });
+    again();
+  };
+  const ball = (sub) => {
+    const n = { ...countRef.current, b: countRef.current.b + 1 };
+    setC(n);
+    if (n.b >= 4) { setFlash({ label: '볼넷', tone: '#f87171', sub: '밀어내기 위기…' }); finish('walk'); return; }
+    setFlash({ label: 'BALL', tone: '#94a3b8', sub });
+    again();
+  };
+
+  const start = () => {
+    setFlash(null);
+    setStopAt(null);
+    setPhase('gauge');
+    st.current.t0 = performance.now();
+    const tick = (now) => {
+      if (markerRef.current) markerRef.current.style.left = `${50 + posAt(now - st.current.t0) * 50}%`;
+      st.current.raf = requestAnimationFrame(tick);
+    };
+    st.current.raf = requestAnimationFrame(tick);
+  };
+
+  const judge = () => {
+    cancelAnimationFrame(st.current.raf);
+    const pos = posAt(performance.now() - st.current.t0);
+    setStopAt(pos);
+    setPhase('judged');
+    const d = Math.abs(pos);
+    if (d > win.ball) { ball('손에서 빠졌다'); return; }
+    if (d > goodW) { contact('bad', { label: '실투', tone: '#f87171', sub: '공이 한가운데로 몰렸다!' }); return; }
+    const perfect = d <= perfectW;
+    if (!inZone(cell)) { // 유인구: 잘 던질수록 속아서 헛스윙, 아니면 볼
+      if (Math.random() < (perfect ? chase : chase * 0.5)) strike(perfect ? '유인구에 헛스윙!' : '겨우 속았다');
+      else ball('참아냈다');
+      return;
+    }
+    if (perfect) { strike('헛스윙 스트라이크!'); return; }
+    if (Math.random() < 0.5) {
+      setC({ ...countRef.current, s: Math.min(2, countRef.current.s + 1) });
+      setFlash({ label: 'FOUL', tone: '#fbbf24', sub: '겨우 걷어냈다' });
+      again();
+      return;
+    }
+    contact('good', { label: 'GOOD', tone: '#34d399', sub: '방망이가 나왔다…' });
+  };
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (phase === 'aim') {
+        const n = { 1: 0, 2: 1, 3: 2 }[e.key];
+        if (n != null) { setCourse(n); setCell(PITCH_COURSES[n].rec[0]); return; }
+        const mv = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -5, ArrowDown: 5 }[e.key];
+        if (mv) {
+          e.preventDefault();
+          setCell((v) => {
+            const col = v % 5;
+            if ((mv === -1 && col === 0) || (mv === 1 && col === 4)) return v;
+            return Math.max(0, Math.min(24, v + mv));
+          });
+          return;
+        }
+      }
+      if (e.code !== 'Space' && e.key !== ' ') return;
+      e.preventDefault();
+      if (e.repeat) return;
+      if (phase === 'aim') start();
+      else if (phase === 'gauge') judge();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  const p = pitcher?.stats || {};
+  const b = batter?.stats || {};
+  const pct = (v) => `${v * 50}%`;
+  const hotIdx = heat.map((v, i) => [v, i]).filter(([v]) => v != null).sort((x, y) => y[0] - x[0]);
+  const hot = hotIdx[0];
+  const cold = hotIdx[hotIdx.length - 1];
+  const where = (i) => `${['높은', '가운데', '낮은'][Math.floor(i / 5) - 1]} ${['몸쪽', '한가운데', '바깥쪽'][(i % 5) - 1]}`;
+  const recHot = c.rec.some((i) => heat[i] != null && heat[i] >= 0.33);
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-hidden bg-[#03050a]" role="dialog" aria-modal="true" aria-label="승부처 개입">
+      <style>{`
+        @keyframes crisisPulse { 0%,100% { box-shadow: inset 0 0 80px rgba(248,113,113,.18); } 50% { box-shadow: inset 0 0 170px rgba(248,113,113,.45); } }
+        @keyframes clutchPop { 0% { transform: scale(2.2); opacity: 0; } 60% { transform: scale(.92); opacity: 1; } 100% { transform: scale(1); } }
+        @keyframes recPulse { 50% { box-shadow: inset 0 0 0 2px #fde047, inset 0 0 26px rgba(253,224,71,.85); } }
+      `}</style>
+      {/* 16:9 무대: 배경 그림의 포수 미트 위치에 판을 맞춘다 */}
+      <div className="relative aspect-video" style={{ width: 'min(100vw, 177.78vh)' }}>
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/clutch-mound.webp)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(30% 45% at 50% 45%, transparent, rgba(3,5,10,.4))', animation: 'crisisPulse .9s ease-in-out infinite' }} />
+
+        <div className="absolute right-[2%] top-[3%] text-right">
+          <p className="ui-lab font-display" style={{ '--a': '#f87171' }}>{inning}회초 위기</p>
+          <p className="font-display text-4xl font-extrabold tabular-nums text-white">{score.my} : {score.opp}</p>
+          <div className="mt-1 flex justify-end gap-3 font-display text-sm text-gray-300">
+            <span className="flex items-center gap-1">B {[0, 1, 2, 3].map((i) => <span key={i} className={`h-3 w-3 rounded-full ${i < count.b ? 'bg-emerald-400' : 'bg-white/15'}`} />)}</span>
+            <span className="flex items-center gap-1">S {[0, 1, 2].map((i) => <span key={i} className={`h-3 w-3 rounded-full ${i < count.s ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}</span>
+          </div>
+        </div>
+
+        <div className="absolute left-[1.8%] top-[10%] flex w-[20%] min-w-[13rem] flex-col gap-2">
+          <div className="bg-[#05080f]/80 px-3 py-2 text-[13px] leading-relaxed">
+            <span className="ui-lab font-display">Batter</span>
+            <p className="text-lg font-black text-white">{batter?.name} <small className="text-xs font-normal text-gray-400">컨택 {b.contact ?? '-'} · 파워 {b.power ?? '-'}</small></p>
+            {hot && <p className="text-red-300">{where(hot[1])} {hot[0].toFixed(3).slice(1)}</p>}
+            {cold && <p className="text-sky-300">{where(cold[1])} {cold[0].toFixed(3).slice(1)}</p>}
+          </div>
+          {PITCH_COURSES.map((o, i) => {
+            const warn = o.rec.some((k) => heat[k] != null && heat[k] >= 0.33);
+            return (
+              <button key={o.id} type="button" disabled={phase !== 'aim'} onClick={() => { setCourse(i); setCell(o.rec[0]); }}
+                className={`ui-cut px-3 py-2 text-left ${i === course ? 'bg-red-950/80 shadow-[inset_0_0_0_2px_#f87171]' : 'bg-[#05080f]/80 shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]'}`} style={{ '--c': '10px' }}>
+                <span className="float-right font-display text-xs font-extrabold text-red-400">{i + 1}</span>
+                <b className="text-sm text-white">{o.name}</b>
+                <small className="block text-xs text-gray-400">{warn ? '추천 칸이 강한 코스와 겹침 ⚠' : '추천 칸이 약한 코스 ✔'}</small>
+              </button>
+            );
+          })}
+          <p className="text-[11px] text-gray-400">투수 {pitcher?.name} · 제구 {p.control ?? '-'} · 구위 {p.stuff ?? '-'}</p>
+        </div>
+
+        {/* 5×5 판 (가운데 3×3 = 스트라이크 존) */}
+        <div className="absolute grid grid-cols-5 grid-rows-5 gap-[2px]" style={{ left: '50.6%', top: '45.8%', width: '19.5%', height: '40.3%', transform: 'translate(-50%,-50%)' }}>
+          {heat.map((v, i) => {
+            const z = inZone(i);
+            const rec = c.rec.includes(i);
+            return (
+              <div key={i} onClick={() => phase === 'aim' && setCell(i)}
+                className="relative grid cursor-pointer place-items-center font-display text-[clamp(9px,0.9vw,13px)] font-bold text-white/85 [text-shadow:0_1px_3px_#000]"
+                style={{
+                  background: v == null ? 'rgba(5,8,15,.18)' : v >= 0.33 ? 'rgba(248,113,113,.4)' : v < 0.2 ? 'rgba(125,211,252,.3)' : 'rgba(5,8,15,.3)',
+                  border: `1px solid ${z ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.12)'}`,
+                  boxShadow: rec ? 'inset 0 0 0 2px #fde047, inset 0 0 14px rgba(253,224,71,.5)' : undefined,
+                  animation: rec ? 'recPulse 1.4s ease-in-out infinite' : undefined,
+                }}>
+                {v != null && v.toFixed(3).slice(1)}
+                {i === cell && <span className="absolute h-[70%] w-auto aspect-square rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff,#d6d3d1)] shadow-[0_0_16px_#fff,0_0_0_3px_rgba(248,113,113,.7)]" />}
+              </div>
+            );
+          })}
+        </div>
+        {recHot && <p className="absolute text-sm font-bold text-amber-300 [text-shadow:0_1px_4px_#000]" style={{ left: '61.5%', top: '28%' }}>⚠ 추천 칸이 이 타자의 강한 코스</p>}
+
+        <div className="absolute right-[2%] bottom-[16%] w-[14%] min-w-[9rem] bg-[#05080f]/80 px-3 py-2 text-right">
+          <span className="ui-lab font-display">{inZone(cell) ? '이 자리' : '유인구'}</span>
+          <p><b className="font-display text-3xl text-emerald-400">{oddsOut}%</b> <small className="text-xs text-gray-400">{inZone(cell) ? '범타' : '헛스윙'}</small></p>
+          {inZone(cell) && <p><b className="font-display text-3xl text-red-400">{oddsXbh}%</b> <small className="text-xs text-gray-400">장타</small></p>}
+        </div>
+
+        {/* 게이지 */}
+        <div className="absolute left-1/2 bottom-[9%] w-[46%] -translate-x-1/2">
+          {flash && (
+            <div className="pointer-events-none absolute inset-x-0 -top-24 text-center" key={`${flash.label}${count.b}${count.s}`} style={{ animation: 'clutchPop .35s ease-out both' }}>
+              <b className="font-display text-5xl font-black" style={{ color: flash.tone, textShadow: `0 0 24px ${flash.tone}` }}>{flash.label}</b>
+              <p className="mt-1 text-sm font-semibold text-white [text-shadow:0_1px_4px_#000]">{flash.sub}</p>
+            </div>
+          )}
+          <div className="relative h-7 overflow-hidden bg-[#05080f]/70 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)]">
+            <div className="absolute inset-y-0 bg-red-500/30" style={{ left: `calc(50% - ${pct(win.ball)})`, width: pct(win.ball * 2) }} />
+            <div className="absolute inset-y-0 bg-emerald-400/40" style={{ left: `calc(50% - ${pct(goodW)})`, width: pct(goodW * 2) }} />
+            <div className="absolute inset-y-0 bg-yellow-300" style={{ left: `calc(50% - ${pct(perfectW)})`, width: pct(perfectW * 2) }} />
+            <div ref={markerRef} className="absolute inset-y-[-4px] w-1.5 -translate-x-1/2 bg-white shadow-[0_0_12px_#fff]"
+              style={{ left: stopAt != null ? `${50 + stopAt * 50}%` : '0%', opacity: phase === 'aim' ? 0.3 : 1 }} />
+          </div>
+        </div>
+        <p className="absolute inset-x-0 bottom-[3%] text-center text-sm font-bold text-red-200 [text-shadow:0_1px_4px_#000]">
+          {phase === 'aim' ? '[1·2·3] 구종 · [←↑↓→] 공 놓기 · [SPACE] 투구' : phase === 'gauge' ? '가운데 노란 칸에서 [SPACE]!' : ''}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ClutchOverlay({ clutch, onPick }) {
+  if (!clutch) return null;
+  const chance = clutch.kind === 'chance';
+  if (chance && clutch.batter) return <ClutchBatting key={`${clutch.inning}${clutch.isTop}`} clutch={clutch} onPick={onPick} />;
+  if (!chance && clutch.batter) return <ClutchPitching key={`${clutch.inning}${clutch.isTop}`} clutch={clutch} onPick={onPick} />;
+  const acc = chance ? '#10b981' : '#f87171';
+  const opts = chance
+    ? [['perfect', 'PERFECT', '+2점'], ['good', 'GOOD', '+1점'], ['miss', 'MISS', '득점 절반']]
+    : [['perfect', 'PERFECT', '무실점'], ['good', 'GOOD', '실점 −1'], ['miss', 'MISS', '실점 +1']];
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#03050a]/75 px-4 backdrop-blur-[3px]" role="dialog" aria-modal="true" aria-label="승부처 개입">
+      <div className="ui-cut ui-frame ui-glass w-full max-w-lg p-6 text-center animate-[rise_.35s_ease-out_both]" style={{ '--c': '18px', '--a': acc }}>
+        <p className="ui-lab font-display" style={{ '--a': acc }}>{chance ? 'Clutch Chance' : 'Clutch Crisis'}</p>
+        <h2 className="mt-2 text-3xl font-black text-white">{clutch.inning}회{clutch.isTop ? '초' : '말'} {chance ? '찬스' : '위기'}</h2>
+        <p className="mt-1 font-display text-xl tabular-nums text-gray-300">나 {clutch.score.my} : {clutch.score.opp} 상대</p>
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {opts.map(([g, label, sub]) => (
+            <button key={g} type="button" onClick={() => onPick(g)} className="ui-btn ui-cut flex flex-col py-3">
+              <b className="font-display text-lg">{label}</b><small className="text-xs text-gray-400">{sub}</small>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -3131,7 +3808,7 @@ function ModeSelect({ initialMode, record, onStart }) {
           <div>
             <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
             <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-            <SettingRow label="시즌 증강" options={[0, 2, 3]} labels={{ 0: '없음', 2: '2개', 3: '3개' }} value={aug} onChange={setAug} />
+            <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
             <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
               <span>다른 시리즈 새로고침</span>
               <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
@@ -3790,7 +4467,17 @@ export default function KboAugmentDraft() {
     setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
     if (demo === 'ready') setPhase('ready');
-    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: shuffle(AUGMENTS).slice(0, 3) }); }
+    if (demo === 'crisis') { // 승부처 제구 미니게임만 바로 띄워 보기
+      const opp = aiDraft().filter((p) => p.type === 'batter').sort((a, b) => b.stats.power - a.stats.power)[0];
+      setPhase('sim');
+      setClutch({ kind: 'crisis', inning: 9, isTop: true, score: { my: 4, opp: 3 }, batter: opp, pitcher: r.find((p) => p.type !== 'batter'), pitch: 86, resolve: (g) => console.log('crisis', g) });
+    }
+    if (demo === 'clutch') { // 승부처 타격 미니게임만 바로 띄워 보기
+      const bat = r.filter((p) => p.type === 'batter').sort((a, b) => b.stats.contact - a.stats.contact)[0];
+      setPhase('sim');
+      setClutch({ kind: 'chance', inning: 9, isTop: false, score: { my: 3, opp: 4 }, batter: bat, pitcher: r.find((p) => p.type !== 'batter'), pitch: 86, resolve: (g) => console.log('clutch', g) });
+    }
+    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: rollAugmentOptions() }); }
     if (demo === 'matchup') { setAugments(shuffle(AUGMENTS).slice(0, SEASON_AUGMENTS)); setOpponent(aiDraft()); setPhase('matchup'); }
   }, []);
 
@@ -3851,7 +4538,10 @@ export default function KboAugmentDraft() {
       el.addEventListener('transitionend', done);
     });
   }, [posFilter]);
-  const augmentOptions = (owned) => shuffle(AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id))).slice(0, 3);
+  const augmentOptions = (owned) => rollAugmentOptions(owned);
+  const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
+  const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
+  const pickClutch = (grade) => { const c = clutch; setClutch(null); c?.resolve(grade); };
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
@@ -3873,6 +4563,15 @@ export default function KboAugmentDraft() {
   }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries, round]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoose = (option) => {
+    if (choice.kind === 'augment' && choice.inning) {
+      const owned = [...augments, option];
+      setAugments(owned);
+      setChoice(null);
+      const resolve = midPickRef.current;
+      midPickRef.current = null;
+      resolve?.(owned);
+      return;
+    }
     if (choice.kind === 'augment') {
       const owned = [...augments, option];
       const left = augPicksLeft - 1;
@@ -3928,7 +4627,9 @@ export default function KboAugmentDraft() {
     setPhase('matchup');
   };
 
-  const startGame = async (rematch = false, owned = augments) => {
+  const startGame = async (rematch = false, owned = augments.slice(0, match.aug)) => {
+    setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
+    setClutch(null);
     const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
     const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
@@ -3948,6 +4649,16 @@ export default function KboAugmentDraft() {
       isCancelled: () => runIdRef.current !== runId,
       onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
       onLog: (e) => setLogs((l) => [...l, e]),
+      onClutch: (info) => (runIdRef.current !== runId ? 'miss' : new Promise((resolve) => setClutch({ ...info, resolve }))),
+      beforeInning: (inning, cur) => {
+        if (!match.aug || !MID_AUG_INNINGS.includes(inning) || runIdRef.current !== runId) return null;
+        const options = rollAugmentOptions(cur);
+        if (!options.length) return null;
+        return new Promise((resolve) => {
+          midPickRef.current = resolve;
+          setChoice({ kind: 'augment', inning, options });
+        });
+      },
       onHighlight: async ({ augment, text, hero }) => {
         const key = Date.now() + Math.random();
         setPaused(true);
@@ -4310,6 +5021,7 @@ export default function KboAugmentDraft() {
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
+      <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       <HighlightToast toast={toast} />
     </div>
   );
