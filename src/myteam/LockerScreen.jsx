@@ -315,7 +315,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                     style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
                     {cur && (
                       <span key={cur.id} className="mt-staff-in absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
-                        style={{ backgroundPosition: '60% 22%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(profiles/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                        style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(profiles/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                     )}
                     <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${cur ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
                     <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
