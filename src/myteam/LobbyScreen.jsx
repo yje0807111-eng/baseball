@@ -38,8 +38,8 @@ function RankPanel({ account, team, onRecord }) {
   return (
     <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
       {/* 배경: 관중석 휴대폰 불빛 띠(판 비율 1920×200) — 오른쪽 팀 스탯 뒤는 어둡게 */}
-      <div className="absolute inset-0 bg-cover opacity-80" style={{ backgroundImage: 'url(ui/rank/crowd.webp)', backgroundPosition: 'center' }} />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.35), rgba(5,8,15,0) 30%, rgba(5,8,15,.1) 60%, rgba(5,8,15,.82) 80%)' }} />
+      <div className="absolute inset-0 bg-cover opacity-45" style={{ backgroundImage: 'url(ui/rank/crowd.webp)', backgroundPosition: 'center' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.6), rgba(5,8,15,.3) 30%, rgba(5,8,15,.4) 60%, rgba(5,8,15,.9) 80%)' }} />
       <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 엠블럼 */}
         <div className="relative h-[150px] w-[150px] shrink-0">
