@@ -82,7 +82,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true }) {
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
         </b>
         <small className="block truncate text-[11px] text-gray-500">
-          {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
+          {p.year} {p.team}{p.seasons > 1 ? ` · 시즌 ${p.seasons}개 중 최고` : ''}{showNote && p.note ? ` · ${p.note}` : ''}
         </small>
       </span>
       {keys.map(([label, k]) => {
@@ -184,12 +184,36 @@ export default function LockerScreen({ account, onSave, onBack }) {
     commit({ ...team, squad: next });
   };
 
-  const results = useMemo(() => {
+  const [sort, setSort] = useState('종합 높은 순');
+  const [oneEach, setOneEach] = useState(true); // 같은 선수의 여러 시즌은 가장 좋은 시즌 하나만
+  const [canSign, setCanSign] = useState(false); // 지금 캡 · 자리로 영입 가능한 선수만
+  const [limit, setLimit] = useState(60);
+  const matched = useMemo(() => {
     const kw = q.trim();
-    return ALL.filter((p) => (!year || String(p.year) === year) && (!club || p.team === club) && (!pos || p.position === pos)
-      && (!kw || p.name.includes(kw) || String(p.year).includes(kw) || p.team.includes(kw)))
-      .sort((a, b) => b.overall - a.overall).slice(0, 80);
-  }, [q, year, club, pos]);
+    // 드롭다운 값은 숫자(연도)일 수 있어 문자열로 맞춰 비교
+    let list = ALL.filter((p) => (!year || String(p.year) === String(year)) && (!club || p.team === club) && (!pos || p.position === pos)
+      && (!kw || p.name.includes(kw) || String(p.year).includes(kw) || p.team.includes(kw)));
+    if (oneEach) {
+      const best = new Map();
+      for (const p of list) {
+        const key = p.personId || p.name;
+        const cur = best.get(key);
+        if (!cur) best.set(key, { ...p, seasons: 1 });
+        else best.set(key, { ...(p.overall > cur.overall ? p : cur), seasons: cur.seasons + 1 });
+      }
+      list = [...best.values()];
+    }
+    if (canSign) list = list.filter((p) => !addBlockReason(p, squad, staff, cap));
+    const by = {
+      '종합 높은 순': (a, b) => b.overall - a.overall,
+      'CP 낮은 순': (a, b) => a.cost - b.cost || b.overall - a.overall,
+      '가성비 순': (a, b) => b.overall / Math.max(1, b.cost) - a.overall / Math.max(1, a.cost),
+      '이름 순': (a, b) => a.name.localeCompare(b.name, 'ko'),
+      '최신 시즌 순': (a, b) => b.year - a.year || b.overall - a.overall,
+    }[sort];
+    return list.sort(by);
+  }, [q, year, club, pos, sort, oneEach, canSign, squad, staff, cap]);
+  const results = matched.slice(0, limit);
 
   const NAV = [
     { key: 'scout', label: '영입', sub: `선수 검색 · ${ALL.length}명`, img: 'ui/mt/tile-locker.webp' },
@@ -235,13 +259,22 @@ export default function LockerScreen({ account, onSave, onBack }) {
 
         {tab === 'scout' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('Scout', `${ALL.length.toLocaleString()}명 중 ${results.length}명 · 종합순`)}
-            <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="선수 이름 · 연도 · 구단 검색"
+            {head('Scout', `${ALL.length.toLocaleString()}명 중 ${matched.length.toLocaleString()}명 · ${sort}`, undefined, (
+              <>
+                {[[oneEach, setOneEach, '같은 선수 한 번만'], [canSign, setCanSign, '영입 가능만']].map(([v, set, label]) => (
+                  <button key={label} type="button" onClick={() => { set(!v); setLimit(60); }} aria-pressed={v}
+                    className={`mt-cut px-3 py-1 text-[13px] font-bold ${v ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+                    style={{ ...cut(5), background: v ? '#10b981' : undefined }}>{v ? '✓ ' : ''}{label}</button>
+                ))}
+              </>
+            ))}
+            <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 130px 140px 110px 140px' }}>
+              <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
                 className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(6)} />
-              <Select value={year} onChange={setYear} options={YEARS} all="연도 전체" />
-              <Select value={club} onChange={setClub} options={TEAMS} all="구단 전체" />
-              <Select value={pos} onChange={setPos} options={POS_RULES.map((r) => r.key)} all="포지션" />
+              <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
+              <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
+              <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />
+              <Select value={sort} onChange={(v) => { setSort(v || '종합 높은 순'); setLimit(60); }} options={['CP 낮은 순', '가성비 순', '최신 시즌 순', '이름 순']} all="종합 높은 순" />
             </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
@@ -249,6 +282,11 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   onPick={setSel} onAct={add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}
+              {matched.length > results.length && (
+                <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
+                  {matched.length - results.length}명 더 보기
+                </button>
+              )}
             </div>
           </section>
         )}
