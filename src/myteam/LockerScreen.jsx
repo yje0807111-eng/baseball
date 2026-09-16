@@ -6,9 +6,10 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
+import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, GROUP_RULES, PLAY_LIMIT, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
+import { playingIds } from './match.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
@@ -69,7 +70,7 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench }) {
   const n = tone(p.overall);
   const keys = KEYS[p.type] || KEYS.batter;
   return (
@@ -81,6 +82,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true }) {
           {p.name}
           <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
+          {bench && <em className="ml-1.5 bg-white/10 px-1.5 py-px text-[11px] not-italic text-gray-300" title="경기에 나가지 않는 선수">벤치</em>}
         </b>
         <small className="block truncate text-[11px] text-gray-500">
           {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
@@ -162,6 +164,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const cap = team.cap || SQUAD_CAP;
   const cost = squadCost(squad, staff);
   const issues = squadIssues(squad, staff, cap);
+  const playing = useMemo(() => playingIds(squad), [squad]);
 
   const commit = (next) => { setTeam(next); saveTeam(next); onSave?.(next); };
   const add = (p) => { if (!addBlockReason(p, squad, staff, cap)) commit({ ...team, squad: [...squad, p] }); };
@@ -232,11 +235,23 @@ export default function LockerScreen({ account, onSave, onBack }) {
 
         <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); }}>
           <p className="mt-lab px-1 pb-2" style={{ fontSize: 10 }}>Squad</p>
+          <div className="flex justify-between px-1 pb-1 font-display text-[10px] tracking-[0.15em] text-gray-500"><span>포지션</span><span>인원 / 최소~최대</span></div>
           {POS_RULES.map((r) => {
             const n = squad.filter((p) => p.position === r.key).length;
+            const bad = n < r.min || n > r.max;
             return (
               <div key={r.key} className="flex justify-between border-b border-white/10 px-1 py-1.5 text-sm text-gray-400">
-                <span>{r.label}</span><b className="font-display" style={{ color: n < r.min ? '#f87171' : '#fff' }}>{n}/{r.min}</b>
+                <span>{r.label}{PLAY_LIMIT[r.key] ? <small className="ml-1 text-[11px] text-gray-500">출전 {PLAY_LIMIT[r.key]}</small> : null}</span>
+                <b className="font-display" style={{ color: bad ? '#f87171' : n === r.max ? '#fde047' : '#fff' }}>{n}<small className="text-gray-500"> / {r.min}~{r.max}</small></b>
+              </div>
+            );
+          })}
+          {GROUP_RULES.map((g) => {
+            const n = squad.filter((p) => g.positions.includes(p.position)).length;
+            return (
+              <div key={g.key} className="flex justify-between border-b border-white/10 px-1 py-1.5 text-sm text-gray-400">
+                <span>{g.label} 합계</span>
+                <b className="font-display" style={{ color: n > g.max ? '#f87171' : n === g.max ? '#fde047' : '#fff' }}>{n}<small className="text-gray-500"> / 최대 {g.max}</small></b>
               </div>
             );
           })}
@@ -287,11 +302,12 @@ export default function LockerScreen({ account, onSave, onBack }) {
               {GROUPS.map(([label, list]) => {
                 const rows = squad.filter((p) => list.includes(p.position)).sort((a, b) => b.overall - a.overall);
                 if (!rows.length) return null;
+                const benchN = rows.filter((p) => !playing.has(p.id)).length;
                 return (
                   <div key={label}>
-                    <div className="mt-grp">{label} {rows.length}</div>
+                    <div className="mt-grp">{label} {rows.length}{benchN ? ` · 출전 ${rows.length - benchN} · 벤치 ${benchN}` : ''}</div>
                     <div className="flex flex-col gap-1.5">
-                      {rows.map((p) => <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="방출" onPick={setSel} onAct={release} showNote={false} />)}
+                      {rows.map((p) => <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="방출" onPick={setSel} onAct={release} showNote={false} bench={!playing.has(p.id)} />)}
                     </div>
                   </div>
                 );

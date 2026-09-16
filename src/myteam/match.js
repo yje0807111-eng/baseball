@@ -1,6 +1,6 @@
 /* 내 팀으로 경기하기 — 엔트리를 경기용 팀으로 바꾸고, 비슷한 전력의 AI 상대를 만든다 */
 import { SERIES } from '../data/seriesPlayers.js';
-import { POS_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP } from './rules.js';
+import { POS_RULES, GROUP_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP, PLAY_LIMIT } from './rules.js';
 import { withBoosts } from './shop.js';
 import { staffEffect } from './staff.js';
 
@@ -41,8 +41,17 @@ function applyStaff(roster, staff) {
   });
 }
 
+/** 출전 선수 id: 선발 상위 5 · 불펜 상위 8 · 타순 9명. 나머지는 벤치 */
+export function playingIds(roster) {
+  const top = (pos, n) => roster.filter((p) => p.position === pos).sort((a, b) => b.overall - a.overall).slice(0, n);
+  return new Set([...top('SP', PLAY_LIMIT.SP), ...top('RP', PLAY_LIMIT.RP), ...lineupOf(roster)].map((p) => p.id));
+}
+
 export function buildMyTeam(team) {
-  const roster = applyStaff(withBoosts(team), team.staff);
+  const boosted = applyStaff(withBoosts(team), team.staff);
+  const play = playingIds(boosted);
+  // 벤치 선수는 slot 'BN' — 경기 엔진이 투수진에서 뺀다
+  const roster = boosted.map((p) => (play.has(p.id) ? p : { ...p, slot: 'BN' }));
   return { name: team.name || '나의 드림팀', roster, batters: lineupOf(roster) };
 }
 
@@ -62,7 +71,8 @@ export function buildAiTeam(cap = SQUAD_CAP, rng = Math.random) {
     const pool = ALL.filter((p) => p.position === pos && p.cost <= budget
       && !squad.some((x) => x.personId === p.personId)
       && (!p.isForeign || foreign() < FOREIGN_MAX)
-      && count(pos) < (POS_RULES.find((r) => r.key === pos)?.max ?? 3));
+      && count(pos) < (POS_RULES.find((r) => r.key === pos)?.max ?? 3)
+      && GROUP_RULES.every((g) => !g.positions.includes(pos) || squad.filter((x) => g.positions.includes(x.position)).length < g.max));
     const pick = pool.length ? pool[Math.floor(rng() * pool.length)] : null;
     if (pick) squad.push(pick);
   }

@@ -28,6 +28,12 @@ export const STAFF_SLOTS = [
   { key: 'pitching', label: '수비·투수코치', role: 'pitching' },
 ];
 
+/** 묶음 최대 인원: 내야(1·2·3루수·유격수) 합계 */
+export const GROUP_RULES = [{ key: 'IF', label: '내야수', positions: ['1B', '2B', '3B', 'SS'], max: 7 }];
+
+/** 경기에 실제로 나가는 인원 — 나머지는 벤치(영입해도 안 뜀) */
+export const PLAY_LIMIT = { SP: 5, RP: 8, batters: 9 };
+
 export const countBy = (squad, key) => squad.filter((p) => p.position === key).length;
 export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
@@ -40,7 +46,9 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP) {
   if (squad.length >= SQUAD_SIZE) return `엔트리 ${SQUAD_SIZE}명이 모두 찼음`;
   if (player.isForeign && foreignCount(squad) >= FOREIGN_MAX) return `외국인 선수는 최대 ${FOREIGN_MAX}명`;
   const rule = POS_RULES.find((r) => r.key === player.position);
-  if (rule && countBy(squad, rule.key) >= rule.max) return `${rule.label}는 최대 ${rule.max}명`;
+  if (rule && countBy(squad, rule.key) >= rule.max) return `${rule.label} 자리 가득 (최대 ${rule.max}명)`;
+  const group = GROUP_RULES.find((g) => g.positions.includes(player.position));
+  if (group && squad.filter((p) => group.positions.includes(p.position)).length >= group.max) return `${group.label} 자리 가득 (최대 ${group.max}명)`;
   const left = cap - squadCost(squad, staff);
   if (player.cost > left) return `CP 부족 (남은 ${left})`;
   return null;
@@ -53,6 +61,11 @@ export function squadIssues(squad, staff = {}, cap = SQUAD_CAP) {
   for (const r of POS_RULES) {
     const n = countBy(squad, r.key);
     if (n < r.min) out.push(`${r.label} ${n}/${r.min}명`);
+    if (n > r.max) out.push(`${r.label} ${n - r.max}명 초과 · 방출 필요`);
+  }
+  for (const g of GROUP_RULES) {
+    const n = squad.filter((p) => g.positions.includes(p.position)).length;
+    if (n > g.max) out.push(`${g.label} ${n - g.max}명 초과 · 방출 필요`);
   }
   if (foreignCount(squad) > FOREIGN_MAX) out.push(`외국인 ${foreignCount(squad)}명 (최대 ${FOREIGN_MAX})`);
   const cost = squadCost(squad, staff);
