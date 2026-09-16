@@ -1375,6 +1375,20 @@ const KEYFRAMES = `
 .rd-sc small { display: block; font-size: 11.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rd-sc.lock { --s: #64748b; opacity: .78; }
 .rd-tag { padding: 3px 9px; font-size: 11.5px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+/* 추천 선수 (타순·수비 판 아래 띠) */
+.rd-rec { display: flex; align-items: center; gap: 14px; padding: 10px 16px 14px; min-height: 0; }
+.rd-rec > .who { flex: none; width: 116px; }
+.rd-rec > .who h3 { margin: 0; font-size: 17px; font-weight: 800; }
+.rd-rec > .who em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .2em; color: #64748b; }
+.rd-rec-list { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.rd-rc { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.rd-rc > .rd-card { flex: 1; min-height: 0; cursor: default; }
+.rd-rc button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 8px; font-size: 12px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rd-rc button:hover { color: #04150e; background: #34d399; box-shadow: none; }
+.rd-rc button b { font-family: 'Saira Condensed', sans-serif; color: #34d399; }
+.rd-rc button:hover b { color: #04150e; }
+.rd-rc small { display: block; font-size: 11px; color: #64748b; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-gain { position: absolute; left: 6px; bottom: 34px; z-index: 3; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 17px; color: #04150e; background: #34d399; }
 .rd-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
 .rd-ghost > * { box-shadow: inset 0 0 0 2px #38bdf8 !important; }
 .prism-tx { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
@@ -3382,12 +3396,12 @@ const RdBatIcon = () => (
 );
 
 /** 수비 · 투수 카드: 그림 위 포지션 칩과 종합, 아래 이름과 소속 (세 구역이 같은 카드 문법) */
-function RdCard({ player, slot, ovr, off, moved, drop, bind }) {
+function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
   const bust = useBust(player, '260%');
   const dh = slot === 'DH', pitch = PITCH_SLOTS.includes(slot);
   const kind = dh ? 'dh' : off ? 'off' : pitch ? 'p' : '';
   return (
-    <div {...bind} className={`rd-card ${kind} ${bind.className}`}
+    <div {...bind} className={`rd-card ${kind} ${bind.className || ''}`}
       title={off ? `원래 ${moved} · 종합 ${player.overall} → ${drop}` : undefined}>
       <span className="art" style={bust}>{!bust && <Silhouette />}</span>
       <span className="sh" />
@@ -3395,6 +3409,7 @@ function RdCard({ player, slot, ovr, off, moved, drop, bind }) {
         <span className={`rd-pos ${kind}`}>{dh && <RdBatIcon />}{RD_CHIP[slot] || slot}</span>
         <b className={`ov ${rdToneCls(ovr)}`} style={rdToneStyle(ovr)}>{ovr}</b>
       </span>
+      {gain > 0 && <span className="rd-gain">▲{gain}</span>}
       <span className="nmb"><b>{player.name}</b><small>{player.year} {player.team} · {player.hand}</small></span>
     </div>
   );
@@ -3404,7 +3419,7 @@ function RdCard({ player, slot, ovr, off, moved, drop, bind }) {
  * 정비 화면: 왼쪽 타순 라인업 · 가운데 구장 위 수비 포지션 카드 · 오른쪽 투수 로테이션과 시너지.
  * 줄 · 카드를 차례로 누르거나 끌어다 놓으면 자리가 맞바뀐다.
  */
-function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart }) {
+function ReadyScreen({ roster, buff = 0, autoFilled = 0, recs = [], onSwapIn, onMove, onOrder, onReplace, onStart, onRestart }) {
   const init = useRef(roster);
   const [pick, setPick] = useState(null); // { k, v }
   const dragRef = useRef(null);
@@ -3512,9 +3527,9 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
         <button type="button" className="ui-btn ui-cut sm pri" onClick={onStart}>시즌 시작 · 증강 고르기 ›</button>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: 'clamp(330px,23vw,420px) minmax(0,1fr) clamp(370px,25vw,460px)' }}>
+      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: 'clamp(330px,23vw,420px) minmax(0,1fr) clamp(370px,25vw,460px)', gridTemplateRows: 'minmax(0,1fr) auto' }}>
         {/* 왼쪽: 타순 라인업 */}
-        <section className="rd-pan ui-cut" style={{ '--c': '16px' }}>
+        <section className="rd-pan ui-cut" style={{ '--c': '16px', gridColumn: 1, gridRow: 1 }}>
           <div className="rd-ph"><div><h3>타순 라인업</h3><em>LINEUP</em></div><span className="sum"><small>타자 OVR 합계</small><b>{now.batSum}</b></span></div>
           <div className="rd-rows">
             {lineup.map((p, i) => {
@@ -3535,7 +3550,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
         </section>
 
         {/* 가운데: 수비 포지션 */}
-        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '16px' }}>
+        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '16px', gridColumn: 2, gridRow: 1 }}>
           <div className="rd-ph"><div><h3>수비 포지션</h3><em>DEFENSE</em></div><span className="sum"><small>수비 OVR 합계</small><b>{now.defSum}</b></span></div>
           <div className="rd-fieldbox">
             <div className="rd-field">
@@ -3554,7 +3569,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
         </section>
 
         {/* 오른쪽: 투수 로테이션 · 시너지 */}
-        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)' }}>
+        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)', gridColumn: 3, gridRow: '1 / 3' }}>
           <section className="rd-pan ui-cut" style={{ '--a': '#f87171', '--c': '16px' }}>
             <div className="rd-ph"><div><h3>투수 로테이션</h3><em>PITCHING STAFF</em></div><span className="sum"><small>투수 OVR 합계</small><b>{now.pitSum}</b></span></div>
             <div className="rd-rot">
@@ -3598,6 +3613,26 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
             </div>
           </section>
         </aside>
+
+        {/* 아래: 추천 선수 — 지금 데려올 수 있는 보강 후보 */}
+        <section className="rd-pan ui-cut" style={{ '--a': '#38bdf8', '--c': '16px', gridColumn: '1 / 3', gridRow: 2 }}>
+          <div className="rd-rec">
+            <div className="who"><h3>추천 선수</h3><em>RECOMMENDED</em></div>
+            {recs.length === 0 ? <p className="m-0 text-sm text-gray-500">지금 데려올 수 있는 후보가 없습니다</p> : (
+              <div className="rd-rec-list">
+                {recs.map((r) => (
+                  <div key={r.player.id} className="rd-rc">
+                    <RdCard player={r.player} slot={r.slot} ovr={r.ovr} bind={{}} gain={r.gain} />
+                    <button type="button" onClick={() => onSwapIn(r)} title={`${r.outName} 방출 · ${r.refund} CP 환불 · 영입가 ${r.player.cost} CP`}>
+                      교체 <b>{r.cost - r.refund > 0 ? `−${r.cost - r.refund}` : `+${r.refund - r.cost}`} CP</b>
+                    </button>
+                    <small>{r.outName} 자리</small>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
 
       {drag && createPortal(
@@ -3751,7 +3786,8 @@ export default function KboAugmentDraft() {
     }
     const r = aiDraft();
     setRoster(r);
-    setCp(Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0)));
+    const cpParam = Number(new URLSearchParams(window.location.search).get('cp'));
+    setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
     if (demo === 'ready') setPhase('ready');
     if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: shuffle(AUGMENTS).slice(0, 3) }); }
@@ -3977,6 +4013,36 @@ export default function KboAugmentDraft() {
     const out = placed.find((p) => p.slot === slot);
     return out ? { out, roster: placed.filter((p) => p !== out), refund: releaseRefund(out), banned: [...released, personKey(out)] } : null;
   };
+
+  /* 정비 화면 추천 선수: 자리마다 “그 선수를 방출하고 지금 데려올 수 있는” 최고 후보를 찾아 실전 종합이 가장 많이 오르는 순으로 */
+  const readyRecs = useMemo(() => {
+    if (phase !== 'ready') return [];
+    const placed = withSlots(roster);
+    const mine = new Set(placed.map((p) => personKey(p)));
+    const out = [];
+    for (const cur of placed) {
+      const r = releaseFrom(roster, cur.slot);
+      if (!r) continue;
+      const pos = slotPos(cur.slot);
+      const curOv = playAt(cur).overall;
+      const [best] = mode.players
+        .filter((p) => p.position === pos && !mine.has(personKey(p)) && !getLockReason(p, r.roster, cp + r.refund, r.banned))
+        .map((p) => ({ p, ovr: playAt({ ...p, slot: cur.slot }).overall }))
+        .filter((x) => x.ovr > curOv)
+        .sort((a, b) => b.ovr - a.ovr);
+      if (best) out.push({ player: best.p, slot: cur.slot, ovr: best.ovr, gain: best.ovr - curOv, outName: cur.name, refund: r.refund, cost: best.p.cost });
+    }
+    return out.sort((a, b) => b.gain - a.gain).slice(0, 6);
+  }, [phase, roster, cp, released, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* 추천 선수 교체: 그 자리 선수를 방출(환불 절반·재영입 불가)하고 곧바로 들인다 — 드래프트의 교체 영입과 같은 규칙 */
+  const handleReadySwap = ({ player, slot }) => {
+    const r = releaseFrom(roster, slot);
+    if (!r || getLockReason(player, r.roster, cp + r.refund, r.banned)) return;
+    setRoster([...r.roster, { ...player, slot }]);
+    setCp(cp + r.refund - player.cost);
+    setReleased(r.banned);
+  };
   const handleRelease = (slot) => {
     if (phase !== 'draft' || choice) return; // 정비 화면에서는 방출 불가
     const r = releaseFrom(roster, slot);
@@ -4172,8 +4238,8 @@ export default function KboAugmentDraft() {
           )}
 
           {phase === 'ready' && (
-            <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled} onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
-              onStart={startSeason} onRestart={newDraft} />
+            <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled} recs={readyRecs} onSwapIn={handleReadySwap}
+              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster} onStart={startSeason} onRestart={newDraft} />
           )}
 
           {phase === 'matchup' && opponent && (
