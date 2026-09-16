@@ -10,6 +10,7 @@ import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, GROUP_RULES, PLAY_LIMIT,
 import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
 import { playingIds } from './match.js';
+import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
@@ -17,8 +18,6 @@ const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players
 const YEARS = [...new Set(ALL.map((p) => p.year))].sort((a, b) => b - a);
 const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
-/** 능력치 값에 따른 색: 90+ 금 · 80+ 초록 · 70+ 하늘 · 60+ 주황 · 그 아래 빨강 */
-const statTone = (v) => (v >= 90 ? ['#fde047', '#f59e0b'] : v >= 80 ? ['#34d399', '#059669'] : v >= 70 ? ['#7dd3fc', '#2563eb'] : v >= 60 ? ['#fdba74', '#ea580c'] : ['#fca5a5', '#dc2626']);
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
@@ -99,9 +98,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statTone(v)[0] }}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
             <span className="relative mt-[4px] block h-[4px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: `linear-gradient(90deg, ${statTone(v)[1]}, ${statTone(v)[0]})`, boxShadow: `0 0 6px ${statTone(v)[0]}66` }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar, boxShadow: statColor(v, posColor(p)).glow }} />
             </span>
           </span>
         );
@@ -138,8 +137,8 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease }) {
           return (
             <div key={k} className="flex items-center gap-3 py-1 text-sm">
               <span className="w-10 text-gray-400">{label}</span>
-              <div className="h-2 flex-1 bg-white/10"><i className="block h-full" style={{ width: `${v}%`, background: n, boxShadow: `0 0 8px ${n}` }} /></div>
-              <b className="w-8 text-right font-display text-white">{v}</b>
+              <div className="h-2 flex-1 bg-white/10"><i className="block h-full" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar, boxShadow: statColor(v, posColor(p)).glow }} /></div>
+              <b className="w-8 text-right font-display" style={{ color: statColor(v, posColor(p)).num }}>{v}</b>
             </div>
           );
         })}
