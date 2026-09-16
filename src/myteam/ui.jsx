@@ -32,6 +32,27 @@ export const UiStyle = () => (
     /* 노란 계열 패널 안에서는 스크롤바도 노랗게 */
     .mt-scroll.gold { scrollbar-color: rgba(253,224,71,.55) rgba(255,255,255,.04); }
     .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.8), rgba(202,138,4,.5)); background-clip: padding-box; box-shadow: 0 0 10px rgba(253,224,71,.3); }
+    /* 드래프트 화면 카드 문법 (상점 상품·선수 공용) */
+    .mt-pk { position:relative; container-type:inline-size; background:#05080f; clip-path:polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
+    .mt-pk .in { position:absolute; inset:0; overflow:hidden; }
+    .mt-pk .art { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+    .mt-pk:hover .art { transform:scale(1.04); }
+    .mt-pk .sh { position:absolute; inset:0; background:linear-gradient(180deg,rgba(5,8,15,.55) 0,rgba(5,8,15,0) 24%,rgba(5,8,15,0) 44%,rgba(5,8,15,.9) 70%,#05080f 100%),linear-gradient(90deg,rgba(5,8,15,.5) 0,rgba(5,8,15,0) 50%); }
+    .mt-pk .fr { position:absolute; inset:1.6cqw; border:1px solid color-mix(in srgb, var(--n) 45%, transparent); pointer-events:none; }
+    .mt-pk .tb { position:absolute; left:6cqw; right:1.6cqw; top:1.6cqw; height:1.3cqw; background:var(--n); box-shadow:0 0 5px color-mix(in srgb,var(--n) 70%,transparent); }
+    .mt-pk .ov { position:absolute; left:6cqw; top:5cqw; font-family:'Saira Condensed',sans-serif; font-size:22cqw; font-weight:800; line-height:.85; color:var(--n); text-shadow:0 0 2px #000,0 2px 10px #000; }
+    .mt-pk .ov small { font-size:.34em; color:#9ca3af; margin-left:1cqw; }
+    .mt-pk .meta { position:absolute; left:6.5cqw; top:27cqw; font-size:4.2cqw; font-weight:600; letter-spacing:.08em; color:rgba(255,255,255,.75); text-shadow:0 1px 4px #000; }
+    .mt-pk .pos { position:absolute; left:6cqw; right:6cqw; bottom:31cqw; display:flex; align-items:center; gap:1.8cqw; line-height:1; }
+    .mt-pk .pos em { flex:none; padding:.8cqw 1.6cqw; font-style:normal; font-size:4.4cqw; font-weight:800; color:#05080f; background:var(--n); }
+    .mt-pk .pos span { font-size:4.4cqw; font-weight:500; letter-spacing:.06em; color:#e5e7eb; }
+    .mt-pk .nm { position:absolute; left:6cqw; right:6cqw; bottom:19cqw; font-size:8.4cqw; font-weight:800; color:#fff; text-shadow:0 2px 8px #000; }
+    .mt-pk .ds { position:absolute; left:6cqw; right:6cqw; bottom:12.5cqw; font-size:4cqw; color:#cbd5e1; text-shadow:0 1px 4px #000; }
+    .mt-pk .ft { position:absolute; left:6cqw; right:6cqw; bottom:6cqw; display:flex; align-items:center; justify-content:space-between; }
+    .mt-pk .ft b { font-family:'Saira Condensed',sans-serif; font-size:7.4cqw; color:var(--n); }
+    .mt-pk .ft span { padding:1cqw 2.4cqw; font-size:4cqw; font-weight:700; color:#05080f; background:var(--n); }
+    .mt-wm { position:absolute; left:14px; top:2px; font-family:'Saira Condensed',sans-serif; font-size:58px; font-weight:800; color:rgba(16,185,129,.16); line-height:1; pointer-events:none; }
+    .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:13px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );
