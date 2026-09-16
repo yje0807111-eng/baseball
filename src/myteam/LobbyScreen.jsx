@@ -39,7 +39,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onModes
   const teamRating = squad.length ? Math.round(squad.reduce((s, p) => s + p.overall, 0) / squad.length) : 0;
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg />
       <TopBar title="메인" sub={<Chip a="#34d399">감독 {account.nick}</Chip>}>

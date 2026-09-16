@@ -154,7 +154,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const rating = squad.length ? Math.round(squad.reduce((s, p) => s + p.overall, 0) / squad.length) : 0;
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/mt-locker.webp" opacity={0.45} grad="linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.93))" />
       <TopBar title="내 라커" left={<Btn sm onClick={onBack}>← 메인</Btn>}
@@ -168,7 +168,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
         <Btn sm onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>
       </TopBar>
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-6 py-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 470px' }}>
+      <div className="relative grid min-h-0 flex-1 gap-4 overflow-hidden px-6 py-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 470px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 왼쪽: 엔트리 카드 격자 + 코치진 */}
         <Panel className="flex min-h-0 flex-col p-4 px-[18px]" c={16}>
           <div className="flex items-center gap-3.5">
@@ -181,7 +181,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
             </div>
           </div>
 
-          <div className="mt-3.5 grid min-h-0 flex-1 grid-cols-7 content-start gap-2.5 overflow-y-auto pr-1">
+          <div className="mt-scroll mt-3.5 grid min-h-0 flex-1 grid-cols-7 content-start gap-2.5 overflow-y-auto pr-2">
             {slots.map((p, i) => (p
               ? <PlayerTile key={p.id} player={p} width="100%" height={152} onClick={() => setDetail(p)} />
               : <div key={`e${i}`} className="mt-cut grid h-[152px] place-items-center border border-dashed border-white/20 text-[13px] text-gray-600" style={cut(12)}>빈 자리</div>
@@ -210,7 +210,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
         <Panel label={staffPick ? `${staffPick.label} 고르기` : 'Search'} a={staffPick ? '#c4b5fd' : '#fde047'} className="flex min-h-0 flex-col p-4" c={14}>
           {staffPick ? (
             <>
-              <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
+              <div className="mt-scroll gold mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
                 {staffByRole(staffPick.role).map((m) => (
                   <div key={m.id} className="mt-cut grid grid-cols-[1fr_auto_auto] items-center gap-2.5 px-2.5 py-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,.07)]" style={{ ...cut(8), background: 'rgba(5,8,15,.6)' }}>
                     <div className="min-w-0">
@@ -239,7 +239,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 <Select value={pos} onChange={setPos} options={POS} all="포지션" />
               </div>
               <p className="mb-2 mt-3 text-xs text-gray-500">결과 {results.length}명 · 종합 높은 순</p>
-              <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1">
+              <div className="mt-scroll gold flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
                 {results.map((p) => (
                   <PlayerRow key={p.id} p={p} onPick={setDetail} onAdd={add}
                     owned={squad.some((x) => x.id === p.id)} blocked={addBlockReason(p, squad, staff, cap)} />

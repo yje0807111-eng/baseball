@@ -21,6 +21,17 @@ export const UiStyle = () => (
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
     .mt-bar { height:6px; background:rgba(255,255,255,.08); } .mt-bar > i { display:block; height:100%; }
     .mt-card { position:relative; width:150px; height:200px; overflow:hidden; background:linear-gradient(180deg,#0e1726,#05080f); }
+    /* 스크롤바: 얇은 네온 바 + 어두운 홈 */
+    .mt-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.55) rgba(255,255,255,.04); }
+    .mt-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+    .mt-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.035); border-radius: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+    .mt-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.75), rgba(16,185,129,.45)); border: 2px solid transparent; background-clip: padding-box; box-shadow: 0 0 10px rgba(16,185,129,.35); }
+    .mt-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.95), rgba(16,185,129,.7)); background-clip: padding-box; }
+    .mt-scroll::-webkit-scrollbar-thumb:active { background: linear-gradient(180deg, #6ee7b7, #10b981); background-clip: padding-box; }
+    .mt-scroll::-webkit-scrollbar-corner { background: transparent; }
+    /* 노란 계열 패널 안에서는 스크롤바도 노랗게 */
+    .mt-scroll.gold { scrollbar-color: rgba(253,224,71,.55) rgba(255,255,255,.04); }
+    .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.8), rgba(202,138,4,.5)); background-clip: padding-box; box-shadow: 0 0 10px rgba(253,224,71,.3); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );

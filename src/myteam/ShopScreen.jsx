@@ -55,7 +55,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const ready = picked && picked.price <= gold && (!(needsPlayer(picked) || needsStaff(picked)) || target);
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg opacity={0.85} grad="linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.9))" />
       <TopBar title="상점" left={<Btn sm onClick={onBack}>← 메인</Btn>}
@@ -80,7 +80,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
         </Panel>
 
         <Panel label="Items" a="#fde047" className="min-h-0 p-4 px-[18px]" c={14}>
-          <div className="mt-3 grid grid-cols-4 gap-3.5 overflow-y-auto pr-1" style={{ maxHeight: 'calc(100% - 2rem)' }}>
+          <div className="mt-scroll gold mt-3 grid grid-cols-4 gap-3.5 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100% - 2rem)' }}>
             {items.map((it) => {
               const on = picked?.id === it.id;
               const c = catColor[it.cat];
@@ -128,7 +128,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
             ) : targets.length === 0 ? (
               <p className="mt-3 text-sm text-gray-500">대상이 없습니다. 라커에서 선수를 먼저 영입하세요.</p>
             ) : (
-              <div className="mt-3 flex min-h-0 flex-col gap-2 overflow-y-auto pr-1" style={{ maxHeight: 'calc(100% - 2rem)' }}>
+              <div className="mt-scroll mt-3 flex min-h-0 flex-col gap-2 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100% - 2rem)' }}>
                 {targets.map((t) => {
                   const on = target?.id === t.id;
                   return (
