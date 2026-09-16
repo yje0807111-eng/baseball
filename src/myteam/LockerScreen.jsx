@@ -121,6 +121,27 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const release = (p) => commit({ ...team, squad: squad.filter((x) => x.id !== p.id) });
   const setStaff = (slot, person) => { commit({ ...team, staff: { ...staff, [slot]: person } }); setStaffPick(null); };
 
+  /* 자동 채우기: 모자란 포지션부터 예산에 맞는 선수로 남은 자리를 채운다 */
+  const autoFill = () => {
+    let next = [...squad];
+    const need = () => POS_RULES.flatMap((r) => {
+      const n = next.filter((p) => p.position === r.key).length;
+      return Array.from({ length: Math.max(0, r.min - n) }, () => r.key);
+    });
+    const tryAdd = (pos) => {
+      const slots = SQUAD_SIZE - next.length;
+      const budget = Math.max(40, Math.floor((cap - squadCost(next, staff)) / Math.max(1, slots)));
+      const pool = ALL.filter((p) => (!pos || p.position === pos) && p.cost <= budget && !addBlockReason(p, next, staff, cap))
+        .sort((a, b) => b.overall - a.overall);
+      if (!pool.length) return false;
+      next = [...next, pool[0]];
+      return true;
+    };
+    for (const pos of need()) { if (next.length >= SQUAD_SIZE) break; tryAdd(pos); }
+    while (next.length < SQUAD_SIZE) { if (!tryAdd(null)) break; }
+    commit({ ...team, squad: next });
+  };
+
   const results = useMemo(() => {
     const kw = q.trim();
     return ALL.filter((p) => (!year || String(p.year) === year) && (!club || p.team === club) && (!pos || p.position === pos)
@@ -144,6 +165,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
           <Chip a="#34d399">팀 종합 {rating || '-'}</Chip>
         </div>}>
         {issues.length > 0 && <span className="text-xs text-amber-200">{issues[0]}{issues.length > 1 ? ` 외 ${issues.length - 1}건` : ''}</span>}
+        <Btn sm onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>
       </TopBar>
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 py-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 470px' }}>

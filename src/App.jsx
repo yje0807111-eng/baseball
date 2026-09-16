@@ -4,6 +4,11 @@ import KboAugmentDraft from './KboAugmentDraft.jsx';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
 import LockerScreen from './myteam/LockerScreen.jsx';
+import ShopScreen from './myteam/ShopScreen.jsx';
+import BroadcastGame from './BroadcastGame.jsx';
+import { buildMyTeam, buildAiTeam } from './myteam/match.js';
+import { tickBoosts } from './myteam/shop.js';
+import { addHistory, addGold, saveTeam, loadAccount as reload } from './myteam/store.js';
 import { loadAccount, signOut } from './myteam/store.js';
 
 const Soon = ({ title, desc, onBack }) => (
@@ -19,6 +24,25 @@ const Soon = ({ title, desc, onBack }) => (
 export default function App() {
   const [account, setAccount] = useState(() => loadAccount());
   const [view, setView] = useState('lobby');
+  const [match, setMatch] = useState(null); // 경기 중인 두 팀
+
+  const startMatch = () => {
+    const my = buildMyTeam(account.team);
+    const opp = buildAiTeam(account.team.cap || 2000);
+    setMatch({ my, opp });
+    setView('play');
+  };
+
+  /* 경기가 끝나면 전적·골드·부스트 수명을 정리하고 메인으로 */
+  const finishMatch = (res) => {
+    const reward = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
+    saveTeam(tickBoosts(account.team));
+    addHistory({ my: account.team.name, opp: 'AI 올스타', myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner });
+    addGold(reward);
+    setAccount(reload());
+    setMatch(null);
+    setView('lobby');
+  };
 
   if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
   if (view === 'modes') {
@@ -32,12 +56,12 @@ export default function App() {
     );
   }
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
-  if (view === 'shop') return <Soon title="상점은 다음 단계입니다" desc="부스트·훈련·팩·감독 계약을 살 수 있는 화면을 준비 중입니다." onBack={() => setView('lobby')} />;
-  if (view === 'play') return <Soon title="내 팀 경기는 라커를 채운 뒤에" desc="엔트리 26명을 채우면 중계 화면으로 바로 경기할 수 있습니다." onBack={() => setView('lobby')} />;
+  if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
+  if (view === 'play' && match) return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch} onExit={() => { setMatch(null); setView('lobby'); }} />;
 
   return (
     <LobbyScreen account={account}
-      onLocker={() => setView('locker')} onPlay={() => setView('play')} onShop={() => setView('shop')} onModes={() => setView('modes')}
+      onLocker={() => setView('locker')} onPlay={startMatch} onShop={() => setView('shop')} onModes={() => setView('modes')}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }
