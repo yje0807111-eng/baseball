@@ -1,0 +1,37 @@
+{
+  "id": "2026-lotte",
+  "kind": "team",
+  "year": 2026,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "정규시즌 9위 · 시즌 진행 중",
+  "blurb": "레이예스가 타율 .351로 리그 2위를 달렸지만 마운드가 무너져 9월 중순 53승 70패 2무 9위에 머물렀다.",
+  "notes": [
+    "2026년 9월 중순(9월 16일) 기준 진행 중인 시즌 기록 — 125경기 소화, 53승 70패 2무 9위.",
+    "능력치는 9월 16일까지의 기록을 144경기 풀시즌으로 환산한 추정치다.",
+    "손호영은 3루와 우익을 겸했다. 구단 뎁스차트의 첫 포지션을 따라 3B로 넣었다.",
+    "장두성은 대주자·대수비 출전이 많아 도루는 타석당 비율로 환산한 추정치.",
+    "유강남·손호영처럼 표본이 적은 타자는 타석당 비율로 환산했다.",
+    "18명 구성: 선발 5(로드리게스·비슬리·김진욱·나균안·박세웅) · 불펜 3 · 포수 2 · 1루·2루·3루·유격 각 1 · 외야 4."
+  ],
+  "players": [
+    { "personId": "로드리게스", "name": "로드리게스", "year": 2026, "team": "롯데", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 90, "control": 67, "stamina": 83, "stability": 72 }, "note": "팀 최다 이닝·162탈삼진", "source": "26G 26GS 143.2IP ERA4.20 162K 54BB WHIP1.37 8승11패 13QS — mykbostats" },
+    { "personId": "비슬리", "name": "비슬리", "year": 2026, "team": "롯데", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 83, "control": 76, "stamina": 80, "stability": 60 }, "note": "팀 최다 9승", "source": "24G 24GS 131IP ERA5.15 138K 39BB WHIP1.44 9승6패 10QS — mykbostats" },
+    { "personId": "김진욱", "name": "김진욱", "year": 2026, "team": "롯데", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 69, "stamina": 81, "stability": 75 }, "note": "선발진 최저 평균자책", "source": "24G 24GS 134.1IP ERA3.95 116K 49BB WHIP1.33 6승8패 10QS — mykbostats" },
+    { "personId": "나균안", "name": "나균안", "year": 2026, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 77, "control": 75, "stamina": 78, "stability": 71 }, "note": "", "source": "22G 22GS 125.2IP ERA4.23 109K 38BB WHIP1.46 6승10패 9QS — mykbostats" },
+    { "personId": "박세웅", "name": "박세웅", "year": 2026, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 69, "stamina": 78, "stability": 60 }, "note": "", "source": "23G 23GS 126.1IP ERA4.92 108K 46BB WHIP1.54 3승9패 10QS — mykbostats" },
+    { "personId": "최준용", "name": "최준용", "year": 2026, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 60, "stamina": 56, "stability": 72 }, "note": "15세이브 마무리", "source": "55G 53.2IP ERA4.19 57K 24BB WHIP1.47 15SV 9HLD 4승3패 — mykbostats" },
+    { "personId": "김원중", "name": "김원중", "year": 2026, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 62, "stamina": 52, "stability": 61 }, "note": "15홀드", "source": "55G 47IP ERA4.79 36K 20BB WHIP1.51 5SV 15HLD 1승5패 — mykbostats" },
+    { "personId": "박정민", "name": "박정민", "year": 2026, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 89, "control": 42, "stamina": 53, "stability": 68 }, "note": "신인 11홀드", "source": "53G 48.1IP ERA4.47 53K 36BB WHIP1.43 1SV 11HLD 6승4패 — mykbostats" },
+    { "personId": "손성빈", "name": "손성빈", "year": 2026, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 65, "speed": 42, "defense": 76 }, "note": "주전 포수", "source": ".256/.321/.375 6HR 32타점 0SB 111G 313PA 23BB — mykbostats" },
+    { "personId": "유강남", "name": "유강남", "year": 2026, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 56, "speed": 40, "defense": 80 }, "note": "", "source": ".227/.256/.345 3HR 9타점 0SB 55G 125PA — mykbostats" },
+    { "personId": "나승엽", "name": "나승엽", "year": 2026, "team": "롯데", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 72, "speed": 44, "defense": 60 }, "note": "출루율 .360", "source": ".277/.360/.394 6HR 47타점 1SB 86G 353PA 42BB — mykbostats" },
+    { "personId": "고승민", "name": "고승민", "year": 2026, "team": "롯데", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 73, "speed": 42, "defense": 74 }, "note": "팀 최다 16홈런", "source": ".279/.333/.472 16HR 66타점 0SB 94G 415PA — mykbostats" },
+    { "personId": "손호영", "name": "손호영", "year": 2026, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 52, "speed": 48, "defense": 68 }, "note": "", "source": ".212/.279/.345 4HR 17타점 2SB 68G 183PA — mykbostats" },
+    { "personId": "전민재", "name": "전민재", "year": 2026, "team": "롯데", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 72, "speed": 65, "defense": 78 }, "note": "주전 유격수 122경기", "source": ".276/.323/.387 8HR 58타점 11SB(3CS) 122G 444PA — mykbostats" },
+    { "personId": "레이예스", "name": "레이예스", "year": 2026, "team": "롯데", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 68, "contact": 95, "speed": 45, "defense": 72 }, "note": "타율 .351 리그 2위", "source": ".351/.403/.511 15HR 91타점 31 2B 1SB 125G 548PA — mykbostats" },
+    { "personId": "윤동희", "name": "윤동희", "year": 2026, "team": "롯데", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 60, "speed": 48, "defense": 76 }, "note": "", "source": ".241/.335/.353 5HR 24타점 0SB 75G 284PA 31BB — mykbostats" },
+    { "personId": "장두성", "name": "장두성", "year": 2026, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 69, "speed": 82, "defense": 84 }, "note": "16도루 실패 0", "source": ".268/.302/.309 0HR 19타점 16SB(0CS) 84G 209PA — mykbostats" },
+    { "personId": "전준우", "name": "전준우", "year": 2026, "team": "롯데", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 57, "contact": 57, "speed": 42, "defense": 58 }, "note": "만 40세 시즌", "source": ".229/.276/.307 3HR 16타점 0SB 60G 221PA — mykbostats" }
+  ]
+}

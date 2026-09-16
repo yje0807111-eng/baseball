@@ -1,0 +1,42 @@
+{
+  "id": "2026-samsung",
+  "kind": "team",
+  "year": 2026,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "9월 중순 2위 · 구자욱 타율 1위",
+  "blurb": "2026년 9월 15일 기준 75승 3무 49패로 2위, 선두 KT에 2경기 뒤졌다. 구자욱이 타율 .362로 1위를 달린다.",
+  "notes": [
+    "2026년 9월 중순 기준 진행 중인 시즌 기록이다. 시즌이 끝나지 않아 champion 필드는 넣지 않았다.",
+    "팀 순위는 2026년 9월 15일 기준 127경기 75승 3무 49패(.605) 2위, 1위 KT(76승 46패 3무)에 2경기차 — KBO 팀 순위(koreabaseball.com).",
+    "선수 기록은 KBO 기록실(koreabaseball.com) 2026 정규시즌 팀별 타자 기본·세부, 투수 기본, 주루, 수비 기록 기준(9월 15일까지).",
+    "포지션은 KBO 수비 기록의 최다 출장 포지션을 따랐다: 디아즈 1루 126G, 류지혁 2루 120G, 전병우 3루 93G, 이재현 유격수 73G, 강민호 포수 91G, 김지찬 중견수 109G, 김성윤 우익수 95G, 구자욱 좌익수 92G. 최형우는 수비 기록이 없어 DH.",
+    "구자욱 타율 .362는 KBO 타자 기본기록 타율 순위 1위(9월 15일 기준).",
+    "페덱(크리스 페덱)은 2026년 7월 11일 오러클린을 대신해 합류한 대체 외국인 투수 — 서울신문·스타뉴스. 후라도는 부상으로 이탈했던 기간이 있어 19경기.",
+    "능력치는 규격대로 풀시즌(144경기) 환산으로 매겼다. 경기수가 적은 이재현(74G)·박승규(91G)·페덱(9선발)은 타석·이닝 비율로 환산해 추정했다.",
+    "수비 수치는 KBO 수비 기록(실책·수비율·도루저지율)과 평판을 함께 본 추정이다.",
+    "투타 유형(hand)은 KBO 선수 등록 현황(2026-09-15) 표 기준. 그 표에 없던 이재현·김지찬은 이전 시즌과 같은 값(우투우타·우투좌타), 배찬승 좌완은 뉴스핌 기사로 확인했다.",
+    "이승현은 삼성에 둘(좌완 2002년생·우완)이 있고 2026 투수 기록표에 같은 이름이 두 줄 나와 어느 쪽인지 가릴 수 없어 둘 다 제외했다.",
+    "18명 구성: 선발 5·불펜 3·야수 10. 타율 .173에 그친 김영웅, 22이닝의 최지광, 볼넷이 많은 배찬승(38.1이닝 35BB)은 제외했다."
+  ],
+  "players": [
+    { "personId": "후라도", "name": "후라도", "year": 2026, "team": "삼성", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 65, "control": 85, "stamina": 84, "stability": 83 }, "note": "6승 ERA 3.26", "source": "19G 118.2IP 6승1패 ERA3.26 77K 25BB WHIP1.28 — KBO" },
+    { "personId": "원태인", "name": "원태인", "year": 2026, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 85, "stamina": 82, "stability": 72 }, "note": "132이닝 108탈삼진", "source": "23G 132IP 7승7패 ERA4.16 108K 28BB WHIP1.33 — KBO" },
+    { "personId": "최원태", "name": "최원태", "year": 2026, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 81, "control": 72, "stamina": 78, "stability": 67 }, "note": "팀 최다 111탈삼진", "source": "22G 116.2IP 7승5패 ERA4.55 111K 39BB WHIP1.38 — KBO" },
+    { "personId": "페덱", "name": "페덱", "year": 2026, "team": "삼성", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 87, "control": 89, "stamina": 84, "stability": 90 }, "note": "7월 합류 ERA 2.77", "source": "9G 55.1IP 5승2패 ERA2.77 59K 10BB WHIP0.94 — KBO" },
+    { "personId": "양창섭", "name": "양창섭", "year": 2026, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 70, "stamina": 67, "stability": 63 }, "note": "팀 최다 8승", "source": "27G(16선발) 90.2IP 8승2패 ERA4.86 69K 32BB WHIP1.47 — KBO" },
+    { "personId": "김재윤", "name": "김재윤", "year": 2026, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 85, "control": 64, "stamina": 55, "stability": 81 }, "note": "32세이브", "source": "60G 59IP 7승5패 32SV ERA3.36 61K 24BB WHIP1.03 — KBO" },
+    { "personId": "이승민", "name": "이승민", "year": 2026, "team": "삼성", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 76, "control": 57, "stamina": 58, "stability": 89 }, "note": "21홀드 ERA 2.59", "source": "66G 59IP 5승2패 1SV 21HLD ERA2.59 51K 29BB WHIP1.36 — KBO" },
+    { "personId": "김태훈", "name": "김태훈", "year": 2026, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 86, "stamina": 52, "stability": 90 }, "note": "ERA 2.65 WHIP 0.97", "source": "39G 34IP 2승1패 6HLD ERA2.65 23K 7BB WHIP0.97 — KBO" },
+    { "personId": "강민호", "name": "강민호", "year": 2026, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 67, "contact": 70, "speed": 40, "defense": 82 }, "note": "11홈런 53타점", "source": ".270/.361/.452 11HR 53타점 0SB(96G) 포수 91G — KBO" },
+    { "personId": "디아즈", "name": "디아즈", "year": 2026, "team": "삼성", "position": "1B", "hand": "L", "isForeign": true, "stats": { "power": 79, "contact": 80, "speed": 43, "defense": 64 }, "note": "23홈런·113타점", "source": ".301/.378/.503 23HR 113타점 2SB(127G) 1루 126G — KBO" },
+    { "personId": "류지혁", "name": "류지혁", "year": 2026, "team": "삼성", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 78, "speed": 86, "defense": 76 }, "note": "팀 최다 29도루", "source": ".294/.381/.400 5HR 60타점 29SB(123G) 2루 120G — KBO" },
+    { "personId": "전병우", "name": "전병우", "year": 2026, "team": "삼성", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 58, "speed": 45, "defense": 76 }, "note": "몸에 맞는 공 18개", "source": ".233/.354/.379 8HR 48타점 2SB(105G) 3루 93G — KBO" },
+    { "personId": "이재현", "name": "이재현", "year": 2026, "team": "삼성", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 83, "contact": 56, "speed": 45, "defense": 80 }, "note": "74경기 15홈런", "source": ".224/.337/.457 15HR 37타점 1SB(74G 268PA) 유격수 73G — KBO" },
+    { "personId": "구자욱", "name": "구자욱", "year": 2026, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 73, "contact": 96, "speed": 62, "defense": 76 }, "note": "타율 .362 리그 1위", "source": ".362/.446/.557 14HR 93타점 6SB(106G) 좌익수 92G — KBO" },
+    { "personId": "김지찬", "name": "김지찬", "year": 2026, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 43, "contact": 86, "speed": 80, "defense": 84 }, "note": "133안타 22도루", "source": ".320/.409/.369 0HR 37타점 22SB 94득점(123G) 중견수 109G — KBO" },
+    { "personId": "김성윤", "name": "김성윤", "year": 2026, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 82, "speed": 78, "defense": 78 }, "note": "타율 .307 18도루", "source": ".307/.382/.392 3HR 44타점 18SB(108G) 우익수 95G — KBO" },
+    { "personId": "박승규", "name": "박승규", "year": 2026, "team": "삼성", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 73, "speed": 64, "defense": 74 }, "note": "12홈런 출루율 .394", "source": ".278/.394/.484 12HR 44타점 7SB(91G 335PA) — KBO" },
+    { "personId": "최형우", "name": "최형우", "year": 2026, "team": "삼성", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 72, "contact": 85, "speed": 42, "defense": 50 }, "note": "98타점", "source": ".317/.405/.481 16HR 98타점 2SB(121G) — KBO" }
+  ]
+}

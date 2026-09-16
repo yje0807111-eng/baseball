@@ -1,0 +1,39 @@
+{
+  "id": "2026-kiwoom",
+  "kind": "team",
+  "year": 2026,
+  "title": "키움 히어로즈",
+  "franchise": "KIWOOM",
+  "subtitle": "9월 중순 10위 · 알칸타라 14QS",
+  "blurb": "2026시즌 10위에 머물렀지만 안우진이 2023년 이후 3년 만에 마운드로 돌아왔고, 서건창이 타율 .310으로 타선을 이끌고 있다.",
+  "notes": [
+    "2026년 9월 중순 기준 진행 중인 시즌 기록 — 9월 15일 현재 10위, 131경기 45승 3무 83패(.352) — namu·kbo-dashboard.",
+    "개인 기록은 mykbostats 키움 로스터·선수별 시즌 표에서 가져왔고, 권혁빈은 KBO 기록실(koreabaseball.com) 선수 페이지로 교차 확인해 수치가 정확히 일치했다.",
+    "시즌이 131경기까지 진행된 시점이라 능력치는 144경기·550타석 기준으로 환산한 추정치다. power는 홈런을 550타석으로, stamina는 이닝을 144경기로 환산해 매겼다.",
+    "2026 키움은 팀 도루가 거의 없어(18명 중 서건창 3·임병욱 3·데이비슨 1·히우라 1, 나머지 0) speed가 대부분 40대다. 리그 도루 1위 황성빈(롯데) 43개와 달리 키움 선수는 리그 30위 안에 한 명도 없다.",
+    "수비(defense)는 mykbostats 뎁스차트의 출장 포지션을 바탕으로 한 평판 기반 추정치다.",
+    "히우라는 KBO에 내야수로 등록됐으나 2026 키움에서는 좌익수·지명타자로 나와 OF로 넣었다. 김웅빈은 1루·3루·지명을 겸했고 3B로, 최주환은 뎁스차트에는 빠져 있으나 296타석을 소화해 3B로 넣었다.",
+    "18명 구성: 선발 4·불펜 3·야수 11. 카나쿠보 유토(45이닝)는 나무위키가 선발, mykbostats가 마무리로 적어 보직이 엇갈려 제외했다. 정규시즌 진행 중이라 champion 필드는 넣지 않았다.",
+    "투타(hand)는 KBO 기록실 선수 페이지의 포지션 표기(우투우타 등)로 확인했다. 원종현은 우언(사이드암)이라 hand는 R로 넣었다."
+  ],
+  "players": [
+    { "personId": "알칸타라", "name": "알칸타라", "year": 2026, "team": "키움", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 78, "control": 94, "stamina": 83, "stability": 78 }, "note": "14QS · 팀 최다 149이닝", "source": "24G 149IP ERA3.68 132K 17BB WHIP1.10 9승9패 14QS — mykbostats" },
+    { "personId": "안우진", "name": "안우진", "year": 2026, "team": "키움", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 72, "stamina": 67, "stability": 75 }, "note": "3년 만에 복귀 · 111K", "source": "20G 95IP ERA3.88 111K 32BB WHIP1.31 3승8패 — mykbostats" },
+    { "personId": "하영민", "name": "하영민", "year": 2026, "team": "키움", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 66, "stamina": 74, "stability": 70 }, "note": "", "source": "24G(21선발) 117IP ERA4.31 96K 45BB WHIP1.43 6승8패 — mykbostats" },
+    { "personId": "배동현", "name": "배동현", "year": 2026, "team": "키움", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 78, "stamina": 63, "stability": 44 }, "note": "", "source": "21G(13선발) 81.2IP ERA6.28 66K 23BB WHIP1.69 4승8패 — mykbostats" },
+    { "personId": "원종현", "name": "원종현", "year": 2026, "team": "키움", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 66, "control": 73, "stamina": 54, "stability": 51 }, "note": "7세이브 8홀드", "source": "50G 46IP ERA5.67 34K 15BB WHIP1.52 1승4패 7SV 8HLD — mykbostats" },
+    { "personId": "조영건", "name": "조영건", "year": 2026, "team": "키움", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 83, "stamina": 50, "stability": 60 }, "note": "", "source": "40G 34.2IP ERA5.19 22K 8BB WHIP1.38 1승1패 1SV 6HLD — mykbostats" },
+    { "personId": "박진형", "name": "박진형", "year": 2026, "team": "키움", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 70, "control": 57, "stamina": 50, "stability": 65 }, "note": "", "source": "32G 34IP ERA4.50 25K 16BB WHIP1.59 4승2패 2HLD — mykbostats" },
+    { "personId": "김건희(포수)", "name": "김건희", "year": 2026, "team": "키움", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 70, "speed": 42, "defense": 78 }, "note": "주전 포수 120경기", "source": ".271/.324/.397 8HR 0SB 403PA(120G) — mykbostats" },
+    { "personId": "데이비슨", "name": "데이비슨", "year": 2026, "team": "키움", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 75, "contact": 73, "speed": 41, "defense": 58 }, "note": "팀 최다 19홈런 75타점", "source": ".280/.351/.480 19HR 1SB 461PA(111G) — mykbostats" },
+    { "personId": "안치홍", "name": "안치홍", "year": 2026, "team": "키움", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 68, "speed": 42, "defense": 66 }, "note": "", "source": ".264/.345/.370 9HR 0SB 443PA(109G) — mykbostats" },
+    { "personId": "서건창", "name": "서건창", "year": 2026, "team": "키움", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 83, "speed": 52, "defense": 76 }, "note": "팀 최고 타율 .310", "source": ".310/.398/.396 3HR 3SB(3CS) 433PA(95G) — mykbostats·KBO 기록실" },
+    { "personId": "김웅빈", "name": "김웅빈", "year": 2026, "team": "키움", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 66, "contact": 62, "speed": 43, "defense": 64 }, "note": "", "source": ".245/.336/.386 8HR 0SB 283PA(88G) — mykbostats" },
+    { "personId": "최주환", "name": "최주환", "year": 2026, "team": "키움", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 51, "contact": 56, "speed": 42, "defense": 62 }, "note": "", "source": ".229/.328/.312 3HR 0SB 296PA(93G) — mykbostats" },
+    { "personId": "권혁빈", "name": "권혁빈", "year": 2026, "team": "키움", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 40, "contact": 58, "speed": 45, "defense": 78 }, "note": "", "source": ".235/.282/.277 0HR 0SB 286PA(97G) — KBO 기록실" },
+    { "personId": "임병욱", "name": "임병욱", "year": 2026, "team": "키움", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 73, "contact": 67, "speed": 58, "defense": 80 }, "note": "", "source": ".260/.313/.447 10HR 3SB 257PA(73G) — mykbostats" },
+    { "personId": "추재현", "name": "추재현", "year": 2026, "team": "키움", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 57, "contact": 79, "speed": 48, "defense": 76 }, "note": "", "source": ".298/.378/.409 4HR 0SB 259PA(66G) — mykbostats" },
+    { "personId": "박찬혁", "name": "박찬혁", "year": 2026, "team": "키움", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 67, "contact": 58, "speed": 45, "defense": 72 }, "note": "", "source": ".233/.325/.360 9HR 0SB 300PA(87G) — mykbostats" },
+    { "personId": "히우라", "name": "히우라", "year": 2026, "team": "키움", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 68, "contact": 63, "speed": 42, "defense": 52 }, "note": "", "source": ".249/.332/.396 8HR 1SB(1CS) 256PA(59G) — mykbostats" }
+  ]
+}
