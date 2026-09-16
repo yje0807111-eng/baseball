@@ -1,0 +1,143 @@
+<title>찬스 스윙 목업 2</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --grn:#34d399; --yel:#fde047; --red:#f87171; --sky:#7dd3fc; --vio:#c4b5fd; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#020308; color:#e5e7eb; font-family: system-ui, 'Malgun Gothic', sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 0; margin:0; }
+  .mock { position:relative; width:1280px; height:720px; margin:18px auto 40px; overflow:hidden; background:#05080f; border:1px solid #1f2937; }
+  .tag { position:absolute; left:16px; top:14px; z-index:9; font:800 13px 'Saira Condensed'; letter-spacing:.3em; color:#05080f; background:var(--grn); padding:3px 10px; }
+  .bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+  .lab { font:600 11px 'Saira Condensed'; letter-spacing:.3em; color:#9ca3af; margin:0; text-transform:uppercase; }
+  .d { font-family:'Saira Condensed',sans-serif; }
+  .ring { position:absolute; border-radius:50%; border:4px solid var(--grn); transform:translate(-50%,-50%); box-shadow:0 0 20px var(--grn); }
+  .ball { position:absolute; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff,#d6d3d1); box-shadow:0 0 22px #fff; transform:translate(-50%,-50%); }
+  .ball::after { content:''; position:absolute; inset:18%; border-radius:50%; border:2px dashed rgba(220,38,38,.75); }
+  .dot { display:inline-block; width:13px; height:13px; border-radius:50%; background:rgba(255,255,255,.15); margin-left:5px; vertical-align:middle; }
+  .dot.s { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .note { width:1280px; margin:-28px auto 30px; color:#9ca3af; font-size:14px; line-height:1.6; }
+  /* 존 판 (원근: 멀리 있는 판이 공과 함께 커진다) */
+  .zone { position:absolute; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); border:2px solid rgba(255,255,255,.7); background:rgba(255,255,255,.04); box-shadow:0 0 0 1px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.4); transform:translate(-50%,-50%); }
+  .zone i { border:1px solid rgba(255,255,255,.18); }
+  .zone i.guess { background:rgba(125,211,252,.22); box-shadow: inset 0 0 0 2px rgba(125,211,252,.8); }
+  .zone i.guess2 { background:rgba(125,211,252,.1); }
+  .shadowball { position:absolute; width:22px; height:22px; border-radius:50%; border:2px dashed rgba(253,224,71,.9); transform:translate(-50%,-50%); }
+  /* 구종 카드 */
+  .cards { display:flex; gap:12px; }
+  .pc { position:relative; width:150px; height:196px; padding:12px; background:linear-gradient(180deg,rgba(17,24,39,.9),rgba(5,8,15,.95)); clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); display:flex; flex-direction:column; }
+  .pc .key { position:absolute; right:10px; top:10px; width:26px; height:26px; display:grid; place-items:center; font:800 14px 'Saira Condensed'; color:#05080f; background:#e5e7eb; clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+  .pc svg { width:64px; height:64px; margin:8px 0 6px; }
+  .pc b { font-size:19px; color:#fff; }
+  .pc small { color:#9ca3af; font-size:12px; }
+  .pc .pct { margin-top:auto; display:flex; align-items:end; justify-content:space-between; }
+  .pc .pct span { font:800 30px/1 'Saira Condensed'; color:#fff; }
+  .pc .bar { height:4px; background:rgba(255,255,255,.1); margin-top:6px; } .pc .bar div { height:100%; }
+  .pc.on { box-shadow: inset 0 0 0 2px var(--c), 0 0 0 0; background:linear-gradient(180deg, color-mix(in srgb,var(--c) 26%, #0b1220), rgba(5,8,15,.95)); transform:translateY(-10px); }
+  .pc.on::after { content:'노림'; position:absolute; left:12px; top:12px; font:800 11px 'Saira Condensed'; letter-spacing:.2em; color:#05080f; background:var(--c); padding:2px 6px; }
+  .pc.on .key { background:var(--c); }
+  @keyframes pulse { 50% { opacity:.55; } }
+  @keyframes zp { 50% { box-shadow: inset 0 0 0 2px rgba(125,211,252,1), inset 0 0 24px rgba(125,211,252,.6); } }
+</style>
+
+<h1>찬스 스윙 — A(판 추가) · C(구종 읽기 재정리)</h1>
+
+<!-- A2: 타자 시점 + 원근 존 판 -->
+<div class="mock">
+  <span class="tag">A2 · 존 판</span>
+  <div class="bg" style="background-image:url(clutch/batter.png)"></div>
+  <div class="bg" style="background:radial-gradient(38% 50% at 50% 50%, transparent, rgba(3,5,10,.62)); box-shadow: inset 0 0 160px rgba(16,185,129,.3)"></div>
+  <!-- 홈플레이트 위 스트라이크 존 -->
+  <div class="zone" style="left:640px;top:470px;width:250px;height:290px">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <!-- 공이 존 어디로 들어올지: 공 그림자 + 궤적 -->
+  <svg style="position:absolute;inset:0" width="1280" height="720">
+    <path d="M662 250 Q 690 330 700 420" stroke="rgba(255,255,255,.45)" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="2 10"/>
+  </svg>
+  <div class="shadowball" style="left:712px;top:560px"></div>
+  <div class="ball" style="left:700px;top:420px;width:52px;height:52px"></div>
+  <div class="ring" style="left:700px;top:420px;width:84px;height:84px"></div>
+  <div style="position:absolute;left:0;right:0;top:0;height:86px;background:linear-gradient(180deg,rgba(3,5,10,.9),transparent)"></div>
+  <div style="position:absolute;left:180px;top:22px"><p class="lab">9회말 · 2사 2·3루</p><p style="margin:2px 0 0;font-size:26px;font-weight:900;color:#fff">나 3 <span class="d" style="color:#9ca3af">:</span> 4 상대</p></div>
+  <div style="position:absolute;right:30px;top:22px;text-align:right"><p class="lab">At bat</p><p style="margin:2px 0 0;font-size:24px;font-weight:900;color:#fff">이대호 <small style="color:#9ca3af;font-size:14px">vs 오승환</small></p></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(0deg,rgba(3,5,10,.95),transparent)"></div>
+  <div style="position:absolute;left:40px;bottom:30px" class="d">STRIKE <span class="dot s"></span><span class="dot s"></span><span class="dot"></span></div>
+  <p style="position:absolute;left:0;right:0;bottom:30px;text-align:center;margin:0;font-weight:800;font-size:20px;color:var(--grn);animation:pulse .8s infinite">링이 공에 붙는 순간 SPACE</p>
+  <div style="position:absolute;right:40px;bottom:22px;text-align:right"><p class="lab">Pitch</p><p class="d" style="margin:0;font-size:26px;color:#fff">슬라이더 138km</p></div>
+  <div style="position:absolute;left:960px;top:420px;width:260px;font-size:13px;color:#d1d5db;line-height:1.7;background:rgba(3,5,10,.7);padding:12px 14px;border-left:3px solid var(--yel)">
+    노란 점선 = 공이 들어올 자리<br>존 <b style="color:#fff">안</b>이면 맞힐수록 좋고,<br>존 <b style="color:var(--red)">밖</b> 공은 참으면 볼 · 치면 범타 확률 ↑
+  </div>
+</div>
+<p class="note">홈플레이트 위에 3×3 존 판이 서 있고, 공이 날아오는 동안 도착 예정 자리(노란 점선)가 판에 찍힌다. 존 밖 유인구는 "안 치고 참기"가 정답이 되어 선구안 요소가 생긴다 (볼 4개 = 볼넷, +1점 효과).</p>
+
+<!-- C2: 구종 카드 + 노림 구역 -->
+<div class="mock">
+  <span class="tag">C2 · 구종 읽기</span>
+  <div class="bg" style="background-image:url(clutch/batter.png);background-position:50% 35%;filter:brightness(.55) saturate(.8)"></div>
+  <div class="bg" style="background:linear-gradient(90deg, rgba(3,5,10,.92) 0, rgba(3,5,10,.4) 34%, rgba(3,5,10,.2) 62%, rgba(3,5,10,.9) 100%)"></div>
+
+  <!-- 상단 상황 -->
+  <div style="position:absolute;left:180px;top:22px"><p class="lab">9회말 · 2사 2·3루 · 2스트라이크</p><p style="margin:2px 0 0;font-size:26px;font-weight:900;color:#fff">나 3 : 4 상대</p></div>
+
+  <!-- 왼쪽: 구종 카드 3장 -->
+  <div style="position:absolute;left:40px;top:120px">
+    <p class="lab">① 구종 노리기 <span style="color:#6b7280">— Q · W · E</span></p>
+    <div class="cards" style="margin-top:22px">
+      <div class="pc" style="--c:#e5e7eb">
+        <span class="key">Q</span>
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="12" fill="#e5e7eb"/><path d="M4 32 H18" stroke="#e5e7eb" stroke-width="3" stroke-linecap="round" opacity=".5"/><path d="M2 26 H14 M2 38 H14" stroke="#e5e7eb" stroke-width="2" opacity=".3"/></svg>
+        <b>직구</b><small>빠르고 곧다</small>
+        <div class="pct"><small>이 카운트</small><span>55%</span></div>
+        <div class="bar"><div style="width:55%;background:#e5e7eb"></div></div>
+      </div>
+      <div class="pc on" style="--c:#7dd3fc">
+        <span class="key">W</span>
+        <svg viewBox="0 0 64 64"><path d="M8 14 Q 44 18 52 50" stroke="#7dd3fc" stroke-width="3" fill="none" stroke-dasharray="4 4"/><circle cx="52" cy="50" r="8" fill="#7dd3fc"/></svg>
+        <b>슬라이더</b><small>바깥으로 휜다</small>
+        <div class="pct"><small>이 카운트</small><span style="color:#7dd3fc">35%</span></div>
+        <div class="bar"><div style="width:35%;background:#7dd3fc"></div></div>
+      </div>
+      <div class="pc" style="--c:#c4b5fd">
+        <span class="key">E</span>
+        <svg viewBox="0 0 64 64"><path d="M10 16 Q 34 14 40 48" stroke="#c4b5fd" stroke-width="3" fill="none" stroke-dasharray="2 6"/><circle cx="40" cy="48" r="8" fill="#c4b5fd"/></svg>
+        <b>체인지업</b><small>느리게 떨어진다</small>
+        <div class="pct"><small>이 카운트</small><span>10%</span></div>
+        <div class="bar"><div style="width:10%;background:#c4b5fd"></div></div>
+      </div>
+    </div>
+    <div style="margin-top:22px;width:474px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:rgba(52,211,153,.1);box-shadow:inset 3px 0 0 var(--grn);padding:10px 12px"><p class="lab" style="color:var(--grn)">맞히면</p><p style="margin:4px 0 0;color:#fff;font-weight:800">PERFECT 폭 ×1.5</p></div>
+      <div style="background:rgba(248,113,113,.1);box-shadow:inset 3px 0 0 var(--red);padding:10px 12px"><p class="lab" style="color:var(--red)">틀리면</p><p style="margin:4px 0 0;color:#fff;font-weight:800">PERFECT 폭 ×0.6</p></div>
+    </div>
+  </div>
+
+  <!-- 오른쪽: 노림 구역 판 -->
+  <div style="position:absolute;right:60px;top:120px;width:470px">
+    <p class="lab">② 코스 노리기 <span style="color:#6b7280">— 방향키로 한 칸 (선택)</span></p>
+    <div style="position:relative;margin:22px auto 0;width:360px;height:420px">
+      <!-- 바깥 유인구 띠 -->
+      <div style="position:absolute;inset:0;border:1px dashed rgba(255,255,255,.2);background:rgba(255,255,255,.02)"></div>
+      <div class="zone" style="left:180px;top:210px;width:270px;height:320px;transform:translate(-50%,-50%)">
+        <i></i><i></i><i></i>
+        <i></i><i></i><i class="guess2"></i>
+        <i></i><i class="guess2"></i><i class="guess" style="animation:zp 1.2s infinite;position:relative"></i>
+      </div>
+      <!-- 투수 코스 경향 점 -->
+      <div style="position:absolute;left:258px;top:318px;width:12px;height:12px;border-radius:50%;background:var(--sky);opacity:.9"></div>
+      <div style="position:absolute;left:236px;top:300px;width:9px;height:9px;border-radius:50%;background:var(--sky);opacity:.6"></div>
+      <div style="position:absolute;left:280px;top:340px;width:9px;height:9px;border-radius:50%;background:var(--sky);opacity:.6"></div>
+      <div style="position:absolute;left:150px;top:120px;width:9px;height:9px;border-radius:50%;background:#e5e7eb;opacity:.5"></div>
+      <div style="position:absolute;left:180px;top:150px;width:9px;height:9px;border-radius:50%;background:#e5e7eb;opacity:.5"></div>
+      <div style="position:absolute;left:246px;top:372px;padding:2px 8px;background:var(--sky);color:#05080f;font:800 12px 'Saira Condensed';letter-spacing:.2em">노림</div>
+    </div>
+    <p style="margin:18px 0 0;text-align:center;font-size:13px;color:#9ca3af">점 = 오승환이 2스트라이크에서 던진 코스 · 노린 칸으로 오면 GOOD도 장타 확률 ↑</p>
+  </div>
+
+  <!-- 하단 준비 바 -->
+  <div style="position:absolute;left:0;right:0;bottom:0;height:72px;background:rgba(3,5,10,.9);border-top:1px solid rgba(125,211,252,.3);display:flex;align-items:center;justify-content:center;gap:30px">
+    <span class="d" style="font-size:20px;color:#fff">노림수 <b style="color:var(--sky)">슬라이더 · 바깥쪽 낮게</b></span>
+    <span style="font:800 16px 'Saira Condensed';letter-spacing:.2em;color:#05080f;background:var(--grn);padding:8px 18px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)">SPACE · 타석에 들어서기</span>
+  </div>
+</div>
+<p class="note">투구 전 준비 화면을 두 칸으로 정리. 왼쪽은 키 배지·궤적 아이콘·카운트별 비율이 들어간 구종 카드 3장(노리면 들어올리고 색 테두리), 오른쪽은 존 판에 투수의 코스 경향 점을 찍고 한 칸을 노림 구역으로 지정. 아래 바에 노림수 요약 후 SPACE 로 A2 화면으로 넘어간다.</p>

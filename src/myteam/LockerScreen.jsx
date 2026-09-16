@@ -157,16 +157,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/mt-locker.webp" opacity={0.45} grad="linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.93))" />
-      <TopBar title="내 라커" left={<Btn sm onClick={onBack}>← 메인</Btn>}
-        sub={<div className="flex gap-2">
-          <Chip a={squad.length === SQUAD_SIZE ? '#34d399' : '#f87171'}>엔트리 {squad.length}/{SQUAD_SIZE}</Chip>
-          <Chip a={foreignCount(squad) > FOREIGN_MAX ? '#f87171' : '#fde047'}>외국인 {foreignCount(squad)}/{FOREIGN_MAX}</Chip>
-          <Chip a={cost > cap ? '#f87171' : '#7dd3fc'}>{cost.toLocaleString()} / {cap.toLocaleString()} CP</Chip>
-          <Chip a="#34d399">팀 종합 {rating || '-'}</Chip>
-        </div>}>
-        {issues.length > 0 && <span className="text-xs text-amber-200">{issues[0]}{issues.length > 1 ? ` 외 ${issues.length - 1}건` : ''}</span>}
-        <Btn sm onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>
-      </TopBar>
+      <TopBar section="내 라커" team={team} account={account} onBack={onBack}
+        warn={issues.length ? `${issues[0]}${issues.length > 1 ? ` 외 ${issues.length - 1}건` : ''}` : null}
+        right={<Btn sm className="ml-2" onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 overflow-hidden px-6 py-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 470px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 왼쪽: 엔트리 카드 격자 + 코치진 */}

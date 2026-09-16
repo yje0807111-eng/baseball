@@ -1,0 +1,153 @@
+<title>모바일 중계형 경기 화면</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --em:#10b981; --red:#f87171; --yel:#fde047; --sky:#7dd3fc; --ink:#05080f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#010205; color:#e5e7eb; font-family:system-ui,'Malgun Gothic',sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 4px; margin:0; }
+  .d { font-family:'Saira Condensed',sans-serif; }
+  .screen { position:relative; width:1920px; height:911px; margin:14px auto 10px; overflow:hidden; background:radial-gradient(120% 80% at 50% 0%,#0b1424,#05080f 60%); border:1px solid #1f2937; display:flex; flex-direction:column; }
+  .note { width:1920px; margin:0 auto 46px; color:#9ca3af; font-size:15px; line-height:1.6; } .note b { color:#fff; }
+  .hdr { height:63px; flex:none; display:flex; align-items:center; gap:22px; padding:0 22px; border-bottom:1px solid rgba(16,185,129,.25); background:rgba(5,8,15,.9); }
+  .hdr .logo small { display:block; font:600 9px 'Saira Condensed'; letter-spacing:.38em; color:#6b7280; } .hdr .logo b { font-size:18px; font-weight:900; color:#fff; }
+  .main { flex:1; min-height:0; padding:12px 16px; display:grid; gap:12px; }
+  .pn { position:relative; min-height:0; background:rgba(8,13,24,.85); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); box-shadow:inset 0 0 0 1px rgba(125,211,252,.12); padding:14px 16px; overflow:hidden; }
+  .pl { font:600 11px 'Saira Condensed'; letter-spacing:.32em; color:#6ee7b7; margin:0 0 10px; text-transform:uppercase; } .pl::before { content:'// '; color:#374151; }
+  .btn { display:inline-flex; flex-direction:column; justify-content:center; font:800 15px system-ui; padding:12px 16px; background:rgba(255,255,255,.05); color:#fff; clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); }
+  .btn small { font:600 12px 'Saira Condensed'; color:#9ca3af; letter-spacing:.08em; margin-top:2px; }
+  .btn.on { background:rgba(16,185,129,.18); box-shadow:inset 0 0 0 2px var(--em); }
+  .btn.warn small { color:var(--red); } .btn.good small { color:var(--em); }
+  /* 전광판 */
+  .lsc { width:100%; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center; }
+  .lsc td, .lsc th { padding:4px 0; }
+  .lsc th { font-size:13px; color:#6b7280; font-weight:600; }
+  .lsc td { font-size:26px; color:#d1d5db; }
+  .lsc td.t { text-align:left; font:800 17px system-ui; color:#fff; white-space:nowrap; padding-right:12px; }
+  .lsc td.now { background:rgba(16,185,129,.16); box-shadow:inset 0 -2px 0 var(--em); color:#fff; }
+  .lsc td.r { font-size:34px; color:#fff; font-weight:800; } .lsc td.r.lead { color:var(--em); }
+  .lsc tr + tr td { border-top:1px solid rgba(255,255,255,.06); }
+  /* BSO */
+  .bso { display:grid; grid-template-columns:20px repeat(3,18px); gap:8px 8px; align-items:center; font:800 18px 'Saira Condensed'; }
+  .bso i { width:18px; height:18px; border-radius:50%; background:rgba(255,255,255,.12); }
+  .bso i.b { background:#34d399; box-shadow:0 0 10px #34d399; } .bso i.s { background:#fbbf24; box-shadow:0 0 10px #fbbf24; } .bso i.o { background:#ef4444; box-shadow:0 0 10px #ef4444; }
+  /* 존 */
+  .zone { position:relative; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); border:2px solid rgba(255,255,255,.7); }
+  .zone i { border:1px solid rgba(255,255,255,.12); }
+  .pdot { position:absolute; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font:800 13px 'Saira Condensed'; color:#05080f; transform:translate(-50%,-50%); box-shadow:0 0 0 2px #05080f; }
+  .feed p { margin:0; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; display:grid; grid-template-columns:40px 1fr auto; gap:10px; align-items:center; }
+  .feed p em { font:600 13px 'Saira Condensed'; color:#6b7280; font-style:normal; }
+  .feed p.big { color:#fff; font-weight:700; } .feed p.big b { color:var(--yel); }
+  .chip { display:inline-block; font:800 12px 'Saira Condensed'; letter-spacing:.1em; padding:2px 7px; color:#05080f; }
+  .bar { height:6px; background:rgba(255,255,255,.08); } .bar i { display:block; height:100%; }
+  .stat { display:grid; grid-template-columns:52px 1fr 34px; gap:8px; align-items:center; font-size:13px; color:#9ca3af; margin-top:7px; }
+  .stat b { font:800 18px 'Saira Condensed'; color:#fff; text-align:right; }
+  @keyframes pulse { 50% { opacity:.55; } }
+</style>
+
+<h1>모바일 중계형 경기 화면 3안 — 한눈에 상황 파악 + 작전 지시</h1>
+<div id="root"></div>
+
+<script>
+const LINE = { away: [1, 0, 0, 2, 0, 1, 0, null, null], home: [0, 2, 0, 1, 0, 1, 0, null, null] };
+const scoreboard = (now = 7, compact = false) => `<table class="lsc"><tr><th style="text-align:left">TEAM</th>${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<th>${i}</th>`).join('')}<th>R</th><th>H</th><th>E</th><th>B</th></tr>
+  <tr><td class="t"><span class="chip" style="background:#f87171">AWAY</span> AI 올스타</td>${LINE.away.map((v, i) => `<td>${v ?? ''}</td>`).join('')}<td class="r">4</td><td>8</td><td>1</td><td>3</td></tr>
+  <tr><td class="t"><span class="chip" style="background:#10b981">HOME</span> 나의 드림팀</td>${LINE.home.map((v, i) => `<td class="${i === now - 1 ? 'now' : ''}">${i === now - 1 ? '<span style="animation:pulse 1s infinite;color:#10b981">●</span>' : v ?? ''}</td>`).join('')}<td class="r lead">4</td><td>9</td><td>0</td><td>4</td></tr></table>`;
+const diamond = (size = 190, bases = [1, 0, 1]) => `<svg viewBox="0 0 100 100" width="${size}" height="${size}">
+  <path d="M50 92 L90 52 L50 12 L10 52 Z" fill="rgba(16,185,129,.07)" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+  ${[[90, 52], [50, 12], [10, 52]].map(([x, y], i) => `<rect x="${x - 9}" y="${y - 9}" width="18" height="18" transform="rotate(45 ${x} ${y})" fill="${bases[i] ? '#10b981' : 'rgba(255,255,255,.12)'}" stroke="${bases[i] ? '#6ee7b7' : 'rgba(255,255,255,.3)'}" stroke-width="1.5" ${bases[i] ? 'style="filter:drop-shadow(0 0 6px #10b981)"' : ''}/>`).join('')}
+  <rect x="44" y="86" width="12" height="12" transform="rotate(45 50 92)" fill="#fff"/>
+</svg>`;
+const bso = (b = 2, s = 1, o = 1) => `<div class="bso"><span style="color:#34d399">B</span>${[0, 1, 2].map((i) => `<i class="${i < b ? 'b' : ''}"></i>`).join('')}<span style="color:#fbbf24">S</span>${[0, 1].map((i) => `<i class="${i < s ? 's' : ''}"></i>`).join('')}<span></span><span style="color:#ef4444">O</span>${[0, 1].map((i) => `<i class="${i < o ? 'o' : ''}"></i>`).join('')}<span></span></div>`;
+// 이번 타석 공 4개: 위치(%) · 결과 색 · 번호
+const PITCHES = [[70, 22, '#34d399', 1, '직구 148 · 볼'], [48, 58, '#fbbf24', 2, '슬라이더 132 · 헛스윙'], [88, 86, '#34d399', 3, '체인지업 126 · 볼'], [34, 40, '#e5e7eb', 4, '직구 150 · 파울']];
+const zone = (w = 200, h = 240) => `<div style="position:relative;width:${w + 80}px;height:${h + 80}px;margin:auto"><div class="zone" style="position:absolute;left:40px;top:40px;width:${w}px;height:${h}px">${'<i></i>'.repeat(9)}</div>
+  ${PITCHES.map(([x, y, c, n]) => `<span class="pdot" style="left:${x / 100 * (w + 80)}px;top:${y / 100 * (h + 80)}px;background:${c}">${n}</span>`).join('')}</div>`;
+const pitchList = PITCHES.map(([, , c, n, t]) => `<div style="display:flex;gap:10px;align-items:center;font-size:13px;margin-top:6px"><span class="pdot" style="position:static;transform:none;width:22px;height:22px;background:${c}">${n}</span>${t}</div>`).join('');
+const feed = (n = 8) => `<div class="feed">${[
+  ['7말', '4구 직구 150km 파울 · 2-1', ''],
+  ['7말', '3구 체인지업 126km 볼', ''],
+  ['7말', '2구 슬라이더 132km 헛스윙', ''],
+  ['7말', '1구 직구 148km 볼', ''],
+  ['7말', '<b>이용규 도루 성공!</b> 2루 → 3루', 'big'],
+  ['7말', '이용규 볼넷 출루', ''],
+  ['7말', '강정호 삼진 · 1아웃', ''],
+  ['7초', '<b>양현종 7회 무실점</b> · 투구수 96', 'big'],
+  ['6말', '<b>이승엽 우월 솔로 홈런</b> 4:4 동점', 'big'],
+].slice(0, n).map(([i, t, c]) => `<p class="${c}"><em>${i}</em><span>${t}</span></p>`).join('')}</div>`;
+const player = (side, name, sub, ovr, c, stats, extra = '') => `<div><p class="pl" style="color:${c}">${side}</p>
+  <div style="display:flex;justify-content:space-between;align-items:end"><div><b style="font-size:30px;color:#fff">${name}</b><br><span style="color:#9ca3af;font-size:13px">${sub}</span></div><b class="d" style="font-size:52px;line-height:1;color:${c}">${ovr}</b></div>
+  ${stats.map(([k, v]) => `<div class="stat">${k}<div class="bar"><i style="width:${v}%;background:${c}"></i></div><b>${v}</b></div>`).join('')}${extra}</div>`;
+const orders = (hl = '') => `<div style="display:flex;gap:10px;flex-wrap:wrap">
+  <span class="btn ${hl === 'steal' ? 'on' : ''} good">도루 · 3루→홈 불가<small>2루→3루 성공 72%</small></span>
+  <span class="btn">번트<small>희생번트 · 기습번트</small></span>
+  <span class="btn">히트앤런<small>1루 주자 스타트</small></span>
+  <span class="btn ${hl === 'guess' ? 'on' : ''}">구종 노리기<small>Q 직구 · W 슬라 · E 체인지</small></span>
+  <span class="btn">대타<small>벤치 2명</small></span>
+</div>`;
+const speed = `<div style="display:flex;gap:4px;padding:3px;background:rgba(255,255,255,.04)">${['×1', '×2', '×4', '이닝 넘기기'].map((s, i) => `<b class="d" style="font-size:15px;padding:5px 12px;${i === 1 ? 'background:#10b981;color:#05080f' : 'color:#9ca3af'}">${s}</b>`).join('')}</div>`;
+const hdr = `<div class="hdr"><div class="logo"><small>LEGEND DRAFT</small><b>레전드 드래프트</b></div><span class="d" style="color:#f87171;letter-spacing:.25em;font-weight:800">● LIVE</span><span style="color:#9ca3af;font-size:14px">1승 0패 · 가을의 왕조</span><div style="margin-left:auto;display:flex;gap:12px;align-items:center">${speed}<span class="btn" style="padding:8px 14px">⏸</span></div></div>`;
+
+const S = [];
+
+/* A · 중계 대시보드 */
+S.push({ name: 'A · 중계 대시보드', note: '<b>모바일 중계 앱을 가로로 편 구조</b>. 맨 위 전광판 한 줄, 가운데 왼쪽부터 [주자·BSO] [이번 타석 투구 존 + 공 번호] [타자 vs 투수], 오른쪽 문자 중계, 맨 아래 작전 바. 모든 정보가 늘 같은 자리라 눈이 헤매지 않는다.', html: `${hdr}
+<div class="main" style="grid-template-columns:1fr 400px;grid-template-rows:auto 1fr auto">
+  <div class="pn" style="grid-column:1 / span 2;padding:10px 18px">${scoreboard()}</div>
+  <div style="grid-column:1;grid-row:2;display:grid;grid-template-columns:300px 360px 1fr;gap:12px;min-height:0">
+    <div class="pn" style="display:flex;flex-direction:column;align-items:center;gap:18px"><p class="pl" style="align-self:flex-start">7회말 · 1아웃</p>${diamond(210, [0, 0, 1])}${bso(2, 1, 1)}
+      <div style="width:100%;font-size:13px;color:#d1d5db;background:rgba(16,185,129,.1);padding:8px 10px;box-shadow:inset 3px 0 0 #10b981">3루 <b style="color:#fff">이용규</b> · 발 92</div></div>
+    <div class="pn"><p class="pl">이번 타석 · 4구</p>${zone(190, 230)}${pitchList}</div>
+    <div class="pn" style="display:grid;grid-template-rows:1fr auto 1fr;gap:10px">
+      ${player('at bat · 3번', '이종범', '오늘 2타수 1안타 · 시즌 .338', 91, '#10b981', [['컨택', 90], ['파워', 72], ['주루', 96]])}
+      <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div><b class="d" style="color:#6b7280;font-size:18px">VS</b><div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div></div>
+      ${player('pitcher', '양현종', '7이닝 2실점 · 투구수 96', 89, '#f87171', [['구위', 88], ['제구', 84], ['체력', 38]])}
+    </div>
+  </div>
+  <div class="pn" style="grid-column:2;grid-row:2 / span 2"><p class="pl">문자 중계</p>${feed(10)}</div>
+  <div class="pn" style="grid-column:1;grid-row:3;padding:10px 14px;display:flex;align-items:center;gap:14px"><span class="d" style="color:#6ee7b7;letter-spacing:.2em;font-size:13px">작전</span>${orders()}</div>
+</div>` });
+
+/* B · 승부처 작전 타임 */
+S.push({ name: 'B · 승부처 작전 타임', note: '<b>A 화면에서 중요한 순간이 오면 경기가 멈추고 작전 카드가 뜬다</b>. 카드마다 성공 확률과 결과 미리보기, 하단 타이머(10초, 넘기면 자동 진행). 뒤 화면은 흐리게 남아 상황을 계속 볼 수 있다.', html: `${hdr}
+<div class="main" style="grid-template-columns:1fr 400px;grid-template-rows:auto 1fr auto;filter:blur(3px) brightness(.45)">
+  <div class="pn" style="grid-column:1 / span 2;padding:10px 18px">${scoreboard()}</div>
+  <div style="grid-column:1;grid-row:2;display:grid;grid-template-columns:300px 360px 1fr;gap:12px"><div class="pn">${diamond(210, [0, 1, 1])}</div><div class="pn">${zone(190, 230)}</div><div class="pn"></div></div>
+  <div class="pn" style="grid-column:2;grid-row:2 / span 2">${feed(10)}</div><div class="pn" style="grid-column:1;grid-row:3"></div>
+</div>
+<div style="position:absolute;inset:63px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px">
+  <div style="text-align:center"><p class="d" style="margin:0;color:#fde047;letter-spacing:.4em;font-size:15px">CLUTCH MOMENT</p><h2 style="margin:6px 0;font-size:44px;font-weight:900;color:#fff">9회말 2사 2·3루 · 3:4</h2><p style="margin:0;color:#d1d5db">타석 <b style="color:#fff">이종범</b> (91) vs 마무리 <b style="color:#fca5a5">오승환</b> (93) · 볼카운트 1-1</p></div>
+  <div style="display:flex;gap:16px">
+    ${[
+      ['⚔', '정면 승부', '자동 타격', '안타 확률 31%', '', ''],
+      ['🎯', '구종 노리기', '직구 58% · 슬라 30% · 체인지 12%', '적중 시 안타 확률 44%', 'on', '#7dd3fc'],
+      ['🏃', '더블 스틸', '2루→3루 · 3루→홈', '성공 23% · 실패 시 경기 종료', 'warn', '#f87171'],
+      ['🔁', '대타 박병호', '파워 94 · 컨택 78', '홈런 확률 9% → 14%', '', '#fde047'],
+    ].map(([ic, t, s, p, cls, c]) => `<div class="pn" style="width:250px;height:280px;display:flex;flex-direction:column;gap:8px;${cls === 'on' ? 'box-shadow:inset 0 0 0 2px #7dd3fc,0 0 40px -10px #7dd3fc;transform:translateY(-10px)' : ''}">
+      <span style="font-size:40px">${ic}</span><b style="font-size:24px;color:#fff">${t}</b><span style="font-size:13px;color:#9ca3af">${s}</span>
+      <div style="margin-top:auto;padding:10px;background:rgba(255,255,255,.04);box-shadow:inset 3px 0 0 ${c || '#10b981'}"><b style="color:${c || '#10b981'};font-size:15px">${p}</b></div>
+      <span class="d" style="text-align:center;font-size:13px;color:#6b7280;letter-spacing:.2em">${['1', '2', '3', '4'][['⚔', '🎯', '🏃', '🔁'].indexOf(ic)]} 키</span></div>`).join('')}
+  </div>
+  <div style="width:560px"><div class="bar" style="height:8px"><i style="width:62%;background:linear-gradient(90deg,#10b981,#fde047)"></i></div><p style="text-align:center;margin:8px 0 0;color:#9ca3af;font-size:13px">6초 뒤 자동으로 정면 승부</p></div>
+</div>` });
+
+/* C · 세로 모바일 중계 (가운데 폰 폭) */
+S.push({ name: 'C · 모바일 세로 중계', note: '<b>실제 휴대폰 중계 화면을 가운데에 그대로</b>. 가운데 460px 열이 폰 한 화면(전광판 → 주자·BSO·존 → 타자 카드 → 작전 버튼 → 문자 중계). 양옆은 PC 에서만 보이는 확장 정보(양 팀 라인업 기록, 투수 기록). 나중에 모바일로 옮기기 가장 쉬움.', html: `${hdr}
+<div class="main" style="grid-template-columns:1fr 480px 1fr">
+  <div class="pn"><p class="pl">나의 드림팀 · 타격</p><table style="width:100%;border-collapse:collapse;font-size:14px">${[['1', '이용규', 'LF', '2-1', 'BB SB'], ['2', '정근우', '2B', '3-0', ''], ['3', '이종범', 'CF', '2-1', '2B', 1], ['4', '이승엽', '1B', '3-2', 'HR'], ['5', '김동주', '3B', '3-1', 'SF'], ['6', '강정호', 'SS', '3-0', 'K'], ['7', '양의지', 'C', '2-1', ''], ['8', '손아섭', 'RF', '2-1', ''], ['9', '박병호', 'DH', '2-0', 'K']].map(([o, n, p, r, t, now]) => `<tr style="border-bottom:1px solid rgba(255,255,255,.05);${now ? 'background:rgba(16,185,129,.14);box-shadow:inset 3px 0 0 #10b981' : ''}"><td class="d" style="color:#6b7280;padding:9px 6px">${o}</td><td style="color:#fff">${n}</td><td class="d" style="color:#9ca3af">${p}</td><td class="d" style="font-size:18px">${r}</td><td class="d" style="color:#fde047">${t}</td></tr>`).join('')}</table></div>
+  <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+    <div class="pn" style="padding:10px 14px"><div style="display:flex;justify-content:space-between;align-items:center"><div><span class="chip" style="background:#f87171">AWAY</span> <b style="color:#fff">AI 올스타</b></div><b class="d" style="font-size:40px;color:#fff">4</b></div><div style="display:flex;justify-content:space-between;align-items:center"><div><span class="chip" style="background:#10b981">HOME</span> <b style="color:#fff">나의 드림팀</b></div><b class="d" style="font-size:40px;color:#10b981">4</b></div><p class="d" style="margin:4px 0 0;text-align:center;color:#fde047;letter-spacing:.2em">7회말 · 1아웃</p></div>
+    <div class="pn" style="display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center">${diamond(150, [0, 0, 1])}<div style="display:flex;flex-direction:column;gap:12px;align-items:center">${bso(2, 1, 1)}<div style="transform:scale(.62);transform-origin:top center;height:150px">${zone(160, 190)}</div></div></div>
+    <div class="pn" style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:10px 14px"><div><b style="color:#fff;font-size:18px">이종범</b><br><span class="d" style="color:#10b981;font-size:22px">91</span> <small style="color:#9ca3af">2타수 1안타</small></div><b class="d" style="color:#6b7280">VS</b><div style="text-align:right"><b style="color:#fff;font-size:18px">양현종</b><br><small style="color:#9ca3af">96구</small> <span class="d" style="color:#f87171;font-size:22px">89</span></div></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${[['도루', '72%'], ['번트', ''], ['런앤히트', ''], ['노리기', 'Q W E']].map(([t, s], i) => `<span class="btn ${i === 0 ? 'good' : ''}" style="padding:10px 6px;text-align:center;font-size:14px">${t}<small>${s || '&nbsp;'}</small></span>`).join('')}</div>
+    <div class="pn" style="flex:1;min-height:0;padding:8px 14px">${feed(7)}</div>
+  </div>
+  <div style="display:grid;grid-template-rows:auto 1fr;gap:12px;min-height:0">
+    <div class="pn"><p class="pl">line score</p>${scoreboard()}</div>
+    <div class="pn"><p class="pl">투수 · 양현종</p><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center">${[['7.0', '이닝'], ['2', '실점'], ['7', '탈삼진'], ['96', '투구수'], ['64%', '스트라이크'], ['151', '최고 구속']].map(([v, k]) => `<div><b class="d" style="display:block;font-size:34px;color:#fff">${v}</b><span style="font-size:12px;color:#9ca3af">${k}</span></div>`).join('')}</div>
+      <p class="pl" style="margin-top:20px">체력</p><div class="bar" style="height:10px"><i style="width:38%;background:linear-gradient(90deg,#f87171,#fbbf24)"></i></div><p style="margin:6px 0 0;font-size:13px;color:#fca5a5">지쳤다 — 제구 −8 · 불펜 준비 완료</p></div>
+  </div>
+</div>` });
+
+document.getElementById('root').innerHTML = S.map((s) => `<div class="screen">${s.html}<span style="position:absolute;left:0;bottom:0;z-index:9;font:800 13px 'Saira Condensed';letter-spacing:.3em;color:#05080f;background:#10b981;padding:3px 12px">${s.name}</span></div><p class="note">${s.note}</p>`).join('');
+</script>

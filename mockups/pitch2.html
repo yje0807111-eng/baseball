@@ -1,0 +1,95 @@
+<title>위기 투구판 배경 고르기</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --red:#f87171; --yel:#fde047; --grn:#34d399; --sky:#7dd3fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#020308; color:#e5e7eb; font-family: system-ui, 'Malgun Gothic', sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 0; margin:0; }
+  .mock { position:relative; width:1280px; height:720px; margin:18px auto 40px; overflow:hidden; background:#05080f; border:1px solid #1f2937; }
+  .tag { position:absolute; left:16px; top:14px; z-index:9; font:800 13px 'Saira Condensed'; letter-spacing:.3em; color:#05080f; background:var(--red); padding:3px 10px; }
+  .bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+  .lab { font:600 11px 'Saira Condensed'; letter-spacing:.3em; color:#9ca3af; margin:0; text-transform:uppercase; }
+  .hud { position:absolute; top:16px; right:22px; text-align:right; }
+  .hud b { font:800 34px 'Saira Condensed'; color:#fff; }
+  .count { display:flex; gap:12px; justify-content:flex-end; margin-top:4px; font:600 13px 'Saira Condensed'; }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.15); margin-left:4px; vertical-align:middle; }
+  .dot.b { background:var(--grn); } .dot.s { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .side { position:absolute; left:22px; top:70px; width:250px; display:flex; flex-direction:column; gap:10px; }
+  .pcard { padding:10px 12px; background:rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+  .pcard.on { box-shadow: inset 0 0 0 2px var(--red); background:rgba(60,12,16,.8); }
+  .pcard b { color:#fff; font-size:15px; } .pcard small { display:block; color:#9ca3af; font-size:12px; }
+  .pcard .k { float:right; font:800 12px 'Saira Condensed'; color:var(--red); }
+  .scout { padding:10px 12px; background:rgba(5,8,15,.8); font-size:13px; line-height:1.6; }
+  .board { position:absolute; display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(5,1fr); gap:2px; transform:translate(-50%,-50%); }
+  .board i { position:relative; background:rgba(5,8,15,.18); border:1px solid rgba(255,255,255,.12); }
+  .board i.z { border-color:rgba(255,255,255,.4); background:rgba(5,8,15,.28); }
+  .board i.hot { background:rgba(248,113,113,.38); }
+  .board i.cold { background:rgba(125,211,252,.28); }
+  .board i.rec { box-shadow: inset 0 0 0 2px var(--yel), inset 0 0 16px rgba(253,224,71,.5); animation: recp 1.4s ease-in-out infinite; }
+  .board i span { position:absolute; inset:0; display:grid; place-items:center; font:700 12px 'Saira Condensed'; color:rgba(255,255,255,.85); text-shadow:0 1px 3px #000; }
+  @keyframes recp { 50% { box-shadow: inset 0 0 0 2px var(--yel), inset 0 0 28px rgba(253,224,71,.85); } }
+  .ball { position:absolute; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff,#d6d3d1); box-shadow:0 0 16px #fff, 0 0 0 3px rgba(248,113,113,.6); transform:translate(-50%,-50%); }
+  .gauge { position:absolute; left:340px; bottom:70px; width:600px; height:26px; background:rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  .gauge div { position:absolute; top:0; bottom:0; }
+  .odds { position:absolute; right:22px; bottom:60px; width:170px; text-align:right; background:rgba(5,8,15,.8); padding:10px 14px; }
+  .odds b { font:800 30px 'Saira Condensed'; }
+  .keys { position:absolute; left:0; right:0; bottom:22px; text-align:center; margin:0; font-size:13px; }
+  .keys kbd { font:700 12px system-ui; background:#111827; border:1px solid #374151; border-bottom-width:3px; padding:2px 7px; border-radius:4px; color:#fff; }
+  .note { width:1280px; margin:-28px auto 30px; color:#9ca3af; font-size:14px; line-height:1.6; }
+</style>
+
+<h1>위기 투구판 A+C — 배경 4안</h1>
+<div id="root"></div>
+
+<script>
+// 배경별 판 위치(포수 미트 기준)와 크기
+const BGS = [
+  { img: 'mound1.png', name: '1 · 정면 롱샷', x: 640, y: 330, w: 250, h: 280, shade: 'radial-gradient(30% 40% at 50% 46%, transparent, rgba(3,5,10,.55))', note: '마운드에서 정면으로 멀리 본 구도. 선수들이 작아 판이 크게 겹쳐도 가리는 게 없고, 텅 빈 관중석이라 차분하다 — 대신 긴장감은 약함.' },
+  { img: 'mound2.png', name: '2 · 투수 어깨 너머', x: 740, y: 370, w: 250, h: 290, shade: 'linear-gradient(90deg, rgba(3,5,10,.2), transparent 40%), radial-gradient(35% 45% at 56% 52%, transparent, rgba(3,5,10,.5))', note: '내 투수 뒷모습이 왼쪽에 걸리고 포수·타자는 선명. "내가 던진다" 느낌이 가장 강함. 왼쪽 구종 카드가 투수 몸 위에 올라가 살짝 겹친다.' },
+  { img: 'mound3.png', name: '3 · 중계 망원', x: 735, y: 400, w: 290, h: 330, shade: 'radial-gradient(40% 55% at 57% 55%, transparent, rgba(3,5,10,.5))', note: 'TV 중계 센터필드 카메라 구도. 포수가 크게 잡혀 판을 미트에 딱 맞출 수 있고 실제 경기 느낌. 관중이 밝아 판 글자가 조금 묻힌다.' },
+  { img: 'mound4.png', name: '4 · 네온 일러스트', x: 648, y: 330, w: 250, h: 290, shade: 'radial-gradient(30% 45% at 50% 45%, transparent, rgba(3,5,10,.35))', note: '어두운 네온 톤이라 판·핫존 색이 가장 또렷하게 뜬다. 미트의 붉은 조준 표시가 판과 겹쳐 연출이 자연스러움. 사실적인 다른 화면들과 톤이 다르다.' },
+];
+// C: 칸별 타율(5×5). z = 스트라이크 존
+const AVG = [
+  [null, .301, .355, null, null],
+  [.290, .412, .378, .310, .200],
+  [null, .366, .320, .270, .160],
+  [null, .300, .251, .188, .120],
+  [null, null, .170, .095, null],
+];
+const REC = new Set(['3-3', '3-4', '4-3']); // 바깥쪽 슬라이더 추천 칸
+const cell = (r, c) => {
+  const v = AVG[r][c];
+  const z = r >= 1 && r <= 3 && c >= 1 && c <= 3;
+  const cls = [z && 'z', v != null && v >= .33 && 'hot', v != null && v < .2 && 'cold', REC.has(`${r}-${c}`) && 'rec'].filter(Boolean).join(' ');
+  return `<i class="${cls}">${v != null ? `<span>${v.toFixed(3).slice(1)}</span>` : ''}</i>`;
+};
+const cells = AVG.flatMap((row, r) => row.map((_, c) => cell(r, c))).join('');
+
+document.getElementById('root').innerHTML = BGS.map((b) => `
+<div class="mock">
+  <span class="tag">${b.name}</span>
+  <div class="bg" style="background-image:url(clutch/${b.img})"></div>
+  <div class="bg" style="background:${b.shade}"></div>
+  <div class="hud"><span class="lab">9회초 · 1점 차 리드</span><br><b>4 : 3</b>
+    <div class="count">B<span class="dot b"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span> S<span class="dot s"></span><span class="dot s"></span><span class="dot"></span></div></div>
+  <div class="side">
+    <div class="scout"><span class="lab">Batter</span><br><b style="color:#fff;font-size:18px">이대호</b> <small style="color:#9ca3af">파워 94 · 우타</small><br><span style="color:#fca5a5">몸쪽 높게 .412</span> · <span style="color:#7dd3fc">바깥 낮게 .188</span></div>
+    <div class="pcard"><span class="k">1</span><b>몸쪽 하이 직구</b><small>추천 칸이 핫존과 겹침 ⚠</small></div>
+    <div class="pcard on"><span class="k">2</span><b>바깥쪽 슬라이더</b><small>추천 칸 = 콜드존 ✔</small></div>
+    <div class="pcard"><span class="k">3</span><b>낮은 체인지업</b><small>반반</small></div>
+  </div>
+  <div class="board" style="left:${b.x}px;top:${b.y}px;width:${b.w}px;height:${b.h}px">${cells}</div>
+  <div class="ball" style="left:${b.x + b.w * 0.2}px;top:${b.y + b.h * 0.2}px"></div>
+  <div class="gauge">
+    <div style="left:30%;width:40%;background:rgba(248,113,113,.3)"></div>
+    <div style="left:43%;width:14%;background:rgba(52,211,153,.4)"></div>
+    <div style="left:47.5%;width:5%;background:var(--yel)"></div>
+    <div style="left:58%;width:5px;top:-6px;bottom:-6px;background:#fff;box-shadow:0 0 12px #fff"></div>
+  </div>
+  <div class="odds"><span class="lab">이 자리</span><br><b style="color:var(--grn)">71%</b> <small>범타·삼진</small><br><b style="color:var(--red)">9%</b> <small>장타</small></div>
+  <p class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 구종 · <kbd>←↑↓→</kbd> 공 놓기 · <kbd>SPACE</kbd> 던지기</p>
+</div>
+<p class="note">${b.note}</p>`).join('');
+</script>

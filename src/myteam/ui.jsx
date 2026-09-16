@@ -76,15 +76,106 @@ export const Bg = ({ img = 'ui/mt/mt-bg.webp', grad = 'linear-gradient(180deg,rg
   </>
 );
 
-/** 화면 위쪽 바 (로비·라커·상점 공통) */
-export const TopBar = ({ title, sub, left, children }) => (
-  <header className="relative flex h-[66px] shrink-0 items-center gap-5 border-b border-emerald-500/25 bg-[linear-gradient(180deg,rgba(5,8,15,.96),rgba(5,8,15,.4))] px-6">
-    {left}
-    <div>
-      <p className="mt-lab" style={{ fontSize: 9 }}>Legend Draft</p>
-      <b className="mt-0.5 block text-[19px] font-extrabold text-white">{title}</b>
-    </div>
-    {sub}
-    <div className="ml-auto flex items-center gap-3">{children}</div>
-  </header>
+/** 팀 스탯 요약 — 상단 바가 쓴다 */
+export function teamStats(squad = []) {
+  const avg = (arr, f = (p) => p.overall) => (arr.length ? Math.round(arr.reduce((s, p) => s + f(p), 0) / arr.length) : 0);
+  const bat = squad.filter((p) => p.type === 'batter');
+  return {
+    ovr: avg(squad),
+    bat: avg(bat),
+    sp: avg(squad.filter((p) => p.position === 'SP')),
+    rp: avg(squad.filter((p) => p.position === 'RP')),
+    def: avg(bat, (p) => p.stats?.defense ?? 70),
+  };
+}
+
+/** 눈금 게이지 (드래프트 화면 샐러리 캡 바 문법) */
+export const SegBar = ({ pct, width = 200, ticks = 20, over }) => (
+  <span className="relative block h-2.5 bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]" style={{ width }}>
+    <span className="absolute inset-y-0 left-0" style={{ width: `${Math.min(100, pct)}%`, background: over ? '#f87171' : 'linear-gradient(90deg,#10b981,#fde047)' }} />
+    <span className="absolute inset-0" style={{ background: `repeating-linear-gradient(90deg,transparent 0 ${width / ticks - 2}px,rgba(5,8,15,.9) ${width / ticks - 2}px ${width / ticks}px)` }} />
+  </span>
 );
+
+const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px = 18, className = '' }) => (
+  <span className={`relative flex h-full items-center gap-2.5 ${grow ? 'min-w-0 flex-1' : ''} ${className}`} style={{ background: bg, padding: `0 ${px}px` }}>
+    {children}
+    {line && <span className="absolute right-0 top-3.5 bottom-3.5 w-px" style={{ background: `linear-gradient(180deg,transparent,${lc},transparent)` }} />}
+  </span>
+);
+
+/**
+ * 모든 화면이 함께 쓰는 상단 바 (S8 구획 + S5 CP 블록)
+ *  [엠블럼·섹션] [팀 종합] [타선·선발·불펜·수비] [CP 게이지] [엔트리·외국인] [골드] [감독]
+ */
+export const TopBar = ({ section = '메인', team, account, onBack, right, warn }) => {
+  const squad = team?.squad || [];
+  const st = teamStats(squad);
+  const cap = team?.cap || 2000;
+  const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
+  const rec = team?.record || { w: 0, l: 0, d: 0 };
+  const foreign = squad.filter((p) => p.isForeign).length;
+  const over = cost > cap;
+  return (
+    <header className="relative flex h-[78px] shrink-0 items-stretch border-b border-emerald-500/35 bg-[linear-gradient(180deg,rgba(4,7,12,.99),rgba(5,8,15,.7))]">
+      <span className="mt-scan pointer-events-none absolute inset-0 opacity-50" />
+      <span className="absolute -bottom-px left-0 h-0.5 w-[520px]" style={{ background: 'linear-gradient(90deg,#10b981,transparent)' }} />
+
+      <Cell bg="rgba(16,185,129,.08)">
+        {onBack
+          ? <button type="button" onClick={onBack} className="mt-cut grid h-[50px] w-11 place-items-center bg-white/[0.06] text-lg text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)]" style={{ '--c': '8px' }}>←</button>
+          : <span className="mt-cut grid h-[50px] w-11 place-items-center bg-emerald-500 font-display text-[13px] font-extrabold text-[#05080f]" style={{ '--c': '8px' }}>MY</span>}
+        <span>
+          <p className="mt-lab" style={{ fontSize: 9 }}>Legend Draft</p>
+          <b className="block text-[18px] font-extrabold text-white">{section}</b>
+        </span>
+      </Cell>
+
+      <Cell>
+        <b className="font-display text-[40px] font-extrabold leading-none text-white" style={{ textShadow: '0 0 24px rgba(16,185,129,.35)' }}>{st.ovr || '-'}</b>
+        <span>
+          <small className="block font-display text-[10px] tracking-[0.2em] text-gray-500">TEAM OVR</small>
+          <span className="font-display text-[13px] text-emerald-400">{team?.name || '나의 드림팀'}</span>
+        </span>
+      </Cell>
+
+      <Cell bg="rgba(255,255,255,.02)" px={20}>
+        {[['타선', st.bat, '#34d399'], ['선발', st.sp, '#7dd3fc'], ['불펜', st.rp, '#f87171'], ['수비', st.def, '#fde047']].map(([k, v, c]) => (
+          <span key={k} className="inline-flex min-w-[56px] flex-col items-center">
+            <b className="font-display text-xl leading-none" style={{ color: v ? c : '#4b5563' }}>{v || '-'}</b>
+            <small className="mt-1 font-display text-[10px] tracking-[0.14em] text-gray-500">{k}</small>
+          </span>
+        ))}
+      </Cell>
+
+      {/* CP — S5 방식: 라벨 줄 + 눈금 게이지 */}
+      <Cell grow px={20}>
+        <span className="w-full max-w-[300px]">
+          <span className="flex items-center justify-between font-display text-[11px] tracking-[0.16em] text-gray-500">
+            SALARY CAP
+            <b className="font-display text-[15px]" style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} <span className="text-gray-600">/ {cap.toLocaleString()}</span></b>
+          </span>
+          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={300} ticks={24} over={over} /></span>
+        </span>
+        <span className="ml-4 flex flex-col gap-1.5">
+          <Chip a={squad.length === 26 ? '#7dd3fc' : '#f87171'}>엔트리 {squad.length}/26</Chip>
+          <Chip a={foreign > 3 ? '#f87171' : '#fde047'}>외국인 {foreign}/3</Chip>
+        </span>
+        {warn && <span className="ml-3 max-w-[180px] text-[11px] leading-tight text-amber-300">{warn}</span>}
+      </Cell>
+
+      <Cell bg="rgba(253,224,71,.06)" lc="rgba(253,224,71,.4)">
+        <Chip a="#fde047">💰 <b className="font-display text-[15px] text-white">{(account?.gold ?? 0).toLocaleString()}</b> G</Chip>
+      </Cell>
+
+      <Cell line={false}>
+        <span className="mt-cut h-[46px] w-[46px] bg-cover bg-center" style={{ '--c': '7px', backgroundImage: 'url(ui/mt/mt-card.webp)' }} />
+        <span>
+          <b className="block text-[13px] text-white">{account?.nick || '감독'}</b>
+          <span className="text-[11px] text-gray-400">{rec.w}승 {rec.l}패 {rec.d}무</span>
+        </span>
+        {right}
+      </Cell>
+    </header>
+  );
+};

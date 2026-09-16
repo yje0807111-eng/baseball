@@ -1,0 +1,180 @@
+<title>위기 투구판 목업</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --red:#f87171; --yel:#fde047; --grn:#34d399; --sky:#7dd3fc; --bg:#05080f; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#020308; color:#e5e7eb; font-family: system-ui, 'Malgun Gothic', sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 0; margin:0; }
+  .d { font-family:'Saira Condensed', sans-serif; letter-spacing:.14em; }
+  .mock { position:relative; width:1280px; height:720px; margin:18px auto 40px; overflow:hidden; background:var(--bg); border:1px solid #1f2937; }
+  .tag { position:absolute; left:16px; top:14px; z-index:9; font:800 13px 'Saira Condensed'; letter-spacing:.3em; color:#05080f; background:var(--red); padding:3px 10px; }
+  .bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+  .shade { position:absolute; inset:0; }
+  .hud { position:absolute; top:16px; right:22px; text-align:right; }
+  .hud b { font:800 34px 'Saira Condensed'; color:#fff; }
+  .count { display:flex; gap:14px; justify-content:flex-end; margin-top:4px; font:600 13px 'Saira Condensed'; }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.15); margin-left:4px; vertical-align:middle; }
+  .dot.b { background:var(--grn); } .dot.s { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .pcard { width:220px; padding:12px 14px; background:rgba(5,8,15,.72); border:1px solid rgba(255,255,255,.1); clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); backdrop-filter: blur(4px); }
+  .pcard.on { border-color:var(--red); box-shadow: inset 0 0 0 2px var(--red), 0 0 30px -6px var(--red); background:rgba(60,12,16,.7); }
+  .pcard b { display:block; color:#fff; font-size:16px; }
+  .pcard small { color:#9ca3af; font-size:12px; }
+  .pcard .k { float:right; font:800 12px 'Saira Condensed'; color:var(--red); letter-spacing:.2em; }
+  /* 5x5 판: 가운데 3x3 이 스트라이크 존 */
+  .board { position:absolute; display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(5,1fr); gap:3px; }
+  .board i { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); position:relative; }
+  .board i.z { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.28); }
+  .board i.rec { background:rgba(253,224,71,.22); border-color:var(--yel); box-shadow: inset 0 0 18px rgba(253,224,71,.45); animation: recp 1.4s ease-in-out infinite; }
+  .board i.rec2 { background:rgba(253,224,71,.1); border-color:rgba(253,224,71,.5); }
+  .board i.hot { background:rgba(248,113,113,.35); }
+  .board i.cold { background:rgba(125,211,252,.22); }
+  .board i span { position:absolute; inset:0; display:grid; place-items:center; font:700 13px 'Saira Condensed'; color:rgba(255,255,255,.8); }
+  @keyframes recp { 50% { box-shadow: inset 0 0 30px rgba(253,224,71,.8); } }
+  .ball { position:absolute; width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#fff,#d6d3d1); box-shadow:0 0 18px #fff, 0 0 0 3px rgba(248,113,113,.5); transform:translate(-50%,-50%); }
+  .ball::after { content:''; position:absolute; inset:6px; border-radius:50%; border:2px dashed rgba(220,38,38,.7); }
+  .scatter { position:absolute; border-radius:50%; border:2px dashed rgba(248,113,113,.8); background:rgba(248,113,113,.08); transform:translate(-50%,-50%); }
+  .cross { position:absolute; width:70px; height:70px; transform:translate(-50%,-50%); }
+  .cross::before,.cross::after { content:''; position:absolute; background:var(--red); }
+  .cross::before { left:50%; top:0; bottom:0; width:2px; } .cross::after { top:50%; left:0; right:0; height:2px; }
+  .gauge { position:absolute; height:30px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
+  .gauge div { position:absolute; top:0; bottom:0; }
+  .hint { position:absolute; font-weight:700; color:#fca5a5; }
+  .lab { font:600 11px 'Saira Condensed'; letter-spacing:.3em; color:#9ca3af; }
+  .keys kbd { font:700 12px system-ui; background:#111827; border:1px solid #374151; border-bottom-width:3px; padding:2px 7px; border-radius:4px; color:#fff; }
+  .note { width:1280px; margin:-28px auto 30px; color:#9ca3af; font-size:14px; line-height:1.6; }
+</style>
+
+<h1>위기 투구판 — 구종 고르기 → 판에 공 놓기 → 게이지로 던지기</h1>
+
+<!-- A: 포수 시점 오버레이 -->
+<div class="mock">
+  <span class="tag">A · 포수 시점</span>
+  <div class="bg" style="background-image:url(clutch/mound.png)"></div>
+  <div class="shade" style="background:radial-gradient(40% 50% at 48% 55%, transparent, rgba(3,5,10,.75)), linear-gradient(90deg, rgba(3,5,10,.85), transparent 30%, transparent 70%, rgba(3,5,10,.85))"></div>
+  <div class="hud"><span class="lab">9회초 · 1점 차 리드</span><br><b>4 : 3</b>
+    <div class="count">B<span class="dot b"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span> S<span class="dot s"></span><span class="dot s"></span><span class="dot"></span></div></div>
+  <div style="position:absolute;left:26px;top:120px;display:flex;flex-direction:column;gap:10px">
+    <span class="lab">구종</span>
+    <div class="pcard on"><span class="k">1</span><b>몸쪽 하이 직구</b><small>구위 91 · 좁지만 먹힌다</small></div>
+    <div class="pcard"><span class="k">2</span><b>바깥쪽 슬라이더</b><small>제구 84 · 무난한 결정구</small></div>
+    <div class="pcard"><span class="k">3</span><b>낮은 체인지업</b><small>안정 80 · 넓고 안전</small></div>
+  </div>
+  <!-- 포수 미트 위에 판 -->
+  <div class="board" style="left:410px;top:170px;width:300px;height:340px">
+    <i></i><i></i><i></i><i></i><i></i>
+    <i></i><i class="z rec"></i><i class="z rec2"></i><i class="z"></i><i></i>
+    <i></i><i class="z rec2"></i><i class="z"></i><i class="z"></i><i></i>
+    <i></i><i class="z"></i><i class="z"></i><i class="z"></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="ball" style="left:488px;top:262px"></div>
+  <div class="hint" style="left:720px;top:210px">◀ 추천: 몸쪽 높게</div>
+  <div class="gauge" style="left:340px;top:600px;width:600px">
+    <div style="left:30%;width:40%;background:rgba(248,113,113,.25)"></div>
+    <div style="left:43%;width:14%;background:rgba(52,211,153,.35)"></div>
+    <div style="left:47.5%;width:5%;background:var(--yel)"></div>
+    <div style="left:61%;width:5px;top:-6px;bottom:-6px;background:#fff;box-shadow:0 0 12px #fff"></div>
+  </div>
+  <p class="keys" style="position:absolute;left:0;right:0;bottom:30px;text-align:center;margin:0"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 구종 · <kbd>←↑↓→</kbd> 공 놓기 · <kbd>SPACE</kbd> 던지기</p>
+</div>
+<p class="note">경기 화면 그대로 포수 미트 위에 5×5 판을 겹친다. 가운데 3×3이 스트라이크 존, 바깥 칸은 유인구. 구종을 바꾸면 추천 칸이 노랗게 맥박친다.</p>
+
+<!-- B: 그립 + 큰 판 -->
+<div class="mock">
+  <span class="tag">B · 그립 카드</span>
+  <div class="bg" style="background-image:url(clutch/grip.png);width:560px;background-position:30% 50%"></div>
+  <div class="shade" style="background:linear-gradient(90deg, transparent 0, rgba(5,8,15,.2) 300px, #05080f 560px)"></div>
+  <div style="position:absolute;left:32px;bottom:34px;width:480px">
+    <p class="lab" style="color:#fca5a5">SELECTED PITCH</p>
+    <p style="font-size:44px;font-weight:900;margin:4px 0;color:#fff;text-shadow:0 2px 20px #000">바깥쪽 슬라이더</p>
+    <p style="margin:0;color:#d1d5db">휘어 나가는 결정구 · 우타자 바깥쪽 아래가 가장 좋다</p>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <div class="pcard" style="width:150px"><b>직구</b><small>몸쪽 하이</small></div>
+      <div class="pcard on" style="width:150px"><b>슬라이더</b><small>바깥쪽</small></div>
+      <div class="pcard" style="width:150px"><b>체인지업</b><small>낮게</small></div>
+    </div>
+  </div>
+  <div style="position:absolute;left:620px;top:40px;right:40px">
+    <p class="lab">PITCHER 김광현 · 제구 88 &nbsp;&nbsp; VS &nbsp;&nbsp; BATTER 이대호 · 파워 94</p>
+  </div>
+  <div class="board" style="left:700px;top:100px;width:460px;height:520px">
+    <i></i><i></i><i></i><i></i><i></i>
+    <i></i><i class="z"></i><i class="z"></i><i class="z"></i><i></i>
+    <i></i><i class="z"></i><i class="z"></i><i class="z rec2"></i><i class="rec2"></i>
+    <i></i><i class="z"></i><i class="z rec2"></i><i class="z rec"></i><i class="rec"></i>
+    <i></i><i></i><i></i><i class="rec2"></i><i></i>
+  </div>
+  <!-- 휘는 궤적 -->
+  <svg style="position:absolute;left:700px;top:100px" width="460" height="520" viewBox="0 0 460 520">
+    <path d="M190 -10 Q 250 250 380 420" stroke="#f87171" stroke-width="3" fill="none" stroke-dasharray="8 6"/>
+  </svg>
+  <div class="scatter" style="left:1080px;top:520px;width:76px;height:76px"></div>
+  <div class="cross" style="left:1080px;top:520px"></div>
+  <p class="hint" style="left:700px;top:640px">점선 원 = 제구 오차 범위 (제구가 높을수록 작아짐)</p>
+</div>
+<p class="note">왼쪽은 고른 구종의 그립 일러스트, 오른쪽은 크게 확대한 판. 조준점을 옮기면 공이 실제로 떨어질 수 있는 오차 원이 따라다니고, 슬라이더는 휘는 궤적 점선이 보인다.</p>
+
+<!-- C: 타자 핫/콜드 존 -->
+<div class="mock">
+  <span class="tag">C · 핫/콜드 존</span>
+  <div class="bg" style="background-image:url(clutch/mound.png);filter:blur(6px) brightness(.35)"></div>
+  <div style="position:absolute;left:60px;top:70px;width:340px">
+    <p class="lab">SCOUTING REPORT</p>
+    <p style="font-size:34px;font-weight:900;color:#fff;margin:6px 0">이대호 <small style="font-size:16px;color:#9ca3af">2010 롯데 · 우타</small></p>
+    <p style="margin:0;color:#fca5a5">몸쪽 높은 공 타율 .412 — 피해야 한다</p>
+    <p style="margin:6px 0 0;color:#7dd3fc">바깥쪽 낮은 변화구 타율 .188</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:40px">
+      <div class="pcard"><b>몸쪽 하이 직구</b><small>추천 칸이 이 타자 핫존과 겹침 ⚠</small></div>
+      <div class="pcard on"><b>바깥쪽 슬라이더</b><small>추천 칸 = 콜드존 ✔</small></div>
+      <div class="pcard"><b>낮은 체인지업</b><small>반반</small></div>
+    </div>
+  </div>
+  <div class="board" style="left:500px;top:90px;width:470px;height:540px">
+    <i></i><i class="hot"><span>.301</span></i><i class="hot"><span>.355</span></i><i></i><i></i>
+    <i class="hot"><span>.290</span></i><i class="z hot"><span>.412</span></i><i class="z hot"><span>.378</span></i><i class="z"><span>.310</span></i><i><span>.200</span></i>
+    <i></i><i class="z hot"><span>.366</span></i><i class="z"><span>.320</span></i><i class="z"><span>.270</span></i><i class="cold"><span>.160</span></i>
+    <i></i><i class="z"><span>.300</span></i><i class="z"><span>.251</span></i><i class="z cold rec"><span>.188</span></i><i class="cold rec2"><span>.120</span></i>
+    <i></i><i></i><i class="cold"><span>.170</span></i><i class="cold rec2"><span>.095</span></i><i></i>
+  </div>
+  <div class="ball" style="left:830px;top:490px"></div>
+  <div style="position:absolute;right:50px;top:120px;width:220px">
+    <p class="lab">예상 결과</p>
+    <p style="margin:8px 0 2px;font:800 40px 'Saira Condensed';color:var(--grn)">71%</p><p style="margin:0;color:#9ca3af">범타·삼진</p>
+    <p style="margin:18px 0 2px;font:800 40px 'Saira Condensed';color:var(--red)">9%</p><p style="margin:0;color:#9ca3af">장타 허용</p>
+    <p style="margin-top:30px;font-size:13px;color:#9ca3af;line-height:1.6">빨강 = 이 타자가 강한 칸<br>파랑 = 약한 칸<br>노랑 테두리 = 구종 추천</p>
+  </div>
+</div>
+<p class="note">판 칸마다 상대 타자의 강·약 코스를 보여 준다. 구종 추천 칸과 핫존이 겹치면 경고 — "추천대로 던질지, 타자 약점을 노릴지" 고르는 재미. 오른쪽은 놓은 자리 기준 예상 확률.</p>
+
+<!-- D: 사이드 궤적 + 조준 원 수축 -->
+<div class="mock">
+  <span class="tag">D · 조준 원 수축</span>
+  <div class="bg" style="background-image:url(clutch/mound.png);background-position:50% 60%"></div>
+  <div class="shade" style="background:rgba(3,5,10,.55)"></div>
+  <div class="board" style="left:420px;top:120px;width:440px;height:480px;opacity:.95">
+    <i></i><i></i><i></i><i></i><i></i>
+    <i></i><i class="z"></i><i class="z"></i><i class="z"></i><i></i>
+    <i></i><i class="z"></i><i class="z"></i><i class="z"></i><i></i>
+    <i></i><i class="z rec2"></i><i class="z rec"></i><i class="z rec2"></i><i></i>
+    <i></i><i class="rec2"></i><i class="rec"></i><i class="rec2"></i><i></i>
+  </div>
+  <!-- 조준 원이 줄어드는 단계: 바깥(방금) → 안(지금) -->
+  <div class="scatter" style="left:640px;top:500px;width:200px;height:200px;opacity:.25"></div>
+  <div class="scatter" style="left:640px;top:500px;width:130px;height:130px;opacity:.5"></div>
+  <div class="scatter" style="left:640px;top:500px;width:62px;height:62px;border-style:solid;border-color:var(--yel);box-shadow:0 0 24px var(--yel)"></div>
+  <div class="cross" style="left:640px;top:500px"></div>
+  <div style="position:absolute;left:40px;top:120px;width:300px">
+    <p class="lab">낮은 체인지업</p>
+    <p style="font-size:30px;font-weight:900;color:#fff;margin:6px 0 16px">숨 고르기…</p>
+    <p style="color:#d1d5db;line-height:1.7;margin:0">SPACE 를 누르고 있으면 조준 원이 좁아진다.<br>너무 오래 쥐면 <b style="color:var(--red)">손이 떨려</b> 다시 커진다.<br>가장 작을 때 떼면 PERFECT.</p>
+    <div style="margin-top:26px;height:10px;background:rgba(255,255,255,.08)"><div style="width:78%;height:100%;background:linear-gradient(90deg,var(--grn),var(--yel),var(--red))"></div></div>
+    <p class="lab" style="margin-top:6px">긴장도 78</p>
+  </div>
+  <div style="position:absolute;right:50px;top:140px;width:260px;text-align:right">
+    <p class="lab">PITCH COUNT</p><p style="font:800 44px 'Saira Condensed';color:#fff;margin:4px 0">108</p>
+    <p style="color:#fca5a5;margin:0">투구 수가 많을수록 원이 덜 줄어든다</p>
+  </div>
+  <p class="keys" style="position:absolute;left:0;right:0;bottom:36px;text-align:center;margin:0"><kbd>←↑↓→</kbd> 조준 · <kbd>SPACE</kbd> 누르고 있다가 떼기</p>
+</div>
+<p class="note">게이지 대신 "누르고 있다 떼기". 조준 원이 줄었다가 오래 쥐면 다시 커지는 호흡 조절형. 투구 수·안정 능력치가 원이 줄어드는 한계를 정한다.</p>

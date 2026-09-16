@@ -1,0 +1,252 @@
+<title>경기 중계 화면 8안</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --em:#10b981; --em2:#34d399; --red:#f87171; --yel:#fde047; --sky:#7dd3fc; --vio:#c4b5fd; --bg:#05080f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#010205; color:#e5e7eb; font-family: system-ui, 'Malgun Gothic', sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 4px; margin:0; }
+  .d { font-family:'Saira Condensed', sans-serif; }
+  .screen { position:relative; width:1920px; height:911px; margin:14px auto 10px; overflow:hidden; background:radial-gradient(120% 80% at 50% 0%, #0b1424, #05080f 60%); border:1px solid #1f2937; display:flex; flex-direction:column; }
+  .note { width:1920px; margin:0 auto 46px; color:#9ca3af; font-size:15px; line-height:1.6; }
+  .note b { color:#fff; }
+  /* 헤더: 드래프트 화면과 같은 63px */
+  .hdr { height:63px; flex:none; display:flex; align-items:center; gap:26px; padding:0 22px; border-bottom:1px solid rgba(16,185,129,.25); background:linear-gradient(180deg,rgba(5,8,15,.95),rgba(5,8,15,.6)); position:relative; }
+  .hdr::after { content:''; position:absolute; left:0; bottom:-1px; width:260px; height:2px; background:linear-gradient(90deg,var(--em),transparent); }
+  .hdr .logo small { display:block; font:600 9px 'Saira Condensed'; letter-spacing:.38em; color:#6b7280; }
+  .hdr .logo b { font-size:18px; font-weight:900; color:#fff; }
+  .live { display:flex; align-items:center; gap:8px; font:800 13px 'Saira Condensed'; letter-spacing:.25em; color:var(--red); }
+  .live i { width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 10px var(--red); animation:blink 1s infinite; }
+  @keyframes blink { 50% { opacity:.2; } }
+  .sc { display:flex; align-items:center; gap:14px; font:800 30px 'Saira Condensed'; color:#fff; }
+  .sc span { font:600 13px system-ui; color:#9ca3af; }
+  .speed { margin-left:auto; display:flex; gap:4px; padding:3px; background:rgba(255,255,255,.04); }
+  .speed b { font:800 14px 'Saira Condensed'; padding:4px 12px; color:#9ca3af; }
+  .speed b.on { background:var(--em); color:#05080f; }
+  .main { flex:1; min-height:0; padding:12px 16px; display:grid; gap:12px; }
+  /* 패널 */
+  .pn { position:relative; min-height:0; background:rgba(8,13,24,.78); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); box-shadow:inset 0 0 0 1px rgba(125,211,252,.12); padding:12px 14px; overflow:hidden; }
+  .pl { font:600 11px 'Saira Condensed'; letter-spacing:.32em; color:#6ee7b7; margin:0 0 8px; text-transform:uppercase; }
+  .pl::before { content:'// '; color:#374151; }
+  .field { position:relative; overflow:hidden; background-size:cover; background-position:center; clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); }
+  .field svg.ov { position:absolute; inset:0; width:100%; height:100%; }
+  .btn { font:800 13px 'Saira Condensed'; letter-spacing:.14em; padding:9px 14px; background:rgba(255,255,255,.05); color:#e5e7eb; clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); white-space:nowrap; }
+  .btn.pri { background:var(--em); color:#05080f; }
+  .feed p { margin:0; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13px; display:flex; gap:10px; }
+  .feed p em { font:600 12px 'Saira Condensed'; color:#6b7280; font-style:normal; width:34px; flex:none; }
+  .feed p.hot { color:#fff; } .feed p.hot b { color:var(--yel); }
+  .tag { position:absolute; transform:translate(-50%,-100%); font:700 11px system-ui; color:#fff; background:rgba(5,8,15,.85); padding:2px 6px; white-space:nowrap; box-shadow:inset 2px 0 0 var(--c,#10b981); }
+  .tag b { font-family:'Saira Condensed'; color:var(--c,#10b981); margin-left:4px; }
+  .bar { height:6px; background:rgba(255,255,255,.08); } .bar i { display:block; height:100%; }
+  .kpi b { display:block; font:800 30px 'Saira Condensed'; color:#fff; line-height:1; } .kpi span { font-size:11px; color:#9ca3af; }
+  .pcard { position:relative; background:linear-gradient(180deg,#111827,#070b14); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+  @keyframes pulse { 50% { opacity:.5; } }
+  @keyframes flash { 0%,70% { opacity:0; transform:scale(1.4); } 80% { opacity:1; transform:scale(1); } 100% { opacity:0; } }
+</style>
+
+<h1>경기 중계 화면 8안 — FIFA 모바일 감독 모드 느낌 · 1920×911 (드래프트 화면과 같은 틀)</h1>
+<div id="root"></div>
+
+<script>
+/* 배경 이미지마다 홈·1루·2루·3루 좌표(1344×752 기준) → 수비 위치를 계산해 SVG 로 겹친다 */
+const G = {
+  top:   { img: 'sim-top.webp',   H: [673, 648], B1: [880, 465], B2: [675, 315], B3: [467, 465] },
+  iso:   { img: 'sim-iso.webp',   H: [672, 508], B1: [795, 420], B2: [672, 350], B3: [550, 420] },
+  broad: { img: 'sim-broad.webp', H: [672, 615], B1: [940, 465], B2: [672, 380], B3: [400, 462] },
+};
+const pt = (g, x, y) => { const u = [(g.B1[0] - g.B3[0]) / 2, (g.B1[1] - g.B3[1]) / 2]; const v = [g.B2[0] - g.H[0], g.B2[1] - g.H[1]]; return [g.H[0] + x * u[0] + y * v[0], g.H[1] + x * u[1] + y * v[1]]; };
+const SPOTS = { P: [0, 0.5], C: [0, -0.14], '1B': [0.86, 0.66], '2B': [0.42, 1.08], SS: [-0.42, 1.08], '3B': [-0.86, 0.66], LF: [-1.15, 1.95], CF: [0, 2.3], RF: [1.15, 1.95] };
+const DEF = { P: '양현종', C: '양의지', '1B': '이승엽', '2B': '정근우', SS: '강정호', '3B': '김동주', LF: '이용규', CF: '이종범', RF: '손아섭' };
+const OVR = { P: 89, C: 88, '1B': 92, '2B': 84, SS: 90, '3B': 86, LF: 83, CF: 91, RF: 85 };
+
+/* 경기장 오버레이: 수비수 점 · 주자(1루→2루 달리기) · 타구 궤적(반복) · 추격하는 수비수 */
+function overlay(g, o = {}) {
+  const P = (k) => pt(g, ...SPOTS[k]);
+  const r = o.r || 9;
+  const lf = P('LF'), cf = P('CF'), land = pt(g, -0.7, 1.65);
+  const dots = Object.keys(SPOTS).map((k) => {
+    const [x, y] = P(k);
+    const chase = k === 'LF' ? `<animateTransform attributeName="transform" type="translate" values="0 0; ${(land[0] - x) * 0.85} ${(land[1] - y) * 0.85}; ${(land[0] - x) * 0.85} ${(land[1] - y) * 0.85}; 0 0" keyTimes="0;.45;.8;1" dur="2.4s" repeatCount="indefinite"/>` : k === 'SS' ? `<animateTransform attributeName="transform" type="translate" values="0 0; ${(g.B2[0] - x) * 0.7} ${(g.B2[1] - y) * 0.7}; 0 0" keyTimes="0;.5;1" dur="2.4s" repeatCount="indefinite"/>` : '';
+    return `<g><g>${chase}<circle cx="${x}" cy="${y}" r="${r}" fill="#f87171" stroke="#05080f" stroke-width="3"/>${o.names ? `<text x="${x}" y="${y + r + 15}" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" style="paint-order:stroke;stroke:#05080f;stroke-width:4">${DEF[k]}</text>` : ''}</g></g>`;
+  }).join('');
+  const bases = [g.B1, g.B2, g.B3].map(([x, y], i) => `<rect x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})" fill="${i === 0 ? '#10b981' : '#fff'}"/>`).join('');
+  const runner = `<circle r="${r}" fill="#10b981" stroke="#fff" stroke-width="3"><animateMotion dur="2.4s" repeatCount="indefinite" keyTimes="0;.15;.6;1" keyPoints="0;0;1;1" calcMode="linear" path="M${g.B1[0]} ${g.B1[1]} L${g.B2[0]} ${g.B2[1]}"/></circle>`;
+  const bat = `<circle r="${r}" fill="#10b981" stroke="#fde047" stroke-width="3"><animateMotion dur="2.4s" repeatCount="indefinite" keyTimes="0;.2;.65;1" keyPoints="0;0;1;1" calcMode="linear" path="M${g.H[0] - 14} ${g.H[1]} L${g.B1[0]} ${g.B1[1]}"/></circle>`;
+  const ctrl = [(g.H[0] + land[0]) / 2, Math.min(g.H[1], land[1]) - (o.arc || 170)];
+  const path = `M${g.H[0]} ${g.H[1]} Q ${ctrl[0]} ${ctrl[1]} ${land[0]} ${land[1]}`;
+  const trail = `<path d="${path}" fill="none" stroke="#fde047" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12" opacity=".75"/>
+    <circle r="7" fill="#fff" style="filter:drop-shadow(0 0 8px #fde047)"><animateMotion dur="2.4s" repeatCount="indefinite" keyTimes="0;.45;1" keyPoints="0;1;1" calcMode="linear" path="${path}"/></circle>
+    <circle cx="${land[0]}" cy="${land[1]}" r="26" fill="none" stroke="#fde047" stroke-width="3" opacity=".6"><animate attributeName="r" values="8;34" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".8;0" dur="1.2s" repeatCount="indefinite"/></circle>`;
+  return `<svg class="ov" viewBox="0 0 1344 752" preserveAspectRatio="xMidYMid slice">${bases}${o.trail === false ? '' : trail}${dots}${runner}${bat}${o.extra || ''}</svg>`;
+}
+const field = (g, style, o) => `<div class="field" style="background-image:url(clutch/${g.img});${style}">${overlay(g, o)}${o?.inner || ''}</div>`;
+
+const hdr = (extra = '') => `<div class="hdr">
+  <div class="logo"><small>LEGEND DRAFT</small><b>레전드 드래프트</b></div>
+  <span class="live"><i></i>LIVE · 7회말</span>
+  <div class="sc"><span>AI 올스타</span>4<small style="color:#374151">:</small><b style="color:var(--em)">5</b><span>나의 드림팀</span></div>
+  ${extra}
+  <div class="speed"><b>×1</b><b class="on">×2</b><b>×4</b></div>
+  <span class="btn">⏸ 일시정지</span>
+</div>`;
+const feed = (n = 7) => `<div class="feed">${[
+  ['7말', '<b>이종범</b> 좌중간 2루타! 1루 주자 3루까지', 'hot'],
+  ['7말', '이용규 볼넷 출루', ''],
+  ['7초', '양현종 삼자범퇴 · 투구수 96', ''],
+  ['6말', '<b>이승엽</b> 우월 솔로 홈런 +1', 'hot'],
+  ['6초', '박병호 적시타 +1', ''],
+  ['5말', '강정호 병살타로 찬스 무산', ''],
+  ['5초', '[증강 발동] 에이스의 품격 · 무실점', 'hot'],
+  ['4말', '김동주 희생플라이 +1', ''],
+].slice(0, n).map(([i, t, c]) => `<p class="${c}"><em>${i}</em><span>${t}</span></p>`).join('')}</div>`;
+const outs = (n) => `<span class="d" style="font-size:13px;color:#9ca3af;letter-spacing:.2em">OUT ${[0, 1, 2].map((i) => `<i style="display:inline-block;width:11px;height:11px;border-radius:50%;margin-left:4px;background:${i < n ? '#ef4444' : 'rgba(255,255,255,.15)'}"></i>`).join('')}</span>`;
+const bso = `<div style="display:flex;gap:16px">${outs(1)}<span class="d" style="font-size:13px;color:#9ca3af;letter-spacing:.2em">B <b style="color:#fff">2</b> · S <b style="color:#fff">1</b></span></div>`;
+const tactics = `<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="btn">⚡ 도루</span><span class="btn">🪃 번트</span><span class="btn">🛡 전진 수비</span><span class="btn">🔁 투수 교체</span><span class="btn pri">▶ 작전 없음</span></div>`;
+const momentum = (h = 70) => {
+  const pts = [0, 12, 8, -10, -22, -6, 18, 30, 14, -8, -26, -12, 10, 28, 40, 22, 34, 46].map((v, i) => `${i * 30},${h / 2 - v * (h / 110)}`).join(' ');
+  return `<svg viewBox="0 0 510 ${h}" preserveAspectRatio="none" style="width:100%;height:${h}px;display:block">
+    <line x1="0" x2="510" y1="${h / 2}" y2="${h / 2}" stroke="rgba(255,255,255,.15)"/>
+    <polygon points="0,${h / 2} ${pts} 510,${h / 2}" fill="url(#mg)" opacity=".55"/>
+    <polyline points="${pts}" fill="none" stroke="#34d399" stroke-width="2.5"/>
+    <defs><linearGradient id="mg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset=".5" stop-color="#10b981" stop-opacity="0"/><stop offset=".5" stop-color="#f87171" stop-opacity="0"/><stop offset="1" stop-color="#f87171"/></linearGradient></defs>
+  </svg>`;
+};
+
+const S = [];
+
+/* 1 · 탑뷰 라이브 */
+S.push({ name: '탑뷰 라이브', note: '<b>FIFA 감독 모드 그대로</b>. 위에서 내려다본 실제 경기장 사진 위를 점(선수)들이 빠르게 뛰어다닌다. 오른쪽은 문자 중계 + 모멘텀, 아래는 작전 버튼. 가장 무난하고 빨리 읽힘.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr 380px;grid-template-rows:1fr 64px">
+  ${field(G.top, 'grid-row:1', { names: true, inner: `<div style="position:absolute;left:18px;top:14px">${bso}</div><div style="position:absolute;right:18px;top:14px;text-align:right"><p class="pl" style="margin:0">at bat</p><b style="font-size:22px;color:#fff">이종범</b> <span class="d" style="color:var(--em)">OVR 91</span></div><div style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font:800 64px 'Saira Condensed';color:var(--yel);text-shadow:0 0 30px rgba(253,224,71,.7);animation:flash 2.4s infinite">2루타!</div>` })}
+  <div class="pn" style="grid-row:1 / span 2;display:flex;flex-direction:column;gap:12px">
+    <div><p class="pl">momentum</p>${momentum(80)}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" class="kpi"><div><b>7</b><span>안타</span></div><div><b>2</b><span>홈런</span></div><div><b style="color:var(--em)">62%</b><span>승리 확률</span></div></div>
+    <div style="flex:1;min-height:0"><p class="pl">play by play</p>${feed(8)}</div>
+  </div>
+  <div class="pn" style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px">${tactics}<span class="d" style="color:#9ca3af">투구수 <b style="color:#fff">96</b> · 피로 <b style="color:var(--red)">높음</b></span></div>
+</div>` });
+
+/* 2 · 아이소 경기장 */
+S.push({ name: '아이소 경기장', note: '<b>모바일 게임 느낌</b>. 로우폴리 아이소 경기장 위에 선수 이름표(능력치)가 떠다닌다. 아래 승리 확률 그래프가 타석마다 출렁이고, 왼쪽 위에 투타 대결 칩.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr;grid-template-rows:1fr 150px">
+  ${field(G.iso, '', { r: 7, arc: 120, inner: Object.keys(SPOTS).map((k) => { const [x, y] = pt(G.iso, ...SPOTS[k]); return `<span class="tag" style="left:${x / 13.44}%;top:${(y - 12) / 7.52}%;--c:#f87171">${DEF[k]}<b>${OVR[k]}</b></span>`; }).join('') + `
+    <div style="position:absolute;left:18px;top:14px;display:flex;gap:8px;align-items:center">
+      <div class="pcard" style="padding:8px 12px"><p class="pl" style="margin:0">batter</p><b style="color:#fff">이종범</b> <span class="d" style="color:var(--em)">91</span></div>
+      <b class="d" style="font-size:22px;color:#6b7280">VS</b>
+      <div class="pcard" style="padding:8px 12px"><p class="pl" style="margin:0;color:#fca5a5">pitcher</p><b style="color:#fff">양현종</b> <span class="d" style="color:var(--red)">89</span></div>
+    </div>
+    <div style="position:absolute;right:18px;top:14px">${bso}</div>` })}
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:12px;min-height:0">
+    <div class="pn"><p class="pl">win probability · 나의 드림팀</p>${momentum(96)}</div>
+    <div class="pn"><p class="pl">last play</p><p style="margin:0;font:800 34px 'Saira Condensed';color:var(--yel)">DOUBLE</p><p style="margin:2px 0 0;color:#d1d5db">이종범 좌중간 · 타구 164km/h · 비거리 98m</p></div>
+  </div>
+</div>` });
+
+/* 3 · 중계 카메라 AR */
+S.push({ name: '중계 카메라 AR', note: '<b>TV 중계 + 추적 그래픽</b>. 포수 뒤 높은 카메라 사진 위에 타구 궤적(AR)과 타구 속도·발사각이 붙는다. 사실감 최고, 대신 외야 수비수가 작아 움직임은 덜 보임.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr;grid-template-rows:1fr">
+  ${field(G.broad, '', { r: 8, arc: 230, names: true, inner: `
+    <div style="position:absolute;left:18px;top:14px;width:300px" class="pn"><p class="pl">matchup</p>
+      <div style="display:flex;justify-content:space-between;align-items:end"><div><b style="font-size:22px;color:#fff">이종범</b><br><span style="font-size:12px;color:#9ca3af">오늘 2타수 1안타</span></div><b class="d" style="font-size:40px;color:var(--em)">91</b></div>
+      <div class="bar" style="margin-top:8px"><i style="width:72%;background:var(--em)"></i></div><p style="margin:4px 0 0;font-size:11px;color:#9ca3af">안타 확률 34%</p>
+    </div>
+    <div style="position:absolute;left:44%;top:14%;background:rgba(5,8,15,.8);padding:8px 14px;box-shadow:inset 3px 0 0 var(--yel)"><span class="d" style="color:var(--yel);font-size:14px;letter-spacing:.2em">EXIT VELO</span><b class="d" style="display:block;font-size:32px;color:#fff">164 km/h</b><span style="color:#9ca3af;font-size:12px">발사각 21° · 비거리 98m</span></div>
+    <div style="position:absolute;right:18px;top:14px;width:330px;max-height:60%" class="pn"><p class="pl">play by play</p>${feed(6)}</div>
+    <div style="position:absolute;left:18px;right:18px;bottom:14px;display:flex;justify-content:space-between;align-items:center">${bso}${tactics}</div>` })}
+</div>` });
+
+/* 4 · 전술판 */
+const board = (w = 700) => {
+  const g = { H: [350, 560], B1: [490, 420], B2: [350, 280], B3: [210, 420] };
+  const P = (k) => pt(g, ...SPOTS[k]);
+  return `<svg viewBox="0 0 700 620" style="width:100%;height:100%">
+    <defs><filter id="glow"><feGaussianBlur stdDeviation="3"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <path d="M350 560 L30 240 A 450 450 0 0 1 670 240 Z" fill="rgba(16,185,129,.06)" stroke="rgba(52,211,153,.5)" stroke-width="2"/>
+    <path d="M350 560 L490 420 L350 280 L210 420 Z" fill="none" stroke="rgba(125,211,252,.7)" stroke-width="2"/>
+    <circle cx="350" cy="430" r="16" fill="none" stroke="rgba(125,211,252,.5)"/>
+    ${[P('LF'), P('CF'), P('RF')].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="46" fill="rgba(248,113,113,.07)" stroke="rgba(248,113,113,.25)" stroke-dasharray="4 5"/>`).join('')}
+    <path d="M490 420 L350 280" stroke="#34d399" stroke-width="4" stroke-dasharray="10 8" filter="url(#glow)"><animate attributeName="stroke-dashoffset" values="36;0" dur=".6s" repeatCount="indefinite"/></path>
+    <path d="M350 560 Q 230 300 170 190" stroke="#fde047" stroke-width="3" fill="none" stroke-dasharray="3 9" filter="url(#glow)"/>
+    ${Object.keys(SPOTS).map((k) => { const [x, y] = P(k); return `<g><circle cx="${x}" cy="${y}" r="15" fill="#0b1220" stroke="#f87171" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="12" font-weight="800" fill="#fca5a5" font-family="Saira Condensed">${k}</text></g>`; }).join('')}
+    <circle r="15" fill="#10b981" stroke="#fff" stroke-width="3" filter="url(#glow)"><animateMotion dur="1.6s" repeatCount="indefinite" path="M490 420 L350 280"/></circle>
+    <circle cx="170" cy="190" r="8" fill="#fde047" filter="url(#glow)"/>
+  </svg>`;
+};
+S.push({ name: '전술판', note: '<b>작전판 그래픽</b>. 사진 대신 네온 선으로 그린 전술판. 선수는 포지션 원, 주자 경로와 타구 궤적이 빛나며 흐른다. 가장 가볍고 빠름 · 왼쪽 라인업 컨디션이 실시간으로 오르내림.', html: `${hdr()}
+<div class="main" style="grid-template-columns:300px 1fr 340px;background:url(clutch/sim-board.webp) center/cover">
+  <div class="pn"><p class="pl">my lineup · live form</p>${['이용규 LF', '정근우 2B', '이종범 CF', '이승엽 1B', '김동주 3B', '강정호 SS', '양의지 C', '손아섭 RF', '박병호 DH'].map((n, i) => `<div style="display:grid;grid-template-columns:18px 1fr 40px 30px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);${i === 2 ? 'background:rgba(16,185,129,.12);box-shadow:inset 3px 0 0 var(--em)' : ''}"><span class="d" style="color:#6b7280">${i + 1}</span><span style="font-size:14px;color:#fff">${n}</span><div class="bar"><i style="width:${[80, 55, 92, 70, 40, 66, 58, 74, 62][i]}%;background:${[80, 55, 92, 70, 40, 66, 58, 74, 62][i] > 60 ? 'var(--em)' : 'var(--red)'}"></i></div><span class="d" style="color:${i % 3 ? 'var(--em)' : 'var(--red)'}">${i % 3 ? '▲' : '▼'}${[2, 1, 4, 0, 3, 1, 2, 1, 0][i]}</span></div>`).join('')}</div>
+  <div class="pn" style="padding:0;background:rgba(5,8,15,.35)"><div style="position:absolute;left:16px;top:12px">${bso}</div>${board()}<div style="position:absolute;left:0;right:0;bottom:14px;display:flex;justify-content:center">${tactics}</div></div>
+  <div class="pn" style="display:flex;flex-direction:column;gap:12px"><p class="pl">pitcher · 양현종</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="kpi"><div><b>96</b><span>투구수</span></div><div><b style="color:var(--red)">78%</b><span>체력</span></div><div><b>7</b><span>탈삼진</span></div><div><b>2</b><span>실점</span></div></div>
+    <div><p class="pl">play by play</p>${feed(6)}</div></div>
+</div>` });
+
+/* 5 · 카드 대결 */
+const bigCard = (name, pos, ovr, c, stats, img) => `<div class="pcard" style="width:300px;height:420px;padding:18px;box-shadow:inset 0 0 0 2px ${c}, 0 0 60px -20px ${c}">
+  <div style="display:flex;justify-content:space-between"><b class="d" style="font-size:64px;line-height:.9;color:${c}">${ovr}</b><span class="d" style="font-size:18px;color:#9ca3af;letter-spacing:.2em">${pos}</span></div>
+  <div style="height:150px;margin:10px 0;background:radial-gradient(60% 70% at 50% 60%, ${c}33, transparent), url(clutch/${img}) center/cover;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)"></div>
+  <b style="font-size:28px;color:#fff">${name}</b>
+  ${stats.map(([k, v]) => `<div style="display:grid;grid-template-columns:44px 1fr 30px;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:#9ca3af">${k}<div class="bar"><i style="width:${v}%;background:${c}"></i></div><b class="d" style="color:#fff;font-size:16px">${v}</b></div>`).join('')}
+</div>`;
+S.push({ name: '카드 대결', note: '<b>승부 순간을 카드 대결로</b>. 타석마다 가운데에 타자·투수 카드가 맞붙고 게이지로 결과가 결정된다. 경기장은 오른쪽 작은 탑뷰에서 계속 뛴다. 카드 수집 게임다운 연출.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr 520px;grid-template-rows:1fr 120px">
+  <div class="pn" style="display:flex;align-items:center;justify-content:center;gap:40px;background:radial-gradient(60% 60% at 50% 50%, rgba(16,185,129,.12), rgba(8,13,24,.8))">
+    ${bigCard('이종범', 'CF · 1997 해태', 91, '#10b981', [['컨택', 90], ['파워', 72], ['주루', 96]], 'batter.png')}
+    <div style="text-align:center"><b class="d" style="font-size:54px;color:#fff">VS</b><p style="margin:10px 0 4px;color:#9ca3af;font-size:13px">안타 확률</p><b class="d" style="font-size:40px;color:var(--em)">34%</b>
+      <div style="width:160px;height:14px;margin:14px auto 0;background:linear-gradient(90deg,#f87171 0 40%,#fde047 40% 60%,#10b981 60%)"><i style="display:block;width:4px;height:22px;margin:-4px 0 0 66%;background:#fff;box-shadow:0 0 10px #fff;animation:pulse .4s infinite"></i></div></div>
+    ${bigCard('양현종', 'SP · 2017 KIA', 89, '#f87171', [['구위', 88], ['제구', 84], ['안정', 90]], 'grip.png')}
+  </div>
+  ${field(G.top, 'grid-row:1 / span 2', { r: 11, arc: 150 })}
+  <div class="pn" style="display:flex;align-items:center;gap:22px"><div style="flex:1">${momentum(70)}</div>${bso}</div>
+</div>` });
+
+/* 6 · 모멘텀 타임라인 */
+S.push({ name: '모멘텀 타임라인', note: '<b>흐름이 주인공</b>. 화면 아래 절반을 이닝별 모멘텀 파도가 차지하고, 홈런·증강 발동·삼진 같은 사건 아이콘이 타임라인에 박힌다. 경기장은 왼쪽 위에서 빠르게 진행, 오른쪽은 박스 스코어.', html: `${hdr()}
+<div class="main" style="grid-template-columns:760px 1fr;grid-template-rows:1fr 290px">
+  ${field(G.top, '', { r: 10, names: true })}
+  <div class="pn"><p class="pl">box score</p>
+    <table style="width:100%;border-collapse:collapse;font-family:'Saira Condensed';font-size:20px;text-align:center"><tr style="color:#6b7280;font-size:13px"><td style="text-align:left">TEAM</td>${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<td>${i}</td>`).join('')}<td style="color:var(--em)">R</td><td>H</td></tr>
+    <tr><td style="text-align:left;font:700 15px system-ui">AI 올스타</td>${[1, 0, 0, 2, 0, 1, 0, '', ''].map((v) => `<td>${v}</td>`).join('')}<td style="color:#fff">4</td><td>8</td></tr>
+    <tr><td style="text-align:left;font:700 15px system-ui">나의 드림팀</td>${[0, 2, 0, 1, 0, 1, '●', '', ''].map((v) => `<td style="${v === '●' ? 'color:var(--em)' : ''}">${v}</td>`).join('')}<td style="color:var(--em)">5</td><td>9</td></tr></table>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px"><div><p class="pl">mvp race</p>${[['이승엽', 'HR · 2타점', 88], ['이종범', '2루타 · 도루', 76], ['양현종', '7K', 71]].map(([n, t, v]) => `<div style="display:grid;grid-template-columns:70px 1fr 30px;gap:8px;align-items:center;margin:8px 0;font-size:13px"><b style="color:#fff">${n}</b><div class="bar"><i style="width:${v}%;background:var(--yel)"></i></div><span class="d">${v}</span></div>`).join('')}</div><div><p class="pl">play by play</p>${feed(4)}</div></div>
+  </div>
+  <div class="pn" style="grid-column:1 / span 2"><p class="pl">momentum · inning by inning</p>
+    <div style="position:relative;height:210px">${momentum(210)}
+      ${[['4%', '12%', '💥', '이승엽 HR'], ['23%', '70%', '⚡', '증강 발동'], ['47%', '78%', '🧱', '병살'], ['64%', '20%', '🔥', '역전 2타점'], ['88%', '8%', '⭐', '이종범 2루타']].map(([l, t, i, s]) => `<div style="position:absolute;left:${l};top:${t};text-align:center"><span style="display:grid;place-items:center;width:34px;height:34px;margin:auto;border-radius:50%;background:#0b1220;box-shadow:0 0 0 2px var(--yel);font-size:16px">${i}</span><small style="display:block;margin-top:4px;color:#fff;font-size:11px;white-space:nowrap">${s}</small></div>`).join('')}
+      <div style="position:absolute;left:0;right:0;bottom:-4px;display:flex;justify-content:space-between;font:600 12px 'Saira Condensed';color:#6b7280">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<span>${i}회</span>`).join('')}</div>
+    </div></div>
+</div>` });
+
+/* 7 · 라인업 카드 링 */
+const mini = (n, pos, ovr, form, style) => `<div class="pcard" style="position:absolute;width:118px;padding:7px 9px;${style}"><div style="display:flex;justify-content:space-between"><b class="d" style="font-size:24px;line-height:1;color:var(--em)">${ovr}</b><span class="d" style="color:#9ca3af">${pos}</span></div><b style="font-size:13px;color:#fff">${n}</b><div class="bar" style="margin-top:4px"><i style="width:${form}%;background:${form > 60 ? 'var(--em)' : 'var(--red)'}"></i></div><small style="font-size:10px;color:#9ca3af">컨디션 ${form}</small></div>`;
+S.push({ name: '라인업 카드 링', note: '<b>내 선수가 늘 보인다</b>. 가운데 경기장을 내 선수 9명 미니 카드가 둘러싸고, 플레이에 관여한 선수 카드가 번쩍이며 컨디션이 오르내린다. 드래프트 화면의 필드+카드 문법을 그대로 이어받음.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr 340px">
+  <div style="position:relative">
+    ${field(G.iso, 'position:absolute;inset:40px 150px', { r: 7, arc: 120 })}
+    ${mini('이용규', 'LF', 83, 80, 'left:0;top:40px')}${mini('이종범', 'CF', 91, 94, 'left:50%;top:0;transform:translateX(-50%);box-shadow:inset 0 0 0 2px var(--yel),0 0 40px -6px var(--yel)')}${mini('손아섭', 'RF', 85, 70, 'right:0;top:40px')}
+    ${mini('김동주', '3B', 86, 44, 'left:0;top:300px')}${mini('강정호', 'SS', 90, 66, 'left:0;top:170px')}${mini('정근우', '2B', 84, 58, 'right:0;top:170px')}${mini('이승엽', '1B', 92, 88, 'right:0;top:300px')}
+    ${mini('양의지', 'C', 88, 62, 'left:0;bottom:40px')}${mini('박병호', 'DH', 87, 72, 'right:0;bottom:40px')}
+    <div style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%)">${tactics}</div>
+    <div style="position:absolute;left:50%;top:120px;transform:translateX(-50%);font:800 50px 'Saira Condensed';color:var(--yel);text-shadow:0 0 30px rgba(253,224,71,.7);animation:flash 2.4s infinite">+1 컨디션</div>
+  </div>
+  <div class="pn" style="display:flex;flex-direction:column;gap:12px"><div>${bso}</div><div class="kpi" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><b style="color:var(--em)">62%</b><span>승리 확률</span></div><div><b>+3</b><span>시너지 보너스</span></div></div><div><p class="pl">momentum</p>${momentum(70)}</div><div style="flex:1;min-height:0"><p class="pl">play by play</p>${feed(6)}</div></div>
+</div>` });
+
+/* 8 · 스프레이 차트 분석 */
+const spray = () => {
+  const g = G.top;
+  const hits = Array.from({ length: 22 }, (_, i) => { const a = (i * 137.5) % 180 - 90; const d = 0.9 + ((i * 53) % 100) / 70; return [pt(g, Math.sin(a * Math.PI / 180) * d, Math.cos(a * Math.PI / 180) * d * 1.1), i % 4 === 0 ? '#fde047' : i % 3 ? '#10b981' : '#f87171']; });
+  return hits.map(([[x, y], c]) => `<circle cx="${x}" cy="${y}" r="9" fill="${c}" opacity=".85" stroke="#05080f" stroke-width="2"/>`).join('');
+};
+S.push({ name: '스프레이 차트', note: '<b>데이터로 보는 재미</b>. 경기가 진행될수록 타구가 경기장에 점으로 쌓인다(초록 안타·빨강 아웃·노랑 장타). 오른쪽에 투구 존 히트맵과 선수별 기록. 느리게 봐도 정보가 많아 지루하지 않음.', html: `${hdr()}
+<div class="main" style="grid-template-columns:1fr 460px">
+  ${field(G.top, '', { r: 9, extra: spray(), inner: `<div style="position:absolute;left:18px;top:14px;display:flex;gap:14px;align-items:center">${bso}<span style="font-size:12px;color:#d1d5db"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981"></i> 안타 <i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f87171;margin-left:8px"></i> 아웃 <i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fde047;margin-left:8px"></i> 장타</span></div><div style="position:absolute;left:18px;bottom:14px">${tactics}</div>` })}
+  <div style="display:grid;grid-template-rows:300px 1fr;gap:12px;min-height:0">
+    <div class="pn" style="display:grid;grid-template-columns:200px 1fr;gap:14px"><div><p class="pl">pitch zone · 양현종</p><div style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:180px;height:220px;border:2px solid rgba(255,255,255,.6)">${[.31, .22, .18, .35, .29, .12, .27, .19, .08].map((v) => `<i style="display:grid;place-items:center;border:1px solid rgba(255,255,255,.1);background:rgba(${v > .25 ? '248,113,113' : '125,211,252'},${Math.abs(v - .22) * 3});font:700 14px 'Saira Condensed';font-style:normal;color:#fff">.${String(Math.round(v * 1000)).padStart(3, '0')}</i>`).join('')}</div></div>
+      <div class="kpi" style="display:grid;gap:10px;align-content:start"><div><b>96</b><span>투구수</span></div><div><b>68%</b><span>스트라이크</span></div><div><b style="color:var(--sky)">151</b><span>최고 구속 km/h</span></div></div></div>
+    <div class="pn"><p class="pl">batting · 나의 드림팀</p><table style="width:100%;border-collapse:collapse;font-size:14px">${[['이용규', '3-1', 'BB'], ['정근우', '3-0', ''], ['이종범', '3-2', '2B'], ['이승엽', '3-2', 'HR'], ['김동주', '3-1', 'SF'], ['강정호', '2-0', ''], ['양의지', '2-1', ''], ['손아섭', '2-1', ''], ['박병호', '2-1', '']].map(([n, r, t], i) => `<tr style="border-bottom:1px solid rgba(255,255,255,.05);${i === 2 ? 'background:rgba(16,185,129,.12)' : ''}"><td style="padding:8px 4px;color:#fff">${n}</td><td class="d" style="font-size:18px">${r}</td><td class="d" style="color:var(--yel)">${t}</td></tr>`).join('')}</table></div>
+  </div>
+</div>` });
+
+document.getElementById('root').innerHTML = S.map((s, i) => `<div class="screen">${s.html}<span style="position:absolute;left:0;bottom:0;z-index:9;font:800 13px 'Saira Condensed';letter-spacing:.3em;color:#05080f;background:var(--em);padding:3px 12px">${i + 1} · ${s.name}</span></div><p class="note">${i + 1}. ${s.note}</p>`).join('');
+</script>

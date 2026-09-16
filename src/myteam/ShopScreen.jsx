@@ -58,10 +58,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg opacity={0.85} grad="linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.9))" />
-      <TopBar title="상점" left={<Btn sm onClick={onBack}>← 메인</Btn>}
-        sub={<Chip a="#7dd3fc">샐러리 캡 {(team.cap || 2000).toLocaleString()} CP</Chip>}>
-        <Chip a="#fde047">💰 {gold.toLocaleString()} G</Chip>
-      </TopBar>
+      <TopBar section="상점" team={team} account={{ ...account, gold }} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 py-4" style={{ gridTemplateColumns: '200px minmax(0,1fr) 340px' }}>
         <Panel label="Category" a="#fde047" className="p-3.5" c={14}>

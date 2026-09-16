@@ -1,0 +1,207 @@
+<title>경기 중계 화면 · 참고 레이아웃</title>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --em:#10b981; --em2:#34d399; --red:#f87171; --yel:#fde047; --sky:#7dd3fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#010205; color:#e5e7eb; font-family:system-ui,'Malgun Gothic',sans-serif; }
+  h1 { font-size:22px; padding:24px 32px 4px; margin:0; }
+  .d { font-family:'Saira Condensed',sans-serif; }
+  .screen { position:relative; width:1920px; height:911px; margin:14px auto 10px; overflow:hidden; background:#05080f; border:1px solid #1f2937; }
+  .note { width:1920px; margin:0 auto 46px; color:#9ca3af; font-size:15px; line-height:1.6; } .note b { color:#fff; }
+  .bg { position:absolute; inset:0; background:url(clutch/sim-broad.webp) center/cover; }
+  .bg::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%); }
+  .lay { position:relative; height:100%; display:grid; grid-template-columns:272px 1fr 272px; grid-template-rows:63px auto 1fr auto auto; gap:12px 20px; padding:0 22px 14px; }
+  .hdr { grid-column:1 / span 3; display:flex; align-items:center; gap:24px; margin:0 -18px; padding:0 22px; border-bottom:1px solid rgba(16,185,129,.25); background:linear-gradient(180deg,rgba(5,8,15,.96),rgba(5,8,15,.5)); }
+  .hdr small { display:block; font:600 9px 'Saira Condensed'; letter-spacing:.38em; color:#6b7280; }
+  .hdr b.tt { font-size:18px; font-weight:900; color:#fff; }
+  .spd { margin-left:auto; display:flex; gap:4px; padding:3px; background:rgba(255,255,255,.05); }
+  .spd b { font:800 14px 'Saira Condensed'; padding:5px 14px; color:#9ca3af; } .spd b.on { background:var(--yel); color:#05080f; }
+  .score { position:relative; text-align:center; }
+  .score .top { position:relative; display:inline-block; padding:10px 34px 8px; background:linear-gradient(180deg,rgba(2,4,8,.95),rgba(2,4,8,.82)); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1), 0 20px 46px -20px rgba(0,0,0,.95); clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px); }
+  .teams { display:flex; align-items:center; justify-content:center; gap:26px; }
+  .teams .nm { font:800 26px system-ui; color:#fff; } .teams .nm small { display:block; font:600 10px 'Saira Condensed'; letter-spacing:.3em; color:#9ca3af; }
+  .teams .v { font:800 64px/1 'Saira Condensed'; color:#fff; text-shadow:0 2px 18px rgba(0,0,0,.85); }
+  .crest { width:56px; height:62px; display:grid; place-items:center; font:800 14px 'Saira Condensed'; color:#05080f; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+  .inn { font:800 15px 'Saira Condensed'; letter-spacing:.2em; color:var(--yel); }
+  .lsc { width:100%; margin:10px auto 0; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center; background:rgba(2,4,8,.85); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+  .lsc th { font-size:12px; color:#6b7280; font-weight:600; padding:4px 0; }
+  .lsc td { font-size:22px; color:#d1d5db; padding:4px 0; }
+  .lsc td.t { width:200px; text-align:left; font:800 15px system-ui; color:#fff; padding-left:16px; }
+  .lsc td.r { color:var(--yel); font-weight:800; } .lsc tr+tr td { border-top:1px solid rgba(255,255,255,.07); }
+  .lsc td.now { background:rgba(253,224,71,.14); }
+  .card { position:relative; overflow:hidden; align-self:start; margin-top:34px; background:linear-gradient(180deg,rgba(11,18,32,.88),rgba(5,8,15,.93)); box-shadow:inset 0 0 0 1px var(--c), 0 26px 60px -22px rgba(0,0,0,.95), 0 0 50px -24px var(--c); clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); padding:12px 14px; }
+  .card .cl { font:600 11px 'Saira Condensed'; letter-spacing:.32em; color:var(--c); margin:0 0 10px; }
+  .card .cl::before { content:'◣ '; }
+  .por { position:absolute; right:-8px; top:32px; width:150px; height:200px; background:var(--img) center/cover; opacity:.8; -webkit-mask-image:linear-gradient(90deg,transparent,#000 50%); mask-image:linear-gradient(90deg,transparent,#000 50%); }
+  .no { position:relative; display:flex; align-items:baseline; gap:8px; } .no b { font:800 34px/1 'Saira Condensed'; color:#fff; }
+  .no span { font:800 11px 'Saira Condensed'; letter-spacing:.1em; color:#05080f; background:var(--c); padding:2px 7px; }
+  .nmx { position:relative; font-size:22px; font-weight:900; color:#fff; margin:2px 0 0; } .tm { position:relative; font-size:12px; color:#9ca3af; margin:0; }
+  .st { position:relative; display:grid; grid-template-columns:38px 1fr 30px; gap:9px; align-items:center; font-size:12px; color:#9ca3af; margin-top:8px; }
+  .st i { display:block; height:4px; background:rgba(255,255,255,.1); } .st i b { display:block; height:100%; background:var(--c); }
+  .st em { font:800 16px 'Saira Condensed'; color:#fff; font-style:normal; text-align:right; }
+  .rec { position:relative; margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08); display:grid; grid-template-columns:repeat(4,1fr); text-align:center; }
+  .rec b { display:block; font:800 19px 'Saira Condensed'; color:#fff; } .rec span { font-size:11px; color:#9ca3af; }
+  .bsod { position:relative; display:grid; grid-template-columns:1fr 104px; gap:12px; align-items:center; margin-top:12px; background:rgba(5,8,15,.6); padding:10px 12px; }
+  .bso { display:grid; grid-template-columns:16px repeat(3,14px); gap:7px; align-items:center; font:800 13px 'Saira Condensed'; }
+  .bso i { width:14px; height:14px; border-radius:50%; background:rgba(255,255,255,.14); }
+  .bso i.b { background:var(--em2); box-shadow:0 0 8px var(--em2); } .bso i.s { background:var(--yel); box-shadow:0 0 8px var(--yel); } .bso i.o { background:#ef4444; box-shadow:0 0 8px #ef4444; }
+  .pbp { grid-column:2; grid-row:5; background:rgba(5,8,15,.88); box-shadow:inset 0 0 0 1px rgba(52,211,153,.3), 0 22px 50px -24px rgba(0,0,0,.95); clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); padding:10px 20px; display:grid; grid-template-columns:48px 1fr; gap:16px; align-items:center; }
+  .pbp .lab { font:600 11px 'Saira Condensed'; letter-spacing:.3em; color:var(--em2); margin:0 0 6px; }
+  .pbp p { margin:1px 0; font-size:14px; color:#94a3b8; } .pbp p.now { color:#e5e7eb; font-weight:700; font-size:16px; }
+  .pbp p.hit { color:var(--yel); font-weight:800; font-size:19px; }
+  .mic { width:48px; height:48px; display:grid; place-items:center; border-radius:50%; background:rgba(16,185,129,.12); box-shadow:inset 0 0 0 1px rgba(52,211,153,.4); font-size:24px; }
+  .team { align-self:end; background:rgba(5,8,15,.8); box-shadow:inset 0 0 0 1px var(--c), 0 22px 50px -24px rgba(0,0,0,.95); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); padding:10px 13px; }
+  .team .tl { font:600 11px 'Saira Condensed'; letter-spacing:.3em; color:var(--c); margin:0 0 8px; } .team .tl::before { content:'◣ '; }
+  .row { display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; font-size:13px; padding:5px 0; }
+  .row b { color:#fff; } .row span { font:600 11px 'Saira Condensed'; color:#9ca3af; }
+  .row em { font:800 15px 'Saira Condensed'; color:var(--em2); font-style:normal; }
+  .bar { height:5px; background:rgba(255,255,255,.1); width:58px; } .bar i { display:block; height:100%; }
+  .acts { grid-column:2; grid-row:4; display:flex; justify-content:center; align-items:center; gap:10px; }
+  .act { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:112px; padding:8px 14px; background:rgba(5,8,15,.84); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); font-size:13px; color:#e5e7eb; }
+  .act b { font-size:19px; } .act small { font:600 11px 'Saira Condensed'; color:#9ca3af; }
+  .act.on { box-shadow:inset 0 0 0 2px var(--em); background:rgba(16,185,129,.16); } .act.on small { color:var(--em2); }
+  @keyframes blink { 50% { opacity:.25; } }
+</style>
+
+<h1>경기 중계 화면 — 보내 주신 참고 구조 (1920×911)</h1>
+<div id="root"></div>
+
+<script>
+const LINE = { away: [0,1,0,1,0,null,null,null,null,null,null,null], home: [0,0,0,0,1,null,null,null,null,null,null,null] };
+const lsc = () => `<table class="lsc"><tr><th style="text-align:left">TEAM</th>${Array.from({length:12},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th><th>H</th><th>E</th><th>B</th></tr>
+<tr><td class="t">나의 드림팀</td>${LINE.away.map((v)=>`<td>${v??'-'}</td>`).join('')}<td class="r">2</td><td>5</td><td>0</td><td>1</td></tr>
+<tr><td class="t">AI 올스타</td>${LINE.home.map((v,i)=>`<td class="${i===4?'now':''}">${v??'-'}</td>`).join('')}<td class="r">1</td><td>3</td><td>0</td><td>2</td></tr></table>`;
+const stat = (k,v) => `<div class="st">${k}<i><b style="width:${v}%"></b></i><em>${v}</em></div>`;
+const diamond = (bases) => `<svg viewBox="0 0 100 100" width="100" height="100"><path d="M50 88 L86 52 L50 16 L14 52 Z" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+${[[86,52],[50,16],[14,52]].map(([x,y],i)=>`<rect x="${x-8}" y="${y-8}" width="16" height="16" transform="rotate(45 ${x} ${y})" fill="${bases[i]?'#fde047':'rgba(255,255,255,.14)'}" ${bases[i]?'style="filter:drop-shadow(0 0 7px #fde047)"':''}/>`).join('')}
+<rect x="45" y="83" width="10" height="10" transform="rotate(45 50 88)" fill="#fff"/></svg>`;
+const bso = (b,s,o) => `<div class="bso"><span style="color:#34d399">B</span>${[0,1,2].map(i=>`<i class="${i<b?'b':''}"></i>`).join('')}
+<span style="color:#fde047">S</span>${[0,1].map(i=>`<i class="${i<s?'s':''}"></i>`).join('')}<span></span>
+<span style="color:#ef4444">O</span>${[0,1].map(i=>`<i class="${i<o?'o':''}"></i>`).join('')}<span></span></div>`;
+
+const S = [];
+
+S.push({ name:'A · 참고 구조 그대로', note:'보내 주신 화면과 같은 배치. <b>중앙 위</b>에 팀 점수와 이닝별 전광판, <b>왼쪽</b>에 지금 던지는 투수 카드(볼카운트·주자 포함), <b>오른쪽</b>에 지금 타석에 선 타자 카드(다음 타자 포함), <b>가운데</b>는 경기 장면, <b>중앙 아래</b>는 실시간 해설. 좌우 아래는 양 팀 선발·불펜 상태, 맨 아래 가운데는 작전 버튼.', html:`
+<div class="bg"></div>
+<div class="lay">
+  <div class="hdr"><div><small>LEGEND DRAFT</small><b class="tt">감독 모드</b></div>
+    <div><small>MODE</small><b class="tt" style="font-size:15px;color:var(--em2)">경기 관전</b></div>
+    <span class="d" style="color:#f87171;letter-spacing:.25em;font-weight:800"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f87171;animation:blink 1s infinite"></i> LIVE</span>
+    <div class="spd"><b>AUTO</b><b class="on">1X</b><b>2X</b><b>3X</b></div><b class="d" style="padding:5px 14px;background:rgba(255,255,255,.06);color:#e5e7eb">일시정지</b></div>
+
+  <div class="score" style="grid-column:2">
+    <div class="top"><div class="teams">
+      <span class="crest" style="background:var(--em)">MY</span>
+      <span class="nm">나의 드림팀<small>AWAY</small></span>
+      <span class="v">2<span style="color:#4b5563;margin:0 14px">-</span>1</span>
+      <span class="nm" style="text-align:right">AI 올스타<small>HOME</small></span>
+      <span class="crest" style="background:var(--red)">AI</span>
+    </div>
+    <p class="inn" style="margin:4px 0 0">5회말</p></div>
+    ${lsc()}
+  </div>
+
+  <div class="card" style="grid-column:1;grid-row:2;--c:var(--em2);--img:url(clutch/grip.png)">
+    <p class="cl">NOW PITCHING</p>
+    <div class="por"></div>
+    <div class="no"><b>54</b><span>SP</span></div>
+    <p class="nmx">양현종</p><p class="tm">나의 드림팀 · 좌투</p>
+    ${stat('구위',76)}${stat('제구',83)}${stat('체력',91)}${stat('안정',86)}
+    <div class="rec"><div><b>68</b><span>투구수</span></div><div><b>4.2</b><span>이닝</span></div><div><b>4</b><span>탈삼진</span></div><div><b>1</b><span>실점</span></div></div>
+    <div class="bsod">${bso(2,1,1)}<div>${diamond([1,0,0])}</div></div>
+  </div>
+
+  <div class="card" style="grid-column:3;grid-row:2;--c:var(--sky);--img:url(clutch/batter.png)">
+    <p class="cl">AT BAT</p>
+    <div class="por"></div>
+    <div class="no"><b>29</b><span>1B</span></div>
+    <p class="nmx">최정</p><p class="tm">AI 올스타 · 우타</p>
+    ${stat('컨택',72)}${stat('파워',78)}${stat('선구',71)}${stat('주력',62)}
+    <div class="rec"><div><b>.298</b><span>타율</span></div><div><b>8</b><span>홈런</span></div><div><b>32</b><span>타점</span></div><div><b>.832</b><span>OPS</span></div></div>
+    <div style="position:relative;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
+      <p class="cl" style="--c:var(--em2)">NEXT BATTER</p>
+      ${[[3,'김성현','SS','.312'],[4,'한유섬','LF','.285']].map(([o,n,p,a])=>`<div class="row"><b style="justify-self:start"><span class="d" style="color:#6b7280;margin-right:8px">${o}</span>${n}</b><span class="d" style="background:rgba(125,211,252,.16);color:#7dd3fc;padding:1px 6px">${p}</span><em style="color:#fff">${a}</em></div>`).join('')}
+    </div>
+  </div>
+
+  <div style="display:contents">
+    <div class="pbp"><div class="mic">🎙</div><div>
+      <p class="lab">LIVE PLAY-BY-PLAY</p>
+      <p>1구 던집니다. 바깥쪽 직구 148km — 스트라이크!</p>
+      <p>2구, 몸쪽 슬라이더가 빠집니다. 1볼 1스트라이크.</p>
+      <p class="now">3구 던집니다. 쳤습니다! 우측으로 멀리 갑니다!</p>
+      <p class="hit">담장… 넘어갑니다! 최정 동점 솔로 홈런!</p>
+    </div></div>
+  </div>
+
+  <div class="team" style="grid-column:1;grid-row:4 / span 2;--c:var(--em2)"><p class="tl">나의 드림팀</p>
+    <div class="row"><b>선발 양현종</b><span>SP</span><em>91</em></div>
+    <div class="row"><span>체력</span><div class="bar" style="width:120px"><i style="width:72%;background:var(--em)"></i></div><em>72</em></div>
+    <p class="tl" style="margin-top:8px">불펜</p>
+    ${[['최동원','중',78,'준비'],['정민철','중',76,''],['선동열','마',80,'몸풀기']].map(([n,r,v,s])=>`<div class="row"><b>${n} <span style="color:#6b7280">${r}</span></b><div class="bar"><i style="width:${v}%;background:${s?'var(--yel)':'var(--em)'}"></i></div><em>${v}</em></div>`).join('')}
+  </div>
+  <div class="acts">
+    ${[['🔁','선수 교체',''],['🎯','구종 노리기','Q W E'],['🏃','도루','72%'],['🪃','번트',''],['📋','라인업',''],['📊','경기 기록','']].map(([i,t,s],k)=>`<div class="act ${k===1?'on':''}"><b>${i}</b>${t}<small>${s||'&nbsp;'}</small></div>`).join('')}
+  </div>
+  <div class="team" style="grid-column:3;grid-row:4 / span 2;--c:var(--red)"><p class="tl">AI 올스타</p>
+    <div class="row"><b>선발 김광현</b><span>SP</span><em style="color:#fca5a5">86</em></div>
+    <div class="row"><span>체력</span><div class="bar" style="width:120px"><i style="width:86%;background:var(--red)"></i></div><em style="color:#fca5a5">86</em></div>
+    <p class="tl" style="margin-top:8px">불펜</p>
+    ${[['서진용','중',77],['조병현','중',72],['이로운','마',75]].map(([n,r,v])=>`<div class="row"><b>${n} <span style="color:#6b7280">${r}</span></b><div class="bar"><i style="width:${v}%;background:var(--red)"></i></div><em style="color:#fca5a5">${v}</em></div>`).join('')}
+  </div>
+</div>` });
+
+S.push({ name:'B · 승부처 작전', note:'같은 화면에서 <b>승부처가 오면</b> 가운데 해설 자리가 작전 카드로 바뀐다. 좌우 선수 카드와 위 전광판은 그대로라 상황을 놓치지 않는다. 제한 시간이 지나면 자동 진행.', html:`
+<div class="bg"></div>
+<div class="lay">
+  <div class="hdr"><div><small>LEGEND DRAFT</small><b class="tt">감독 모드</b></div>
+    <span class="d" style="color:var(--yel);letter-spacing:.3em;font-weight:800">CLUTCH MOMENT</span>
+    <div class="spd"><b>AUTO</b><b class="on">1X</b><b>2X</b><b>3X</b></div><b class="d" style="padding:5px 14px;background:rgba(255,255,255,.06);color:#e5e7eb">일시정지</b></div>
+  <div class="score" style="grid-column:2">
+    <div class="top"><div class="teams"><span class="crest" style="background:var(--em)">MY</span><span class="nm">나의 드림팀<small>AWAY</small></span>
+      <span class="v">3<span style="color:#4b5563;margin:0 14px">-</span>4</span><span class="nm" style="text-align:right">AI 올스타<small>HOME</small></span><span class="crest" style="background:var(--red)">AI</span></div>
+    <p class="inn" style="margin:4px 0 0">9회초 2사 2·3루</p></div>${lsc()}
+  </div>
+  <div class="card" style="grid-column:1;grid-row:2;--c:var(--sky);--img:url(clutch/batter.png)">
+    <p class="cl">AT BAT</p><div class="por"></div><div class="no"><b>7</b><span>CF</span></div>
+    <p class="nmx">이종범</p><p class="tm">나의 드림팀 · 우타</p>
+    ${stat('컨택',90)}${stat('파워',72)}${stat('선구',80)}${stat('주력',96)}
+    <div class="rec"><div><b>2-1</b><span>오늘</span></div><div><b>.338</b><span>타율</span></div><div><b>1</b><span>타점</span></div><div><b>2</b><span>도루</span></div></div>
+    <div class="bsod">${bso(1,1,2)}<div>${diamond([0,1,1])}</div></div>
+  </div>
+  <div class="card" style="grid-column:3;grid-row:2;--c:var(--red);--img:url(clutch/grip.png)">
+    <p class="cl">NOW PITCHING</p><div class="por"></div><div class="no"><b>21</b><span>CL</span></div>
+    <p class="nmx">오승환</p><p class="tm">AI 올스타 · 우투</p>
+    ${stat('구위',93)}${stat('제구',88)}${stat('체력',64)}${stat('안정',90)}
+    <div class="rec"><div><b>18</b><span>투구수</span></div><div><b>0.2</b><span>이닝</span></div><div><b>1</b><span>탈삼진</span></div><div><b>0</b><span>실점</span></div></div>
+    <div style="position:relative;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)"><p class="cl" style="--c:var(--em2)">이 카운트 구종</p>
+      ${[['직구',58,'#e5e7eb'],['슬라이더',30,'#7dd3fc'],['체인지업',12,'#c4b5fd']].map(([n,v,c])=>`<div class="st" style="grid-template-columns:62px 1fr 34px">${n}<i><b style="width:${v}%;background:${c}"></b></i><em>${v}%</em></div>`).join('')}</div>
+  </div>
+  <div style="grid-column:2;grid-row:3;align-self:end;padding-bottom:10px">
+    <p class="d" style="text-align:center;margin:0 0 10px;color:var(--yel);letter-spacing:.4em;font-size:13px">지시를 내리세요</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      ${[['⚔','정면 승부','자동 타격','안타 31%','#9ca3af',''],['🎯','구종 노리기','직구 노림','적중 시 44%','#7dd3fc','on'],['🏃','더블 스틸','2·3루 주자','성공 23%','#f87171',''],['🔁','대타 박병호','파워 94','홈런 14%','#fde047','']].map(([ic,t,s,p,c,on])=>`
+        <div style="width:190px;padding:14px;background:rgba(5,8,15,.92);box-shadow:inset 0 0 0 ${on?'2px '+c:'1px rgba(255,255,255,.12)'};clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);${on?'transform:translateY(-8px)':''}">
+          <span style="font-size:28px">${ic}</span><b style="display:block;font-size:19px;color:#fff;margin-top:4px">${t}</b>
+          <small style="color:#9ca3af">${s}</small>
+          <p style="margin:10px 0 0;padding:7px 9px;background:rgba(255,255,255,.05);box-shadow:inset 3px 0 0 ${c};font:800 14px 'Saira Condensed';color:${c}">${p}</p></div>`).join('')}
+    </div>
+    <div style="width:520px;margin:12px auto 0"><div class="bar" style="width:100%;height:7px"><i style="width:62%;background:linear-gradient(90deg,var(--em),var(--yel))"></i></div>
+      <p style="text-align:center;margin:6px 0 0;font-size:13px;color:#9ca3af">6초 뒤 자동으로 정면 승부</p></div>
+  </div>
+  <div class="team" style="grid-column:1;grid-row:4 / span 2;--c:var(--em2)"><p class="tl">나의 드림팀 · 벤치</p>
+    ${[['박병호','대타',94],['정근우','대주자',88],['양의지','대타',86]].map(([n,r,v])=>`<div class="row"><b>${n} <span style="color:#6b7280">${r}</span></b><div class="bar"><i style="width:${v}%;background:var(--em)"></i></div><em>${v}</em></div>`).join('')}
+  </div>
+  <div class="acts">
+    ${[['1','정면 승부'],['2','구종 노리기'],['3','더블 스틸'],['4','대타']].map(([k,t],i)=>`<div class="act ${i===1?'on':''}"><b>${k}</b>${t}<small>키</small></div>`).join('')}
+  </div>
+  <div class="team" style="grid-column:3;grid-row:4 / span 2;--c:var(--red)"><p class="tl">AI 올스타 · 수비</p>
+    <div class="row"><b>내야 전진</b><span>수비</span><em style="color:#fca5a5">ON</em></div>
+    <div class="row"><b>외야 얕게</b><span>수비</span><em style="color:#fca5a5">ON</em></div>
+    <div class="row"><b>1루 비어 있음</b><span>고의사구 가능</span><em style="color:#fca5a5">-</em></div>
+  </div>
+</div>` });
+
+document.getElementById('root').innerHTML = S.map((s)=>`<div class="screen">${s.html}<span style="position:absolute;left:0;bottom:0;z-index:9;font:800 13px 'Saira Condensed';letter-spacing:.3em;color:#05080f;background:var(--em);padding:3px 12px">${s.name}</span></div><p class="note">${s.note}</p>`).join('');
+</script>
