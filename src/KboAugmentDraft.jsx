@@ -110,20 +110,27 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
 export const DRAFT_MODES = [
-  { id: 'legend', name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
+  { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 1,580'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
-  { id: 'champ', name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1330,
+  { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1330,
     desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => s.champion },
-  { id: 'recent', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1330,
+  { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1330,
     desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021 },
-  { id: 'national', name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 1270,
+  { id: 'national', group: 'special', rules: ['국가대표만', '대회별 버전'], name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 1270,
     desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
-  { id: 'mix', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1330,
+  { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1330,
     desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
+  // 연도별 시즌: 그해 구단 시즌 · 국가대표가 2개 이상인 해마다 하나씩
+  ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind !== 'legend').map((x) => x.year))]
+    .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind !== 'legend').length >= 2)
+    .sort((a, b) => b - a)
+    .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1330,
+      desc: `${y}년 구단 시즌과 국가대표 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind !== 'legend' })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
   return { ...m, series, players: series.flatMap((s) => s.players) };
 });
+export const YEAR_MODES = DRAFT_MODES.filter((m) => m.group === 'year');
 /** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 */
 export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
 const personKey = (p) => p.personId || p.name;
@@ -4475,94 +4482,150 @@ function SettingRow({ label, options, labels, value, onChange }) {
   );
 }
 
-function ModeSelect({ initialMode, record, onStart, onExit }) {
-  const [id, setId] = useState(initialMode);
-  const mode = DRAFT_MODES.find((m) => m.id === id);
+function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
+  // 사이드 네비: normal(일반 모드) · mix · recent · year(연도별) · special(특별 모드)
+  const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
+  const [view, setView] = useState(normal ? 'normal' : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
+  const [specialId, setSpecialId] = useState(firstMode.group === 'special' ? firstMode.id : 'legend');
+  const modeId = view === 'year' ? yearId : view === 'special' ? specialId : view === 'normal' ? null : view;
+  const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
   const [aug, setAug] = useState(SEASON_AUGMENTS);
-  const pick = (m) => { setId(m.id); setCap(m.cap); };
+  useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
   const seen = new Set();
   const stars = [...mode.players].sort((a, b) => b.overall - a.overall).filter((p) => !seen.has(personKey(p)) && seen.add(personKey(p))).slice(0, 6);
+  const specials = DRAFT_MODES.filter((m) => m.group === 'special');
+  const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
+  const NAV = [
+    ...(normal ? [{ group: 'Play', items: [{ key: 'normal', label: '일반 모드', sub: normal.sub || '내 팀 26인 · 오늘의 경기', img: 'ui/broadcast-field.webp', neon: '#10b981' }] }] : []),
+    { group: 'Basic', items: [
+      { key: 'mix', label: '전체 믹스', sub: `${DRAFT_MODES.find((m) => m.id === 'mix').series.length} 시리즈 · 무작위`, img: 'modes/mix.webp', neon: '#10b981' },
+      { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
+      { key: 'year', label: '연도별 시즌', sub: `${YEAR_MODES.length}개 시즌 · 한 해 고르기`, img: 'modes/recent.webp', neon: '#a3e635' },
+    ] },
+    { group: 'Special', items: [{ key: 'special', label: '특별 모드', sub: `규칙이 다른 ${specials.length}개`, img: 'modes/legend.webp', neon: '#fbbf24' }] },
+  ];
+  const acc = view === 'normal' ? '#10b981' : mode.neon;
+
   return (
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
-          <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
+          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Play</p>
+          <h1 className="mt-1 text-xl font-black leading-none text-white">플레이</h1>
         </div>
-        <ol className="hidden items-center gap-1.5 font-display text-xs font-bold tracking-[0.2em] text-gray-500 md:flex" aria-label="진행 단계">
-          {['모드', '드래프트', '정비', '시즌'].map((s, i) => (
-            <li key={s} className={`ui-cut px-2 py-0.5 ${i === 0 ? 'bg-[#10b981] text-[#05080f]' : 'shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)]'}`} style={{ '--c': '4px' }}>0{i + 1} {s}</li>
-          ))}
-        </ol>
         {record && <p className="ml-auto text-sm text-gray-400">최근 기록 <b className="font-display text-lg text-white">{record}</b></p>}
       </header>
 
-      <div role="tablist" aria-label="드래프트 모드" className="relative grid grid-cols-2 gap-2 px-6 pt-4 sm:grid-cols-3 lg:grid-cols-5">
-        {DRAFT_MODES.map((m) => {
-          const on = m.id === id;
-          return (
-            <button key={m.id} type="button" role="tab" aria-selected={on} onClick={() => pick(m)}
-              className={`ui-cut relative flex h-[4.4rem] items-center gap-3 overflow-hidden px-3.5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${on ? '' : 'ui-glass hover:brightness-125'}`}
-              style={{ '--c': '10px', background: on ? `linear-gradient(180deg, ${m.neon}38, rgba(6,10,19,.92))` : undefined }}>
-              <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(modes/${m.id}.webp)`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
-              <span className="min-w-0">
-                <b className="block truncate text-base font-black text-white">{m.name}</b>
-                <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{m.series.length} 시리즈 · {m.players.length}명</small>
-              </span>
-              {on && <span className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: m.neon, boxShadow: `0 0 12px ${m.neon}` }} />}
-            </button>
-          );
-        })}
-      </div>
+      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>
+        {/* 사이드 네비 */}
+        <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px' }} aria-label="플레이 모드">
+          {NAV.map((g) => (
+            <React.Fragment key={g.group}>
+              <p className="ui-lab font-display px-1 pt-1" style={{ '--a': g.items[0].neon }}>{g.group}</p>
+              {g.items.map((it) => {
+                const on = view === it.key;
+                return (
+                  <button key={it.key} type="button" onClick={() => setView(it.key)} aria-pressed={on}
+                    className={`ui-cut relative flex h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5 text-left transition ${on ? '' : 'bg-white/[0.03] hover:brightness-125'}`}
+                    style={{ '--c': '10px', background: on ? `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))` : undefined }}>
+                    <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
+                    <span className="min-w-0">
+                      <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
+                      <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
+                    </span>
+                    {on && <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: it.neon, boxShadow: `0 0 12px ${it.neon}` }} />}
+                  </button>
+                );
+              })}
+            </React.Fragment>
+          ))}
+        </nav>
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[minmax(0,1fr)_24rem]" style={{ '--a': mode.neon }}>
-        <section key={mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
-          <div className="flex flex-wrap items-baseline gap-3">
-            <p className="ui-lab font-display">Series in Mode</p>
-            <p className="text-sm text-gray-400">
-              {mode.id === 'legend' && mode.series.length === 1 ? `레전드 ${mode.players.length}명 중 대표 선수 · 라운드마다 ${SHELF_SIZE}명이 열립니다` : `이 모드에서 라운드마다 열리는 시리즈 ${mode.series.length}개`}
-              {mode.planned ? ` · ${mode.planned.length}개 준비 중` : ''}
-            </p>
-          </div>
-          <div className="syn-scroll mt-3 grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 xl:grid-cols-4"
-            style={{ gridAutoRows: tickets.length > 8 ? '12.5rem' : 'minmax(11rem, 1fr)' }}>
-            {tickets.map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
-          </div>
-        </section>
-
-        <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
-          <p className="ui-lab font-display">{mode.en}</p>
-          <h2 className="-mt-2 text-3xl font-black text-white">{mode.name}</h2>
-          <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
-          <dl className="grid grid-cols-3 gap-1.5">
-            {[['시리즈', mode.series.length], ['선수', mode.players.length], ['난이도', mode.tag]].map(([k, v]) => (
-              <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
-                <dt className="text-[10px] text-gray-400">{k}</dt>
-                <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
-              </div>
-            ))}
-          </dl>
-          <div>
-            <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
-            <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-            <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
-            <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-              <span>다른 시리즈 새로고침</span>
-              <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
+        {view === 'normal' ? normal.main : (
+          <section key={view + mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
+            <div className="flex flex-wrap items-baseline gap-3">
+              <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : 'Series in Mode'}</p>
+              <p className="text-sm text-gray-400">
+                {view === 'special' ? `기존 상식을 깨는 규칙 모드 ${specials.length}개`
+                  : mode.id === 'legend' && mode.series.length === 1 ? `레전드 ${mode.players.length}명 중 대표 선수` : `${mode.name} · 라운드마다 열리는 시리즈 ${mode.series.length}개`}
+              </p>
             </div>
-          </div>
-          <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
-            {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
-          </div>
-          <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug })}>
-            드래프트 시작 ▶
-          </button>
-        </aside>
+            {view === 'year' && (
+              <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="시즌 연도">
+                {YEAR_MODES.map((y) => (
+                  <button key={y.id} type="button" role="radio" aria-checked={yearId === y.id} onClick={() => setYearId(y.id)}
+                    className={`ui-cut px-3 py-1 font-display text-sm font-bold ${yearId === y.id ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+                    style={{ '--c': '5px', background: yearId === y.id ? '#a3e635' : undefined }}>{y.year}</button>
+                ))}
+              </div>
+            )}
+            {view === 'special' ? (
+              <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+                {specials.map((m) => {
+                  const on = specialId === m.id;
+                  return (
+                    <button key={m.id} type="button" onClick={() => setSpecialId(m.id)} aria-pressed={on}
+                      className={`ui-cut ${on ? 'ui-frame' : ''} relative aspect-square overflow-hidden bg-[#0b1220] bg-cover text-left transition hover:brightness-110`}
+                      style={{ '--c': '14px', '--a': m.neon, backgroundImage: `url(modes/${m.id}.webp)`, backgroundPosition: '60% 20%' }}>
+                      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.3),rgba(5,8,15,.1) 35%,rgba(5,8,15,.95) 75%)' }} />
+                      <span className="absolute left-4 top-3 font-display text-sm font-extrabold tracking-[0.2em]" style={{ color: m.neon, textShadow: `0 0 12px ${m.neon}` }}>{m.tag}</span>
+                      <span className="absolute inset-x-4 bottom-3 block">
+                        <b className="block text-2xl font-black text-white">{m.name}</b>
+                        <span className="mt-2 flex flex-wrap gap-1.5">
+                          {m.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: m.neon }}>{r}</span>)}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+                <div className="ui-cut grid aspect-square place-items-center bg-white/[0.03] text-sm text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '14px' }}>+ 다음 시즌 공개</div>
+              </div>
+            ) : (
+              <div className="syn-scroll mt-3 grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 xl:grid-cols-4"
+                style={{ gridAutoRows: tickets.length > 8 ? '12.5rem' : 'minmax(11rem, 1fr)', alignContent: 'start' }}>
+                {tickets.map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
+              </div>
+            )}
+          </section>
+        )}
+
+        {view === 'normal' ? normal.aside : (
+          <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
+            <p className="ui-lab font-display">{mode.en}</p>
+            <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
+            <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
+            <dl className="grid grid-cols-3 gap-1.5">
+              {[['시리즈', mode.series.length], ['선수', mode.players.length], ['난이도', mode.tag]].map(([k, v]) => (
+                <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
+                  <dt className="text-[10px] text-gray-400">{k}</dt>
+                  <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
+            <div>
+              <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+              <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
+              <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
+              <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
+                <span>다른 시리즈 새로고침</span>
+                <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
+              {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
+            </div>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug })}>
+              드래프트 시작 ▶
+            </button>
+          </aside>
+        )}
       </div>
     </div>
   );
@@ -5085,7 +5148,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   );
 }
 
-export default function KboAugmentDraft({ onExit } = {}) {
+export default function KboAugmentDraft({ onExit, normal } = {}) {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
@@ -5504,7 +5567,7 @@ export default function KboAugmentDraft({ onExit } = {}) {
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
-        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit}
+        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (

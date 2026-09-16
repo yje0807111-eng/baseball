@@ -10,6 +10,7 @@ import { buildMyTeam, buildAiTeam } from './myteam/match.js';
 import { tickBoosts } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, loadAccount as reload } from './myteam/store.js';
 import { loadAccount, signOut } from './myteam/store.js';
+import { normalPanels } from './myteam/NormalPlay.jsx';
 
 const Soon = ({ title, desc, onBack }) => (
   <div className="grid min-h-dvh place-items-center bg-[#05080f] p-8 text-center text-gray-300">
@@ -47,16 +48,17 @@ export default function App() {
   if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
   if (view === 'modes') {
     return (
-      <KboAugmentDraft onExit={() => setView('lobby')} />
+      <KboAugmentDraft onExit={() => setView('lobby')} normal={normalPanels({ account, onPlay: startMatch, onLocker: () => setView('locker') })} />
     );
   }
+  if (view === 'augments') return <Soon title="증강" desc="증강 보관함 · 강화 · 해제는 준비 중입니다" onBack={() => setView('lobby')} />;
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
   if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
   if (view === 'play' && match) return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch} onExit={() => { setMatch(null); setView('lobby'); }} />;
 
   return (
     <LobbyScreen account={account}
-      onLocker={() => setView('locker')} onPlay={startMatch} onShop={() => setView('shop')} onModes={() => setView('modes')}
+      onLocker={() => setView('locker')} onPlay={() => setView('modes')} onShop={() => setView('shop')} onAugments={() => setView('augments')}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }

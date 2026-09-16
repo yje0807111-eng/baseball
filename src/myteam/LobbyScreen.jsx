@@ -1,4 +1,4 @@
-/* 메인 — 메트로 타일 배치: 큰 경기 타일 + 라커·상점·모드·기록 타일 + 아래 내 선수 줄 */
+/* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 내 선수 줄 */
 import React, { useMemo } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
@@ -36,7 +36,7 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
   );
 }
 
-export default function LobbyScreen({ account, onLocker, onPlay, onShop, onModes, onSignOut }) {
+export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onSignOut }) {
   const team = account.team;
   const squad = team.squad || [];
   const cap = team.cap || SQUAD_CAP;
@@ -59,12 +59,12 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onModes
         style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.85fr)' }}>
 
         {/* 경기 — 가장 큰 타일 */}
-        <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Next Match" title="오늘의 경기"
-          desc={ready ? 'AI 올스타 · 전력 87 · 승리 보상 300G' : issues[0]}
-          style={{ gridColumn: '1 / span 2', gridRow: '1 / span 2' }} onClick={ready ? onPlay : onLocker}>
+        <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Play" title="플레이"
+          desc={ready ? '일반 모드 · 기본 모드 · 특별 모드' : `일반 모드: ${issues[0]}`}
+          style={{ gridColumn: '1 / span 2', gridRow: '1 / span 2' }} onClick={onPlay}>
           <div className="mt-5 flex items-center gap-4">
             <span className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
-              {ready ? '경기 시작 ▶' : '라커에서 채우기'}
+              플레이 ▶
             </span>
             <span className="text-[13px] text-gray-300">엔트리 {squad.length}/{SQUAD_SIZE} · 팀 종합 {rating || '-'}</span>
           </div>
@@ -76,8 +76,8 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onModes
         <Tile img="ui/mt/tile-shop.webp" a="#fde047" label="Shop" title="상점"
           desc="훈련 · 부스트 · 계약서" onClick={onShop} />
 
-        <Tile img="ui/mt/tile-modes.webp" a="#c4b5fd" label="Modes" title="모드"
-          desc="레전드 드래프트 입장 가능" onClick={onModes} />
+        <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" label="Augments" title="증강"
+          desc="보관함 · 강화 · 해제" onClick={onAugments} />
 
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
           desc={account.history?.length ? `최근 ${account.history[0].myRuns} : ${account.history[0].oppRuns}` : '아직 경기가 없습니다'} disabled />
