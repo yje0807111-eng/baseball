@@ -37,7 +37,9 @@ function RankPanel({ account, team, onRecord }) {
   const on = Math.round((r.inDiv / 100) * segs);
   return (
     <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
-      <div className="absolute inset-y-0 right-0 w-[62%] bg-cover bg-right opacity-45" style={{ backgroundImage: 'url(ui/rank/room.webp)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 45%)', maskImage: 'linear-gradient(90deg,transparent,#000 45%)' }} />
+      {/* 배경: 어두운 명예의 전당 복도 — 가운데만 트로피가 비치고, 오른쪽 팀 스탯 뒤는 더 어둡게 */}
+      <div className="absolute inset-0 bg-cover opacity-80" style={{ backgroundImage: 'url(ui/rank/hall.webp)', backgroundPosition: '50% 42%' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.55), rgba(5,8,15,0) 35%, rgba(5,8,15,0) 60%, rgba(5,8,15,.85) 80%)' }} />
       <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 엠블럼 */}
         <div className="relative h-[150px] w-[150px] shrink-0">
