@@ -19,6 +19,38 @@ const emptyTeam = () => ({
 
 export const START_GOLD = 5000;
 
+/* 증강 풀 관리: 등급마다 제외 목록 · 제외 칸(기본 5, 제거권으로 최대 8) · 증강 레벨 · 제거권/강화권 */
+export const AUG_TIERS = ['silver', 'gold', 'prismatic'];
+export const AUG_SLOT_BASE = 5;
+export const AUG_SLOT_MAX = 8;
+export const AUG_LEVEL_MAX = 5;
+const emptyAug = () => ({
+  bans: { silver: [], gold: [], prismatic: [] },
+  slots: { silver: AUG_SLOT_BASE, gold: AUG_SLOT_BASE, prismatic: AUG_SLOT_BASE },
+  levels: {},
+  removeTickets: 0,
+  upgradeTickets: 0,
+});
+const withAug = (a) => {
+  const d = emptyAug(); const g = a?.aug || {};
+  return { ...d, ...g, bans: { ...d.bans, ...(g.bans || {}) }, slots: { ...d.slots, ...(g.slots || {}) }, levels: { ...(g.levels || {}) } };
+};
+
+/** 증강 풀 설정 저장 (제외 · 칸 · 레벨 · 권) */
+export function saveAug(aug) {
+  const a = read();
+  if (!a) return null;
+  const next = { ...a, aug };
+  write(next);
+  return next;
+}
+/** 드래프트 증강 선택지에서 뺄 증강 id (로그인 안 했으면 빈 집합) */
+export function bannedAugIds() {
+  const a = read();
+  if (!a?.nick || a.signedOut) return new Set();
+  return new Set(Object.values(withAug(a).bans).flat());
+}
+
 const emptyAccount = (nick) => ({
   nick,
   gold: START_GOLD,
@@ -26,6 +58,7 @@ const emptyAccount = (nick) => ({
   createdAt: new Date().toISOString(),
   team: emptyTeam(),
   history: [], // 경기 기록 { at, my, opp, myRuns, oppRuns, winner }
+  aug: emptyAug(),
 });
 
 function read() {
@@ -38,18 +71,18 @@ function write(data) {
 /** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
 export function peekAccount() {
   const a = read();
-  return a?.nick ? { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) } } : null;
+  return a?.nick ? { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) }, aug: withAug(a) } : null;
 }
 
 export function loadAccount() {
   const a = read();
   if (!a?.nick || a.signedOut) return null;
-  return { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) } };
+  return { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) }, aug: withAug(a) };
 }
 
 export function signIn(nick) {
   const cur = read();
-  const prev = cur?.nick === nick ? { ...emptyAccount(nick), ...cur, team: { ...emptyTeam(), ...(cur.team || {}) } } : emptyAccount(nick);
+  const prev = cur?.nick === nick ? { ...emptyAccount(nick), ...cur, team: { ...emptyTeam(), ...(cur.team || {}) }, aug: withAug(cur) } : emptyAccount(nick);
   const next = { ...prev, signedOut: false };
   write(next);
   return next;

@@ -77,7 +77,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
           desc="훈련 · 부스트 · 계약서" onClick={onShop} />
 
         <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" label="Augments" title="증강"
-          desc="보관함 · 강화 · 해제" onClick={onAugments} />
+          desc="증강 풀 · 제외 · 강화" onClick={onAugments} />
 
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
           desc={account.history?.length ? `최근 ${account.history[0].myRuns} : ${account.history[0].oppRuns}` : '아직 경기가 없습니다'} disabled />

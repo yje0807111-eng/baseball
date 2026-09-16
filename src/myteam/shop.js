@@ -13,6 +13,7 @@ export const CATEGORIES = [
   { key: 'boost', label: '부스트' },
   { key: 'ops', label: '운영' },
   { key: 'staff', label: '감독' },
+  { key: 'aug', label: '증강' },
 ];
 
 const item = (id, cat, name, desc, price, opt) => ({ id, cat, name, desc, price, ...opt });
@@ -33,6 +34,9 @@ export const SHOP_ITEMS = [
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
   item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
+  // 증강 (풀 관리)
+  item('au-remove', 'aug', '증강 제거권', '등급 하나의 제외 칸 +1 (최대 8칸)', 400, { augTicket: 'removeTickets', img: 'mt-pack' }),
+  item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
   item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 340, { staffRole: 'coach', img: 'mt-card' }),
 ];
 

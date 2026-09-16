@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
+import { bannedAugIds } from './myteam/store.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -834,7 +835,8 @@ export const AUGMENTS = [
 
 /** 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다 */
 export function rollAugmentOptions(owned = [], rng = Math.random) {
-  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id));
+  const banned = bannedAugIds(); // 내 증강 풀에서 제외한 증강은 선택지에 나오지 않는다
+  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id) && !banned.has(a.id));
   const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
   if (!tiers.length) return [];
   const t = tiers[Math.floor(rng() * tiers.length)];

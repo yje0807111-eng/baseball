@@ -3,13 +3,13 @@ import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, needsPlayer, needsStaff, applyToPlayer } from './shop.js';
 import { staffByRole } from './staff.js';
 import { STAFF_SLOTS } from './rules.js';
-import { saveTeam, addGold } from './store.js';
+import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
-const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd' };
-const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독' };
-const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제' };
+const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
+const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강' };
+const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리' };
 
 /** 상품 카드 — 모드 화면 시리즈 카드와 같은 틀: 큰 사진 · 오른쪽 위 배지 · 아래 이름 · 가격 */
 function ItemCard({ it, on, onClick }) {
@@ -69,6 +69,14 @@ export default function ShopScreen({ account, onChange, onBack }) {
       const slot = target.role === 'manager' ? 'manager' : STAFF_SLOTS.find((s) => s.role === target.role)?.key;
       push({ ...team, staff: { ...(team.staff || {}), [slot]: { ...target, cost: 0, contracted: true } } }, gold - picked.price, `${target.name} 선임 (CP 면제)`);
       setTarget(null); return;
+    }
+    if (picked.augTicket) {
+      const aug = loadAccount()?.aug;
+      if (!aug) return;
+      const n = (aug[picked.augTicket] || 0) + 1;
+      saveAug({ ...aug, [picked.augTicket]: n });
+      push(team, gold - picked.price, `${picked.name} +1 · 보유 ${n}장`);
+      return;
     }
     if (picked.cap) push({ ...team, cap: (team.cap || 2000) + picked.cap }, gold - picked.price, `샐러리 캡 +${picked.cap}`);
   };

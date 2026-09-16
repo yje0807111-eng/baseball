@@ -5,6 +5,7 @@ import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
 import LockerScreen from './myteam/LockerScreen.jsx';
 import ShopScreen from './myteam/ShopScreen.jsx';
+import AugmentScreen from './myteam/AugmentScreen.jsx';
 import BroadcastGame from './BroadcastGame.jsx';
 import { buildMyTeam, buildAiTeam } from './myteam/match.js';
 import { tickBoosts } from './myteam/shop.js';
@@ -51,7 +52,7 @@ export default function App() {
       <KboAugmentDraft onExit={() => setView('lobby')} normal={normalPanels({ account, onPlay: startMatch, onLocker: () => setView('locker') })} />
     );
   }
-  if (view === 'augments') return <Soon title="증강" desc="증강 보관함 · 강화 · 해제는 준비 중입니다" onBack={() => setView('lobby')} />;
+  if (view === 'augments') return <AugmentScreen account={account} onBack={() => { setAccount(reload()); setView('lobby'); }} />;
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
   if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
   if (view === 'play' && match) return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch} onExit={() => { setMatch(null); setView('lobby'); }} />;
