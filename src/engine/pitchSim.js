@@ -32,8 +32,36 @@ export function pitchMix(pitcher) {
   return { fast, slider: (1 - fast) * 0.6, change: (1 - fast) * 0.4 };
 }
 
+/** 증강 보정: 공격 쪽 hit(안타 확률 +) · hitMul(×) · hr(홈런 확률 +) · steal(도루 +), 수비 쪽 pitch(구위 · 제구 점수 +) */
+export const noMod = () => ({ hit: 0, hitMul: 1, hr: 0, steal: 0, pitch: 0 });
+
 function newSide(team) {
-  return { team, idx: 0, pitcher: team.pitchers[0], pitcherIdx: 0, pitches: 0, runs: 0, hits: 0, errors: 0, line: [] };
+  return { team, idx: 0, pitcher: team.pitchers[0], pitcherIdx: 0, pitches: 0, runs: 0, hits: 0, errors: 0, line: [], mod: noMod() };
+}
+
+/** 반 이닝마다 보정을 새로 깐다 (증강 어댑터가 부른다) */
+export function setMods(g, { home = noMod(), away = noMod() } = {}) {
+  g.home.mod = { ...noMod(), ...home };
+  g.away.mod = { ...noMod(), ...away };
+}
+
+/** 증강이 이닝 점수를 보정할 때: 그 이닝 그 팀 점수를 n 만큼 더하거나 뺀다 (음수면 지운다) */
+export function addRuns(g, n, inning = g.inning, sideKey = null) {
+  if (!n) return 0;
+  const off = sideKey ? g[sideKey] : offenseOf(g);
+  const cur = off.line[inning - 1] ?? 0;
+  const next = Math.max(0, cur + n);
+  const delta = next - cur;
+  off.line[inning - 1] = next;
+  off.runs += delta;
+  if (!g.top && g.inning >= 9 && g.home.runs > g.away.runs) finish(g);
+  return delta;
+}
+
+/** 경기 중 증강으로 팀 능력치가 바뀌면 갈아 끼운다 (타순 자리 · 지금 던지는 투수는 그대로) */
+export function replaceTeam(side, team) {
+  side.team = team;
+  side.pitcher = team.pitchers[side.pitcherIdx] || team.pitchers[0] || side.pitcher;
 }
 
 export function createGame({ home, away, rng = Math.random, maxInnings = 12 }) {
@@ -65,7 +93,7 @@ export function stealOdds(g, from) {
   const runner = g.bases[from];
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
-  return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0), 0.08, 0.95);
+  return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0) + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
 }
 
 /** 투수 체력: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
@@ -79,7 +107,7 @@ function choosePitch(g, pitcher, order) {
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
   const tired = fatigue(defenseOf(g));
-  const control = st(pitcher, 'control', 75) - tired * 12;
+  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0);
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
@@ -89,7 +117,7 @@ function choosePitch(g, pitcher, order) {
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
-  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
+  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0)) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
   return { type, zone, inZone: isIn, velo, tired };
 }
 
@@ -195,7 +223,7 @@ export function pitch(g, orders = {}) {
 
   const contact = st(batter, 'contact');
   const power = st(batter, 'power');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10;
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0);
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.1 : -0.08) : 0;
 
   // 스윙 여부
@@ -208,7 +236,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + (orders.bunt ? 0.08 : 0), 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus); }
@@ -228,7 +256,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const contact = st(batter, 'contact');
   const power = st(batter, 'power');
   const speed = st(batter, 'speed');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10;
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0);
   const defAvg = def.team.batters.reduce((s, x) => s + st(x, 'defense'), 0) / def.team.batters.length;
   let runs = 0;
   nextBatter(g);
@@ -248,10 +276,10 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
     return score(g, advance(g, 1, batter, { scoreFrom2: 0.7 }));
   }
 
-  const hit = clamp(0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06), 0.14, 0.48);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0), 0.01, 0.4);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
     const dbl = clamp(0.18 + (power - 70) * 0.004, 0.08, 0.35);
     const r = g.rng();

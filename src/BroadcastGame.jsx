@@ -5,8 +5,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES,
-} from './engine/pitchSim.js';
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -143,7 +142,7 @@ function TeamPanel({ team, side, color, pitcher, pitches }) {
 }
 
 /* ───────── 본체 ───────── */
-export default function BroadcastGame({ my, opp, onFinish, onExit }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -174,6 +173,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit }) {
     aliveRef.current = true;
     (async () => {
       await sleep(600);
+      let half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
+      aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
         while ((pausedRef.current || ordersRef.current) && !stop) await sleep(100);
         if (stop || g.final) break;
@@ -199,6 +200,34 @@ export default function BroadcastGame({ my, opp, onFinish, onExit }) {
         }
         redraw();
         await sleep((ev.result ? RESULT_MS : COUNT_MS) / speedRef.current);
+
+        // 반 이닝이 넘어갔으면: 증강의 이닝 점수 보정 → 경기 중 증강 선택 → 다음 반 이닝 보정
+        if (aug && (g.inning !== half.inning || g.top !== half.top || g.final)) {
+          const before = half.top ? half.away : half.home;
+          const scored = (half.top ? g.away.runs : g.home.runs) - before;
+          const res = aug.afterHalf(g, scored, half.inning, half.top);
+          if (res.texts.length) {
+            setLines((l) => [...l, ...res.texts.map((t) => `[증강: ${t.name}] ${t.text}`)].slice(-4));
+            const t = res.texts[res.texts.length - 1];
+            setFlash({ text: t.name, key: Date.now() });
+            setTimeout(() => setFlash(null), 1400);
+            redraw();
+            await sleep(900 / speedRef.current);
+          }
+          if (g.final) g.winner = g.home.runs > g.away.runs ? 'home' : g.away.runs > g.home.runs ? 'away' : 'draw';
+          // 새 이닝이 시작될 때 그 경기에서만 쓰는 증강을 하나 더
+          if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick) {
+            const picked = await onMidPick(g.inning);
+            if (picked && aliveRef.current) {
+              const nextMy = rebuildMy?.(picked);
+              if (nextMy) replaceTeam(g.home, engineTeam(nextMy));
+              aug.update(picked, nextMy);
+              redraw();
+            }
+          }
+          half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
+          aug.beforeHalf(g);
+        }
       }
       if (g.final && aliveRef.current) {
         redraw();

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
-import BroadcastGame from './BroadcastGame.jsx';
+import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
+import { setMods, addRuns } from './engine/pitchSim.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -600,7 +601,8 @@ const PASSIVE_AUGMENTS = [
     after: (c, runs, st) => { if (myOff(c)) st.stack = runs > 0 ? Math.min(0.45, (st.stack || 0) + 0.15) : 0; }, half: (c, st) => (myOff(c) && st.stack ? { add: st.stack } : null) },
   { id: 'bargain', name: '가성비 군단', tier: 'gold', type: 'build', desc: '영입가 72 이하 선수 1명당 모든 능력치 +0.4 (최대 +3)',
     roster: (r) => bump(r, () => true, every(Math.min(3, countOf(r, (p) => !p.isReplacement && (p.cost ?? 99) <= 72) * 0.4))) },
-  { id: 'clutchMaster', name: '승부처 달인', tier: 'gold', type: 'play', desc: '승부처 개입 +2회 · 7 · 8회 승부처 상황이면 반드시 개입', clutch: 2, clutchSure: true },
+  { id: 'clutchMaster', name: '승부처 달인', tier: 'gold', type: 'play', desc: '7회부터 2점 차 이내면 공격 득점 기대 +0.25 · 수비 투구 보정',
+    half: (c) => { if (c.inning < 7 || Math.abs(c.score.my - c.score.opp) > 2) return null; return myOff(c) ? { add: 0.25 } : { pitch: 4 }; } },
   { id: 'bullpenGame', name: '불펜 데이', tier: 'gold', type: 'extreme', desc: '선발은 4회까지만 · 중계 · 마무리 구위 · 안정 +8',
     team: (t) => { t.usage.aceMax = 4; }, roster: (r) => bump(r, (p) => (p.slot === 'MR' || p.slot === 'CL') && isPit(p), { stuff: 8, stability: 8 }) },
   { id: 'southpaws', name: '좌완 군단', tier: 'gold', type: 'build', desc: '좌완 투수 1명당 모든 투수 구위 · 제구 +4 (최대 +12)',
@@ -684,7 +686,8 @@ const PASSIVE_AUGMENTS = [
     half: (c) => { if (!oppOff(c) || c.inning > 7 || c.myPitcher.slot !== 'SP') return null; const o = c.myPitcher.overall; return o >= 90 ? { add: -0.3 } : o >= 85 ? { add: -0.16 } : null; } },
   { id: 'dramaComeback', name: '대역전 드라마', tier: 'prismatic', type: 'play', desc: '6회부터 뒤지고 있으면 공격 득점 기대 +0.3, 3점 이상 뒤지면 +0.8',
     half: (c) => { if (!myOff(c) || c.inning < 6) return null; const d = c.score.opp - c.score.my; return d >= 3 ? { add: 0.8 } : d > 0 ? { add: 0.3 } : null; } },
-  { id: 'clutchGod', name: '승부처의 신', tier: 'prismatic', type: 'play', desc: '승부처 개입 +3회 · 모든 판정 결과가 한 단계 좋아짐', clutch: 3, clutchUp: true },
+  { id: 'clutchGod', name: '승부처의 신', tier: 'prismatic', type: 'play', desc: '7회부터 2점 차 이내면 공격 득점 기대 +0.55 · 수비 투구 크게 보정',
+    half: (c) => { if (c.inning < 7 || Math.abs(c.score.my - c.score.opp) > 2) return null; return myOff(c) ? { add: 0.55 } : { pitch: 9 }; } },
   { id: 'speedRevolution', name: '발야구 혁명', tier: 'prismatic', type: 'extreme', desc: '모든 타자 주루 +6 · 타격 계산에서 주루 비중 20% → 45% (컨택 30% · 파워 25%)',
     roster: (r) => bump(r, isBat, { speed: 6 }), team: (t) => { t.weights = { contact: 0.3, power: 0.25, speed: 0.45 }; } },
   { id: 'flyballRevolution', name: '플라이볼 혁명', tier: 'prismatic', type: 'extreme', desc: '모든 타자 파워 +6 · 타격 계산에서 파워 비중 40% → 60% (컨택 25% · 주루 15%)',
@@ -801,6 +804,59 @@ export const EVENTS = [
   { id: 'austerity', name: '긴축 경영', tier: 'silver', cond: '모기업 예산 삭감', desc: 'CP −30, 대신 상점 새로고침 +5회', apply: (s) => ({ ...s, cp: s.cp - 30, rerolls: s.rerolls + 5 }) },
   { id: 'rookie', name: '신인 드래프트 대박', tier: 'prismatic', cond: '1라운드 지명 적중', desc: 'CP +100, 대신 팀 전체 능력치 −1', apply: (s) => ({ ...s, cp: s.cp + 100, buff: s.buff - 1 }) },
 ];
+
+/* ───────────── 7-B. 효과형 증강 ↔ 공 단위 중계 엔진 ─────────────
+   이닝 단위로 쓰던 훅을 타석 확률 보정으로 옮긴다.
+   half 의 add(기대 득점) · mul 은 공격 팀의 안타 확률로, pitch 는 수비 투수의 구위 · 제구로,
+   runs 는 반 이닝이 끝날 때 그 이닝 점수로 반영하고 중계 자막을 남긴다. */
+const HIT_PER_RUN = 0.2; // 기대 득점 +1 ≈ 안타 확률 +0.2 (엔진으로 실측해 맞춘 값)
+
+export function makeAugmentRuntime({ augments = [], my, opp, record }) {
+  let list = augments;
+  let mine = my;
+  const state = {};
+  const stFor = (a) => (state[a.id] ||= {});
+  const passive = () => list.filter((a) => a.passive);
+  const ctxOf = (g, inning = g.inning, isTop = g.top) => ({
+    inning, isTop, my: mine, opp, rng: g.rng,
+    score: { my: g.home.runs, opp: g.away.runs },
+    myPitcher: g.home.pitcher, oppPitcher: g.away.pitcher,
+  });
+
+  return {
+    /** 경기 중에 증강을 더 골랐을 때 */
+    update(nextList, nextMy) { list = nextList; if (nextMy) mine = nextMy; },
+    /** 반 이닝 시작: 이번 반 이닝에 걸릴 보정을 깐다 */
+    beforeHalf(g) {
+      const c = ctxOf(g);
+      let add = 0; let mul = 1; let pitchAdd = 0;
+      for (const a of passive()) {
+        const r = a.half?.(c, stFor(a));
+        if (!r) continue;
+        add += r.add || 0; mul *= r.mul ?? 1; pitchAdd += r.pitch || 0;
+      }
+      const off = { hit: add * HIT_PER_RUN, hitMul: 1 + (mul - 1) * 0.5, hr: Math.max(0, add) * 0.05, steal: Math.max(0, add) * 0.1 };
+      const def = { pitch: pitchAdd };
+      setMods(g, g.top ? { away: off, home: def } : { home: off, away: def });
+    },
+    /** 반 이닝 끝: 이닝 점수 보정 + 쌓이는 값. { runs, texts } 를 돌려준다 */
+    afterHalf(g, runs, inning, isTop) {
+      const c = ctxOf(g, inning, isTop);
+      const texts = [];
+      let out = runs;
+      for (const a of passive()) {
+        if (!a.runs) continue;
+        const r = a.runs(c, out, stFor(a));
+        const next = Math.max(0, Math.min(9, typeof r === 'number' ? r : r.runs));
+        if (typeof r === 'object' && r.text && next !== out) texts.push({ name: a.name, tier: a.tier, text: r.text });
+        out = next;
+      }
+      const delta = addRuns(g, out - runs, inning, isTop ? 'away' : 'home');
+      for (const a of passive()) a.after?.(c, out, stFor(a));
+      return { runs: runs + delta, texts };
+    },
+  };
+}
 
 /* ───────────── 8. 경기 시뮬레이터 ───────────── */
 export const emptyBoard = () => ({ away: Array(9).fill(null), home: Array(9).fill(null) });
@@ -5132,7 +5188,10 @@ export default function KboAugmentDraft() {
     setOpponent(oppRoster);
     const opp = buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
-    setLiveTeams({ my: buildTeam('나의 드림팀', fillRoster(roster), buff, owned, teamEnv(opp, record)), opp });
+    const env = teamEnv(opp, record);
+    const makeMy = (augs) => buildTeam('나의 드림팀', fillRoster(roster), buff, augs, env);
+    const liveMy = makeMy(owned);
+    setLiveTeams({ my: liveMy, opp, makeMy, augments: owned, aug: makeAugmentRuntime({ augments: owned, my: liveMy, opp, record }) });
     runIdRef.current += 1;
     setBoard(emptyBoard());
     setHalf(null);
@@ -5503,7 +5562,14 @@ export default function KboAugmentDraft() {
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
       <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       {phase === 'live' && liveTeams && (
-        <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase('matchup'); }} />
+        <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
+          midPickInnings={match.aug ? MID_AUG_INNINGS : []}
+          onMidPick={(inning) => {
+            const options = rollAugmentOptions(augments);
+            if (!options.length) return null;
+            return new Promise((resolve) => { midPickRef.current = resolve; setChoice({ kind: 'augment', inning, options }); });
+          }}
+          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase('matchup'); }} />
       )}
       <HighlightToast toast={toast} />
     </div>
