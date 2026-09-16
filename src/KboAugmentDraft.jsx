@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import { bannedAugIds } from './myteam/store.js';
+import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -1577,8 +1578,9 @@ const KEYFRAMES = `
 .pk-st dd.hi { color: var(--n); }
 .pk-st dd em { margin-left: .8cqw; font-style: normal; font-size: .62em; }
 .pk-st dd em.up { color: #34d399; }
-.pk-bar { display: block; flex-basis: 100%; height: 1.2cqw; margin-top: .8cqw; background: rgba(255,255,255,.12); }
-.pk-bar b { display: block; height: 100%; background: var(--n); box-shadow: 0 0 4px color-mix(in srgb, var(--n) 60%, transparent); }
+/* 능력치 막대: 내 라커와 같은 규칙 — 낮으면 푸른 회색 → 높을수록 카드(구단) 색, 빛 번짐 없음 */
+.pk-bar { display: block; flex-basis: 100%; height: 1.4cqw; margin-top: .8cqw; background: rgba(255,255,255,.08); }
+.pk-bar b { display: block; height: 100%; }
 .pk .mc-syn { right: 4cqw; top: 5cqw; gap: .8cqw; padding: 1.4cqw 1.8cqw; }
 .pk .mc-syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; }
 .pk .mc-syn i { width: 2cqw; height: 3.6cqw; }
@@ -2246,8 +2248,8 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
               return (
                 <div key={k} className="pk-st">
                   <dt>{STAT_LABELS[k]}</dt>
-                  <dd className={`font-display tabular-nums ${v >= 90 ? 'hi' : ''}`}>{v}{diffTag(d)}</dd>
-                  <i className="pk-bar"><b style={{ width: `${Math.min(100, v)}%` }} /></i>
+                  <dd className="font-display tabular-nums" style={{ color: statColor(v, acc).num }}>{v}{diffTag(d)}</dd>
+                  <i className="pk-bar"><b style={{ width: `${Math.min(100, v)}%`, background: statColor(v, acc).bar }} /></i>
                 </div>
               );
             })}

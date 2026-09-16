@@ -5,6 +5,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
+import { statColor, teamNeon } from './myteam/teamColor.js';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam } from './engine/pitchSim.js';
 
@@ -86,10 +87,11 @@ const Bso = ({ b, s, o }) => (
     {[0, 1].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < o ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}<span />
   </div>
 );
+/** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
 const Stat = ({ k, v, c }) => (
-  <div className="relative mt-2 grid grid-cols-[38px_1fr_30px] items-center gap-2 text-xs text-gray-400">
-    {k}<i className="block h-1 bg-white/10"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: c }} /></i>
-    <em className="text-right font-display text-[15px] font-extrabold not-italic text-white">{v}</em>
+  <div className="relative mt-2 grid grid-cols-[38px_1fr_30px] items-center gap-2 text-[12px] font-semibold text-gray-300">
+    {k}<i className="block h-[6px] bg-white/[0.08]"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: statColor(v, c).bar }} /></i>
+    <em className="text-right font-display text-[15px] font-extrabold not-italic" style={{ color: statColor(v, c).num }}>{v}</em>
   </div>
 );
 
@@ -107,7 +109,7 @@ function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
       </div>
       <p className="relative mt-0.5 text-[22px] font-black text-white">{player?.name || '-'}</p>
       <p className="relative m-0 text-xs text-gray-400">{player?.year ? `${player.year} ${player.team || ''}` : ''}</p>
-      {stats.map(([k, v]) => <Stat key={k} k={k} v={v} c={color} />)}
+      {stats.map(([k, v]) => <Stat key={k} k={k} v={v} c={player ? teamNeon(player) : color} />)}
       {rec && (
         <div className="relative mt-3 grid grid-cols-4 gap-1.5 pt-1 text-center">
           {rec.map(([v, k]) => <div key={k} className="mt-cut bg-white/[0.045] py-1" style={{ '--c': '6px' }}><b className="block font-display text-[19px] font-extrabold text-white">{v}</b><span className="text-[10px] text-gray-400">{k}</span></div>)}

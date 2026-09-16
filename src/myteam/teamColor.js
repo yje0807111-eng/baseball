@@ -14,7 +14,8 @@ export const teamNeon = (p) => TEAM_NEON[p?.team] || '#10b981';
 export const POS_COLOR = { SP: '#60a5fa', RP: '#f87171', C: '#fbbf24', '1B': '#34d399', '2B': '#34d399', '3B': '#34d399', SS: '#34d399', OF: '#a78bfa', DH: '#f472b6' };
 export const posColor = (p) => POS_COLOR[p?.position] || '#10b981';
 
-const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+// '#rrggbb' 과 'rgb(r,g,b)' 둘 다 받는다 (mix 결과를 다시 mix 에 넣을 수 있게)
+const hex = (c) => (c.startsWith('rgb') ? c.match(/\d+/g).slice(0, 3).map(Number) : [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)));
 const mix = (a, b, t) => { const [x, y] = [hex(a), hex(b)]; return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(',')})`; };
 const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 40) / 60));
 
