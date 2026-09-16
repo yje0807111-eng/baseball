@@ -1538,13 +1538,13 @@ const KEYFRAMES = `
 /* 빈 칸(뒷면)도 카드끼리 넘어갈 때와 같은 방향으로 돈다: 나갈 때는 +90°까지, 들어올 때는 −90°에서 — 방향이 반대면 반쯤 돌다 되돌아가는 느낌이 난다 */
 @keyframes pkBackAway { from { transform: rotateY(0) scale(1); } to { transform: rotateY(90deg) scale(1.04); } }
 @keyframes pkBackReturn { from { transform: rotateY(-90deg) scale(1.04); } to { transform: rotateY(0) scale(1); } }
-.pkf-in { animation: pkFlipIn .44s ease-in-out both; } /* pk-in 은 PlayerCard 안쪽 층 이름이라 겹치지 않게 pkf- */
+.pkf-in { animation: pkFlipIn .26s ease-in-out both; } /* pk-in 은 PlayerCard 안쪽 층 이름이라 겹치지 않게 pkf- */
 .pkf-out { pointer-events: none; }
-.pkf-out.flip { animation: pkFlipOut .44s ease-in-out both; }
-.pkf-out.sign { animation: pickSign .35s ease-in both; }
-.pk-back.away { animation: pkBackAway .22s ease-in-out both; }
+.pkf-out.flip { animation: pkFlipOut .26s ease-in-out both; }
+.pkf-out.sign { animation: pickSign .22s ease-in both; }
+.pk-back.away { animation: pkBackAway .13s ease-in-out both; }
 .pk-back.hidden { visibility: hidden; transform: rotateY(90deg); }
-.pk-back.return { animation: pkBackReturn .22s ease-in-out .22s both; }
+.pk-back.return { animation: pkBackReturn .13s ease-in-out .13s both; }
 /* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
 .pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); animation: pkRing 4.5s linear infinite; }
 .pk-empty::before { content: ""; position: absolute; inset: 1.5px; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); background: linear-gradient(180deg, #0a1120, #070c16); } /* 카드 면: 둘레 1.5px 만 남겨 빛이 잘린 모서리까지 따라 돎 */
@@ -4946,7 +4946,7 @@ export default function KboAugmentDraft() {
    * PICK 카드 뒤집기: 스켈레톤이 카드 뒷면. 빈 칸→카드는 뒷면이 돌아가며 카드가 나오고, 카드→빈 칸은 반대로,
    * 카드→다른 카드는 뒷면을 거치지 않고 한 번에(지금 카드가 옆면까지 돌면 새 카드가 이어서 돌아 나옴). 영입은 라인업 쪽으로 흘러가며 사라짐.
    */
-  const PK_FLIP_MS = 440; // 한 번 뒤집기(반쪽 0.22초 × 2)
+  const PK_FLIP_MS = 260; // 한 번 뒤집기(반쪽 0.13초 × 2)
   const [pickLeave, setPickLeave] = useState(null); // 빠지는 카드 { player, owned, mode: 'flip' | 'sign', key }
   const [pickBack, setPickBack] = useState('shown'); // 뒷면(스켈레톤): shown · away · hidden · return
   const prevShownRef = useRef(null);
@@ -4961,7 +4961,7 @@ export default function KboAugmentDraft() {
     const leaveOf = (mode) => {
       const leave = { player: prev.player, owned: prev.owned, mode, key: `${prev.kind}-${prev.player.id}-${Date.now()}` };
       setPickLeave(leave);
-      timers.push(setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 380 : PK_FLIP_MS));
+      timers.push(setTimeout(() => setPickLeave((l) => (l === leave ? null : l)), mode === 'sign' ? 240 : PK_FLIP_MS));
     };
     if (shown && !prev) {
       setPickLeave(null);
