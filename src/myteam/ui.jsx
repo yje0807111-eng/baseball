@@ -186,7 +186,7 @@ export const TopBar = ({ section = '메인', team, account, onBack, right, warn,
       </Cell>
 
       {/* 가운데 여백 */}
-      <Cell grow line={false} px={0}>{warn && <span className="text-[11px] leading-tight text-amber-300">{warn}</span>}</Cell>
+      <Cell grow line={false} px={0} />
 
       {/* 자원: 샐러리 캡 + 골드를 한 칸에 (R4) */}
       <Cell bg="rgba(255,255,255,.025)" px={22}>

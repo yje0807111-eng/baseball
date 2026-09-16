@@ -24,7 +24,7 @@ const ROW_COLS = '34px 40px minmax(0,1.25fr) repeat(4,minmax(0,1fr)) 56px 64px';
 
 const Select = ({ value, onChange, options, all }) => (
   <select value={value} onChange={(e) => onChange(e.target.value)}
-    className="mt-cut bg-[#05080f]/60 px-3 py-2.5 text-[13px] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)] outline-none" style={cut(8)}>
+    className="mt-cut w-full min-w-0 bg-[#05080f]/60 px-3 py-2.5 text-[13px] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)] outline-none" style={cut(8)}>
     <option value="">{all}</option>
     {options.map((o) => <option key={o} value={o}>{o}</option>)}
   </select>
@@ -175,7 +175,6 @@ export default function LockerScreen({ account, onSave, onBack }) {
       <UiStyle />
       <Bg img="ui/mt/tile-locker.webp" opacity={0.4} grad="linear-gradient(180deg,rgba(3,5,10,.95),rgba(3,5,10,.93))" />
       <TopBar section="내 라커" team={team} account={account} onBack={onBack}
-        warn={issues.length ? `${issues[0]}${issues.length > 1 ? ` 외 ${issues.length - 1}건` : ''}` : null}
         right={<Btn sm className="ml-2" onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>} />
 
       <div className="relative grid min-h-0 flex-1 gap-3.5 overflow-hidden px-6 py-3.5"
@@ -220,9 +219,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
               <p className="mt-lab" style={{ '--a': '#fde047' }}>Scout</p>
               <span className="text-xs text-gray-500">{results.length}명 · 종합순</span>
             </div>
-            <div className="mt-3 grid grid-cols-[1fr_130px_130px_120px] gap-2">
+            <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 128px 128px 112px' }}>
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="이름 · 연도 · 구단"
-                className="mt-cut mt-frame bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(8)} />
+                className="mt-cut mt-frame w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(8)} />
               <Select value={year} onChange={setYear} options={YEARS} all="연도 전체" />
               <Select value={club} onChange={setClub} options={TEAMS} all="구단 전체" />
               <Select value={pos} onChange={setPos} options={POS_RULES.map((r) => r.key)} all="포지션" />
