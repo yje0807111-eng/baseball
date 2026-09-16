@@ -1865,12 +1865,25 @@ const KEYFRAMES = `
 .rd-dl.up { color: #34d399; }
 .rd-dl.dn { color: #fbbf24; }
 /* 판 */
-.rd-pan { --a: #34d399; position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: linear-gradient(180deg, rgba(10,18,30,.9), rgba(6,11,19,.86)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 22%, transparent); }
-.rd-pan::before { content: ""; position: absolute; left: 0; top: 0; width: 3px; height: 64px; background: var(--a); box-shadow: 0 0 14px var(--a); }
-.rd-pan::after { content: ""; position: absolute; right: 0; bottom: 0; width: 3px; height: 64px; background: color-mix(in srgb, var(--a) 60%, transparent); }
+.rd-pan { --a: #34d399; position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.rd-pan::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+    linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat,
+    linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 32%, transparent); }
+/* 정비 사이드바: 모드 탭을 세운 버튼 모양의 합계 칸 */
+.rd-side { display: flex; min-height: 0; flex-direction: column; gap: 8px; padding: 12px; }
+.rd-side .rd-tot { position: relative; display: flex; min-height: 4.4rem; flex-direction: column; justify-content: center; padding: 6px 14px 6px 17px; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), rgba(6,10,19,.7)); box-shadow: none; }
+.rd-side .rd-tot::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--a); box-shadow: 0 0 12px var(--a); }
 .rd-ph { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px 10px; }
-.rd-ph h3 { margin: 0; font-size: 19px; font-weight: 800; line-height: 1; }
-.rd-ph em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; font-style: normal; letter-spacing: .24em; color: #64748b; }
+.rd-ph h3 { margin: 4px 0 0; font-size: 22px; font-weight: 900; line-height: 1; color: #fff; }
+.rd-ph em { display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; font-style: normal; letter-spacing: .32em; text-transform: uppercase; color: var(--a); }
+.rd-ph em::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.rd-ph > div { display: flex; flex-direction: column-reverse; }
 .rd-ph .sum { margin-left: auto; text-align: right; line-height: 1.1; }
 .rd-ph .sum small { display: block; font-size: 11px; color: #94a3b8; }
 .rd-ph .sum b { font-family: 'Saira Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--a); font-variant-numeric: tabular-nums; }
@@ -2083,7 +2096,7 @@ function Badge({ children }) {
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
 /** capAfter: PICK 에 올린 선수를 영입하면 남을 캡 — 있으면 “지금 → 영입 후” 숫자와, 깎일 칸이 노랗게 깜빡이는 게이지 */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null }) {
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const pct = clamp01((preview ? capAfter : cp) / cap);
@@ -2096,6 +2109,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
     <header className="sticky top-0 z-30 shrink-0 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.74))] backdrop-blur">
       <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
+        {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
           <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
@@ -4414,7 +4428,7 @@ function SettingRow({ label, options, labels, value, onChange }) {
   );
 }
 
-function ModeSelect({ initialMode, record, onStart }) {
+function ModeSelect({ initialMode, record, onStart, onExit }) {
   const [id, setId] = useState(initialMode);
   const mode = DRAFT_MODES.find((m) => m.id === id);
   const [cap, setCap] = useState(mode.cap);
@@ -4428,6 +4442,7 @@ function ModeSelect({ initialMode, record, onStart }) {
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
+        {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
           <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
@@ -4879,25 +4894,27 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="rd-top">
-        {[['타자 OVR 합계', 'batSum', '#34d399', 9 * 99], ['수비 OVR 합계', 'defSum', '#60a5fa', 8 * 99], ['투수 OVR 합계', 'pitSum', '#f87171', 5 * 99]].map(([label, key, tone, max]) => (
-          <div key={key} className="rd-tot ui-cut" style={{ '--a': tone, '--c': '10px' }}>
-            <span>{label}</span>
-            <span className="flex items-baseline"><b>{now[key]}</b><RdDelta v={now[key]} v0={was[key]} /></span>
-            <i style={{ '--w': `${Math.min(100, (now[key] / max) * 100)}%` }} />
+      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '17rem clamp(330px,21vw,410px) minmax(0,1fr) clamp(340px,22vw,420px)', gridTemplateRows: 'minmax(0,1fr)' }}>
+        {/* 왼쪽 사이드바: 합계 · 정비 도구 · 시즌 시작 */}
+        <nav className="rd-pan rd-side ui-cut" style={{ '--c': '20px', '--a': '#10b981' }}>
+          <p className="ui-lab font-display px-1 pt-1">Tune Up</p>
+          {[['타자 OVR 합계', 'batSum', '#34d399', 9 * 99], ['수비 OVR 합계', 'defSum', '#60a5fa', 8 * 99], ['투수 OVR 합계', 'pitSum', '#f87171', 5 * 99]].map(([label, key, tone, max]) => (
+            <div key={key} className="rd-tot ui-cut" style={{ '--a': tone, '--c': '10px' }}>
+              <span>{label}</span>
+              <span className="flex items-baseline"><b>{now[key]}</b><RdDelta v={now[key]} v0={was[key]} /></span>
+              <i style={{ '--w': `${Math.min(100, (now[key] / max) * 100)}%` }} />
+            </div>
+          ))}
+          {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
+          <div className="mt-auto flex flex-col gap-2">
+            <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
+            <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
+            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
+            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>시즌 시작 ▶</button>
           </div>
-        ))}
-        {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
-        <span className="flex-1" />
-        <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
-        <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
-        <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
-        <button type="button" className="ui-btn ui-cut sm pri" onClick={onStart}>시즌 시작 · 증강 고르기 ›</button>
-      </div>
-
-      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: 'clamp(360px,25vw,460px) minmax(0,1fr) clamp(370px,25vw,460px)', gridTemplateRows: 'minmax(0,1fr)' }}>
+        </nav>
         {/* 왼쪽: 타순 라인업 */}
-        <section className="rd-pan ui-cut" style={{ '--c': '16px', gridColumn: 1, gridRow: 1 }}>
+        <section className="rd-pan ui-cut" style={{ '--c': '20px', gridColumn: 2, gridRow: 1 }}>
           <div className="rd-ph"><div><h3>타순 라인업</h3><em>LINEUP</em></div><span className="sum"><small>타자 OVR 합계</small><b>{now.batSum}</b></span></div>
           <div className="rd-rows">
             {lineup.map((p, i) => {
@@ -4935,7 +4952,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
         </section>
 
         {/* 가운데: 수비 포지션 */}
-        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '16px', gridColumn: 2, gridRow: 1 }}>
+        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '20px', gridColumn: 3, gridRow: 1 }}>
           <div className="rd-ph"><div><h3>수비 포지션</h3><em>DEFENSE</em></div><span className="sum"><small>수비 OVR 합계</small><b>{now.defSum}</b></span></div>
           <div className="rd-fieldbox">
             <div className="rd-field">
@@ -4954,8 +4971,8 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
         </section>
 
         {/* 오른쪽: 투수 로테이션 · 시너지 */}
-        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)', gridColumn: 3, gridRow: 1 }}>
-          <section className="rd-pan ui-cut" style={{ '--a': '#f87171', '--c': '16px' }}>
+        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)', gridColumn: 4, gridRow: 1 }}>
+          <section className="rd-pan ui-cut" style={{ '--a': '#f87171', '--c': '20px' }}>
             <div className="rd-ph"><div><h3>투수 로테이션</h3><em>PITCHING STAFF</em></div><span className="sum"><small>투수 OVR 합계</small><b>{now.pitSum}</b></span></div>
             <div className="rd-rot">
               {RD_ROT.map(([slot, ko, en]) => {
@@ -4973,7 +4990,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
             </div>
           </section>
 
-          <section className="rd-pan ui-cut" style={{ '--a': '#fbbf24', '--c': '16px' }}>
+          <section className="rd-pan ui-cut" style={{ '--a': '#fbbf24', '--c': '20px' }}>
             <div className="rd-ph"><div><h3>시너지 효과</h3><em>SYNERGY</em></div><span className="sum"><small>적용 중</small><b>{active.length}/{syns.filter((s) => s.count > 0).length}</b></span></div>
             <div className="rd-syn syn-scroll">
               {active.map((s, i) => {
@@ -5021,7 +5038,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   );
 }
 
-export default function KboAugmentDraft() {
+export default function KboAugmentDraft({ onExit } = {}) {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
@@ -5440,12 +5457,12 @@ export default function KboAugmentDraft() {
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
-        <ModeSelect initialMode={modeId} onStart={startDraft}
+        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (
         <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
-          capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+          onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
       {phase !== 'mode' && (

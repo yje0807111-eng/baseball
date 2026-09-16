@@ -23,7 +23,7 @@ const Soon = ({ title, desc, onBack }) => (
 
 export default function App() {
   const [account, setAccount] = useState(() => loadAccount());
-  const [view, setView] = useState('lobby');
+  const [view, setView] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
   const [match, setMatch] = useState(null); // 경기 중인 두 팀
 
   const startMatch = () => {
@@ -47,12 +47,7 @@ export default function App() {
   if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
   if (view === 'modes') {
     return (
-      <>
-        <KboAugmentDraft />
-        <button type="button" onClick={() => setView('lobby')}
-          className="fixed bottom-4 left-4 z-[60] bg-[#05080f]/90 px-4 py-2 text-sm font-bold text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]"
-          style={{ clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>← 메인으로</button>
-      </>
+      <KboAugmentDraft onExit={() => setView('lobby')} />
     );
   }
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
