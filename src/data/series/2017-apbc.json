@@ -1,0 +1,40 @@
+{
+  "id": "2017-apbc",
+  "kind": "national",
+  "year": 2017,
+  "title": "APBC 국가대표",
+  "franchise": null,
+  "subtitle": "준우승 · 결승 일본 0-7 패",
+  "blurb": "만 24세 이하·프로 3년차 이하로만 꾸린 젊은 대표팀이 도쿄돔 결승에서 일본에 0-7로 져 준우승했다.",
+  "notes": [
+    "대회 결과: 예선 일본 7-8 패, 대만 1-0 승, 결승 일본 0-7 패로 준우승(1승 2패) — namu. 감독 선동열.",
+    "참가 자격은 만 24세 이하(1993년 1월 1일 이후 출생) 또는 프로 3년차 이하. 와일드카드 3명이 허용됐지만 일본·한국은 쓰지 않고 대만만 사용 — namu·뉴시스.",
+    "최종 엔트리 25명(투수 12·포수 2·내야 6·외야 5) 중 18명 수록. 김대현·이민호·심재민·김명신·장승현·최원준·나경민은 미수록.",
+    "엔트리에 1루수 전문이 없어, 결승전에서 1루수로 선발 출전한 류지혁을 1B로 넣었다(소속팀 두산에서는 유틸리티 내야수) — 엑스포츠뉴스 결승 라인업.",
+    "박진형은 45G 4승4패 2SV 10홀드 ERA5.11만 확인 — 이닝·탈삼진·볼넷 미확인이라 능력치는 추정치.",
+    "박민우 도루는 자료마다 11개·18개로 엇갈려 위키백과 수치(11)를 썼고, 평판을 반영해 speed를 약간 올렸다.",
+    "안익훈은 시즌 초반 대수비·대주자 출전이 많아 타석이 적다 — contact를 기준보다 낮췄다.",
+    "임기영·김윤동은 2017-kia, 김하성은 2017-wbc와 같은 값을 사용.",
+    "2017 시즌 타고투저 보정 적용 (타자 −2, 투수 stability +3)."
+  ],
+  "players": [
+    { "personId": "박세웅", "name": "박세웅", "year": 2017, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 72, "stamina": 85, "stability": 81 }, "note": "데뷔 첫 두 자릿수 12승", "source": "28G 12승6패 ERA3.68 171.1IP 117K 56BB — kowiki" },
+    { "personId": "임기영", "name": "임기영", "year": 2017, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 76, "stamina": 71, "stability": 81 }, "note": "완봉승 2회", "source": "8승6패 118.1IP ERA3.65 — 기사 (K·BB 미확인)" },
+    { "personId": "장현식", "name": "장현식", "year": 2017, "team": "NC", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 57, "stamina": 75, "stability": 61 }, "note": "APBC 한일 개막전 선발", "source": "31G(22선발) 9승9패 ERA5.29 134.1IP 120K 66BB — kowiki·namu" },
+    { "personId": "함덕주", "name": "함덕주", "year": 2017, "team": "두산", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 84, "control": 58, "stamina": 76, "stability": 81 }, "note": "5선발 안착 9승", "source": "35G 9승8패 2HLD ERA3.67 137.1IP 139K 64BB — kowiki" },
+    { "personId": "구창모", "name": "구창모", "year": 2017, "team": "NC", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 81, "control": 61, "stamina": 70, "stability": 61 }, "note": "", "source": "31G 7승10패 ERA5.32 115IP 118K 50BB — kowiki" },
+    { "personId": "장필준", "name": "장필준", "year": 2017, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 66, "stamina": 55, "stability": 68 }, "note": "21세이브 마무리", "source": "56G 4승8패 21SV 3HLD ERA4.68 67.1IP 82K 26BB — kowiki" },
+    { "personId": "김윤동", "name": "김윤동", "year": 2017, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 62, "stamina": 58, "stability": 70 }, "note": "11세이브·올스타", "source": "65G 7승4패11SV6HLD 80.1IP ERA4.59 — 기사 (K·BB 미확인)" },
+    { "personId": "박진형", "name": "박진형", "year": 2017, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 62, "stamina": 58, "stability": 63 }, "note": "후반기 필승조 10홀드", "source": "45G 4승4패 2SV 10HLD ERA5.11 — SPOTV뉴스 (IP·K·BB 미확인)" },
+    { "personId": "한승택", "name": "한승택", "year": 2017, "team": "KIA", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 40, "contact": 56, "speed": 40, "defense": 80 }, "note": "우승팀 백업 포수", "source": "96G .229 0HR 7RBI 0SB 6BB — kowiki" },
+    { "personId": "류지혁", "name": "류지혁", "year": 2017, "team": "두산", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 64, "speed": 57, "defense": 78 }, "note": "결승전 1루수 선발", "source": "125G .259 3HR 26RBI 7SB 21BB(유틸 내야수) — kowiki" },
+    { "personId": "박민우", "name": "박민우", "year": 2017, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 43, "contact": 95, "speed": 68, "defense": 80 }, "note": "타율 .363", "source": "106G .363 141안타 3HR 47RBI 11SB 46BB — kowiki" },
+    { "personId": "정현", "name": "정현", "year": 2017, "team": "KT", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 78, "speed": 50, "defense": 76 }, "note": "데뷔 첫 세 자릿수 안타", "source": "124G .300 6HR 42RBI 4SB 18BB — kowiki" },
+    { "personId": "김하성", "name": "김하성", "year": 2017, "team": "넥센", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 73, "contact": 78, "speed": 72, "defense": 84 }, "note": "유격수 23홈런 114타점", "source": "141G .302/.376 23HR 114RBI 58BB 16SB — kowiki" },
+    { "personId": "하주석", "name": "하주석", "year": 2017, "team": "한화", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 59, "contact": 73, "speed": 60, "defense": 80 }, "note": "", "source": "111G .285 11HR 52RBI 7SB 23BB — kowiki" },
+    { "personId": "이정후", "name": "이정후", "year": 2017, "team": "넥센", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 85, "speed": 64, "defense": 78 }, "note": "신인왕·신인 최다 179안타", "source": "144G .324 179안타 2HR 47RBI 12SB 60BB — kowiki" },
+    { "personId": "구자욱", "name": "구자욱", "year": 2017, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 71, "contact": 80, "speed": 62, "defense": 70 }, "note": "21홈런 107타점", "source": "144G .310 21HR 107RBI 10SB 63BB — kowiki" },
+    { "personId": "김성욱", "name": "김성욱", "year": 2017, "team": "NC", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 59, "speed": 62, "defense": 80 }, "note": "", "source": "124G .247 6HR 31RBI 10SB 24BB — kowiki" },
+    { "personId": "안익훈", "name": "안익훈", "year": 2017, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 41, "contact": 80, "speed": 60, "defense": 86 }, "note": "후반기 주전 중견수", "source": "108G .320 1HR 15RBI 3SB 18BB — kowiki" }
+  ]
+}
