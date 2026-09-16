@@ -70,7 +70,7 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench }) {
   const n = tone(p.overall);
   const keys = KEYS[p.type] || KEYS.batter;
   return (
@@ -82,7 +82,12 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
           {p.name}
           <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
-          {bench && <em className="ml-1.5 bg-white/10 px-1.5 py-px text-[11px] not-italic text-gray-300" title="경기에 나가지 않는 선수">벤치</em>}
+          {onBench && (
+            <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
+              className={`mt-cut ml-2 px-2 py-px align-middle text-[11px] font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`} style={{ '--c': '4px' }}>
+              {bench ? '벤치 ↑' : '출전 ●'}
+            </button>
+          )}
         </b>
         <small className="block truncate text-[11px] text-gray-500">
           {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
@@ -164,11 +169,28 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const cap = team.cap || SQUAD_CAP;
   const cost = squadCost(squad, staff);
   const issues = squadIssues(squad, staff, cap);
-  const playing = useMemo(() => playingIds(squad), [squad]);
+  const bench = team.bench || [];
+  const playing = useMemo(() => playingIds(squad, bench), [squad, bench]);
+  /** 출전 ↔ 벤치 바꾸기. 출전으로 올리면 같은 묶음에서 가장 약한 출전 선수를 대신 벤치로 */
+  const toggleBench = (p) => {
+    const set = new Set(bench);
+    if (playing.has(p.id)) {
+      set.add(p.id);
+    } else {
+      set.delete(p.id);
+      const sameGroup = (x) => (p.type === 'batter' ? x.type === 'batter' : x.position === p.position);
+      const now = playingIds(squad, [...set]);
+      if (!now.has(p.id)) {
+        const weakest = squad.filter((x) => sameGroup(x) && x.id !== p.id && now.has(x.id)).sort((a, b) => a.overall - b.overall)[0];
+        if (weakest) set.add(weakest.id);
+      }
+    }
+    commit({ ...team, bench: [...set].filter((id) => squad.some((x) => x.id === id)) });
+  };
 
   const commit = (next) => { setTeam(next); saveTeam(next); onSave?.(next); };
   const add = (p) => { if (!addBlockReason(p, squad, staff, cap)) commit({ ...team, squad: [...squad, p] }); };
-  const release = (p) => { commit({ ...team, squad: squad.filter((x) => x.id !== p.id) }); setSel(null); };
+  const release = (p) => { commit({ ...team, squad: squad.filter((x) => x.id !== p.id), bench: (team.bench || []).filter((id) => id !== p.id) }); setSel(null); };
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
 
   const autoFill = () => {
@@ -307,7 +329,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <div key={label}>
                     <div className="mt-grp">{label} {rows.length}{benchN ? ` · 출전 ${rows.length - benchN} · 벤치 ${benchN}` : ''}</div>
                     <div className="flex flex-col gap-1.5">
-                      {rows.map((p) => <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="방출" onPick={setSel} onAct={release} showNote={false} bench={!playing.has(p.id)} />)}
+                      {rows.map((p) => <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="방출" onPick={setSel} onAct={release} showNote={false} bench={!playing.has(p.id)} onBench={toggleBench} />)}
                     </div>
                   </div>
                 );

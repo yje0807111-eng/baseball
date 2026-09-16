@@ -7,13 +7,15 @@ import { staffEffect } from './staff.js';
 const ALL = SERIES.flatMap((s) => s.players);
 const LINEUP_POS = ['C', '1B', '2B', '3B', 'SS', 'OF', 'OF', 'OF', 'DH'];
 
-/** 타순: 포지션별 최고 선수 9명 (같은 선수 중복 없이) */
-export function lineupOf(roster) {
+/** 타순: 포지션별 최고 선수 9명 (같은 선수 중복 없이). bench 에 넣은 선수는 다른 선수가 없을 때만 쓴다 */
+export function lineupOf(roster, bench = []) {
   const used = new Set();
   const out = [];
+  const benched = new Set(bench);
+  const best = (f) => roster.filter((x) => f(x) && !used.has(x.id)).sort((a, b) => (benched.has(a.id) - benched.has(b.id)) || b.overall - a.overall)[0];
   for (const pos of LINEUP_POS) {
-    const p = roster.filter((x) => x.position === pos && !used.has(x.id)).sort((a, b) => b.overall - a.overall)[0]
-      || roster.filter((x) => x.type === 'batter' && !used.has(x.id)).sort((a, b) => b.overall - a.overall)[0];
+    const p = best((x) => x.position === pos && !benched.has(x.id)) || best((x) => x.type === 'batter' && !benched.has(x.id))
+      || best((x) => x.position === pos) || best((x) => x.type === 'batter');
     if (!p) continue;
     used.add(p.id);
     out.push(p);
@@ -41,18 +43,20 @@ function applyStaff(roster, staff) {
   });
 }
 
-/** 출전 선수 id: 선발 상위 5 · 불펜 상위 8 · 타순 9명. 나머지는 벤치 */
-export function playingIds(roster) {
-  const top = (pos, n) => roster.filter((p) => p.position === pos).sort((a, b) => b.overall - a.overall).slice(0, n);
-  return new Set([...top('SP', PLAY_LIMIT.SP), ...top('RP', PLAY_LIMIT.RP), ...lineupOf(roster)].map((p) => p.id));
+/** 출전 선수 id: 선발 5 · 불펜 8 · 타순 9명. 감독이 벤치로 뺀 선수(bench)는 자리가 남을 때만 채운다 */
+export function playingIds(roster, bench = []) {
+  const benched = new Set(bench);
+  const top = (pos, n) => roster.filter((p) => p.position === pos)
+    .sort((a, b) => (benched.has(a.id) - benched.has(b.id)) || b.overall - a.overall).slice(0, n);
+  return new Set([...top('SP', PLAY_LIMIT.SP), ...top('RP', PLAY_LIMIT.RP), ...lineupOf(roster, bench)].map((p) => p.id));
 }
 
 export function buildMyTeam(team) {
   const boosted = applyStaff(withBoosts(team), team.staff);
-  const play = playingIds(boosted);
+  const play = playingIds(boosted, team.bench || []);
   // 벤치 선수는 slot 'BN' — 경기 엔진이 투수진에서 뺀다
   const roster = boosted.map((p) => (play.has(p.id) ? p : { ...p, slot: 'BN' }));
-  return { name: team.name || '나의 드림팀', roster, batters: lineupOf(roster) };
+  return { name: team.name || '나의 드림팀', roster, batters: lineupOf(roster, team.bench || []) };
 }
 
 /** 내 팀과 비슷한 CP로 AI 팀을 만든다 */
