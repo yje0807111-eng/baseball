@@ -140,14 +140,26 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.62fr)' }}>
 
         {/* 경기 — 가장 큰 타일 */}
-        <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Play" title="플레이"
-          desc={ready ? '일반 모드 · 기본 모드 · 특별 모드' : `일반 모드: ${issues[0]}`}
+        <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Match Day" title="오늘의 경기장"
+          desc={ready ? '내 팀으로 경기하거나, 드래프트 모드로 새 팀을 뽑아 붙어 보세요' : `내 팀 경기 전에: ${issues[0]}`}
           style={{ gridColumn: '1 / span 2', gridRow: '1 / span 2' }} onClick={onPlay}>
-          <div className="mt-5 flex items-center gap-4">
+          {/* 들어가면 고를 수 있는 모드 */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              ['일반 모드', `내 팀 ${squad.length}/${SQUAD_SIZE}인 · 팀 종합 ${rating || '-'}`, '#10b981'],
+              ['기본 모드', '전체 믹스 · 최근 시즌 · 연도별', '#38e1ff'],
+              ['특별 모드', '올타임 레전드 · 가을의 왕조 · 태극마크', '#fbbf24'],
+            ].map(([t, sub, col]) => (
+              <span key={t} className="mt-cut bg-[#05080f]/75 px-3 py-1.5" style={{ '--c': '6px', boxShadow: `inset 3px 0 0 ${col}` }}>
+                <b className="block text-[14px] text-white">{t}</b>
+                <small className="text-[12px] text-gray-300">{sub}</small>
+              </span>
+            ))}
+          </div>
+          <div className="mt-5">
             <span className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
               플레이 ▶
             </span>
-            <span className="text-[13px] text-gray-300">엔트리 {squad.length}/{SQUAD_SIZE} · 팀 종합 {rating || '-'}</span>
           </div>
         </Tile>
 
