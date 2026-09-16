@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import KboAugmentDraft from './KboAugmentDraft.jsx';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
+import LockerScreen from './myteam/LockerScreen.jsx';
 import { loadAccount, signOut } from './myteam/store.js';
 
 const Soon = ({ title, desc, onBack }) => (
@@ -30,7 +31,7 @@ export default function App() {
       </>
     );
   }
-  if (view === 'locker') return <Soon title="내 라커는 다음 단계입니다" desc="연도·구단 검색으로 26인 엔트리와 코치진을 꾸미는 화면을 준비 중입니다." onBack={() => setView('lobby')} />;
+  if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
   if (view === 'shop') return <Soon title="상점은 다음 단계입니다" desc="부스트·훈련·팩·감독 계약을 살 수 있는 화면을 준비 중입니다." onBack={() => setView('lobby')} />;
   if (view === 'play') return <Soon title="내 팀 경기는 라커를 채운 뒤에" desc="엔트리 26명을 채우면 중계 화면으로 바로 경기할 수 있습니다." onBack={() => setView('lobby')} />;
 
