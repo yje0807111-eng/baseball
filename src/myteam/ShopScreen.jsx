@@ -1,30 +1,33 @@
-/* 상점 — 드래프트 화면 문법(선반 · 사선 카드 · PICK 패널), 배치는 D2: 왼쪽 분류 / 가운데 선반 / 오른쪽 PICK */
+/* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, needsPlayer, needsStaff, applyToPlayer } from './shop.js';
 import { staffByRole } from './staff.js';
 import { STAFF_SLOTS } from './rules.js';
 import { saveTeam, addGold } from './store.js';
-import { UiStyle, Bg, TopBar, Btn } from './ui.jsx';
+import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd' };
 const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독' };
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제' };
 
-/** 상품 카드 — 드래프트 선수 카드와 같은 모양 */
+/** 상품 카드 — 모드 화면 시리즈 카드와 같은 틀: 큰 사진 · 오른쪽 위 배지 · 아래 이름 · 가격 */
 function ItemCard({ it, on, onClick }) {
   const n = catColor[it.cat];
   return (
-    <button type="button" onClick={onClick} className="mt-pk block w-full text-left"
-      style={{ '--n': n, aspectRatio: '3 / 4.1', boxShadow: on ? `0 0 0 2px ${n}, 0 0 40px -12px ${n}` : undefined }}>
-      <span className="in"><img className="art" src={`ui/mt/${it.img}.webp`} alt="" /><span className="sh" /></span>
-      <span className="fr" /><span className="tb" />
-      <span className="ov">{it.price}<small>G</small></span>
-      <span className="meta">{catLabel[it.cat]}</span>
-      <span className="pos"><em>{catLabel[it.cat]}</em><span>{catSub[it.cat]}</span></span>
-      <span className="nm">{it.name}</span>
-      <span className="ds">{it.desc}</span>
-      <span className="ft"><b>{it.price} G</b><span>{on ? '선택됨' : '고르기'}</span></span>
+    <button type="button" onClick={onClick}
+      className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
+      style={{ '--c': '12px', '--a': n, backgroundImage: `url(ui/mt/${it.img}.webp)` }}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
+      <span className="absolute left-3 top-2 font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</span>
+      <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px', background: n }}>{catSub[it.cat]}</span>
+      <span className="absolute inset-x-3 bottom-2.5 block">
+        <span className="flex items-end gap-2">
+          <b className="min-w-0 flex-1 truncate text-base font-black text-white">{it.name}</b>
+          <b className="font-display text-lg text-amber-300">{it.price.toLocaleString()} G</b>
+        </span>
+        <span className="block truncate text-[11px] text-gray-400">{it.desc}</span>
+      </span>
     </button>
   );
 }
@@ -75,72 +78,60 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const n = picked ? catColor[picked.cat] : '#34d399';
   const after = picked?.stat && target?.stats ? Math.min(99, (target.stats[picked.stat] ?? 70) + picked.amount) : null;
 
+  const NAV = CATEGORIES.map((c) => ({
+    key: c.key, label: c.label, sub: `${counts[c.key]}개${c.key === 'all' ? '' : ` · ${catSub[c.key]}`}`,
+    img: `ui/mt/${(SHOP_ITEMS.find((i) => c.key === 'all' || i.cat === c.key) || SHOP_ITEMS[0]).img}.webp`,
+  }));
+
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
-      <Bg opacity={0.5} grad="linear-gradient(180deg,rgba(3,5,10,.95),rgba(3,5,10,.92))" />
-      <TopBar section="상점" team={team} account={{ ...account, gold }} onBack={onBack} />
+      <Bg img="ui/mt/tile-shop.webp" opacity={0.6} />
+      <TopBar eyebrow="Shop" section="상점" team={team} account={{ ...account, gold }} onBack={onBack} />
 
-      <div className="relative grid min-h-0 flex-1 gap-3.5 overflow-hidden px-6 py-3.5"
-        style={{ gridTemplateColumns: '200px minmax(0,1fr) 380px', gridTemplateRows: 'minmax(0,1fr)' }}>
+      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
+        style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        {/* 분류 */}
-        <section className="mt-cut mt-frame mt-glass flex flex-col p-3.5 px-3" style={cut(14)}>
-          <p className="mt-lab" style={{ '--a': '#fde047' }}>Category</p>
-          <div className="mt-3 flex flex-col gap-1.5">
-            {CATEGORIES.map((c) => {
-              const on = cat === c.key;
-              return (
-                <button key={c.key} type="button" onClick={() => { setCat(c.key); setTarget(null); }}
-                  className={`mt-cut ${on ? 'mt-frame hot' : ''} flex items-center justify-between px-3 py-2.5`}
-                  style={{ ...cut(8), '--a': '#10b981', background: on ? 'rgba(16,185,129,.14)' : 'rgba(5,8,15,.55)' }}>
-                  <b className={`text-sm ${on ? 'text-white' : 'text-gray-400'}`}>{c.label}</b>
-                  <span className="font-display text-xs" style={{ color: on ? '#34d399' : '#4b5563' }}>{counts[c.key]}</span>
-                </button>
-              );
-            })}
+        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); setTarget(null); }} a="#fde047" label="Category">
+          <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
+            <p className="text-[11px] text-gray-400">보유 골드</p>
+            <b className="font-display text-2xl text-amber-300">{gold.toLocaleString()} G</b>
+            <p className="mt-1 text-[11px] text-gray-500">승 300 · 무 180 · 패 120</p>
           </div>
-          <p className="mt-auto text-[11px] leading-relaxed text-gray-500">훈련은 영구, 부스트는 정해진 경기 수만큼.<br />골드는 경기에서 법니다.</p>
-        </section>
+        </SideNav>
 
-        {/* 선반 */}
-        <section className="mt-cut mt-frame mt-glass relative min-h-0 p-3.5 px-[18px]" style={cut(16)}>
-          <span className="mt-wm">SHOP</span>
-          <div className="relative flex items-center gap-3.5 whitespace-nowrap pl-[132px]">
-            <p className="mt-lab absolute left-0 top-0">Shop</p>
-            <b className="text-[26px] font-black text-white">오늘의 상품</b>
-            <span className="text-[13px] text-gray-400">{items.length}개 · 매일 09시 갱신</span>
-            <span className="mt-rf ml-auto">⟳ 갱신까지 06:12</span>
+        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
+          <div className="flex items-baseline gap-3">
+            <p className="mt-lab" style={{ '--a': '#fde047' }}>Shop</p>
+            <p className="text-sm text-gray-400">오늘의 상품 {items.length}개 · 매일 09시 갱신</p>
           </div>
-          <div className="mt-scroll mt-3.5 grid grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100% - 3.2rem)' }}>
+          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
             {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); setTarget(null); }} />)}
           </div>
         </section>
 
-        {/* PICK */}
-        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-3.5 px-4" style={cut(16)}>
+        <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
-          {!picked ? <p className="mt-3 text-sm text-gray-500">상품을 고르세요.</p> : (
+          {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
             <>
-              <div className="mt-3 flex justify-center"><span style={{ width: 196 }}><ItemCard it={picked} on /></span></div>
-              <h2 className="mt-3 text-[24px] font-black text-white">{picked.name}</h2>
-              <p className="mt-1 text-[13px] text-gray-300">{picked.desc}</p>
+              <Hero img={`url(ui/mt/${picked.img}.webp)`} name={picked.name} color={n} h={150} pos="center" />
+              <p className="-mt-1 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
 
               {needTarget && (
-                <>
-                  <p className="mt-lab mt-3" style={{ '--a': '#7dd3fc' }}>적용 대상</p>
-                  <div className="mt-scroll mt-2 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <p className="mt-grp !mt-0">적용 대상</p>
+                  <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
                     {targets.length === 0 && <p className="text-sm text-gray-500">대상이 없습니다. 라커에서 먼저 영입하세요.</p>}
                     {targets.map((t) => {
                       const on = target?.id === t.id;
                       return (
-                        <button key={t.id} type="button" onClick={() => setTarget(t)}
-                          className={`mt-cut ${on ? 'mt-frame hot' : ''} grid grid-cols-[auto_1fr] items-center gap-3 px-3 py-2 text-left`}
-                          style={{ ...cut(8), '--a': '#7dd3fc', background: on ? 'rgba(125,211,252,.14)' : 'rgba(5,8,15,.6)' }}>
-                          <b className="font-display text-xl text-sky-300">{t.overall ?? '—'}</b>
+                        <button key={t.id} type="button" onClick={() => setTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
+                          style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
+                          <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
+                          <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
                           <span className="min-w-0">
-                            <b className="block truncate text-sm text-white">{t.name}</b>
-                            <span className="text-[11px] text-gray-400">
+                            <b className="block truncate text-sm font-black text-white">{t.name}</b>
+                            <span className="block truncate text-[11px] text-gray-400">
                               {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
                               {picked.stat && t.stats ? ` · ${t.stats[picked.stat] ?? '-'} → ${Math.min(99, (t.stats[picked.stat] ?? 70) + picked.amount)}` : ''}
                             </span>
@@ -149,29 +140,22 @@ export default function ShopScreen({ account, onChange, onBack }) {
                       );
                     })}
                   </div>
-                </>
-              )}
-
-              {target && after != null && (
-                <div className="mt-cut mt-2.5 bg-[#05080f]/70 p-2.5 px-3" style={cut(10)}>
-                  <span className="flex justify-between text-[13px] text-gray-400">{target.name}
-                    <b className="font-display text-lg text-white">{target.stats[picked.stat]} → <span style={{ color: n }}>{after}</span></b></span>
                 </div>
               )}
 
-              <div className="mt-auto pt-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[13px] text-gray-400">가격</span>
-                  <b className="font-display text-[26px]" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{picked.price} G</b>
-                </div>
-                <Btn pri lg className="mt-2 w-full" style={cut(12)} disabled={!ready} onClick={buy}>
-                  {picked.price > gold ? '골드 부족' : needTarget && !target ? '대상을 고르세요' : `${picked.price} G 로 구매`}
+              <div className={needTarget ? '' : 'mt-auto'}>
+                {target && after != null && <KV k={`${target.name} ${picked.stat}`} v={`${target.stats[picked.stat]} → ${after}`} color="#34d399" />}
+                <KV k="보유 골드" v={`${gold.toLocaleString()} → ${(gold - picked.price).toLocaleString()}`} color={picked.price > gold ? '#f87171' : '#fde047'} />
+              </div>
+              <div>
+                <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={buy}>
+                  {picked.price > gold ? '골드 부족' : needTarget && !target ? '대상을 고르세요' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
                 {toast && <p className="mt-2 text-center text-sm text-emerald-300">{toast}</p>}
               </div>
             </>
           )}
-        </section>
+        </aside>
       </div>
     </div>
   );

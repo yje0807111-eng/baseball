@@ -6,7 +6,7 @@ export const UiStyle = () => (
     .mt-cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
     .mt-glass { background:rgba(6,10,19,.74); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
     .mt-frame { position:relative; }
-    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 0 1px rgba(255,255,255,.10); clip-path:inherit; }
+    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top/var(--c) var(--c) no-repeat, linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom/var(--c) var(--c) no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c)/2px 30px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c)/2px 30px no-repeat; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 2px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 26%, transparent); }
     .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'Saira Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:var(--a,#10b981); margin:0; }
     .mt-lab::before { content:''; width:14px; height:10px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
@@ -54,13 +54,19 @@ export const UiStyle = () => (
     .mt-wm { position:absolute; left:14px; top:2px; font-family:'Saira Condensed',sans-serif; font-size:58px; font-weight:800; color:rgba(16,185,129,.16); line-height:1; pointer-events:none; }
     .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:13px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
     .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
-    .mt-row { display:grid; align-items:center; gap:12px; padding:8px 12px; background:rgba(5,8,15,.55); box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
+    .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
     .mt-row:hover { background:rgba(255,255,255,.05); }
-    .mt-row.on { background:rgba(16,185,129,.13); box-shadow:inset 3px 0 0 #10b981, inset 0 0 0 1px rgba(16,185,129,.4); }
+    .mt-row.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a,#10b981) 20%,transparent),rgba(6,10,19,.6)); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 60%,transparent), inset 3px 0 0 var(--a,#10b981); }
     .mt-sb { display:block; height:4px; background:rgba(255,255,255,.1); }
     .mt-sb > b { display:block; height:100%; }
     .mt-grp { display:flex; align-items:center; gap:10px; margin:14px 0 8px; font-family:'Saira Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.2em; color:#9ca3af; }
     .mt-grp::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
+    .mt-nav { position:relative; display:flex; height:4.4rem; flex:none; align-items:center; gap:12px; overflow:hidden; padding:0 14px; text-align:left; background:rgba(255,255,255,.03); clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition:filter .15s; }
+    .mt-nav:hover { filter:brightness(1.25); }
+    .mt-nav .th { width:44px; height:3.2rem; flex:none; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
+    .mt-nav.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a) 24%,transparent),rgba(6,10,19,.92)); }
+    .mt-nav.on .th { filter:none; }
+    .mt-nav.on::after { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--a); box-shadow:0 0 12px var(--a); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );
@@ -107,11 +113,10 @@ export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff }) =
   }} />
 );
 
-export const Bg = ({ img = 'ui/mt/mt-bg.webp', grad = 'linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.82) 40%,rgba(3,5,10,.95) 100%)', opacity = 0.9 }) => (
-  <>
-    <div className="fixed inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${img})`, opacity }} />
-    <div className="fixed inset-0" style={{ background: grad }} />
-  </>
+export const Bg = ({ img = 'ui/mt/mt-bg.webp', opacity = 0.9 }) => (
+  <div className="fixed inset-0 bg-[#05080f] bg-cover bg-center" style={{ backgroundImage: `url(${img})` }}>
+    <div className="absolute inset-0" style={{ background: `radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,${(1 - opacity * 0.6).toFixed(2)}), rgba(5,8,15,.95) 78%), repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px)` }} />
+  </div>
 );
 
 /** 팀 스탯 요약 — 상단 바가 쓴다 */
@@ -143,76 +148,93 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
 );
 
 /**
- * 모든 화면이 함께 쓰는 상단 바 (S8 구획 + S5 CP 블록)
- *  [엠블럼·섹션] [팀 종합] [타선·선발·불펜·수비] [CP 게이지] [엔트리·외국인] [골드] [감독]
+ * 모든 화면이 함께 쓰는 상단 바 — 드래프트 모드 화면 헤더 문법
+ *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지] [골드] [감독 · 로그아웃]
  */
-export const TopBar = ({ section = '메인', team, account, onBack, right, warn, onSignOut }) => {
+export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, account, onBack, right, steps, onSignOut }) => {
   const squad = team?.squad || [];
-  const st = teamStats(squad);
   const cap = team?.cap || 2000;
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const rec = team?.record || { w: 0, l: 0, d: 0 };
   const over = cost > cap;
   return (
-    <header className="relative flex h-[78px] shrink-0 items-stretch border-b border-emerald-500/35 bg-[linear-gradient(180deg,rgba(4,7,12,.99),rgba(5,8,15,.7))]">
-      <span className="mt-scan pointer-events-none absolute inset-0 opacity-50" />
-      <span className="absolute -bottom-px left-0 h-0.5 w-[520px]" style={{ background: 'linear-gradient(90deg,#10b981,transparent)' }} />
-
-      <Cell bg="rgba(16,185,129,.08)">
-        {onBack
-          ? <button type="button" onClick={onBack} className="mt-cut grid h-[50px] w-11 place-items-center bg-white/[0.06] text-lg text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)]" style={{ '--c': '8px' }}>←</button>
-          : <span className="mt-cut grid h-[50px] w-11 place-items-center bg-emerald-500 font-display text-[13px] font-extrabold text-[#05080f]" style={{ '--c': '8px' }}>MY</span>}
-        <span>
-          <p className="mt-lab" style={{ fontSize: 9 }}>Legend Draft</p>
-          <b className="block text-[18px] font-extrabold text-white">{section}</b>
-        </span>
-      </Cell>
-
-      <Cell>
-        <b className="font-display text-[40px] font-extrabold leading-none text-white" style={{ textShadow: '0 0 24px rgba(16,185,129,.35)' }}>{st.ovr || '-'}</b>
-        <span>
-          <small className="block font-display text-[10px] tracking-[0.2em] text-gray-500">TEAM OVR</small>
-          <span className="font-display text-[13px] text-emerald-400">{team?.name || '나의 드림팀'}</span>
-        </span>
-      </Cell>
-
-      <Cell bg="rgba(255,255,255,.02)" px={20}>
-        {[['타선', st.bat, '#34d399'], ['선발', st.sp, '#7dd3fc'], ['불펜', st.rp, '#f87171'], ['수비', st.def, '#fde047']].map(([k, v, c]) => (
-          <span key={k} className="inline-flex min-w-[56px] flex-col items-center">
-            <b className="font-display text-xl leading-none" style={{ color: v ? c : '#4b5563' }}>{v || '-'}</b>
-            <small className="mt-1 font-display text-[10px] tracking-[0.14em] text-gray-500">{k}</small>
+    <header className="relative z-10 flex h-16 shrink-0 items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
+      <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
+      {onBack && (
+        <button type="button" onClick={onBack} aria-label="메인으로"
+          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
+      )}
+      <div className="leading-none">
+        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">{eyebrow}</p>
+        <h1 className="mt-1 text-xl font-black leading-none text-white">{section}</h1>
+      </div>
+      {steps}
+      <div className="ml-auto flex items-center gap-6">
+        {team && (
+          <div className="w-60">
+            <div className="flex justify-between font-display text-[11px] tracking-[0.2em] text-gray-500">
+              <span>SALARY CAP</span>
+              <b style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} / {cap.toLocaleString()}</b>
+            </div>
+            <div className="mt-1 h-1.5 bg-white/10">
+              <i className="block h-full" style={{ width: `${Math.min(100, (cost / cap) * 100)}%`, background: over ? '#f87171' : '#10b981', boxShadow: `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
+            </div>
+          </div>
+        )}
+        {account && <span className="mt-cut bg-white/[0.06] px-3 py-1 font-display text-lg font-bold text-amber-300" style={{ '--c': '6px' }}>{(account.gold ?? 0).toLocaleString()} G</span>}
+        {account && (
+          <span className="text-sm text-gray-400">
+            <b className="text-gray-200">{account.nick || '감독'}</b> 감독 · {rec.w}승 {rec.l}패 {rec.d}무
+            {onSignOut && <> · <button type="button" onClick={onSignOut} className="underline hover:text-gray-200">로그아웃</button></>}
           </span>
-        ))}
-      </Cell>
-
-      {/* 가운데 여백 */}
-      <Cell grow line={false} px={0} />
-
-      {/* 자원: 샐러리 캡 + 골드를 한 칸에 (R4) */}
-      <Cell bg="rgba(255,255,255,.025)" px={22}>
-        <span>
-          <span className="flex items-center justify-between gap-5 font-display text-[11px] tracking-[0.16em] text-gray-500">
-            SALARY CAP
-            <b className="font-display text-[14px]" style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} <span className="text-gray-600">/ {cap.toLocaleString()}</span></b>
-          </span>
-          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={230} ticks={23} over={over} /></span>
-          <span className="mt-2 flex items-center justify-between gap-5 font-display text-[11px] tracking-[0.16em] text-gray-500">
-            GOLD
-            <b className="font-display text-base text-yellow-300">{(account?.gold ?? 0).toLocaleString()} G</b>
-          </span>
-        </span>
-      </Cell>
-
-      {/* 감독 */}
-      <Cell line={false} bg="rgba(16,185,129,.06)" px={20}>
-        <span className="mt-cut h-12 w-12 bg-cover bg-center" style={{ '--c': '7px', backgroundImage: 'url(ui/mt/mt-card.webp)' }} />
-        <span>
-          <b className="block text-[14px] text-white">{account?.nick || '감독'}</b>
-          <span className="text-[11px] text-gray-400">{rec.w}승 {rec.l}패 {rec.d}무</span>
-          {onSignOut && <button type="button" onClick={onSignOut} className="mt-1 block text-[11px] text-gray-500 underline hover:text-gray-300">로그아웃</button>}
-        </span>
+        )}
         {right}
-      </Cell>
+      </div>
     </header>
   );
 };
+
+/** 사이드 네비 — 모드 탭을 세로로 세운 판. items: [{ key, label, sub, img }] */
+export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu', children }) => (
+  <nav className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', '--a': a }}>
+    <p className="mt-lab px-1 pt-1" style={{ '--a': a }}>{label}</p>
+    {items.map((it) => (
+      <button key={it.key} type="button" onClick={() => onChange(it.key)} className={`mt-nav ${value === it.key ? 'on' : ''}`} style={{ '--a': a }}>
+        <span className="th" style={{ backgroundImage: `url(${it.img})` }} />
+        <span className="min-w-0">
+          <b className={`block truncate text-base font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
+          <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
+        </span>
+      </button>
+    ))}
+    <div className="mt-scroll mt-auto min-h-0 overflow-y-auto">{children}</div>
+  </nav>
+);
+
+/** 큰 사진 머리 (오른쪽 상세 패널 위) — 시리즈 카드 문법 */
+export const Hero = ({ img, ovr, name, color = '#10b981', h = 176, pos = '60% 18%' }) => (
+  <div className="mt-cut relative shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '12px', height: h, backgroundImage: img, backgroundPosition: pos }}>
+    <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,#05080f)' }} />
+    {ovr != null && <span className="absolute left-3 top-2 font-display text-4xl font-extrabold" style={{ color, textShadow: `0 0 16px ${color}88,0 2px 4px #000` }}>{ovr}</span>}
+    <b className="absolute bottom-2 left-3 right-3 truncate text-3xl font-black text-white">{name}</b>
+  </div>
+);
+
+/** 오른쪽 패널의 키-값 줄 */
+export const KV = ({ k, v, color = '#fff' }) => (
+  <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
+    <span>{k}</span><b className="font-display text-lg" style={{ color }}>{v}</b>
+  </div>
+);
+
+/** 작은 수치 칸 묶음 (모드 설명 패널의 시리즈·선수·난이도) */
+export const Stats = ({ items }) => (
+  <dl className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${items.length},1fr)` }}>
+    {items.map(([k, v]) => (
+      <div key={k} className="mt-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
+        <dt className="text-[10px] text-gray-400">{k}</dt>
+        <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+      </div>
+    ))}
+  </dl>
+);
