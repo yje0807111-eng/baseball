@@ -56,6 +56,8 @@ export const UiStyle = () => (
     .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
     .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
     .mt-row:hover { background:rgba(255,255,255,.05); }
+    .mt-staff-in { animation: mtStaffIn .32s cubic-bezier(.2,.8,.2,1) backwards; }
+    @keyframes mtStaffIn { from { opacity:0; transform:translateY(18px) scale(1.06); } to { opacity:1; transform:none; } }
     .mt-row.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a,#10b981) 20%,transparent),rgba(6,10,19,.6)); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 60%,transparent), inset 3px 0 0 var(--a,#10b981); }
     .mt-sb { display:block; height:4px; background:rgba(255,255,255,.1); }
     .mt-sb > b { display:block; height:100%; }

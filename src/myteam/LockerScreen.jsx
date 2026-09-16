@@ -351,9 +351,14 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 const cur = staff[s.key];
                 const on = staffSlot === s.key;
                 return (
-                  <button key={s.key} type="button" onClick={() => setStaffSlot(s.key)}
-                    className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-top text-left`}
+                  <button key={s.key} type="button" onClick={() => { setStaffSlot(s.key); if (cur) setStaff(s.key, null); }}
+                    title={cur ? `${cur.name} 해임` : undefined} aria-label={cur ? `${s.label} ${cur.name}, 눌러서 해임` : `${s.label} 비어 있음, 후보 보기`}
+                    className={`mt-cut ${on ? 'mt-frame' : ''} group relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-top text-left`}
                     style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
+                    {cur && (
+                      <span key={cur.id} className="mt-staff-in absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
+                        style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(profiles/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                    )}
                     <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${cur ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
                     <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
                     <span className="absolute inset-x-3 bottom-2.5">
@@ -366,15 +371,14 @@ export default function LockerScreen({ account, onSave, onBack }) {
             </div>
             <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === staffSlot)?.label} 후보</div>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
-              {staffByRole(STAFF_SLOTS.find((s) => s.key === staffSlot)?.role).map((m) => {
-                const on = staff[staffSlot]?.id === m.id;
+              {staffByRole(STAFF_SLOTS.find((s) => s.key === staffSlot)?.role).filter((m) => staff[staffSlot]?.id !== m.id).map((m) => {
                 return (
-                  <div key={m.id} className={`mt-row mt-cut ${on ? 'on' : ''}`} style={{ gridTemplateColumns: '46px minmax(0,1fr) minmax(0,1.2fr) 60px 76px', '--a': '#c4b5fd' }}>
+                  <div key={m.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '46px minmax(0,1fr) minmax(0,1.2fr) 60px 76px', '--a': '#c4b5fd' }}>
                     <Portrait player={m} staff w={44} h={52} color="#c4b5fd" />
                     <span className="min-w-0"><b className="block truncate text-base font-black text-white">{m.name}</b><small className="text-[11px] text-gray-500">{m.era} · {m.note}</small></span>
                     <span className="text-sm text-[#c4b5fd]">{effText(m.effect)}</span>
                     <b className="text-right font-display text-lg text-amber-300">{m.cost}</b>
-                    <Btn sm pri={on} a="#c4b5fd" onClick={() => setStaff(staffSlot, on ? null : m)}>{on ? '해임' : '선임'}</Btn>
+                    <Btn sm a="#c4b5fd" onClick={() => setStaff(staffSlot, m)}>선임</Btn>
                   </div>
                 );
               })}

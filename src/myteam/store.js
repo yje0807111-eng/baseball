@@ -4,8 +4,13 @@
  */
 import { SQUAD_CAP } from './rules.js';
 import { RP_DELTA } from './rank.js';
+import { STAFF } from './staff.js';
 
 const KEY = 'kbo.myteam.v1';
+
+const staffById = new Map(STAFF.map((s) => [s.id, s]));
+const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(([slot, s]) => [slot, s ? staffById.get(s.id) || null : null]));
+const withTeam = (team) => { const t = { ...emptyTeam(), ...(team || {}) }; return { ...t, staff: freshStaff(t.staff) }; };
 
 const emptyTeam = () => ({
   name: '나의 드림팀',
@@ -72,18 +77,18 @@ function write(data) {
 /** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
 export function peekAccount() {
   const a = read();
-  return a?.nick ? { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) }, aug: withAug(a) } : null;
+  return a?.nick ? { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) } : null;
 }
 
 export function loadAccount() {
   const a = read();
   if (!a?.nick || a.signedOut) return null;
-  return { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) }, aug: withAug(a) };
+  return { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) };
 }
 
 export function signIn(nick) {
   const cur = read();
-  const prev = cur?.nick === nick ? { ...emptyAccount(nick), ...cur, team: { ...emptyTeam(), ...(cur.team || {}) }, aug: withAug(cur) } : emptyAccount(nick);
+  const prev = cur?.nick === nick ? { ...emptyAccount(nick), ...cur, team: withTeam(cur.team), aug: withAug(cur) } : emptyAccount(nick);
   const next = { ...prev, signedOut: false };
   write(next);
   return next;
