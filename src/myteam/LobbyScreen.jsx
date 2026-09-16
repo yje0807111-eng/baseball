@@ -32,13 +32,13 @@ function RankPanel({ account, team, onRecord }) {
   const sum = rankSummary(account.history || []);
   const st = teamStats(team.squad || []);
   const c = r.tier.c;
-  const STATS = [['타선', st.bat, '#34d399'], ['선발', st.sp, '#7dd3fc'], ['불펜', st.rp, '#f87171'], ['수비', st.def, '#fde047']];
+  const STATS = [['타선', st.bat, '#34d399', '#0e7490'], ['선발', st.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, '#f87171', '#a21caf'], ['수비', st.def, '#fde047', '#ea580c']];
   const segs = 40;
   const on = Math.round((r.inDiv / 100) * segs);
   return (
     <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
       <div className="absolute inset-y-0 right-0 w-[62%] bg-cover bg-right opacity-45" style={{ backgroundImage: 'url(ui/rank/room.webp)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 45%)', maskImage: 'linear-gradient(90deg,transparent,#000 45%)' }} />
-      <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 300px', gridTemplateRows: 'minmax(0,1fr)' }}>
+      <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 엠블럼 */}
         <div className="relative h-[150px] w-[150px] shrink-0">
           <span className="absolute inset-[12%] rounded-full" style={{ background: `radial-gradient(circle, ${c}55, transparent 70%)` }} />
@@ -99,10 +99,16 @@ function RankPanel({ account, team, onRecord }) {
             <p className="mt-lab" style={{ '--a': '#10b981' }}>Team</p>
             <b className="ml-auto font-display text-3xl font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-xs text-gray-500">OVR</small>
           </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            {STATS.map(([k, v, col]) => (
-              <div key={k} className="mt-cut flex items-baseline justify-between bg-white/[0.045] px-3 py-1" style={{ '--c': '6px', boxShadow: `inset 0 -2px 0 ${col}` }}>
-                <small className="text-xs text-gray-400">{k}</small><b className="font-display text-xl" style={{ color: v ? col : '#4b5563' }}>{v || '-'}</b>
+          {/* 가로 막대 4줄: 얇은 선 · 두 색 그라데이션 + 끝 불빛 */}
+          <div className="flex flex-col gap-2">
+            {STATS.map(([k, v, col, col2]) => (
+              <div key={k} className="grid items-center gap-3" style={{ gridTemplateColumns: '40px 1fr 36px' }}>
+                <span className="text-[14px] font-bold text-white">{k}</span>
+                <div className="relative h-[3px] bg-white/[0.08]">
+                  <i className="absolute inset-y-0 left-0" style={{ width: `${v || 0}%`, background: `linear-gradient(90deg, ${col2}, ${col})`, boxShadow: `0 0 8px ${col}88` }} />
+                  {v > 0 && <i className="absolute top-1/2 h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rotate-45" style={{ left: `${v}%`, background: '#fff', boxShadow: `0 0 8px ${col}, 0 0 2px ${col}` }} />}
+                </div>
+                <b className="text-right font-display text-[22px] font-extrabold leading-none" style={{ color: v ? col : '#4b5563' }}>{v || '-'}</b>
               </div>
             ))}
           </div>
