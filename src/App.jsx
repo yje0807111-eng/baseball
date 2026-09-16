@@ -39,7 +39,8 @@ export default function App() {
   const finishMatch = (res) => {
     const reward = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
     saveTeam(tickBoosts(account.team));
-    addHistory({ my: account.team.name, opp: 'AI 올스타', myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner });
+    addHistory({ my: account.team.name, opp: 'AI 올스타', myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner,
+      mvp: res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null });
     addGold(reward);
     setAccount(reload());
     setMatch(null);

@@ -1,20 +1,9 @@
-/* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 내 선수 줄 */
-import React, { useMemo } from 'react';
-import { SERIES } from '../data/seriesPlayers.js';
+/* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 랭크 판 */
+import React from 'react';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
-import { UiStyle, Bg, TopBar, Btn, Chip, PlayerTile } from './ui.jsx';
+import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
+import { rankOf, rankSummary } from './rank.js';
 
-const ALL = SERIES.flatMap((s) => s.players);
-const daySeed = () => { const d = new Date(); return d.getFullYear() * 400 + d.getMonth() * 32 + d.getDate(); };
-const pickN = (arr, n, seed) => {
-  const out = []; const used = new Set(); let h = seed;
-  while (out.length < n && used.size < arr.length) {
-    h = (h * 1103515245 + 12345) >>> 0;
-    const i = h % arr.length;
-    if (!used.has(i)) { used.add(i); out.push(arr[i]); }
-  }
-  return out;
-};
 
 /** 메트로 타일 */
 function Tile({ img, a, label, title, desc, style, onClick, disabled, children, big }) {
@@ -36,6 +25,93 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
   );
 }
 
+/** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급/RP · 단계 막대 · 최근 10경기 · 시즌 MVP · 자주 쓴 증강 | 팀 스탯 */
+function RankPanel({ account, team, onRecord }) {
+  const rp = account.rank?.rp || 0;
+  const r = rankOf(rp);
+  const sum = rankSummary(account.history || []);
+  const st = teamStats(team.squad || []);
+  const c = r.tier.c;
+  const STATS = [['타선', st.bat, '#34d399'], ['선발', st.sp, '#7dd3fc'], ['불펜', st.rp, '#f87171'], ['수비', st.def, '#fde047']];
+  const segs = 40;
+  const on = Math.round((r.inDiv / 100) * segs);
+  return (
+    <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
+      <div className="absolute inset-y-0 right-0 w-[62%] bg-cover bg-right opacity-45" style={{ backgroundImage: 'url(ui/rank/room.webp)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 45%)', maskImage: 'linear-gradient(90deg,transparent,#000 45%)' }} />
+      <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 300px', gridTemplateRows: 'minmax(0,1fr)' }}>
+        {/* 엠블럼 */}
+        <div className="relative h-[150px] w-[150px] shrink-0">
+          <span className="absolute inset-[12%] rounded-full" style={{ background: `radial-gradient(circle, ${c}55, transparent 70%)` }} />
+          <img src={`ui/rank/${r.tier.key}.webp`} alt={`${r.tier.ko} 엠블럼`} className="relative h-full w-full object-contain"
+            style={{ WebkitMaskImage: 'radial-gradient(circle, #000 52%, transparent 70%)', maskImage: 'radial-gradient(circle, #000 52%, transparent 70%)' }} />
+        </div>
+
+        {/* 등급 · 막대 · 요약 */}
+        <div className="flex min-w-0 flex-col justify-center gap-2.5">
+          <div className="flex flex-wrap items-baseline gap-x-3">
+            <p className="mt-lab" style={{ '--a': c }}>Rank</p>
+            <b className="text-[34px] font-black leading-none text-white">{r.tier.ko} {r.div}</b>
+            <span className="font-display text-xl" style={{ color: c }}>{rp.toLocaleString()} RP</span>
+            <span className="text-sm text-gray-400">{r.next ? `${r.next.ko}까지 ${r.toNext} RP · 약 ${Math.ceil(r.toNext / 20)}승` : '최고 등급'}</span>
+            {sum.lastDelta != null && <span className={`ml-auto font-display text-sm ${sum.lastDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>최근 경기 {sum.lastDelta >= 0 ? '+' : ''}{sum.lastDelta}</span>}
+          </div>
+          <div>
+            <div className="mb-1 flex justify-between font-display text-xs text-gray-400">
+              <span>{r.tier.ko} {r.div}</span><span>{r.inDiv} / 100</span><span>{r.next ? (r.div === 'I' ? r.next.ko + ' III' : `${r.tier.ko} ${r.div === 'III' ? 'II' : 'I'}`) : ''}</span>
+            </div>
+            <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${segs},1fr)`, height: 12 }}>
+              {Array.from({ length: segs }, (_, i) => (
+                <i key={i} className="block -skew-x-[24deg]" style={{ background: i < on ? c : 'rgba(255,255,255,.07)', boxShadow: i < on ? `0 0 6px ${c}` : undefined }} />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-6 border-t border-white/10 pt-2.5">
+            <button type="button" onClick={onRecord} className="text-left">
+              <p className="font-display text-[10px] tracking-[0.25em] text-gray-400">최근 10경기{sum.winRate != null ? ` · ${sum.winRate}%` : ''}{sum.streak > 1 ? ` · ${sum.streak}연승` : ''}</p>
+              <span className="mt-1 flex gap-1">
+                {sum.form.length ? sum.form.map((x, i) => (
+                  <i key={i} className="mt-cut grid h-5 w-5 place-items-center font-display text-[10px] font-extrabold not-italic text-[#05080f]" style={{ '--c': '3px', background: x === 'W' ? '#10b981' : x === 'L' ? '#f87171' : '#94a3b8' }}>{x}</i>
+                )) : <span className="text-xs text-gray-500">아직 경기가 없습니다</span>}
+              </span>
+            </button>
+            <div className="flex min-w-0 items-center gap-3">
+              {sum.mvp && <span className="mt-cut h-11 w-9 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(sum.mvp.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />}
+              <div className="min-w-0">
+                <p className="font-display text-[10px] tracking-[0.25em] text-amber-300">SEASON MVP</p>
+                <b className="block truncate text-base text-white">{sum.mvp ? `${sum.mvp.name}` : '—'}</b>
+                {sum.mvp && <small className="text-xs text-gray-400">경기 MVP {sum.mvp.n}회</small>}
+              </div>
+            </div>
+            <div className="min-w-0">
+              <p className="mb-1 font-display text-[10px] tracking-[0.25em] text-gray-400">자주 쓴 증강</p>
+              <div className="flex flex-wrap gap-1.5">
+                {sum.augs.length ? sum.augs.map((a) => (
+                  <span key={a.id} className="mt-cut bg-white/[0.05] px-2.5 py-0.5 text-sm text-white" style={{ '--c': '5px' }}>{a.name} <small className="font-display text-gray-500">{a.n}회</small></span>
+                )) : <span className="text-xs text-gray-500">증강 기록 없음</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 팀 스탯 (오른쪽 아래) */}
+        <div className="flex h-full flex-col justify-center gap-1.5 border-l border-white/10 pl-5">
+          <div className="flex items-baseline gap-2">
+            <p className="mt-lab" style={{ '--a': '#10b981' }}>Team</p>
+            <b className="ml-auto font-display text-3xl font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-xs text-gray-500">OVR</small>
+          </div>
+          <div className="grid grid-cols-2 gap-1.5">
+            {STATS.map(([k, v, col]) => (
+              <div key={k} className="mt-cut flex items-baseline justify-between bg-white/[0.045] px-3 py-1" style={{ '--c': '6px', boxShadow: `inset 0 -2px 0 ${col}` }}>
+                <small className="text-xs text-gray-400">{k}</small><b className="font-display text-xl" style={{ color: v ? col : '#4b5563' }}>{v || '-'}</b>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onSignOut }) {
   const team = account.team;
   const squad = team.squad || [];
@@ -45,9 +121,6 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
   const ready = issues.length === 0;
   const rec = team.record || { w: 0, l: 0, d: 0 };
   const rating = squad.length ? Math.round(squad.reduce((s, p) => s + p.overall, 0) / squad.length) : 0;
-  const seed = daySeed();
-  const hot = useMemo(() => pickN(ALL.filter((p) => p.overall >= 88), 8, seed), [seed]);
-  const show = squad.length ? [...squad].sort((a, b) => b.overall - a.overall).slice(0, 8) : hot;
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -56,7 +129,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
       <TopBar section="메인" team={team} account={account} onSignOut={onSignOut} />
 
       <div className="relative grid min-h-0 flex-1 gap-3.5 px-6 py-4"
-        style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.85fr)' }}>
+        style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.62fr)' }}>
 
         {/* 경기 — 가장 큰 타일 */}
         <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Play" title="플레이"
@@ -82,17 +155,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
           desc={account.history?.length ? `최근 ${account.history[0].myRuns} : ${account.history[0].oppRuns}` : '아직 경기가 없습니다'} disabled />
 
-        {/* 아래 줄: 내 선수 (없으면 인기 선수) */}
-        <section className="mt-cut mt-frame mt-glass min-h-0 p-3 px-4" style={{ '--c': '14px', gridColumn: '1 / span 4' }}>
-          <div className="flex items-center gap-3">
-            <p className="mt-lab" style={{ '--a': squad.length ? '#34d399' : '#fde047' }}>{squad.length ? 'My Squad' : 'Hot Players'}</p>
-            <span className="text-xs text-gray-500">{squad.length ? `종합 상위 8명 · 엔트리 ${squad.length}명` : '이번 주 인기 영입 — 라커에서 찾아보세요'}</span>
-            <Btn sm className="ml-auto" onClick={onLocker}>{squad.length ? '엔트리 보기' : '선수 검색'}</Btn>
-          </div>
-          <div className="mt-2.5 grid grid-cols-8 gap-2.5">
-            {show.map((p) => <PlayerTile key={p.id} player={p} width="100%" height={132} onClick={onLocker} />)}
-          </div>
-        </section>
+        <RankPanel account={account} team={team} />
       </div>
     </div>
   );

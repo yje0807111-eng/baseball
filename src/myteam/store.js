@@ -3,6 +3,7 @@
  * loadAccount/saveAccount 안쪽만 바꿔 끼우면 된다 (화면은 이 파일만 본다).
  */
 import { SQUAD_CAP } from './rules.js';
+import { RP_DELTA } from './rank.js';
 
 const KEY = 'kbo.myteam.v1';
 
@@ -108,7 +109,11 @@ export function addHistory(entry) {
   if (entry.winner === 'my') record.w += 1;
   else if (entry.winner === 'opp') record.l += 1;
   else record.d += 1;
-  const next = { ...a, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
+  // 랭크 승점: 승 +20 · 무 +5 · 패 −12 (0 아래로는 안 내려감)
+  const before = a.rank?.rp || 0;
+  const rp = Math.max(0, before + (RP_DELTA[entry.winner] ?? 0));
+  const rank = { rp, best: Math.max(rp, a.rank?.best || 0) };
+  const next = { ...a, rank, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), rp: rp - before, ...entry }, ...(a.history || [])].slice(0, 50) };
   write(next);
   return next;
 }
