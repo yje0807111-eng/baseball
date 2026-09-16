@@ -114,7 +114,6 @@ export const TopBar = ({ section = '메인', team, account, onBack, right, warn 
   const cap = team?.cap || 2000;
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const rec = team?.record || { w: 0, l: 0, d: 0 };
-  const foreign = squad.filter((p) => p.isForeign).length;
   const over = cost > cap;
   return (
     <header className="relative flex h-[78px] shrink-0 items-stretch border-b border-emerald-500/35 bg-[linear-gradient(180deg,rgba(4,7,12,.99),rgba(5,8,15,.7))]">
@@ -148,20 +147,18 @@ export const TopBar = ({ section = '메인', team, account, onBack, right, warn 
         ))}
       </Cell>
 
-      {/* CP — S5 방식: 라벨 줄 + 눈금 게이지 */}
-      <Cell grow px={20}>
-        <span className="w-full max-w-[300px]">
-          <span className="flex items-center justify-between font-display text-[11px] tracking-[0.16em] text-gray-500">
+      {/* 가운데 여백 — CP 는 오른쪽에 붙인다 */}
+      <Cell grow line={false} px={0}>{warn && <span className="text-[11px] leading-tight text-amber-300">{warn}</span>}</Cell>
+
+      {/* CP (S5 방식: 라벨 줄 + 눈금 게이지) */}
+      <Cell px={20}>
+        <span>
+          <span className="flex items-center justify-between gap-4 font-display text-[11px] tracking-[0.16em] text-gray-500">
             SALARY CAP
             <b className="font-display text-[15px]" style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} <span className="text-gray-600">/ {cap.toLocaleString()}</span></b>
           </span>
-          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={300} ticks={24} over={over} /></span>
+          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={210} ticks={21} over={over} /></span>
         </span>
-        <span className="ml-4 flex flex-col gap-1.5">
-          <Chip a={squad.length === 26 ? '#7dd3fc' : '#f87171'}>엔트리 {squad.length}/26</Chip>
-          <Chip a={foreign > 3 ? '#f87171' : '#fde047'}>외국인 {foreign}/3</Chip>
-        </span>
-        {warn && <span className="ml-3 max-w-[180px] text-[11px] leading-tight text-amber-300">{warn}</span>}
       </Cell>
 
       <Cell bg="rgba(253,224,71,.06)" lc="rgba(253,224,71,.4)">
