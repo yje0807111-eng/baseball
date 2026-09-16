@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
+import BroadcastGame from './BroadcastGame.jsx';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -4878,6 +4879,7 @@ export default function KboAugmentDraft() {
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
   const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
+  const [liveTeams, setLiveTeams] = useState(null); // 중계 화면에 넘길 두 팀
   const pickClutch = (grade) => { const c = clutch; setClutch(null); c?.resolve(grade); };
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
@@ -4964,51 +4966,32 @@ export default function KboAugmentDraft() {
     setPhase('matchup');
   };
 
-  const startGame = async (rematch = false, owned = augments.slice(0, match.aug)) => {
+  const startGame = (rematch = false, owned = augments.slice(0, match.aug)) => {
     setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
     setClutch(null);
     setPlay(null);
     const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
-    const my = buildTeam('나의 드림팀', fillRoster(roster), buff);
-    const opp = buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
-    const runId = ++runIdRef.current;
-    setPhase('sim');
+    setLiveTeams({
+      my: buildTeam('나의 드림팀', fillRoster(roster), buff),
+      opp: buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]),
+    });
+    runIdRef.current += 1;
     setBoard(emptyBoard());
     setHalf(null);
     setLogs([]);
     setResult(null);
     setToast(null);
     setPaused(false);
+    setPhase('live'); // 공 하나 단위 중계 화면
+  };
 
-    const res = await runSimulation({
-      my, opp, augments: owned,
-      getSpeed: () => speedRef.current,
-      isCancelled: () => runIdRef.current !== runId,
-      onBoard: ({ board: b, half: h }) => { setBoard(b); setHalf(h); },
-      onLog: (e) => setLogs((l) => [...l, e]),
-      onPlay: setPlay,
-      onClutch: (info) => (runIdRef.current !== runId ? 'miss' : new Promise((resolve) => setClutch({ ...info, resolve }))),
-      beforeInning: (inning, cur) => {
-        if (!match.aug || !MID_AUG_INNINGS.includes(inning) || runIdRef.current !== runId) return null;
-        const options = rollAugmentOptions(cur);
-        if (!options.length) return null;
-        return new Promise((resolve) => {
-          midPickRef.current = resolve;
-          setChoice({ kind: 'augment', inning, options });
-        });
-      },
-      onHighlight: async ({ augment, text, hero }) => {
-        const key = Date.now() + Math.random();
-        setPaused(true);
-        setToast({ key, augment, text, hero });
-        setTimeout(() => setPaused(false), 500);
-        setTimeout(() => setToast((t) => (t && t.key === key ? null : t)), 1700);
-      },
-    });
-    if (!res || runIdRef.current !== runId) return;
+  /* 중계 화면이 끝나면 기존 결과 화면으로 */
+  const finishLive = (res) => {
+    setLiveTeams(null);
     setResult(res);
-    setHalf(null);
+    setLogs(res.logs);
+    setBoard(res.board);
     setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
     setPhase('result');
   };
@@ -5330,6 +5313,9 @@ export default function KboAugmentDraft() {
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
       <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
+      {phase === 'live' && liveTeams && (
+        <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase('matchup'); }} />
+      )}
       <HighlightToast toast={toast} />
     </div>
   );

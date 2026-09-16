@@ -1,0 +1,416 @@
+/*
+ * 중계형 경기 화면: 공 하나 단위 엔진(pitchSim)을 그대로 보여 준다.
+ * 위 가운데 점수 · 이닝별 전광판 / 좌우에 지금 던지는 투수 · 타석 타자 카드 /
+ * 가운데 아래 작전 버튼과 실시간 해설 / 승부처에는 멈추고 지시를 받는다.
+ */
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES,
+} from './engine/pitchSim.js';
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
+
+/** 지금 던지는 투수의 오늘 기록 */
+function pitcherLine(g, pitcher) {
+  let k = 0, h = 0, bb = 0, r = 0;
+  for (const ev of g.events) {
+    if (ev.pitcher !== pitcher || !ev.result) continue;
+    if (ev.result === 'K') k += 1;
+    if (['1B', '2B', '3B', 'HR', 'BH'].includes(ev.result)) h += 1;
+    if (['BB', 'IBB'].includes(ev.result)) bb += 1;
+    r += ev.runs || 0;
+  }
+  return { k, h, bb, r };
+}
+
+/** 드래프트 팀(roster)에서 엔진용 팀을 만든다: 타순 9명 + 투수(선발 → 불펜) */
+export function engineTeam(team) {
+  const roster = team.roster || [];
+  const batters = (team.batters?.length ? team.batters : roster.filter((p) => p.type === 'batter')).slice(0, 9);
+  const pitchers = roster.filter((p) => p.type === 'pitcher').sort((a, b) => (a.position === 'SP' ? -1 : 1) - (b.position === 'SP' ? -1 : 1) || b.overall - a.overall);
+  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C') };
+}
+
+const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
+const COUNT_MS = 620; // 공 하나 사이 (1X 기준)
+const RESULT_MS = 1500; // 타석이 끝나는 공
+
+/* ───────── 해설 문장 ───────── */
+function commentary(ev) {
+  const b = ev.batter?.name || '타자';
+  const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
+  const out = [];
+  if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루로 뜁니다 — ${ev.steal.ok ? '세이프! 도루 성공!' : '아웃! 잡혔습니다'}`);
+  if (!ev.result) {
+    const call = { ball: '볼', called: '스트라이크, 루킹입니다', swinging: '헛스윙!', foul: '파울' }[ev.call];
+    if (call) out.push(`${p} — ${call}. ${ev.after.balls}볼 ${ev.after.strikes}스트라이크`);
+    return out;
+  }
+  const r = ev.result;
+  if (r === 'HR') out.push(`${b}, 쳤습니다! 크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
+  else if (r === '3B') out.push(`${b}, 우중간을 완전히 가릅니다! 3루까지!`);
+  else if (r === '2B') out.push(`${b}, 좌중간 2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
+  else if (r === '1B') out.push(`${b}, 깨끗한 안타로 출루합니다.${ev.runs ? ` ${ev.runs}점!` : ''}`);
+  else if (r === 'BB') out.push(`${b}, 볼넷으로 걸어 나갑니다.${ev.runs ? ' 밀어내기 득점!' : ''}`);
+  else if (r === 'IBB') out.push(`${b}, 고의사구. 1루가 채워집니다.`);
+  else if (r === 'K') out.push(`${p} — 삼진! ${b}, 돌아섭니다.`);
+  else if (r === 'DP') out.push(`${b}의 타구, 병살입니다! 이닝 종료 분위기`);
+  else if (r === 'SF') out.push(`${b} 희생플라이. 3루 주자 여유 있게 득점!`);
+  else if (r === 'SAC') out.push(`${b}, 번트를 댑니다. 주자 진루 성공`);
+  else if (r === 'BH') out.push(`${b}, 기습 번트 안타!`);
+  else if (r === 'E') out.push(`${b}의 평범한 타구… 수비 실책! 주자 살아 나갑니다`);
+  else if (r === 'CS') out.push('도루 실패로 이닝이 끝납니다');
+  else out.push(`${b}, ${RESULT_LABEL[r]}.`);
+  return out;
+}
+
+/* ───────── 작은 부품 ───────── */
+const Diamond = ({ bases }) => (
+  <svg viewBox="0 0 100 100" className="h-[92px] w-[92px]">
+    <path d="M50 88 L86 52 L50 16 L14 52 Z" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" />
+    {[[86, 52], [50, 16], [14, 52]].map(([x, y], i) => (
+      <rect key={i} x={x - 8} y={y - 8} width="16" height="16" transform={`rotate(45 ${x} ${y})`}
+        fill={bases[i] ? '#fde047' : 'rgba(255,255,255,.14)'} style={bases[i] ? { filter: 'drop-shadow(0 0 7px #fde047)' } : undefined} />
+    ))}
+    <rect x="45" y="83" width="10" height="10" transform="rotate(45 50 88)" fill="#fff" />
+  </svg>
+);
+const Bso = ({ b, s, o }) => (
+  <div className="grid grid-cols-[16px_repeat(3,14px)] items-center gap-1.5 font-display text-[13px] font-extrabold">
+    <span className="text-emerald-400">B</span>
+    {[0, 1, 2].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < b ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-white/15'}`} />)}
+    <span className="text-yellow-300">S</span>
+    {[0, 1].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < s ? 'bg-yellow-300 shadow-[0_0_8px_#fde047]' : 'bg-white/15'}`} />)}<span />
+    <span className="text-red-400">O</span>
+    {[0, 1].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < o ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}<span />
+  </div>
+);
+const Stat = ({ k, v, c }) => (
+  <div className="relative mt-2 grid grid-cols-[38px_1fr_30px] items-center gap-2 text-xs text-gray-400">
+    {k}<i className="block h-1 bg-white/10"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: c }} /></i>
+    <em className="text-right font-display text-[15px] font-extrabold not-italic text-white">{v}</em>
+  </div>
+);
+
+function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
+  return (
+    <section className="relative mt-8 self-start overflow-hidden p-3 px-3.5"
+      style={{ '--c': color, background: 'linear-gradient(180deg,rgba(11,18,32,.88),rgba(5,8,15,.93))', boxShadow: `inset 0 0 0 1px ${color}, 0 26px 60px -22px rgba(0,0,0,.95), 0 0 50px -24px ${color}`, clipPath: 'polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)' }}>
+      <p className="m-0 mb-2.5 font-display text-[11px] font-semibold tracking-[0.32em]" style={{ color }}>◣ {label}</p>
+      {img && <div className="pointer-events-none absolute -right-2 top-8 h-[200px] w-[150px] opacity-80"
+        style={{ background: `url(${img}) center/cover`, WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 50%)', maskImage: 'linear-gradient(90deg,transparent,#000 50%)' }} />}
+      <div className="relative flex items-baseline gap-2">
+        <b className="font-display text-[34px] font-extrabold leading-none text-white">{player?.overall ?? '-'}</b>
+        <span className="font-display text-[11px] font-extrabold tracking-wider text-[#05080f]" style={{ background: color, padding: '2px 7px' }}>{player?.position || side}</span>
+      </div>
+      <p className="relative mt-0.5 text-[22px] font-black text-white">{player?.name || '-'}</p>
+      <p className="relative m-0 text-xs text-gray-400">{player?.year ? `${player.year} ${player.team || ''}` : ''}</p>
+      {stats.map(([k, v]) => <Stat key={k} k={k} v={v} c={color} />)}
+      {rec && (
+        <div className="relative mt-3 grid grid-cols-4 border-t border-white/10 pt-2.5 text-center">
+          {rec.map(([v, k]) => <div key={k}><b className="block font-display text-[19px] font-extrabold text-white">{v}</b><span className="text-[11px] text-gray-400">{k}</span></div>)}
+        </div>
+      )}
+      {bottom}
+    </section>
+  );
+}
+
+const panel = 'bg-[#05080f]/80 p-2.5 px-3.5 shadow-[inset_0_0_0_1px_var(--c),0_22px_50px_-24px_rgba(0,0,0,.95)]';
+const cut = { clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)' };
+
+function TeamPanel({ team, side, color, pitcher, pitches }) {
+  const bull = team.pitchers.filter((p) => p !== pitcher).slice(0, 3);
+  const stamina = Math.max(0, Math.min(100, 100 - (pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
+  return (
+    <section className={`self-end ${panel}`} style={{ ...cut, '--c': color, gridColumn: side, gridRow: '4 / span 2' }}>
+      <p className="m-0 mb-2 font-display text-[11px] font-semibold tracking-[0.3em]" style={{ color }}>◣ {team.name}</p>
+      <div className="grid grid-cols-[1fr_auto] items-center gap-2 py-1 text-[13px]"><b className="text-white">투수 {pitcher?.name}</b><em className="font-display not-italic" style={{ color }}>{pitcher?.overall}</em></div>
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 py-1 text-[13px] text-gray-400">체력
+        <i className="block h-1.5 bg-white/10"><b className="block h-full" style={{ width: `${stamina}%`, background: stamina > 40 ? color : '#f87171' }} /></i>
+        <em className="font-display not-italic" style={{ color }}>{Math.round(stamina)}</em>
+      </div>
+      <p className="m-0 mt-2 mb-1 font-display text-[11px] font-semibold tracking-[0.3em]" style={{ color }}>◣ 불펜</p>
+      {bull.map((p) => (
+        <div key={p.id} className="grid grid-cols-[1fr_auto] items-center gap-2 py-0.5 text-[13px]">
+          <b className="truncate text-white">{p.name} <span className="text-gray-500">{p.position}</span></b>
+          <em className="font-display not-italic" style={{ color }}>{p.overall}</em>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+/* ───────── 본체 ───────── */
+export default function BroadcastGame({ my, opp, onFinish, onExit }) {
+  const home = useMemo(() => engineTeam(my), [my]);
+  const away = useMemo(() => engineTeam(opp), [opp]);
+  const gameRef = useRef(null);
+  if (!gameRef.current) gameRef.current = createGame({ home, away });
+  const g = gameRef.current;
+
+  const [, force] = useState(0);
+  const redraw = () => force((v) => v + 1);
+  const [speed, setSpeed] = useState(1);
+  const [paused, setPaused] = useState(false);
+  const [lines, setLines] = useState(['플레이볼!']);
+  const [flash, setFlash] = useState(null); // 큰 결과 자막
+  const [orders, setOrders] = useState(null); // 승부처 지시 대기
+  const ordersRef = useRef(null);
+  const pendingRef = useRef({}); // 다음 공에 실릴 지시
+  const speedRef = useRef(1);
+  const pausedRef = useRef(false);
+  const aliveRef = useRef(true);
+  speedRef.current = speed;
+  pausedRef.current = paused;
+
+  // StrictMode 로 두 번 마운트돼도 살아 있게 (마운트마다 다시 켠다)
+  useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
+
+  // 경기 루프
+  useEffect(() => {
+    let stop = false;
+    aliveRef.current = true;
+    (async () => {
+      await sleep(600);
+      while (!g.final && !stop && aliveRef.current) {
+        while ((pausedRef.current || ordersRef.current) && !stop) await sleep(100);
+        if (stop || g.final) break;
+        // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
+        if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
+          g.clutchAsked = g.inning;
+          const picked = await new Promise((resolve) => {
+            ordersRef.current = resolve;
+            setOrders({ offense: !g.top, resolve });
+          });
+          ordersRef.current = null;
+          setOrders(null);
+          pendingRef.current = { ...pendingRef.current, ...picked };
+        }
+        if (g.inning !== g.clutchAsked) g.clutchAsked = null;
+        let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
+        pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
+        if (!ev) break;
+        setLines((l) => [...l, ...commentary(ev)].slice(-4));
+        if (ev.result && ['HR', '3B', '2B', 'K', 'DP'].includes(ev.result)) {
+          setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() });
+          setTimeout(() => setFlash(null), 1400);
+        }
+        redraw();
+        await sleep((ev.result ? RESULT_MS : COUNT_MS) / speedRef.current);
+      }
+      if (g.final && aliveRef.current) {
+        redraw();
+        setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
+        await sleep(1200);
+        onFinish?.(buildResult(g, my));
+      }
+    })();
+    return () => { stop = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const off = offenseOf(g);
+  const def = defenseOf(g);
+  const batter = batterOf(g);
+  const pitcher = pitcherOf(g);
+  const myIsHome = true;
+  const cMy = '#34d399';
+  const cOpp = '#f87171';
+  const battingColor = g.top ? cOpp : cMy;
+  const pitchingColor = g.top ? cMy : cOpp;
+  const mix = pitchMix(pitcher);
+  const line = pitcherLine(g, pitcher);
+  const steal0 = stealOdds(g, 0);
+
+  const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
+  const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
+
+  const innCells = (side) => Array.from({ length: 12 }, (_, i) => (side.line[i] ?? (i + 1 < g.inning || (i + 1 === g.inning && (side === g.home ? !g.top : true)) ? 0 : null)));
+
+  return (
+    <div className="fixed inset-0 z-40 overflow-hidden bg-[#05080f] text-gray-200">
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/broadcast-field.webp)' }} />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%)' }} />
+
+      <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
+        {/* 헤더 */}
+        <header className="col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.96),rgba(5,8,15,.5))] px-5">
+          <div><small className="block font-display text-[9px] font-semibold tracking-[0.38em] text-gray-500">LEGEND DRAFT</small><b className="text-lg font-black text-white">감독 모드</b></div>
+          <span className="font-display text-[13px] font-extrabold tracking-[0.25em] text-red-400"><i className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />LIVE</span>
+          <div className="ml-auto flex gap-1 bg-white/5 p-[3px]">
+            {SPEEDS.map(([label, v]) => (
+              <button key={label} type="button" onClick={() => setSpeed(v)}
+                className={`px-3.5 py-1 font-display text-sm font-extrabold ${speed === v ? 'bg-yellow-300 text-[#05080f]' : 'text-gray-400'}`}>{label}</button>
+            ))}
+          </div>
+          <button type="button" onClick={() => setPaused((p) => !p)} className="bg-white/[0.06] px-3.5 py-1 font-display text-sm text-gray-200">{paused ? '계속' : '일시정지'}</button>
+          <button type="button" onClick={onExit} className="bg-white/[0.06] px-3.5 py-1 font-display text-sm text-gray-400">나가기</button>
+        </header>
+
+        {/* 점수 + 이닝별 */}
+        <div className="col-start-2 text-center">
+          <div className="relative inline-block px-8 pb-2 pt-2.5"
+            style={{ background: 'linear-gradient(180deg,rgba(2,4,8,.95),rgba(2,4,8,.82))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.1), 0 20px 46px -20px rgba(0,0,0,.95)', clipPath: 'polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)' }}>
+            <div className="flex items-center justify-center gap-6">
+              <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
+              <span className="text-[26px] font-extrabold text-white">{away.name}<small className="block font-display text-[10px] tracking-[0.3em] text-gray-400">AWAY</small></span>
+              <span className="font-display text-[64px] font-extrabold leading-none text-white [text-shadow:0_2px_18px_rgba(0,0,0,.85)]">{g.away.runs}<span className="mx-3.5 text-gray-600">-</span>{g.home.runs}</span>
+              <span className="text-right text-[26px] font-extrabold text-white">{home.name}<small className="block font-display text-[10px] tracking-[0.3em] text-gray-400">HOME</small></span>
+              <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cMy, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>MY</span>
+            </div>
+            <p className="m-0 mt-1 font-display text-[15px] font-extrabold tracking-[0.2em] text-yellow-300">{g.final ? '경기 종료' : `${g.inning}회${g.top ? '초' : '말'}`}</p>
+          </div>
+          <table className="mt-2.5 w-full border-collapse bg-[#020408]/85 text-center font-display shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]">
+            <thead><tr className="text-xs font-semibold text-gray-500"><th className="w-[200px] py-1 pl-4 text-left">TEAM</th>{Array.from({ length: 12 }, (_, i) => <th key={i} className="py-1">{i + 1}</th>)}<th>R</th><th>H</th><th>E</th></tr></thead>
+            <tbody>
+              {[[away, g.away, g.top], [home, g.home, !g.top]].map(([t, side, live]) => (
+                <tr key={t.name} className="border-t border-white/[0.07]">
+                  <td className="w-[200px] py-1 pl-4 text-left text-[15px] font-extrabold text-white">{t.name}</td>
+                  {innCells(side).map((v, i) => (
+                    <td key={i} className={`py-1 text-[22px] text-gray-300 ${live && i + 1 === g.inning ? 'bg-yellow-300/15 text-white' : ''}`}>{v ?? '-'}</td>
+                  ))}
+                  <td className="text-[22px] font-extrabold text-yellow-300">{side.runs}</td>
+                  <td className="text-[22px] text-gray-300">{side.hits}</td>
+                  <td className="text-[22px] text-gray-300">{side.errors}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 왼쪽: 지금 던지는 투수 */}
+        <div className="col-start-1 row-start-2">
+          <PlayerCard side="P" label="NOW PITCHING" player={pitcher} color={pitchingColor} img="ui/clutch-mound.webp"
+            stats={[['구위', st(pitcher, 'stuff', 80)], ['제구', st(pitcher, 'control', 75)], ['안정', st(pitcher, 'stability', 75)]]}
+            rec={[[def.pitches, '투구수'], [line.k, '탈삼진'], [line.h, '피안타'], [line.r, '실점']]}
+            bottom={(
+              <div className="relative mt-3 grid grid-cols-[1fr_96px] items-center gap-3 bg-[#05080f]/60 p-2.5">
+                <Bso b={g.balls} s={g.strikes} o={g.outs} />
+                <Diamond bases={g.bases} />
+              </div>
+            )} />
+        </div>
+
+        {/* 오른쪽: 타석 */}
+        <div className="col-start-3 row-start-2">
+          <PlayerCard side="B" label="AT BAT" player={batter} color={battingColor} img="ui/clutch-bat.webp"
+            stats={[['컨택', st(batter, 'contact')], ['파워', st(batter, 'power')], ['주력', st(batter, 'speed')]]}
+            rec={[[off.hits, '팀 안타'], [off.runs, '팀 득점'], [`${off.idx % 9 + 1}번`, '타순'], [g.outs, '아웃']]}
+            bottom={(
+              <div className="relative mt-3 border-t border-white/10 pt-2.5">
+                <p className="m-0 mb-1.5 font-display text-[11px] font-semibold tracking-[0.3em] text-emerald-300">◣ NEXT BATTER</p>
+                {[1, 2].map((n) => {
+                  const p = off.team.batters[(off.idx + n) % off.team.batters.length];
+                  return (
+                    <div key={n} className="grid grid-cols-[1fr_auto] items-center gap-2 py-0.5 text-[13px]">
+                      <b className="truncate text-white"><span className="mr-2 font-display text-gray-500">{(off.idx + n) % 9 + 1}</span>{p?.name}</b>
+                      <em className="font-display not-italic text-white">{p?.overall}</em>
+                    </div>
+                  );
+                })}
+              </div>
+            )} />
+        </div>
+
+        {/* 결과 자막 */}
+        {flash && (
+          <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[46%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
+        )}
+
+        {/* 승부처 지시 */}
+        {orders && (
+          <div className="col-start-2 row-start-3 z-10 self-end pb-2.5">
+            <p className="mb-2.5 text-center font-display text-[13px] font-extrabold tracking-[0.4em] text-yellow-300">승부처 · 지시를 내리세요</p>
+            <div className="flex justify-center gap-3">
+              {(orders.offense
+                ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
+                : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜 투입', { changePitcher: true }]]
+              ).map(([ic, t, s, o]) => (
+                <button key={t} type="button" onClick={() => answer(o)}
+                  className="w-[186px] bg-[#05080f]/92 p-3.5 text-left shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)] hover:shadow-[inset_0_0_0_2px_#fde047]" style={cut}>
+                  <span className="text-2xl">{ic}</span>
+                  <b className="mt-1 block text-lg text-white">{t}</b>
+                  <small className="text-xs text-gray-400">{s}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 팀 패널 */}
+        <TeamPanel team={away} side={1} color={cOpp} pitcher={g.away.pitcher} pitches={g.away.pitches} />
+        <TeamPanel team={home} side={3} color={cMy} pitcher={g.home.pitcher} pitches={g.home.pitches} />
+
+        {/* 작전 버튼 */}
+        <div className="col-start-2 row-start-4 flex items-center justify-center gap-2.5">
+          {[
+            ['🏃', '도루', g.bases[0] && !g.top ? `${Math.round(steal0 * 100)}%` : '주자 없음', () => give({ steal: 0 }), !!(g.bases[0] && !g.top)],
+            ['🪃', '번트', !g.top ? '주자 진루' : '내 공격 아님', () => give({ bunt: true }), !g.top],
+            ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), !g.top],
+            ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), !g.top],
+            ['🔁', '투수 교체', g.top ? '불펜 투입' : '내 수비 아님', () => give({ changePitcher: true }), g.top],
+          ].map(([ic, t, s, fn, on]) => (
+            <button key={t} type="button" disabled={!on} onClick={fn}
+              className={`flex min-w-[112px] flex-col items-center gap-0.5 px-3.5 py-2 text-[13px] ${on ? 'bg-[#05080f]/85 text-gray-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)] hover:shadow-[inset_0_0_0_2px_#10b981]' : 'bg-[#05080f]/60 text-gray-600 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]'}`}
+              style={{ clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+              <b className="text-lg">{ic}</b>{t}<small className="font-display text-[11px] text-gray-500">{s}</small>
+            </button>
+          ))}
+        </div>
+
+        {/* 해설 */}
+        <div className="col-start-2 row-start-5 grid grid-cols-[48px_1fr] items-center gap-4 bg-[#05080f]/88 px-5 py-2.5 shadow-[inset_0_0_0_1px_rgba(52,211,153,.3),0_22px_50px_-24px_rgba(0,0,0,.95)]" style={{ clipPath: 'polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)' }}>
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-emerald-500/10 text-2xl shadow-[inset_0_0_0_1px_rgba(52,211,153,.4)]">🎙</span>
+          <div>
+            <p className="m-0 mb-1.5 font-display text-[11px] font-semibold tracking-[0.3em] text-emerald-300">LIVE PLAY-BY-PLAY</p>
+            {lines.map((t, i) => (
+              <p key={`${i}${t}`} className={`m-0 leading-snug ${i === lines.length - 1 ? 'text-base font-bold text-white' : 'text-sm text-gray-400'}`}>{t}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** 엔진 경기를 기존 결과 화면(ResultPanel)이 쓰는 모양으로 바꾼다 */
+export function buildResult(g, myTeam) {
+  const board = {
+    home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
+    away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
+  };
+  const credit = new Map();
+  const add = (p, pts, key) => {
+    if (!p) return;
+    const c = credit.get(p.id) || { player: p, pts: 0, runs: 0, zero: 0, fires: 0 };
+    c.pts += pts;
+    if (key) c[key] += 1;
+    credit.set(p.id, c);
+  };
+  const logs = [];
+  for (const ev of g.events) {
+    if (!ev.result) continue;
+    const mine = !ev.top; // 홈(내 팀) 공격
+    if (mine) {
+      if (['1B', '2B', '3B', 'HR'].includes(ev.result)) add(ev.batter, { '1B': 2, '2B': 3, '3B': 4, HR: 6 }[ev.result] + ev.runs * 3, 'runs');
+      else if (['BB', 'SF', 'SAC', 'BH'].includes(ev.result)) add(ev.batter, 1 + ev.runs * 3, ev.runs ? 'runs' : null);
+    } else {
+      if (ev.result === 'K') add(ev.pitcher, 1.2, 'zero');
+      if (ev.runs) add(ev.pitcher, -ev.runs, null);
+    }
+    logs.push({
+      id: logs.length, kind: ev.runs ? 'score' : 'normal', inning: ev.inning, isTop: ev.top, runs: ev.runs,
+      text: `${ev.batter?.name} ${RESULT_LABEL[ev.result] || ''}`, hero: ev.batter, pitcher: ev.pitcher,
+    });
+  }
+  const ranked = [...credit.values()].sort((a, b) => b.pts - a.pts);
+  const fallback = (myTeam.roster || []).filter((p) => !p.isReplacement).sort((a, b) => b.overall - a.overall)[0];
+  const mvp = ranked[0] || { player: fallback, pts: 0, runs: 0, zero: 0, fires: 0 };
+  return {
+    board,
+    score: { my: g.home.runs, opp: g.away.runs },
+    winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
+    logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
+  };
+}
