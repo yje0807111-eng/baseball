@@ -4379,7 +4379,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
         <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
       </div>
       <div className="flex min-w-0 flex-col gap-3">
-        <p className="font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">MVP · {mvp.name}</p>
+        <p className="ui-lab font-display">MVP · {mvp.name}</p>
         <dl className="ui-cut grid grid-cols-3 bg-white/[0.045]" style={{ '--c': '10px' }}>
           {lines.map(([k, v], i) => (
             <div key={k} className={`px-4 py-2.5 ${i ? 'border-l border-white/10' : ''}`}>
@@ -4388,7 +4388,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
             </div>
           ))}
         </dl>
-        <p className="mt-2 font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">결정적 순간</p>
+        <p className="ui-lab font-display mt-2">결정적 순간</p>
         {moments.length ? moments.map((l) => {
           const c = l.kind === 'augment' ? TIER_NEON[l.tier] : '#10b981';
           return (
@@ -4400,7 +4400,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
         }) : <p className="text-sm text-gray-500">큰 장면 없이 끝난 경기입니다.</p>}
       </div>
       <div className="flex flex-col gap-1">
-        <p className="font-display text-xs font-bold uppercase tracking-[0.3em] text-gray-500">선수 평점</p>
+        <p className="ui-lab font-display">선수 평점</p>
         {credits.slice(0, 7).map((c) => (
           <div key={c.player.id} className="grid grid-cols-[2rem_minmax(0,1fr)_2.75rem] items-center gap-2.5 py-1">
             <Portrait player={c.player} className="h-10 w-8" />
