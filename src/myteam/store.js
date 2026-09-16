@@ -17,8 +17,12 @@ const emptyTeam = () => ({
   updatedAt: null,
 });
 
+export const START_GOLD = 5000;
+
 const emptyAccount = (nick) => ({
   nick,
+  gold: START_GOLD,
+  items: [], // 구매한 부스트 { id, itemId, playerId }
   createdAt: new Date().toISOString(),
   team: emptyTeam(),
   history: [], // 경기 기록 { at, my, opp, myRuns, oppRuns, winner }
@@ -29,6 +33,12 @@ function read() {
 }
 function write(data) {
   try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* 사파리 프라이빗 등 */ }
+}
+
+/** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
+export function peekAccount() {
+  const a = read();
+  return a?.nick ? { ...emptyAccount(a.nick), ...a, team: { ...emptyTeam(), ...(a.team || {}) } } : null;
 }
 
 export function loadAccount() {
@@ -66,6 +76,15 @@ export function addHistory(entry) {
   else if (entry.winner === 'opp') record.l += 1;
   else record.d += 1;
   const next = { ...a, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
+  write(next);
+  return next;
+}
+
+/** 골드 증감 (상점·경기 보상) */
+export function addGold(delta) {
+  const a = read();
+  if (!a) return null;
+  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + delta) };
   write(next);
   return next;
 }
