@@ -4,7 +4,7 @@
  *  내 선수(L2): 포지션 그룹 목록 + 오른쪽 상세(방출)
  *  감독·코치(L6): 네 자리 슬롯 + 후보 리스트 + 효과 합계
  */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect } from './staff.js';
@@ -23,13 +23,49 @@ const GROUPS = [['선발', ['SP']], ['불펜', ['RP']], ['포수', ['C']], ['내
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
 const cardImg = (p) => `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
 
-const Select = ({ value, onChange, options, all }) => (
-  <select value={value} onChange={(e) => onChange(e.target.value)}
-    className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-[13px] text-gray-200 outline-none" style={cut(6)}>
-    <option value="">{all}</option>
-    {options.map((o) => <option key={o} value={o}>{o}</option>)}
-  </select>
-);
+/** 드롭다운 — 유리 판 + 모서리 네온 목록 (기본 select 창 대신) */
+function Select({ value, onChange, options, all }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const esc = (e) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('pointerdown', close);
+    window.addEventListener('keydown', esc);
+    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('keydown', esc); };
+  }, [open]);
+  const pick = (v) => { onChange(v); setOpen(false); };
+  const item = (v, label) => {
+    const on = String(value) === String(v);
+    return (
+      <button key={v || 'all'} type="button" role="option" aria-selected={on} onClick={() => pick(v)}
+        className={`mt-cut flex w-full items-center justify-between px-3 py-2 text-left text-[13px] ${on ? 'text-[#05080f]' : 'text-gray-300 hover:bg-white/[0.07] hover:text-white'}`}
+        style={{ ...cut(5), background: on ? '#10b981' : undefined, fontWeight: on ? 800 : 500 }}>
+        {label}{on && <span aria-hidden="true">✓</span>}
+      </button>
+    );
+  };
+  return (
+    <div ref={ref} className="relative min-w-0">
+      <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}
+        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-300'}`}
+        style={{ ...cut(6), background: open ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.06)', boxShadow: open || value ? 'inset 0 0 0 1px rgba(16,185,129,.55)' : undefined }}>
+        <span className="truncate">{value || all}</span>
+        <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
+      </button>
+      {open && (
+        <div role="listbox" className="mt-cut mt-frame absolute left-0 right-0 top-[calc(100%+6px)] z-30 animate-[fade_.15s_ease-out_both] p-1.5"
+          style={{ ...cut(12), position: 'absolute', background: 'rgba(6,10,19,.96)', backdropFilter: 'blur(10px)', boxShadow: '0 24px 50px -16px rgba(0,0,0,.95)' }}>
+          <div className="mt-scroll flex max-h-[320px] flex-col gap-0.5 overflow-y-auto pr-1">
+            {item('', all)}
+            {options.map((o) => item(o, o))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
 function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true }) {
