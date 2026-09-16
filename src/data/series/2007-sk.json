@@ -1,0 +1,36 @@
+{
+  "id": "2007-sk",
+  "champion": true,
+  "kind": "team",
+  "year": 2007,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "한국시리즈 우승 · 정규시즌 1위",
+  "blurb": "김성근 감독 첫해에 창단 첫 정규시즌 1위와 첫 한국시리즈 우승을 함께 이뤘다. 6년 연속 한국시리즈 진출의 출발점.",
+  "notes": [
+    "18명 구성. 송은범·가득염·김원형·정상호·박정권·나주환은 제외.",
+    "출처 표(kowiki 2007년 SK 와이번스 시즌)에 볼넷이 없어 정우람을 뺀 투수 control은 추정치.",
+    "레이번 2007 능력치는 legend-ssg.json 값을 그대로 사용.",
+    "타자 defense는 포지션·평판 기반 추정치."
+  ],
+  "players": [
+    { "personId": "채병용", "name": "채병용", "year": 2007, "team": "SK", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 72, "stamina": 78, "stability": 86 }, "note": "11승 ERA 2.84", "source": "28G 11승8패 146IP ERA2.84 84K (BB 미확인) — kowiki" },
+    { "personId": "레이번", "name": "레이번", "year": 2007, "team": "SK", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 66, "control": 62, "stamina": 86, "stability": 82 }, "note": "17승·다승 2위", "source": "32G 17승8패 184.2IP ERA3.27 98K (BB 미확인) — kowiki" },
+    { "personId": "로마노", "name": "로마노", "year": 2007, "team": "SK", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 62, "control": 68, "stamina": 78, "stability": 78 }, "note": "12승·한국시리즈 승리투수", "source": "32G 12승4패 146.1IP ERA3.69 81K (BB 미확인) — kowiki" },
+    { "personId": "김광현", "name": "김광현", "year": 2007, "team": "SK", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 67, "control": 60, "stamina": 60, "stability": 79 }, "note": "1차 1라운드 신인", "source": "20G 3승7패 77IP ERA3.62 52K (BB 미확인) — kowiki" },
+    { "personId": "정대현", "name": "정대현", "year": 2007, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 72, "stamina": 58, "stability": 99 }, "note": "27세이브 ERA 0.92", "source": "60G 3승2패 27SV 3HLD 78.1IP ERA0.92 65K (BB 미확인) — kowiki" },
+    { "personId": "조웅천", "name": "조웅천", "year": 2007, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 74, "stamina": 58, "stability": 95 }, "note": "16홀드 ERA 1.57", "source": "64G 2승3패 9SV 16HLD 74.2IP ERA1.57 59K (BB 미확인) — kowiki" },
+    { "personId": "윤길현", "name": "윤길현", "year": 2007, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 64, "control": 62, "stamina": 58, "stability": 86 }, "note": "71경기 8승 18홀드", "source": "71G 8승3패 18HLD 75IP ERA2.88 46K (BB 미확인) — kowiki" },
+    { "personId": "정우람", "name": "정우람", "year": 2007, "team": "SK", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 72, "control": 48, "stamina": 46, "stability": 71 }, "note": "14홀드", "source": "45G 0승1패 14HLD 27.1IP ERA4.28 22K 21BB — kowiki" },
+    { "personId": "박경완", "name": "박경완", "year": 2007, "team": "SK", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 61, "speed": 56, "defense": 90 }, "note": "", "source": "119G .247 87안타 15HR 60RBI 6SB OPS.797 — kowiki" },
+    { "personId": "이호준", "name": "이호준", "year": 2007, "team": "SK", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 84, "speed": 50, "defense": 58 }, "note": "타율 .313·71타점", "source": "101G .313 110안타 14HR 71RBI 3SB OPS.869 — kowiki" },
+    { "personId": "정경배", "name": "정경배", "year": 2007, "team": "SK", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 56, "speed": 50, "defense": 76 }, "note": "", "source": "116G .225 75안타 4HR 50RBI 3SB OPS.610 — kowiki" },
+    { "personId": "정근우", "name": "정근우", "year": 2007, "team": "SK", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 87, "speed": 79, "defense": 80 }, "note": "팀 최고 타율 .323", "source": "111G .323 110안타 9HR 44RBI 24SB OPS.879 — kowiki" },
+    { "personId": "최정", "name": "최정", "year": 2007, "team": "SK", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 68, "contact": 69, "speed": 60, "defense": 76 }, "note": "", "source": "122G .267 109안타 16HR 66RBI 8SB OPS.774 — kowiki" },
+    { "personId": "박재홍", "name": "박재홍", "year": 2007, "team": "SK", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 73, "speed": 64, "defense": 72 }, "note": "팀 최다 17홈런", "source": "115G .280 97안타 17HR 54RBI 10SB OPS.843 — kowiki" },
+    { "personId": "이진영", "name": "이진영", "year": 2007, "team": "SK", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 94, "speed": 58, "defense": 86 }, "note": "타율 .350", "source": "80G .350 77안타 7HR 42RBI 6SB OPS.930 — kowiki" },
+    { "personId": "박재상", "name": "박재상", "year": 2007, "team": "SK", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 70, "speed": 77, "defense": 74 }, "note": "", "source": "123G .269 84안타 10HR 37RBI 21SB OPS.790 — kowiki" },
+    { "personId": "조동화", "name": "조동화", "year": 2007, "team": "SK", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 70, "speed": 81, "defense": 84 }, "note": "25도루", "source": "121G .272 79안타 0HR 18RBI 25SB OPS.673 — kowiki" },
+    { "personId": "김강민", "name": "김강민", "year": 2007, "team": "SK", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 60, "speed": 76, "defense": 88 }, "note": "", "source": "124G .243 81안타 4HR 18RBI 19SB OPS.638 — kowiki" }
+  ]
+}
