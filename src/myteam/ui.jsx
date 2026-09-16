@@ -108,7 +108,7 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
  * 모든 화면이 함께 쓰는 상단 바 (S8 구획 + S5 CP 블록)
  *  [엠블럼·섹션] [팀 종합] [타선·선발·불펜·수비] [CP 게이지] [엔트리·외국인] [골드] [감독]
  */
-export const TopBar = ({ section = '메인', team, account, onBack, right, warn }) => {
+export const TopBar = ({ section = '메인', team, account, onBack, right, warn, onSignOut }) => {
   const squad = team?.squad || [];
   const st = teamStats(squad);
   const cap = team?.cap || 2000;
@@ -147,29 +147,31 @@ export const TopBar = ({ section = '메인', team, account, onBack, right, warn 
         ))}
       </Cell>
 
-      {/* 가운데 여백 — CP 는 오른쪽에 붙인다 */}
+      {/* 가운데 여백 */}
       <Cell grow line={false} px={0}>{warn && <span className="text-[11px] leading-tight text-amber-300">{warn}</span>}</Cell>
 
-      {/* CP (S5 방식: 라벨 줄 + 눈금 게이지) */}
-      <Cell px={20}>
+      {/* 자원: 샐러리 캡 + 골드를 한 칸에 (R4) */}
+      <Cell bg="rgba(255,255,255,.025)" px={22}>
         <span>
-          <span className="flex items-center justify-between gap-4 font-display text-[11px] tracking-[0.16em] text-gray-500">
+          <span className="flex items-center justify-between gap-5 font-display text-[11px] tracking-[0.16em] text-gray-500">
             SALARY CAP
-            <b className="font-display text-[15px]" style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} <span className="text-gray-600">/ {cap.toLocaleString()}</span></b>
+            <b className="font-display text-[14px]" style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} <span className="text-gray-600">/ {cap.toLocaleString()}</span></b>
           </span>
-          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={210} ticks={21} over={over} /></span>
+          <span className="mt-1.5 block"><SegBar pct={(cost / cap) * 100} width={230} ticks={23} over={over} /></span>
+          <span className="mt-2 flex items-center justify-between gap-5 font-display text-[11px] tracking-[0.16em] text-gray-500">
+            GOLD
+            <b className="font-display text-base text-yellow-300">{(account?.gold ?? 0).toLocaleString()} G</b>
+          </span>
         </span>
       </Cell>
 
-      <Cell bg="rgba(253,224,71,.06)" lc="rgba(253,224,71,.4)">
-        <Chip a="#fde047">💰 <b className="font-display text-[15px] text-white">{(account?.gold ?? 0).toLocaleString()}</b> G</Chip>
-      </Cell>
-
-      <Cell line={false}>
-        <span className="mt-cut h-[46px] w-[46px] bg-cover bg-center" style={{ '--c': '7px', backgroundImage: 'url(ui/mt/mt-card.webp)' }} />
+      {/* 감독 */}
+      <Cell line={false} bg="rgba(16,185,129,.06)" px={20}>
+        <span className="mt-cut h-12 w-12 bg-cover bg-center" style={{ '--c': '7px', backgroundImage: 'url(ui/mt/mt-card.webp)' }} />
         <span>
-          <b className="block text-[13px] text-white">{account?.nick || '감독'}</b>
+          <b className="block text-[14px] text-white">{account?.nick || '감독'}</b>
           <span className="text-[11px] text-gray-400">{rec.w}승 {rec.l}패 {rec.d}무</span>
+          {onSignOut && <button type="button" onClick={onSignOut} className="mt-1 block text-[11px] text-gray-500 underline hover:text-gray-300">로그아웃</button>}
         </span>
         {right}
       </Cell>

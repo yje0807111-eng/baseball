@@ -53,7 +53,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onModes
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg opacity={0.55} grad="linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.9))" />
-      <TopBar section="메인" team={team} account={account} right={<Btn sm className="ml-2" onClick={onSignOut}>로그아웃</Btn>} warn={issues[0]} />
+      <TopBar section="메인" team={team} account={account} onSignOut={onSignOut} warn={issues[0]} />
 
       <div className="relative grid min-h-0 flex-1 gap-3.5 px-6 py-4"
         style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.85fr)' }}>
