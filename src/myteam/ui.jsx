@@ -53,6 +53,14 @@ export const UiStyle = () => (
     .mt-pk .ft span { padding:1cqw 2.4cqw; font-size:4cqw; font-weight:700; color:#05080f; background:var(--n); }
     .mt-wm { position:absolute; left:14px; top:2px; font-family:'Saira Condensed',sans-serif; font-size:58px; font-weight:800; color:rgba(16,185,129,.16); line-height:1; pointer-events:none; }
     .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:13px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
+    .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
+    .mt-row { display:grid; align-items:center; gap:12px; padding:8px 12px; background:rgba(5,8,15,.55); box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
+    .mt-row:hover { background:rgba(255,255,255,.05); }
+    .mt-row.on { background:rgba(16,185,129,.13); box-shadow:inset 3px 0 0 #10b981, inset 0 0 0 1px rgba(16,185,129,.4); }
+    .mt-sb { display:block; height:4px; background:rgba(255,255,255,.1); }
+    .mt-sb > b { display:block; height:100%; }
+    .mt-grp { display:flex; align-items:center; gap:10px; margin:14px 0 8px; font-family:'Saira Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.2em; color:#9ca3af; }
+    .mt-grp::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );
@@ -89,6 +97,15 @@ export const PlayerTile = ({ player, img = 'ui/mt/mt-card.webp', onClick, width 
     </div>
   );
 };
+
+/** 선수 초상 — public/profiles/<id>.webp 가 있으면 그것, 없으면 실루엣 */
+export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff }) => (
+  <span className="mt-por" style={{
+    width: w, height: h,
+    backgroundImage: `url(profiles/${encodeURIComponent(player?.id || '')}.webp), url(ui/mt/silhouette-${staff ? 'coach' : 'player'}.webp)`,
+    boxShadow: `inset 0 0 0 1px ${color}99`,
+  }} />
+);
 
 export const Bg = ({ img = 'ui/mt/mt-bg.webp', grad = 'linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.82) 40%,rgba(3,5,10,.95) 100%)', opacity = 0.9 }) => (
   <>
