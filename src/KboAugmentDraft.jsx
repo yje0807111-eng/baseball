@@ -2743,8 +2743,39 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
   );
 }
 
+/** 숫자 묶음이 바뀌면 그 자리에서 갈아치우지 않고 ms 동안 옛 값에서 새 값으로 미끄러진다. null(값 없음)은 곧바로 바뀐다 */
+function useEased(target, ms = 520) {
+  const [shown, setShown] = useState(target);
+  const cur = useRef(target);
+  const raf = useRef(0);
+  const keys = Object.keys(target);
+  const sig = keys.map((k) => target[k] ?? 'x').join(',');
+  useEffect(() => {
+    if (document.hidden || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { cur.current = target; setShown(target); return undefined; }
+    const from = cur.current;
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / ms);
+      const e = 1 - (1 - k) ** 3; // 처음 빠르고 끝에서 잦아든다
+      const next = {};
+      for (const key of keys) {
+        const b = target[key];
+        const a = from[key];
+        next[key] = b == null || a == null ? b : a + (b - a) * e;
+      }
+      cur.current = next;
+      setShown(next);
+      if (k < 1) raf.current = requestAnimationFrame(step);
+    };
+    raf.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf.current);
+  }, [sig, ms]); // eslint-disable-line react-hooks/exhaustive-deps
+  return shown;
+}
+
 function TeamReport({ roster, mode, cap }) {
-  const me = teamMetrics(roster, true);
+  const target = useMemo(() => teamMetrics(roster, true), [roster]);
+  const me = useEased(target);
   const ai = aiBenchmark(mode, cap);
   const axes = TEAM_AXES.map(([k, key]) => ({ k, m: me[key], a: ai[key], d: me[key] == null ? null : me[key] - ai[key] }));
   const ranked = axes.filter((x) => x.d != null).sort((x, y) => y.d - x.d);
