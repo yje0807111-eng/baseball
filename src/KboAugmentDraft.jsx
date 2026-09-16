@@ -1283,7 +1283,33 @@ const KEYFRAMES = `
 .lf-ovx.dn em { color: #fbbf24; }
 .lf-ovx.dn2 em { color: #f87171; }
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
-/* 구장 아래 더그아웃 줄: 불펜 넷 · 예비 여섯. 필드 토큰과 같은 끌기·강조 규칙을 쓰되 칸 크기만 작다 */
+/* 시너지 도크 아래 예비 여섯: 두 줄 세 칸씩 미니 칩. 필드 토큰과 같은 끌기·강조 규칙을 쓴다 */
+.lf-bn { flex: none; margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.1); }
+.lf-bn-h { display: flex; align-items: baseline; gap: 7px; margin-bottom: 7px; padding-left: 4px; }
+.lf-bn-h span { font-size: 12px; font-weight: 700; color: #cbd5e1; text-shadow: 0 1px 3px #000; }
+.lf-bn-h em { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-style: normal; font-weight: 700; letter-spacing: .18em; color: #64748b; }
+.lf-bn-h small { margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 600; color: #64748b; }
+.lf-bn-h small b { color: #cbd5e1; }
+.lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
+.lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
+.lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
+.lf-bc b { min-width: 0; overflow: hidden; font-size: 12.5px; font-weight: 600; color: #e5e7eb; text-overflow: ellipsis; white-space: nowrap; }
+.lf-bc em { font-size: 15px; font-weight: 800; color: #fff; text-shadow: 0 0 9px var(--n); }
+.lf-bc em.up { color: #6ee7b7; }
+.lf-bc i { position: absolute; right: 4px; top: 4px; width: 4px; height: 4px; background: #fbbf24; transform: rotate(45deg); }
+.lf-bc.empty { cursor: pointer; background: rgba(10,15,26,.5); }
+.lf-bc.empty b { color: #6b7280; font-weight: 500; }
+.lf-bc.empty em { color: #3f4a5c; }
+.lf-bc:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
+.lf-bc.mine { background: linear-gradient(90deg, color-mix(in srgb, var(--n) 26%, rgba(15,23,42,.62)), rgba(15,23,42,.62)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); }
+.lf-bc.ghost { background: rgba(56,189,248,.16); box-shadow: inset 0 0 0 1px #38bdf8; }
+.lf-bc:is(.picked, .want, .over) { background: rgba(56,189,248,.24); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 14px rgba(56,189,248,.45); }
+.lf-bc.lifted { opacity: .35; }
+.lf-bc.dim { opacity: .3; }
+.lf-bc.focus { box-shadow: inset 0 0 0 2px #38bdf8; }
+.lf-bc.clash { box-shadow: inset 0 0 0 2px #fbbf24; }
+/* 구장 아래 더그아웃 줄: 불펜 넷. 필드 토큰과 같은 끌기·강조 규칙을 쓰되 칸 크기만 작다 */
 .lf-dug { position: absolute; left: 0; bottom: 0; z-index: 6; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; padding: 10px 12px; background: linear-gradient(180deg, rgba(5,8,15,.2), rgba(5,8,15,.82) 45%); }
 .lf-dg { --n: #344055; position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; gap: 0 7px; min-width: 0; padding: 7px 9px 7px 7px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
 .lf-dg::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 8px var(--n); }
@@ -2325,9 +2351,9 @@ const SLOT_XY = {
   SS: [338, 228], '2B': [562, 228], '3B': [252, 306], '1B': [648, 306],
   SP: [450, 346], C: [450, 522], DH: [140, 470],
 };
-/* 마운드·수비 자리에 서지 않는 자리(불펜 넷 · 예비 여섯)는 구장 아래 더그아웃 줄에 칸으로 놓는다 */
-const DUGOUT_SLOTS = SLOTS.filter((s) => !SLOT_XY[s.id]);
-const DUGOUT_H = 104;
+/* 마운드에 서지 않는 불펜 넷은 구장 아래 더그아웃 줄에, 예비 여섯은 시너지 도크 아래 미니 칸에 놓는다 */
+const DUGOUT_SLOTS = FIELD_SLOTS.filter((s) => !SLOT_XY[s.id]);
+const DUGOUT_H = 62;
 /** 이 구장에서 토큰 크기 (CSS .lf-tok 의 scale 과 같은 값 — 끌기 카드 크기도 여기에 맞춘다) */
 const TOK_SCALE = 0.8;
 /** 좌우로 넓힌 구장 사진(ui/field-wide.webp)이 필드 좌표(900×580)에서 차지하는 자리 — 원본 사진(field-night)과 구장이 정확히 겹치도록 정합한 값 */
@@ -2374,6 +2400,21 @@ function tokenView(slot, player, kind, boosted) {
       : moved ? `원래 ${moved} −${player.overall - base.overall}`
         : player ? `${player.year} ${player.team}` : slot.label;
   return { eff, moved, color, sub, boost: eff?.synergyBoost };
+}
+
+function BenchSlot({ slot, player, kind, flags, bind, boosted }) {
+  const { eff, moved, color, boost } = tokenView(slot, player, kind, boosted);
+  const bust = useBust(player, '210%');
+  return (
+    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
+      aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
+      className={`lf-bc ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
+      {player ? <span className="lf-bc-bp" style={bust} /> : <span className="lf-bc-ph" />}
+      <b>{player ? player.name : '빈 자리'}</b>
+      <em className={`font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{eff ? eff.overall : '–'}</em>
+      {moved && kind === 'mine' && <i title={`원래 ${moved}`} />}
+    </div>
+  );
 }
 
 function DugoutSlot({ slot, player, kind, flags, bind, boosted }) {
@@ -2641,7 +2682,16 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
           boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted} />)}
       </div>
       {overlay && (
-        <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>{overlay}</div>
+        <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>
+          {overlay}
+          <div className="lf-bn">
+            <div className="lf-bn-h"><span>예비</span><em>BENCH</em><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
+            <div className="lf-bn-g">
+              {BENCH_SLOTS.map((b) => <BenchSlot key={b.id} slot={b} player={playerOf(b)} kind={kindOf(b)} flags={flagsOf(b)} bind={bind(b.id)}
+                boosted={kindOf(b) === 'ghost' ? boostedPreview : boosted} />)}
+            </div>
+          </div>
+        </div>
       )}
       {highlight && (
         <button type="button" onClick={onClearFocus}
