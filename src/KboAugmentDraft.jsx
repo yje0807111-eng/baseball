@@ -1291,9 +1291,13 @@ const KEYFRAMES = `
 .lf-bn-h small { margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 600; color: #64748b; }
 .lf-bn-h small b { color: #cbd5e1; }
 .lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
-.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
+.lf-bn + .lf-bn { margin-top: 8px; padding-top: 8px; }
+.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
 .lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
 .lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
+.lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
+.lf-bc.empty .lf-bc-pos { color: #64748b; }
+.lf-bc:not(:has(.lf-bc-pos)) { grid-template-columns: 22px minmax(0, 1fr) auto; }
 .lf-bc b { min-width: 0; overflow: hidden; font-size: 12.5px; font-weight: 600; color: #e5e7eb; text-overflow: ellipsis; white-space: nowrap; }
 .lf-bc em { font-size: 15px; font-weight: 800; color: #fff; text-shadow: 0 0 9px var(--n); }
 .lf-bc em.up { color: #6ee7b7; }
@@ -1309,29 +1313,6 @@ const KEYFRAMES = `
 .lf-bc.dim { opacity: .3; }
 .lf-bc.focus { box-shadow: inset 0 0 0 2px #38bdf8; }
 .lf-bc.clash { box-shadow: inset 0 0 0 2px #fbbf24; }
-/* 구장 아래 더그아웃 줄: 불펜 넷. 필드 토큰과 같은 끌기·강조 규칙을 쓰되 칸 크기만 작다 */
-.lf-dug { position: absolute; left: 0; bottom: 0; z-index: 6; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; padding: 10px 12px; background: linear-gradient(180deg, rgba(5,8,15,.2), rgba(5,8,15,.82) 45%); }
-.lf-dg { --n: #344055; position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; gap: 0 7px; min-width: 0; padding: 7px 9px 7px 7px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
-.lf-dg::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 8px var(--n); }
-.lf-dg.empty { cursor: pointer; background: rgba(10,15,26,.5); }
-.lf-dg.empty::after { background: linear-gradient(90deg, transparent, rgba(148,163,184,.3) 30%, rgba(148,163,184,.3) 70%, transparent); box-shadow: none; }
-.lf-dg:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
-.lf-dg-pos { grid-column: 1 / -1; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 13px; color: var(--n); }
-.lf-dg.empty .lf-dg-pos { color: #64748b; }
-.lf-dg-bp, .lf-dg-ph { grid-row: 2; width: 30px; height: 34px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
-.lf-dg-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
-.lf-dg-nm { grid-row: 2; min-width: 0; overflow: hidden; font-size: 13px; font-weight: 700; color: #e5e7eb; text-overflow: ellipsis; white-space: nowrap; }
-.lf-dg.empty .lf-dg-nm { color: #6b7280; }
-.lf-dg-ov { grid-row: 2; font-size: 17px; font-weight: 800; color: #fff; text-shadow: 0 0 10px var(--n); }
-.lf-dg-ov.up { color: #6ee7b7; }
-.lf-dg-off { position: absolute; right: 5px; top: 5px; width: 5px; height: 5px; background: #fbbf24; transform: rotate(45deg); }
-.lf-dg.mine { background: linear-gradient(90deg, color-mix(in srgb, var(--n) 30%, rgba(15,23,42,.62)), rgba(15,23,42,.62)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 60%, transparent); }
-.lf-dg.ghost { background: rgba(56,189,248,.16); box-shadow: inset 0 0 0 1px #38bdf8; }
-.lf-dg:is(.picked, .want, .over) { background: rgba(56,189,248,.24); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 16px rgba(56,189,248,.5); }
-.lf-dg.lifted { opacity: .35; }
-.lf-dg.dim { opacity: .3; }
-.lf-dg.focus { box-shadow: inset 0 0 0 2px #38bdf8; }
-.lf-dg.clash { box-shadow: inset 0 0 0 2px #fbbf24; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
 .lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
 .lf-row { position: relative; display: grid; grid-template-columns: 12px 34px minmax(0,1fr) auto; align-items: end; gap: 8px; height: 46px; padding: 0 10px; border-bottom: 1px solid #1a2333; box-shadow: inset 3px 0 0 var(--n); touch-action: none; user-select: none; cursor: grab; outline: none; }
@@ -2351,13 +2332,14 @@ const SLOT_XY = {
   SS: [338, 228], '2B': [562, 228], '3B': [252, 306], '1B': [648, 306],
   SP: [450, 346], C: [450, 522], DH: [140, 470],
 };
-/* 마운드에 서지 않는 불펜 넷은 구장 아래 더그아웃 줄에, 예비 여섯은 시너지 도크 아래 미니 칸에 놓는다 */
-const DUGOUT_SLOTS = FIELD_SLOTS.filter((s) => !SLOT_XY[s.id]);
-const DUGOUT_H = 62;
+/* 마운드·수비 자리에 서지 않는 자리(불펜 넷 · 예비 여섯)는 시너지 도크 아래 미니 칩으로 모은다 */
+const PEN_SLOTS = FIELD_SLOTS.filter((s) => !SLOT_XY[s.id]);
 /** 이 구장에서 토큰 크기 (CSS .lf-tok 의 scale 과 같은 값 — 끌기 카드 크기도 여기에 맞춘다) */
 const TOK_SCALE = 0.8;
 /** 좌우로 넓힌 구장 사진(ui/field-wide.webp)이 필드 좌표(900×580)에서 차지하는 자리 — 원본 사진(field-night)과 구장이 정확히 겹치도록 정합한 값 */
 const WIDE_ART = { l: -201.6, t: 7.35, w: 1303.5, h: 553 };
+/** 토큰이 차지하는 구장 가로 폭 — 넓은 화면에서 시너지 도크 자리를 남기고 배율을 정할 때 쓴다 */
+const FIELD_SPAN = 214 * TOK_SCALE + Math.max(...Object.values(SLOT_XY).map(([x]) => x)) - Math.min(...Object.values(SLOT_XY).map(([x]) => x));
 const SLOT_MIN_X = Math.min(...Object.values(SLOT_XY).map(([x]) => x));
 const SLOT_MAX_X = Math.max(...Object.values(SLOT_XY).map(([x]) => x));
 /** 종합 수치 색 등급: 75 미만 흰색 · 75~89 초록 · 90 이상 무지개 (선반 · PICK 카드와 같은 기준) */
@@ -2410,25 +2392,10 @@ function BenchSlot({ slot, player, kind, flags, bind, boosted }) {
       aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
       className={`lf-bc ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
       {player ? <span className="lf-bc-bp" style={bust} /> : <span className="lf-bc-ph" />}
-      <b>{player ? player.name : '빈 자리'}</b>
+      {slot.pos && <span className="lf-bc-pos">{slot.id}</span>}
+      <b>{player ? player.name : slot.pos ? slot.label : '빈 자리'}</b>
       <em className={`font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{eff ? eff.overall : '–'}</em>
       {moved && kind === 'mine' && <i title={`원래 ${moved}`} />}
-    </div>
-  );
-}
-
-function DugoutSlot({ slot, player, kind, flags, bind, boosted }) {
-  const { eff, moved, color, boost } = tokenView(slot, player, kind, boosted);
-  const bust = useBust(player, '210%');
-  return (
-    <div {...bind} data-slot={slot.id} role="button" tabIndex={0}
-      aria-label={player ? `${slot.label} 자리 ${player.name} ${eff.overall}` : `${slot.label} 빈 자리`}
-      className={`lf-dg ${player ? '' : 'empty'} ${kind} ${flags}`} style={{ '--n': color }}>
-      <span className="lf-dg-pos">{slot.label}</span>
-      {player ? <span className="lf-dg-bp" style={bust} /> : <span className="lf-dg-ph" />}
-      <b className="lf-dg-nm">{player ? player.name : '빈 자리'}</b>
-      {eff && <em className={`lf-dg-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{eff.overall}</em>}
-      {moved && kind === 'mine' && <i className="lf-dg-off" title={`원래 ${moved}`} />}
     </div>
   );
 }
@@ -2567,10 +2534,10 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       const room = Math.max(0, e.contentRect.width - reserve);
       // 넓은 화면에서만 높이 채우기 (좁은 화면은 부모 높이가 내용에서 나오므로 폭 기준으로 둔다)
       const fitHeight = fill && window.matchMedia('(min-width: 1024px)').matches;
-      const h = e.contentRect.height - DUGOUT_H; // 아래 더그아웃 줄을 뺀 구장 몫
+      const h = e.contentRect.height;
       if (wide && fitHeight) {
         // 넓힌 사진이 판 높이를 빈틈 없이 채우는 배율 · 가장 왼쪽 토큰이 판 왼쪽 끝에서 14px 에 오도록 왼쪽 정렬(사진 왼쪽 관중석은 판 밖으로)
-        const kw = (h / WIDE_ART.h) * 1.003;
+        const kw = Math.min((h / WIDE_ART.h) * 1.003, Math.max(0.3, (e.contentRect.width - 30 - reserve) / FIELD_SPAN));
         const x = 14 - (SLOT_MIN_X - 107 * TOK_SCALE) * kw;
         const y = Math.min(Math.max((h - FIELD_H * kw) / 2, h - (WIDE_ART.t + WIDE_ART.h) * kw), -WIDE_ART.t * kw);
         setFilling(true); setScale(kw); setOffset({ x, y }); setBox({ w: e.contentRect.width, h });
@@ -2668,7 +2635,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
 
   return (
     <div ref={wrapRef} className={`relative w-full overflow-hidden bg-[#05080f] ${className}`}
-      style={filling ? undefined : { height: FIELD_H * scale + DUGOUT_H }}>
+      style={filling ? undefined : { height: FIELD_H * scale }}>
       {/* 구장 둘레: 관중석·조명 야경을 은은하게 깔아 필드가 경기장 안에 있는 느낌을 준다 */}
       <div className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-35" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_80%_at_45%_62%,transparent_30%,rgba(5,8,15,.85)_100%)]" aria-hidden="true" />
@@ -2677,13 +2644,16 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
         {FIELD_SLOTS.filter((s) => SLOT_XY[s.id]).map((s) => <SlotToken key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)} boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted}
           swapIn={drag?.from === s.id ? dropPlan?.occ : null} />)}
       </div>
-      <div className="lf-dug" style={{ height: DUGOUT_H, right: dockL != null ? Math.max(0, box.w - dockL) : reserve }}>
-        {DUGOUT_SLOTS.map((s) => <DugoutSlot key={s.id} slot={s} player={playerOf(s)} kind={kindOf(s)} flags={flagsOf(s)} bind={bind(s.id)}
-          boosted={kindOf(s) === 'ghost' ? boostedPreview : boosted} />)}
-      </div>
       {overlay && (
         <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>
           {overlay}
+          <div className="lf-bn">
+            <div className="lf-bn-h"><span>불펜</span><em>BULLPEN</em><small><b>{PEN_SLOTS.filter((b) => at(b.id)).length}</b>/{PEN_SLOTS.length}</small></div>
+            <div className="lf-bn-g">
+              {PEN_SLOTS.map((b) => <BenchSlot key={b.id} slot={b} player={playerOf(b)} kind={kindOf(b)} flags={flagsOf(b)} bind={bind(b.id)}
+                boosted={kindOf(b) === 'ghost' ? boostedPreview : boosted} />)}
+            </div>
+          </div>
           <div className="lf-bn">
             <div className="lf-bn-h"><span>예비</span><em>BENCH</em><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
             <div className="lf-bn-g">
