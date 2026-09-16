@@ -27,6 +27,9 @@ const EVENT = {
   '2006-wbc': '2006 World Baseball Classic', '2008-beijing': '2008 Beijing Olympics', '2009-wbc': '2009 World Baseball Classic',
   '2010-guangzhou': '2010 Guangzhou Asian Games', '2014-incheon': '2014 Incheon Asian Games', '2015-premier12': '2015 WBSC Premier12',
   '2018-jakarta': '2018 Jakarta-Palembang Asian Games', '2019-premier12': '2019 WBSC Premier12', '2023-hangzhou': '2022 Hangzhou Asian Games (held in 2023)',
+  '2006-doha': '2006 Doha Asian Games', '2007-asia': '2007 Asian Baseball Championship (Beijing Olympic qualifier)', '2013-wbc': '2013 World Baseball Classic',
+  '2017-wbc': '2017 World Baseball Classic', '2017-apbc': '2017 Asia Professional Baseball Championship', '2021-tokyo': '2020 Tokyo Olympics (held in 2021)',
+  '2023-wbc': '2023 World Baseball Classic', '2024-premier12': '2024 WBSC Premier12',
 };
 
 const POSES = {
