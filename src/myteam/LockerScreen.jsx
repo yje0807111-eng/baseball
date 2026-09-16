@@ -17,6 +17,8 @@ const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players
 const YEARS = [...new Set(ALL.map((p) => p.year))].sort((a, b) => b - a);
 const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
+/** 능력치 값에 따른 색: 90+ 금 · 80+ 초록 · 70+ 하늘 · 60+ 주황 · 그 아래 빨강 */
+const statTone = (v) => (v >= 90 ? ['#fde047', '#f59e0b'] : v >= 80 ? ['#34d399', '#059669'] : v >= 70 ? ['#7dd3fc', '#2563eb'] : v >= 60 ? ['#fdba74', '#ea580c'] : ['#fca5a5', '#dc2626']);
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
@@ -97,8 +99,10 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex justify-between text-[10px] text-gray-500">{label}<b className="font-display text-[13px] text-gray-200">{v}</b></span>
-            <span className="mt-sb mt-[3px]"><b style={{ width: `${v}%`, background: n }} /></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statTone(v)[0] }}>{v}</b></span>
+            <span className="relative mt-[4px] block h-[4px] bg-white/[0.08]">
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: `linear-gradient(90deg, ${statTone(v)[1]}, ${statTone(v)[0]})`, boxShadow: `0 0 6px ${statTone(v)[0]}66` }} />
+            </span>
           </span>
         );
       })}
@@ -322,7 +326,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
               <Btn sm onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>)}
             <div className="mt-scroll mt-2 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
               {GROUPS.map(([label, list]) => {
-                const rows = squad.filter((p) => list.includes(p.position)).sort((a, b) => b.overall - a.overall);
+                // 출전 선수 먼저, 벤치는 묶음 맨 아래로
+                const rows = squad.filter((p) => list.includes(p.position)).sort((a, b) => (playing.has(b.id) - playing.has(a.id)) || b.overall - a.overall);
                 if (!rows.length) return null;
                 const benchN = rows.filter((p) => !playing.has(p.id)).length;
                 return (
