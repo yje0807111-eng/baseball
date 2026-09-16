@@ -4221,50 +4221,97 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
   const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
   const opp = useMemo(() => buildTeam('AI 올스타', fillRoster(oppRoster), oppBuff), [oppRoster, oppBuff]);
   const pct = Math.round(winChance(my, opp) * 100);
-  const side = (team, name, acc, mine) => (
-    <section className="ui-cut ui-frame ui-glass flex flex-col gap-1.5 p-4" style={{ '--c': '18px', '--a': acc }}>
-      <div className={`mb-1 flex items-end justify-between border-b border-white/10 pb-2.5 ${mine ? '' : 'flex-row-reverse text-right'}`}>
-        <div>
-          <p className="font-display text-[11px] font-bold uppercase tracking-[0.3em] text-gray-500">{mine ? 'My Team' : 'AI Opponent'}</p>
-          <h3 className="text-2xl font-black text-white">{name}</h3>
-        </div>
-        <p className="font-display text-5xl font-extrabold leading-none tabular-nums" style={{ color: acc, textShadow: `0 0 22px ${acc}88` }}>{teamOvr(team)}</p>
+  const avg = (xs) => (xs.length ? Math.round(xs.reduce((t, p) => t + p.overall, 0) / xs.length) : 0);
+  const teamTile = (team, name, acc, mine) => (
+    <div className="ui-cut relative flex min-h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5" style={{ '--c': '10px', background: `linear-gradient(90deg,${acc}30,rgba(6,10,19,.92))` }}>
+      <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: acc, boxShadow: `0 0 12px ${acc}` }} />
+      <span className="min-w-0 flex-1">
+        <b className="block truncate text-base font-black text-white">{name}</b>
+        <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{mine ? 'MY TEAM' : 'AI OPPONENT'} · 타선 {avg(team.batters)} · 마운드 {avg([team.sps[0], ...team.pen].filter(Boolean))}</small>
+      </span>
+      <b className="font-display text-4xl font-extrabold leading-none" style={{ color: acc, textShadow: `0 0 18px ${acc}88` }}>{teamOvr(team)}</b>
+    </div>
+  );
+  const lineup = (team, name, acc, mine) => (
+    <div className="flex min-h-0 flex-col" style={{ '--a': acc }}>
+      <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
+        <p className="ui-lab font-display" style={{ '--a': acc }}>{mine ? 'My Lineup' : 'AI Lineup'}</p>
+        <b className="text-lg font-black text-white">{name}</b>
       </div>
-      {team.batters.map((b, i) => <MatchRow key={b.id} player={b} label={i + 1} mine={mine} />)}
-      <p className={`mt-1 font-display text-[11px] font-bold tracking-[0.3em] text-gray-500 ${mine ? '' : 'text-right'}`}>MOUND</p>
-      {[team.sps[0], ...team.pen].filter(Boolean).map((x) => <MatchRow key={x.id} player={x} label={x.slot} mine={mine} />)}
-    </section>
+      <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-1">
+        {team.batters.map((b, i) => <MatchRow key={b.id} player={b} label={i + 1} mine />)}
+        <p className="ui-lab font-display mt-1.5" style={{ '--a': acc, fontSize: 10 }}>Mound</p>
+        {[team.sps[0], ...team.pen].filter(Boolean).map((x) => <MatchRow key={x.id} player={x} label={x.slot} mine />)}
+      </div>
+    </div>
   );
   return (
-    <section className="grid gap-5 animate-[fade_.3s_ease-out_both] lg:grid-cols-[21rem_minmax(0,1fr)_21rem]">
-      {side(my, '나의 드림팀', '#10b981', true)}
-      <div className="flex flex-col items-center text-center">
-        <p className="ui-lab font-display">Play Ball</p>
-        <h2 className="mt-1 text-4xl font-black text-white">선발 맞대결</h2>
-        <div className="relative mt-6 flex items-end justify-center gap-5">
-          <DuelCard player={my.sps[0]} label="My Starter" />
-          <span className="absolute left-1/2 top-[42%] z-10 -translate-x-1/2 -translate-y-1/2 font-display text-7xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
-          <DuelCard player={opp.sps[0]} label="AI Starter" />
+    <section className="grid min-h-0 flex-1 gap-4 animate-[fade_.3s_ease-out_both]" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+      {/* 왼쪽 사이드바: 두 팀 · 뒤로 */}
+      <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px' }}>
+        <p className="ui-lab font-display px-1 pt-1">Match Prep</p>
+        {teamTile(my, '나의 드림팀', '#10b981', true)}
+        <p className="py-0.5 text-center font-display text-sm font-extrabold italic text-gray-500">VS</p>
+        {teamTile(opp, 'AI 올스타', '#f87171', false)}
+        {augments.length > 0 && (
+          <div className="mt-2">
+            <p className="ui-lab font-display px-1 pb-2" style={{ fontSize: 10, '--a': '#c4b5fd' }}>Augments</p>
+            <div className="flex flex-col gap-1.5">
+              {augments.map((au) => (
+                <span key={au.id} className="ui-cut flex items-center gap-2 bg-white/[0.045] px-2.5 py-1.5 text-sm text-gray-200" style={{ '--c': '6px' }}>
+                  <b className="font-display text-[11px]" style={{ color: TIER_NEON[au.tier] }}>{TIER_EN[au.tier]}</b><span className="truncate">{au.name}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        <button type="button" className="ui-btn ui-cut sm mt-auto" onClick={onBack}>라인업 다시 보기</button>
+      </nav>
+
+      {/* 가운데: 선발 맞대결 + 두 팀 라인업 */}
+      <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
+        <div className="flex items-baseline gap-3">
+          <p className="ui-lab font-display">Play Ball</p>
+          <p className="text-sm text-gray-400">선발 맞대결</p>
         </div>
-        <div className="mt-6 w-full max-w-md">
-          <div className="flex justify-between font-display text-2xl font-bold tabular-nums"><span className="text-[#10b981]">{pct}%</span><span className="text-red-400">{100 - pct}%</span></div>
+        <div className="grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
+          {lineup(my, '나의 드림팀', '#10b981', true)}
+          <div className="relative flex items-center gap-4 self-center">
+            <DuelCard player={my.sps[0]} label="My Starter" />
+            <span className="absolute left-1/2 top-[42%] z-10 -translate-x-1/2 -translate-y-1/2 font-display text-6xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
+            <DuelCard player={opp.sps[0]} label="AI Starter" />
+          </div>
+          {lineup(opp, 'AI 올스타', '#f87171', false)}
+        </div>
+      </section>
+
+      {/* 오른쪽: 예상 승률 · 경기 시작 */}
+      <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
+        <p className="ui-lab font-display">Win Chance</p>
+        <h2 className="-mt-2 text-3xl font-black text-white">나의 드림팀 <span className="font-display text-gray-500">vs</span> AI 올스타</h2>
+        <dl className="grid grid-cols-3 gap-1.5">
+          {[['팀 OVR', teamOvr(my)], ['상대 OVR', teamOvr(opp)], ['증강', augments.length]].map(([k, v]) => (
+            <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
+              <dt className="text-[10px] text-gray-400">{k}</dt><dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <div>
+          <div className="flex justify-between font-display text-3xl font-bold tabular-nums"><span className="text-[#10b981]">{pct}%</span><span className="text-red-400">{100 - pct}%</span></div>
           <div className="mt-1.5 flex h-3 gap-1">
             <i className="-skew-x-12 bg-[#10b981] shadow-[0_0_10px_#10b981]" style={{ flex: pct }} />
             <i className="-skew-x-12 bg-red-400" style={{ flex: 100 - pct }} />
           </div>
-          <p className="mt-1.5 text-xs text-gray-400">예상 승리 확률 · 타선 · 에이스 · 수비력 비교 (증강 발동은 제외)</p>
         </div>
-        {augments.length > 0 && (
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {augments.map((a) => <span key={a.id} className="ui-chip ui-cut" style={{ '--a': TIER_NEON[a.tier] }}><b className="font-display" style={{ color: TIER_NEON[a.tier] }}>{TIER_EN[a.tier]}</b>{a.name}</span>)}
-          </div>
-        )}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button type="button" className="ui-btn ui-cut min-h-[3.25rem]" onClick={onBack}>라인업 다시 보기</button>
-          <button type="button" className="ui-btn ui-cut pri min-h-[3.25rem] px-12 text-lg" onClick={onStart} autoFocus>경기 시작 ▶</button>
+        <div>
+          {[['선발', my.sps[0]?.name, opp.sps[0]?.name], ['타선 평균', avg(my.batters), avg(opp.batters)]].map(([k, m, o]) => (
+            <div key={k} className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
+              <span>{k}</span><b className="font-display text-lg"><span className="text-[#10b981]">{m}</span> <span className="text-gray-600">·</span> <span className="text-red-400">{o}</span></b>
+            </div>
+          ))}
         </div>
-      </div>
-      {side(opp, 'AI 올스타', '#f87171', false)}
+        <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>경기 시작 ▶</button>
+      </aside>
     </section>
   );
 }
@@ -5453,7 +5500,7 @@ export default function KboAugmentDraft({ onExit } = {}) {
 
   return (
     // 드래프트는 넓은 화면(lg+)에서 창 높이에 딱 맞는 한 화면 앱으로: 스크롤 없이 머리 · 시리즈 · 영입+라인업이 들어간다
-    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' || phase === 'mode' || phase === 'ready' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
+    <div className={`min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased ${phase === 'draft' || phase === 'mode' || phase === 'ready' || phase === 'matchup' ? 'lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden' : ''}`}>
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
@@ -5466,7 +5513,7 @@ export default function KboAugmentDraft({ onExit } = {}) {
       )}
 
       {phase !== 'mode' && (
-      <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready'
+      <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready' || phase === 'matchup'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
         : 'w-full max-w-[1600px] gap-5 py-5'}`}>
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">

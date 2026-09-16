@@ -4,6 +4,7 @@
  * 가운데 아래 작전 버튼과 실시간 해설 / 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { UiStyle } from './myteam/ui.jsx';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam } from './engine/pitchSim.js';
 
@@ -93,22 +94,23 @@ const Stat = ({ k, v, c }) => (
 );
 
 function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
+  const photo = player?.id ? `url(cards/${encodeURIComponent(player.id)}.webp), url(profiles/${encodeURIComponent(player.id)}.webp), url(${img})` : `url(${img})`;
   return (
-    <section className="relative mt-8 self-start overflow-hidden p-3 px-3.5"
-      style={{ '--c': color, background: 'linear-gradient(180deg,rgba(11,18,32,.88),rgba(5,8,15,.93))', boxShadow: `inset 0 0 0 1px ${color}, 0 26px 60px -22px rgba(0,0,0,.95), 0 0 50px -24px ${color}`, clipPath: 'polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)' }}>
-      <p className="m-0 mb-2.5 font-display text-[11px] font-semibold tracking-[0.32em]" style={{ color }}>◣ {label}</p>
-      {img && <div className="pointer-events-none absolute -right-2 top-8 h-[200px] w-[150px] opacity-80"
-        style={{ background: `url(${img}) center/cover`, WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 50%)', maskImage: 'linear-gradient(90deg,transparent,#000 50%)' }} />}
+    <section className="mt-cut mt-frame mt-glass relative mt-4 self-start overflow-hidden p-4"
+      style={{ '--c': '20px', '--a': color, boxShadow: `0 26px 60px -22px rgba(0,0,0,.95)` }}>
+      <p className="mt-lab mb-2.5" style={{ '--a': color }}>{label}</p>
+      <div className="mt-cut pointer-events-none absolute right-3 top-3 h-[150px] w-[120px] bg-[#0b1220] bg-cover"
+        style={{ '--c': '10px', backgroundImage: photo, backgroundPosition: '60% 18%', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 45%)', maskImage: 'linear-gradient(90deg,transparent,#000 45%)' }} />
       <div className="relative flex items-baseline gap-2">
-        <b className="font-display text-[34px] font-extrabold leading-none text-white">{player?.overall ?? '-'}</b>
-        <span className="font-display text-[11px] font-extrabold tracking-wider text-[#05080f]" style={{ background: color, padding: '2px 7px' }}>{player?.position || side}</span>
+        <b className="font-display text-[40px] font-extrabold leading-none" style={{ color, textShadow: `0 0 16px ${color}88` }}>{player?.overall ?? '-'}</b>
+        <span className="mt-cut font-display text-[11px] font-extrabold tracking-wider text-[#05080f]" style={{ '--c': '5px', background: color, padding: '2px 8px' }}>{player?.position || side}</span>
       </div>
       <p className="relative mt-0.5 text-[22px] font-black text-white">{player?.name || '-'}</p>
       <p className="relative m-0 text-xs text-gray-400">{player?.year ? `${player.year} ${player.team || ''}` : ''}</p>
       {stats.map(([k, v]) => <Stat key={k} k={k} v={v} c={color} />)}
       {rec && (
-        <div className="relative mt-3 grid grid-cols-4 border-t border-white/10 pt-2.5 text-center">
-          {rec.map(([v, k]) => <div key={k}><b className="block font-display text-[19px] font-extrabold text-white">{v}</b><span className="text-[11px] text-gray-400">{k}</span></div>)}
+        <div className="relative mt-3 grid grid-cols-4 gap-1.5 pt-1 text-center">
+          {rec.map(([v, k]) => <div key={k} className="mt-cut bg-white/[0.045] py-1" style={{ '--c': '6px' }}><b className="block font-display text-[19px] font-extrabold text-white">{v}</b><span className="text-[10px] text-gray-400">{k}</span></div>)}
         </div>
       )}
       {bottom}
@@ -116,21 +118,21 @@ function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
   );
 }
 
-const panel = 'bg-[#05080f]/80 p-2.5 px-3.5 shadow-[inset_0_0_0_1px_var(--c),0_22px_50px_-24px_rgba(0,0,0,.95)]';
+const panel = 'mt-cut mt-frame mt-glass p-3.5 px-4';
 const cut = { clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)' };
 
 function TeamPanel({ team, side, color, pitcher, pitches }) {
   const bull = team.pitchers.filter((p) => p !== pitcher).slice(0, 3);
   const stamina = Math.max(0, Math.min(100, 100 - (pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
   return (
-    <section className={`self-end ${panel}`} style={{ ...cut, '--c': color, gridColumn: side, gridRow: '4 / span 2' }}>
-      <p className="m-0 mb-2 font-display text-[11px] font-semibold tracking-[0.3em]" style={{ color }}>◣ {team.name}</p>
+    <section className={`self-end ${panel}`} style={{ '--c': '16px', '--a': color, gridColumn: side, gridRow: '4 / span 2' }}>
+      <p className="mt-lab mb-2" style={{ '--a': color }}>{team.name}</p>
       <div className="grid grid-cols-[1fr_auto] items-center gap-2 py-1 text-[13px]"><b className="text-white">투수 {pitcher?.name}</b><em className="font-display not-italic" style={{ color }}>{pitcher?.overall}</em></div>
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 py-1 text-[13px] text-gray-400">체력
         <i className="block h-1.5 bg-white/10"><b className="block h-full" style={{ width: `${stamina}%`, background: stamina > 40 ? color : '#f87171' }} /></i>
         <em className="font-display not-italic" style={{ color }}>{Math.round(stamina)}</em>
       </div>
-      <p className="m-0 mt-2 mb-1 font-display text-[11px] font-semibold tracking-[0.3em]" style={{ color }}>◣ 불펜</p>
+      <p className="mt-lab mb-1 mt-2" style={{ '--a': color, fontSize: 10 }}>Bullpen</p>
       {bull.map((p) => (
         <div key={p.id} className="grid grid-cols-[1fr_auto] items-center gap-2 py-0.5 text-[13px]">
           <b className="truncate text-white">{p.name} <span className="text-gray-500">{p.position}</span></b>
@@ -259,28 +261,33 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
   return (
     <div className="fixed inset-0 z-40 overflow-hidden bg-[#05080f] text-gray-200">
+      <UiStyle />
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/broadcast-field.webp)' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%)' }} />
 
       <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
         {/* 헤더 */}
-        <header className="col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.96),rgba(5,8,15,.5))] px-5">
-          <div><small className="block font-display text-[9px] font-semibold tracking-[0.38em] text-gray-500">LEGEND DRAFT</small><b className="text-lg font-black text-white">감독 모드</b></div>
-          <span className="font-display text-[13px] font-extrabold tracking-[0.25em] text-red-400"><i className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />LIVE</span>
-          <div className="ml-auto flex gap-1 bg-white/5 p-[3px]">
+        <header className="relative col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
+          <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
+          <button type="button" onClick={onExit} aria-label="나가기"
+            className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
+          <div className="leading-none">
+            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Manager Mode</p>
+            <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
+          </div>
+          <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
+          <div className="mt-cut mt-glass ml-auto flex gap-1 p-1" style={{ '--c': '8px' }}>
             {SPEEDS.map(([label, v]) => (
               <button key={label} type="button" onClick={() => setSpeed(v)}
-                className={`px-3.5 py-1 font-display text-sm font-extrabold ${speed === v ? 'bg-yellow-300 text-[#05080f]' : 'text-gray-400'}`}>{label}</button>
+                className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
-          <button type="button" onClick={() => setPaused((p) => !p)} className="bg-white/[0.06] px-3.5 py-1 font-display text-sm text-gray-200">{paused ? '계속' : '일시정지'}</button>
-          <button type="button" onClick={onExit} className="bg-white/[0.06] px-3.5 py-1 font-display text-sm text-gray-400">나가기</button>
+          <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
         {/* 점수 + 이닝별 */}
         <div className="col-start-2 text-center">
-          <div className="relative inline-block px-8 pb-2 pt-2.5"
-            style={{ background: 'linear-gradient(180deg,rgba(2,4,8,.95),rgba(2,4,8,.82))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.1), 0 20px 46px -20px rgba(0,0,0,.95)', clipPath: 'polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)' }}>
+          <div className="mt-cut mt-frame mt-glass relative inline-block px-8 pb-2 pt-2.5" style={{ '--c': '20px', '--a': '#fde047' }}>
             <div className="flex items-center justify-center gap-6">
               <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
               <span className="text-[26px] font-extrabold text-white">{away.name}<small className="block font-display text-[10px] tracking-[0.3em] text-gray-400">AWAY</small></span>
@@ -290,7 +297,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </div>
             <p className="m-0 mt-1 font-display text-[15px] font-extrabold tracking-[0.2em] text-yellow-300">{g.final ? '경기 종료' : `${g.inning}회${g.top ? '초' : '말'}`}</p>
           </div>
-          <table className="mt-2.5 w-full border-collapse bg-[#020408]/85 text-center font-display shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]">
+          <table className="mt-cut mt-glass mt-2.5 w-full border-collapse text-center font-display" style={{ '--c': '12px' }}>
             <thead><tr className="text-xs font-semibold text-gray-500"><th className="w-[200px] py-1 pl-4 text-left">TEAM</th>{Array.from({ length: 12 }, (_, i) => <th key={i} className="py-1">{i + 1}</th>)}<th>R</th><th>H</th><th>E</th></tr></thead>
             <tbody>
               {[[away, g.away, g.top], [home, g.home, !g.top]].map(([t, side, live]) => (
@@ -328,7 +335,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             rec={[[off.hits, '팀 안타'], [off.runs, '팀 득점'], [`${off.idx % 9 + 1}번`, '타순'], [g.outs, '아웃']]}
             bottom={(
               <div className="relative mt-3 border-t border-white/10 pt-2.5">
-                <p className="m-0 mb-1.5 font-display text-[11px] font-semibold tracking-[0.3em] text-emerald-300">◣ NEXT BATTER</p>
+                <p className="mt-lab mb-1.5" style={{ fontSize: 10 }}>Next Batter</p>
                 {[1, 2].map((n) => {
                   const p = off.team.batters[(off.idx + n) % off.team.batters.length];
                   return (
@@ -350,14 +357,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         {/* 승부처 지시 */}
         {orders && (
           <div className="col-start-2 row-start-3 z-10 self-end pb-2.5">
-            <p className="mb-2.5 text-center font-display text-[13px] font-extrabold tracking-[0.4em] text-yellow-300">승부처 · 지시를 내리세요</p>
+            <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시를 내리세요</p>
             <div className="flex justify-center gap-3">
               {(orders.offense
                 ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
                 : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜 투입', { changePitcher: true }]]
               ).map(([ic, t, s, o]) => (
                 <button key={t} type="button" onClick={() => answer(o)}
-                  className="w-[186px] bg-[#05080f]/92 p-3.5 text-left shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)] hover:shadow-[inset_0_0_0_2px_#fde047]" style={cut}>
+                  className="mt-cut mt-frame mt-glass w-[186px] p-3.5 text-left hover:brightness-125" style={{ '--c': '12px', '--a': '#fde047' }}>
                   <span className="text-2xl">{ic}</span>
                   <b className="mt-1 block text-lg text-white">{t}</b>
                   <small className="text-xs text-gray-400">{s}</small>
@@ -381,18 +388,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             ['🔁', '투수 교체', g.top ? '불펜 투입' : '내 수비 아님', () => give({ changePitcher: true }), g.top],
           ].map(([ic, t, s, fn, on]) => (
             <button key={t} type="button" disabled={!on} onClick={fn}
-              className={`flex min-w-[112px] flex-col items-center gap-0.5 px-3.5 py-2 text-[13px] ${on ? 'bg-[#05080f]/85 text-gray-100 shadow-[inset_0_0_0_1px_rgba(255,255,255,.12)] hover:shadow-[inset_0_0_0_2px_#10b981]' : 'bg-[#05080f]/60 text-gray-600 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]'}`}
-              style={{ clipPath: 'polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)' }}>
+              className={`mt-cut flex min-w-[112px] flex-col items-center gap-0.5 px-3.5 py-2 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
+              style={{ '--c': '9px', '--a': '#10b981' }}>
               <b className="text-lg">{ic}</b>{t}<small className="font-display text-[11px] text-gray-500">{s}</small>
             </button>
           ))}
         </div>
 
         {/* 해설 */}
-        <div className="col-start-2 row-start-5 grid grid-cols-[48px_1fr] items-center gap-4 bg-[#05080f]/88 px-5 py-2.5 shadow-[inset_0_0_0_1px_rgba(52,211,153,.3),0_22px_50px_-24px_rgba(0,0,0,.95)]" style={{ clipPath: 'polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)' }}>
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-emerald-500/10 text-2xl shadow-[inset_0_0_0_1px_rgba(52,211,153,.4)]">🎙</span>
+        <div className="mt-cut mt-frame mt-glass col-start-2 row-start-5 grid grid-cols-[48px_1fr] items-center gap-4 px-5 py-2.5" style={{ '--c': '16px', '--a': '#10b981' }}>
+          <span className="mt-cut grid h-12 w-12 place-items-center bg-emerald-500/10 text-2xl" style={{ '--c': '8px' }}>🎙</span>
           <div>
-            <p className="m-0 mb-1.5 font-display text-[11px] font-semibold tracking-[0.3em] text-emerald-300">LIVE PLAY-BY-PLAY</p>
+            <p className="mt-lab mb-1.5">Play-by-Play</p>
             {lines.map((t, i) => (
               <p key={`${i}${t}`} className={`m-0 leading-snug ${i === lines.length - 1 ? 'text-base font-bold text-white' : 'text-sm text-gray-400'}`}>{t}</p>
             ))}
