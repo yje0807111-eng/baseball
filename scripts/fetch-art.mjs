@@ -10,6 +10,9 @@ mkdirSync(dir, { recursive: true });
 const planPath = join(dir, 'plan.json');
 const plan = existsSync(planPath) ? JSON.parse(readFileSync(planPath, 'utf8')) : [];
 
+// 카드 생성 job id 는 art-src/card-jobs.json 에 모은다 (프로필 생성 때 카드를 Image 1 로 넣음)
+const cardJobsPath = join(dir, 'card-jobs.json');
+const cardJobs = existsSync(cardJobsPath) ? JSON.parse(readFileSync(cardJobsPath, 'utf8')) : {};
 const failed = [];
 await Promise.all(process.argv.slice(2).map(async (arg) => {
   const i = arg.indexOf('=');
@@ -20,8 +23,11 @@ await Promise.all(process.argv.slice(2).map(async (arg) => {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     writeFileSync(join(dir, `${id}.png`), Buffer.from(await res.arrayBuffer()));
+    const job = url.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)?.[0];
+    if (job) cardJobs[id] = job;
   } catch (e) {
     failed.push(`${id} (${e.message})`);
   }
 }));
+writeFileSync(cardJobsPath, JSON.stringify(cardJobs, null, 1));
 console.log(`저장 ${process.argv.length - 2 - failed.length}개${failed.length ? `, 실패: ${failed.join(', ')}` : ''}`);
