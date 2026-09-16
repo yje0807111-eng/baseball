@@ -11,7 +11,8 @@ import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
 
-const ALL = SERIES.flatMap((s) => s.players);
+// 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
+const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
 const YEARS = [...new Set(ALL.map((p) => p.year))].sort((a, b) => b - a);
 const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
