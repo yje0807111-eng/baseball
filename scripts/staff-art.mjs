@@ -2,6 +2,11 @@
 // 사용법: node scripts/staff-art.mjs plan                   → art-src/staff-plan.json
 //        node scripts/staff-art.mjs req <시작> <끝>          → generate_image_batch 요청 JSON (이미 받은 그림은 건너뜀)
 //        node scripts/staff-art.mjs fetch "#<번호>=<URL>" ... → art-src/profiles/<id>.png (이후 node scripts/convert-art.mjs)
+// 자리 카드 아트(가로 4:3, 위엄 있는 반신 · 어두운 배경 · 구단색 림라이트): 프로필 PNG 를 업로드해 Image 1 로 넣어 얼굴을 맞춘다
+//        node scripts/staff-art.mjs upload <업로드목록.json>  [{ filename:"<id>.png", upload_url, media_id }] → PUT 후 art-src/staff-media.json 에 기록
+//        node scripts/staff-art.mjs cardreq <시작> <끝>       → 요청 JSON (art-src/staff-cards/<id>.png 가 있으면 건너뜀)
+//        node scripts/staff-art.mjs cardfetch "#<번호>=<URL>" → art-src/staff-cards/<id>.png
+//        node scripts/staff-art.mjs cardconvert             → public/staff/<id>.webp (800×600)
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,6 +40,32 @@ const TEAM = {
   한화: ['Hanwha Eagles', 'bright orange'], 현대: ['Hyundai Unicorns', 'teal'], NC: ['NC Dinos', 'sky blue'], KT: ['KT Wiz', 'scarlet red'],
 };
 const ROLE = { manager: 'manager', head: 'head coach', batting: 'hitting coach', pitching: 'pitching coach' };
+const EN_NAME = { 'mg-treyhillman': 'Trey Hillman', 'pc-ochiaieiji': 'Eiji Ochiai', 'pc-fukuharamineo': 'Mineo Fukuhara' };
+const POSES = {
+  manager: [
+    ['arms firmly crossed over the chest, shoulders squared, chin slightly raised, steady intimidating gaze straight at the camera', 'crossed arms fully visible'],
+    ['both hands resting on the hips, shoulders squared, chin slightly raised, calm commanding gaze straight at the camera', 'elbows and hands fully visible'],
+    ['hands clasped behind the back, chest out, standing tall, piercing steady gaze straight at the camera', 'shoulders and upper arms fully visible'],
+  ],
+  coach: [
+    ['arms firmly crossed over the chest, shoulders squared, focused confident gaze straight at the camera', 'crossed arms fully visible'],
+    ['a wooden fungo bat resting on one shoulder, other hand on the hip, confident gaze straight at the camera', 'bat and hands fully visible'],
+    ['both hands resting on the hips, shoulders squared, determined gaze straight at the camera', 'elbows and hands fully visible'],
+  ],
+};
+const mediaFile = join(art, 'staff-media.json');
+const cardDir = join(art, 'staff-cards');
+mkdirSync(cardDir, { recursive: true });
+const cardPrompt = (p, i) => {
+  const [team] = HOME[p.id];
+  const neon = TEAM[team][1];
+  const role = p.prompt.match(/baseball (manager|head coach|hitting coach|pitching coach|fielding coach)/)[1];
+  const origin = ORIGIN[p.id] || 'Korean';
+  const who = role === 'manager' ? `legendary ${origin} baseball manager` : `${origin} baseball ${role}`;
+  const list = POSES[role === 'manager' ? 'manager' : 'coach'];
+  const [pose, visible] = list[i % list.length];
+  return `Staff card art for a baseball card game, semi-realistic digital painting in the same art style as Image 1, crisp detail. Subject: the same man as Image 1, ${who} ${EN_NAME[p.id] || p.name} — keep the face and features identical to Image 1, wearing the same team uniform jersey and cap as Image 1. Pose: dignified commanding waist-up stance, ${pose}. Composition 4:3 horizontal: figure centered slightly right of center, top of the cap about 6% below the top edge, eyes at about 26% of the height, ${visible} around 70% of the height, body cut at the waist at the bottom edge; the left third and the corners fall off into darkness. Lighting: dramatic low-key light, strong ${neon} rim light outlining the cap, shoulders and arms, face lit softly and clearly from the front; near-black navy background (#05080f) fading to pure darkness with a faint ${neon} haze behind the shoulders. No text except uniform lettering, no border, no frame.`;
+};
 
 const mode = process.argv[2];
 if (mode === 'plan') {
@@ -81,6 +112,58 @@ if (mode === 'plan') {
     } catch (e) { failed.push(`${id} (${e.message})`); }
   }));
   console.log(`저장 ${args.length - failed.length}개${failed.length ? `, 실패: ${failed.join(', ')}` : ''}`);
+} else if (mode === 'upload') {
+  const list = JSON.parse(readFileSync(process.argv[3], 'utf8'));
+  const media = existsSync(mediaFile) ? JSON.parse(readFileSync(mediaFile, 'utf8')) : {};
+  const ok = [];
+  const failed = [];
+  await Promise.all(list.map(async ({ filename, upload_url: url, media_id: mediaId }) => {
+    const id = filename.replace(/\.png$/, '');
+    try {
+      const res = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'image/png' }, body: readFileSync(join(profDir, filename)) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      media[id] = mediaId;
+      ok.push(mediaId);
+    } catch (e) { failed.push(`${id} (${e.message})`); }
+  }));
+  writeFileSync(mediaFile, JSON.stringify(media, null, 1));
+  console.log(`업로드 ${ok.length}개 — media_confirm media_ids: ${JSON.stringify(ok)}${failed.length ? `, 실패: ${failed.join(', ')}` : ''}`);
+} else if (mode === 'cardreq') {
+  const plan = JSON.parse(readFileSync(planFile, 'utf8'));
+  const media = existsSync(mediaFile) ? JSON.parse(readFileSync(mediaFile, 'utf8')) : {};
+  const [from, to] = [Number(process.argv[3]), Number(process.argv[4])];
+  const base = { model: 'gpt_image_2_5', variant: 'sunburst', quality: 'medium', resolution: '1k', aspect_ratio: '4:3' };
+  const out = [];
+  const noMedia = [];
+  for (let i = from; i <= to && i < plan.length; i++) {
+    if (existsSync(join(cardDir, `${plan[i].id}.png`))) continue;
+    if (!media[plan[i].id]) { noMedia.push(plan[i].id); continue; }
+    out.push({ index: i, params: { ...base, medias: [{ value: media[plan[i].id], role: 'image_references' }], prompt: cardPrompt(plan[i], i) } });
+  }
+  if (noMedia.length) console.error(`업로드 안 된 프로필: ${noMedia.join(', ')}`);
+  console.log(JSON.stringify(out));
+} else if (mode === 'cardfetch') {
+  const plan = JSON.parse(readFileSync(planFile, 'utf8'));
+  const failed = [];
+  const args = process.argv.slice(3);
+  await Promise.all(args.map(async (arg) => {
+    const i = arg.indexOf('=');
+    const id = plan[Number(arg.slice(1, i))]?.id;
+    try {
+      const res = await fetch(arg.slice(i + 1));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      writeFileSync(join(cardDir, `${id}.png`), Buffer.from(await res.arrayBuffer()));
+    } catch (e) { failed.push(`${id} (${e.message})`); }
+  }));
+  console.log(`저장 ${args.length - failed.length}개${failed.length ? `, 실패: ${failed.join(', ')}` : ''}`);
+} else if (mode === 'cardconvert') {
+  const { default: sharp } = await import('sharp');
+  const { readdirSync } = await import('node:fs');
+  const outDir = join(root, 'public', 'staff');
+  mkdirSync(outDir, { recursive: true });
+  const files = readdirSync(cardDir).filter((f) => f.endsWith('.png'));
+  for (const f of files) await sharp(join(cardDir, f)).resize(800, 600, { fit: 'cover', position: 'top' }).webp({ quality: 80 }).toFile(join(outDir, f.replace(/\.png$/, '.webp')));
+  console.log(`staff 카드 변환 ${files.length}개 → public/staff`);
 } else {
-  console.log('사용법: plan | req <시작> <끝> | fetch "#<번호>=<URL>" ...');
+  console.log('사용법: plan | req | fetch | upload | cardreq | cardfetch | cardconvert');
 }
