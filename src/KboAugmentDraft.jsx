@@ -17,7 +17,7 @@ const SEASON_AUGMENTS = 2; // 엔트리를 모두 채운 뒤 시즌 개막 때 �
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
-const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'dugout', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
+const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -1301,78 +1301,82 @@ const KEYFRAMES = `
 @keyframes dgFlow { 25% { opacity: 1; filter: drop-shadow(0 0 3px #38bdf8); } 55% { opacity: .2; } }
 .lf-route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,.65); animation: dgPop .24s cubic-bezier(.3,1.6,.55,1) both; }
 @keyframes dgPop { from { transform: scale(.5); opacity: 0; } }
-/* ───── 정비 화면 (ReadyScreen): 덕아웃 라인업 보드 — 왼쪽 칠판 타순 · 오른쪽 구장 사진 수비 배치 · 아래 마운드/시너지 ───── */
-.rd-top { display: grid; grid-template-columns: repeat(3, minmax(0, 170px)) minmax(0,1fr) auto; align-items: center; gap: 8px; }
-.rd-score { --c: 10px; display: flex; flex-direction: column; justify-content: center; padding: 5px 14px; background: rgba(255,255,255,.05); }
-.rd-score > span { font-size: 11px; font-weight: 700; color: #9ca3af; }
-.rd-score b { font-family: 'Saira Condensed', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.rd-dl { font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; margin-left: 6px; color: #4b5563; }
+/* ───── 정비 화면 (ReadyScreen): 왼쪽 타순 · 가운데 수비 포지션 · 오른쪽 투수 로테이션과 시너지 ───── */
+.rd-top { display: flex; align-items: center; gap: 10px; }
+.rd-tot { --a: #34d399; min-width: 150px; padding: 7px 14px; background: linear-gradient(180deg, rgba(10,18,30,.92), rgba(6,11,19,.86)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 28%, transparent); }
+.rd-tot > span { display: block; font-size: 11px; font-weight: 700; color: #94a3b8; }
+.rd-tot b { font-family: 'Saira Condensed', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.05; color: var(--a); font-variant-numeric: tabular-nums; }
+.rd-tot i { display: block; height: 3px; margin-top: 4px; background: rgba(255,255,255,.08); }
+.rd-tot i::after { content: ""; display: block; width: var(--w); height: 100%; background: var(--a); }
+.rd-dl { font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; margin-left: 6px; color: #475569; }
 .rd-dl.up { color: #34d399; }
 .rd-dl.dn { color: #fbbf24; }
-.rd-half { --c: 20px; display: flex; flex-direction: column; min-height: 0; }
-.rd-half > .hh { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px 6px; }
-/* 왼쪽: 칠판 라인업 카드 */
-.rd-board { position: relative; flex: 1; min-height: 0; margin: 0 12px 12px; padding: 4px 12px 8px; display: flex; flex-direction: column; background: #070b12 url(ui/chalk.webp) center / cover no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 30px 60px -30px rgba(56,189,248,.18); }
-.rd-board::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.35), rgba(5,8,15,.62)); pointer-events: none; }
-.rd-board > * { position: relative; }
-.rd-grp + .rd-grp { margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(226,232,240,.14); }
-.rd-gname { display: flex; align-items: center; gap: 8px; padding: 0 10px 1px; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .24em; }
-.rd-gname b { font-size: 15px; letter-spacing: 0; color: #e5e7eb; }
-.rd-row { position: relative; display: grid; grid-template-columns: 44px minmax(0,1fr) 150px 72px; align-items: center; gap: 12px; height: clamp(36px, calc((100dvh - 410px) / 10.4), 56px); padding: 0 10px; cursor: grab; user-select: none; touch-action: none; outline: none; transition: background .12s; }
-.rd-row:hover { background: linear-gradient(90deg, rgba(56,189,248,.14), transparent); }
-.rd-row:is(.sel, .over) { background: linear-gradient(90deg, rgba(56,189,248,.24), rgba(56,189,248,.02)); }
-.rd-row:is(.sel, .over)::before { content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 2px; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
-.rd-row:focus-visible { box-shadow: inset 0 0 0 1px #10b981; }
+/* 판 */
+.rd-pan { --a: #34d399; position: relative; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: linear-gradient(180deg, rgba(10,18,30,.9), rgba(6,11,19,.86)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 22%, transparent); }
+.rd-pan::before { content: ""; position: absolute; left: 0; top: 0; width: 3px; height: 64px; background: var(--a); box-shadow: 0 0 14px var(--a); }
+.rd-pan::after { content: ""; position: absolute; right: 0; bottom: 0; width: 3px; height: 64px; background: color-mix(in srgb, var(--a) 60%, transparent); }
+.rd-ph { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px 10px; }
+.rd-ph h3 { margin: 0; font-size: 19px; font-weight: 800; line-height: 1; }
+.rd-ph em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; font-style: normal; letter-spacing: .24em; color: #64748b; }
+.rd-ph .sum { margin-left: auto; text-align: right; line-height: 1.1; }
+.rd-ph .sum small { display: block; font-size: 11px; color: #94a3b8; }
+.rd-ph .sum b { font-family: 'Saira Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--a); font-variant-numeric: tabular-nums; }
+/* 타순 줄 */
+.rd-rows { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 5px; padding: 0 14px 14px; }
+.rd-row { display: grid; grid-template-columns: 30px 38px 20px 34px minmax(0,1fr) 46px; align-items: center; gap: 10px; flex: 1; min-height: 0; max-height: 58px; padding: 0 12px; background: linear-gradient(90deg, rgba(255,255,255,.05), transparent 70%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); cursor: grab; user-select: none; touch-action: none; outline: none; transition: background .12s, box-shadow .12s; }
+.rd-row:hover { background: linear-gradient(90deg, rgba(56,189,248,.16), transparent 70%); }
+.rd-row:is(.sel, .over) { background: linear-gradient(90deg, rgba(56,189,248,.26), rgba(56,189,248,.03)); box-shadow: inset 0 0 0 1px #38bdf8; }
 .rd-row.lifted { opacity: .3; }
-.rd-no { font-family: 'Saira Condensed', sans-serif; font-size: 32px; font-weight: 800; line-height: 1; text-align: center; color: #e2e8f0; font-variant-numeric: tabular-nums; }
-.rd-no.ts { color: #6ee7b7; }
-.rd-no.cu { color: #fdba74; }
-.rd-who { display: flex; align-items: center; gap: 11px; min-width: 0; }
-.rd-who b { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rd-face { position: relative; flex: none; overflow: hidden; background-color: #1e293b; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
-.rd-chip { display: inline-flex; align-items: center; gap: 3px; flex: none; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 17px; letter-spacing: .04em; color: #93c5fd; box-shadow: inset 0 0 0 1px rgba(96,165,250,.4); }
-.rd-chip.dh { color: #ffb27a; box-shadow: inset 0 0 0 1px rgba(255,138,61,.55); }
-.rd-chip.off { color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.5); }
-.rd-chip svg { width: 11px; height: 11px; flex: none; }
-.rd-hand { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 600; color: #6b7280; }
-.rd-mini { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
-.rd-mini > span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.rd-mini em { display: flex; justify-content: space-between; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-style: normal; font-weight: 600; color: #9ca3af; }
-.rd-mini em b { color: #e5e7eb; font-weight: 700; }
-.rd-mini em sup { margin-left: 1px; font-size: 9px; font-weight: 800; color: #34d399; }
-.rd-mini i { display: block; height: 3px; background: rgba(255,255,255,.08); }
-.rd-mini i::after { content: ""; display: block; width: var(--w); height: 100%; background: var(--t); }
-.rd-mini i.t90::after { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
-.rd-bat { font-family: 'Saira Condensed', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; }
-.rd-bat.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
-/* 오른쪽: 구장 사진 위 수비 배치 */
-.rd-fieldbox { position: relative; flex: 1; min-height: 0; margin: 0 12px 12px; overflow: hidden; background: #03060b; }
-.rd-field { position: absolute; left: 50%; top: 50%; aspect-ratio: 1920 / 1433; height: 112%; transform: translate(-50%, -47%); background: url(ui/field.webp) center / cover no-repeat; }
-.rd-field::after { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 55%, transparent, rgba(3,6,11,.65)); }
-.rd-tag { position: absolute; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 3px 10px 3px 3px; white-space: nowrap; background: rgba(5,8,15,.82); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 8px 18px -8px rgba(0,0,0,.9); cursor: grab; user-select: none; touch-action: none; outline: none; transition: background .12s, box-shadow .12s; }
-.rd-tag.on-field { transform: translate(-50%, -50%); }
-.rd-tag b { font-size: 14px; }
-.rd-tag .pos { position: absolute; left: -2px; top: -9px; padding: 0 5px; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; line-height: 15px; color: #05080f; background: #60a5fa; }
-.rd-tag.dh .pos { background: #ff8a3d; }
-.rd-tag.offpos .pos { background: #fbbf24; }
-.rd-tag .def { margin-left: 2px; font-family: 'Saira Condensed', sans-serif; font-size: 22px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.rd-tag:hover, .rd-tag:is(.sel, .over) { background: linear-gradient(90deg, rgba(56,189,248,.35), rgba(5,8,15,.85)); box-shadow: inset 0 0 0 1px #38bdf8, 0 0 18px rgba(56,189,248,.45); }
-.rd-tag.lifted { opacity: .3; }
-.rd-bench { position: absolute; left: 14px; bottom: 14px; z-index: 3; }
-.rd-bench > small { display: block; margin-bottom: 10px; font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .24em; color: #ffb27a; }
-/* 아래 띠: 마운드 · 시너지 */
-.rd-band { --c: 16px; display: flex; align-items: center; gap: 14px; padding: 10px 16px; min-width: 0; }
-.rd-pit { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 4px 12px 4px 4px; background: rgba(255,255,255,.035); box-shadow: inset 0 -2px 0 rgba(196,181,253,.35); cursor: grab; user-select: none; touch-action: none; outline: none; }
-.rd-pit small { display: block; font-size: 11px; font-weight: 700; color: #9ca3af; }
-.rd-pit b { font-size: 14.5px; white-space: nowrap; }
-.rd-pit .v { margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size: 24px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-.rd-pit:is(.sel, .over) { background: rgba(56,189,248,.2); box-shadow: inset 0 0 0 1px #38bdf8; }
-.rd-pit.lifted { opacity: .3; }
-.rd-syn { display: flex; align-items: center; gap: 6px; padding: 6px 10px; white-space: nowrap; background: rgba(255,255,255,.035); box-shadow: inset 2px 0 0 var(--s); }
-.rd-syn b { font-size: 13px; }
-.rd-syn span { font-size: 12px; font-weight: 700; color: var(--s); }
+.rd-row:focus-visible { box-shadow: inset 0 0 0 1px #10b981; }
+.rd-no { font-family: 'Saira Condensed', sans-serif; font-size: 24px; font-weight: 800; line-height: 1; text-align: center; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+.rd-pos { display: grid; place-items: center; height: 21px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 21px; color: #93c5fd; background: rgba(12,22,38,.9); box-shadow: inset 0 0 0 1px rgba(96,165,250,.45); }
+.rd-pos.dh { color: #ffb27a; box-shadow: inset 0 0 0 1px rgba(255,138,61,.55); }
+.rd-pos.p { color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(248,113,113,.5); }
+.rd-pos.off { color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.5); }
+.rd-hand { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #64748b; text-align: center; }
+.rd-thumb { position: relative; overflow: hidden; background-color: #111827; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.rd-nm { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-ovr { font-family: 'Saira Condensed', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; }
+/* 카드 (수비 · 투수 공통) */
+.rd-card { position: relative; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; background: linear-gradient(180deg, rgba(13,24,40,.55), rgba(5,9,16,.95)), #0b1220; box-shadow: inset 0 0 0 1.5px var(--cc, rgba(96,165,250,.55)), 0 12px 24px -14px #000; cursor: grab; user-select: none; touch-action: none; outline: none; transition: box-shadow .12s, filter .12s; }
+.rd-card .art { position: absolute; inset: 0; background-position: 50% 6%; background-repeat: no-repeat; background-size: cover; }
+.rd-card .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,9,16,.12) 32%, rgba(5,9,16,.92) 76%); }
+.rd-card .top { position: absolute; left: 0; right: 0; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
+.rd-card .top .rd-pos { background: none; box-shadow: none; }
+.rd-card .ov { font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 800; line-height: 1; color: #fff; text-shadow: 0 2px 6px #000; font-variant-numeric: tabular-nums; }
+.rd-card .nmb { position: relative; z-index: 2; padding: 4px 7px 6px; text-align: center; }
+.rd-card .nmb b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-card .nmb small { display: block; font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 700; color: #94a3b8; }
+.rd-card.dh { --cc: rgba(255,138,61,.6); }
+.rd-card.p { --cc: rgba(248,113,113,.6); }
+.rd-card.off { --cc: rgba(251,191,36,.7); }
+.rd-card:hover { filter: brightness(1.1); }
+.rd-card:is(.sel, .over) { box-shadow: inset 0 0 0 2px #38bdf8, 0 0 22px -4px #38bdf8; }
+.rd-card.lifted { opacity: .3; }
+.rd-card:focus-visible { box-shadow: inset 0 0 0 2px #10b981; }
+/* 구장 */
+.rd-fieldbox { position: relative; flex: 1; min-height: 0; margin: 0 14px 14px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(96,165,250,.16); }
+.rd-field { position: absolute; left: 50%; top: 50%; aspect-ratio: 1920 / 1433; height: 116%; transform: translate(-50%, -48%); background: url(ui/field.webp) center / cover no-repeat; }
+.rd-field::after { content: ""; position: absolute; inset: 0; background: radial-gradient(76% 66% at 50% 52%, transparent, rgba(3,6,11,.62)); }
+.rd-fc { position: absolute; z-index: 2; width: 104px; height: 120px; transform: translate(-50%, -50%); }
+/* 투수 로테이션 */
+.rd-rot { display: grid; gap: 10px; padding: 0 16px 14px; min-height: 0; }
+.rd-slot { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.rd-slot > span { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 700; color: #cbd5e1; }
+.rd-slot > span em { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 700; font-style: normal; letter-spacing: .2em; color: #64748b; }
+.rd-slot > div { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rd-empty { display: grid; place-items: center; font-size: 20px; color: #475569; background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1.5px rgba(148,163,184,.22); }
+/* 시너지 */
+.rd-syn { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 14px; min-height: 0; overflow-y: auto; }
+.rd-sc { --s: #34d399; flex: none; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--s) 12%, rgba(6,11,19,.9)), rgba(6,11,19,.9)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 38%, transparent); }
+.rd-sc .ic { display: grid; place-items: center; width: 42px; height: 42px; font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 800; color: var(--s); background: rgba(5,8,15,.65); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--s) 60%, transparent); }
+.rd-sc b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-sc .ef { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; color: var(--s); }
+.rd-sc small { display: block; font-size: 11.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-sc.lock { --s: #64748b; opacity: .78; }
+.rd-tag { padding: 3px 9px; font-size: 11.5px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
 .rd-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
-.rd-ghost > * { background: rgba(5,8,15,.9) !important; box-shadow: inset 0 0 0 1px rgba(56,189,248,.7) !important; }
+.rd-ghost > * { box-shadow: inset 0 0 0 2px #38bdf8 !important; }
 .prism-tx { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 `;
@@ -3330,58 +3334,75 @@ const RULE_TABS = [
     ] },
 ];
 
-/* ───────────── 정비 화면: 덕아웃 라인업 보드 ───────────── */
+/* ───────────── 정비 화면: 타순 · 수비 포지션 · 투수 로테이션 · 시너지 ───────────── */
 const PITCH_SLOTS = ['SP', 'MR', 'CL'];
-const RD_PITCH = [['SP', '선발'], ['MR', '중간계투'], ['CL', '마무리']];
-const RD_CHIP = { OF1: 'LF', OF2: 'CF', OF3: 'RF' };
-/* 구장 사진(ui/field.webp) 위 수비 자리 (% 좌표) */
-const RD_XY = { OF1: [22, 30], OF2: [50, 17], OF3: [78, 30], SS: [37, 43], '2B': [63, 43], '3B': [28, 60], '1B': [72, 60], C: [50, 90] };
+const RD_ROT = [['SP', '선발 투수', 'STARTING'], ['MR', '중간 계투', 'MIDDLE RELIEF'], ['CL', '마무리', 'CLOSER']];
+const RD_CHIP = { OF1: 'LF', OF2: 'CF', OF3: 'RF', MR: 'RP', CL: 'RP' };
+/* 구장 사진(ui/field.webp) 위 자리 (% 좌표) */
+const RD_XY = { OF1: [24, 30], OF2: [50, 17], OF3: [76, 30], SS: [38, 41], '2B': [62, 41], '3B': [26, 57], '1B': [74, 57], C: [50, 81], SP: [50, 60], DH: [76, 82] };
 const RD_ORDER_W = [1.1, 1.08, 1.07, 1.06, 1, 0.97, 0.94, 0.92, 0.9];
-const RD_SYN_TONES = ['#fbbf24', '#ff8a3d', '#34d399', '#e879f9', '#60a5fa', '#f472b6', '#a78bfa', '#2dd4bf'];
-const RD_STAT = { power: '파', contact: '컨', speed: '주' };
-const RD_GROUPS = [['TABLE SETTER', 0, 2, '#6ee7b7', 'table'], ['CLEAN-UP', 2, 5, '#fdba74', 'clean'], ['BOTTOM', 5, 9, '#94a3b8', 'low']];
+const RD_SYN_TONES = ['#34d399', '#fbbf24', '#60a5fa', '#e879f9', '#f472b6', '#a78bfa', '#2dd4bf', '#ff8a3d'];
 const rdBat = (p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2;
 /* 수치 구간 색: 낮을수록 빨강, 높을수록 초록, 90 이상은 카드 최상위 등급과 같은 프리즘 */
 const rdTone = (v) => (v >= 90 ? 'prism' : v >= 80 ? '#34d399' : v >= 70 ? '#a3e635' : v >= 60 ? '#facc15' : v >= 50 ? '#f97316' : '#ef4444');
 const rdToneStyle = (v) => (rdTone(v) === 'prism' ? undefined : { color: rdTone(v) });
+const rdToneCls = (v) => (rdTone(v) === 'prism' ? 'prism-tx' : '');
 
 /** 타순: batOrder 가 있으면 그 순서, 없으면 로스터 순서 (buildTeam 과 같은 규칙) */
 const lineupOf = (roster) => withSlots(roster).map((p, i) => ({ p, i })).filter(({ p }) => !PITCH_SLOTS.includes(p.slot))
   .sort((a, b) => (a.p.batOrder ?? 99 + a.i) - (b.p.batOrder ?? 99 + b.i)).map(({ p }) => p);
 
-/** 정비 화면 지표: 경기 계산(buildTeam)과 같은 값 + 타순 가중 · 묶음 점수 */
+/** 정비 화면 지표: 경기 계산(buildTeam)과 같은 값 + 합계 · 타순 가중 */
 function readyStats(roster, buff) {
   const t = buildTeam('나의 드림팀', roster, buff);
   const b = t.batters;
-  const part = (a, z, f) => (b.slice(a, z).length ? avg(b.slice(a, z).map(f)) : 0);
   const w = b.map((_, i) => RD_ORDER_W[i] ?? 0.9);
+  const pitchers = [t.sps[0], t.mr, t.rp].filter(Boolean);
   return {
     t, off: t.offense, def: t.defense, R: t.rightRatio, power: teamPower(t),
     flow: b.reduce((s, p, i) => s + rdBat(p) * w[i], 0) / (w.reduce((x, y) => x + y, 0) || 1),
     ace: t.sps[0] ? t.pitchValue(t.sps[0]) : 0,
     bull: avg([t.mr, t.rp].filter(Boolean).map(t.pitchValue)),
-    table: part(0, 2, (p) => p.stats.contact * 0.5 + p.stats.speed * 0.5), clean: part(2, 5, (p) => p.stats.power), low: part(5, 9, rdBat),
+    batSum: Math.round(b.reduce((s, p) => s + p.overall, 0)),
+    defSum: Math.round(b.filter((p) => p.position !== 'DH').reduce((s, p) => s + p.stats.defense, 0)),
+    pitSum: Math.round(pitchers.reduce((s, p) => s + p.overall, 0)),
   };
 }
 
 function RdDelta({ v, v0 }) {
-  const d = Math.round((v - v0) * 10) / 10;
+  const d = Math.round(v - v0);
   return <span className={`rd-dl ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}`}>{d ? `${d > 0 ? '▲' : '▼'}${Math.abs(d)}` : '±0'}</span>;
 }
 function RdFace({ player, className }) {
   const bust = useBust(player, '260%');
-  return <span className={`rd-face ${className}`} style={bust}>{!bust && <Silhouette />}</span>;
+  return <span className={`rd-thumb ${className}`} style={bust}>{!bust && <Silhouette />}</span>;
 }
 const RdBatIcon = () => (
-  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 13.5l2-2M4 12L12.5 3.5a1.8 1.8 0 0 1 2.5 2.5L6.5 14.5z" fill="currentColor" /><circle cx="3" cy="3.5" r="1.8" fill="currentColor" /></svg>
-);
-const RdChip = ({ slot, dh, off }) => (
-  <span className={`rd-chip ${dh ? 'dh' : off ? 'off' : ''}`}>{dh && <RdBatIcon />}{RD_CHIP[slot] || slot}</span>
+  <svg viewBox="0 0 16 16" aria-hidden="true" style={{ width: 11, height: 11 }}><path d="M2.5 13.5l2-2M4 12L12.5 3.5a1.8 1.8 0 0 1 2.5 2.5L6.5 14.5z" fill="currentColor" /><circle cx="3" cy="3.5" r="1.8" fill="currentColor" /></svg>
 );
 
+/** 수비 · 투수 카드: 그림 위 포지션 칩과 종합, 아래 이름과 소속 (세 구역이 같은 카드 문법) */
+function RdCard({ player, slot, ovr, off, moved, drop, bind }) {
+  const bust = useBust(player, '260%');
+  const dh = slot === 'DH', pitch = PITCH_SLOTS.includes(slot);
+  const kind = dh ? 'dh' : off ? 'off' : pitch ? 'p' : '';
+  return (
+    <div {...bind} className={`rd-card ${kind} ${bind.className}`}
+      title={off ? `원래 ${moved} · 종합 ${player.overall} → ${drop}` : undefined}>
+      <span className="art" style={bust}>{!bust && <Silhouette />}</span>
+      <span className="sh" />
+      <span className="top">
+        <span className={`rd-pos ${kind}`}>{dh && <RdBatIcon />}{RD_CHIP[slot] || slot}</span>
+        <b className={`ov ${rdToneCls(ovr)}`} style={rdToneStyle(ovr)}>{ovr}</b>
+      </span>
+      <span className="nmb"><b>{player.name}</b><small>{player.year} {player.team} · {player.hand}</small></span>
+    </div>
+  );
+}
+
 /**
- * 정비 화면: 왼쪽 칠판 라인업 카드(타순) · 오른쪽 구장 사진 위 수비 배치 · 아래 마운드와 시너지.
- * 타순 · 수비 자리 · 투수 보직은 두 개를 차례로 누르거나 끌어다 놓아 맞바꾼다.
+ * 정비 화면: 왼쪽 타순 라인업 · 가운데 구장 위 수비 포지션 카드 · 오른쪽 투수 로테이션과 시너지.
+ * 줄 · 카드를 차례로 누르거나 끌어다 놓으면 자리가 맞바뀐다.
  */
 function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart }) {
   const init = useRef(roster);
@@ -3397,7 +3418,6 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   const lineup = useMemo(() => lineupOf(roster), [roster]);
   const bySlot = (s) => slotted.find((p) => p.slot === s);
   const effOf = (p) => eff.get(p.id) || base.get(p.id);
-  const orderNo = (p) => lineup.findIndex((q) => q.id === p.id) + 1;
 
   const swap = (k, a, b) => {
     if (a === b) return;
@@ -3415,6 +3435,17 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   const swapRef = useRef(swap);
   tapRef.current = tap;
   swapRef.current = swap;
+
+  /** 자동 라인업: 1·2번은 출루·주루, 3~5번은 장타, 나머지는 타격가치 순 */
+  const autoLineup = () => {
+    const xs = lineup.map((p) => ({ p, e: effOf(p) }));
+    const setters = [...xs].sort((a, b) => (b.e.stats.contact * 0.5 + b.e.stats.speed * 0.5) - (a.e.stats.contact * 0.5 + a.e.stats.speed * 0.5)).slice(0, 2);
+    const rest = xs.filter((x) => !setters.includes(x));
+    const clean = [...rest].sort((a, b) => b.e.stats.power - a.e.stats.power).slice(0, 3);
+    const tail = rest.filter((x) => !clean.includes(x)).sort((a, b) => rdBat(b.e) - rdBat(a.e));
+    onOrder([...setters, ...clean, ...tail].map((x) => x.p.id));
+    setPick(null);
+  };
 
   // 끌기: 6px 넘게 움직이면 끌기 카드를 띄우고, 같은 종류 위에서 놓으면 맞바꾼다. 안 움직이고 떼면 누르기
   useEffect(() => {
@@ -3448,140 +3479,140 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
     onPointerDown: (e) => {
       if (e.button !== 0) return;
       const r = e.currentTarget.getBoundingClientRect();
-      dragRef.current = { k, v, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: Math.min(e.clientX - r.left, 130), dy: e.clientY - r.top, w: Math.min(r.width, 260), moved: false, over: null };
+      dragRef.current = { k, v, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: Math.min(e.clientX - r.left, 120), dy: e.clientY - r.top, w: Math.min(r.width, 240), moved: false, over: null };
     },
   });
 
-  const row = (p, i) => {
-    const b = base.get(p.id), e = effOf(p), dh = p.slot === 'DH', off = !!b.naturalPosition;
-    const g = grab('ord', p.id, `${i + 1}번 ${p.name}`);
-    return (
-      <div key={p.id} {...g} className={`rd-row ${g.className}`}>
-        <span className={`rd-no ${i < 2 ? 'ts' : i < 5 ? 'cu' : ''}`}>{i + 1}</span>
-        <span className="rd-who">
-          <RdFace player={p} className="h-[46px] w-10" /><b>{p.name}</b><RdChip slot={p.slot} dh={dh} off={off} /><span className="rd-hand">{p.hand}</span>
-        </span>
-        <span className="rd-mini">
-          {['power', 'contact', 'speed'].map((k) => {
-            const v = e.stats[k], t = rdTone(v);
-            return (
-              <span key={k}>
-                <em>{RD_STAT[k]}<b>{v}{v > b.stats[k] && <sup>▲</sup>}</b></em>
-                <i className={t === 'prism' ? 't90' : ''} style={{ '--w': `${Math.max(4, ((v - 30) / 69) * 100)}%`, '--t': t }} />
-              </span>
-            );
-          })}
-        </span>
-        <b className={`rd-bat ${rdTone(rdBat(e)) === 'prism' ? 't90' : ''}`} style={rdToneStyle(rdBat(e))}>{rdBat(e).toFixed(1)}</b>
-      </div>
-    );
+  /** 수비 · 투수 카드 (같은 디자인) */
+  const card = (p, slot, kind) => {
+    const b = base.get(p.id), e = effOf(p), off = !!b.naturalPosition;
+    return <RdCard key={slot} player={p} slot={slot} ovr={e.overall} off={off} moved={b.naturalPosition} drop={b.overall}
+      bind={grab(kind, slot, `${RD_CHIP[slot] || slot} ${p.name}`)} />;
   };
 
-  const tag = (p, slot, onField) => {
-    const b = base.get(p.id), e = effOf(p), dh = slot === 'DH', off = !!b.naturalPosition;
-    const g = grab('def', slot, `${RD_CHIP[slot] || slot} ${p.name}`);
-    const xy = RD_XY[slot];
-    return (
-      <div key={slot} {...g} className={`rd-tag ${onField ? 'on-field' : ''} ${dh ? 'dh' : off ? 'offpos' : ''} ${g.className}`}
-        style={onField ? { left: `${xy[0]}%`, top: `${xy[1]}%` } : undefined}
-        title={off ? `원래 ${b.naturalPosition} · 수비 −${b.stats.defense !== undefined ? p.overall - b.overall : 0}` : undefined}>
-        <span className="pos font-display">{RD_CHIP[slot] || slot}</span>
-        <RdFace player={p} className="h-9 w-8" />
-        <b>{p.name}</b>
-        {dh ? <span className="flex text-[#ffb27a]"><RdBatIcon /></span> : <span className="def" style={rdToneStyle(e.stats.defense)}>{e.stats.defense}</span>}
-      </div>
-    );
-  };
-
-  const inn = (() => { const sp = bySlot('SP'); const st = sp ? effOf(sp).stats.stamina ?? 0 : 0; return st >= 90 ? 7 : st >= 80 ? 6 : 5; })();
-  const innLabel = { SP: `선발 · 1–${inn}회`, MR: `중간 · ${inn + 1}–8회`, CL: '마무리 · 9회' };
-  const dhPlayer = bySlot('DH');
-  const syns = now.t.synergies.filter((s) => s.active);
+  const syns = now.t.synergies;
+  const active = syns.filter((s) => s.active);
+  const next = syns.filter((s) => !s.active && s.count > 0).sort((a, b) => (a.need - a.count) - (b.need - b.count))[0];
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="rd-top">
-        {[['공격', 'off'], ['수비', 'def'], ['마운드', 'bull']].map(([label, key]) => (
-          <div key={key} className="rd-score ui-cut">
+        {[['타자 OVR 합계', 'batSum', '#34d399', 9 * 99], ['수비 OVR 합계', 'defSum', '#60a5fa', 8 * 99], ['투수 OVR 합계', 'pitSum', '#f87171', 3 * 99]].map(([label, key, tone, max]) => (
+          <div key={key} className="rd-tot ui-cut" style={{ '--a': tone, '--c': '10px' }}>
             <span>{label}</span>
-            <span><b className={rdTone(now[key]) === 'prism' ? 'prism-tx' : ''} style={rdToneStyle(now[key])}>{now[key].toFixed(1)}</b><RdDelta v={now[key]} v0={was[key]} /></span>
+            <span className="flex items-baseline"><b>{now[key]}</b><RdDelta v={now[key]} v0={was[key]} /></span>
+            <i style={{ '--w': `${Math.min(100, (now[key] / max) * 100)}%` }} />
           </div>
         ))}
-        <span className="flex items-center gap-2 pl-2 text-sm text-gray-500">
-          {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
-        </span>
-        <span className="flex gap-2">
-          <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
-          <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
-          <button type="button" className="ui-btn ui-cut sm pri" onClick={onStart}>시즌 시작 · 증강 고르기 ›</button>
-        </span>
+        {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
+        <span className="flex-1" />
+        <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
+        <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
+        <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
+        <button type="button" className="ui-btn ui-cut sm pri" onClick={onStart}>시즌 시작 · 증강 고르기 ›</button>
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
-        <section className="rd-half ui-cut ui-glass ui-frame">
-          <div className="hh"><span className="ui-lab font-display">Lineup Card</span></div>
-          <div className="rd-board">
-            {RD_GROUPS.map(([en, a, z, tone, key]) => (
-              <div key={key} className="rd-grp" style={{ flex: `${Math.max(1, z - a)} 1 0` }}>
-                <span className="rd-gname" style={{ color: tone }}>{en}<b>{now[key].toFixed(1)}</b><RdDelta v={now[key]} v0={was[key]} /></span>
-                {lineup.slice(a, z).map((p, k) => row(p, a + k))}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="rd-half ui-cut ui-glass ui-frame" style={{ '--a': '#60a5fa' }}>
-          <div className="hh"><span className="ui-lab font-display" style={{ '--a': '#60a5fa' }}>Defensive Alignment</span></div>
-          <div className="rd-fieldbox">
-            <div className="rd-field">
-              {Object.keys(RD_XY).map((s) => { const p = bySlot(s); return p ? tag(p, s, true) : null; })}
-            </div>
-            {dhPlayer && (
-              <div className="rd-bench">
-                <small>Designated Hitter</small>
-                {tag(dhPlayer, 'DH', false)}
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-
-      <div className="grid gap-3 lg:grid-cols-2">
-        <section className="rd-band ui-cut ui-glass ui-frame" style={{ '--a': '#c4b5fd' }}>
-          <span className="ui-lab font-display" style={{ '--a': '#c4b5fd' }}>Mound</span>
-          <div className="flex min-w-0 flex-1 gap-2">
-            {RD_PITCH.map(([s]) => {
-              const p = bySlot(s);
-              if (!p) return null;
-              const e = effOf(p), v = now.t.pitchValue(e);
-              const g = grab('pit', s, `${innLabel[s]} ${p.name}`);
+      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: 'clamp(330px,23vw,420px) minmax(0,1fr) clamp(370px,25vw,460px)' }}>
+        {/* 왼쪽: 타순 라인업 */}
+        <section className="rd-pan ui-cut" style={{ '--c': '16px' }}>
+          <div className="rd-ph"><div><h3>타순 라인업</h3><em>LINEUP</em></div><span className="sum"><small>타자 OVR 합계</small><b>{now.batSum}</b></span></div>
+          <div className="rd-rows">
+            {lineup.map((p, i) => {
+              const b = base.get(p.id), e = effOf(p), dh = p.slot === 'DH', off = !!b.naturalPosition;
+              const g = grab('ord', p.id, `${i + 1}번 ${p.name}`);
               return (
-                <div key={s} {...g} className={`rd-pit ${g.className}`}>
-                  <RdFace player={p} className="h-10 w-[34px]" />
-                  <span className="min-w-0"><small>{innLabel[s]}</small><b>{p.name}</b></span>
-                  <span className={`v ${rdTone(v) === 'prism' ? 'prism-tx' : ''}`} style={rdToneStyle(v)}>{v.toFixed(1)}</span>
+                <div key={p.id} {...g} className={`rd-row ${g.className}`}>
+                  <span className="rd-no">{i + 1}</span>
+                  <span className={`rd-pos ${dh ? 'dh' : off ? 'off' : ''}`}>{RD_CHIP[p.slot] || p.slot}</span>
+                  <span className="rd-hand">{p.hand}</span>
+                  <RdFace player={p} className="h-[34px] w-[34px]" />
+                  <span className="rd-nm">{p.name}</span>
+                  <b className={`rd-ovr ${rdToneCls(e.overall)}`} style={rdToneStyle(e.overall)}>{e.overall}</b>
                 </div>
               );
             })}
           </div>
         </section>
-        <section className="rd-band ui-cut ui-glass ui-frame" style={{ '--a': '#34d399' }}>
-          <span className="ui-lab font-display" style={{ '--a': '#34d399' }}>Synergy</span>
-          <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-            {syns.length === 0 ? <span className="text-sm text-gray-500">완성된 시너지가 없습니다</span>
-              : syns.map((s, i) => (
-                <span key={s.id} className="rd-syn" style={{ '--s': RD_SYN_TONES[i % RD_SYN_TONES.length] }}><b>{s.name}</b><span>{s.effect}</span></span>
-              ))}
+
+        {/* 가운데: 수비 포지션 */}
+        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '16px' }}>
+          <div className="rd-ph"><div><h3>수비 포지션</h3><em>DEFENSE</em></div><span className="sum"><small>수비 OVR 합계</small><b>{now.defSum}</b></span></div>
+          <div className="rd-fieldbox">
+            <div className="rd-field">
+              {Object.entries(RD_XY).map(([slot, [x, y]]) => {
+                const p = bySlot(slot);
+                if (!p) return null;
+                const pitch = PITCH_SLOTS.includes(slot);
+                return (
+                  <div key={slot} className="rd-fc" style={{ left: `${x}%`, top: `${y}%`, ...(pitch ? { width: 116, height: 134 } : null) }}>
+                    {card(p, slot, pitch ? 'pit' : 'def')}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
+
+        {/* 오른쪽: 투수 로테이션 · 시너지 */}
+        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)' }}>
+          <section className="rd-pan ui-cut" style={{ '--a': '#f87171', '--c': '16px' }}>
+            <div className="rd-ph"><div><h3>투수 로테이션</h3><em>PITCHING STAFF</em></div><span className="sum"><small>투수 OVR 합계</small><b>{now.pitSum}</b></span></div>
+            <div className="rd-rot">
+              {RD_ROT.map(([slot, ko, en]) => {
+                const p = bySlot(slot);
+                return (
+                  <div key={slot} className="rd-slot">
+                    <span>{ko}<em>{en}</em></span>
+                    <div>
+                      {p ? card(p, slot, 'pit') : <span className="rd-empty ui-cut" style={{ '--c': '8px' }}>＋</span>}
+                      <span className="rd-empty ui-cut" style={{ '--c': '8px' }}>＋</span>
+                      <span className="rd-empty ui-cut" style={{ '--c': '8px' }}>＋</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="rd-pan ui-cut" style={{ '--a': '#fbbf24', '--c': '16px' }}>
+            <div className="rd-ph"><div><h3>시너지 효과</h3><em>SYNERGY</em></div><span className="sum"><small>적용 중</small><b>{active.length}/{syns.filter((s) => s.count > 0).length}</b></span></div>
+            <div className="rd-syn syn-scroll">
+              {active.map((s, i) => {
+                const tone = RD_SYN_TONES[i % RD_SYN_TONES.length];
+                return (
+                  <div key={s.id} className="rd-sc" style={{ '--s': tone }}>
+                    <span className="ic font-display">{s.name[0]}</span>
+                    <span className="min-w-0"><b>{s.name}</b><span className="ef">{s.effect}</span><small>{s.cond}</small></span>
+                    <span className="rd-tag font-display">{s.members.length}명</span>
+                  </div>
+                );
+              })}
+              {next && (
+                <div className="rd-sc lock">
+                  <span className="ic"><LockIcon /></span>
+                  <span className="min-w-0"><b>{next.name}</b><span className="ef">{next.tiers[next.level].effect}</span><small>{next.cond}</small></span>
+                  <span className="rd-tag font-display">{next.cur}/{next.need}</span>
+                </div>
+              )}
+              {active.length === 0 && !next && <p className="p-2 text-sm text-gray-500">완성된 시너지가 없습니다</p>}
+            </div>
+          </section>
+        </aside>
       </div>
 
       {drag && createPortal(
         <div className="rd-ghost" style={{ left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w }}>
           {(() => {
-            if (drag.k === 'ord') { const p = lineup.find((x) => x.id === drag.v); return p ? <div className="rd-who p-2">{<RdFace player={p} className="h-[46px] w-10" />}<b>{p.name}</b><RdChip slot={p.slot} dh={p.slot === 'DH'} /></div> : null; }
-            const p = drag.k === 'def' ? bySlot(drag.v) : bySlot(drag.v);
-            return p ? <div className="rd-who p-2"><RdFace player={p} className="h-9 w-8" /><b>{p.name}</b><RdChip slot={drag.v} dh={drag.v === 'DH'} /></div> : null;
+            const p = drag.k === 'ord' ? lineup.find((x) => x.id === drag.v) : bySlot(drag.v);
+            if (!p) return null;
+            return (
+              <div className="rd-row" style={{ gridTemplateColumns: '38px 34px minmax(0,1fr) 46px', background: 'rgba(5,9,16,.94)' }}>
+                <span className={`rd-pos ${p.slot === 'DH' ? 'dh' : PITCH_SLOTS.includes(p.slot) ? 'p' : ''}`}>{RD_CHIP[p.slot] || p.slot}</span>
+                <RdFace player={p} className="h-[34px] w-[34px]" />
+                <span className="rd-nm">{p.name}</span>
+                <b className="rd-ovr" style={rdToneStyle(effOf(p).overall)}>{effOf(p).overall}</b>
+              </div>
+            );
           })()}
         </div>,
         document.body,
