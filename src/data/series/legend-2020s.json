@@ -1,0 +1,33 @@
+{
+  "id": "legend-2020s",
+  "kind": "legend",
+  "year": null,
+  "title": "2020년대 레전드",
+  "franchise": null,
+  "subtitle": "2020~2025 KBO 최고 시즌 모음",
+  "blurb": "외국인 에이스의 탈삼진 신기록과 김도영의 38-40이 나온 2020년대. 로하스·이정후·페디·폰세 MVP 시즌까지 모았다.",
+  "notes": [
+    "모든 선수는 기존 시리즈(2020-nc·2021-*·2022-*·2023-*·2024-*·2025-*·legend-*)에 있는 같은 시즌 값을 그대로 복사.",
+    "2020 시즌은 타고투저 보정이 기존 값에 이미 반영됨."
+  ],
+  "players": [
+    { "personId": "페디", "name": "페디", "year": 2023, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 94, "control": 87, "stamina": 88, "stability": 97 }, "note": "투수 3관왕·MVP", "source": "30G 180.1IP 20승6패 ERA2.00 209K 35BB WHIP0.95 — KBO" },
+    { "personId": "폰세", "name": "폰세", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 97, "control": 84, "stamina": 88, "stability": 98 }, "note": "4관왕·MVP·252K 신기록", "source": "29G 180.2IP 17승1패 ERA1.89 252K 41BB WHIP0.94 — KBO" },
+    { "personId": "안우진", "name": "안우진", "year": 2022, "team": "키움", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 95, "control": 78, "stamina": 92, "stability": 96 }, "note": "평균자책·탈삼진 1위", "source": "30G 196IP ERA2.11 224K 55BB WHIP0.95 15승 — KBO 기록실" },
+    { "personId": "미란다", "name": "미란다", "year": 2021, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 97, "control": 69, "stamina": 86, "stability": 91 }, "note": "MVP·단일시즌 최다 225K", "source": "28G 173.2IP ERA2.33 225K 63BB WHIP1.14 14승 — KBO 기록실" },
+    { "personId": "김광현", "name": "김광현", "year": 2022, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 82, "control": 80, "stamina": 86, "stability": 93 }, "note": "13승 ERA 2.13", "source": "28G 173.1IP ERA2.13 153K 45BB WHIP1.07 13승 — KBO 기록실" },
+    { "personId": "고우석", "name": "고우석", "year": 2022, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 71, "stamina": 55, "stability": 98 }, "note": "42세이브 세이브왕", "source": "61G 60.2IP ERA1.48 80K 21BB WHIP0.96 4승2패 42SV — KBO 기록실" },
+    { "personId": "오승환", "name": "오승환", "year": 2021, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 84, "control": 80, "stamina": 52, "stability": 94 }, "note": "44세이브 최고령 세이브왕", "source": "64G 62IP 0승2패 44SV ERA2.03 57K 16BB WHIP1.16 — KBO" },
+    { "personId": "조병현", "name": "조병현", "year": 2025, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 79, "stamina": 50, "stability": 98 }, "note": "30세이브 ERA 1.60", "source": "69G 5승4패 30SV ERA1.60 67.1IP 79K 18BB WHIP0.89 — KBO 기록실" },
+    { "personId": "양의지", "name": "양의지", "year": 2020, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 86, "contact": 88, "speed": 52, "defense": 92 }, "note": "KS MVP·포수 골든글러브", "source": ".328/.400 33HR 5SB(2CS) 528PA 124타점 — KBO 기록실" },
+    { "personId": "오스틴", "name": "오스틴", "year": 2024, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 86, "contact": 86, "speed": 64, "defense": 66 }, "note": "타점왕·1루수 골든글러브", "source": ".319/.384 32HR 132타점 12SB 140G — KBO 기록실" },
+    { "personId": "박민우", "name": "박민우", "year": 2020, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 55, "contact": 93, "speed": 72, "defense": 82 }, "note": "2루수 골든글러브", "source": ".345/.402 8HR 13SB(6CS) 530PA — KBO 기록실" },
+    { "personId": "김도영", "name": "김도영", "year": 2024, "team": "KIA", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 96, "speed": 93, "defense": 74 }, "note": "38-40·정규시즌 MVP", "source": ".347/.420 38HR 40SB(4CS) 625PA 143득점, 3루수 GG — KBO 기록실" },
+    { "personId": "노시환", "name": "노시환", "year": 2023, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 87, "contact": 79, "speed": 45, "defense": 78 }, "note": "홈런·타점 2관왕", "source": ".298 31HR 101RBI 2SB 595PA(131G) — KBO 기록실" },
+    { "personId": "김하성", "name": "김하성", "year": 2020, "team": "키움", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 79, "speed": 76, "defense": 86 }, "note": "30홈런·유격수 GG", "source": "138G .306/.397/.523 30HR 109RBI 23SB — namu" },
+    { "personId": "이정후", "name": "이정후", "year": 2022, "team": "키움", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 76, "contact": 94, "speed": 55, "defense": 86 }, "note": "MVP·타격 5관왕", "source": ".349/.421 23HR 5SB(0CS) 627PA(142G) — KBO 기록실" },
+    { "personId": "로하스", "name": "로하스", "year": 2020, "team": "KT", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 95, "contact": 92, "speed": 55, "defense": 72 }, "note": "타격 4관왕·MVP", "source": "142G .349/.417 47HR 135RBI 116득점 SLG.680 — 기사·namu" },
+    { "personId": "구자욱", "name": "구자욱", "year": 2024, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 88, "contact": 93, "speed": 68, "defense": 76 }, "note": "33홈런·115타점·골든글러브", "source": ".343/.417/.627 33HR 115타점 13SB(129G) — KBO" },
+    { "personId": "레이예스", "name": "레이예스", "year": 2024, "team": "롯데", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 66, "contact": 97, "speed": 55, "defense": 72 }, "note": "KBO 시즌 최다 202안타", "source": ".352/.394 15HR 111타점 5SB 202안타 144G — namu·기사" }
+  ]
+}
