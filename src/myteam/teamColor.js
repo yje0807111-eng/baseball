@@ -23,7 +23,6 @@ export function statColor(v, team = '#10b981') {
   const t = norm(v);
   return {
     bar: `linear-gradient(90deg, #334155, ${mix('#64748b', team, t)})`,
-    glow: t > 0.8 ? `0 0 6px ${team}66` : 'none',
     num: mix('#94a3b8', mix(team, '#ffffff', 0.35), t),
   };
 }

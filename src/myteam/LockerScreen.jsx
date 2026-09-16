@@ -99,8 +99,8 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         return (
           <span key={k} className="min-w-0">
             <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
-            <span className="relative mt-[4px] block h-[4px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar, boxShadow: statColor(v, posColor(p)).glow }} />
+            <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} />
             </span>
           </span>
         );
@@ -137,7 +137,7 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease }) {
           return (
             <div key={k} className="flex items-center gap-3 py-1 text-sm">
               <span className="w-10 text-gray-400">{label}</span>
-              <div className="h-2 flex-1 bg-white/10"><i className="block h-full" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar, boxShadow: statColor(v, posColor(p)).glow }} /></div>
+              <div className="relative h-[6px] flex-1 bg-white/[0.08]"><i className="block h-full" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} /></div>
               <b className="w-8 text-right font-display" style={{ color: statColor(v, posColor(p)).num }}>{v}</b>
             </div>
           );
