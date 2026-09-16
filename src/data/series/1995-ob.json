@@ -1,0 +1,36 @@
+{
+  "id": "1995-ob",
+  "champion": true,
+  "kind": "team",
+  "year": 1995,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "한국시리즈 우승 · 정규시즌 1위",
+  "blurb": "창단 원년 이후 13년 만의 우승. 김상호가 정규시즌 MVP, 김민호가 한국시리즈 MVP를 받았다.",
+  "notes": [
+    "1995년은 투고타저 시즌이라 규격대로 타자 power·contact +2, 투수 stability -3 보정을 적용했다.",
+    "김상진 4사구 52개는 볼넷+사구 합계라 control은 그 값 기준 추정. 김태형·이도형·정수근 등 수비 수치는 평판 기준 추정치.",
+    "김형석은 1995년 지명타자 부문 골든글러브 수상자지만, 나무위키 1995년 한국시리즈 OB 엔트리에 1루수로 올라 있어 1B로 넣었다.",
+    "18명 구성: 장호연·진필중·이도형·임형석·정수근을 더해 채웠다."
+  ],
+  "players": [
+    { "personId": "김상진(1970)", "name": "김상진", "year": 1995, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 81, "stamina": 94, "stability": 90 }, "note": "17승·3연속 완봉승", "source": "27G 209.2IP 17승7패 ERA2.11 159K 52사사구 WHIP1.04 — namu" },
+    { "personId": "권명철", "name": "권명철", "year": 1995, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 73, "stamina": 91, "stability": 87 }, "note": "15승 2선발", "source": "28G 193.1IP 15승8패 ERA2.47 112K 61BB WHIP1.08 — namu" },
+    { "personId": "박철순", "name": "박철순", "year": 1995, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 60, "stamina": 64, "stability": 65 }, "note": "원년 영웅의 9승", "source": "20G 94.2IP 9승2패 ERA4.47 67K 42BB — kowiki" },
+    { "personId": "장호연", "name": "장호연", "year": 1995, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 48, "control": 61, "stamina": 62, "stability": 55 }, "note": "OB 원클럽맨 마지막 해", "source": "15G 79.1IP 7승6패 ERA5.33 28K 34BB WHIP1.46 — namu" },
+    { "personId": "이용호(1970)", "name": "이용호", "year": 1995, "team": "OB", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 70, "control": 71, "stamina": 60, "stability": 91 }, "note": "ERA 1.95 중간계투", "source": "40G 101.2IP 3승5패 10SV ERA1.95 68K 35BB — kowiki" },
+    { "personId": "김경원", "name": "김경원", "year": 1995, "team": "OB", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 55, "stamina": 58, "stability": 83 }, "note": "15세이브 마무리", "source": "44G 73.2IP 6승3패 15SV ERA2.93 65K 38BB — kowiki" },
+    { "personId": "진필중", "name": "진필중", "year": 1995, "team": "OB", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 56, "control": 77, "stamina": 60, "stability": 80 }, "note": "신인 6승", "source": "36G 109.1IP 6승2패 2SV ERA3.21 50K 32BB — kowiki" },
+    { "personId": "김태형(1967)", "name": "김태형", "year": 1995, "team": "OB", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 46, "contact": 54, "speed": 42, "defense": 86 }, "note": "우승 안방마님", "source": "93G .216 1HR 19타점 1SB — kowiki" },
+    { "personId": "이도형", "name": "이도형", "year": 1995, "team": "OB", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 79, "speed": 42, "defense": 66 }, "note": "공격형 포수 14홈런", "source": "95G .290 14HR 48타점 1SB — kowiki" },
+    { "personId": "김형석(1962)", "name": "김형석", "year": 1995, "team": "OB", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 72, "speed": 44, "defense": 58 }, "note": "지명타자 골든글러브", "source": "121G .270 10HR 68타점 2SB — kowiki" },
+    { "personId": "이명수", "name": "이명수", "year": 1995, "team": "OB", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 61, "contact": 79, "speed": 42, "defense": 76 }, "note": "주장 2루수", "source": "111G .290 9HR 32타점 1SB — kowiki" },
+    { "personId": "안경현", "name": "안경현", "year": 1995, "team": "OB", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 52, "contact": 75, "speed": 42, "defense": 72 }, "note": "주전 도약", "source": "103G .280 5HR 38타점 0SB — namu" },
+    { "personId": "임형석", "name": "임형석", "year": 1995, "team": "OB", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 49, "contact": 62, "speed": 59, "defense": 70 }, "note": "", "source": "82G .240 3HR 35타점 7SB — namu" },
+    { "personId": "김민호(1969)", "name": "김민호", "year": 1995, "team": "OB", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 47, "contact": 78, "speed": 93, "defense": 89 }, "note": "한국시리즈 MVP", "source": "113G .288 2HR 30타점 47SB OBP.353 유격수 골든글러브 — namu" },
+    { "personId": "김상호(1965)", "name": "김상호", "year": 1995, "team": "OB", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 73, "speed": 64, "defense": 80 }, "note": "MVP·홈런왕·타점왕", "source": "126G .272 25HR 101타점 10SB OPS.809 — namu" },
+    { "personId": "심정수", "name": "심정수", "year": 1995, "team": "OB", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 75, "contact": 76, "speed": 52, "defense": 66 }, "note": "고졸 신인 21홈런", "source": "116G .282 21HR 59타점 4SB OBP.344 — kowiki" },
+    { "personId": "장원진", "name": "장원진", "year": 1995, "team": "OB", "position": "OF", "hand": "S", "isForeign": false, "stats": { "power": 61, "contact": 69, "speed": 61, "defense": 78 }, "note": "", "source": "123G .260 9HR 58타점 8SB — namu" },
+    { "personId": "정수근", "name": "정수근", "year": 1995, "team": "OB", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 53, "speed": 80, "defense": 80 }, "note": "신인 25도루", "source": "117G .214 0HR 10타점 25SB — kowiki" }
+  ]
+}

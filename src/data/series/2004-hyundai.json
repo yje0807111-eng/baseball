@@ -1,0 +1,39 @@
+{
+  "id": "2004-hyundai",
+  "champion": true,
+  "kind": "team",
+  "year": 2004,
+  "title": "현대 유니콘스",
+  "franchise": "HYUNDAI",
+  "subtitle": "한국시리즈 우승 · 정규시즌 1위",
+  "blurb": "무승부 3번으로 9차전까지 간 삼성과의 한국시리즈를 4승 3무 2패로 이기고 2년 연속 우승했다. 조용준이 시리즈 MVP.",
+  "notes": [
+    "전준호·브룸바는 legend-hyundai에 2004 시즌으로 이미 있어 포지션·투타·능력치를 그대로 옮겨왔다.",
+    "송신영 2004 볼넷 미확인 — control 70은 추정치.",
+    "조용준 2004 피안타 미확인 — WHIP 보정 미적용.",
+    "신철인은 29이닝으로 표본이 짧아 stability를 90에서 85로 낮춰 적었다.",
+    "심정수는 무릎 부상으로 지명타자 출장이 많았다는 서술(위키백과)에 따라 DH로 등록.",
+    "브룸바는 정성훈이 9월 이후 결장하면서 3루수로도 나섰으나, legend-hyundai 등록값과 맞추려고 DH를 유지했다.",
+    "2004년은 타고투저·투고타저 보정 구간이 아니라 시대 보정 미적용."
+  ],
+  "players": [
+    { "personId": "정민태", "name": "정민태", "year": 2004, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 70, "control": 81, "stamina": 83, "stability": 62 }, "note": "7승 14패 ERA 5.00", "source": "28G 7승14패 165.2IP ERA5.00 123K 42BB 193H — 위키백과" },
+    { "personId": "김수경", "name": "김수경", "year": 2004, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 66, "control": 62, "stamina": 80, "stability": 74 }, "note": "11승", "source": "26G 11승8패 152.2IP ERA4.01 100K 65BB 151H WHIP1.395 — namu" },
+    { "personId": "오재영", "name": "오재영", "year": 2004, "team": "현대", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 70, "control": 70, "stamina": 79, "stability": 74 }, "note": "신인왕·10승", "source": "30G 10승9패 149IP ERA3.99 113K 53BB — 위키백과" },
+    { "personId": "조용준", "name": "조용준", "year": 2004, "team": "현대", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 77, "stamina": 58, "stability": 92 }, "note": "34세이브·한국시리즈 MVP", "source": "63G 10승3패34SV 75IP ERA2.28 56K 22BB — 위키백과" },
+    { "personId": "송신영", "name": "송신영", "year": 2004, "team": "현대", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 70, "stamina": 58, "stability": 79 }, "note": "8승 무패·6홀드", "source": "59G 8승0패1SV6HLD 81.2IP ERA3.53 64K — 위키백과" },
+    { "personId": "신철인", "name": "신철인", "year": 2004, "team": "현대", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 60, "stamina": 45, "stability": 85 }, "note": "ERA 2.48", "source": "29G 1승1홀드 29IP ERA2.48 30K 13BB 24H — namu" },
+    { "personId": "김동수", "name": "김동수", "year": 2004, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 42, "contact": 64, "speed": 45, "defense": 85 }, "note": "", "source": "113G .251 2HR 31RBI 2SB 32BB 78H — 위키백과" },
+    { "personId": "강귀태", "name": "강귀태", "year": 2004, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 52, "contact": 74, "speed": 44, "defense": 76 }, "note": "", "source": "84G .284 4HR 21RBI 1SB 9BB 40H — 위키백과" },
+    { "personId": "이숭용", "name": "이숭용", "year": 2004, "team": "현대", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 78, "speed": 42, "defense": 68 }, "note": "85타점", "source": "133G .293 9HR 85RBI 0SB 58BB 137H — 위키백과" },
+    { "personId": "채종국", "name": "채종국", "year": 2004, "team": "현대", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 71, "speed": 53, "defense": 78 }, "note": "", "source": "128G .275 4HR 34RBI 4SB 22BB 90H — 위키백과" },
+    { "personId": "김일경", "name": "김일경", "year": 2004, "team": "현대", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 41, "contact": 55, "speed": 50, "defense": 78 }, "note": "", "source": "83G .221 0HR 9RBI 3SB 12BB 27H — 위키백과" },
+    { "personId": "정성훈(1980)", "name": "정성훈", "year": 2004, "team": "현대", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 57, "contact": 69, "speed": 44, "defense": 78 }, "note": "", "source": "118G .266 8HR 59RBI 1SB 54BB 125H — 위키백과" },
+    { "personId": "박진만", "name": "박진만", "year": 2004, "team": "현대", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 75, "speed": 56, "defense": 92 }, "note": "17홈런·유격수 GG", "source": "129G .286 17HR 69RBI 6SB 48BB 124H — 위키백과" },
+    { "personId": "전준호", "name": "전준호", "year": 2004, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 77, "speed": 95, "defense": 84 }, "note": "53도루 도루왕", "source": "132G .292 4HR 48RBI 53SB 63BB — KBO 기록실" },
+    { "personId": "송지만", "name": "송지만", "year": 2004, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 69, "speed": 56, "defense": 76 }, "note": "22홈런", "source": "132G .265 22HR 74RBI 6SB 63BB 129H — 위키백과" },
+    { "personId": "정수성", "name": "정수성", "year": 2004, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 40, "speed": 70, "defense": 80 }, "note": "", "source": "88G .125 0HR 1RBI 13SB 5BB — 위키백과" },
+    { "personId": "심정수", "name": "심정수", "year": 2004, "team": "현대", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 81, "contact": 65, "speed": 42, "defense": 55 }, "note": "22홈런·78타점", "source": "102G .256 22HR 78RBI 0SB 75BB — 위키백과" },
+    { "personId": "브룸바", "name": "브룸바", "year": 2004, "team": "현대", "position": "DH", "hand": "R", "isForeign": true, "stats": { "power": 87, "contact": 94, "speed": 50, "defense": 60 }, "note": "외국인 첫 타격왕", "source": ".343/.468/.608 33HR 105RBI 163H — 경기일보·경향신문" }
+  ]
+}

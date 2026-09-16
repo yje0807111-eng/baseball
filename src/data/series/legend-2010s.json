@@ -1,0 +1,34 @@
+{
+  "id": "legend-2010s",
+  "kind": "legend",
+  "year": null,
+  "title": "2010년대 레전드",
+  "franchise": null,
+  "subtitle": "2010~2019 KBO 최고 시즌 모음",
+  "blurb": "타고투저와 50홈런, 첫 40-40이 나온 2010년대. 이대호 7관왕부터 박병호·테임즈·김재환 MVP 시즌까지 모았다.",
+  "notes": [
+    "모든 선수는 기존 시리즈(2010-guangzhou·2014-nexen·2016-doosan·2018-jakarta·2019-premier12·legend-*)에 있는 같은 시즌 값을 그대로 복사.",
+    "2014~2018 시즌은 타고투저 보정이 기존 값에 이미 반영됨.",
+    "손승락 2013은 K·BB 미확인 (기존 시리즈와 동일)."
+  ],
+  "players": [
+    { "personId": "류현진", "name": "류현진", "year": 2010, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 83, "stamina": 91, "stability": 97 }, "note": "평균자책점 1.82 1위", "source": "25G 16승4패 192.2IP ERA1.82 187K 45BB 149H — KBO 기록실" },
+    { "personId": "윤석민", "name": "윤석민", "year": 2011, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 91, "control": 80, "stamina": 86, "stability": 92 }, "note": "투수 4관왕·MVP", "source": "27G 17승5패 172.1IP ERA2.45 178K 44BB WHIP1.05 — 위키백과" },
+    { "personId": "양현종", "name": "양현종", "year": 2017, "team": "KIA", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 76, "control": 83, "stamina": 91, "stability": 86 }, "note": "20승·정규시즌/KS MVP", "source": "20승 ERA3.44 193.1IP 158K 45BB — namu" },
+    { "personId": "니퍼트", "name": "니퍼트", "year": 2016, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 80, "control": 73, "stamina": 86, "stability": 89 }, "note": "22승·정규시즌 MVP", "source": "28G 22승3패 167.2IP ERA2.95 142K 57BB WHIP1.24 — 위키백과" },
+    { "personId": "김광현", "name": "김광현", "year": 2019, "team": "SK", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 81, "control": 86, "stamina": 90, "stability": 90 }, "note": "17승", "source": "31G 17승6패 ERA2.51 190.1IP 180K 38BB WHIP1.24 — KBO 기록실" },
+    { "personId": "오승환", "name": "오승환", "year": 2011, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 95, "control": 87, "stamina": 50, "stability": 99 }, "note": "47세이브·ERA 0.63", "source": "54G 1승47SV 57IP ERA0.63 76K 11BB — 위키백과" },
+    { "personId": "손승락", "name": "손승락", "year": 2013, "team": "넥센", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 80, "stamina": 55, "stability": 91 }, "note": "46세이브·구원왕·GG", "source": "57G 3승2패46SV 62.2IP ERA2.30 (K·BB 미확인) — 아시아경제" },
+    { "personId": "양의지", "name": "양의지", "year": 2018, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 94, "speed": 57, "defense": 92 }, "note": "타율 .358", "source": "133G .358 23HR 77RBI 6SB 45BB — 위키백과" },
+    { "personId": "박병호", "name": "박병호", "year": 2015, "team": "넥센", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 99, "contact": 90, "speed": 60, "defense": 62 }, "note": "53홈런·146타점", "source": ".343/.436/.714 53HR 146RBI 10SB, 1루수 GG — kowiki" },
+    { "personId": "테임즈", "name": "테임즈", "year": 2015, "team": "NC", "position": "1B", "hand": "L", "isForeign": true, "stats": { "power": 97, "contact": 98, "speed": 90, "defense": 65 }, "note": "KBO 첫 40-40·MVP", "source": "142G .381/.497 47HR 140RBI 40SB 103BB — 위키백과" },
+    { "personId": "서건창", "name": "서건창", "year": 2014, "team": "넥센", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 98, "speed": 94, "defense": 80 }, "note": "201안타·정규시즌 MVP", "source": ".370 201H 7HR 48SB 59BB/543AB, 2루수 GG — kowiki" },
+    { "personId": "강정호", "name": "강정호", "year": 2014, "team": "넥센", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 94, "speed": 50, "defense": 86 }, "note": "유격수 40홈런", "source": ".356/.459/.739 40HR 117RBI 3SB 68BB, 유격수 GG — kowiki" },
+    { "personId": "최정", "name": "최정", "year": 2017, "team": "SK", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 95, "contact": 83, "speed": 48, "defense": 82 }, "note": "46홈런·홈런왕", "source": ".316/.427/.684 46HR (G·SB 미확인) — namu" },
+    { "personId": "이대호", "name": "이대호", "year": 2010, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 96, "contact": 98, "speed": 40, "defense": 58 }, "note": "타격 7관왕·3루수 GG", "source": ".364 44HR 133타점 0SB 61BB 127G 174안타 — kowiki" },
+    { "personId": "최형우", "name": "최형우", "year": 2016, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 83, "contact": 97, "speed": 42, "defense": 62 }, "note": "타율 .376·144타점", "source": ".376 31HR 144RBI — 삼성 라이온즈 구단 발표·위키백과" },
+    { "personId": "김재환", "name": "김재환", "year": 2018, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 94, "contact": 88, "speed": 45, "defense": 64 }, "note": "44홈런·MVP", "source": "139G .334 44HR 133RBI 2SB 59BB — 위키백과" },
+    { "personId": "김현수", "name": "김현수", "year": 2018, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 95, "speed": 43, "defense": 68 }, "note": "타율 .362 타격왕", "source": ".362 20HR 101타점 1SB 47BB 117G — KBO 기록실" },
+    { "personId": "손아섭", "name": "손아섭", "year": 2017, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 88, "speed": 78, "defense": 78 }, "note": "20홈런-20도루", "source": ".335 20HR 80타점 25SB 83BB 193안타 144G — kowiki" }
+  ]
+}

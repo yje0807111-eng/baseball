@@ -1,0 +1,38 @@
+{
+  "id": "2024-premier12",
+  "kind": "national",
+  "year": 2024,
+  "title": "2024 프리미어12 국가대표",
+  "franchise": null,
+  "subtitle": "조별리그 3승 2패 · 탈락",
+  "blurb": "대만·일본에 지고 쿠바·도미니카·호주를 꺾어 3승 2패, B조 3위로 슈퍼라운드 진출에 실패했다. 우승은 대만.",
+  "notes": [
+    "최종 엔트리 28명(11월 7일 KBO 발표): 투수 정해영·최지민·곽도규(KIA), 유영찬·임찬규(LG), 곽빈·김택연·이영하·최승용(두산), 고영표·박영현·소형준(KT), 조병현(SSG), 김서현(한화) / 포수 박동원(LG)·김형준(NC) / 내야 김도영(KIA), 문보경·신민재(LG), 박성한(SSG), 나승엽(롯데), 김휘집·김주원(NC), 송성문(키움) / 외야 최원준(KIA), 홍창기(LG), 윤동희(롯데), 이주형(키움) — xportsnews 공식발표 기사.",
+    "대회 성적: 11/13 대만 3-6 패, 11/14 쿠바 8-4 승, 11/15 일본 3-6 패, 11/16 도미니카 9-6 승, 11/18 호주 5-2 승. B조 1위 일본(5승), 2위 대만(4승1패)이 슈퍼라운드 진출, 한국은 3위로 탈락 — namu·enwiki.",
+    "18명만 실었다. 최지민·곽도규·이영하·최승용·소형준·김서현·문보경·김휘집·김주원·이주형은 미수록. 최승용은 2024 정규시즌 12G 27IP ERA6.00으로 표본이 작아 뺐다.",
+    "곽빈·김택연(두산), 임찬규·유영찬·박동원·신민재·홍창기(LG), 정해영·김도영·최원준(KIA)은 이미 있는 2024 구단 시리즈 파일의 값을 그대로 썼다.",
+    "새로 조사한 선수 기록은 namu.wiki 선수경력/2024년 문서와 한국어 위키백과 연도별 기록표 기준. statiz는 접속 불가로 대조하지 못했다.",
+    "박영현 볼넷 수는 직접 확인하지 못해 WHIP 1.11과 피안타 63개로 역산(약 22개)해 control을 매겼다.",
+    "수비(defense)는 주 포지션·출장 경기 기반 추정. 2024는 시대 보정 대상 시즌이 아니라 보정 없이 기준표를 그대로 적용했다."
+  ],
+  "players": [
+    { "personId": "곽빈", "name": "곽빈", "year": 2024, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 59, "stamina": 84, "stability": 71 }, "note": "15승 다승왕", "source": "30G 15승9패 ERA4.24 167.2IP 154K 76BB WHIP1.30 — KBO 기록실" },
+    { "personId": "임찬규", "name": "임찬규", "year": 2024, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 85, "control": 74, "stamina": 75, "stability": 76 }, "note": "10승", "source": "25G 10승6패 ERA3.83 134IP 136K 42BB WHIP1.39 — KBO 기록실" },
+    { "personId": "고영표", "name": "고영표", "year": 2024, "team": "KT", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 93, "stamina": 66, "stability": 60 }, "note": "100이닝 볼넷 14개", "source": "18G 6승8패 ERA4.95 100IP 79K 14BB WHIP1.55 — namu·kowiki" },
+    { "personId": "김택연", "name": "김택연", "year": 2024, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 57, "stamina": 50, "stability": 93 }, "note": "신인왕·19세이브", "source": "60G 3승2패 19SV 4HLD ERA2.08 65IP 78K 31BB WHIP1.26 — KBO 기록실" },
+    { "personId": "박영현", "name": "박영현", "year": 2024, "team": "KT", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 77, "stamina": 55, "stability": 80 }, "note": "25세이브", "source": "66G 10승2패 25SV ERA3.52 76.2IP 87K WHIP1.11 — namu" },
+    { "personId": "정해영", "name": "정해영", "year": 2024, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 75, "stamina": 50, "stability": 90 }, "note": "31세이브·세이브왕", "source": "53G 50.2IP ERA2.49 50K 16BB WHIP1.24 31SV — KBO 기록실" },
+    { "personId": "유영찬", "name": "유영찬", "year": 2024, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 57, "stamina": 50, "stability": 85 }, "note": "26세이브 마무리", "source": "62G 7승5패 26SV 1HLD ERA2.97 63.2IP 77K 30BB WHIP1.43 — KBO 기록실" },
+    { "personId": "조병현", "name": "조병현", "year": 2024, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 92, "control": 62, "stamina": 55, "stability": 79 }, "note": "12세이브 12홀드", "source": "76G 4승6패 12SV 12HLD ERA3.58 73IP 96K 31BB WHIP1.14 — namu" },
+    { "personId": "박동원", "name": "박동원", "year": 2024, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 71, "speed": 44, "defense": 84 }, "note": "20홈런 포수", "source": ".272/.349 20HR 80타점 1SB 498PA(130G) — KBO 기록실" },
+    { "personId": "김형준(2001)", "name": "김형준", "year": 2024, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 48, "speed": 42, "defense": 84 }, "note": "17홈런 포수", "source": "119G .195 17HR 50타점 0SB, NC 포수 중 최다 출장 — kowiki" },
+    { "personId": "나승엽", "name": "나승엽", "year": 2024, "team": "롯데", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 57, "contact": 82, "speed": 45, "defense": 58 }, "note": "출루율 .411", "source": "121G .312/.411 7HR 66타점 1SB 127H 69BB OPS.880 — namu" },
+    { "personId": "신민재", "name": "신민재", "year": 2024, "team": "LG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 79, "speed": 85, "defense": 80 }, "note": "32도루", "source": ".297/.401 0HR 40타점 32SB 64BB 474PA(128G) — KBO 기록실" },
+    { "personId": "김도영", "name": "김도영", "year": 2024, "team": "KIA", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 96, "speed": 93, "defense": 74 }, "note": "38-40·정규시즌 MVP", "source": ".347/.420 38HR 40SB(4CS) 625PA 143득점, 3루수 GG — KBO 기록실" },
+    { "personId": "송성문", "name": "송성문", "year": 2024, "team": "키움", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 71, "contact": 92, "speed": 77, "defense": 78 }, "note": "21도루 성공률 100%", "source": "142G .340/.409 19HR 104타점 21SB(0CS) — namu" },
+    { "personId": "박성한", "name": "박성한", "year": 2024, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 80, "speed": 68, "defense": 84 }, "note": "타율 .301", "source": "137G .301/.380 10HR 67타점 13SB(3CS) — namu" },
+    { "personId": "홍창기", "name": "홍창기", "year": 2024, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 91, "speed": 62, "defense": 74 }, "note": "출루율 .447", "source": ".336/.447 5HR 73타점 10SB 96BB 637PA(139G) — KBO 기록실" },
+    { "personId": "윤동희", "name": "윤동희", "year": 2024, "team": "롯데", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 78, "speed": 59, "defense": 80 }, "note": "97득점", "source": "141G .293/.376 14HR 85타점 7SB 156H 97득점 — kowiki·namu" },
+    { "personId": "최원준", "name": "최원준", "year": 2024, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 77, "speed": 76, "defense": 76 }, "note": "", "source": ".292 9HR 21SB(9CS) 438AB(136G) 50BB — kowiki" }
+  ]
+}

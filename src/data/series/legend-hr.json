@@ -1,0 +1,35 @@
+{
+  "id": "legend-hr",
+  "kind": "legend",
+  "year": null,
+  "title": "홈런왕 레전드",
+  "franchise": null,
+  "subtitle": "역대 홈런왕 시즌과 홈런을 막은 투수",
+  "blurb": "이만수 트리플크라운부터 이승엽 56홈런, 박병호 52홈런까지 KBO 홈런왕 시즌에 피홈런이 손꼽히게 적었던 투수들을 더했다.",
+  "notes": [
+    "타자 13명은 모두 그 해 KBO 홈런왕 시즌. 기존 시리즈(legend-*·팀·국가대표)에 있는 같은 시즌 값을 그대로 복사.",
+    "투수는 KBO 기록실 규정이닝 투수의 9이닝당 피홈런 순위로 골랐다. 선동열 1986(262.2IP 2HR)·김용수 1986은 기존 값 복사.",
+    "피홈런 비율 1위는 최일언 1988(115.2IP 0HR), 선동열은 1990(190.1IP 1HR)이 더 낮지만 커리어 최고 시즌 규칙에 따라 최일언 1986·선동열 1986을 썼다.",
+    "송진우 1990·김용수 1986은 규정이닝을 채운 구원 투수 시즌. 최일언·장호연·송진우 능력치는 KBO 기록실 수치로 새로 산정(투고타저 보정 포함)."
+  ],
+  "players": [
+    { "personId": "선동열", "name": "선동열", "year": 1986, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 87, "stamina": 98, "stability": 99 }, "note": "24승·ERA 0.99·MVP", "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과" },
+    { "personId": "최일언", "name": "최일언", "year": 1986, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 61, "control": 59, "stamina": 94, "stability": 94 }, "note": "221.2이닝 피홈런 2개·19승", "source": "33G 19승4패2SV 221.2IP ERA1.58 140H 2HR 101BB 101K — KBO 기록실" },
+    { "personId": "장호연", "name": "장호연", "year": 1987, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 54, "control": 66, "stamina": 90, "stability": 84 }, "note": "188.1이닝 피홈런 1개", "source": "32G 15승8패6SV 188.1IP ERA2.82 170H 1HR 74BB 73K — KBO 기록실" },
+    { "personId": "김용수", "name": "김용수", "year": 1986, "team": "MBC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 60, "control": 81, "stamina": 60, "stability": 94 }, "note": "구원 1위·26세이브", "source": "60G 178IP 9승 26SV ERA1.67 74K — kowiki·기사" },
+    { "personId": "송진우", "name": "송진우", "year": 1990, "team": "빙그레", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 62, "stamina": 60, "stability": 93 }, "note": "27세이브·피홈런 2개", "source": "50G 11승7패27SV 128.1IP ERA1.82 80H 2HR 54BB 102K — KBO 기록실" },
+    { "personId": "이만수", "name": "이만수", "year": 1984, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 89, "contact": 95, "speed": 45, "defense": 82 }, "note": "타격 트리플크라운", "source": "89G .340 23HR 80RBI 3SB 26BB — 위키백과" },
+    { "personId": "박경완", "name": "박경완", "year": 2000, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 92, "contact": 72, "speed": 52, "defense": 92 }, "note": "40홈런 MVP", "source": "130G .282/.419 40HR 95RBI 7SB — KBO 기록실" },
+    { "personId": "김성래", "name": "김성래", "year": 1987, "team": "삼성", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 91, "speed": 42, "defense": 74 }, "note": "홈런왕", "source": "99G .332 22HR 70RBI 2SB 45BB — 위키백과" },
+    { "personId": "장종훈", "name": "장종훈", "year": 1990, "team": "빙그레", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 79, "speed": 62, "defense": 80 }, "note": "홈런왕·유격수 골든글러브", "source": ".290 28HR 91타점 8SB 120G 411타수 — kowiki" },
+    { "personId": "이대호", "name": "이대호", "year": 2010, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 96, "contact": 98, "speed": 40, "defense": 58 }, "note": "트리플크라운·MVP", "source": "127G .364/.444 44HR 133RBI 0SB — KBO 기록실" },
+    { "personId": "최정", "name": "최정", "year": 2017, "team": "SK", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 95, "contact": 83, "speed": 48, "defense": 82 }, "note": "46홈런·홈런왕", "source": ".316/.427/.684 46HR (G·SB 미확인) — namu" },
+    { "personId": "이승엽", "name": "이승엽", "year": 2003, "team": "삼성", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 99, "contact": 81, "speed": 58, "defense": 66 }, "note": "56홈런·MVP", "source": "131G .301 56HR 144RBI 7SB 101BB — 위키백과" },
+    { "personId": "박병호", "name": "박병호", "year": 2014, "team": "넥센", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 99, "contact": 79, "speed": 58, "defense": 62 }, "note": "52홈런·홈런왕", "source": ".303 52HR 124RBI 8SB 571PA(128G) — KBO 기록실" },
+    { "personId": "우즈", "name": "우즈", "year": 1998, "team": "OB", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 95, "contact": 82, "speed": 45, "defense": 62 }, "note": "42홈런 신기록·MVP", "source": "126G .305 42HR 103RBI — SPOTV NEWS" },
+    { "personId": "김성한", "name": "김성한", "year": 1988, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 91, "contact": 88, "speed": 74, "defense": 62 }, "note": "KBO 첫 30홈런·MVP", "source": "104G .324 30HR 89RBI 16SB 31BB — 위키백과" },
+    { "personId": "김재환", "name": "김재환", "year": 2018, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 94, "contact": 88, "speed": 45, "defense": 64 }, "note": "44홈런 홈런왕·MVP", "source": ".334 44HR 133RBI 2SB 602PA(139G) — KBO 기록실" },
+    { "personId": "로하스", "name": "로하스", "year": 2020, "team": "KT", "position": "OF", "hand": "S", "isForeign": true, "stats": { "power": 95, "contact": 92, "speed": 55, "defense": 72 }, "note": "타격 4관왕·MVP", "source": "142G .349/.417 47HR 135RBI 116득점 SLG.680 — 기사·namu" },
+    { "personId": "노시환", "name": "노시환", "year": 2023, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 87, "contact": 79, "speed": 45, "defense": 78 }, "note": "홈런·타점 2관왕", "source": ".298 31HR 101RBI 2SB 595PA(131G) — KBO 기록실" }
+  ]
+}

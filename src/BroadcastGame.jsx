@@ -27,7 +27,7 @@ function pitcherLine(g, pitcher) {
 export function engineTeam(team) {
   const roster = team.roster || [];
   const batters = (team.batters?.length ? team.batters : roster.filter((p) => p.type === 'batter')).slice(0, 9);
-  const pitchers = roster.filter((p) => p.type === 'pitcher').sort((a, b) => (a.position === 'SP' ? -1 : 1) - (b.position === 'SP' ? -1 : 1) || b.overall - a.overall);
+  const pitchers = roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN')).sort((a, b) => (a.position === 'SP' ? -1 : 1) - (b.position === 'SP' ? -1 : 1) || b.overall - a.overall);
   return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C') };
 }
 

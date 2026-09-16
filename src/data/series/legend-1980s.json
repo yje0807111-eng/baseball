@@ -1,0 +1,36 @@
+{
+  "id": "legend-1980s",
+  "kind": "legend",
+  "year": null,
+  "title": "1980년대 레전드",
+  "franchise": null,
+  "subtitle": "프로야구 원년부터 1989년까지",
+  "blurb": "1982년 출범한 KBO 리그 첫 10년을 수놓은 스타 모음. 선동열·최동원·박철순·백인천·장효조·이만수 등.",
+  "notes": [
+    "선동열·최동원·김시진·박철순·윤학길·이상군·김용수·이만수·장채근·김성한·김봉연·김성래·장효조·백인천은 기존 구단 레전드 시리즈 수치 복사.",
+    "김용희 1983(100경기 시즌 중 85경기) 18홈런은 126경기 기준으로 환산해 power 산정.",
+    "김재박 1985·박종훈 1985 도루·홈런은 126경기 기준 환산을 참고하되 평판 반영. 박종훈 중견수 수비 defense 86은 골든글러브 기반 추정.",
+    "윤석환 1984는 146이닝 구원 투수라 RP stamina 상한 60 적용.",
+    "1982~1989 시즌 전부 투고타저 보정(타자 +2, 투수 stability −3) 적용."
+  ],
+  "players": [
+    { "personId": "선동열", "name": "선동열", "year": 1986, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 87, "stamina": 98, "stability": 99 }, "note": "24승·ERA 0.99·MVP", "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과" },
+    { "personId": "최동원", "name": "최동원", "year": 1984, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 82, "stamina": 99, "stability": 90 }, "note": "시즌 27승·223탈삼진", "source": "51G 27승13패 6SV 284.2IP ERA2.40 223K 68BB — kowiki" },
+    { "personId": "김시진", "name": "김시진", "year": 1985, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 60, "stamina": 98, "stability": 91 }, "note": "25승 다승왕", "source": "47G 25승5패10SV 269.2IP ERA2.00 201K 121BB — 위키백과" },
+    { "personId": "박철순", "name": "박철순", "year": 1982, "team": "OB", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 76, "stamina": 96, "stability": 93 }, "note": "22연승·원년 MVP", "source": "36G 24승4패7SV 224.2IP ERA1.84 108K 67BB — 위키백과" },
+    { "personId": "윤학길", "name": "윤학길", "year": 1989, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 62, "control": 79, "stamina": 97, "stability": 85 }, "note": "시즌 18완투", "source": "38G 16승11패 250IP ERA2.70 141K 68BB 18완투 — kowiki" },
+    { "personId": "이상군", "name": "이상군", "year": 1987, "team": "빙그레", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 52, "control": 85, "stamina": 96, "stability": 86 }, "note": "시즌 18승", "source": "18승11패 246.2IP ERA2.55 85K 52BB — kowiki" },
+    { "personId": "김용수", "name": "김용수", "year": 1986, "team": "MBC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 60, "control": 81, "stamina": 60, "stability": 94 }, "note": "구원 1위·26세이브", "source": "60G 178IP 9승 26SV ERA1.67 74K — kowiki·기사" },
+    { "personId": "윤석환", "name": "윤석환", "year": 1984, "team": "OB", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 74, "stamina": 60, "stability": 84 }, "note": "신인왕·구원왕 25세이브", "source": "57G 12승8패25SV 146IP ERA2.84 111K 46BB 108피안타 — 위키백과" },
+    { "personId": "이만수", "name": "이만수", "year": 1984, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 89, "contact": 95, "speed": 45, "defense": 82 }, "note": "타격 트리플크라운", "source": "89G .340 23HR 80RBI 3SB 26BB — 위키백과" },
+    { "personId": "장채근", "name": "장채근", "year": 1988, "team": "해태", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 65, "speed": 42, "defense": 84 }, "note": "26홈런·포수 골든글러브", "source": ".249 26HR 58RBI — thewiki·위키백과(GG 1988)" },
+    { "personId": "김성한", "name": "김성한", "year": 1988, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 91, "contact": 88, "speed": 74, "defense": 62 }, "note": "KBO 첫 30홈런·MVP", "source": "104G .324 30HR 89RBI 16SB 31BB — 위키백과" },
+    { "personId": "김봉연", "name": "김봉연", "year": 1982, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 88, "contact": 90, "speed": 58, "defense": 60 }, "note": "원년 홈런왕", "source": "74G .331 22HR 52RBI 7SB 28BB — 위키백과" },
+    { "personId": "김성래", "name": "김성래", "year": 1987, "team": "삼성", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 91, "speed": 42, "defense": 74 }, "note": "홈런왕", "source": "99G .332 22HR 70RBI 2SB 45BB — 위키백과" },
+    { "personId": "김용희", "name": "김용희", "year": 1983, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 73, "speed": 57, "defense": 84 }, "note": "3루수 골든글러브", "source": "85G .275 82안타 18HR 52RBI 5SB 26BB — 위키백과" },
+    { "personId": "김재박", "name": "김재박", "year": 1985, "team": "MBC", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 85, "speed": 97, "defense": 94 }, "note": "도루왕·유격수 골든글러브", "source": "100G .313/.393 118안타 3HR 36RBI 50SB 44BB — 위키백과" },
+    { "personId": "장효조", "name": "장효조", "year": 1987, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 99, "speed": 60, "defense": 72 }, "note": "타율 .387 타격왕", "source": "88G .387 2HR 58RBI 7SB 41BB — 위키백과" },
+    { "personId": "박종훈", "name": "박종훈", "year": 1985, "team": "OB", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 57, "contact": 94, "speed": 76, "defense": 86 }, "note": "타율 .342·외야 골든글러브", "source": "101G .342 119안타 6HR 51RBI 17SB 33BB — 위키백과" },
+    { "personId": "백인천", "name": "백인천", "year": 1982, "team": "MBC", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 88, "contact": 99, "speed": 66, "defense": 55 }, "note": "KBO 유일 4할 타율", "source": ".412/.497 19HR 64타점 11SB 72G 250타수 — 기사·namu" }
+  ]
+}
