@@ -43,9 +43,8 @@ function RankPanel({ account, team, onRecord }) {
       <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 엠블럼 */}
         <div className="relative h-[150px] w-[150px] shrink-0">
-          <span className="absolute inset-[12%] rounded-full" style={{ background: `radial-gradient(circle, ${c}55, transparent 70%)` }} />
-          <img src={`ui/rank/${r.tier.key}.webp`} alt={`${r.tier.ko} 엠블럼`} className="relative h-full w-full object-contain"
-            style={{ WebkitMaskImage: 'radial-gradient(circle, #000 52%, transparent 70%)', maskImage: 'radial-gradient(circle, #000 52%, transparent 70%)' }} />
+          <span className="absolute inset-[18%] rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${c}40, transparent 70%)` }} />
+          <img src={`ui/rank/${r.tier.key}.webp`} alt={`${r.tier.ko} 엠블럼`} className="relative h-full w-full object-contain" style={{ filter: `drop-shadow(0 0 14px ${c}55)` }} />
         </div>
 
         {/* 등급 · 막대 · 요약 */}
@@ -58,12 +57,13 @@ function RankPanel({ account, team, onRecord }) {
             {sum.lastDelta != null && <span className={`ml-auto font-display text-sm ${sum.lastDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>최근 경기 {sum.lastDelta >= 0 ? '+' : ''}{sum.lastDelta}</span>}
           </div>
           <div>
-            <div className="mb-1 flex justify-between font-display text-xs text-gray-400">
+            <div className="mb-1 flex justify-between font-display text-xs text-gray-300">
               <span>{r.tier.ko} {r.div}</span><span>{r.inDiv} / 100</span><span>{r.next ? (r.div === 'I' ? r.next.ko + ' III' : `${r.tier.ko} ${r.div === 'III' ? 'II' : 'I'}`) : ''}</span>
             </div>
-            <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${segs},1fr)`, height: 12 }}>
+            {/* 단계 막대: 어두운 홈 위에 눈금 — 배경 사진에 묻히지 않게 */}
+            <div className="mt-cut grid gap-[3px] bg-[#03060c]/90 p-[3px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]" style={{ '--c': '4px', gridTemplateColumns: `repeat(${segs},1fr)`, height: 18 }}>
               {Array.from({ length: segs }, (_, i) => (
-                <i key={i} className="block -skew-x-[24deg]" style={{ background: i < on ? c : 'rgba(255,255,255,.07)', boxShadow: i < on ? `0 0 6px ${c}` : undefined }} />
+                <i key={i} className="block -skew-x-[24deg]" style={{ background: i < on ? c : 'rgba(255,255,255,.16)', boxShadow: i < on ? `0 0 6px ${c}` : undefined }} />
               ))}
             </div>
           </div>
