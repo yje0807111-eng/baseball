@@ -129,7 +129,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
 
         {/* 경기 — 가장 큰 타일 */}
         <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Match Day" title="오늘의 경기장"
-          desc={ready ? '내 팀으로 경기하거나, 드래프트 모드로 새 팀을 뽑아 붙어 보세요' : `내 팀 경기 전에: ${issues[0]}`}
+          desc={ready ? '내 팀으로 경기하거나, 드래프트 모드로 새 팀을 뽑아 붙어 보세요' : null}
           style={{ gridColumn: '1 / span 2', gridRow: '1 / span 2' }} onClick={onPlay}>
           {/* 들어가면 고를 수 있는 모드 */}
           <div className="mt-3 flex flex-wrap gap-2">
