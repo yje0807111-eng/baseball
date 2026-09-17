@@ -193,8 +193,19 @@ export function pitch(g, orders = {}) {
   const off = offenseOf(g);
   const def = defenseOf(g);
   const batter = batterOf(g);
-  if (orders.changePitcher && def.team.pitchers[def.pitcherIdx + 1]) {
-    def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+  if (orders.changePitcher) {
+    // id 를 주면 그 투수를 다음 순번으로 당겨 온다 (이미 던진 투수 · 지금 투수는 고를 수 없다)
+    if (typeof orders.changePitcher === 'string') {
+      const list = def.team.pitchers;
+      const at = list.findIndex((x, i) => i > def.pitcherIdx && x.id === orders.changePitcher);
+      if (at > def.pitcherIdx + 1) {
+        const [pick] = list.splice(at, 1);
+        list.splice(def.pitcherIdx + 1, 0, pick);
+      }
+    }
+    if (def.team.pitchers[def.pitcherIdx + 1]) {
+      def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+    }
   }
   const pitcher = def.pitcher;
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };

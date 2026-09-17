@@ -127,8 +127,8 @@ function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
 const panel = 'mt-cut mt-frame mt-glass p-3.5 px-4';
 const cut = { clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)' };
 
-function TeamPanel({ team, side, color, pitcher, pitches }) {
-  const bull = team.pitchers.filter((p) => p !== pitcher).slice(0, 3);
+function TeamPanel({ team, side, color, pitcher, pitches, pitcherIdx = 0 }) {
+  const bull = team.pitchers.slice(pitcherIdx + 1, pitcherIdx + 4);
   const stamina = Math.max(0, Math.min(100, 100 - (pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
   return (
     <section className={`self-end ${panel}`} style={{ '--c': '16px', '--a': color, gridColumn: side, gridRow: '4 / span 2' }}>
@@ -168,6 +168,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
   const speedRef = useRef(1);
   const pausedRef = useRef(false);
+  const [picker, setPicker] = useState(null); // 투수 고르기: 'order' 작전 버튼 · 'clutch' 승부처 지시
+  const pickerRef = useRef(null);
+  pickerRef.current = picker;
   const aliveRef = useRef(true);
   speedRef.current = speed;
   pausedRef.current = paused;
@@ -184,7 +187,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       let half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
       aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
-        while ((pausedRef.current || ordersRef.current) && !stop) await sleep(100);
+        while ((pausedRef.current || ordersRef.current || pickerRef.current) && !stop) await sleep(100);
         if (stop || g.final) break;
         // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
         if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
@@ -361,15 +364,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         )}
 
         {/* 승부처 지시 */}
-        {orders && (
+        {orders && !picker && (
           <div className="col-start-2 row-start-3 z-10 self-end pb-2.5">
             <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시를 내리세요</p>
             <div className="flex justify-center gap-3">
               {(orders.offense
                 ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
-                : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜 투입', { changePitcher: true }]]
+                : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜에서 고르기', 'pick']]
               ).map(([ic, t, s, o]) => (
-                <button key={t} type="button" onClick={() => answer(o)}
+                <button key={t} type="button" onClick={() => (o === 'pick' ? setPicker('clutch') : answer(o))}
                   className="mt-cut mt-frame mt-glass w-[186px] p-3.5 text-left hover:brightness-125" style={{ '--c': '12px', '--a': '#fde047' }}>
                   <span className="text-2xl">{ic}</span>
                   <b className="mt-1 block text-lg text-white">{t}</b>
@@ -380,9 +383,38 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           </div>
         )}
 
+        {/* 투수 교체: 아직 안 나온 투수 중에서 고르기 */}
+        {picker && (
+          <div className="col-start-2 row-start-3 z-20 self-end pb-2.5">
+            <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': cMy }}>Pitching Change · 현재 {g.home.pitcher?.name} {g.home.pitches}구</p>
+            <div className="flex flex-wrap justify-center gap-2.5">
+              {g.home.team.pitchers.slice(g.home.pitcherIdx + 1).map((p) => {
+                const tired = p.condition != null && p.condition < 100;
+                return (
+                  <button key={p.id} type="button"
+                    onClick={() => { const o = { changePitcher: p.id }; setPicker(null); if (picker === 'clutch') answer(o); else give(o); }}
+                    className="mt-cut mt-frame mt-glass w-[176px] p-3 text-left hover:brightness-125" style={{ '--c': '12px', '--a': cMy }}>
+                    <span className="flex items-baseline gap-1.5">
+                      <em className="font-display text-xs font-bold not-italic" style={{ color: cMy }}>{p.slot && !String(p.slot).startsWith('BN') ? p.slot : p.position}</em>
+                      <b className="font-display ml-auto text-xl text-white">{p.overall}</b>
+                    </span>
+                    <b className="mt-0.5 block truncate text-lg text-white">{p.name}</b>
+                    <small className="block text-xs text-gray-400">구위 {st(p, 'stuff')} · 제구 {st(p, 'control')}</small>
+                    {tired && <small className="block text-xs font-bold text-orange-400">컨디션 {p.condition}% · 휴식 {p.rest}</small>}
+                  </button>
+                );
+              })}
+              <button type="button" onClick={() => setPicker(null)}
+                className="mt-cut mt-glass w-[110px] p-3 text-center text-sm text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)] hover:brightness-125" style={{ '--c': '12px' }}>
+                그대로<small className="mt-1 block text-xs text-gray-500">교체 안 함</small>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 팀 패널 */}
-        <TeamPanel team={away} side={1} color={cOpp} pitcher={g.away.pitcher} pitches={g.away.pitches} />
-        <TeamPanel team={home} side={3} color={cMy} pitcher={g.home.pitcher} pitches={g.home.pitches} />
+        <TeamPanel team={away} side={1} color={cOpp} pitcher={g.away.pitcher} pitches={g.away.pitches} pitcherIdx={g.away.pitcherIdx} />
+        <TeamPanel team={home} side={3} color={cMy} pitcher={g.home.pitcher} pitches={g.home.pitches} pitcherIdx={g.home.pitcherIdx} />
 
         {/* 작전 버튼 */}
         <div className="col-start-2 row-start-4 flex items-center justify-center gap-2.5">
@@ -391,7 +423,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             ['🪃', '번트', !g.top ? '주자 진루' : '내 공격 아님', () => give({ bunt: true }), !g.top],
             ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), !g.top],
             ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), !g.top],
-            ['🔁', '투수 교체', g.top ? '불펜 투입' : '내 수비 아님', () => give({ changePitcher: true }), g.top],
+            ['🔁', '투수 교체', !g.top ? '내 수비 아님' : g.home.team.pitchers[g.home.pitcherIdx + 1] ? '불펜에서 고르기' : '남은 투수 없음', () => setPicker('order'), g.top && !!g.home.team.pitchers[g.home.pitcherIdx + 1]],
           ].map(([ic, t, s, fn, on]) => (
             <button key={t} type="button" disabled={!on} onClick={fn}
               className={`mt-cut flex min-w-[112px] flex-col items-center gap-0.5 px-3.5 py-2 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
