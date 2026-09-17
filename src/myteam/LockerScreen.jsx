@@ -193,9 +193,13 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
         </div>
       </div>
       {/* 실적: 시즌 기록 */}
-      <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
+      {/* 칸마다 세로 구분선 · 이름은 밝은 회색 영문 서체 · 숫자는 크고 굵게 — 작은 칸에서도 읽히게 */}
+      <div className="mt-cut grid grid-cols-6 divide-x divide-white/[0.08] bg-white/[0.05]" style={cut(8)}>
         {recordCells(p).map(([k, v]) => (
-          <div key={k} className="py-1 text-center leading-tight"><div className="text-[10px] text-gray-500">{k}</div><b className={`font-display text-[15px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
+          <div key={k} className="flex flex-col items-center justify-center gap-0.5 py-1.5 leading-none">
+            <span className="text-[11px] font-semibold text-gray-300">{k}</span>
+            <b className={`font-display text-[18px] font-extrabold tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b>
+          </div>
         ))}
       </div>
       {/* 강점 · 약점: 두 줄 격자의 작은 칩 (아이콘 · 이름 · 근거 수치) */}
