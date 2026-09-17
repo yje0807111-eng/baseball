@@ -87,14 +87,17 @@ export default function ProfileBadge({ account, onSignOut }) {
   const nick = live?.nick || account?.nick || '감독';
   const banner = live?.profile?.banner ?? null;
   const r = rankOf(account?.rank?.rp || 0);
+  const flag = flagByKey(banner);
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label="프로필"
         className="mt-cut flex h-12 items-stretch text-left transition hover:brightness-125"
-        style={{ '--c': '10px', background: 'rgba(255,255,255,.05)', boxShadow: 'inset 0 0 0 1px rgba(148,163,184,.25)' }}>
-        <span className="flex items-center gap-2.5 pl-2 pr-3.5">
-          <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="h-[38px] w-[38px] object-contain" />
-          <span className="leading-tight">
+        style={{ '--c': '10px', background: 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${flag ? `${flag.color}66` : 'rgba(148,163,184,.25)'}` }}>
+        <span className="relative flex items-center gap-2.5 overflow-hidden pl-2 pr-3.5">
+          {/* 프로필에서 고른 배너: 대진표 내 칸과 같은 깃발 */}
+          {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
+          <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="relative h-[38px] w-[38px] object-contain" />
+          <span className="relative leading-tight" style={{ textShadow: flag ? '0 1px 6px rgba(0,0,0,.9)' : undefined }}>
             <b className="block text-base font-extrabold text-white">{nick} <span className="text-gray-300">감독</span></b>
             <span className="font-display text-[11px] font-bold tracking-[0.16em] text-gray-400">{r.tier.en} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
           </span>
