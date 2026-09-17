@@ -27,7 +27,30 @@ const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
 const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
-const cardImg = (p) => `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
+
+/*
+ * 상세 판 큰 사진: 하이라이트 카드(cards/) → 없으면 정면 프로필(profiles/) → 실루엣.
+ * 여러 겹 배경으로 두면 카드가 늦게 받아지는 동안 정면 프로필이 먼저 비쳐 깜빡이므로, 쓸 그림 하나를 미리 받아 두고 그것만 깐다.
+ * 목록에서 마우스를 올리면(preloadCard) 미리 받아 둬서 누르는 순간 바로 뜬다.
+ */
+const cardCache = new Map(); // id → Promise<url>
+function preloadCard(p) {
+  if (!p || cardCache.has(p.id)) return cardCache.get(p?.id);
+  const tryLoad = (src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(src); im.onerror = no; im.src = src; });
+  const id = encodeURIComponent(p.id);
+  const job = tryLoad(`cards/${id}.webp`).catch(() => tryLoad(`profiles/${id}.webp`)).catch(() => 'ui/mt/silhouette-player.webp');
+  cardCache.set(p.id, job);
+  return job;
+}
+function useCardImage(p) {
+  const [img, setImg] = useState(null); // { id, url }
+  useEffect(() => {
+    let live = true;
+    preloadCard(p)?.then((url) => { if (live) setImg({ id: p.id, url }); });
+    return () => { live = false; };
+  }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  return img && img.id === p?.id ? `url(${img.url})` : 'none';
+}
 
 /** 드롭다운 — 유리 판 + 모서리 네온 목록 (기본 select 창 대신) */
 function Select({ value, onChange, options, all }) {
@@ -78,7 +101,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
   const n = tone(p.overall);
   const keys = KEYS[p.type] || KEYS.batter;
   return (
-    <div role="button" onClick={() => onPick(p)} className={`mt-row mt-cut cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': n }}>
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': n }}>
       <Portrait player={p} w={46} h={54} color={n} />
       <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>
       <span className="min-w-0">
@@ -173,14 +196,18 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
   const keys = KEYS[p.type] || KEYS.batter;
   const tr = playerTraits(p);
   const hand = HAND_LABEL(p);
+  return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onBench={onBench}
+    owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
+}
+
+function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, after, blocked, now, next, keys, tr, hand }) {
+  const heroImg = useCardImage(p);
   return (
     <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-3 overflow-y-auto p-5" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
       <div className="relative shrink-0">
-        <Hero img={cardImg(p)} ovr={p.overall} name={p.name} color={n} h={160} />
-        <span className="absolute right-3 top-3 flex items-center gap-1.5 text-[13px] font-bold" style={{ color: hand.color }}>
-          <b className="grid h-6 w-6 place-items-center rounded-full text-[13px] font-extrabold text-[#05080f]" style={{ background: hand.color }}>{hand.short}</b>{hand.long}
-        </span>
+        <Hero img={heroImg} ovr={p.overall} name={p.name} color={n} h={160} />
+        <span className="absolute right-3 top-3 text-[13px] font-bold" style={{ color: hand.color, textShadow: '0 1px 4px rgba(0,0,0,.8)' }}>{hand.long}</span>
       </div>
       <p className="-mt-2 text-[13px] text-gray-400">{p.year} {p.team} · {p.position} · {p.cost} CP{p.isForeign ? ' · 외국인' : ''}</p>
       <div className="grid grid-cols-4 gap-1.5">
