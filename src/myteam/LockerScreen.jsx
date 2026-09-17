@@ -446,8 +446,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
               const r = pos[key];
               const n = squad.filter((p) => p.position === key).length;
               return (
-                <div key={key} className="flex h-7 items-center justify-between border-b border-white/[0.07] px-[5px]">
-                  <span className="text-[12.5px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
+                <div key={key} className="flex h-10 items-center justify-between border-b border-white/[0.07] px-[5px]">
+                  <span className="text-[13px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
                 </div>
               );
             };
@@ -456,7 +456,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
             const entryOk = squad.length === SQUAD_SIZE && !issues.length;
             return (
               <>
-                <div className="flex items-center justify-between px-0.5 pb-2">
+                <div className="flex items-center justify-between px-0.5 pb-3">
                   <p className="mt-lab" style={{ fontSize: 10 }}>Squad</p>
                   {frac(squad.length, SQUAD_SIZE, entryOk ? '#34d399' : squad.length > SQUAD_SIZE ? '#f87171' : '#e5e7eb')}
                 </div>
@@ -464,7 +464,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
                   <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
                 </div>
-                <div className="mt-2.5 flex justify-between px-[5px] text-[13px] text-gray-300">
+                <div className="mt-4 flex justify-between px-[5px] pb-1 text-[13px] text-gray-300">
                   <span>자유 자리 {frac(used, FREE_SLOTS, used > FREE_SLOTS ? '#f87171' : used === FREE_SLOTS ? '#34d399' : '#e5e7eb')}</span>
                   <span>외국인 {frac(fc, FOREIGN_MAX, fc > FOREIGN_MAX ? '#f87171' : '#e5e7eb')}</span>
                 </div>
