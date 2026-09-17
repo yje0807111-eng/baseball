@@ -107,28 +107,29 @@ function RankPanel({ account, team, onRecord }) {
           <div className="flex items-end gap-5">
             <div>
               <p className="mt-lab" style={{ '--a': c }}>Rank</p>
-              <b className="text-[30px] font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
+              <b className="text-[26px] font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
             </div>
             <span className="font-display leading-none">
-              <b className="text-[58px] font-extrabold" style={{ color: c, textShadow: `0 0 24px ${c}55` }}>{rp.toLocaleString()}</b>
-              {r.next && <b className="text-[28px] font-extrabold text-slate-600"> / {goal.toLocaleString()}</b>}
+              <b className="text-[40px] font-extrabold" style={{ color: c, textShadow: `0 0 18px ${c}44` }}>{rp.toLocaleString()}</b>
+              {r.next && <b className="text-xl font-extrabold text-slate-500"> / {goal.toLocaleString()}</b>}
             </span>
             {r.next && (
-              <span className="ml-auto mr-[76px] text-right leading-none">
-                <b className="font-display text-[40px] font-extrabold text-white">{(goal - rp).toLocaleString()}</b>
-                <small className="block font-display text-xs font-bold tracking-[0.2em]" style={{ color: r.next.c }}>RP TO {r.next.ko}</small>
+              <span className="ml-auto mr-[60px] text-right leading-none">
+                <b className="font-display text-2xl font-extrabold text-white">{(goal - rp).toLocaleString()}</b>
+                <small className="mt-0.5 block font-display text-[11px] font-bold tracking-[0.2em] text-gray-400">RP TO {r.next.ko}</small>
               </span>
             )}
           </div>
           {/* 다음 등급까지 긴 막대 — 단계 III · II · I 는 가는 눈금, 끝에 다음 등급 엠블럼 */}
-          <div className="relative mr-[60px] h-1.5 bg-white/[0.08]">
+          <div className="relative mr-[48px] h-1.5 bg-white/[0.08]">
             <i className="absolute inset-y-0 left-0" style={{ width: `${tierPct}%`, background: `linear-gradient(90deg, ${c}44, ${c})`, boxShadow: `0 0 10px ${c}` }} />
             {r.next && [1 / 3, 2 / 3].map((x) => <i key={x} className="absolute -inset-y-[3px] w-px bg-white/35" style={{ left: `${x * 100}%` }} />)}
             {r.next && (
               /* 엠블럼 그림이 세로로 길어 정사각 틀 안에 크게 넣고 가운데 맞춤 */
-              <span className="absolute -right-[66px] top-1/2 h-[60px] w-[60px] -translate-y-1/2 overflow-hidden">
-                <img src={`ui/rank/${r.next.key}.webp`} alt={`${r.next.ko} 엠블럼`} className="absolute left-1/2 top-1/2 h-[92px] w-[92px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
-                  style={{ filter: `drop-shadow(0 0 10px ${r.next.c}88)` }} />
+              <span className="absolute -right-[52px] top-1/2 h-11 w-11 -translate-y-1/2 overflow-hidden">
+                {/* 다음 등급 색 빛 대신 배경에 묻히는 어두운 그림자 · 살짝 누른 채도 */}
+                <img src={`ui/rank/${r.next.key}.webp`} alt={`${r.next.ko} 엠블럼`} className="absolute left-1/2 top-1/2 h-[68px] w-[68px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain opacity-85"
+                  style={{ filter: 'saturate(.75) brightness(.9) drop-shadow(0 2px 6px rgba(0,0,0,.7))' }} />
               </span>
             )}
           </div>
