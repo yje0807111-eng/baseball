@@ -77,21 +77,19 @@ function MatchDay({ account, onPlay }) {
   );
 }
 
-/** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급/RP · 단계 막대 · 시즌 MVP | 팀 스탯 */
+/** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급 · RP / 다음 등급 RP · 남은 RP · 긴 막대(끝에 다음 등급 엠블럼) · 경기 MVP TOP 3 | 팀 스탯 */
 function RankPanel({ account, team, onRecord }) {
   const rp = account.rank?.rp || 0;
   const r = rankOf(rp);
   const sum = rankSummary(account.history || []);
-  const last = account.rank?.seasons?.[0] || null; // 지난 랭크전 시즌
   const st = teamStats(team.squad || []);
   const c = r.tier.c;
   const lg = leagueAverage();
   const STATS = [['타선', st.bat, lg.bat, '#34d399', '#0e7490'], ['선발', st.sp, lg.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, lg.rp, '#f87171', '#a21caf'], ['수비', st.def, lg.def, '#fde047', '#ea580c']];
-  const segs = 40;
-  const on = Math.round((r.inDiv / 100) * segs);
-  // 바로 다음 단계(III → II → I → 다음 등급 III)와 남은 RP
-  const nextStep = r.next ? (r.div === 'I' ? `${r.next.ko} III` : `${r.tier.ko} ${r.div === 'III' ? 'II' : 'I'}`) : '';
-  const toStep = r.next ? 100 - r.inDiv : 0;
+  // 이번 등급 안 진행: 등급 시작 RP → 다음 등급 RP (단계 III · II · I 는 눈금)
+  const goal = r.next ? r.next.min : rp;
+  const tierPct = r.next ? Math.min(100, ((rp - r.tier.min) / (r.next.min - r.tier.min)) * 100) : 100;
+  const MEDAL = ['#fbbf24', '#cbd5e1', '#d97706'];
   return (
     <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
       {/* 배경: 관중석 휴대폰 불빛 띠(판 비율 1920×200) — 오른쪽 팀 스탯 뒤는 어둡게 */}
@@ -104,36 +102,49 @@ function RankPanel({ account, team, onRecord }) {
           <img src={`ui/rank/${r.tier.key}.webp`} alt={`${r.tier.ko} 엠블럼`} className="relative h-full w-full object-contain" style={{ filter: `drop-shadow(0 0 14px ${c}55)` }} />
         </div>
 
-        {/* 등급 · 막대 · 요약 */}
+        {/* 등급 · 분수형 목표 막대 · 경기 MVP TOP 3 */}
         <div className="flex min-w-0 flex-col justify-center gap-2.5">
-          <div className="flex flex-wrap items-baseline gap-x-3">
-            <p className="mt-lab" style={{ '--a': c }}>Rank</p>
-            <b className="text-[34px] font-black leading-none text-white">{r.tier.ko} {r.div}</b>
-            <span className="font-display text-xl" style={{ color: c }}>{rp.toLocaleString()} RP</span>
-            <span className="text-sm text-gray-400">{r.next ? `${nextStep}까지 ${toStep} RP` : '최고 등급'}</span>
-            {last && <span className={`ml-auto font-display text-sm ${last.rp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>시즌 {last.season} {last.place}위 {last.rp >= 0 ? '+' : ''}{last.rp}</span>}
-          </div>
-          <div>
-            <div className="mb-1 flex justify-between font-display text-xs text-gray-300">
-              <span>{r.tier.ko} {r.div}</span><span>{r.inDiv} / 100</span><span>{nextStep}</span>
+          <div className="flex items-end gap-5">
+            <div>
+              <p className="mt-lab" style={{ '--a': c }}>Rank</p>
+              <b className="text-[30px] font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
             </div>
-            {/* 단계 막대: 어두운 홈 위에 눈금 — 배경 사진에 묻히지 않게 */}
-            <div className="mt-cut grid gap-[3px] bg-[#03060c]/90 p-[3px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]" style={{ '--c': '4px', gridTemplateColumns: `repeat(${segs},1fr)`, height: 18 }}>
-              {Array.from({ length: segs }, (_, i) => (
-                <i key={i} className="block -skew-x-[24deg]" style={{ background: i < on ? c : 'rgba(255,255,255,.16)', boxShadow: i < on ? `0 0 6px ${c}` : undefined }} />
-              ))}
-            </div>
+            <span className="font-display leading-none">
+              <b className="text-[58px] font-extrabold" style={{ color: c, textShadow: `0 0 24px ${c}55` }}>{rp.toLocaleString()}</b>
+              {r.next && <b className="text-[28px] font-extrabold text-slate-600"> / {goal.toLocaleString()}</b>}
+            </span>
+            {r.next && (
+              <span className="ml-auto mr-[76px] text-right leading-none">
+                <b className="font-display text-[40px] font-extrabold text-white">{(goal - rp).toLocaleString()}</b>
+                <small className="block font-display text-xs font-bold tracking-[0.2em]" style={{ color: r.next.c }}>RP TO {r.next.ko}</small>
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-6 border-t border-white/10 pt-2.5">
-            <button type="button" onClick={onRecord} className="flex min-w-0 items-center gap-3 text-left">
-              {sum.mvp && <span className="mt-cut h-11 w-9 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(sum.mvp.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />}
-              <div className="min-w-0">
-                <p className="font-display text-[10px] tracking-[0.25em] text-amber-300">SEASON MVP</p>
-                <b className="block truncate text-base text-white">{sum.mvp ? `${sum.mvp.name}` : '—'}</b>
-                {sum.mvp && <small className="text-xs text-gray-400">경기 MVP {sum.mvp.n}회</small>}
-              </div>
-            </button>
+          {/* 다음 등급까지 긴 막대 — 단계 III · II · I 는 가는 눈금, 끝에 다음 등급 엠블럼 */}
+          <div className="relative mr-[60px] h-1.5 bg-white/[0.08]">
+            <i className="absolute inset-y-0 left-0" style={{ width: `${tierPct}%`, background: `linear-gradient(90deg, ${c}44, ${c})`, boxShadow: `0 0 10px ${c}` }} />
+            {r.next && [1 / 3, 2 / 3].map((x) => <i key={x} className="absolute -inset-y-[3px] w-px bg-white/35" style={{ left: `${x * 100}%` }} />)}
+            {r.next && (
+              /* 엠블럼 그림이 세로로 길어 정사각 틀 안에 크게 넣고 가운데 맞춤 */
+              <span className="absolute -right-[66px] top-1/2 h-[60px] w-[60px] -translate-y-1/2 overflow-hidden">
+                <img src={`ui/rank/${r.next.key}.webp`} alt={`${r.next.ko} 엠블럼`} className="absolute left-1/2 top-1/2 h-[92px] w-[92px] max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+                  style={{ filter: `drop-shadow(0 0 10px ${r.next.c}88)` }} />
+              </span>
+            )}
           </div>
+          {/* 경기 MVP TOP 3: 얼굴 뒤에 큰 반투명 순위 숫자 */}
+          <button type="button" onClick={onRecord} className="flex min-w-0 items-center gap-7 pt-1 text-left">
+            {sum.mvps.length ? sum.mvps.map((m, i) => (
+              <span key={m.id} className="relative flex items-center gap-2.5 pl-[18px]">
+                <b className="absolute -left-1 top-1/2 -translate-y-1/2 font-display text-[52px] font-extrabold leading-none" style={{ color: `${MEDAL[i]}33` }}>{i + 1}</b>
+                <span className="mt-cut relative h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />
+                <span className="relative leading-tight">
+                  <b className="block whitespace-nowrap text-sm text-white">{m.name}</b>
+                  <small className="font-display text-[11px]" style={{ color: MEDAL[i] }}>MVP {m.n}회</small>
+                </span>
+              </span>
+            )) : <span className="font-display text-xs tracking-[0.24em] text-gray-500">MVP TOP 3 —</span>}
+          </button>
         </div>
 
         {/* 팀 스탯 (오른쪽 아래) — 리그 평균이 가운데 세로선: 높으면 오른쪽 구단 색, 낮으면 왼쪽 붉게 */}
