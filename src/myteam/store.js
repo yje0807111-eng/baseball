@@ -162,6 +162,20 @@ export function claimRanked(reward) {
   return next;
 }
 
+/**
+ * 프로필: 이름(nick) · 대진표 내 팀 칸 배너(profile.banner = 깃발 key, 없으면 null).
+ * 이름을 바꾸면 다음 로그인도 새 이름으로 한다 (계정은 이 기기에 하나)
+ */
+export function saveProfile({ nick, banner }) {
+  const a = read();
+  if (!a) return null;
+  const next = { ...a, nick: (nick ?? a.nick).trim() || a.nick, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner } };
+  write(next);
+  return next;
+}
+/** 대진표 내 팀 칸 배너 key (없으면 null) */
+export const myBanner = () => read()?.profile?.banner ?? null;
+
 /** 골드 증감 (상점·경기 보상) */
 export function addGold(delta) {
   const a = read();

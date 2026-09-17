@@ -1,5 +1,6 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 드래프트 화면과 같은 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) */
 import React, { useEffect, useState } from 'react';
+import ProfileBadge from './ProfileBadge.jsx';
 
 export const UiStyle = () => (
   <style>{`
@@ -160,7 +161,7 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
 
 /**
  * 모든 화면이 함께 쓰는 상단 바 — 드래프트 모드 화면 헤더 문법
- *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지(team 을 줄 때만 — 내 라커)] [골드] [감독 · 로그아웃]
+ *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지(team 을 줄 때만 — 내 라커)] [프로필 · 골드 — 누르면 이름 · 배너 · 로그아웃]
  */
 export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, account, onBack, right, steps, onSignOut }) => {
   const squad = team?.squad || [];
@@ -191,13 +192,7 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
             </div>
           </div>
         )}
-        {account && <span className="mt-cut bg-white/[0.06] px-3 py-1 font-display text-lg font-bold text-amber-300" style={{ '--c': '6px' }}>{(account.gold ?? 0).toLocaleString()} G</span>}
-        {account && (
-          <span className="text-sm text-gray-400">
-            <b className="text-gray-200">{account.nick || '감독'}</b> 감독
-            {onSignOut && <> · <button type="button" onClick={onSignOut} className="underline hover:text-gray-200">로그아웃</button></>}
-          </span>
-        )}
+        {account && <ProfileBadge account={account} onSignOut={onSignOut} />}
         {right}
       </div>
     </header>
