@@ -72,10 +72,10 @@ const Chip = ({ at, s = 1, color, label, name, dim, ring }) => {
   const k = 0.55 + 0.45 * s; // 원근은 주되 멀다고 점이 되지는 않게
   const r = 30 * k;
   return (
-    <g opacity={dim ? 0.62 : 1}>
+    <g opacity={dim ? 0.85 : 1}>
       {ring && <circle cx={at[0]} cy={at[1]} r={r * 2.1} fill="none" stroke={color} strokeWidth={5 * k} opacity="0.7" />}
       <ellipse cx={at[0]} cy={at[1] + r * 0.9} rx={r * 0.9} ry={r * 0.32} fill="rgba(0,0,0,.5)" />
-      <circle cx={at[0]} cy={at[1]} r={r} fill={color} stroke="rgba(0,0,0,.65)" strokeWidth={4 * k} />
+      <circle cx={at[0]} cy={at[1]} r={r} fill={color} stroke="rgba(0,0,0,.65)" strokeWidth={5 * k} />
       {label && <text x={at[0]} y={at[1] + 10 * k} textAnchor="middle" fontSize={(label.length > 1 ? 25 : 32) * k} fontWeight="800" fill="#05080f">{label}</text>}
       {name && (
         <text x={at[0]} y={at[1] - r - 12 * k} textAnchor="middle" fontSize={34 * k} fontWeight="700" fill="#fff"

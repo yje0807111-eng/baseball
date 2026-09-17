@@ -27,13 +27,15 @@ export const FIELD_BGS = [
   { id: 'field-a', name: 'A · 정통 중계 부감', src: 'ui/field-a.webp', remoteSrc: gen1('3564cd84-d6a7-4aaf-b4d1-6d00fe87b827'), marks: MEASURED },
   { id: 'field-c', name: 'C · 조명 강한 드라마틱', src: 'ui/field-c.webp', remoteSrc: gen1('82723653-2002-455d-aa0f-6b88852c0372'), marks: MEASURED },
   { id: 'field-d', name: 'D · 안개 낀 차분한 밤', src: 'ui/field-d.webp', remoteSrc: gen1('99595426-3d99-40be-a9cc-561def4b8f0a'), marks: MEASURED },
+  // 저장소에 이미 있던 야간 도심 구장 — 베이스를 직접 재서 맞춰 뒀다 (마운드 예측 800,603 / 실측 799,608)
+  { id: 'field-stadium', name: '야간 도심 구장(기존 아트)', src: 'ui/stadium.webp', marks: marksFrom({ homeY: 712, sideY: 599, secondY: 533, halfW: 303 }) },
 ];
 
 /* 존 뷰 기준: 배경은 빈 마운드, 투수는 PlayView 가 그린다. 아직 눈으로 맞추지 못한 어림값 */
 const ZSPEC = {
-  mound: [800, 470],                            // 마운드에 선 투수의 발자리
-  pitcherH: 150,                                // 그려 올릴 투수 키
-  zone: { cx: 810, cy: 608, hw: 158, hh: 196 }, // 스트라이크존 상자
+  mound: [800, 415],                            // 마운드에 선 투수의 발자리 — 존 상자보다 위에 있어야 한다
+  pitcherH: 135,                                // 그려 올릴 투수 키
+  zone: { cx: 806, cy: 625, hw: 150, hh: 165 }, // 스트라이크존 상자 (위 460 ~ 아래 790)
 };
 
 export const ZONE_BGS = [
