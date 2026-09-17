@@ -24,13 +24,13 @@ const STAGE = { dy: -54 };
 const STEEP = marksFrom({ homeY: 790, sideY: 565, secondY: 395, halfW: 340 });
 
 export const FIELD_BGS = [
-  { id: 'field-b', stage: STAGE, name: '이전 B · 높은 전술 부감(지금 기본)', src: 'ui/field-b.webp', remoteSrc: gen1('28964324-b915-40a2-a7d8-f48073e82778'), marks: STEEP },
+  { id: 'field-n1', stage: STAGE, name: '1 · 정통 부감 ★', src: 'ui/field-n1.webp', remoteSrc: `${CDN}hf_20260917_094834_f5f3c9f0-281f-4d2f-8c76-0446e9dd982b.png`, marks: STEEP },
+  { id: 'field-b', stage: STAGE, name: '이전 B · 높은 전술 부감', src: 'ui/field-b.webp', remoteSrc: gen1('28964324-b915-40a2-a7d8-f48073e82778'), marks: STEEP },
   { id: 'field-now', stage: STAGE, name: '지금 배경', src: 'ui/broadcast-field.webp', marks: MEASURED },
   // 존 뷰와 색을 맞춰 다시 뽑은 넉 장 — 에메랄드 잔디 · 테라코타 흙 · 거의 검은 관중석 (푸른 기 없음)
-  { id: 'field-n1', stage: STAGE, name: '새 1 · 정통 부감', src: 'ui/field-n1.webp', remoteSrc: `${CDN}hf_20260917_094834_f5f3c9f0-281f-4d2f-8c76-0446e9dd982b.png`, marks: STEEP },
-  { id: 'field-n2', stage: STAGE, name: '새 2 · 잔디 줄무늬 강조', src: 'ui/field-n2.webp', remoteSrc: `${CDN}hf_20260917_094835_73a8f60c-3422-4cd1-99c0-6b162e1639ef.png`, marks: STEEP },
-  { id: 'field-n3', stage: STAGE, name: '새 3 · 옅은 안개', src: 'ui/field-n3.webp', remoteSrc: `${CDN}hf_20260917_094835_1435eac7-bf6d-4def-ba5d-249101014cff.png`, marks: STEEP },
-  { id: 'field-n4', stage: STAGE, name: '새 4 · 조금 낮은 각도', src: 'ui/field-n4.webp', remoteSrc: `${CDN}hf_20260917_094835_ab483a53-c4b8-4271-ac81-90929aac1f51.png`, marks: MEASURED },
+  { id: 'field-n2', stage: STAGE, name: '2 · 잔디 줄무늬 강조', src: 'ui/field-n2.webp', remoteSrc: `${CDN}hf_20260917_094835_73a8f60c-3422-4cd1-99c0-6b162e1639ef.png`, marks: STEEP },
+  { id: 'field-n3', stage: STAGE, name: '3 · 옅은 안개', src: 'ui/field-n3.webp', remoteSrc: `${CDN}hf_20260917_094835_1435eac7-bf6d-4def-ba5d-249101014cff.png`, marks: STEEP },
+  { id: 'field-n4', stage: STAGE, name: '4 · 조금 낮은 각도', src: 'ui/field-n4.webp', remoteSrc: `${CDN}hf_20260917_094835_ab483a53-c4b8-4271-ac81-90929aac1f51.png`, marks: MEASURED },
   { id: 'field-a', stage: STAGE, name: '이전 A · 정통 중계 부감', src: 'ui/field-a.webp', remoteSrc: gen1('3564cd84-d6a7-4aaf-b4d1-6d00fe87b827'), marks: MEASURED },
   { id: 'field-c', stage: STAGE, name: '이전 C · 조명 강한', src: 'ui/field-c.webp', remoteSrc: gen1('82723653-2002-455d-aa0f-6b88852c0372'), marks: MEASURED },
   { id: 'field-d', stage: STAGE, name: '이전 D · 안개', src: 'ui/field-d.webp', remoteSrc: gen1('99595426-3d99-40be-a9cc-561def4b8f0a'), marks: MEASURED },
