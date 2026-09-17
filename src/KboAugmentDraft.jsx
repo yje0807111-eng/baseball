@@ -2213,7 +2213,7 @@ const PickIcon = ({ kind }) => (
 );
 
 /** 빈 PICK 구역의 스켈레톤 블록: PICK 카드의 윗줄 · 종합 · 연도줄 · 능력치 판 · 노트 · 포지션 칩 · 구분선 · 이름 · CP 자리 */
-const PK_SKELETON = [
+export const PK_SKELETON = [
   { left: '6cqw', right: '1.6cqw', top: '1.6cqw', height: '1.3cqw', background: 'rgba(148,163,184,.22)' },
   { left: '6cqw', top: '7cqw', width: '26cqw', height: '19cqw' },
   { left: '6.5cqw', top: '29cqw', width: '34cqw', height: '3.4cqw' },

@@ -15,6 +15,7 @@ import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
+import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
 import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
@@ -29,9 +30,7 @@ const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k =
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
 
 /*
- * 상세 판 큰 사진: 하이라이트 카드(cards/) → 없으면 정면 프로필(profiles/) → 실루엣.
- * 여러 겹 배경으로 두면 카드가 늦게 받아지는 동안 정면 프로필이 먼저 비쳐 깜빡이므로, 쓸 그림 하나를 미리 받아 두고 그것만 깐다.
- * 목록에서 마우스를 올리면(preloadCard) 미리 받아 둬서 누르는 순간 바로 뜬다.
+ * 선수 카드 그림(cards/ → profiles/ → 실루엣)을 미리 받아 둔다: 목록에서 마우스를 올리면(preloadCard) 상세 판 카드가 누르는 순간 바로 뜬다.
  */
 const cardCache = new Map(); // id → Promise<url>
 function preloadCard(p) {
@@ -41,15 +40,6 @@ function preloadCard(p) {
   const job = tryLoad(`cards/${id}.webp`).catch(() => tryLoad(`profiles/${id}.webp`)).catch(() => 'ui/mt/silhouette-player.webp');
   cardCache.set(p.id, job);
   return job;
-}
-function useCardImage(p) {
-  const [img, setImg] = useState(null); // { id, url }
-  useEffect(() => {
-    let live = true;
-    preloadCard(p)?.then((url) => { if (live) setImg({ id: p.id, url }); });
-    return () => { live = false; };
-  }, [p?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  return img && img.id === p?.id ? `url(${img.url})` : 'none';
 }
 
 /** 드롭다운 — 유리 판 + 모서리 네온 목록 (기본 select 창 대신) */
@@ -144,22 +134,14 @@ function EmptyDetail() {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
-      {/* 사진 틀: 둘레를 빛이 돈다 */}
-      <div className="mt-cut mt-skring shrink-0" style={{ ...cut(12), height: HERO_H }}>
-        <div>
-          <span className="absolute inset-0 bg-cover opacity-[0.07]" style={{ backgroundImage: 'url(ui/mt/silhouette-player.webp)', backgroundPosition: '60% 18%' }} />
-          <span className="absolute left-3 top-3">{sk({ width: 52, height: 34 })}</span>
-          <span className="absolute inset-x-3 bottom-[48px] flex justify-between">{sk({ width: 120, height: 10 })}{sk({ width: 44, height: 12 })}</span>
-          <span className="absolute bottom-3 left-3">{sk({ width: 150, height: 22 })}</span>
-          <span className="absolute right-3 top-3">{sk({ width: 64, height: 18, borderRadius: 9 })}</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-4 gap-1.5">
-        {[0, 1, 2, 3].map((k) => (
-          <div key={k} className="mt-cut flex flex-col gap-1.5 bg-white/[0.03] px-2 py-2" style={cut(6)}>
-            {sk({ width: '60%', height: 8 })}{sk({ width: '46%', height: 16 })}{sk({ width: '100%', height: 3 })}
+      {/* 드래프트 빈 PICK 카드 그대로: 카드 모양 스켈레톤 · 둘레 도는 빛 */}
+      <div className="flex min-h-0 flex-1 justify-center">
+        <div className="aspect-[2/3] h-full max-w-full">
+          <div className="pk-empty aspect-[2/3] w-full">
+            {PK_SKELETON.map((st, k) => <span key={k} className="pk-sk" style={{ ...st, '--i': k }} />)}
+            <span className="pk-fr" />
           </div>
-        ))}
+        </div>
       </div>
       <div className="mt-cut grid grid-cols-6 gap-2 bg-white/[0.03] px-3 py-2" style={cut(8)}>
         {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '55%', height: 13 })}</div>)}
@@ -168,7 +150,7 @@ function EmptyDetail() {
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(52,211,153,.25)' }, 'mt-cut')}
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(248,113,113,.2)' }, 'mt-cut')}
       </div>
-      <div className="mt-auto flex flex-col">
+      <div className="flex flex-col">
         {[0, 1].map((k) => (
           <div key={k} className="flex items-center justify-between border-b border-white/10 py-3">{sk({ width: 70, height: 10 })}{sk({ width: 96, height: 14 })}</div>
         ))}
@@ -200,36 +182,15 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
 }
 
-const HERO_H = 240; // 상세 판 큰 사진 높이 (빈 판 스켈레톤도 같은 값)
-
 function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, after, blocked, now, next, keys, tr, hand }) {
-  const heroImg = useCardImage(p);
   return (
-    <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-3 overflow-y-auto p-5" style={{ ...cut(20), '--a': n }}>
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
-      <div className="relative shrink-0">
-        <Hero img={heroImg} ovr={p.overall} name={p.name} color={n} h={HERO_H} />
-        <span className="absolute right-3 top-3 text-[13px] font-bold" style={{ color: hand.color, textShadow: '0 1px 4px rgba(0,0,0,.8)' }}>{hand.long}</span>
-        {/* 카드 안 이름 위 한 줄: 연도 구단 · 포지션 · 외국인 | 가격 */}
-        <div className="absolute inset-x-3 bottom-[46px] flex items-center gap-1.5 text-[12.5px] text-gray-200" style={{ textShadow: '0 1px 4px rgba(0,0,0,.9)' }}>
-          <span>{p.year} {p.team}</span>
-          <em className="px-1.5 py-px text-[11px] font-bold not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
-          {p.isForeign && <em className="px-1.5 py-px text-[11px] font-bold not-italic text-amber-300 shadow-[inset_0_0_0_1px_rgba(252,211,77,.6)]">외국인</em>}
-          <b className="ml-auto font-display text-base text-white">{p.cost}<small className="ml-0.5 text-[11px] text-gray-300">CP</small></b>
+      {/* 드래프트 PICK 카드 그대로 (연도 · 구단 · 투타 · 능력치 막대 · 포지션 · 외인 · 이름 · CP) — 판 높이에 맞춰 2:3 */}
+      <div className="flex min-h-0 flex-1 justify-center">
+        <div className="aspect-[2/3] h-full max-w-full">
+          <PlayerCard key={p.id} player={p} reason={null} onSelect={() => {}} />
         </div>
-      </div>
-      <div className="grid grid-cols-4 gap-1.5">
-        {keys.map(([label, k]) => {
-          const v = p.stats?.[k] ?? 0;
-          const c = statColor(v, posColor(p));
-          return (
-            <div key={k} className="mt-cut bg-white/[0.045] px-2 py-1.5" style={cut(6)}>
-              <div className="text-[10.5px] text-gray-400">{label}</div>
-              <b className="font-display text-[21px] leading-tight" style={{ color: c.num }}>{v}</b>
-              <span className="relative mt-0.5 block h-1 bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: c.bar }} /></span>
-            </div>
-          );
-        })}
       </div>
       {/* 실적: 시즌 기록 */}
       <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
@@ -252,7 +213,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
         {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
       </div>
       {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
-      <div className="mt-auto">
+      <div>
         <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
         <KV k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
       </div>
@@ -466,6 +427,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
+      <style>{KEYFRAMES}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
 
