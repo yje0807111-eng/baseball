@@ -64,9 +64,25 @@ export function engineTeam(team) {
   return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage, closerId, buff: team.buff || 0, edge: team.edge || null };
 }
 
-const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
+const SKIP = 0; // 배속이 아니라 "남은 경기를 목표 시간 안에 끝내기" — skipSpeed 가 공마다 배속을 다시 잡는다
+const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3], ['SKIP', SKIP]];
 const COUNT_MS = 620; // 공 하나 사이 (1X 기준)
 const RESULT_MS = 1500; // 타석이 끝나는 공
+const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
+const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
+
+/**
+ * SKIP 배속: 남은 아웃카운트로 남은 길이를 어림잡아 목표 시각(endAt)에 맞춘다.
+ * 공마다 다시 재니 어림이 빗나가도 스스로 따라잡는다.
+ * 남은 아웃은 9이닝이 아니라 **연장까지 간 가장 긴 경기**(maxInnings)로 잡는다 — 늘 일정보다 조금 앞서 달려서
+ * 끝에서 굼떠지지 않고, 연장에 들어가도 목표 시간을 넘기지 않는다. 하한 3.5 는 AUTO — SKIP 이 AUTO 보다 느릴 일은 없다.
+ */
+function skipSpeed(g, endAt) {
+  const outsDone = ((g.inning - 1) * 2 + (g.top ? 0 : 1)) * 3 + g.outs;
+  const outsLeft = Math.max(1, g.maxInnings * 6 - outsDone);
+  const left = Math.max(250, endAt - Date.now());
+  return Math.min(400, Math.max(3.5, (outsLeft * MS_PER_OUT) / left));
+}
 
 /* ───────── 해설 문장 ───────── */
 function commentary(ev) {
@@ -201,6 +217,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const aliveRef = useRef(true);
   speedRef.current = speed;
   pausedRef.current = paused;
+  const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
+  const curSpeed = () => (speedRef.current === SKIP ? skipSpeed(g, skipEndRef.current) : speedRef.current);
+  const flashMs = () => (speedRef.current === SKIP ? 260 : 1400); // 몰아서 넘길 땐 자막도 짧게
+  /** 배속 고르기. SKIP 은 목표 시각을 새로 잡고, 승부처 지시를 기다리던 중이면 정면 승부로 넘긴다 */
+  const pickSpeed = (v) => {
+    if (v === SKIP) {
+      skipEndRef.current = Date.now() + SKIP_MS;
+      if (ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
+    }
+    setSpeed(v);
+  };
 
   // StrictMode 로 두 번 마운트돼도 살아 있게 (마운트마다 다시 켠다)
   useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
@@ -219,13 +246,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
         if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
           g.clutchAsked = g.inning;
-          const picked = await new Promise((resolve) => {
-            ordersRef.current = resolve;
-            setOrders({ offense: !g.top, resolve });
-          });
-          ordersRef.current = null;
-          setOrders(null);
-          pendingRef.current = { ...pendingRef.current, ...picked };
+          if (speedRef.current !== SKIP) { // SKIP 이면 멈춰 세우지 않고 정면 승부로 계속 간다
+            const picked = await new Promise((resolve) => {
+              ordersRef.current = resolve;
+              setOrders({ offense: !g.top, resolve });
+            });
+            ordersRef.current = null;
+            setOrders(null);
+            pendingRef.current = { ...pendingRef.current, ...picked };
+          }
         }
         if (g.inning !== g.clutchAsked) g.clutchAsked = null;
         // 적 수비(내 공격) 중이면 AI 감독이 투수를 바꾼다
@@ -244,10 +273,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         setLines((l) => [...l, ...commentary(ev)].slice(-4));
         if (ev.result && ['HR', '3B', '2B', 'K', 'DP'].includes(ev.result)) {
           setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() });
-          setTimeout(() => setFlash(null), 1400);
+          setTimeout(() => setFlash(null), flashMs());
         }
         redraw();
-        await sleep((ev.result ? RESULT_MS : COUNT_MS) / speedRef.current);
+        await sleep((ev.result ? RESULT_MS : COUNT_MS) / curSpeed());
 
         // 반 이닝이 넘어갔으면: 증강의 이닝 점수 보정 → 경기 중 증강 선택 → 다음 반 이닝 보정
         if (aug && (g.inning !== half.inning || g.top !== half.top || g.final)) {
@@ -258,9 +287,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             setLines((l) => [...l, ...res.texts.map((t) => `[증강: ${t.name}] ${t.text}`)].slice(-4));
             const t = res.texts[res.texts.length - 1];
             setFlash({ text: t.name, key: Date.now() });
-            setTimeout(() => setFlash(null), 1400);
+            setTimeout(() => setFlash(null), flashMs());
             redraw();
-            await sleep(900 / speedRef.current);
+            await sleep(900 / curSpeed());
           }
           if (g.final) g.winner = g.home.runs > g.away.runs ? 'home' : g.away.runs > g.home.runs ? 'away' : 'draw';
           // 새 이닝이 시작될 때 그 경기에서만 쓰는 증강을 하나 더
@@ -280,7 +309,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       if (g.final && aliveRef.current) {
         redraw();
         setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
-        await sleep(1200);
+        await sleep(speedRef.current === SKIP ? 400 : 1200);
         onFinish?.(buildResult(g, my));
       }
     })();
@@ -324,8 +353,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
           <div className="mt-cut mt-glass ml-auto flex gap-1 p-1" style={{ '--c': '8px' }}>
             {SPEEDS.map(([label, v]) => (
-              <button key={label} type="button" onClick={() => setSpeed(v)}
-                className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
+              <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
+                title={v === SKIP ? '남은 경기를 10초 안에 몰아서 끝냅니다 (승부처는 정면 승부)' : `${label} 배속`}
+                className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
