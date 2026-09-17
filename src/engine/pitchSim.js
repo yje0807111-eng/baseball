@@ -327,8 +327,75 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   return runs;
 }
 
+/*
+ * 타구가 어디로 갔는지 — 결과에 맞는 방향·발사각·비거리를 붙인다.
+ * 화면(플레이 뷰·해설)에서만 쓰고 경기 결과에는 영향을 주지 않는다. 결과가 먼저 정해진 뒤에 부른다.
+ *   dir  -1 좌측 파울라인 ~ 0 중앙 ~ +1 우측 파울라인
+ *   loft 발사각(도) · dist 0 홈플레이트 ~ 1 펜스
+ *   by   공을 처리하는 야수 (P C 1B 2B 3B SS LF CF RF)
+ */
+const between = (rng, a, b) => a + rng() * (b - a);
+/** 좌우 어느 쪽으로 갈지 — 크게 당긴 타구일수록 파울라인 쪽 */
+const pull = (rng, near, far) => (rng() < 0.5 ? -1 : 1) * between(rng, near, far);
+
+export function hitLocation(rng, result, { power = 75, speed = 70 } = {}) {
+  let dir, loft, dist;
+  switch (result) {
+    case 'HR': dir = pull(rng, 0.05, 0.9); loft = between(rng, 24, 36); dist = between(rng, 1.02, 1.22); break;
+    case '3B': dir = pull(rng, 0.45, 0.9); loft = between(rng, 9, 22); dist = between(rng, 0.8, 0.96); break;
+    case '2B': dir = pull(rng, 0.3, 0.85); loft = between(rng, 12, 26); dist = between(rng, 0.68, 0.88); break;
+    case 'SF': dir = pull(rng, 0.05, 0.75); loft = between(rng, 28, 44); dist = between(rng, 0.7, 0.88); break;
+    case 'FO': dir = pull(rng, 0.05, 0.85); loft = between(rng, 30, 52); dist = between(rng, 0.42, 0.8); break;
+    case 'LO': dir = pull(rng, 0.05, 0.7); loft = between(rng, 8, 16); dist = between(rng, 0.24, 0.4); break;
+    case 'SAC': case 'BH': dir = pull(rng, 0.1, 0.45); loft = between(rng, 0, 7); dist = between(rng, 0.06, 0.15); break;
+    case '1B':
+      if (rng() < 0.62) { dir = pull(rng, 0.1, 0.8); loft = between(rng, 0, 8); dist = between(rng, 0.34, 0.52); } // 내야를 뚫는 땅볼
+      else { dir = pull(rng, 0.05, 0.7); loft = between(rng, 20, 34); dist = between(rng, 0.48, 0.64); }           // 빗맞은 뜬공
+      break;
+    default: dir = pull(rng, 0.05, 0.85); loft = between(rng, -4, 7); dist = between(rng, 0.17, 0.33); // GO · DP · E
+  }
+  // 힘이 센 타자는 조금 더 멀리, 발이 빠른 타자의 땅볼은 조금 더 깊게 (보이는 맛만)
+  dist *= 1 + (power - 75) * 0.0012 + (loft < 10 ? (speed - 70) * 0.0008 : 0);
+  // 담장 안팎은 결과가 정한다 — 홈런은 넘기고, 나머지는 담장 앞에 떨어진다
+  const fence = fenceAt(dir);
+  dist = result === 'HR' ? Math.max(dist, fence + 0.03) : Math.min(dist, fence - 0.04);
+  return { dir, loft, dist, by: fielderAt(dir, dist) };
+}
+
+/** 담장까지의 거리 — 가운데가 멀고 파울폴 쪽이 가깝다 (플레이 뷰와 같은 값) */
+export const fenceAt = (dir) => 1 - 0.17 * Math.abs(Math.sin((dir * 45 * Math.PI) / 180)) / Math.sin((45 * Math.PI) / 180);
+
+/** 방향·깊이로 처리할 야수를 고른다 */
+export function fielderAt(dir, dist) {
+  if (dist >= fenceAt(dir)) return null; // 담장을 넘어갔다
+  if (dist < 0.1) return Math.abs(dir) > 0.75 ? (dir < 0 ? '3B' : '1B') : 'C';
+  if (dist < 0.38) {
+    if (dir < -0.58) return '3B';
+    if (dir < -0.14) return 'SS';
+    if (dir <= 0.14) return 'P';
+    if (dir <= 0.58) return '2B';
+    return '1B';
+  }
+  return dir < -0.3 ? 'LF' : dir > 0.3 ? 'RF' : 'CF';
+}
+
+/** 해설용 방향 이름 */
+export function dirName(dir) {
+  if (dir < -0.72) return '좌익선상';
+  if (dir < -0.34) return '좌익수 쪽';
+  if (dir < -0.12) return '좌중간';
+  if (dir <= 0.12) return '중앙';
+  if (dir <= 0.34) return '우중간';
+  if (dir <= 0.72) return '우익수 쪽';
+  return '우익선상';
+}
+
 function wrap(g, ev, runs) {
   ev.runs = runs;
+  // 인플레이 타구는 어디로 갔는지까지 실어 보낸다 (플레이 뷰·해설이 쓴다)
+  if (ev.call === 'inplay' && ev.result) {
+    ev.hit = hitLocation(g.rng, ev.result, { power: st(ev.batter, 'power'), speed: st(ev.batter, 'speed') });
+  }
   ev.after = { outs: g.final ? ev.before.outs : g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] };
   ev.score = { home: g.home.runs, away: g.away.runs };
   ev.text = ev.text || describe(ev);

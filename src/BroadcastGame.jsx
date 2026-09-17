@@ -7,8 +7,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
 import { statColor, teamNeon } from './myteam/teamColor.js';
+import PlayView from './play/PlayView.jsx';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE } from './engine/pitchSim.js';
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -93,6 +94,7 @@ function skipSpeed(g, endAt) {
 }
 
 /* ───────── 해설 문장 ───────── */
+const FIELD_KO = { P: '투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수' };
 function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
@@ -104,10 +106,13 @@ function commentary(ev) {
     return out;
   }
   const r = ev.result;
-  if (r === 'HR') out.push(`${b}, 쳤습니다! 크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
-  else if (r === '3B') out.push(`${b}, 우중간을 완전히 가릅니다! 3루까지!`);
-  else if (r === '2B') out.push(`${b}, 좌중간 2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
-  else if (r === '1B') out.push(`${b}, 깨끗한 안타로 출루합니다.${ev.runs ? ` ${ev.runs}점!` : ''}`);
+  // 실제 타구가 간 곳을 그대로 부른다 (ev.hit)
+  const dir = ev.hit ? dirName(ev.hit.dir) : null;
+  const by = ev.hit?.by ? FIELD_KO[ev.hit.by] : null;
+  if (r === 'HR') out.push(`${b}, 쳤습니다! ${dir ? `${dir}으로 ` : ''}크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
+  else if (r === '3B') out.push(`${b}, ${dir ? `${dir}을 ` : ''}완전히 가릅니다! 3루까지!`);
+  else if (r === '2B') out.push(`${b}, ${dir ? `${dir} ` : ''}2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
+  else if (r === '1B') out.push(`${b}, ${by ? `${by} 앞으로 빠지는 ` : '깨끗한 '}안타.${ev.runs ? ` ${ev.runs}점!` : ''}`);
   else if (r === 'BB') out.push(`${b}, 볼넷으로 걸어 나갑니다.${ev.runs ? ' 밀어내기 득점!' : ''}`);
   else if (r === 'IBB') out.push(`${b}, 고의사구. 1루가 채워집니다.`);
   else if (r === 'K') out.push(`${p} — 삼진! ${b}, 돌아섭니다.`);
@@ -117,6 +122,9 @@ function commentary(ev) {
   else if (r === 'BH') out.push(`${b}, 기습 번트 안타!`);
   else if (r === 'E') out.push(`${b}의 평범한 타구… 수비 실책! 주자 살아 나갑니다`);
   else if (r === 'CS') out.push('도루 실패로 이닝이 끝납니다');
+  else if (r === 'GO') out.push(`${b}, ${by ? `${by} 앞 ` : ''}땅볼 아웃.`);
+  else if (r === 'FO') out.push(`${b}, ${by ? `${by} ` : ''}뜬공 아웃.`);
+  else if (r === 'LO') out.push(`${b}, ${by ? `${by} 정면 ` : ''}직선타 아웃.`);
   else out.push(`${b}, ${RESULT_LABEL[r]}.`);
   return out;
 }
@@ -200,8 +208,19 @@ function TeamPanel({ team, side, color, pitcher, pitches, pitcherIdx = 0 }) {
   );
 }
 
+/** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
+function atBatPitches(events) {
+  const out = [];
+  for (let i = events.length - 1; i >= 0; i -= 1) {
+    const e = events[i];
+    if (out.length && e.result) break;
+    if (e.pitch) out.unshift(e);
+  }
+  return out;
+}
+
 /* ───────── 본체 ───────── */
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -214,6 +233,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [paused, setPaused] = useState(false);
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
+  const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
   const [orders, setOrders] = useState(null); // 승부처 지시 대기
   const ordersRef = useRef(null);
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
@@ -317,12 +337,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
         setLines((l) => [...l, ...commentary(ev)].slice(-4));
+        const beat = (ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
+        setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
         if (ev.result && BIG.includes(ev.result)) {
-          setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() });
-          setTimeout(() => setFlash(null), flashMs());
+          // 맞아 나간 공은 타구가 다 지나간 뒤에 자막을 띄운다
+          const wait = ev.call === 'inplay' ? beat * 0.66 : 0;
+          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, wait);
         }
         redraw();
-        await sleep((ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed());
+        await sleep(beat);
 
         // 반 이닝이 넘어갔으면: 증강의 이닝 점수 보정 → 경기 중 증강 선택 → 다음 반 이닝 보정
         if (aug && (g.inning !== half.inning || g.top !== half.top || g.final)) {
@@ -396,6 +419,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const mix = pitchMix(pitcher);
   const line = pitcherLine(g, pitcher);
   const steal0 = stealOdds(g, 0);
+  const atBat = atBatPitches(g.events); // 이 타석에 지나간 공 (존 뷰 자취)
 
   const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
   const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
@@ -412,8 +436,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       onContextMenu={(e) => e.preventDefault()}>
       <UiStyle />
       {recap && <InningRecap {...recap} onPick={(k) => recap.resolve(k)} />}
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/broadcast-field.webp)' }} />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%)' }} />
+      {/* 경기장 사진이 곧 배경이다 — 플레이는 화면 전체에서 벌어지고, UI 는 그 위에 얹힌다 */}
+      <div className="absolute inset-0">
+        <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
+          bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
+      </div>
+      <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
 
       <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
         {/* 헤더 */}
@@ -442,8 +470,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
-        {/* 점수 + 이닝별 */}
-        <div className="col-start-2 text-center">
+        {/* 점수 + 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 */}
+        <div className="relative z-10 col-start-2 row-start-2 self-start text-center">
           <div className="mt-cut mt-frame mt-glass relative inline-block px-8 pb-2 pt-2.5" style={{ '--c': '20px', '--a': '#fde047' }}>
             <div className="flex items-center justify-center gap-6">
               <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
