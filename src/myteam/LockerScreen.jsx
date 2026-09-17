@@ -182,26 +182,50 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
 }
 
+/** 카드(2:3)와 그 아래 붙은 실적 줄: 판에서 남은 높이 · 폭을 재서 카드 크기를 정하고, 실적 줄을 카드 폭에 맞춘다 */
+function CardWithRecord({ p }) {
+  const box = useRef(null);
+  const recRef = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return undefined;
+    const fit = () => {
+      const recH = recRef.current?.offsetHeight || 0;
+      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - recH) * 2) / 3))));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
+      <div style={{ width: w }}>
+        <div className="aspect-[2/3] w-full">
+          <PlayerCard key={p.id} player={p} reason={null} onSelect={() => {}} />
+        </div>
+        {/* 칸마다 세로 구분선 · 이름은 밝은 회색 영문 서체 · 숫자는 크고 굵게 — 작은 칸에서도 읽히게 */}
+        <div ref={recRef} className="grid grid-cols-6 divide-x divide-white/[0.08] bg-[#0b1220] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" style={{ clipPath: 'polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)' }}>
+          {recordCells(p).map(([k, v]) => (
+            <div key={k} className="flex flex-col items-center justify-center gap-0.5 py-1.5 leading-none">
+              <span className="text-[11px] font-semibold text-gray-300">{k}</span>
+              <b className={`font-display text-[18px] font-extrabold tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, after, blocked, now, next, keys, tr, hand }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
-      {/* 드래프트 PICK 카드 그대로 (연도 · 구단 · 투타 · 능력치 막대 · 포지션 · 외인 · 이름 · CP) — 판 높이에 맞춰 2:3 */}
-      <div className="flex min-h-0 flex-1 justify-center">
-        <div className="aspect-[2/3] h-full max-w-full">
-          <PlayerCard key={p.id} player={p} reason={null} onSelect={() => {}} />
-        </div>
-      </div>
+      {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
+      <CardWithRecord p={p} />
       {/* 실적: 시즌 기록 */}
-      {/* 칸마다 세로 구분선 · 이름은 밝은 회색 영문 서체 · 숫자는 크고 굵게 — 작은 칸에서도 읽히게 */}
-      <div className="mt-cut grid grid-cols-6 divide-x divide-white/[0.08] bg-white/[0.05]" style={cut(8)}>
-        {recordCells(p).map(([k, v]) => (
-          <div key={k} className="flex flex-col items-center justify-center gap-0.5 py-1.5 leading-none">
-            <span className="text-[11px] font-semibold text-gray-300">{k}</span>
-            <b className={`font-display text-[18px] font-extrabold tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b>
-          </div>
-        ))}
-      </div>
       {/* 강점 · 약점: 두 줄 격자의 작은 칩 (아이콘 · 이름 · 근거 수치) */}
       {(tr.good.length > 0 || tr.bad.length > 0) && (
         <div className="grid grid-cols-2 gap-1">
