@@ -57,7 +57,7 @@ function Photo({ bg, dim }) {
   const src = chain[step];
   return (
     <>
-      <rect x="0" y="0" width={ART.w} height={ART.h} fill="#060c16" />
+      <rect x="-400" y="-400" width={ART.w + 800} height={ART.h + 800} fill="#060c16" />
       {src && (
         <image key={src} href={src} x="0" y="0" width={ART.w} height={ART.h} preserveAspectRatio="xMidYMid slice"
           onError={() => setStep((v) => v + 1)} />
@@ -68,8 +68,8 @@ function Photo({ bg, dim }) {
 }
 
 /** 선수 한 명 — 멀수록 작게 */
-const Chip = ({ at, s = 1, color, label, name, dim, ring }) => {
-  const k = 0.55 + 0.45 * s; // 원근은 주되 멀다고 점이 되지는 않게
+const Chip = ({ at, s = 1, u = 1, color, label, name, dim, ring }) => {
+  const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
   const r = 30 * k;
   return (
     <g opacity={dim ? 0.85 : 1}>
@@ -120,7 +120,7 @@ const Pitcher = ({ mound, h, w, color }) => {
 };
 
 /* ───────── 필드 뷰 ───────── */
-function FieldView({ play, t, bases, offColor, defColor, bg }) {
+function FieldView({ play, t, u, bases, offColor, defColor, bg }) {
   const { at, scaleAt } = useMemo(() => makeMapper(bg.marks), [bg]);
   const beats = play?.beats || [];
   const ball = beats.find((b) => b.kind === 'ball');
@@ -147,8 +147,8 @@ function FieldView({ play, t, bases, offColor, defColor, bg }) {
 
   return (
     <>
-      <Photo bg={bg} dim={0.3} />
-      {trail && <path d={trail} stroke="rgba(253,224,71,.65)" strokeWidth="7" fill="none" strokeLinecap="round" />}
+      <Photo bg={bg} dim={0.18} />
+      {trail && <path d={trail} stroke="rgba(253,224,71,.65)" strokeWidth={7 * u} fill="none" strokeLinecap="round" />}
 
       {FIELDERS.map((pos) => {
         const acting = fielder?.pos === pos;
@@ -157,41 +157,41 @@ function FieldView({ play, t, bases, offColor, defColor, bg }) {
           const u = ease(phase(t, fielder.t0, fielder.t1));
           p = [p[0] + (fielder.to[0] - p[0]) * u, p[1] + (fielder.to[1] - p[1]) * u];
         }
-        return <Chip key={pos} at={at(p)} s={scaleAt(p)} color={acting ? '#fff' : defColor} label={pos} dim={!acting && !!play} />;
+        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} ring={acting} dim={!acting && !!play} />;
       })}
 
-      {!play && bases.map((r, i) => (r ? <Chip key={i} at={baseAt(i)} s={scaleAt(SPOTS.P)} color={offColor} name={r.name} /> : null))}
+      {!play && bases.map((r, i) => (r ? <Chip key={i} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} name={r.name} /> : null))}
       {runs.map((b, i) => {
         const u = ease(phase(t, b.t0, b.t1));
         const p = along(b.path, u);
         const done = u >= 1;
-        return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} name={b.player?.name} dim={(b.out && done) || b.still} ring={b.scored && done}
+        return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} name={b.player?.name} dim={(b.out && done) || b.still} ring={b.scored && done}
           color={b.out && done ? '#6b7280' : b.scored && done ? '#fde047' : offColor} />;
       })}
       {steal && t >= steal.t0 && (() => {
-        const u = ease(phase(t, steal.t0, steal.t1));
-        const p = along(steal.path, u);
-        return <Chip at={at(p)} s={scaleAt(p)} name={steal.player?.name} ring={u >= 1} color={steal.ok ? offColor : '#6b7280'} />;
+        const k = ease(phase(t, steal.t0, steal.t1));
+        const p = along(steal.path, k);
+        return <Chip at={at(p)} s={scaleAt(p)} u={u} name={steal.player?.name} ring={k >= 1} color={steal.ok ? offColor : '#6b7280'} />;
       })()}
 
-      {throwAt && <circle cx={throwAt[0]} cy={throwAt[1]} r="9" fill="#fff" />}
+      {throwAt && <circle cx={throwAt[0]} cy={throwAt[1]} r={9 * u} fill="#fff" />}
       {ballAt && (
         <g>
-          <ellipse cx={ballAt[0]} cy={ballAt[1]} rx="14" ry="6" fill="rgba(0,0,0,.55)" />
-          <circle cx={ballAt[0]} cy={ballAt[1] - lift} r="30" fill="rgba(253,224,71,.25)" />
-          <circle cx={ballAt[0]} cy={ballAt[1] - lift} r={landed ? 11 : 14} fill="#fff" stroke="#fde047" strokeWidth="5" />
+          <ellipse cx={ballAt[0]} cy={ballAt[1]} rx={14 * u} ry={6 * u} fill="rgba(0,0,0,.55)" />
+          <circle cx={ballAt[0]} cy={ballAt[1] - lift} r={30 * u} fill="rgba(253,224,71,.25)" />
+          <circle cx={ballAt[0]} cy={ballAt[1] - lift} r={(landed ? 11 : 14) * u} fill="#fff" stroke="#fde047" strokeWidth={5 * u} />
         </g>
       )}
       {ball?.gone && t > ball.t1 - 0.12 && (
-        <text x={ART.w / 2} y="250" textAnchor="middle" fontSize="92" fontWeight="900" fill="#fde047"
-          stroke="rgba(0,0,0,.9)" strokeWidth="20" paintOrder="stroke">GONE!</text>
+        <text x={ART.w / 2} y="250" textAnchor="middle" fontSize={92 * u} fontWeight="900" fill="#fde047"
+          stroke="rgba(0,0,0,.9)" strokeWidth={20 * u} paintOrder="stroke">GONE!</text>
       )}
     </>
   );
 }
 
 /* ───────── 존 뷰 (타석 시점) ───────── */
-function ZoneView({ play, t, history, atBat, bg, defColor }) {
+function ZoneView({ play, t, u, history, atBat, bg, defColor }) {
   const Z = bg.zone;
   const px = ([x, y]) => [Z.cx + (x / ZONE.w) * Z.hw, Z.cy + (y / ZONE.h) * Z.hh];
   const beats = play?.beats || [];
@@ -205,15 +205,15 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
 
   let ball = null; let r = 10;
   if (p && t >= p.t0) {
-    const u = Math.min(1, phase(t, p.t0, p.t1));
+    const pu = Math.min(1, phase(t, p.t0, p.t1));
     const to = px(p.to);
     // 늦게 휘는 곡선(2차 베지에). 조종점을 끝쪽으로 밀어 두면 막판에 꺾이고,
     // 끝점은 목표 그대로라 변화구가 존 안으로 끌려 들어가지 않는다.
     const bend = [(p.bend[0] / ZONE.w) * Z.hw * 1.6, (p.bend[1] / ZONE.h) * Z.hh * 1.6];
     const ctrl = [release[0] + (to[0] - release[0]) * 0.72 + bend[0], release[1] + (to[1] - release[1]) * 0.72 + bend[1]];
-    const q = (a, c, z) => (1 - u) * (1 - u) * a + 2 * u * (1 - u) * c + u * u * z;
+    const q = (a, c, z) => (1 - pu) * (1 - pu) * a + 2 * pu * (1 - pu) * c + pu * pu * z;
     ball = [q(release[0], ctrl[0], to[0]), q(release[1], ctrl[1], to[1])];
-    r = 7 + 23 * u * u;
+    r = (7 + 23 * pu * pu) * u;
   }
   const sw = swing ? phase(t, swing.t0, swing.t1) : 0;
   const cell = (i) => [Z.cx - Z.hw + (i % 3) * (Z.hw * 2 / 3), Z.cy - Z.hh + Math.floor(i / 3) * (Z.hh * 2 / 3)];
@@ -225,9 +225,9 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
 
       {/* 스트라이크존 */}
       <rect x={Z.cx - Z.hw} y={Z.cy - Z.hh} width={Z.hw * 2} height={Z.hh * 2} fill="rgba(255,255,255,.06)"
-        stroke="rgba(255,255,255,.6)" strokeWidth="5" />
+        stroke="rgba(255,255,255,.6)" strokeWidth={5 * u} />
       {Array.from({ length: 9 }, (_, i) => (
-        <rect key={i} x={cell(i)[0]} y={cell(i)[1]} width={Z.hw * 2 / 3} height={Z.hh * 2 / 3} fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="2" />
+        <rect key={i} x={cell(i)[0]} y={cell(i)[1]} width={Z.hw * 2 / 3} height={Z.hh * 2 / 3} fill="none" stroke="rgba(255,255,255,.18)" strokeWidth={2 * u} />
       ))}
 
       {/* 이 타석에 지나간 공 */}
@@ -235,9 +235,9 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
         const q = px(h.at);
         return (
           <g key={i} opacity="0.85">
-            <circle cx={q[0]} cy={q[1]} r="17" fill={h.tone === 'ball' ? 'rgba(52,211,153,.3)' : 'rgba(253,224,71,.3)'}
-              stroke={h.tone === 'ball' ? '#34d399' : '#fde047'} strokeWidth="4" />
-            <text x={q[0]} y={q[1] + 7} textAnchor="middle" fontSize="20" fontWeight="800" fill="#fff">{i + 1}</text>
+            <circle cx={q[0]} cy={q[1]} r={17 * u} fill={h.tone === 'ball' ? 'rgba(52,211,153,.3)' : 'rgba(253,224,71,.3)'}
+              stroke={h.tone === 'ball' ? '#34d399' : '#fde047'} strokeWidth={4 * u} />
+            <text x={q[0]} y={q[1] + 7 * u} textAnchor="middle" fontSize={20 * u} fontWeight="800" fill="#fff">{i + 1}</text>
           </g>
         );
       })}
@@ -257,28 +257,29 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
       )}
 
       {p && (
-        <text x={ART.w - 120} y="126" textAnchor="end" fontSize="58" fontWeight="800" fill="rgba(255,255,255,.88)">
-          {p.velo}<tspan fontSize="30" fill="rgba(255,255,255,.55)"> km/h</tspan>
+        <text x="1135" y="345" textAnchor="end" fontSize={54 * u} fontWeight="800" fill="rgba(255,255,255,.9)"
+          stroke="rgba(0,0,0,.65)" strokeWidth={9 * u} paintOrder="stroke">
+          {p.velo}<tspan fontSize={28 * u} fill="rgba(255,255,255,.6)"> km/h</tspan>
         </text>
       )}
       {call && t >= call.t0 && (
-        <text x="110" y={Z.cy - Z.hh + 30} fontSize="104" fontWeight="900"
-          fill={call.tone === 'ball' ? '#34d399' : '#fde047'} stroke="rgba(0,0,0,.85)" strokeWidth="22" paintOrder="stroke">{call.label}</text>
+        <text x="450" y={Z.cy - Z.hh - 40} textAnchor="middle" fontSize={92 * u} fontWeight="900"
+          fill={call.tone === 'ball' ? '#34d399' : '#fde047'} stroke="rgba(0,0,0,.85)" strokeWidth={22 * u} paintOrder="stroke">{call.label}</text>
       )}
 
       {/* 오른쪽: 이 타석에 던진 공 */}
       <g>
-        <text x="1150" y="230" fontSize="28" fontWeight="800" fill="rgba(148,163,184,.95)">THIS AT-BAT</text>
-        {atBat.slice(-7).map((e, i, arr) => {
+        <text x="952" y="392" fontSize={26 * u} fontWeight="800" fill="rgba(203,213,225,.95)" stroke="rgba(0,0,0,.6)" strokeWidth={7 * u} paintOrder="stroke">THIS AT-BAT</text>
+        {atBat.slice(-5).map((e, i, arr) => {
           const now = i === arr.length - 1;
           const tone = e.call === 'ball' ? '#34d399' : e.call === 'inplay' ? '#fff' : '#fde047';
-          const y = 255 + i * 54;
+          const y = 412 + i * 50;
           return (
             <g key={i} opacity={now ? 1 : 0.6}>
-              <rect x="1148" y={y} width="332" height="46" fill={now ? 'rgba(255,255,255,.14)' : 'rgba(5,8,15,.6)'} />
-              <rect x="1148" y={y} width="7" height="46" fill={tone} />
-              <text x="1172" y={y + 33} fontSize="32" fontWeight="700" fill="#e2e8f0">{PITCH_KO[e.pitch?.type] || ''}</text>
-              <text x="1468" y={y + 33} textAnchor="end" fontSize="32" fontWeight="800" fill={tone}>{e.pitch?.velo}</text>
+              <rect x="950" y={y} width="200" height="42" fill={now ? 'rgba(255,255,255,.14)' : 'rgba(5,8,15,.6)'} />
+              <rect x="950" y={y} width="6" height="42" fill={tone} />
+              <text x="968" y={y + 30} fontSize={28 * u} fontWeight="700" fill="#e2e8f0">{PITCH_KO[e.pitch?.type] || ''}</text>
+              <text x="1136" y={y + 30} textAnchor="end" fontSize={28 * u} fontWeight="800" fill={tone}>{e.pitch?.velo}</text>
             </g>
           );
         })}
@@ -292,6 +293,24 @@ export default function PlayView({
   event, atBat = [], beatMs = 1200, paused = false, bases = [null, null, null],
   offColor = '#34d399', defColor = '#94a3b8', bg = DEFAULT_BG,
 }) {
+  const boxRef = useRef(null);
+  // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
+  const [u, setU] = useState(1);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return undefined;
+    const read = () => {
+      const { width, height } = el.getBoundingClientRect();
+      if (!width || !height) return;
+      const s = Math.max(width / ART.w, height / ART.h);
+      setU(Math.max(0.3, Math.min(1.6, 0.514 / s))); // 0.514 = 예전 칸 크기 기준
+    };
+    read();
+    if (!window.ResizeObserver) return undefined;
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const play = useMemo(() => buildPlay(event), [event]);
   const t = useClock(event, beatMs, paused);
   const history = useMemo(
@@ -299,18 +318,23 @@ export default function PlayView({
     [atBat],
   );
   const onField = !play ? true : play.cut != null && t >= play.cut;
+  const shift = (b) => `translate(0 ${b.stage?.dy || 0})`; // 화면을 꽉 채운 사진을 위아래로 밀어 맞춘다
   const fade = play?.cut ? Math.min(1, Math.max(0, (t - play.cut) / 0.04)) : 1;
   const box = `0 0 ${ART.w} ${ART.h}`;
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div ref={boxRef} className="relative h-full w-full overflow-hidden">
       {onField ? (
-        <svg viewBox={box} preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full" style={{ opacity: fade }}>
-          <FieldView play={play} t={t} bases={bases} offColor={offColor} defColor={defColor} bg={bg.field} />
+        <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" style={{ opacity: fade }}>
+          <g transform={shift(bg.field)}>
+            <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={bg.field} />
+          </g>
         </svg>
       ) : (
-        <svg viewBox={box} preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full">
-          <ZoneView play={play} t={t} history={history} atBat={atBat} bg={bg.zone} defColor={defColor} />
+        <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
+          <g transform={shift(bg.zone)}>
+            <ZoneView play={play} t={t} u={u} history={history} atBat={atBat} bg={bg.zone} defColor={defColor} />
+          </g>
         </svg>
       )}
     </div>

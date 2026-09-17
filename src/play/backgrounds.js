@@ -17,25 +17,29 @@ const gen2 = (id) => `${CDN}hf_20260917_090701_${id}.png`;
 
 /* 지금 배경(broadcast-field.webp)에서 실제로 잰 값 — 마운드·파울폴까지 맞는 것을 확인했다 */
 const MEASURED = marksFrom({ homeY: 731, sideY: 548, secondY: 450, halfW: 324 });
+/* 화면을 꽉 채우면 홈플레이트가 아래 작전 버튼에 가린다 — 사진을 조금 위로 민다 */
+const STAGE = { dy: -54 };
 /* 높은 전술 부감(field-b)은 각도가 더 서 있어 홈이 내려오고 2루가 올라간다.
    아직 눈으로 맞추지 못한 어림값이다 — play-lab 의 '다이아몬드 자'로 확인해야 한다 */
 const STEEP = marksFrom({ homeY: 790, sideY: 565, secondY: 395, halfW: 340 });
 
 export const FIELD_BGS = [
-  { id: 'field-b', name: 'B · 높은 전술 부감 ★', src: 'ui/field-b.webp', remoteSrc: gen1('28964324-b915-40a2-a7d8-f48073e82778'), marks: STEEP },
-  { id: 'field-now', name: '지금 배경', src: 'ui/broadcast-field.webp', marks: MEASURED },
-  { id: 'field-a', name: 'A · 정통 중계 부감', src: 'ui/field-a.webp', remoteSrc: gen1('3564cd84-d6a7-4aaf-b4d1-6d00fe87b827'), marks: MEASURED },
-  { id: 'field-c', name: 'C · 조명 강한 드라마틱', src: 'ui/field-c.webp', remoteSrc: gen1('82723653-2002-455d-aa0f-6b88852c0372'), marks: MEASURED },
-  { id: 'field-d', name: 'D · 안개 낀 차분한 밤', src: 'ui/field-d.webp', remoteSrc: gen1('99595426-3d99-40be-a9cc-561def4b8f0a'), marks: MEASURED },
+  { id: 'field-b', stage: STAGE, name: 'B · 높은 전술 부감 ★', src: 'ui/field-b.webp', remoteSrc: gen1('28964324-b915-40a2-a7d8-f48073e82778'), marks: STEEP },
+  { id: 'field-now', stage: STAGE, name: '지금 배경', src: 'ui/broadcast-field.webp', marks: MEASURED },
+  { id: 'field-a', stage: STAGE, name: 'A · 정통 중계 부감', src: 'ui/field-a.webp', remoteSrc: gen1('3564cd84-d6a7-4aaf-b4d1-6d00fe87b827'), marks: MEASURED },
+  { id: 'field-c', stage: STAGE, name: 'C · 조명 강한 드라마틱', src: 'ui/field-c.webp', remoteSrc: gen1('82723653-2002-455d-aa0f-6b88852c0372'), marks: MEASURED },
+  { id: 'field-d', stage: STAGE, name: 'D · 안개 낀 차분한 밤', src: 'ui/field-d.webp', remoteSrc: gen1('99595426-3d99-40be-a9cc-561def4b8f0a'), marks: MEASURED },
   // 저장소에 이미 있던 야간 도심 구장 — 베이스를 직접 재서 맞춰 뒀다 (마운드 예측 800,603 / 실측 799,608)
-  { id: 'field-stadium', name: '야간 도심 구장(기존 아트)', src: 'ui/stadium.webp', marks: marksFrom({ homeY: 712, sideY: 599, secondY: 533, halfW: 303 }) },
+  { id: 'field-stadium', stage: STAGE, name: '야간 도심 구장(기존 아트)', src: 'ui/stadium.webp', marks: marksFrom({ homeY: 712, sideY: 599, secondY: 533, halfW: 303 }) },
 ];
 
 /* 존 뷰 기준: 배경은 빈 마운드, 투수는 PlayView 가 그린다. 아직 눈으로 맞추지 못한 어림값 */
+/* 화면을 꽉 채우면 위는 점수판, 아래는 작전 버튼이 가린다 — 투수와 존이 그 사이(아트 y 270~690)에
+   들어가야 한다. 투수 머리 ≈280 · 발 374 · 존 상자 404~674 */
 const ZSPEC = {
-  mound: [800, 415],                            // 마운드에 선 투수의 발자리 — 존 상자보다 위에 있어야 한다
-  pitcherH: 135,                                // 그려 올릴 투수 키
-  zone: { cx: 806, cy: 625, hw: 150, hh: 165 }, // 스트라이크존 상자 (위 460 ~ 아래 790)
+  mound: [800, 374],                            // 마운드에 선 투수의 발자리
+  pitcherH: 100,                                // 그려 올릴 투수 키
+  zone: { cx: 806, cy: 539, hw: 122, hh: 135 }, // 스트라이크존 상자
 };
 
 export const ZONE_BGS = [
@@ -44,7 +48,7 @@ export const ZONE_BGS = [
   { id: 'zone-c', name: 'C · 빈 마운드, 아웃포커스', src: 'ui/zone-c.webp', remoteSrc: gen2('156f6a35-7b66-4a4c-8a2d-27c0729170c3'), ...ZSPEC },
   { id: 'zone-d', name: 'D · 빈 마운드, 안개·역광', src: 'ui/zone-d.webp', remoteSrc: gen2('f2e9f091-85ea-431d-a886-1d8898cf84a2'), ...ZSPEC },
   // 사진에 투수가 박힌 예전 배경 — 우리 투수를 겹쳐 그리지 않는다
-  { id: 'zone-old', name: '예전 배경(투수 있음)', src: 'ui/plate-view.webp', hasPitcher: true, release: [820, 272], zone: { cx: 812, cy: 552, hw: 150, hh: 186 } },
+  { id: 'zone-old', name: '예전 배경(투수 있음)', src: 'ui/plate-view.webp', hasPitcher: true, release: [820, 200], zone: { cx: 806, cy: 539, hw: 122, hh: 135 } },
 ];
 
 export const DEFAULT_BG = { field: FIELD_BGS[0], zone: ZONE_BGS[0] };

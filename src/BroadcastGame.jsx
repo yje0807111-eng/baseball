@@ -212,8 +212,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
-  const scoreRef = useRef(null);
-  const [scoreH, setScoreH] = useState(0); // 점수판이 덮는 높이 — 플레이 뷰는 그 아래만 쓴다
   const [orders, setOrders] = useState(null); // 승부처 지시 대기
   const ordersRef = useRef(null);
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
@@ -225,18 +223,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const aliveRef = useRef(true);
   speedRef.current = speed;
   pausedRef.current = paused;
-
-  // 점수판 높이를 재 둔다 (화면 크기에 따라 달라진다)
-  useEffect(() => {
-    const el = scoreRef.current;
-    if (!el) return undefined;
-    const read = () => setScoreH(el.offsetHeight);
-    read();
-    if (!window.ResizeObserver) return undefined;
-    const ro = new ResizeObserver(read);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   // StrictMode 로 두 번 마운트돼도 살아 있게 (마운트마다 다시 켠다)
   useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
@@ -348,8 +334,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   return (
     <div className="fixed inset-0 z-40 overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/broadcast-field.webp)' }} />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%)' }} />
+      {/* 경기장 사진이 곧 배경이다 — 플레이는 화면 전체에서 벌어지고, UI 는 그 위에 얹힌다 */}
+      <div className="absolute inset-0">
+        <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
+          bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
+      </div>
+      <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
 
       <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
         {/* 헤더 */}
@@ -372,7 +362,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         </header>
 
         {/* 점수 + 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 */}
-        <div ref={scoreRef} className="relative z-10 col-start-2 row-start-2 self-start text-center">
+        <div className="relative z-10 col-start-2 row-start-2 self-start text-center">
           <div className="mt-cut mt-frame mt-glass relative inline-block px-8 pb-2 pt-2.5" style={{ '--c': '20px', '--a': '#fde047' }}>
             <div className="flex items-center justify-center gap-6">
               <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
@@ -439,12 +429,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         {flash && (
           <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[46%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
         )}
-
-        {/* 플레이 뷰 — 투구는 포수 뒤 존, 맞으면 위에서 본 필드. 점수판 아래로 깔린다 */}
-        <div className="relative col-start-2 row-start-2 row-span-2 -mb-1 min-h-0" style={{ paddingTop: scoreH + 8 }}>
-          <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
-            bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
-        </div>
 
         {/* 승부처 지시 */}
         {orders && !picker && (
