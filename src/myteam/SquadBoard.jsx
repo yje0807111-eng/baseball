@@ -131,12 +131,9 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
       const first = !d.moved;
       d.moved = true;
       if (d.list === 'field') {
-        const x = ((e.clientX - d.box.left) / d.box.width) * 100;
-        const y = ((e.clientY - d.box.top) / d.box.height) * 100;
-        const rows = latest.current.order.lineup;
-        const [slot, dist] = rows.map((r) => [r.slot, Math.hypot(XY[r.slot][0] - x, XY[r.slot][1] - y)]).sort((p, q) => p[1] - q[1])[0] || [];
-        const hit = dist < 14 ? rows.find((r) => r.slot === slot) : null;
-        const target = hit && hit.id !== d.id ? hit.id : null;
+        // 다른 선수 카드가 원래 있던 자리(누른 순간의 카드 영역) 위에 포인터가 있을 때만 맞바꾼 모습, 벗어나면 원래대로
+        const hit = d.cards.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
+        const target = hit ? hit.id : null;
         if (first || target !== d.target) { d.target = target; setDrag({ list: 'field', id: d.id, target }); }
         return;
       }
@@ -183,7 +180,9 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
     onPointerDown: (e) => {
       if (e.button !== 0 || dragRef.current) return;
       e.preventDefault();
-      dragRef.current = { list: 'field', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, box: fieldRef.current.getBoundingClientRect() };
+      const cards = [...fieldRef.current.querySelectorAll('[data-token]')].filter((el) => el.dataset.token !== id)
+        .map((el) => { const b = el.getBoundingClientRect(); return { id: el.dataset.token, left: b.left, right: b.right, top: b.top, bottom: b.bottom }; });
+      dragRef.current = { list: 'field', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, cards };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
   });
@@ -251,7 +250,7 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'field' && drag.id === x.id;
     return (
-      <div key={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
+      <div key={x.id} data-token={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
         className={`mt-cut absolute grid w-[132px] touch-none select-none items-center gap-[7px] py-[3px] pl-[3px] pr-[7px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ '--c': '7px', left: `${XY[x.slot][0]}%`, top: `${XY[x.slot][1]}%`, transform: `translate(-50%,-50%)${dragging ? ' scale(1.08)' : ''}`, transition: 'left .2s cubic-bezier(.2,.8,.2,1), top .2s cubic-bezier(.2,.8,.2,1), transform .12s', zIndex: dragging ? 5 : undefined, gridTemplateColumns: '38px minmax(0,1fr)', background: 'rgba(6,10,19,.9)',
           boxShadow: dragging ? 'inset 0 0 0 2px #e5e7eb, 0 12px 26px -8px rgba(0,0,0,.95)' : drag?.target === x.id ? `inset 0 0 0 2px ${posColor(x.p)}` : `inset 0 -2px 0 ${posColor(x.p)},${on ? ` 0 0 0 2px ${tone(x.p.overall)},` : ''} inset 0 0 0 1px rgba(255,255,255,.12)` }}>
