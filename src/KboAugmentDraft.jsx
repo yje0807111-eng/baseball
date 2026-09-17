@@ -464,6 +464,8 @@ export function applySynergies(roster, synergies = checkSynergies(roster)) {
 }
 
 /* ───────────── 6. 팀 전력 산출 ───────────── */
+/** 증강 팀 보너스를 공 단위 엔진에 넣을 때의 배율 (엔진 승률로 실측: scripts/augment-engine.test.mjs) */
+export const ENGINE_EDGE = { bat: 1, pit: 1 };
 export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   const passives = augments.filter((a) => a.passive);
   const has = (flag) => passives.some((a) => a.flag === flag);
@@ -498,11 +500,18 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   const rp = at('CL'); // 마무리
   const batValue = (p) => p.stats.contact * w.contact + p.stats.power * w.power + p.stats.speed * w.speed;
   const handShare = (h) => (batters.length ? batters.reduce((s, p) => s + (p.hand === h ? 1 : p.hand === 'S' ? 0.5 : 0), 0) / batters.length : 0);
+  const defense = avg(batters.map((p) => p.stats.defense));
+  // 공 단위 엔진용 증강 팀 보너스(능력치 점수): 팀 보너스 + 타격 가중치가 바꾼 공격값 + 수비 계수가 바꾼 실점 (난이도 buff 는 엔진이 따로 더한다)
+  const baseW = { contact: 0.4, power: 0.4, speed: 0.2 };
+  const weightGain = avg(batters.map(batValue)) - avg(batters.map((p) => p.stats.contact * baseW.contact + p.stats.power * baseW.power + p.stats.speed * baseW.speed));
+  const defGain = ((defense - 78) * (t.defCoef - 0.01)) / 0.04; // 옛 계산에서 투구 1점 = 기대 실점 0.04
+  const edge = { bat: (bonus.bat - buff + weightGain) * ENGINE_EDGE.bat, pit: (bonus.pit - buff + defGain) * ENGINE_EDGE.pit };
 
   return Object.assign(t, {
     roster, batters, sps, lr, mr, su, rp, pen: [lr, mr, su, rp].filter(Boolean),
     offense: avg(batters.map(batValue)) + bonus.bat,
-    defense: avg(batters.map((p) => p.stats.defense)),
+    defense,
+    edge: { bat: Math.round(edge.bat * 10) / 10, pit: Math.round(edge.pit * 10) / 10 },
     rightRatio: handShare('R'),
     pitchValue: (p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3 + bonus.pit,
     topBatter: (stat) => [...batters].sort((a, b) => b.stats[stat] - a.stats[stat])[0],
@@ -717,8 +726,8 @@ const PASSIVE_AUGMENTS = [
       return v >= 82 ? bump(r, isBat, Object.fromEntries(BAT_STATS.map((k) => [k, k === best ? 14 : -6]))) : r; },
     team: (t) => { const [best, v] = BAT_STATS.map((k) => [k, statMean(t.roster.filter(isBat), k)]).sort((x, y) => y[1] - x[1])[0];
       if (v >= 82 && t.weights[best] != null) t.weights = { contact: 0.22, power: 0.22, speed: 0.22, [best]: 0.56 }; } },
-  { id: 'glassCannon', name: '유리대포', tier: 'prismatic', type: 'extreme', desc: '투구가 약할수록 타격 보너스 (최대 +14) · 대신 상대 득점 기대 +0.1',
-    team: (t) => { t.bonus.bat += clampN(0, 14, 86 - avg(staff(t.roster).map(pitPower))); }, half: (c) => (oppOff(c) ? { add: 0.1 } : null) },
+  { id: 'glassCannon', name: '유리대포', tier: 'prismatic', type: 'extreme', desc: '투구가 약할수록 타격 보너스 (최대 +8) · 대신 상대 득점 기대 +0.1',
+    team: (t) => { t.bonus.bat += clampN(0, 8, 86 - avg(staff(t.roster).map(pitPower))); }, half: (c) => (oppOff(c) ? { add: 0.1 } : null) },
   { id: 'oneMan', name: '원맨팀', tier: 'prismatic', type: 'extreme', desc: '종합 1위 선수 모든 능력치 +15 · 그 선수가 타자면 팀 타격 +9, 투수면 팀 투구 +8 · 나머지 전원 −2',
     roster: (r) => { const [star] = topBy(r, 1, (p) => p.overall); return bump(r, () => true, (p) => every(p === star ? 15 : -2)); },
     team: (t) => { const [star] = topBy(t.roster, 1, (p) => p.overall); if (!star) return; if (isBat(star)) t.bonus.bat += 9; else t.bonus.pit += 8; } },

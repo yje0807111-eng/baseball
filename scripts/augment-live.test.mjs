@@ -87,3 +87,39 @@ test('증강 90종 모두 엔진 훅에서 터지지 않는다', () => {
     }
   }
 });
+
+test('팀 보너스형 증강: bonus · 가중치 · 수비 계수가 엔진 edge 로 넘어가고 난이도 buff 는 빼고 센다', async () => {
+  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const roster = fillRoster(aiDraft({ players: POOL, rng: mulberry32(21) }));
+  const plain = buildTeam('AI', roster, 3);
+  expect(plain.edge).toEqual({ bat: 0, pit: 0 });
+  expect(engineTeam(plain).buff).toBe(3);
+  const probe = { id: 'p', passive: true, team: (t) => { t.bonus.bat += 5; t.bonus.pit += 2; } };
+  expect(buildTeam('나', roster, 3, [probe]).edge).toEqual({ bat: 5, pit: 2 });
+  const flyball = buildTeam('나', roster, 0, [AUGMENTS.find((a) => a.id === 'flyballRevolution')]);
+  expect(Math.abs(flyball.edge.bat - (flyball.offense - flyball.bonus.bat - (() => { const b = flyball.batters; return b.reduce((s, p) => s + p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2, 0) / b.length; })()))).toBeLessThan(0.1);
+});
+
+test('엔진 edge: 타격 보너스를 주면 득점이 오른다', async () => {
+  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const { simulateGame } = await import('../src/engine/pitchSim.js');
+  const runs = (bat) => {
+    let total = 0;
+    for (let i = 0; i < 60; i++) {
+      const home = { ...engineTeam(buildTeam('홈', fillRoster(aiDraft({ players: POOL, rng: mulberry32(300 + i) })))), edge: { bat, pit: 0 } };
+      const away = engineTeam(buildTeam('원정', fillRoster(aiDraft({ players: POOL, rng: mulberry32(700 + i) }))));
+      total += simulateGame({ home, away, rng: mulberry32(i), maxInnings: 9 }).home.runs;
+    }
+    return total;
+  };
+  expect(runs(8)).toBeGreaterThan(runs(0));
+});
+
+test('투수 운용 증강이 엔진 AI 감독 usage 로 옮겨진다', async () => {
+  const { engineUsage } = await import('../src/BroadcastGame.jsx');
+  expect(engineUsage({ aceMax: 4 }).starterPitches).toBe(60);
+  expect(engineUsage({ completeGame: true }).starterPitches).toBeGreaterThanOrEqual(135);
+  expect(engineUsage({ extraInnings: 1 }).starterPitches).toBe(110);
+  expect(engineUsage({ noTired: true }).fatigueGrace).toBeGreaterThan(0);
+  expect(engineUsage({ starterPitches: 80, relieverPitches: 18 })).toEqual({ starterPitches: 80, relieverPitches: 18 });
+});
