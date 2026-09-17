@@ -6,6 +6,7 @@
  */
 import { withBoosts } from './shop.js';
 import { applyStaff } from './match.js';
+import { applyFatigue, pickStarter } from './fatigue.js';
 import { SLOTS, buildTeam } from '../KboAugmentDraft.jsx';
 
 const FIELD = ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH'];
@@ -38,8 +39,19 @@ function validSlots(saved, squad) {
 
 /** 정비 화면에 넘길 20명과 경기 벤치로 남는 선수 */
 export function readyRoster(team) {
-  const squad = applyStaff(withBoosts(team), team.staff);
-  const slots = validSlots(team.prep?.slots, squad) ? team.prep.slots : autoSlots(squad);
+  const fatigue = team.pitchFatigue || {};
+  const squad = applyFatigue(applyStaff(withBoosts(team), team.staff), fatigue);
+  const slots = { ...(validSlots(team.prep?.slots, squad) ? team.prep.slots : autoSlots(squad)) };
+  // 선발 자리: 지금 선발이 쉬어야 하면 로테이션(선발 포지션 종합순)에서 휴식이 끝난 첫 투수로. 원래 선발은 그 투수 자리로 맞바꾼다
+  const spId = Object.keys(slots).find((id) => slots[id] === 'SP');
+  if (spId && (fatigue[spId]?.rest || 0) > 0) {
+    const rotation = squad.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall);
+    const next = pickStarter(rotation, fatigue);
+    if (next && next.id !== spId) {
+      if (slots[next.id]) slots[spId] = slots[next.id]; else delete slots[spId];
+      slots[next.id] = 'SP';
+    }
+  }
   const order = team.prep?.order || [];
   const ready = squad.filter((p) => slots[p.id]).map((p) => {
     const k = order.indexOf(p.id);

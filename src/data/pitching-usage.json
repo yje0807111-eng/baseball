@@ -1,0 +1,706 @@
+{
+  "1992-lotte": {
+    "starterPitches": 107,
+    "relieverPitches": 33,
+    "quickHook": 0.35,
+    "closerInnings": 2,
+    "note": "강병철 롯데 에이스 의존",
+    "source": "염종석 등 선발 장이닝 — 감독 성향 추정 / 기준: 선발 약 6.2이닝·로테이션 정착 전 — statiz·KBO 기록"
+  },
+  "1993-haitai": {
+    "starterPitches": 107,
+    "relieverPitches": 35,
+    "quickHook": 0.35,
+    "closerInnings": 2.2,
+    "note": "김응용 해태 선동열 롱세이브",
+    "source": "선동열 다이닝 마무리 — 감독 성향 추정 / 기준: 선발 약 6.2이닝·로테이션 정착 전 — statiz·KBO 기록"
+  },
+  "1995-ob": {
+    "starterPitches": 102,
+    "relieverPitches": 30,
+    "quickHook": 0.4,
+    "closerInnings": 1.7,
+    "note": "김인식 OB 시대 기본값",
+    "source": "시대 기본값 / 기준: 선발 약 6.2이닝·로테이션 정착 전 — statiz·KBO 기록"
+  },
+  "1998-bangkok": {
+    "starterPitches": 85,
+    "relieverPitches": 21,
+    "quickHook": 0.75,
+    "closerInnings": 1.3,
+    "note": "1998 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 6이닝·5인 로테이션 정착)"
+  },
+  "1998-hyundai": {
+    "starterPitches": 100,
+    "relieverPitches": 25,
+    "quickHook": 0.45,
+    "closerInnings": 1.5,
+    "note": "김재박 현대 정민태 선발축",
+    "source": "선발 중심·정명원 마무리 — 감독 성향 추정 / 기준: 선발 약 6이닝·5인 로테이션 정착 — statiz·KBO 기록"
+  },
+  "1999-hanwha": {
+    "starterPitches": 97,
+    "relieverPitches": 30,
+    "quickHook": 0.5,
+    "closerInnings": 2,
+    "note": "구대성 다이닝 마무리",
+    "source": "구대성 롱세이브 — 감독 성향 추정 / 기준: 선발 약 6이닝·5인 로테이션 정착 — statiz·KBO 기록"
+  },
+  "2000-sydney": {
+    "starterPitches": 82,
+    "relieverPitches": 21,
+    "quickHook": 0.75,
+    "closerInnings": 1.3,
+    "note": "2000 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 6이닝·5인 로테이션 정착)"
+  },
+  "2002-busan": {
+    "starterPitches": 80,
+    "relieverPitches": 21,
+    "quickHook": 0.75,
+    "closerInnings": 1.3,
+    "note": "2002 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 6이닝·5인 로테이션 정착)"
+  },
+  "2002-samsung": {
+    "starterPitches": 97,
+    "relieverPitches": 27,
+    "quickHook": 0.5,
+    "closerInnings": 1.5,
+    "note": "김응용 삼성 노진혁 불펜",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 6이닝·5인 로테이션 정착 — statiz·KBO 기록"
+  },
+  "2004-hyundai": {
+    "starterPitches": 100,
+    "relieverPitches": 25,
+    "quickHook": 0.45,
+    "closerInnings": 1.3,
+    "note": "김재박 현대 선발 야구",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 6이닝·5인 로테이션 정착 — statiz·KBO 기록"
+  },
+  "2006-doha": {
+    "starterPitches": 78,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2006 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 평균 5.75이닝+(133경기 시기))"
+  },
+  "2006-hanwha": {
+    "starterPitches": 99,
+    "relieverPitches": 22,
+    "quickHook": 0.4,
+    "closerInnings": 1.4,
+    "note": "김인식 류현진 선발 신뢰",
+    "source": "류현진 201이닝·구대성 마무리 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2006-wbc": {
+    "starterPitches": 68,
+    "relieverPitches": 18,
+    "quickHook": 0.85,
+    "closerInnings": 1,
+    "note": "2006 WBC 투구수 제한",
+    "source": "WBC 투구수 제한(65/80/95) — WBC 대회 규정"
+  },
+  "2007-asia": {
+    "starterPitches": 80,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2007 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 평균 5.75이닝+(133경기 시기))"
+  },
+  "2007-sk": {
+    "starterPitches": 86,
+    "relieverPitches": 25,
+    "quickHook": 0.75,
+    "closerInnings": 1.1,
+    "note": "김성근 벌떼 — 선발 조기 교체",
+    "source": "김성근 SK 불펜 총력 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2008-beijing": {
+    "starterPitches": 80,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2008 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 평균 5.75이닝+(133경기 시기))"
+  },
+  "2008-sk": {
+    "starterPitches": 86,
+    "relieverPitches": 25,
+    "quickHook": 0.75,
+    "closerInnings": 1.1,
+    "note": "김성근 벌떼 — 선발 조기 교체",
+    "source": "김성근 SK 불펜 총력 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2009-kia": {
+    "starterPitches": 100,
+    "relieverPitches": 22,
+    "quickHook": 0.4,
+    "closerInnings": 1.1,
+    "note": "조범현 KIA 선발 4인 장이닝",
+    "source": "로페즈·구톰슨 등 선발 이닝 상위 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2009-wbc": {
+    "starterPitches": 72,
+    "relieverPitches": 18,
+    "quickHook": 0.85,
+    "closerInnings": 1,
+    "note": "2009 WBC 투구수 제한",
+    "source": "WBC 투구수 제한(70/85/100) — WBC 대회 규정"
+  },
+  "2010-guangzhou": {
+    "starterPitches": 78,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2010 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 평균 5.75이닝+(133경기 시기))"
+  },
+  "2010-lotte": {
+    "starterPitches": 99,
+    "relieverPitches": 22,
+    "quickHook": 0.4,
+    "closerInnings": 1.1,
+    "note": "로이스터 선발 믿음 야구",
+    "source": "로이스터 선발 길게 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2013-wbc": {
+    "starterPitches": 65,
+    "relieverPitches": 18,
+    "quickHook": 0.85,
+    "closerInnings": 1,
+    "note": "2013 WBC 투구수 제한",
+    "source": "WBC 투구수 제한(65/80/95) — WBC 대회 규정"
+  },
+  "2014-incheon": {
+    "starterPitches": 78,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2014 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 평균 5.75이닝+(133경기 시기))"
+  },
+  "2014-nexen": {
+    "starterPitches": 92,
+    "relieverPitches": 24,
+    "quickHook": 0.6,
+    "closerInnings": 1.1,
+    "note": "염경엽 넥센 필승조 운용",
+    "source": "밴헤켄 외 선발 약·한현희·손승락 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2014-samsung": {
+    "starterPitches": 94,
+    "relieverPitches": 24,
+    "quickHook": 0.55,
+    "closerInnings": 1.2,
+    "note": "류중일 삼성 불펜 야구",
+    "source": "안지만·차우찬 필승조·임창용 마무리 — 감독 성향 추정 / 기준: 선발 평균 5.75이닝+(133경기 시기) — statiz·KBO 기록"
+  },
+  "2015-doosan": {
+    "starterPitches": 93,
+    "relieverPitches": 20,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "김태형 두산 선발 야구",
+    "source": "니퍼트·장원준 — 감독 성향 추정 / 기준: 144경기 후 선발 5.5이닝 아래 — statiz·KBO 기록"
+  },
+  "2015-premier12": {
+    "starterPitches": 75,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2015 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(144경기 후 선발 5.5이닝 아래)"
+  },
+  "2016-doosan": {
+    "starterPitches": 98,
+    "relieverPitches": 20,
+    "quickHook": 0.4,
+    "closerInnings": 1,
+    "note": "판타스틱4 선발 장이닝",
+    "source": "판타스틱4 선발 68승 — xportsnews·감독 성향 추정 / 기준: 144경기 후 선발 5.5이닝 아래 — statiz·KBO 기록"
+  },
+  "2017-apbc": {
+    "starterPitches": 70,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2017 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(144경기 후 선발 5.5이닝 아래)"
+  },
+  "2017-kia": {
+    "starterPitches": 96,
+    "relieverPitches": 20,
+    "quickHook": 0.45,
+    "closerInnings": 1,
+    "note": "김기태 KIA 헥터·양현종",
+    "source": "헥터 201⅔이닝 등 선발 장이닝 — 감독 성향 추정 / 기준: 144경기 후 선발 5.5이닝 아래 — statiz·KBO 기록"
+  },
+  "2017-wbc": {
+    "starterPitches": 65,
+    "relieverPitches": 18,
+    "quickHook": 0.85,
+    "closerInnings": 1,
+    "note": "2017 WBC 투구수 제한",
+    "source": "WBC 투구수 제한(65/80/95) — WBC 대회 규정"
+  },
+  "2018-jakarta": {
+    "starterPitches": 75,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2018 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(144경기 후 선발 5.5이닝 아래)"
+  },
+  "2019-premier12": {
+    "starterPitches": 75,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2019 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(144경기 후 선발 5.5이닝 아래)"
+  },
+  "2020-nc": {
+    "starterPitches": 90,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "이동욱 NC 루친스키 선발",
+    "source": "시대 기본값·선발 강세 보정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2021-doosan": {
+    "starterPitches": 86,
+    "relieverPitches": 20,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "김태형 두산 불펜 의존 증가",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2021-kt": {
+    "starterPitches": 92,
+    "relieverPitches": 18,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "이강철 KT 선발 야구",
+    "source": "데스파이네·고영표 QS 상위 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2021-lg": {
+    "starterPitches": 84,
+    "relieverPitches": 20,
+    "quickHook": 0.7,
+    "closerInnings": 1,
+    "note": "류지현 LG 불펜 최강",
+    "source": "시대 기본값·불펜 강세 보정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2021-samsung": {
+    "starterPitches": 90,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "허삼영 삼성 뷰캐넌·원태인",
+    "source": "시대 기본값·선발 강세 보정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2021-tokyo": {
+    "starterPitches": 72,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2021 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 5.2이닝(2024 5.20)·평균 90구 미만)"
+  },
+  "2022-kiwoom": {
+    "starterPitches": 91,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "홍원기 키움 안우진 선발축",
+    "source": "안우진 196이닝 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2022-kt": {
+    "starterPitches": 92,
+    "relieverPitches": 18,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "이강철 KT 선발 야구",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2022-lg": {
+    "starterPitches": 83,
+    "relieverPitches": 20,
+    "quickHook": 0.7,
+    "closerInnings": 1,
+    "note": "류지현 LG 불펜 야구",
+    "source": "LG 불펜 ERA 1위 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2022-ssg": {
+    "starterPitches": 90,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "김원형 SSG 폰트·김광현",
+    "source": "시대 기본값·선발 강세 보정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-doosan": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "이승엽 두산 시대 기본값",
+    "source": "시대 기본값 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-hangzhou": {
+    "starterPitches": 68,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2023 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 5.2이닝(2024 5.20)·평균 90구 미만)"
+  },
+  "2023-kt": {
+    "starterPitches": 92,
+    "relieverPitches": 18,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "이강철 KT 선발 야구",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-lg": {
+    "starterPitches": 82,
+    "relieverPitches": 20,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "염경엽 LG 벌떼 불펜",
+    "source": "염경엽 적극적 교체 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-nc": {
+    "starterPitches": 89,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "강인권 NC 페디 선발축",
+    "source": "페디 20승 — 시대 기본값·보정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-ssg": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "김원형 SSG 시대 기본값",
+    "source": "시대 기본값 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2023-wbc": {
+    "starterPitches": 65,
+    "relieverPitches": 18,
+    "quickHook": 0.85,
+    "closerInnings": 1,
+    "note": "2023 WBC 투구수 제한",
+    "source": "WBC 투구수 제한(65/80/95) — WBC 대회 규정"
+  },
+  "2024-doosan": {
+    "starterPitches": 80,
+    "relieverPitches": 20,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "이승엽 두산 선발 붕괴·불펜",
+    "source": "선발 이닝 최하위권 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2024-kia": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.65,
+    "closerInnings": 1,
+    "note": "이범호 KIA 불펜 두께",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2024-lg": {
+    "starterPitches": 82,
+    "relieverPitches": 20,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "염경엽 LG 적극 교체",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2024-premier12": {
+    "starterPitches": 72,
+    "relieverPitches": 18,
+    "quickHook": 0.75,
+    "closerInnings": 1,
+    "note": "2024 단기전 선발 짧게",
+    "source": "단기전 조기 교체 · 시대 기본값(선발 약 5.2이닝(2024 5.20)·평균 90구 미만)"
+  },
+  "2024-samsung": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "박진만 삼성 시대 기본값",
+    "source": "시대 기본값 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2025-hanwha": {
+    "starterPitches": 94,
+    "relieverPitches": 18,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "김경문 한화 폰세·와이스",
+    "source": "외국인 원투펀치 장이닝 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2025-lg": {
+    "starterPitches": 84,
+    "relieverPitches": 20,
+    "quickHook": 0.7,
+    "closerInnings": 1,
+    "note": "염경엽 LG 적극 교체",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2025-ssg": {
+    "starterPitches": 84,
+    "relieverPitches": 20,
+    "quickHook": 0.7,
+    "closerInnings": 1,
+    "note": "이숭용 SSG 불펜 야구",
+    "source": "SSG 불펜 강세 — 감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-doosan": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-hanwha": {
+    "starterPitches": 89,
+    "relieverPitches": 18,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "김경문 한화 선발 신뢰",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-kia": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-kiwoom": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-kt": {
+    "starterPitches": 91,
+    "relieverPitches": 18,
+    "quickHook": 0.5,
+    "closerInnings": 1,
+    "note": "이강철 KT 선발 야구",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-lg": {
+    "starterPitches": 83,
+    "relieverPitches": 20,
+    "quickHook": 0.7,
+    "closerInnings": 1,
+    "note": "염경엽 LG 적극 교체",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-lotte": {
+    "starterPitches": 86,
+    "relieverPitches": 20,
+    "quickHook": 0.65,
+    "closerInnings": 1,
+    "note": "김태형 롯데 필승조 운용",
+    "source": "시대 기본값·감독 성향 추정 / 기준: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-nc": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-samsung": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "2026-ssg": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "2026 시대 기본값",
+    "source": "시대 기본값: 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — statiz·KBO 기록"
+  },
+  "legend-1980s": {
+    "starterPitches": 110,
+    "relieverPitches": 35,
+    "quickHook": 0.3,
+    "closerInnings": 2,
+    "note": "80년대 에이스 완투 시대",
+    "source": "선수 year 중앙값 1985 → 선발 평균 6.5이닝+·완투 빈번 — 시대 기본값"
+  },
+  "legend-1990s": {
+    "starterPitches": 102,
+    "relieverPitches": 30,
+    "quickHook": 0.4,
+    "closerInnings": 1.7,
+    "note": "선수 중앙 1996년 시대 기본값",
+    "source": "선수 year 중앙값 1996 → 선발 약 6.2이닝·로테이션 정착 전 — 시대 기본값"
+  },
+  "legend-2000s": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2006년 시대 기본값",
+    "source": "선수 year 중앙값 2006 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-2010s": {
+    "starterPitches": 90,
+    "relieverPitches": 20,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "선수 중앙 2016년 시대 기본값",
+    "source": "선수 year 중앙값 2016 → 144경기 후 선발 5.5이닝 아래 — 시대 기본값"
+  },
+  "legend-2020s": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "선수 중앙 2022년 시대 기본값",
+    "source": "선수 year 중앙값 2022 → 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — 시대 기본값"
+  },
+  "legend-ace": {
+    "starterPitches": 100,
+    "relieverPitches": 22,
+    "quickHook": 0.4,
+    "closerInnings": 1.1,
+    "note": "에이스 레전드 — 선발 길게",
+    "source": "선수 year 중앙값 2007 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값·에이스 보정 추정"
+  },
+  "legend-doosan": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2009년 시대 기본값",
+    "source": "선수 year 중앙값 2009 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-foreign": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2014년 시대 기본값",
+    "source": "선수 year 중앙값 2014 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-hanwha": {
+    "starterPitches": 97,
+    "relieverPitches": 25,
+    "quickHook": 0.5,
+    "closerInnings": 1.3,
+    "note": "선수 중앙 2002년 시대 기본값",
+    "source": "선수 year 중앙값 2002 → 선발 약 6이닝·5인 로테이션 정착 — 시대 기본값"
+  },
+  "legend-hr": {
+    "starterPitches": 97,
+    "relieverPitches": 25,
+    "quickHook": 0.5,
+    "closerInnings": 1.3,
+    "note": "선수 중앙 1998년 시대 기본값",
+    "source": "선수 year 중앙값 1998 → 선발 약 6이닝·5인 로테이션 정착 — 시대 기본값"
+  },
+  "legend-hyundai": {
+    "starterPitches": 97,
+    "relieverPitches": 25,
+    "quickHook": 0.5,
+    "closerInnings": 1.3,
+    "note": "선수 중앙 2000년 시대 기본값",
+    "source": "선수 year 중앙값 2000 → 선발 약 6이닝·5인 로테이션 정착 — 시대 기본값"
+  },
+  "legend-kia": {
+    "starterPitches": 97,
+    "relieverPitches": 25,
+    "quickHook": 0.5,
+    "closerInnings": 1.3,
+    "note": "선수 중앙 2002년 시대 기본값",
+    "source": "선수 year 중앙값 2002 → 선발 약 6이닝·5인 로테이션 정착 — 시대 기본값"
+  },
+  "legend-kiwoom": {
+    "starterPitches": 90,
+    "relieverPitches": 20,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "선수 중앙 2019년 시대 기본값",
+    "source": "선수 year 중앙값 2019 → 144경기 후 선발 5.5이닝 아래 — 시대 기본값"
+  },
+  "legend-lg": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2009년 시대 기본값",
+    "source": "선수 year 중앙값 2009 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-lotte": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2008년 시대 기본값",
+    "source": "선수 year 중앙값 2008 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-mvp": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "선수 중앙 2008년 시대 기본값",
+    "source": "선수 year 중앙값 2008 → 선발 평균 5.75이닝+(133경기 시기) — 시대 기본값"
+  },
+  "legend-nc-kt": {
+    "starterPitches": 86,
+    "relieverPitches": 18,
+    "quickHook": 0.6,
+    "closerInnings": 1,
+    "note": "선수 중앙 2020년 시대 기본값",
+    "source": "선수 year 중앙값 2020 → 선발 약 5.2이닝(2024 5.20)·평균 90구 미만 — 시대 기본값"
+  },
+  "legend-samsung": {
+    "starterPitches": 97,
+    "relieverPitches": 25,
+    "quickHook": 0.5,
+    "closerInnings": 1.3,
+    "note": "선수 중앙 2004년 시대 기본값",
+    "source": "선수 year 중앙값 2004 → 선발 약 6이닝·5인 로테이션 정착 — 시대 기본값"
+  },
+  "legend-ssg": {
+    "starterPitches": 90,
+    "relieverPitches": 20,
+    "quickHook": 0.55,
+    "closerInnings": 1,
+    "note": "선수 중앙 2017년 시대 기본값",
+    "source": "선수 year 중앙값 2017 → 144경기 후 선발 5.5이닝 아래 — 시대 기본값"
+  },
+  "legend-allstar": {
+    "starterPitches": 94,
+    "relieverPitches": 22,
+    "quickHook": 0.5,
+    "closerInnings": 1.1,
+    "note": "올타임 혼합 — 시대 기본값",
+    "source": "여러 시대 혼합이라 2005~14 기준 — 시대 기본값"
+  }
+}
