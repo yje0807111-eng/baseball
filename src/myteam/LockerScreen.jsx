@@ -470,11 +470,12 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   })}
                 </div>
               ) : (
-                <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} resetKey={staffSlot} className="h-[230px] shrink-0" render={(m) => {
-                  if (!m) return <div className="mt-cut grid h-full place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
+                (() => {
+                  const m = cur;
+                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
                   const mLv = m.level || 1;
                   return (
-                    <div className="mt-cut relative h-full overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
+                    <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
                       <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
                       <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
@@ -494,7 +495,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                       <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-[15px] text-amber-300">Lv.{mLv}</b>
                     </div>
                   );
-                }} />
+                })()
               )}
 
               {staffSlot && <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
