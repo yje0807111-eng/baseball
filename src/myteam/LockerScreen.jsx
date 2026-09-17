@@ -184,7 +184,7 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
 
 function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, after, blocked, now, next, keys, tr, hand }) {
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': n }}>
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
       {/* 드래프트 PICK 카드 그대로 (연도 · 구단 · 투타 · 능력치 막대 · 포지션 · 외인 · 이름 · CP) — 판 높이에 맞춰 2:3 */}
       <div className="flex min-h-0 flex-1 justify-center">
@@ -195,37 +195,35 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
       {/* 실적: 시즌 기록 */}
       <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
         {recordCells(p).map(([k, v]) => (
-          <div key={k} className="py-1.5 text-center"><div className="text-[10.5px] text-gray-500">{k}</div><b className={`font-display text-[17px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
+          <div key={k} className="py-1 text-center leading-tight"><div className="text-[10px] text-gray-500">{k}</div><b className={`font-display text-[15px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
         ))}
       </div>
-      {/* 강점 · 약점: 아이콘 · 이름 · 근거 수치 */}
-      <div className="flex flex-col gap-1">
-        {tr.good.map((t) => (
-          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(52,211,153,.07)', boxShadow: 'inset 3px 0 0 #34d399' }}>
-            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#6ee7b7')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-emerald-300">{t.why}</span>
-          </div>
-        ))}
-        {tr.bad.map((t) => (
-          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(248,113,113,.07)', boxShadow: 'inset 3px 0 0 #f87171' }}>
-            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#fca5a5')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-red-300">{t.why}</span>
-          </div>
-        ))}
-        {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
-      </div>
+      {/* 강점 · 약점: 두 줄 격자의 작은 칩 (아이콘 · 이름 · 근거 수치) */}
+      {(tr.good.length > 0 || tr.bad.length > 0) && (
+        <div className="grid grid-cols-2 gap-1">
+          {[...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])].map(([t, good]) => (
+            <div key={t.id} className="flex h-6 min-w-0 items-center gap-1.5 pl-2 pr-1.5" style={{ background: good ? 'rgba(52,211,153,.07)' : 'rgba(248,113,113,.07)', boxShadow: `inset 2px 0 0 ${good ? '#34d399' : '#f87171'}` }}>
+              <span className="h-3.5 w-3.5 shrink-0" style={traitIconStyle(t.id, good ? '#6ee7b7' : '#fca5a5')} />
+              <b className="shrink-0 text-[12px] text-white">{t.name}</b>
+              <span className={`ml-auto truncate font-display text-[11px] ${good ? 'text-emerald-300' : 'text-red-300'}`}>{t.why}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
-      <div>
-        <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
-        <KV k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
+      <div className="flex items-baseline justify-between border-y border-white/10 py-1.5 text-[12.5px] text-gray-400">
+        <span>{owned ? '방출 후 캡' : '영입 후 캡'} <b className="ml-1 font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{after.toLocaleString()} / {cap.toLocaleString()}</b></span>
+        <span>팀 종합 <b className="ml-1 font-display text-[15px]" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
       </div>
       <div>
         {owned
           ? (
             <div className="grid grid-cols-2 gap-2">
-              {onBench && <Btn lg style={cut(12)} onClick={() => onBench(p)}>{playing?.has(p.id) ? '벤치로 ↓' : '출전 ↑'}</Btn>}
-              <Btn lg className={`text-[#ff5a67] ${onBench ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출하기</Btn>
+              {onBench && <Btn style={cut(10)} onClick={() => onBench(p)}>{playing?.has(p.id) ? '벤치로 ↓' : '출전 ↑'}</Btn>}
+              <Btn className={`text-[#ff5a67] ${onBench ? '' : 'col-span-2'}`} style={cut(10)} onClick={() => onRelease(p)}>방출하기</Btn>
             </div>
           )
-          : <Btn pri={!blocked} lg a={n} className={`w-full ${blocked ? 'text-[15px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(12)} disabled={!!blocked} onClick={() => onAdd(p)}>{blocked || '영입하기 ▶'}</Btn>}
+          : <Btn pri={!blocked} a={n} className={`w-full ${blocked ? 'text-[14px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(10)} disabled={!!blocked} onClick={() => onAdd(p)}>{blocked || '영입하기 ▶'}</Btn>}
       </div>
     </aside>
   );
