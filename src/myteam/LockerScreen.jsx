@@ -55,7 +55,7 @@ function Select({ value, onChange, options, all }) {
   return (
     <div ref={ref} className="relative min-w-0">
       <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}
-        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-500'}`}
+        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-300'}`}
         style={{ ...cut(6), background: open ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.06)', boxShadow: open || value ? 'inset 0 0 0 1px rgba(16,185,129,.55)' : undefined }}>
         <span className="truncate">{value || all}</span>
         <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
@@ -114,9 +114,52 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
   );
 }
 
+/** 선수를 고르기 전 오른쪽 상세: 실제 상세 판과 같은 자리에 스켈레톤 블록 (드래프트 빈 PICK 과 같은 대기 움직임) */
+function EmptyDetail() {
+  let i = 0;
+  const sk = (style, cls = '') => <span className={`mt-sk ${cls}`} style={{ ...style, '--i': i++ }} />;
+  return (
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
+      <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
+      {/* 사진 틀: 둘레를 빛이 돈다 */}
+      <div className="mt-cut mt-skring shrink-0" style={{ ...cut(12), height: 160 }}>
+        <div>
+          <span className="absolute inset-0 bg-cover opacity-[0.07]" style={{ backgroundImage: 'url(ui/mt/silhouette-player.webp)', backgroundPosition: '60% 18%' }} />
+          <span className="absolute left-3 top-3">{sk({ width: 52, height: 34 })}</span>
+          <span className="absolute bottom-3 left-3">{sk({ width: 150, height: 22 })}</span>
+          <span className="absolute right-3 top-3">{sk({ width: 64, height: 18, borderRadius: 9 })}</span>
+        </div>
+      </div>
+      {sk({ width: '62%', height: 12 })}
+      <div className="grid grid-cols-4 gap-1.5">
+        {[0, 1, 2, 3].map((k) => (
+          <div key={k} className="mt-cut flex flex-col gap-1.5 bg-white/[0.03] px-2 py-2" style={cut(6)}>
+            {sk({ width: '60%', height: 8 })}{sk({ width: '46%', height: 16 })}{sk({ width: '100%', height: 3 })}
+          </div>
+        ))}
+      </div>
+      <div className="flex flex-col gap-1">
+        {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(52,211,153,.25)' }, 'mt-cut')}
+        {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(248,113,113,.2)' }, 'mt-cut')}
+      </div>
+      <div className="mt-cut grid grid-cols-6 gap-2 bg-white/[0.03] px-3 py-2" style={cut(8)}>
+        {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '55%', height: 13 })}</div>)}
+      </div>
+      <div className="flex flex-col">
+        {[0, 1].map((k) => (
+          <div key={k} className="flex items-center justify-between border-b border-white/10 py-3">{sk({ width: 70, height: 10 })}{sk({ width: 96, height: 14 })}</div>
+        ))}
+      </div>
+      <div className="mt-auto">
+        <div className="mt-cut mt-skbtn h-[54px] w-full" style={cut(12)} />
+      </div>
+    </aside>
+  );
+}
+
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
 function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench }) {
-  if (!p) return <aside className="mt-cut mt-frame mt-glass flex flex-col gap-4 p-6" style={cut(20)}><p className="mt-lab">Player</p><p className="text-sm text-gray-500">목록에서 선수를 고르세요.</p></aside>;
+  if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const n = tone(p.overall);
   const cost = squadCost(squad, staff);

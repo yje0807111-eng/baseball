@@ -22,6 +22,15 @@ export const UiStyle = () => (
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
     .mt-bar { height:6px; background:rgba(255,255,255,.08); } .mt-bar > i { display:block; height:100%; }
     .mt-card { position:relative; width:150px; height:200px; overflow:hidden; background:linear-gradient(180deg,#0e1726,#05080f); }
+    /* 빈 상세 판 대기 모습 (드래프트 빈 PICK 문법): 블록이 위→아래 차례로 밝아졌다 가라앉고, 사진 틀 둘레를 초록 빛 한 점이 돈다 */
+    @property --skr { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+    .mt-skring { position:relative; padding:1.5px; background:conic-gradient(from var(--skr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); animation:mtSkRing 4.5s linear infinite; }
+    .mt-skring > div { position:relative; height:100%; background:linear-gradient(180deg,#0a1120,#070c16); clip-path:inherit; }
+    .mt-sk { display:block; background:rgba(148,163,184,.09); animation:mtSkBreath 2.4s ease-in-out infinite; animation-delay:calc(var(--i, 0) * .09s); }
+    .mt-skbtn { background:rgba(255,255,255,.03); box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); animation:mtSkBtn 2.4s ease-in-out 1.6s infinite; }
+    @keyframes mtSkRing { to { --skr: 360deg; } }
+    @keyframes mtSkBreath { 0%, 100% { filter:brightness(1); } 30% { filter:brightness(2.1); } }
+    @keyframes mtSkBtn { 0%, 100% { box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); } 30% { box-shadow:inset 0 0 0 1px rgba(110,231,183,.35); } }
     /* 스크롤바: 얇은 네온 바 + 어두운 홈 */
     .mt-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.55) rgba(255,255,255,.04); }
     .mt-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
