@@ -73,7 +73,7 @@ export function runPath(from, to, off = 0) {
   if (to == null) return [pos(from), pos(from)]; // 아웃 — 제자리에서 사라진다
   const pts = [pos(from)];
   for (let i = from + 1; i <= to; i += 1) pts.push(i >= 3 ? HOME : BASE_POS[i]);
-  if (to === 3) pts.push([HOME[0] - 0.12 - off, HOME[1] + 0.055]); // 홈을 밟고 3루 더그아웃 쪽으로
+  if (to === 3) pts.push(spot(-1, 0.05 + off)); // 홈을 밟고 3루 더그아웃 쪽으로
   return pts.length > 1 ? pts : [pos(from), pos(from)];
 }
 
@@ -133,7 +133,7 @@ export function buildPlay(ev) {
     const scorers = moves.filter((m) => m.to === 3).length;
     let k = 0;
     for (const m of moves.sort((a, b) => b.from - a.from)) { // 앞선 주자부터
-      const off = m.to === 3 ? k * 0.1 : 0;
+      const off = m.to === 3 ? k * 0.06 : 0;
       beats.push({
         kind: 'run', t0: Math.min(0.9, CUT + 0.03 + k * 0.03), t1: Math.min(0.99, 0.84 + k * 0.045),
         player: m.player, path: runPath(m.from, m.to, off), out: m.to == null, scored: m.to === 3, still: m.from === m.to,

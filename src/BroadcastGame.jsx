@@ -198,7 +198,7 @@ function atBatPitches(events) {
 }
 
 /* ───────── 본체 ───────── */
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -442,7 +442,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         {/* 플레이 뷰 — 투구는 포수 뒤 존, 맞으면 위에서 본 필드. 점수판 아래로 깔린다 */}
         <div className="relative col-start-2 row-start-2 row-span-2 -mb-1 min-h-0" style={{ paddingTop: scoreH + 8 }}>
-          <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused}
+          <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
             bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
         </div>
 
