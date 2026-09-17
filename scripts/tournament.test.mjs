@@ -21,7 +21,7 @@ test('AI 팀 로스터는 seed 로 다시 만들어도 같다', () => {
   const t = makeTournament('2026-09-17');
   const e = t.entrants.find((x) => !x.me);
   const ids = teamOf(e, myTeam).roster.map((p) => p.id);
-  expect(ids.length).toBe(26);
+  expect(ids.length).toBeGreaterThanOrEqual(10); // 시리즈 멤버 그대로
   expect(teamOf({ ...e }, myTeam).roster.map((p) => p.id)).toEqual(ids);
 });
 

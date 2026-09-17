@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import { statColor, teamNeon } from './myteam/teamColor.js';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam } from './engine/pitchSim.js';
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -32,9 +32,11 @@ export function engineTeam(team) {
   // 등판 순서: 정비 화면 선발 자리 → (자리 없는 팀은) 선발 포지션 → 불펜 자리 순서(롱릴리프·중간·셋업·마무리). 같으면 덜 지친 투수, 종합 높은 투수
   const RELIEF = ['LR', 'MR', 'SU', 'CL'];
   const tier = (p) => (p.slot === 'SP' ? 0 : !p.slot && p.position === 'SP' ? 1 : 2);
-  const pitchers = roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN'))
+  // AI 시리즈 팀은 등판 순서(pitchOrder)를 직접 들고 온다
+  const byId = new Map(roster.map((p) => [p.id, p]));
+  const pitchers = team.pitchOrder ? team.pitchOrder.map((id) => byId.get(id)).filter(Boolean) : roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN'))
     .sort((a, b) => tier(a) - tier(b) || (a.rest || 0) - (b.rest || 0) || (RELIEF.indexOf(a.slot) - RELIEF.indexOf(b.slot)) || b.overall - a.overall);
-  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C') };
+  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage: team.usage || null, closerId: team.closerId || null };
 }
 
 const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
@@ -201,6 +203,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           pendingRef.current = { ...pendingRef.current, ...picked };
         }
         if (g.inning !== g.clutchAsked) g.clutchAsked = null;
+        // 적 수비(내 공격) 중이면 AI 감독이 투수를 바꾼다
+        if (!g.top) {
+          const change = aiPitchingChange(g, g.away);
+          if (change) {
+            pendingRef.current = { ...pendingRef.current, changePitcher: change };
+            const next = typeof change === 'string' ? g.away.team.pitchers.find((p) => p.id === change) : g.away.team.pitchers[g.away.pitcherIdx + 1];
+            const text = next && `${away.name} 투수 교체 — ${g.away.pitcher?.name} → ${next.name}`; // 교체 전에 글을 만들어 둔다
+            if (text) setLines((l) => [...l, text].slice(-4));
+          }
+        }
         let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;

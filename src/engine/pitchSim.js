@@ -343,14 +343,45 @@ export function describe(ev) {
 }
 
 /** 한 경기를 끝까지 자동으로(테스트·AI용) */
+/*
+ * AI 감독의 투수 교체 — 팀의 usage(시리즈별 조사값: src/data/pitching-usage.json)를 따른다.
+ *  starterPitches 선발을 내리는 투구 수 · relieverPitches 불펜 한 명의 투구 수 · quickHook 실점하면 일찍 내리는 성향 · closerInnings 마무리 이닝
+ * 타석이 바뀌는 순간(0-0)에만 판단한다. 바꿀 투수 id(마무리) 또는 true(다음 순번) · 안 바꾸면 null
+ */
+export const DEFAULT_USAGE = { starterPitches: 95, relieverPitches: 20, quickHook: 0.5, closerInnings: 1 };
+export function aiPitchingChange(g, side) {
+  if (g.final || g.balls || g.strikes) return null;
+  const list = side.team.pitchers;
+  if (!list[side.pitcherIdx + 1]) return null;
+  const u = { ...DEFAULT_USAGE, ...(side.team.usage || {}) };
+  const closer = side.team.closerId ? list.find((p, i) => i > side.pitcherIdx && p.id === side.team.closerId) : null;
+  const isCloser = side.team.closerId && side.pitcher?.id === side.team.closerId;
+  const lead = (side === g.home ? g.home.runs - g.away.runs : g.away.runs - g.home.runs);
+  const lateInning = 10 - Math.max(1, Math.round(u.closerInnings));
+  // 마무리: 리드 1~3점 상황의 마지막 이닝(들)
+  if (closer && g.outs === 0 && g.inning >= lateInning && lead >= 1 && lead <= 3) return closer.id;
+  if (isCloser) return side.pitches >= u.relieverPitches * Math.max(1, u.closerInnings) * 1.6 ? true : null;
+  const starter = side.pitcherIdx === 0;
+  const limit = starter ? u.starterPitches : u.relieverPitches;
+  if (side.pitches >= limit) return true;
+  if (fatigue(side) >= 0.45) return true;
+  // 퀵훅: 이 투수가 이번 경기에 내준 점수
+  if (starter && g.inning <= 6) {
+    const allowed = g.events.reduce((n, ev) => n + (ev.pitcher?.id === side.pitcher?.id && ev.runs ? ev.runs : 0), 0);
+    const hook = u.quickHook >= 0.7 ? 3 : u.quickHook >= 0.4 ? 5 : 7;
+    if (allowed >= hook) return true;
+  }
+  return null;
+}
+
 export function simulateGame(opts, orderFn = () => ({})) {
   const g = createGame(opts);
   let guard = 0;
   while (!g.final && guard++ < 1200) {
     const def = defenseOf(g);
-    // 자동 투수 교체: 지치면 불펜
-    const auto = fatigue(def) > 0.6 && def.team.pitchers[def.pitcherIdx + 1] ? { changePitcher: true } : {};
-    pitch(g, { ...auto, ...orderFn(g) });
+    // 자동 투수 교체: AI 감독 판단(팀 usage)
+    const change = aiPitchingChange(g, def);
+    pitch(g, { ...(change ? { changePitcher: change } : {}), ...orderFn(g) });
   }
   return g;
 }

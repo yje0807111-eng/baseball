@@ -1,13 +1,13 @@
 /*
  * 오늘의 토너먼트 — 32강부터 결승까지 5경기. 하루에 한 번, 날짜로 대진이 정해진다.
- * 지금은 서버가 없어 참가 31팀을 AI 가 짠다. 나중에 다른 유저 팀 스냅샷을 받으면 entrantsFor() 만 바꿔 끼우면 된다
+ * 지금은 서버가 없어 참가 31팀이 AI 시리즈 팀(구단 시즌 · 국가대표 · 레전드 멤버 그대로)이다. 나중에 다른 유저 팀 스냅샷을 받으면 entrantsFor() 만 바꿔 끼우면 된다
  * (유저 팀이 모자라면 남는 자리를 AI 팀으로 채운다).
  * 내 경기는 중계 화면에서 직접 치르고, 나머지 경기는 같은 엔진으로 바로 계산한다. 비기면 팀 종합이 높은 쪽이 올라간다.
  */
-import { buildMyTeam, buildAiTeam, teamRating } from './match.js';
+import { buildMyTeam, teamRating } from './match.js';
+import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { engineTeam } from '../BroadcastGame.jsx';
 import { simulateGame } from '../engine/pitchSim.js';
-import { SQUAD_CAP } from './rules.js';
 
 export const ROUNDS = [
   { key: 'r32', ko: '32강', en: 'ROUND OF 32' },
@@ -36,21 +36,19 @@ export const seeded = (seed) => () => { // mulberry32
 /** 기기 시간 기준 오늘 'YYYY-MM-DD' */
 export const todayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-const TEAM_WORDS = ['블루', '레드', '썬더', '스톰', '나이츠', '울브스', '타이탄', '레이더스', '파이리츠', '스파크', '호크스', '바이퍼', '코멧', '팬텀', '캐논', '레전드'];
-const TOWNS = ['잠실', '사직', '문학', '대구', '광주', '대전', '수원', '창원', '고척', '인천', '부산', '목동', '마산', '청주', '포항', '울산'];
 const OWNERS = ['홈런왕', '불펜장인', '도루머신', '직관러', '야구덕후', '9회말2아웃', '끝내기', '에이스', '포수리드', '타격왕', '무실점', '클러치', '번트장인', '골든글러브', '신인왕', '명승부'];
 
 /** 참가 31팀 (서버가 생기면 여기서 유저 팀 스냅샷을 먼저 넣고, 모자라는 자리만 AI 로 채운다) */
 function entrantsFor(date) {
   const rng = seeded(hash(`tourney:${date}`));
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  const names = TOWNS.flatMap((t) => TEAM_WORDS.map((w) => `${t} ${w}`));
-  for (let i = names.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [names[i], names[j]] = [names[j], names[i]]; }
-  return Array.from({ length: 31 }, (_, i) => ({
+  const pool = [...AI_SERIES];
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  return pool.slice(0, 31).map((series, i) => ({
     id: `ai-${i}`,
-    name: names[i],
+    seriesId: series.id,
+    name: seriesName(series),
     owner: `${pick(OWNERS)}${Math.floor(rng() * 90) + 10}`,
-    cap: 1450 + Math.floor(rng() * 11) * 50, // 1450 ~ 1950 CP — 팀마다 전력이 다르다
     seed: hash(`tourney:${date}:team:${i}`),
   }));
 }
@@ -69,8 +67,8 @@ const cache = new Map();
 export function teamOf(entry, myTeam) {
   if (entry.me) return { ...buildMyTeam(myTeam), name: myTeam?.name || entry.name };
   if (!cache.has(entry.id + entry.seed)) {
-    const t = buildAiTeam(entry.cap || SQUAD_CAP, seeded(entry.seed));
-    cache.set(entry.id + entry.seed, { ...t, name: entry.name, owner: entry.owner });
+    const series = AI_SERIES.find((x) => x.id === entry.seriesId) || AI_SERIES[entry.seed % AI_SERIES.length];
+    cache.set(entry.id + entry.seed, { ...seriesTeam(series, seeded(entry.seed)), owner: entry.owner });
   }
   return cache.get(entry.id + entry.seed);
 }

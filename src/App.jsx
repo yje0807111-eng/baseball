@@ -7,7 +7,7 @@ import LockerScreen from './myteam/LockerScreen.jsx';
 import ShopScreen from './myteam/ShopScreen.jsx';
 import AugmentScreen from './myteam/AugmentScreen.jsx';
 import BroadcastGame from './BroadcastGame.jsx';
-import { buildMyTeam, buildAiTeam } from './myteam/match.js';
+import { buildMyTeam } from './myteam/match.js';
 import { tickBoosts } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, loadAccount as reload } from './myteam/store.js';
 import { loadAccount, signOut } from './myteam/store.js';
@@ -17,6 +17,7 @@ import TournamentBracket from './myteam/TournamentBracket.jsx';
 import PrepScreen from './myteam/PrepScreen.jsx';
 import { prepOf, matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
+import { randomSeriesTeam } from './myteam/aiTeam.js';
 import { todayKey, makeTournament, myOpponent, teamOf, advance, ROUNDS, FINISH } from './myteam/tournament.js';
 
 /** 오늘 날짜의 토너먼트: 저장된 게 오늘 것이면 그대로, 아니면 새 대진 */
@@ -44,7 +45,7 @@ export default function App() {
 
   const startMatch = () => {
     const my = buildMyTeam(account.team);
-    const opp = buildAiTeam(account.team.cap || 2000);
+    const opp = randomSeriesTeam();
     setMatch({ my, opp, kind: 'duel' });
     setView('play');
   };
@@ -90,7 +91,7 @@ export default function App() {
       return;
     }
     const reward = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
-    addHistory({ my: account.team.name, opp: 'AI 올스타', myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp });
+    addHistory({ my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp });
     addGold(reward);
     setAccount(reload());
     setMatch(null);

@@ -23,7 +23,7 @@ export function normalPanels({ account, onPlay, onLocker }) {
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
         <div className="absolute bottom-6 left-7">
           <p className="ui-lab font-display">Next Match</p>
-          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> AI 올스타</p>
+          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> 무작위 팀</p>
           <p className="mt-2 font-display text-lg" style={{ color: ready ? '#10b981' : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr} · 승리 보상 300 G` : issues[0]}
           </p>
@@ -58,7 +58,7 @@ export function normalPanels({ account, onPlay, onLocker }) {
     <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px', '--a': '#10b981' }}>
       <p className="ui-lab font-display">Today</p>
       <h2 className="-mt-2 text-3xl font-black text-white">오늘의 경기</h2>
-      <p className="text-sm leading-relaxed text-gray-300">내 라커의 26인과 코치진으로 AI 올스타와 한 경기를 치릅니다.</p>
+      <p className="text-sm leading-relaxed text-gray-300">내 라커의 26인과 코치진으로 한 경기를 치릅니다. 상대는 구단 시즌 · 국가대표 · 레전드 중 한 팀이 멤버 그대로 나옵니다.</p>
       <Stats items={[['팀 OVR', st.ovr || '-'], ['엔트리', `${squad.length}/${SQUAD_SIZE}`], ['CP', squadCost(squad, team.staff)]]} />
       <div>
         <KV k="선발" v={sp.map((p) => p.name).join(' · ') || '-'} color="#10b981" />
@@ -74,5 +74,5 @@ export function normalPanels({ account, onPlay, onLocker }) {
     </aside>
   );
 
-  return { key: 'duel', label: '일반 대결', sub: `${squad.length}/${SQUAD_SIZE} · AI 올스타와 한 경기`, img: 'ui/broadcast-field.webp', neon: '#10b981', main, aside };
+  return { key: 'duel', label: '일반 대결', sub: `${squad.length}/${SQUAD_SIZE} · 무작위 팀과 한 경기`, img: 'ui/broadcast-field.webp', neon: '#10b981', main, aside };
 }
