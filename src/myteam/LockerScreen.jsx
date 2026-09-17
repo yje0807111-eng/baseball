@@ -12,6 +12,7 @@ import { saveTeam } from './store.js';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
+import SquadBoard from './SquadBoard.jsx';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
 const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
@@ -22,7 +23,6 @@ const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
 const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
-const GROUPS = [['선발', ['SP']], ['불펜', ['RP']], ['포수', ['C']], ['내야', ['1B', '2B', '3B', 'SS']], ['외야', ['OF']], ['지명', ['DH']]];
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
 const cardImg = (p) => `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
 
@@ -112,7 +112,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, staff, cap, onAdd, onRelease }) {
+function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench }) {
   if (!p) return <aside className="mt-cut mt-frame mt-glass flex flex-col gap-4 p-6" style={cut(20)}><p className="mt-lab">Player</p><p className="text-sm text-gray-500">목록에서 선수를 고르세요.</p></aside>;
   const owned = squad.some((x) => x.id === p.id);
   const n = tone(p.overall);
@@ -150,7 +150,12 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease }) {
       {blocked && <p className="text-sm text-red-400">{blocked}</p>}
       <div className="mt-auto">
         {owned
-          ? <Btn lg className="w-full text-[#ff5a67]" style={cut(12)} onClick={() => onRelease(p)}>방출하기</Btn>
+          ? (
+            <div className="grid grid-cols-2 gap-2">
+              {onBench && <Btn lg style={cut(12)} onClick={() => onBench(p)}>{playing?.has(p.id) ? '벤치로 ↓' : '출전 ↑'}</Btn>}
+              <Btn lg className={`text-[#ff5a67] ${onBench ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출하기</Btn>
+            </div>
+          )
           : <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!!blocked} onClick={() => onAdd(p)}>영입하기 ▶</Btn>}
       </div>
     </aside>
@@ -181,10 +186,12 @@ export default function LockerScreen({ account, onSave, onBack }) {
       set.add(p.id);
     } else {
       set.delete(p.id);
-      const sameGroup = (x) => (p.type === 'batter' ? x.type === 'batter' : x.position === p.position);
-      const now = playingIds(squad, [...set]);
-      if (!now.has(p.id)) {
-        const weakest = squad.filter((x) => sameGroup(x) && x.id !== p.id && now.has(x.id)).sort((a, b) => a.overall - b.overall)[0];
+      // 타순은 포지션별로 뽑으므로 같은 포지션의 가장 약한 출전 선수와 먼저 바꾸고, 그래도 안 뜨면 타자 전체에서
+      const groups = p.type === 'batter' ? [(x) => x.position === p.position, (x) => x.type === 'batter'] : [(x) => x.position === p.position];
+      for (const same of groups) {
+        const now = playingIds(squad, [...set]);
+        if (now.has(p.id)) break;
+        const weakest = squad.filter((x) => same(x) && x.id !== p.id && now.has(x.id)).sort((a, b) => a.overall - b.overall)[0];
         if (weakest) set.add(weakest.id);
       }
     }
@@ -320,27 +327,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
         )}
 
         {tab === 'squad' && (
-          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('My Squad', `${squad.length} / ${SQUAD_SIZE}명 · ${cost.toLocaleString()} CP`, undefined,
-              <Btn sm onClick={autoFill} disabled={squad.length >= SQUAD_SIZE}>자동 채우기</Btn>)}
-            <div className="mt-scroll mt-2 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
-              {GROUPS.map(([label, list]) => {
-                // 출전 선수 먼저, 벤치는 묶음 맨 아래로
-                const rows = squad.filter((p) => list.includes(p.position)).sort((a, b) => (playing.has(b.id) - playing.has(a.id)) || b.overall - a.overall);
-                if (!rows.length) return null;
-                const benchN = rows.filter((p) => !playing.has(p.id)).length;
-                return (
-                  <div key={label}>
-                    <div className="mt-grp">{label} {rows.length}{benchN ? ` · 출전 ${rows.length - benchN} · 벤치 ${benchN}` : ''}</div>
-                    <div className="flex flex-col gap-1.5">
-                      {rows.map((p) => <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="방출" onPick={setSel} onAct={release} showNote={false} bench={!playing.has(p.id)} onBench={toggleBench} />)}
-                    </div>
-                  </div>
-                );
-              })}
-              {squad.length === 0 && <p className="mt-4 text-sm text-gray-500">아직 영입한 선수가 없습니다. 왼쪽 영입에서 찾아 보세요.</p>}
-            </div>
-          </section>
+          <SquadBoard team={team} squad={squad} bench={bench} cost={cost} sizeLabel={`${squad.length} / ${SQUAD_SIZE}명`}
+            sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench}
+            onAutoFill={autoFill} autoDisabled={squad.length >= SQUAD_SIZE} />
         )}
 
         {tab === 'staff' && (
@@ -400,7 +389,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
             </div>
           </aside>
         ) : (
-          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release} />
+          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release}
+            playing={playing} onBench={tab === 'squad' ? toggleBench : null} />
         )}
       </div>
     </div>
