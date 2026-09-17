@@ -88,10 +88,13 @@ export function addToInventory(team, it) {
   return { ...team, items };
 }
 
+/** 효과가 닿는 선수인가 — 타격 아이템은 타자, 투구 아이템은 투수만 (투수는 타석에 서지 않는다) */
+export const fitsItem = (it, p) => (it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter');
+
 /** 추천 대상 — 효과가 맞는 쪽(타자/투수)에서 종합이 가장 많이 오르는 순 */
 export function recommendTargets(team, it, n = 5) {
   if (!needsPlayer(it)) return [];
-  return (team.squad || []).filter((p) => (it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter'))
+  return (team.squad || []).filter((p) => fitsItem(it, p))
     .map((p) => ({ p, gain: overallOf(p.position, { ...p.stats, [it.stat]: Math.min(99, (p.stats?.[it.stat] ?? 70) + it.amount) }) - p.overall }))
     .sort((a, b) => b.gain - a.gain || b.p.overall - a.p.overall).slice(0, n).map((x) => x.p);
 }
@@ -100,7 +103,7 @@ export function recommendTargets(team, it, n = 5) {
 export function consumeItem(team, key, target, staffSlot) {
   const entry = (team.items || []).find((x) => x.key === key);
   const it = entry && itemById(entry.itemId);
-  if (!it || !target) return team;
+  if (!it || !target || (needsPlayer(it) && !fitsItem(it, target))) return team;
   const rest = { ...team, items: team.items.filter((x) => x.key !== key) };
   if (needsStaff(it)) return { ...rest, staff: { ...(rest.staff || {}), [staffSlot]: { ...target, cost: 0, contracted: true } } };
   return applyToPlayer(rest, it, target);

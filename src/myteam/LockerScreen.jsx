@@ -10,7 +10,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, GROUP_RULES, PLAY_LIMIT, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
-import { SHOP_ITEMS, needsStaff, recommendTargets, consumeItem } from './shop.js';
+import { SHOP_ITEMS, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
@@ -174,7 +174,7 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
   const recIds = it ? new Set(recommendTargets(team, it).map((p) => p.id)) : new Set();
   const list = !it ? [] : needsStaff(it)
     ? (it.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')])
-    : [...squad].sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
+    : squad.filter((p) => fitsItem(it, p)).sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
   const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
   const after = it?.stat && target?.stats ? Math.min(99, (target.stats[it.stat] ?? 70) + it.amount) : null;
   return (
