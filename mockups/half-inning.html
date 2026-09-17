@@ -1,412 +1,554 @@
 <!doctype html>
 <html lang="ko">
-<title>반이닝 정리 화면</title>
+<title>반이닝 정리 배치안</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
 <style>
-/* ── 게임 본편과 같은 언어 (src/KboAugmentDraft.jsx 의 .ui-* 를 그대로) ── */
-  :root { --em:#10b981; --em2:#34d399; --red:#f87171; --red2:#ef4444; --yel:#fde047;
-          --sky:#38bdf8; --sky2:#7dd3fc; --vio:#c4b5fd; --or:#fb923c; --gray:#94a3b8;
-          --my:#34d399; --opp:#f87171; }          /* 내 팀 / 상대 — 중계 화면과 같은 색 */
+  :root { --em:#10b981; --em2:#34d399; --red:#f87171; --yel:#fde047; --sky:#38bdf8; --sky2:#7dd3fc;
+          --vio:#c4b5fd; --or:#fb923c; --gray:#94a3b8; --my:#34d399; --opp:#f87171; }
   * { box-sizing:border-box; }
   body { margin:0; background:#03050a; color:#e5e7eb;
          font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif; }
   .d { font-family:'Saira Condensed',sans-serif; }
 
   .ui-cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
-  .ui-frame { position:relative; }
-  .ui-frame::after {
-    content:""; position:absolute; inset:0; z-index:7; pointer-events:none;
-    background:
-      linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
-      linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
-      linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0 / 56px 2px no-repeat,
-      linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c) / 2px 30px no-repeat,
-      linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0 / 56px 2px no-repeat,
-      linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c) / 2px 30px no-repeat;
-    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
   .ui-lab { display:inline-flex; align-items:center; gap:9px; font-size:13px; font-weight:700; letter-spacing:.32em;
             text-transform:uppercase; color:var(--a,#10b981); }
   .ui-lab::before { content:""; width:15px; height:11px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
-  .ui-btn { --c:10px; display:flex; flex-direction:column; justify-content:center; min-height:62px; padding:10px 24px;
-            font-size:20px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.055);
+  .ui-btn { --c:10px; display:flex; flex-direction:column; justify-content:center; min-height:60px; padding:9px 22px;
+            font-size:19px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.055);
             box-shadow:inset 0 0 0 1px rgba(255,255,255,.2); }
   .ui-btn.pri { background:var(--em); color:#04070d; box-shadow:none; }
-  .ui-btn small { font-size:13px; font-weight:600; color:#8b95a5; margin-top:3px; }
+  .ui-btn small { font-size:12.5px; font-weight:600; color:#8b95a5; margin-top:3px; }
   .ui-btn.pri small { color:rgba(4,7,13,.62); }
-  .ui-chip { --c:6px; display:inline-flex; align-items:center; gap:6px; padding:4px 11px; font-size:13px; font-weight:700;
+  .ui-chip { --c:6px; display:inline-flex; align-items:center; padding:4px 11px; font-size:13px; font-weight:700;
              color:var(--a,#cbd5e1); background:rgba(5,8,15,.6); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 55%,transparent); }
 
-/* ══════════ 화면 ══════════ */
-  .screen { position:relative; width:1920px; height:911px; overflow:hidden; background:#05080f;
-            display:grid; grid-template-rows:76px 1fr 158px;
-            font-size:16px; }
-  .screen::before { content:''; position:absolute; inset:0; z-index:0;
-    background:url(clutch/sim-broad.webp) center/cover; opacity:.30; }
-  .screen::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
-    background:radial-gradient(130% 92% at 50% 42%,rgba(3,5,10,.5),rgba(3,5,10,.96) 76%),
-               repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px); }
-  .screen > * { position:relative; z-index:2; }
+/* ══ 공통 화면 틀 ══ */
+  .screen { position:relative; width:1920px; height:911px; overflow:hidden; background:#05080f; font-size:16px; }
+  .bg { position:absolute; inset:0; background:url(clutch/sim-broad.webp) center/cover; opacity:.3; }
+  .vig { position:absolute; inset:0; pointer-events:none;
+         background:radial-gradient(130% 92% at 50% 42%,rgba(3,5,10,.48),rgba(3,5,10,.96) 76%),
+                    repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px); }
+  .lay { position:relative; z-index:2; height:100%; }
 
-  /* ── 상단 바 ── */
-  .bar { display:flex; align-items:center; gap:30px; padding:0 46px;
-         border-bottom:1px solid rgba(255,255,255,.1); background:linear-gradient(180deg,rgba(3,5,10,.9),rgba(3,5,10,.42)); }
-  .bar .prog { margin-left:auto; display:flex; align-items:center; gap:5px; }
-  .bar .prog i { width:16px; height:7px; background:rgba(255,255,255,.12); transform:skewX(-24deg); }
-  .bar .prog i.on { background:var(--my); } .bar .prog i.now { background:var(--yel); box-shadow:0 0 10px var(--yel); }
-  .bar .tot { display:flex; align-items:center; gap:16px; margin-left:30px; }
-  .bar .tot .t { font-size:15px; font-weight:600; color:#6b7280; }
-  .bar .tot .t.mine { color:var(--my); } .bar .tot .t.theirs { color:var(--opp); }
-  .bar .tot .v { font:800 30px/1 'Saira Condensed'; color:#fff; } .bar .tot .v .x { color:#374151; margin:0 9px; }
-
-  /* ── 가운데: 세 구역 ── */
-  .mid { display:grid; grid-template-columns:560px 1fr 560px; align-items:stretch; }
-
-  /* 구역 1 — 회차 */
-  .z1 { position:relative; display:flex; flex-direction:column; justify-content:center; gap:34px; padding:0 46px; overflow:hidden; }
-  .z1 .wm { position:absolute; left:26px; top:50%; transform:translateY(-50%); font:800 300px/1 'Saira Condensed';
-            color:transparent; -webkit-text-stroke:2px color-mix(in srgb,var(--a) 11%,transparent);
-            pointer-events:none; user-select:none; }
-  .inn { position:relative; }
-  .inn b { display:block; font-size:132px; font-weight:700; line-height:.9; color:#fff; letter-spacing:-.045em;
-           text-shadow:0 6px 50px rgba(0,0,0,.95); }
-  .inn b em { font-style:normal; color:var(--a); }
-  .inn .sd { display:flex; align-items:center; gap:14px; margin-top:20px; font-size:24px; font-weight:700; color:#cbd5e1; }
-  .inn .sd i { font-style:normal; color:var(--sc); }
-  .gain { position:relative; --c:16px; --g:var(--yel); align-self:flex-start; min-width:264px; padding:20px 34px 18px; text-align:center;
-          background:color-mix(in srgb,var(--g) 12%,rgba(2,4,8,.9)); box-shadow:inset 0 0 0 2px var(--g); }
-  .gain b { display:block; font:800 108px/1 'Saira Condensed'; color:var(--g);
-            text-shadow:0 0 50px color-mix(in srgb,var(--g) 55%,transparent); }
-  .gain span { display:block; margin-top:10px; font-size:14px; font-weight:700; letter-spacing:.28em;
-               color:color-mix(in srgb,var(--g) 80%,#fff); }
-  .gain.minus { --g:var(--opp); }
-  .gain.zero { background:rgba(2,4,8,.72); box-shadow:inset 0 0 0 1px rgba(255,255,255,.15); }
-  .gain.zero b { font-size:62px; color:#9ca3af; text-shadow:none; padding:23px 0 22px; }
-  .gain.zero span { color:#6b7280; }
-
-  /* 구역 2 — 이 회차 최고 활약 한 명 */
-  .z2 { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
-        padding:26px 30px 30px; border-left:1px solid rgba(255,255,255,.08); border-right:1px solid rgba(255,255,255,.08);
-        background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--sc) 6%,transparent)); }
-  .z2 .who { margin-bottom:16px; }
-  .hero { position:relative; width:320px; height:480px; background:#0b1220 center 8%/cover;
-          box-shadow:inset 0 0 0 2px var(--sc), 0 0 70px -18px var(--sc), 0 34px 70px -30px #000;
-          clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px); }
-  .hero::after { content:''; position:absolute; inset:0;
-                 background:linear-gradient(180deg,transparent 46%,rgba(3,5,10,.9) 92%); }
-  .hero .cap { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:16px 20px; text-align:center; }
-  .hero .cap b { display:block; font-size:34px; font-weight:700; color:#fff; line-height:1.1; }
-  .hero .cap span { display:block; margin-top:4px; font-size:14px; font-weight:600; color:color-mix(in srgb,var(--sc) 80%,#fff); }
-  .z2 .did { margin-top:20px; text-align:center; }
-  .z2 .did b { display:inline-block; font-size:30px; font-weight:700; color:var(--sc); padding-bottom:7px;
-               background:linear-gradient(90deg,transparent,var(--sc),transparent) bottom / 100% 2px no-repeat; }
-  .z2 .did span { display:block; margin-top:12px; font-size:16px; color:#9ca3af; }
-
-  /* 구역 3 — 이 회에 벌어진 일 */
-  .z3 { display:flex; flex-direction:column; padding:30px 46px 26px; }
-  .z3 > .ui-lab { margin-bottom:18px; }
-  .ev { display:grid; grid-template-columns:14px 1fr auto; align-items:baseline; gap:16px; padding:15px 0;
-        border-top:1px solid rgba(255,255,255,.06); }
-  .ev:first-of-type { border-top:0; padding-top:4px; }
-  .ev .dot { width:10px; height:10px; background:var(--e); transform:skewX(-22deg); align-self:center; }
-  .ev .tx { min-width:0; font-size:19px; line-height:1.4; }
-  .ev .tx b { color:var(--tc,#fff); font-weight:700; margin-right:10px; }
-  .ev .tx span { color:#9ca3af; } .ev .tx span.hi { color:var(--e); font-weight:700; }
-  .ev .tx small { display:block; margin-top:5px; font-size:14px; color:#6b7280; }
-  .ev .rt { font:800 27px 'Saira Condensed'; color:var(--e); white-space:nowrap; }
-
-  /* ── 하단 바 ── */
-  .foot { display:flex; flex-direction:column; justify-content:center; gap:14px; padding:0 46px;
-          border-top:1px solid rgba(255,255,255,.1); background:linear-gradient(0deg,rgba(3,5,10,.92),rgba(3,5,10,.4)); }
+  /* 공통 하단 방침 띠 */
+  .foot { display:flex; flex-direction:column; justify-content:center; gap:12px; padding:0 46px; height:158px;
+          border-top:1px solid rgba(255,255,255,.1); background:linear-gradient(0deg,rgba(3,5,10,.94),rgba(3,5,10,.4)); }
   .foot .hd { display:flex; align-items:center; gap:16px; }
   .foot .hd p { margin:0; font-size:18px; color:#9ca3af; } .foot .hd p b { color:#fff; }
-  .opts { display:flex; gap:12px; align-items:stretch; }
-  .opts .ui-btn { flex:1; }
+  .opts { display:flex; gap:12px; } .opts .ui-btn { flex:1; }
   .ring { position:relative; display:grid; place-items:center; width:66px; flex:none; }
   .ring svg { transform:rotate(-90deg); } .ring circle { fill:none; stroke-width:4; }
   .ring .b1 { stroke:rgba(255,255,255,.12); } .ring .b2 { stroke:var(--em); stroke-linecap:round; }
   .ring b { position:absolute; font:800 21px 'Saira Condensed'; color:#fff; }
-  .fin { display:flex; align-items:center; justify-content:center; gap:20px; }
-  .fin b { font-size:28px; color:#fff; } .fin span { font-size:16px; color:#6b7280; }
 
-/* ══════════ 페이지 ══════════ */
-  .wrap { max-width:1340px; margin:0 auto; padding:44px 22px 100px; }
-  h1 { font-size:32px; font-weight:700; color:#fff; margin:12px 0 10px; }
-  .lead { color:#9ca3af; font-size:15px; line-height:1.85; margin:0; } .lead b { color:#fff; }
-  .key { display:flex; flex-wrap:wrap; gap:16px; margin:22px 0 6px; align-items:center; }
-  .key i { display:inline-block; width:14px; height:14px; transform:skewX(-22deg); margin-right:8px; vertical-align:-2px; }
-  .key span { font-size:14px; color:#9ca3af; } .key span b { color:#fff; }
-  h2 { font-size:19px; font-weight:700; color:#fff; margin:56px 0 4px; padding-top:28px; border-top:1px solid rgba(255,255,255,.08); }
-  .h2n { color:#6b7280; font-size:14px; margin:0 0 26px; line-height:1.7; } .h2n b { color:#cbd5e1; }
-  .note { color:#7c8798; font-size:13.5px; line-height:1.8; margin:13px 0 0; } .note b { color:#cbd5e1; }
-  .slot { margin:0 0 44px; }
+  /* 공통 조각 */
+  .tot { display:flex; align-items:center; gap:14px; }
+  .tot .t { font-size:15px; font-weight:600; color:#6b7280; } .tot .t.mine { color:var(--my); }
+  .tot .v { font:800 30px/1 'Saira Condensed'; color:#fff; } .tot .v .x { color:#374151; margin:0 8px; }
+  .gainbox { --g:var(--yel); display:inline-block; padding:16px 30px 14px; text-align:center;
+             background:color-mix(in srgb,var(--g) 12%,rgba(2,4,8,.9)); box-shadow:inset 0 0 0 2px var(--g); }
+  .gainbox b { display:block; font:800 92px/1 'Saira Condensed'; color:var(--g); text-shadow:0 0 46px color-mix(in srgb,var(--g) 55%,transparent); }
+  .gainbox span { display:block; margin-top:8px; font-size:13px; font-weight:700; letter-spacing:.28em; color:color-mix(in srgb,var(--g) 80%,#fff); }
+  .evl { display:grid; grid-template-columns:12px 1fr auto; align-items:baseline; gap:14px; padding:13px 0;
+         border-top:1px solid rgba(255,255,255,.06); }
+  .evl:first-of-type { border-top:0; }
+  .evl .dot { width:9px; height:9px; background:var(--e,var(--my)); transform:skewX(-22deg); align-self:center; }
+  .evl .tx { font-size:18px; line-height:1.4; } .evl .tx b { color:#fff; margin-right:9px; }
+  .evl .tx span { color:#9ca3af; } .evl .tx span.hi { color:var(--e,var(--yel)); font-weight:700; }
+  .evl .rt { font:800 25px 'Saira Condensed'; color:var(--e,var(--yel)); }
+
+/* ══ A · 세 구역 가로 ══ */
+  .A .lay { display:grid; grid-template-rows:76px 1fr 158px; }
+  .A .bar { display:flex; align-items:center; gap:30px; padding:0 46px; border-bottom:1px solid rgba(255,255,255,.1);
+            background:linear-gradient(180deg,rgba(3,5,10,.9),rgba(3,5,10,.42)); }
+  .A .bar .tot { margin-left:auto; }
+  .A .mid { display:grid; grid-template-columns:560px 1fr 560px; }
+  .A .z1 { display:flex; flex-direction:column; justify-content:center; gap:32px; padding:0 46px; }
+  .A .inn { font-size:128px; font-weight:700; line-height:.9; color:#fff; letter-spacing:-.045em; margin:0; }
+  .A .inn em { font-style:normal; color:var(--or); }
+  .A .sd { display:block; margin-top:18px; font-size:23px; font-weight:700; color:#cbd5e1; }
+  .A .sd i { font-style:normal; color:var(--my); }
+  .A .z2 { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:26px 30px;
+           border-left:1px solid rgba(255,255,255,.08); border-right:1px solid rgba(255,255,255,.08); }
+  .A .hero { position:relative; width:310px; height:465px; background:#0b1220 center 8%/cover; margin-top:14px;
+             box-shadow:inset 0 0 0 2px var(--my), 0 0 66px -18px var(--my); }
+  .A .hero::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 48%,rgba(3,5,10,.92) 92%); }
+  .A .hero .cap { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:15px; text-align:center; }
+  .A .hero .cap b { display:block; font-size:32px; font-weight:700; color:#fff; }
+  .A .hero .cap span { font-size:13px; color:color-mix(in srgb,var(--my) 80%,#fff); }
+  .A .did { margin-top:18px; text-align:center; }
+  .A .did b { font-size:28px; font-weight:700; color:var(--my); }
+  .A .did span { display:block; margin-top:8px; font-size:15px; color:#9ca3af; }
+  .A .z3 { padding:30px 46px; }
+
+/* ══ B · 전면 히어로 ══ */
+  .B .shot { position:absolute; right:0; top:0; width:64%; height:100%; background:#0b1220 62% 6%/cover;
+             -webkit-mask-image:linear-gradient(90deg,transparent,#000 42%); mask-image:linear-gradient(90deg,transparent,#000 42%); }
+  .B .lay { display:grid; grid-template-rows:1fr 158px; }
+  .B .body { position:relative; display:flex; flex-direction:column; justify-content:center; padding:0 70px; }
+  .B .wm { position:absolute; right:-30px; top:-70px; font:800 540px/1 'Saira Condensed'; color:transparent;
+           -webkit-text-stroke:2px rgba(251,146,60,.16); pointer-events:none; }
+  .B .kicker { display:flex; align-items:center; gap:18px; margin-bottom:18px; }
+  .B .inn { font-size:150px; font-weight:700; line-height:.86; color:#fff; letter-spacing:-.05em; margin:0;
+            text-shadow:0 8px 60px rgba(0,0,0,.95); }
+  .B .inn em { font-style:normal; color:var(--or); }
+  .B .nm { margin:26px 0 0; font-size:78px; font-weight:700; color:#fff; line-height:1; }
+  .B .act { margin:14px 0 0; font-size:38px; font-weight:700; color:var(--yel); }
+  .B .sub { margin:12px 0 0; font-size:18px; color:#9ca3af; }
+  .B .body { overflow:hidden; }
+  .B .side { position:absolute; right:56px; bottom:40px; width:420px; }
+  .B .side .evl { padding:9px 0; } .B .side .evl .tx { font-size:16px; }
+  .B .gainbox { position:absolute; left:70px; bottom:40px; }
+
+/* ══ C · 가로 타임라인 ══ */
+  .C .lay { display:grid; grid-template-rows:118px 1fr 158px; }
+  .C .bar { display:flex; align-items:center; gap:28px; padding:0 52px; border-bottom:1px solid rgba(255,255,255,.1); }
+  .C .bar .inn { font-size:60px; font-weight:700; color:#fff; margin:0; letter-spacing:-.03em; }
+  .C .bar .inn em { font-style:normal; color:var(--or); }
+  .C .bar .sd { font-size:19px; font-weight:700; color:#cbd5e1; } .C .bar .sd i { font-style:normal; color:var(--my); }
+  .C .bar .tot { margin-left:auto; }
+  .C .bar .gm { font:800 66px/1 'Saira Condensed'; color:var(--yel); margin-left:26px; text-shadow:0 0 40px rgba(253,224,71,.5); }
+  .C .tl { position:relative; display:flex; align-items:center; justify-content:space-between; padding:52px 90px 0; }
+  .C .tl::before { content:''; position:absolute; left:90px; right:90px; top:50%; height:3px;
+                   background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(253,224,71,.5)); }
+  .C .node { position:relative; width:250px; text-align:center; }
+  .C .node .pin { width:20px; height:20px; margin:0 auto; background:var(--e,var(--my)); transform:skewX(-22deg);
+                  box-shadow:0 0 22px var(--e,var(--my)); }
+  .C .node.big .pin { width:30px; height:30px; }
+  .C .node .fc { width:126px; height:168px; margin:0 auto 18px; background:#0b1220 center 8%/cover;
+                 box-shadow:inset 0 0 0 2px var(--e,var(--my)); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); }
+  .C .node.big .fc { width:190px; height:254px; }
+  .C .node .nm { margin:16px 0 0; font-size:24px; font-weight:700; color:#fff; }
+  .C .node.big .nm { font-size:32px; }
+  .C .node .tx { margin:7px 0 0; font-size:17px; color:#9ca3af; }
+  .C .node .tx b { color:var(--e,var(--yel)); }
+  .C .node .rt { display:block; margin-top:9px; font:800 34px 'Saira Condensed'; color:var(--yel); }
+  .C .node .ord { position:absolute; left:50%; top:-44px; transform:translateX(-50%);
+                  font:800 14px 'Saira Condensed'; letter-spacing:.3em; color:#4b5563; }
+
+/* ══ D · 전광판 ══ */
+  .D .lay { display:grid; grid-template-rows:1fr 158px; }
+  .D .body { display:grid; grid-template-columns:1fr 620px; }
+  .D .left { display:flex; flex-direction:column; justify-content:center; padding:0 54px; gap:30px; }
+  .D .board { width:100%; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center;
+              background:rgba(2,4,8,.8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+  .D .board th { font-size:17px; font-weight:600; color:#6b7280; padding:11px 0; }
+  .D .board th.now { color:var(--yel); }
+  .D .board td { font-size:34px; color:#cbd5e1; padding:13px 0; }
+  .D .board td.tm { width:270px; text-align:left; padding-left:26px; font:700 21px 'IBM Plex Sans KR'; color:#9ca3af; }
+  .D .board td.tm.mine { color:var(--my); }
+  .D .board td.now { background:rgba(253,224,71,.16); color:var(--yel); font-size:52px; font-weight:800;
+                     box-shadow:inset 0 0 0 2px var(--yel); }
+  .D .board td.r { color:#fff; font-weight:800; } .D .board tr+tr td { border-top:1px solid rgba(255,255,255,.08); }
+  .D .cap2 { display:flex; align-items:baseline; gap:22px; }
+  .D .cap2 .inn { font-size:78px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; }
+  .D .cap2 .inn em { font-style:normal; color:var(--or); }
+  .D .cap2 .sd { font-size:21px; font-weight:700; color:#cbd5e1; } .D .cap2 .sd i { font-style:normal; color:var(--my); }
+  .D .right { padding:46px 54px 0; border-left:1px solid rgba(255,255,255,.08); background:rgba(3,5,10,.5); }
+  .D .who { display:flex; align-items:center; gap:22px; margin:18px 0 26px; }
+  .D .who .fc { width:120px; height:160px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--my); }
+  .D .who b { display:block; font-size:36px; font-weight:700; color:#fff; }
+  .D .who span { display:block; margin-top:6px; font-size:15px; color:#9ca3af; }
+  .D .who .did { margin-top:10px; font-size:23px; font-weight:700; color:var(--yel); }
+
+/* ══ E · 그라운드 도해 ══ */
+  .E .lay { display:grid; grid-template-rows:1fr 158px; }
+  .E .body { display:grid; grid-template-columns:760px 1fr; }
+  .E .fieldwrap { display:grid; place-items:center; border-right:1px solid rgba(255,255,255,.08); }
+  .E .right { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 54px; gap:28px; }
+  .E .right > div:last-of-type, .E .right > div:nth-of-type(2) { width:100%; max-width:720px; }
+  .E .hd2 { display:flex; align-items:flex-end; gap:26px; }
+  .E .hd2 .inn { font-size:104px; font-weight:700; color:#fff; margin:0; letter-spacing:-.045em; line-height:.9; }
+  .E .hd2 .inn em { font-style:normal; color:var(--or); }
+  .E .hd2 .sd { padding-bottom:12px; font-size:21px; font-weight:700; color:#cbd5e1; }
+  .E .hd2 .sd i { font-style:normal; color:var(--my); }
+
+/* ══ F · 좌우 대결 ══ */
+  .F .lay { display:grid; grid-template-rows:1fr 158px; }
+  .F .body { position:relative; display:grid; grid-template-columns:1fr 1fr; }
+  .F .halfp { display:flex; flex-direction:column; justify-content:center; padding:0 64px; gap:24px; }
+  .F .halfp.mine { background:linear-gradient(90deg,color-mix(in srgb,var(--my) 11%,transparent),transparent); }
+  .F .halfp.theirs { background:linear-gradient(270deg,color-mix(in srgb,var(--opp) 11%,transparent),transparent); align-items:flex-end; text-align:right; }
+  .F .halfp .who { display:flex; align-items:center; gap:24px; }
+  .F .halfp.theirs .who { flex-direction:row-reverse; }
+  .F .halfp .fc { width:152px; height:203px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--c2); }
+  .F .halfp b.nm { display:block; font-size:44px; font-weight:700; color:#fff; line-height:1.1; }
+  .F .halfp span.pos { font-size:15px; color:#9ca3af; }
+  .F .halfp .did { font-size:27px; font-weight:700; color:var(--c2); }
+  .F .halfp .sub { font-size:16px; color:#9ca3af; }
+  .F .halfp .lst { width:100%; } .F .halfp .lst .evl { padding:10px 0; } .F .halfp .lst .evl .tx { font-size:16px; }
+  .F .halfp.theirs .lst .evl { grid-template-columns:auto 1fr 12px; text-align:right; }
+  .F .spine { position:absolute; left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%);
+              background:linear-gradient(180deg,transparent,rgba(255,255,255,.22),transparent); }
+  .F .knot { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center;
+             padding:26px 34px; background:rgba(3,5,10,.96); box-shadow:inset 0 0 0 2px rgba(255,255,255,.18); }
+  .F .knot .inn { font-size:62px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; }
+  .F .knot .inn em { font-style:normal; color:var(--or); }
+  .F .knot .v { display:block; margin-top:12px; font:800 46px/1 'Saira Condensed'; color:#fff; }
+  .F .knot .v .x { color:#374151; margin:0 10px; }
+  .F .knot .gm { display:block; margin-top:12px; font:800 30px 'Saira Condensed'; color:var(--yel); }
+
+/* ══ G · 하단 자막 띠 ══ */
+  .G .lay { display:grid; grid-template-rows:1fr auto; }
+  .G .live { position:relative; display:flex; align-items:flex-start; padding:34px 46px; }
+  .G .live .badge { display:flex; align-items:center; gap:12px; padding:8px 16px; background:rgba(3,5,10,.8);
+                    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
+  .G .live .badge i { width:9px; height:9px; border-radius:50%; background:var(--yel); }
+  .G .live .badge span { font:800 14px 'Saira Condensed'; letter-spacing:.3em; color:#cbd5e1; }
+  .G .live .tot { margin-left:auto; padding:8px 20px; background:rgba(3,5,10,.8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
+  .G .strip { background:linear-gradient(0deg,rgba(3,5,10,.97),rgba(3,5,10,.88)); border-top:2px solid var(--or);
+              padding:30px 46px 30px; }
+  .G .row1 { display:flex; align-items:center; gap:32px; }
+  .G .row1 .inn { font-size:74px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; line-height:1; }
+  .G .row1 .inn em { font-style:normal; color:var(--or); }
+  .G .row1 .gm { font:800 74px/1 'Saira Condensed'; color:var(--yel); }
+  .G .row1 .who { display:flex; align-items:center; gap:18px; margin-left:16px; }
+  .G .row1 .who .fc { width:74px; height:99px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--my); }
+  .G .row1 .who b { display:block; font-size:32px; font-weight:700; color:#fff; }
+  .G .row1 .who span { font-size:17px; color:var(--yel); font-weight:700; }
+  .G .row1 .rest { margin-left:auto; text-align:right; font-size:15px; color:#9ca3af; line-height:1.65; }
+  .G .row1 .rest b { color:#e5e7eb; }
+  .G .row2 { display:flex; align-items:center; gap:14px; margin-top:26px; }
+  .G .row2 p { margin:0 20px 0 0; font-size:17px; color:#9ca3af; } .G .row2 p b { color:#fff; }
+  .G .row2 .opts { flex:1; }
+
+/* ══ H · 헤드라인 ══ */
+  .H .lay { display:grid; grid-template-rows:1fr 158px; }
+  .H .body { display:grid; grid-template-rows:auto 1fr; padding:44px 64px 0; }
+  .H .over { display:flex; align-items:center; gap:22px; padding-bottom:20px; border-bottom:2px solid var(--or); }
+  .H .over .inn { font:800 34px 'Saira Condensed'; color:var(--or); letter-spacing:.06em; }
+  .H .over .sd { font-size:17px; font-weight:700; color:#cbd5e1; } .H .over .sd i { font-style:normal; color:var(--my); }
+  .H .over .tot { margin-left:auto; }
+  .H .head { margin:30px 0 0; padding:0; border:0; font-size:96px; font-weight:700; color:#fff;
+             line-height:1.08; letter-spacing:-.04em; max-width:1180px; }
+  .H .head em { font-style:normal; font-size:inherit; font-weight:inherit; letter-spacing:inherit;
+                margin:0; color:var(--yel); }
+  .H .deck { margin:22px 0 0; font-size:22px; color:#9ca3af; max-width:900px; line-height:1.6; }
+  .H .lower { display:grid; grid-template-columns:1fr 330px; gap:60px; align-items:start; padding-bottom:36px; }
+  .H .cut { position:absolute; right:64px; top:170px; width:330px; height:440px; background:#0b1220 center 6%/cover;
+            box-shadow:inset 0 0 0 2px var(--my), 0 0 70px -20px var(--my); }
+  .H .lst .evl { padding:12px 0; }
+
+/* ══ 페이지 ══ */
+  .wrap { max-width:1380px; margin:0 auto; padding:44px 22px 110px; }
+  h1 { font-size:33px; font-weight:700; color:#fff; margin:12px 0 10px; }
+  .lead { color:#9ca3af; font-size:15px; line-height:1.85; margin:0 0 6px; } .lead b { color:#fff; }
+  h2 { font-size:26px; font-weight:700; color:#fff; margin:62px 0 6px; padding-top:30px; border-top:1px solid rgba(255,255,255,.09); }
+  h2 em { font-style:normal; font:800 15px 'Saira Condensed'; letter-spacing:.3em; color:var(--em2); margin-right:14px; }
+  .h2n { color:#9ca3af; font-size:15px; margin:0 0 22px; line-height:1.7; } .h2n b { color:#fff; }
+  .pn { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:16px; }
+  .pn div { padding:14px 18px; font-size:13.5px; line-height:1.75; background:rgba(255,255,255,.035); }
+  .pn div b { display:block; margin-bottom:5px; font-size:13px; letter-spacing:.12em; }
+  .pn .good b { color:var(--em2); } .pn .bad b { color:var(--or); }
   .stage { position:relative; width:100%; aspect-ratio:1920/911; overflow:hidden; box-shadow:inset 0 0 0 1px #1f2937; }
-  .stage .in { position:absolute; left:0; top:0; width:1920px; height:911px; transform-origin:0 0; transform:scale(var(--s,.68)); }
+  .stage .in { position:absolute; left:0; top:0; width:1920px; height:911px; transform-origin:0 0; transform:scale(var(--s,.7)); }
 </style>
 
 <div class="wrap">
-  <p class="ui-lab" style="--a:var(--em2)">Half-Inning Recap</p>
-  <h1>반이닝 정리 화면</h1>
+  <p class="ui-lab" style="--a:var(--em2)">Half-Inning Recap · Layouts</p>
+  <h1>반이닝 정리 배치안 8가지</h1>
   <p class="lead">
-    초·말이 바뀌면 <b>화면 전체가 정리 화면으로 바뀐다.</b> 카드가 떠오르는 게 아니라 중계 화면이 통째로 넘어간다.<br>
-    세 구역 — <b>왼쪽에 몇 회 초·말과 이번 회 점수</b>, <b>가운데에 이 회차 최고 활약 한 명</b>,
-    <b>오른쪽에 벌어진 일</b>. 아래는 다음 방침.
+    <b>전부 같은 내용</b>이다 — 6회말, 나의 드림팀 공격, 박병호 쓰리런으로 3점.
+    배치와 요소만 완전히 다르게 짰다. 무엇을 화면의 주인공으로 세우느냐가 안마다 다르다.
   </p>
-  <div class="key">
-    <span><i style="background:var(--my)"></i><b>내 팀</b> — 초록</span>
-    <span><i style="background:var(--opp)"></i><b>상대</b> — 빨강</span>
-    <span><i style="background:var(--gray)"></i><b>날씨 · 그라운드</b> — 회색</span>
-    <span style="color:#6b7280">가운데 선수 액자와 이름, 오른쪽 목록의 점이 모두 이 색을 따른다.</span>
-  </div>
   <div id="root"></div>
 </div>
 
 <script>
+const 박병호 = 'legend-kiwoom_박병호', 이정후 = 'legend-mvp_이정후',
+      김도영 = 'legend-mvp_김도영', 최정 = 'legend-ssg_최정';
 const IMG = (id) => `cards/${encodeURIComponent(id)}.webp`;
-const 박병호='legend-kiwoom_박병호', 최정='legend-ssg_최정', 구자욱='legend-samsung_구자욱',
-      강백호='legend-nc-kt_강백호', 김도영='legend-mvp_김도영', 박세웅='2026-lotte_박세웅',
-      김광현='legend-ssg_김광현', 류현진='legend-mvp_류현진', 오승환='legend-samsung_오승환',
-      손아섭='legend-lotte_손아섭', 양현종='legend-kia_양현종', 이정후='legend-mvp_이정후',
-      원태인='2026-samsung_원태인', 이종범='legend-mvp_이종범', 이대호='legend-lotte_이대호';
 
-/* 사건 줄 — my: 내 팀 / opp: 상대 / env: 날씨·그라운드 */
-const my  = (nm, tx, rt='', sub='', e='var(--my)')  => ({ t:'my',  e, nm, tx, rt, sub });
-const opp = (nm, tx, rt='', sub='')                 => ({ t:'opp', e:'var(--opp)', nm, tx, rt, sub });
-const env = (nm, tx, sub='')                        => ({ t:'env', e:'var(--gray)', nm, tx, rt:'', sub });
-const 득 = (nm, tx, rt, sub='') => my(nm, tx, rt, sub, 'var(--yel)');
-const 악 = (nm, tx, sub='') => ({ t:'my', e:'var(--opp)', nm, tx, rt:'', sub });
-const 호 = (nm, tx, sub='') => ({ t:'my', e:'var(--sky2)', nm, tx, rt:'', sub });
-const 증 = (nm, tx, sub='') => ({ t:'my', e:'var(--vio)', nm, tx, rt:'', sub });
+const EV = [
+  { id: 박병호, nm: '박병호', tx: '쓰리런 <span class="hi">홈런</span>', rt: '+3', e: 'var(--yel)', big: 1, sub: '비거리 127m' },
+  { id: 이정후, nm: '이정후', tx: '우전 안타', rt: '', e: 'var(--my)' },
+  { id: 김도영, nm: '김도영', tx: '볼넷', rt: '', e: 'var(--my)' },
+  { id: 최정, nm: '최정', tx: '중견수 뜬공 아웃', rt: '', e: '#6b7280' },
+];
+const evl = (a = EV) => a.map((e) => `
+  <div class="evl" style="--e:${e.e}"><span class="dot"></span>
+    <div class="tx"><b>${e.nm}</b><span>${e.tx}</span></div><span class="rt">${e.rt}</span></div>`).join('');
+const tot = () => `<div class="tot"><span class="t">AI 올스타</span>
+  <span class="v">4<span class="x">:</span>8</span><span class="t mine">나의 드림팀</span></div>`;
+const foot = (cls = 'foot') => `
+  <div class="${cls}">
+    <div class="hd"><span class="ui-lab" style="--a:var(--em2)">Next</span><p><b>7회초 내 수비</b> — 우리 선발 <b>92구</b></p></div>
+    <div class="opts">
+      <div class="ui-btn ui-cut">정면 승부<small>기본</small></div>
+      <div class="ui-btn ui-cut pri">투수 교체<small>불펜에서 고른다</small></div>
+      <div class="ui-btn ui-cut">신중하게<small>유인구 위주</small></div>
+      <div class="ring"><svg width="62" height="62"><circle class="b1" cx="31" cy="31" r="26"/>
+        <circle class="b2" cx="31" cy="31" r="26" stroke-dasharray="164" stroke-dashoffset="48"/></svg><b>4.5</b></div>
+    </div>
+  </div>`;
+const gain = () => `<div class="gainbox ui-cut"><b>+3</b><span>이 회 득점</span></div>`;
 
-const DEF    = [['정면 승부','기본'],['신중하게','유인구 위주'],['전진 수비','1점을 막는다']];
-const DEF_CH = [['정면 승부','기본'],['투수 교체','불펜에서 고른다'],['신중하게','유인구 위주']];
-const OFF    = [['강공','기본'],['작전 야구','번트 · 도루'],['기다리기','투구수를 늘린다']];
-const OFF_PH = [['강공','기본'],['대타 기용','벤치에서 고른다'],['작전 야구','번트 · 도루']];
+/* ── 그라운드 도해 (E) ── */
+const FIELD = `
+<svg width="620" height="600" viewBox="0 0 620 600">
+  <defs><radialGradient id="gr" cx="50%" cy="66%"><stop offset="0" stop-color="#0f3d2a"/><stop offset="1" stop-color="#061a12"/></radialGradient></defs>
+  <path d="M310 540 L580 270 A382 382 0 0 0 40 270 Z" fill="url(#gr)" stroke="rgba(255,255,255,.14)" stroke-width="2"/>
+  <path d="M310 540 L470 380 A226 226 0 0 0 150 380 Z" fill="rgba(180,120,60,.22)" stroke="rgba(255,255,255,.1)"/>
+  <path d="M310 540 L420 430 L310 320 L200 430 Z" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="3"/>
+  <path d="M40 270 A382 382 0 0 1 580 270" fill="none" stroke="rgba(253,224,71,.55)" stroke-width="4" stroke-dasharray="10 8"/>
+  <g fill="#e5e7eb">
+    <rect x="302" y="532" width="16" height="16" transform="rotate(45 310 540)"/>
+    <rect x="412" y="422" width="16" height="16" transform="rotate(45 420 430)"/>
+    <rect x="302" y="312" width="16" height="16" transform="rotate(45 310 320)"/>
+    <rect x="192" y="422" width="16" height="16" transform="rotate(45 200 430)"/>
+  </g>
+  <path d="M310 540 C 360 400, 400 300, 430 190" fill="none" stroke="#fde047" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="430" cy="190" r="13" fill="#fde047"/>
+  <text x="452" y="182" fill="#fde047" font-family="Saira Condensed" font-weight="800" font-size="30">홈런</text>
+  <text x="452" y="212" fill="#9ca3af" font-family="IBM Plex Sans KR" font-size="17">127m · 좌중간</text>
+  <g font-family="IBM Plex Sans KR" font-size="16" font-weight="700">
+    <circle cx="420" cy="430" r="11" fill="#34d399"/><text x="440" y="436" fill="#34d399">이정후</text>
+    <circle cx="200" cy="430" r="11" fill="#34d399"/><text x="94" y="436" fill="#34d399">김도영</text>
+  </g>
+  <text x="310" y="586" text-anchor="middle" fill="#6b7280" font-family="IBM Plex Sans KR" font-size="16">주자 둘이 모두 홈을 밟았다</text>
+</svg>`;
 
-const S = [
-{ sec:'점수가 난 회차', secn:'한 경기 <b>3.6회</b>. 왼쪽 <b>+N</b>이 먼저 읽히고, 가운데 선수가 그 점수를 낸 사람이다.' },
+const LAYOUTS = [
 {
-  a:'var(--or)', wm:'6TH', inn:'6회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+3',
-  hero:[박병호,'박병호','4번 · 1B','쓰리런 홈런','비거리 127m · 시즌 21호'],
-  ev:[ 득('박병호','쓰리런 <span class="hi">홈런</span>','+3'), my('이정후','우전 안타'),
-       my('김도영','볼넷'), my('최정','중견수 뜬공 아웃') ],
-  sc2:[4,8], prog:[11,'my'], nx:['<b>7회초 내 수비</b> — 우리 선발 <b>92구</b>', DEF_CH, 1], secs:4.5,
-  note:'가장 기본. 왼쪽 <b>회차 → 득점</b>, 가운데 <b>한 명</b>, 오른쪽 <b>전부</b>. 액자가 초록이라 <b>내 팀 선수</b>임이 한눈에 읽힌다.',
+  k:'A', name:'세 구역 가로', en:'Three Columns',
+  sum:'왼쪽 <b>회차·점수</b> · 가운데 <b>선수</b> · 오른쪽 <b>목록</b>. 정보를 종류별로 칸에 나눠 담는다.',
+  good:'어떤 회차가 와도 칸이 안 흔들린다. 사건이 1개든 6개든 같은 자리에 들어간다. <b>만들기 가장 안전하다.</b>',
+  bad:'셋이 대등해서 <b>주인공이 없다.</b> 눈이 어디부터 갈지 매번 정해야 한다. 오래 보면 표처럼 느껴진다.',
+  html:`
+  <div class="lay">
+    <div class="bar"><span class="ui-lab" style="--a:var(--or)">Half-Inning Recap</span>${tot()}</div>
+    <div class="mid">
+      <div class="z1">
+        <p class="inn">6회<em>말</em><span class="sd">나의 드림팀 <i>공격</i></span></p>
+        ${gain()}
+      </div>
+      <div class="z2">
+        <span class="ui-lab" style="--a:var(--my)">My Team · 내 팀</span>
+        <div class="hero ui-cut" style="background-image:url(${IMG(박병호)})">
+          <div class="cap"><b>박병호</b><span>4번 · 1B</span></div></div>
+        <div class="did"><b>쓰리런 홈런</b><span>비거리 127m · 시즌 21호</span></div>
+      </div>
+      <div class="z3"><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:16px">${evl()}</div></div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--yel)', wm:'3RD', inn:'3회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+4',
-  hero:[최정,'최정','5번 · 3B','만루 싹쓸이 2루타','이 회 타자 8명 · 안타 4개'],
-  ev:[ 득('최정','만루 싹쓸이 <span class="hi">2루타</span>','+3'), 득('이정후','적시타','+1'),
-       my('구자욱','2루타'), my('김도영','볼넷'), my('강백호','병살타로 이닝 종료') ],
-  sc2:[1,6], prog:[5,'my'], nx:['<b>4회초 내 수비</b> — 상대 7·8·9번', DEF, 0], secs:5,
-  note:'<b>빅이닝.</b> 오른쪽 목록이 길어져도 구역이 넓어서 답답하지 않다. 다섯 줄까지 보여주고 넘치면 접는다.',
+  k:'B', name:'전면 히어로', en:'Full-Bleed Hero',
+  sum:'선수 사진이 <b>화면을 가득 채우고</b> 글자가 그 위에 얹힌다. 영화 포스터에 가깝다.',
+  good:'<b>이 회차는 이 사람 것</b>이라는 게 0.3초 만에 박힌다. 홈런·끝내기 같은 큰 순간에 압도적이다. 선수 카드 1,600장을 가장 잘 쓴다.',
+  bad:'사건이 많은 회차엔 안 맞는다. 오른쪽 목록이 사진에 묻힌다. <b>조용한 회차에 쓰면 허세로 보인다.</b>',
+  html:`
+  <div class="shot" style="background-image:url(${IMG(박병호)})"></div>
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="body">
+      <span class="wm">6</span>
+      <div class="kicker"><span class="ui-lab" style="--a:var(--or)">Half-Inning Recap</span>
+        <span class="ui-chip ui-cut" style="--a:var(--my)">나의 드림팀 공격</span></div>
+      <p class="inn">6회<em>말</em></p>
+      <p class="nm">박병호</p>
+      <p class="act">쓰리런 홈런</p>
+      <p class="sub">4번 · 1B &nbsp;·&nbsp; 비거리 127m &nbsp;·&nbsp; 시즌 21호</p>
+      ${gain()}
+      <div class="side"><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:10px">${evl()}</div></div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--yel)', wm:'7TH', inn:'7회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+2', tag:'역전',
-  hero:[구자욱,'구자욱','7번 · RF','역전 2타점 3루타','3 : 4 — 경기를 뒤집었다'],
-  ev:[ 득('구자욱','역전 2타점 <span class="hi">3루타</span>','+2'), my('김하성','좌전 안타'),
-       my('손아섭','희생번트'), env('관중','홈 관중 기립 — 팀 사기 <span class="hi">+2</span>','다음 이닝 타격 보정') ],
-  sc2:[3,4], prog:[13,'my'], nx:['<b>8회초 내 수비</b> — 리드를 지킨다', DEF_CH, 1], secs:5,
-  note:'<b>역전.</b> 회차 아래에 태그가 붙고 상단 점수판이 뒤집히는 연출이 들어갈 자리. 관중 반응은 회색 — <b>사람이 아니라 환경</b>이다.',
+  k:'C', name:'가로 타임라인', en:'Timeline',
+  sum:'이 회차에 일어난 일이 <b>왼쪽에서 오른쪽으로</b> 시간 순으로 흐른다. 큰 사건은 노드가 커진다.',
+  good:'야구가 원래 순서의 경기다. <b>"어떻게 이렇게 됐는지"가 그림으로 읽힌다.</b> 볼넷 → 안타 → 홈런의 흐름이 보인다.',
+  bad:'사건이 5개를 넘으면 좁아진다. 삼자범퇴처럼 <b>한 줄뿐인 회차엔 텅 빈다.</b> 노드 크기 규칙을 따로 정해야 한다.',
+  html:`
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="bar">
+      <p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span>
+      <span class="gm">+3</span>${tot()}
+    </div>
+    <div class="tl">
+      <div class="node" style="--e:var(--my)"><span class="ord">FIRST</span>
+        <div class="fc" style="background-image:url(${IMG(김도영)})"></div><div class="pin"></div>
+        <p class="nm">김도영</p><p class="tx">볼넷</p></div>
+      <div class="node" style="--e:var(--my)"><span class="ord">2ND</span>
+        <div class="fc" style="background-image:url(${IMG(이정후)})"></div><div class="pin"></div>
+        <p class="nm">이정후</p><p class="tx">우전 안타</p></div>
+      <div class="node big" style="--e:var(--yel)"><span class="ord">3RD</span>
+        <div class="fc" style="background-image:url(${IMG(박병호)})"></div><div class="pin"></div>
+        <p class="nm">박병호</p><p class="tx"><b>쓰리런 홈런</b></p><span class="rt">+3</span></div>
+      <div class="node" style="--e:#6b7280"><span class="ord">4TH</span>
+        <div class="fc" style="background-image:url(${IMG(최정)})"></div><div class="pin"></div>
+        <p class="nm">최정</p><p class="tx">중견수 뜬공 아웃</p></div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--em2)', wm:'5TH', inn:'5회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+1',
-  hero:[강백호,'강백호','6번 · DH','밀어내기 볼넷','이 회 볼넷 3개 — 상대를 흔들었다'],
-  ev:[ 득('강백호','밀어내기 <span class="hi">볼넷</span>','+1'), my('손아섭','볼넷'),
-       my('김도영','몸에 맞는 공'), my('이정후','볼넷'), my('최정','삼진 — 잔루 3') ],
-  sc2:[2,3], prog:[9,'my'], nx:['<b>6회초 내 수비</b> — 상대 3·4·5번', DEF, 0], secs:3.5,
-  note:'안타 하나 없이 난 점수. <b>가운데 한 명만 봐서는 모르고</b> 오른쪽을 읽어야 "볼넷으로 흔들었다"가 보인다 — 두 구역이 서로를 보완한다.',
+  k:'D', name:'전광판', en:'Scoreboard',
+  sum:'구장 전광판이 주인공이다. <b>이닝별 박스스코어</b>가 크게 깔리고 이번 회 칸이 불을 켠다.',
+  good:'<b>경기 전체 흐름이 한눈에</b> 들어온다. 지금 몇 점 차이고 어느 회에 터졌는지가 매번 보인다. 야구 팬에게 가장 익숙한 그림이다.',
+  bad:'회차마다 <b>바뀌는 게 숫자 한 칸뿐</b>이라 심심하다. 선수가 오른쪽으로 밀려 작아진다. 사건이 많으면 자리가 부족하다.',
+  html:`
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="body">
+      <div class="left">
+        <div class="cap2"><p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span></div>
+        <table class="board">
+          <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th class="now">6</th><th>7</th><th>8</th><th>9</th><th>R</th><th>H</th></tr>
+          <tr><td class="tm">AI 올스타</td><td>0</td><td>2</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-</td><td>-</td><td>-</td><td class="r">4</td><td>7</td></tr>
+          <tr><td class="tm mine">나의 드림팀</td><td>1</td><td>0</td><td>0</td><td>3</td><td>1</td><td class="now">3</td><td>-</td><td>-</td><td>-</td><td class="r">8</td><td>11</td></tr>
+        </table>
+      </div>
+      <div class="right">
+        <span class="ui-lab" style="--a:var(--my)">이 회 주인공</span>
+        <div class="who">
+          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
+          <div><b>박병호</b><span>4번 · 1B</span><p class="did">쓰리런 홈런</p></div>
+        </div>
+        <span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span>
+        <div style="margin-top:14px">${evl()}</div>
+      </div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--or)', wm:'9TH', inn:'9회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+1', tag:'끝내기',
-  hero:[김도영,'김도영','2번 · 3B','끝내기 안타','5 : 6 — 경기 종료'],
-  ev:[ 득('김도영','끝내기 <span class="hi">안타</span>','+1'), my('이정후','2루타'), opp('AI 올스타','박병호를 고의사구로 거름') ],
-  sc2:[5,6], prog:[18,'my'], fin:['경기 종료 · 나의 드림팀 6 : 5 AI 올스타','탭하면 결과 화면으로'], secs:6,
-  note:'<b>끝내기.</b> 방침도 초읽기도 없고 하단 구역이 통째로 종료 문구로 바뀐다. 유일하게 탭해야 넘어간다.',
-},
-
-{ sec:'점수가 안 난 회차', secn:'한 경기 <b>14.6회</b> — 대부분이 여기다. 왼쪽 <b>0</b>은 회색으로 가라앉고, 가운데와 오른쪽이 화면을 끌고 간다.' },
-{
-  a:'var(--em)', wm:'4TH', inn:'4회', half:'초', side:'나의 드림팀', act:'수비', sc:'my', gain:0, gainLab:'무실점',
-  hero:[박세웅,'박세웅','선발 · SP','1사 만루에서 삼진','4타자 · 18구 · 탈삼진 2'],
-  ev:[ my('박세웅','1사 만루에서 <span class="hi">헛스윙 삼진</span>','','이 회 18구 · 누적 68구'),
-       opp('상대 3번','볼넷'), opp('상대 4번','좌전 안타'), my('김하성','유격수 땅볼 처리') ],
-  sc2:[3,3], prog:[7,'my'], nx:['<b>4회말 내 공격</b> — 우리 1·2·3번', OFF, 0], secs:3,
-  note:'<b>가장 흔한 회차.</b> 상대 타자가 낸 안타·볼넷은 <b>빨간 점</b>이라 목록만 훑어도 누구 일인지 갈린다.',
-},
-{
-  a:'var(--opp)', wm:'8TH', inn:'8회', half:'말', side:'나의 드림팀', act:'공격', sc:'opp', gain:0, gainLab:'찬스 무산',
-  hero:[김광현,'김광현','상대 마무리 · CL','무사 만루를 틀어막다','병살 + 삼진 · 14구'],
-  ev:[ opp('김광현','무사 만루에서 <span class="hi">병살 유도</span>','','우리 공격을 끊었다'),
-       my('구자욱','볼넷'), my('김도영','안타'), my('이정후','몸에 맞는 공'), my('강백호','병살타 — 잔루 3') ],
-  sc2:[4,3], prog:[16,'my'], nx:['<b>9회초 내 수비</b> — 한 점 차를 지킨다', DEF_CH, 1], secs:3.5,
-  note:'<b>내 공격인데 가운데가 빨갛다.</b> 활약한 게 상대 투수이기 때문 — 이게 팀 색을 나눈 이유다. 액자 하나로 "당했다"가 읽힌다.',
+  k:'E', name:'그라운드 도해', en:'Diamond',
+  sum:'다이아몬드 그림 위에 <b>타구가 어디로 갔고 주자가 어떻게 돌았는지</b>를 선으로 그린다.',
+  good:'<b>글이 아니라 그림으로 읽는다.</b> 좌중간 127m이 숫자가 아니라 길이로 보인다. 수비 · 주루 · 타구 방향이 처음으로 화면에 나온다.',
+  bad:'만드는 비용이 제일 크다. <b>엔진에 타구 방향 데이터가 없어서</b> 새로 만들어야 한다. 볼넷 · 삼진처럼 그릴 게 없는 사건은 표현이 안 된다.',
+  html:`
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="body">
+      <div class="fieldwrap">${FIELD}</div>
+      <div class="right">
+        <div class="hd2"><p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span></div>
+        ${gain()}
+        <div><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:14px">${evl()}</div></div>
+        ${tot()}
+      </div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--em)', wm:'2ND', inn:'2회', half:'초', side:'나의 드림팀', act:'수비', sc:'my', gain:0, gainLab:'삼자범퇴',
-  hero:[류현진,'류현진','선발 · SP','3타자 9구 퍼펙트','투구수를 아꼈다'],
-  ev:[ my('류현진','3타자 <span class="hi">9구</span> — 삼자범퇴','','누적 21구') ],
-  sc2:[0,0], prog:[3,'my'], nx:['<b>2회말 내 공격</b> — 우리 4·5·6번', OFF, 0], secs:1.5,
-  note:'<b>가장 짧은 회차.</b> 오른쪽에 한 줄뿐이라 화면이 비는데, <b>그게 맞다</b> — 아무 일도 없었다는 걸 여백으로 말한다. 1.5초 만에 넘어간다.',
+  k:'F', name:'좌우 대결', en:'Head to Head',
+  sum:'화면을 <b>반으로 갈라</b> 왼쪽은 우리, 오른쪽은 상대. 가운데 기둥에 회차와 점수.',
+  good:'<b>내 팀과 상대가 구조로 갈린다.</b> 색을 안 봐도 위치로 안다. 상대가 잘한 회차를 정직하게 보여줄 수 있다.',
+  bad:'한쪽이 <b>늘 비어 보인다</b> — 내 공격 이닝엔 상대가 투수 하나뿐이다. 화면 절반이 놀면 답답하다.',
+  html:`
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="body">
+      <div class="halfp mine" style="--c2:var(--my)">
+        <span class="ui-lab" style="--a:var(--my)">My Team · 공격</span>
+        <div class="who">
+          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
+          <div><b class="nm">박병호</b><span class="pos">4번 · 1B</span>
+            <p class="did">쓰리런 홈런</p><p class="sub">비거리 127m</p></div>
+        </div>
+        <div class="lst">${evl(EV.slice(1))}</div>
+      </div>
+      <div class="halfp theirs" style="--c2:var(--opp)">
+        <span class="ui-lab" style="--a:var(--opp)">Opponent · 수비</span>
+        <div class="who">
+          <div class="fc ui-cut" style="background-image:url(${IMG(최정)})"></div>
+          <div><b class="nm">상대 선발</b><span class="pos">6회 · 88구</span>
+            <p class="did">피홈런 1 · 3실점</p><p class="sub">이 회로 무너졌다</p></div>
+        </div>
+        <div class="lst">${evl([{ nm:'실점', tx:'이 회 3점', rt:'−3', e:'var(--opp)' },
+                                { nm:'투구수', tx:'88구 — 교체 임박', rt:'', e:'var(--opp)' }])}</div>
+      </div>
+      <div class="spine"></div>
+      <div class="knot ui-cut">
+        <p class="inn">6회<em>말</em></p>
+        <span class="v">4<span class="x">:</span>8</span>
+        <span class="gm">+3</span>
+      </div>
+    </div>
+    ${foot()}
+  </div>`,
 },
 {
-  a:'var(--vio)', wm:'7TH', inn:'7회', half:'초', side:'나의 드림팀', act:'수비', sc:'my', gain:0, gainLab:'3K',
-  hero:[오승환,'오승환','마무리 · CL','3연속 삼진','12구 · 최고 152km'],
-  ev:[ my('오승환','상대 3·4·5번을 <span class="hi">전원 삼진</span>','','12구 · 헛스윙 7') ],
-  sc2:[2,3], prog:[13,'my'], nx:['<b>7회말 내 공격</b> — 우리 1·2·3번', OFF, 0], secs:2,
-  note:'같은 삼자범퇴여도 <b>3연속 삼진</b>이면 보라색으로 바꾸고 0.5초 더 준다. 작은 차이가 "봤다"를 만든다.',
-},
-
-{ sec:'사건이 있었던 회차', secn:'부상 · 컨디션 · 날씨 · 돌발. <b>이 화면의 존재 이유다</b> — 꾹 눌러 넘기다가도 여기서 따라잡을 수 있어야 한다.' },
-{
-  a:'var(--opp)', wm:'5TH', inn:'5회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+1', tag:'부상',
-  hero:[손아섭,'손아섭','9번 · CF','2루 주루 중 햄스트링','다음 2경기 결장 · 컨디션 55%'],
-  ev:[ 악('손아섭','2루 주루 중 <span class="hi">햄스트링</span> — 자진 교체','다음 2경기 결장 · 컨디션 55%'),
-       호('김하성','대주자로 교체 투입','벤치 → 2루'), 득('이정후','적시타','+1') ],
-  sc2:[2,3], prog:[9,'my'], nx:['<b>6회초 내 수비</b> — 중견수 자리를 메워야 한다', DEF, 0], secs:5,
-  note:'<b>부상.</b> 점수를 냈는데도 가운데는 <b>다친 선수</b>다 — "활약"이 아니라 <b>이 회차의 사건</b>을 세운다. 액자는 초록(내 팀)이되 테두리에 빨간 경고가 얹힌다.',
-},
-{
-  a:'var(--opp)', wm:'6TH', inn:'6회', half:'초', side:'나의 드림팀', act:'수비', sc:'my', gain:'−2', tag:'급성 난조',
-  hero:[양현종,'양현종','선발 · SP','갑자기 제구가 흔들렸다','구위 76 → 61 · 자동 교체'],
-  ev:[ 악('양현종','연속 <span class="hi">볼넷 3개</span> — 자동 교체','구위 76 → 61'),
-       호('정우람','급하게 몸 풀고 등판','불펜 준비 없이 — 첫 5구 제구 −8'),
-       opp('상대 5번','2타점 적시타','−2') ],
-  sc2:[4,2], prog:[11,'my'], nx:['<b>6회말 내 공격</b> — 따라붙어야 한다', OFF_PH, 1], secs:5,
-  note:'<b>몸 풀 틈 없이 바꿔야 하는 상황.</b> 불펜을 미리 준비시켜 뒀다면 페널티가 없다 — 이 회차가 "불펜 몸풀기"를 넣어야 할 이유를 만든다.',
-},
-{
-  a:'var(--sky)', wm:'3RD', inn:'3회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+2', tag:'운수 좋은 날',
-  hero:[이정후,'이정후','3번 · LF','오늘 방망이가 가볍다','컨택 94 → 99 · 이 경기 내내'],
-  ev:[ 호('이정후','<span class="hi">컨디션 급상승</span> — 컨택 94 → 99','이 경기 내내 유지'),
-       득('이정후','연타석 2루타','+2'), my('손아섭','우전 안타') ],
-  sc2:[1,3], prog:[5,'my'], nx:['<b>4회초 내 수비</b> — 상대 1·2·3번', DEF, 0], secs:4,
-  note:'<b>좋은 이벤트.</b> 나쁜 일만 생기면 지친다. 확률은 낮게, 대신 뜨면 <b>경기 내내</b> 간다 — 그래야 "오늘 얘가 되네"가 생긴다.',
-},
-{
-  a:'var(--gray)', wm:'5TH', inn:'5회', half:'초', side:'경기', act:'중단', sc:'my', gain:0, gainLab:'우천 지연',
-  hero:[원태인,'원태인','선발 · SP','28분 쉬고 몸이 식었다','체력 −18 · 재개 후 구위 −6'],
-  ev:[ env('비','빗줄기가 굵어져 <span class="hi">28분 중단</span>','그라운드 정비 — 재개까지'),
-       악('원태인','몸이 식었다 — <span class="hi">투구수와 무관하게</span> 체력 −18','재개 후 구위 −6'),
-       env('그라운드','비에 젖은 내야 — <span class="hi">양 팀 실책 +8%</span>','9회까지 유지') ],
-  sc2:[2,2], prog:[9,'my'], nx:['<b>재개 · 5회초 계속</b> — 투수를 바꿀 수 있다', DEF_CH, 1], secs:5,
-  note:'<b>우천.</b> 선수가 아니라 <b>경기 자체</b>가 주어라 왼쪽 큰 글자도 "5회초 / 경기 중단"으로 바뀌고 전체 톤이 회색으로 내려간다.',
+  k:'G', name:'하단 자막 띠', en:'Lower Third',
+  sum:'중계 화면을 <b>안 가린다.</b> 위는 경기가 그대로 보이고 아래 3분의 1에만 정보가 깔린다.',
+  good:'<b>흐름이 안 끊긴다.</b> 경기를 보다가 정보가 올라왔다 내려가는 느낌이라 18번 떠도 안 지친다. 실제 중계 문법 그대로다. <b>가장 빠르다.</b>',
+  bad:'담을 수 있는 정보가 적다. 부상 · 우천처럼 <b>할 말이 많은 회차를 못 받는다.</b> 큰 순간의 무게감도 안 산다.',
+  html:`
+  <div class="bg" style="opacity:.62"></div>
+  <div class="lay">
+    <div class="live">
+      <span class="badge"><i></i><span>HALF-INNING</span></span>
+      <span class="tot">${tot()}</span>
+    </div>
+    <div class="strip">
+      <div class="row1">
+        <p class="inn">6회<em>말</em></p>
+        <span class="gm">+3</span>
+        <div class="who">
+          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
+          <div><b>박병호</b><span>쓰리런 홈런 · 127m</span></div>
+        </div>
+        <div class="rest">이정후 <b>우전 안타</b> &nbsp;·&nbsp; 김도영 <b>볼넷</b><br>최정 중견수 뜬공 아웃</div>
+      </div>
+      <div class="row2">
+        <span class="ui-lab" style="--a:var(--em2)">Next</span>
+        <p><b>7회초 내 수비</b> — 선발 92구</p>
+        <div class="opts">
+          <div class="ui-btn ui-cut">정면 승부<small>기본</small></div>
+          <div class="ui-btn ui-cut pri">투수 교체<small>불펜에서</small></div>
+          <div class="ui-btn ui-cut">신중하게<small>유인구 위주</small></div>
+        </div>
+        <div class="ring"><svg width="62" height="62"><circle class="b1" cx="31" cy="31" r="26"/>
+          <circle class="b2" cx="31" cy="31" r="26" stroke-dasharray="164" stroke-dashoffset="48"/></svg><b>4.5</b></div>
+      </div>
+    </div>
+  </div>`,
 },
 {
-  a:'var(--sky2)', wm:'7TH', inn:'7회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+2', tag:'바람',
-  hero:[최정,'최정','5번 · 3B','바람 타고 넘어간 투런','평소라면 담장 앞 뜬공'],
-  ev:[ env('바람','중견수 쪽 <span class="hi">초속 9m 순풍</span>','이 이닝 뜬공 비거리 +12%'),
-       득('최정','바람 타고 넘어간 <span class="hi">투런</span>','+2','평소라면 담장 앞 뜬공'),
-       my('강백호','좌익수 뜬공 — 바람에 밀려 파울') ],
-  sc2:[3,5], prog:[13,'my'], nx:['<b>8회초 내 수비</b> — 바람은 우리에게도 분다', DEF, 0], secs:4.5,
-  note:'<b>바람.</b> 같은 타구가 다르게 끝난다. 가운데 덧말에 <b>"평소라면 담장 앞 뜬공"</b>이 없으면 그냥 홈런이다 — 운이었다는 걸 밝혀야 재밌다.',
-},
-{
-  a:'var(--yel)', wm:'2ND', inn:'2회', half:'초', side:'나의 드림팀', act:'수비', sc:'opp', gain:'−1', tag:'햇빛',
-  hero:[이종범,'이종범','상대 1번 · SS','역광을 파고든 2루타','우리 외야가 공을 놓쳤다'],
-  ev:[ env('태양','낮경기 · 서향 <span class="hi">역광</span>','외야 뜬공 처리 −12%'),
-       악('구자욱','뜬공을 <span class="hi">놓쳤다</span> — 햇빛에 시야를 잃음','기록상 실책 · 자책점 아님'),
-       opp('이종범','2루타로 주자 홈인','−1') ],
-  sc2:[1,0], prog:[3,'my'], nx:['<b>2회말 내 공격</b> — 우리도 역광이다', OFF, 0], secs:4,
-  note:'<b>햇빛.</b> 실책이 <b>선수 탓이 아닌</b> 경우. 가운데는 이득을 본 <b>상대 타자</b>라 빨갛고, 오른쪽엔 우리 실책이 빨간 점으로 남는다.',
-},
-{
-  a:'var(--vio)', wm:'8TH', inn:'8회', half:'말', side:'나의 드림팀', act:'공격', sc:'my', gain:'+2', tag:'돌발 · 증강',
-  hero:[강백호,'강백호','6번 · DH','증강 · 대쓰요! 발동','좌중간 투런 홈런'],
-  ev:[ env('관중','파울 타구를 관중이 잡아채 <span class="hi">수비 방해</span>','타자 계속 타석 — 파울 처리'),
-       증('대쓰요!','증강 발동 — <span class="hi">투런 홈런</span> 확정','파워 92+ 타자 보유 · 남은 1회'),
-       득('강백호','좌중간 <span class="hi">투런</span>','+2') ],
-  sc2:[6,8], prog:[16,'my'], nx:['<b>9회초 내 수비</b> — 마무리를 올린다', DEF_CH, 1], secs:5,
-  note:'<b>돌발 + 증강이 겹친 회차.</b> 오른쪽에 <b>시간 순서대로</b> 쌓인다. 증강이 로그 한 줄로 흘러가지 않고 여기 남는다.',
-},
-{
-  a:'var(--opp)', wm:'7TH', inn:'7회', half:'초', side:'AI 올스타', act:'공격', sc:'opp', gain:'−3',
-  hero:[이대호,'이대호','상대 4번 · DH','2사 만루 싹쓸이 2루타','우리 선발을 끌어내렸다'],
-  ev:[ opp('이대호','2사 만루에서 <span class="hi">싹쓸이 2루타</span>','−3'),
-       악('원태인','7타자 · 29구 · 강판',''),
-       호('고우석','불펜에서 등판','남은 주자 둘 모두 막음'),
-       env('관중','원정 응원석이 달아올랐다','상대 다음 이닝 타격 +1') ],
-  sc2:[6,4], prog:[13,'opp'], nx:['<b>7회말 내 공격</b> — 2점 차를 좁혀야 한다', OFF_PH, 1], secs:4,
-  note:'<b>상대 공격.</b> 왼쪽 팀명·가운데 액자·오른쪽 점이 전부 빨강으로 통일된다. 상단 점수판도 상대 쪽이 밝아진다 — <b>한 화면이 통째로 상대 색</b>이 되니 헷갈릴 수가 없다.',
+  k:'H', name:'헤드라인', en:'Headline',
+  sum:'그 회차를 <b>한 문장으로</b> 뽑아 제일 크게 쓴다. 나머지는 밑에 작게.',
+  good:'<b>읽고 나면 문장이 남는다.</b> "박병호, 6회말 쓰리런" — 나중에 기억나는 건 결국 이 한 줄이다. 시즌 기록·명장면 보관과도 이어진다.',
+  bad:'문장을 <b>자동으로 잘 뽑기가 어렵다.</b> 규칙으로 만들면 금방 반복돼 보인다. 사건이 여럿인 회차는 한 문장으로 못 줄인다.',
+  html:`
+  <div class="vig"></div>
+  <div class="lay">
+    <div class="body">
+      <div class="over">
+        <span class="inn">6회말</span><span class="sd">나의 드림팀 <i>공격</i></span>
+        <span class="ui-chip ui-cut" style="--a:var(--yel)">+3</span>${tot()}
+      </div>
+      <div class="lower">
+        <div>
+          <p class="head">박병호, 6회말 <em>쓰리런</em><br>승부를 갈랐다</p>
+          <p class="deck">2사 1·2루에서 초구를 당겼다. 좌중간 담장을 넘긴 127m — 시즌 21호.
+            이 회차에만 3점을 보태 8 : 4로 달아났다.</p>
+          <div class="lst" style="margin-top:34px;max-width:760px">${evl(EV.slice(1))}</div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+    <div class="cut ui-cut" style="background-image:url(${IMG(박병호)})"></div>
+    ${foot()}
+  </div>`,
 },
 ];
 
-function screen(k) {
-  const minus = String(k.gain).startsWith('−');
-  const SC = k.sc === 'opp' ? 'var(--opp)' : 'var(--my)';
-  const gain = k.gain === 0
-    ? `<div class="gain zero ui-cut"><b>0</b><span>${k.gainLab || '무득점'}</span></div>`
-    : `<div class="gain ui-cut${minus ? ' minus' : ''}"><b>${k.gain}</b><span>${k.gainLab || (minus ? '이 회 실점' : '이 회 득점')}</span></div>`;
-
-  const prog = Array.from({ length: 18 }, (_, i) =>
-    `<i class="${i + 1 < k.prog[0] ? 'on' : i + 1 === k.prog[0] ? 'now' : ''}"></i>`).join('');
-
-  const rows = k.ev.map((e) => `
-    <div class="ev" style="--e:${e.e};--tc:${e.t === 'opp' ? 'var(--opp)' : e.t === 'env' ? '#cbd5e1' : '#fff'}">
-      <span class="dot"></span>
-      <div class="tx"><b>${e.nm}</b><span>${e.tx}</span>${e.sub ? `<small>${e.sub}</small>` : ''}</div>
-      <span class="rt">${e.rt}</span>
-    </div>`).join('');
-
-  return `
-<div class="screen" style="--a:${k.a};--sc:${SC}">
-  <div class="bar">
-    <span class="ui-lab" style="--a:${k.a}">Half-Inning Recap</span>
-    <div class="prog">${prog}</div>
-    <div class="tot">
-      <span class="t ${k.sc === 'opp' ? 'theirs' : ''}">AI 올스타</span>
-      <span class="v">${k.sc2[0]}<span class="x">:</span>${k.sc2[1]}</span>
-      <span class="t ${k.sc === 'opp' ? '' : 'mine'}">나의 드림팀</span>
-    </div>
-  </div>
-
-  <div class="mid">
-    <div class="z1">
-      <span class="wm">${k.wm}</span>
-      <div class="inn">
-        <b>${k.inn}<em>${k.half}</em></b>
-        <span class="sd">${k.side} <i>${k.act}</i>${k.tag ? `<span class="ui-chip ui-cut" style="--a:${k.a}">${k.tag}</span>` : ''}</span>
-      </div>
-      ${gain}
-    </div>
-
-    <div class="z2">
-      <span class="ui-lab who" style="--a:${SC}">${k.sc === 'opp' ? 'Opponent · 상대' : 'My Team · 내 팀'}</span>
-      <div class="hero" style="background-image:url(${IMG(k.hero[0])})">
-        <div class="cap"><b>${k.hero[1]}</b><span>${k.hero[2]}</span></div>
-      </div>
-      <div class="did"><b>${k.hero[3]}</b><span>${k.hero[4]}</span></div>
-    </div>
-
-    <div class="z3">
-      <span class="ui-lab" style="--a:${k.a}">이 회에 벌어진 일</span>
-      ${rows}
-    </div>
-  </div>
-
-  ${k.fin ? `<div class="foot"><div class="fin"><b>${k.fin[0]}</b><span>${k.fin[1]}</span></div></div>` : `
-  <div class="foot">
-    <div class="hd"><span class="ui-lab" style="--a:var(--em2)">Next</span><p>${k.nx[0]}</p></div>
-    <div class="opts">
-      ${k.nx[1].map(([t, s], i) => `<div class="ui-btn ui-cut${i === k.nx[2] ? ' pri' : ''}">${t}<small>${s}</small></div>`).join('')}
-      <div class="ring">
-        <svg width="62" height="62"><circle class="b1" cx="31" cy="31" r="26"/><circle class="b2" cx="31" cy="31" r="26" stroke-dasharray="164" stroke-dashoffset="48"/></svg>
-        <b>${k.secs}</b>
-      </div>
-    </div>
-  </div>`}
-</div>`;
-}
-
-let html = '', n = 0;
-for (const k of S) {
-  if (k.sec) { html += `<h2>${k.sec}</h2><p class="h2n">${k.secn}</p>`; continue; }
-  n += 1;
-  html += `<div class="slot"><div class="stage"><div class="in">${screen(k)}</div></div>
-    <p class="note"><b class="d" style="font-size:16px">${String(n).padStart(2, '0')}</b> · ${k.secs}초 — ${k.note}</p></div>`;
-}
-document.getElementById('root').innerHTML = html;
+document.getElementById('root').innerHTML = LAYOUTS.map((L) => `
+  <h2><em>${L.k}</em>${L.name} <span style="font:800 16px 'Saira Condensed';color:#4b5563;letter-spacing:.2em">${L.en}</span></h2>
+  <p class="h2n">${L.sum}</p>
+  <div class="stage"><div class="in"><div class="screen ${L.k}"><div class="bg"></div>${L.html}</div></div></div>
+  <div class="pn">
+    <div class="good"><b>좋은 점</b>${L.good}</div>
+    <div class="bad"><b>걸리는 점</b>${L.bad}</div>
+  </div>`).join('');
 
 const fit = () => document.querySelectorAll('.stage').forEach((el) => {
   el.querySelector('.in').style.setProperty('--s', el.clientWidth / 1920);
