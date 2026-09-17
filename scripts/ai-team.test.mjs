@@ -23,7 +23,9 @@ test('선발 투구 수 한도 · 마무리 투입', () => {
   g.home.pitches = 79;
   expect(aiPitchingChange(g, g.home)).toBeNull();
   g.home.pitches = 80;
-  expect(aiPitchingChange(g, g.home)).toBe(true);
+  const next = aiPitchingChange(g, g.home);
+  expect(next).toBeTruthy();
+  expect(next).not.toBe(team.closerId); // 순번 교체 땐 마무리를 아껴 둔다
   g.home.pitches = 10; g.inning = 9; g.home.runs = 3; g.away.runs = 1; g.outs = 0;
   expect(aiPitchingChange(g, g.home)).toBe(team.closerId);
 });

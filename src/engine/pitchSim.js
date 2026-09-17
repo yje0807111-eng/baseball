@@ -360,18 +360,27 @@ export function aiPitchingChange(g, side) {
   const lateInning = 10 - Math.max(1, Math.round(u.closerInnings));
   // 마무리: 리드 1~3점 상황의 마지막 이닝(들)
   if (closer && g.outs === 0 && g.inning >= lateInning && lead >= 1 && lead <= 3) return closer.id;
-  if (isCloser) return side.pitches >= u.relieverPitches * Math.max(1, u.closerInnings) * 1.6 ? true : null;
+  if (isCloser) return side.pitches >= u.relieverPitches * Math.max(1, u.closerInnings) * 1.6 ? nextArm(side) : null;
   const starter = side.pitcherIdx === 0;
-  const limit = starter ? u.starterPitches : u.relieverPitches;
-  if (side.pitches >= limit) return true;
-  if (fatigue(side) >= 0.45) return true;
-  // 퀵훅: 이 투수가 이번 경기에 내준 점수
+  // 선발로 나온 투수 · 롱릴리프(선발 포지션 투수가 불펜으로)는 길게, 불펜 투수는 짧게
+  const long = !starter && side.pitcher?.position === 'SP';
+  const limit = starter ? u.starterPitches : long ? u.relieverPitches * 2.2 : u.relieverPitches;
+  if (side.pitches >= limit) return nextArm(side);
+  if (fatigue(side) >= 0.45) return nextArm(side);
+  // 퀵훅: 선발이 이번 경기에 내준 점수. 1~2회엔 더 참는다
   if (starter && g.inning <= 6) {
     const allowed = g.events.reduce((n, ev) => n + (ev.pitcher?.id === side.pitcher?.id && ev.runs ? ev.runs : 0), 0);
-    const hook = u.quickHook >= 0.7 ? 3 : u.quickHook >= 0.4 ? 5 : 7;
-    if (allowed >= hook) return true;
+    const hook = (u.quickHook >= 0.7 ? 3 : u.quickHook >= 0.4 ? 5 : 7) + (g.inning <= 2 ? 2 : 0);
+    if (allowed >= hook) return nextArm(side);
   }
   return null;
+}
+
+/** 순번 교체 때는 마무리를 아껴 둔다: 마무리가 아닌 다음 투수, 없으면 마무리 */
+function nextArm(side) {
+  const list = side.team.pitchers;
+  const pick = list.find((p, i) => i > side.pitcherIdx && p.id !== side.team.closerId);
+  return pick ? pick.id : true;
 }
 
 export function simulateGame(opts, orderFn = () => ({})) {
