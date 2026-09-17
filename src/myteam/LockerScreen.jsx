@@ -91,10 +91,11 @@ function Select({ value, onChange, options, all }) {
 function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
   const n = tone(p.overall);
   const neon = teamNeon(p);
+  const statTint = teamTint ? neon : posColor(p); // 드래프트 카드처럼 수치가 높을수록 구단 색으로
   const keys = KEYS[p.type] || KEYS.batter;
   return (
     <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
-      <Portrait player={p} w={46} h={54} color={n} />
+      <Portrait player={p} w={46} h={54} color={teamTint ? neon : n} />
       <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>
       <span className="min-w-0">
         <b className="block truncate text-base font-black text-white">
@@ -116,9 +117,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, statTint).num }}>{v}</b></span>
             <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, statTint).bar }} />
             </span>
           </span>
         );
