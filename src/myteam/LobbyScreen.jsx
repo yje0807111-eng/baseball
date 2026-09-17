@@ -3,6 +3,17 @@ import React from 'react';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost } from './rules.js';
 import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
+import { AI_SERIES } from './aiTeam.js';
+
+/** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
+let leagueCache = null;
+export function leagueAverage() {
+  if (leagueCache) return leagueCache;
+  const all = AI_SERIES.map((x) => teamStats(x.players));
+  const mean = (k) => Math.round(all.reduce((n, t) => n + t[k], 0) / Math.max(1, all.length));
+  leagueCache = { ovr: mean('ovr'), bat: mean('bat'), sp: mean('sp'), rp: mean('rp'), def: mean('def') };
+  return leagueCache;
+}
 
 
 /** 메트로 타일 */
@@ -74,7 +85,8 @@ function RankPanel({ account, team, onRecord }) {
   const last = account.rank?.seasons?.[0] || null; // 지난 랭크전 시즌
   const st = teamStats(team.squad || []);
   const c = r.tier.c;
-  const STATS = [['타선', st.bat, '#34d399', '#0e7490'], ['선발', st.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, '#f87171', '#a21caf'], ['수비', st.def, '#fde047', '#ea580c']];
+  const lg = leagueAverage();
+  const STATS = [['타선', st.bat, lg.bat, '#34d399', '#0e7490'], ['선발', st.sp, lg.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, lg.rp, '#f87171', '#a21caf'], ['수비', st.def, lg.def, '#fde047', '#ea580c']];
   const segs = 40;
   const on = Math.round((r.inDiv / 100) * segs);
   // 바로 다음 단계(III → II → I → 다음 등급 III)와 남은 RP
@@ -124,24 +136,31 @@ function RankPanel({ account, team, onRecord }) {
           </div>
         </div>
 
-        {/* 팀 스탯 (오른쪽 아래) */}
-        <div className="flex h-full flex-col justify-center gap-1.5 border-l border-white/10 pl-5">
+        {/* 팀 스탯 (오른쪽 아래) — 리그 평균이 가운데 세로선: 높으면 오른쪽 구단 색, 낮으면 왼쪽 붉게 */}
+        <div className="flex h-full flex-col justify-center gap-2.5 border-l border-white/10 pl-5">
           <div className="flex items-baseline gap-2">
             <p className="mt-lab" style={{ '--a': '#10b981' }}>Team</p>
             <b className="ml-auto font-display text-3xl font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-xs text-gray-500">OVR</small>
           </div>
-          {/* 가로 막대 4줄: 얇은 선 · 두 색 그라데이션 + 끝 불빛 */}
-          <div className="flex flex-col gap-2">
-            {STATS.map(([k, v, col, col2]) => (
-              <div key={k} className="grid items-center gap-3" style={{ gridTemplateColumns: '40px 1fr 36px' }}>
-                <span className="text-[14px] font-bold text-white">{k}</span>
-                <div className="relative h-[3px] bg-white/[0.08]">
-                  <i className="absolute inset-y-0 left-0" style={{ width: `${v || 0}%`, background: `linear-gradient(90deg, ${col2}, ${col})`, boxShadow: `0 0 8px ${col}88` }} />
-                  {v > 0 && <i className="absolute top-1/2 h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rotate-45" style={{ left: `${v}%`, background: '#fff', boxShadow: `0 0 8px ${col}, 0 0 2px ${col}` }} />}
+          <div className="flex flex-col gap-[9px]">
+            {STATS.map(([k, v, avg, col, col2]) => {
+              const d = v ? v - avg : 0;
+              const up = d >= 0;
+              return (
+                <div key={k} className="grid items-center gap-2" style={{ gridTemplateColumns: '38px 1fr 30px 32px' }}>
+                  <span className="text-[13px] font-bold text-white">{k}</span>
+                  <div className="relative h-2.5 bg-white/[0.05]">
+                    <i className="absolute -inset-y-[5px] left-1/2 w-px bg-white/45" />
+                    {v > 0 && d !== 0 && (
+                      <i className="absolute inset-y-0" style={{ [up ? 'left' : 'right']: '50%', width: `${Math.min(50, Math.abs(d) * 4.5)}%`,
+                        background: up ? `linear-gradient(90deg, ${col2}, ${col})` : 'linear-gradient(270deg, #7f1d1d, #f87171)', boxShadow: `0 0 8px ${up ? col : '#f87171'}66` }} />
+                    )}
+                  </div>
+                  <b className="text-right font-display text-[19px] font-extrabold leading-none" style={{ color: v ? '#fff' : '#4b5563' }}>{v || '-'}</b>
+                  <b className="text-right font-display text-sm font-extrabold leading-none" style={{ color: !v ? '#4b5563' : up ? '#34d399' : '#f87171' }}>{v ? `${up ? '+' : ''}${d}` : ''}</b>
                 </div>
-                <b className="text-right font-display text-[22px] font-extrabold leading-none" style={{ color: v ? col : '#4b5563' }}>{v || '-'}</b>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
