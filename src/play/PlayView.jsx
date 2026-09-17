@@ -45,13 +45,27 @@ function useClock(key, durMs, paused) {
   return t;
 }
 
-/** 배경 사진 — 아트 기준 크기에 꽉 채운다 */
-const Photo = ({ src, dim }) => (
-  <>
-    <image href={src} x="0" y="0" width={ART.w} height={ART.h} preserveAspectRatio="xMidYMid slice" />
-    <rect x="0" y="0" width={ART.w} height={ART.h} fill="#03060c" opacity={dim} />
-  </>
-);
+/*
+ * 배경 사진 — 아트 기준 크기에 꽉 채운다.
+ * 저장소에 아직 파일이 없으면 생성 원본(remoteSrc)으로 떨어지고, 그것도 안 되면
+ * 사진 없이 어두운 바탕만 깐다 — 깨진 그림 대신 플레이가 그대로 읽히게.
+ */
+function Photo({ bg, dim }) {
+  const chain = useMemo(() => [bg.src, bg.remoteSrc].filter(Boolean), [bg]);
+  const [step, setStep] = useState(0);
+  useEffect(() => { setStep(0); }, [chain]);
+  const src = chain[step];
+  return (
+    <>
+      <rect x="0" y="0" width={ART.w} height={ART.h} fill="#060c16" />
+      {src && (
+        <image key={src} href={src} x="0" y="0" width={ART.w} height={ART.h} preserveAspectRatio="xMidYMid slice"
+          onError={() => setStep((v) => v + 1)} />
+      )}
+      <rect x="0" y="0" width={ART.w} height={ART.h} fill="#03060c" opacity={dim} />
+    </>
+  );
+}
 
 /** 선수 한 명 — 멀수록 작게 */
 const Chip = ({ at, s = 1, color, label, name, dim, ring }) => {
@@ -133,7 +147,7 @@ function FieldView({ play, t, bases, offColor, defColor, bg }) {
 
   return (
     <>
-      <Photo src={bg.src} dim={0.3} />
+      <Photo bg={bg} dim={0.3} />
       {trail && <path d={trail} stroke="rgba(253,224,71,.65)" strokeWidth="7" fill="none" strokeLinecap="round" />}
 
       {FIELDERS.map((pos) => {
@@ -192,10 +206,13 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
   let ball = null; let r = 10;
   if (p && t >= p.t0) {
     const u = Math.min(1, phase(t, p.t0, p.t1));
-    const k = u * u; // 늦게 휜다
     const to = px(p.to);
-    const bend = [(p.bend[0] / ZONE.w) * Z.hw, (p.bend[1] / ZONE.h) * Z.hh];
-    ball = [release[0] + (to[0] - release[0]) * u + bend[0] * k, release[1] + (to[1] - release[1]) * u + bend[1] * k];
+    // 늦게 휘는 곡선(2차 베지에). 조종점을 끝쪽으로 밀어 두면 막판에 꺾이고,
+    // 끝점은 목표 그대로라 변화구가 존 안으로 끌려 들어가지 않는다.
+    const bend = [(p.bend[0] / ZONE.w) * Z.hw * 1.6, (p.bend[1] / ZONE.h) * Z.hh * 1.6];
+    const ctrl = [release[0] + (to[0] - release[0]) * 0.72 + bend[0], release[1] + (to[1] - release[1]) * 0.72 + bend[1]];
+    const q = (a, c, z) => (1 - u) * (1 - u) * a + 2 * u * (1 - u) * c + u * u * z;
+    ball = [q(release[0], ctrl[0], to[0]), q(release[1], ctrl[1], to[1])];
     r = 7 + 23 * u * u;
   }
   const sw = swing ? phase(t, swing.t0, swing.t1) : 0;
@@ -203,7 +220,7 @@ function ZoneView({ play, t, history, atBat, bg, defColor }) {
 
   return (
     <>
-      <Photo src={bg.src} dim={0.22} />
+      <Photo bg={bg} dim={0.22} />
       {!bg.hasPitcher && bg.mound && <Pitcher mound={bg.mound} h={ph} w={wind} color={defColor} />}
 
       {/* 스트라이크존 */}

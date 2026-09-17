@@ -13,22 +13,22 @@ const out = join(root, 'public', 'ui');
 mkdirSync(out, { recursive: true });
 
 const want = process.argv.slice(2);
-const all = [...ZONE_BGS, ...FIELD_BGS].filter((b) => b.remote && (!want.length || want.includes(b.id)));
+const all = [...ZONE_BGS, ...FIELD_BGS].filter((b) => b.remoteSrc && (!want.length || want.includes(b.id)));
 if (!all.length) { console.log('받을 후보가 없다 (remote 후보 이름을 넘기거나, 이미 다 받았다)'); process.exit(0); }
 
 for (const b of all) {
-  const file = join(out, `${b.id}.webp`);
+  const file = join(root, 'public', b.src);
   if (existsSync(file) && !want.includes(b.id)) { console.log(`건너뜀 ${b.id} (이미 있음)`); continue; }
   try {
-    const res = await fetch(b.src);
+    const res = await fetch(b.remoteSrc);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     await sharp(Buffer.from(await res.arrayBuffer()))
       .resize(1600, 895, { fit: 'cover' })
       .webp({ quality: 82 })
       .toFile(file);
-    console.log(`${b.id} ← ${b.name}  → public/ui/${b.id}.webp`);
+    console.log(`${b.id} ← ${b.name}  → public/${b.src}`);
   } catch (e) {
     console.error(`실패 ${b.id}: ${e.message}`);
   }
 }
-console.log('\n다음: src/play/backgrounds.js 에서 고른 후보의 src 를 그 파일로 바꾸고 remote 를 지운다.');
+console.log('\n받고 나면 backgrounds.js 를 손댈 필요 없다 — src 가 이미 그 파일을 가리킨다.');
