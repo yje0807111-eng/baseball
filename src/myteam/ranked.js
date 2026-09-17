@@ -6,6 +6,9 @@
  */
 import { teamOf, seeded, hashKey, newKey, ownerOf, decide, simulate } from './tournament.js';
 import { AI_SERIES, seriesName } from './aiTeam.js';
+import { PLACE_REWARD } from './rewards.js';
+
+export { PLACE_REWARD };
 
 export const LEAGUE_SIZE = 10;
 export const GAMES = LEAGUE_SIZE - 1;
@@ -17,19 +20,7 @@ export const STAGES = [
   { key: 'po', ko: '플레이오프', en: 'PLAYOFF', hi: 2 },
   { key: 'ks', ko: '한국시리즈', en: 'KOREAN SERIES', hi: 1 },
 ];
-/** 최종 순위(1~10)별 보상 */
-export const PLACE_REWARD = [
-  { ko: '통합 우승', rp: 60, gold: 1500 },
-  { ko: '준우승', rp: 45, gold: 1000 },
-  { ko: '플레이오프 탈락', rp: 35, gold: 800 },
-  { ko: '준플레이오프 탈락', rp: 25, gold: 600 },
-  { ko: '와일드카드 탈락', rp: 15, gold: 500 },
-  { ko: '정규 6위', rp: 0, gold: 300 },
-  { ko: '정규 7위', rp: -5, gold: 250 },
-  { ko: '정규 8위', rp: -10, gold: 200 },
-  { ko: '정규 9위', rp: -15, gold: 150 },
-  { ko: '정규 10위', rp: -20, gold: 100 },
-];
+
 
 /** 10팀 풀리그 일정(원형 방식): 라운드마다 5경기, 9라운드 */
 function roundRobin(n) {

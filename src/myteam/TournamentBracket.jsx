@@ -180,6 +180,12 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
                   </div>
                 ))}
               </div>
+              {t.claimed && rewards && (
+                <div className="ui-cut flex items-center gap-3 px-4 py-2.5" style={{ '--c': '10px', background: 'rgba(251,191,36,.1)' }}>
+                  <span className="text-sm text-gray-300">받은 보상</span>
+                  <b className="ml-auto font-display text-lg" style={{ color: '#fbbf24' }}>{(t.reward || finish).gold} G</b>
+                </div>
+              )}
               {t.claimed || !onClaim || !rewards
                 ? onRestart && <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onRestart}>새 {size}강 시작 ▶</button>
                 : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onClaim}>보상 받기 · {finish.gold} G</button>}

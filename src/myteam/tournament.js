@@ -9,32 +9,11 @@ import { buildMyTeam, teamRating } from './match.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { engineTeam } from '../BroadcastGame.jsx';
 import { simulateGame } from '../engine/pitchSim.js';
+import { roundsOf, finishOf } from './rewards.js';
+
+export { roundsOf, finishOf };
 
 export const SIZES = [16, 32, 64];
-
-const ROUND_NAME = (n) => (n === 2 ? { ko: '결승', en: 'FINAL' } : n === 4 ? { ko: '4강', en: 'SEMIFINAL' } : n === 8 ? { ko: '8강', en: 'QUARTERFINAL' } : { ko: `${n}강`, en: `ROUND OF ${n}` });
-/** 참가 수별 라운드: 64 → 64강 · 32강 · 16강 · 8강 · 4강 · 결승 */
-export function roundsOf(size = 32) {
-  const out = [];
-  for (let n = size; n >= 2; n >>= 1) out.push({ key: `r${n}`, ...ROUND_NAME(n) });
-  return out;
-}
-
-/* 최종 성적 보상: 뒤에서부터 우승 · 준우승 · 4강 … (큰 대회일수록 조금 더) */
-const REWARD_TAIL = [
-  { gold: 1200 }, { gold: 800 }, { gold: 500 }, { gold: 350 }, { gold: 200 }, { gold: 100 }, { gold: 60 },
-];
-const SIZE_MUL = { 16: 0.8, 32: 1, 64: 1.25 };
-/** 최종 성적(0: 첫 라운드 탈락 … rounds−1: 준우승 · rounds: 우승)별 보상 */
-export function finishOf(size = 32) {
-  const rounds = roundsOf(size);
-  const n = rounds.length;
-  const mul = SIZE_MUL[size] || 1;
-  return Array.from({ length: n + 1 }, (_, place) => ({
-    ko: place === n ? '우승' : place === n - 1 ? '준우승' : `${rounds[place].ko} 탈락`,
-    gold: Math.round((REWARD_TAIL[n - place]?.gold || 50) * mul / 10) * 10,
-  }));
-}
 
 const hash = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 export const seeded = (seed) => () => { // mulberry32

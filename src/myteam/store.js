@@ -4,6 +4,7 @@
  */
 import { SQUAD_CAP } from './rules.js';
 import { STAFF } from './staff.js';
+import { finishOf, PLACE_REWARD } from './rewards.js';
 
 const KEY = 'kbo.myteam.v1';
 
@@ -79,12 +80,12 @@ function write(data) {
 
 /** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
 export function peekAccount() {
-  const a = read();
+  const a = grantPending(read());
   return a?.nick ? { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) } : null;
 }
 
 export function loadAccount() {
-  const a = read();
+  const a = grantPending(read());
   if (!a?.nick || a.signedOut) return null;
   return { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) };
 }
@@ -123,41 +124,69 @@ export function addHistory(entry) {
   return next;
 }
 
-/** 일반 대결 토너먼트 진행 상태 저장 (account.tournament) */
+/*
+ * 끝난 판의 보상은 누르지 않아도 지급한다 — 마지막 경기 결과를 저장하는 같은 쓰기에서 함께.
+ * claimed 로 한 번만 주고, 지급한 값은 판에 남긴다(reward). 예전 저장본처럼 끝났는데 안 받은 판은 불러올 때 지급한다.
+ */
+function withTournamentReward(a) {
+  const t = a?.tournament;
+  if (!t?.done || t.claimed) return a;
+  const gold = finishOf(t.size)[t.place]?.gold || 0;
+  return { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + gold), tournament: { ...t, claimed: true, reward: { gold } } };
+}
+function withRankedReward(a) {
+  const s = a?.ranked;
+  if (!s?.done || s.claimed) return a;
+  const r = PLACE_REWARD[s.place - 1] || { rp: 0, gold: 0 };
+  const before = a.rank?.rp || 0;
+  const rp = Math.max(0, before + r.rp); // 0 아래로는 안 내려감
+  const seasons = [{ season: s.season, place: s.place, rp: rp - before, at: new Date().toISOString() }, ...(a.rank?.seasons || [])].slice(0, 20);
+  return {
+    ...a,
+    gold: Math.max(0, (a.gold ?? START_GOLD) + r.gold),
+    rank: { rp, best: Math.max(rp, a.rank?.best || 0), seasons },
+    ranked: { ...s, claimed: true, reward: { rp: rp - before, gold: r.gold } },
+  };
+}
+function grantPending(a) {
+  if (!a) return a;
+  const next = withRankedReward(withTournamentReward(a));
+  if (next !== a) write(next);
+  return next;
+}
+
+/** 일반 대결 토너먼트 진행 상태 저장 (account.tournament) — 끝났으면 보상까지 */
 export function saveTournament(tournament) {
   const a = read();
   if (!a) return null;
-  const next = { ...a, tournament };
+  const next = withTournamentReward({ ...a, tournament });
   write(next);
   return next;
 }
 
-/** 토너먼트가 끝나면 한 번만 보상: 골드 */
-export function claimTournament(reward) {
+/** 예전 '보상 받기' 자리 — 이미 지급했으면 아무것도 안 한다 */
+export function claimTournament() {
   const a = read();
-  if (!a?.tournament?.done || a.tournament.claimed) return null;
-  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), tournament: { ...a.tournament, claimed: true } };
+  const next = withTournamentReward(a);
+  if (next === a) return null;
   write(next);
   return next;
 }
 
-/** 랭크전 시즌 진행 상태 저장 (account.ranked) */
+/** 랭크전 시즌 진행 상태 저장 (account.ranked) — 시즌이 끝났으면 RP · 골드까지 */
 export function saveRanked(ranked) {
   const a = read();
   if (!a) return null;
-  const next = { ...a, ranked };
+  const next = withRankedReward({ ...a, ranked });
   write(next);
   return next;
 }
 
-/** 랭크전 시즌이 끝나면 한 번만 보상: 랭크 승점(0 아래로는 안 내려감) + 골드 */
-export function claimRanked(reward) {
+/** 예전 '보상 받기' 자리 — 이미 지급했으면 아무것도 안 한다 */
+export function claimRanked() {
   const a = read();
-  if (!a?.ranked?.done || a.ranked.claimed) return null;
-  const before = a.rank?.rp || 0;
-  const rp = Math.max(0, before + (reward.rp || 0));
-  const seasons = [{ season: a.ranked.season, place: a.ranked.place, rp: rp - before, at: new Date().toISOString() }, ...(a.rank?.seasons || [])].slice(0, 20);
-  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), rank: { rp, best: Math.max(rp, a.rank?.best || 0), seasons }, ranked: { ...a.ranked, claimed: true } };
+  const next = withRankedReward(a);
+  if (next === a) return null;
   write(next);
   return next;
 }

@@ -85,7 +85,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       <div className="mt-auto">
         {ready || s
           ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" style={{ '--a': RK }} onClick={onOpen}>
-            {!s ? '시즌 1 시작 ▶' : s.done ? (s.claimed ? '시즌 결과 · 새 시즌 ▶' : '결과 · 보상 받기 ▶') : '순위표 · 다음 경기 ▶'}
+            {!s ? '시즌 1 시작 ▶' : s.done ? '시즌 결과 · 새 시즌 ▶' : '순위표 · 다음 경기 ▶'}
           </button>
           : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onLocker}>라커에서 채우기 ›</button>}
       </div>

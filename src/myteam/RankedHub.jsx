@@ -230,6 +230,15 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 <span className="font-display text-sm font-bold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</span>
                 <b className="ml-auto font-display text-lg text-white">{account.rank?.rp || 0} RP</b>
               </div>
+              {s.claimed && (() => {
+                const got = s.reward || { rp: reward.rp, gold: reward.gold };
+                return (
+                  <div className="ui-cut flex items-center gap-3 px-4 py-2.5" style={{ '--c': '10px', background: 'rgba(251,191,36,.1)' }}>
+                    <span className="text-sm text-gray-300">받은 보상</span>
+                    <b className="ml-auto font-display text-lg" style={{ color: '#fbbf24' }}>{got.rp >= 0 ? '+' : ''}{got.rp} RP · {got.gold} G</b>
+                  </div>
+                );
+              })()}
               {s.claimed
                 ? <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': RK }} onClick={onNewSeason}>시즌 {s.season + 1} 시작 ▶</button>
                 : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': RK }} onClick={onClaim}>보상 받기 · {reward.rp >= 0 ? '+' : ''}{reward.rp} RP · {reward.gold} G</button>}
