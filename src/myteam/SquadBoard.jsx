@@ -10,11 +10,12 @@ import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { Btn } from './ui.jsx';
 import { offPositionPenalty } from '../KboAugmentDraft.jsx';
+import { seasonRecord, playerTraits, HAND_LABEL, traitIconStyle } from './traits.js';
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const ROLE = { SP: '#60a5fa', CL: '#fbbf24', SU: '#fb923c', MR: '#f87171' };
 const FIELD = [['C', 'C'], ['1B', '1B'], ['2B', '2B'], ['3B', '3B'], ['SS', 'SS'], ['LF', 'OF'], ['CF', 'OF'], ['RF', 'OF'], ['DH', 'DH']];
-/* 구장 사진(ui/field.webp) 위 자리 (%) — 폭 480px 판 기준으로 외야 · 코너를 안쪽에 */
+/* 구장 사진(ui/field.webp) 위 자리 (%) — 폭 440px 판 기준으로 외야 · 코너를 안쪽에 */
 const XY = { C: [50, 90], '1B': [78, 60], '2B': [64, 42], SS: [36, 42], '3B': [22, 60], LF: [17, 18], CF: [50, 8], RF: [83, 18], DH: [84, 90], P: [50, 62] };
 const byOvr = (a, b) => b.overall - a.overall;
 
@@ -50,6 +51,54 @@ export function squadOrder(squad, bench = [], saved = {}) {
     return [...list, ...rest];
   };
   return { lineup, rotation: keep(saved.rotation, 'SP'), bullpen: keep(saved.bullpen, 'RP') };
+}
+
+/**
+ * 자동 배치: 출전 선수는 그대로 두고 자리 · 타순 · 로테이션 · 불펜 순서를 정한다
+ *  - 수비 자리: 9명 × 9자리 모든 경우 중 선 자리 기준 종합(포지션 이탈 감소 반영) 합이 가장 큰 배치
+ *  - 타순: 1번 주루+컨택 · 2번 컨택 · 3번 컨택+파워 · 4번 파워 · 5번 다음 파워 · 6~9번 타격 합 순
+ *  - 선발: 휴식이 적게 남은 순 → 종합 순 · 불펜: 구위+안정 순으로 마무리 → 셋업 → 중계
+ */
+export function autoArrange(squad, bench = [], fatigue = {}) {
+  const base = squadOrder(squad, bench, {});
+  const byId = new Map(squad.map((p) => [p.id, p]));
+  const bats = base.lineup.map((x) => byId.get(x.id)).filter(Boolean);
+  const slots = FIELD.map(([slot]) => slot).slice(0, bats.length);
+  const score = bats.map((p) => slots.map((slot) => Math.max(30, p.overall - penaltyAt(p, slot))));
+  let best = -1;
+  let bestPick = bats.map((_, i) => i);
+  const pick = [];
+  const usedSlot = new Array(slots.length).fill(false);
+  const upper = bats.map((_, i) => Math.max(...score[i]));
+  const dfs = (i, sum) => {
+    if (i === bats.length) { if (sum > best) { best = sum; bestPick = [...pick]; } return; }
+    let bound = sum;
+    for (let k = i; k < bats.length; k++) bound += upper[k];
+    if (bound <= best) return;
+    for (let k = 0; k < slots.length; k++) {
+      if (usedSlot[k]) continue;
+      usedSlot[k] = true; pick[i] = k;
+      dfs(i + 1, sum + score[i][k]);
+      usedSlot[k] = false;
+    }
+  };
+  dfs(0, 0);
+  const placed = bats.map((p, i) => ({ p, slot: slots[bestPick[i]], st: effAt(p, slots[bestPick[i]]).stats }));
+  const take = (fn) => { placed.sort((a, b) => fn(b) - fn(a)); return placed.shift(); };
+  const order = [
+    take((x) => x.st.speed + x.st.contact),
+    take((x) => x.st.contact),
+    take((x) => x.st.contact + x.st.power),
+    take((x) => x.st.power),
+    take((x) => x.st.power),
+  ];
+  placed.sort((a, b) => (b.st.contact + b.st.power + b.st.speed * 0.5) - (a.st.contact + a.st.power + a.st.speed * 0.5));
+  order.push(...placed);
+  const rest = (id) => fatigue?.[id]?.rest || 0;
+  const rotation = [...base.rotation].sort((a, b) => rest(a) - rest(b) || byId.get(b).overall - byId.get(a).overall);
+  const relief = (id) => { const p = byId.get(id); return p.stats.stuff + p.stats.stability; };
+  const bullpen = [...base.bullpen].sort((a, b) => relief(b) - relief(a));
+  return { lineup: order.filter(Boolean).map((x) => ({ id: x.p.id, slot: x.slot })), rotation, bullpen };
 }
 
 const face = (p, w, h) => (
@@ -223,54 +272,71 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
     transition: dragging ? 'transform .08s ease-out' : 'transform .2s cubic-bezier(.2,.8,.2,1)',
   });
 
+  /** 줄 오른쪽: 시즌 기록 두세 칸 + 대표 강점 아이콘 */
+  const RecLine = ({ p }) => {
+    const r = seasonRecord(p);
+    const cells = p.type === 'pitcher'
+      ? [[r.era != null ? r.era.toFixed(2) : null, 'ERA'], [r.k, 'K']]
+      : [[r.avg != null ? r.avg.toFixed(3).slice(1) : null, ''], [r.hr, 'HR'], [r.sb, 'SB']];
+    return (
+      <span className="flex shrink-0 gap-1.5 font-display text-[12.5px]">
+        {cells.map(([v, l], i) => <span key={i} className="whitespace-nowrap"><b className={v == null ? 'text-gray-600' : 'text-gray-200'}>{v ?? '-'}</b>{l && <small className="ml-px text-gray-500">{l}</small>}</span>)}
+      </span>
+    );
+  };
+  const TopTrait = ({ p }) => {
+    const g = playerTraits(p).good[0];
+    return <span title={g ? `${g.name} · ${g.why}` : ''} className="block h-[17px] w-[17px] shrink-0" style={g ? traitIconStyle(g.id, '#6ee7b7') : null} />;
+  };
+  const Hand = ({ p, size = 18 }) => {
+    const h = HAND_LABEL(p);
+    return <b title={h.long} className="grid shrink-0 place-items-center rounded-full font-extrabold text-[#05080f]" style={{ width: size, height: size, fontSize: size * 0.55, background: h.color }}>{h.short}</b>;
+  };
+
   const batRow = (x, pos, h, pitch) => {
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'lineup' && drag.id === x.id;
     const shownSlot = slotShown.get(x.id) || x.slot;
     const before = effAt(x.p, x.slot);
     const after = effAt(x.p, shownSlot);
-    const v = after.stats?.power ?? 0;
     return (
       <div key={x.id} role="button" tabIndex={0} {...rowDrag('lineup', x.id, x.p)}
-        className={`mt-cut grid touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', gridTemplateColumns: '12px 20px 34px 28px auto minmax(0,1fr) 46px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
+        className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '7px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
         <Handle />
-        <b className="text-center font-display text-[17px] text-gray-500">{pos + 1}</b>
-        <Chip c={posColor(x.p)}>{shownSlot}</Chip>
-        {face(x.p, 28, Math.min(46, h - 8))}
+        <b className="w-[14px] shrink-0 text-center font-display text-[17px] text-gray-500">{pos + 1}</b>
+        {face(x.p, 28, Math.min(44, h - 10))}
         {previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} />}
-        <b className="truncate text-[14px] font-extrabold text-white">{x.p.name}</b>
-        <span className="block">
-          <span className="flex justify-end"><b className="font-display text-[14px]" style={{ color: statColor(v, posColor(x.p)).num }}>{v}</b></span>
-          <span className="relative mt-[3px] block h-[5px] bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: statColor(v, posColor(x.p)).bar }} /></span>
-        </span>
+        <Hand p={x.p} />
+        <b className="min-w-0 flex-1 truncate text-[13.5px] font-extrabold text-white">{x.p.name}</b>
+        <RecLine p={x.p} />
+        <TopTrait p={x.p} />
       </div>
     );
   };
   const pitRow = (p, list, pos, h, pitch) => {
     const on = sel?.id === p.id;
     const dragging = drag?.list === list && drag.id === p.id;
-    const [label, color] = list === 'rotation' ? [`${pos + 1}선발`, ROLE.SP] : pos === 0 ? ['마무리', ROLE.CL] : pos <= 2 ? ['셋업', ROLE.SU] : [`중계${pos - 2}`, ROLE.MR];
+    const [label, color] = list === 'rotation' ? [`${pos + 1}SP`, ROLE.SP] : pos === 0 ? ['CL', ROLE.CL] : pos <= 2 ? ['SU', ROLE.SU] : [`MR${pos - 2}`, ROLE.MR];
     const next = list === 'rotation' && p.id === nextStarter?.id;
     const rest = restOf(p);
     const c = conditionOf(rest);
     return (
       <div key={p.id} role="button" tabIndex={0} {...rowDrag(list, p.id, p)}
-        className={`mt-cut grid touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', gridTemplateColumns: '12px 46px 28px 22px minmax(0,1fr) 64px', ...place(pos, h, pitch, dragging),
+        className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '7px', ...place(pos, h, pitch, dragging),
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null) }}>
         <Handle />
-        <Chip c={color}>{label}</Chip>
-        {face(p, 28, Math.min(44, h - 8))}
+        <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
+        {face(p, 28, Math.min(42, h - 10))}
         <Ovr p={p} size={16} />
-        <span className="flex min-w-0 items-center gap-1.5">
-          <b className="truncate text-[13.5px] font-extrabold text-white">{p.name}</b>
-          {next && <b className="shrink-0 bg-[#60a5fa] px-[5px] font-display text-[11px] tracking-[0.08em] text-[#05080f]">NEXT</b>}
-        </span>
-        <span className="grid items-center gap-[5px]" style={{ gridTemplateColumns: '1fr auto' }} title={`컨디션 ${c}%`}>
-          <span className="relative block h-[5px] bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
-          <b className="w-[22px] text-right font-display text-[13px]" style={{ color: condColor(c) }}>{rest ? `-${rest}` : '✓'}</b>
-        </span>
+        <Hand p={p} />
+        <b className="min-w-0 flex-1 truncate text-[13.5px] font-extrabold text-white">{p.name}</b>
+        {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
+        <RecLine p={p} />
+        <TopTrait p={p} />
+        <span className="pointer-events-none absolute bottom-[3px] left-[9px] right-[9px] h-[2px] bg-white/[0.06]" title={`컨디션 ${c}%`}><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
+        {rest > 0 && <b className="pointer-events-none absolute right-[6px] top-[2px] font-display text-[10.5px]" style={{ color: condColor(c) }}>-{rest}</b>}
       </div>
     );
   };
@@ -303,12 +369,15 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">My Squad</p>
         <p className="text-sm text-gray-400">{sizeLabel} · 출전 {play.size} · 벤치 {benchList.length} · {cost.toLocaleString()} CP</p>
-        <div className="ml-auto"><Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn></div>
+        <div className="ml-auto flex gap-2">
+          <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
+          <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>
+        </div>
       </div>
 
       {squad.length === 0 ? <p className="mt-4 text-sm text-gray-500">아직 영입한 선수가 없습니다. 왼쪽 영입에서 찾아 보세요.</p> : (
         <>
-          <div className="mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '480px minmax(0,1fr)' }}>
+          <div className="mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '440px minmax(0,1fr)' }}>
             {/* 한눈에: 구장 위 수비 9명 + 마운드의 다음 선발 */}
             <div ref={fieldRef} className="mt-cut relative min-h-0 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 60%' }}>
               <span className="absolute inset-0" style={{ background: 'radial-gradient(70% 70% at 50% 60%,rgba(5,8,15,.05),rgba(5,8,15,.62))' }} />
@@ -326,13 +395,13 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
             {/* 정하기: 타순 | 로테이션 · 불펜 — 목록마다 자기 판 안에서만 움직인다 */}
             <div className="grid min-h-0 grid-cols-2 gap-3">
               <div className="flex min-h-0 flex-col">
-                <Grp en="LINEUP" ko={`타순 ${lineupRows.length}`} color="#34d399" right="파워" />
+                <Grp en="LINEUP" ko={`타순 ${lineupRows.length}`} color="#34d399" right="기록" />
                 <Slots count={lineupRows.length} maxH={64} style={{ flex: 1 }}>
                   {(h, pitch) => lineupRows.map((x) => batRow(x, linePos.get(x.id), h, pitch))}
                 </Slots>
               </div>
               <div className="flex min-h-0 flex-col">
-                <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} right="컨디션" />
+                <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} right="기록" />
                 <Slots count={rotation.length} maxH={56} style={{ flex: Math.max(1, rotation.length) }}>
                   {(h, pitch) => rotation.map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
                 </Slots>

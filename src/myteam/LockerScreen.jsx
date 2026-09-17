@@ -13,6 +13,7 @@ import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
+import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
 const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
@@ -125,23 +126,49 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
     ? (squad.length > 1 ? Math.round((sum - p.overall) / (squad.length - 1)) : 0)
     : Math.round((sum + p.overall) / (squad.length + 1));
   const keys = KEYS[p.type] || KEYS.batter;
+  const tr = playerTraits(p);
+  const hand = HAND_LABEL(p);
   return (
-    <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': n }}>
+    <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-3 overflow-y-auto p-5" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
-      <Hero img={cardImg(p)} ovr={p.overall} name={p.name} color={n} />
-      <Stats items={[['CP', p.cost], ['포지션', p.position], ['시즌', p.year]]} />
-      <p className="-mt-1 text-sm leading-relaxed text-gray-300">{p.team}{p.note ? ` · ${p.note}` : ''}{p.isForeign ? ' · 외국인' : ''}</p>
-      <div>
+      <div className="relative shrink-0">
+        <Hero img={cardImg(p)} ovr={p.overall} name={p.name} color={n} h={160} />
+        <span className="absolute right-3 top-3 flex items-center gap-1.5 text-[13px] font-bold" style={{ color: hand.color }}>
+          <b className="grid h-6 w-6 place-items-center rounded-full text-[13px] font-extrabold text-[#05080f]" style={{ background: hand.color }}>{hand.short}</b>{hand.long}
+        </span>
+      </div>
+      <p className="-mt-2 text-[13px] text-gray-400">{p.year} {p.team} · {p.position} · {p.cost} CP{p.isForeign ? ' · 외국인' : ''}</p>
+      <div className="grid grid-cols-4 gap-1.5">
         {keys.map(([label, k]) => {
           const v = p.stats?.[k] ?? 0;
+          const c = statColor(v, posColor(p));
           return (
-            <div key={k} className="flex items-center gap-3 py-1 text-sm">
-              <span className="w-10 text-gray-400">{label}</span>
-              <div className="relative h-[6px] flex-1 bg-white/[0.08]"><i className="block h-full" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} /></div>
-              <b className="w-8 text-right font-display" style={{ color: statColor(v, posColor(p)).num }}>{v}</b>
+            <div key={k} className="mt-cut bg-white/[0.045] px-2 py-1.5" style={cut(6)}>
+              <div className="text-[10.5px] text-gray-400">{label}</div>
+              <b className="font-display text-[21px] leading-tight" style={{ color: c.num }}>{v}</b>
+              <span className="relative mt-0.5 block h-1 bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: c.bar }} /></span>
             </div>
           );
         })}
+      </div>
+      {/* 강점 · 약점: 아이콘 · 이름 · 근거 수치 */}
+      <div className="flex flex-col gap-1">
+        {tr.good.map((t) => (
+          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(52,211,153,.07)', boxShadow: 'inset 3px 0 0 #34d399' }}>
+            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#6ee7b7')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-emerald-300">{t.why}</span>
+          </div>
+        ))}
+        {tr.bad.map((t) => (
+          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(248,113,113,.07)', boxShadow: 'inset 3px 0 0 #f87171' }}>
+            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#fca5a5')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-red-300">{t.why}</span>
+          </div>
+        ))}
+        {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
+      </div>
+      <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
+        {recordCells(p).map(([k, v]) => (
+          <div key={k} className="py-1.5 text-center"><div className="text-[10.5px] text-gray-500">{k}</div><b className={`font-display text-[17px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
+        ))}
       </div>
       <div>
         <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
