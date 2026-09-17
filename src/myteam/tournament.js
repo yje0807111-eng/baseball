@@ -122,6 +122,21 @@ export const decide = (aRuns, bRuns, aTeam, bTeam) => {
   return { aWin: teamRating(aTeam.roster) >= teamRating(bTeam.roster), tiebreak: true };
 };
 
+/**
+ * 경기 엔진 기준 전력: 실제로 나서는 타순 9명의 컨택·파워 + 선발(55%) · 앞선 불펜 셋(45%)의 구위·제구.
+ * 팀 종합(예비·유망주까지 평균)보다 승률과 잘 맞는다
+ */
+export function playStrength(team) {
+  const avg = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  const s = (p, k, d) => p?.stats?.[k] ?? d;
+  const e = engineTeam(team);
+  const bat = avg(e.batters.map((p) => (s(p, 'contact', 70) + s(p, 'power', 70)) / 2));
+  const pv = (p) => (s(p, 'stuff', 80) + s(p, 'control', 75)) / 2;
+  const [ace, ...pen] = e.pitchers.slice(0, 4);
+  const pit = pen.length ? pv(ace) * 0.55 + avg(pen.map(pv)) * 0.45 : pv(ace);
+  return (bat + pit) / 2;
+}
+
 /** 두 팀 한 경기 계산 (a 홈) */
 export function simulate(A, B, rng) {
   const g = simulateGame({ home: engineTeam(A), away: engineTeam(B), rng, maxInnings: 9 });

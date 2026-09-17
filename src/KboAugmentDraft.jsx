@@ -5,9 +5,8 @@ import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
-import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength } from './myteam/tournament.js';
+import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
 import { seriesName } from './myteam/aiTeam.js';
-import { teamRating } from './myteam/match.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
 /* ════════════════════════════════════════════════════════════════════
@@ -137,8 +136,10 @@ export const DRAFT_MODES = [
   return { ...m, series, players: series.flatMap((s) => s.players) };
 });
 export const YEAR_MODES = DRAFT_MODES.filter((m) => m.group === 'year');
-/** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 */
+/** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 (경기 엔진: 타자 컨택·파워 · 투수 구위·제구에 더함) */
 export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
+/** 드래프트 토너먼트 구단 팀 전력 보정 상한: 모드 전체 AI 드래프트 팀과 엔진 전력이 벌어진 만큼 경기에서만 더하거나 뺀다 */
+const HANDICAP_MAX = 8;
 const personKey = (p) => p.personId || p.name;
 
 /* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
@@ -480,7 +481,7 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   roster = applySynergies(roster, synergies); // 시너지 보너스는 그 시너지를 만든 선수에게만
   const envX = { ...env, synergies };
   for (const a of passives) if (a.roster) roster = a.roster(roster, envX);
-  const t = { name, roster, synergies, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
+  const t = { name, roster, synergies, buff, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
   for (const a of passives) a.team?.(t, envX);
   roster = t.roster;
   const { bonus, weights: w } = t;
@@ -5484,13 +5485,16 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const makeDraftTournament = () => {
     const size = match.format;
     const others = [];
+    // 전력 보정: 구단 멤버만으로 뽑은 팀은 모드에 따라 훨씬 강하거나 약하다(레전드 테마 시리즈 등). 표시 종합 · 선수 능력치는 그대로 두고 경기 보정만
+    const baseline = Array.from({ length: 6 }, () => playStrength(buildTeam('', fillRoster(aiDraft({ players: mode.players, cap: match.cap }))))).reduce((a, b) => a + b, 0) / 6;
+    const handicap = (team) => { team.buff += Math.max(-HANDICAP_MAX, Math.min(HANDICAP_MAX, Math.round(baseline - playStrength(team)))); return team; };
     // 구단 팀: 그 멤버로 15명 이상 뽑히는 시리즈만 (너무 적으면 유망주로 채워진 빈 팀이 된다)
     for (const series of shuffle(mode.series.filter((x) => x.id !== LEGEND_SERIES.id))) {
       if (others.length >= size - 1) break;
       const roster = aiDraft({ players: series.players, cap: match.cap });
       if (roster.length < 15) continue;
       const name = seriesName(series);
-      others.push({ id: `dr-${others.length}`, name, roster, seriesId: series.id, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
+      others.push({ id: `dr-${others.length}`, name, roster, seriesId: series.id, team: handicap(buildTeam(name, fillRoster(roster), AI_BUFF[match.ai])) });
     }
     const owners = new Set();
     while (others.length < size - 1) {
@@ -5502,7 +5506,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       others.push({ id: `dr-${others.length}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
     }
     const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(roster), buff, augments) };
-    const order = seedByStrength([...others, mine], (e) => teamRating(e.team.roster));
+    const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
     const meAt = order.indexOf(mine);
     return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
   };

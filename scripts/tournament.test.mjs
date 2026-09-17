@@ -94,3 +94,18 @@ test('구단 멤버 안에서 드래프트한 팀도 캡을 넘지 않는다', a
     expect(roster.reduce((n, p) => n + p.cost, 0)).toBeLessThanOrEqual(1330);
   }
 });
+
+test('팀 보정(buff)이 경기 엔진에 들어간다: +6 팀이 같은 팀을 더 많이 이긴다', async () => {
+  const { aiDraft, fillRoster, buildTeam } = await import('../src/KboAugmentDraft.jsx');
+  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const { simulateGame } = await import('../src/engine/pitchSim.js');
+  const roster = fillRoster(aiDraft());
+  let w = 0, l = 0;
+  for (let i = 0; i < 300; i++) {
+    const strong = engineTeam(buildTeam('강', roster, 6)), plain = engineTeam(buildTeam('약', roster, 0));
+    const g = simulateGame({ home: i % 2 ? strong : plain, away: i % 2 ? plain : strong, maxInnings: 9 });
+    const s = i % 2 ? g.home.runs - g.away.runs : g.away.runs - g.home.runs;
+    if (s > 0) w++; else if (s < 0) l++;
+  }
+  expect(w / (w + l)).toBeGreaterThan(0.55);
+}, 60000);

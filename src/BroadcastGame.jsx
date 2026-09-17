@@ -36,7 +36,7 @@ export function engineTeam(team) {
   const byId = new Map(roster.map((p) => [p.id, p]));
   const pitchers = team.pitchOrder ? team.pitchOrder.map((id) => byId.get(id)).filter(Boolean) : roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN'))
     .sort((a, b) => tier(a) - tier(b) || (a.rest || 0) - (b.rest || 0) || (RELIEF.indexOf(a.slot) - RELIEF.indexOf(b.slot)) || b.overall - a.overall);
-  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage: team.usage || null, closerId: team.closerId || null };
+  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage: team.usage || null, closerId: team.closerId || null, buff: team.buff || 0 };
 }
 
 const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
