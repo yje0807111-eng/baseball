@@ -87,17 +87,19 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench }) {
+/** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
   const n = tone(p.overall);
+  const neon = teamNeon(p);
   const keys = KEYS[p.type] || KEYS.batter;
   return (
-    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': n }}>
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
       <Portrait player={p} w={46} h={54} color={n} />
       <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>
       <span className="min-w-0">
         <b className="block truncate text-base font-black text-white">
           {p.name}
-          <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
+          <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: teamTint ? neon : n }}>{p.position}</em>
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
@@ -534,7 +536,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap)}
+                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap)} showNote={false} teamTint
                   onPick={setSel} onAct={add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}

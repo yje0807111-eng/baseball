@@ -72,6 +72,9 @@ export const UiStyle = () => (
     .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
     .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
     .mt-row:hover { background:rgba(255,255,255,.05); }
+    /* 구단 색 줄 (영입 목록): 왼쪽에서 구단 색이 은은하게 번지고 왼쪽 네온 줄 · 옅은 구단색 테두리 */
+    .mt-row.team { background:linear-gradient(90deg,color-mix(in srgb,var(--t) 16%,transparent),rgba(255,255,255,.03) 38%); box-shadow:inset 2px 0 0 color-mix(in srgb,var(--t) 70%,transparent), inset 0 0 0 1px color-mix(in srgb,var(--t) 16%,transparent); }
+    .mt-row.team:hover { background:linear-gradient(90deg,color-mix(in srgb,var(--t) 24%,transparent),rgba(255,255,255,.05) 45%); }
     .mt-staff-in { animation: mtStaffIn .32s cubic-bezier(.2,.8,.2,1) backwards; }
     /* 드래프트 PICK 카드와 같은 뒤집기: 나가는 면은 앞 반(0→90°), 들어오는 면은 뒤 반(−90°→0) · 옆면일 때 4% 들어 올림 */
     .mt-flip { position:relative; perspective:1000px; }
