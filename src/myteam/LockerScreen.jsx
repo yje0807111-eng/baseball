@@ -197,7 +197,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const [club, setClub] = useState('');
   const [pos, setPos] = useState('');
   const [sel, setSel] = useState(null);
-  const [staffSlot, setStaffSlot] = useState('manager');
+  const [staffSlot, setStaffSlot] = useState(null); // null = 지정 해제(오른쪽에 코치진 한 줄 프로필)
 
   const squad = team.squad || [];
   const staff = team.staff || {};
@@ -276,6 +276,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
     { key: 'staff', label: '감독·코치', sub: `${Object.values(staff).filter(Boolean).length} / 4 자리`, img: 'ui/mt/silhouette-coach.webp' },
   ];
   const eff = staffEffect(staff);
+  const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
   const staffCost = Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
@@ -376,7 +377,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 const cur = staff[s.key];
                 const on = staffSlot === s.key;
                 return (
-                  <button key={s.key} type="button" onClick={() => setStaffSlot(s.key)} aria-pressed={on}
+                  <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
                     aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`}
                     className={`mt-cut ${on ? 'mt-frame' : ''} group relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-top text-left`}
                     style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', boxShadow: on ? '0 0 0 2px #c4b5fd, 0 0 26px -6px #c4b5fd' : undefined, filter: on ? undefined : 'brightness(.82)' }}>
@@ -395,16 +396,16 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 );
               })}
             </div>
-            <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === staffSlot)?.label} 후보</div>
+            <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</div>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
-              {staffByRole(STAFF_SLOTS.find((s) => s.key === staffSlot)?.role).filter((m) => staff[staffSlot]?.id !== m.id).map((m) => {
+              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => {
                 return (
                   <div key={m.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '46px minmax(0,1fr) minmax(0,1.2fr) 60px 76px', '--a': '#c4b5fd' }}>
                     <Portrait player={m} staff w={44} h={52} color="#c4b5fd" />
                     <span className="min-w-0"><b className="block truncate text-base font-black text-white">{m.name}</b><small className="text-[11px] text-gray-500">{m.era} · {m.note}</small></span>
                     <span className="text-sm text-[#c4b5fd]">{effText(m.effect)}</span>
                     <b className="text-right font-display text-lg text-amber-300">{m.cost}</b>
-                    <Btn sm a="#c4b5fd" onClick={() => setStaff(staffSlot, m)}>{staff[staffSlot] ? '교체' : '선임'}</Btn>
+                    <Btn sm a="#c4b5fd" onClick={() => setStaff(listSlot, m)}>{staff[listSlot] ? '교체' : '선임'}</Btn>
                   </div>
                 );
               })}
@@ -416,7 +417,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
           const VIO = '#c4b5fd';
           const slotInfo = STAFF_SLOTS.find((x) => x.key === staffSlot);
           const cur = staff[staffSlot];
-          const mine = cur ? staffEffectOf(cur) : {};
+          const mine = cur ? staffEffectOf(cur) : staffSlot ? {} : eff;
           const lv = cur?.level || 1;
           const tickets = team.staffTickets || 0;
           const shown = Object.entries(eff).filter(([, v]) => v);
@@ -447,7 +448,25 @@ export default function LockerScreen({ account, onSave, onBack }) {
               <div className="h-px shrink-0" style={{ background: `linear-gradient(90deg,${VIO}80,transparent)` }} />
 
               {/* 명함: 오른쪽 절반은 사진, 왼쪽에 자리 · 이름 · 시대 · 경력 · 효과 수치 */}
-              {cur ? (
+              {!staffSlot ? (
+                <div className="flex flex-col gap-2">
+                  {STAFF_SLOTS.map((x) => {
+                    const m = staff[x.key];
+                    return (
+                      <button key={x.key} type="button" onClick={() => setStaffSlot(x.key)}
+                        className="mt-cut grid items-center gap-3 p-2 text-left hover:brightness-125" style={{ ...cut(10), gridTemplateColumns: '56px minmax(0,1fr) auto', background: 'rgba(255,255,255,.04)' }}>
+                        <span className="mt-cut block h-[66px] bg-[#0b1220] bg-cover" style={{ ...cut(7), backgroundPosition: '60% 25%', backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` : 'url(ui/mt/silhouette-coach.webp)', opacity: m ? 1 : 0.35 }} />
+                        <span className="min-w-0">
+                          <span className="block font-display text-[11px] tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
+                          <b className={`block truncate text-[19px] font-black ${m ? 'text-white' : 'text-gray-600'}`}>{m ? m.name : '-'}</b>
+                          {m && <span className="block truncate text-[12px] text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
+                        </span>
+                        {m && <b className="self-start font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : cur ? (
                 <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
                   <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                   <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
@@ -471,12 +490,12 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>
               )}
 
-              <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
+              {staffSlot && <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
                 <Btn lg a={VIO} pri={!!cur && tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
                   <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
                 </Btn>
                 <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && setStaff(staffSlot, null)}>해임</Btn>
-              </div>
+              </div>}
             </aside>
           );
         })()
