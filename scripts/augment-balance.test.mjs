@@ -5,12 +5,12 @@
 import { test } from 'vitest';
 import fs from 'node:fs';
 import {
-  DRAFT_MODES, POS_ORDER, SLOT_LIMITS, ROSTER_SIZE, AUGMENTS,
+  DRAFT_MODES, POS_ORDER, SLOT_LIMITS, ROSTER_SIZE, BENCH_SIZE, SALARY_CAP, AUGMENTS,
   aiDraft, fillRoster, buildTeam, teamEnv, runSimulation, getLockReason, TIER_LABEL,
 } from '../src/KboAugmentDraft.jsx';
 
 const N = Number(process.env.N || 60); // 아키타입 × 증강마다 치를 경기 수
-const CAP = 800;
+const CAP = SALARY_CAP;
 const POOL = DRAFT_MODES.find((m) => m.id === 'mix').players;
 
 const mulberry32 = (a) => () => {
@@ -23,12 +23,13 @@ const isBat = (p) => p.type === 'batter';
 const bat = (p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2;
 const pit = (p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3;
 
-/** 점수가 높은 선수부터 자리를 채운다 (남은 자리마다 55 CP 는 남겨 둔다) */
+/** 점수가 높은 선수부터 자리를 채운다. 주전 14자리를 먼저, 그다음 예비 6자리 (남은 자리마다 55 CP 는 남겨 둔다) */
 function draftBy(score, players = POOL) {
   let roster = []; let cp = CAP;
-  for (const pos of POS_ORDER.flatMap((p) => Array(SLOT_LIMITS[p]).fill(p))) {
+  const order = [...POS_ORDER.flatMap((p) => Array(SLOT_LIMITS[p]).fill(p)), ...Array(BENCH_SIZE).fill(null)];
+  for (const pos of order) {
     const after = ROSTER_SIZE - roster.length - 1;
-    const ok = players.filter((p) => p.position === pos && !getLockReason(p, roster, cp) && cp - p.cost >= after * 55);
+    const ok = players.filter((p) => (pos === null || p.position === pos) && !getLockReason(p, roster, cp) && cp - p.cost >= after * 55);
     const best = ok.sort((a, b) => score(b) - score(a))[0];
     if (best) { roster = [...roster, best]; cp -= best.cost; }
   }
