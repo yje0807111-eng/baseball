@@ -16,6 +16,7 @@ import { tournamentPanels } from './myteam/TournamentPlay.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
 import PrepScreen from './myteam/PrepScreen.jsx';
 import { prepOf, matchTeamOf } from './myteam/prep.js';
+import { afterGame } from './myteam/fatigue.js';
 import { todayKey, makeTournament, myOpponent, teamOf, advance, ROUNDS, FINISH } from './myteam/tournament.js';
 
 /** 오늘 날짜의 토너먼트: 저장된 게 오늘 것이면 그대로, 아니면 새 대진 */
@@ -74,7 +75,9 @@ export default function App() {
 
   /* 경기가 끝나면 전적·골드·부스트 수명을 정리하고 메인으로 */
   const finishMatch = (res) => {
-    saveTeam(tickBoosts(account.team));
+    const played = reload()?.team || account.team; // 정비 화면에서 저장한 배치까지 포함
+    const pitcherIds = (played.squad || []).filter((p) => p.type === 'pitcher').map((p) => p.id);
+    saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
     const mvp = res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null;
     if (match?.kind === 'tourney') {
       // 토너먼트 경기는 경기마다 골드 대신, 끝난 뒤 성적 보상을 한 번에 받는다

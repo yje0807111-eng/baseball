@@ -1912,6 +1912,7 @@ export const KEYFRAMES = `
 .rd-bc-pos, .rd-bc .rd-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: #94a3b8; }
 .rd-bc b { min-width: 0; overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .rd-bc em { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-style: normal; font-weight: 800; }
+.rd-bc-rest { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: #fb923c; }
 .rd-bc-ph { width: 24px; height: 26px; background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .rd-bc.empty { opacity: .45; cursor: default; }
 .rd-bc.empty b { color: #6b7280; font-weight: 500; }
@@ -1971,6 +1972,11 @@ export const KEYFRAMES = `
 .rd-sc.lock { --s: #64748b; opacity: .78; }
 .rd-tag { padding: 3px 9px; font-size: 11.5px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
 /* 추천 선수 (타순·수비 판 아래 띠) */
+.rd-cond { position: absolute; left: 6px; right: 6px; bottom: 34px; z-index: 3; display: flex; align-items: center; gap: 4px; height: 15px; padding: 0 4px; background: rgba(5,8,15,.82); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 55%, transparent); }
+.rd-cond .bar { flex: 1; height: 4px; background: rgba(255,255,255,.1); }
+.rd-cond .bar i { display: block; height: 100%; background: var(--k); box-shadow: 0 0 6px var(--k); }
+.rd-cond b { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; color: var(--k); }
+.rd-cond em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-style: normal; font-weight: 700; color: #cbd5e1; }
 .rd-gain { position: absolute; left: 6px; bottom: 34px; z-index: 3; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 17px; color: #04150e; background: #34d399; }
 .rd-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
 .rd-ghost > * { box-shadow: inset 0 0 0 2px #38bdf8 !important; }
@@ -4909,6 +4915,11 @@ function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
         <b className={`ov ${rdToneCls(ovr)}`} style={rdToneStyle(ovr)}>{ovr}</b>
       </span>
       {gain > 0 && <span className="rd-gain">▲{gain}</span>}
+      {player.condition != null && player.condition < 100 && (
+        <span className="rd-cond" style={{ '--k': player.condition >= 85 ? '#a3e635' : player.condition >= 70 ? '#facc15' : '#fb923c' }} title={`컨디션 ${player.condition}% · 휴식 ${player.rest}경기 남음`}>
+          <span className="bar"><i style={{ width: `${player.condition}%` }} /></span><b>{player.condition}%</b><em>−{player.rest}</em>
+        </span>
+      )}
       <span className="nmb"><b>{player.name}</b><small>{player.year} {player.team} · {player.hand}</small></span>
     </div>
   );
@@ -5059,7 +5070,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder,
                 <div key={b.id} {...g} className={`rd-bc ${g.className}`}>
                   <RdFace player={p2} className="h-[26px] w-[24px]" />
                   <span className="rd-bc-pos">{p2.position}</span>
-                  <b>{p2.name}</b>
+                  <b>{p2.name}{p2.rest > 0 && <small className="rd-bc-rest" title={`컨디션 ${p2.condition}% · 휴식 ${p2.rest}경기 남음`}> −{p2.rest}</small>}</b>
                   <em className={rdToneCls(e.overall)} style={rdToneStyle(e.overall)}>{e.overall}</em>
                 </div>
               );

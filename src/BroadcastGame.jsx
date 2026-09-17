@@ -29,7 +29,11 @@ function pitcherLine(g, pitcher) {
 export function engineTeam(team) {
   const roster = team.roster || [];
   const batters = (team.batters?.length ? team.batters : roster.filter((p) => p.type === 'batter')).slice(0, 9);
-  const pitchers = roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN')).sort((a, b) => (a.position === 'SP' ? -1 : 1) - (b.position === 'SP' ? -1 : 1) || b.overall - a.overall);
+  // 등판 순서: 정비 화면 선발 자리 → (자리 없는 팀은) 선발 포지션 → 불펜 자리 순서(롱릴리프·중간·셋업·마무리). 같으면 덜 지친 투수, 종합 높은 투수
+  const RELIEF = ['LR', 'MR', 'SU', 'CL'];
+  const tier = (p) => (p.slot === 'SP' ? 0 : !p.slot && p.position === 'SP' ? 1 : 2);
+  const pitchers = roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN'))
+    .sort((a, b) => tier(a) - tier(b) || (a.rest || 0) - (b.rest || 0) || (RELIEF.indexOf(a.slot) - RELIEF.indexOf(b.slot)) || b.overall - a.overall);
   return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C') };
 }
 
@@ -445,8 +449,13 @@ export function buildResult(g, myTeam) {
   const ranked = [...credit.values()].sort((a, b) => b.pts - a.pts);
   const fallback = (myTeam.roster || []).filter((p) => !p.isReplacement).sort((a, b) => b.overall - a.overall)[0];
   const mvp = ranked[0] || { player: fallback, pts: 0, runs: 0, zero: 0, fires: 0 };
+  // 투수 피로 계산용: 내 팀(홈) 투수별 투구 수와 선발
+  const myPitcherIds = new Set(g.home.team.pitchers.map((p) => p.id));
+  const pitchCounts = {};
+  for (const ev of g.events) if (ev.pitcher && myPitcherIds.has(ev.pitcher.id)) pitchCounts[ev.pitcher.id] = (pitchCounts[ev.pitcher.id] || 0) + 1;
   return {
     board,
+    pitchCounts, starterId: g.home.team.pitchers[0]?.id || null,
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
