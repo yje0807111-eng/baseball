@@ -166,7 +166,6 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
   const squad = team?.squad || [];
   const cap = team?.cap || 2000;
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
-  const rec = team?.record || { w: 0, l: 0, d: 0 };
   const over = cost > cap;
   return (
     <header className="relative z-10 flex h-16 shrink-0 items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
@@ -195,7 +194,7 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
         {account && <span className="mt-cut bg-white/[0.06] px-3 py-1 font-display text-lg font-bold text-amber-300" style={{ '--c': '6px' }}>{(account.gold ?? 0).toLocaleString()} G</span>}
         {account && (
           <span className="text-sm text-gray-400">
-            <b className="text-gray-200">{account.nick || '감독'}</b> 감독 · {rec.w}승 {rec.l}패 {rec.d}무
+            <b className="text-gray-200">{account.nick || '감독'}</b> 감독
             {onSignOut && <> · <button type="button" onClick={onSignOut} className="underline hover:text-gray-200">로그아웃</button></>}
           </span>
         )}
