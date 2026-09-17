@@ -202,14 +202,15 @@ function CardWithRecord({ p, tr }) {
     ro.observe(el);
     if (baseRef.current) ro.observe(baseRef.current);
     return () => ro.disconnect();
-  }, []);
+  }, [p.id]); // 선수가 바뀌면 받침이 새로 그려지므로 다시 잰다
   const neon = teamNeon(p);
   const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])];
   return (
     <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
-      <div style={{ width: w, '--n': neon }}>
+      {/* 카드 혼자 떠오르면 받침 테두리와 어긋나 보여서, 카드 등장 · 마우스 올림 움직임은 끄고 카드+받침을 한 덩어리로 떠오르게 */}
+      <div key={p.id} className="animate-[rise_.35s_ease-out_both]" style={{ width: w, '--n': neon }}>
         <div className="aspect-[2/3] w-full">
-          <PlayerCard key={p.id} player={p} reason={null} onSelect={() => {}} />
+          <PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none', transform: 'none' }} />
         </div>
         <div ref={baseRef} className="relative -mt-px bg-[#05080f] px-3 pb-3 pt-2.5" style={{ clipPath: 'polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)' }}>
           {/* 카드 안쪽 테두리(pk-fr)가 받침까지 이어지는 느낌 */}
