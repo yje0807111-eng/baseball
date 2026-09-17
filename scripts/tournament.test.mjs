@@ -76,3 +76,21 @@ test('드래프트 모드: 참가 팀을 직접 넘긴 토너먼트도 진행된
   expect(t.done).toBe(true);
   expect(t.place).toBe(1);
 }, 30000);
+
+test('비슷한 전력끼리 첫 판: 흔들림 없이 줄 세우면 짝끼리 종합 차이가 작다', async () => {
+  const { seedByStrength } = await import('../src/myteam/tournament.js');
+  const list = Array.from({ length: 16 }, (_, i) => ({ id: i, r: 60 + i * 2 }));
+  const order = seedByStrength(list, (x) => x.r, Math.random, 0);
+  expect(new Set(order.map((x) => x.id)).size).toBe(16);
+  for (let i = 0; i < 16; i += 2) expect(Math.abs(order[i].r - order[i + 1].r)).toBe(2);
+});
+
+test('구단 멤버 안에서 드래프트한 팀도 캡을 넘지 않는다', async () => {
+  const { aiDraft, DRAFT_MODES } = await import('../src/KboAugmentDraft.jsx');
+  const mode = DRAFT_MODES.find((m) => m.id === 'recent');
+  for (const s of mode.series.slice(0, 10)) {
+    const roster = aiDraft({ players: s.players, cap: 1330 });
+    expect(roster.every((p) => s.players.includes(p))).toBe(true);
+    expect(roster.reduce((n, p) => n + p.cost, 0)).toBeLessThanOrEqual(1330);
+  }
+});

@@ -5,7 +5,9 @@ import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
-import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf } from './myteam/tournament.js';
+import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength } from './myteam/tournament.js';
+import { seriesName } from './myteam/aiTeam.js';
+import { teamRating } from './myteam/match.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
 /* ════════════════════════════════════════════════════════════════════
@@ -5475,19 +5477,34 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setPhase('matchup');
   };
 
-  /* 드래프트 토너먼트: 같은 모드 선수로 AI 가 드래프트한 팀들 */
+  /*
+   * 드래프트 토너먼트 참가 팀: 모드 안의 구단 시즌 · 국가대표 · 레전드 시리즈마다 그 멤버 안에서만 같은 캡으로 AI 가 드래프트한 팀.
+   * 시리즈가 모자라면 남는 자리는 모드 전체 선수로 드래프트한 팀. 대진은 비슷한 전력끼리 첫 판에서 만나게(흔들림 조금)
+   */
   const makeDraftTournament = () => {
     const size = match.format;
+    const others = [];
+    // 구단 팀: 그 멤버로 15명 이상 뽑히는 시리즈만 (너무 적으면 유망주로 채워진 빈 팀이 된다)
+    for (const series of shuffle(mode.series.filter((x) => x.id !== LEGEND_SERIES.id))) {
+      if (others.length >= size - 1) break;
+      const roster = aiDraft({ players: series.players, cap: match.cap });
+      if (roster.length < 15) continue;
+      const name = seriesName(series);
+      others.push({ id: `dr-${others.length}`, name, roster, seriesId: series.id, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
+    }
     const owners = new Set();
-    const others = Array.from({ length: size - 1 }, (_, i) => {
+    while (others.length < size - 1) {
       let owner = ownerOf(Math.random);
       while (owners.has(owner)) owner = ownerOf(Math.random);
       owners.add(owner);
       const roster = aiDraft({ players: mode.players, cap: match.cap });
       const name = `${owner} 드림팀`;
-      return { id: `dr-${i}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) };
-    });
-    return makeTournament({ size, myName: '나의 드림팀', others });
+      others.push({ id: `dr-${others.length}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
+    }
+    const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(roster), buff, augments) };
+    const order = seedByStrength([...others, mine], (e) => teamRating(e.team.roster));
+    const meAt = order.indexOf(mine);
+    return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
   };
 
   /* entry: 토너먼트 상대(그 팀 그대로) */

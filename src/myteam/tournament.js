@@ -66,13 +66,25 @@ export function entrantsFor(key, n) {
   });
 }
 
-/** 새 대진: size 강 · 내 자리는 무작위. others 를 주면(드래프트 모드) 그 팀들로 채운다 */
-export function makeTournament({ size = 32, myName = '나의 드림팀', key = newKey(), others = null } = {}) {
+/** 새 대진: size 강 · 내 자리는 무작위(meAt 으로 정할 수 있다). others 를 주면(드래프트 모드) 그 팀들로 채운다 */
+export function makeTournament({ size = 32, myName = '나의 드림팀', key = newKey(), others = null, meAt = null } = {}) {
   const list = others || entrantsFor(key, size - 1);
   const rng = seeded(hash(`tourney:${key}:me`));
-  const at = Math.floor(rng() * size);
+  const at = meAt ?? Math.floor(rng() * size);
   const entrants = [...list.slice(0, at), { id: 'me', name: myName, owner: '나', me: true }, ...list.slice(at, size - 1)];
   return { key, size, entrants, round: 0, winners: [], results: [], done: false, place: null, claimed: false };
+}
+
+/**
+ * 비슷한 전력끼리 첫 라운드에서 만나게: 팀 종합에 흔들림(jitter)을 조금 섞어 줄 세우고 → 위에서부터 두 팀씩 짝 → 짝의 자리는 섞는다.
+ * 흔들림 덕에 늘 같은 짝이 되지는 않고, 강팀끼리 한쪽에 몰리지도 않는다
+ */
+export function seedByStrength(list, ratingOf, rng = Math.random, jitter = 6) {
+  const ranked = list.map((x) => ({ x, r: ratingOf(x) + (rng() - 0.5) * jitter })).sort((a, b) => b.r - a.r).map((o) => o.x);
+  const pairs = [];
+  for (let i = 0; i < ranked.length; i += 2) pairs.push(ranked.slice(i, i + 2));
+  for (let i = pairs.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pairs[i], pairs[j]] = [pairs[j], pairs[i]]; }
+  return pairs.flat();
 }
 
 const cache = new Map();
