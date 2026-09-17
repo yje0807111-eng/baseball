@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, GROUP_RULES, PLAY_LIMIT, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
+import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
 import { playingIds } from './match.js';
@@ -243,6 +243,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
     for (const r of POS_RULES) {
       for (let i = next.filter((p) => p.position === r.key).length; i < r.min && next.length < SQUAD_SIZE; i++) tryAdd(r.key);
     }
+    // 자유 자리: 경기에 나가는 불펜 8명을 먼저 채우고, 그다음 수비 폭을 넓히는 야수 · 포수 순
+    for (const want of ['RP', 'RP', 'OF', 'SS', 'C']) { if (next.length < SQUAD_SIZE) tryAdd(want); }
     while (next.length < SQUAD_SIZE) { if (!tryAdd(null)) break; }
     commit({ ...team, squad: next });
   };
@@ -292,34 +294,41 @@ export default function LockerScreen({ account, onSave, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); }}>
-          <p className="mt-lab px-1 pb-2" style={{ fontSize: 10 }}>Squad</p>
-          <div className="flex justify-between px-1 pb-1 font-display text-[10px] tracking-[0.15em] text-gray-500"><span>포지션</span><span>인원 / 최소~최대</span></div>
-          {POS_RULES.map((r) => {
-            const n = squad.filter((p) => p.position === r.key).length;
-            const bad = n < r.min || n > r.max;
+        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); }} compact>
+          {(() => {
+            // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
+            const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
+            const tint = (n, min) => (n < min ? '#f87171' : n > min ? '#7dd3fc' : min ? '#34d399' : '#6b7280');
+            const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-[15px]" style={{ color }}>{n}</b><small className="text-[12px] text-gray-500">/{d}</small></span>;
+            const cell = (key) => {
+              const r = pos[key];
+              const n = squad.filter((p) => p.position === key).length;
+              return (
+                <div key={key} className="flex h-7 items-center justify-between border-b border-white/[0.07] px-[5px]">
+                  <span className="text-[12.5px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
+                </div>
+              );
+            };
+            const used = freeUsed(squad);
+            const fc = foreignCount(squad);
+            const entryOk = squad.length === SQUAD_SIZE && !issues.length;
             return (
-              <div key={r.key} className="flex justify-between border-b border-white/10 px-1 py-1.5 text-sm text-gray-400">
-                <span>{r.label}{PLAY_LIMIT[r.key] ? <small className="ml-1 text-[11px] text-gray-500">출전 {PLAY_LIMIT[r.key]}</small> : null}</span>
-                <b className="font-display" style={{ color: bad ? '#f87171' : n === r.max ? '#fde047' : '#fff' }}>{n}<small className="text-gray-500"> / {r.min}~{r.max}</small></b>
-              </div>
+              <>
+                <div className="flex items-center justify-between px-0.5 pb-2">
+                  <p className="mt-lab" style={{ fontSize: 10 }}>Squad</p>
+                  {frac(squad.length, SQUAD_SIZE, entryOk ? '#34d399' : squad.length > SQUAD_SIZE ? '#f87171' : '#e5e7eb')}
+                </div>
+                <div className="grid grid-cols-2 gap-x-2.5">
+                  <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
+                  <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
+                </div>
+                <div className="mt-2.5 flex justify-between px-[5px] text-[13px] text-gray-300">
+                  <span>자유 자리 {frac(used, FREE_SLOTS, used > FREE_SLOTS ? '#f87171' : used === FREE_SLOTS ? '#34d399' : '#e5e7eb')}</span>
+                  <span>외국인 {frac(fc, FOREIGN_MAX, fc > FOREIGN_MAX ? '#f87171' : '#e5e7eb')}</span>
+                </div>
+              </>
             );
-          })}
-          {GROUP_RULES.map((g) => {
-            const n = squad.filter((p) => g.positions.includes(p.position)).length;
-            return (
-              <div key={g.key} className="flex justify-between border-b border-white/10 px-1 py-1.5 text-sm text-gray-400">
-                <span>{g.label} 합계</span>
-                <b className="font-display" style={{ color: n > g.max ? '#f87171' : n === g.max ? '#fde047' : '#fff' }}>{n}<small className="text-gray-500"> / 최대 {g.max}</small></b>
-              </div>
-            );
-          })}
-          <div className="flex justify-between border-b border-white/10 px-1 py-1.5 text-sm text-gray-400">
-            <span>외국인</span><b className="font-display" style={{ color: foreignCount(squad) > FOREIGN_MAX ? '#f87171' : '#fff' }}>{foreignCount(squad)}/{FOREIGN_MAX}</b>
-          </div>
-          <div className="mt-2 flex justify-between px-1 font-display text-sm">
-            <span className="text-gray-500">엔트리</span><b style={{ color: issues.length ? '#fde047' : '#10b981' }}>{squad.length} / {SQUAD_SIZE}</b>
-          </div>
+          })()}
         </SideNav>
 
         {tab === 'scout' && (

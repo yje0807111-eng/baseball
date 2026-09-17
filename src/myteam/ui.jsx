@@ -68,6 +68,8 @@ export const UiStyle = () => (
     .mt-nav .th { width:44px; height:3.2rem; flex:none; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
     .mt-nav.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a) 24%,transparent),rgba(6,10,19,.92)); }
     .mt-nav.on .th { filter:none; }
+    .mt-nav.sm { height:52px; gap:10px; }
+    .mt-nav.sm .th { width:36px; height:38px; }
     .mt-nav.on::after { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--a); box-shadow:0 0 12px var(--a); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
@@ -197,11 +199,11 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
 };
 
 /** 사이드 네비 — 모드 탭을 세로로 세운 판. items: [{ key, label, sub, img }] */
-export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu', children }) => (
+export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu', compact = false, children }) => (
   <nav className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', '--a': a }}>
     <p className="mt-lab px-1 pt-1" style={{ '--a': a }}>{label}</p>
     {items.map((it) => (
-      <button key={it.key} type="button" onClick={() => onChange(it.key)} className={`mt-nav ${value === it.key ? 'on' : ''}`} style={{ '--a': a }}>
+      <button key={it.key} type="button" onClick={() => onChange(it.key)} className={`mt-nav ${compact ? 'sm' : ''} ${value === it.key ? 'on' : ''}`} style={{ '--a': a }}>
         <span className="th" style={{ backgroundImage: `url(${it.img})` }} />
         <span className="min-w-0">
           <b className={`block truncate text-base font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>

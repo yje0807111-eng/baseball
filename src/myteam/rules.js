@@ -28,7 +28,16 @@ export const STAFF_SLOTS = [
   { key: 'pitching', label: '수비·투수코치', role: 'pitching' },
 ];
 
-/** 묶음 최대 인원: 내야(1·2·3루수·유격수) 합계 */
+/**
+ * 필수 + 자유 자리: 포지션마다 min 명은 꼭 채우고(필수 합 21), 그 위로 더 넣는 선수는 어느 포지션이든
+ * 자유 자리(26 − 필수 합 = 5)에서 한 칸씩 쓴다. max · GROUP_RULES 는 AI 팀 구성에만 쓴다.
+ */
+export const REQUIRED = POS_RULES.reduce((s, r) => s + r.min, 0);
+export const FREE_SLOTS = SQUAD_SIZE - REQUIRED;
+/** 자유 자리를 쓴 인원: 포지션별 (인원 − 필수) 의 합 */
+export const freeUsed = (squad) => POS_RULES.reduce((s, r) => s + Math.max(0, countBy(squad, r.key) - r.min), 0);
+
+/** 묶음 최대 인원: 내야(1·2·3루수·유격수) 합계 — AI 팀 구성용 */
 export const GROUP_RULES = [{ key: 'IF', label: '내야수', positions: ['1B', '2B', '3B', 'SS'], max: 7 }];
 
 /** 경기에 실제로 나가는 인원 — 나머지는 벤치(영입해도 안 뜀) */
@@ -46,9 +55,8 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP) {
   if (squad.length >= SQUAD_SIZE) return `엔트리 ${SQUAD_SIZE}명이 모두 찼음`;
   if (player.isForeign && foreignCount(squad) >= FOREIGN_MAX) return `외국인 선수는 최대 ${FOREIGN_MAX}명`;
   const rule = POS_RULES.find((r) => r.key === player.position);
-  if (rule && countBy(squad, rule.key) >= rule.max) return `${rule.label} 자리 가득 (최대 ${rule.max}명)`;
-  const group = GROUP_RULES.find((g) => g.positions.includes(player.position));
-  if (group && squad.filter((p) => group.positions.includes(p.position)).length >= group.max) return `${group.label} 자리 가득 (최대 ${group.max}명)`;
+  // 필수를 아직 못 채운 포지션이면 들어갈 수 있고, 이미 채웠으면 자유 자리가 남아야 한다
+  if (rule && countBy(squad, rule.key) >= rule.min && freeUsed(squad) >= FREE_SLOTS) return `자유 자리 없음 (${FREE_SLOTS}/${FREE_SLOTS})`;
   const left = cap - squadCost(squad, staff);
   if (player.cost > left) return `CP 부족 (남은 ${left})`;
   return null;
@@ -61,12 +69,9 @@ export function squadIssues(squad, staff = {}, cap = SQUAD_CAP) {
   for (const r of POS_RULES) {
     const n = countBy(squad, r.key);
     if (n < r.min) out.push(`${r.label} ${n}/${r.min}명`);
-    if (n > r.max) out.push(`${r.label} ${n - r.max}명 초과 · 방출 필요`);
   }
-  for (const g of GROUP_RULES) {
-    const n = squad.filter((p) => g.positions.includes(p.position)).length;
-    if (n > g.max) out.push(`${g.label} ${n - g.max}명 초과 · 방출 필요`);
-  }
+  const used = freeUsed(squad);
+  if (used > FREE_SLOTS) out.push(`자유 자리 ${used - FREE_SLOTS}명 초과 · 방출 필요`);
   if (foreignCount(squad) > FOREIGN_MAX) out.push(`외국인 ${foreignCount(squad)}명 (최대 ${FOREIGN_MAX})`);
   const cost = squadCost(squad, staff);
   if (cost > cap) out.push(`CP 초과 ${cost}/${cap}`);
