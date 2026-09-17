@@ -9,6 +9,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { Btn } from './ui.jsx';
+import { offPositionPenalty } from '../KboAugmentDraft.jsx';
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const ROLE = { SP: '#60a5fa', CL: '#fbbf24', SU: '#fb923c', MR: '#f87171' };
@@ -55,13 +56,33 @@ const face = (p, w, h) => (
   <span className="mt-cut block shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': `${Math.max(4, Math.round(w / 8))}px`, width: w, height: h, backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
 );
 const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-[12px] font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
-const Ovr = ({ p, size = 17 }) => <b className="font-display font-extrabold leading-none" style={{ fontSize: size, color: tone(p.overall), textShadow: `0 0 12px ${tone(p.overall)}66` }}>{p.overall}</b>;
+const Ovr = ({ p, size = 17, v = p.overall }) => <b className="font-display font-extrabold leading-none" style={{ fontSize: size, color: tone(v), textShadow: `0 0 12px ${tone(v)}66` }}>{v}</b>;
 const Grp = ({ en, ko, color, right }) => (
   <div className="mt-grp !my-0 !mb-[5px]" style={{ color }}>
     {en} <b className="text-[14px] tracking-[0.04em] text-white">{ko}</b>
     {right && <span className="order-last ml-1 font-display text-[11px] tracking-[0.1em] text-gray-500">{right}</span>}
   </div>
 );
+/* 선 자리 기준 실전 수치: 드래프트와 같은 포지션 이탈 감소(비슷한 자리 3 · 같은 계열 6 · 포수 8, 지명타자 0) */
+const SLOT_POS = { LF: 'OF', CF: 'OF', RF: 'OF' };
+export const penaltyAt = (p, slot) => offPositionPenalty(p, SLOT_POS[slot] || slot);
+const effAt = (p, slot) => {
+  const pen = slot ? penaltyAt(p, slot) : 0;
+  if (!pen) return { ovr: p.overall, stats: p.stats, pen: 0 };
+  return { ovr: Math.max(30, p.overall - pen), stats: Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - pen)])), pen };
+};
+/** 놓기 전 미리보기: 77 → 71 (오르면 초록 · 조금 내리면 노랑 · 많이 내리면 빨강) */
+const Delta = ({ before, after, size = 17 }) => {
+  const dv = after - before;
+  const c = dv > 0 ? '#34d399' : dv > -8 ? '#fbbf24' : '#f87171';
+  return (
+    <span className="flex shrink-0 items-baseline gap-[3px] whitespace-nowrap font-display font-bold leading-none">
+      <s className="text-slate-400" style={{ fontSize: size * 0.62, textDecorationThickness: 2 }}>{before}</s>
+      <i className="not-italic text-sky-300" style={{ fontSize: size * 0.5 }}>→</i>
+      <em className="not-italic" style={{ fontSize: size, color: c, textShadow: `0 0 10px ${c}66` }}>{after}</em>
+    </span>
+  );
+};
 const Handle = () => <span className="cursor-grab select-none text-[14px] tracking-[-2px] text-slate-600" aria-hidden="true">⋮⋮</span>;
 
 /**
@@ -113,6 +134,10 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
     return new Map(shown.map((id, i) => [id, i]));
   };
   const fieldLineup = drag?.list === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : order.lineup;
+  const slotNow = new Map(order.lineup.map((x) => [x.id, x.slot]));
+  const slotShown = new Map(fieldLineup.map((x) => [x.id, x.slot]));
+  /** 구장에서 자리를 바꿔 보는 중인 두 선수: 놓기 전부터 바뀐 수치를 보여 준다 */
+  const previewing = (id) => drag?.list === 'field' && !!drag.target && (id === drag.id || id === drag.target);
   const nextStarter = (() => {
     const rot = order.rotation.map((id) => byId.get(id)).filter(Boolean);
     return rot.find((p) => restOf(p) <= 0) || [...rot].sort((a, b) => restOf(a) - restOf(b))[0];
@@ -201,16 +226,19 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
   const batRow = (x, pos, h, pitch) => {
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'lineup' && drag.id === x.id;
-    const v = x.p.stats?.power ?? 0;
+    const shownSlot = slotShown.get(x.id) || x.slot;
+    const before = effAt(x.p, x.slot);
+    const after = effAt(x.p, shownSlot);
+    const v = after.stats?.power ?? 0;
     return (
       <div key={x.id} role="button" tabIndex={0} {...rowDrag('lineup', x.id, x.p)}
         className={`mt-cut grid touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', gridTemplateColumns: '12px 20px 34px 28px 24px minmax(0,1fr) 46px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
+        style={{ '--c': '7px', gridTemplateColumns: '12px 20px 34px 28px auto minmax(0,1fr) 46px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
         <Handle />
         <b className="text-center font-display text-[17px] text-gray-500">{pos + 1}</b>
-        <Chip c={posColor(x.p)}>{x.slot}</Chip>
+        <Chip c={posColor(x.p)}>{shownSlot}</Chip>
         {face(x.p, 28, Math.min(46, h - 8))}
-        <Ovr p={x.p} />
+        {previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} />}
         <b className="truncate text-[14px] font-extrabold text-white">{x.p.name}</b>
         <span className="block">
           <span className="flex justify-end"><b className="font-display text-[14px]" style={{ color: statColor(v, posColor(x.p)).num }}>{v}</b></span>
@@ -256,7 +284,7 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
           boxShadow: dragging ? 'inset 0 0 0 2px #e5e7eb, 0 12px 26px -8px rgba(0,0,0,.95)' : drag?.target === x.id ? `inset 0 0 0 2px ${posColor(x.p)}` : `inset 0 -2px 0 ${posColor(x.p)},${on ? ` 0 0 0 2px ${tone(x.p.overall)},` : ''} inset 0 0 0 1px rgba(255,255,255,.12)` }}>
         {face(x.p, 38, 44)}
         <span className="min-w-0">
-          <span className="flex items-center gap-1"><Chip c={posColor(x.p)}>{x.slot}</Chip><b className="font-display text-[11px] text-gray-400">{n}</b><span className="ml-auto"><Ovr p={x.p} /></span></span>
+          <span className="flex items-center gap-1"><Chip c={posColor(x.p)}>{x.slot}</Chip>{!previewing(x.id) && <b className="font-display text-[11px] text-gray-400">{n}</b>}<span className="ml-auto">{previewing(x.id) ? <Delta before={effAt(x.p, slotNow.get(x.id)).ovr} after={effAt(x.p, x.slot).ovr} size={16} /> : <Ovr p={x.p} v={effAt(x.p, x.slot).ovr} />}</span></span>
           <b className="block truncate text-[13px] font-extrabold text-white">{x.p.name}</b>
         </span>
       </div>
