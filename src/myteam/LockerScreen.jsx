@@ -87,7 +87,7 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-/** 드래프트 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰/회색 */
+/** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
 const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
@@ -98,7 +98,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
   return (
     <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
       <Portrait player={p} w={46} h={54} color={teamTint ? neon : n} />
-      <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>
+      {teamTint
+        ? <b className={`st-v ${statTier(p.overall)} font-display text-[30px] font-extrabold leading-none`}>{p.overall}</b>
+        : <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
       <span className="min-w-0">
         <b className="block truncate text-base font-black text-white">
           {p.name}
@@ -119,9 +121,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className={`st-v ${statTier(v)} font-display text-[15px]`}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
             <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
-              <b className={`st-b ${statTier(v)} absolute inset-y-0 left-0 block`} style={{ width: `${v}%` }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} />
             </span>
           </span>
         );
@@ -478,12 +480,10 @@ export default function LockerScreen({ account, onSave, onBack }) {
       <style>{`${KEYFRAMES}
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
-        .st-v { color: #e5e7eb; }
-        .st-v.t75 { color: #34d399; }
-        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
-        .st-b { background: rgba(148,163,184,.55); }
-        .st-b.t75 { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.5); }
-        .st-b.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }`}</style>
+        .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
+        .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+`}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
 
