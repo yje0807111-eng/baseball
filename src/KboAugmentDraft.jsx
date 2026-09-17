@@ -602,8 +602,8 @@ const PASSIVE_AUGMENTS = [
     roster: (r) => bump(r, isBat, { speed: 12 }) },
   { id: 'gloveTrain', name: '수비 특훈', tier: 'silver', type: 'build', desc: '모든 야수 수비 +8',
     roster: (r) => bump(r, isBat, { defense: 8 }) },
-  { id: 'toContact', name: '컨택 전환', tier: 'silver', type: 'balance', desc: '파워가 컨택보다 높은 타자 파워 −3 · 컨택 +18',
-    roster: (r) => bump(r, (p) => isBat(p) && p.stats.power > p.stats.contact, { power: -3, contact: 18 }) },
+  { id: 'toContact', name: '컨택 전환', tier: 'silver', type: 'balance', desc: '파워가 컨택보다 높은 타자 파워 −2 · 컨택 +20',
+    roster: (r) => bump(r, (p) => isBat(p) && p.stats.power > p.stats.contact, { power: -2, contact: 20 }) },
   { id: 'toPower', name: '한 방 전환', tier: 'silver', type: 'balance', desc: '컨택이 파워보다 높은 타자 컨택 −4 · 파워 +14',
     roster: (r) => bump(r, (p) => isBat(p) && p.stats.contact > p.stats.power, { contact: -4, power: 14 }) },
   { id: 'trainerOn', name: '트레이너 상주', tier: 'silver', type: 'play', desc: '선발 모든 능력치 +4 · 지치는 이닝에도 감점 없음',
@@ -651,8 +651,8 @@ const PASSIVE_AUGMENTS = [
     roster: (r) => { const cat = bySlot(r, 'C'); return cat && cat.stats.defense >= 80 ? bump(r, isPit, { control: 12 }) : r; } },
 
   // ───── 골드 26 — 실버의 두 배쯤, 방향이 분명한 한 수
-  { id: 'cleanupUp', name: '클린업 강화', tier: 'gold', type: 'build', desc: '파워 상위 3명 파워 +25 · 컨택 +12',
-    roster: (r) => { const top = new Set(topBy(r.filter(isBat), 3, (p) => p.stats.power)); return bump(r, (p) => top.has(p), { power: 25, contact: 12 }); } },
+  { id: 'cleanupUp', name: '클린업 강화', tier: 'gold', type: 'build', desc: '파워 상위 3명 파워 +35 · 컨택 +18',
+    roster: (r) => { const top = new Set(topBy(r.filter(isBat), 3, (p) => p.stats.power)); return bump(r, (p) => top.has(p), { power: 35, contact: 18 }); } },
   { id: 'setterUp', name: '테이블세터 강화', tier: 'gold', type: 'build', desc: '주루 상위 3명 모든 능력치 +12',
     roster: (r) => { const top = new Set(topBy(r.filter(isBat), 3, (p) => p.stats.speed)); return bump(r, (p) => top.has(p), every(12)); } },
   { id: 'bottomUp', name: '하위 타선 강화', tier: 'gold', type: 'balance', desc: '종합 하위 타자 4명 모든 능력치 +12',
@@ -677,13 +677,13 @@ const PASSIVE_AUGMENTS = [
     roster: (r) => { const n = Math.min(9, countOf(r, (p) => isPit(p) && p.hand === 'L') * 3); return bump(r, isPit, { stuff: n, control: n }); } },
   { id: 'balanceTrain', name: '균형 트레이닝', tier: 'gold', type: 'balance', desc: '타격 · 투구 중 약한 쪽 +7 · 강한 쪽 −3',
     roster: (r) => (skewOf(r) > 0 ? bump(bump(r, isPit, pit3(7)), isBat, bat3(-3)) : bump(bump(r, isBat, bat3(7)), isPit, pit3(-3))) },
-  { id: 'emergency', name: '긴급 보강', tier: 'gold', type: 'balance', desc: '가장 약한 선수 1명의 모든 능력치를 75로',
+  { id: 'emergency', name: '긴급 보강', tier: 'gold', type: 'balance', desc: '가장 약한 선수 1명의 모든 능력치를 80으로',
     roster: (r) => { const [low] = topBy(r.filter((p) => !p.isReplacement), 1, (p) => -p.overall);
-      return low ? bump(r, (p) => p === low, (p) => Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(0, 75 - v)]))) : r; } },
+      return low ? bump(r, (p) => p === low, (p) => Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(0, 80 - v)]))) : r; } },
   { id: 'allInSkew', name: '몰빵의 미학', tier: 'gold', type: 'extreme', desc: '타격 · 투구 중 강한 쪽 +14 · 약한 쪽 −4',
     roster: (r) => (skewOf(r) > 0 ? bump(bump(r, isBat, bat3(14)), isPit, pit3(-4)) : bump(bump(r, isPit, pit3(14)), isBat, bat3(-4))) },
-  { id: 'extremeLeft', name: '극단 좌타', tier: 'gold', type: 'extreme', desc: '좌타자가 절반 이상이면 타격 +12 · 대신 좌완 상대 공격 −0.2',
-    team: (t) => { const b = t.roster.filter(isBat); if (b.length && countOf(b, (p) => p.hand === 'L') / b.length >= 0.5) { t.bonus.bat += 12; t.leftStack = true; } },
+  { id: 'extremeLeft', name: '극단 좌타', tier: 'gold', type: 'extreme', desc: '좌타자가 절반 이상이면 타격 +16 · 대신 좌완 상대 공격 −0.2',
+    team: (t) => { const b = t.roster.filter(isBat); if (b.length && countOf(b, (p) => p.hand === 'L') / b.length >= 0.5) { t.bonus.bat += 16; t.leftStack = true; } },
     half: (c) => (myOff(c) && c.my.leftStack && c.oppPitcher.hand === 'L' ? { add: -0.2 } : null) },
   { id: 'mercAll', name: '용병 몰빵', tier: 'gold', type: 'extreme', desc: '외국인을 3명 다 뽑았으면 그 셋 +24 · 나머지 전원 +1',
     roster: (r) => (countOf(r, (p) => p.isForeign) >= 3 ? bump(r, () => true, (p) => every(p.isForeign ? 24 : 1)) : r) },
@@ -691,8 +691,8 @@ const PASSIVE_AUGMENTS = [
     runs: (c, runs) => (myOff(c) && runs >= 2 && c.rng() < 0.45 ? { runs: runs + 1, text: '연속 안타로 한 점 더' } : runs) },
   { id: 'luckySeven', name: '럭키 세븐', tier: 'gold', type: 'build', desc: '7 · 8회 공격 +0.5',
     half: (c) => (myOff(c) && (c.inning === 7 || c.inning === 8) ? { add: 0.5 } : null) },
-  { id: 'greenLight', name: '그린 라이트', tier: 'gold', type: 'extreme', desc: '공격 +0.2 · 대신 득점 이닝의 20%는 주루사로 −1점',
-    half: (c) => (myOff(c) ? { add: 0.2 } : null),
+  { id: 'greenLight', name: '그린 라이트', tier: 'gold', type: 'extreme', desc: '공격 +0.25 · 대신 득점 이닝의 20%는 주루사로 −1점',
+    half: (c) => (myOff(c) ? { add: 0.25 } : null),
     runs: (c, runs) => (myOff(c) && runs > 0 && c.rng() < 0.2 ? { runs: runs - 1, text: '과감한 도루가 아웃, 한 점을 놓침' } : runs) },
   { id: 'doubleSwitch', name: '더블 스위치', tier: 'gold', type: 'play', desc: '선발이 내려가면 최고 불펜이 끝까지 · 불펜 모든 능력치 +8',
     roster: (r) => bump(r, isRelief, every(8)), team: (t) => { t.usage.bullpenAce = true; } },
@@ -741,8 +741,8 @@ const PASSIVE_AUGMENTS = [
   { id: 'revive', name: '부활', tier: 'prismatic', type: 'play', desc: '상대가 3점 이상 낸 이닝을 1점으로 (경기당 2번)',
     runs: (c, runs, st) => { if (!oppOff(c) || runs < 3 || (st.used || 0) >= 2) return runs;
       st.used = (st.used || 0) + 1; return { runs: 1, text: '무너질 뻔한 이닝을 1점으로 막음' }; } },
-  { id: 'walkoffInstinct', name: '끝내기 본능', tier: 'prismatic', type: 'build', desc: '8회부터 지거나 동점이면 공격 ×3',
-    half: (c) => (myOff(c) && c.inning >= 8 && c.score.opp >= c.score.my ? { mul: 3 } : null) },
+  { id: 'walkoffInstinct', name: '끝내기 본능', tier: 'prismatic', type: 'build', desc: '8회부터 지거나 동점이면 공격 ×4',
+    half: (c) => (myOff(c) && c.inning >= 8 && c.score.opp >= c.score.my ? { mul: 4 } : null) },
   { id: 'perfectPace', name: '퍼펙트 페이스', tier: 'prismatic', type: 'build', desc: '1~7회 선발 투구 +12',
     half: (c) => (oppOff(c) && c.inning <= 7 && c.myPitcher.slot === 'SP' ? { pitch: 12 } : null) },
   { id: 'dramaComeback', name: '대역전 드라마', tier: 'prismatic', type: 'play', desc: '6회부터 지고 있으면 공격 +0.5 · 3점 이상 뒤지면 +1.2',
@@ -775,8 +775,8 @@ const PASSIVE_AUGMENTS = [
 /* ── 발동형 증강 9: 조건이 맞으면 그 이닝 점수를 아예 확정한다. 조건은 한 줄로 읽히게 */
 export const AUGMENTS = [
   {
-    id: 'hell', name: '지옥에 가더라도 데려온다', tier: 'prismatic', side: 'offense', chance: 1, max: 2,
-    cond: '6회 이후 · 동점이거나 1~3점 차 열세', desc: '조건이 맞으면 바로 역전 — 1점 차로 앞섭니다. (경기당 2회)',
+    id: 'hell', name: '지옥에 가더라도 데려온다', tier: 'prismatic', side: 'offense', chance: 1, max: 3,
+    cond: '6회 이후 · 동점이거나 1~3점 차 열세', desc: '즉시 역전 · 1점 차로 앞섬 (경기당 3회)',
     when: (c) => c.inning >= 6 && c.score.opp - c.score.my >= 0 && c.score.opp - c.score.my <= 3,
     apply: (c) => {
       const d = c.score.opp - c.score.my;
@@ -786,16 +786,16 @@ export const AUGMENTS = [
   },
   {
     id: 'cleanupBomb', name: '클린업 폭격', tier: 'prismatic', side: 'offense', chance: 0.75, max: 1,
-    cond: '4회 이후 공격 · 파워 90+ 타자 보유', desc: '75% 확률로 이닝 3점을 확정합니다.',
+    cond: '4회 이후 공격 · 파워 90+ 타자 보유', desc: '75% 확률로 이닝 4점 확정',
     when: (c) => c.inning >= 4 && c.my.topBatter('power').stats.power >= 90,
     apply: (c) => {
       const hero = c.my.topBatter('power');
-      return { runs: 3, hero, text: `클린업 연속 장타! ${hero.name}의 쐐기포로 이닝 3점 확정` };
+      return { runs: 4, hero, text: `클린업 연속 장타! ${hero.name}의 쐐기포로 이닝 4점 확정` };
     },
   },
   {
     id: 'daesseuyo', name: '대쓰요!', tier: 'gold', side: 'offense', chance: 0.35, max: 2,
-    cond: '파워 90+ 타자 보유', desc: '35% 확률로 투런 홈런, 이닝 2점을 확정합니다. (경기당 2회)',
+    cond: '파워 90+ 타자 보유', desc: '35% 확률로 투런 홈런 · 이닝 2점 확정 (경기당 2회)',
     when: (c) => c.my.topBatter('power').stats.power >= 90,
     apply: (c) => {
       const hero = c.my.topBatter('power');
@@ -804,19 +804,19 @@ export const AUGMENTS = [
   },
   {
     id: 'closer', name: '철벽 마무리', tier: 'gold', side: 'defense', chance: 1, max: 2,
-    cond: '8 · 9회 수비 · 등판 투수 안정 80+', desc: '수비 이닝을 무실점으로 확정합니다. (경기당 2회)',
+    cond: '8 · 9회 수비 · 등판 투수 안정 80+', desc: '수비 이닝 무실점 확정 (경기당 2회)',
     when: (c) => c.inning >= 8 && c.myPitcher.position === 'RP' && c.myPitcher.stats.stability >= 80,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}, 세 타자를 돌려세우며 문을 걸어 잠급니다` }),
   },
   {
-    id: 'ace', name: '에이스의 품격', tier: 'gold', side: 'defense', chance: 0.6, max: 3,
-    cond: '1~4회 수비 · 선발 종합 82+', desc: '60% 확률로 수비 이닝 무실점을 확정합니다. (경기당 3회)',
-    when: (c) => c.inning <= 4 && c.myPitcher.overall >= 82,
+    id: 'ace', name: '에이스의 품격', tier: 'gold', side: 'defense', chance: 0.7, max: 3,
+    cond: '1~4회 수비 · 선발 종합 80+', desc: '70% 확률로 수비 이닝 무실점 확정 (경기당 3회)',
+    when: (c) => c.inning <= 4 && c.myPitcher.overall >= 80,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}의 삼진 쇼, 이닝 무실점 확정` }),
   },
   {
     id: 'bigGame', name: '빅게임 헌터', tier: 'gold', side: 'offense', chance: 0.5, max: 3,
-    cond: '동점 상황 공격', desc: '동점일 때 50% 확률로 이닝 점수에 1점을 더합니다. (경기당 3회)',
+    cond: '동점 상황 공격', desc: '50% 확률로 이닝 점수 +1점 (경기당 3회)',
     when: (c) => c.score.my === c.score.opp,
     apply: (c) => {
       const natBatters = c.my.batters.filter((p) => p.isNational);
@@ -826,7 +826,7 @@ export const AUGMENTS = [
   },
   {
     id: 'lefty', name: '좌완 킬러', tier: 'silver', side: 'offense', chance: 0.35, max: 2,
-    cond: '상대 투수 좌완', desc: '35% 확률로 이닝 점수에 1점을 더합니다. (경기당 2회)',
+    cond: '상대 투수 좌완', desc: '35% 확률로 이닝 점수 +1점 (경기당 2회)',
     when: (c) => c.oppPitcher.hand === 'L',
     apply: (c) => {
       const hero = c.my.topBatter('contact');
@@ -835,13 +835,13 @@ export const AUGMENTS = [
   },
   {
     id: 'rightLock', name: '우타 봉쇄', tier: 'silver', side: 'defense', chance: 0.3, max: 3,
-    cond: '아군 투수 제구 85+', desc: '30% 확률로 수비 이닝 무실점을 확정합니다. (경기당 3회)',
+    cond: '아군 투수 제구 85+', desc: '30% 확률로 수비 이닝 무실점 확정 (경기당 3회)',
     when: (c) => c.myPitcher.stats.control >= 85,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}의 바깥쪽 제구, 세 타자를 연속 범타 처리` }),
   },
   {
     id: 'speedBall', name: '발야구', tier: 'silver', side: 'offense', chance: 0.35, max: 2,
-    cond: '주루 85+ 타자 2명 이상', desc: '35% 확률로 이닝 점수에 1점을 더합니다. (경기당 2회)',
+    cond: '주루 85+ 타자 2명 이상', desc: '35% 확률로 이닝 점수 +1점 (경기당 2회)',
     when: (c) => c.my.batters.filter((p) => p.stats.speed >= 85).length >= 2,
     apply: (c) => {
       const hero = c.my.topBatter('speed');
@@ -3309,7 +3309,8 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
           {augments.map((a) => (
             <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
               <span className="text-sm font-bold">{a.name}</span>
-              <p className="mt-0.5 text-xs text-gray-400">{a.cond ? `[${a.cond}]` : a.desc}</p>
+              <p className="mt-0.5 text-xs text-gray-400">{a.desc}</p>
+              {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
             </li>
           ))}
         </ul>
@@ -5874,7 +5875,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                               <span className="text-sm font-bold">{a.name}</span>
                               {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{a.max}</span>}
                             </div>
-                            <p className="mt-0.5 text-[11px] text-gray-400">{a.cond ? `[${a.cond}]` : a.desc}</p>
+                            <p className="mt-0.5 text-[11px] text-gray-400">{a.desc}</p>
+                            {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
                           </li>
                         );
                       })}
