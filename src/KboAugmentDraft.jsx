@@ -5300,10 +5300,14 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
   // 개발 전용 바로가기: ?demo=draft | ready | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  // 페이지를 연 뒤 한 번만: 메인으로 나갔다가 플레이를 다시 눌러도 또 열리지 않게 주소에서 demo 를 지운다
   useEffect(() => {
     if (!import.meta.env.DEV) return;
-    const demo = new URLSearchParams(window.location.search).get('demo');
+    const url = new URL(window.location.href);
+    const demo = url.searchParams.get('demo');
     if (!demo) return;
+    url.searchParams.delete('demo');
+    window.history.replaceState(null, '', url);
     if (demo === 'draft') { // 늘 같은 8명(2루수 · 외야 둘 · 마무리는 빈 자리)으로 9라운드 드래프트 화면 — 디자인 비교용
       const r = [['송승준', 2010], ['심창민', 2014], ['강민호', 2008], ['강진성', 2020], ['김동주', 2008], ['이종범', 1993], ['이용규', 2008], ['에반스', 2016]]
         .map(([n, y]) => ALL_PLAYERS.find((p) => p.name === n && p.year === y)).filter(Boolean);
