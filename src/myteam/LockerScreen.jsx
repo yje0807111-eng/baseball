@@ -61,8 +61,8 @@ function Select({ value, onChange, options, all }) {
         <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
       </button>
       {open && (
-        <div role="listbox" className="mt-cut mt-frame absolute left-0 right-0 top-[calc(100%+4px)] z-30 animate-[fade_.15s_ease-out_both] p-1"
-          style={{ ...cut(12), position: 'absolute', background: 'rgba(6,10,19,.96)', backdropFilter: 'blur(10px)', boxShadow: '0 24px 50px -16px rgba(0,0,0,.95)' }}>
+        <div role="listbox" className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 animate-[fade_.15s_ease-out_both] p-1"
+          style={{ background: 'rgba(8,12,22,.97)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,.12)', boxShadow: '0 18px 40px -12px rgba(0,0,0,.9)' }}>
           <div className="mt-scroll slim flex max-h-[300px] flex-col overflow-y-auto pr-1">
             {item('', all)}
             {options.map((o) => item(o, o))}
