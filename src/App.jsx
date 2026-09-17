@@ -13,6 +13,9 @@ import { addHistory, addGold, saveTeam, saveTournament, claimTournament, loadAcc
 import { loadAccount, signOut } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { tournamentPanels } from './myteam/TournamentPlay.jsx';
+import TournamentBracket from './myteam/TournamentBracket.jsx';
+import PrepScreen from './myteam/PrepScreen.jsx';
+import { prepOf, matchTeamOf } from './myteam/prep.js';
 import { todayKey, makeTournament, myOpponent, teamOf, advance, ROUNDS, FINISH } from './myteam/tournament.js';
 
 /** 오늘 날짜의 토너먼트: 저장된 게 오늘 것이면 그대로, 아니면 새 대진 */
@@ -45,13 +48,21 @@ export default function App() {
     setView('play');
   };
 
-  /* 토너먼트: 이번 라운드 내 상대와 경기. 오늘 대진이 저장돼 있지 않으면 먼저 저장해 둔다 */
-  const startTourney = () => {
+  /* 토너먼트 입장: 오늘 대진을 이때 확정해 저장하고 대진표로 */
+  const enterTourney = () => {
+    if (account.tournament?.date !== tournament.date) saveTournament(tournament);
+    setAccount(reload());
+    setView('bracket');
+  };
+  /* 정비 화면에서 시작: 바꾼 자리·타순을 저장하고, 정비 결과 그대로 이번 라운드 상대와 경기 */
+  const startTourney = (ready, rest) => {
     const t = tournament;
-    if (account.tournament !== t) saveTournament(t);
     const entry = myOpponent(t);
     if (!entry) return;
-    setMatch({ my: buildMyTeam(account.team), opp: teamOf(entry, account.team), kind: 'tourney', round: t.round });
+    const team = { ...account.team, prep: prepOf(ready) };
+    saveTeam(team);
+    setAccount(reload());
+    setMatch({ my: matchTeamOf(team, ready, rest), opp: teamOf(entry, team), kind: 'tourney', round: t.round });
     setView('play');
   };
   const claimTourney = () => {
@@ -72,8 +83,7 @@ export default function App() {
       addHistory({ my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp, mode: 'tournament', round: ROUNDS[match.round]?.ko });
       setAccount(reload());
       setMatch(null);
-      setPlayTab('tourney');
-      setView('modes');
+      setView('bracket');
       return;
     }
     const reward = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
@@ -90,14 +100,24 @@ export default function App() {
       <KboAugmentDraft onExit={() => { setPlayTab(null); setView('lobby'); }} normalView={playTab}
         normal={[
           normalPanels({ account, onPlay: startMatch, onLocker: () => setView('locker') }),
-          tournamentPanels({ account, tournament, onPlay: startTourney, onLocker: () => setView('locker'), onClaim: claimTourney }),
+          tournamentPanels({ account, tournament, onEnter: enterTourney, onLocker: () => setView('locker') }),
         ]} />
     );
   }
   if (view === 'augments') return <AugmentScreen account={account} onBack={() => { setAccount(reload()); setView('lobby'); }} />;
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
   if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
-  if (view === 'play' && match) return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch} onExit={() => { setMatch(null); setView('lobby'); }} />;
+  if (view === 'bracket' && tournament) {
+    return <TournamentBracket t={tournament} myTeam={account.team} onBack={() => { setPlayTab('tourney'); setView('modes'); }} onPlay={() => setView('prep')} onClaim={claimTourney} />;
+  }
+  if (view === 'prep' && tournament && !tournament.done) {
+    return <PrepScreen team={account.team} sub={`TOURNAMENT · ${ROUNDS[tournament.round].en}`} title={`${ROUNDS[tournament.round].ko} 경기 전 정비`}
+      startLabel={`${ROUNDS[tournament.round].ko} 경기 시작 ▶`} onStart={startTourney} onBack={() => setView('bracket')} />;
+  }
+  if (view === 'play' && match) {
+    return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch}
+      onExit={() => { const back = match.kind === 'tourney' ? 'bracket' : 'lobby'; setMatch(null); setView(back); }} />;
+  }
 
   return (
     <LobbyScreen account={account}

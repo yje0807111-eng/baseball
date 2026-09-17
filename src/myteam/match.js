@@ -25,7 +25,7 @@ export function lineupOf(roster, bench = []) {
 }
 
 /** 코치진 효과를 선수 능력치에 얹는다 */
-function applyStaff(roster, staff) {
+export function applyStaff(roster, staff) {
   const e = staffEffect(staff);
   if (!e.bat && !e.field && !e.pitch && !e.stamina) return roster;
   return roster.map((p) => {

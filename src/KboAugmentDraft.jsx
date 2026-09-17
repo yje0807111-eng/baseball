@@ -1205,7 +1205,7 @@ export async function runSimulation({
    UI — 다크 스포츠 대시보드 (Tailwind)
    ════════════════════════════════════════════════════════════════════ */
 
-const KEYFRAMES = `
+export const KEYFRAMES = `
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes toast { 0% { opacity: 0; transform: scale(1.25); } 12% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.97) translateY(-12px); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -4918,7 +4918,7 @@ function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
  * 정비 화면: 왼쪽 타순 라인업 · 가운데 구장 위 수비 포지션 카드 · 오른쪽 투수 로테이션과 시너지.
  * 줄 · 카드를 차례로 누르거나 끌어다 놓으면 자리가 맞바뀐다.
  */
-function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart }) {
+export function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
   const init = useRef(roster);
   const [pick, setPick] = useState(null); // { k, v }
   const dragRef = useRef(null);
@@ -5025,8 +5025,8 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
           <div className="mt-auto flex flex-col gap-2">
             <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
             <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
-            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
-            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>시즌 시작 ▶</button>
+            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>{restartLabel}</button>
+            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>{startLabel}</button>
           </div>
         </nav>
         {/* 왼쪽: 타순 라인업 */}
