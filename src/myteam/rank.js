@@ -1,6 +1,6 @@
 /*
- * 랭크 — 일반 모드 경기 결과로 승점(RP)을 쌓아 등급을 올린다.
- *  등급 6개 × 단계 III·II·I (단계마다 100 RP). 승 +20 · 무 +5 · 패 −12, 0 아래로는 내려가지 않는다.
+ * 랭크 — 랭크전 시즌 최종 순위로 승점(RP)을 쌓아 등급을 올린다 (ranked.js PLACE_REWARD).
+ *  등급 6개 × 단계 III·II·I (단계마다 100 RP). 0 아래로는 내려가지 않는다.
  */
 export const TIERS = [
   { key: 'rookie', ko: '루키', en: 'ROOKIE', c: '#94a3b8', min: 0 },
@@ -11,7 +11,6 @@ export const TIERS = [
   { key: 'hof', ko: '명예의 전당', en: 'HALL OF FAME', c: '#e879f9', min: 1500 },
 ];
 const DIV = ['III', 'II', 'I'];
-export const RP_DELTA = { my: 20, draw: 5, opp: -12 };
 
 export function rankOf(rp = 0) {
   const i = TIERS.reduce((k, t, n) => (rp >= t.min ? n : k), 0);
@@ -43,6 +42,5 @@ export function rankSummary(history = []) {
     form, winRate, streak: form[0] === 'W' ? streak : 0,
     mvp: count(history.map((h) => h.mvp))[0] || null,
     augs: count(history.flatMap((h) => h.augs || [])).slice(0, 3),
-    lastDelta: history[0]?.rp ?? null,
   };
 }

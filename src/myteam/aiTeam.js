@@ -14,7 +14,7 @@ export const AI_SERIES = SERIES.filter((s) => {
   return pit.length >= 3 && s.players.length - pit.length >= 9;
 });
 
-export const seriesName = (s) => (s.kind === 'team' ? `${s.year} ${s.title}` : s.title);
+export const seriesName = (s) => (s.year && !String(s.title).includes(String(s.year)) ? `${s.year} ${s.title}` : s.title);
 
 /** 시리즈 한 팀을 경기용으로: 선발은 로테이션 상위 셋 중 하나, 불펜은 약한 투수부터 · 남은 선발은 롱릴리프로 · 마무리는 마지막 */
 export function seriesTeam(series, rng = Math.random) {

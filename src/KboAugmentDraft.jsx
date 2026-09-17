@@ -4492,8 +4492,8 @@ function SettingRow({ label, options, labels, value, onChange }) {
   );
 }
 
-function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null }) {
-  // 사이드 네비: normal(일반 모드: 일반 대결 · 토너먼트) · mix · recent · year(연도별) · special(특별 모드)
+function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null, onNormalView }) {
+  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · special(특별 모드)
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
   const [view, setView] = useState(plays.length ? (normalView && plays.some((x) => x.key === normalView) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
@@ -4543,7 +4543,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               {g.items.map((it) => {
                 const on = view === it.key;
                 return (
-                  <button key={it.key} type="button" onClick={() => setView(it.key)} aria-pressed={on}
+                  <button key={it.key} type="button" onClick={() => { setView(it.key); onNormalView?.(it.key); }} aria-pressed={on}
                     className={`ui-cut relative flex h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5 text-left transition ${on ? '' : 'bg-white/[0.03] hover:brightness-125'}`}
                     style={{ '--c': '10px', background: on ? `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))` : undefined }}>
                     <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
@@ -5165,7 +5165,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder,
   );
 }
 
-export default function KboAugmentDraft({ onExit, normal, normalView = null } = {}) {
+export default function KboAugmentDraft({ onExit, normal, normalView = null, onNormalView } = {}) {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
@@ -5584,7 +5584,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
-        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView}
+        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView} onNormalView={onNormalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (
