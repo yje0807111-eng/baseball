@@ -64,37 +64,65 @@ const Grp = ({ en, ko, color, right }) => (
 );
 const Handle = () => <span className="cursor-grab select-none text-[14px] tracking-[-2px] text-slate-600" aria-hidden="true">⋮⋮</span>;
 
+/**
+ * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
+ * 칸 높이는 판 높이를 줄 수로 나눈 값(최대 maxH). 순서가 바뀌면 목표 위치만 바뀌어 CSS 가 부드럽게 옮긴다.
+ */
+function Slots({ count, maxH, gap = 4, style, children }) {
+  const ref = useRef(null);
+  const [h, setH] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const measure = () => setH(el.clientHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const rowH = count ? Math.max(24, Math.min(maxH, (h - gap * (count - 1)) / count)) : 0;
+  return (
+    <div ref={ref} className="relative min-h-0" style={style} data-pitch={rowH + gap} data-count={count}>
+      {h > 0 && children(rowH, rowH + gap)}
+    </div>
+  );
+}
+
 export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, onSelect, onCommit, onToggleBench, onAutoFill, autoDisabled }) {
   const order = squadOrder(squad, bench, team.order);
   const byId = new Map(squad.map((p) => [p.id, p]));
   const fatigue = team.pitchFatigue || {};
   const restOf = (p) => fatigue[p.id]?.rest || 0;
-  /* ── 끌어서 바꾸기: 카드는 마우스를 따라가지 않고, 가리킨 칸으로 바로 옮겨진 모습을 보여 준다. 놓으면 저장 ── */
+  const play = playingIds(squad, bench);
+  const benchList = squad.filter((p) => !play.has(p.id)).sort(byOvr);
+
+  /* ── 끌어서 바꾸기: 카드는 마우스를 따라가지 않고 가리킨 칸으로 옮겨진 모습만 보여 준다. 놓으면 저장 ── */
   const [drag, setDrag] = useState(null); // 줄: { list, id, from, to } · 구장: { list: 'field', id, target }
   const dragRef = useRef(null);
   const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
-  const live = (list, arr) => (drag?.list === list && drag.to !== drag.from ? move(arr, drag.from, drag.to) : arr);
   const swapSlots = (rows, a, b) => {
     const sa = rows.find((x) => x.id === a)?.slot;
     const sb = rows.find((x) => x.id === b)?.slot;
     return sa && sb ? rows.map((x) => (x.id === a ? { ...x, slot: sb } : x.id === b ? { ...x, slot: sa } : x)) : rows;
   };
-  const shownLineup = drag?.list === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : live('lineup', order.lineup);
-
-  const lineup = shownLineup.map((x, i) => ({ ...x, p: byId.get(x.id), n: i + 1 })).filter((x) => x.p);
-  const rotation = live('rotation', order.rotation).map((id) => byId.get(id)).filter(Boolean);
-  const bullpen = live('bullpen', order.bullpen).map((id) => byId.get(id)).filter(Boolean);
-  const committedRotation = order.rotation.map((id) => byId.get(id)).filter(Boolean);
-  const nextStarter = committedRotation.find((p) => restOf(p) <= 0) || [...committedRotation].sort((a, b) => restOf(a) - restOf(b))[0];
-  const play = playingIds(squad, bench);
-  const benchList = squad.filter((p) => !play.has(p.id)).sort(byOvr);
+  const idsOf = (list) => (list === 'lineup' ? order.lineup.map((x) => x.id) : order[list]);
+  /** 보여 줄 칸 번호: 끌고 있는 목록만 미리보기 순서로 */
+  const posMap = (list) => {
+    const ids = idsOf(list);
+    const shown = drag?.list === list && drag.to !== drag.from ? move(ids, drag.from, drag.to) : ids;
+    return new Map(shown.map((id, i) => [id, i]));
+  };
+  const fieldLineup = drag?.list === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : order.lineup;
+  const nextStarter = (() => {
+    const rot = order.rotation.map((id) => byId.get(id)).filter(Boolean);
+    return rot.find((p) => restOf(p) <= 0) || [...rot].sort((a, b) => restOf(a) - restOf(b))[0];
+  })();
 
   const save = (next) => onCommit({ ...team, order: { ...order, ...next } });
-  const idsOf = (list) => (list === 'lineup' ? order.lineup.map((x) => x.id) : order[list]);
-  // 창 전체에서 움직임 · 놓기를 받는다 (줄이 재배치되며 DOM 이 옮겨져도 끊기지 않게). 최신 값은 ref 로
   const latest = useRef({});
   latest.current = { order, save, onSelect };
   const cancel = () => { dragRef.current = null; setDrag(null); };
+  // 움직임 · 놓기는 창 전체에서 받는다. 최신 값은 ref 로
   useEffect(() => {
     const onMove = (e) => {
       const d = dragRef.current;
@@ -112,7 +140,8 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
         if (first || target !== d.target) { d.target = target; setDrag({ list: 'field', id: d.id, target }); }
         return;
       }
-      const to = d.centers.reduce((best, c, i) => (Math.abs(c - e.clientY) < Math.abs(d.centers[best] - e.clientY) ? i : best), 0);
+      // 칸 번호 = 판 위쪽에서 포인터까지 거리 ÷ 칸 간격 (판 밖으로 나가도 첫 칸 · 마지막 칸에서 멈춤)
+      const to = Math.max(0, Math.min(d.count - 1, Math.floor((e.clientY - d.top) / d.pitch)));
       if (first || to !== d.to) { d.to = to; setDrag({ list: d.list, id: d.id, from: d.from, to }); }
     };
     const onUp = () => {
@@ -137,64 +166,51 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
       window.removeEventListener('keydown', esc);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  /** 목록 줄: 누른 순간 칸 가운데 높이를 적어 두고, 포인터가 가장 가까운 칸으로 바로 옮긴다 */
+
   const rowDrag = (list, id, p) => ({
-    'data-flip': `${list}:${id}`,
+    'data-row': `${list}:${id}`,
     onPointerDown: (e) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || dragRef.current) return;
       e.preventDefault();
-      const centers = [...e.currentTarget.parentElement.children].map((r) => { const box = r.getBoundingClientRect(); return box.top + box.height / 2; });
+      const box = e.currentTarget.parentElement;
       const from = idsOf(list).indexOf(id);
-      dragRef.current = { list, id, p, from, to: from, centers, x0: e.clientX, y0: e.clientY, moved: false };
+      dragRef.current = { list, id, p, from, to: from, top: box.getBoundingClientRect().top, pitch: Number(box.dataset.pitch), count: Number(box.dataset.count), x0: e.clientX, y0: e.clientY, moved: false };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
   });
-  /** 구장 토큰: 포인터에서 가장 가까운 수비 자리 선수와 자리를 바꾼 모습을 보여 준다 */
   const fieldRef = useRef(null);
   const tokenDrag = (id, p) => ({
     onPointerDown: (e) => {
-      if (e.button !== 0) return;
+      if (e.button !== 0 || dragRef.current) return;
       e.preventDefault();
       dragRef.current = { list: 'field', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, box: fieldRef.current.getBoundingClientRect() };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
   });
 
-  /* 순서가 바뀐 줄은 옛 자리에서 새 자리로 미끄러지게 (FLIP) */
-  const rootRef = useRef(null);
-  const flipRef = useRef(new Map());
-  useLayoutEffect(() => {
-    const next = new Map();
-    rootRef.current?.querySelectorAll('[data-flip]').forEach((el) => {
-      const key = el.getAttribute('data-flip');
-      const top = el.getBoundingClientRect().top;
-      const prev = flipRef.current.get(key);
-      next.set(key, top);
-      if (prev == null || Math.abs(prev - top) < 1) return;
-      el.style.transition = 'none';
-      el.style.transform = `translateY(${prev - top}px)`;
-      el.getBoundingClientRect();
-      el.style.transition = 'transform .18s cubic-bezier(.2,.8,.2,1)';
-      el.style.transform = '';
-    });
-    flipRef.current = next;
+  const lifted = { boxShadow: 'inset 0 0 0 2px #e5e7eb, 0 10px 24px -8px rgba(0,0,0,.9)', background: 'linear-gradient(90deg,#26303f,#161d2a)', zIndex: 5 };
+  const rowBg = (hot) => (hot
+    ? { background: `linear-gradient(90deg,color-mix(in srgb,${hot} 20%,#0b111c),#0b111c)`, boxShadow: `inset 3px 0 0 ${hot}` }
+    : { background: '#0e141f' });
+  /** 칸 위치: 판 안 절대 위치 + 칸 번호만큼 아래로. 끌리는 줄은 바로 붙고, 나머지는 미끄러진다 */
+  const place = (pos, h, pitch, dragging) => ({
+    position: 'absolute', left: 0, right: 0, top: 0, height: h,
+    transform: `translateY(${pos * pitch}px)`,
+    transition: dragging ? 'transform .08s ease-out' : 'transform .2s cubic-bezier(.2,.8,.2,1)',
   });
-  const lifted = { boxShadow: 'inset 0 0 0 2px #e5e7eb, 0 10px 24px -8px rgba(0,0,0,.9)', background: 'linear-gradient(90deg,rgba(255,255,255,.14),rgba(255,255,255,.05))', zIndex: 5 };
-  const rowBg = (p, hot) => (hot
-    ? { background: `linear-gradient(90deg,color-mix(in srgb,${hot} 20%,transparent),rgba(6,10,19,.5))`, boxShadow: `inset 3px 0 0 ${hot}` }
-    : { background: 'rgba(255,255,255,.035)' });
 
-  const batRow = (x) => {
+  const batRow = (x, pos, h, pitch) => {
     const on = sel?.id === x.p.id;
+    const dragging = drag?.list === 'lineup' && drag.id === x.id;
     const v = x.p.stats?.power ?? 0;
     return (
       <div key={x.id} role="button" tabIndex={0} {...rowDrag('lineup', x.id, x.p)}
-        className={`mt-cut relative grid min-h-0 flex-[1_1_0] touch-none select-none items-center gap-[7px] px-[9px] ${drag?.id === x.id ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', maxHeight: 64, gridTemplateColumns: '12px 20px 34px 28px 24px minmax(0,1fr) 46px', ...rowBg(x.p, on && tone(x.p.overall)), ...(drag?.id === x.id && drag.list === 'lineup' ? lifted : null) }}>
+        className={`mt-cut grid touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '7px', gridTemplateColumns: '12px 20px 34px 28px 24px minmax(0,1fr) 46px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
         <Handle />
-        <b className="text-center font-display text-[17px] text-gray-500">{x.n}</b>
+        <b className="text-center font-display text-[17px] text-gray-500">{pos + 1}</b>
         <Chip c={posColor(x.p)}>{x.slot}</Chip>
-        {face(x.p, 28, 'calc(100% - 8px)')}
+        {face(x.p, 28, Math.min(46, h - 8))}
         <Ovr p={x.p} />
         <b className="truncate text-[14px] font-extrabold text-white">{x.p.name}</b>
         <span className="block">
@@ -204,19 +220,21 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
       </div>
     );
   };
-  const pitRow = (p, label, color, list) => {
+  const pitRow = (p, list, pos, h, pitch) => {
     const on = sel?.id === p.id;
-    const next = p.id === nextStarter?.id && list === 'rotation';
+    const dragging = drag?.list === list && drag.id === p.id;
+    const [label, color] = list === 'rotation' ? [`${pos + 1}선발`, ROLE.SP] : pos === 0 ? ['마무리', ROLE.CL] : pos <= 2 ? ['셋업', ROLE.SU] : [`중계${pos - 2}`, ROLE.MR];
+    const next = list === 'rotation' && p.id === nextStarter?.id;
     const rest = restOf(p);
     const c = conditionOf(rest);
     return (
       <div key={p.id} role="button" tabIndex={0} {...rowDrag(list, p.id, p)}
-        className={`mt-cut relative grid min-h-0 flex-[1_1_0] touch-none select-none items-center gap-[7px] px-[9px] ${drag?.id === p.id ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', maxHeight: 56, gridTemplateColumns: '12px 46px 28px 22px minmax(0,1fr) 64px',
-          ...(next ? { background: 'linear-gradient(90deg,rgba(96,165,250,.22),rgba(6,10,19,.5))', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(p, on && tone(p.overall))), ...(drag?.id === p.id && drag.list === list ? lifted : null) }}>
+        className={`mt-cut grid touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '7px', gridTemplateColumns: '12px 46px 28px 22px minmax(0,1fr) 64px', ...place(pos, h, pitch, dragging),
+          ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null) }}>
         <Handle />
         <Chip c={color}>{label}</Chip>
-        {face(p, 28, 'calc(100% - 8px)')}
+        {face(p, 28, Math.min(44, h - 8))}
         <Ovr p={p} size={16} />
         <span className="flex min-w-0 items-center gap-1.5">
           <b className="truncate text-[13.5px] font-extrabold text-white">{p.name}</b>
@@ -229,24 +247,32 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
       </div>
     );
   };
-  const token = (x) => {
+  const token = (x, n) => {
     const on = sel?.id === x.p.id;
+    const dragging = drag?.list === 'field' && drag.id === x.id;
     return (
       <div key={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
-        className={`mt-cut absolute grid w-[132px] touch-none select-none items-center gap-[7px] py-[3px] pl-[3px] pr-[7px] ${drag?.id === x.id ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', left: `${XY[x.slot][0]}%`, top: `${XY[x.slot][1]}%`, transform: `translate(-50%,-50%)${drag?.id === x.id ? ' scale(1.08)' : ''}`, transition: 'left .2s cubic-bezier(.2,.8,.2,1), top .2s cubic-bezier(.2,.8,.2,1), transform .12s', zIndex: drag?.id === x.id ? 5 : undefined, gridTemplateColumns: '38px minmax(0,1fr)', background: 'rgba(6,10,19,.84)',
-          boxShadow: drag?.id === x.id ? 'inset 0 0 0 2px #e5e7eb, 0 12px 26px -8px rgba(0,0,0,.95)' : drag?.target === x.id ? `inset 0 0 0 2px ${posColor(x.p)}` : `inset 0 -2px 0 ${posColor(x.p)},${on ? ` 0 0 0 2px ${tone(x.p.overall)},` : ''} inset 0 0 0 1px rgba(255,255,255,.12)` }}>
+        className={`mt-cut absolute grid w-[132px] touch-none select-none items-center gap-[7px] py-[3px] pl-[3px] pr-[7px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '7px', left: `${XY[x.slot][0]}%`, top: `${XY[x.slot][1]}%`, transform: `translate(-50%,-50%)${dragging ? ' scale(1.08)' : ''}`, transition: 'left .2s cubic-bezier(.2,.8,.2,1), top .2s cubic-bezier(.2,.8,.2,1), transform .12s', zIndex: dragging ? 5 : undefined, gridTemplateColumns: '38px minmax(0,1fr)', background: 'rgba(6,10,19,.9)',
+          boxShadow: dragging ? 'inset 0 0 0 2px #e5e7eb, 0 12px 26px -8px rgba(0,0,0,.95)' : drag?.target === x.id ? `inset 0 0 0 2px ${posColor(x.p)}` : `inset 0 -2px 0 ${posColor(x.p)},${on ? ` 0 0 0 2px ${tone(x.p.overall)},` : ''} inset 0 0 0 1px rgba(255,255,255,.12)` }}>
         {face(x.p, 38, 44)}
         <span className="min-w-0">
-          <span className="flex items-center gap-1"><Chip c={posColor(x.p)}>{x.slot}</Chip><b className="font-display text-[11px] text-gray-400">{x.n}</b><span className="ml-auto"><Ovr p={x.p} /></span></span>
+          <span className="flex items-center gap-1"><Chip c={posColor(x.p)}>{x.slot}</Chip><b className="font-display text-[11px] text-gray-400">{n}</b><span className="ml-auto"><Ovr p={x.p} /></span></span>
           <b className="block truncate text-[13px] font-extrabold text-white">{x.p.name}</b>
         </span>
       </div>
     );
   };
 
+  const lineupRows = order.lineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
+  const rotation = order.rotation.map((id) => byId.get(id)).filter(Boolean);
+  const bullpen = order.bullpen.map((id) => byId.get(id)).filter(Boolean);
+  const linePos = posMap('lineup');
+  const rotPos = posMap('rotation');
+  const penPos = posMap('bullpen');
+
   return (
-    <section ref={rootRef} className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
+    <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">My Squad</p>
         <p className="text-sm text-gray-400">{sizeLabel} · 출전 {play.size} · 벤치 {benchList.length} · {cost.toLocaleString()} CP</p>
@@ -257,12 +283,12 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
         <>
           <div className="mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '480px minmax(0,1fr)' }}>
             {/* 한눈에: 구장 위 수비 9명 + 마운드의 다음 선발 */}
-            <div ref={fieldRef} className="mt-cut relative min-h-0 bg-[#07130c] bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 60%' }}>
+            <div ref={fieldRef} className="mt-cut relative min-h-0 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 60%' }}>
               <span className="absolute inset-0" style={{ background: 'radial-gradient(70% 70% at 50% 60%,rgba(5,8,15,.05),rgba(5,8,15,.62))' }} />
-              {lineup.map(token)}
+              {fieldLineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p).map((x) => token(x, order.lineup.findIndex((r) => r.id === x.id) + 1))}
               {nextStarter && (
                 <div role="button" tabIndex={0} onClick={() => onSelect(nextStarter)} className="mt-cut absolute flex cursor-pointer items-center gap-1.5 py-[3px] pl-[3px] pr-2"
-                  style={{ '--c': '7px', left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)', background: 'rgba(6,10,19,.88)', boxShadow: `inset 0 -2px 0 ${ROLE.SP}` }}>
+                  style={{ '--c': '7px', left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)', background: 'rgba(6,10,19,.9)', boxShadow: `inset 0 -2px 0 ${ROLE.SP}` }}>
                   {face(nextStarter, 34, 40)}
                   <span className="flex flex-col gap-px"><b className="font-display text-[10px] tracking-[0.2em] text-[#60a5fa]">NEXT</b><b className="whitespace-nowrap text-[13px] font-extrabold text-white">{nextStarter.name}</b></span>
                   <Ovr p={nextStarter} />
@@ -270,20 +296,24 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
               )}
             </div>
 
-            {/* 정하기: 타순 | 로테이션 · 불펜 */}
+            {/* 정하기: 타순 | 로테이션 · 불펜 — 목록마다 자기 판 안에서만 움직인다 */}
             <div className="grid min-h-0 grid-cols-2 gap-3">
               <div className="flex min-h-0 flex-col">
-                <Grp en="LINEUP" ko={`타순 ${lineup.length}`} color="#34d399" right="파워" />
-                <div className="flex min-h-0 flex-1 flex-col gap-1">{lineup.map(batRow)}</div>
+                <Grp en="LINEUP" ko={`타순 ${lineupRows.length}`} color="#34d399" right="파워" />
+                <Slots count={lineupRows.length} maxH={64} style={{ flex: 1 }}>
+                  {(h, pitch) => lineupRows.map((x) => batRow(x, linePos.get(x.id), h, pitch))}
+                </Slots>
               </div>
               <div className="flex min-h-0 flex-col">
                 <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} right="컨디션" />
-                <div className="flex min-h-0 flex-col gap-1" style={{ flex: Math.max(1, rotation.length) }}>{rotation.map((p, i) => pitRow(p, `${i + 1}선발`, ROLE.SP, 'rotation'))}</div>
+                <Slots count={rotation.length} maxH={56} style={{ flex: Math.max(1, rotation.length) }}>
+                  {(h, pitch) => rotation.map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
+                </Slots>
                 <div className="h-2 shrink-0" />
                 <Grp en="BULLPEN" ko={`불펜 ${bullpen.length}`} color={ROLE.MR} />
-                <div className="flex min-h-0 flex-col gap-1" style={{ flex: Math.max(1, bullpen.length) }}>
-                  {bullpen.map((p, i) => (i === 0 ? pitRow(p, '마무리', ROLE.CL, 'bullpen') : i <= 2 ? pitRow(p, '셋업', ROLE.SU, 'bullpen') : pitRow(p, `중계${i - 2}`, ROLE.MR, 'bullpen')))}
-                </div>
+                <Slots count={bullpen.length} maxH={56} style={{ flex: Math.max(1, bullpen.length) }}>
+                  {(h, pitch) => bullpen.map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
+                </Slots>
               </div>
             </div>
           </div>
