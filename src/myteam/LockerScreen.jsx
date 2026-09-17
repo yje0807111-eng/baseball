@@ -46,9 +46,9 @@ function Select({ value, onChange, options, all }) {
     const on = String(value) === String(v);
     return (
       <button key={v || 'all'} type="button" role="option" aria-selected={on} onClick={() => pick(v)}
-        className={`mt-cut flex w-full items-center justify-between px-3 py-2 text-left text-[13px] ${on ? 'text-[#05080f]' : 'text-gray-300 hover:bg-white/[0.07] hover:text-white'}`}
-        style={{ ...cut(5), background: on ? '#10b981' : undefined, fontWeight: on ? 800 : 500 }}>
-        {label}{on && <span aria-hidden="true">✓</span>}
+        className={`relative flex h-7 w-full shrink-0 items-center justify-between pl-3 pr-2 text-left text-[13px] leading-none ${on ? 'text-emerald-300' : 'text-gray-300 hover:bg-white/[0.06] hover:text-white'}`}
+        style={{ background: on ? 'rgba(16,185,129,.12)' : undefined, boxShadow: on ? 'inset 2px 0 0 #10b981' : undefined, fontWeight: on ? 700 : 500 }}>
+        {label}{on && <span aria-hidden="true" className="text-[11px]">✓</span>}
       </button>
     );
   };
@@ -61,9 +61,9 @@ function Select({ value, onChange, options, all }) {
         <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
       </button>
       {open && (
-        <div role="listbox" className="mt-cut mt-frame absolute left-0 right-0 top-[calc(100%+6px)] z-30 animate-[fade_.15s_ease-out_both] p-1.5"
+        <div role="listbox" className="mt-cut mt-frame absolute left-0 right-0 top-[calc(100%+4px)] z-30 animate-[fade_.15s_ease-out_both] p-1"
           style={{ ...cut(12), position: 'absolute', background: 'rgba(6,10,19,.96)', backdropFilter: 'blur(10px)', boxShadow: '0 24px 50px -16px rgba(0,0,0,.95)' }}>
-          <div className="mt-scroll flex max-h-[320px] flex-col gap-0.5 overflow-y-auto pr-1">
+          <div className="mt-scroll slim flex max-h-[300px] flex-col overflow-y-auto pr-1">
             {item('', all)}
             {options.map((o) => item(o, o))}
           </div>

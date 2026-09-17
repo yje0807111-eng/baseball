@@ -31,6 +31,11 @@ export const UiStyle = () => (
     .mt-scroll::-webkit-scrollbar-thumb:active { background: linear-gradient(180deg, #6ee7b7, #10b981); background-clip: padding-box; }
     .mt-scroll::-webkit-scrollbar-corner { background: transparent; }
     /* 노란 계열 패널 안에서는 스크롤바도 노랗게 */
+    /* 드롭다운 목록처럼 좁은 곳: 가는 스크롤바 */
+    .mt-scroll.slim { scrollbar-width: thin; }
+    .mt-scroll.slim::-webkit-scrollbar { width: 4px; }
+    .mt-scroll.slim::-webkit-scrollbar-track { background: transparent; box-shadow: none; }
+    .mt-scroll.slim::-webkit-scrollbar-thumb { border: 0; border-radius: 2px; background: rgba(52,211,153,.5); box-shadow: none; }
     .mt-scroll.gold { scrollbar-color: rgba(253,224,71,.55) rgba(255,255,255,.04); }
     .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.8), rgba(202,138,4,.5)); background-clip: padding-box; box-shadow: 0 0 10px rgba(253,224,71,.3); }
     /* 드래프트 화면 카드 문법 (상점 상품·선수 공용) */
