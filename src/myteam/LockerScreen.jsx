@@ -205,42 +205,44 @@ function CardWithRecord({ p, tr }) {
   }, [p.id]); // 선수가 바뀌면 받침이 새로 그려지므로 다시 잰다
   const neon = teamNeon(p);
   const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])];
+  const inset = Math.round(w * 0.016 * 10) / 10; // 카드 속 안쪽 테두리(pk-fr)와 같은 1.6%
+  const corner = Math.round(w * 0.07); // 카드 잘린 모서리와 같은 7%
   return (
     <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
-      {/* 카드 혼자 떠오르면 받침 테두리와 어긋나 보여서, 카드 등장 · 마우스 올림 움직임은 끄고 카드+받침을 한 덩어리로 떠오르게 */}
-      <div key={p.id} className="animate-[rise_.35s_ease-out_both]" style={{ width: w, '--n': neon }}>
+      {/* 한 장짜리 긴 카드: 카드 자체 모서리 · 안쪽 테두리는 끄고(pk-long) 카드+받침 전체를 한 번에 자르고 두른다.
+          카드 혼자 떠오르면 받침과 어긋나 보여서 등장 움직임도 전체에 */}
+      <div key={p.id} className="pk-long relative animate-[rise_.35s_ease-out_both] bg-[#05080f]"
+        style={{ width: w, '--n': neon, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
         <div className="aspect-[2/3] w-full">
           <PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none', transform: 'none' }} />
         </div>
-        <div ref={baseRef} className="relative -mt-px bg-[#05080f] px-3 pb-3 pt-2.5" style={{ clipPath: 'polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)' }}>
-          {/* 카드 안쪽 테두리(pk-fr)가 받침까지 이어지는 느낌 */}
-          <span className="pointer-events-none absolute inset-x-[5px] bottom-[5px] top-0" style={{ border: '1px solid color-mix(in srgb, var(--n) 45%, transparent)', borderTop: 0 }} />
-          {/* 실적: 카드 능력치 판 문법 — 작은 영문 라벨 + 굵은 숫자, 칸 사이 네온 옅은 선 */}
-          <div className="relative grid grid-cols-6" style={{ background: 'rgba(255,255,255,.035)' }}>
+        <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px`, background: 'linear-gradient(180deg,#05080f,#070c16)' }}>
+          <span className="mb-2 block h-px" style={{ background: 'linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent))' }} />
+          {/* 실적: 작은 영문 라벨 + 굵은 숫자 */}
+          <div className="grid grid-cols-6">
             {recordCells(p).map(([k, v], i) => (
-              <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 color-mix(in srgb, var(--n) 22%, transparent)' : undefined }}>
+              <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 rgba(255,255,255,.07)' : undefined }}>
                 <span className="font-display text-[11px] font-semibold tracking-[0.08em] text-gray-400">{k}</span>
                 <b className={`font-display text-[19px] font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
               </div>
             ))}
           </div>
+          {/* 강점 · 약점: 잘린 모서리 태그 · 왼쪽 구단 네온 줄 · ▲ 강점 / ▼ 약점만 색 */}
           {chips.length > 0 && (
-            <>
-              <span className="relative my-2.5 block h-px" style={{ background: 'linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent))' }} />
-              {/* 강점 · 약점: 카드 칩(pk-chips) 모양 — 어두운 면 + 색 테두리 */}
-              <div className="relative flex flex-wrap gap-1.5">
-                {chips.map(([t, good]) => (
-                  <span key={t.id} className="flex h-6 items-center gap-1.5 px-2 text-[12px] font-bold"
-                    style={{ background: 'rgba(5,8,15,.72)', color: good ? '#a7f3d0' : '#fecaca', boxShadow: `inset 0 0 0 1px ${good ? 'rgba(52,211,153,.55)' : 'rgba(248,113,113,.55)'}` }}>
-                    <span className="h-3.5 w-3.5 shrink-0" style={traitIconStyle(t.id, good ? '#6ee7b7' : '#fca5a5')} />
-                    {t.name}
-                    <span className="font-display text-[11px] font-semibold text-gray-400">{t.why}</span>
-                  </span>
-                ))}
-              </div>
-            </>
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {chips.map(([t, good]) => (
+                <span key={t.id} className="inline-flex h-[26px] items-center gap-1.5 pl-[9px] pr-2.5"
+                  style={{ clipPath: 'polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--n) 22%, transparent), rgba(5,8,15,.7))', boxShadow: 'inset 3px 0 0 var(--n)' }}>
+                  <b className="text-[10px]" style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>
+                  <span className="text-[12.5px] font-bold text-gray-100">{t.name}</span>
+                  <span className="font-display text-xs text-gray-400">{t.why}</span>
+                </span>
+              ))}
+            </div>
           )}
         </div>
+        {/* 카드+받침 전체에 한 번만: 카드 속 테두리와 같은 간격 · 같은 색 */}
+        <span className="pointer-events-none absolute" style={{ inset, border: '1px solid color-mix(in srgb, var(--n) 45%, transparent)' }} />
       </div>
     </div>
   );
@@ -468,7 +470,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
-      <style>{KEYFRAMES}</style>
+      <style>{`${KEYFRAMES}
+        .pk-long .pk { clip-path: none !important; }
+        .pk-long .pk-fr { display: none; }`}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
 
