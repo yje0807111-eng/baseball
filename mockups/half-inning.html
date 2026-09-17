@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="ko">
+<title>반이닝 정리 카드 · 16종</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --em:#10b981; --em2:#34d399; --red:#f87171; --yel:#fde047; --sky:#7dd3fc; --vio:#c4b5fd; --or:#fb923c; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#010205; color:#e5e7eb; font-family:system-ui,'Malgun Gothic',sans-serif; }
+  .d { font-family:'Saira Condensed',sans-serif; }
+  .wrap { max-width:1000px; margin:0 auto; padding:34px 20px 80px; }
+
+  h1 { font-size:26px; font-weight:900; color:#fff; margin:0 0 6px; }
+  .sub { font:600 10px 'Saira Condensed'; letter-spacing:.38em; color:var(--em2); margin:0 0 18px; }
+  .lead { color:#9ca3af; font-size:14px; line-height:1.75; margin:0 0 8px; } .lead b { color:#fff; }
+  .facts { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 34px; }
+  .fact { background:rgba(255,255,255,.04); box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);
+          clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+          padding:8px 13px; font-size:12px; color:#9ca3af; }
+  .fact b { color:#fff; font-family:'Saira Condensed'; font-size:15px; font-weight:800; }
+
+  h2 { font-size:17px; font-weight:900; color:#fff; margin:44px 0 3px; padding-top:22px; border-top:1px solid rgba(255,255,255,.09); }
+  h2 em { font-style:normal; font:800 12px 'Saira Condensed'; letter-spacing:.2em; color:var(--em2); margin-left:10px; }
+  .h2n { color:#6b7280; font-size:13px; margin:0 0 22px; line-height:1.6; }
+
+  /* ── 카드 ── */
+  .slot { margin:0 0 30px; }
+  .card { position:relative; overflow:hidden; width:100%; max-width:880px; color:#e5e7eb;
+          background:linear-gradient(180deg,rgba(12,19,34,.97),rgba(5,8,15,.99));
+          box-shadow:inset 0 0 0 1px var(--c), 0 30px 70px -26px #000, 0 0 70px -34px var(--c);
+          clip-path:polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px); }
+  .glow { position:absolute; inset:0; pointer-events:none;
+          background:radial-gradient(120% 90% at 20% 0%, color-mix(in srgb, var(--c) 18%, transparent), transparent 62%); }
+
+  .hd { position:relative; display:flex; align-items:center; gap:12px; padding:13px 22px 12px;
+        border-bottom:1px solid rgba(255,255,255,.08); }
+  .hd .in { font:800 17px 'Saira Condensed'; letter-spacing:.06em; color:var(--c); }
+  .hd .wh { font-size:13px; color:#9ca3af; }
+  .hd .bdg { margin-left:auto; font:800 26px/1 'Saira Condensed'; color:#05080f; background:var(--c); padding:5px 14px 4px;
+             clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); }
+  .hd .bdg.ghost { background:none; color:var(--c); box-shadow:inset 0 0 0 1px var(--c); font-size:15px; padding:7px 13px; }
+
+  .body { position:relative; display:grid; grid-template-columns:104px 1fr; gap:18px; padding:18px 22px; align-items:center; }
+  .body.solo { grid-template-columns:1fr; }
+  .bleed { position:absolute; right:0; top:-14px; bottom:-14px; width:46%; pointer-events:none;
+           background:var(--bl) 58% 14% / cover; opacity:.34; filter:saturate(.8);
+           -webkit-mask-image:linear-gradient(90deg,transparent,#000 78%); mask-image:linear-gradient(90deg,transparent,#000 78%); }
+  .por { width:104px; height:132px; background:#0b1220 center 12% / cover; box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+         clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+  .por.sm { width:54px; height:68px; }
+  .mvplab { font:600 10px 'Saira Condensed'; letter-spacing:.32em; color:var(--c); margin:0 0 5px; }
+  .mvplab::before { content:'◣ '; }
+  .nm { font-size:25px; font-weight:900; color:#fff; line-height:1.15; margin:0; }
+  .nm small { font-size:12px; font-weight:600; color:#9ca3af; margin-left:9px; }
+  .act { font-size:18px; font-weight:800; color:var(--c); margin:7px 0 0; }
+  .act::before { content:'▸ '; opacity:.65; }
+  .ln { font-size:12.5px; color:#9ca3af; margin:5px 0 0; }
+  .ln b { color:#e5e7eb; font-family:'Saira Condensed'; font-size:14px; }
+
+  .extra { display:flex; gap:7px; flex-wrap:wrap; margin-top:11px; }
+  .chip { display:flex; align-items:center; gap:7px; background:rgba(255,255,255,.05); padding:4px 10px 4px 5px; font-size:12px; color:#cbd5e1;
+          clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px); }
+  .chip i { width:22px; height:28px; background:#0b1220 center 12% / cover; display:block; }
+  .chip b { color:#fff; }
+
+  .pit { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; margin-top:12px; background:rgba(255,255,255,.08); }
+  .pit div { background:#080d17; padding:8px 4px; text-align:center; }
+  .pit b { display:block; font:800 21px 'Saira Condensed'; color:#fff; line-height:1; }
+  .pit span { font-size:10.5px; color:#8b95a5; }
+
+  .sc { position:relative; display:flex; align-items:center; justify-content:center; gap:20px; padding:11px 22px;
+        background:rgba(2,4,8,.7); border-top:1px solid rgba(255,255,255,.07); border-bottom:1px solid rgba(255,255,255,.07); }
+  .sc .t { font-size:13.5px; font-weight:800; color:#9ca3af; } .sc .t.me { color:#fff; }
+  .sc .v { font:800 34px/1 'Saira Condensed'; color:#fff; } .sc .v .x { color:#4b5563; margin:0 9px; }
+
+  .nx { position:relative; padding:14px 22px 16px; }
+  .nxt { font-size:12.5px; color:#9ca3af; margin:0 0 10px; } .nxt b { color:#fff; }
+  .nxt em { font-style:normal; font:800 11px 'Saira Condensed'; letter-spacing:.2em; color:var(--c); margin-right:8px; }
+  .opts { display:flex; gap:8px; align-items:stretch; }
+  .opt { flex:1; text-align:left; padding:10px 13px; background:rgba(255,255,255,.04); color:#cbd5e1;
+         box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); cursor:pointer;
+         clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); }
+  .opt b { display:block; font-size:14.5px; font-weight:800; color:#e5e7eb; }
+  .opt span { font-size:11px; color:#7c8798; }
+  .opt.on { background:color-mix(in srgb, var(--c) 17%, transparent); box-shadow:inset 0 0 0 1.5px var(--c); }
+  .opt.on b { color:#fff; } .opt.on span { color:color-mix(in srgb, var(--c) 78%, #fff); }
+  .opt.on::after { content:'●'; float:right; font-size:9px; color:var(--c); margin-top:2px; }
+  .ring { width:52px; display:grid; place-items:center; flex:none; }
+  .ring svg { transform:rotate(-90deg); } .ring circle { fill:none; stroke-width:3; }
+  .ring .bg2 { stroke:rgba(255,255,255,.12); } .ring .fg { stroke:var(--c); stroke-linecap:round; }
+  .ring b { position:absolute; font:800 15px 'Saira Condensed'; color:#fff; }
+  .ringwrap { position:relative; display:grid; place-items:center; }
+
+  /* 짧은 카드 */
+  .thin { display:flex; align-items:center; gap:14px; padding:12px 20px; }
+  .thin .in { font:800 15px 'Saira Condensed'; color:var(--c); } .thin .por.sm { width:42px; height:52px; }
+  .thin .nm { font-size:18px; } .thin .ln { margin:0; }
+  .thin .tail { margin-left:auto; font:800 15px 'Saira Condensed'; color:#e5e7eb; }
+
+  .note { max-width:880px; color:#7c8798; font-size:12.5px; line-height:1.7; margin:9px 0 0; padding-left:2px; }
+  .note b { color:#cbd5e1; } .note .k { font-family:'Saira Condensed'; font-weight:800; color:var(--em2); }
+
+  /* 화면 위 미리보기 */
+  .stage { position:relative; width:100%; aspect-ratio:1920/911; background:url(clutch/sim-broad.webp) center/cover; overflow:hidden;
+           box-shadow:inset 0 0 0 1px #1f2937; display:grid; place-items:center; margin-bottom:10px; }
+  .stage::before { content:''; position:absolute; inset:0; background:rgba(3,5,10,.72); backdrop-filter:blur(3px); }
+  .stage .card { width:74%; transform:scale(.92); transform-origin:center; }
+  @media (max-width:760px){ .body{grid-template-columns:82px 1fr;gap:13px;padding:14px} .por{width:82px;height:104px} .nm{font-size:21px} .opts{flex-wrap:wrap} .opt{flex:1 1 44%} }
+</style>
+
+<div class="wrap">
+  <p class="sub">Half-Inning Recap · Mockup</p>
+  <h1>반이닝 정리 카드 16종</h1>
+  <p class="lead">
+    초·말이 바뀔 때 <b>방금 반이닝을 한 장으로 정리</b>하고, 같은 화면에서 <b>다음 이닝 방침</b>을 고른다.<br>
+    기본 선택지가 이미 눌려 있고 <b>초읽기가 끝나면 그대로 진행</b>된다 — 누르고 싶을 때만 누른다.
+  </p>
+  <div class="facts" id="facts"></div>
+  <div id="root"></div>
+</div>
+
+<script>
+/* ── 500경기 시뮬레이션에서 나온 숫자 (scratchpad/pace.mjs) ── */
+const FACTS = [
+  ['반이닝', '18.2', '회 / 경기'],
+  ['득점한 이닝', '3.6', '회'],
+  ['위기 탈출', '8.7', '회 · 가장 흔하다'],
+  ['삼자범퇴', '5.9', '회'],
+  ['전환 카드 예산', '49', '초 / 경기'],
+  ['경기 길이', '5.0', '분 · 손 안 댔을 때'],
+];
+document.getElementById('facts').innerHTML = FACTS.map(([k, v, s]) =>
+  `<div class="fact">${k} <b>${v}</b> ${s}</div>`).join('');
+
+const P = (id) => `profiles/${encodeURIComponent(id)}.webp`;
+
+/* 선수: [id, 이름, 포지션, 타순/보직] */
+const 이정후 = ['legend-mvp_이정후', '이정후', 'LF', '3번'];
+const 김도영 = ['legend-mvp_김도영', '김도영', '3B', '2번'];
+const 이종범 = ['legend-mvp_이종범', '이종범', 'SS', '1번'];
+const 박병호 = ['legend-kiwoom_박병호', '박병호', '1B', '4번'];
+const 최정 = ['legend-ssg_최정', '최정', '3B', '5번'];
+const 강백호 = ['legend-nc-kt_강백호', '강백호', 'DH', '6번'];
+const 구자욱 = ['legend-samsung_구자욱', '구자욱', 'RF', '7번'];
+const 김하성 = ['legend-kiwoom_김하성', '김하성', 'SS', '8번'];
+const 손아섭 = ['legend-lotte_손아섭', '손아섭', 'CF', '9번'];
+const 이대호 = ['legend-lotte_이대호', '이대호', 'DH', '4번'];
+const 박세웅 = ['2026-lotte_박세웅', '박세웅', 'SP', '선발'];
+const 류현진 = ['legend-mvp_류현진', '류현진', 'SP', '선발'];
+const 김광현 = ['legend-ssg_김광현', '김광현', 'SP', '선발'];
+const 양현종 = ['legend-kia_양현종', '양현종', 'SP', '선발'];
+const 원태인 = ['2026-samsung_원태인', '원태인', 'SP', '선발'];
+const 오승환 = ['legend-samsung_오승환', '오승환', 'CL', '마무리'];
+const 고우석 = ['legend-lg_고우석', '고우석', 'SU', '셋업'];
+const 정우람 = ['legend-hanwha_정우람', '정우람', 'MR', '중간'];
+
+/* 다음 이닝 방침 */
+const DEF = [['정면 승부', '기본'], ['신중하게', '유인구 위주'], ['전진 수비', '1점을 막는다']];
+const DEF_CH = [['정면 승부', '기본'], ['투수 교체', '불펜에서'], ['신중하게', '유인구 위주']];
+const OFF = [['강공', '기본'], ['작전 야구', '번트 · 도루'], ['기다리기', '투구수를 늘린다']];
+const OFF_PH = [['강공', '기본'], ['대타 기용', '벤치에서'], ['작전 야구', '번트 · 도루']];
+
+const CARDS = [
+/* ═══ 득점 ═══ */
+{ sec: '득점한 이닝', secn: '한 경기 <span class="k">3.6</span>회. 가장 화려하게 — 누가 점수를 냈는지가 전부다. <b>4초</b>.' },
+{
+  c: 'var(--yel)', in: '4회말', wh: '나의 드림팀 공격', bdg: '+2',
+  mvp: [이정후, '2타점 적시 2루타', '오늘 <b>3타수 2안타 3타점</b> · 이 회 MVP'],
+  sc: [3, 5], nx: ['다음', '5회초 내 수비 — 상대 <b>4·5·6번</b>', DEF, 0], secs: 4,
+  note: '가장 기본형. <b>타점을 낸 타자</b>가 그대로 MVP다. 오른쪽 <b>+2</b>가 이 반이닝의 수확.',
+},
+{
+  c: 'var(--or)', in: '6회말', wh: '나의 드림팀 공격', bdg: '+3',
+  mvp: [박병호, '쓰리런 홈런 🚀', '비거리 <b>127m</b> · 시즌 <b>21호</b>'],
+  big: true, sc: [4, 8], nx: ['다음', '7회초 내 수비 — 우리 선발 <b>92구</b>', DEF_CH, 1], secs: 4.5,
+  note: '홈런은 <b>따로 취급</b>한다. 색을 주황으로 바꾸고 0.5초 더 준다. 다음 방침은 투수가 지쳤으니 <b>교체가 기본 선택</b>으로 미리 눌려 있다.',
+},
+{
+  c: 'var(--yel)', in: '3회말', wh: '나의 드림팀 공격', bdg: '+4',
+  mvp: [최정, '만루 싹쓸이 2루타', '이 회 <b>타자 8명</b> · 안타 4개'],
+  extra: [[이종범, '2루타'], [김도영, '볼넷'], [이정후, '적시타']],
+  sc: [1, 6], nx: ['다음', '4회초 내 수비 — 상대 <b>7·8·9번</b>', DEF, 0], secs: 5,
+  note: '<b>빅이닝</b>. MVP 하나만 세우면 나머지가 묻히니 <b>조연 칩</b>을 아래에 붙인다. 타자가 많았으니 5초.',
+},
+{
+  c: 'var(--em2)', in: '5회말', wh: '나의 드림팀 공격', bdg: '+1',
+  mvp: [강백호, '밀어내기 볼넷', '이 회 <b>볼넷 3개</b> — 상대 투수를 흔들었다'],
+  sc: [2, 3], nx: ['다음', '6회초 내 수비 — 상대 <b>3·4·5번</b>', DEF, 0], secs: 3.5,
+  note: '안타 없이 난 점수. 화려한 장면이 없으니 <b>초록으로 차분하게</b>. "잘 골라 나갔다"를 읽히게 하는 게 이 카드의 일.',
+},
+{
+  c: 'var(--yel)', in: '7회말', wh: '나의 드림팀 공격', bdg: '역전 +2', ghost: false,
+  mvp: [구자욱, '역전 2타점 3루타', '<b>4 : 3</b> — 경기를 뒤집었다'],
+  flip: true, sc: [3, 4], nx: ['다음', '8회초 내 수비 — <b>리드를 지킨다</b>', DEF_CH, 1], secs: 5,
+  note: '<b>역전</b>은 점수 배지에 글자를 넣어 따로 알린다. 점수판이 뒤집히는 애니메이션이 붙을 자리.',
+},
+{
+  c: 'var(--or)', in: '9회말', wh: '나의 드림팀 공격', bdg: 'WALK-OFF',
+  mvp: [김도영, '끝내기 안타', '<b>5 : 6</b> — 경기 종료'],
+  big: true, sc: [5, 6], end: '경기 종료 · 결과 화면으로', secs: 6,
+  note: '<b>끝내기</b>. 다음 이닝이 없으니 방침 버튼도 초읽기도 없다. 유일하게 <b>탭해야 넘어가는</b> 카드 — 여운을 준다.',
+},
+
+/* ═══ 위기 탈출 ═══ */
+{ sec: '위기를 넘긴 이닝', secn: '한 경기 <span class="k">8.7</span>회 — <b>가장 흔하다.</b> 이 카드가 주력이고, 투수가 주인공이다. <b>3초</b>.' },
+{
+  c: 'var(--em)', in: '4회초', wh: '나의 드림팀 수비', bdg: '무실점', ghost: true,
+  mvp: [박세웅, '만루에서 삼진', '1사 만루를 <b>헛스윙 삼진</b>으로 막았다'],
+  pit: [['4', '타자'], ['18', '투구'], ['2', '탈삼진'], ['0', '실점']],
+  sc: [3, 3], nx: ['다음', '4회말 내 공격 — 우리 <b>1·2·3번</b>', OFF, 0], secs: 3,
+  note: '<b>주력 카드.</b> 점수는 안 났지만 "막아냈다"가 남는다. <b>투구수 칸</b>이 붙어서 다음 이닝에 교체할지 판단할 근거가 된다.',
+},
+{
+  c: 'var(--sky)', in: '6회초', wh: '나의 드림팀 수비', bdg: '무실점', ghost: true,
+  mvp: [김하성, '유격수 병살', '1·2루에서 <b>6-4-3 병살</b>로 이닝 종료'],
+  pit: [['4', '타자'], ['11', '투구'], ['1', '병살'], ['0', '실점']],
+  sc: [2, 2], nx: ['다음', '6회말 내 공격 — 우리 <b>4·5·6번</b>', OFF, 0], secs: 3,
+  note: 'MVP가 <b>투수가 아니라 야수</b>인 경우. 수비 능력치가 처음으로 눈에 보이는 순간이다 — 색도 하늘색으로 구분.',
+},
+{
+  c: 'var(--em2)', in: '8회초', wh: '나의 드림팀 수비', bdg: '−1',
+  mvp: [고우석, '2·3루에서 1점만', '<b>최소 실점</b>으로 끊었다 · 리드 유지'],
+  pit: [['5', '타자'], ['21', '투구'], ['1', '탈삼진'], ['1', '실점']],
+  sc: [4, 5], nx: ['다음', '8회말 내 공격 — <b>추가점이 필요하다</b>', OFF_PH, 1], secs: 3.5,
+  note: '<b>반쯤 성공한 이닝.</b> 실점했지만 무너지진 않았다. 다음 방침에서 <b>대타가 기본 선택</b>으로 바뀌어 상황을 읽어준다.',
+},
+{
+  c: 'var(--sky)', in: '5회초', wh: '나의 드림팀 수비', bdg: '무실점', ghost: true,
+  mvp: [손아섭, '중견수 호수비', '담장 앞에서 <b>뜬공 처리</b> — 2루타를 지웠다'],
+  pit: [['3', '타자'], ['9', '투구'], ['1', '호수비'], ['0', '실점']],
+  sc: [1, 1], nx: ['다음', '5회말 내 공격 — 우리 <b>7·8·9번</b>', OFF, 0], secs: 3,
+  note: '<b>호수비</b>. 지금 엔진에는 없는 판정이라 새로 만들어야 한다 — <span class="k">defense</span> 능력치로 뜬공·직선타에서 확률을 굴리면 된다.',
+},
+
+/* ═══ 삼자범퇴 ═══ */
+{ sec: '조용히 끝난 이닝', secn: '한 경기 <span class="k">5.9</span>회. <b>버튼도 초읽기도 없이</b> 1.5초 만에 지나간다 — 리듬만 끊지 않으면 된다.' },
+{
+  thin: true, c: 'var(--em)', in: '2회초', wh: '삼자범퇴',
+  mvp: [류현진, '', '3타자 · <b>9구</b> · 퍼펙트'], tail: '0실점', secs: 1.5,
+  note: '<b>가장 짧은 카드.</b> 한 줄로 스쳐 지나간다. 이게 5.9회 있어서 전체 49초 예산이 지켜진다.',
+},
+{
+  thin: true, c: 'var(--vio)', in: '7회초', wh: '삼자범퇴',
+  mvp: [오승환, '', '3타자 <b>전원 삼진</b> · 12구'], tail: '3K', secs: 2,
+  note: '같은 삼자범퇴여도 <b>3연속 삼진</b>이면 색을 바꾸고 0.5초 더 준다. 작은 차이가 "봤다"는 느낌을 만든다.',
+},
+
+/* ═══ 특수 ═══ */
+{ sec: '특수한 이닝', secn: '드물게 나오지만 <b>그래서 기억에 남는</b> 카드들.' },
+{
+  c: 'var(--em2)', in: '6회초', wh: '나의 드림팀 수비', bdg: '무실점', ghost: true,
+  mvp: [정우람, '위기에서 등판', '1사 1·2루를 <b>이어받아 막았다</b>'],
+  relief: [양현종, '5⅓이닝 · 88구 · 2실점'],
+  pit: [['2', '타자'], ['7', '투구'], ['1', '탈삼진'], ['0', '실점']],
+  sc: [2, 3], nx: ['다음', '6회말 내 공격 — 우리 <b>2·3·4번</b>', OFF, 0], secs: 4,
+  note: '<b>이닝 중 투수가 바뀐 경우.</b> 내려간 투수의 성적도 같이 보여준다 — 선발을 몇 회까지 끌고 갔는지가 이 게임의 중요한 기록이니까.',
+},
+{
+  c: 'var(--red)', in: '3회초', wh: '나의 드림팀 수비', bdg: '−2',
+  mvp: [원태인, '실책 뒤 2실점', '<b>2사 후 실책</b> — 자책점은 0'],
+  err: '김하성 · 유격수 송구 실책',
+  pit: [['6', '타자'], ['24', '투구'], ['1', '실책'], ['2', '실점']],
+  sc: [2, 0], nx: ['다음', '3회말 내 공격 — <b>따라붙어야 한다</b>', OFF, 0], secs: 3.5,
+  note: '<b>MVP가 없는 카드.</b> 잘못된 걸 억지로 칭찬하지 않는다. 대신 뭐가 잘못됐는지 한 줄로 짚어준다 — 빨간색.',
+},
+{
+  c: 'var(--vio)', in: '5회말', wh: '나의 드림팀 공격', bdg: '+2',
+  mvp: [이대호, '증강 발동 · 대쓰요!', '<b>투런 홈런</b>으로 이닝 2점 확정'],
+  aug: '대쓰요!  ·  파워 92+ 타자 보유',
+  sc: [3, 5], nx: ['다음', '6회초 내 수비 — 상대 <b>1·2·3번</b>', DEF, 0], secs: 4.5,
+  note: '<b>증강이 터진 이닝.</b> 지금은 로그에 한 줄 흐르고 끝나는데, 여기서 제대로 세워주면 증강을 고른 보람이 생긴다. 보라색은 증강 색.',
+},
+{
+  c: 'var(--red)', in: '7회초', wh: '상대 공격', bdg: '−3', opp: true,
+  mvp: [김광현, '3실점 · 강판', '2사 만루에서 <b>싹쓸이 2루타</b>를 맞았다'],
+  pit: [['7', '타자'], ['29', '투구'], ['0', '탈삼진'], ['3', '실점']],
+  sc: [6, 4], nx: ['다음', '7회말 내 공격 — <b>2점 차를 좁혀야 한다</b>', OFF_PH, 1], secs: 4,
+  note: '<b>상대가 점수를 낸 이닝.</b> 우리 투수 관점으로 쓴다 — 상대 타자를 칭찬하지 않는다. 점수판에서 상대 쪽이 빨갛게 밝아진다.',
+},
+];
+
+/* ── 그리기 ── */
+const esc = (s) => String(s);
+const por = (p, cls = 'por') => `<div class="${cls}" style="background-image:url(${P(p[0])})"></div>`;
+
+function card(k) {
+  if (k.thin) return `
+    <div class="card" style="--c:${k.c}"><div class="glow"></div>
+      <div class="thin">
+        <span class="in">${k.in}</span><span class="wh" style="color:#9ca3af;font-size:13px">${k.wh}</span>
+        ${por(k.mvp[0], 'por sm')}
+        <div><p class="nm">${k.mvp[0][1]}<small>${k.mvp[0][3]}</small></p><p class="ln">${k.mvp[2]}</p></div>
+        <span class="tail">${k.tail}</span>
+      </div>
+    </div>`;
+
+  const [p, act, ln] = k.mvp;
+  const secs = k.secs;
+  return `
+  <div class="card" style="--c:${k.c}"><div class="glow"></div>
+    <div class="hd">
+      <span class="in">${k.in}</span><span class="wh">${k.wh}</span>
+      ${k.bdg ? `<span class="bdg${k.ghost ? ' ghost' : ''}">${k.bdg}</span>` : ''}
+    </div>
+    <div class="body">
+      ${k.pit || k.extra || k.relief ? '' : `<div class="bleed" style="--bl:url(${P(p[0])})"></div>`}
+      ${por(p)}
+      <div>
+        <p class="mvplab">${k.err ? '이 회 요약' : k.aug ? '증강 발동' : '이 회 MVP'}</p>
+        <p class="nm">${p[1]}<small>${p[3]} · ${p[2]}</small></p>
+        ${act ? `<p class="act">${act}</p>` : ''}
+        <p class="ln">${ln}</p>
+        ${k.err ? `<p class="ln" style="color:var(--red)">⚠ ${k.err}</p>` : ''}
+        ${k.aug ? `<p class="ln" style="color:var(--vio)">✦ ${k.aug}</p>` : ''}
+        ${k.extra ? `<div class="extra">${k.extra.map(([q, w]) =>
+          `<span class="chip"><i style="background-image:url(${P(q[0])})"></i><b>${q[1]}</b> ${w}</span>`).join('')}</div>` : ''}
+        ${k.relief ? `<div class="extra"><span class="chip"><i style="background-image:url(${P(k.relief[0][0])})"></i><b>${k.relief[0][1]}</b> ${k.relief[1]}</span></div>` : ''}
+        ${k.pit ? `<div class="pit">${k.pit.map(([v, s]) => `<div><b>${v}</b><span>${s}</span></div>`).join('')}</div>` : ''}
+      </div>
+    </div>
+    <div class="sc">
+      <span class="t${k.opp ? ' me' : ''}">AI 올스타</span>
+      <span class="v">${k.sc[0]}<span class="x">:</span>${k.sc[1]}</span>
+      <span class="t${k.opp ? '' : ' me'}">나의 드림팀</span>
+    </div>
+    ${k.end ? `<div class="nx"><p class="nxt" style="text-align:center;margin:4px 0 2px"><em>FINAL</em> ${k.end} <b style="margin-left:8px">— 탭하면 넘어갑니다</b></p></div>` : `
+    <div class="nx">
+      <p class="nxt"><em>${k.nx[0]}</em>${k.nx[1]}</p>
+      <div class="opts">
+        ${k.nx[2].map(([t, s], i) => `<div class="opt${i === k.nx[3] ? ' on' : ''}"><b>${t}</b><span>${s}</span></div>`).join('')}
+        <div class="ringwrap ring">
+          <svg width="46" height="46"><circle class="bg2" cx="23" cy="23" r="19"/><circle class="fg" cx="23" cy="23" r="19" stroke-dasharray="119" stroke-dashoffset="34"/></svg>
+          <b>${secs}</b>
+        </div>
+      </div>
+    </div>`}
+  </div>`;
+}
+
+const root = document.getElementById('root');
+let html = '';
+let n = 0;
+for (const k of CARDS) {
+  if (k.sec) { html += `<h2>${k.sec}<em>SECTION</em></h2><p class="h2n">${k.secn}</p>`; continue; }
+  n += 1;
+  const shot = n === 1
+    ? `<div class="stage">${card(k)}</div><p class="note" style="margin-bottom:22px">↑ <b>실제 화면 위에 얹힌 모습.</b> 중계 화면이 어두워지고 카드만 떠오른다. 아래부터는 카드만 크게 본다.</p>`
+    : '';
+  html += `<div class="slot">${shot}${card(k)}<p class="note"><b>${String(n).padStart(2, '0')}</b> · ${k.secs}초 — ${k.note}</p></div>`;
+}
+root.innerHTML = html;
+</script>
