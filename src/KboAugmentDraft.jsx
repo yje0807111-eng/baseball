@@ -4514,7 +4514,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · special(특별 모드)
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
-  const [view, setView] = useState(plays.length ? (normalView && plays.some((x) => x.key === normalView) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · special)
+  const [view, setView] = useState(plays.length ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special'].includes(normalView)) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
   const play = plays.find((x) => x.key === view) || null;
   const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
   const [specialId, setSpecialId] = useState(firstMode.group === 'special' ? firstMode.id : 'legend');

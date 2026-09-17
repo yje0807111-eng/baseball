@@ -154,7 +154,7 @@ export default function App() {
 
   return (
     <LobbyScreen account={account}
-      onLocker={() => setView('locker')} onPlay={() => setView('modes')} onShop={() => setView('shop')} onAugments={() => setView('augments')}
+      onLocker={() => setView('locker')} onPlay={(tab) => toModes(tab || null)} onShop={() => setView('shop')} onAugments={() => setView('augments')}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }

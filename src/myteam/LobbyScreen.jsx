@@ -1,6 +1,6 @@
 /* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 랭크 판 */
 import React from 'react';
-import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
+import { SQUAD_SIZE, SQUAD_CAP, squadCost } from './rules.js';
 import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
 
@@ -22,6 +22,47 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
         {children}
       </div>
     </button>
+  );
+}
+
+/** 오늘의 경기장: 모드 카드 넷 — 사진 · 이름 · 한 줄 */
+function MatchDay({ account, onPlay }) {
+  const rk = rankOf(account.rank?.rp || 0);
+  const season = account.ranked?.season;
+  const modes = [
+    { tab: 'duel', name: '일반 대결', sub: '단판 · 16 · 32 · 64강', c: '#10b981', img: 'ui/broadcast-field.webp' },
+    { tab: 'ranked', name: '랭크전', sub: `${rk.tier.ko} ${rk.div}${season ? ` · 시즌 ${season}` : ''}`, c: '#a78bfa', img: 'ui/stadium.webp' },
+    { tab: 'mix', name: '드래프트', sub: '전체 믹스 · 최근 · 연도별', c: '#38e1ff', img: 'modes/mix.webp' },
+    { tab: 'special', name: '특별 모드', sub: '레전드 · 왕조 · 태극마크', c: '#fbbf24', img: 'modes/legend.webp' },
+  ];
+  return (
+    <section className="mt-cut mt-frame relative overflow-hidden" style={{ '--c': '20px', '--a': '#10b981', gridColumn: '1 / span 2', gridRow: '1 / span 2',
+      background: 'linear-gradient(180deg, rgba(5,8,15,.2), rgba(5,8,15,.55) 45%, rgba(5,8,15,.96)), url(ui/broadcast-field.webp) center/cover' }}>
+      <div className="absolute inset-x-7 bottom-6">
+        <div className="flex items-end justify-between gap-6">
+          <div>
+            <p className="mt-lab" style={{ '--a': '#10b981' }}>Match Day</p>
+            <b className="mt-1 block text-[52px] font-black leading-tight text-white">오늘의 경기장</b>
+          </div>
+          <button type="button" onClick={() => onPlay()} className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
+            플레이 ▶
+          </button>
+        </div>
+        <div className="mt-5 grid grid-cols-4 gap-2.5">
+          {modes.map((m) => (
+            <button key={m.tab} type="button" onClick={() => onPlay(m.tab)}
+              className="mt-cut relative h-[120px] overflow-hidden bg-cover bg-center text-left transition hover:brightness-125"
+              style={{ '--c': '10px', backgroundImage: `url(${m.img})`, boxShadow: `inset 0 -3px 0 ${m.c}` }}>
+              <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.1), rgba(5,8,15,.92))' }} />
+              <span className="absolute inset-x-3 bottom-2.5">
+                <b className="block text-[17px] font-extrabold text-white">{m.name}</b>
+                <small className="block truncate text-[13px] text-gray-300">{m.sub}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -113,10 +154,6 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
   const squad = team.squad || [];
   const cap = team.cap || SQUAD_CAP;
   const cost = squadCost(squad, team.staff);
-  const issues = squadIssues(squad, team.staff, cap);
-  const ready = issues.length === 0;
-  const rec = team.record || { w: 0, l: 0, d: 0 };
-  const rating = squad.length ? Math.round(squad.reduce((s, p) => s + p.overall, 0) / squad.length) : 0;
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -127,29 +164,8 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
       <div className="relative grid min-h-0 flex-1 gap-3.5 px-6 py-4"
         style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.62fr)' }}>
 
-        {/* 경기 — 가장 큰 타일 */}
-        <Tile big img="ui/broadcast-field.webp" a="#10b981" label="Match Day" title="오늘의 경기장"
-          desc={ready ? '내 팀으로 경기하거나, 드래프트 모드로 새 팀을 뽑아 붙어 보세요' : null}
-          style={{ gridColumn: '1 / span 2', gridRow: '1 / span 2' }} onClick={onPlay}>
-          {/* 들어가면 고를 수 있는 모드 */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[
-              ['일반 모드', `내 팀 ${squad.length}/${SQUAD_SIZE}인 · 팀 종합 ${rating || '-'}`, '#10b981'],
-              ['기본 모드', '전체 믹스 · 최근 시즌 · 연도별', '#38e1ff'],
-              ['특별 모드', '올타임 레전드 · 가을의 왕조 · 태극마크', '#fbbf24'],
-            ].map(([t, sub, col]) => (
-              <span key={t} className="mt-cut bg-[#05080f]/75 px-3 py-1.5" style={{ '--c': '6px', boxShadow: `inset 3px 0 0 ${col}` }}>
-                <b className="block text-[14px] text-white">{t}</b>
-                <small className="text-[12px] text-gray-300">{sub}</small>
-              </span>
-            ))}
-          </div>
-          <div className="mt-5">
-            <span className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
-              플레이 ▶
-            </span>
-          </div>
-        </Tile>
+        {/* 경기 — 가장 큰 타일: 제목 · 플레이 버튼 + 모드 사진 카드 넷(누르면 그 모드 탭으로) */}
+        <MatchDay account={account} onPlay={onPlay} />
 
         <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="My Locker" title="내 라커"
           desc={`${squad.length}/${SQUAD_SIZE} · ${cost.toLocaleString()}/${cap.toLocaleString()} CP`} onClick={onLocker} />
