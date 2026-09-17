@@ -3,12 +3,14 @@
  *  영입(L1): 검색 + 후보 리스트 + 오른쪽 상세
  *  내 선수(L2): 포지션 그룹 목록 + 오른쪽 상세(방출)
  *  감독·코치(L6): 네 자리 슬롯 + 후보 리스트 + 효과 합계
+ *  아이템: 상점에서 산 훈련·부스트·계약서 — 고른 뒤 아무 선수·감독/코치에게 사용
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, GROUP_RULES, PLAY_LIMIT, STAFF_SLOTS, squadCost, foreignCount, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect } from './staff.js';
 import { saveTeam } from './store.js';
+import { SHOP_ITEMS, needsStaff, recommendTargets, consumeItem } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
@@ -157,6 +159,99 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease }) {
   );
 }
 
+const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
+const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', staff: '#c4b5fd' };
+
+/** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
+function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
+  const inv = team.items || [];
+  const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
+  const g = groups.find((x) => x.it.id === itemId) || groups[0];
+  const it = g?.it;
+  const n = it ? ITEM_COLOR[it.cat] || '#fde047' : '#fde047';
+  const squad = team.squad || [];
+  const staffNow = team.staff || {};
+  const recIds = it ? new Set(recommendTargets(team, it).map((p) => p.id)) : new Set();
+  const list = !it ? [] : needsStaff(it)
+    ? (it.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')])
+    : [...squad].sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
+  const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
+  const after = it?.stat && target?.stats ? Math.min(99, (target.stats[it.stat] ?? 70) + it.amount) : null;
+  return (
+    <>
+      <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
+        <div className="flex items-baseline gap-3">
+          <p className="mt-lab" style={{ '--a': '#fde047' }}>Items</p>
+          <p className="text-sm text-gray-400">보유 {inv.length}개 · {groups.length}종</p>
+        </div>
+        <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
+          {groups.map(({ it: x, keys }) => {
+            const c = ITEM_COLOR[x.cat] || '#fde047';
+            const on = it?.id === x.id;
+            return (
+              <button key={x.id} type="button" onClick={() => onPick(x.id)}
+                className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
+                style={{ '--c': '12px', '--a': c, backgroundImage: `url(ui/mt/${x.img}.webp)` }}>
+                <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
+                <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-lg font-extrabold text-[#05080f]" style={{ '--c': '5px', background: c }}>×{keys.length}</span>
+                <span className="absolute inset-x-3 bottom-2.5 block">
+                  <b className="block truncate text-base font-black text-white">{x.name}</b>
+                  <span className="block truncate text-[11px] text-gray-400">{x.desc}</span>
+                </span>
+              </button>
+            );
+          })}
+          {groups.length === 0 && <p className="col-span-4 text-sm text-gray-500">보유한 아이템이 없습니다. 상점에서 훈련·부스트·계약서를 사 오세요.</p>}
+        </div>
+      </section>
+
+      <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
+        <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
+        {!it ? <p className="text-sm text-gray-500">아이템을 고르세요.</p> : (
+          <>
+            <Hero img={`url(ui/mt/${it.img}.webp)`} name={it.name} color={n} h={130} pos="center" />
+            <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
+            <p className="mt-grp !mt-0">적용 대상</p>
+            <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
+              {list.length === 0 && <p className="text-sm text-gray-500">대상이 없습니다. 먼저 영입하세요.</p>}
+              {list.map((t) => {
+                const on = target?.id === t.id;
+                const rec = recIds.has(t.id);
+                const cur = !t.position && staffNow[slotOf(t)]?.id === t.id;
+                return (
+                  <button key={t.id} type="button" onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
+                    style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
+                    <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
+                    <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
+                    <span className="min-w-0">
+                      <b className="block truncate text-sm font-black text-white">
+                        {t.name}
+                        {rec && <em className="ml-1.5 text-[11px] not-italic text-amber-300">★ 추천</em>}
+                        {cur && <em className="ml-1.5 text-[11px] not-italic text-gray-400">선임 중</em>}
+                      </b>
+                      <span className="block truncate text-[11px] text-gray-400">
+                        {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
+                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(99, (t.stats[it.stat] ?? 70) + it.amount)}` : ''}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div>
+              {target && after != null && <KV k={`${target.name} ${STAT_KO[it.stat] || it.stat}`} v={`${target.stats[it.stat] ?? "-"} → ${after}`} color="#34d399" />}
+              <KV k="남는 수량" v={`${g.keys.length} → ${g.keys.length - 1}`} color="#fde047" />
+            </div>
+            <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!target} onClick={() => onUse(g.keys[0], target, slotOf(target))}>
+              {target ? `${target.name}에게 사용 ▶` : '대상을 고르세요'}
+            </Btn>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}
+
 export default function LockerScreen({ account, onSave, onBack }) {
   const [team, setTeam] = useState(account.team);
   const [tab, setTab] = useState('scout');
@@ -166,6 +261,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const [pos, setPos] = useState('');
   const [sel, setSel] = useState(null);
   const [staffSlot, setStaffSlot] = useState('manager');
+  const [itemId, setItemId] = useState(null);
+  const [itemTarget, setItemTarget] = useState(null);
 
   const squad = team.squad || [];
   const staff = team.staff || {};
@@ -238,6 +335,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
     { key: 'scout', label: '영입', sub: `선수 검색 · ${ALL.length}명`, img: 'ui/mt/tile-locker.webp' },
     { key: 'squad', label: '내 선수', sub: `${squad.length} / ${SQUAD_SIZE}명`, img: 'ui/mt/mt-card.webp' },
     { key: 'staff', label: '감독·코치', sub: `${Object.values(staff).filter(Boolean).length} / 4 자리`, img: 'ui/mt/silhouette-coach.webp' },
+    { key: 'items', label: '아이템', sub: `보유 ${(team.items || []).length}개`, img: 'ui/mt/mt-boost.webp' },
   ];
   const eff = staffEffect(staff);
   const staffCost = Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
@@ -258,7 +356,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); }}>
+        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); setItemTarget(null); }}>
           <p className="mt-lab px-1 pb-2" style={{ fontSize: 10 }}>Squad</p>
           <div className="flex justify-between px-1 pb-1 font-display text-[10px] tracking-[0.15em] text-gray-500"><span>포지션</span><span>인원 / 최소~최대</span></div>
           {POS_RULES.map((r) => {
@@ -386,7 +484,12 @@ export default function LockerScreen({ account, onSave, onBack }) {
           </section>
         )}
 
-        {tab === 'staff' ? (
+        {tab === 'items' && (
+          <ItemsTab team={team} itemId={itemId} target={itemTarget} onPick={(id) => { setItemId(id); setItemTarget(null); }} onTarget={setItemTarget}
+            onUse={(key, t, slot) => { commit(consumeItem(team, key, t, slot)); setItemTarget(null); }} />
+        )}
+
+        {tab === 'items' ? null : tab === 'staff' ? (
           <aside className="mt-cut mt-frame mt-glass flex flex-col gap-4 p-6" style={{ ...cut(20), '--a': '#c4b5fd' }}>
             <p className="mt-lab" style={{ '--a': '#c4b5fd' }}>Staff Effect</p>
             <h2 className="-mt-2 text-3xl font-black text-white">코치진 효과</h2>

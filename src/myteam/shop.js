@@ -77,3 +77,31 @@ export function tickBoosts(team) {
   const boosts = (team.boosts || []).map((b) => ({ ...b, gamesLeft: b.gamesLeft - 1 })).filter((b) => b.gamesLeft > 0);
   return { ...team, boosts };
 }
+
+/* ───── 아이템 보관함: 훈련·부스트·계약서는 사서 라커 '아이템'에 담아 두고, 거기서 대상을 골라 쓴다 ───── */
+export const isStorable = (it) => needsPlayer(it) || needsStaff(it);
+export const itemById = (id) => SHOP_ITEMS.find((i) => i.id === id);
+
+/** 구매: 보관함에 한 장 넣는다 */
+export function addToInventory(team, it) {
+  const items = [...(team.items || []), { key: `${it.id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, itemId: it.id }];
+  return { ...team, items };
+}
+
+/** 추천 대상 — 효과가 맞는 쪽(타자/투수)에서 종합이 가장 많이 오르는 순 */
+export function recommendTargets(team, it, n = 5) {
+  if (!needsPlayer(it)) return [];
+  return (team.squad || []).filter((p) => (it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter'))
+    .map((p) => ({ p, gain: overallOf(p.position, { ...p.stats, [it.stat]: Math.min(99, (p.stats?.[it.stat] ?? 70) + it.amount) }) - p.overall }))
+    .sort((a, b) => b.gain - a.gain || b.p.overall - a.p.overall).slice(0, n).map((x) => x.p);
+}
+
+/** 사용: 보관함에서 한 장 빼고 대상에게 적용한 새 팀 */
+export function consumeItem(team, key, target, staffSlot) {
+  const entry = (team.items || []).find((x) => x.key === key);
+  const it = entry && itemById(entry.itemId);
+  if (!it || !target) return team;
+  const rest = { ...team, items: team.items.filter((x) => x.key !== key) };
+  if (needsStaff(it)) return { ...rest, staff: { ...(rest.staff || {}), [staffSlot]: { ...target, cost: 0, contracted: true } } };
+  return applyToPlayer(rest, it, target);
+}

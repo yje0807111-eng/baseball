@@ -1,8 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, needsPlayer, needsStaff, applyToPlayer } from './shop.js';
-import { staffByRole } from './staff.js';
-import { STAFF_SLOTS } from './rules.js';
+import { CATEGORIES, SHOP_ITEMS, isStorable, addToInventory, recommendTargets } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -37,18 +35,13 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const [team, setTeam] = useState(account.team);
   const [cat, setCat] = useState('all');
   const [picked, setPicked] = useState(SHOP_ITEMS[0]);
-  const [target, setTarget] = useState(null);
   const [toast, setToast] = useState('');
 
   const squad = team.squad || [];
   const items = useMemo(() => SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat), [cat]);
   const counts = useMemo(() => Object.fromEntries(CATEGORIES.map((c) => [c.key, c.key === 'all' ? SHOP_ITEMS.length : SHOP_ITEMS.filter((i) => i.cat === c.key).length])), []);
-  const targets = useMemo(() => {
-    if (!picked) return [];
-    if (needsPlayer(picked)) return squad.filter((p) => (picked.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter')).sort((a, b) => b.overall - a.overall);
-    if (needsStaff(picked)) return picked.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')];
-    return [];
-  }, [picked, squad]);
+  const recs = useMemo(() => (picked ? recommendTargets(team, picked) : []), [picked, team]);
+  const owned = (it) => (team.items || []).filter((x) => x.itemId === it.id).length;
 
   const push = (nextTeam, nextGold, msg) => {
     setTeam(nextTeam); setGold(nextGold);
@@ -59,16 +52,9 @@ export default function ShopScreen({ account, onChange, onBack }) {
   };
   const buy = () => {
     if (!picked || picked.price > gold) return;
-    if (needsPlayer(picked)) {
-      if (!target) return;
-      push(applyToPlayer(team, picked, target), gold - picked.price, `${target.name} — ${picked.name} 적용`);
-      setTarget(null); return;
-    }
-    if (needsStaff(picked)) {
-      if (!target) return;
-      const slot = target.role === 'manager' ? 'manager' : STAFF_SLOTS.find((s) => s.role === target.role)?.key;
-      push({ ...team, staff: { ...(team.staff || {}), [slot]: { ...target, cost: 0, contracted: true } } }, gold - picked.price, `${target.name} 선임 (CP 면제)`);
-      setTarget(null); return;
+    if (isStorable(picked)) {
+      push(addToInventory(team, picked), gold - picked.price, `${picked.name} — 라커 아이템에 담김 · 보유 ${owned(picked) + 1}개`);
+      return;
     }
     if (picked.augTicket) {
       const aug = loadAccount()?.aug;
@@ -81,10 +67,8 @@ export default function ShopScreen({ account, onChange, onBack }) {
     if (picked.cap) push({ ...team, cap: (team.cap || 2000) + picked.cap }, gold - picked.price, `샐러리 캡 +${picked.cap}`);
   };
 
-  const needTarget = picked && (needsPlayer(picked) || needsStaff(picked));
-  const ready = picked && picked.price <= gold && (!needTarget || target);
+  const ready = picked && picked.price <= gold;
   const n = picked ? catColor[picked.cat] : '#34d399';
-  const after = picked?.stat && target?.stats ? Math.min(99, (target.stats[picked.stat] ?? 70) + picked.amount) : null;
 
   const NAV = CATEGORIES.map((c) => ({
     key: c.key, label: c.label, sub: `${counts[c.key]}개${c.key === 'all' ? '' : ` · ${catSub[c.key]}`}`,
@@ -100,7 +84,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); setTarget(null); }} a="#fde047" label="Category">
+        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category">
           <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
             <p className="text-[11px] text-gray-400">보유 골드</p>
             <b className="font-display text-2xl text-amber-300">{gold.toLocaleString()} G</b>
@@ -114,7 +98,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
             <p className="text-sm text-gray-400">오늘의 상품 {items.length}개 · 매일 09시 갱신</p>
           </div>
           <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
-            {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); setTarget(null); }} />)}
+            {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
 
@@ -125,39 +109,32 @@ export default function ShopScreen({ account, onChange, onBack }) {
               <Hero img={`url(ui/mt/${picked.img}.webp)`} name={picked.name} color={n} h={150} pos="center" />
               <p className="-mt-1 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
 
-              {needTarget && (
+              {picked.target && (
                 <div className="flex min-h-0 flex-1 flex-col">
-                  <p className="mt-grp !mt-0">적용 대상</p>
+                  <p className="mt-grp !mt-0">추천 대상</p>
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-                    {targets.length === 0 && <p className="text-sm text-gray-500">대상이 없습니다. 라커에서 먼저 영입하세요.</p>}
-                    {targets.map((t) => {
-                      const on = target?.id === t.id;
-                      return (
-                        <button key={t.id} type="button" onClick={() => setTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
-                          style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
-                          <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
-                          <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
-                          <span className="min-w-0">
-                            <b className="block truncate text-sm font-black text-white">{t.name}</b>
-                            <span className="block truncate text-[11px] text-gray-400">
-                              {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
-                              {picked.stat && t.stats ? ` · ${t.stats[picked.stat] ?? '-'} → ${Math.min(99, (t.stats[picked.stat] ?? 70) + picked.amount)}` : ''}
-                            </span>
-                          </span>
-                        </button>
-                      );
-                    })}
+                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수가 없습니다.</p>}
+                    {recs.map((t) => (
+                      <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
+                        <Portrait player={t} w={38} h={46} color={n} />
+                        <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall}</b>
+                        <span className="min-w-0">
+                          <b className="block truncate text-sm font-black text-white">{t.name}</b>
+                          <span className="block truncate text-[11px] text-gray-400">{t.position} · {t.year} {t.team} · {t.stats?.[picked.stat] ?? '-'} → {Math.min(99, (t.stats?.[picked.stat] ?? 70) + picked.amount)}</span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
 
-              <div className={needTarget ? '' : 'mt-auto'}>
-                {target && after != null && <KV k={`${target.name} ${picked.stat}`} v={`${target.stats[picked.stat]} → ${after}`} color="#34d399" />}
+              <div className={picked.target ? '' : 'mt-auto'}>
+                {isStorable(picked) && <KV k="보유" v={`${owned(picked)}개 · 라커 › 아이템에서 사용`} color="#fff" />}
                 <KV k="보유 골드" v={`${gold.toLocaleString()} → ${(gold - picked.price).toLocaleString()}`} color={picked.price > gold ? '#f87171' : '#fde047'} />
               </div>
               <div>
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={buy}>
-                  {picked.price > gold ? '골드 부족' : needTarget && !target ? '대상을 고르세요' : `${picked.price.toLocaleString()} G 구매 ▶`}
+                  {picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
                 {toast && <p className="mt-2 text-center text-sm text-emerald-300">{toast}</p>}
               </div>
