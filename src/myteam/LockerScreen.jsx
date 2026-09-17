@@ -12,7 +12,7 @@ import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staf
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
 import { playingIds } from './match.js';
-import { posColor, statColor } from './teamColor.js';
+import { posColor, statColor, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
@@ -182,37 +182,63 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
 }
 
-/** 카드(2:3)와 그 아래 붙은 실적 줄: 판에서 남은 높이 · 폭을 재서 카드 크기를 정하고, 실적 줄을 카드 폭에 맞춘다 */
-function CardWithRecord({ p }) {
+/**
+ * 카드(2:3) + 바로 아래 붙은 받침(실적 줄 · 강점/약점 칩): 받침은 카드와 같은 문법 —
+ * 검은 면 · 구단 네온 안쪽 테두리 · 네온 구분선 · Saira 영문 라벨 · 카드 칩 모양. 판에서 남은 높이를 재서 카드 크기를 정한다
+ */
+function CardWithRecord({ p, tr }) {
   const box = useRef(null);
-  const recRef = useRef(null);
+  const baseRef = useRef(null);
   const [w, setW] = useState(0);
   useEffect(() => {
     const el = box.current;
     if (!el) return undefined;
     const fit = () => {
-      const recH = recRef.current?.offsetHeight || 0;
-      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - recH) * 2) / 3))));
+      const baseH = baseRef.current?.offsetHeight || 0;
+      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3))));
     };
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(el);
+    if (baseRef.current) ro.observe(baseRef.current);
     return () => ro.disconnect();
   }, []);
+  const neon = teamNeon(p);
+  const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])];
   return (
     <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
-      <div style={{ width: w }}>
+      <div style={{ width: w, '--n': neon }}>
         <div className="aspect-[2/3] w-full">
           <PlayerCard key={p.id} player={p} reason={null} onSelect={() => {}} />
         </div>
-        {/* 칸마다 세로 구분선 · 이름은 밝은 회색 영문 서체 · 숫자는 크고 굵게 — 작은 칸에서도 읽히게 */}
-        <div ref={recRef} className="grid grid-cols-6 divide-x divide-white/[0.08] bg-[#0b1220] shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]" style={{ clipPath: 'polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%)' }}>
-          {recordCells(p).map(([k, v]) => (
-            <div key={k} className="flex flex-col items-center justify-center gap-0.5 py-1.5 leading-none">
-              <span className="text-[11px] font-semibold text-gray-300">{k}</span>
-              <b className={`font-display text-[18px] font-extrabold tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b>
-            </div>
-          ))}
+        <div ref={baseRef} className="relative -mt-px bg-[#05080f] px-3 pb-3 pt-2.5" style={{ clipPath: 'polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)' }}>
+          {/* 카드 안쪽 테두리(pk-fr)가 받침까지 이어지는 느낌 */}
+          <span className="pointer-events-none absolute inset-x-[5px] bottom-[5px] top-0" style={{ border: '1px solid color-mix(in srgb, var(--n) 45%, transparent)', borderTop: 0 }} />
+          {/* 실적: 카드 능력치 판 문법 — 작은 영문 라벨 + 굵은 숫자, 칸 사이 네온 옅은 선 */}
+          <div className="relative grid grid-cols-6" style={{ background: 'rgba(255,255,255,.035)' }}>
+            {recordCells(p).map(([k, v], i) => (
+              <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 color-mix(in srgb, var(--n) 22%, transparent)' : undefined }}>
+                <span className="font-display text-[11px] font-semibold tracking-[0.08em] text-gray-400">{k}</span>
+                <b className={`font-display text-[19px] font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
+              </div>
+            ))}
+          </div>
+          {chips.length > 0 && (
+            <>
+              <span className="relative my-2.5 block h-px" style={{ background: 'linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent))' }} />
+              {/* 강점 · 약점: 카드 칩(pk-chips) 모양 — 어두운 면 + 색 테두리 */}
+              <div className="relative flex flex-wrap gap-1.5">
+                {chips.map(([t, good]) => (
+                  <span key={t.id} className="flex h-6 items-center gap-1.5 px-2 text-[12px] font-bold"
+                    style={{ background: 'rgba(5,8,15,.72)', color: good ? '#a7f3d0' : '#fecaca', boxShadow: `inset 0 0 0 1px ${good ? 'rgba(52,211,153,.55)' : 'rgba(248,113,113,.55)'}` }}>
+                    <span className="h-3.5 w-3.5 shrink-0" style={traitIconStyle(t.id, good ? '#6ee7b7' : '#fca5a5')} />
+                    {t.name}
+                    <span className="font-display text-[11px] font-semibold text-gray-400">{t.why}</span>
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -224,20 +250,8 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
       {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
-      <CardWithRecord p={p} />
+      <CardWithRecord p={p} tr={tr} />
       {/* 실적: 시즌 기록 */}
-      {/* 강점 · 약점: 두 줄 격자의 작은 칩 (아이콘 · 이름 · 근거 수치) */}
-      {(tr.good.length > 0 || tr.bad.length > 0) && (
-        <div className="grid grid-cols-2 gap-1">
-          {[...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])].map(([t, good]) => (
-            <div key={t.id} className="flex h-6 min-w-0 items-center gap-1.5 pl-2 pr-1.5" style={{ background: good ? 'rgba(52,211,153,.07)' : 'rgba(248,113,113,.07)', boxShadow: `inset 2px 0 0 ${good ? '#34d399' : '#f87171'}` }}>
-              <span className="h-3.5 w-3.5 shrink-0" style={traitIconStyle(t.id, good ? '#6ee7b7' : '#fca5a5')} />
-              <b className="shrink-0 text-[12px] text-white">{t.name}</b>
-              <span className={`ml-auto truncate font-display text-[11px] ${good ? 'text-emerald-300' : 'text-red-300'}`}>{t.why}</span>
-            </div>
-          ))}
-        </div>
-      )}
       {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
       <div className="flex items-baseline justify-between border-y border-white/10 py-1.5 text-[12.5px] text-gray-400">
         <span>{owned ? '방출 후 캡' : '영입 후 캡'} <b className="ml-1 font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{after.toLocaleString()} / {cap.toLocaleString()}</b></span>
