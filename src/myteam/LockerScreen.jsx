@@ -149,11 +149,11 @@ function EmptyDetail() {
         <div>
           <span className="absolute inset-0 bg-cover opacity-[0.07]" style={{ backgroundImage: 'url(ui/mt/silhouette-player.webp)', backgroundPosition: '60% 18%' }} />
           <span className="absolute left-3 top-3">{sk({ width: 52, height: 34 })}</span>
+          <span className="absolute inset-x-3 bottom-[48px] flex justify-between">{sk({ width: 120, height: 10 })}{sk({ width: 44, height: 12 })}</span>
           <span className="absolute bottom-3 left-3">{sk({ width: 150, height: 22 })}</span>
           <span className="absolute right-3 top-3">{sk({ width: 64, height: 18, borderRadius: 9 })}</span>
         </div>
       </div>
-      {sk({ width: '62%', height: 12 })}
       <div className="grid grid-cols-4 gap-1.5">
         {[0, 1, 2, 3].map((k) => (
           <div key={k} className="mt-cut flex flex-col gap-1.5 bg-white/[0.03] px-2 py-2" style={cut(6)}>
@@ -161,12 +161,12 @@ function EmptyDetail() {
           </div>
         ))}
       </div>
+      <div className="mt-cut grid grid-cols-6 gap-2 bg-white/[0.03] px-3 py-2" style={cut(8)}>
+        {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '55%', height: 13 })}</div>)}
+      </div>
       <div className="flex flex-col gap-1">
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(52,211,153,.25)' }, 'mt-cut')}
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(248,113,113,.2)' }, 'mt-cut')}
-      </div>
-      <div className="mt-cut grid grid-cols-6 gap-2 bg-white/[0.03] px-3 py-2" style={cut(8)}>
-        {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '55%', height: 13 })}</div>)}
       </div>
       <div className="flex flex-col">
         {[0, 1].map((k) => (
@@ -208,8 +208,14 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
       <div className="relative shrink-0">
         <Hero img={heroImg} ovr={p.overall} name={p.name} color={n} h={160} />
         <span className="absolute right-3 top-3 text-[13px] font-bold" style={{ color: hand.color, textShadow: '0 1px 4px rgba(0,0,0,.8)' }}>{hand.long}</span>
+        {/* 카드 안 이름 위 한 줄: 연도 구단 · 포지션 · 외국인 | 가격 */}
+        <div className="absolute inset-x-3 bottom-[46px] flex items-center gap-1.5 text-[12.5px] text-gray-200" style={{ textShadow: '0 1px 4px rgba(0,0,0,.9)' }}>
+          <span>{p.year} {p.team}</span>
+          <em className="px-1.5 py-px text-[11px] font-bold not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
+          {p.isForeign && <em className="px-1.5 py-px text-[11px] font-bold not-italic text-amber-300 shadow-[inset_0_0_0_1px_rgba(252,211,77,.6)]">외국인</em>}
+          <b className="ml-auto font-display text-base text-white">{p.cost}<small className="ml-0.5 text-[11px] text-gray-300">CP</small></b>
+        </div>
       </div>
-      <p className="-mt-2 text-[13px] text-gray-400">{p.year} {p.team} · {p.position} · {p.cost} CP{p.isForeign ? ' · 외국인' : ''}</p>
       <div className="grid grid-cols-4 gap-1.5">
         {keys.map(([label, k]) => {
           const v = p.stats?.[k] ?? 0;
@@ -222,6 +228,12 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
             </div>
           );
         })}
+      </div>
+      {/* 실적: 시즌 기록 */}
+      <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
+        {recordCells(p).map(([k, v]) => (
+          <div key={k} className="py-1.5 text-center"><div className="text-[10.5px] text-gray-500">{k}</div><b className={`font-display text-[17px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
+        ))}
       </div>
       {/* 강점 · 약점: 아이콘 · 이름 · 근거 수치 */}
       <div className="flex flex-col gap-1">
@@ -236,11 +248,6 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
           </div>
         ))}
         {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
-      </div>
-      <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
-        {recordCells(p).map(([k, v]) => (
-          <div key={k} className="py-1.5 text-center"><div className="text-[10.5px] text-gray-500">{k}</div><b className={`font-display text-[17px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
-        ))}
       </div>
       <div>
         <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
