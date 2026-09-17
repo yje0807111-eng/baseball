@@ -25,7 +25,7 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
   );
 }
 
-/** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급/RP · 단계 막대 · 최근 10경기 · 시즌 MVP · 자주 쓴 증강 | 팀 스탯 */
+/** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급/RP · 단계 막대 · 시즌 MVP | 팀 스탯 */
 function RankPanel({ account, team, onRecord }) {
   const rp = account.rank?.rp || 0;
   const r = rankOf(rp);
@@ -36,6 +36,9 @@ function RankPanel({ account, team, onRecord }) {
   const STATS = [['타선', st.bat, '#34d399', '#0e7490'], ['선발', st.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, '#f87171', '#a21caf'], ['수비', st.def, '#fde047', '#ea580c']];
   const segs = 40;
   const on = Math.round((r.inDiv / 100) * segs);
+  // 바로 다음 단계(III → II → I → 다음 등급 III)와 남은 RP
+  const nextStep = r.next ? (r.div === 'I' ? `${r.next.ko} III` : `${r.tier.ko} ${r.div === 'III' ? 'II' : 'I'}`) : '';
+  const toStep = r.next ? 100 - r.inDiv : 0;
   return (
     <section className="mt-cut mt-frame mt-glass relative min-h-0 overflow-hidden" style={{ '--c': '16px', '--a': c, gridColumn: '1 / span 4' }}>
       {/* 배경: 관중석 휴대폰 불빛 띠(판 비율 1920×200) — 오른쪽 팀 스탯 뒤는 어둡게 */}
@@ -54,12 +57,12 @@ function RankPanel({ account, team, onRecord }) {
             <p className="mt-lab" style={{ '--a': c }}>Rank</p>
             <b className="text-[34px] font-black leading-none text-white">{r.tier.ko} {r.div}</b>
             <span className="font-display text-xl" style={{ color: c }}>{rp.toLocaleString()} RP</span>
-            <span className="text-sm text-gray-400">{r.next ? `${r.next.ko}까지 ${r.toNext} RP` : '최고 등급'}</span>
+            <span className="text-sm text-gray-400">{r.next ? `${nextStep}까지 ${toStep} RP` : '최고 등급'}</span>
             {last && <span className={`ml-auto font-display text-sm ${last.rp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>시즌 {last.season} {last.place}위 {last.rp >= 0 ? '+' : ''}{last.rp}</span>}
           </div>
           <div>
             <div className="mb-1 flex justify-between font-display text-xs text-gray-300">
-              <span>{r.tier.ko} {r.div}</span><span>{r.inDiv} / 100</span><span>{r.next ? (r.div === 'I' ? r.next.ko + ' III' : `${r.tier.ko} ${r.div === 'III' ? 'II' : 'I'}`) : ''}</span>
+              <span>{r.tier.ko} {r.div}</span><span>{r.inDiv} / 100</span><span>{nextStep}</span>
             </div>
             {/* 단계 막대: 어두운 홈 위에 눈금 — 배경 사진에 묻히지 않게 */}
             <div className="mt-cut grid gap-[3px] bg-[#03060c]/90 p-[3px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.14)]" style={{ '--c': '4px', gridTemplateColumns: `repeat(${segs},1fr)`, height: 18 }}>
@@ -69,30 +72,14 @@ function RankPanel({ account, team, onRecord }) {
             </div>
           </div>
           <div className="flex items-center gap-6 border-t border-white/10 pt-2.5">
-            <button type="button" onClick={onRecord} className="text-left">
-              <p className="font-display text-[10px] tracking-[0.25em] text-gray-400">최근 10경기{sum.winRate != null ? ` · ${sum.winRate}%` : ''}{sum.streak > 1 ? ` · ${sum.streak}연승` : ''}</p>
-              <span className="mt-1 flex gap-1">
-                {sum.form.length ? sum.form.map((x, i) => (
-                  <i key={i} className="mt-cut grid h-5 w-5 place-items-center font-display text-[10px] font-extrabold not-italic text-[#05080f]" style={{ '--c': '3px', background: x === 'W' ? '#10b981' : x === 'L' ? '#f87171' : '#94a3b8' }}>{x}</i>
-                )) : <span className="text-xs text-gray-500">아직 경기가 없습니다</span>}
-              </span>
-            </button>
-            <div className="flex min-w-0 items-center gap-3">
+            <button type="button" onClick={onRecord} className="flex min-w-0 items-center gap-3 text-left">
               {sum.mvp && <span className="mt-cut h-11 w-9 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(sum.mvp.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />}
               <div className="min-w-0">
                 <p className="font-display text-[10px] tracking-[0.25em] text-amber-300">SEASON MVP</p>
                 <b className="block truncate text-base text-white">{sum.mvp ? `${sum.mvp.name}` : '—'}</b>
                 {sum.mvp && <small className="text-xs text-gray-400">경기 MVP {sum.mvp.n}회</small>}
               </div>
-            </div>
-            <div className="min-w-0">
-              <p className="mb-1 font-display text-[10px] tracking-[0.25em] text-gray-400">자주 쓴 증강</p>
-              <div className="flex flex-wrap gap-1.5">
-                {sum.augs.length ? sum.augs.map((a) => (
-                  <span key={a.id} className="mt-cut bg-white/[0.05] px-2.5 py-0.5 text-sm text-white" style={{ '--c': '5px' }}>{a.name} <small className="font-display text-gray-500">{a.n}회</small></span>
-                )) : <span className="text-xs text-gray-500">증강 기록 없음</span>}
-              </div>
-            </div>
+            </button>
           </div>
         </div>
 
