@@ -5,7 +5,10 @@
  * const ev = pitch(g, orders)                     // 공 하나 진행, g 를 직접 바꾸고 이벤트를 돌려준다
  * while (!g.final) pitch(g)
  *
- * 팀: { name, batters: [9명, 타순], pitchers: [선발, 불펜...], catcher? }
+ * 팀: { name, batters: [9명, 타순], pitchers: [선발, 불펜...], catcher?, buff?, edge?, usage? }
+ *   buff: 팀 전체 보정(능력치 점수) — 타자 컨택·파워, 투수 구위·제구에 더한다. AI 난이도 · 전력 보정
+ *   edge: { bat, pit } 효과형 증강의 팀 보너스 — bat 은 타자 컨택·파워, pit 은 투수 구위·제구에 buff 와 함께 더한다
+ *   usage.fatigueGrace: 투수가 지치기 시작하는 투구 수 여유 (증강 투수 운용)
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change' }
@@ -26,6 +29,7 @@ export const RESULT_LABEL = {
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
+const tb = (side, kind) => (side?.team?.buff || 0) + (side?.team?.edge?.[kind] || 0); // 팀 보정 + 증강 팀 보너스
 
 export function pitchMix(pitcher) {
   const fast = clamp(0.4 + (st(pitcher, 'stuff', 80) - 80) * 0.015, 0.3, 0.65);
@@ -98,7 +102,7 @@ export function stealOdds(g, from) {
 
 /** 투수 체력: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
 function fatigue(side) {
-  const limit = 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0);
+  const limit = 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0);
   return clamp((side.pitches - limit) / 40, 0, 1);
 }
 
@@ -107,7 +111,7 @@ function choosePitch(g, pitcher, order) {
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
   const tired = fatigue(defenseOf(g));
-  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0);
+  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
@@ -117,7 +121,7 @@ function choosePitch(g, pitcher, order) {
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
-  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0)) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
+  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
   return { type, zone, inZone: isIn, velo, tired };
 }
 
@@ -193,8 +197,19 @@ export function pitch(g, orders = {}) {
   const off = offenseOf(g);
   const def = defenseOf(g);
   const batter = batterOf(g);
-  if (orders.changePitcher && def.team.pitchers[def.pitcherIdx + 1]) {
-    def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+  if (orders.changePitcher) {
+    // id 를 주면 그 투수를 다음 순번으로 당겨 온다 (이미 던진 투수 · 지금 투수는 고를 수 없다)
+    if (typeof orders.changePitcher === 'string') {
+      const list = def.team.pitchers;
+      const at = list.findIndex((x, i) => i > def.pitcherIdx && x.id === orders.changePitcher);
+      if (at > def.pitcherIdx + 1) {
+        const [pick] = list.splice(at, 1);
+        list.splice(def.pitcherIdx + 1, 0, pick);
+      }
+    }
+    if (def.team.pitchers[def.pitcherIdx + 1]) {
+      def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+    }
   }
   const pitcher = def.pitcher;
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
@@ -221,9 +236,9 @@ export function pitch(g, orders = {}) {
   def.pitches += 1;
   Object.assign(ev, { pitch: p });
 
-  const contact = st(batter, 'contact');
-  const power = st(batter, 'power');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0);
+  const contact = st(batter, 'contact') + tb(off, 'bat');
+  const power = st(batter, 'power') + tb(off, 'bat');
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.1 : -0.08) : 0;
 
   // 스윙 여부
@@ -253,10 +268,10 @@ export function pitch(g, orders = {}) {
 function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const def = defenseOf(g);
   const off = offenseOf(g);
-  const contact = st(batter, 'contact');
-  const power = st(batter, 'power');
+  const contact = st(batter, 'contact') + tb(off, 'bat');
+  const power = st(batter, 'power') + tb(off, 'bat');
   const speed = st(batter, 'speed');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0);
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const defAvg = def.team.batters.reduce((s, x) => s + st(x, 'defense'), 0) / def.team.batters.length;
   let runs = 0;
   nextBatter(g);
@@ -332,14 +347,54 @@ export function describe(ev) {
 }
 
 /** 한 경기를 끝까지 자동으로(테스트·AI용) */
+/*
+ * AI 감독의 투수 교체 — 팀의 usage(시리즈별 조사값: src/data/pitching-usage.json)를 따른다.
+ *  starterPitches 선발을 내리는 투구 수 · relieverPitches 불펜 한 명의 투구 수 · quickHook 실점하면 일찍 내리는 성향 · closerInnings 마무리 이닝
+ * 타석이 바뀌는 순간(0-0)에만 판단한다. 바꿀 투수 id(마무리) 또는 true(다음 순번) · 안 바꾸면 null
+ */
+export const DEFAULT_USAGE = { starterPitches: 95, relieverPitches: 20, quickHook: 0.5, closerInnings: 1 };
+export function aiPitchingChange(g, side) {
+  if (g.final || g.balls || g.strikes) return null;
+  const list = side.team.pitchers;
+  if (!list[side.pitcherIdx + 1]) return null;
+  const u = { ...DEFAULT_USAGE, ...(side.team.usage || {}) };
+  const closer = side.team.closerId ? list.find((p, i) => i > side.pitcherIdx && p.id === side.team.closerId) : null;
+  const isCloser = side.team.closerId && side.pitcher?.id === side.team.closerId;
+  const lead = (side === g.home ? g.home.runs - g.away.runs : g.away.runs - g.home.runs);
+  const lateInning = 10 - Math.max(1, Math.round(u.closerInnings));
+  // 마무리: 리드 1~3점 상황의 마지막 이닝(들)
+  if (closer && g.outs === 0 && g.inning >= lateInning && lead >= 1 && lead <= 3) return closer.id;
+  if (isCloser) return side.pitches >= u.relieverPitches * Math.max(1, u.closerInnings) * 1.6 ? nextArm(side) : null;
+  const starter = side.pitcherIdx === 0;
+  // 선발로 나온 투수 · 롱릴리프(선발 포지션 투수가 불펜으로)는 길게, 불펜 투수는 짧게
+  const long = !starter && side.pitcher?.position === 'SP';
+  const limit = starter ? u.starterPitches : long ? u.relieverPitches * 2.2 : u.relieverPitches;
+  if (side.pitches >= limit) return nextArm(side);
+  if (fatigue(side) >= 0.45) return nextArm(side);
+  // 퀵훅: 선발이 이번 경기에 내준 점수. 1~2회엔 더 참는다
+  if (starter && g.inning <= 6) {
+    const allowed = g.events.reduce((n, ev) => n + (ev.pitcher?.id === side.pitcher?.id && ev.runs ? ev.runs : 0), 0);
+    const hook = (u.quickHook >= 0.7 ? 3 : u.quickHook >= 0.4 ? 5 : 7) + (g.inning <= 2 ? 2 : 0);
+    if (allowed >= hook) return nextArm(side);
+  }
+  return null;
+}
+
+/** 순번 교체 때는 마무리를 아껴 둔다: 마무리가 아닌 다음 투수, 없으면 마무리 */
+function nextArm(side) {
+  const list = side.team.pitchers;
+  const pick = list.find((p, i) => i > side.pitcherIdx && p.id !== side.team.closerId);
+  return pick ? pick.id : true;
+}
+
 export function simulateGame(opts, orderFn = () => ({})) {
   const g = createGame(opts);
   let guard = 0;
   while (!g.final && guard++ < 1200) {
     const def = defenseOf(g);
-    // 자동 투수 교체: 지치면 불펜
-    const auto = fatigue(def) > 0.6 && def.team.pitchers[def.pitcherIdx + 1] ? { changePitcher: true } : {};
-    pitch(g, { ...auto, ...orderFn(g) });
+    // 자동 투수 교체: AI 감독 판단(팀 usage)
+    const change = aiPitchingChange(g, def);
+    pitch(g, { ...(change ? { changePitcher: change } : {}), ...orderFn(g) });
   }
   return g;
 }

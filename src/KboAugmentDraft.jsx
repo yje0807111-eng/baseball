@@ -4,6 +4,9 @@ import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
+import TournamentBracket from './myteam/TournamentBracket.jsx';
+import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
+import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
 /* ════════════════════════════════════════════════════════════════════
@@ -22,7 +25,7 @@ const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전�
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
-const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium' };
+const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium', bracket: 'stadium' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -133,8 +136,10 @@ export const DRAFT_MODES = [
   return { ...m, series, players: series.flatMap((s) => s.players) };
 });
 export const YEAR_MODES = DRAFT_MODES.filter((m) => m.group === 'year');
-/** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 */
+/** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 (경기 엔진: 타자 컨택·파워 · 투수 구위·제구에 더함) */
 export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
+/** 드래프트 토너먼트 구단 팀 전력 보정 상한: 모드 전체 AI 드래프트 팀과 엔진 전력이 벌어진 만큼 경기에서만 더하거나 뺀다 */
+const HANDICAP_MAX = 8;
 const personKey = (p) => p.personId || p.name;
 
 /* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
@@ -459,6 +464,8 @@ export function applySynergies(roster, synergies = checkSynergies(roster)) {
 }
 
 /* ───────────── 6. 팀 전력 산출 ───────────── */
+/** 증강 팀 보너스를 공 단위 엔진에 넣을 때의 배율 (엔진 승률로 실측: scripts/augment-engine.test.mjs) */
+export const ENGINE_EDGE = { bat: 1, pit: 1 };
 export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   const passives = augments.filter((a) => a.passive);
   const has = (flag) => passives.some((a) => a.flag === flag);
@@ -476,7 +483,7 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   roster = applySynergies(roster, synergies); // 시너지 보너스는 그 시너지를 만든 선수에게만
   const envX = { ...env, synergies };
   for (const a of passives) if (a.roster) roster = a.roster(roster, envX);
-  const t = { name, roster, synergies, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
+  const t = { name, roster, synergies, buff, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
   for (const a of passives) a.team?.(t, envX);
   roster = t.roster;
   const { bonus, weights: w } = t;
@@ -493,11 +500,18 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   const rp = at('CL'); // 마무리
   const batValue = (p) => p.stats.contact * w.contact + p.stats.power * w.power + p.stats.speed * w.speed;
   const handShare = (h) => (batters.length ? batters.reduce((s, p) => s + (p.hand === h ? 1 : p.hand === 'S' ? 0.5 : 0), 0) / batters.length : 0);
+  const defense = avg(batters.map((p) => p.stats.defense));
+  // 공 단위 엔진용 증강 팀 보너스(능력치 점수): 팀 보너스 + 타격 가중치가 바꾼 공격값 + 수비 계수가 바꾼 실점 (난이도 buff 는 엔진이 따로 더한다)
+  const baseW = { contact: 0.4, power: 0.4, speed: 0.2 };
+  const weightGain = avg(batters.map(batValue)) - avg(batters.map((p) => p.stats.contact * baseW.contact + p.stats.power * baseW.power + p.stats.speed * baseW.speed));
+  const defGain = ((defense - 78) * (t.defCoef - 0.01)) / 0.04; // 옛 계산에서 투구 1점 = 기대 실점 0.04
+  const edge = { bat: (bonus.bat - buff + weightGain) * ENGINE_EDGE.bat, pit: (bonus.pit - buff + defGain) * ENGINE_EDGE.pit };
 
   return Object.assign(t, {
     roster, batters, sps, lr, mr, su, rp, pen: [lr, mr, su, rp].filter(Boolean),
     offense: avg(batters.map(batValue)) + bonus.bat,
-    defense: avg(batters.map((p) => p.stats.defense)),
+    defense,
+    edge: { bat: Math.round(edge.bat * 10) / 10, pit: Math.round(edge.pit * 10) / 10 },
     rightRatio: handShare('R'),
     pitchValue: (p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3 + bonus.pit,
     topBatter: (stat) => [...batters].sort((a, b) => b.stats[stat] - a.stats[stat])[0],
@@ -712,8 +726,8 @@ const PASSIVE_AUGMENTS = [
       return v >= 82 ? bump(r, isBat, Object.fromEntries(BAT_STATS.map((k) => [k, k === best ? 14 : -6]))) : r; },
     team: (t) => { const [best, v] = BAT_STATS.map((k) => [k, statMean(t.roster.filter(isBat), k)]).sort((x, y) => y[1] - x[1])[0];
       if (v >= 82 && t.weights[best] != null) t.weights = { contact: 0.22, power: 0.22, speed: 0.22, [best]: 0.56 }; } },
-  { id: 'glassCannon', name: '유리대포', tier: 'prismatic', type: 'extreme', desc: '투구가 약할수록 타격 보너스 (최대 +14) · 대신 상대 득점 기대 +0.1',
-    team: (t) => { t.bonus.bat += clampN(0, 14, 86 - avg(staff(t.roster).map(pitPower))); }, half: (c) => (oppOff(c) ? { add: 0.1 } : null) },
+  { id: 'glassCannon', name: '유리대포', tier: 'prismatic', type: 'extreme', desc: '투구가 약할수록 타격 보너스 (최대 +8) · 대신 상대 득점 기대 +0.1',
+    team: (t) => { t.bonus.bat += clampN(0, 8, 86 - avg(staff(t.roster).map(pitPower))); }, half: (c) => (oppOff(c) ? { add: 0.1 } : null) },
   { id: 'oneMan', name: '원맨팀', tier: 'prismatic', type: 'extreme', desc: '종합 1위 선수 모든 능력치 +15 · 그 선수가 타자면 팀 타격 +9, 투수면 팀 투구 +8 · 나머지 전원 −2',
     roster: (r) => { const [star] = topBy(r, 1, (p) => p.overall); return bump(r, () => true, (p) => every(p === star ? 15 : -2)); },
     team: (t) => { const [star] = topBy(t.roster, 1, (p) => p.overall); if (!star) return; if (isBat(star)) t.bonus.bat += 9; else t.bonus.pit += 8; } },
@@ -1205,7 +1219,7 @@ export async function runSimulation({
    UI — 다크 스포츠 대시보드 (Tailwind)
    ════════════════════════════════════════════════════════════════════ */
 
-const KEYFRAMES = `
+export const KEYFRAMES = `
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes toast { 0% { opacity: 0; transform: scale(1.25); } 12% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.97) translateY(-12px); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -1912,6 +1926,7 @@ const KEYFRAMES = `
 .rd-bc-pos, .rd-bc .rd-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: #94a3b8; }
 .rd-bc b { min-width: 0; overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .rd-bc em { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-style: normal; font-weight: 800; }
+.rd-bc-rest { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: #fb923c; }
 .rd-bc-ph { width: 24px; height: 26px; background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .rd-bc.empty { opacity: .45; cursor: default; }
 .rd-bc.empty b { color: #6b7280; font-weight: 500; }
@@ -1971,6 +1986,11 @@ const KEYFRAMES = `
 .rd-sc.lock { --s: #64748b; opacity: .78; }
 .rd-tag { padding: 3px 9px; font-size: 11.5px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
 /* 추천 선수 (타순·수비 판 아래 띠) */
+.rd-cond { position: absolute; left: 6px; right: 6px; bottom: 34px; z-index: 3; display: flex; align-items: center; gap: 4px; height: 15px; padding: 0 4px; background: rgba(5,8,15,.82); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 55%, transparent); }
+.rd-cond .bar { flex: 1; height: 4px; background: rgba(255,255,255,.1); }
+.rd-cond .bar i { display: block; height: 100%; background: var(--k); box-shadow: 0 0 6px var(--k); }
+.rd-cond b { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; color: var(--k); }
+.rd-cond em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-style: normal; font-weight: 700; color: #cbd5e1; }
 .rd-gain { position: absolute; left: 6px; bottom: 34px; z-index: 3; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 17px; color: #04150e; background: #34d399; }
 .rd-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
 .rd-ghost > * { box-shadow: inset 0 0 0 2px #38bdf8 !important; }
@@ -4486,8 +4506,8 @@ function SettingRow({ label, options, labels, value, onChange }) {
   );
 }
 
-function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null }) {
-  // 사이드 네비: normal(일반 모드: 일반 대결 · 토너먼트) · mix · recent · year(연도별) · special(특별 모드)
+function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null, onNormalView }) {
+  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · special(특별 모드)
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
   const [view, setView] = useState(plays.length ? (normalView && plays.some((x) => x.key === normalView) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
@@ -4499,6 +4519,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
   const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
   const seen = new Set();
@@ -4537,7 +4558,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               {g.items.map((it) => {
                 const on = view === it.key;
                 return (
-                  <button key={it.key} type="button" onClick={() => setView(it.key)} aria-pressed={on}
+                  <button key={it.key} type="button" onClick={() => { setView(it.key); onNormalView?.(it.key); }} aria-pressed={on}
                     className={`ui-cut relative flex h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5 text-left transition ${on ? '' : 'bg-white/[0.03] hover:brightness-125'}`}
                     style={{ '--c': '10px', background: on ? `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))` : undefined }}>
                     <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
@@ -4619,6 +4640,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
+              <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
               <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
                 <span>다른 시리즈 새로고침</span>
                 <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
@@ -4627,7 +4649,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug, format })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -4909,6 +4931,11 @@ function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
         <b className={`ov ${rdToneCls(ovr)}`} style={rdToneStyle(ovr)}>{ovr}</b>
       </span>
       {gain > 0 && <span className="rd-gain">▲{gain}</span>}
+      {player.condition != null && player.condition < 100 && (
+        <span className="rd-cond" style={{ '--k': player.condition >= 85 ? '#a3e635' : player.condition >= 70 ? '#facc15' : '#fb923c' }} title={`컨디션 ${player.condition}% · 휴식 ${player.rest}경기 남음`}>
+          <span className="bar"><i style={{ width: `${player.condition}%` }} /></span><b>{player.condition}%</b><em>−{player.rest}</em>
+        </span>
+      )}
       <span className="nmb"><b>{player.name}</b><small>{player.year} {player.team} · {player.hand}</small></span>
     </div>
   );
@@ -4918,7 +4945,7 @@ function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
  * 정비 화면: 왼쪽 타순 라인업 · 가운데 구장 위 수비 포지션 카드 · 오른쪽 투수 로테이션과 시너지.
  * 줄 · 카드를 차례로 누르거나 끌어다 놓으면 자리가 맞바뀐다.
  */
-function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart }) {
+export function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
   const init = useRef(roster);
   const [pick, setPick] = useState(null); // { k, v }
   const dragRef = useRef(null);
@@ -5025,8 +5052,8 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
           <div className="mt-auto flex flex-col gap-2">
             <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
             <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
-            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>다시 드래프트</button>
-            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>시즌 시작 ▶</button>
+            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>{restartLabel}</button>
+            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>{startLabel}</button>
           </div>
         </nav>
         {/* 왼쪽: 타순 라인업 */}
@@ -5059,7 +5086,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
                 <div key={b.id} {...g} className={`rd-bc ${g.className}`}>
                   <RdFace player={p2} className="h-[26px] w-[24px]" />
                   <span className="rd-bc-pos">{p2.position}</span>
-                  <b>{p2.name}</b>
+                  <b>{p2.name}{p2.rest > 0 && <small className="rd-bc-rest" title={`컨디션 ${p2.condition}% · 휴식 ${p2.rest}경기 남음`}> −{p2.rest}</small>}</b>
                   <em className={rdToneCls(e.overall)} style={rdToneStyle(e.overall)}>{e.overall}</em>
                 </div>
               );
@@ -5154,7 +5181,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   );
 }
 
-export default function KboAugmentDraft({ onExit, normal, normalView = null } = {}) {
+export default function KboAugmentDraft({ onExit, normal, normalView = null, onNormalView } = {}) {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
@@ -5257,6 +5284,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
   const [released, setReleased] = useState([]); // 방출한 선수(동일인 키) — 이번 드래프트 동안 재영입 불가
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
+  const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32 · 64강이면 이 판의 토너먼트 (저장하지 않음)
+  const tourMode = !!match.format && match.format !== 'single';
   const [board, setBoard] = useState(emptyBoard);
   const [half, setHalf] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -5270,7 +5299,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
   const runIdRef = useRef(0); // 값이 바뀌면 진행 중인 시뮬레이션은 스스로 중단
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
-  // 개발 전용 바로가기: ?demo=draft | ready | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  // 개발 전용 바로가기: ?demo=draft | ready | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const demo = new URLSearchParams(window.location.search).get('demo');
@@ -5288,6 +5317,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
     setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
     if (demo === 'ready') setPhase('ready');
+    if (/^tourney(16|32|64)$/.test(demo)) { setMatch((m) => ({ ...m, aug: 0, format: Number(demo.slice(7)) })); setPhase('ready'); } // 정비 화면에서 시작하면 대진표
     if (demo === 'crisis') { // 승부처 제구 미니게임만 바로 띄워 보기
       const opp = aiDraft().filter((p) => p.type === 'batter').sort((a, b) => b.stats.power - a.stats.power)[0];
       setPhase('sim');
@@ -5444,19 +5474,60 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
   const prepareMatch = (rematch = false) => {
     runIdRef.current += 1;
+    if (tourMode) { // 토너먼트: 대진표로 (끝난 판이면 새 대진)
+      if (!dtour || dtour.done) setDtour(makeDraftTournament());
+      setChoice(null);
+      setToast(null);
+      setPhase('bracket');
+      return;
+    }
     if (!(rematch && opponent)) setOpponent(aiDraft({ players: mode.players, cap: match.cap }));
     setChoice(null);
     setToast(null);
     setPhase('matchup');
   };
 
-  const startGame = (rematch = false, owned = augments.slice(0, match.aug)) => {
+  /*
+   * 드래프트 토너먼트 참가 팀: 모드 안의 구단 시즌 · 국가대표 · 레전드 시리즈마다 그 멤버 안에서만 같은 캡으로 AI 가 드래프트한 팀.
+   * 시리즈가 모자라면 남는 자리는 모드 전체 선수로 드래프트한 팀. 대진은 비슷한 전력끼리 첫 판에서 만나게(흔들림 조금)
+   */
+  const makeDraftTournament = () => {
+    const size = match.format;
+    const others = [];
+    // 전력 보정: 구단 멤버만으로 뽑은 팀은 모드에 따라 훨씬 강하거나 약하다(레전드 테마 시리즈 등). 표시 종합 · 선수 능력치는 그대로 두고 경기 보정만
+    const baseline = Array.from({ length: 6 }, () => playStrength(buildTeam('', fillRoster(aiDraft({ players: mode.players, cap: match.cap }))))).reduce((a, b) => a + b, 0) / 6;
+    const handicap = (team) => { team.buff += Math.max(-HANDICAP_MAX, Math.min(HANDICAP_MAX, Math.round(baseline - playStrength(team)))); return team; };
+    // 구단 팀: 그 멤버로 15명 이상 뽑히는 시리즈만 (너무 적으면 유망주로 채워진 빈 팀이 된다)
+    for (const series of shuffle(mode.series.filter((x) => x.id !== LEGEND_SERIES.id))) {
+      if (others.length >= size - 1) break;
+      const roster = aiDraft({ players: series.players, cap: match.cap });
+      if (roster.length < 15) continue;
+      const name = seriesName(series);
+      others.push({ id: `dr-${others.length}`, name, roster, seriesId: series.id, team: handicap(buildTeam(name, fillRoster(roster), AI_BUFF[match.ai])) });
+    }
+    const owners = new Set();
+    while (others.length < size - 1) {
+      let owner = ownerOf(Math.random);
+      while (owners.has(owner)) owner = ownerOf(Math.random);
+      owners.add(owner);
+      const roster = aiDraft({ players: mode.players, cap: match.cap });
+      const name = `${owner} 드림팀`;
+      others.push({ id: `dr-${others.length}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
+    }
+    const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(roster), buff, augments) };
+    const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
+    const meAt = order.indexOf(mine);
+    return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
+  };
+
+  /* entry: 토너먼트 상대(그 팀 그대로) */
+  const startGame = (rematch = false, owned = augments.slice(0, match.aug), entry = null) => {
     setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
     setClutch(null);
     setPlay(null);
-    const oppRoster = rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
+    const oppRoster = entry ? entry.roster : rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
-    const opp = buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
+    const opp = entry ? entry.team : buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
     const makeMy = (augs) => buildTeam('나의 드림팀', fillRoster(roster), buff, augs, env);
@@ -5475,6 +5546,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
   /* 중계 화면이 끝나면 기존 결과 화면으로 */
   const finishLive = (res) => {
     setLiveTeams(null);
+    if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
+      setDtour(advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments)));
+      setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
+      setPhase('bracket');
+      return;
+    }
     setResult(res);
     setLogs(res.logs);
     setBoard(res.board);
@@ -5494,7 +5571,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
     setModeId(id); setMatch(cfg);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     const first = rollSeries([], cfg.cap, null, [], m.series);
-    setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null);
+    setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null); setDtour(null);
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
   };
@@ -5573,15 +5650,23 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
-        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView}
+        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView} onNormalView={onNormalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
-      {phase !== 'mode' && (
+      {phase === 'bracket' && dtour && (
+        <div className="fixed inset-0 z-30">
+          <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false}
+            onBack={() => setPhase('ready')} onPlay={() => startGame(true, augments.slice(0, match.aug), tourneyOpponent(dtour))}
+            onRestart={() => setDtour(makeDraftTournament())} />
+        </div>
+      )}
+
+      {phase !== 'mode' && phase !== 'bracket' && (
         <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
           onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
-      {phase !== 'mode' && (
+      {phase !== 'mode' && phase !== 'bracket' && (
       <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready' || phase === 'matchup'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
         : 'w-full max-w-[1600px] gap-5 py-5'}`}>
@@ -5810,7 +5895,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null } = 
             if (!options.length) return null;
             return new Promise((resolve) => { midPickRef.current = resolve; setChoice({ kind: 'augment', inning, options }); });
           }}
-          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase('matchup'); }} />
+          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(tourMode ? 'bracket' : 'matchup'); }} />
       )}
       <HighlightToast toast={toast} />
     </div>

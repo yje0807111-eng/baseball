@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import { statColor, teamNeon } from './myteam/teamColor.js';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam } from './engine/pitchSim.js';
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -25,12 +25,43 @@ function pitcherLine(g, pitcher) {
   return { k, h, bb, r };
 }
 
+/**
+ * 효과형 증강의 투수 운용(buildTeam usage 플래그)을 엔진 AI 감독 usage 로 옮긴다. 이닝 ≈ 투구 15개
+ *  completeGame 완투 · extraInnings 선발 +n이닝 · aceMax 선발 상한 · noTired 지침 늦춤 · bullpenAce 가장 강한 불펜이 길게
+ */
+const PITCHES_PER_INNING = 15;
+export function engineUsage(u) {
+  if (!u) return null;
+  const out = { ...u };
+  const starter = () => out.starterPitches ?? DEFAULT_USAGE.starterPitches;
+  if (u.extraInnings) out.starterPitches = starter() + PITCHES_PER_INNING * u.extraInnings;
+  if (u.completeGame) Object.assign(out, { starterPitches: 9 * PITCHES_PER_INNING + 20, quickHook: 0, fatigueGrace: 45 });
+  if (u.aceMax) out.starterPitches = Math.min(starter(), u.aceMax * PITCHES_PER_INNING);
+  if (u.noTired) out.fatigueGrace = Math.max(out.fatigueGrace || 0, 15);
+  if (u.bullpenAce) out.relieverPitches = 45;
+  return out;
+}
+
 /** 드래프트 팀(roster)에서 엔진용 팀을 만든다: 타순 9명 + 투수(선발 → 불펜) */
 export function engineTeam(team) {
   const roster = team.roster || [];
   const batters = (team.batters?.length ? team.batters : roster.filter((p) => p.type === 'batter')).slice(0, 9);
-  const pitchers = roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN')).sort((a, b) => (a.position === 'SP' ? -1 : 1) - (b.position === 'SP' ? -1 : 1) || b.overall - a.overall);
-  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C') };
+  // 등판 순서: 정비 화면 선발 자리 → (자리 없는 팀은) 선발 포지션 → 불펜 자리 순서(롱릴리프·중간·셋업·마무리). 같으면 덜 지친 투수, 종합 높은 투수
+  const RELIEF = ['LR', 'MR', 'SU', 'CL'];
+  const tier = (p) => (p.slot === 'SP' ? 0 : !p.slot && p.position === 'SP' ? 1 : 2);
+  // AI 시리즈 팀은 등판 순서(pitchOrder)를 직접 들고 온다
+  const byId = new Map(roster.map((p) => [p.id, p]));
+  let pitchers = team.pitchOrder ? team.pitchOrder.map((id) => byId.get(id)).filter(Boolean) : roster.filter((p) => p.type === 'pitcher' && !String(p.slot || '').startsWith('BN'))
+    .sort((a, b) => tier(a) - tier(b) || (a.rest || 0) - (b.rest || 0) || (RELIEF.indexOf(a.slot) - RELIEF.indexOf(b.slot)) || b.overall - a.overall);
+  const usage = engineUsage(team.usage);
+  let closerId = team.closerId || null;
+  if (team.usage?.bullpenAce && pitchers.length > 2) { // 선발 다음에 가장 강한 불펜이 나와 길게 던진다
+    const pv = (p) => (st(p, 'stuff', 80) + st(p, 'control', 75) + st(p, 'stability', 75)) / 3;
+    const [ace, ...pen] = pitchers;
+    pitchers = [ace, ...pen.sort((a, b) => pv(b) - pv(a))];
+    closerId = null;
+  }
+  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage, closerId, buff: team.buff || 0, edge: team.edge || null };
 }
 
 const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
@@ -123,8 +154,8 @@ function PlayerCard({ side, label, player, color, img, stats, rec, bottom }) {
 const panel = 'mt-cut mt-frame mt-glass p-3.5 px-4';
 const cut = { clipPath: 'polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)' };
 
-function TeamPanel({ team, side, color, pitcher, pitches }) {
-  const bull = team.pitchers.filter((p) => p !== pitcher).slice(0, 3);
+function TeamPanel({ team, side, color, pitcher, pitches, pitcherIdx = 0 }) {
+  const bull = team.pitchers.slice(pitcherIdx + 1, pitcherIdx + 4);
   const stamina = Math.max(0, Math.min(100, 100 - (pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
   return (
     <section className={`self-end ${panel}`} style={{ '--c': '16px', '--a': color, gridColumn: side, gridRow: '4 / span 2' }}>
@@ -164,6 +195,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
   const speedRef = useRef(1);
   const pausedRef = useRef(false);
+  const [picker, setPicker] = useState(null); // 투수 고르기: 'order' 작전 버튼 · 'clutch' 승부처 지시
+  const pickerRef = useRef(null);
+  pickerRef.current = picker;
   const aliveRef = useRef(true);
   speedRef.current = speed;
   pausedRef.current = paused;
@@ -180,7 +214,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       let half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
       aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
-        while ((pausedRef.current || ordersRef.current) && !stop) await sleep(100);
+        while ((pausedRef.current || ordersRef.current || pickerRef.current) && !stop) await sleep(100);
         if (stop || g.final) break;
         // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
         if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
@@ -194,6 +228,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           pendingRef.current = { ...pendingRef.current, ...picked };
         }
         if (g.inning !== g.clutchAsked) g.clutchAsked = null;
+        // 적 수비(내 공격) 중이면 AI 감독이 투수를 바꾼다
+        if (!g.top) {
+          const change = aiPitchingChange(g, g.away);
+          if (change) {
+            pendingRef.current = { ...pendingRef.current, changePitcher: change };
+            const next = typeof change === 'string' ? g.away.team.pitchers.find((p) => p.id === change) : g.away.team.pitchers[g.away.pitcherIdx + 1];
+            const text = next && `${away.name} 투수 교체 — ${g.away.pitcher?.name} → ${next.name}`; // 교체 전에 글을 만들어 둔다
+            if (text) setLines((l) => [...l, text].slice(-4));
+          }
+        }
         let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
@@ -357,15 +401,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         )}
 
         {/* 승부처 지시 */}
-        {orders && (
+        {orders && !picker && (
           <div className="col-start-2 row-start-3 z-10 self-end pb-2.5">
             <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시를 내리세요</p>
             <div className="flex justify-center gap-3">
               {(orders.offense
                 ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
-                : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜 투입', { changePitcher: true }]]
+                : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜에서 고르기', 'pick']]
               ).map(([ic, t, s, o]) => (
-                <button key={t} type="button" onClick={() => answer(o)}
+                <button key={t} type="button" onClick={() => (o === 'pick' ? setPicker('clutch') : answer(o))}
                   className="mt-cut mt-frame mt-glass w-[186px] p-3.5 text-left hover:brightness-125" style={{ '--c': '12px', '--a': '#fde047' }}>
                   <span className="text-2xl">{ic}</span>
                   <b className="mt-1 block text-lg text-white">{t}</b>
@@ -376,9 +420,38 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           </div>
         )}
 
+        {/* 투수 교체: 아직 안 나온 투수 중에서 고르기 */}
+        {picker && (
+          <div className="col-start-2 row-start-3 z-20 self-end pb-2.5">
+            <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': cMy }}>Pitching Change · 현재 {g.home.pitcher?.name} {g.home.pitches}구</p>
+            <div className="flex flex-wrap justify-center gap-2.5">
+              {g.home.team.pitchers.slice(g.home.pitcherIdx + 1).map((p) => {
+                const tired = p.condition != null && p.condition < 100;
+                return (
+                  <button key={p.id} type="button"
+                    onClick={() => { const o = { changePitcher: p.id }; setPicker(null); if (picker === 'clutch') answer(o); else give(o); }}
+                    className="mt-cut mt-frame mt-glass w-[176px] p-3 text-left hover:brightness-125" style={{ '--c': '12px', '--a': cMy }}>
+                    <span className="flex items-baseline gap-1.5">
+                      <em className="font-display text-xs font-bold not-italic" style={{ color: cMy }}>{p.slot && !String(p.slot).startsWith('BN') ? p.slot : p.position}</em>
+                      <b className="font-display ml-auto text-xl text-white">{p.overall}</b>
+                    </span>
+                    <b className="mt-0.5 block truncate text-lg text-white">{p.name}</b>
+                    <small className="block text-xs text-gray-400">구위 {st(p, 'stuff')} · 제구 {st(p, 'control')}</small>
+                    {tired && <small className="block text-xs font-bold text-orange-400">컨디션 {p.condition}% · 휴식 {p.rest}</small>}
+                  </button>
+                );
+              })}
+              <button type="button" onClick={() => setPicker(null)}
+                className="mt-cut mt-glass w-[110px] p-3 text-center text-sm text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)] hover:brightness-125" style={{ '--c': '12px' }}>
+                그대로<small className="mt-1 block text-xs text-gray-500">교체 안 함</small>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* 팀 패널 */}
-        <TeamPanel team={away} side={1} color={cOpp} pitcher={g.away.pitcher} pitches={g.away.pitches} />
-        <TeamPanel team={home} side={3} color={cMy} pitcher={g.home.pitcher} pitches={g.home.pitches} />
+        <TeamPanel team={away} side={1} color={cOpp} pitcher={g.away.pitcher} pitches={g.away.pitches} pitcherIdx={g.away.pitcherIdx} />
+        <TeamPanel team={home} side={3} color={cMy} pitcher={g.home.pitcher} pitches={g.home.pitches} pitcherIdx={g.home.pitcherIdx} />
 
         {/* 작전 버튼 */}
         <div className="col-start-2 row-start-4 flex items-center justify-center gap-2.5">
@@ -387,7 +460,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             ['🪃', '번트', !g.top ? '주자 진루' : '내 공격 아님', () => give({ bunt: true }), !g.top],
             ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), !g.top],
             ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), !g.top],
-            ['🔁', '투수 교체', g.top ? '불펜 투입' : '내 수비 아님', () => give({ changePitcher: true }), g.top],
+            ['🔁', '투수 교체', !g.top ? '내 수비 아님' : g.home.team.pitchers[g.home.pitcherIdx + 1] ? '불펜에서 고르기' : '남은 투수 없음', () => setPicker('order'), g.top && !!g.home.team.pitchers[g.home.pitcherIdx + 1]],
           ].map(([ic, t, s, fn, on]) => (
             <button key={t} type="button" disabled={!on} onClick={fn}
               className={`mt-cut flex min-w-[112px] flex-col items-center gap-0.5 px-3.5 py-2 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
@@ -445,8 +518,13 @@ export function buildResult(g, myTeam) {
   const ranked = [...credit.values()].sort((a, b) => b.pts - a.pts);
   const fallback = (myTeam.roster || []).filter((p) => !p.isReplacement).sort((a, b) => b.overall - a.overall)[0];
   const mvp = ranked[0] || { player: fallback, pts: 0, runs: 0, zero: 0, fires: 0 };
+  // 투수 피로 계산용: 내 팀(홈) 투수별 투구 수와 선발
+  const myPitcherIds = new Set(g.home.team.pitchers.map((p) => p.id));
+  const pitchCounts = {};
+  for (const ev of g.events) if (ev.pitcher && myPitcherIds.has(ev.pitcher.id)) pitchCounts[ev.pitcher.id] = (pitchCounts[ev.pitcher.id] || 0) + 1;
   return {
     board,
+    pitchCounts, starterId: g.home.team.pitchers[0]?.id || null,
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,

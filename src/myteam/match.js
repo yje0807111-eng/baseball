@@ -3,6 +3,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { POS_RULES, GROUP_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP, PLAY_LIMIT } from './rules.js';
 import { withBoosts } from './shop.js';
 import { staffEffect } from './staff.js';
+import { applyFatigue } from './fatigue.js';
 
 const ALL = SERIES.flatMap((s) => s.players);
 const LINEUP_POS = ['C', '1B', '2B', '3B', 'SS', 'OF', 'OF', 'OF', 'DH'];
@@ -25,7 +26,7 @@ export function lineupOf(roster, bench = []) {
 }
 
 /** 코치진 효과를 선수 능력치에 얹는다 */
-function applyStaff(roster, staff) {
+export function applyStaff(roster, staff) {
   const e = staffEffect(staff);
   if (!e.bat && !e.field && !e.pitch && !e.stamina) return roster;
   return roster.map((p) => {
@@ -52,7 +53,8 @@ export function playingIds(roster, bench = []) {
 }
 
 export function buildMyTeam(team) {
-  const boosted = applyStaff(withBoosts(team), team.staff);
+  // 피로가 남은 투수는 구위·제구가 깎이고 종합도 내려가 선발 순서에서 밀린다
+  const boosted = applyFatigue(applyStaff(withBoosts(team), team.staff), team.pitchFatigue);
   const play = playingIds(boosted, team.bench || []);
   // 벤치 선수는 slot 'BN' — 경기 엔진이 투수진에서 뺀다
   const roster = boosted.map((p) => (play.has(p.id) ? p : { ...p, slot: 'BN' }));

@@ -3,7 +3,6 @@
  * loadAccount/saveAccount 안쪽만 바꿔 끼우면 된다 (화면은 이 파일만 본다).
  */
 import { SQUAD_CAP } from './rules.js';
-import { RP_DELTA } from './rank.js';
 import { STAFF } from './staff.js';
 
 const KEY = 'kbo.myteam.v1';
@@ -114,16 +113,13 @@ export function addHistory(entry) {
   if (entry.winner === 'my') record.w += 1;
   else if (entry.winner === 'opp') record.l += 1;
   else record.d += 1;
-  // 랭크 승점: 승 +20 · 무 +5 · 패 −12 (0 아래로는 안 내려감)
-  const before = a.rank?.rp || 0;
-  const rp = Math.max(0, before + (RP_DELTA[entry.winner] ?? 0));
-  const rank = { rp, best: Math.max(rp, a.rank?.best || 0) };
-  const next = { ...a, rank, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), rp: rp - before, ...entry }, ...(a.history || [])].slice(0, 50) };
+  // 랭크 승점은 랭크전 시즌이 끝날 때만 오르내린다 (claimRanked)
+  const next = { ...a, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
   write(next);
   return next;
 }
 
-/** 오늘의 토너먼트 진행 상태 저장 (account.tournament) */
+/** 일반 대결 토너먼트 진행 상태 저장 (account.tournament) */
 export function saveTournament(tournament) {
   const a = read();
   if (!a) return null;
@@ -132,13 +128,32 @@ export function saveTournament(tournament) {
   return next;
 }
 
-/** 토너먼트가 끝나면 한 번만 보상: 골드 + 랭크 승점 */
+/** 토너먼트가 끝나면 한 번만 보상: 골드 */
 export function claimTournament(reward) {
   const a = read();
   if (!a?.tournament?.done || a.tournament.claimed) return null;
+  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), tournament: { ...a.tournament, claimed: true } };
+  write(next);
+  return next;
+}
+
+/** 랭크전 시즌 진행 상태 저장 (account.ranked) */
+export function saveRanked(ranked) {
+  const a = read();
+  if (!a) return null;
+  const next = { ...a, ranked };
+  write(next);
+  return next;
+}
+
+/** 랭크전 시즌이 끝나면 한 번만 보상: 랭크 승점(0 아래로는 안 내려감) + 골드 */
+export function claimRanked(reward) {
+  const a = read();
+  if (!a?.ranked?.done || a.ranked.claimed) return null;
   const before = a.rank?.rp || 0;
-  const rp = before + (reward.rp || 0);
-  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), rank: { rp, best: Math.max(rp, a.rank?.best || 0) }, tournament: { ...a.tournament, claimed: true } };
+  const rp = Math.max(0, before + (reward.rp || 0));
+  const seasons = [{ season: a.ranked.season, place: a.ranked.place, rp: rp - before, at: new Date().toISOString() }, ...(a.rank?.seasons || [])].slice(0, 20);
+  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), rank: { rp, best: Math.max(rp, a.rank?.best || 0), seasons }, ranked: { ...a.ranked, claimed: true } };
   write(next);
   return next;
 }

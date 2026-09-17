@@ -30,6 +30,7 @@ function RankPanel({ account, team, onRecord }) {
   const rp = account.rank?.rp || 0;
   const r = rankOf(rp);
   const sum = rankSummary(account.history || []);
+  const last = account.rank?.seasons?.[0] || null; // 지난 랭크전 시즌
   const st = teamStats(team.squad || []);
   const c = r.tier.c;
   const STATS = [['타선', st.bat, '#34d399', '#0e7490'], ['선발', st.sp, '#7dd3fc', '#6366f1'], ['불펜', st.rp, '#f87171', '#a21caf'], ['수비', st.def, '#fde047', '#ea580c']];
@@ -53,8 +54,8 @@ function RankPanel({ account, team, onRecord }) {
             <p className="mt-lab" style={{ '--a': c }}>Rank</p>
             <b className="text-[34px] font-black leading-none text-white">{r.tier.ko} {r.div}</b>
             <span className="font-display text-xl" style={{ color: c }}>{rp.toLocaleString()} RP</span>
-            <span className="text-sm text-gray-400">{r.next ? `${r.next.ko}까지 ${r.toNext} RP · 약 ${Math.ceil(r.toNext / 20)}승` : '최고 등급'}</span>
-            {sum.lastDelta != null && <span className={`ml-auto font-display text-sm ${sum.lastDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>최근 경기 {sum.lastDelta >= 0 ? '+' : ''}{sum.lastDelta}</span>}
+            <span className="text-sm text-gray-400">{r.next ? `${r.next.ko}까지 ${r.toNext} RP` : '최고 등급'}</span>
+            {last && <span className={`ml-auto font-display text-sm ${last.rp >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>시즌 {last.season} {last.place}위 {last.rp >= 0 ? '+' : ''}{last.rp}</span>}
           </div>
           <div>
             <div className="mb-1 flex justify-between font-display text-xs text-gray-300">
