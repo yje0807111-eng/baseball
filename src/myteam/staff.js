@@ -12,12 +12,20 @@ export const STAFF = [...managers, ...coaches].map(({ source, ...s }) => ({ ...s
 
 export const staffByRole = (role) => STAFF.filter((s) => s.role === role);
 
+export const STAFF_LEVEL_MAX = 5;
+/** 강화 레벨을 반영한 코치 한 명의 효과: Lv.1 은 기본, 레벨마다 가진 항목 +1 (도루는 +1%p) */
+export function staffEffectOf(s) {
+  if (!s?.effect) return {};
+  const up = Math.max(0, Math.min(STAFF_LEVEL_MAX, s.level || 1) - 1);
+  return Object.fromEntries(Object.entries(s.effect).map(([k, v]) => [k, k === 'steal' ? Math.round((v + up * 0.01) * 100) / 100 : v + up]));
+}
+
 /** 코치진 효과 합계 */
 export function staffEffect(staff = {}) {
   const sum = { bat: 0, field: 0, pitch: 0, stamina: 0, steal: 0, clutch: 0 };
   for (const s of Object.values(staff)) {
-    if (!s?.effect) continue;
-    for (const k of Object.keys(sum)) sum[k] += s.effect[k] || 0;
+    const e = staffEffectOf(s);
+    for (const k of Object.keys(sum)) sum[k] += e[k] || 0;
   }
   return sum;
 }

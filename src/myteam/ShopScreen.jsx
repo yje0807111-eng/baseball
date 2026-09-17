@@ -70,6 +70,11 @@ export default function ShopScreen({ account, onChange, onBack }) {
       push({ ...team, staff: { ...(team.staff || {}), [slot]: { ...target, cost: 0, contracted: true } } }, gold - picked.price, `${target.name} 선임 (CP 면제)`);
       setTarget(null); return;
     }
+    if (picked.staffTicket) {
+      const n = (team.staffTickets || 0) + 1;
+      push({ ...team, staffTickets: n }, gold - picked.price, `${picked.name} +1 · 보유 ${n}장`);
+      return;
+    }
     if (picked.augTicket) {
       const aug = loadAccount()?.aug;
       if (!aug) return;

@@ -7,7 +7,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
-import { staffByRole, staffEffect } from './staff.js';
+import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
@@ -376,19 +376,20 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 const cur = staff[s.key];
                 const on = staffSlot === s.key;
                 return (
-                  <button key={s.key} type="button" onClick={() => { setStaffSlot(s.key); if (cur) setStaff(s.key, null); }}
-                    title={cur ? `${cur.name} 해임` : undefined} aria-label={cur ? `${s.label} ${cur.name}, 눌러서 해임` : `${s.label} 비어 있음, 후보 보기`}
+                  <button key={s.key} type="button" onClick={() => setStaffSlot(s.key)} aria-pressed={on}
+                    aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`}
                     className={`mt-cut ${on ? 'mt-frame' : ''} group relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-top text-left`}
-                    style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
+                    style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', boxShadow: on ? '0 0 0 2px #c4b5fd, 0 0 26px -6px #c4b5fd' : undefined, filter: on ? undefined : 'brightness(.82)' }}>
                     {cur && (
                       <span key={cur.id} className="mt-staff-in absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
                         style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(profiles/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                     )}
                     <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${cur ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
                     <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
+                    {cur && <b className="absolute right-3 top-3 font-display text-[14px] text-amber-300">Lv.{cur.level || 1}</b>}
                     <span className="absolute inset-x-3 bottom-2.5">
                       <b className={`block truncate text-lg font-black ${cur ? 'text-white' : 'text-gray-500'}`}>{cur?.name || '비어 있음'}</b>
-                      <span className="block truncate text-[12px] text-[#c4b5fd]">{cur ? effText(cur.effect) : '선임 필요'}</span>
+                      <span className="block truncate text-[12px] text-[#c4b5fd]">{cur ? effText(staffEffectOf(cur)) : '-'}</span>
                     </span>
                   </button>
                 );
@@ -403,7 +404,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                     <span className="min-w-0"><b className="block truncate text-base font-black text-white">{m.name}</b><small className="text-[11px] text-gray-500">{m.era} · {m.note}</small></span>
                     <span className="text-sm text-[#c4b5fd]">{effText(m.effect)}</span>
                     <b className="text-right font-display text-lg text-amber-300">{m.cost}</b>
-                    <Btn sm a="#c4b5fd" onClick={() => setStaff(staffSlot, m)}>선임</Btn>
+                    <Btn sm a="#c4b5fd" onClick={() => setStaff(staffSlot, m)}>{staff[staffSlot] ? '교체' : '선임'}</Btn>
                   </div>
                 );
               })}
@@ -411,20 +412,75 @@ export default function LockerScreen({ account, onSave, onBack }) {
           </section>
         )}
 
-        {tab === 'staff' ? (
-          <aside className="mt-cut mt-frame mt-glass flex flex-col gap-4 p-6" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-            <p className="mt-lab" style={{ '--a': '#c4b5fd' }}>Staff Effect</p>
-            <h2 className="-mt-2 text-3xl font-black text-white">코치진 효과</h2>
-            <p className="text-sm leading-relaxed text-gray-300">경기 시작 때 선수 능력치에 더해집니다. CP를 쓰므로 선수 예산과 나눠 써야 합니다.</p>
-            <Stats items={[['선임', `${Object.values(staff).filter(Boolean).length}/4`], ['코치 CP', staffCost], ['남는 CP', cap - cost]]} />
-            <div>
-              {Object.entries(eff).filter(([, v]) => v).map(([k, v]) => (
-                <KV key={k} k={EFF_LABEL[k]} v={`+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`} color="#c4b5fd" />
-              ))}
-              {Object.values(eff).every((v) => !v) && <p className="text-sm text-gray-500">선임한 코치가 없습니다.</p>}
-            </div>
-          </aside>
-        ) : (
+        {tab === 'staff' ? (() => {
+          const VIO = '#c4b5fd';
+          const slotInfo = STAFF_SLOTS.find((x) => x.key === staffSlot);
+          const cur = staff[staffSlot];
+          const mine = cur ? staffEffectOf(cur) : {};
+          const lv = cur?.level || 1;
+          const tickets = team.staffTickets || 0;
+          const shown = Object.entries(eff).filter(([, v]) => v);
+          const size = (k, v) => (k === 'steal' ? v * 100 : v);
+          const maxV = Math.max(1, ...shown.map(([k, v]) => size(k, v)));
+          const upgrade = () => {
+            if (!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX) return;
+            commit({ ...team, staffTickets: tickets - 1, staff: { ...staff, [staffSlot]: { ...cur, level: lv + 1 } } });
+          };
+          return (
+            <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': VIO }}>
+              <p className="mt-lab" style={{ '--a': VIO }}>Staff Effect</p>
+              <h2 className="-mt-1 text-[26px] font-black text-white">코치진 효과</h2>
+              {/* 기여도 막대: 전체 효과 중 선택한 코치 몫을 밝게 */}
+              <div className="flex flex-col gap-2">
+                {shown.map(([k, v]) => (
+                  <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
+                    <span>{EFF_LABEL[k]}</span>
+                    <span className="relative h-2.5 bg-white/[0.07]">
+                      <i className="absolute inset-y-0 left-0" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: 'rgba(196,181,253,.35)' }} />
+                      <i className="absolute inset-y-0 left-0 transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: VIO, boxShadow: `0 0 10px ${VIO}` }} />
+                    </span>
+                    <b className="text-right font-display text-base text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                  </div>
+                ))}
+                {!shown.length && <span className="text-sm text-gray-600">-</span>}
+              </div>
+              <div className="h-px shrink-0" style={{ background: `linear-gradient(90deg,${VIO}80,transparent)` }} />
+
+              {/* 명함: 오른쪽 절반은 사진, 왼쪽에 자리 · 이름 · 시대 · 경력 · 효과 수치 */}
+              {cur ? (
+                <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
+                  <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                  <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
+                  <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
+                    <span className="font-display text-[12px] tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
+                    <b className="text-[28px] font-black leading-tight text-white">{cur.name}</b>
+                    <span className="text-[12px] text-gray-400">{cur.era}{cur.contracted ? ' · 계약서' : ` · ${cur.cost} CP`}</span>
+                    <span className="mt-0.5 text-[12.5px] leading-snug text-gray-300">{cur.note}</span>
+                    <div className="mt-auto flex flex-col gap-0.5">
+                      {Object.entries(mine).map(([k, v]) => (
+                        <span key={k} className="flex items-baseline gap-1.5 text-[13px] text-gray-300">
+                          {EFF_LABEL[k]}<b className="font-display text-[17px]" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                          {lv > 1 && <small className="font-display text-[12px] text-emerald-300">▲{k === 'steal' ? `${lv - 1}%p` : lv - 1}</small>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-[15px] text-amber-300">Lv.{lv}</b>
+                </div>
+              ) : (
+                <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>
+              )}
+
+              <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
+                <Btn lg a={VIO} pri={!!cur && tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
+                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
+                </Btn>
+                <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && setStaff(staffSlot, null)}>해임</Btn>
+              </div>
+            </aside>
+          );
+        })()
+          : (
           <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release}
             playing={playing} onBench={tab === 'squad' ? toggleBench : null} />
         )}

@@ -8,7 +8,11 @@ import { STAFF } from './staff.js';
 const KEY = 'kbo.myteam.v1';
 
 const staffById = new Map(STAFF.map((s) => [s.id, s]));
-const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(([slot, s]) => [slot, s ? staffById.get(s.id) || null : null]));
+const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(([slot, s]) => {
+  const base = s ? staffById.get(s.id) : null;
+  if (!base) return [slot, null];
+  return [slot, { ...base, ...(s.level > 1 ? { level: s.level } : {}), ...(s.contracted ? { contracted: true, cost: 0 } : {}) }];
+}));
 const withTeam = (team) => { const t = { ...emptyTeam(), ...(team || {}) }; return { ...t, staff: freshStaff(t.staff) }; };
 
 const emptyTeam = () => ({
