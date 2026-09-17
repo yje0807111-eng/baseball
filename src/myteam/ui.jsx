@@ -160,7 +160,7 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
 
 /**
  * 모든 화면이 함께 쓰는 상단 바 — 드래프트 모드 화면 헤더 문법
- *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지] [골드] [감독 · 로그아웃]
+ *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지(team 을 줄 때만 — 내 라커)] [골드] [감독 · 로그아웃]
  */
 export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, account, onBack, right, steps, onSignOut }) => {
   const squad = team?.squad || [];
