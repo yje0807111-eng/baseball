@@ -6,8 +6,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import { statColor, teamNeon } from './myteam/teamColor.js';
+import PlayView from './play/PlayView.jsx';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE } from './engine/pitchSim.js';
+  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -67,8 +68,11 @@ export function engineTeam(team) {
 const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3]];
 const COUNT_MS = 620; // 공 하나 사이 (1X 기준)
 const RESULT_MS = 1500; // 타석이 끝나는 공
+const INPLAY_MS = 2300; // 맞아 나간 공 — 타구·수비·주자가 다 지나갈 시간
+const beatOf = (ev) => (ev.call === 'inplay' ? INPLAY_MS : ev.result ? RESULT_MS : COUNT_MS);
 
 /* ───────── 해설 문장 ───────── */
+const FIELD_KO = { P: '투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수' };
 function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
@@ -80,10 +84,13 @@ function commentary(ev) {
     return out;
   }
   const r = ev.result;
-  if (r === 'HR') out.push(`${b}, 쳤습니다! 크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
-  else if (r === '3B') out.push(`${b}, 우중간을 완전히 가릅니다! 3루까지!`);
-  else if (r === '2B') out.push(`${b}, 좌중간 2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
-  else if (r === '1B') out.push(`${b}, 깨끗한 안타로 출루합니다.${ev.runs ? ` ${ev.runs}점!` : ''}`);
+  // 실제 타구가 간 곳을 그대로 부른다 (ev.hit)
+  const dir = ev.hit ? dirName(ev.hit.dir) : null;
+  const by = ev.hit?.by ? FIELD_KO[ev.hit.by] : null;
+  if (r === 'HR') out.push(`${b}, 쳤습니다! ${dir ? `${dir}으로 ` : ''}크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
+  else if (r === '3B') out.push(`${b}, ${dir ? `${dir}을 ` : ''}완전히 가릅니다! 3루까지!`);
+  else if (r === '2B') out.push(`${b}, ${dir ? `${dir} ` : ''}2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
+  else if (r === '1B') out.push(`${b}, ${by ? `${by} 앞으로 빠지는 ` : '깨끗한 '}안타.${ev.runs ? ` ${ev.runs}점!` : ''}`);
   else if (r === 'BB') out.push(`${b}, 볼넷으로 걸어 나갑니다.${ev.runs ? ' 밀어내기 득점!' : ''}`);
   else if (r === 'IBB') out.push(`${b}, 고의사구. 1루가 채워집니다.`);
   else if (r === 'K') out.push(`${p} — 삼진! ${b}, 돌아섭니다.`);
@@ -93,6 +100,9 @@ function commentary(ev) {
   else if (r === 'BH') out.push(`${b}, 기습 번트 안타!`);
   else if (r === 'E') out.push(`${b}의 평범한 타구… 수비 실책! 주자 살아 나갑니다`);
   else if (r === 'CS') out.push('도루 실패로 이닝이 끝납니다');
+  else if (r === 'GO') out.push(`${b}, ${by ? `${by} 앞 ` : ''}땅볼 아웃.`);
+  else if (r === 'FO') out.push(`${b}, ${by ? `${by} ` : ''}뜬공 아웃.`);
+  else if (r === 'LO') out.push(`${b}, ${by ? `${by} 정면 ` : ''}직선타 아웃.`);
   else out.push(`${b}, ${RESULT_LABEL[r]}.`);
   return out;
 }
@@ -176,6 +186,17 @@ function TeamPanel({ team, side, color, pitcher, pitches, pitcherIdx = 0 }) {
   );
 }
 
+/** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
+function atBatPitches(events) {
+  const out = [];
+  for (let i = events.length - 1; i >= 0; i -= 1) {
+    const e = events[i];
+    if (out.length && e.result) break;
+    if (e.pitch) out.unshift(e);
+  }
+  return out;
+}
+
 /* ───────── 본체 ───────── */
 export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
@@ -190,6 +211,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [paused, setPaused] = useState(false);
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
+  const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
+  const scoreRef = useRef(null);
+  const [scoreH, setScoreH] = useState(0); // 점수판이 덮는 높이 — 플레이 뷰는 그 아래만 쓴다
   const [orders, setOrders] = useState(null); // 승부처 지시 대기
   const ordersRef = useRef(null);
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
@@ -201,6 +225,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const aliveRef = useRef(true);
   speedRef.current = speed;
   pausedRef.current = paused;
+
+  // 점수판 높이를 재 둔다 (화면 크기에 따라 달라진다)
+  useEffect(() => {
+    const el = scoreRef.current;
+    if (!el) return undefined;
+    const read = () => setScoreH(el.offsetHeight);
+    read();
+    if (!window.ResizeObserver) return undefined;
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // StrictMode 로 두 번 마운트돼도 살아 있게 (마운트마다 다시 켠다)
   useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
@@ -242,12 +278,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
         setLines((l) => [...l, ...commentary(ev)].slice(-4));
+        const beat = beatOf(ev) / speedRef.current;
+        setPlay({ ev, ms: beat });
         if (ev.result && ['HR', '3B', '2B', 'K', 'DP'].includes(ev.result)) {
-          setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() });
-          setTimeout(() => setFlash(null), 1400);
+          // 큰 결과 자막은 플레이가 끝나 갈 때쯤 띄운다
+          const wait = ev.call === 'inplay' ? beat * 0.66 : 0;
+          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), 1400); } }, wait);
         }
         redraw();
-        await sleep((ev.result ? RESULT_MS : COUNT_MS) / speedRef.current);
+        await sleep(beat);
 
         // 반 이닝이 넘어갔으면: 증강의 이닝 점수 보정 → 경기 중 증강 선택 → 다음 반 이닝 보정
         if (aug && (g.inning !== half.inning || g.top !== half.top || g.final)) {
@@ -299,6 +338,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const mix = pitchMix(pitcher);
   const line = pitcherLine(g, pitcher);
   const steal0 = stealOdds(g, 0);
+  const atBat = atBatPitches(g.events); // 이 타석에 지나간 공 (존 뷰 자취)
 
   const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
   const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
@@ -331,8 +371,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
-        {/* 점수 + 이닝별 */}
-        <div className="col-start-2 text-center">
+        {/* 점수 + 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 */}
+        <div ref={scoreRef} className="relative z-10 col-start-2 row-start-2 self-start text-center">
           <div className="mt-cut mt-frame mt-glass relative inline-block px-8 pb-2 pt-2.5" style={{ '--c': '20px', '--a': '#fde047' }}>
             <div className="flex items-center justify-center gap-6">
               <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
@@ -399,6 +439,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         {flash && (
           <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[46%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
         )}
+
+        {/* 플레이 뷰 — 투구는 포수 뒤 존, 맞으면 위에서 본 필드. 점수판 아래로 깔린다 */}
+        <div className="relative col-start-2 row-start-2 row-span-2 -mb-1 min-h-0" style={{ paddingTop: scoreH + 8 }}>
+          <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused}
+            bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
+        </div>
 
         {/* 승부처 지시 */}
         {orders && !picker && (
