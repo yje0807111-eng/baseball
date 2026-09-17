@@ -74,5 +74,5 @@ export function normalPanels({ account, onPlay, onLocker }) {
     </aside>
   );
 
-  return { main, aside, sub: `${squad.length}/${SQUAD_SIZE} · 오늘의 경기` };
+  return { key: 'duel', label: '일반 대결', sub: `${squad.length}/${SQUAD_SIZE} · AI 올스타와 한 경기`, img: 'ui/broadcast-field.webp', neon: '#10b981', main, aside };
 }

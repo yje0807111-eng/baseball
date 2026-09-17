@@ -4486,13 +4486,15 @@ function SettingRow({ label, options, labels, value, onChange }) {
   );
 }
 
-function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
-  // 사이드 네비: normal(일반 모드) · mix · recent · year(연도별) · special(특별 모드)
+function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null }) {
+  // 사이드 네비: normal(일반 모드: 일반 대결 · 토너먼트) · mix · recent · year(연도별) · special(특별 모드)
+  const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
-  const [view, setView] = useState(normal ? 'normal' : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  const [view, setView] = useState(plays.length ? (normalView && plays.some((x) => x.key === normalView) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  const play = plays.find((x) => x.key === view) || null;
   const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
   const [specialId, setSpecialId] = useState(firstMode.group === 'special' ? firstMode.id : 'legend');
-  const modeId = view === 'year' ? yearId : view === 'special' ? specialId : view === 'normal' ? null : view;
+  const modeId = view === 'year' ? yearId : view === 'special' ? specialId : play ? null : view;
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
@@ -4504,7 +4506,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
   const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
   const NAV = [
-    ...(normal ? [{ group: 'Play', items: [{ key: 'normal', label: '일반 모드', sub: normal.sub || '내 팀 26인 · 오늘의 경기', img: 'ui/broadcast-field.webp', neon: '#10b981' }] }] : []),
+    ...(plays.length ? [{ group: 'Play', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
     { group: 'Basic', items: [
       { key: 'mix', label: '전체 믹스', sub: `${DRAFT_MODES.find((m) => m.id === 'mix').series.length} 시리즈 · 무작위`, img: 'modes/mix.webp', neon: '#10b981' },
       { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
@@ -4512,7 +4514,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
     ] },
     { group: 'Special', items: [{ key: 'special', label: '특별 모드', sub: `규칙이 다른 ${specials.length}개`, img: 'modes/legend.webp', neon: '#fbbf24' }] },
   ];
-  const acc = view === 'normal' ? '#10b981' : mode.neon;
+  const acc = play ? play.neon : mode.neon;
 
   return (
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
@@ -4551,7 +4553,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
           ))}
         </nav>
 
-        {view === 'normal' ? normal.main : (
+        {play ? play.main : (
           <section key={view + mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="flex flex-wrap items-baseline gap-3">
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : 'Series in Mode'}</p>
@@ -4599,7 +4601,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal }) {
           </section>
         )}
 
-        {view === 'normal' ? normal.aside : (
+        {play ? play.aside : (
           <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
             <p className="ui-lab font-display">{mode.en}</p>
             <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
@@ -5152,7 +5154,7 @@ function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onRepl
   );
 }
 
-export default function KboAugmentDraft({ onExit, normal } = {}) {
+export default function KboAugmentDraft({ onExit, normal, normalView = null } = {}) {
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
@@ -5571,7 +5573,7 @@ export default function KboAugmentDraft({ onExit, normal } = {}) {
       <style>{KEYFRAMES}</style>
       <div className={`ui-bg ${phase === 'sim' ? 'soft' : ''}`} style={{ backgroundImage: `url(ui/${PHASE_BG[phase]}.webp)` }} aria-hidden="true" />
       {phase === 'mode' && (
-        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal}
+        <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
       {phase !== 'mode' && (

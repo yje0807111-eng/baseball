@@ -123,6 +123,26 @@ export function addHistory(entry) {
   return next;
 }
 
+/** 오늘의 토너먼트 진행 상태 저장 (account.tournament) */
+export function saveTournament(tournament) {
+  const a = read();
+  if (!a) return null;
+  const next = { ...a, tournament };
+  write(next);
+  return next;
+}
+
+/** 토너먼트가 끝나면 한 번만 보상: 골드 + 랭크 승점 */
+export function claimTournament(reward) {
+  const a = read();
+  if (!a?.tournament?.done || a.tournament.claimed) return null;
+  const before = a.rank?.rp || 0;
+  const rp = before + (reward.rp || 0);
+  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + (reward.gold || 0)), rank: { rp, best: Math.max(rp, a.rank?.best || 0) }, tournament: { ...a.tournament, claimed: true } };
+  write(next);
+  return next;
+}
+
 /** 골드 증감 (상점·경기 보상) */
 export function addGold(delta) {
   const a = read();
