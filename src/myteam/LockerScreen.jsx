@@ -55,7 +55,7 @@ function Select({ value, onChange, options, all }) {
   return (
     <div ref={ref} className="relative min-w-0">
       <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}
-        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-300'}`}
+        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-500'}`}
         style={{ ...cut(6), background: open ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.06)', boxShadow: open || value ? 'inset 0 0 0 1px rgba(16,185,129,.55)' : undefined }}>
         <span className="truncate">{value || all}</span>
         <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
@@ -379,7 +379,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
       <p className="mt-lab" style={{ '--a': a }}>{label}</p>
-      <p className="text-sm text-gray-400">{sub}</p>
+      {sub && <p className="text-sm text-gray-400">{sub}</p>}
       <div className="ml-auto flex gap-2">{extra}</div>
     </div>
   );
@@ -432,7 +432,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
 
         {tab === 'scout' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('Scout', `${ALL.length.toLocaleString()}명 중 ${matched.length.toLocaleString()}명 · 영입한 선수 제외`, undefined, (
+            {head('Scout', null, undefined, (
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-gray-400">정렬</span>
                 <div className="w-40">
@@ -442,7 +442,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
             ))}
             <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(6)} />
+                className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none placeholder:font-normal placeholder:text-gray-500/80 focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(6)} />
               <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
               <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
