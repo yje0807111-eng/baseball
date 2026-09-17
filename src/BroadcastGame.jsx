@@ -5,6 +5,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
+import InningRecap from './InningRecap.jsx';
 import { statColor, teamNeon } from './myteam/teamColor.js';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE } from './engine/pitchSim.js';
@@ -64,10 +65,17 @@ export function engineTeam(team) {
   return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage, closerId, buff: team.buff || 0, edge: team.edge || null };
 }
 
+/* 속도는 셋뿐이다 — 보통 · 자동(안 묻고 끝까지) · 스킵. 그 위에 "꾹 누르는 동안만" 빨리감기가 얹힌다 */
+const PLAY = 1;
+const AUTO = 3.5; // 자동 진행 — 지시를 묻지 않는다
 const SKIP = 0; // 배속이 아니라 "남은 경기를 목표 시간 안에 끝내기" — skipSpeed 가 공마다 배속을 다시 잡는다
-const SPEEDS = [['AUTO', 3.5], ['1X', 1], ['2X', 2], ['3X', 3], ['SKIP', SKIP]];
-const COUNT_MS = 620; // 공 하나 사이 (1X 기준)
-const RESULT_MS = 1500; // 타석이 끝나는 공
+const HOLD = 5; // 화면을 꾹 누르거나 스페이스바를 누르고 있는 동안
+const MODES = [['보통', PLAY], ['자동', AUTO], ['스킵', SKIP]];
+const COUNT_MS = 400; // 공 하나 사이 — 볼카운트는 촤르륵 넘어간다
+const RESULT_MS = 2000; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
+const BIG_MS = 2800; // 홈런 · 병살 · 삼진처럼 큰 결과
+const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
+const RESIST_MS = 800; // 꾹 누르는 중에 승부처가 오면 잠깐 저항한다 (손을 떼면 만날 수 있게)
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
 
@@ -218,16 +226,46 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   speedRef.current = speed;
   pausedRef.current = paused;
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
-  const curSpeed = () => (speedRef.current === SKIP ? skipSpeed(g, skipEndRef.current) : speedRef.current);
-  const flashMs = () => (speedRef.current === SKIP ? 260 : 1400); // 몰아서 넘길 땐 자막도 짧게
-  /** 배속 고르기. SKIP 은 목표 시각을 새로 잡고, 승부처 지시를 기다리던 중이면 정면 승부로 넘긴다 */
+  const holdRef = useRef(false); // 꾹 누르고 있는 중
+  const [holding, setHolding] = useState(false);
+  const resistRef = useRef(0); // 저항이 끝나는 시각 — 그때까지는 꾹 눌러도 느리게 간다
+  const [recap, setRecap] = useState(null); // 이닝 정리 화면
+  const recapRef = useRef(null);
+  const planRef = useRef('balanced'); // 이번 이닝 기조
+  const curSpeed = () => {
+    if (speedRef.current === SKIP) return skipSpeed(g, skipEndRef.current);
+    if (holdRef.current) return Date.now() < resistRef.current ? 1.5 : HOLD;
+    return speedRef.current;
+  };
+  /** 지금 지시를 묻지 않는 상태인가 — 자동 · 스킵 · 꾹 누르는 중 */
+  const quiet = () => speedRef.current !== PLAY || holdRef.current;
+  const flashMs = () => (quiet() ? 300 : 1400); // 몰아서 넘길 땐 자막도 짧게
+  /** 속도 고르기. SKIP 은 목표 시각을 새로 잡고, 지시를 기다리던 중이면 정면 승부로 넘긴다 */
   const pickSpeed = (v) => {
-    if (v === SKIP) {
-      skipEndRef.current = Date.now() + SKIP_MS;
-      if (ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
-    }
+    if (v === SKIP) skipEndRef.current = Date.now() + SKIP_MS;
+    if (v !== PLAY && ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
     setSpeed(v);
   };
+  /* 꾹 누르기 — 누르는 동안만 5배속 + 자동. 버튼 위에서는 안 잡고, 창을 벗어나면 반드시 풀린다 */
+  const hold = (on) => {
+    if (holdRef.current === on) return;
+    holdRef.current = on;
+    setHolding(on);
+    if (on && ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
+  };
+  useEffect(() => {
+    const off = () => hold(false);
+    const down = (e) => { if (e.code === 'Space' && !e.repeat && !recapRef.current) { e.preventDefault(); hold(true); } };
+    const up = (e) => { if (e.code === 'Space') { e.preventDefault(); hold(false); } };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', off);
+    document.addEventListener('visibilitychange', off);
+    return () => {
+      window.removeEventListener('keydown', down); window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', off); document.removeEventListener('visibilitychange', off);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // StrictMode 로 두 번 마운트돼도 살아 있게 (마운트마다 다시 켠다)
   useEffect(() => { aliveRef.current = true; return () => { aliveRef.current = false; }; }, []);
@@ -239,14 +277,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     (async () => {
       await sleep(600);
       let half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
+      let inningNo = g.inning; // 지금 진행 중인 이닝
+      let evAt = 0; // 이 이닝이 시작된 시점의 events 인덱스
       aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
-        while ((pausedRef.current || ordersRef.current || pickerRef.current) && !stop) await sleep(100);
+        while ((pausedRef.current || ordersRef.current || pickerRef.current || recapRef.current) && !stop) await sleep(100);
         if (stop || g.final) break;
         // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
         if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
           g.clutchAsked = g.inning;
-          if (speedRef.current !== SKIP) { // SKIP 이면 멈춰 세우지 않고 정면 승부로 계속 간다
+          // 꾹 누르는 중이면 잠깐 저항한다 — 손을 떼면 이 승부처를 만날 수 있게
+          if (holdRef.current) { resistRef.current = Date.now() + RESIST_MS; setFlash({ text: '승부처', key: Date.now() }); setTimeout(() => setFlash(null), RESIST_MS); }
+          if (!quiet()) { // 자동 · 스킵 · 꾹 누르는 중이면 멈춰 세우지 않고 정면 승부로 간다
             const picked = await new Promise((resolve) => {
               ordersRef.current = resolve;
               setOrders({ offense: !g.top, resolve });
@@ -267,16 +309,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             if (text) setLines((l) => [...l, text].slice(-4));
           }
         }
+        // 이번 이닝 기조를 지시에 얹는다 — 공격적이면 뛰고, 지키기면 유인구를 섞는다
+        if (planRef.current === 'aggressive' && !g.top && g.bases[0] && !g.bases[1]
+            && pendingRef.current.steal == null && g.rng() < 0.3) pendingRef.current.steal = 0;
+        if (planRef.current === 'protect' && g.top && pendingRef.current.zone == null && g.rng() < 0.4) pendingRef.current.zone = 'chase';
         let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
         setLines((l) => [...l, ...commentary(ev)].slice(-4));
-        if (ev.result && ['HR', '3B', '2B', 'K', 'DP'].includes(ev.result)) {
+        if (ev.result && BIG.includes(ev.result)) {
           setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() });
           setTimeout(() => setFlash(null), flashMs());
         }
         redraw();
-        await sleep((ev.result ? RESULT_MS : COUNT_MS) / curSpeed());
+        await sleep((ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed());
 
         // 반 이닝이 넘어갔으면: 증강의 이닝 점수 보정 → 경기 중 증강 선택 → 다음 반 이닝 보정
         if (aug && (g.inning !== half.inning || g.top !== half.top || g.final)) {
@@ -305,11 +351,33 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
           aug.beforeHalf(g);
         }
+
+        // 이닝 하나(초·말)가 다 끝났으면 정리 화면 — 조용히 넘기는 중이면 건너뛴다
+        if (g.inning !== inningNo || g.final) {
+          const evs = g.events.slice(evAt);
+          const shown = inningNo;
+          evAt = g.events.length;
+          inningNo = g.inning;
+          if (!quiet() || g.final) {
+            const data = buildInningRecap(g, evs, shown);
+            if (g.final) {
+              const mineWon = g.home.runs > g.away.runs;
+              data.final = {
+                head: `${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`,
+                text: mineWon ? '승리' : g.home.runs === g.away.runs ? '무승부' : '패배',
+              };
+            }
+            const plan = await new Promise((resolve) => { recapRef.current = resolve; setRecap({ ...data, resolve }); });
+            recapRef.current = null;
+            setRecap(null);
+            planRef.current = plan || 'balanced';
+          }
+        }
       }
       if (g.final && aliveRef.current) {
         redraw();
         setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
-        await sleep(speedRef.current === SKIP ? 400 : 1200);
+        await sleep(quiet() ? 300 : 700);
         onFinish?.(buildResult(g, my));
       }
     })();
@@ -335,8 +403,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const innCells = (side) => Array.from({ length: 12 }, (_, i) => (side.line[i] ?? (i + 1 < g.inning || (i + 1 === g.inning && (side === g.home ? !g.top : true)) ? 0 : null)));
 
   return (
-    <div className="fixed inset-0 z-40 overflow-hidden bg-[#05080f] text-gray-200">
+    <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200"
+      style={{ touchAction: 'none' }}
+      onPointerDown={(e) => { if (!e.target.closest('button') && !recap) hold(true); }}
+      onPointerUp={() => hold(false)}
+      onPointerCancel={() => hold(false)}
+      onPointerLeave={() => hold(false)}
+      onContextMenu={(e) => e.preventDefault()}>
       <UiStyle />
+      {recap && <InningRecap {...recap} onPick={(k) => recap.resolve(k)} />}
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/broadcast-field.webp)' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.92) 0,rgba(3,5,10,.25) 24%,rgba(3,5,10,.15) 76%,rgba(3,5,10,.92) 100%), linear-gradient(180deg,rgba(3,5,10,.92) 0,rgba(3,5,10,0) 26%,rgba(3,5,10,0) 56%,rgba(3,5,10,.92) 100%)' }} />
 
@@ -351,13 +426,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
-          <div className="mt-cut mt-glass ml-auto flex gap-1 p-1" style={{ '--c': '8px' }}>
-            {SPEEDS.map(([label, v]) => (
+          {holding && (
+            <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
+              ▶▶ 빨리감기
+            </span>
+          )}
+          <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
+            {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
-                title={v === SKIP ? '남은 경기를 10초 안에 몰아서 끝냅니다 (승부처는 정면 승부)' : `${label} 배속`}
+                title={v === SKIP ? '남은 경기를 10초 안에 몰아서 끝냅니다' : v === AUTO ? '지시를 묻지 않고 끝까지 진행합니다' : '보통 속도 — 화면을 꾹 누르면 빨리감기'}
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
+          <span className="hidden font-display text-[11px] tracking-[.18em] text-gray-500 xl:block">화면을 꾹 누르면 빨리감기</span>
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
@@ -516,6 +597,80 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 }
 
 /** 엔진 경기를 기존 결과 화면(ResultPanel)이 쓰는 모양으로 바꾼다 */
+/** 타점이 붙은 결과를 사람 말로 — "쓰리런 홈런" · "2타점 적시타" */
+function actText(ev) {
+  const r = ev.runs || 0;
+  if (ev.result === 'HR') return r >= 4 ? '만루 홈런' : r === 3 ? '쓰리런 홈런' : r === 2 ? '투런 홈런' : '솔로 홈런';
+  const label = RESULT_LABEL[ev.result] || ev.result;
+  return r > 0 ? `${r}타점 ${label}` : label;
+}
+
+/**
+ * 한 반이닝을 정리 카드 한 칸으로 — 득점 · 주인공 · 사건 목록.
+ * 점수가 났으면 가장 크게 기여한 타자가, 안 났으면 막아낸 투수가 주인공이다.
+ * mine=true 면 우리 공격(말)이라 타자가 우리 편 · 투수가 상대 편이다.
+ */
+function halfSummary(evs, top, mine) {
+  const list = evs.filter((e) => e.top === top);
+  const done = list.filter((e) => e.result);
+  const runs = list.reduce((s, e) => s + (e.runs || 0), 0);
+  const events = done.map((e) => ({
+    name: e.batter?.name || '타자',
+    text: actText(e),
+    rt: e.runs ? `+${e.runs}` : '',
+    hot: !!e.runs,
+  })).slice(-5);
+
+  let hero = null;
+  if (runs > 0) {
+    const PTS = { '1B': 2, '2B': 3, '3B': 4, HR: 6, BB: 1, IBB: 0, SF: 1, SAC: 1, BH: 2, E: 1 };
+    const credit = new Map();
+    for (const e of done) {
+      if (!e.batter) continue;
+      const pts = (PTS[e.result] || 0) + (e.runs || 0) * 3;
+      if (pts <= 0) continue;
+      const c = credit.get(e.batter.id) || { p: e.batter, pts: 0, best: null };
+      c.pts += pts;
+      if (!c.best || (e.runs || 0) >= (c.best.runs || 0)) c.best = e;
+      credit.set(e.batter.id, c);
+    }
+    const top1 = [...credit.values()].sort((a, b) => b.pts - a.pts)[0];
+    if (top1) {
+      hero = {
+        id: top1.p.id, name: top1.p.name, pos: `${top1.p.position} · ${top1.p.overall ?? ''}`.trim(),
+        act: actText(top1.best), side: mine ? 'my' : 'opp',
+        sub: `이 이닝 ${done.filter((e) => e.batter?.id === top1.p.id).length}타석`,
+      };
+    }
+  } else {
+    const pitcher = done.find((e) => e.pitcher)?.pitcher || list.find((e) => e.pitcher)?.pitcher;
+    const ks = done.filter((e) => e.result === 'K').length;
+    if (pitcher) {
+      hero = {
+        id: pitcher.id, name: pitcher.name, pos: `${pitcher.position} · ${pitcher.overall ?? ''}`.trim(),
+        act: done.length <= 3 ? '삼자범퇴' : '무실점으로 막았다',
+        sub: `${done.length}타자 · ${list.length}구${ks ? ` · 탈삼진 ${ks}` : ''}`,
+        side: mine ? 'opp' : 'my', // 우리 공격인데 무득점이면 상대 투수가 주인공
+      };
+    }
+  }
+  return { runs, batters: done.length, events, hero };
+}
+
+/** 이닝 하나(초·말)를 정리 화면에 넘길 모양으로 */
+export function buildInningRecap(g, evs, inning) {
+  return {
+    inning,
+    mine: halfSummary(evs, false, true), // 말 = 우리 공격
+    theirs: halfSummary(evs, true, false), // 초 = 상대 공격
+    board: {
+      home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
+      away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
+    },
+    score: { home: g.home.runs, away: g.away.runs },
+  };
+}
+
 export function buildResult(g, myTeam) {
   const board = {
     home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
