@@ -3,552 +3,681 @@
 <title>반이닝 정리 배치안</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
 <style>
   :root { --em:#10b981; --em2:#34d399; --red:#f87171; --yel:#fde047; --sky:#38bdf8; --sky2:#7dd3fc;
           --vio:#c4b5fd; --or:#fb923c; --gray:#94a3b8; --my:#34d399; --opp:#f87171; }
   * { box-sizing:border-box; }
   body { margin:0; background:#03050a; color:#e5e7eb;
          font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif; }
-  .d { font-family:'Saira Condensed',sans-serif; }
 
-  .ui-cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
-  .ui-lab { display:inline-flex; align-items:center; gap:9px; font-size:13px; font-weight:700; letter-spacing:.32em;
-            text-transform:uppercase; color:var(--a,#10b981); }
-  .ui-lab::before { content:""; width:15px; height:11px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
-  .ui-btn { --c:10px; display:flex; flex-direction:column; justify-content:center; min-height:60px; padding:9px 22px;
-            font-size:19px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.055);
-            box-shadow:inset 0 0 0 1px rgba(255,255,255,.2); }
-  .ui-btn.pri { background:var(--em); color:#04070d; box-shadow:none; }
-  .ui-btn small { font-size:12.5px; font-weight:600; color:#8b95a5; margin-top:3px; }
-  .ui-btn.pri small { color:rgba(4,7,13,.62); }
-  .ui-chip { --c:6px; display:inline-flex; align-items:center; padding:4px 11px; font-size:13px; font-weight:700;
-             color:var(--a,#cbd5e1); background:rgba(5,8,15,.6); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 55%,transparent); }
+/* ═════ 게임 본편 문법 (KboAugmentDraft.jsx 의 .ui-* 를 그대로) ═════ */
+  .cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+  .glass { background:rgba(6,10,19,.74); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+  .glass2 { background:rgba(9,14,26,.9); }
+  .frame { position:relative; }
+  .frame::after {
+    content:""; position:absolute; inset:0; z-index:7; pointer-events:none;
+    background:
+      linear-gradient(135deg,transparent calc(50% - 1px),var(--a) calc(50% - 1px),var(--a) calc(50% + 1px),transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg,transparent calc(50% - 1px),var(--a) calc(50% - 1px),var(--a) calc(50% + 1px),transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a),var(--a)) left var(--c) top 0 / 56px 2px no-repeat,
+      linear-gradient(var(--a),var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+      linear-gradient(var(--a),var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat,
+      linear-gradient(var(--a),var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a) 32%,transparent); }
+  .lab { display:inline-flex; align-items:center; gap:9px; font-size:12px; font-weight:700; letter-spacing:.32em;
+         text-transform:uppercase; color:var(--a,#10b981); white-space:nowrap; }
+  .lab::before { content:""; width:14px; height:10px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
+  .lab em { font-style:normal; letter-spacing:0; text-transform:none; font-size:14px; color:#9ca3af; margin-left:4px; }
+  .btn { --c:10px; display:flex; flex-direction:column; justify-content:center; min-height:58px; padding:9px 22px;
+         font-size:19px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.055);
+         box-shadow:inset 0 0 0 1px rgba(255,255,255,.2); }
+  .btn.pri { background:var(--em); color:#04070d; box-shadow:none; }
+  .btn small { font-size:12.5px; font-weight:500; color:#8b95a5; margin-top:3px; }
+  .btn.pri small { color:rgba(4,7,13,.66); }
+  .chip { --c:6px; display:inline-flex; align-items:center; gap:6px; padding:4px 11px; font-size:12.5px; font-weight:700;
+          color:var(--a,#cbd5e1); background:rgba(5,8,15,.66); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 55%,transparent); }
+  .seg { display:grid; grid-auto-flow:column; gap:3px; height:9px; }
+  .seg i { background:rgba(255,255,255,.08); transform:skewX(-24deg); }
+  .seg i.on { background:var(--a); box-shadow:0 0 8px var(--a); }
+  .seg i.now { background:var(--yel); box-shadow:0 0 12px var(--yel); }
+  .scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px); }
 
-/* ══ 공통 화면 틀 ══ */
+/* ── 조각 ── */
+  .wm { position:absolute; color:transparent; pointer-events:none; user-select:none; white-space:nowrap;
+        font-family:'Saira Condensed'; font-weight:800; line-height:1;
+        -webkit-text-stroke:2px color-mix(in srgb,var(--a) 15%,transparent); }
+  .stbox { --c:8px; padding:9px 16px 8px; background:rgba(3,6,13,.8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+  .stbox span { display:block; font-size:11px; font-weight:600; letter-spacing:.06em; color:#6b7280; }
+  .stbox b { display:block; margin-top:3px; font:800 26px/1 'Saira Condensed'; color:#fff; }
+  .stbox b.a { color:var(--a); }
+  .nameul { display:inline-block; padding-bottom:6px; font-weight:700; color:#fff;
+            background:linear-gradient(90deg,var(--a),transparent) left bottom / 100% 3px no-repeat; }
+  .port { position:relative; background:#0b1220 center 6%/cover;
+          box-shadow:inset 0 0 0 2px var(--a), 0 0 78px -20px var(--a), 0 30px 64px -28px #000;
+          clip-path:polygon(var(--c,16px) 0,100% 0,100% calc(100% - var(--c,16px)),calc(100% - var(--c,16px)) 100%,0 100%,0 var(--c,16px)); }
+  .port::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 42%,rgba(3,5,10,.94) 94%); }
+  .port .tag { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:13px 18px; }
+  .port .tag .k { font-size:11px; font-weight:700; letter-spacing:.3em; color:var(--a); }
+  .port .tag b { display:block; margin-top:4px; font-size:31px; font-weight:700; color:#fff; line-height:1.05; }
+  .port .tag span { display:block; margin-top:3px; font-size:13px; color:#9ca3af; }
+  .lrow { display:grid; grid-template-columns:22px 34px 1fr auto; align-items:center; gap:11px; padding:7px 11px;
+          background:rgba(5,9,17,.62); box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);
+          clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); }
+  .lrow+.lrow { margin-top:5px; }
+  .lrow i { font:800 13px 'Saira Condensed'; font-style:normal; color:#4b5563; text-align:center; }
+  .lrow .fc { width:34px; height:42px; background:#0b1220 center 16%/cover;
+              clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+  .lrow b { font-size:15px; font-weight:600; color:#e5e7eb; }
+  .lrow .v { font:800 19px 'Saira Condensed'; color:var(--e,#9ca3af); }
+  .lrow.hit { background:rgba(253,224,71,.09); box-shadow:inset 0 0 0 1px rgba(253,224,71,.42); }
+  .lrow.hit b { color:#fff; font-weight:700; }
+  .bar2 { display:flex; height:12px; overflow:hidden; }
+  .bar2 i { display:block; height:100%; }
+  .tot { display:flex; align-items:center; gap:13px; }
+  .tot .t { font-size:14px; font-weight:600; color:#6b7280; } .tot .t.me { color:var(--my); } .tot .t.op { color:var(--opp); }
+  .tot .v { font:800 29px/1 'Saira Condensed'; color:#fff; } .tot .v .x { color:#374151; margin:0 8px; }
+
+/* ═════ 화면 틀 ═════ */
   .screen { position:relative; width:1920px; height:911px; overflow:hidden; background:#05080f; font-size:16px; }
-  .bg { position:absolute; inset:0; background:url(clutch/sim-broad.webp) center/cover; opacity:.3; }
+  .bg { position:absolute; inset:0; background:url(clutch/sim-broad.webp) center/cover; opacity:.26; }
   .vig { position:absolute; inset:0; pointer-events:none;
-         background:radial-gradient(130% 92% at 50% 42%,rgba(3,5,10,.48),rgba(3,5,10,.96) 76%),
-                    repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px); }
-  .lay { position:relative; z-index:2; height:100%; }
+         background:radial-gradient(128% 92% at 50% 40%,rgba(3,5,10,.42),rgba(3,5,10,.97) 78%),
+                    repeating-linear-gradient(0deg,rgba(255,255,255,.022) 0 1px,transparent 1px 3px); }
+  .lay { position:relative; z-index:2; height:100%; display:grid; }
 
-  /* 공통 하단 방침 띠 */
-  .foot { display:flex; flex-direction:column; justify-content:center; gap:12px; padding:0 46px; height:158px;
-          border-top:1px solid rgba(255,255,255,.1); background:linear-gradient(0deg,rgba(3,5,10,.94),rgba(3,5,10,.4)); }
-  .foot .hd { display:flex; align-items:center; gap:16px; }
-  .foot .hd p { margin:0; font-size:18px; color:#9ca3af; } .foot .hd p b { color:#fff; }
-  .opts { display:flex; gap:12px; } .opts .ui-btn { flex:1; }
-  .ring { position:relative; display:grid; place-items:center; width:66px; flex:none; }
+  /* 공통 상단 바 (드래프트 화면의 머리와 같은 문법) */
+  .top { display:flex; align-items:center; gap:34px; padding:0 44px; height:78px;
+         border-bottom:1px solid rgba(255,255,255,.1); background:linear-gradient(180deg,rgba(3,5,10,.94),rgba(3,5,10,.4)); }
+  .top .grp { display:flex; flex-direction:column; gap:3px; }
+  .top .grp span { font-size:10px; font-weight:700; letter-spacing:.34em; color:#4b5563; }
+  .top .grp b { font-size:19px; font-weight:700; color:#fff; line-height:1; }
+  .top .grp b.a { color:var(--a); }
+  .top .prog { flex:1; max-width:420px; }
+  .top .prog .pl { display:flex; justify-content:space-between; font-size:11px; color:#4b5563; margin-bottom:6px; }
+  .top .tot { margin-left:auto; }
+
+  /* 공통 하단 방침 */
+  .foot { display:flex; flex-direction:column; justify-content:center; gap:13px; padding:0 44px; height:150px;
+          border-top:1px solid rgba(255,255,255,.1); background:linear-gradient(0deg,rgba(3,5,10,.95),rgba(3,5,10,.42)); }
+  .foot .hd { display:flex; align-items:center; gap:15px; }
+  .foot .hd p { margin:0; font-size:17px; color:#9ca3af; } .foot .hd p b { color:#fff; }
+  .opts { display:flex; gap:11px; } .opts .btn { flex:1; }
+  .ring { position:relative; display:grid; place-items:center; width:62px; flex:none; }
   .ring svg { transform:rotate(-90deg); } .ring circle { fill:none; stroke-width:4; }
   .ring .b1 { stroke:rgba(255,255,255,.12); } .ring .b2 { stroke:var(--em); stroke-linecap:round; }
-  .ring b { position:absolute; font:800 21px 'Saira Condensed'; color:#fff; }
+  .ring b { position:absolute; font:800 20px 'Saira Condensed'; color:#fff; }
 
-  /* 공통 조각 */
-  .tot { display:flex; align-items:center; gap:14px; }
-  .tot .t { font-size:15px; font-weight:600; color:#6b7280; } .tot .t.mine { color:var(--my); }
-  .tot .v { font:800 30px/1 'Saira Condensed'; color:#fff; } .tot .v .x { color:#374151; margin:0 8px; }
-  .gainbox { --g:var(--yel); display:inline-block; padding:16px 30px 14px; text-align:center;
-             background:color-mix(in srgb,var(--g) 12%,rgba(2,4,8,.9)); box-shadow:inset 0 0 0 2px var(--g); }
-  .gainbox b { display:block; font:800 92px/1 'Saira Condensed'; color:var(--g); text-shadow:0 0 46px color-mix(in srgb,var(--g) 55%,transparent); }
-  .gainbox span { display:block; margin-top:8px; font-size:13px; font-weight:700; letter-spacing:.28em; color:color-mix(in srgb,var(--g) 80%,#fff); }
-  .evl { display:grid; grid-template-columns:12px 1fr auto; align-items:baseline; gap:14px; padding:13px 0;
-         border-top:1px solid rgba(255,255,255,.06); }
-  .evl:first-of-type { border-top:0; }
-  .evl .dot { width:9px; height:9px; background:var(--e,var(--my)); transform:skewX(-22deg); align-self:center; }
-  .evl .tx { font-size:18px; line-height:1.4; } .evl .tx b { color:#fff; margin-right:9px; }
-  .evl .tx span { color:#9ca3af; } .evl .tx span.hi { color:var(--e,var(--yel)); font-weight:700; }
-  .evl .rt { font:800 25px 'Saira Condensed'; color:var(--e,var(--yel)); }
-
-/* ══ A · 세 구역 가로 ══ */
-  .A .lay { display:grid; grid-template-rows:76px 1fr 158px; }
-  .A .bar { display:flex; align-items:center; gap:30px; padding:0 46px; border-bottom:1px solid rgba(255,255,255,.1);
-            background:linear-gradient(180deg,rgba(3,5,10,.9),rgba(3,5,10,.42)); }
-  .A .bar .tot { margin-left:auto; }
-  .A .mid { display:grid; grid-template-columns:560px 1fr 560px; }
-  .A .z1 { display:flex; flex-direction:column; justify-content:center; gap:32px; padding:0 46px; }
-  .A .inn { font-size:128px; font-weight:700; line-height:.9; color:#fff; letter-spacing:-.045em; margin:0; }
-  .A .inn em { font-style:normal; color:var(--or); }
-  .A .sd { display:block; margin-top:18px; font-size:23px; font-weight:700; color:#cbd5e1; }
-  .A .sd i { font-style:normal; color:var(--my); }
-  .A .z2 { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:26px 30px;
-           border-left:1px solid rgba(255,255,255,.08); border-right:1px solid rgba(255,255,255,.08); }
-  .A .hero { position:relative; width:310px; height:465px; background:#0b1220 center 8%/cover; margin-top:14px;
-             box-shadow:inset 0 0 0 2px var(--my), 0 0 66px -18px var(--my); }
-  .A .hero::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 48%,rgba(3,5,10,.92) 92%); }
-  .A .hero .cap { position:absolute; left:0; right:0; bottom:0; z-index:2; padding:15px; text-align:center; }
-  .A .hero .cap b { display:block; font-size:32px; font-weight:700; color:#fff; }
-  .A .hero .cap span { font-size:13px; color:color-mix(in srgb,var(--my) 80%,#fff); }
-  .A .did { margin-top:18px; text-align:center; }
-  .A .did b { font-size:28px; font-weight:700; color:var(--my); }
-  .A .did span { display:block; margin-top:8px; font-size:15px; color:#9ca3af; }
-  .A .z3 { padding:30px 46px; }
-
-/* ══ B · 전면 히어로 ══ */
-  .B .shot { position:absolute; right:0; top:0; width:64%; height:100%; background:#0b1220 62% 6%/cover;
-             -webkit-mask-image:linear-gradient(90deg,transparent,#000 42%); mask-image:linear-gradient(90deg,transparent,#000 42%); }
-  .B .lay { display:grid; grid-template-rows:1fr 158px; }
-  .B .body { position:relative; display:flex; flex-direction:column; justify-content:center; padding:0 70px; }
-  .B .wm { position:absolute; right:-30px; top:-70px; font:800 540px/1 'Saira Condensed'; color:transparent;
-           -webkit-text-stroke:2px rgba(251,146,60,.16); pointer-events:none; }
-  .B .kicker { display:flex; align-items:center; gap:18px; margin-bottom:18px; }
-  .B .inn { font-size:150px; font-weight:700; line-height:.86; color:#fff; letter-spacing:-.05em; margin:0;
-            text-shadow:0 8px 60px rgba(0,0,0,.95); }
-  .B .inn em { font-style:normal; color:var(--or); }
-  .B .nm { margin:26px 0 0; font-size:78px; font-weight:700; color:#fff; line-height:1; }
-  .B .act { margin:14px 0 0; font-size:38px; font-weight:700; color:var(--yel); }
-  .B .sub { margin:12px 0 0; font-size:18px; color:#9ca3af; }
-  .B .body { overflow:hidden; }
-  .B .side { position:absolute; right:56px; bottom:40px; width:420px; }
-  .B .side .evl { padding:9px 0; } .B .side .evl .tx { font-size:16px; }
-  .B .gainbox { position:absolute; left:70px; bottom:40px; }
-
-/* ══ C · 가로 타임라인 ══ */
-  .C .lay { display:grid; grid-template-rows:118px 1fr 158px; }
-  .C .bar { display:flex; align-items:center; gap:28px; padding:0 52px; border-bottom:1px solid rgba(255,255,255,.1); }
-  .C .bar .inn { font-size:60px; font-weight:700; color:#fff; margin:0; letter-spacing:-.03em; }
-  .C .bar .inn em { font-style:normal; color:var(--or); }
-  .C .bar .sd { font-size:19px; font-weight:700; color:#cbd5e1; } .C .bar .sd i { font-style:normal; color:var(--my); }
-  .C .bar .tot { margin-left:auto; }
-  .C .bar .gm { font:800 66px/1 'Saira Condensed'; color:var(--yel); margin-left:26px; text-shadow:0 0 40px rgba(253,224,71,.5); }
-  .C .tl { position:relative; display:flex; align-items:center; justify-content:space-between; padding:52px 90px 0; }
-  .C .tl::before { content:''; position:absolute; left:90px; right:90px; top:50%; height:3px;
-                   background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(253,224,71,.5)); }
-  .C .node { position:relative; width:250px; text-align:center; }
-  .C .node .pin { width:20px; height:20px; margin:0 auto; background:var(--e,var(--my)); transform:skewX(-22deg);
-                  box-shadow:0 0 22px var(--e,var(--my)); }
-  .C .node.big .pin { width:30px; height:30px; }
-  .C .node .fc { width:126px; height:168px; margin:0 auto 18px; background:#0b1220 center 8%/cover;
-                 box-shadow:inset 0 0 0 2px var(--e,var(--my)); clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px); }
-  .C .node.big .fc { width:190px; height:254px; }
-  .C .node .nm { margin:16px 0 0; font-size:24px; font-weight:700; color:#fff; }
-  .C .node.big .nm { font-size:32px; }
-  .C .node .tx { margin:7px 0 0; font-size:17px; color:#9ca3af; }
-  .C .node .tx b { color:var(--e,var(--yel)); }
-  .C .node .rt { display:block; margin-top:9px; font:800 34px 'Saira Condensed'; color:var(--yel); }
-  .C .node .ord { position:absolute; left:50%; top:-44px; transform:translateX(-50%);
-                  font:800 14px 'Saira Condensed'; letter-spacing:.3em; color:#4b5563; }
-
-/* ══ D · 전광판 ══ */
-  .D .lay { display:grid; grid-template-rows:1fr 158px; }
-  .D .body { display:grid; grid-template-columns:1fr 620px; }
-  .D .left { display:flex; flex-direction:column; justify-content:center; padding:0 54px; gap:30px; }
-  .D .board { width:100%; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center;
-              background:rgba(2,4,8,.8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
-  .D .board th { font-size:17px; font-weight:600; color:#6b7280; padding:11px 0; }
-  .D .board th.now { color:var(--yel); }
-  .D .board td { font-size:34px; color:#cbd5e1; padding:13px 0; }
-  .D .board td.tm { width:270px; text-align:left; padding-left:26px; font:700 21px 'IBM Plex Sans KR'; color:#9ca3af; }
-  .D .board td.tm.mine { color:var(--my); }
-  .D .board td.now { background:rgba(253,224,71,.16); color:var(--yel); font-size:52px; font-weight:800;
-                     box-shadow:inset 0 0 0 2px var(--yel); }
-  .D .board td.r { color:#fff; font-weight:800; } .D .board tr+tr td { border-top:1px solid rgba(255,255,255,.08); }
-  .D .cap2 { display:flex; align-items:baseline; gap:22px; }
-  .D .cap2 .inn { font-size:78px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; }
-  .D .cap2 .inn em { font-style:normal; color:var(--or); }
-  .D .cap2 .sd { font-size:21px; font-weight:700; color:#cbd5e1; } .D .cap2 .sd i { font-style:normal; color:var(--my); }
-  .D .right { padding:46px 54px 0; border-left:1px solid rgba(255,255,255,.08); background:rgba(3,5,10,.5); }
-  .D .who { display:flex; align-items:center; gap:22px; margin:18px 0 26px; }
-  .D .who .fc { width:120px; height:160px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--my); }
-  .D .who b { display:block; font-size:36px; font-weight:700; color:#fff; }
-  .D .who span { display:block; margin-top:6px; font-size:15px; color:#9ca3af; }
-  .D .who .did { margin-top:10px; font-size:23px; font-weight:700; color:var(--yel); }
-
-/* ══ E · 그라운드 도해 ══ */
-  .E .lay { display:grid; grid-template-rows:1fr 158px; }
-  .E .body { display:grid; grid-template-columns:760px 1fr; }
-  .E .fieldwrap { display:grid; place-items:center; border-right:1px solid rgba(255,255,255,.08); }
-  .E .right { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 54px; gap:28px; }
-  .E .right > div:last-of-type, .E .right > div:nth-of-type(2) { width:100%; max-width:720px; }
-  .E .hd2 { display:flex; align-items:flex-end; gap:26px; }
-  .E .hd2 .inn { font-size:104px; font-weight:700; color:#fff; margin:0; letter-spacing:-.045em; line-height:.9; }
-  .E .hd2 .inn em { font-style:normal; color:var(--or); }
-  .E .hd2 .sd { padding-bottom:12px; font-size:21px; font-weight:700; color:#cbd5e1; }
-  .E .hd2 .sd i { font-style:normal; color:var(--my); }
-
-/* ══ F · 좌우 대결 ══ */
-  .F .lay { display:grid; grid-template-rows:1fr 158px; }
-  .F .body { position:relative; display:grid; grid-template-columns:1fr 1fr; }
-  .F .halfp { display:flex; flex-direction:column; justify-content:center; padding:0 64px; gap:24px; }
-  .F .halfp.mine { background:linear-gradient(90deg,color-mix(in srgb,var(--my) 11%,transparent),transparent); }
-  .F .halfp.theirs { background:linear-gradient(270deg,color-mix(in srgb,var(--opp) 11%,transparent),transparent); align-items:flex-end; text-align:right; }
-  .F .halfp .who { display:flex; align-items:center; gap:24px; }
-  .F .halfp.theirs .who { flex-direction:row-reverse; }
-  .F .halfp .fc { width:152px; height:203px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--c2); }
-  .F .halfp b.nm { display:block; font-size:44px; font-weight:700; color:#fff; line-height:1.1; }
-  .F .halfp span.pos { font-size:15px; color:#9ca3af; }
-  .F .halfp .did { font-size:27px; font-weight:700; color:var(--c2); }
-  .F .halfp .sub { font-size:16px; color:#9ca3af; }
-  .F .halfp .lst { width:100%; } .F .halfp .lst .evl { padding:10px 0; } .F .halfp .lst .evl .tx { font-size:16px; }
-  .F .halfp.theirs .lst .evl { grid-template-columns:auto 1fr 12px; text-align:right; }
-  .F .spine { position:absolute; left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%);
-              background:linear-gradient(180deg,transparent,rgba(255,255,255,.22),transparent); }
-  .F .knot { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center;
-             padding:26px 34px; background:rgba(3,5,10,.96); box-shadow:inset 0 0 0 2px rgba(255,255,255,.18); }
-  .F .knot .inn { font-size:62px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; }
-  .F .knot .inn em { font-style:normal; color:var(--or); }
-  .F .knot .v { display:block; margin-top:12px; font:800 46px/1 'Saira Condensed'; color:#fff; }
-  .F .knot .v .x { color:#374151; margin:0 10px; }
-  .F .knot .gm { display:block; margin-top:12px; font:800 30px 'Saira Condensed'; color:var(--yel); }
-
-/* ══ G · 하단 자막 띠 ══ */
-  .G .lay { display:grid; grid-template-rows:1fr auto; }
-  .G .live { position:relative; display:flex; align-items:flex-start; padding:34px 46px; }
-  .G .live .badge { display:flex; align-items:center; gap:12px; padding:8px 16px; background:rgba(3,5,10,.8);
-                    box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
-  .G .live .badge i { width:9px; height:9px; border-radius:50%; background:var(--yel); }
-  .G .live .badge span { font:800 14px 'Saira Condensed'; letter-spacing:.3em; color:#cbd5e1; }
-  .G .live .tot { margin-left:auto; padding:8px 20px; background:rgba(3,5,10,.8); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
-  .G .strip { background:linear-gradient(0deg,rgba(3,5,10,.97),rgba(3,5,10,.88)); border-top:2px solid var(--or);
-              padding:30px 46px 30px; }
-  .G .row1 { display:flex; align-items:center; gap:32px; }
-  .G .row1 .inn { font-size:74px; font-weight:700; color:#fff; margin:0; letter-spacing:-.04em; line-height:1; }
-  .G .row1 .inn em { font-style:normal; color:var(--or); }
-  .G .row1 .gm { font:800 74px/1 'Saira Condensed'; color:var(--yel); }
-  .G .row1 .who { display:flex; align-items:center; gap:18px; margin-left:16px; }
-  .G .row1 .who .fc { width:74px; height:99px; background:#0b1220 center 8%/cover; box-shadow:inset 0 0 0 2px var(--my); }
-  .G .row1 .who b { display:block; font-size:32px; font-weight:700; color:#fff; }
-  .G .row1 .who span { font-size:17px; color:var(--yel); font-weight:700; }
-  .G .row1 .rest { margin-left:auto; text-align:right; font-size:15px; color:#9ca3af; line-height:1.65; }
-  .G .row1 .rest b { color:#e5e7eb; }
-  .G .row2 { display:flex; align-items:center; gap:14px; margin-top:26px; }
-  .G .row2 p { margin:0 20px 0 0; font-size:17px; color:#9ca3af; } .G .row2 p b { color:#fff; }
-  .G .row2 .opts { flex:1; }
-
-/* ══ H · 헤드라인 ══ */
-  .H .lay { display:grid; grid-template-rows:1fr 158px; }
-  .H .body { display:grid; grid-template-rows:auto 1fr; padding:44px 64px 0; }
-  .H .over { display:flex; align-items:center; gap:22px; padding-bottom:20px; border-bottom:2px solid var(--or); }
-  .H .over .inn { font:800 34px 'Saira Condensed'; color:var(--or); letter-spacing:.06em; }
-  .H .over .sd { font-size:17px; font-weight:700; color:#cbd5e1; } .H .over .sd i { font-style:normal; color:var(--my); }
-  .H .over .tot { margin-left:auto; }
-  .H .head { margin:30px 0 0; padding:0; border:0; font-size:96px; font-weight:700; color:#fff;
-             line-height:1.08; letter-spacing:-.04em; max-width:1180px; }
-  .H .head em { font-style:normal; font-size:inherit; font-weight:inherit; letter-spacing:inherit;
-                margin:0; color:var(--yel); }
-  .H .deck { margin:22px 0 0; font-size:22px; color:#9ca3af; max-width:900px; line-height:1.6; }
-  .H .lower { display:grid; grid-template-columns:1fr 330px; gap:60px; align-items:start; padding-bottom:36px; }
-  .H .cut { position:absolute; right:64px; top:170px; width:330px; height:440px; background:#0b1220 center 6%/cover;
-            box-shadow:inset 0 0 0 2px var(--my), 0 0 70px -20px var(--my); }
-  .H .lst .evl { padding:12px 0; }
-
-/* ══ 페이지 ══ */
-  .wrap { max-width:1380px; margin:0 auto; padding:44px 22px 110px; }
+/* ═════ 페이지 ═════ */
+  .wrap { max-width:1400px; margin:0 auto; padding:44px 22px 110px; }
   h1 { font-size:33px; font-weight:700; color:#fff; margin:12px 0 10px; }
-  .lead { color:#9ca3af; font-size:15px; line-height:1.85; margin:0 0 6px; } .lead b { color:#fff; }
-  h2 { font-size:26px; font-weight:700; color:#fff; margin:62px 0 6px; padding-top:30px; border-top:1px solid rgba(255,255,255,.09); }
-  h2 em { font-style:normal; font:800 15px 'Saira Condensed'; letter-spacing:.3em; color:var(--em2); margin-right:14px; }
-  .h2n { color:#9ca3af; font-size:15px; margin:0 0 22px; line-height:1.7; } .h2n b { color:#fff; }
-  .pn { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:16px; }
-  .pn div { padding:14px 18px; font-size:13.5px; line-height:1.75; background:rgba(255,255,255,.035); }
-  .pn div b { display:block; margin-bottom:5px; font-size:13px; letter-spacing:.12em; }
-  .pn .good b { color:var(--em2); } .pn .bad b { color:var(--or); }
+  .lead { color:#9ca3af; font-size:15px; line-height:1.85; margin:0 0 4px; } .lead b { color:#fff; }
+  .fam { margin:66px 0 0; padding-top:30px; border-top:1px solid rgba(255,255,255,.1); }
+  .fam h2 { font-size:27px; font-weight:700; color:#fff; margin:0 0 6px; }
+  .fam h2 em { font-style:normal; font:800 15px 'Saira Condensed'; letter-spacing:.3em; color:var(--em2); margin-right:14px; }
+  .fam p { color:#9ca3af; font-size:14.5px; margin:0 0 4px; line-height:1.7; } .fam p b { color:#fff; }
+  h3 { font-size:20px; font-weight:700; color:#fff; margin:42px 0 5px; }
+  h3 em { font-style:normal; font:800 13px 'Saira Condensed'; letter-spacing:.26em; color:#6b7280; margin-right:12px; }
+  .h3n { color:#8b95a5; font-size:13.5px; margin:0 0 18px; line-height:1.75; } .h3n b { color:#cbd5e1; }
   .stage { position:relative; width:100%; aspect-ratio:1920/911; overflow:hidden; box-shadow:inset 0 0 0 1px #1f2937; }
-  .stage .in { position:absolute; left:0; top:0; width:1920px; height:911px; transform-origin:0 0; transform:scale(var(--s,.7)); }
+  .stage .in { position:absolute; left:0; top:0; width:1920px; height:911px; transform-origin:0 0; transform:scale(var(--s,.72)); }
+</style>
+
+<style>
+/* ═══════════ A 계열 · 세 구역 가로 ═══════════ */
+  .A1 .lay { grid-template-rows:78px 1fr 150px; }
+  .A1 .mid { display:grid; grid-template-columns:520px 1fr 560px; gap:20px; padding:22px 44px; }
+  .A1 .pane { position:relative; padding:22px 26px; overflow:hidden; }
+  .A1 .p1 { display:flex; flex-direction:column; justify-content:center; gap:26px; }
+  .A1 .wm { left:-16px; top:44%; transform:translateY(-50%); font-size:250px; }
+  .A1 .inn { position:relative; margin:0; font-size:112px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.045em; }
+  .A1 .inn em { font-style:normal; color:var(--or); }
+  .A1 .sd { position:relative; display:flex; align-items:center; gap:12px; margin-top:16px; font-size:19px; font-weight:600; color:#cbd5e1; }
+  .A1 .gain { position:relative; --c:12px; align-self:flex-start; padding:16px 30px 13px; text-align:center;
+              background:color-mix(in srgb,var(--yel) 12%,rgba(2,4,8,.9)); box-shadow:inset 0 0 0 2px var(--yel); }
+  .A1 .gain b { display:block; font:800 86px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 46px rgba(253,224,71,.5); }
+  .A1 .gain span { display:block; margin-top:7px; font-size:11px; font-weight:700; letter-spacing:.28em; color:rgba(253,224,71,.82); }
+  .A1 .p2 { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .A1 .port { width:296px; height:444px; --c:16px; }
+  .A1 .did { margin-top:20px; text-align:center; }
+  .A1 .did b { font-size:27px; } .A1 .did span { display:block; margin-top:8px; font-size:14px; color:#9ca3af; }
+  .A1 .p3 .rows { margin-top:16px; }
+  .A1 .mt { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:auto; padding-top:20px; }
+
+  .A2 .lay { grid-template-rows:78px 1fr 150px; }
+  .A2 .mid { display:grid; grid-template-columns:1fr 640px; gap:20px; padding:22px 44px; }
+  .A2 .left { position:relative; display:grid; grid-template-columns:auto 1fr; align-items:center; gap:36px; padding:26px 34px; overflow:hidden; }
+  .A2 .wm { right:-30px; bottom:-56px; font-size:290px; }
+  .A2 .port { width:286px; height:430px; --c:16px; }
+  .A2 .inn { position:relative; margin:0; font-size:104px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.045em; }
+  .A2 .inn em { font-style:normal; color:var(--or); }
+  .A2 .sd { position:relative; display:flex; align-items:center; gap:12px; margin-top:14px; font-size:18px; color:#cbd5e1; }
+  .A2 .big { position:relative; margin:26px 0 0; font-size:38px; font-weight:700; color:var(--yel); }
+  .A2 .sub { position:relative; margin:9px 0 0; font-size:15px; color:#9ca3af; }
+  .A2 .gain { position:relative; display:flex; align-items:baseline; gap:12px; margin-top:24px; }
+  .A2 .gain b { font:800 92px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 46px rgba(253,224,71,.45); }
+  .A2 .gain span { font-size:12px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
+  .A2 .right { display:grid; grid-template-rows:1fr auto; gap:20px; }
+  .A2 .pane { padding:20px 24px; }
+  .A2 .mt { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:16px; }
+
+  .A3 .lay { grid-template-rows:78px auto 1fr 150px; }
+  .A3 .strip { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:34px; padding:16px 44px;
+               border-bottom:1px solid rgba(255,255,255,.08); background:rgba(3,6,13,.62); }
+  .A3 .strip .innl { display:flex; align-items:baseline; gap:14px; }
+  .A3 .strip .innl b { font-size:48px; font-weight:700; color:#fff; letter-spacing:-.04em; }
+  .A3 .strip .innl b em { font-style:normal; color:var(--or); }
+  .A3 .strip .innl span { font-size:16px; color:#cbd5e1; }
+  .A3 .board { width:100%; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center; }
+  .A3 .board th { font-size:13px; font-weight:600; color:#4b5563; padding:2px 0; } .A3 .board th.n { color:var(--yel); }
+  .A3 .board td { font-size:21px; color:#9ca3af; padding:3px 0; }
+  .A3 .board td.tm { width:150px; text-align:left; font:600 13px 'IBM Plex Sans KR'; color:#6b7280; }
+  .A3 .board td.tm.me { color:var(--my); }
+  .A3 .board td.n { color:var(--yel); font-weight:800; font-size:27px; background:rgba(253,224,71,.14); }
+  .A3 .board td.r { color:#fff; font-weight:800; }
+  .A3 .mid { display:grid; grid-template-columns:380px 1fr 560px; gap:20px; padding:20px 44px; }
+  .A3 .pane { padding:20px 24px; }
+  .A3 .port { width:288px; height:432px; margin:14px auto 0; --c:14px; }
+  .A3 .mid > .pane { overflow:hidden; }
+  .A3 .gain { text-align:center; } .A3 .gain b { font:800 116px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 50px rgba(253,224,71,.45); }
+  .A3 .gain span { display:block; font-size:12px; font-weight:700; letter-spacing:.28em; color:rgba(253,224,71,.8); }
+  .A3 .mt { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-top:18px; }
+
+/* ═══════════ B 계열 · 전면 히어로 ═══════════ */
+  .B1 .lay { grid-template-rows:78px 1fr 150px; }
+  .B1 .mid { position:relative; display:grid; grid-template-columns:1fr 520px 470px; gap:34px; padding:26px 44px; align-items:center; }
+  .B1 .wm { left:-24px; top:50%; transform:translateY(-50%); font-size:420px; }
+  .B1 .info { position:relative; }
+  .B1 .inn { margin:0; font-size:118px; font-weight:700; line-height:.86; color:#fff; letter-spacing:-.05em; }
+  .B1 .inn em { font-style:normal; color:var(--or); }
+  .B1 .sd { display:flex; align-items:center; gap:12px; margin-top:15px; font-size:18px; color:#cbd5e1; }
+  .B1 .nm { margin:26px 0 0; font-size:62px; font-weight:700; color:#fff; line-height:1; }
+  .B1 .act { margin:12px 0 0; font-size:31px; font-weight:700; color:var(--yel); }
+  .B1 .mt { display:flex; gap:8px; margin-top:22px; }
+  .B1 .port { width:100%; height:612px; --c:20px; }
+  .B1 .side .rows { margin-top:16px; }
+
+  .B2 .lay { grid-template-rows:1fr auto; }
+  .B2 .shot { position:absolute; inset:0; background:#0b1220 no-repeat; background-position:74% 14%; background-size:auto 132%; }
+  .B2 .shade { position:absolute; inset:0;
+               background:linear-gradient(90deg,rgba(3,5,10,.97) 12%,rgba(3,5,10,.5) 44%,rgba(3,5,10,.2) 62%,rgba(3,5,10,.9) 100%),
+                          linear-gradient(0deg,rgba(3,5,10,.98) 6%,transparent 44%); }
+  .B2 .hero { position:relative; display:flex; flex-direction:column; justify-content:center; padding:0 76px; }
+  .B2 .wm { right:70px; top:6%; font-size:440px; -webkit-text-stroke:2px rgba(251,146,60,.13); }
+  .B2 .kick { display:flex; align-items:center; gap:16px; }
+  .B2 .inn { margin:16px 0 0; font-size:172px; font-weight:700; line-height:.84; color:#fff; letter-spacing:-.055em;
+             text-shadow:0 10px 70px rgba(0,0,0,.96); }
+  .B2 .inn em { font-style:normal; color:var(--or); }
+  .B2 .nm { margin:30px 0 0; font-size:86px; font-weight:700; color:#fff; line-height:1; }
+  .B2 .act { margin:16px 0 0; font-size:40px; font-weight:700; color:var(--yel); }
+  .B2 .sub { margin:14px 0 0; font-size:17px; color:#9ca3af; letter-spacing:.02em; }
+  .B2 .strip { position:relative; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:44px;
+               padding:22px 44px; background:linear-gradient(0deg,rgba(3,5,10,.98),rgba(3,5,10,.86));
+               border-top:2px solid var(--or); }
+  .B2 .strip .gain { display:flex; align-items:baseline; gap:12px; }
+  .B2 .strip .gain b { font:800 80px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 44px rgba(253,224,71,.5); }
+  .B2 .strip .gain span { font-size:11px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
+  .B2 .strip .evs { display:flex; gap:9px; }
+  .B2 .ev2 { --c:8px; flex:1; padding:11px 15px; background:rgba(5,9,17,.72); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+  .B2 .ev2 .k { font-size:11px; font-weight:700; letter-spacing:.2em; color:var(--e,#6b7280); }
+  .B2 .ev2 b { display:block; margin-top:5px; font-size:17px; color:#fff; }
+  .B2 .ev2 span { font-size:13px; color:#9ca3af; }
+  .B2 .foot2 { display:flex; align-items:center; gap:18px; padding:18px 44px 22px; background:rgba(3,5,10,.98); }
+  .B2 .foot2 .opts { flex:1; }
+
+  .B3 .lay { grid-template-rows:78px 1fr 150px; }
+  .B3 .mid { display:grid; grid-template-columns:1fr 430px 540px; gap:30px; padding:26px 44px; align-items:center; }
+  .B3 .info { position:relative; }
+  .B3 .wm { left:-20px; top:-40px; font-size:320px; }
+  .B3 .inn { position:relative; margin:0; font-size:120px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.05em; }
+  .B3 .inn em { font-style:normal; color:var(--or); }
+  .B3 .sd { position:relative; display:flex; gap:12px; margin-top:16px; font-size:18px; color:#cbd5e1; }
+  .B3 .gain { position:relative; display:flex; align-items:baseline; gap:13px; margin-top:30px; }
+  .B3 .gain b { font:800 104px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 48px rgba(253,224,71,.45); }
+  .B3 .gain span { font-size:12px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
+  .B3 .rows { position:relative; margin-top:28px; max-width:430px; }
+  .B3 .port { width:100%; height:600px; --c:18px; }
+  .B3 .pane { padding:22px 26px; }
+  .B3 .mt2 { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:16px; }
+  .B3 .meter { margin-top:16px; }
+  .B3 .meter .r { display:grid; grid-template-columns:78px 1fr 46px; align-items:center; gap:12px; margin-top:11px; font-size:13px; color:#9ca3af; }
+  .B3 .meter .r i { display:block; height:7px; background:rgba(255,255,255,.08); }
+  .B3 .meter .r i b { display:block; height:100%; background:var(--a); box-shadow:0 0 10px var(--a); }
+  .B3 .meter .r em { font-style:normal; font:800 17px 'Saira Condensed'; color:#fff; text-align:right; }
+
+/* ═══════════ F 계열 · 좌우 대결 ═══════════ */
+  .F1 .lay { grid-template-rows:78px 1fr 150px; }
+  .F1 .mid { position:relative; display:grid; grid-template-columns:400px 1fr 400px; gap:26px; padding:24px 44px; align-items:center; }
+  .F1 .duo { position:relative; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:0; }
+  .F1 .port { width:100%; height:560px; --c:18px; }
+  .F1 .port.l { clip-path:polygon(18px 0,100% 0,100% 100%,0 100%,0 18px); }
+  .F1 .port.r { clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%); }
+  .F1 .vs { position:relative; z-index:5; display:grid; place-items:center; width:180px; }
+  .F1 .vs .inn { margin:0 0 12px; font-size:54px; font-weight:700; color:#fff; letter-spacing:-.04em; text-align:center; line-height:1; }
+  .F1 .vs .inn em { font-style:normal; color:var(--or); }
+  .F1 .vs .x { font:800 68px/1 'Saira Condensed'; color:#fff; text-shadow:0 0 40px rgba(0,0,0,.9); }
+  .F1 .vs .sc { margin-top:14px; font:800 40px/1 'Saira Condensed'; color:#fff; }
+  .F1 .vs .sc i { font-style:normal; color:#374151; margin:0 7px; }
+  .F1 .vs .gm { margin-top:10px; font:800 30px 'Saira Condensed'; color:var(--yel); }
+  .F1 .pane { padding:20px 22px; height:100%; display:flex; flex-direction:column; }
+  .F1 .rows { margin-top:14px; } .F1 .mt { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:auto; padding-top:16px; }
+
+  .F2 .lay { grid-template-rows:78px 1fr 150px; }
+  .F2 .mid { display:grid; grid-template-columns:1fr 520px 1fr; gap:30px; padding:26px 44px; align-items:center; }
+  .F2 .col { display:flex; flex-direction:column; gap:18px; }
+  .F2 .col.r { align-items:flex-end; text-align:right; }
+  .F2 .who { display:flex; align-items:center; gap:20px; }
+  .F2 .col.r .who { flex-direction:row-reverse; }
+  .F2 .port { width:172px; height:230px; --c:12px; flex:none; }
+  .F2 .who .nm { font-size:40px; font-weight:700; color:#fff; line-height:1.08; }
+  .F2 .who .ps { font-size:14px; color:#9ca3af; }
+  .F2 .who .ac { margin-top:10px; font-size:24px; font-weight:700; color:var(--a); }
+  .F2 .rows { width:100%; }
+  .F2 .center { position:relative; display:flex; flex-direction:column; align-items:center; gap:22px; }
+  .F2 .center .inn { margin:0; font-size:96px; font-weight:700; color:#fff; letter-spacing:-.045em; line-height:.9; text-align:center; }
+  .F2 .center .inn em { font-style:normal; color:var(--or); }
+  .F2 .center .sd { font-size:17px; color:#cbd5e1; }
+  .F2 .duel { width:100%; }
+  .F2 .duel .hd { display:flex; justify-content:space-between; font:800 46px 'Saira Condensed'; }
+  .F2 .duel .hd .a1 { color:var(--my); } .F2 .duel .hd .a2 { color:var(--opp); }
+  .F2 .duel .bar2 { margin-top:10px; } .F2 .duel .cap { display:flex; justify-content:space-between; margin-top:9px; font-size:12px; color:#6b7280; }
+  .F2 .mt { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; }
+
+  .F3 .lay { grid-template-rows:78px 1fr 150px; }
+  .F3 .mid { position:relative; display:grid; grid-template-columns:1fr 2px 1fr; padding:24px 44px; gap:30px; }
+  .F3 .pane { padding:24px 28px; display:flex; flex-direction:column; gap:18px; }
+  .F3 .pane.r { text-align:right; align-items:flex-end; }
+  .F3 .top2 { display:flex; align-items:center; gap:22px; width:100%; }
+  .F3 .pane.r .top2 { flex-direction:row-reverse; }
+  .F3 .port { width:162px; height:216px; --c:12px; flex:none; }
+  .F3 .top2 .nm { font-size:42px; font-weight:700; color:#fff; line-height:1.06; }
+  .F3 .top2 .ps { font-size:14px; color:#9ca3af; margin-top:3px; }
+  .F3 .top2 .ac { margin-top:12px; font-size:25px; font-weight:700; color:var(--a); }
+  .F3 .spine { position:relative; background:linear-gradient(180deg,transparent,rgba(255,255,255,.2),transparent); }
+  .F3 .knot { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:250px; padding:24px 20px; text-align:center;
+              background:rgba(3,5,10,.97); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); --c:14px; }
+  .F3 .knot .inn { margin:0; font-size:58px; font-weight:700; color:#fff; letter-spacing:-.04em; line-height:1; }
+  .F3 .knot .inn em { font-style:normal; color:var(--or); }
+  .F3 .knot .sc { display:block; margin-top:14px; font:800 42px/1 'Saira Condensed'; color:#fff; }
+  .F3 .knot .sc i { font-style:normal; color:#374151; margin:0 8px; }
+  .F3 .knot .gm { display:block; margin-top:12px; font:800 30px 'Saira Condensed'; color:var(--yel); }
+  .F3 .rows { width:100%; } .F3 .mt { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; margin-top:auto; }
 </style>
 
 <div class="wrap">
-  <p class="ui-lab" style="--a:var(--em2)">Half-Inning Recap · Layouts</p>
-  <h1>반이닝 정리 배치안 8가지</h1>
+  <p class="lab" style="--a:var(--em2)">Half-Inning Recap · Refined</p>
+  <h1>A · B · F 계열, 각 3안</h1>
   <p class="lead">
-    <b>전부 같은 내용</b>이다 — 6회말, 나의 드림팀 공격, 박병호 쓰리런으로 3점.
-    배치와 요소만 완전히 다르게 짰다. 무엇을 화면의 주인공으로 세우느냐가 안마다 다르다.
+    드래프트 · 매치업 · 상점 화면의 문법을 그대로 가져왔다 —
+    <b>브래킷 프레임</b>, <b>◣ 라벨</b>, <b>컷 코너 액자에 글로우와 하단 라벨 바</b>, <b>세그먼트 게이지</b>,
+    <b>윤곽선 워터마크</b>, <b>Saira Condensed 숫자</b>. 내용은 전부 같다 — 6회말 · 박병호 쓰리런 · +3.
   </p>
   <div id="root"></div>
 </div>
 
 <script>
-const 박병호 = 'legend-kiwoom_박병호', 이정후 = 'legend-mvp_이정후',
-      김도영 = 'legend-mvp_김도영', 최정 = 'legend-ssg_최정';
-const IMG = (id) => `cards/${encodeURIComponent(id)}.webp`;
+const C = (id) => `cards/${encodeURIComponent(id)}.webp`;
+const P = (id) => `profiles/${encodeURIComponent(id)}.webp`;
+const 박병호='legend-kiwoom_박병호', 이정후='legend-mvp_이정후', 김도영='legend-mvp_김도영',
+      최정='legend-ssg_최정', 강백호='legend-nc-kt_강백호', 김광현='legend-ssg_김광현';
 
-const EV = [
-  { id: 박병호, nm: '박병호', tx: '쓰리런 <span class="hi">홈런</span>', rt: '+3', e: 'var(--yel)', big: 1, sub: '비거리 127m' },
-  { id: 이정후, nm: '이정후', tx: '우전 안타', rt: '', e: 'var(--my)' },
-  { id: 김도영, nm: '김도영', tx: '볼넷', rt: '', e: 'var(--my)' },
-  { id: 최정, nm: '최정', tx: '중견수 뜬공 아웃', rt: '', e: '#6b7280' },
-];
-const evl = (a = EV) => a.map((e) => `
-  <div class="evl" style="--e:${e.e}"><span class="dot"></span>
-    <div class="tx"><b>${e.nm}</b><span>${e.tx}</span></div><span class="rt">${e.rt}</span></div>`).join('');
-const tot = () => `<div class="tot"><span class="t">AI 올스타</span>
-  <span class="v">4<span class="x">:</span>8</span><span class="t mine">나의 드림팀</span></div>`;
-const foot = (cls = 'foot') => `
-  <div class="${cls}">
-    <div class="hd"><span class="ui-lab" style="--a:var(--em2)">Next</span><p><b>7회초 내 수비</b> — 우리 선발 <b>92구</b></p></div>
+/* ── 조각 ── */
+const lab = (t, a = 'var(--or)', em = '') => `<span class="lab" style="--a:${a}">${t}${em ? `<em>${em}</em>` : ''}</span>`;
+const tot = () => `<div class="tot"><span class="t">AI 올스타</span><span class="v">4<span class="x">:</span>8</span><span class="t me">나의 드림팀</span></div>`;
+const seg = (on, now, n = 18, a = 'var(--my)') => `<div class="seg" style="--a:${a}">${
+  Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : i === now ? 'now' : ''}"></i>`).join('')}</div>`;
+const topbar = (a = 'var(--or)') => `
+  <div class="top" style="--a:${a}">
+    <div class="grp"><span>HALF-INNING</span><b>정리</b></div>
+    <div class="grp"><span>INNING</span><b class="a">6회말</b></div>
+    <div class="prog"><div class="pl"><span>경기 진행</span><span>11 / 18 반이닝</span></div>${seg(11, 11)}</div>
+    ${tot()}
+  </div>`;
+const foot = () => `
+  <div class="foot">
+    <div class="hd">${lab('Next', 'var(--em2)')}<p><b>7회초 내 수비</b> — 우리 선발 <b>92구</b> · 불펜 대기 <b>3명</b></p></div>
     <div class="opts">
-      <div class="ui-btn ui-cut">정면 승부<small>기본</small></div>
-      <div class="ui-btn ui-cut pri">투수 교체<small>불펜에서 고른다</small></div>
-      <div class="ui-btn ui-cut">신중하게<small>유인구 위주</small></div>
-      <div class="ring"><svg width="62" height="62"><circle class="b1" cx="31" cy="31" r="26"/>
-        <circle class="b2" cx="31" cy="31" r="26" stroke-dasharray="164" stroke-dashoffset="48"/></svg><b>4.5</b></div>
+      <div class="btn cut">정면 승부<small>기본</small></div>
+      <div class="btn cut pri">투수 교체<small>불펜에서 고른다</small></div>
+      <div class="btn cut">신중하게<small>유인구 위주</small></div>
+      <div class="ring"><svg width="58" height="58"><circle class="b1" cx="29" cy="29" r="24"/>
+        <circle class="b2" cx="29" cy="29" r="24" stroke-dasharray="151" stroke-dashoffset="44"/></svg><b>4.5</b></div>
     </div>
   </div>`;
-const gain = () => `<div class="gainbox ui-cut"><b>+3</b><span>이 회 득점</span></div>`;
+const port = (id, k, nm, ps, a = 'var(--my)', cls = '') =>
+  `<div class="port ${cls}" style="--a:${a};background-image:url(${C(id)})">
+     <div class="tag"><span class="k">${k}</span><b>${nm}</b><span>${ps}</span></div></div>`;
+const ROWS = [
+  [1, 김도영, '김도영', '볼넷', '', ''],
+  [2, 이정후, '이정후', '우전 안타', '', ''],
+  [3, 박병호, '박병호', '쓰리런 홈런', '+3', 'hit'],
+  [4, 최정, '최정', '중견수 뜬공 아웃', '', ''],
+];
+const rows = (a = ROWS) => `<div class="rows">${a.map(([i, id, nm, tx, v, c]) => `
+  <div class="lrow ${c}" style="--e:${v ? 'var(--yel)' : '#6b7280'}">
+    <i>${i}</i><div class="fc" style="background-image:url(${P(id)})"></div>
+    <b>${nm} <span style="color:#9ca3af;font-weight:400">${tx}</span></b><span class="v">${v || '·'}</span></div>`).join('')}</div>`;
+const st = (s, v, a) => `<div class="stbox cut"><span>${s}</span><b${a ? ' class="a"' : ''} ${a ? `style="--a:${a}"` : ''}>${v}</b></div>`;
+const MT = `${st('타자', '4')}${st('안타', '2')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}`;
 
-/* ── 그라운드 도해 (E) ── */
-const FIELD = `
-<svg width="620" height="600" viewBox="0 0 620 600">
-  <defs><radialGradient id="gr" cx="50%" cy="66%"><stop offset="0" stop-color="#0f3d2a"/><stop offset="1" stop-color="#061a12"/></radialGradient></defs>
-  <path d="M310 540 L580 270 A382 382 0 0 0 40 270 Z" fill="url(#gr)" stroke="rgba(255,255,255,.14)" stroke-width="2"/>
-  <path d="M310 540 L470 380 A226 226 0 0 0 150 380 Z" fill="rgba(180,120,60,.22)" stroke="rgba(255,255,255,.1)"/>
-  <path d="M310 540 L420 430 L310 320 L200 430 Z" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="3"/>
-  <path d="M40 270 A382 382 0 0 1 580 270" fill="none" stroke="rgba(253,224,71,.55)" stroke-width="4" stroke-dasharray="10 8"/>
-  <g fill="#e5e7eb">
-    <rect x="302" y="532" width="16" height="16" transform="rotate(45 310 540)"/>
-    <rect x="412" y="422" width="16" height="16" transform="rotate(45 420 430)"/>
-    <rect x="302" y="312" width="16" height="16" transform="rotate(45 310 320)"/>
-    <rect x="192" y="422" width="16" height="16" transform="rotate(45 200 430)"/>
-  </g>
-  <path d="M310 540 C 360 400, 400 300, 430 190" fill="none" stroke="#fde047" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="430" cy="190" r="13" fill="#fde047"/>
-  <text x="452" y="182" fill="#fde047" font-family="Saira Condensed" font-weight="800" font-size="30">홈런</text>
-  <text x="452" y="212" fill="#9ca3af" font-family="IBM Plex Sans KR" font-size="17">127m · 좌중간</text>
-  <g font-family="IBM Plex Sans KR" font-size="16" font-weight="700">
-    <circle cx="420" cy="430" r="11" fill="#34d399"/><text x="440" y="436" fill="#34d399">이정후</text>
-    <circle cx="200" cy="430" r="11" fill="#34d399"/><text x="94" y="436" fill="#34d399">김도영</text>
-  </g>
-  <text x="310" y="586" text-anchor="middle" fill="#6b7280" font-family="IBM Plex Sans KR" font-size="16">주자 둘이 모두 홈을 밟았다</text>
-</svg>`;
-
-const LAYOUTS = [
+const S = [
+/* ════ A ════ */
+{ fam:'A · 세 구역 가로', famn:'정보를 <b>종류별로 칸에 나눠 담는다.</b> 어떤 회차가 와도 칸이 흔들리지 않는 게 강점 — 대신 주인공을 만들어 줘야 한다.' },
 {
-  k:'A', name:'세 구역 가로', en:'Three Columns',
-  sum:'왼쪽 <b>회차·점수</b> · 가운데 <b>선수</b> · 오른쪽 <b>목록</b>. 정보를 종류별로 칸에 나눠 담는다.',
-  good:'어떤 회차가 와도 칸이 안 흔들린다. 사건이 1개든 6개든 같은 자리에 들어간다. <b>만들기 가장 안전하다.</b>',
-  bad:'셋이 대등해서 <b>주인공이 없다.</b> 눈이 어디부터 갈지 매번 정해야 한다. 오래 보면 표처럼 느껴진다.',
-  html:`
-  <div class="lay">
-    <div class="bar"><span class="ui-lab" style="--a:var(--or)">Half-Inning Recap</span>${tot()}</div>
-    <div class="mid">
-      <div class="z1">
-        <p class="inn">6회<em>말</em><span class="sd">나의 드림팀 <i>공격</i></span></p>
-        ${gain()}
-      </div>
-      <div class="z2">
-        <span class="ui-lab" style="--a:var(--my)">My Team · 내 팀</span>
-        <div class="hero ui-cut" style="background-image:url(${IMG(박병호)})">
-          <div class="cap"><b>박병호</b><span>4번 · 1B</span></div></div>
-        <div class="did"><b>쓰리런 홈런</b><span>비거리 127m · 시즌 21호</span></div>
-      </div>
-      <div class="z3"><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:16px">${evl()}</div></div>
+  k:'A1', nm:'패널 세 장', en:'Panels',
+  note:'세 구역을 <b>독립 패널</b>로 세우고 브래킷과 ◣ 라벨을 붙였다. 드래프트 화면의 <b>SERIES · PICK · MY TEAM</b> 과 같은 문법이라 다른 화면에서 넘어와도 이질감이 없다. 오른쪽 아래 <b>지표 네 칸</b>이 빈자리를 메운다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="pane p1 cut frame glass scan" style="--a:var(--or);--c:18px">
+      <span class="wm">6TH</span>
+      <div>${lab('This Half', 'var(--or)')}
+        <p class="inn">6회<em>말</em></p>
+        <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b> <span class="chip cut" style="--a:var(--my)">2사 1·2루에서</span></span></div>
+      <div class="gain cut"><b>+3</b><span>이 회 득점</span></div>
     </div>
-    ${foot()}
-  </div>`,
+    <div class="pane p2 cut frame glass" style="--a:var(--my);--c:18px">
+      ${lab('Player of the Half', 'var(--my)')}
+      ${port(박병호, 'MY TEAM', '박병호', '4번 · 1B')}
+      <div class="did"><span class="nameul" style="--a:var(--yel);font-size:27px">쓰리런 홈런</span>
+        <span>비거리 127m · 시즌 21호 · 3타수 2안타</span></div>
+    </div>
+    <div class="pane p3 cut frame glass" style="--a:var(--or);--c:18px;display:flex;flex-direction:column">
+      ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
+      ${rows()}
+      <div class="mt">${MT}</div>
+    </div>
+  </div>
+  ${foot()}`,
 },
 {
-  k:'B', name:'전면 히어로', en:'Full-Bleed Hero',
-  sum:'선수 사진이 <b>화면을 가득 채우고</b> 글자가 그 위에 얹힌다. 영화 포스터에 가깝다.',
-  good:'<b>이 회차는 이 사람 것</b>이라는 게 0.3초 만에 박힌다. 홈런·끝내기 같은 큰 순간에 압도적이다. 선수 카드 1,600장을 가장 잘 쓴다.',
-  bad:'사건이 많은 회차엔 안 맞는다. 오른쪽 목록이 사진에 묻힌다. <b>조용한 회차에 쓰면 허세로 보인다.</b>',
-  html:`
-  <div class="shot" style="background-image:url(${IMG(박병호)})"></div>
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="body">
-      <span class="wm">6</span>
-      <div class="kicker"><span class="ui-lab" style="--a:var(--or)">Half-Inning Recap</span>
-        <span class="ui-chip ui-cut" style="--a:var(--my)">나의 드림팀 공격</span></div>
+  k:'A2', nm:'좌 히어로 · 우 2단', en:'Hero + Stack',
+  note:'왼쪽에 <b>회차와 선수를 한 덩어리로</b> 묶어 주인공을 만들고, 오른쪽을 위아래로 갈라 <b>사건</b>과 <b>지표</b>를 쌓았다. A1보다 시선 순서가 분명하다 — 왼쪽을 먼저 보고 오른쪽으로 넘어간다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="left cut frame glass scan" style="--a:var(--my);--c:18px">
+      <span class="wm">6TH</span>
+      ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B')}
+      <div>
+        ${lab('This Half', 'var(--or)')}
+        <p class="inn">6회<em>말</em></p>
+        <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b> <span class="chip cut" style="--a:var(--my)">2사 1·2루</span></span>
+        <p class="big">쓰리런 홈런</p>
+        <p class="sub">좌중간 담장 · 비거리 127m · 시즌 21호</p>
+        <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="pane cut frame glass" style="--a:var(--or);--c:16px">
+        ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
+        ${rows()}
+      </div>
+      <div class="pane cut frame glass" style="--a:var(--sky);--c:16px">
+        ${lab('이 회 지표', 'var(--sky)')}
+        <div class="mt">${MT}</div>
+      </div>
+    </div>
+  </div>
+  ${foot()}`,
+},
+{
+  k:'A3', nm:'상단 전광판 · 3열', en:'Board + Columns',
+  note:'상단에 <b>이닝별 전광판</b>을 얇게 깔아 경기 전체 맥락을 늘 보이게 했다. 아래 3열은 <b>득점 · 선수 · 사건</b>. 매번 같은 자리에 같은 정보가 있어서 <b>18번 떠도 학습이 끝난다.</b>',
+  html:`${topbar()}
+  <div class="strip">
+    <div class="innl"><b>6회<em>말</em></b><span>나의 드림팀 공격</span></div>
+    <table class="board">
+      <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th class="n">6</th><th>7</th><th>8</th><th>9</th><th>R</th><th>H</th><th>E</th></tr>
+      <tr><td class="tm">AI 올스타</td><td>0</td><td>2</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-</td><td>-</td><td>-</td><td class="r">4</td><td>7</td><td>0</td></tr>
+      <tr><td class="tm me">나의 드림팀</td><td>1</td><td>0</td><td>0</td><td>3</td><td>1</td><td class="n">3</td><td>-</td><td>-</td><td>-</td><td class="r">8</td><td>11</td><td>1</td></tr>
+    </table>
+    <span class="chip cut" style="--a:var(--yel)">이 회 +3</span>
+  </div>
+  <div class="mid">
+    <div class="pane cut frame glass" style="--a:var(--yel);--c:16px;display:flex;flex-direction:column;justify-content:center;gap:22px">
+      ${lab('This Half', 'var(--yel)')}
+      <div class="gain"><b>+3</b><span>이 회 득점</span></div>
+      <div class="mt">${st('타자', '4')}${st('안타', '2')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}</div>
+    </div>
+    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
+      ${lab('Player of the Half', 'var(--my)')}
+      <div style="margin-top:14px">${port(박병호, 'MY TEAM', '박병호', '4번 · 1B — 쓰리런 홈런 · 127m')}</div>
+    </div>
+    <div class="pane cut frame glass" style="--a:var(--or);--c:16px">
+      ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
+      ${rows()}
+    </div>
+  </div>
+  ${foot()}`,
+},
+/* ════ B ════ */
+{ fam:'B · 전면 히어로', famn:'<b>선수가 화면을 끌고 간다.</b> 홈런 · 역전 · 끝내기처럼 큰 순간에 압도적이고, 선수 카드 1,600장을 가장 잘 쓴다 — 대신 조용한 회차엔 안 어울린다.' },
+{
+  k:'B1', nm:'매치업 액자', en:'Framed Portrait',
+  note:'매치업 화면의 <b>인물 처리 그대로</b> — 컷 코너 액자 + 글로우 + 하단 라벨 바. 왼쪽 정보 블록 뒤에 <b>윤곽선 6TH</b> 를 깔아 빈 곳을 채웠다. 오른쪽 목록까지 있어 <b>정보량과 존재감을 둘 다</b> 가져간다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="info">
+      <span class="wm">6TH</span>
+      ${lab('Half-Inning Recap', 'var(--or)')}
       <p class="inn">6회<em>말</em></p>
+      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b><span class="chip cut" style="--a:var(--yel)">+3 이 회 득점</span></span>
       <p class="nm">박병호</p>
-      <p class="act">쓰리런 홈런</p>
-      <p class="sub">4번 · 1B &nbsp;·&nbsp; 비거리 127m &nbsp;·&nbsp; 시즌 21호</p>
-      ${gain()}
-      <div class="side"><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:10px">${evl()}</div></div>
+      <p class="act">쓰리런 홈런 · 127m</p>
+      <div class="mt">${MT}</div>
     </div>
-    ${foot()}
-  </div>`,
+    ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B · 3타수 2안타 3타점')}
+    <div class="side">
+      <div class="pane cut frame glass" style="--a:var(--or);--c:16px;padding:20px 24px">
+        ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
+        ${rows()}
+      </div>
+    </div>
+  </div>
+  ${foot()}`,
 },
 {
-  k:'C', name:'가로 타임라인', en:'Timeline',
-  sum:'이 회차에 일어난 일이 <b>왼쪽에서 오른쪽으로</b> 시간 순으로 흐른다. 큰 사건은 노드가 커진다.',
-  good:'야구가 원래 순서의 경기다. <b>"어떻게 이렇게 됐는지"가 그림으로 읽힌다.</b> 볼넷 → 안타 → 홈런의 흐름이 보인다.',
-  bad:'사건이 5개를 넘으면 좁아진다. 삼자범퇴처럼 <b>한 줄뿐인 회차엔 텅 빈다.</b> 노드 크기 규칙을 따로 정해야 한다.',
+  k:'B2', nm:'풀블리드 시네마', en:'Cinematic',
+  note:'선수가 <b>화면 전체</b>다. 정보는 아래 띠에만 눕혀서 인물을 안 가린다. 가장 세고 가장 빠르다 — <b>4초 안에 감정이 끝난다.</b> 대신 사건이 셋을 넘으면 띠가 모자라 접어야 한다.',
   html:`
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="bar">
-      <p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span>
-      <span class="gm">+3</span>${tot()}
-    </div>
-    <div class="tl">
-      <div class="node" style="--e:var(--my)"><span class="ord">FIRST</span>
-        <div class="fc" style="background-image:url(${IMG(김도영)})"></div><div class="pin"></div>
-        <p class="nm">김도영</p><p class="tx">볼넷</p></div>
-      <div class="node" style="--e:var(--my)"><span class="ord">2ND</span>
-        <div class="fc" style="background-image:url(${IMG(이정후)})"></div><div class="pin"></div>
-        <p class="nm">이정후</p><p class="tx">우전 안타</p></div>
-      <div class="node big" style="--e:var(--yel)"><span class="ord">3RD</span>
-        <div class="fc" style="background-image:url(${IMG(박병호)})"></div><div class="pin"></div>
-        <p class="nm">박병호</p><p class="tx"><b>쓰리런 홈런</b></p><span class="rt">+3</span></div>
-      <div class="node" style="--e:#6b7280"><span class="ord">4TH</span>
-        <div class="fc" style="background-image:url(${IMG(최정)})"></div><div class="pin"></div>
-        <p class="nm">최정</p><p class="tx">중견수 뜬공 아웃</p></div>
-    </div>
-    ${foot()}
-  </div>`,
-},
-{
-  k:'D', name:'전광판', en:'Scoreboard',
-  sum:'구장 전광판이 주인공이다. <b>이닝별 박스스코어</b>가 크게 깔리고 이번 회 칸이 불을 켠다.',
-  good:'<b>경기 전체 흐름이 한눈에</b> 들어온다. 지금 몇 점 차이고 어느 회에 터졌는지가 매번 보인다. 야구 팬에게 가장 익숙한 그림이다.',
-  bad:'회차마다 <b>바뀌는 게 숫자 한 칸뿐</b>이라 심심하다. 선수가 오른쪽으로 밀려 작아진다. 사건이 많으면 자리가 부족하다.',
-  html:`
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="body">
-      <div class="left">
-        <div class="cap2"><p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span></div>
-        <table class="board">
-          <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th class="now">6</th><th>7</th><th>8</th><th>9</th><th>R</th><th>H</th></tr>
-          <tr><td class="tm">AI 올스타</td><td>0</td><td>2</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-</td><td>-</td><td>-</td><td class="r">4</td><td>7</td></tr>
-          <tr><td class="tm mine">나의 드림팀</td><td>1</td><td>0</td><td>0</td><td>3</td><td>1</td><td class="now">3</td><td>-</td><td>-</td><td>-</td><td class="r">8</td><td>11</td></tr>
-        </table>
-      </div>
-      <div class="right">
-        <span class="ui-lab" style="--a:var(--my)">이 회 주인공</span>
-        <div class="who">
-          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
-          <div><b>박병호</b><span>4번 · 1B</span><p class="did">쓰리런 홈런</p></div>
-        </div>
-        <span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span>
-        <div style="margin-top:14px">${evl()}</div>
-      </div>
-    </div>
-    ${foot()}
-  </div>`,
-},
-{
-  k:'E', name:'그라운드 도해', en:'Diamond',
-  sum:'다이아몬드 그림 위에 <b>타구가 어디로 갔고 주자가 어떻게 돌았는지</b>를 선으로 그린다.',
-  good:'<b>글이 아니라 그림으로 읽는다.</b> 좌중간 127m이 숫자가 아니라 길이로 보인다. 수비 · 주루 · 타구 방향이 처음으로 화면에 나온다.',
-  bad:'만드는 비용이 제일 크다. <b>엔진에 타구 방향 데이터가 없어서</b> 새로 만들어야 한다. 볼넷 · 삼진처럼 그릴 게 없는 사건은 표현이 안 된다.',
-  html:`
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="body">
-      <div class="fieldwrap">${FIELD}</div>
-      <div class="right">
-        <div class="hd2"><p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <i>공격</i></span></div>
-        ${gain()}
-        <div><span class="ui-lab" style="--a:var(--or)">이 회에 벌어진 일</span><div style="margin-top:14px">${evl()}</div></div>
-        ${tot()}
-      </div>
-    </div>
-    ${foot()}
-  </div>`,
-},
-{
-  k:'F', name:'좌우 대결', en:'Head to Head',
-  sum:'화면을 <b>반으로 갈라</b> 왼쪽은 우리, 오른쪽은 상대. 가운데 기둥에 회차와 점수.',
-  good:'<b>내 팀과 상대가 구조로 갈린다.</b> 색을 안 봐도 위치로 안다. 상대가 잘한 회차를 정직하게 보여줄 수 있다.',
-  bad:'한쪽이 <b>늘 비어 보인다</b> — 내 공격 이닝엔 상대가 투수 하나뿐이다. 화면 절반이 놀면 답답하다.',
-  html:`
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="body">
-      <div class="halfp mine" style="--c2:var(--my)">
-        <span class="ui-lab" style="--a:var(--my)">My Team · 공격</span>
-        <div class="who">
-          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
-          <div><b class="nm">박병호</b><span class="pos">4번 · 1B</span>
-            <p class="did">쓰리런 홈런</p><p class="sub">비거리 127m</p></div>
-        </div>
-        <div class="lst">${evl(EV.slice(1))}</div>
-      </div>
-      <div class="halfp theirs" style="--c2:var(--opp)">
-        <span class="ui-lab" style="--a:var(--opp)">Opponent · 수비</span>
-        <div class="who">
-          <div class="fc ui-cut" style="background-image:url(${IMG(최정)})"></div>
-          <div><b class="nm">상대 선발</b><span class="pos">6회 · 88구</span>
-            <p class="did">피홈런 1 · 3실점</p><p class="sub">이 회로 무너졌다</p></div>
-        </div>
-        <div class="lst">${evl([{ nm:'실점', tx:'이 회 3점', rt:'−3', e:'var(--opp)' },
-                                { nm:'투구수', tx:'88구 — 교체 임박', rt:'', e:'var(--opp)' }])}</div>
-      </div>
-      <div class="spine"></div>
-      <div class="knot ui-cut">
-        <p class="inn">6회<em>말</em></p>
-        <span class="v">4<span class="x">:</span>8</span>
-        <span class="gm">+3</span>
-      </div>
-    </div>
-    ${foot()}
-  </div>`,
-},
-{
-  k:'G', name:'하단 자막 띠', en:'Lower Third',
-  sum:'중계 화면을 <b>안 가린다.</b> 위는 경기가 그대로 보이고 아래 3분의 1에만 정보가 깔린다.',
-  good:'<b>흐름이 안 끊긴다.</b> 경기를 보다가 정보가 올라왔다 내려가는 느낌이라 18번 떠도 안 지친다. 실제 중계 문법 그대로다. <b>가장 빠르다.</b>',
-  bad:'담을 수 있는 정보가 적다. 부상 · 우천처럼 <b>할 말이 많은 회차를 못 받는다.</b> 큰 순간의 무게감도 안 산다.',
-  html:`
-  <div class="bg" style="opacity:.62"></div>
-  <div class="lay">
-    <div class="live">
-      <span class="badge"><i></i><span>HALF-INNING</span></span>
-      <span class="tot">${tot()}</span>
-    </div>
+  <div class="hero">
+    <span class="wm">6</span>
+    <div class="kick">${lab('Half-Inning Recap', 'var(--or)')}<span class="chip cut" style="--a:var(--my)">나의 드림팀 공격</span></div>
+    <p class="inn">6회<em>말</em></p>
+    <p class="nm">박병호</p>
+    <p class="act">쓰리런 홈런</p>
+    <p class="sub">4번 · 1B &nbsp;·&nbsp; 좌중간 127m &nbsp;·&nbsp; 시즌 21호 &nbsp;·&nbsp; 3타수 2안타 3타점</p>
+  </div>
+  <div>
     <div class="strip">
-      <div class="row1">
-        <p class="inn">6회<em>말</em></p>
-        <span class="gm">+3</span>
-        <div class="who">
-          <div class="fc ui-cut" style="background-image:url(${IMG(박병호)})"></div>
-          <div><b>박병호</b><span>쓰리런 홈런 · 127m</span></div>
-        </div>
-        <div class="rest">이정후 <b>우전 안타</b> &nbsp;·&nbsp; 김도영 <b>볼넷</b><br>최정 중견수 뜬공 아웃</div>
+      <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
+      <div class="evs">
+        <div class="ev2 cut" style="--e:var(--my)"><span class="k">1</span><b>김도영</b><span>볼넷</span></div>
+        <div class="ev2 cut" style="--e:var(--my)"><span class="k">2</span><b>이정후</b><span>우전 안타</span></div>
+        <div class="ev2 cut" style="--e:var(--yel);box-shadow:inset 0 0 0 1px rgba(253,224,71,.5)"><span class="k">3 · +3</span><b>박병호</b><span>쓰리런 홈런</span></div>
+        <div class="ev2 cut" style="--e:#6b7280"><span class="k">4</span><b>최정</b><span>중견수 뜬공</span></div>
       </div>
-      <div class="row2">
-        <span class="ui-lab" style="--a:var(--em2)">Next</span>
-        <p><b>7회초 내 수비</b> — 선발 92구</p>
-        <div class="opts">
-          <div class="ui-btn ui-cut">정면 승부<small>기본</small></div>
-          <div class="ui-btn ui-cut pri">투수 교체<small>불펜에서</small></div>
-          <div class="ui-btn ui-cut">신중하게<small>유인구 위주</small></div>
-        </div>
-        <div class="ring"><svg width="62" height="62"><circle class="b1" cx="31" cy="31" r="26"/>
-          <circle class="b2" cx="31" cy="31" r="26" stroke-dasharray="164" stroke-dashoffset="48"/></svg><b>4.5</b></div>
+      ${tot()}
+    </div>
+    <div class="foot2">
+      ${lab('Next', 'var(--em2)')}<p style="margin:0;font-size:16px;color:#9ca3af"><b style="color:#fff">7회초 내 수비</b> — 선발 92구</p>
+      <div class="opts">
+        <div class="btn cut">정면 승부<small>기본</small></div>
+        <div class="btn cut pri">투수 교체<small>불펜에서 고른다</small></div>
+        <div class="btn cut">신중하게<small>유인구 위주</small></div>
       </div>
+      <div class="ring"><svg width="58" height="58"><circle class="b1" cx="29" cy="29" r="24"/>
+        <circle class="b2" cx="29" cy="29" r="24" stroke-dasharray="151" stroke-dashoffset="44"/></svg><b>4.5</b></div>
     </div>
   </div>`,
 },
 {
-  k:'H', name:'헤드라인', en:'Headline',
-  sum:'그 회차를 <b>한 문장으로</b> 뽑아 제일 크게 쓴다. 나머지는 밑에 작게.',
-  good:'<b>읽고 나면 문장이 남는다.</b> "박병호, 6회말 쓰리런" — 나중에 기억나는 건 결국 이 한 줄이다. 시즌 기록·명장면 보관과도 이어진다.',
-  bad:'문장을 <b>자동으로 잘 뽑기가 어렵다.</b> 규칙으로 만들면 금방 반복돼 보인다. 사건이 여럿인 회차는 한 문장으로 못 줄인다.',
-  html:`
-  <div class="vig"></div>
-  <div class="lay">
-    <div class="body">
-      <div class="over">
-        <span class="inn">6회말</span><span class="sd">나의 드림팀 <i>공격</i></span>
-        <span class="ui-chip ui-cut" style="--a:var(--yel)">+3</span>${tot()}
+  k:'B3', nm:'히어로 + 성적 패널', en:'Hero + Stats',
+  note:'인물 옆에 <b>그 선수의 오늘</b>을 붙였다 — 타석 기록과 능력 게이지. 드래프트 우측 <b>MY TEAM</b> 패널의 문법이다. 선수를 세우면서도 <b>숫자로 뒷받침</b>해서 감독 게임다운 무게가 생긴다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="info">
+      <span class="wm">6TH</span>
+      ${lab('Half-Inning Recap', 'var(--or)')}
+      <p class="inn">6회<em>말</em></p>
+      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b><span class="chip cut" style="--a:var(--my)">2사 1·2루에서</span></span>
+      <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
+      ${rows()}
+    </div>
+    ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B')}
+    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
+      ${lab('오늘의 박병호', 'var(--my)')}
+      <p style="margin:14px 0 0"><span class="nameul" style="--a:var(--yel);font-size:30px">쓰리런 홈런</span></p>
+      <p style="margin:12px 0 0;font-size:14px;color:#9ca3af">좌중간 담장 · 비거리 127m · 시즌 21호</p>
+      <div class="mt2">${st('타수', '3')}${st('안타', '2')}${st('타점', '3', 'var(--yel)')}${st('OPS', '1.24', 'var(--my)')}</div>
+      <div class="meter" style="--a:var(--my)">
+        <div class="r"><span>파워</span><i><b style="width:99%"></b></i><em>99</em></div>
+        <div class="r"><span>컨택</span><i><b style="width:90%"></b></i><em>90</em></div>
+        <div class="r"><span>주루</span><i><b style="width:60%;background:#64748b;box-shadow:none"></b></i><em>60</em></div>
+        <div class="r"><span>수비</span><i><b style="width:62%;background:#64748b;box-shadow:none"></b></i><em>62</em></div>
       </div>
-      <div class="lower">
-        <div>
-          <p class="head">박병호, 6회말 <em>쓰리런</em><br>승부를 갈랐다</p>
-          <p class="deck">2사 1·2루에서 초구를 당겼다. 좌중간 담장을 넘긴 127m — 시즌 21호.
-            이 회차에만 3점을 보태 8 : 4로 달아났다.</p>
-          <div class="lst" style="margin-top:34px;max-width:760px">${evl(EV.slice(1))}</div>
-        </div>
-        <div></div>
+      <div style="margin-top:18px">${lab('상대 투수', 'var(--opp)')}
+        <div class="lrow" style="margin-top:10px;--e:var(--opp)"><i>SP</i>
+          <div class="fc" style="background-image:url(${P(김광현)})"></div>
+          <b>김광현 <span style="color:#9ca3af;font-weight:400">88구 · 피홈런 1</span></b><span class="v">−3</span></div></div>
+    </div>
+  </div>
+  ${foot()}`,
+},
+/* ════ F ════ */
+{ fam:'F · 좌우 대결', famn:'<b>내 팀과 상대가 구조로 갈린다.</b> 색을 안 봐도 위치로 안다 — 매치업 화면이 이미 쓰는 문법이라 익숙하다. 한쪽이 비어 보이지 않게 채우는 게 관건.' },
+{
+  k:'F1', nm:'VS 액자', en:'Versus',
+  note:'매치업 화면을 그대로 가져왔다 — 두 인물이 <b>마주 보고 가운데 VS</b>. 액자를 안쪽으로 붙여 맞대결 구도를 만들고, 양옆 패널에 각 팀의 사건과 지표를 담아 <b>한쪽이 비지 않게</b> 했다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
+      ${lab('My Team · 공격', 'var(--my)')}
+      ${rows()}
+      <div class="mt">${st('안타', '2')}${st('잔루', '0')}</div>
+    </div>
+    <div class="duo">
+      ${port(박병호, 'MY TEAM', '박병호', '쓰리런 홈런 · 127m', 'var(--my)', 'l')}
+      <div class="vs">
+        <p class="inn">6회<em>말</em></p>
+        <span class="x">VS</span>
+        <span class="sc">4<i>:</i>8</span>
+        <span class="gm">+3</span>
+      </div>
+      ${port(김광현, 'OPPONENT', '김광현', '피홈런 1 · 3실점', 'var(--opp)', 'r')}
+    </div>
+    <div class="pane cut frame glass" style="--a:var(--opp);--c:16px">
+      ${lab('Opponent · 수비', 'var(--opp)')}
+      <div class="rows">
+        <div class="lrow" style="--e:var(--opp)"><i>SP</i><div class="fc" style="background-image:url(${P(김광현)})"></div>
+          <b>김광현 <span style="color:#9ca3af;font-weight:400">6회 · 88구</span></b><span class="v">−3</span></div>
+        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
+          <b>피홈런 <span style="color:#9ca3af;font-weight:400">이 회 1개</span></b><span class="v">·</span></div>
+        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
+          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
+      </div>
+      <div class="mt">${st('투구수', '88', 'var(--opp)')}${st('실점', '3', 'var(--opp)')}</div>
+    </div>
+  </div>
+  ${foot()}`,
+},
+{
+  k:'F2', nm:'승부 저울', en:'Balance',
+  note:'가운데에 <b>이 회차의 승부를 저울</b>로 세웠다. 우리 3점 · 상대 0점이 바로 길이로 보인다. 양옆은 인물과 목록. <b>"이 회차를 누가 가져갔나"</b>가 한 장면에 담긴다.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="col" style="--a:var(--my)">
+      ${lab('My Team · 공격', 'var(--my)')}
+      <div class="who">
+        ${port(박병호, 'MY TEAM', '', '', 'var(--my)')}
+        <div><div class="nm">박병호</div><div class="ps">4번 · 1B</div><div class="ac">쓰리런 홈런</div></div>
+      </div>
+      ${rows(ROWS.filter((r) => r[0] !== 3))}
+    </div>
+    <div class="center">
+      <p class="inn">6회<em>말</em></p>
+      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b></span>
+      <div class="duel">
+        <div class="hd"><span class="a1">+3</span><span class="a2">0</span></div>
+        <div class="bar2 cut" style="--c:5px"><i style="width:100%;background:var(--my);box-shadow:0 0 16px var(--my)"></i><i style="width:0;background:var(--opp)"></i></div>
+        <div class="cap"><span>우리 3점 · 안타 2 · 볼넷 1</span><span>상대 0점</span></div>
+      </div>
+      <div class="mt">${st('타자', '4')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}</div>
+      ${tot()}
+    </div>
+    <div class="col r" style="--a:var(--opp)">
+      ${lab('Opponent · 수비', 'var(--opp)')}
+      <div class="who">
+        ${port(김광현, 'OPPONENT', '', '', 'var(--opp)')}
+        <div><div class="nm">김광현</div><div class="ps">선발 · SP</div><div class="ac">피홈런 1 · 3실점</div></div>
+      </div>
+      <div class="rows">
+        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
+          <b>투구수 <span style="color:#9ca3af;font-weight:400">88구 — 교체 임박</span></b><span class="v">88</span></div>
+        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
+          <b>이 회 <span style="color:#9ca3af;font-weight:400">타자 4명 · 안타 2</span></b><span class="v">−3</span></div>
+        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
+          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
       </div>
     </div>
-    <div class="cut ui-cut" style="background-image:url(${IMG(박병호)})"></div>
-    ${foot()}
-  </div>`,
+  </div>
+  ${foot()}`,
+},
+{
+  k:'F3', nm:'대칭 패널', en:'Mirror',
+  note:'좌우를 <b>완전한 거울</b>로 세우고 가운데 기둥에 회차와 점수를 매달았다. 패널 두 장이 대등해서 <b>상대가 잘한 회차</b>도 똑같은 무게로 보여줄 수 있다 — 내 팀만 편애하지 않는 구조.',
+  html:`${topbar()}
+  <div class="mid">
+    <div class="pane cut frame glass scan" style="--a:var(--my);--c:18px">
+      ${lab('My Team · 공격', 'var(--my)')}
+      <div class="top2">
+        ${port(박병호, 'MY TEAM', '', '', 'var(--my)')}
+        <div><div class="nm">박병호</div><div class="ps">4번 · 1B · 3타수 2안타 3타점</div>
+          <div class="ac">쓰리런 홈런 · 127m</div></div>
+      </div>
+      ${rows()}
+      <div class="mt">${st('안타', '2')}${st('잔루', '0')}</div>
+    </div>
+    <div class="spine">
+      <div class="knot cut" style="--a:var(--or)">
+        <p class="inn">6회<em>말</em></p>
+        <span class="sc">4<i>:</i>8</span>
+        <span class="gm">+3</span>
+      </div>
+    </div>
+    <div class="pane r cut frame glass scan" style="--a:var(--opp);--c:18px">
+      ${lab('Opponent · 수비', 'var(--opp)')}
+      <div class="top2">
+        ${port(김광현, 'OPPONENT', '', '', 'var(--opp)')}
+        <div><div class="nm">김광현</div><div class="ps">선발 · SP · 6회 88구</div>
+          <div class="ac">피홈런 1 · 3실점</div></div>
+      </div>
+      <div class="rows">
+        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
+          <b>이 회 <span style="color:#9ca3af;font-weight:400">타자 4명 · 안타 2 · 볼넷 1</span></b><span class="v">−3</span></div>
+        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
+          <b>투구수 <span style="color:#9ca3af;font-weight:400">88구 — 교체 임박</span></b><span class="v">88</span></div>
+        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
+          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
+      </div>
+      <div class="mt">${st('투구수', '88', 'var(--opp)')}${st('실점', '3', 'var(--opp)')}</div>
+    </div>
+  </div>
+  ${foot()}`,
 },
 ];
 
-document.getElementById('root').innerHTML = LAYOUTS.map((L) => `
-  <h2><em>${L.k}</em>${L.name} <span style="font:800 16px 'Saira Condensed';color:#4b5563;letter-spacing:.2em">${L.en}</span></h2>
-  <p class="h2n">${L.sum}</p>
-  <div class="stage"><div class="in"><div class="screen ${L.k}"><div class="bg"></div>${L.html}</div></div></div>
-  <div class="pn">
-    <div class="good"><b>좋은 점</b>${L.good}</div>
-    <div class="bad"><b>걸리는 점</b>${L.bad}</div>
-  </div>`).join('');
+let html = '';
+for (const x of S) {
+  if (x.fam) { html += `<div class="fam"><h2><em>${x.fam.split(' · ')[0]}</em>${x.fam.split(' · ')[1]}</h2><p>${x.famn}</p></div>`; continue; }
+  html += `
+    <h3><em>${x.k}</em>${x.nm} <span style="font:800 14px 'Saira Condensed';color:#4b5563;letter-spacing:.2em">${x.en}</span></h3>
+    <p class="h3n">${x.note}</p>
+    <div class="stage"><div class="in"><div class="screen ${x.k}"><div class="bg"></div>
+      ${x.k === 'B2' ? `<div class="shot" style="background-image:url(${C(박병호)})"></div><div class="shade"></div>` : '<div class="vig"></div>'}
+      <div class="lay">${x.html}</div></div></div></div>`;
+}
+document.getElementById('root').innerHTML = html;
 
 const fit = () => document.querySelectorAll('.stage').forEach((el) => {
   el.querySelector('.in').style.setProperty('--s', el.clientWidth / 1920);
