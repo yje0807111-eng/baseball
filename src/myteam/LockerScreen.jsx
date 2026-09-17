@@ -11,7 +11,7 @@ import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staf
 import { saveTeam } from './store.js';
 import { playingIds } from './match.js';
 import { posColor, statColor } from './teamColor.js';
-import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats } from './ui.jsx';
+import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
 
@@ -378,20 +378,23 @@ export default function LockerScreen({ account, onSave, onBack }) {
                 const on = staffSlot === s.key;
                 return (
                   <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
-                    aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`}
-                    className={`mt-cut ${on ? 'mt-frame' : ''} group relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-top text-left`}
-                    style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', boxShadow: on ? '0 0 0 2px #c4b5fd, 0 0 26px -6px #c4b5fd' : undefined, filter: on ? undefined : 'brightness(.82)' }}>
-                    {cur && (
-                      <span key={cur.id} className="mt-staff-in absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
-                        style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(profiles/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
-                    )}
-                    <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${cur ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
-                    <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
-                    {cur && <b className="absolute right-3 top-3 font-display text-[14px] text-amber-300">Lv.{cur.level || 1}</b>}
-                    <span className="absolute inset-x-3 bottom-2.5">
-                      <b className={`block truncate text-lg font-black ${cur ? 'text-white' : 'text-gray-500'}`}>{cur?.name || '비어 있음'}</b>
-                      <span className="block truncate text-[12px] text-[#c4b5fd]">{cur ? effText(staffEffectOf(cur)) : '-'}</span>
-                    </span>
+                    aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`} className="group relative h-full text-left">
+                    <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} className="h-full" render={(m) => (
+                      <span className={`mt-cut ${on ? 'mt-frame' : ''} absolute inset-0 overflow-hidden bg-[#0b1220] bg-cover bg-top`}
+                        style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', filter: on ? undefined : 'brightness(.82)' }}>
+                        {m && (
+                          <span className="absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
+                            style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                        )}
+                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
+                        <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
+                        {m && <b className="absolute right-3 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                        <span className="absolute inset-x-3 bottom-2.5">
+                          <b className={`block truncate text-lg font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
+                          <span className="block truncate text-[12px] text-[#c4b5fd]">{m ? effText(staffEffectOf(m)) : '-'}</span>
+                        </span>
+                      </span>
+                    )} />
                   </button>
                 );
               })}
@@ -466,28 +469,32 @@ export default function LockerScreen({ account, onSave, onBack }) {
                     );
                   })}
                 </div>
-              ) : cur ? (
-                <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
-                  <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(cur.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
-                  <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
-                  <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
-                    <span className="font-display text-[12px] tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
-                    <b className="text-[28px] font-black leading-tight text-white">{cur.name}</b>
-                    <span className="text-[12px] text-gray-400">{cur.era}{cur.contracted ? ' · 계약서' : ` · ${cur.cost} CP`}</span>
-                    <span className="mt-0.5 text-[12.5px] leading-snug text-gray-300">{cur.note}</span>
-                    <div className="mt-auto flex flex-col gap-0.5">
-                      {Object.entries(mine).map(([k, v]) => (
-                        <span key={k} className="flex items-baseline gap-1.5 text-[13px] text-gray-300">
-                          {EFF_LABEL[k]}<b className="font-display text-[17px]" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
-                          {lv > 1 && <small className="font-display text-[12px] text-emerald-300">▲{k === 'steal' ? `${lv - 1}%p` : lv - 1}</small>}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-[15px] text-amber-300">Lv.{lv}</b>
-                </div>
               ) : (
-                <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>
+                <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} resetKey={staffSlot} className="h-[230px] shrink-0" render={(m) => {
+                  if (!m) return <div className="mt-cut grid h-full place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
+                  const mLv = m.level || 1;
+                  return (
+                    <div className="mt-cut relative h-full overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
+                      <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
+                      <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
+                        <span className="font-display text-[12px] tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
+                        <b className="text-[28px] font-black leading-tight text-white">{m.name}</b>
+                        <span className="text-[12px] text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
+                        <span className="mt-0.5 text-[12.5px] leading-snug text-gray-300">{m.note}</span>
+                        <div className="mt-auto flex flex-col gap-0.5">
+                          {Object.entries(staffEffectOf(m)).map(([k, v]) => (
+                            <span key={k} className="flex items-baseline gap-1.5 text-[13px] text-gray-300">
+                              {EFF_LABEL[k]}<b className="font-display text-[17px]" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                              {mLv > 1 && <small className="font-display text-[12px] text-emerald-300">▲{k === 'steal' ? `${mLv - 1}%p` : mLv - 1}</small>}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-[15px] text-amber-300">Lv.{mLv}</b>
+                    </div>
+                  );
+                }} />
               )}
 
               {staffSlot && <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">

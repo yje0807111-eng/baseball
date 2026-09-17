@@ -1,5 +1,5 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 드래프트 화면과 같은 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const UiStyle = () => (
   <style>{`
@@ -57,6 +57,13 @@ export const UiStyle = () => (
     .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
     .mt-row:hover { background:rgba(255,255,255,.05); }
     .mt-staff-in { animation: mtStaffIn .32s cubic-bezier(.2,.8,.2,1) backwards; }
+    /* 드래프트 PICK 카드와 같은 뒤집기: 나가는 면은 앞 반(0→90°), 들어오는 면은 뒤 반(−90°→0) · 옆면일 때 4% 들어 올림 */
+    .mt-flip { position:relative; perspective:1000px; }
+    .mt-flip > .mt-face { position:absolute; inset:0; backface-visibility:hidden; }
+    .mt-flip > .mt-face.in { animation: mtFlipIn .26s ease-in-out both; }
+    .mt-flip > .mt-face.out { animation: mtFlipOut .26s ease-in-out both; pointer-events:none; }
+    @keyframes mtFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
+    @keyframes mtFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
     @keyframes mtStaffIn { from { opacity:0; transform:translateY(18px) scale(1.06); } to { opacity:1; transform:none; } }
     .mt-row.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a,#10b981) 20%,transparent),rgba(6,10,19,.6)); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 60%,transparent), inset 3px 0 0 var(--a,#10b981); }
     .mt-sb { display:block; height:4px; background:rgba(255,255,255,.1); }
@@ -197,6 +204,30 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
     </header>
   );
 };
+
+/**
+ * 값이 바뀌면(keyOf) 카드를 뒤집어 바꾼다 — 선임 · 교체 · 해임(빈 면) 모두. resetKey 가 바뀌면 뒤집지 않고 바로 바꾼다
+ * render(value) 는 한 면의 내용(부모 크기를 채우는 요소)
+ */
+export function FlipFaces({ value, keyOf, render, resetKey, className = '', style }) {
+  const k = keyOf(value);
+  const [st, setSt] = useState({ k, rk: resetKey, value, out: null, n: 0, flip: false });
+  if (st.rk !== resetKey) setSt({ k, rk: resetKey, value, out: null, n: st.n + 1, flip: false });
+  else if (st.k !== k) setSt({ k, rk: resetKey, value, out: st.value, n: st.n + 1, flip: true });
+  else if (st.value !== value) setSt({ ...st, value });
+  useEffect(() => {
+    if (!st.flip) return undefined;
+    const n = st.n;
+    const t = setTimeout(() => setSt((x) => (x.n === n ? { ...x, flip: false, out: null } : x)), 280);
+    return () => clearTimeout(t);
+  }, [st.n, st.flip]);
+  return (
+    <div className={`mt-flip ${className}`} style={style}>
+      {st.flip && <div key={`o${st.n}`} className="mt-face out">{render(st.out)}</div>}
+      <div key={`i${st.n}`} className={`mt-face ${st.flip ? 'in' : ''}`}>{render(value)}</div>
+    </div>
+  );
+}
 
 /** 사이드 네비 — 모드 탭을 세로로 세운 판. items: [{ key, label, sub, img }] */
 export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu', compact = false, children }) => (
