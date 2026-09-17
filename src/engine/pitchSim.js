@@ -5,8 +5,10 @@
  * const ev = pitch(g, orders)                     // 공 하나 진행, g 를 직접 바꾸고 이벤트를 돌려준다
  * while (!g.final) pitch(g)
  *
- * 팀: { name, batters: [9명, 타순], pitchers: [선발, 불펜...], catcher?, buff? }
+ * 팀: { name, batters: [9명, 타순], pitchers: [선발, 불펜...], catcher?, buff?, edge?, usage? }
  *   buff: 팀 전체 보정(능력치 점수) — 타자 컨택·파워, 투수 구위·제구에 더한다. AI 난이도 · 전력 보정
+ *   edge: { bat, pit } 효과형 증강의 팀 보너스 — bat 은 타자 컨택·파워, pit 은 투수 구위·제구에 buff 와 함께 더한다
+ *   usage.fatigueGrace: 투수가 지치기 시작하는 투구 수 여유 (증강 투수 운용)
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change' }
@@ -27,7 +29,7 @@ export const RESULT_LABEL = {
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
-const tb = (side) => side?.team?.buff || 0; // 팀 보정
+const tb = (side, kind) => (side?.team?.buff || 0) + (side?.team?.edge?.[kind] || 0); // 팀 보정 + 증강 팀 보너스
 
 export function pitchMix(pitcher) {
   const fast = clamp(0.4 + (st(pitcher, 'stuff', 80) - 80) * 0.015, 0.3, 0.65);
@@ -100,7 +102,7 @@ export function stealOdds(g, from) {
 
 /** 투수 체력: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
 function fatigue(side) {
-  const limit = 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0);
+  const limit = 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0);
   return clamp((side.pitches - limit) / 40, 0, 1);
 }
 
@@ -109,7 +111,7 @@ function choosePitch(g, pitcher, order) {
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
   const tired = fatigue(defenseOf(g));
-  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g));
+  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
@@ -119,7 +121,7 @@ function choosePitch(g, pitcher, order) {
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
-  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g))) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
+  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
   return { type, zone, inZone: isIn, velo, tired };
 }
 
@@ -234,9 +236,9 @@ export function pitch(g, orders = {}) {
   def.pitches += 1;
   Object.assign(ev, { pitch: p });
 
-  const contact = st(batter, 'contact') + tb(off);
-  const power = st(batter, 'power') + tb(off);
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def);
+  const contact = st(batter, 'contact') + tb(off, 'bat');
+  const power = st(batter, 'power') + tb(off, 'bat');
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.1 : -0.08) : 0;
 
   // 스윙 여부
@@ -266,10 +268,10 @@ export function pitch(g, orders = {}) {
 function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const def = defenseOf(g);
   const off = offenseOf(g);
-  const contact = st(batter, 'contact') + tb(off);
-  const power = st(batter, 'power') + tb(off);
+  const contact = st(batter, 'contact') + tb(off, 'bat');
+  const power = st(batter, 'power') + tb(off, 'bat');
   const speed = st(batter, 'speed');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def);
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const defAvg = def.team.batters.reduce((s, x) => s + st(x, 'defense'), 0) / def.team.batters.length;
   let runs = 0;
   nextBatter(g);
