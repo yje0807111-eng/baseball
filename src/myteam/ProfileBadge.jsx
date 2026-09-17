@@ -90,19 +90,22 @@ export default function ProfileBadge({ account, onSignOut }) {
   const flag = flagByKey(banner);
   return (
     <>
+      {/* 1안 한 장 배너: 배너가 상자 전체에 깔리고 왼쪽 어둠 → 오른쪽 구단 색. 골드는 배너 위 유리 칩 */}
       <button type="button" onClick={() => setOpen(true)} aria-label="프로필"
-        className="mt-cut flex h-12 items-stretch text-left transition hover:brightness-125"
-        style={{ '--c': '10px', background: 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${flag ? `${flag.color}66` : 'rgba(148,163,184,.25)'}` }}>
-        <span className="relative flex items-center gap-2.5 overflow-hidden pl-2 pr-3.5">
-          {/* 프로필에서 고른 배너: 대진표 내 칸과 같은 깃발 */}
-          {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
-          <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="relative h-[38px] w-[38px] object-contain" />
-          <span className="relative leading-tight" style={{ textShadow: flag ? '0 1px 6px rgba(0,0,0,.9)' : undefined }}>
-            <b className="block text-base font-extrabold text-white">{nick} <span className="text-gray-300">감독</span></b>
-            <span className="font-display text-[11px] font-bold tracking-[0.16em] text-gray-400">{r.tier.en} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
-          </span>
+        className="mt-cut relative flex h-[54px] items-center gap-3 overflow-hidden pl-1.5 pr-2 text-left transition hover:brightness-125"
+        style={{ '--c': '10px', background: '#0a101c', boxShadow: `inset 0 0 0 1px ${flag ? `${flag.color}55` : 'rgba(148,163,184,.25)'}` }}>
+        {flag && (
+          <>
+            <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.75 }} />
+            <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 8%,rgba(5,8,15,.72) 40%,rgba(5,8,15,.25) 100%)' }} />
+          </>
+        )}
+        <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="relative -my-1 h-[60px] w-[60px] object-contain" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,.7))' }} />
+        <span className="relative mr-3.5 leading-tight" style={{ textShadow: '0 1px 8px rgba(0,0,0,.85)' }}>
+          <b className="block whitespace-nowrap text-base font-extrabold text-white">{nick} <span className="font-semibold text-gray-300">감독</span></b>
+          <span className="whitespace-nowrap font-display text-[11px] font-bold tracking-[0.16em] text-gray-400">{r.tier.en} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
         </span>
-        <span className="flex items-center gap-2 pl-6 pr-4" style={{ background: 'linear-gradient(90deg,rgba(251,191,36,.08),rgba(251,191,36,.2))', clipPath: 'polygon(14px 0,100% 0,100% 100%,0 100%)' }}>
+        <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'polygon(8px 0,100% 0,100% 100%,0 100%,0 8px)' }}>
           <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-xs font-extrabold text-[#7c2d12]"
             style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
           <b className="font-display text-[22px] font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
