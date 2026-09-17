@@ -10,8 +10,9 @@
  */
 import { marksFrom } from './fieldMap.js';
 
-const CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_39ErNZtLqOHQ4UYgpsHczWHwg7Y/hf_20260917_084935_';
-const url = (id) => `${CDN}${id}.png`;
+const CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_39ErNZtLqOHQ4UYgpsHczWHwg7Y/';
+const url = (id) => `${CDN}hf_20260917_084935_${id}.png`;
+const url2 = (id) => `${CDN}hf_20260917_090701_${id}.png`;
 
 /** 우리 화면 기준으로 뽑은 사진의 기본 베이스 자리 — 사진마다 조금씩 다르면 보정 자로 맞춘다 */
 const SPEC = { homeY: 731, sideY: 548, secondY: 450, halfW: 324 };
@@ -24,14 +25,21 @@ export const FIELD_BGS = [
   { id: 'field-d', name: 'D · 안개 낀 차분한 밤', src: url('99595426-3d99-40be-a9cc-561def4b8f0a'), marks: marksFrom(SPEC), remote: true },
 ];
 
-const ZSPEC = { zone: { cx: 812, cy: 552, hw: 150, hh: 186 }, release: [806, 300] };
+/* 존 뷰 기준: 배경에는 아무도 없고 빈 마운드만. 투수는 PlayView 가 그려서 올린다
+   (타석마다 투수가 바뀌고, 와인드업도 움직여야 하니 사진에 박아 두면 안 된다) */
+const ZSPEC = {
+  mound: [800, 470],                                // 마운드에 선 투수의 발자리
+  pitcherH: 150,                                    // 그려 올릴 투수 키
+  zone: { cx: 810, cy: 608, hw: 158, hh: 196 },     // 스트라이크존 상자
+};
 
 export const ZONE_BGS = [
-  { id: 'zone-now', name: '지금 배경(임시)', src: 'ui/plate-view.webp', ...ZSPEC, release: [820, 272] },
-  { id: 'zone-a', name: 'A · 투수 전신, 앞 비움', src: url('c6a361e1-71c9-45ce-9c5d-0c9fcee2a15e'), ...ZSPEC, remote: true },
-  { id: 'zone-b', name: 'B · 포수 어깨 너머', src: url('2a6255c6-f575-4b8c-8937-3b41ad1f968c'), ...ZSPEC, remote: true },
-  { id: 'zone-c', name: 'C · 투수 클로즈업(아웃포커스)', src: url('e89e6f0b-24ee-44cb-85e9-f619cbba75df'), ...ZSPEC, remote: true },
-  { id: 'zone-d', name: 'D · 로우앵글 역광', src: url('8cd7372e-761f-42f7-9e5f-abce7011947c'), ...ZSPEC, remote: true },
+  // 임시 배경만 투수가 사진에 박혀 있다 — 그 경우 우리 투수는 그리지 않는다
+  { id: 'zone-now', name: '지금 배경(임시·투수 있음)', src: 'ui/plate-view.webp', hasPitcher: true, release: [820, 272], zone: { cx: 812, cy: 552, hw: 150, hh: 186 } },
+  { id: 'zone-a', name: 'A · 빈 마운드, 포수 눈높이', src: url2('ff28145e-9776-4010-b059-e30783eae655'), ...ZSPEC, remote: true },
+  { id: 'zone-b', name: 'B · 빈 마운드, 조금 높게', src: url2('e7cb94b0-e44a-4259-8898-61eb0d36d8ba'), ...ZSPEC, remote: true },
+  { id: 'zone-c', name: 'C · 빈 마운드, 아웃포커스', src: url2('156f6a35-7b66-4a4c-8a2d-27c0729170c3'), ...ZSPEC, remote: true },
+  { id: 'zone-d', name: 'D · 빈 마운드, 안개·역광', src: url2('f2e9f091-85ea-431d-a886-1d8898cf84a2'), ...ZSPEC, remote: true },
 ];
 
 export const DEFAULT_BG = { field: FIELD_BGS[0], zone: ZONE_BGS[0] };

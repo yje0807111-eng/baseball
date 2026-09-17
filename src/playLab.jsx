@@ -67,6 +67,8 @@ function Lab() {
   const [guide, setGuide] = useState(false);
   const [cal, setCal] = useState({ homeY: 731, sideY: 548, secondY: 450, halfW: 324 });
   const [auto, setAuto] = useState(true);
+  const [zcal, setZcal] = useState({ moundY: 470, zoneY: 608, zoneH: 196 });
+  const [drawP, setDrawP] = useState(false); // 사진에 투수가 박힌 임시 배경에서도 그려 보기
   useEffect(() => {
     if (!auto) return undefined;
     const h = setInterval(() => setCi((v) => (v + 1) % CASES.length), 3200);
@@ -74,7 +76,16 @@ function Lab() {
   }, [auto]);
 
   const marks = useMemo(() => marksFrom(cal), [cal]);
-  const bg = { zone: ZONE_BGS[zi], field: { ...FIELD_BGS[fi], marks } };
+  const z = ZONE_BGS[zi];
+  const bg = {
+    zone: {
+      ...z,
+      hasPitcher: drawP ? false : z.hasPitcher,
+      mound: [z.mound?.[0] ?? 800, zcal.moundY],
+      zone: { ...(z.zone || {}), cy: zcal.zoneY, hh: zcal.zoneH, hw: Math.round(zcal.zoneH * 0.8) },
+    },
+    field: { ...FIELD_BGS[fi], marks },
+  };
   const [label, ev] = CASES[ci];
 
   return (
@@ -86,7 +97,18 @@ function Lab() {
           {CASES.map(([n], i) => <Pick key={n} on={i === ci} onClick={() => { setAuto(false); setCi(i); }}>{n}</Pick>)}
           <Pick on={auto} onClick={() => setAuto((v) => !v)}>자동 넘김</Pick>
         </Row>
-        <Row label="보정">
+        <Row label="존 보정">
+          <Pick on={drawP} onClick={() => setDrawP((v) => !v)}>투수 그리기</Pick>
+          {[['moundY', '마운드 Y', 320, 640], ['zoneY', '존 Y', 420, 800], ['zoneH', '존 크기', 120, 280]].map(([k, n, lo, hi]) => (
+            <label key={k} className="flex items-center gap-1.5 text-[11px] text-gray-400">
+              {n}
+              <input type="range" min={lo} max={hi} value={zcal[k]} onChange={(e) => setZcal((c) => ({ ...c, [k]: +e.target.value }))} className="w-24" />
+              <em className="w-9 font-display not-italic text-gray-200">{zcal[k]}</em>
+            </label>
+          ))}
+          <code className="bg-white/[0.06] px-2 py-1 text-[11px] text-emerald-300">{JSON.stringify(zcal)}</code>
+        </Row>
+        <Row label="필드 보정">
           <Pick on={guide} onClick={() => setGuide((v) => !v)}>다이아몬드 자</Pick>
           {[['homeY', '홈 Y', 600, 890], ['sideY', '1·3루 Y', 400, 750], ['secondY', '2루 Y', 300, 650], ['halfW', '좌우 반폭', 180, 520]].map(([k, n, lo, hi]) => (
             <label key={k} className="flex items-center gap-1.5 text-[11px] text-gray-400">

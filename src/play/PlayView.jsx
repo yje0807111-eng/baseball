@@ -71,6 +71,40 @@ const Chip = ({ at, s = 1, color, label, name, dim, ring }) => {
   );
 };
 
+/* 마운드 위 투수 — 배경 사진에는 아무도 없고, 여기서 그린다.
+   w 0 와인드업 → 1 릴리스. 나중에 실루엣·스프라이트로 바꿀 때도 이 자세값을 그대로 쓴다. */
+function pitcherPose(mound, h, w) {
+  const [x, y] = mound;
+  const lift = Math.sin(Math.PI * Math.min(1, w * 1.25)); // 다리를 들었다 내딛는다
+  const stride = ease(Math.max(0, (w - 0.45) / 0.55)) * h * 0.42;
+  const hip = [x - stride * 0.25, y - h * 0.52];
+  const shoulder = [x - stride * 0.1, y - h * 0.8];
+  const deg = 165 - 238 * ease(w); // 뒤로 젖혔다(왼쪽 아래) 머리 위로(-73°) 넘어온다
+  const rad = (deg * Math.PI) / 180;
+  const hand = [shoulder[0] + Math.cos(rad) * h * 0.4, shoulder[1] + Math.sin(rad) * h * 0.4];
+  return {
+    hip, shoulder, hand,
+    head: [shoulder[0] + h * 0.03, y - h * 0.94],
+    backFoot: [x - h * 0.06, y],
+    frontFoot: [x + stride * 0.55, y + stride * 0.32 - lift * h * 0.32 * (1 - ease(Math.max(0, (w - 0.5) / 0.5)))], // 카메라 쪽으로 내딛는다
+  };
+}
+
+const Pitcher = ({ mound, h, w, color }) => {
+  const p = pitcherPose(mound, h, w);
+  const limb = { stroke: color, strokeWidth: h * 0.09, strokeLinecap: 'round', fill: 'none' };
+  return (
+    <g>
+      <ellipse cx={mound[0]} cy={mound[1]} rx={h * 0.34} ry={h * 0.1} fill="rgba(0,0,0,.45)" />
+      <line x1={p.hip[0]} y1={p.hip[1]} x2={p.backFoot[0]} y2={p.backFoot[1]} {...limb} />
+      <line x1={p.hip[0]} y1={p.hip[1]} x2={p.frontFoot[0]} y2={p.frontFoot[1]} {...limb} />
+      <line x1={p.hip[0]} y1={p.hip[1]} x2={p.shoulder[0]} y2={p.shoulder[1]} {...limb} strokeWidth={h * 0.14} />
+      <line x1={p.shoulder[0]} y1={p.shoulder[1]} x2={p.hand[0]} y2={p.hand[1]} {...limb} strokeWidth={h * 0.075} />
+      <circle cx={p.head[0]} cy={p.head[1]} r={h * 0.1} fill={color} stroke="rgba(0,0,0,.5)" strokeWidth={h * 0.02} />
+    </g>
+  );
+};
+
 /* ───────── 필드 뷰 ───────── */
 function FieldView({ play, t, bases, offColor, defColor, bg }) {
   const { at, scaleAt } = useMemo(() => makeMapper(bg.marks), [bg]);
@@ -143,7 +177,7 @@ function FieldView({ play, t, bases, offColor, defColor, bg }) {
 }
 
 /* ───────── 존 뷰 (타석 시점) ───────── */
-function ZoneView({ play, t, history, atBat, bg }) {
+function ZoneView({ play, t, history, atBat, bg, defColor }) {
   const Z = bg.zone;
   const px = ([x, y]) => [Z.cx + (x / ZONE.w) * Z.hw, Z.cy + (y / ZONE.h) * Z.hh];
   const beats = play?.beats || [];
@@ -151,13 +185,17 @@ function ZoneView({ play, t, history, atBat, bg }) {
   const swing = beats.find((b) => b.kind === 'swing');
   const call = beats.find((b) => b.kind === 'call');
 
+  const wind = p ? phase(t, 0, p.t0 + 0.03) : 1; // 와인드업 → 릴리스
+  const ph = bg.pitcherH || 150;
+  const release = bg.hasPitcher ? bg.release : pitcherPose(bg.mound, ph, 1).hand;
+
   let ball = null; let r = 10;
   if (p && t >= p.t0) {
     const u = Math.min(1, phase(t, p.t0, p.t1));
     const k = u * u; // 늦게 휜다
     const to = px(p.to);
     const bend = [(p.bend[0] / ZONE.w) * Z.hw, (p.bend[1] / ZONE.h) * Z.hh];
-    ball = [bg.release[0] + (to[0] - bg.release[0]) * u + bend[0] * k, bg.release[1] + (to[1] - bg.release[1]) * u + bend[1] * k];
+    ball = [release[0] + (to[0] - release[0]) * u + bend[0] * k, release[1] + (to[1] - release[1]) * u + bend[1] * k];
     r = 7 + 23 * u * u;
   }
   const sw = swing ? phase(t, swing.t0, swing.t1) : 0;
@@ -166,6 +204,7 @@ function ZoneView({ play, t, history, atBat, bg }) {
   return (
     <>
       <Photo src={bg.src} dim={0.22} />
+      {!bg.hasPitcher && bg.mound && <Pitcher mound={bg.mound} h={ph} w={wind} color={defColor} />}
 
       {/* 스트라이크존 */}
       <rect x={Z.cx - Z.hw} y={Z.cy - Z.hh} width={Z.hw * 2} height={Z.hh * 2} fill="rgba(255,255,255,.06)"
@@ -254,7 +293,7 @@ export default function PlayView({
         </svg>
       ) : (
         <svg viewBox={box} preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full">
-          <ZoneView play={play} t={t} history={history} atBat={atBat} bg={bg.zone} />
+          <ZoneView play={play} t={t} history={history} atBat={atBat} bg={bg.zone} defColor={defColor} />
         </svg>
       )}
     </div>
