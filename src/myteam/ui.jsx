@@ -91,8 +91,8 @@ export const UiStyle = () => (
     .mt-nav .th { width:44px; height:3.2rem; flex:none; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
     .mt-nav.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a) 24%,transparent),rgba(6,10,19,.92)); }
     .mt-nav.on .th { filter:none; }
-    .mt-nav.sm { height:52px; gap:10px; }
-    .mt-nav.sm .th { width:36px; height:38px; }
+    .mt-nav.sm { height:62px; gap:12px; }
+    .mt-nav.sm .th { width:40px; height:44px; }
     .mt-nav.on::after { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--a); box-shadow:0 0 12px var(--a); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
