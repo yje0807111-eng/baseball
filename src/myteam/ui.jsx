@@ -238,7 +238,7 @@ export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu',
         <span className="th" style={{ backgroundImage: `url(${it.img})` }} />
         <span className="min-w-0">
           <b className={`block truncate text-base font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-          <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
+          {it.sub && <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>}
         </span>
       </button>
     ))}
