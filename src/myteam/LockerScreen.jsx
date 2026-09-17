@@ -380,7 +380,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
                     aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`} className="group relative h-full text-left">
                     <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} className="h-full" render={(m) => (
-                      <span className={`mt-cut ${on ? 'mt-frame' : ''} absolute inset-0 overflow-hidden bg-[#0b1220] bg-cover bg-top`}
+                      <span className={`mt-cut ${on ? 'mt-frame' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
                         style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', filter: on ? undefined : 'brightness(.82)' }}>
                         {m && (
                           <span className="absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
