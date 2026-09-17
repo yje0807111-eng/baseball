@@ -89,6 +89,8 @@ function Select({ value, onChange, options, all }) {
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
 /** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
 const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
+/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 무지개 */
+const statBand = (v) => (v >= 90 ? 'b90' : v >= 80 ? 'b80' : v >= 70 ? 'b70' : v >= 60 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
 function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
@@ -121,9 +123,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className={`st-n ${statBand(v)} font-display text-[15px]`}>{v}</b></span>
             <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} />
+              <b className={`st-bar ${statBand(v)} absolute inset-y-0 left-0 block`} style={{ width: `${v}%` }} />
             </span>
           </span>
         );
@@ -480,6 +482,10 @@ export default function LockerScreen({ account, onSave, onBack }) {
       <style>{`${KEYFRAMES}
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
+        .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
+        .st-n.b90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+        .st-bar.b0 { background: #f87171; } .st-bar.b60 { background: #fb923c; } .st-bar.b70 { background: #fde047; } .st-bar.b80 { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.45); }
+        .st-bar.b90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 6px rgba(125,211,252,.45); }
         .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
         .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
         .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
