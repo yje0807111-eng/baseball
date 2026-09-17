@@ -7,6 +7,10 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { roundsOf, finishOf, myOpponent, meIndex, teamOf } from './tournament.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
+import { teamFlag } from './teamArt.js';
+
+/* 팀 칸 배경: 구단 색 깃발이 오른쪽에서 왼쪽으로 스러진다 */
+const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
 
 const A = '#fbbf24';
 const GEO = {
@@ -36,14 +40,16 @@ function Tree({ t, oppIdx, reveal }) {
         const won = r ? r.winner === i : null;
         const score = r ? (r.a === i ? r.as : r.bs) : null;
         const mine = i === me, opp = i === oppIdx;
+        const flag = t.entrants[i].me ? null : teamFlag(t.entrants[i].name);
         slots.push(
-          <div key={`${c}-${k}`} data-me={mine && c === t.round ? '' : undefined} className="ui-cut absolute flex items-center gap-1.5 px-2"
+          <div key={`${c}-${k}`} data-me={mine && c === t.round ? '' : undefined} className="ui-cut absolute flex items-center gap-1.5 overflow-hidden px-2"
             style={{ '--c': '5px', left: x, top: yc - SLOT_H / 2, width: SLOT_W, height: SLOT_H,
               background: mine ? 'rgba(52,211,153,.16)' : opp ? 'rgba(248,113,113,.14)' : 'rgba(255,255,255,.045)',
-              boxShadow: `inset 0 0 0 1px ${mine ? ME : opp ? OPP : 'rgba(255,255,255,.08)'}`,
+              boxShadow: `inset 0 0 0 1px ${mine ? ME : opp ? OPP : flag ? `${flag.color}4d` : 'rgba(255,255,255,.08)'}`,
               opacity: won === false ? 0.38 : 1, animation: reveal && c === 0 ? `tbIn .38s ${k * (1.1 / size)}s both` : undefined }}>
-            <span className={`min-w-0 flex-1 truncate ${mine ? 'font-black' : 'font-semibold'}`} style={{ fontSize: font, color: mine ? ME : opp ? '#fecaca' : '#e5e7eb' }}>{t.entrants[i].name}</span>
-            {score != null && <b className="font-display text-sm text-white">{score}</b>}
+            {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
+            <span className={`relative min-w-0 flex-1 truncate ${mine ? 'font-black' : 'font-semibold'}`} style={{ fontSize: font, color: mine ? ME : opp ? '#fecaca' : '#e5e7eb', textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{t.entrants[i].name}</span>
+            {score != null && <b className="relative font-display text-sm text-white">{score}</b>}
           </div>,
         );
       } else {
