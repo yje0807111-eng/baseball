@@ -89,7 +89,7 @@ function Select({ value, onChange, options, all }) {
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
 /** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
 const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
-/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 무지개 */
+/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 금색(움직임 없음) */
 const statBand = (v) => (v >= 90 ? 'b90' : v >= 80 ? 'b80' : v >= 70 ? 'b70' : v >= 60 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
@@ -140,33 +140,47 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
 function EmptyDetail() {
   let i = 0;
   const sk = (style, cls = '') => <span className={`mt-sk ${cls}`} style={{ ...style, '--i': i++ }} />;
+  // 선수를 골랐을 때의 한 장짜리 긴 카드와 같은 틀: 판에서 남은 높이를 재서 카드 크기를 정한다
+  const box = useRef(null);
+  const baseRef = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return undefined;
+    const fit = () => setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - (baseRef.current?.offsetHeight || 0)) * 2) / 3))));
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const inset = Math.round(w * 0.016 * 10) / 10;
+  const corner = Math.round(w * 0.07);
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
-      {/* 드래프트 빈 PICK 카드 그대로: 카드 모양 스켈레톤 · 둘레 도는 빛 */}
-      <div className="flex min-h-0 flex-1 justify-center">
-        <div className="aspect-[2/3] h-full max-w-full">
-          <div className="pk-empty aspect-[2/3] w-full">
-            {PK_SKELETON.map((st, k) => <span key={k} className="pk-sk" style={{ ...st, '--i': k }} />)}
-            <span className="pk-fr" />
+      <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
+        {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
+        <div className="mt-skring" style={{ width: w, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
+          <div>
+            <div className="relative aspect-[2/3] w-full" style={{ containerType: 'inline-size' }}>
+              {PK_SKELETON.map((st, k) => <span key={k} className="pk-sk" style={{ ...st, '--i': k }} />)}
+            </div>
+            <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px` }}>
+              <span className="mb-2 block h-px bg-emerald-400/20" />
+              <div className="grid grid-cols-6 gap-2 py-1.5">
+                {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '60%', height: 15 })}</div>)}
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {[92, 110, 80, 104].map((tw) => <span key={tw}>{sk({ width: tw, height: 26, boxShadow: 'inset 3px 0 0 rgba(148,163,184,.25)' })}</span>)}
+              </div>
+            </div>
+            <span className="pointer-events-none absolute" style={{ inset, border: '1px solid rgba(148,163,184,.14)' }} />
           </div>
         </div>
       </div>
-      <div className="mt-cut grid grid-cols-6 gap-2 bg-white/[0.03] px-3 py-2" style={cut(8)}>
-        {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '55%', height: 13 })}</div>)}
-      </div>
-      <div className="flex flex-col gap-1">
-        {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(52,211,153,.25)' }, 'mt-cut')}
-        {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(248,113,113,.2)' }, 'mt-cut')}
-      </div>
-      <div className="flex flex-col">
-        {[0, 1].map((k) => (
-          <div key={k} className="flex items-center justify-between border-b border-white/10 py-3">{sk({ width: 70, height: 10 })}{sk({ width: 96, height: 14 })}</div>
-        ))}
-      </div>
-      <div>
-        <div className="mt-cut mt-skbtn h-[54px] w-full" style={cut(12)} />
-      </div>
+      {/* 캡 · 팀 종합 한 줄 · 버튼 자리 */}
+      <div className="flex items-center justify-between border-y border-white/10 py-2.5">{sk({ width: 130, height: 12 })}{sk({ width: 110, height: 12 })}</div>
+      <div className="mt-cut mt-skbtn h-[46px] w-full" style={cut(10)} />
     </aside>
   );
 }
@@ -483,9 +497,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
         .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
-        .st-n.b90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
+        .st-n.b90 { color: #fbbf24; text-shadow: 0 0 8px rgba(251,191,36,.45); }
         .st-bar.b0 { background: #f87171; } .st-bar.b60 { background: #fb923c; } .st-bar.b70 { background: #fde047; } .st-bar.b80 { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.45); }
-        .st-bar.b90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 6px rgba(125,211,252,.45); }
+        .st-bar.b90 { background: linear-gradient(90deg, #b45309, #fbbf24); }
         .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
         .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
         .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
