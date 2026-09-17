@@ -58,3 +58,21 @@ test('16강: 네 번 모두 이기면 우승', () => {
   expect(t.place).toBe(4);
   expect(t.winners[3]).toEqual([meIndex(t)]);
 }, 20000);
+
+test('드래프트 모드: 참가 팀을 직접 넘긴 토너먼트도 진행된다', async () => {
+  const { aiDraft, fillRoster, buildTeam } = await import('../src/KboAugmentDraft.jsx');
+  const others = Array.from({ length: 15 }, (_, i) => {
+    const roster = aiDraft();
+    return { id: `dr-${i}`, name: `드래프트 ${i}`, roster, team: buildTeam(`드래프트 ${i}`, fillRoster(roster)) };
+  });
+  const mine = buildTeam('나의 드림팀', fillRoster(aiDraft()));
+  let t = makeTournament({ size: 16, others });
+  expect(t.entrants).toHaveLength(16);
+  expect(teamOf(myOpponent(t), mine).name).toMatch(/^드래프트/);
+  t = advance(t, { my: 3, opp: 1 }, mine);
+  expect(t.round).toBe(1);
+  expect(t.winners[0]).toHaveLength(8);
+  t = advance(t, { my: 0, opp: 1 }, mine);
+  expect(t.done).toBe(true);
+  expect(t.place).toBe(1);
+}, 30000);
