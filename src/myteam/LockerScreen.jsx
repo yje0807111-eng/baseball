@@ -485,7 +485,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
             ))}
             <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none placeholder:font-normal placeholder:text-gray-500/80 focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(6)} />
+                className="mt-cut w-full min-w-0 bg-transparent px-3 py-2.5 text-sm text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:font-normal placeholder:text-gray-500/80 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.26)] focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(6)} />
               <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
               <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
