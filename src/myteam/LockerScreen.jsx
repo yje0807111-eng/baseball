@@ -145,7 +145,7 @@ function EmptyDetail() {
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
       {/* 사진 틀: 둘레를 빛이 돈다 */}
-      <div className="mt-cut mt-skring shrink-0" style={{ ...cut(12), height: 160 }}>
+      <div className="mt-cut mt-skring shrink-0" style={{ ...cut(12), height: HERO_H }}>
         <div>
           <span className="absolute inset-0 bg-cover opacity-[0.07]" style={{ backgroundImage: 'url(ui/mt/silhouette-player.webp)', backgroundPosition: '60% 18%' }} />
           <span className="absolute left-3 top-3">{sk({ width: 52, height: 34 })}</span>
@@ -168,12 +168,12 @@ function EmptyDetail() {
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(52,211,153,.25)' }, 'mt-cut')}
         {sk({ height: 26, '--c': '6px', boxShadow: 'inset 3px 0 0 rgba(248,113,113,.2)' }, 'mt-cut')}
       </div>
-      <div className="flex flex-col">
+      <div className="mt-auto flex flex-col">
         {[0, 1].map((k) => (
           <div key={k} className="flex items-center justify-between border-b border-white/10 py-3">{sk({ width: 70, height: 10 })}{sk({ width: 96, height: 14 })}</div>
         ))}
       </div>
-      <div className="mt-auto">
+      <div>
         <div className="mt-cut mt-skbtn h-[54px] w-full" style={cut(12)} />
       </div>
     </aside>
@@ -200,13 +200,15 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
 }
 
+const HERO_H = 240; // 상세 판 큰 사진 높이 (빈 판 스켈레톤도 같은 값)
+
 function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, after, blocked, now, next, keys, tr, hand }) {
   const heroImg = useCardImage(p);
   return (
     <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-3 overflow-y-auto p-5" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
       <div className="relative shrink-0">
-        <Hero img={heroImg} ovr={p.overall} name={p.name} color={n} h={160} />
+        <Hero img={heroImg} ovr={p.overall} name={p.name} color={n} h={HERO_H} />
         <span className="absolute right-3 top-3 text-[13px] font-bold" style={{ color: hand.color, textShadow: '0 1px 4px rgba(0,0,0,.8)' }}>{hand.long}</span>
         {/* 카드 안 이름 위 한 줄: 연도 구단 · 포지션 · 외국인 | 가격 */}
         <div className="absolute inset-x-3 bottom-[46px] flex items-center gap-1.5 text-[12.5px] text-gray-200" style={{ textShadow: '0 1px 4px rgba(0,0,0,.9)' }}>
@@ -249,12 +251,12 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
         ))}
         {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
       </div>
-      <div>
+      {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
+      <div className="mt-auto">
         <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
         <KV k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
       </div>
-      {blocked && <p className="text-sm text-red-400">{blocked}</p>}
-      <div className="mt-auto">
+      <div>
         {owned
           ? (
             <div className="grid grid-cols-2 gap-2">
@@ -262,7 +264,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
               <Btn lg className={`text-[#ff5a67] ${onBench ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출하기</Btn>
             </div>
           )
-          : <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!!blocked} onClick={() => onAdd(p)}>영입하기 ▶</Btn>}
+          : <Btn pri={!blocked} lg a={n} className={`w-full ${blocked ? 'text-[15px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(12)} disabled={!!blocked} onClick={() => onAdd(p)}>{blocked || '영입하기 ▶'}</Btn>}
       </div>
     </aside>
   );
