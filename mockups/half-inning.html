@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<title>반이닝 정리 배치안</title>
+<title>승부 저울 8안</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;800&display=swap" rel="stylesheet">
@@ -125,193 +125,89 @@
 </style>
 
 <style>
-/* ═══════════ A 계열 · 세 구역 가로 ═══════════ */
-  .A1 .lay { grid-template-rows:78px 1fr 150px; }
-  .A1 .mid { display:grid; grid-template-columns:520px 1fr 560px; gap:20px; padding:22px 44px; }
-  .A1 .pane { position:relative; padding:22px 26px; overflow:hidden; }
-  .A1 .p1 { display:flex; flex-direction:column; justify-content:center; gap:26px; }
-  .A1 .wm { left:-16px; top:44%; transform:translateY(-50%); font-size:250px; }
-  .A1 .inn { position:relative; margin:0; font-size:112px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.045em; }
-  .A1 .inn em { font-style:normal; color:var(--or); }
-  .A1 .sd { position:relative; display:flex; align-items:center; gap:12px; margin-top:16px; font-size:19px; font-weight:600; color:#cbd5e1; }
-  .A1 .gain { position:relative; --c:12px; align-self:flex-start; padding:16px 30px 13px; text-align:center;
-              background:color-mix(in srgb,var(--yel) 12%,rgba(2,4,8,.9)); box-shadow:inset 0 0 0 2px var(--yel); }
-  .A1 .gain b { display:block; font:800 86px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 46px rgba(253,224,71,.5); }
-  .A1 .gain span { display:block; margin-top:7px; font-size:11px; font-weight:700; letter-spacing:.28em; color:rgba(253,224,71,.82); }
-  .A1 .p2 { display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .A1 .port { width:296px; height:444px; --c:16px; }
-  .A1 .did { margin-top:20px; text-align:center; }
-  .A1 .did b { font-size:27px; } .A1 .did span { display:block; margin-top:8px; font-size:14px; color:#9ca3af; }
-  .A1 .p3 .rows { margin-top:16px; }
-  .A1 .mt { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:auto; padding-top:20px; }
+/* ═════ 승부 저울 공통 뼈대 ═════ */
+  .screen .lay { grid-template-rows:78px 1fr 150px; }
+  .mid { display:grid; grid-template-columns:1fr 600px 1fr; gap:28px; padding:24px 44px; align-items:stretch; }
+  .col { display:flex; flex-direction:column; gap:16px; min-width:0; }
+  .col.r { align-items:flex-end; text-align:right; }
+  .col .rows, .col .mt, .col .blk { width:100%; }
+  .col > .blk:last-child { flex:1; }
+  .center { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:space-evenly; gap:18px;
+            padding:26px 30px; }
+  .center .inn { margin:0; font-size:88px; font-weight:700; color:#fff; letter-spacing:-.045em; line-height:.9; text-align:center; }
+  .center .inn em { font-style:normal; color:var(--or); }
+  .center .sd { font-size:16px; color:#cbd5e1; } .center .sd b { color:var(--my); }
+  .center .wm { left:50%; top:50%; transform:translate(-50%,-50%); font-size:340px; z-index:-1; }
 
-  .A2 .lay { grid-template-rows:78px 1fr 150px; }
-  .A2 .mid { display:grid; grid-template-columns:1fr 640px; gap:20px; padding:22px 44px; }
-  .A2 .left { position:relative; display:grid; grid-template-columns:auto 1fr; align-items:center; gap:36px; padding:26px 34px; overflow:hidden; }
-  .A2 .wm { right:-30px; bottom:-56px; font-size:290px; }
-  .A2 .port { width:286px; height:430px; --c:16px; }
-  .A2 .inn { position:relative; margin:0; font-size:104px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.045em; }
-  .A2 .inn em { font-style:normal; color:var(--or); }
-  .A2 .sd { position:relative; display:flex; align-items:center; gap:12px; margin-top:14px; font-size:18px; color:#cbd5e1; }
-  .A2 .big { position:relative; margin:26px 0 0; font-size:38px; font-weight:700; color:var(--yel); }
-  .A2 .sub { position:relative; margin:9px 0 0; font-size:15px; color:#9ca3af; }
-  .A2 .gain { position:relative; display:flex; align-items:baseline; gap:12px; margin-top:24px; }
-  .A2 .gain b { font:800 92px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 46px rgba(253,224,71,.45); }
-  .A2 .gain span { font-size:12px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
-  .A2 .right { display:grid; grid-template-rows:1fr auto; gap:20px; }
-  .A2 .pane { padding:20px 24px; }
-  .A2 .mt { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:16px; }
+  .who { display:flex; align-items:center; gap:18px; width:100%; }
+  .col.r .who { flex-direction:row-reverse; }
+  .who .port { width:150px; height:200px; --c:12px; flex:none; }
+  .who .nm { font-size:36px; font-weight:700; color:#fff; line-height:1.08; }
+  .who .ps { font-size:13.5px; color:#9ca3af; margin-top:3px; }
+  .who .ac { margin-top:10px; font-size:22px; font-weight:700; color:var(--a); }
+  .who .sb { margin-top:6px; font-size:13px; color:#6b7280; }
 
-  .A3 .lay { grid-template-rows:78px auto 1fr 150px; }
-  .A3 .strip { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:34px; padding:16px 44px;
-               border-bottom:1px solid rgba(255,255,255,.08); background:rgba(3,6,13,.62); }
-  .A3 .strip .innl { display:flex; align-items:baseline; gap:14px; }
-  .A3 .strip .innl b { font-size:48px; font-weight:700; color:#fff; letter-spacing:-.04em; }
-  .A3 .strip .innl b em { font-style:normal; color:var(--or); }
-  .A3 .strip .innl span { font-size:16px; color:#cbd5e1; }
-  .A3 .board { width:100%; border-collapse:collapse; font-family:'Saira Condensed'; text-align:center; }
-  .A3 .board th { font-size:13px; font-weight:600; color:#4b5563; padding:2px 0; } .A3 .board th.n { color:var(--yel); }
-  .A3 .board td { font-size:21px; color:#9ca3af; padding:3px 0; }
-  .A3 .board td.tm { width:150px; text-align:left; font:600 13px 'IBM Plex Sans KR'; color:#6b7280; }
-  .A3 .board td.tm.me { color:var(--my); }
-  .A3 .board td.n { color:var(--yel); font-weight:800; font-size:27px; background:rgba(253,224,71,.14); }
-  .A3 .board td.r { color:#fff; font-weight:800; }
-  .A3 .mid { display:grid; grid-template-columns:380px 1fr 560px; gap:20px; padding:20px 44px; }
-  .A3 .pane { padding:20px 24px; }
-  .A3 .port { width:288px; height:432px; margin:14px auto 0; --c:14px; }
-  .A3 .mid > .pane { overflow:hidden; }
-  .A3 .gain { text-align:center; } .A3 .gain b { font:800 116px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 50px rgba(253,224,71,.45); }
-  .A3 .gain span { display:block; font-size:12px; font-weight:700; letter-spacing:.28em; color:rgba(253,224,71,.8); }
-  .A3 .mt { display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-top:18px; }
+  .blk { padding:16px 20px; } .blk .lab { margin-bottom:12px; }
+  .mt { display:grid; gap:7px; } .mt.c3 { grid-template-columns:repeat(3,1fr); } .mt.c2 { grid-template-columns:repeat(2,1fr); }
+  .mt.c4 { grid-template-columns:repeat(4,1fr); }
 
-/* ═══════════ B 계열 · 전면 히어로 ═══════════ */
-  .B1 .lay { grid-template-rows:78px 1fr 150px; }
-  .B1 .mid { position:relative; display:grid; grid-template-columns:1fr 520px 470px; gap:34px; padding:26px 44px; align-items:center; }
-  .B1 .wm { left:-24px; top:50%; transform:translateY(-50%); font-size:420px; }
-  .B1 .info { position:relative; }
-  .B1 .inn { margin:0; font-size:118px; font-weight:700; line-height:.86; color:#fff; letter-spacing:-.05em; }
-  .B1 .inn em { font-style:normal; color:var(--or); }
-  .B1 .sd { display:flex; align-items:center; gap:12px; margin-top:15px; font-size:18px; color:#cbd5e1; }
-  .B1 .nm { margin:26px 0 0; font-size:62px; font-weight:700; color:#fff; line-height:1; }
-  .B1 .act { margin:12px 0 0; font-size:31px; font-weight:700; color:var(--yel); }
-  .B1 .mt { display:flex; gap:8px; margin-top:22px; }
-  .B1 .port { width:100%; height:612px; --c:20px; }
-  .B1 .side .rows { margin-top:16px; }
-
-  .B2 .lay { grid-template-rows:1fr auto; }
-  .B2 .shot { position:absolute; inset:0; background:#0b1220 no-repeat; background-position:74% 14%; background-size:auto 132%; }
-  .B2 .shade { position:absolute; inset:0;
-               background:linear-gradient(90deg,rgba(3,5,10,.97) 12%,rgba(3,5,10,.5) 44%,rgba(3,5,10,.2) 62%,rgba(3,5,10,.9) 100%),
-                          linear-gradient(0deg,rgba(3,5,10,.98) 6%,transparent 44%); }
-  .B2 .hero { position:relative; display:flex; flex-direction:column; justify-content:center; padding:0 76px; }
-  .B2 .wm { right:70px; top:6%; font-size:440px; -webkit-text-stroke:2px rgba(251,146,60,.13); }
-  .B2 .kick { display:flex; align-items:center; gap:16px; }
-  .B2 .inn { margin:16px 0 0; font-size:172px; font-weight:700; line-height:.84; color:#fff; letter-spacing:-.055em;
-             text-shadow:0 10px 70px rgba(0,0,0,.96); }
-  .B2 .inn em { font-style:normal; color:var(--or); }
-  .B2 .nm { margin:30px 0 0; font-size:86px; font-weight:700; color:#fff; line-height:1; }
-  .B2 .act { margin:16px 0 0; font-size:40px; font-weight:700; color:var(--yel); }
-  .B2 .sub { margin:14px 0 0; font-size:17px; color:#9ca3af; letter-spacing:.02em; }
-  .B2 .strip { position:relative; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:44px;
-               padding:22px 44px; background:linear-gradient(0deg,rgba(3,5,10,.98),rgba(3,5,10,.86));
-               border-top:2px solid var(--or); }
-  .B2 .strip .gain { display:flex; align-items:baseline; gap:12px; }
-  .B2 .strip .gain b { font:800 80px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 44px rgba(253,224,71,.5); }
-  .B2 .strip .gain span { font-size:11px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
-  .B2 .strip .evs { display:flex; gap:9px; }
-  .B2 .ev2 { --c:8px; flex:1; padding:11px 15px; background:rgba(5,9,17,.72); box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
-  .B2 .ev2 .k { font-size:11px; font-weight:700; letter-spacing:.2em; color:var(--e,#6b7280); }
-  .B2 .ev2 b { display:block; margin-top:5px; font-size:17px; color:#fff; }
-  .B2 .ev2 span { font-size:13px; color:#9ca3af; }
-  .B2 .foot2 { display:flex; align-items:center; gap:18px; padding:18px 44px 22px; background:rgba(3,5,10,.98); }
-  .B2 .foot2 .opts { flex:1; }
-
-  .B3 .lay { grid-template-rows:78px 1fr 150px; }
-  .B3 .mid { display:grid; grid-template-columns:1fr 430px 540px; gap:30px; padding:26px 44px; align-items:center; }
-  .B3 .info { position:relative; }
-  .B3 .wm { left:-20px; top:-40px; font-size:320px; }
-  .B3 .inn { position:relative; margin:0; font-size:120px; font-weight:700; line-height:.88; color:#fff; letter-spacing:-.05em; }
-  .B3 .inn em { font-style:normal; color:var(--or); }
-  .B3 .sd { position:relative; display:flex; gap:12px; margin-top:16px; font-size:18px; color:#cbd5e1; }
-  .B3 .gain { position:relative; display:flex; align-items:baseline; gap:13px; margin-top:30px; }
-  .B3 .gain b { font:800 104px/1 'Saira Condensed'; color:var(--yel); text-shadow:0 0 48px rgba(253,224,71,.45); }
-  .B3 .gain span { font-size:12px; font-weight:700; letter-spacing:.26em; color:rgba(253,224,71,.8); }
-  .B3 .rows { position:relative; margin-top:28px; max-width:430px; }
-  .B3 .port { width:100%; height:600px; --c:18px; }
-  .B3 .pane { padding:22px 26px; }
-  .B3 .mt2 { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:16px; }
-  .B3 .meter { margin-top:16px; }
-  .B3 .meter .r { display:grid; grid-template-columns:78px 1fr 46px; align-items:center; gap:12px; margin-top:11px; font-size:13px; color:#9ca3af; }
-  .B3 .meter .r i { display:block; height:7px; background:rgba(255,255,255,.08); }
-  .B3 .meter .r i b { display:block; height:100%; background:var(--a); box-shadow:0 0 10px var(--a); }
-  .B3 .meter .r em { font-style:normal; font:800 17px 'Saira Condensed'; color:#fff; text-align:right; }
-
-/* ═══════════ F 계열 · 좌우 대결 ═══════════ */
-  .F1 .lay { grid-template-rows:78px 1fr 150px; }
-  .F1 .mid { position:relative; display:grid; grid-template-columns:400px 1fr 400px; gap:26px; padding:24px 44px; align-items:center; }
-  .F1 .duo { position:relative; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:0; }
-  .F1 .port { width:100%; height:560px; --c:18px; }
-  .F1 .port.l { clip-path:polygon(18px 0,100% 0,100% 100%,0 100%,0 18px); }
-  .F1 .port.r { clip-path:polygon(0 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%); }
-  .F1 .vs { position:relative; z-index:5; display:grid; place-items:center; width:180px; }
-  .F1 .vs .inn { margin:0 0 12px; font-size:54px; font-weight:700; color:#fff; letter-spacing:-.04em; text-align:center; line-height:1; }
-  .F1 .vs .inn em { font-style:normal; color:var(--or); }
-  .F1 .vs .x { font:800 68px/1 'Saira Condensed'; color:#fff; text-shadow:0 0 40px rgba(0,0,0,.9); }
-  .F1 .vs .sc { margin-top:14px; font:800 40px/1 'Saira Condensed'; color:#fff; }
-  .F1 .vs .sc i { font-style:normal; color:#374151; margin:0 7px; }
-  .F1 .vs .gm { margin-top:10px; font:800 30px 'Saira Condensed'; color:var(--yel); }
-  .F1 .pane { padding:20px 22px; height:100%; display:flex; flex-direction:column; }
-  .F1 .rows { margin-top:14px; } .F1 .mt { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:auto; padding-top:16px; }
-
-  .F2 .lay { grid-template-rows:78px 1fr 150px; }
-  .F2 .mid { display:grid; grid-template-columns:1fr 520px 1fr; gap:30px; padding:26px 44px; align-items:center; }
-  .F2 .col { display:flex; flex-direction:column; gap:18px; }
-  .F2 .col.r { align-items:flex-end; text-align:right; }
-  .F2 .who { display:flex; align-items:center; gap:20px; }
-  .F2 .col.r .who { flex-direction:row-reverse; }
-  .F2 .port { width:172px; height:230px; --c:12px; flex:none; }
-  .F2 .who .nm { font-size:40px; font-weight:700; color:#fff; line-height:1.08; }
-  .F2 .who .ps { font-size:14px; color:#9ca3af; }
-  .F2 .who .ac { margin-top:10px; font-size:24px; font-weight:700; color:var(--a); }
-  .F2 .rows { width:100%; }
-  .F2 .center { position:relative; display:flex; flex-direction:column; align-items:center; gap:22px; }
-  .F2 .center .inn { margin:0; font-size:96px; font-weight:700; color:#fff; letter-spacing:-.045em; line-height:.9; text-align:center; }
-  .F2 .center .inn em { font-style:normal; color:var(--or); }
-  .F2 .center .sd { font-size:17px; color:#cbd5e1; }
-  .F2 .duel { width:100%; }
-  .F2 .duel .hd { display:flex; justify-content:space-between; font:800 46px 'Saira Condensed'; }
-  .F2 .duel .hd .a1 { color:var(--my); } .F2 .duel .hd .a2 { color:var(--opp); }
-  .F2 .duel .bar2 { margin-top:10px; } .F2 .duel .cap { display:flex; justify-content:space-between; margin-top:9px; font-size:12px; color:#6b7280; }
-  .F2 .mt { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; }
-
-  .F3 .lay { grid-template-rows:78px 1fr 150px; }
-  .F3 .mid { position:relative; display:grid; grid-template-columns:1fr 2px 1fr; padding:24px 44px; gap:30px; }
-  .F3 .pane { padding:24px 28px; display:flex; flex-direction:column; gap:18px; }
-  .F3 .pane.r { text-align:right; align-items:flex-end; }
-  .F3 .top2 { display:flex; align-items:center; gap:22px; width:100%; }
-  .F3 .pane.r .top2 { flex-direction:row-reverse; }
-  .F3 .port { width:162px; height:216px; --c:12px; flex:none; }
-  .F3 .top2 .nm { font-size:42px; font-weight:700; color:#fff; line-height:1.06; }
-  .F3 .top2 .ps { font-size:14px; color:#9ca3af; margin-top:3px; }
-  .F3 .top2 .ac { margin-top:12px; font-size:25px; font-weight:700; color:var(--a); }
-  .F3 .spine { position:relative; background:linear-gradient(180deg,transparent,rgba(255,255,255,.2),transparent); }
-  .F3 .knot { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:250px; padding:24px 20px; text-align:center;
-              background:rgba(3,5,10,.97); box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); --c:14px; }
-  .F3 .knot .inn { margin:0; font-size:58px; font-weight:700; color:#fff; letter-spacing:-.04em; line-height:1; }
-  .F3 .knot .inn em { font-style:normal; color:var(--or); }
-  .F3 .knot .sc { display:block; margin-top:14px; font:800 42px/1 'Saira Condensed'; color:#fff; }
-  .F3 .knot .sc i { font-style:normal; color:#374151; margin:0 8px; }
-  .F3 .knot .gm { display:block; margin-top:12px; font:800 30px 'Saira Condensed'; color:var(--yel); }
-  .F3 .rows { width:100%; } .F3 .mt { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; margin-top:auto; }
+/* 양방향 저울 */
+  .duel { width:100%; }
+  .duel .hd { display:flex; justify-content:space-between; align-items:baseline; }
+  .duel .hd b { font:800 52px/1 'Saira Condensed'; } .duel .hd .l { color:var(--my); } .duel .hd .r { color:var(--opp); }
+  .duel .hd span { font-size:12px; font-weight:700; letter-spacing:.2em; color:#4b5563; }
+  .duel .bar { display:flex; height:16px; margin-top:12px; overflow:hidden; }
+  .duel .bar i { display:block; height:100%; }
+  .duel .cap { display:flex; justify-content:space-between; margin-top:9px; font-size:12.5px; color:#6b7280; }
+  .duel .cap b { color:#9ca3af; }
+/* 중심축 게이지 (기세) */
+  .gauge { position:relative; width:100%; height:20px; background:rgba(255,255,255,.06);
+           box-shadow:inset 0 0 0 1px rgba(255,255,255,.1); }
+  .gauge i { position:absolute; top:0; bottom:0; }
+  .gauge .ax { position:absolute; left:50%; top:-7px; bottom:-7px; width:2px; background:rgba(255,255,255,.34); }
+  .gauge .kn { position:absolute; top:-6px; width:8px; height:32px; background:var(--yel); box-shadow:0 0 16px var(--yel);
+               transform:skewX(-20deg); }
+/* 소모 바 */
+  .wear { width:100%; }
+  .wear .r { display:grid; grid-template-columns:96px 1fr 62px; align-items:center; gap:12px; margin-top:11px; font-size:13px; color:#9ca3af; }
+  .wear .r i { display:block; height:9px; background:rgba(255,255,255,.08); }
+  .wear .r i b { display:block; height:100%; background:var(--a); box-shadow:0 0 10px var(--a); }
+  .wear .r em { font-style:normal; font:800 17px 'Saira Condensed'; color:#fff; text-align:right; }
+/* 이닝별 양방향 막대 */
+  .innb { width:100%; display:grid; gap:5px; }
+  .innb .r { display:grid; grid-template-columns:1fr 40px 1fr; align-items:center; gap:10px; }
+  .innb .r .l { display:flex; justify-content:flex-end; } .innb .r .rr { display:flex; }
+  .innb .r i { display:block; height:15px; }
+  .innb .r span { font:800 13px 'Saira Condensed'; color:#4b5563; text-align:center; }
+  .innb .r.n span { color:var(--yel); } .innb .r.n i { box-shadow:0 0 14px currentColor; }
+/* 스파크라인 */
+  .spark { width:100%; height:78px; }
+/* 작은 줄 (요약) */
+  .sline { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:9px 0;
+           border-top:1px solid rgba(255,255,255,.06); font-size:14px; }
+  .sline:first-of-type { border-top:0; }
+  .sline b { color:#e5e7eb; font-weight:600; } .sline span { color:#8b95a5; font-size:13px; }
+  .sline em { font-style:normal; font:800 19px 'Saira Condensed'; color:var(--e,#9ca3af); }
+/* 증강 칩 */
+  .aug { display:flex; align-items:center; gap:11px; padding:10px 13px; margin-top:7px;
+         background:rgba(196,181,253,.07); box-shadow:inset 0 0 0 1px rgba(196,181,253,.32);
+         clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); }
+  .aug.off { background:rgba(255,255,255,.03); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
+  .aug .ic { width:26px; height:26px; display:grid; place-items:center; font-size:14px; background:rgba(196,181,253,.18); }
+  .aug.off .ic { background:rgba(255,255,255,.06); }
+  .aug b { flex:1; font-size:14.5px; color:#fff; font-weight:600; } .aug.off b { color:#6b7280; }
+  .aug em { font-style:normal; font:800 15px 'Saira Condensed'; color:var(--vio); } .aug.off em { color:#4b5563; }
+/* 컨디션 점 */
+  .cond { display:inline-flex; gap:3px; } .cond i { width:7px; height:7px; background:rgba(255,255,255,.14); }
+  .cond i.on { background:var(--e,var(--my)); box-shadow:0 0 7px var(--e,var(--my)); }
 </style>
 
 <div class="wrap">
-  <p class="lab" style="--a:var(--em2)">Half-Inning Recap · Refined</p>
-  <h1>A · B · F 계열, 각 3안</h1>
+  <p class="lab" style="--a:var(--em2)">Balance Layout · Variants</p>
+  <h1>승부 저울 8안</h1>
   <p class="lead">
-    드래프트 · 매치업 · 상점 화면의 문법을 그대로 가져왔다 —
-    <b>브래킷 프레임</b>, <b>◣ 라벨</b>, <b>컷 코너 액자에 글로우와 하단 라벨 바</b>, <b>세그먼트 게이지</b>,
-    <b>윤곽선 워터마크</b>, <b>Saira Condensed 숫자</b>. 내용은 전부 같다 — 6회말 · 박병호 쓰리런 · +3.
+    뼈대는 같다 — <b>왼쪽 우리 · 가운데 저울 · 오른쪽 상대</b>. 바꾼 건 <b>가운데 저울이 무엇을 재느냐</b>와
+    <b>양옆에 무엇을 놓느냐</b>다. 여덟 개가 각각 다른 정보를 제안한다. 상황은 모두 같다 — 6회말, 박병호 쓰리런으로 3점.
   </p>
   <div id="root"></div>
 </div>
@@ -320,364 +216,380 @@
 const C = (id) => `cards/${encodeURIComponent(id)}.webp`;
 const P = (id) => `profiles/${encodeURIComponent(id)}.webp`;
 const 박병호='legend-kiwoom_박병호', 이정후='legend-mvp_이정후', 김도영='legend-mvp_김도영',
-      최정='legend-ssg_최정', 강백호='legend-nc-kt_강백호', 김광현='legend-ssg_김광현';
+      최정='legend-ssg_최정', 강백호='legend-nc-kt_강백호', 김광현='legend-ssg_김광현',
+      구자욱='legend-samsung_구자욱', 손아섭='legend-lotte_손아섭', 김하성='legend-kiwoom_김하성',
+      이종범='legend-mvp_이종범', 이대호='legend-lotte_이대호', 오승환='legend-samsung_오승환',
+      고우석='legend-lg_고우석', 정우람='legend-hanwha_정우람', 양현종='legend-kia_양현종',
+      원태인='2026-samsung_원태인', 류현진='legend-mvp_류현진', 선동열='legend-mvp_선동열',
+      이승엽='legend-samsung_이승엽', 오재원='2016-doosan_오재원';
 
-/* ── 조각 ── */
 const lab = (t, a = 'var(--or)', em = '') => `<span class="lab" style="--a:${a}">${t}${em ? `<em>${em}</em>` : ''}</span>`;
 const tot = () => `<div class="tot"><span class="t">AI 올스타</span><span class="v">4<span class="x">:</span>8</span><span class="t me">나의 드림팀</span></div>`;
 const seg = (on, now, n = 18, a = 'var(--my)') => `<div class="seg" style="--a:${a}">${
   Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : i === now ? 'now' : ''}"></i>`).join('')}</div>`;
-const topbar = (a = 'var(--or)') => `
-  <div class="top" style="--a:${a}">
+const topbar = () => `
+  <div class="top" style="--a:var(--or)">
     <div class="grp"><span>HALF-INNING</span><b>정리</b></div>
     <div class="grp"><span>INNING</span><b class="a">6회말</b></div>
     <div class="prog"><div class="pl"><span>경기 진행</span><span>11 / 18 반이닝</span></div>${seg(11, 11)}</div>
     ${tot()}
   </div>`;
-const foot = () => `
+const foot = (p = '<b>7회초 내 수비</b> — 우리 선발 <b>92구</b> · 불펜 대기 <b>3명</b>',
+              o = [['정면 승부', '기본'], ['투수 교체', '불펜에서 고른다'], ['신중하게', '유인구 위주']], d = 1) => `
   <div class="foot">
-    <div class="hd">${lab('Next', 'var(--em2)')}<p><b>7회초 내 수비</b> — 우리 선발 <b>92구</b> · 불펜 대기 <b>3명</b></p></div>
+    <div class="hd">${lab('Next', 'var(--em2)')}<p>${p}</p></div>
     <div class="opts">
-      <div class="btn cut">정면 승부<small>기본</small></div>
-      <div class="btn cut pri">투수 교체<small>불펜에서 고른다</small></div>
-      <div class="btn cut">신중하게<small>유인구 위주</small></div>
+      ${o.map(([t, s], i) => `<div class="btn cut${i === d ? ' pri' : ''}">${t}<small>${s}</small></div>`).join('')}
       <div class="ring"><svg width="58" height="58"><circle class="b1" cx="29" cy="29" r="24"/>
         <circle class="b2" cx="29" cy="29" r="24" stroke-dasharray="151" stroke-dashoffset="44"/></svg><b>4.5</b></div>
     </div>
   </div>`;
-const port = (id, k, nm, ps, a = 'var(--my)', cls = '') =>
-  `<div class="port ${cls}" style="--a:${a};background-image:url(${C(id)})">
-     <div class="tag"><span class="k">${k}</span><b>${nm}</b><span>${ps}</span></div></div>`;
-const ROWS = [
-  [1, 김도영, '김도영', '볼넷', '', ''],
-  [2, 이정후, '이정후', '우전 안타', '', ''],
-  [3, 박병호, '박병호', '쓰리런 홈런', '+3', 'hit'],
-  [4, 최정, '최정', '중견수 뜬공 아웃', '', ''],
-];
-const rows = (a = ROWS) => `<div class="rows">${a.map(([i, id, nm, tx, v, c]) => `
-  <div class="lrow ${c}" style="--e:${v ? 'var(--yel)' : '#6b7280'}">
-    <i>${i}</i><div class="fc" style="background-image:url(${P(id)})"></div>
-    <b>${nm} <span style="color:#9ca3af;font-weight:400">${tx}</span></b><span class="v">${v || '·'}</span></div>`).join('')}</div>`;
-const st = (s, v, a) => `<div class="stbox cut"><span>${s}</span><b${a ? ' class="a"' : ''} ${a ? `style="--a:${a}"` : ''}>${v}</b></div>`;
-const MT = `${st('타자', '4')}${st('안타', '2')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}`;
+const who = (id, k, nm, ps, ac, sb, a) => `
+  <div class="who" style="--a:${a}">
+    <div class="port" style="--a:${a};background-image:url(${C(id)})"></div>
+    <div><div class="nm">${nm}</div><div class="ps">${k} · ${ps}</div>
+      <div class="ac">${ac}</div>${sb ? `<div class="sb">${sb}</div>` : ''}</div>
+  </div>`;
+const st = (s, v, a) => `<div class="stbox cut"><span>${s}</span><b${a ? ' class="a"' : ''}${a ? ` style="--a:${a}"` : ''}>${v}</b></div>`;
+const row = (i, id, nm, tx, v, e = '#6b7280', hit) => `
+  <div class="lrow${hit ? ' hit' : ''}" style="--e:${e}"><i>${i}</i>
+    <div class="fc" style="${id ? `background-image:url(${P(id)})` : 'background:none'}"></div>
+    <b>${nm} <span style="color:#9ca3af;font-weight:400">${tx}</span></b><span class="v">${v}</span></div>`;
+const sline = (b, s, em, e = '#9ca3af') => `<div class="sline" style="--e:${e}"><div><b>${b}</b> <span>${s}</span></div><em>${em}</em></div>`;
+const cond = (n, e = 'var(--my)') => `<span class="cond" style="--e:${e}">${
+  Array.from({ length: 5 }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+const pane = (a, inner, cls = '') => `<div class="blk cut frame glass ${cls}" style="--a:${a};--c:14px">${inner}</div>`;
+const innHead = () => `<p class="inn">6회<em>말</em></p><span class="sd">나의 드림팀 <b>공격</b> · 2사 1·2루에서</span>`;
 
-const S = [
-/* ════ A ════ */
-{ fam:'A · 세 구역 가로', famn:'정보를 <b>종류별로 칸에 나눠 담는다.</b> 어떤 회차가 와도 칸이 흔들리지 않는 게 강점 — 대신 주인공을 만들어 줘야 한다.' },
+const V = [
 {
-  k:'A1', nm:'패널 세 장', en:'Panels',
-  note:'세 구역을 <b>독립 패널</b>로 세우고 브래킷과 ◣ 라벨을 붙였다. 드래프트 화면의 <b>SERIES · PICK · MY TEAM</b> 과 같은 문법이라 다른 화면에서 넘어와도 이질감이 없다. 오른쪽 아래 <b>지표 네 칸</b>이 빈자리를 메운다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="pane p1 cut frame glass scan" style="--a:var(--or);--c:18px">
-      <span class="wm">6TH</span>
-      <div>${lab('This Half', 'var(--or)')}
-        <p class="inn">6회<em>말</em></p>
-        <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b> <span class="chip cut" style="--a:var(--my)">2사 1·2루에서</span></span></div>
-      <div class="gain cut"><b>+3</b><span>이 회 득점</span></div>
-    </div>
-    <div class="pane p2 cut frame glass" style="--a:var(--my);--c:18px">
-      ${lab('Player of the Half', 'var(--my)')}
-      ${port(박병호, 'MY TEAM', '박병호', '4번 · 1B')}
-      <div class="did"><span class="nameul" style="--a:var(--yel);font-size:27px">쓰리런 홈런</span>
-        <span>비거리 127m · 시즌 21호 · 3타수 2안타</span></div>
-    </div>
-    <div class="pane p3 cut frame glass" style="--a:var(--or);--c:18px;display:flex;flex-direction:column">
-      ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
-      ${rows()}
-      <div class="mt">${MT}</div>
-    </div>
-  </div>
-  ${foot()}`,
+  k:'1', nm:'승률 저울', en:'Win Probability',
+  why:'가운데에서 재는 것 — <b>이 회차가 승부를 얼마나 움직였나.</b> 매치업 화면에 이미 있는 <span style="color:#cbd5e1">WIN CHANCE</span> 바를 그대로 이어받는다. 3점이라는 숫자보다 <b>“이겼다고 봐도 되는 상태가 됐다”</b>가 훨씬 강하게 와닿는다. 아래 스파크라인으로 경기 내내 승률이 어떻게 요동쳤는지까지 보여준다.',
+  rec:'양옆은 <b>승률을 움직인 사람</b>. 왼쪽엔 그 선수의 기여도(WPA), 오른쪽엔 상대 투수가 잃은 지점. 숫자 하나로 공과 과가 갈린다.',
+  L:`${lab('My Team · 공격', 'var(--my)')}
+     ${who(박병호, 'MY TEAM', '박병호', '4번 · 1B', '쓰리런 홈런', '이 타석으로 승률 +26%p', 'var(--my)')}
+     ${pane('var(--my)', `${lab('승률 기여', 'var(--my)')}
+       ${sline('박병호', '6회말 쓰리런', '+.26', 'var(--yel)')}
+       ${sline('이정후', '6회말 우전 안타', '+.05', 'var(--my)')}
+       ${sline('김도영', '6회말 볼넷', '+.03', 'var(--my)')}
+       ${sline('최정', '6회말 뜬공 아웃', '−.02', '#6b7280')}`)}`,
+  Cc:`${innHead()}
+     <div class="duel">
+       <div class="hd"><div><span>나의 드림팀</span><b class="l">78%</b></div><div style="text-align:right"><span>AI 올스타</span><b class="r">22%</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:78%;background:var(--my);box-shadow:0 0 18px var(--my)"></i><i style="width:22%;background:var(--opp)"></i></div>
+       <div class="cap"><span>이 회차로 <b style="color:var(--yel)">+26%p</b></span><span>52% → 78%</span></div>
+     </div>
+     <svg class="spark" viewBox="0 0 560 78" preserveAspectRatio="none">
+       <line x1="0" y1="39" x2="560" y2="39" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="4 5"/>
+       <path d="M0 40 L62 46 L124 30 L186 34 L248 18 L310 26 L372 44 L434 16 L496 8 L560 8" fill="none" stroke="#34d399" stroke-width="3" stroke-linejoin="round"/>
+       <circle cx="434" cy="16" r="6" fill="#fde047"/><circle cx="496" cy="8" r="5" fill="#34d399"/>
+       <text x="420" y="66" fill="#fde047" font-family="Saira Condensed" font-weight="800" font-size="15">6회말</text>
+     </svg>
+     <div class="mt c3" style="width:100%">${st('이 회 득점', '+3', 'var(--yel)')}${st('경기 최고', '78%', 'var(--my)')}${st('남은 아웃', '9')}</div>`,
+  R:`${lab('Opponent · 수비', 'var(--opp)')}
+     ${who(김광현, 'OPPONENT', '김광현', '선발 · SP', '3실점 · 강판 임박', '이 이닝으로 승률 −26%p', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('상대가 잃은 지점', 'var(--opp)')}
+       ${sline('2사 후 볼넷', '김도영에게 풀카운트', '−.03', 'var(--opp)')}
+       ${sline('초구 직구', '박병호가 노리고 있었다', '−.26', 'var(--opp)')}
+       ${sline('불펜 준비', '2명 · 아직 못 올린다', '·', '#6b7280')}`)}`,
 },
 {
-  k:'A2', nm:'좌 히어로 · 우 2단', en:'Hero + Stack',
-  note:'왼쪽에 <b>회차와 선수를 한 덩어리로</b> 묶어 주인공을 만들고, 오른쪽을 위아래로 갈라 <b>사건</b>과 <b>지표</b>를 쌓았다. A1보다 시선 순서가 분명하다 — 왼쪽을 먼저 보고 오른쪽으로 넘어간다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="left cut frame glass scan" style="--a:var(--my);--c:18px">
-      <span class="wm">6TH</span>
-      ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B')}
-      <div>
-        ${lab('This Half', 'var(--or)')}
-        <p class="inn">6회<em>말</em></p>
-        <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b> <span class="chip cut" style="--a:var(--my)">2사 1·2루</span></span>
-        <p class="big">쓰리런 홈런</p>
-        <p class="sub">좌중간 담장 · 비거리 127m · 시즌 21호</p>
-        <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
-      </div>
-    </div>
-    <div class="right">
-      <div class="pane cut frame glass" style="--a:var(--or);--c:16px">
-        ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
-        ${rows()}
-      </div>
-      <div class="pane cut frame glass" style="--a:var(--sky);--c:16px">
-        ${lab('이 회 지표', 'var(--sky)')}
-        <div class="mt">${MT}</div>
-      </div>
-    </div>
-  </div>
-  ${foot()}`,
+  k:'2', nm:'기세 저울', en:'Momentum',
+  why:'재는 것 — <b>흐름이 누구에게 기울어 있나.</b> 가운데 축에서 추가 좌우로 움직인다. 야구 중계가 늘 말하는 “분위기”를 처음으로 <b>화면에 있는 값</b>으로 만든다.',
+  rec:'양옆은 <b>기세의 근거</b>. 왼쪽엔 연속 출루 같은 우리 흐름, 오른쪽엔 상대 투수가 흔들리는 징후 — <b>구속이 148에서 139로 떨어진 것</b>이 눈에 보이면 “지금 몰아쳐야 한다”가 설득된다. 증강 발동 조건으로도 그대로 쓸 수 있다.',
+  L:`${lab('My Team · 공격', 'var(--my)')}
+     ${who(박병호, 'MY TEAM', '박병호', '4번 · 1B', '쓰리런 홈런', '최근 6타석 중 4번 출루', 'var(--my)')}
+     ${pane('var(--my)', `${lab('우리 흐름', 'var(--my)')}
+       ${sline('연속 출루', '김도영 → 이정후 → 박병호', '3', 'var(--my)')}
+       ${sline('이 회 타율', '4타수 2안타 1볼넷', '.500', 'var(--yel)')}
+       ${sline('최근 3이닝', '7점 — 경기 뒤집은 구간', '+7', 'var(--yel)')}`)}`,
+  Cc:`${innHead()}
+     <div style="width:100%">
+       <div class="duel"><div class="hd"><div><span>흐름</span><b class="l" style="font-size:38px">우리 쪽</b></div>
+         <div style="text-align:right"><span>기세</span><b class="l" style="font-size:38px">+72</b></div></div></div>
+       <div class="gauge cut" style="--c:4px;margin-top:14px">
+         <i style="left:50%;width:36%;background:linear-gradient(90deg,rgba(52,211,153,.25),rgba(52,211,153,.65))"></i>
+         <span class="ax"></span><span class="kn" style="left:calc(50% + 36% - 4px)"></span>
+       </div>
+       <div class="cap" style="display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px;color:#6b7280">
+         <span>AI 올스타</span><span>중립</span><span>나의 드림팀</span></div>
+     </div>
+     <div style="width:100%">
+       ${lab('최근 6타자', 'var(--or)')}
+       <div style="display:flex;gap:7px;margin-top:11px">
+         ${[['K','#6b7280'],['BB','var(--my)'],['1B','var(--my)'],['GO','#6b7280'],['BB','var(--my)'],['HR','var(--yel)']]
+           .map(([t, c]) => `<div class="cut" style="--c:5px;flex:1;padding:11px 0;text-align:center;background:color-mix(in srgb,${c} 14%,rgba(3,6,13,.8));box-shadow:inset 0 0 0 1px ${c};font:800 19px 'Saira Condensed';color:${c}">${t}</div>`).join('')}
+       </div>
+     </div>
+     <div class="mt c3" style="width:100%">${st('이 회 득점', '+3', 'var(--yel)')}${st('연속 출루', '3', 'var(--my)')}${st('상대 볼 비율', '61%', 'var(--opp)')}</div>`,
+  R:`${lab('Opponent · 수비', 'var(--opp)')}
+     ${who(김광현, 'OPPONENT', '김광현', '선발 · SP', '흔들리고 있다', '6회 들어 볼 비율 61%', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('상대 투수 징후', 'var(--opp)')}
+       <div class="wear" style="--a:var(--opp)">
+         <div class="r"><span>직구 구속</span><i><b style="width:52%"></b></i><em>139</em></div>
+         <div class="r"><span>1회 기준</span><i><b style="width:92%;background:#475569;box-shadow:none"></b></i><em>148</em></div>
+       </div>
+       <div style="margin-top:14px">
+         ${sline('연속 볼넷', '5·6회 합쳐 3개', '3', 'var(--opp)')}
+         ${sline('투구수', '88구 — 한계 근처', '88', 'var(--opp)')}
+       </div>`)}`,
 },
 {
-  k:'A3', nm:'상단 전광판 · 3열', en:'Board + Columns',
-  note:'상단에 <b>이닝별 전광판</b>을 얇게 깔아 경기 전체 맥락을 늘 보이게 했다. 아래 3열은 <b>득점 · 선수 · 사건</b>. 매번 같은 자리에 같은 정보가 있어서 <b>18번 떠도 학습이 끝난다.</b>',
-  html:`${topbar()}
-  <div class="strip">
-    <div class="innl"><b>6회<em>말</em></b><span>나의 드림팀 공격</span></div>
-    <table class="board">
-      <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th class="n">6</th><th>7</th><th>8</th><th>9</th><th>R</th><th>H</th><th>E</th></tr>
-      <tr><td class="tm">AI 올스타</td><td>0</td><td>2</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-</td><td>-</td><td>-</td><td class="r">4</td><td>7</td><td>0</td></tr>
-      <tr><td class="tm me">나의 드림팀</td><td>1</td><td>0</td><td>0</td><td>3</td><td>1</td><td class="n">3</td><td>-</td><td>-</td><td>-</td><td class="r">8</td><td>11</td><td>1</td></tr>
-    </table>
-    <span class="chip cut" style="--a:var(--yel)">이 회 +3</span>
-  </div>
-  <div class="mid">
-    <div class="pane cut frame glass" style="--a:var(--yel);--c:16px;display:flex;flex-direction:column;justify-content:center;gap:22px">
-      ${lab('This Half', 'var(--yel)')}
-      <div class="gain"><b>+3</b><span>이 회 득점</span></div>
-      <div class="mt">${st('타자', '4')}${st('안타', '2')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}</div>
-    </div>
-    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
-      ${lab('Player of the Half', 'var(--my)')}
-      <div style="margin-top:14px">${port(박병호, 'MY TEAM', '박병호', '4번 · 1B — 쓰리런 홈런 · 127m')}</div>
-    </div>
-    <div class="pane cut frame glass" style="--a:var(--or);--c:16px">
-      ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
-      ${rows()}
-    </div>
-  </div>
-  ${foot()}`,
-},
-/* ════ B ════ */
-{ fam:'B · 전면 히어로', famn:'<b>선수가 화면을 끌고 간다.</b> 홈런 · 역전 · 끝내기처럼 큰 순간에 압도적이고, 선수 카드 1,600장을 가장 잘 쓴다 — 대신 조용한 회차엔 안 어울린다.' },
-{
-  k:'B1', nm:'매치업 액자', en:'Framed Portrait',
-  note:'매치업 화면의 <b>인물 처리 그대로</b> — 컷 코너 액자 + 글로우 + 하단 라벨 바. 왼쪽 정보 블록 뒤에 <b>윤곽선 6TH</b> 를 깔아 빈 곳을 채웠다. 오른쪽 목록까지 있어 <b>정보량과 존재감을 둘 다</b> 가져간다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="info">
-      <span class="wm">6TH</span>
-      ${lab('Half-Inning Recap', 'var(--or)')}
-      <p class="inn">6회<em>말</em></p>
-      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b><span class="chip cut" style="--a:var(--yel)">+3 이 회 득점</span></span>
-      <p class="nm">박병호</p>
-      <p class="act">쓰리런 홈런 · 127m</p>
-      <div class="mt">${MT}</div>
-    </div>
-    ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B · 3타수 2안타 3타점')}
-    <div class="side">
-      <div class="pane cut frame glass" style="--a:var(--or);--c:16px;padding:20px 24px">
-        ${lab('이 회에 벌어진 일', 'var(--or)', '타자 4명')}
-        ${rows()}
-      </div>
-    </div>
-  </div>
-  ${foot()}`,
-},
-{
-  k:'B2', nm:'풀블리드 시네마', en:'Cinematic',
-  note:'선수가 <b>화면 전체</b>다. 정보는 아래 띠에만 눕혀서 인물을 안 가린다. 가장 세고 가장 빠르다 — <b>4초 안에 감정이 끝난다.</b> 대신 사건이 셋을 넘으면 띠가 모자라 접어야 한다.',
-  html:`
-  <div class="hero">
-    <span class="wm">6</span>
-    <div class="kick">${lab('Half-Inning Recap', 'var(--or)')}<span class="chip cut" style="--a:var(--my)">나의 드림팀 공격</span></div>
-    <p class="inn">6회<em>말</em></p>
-    <p class="nm">박병호</p>
-    <p class="act">쓰리런 홈런</p>
-    <p class="sub">4번 · 1B &nbsp;·&nbsp; 좌중간 127m &nbsp;·&nbsp; 시즌 21호 &nbsp;·&nbsp; 3타수 2안타 3타점</p>
-  </div>
-  <div>
-    <div class="strip">
-      <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
-      <div class="evs">
-        <div class="ev2 cut" style="--e:var(--my)"><span class="k">1</span><b>김도영</b><span>볼넷</span></div>
-        <div class="ev2 cut" style="--e:var(--my)"><span class="k">2</span><b>이정후</b><span>우전 안타</span></div>
-        <div class="ev2 cut" style="--e:var(--yel);box-shadow:inset 0 0 0 1px rgba(253,224,71,.5)"><span class="k">3 · +3</span><b>박병호</b><span>쓰리런 홈런</span></div>
-        <div class="ev2 cut" style="--e:#6b7280"><span class="k">4</span><b>최정</b><span>중견수 뜬공</span></div>
-      </div>
-      ${tot()}
-    </div>
-    <div class="foot2">
-      ${lab('Next', 'var(--em2)')}<p style="margin:0;font-size:16px;color:#9ca3af"><b style="color:#fff">7회초 내 수비</b> — 선발 92구</p>
-      <div class="opts">
-        <div class="btn cut">정면 승부<small>기본</small></div>
-        <div class="btn cut pri">투수 교체<small>불펜에서 고른다</small></div>
-        <div class="btn cut">신중하게<small>유인구 위주</small></div>
-      </div>
-      <div class="ring"><svg width="58" height="58"><circle class="b1" cx="29" cy="29" r="24"/>
-        <circle class="b2" cx="29" cy="29" r="24" stroke-dasharray="151" stroke-dashoffset="44"/></svg><b>4.5</b></div>
-    </div>
-  </div>`,
+  k:'3', nm:'소모전 저울', en:'Attrition',
+  why:'재는 것 — <b>마운드 자원이 얼마나 남았나.</b> 감독 게임에서 진짜 화폐는 점수가 아니라 <b>투구수와 불펜</b>이다. 이 회차에 상대 투수를 몇 구 더 던지게 만들었는지가 곧 다음 이닝의 유리함이 된다.',
+  rec:'양옆은 <b>불펜 상태</b>를 그대로. 누가 몸을 풀었고 누가 며칠 쉬었는지가 보이면 아래 <span style="color:#cbd5e1">투수 교체</span> 버튼이 처음으로 <b>근거 있는 선택</b>이 된다. 지금은 눌러도 누가 나올지 모르고 누른다.',
+  L:`${lab('My Team · 마운드', 'var(--my)')}
+     ${pane('var(--my)', `${lab('우리 선발', 'var(--my)')}
+       <div class="who" style="--a:var(--my);gap:14px">
+         <div class="port" style="--a:var(--my);width:92px;height:123px;--c:9px;background-image:url(${C(양현종)})"></div>
+         <div><div class="nm" style="font-size:28px">양현종</div><div class="ps">SP · 6이닝 2실점</div>
+           <div class="ac" style="font-size:19px">92구 · 한계</div></div>
+       </div>
+       <div class="wear" style="--a:var(--yel);margin-top:14px">
+         <div class="r"><span>투구수</span><i><b style="width:92%"></b></i><em>92</em></div>
+         <div class="r"><span>체력</span><i><b style="width:34%;background:var(--opp);box-shadow:0 0 10px var(--opp)"></b></i><em>34</em></div>
+       </div>`)}
+     ${pane('var(--sky)', `${lab('불펜 대기', 'var(--sky)', '3명')}
+       <div class="rows" style="margin-top:4px">
+         ${row('LR', 정우람, '정우람', '몸 다 풀림 · 2일 휴식', cond(5), 'var(--my)', 1)}
+         ${row('SU', 고우석, '고우석', '몸 푸는 중 · 1일 휴식', cond(3, 'var(--yel)'), 'var(--yel)')}
+         ${row('CL', 오승환, '오승환', '대기 · 3일 휴식', cond(5), 'var(--my)')}
+       </div>`)}`,
+  Cc:`${innHead()}
+     <div class="duel">
+       <div class="hd"><div><span>우리 선발</span><b class="l">92</b></div><div style="text-align:right"><span>상대 선발</span><b class="r">88</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:51%;background:var(--my)"></i><i style="width:49%;background:var(--opp);box-shadow:0 0 18px var(--opp)"></i></div>
+       <div class="cap"><span>둘 다 한계 — <b style="color:var(--yel)">먼저 바꾸는 쪽이 진다</b></span><span>이 회 +21구</span></div>
+     </div>
+     <div style="width:100%">
+       ${lab('이 회차에 소모시킨 것', 'var(--or)')}
+       <div class="mt c3" style="margin-top:11px">${st('상대 투구수', '+21', 'var(--yel)')}${st('상대 타자', '4명')}${st('상대 볼넷', '1')}</div>
+     </div>
+     <div style="width:100%">
+       ${lab('남은 불펜', 'var(--sky)')}
+       <div class="duel" style="margin-top:11px">
+         <div class="hd"><div><b class="l" style="font-size:40px">3</b><span> 명</span></div><div style="text-align:right"><span>명 </span><b class="r" style="font-size:40px">2</b></div></div>
+         <div class="bar cut" style="--c:5px"><i style="width:60%;background:var(--my)"></i><i style="width:40%;background:var(--opp)"></i></div>
+       </div>
+     </div>`,
+  R:`${lab('Opponent · 마운드', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('상대 선발', 'var(--opp)')}
+       <div class="who" style="--a:var(--opp);gap:14px;flex-direction:row-reverse;text-align:right">
+         <div class="port" style="--a:var(--opp);width:92px;height:123px;--c:9px;background-image:url(${C(김광현)})"></div>
+         <div><div class="nm" style="font-size:28px">김광현</div><div class="ps">SP · 6이닝 8실점</div>
+           <div class="ac" style="font-size:19px">88구 · 강판 임박</div></div>
+       </div>
+       <div class="wear" style="--a:var(--opp);margin-top:14px">
+         <div class="r"><span>투구수</span><i><b style="width:88%"></b></i><em>88</em></div>
+         <div class="r"><span>체력</span><i><b style="width:22%"></b></i><em>22</em></div>
+       </div>`)}
+     ${pane('var(--opp)', `${lab('상대 불펜', 'var(--opp)', '2명')}
+       <div class="rows" style="margin-top:4px">
+         ${row('MR', 이대호, '상대 중간', '몸 푸는 중', cond(2, 'var(--opp)'), 'var(--opp)')}
+         ${row('CL', 선동열, '상대 마무리', '대기 — 9회 전엔 안 나온다', cond(5, 'var(--opp)'), 'var(--opp)')}
+       </div>`)}`,
 },
 {
-  k:'B3', nm:'히어로 + 성적 패널', en:'Hero + Stats',
-  note:'인물 옆에 <b>그 선수의 오늘</b>을 붙였다 — 타석 기록과 능력 게이지. 드래프트 우측 <b>MY TEAM</b> 패널의 문법이다. 선수를 세우면서도 <b>숫자로 뒷받침</b>해서 감독 게임다운 무게가 생긴다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="info">
-      <span class="wm">6TH</span>
-      ${lab('Half-Inning Recap', 'var(--or)')}
-      <p class="inn">6회<em>말</em></p>
-      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b><span class="chip cut" style="--a:var(--my)">2사 1·2루에서</span></span>
-      <div class="gain"><b>+3</b><span>이 회<br>득점</span></div>
-      ${rows()}
-    </div>
-    ${port(박병호, 'MY TEAM · 이 회 주인공', '박병호', '4번 · 1B')}
-    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
-      ${lab('오늘의 박병호', 'var(--my)')}
-      <p style="margin:14px 0 0"><span class="nameul" style="--a:var(--yel);font-size:30px">쓰리런 홈런</span></p>
-      <p style="margin:12px 0 0;font-size:14px;color:#9ca3af">좌중간 담장 · 비거리 127m · 시즌 21호</p>
-      <div class="mt2">${st('타수', '3')}${st('안타', '2')}${st('타점', '3', 'var(--yel)')}${st('OPS', '1.24', 'var(--my)')}</div>
-      <div class="meter" style="--a:var(--my)">
-        <div class="r"><span>파워</span><i><b style="width:99%"></b></i><em>99</em></div>
-        <div class="r"><span>컨택</span><i><b style="width:90%"></b></i><em>90</em></div>
-        <div class="r"><span>주루</span><i><b style="width:60%;background:#64748b;box-shadow:none"></b></i><em>60</em></div>
-        <div class="r"><span>수비</span><i><b style="width:62%;background:#64748b;box-shadow:none"></b></i><em>62</em></div>
-      </div>
-      <div style="margin-top:18px">${lab('상대 투수', 'var(--opp)')}
-        <div class="lrow" style="margin-top:10px;--e:var(--opp)"><i>SP</i>
-          <div class="fc" style="background-image:url(${P(김광현)})"></div>
-          <b>김광현 <span style="color:#9ca3af;font-weight:400">88구 · 피홈런 1</span></b><span class="v">−3</span></div></div>
-    </div>
-  </div>
-  ${foot()}`,
-},
-/* ════ F ════ */
-{ fam:'F · 좌우 대결', famn:'<b>내 팀과 상대가 구조로 갈린다.</b> 색을 안 봐도 위치로 안다 — 매치업 화면이 이미 쓰는 문법이라 익숙하다. 한쪽이 비어 보이지 않게 채우는 게 관건.' },
-{
-  k:'F1', nm:'VS 액자', en:'Versus',
-  note:'매치업 화면을 그대로 가져왔다 — 두 인물이 <b>마주 보고 가운데 VS</b>. 액자를 안쪽으로 붙여 맞대결 구도를 만들고, 양옆 패널에 각 팀의 사건과 지표를 담아 <b>한쪽이 비지 않게</b> 했다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="pane cut frame glass" style="--a:var(--my);--c:16px">
-      ${lab('My Team · 공격', 'var(--my)')}
-      ${rows()}
-      <div class="mt">${st('안타', '2')}${st('잔루', '0')}</div>
-    </div>
-    <div class="duo">
-      ${port(박병호, 'MY TEAM', '박병호', '쓰리런 홈런 · 127m', 'var(--my)', 'l')}
-      <div class="vs">
-        <p class="inn">6회<em>말</em></p>
-        <span class="x">VS</span>
-        <span class="sc">4<i>:</i>8</span>
-        <span class="gm">+3</span>
-      </div>
-      ${port(김광현, 'OPPONENT', '김광현', '피홈런 1 · 3실점', 'var(--opp)', 'r')}
-    </div>
-    <div class="pane cut frame glass" style="--a:var(--opp);--c:16px">
-      ${lab('Opponent · 수비', 'var(--opp)')}
-      <div class="rows">
-        <div class="lrow" style="--e:var(--opp)"><i>SP</i><div class="fc" style="background-image:url(${P(김광현)})"></div>
-          <b>김광현 <span style="color:#9ca3af;font-weight:400">6회 · 88구</span></b><span class="v">−3</span></div>
-        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
-          <b>피홈런 <span style="color:#9ca3af;font-weight:400">이 회 1개</span></b><span class="v">·</span></div>
-        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
-          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
-      </div>
-      <div class="mt">${st('투구수', '88', 'var(--opp)')}${st('실점', '3', 'var(--opp)')}</div>
-    </div>
-  </div>
-  ${foot()}`,
+  k:'4', nm:'다음 수 저울', en:'Next Move',
+  why:'재는 것 — <b>다음 이닝 맞대결.</b> 정리 화면인데 시선은 이미 앞을 본다. 아래에서 방침을 고르라고 하면서 <b>고를 근거를 안 주는 게</b> 지금 가장 큰 구멍이다.',
+  rec:'왼쪽엔 <b>다음에 상대할 타자 셋</b>(위험도까지), 오른쪽엔 <b>내가 낼 수 있는 카드</b>. 이 두 개만 있으면 아래 버튼이 진짜 결정이 된다 — 4번 타자가 오니까 마무리를 올릴지, 아니면 아끼고 넘길지.',
+  L:`${lab('다음 이닝 · 상대 타순', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('7회초에 나올 타자', 'var(--opp)', '4·5·6번')}
+       <div class="rows" style="margin-top:4px">
+         ${row(4, 이대호, '이대호', 'DH · 파워 96 · 오늘 2안타', '위험', 'var(--opp)', 1)}
+         ${row(5, 이종범, '이종범', 'SS · 주루 99 · 도루 2', '주의', 'var(--yel)')}
+         ${row(6, 오재원, '오재원', '2B · 오늘 3타수 무안타', '·', '#6b7280')}
+       </div>
+       <div class="mt c3" style="margin-top:13px">${st('상대 타선 OPS', '.812', 'var(--opp)')}${st('이 셋 타율', '.340', 'var(--opp)')}${st('도루 시도', '2')}</div>`)}`,
+  Cc:`${innHead()}
+     <div class="duel">
+       <div class="hd"><div><span>이 회 득점</span><b class="l">+3</b></div><div style="text-align:right"><span>상대</span><b class="r">0</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:100%;background:var(--my);box-shadow:0 0 18px var(--my)"></i></div>
+     </div>
+     <div class="cut frame glass" style="--a:var(--yel);--c:14px;width:100%;padding:18px 20px">
+       ${lab('7회초 맞대결', 'var(--yel)')}
+       <p style="margin:12px 0 0;font-size:21px;font-weight:600;color:#e5e7eb;line-height:1.55">
+         상대 <b style="color:var(--opp)">클린업</b>이 올라온다.<br>
+         우리 선발은 <b style="color:var(--yel)">92구</b> — 한 바퀴를 더 돌면 <b style="color:var(--opp)">피안타율이 .290 으로</b> 오른다.</p>
+       <div class="mt c3" style="margin-top:15px">${st('선발 3회차', '.290', 'var(--opp)')}${st('불펜 교체 시', '.221', 'var(--my)')}${st('남은 아웃', '9')}</div>
+     </div>`,
+  R:`${lab('내가 낼 수 있는 카드', 'var(--my)')}
+     ${pane('var(--my)', `${lab('교체 후보', 'var(--my)', '3명')}
+       <div class="rows" style="margin-top:4px">
+         ${row('SU', 고우석, '고우석', '구위 94 · 우완 · 몸 푸는 중', cond(3, 'var(--yel)'), 'var(--yel)', 1)}
+         ${row('LR', 정우람, '정우람', '좌완 · 이대호에게 강하다', cond(5), 'var(--my)')}
+         ${row('CL', 오승환, '오승환', '아끼면 9회에 쓸 수 있다', cond(5), 'var(--my)')}
+       </div>`)}
+     ${pane('var(--sky)', `${lab('한 가지 더', 'var(--sky)')}
+       ${sline('이대호 vs 좌완', '통산 .248 — 정우람이 낫다', '.248', 'var(--my)')}
+       ${sline('오승환을 지금 쓰면', '9회에 쓸 투수가 없다', '경고', 'var(--opp)')}`)}`,
 },
 {
-  k:'F2', nm:'승부 저울', en:'Balance',
-  note:'가운데에 <b>이 회차의 승부를 저울</b>로 세웠다. 우리 3점 · 상대 0점이 바로 길이로 보인다. 양옆은 인물과 목록. <b>"이 회차를 누가 가져갔나"</b>가 한 장면에 담긴다.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="col" style="--a:var(--my)">
-      ${lab('My Team · 공격', 'var(--my)')}
-      <div class="who">
-        ${port(박병호, 'MY TEAM', '', '', 'var(--my)')}
-        <div><div class="nm">박병호</div><div class="ps">4번 · 1B</div><div class="ac">쓰리런 홈런</div></div>
-      </div>
-      ${rows(ROWS.filter((r) => r[0] !== 3))}
-    </div>
-    <div class="center">
-      <p class="inn">6회<em>말</em></p>
-      <span class="sd">나의 드림팀 <b style="color:var(--my)">공격</b></span>
-      <div class="duel">
-        <div class="hd"><span class="a1">+3</span><span class="a2">0</span></div>
-        <div class="bar2 cut" style="--c:5px"><i style="width:100%;background:var(--my);box-shadow:0 0 16px var(--my)"></i><i style="width:0;background:var(--opp)"></i></div>
-        <div class="cap"><span>우리 3점 · 안타 2 · 볼넷 1</span><span>상대 0점</span></div>
-      </div>
-      <div class="mt">${st('타자', '4')}${st('잔루', '0')}${st('투구수', '18', 'var(--yel)')}</div>
-      ${tot()}
-    </div>
-    <div class="col r" style="--a:var(--opp)">
-      ${lab('Opponent · 수비', 'var(--opp)')}
-      <div class="who">
-        ${port(김광현, 'OPPONENT', '', '', 'var(--opp)')}
-        <div><div class="nm">김광현</div><div class="ps">선발 · SP</div><div class="ac">피홈런 1 · 3실점</div></div>
-      </div>
-      <div class="rows">
-        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
-          <b>투구수 <span style="color:#9ca3af;font-weight:400">88구 — 교체 임박</span></b><span class="v">88</span></div>
-        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
-          <b>이 회 <span style="color:#9ca3af;font-weight:400">타자 4명 · 안타 2</span></b><span class="v">−3</span></div>
-        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
-          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
-      </div>
-    </div>
-  </div>
-  ${foot()}`,
+  k:'5', nm:'잔여 전력 저울', en:'Resources',
+  why:'재는 것 — <b>양 팀에게 남은 카드.</b> 후반부로 갈수록 점수보다 이게 승부를 가른다. 벤치 6명이 지금 경기 내내 아무것도 안 하는데, <b>여기 세워 두면 존재 이유가 생긴다.</b>',
+  rec:'왼쪽엔 <b>내 벤치 대타 후보</b>(컨디션과 상성까지), 오른쪽엔 상대가 남긴 카드. 라커에서 뽑은 26명이 <b>경기 화면에 나타나는 유일한 자리</b>가 된다.',
+  L:`${lab('My Team · 남은 카드', 'var(--my)')}
+     ${pane('var(--my)', `${lab('대타 후보', 'var(--my)', '4명')}
+       <div class="rows" style="margin-top:4px">
+         ${row('PH', 이승엽, '이승엽', '파워 97 · 대타 통산 .310', cond(5), 'var(--my)', 1)}
+         ${row('PH', 구자욱, '구자욱', '컨택 93 · 좌투 상대 강함', cond(4), 'var(--my)')}
+         ${row('PR', 손아섭, '손아섭', '주루 78 · 대주자 전용', cond(5), 'var(--my)')}
+         ${row('C', 김하성, '김하성', '수비 86 · 포수 교체용', cond(3, 'var(--yel)'), 'var(--yel)')}
+       </div>`)}
+     ${pane('var(--sky)', `${lab('불펜', 'var(--sky)', '3명')}
+       <div class="mt c3" style="margin-top:4px">${st('불펜', '3', 'var(--my)')}${st('벤치', '4', 'var(--my)')}${st('증강', '1', 'var(--vio)')}</div>`)}`,
+  Cc:`${innHead()}
+     <div style="width:100%">
+       ${lab('남은 전력', 'var(--or)')}
+       <div class="duel" style="margin-top:12px">
+         <div class="hd"><div><span>나의 드림팀</span><b class="l">7</b></div><div style="text-align:right"><span>AI 올스타</span><b class="r">4</b></div></div>
+         <div class="bar cut" style="--c:5px"><i style="width:64%;background:var(--my);box-shadow:0 0 18px var(--my)"></i><i style="width:36%;background:var(--opp)"></i></div>
+         <div class="cap"><span>불펜 3 · 벤치 4</span><span>불펜 2 · 벤치 2</span></div>
+       </div>
+     </div>
+     <div style="width:100%">
+       ${lab('종류별', 'var(--sky)')}
+       <div class="wear" style="--a:var(--my);margin-top:11px">
+         <div class="r"><span>불펜</span><i><b style="width:60%"></b></i><em>3 : 2</em></div>
+         <div class="r"><span>벤치</span><i><b style="width:67%"></b></i><em>4 : 2</em></div>
+         <div class="r"><span>대주자</span><i><b style="width:100%"></b></i><em>1 : 0</em></div>
+       </div>
+     </div>
+     <div class="mt c3" style="width:100%">${st('이 회 득점', '+3', 'var(--yel)')}${st('남은 이닝', '3')}${st('교체 여력', '우세', 'var(--my)')}</div>`,
+  R:`${lab('Opponent · 남은 카드', 'var(--opp)')}
+     ${who(김광현, 'OPPONENT', '김광현', '선발 · SP', '88구 · 곧 내려간다', '뒤에 쓸 투수가 둘뿐', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('상대가 남긴 것', 'var(--opp)')}
+       ${sline('불펜', '중간 1 · 마무리 1', '2', 'var(--opp)')}
+       ${sline('벤치', '대타 2 — 둘 다 컨디션 낮음', '2', 'var(--opp)')}
+       ${sline('대주자', '없음 — 발 빠른 선수를 다 썼다', '0', '#6b7280')}
+       ${sline('증강', '이번 경기 소진', '0', '#6b7280')}`)}`,
 },
 {
-  k:'F3', nm:'대칭 패널', en:'Mirror',
-  note:'좌우를 <b>완전한 거울</b>로 세우고 가운데 기둥에 회차와 점수를 매달았다. 패널 두 장이 대등해서 <b>상대가 잘한 회차</b>도 똑같은 무게로 보여줄 수 있다 — 내 팀만 편애하지 않는 구조.',
-  html:`${topbar()}
-  <div class="mid">
-    <div class="pane cut frame glass scan" style="--a:var(--my);--c:18px">
-      ${lab('My Team · 공격', 'var(--my)')}
-      <div class="top2">
-        ${port(박병호, 'MY TEAM', '', '', 'var(--my)')}
-        <div><div class="nm">박병호</div><div class="ps">4번 · 1B · 3타수 2안타 3타점</div>
-          <div class="ac">쓰리런 홈런 · 127m</div></div>
-      </div>
-      ${rows()}
-      <div class="mt">${st('안타', '2')}${st('잔루', '0')}</div>
-    </div>
-    <div class="spine">
-      <div class="knot cut" style="--a:var(--or)">
-        <p class="inn">6회<em>말</em></p>
-        <span class="sc">4<i>:</i>8</span>
-        <span class="gm">+3</span>
-      </div>
-    </div>
-    <div class="pane r cut frame glass scan" style="--a:var(--opp);--c:18px">
-      ${lab('Opponent · 수비', 'var(--opp)')}
-      <div class="top2">
-        ${port(김광현, 'OPPONENT', '', '', 'var(--opp)')}
-        <div><div class="nm">김광현</div><div class="ps">선발 · SP · 6회 88구</div>
-          <div class="ac">피홈런 1 · 3실점</div></div>
-      </div>
-      <div class="rows">
-        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
-          <b>이 회 <span style="color:#9ca3af;font-weight:400">타자 4명 · 안타 2 · 볼넷 1</span></b><span class="v">−3</span></div>
-        <div class="lrow" style="--e:var(--opp)"><i>·</i><div class="fc" style="background:none"></div>
-          <b>투구수 <span style="color:#9ca3af;font-weight:400">88구 — 교체 임박</span></b><span class="v">88</span></div>
-        <div class="lrow" style="--e:#6b7280"><i>·</i><div class="fc" style="background:none"></div>
-          <b>불펜 <span style="color:#9ca3af;font-weight:400">2명 몸 푸는 중</span></b><span class="v">·</span></div>
-      </div>
-      <div class="mt">${st('투구수', '88', 'var(--opp)')}${st('실점', '3', 'var(--opp)')}</div>
-    </div>
-  </div>
-  ${foot()}`,
+  k:'6', nm:'증강 · 감독 저울', en:'Augments',
+  why:'재는 것 — <b>내가 고른 것들이 지금 일하고 있나.</b> 증강은 이 게임의 로그라이크 심장인데 지금은 로그에 한 줄 흐르고 끝난다. 여기 세우면 <b>증강을 고른 보람</b>이 매 회차 확인된다.',
+  rec:'왼쪽엔 <b>증강 리스너</b>(발동 횟수까지), 오른쪽엔 <b>상대 감독 성향</b>과 우리 코치진 효과. 상대가 번트를 좋아하는지 불펜을 일찍 쓰는지가 보이면 방침 선택이 심리전이 된다.',
+  L:`${lab('My Team · 증강', 'var(--vio)')}
+     ${pane('var(--vio)', `${lab('증강 리스너', 'var(--vio)', '이 경기')}
+       <div class="aug"><span class="ic">✦</span><b>대쓰요!</b><em>1/2</em></div>
+       <div class="aug"><span class="ic">✦</span><b>클린업 폭격</b><em>1/1</em></div>
+       <div class="aug off"><span class="ic">·</span><b>철벽 마무리</b><em>0/1</em></div>
+       <div class="aug off"><span class="ic">·</span><b>발야구</b><em>0/2</em></div>`)}
+     ${pane('var(--my)', `${lab('코치진 효과', 'var(--my)')}
+       <div class="mt c4" style="margin-top:4px">${st('타격', '+3', 'var(--my)')}${st('수비', '+2', 'var(--my)')}${st('투구', '+2', 'var(--my)')}${st('지시', '+2', 'var(--yel)')}</div>`)}`,
+  Cc:`${innHead()}
+     <div class="cut frame glass" style="--a:var(--vio);--c:14px;width:100%;padding:20px">
+       ${lab('이 회 발동', 'var(--vio)')}
+       <p style="margin:13px 0 0"><span class="nameul" style="--a:var(--vio);font-size:31px">대쓰요!</span></p>
+       <p style="margin:11px 0 0;font-size:14.5px;color:#9ca3af">파워 92+ 타자 보유 · 상대 투수 구위 90 미만</p>
+       <p style="margin:12px 0 0;font-size:18px;color:#e5e7eb">18% 를 뚫고 <b style="color:var(--yel)">투런 홈런</b>이 확정됐다. 남은 발동 <b>1회</b>.</p>
+     </div>
+     <div class="duel" style="width:100%">
+       <div class="hd"><div><span>내 증강 기여</span><b class="l">+2</b></div><div style="text-align:right"><span>상대 증강</span><b class="r">0</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:100%;background:var(--vio);box-shadow:0 0 18px var(--vio)"></i></div>
+       <div class="cap"><span>이 경기 발동 <b>2회</b> · 8점 중 5점</span><span>상대는 아직</span></div>
+     </div>
+     <div class="mt c3" style="width:100%">${st('이 회 득점', '+3', 'var(--yel)')}${st('증강 기여', '5점', 'var(--vio)')}${st('남은 발동', '2', 'var(--vio)')}</div>`,
+  R:`${lab('Opponent · 상대 감독', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('AI 감독 성향', 'var(--opp)')}
+       <div class="wear" style="--a:var(--opp);margin-top:4px">
+         <div class="r"><span>불펜 조기</span><i><b style="width:78%"></b></i><em>높음</em></div>
+         <div class="r"><span>번트</span><i><b style="width:24%"></b></i><em>낮음</em></div>
+         <div class="r"><span>도루</span><i><b style="width:62%"></b></i><em>보통</em></div>
+       </div>
+       <div style="margin-top:14px">
+         ${sline('다음 이닝', '7회에 불펜을 올릴 가능성 높음', '78%', 'var(--opp)')}
+         ${sline('주의', '주자 나가면 뛴다 — 견제를 걸 것', '·', 'var(--yel)')}
+       </div>`)}
+     ${pane('var(--vio)', `${lab('상대 증강', 'var(--vio)')}
+       <div class="aug off"><span class="ic">·</span><b>에이스의 품격</b><em>0/2</em></div>
+       <div class="aug off"><span class="ic">·</span><b>우타 봉쇄</b><em>0/3</em></div>`)}`,
+},
+{
+  k:'7', nm:'기록 저울', en:'Box Score',
+  why:'재는 것 — <b>오늘 두 팀이 실제로 뭘 했나.</b> 타율 · 안타 · 잔루 · ERA. 야구 팬이 경기를 읽는 가장 익숙한 언어이고, 여기 쌓인 값이 그대로 <b>선수 시즌 기록</b>으로 넘어간다.',
+  rec:'왼쪽엔 <b>그 선수의 오늘</b>을 크게, 오른쪽엔 <b>상대 투수의 오늘</b>. 이 회차가 끝날 때마다 숫자가 자라는 게 보이면 “이종범이 우리 팀에서 몇 할 쳤나”로 이어진다.',
+  L:`${lab('My Team · 오늘', 'var(--my)')}
+     ${who(박병호, 'MY TEAM', '박병호', '4번 · 1B', '3타수 2안타 3타점', '시즌 21호 · OPS 1.24', 'var(--my)')}
+     ${pane('var(--my)', `${lab('우리 타선', 'var(--my)')}
+       <div class="mt c4" style="margin-top:4px">${st('타율', '.324', 'var(--my)')}${st('안타', '11')}${st('홈런', '2', 'var(--yel)')}${st('잔루', '5')}</div>
+       <div style="margin-top:13px">
+         ${sline('박병호', '3타수 2안타 3타점 1홈런', '1.24', 'var(--yel)')}
+         ${sline('이정후', '4타수 3안타', '.750', 'var(--my)')}
+         ${sline('김도영', '2타수 1안타 2볼넷', '.600', 'var(--my)')}
+       </div>`)}`,
+  Cc:`${innHead()}
+     <div style="width:100%">
+       ${lab('팀 대비', 'var(--or)')}
+       <div class="wear" style="--a:var(--my);margin-top:12px">
+         <div class="r"><span>타율</span><i><b style="width:76%"></b></i><em>.324</em></div>
+         <div class="r"><span>상대 타율</span><i><b style="width:54%;background:var(--opp);box-shadow:0 0 10px var(--opp)"></b></i><em>.241</em></div>
+         <div class="r"><span>OPS</span><i><b style="width:82%"></b></i><em>.891</em></div>
+         <div class="r"><span>상대 OPS</span><i><b style="width:58%;background:var(--opp);box-shadow:0 0 10px var(--opp)"></b></i><em>.662</em></div>
+       </div>
+     </div>
+     <div class="duel" style="width:100%">
+       <div class="hd"><div><span>안타</span><b class="l">11</b></div><div style="text-align:right"><span>안타</span><b class="r">7</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:61%;background:var(--my)"></i><i style="width:39%;background:var(--opp)"></i></div>
+       <div class="cap"><span>홈런 2 · 볼넷 5</span><span>홈런 1 · 볼넷 2</span></div>
+     </div>
+     <div class="mt c4" style="width:100%">${st('이 회', '+3', 'var(--yel)')}${st('R', '8', 'var(--my)')}${st('H', '11')}${st('E', '1')}</div>`,
+  R:`${lab('Opponent · 오늘', 'var(--opp)')}
+     ${who(김광현, 'OPPONENT', '김광현', '선발 · SP', '6이닝 8실점', '88구 · 피홈런 2', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('상대 선발 성적', 'var(--opp)')}
+       <div class="mt c4" style="margin-top:4px">${st('이닝', '6.0')}${st('피안타', '11', 'var(--opp)')}${st('탈삼진', '4')}${st('ERA', '12.0', 'var(--opp)')}</div>
+       <div style="margin-top:13px">
+         ${sline('6회말', '박병호에게 쓰리런', '−3', 'var(--opp)')}
+         ${sline('4회말', '이정후에게 2타점 2루타', '−2', 'var(--opp)')}
+         ${sline('1회말', '김도영 솔로 홈런', '−1', 'var(--opp)')}
+       </div>`)}`,
+},
+{
+  k:'8', nm:'이닝 흐름 저울', en:'Flow',
+  why:'재는 것 — <b>경기 전체가 어떻게 흘러왔나.</b> 저울을 아홉 칸으로 쪼개 이닝마다 좌우로 뻗게 했다. 전광판이 숫자로 말하는 걸 <b>길이로</b> 말한다 — 어느 회에 터졌고 어디서 끊겼는지가 한눈에.',
+  rec:'양옆은 <b>이 경기 하이라이트 세 줄씩</b>. 정리 화면이 매 회차 쌓이면서 경기가 끝날 때쯤엔 <b>그 자체로 경기 요약</b>이 되어 있다 — 결과 화면을 따로 만들 필요가 줄어든다.',
+  L:`${lab('My Team · 하이라이트', 'var(--my)')}
+     ${who(박병호, 'MY TEAM', '박병호', '4번 · 1B', '쓰리런 홈런', '오늘 두 번째 결정타', 'var(--my)')}
+     ${pane('var(--my)', `${lab('이 경기 우리', 'var(--my)')}
+       ${sline('6회말', '박병호 쓰리런 — 승부를 갈랐다', '+3', 'var(--yel)')}
+       ${sline('4회말', '이정후 2타점 2루타로 역전', '+3', 'var(--my)')}
+       ${sline('1회말', '김도영 선두타자 홈런', '+1', 'var(--my)')}`)}`,
+  Cc:`${innHead()}
+     <div style="width:100%">
+       ${lab('이닝별 득점', 'var(--or)', '좌 우리 · 우 상대')}
+       <div class="innb" style="margin-top:12px">
+         ${[[1, 1, 0], [2, 0, 2], [3, 0, 0], [4, 3, 1], [5, 1, 0], [6, 3, 1], [7, 0, 0], [8, 0, 0], [9, 0, 0]]
+           .map(([n, a, b]) => `<div class="r ${n === 6 ? 'n' : ''}">
+             <div class="l">${a ? `<i style="width:${a * 26}px;background:${n === 6 ? 'var(--yel)' : 'var(--my)'};color:${n === 6 ? 'var(--yel)' : 'var(--my)'}"></i>` : ''}</div>
+             <span>${n}</span>
+             <div class="rr">${b ? `<i style="width:${b * 26}px;background:var(--opp)"></i>` : ''}</div></div>`).join('')}
+       </div>
+     </div>
+     <div class="duel" style="width:100%">
+       <div class="hd"><div><span>나의 드림팀</span><b class="l">8</b></div><div style="text-align:right"><span>AI 올스타</span><b class="r">4</b></div></div>
+       <div class="bar cut" style="--c:5px"><i style="width:67%;background:var(--my);box-shadow:0 0 18px var(--my)"></i><i style="width:33%;background:var(--opp)"></i></div>
+       <div class="cap"><span>최근 3이닝 <b style="color:var(--yel)">+7</b></span><span>최근 3이닝 +1</span></div>
+     </div>`,
+  R:`${lab('Opponent · 하이라이트', 'var(--opp)')}
+     ${who(이대호, 'OPPONENT', '이대호', '4번 · DH', '2회 투런', '오늘 상대 유일한 큰 것', 'var(--opp)')}
+     ${pane('var(--opp)', `${lab('이 경기 상대', 'var(--opp)')}
+       ${sline('2회초', '이대호 투런 — 한때 앞섰다', '+2', 'var(--opp)')}
+       ${sline('4회초', '이종범 적시타', '+1', 'var(--opp)')}
+       ${sline('6회초', '밀어내기 볼넷', '+1', 'var(--opp)')}`)}`,
 },
 ];
 
-let html = '';
-for (const x of S) {
-  if (x.fam) { html += `<div class="fam"><h2><em>${x.fam.split(' · ')[0]}</em>${x.fam.split(' · ')[1]}</h2><p>${x.famn}</p></div>`; continue; }
-  html += `
-    <h3><em>${x.k}</em>${x.nm} <span style="font:800 14px 'Saira Condensed';color:#4b5563;letter-spacing:.2em">${x.en}</span></h3>
-    <p class="h3n">${x.note}</p>
-    <div class="stage"><div class="in"><div class="screen ${x.k}"><div class="bg"></div>
-      ${x.k === 'B2' ? `<div class="shot" style="background-image:url(${C(박병호)})"></div><div class="shade"></div>` : '<div class="vig"></div>'}
-      <div class="lay">${x.html}</div></div></div></div>`;
-}
-document.getElementById('root').innerHTML = html;
+document.getElementById('root').innerHTML = V.map((v) => `
+  <h3><em>${v.k}</em>${v.nm} <span style="font:800 14px 'Saira Condensed';color:#4b5563;letter-spacing:.2em">${v.en}</span></h3>
+  <p class="h3n">${v.why}</p>
+  <div class="stage"><div class="in"><div class="screen"><div class="bg"></div><div class="vig"></div>
+    <div class="lay">${topbar()}
+      <div class="mid">
+        <div class="col">${v.L}</div>
+        <div class="center cut frame glass scan" style="--a:var(--or);--c:18px"><span class="wm">6TH</span>${v.Cc}</div>
+        <div class="col r">${v.R}</div>
+      </div>
+      ${foot()}</div></div></div></div>
+  <p class="h3n" style="margin:13px 0 0;color:#8b95a5"><b style="color:var(--em2)">추천</b> — ${v.rec}</p>`).join('');
 
 const fit = () => document.querySelectorAll('.stage').forEach((el) => {
   el.querySelector('.in').style.setProperty('--s', el.clientWidth / 1920);
