@@ -78,9 +78,9 @@ export const UiStyle = () => (
     .mt-staff-in { animation: mtStaffIn .32s cubic-bezier(.2,.8,.2,1) backwards; }
     /* 드래프트 PICK 카드와 같은 뒤집기: 나가는 면은 앞 반(0→90°), 들어오는 면은 뒤 반(−90°→0) · 옆면일 때 4% 들어 올림 */
     .mt-flip { position:relative; perspective:1000px; }
-    .mt-flip > .mt-face { position:absolute; inset:0; backface-visibility:hidden; }
-    .mt-flip > .mt-face.in { animation: mtFlipIn .26s ease-in-out both; }
-    .mt-flip > .mt-face.out { animation: mtFlipOut .26s ease-in-out both; pointer-events:none; }
+    .mt-flip > .mt-flipface { position:absolute; inset:0; backface-visibility:hidden; }
+    .mt-flip > .mt-flipface.in { animation: mtFlipIn .26s ease-in-out both; }
+    .mt-flip > .mt-flipface.out { animation: mtFlipOut .26s ease-in-out both; pointer-events:none; }
     @keyframes mtFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
     @keyframes mtFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
     @keyframes mtStaffIn { from { opacity:0; transform:translateY(18px) scale(1.06); } to { opacity:1; transform:none; } }
@@ -236,8 +236,8 @@ export function FlipFaces({ value, keyOf, render, resetKey, className = '', styl
   }, [st.n, st.flip]);
   return (
     <div className={`mt-flip ${className}`} style={style}>
-      {st.flip && <div key={`o${st.n}`} className="mt-face out">{render(st.out)}</div>}
-      <div key={`i${st.n}`} className={`mt-face ${st.flip ? 'in' : ''}`}>{render(value)}</div>
+      {st.flip && <div key={`o${st.n}`} className="mt-flipface out">{render(st.out)}</div>}
+      <div key={`i${st.n}`} className={`mt-flipface ${st.flip ? 'in' : ''}`}>{render(value)}</div>
     </div>
   );
 }
