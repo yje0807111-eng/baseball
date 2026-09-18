@@ -30,7 +30,6 @@ const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '�
 const EFF_COLOR = { bat: '#34d399', field: '#7dd3fc', pitch: '#60a5fa', stamina: '#fbbf24', steal: '#f472b6', clutch: '#f87171' };
 const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
 const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
-const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
 const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
 
@@ -603,18 +602,27 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
                     aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`} className="group relative h-full text-left">
                     <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} className="h-full" render={(m) => (
-                      <span className={`mt-cut ${on ? 'mt-frame' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
-                        style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', filter: on ? undefined : 'brightness(.82)' }}>
+                      /* 드래프트 PICK 카드 테두리(.mt-frame: 잘린 모서리에 딱 맞는 대각선 + 네온 괄호) — 고른 자리는 밝게(hot), 나머지는 옅게.
+                         빈 자리는 코치 실루엣 그대로 */
+                      <span className={`mt-cut mt-frame ${on ? 'hot' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
+                        style={{ ...cut(16), '--a': on ? '#c4b5fd' : 'rgba(196,181,253,.55)', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
                         {m && (
-                          <span className="absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
-                            style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                          /* 사진 800×600 을 높이 230 으로 · 인물(가로 59%)이 카드 가운데 오게 */
+                          <span className="absolute left-1/2 top-[-6px] h-[230px] w-[307px] bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-105"
+                            style={{ transform: 'translateX(-59%)', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                         )}
-                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
-                        <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
-                        {m && <b className="absolute right-3 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
-                        <span className="absolute inset-x-3 bottom-2.5">
+                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f)` }} />
+                        <span className="absolute left-3.5 top-2.5 font-display text-[22px] font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
+                        {m && <b className="absolute right-3.5 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                        <span className="absolute inset-x-3.5 bottom-3">
                           <b className={`block truncate text-lg font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
-                          <span className="block truncate text-[12px] text-[#c4b5fd]">{m ? effText(staffEffectOf(m)) : '-'}</span>
+                          {m ? (
+                            <span className="block truncate text-[12px] font-semibold text-slate-300">
+                              {effTags(staffEffectOf(m)).map((e, i) => (
+                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-600">·</span>}{e.label} <b className="font-display text-[14px]" style={{ color: e.c }}>{e.n}</b></span>
+                              ))}
+                            </span>
+                          ) : <span className="block text-[12px] text-gray-600">-</span>}
                         </span>
                       </span>
                     )} />
