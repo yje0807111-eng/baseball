@@ -158,7 +158,7 @@ function Slots({ count, maxH, gap = 4, style, children }) {
   );
 }
 
-export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, onSelect, onCommit, onToggleBench, onAutoFill, autoDisabled }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onAutoFill, autoDisabled }) {
   const order = squadOrder(squad, bench, team.order);
   const byId = new Map(squad.map((p) => [p.id, p]));
   const fatigue = team.pitchFatigue || {};
@@ -368,7 +368,6 @@ export default function SquadBoard({ team, squad, bench, cost, sizeLabel, sel, o
     <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">My Squad</p>
-        <p className="text-sm text-gray-400">{sizeLabel} · 출전 {play.size} · 벤치 {benchList.length} · {cost.toLocaleString()} CP</p>
         <div className="ml-auto flex gap-2">
           <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
           <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>

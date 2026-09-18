@@ -584,7 +584,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
         )}
 
         {tab === 'squad' && (
-          <SquadBoard team={team} squad={squad} bench={bench} cost={cost} sizeLabel={`${squad.length} / ${SQUAD_SIZE}명`}
+          <SquadBoard team={team} squad={squad} bench={bench}
             sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench}
             onAutoFill={autoFill} autoDisabled={squad.length >= SQUAD_SIZE} />
         )}
