@@ -381,6 +381,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
 
   /** 타순 띠 한 칸: 프로필 사진이 칸 폭 가득 위에 깔리고 아래로 칸 색에 서서히 녹아(경계 없음) 그 위에 큰 타순 번호 · 종합,
    *  아래에 이름 · 기록(구단색). 좌우로 끌어 순서를 바꾼다 */
+  // 사진은 칸 폭과 상관없이 늘 76px 폭으로 가운데 위 — 얼굴(모자~턱)이 온전히 보이게, 아래와 양옆은 칸 색으로 녹인다
+  const FADE = 'linear-gradient(180deg,#000 48%,transparent 80%), linear-gradient(90deg,transparent calc(50% - 38px),#000 calc(50% - 26px),#000 calc(50% + 26px),transparent calc(50% + 38px))';
   const batCell = (x, pos, w, pitch) => {
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'lineup' && drag.id === x.id;
@@ -395,8 +397,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         style={{ '--c': '8px', ...place(pos, w, pitch, dragging, 'x'), zIndex: dragging ? 5 : undefined,
           boxShadow: `inset 0 -2px 0 ${c}${ring ? `, inset 0 0 0 2px ${ring}` : ''}${dragging ? ', 0 12px 24px -8px rgba(0,0,0,.95)' : ''}`, ...inFx(x.id) }}>
         <span className="absolute inset-0 bg-no-repeat"
-          style={{ backgroundImage: `url(profiles/${encodeURIComponent(x.p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '100% auto', backgroundPosition: 'center 4%',
-            maskImage: 'linear-gradient(180deg,#000 30%,transparent 72%)', WebkitMaskImage: 'linear-gradient(180deg,#000 30%,transparent 72%)' }} />
+          style={{ backgroundImage: `url(profiles/${encodeURIComponent(x.p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '76px auto', backgroundPosition: 'center 2px',
+            maskImage: FADE, WebkitMaskImage: FADE, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }} />
         <b className="absolute left-1.5 top-0.5 font-display text-[26px] font-extrabold leading-tight text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
         <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={15} /></span>
         <span className="absolute inset-x-[7px] bottom-[7px] leading-tight">
