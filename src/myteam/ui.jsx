@@ -31,23 +31,21 @@ export const UiStyle = () => (
     @keyframes mtSkRing { to { --skr: 360deg; } }
     @keyframes mtSkBreath { 0%, 100% { filter:brightness(1); } 30% { filter:brightness(2.1); } }
     @keyframes mtSkBtn { 0%, 100% { box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); } 30% { box-shadow:inset 0 0 0 1px rgba(110,231,183,.35); } }
-    /* 스크롤바: 얇은 네온 바 + 어두운 홈 */
-    .mt-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.55) rgba(255,255,255,.04); }
-    .mt-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
-    .mt-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.035); border-radius: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
-    .mt-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.75), rgba(16,185,129,.45)); border: 2px solid transparent; background-clip: padding-box; box-shadow: 0 0 10px rgba(16,185,129,.35); }
-    .mt-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.95), rgba(16,185,129,.7)); background-clip: padding-box; }
-    .mt-scroll::-webkit-scrollbar-thumb:active { background: linear-gradient(180deg, #6ee7b7, #10b981); background-clip: padding-box; }
+    /* 스크롤바: 드래프트 플레이 화면(.syn-scroll)과 같은 얇은 알약 — 6px · 옅은 홈 · 초록 손잡이.
+       크롬은 scrollbar-width/color 가 있으면 ::-webkit-scrollbar 를 무시하므로, 그 속성은 웹킷 스크롤바가 없는 브라우저에서만 쓴다 */
+    .mt-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .mt-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,.035); border-radius: 99px; margin: 4px 0; }
+    .mt-scroll::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(52,211,153,.55), rgba(16,185,129,.35)); border-radius: 99px; border: 1px solid rgba(5,8,15,.6); }
+    .mt-scroll::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(110,231,183,.85), rgba(52,211,153,.6)); }
     .mt-scroll::-webkit-scrollbar-corner { background: transparent; }
-    /* 노란 계열 패널 안에서는 스크롤바도 노랗게 */
-    /* 드롭다운 목록처럼 좁은 곳: 가는 스크롤바 */
-    /* 크롬은 scrollbar-width/color 가 있으면 ::-webkit-scrollbar 를 무시해서 auto 로 되돌린다 */
-    .mt-scroll.slim { scrollbar-width: auto; scrollbar-color: auto; }
+    @supports not selector(::-webkit-scrollbar) { .mt-scroll { scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.5) transparent; } }
+    /* 드롭다운 목록처럼 좁은 곳: 더 가는 흰 스크롤바 */
     .mt-scroll.slim::-webkit-scrollbar { width: 2px; }
-    .mt-scroll.slim::-webkit-scrollbar-track { background: transparent; box-shadow: none; }
-    .mt-scroll.slim::-webkit-scrollbar-thumb, .mt-scroll.slim::-webkit-scrollbar-thumb:hover, .mt-scroll.slim::-webkit-scrollbar-thumb:active { border: 0; border-radius: 1px; background: rgba(255,255,255,.28); box-shadow: none; }
-    .mt-scroll.gold { scrollbar-color: rgba(253,224,71,.55) rgba(255,255,255,.04); }
-    .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.8), rgba(202,138,4,.5)); background-clip: padding-box; box-shadow: 0 0 10px rgba(253,224,71,.3); }
+    .mt-scroll.slim::-webkit-scrollbar-track { background: transparent; margin: 0; }
+    .mt-scroll.slim::-webkit-scrollbar-thumb, .mt-scroll.slim::-webkit-scrollbar-thumb:hover { border: 0; border-radius: 1px; background: rgba(255,255,255,.28); }
+    /* 노란 계열 패널 안에서는 손잡이도 노랗게 */
+    .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.6), rgba(202,138,4,.4)); }
+    .mt-scroll.gold::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(253,224,71,.9), rgba(202,138,4,.6)); }
     /* 드래프트 화면 카드 문법 (상점 상품·선수 공용) */
     .mt-pk { position:relative; container-type:inline-size; background:#05080f; clip-path:polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
     .mt-pk .in { position:absolute; inset:0; overflow:hidden; }
