@@ -1,11 +1,12 @@
 /*
  * 내 라커 · 내 선수 — 큰 사진 구장 위 수비 9명 카드(끌어서 자리 맞바꿈), 구장 아래 1→9번 타순 띠(좌우로 끌어 순서),
- * 오른쪽 열에 선발 로테이션 · 불펜(위아래로 끌어 순서) · 벤치. 투수 컨디션은 team.pitchFatigue(src/myteam/fatigue.js 와 같은 표)로 보여 준다.
+ * 오른쪽 열에 선발 로테이션 · 불펜(위아래로 끌어 순서) · 벤치(끌어서 같은 묶음 출전 선수 위에 놓으면 맞바꿈). 투수 컨디션은 team.pitchFatigue(src/myteam/fatigue.js 와 같은 표)로 보여 준다.
  *
  * 저장: team.order = { lineup: [{ id, slot }] (타순 순서, slot = C·1B·2B·3B·SS·LF·CF·RF·DH), rotation: [id ×5], bullpen: [id ×8] (0 마무리 · 1~2 셋업 · 나머지 중계) }
  *  없거나 엔트리가 바뀌어 맞지 않으면 squadOrder 가 채워 넣는다.
  */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { playingIds } from './match.js';
 import { posColor, statColor, teamNeon } from './teamColor.js';
 import { Btn } from './ui.jsx';
@@ -223,7 +224,21 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
 
   const save = (next) => onCommit({ ...team, order: { ...order, ...next } });
   const latest = useRef({});
-  latest.current = { order, save, onSelect };
+  /** 벤치 선수 b 를 출전 선수 t 자리에: 타순 · 수비 자리 · 로테이션 · 불펜 칸은 그대로 두고 사람만 바꾼다.
+   *  벤치 목록 = 지금 안 뛰는 모두 − b + t 로 적어 두어야 playingIds 가 정확히 b 를 올리고 t 를 내린다 */
+  const benchSwap = (b, t) => {
+    const swap = (ids) => ids.map((id) => (id === t ? b : id));
+    onCommit({ ...team,
+      bench: [...benchList.map((p) => p.id).filter((id) => id !== b), t],
+      order: { ...order, lineup: order.lineup.map((x) => (x.id === t ? { ...x, id: b } : x)), rotation: swap(order.rotation), bullpen: swap(order.bullpen) } });
+    setJustIn(b);
+    clearTimeout(justTimer.current);
+    justTimer.current = setTimeout(() => setJustIn(null), 700);
+  };
+  const [justIn, setJustIn] = useState(null); // 방금 벤치에서 올라온 선수 — 잠깐 빛남
+  const justTimer = useRef(null);
+  useEffect(() => () => clearTimeout(justTimer.current), []);
+  latest.current = { order, save, onSelect, benchSwap };
   const cancel = () => { dragRef.current = null; setDrag(null); };
   // 움직임 · 놓기는 창 전체에서 받는다. 최신 값은 ref 로
   useEffect(() => {
@@ -232,6 +247,13 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       if (!d) return;
       if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5) return;
       d.moved = true;
+      if (d.list === 'bench') {
+        // 벤치 카드는 떠서 포인터를 따라가고, 같은 묶음(타자 → 구장 · 타순 / 선발 → 로테이션 / 불펜 → 불펜) 칸 위에 있으면 그 선수와 맞바꿀 준비
+        const hit = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
+        d.target = hit ? hit.id : null;
+        setDrag({ list: 'bench', id: d.id, x: e.clientX - d.ox, y: e.clientY - d.oy, w: d.w, target: d.target });
+        return;
+      }
       if (d.list === 'field') {
         // 다른 선수 카드가 원래 있던 자리(누른 순간의 카드 영역) 위에 포인터가 있을 때만 맞바꾼 모습, 벗어나면 원래대로
         const hit = d.cards.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
@@ -254,6 +276,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       if (!d) return;
       const { order: o, save: sv, onSelect: pick } = latest.current;
       if (!d.moved) { setDrag(null); pick(d.p); return; }
+      if (d.list === 'bench') { if (d.target) latest.current.benchSwap(d.id, d.target); setDrag(null); return; }
       if (d.list === 'field') {
         if (d.target) {
           // 놓은 자리에서 새 자리로 미끄러져 들어가게: 새 자리 기준으로 지금 보이는 위치만큼 밀어 둔 채 그리고, 다음 프레임에 0 으로
@@ -307,6 +330,29 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
   });
 
+  const benchDrag = (p) => ({
+    onPointerDown: (e) => {
+      if (e.button !== 0 || dragRef.current) return;
+      e.preventDefault();
+      const r = e.currentTarget.getBoundingClientRect();
+      const lists = p.type === 'batter' ? ['lineup'] : p.position === 'SP' ? ['rotation'] : ['bullpen'];
+      const rects = [...(p.type === 'batter' ? [...fieldRef.current.querySelectorAll('[data-token]')].map((el) => [el.dataset.token, el]) : []),
+        ...lists.flatMap((l) => [...document.querySelectorAll(`[data-row^="${l}:"]`)].map((el) => [el.dataset.row.split(':')[1], el]))];
+      const targets = rects.map(([id, el]) => { const b = el.getBoundingClientRect(); return { id, left: b.left, right: b.right, top: b.top, bottom: b.bottom }; });
+      dragRef.current = { list: 'bench', id: p.id, p, x0: e.clientX, y0: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, w: r.width, moved: false, target: null, targets };
+    },
+    onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
+  });
+  /** 벤치 선수를 끌어다 놓을 칸: 초록 테두리 · 빛 */
+  const benchHit = (id) => drag?.list === 'bench' && drag.target === id;
+  const hitGlow = { boxShadow: 'inset 0 0 0 2px #34d399, 0 0 18px -4px #34d399' };
+  const inFx = (id) => (justIn === id ? { animation: 'sb-in .7s ease-out' } : null);
+  const benchFace = (p) => (<>
+    <span className="w-[22px] text-center"><Ovr p={p} size={15} /></span>
+    {face(p, 24, 30)}
+    <b className="min-w-0 flex-1 truncate text-[13px] text-white">{p.name}</b>
+    <small className="font-display text-[11px] font-bold" style={{ color: teamNeon(p) }}>{p.position}</small>
+  </>);
   const lifted = { boxShadow: 'inset 0 0 0 2px #e5e7eb, 0 10px 24px -8px rgba(0,0,0,.9)', background: 'linear-gradient(90deg,#26303f,#161d2a)', zIndex: 5 };
   const rowBg = (hot) => (hot
     ? { background: `linear-gradient(90deg,color-mix(in srgb,${hot} 20%,#0b111c),#0b111c)`, boxShadow: `inset 3px 0 0 ${hot}` }
@@ -333,7 +379,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     return (
       <div key={x.id} role="button" tabIndex={0} {...rowDrag('lineup', x.id, x.p)}
         className={`mt-cut touch-none select-none px-1.5 pt-1.5 ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '8px', ...place(pos, w, pitch, dragging, 'x'), background: '#0e141f', boxShadow: `inset 0 -2px 0 ${teamNeon(x.p)}${on ? `, inset 0 0 0 2px ${tone(x.p.overall)}` : ''}`, ...(dragging ? lifted : null) }}>
+        style={{ '--c': '8px', ...place(pos, w, pitch, dragging, 'x'), background: '#0e141f', boxShadow: `inset 0 -2px 0 ${teamNeon(x.p)}${on ? `, inset 0 0 0 2px ${tone(x.p.overall)}` : ''}`, ...(dragging ? lifted : null), ...(benchHit(x.id) ? hitGlow : null), ...inFx(x.id) }}>
         <b className="absolute right-1.5 top-0.5 font-display text-[28px] font-extrabold leading-none text-emerald-400/90">{pos + 1}</b>
         <span className="flex items-end gap-1.5">{face(x.p, 34, 42)}<Ovr p={x.p} v={after.ovr} size={16} /></span>
         <b className="mt-1 block truncate text-[13px] font-extrabold text-white">{x.p.name}</b>
@@ -353,7 +399,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       <div key={p.id} role="button" tabIndex={0} {...rowDrag(list, p.id, p)}
         className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ '--c': '7px', ...place(pos, h, pitch, dragging),
-          ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null) }}>
+          ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
         <Handle />
         <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
         <span className="w-[26px] shrink-0 text-center"><Ovr p={p} size={18} /></span>
@@ -373,7 +419,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const before = effAt(x.p, x.slot);
     const after = effAt(x.p, shownSlot);
     const r = seasonRecord(x.p);
-    const ring = dragging ? '#e5e7eb' : target ? posColor(x.p) : on ? tone(x.p.overall) : null;
+    const ring = dragging ? '#e5e7eb' : target ? posColor(x.p) : benchHit(x.id) ? '#34d399' : on ? tone(x.p.overall) : null;
     // 끌리는 카드는 원래 자리에서 포인터만큼 · 방금 놓은 카드는 새 자리에서 밀린 만큼 (다음 프레임에 제자리로 미끄러짐) · 나머지는 자리 바뀌면 미끄러짐
     const posSlot = dragging ? slotNow.get(x.id) || x.slot : x.slot;
     const settling = settle?.id === x.id;
@@ -385,7 +431,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           transform: `translate(calc(-50% + ${off[0]}px),calc(-50% + ${off[1]}px))${dragging ? ' scale(1.06)' : ''}`,
           transition: dragging || settling ? 'none' : 'left .28s cubic-bezier(.2,.8,.2,1), top .28s cubic-bezier(.2,.8,.2,1), transform .28s cubic-bezier(.2,.8,.2,1)',
           background: `linear-gradient(180deg,transparent 38%,#05080f 86%), #0b1220 url(profiles/${encodeURIComponent(x.p.id)}.webp) 50% 8%/cover`,
-          boxShadow: `inset 0 0 0 ${ring ? 2 : 1}px ${ring || `color-mix(in srgb, ${teamNeon(x.p)} 45%, transparent)`}${dragging ? ', 0 14px 28px -8px rgba(0,0,0,.95)' : ''}` }}>
+          boxShadow: `inset 0 0 0 ${ring ? 2 : 1}px ${ring || `color-mix(in srgb, ${teamNeon(x.p)} 45%, transparent)`}${dragging ? ', 0 14px 28px -8px rgba(0,0,0,.95)' : benchHit(x.id) ? ', 0 0 20px -2px #34d399' : ''}`, ...inFx(x.id) }}>
         <span className="absolute left-1.5 top-1">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
         <span className="absolute inset-x-1.5 bottom-1.5 leading-tight">
           <span className="flex gap-1 font-display text-[10.5px] font-bold tracking-[0.08em]"><span style={{ color: teamNeon(x.p) }}>{shownSlot}</span><span className="font-sans tracking-normal" style={{ color: HAND_LABEL(x.p).color }}>{HAND_LABEL(x.p).long}</span></span>
@@ -405,6 +451,14 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
 
   return (
     <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
+      <style>{'@keyframes sb-in { 0% { filter: brightness(2.2) saturate(1.5); } 100% { filter: none; } }'}</style>
+      {drag?.list === 'bench' && byId.get(drag.id) && createPortal(
+        <div className="mt-cut pointer-events-none fixed z-50 flex h-[40px] items-center gap-2 px-2"
+          style={{ '--c': '6px', left: drag.x, top: drag.y, width: drag.w, transform: 'scale(1.05)', background: 'linear-gradient(90deg,#26303f,#161d2a)', boxShadow: `inset 0 0 0 2px ${drag.target ? '#34d399' : '#e5e7eb'}, 0 14px 28px -8px rgba(0,0,0,.95)` }}>
+          <Handle />
+          {benchFace(byId.get(drag.id))}
+        </div>, document.body,
+      )}
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">My Squad</p>
         <div className="ml-auto flex gap-2">
@@ -458,14 +512,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <div className="mt-scroll slim flex max-h-[150px] shrink-0 flex-col gap-1 overflow-y-auto">
               {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
               {benchList.map((p) => (
-                <div key={p.id} role="button" tabIndex={0} onClick={() => onSelect(p)} className="mt-cut flex h-[40px] shrink-0 cursor-pointer items-center gap-2 px-2"
+                <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
+                  className={`mt-cut flex h-[40px] shrink-0 touch-none select-none items-center gap-2 px-2 ${drag?.list === 'bench' && drag.id === p.id ? 'cursor-grabbing opacity-35' : 'cursor-grab'}`}
                   style={{ '--c': '6px', background: 'rgba(5,8,15,.6)', boxShadow: `inset 0 0 0 1px ${sel?.id === p.id ? teamNeon(p) : 'rgba(148,163,184,.18)'}` }}>
-                  <span className="w-[22px] text-center"><Ovr p={p} size={15} /></span>
-                  {face(p, 24, 30)}
-                  <b className="min-w-0 flex-1 truncate text-[13px] text-white">{p.name}</b>
-                  <small className="font-display text-[11px] font-bold" style={{ color: teamNeon(p) }}>{p.position}</small>
-                  <button type="button" onClick={(e) => { e.stopPropagation(); onToggleBench(p); }}
-                    className="mt-cut bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 shadow-[inset_0_0_0_1px_rgba(16,185,129,.5)] hover:bg-emerald-500/35" style={{ '--c': '4px' }}>출전 ↑</button>
+                  <Handle />
+                  {benchFace(p)}
                 </div>
               ))}
             </div>
