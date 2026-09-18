@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { playingIds } from './match.js';
-import { posColor, statColor } from './teamColor.js';
+import { posColor, statColor, teamNeon } from './teamColor.js';
 import { Btn } from './ui.jsx';
 import { offPositionPenalty } from '../KboAugmentDraft.jsx';
 import { seasonRecord, playerTraits, HAND_LABEL, traitIconStyle } from './traits.js';
@@ -105,7 +105,21 @@ const face = (p, w, h) => (
   <span className="mt-cut block shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': `${Math.max(4, Math.round(w / 8))}px`, width: w, height: h, backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
 );
 const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-[12px] font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
-const Ovr = ({ p, size = 17, v = p.overall }) => <b className="font-display font-extrabold leading-none" style={{ fontSize: size, color: tone(v), textShadow: `0 0 12px ${tone(v)}66` }}>{v}</b>;
+/** 종합: 영입 목록과 같은 등급 색 — 90 이상 무지개 · 75 이상 초록 · 그 밖 흰색 (st-v 는 라커 화면 스타일) */
+const Ovr = ({ p, size = 17, v = p.overall }) => <b className={`st-v ${v >= 90 ? 't90' : v >= 75 ? 't75' : ''} font-display font-extrabold leading-none`} style={{ fontSize: size }}>{v}</b>;
+/** 이름 칸: 위에 포지션(구단색 작은 영문) · 투타(작은 글자), 아래 이름 — 영입 목록 줄과 같은 문법 */
+const NameBlock = ({ p, pos = p.position, size = 13.5 }) => {
+  const h = HAND_LABEL(p);
+  return (
+    <span className="min-w-0 flex-1 leading-tight">
+      <span className="flex items-baseline gap-1.5 font-display text-[10.5px] font-bold tracking-[0.12em]">
+        <span style={{ color: teamNeon(p) }}>{pos}</span>
+        <span className="font-sans text-[10.5px] font-semibold tracking-normal" style={{ color: h.color }}>{h.long}</span>
+      </span>
+      <b className="block truncate font-extrabold text-white" style={{ fontSize: size }}>{p.name}</b>
+    </span>
+  );
+};
 const Grp = ({ en, ko, color, right }) => (
   <div className="mt-grp !my-0 !mb-[5px]" style={{ color }}>
     {en} <b className="text-[14px] tracking-[0.04em] text-white">{ko}</b>
@@ -277,20 +291,21 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const r = seasonRecord(p);
     const cells = p.type === 'pitcher'
       ? [[r.era != null ? r.era.toFixed(2) : null, 'ERA'], [r.k, 'K']]
-      : [[r.avg != null ? r.avg.toFixed(3).slice(1) : null, ''], [r.hr, 'HR'], [r.sb, 'SB']];
+      : [[r.avg != null ? r.avg.toFixed(3).slice(1) : null, 'AVG'], [r.hr, 'HR'], [r.sb, 'SB']];
     return (
-      <span className="flex shrink-0 gap-1.5 font-display text-[12.5px]">
-        {cells.map(([v, l], i) => <span key={i} className="whitespace-nowrap"><b className={v == null ? 'text-gray-600' : 'text-gray-200'}>{v ?? '-'}</b>{l && <small className="ml-px text-gray-500">{l}</small>}</span>)}
+      <span className="flex shrink-0 gap-2.5 font-display">
+        {cells.map(([v, l]) => (
+          <span key={l} className="flex flex-col items-end leading-none">
+            <small className="text-[10px] font-semibold tracking-[0.08em] text-gray-400">{l}</small>
+            <b className={`mt-0.5 text-[15px] font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b>
+          </span>
+        ))}
       </span>
     );
   };
   const TopTrait = ({ p }) => {
     const g = playerTraits(p).good[0];
     return <span title={g ? `${g.name} · ${g.why}` : ''} className="block h-[17px] w-[17px] shrink-0" style={g ? traitIconStyle(g.id, '#6ee7b7') : null} />;
-  };
-  const Hand = ({ p, size = 18 }) => {
-    const h = HAND_LABEL(p);
-    return <b title={h.long} className="grid shrink-0 place-items-center rounded-full font-extrabold text-[#05080f]" style={{ width: size, height: size, fontSize: size * 0.55, background: h.color }}>{h.short}</b>;
   };
 
   const batRow = (x, pos, h, pitch) => {
@@ -305,10 +320,9 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         style={{ '--c': '7px', ...place(pos, h, pitch, dragging), ...rowBg(on && tone(x.p.overall)), ...(dragging ? lifted : null) }}>
         <Handle />
         <b className="w-[14px] shrink-0 text-center font-display text-[17px] text-gray-500">{pos + 1}</b>
-        {face(x.p, 28, Math.min(44, h - 10))}
-        {previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} />}
-        <Hand p={x.p} />
-        <b className="min-w-0 flex-1 truncate text-[13.5px] font-extrabold text-white">{x.p.name}</b>
+        <span className="w-[26px] shrink-0 text-center">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
+        {face(x.p, 30, Math.min(44, h - 10))}
+        <NameBlock p={x.p} pos={shownSlot} />
         <RecLine p={x.p} />
         <TopTrait p={x.p} />
       </div>
@@ -328,10 +342,9 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null) }}>
         <Handle />
         <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
-        {face(p, 28, Math.min(42, h - 10))}
-        <Ovr p={p} size={16} />
-        <Hand p={p} />
-        <b className="min-w-0 flex-1 truncate text-[13.5px] font-extrabold text-white">{p.name}</b>
+        <span className="w-[26px] shrink-0 text-center"><Ovr p={p} size={19} /></span>
+        {face(p, 30, Math.min(42, h - 10))}
+        <NameBlock p={p} />
         {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
         <RecLine p={p} />
         <TopTrait p={p} />
@@ -419,12 +432,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
             {benchList.map((p) => (
               <div key={p.id} role="button" tabIndex={0} onClick={() => onSelect(p)} className="mt-cut grid min-w-0 flex-1 cursor-pointer items-center gap-2.5 py-1 pl-1 pr-2"
-                style={{ '--c': '8px', gridTemplateColumns: '40px minmax(0,1fr) auto', background: 'rgba(5,8,15,.6)', boxShadow: `inset 0 0 0 1px ${sel?.id === p.id ? tone(p.overall) : 'rgba(148,163,184,.18)'}` }}>
-                {face(p, 40, 46)}
-                <span className="min-w-0">
-                  <b className="flex items-center gap-1.5 truncate text-[14px] text-gray-200"><Chip c={posColor(p)}>{p.position}</Chip>{p.name}</b>
-                  <small className="text-[11px] text-gray-500"><Ovr p={p} size={15} /> · {p.year} {p.team}</small>
-                </span>
+                style={{ '--c': '8px', gridTemplateColumns: '26px 36px minmax(0,1fr) auto', background: 'rgba(5,8,15,.6)', boxShadow: `inset 0 0 0 1px ${sel?.id === p.id ? teamNeon(p) : 'rgba(148,163,184,.18)'}` }}>
+                <span className="text-center"><Ovr p={p} size={18} /></span>
+                {face(p, 36, 44)}
+                <NameBlock p={p} size={14} />
                 <button type="button" onClick={(e) => { e.stopPropagation(); onToggleBench(p); }}
                   className="mt-cut bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300 shadow-[inset_0_0_0_1px_rgba(16,185,129,.5)] hover:bg-emerald-500/35" style={{ '--c': '4px' }}>출전 ↑</button>
               </div>
