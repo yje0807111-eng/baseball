@@ -486,7 +486,6 @@ export default function LockerScreen({ account, onSave, onBack }) {
   ];
   const eff = staffEffect(staff);
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
-  const staffCost = Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
       <p className="mt-lab" style={{ '--a': a }}>{label}</p>
@@ -591,7 +590,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
 
         {tab === 'staff' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-            {head('Staff', `${Object.values(staff).filter(Boolean).length} / 4 자리 · 코치진 ${staffCost} CP`, '#c4b5fd')}
+            {head('Staff', null, '#c4b5fd')}
             <div className="mt-3 grid h-48 shrink-0 grid-cols-4 gap-3">
               {STAFF_SLOTS.map((s) => {
                 const cur = staff[s.key];
