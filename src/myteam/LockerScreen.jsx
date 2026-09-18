@@ -607,11 +607,11 @@ export default function LockerScreen({ account, onSave, onBack }) {
                       <span className={`mt-cut mt-frame ${on ? 'hot' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
                         style={{ ...cut(16), '--a': on ? '#c4b5fd' : 'rgba(196,181,253,.55)', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
                         {m && (
-                          /* 사진 800×600 을 높이 230 으로 · 인물(가로 59%)이 카드 가운데 오게 */
-                          <span className="absolute left-1/2 top-[-6px] h-[230px] w-[307px] bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-105"
+                          /* 사진 800×600 을 높이 256(폭 341)으로 — 인물(가로 59%)을 카드 가운데 두고도 양옆이 비지 않는 크기 */
+                          <span className="absolute left-1/2 top-[-6px] h-[256px] w-[341px] bg-cover bg-no-repeat transition-transform duration-300 group-hover:scale-105"
                             style={{ transform: 'translateX(-59%)', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                         )}
-                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f)` }} />
+                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 28%,rgba(5,8,15,.92) 60%,#05080f 76%)` }} />
                         <span className="absolute left-3.5 top-2.5 font-display text-[22px] font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
                         {m && <b className="absolute right-3.5 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
                         <span className="absolute inset-x-3.5 bottom-3">
