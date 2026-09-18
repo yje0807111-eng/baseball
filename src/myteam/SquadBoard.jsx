@@ -19,6 +19,8 @@ const FIELD = [['C', 'C'], ['1B', '1B'], ['2B', '2B'], ['3B', '3B'], ['SS', 'SS'
 const XY = { CF: [50, 14], LF: [17, 26], RF: [83, 26], SS: [35, 46], '2B': [65, 46], '3B': [17, 65], '1B': [83, 65], C: [50, 87], DH: [89, 87], P: [50, 64] };
 const CARD_W = 86, CARD_H = 116;
 const byOvr = (a, b) => b.overall - a.overall;
+/** 줄은 늘 같은 DOM 순서(id 순)로 그린다 — 순서가 바뀌어도 노드가 옮겨지지 않아야 놓을 때 미끄러지는 움직임이 끊기지 않는다 */
+const stable = (list, key = (p) => p.id) => [...list].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
 
 /* 컨디션: fatigue.js 의 conditionOf 와 같은 표 (휴식 0 → 100 · 1 → 85 · 2 → 70 · 3+ → 55) */
 const conditionOf = (rest = 0) => (rest <= 0 ? 100 : rest === 1 ? 85 : rest === 2 ? 70 : 55);
@@ -229,7 +231,6 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       const d = dragRef.current;
       if (!d) return;
       if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5) return;
-      const first = !d.moved;
       d.moved = true;
       if (d.list === 'field') {
         // 다른 선수 카드가 원래 있던 자리(누른 순간의 카드 영역) 위에 포인터가 있을 때만 맞바꾼 모습, 벗어나면 원래대로
@@ -241,9 +242,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         setDrag({ list: 'field', id: d.id, target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
         return;
       }
-      // 칸 번호 = 판 위쪽에서 포인터까지 거리 ÷ 칸 간격 (판 밖으로 나가도 첫 칸 · 마지막 칸에서 멈춤)
-      const to = Math.max(0, Math.min(d.count - 1, Math.floor(((d.axis === 'x' ? e.clientX : e.clientY) - d.top) / d.pitch)));
-      if (first || to !== d.to) { d.to = to; setDrag({ list: d.list, id: d.id, from: d.from, to }); }
+      // 줄은 포인터를 그대로 따라가고, 줄 가운데가 넘어선 칸이 새 자리 (첫 칸 · 마지막 칸에서 멈춤)
+      const off = (d.axis === 'x' ? e.clientX : e.clientY) - (d.axis === 'x' ? d.x0 : d.y0);
+      const to = Math.max(0, Math.min(d.count - 1, d.from + Math.round(off / d.pitch)));
+      d.to = to;
+      setDrag({ list: d.list, id: d.id, from: d.from, to, off, count: d.count });
     };
     const onUp = () => {
       const d = dragRef.current;
@@ -309,11 +312,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     ? { background: `linear-gradient(90deg,color-mix(in srgb,${hot} 20%,#0b111c),#0b111c)`, boxShadow: `inset 3px 0 0 ${hot}` }
     : { background: '#0e141f' });
   /** 칸 위치: 판 안 절대 위치 + 칸 번호만큼 아래로. 끌리는 줄은 바로 붙고, 나머지는 미끄러진다 */
-  const place = (pos, h, pitch, dragging, axis = 'y') => ({
-    position: 'absolute', left: 0, top: 0, ...(axis === 'x' ? { bottom: 0, width: h } : { right: 0, height: h }),
-    transform: axis === 'x' ? `translateX(${pos * pitch}px)` : `translateY(${pos * pitch}px)`,
-    transition: dragging ? 'transform .08s ease-out' : 'transform .2s cubic-bezier(.2,.8,.2,1)',
-  });
+  const place = (pos, h, pitch, dragging, axis = 'y') => {
+    // 끌리는 줄: 제 칸에서 포인터만큼(판 안에서만) · 나머지: 칸이 바뀌면 미끄러짐 · 놓으면 끌린 줄도 새 칸으로 미끄러져 들어감
+    const follow = dragging && drag?.off != null;
+    const at = follow ? Math.max(0, Math.min((drag.count - 1) * pitch, drag.from * pitch + drag.off)) : pos * pitch;
+    return {
+      position: 'absolute', left: 0, top: 0, ...(axis === 'x' ? { bottom: 0, width: h } : { right: 0, height: h }),
+      transform: `${axis === 'x' ? `translateX(${at}px)` : `translateY(${at}px)`}${follow ? ' scale(1.03)' : ''}`,
+      transition: follow ? 'none' : 'transform .26s cubic-bezier(.2,.8,.2,1)',
+    };
+  };
 
   /** 타순 띠 한 칸: 큰 타순 번호 · 사진 · 이름 · 자리 · 타율 — 좌우로 끌어 순서를 바꾼다 */
   const batCell = (x, pos, w, pitch) => {
@@ -429,7 +437,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <div className="shrink-0">
               <Grp en="BATTING ORDER" ko={`타순 ${lineupRows.length}`} color="#34d399" />
               <Slots count={lineupRows.length} maxH={200} gap={5} axis="x" style={{ height: 112 }}>
-                {(w, pitch) => lineupRows.map((x) => batCell(x, linePos.get(x.id), w, pitch))}
+                {(w, pitch) => stable(lineupRows, (x) => x.id).map((x) => batCell(x, linePos.get(x.id), w, pitch))}
               </Slots>
             </div>
           </div>
@@ -438,12 +446,12 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           <div className="flex min-h-0 flex-col">
             <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} />
             <Slots count={rotation.length} maxH={52} style={{ flex: Math.max(1, rotation.length) }}>
-              {(h, pitch) => rotation.map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
+              {(h, pitch) => stable(rotation).map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BULLPEN" ko={`불펜 ${bullpen.length}`} color={ROLE.MR} />
             <Slots count={bullpen.length} maxH={46} style={{ flex: Math.max(1, bullpen.length) }}>
-              {(h, pitch) => bullpen.map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
+              {(h, pitch) => stable(bullpen).map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
