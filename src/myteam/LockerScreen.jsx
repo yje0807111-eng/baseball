@@ -26,10 +26,10 @@ const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
-/* 코치 효과 태그: 효과마다 색 (영입 목록 강점 태그와 같은 잘린 모서리 · 왼쪽 선) */
+/* 코치 효과: 한 줄 문장 "타격 +2 · 승부처 +1" — 숫자만 효과 색 · 굵게 */
 const EFF_COLOR = { bat: '#34d399', field: '#7dd3fc', pitch: '#60a5fa', stamina: '#fbbf24', steal: '#f472b6', clutch: '#f87171' };
 const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
-const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], t: `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
+const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
 const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
 const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
@@ -636,10 +636,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
                       <b className="text-lg font-black text-white">{m.name}</b><small className="ml-2 text-[11px] text-gray-500">{m.era}</small>
                     </span>
                     <small className="truncate text-[12px] text-gray-400">{m.note}</small>
-                    <span className="flex flex-wrap gap-[5px]">
-                      {effTags(m.effect).map((e) => (
-                        <span key={e.k} className="whitespace-nowrap py-[2px] pl-[7px] pr-2 text-[12px] font-bold text-gray-100"
-                          style={{ clipPath: 'polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)', background: `linear-gradient(90deg,${e.c}33,rgba(5,8,15,.6))`, boxShadow: `inset 2px 0 0 ${e.c}` }}>{e.t}</span>
+                    <span className="text-[13px] font-semibold text-slate-300">
+                      {effTags(m.effect).map((e, i) => (
+                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-600">·</span>}{e.label} <b className="font-display text-[16px]" style={{ color: e.c }}>{e.n}</b></span>
                       ))}
                     </span>
                   </span>
