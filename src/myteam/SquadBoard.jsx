@@ -195,6 +195,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   /* ── 끌어서 바꾸기: 카드는 마우스를 따라가지 않고 가리킨 칸으로 옮겨진 모습만 보여 준다. 놓으면 저장 ── */
   const [drag, setDrag] = useState(null); // 줄: { list, id, from, to } · 구장: { list: 'field', id, target }
   const dragRef = useRef(null);
+  const [settle, setSettle] = useState(null); // 놓은 카드가 새 자리로 들어가는 첫 프레임의 밀림 { id, dx, dy }
   const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
   const swapSlots = (rows, a, b) => {
     const sa = rows.find((x) => x.id === a)?.slot;
@@ -234,7 +235,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         // 다른 선수 카드가 원래 있던 자리(누른 순간의 카드 영역) 위에 포인터가 있을 때만 맞바꾼 모습, 벗어나면 원래대로
         const hit = d.cards.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
         const target = hit ? hit.id : null;
-        if (first || target !== d.target) { d.target = target; setDrag({ list: 'field', id: d.id, target }); }
+        d.target = target;
+        d.last = { dx: e.clientX - d.x0, dy: e.clientY - d.y0 };
+        // 끌리는 카드는 포인터를 그대로 따라간다
+        setDrag({ list: 'field', id: d.id, target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
         return;
       }
       // 칸 번호 = 판 위쪽에서 포인터까지 거리 ÷ 칸 간격 (판 밖으로 나가도 첫 칸 · 마지막 칸에서 멈춤)
@@ -247,7 +251,20 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       if (!d) return;
       const { order: o, save: sv, onSelect: pick } = latest.current;
       if (!d.moved) { setDrag(null); pick(d.p); return; }
-      if (d.list === 'field') { if (d.target) sv({ lineup: swapSlots(o.lineup, d.id, d.target) }); }
+      if (d.list === 'field') {
+        if (d.target) {
+          // 놓은 자리에서 새 자리로 미끄러져 들어가게: 새 자리 기준으로 지금 보이는 위치만큼 밀어 둔 채 그리고, 다음 프레임에 0 으로
+          const box = fieldRef.current?.getBoundingClientRect();
+          const from = o.lineup.find((x) => x.id === d.id)?.slot;
+          const to = o.lineup.find((x) => x.id === d.target)?.slot;
+          if (box && from && to && d.last) {
+            const px = (slot, k) => (XY[slot][k] / 100) * (k ? box.height : box.width);
+            setSettle({ id: d.id, dx: px(from, 0) + d.last.dx - px(to, 0), dy: px(from, 1) + d.last.dy - px(to, 1) });
+            requestAnimationFrame(() => requestAnimationFrame(() => setSettle(null)));
+          }
+          sv({ lineup: swapSlots(o.lineup, d.id, d.target) });
+        }
+      }
       else if (d.to !== d.from) sv({ [d.list]: move(o[d.list], d.from, d.to) });
       setDrag(null);
     };
@@ -349,11 +366,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const after = effAt(x.p, shownSlot);
     const r = seasonRecord(x.p);
     const ring = dragging ? '#e5e7eb' : target ? posColor(x.p) : on ? tone(x.p.overall) : null;
+    // 끌리는 카드는 원래 자리에서 포인터만큼 · 방금 놓은 카드는 새 자리에서 밀린 만큼 (다음 프레임에 제자리로 미끄러짐) · 나머지는 자리 바뀌면 미끄러짐
+    const posSlot = dragging ? slotNow.get(x.id) || x.slot : x.slot;
+    const settling = settle?.id === x.id;
+    const off = dragging ? [drag.dx || 0, drag.dy || 0] : settling ? [settle.dx, settle.dy] : [0, 0];
     return (
       <div key={x.id} data-token={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
         className={`mt-cut absolute touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '10px', width: CARD_W, height: CARD_H, left: `${XY[x.slot][0]}%`, top: `${XY[x.slot][1]}%`, zIndex: dragging ? 5 : undefined,
-          transform: `translate(-50%,-50%)${dragging ? ' scale(1.06)' : ''}`, transition: 'left .2s cubic-bezier(.2,.8,.2,1), top .2s cubic-bezier(.2,.8,.2,1), transform .15s',
+        style={{ '--c': '10px', width: CARD_W, height: CARD_H, left: `${XY[posSlot][0]}%`, top: `${XY[posSlot][1]}%`, zIndex: dragging || settling ? 5 : undefined,
+          transform: `translate(calc(-50% + ${off[0]}px),calc(-50% + ${off[1]}px))${dragging ? ' scale(1.06)' : ''}`,
+          transition: dragging || settling ? 'none' : 'left .28s cubic-bezier(.2,.8,.2,1), top .28s cubic-bezier(.2,.8,.2,1), transform .28s cubic-bezier(.2,.8,.2,1)',
           background: `linear-gradient(180deg,transparent 38%,#05080f 86%), #0b1220 url(profiles/${encodeURIComponent(x.p.id)}.webp) 50% 8%/cover`,
           boxShadow: `inset 0 0 0 ${ring ? 2 : 1}px ${ring || `color-mix(in srgb, ${teamNeon(x.p)} 45%, transparent)`}${dragging ? ', 0 14px 28px -8px rgba(0,0,0,.95)' : ''}` }}>
         <span className="absolute left-1.5 top-1">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
