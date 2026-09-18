@@ -379,8 +379,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     };
   };
 
-  /** 타순 띠 한 칸 (구장 표시와 같은 중계 자막 문법): 기운 사진 위 큰 타순 번호 · 이름 띠(종합 · 이름) · 구단색 기록 띠.
-   *  사진은 프로필(360×480)을 같은 크기 · 같은 위치로 줄여 얼굴이 잘리지 않고 칸마다 크기가 같다. 좌우로 끌어 순서를 바꾼다 */
+  /** 타순 띠 한 칸: 프로필 사진이 칸 폭 가득 위에 깔리고 아래로 칸 색에 서서히 녹아(경계 없음) 그 위에 큰 타순 번호 · 종합,
+   *  아래에 이름 · 기록(구단색). 좌우로 끌어 순서를 바꾼다 */
   const batCell = (x, pos, w, pitch) => {
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'lineup' && drag.id === x.id;
@@ -391,19 +391,17 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const ring = dragging ? '#e5e7eb' : benchHit(x.id) ? '#34d399' : on ? tone(x.p.overall) : null;
     return (
       <div key={x.id} role="button" tabIndex={0} {...rowDrag('lineup', x.id, x.p)}
-        className={`touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ ...place(pos, w, pitch, dragging, 'x'), zIndex: dragging ? 5 : undefined,
-          filter: ring ? `drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 8px ${ring})` : 'drop-shadow(0 4px 8px rgba(0,0,0,.5))', ...inFx(x.id) }}>
-        <span className="absolute inset-x-0 top-0 h-[62px] bg-no-repeat"
-          style={{ clipPath: SKEW(10), backgroundImage: `url(profiles/${encodeURIComponent(x.p.id)}.webp), url(ui/mt/silhouette-player.webp), linear-gradient(180deg, color-mix(in srgb, ${c} 30%, #0b1220), #0b1220)`,
-            backgroundSize: '66px auto, 66px auto, 100% 100%', backgroundPosition: 'center 6px, center 6px, 0 0' }}>
-          <b className="absolute left-3 top-0.5 font-display text-[30px] font-extrabold leading-none text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
-        </span>
-        <span className="absolute inset-x-0 top-[64px] flex h-[26px] items-baseline gap-[5px] whitespace-nowrap bg-[rgba(6,10,19,.96)] px-3 pt-1" style={{ clipPath: SKEW(8) }}>
-          <Ovr p={x.p} v={after.ovr} size={15} /><b className="truncate text-[12.5px] font-extrabold text-white">{x.p.name}</b>
-        </span>
-        <span className="absolute left-1.5 right-0 top-[92px] h-[20px] whitespace-nowrap px-3 pt-[2px] font-display text-[11px] font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>
-          AVG {r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}{r.hr != null ? ` · ${r.hr}HR` : ''}
+        className={`mt-cut touch-none select-none overflow-hidden bg-[#0b111c] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ '--c': '8px', ...place(pos, w, pitch, dragging, 'x'), zIndex: dragging ? 5 : undefined,
+          boxShadow: `inset 0 -2px 0 ${c}${ring ? `, inset 0 0 0 2px ${ring}` : ''}${dragging ? ', 0 12px 24px -8px rgba(0,0,0,.95)' : ''}`, ...inFx(x.id) }}>
+        <span className="absolute inset-0 bg-no-repeat"
+          style={{ backgroundImage: `url(profiles/${encodeURIComponent(x.p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '100% auto', backgroundPosition: 'center 4%',
+            maskImage: 'linear-gradient(180deg,#000 30%,transparent 72%)', WebkitMaskImage: 'linear-gradient(180deg,#000 30%,transparent 72%)' }} />
+        <b className="absolute left-1.5 top-0.5 font-display text-[26px] font-extrabold leading-tight text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
+        <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={15} /></span>
+        <span className="absolute inset-x-[7px] bottom-[7px] leading-tight">
+          <b className="block truncate text-[12.5px] font-extrabold text-white">{x.p.name}</b>
+          <small className="font-display text-[10.5px]" style={{ color: c }}>AVG {r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}{r.hr != null ? ` · ${r.hr}HR` : ''}</small>
         </span>
       </div>
     );
