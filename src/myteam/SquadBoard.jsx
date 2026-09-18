@@ -339,8 +339,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       </div>
     );
   };
-  /** 구장 위 세로 카드: 사진 바탕 · 타순 번호 · 종합 · 자리 · 이름 · 대표 기록. 다른 카드 위에 놓으면 수비 자리를 맞바꾼다 */
-  const token = (x, n) => {
+  /** 구장 위 세로 카드: 사진 바탕 · 왼쪽 위 종합 · 자리 · 이름 · 대표 기록. 다른 카드 위에 놓으면 수비 자리를 맞바꾼다 */
+  const token = (x) => {
     const on = sel?.id === x.p.id;
     const dragging = drag?.list === 'field' && drag.id === x.id;
     const target = drag?.list === 'field' && drag.target === x.id;
@@ -356,8 +356,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           transform: `translate(-50%,-50%)${dragging ? ' scale(1.06)' : ''}`, transition: 'left .2s cubic-bezier(.2,.8,.2,1), top .2s cubic-bezier(.2,.8,.2,1), transform .15s',
           background: `linear-gradient(180deg,transparent 38%,#05080f 86%), #0b1220 url(profiles/${encodeURIComponent(x.p.id)}.webp) 50% 8%/cover`,
           boxShadow: `inset 0 0 0 ${ring ? 2 : 1}px ${ring || `color-mix(in srgb, ${teamNeon(x.p)} 45%, transparent)`}${dragging ? ', 0 14px 28px -8px rgba(0,0,0,.95)' : ''}` }}>
-        <b className="absolute left-1.5 top-1.5 min-w-[18px] bg-white/85 px-[3px] text-center font-display text-[13px] font-extrabold leading-[17px] text-[#05080f]">{n}</b>
-        <span className="absolute right-1.5 top-1">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
+        <span className="absolute left-1.5 top-1">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
         <span className="absolute inset-x-1.5 bottom-1.5 leading-tight">
           <span className="flex gap-1 font-display text-[10.5px] font-bold tracking-[0.08em]"><span style={{ color: teamNeon(x.p) }}>{shownSlot}</span><span className="font-sans tracking-normal" style={{ color: HAND_LABEL(x.p).color }}>{HAND_LABEL(x.p).long}</span></span>
           <b className="block truncate text-[13px] font-extrabold text-white">{x.p.name}</b>
@@ -390,7 +389,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           <div className="flex min-h-0 flex-col gap-2.5">
             <div ref={fieldRef} className="mt-cut relative min-h-0 flex-1 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '18px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 58%' }}>
               <span className="absolute inset-0" style={{ background: 'radial-gradient(80% 80% at 50% 55%,rgba(5,8,15,0),rgba(5,8,15,.7))' }} />
-              {fieldLineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p).map((x) => token(x, order.lineup.findIndex((r) => r.id === x.id) + 1))}
+              {fieldLineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p).map((x) => token(x))}
               {nextStarter && (
                 <div role="button" tabIndex={0} onClick={() => onSelect(nextStarter)} className="mt-cut absolute cursor-pointer"
                   style={{ '--c': '10px', width: CARD_W, height: CARD_H, left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)',
