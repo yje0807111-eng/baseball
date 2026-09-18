@@ -203,10 +203,11 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
           <div className="w-60">
             <div className="flex justify-between font-display text-[11px] tracking-[0.2em] text-gray-500">
               <span>SALARY CAP</span>
-              <b style={{ color: over ? '#f87171' : '#fff' }}>{cost.toLocaleString()} / {cap.toLocaleString()}</b>
+              {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
+              <b style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()} / {cap.toLocaleString()}</b>
             </div>
             <div className="mt-1 h-1.5 bg-white/10">
-              <i className="block h-full" style={{ width: `${Math.min(100, (cost / cap) * 100)}%`, background: over ? '#f87171' : '#10b981', boxShadow: `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
+              <i className="block h-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : '#10b981', boxShadow: `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
             </div>
           </div>
         )}

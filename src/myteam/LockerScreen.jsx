@@ -283,10 +283,9 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onBench, owned, n, afte
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
       {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
       <CardWithRecord p={p} tr={tr} />
-      {/* 실적: 시즌 기록 */}
       {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
       <div className="flex items-baseline justify-between border-y border-white/10 py-1.5 text-[12.5px] text-gray-400">
-        <span>{owned ? '방출 후 캡' : '영입 후 캡'} <b className="ml-1 font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{after.toLocaleString()} / {cap.toLocaleString()}</b></span>
+        <span>{owned ? '방출 후 남은 캡' : '영입 후 남은 캡'} <b className="ml-1 font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{(cap - after).toLocaleString()} / {cap.toLocaleString()}</b></span>
         <span>팀 종합 <b className="ml-1 font-display text-[15px]" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
       </div>
       <div>

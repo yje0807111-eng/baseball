@@ -199,7 +199,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <MatchDay account={account} onPlay={onPlay} />
 
         <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="My Locker" title="내 라커"
-          desc={`${squad.length}/${SQUAD_SIZE} · ${cost.toLocaleString()}/${cap.toLocaleString()} CP`} onClick={onLocker} />
+          desc={`${squad.length}/${SQUAD_SIZE} · 남은 ${(cap - cost).toLocaleString()} CP`} onClick={onLocker} />
 
         <Tile img="ui/mt/tile-shop.webp" a="#fde047" label="Shop" title="상점"
           desc="훈련 · 부스트 · 계약서" onClick={onShop} />
