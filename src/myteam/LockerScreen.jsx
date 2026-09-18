@@ -137,7 +137,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         );
       })}
       <b className="text-right font-display text-lg text-amber-300">{p.cost}</b>
-      <Btn sm pri={on} a={n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
+      <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
 }
