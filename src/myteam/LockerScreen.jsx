@@ -27,6 +27,7 @@ const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
 const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
 
 /*
@@ -104,9 +105,11 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         ? <b className={`st-v ${statTier(p.overall)} font-display text-[30px] font-extrabold leading-none`}>{p.overall}</b>
         : <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
       <span className="min-w-0">
+        {/* 영입 목록: 포지션은 칩 대신 이름 위 작은 구단색 영문 라벨 */}
+        {teamTint && <small className="block truncate font-display text-[11px] font-bold leading-tight tracking-[0.16em]" style={{ color: neon }}>{POS_FULL[p.position]}</small>}
         <b className="block truncate text-base font-black text-white">
           {p.name}
-          <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: teamTint ? neon : n }}>{p.position}</em>
+          {!teamTint && <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
@@ -124,7 +127,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         return (
           <span key={k} className="min-w-0">
             <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className={`st-n ${statBand(v)} font-display text-[15px]`}>{v}</b></span>
-            <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
+            <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
               <b className={`st-bar ${statBand(v)} absolute inset-y-0 left-0 block`} style={{ width: `${v}%` }} />
             </span>
           </span>
