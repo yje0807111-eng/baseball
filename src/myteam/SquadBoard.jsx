@@ -403,7 +403,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={15} /></span>
         <span className="absolute inset-x-[7px] bottom-[7px] leading-tight">
           <b className="block truncate text-[12.5px] font-extrabold text-white">{x.p.name}</b>
-          <small className="font-display text-[10.5px]" style={{ color: c }}>AVG {r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}{r.hr != null ? ` · ${r.hr}HR` : ''}</small>
+          <span className="mt-0.5 flex items-baseline gap-2 font-display leading-none">
+            <span><b className="text-[15px] font-bold text-white">{r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}</b><small className="ml-0.5 text-[9.5px] font-semibold text-slate-400">AVG</small></span>
+            <span><b className="text-[15px] font-bold text-white">{r.hr ?? '-'}</b><small className="ml-0.5 text-[9.5px] font-semibold text-slate-400">HR</small></span>
+          </span>
         </span>
       </div>
     );
