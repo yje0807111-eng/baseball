@@ -624,9 +624,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
             </div>
             <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</div>
             {/* 후보 명함: 두 열 · 왼쪽 큰 사진(인물이 가운데 오게) · 오른쪽 직함 · 이름 · 시대 · 경력 · 효과 태그 · 가격 · 선임 */}
-            <div className="mt-scroll grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
+            <div className="mt-scroll grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
               {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => (
-                <div key={m.id} className="mt-cut relative grid h-[120px] bg-[#0b111c]" style={{ ...cut(12), gridTemplateColumns: '120px minmax(0,1fr)', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.25)' }}>
+                <div key={m.id} className="mt-cut relative grid h-[120px] bg-[#131c2e]" style={{ ...cut(12), gridTemplateColumns: '120px minmax(0,1fr)', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.45)' }}>
                   {/* 사진 800×600 을 높이 180 으로 · 인물(가로 59%)이 칸 가운데 오게 가로 -82px */}
                   <span className="bg-no-repeat" style={{ backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundSize: 'auto 180px, auto 100%', backgroundPosition: '-82px -12px, center',
                     maskImage: 'linear-gradient(90deg,#000 72%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 72%,transparent)' }} />
