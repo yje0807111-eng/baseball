@@ -26,6 +26,10 @@ const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
+/* 코치 효과 태그: 효과마다 색 (영입 목록 강점 태그와 같은 잘린 모서리 · 왼쪽 선) */
+const EFF_COLOR = { bat: '#34d399', field: '#7dd3fc', pitch: '#60a5fa', stamina: '#fbbf24', steal: '#f472b6', clutch: '#f87171' };
+const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
+const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], t: `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
 const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
 const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
@@ -619,18 +623,32 @@ export default function LockerScreen({ account, onSave, onBack }) {
               })}
             </div>
             <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</div>
-            <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
-              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => {
-                return (
-                  <div key={m.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '46px minmax(0,1fr) minmax(0,1.2fr) 60px 76px', '--a': '#c4b5fd' }}>
-                    <Portrait player={m} staff w={44} h={52} color="#c4b5fd" />
-                    <span className="min-w-0"><b className="block truncate text-base font-black text-white">{m.name}</b><small className="text-[11px] text-gray-500">{m.era} · {m.note}</small></span>
-                    <span className="text-sm text-[#c4b5fd]">{effText(m.effect)}</span>
-                    <b className="text-right font-display text-lg text-amber-300">{m.cost}</b>
+            {/* 후보 명함: 두 열 · 왼쪽 큰 사진(인물이 가운데 오게) · 오른쪽 직함 · 이름 · 시대 · 경력 · 효과 태그 · 가격 · 선임 */}
+            <div className="mt-scroll grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
+              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => (
+                <div key={m.id} className="mt-cut relative grid h-[120px] bg-[#0b111c]" style={{ ...cut(12), gridTemplateColumns: '120px minmax(0,1fr)', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.25)' }}>
+                  {/* 사진 800×600 을 높이 180 으로 · 인물(가로 59%)이 칸 가운데 오게 가로 -82px */}
+                  <span className="bg-no-repeat" style={{ backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundSize: 'auto 180px, auto 100%', backgroundPosition: '-82px -12px, center',
+                    maskImage: 'linear-gradient(90deg,#000 72%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 72%,transparent)' }} />
+                  <span className="flex min-w-0 flex-col gap-1.5 py-3 pl-1 pr-3.5">
+                    <span className="min-w-0 pr-[130px]">
+                      <small className="block font-display text-[11px] font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
+                      <b className="text-lg font-black text-white">{m.name}</b><small className="ml-2 text-[11px] text-gray-500">{m.era}</small>
+                    </span>
+                    <small className="truncate text-[12px] text-gray-400">{m.note}</small>
+                    <span className="flex flex-wrap gap-[5px]">
+                      {effTags(m.effect).map((e) => (
+                        <span key={e.k} className="whitespace-nowrap py-[2px] pl-[7px] pr-2 text-[12px] font-bold text-gray-100"
+                          style={{ clipPath: 'polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px)', background: `linear-gradient(90deg,${e.c}33,rgba(5,8,15,.6))`, boxShadow: `inset 2px 0 0 ${e.c}` }}>{e.t}</span>
+                      ))}
+                    </span>
+                  </span>
+                  <span className="absolute right-3 top-3 flex items-center gap-2">
+                    <b className="font-display text-lg text-amber-300">{m.cost}</b>
                     <Btn sm a="#c4b5fd" onClick={() => setStaff(listSlot, m)}>{staff[listSlot] ? '교체' : '선임'}</Btn>
-                  </div>
-                );
-              })}
+                  </span>
+                </div>
+              ))}
             </div>
           </section>
         )}
