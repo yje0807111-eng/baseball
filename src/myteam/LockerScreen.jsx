@@ -594,7 +594,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
         {tab === 'staff' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
             {head('Staff', null, '#c4b5fd')}
-            <div className="mt-3 grid h-48 shrink-0 grid-cols-4 gap-3">
+            <div className="mt-3 grid h-[232px] shrink-0 grid-cols-4 gap-3">
               {STAFF_SLOTS.map((s) => {
                 const cur = staff[s.key];
                 const on = staffSlot === s.key;
