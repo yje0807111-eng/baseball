@@ -18,7 +18,17 @@ const ROLE = { SP: '#60a5fa', CL: '#fbbf24', SU: '#fb923c', MR: '#f87171' };
 const FIELD = [['C', 'C'], ['1B', '1B'], ['2B', '2B'], ['3B', '3B'], ['SS', 'SS'], ['LF', 'OF'], ['CF', 'OF'], ['RF', 'OF'], ['DH', 'DH']];
 /* 구장 사진(ui/field.webp) 위 카드 가운데 자리 (%) — 세로 카드가 판 안에 들도록 외야 · 코너를 안쪽에 */
 const XY = { CF: [50, 14], LF: [17, 26], RF: [83, 26], SS: [35, 46], '2B': [65, 46], '3B': [17, 65], '1B': [83, 65], C: [50, 87], DH: [89, 87], P: [50, 64] };
-const CARD_W = 86, CARD_H = 116;
+/** 구장 위 선수 표시: 중계 자막처럼 기운 사진 + 위 어두운 이름 띠(종합 · 이름) + 아래 구단색 정보 띠 */
+const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
+const Lower = ({ p, c, ovr, sub }) => (
+  <span className="flex items-center">
+    <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+    <span className="-ml-[5px] block">
+      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-[13px] font-extrabold text-white">{p.name}</b></span>
+      <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-[11px] font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
+    </span>
+  </span>
+);
 const byOvr = (a, b) => b.overall - a.overall;
 /** 줄은 늘 같은 DOM 순서(id 순)로 그린다 — 순서가 바뀌어도 노드가 옮겨지지 않아야 놓을 때 미끄러지는 움직임이 끊기지 않는다 */
 const stable = (list, key = (p) => p.id) => [...list].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
@@ -424,20 +434,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const posSlot = dragging ? slotNow.get(x.id) || x.slot : x.slot;
     const settling = settle?.id === x.id;
     const off = dragging ? [drag.dx || 0, drag.dy || 0] : settling ? [settle.dx, settle.dy] : [0, 0];
+    const glow = ring ? `drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 8px ${ring})` : 'drop-shadow(0 6px 10px rgba(0,0,0,.7))';
     return (
       <div key={x.id} data-token={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
-        className={`mt-cut absolute touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '10px', width: CARD_W, height: CARD_H, left: `${XY[posSlot][0]}%`, top: `${XY[posSlot][1]}%`, zIndex: dragging || settling ? 5 : undefined,
+        className={`absolute touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ left: `${XY[posSlot][0]}%`, top: `${XY[posSlot][1]}%`, zIndex: dragging || settling ? 5 : undefined,
           transform: `translate(calc(-50% + ${off[0]}px),calc(-50% + ${off[1]}px))${dragging ? ' scale(1.06)' : ''}`,
           transition: dragging || settling ? 'none' : 'left .28s cubic-bezier(.2,.8,.2,1), top .28s cubic-bezier(.2,.8,.2,1), transform .28s cubic-bezier(.2,.8,.2,1)',
-          background: `linear-gradient(180deg,transparent 38%,#05080f 86%), #0b1220 url(profiles/${encodeURIComponent(x.p.id)}.webp) 50% 8%/cover`,
-          boxShadow: `inset 0 0 0 ${ring ? 2 : 1}px ${ring || `color-mix(in srgb, ${teamNeon(x.p)} 45%, transparent)`}${dragging ? ', 0 14px 28px -8px rgba(0,0,0,.95)' : benchHit(x.id) ? ', 0 0 20px -2px #34d399' : ''}`, ...inFx(x.id) }}>
-        <span className="absolute left-1.5 top-1">{previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={19} />}</span>
-        <span className="absolute inset-x-1.5 bottom-1.5 leading-tight">
-          <span className="flex gap-1 font-display text-[10.5px] font-bold tracking-[0.08em]"><span style={{ color: teamNeon(x.p) }}>{shownSlot}</span><span className="font-sans tracking-normal" style={{ color: HAND_LABEL(x.p).color }}>{HAND_LABEL(x.p).long}</span></span>
-          <b className="block truncate text-[13px] font-extrabold text-white">{x.p.name}</b>
-          <span className="block font-display text-[11px] text-slate-300">AVG {r.avg != null ? r.avg.toFixed(3).slice(1) : '-'} · HR {r.hr ?? '-'}</span>
-        </span>
+          filter: glow, ...inFx(x.id) }}>
+        <Lower p={x.p} c={teamNeon(x.p)} sub={`${shownSlot} · AVG ${r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}`}
+          ovr={previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={16} />} />
       </div>
     );
   };
@@ -474,19 +480,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <div ref={fieldRef} className="mt-cut relative min-h-0 flex-1 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '18px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 58%' }}>
               <span className="absolute inset-0" style={{ background: 'radial-gradient(80% 80% at 50% 55%,rgba(5,8,15,0),rgba(5,8,15,.7))' }} />
               {fieldLineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p).map((x) => token(x))}
-              {nextStarter && (
-                <div role="button" tabIndex={0} onClick={() => onSelect(nextStarter)} className="mt-cut absolute cursor-pointer"
-                  style={{ '--c': '10px', width: CARD_W, height: CARD_H, left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)',
-                    background: `linear-gradient(180deg,transparent 38%,#05080f 86%), #0b1220 url(profiles/${encodeURIComponent(nextStarter.id)}.webp) 50% 8%/cover`,
-                    boxShadow: `inset 0 0 0 2px ${ROLE.SP}, 0 0 22px -4px ${ROLE.SP}` }}>
-                  <b className="absolute left-1.5 top-1.5 px-[3px] font-display text-[11px] font-extrabold leading-[16px] tracking-[0.08em] text-[#05080f]" style={{ background: ROLE.SP }}>NEXT</b>
-                  <span className="absolute right-1.5 top-1"><Ovr p={nextStarter} size={19} /></span>
-                  <span className="absolute inset-x-1.5 bottom-1.5 leading-tight">
-                    <span className="font-display text-[10.5px] font-bold tracking-[0.08em]" style={{ color: ROLE.SP }}>SP</span>
-                    <b className="block truncate text-[13px] font-extrabold text-white">{nextStarter.name}</b>
-                  </span>
-                </div>
-              )}
+              {nextStarter && (() => {
+                const r = seasonRecord(nextStarter);
+                return (
+                  <div role="button" tabIndex={0} onClick={() => onSelect(nextStarter)} className="absolute cursor-pointer"
+                    style={{ left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)', filter: `drop-shadow(0 0 1.5px ${ROLE.SP}) drop-shadow(0 0 8px ${ROLE.SP}88)` }}>
+                    <Lower p={nextStarter} c={ROLE.SP} ovr={<Ovr p={nextStarter} size={16} />}
+                      sub={`SP · ERA ${r.era != null ? r.era.toFixed(2) : '-'}${r.k != null ? ` · ${r.k}K` : ''}`} />
+                  </div>
+                );
+              })()}
             </div>
             <div className="shrink-0">
               <Grp en="BATTING ORDER" ko={`타순 ${lineupRows.length}`} color="#34d399" />
