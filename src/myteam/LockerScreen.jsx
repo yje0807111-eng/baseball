@@ -110,6 +110,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         <b className="block truncate text-base font-black text-white">
           {p.name}
           {!teamTint && <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
+          {teamTint && <span className="ml-2 text-xs font-medium text-gray-500">{p.year} {p.team}</span>}
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
@@ -118,9 +119,11 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
             </button>
           )}
         </b>
-        <small className="block truncate text-[11px] text-gray-500">
-          {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
-        </small>
+        {!teamTint && (
+          <small className="block truncate text-[11px] text-gray-500">
+            {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
+          </small>
+        )}
       </span>
       {keys.map(([label, k]) => {
         const v = p.stats?.[k] ?? 0;
