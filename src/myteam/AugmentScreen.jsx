@@ -116,8 +116,8 @@ export default function AugmentScreen({ account, onBack }) {
   const pickBanned = picked && bans.includes(picked.id);
 
   const NAV = [
-    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, c: TIER[t].c, mark: TIER[t].en.slice(0, 2), t })),
-    { key: 'upgrade', label: '강화', c: GREEN, mark: '+' },
+    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, c: TIER[t].c, t })),
+    { key: 'upgrade', label: '강화', c: GREEN },
   ];
 
   return (
@@ -137,7 +137,8 @@ export default function AugmentScreen({ account, onBack }) {
                 {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>Upgrade</p>}
                 <button type="button" onClick={() => { setTab(it.key); setSel(null); if (it.key !== 'upgrade') setUpTier(it.key); }}
                   className={`mt-nav sm ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
-                  <span className="mt-cut grid h-[2.75rem] w-10 shrink-0 place-items-center font-display text-sm font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${it.c}55,#0b1220 75%)`, color: it.c }}>{it.mark}</span>
+                  {/* 칸 그림: public/ui/aug/<키>.webp (scripts/aug-tier-art.mjs 로 만든다 — 등급 색 빛 · 같은 어두운 배경) */}
+                  <span className="mt-cut h-[2.75rem] w-10 shrink-0 bg-cover bg-center" style={{ ...cut(8), backgroundImage: `url(ui/aug/${it.key}.webp)`, boxShadow: `inset 0 0 0 1px ${it.c}66`, filter: on ? undefined : 'saturate(.8) brightness(.8)' }} />
                   <span className="min-w-0 flex-1">
                     <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
                   </span>
