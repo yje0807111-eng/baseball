@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
+import ReadyLocker from './myteam/ReadyLocker.jsx';
+import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
 import { flagByKey } from './myteam/teamArt.js';
 import { statColor } from './myteam/teamColor.js';
@@ -5092,239 +5094,63 @@ function RdCard({ player, slot, ovr, off, moved, drop, gain, bind = {} }) {
  * 정비 화면: 왼쪽 타순 라인업 · 가운데 구장 위 수비 포지션 카드 · 오른쪽 투수 로테이션과 시너지.
  * 줄 · 카드를 차례로 누르거나 끌어다 놓으면 자리가 맞바뀐다.
  */
-export function ReadyScreen({ roster, buff = 0, autoFilled = 0, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
-  const init = useRef(roster);
-  const [pick, setPick] = useState(null); // { k, v }
-  const dragRef = useRef(null);
-  const [, redraw] = useState(0);
+/* 구장 자리 이름: 드래프트(OF1·OF2·OF3) ↔ 라커 판(LF·CF·RF) */
+const BOARD_SLOT = { OF1: 'LF', OF2: 'CF', OF3: 'RF' };
+const DRAFT_SLOT = { LF: 'OF1', CF: 'OF2', RF: 'OF3' };
+/* 라커 판의 불펜 순서 = 마무리 → 셋업 → 중간 → 롱릴리프 */
+const PEN_ORDER = ['CL', 'SU', 'MR', 'LR'];
 
+export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
+  const init = useRef(roster);
   const now = useMemo(() => readyStats(roster, buff), [roster, buff]);
   const was = useMemo(() => readyStats(init.current, buff), [buff]);
   const slotted = useMemo(() => withSlots(roster), [roster]);
-  const base = useMemo(() => new Map(slotted.map((p) => [p.id, playAt(p)])), [slotted]); // 시너지 전 · 선 자리 기준
-  const eff = useMemo(() => new Map(now.t.roster.map((p) => [p.id, p])), [now]); // 시너지까지 반영
   const lineup = useMemo(() => lineupOf(roster), [roster]);
-  const bySlot = (s) => slotted.find((p) => p.slot === s);
-  const effOf = (p) => eff.get(p.id) || base.get(p.id);
 
-  const swap = (k, a, b) => {
-    if (a === b) return;
-    if (k === 'ord') {
-      const ids = lineup.map((p) => p.id);
-      const i = ids.indexOf(a), j = ids.indexOf(b);
-      [ids[i], ids[j]] = [ids[j], ids[i]];
-      onOrder(ids);
-    } else onMove(a, b);
+  const benchIds = slotted.filter((p) => isBenchSlot(p.slot)).map((p) => p.id);
+  const order = {
+    lineup: lineup.map((p) => ({ id: p.id, slot: BOARD_SLOT[p.slot] || p.slot })),
+    rotation: slotted.filter((p) => p.slot === 'SP').map((p) => p.id),
+    bullpen: PEN_ORDER.map((sl) => slotted.find((p) => p.slot === sl)).filter(Boolean).map((p) => p.id),
   };
-  const tap = (k, v) => {
-    if (pick && pick.k === k && pick.v !== v) { swap(k, pick.v, v); setPick(null); } else setPick(pick && pick.k === k && pick.v === v ? null : { k, v });
-  };
-  const tapRef = useRef(tap);
-  const swapRef = useRef(swap);
-  tapRef.current = tap;
-  swapRef.current = swap;
+  const team = { name: '나의 드림팀', squad: roster, bench: benchIds, order, pitchFatigue: {} };
 
-  /** 자동 라인업: 1·2번은 출루·주루, 3~5번은 장타, 나머지는 타격가치 순 */
-  const autoLineup = () => {
-    const xs = lineup.map((p) => ({ p, e: effOf(p) }));
-    const setters = [...xs].sort((a, b) => (b.e.stats.contact * 0.5 + b.e.stats.speed * 0.5) - (a.e.stats.contact * 0.5 + a.e.stats.speed * 0.5)).slice(0, 2);
-    const rest = xs.filter((x) => !setters.includes(x));
-    const clean = [...rest].sort((a, b) => b.e.stats.power - a.e.stats.power).slice(0, 3);
-    const tail = rest.filter((x) => !clean.includes(x)).sort((a, b) => rdBat(b.e) - rdBat(a.e));
-    onOrder([...setters, ...clean, ...tail].map((x) => x.p.id));
-    setPick(null);
+  /** 라커 판이 바꾼 순서를 드래프트 자리(slot) · 타순(batOrder)으로 되돌려 저장한다 */
+  const commit = (next) => {
+    const o = next?.order || order;
+    const put = new Map();
+    (o.lineup || []).forEach((x, i) => put.set(x.id, { slot: DRAFT_SLOT[x.slot] || x.slot, batOrder: i }));
+    const pitchers = [...(o.rotation || []), ...(o.bullpen || [])];
+    pitchers.forEach((id, i) => { if (i === 0) put.set(id, { slot: 'SP' }); else if (PEN_ORDER[i - 1]) put.set(id, { slot: PEN_ORDER[i - 1] }); });
+    let bn = 0;
+    onReplace(roster.map((p) => {
+      const hit = put.get(p.id);
+      if (hit) return { ...p, batOrder: undefined, ...hit };
+      bn += 1;
+      return { ...p, slot: `BN${bn}`, batOrder: undefined };
+    }));
   };
 
-  // 끌기: 6px 넘게 움직이면 끌기 카드를 띄우고, 같은 종류 위에서 놓으면 맞바꾼다. 안 움직이고 떼면 누르기
-  useEffect(() => {
-    const move = (e) => {
-      const d = dragRef.current;
-      if (!d || (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 6)) return;
-      d.moved = true; d.x = e.clientX; d.y = e.clientY;
-      const t = document.elementsFromPoint(e.clientX, e.clientY).map((el) => el.closest?.(`[data-rk="${d.k}"]`)).find((el) => el && el.dataset.rv !== d.v);
-      d.over = t ? t.dataset.rv : null;
-      redraw((n) => n + 1);
-    };
-    const up = () => {
-      const d = dragRef.current;
-      if (!d) return;
-      dragRef.current = null;
-      if (!d.moved) tapRef.current(d.k, d.v);
-      else if (d.over) { swapRef.current(d.k, d.v, d.over); setPick(null); }
-      redraw((n) => n + 1);
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
-  }, []);
-
-  const drag = dragRef.current?.moved ? dragRef.current : null;
-  /** 누르기 · 끌기 · 키보드까지 붙이는 공통 속성 */
-  const grab = (k, v, label) => ({
-    'data-rk': k, 'data-rv': v, role: 'button', tabIndex: 0, 'aria-label': label, 'aria-pressed': pick?.k === k && pick?.v === v,
-    className: `${pick?.k === k && pick?.v === v ? 'sel' : ''} ${drag?.k === k && drag.over === v ? 'over' : ''} ${drag?.k === k && drag.v === v ? 'lifted' : ''}`,
-    onKeyDown: (e) => { if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tap(k, v); } },
-    onPointerDown: (e) => {
-      if (e.button !== 0) return;
-      const r = e.currentTarget.getBoundingClientRect();
-      dragRef.current = { k, v, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: Math.min(e.clientX - r.left, 120), dy: e.clientY - r.top, w: Math.min(r.width, 240), moved: false, over: null };
-    },
-  });
-
-  /** 수비 · 투수 카드 (같은 디자인) */
-  const card = (p, slot, kind) => {
-    const b = base.get(p.id), e = effOf(p), off = !!b.naturalPosition;
-    return <RdCard key={slot} player={p} slot={slot} ovr={e.overall} off={off} moved={b.naturalPosition} drop={b.overall}
-      bind={grab(kind, slot, `${RD_CHIP[slot] || slot} ${p.name}`)} />;
+  const play = new Set([...order.lineup.map((x) => x.id), ...order.rotation, ...order.bullpen]);
+  const on = roster.filter((p) => play.has(p.id));
+  const teamInfo = {
+    ovr: on.length ? Math.round(on.reduce((s2, p) => s2 + p.overall, 0) / on.length) : 0,
+    count: roster.length,
+    cap: ROSTER_SIZE,
+    foreign: roster.filter((p) => p.isForeign).length,
   };
-
-  const syns = now.t.synergies;
-  const active = syns.filter((s) => s.active);
-  const next = syns.filter((s) => !s.active && s.count > 0).sort((a, b) => (a.need - a.count) - (b.need - b.count))[0];
+  const d = (a, b) => Math.round(a - b);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '17rem clamp(330px,21vw,410px) minmax(0,1fr) clamp(340px,22vw,420px)', gridTemplateRows: 'minmax(0,1fr)' }}>
-        {/* 왼쪽 사이드바: 합계 · 정비 도구 · 시즌 시작 */}
-        <nav className="rd-pan rd-side ui-cut" style={{ '--c': '20px', '--a': '#10b981' }}>
-          <p className="ui-lab font-display px-1 pt-1">Tune Up</p>
-          {[['타자 OVR 합계', 'batSum', '#34d399', 9 * 99], ['수비 OVR 합계', 'defSum', '#60a5fa', 8 * 99], ['투수 OVR 합계', 'pitSum', '#f87171', 5 * 99]].map(([label, key, tone, max]) => (
-            <div key={key} className="rd-tot ui-cut" style={{ '--a': tone, '--c': '10px' }}>
-              <span>{label}</span>
-              <span className="flex items-baseline"><b>{now[key]}</b><RdDelta v={now[key]} v0={was[key]} /></span>
-              <i style={{ '--w': `${Math.min(100, (now[key] / max) * 100)}%` }} />
-            </div>
-          ))}
-          {autoFilled > 0 && <span className="ui-chip ui-cut text-amber-200" style={{ '--a': '#fbbf24' }}>퓨처스 유망주 {autoFilled}명</span>}
-          <div className="mt-auto flex flex-col gap-2">
-            <button type="button" className="ui-btn ui-cut sm" onClick={autoLineup}>자동 라인업</button>
-            <button type="button" className="ui-btn ui-cut sm" onClick={() => { onReplace(init.current); setPick(null); }}>처음 배치로</button>
-            <button type="button" className="ui-btn ui-cut sm" onClick={onRestart}>{restartLabel}</button>
-            <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] text-base" onClick={onStart}>{startLabel}</button>
-          </div>
-        </nav>
-        {/* 왼쪽: 타순 라인업 */}
-        <section className="rd-pan ui-cut" style={{ '--c': '20px', gridColumn: 2, gridRow: 1 }}>
-          <div className="rd-ph"><div><h3>타순 라인업</h3><em>LINEUP</em></div><span className="sum"><small>타자 OVR 합계</small><b>{now.batSum}</b></span></div>
-          <div className="rd-rows">
-            {lineup.map((p, i) => {
-              const b = base.get(p.id), e = effOf(p), dh = p.slot === 'DH', off = !!b.naturalPosition;
-              const g = grab('ord', p.id, `${i + 1}번 ${p.name}`);
-              return (
-                <div key={p.id} {...g} className={`rd-row ${g.className}`}>
-                  <span className="rd-no">{i + 1}</span>
-                  <span className={`rd-pos ${dh ? 'dh' : off ? 'off' : ''}`}>{RD_CHIP[p.slot] || p.slot}</span>
-                  <span className="rd-hand">{p.hand}</span>
-                  <RdFace player={p} className="h-[34px] w-[34px]" />
-                  <span className="rd-nm">{p.name}</span>
-                  <b className={`rd-ovr ${rdToneCls(e.overall)}`} style={rdToneStyle(e.overall)}>{e.overall}</b>
-                </div>
-              );
-            })}
-          </div>
-          <div className="rd-bnh">예비 <em>BENCH</em><small>경기에는 나서지 않고 시너지에만 보탭니다</small></div>
-          <div className="rd-bn-g">
-            {BENCH_SLOTS.map((b) => {
-              const p2 = bySlot(b.id);
-              if (!p2) return <div key={b.id} className="rd-bc empty"><span className="rd-bc-ph" /><b>빈 자리</b><em>–</em></div>;
-              const e = effOf(p2);
-              const g = grab('pos', b.id, `${b.label} ${p2.name}`);
-              return (
-                <div key={b.id} {...g} className={`rd-bc ${g.className}`}>
-                  <RdFace player={p2} className="h-[26px] w-[24px]" />
-                  <span className="rd-bc-pos">{p2.position}</span>
-                  <b>{p2.name}{p2.rest > 0 && <small className="rd-bc-rest" title={`컨디션 ${p2.condition}% · 휴식 ${p2.rest}경기 남음`}> −{p2.rest}</small>}</b>
-                  <em className={rdToneCls(e.overall)} style={rdToneStyle(e.overall)}>{e.overall}</em>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* 가운데: 수비 포지션 */}
-        <section className="rd-pan ui-cut" style={{ '--a': '#60a5fa', '--c': '20px', gridColumn: 3, gridRow: 1 }}>
-          <div className="rd-ph"><div><h3>수비 포지션</h3><em>DEFENSE</em></div><span className="sum"><small>수비 OVR 합계</small><b>{now.defSum}</b></span></div>
-          <div className="rd-fieldbox">
-            <div className="rd-field">
-              {Object.entries(RD_XY).map(([slot, [x, y]]) => {
-                const p = bySlot(slot);
-                if (!p) return null;
-                const pitch = PITCH_SLOTS.includes(slot);
-                return (
-                  <div key={slot} className="rd-fc" style={{ left: `${x}%`, top: `${y}%`, ...(pitch ? { width: 116, height: 134 } : null) }}>
-                    {card(p, slot, pitch ? 'pit' : 'def')}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* 오른쪽: 투수 로테이션 · 시너지 */}
-        <aside className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'minmax(0,1fr) minmax(0,1.05fr)', gridColumn: 4, gridRow: 1 }}>
-          <section className="rd-pan ui-cut" style={{ '--a': '#f87171', '--c': '20px' }}>
-            <div className="rd-ph"><div><h3>투수 로테이션</h3><em>PITCHING STAFF</em></div><span className="sum"><small>투수 OVR 합계</small><b>{now.pitSum}</b></span></div>
-            <div className="rd-rot">
-              {RD_ROT.map(([slot, ko, en]) => {
-                const p = bySlot(slot);
-                return (
-                  <div key={slot} className="rd-slot">
-                    <span>{ko}<em>{en}</em></span>
-                    <div>
-                      {p ? card(p, slot, 'pit') : <span className="rd-empty ui-cut" style={{ '--c': '8px' }}>＋</span>}
-                      <span className="rd-empty ui-cut" style={{ '--c': '8px' }}>＋</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="rd-pan ui-cut" style={{ '--a': '#fbbf24', '--c': '20px' }}>
-            <div className="rd-ph"><div><h3>시너지 효과</h3><em>SYNERGY</em></div><span className="sum"><small>적용 중</small><b>{active.length}/{syns.filter((s) => s.count > 0).length}</b></span></div>
-            <div className="rd-syn syn-scroll">
-              {active.map((s, i) => {
-                const tone = RD_SYN_TONES[i % RD_SYN_TONES.length];
-                return (
-                  <div key={s.id} className="rd-sc" style={{ '--s': tone }}>
-                    <span className="ic font-display">{s.name[0]}</span>
-                    <span className="min-w-0"><b>{s.name}</b><span className="ef">{s.effect}</span><small>{s.cond}</small></span>
-                    <span className="rd-tag font-display">{s.members.length}명</span>
-                  </div>
-                );
-              })}
-              {next && (
-                <div className="rd-sc lock">
-                  <span className="ic"><LockIcon /></span>
-                  <span className="min-w-0"><b>{next.name}</b><span className="ef">{next.tiers[next.level].effect}</span><small>{next.cond}</small></span>
-                  <span className="rd-tag font-display">{next.cur}/{next.need}</span>
-                </div>
-              )}
-              {active.length === 0 && !next && <p className="p-2 text-sm text-gray-500">완성된 시너지가 없습니다</p>}
-            </div>
-          </section>
-        </aside>
-
-      </div>
-
-      {drag && createPortal(
-        <div className="rd-ghost" style={{ left: drag.x - drag.dx, top: drag.y - drag.dy, width: drag.w }}>
-          {(() => {
-            const p = drag.k === 'ord' ? lineup.find((x) => x.id === drag.v) : bySlot(drag.v);
-            if (!p) return null;
-            return (
-              <div className="rd-row" style={{ gridTemplateColumns: '38px 34px minmax(0,1fr) 46px', background: 'rgba(5,9,16,.94)' }}>
-                <span className={`rd-pos ${p.slot === 'DH' ? 'dh' : PITCH_SLOTS.includes(p.slot) ? 'p' : ''}`}>{RD_CHIP[p.slot] || p.slot}</span>
-                <RdFace player={p} className="h-[34px] w-[34px]" />
-                <span className="rd-nm">{p.name}</span>
-                <b className="rd-ovr" style={rdToneStyle(effOf(p).overall)}>{effOf(p).overall}</b>
-              </div>
-            );
-          })()}
-        </div>,
-        document.body,
-      )}
-    </div>
+    <ReadyLocker
+      team={team} squad={roster} bench={benchIds} synergies={now.t.synergies} opponent={opponent} autoFilled={autoFilled}
+      sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum }}
+      deltas={{ bat: d(now.batSum, was.batSum), def: d(now.defSum, was.defSum), pit: d(now.pitSum, was.pitSum) }}
+      teamInfo={teamInfo}
+      onCommit={commit}
+      onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}
+      onReset={() => onReplace(init.current)}
+      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} />
   );
 }
 

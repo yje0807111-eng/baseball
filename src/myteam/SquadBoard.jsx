@@ -198,7 +198,11 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
   );
 }
 
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled }) {
+/**
+ * fitSlots: 빈 칸을 남기지 않고 있는 만큼만 (드래프트 정비처럼 자리 수가 다를 때)
+ * footer: 벤치 아래 남는 자리에 끼워 넣을 것 (시너지 등)
+ */
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null }) {
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
   const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
@@ -480,10 +484,12 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         <p className="mt-lab">My Squad</p>
         {fire && <span className="font-display text-[12px] tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
         <div className="ml-auto flex gap-2">
-          <Btn sm a="#f87171" onClick={() => setFire((v) => !v)} disabled={!squad.length}
-            style={fire ? { background: '#f87171', color: '#1a0505', boxShadow: '0 0 18px -4px #f87171' } : null}>방출 {fire ? 'ON' : 'OFF'}</Btn>
+          {onRelease && (
+            <Btn sm a="#f87171" onClick={() => setFire((v) => !v)} disabled={!squad.length}
+              style={fire ? { background: '#f87171', color: '#1a0505', boxShadow: '0 0 18px -4px #f87171' } : null}>방출 {fire ? 'ON' : 'OFF'}</Btn>
+          )}
           <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
-          <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>
+          {onAutoFill && <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>}
         </div>
       </div>
 
@@ -519,17 +525,17 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           {/* 오른쪽: 로테이션 · 불펜 · 벤치 */}
           <div className="flex min-h-0 flex-col">
             <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} />
-            <Slots count={rotation.length} slots={PLAY_LIMIT.SP} maxH={52} style={{ flex: PLAY_LIMIT.SP }}>
+            <Slots count={rotation.length} slots={fitSlots ? rotation.length : PLAY_LIMIT.SP} maxH={52} style={fitSlots ? { flex: `0 0 ${rotation.length * 52}px` } : { flex: PLAY_LIMIT.SP }}>
               {(h, pitch) => stable(rotation).map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BULLPEN" ko={`불펜 ${bullpen.length}`} color={ROLE.MR} />
-            <Slots count={bullpen.length} slots={PLAY_LIMIT.RP} maxH={46} style={{ flex: PLAY_LIMIT.RP }}>
+            <Slots count={bullpen.length} slots={fitSlots ? bullpen.length : PLAY_LIMIT.RP} maxH={46} style={fitSlots ? { flex: `0 0 ${bullpen.length * 46}px` } : { flex: PLAY_LIMIT.RP }}>
               {(h, pitch) => stable(bullpen).map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
-            <div className="mt-scroll slim grid max-h-[126px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1">
+            <div className={`mt-scroll slim grid ${fitSlots ? 'max-h-[86px]' : 'max-h-[126px]'} shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
               {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
@@ -540,6 +546,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
                 </div>
               ))}
             </div>
+            {footer && <div className="mt-2 flex min-h-0 flex-1 flex-col">{footer}</div>}
           </div>
         </div>
       )}

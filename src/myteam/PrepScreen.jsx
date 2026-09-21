@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { KEYFRAMES, ReadyScreen } from '../KboAugmentDraft.jsx';
 import { readyRoster } from './prep.js';
 
-export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로' }) {
+export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null }) {
   const init = useMemo(() => readyRoster(team), [team]);
   const [ready, setReady] = useState(init.ready);
   const onMove = (from, to) => setReady((r) => r.map((p) => (p.slot === from ? { ...p, slot: to } : p.slot === to ? { ...p, slot: from } : p)));
@@ -22,7 +22,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       </header>
       <main className="relative mx-auto grid w-full max-w-[1920px] gap-3 px-4 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
-          <ReadyScreen roster={ready} onMove={onMove} onOrder={onOrder} onReplace={setReady}
+          <ReadyScreen roster={ready} opponent={opponent} onMove={onMove} onOrder={onOrder} onReplace={setReady}
             onStart={() => onStart(ready, init.rest)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
         </div>
       </main>
