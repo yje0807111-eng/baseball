@@ -1537,7 +1537,8 @@ export const KEYFRAMES = `
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
-.dr-order { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; transform: translate(-50%, -50%); pointer-events: none; }
+.dr-bar { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 10px; transform: translate(-50%, -50%); }
+.dr-order { display: flex; align-items: center; pointer-events: none; }
 .dr-pc { position: relative; display: flex; align-items: center; padding: 4px 14px 4px 20px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
   background: rgba(255,255,255,.05); transition: padding .2s ease, background .3s ease; }
@@ -5916,7 +5917,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  {live && <TurnOrder live={live} clock={clock} />}
+                  {live && (
+                    <span className="dr-bar">
+                      <TurnOrder live={live} clock={clock} />
+                      {/* 진행 속도와 건너뛰기 — 지금 차례 표시 바로 오른쪽 */}
+                      <span className="dr-sp" role="group" aria-label="진행 배속">
+                        {[1, 2, 4].map((v) => (
+                          <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
+                        ))}
+                      </span>
+                      <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}>내 차례로 ▶▶</button>
+                    </span>
+                  )}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
@@ -5942,15 +5954,6 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       <>
                         <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                         <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
-                        {/* 진행 속도와 건너뛰기 — 다른 구단 차례를 빨리 넘길 때 */}
-                        <span className="dr-sp" role="group" aria-label="진행 배속">
-                          {[1, 2, 4].map((v) => (
-                            <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
-                          ))}
-                        </span>
-                        <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}>
-                          내 차례로 ▶▶
-                        </button>
                       </>
                     ) : (
                       <>
