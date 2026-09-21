@@ -55,7 +55,8 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct }) {
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
       style={{ ...cut(10), '--a': c, gridTemplateColumns: '48px minmax(0,1fr) 92px',
         background: on ? `linear-gradient(90deg,${c}2e,rgba(6,10,19,.6))` : banned ? 'rgba(248,113,113,.07)' : 'rgba(255,255,255,.035)' }}>
-      <span className="mt-cut grid h-12 place-items-center font-display text-2xl font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${banned ? '#64748b' : c}40,#0b1220 70%)`, color: tone }}>{a.name[0]}</span>
+      {/* 칸 그림: public/augments/<id>.webp (scripts/augment-art.mjs 로 만든다) */}
+      <span className="mt-cut h-12 bg-[#0b1220] bg-cover" style={{ ...cut(8), backgroundImage: `url(augments/${a.id}.webp)`, backgroundPosition: 'center 22%', boxShadow: `inset 0 0 0 1px ${tone}59`, filter: banned ? 'grayscale(1) brightness(.6)' : undefined }} />
       <div className="min-w-0">
         <div className="flex items-center gap-3">
           <b className={`truncate text-base font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
@@ -208,8 +209,9 @@ export default function AugmentScreen({ account, onBack }) {
                     <span className="text-xs text-gray-400">{TYPE_KO[picked.type] || picked.type}</span>
                     {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
                   </div>
-                  <div className="grid min-h-0 flex-1 place-items-center">
-                    <span className="font-display text-[96px] font-extrabold leading-none" style={{ color: c, textShadow: `0 0 40px ${c}` }}>{picked.name[0]}</span>
+                  <div className="relative -mx-5 mt-3 min-h-0 flex-1 overflow-hidden">
+                    <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
+                    <span className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: 'linear-gradient(transparent,#070b14 94%)' }} />
                   </div>
                   <b className="text-3xl font-black text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
                   <p className="mt-1.5 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
