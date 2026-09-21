@@ -535,7 +535,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
-            <div className={`mt-scroll slim grid ${fitSlots ? 'max-h-[86px]' : 'max-h-[126px]'} shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
+            <div className={`mt-scroll slim grid max-h-[126px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
               {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
@@ -546,7 +546,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
                 </div>
               ))}
             </div>
-            {footer && <div className="mt-2 flex min-h-0 flex-1 flex-col">{footer}</div>}
+            {footer && <div className="mt-auto flex shrink-0 flex-col pt-2">{footer}</div>}
           </div>
         </div>
       )}
