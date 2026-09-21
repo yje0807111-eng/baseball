@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets, teamWeakness, WEAK_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -49,7 +49,8 @@ export default function ShopScreen({ account, onChange, onBack }) {
     setToast(msg);
     setTimeout(() => setToast(''), 2600);
   };
-  const buy = () => {
+  const buy = (it = picked) => {
+    const picked = it; // 눌린 상품 하나만 처리 (사이드 추천 카드도 같은 길)
     if (!picked || picked.price > gold) return;
     if (isStorable(picked)) {
       push(addToInventory(team, picked), gold - picked.price, `${picked.name} — 라커 아이템에 담김 · 보유 ${owned(picked) + 1}개`);
@@ -88,7 +89,25 @@ export default function ShopScreen({ account, onChange, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category" compact />
+        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category" compact>
+          {/* 추천 상품: 우리 팀에서 가장 약한 묶음을 올려 주는 상품 한 장 */}
+          {(() => {
+            const { weak, item } = teamWeakness(squad);
+            if (!item) return null;
+            const c = catColor[item.cat];
+            return (
+              <div className="mt-cut relative h-[200px] bg-cover" style={{ ...cut(10), backgroundImage: `url(${itemArt(item)})`, backgroundPosition: 'center 25%', boxShadow: `inset 0 0 0 1px ${c}66` }}>
+                <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.3), #05080f 82%)' }} />
+                <span className="absolute left-2.5 top-2 font-display text-[11px] tracking-[0.2em] text-[#fde047]">추천 상품</span>
+                <span className="absolute inset-x-2.5 bottom-2.5">
+                  <b className="block truncate text-[15px] font-black text-white">{item.name}</b>
+                  <small className="mb-1.5 block truncate text-[11px] text-gray-400">{WEAK_KO[weak.k]}이 가장 약해요</small>
+                  <Btn pri a="#fde047" className="w-full" style={cut(8)} disabled={item.price > gold} onClick={() => { setPicked(item); buy(item); }}>{item.price.toLocaleString()} G 구매하기</Btn>
+                </span>
+              </div>
+            );
+          })()}
+        </SideNav>
 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">

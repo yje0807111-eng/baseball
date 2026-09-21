@@ -10,7 +10,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
-import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
+import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
@@ -314,21 +314,6 @@ const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: 
 const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
-/* 팀에서 가장 약한 곳과, 그걸 올려 주는 훈련 한 가지 — 아이템이 없을 때 오른쪽 판에 보여 준다 */
-const WEAK_ITEM = { bat: 'tr-power', sp: 'tr-stuff', rp: 'tr-stuff' };
-const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
-const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
-function weakestOf(squad) {
-  const avg = (l) => (l.length ? Math.round(l.reduce((s, p) => s + p.overall, 0) / l.length) : 0);
-  const groups = {
-    bat: squad.filter((p) => p.type === 'batter'),
-    sp: squad.filter((p) => p.position === 'SP'),
-    rp: squad.filter((p) => p.position === 'RP'),
-  };
-  const rows = Object.entries(groups).map(([k, l]) => ({ k, v: avg(l), n: l.length, worst: [...l].sort((a, b) => a.overall - b.overall)[0] }));
-  const filled = rows.filter((r) => r.n);
-  return { rows, weak: filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null };
-}
 
 function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse }) {
   const inv = team.items || [];
@@ -388,8 +373,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
         <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
         {!it ? (() => {
           /* 아이템을 고르지 않았을 때: 우리 팀에서 가장 약한 곳과 그걸 올리는 훈련 (E안) */
-          const { rows, weak } = weakestOf(squad);
-          const buy = weak && SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]);
+          const { rows, weak, item: buy } = teamWeakness(squad);
           return (
             <>
               <b className="-mb-1 text-xl font-black text-white">우리 팀 약한 곳</b>

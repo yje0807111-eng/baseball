@@ -44,6 +44,19 @@ export const SHOP_ITEMS = [
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
 export const itemArt = (it) => `ui/shop/${it.id}.webp`;
 
+/* 팀에서 가장 약한 묶음과, 그걸 올려 주는 상품 한 가지 (라커 아이템 탭 · 상점 사이드 공용) */
+export const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
+export const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
+const WEAK_ITEM = { bat: 'tr-power', sp: 'tr-stuff', rp: 'tr-stuff' };
+export function teamWeakness(squad = []) {
+  const avg = (l) => (l.length ? Math.round(l.reduce((s, p) => s + p.overall, 0) / l.length) : 0);
+  const groups = { bat: squad.filter((p) => p.type === 'batter'), sp: squad.filter((p) => p.position === 'SP'), rp: squad.filter((p) => p.position === 'RP') };
+  const rows = Object.entries(groups).map(([k, l]) => ({ k, v: avg(l), n: l.length, worst: [...l].sort((a, b) => a.overall - b.overall)[0] }));
+  const filled = rows.filter((r) => r.n);
+  const weak = filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null;
+  return { rows, weak, item: weak ? SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]) : null };
+}
+
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
 
