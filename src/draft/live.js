@@ -43,11 +43,12 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myColor = '#e879f9', cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
+export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
   const clubs = [
-    { name: myName, trait: 'me', color: myColor, me: true },
+    // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
+    { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, me: true },
     ...AI_CLUBS,
-  ].map((c) => ({ ...c, short: c.name.split(' ')[0], roster: [], cp: cap }));
+  ].map((c) => ({ ...c, short: c.short || c.name.split(' ')[0], roster: [], cp: cap }));
   const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
   // 보드는 라운드마다 하나씩 — 모드에 시리즈가 모자라면 다시 섞어 이어 붙인다 (이미 나간 선수는 그대로 잠겨 있다)
   const usable = series.filter((s) => s.players.length);

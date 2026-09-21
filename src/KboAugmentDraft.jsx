@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
-import { bannedAugIds } from './myteam/store.js';
+import { bannedAugIds, loadAccount } from './myteam/store.js';
 import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
@@ -5692,7 +5692,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setModeId(id); setMatch(cfg);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
-    const liveNow = cfg.live ? Live.createLive({ cap: cfg.cap, series: m.series }) : null;
+    const me = loadAccount();
+    const liveNow = cfg.live ? Live.createLive({ cap: cfg.cap, series: m.series, myName: me?.team?.name || me?.nick || '나의 드림팀', myShort: me?.nick }) : null;
     setLive(liveNow); setClock(Live.PICK_SECONDS);
     const first = liveNow ? Live.currentSeries(liveNow) : rollSeries([], cfg.cap, null, [], m.series);
     setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null); setDtour(null);
