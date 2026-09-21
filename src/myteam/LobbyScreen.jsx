@@ -1,6 +1,5 @@
 /* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 랭크 판 */
 import React from 'react';
-import { SQUAD_SIZE, SQUAD_CAP, squadCost } from './rules.js';
 import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
 import { AI_SERIES } from './aiTeam.js';
@@ -180,9 +179,6 @@ function RankPanel({ account, team, onRecord }) {
 
 export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onSignOut }) {
   const team = account.team;
-  const squad = team.squad || [];
-  const cap = team.cap || SQUAD_CAP;
-  const cost = squadCost(squad, team.staff);
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -197,16 +193,16 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <MatchDay onPlay={onPlay} />
 
         <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="My Locker" title="내 라커"
-          desc={`${squad.length}/${SQUAD_SIZE} · 남은 ${(cap - cost).toLocaleString()} CP`} onClick={onLocker} />
+          desc="선수 영입 · 타순 · 코치" onClick={onLocker} />
 
         <Tile img="ui/mt/tile-shop.webp" a="#fde047" label="Shop" title="상점"
-          desc="훈련 · 부스트 · 계약서" onClick={onShop} />
+          desc="선수 능력치 · 캡 늘리기" onClick={onShop} />
 
         <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" label="Augments" title="증강"
-          desc="증강 풀 · 제외 · 강화" onClick={onAugments} />
+          desc="나올 증강 고르고 강화하기" onClick={onAugments} />
 
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
-          desc={account.history?.length ? `최근 ${account.history[0].myRuns} : ${account.history[0].oppRuns}` : '아직 경기가 없습니다'} disabled />
+          desc="지난 경기 다시 보기 (준비 중)" disabled />
 
         <RankPanel account={account} team={team} />
       </div>
