@@ -5447,7 +5447,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
-  const [shelfFilter, setShelfFilter] = useState('all'); // 선반: 전체 · 영입 가능만
+  const [shelfFilter, setShelfFilter] = useState('open'); // 선반: 영입 가능만(기본) · 전부
   const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
   const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
   const leaveTimerRef = useRef(null);
@@ -5455,11 +5455,14 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
-  const openOnly = (p) => shelfFilter !== 'open' || !lockOf(p);
-  const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
-  const shelfCols = Math.max(17, shownCards.length);
-  /** 라이브에서 이미 나가 빈 자리로 남은 카드 (자리를 지켜 선반이 흔들리지 않게 한다) */
-  const emptied = (pl) => !!live && Live.takenBy(live, pl) != null && !gone.has(pl.id);
+  /** 이 카드를 지금 선반에 보일지 — 감춘 카드는 빈 칸으로 남아 남은 카드의 크기와 자리가 변하지 않는다 */
+  const hiddenCard = (pl) => {
+    if (gone.has(pl.id)) return false;                                   // 사라지는 중인 카드는 끝까지 보여 준다
+    if (live && Live.takenBy(live, pl) != null && shelfFilter === 'open') return true; // 남이 데려간 선수
+    return shelfFilter === 'open' && !!lockOf(pl);                       // 지금 못 뽑는 선수
+  };
+  const shownCards = seriesCards.filter((p) => !posFilter?.pos || p.position === posFilter.pos);
+  const shelfCols = Math.max(17, seriesCards.length); // 칸 수는 이 보드 인원으로 고정 — 거르기를 해도 카드가 커지지 않는다
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
@@ -5864,8 +5867,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         {SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 <span aria-hidden="true">✕</span>
                       </button>
                     )}
-                    <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'open'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
-                      <span className="tr" aria-hidden="true" />영입 가능한 선수만
+                    <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
+                      <span className="tr" aria-hidden="true" />{live ? '못 뽑는 선수 · 남이 데려간 선수도' : '영입할 수 없는 선수도'} 보기
                     </button>
                     {/* 라이브: 지금 누구 차례인지와 남은 시간 (보드는 모두가 함께 쓰므로 새로고침은 없다) */}
                     {live ? (
@@ -5906,7 +5909,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
-                  {emptied(p) ? <span className="mc-slot" aria-hidden="true" /> : (
+                  {hiddenCard(p) ? <span className="mc-slot" aria-hidden="true" /> : (
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
