@@ -1525,6 +1525,17 @@ export const KEYFRAMES = `
 .ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
 .ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
+/* 라이브 진행 배속 · 건너뛰기 */
+.dr-sp { display: inline-flex; gap: 2px; }
+.dr-sp button { padding: 2px 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #9ca3af;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
+.dr-sp button:hover { color: #fff; }
+.dr-sp button.on { color: #05080f; background: #38e1ff; }
+.dr-skip { padding: 3px 10px; font-size: 12px; font-weight: 700; color: #cbd5e1;
+  clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+  background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: color .15s, background .15s; }
+.dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
+.dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
 .dr-order { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; transform: translate(-50%, -50%); pointer-events: none; }
 .dr-pc { position: relative; display: flex; align-items: center; padding: 4px 14px 4px 20px; margin-left: -12px;
@@ -5323,7 +5334,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 라이브 드래프트(8구단이 같은 보드를 스네이크로 나눠 갖는 판) — 규칙은 src/draft/live.js · null 이면 지금까지의 혼자 드래프트 */
   const [live, setLive] = useState(null);
   const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
-  const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (0.6초 뒤 선반에서 빠진다)
+  const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (잠깐 구단 엠블럼이 덮인다)
+  const [liveSpeed, setLiveSpeed] = useState(1); // 라이브 진행 배속 (1 · 2 · 4)
   const liveMine = live ? Live.myIndex(live) : -1;
   const myTurn = !live || Live.isMyTurn(live);
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
@@ -5577,9 +5589,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, [live, phase]);
   useEffect(() => { // AI 차례
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
-    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 1100 + Math.random() * 1000); // 한 픽 사이 1.1~2.1초 — 누가 누구를 데려갔는지 볼 틈을 둔다
+    // 한 픽 사이 1.1~2.1초 — 누가 누구를 데려갔는지 볼 틈을 둔다 (배속을 올리면 그만큼 짧아진다)
+    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), (1100 + Math.random() * 1000) / liveSpeed);
     return () => clearTimeout(t);
-  }, [live, phase, choice]);
+  }, [live, phase, choice, liveSpeed]);
   useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || !Live.isMyTurn(live)) return undefined;
     if (!Live.pickable(live, liveMine).length) { const p = setTimeout(() => setLive((s) => Live.pick(s, null)), 700); return () => clearTimeout(p); }
@@ -5606,11 +5619,17 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (!last) return;
     const id = last.player.id;
     setGone((g) => new Set(g).add(id));
-    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 1240));
+    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 1240 / liveSpeed));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
     if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** 내 차례가 올 때까지 단숨에 진행 (마지막 한 장만 사라지는 연출을 본다) */
+  const skipToMyTurn = () => {
+    if (!live || Live.isMyTurn(live) || Live.isDone(live)) return;
+    setLive((s0) => { let s1 = s0; let guard = 0; while (!Live.isMyTurn(s1) && !Live.isDone(s1) && guard++ < Live.CLUB_COUNT * 2) s1 = Live.stepAi(s1); return s1; });
+  };
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment' && choice.inning) {
@@ -5923,6 +5942,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       <>
                         <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                         <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
+                        {/* 진행 속도와 건너뛰기 — 다른 구단 차례를 빨리 넘길 때 */}
+                        <span className="dr-sp" role="group" aria-label="진행 배속">
+                          {[1, 2, 4].map((v) => (
+                            <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
+                          ))}
+                        </span>
+                        <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}>
+                          내 차례로 ▶▶
+                        </button>
                       </>
                     ) : (
                       <>
