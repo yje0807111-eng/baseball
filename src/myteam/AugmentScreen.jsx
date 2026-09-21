@@ -116,8 +116,8 @@ export default function AugmentScreen({ account, onBack }) {
   const pickBanned = picked && bans.includes(picked.id);
 
   const NAV = [
-    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, sub: `${AUGMENTS.filter((a) => a.tier === t).length}개 · 제외 ${aug.bans[t].length}/${aug.slots[t]}`, c: TIER[t].c, mark: TIER[t].en.slice(0, 2), t })),
-    { key: 'upgrade', label: '강화', sub: `강화한 증강 ${Object.values(aug.levels).filter(Boolean).length}개`, c: GREEN, mark: '+' },
+    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, c: TIER[t].c, mark: TIER[t].en.slice(0, 2), t })),
+    { key: 'upgrade', label: '강화', c: GREEN, mark: '+' },
   ];
 
   return (
@@ -136,11 +136,10 @@ export default function AugmentScreen({ account, onBack }) {
                 {k === 0 && <p className="mt-lab px-1 pt-1">Pool</p>}
                 {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>Upgrade</p>}
                 <button type="button" onClick={() => { setTab(it.key); setSel(null); if (it.key !== 'upgrade') setUpTier(it.key); }}
-                  className={`mt-nav ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
-                  <span className="mt-cut grid h-[3.2rem] w-11 shrink-0 place-items-center font-display text-sm font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${it.c}55,#0b1220 75%)`, color: it.c }}>{it.mark}</span>
+                  className={`mt-nav sm ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
+                  <span className="mt-cut grid h-[2.75rem] w-10 shrink-0 place-items-center font-display text-sm font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${it.c}55,#0b1220 75%)`, color: it.c }}>{it.mark}</span>
                   <span className="min-w-0 flex-1">
                     <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-                    <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
                   </span>
                   {it.t && (
                     <span className="grid grid-cols-2 gap-[3px]">
@@ -156,7 +155,6 @@ export default function AugmentScreen({ account, onBack }) {
           <div className="mt-cut mt-auto bg-white/[0.045] p-3" style={cut(8)}>
             <div className="flex justify-between text-sm text-gray-400"><span>제거권</span><b className="font-display text-lg text-rose-300">{aug.removeTickets}</b></div>
             <div className="flex justify-between text-sm text-gray-400"><span>강화권</span><b className="font-display text-lg text-amber-300">{aug.upgradeTickets}</b></div>
-            <p className="mt-1 text-[11px] text-gray-500">상점 · 증강 분류에서 살 수 있어요</p>
           </div>
         </nav>
 
