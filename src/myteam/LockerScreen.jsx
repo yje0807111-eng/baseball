@@ -195,7 +195,7 @@ function EmptyDetail() {
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onUpgrade }) {
+function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0 }) {
   if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const n = tone(p.overall);
@@ -210,7 +210,7 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onUpgrad
   const keys = KEYS[p.type] || KEYS.batter;
   const tr = playerTraits(p);
   const hand = HAND_LABEL(p);
-  return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade}
+  return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
 }
 
@@ -280,7 +280,7 @@ function CardWithRecord({ p, tr }) {
   );
 }
 
-function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, owned, n, after, blocked, now, next, keys, tr, hand }) {
+function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
@@ -294,10 +294,14 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, owned, n, af
       <div>
         {owned
           ? (
-            <div className="grid grid-cols-2 gap-2">
-              {/* 강화: 아이템 탭으로 넘어가 이 선수를 대상으로 잡아 둔다 (출전 ↔ 벤치는 판에서 끌어서) */}
-              {onUpgrade && <Btn style={cut(10)} onClick={() => onUpgrade(p)}>강화하기 ▲</Btn>}
-              <Btn className={`text-[#ff5a67] ${onUpgrade ? '' : 'col-span-2'}`} style={cut(10)} onClick={() => onRelease(p)}>방출하기</Btn>
+            /* 코치진 강화 단추와 같은 모양: 큰 두 칸(강화 1.4 : 방출 1) · 아래 작은 글씨에 쓸 수 있는 아이템 수 */
+            <div className="grid grid-cols-[1.4fr_1fr] gap-2">
+              {onUpgrade && (
+                <Btn lg a={n} pri={itemsFit > 0} disabled={!itemsFit} style={cut(12)} onClick={() => onUpgrade(p)}>
+                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{itemsFit ? `아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
+                </Btn>
+              )}
+              <Btn lg className={`text-[#ff5a67] ${onUpgrade ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출</Btn>
             </div>
           )
           : <Btn pri={!blocked} a={n} className={`w-full ${blocked ? 'text-[14px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(10)} disabled={!!blocked} onClick={() => onAdd(p)}>{blocked || '영입하기 ▶'}</Btn>}
@@ -758,8 +762,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
           );
         })()
           : (
-          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release}
-            playing={playing} onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
+          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release} playing={playing}
+            itemsFit={(team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
+            onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
         )}
       </div>
     </div>
