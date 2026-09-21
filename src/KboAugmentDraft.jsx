@@ -6,6 +6,7 @@ import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
 import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
+import * as Live from './draft/live.js';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
@@ -1680,6 +1681,17 @@ export const KEYFRAMES = `
 .mt-tabs button.on { color: #fff; }
 .mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
 .mt-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
+/* 라이브 드래프트: 보는 구단 고르개 (한 줄 — 뽑는 순번대로 좌우로 넘긴다) */
+.mt-club { flex: none; display: grid; grid-template-columns: 26px minmax(0,1fr) 26px; align-items: center; gap: 4px; padding: 5px 4px;
+  clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), rgba(255,255,255,.04));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 40%, transparent); }
+.mt-club button { font-size: 16px; line-height: 1; color: #9ca3af; transition: color .15s; }
+.mt-club button:hover { color: #fff; }
+.mt-club > span { min-width: 0; text-align: center; }
+.mt-club b { display: block; font-size: 13.5px; font-weight: 800; color: #fff; }
+.mt-club small { display: block; font-size: 10.5px; color: #9ca3af; }
+.mt-club em { font-style: normal; color: var(--a); }
 .mt-team { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
 .mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
 .mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -2797,8 +2809,17 @@ REC_COLS.bench = REC_COLS.bat;
 const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '예비', BENCH_SLOTS.map((b) => b.id)]];
 const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
 
-function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
+function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap, live }) {
   const [tab, setTab] = useState('team');
+  const [sel, setSel] = useState(null); // 라이브: 내가 고른 구단 (null 이면 지금 뽑는 차례를 따라간다)
+  const me = live ? Live.myIndex(live) : -1;
+  const myTurn = live ? Live.isMyTurn(live) : true;
+  useEffect(() => { if (myTurn) setSel(null); }, [myTurn]); // 내 차례가 오면 내 구단으로 돌아온다
+  const shown = live ? (sel ?? (myTurn ? me : Live.currentClub(live))) : -1;
+  const club = live ? live.clubs[shown] : null;
+  const view = club ? club.roster : roster;
+  const at = live ? live.order.indexOf(shown) + 1 : 0; // 이 구단의 뽑는 순번
+  const move = (d) => setSel(() => { const i = live.order.indexOf(shown); return live.order[(i + d + live.order.length) % live.order.length]; });
   return (
     <div className="mt-panel">
       <div className="mt-tabs" role="tablist">
@@ -2806,8 +2827,22 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
         ))}
       </div>
+      {club && (
+        /* 보는 구단 고르개: 뽑는 순번대로 넘긴다 */
+        <div className="mt-club" style={{ '--a': club.color }}>
+          <button type="button" onClick={() => move(-1)} aria-label="앞 순번 구단">‹</button>
+          <span>
+            <b>{club.name}{club.me && ' (나)'}</b>
+            <small>{at}번 · {club.me ? '내 구단' : Live.TRAITS[club.trait]?.ko}
+              {shown === Live.currentClub(live) && <em> · 지금 차례</em>}
+              {' · '}{club.roster.length}/{ROSTER_SIZE} · {club.cp} CP
+            </small>
+          </span>
+          <button type="button" onClick={() => move(1)} aria-label="다음 순번 구단">›</button>
+        </div>
+      )}
       <div className="mt-body" role="tabpanel">
-        {tab === 'team' ? <TeamReport roster={roster} mode={mode} cap={cap} /> : <RecordCards roster={roster} selectedSlot={selectedSlot} onTap={onTap} />}
+        {tab === 'team' ? <TeamReport roster={view} mode={mode} cap={cap} /> : <RecordCards roster={view} selectedSlot={club && !club.me ? null : selectedSlot} onTap={club && !club.me ? undefined : onTap} />}
       </div>
     </div>
   );
@@ -4525,6 +4560,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
+  const [live, setLive] = useState(true); // 드래프트 방식: 라이브(8구단이 한 보드를 나눠 갖기) · 혼자
   const [aug, setAug] = useState(SEASON_AUGMENTS);
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -4645,18 +4681,19 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
             <div>
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '라이브 8구단', false: '혼자' }} value={live} onChange={setLive} />
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
               <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-                <span>다른 시리즈 새로고침</span>
-                <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>×{START_REROLLS}</span>
+                <span>{live ? '뽑는 순서' : '다른 시리즈 새로고침'}</span>
+                <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>{live ? '스네이크 ⇄' : `×${START_REROLLS}`}</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug, format })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug, format, live })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5203,6 +5240,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [round, setRound] = useState(1); // 드래프트 라운드 (영입·교체 영입마다 +1, 방출해도 되돌아가지 않음)
   const [autoFilled, setAutoFilled] = useState(0); // 드래프트가 끝날 때 퓨처스 유망주로 채운 자리 수
   const [seenSeries, setSeenSeries] = useState([]); // 이번 드래프트에서 이미 열린 시리즈 — 모드의 시리즈를 다 돌기 전에는 다시 나오지 않는다
+  /* 라이브 드래프트(8구단이 같은 보드를 스네이크로 나눠 갖는 판) — 규칙은 src/draft/live.js · null 이면 지금까지의 혼자 드래프트 */
+  const [live, setLive] = useState(null);
+  const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
+  const liveMine = live ? Live.myIndex(live) : -1;
+  const myTurn = !live || Live.isMyTurn(live);
+  /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
+  const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
   const nextSeries = (r, c, banned) => rollSeries(r, c, series?.id, banned, mode.series, seenSeries) || rollSeries(r, c, series?.id, banned, DRAFT_SERIES, seenSeries);
   /** 드래프트 종료: 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채우고 정비 화면으로 */
@@ -5344,7 +5388,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, []);
 
   const full = roster.length >= ROSTER_SIZE;
-  const canPickAny = useMemo(() => ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released)), [roster, cp, released]);
+  const canPickAny = useMemo(() => (live ? true : ALL_PLAYERS.some((p) => !getLockReason(p, roster, cp, released))), [roster, cp, released, live]);
   const seriesCards = useMemo(() => (series
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
@@ -5356,7 +5400,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
-  const openOnly = (p) => shelfFilter !== 'open' || !getLockReason(p, roster, cp, released);
+  const openOnly = (p) => shelfFilter !== 'open' || !lockOf(p);
   const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
@@ -5411,20 +5455,60 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
   const handleSelectPlayer = useCallback((player) => {
     if (phase !== 'draft' || choice) return;
-    const reason = getLockReason(player, roster, cp, released);
+    if (live && !Live.isMyTurn(live)) return; // 라이브: 내 차례가 아니면 아무것도 지명하지 않는다
+    const reason = lockOf(player);
     if (reason) {
       setShake(player.id);
       setTimeout(() => setShake((s) => (s === player.id ? null : s)), 320);
+      return;
+    }
+    setPicked(null);
+    setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
+    if (live) { // 라이브: 내 지명도 판에 넣고 차례를 넘긴다 (다음 보드·라운드는 판이 정한다)
+      const next = Live.pick(live, player);
+      if (next === live) return;
+      setLive(next);
+      setRoster(Live.myRoster(next));
+      setCp(next.clubs[liveMine].cp);
+      setRound(Live.myRoster(next).length + 1);
       return;
     }
     const next = [...roster, { ...player, slot: freeSlot(roster, player.position).id }];
     const nextCp = cp - player.cost;
     setRoster(next);
     setCp(nextCp);
-    setPicked(null);
-    setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
     advanceRound(next, nextCp, released); // 끝나면 정비 화면(증강은 시즌을 시작할 때 고른다)
-  }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries, round]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, choice, roster, cp, augments, series, released, mode, seenSeries, round, live, liveMine]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── 라이브 드래프트 진행: 다른 구단 차례는 잠깐 뜸을 들였다 스스로 뽑고, 내 차례에는 시계가 돈다 ── */
+  useEffect(() => { // 보드(시리즈)는 판이 정한다
+    if (live && phase === 'draft' && !Live.isDone(live)) setSeries(Live.currentSeries(live));
+  }, [live, phase]);
+  useEffect(() => { // AI 차례
+    if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
+    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 600 + Math.random() * 800);
+    return () => clearTimeout(t);
+  }, [live, phase, choice]);
+  useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
+    if (!live || phase !== 'draft' || choice || Live.isDone(live) || !Live.isMyTurn(live)) return undefined;
+    if (!Live.pickable(live, liveMine).length) { const p = setTimeout(() => setLive((s) => Live.pick(s, null)), 700); return () => clearTimeout(p); }
+    setClock(Live.PICK_SECONDS);
+    const id = setInterval(() => setClock((c) => {
+      if (c > 1) return c - 1;
+      clearInterval(id);
+      setLive((s) => (s && Live.isMyTurn(s) ? Live.pick(s, Live.autoPick(s, Live.myIndex(s)), { auto: true }) : s));
+      return 0;
+    }), 1000);
+    return () => clearInterval(id);
+  }, [live, phase, choice, liveMine]);
+  useEffect(() => { // 자동 지명으로 내 선수가 늘었으면 화면의 엔트리도 따라간다
+    if (!live || phase !== 'draft') return;
+    const mine = Live.myRoster(live);
+    if (mine.length !== roster.length) { setRoster(mine); setCp(live.clubs[liveMine].cp); setRound(mine.length + 1); }
+  }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
+    if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
+  }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment' && choice.inning) {
@@ -5492,7 +5576,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setPhase('bracket');
       return;
     }
-    if (!(rematch && opponent)) setOpponent(aiDraft({ players: mode.players, cap: match.cap }));
+    // 라이브 판이었으면 상대도 그 판에서 뽑은 구단 중 전력이 가장 가까운 팀
+    if (!(rematch && opponent)) setOpponent(live ? Live.rosterOf(live, Live.opponentOf(live)) : aiDraft({ players: mode.players, cap: match.cap }));
     setChoice(null);
     setToast(null);
     setPhase('matchup');
@@ -5581,7 +5666,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
-    const first = rollSeries([], cfg.cap, null, [], m.series);
+    /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
+    const liveNow = cfg.live ? Live.createLive({ cap: cfg.cap, series: m.series }) : null;
+    setLive(liveNow); setClock(Live.PICK_SECONDS);
+    const first = liveNow ? Live.currentSeries(liveNow) : rollSeries([], cfg.cap, null, [], m.series);
     setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null); setDtour(null);
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
@@ -5590,7 +5678,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
   const btnGhost = 'ui-btn ui-cut';
   const btnPrimary = `${btnGhost} pri`;
-  const pickedReason = picked ? getLockReason(picked, roster, cp, released) : null;
+  const pickedReason = picked ? lockOf(picked) : null;
   const offPositionPlayers = withSlots(roster).map(playAt).filter((p) => p.naturalPosition);
 
   /* 시너지: 지금 상태 · 누른 시너지의 해당 선수 · 카드별로 영입하면 오르는 시너지 */
@@ -5712,6 +5800,21 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'open'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
                       <span className="tr" aria-hidden="true" />영입 가능한 선수만
                     </button>
+                    {/* 라이브: 지금 누구 차례인지와 남은 시간 (보드는 모두가 함께 쓰므로 새로고침은 없다) */}
+                    {live ? (
+                      <>
+                        <span className="h-5 w-px bg-white/10" aria-hidden="true" />
+                        <span className="flex items-center gap-2 px-1">
+                          <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
+                          <i className="h-2 w-2 -skew-x-12" style={{ background: live.clubs[Live.currentClub(live)].color }} aria-hidden="true" />
+                          <b className="text-[13px] font-extrabold" style={{ color: live.clubs[Live.currentClub(live)].color }}>
+                            {myTurn ? '내 차례' : `${live.clubs[Live.currentClub(live)].name} 지명 중`}
+                          </b>
+                          {myTurn && <b className={`font-display text-[15px] tabular-nums ${clock <= 5 ? 'text-red-400' : 'text-white'}`}>{clock}s</b>}
+                        </span>
+                      </>
+                    ) : (
+                      <>
                     <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                     <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
                       title={rerolls > 0 ? `다른 시리즈로 새로고침 · ${rerolls}회 남음` : '새로고침을 모두 썼습니다'} aria-label={`다른 시리즈로 새로고침, ${rerolls}회 남음`}>
@@ -5720,6 +5823,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       </svg>
                       새로고침 <em>· {rerolls}회</em>
                     </button>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -5732,12 +5837,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
-                  <MiniCard player={p} reason={getLockReason(p, roster, cp, released)} selected={picked?.id === p.id}
-                    hint={getLockReason(p, roster, cp, released) ? null : hintFor(p)}
+                  <MiniCard player={p} reason={lockOf(p)} selected={picked?.id === p.id}
+                    hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
-                    onSign={(pl) => (getLockReason(pl, roster, cp, released) ? setPicked(pl) : handleSelectPlayer(pl))}
+                    onSign={(pl) => (lockOf(pl) ? setPicked(pl) : handleSelectPlayer(pl))}
                     style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
                   </div>
                 ))}
@@ -5773,7 +5878,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       ) : null}
                     </div>
                   </div>
-                  {picked ? (
+                  {live && !myTurn ? (
+                    /* 라이브: 내 차례가 아니면 영입 단추 자리에 누구 차례인지 */
+                    <div className="pk-go" aria-live="polite" style={{ pointerEvents: 'none', opacity: 0.9 }}>
+                      <i className="h-2.5 w-2.5 -skew-x-12" style={{ background: live.clubs[Live.currentClub(live)].color }} aria-hidden="true" />
+                      <span>{live.clubs[Live.currentClub(live)].name} 지명 중 · {Live.slotInLap(live)}번째</span>
+                    </div>
+                  ) : picked ? (
                     <>
                       {swapPlan ? (
                         <>
@@ -5784,7 +5895,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         </>
                       ) : (
                         <button type="button" className="pk-go" disabled={!!pickedReason} onClick={() => handleSelectPlayer(picked)}>
-                          <PickIcon kind={pickedReason ? 'lock' : 'plus'} /><span>{pickedReason || '영입하기'}</span>
+                          <PickIcon kind={pickedReason ? 'lock' : 'plus'} /><span>{pickedReason || (live ? `지명하기 · ${clock}초` : '영입하기')}</span>
                         </button>
                       )}
                     </>
@@ -5815,7 +5926,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY TEAM</span>
-                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap}
+                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap} live={live}
                     selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
                     onTap={(slot) => lineupTapRef.current?.(slot)} />
                 </div>

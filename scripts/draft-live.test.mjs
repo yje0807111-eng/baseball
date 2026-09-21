@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { ROSTER_SIZE, SALARY_CAP, FOREIGN_LIMIT } from '../src/KboAugmentDraft.jsx';
 import {
   createLive, clubAt, pick, autoPick, stepAi, isMyTurn, isDone, currentClub, boardNo, boardPlayers,
-  pickable, lockReason, forcedPositions, myRoster, opponentOf, CLUB_COUNT, LAPS_PER_BOARD, BOARDS,
+  pickable, lockReason, forcedPositions, myRoster, opponentOf, CLUB_COUNT, LAPS_PER_BOARD, boardCount,
 } from '../src/draft/live.js';
 
 /* 늘 같은 판이 나오도록 고정 시드 */
@@ -28,7 +28,7 @@ test('스네이크: 바퀴마다 순서가 뒤집히고, 바퀴가 바뀌는 자
 });
 
 test('보드 하나 = 시리즈 하나 · 두 바퀴, 보드 10개로 20라운드가 딱 맞는다', () => {
-  expect(BOARDS * LAPS_PER_BOARD).toBe(ROSTER_SIZE);
+  expect(boardCount() * LAPS_PER_BOARD).toBe(ROSTER_SIZE);
   expect(boardNo(createLive({ rng: seeded(1) }))).toBe(0);
   let s = createLive({ rng: seeded(1) });
   const first = boardPlayers(s);

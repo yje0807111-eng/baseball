@@ -8,7 +8,8 @@ import { getLockReason, ROSTER_SIZE, SALARY_CAP, DRAFT_SERIES, freeSlot, FIELD_S
 export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
 export const LAPS_PER_BOARD = 2;    // 보드 하나를 도는 바퀴 수 — 18명 중 16명이 나가고 2명은 유찰
 export const PICK_SECONDS = 25;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
-export const BOARDS = Math.ceil(ROSTER_SIZE / LAPS_PER_BOARD); // 10
+/* 보드 수(=10). KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 쓸 때 센다 */
+export const boardCount = () => Math.ceil(ROSTER_SIZE / LAPS_PER_BOARD);
 
 /** AI 성향 — 같은 규칙 위에서 무엇을 더 좋아하는지만 다르다 */
 export const TRAITS = {
@@ -48,7 +49,7 @@ export function createLive({ myName = '나의 드림팀', myColor = '#e879f9', c
     ...AI_CLUBS,
   ].map((c) => ({ ...c, roster: [], cp: cap }));
   const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
-  const pool = shuffle(series.filter((s) => s.players.length), rng).slice(0, BOARDS);
+  const pool = shuffle(series.filter((s) => s.players.length), rng).slice(0, boardCount());
   return {
     cap,
     clubs,
@@ -65,7 +66,7 @@ export const myIndex = (s) => s.clubs.findIndex((c) => c.me);
 export const currentClub = (s) => clubAt(s.pick, s.order);
 export const isMyTurn = (s) => !isDone(s) && currentClub(s) === myIndex(s);
 export const isDone = (s) => s.pick >= CLUB_COUNT * ROSTER_SIZE;
-export const boardNo = (s) => Math.min(BOARDS - 1, boardOf(s.pick));
+export const boardNo = (s) => Math.min(boardCount() - 1, boardOf(s.pick));
 export const currentSeries = (s) => s.pool[boardNo(s)];
 /** 지금 보드에 깔린 선수 — 데려간 선수도 그대로 두고 taken 으로 표시한다 */
 export const boardPlayers = (s) => currentSeries(s)?.players || [];
