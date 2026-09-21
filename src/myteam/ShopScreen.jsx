@@ -17,8 +17,12 @@ function ItemCard({ it, on, onClick }) {
       className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
       style={{ '--c': '12px', '--a': n, backgroundImage: `url(${itemArt(it)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
-      <span className="absolute left-3 top-2 font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</span>
-      <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px', background: n }}>{catSub[it.cat]}</span>
+      {/* 분류 · 꼬리표를 왼쪽 위 한 줄로 (오른쪽 위는 비운다) */}
+      <span className="absolute left-3 top-2 inline-flex items-center gap-1.5">
+        <b className="font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</b>
+        <i className="h-3 w-px" style={{ background: `${n}88` }} />
+        <small className="text-[11px] text-gray-300" style={{ textShadow: '0 2px 4px #000' }}>{catSub[it.cat]}</small>
+      </span>
       {/* 오르는 값: 이름 · 숫자 · 5칸 게이지(같은 종류 최대치 기준) — 설명 문장 대신 */}
       <span className="absolute inset-x-3 bottom-2.5 block">
         {(() => {
