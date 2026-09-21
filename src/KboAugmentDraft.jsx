@@ -1499,14 +1499,21 @@ export const KEYFRAMES = `
     linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent);
 }
-/* 라이브: 내 차례면 선반 판이 내 색으로 켜지고 숨쉰다 */
+/* 라이브: 내 차례면 선반 판 위로 내 색 빛이 차오르고, 차례가 끝나면 같은 속도로 잦아든다 */
+/* 숨쉬는 빛은 그림자 세기로만 준다 — 투명도는 켜고 끄는 전환에만 쓰여야 뚝 끊기지 않는다 */
 @keyframes myTurnPulse {
-  0%, 100% { box-shadow: 0 0 16px -10px var(--a); background: rgba(6,10,19,.74); }
-  50% { box-shadow: 0 0 34px -6px var(--a); background: color-mix(in srgb, var(--a) 8%, rgba(6,10,19,.74)); }
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 45%, transparent), 0 0 18px -10px var(--me, #e879f9); }
+  50% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 75%, transparent), 0 0 34px -4px var(--me, #e879f9); }
 }
-.bc-grp.myturn { animation: myTurnPulse 1.9s ease-in-out infinite; }
-.bc-grp.myturn::after { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 70%, transparent); }
-@media (prefers-reduced-motion: reduce) { .bc-grp.myturn { animation: none; box-shadow: 0 0 26px -8px var(--a); } }
+.bc-grp::before {
+  content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: 0;
+  transition: opacity .5s ease;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--me, #e879f9) 12%, transparent), transparent 62%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 55%, transparent), 0 0 30px -6px var(--me, #e879f9);
+  clip-path: inherit;
+}
+.bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
+@media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
 .bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
 .bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
@@ -1574,7 +1581,8 @@ export const KEYFRAMES = `
 .mc.gone::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: color-mix(in srgb, var(--t, #fff) 22%, transparent); }
 /* 나간 자리는 빈 칸으로 남아 선반이 흔들리지 않는다 */
 .mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
-.mc.hot { top: -3px; transition: top .2s; }
+.mc { transition: top .34s cubic-bezier(.22,1,.36,1); }
+.mc.hot { top: -3px; }
 .mc.hot:hover { top: -5px; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
 .mc.taken .mc-in { filter: grayscale(1) brightness(.3); }
@@ -2407,7 +2415,7 @@ function MiniCard({ player, reason, takenClub, gone = false, hot = false, myColo
         )}
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
-      <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected || focus === 'on' ? 'border-2' : 'border'}`}
+      <span className={`pointer-events-none absolute inset-[2.5cqw] transition-colors duration-300 ${selected || focus === 'on' ? 'border-2' : 'border'}`}
         style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : `${acc}66` }} />
       {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
           회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
@@ -5839,7 +5847,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
               <div className={`bc-grp lg:!px-1.5 ${live && myTurn ? 'myturn' : ''}`}
-                style={series ? { '--a': live && myTurn ? live.clubs[liveMine].color : SERIES_NEON[series.kind] } : undefined}>
+                style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color } : {}) } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
