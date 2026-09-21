@@ -2792,6 +2792,8 @@ const REC_COLS = {
     { h: '타점', show: (r) => r.rbi, num: (r) => +r.rbi },
   ],
 };
+/* 예비 자리는 투수·타자가 섞여 서므로 타자 열을 쓰고, 투수가 선 줄은 기록을 비운다 */
+REC_COLS.bench = REC_COLS.bat;
 const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '예비', BENCH_SLOTS.map((b) => b.id)]];
 const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
 
@@ -2912,7 +2914,7 @@ function RecordCards({ roster, selectedSlot, onTap }) {
   return (
     <div className="mt-rec">
       {REC_GROUPS.map(([kind, en, ko, slots]) => {
-        const cols = REC_COLS[kind];
+        const cols = REC_COLS[kind] || [];
         const rows = slots.map((slot) => {
           const player = placed.find((p) => p.slot === slot);
           // 투수 자리에 선 타자(또는 반대)는 표 열과 기록 종류가 달라 기록을 비운다
