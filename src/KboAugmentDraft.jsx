@@ -2484,9 +2484,11 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
 }
 
 /* 라이브 드래프트 · 뽑는 순서 표: 이번 바퀴의 자리 순서대로 구단 조각이 맞물린다 */
-function TurnOrder({ live, clock }) {
-  const start = live.pick - (live.pick % Live.CLUB_COUNT);
-  const at = live.pick % Live.CLUB_COUNT;
+function TurnOrder({ live, clock, hold = false }) {
+  // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다)
+  const shown = Math.max(0, live.pick - (hold ? 1 : 0));
+  const start = shown - (shown % Live.CLUB_COUNT);
+  const at = shown % Live.CLUB_COUNT;
   const seq = Array.from({ length: Live.CLUB_COUNT }, (_, k) => live.clubs[Live.clubAt(start + k, live.order)]);
   return (
     <div className="dr-order" aria-label="뽑는 순서">
@@ -6031,7 +6033,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                           </button>
                         </span>
                         <span className="dr-bar">
-                        <TurnOrder live={live} clock={clock} />
+                        <TurnOrder live={live} clock={clock} hold={gone.size > 0} />
                         {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
                         <i className="dr-div" aria-hidden="true" />
                         <span className="dr-sp" role="group" aria-label="진행 배속">
