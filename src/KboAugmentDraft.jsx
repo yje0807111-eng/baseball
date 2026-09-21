@@ -1557,12 +1557,13 @@ export const KEYFRAMES = `
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
 .mc.taken .mc-in { filter: grayscale(1) brightness(.3); }
-.mc.taken .mc-tb { background: var(--t); box-shadow: none; }
+.mc.taken .mc-tb { display: none; }
 .mc.taken .mc-ov { color: #4b5563; text-shadow: none; background: none; animation: none; filter: none; -webkit-text-fill-color: currentColor; }
-.mc.taken .mc-rule { background: linear-gradient(90deg, var(--t), color-mix(in srgb, var(--t) 20%, transparent)); }
-.mc-tsub { position: absolute; left: 7cqw; right: 7cqw; bottom: 32cqw; font-size: 8.5cqw; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6b7280; }
-.mc-tbar { position: absolute; left: 7cqw; bottom: 7cqw; width: 3cqw; height: 17cqw; background: var(--t); }
-.mc-tnm { position: absolute; left: 14cqw; right: 7cqw; bottom: 6cqw; font-size: 18cqw; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; color: #e5e7eb; white-space: nowrap; overflow: hidden; }
+.mc-ttop { position: absolute; z-index: 5; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: var(--t); }
+.mc-trule { position: absolute; z-index: 5; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--t), color-mix(in srgb, var(--t) 20%, transparent)); }
+.mc-tsub { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 32cqw; font-size: 8.5cqw; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6b7280; }
+.mc-tbar { position: absolute; z-index: 5; left: 7cqw; bottom: 7cqw; width: 3cqw; height: 17cqw; background: var(--t); }
+.mc-tnm { position: absolute; z-index: 5; left: 14cqw; right: 7cqw; bottom: 6cqw; font-size: 18cqw; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; color: #e5e7eb; white-space: nowrap; overflow: hidden; }
 .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
 .mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
@@ -2375,15 +2376,7 @@ function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, on
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <SynergyPips {...hint} />}
-        {takenClub ? (
-          /* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다 */
-          <>
-            <span className="mc-tsub">{player.position} · {player.name}</span>
-            <span className="mc-rule" />
-            <span className="mc-tbar" />
-            <b className="mc-tnm">{takenClub.short}</b>
-          </>
-        ) : (
+        {takenClub ? null : (
           <>
             <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
             <span className="mc-rule" />
@@ -2395,6 +2388,17 @@ function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, on
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
       <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected || focus === 'on' ? 'border-2' : 'border'}`}
         style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : takenClub ? `${takenClub.color}66` : `${acc}66` }} />
+      {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
+          회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
+      {takenClub && (
+        <>
+          <span className="mc-ttop" />
+          <span className="mc-tsub">{player.position} · {player.name}</span>
+          <span className="mc-trule" />
+          <span className="mc-tbar" />
+          <b className="mc-tnm">{takenClub.short}</b>
+        </>
+      )}
       {/* 데려간 카드는 아래 줄이 이미 구단을 말하므로 잠금 알림을 따로 띄우지 않는다 */}
       {locked && !takenClub && <span className="mc-lk" title={reason}><LockIcon /><span>{reason.replace(/\s*\(.*\)$/, '')}</span></span>}
     </button>
