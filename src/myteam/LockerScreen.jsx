@@ -358,7 +358,6 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <div className="text-center">
               <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
               <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템이 없습니다</b>
-              <p className="m-0 text-sm text-gray-400">훈련으로 능력치를 영구히 올리거나, 부스트로 한 경기를 준비하세요.</p>
               <div className="mt-5 flex items-center justify-center gap-2.5">
                 <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
               </div>
