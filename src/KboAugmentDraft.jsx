@@ -5587,8 +5587,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
-  /** 보기 단추로 감추는 대상 — 남이 데려간 선수 · 지금 못 뽑는 선수 */
-  const hideTarget = (pl) => (!!live && Live.takenBy(live, pl) != null) || !!lockOf(pl);
+  /** 보기 단추로 감추는 대상 — 라이브에서는 남이 데려간 선수만. 내 자리가 차서 못 뽑는 선수는 남겨 둬야 다른 구단이 그 자리를 채우는 것이 보인다 */
+  const hideTarget = (pl) => (live ? Live.takenBy(live, pl) != null : !!lockOf(pl));
   /** 이 카드를 지금 선반에 보일지 — 감춘 카드는 빈 칸으로 남아 남은 카드의 크기와 자리가 변하지 않는다 */
   const hiddenCard = (pl) => {
     if (gone.has(pl.id)) return false;               // 지명돼 사라지는 중인 카드는 끝까지 보여 준다
