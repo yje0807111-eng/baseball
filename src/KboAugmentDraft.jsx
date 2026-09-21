@@ -1584,9 +1584,11 @@ export const KEYFRAMES = `
 .mc-nm.l5 { font-size: 13cqw; }
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
-/* 보기 단추로 감춰 둔 카드가 드러날 때만 짧게 떠오른다 (지명 직후 남는 배너 카드는 효과 없이 그대로) */
-@keyframes mcReveal { from { opacity: 0; transform: translateY(7px) scale(.94); } to { opacity: 1; transform: none; } }
-.mc.reveal { animation: mcReveal .36s cubic-bezier(.22,1,.36,1) both; }
+/* 보기 단추로 카드가 드러나고 숨는 효과 — 카드가 아니라 감싸는 칸에 준다 (카드의 등장 애니와 겹치지 않게) */
+@keyframes scIn { from { opacity: 0; transform: translateY(7px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes scOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(5px) scale(.96); } }
+.sc-in { animation: scIn .36s cubic-bezier(.22,1,.36,1) both; }
+.sc-out { animation: scOut .3s ease-in both; }
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
 /* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
 @keyframes mcGone { 0%, 62% { opacity: 1; } 100% { opacity: 0; } }
@@ -2440,7 +2442,7 @@ function TurnOrder({ live, clock }) {
   );
 }
 
-function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, reveal = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
+function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2449,7 +2451,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
     <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, '--n': acc, ...(takenClub ? { '--t': takenClub.color } : {}), clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
-      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${gone ? (keepAfterGone ? 'gone-keep' : 'gone') : ''} ${reveal ? 'reveal' : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
+      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${gone ? (keepAfterGone ? 'gone-keep' : 'gone') : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
       <span className="mc-in">
         {art
           ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
@@ -5506,7 +5508,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
   const [shelfFilter, setShelfFilter] = useState('open'); // 선반: 영입 가능만(기본) · 전부
-  const [revealing, setRevealing] = useState(false); // 보기 단추로 감춘 카드가 막 드러나는 중 (등장 효과용)
+  const [reveal, setReveal] = useState(null); // 보기 단추를 눌러 카드가 드러나는 중('in') · 숨는 중('out')
   const revealRef = useRef(0);
   const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
   const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
@@ -5515,11 +5517,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
+  /** 보기 단추로 감추는 대상 — 남이 데려간 선수 · 지금 못 뽑는 선수 */
+  const hideTarget = (pl) => (!!live && Live.takenBy(live, pl) != null) || !!lockOf(pl);
   /** 이 카드를 지금 선반에 보일지 — 감춘 카드는 빈 칸으로 남아 남은 카드의 크기와 자리가 변하지 않는다 */
   const hiddenCard = (pl) => {
-    if (gone.has(pl.id)) return false;                                   // 사라지는 중인 카드는 끝까지 보여 준다
-    if (live && Live.takenBy(live, pl) != null && shelfFilter === 'open') return true; // 남이 데려간 선수
-    return shelfFilter === 'open' && !!lockOf(pl);                       // 지금 못 뽑는 선수
+    if (gone.has(pl.id)) return false;               // 지명돼 사라지는 중인 카드는 끝까지 보여 준다
+    if (reveal === 'out' && hideTarget(pl)) return false; // 숨는 효과가 도는 동안은 아직 보인다
+    return shelfFilter === 'open' && hideTarget(pl);
   };
   const shownCards = seriesCards.filter((p) => !posFilter?.pos || p.position === posFilter.pos);
   const shelfCols = Math.max(17, seriesCards.length); // 칸 수는 이 보드 인원으로 고정 — 거르기를 해도 카드가 커지지 않는다
@@ -5941,7 +5945,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     )}
                     <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
                       const next = f === 'open' ? 'all' : 'open';
-                      if (next === 'all') { setRevealing(true); clearTimeout(revealRef.current); revealRef.current = setTimeout(() => setRevealing(false), 480); }
+                      setReveal(next === 'all' ? 'in' : 'out');
+                      clearTimeout(revealRef.current);
+                      revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
                       return next;
                     })}>
                       <span className="tr" aria-hidden="true" />{live ? '못 뽑는 선수 · 남이 데려간 선수도' : '영입할 수 없는 선수도'} 보기
@@ -5977,16 +5983,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 )}
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
-                  <div key={p.id} data-card={p.id} className="relative min-w-0">
+                  <div key={p.id} data-card={p.id}
+                    className={`relative min-w-0 ${reveal && hideTarget(p) && !gone.has(p.id) ? (reveal === 'in' ? 'sc-in' : 'sc-out') : ''}`}
+                    style={reveal && hideTarget(p) ? { animationDelay: `${i * 16}ms` } : undefined}>
                   {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
                   {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
-                  <MiniCard player={p} reason={lockOf(p)} reveal={revealing && !gone.has(p.id) && !!lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
+                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
                     onSign={(pl) => (lockOf(pl) ? setPicked(pl) : handleSelectPlayer(pl))}
-                    style={{ animationDelay: revealing ? `${i * 16}ms` : shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms`, ...(hiddenCard(p) ? { visibility: 'hidden' } : null) }} />
+                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms`, ...(hiddenCard(p) ? { visibility: 'hidden' } : null) }} />
                   </div>
                 ))}
               </div>
