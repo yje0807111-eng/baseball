@@ -1610,10 +1610,16 @@ export const KEYFRAMES = `
 .mc.taken .mc-tb { display: none; }
 .mc.taken .mc-ov { color: #4b5563; text-shadow: none; background: none; animation: none; filter: none; -webkit-text-fill-color: currentColor; }
 .mc-ttop { position: absolute; z-index: 5; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: var(--t); }
-.mc-trule { position: absolute; z-index: 5; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--t), color-mix(in srgb, var(--t) 20%, transparent)); }
-.mc-tsub { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 32cqw; font-size: 8.5cqw; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6b7280; }
-.mc-tbar { position: absolute; z-index: 5; left: 7cqw; bottom: 7cqw; width: 3cqw; height: 17cqw; background: var(--t); }
-.mc-tnm { position: absolute; z-index: 5; left: 14cqw; right: 7cqw; bottom: 6cqw; font-size: 18cqw; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; color: #e5e7eb; white-space: nowrap; overflow: hidden; }
+/* 데려간 카드의 사진 자리에 올라오는 구단 배너 — 아래 정보 줄(이름 · CP)은 그대로 둔다 */
+.mc-flag { position: absolute; z-index: 4; left: 0; right: 0; top: 0; bottom: 38cqw; background: #070b14 center 26% / cover no-repeat; }
+.mc-flag::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5,8,15,.15) 45%, rgba(5,8,15,.92));
+  box-shadow: inset 0 -2px 0 var(--t); }
+.mc-tnm { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 40cqw; font-size: 15cqw; font-weight: 800; line-height: 1; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 6px #000; white-space: nowrap; overflow: hidden; }
+/* 아래 줄은 죽은 톤으로 (카드가 살아 있는 것과 구분) */
+.mc.taken .mc-pos em { background: #64748b; }
+.mc.taken .mc-pos span, .mc.taken .mc-nm { color: #94a3b8; }
+.mc.taken .mc-cp b { color: var(--t); text-shadow: none; }
 .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
 .mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
@@ -2447,7 +2453,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <SynergyPips {...hint} />}
-        {takenClub ? null : (
+        {(
           <>
             <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
             <span className="mc-rule" />
@@ -2464,9 +2470,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
       {takenClub && (
         <>
           <span className="mc-ttop" />
-          <span className="mc-tsub">{player.position} · {player.name}</span>
-          <span className="mc-trule" />
-          <span className="mc-tbar" />
+          <span className="mc-flag" style={takenClub.emblem ? { backgroundImage: `url(${takenClub.emblem})` } : undefined} aria-hidden="true" />
           <b className="mc-tnm">{takenClub.short}</b>
         </>
       )}
@@ -5596,7 +5600,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, [live, phase]);
   useEffect(() => { // AI 차례
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
-    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 600 + Math.random() * 800);
+    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 500 + Math.random() * 1000);
     return () => clearTimeout(t);
   }, [live, phase, choice]);
   useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
