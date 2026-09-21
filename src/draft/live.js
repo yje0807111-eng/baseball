@@ -26,8 +26,8 @@ export const TRAITS = {
 export const CLUB_POOL = BANNERS.filter((b) => !['korea', 'legend'].includes(b.key));
 const TRAIT_ORDER = ['power', 'mound', 'value', 'defense', 'balance', 'power', 'mound'];
 export const emblemOf = (key) => `ui/clubs/${key}.webp`;
-/** 프로필 배너 키 → 내 카드에 뜰 그림. 엠블럼이 없는 배너(국가대표 · 레전드)는 깃발을 쓴다 */
-export const bannerEmblem = (key) => (!key ? null : ['korea', 'legend'].includes(key) ? `ui/teams/flag-${key}.webp` : emblemOf(key));
+/** 프로필 배너 키 → 내 카드에 뜰 그림. 고른 배너가 없으면 드림팀 그림 */
+export const bannerEmblem = (key) => emblemOf(key || 'dream');
 
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 

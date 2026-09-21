@@ -28,6 +28,10 @@ export const CLUB_ART = {
   kt: ['KT 위즈', 'crimson and white', "A wizard's pointed hat over a glowing baseball with sparks"],
   kiwoom: ['키움 히어로즈', 'magenta-burgundy and white', "A masked hero's cape and shield crest"],
   hyundai: ['현대 유니콘스', 'violet and silver', 'A unicorn head crest with a sharp horn'],
+  // 구단이 아닌 배너 — 프로필에서 고를 수 있어 같이 만든다
+  korea: ['대한민국', 'red and blue with white stars', 'A shield crest with a taegeuk swirl over crossed baseball bats'],
+  legend: ['레전드', 'gold and warm amber', 'A golden laurel wreath around an upright bat with a star above'],
+  dream: ['나의 드림팀', 'magenta and violet', 'A glowing baseball with a comet trail forming a star crest'],
 };
 const prompt = (k) => {
   const [, color, scene] = CLUB_ART[k];
