@@ -1537,9 +1537,31 @@ export const KEYFRAMES = `
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
-.dr-bar { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 3px 10px; transform: translate(-50%, -50%);
+.dr-bar { display: flex; align-items: center; gap: 10px; padding: 3px 10px;
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+/* 가운데: 라운드와 샐러리 캡 잔여 */
+.dr-meta { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 14px; padding: 4px 12px; transform: translate(-50%, -50%);
+  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.dr-round { display: flex; align-items: baseline; gap: 6px; }
+.dr-round small { font-family: 'Saira Condensed', sans-serif; font-size: 10px; letter-spacing: .24em; color: #6b7280; }
+.dr-round b { font-family: 'Saira Condensed', sans-serif; font-size: 22px; line-height: 1; color: #fff; }
+.dr-round small + b + small { font-size: 11px; letter-spacing: 0; }
+.dr-cap { display: flex; align-items: center; gap: 9px; }
+.dr-cap b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; color: var(--a); }
+.dr-cap > small { font-family: 'Saira Condensed', sans-serif; font-size: 10.5px; color: #6b7280; }
+.dr-ticks { display: flex; gap: 2px; }
+.dr-ticks i { width: 4px; height: 13px; transform: skewX(-18deg); background: rgba(255,255,255,.12); }
+.dr-ticks i.on { background: var(--a); box-shadow: 0 0 6px color-mix(in srgb, var(--a) 40%, transparent); }
+.dr-ticks i.spend { background: rgba(148,163,184,.4); }
+/* 오른쪽: 전체보기 토글을 순서 판 위에 작게 */
+.dr-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: #9ca3af; }
+.dr-toggle .tr { position: relative; width: 22px; height: 12px; border-radius: 99px; background: rgba(255,255,255,.14); transition: background .15s; }
+.dr-toggle .tr::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #fff; transition: left .15s; }
+.dr-toggle[aria-pressed="true"] { color: #e8ecf2; }
+.dr-toggle[aria-pressed="true"] .tr { background: #10b981; }
+.dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
 .dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
 .dr-pc { position: relative; display: flex; align-items: center; padding: 3px 13px 3px 19px; margin-left: -12px;
@@ -2218,7 +2240,7 @@ function Badge({ children }) {
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
 /** capAfter: PICK 에 올린 선수를 영입하면 남을 캡 — 있으면 “지금 → 영입 후” 숫자와, 깎일 칸이 노랗게 깜빡이는 게이지 */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit }) {
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit, slim = false }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const pct = clamp01((preview ? capAfter : cp) / cap);
@@ -2245,13 +2267,13 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           </div>
         )}
 
-        <div className="flex items-baseline gap-2">
+        {!slim && <div className="flex items-baseline gap-2">
           <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
-        </div>
+        </div>}
 
-        <div className="min-w-[220px] flex-1">
+        {!slim && <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
@@ -2270,7 +2292,8 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
             {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
           </div>
-        </div>
+        </div>}
+        {slim && <span className="flex-1" aria-hidden="true" />}
 
         <div className="flex items-center gap-3">
           {foreign > 0 && (
@@ -2425,6 +2448,33 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
+/* 선반 머리 가운데: 라운드와 샐러리 캡 잔여 (칸 스물넷) */
+function DraftMeta({ round, cp, cap, capAfter }) {
+  const preview = capAfter != null && capAfter !== cp;
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const pct = clamp01((preview ? capAfter : cp) / cap);
+  const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
+  const now = Math.round(clamp01(cp / cap) * 24);
+  const lit = preview ? Math.min(now, Math.round(pct * 24)) : now;
+  return (
+    <div className="dr-meta">
+      <span className="dr-round">
+        <small>ROUND</small>
+        <b>{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</b>
+        <small>/ {ROSTER_SIZE}</small>
+      </span>
+      <i className="dr-div" aria-hidden="true" />
+      <span className="dr-cap" style={{ '--a': tone }}>
+        <span className="dr-ticks" role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
+          {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
+        </span>
+        <b>{preview ? capAfter : cp}</b>
+        <small>/ {cap}</small>
+      </span>
+    </div>
+  );
+}
+
 /* 라이브 드래프트 · 뽑는 순서 표: 이번 바퀴의 자리 순서대로 구단 조각이 맞물린다 */
 function TurnOrder({ live, clock }) {
   const start = live.pick - (live.pick % Live.CLUB_COUNT);
@@ -5894,7 +5944,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
 
       {phase !== 'mode' && phase !== 'bracket' && (
-        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} slim={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
           onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
@@ -5920,47 +5970,28 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  {live && (
-                    <span className="dr-bar">
-                      <TurnOrder live={live} clock={clock} />
-                      {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
-                      <i className="dr-div" aria-hidden="true" />
-                      <span className="dr-sp" role="group" aria-label="진행 배속">
-                        {[1, 2, 4].map((v) => (
-                          <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
-                        ))}
-                      </span>
-                      <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
-                        title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
-                    </span>
-                  )}
+                  <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
                     {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
                   </div>
-                  <div className="ml-auto flex shrink-0 items-center gap-2.5">
+                  <div className={`ml-auto flex shrink-0 gap-2.5 ${live ? 'flex-col items-end gap-y-0.5' : 'items-center'}`}>
                     {posFilter?.pos && (
                       <button type="button" className="ser-pf" onClick={() => handleSlotFilter(null)} aria-label={`${SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 선수만 보기 해제`}>
                         {SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 <span aria-hidden="true">✕</span>
                       </button>
                     )}
-                    <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
+                    <button type="button" className={live ? 'dr-toggle' : 'ser-sw'} aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
                       const next = f === 'open' ? 'all' : 'open';
                       setReveal(next === 'all' ? 'in' : 'out');
                       clearTimeout(revealRef.current);
                       revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
                       return next;
                     })}>
-                      <span className="tr" aria-hidden="true" />{live ? '못 뽑는 선수 · 남이 데려간 선수도' : '영입할 수 없는 선수도'} 보기
+                      <span className="tr" aria-hidden="true" />{live ? `전체보기 ${shelfFilter === 'all' ? 'ON' : 'OFF'}` : '영입할 수 없는 선수도 보기'}
                     </button>
-                    {/* 라이브: 보드 수만 오른쪽에 (누구 차례인지는 가운데 순서 표가 말한다) */}
-                    {live ? (
-                      <>
-                        <span className="h-5 w-px bg-white/10" aria-hidden="true" />
-                        <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
-                      </>
-                    ) : (
+                    {live ? null : (
                       <>
                     <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                     <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
@@ -5971,6 +6002,21 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       새로고침 <em>· {rerolls}회</em>
                     </button>
                       </>
+                    )}
+                    {/* 라이브: 뽑는 순서 판 — 전체보기 토글 아래에 붙는다 */}
+                    {live && (
+                      <span className="dr-bar">
+                        <TurnOrder live={live} clock={clock} />
+                        {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
+                        <i className="dr-div" aria-hidden="true" />
+                        <span className="dr-sp" role="group" aria-label="진행 배속">
+                          {[1, 2, 4].map((v) => (
+                            <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
+                          ))}
+                        </span>
+                        <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
+                          title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
+                      </span>
                     )}
                   </div>
                 </div>
