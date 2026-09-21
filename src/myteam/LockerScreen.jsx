@@ -10,7 +10,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
-import { SHOP_ITEMS, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
+import { SHOP_ITEMS, catArt, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
@@ -311,7 +311,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
 }
 
 const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
-const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', staff: '#c4b5fd' };
+const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
 /* 팀에서 가장 약한 곳과, 그걸 올려 주는 훈련 한 가지 — 아이템이 없을 때 오른쪽 판에 보여 준다 */
@@ -370,7 +370,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             return (
               <button key={x.id} type="button" onClick={() => onPick(x.id)}
                 className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
-                style={{ '--c': '12px', '--a': c, backgroundImage: `url(ui/mt/${x.img}.webp)` }}>
+                style={{ '--c': '12px', '--a': c, backgroundImage: `url(${catArt(x.cat)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${c}59` }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
                 <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-lg font-extrabold text-[#05080f]" style={{ '--c': '5px', background: c }}>×{keys.length}</span>
                 <span className="absolute inset-x-3 bottom-2.5 block">
@@ -417,7 +417,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
           );
         })() : (
           <>
-            <Hero img={`url(ui/mt/${it.img}.webp)`} name={it.name} color={n} h={130} pos="center" />
+            <Hero img={`url(${catArt(it.cat)})`} name={it.name} color={n} h={130} pos="center 30%" />
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">

@@ -41,6 +41,9 @@ export const SHOP_ITEMS = [
   item('st-upgrade', 'staff', '코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
 ];
 
+/** 분류 사진 (public/ui/shop/<cat>.webp — scripts/shop-art.mjs 로 만든다) */
+export const catArt = (cat) => `ui/shop/${cat}.webp`;
+
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
 

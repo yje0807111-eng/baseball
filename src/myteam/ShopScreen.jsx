@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, isStorable, addToInventory, recommendTargets } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, catArt, isStorable, addToInventory, recommendTargets } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -9,14 +9,14 @@ const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff:
 const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강' };
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리' };
 
-/** 상품 카드 — 모드 화면 시리즈 카드와 같은 틀: 큰 사진 · 오른쪽 위 배지 · 아래 이름 · 가격 */
+/** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
 function ItemCard({ it, on, onClick }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
       className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
-      style={{ '--c': '12px', '--a': n, backgroundImage: `url(ui/mt/${it.img}.webp)` }}>
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
+      style={{ '--c': '12px', '--a': n, backgroundImage: `url(${catArt(it.cat)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
+      <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
       <span className="absolute left-3 top-2 font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</span>
       <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px', background: n }}>{catSub[it.cat]}</span>
       <span className="absolute inset-x-3 bottom-2.5 block">
@@ -77,7 +77,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
   const NAV = CATEGORIES.map((c) => ({
     key: c.key, label: c.label, sub: `${counts[c.key]}개${c.key === 'all' ? '' : ` · ${catSub[c.key]}`}`,
-    img: `ui/mt/${(SHOP_ITEMS.find((i) => c.key === 'all' || i.cat === c.key) || SHOP_ITEMS[0]).img}.webp`,
+    img: catArt(c.key === 'all' ? 'training' : c.key),
   }));
 
   return (
@@ -102,7 +102,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
             <p className="mt-lab" style={{ '--a': '#fde047' }}>Shop</p>
             <p className="text-sm text-gray-400">오늘의 상품 {items.length}개 · 매일 09시 갱신</p>
           </div>
-          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
+          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-5 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
             {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
@@ -111,7 +111,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
           {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
             <>
-              <Hero img={`url(ui/mt/${picked.img}.webp)`} name={picked.name} color={n} h={150} pos="center" />
+              <Hero img={`url(${catArt(picked.cat)})`} name={picked.name} color={n} h={150} pos="center 30%" />
               <p className="-mt-1 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
 
               {picked.target && (
