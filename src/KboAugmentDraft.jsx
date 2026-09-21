@@ -5964,16 +5964,16 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 )}
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
-                  <div key={p.id} data-card={p.id} className="min-w-0">
-                  {hiddenCard(p) ? <span className="mc-slot" aria-hidden="true" /> : (
+                  <div key={p.id} data-card={p.id} className="relative min-w-0">
+                  {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
+                  {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
                     onSign={(pl) => (lockOf(pl) ? setPicked(pl) : handleSelectPlayer(pl))}
-                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
-                  )}
+                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms`, ...(hiddenCard(p) ? { visibility: 'hidden' } : null) }} />
                   </div>
                 ))}
               </div>
