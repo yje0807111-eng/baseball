@@ -41,6 +41,34 @@ export const SHOP_ITEMS = [
   item('st-upgrade', 'staff', '코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
 ];
 
+/** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
+export const itemArt = (it) => `ui/shop/${it.id}.webp`;
+
+/** 상품이 올려 주는 값 — [이름, 오르는 값, 같은 종류 최대치(게이지 기준)] */
+export function itemEffect(it) {
+  if (it.stat) return { label: STAT_KO[it.stat] || it.stat, amount: it.amount, max: it.stat === 'stamina' ? 15 : 6 };
+  if (it.cap) return { label: '샐러리 캡', amount: it.cap, max: 100 };
+  if (it.staffRole) return { label: it.staffRole === 'manager' ? '감독 선임' : '코치 선임', amount: null, max: 1 };
+  if (it.staffTicket) return { label: '코치 레벨', amount: 1, max: 1 };
+  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: 1, max: 1 };
+  return { label: it.name, amount: null, max: 1 };
+}
+
+export const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
+
+/* 팀에서 가장 약한 묶음과, 그걸 올려 주는 상품 한 가지 (라커 아이템 탭 · 상점 사이드 공용) */
+export const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
+export const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
+const WEAK_ITEM = { bat: 'tr-power', sp: 'tr-stuff', rp: 'tr-stuff' };
+export function teamWeakness(squad = []) {
+  const avg = (l) => (l.length ? Math.round(l.reduce((s, p) => s + p.overall, 0) / l.length) : 0);
+  const groups = { bat: squad.filter((p) => p.type === 'batter'), sp: squad.filter((p) => p.position === 'SP'), rp: squad.filter((p) => p.position === 'RP') };
+  const rows = Object.entries(groups).map(([k, l]) => ({ k, v: avg(l), n: l.length, worst: [...l].sort((a, b) => a.overall - b.overall)[0] }));
+  const filled = rows.filter((r) => r.n);
+  const weak = filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null;
+  return { rows, weak, item: weak ? SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]) : null };
+}
+
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
 
@@ -90,7 +118,7 @@ export function addToInventory(team, it) {
 }
 
 /** 효과가 닿는 선수인가 — 타격 아이템은 타자, 투구 아이템은 투수만 (투수는 타석에 서지 않는다) */
-export const fitsItem = (it, p) => (it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter');
+export const fitsItem = (it, p) => (!it || !p ? false : it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter');
 
 /** 추천 대상 — 효과가 맞는 쪽(타자/투수)에서 종합이 가장 많이 오르는 순 */
 export function recommendTargets(team, it, n = 5) {

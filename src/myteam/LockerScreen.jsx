@@ -10,11 +10,12 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
-import { SHOP_ITEMS, needsStaff, fitsItem, recommendTargets, consumeItem } from './shop.js';
+import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
-import { posColor, statColor } from './teamColor.js';
+import { posColor, statColor, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
+import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
 import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
@@ -25,9 +26,25 @@ const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
-const effText = (e) => Object.entries(e).map(([k, v]) => `${EFF_LABEL[k]} +${k === 'steal' ? `${Math.round(v * 100)}%p` : v}`).join(' · ');
+/* 코치 효과: 한 줄 문장 "타격 +2 · 승부처 +1" — 숫자만 효과 색 · 굵게 */
+const EFF_COLOR = { bat: '#34d399', field: '#7dd3fc', pitch: '#60a5fa', stamina: '#fbbf24', steal: '#f472b6', clutch: '#f87171' };
+const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
+const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 60px 76px';
-const cardImg = (p) => `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
+
+/*
+ * 선수 카드 그림(cards/ → profiles/ → 실루엣)을 미리 받아 둔다: 목록에서 마우스를 올리면(preloadCard) 상세 판 카드가 누르는 순간 바로 뜬다.
+ */
+const cardCache = new Map(); // id → Promise<url>
+function preloadCard(p) {
+  if (!p || cardCache.has(p.id)) return cardCache.get(p?.id);
+  const tryLoad = (src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(src); im.onerror = no; im.src = src; });
+  const id = encodeURIComponent(p.id);
+  const job = tryLoad(`cards/${id}.webp`).catch(() => tryLoad(`profiles/${id}.webp`)).catch(() => 'ui/mt/silhouette-player.webp');
+  cardCache.set(p.id, job);
+  return job;
+}
 
 /** 드롭다운 — 유리 판 + 모서리 네온 목록 (기본 select 창 대신) */
 function Select({ value, onChange, options, all }) {
@@ -46,9 +63,9 @@ function Select({ value, onChange, options, all }) {
     const on = String(value) === String(v);
     return (
       <button key={v || 'all'} type="button" role="option" aria-selected={on} onClick={() => pick(v)}
-        className={`mt-cut flex w-full items-center justify-between px-3 py-2 text-left text-[13px] ${on ? 'text-[#05080f]' : 'text-gray-300 hover:bg-white/[0.07] hover:text-white'}`}
-        style={{ ...cut(5), background: on ? '#10b981' : undefined, fontWeight: on ? 800 : 500 }}>
-        {label}{on && <span aria-hidden="true">✓</span>}
+        className={`relative flex h-7 w-full shrink-0 items-center justify-between pl-3 pr-2 text-left text-[13px] leading-none ${on ? 'text-emerald-300' : 'text-gray-300 hover:bg-white/[0.06] hover:text-white'}`}
+        style={{ background: on ? 'rgba(16,185,129,.12)' : undefined, boxShadow: on ? 'inset 2px 0 0 #10b981' : undefined, fontWeight: on ? 700 : 500 }}>
+        {label}{on && <span aria-hidden="true" className="text-[11px]">✓</span>}
       </button>
     );
   };
@@ -61,9 +78,9 @@ function Select({ value, onChange, options, all }) {
         <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
       </button>
       {open && (
-        <div role="listbox" className="mt-cut mt-frame absolute left-0 right-0 top-[calc(100%+6px)] z-30 animate-[fade_.15s_ease-out_both] p-1.5"
-          style={{ ...cut(12), position: 'absolute', background: 'rgba(6,10,19,.96)', backdropFilter: 'blur(10px)', boxShadow: '0 24px 50px -16px rgba(0,0,0,.95)' }}>
-          <div className="mt-scroll flex max-h-[320px] flex-col gap-0.5 overflow-y-auto pr-1">
+        <div role="listbox" className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 animate-[fade_.15s_ease-out_both] p-1"
+          style={{ background: 'rgba(8,12,22,.97)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,.12)', boxShadow: '0 18px 40px -12px rgba(0,0,0,.9)' }}>
+          <div className="mt-scroll slim flex max-h-[300px] flex-col overflow-y-auto pr-1">
             {item('', all)}
             {options.map((o) => item(o, o))}
           </div>
@@ -74,17 +91,29 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench }) {
+/** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
+const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
+/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 금색(움직임 없음) */
+const statBand = (v) => (v >= 90 ? 'b90' : v >= 80 ? 'b80' : v >= 70 ? 'b70' : v >= 60 ? 'b60' : 'b0');
+
+/** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
   const n = tone(p.overall);
+  const neon = teamNeon(p);
   const keys = KEYS[p.type] || KEYS.batter;
   return (
-    <div role="button" onClick={() => onPick(p)} className={`mt-row mt-cut cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': n }}>
-      <Portrait player={p} w={46} h={54} color={n} />
-      <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
+      <Portrait player={p} w={46} h={54} color={teamTint ? neon : n} />
+      {teamTint
+        ? <b className={`st-v ${statTier(p.overall)} font-display text-[30px] font-extrabold leading-none`}>{p.overall}</b>
+        : <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
       <span className="min-w-0">
+        {/* 영입 목록: 포지션은 칩 대신 이름 위 작은 구단색 영문 라벨 */}
+        {teamTint && <small className="block truncate font-display text-[11px] font-bold leading-tight tracking-[0.16em]" style={{ color: neon }}>{POS_FULL[p.position]}</small>}
         <b className="block truncate text-base font-black text-white">
           {p.name}
-          <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>
+          {!teamTint && <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
+          {teamTint && <span className="ml-2 text-xs font-medium text-gray-500">{p.year} {p.team}</span>}
           {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
@@ -93,30 +122,81 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
             </button>
           )}
         </b>
-        <small className="block truncate text-[11px] text-gray-500">
-          {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
-        </small>
+        {!teamTint && (
+          <small className="block truncate text-[11px] text-gray-500">
+            {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
+          </small>
+        )}
       </span>
       {keys.map(([label, k]) => {
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statColor(v, posColor(p)).num }}>{v}</b></span>
-            <span className="relative mt-[4px] block h-[6px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statColor(v, posColor(p)).bar }} />
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className={`st-n ${statBand(v)} font-display text-[15px]`}>{v}</b></span>
+            <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
+              <b className={`st-bar ${statBand(v)} absolute inset-y-0 left-0 block`} style={{ width: `${v}%` }} />
             </span>
           </span>
         );
       })}
       <b className="text-right font-display text-lg text-amber-300">{p.cost}</b>
-      <Btn sm pri={on} a={n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
+      <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
 }
 
+/** 선수를 고르기 전 오른쪽 상세: 실제 상세 판과 같은 자리에 스켈레톤 블록 (드래프트 빈 PICK 과 같은 대기 움직임) */
+function EmptyDetail() {
+  let i = 0;
+  const sk = (style, cls = '') => <span className={`mt-sk ${cls}`} style={{ ...style, '--i': i++ }} />;
+  // 선수를 골랐을 때의 한 장짜리 긴 카드와 같은 틀: 판에서 남은 높이를 재서 카드 크기를 정한다
+  const box = useRef(null);
+  const baseRef = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return undefined;
+    const fit = () => setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - (baseRef.current?.offsetHeight || 0)) * 2) / 3))));
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const inset = Math.round(w * 0.016 * 10) / 10;
+  const corner = Math.round(w * 0.07);
+  return (
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
+      <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
+      <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
+        {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
+        <div className="mt-skring" style={{ width: w, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
+          <div>
+            <div className="relative aspect-[2/3] w-full" style={{ containerType: 'inline-size' }}>
+              {PK_SKELETON.map((st, k) => <span key={k} className="pk-sk" style={{ ...st, '--i': k }} />)}
+            </div>
+            <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px` }}>
+              <span className="mb-2 block h-px bg-emerald-400/20" />
+              <div className="grid grid-cols-6 gap-2 py-1.5">
+                {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '60%', height: 15 })}</div>)}
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {[92, 110, 80, 104].map((tw) => <span key={tw}>{sk({ width: tw, height: 26, boxShadow: 'inset 3px 0 0 rgba(148,163,184,.25)' })}</span>)}
+              </div>
+            </div>
+            <span className="pointer-events-none absolute" style={{ inset, border: '1px solid rgba(148,163,184,.14)' }} />
+          </div>
+        </div>
+      </div>
+      {/* 캡 · 팀 종합 한 줄 · 버튼 자리 */}
+      <div className="flex items-center justify-between border-y border-white/10 py-2.5">{sk({ width: 130, height: 12 })}{sk({ width: 110, height: 12 })}</div>
+      <div className="mt-cut mt-skbtn h-[46px] w-full" style={cut(10)} />
+    </aside>
+  );
+}
+
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench }) {
-  if (!p) return <aside className="mt-cut mt-frame mt-glass flex flex-col gap-4 p-6" style={cut(20)}><p className="mt-lab">Player</p><p className="text-sm text-gray-500">목록에서 선수를 고르세요.</p></aside>;
+function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0 }) {
+  if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const n = tone(p.overall);
   const cost = squadCost(squad, staff);
@@ -130,72 +210,111 @@ function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onBench 
   const keys = KEYS[p.type] || KEYS.batter;
   const tr = playerTraits(p);
   const hand = HAND_LABEL(p);
+  return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
+    owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand} />;
+}
+
+/**
+ * 카드(2:3) + 바로 아래 붙은 받침(실적 줄 · 강점/약점 칩): 받침은 카드와 같은 문법 —
+ * 검은 면 · 구단 네온 안쪽 테두리 · 네온 구분선 · Saira 영문 라벨 · 카드 칩 모양. 판에서 남은 높이를 재서 카드 크기를 정한다
+ */
+function CardWithRecord({ p, tr }) {
+  const box = useRef(null);
+  const baseRef = useRef(null);
+  const [w, setW] = useState(0);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return undefined;
+    const fit = () => {
+      const baseH = baseRef.current?.offsetHeight || 0;
+      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3))));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    if (baseRef.current) ro.observe(baseRef.current);
+    return () => ro.disconnect();
+  }, [p.id]); // 선수가 바뀌면 받침이 새로 그려지므로 다시 잰다
+  const neon = teamNeon(p);
+  const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])];
+  const inset = Math.round(w * 0.016 * 10) / 10; // 카드 속 안쪽 테두리(pk-fr)와 같은 1.6%
+  const corner = Math.round(w * 0.07); // 카드 잘린 모서리와 같은 7%
   return (
-    <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-3 overflow-y-auto p-5" style={{ ...cut(20), '--a': n }}>
-      <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
-      <div className="relative shrink-0">
-        <Hero img={cardImg(p)} ovr={p.overall} name={p.name} color={n} h={160} />
-        <span className="absolute right-3 top-3 flex items-center gap-1.5 text-[13px] font-bold" style={{ color: hand.color }}>
-          <b className="grid h-6 w-6 place-items-center rounded-full text-[13px] font-extrabold text-[#05080f]" style={{ background: hand.color }}>{hand.short}</b>{hand.long}
-        </span>
-      </div>
-      <p className="-mt-2 text-[13px] text-gray-400">{p.year} {p.team} · {p.position} · {p.cost} CP{p.isForeign ? ' · 외국인' : ''}</p>
-      <div className="grid grid-cols-4 gap-1.5">
-        {keys.map(([label, k]) => {
-          const v = p.stats?.[k] ?? 0;
-          const c = statColor(v, posColor(p));
-          return (
-            <div key={k} className="mt-cut bg-white/[0.045] px-2 py-1.5" style={cut(6)}>
-              <div className="text-[10.5px] text-gray-400">{label}</div>
-              <b className="font-display text-[21px] leading-tight" style={{ color: c.num }}>{v}</b>
-              <span className="relative mt-0.5 block h-1 bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: c.bar }} /></span>
+    <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
+      {/* 한 장짜리 긴 카드: 카드 자체 모서리 · 안쪽 테두리는 끄고(pk-long) 카드+받침 전체를 한 번에 자르고 두른다.
+          카드 혼자 떠오르면 받침과 어긋나 보여서 등장 움직임도 전체에 */}
+      <div key={p.id} className="pk-long relative animate-[rise_.35s_ease-out_both] bg-[#05080f]"
+        style={{ width: w, '--n': neon, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
+        <div className="aspect-[2/3] w-full">
+          <PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none', transform: 'none' }} />
+        </div>
+        <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px`, background: 'linear-gradient(180deg,#05080f,#070c16)' }}>
+          <span className="mb-2 block h-px" style={{ background: 'linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent))' }} />
+          {/* 실적: 작은 영문 라벨 + 굵은 숫자 */}
+          <div className="grid grid-cols-6">
+            {recordCells(p).map(([k, v], i) => (
+              <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 rgba(255,255,255,.07)' : undefined }}>
+                <span className="font-display text-[11px] font-semibold tracking-[0.08em] text-gray-400">{k}</span>
+                <b className={`font-display text-[19px] font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
+              </div>
+            ))}
+          </div>
+          {/* 강점 · 약점: 잘린 모서리 태그 · 왼쪽 구단 네온 줄 · ▲ 강점 / ▼ 약점만 색 */}
+          {chips.length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {chips.map(([t, good]) => (
+                <span key={t.id} className="inline-flex h-[26px] items-center gap-1.5 pl-[9px] pr-2.5"
+                  style={{ clipPath: 'polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--n) 22%, transparent), rgba(5,8,15,.7))', boxShadow: 'inset 3px 0 0 var(--n)' }}>
+                  <b className="text-[10px]" style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>
+                  <span className="text-[12.5px] font-bold text-gray-100">{t.name}</span>
+                  <span className="font-display text-xs text-gray-400">{t.why}</span>
+                </span>
+              ))}
             </div>
-          );
-        })}
+          )}
+        </div>
+        {/* 카드+받침 전체에 한 번만: 카드 속 테두리와 같은 간격 · 같은 색 */}
+        <span className="pointer-events-none absolute" style={{ inset, border: '1px solid color-mix(in srgb, var(--n) 45%, transparent)' }} />
       </div>
-      {/* 강점 · 약점: 아이콘 · 이름 · 근거 수치 */}
-      <div className="flex flex-col gap-1">
-        {tr.good.map((t) => (
-          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(52,211,153,.07)', boxShadow: 'inset 3px 0 0 #34d399' }}>
-            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#6ee7b7')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-emerald-300">{t.why}</span>
-          </div>
-        ))}
-        {tr.bad.map((t) => (
-          <div key={t.id} className="mt-cut grid items-center gap-2 px-2.5 py-1" style={{ ...cut(6), gridTemplateColumns: '20px 1fr auto', background: 'rgba(248,113,113,.07)', boxShadow: 'inset 3px 0 0 #f87171' }}>
-            <span className="h-[18px] w-[18px]" style={traitIconStyle(t.id, '#fca5a5')} /><b className="text-sm text-white">{t.name}</b><span className="font-display text-sm text-red-300">{t.why}</span>
-          </div>
-        ))}
-        {!tr.good.length && !tr.bad.length && <span className="text-sm text-gray-600">-</span>}
-      </div>
-      <div className="mt-cut grid grid-cols-6 bg-white/[0.03]" style={cut(8)}>
-        {recordCells(p).map(([k, v]) => (
-          <div key={k} className="py-1.5 text-center"><div className="text-[10.5px] text-gray-500">{k}</div><b className={`font-display text-[17px] ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></div>
-        ))}
+    </div>
+  );
+}
+
+function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand }) {
+  return (
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
+      <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
+      {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
+      <CardWithRecord p={p} tr={tr} />
+      {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
+      <div className="flex items-baseline justify-between border-y border-white/10 py-1.5 text-[12.5px] text-gray-400">
+        <span>{owned ? '방출 후 남은 캡' : '영입 후 남은 캡'} <b className="ml-1 font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{(cap - after).toLocaleString()} / {cap.toLocaleString()}</b></span>
+        <span>팀 종합 <b className="ml-1 font-display text-[15px]" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
       </div>
       <div>
-        <KV k={owned ? '방출 후 캡' : '영입 후 캡'} v={`${after.toLocaleString()} / ${cap.toLocaleString()}`} color={after > cap ? '#f87171' : '#fff'} />
-        <KV k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
-      </div>
-      {blocked && <p className="text-sm text-red-400">{blocked}</p>}
-      <div className="mt-auto">
         {owned
           ? (
-            <div className="grid grid-cols-2 gap-2">
-              {onBench && <Btn lg style={cut(12)} onClick={() => onBench(p)}>{playing?.has(p.id) ? '벤치로 ↓' : '출전 ↑'}</Btn>}
-              <Btn lg className={`text-[#ff5a67] ${onBench ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출하기</Btn>
+            /* 코치진 강화 단추와 같은 모양: 큰 두 칸(강화 1.4 : 방출 1) · 아래 작은 글씨에 쓸 수 있는 아이템 수 */
+            <div className="grid grid-cols-[1.4fr_1fr] gap-2">
+              {onUpgrade && (
+                <Btn lg a={n} pri={itemsFit > 0} disabled={!itemsFit} style={cut(12)} onClick={() => onUpgrade(p)}>
+                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{itemsFit ? `아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
+                </Btn>
+              )}
+              <Btn lg className={`text-[#ff5a67] ${onUpgrade ? '' : 'col-span-2'}`} style={cut(12)} onClick={() => onRelease(p)}>방출</Btn>
             </div>
           )
-          : <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!!blocked} onClick={() => onAdd(p)}>영입하기 ▶</Btn>}
+          : <Btn pri={!blocked} a={n} className={`w-full ${blocked ? 'text-[14px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(10)} disabled={!!blocked} onClick={() => onAdd(p)}>{blocked || '영입하기 ▶'}</Btn>}
       </div>
     </aside>
   );
 }
 
-const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
-const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', staff: '#c4b5fd' };
+const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
-function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
+
+function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse }) {
   const inv = team.items || [];
   const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
   const g = groups.find((x) => x.it.id === itemId) || groups[0];
@@ -214,8 +333,20 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
         <div className="flex items-baseline gap-3">
           <p className="mt-lab" style={{ '--a': '#fde047' }}>Items</p>
-          <p className="text-sm text-gray-400">보유 {inv.length}개 · {groups.length}종</p>
         </div>
+        {groups.length === 0 ? (
+          /* 가진 아이템이 없을 때: 사진 한 장 · 보유 골드 · 상점 버튼 (C안) */
+          <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
+            <div className="text-center">
+              <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
+              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템이 없습니다</b>
+              <div className="mt-5 flex items-center justify-center gap-2.5">
+                <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
+              </div>
+              <Btn pri lg a="#fde047" className="mx-auto mt-5 w-[260px]" style={cut(12)} onClick={onShop}>상점 가기 ▶</Btn>
+            </div>
+          </div>
+        ) : (
         <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
           {groups.map(({ it: x, keys }) => {
             const c = ITEM_COLOR[x.cat] || '#fde047';
@@ -223,7 +354,7 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
             return (
               <button key={x.id} type="button" onClick={() => onPick(x.id)}
                 className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
-                style={{ '--c': '12px', '--a': c, backgroundImage: `url(ui/mt/${x.img}.webp)` }}>
+                style={{ '--c': '12px', '--a': c, backgroundImage: `url(${itemArt(x)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${c}59` }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
                 <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-lg font-extrabold text-[#05080f]" style={{ '--c': '5px', background: c }}>×{keys.length}</span>
                 <span className="absolute inset-x-3 bottom-2.5 block">
@@ -233,15 +364,43 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
               </button>
             );
           })}
-          {groups.length === 0 && <p className="col-span-4 text-sm text-gray-500">보유한 아이템이 없습니다. 상점에서 훈련·부스트·계약서를 사 오세요.</p>}
         </div>
+        )}
       </section>
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
         <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
-        {!it ? <p className="text-sm text-gray-500">아이템을 고르세요.</p> : (
+        {!it ? (() => {
+          /* 아이템을 고르지 않았을 때: 우리 팀에서 가장 약한 곳과 그걸 올리는 훈련 (E안) */
+          const { rows, weak, item: buy } = teamWeakness(squad);
+          return (
+            <>
+              <b className="-mb-1 text-xl font-black text-white">우리 팀 약한 곳</b>
+              {rows.map((r) => (
+                <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
+                  {WEAK_KO[r.k]}
+                  <span className="h-2 bg-white/[0.08]"><i className="block h-full" style={{ width: `${r.v}%`, background: weak?.k === r.k ? WEAK_COLOR[r.k] : `${WEAK_COLOR[r.k]}66` }} /></span>
+                  <b className="text-right font-display text-[15px]" style={{ color: weak?.k === r.k ? WEAK_COLOR[r.k] : '#e5e7eb' }}>{r.v || '-'}</b>
+                </div>
+              ))}
+              {/* 추천 표(A안): 머리글 · 약한 곳(그 칸 색) · 추천 아이템 · 가격(금색) · 상점 버튼 */}
+              {weak && buy && (
+                <div className="mt-cut mt-2 px-3.5 pb-3.5 pt-2.5" style={{ '--c': '12px', background: 'rgba(5,8,15,.5)', boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}40` }}>
+                  <small className="mb-1 block font-display text-[11px] tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>RECOMMEND</small>
+                  {[['약한 곳', `${WEAK_KO[weak.k]} ${weak.v}`, WEAK_COLOR[weak.k]], ['추천 아이템', buy.name, '#fff'], ['가격', `${buy.price} G`, '#fde047']].map(([k, v, c], i) => (
+                    <span key={k} className={`flex items-baseline justify-between py-[7px] text-[12.5px] text-gray-400 ${i < 2 ? 'border-b border-white/[0.07]' : ''}`}>
+                      {k}<b className="text-[13.5px]" style={{ color: c }}>{v}</b>
+                    </span>
+                  ))}
+                  <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
+                </div>
+              )}
+              {!weak && <p className="text-sm text-gray-500">먼저 선수를 영입하세요.</p>}
+            </>
+          );
+        })() : (
           <>
-            <Hero img={`url(ui/mt/${it.img}.webp)`} name={it.name} color={n} h={130} pos="center" />
+            <Hero img={`url(${itemArt(it)})`} name={it.name} color={n} h={130} pos="center 30%" />
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
@@ -284,7 +443,7 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
   );
 }
 
-export default function LockerScreen({ account, onSave, onBack }) {
+export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [team, setTeam] = useState(account.team);
   const [tab, setTab] = useState('scout');
   const [q, setQ] = useState('');
@@ -368,18 +527,17 @@ export default function LockerScreen({ account, onSave, onBack }) {
   const results = matched.slice(0, limit);
 
   const NAV = [
-    { key: 'scout', label: '영입', sub: `선수 검색 · ${ALL.length}명`, img: 'ui/mt/tile-locker.webp' },
-    { key: 'squad', label: '내 선수', sub: `${squad.length} / ${SQUAD_SIZE}명`, img: 'ui/mt/mt-card.webp' },
-    { key: 'staff', label: '감독·코치', sub: `${Object.values(staff).filter(Boolean).length} / 4 자리`, img: 'ui/mt/silhouette-coach.webp' },
-    { key: 'items', label: '아이템', sub: `보유 ${(team.items || []).length}개`, img: 'ui/mt/mt-boost.webp' },
+    { key: 'scout', label: '영입', img: 'ui/nav/locker-scout.webp' },
+    { key: 'squad', label: '내 선수', img: 'ui/nav/locker-squad.webp' },
+    { key: 'staff', label: '감독·코치', img: 'ui/nav/locker-staff.webp' },
+    { key: 'items', label: '아이템', img: 'ui/nav/locker-items.webp' },
   ];
   const eff = staffEffect(staff);
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
-  const staffCost = Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
       <p className="mt-lab" style={{ '--a': a }}>{label}</p>
-      <p className="text-sm text-gray-400">{sub}</p>
+      {sub && <p className="text-sm text-gray-400">{sub}</p>}
       <div className="ml-auto flex gap-2">{extra}</div>
     </div>
   );
@@ -387,6 +545,17 @@ export default function LockerScreen({ account, onSave, onBack }) {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
+      <style>{`${KEYFRAMES}
+        .pk-long .pk { clip-path: none !important; }
+        .pk-long .pk-fr { display: none; }
+        .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
+        .st-n.b90 { color: #fbbf24; text-shadow: 0 0 8px rgba(251,191,36,.45); }
+        .st-bar.b0 { background: #f87171; } .st-bar.b60 { background: #fb923c; } .st-bar.b70 { background: #fde047; } .st-bar.b80 { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.45); }
+        .st-bar.b90 { background: linear-gradient(90deg, #b45309, #fbbf24); }
+        .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
+        .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+`}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
 
@@ -403,8 +572,8 @@ export default function LockerScreen({ account, onSave, onBack }) {
               const r = pos[key];
               const n = squad.filter((p) => p.position === key).length;
               return (
-                <div key={key} className="flex h-7 items-center justify-between border-b border-white/[0.07] px-[5px]">
-                  <span className="text-[12.5px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
+                <div key={key} className="flex h-[34px] items-center justify-between border-b border-white/[0.07] px-[5px]">
+                  <span className="text-[13px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
                 </div>
               );
             };
@@ -413,7 +582,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
             const entryOk = squad.length === SQUAD_SIZE && !issues.length;
             return (
               <>
-                <div className="flex items-center justify-between px-0.5 pb-2">
+                <div className="flex items-center justify-between px-0.5 pb-2.5">
                   <p className="mt-lab" style={{ fontSize: 10 }}>Squad</p>
                   {frac(squad.length, SQUAD_SIZE, entryOk ? '#34d399' : squad.length > SQUAD_SIZE ? '#f87171' : '#e5e7eb')}
                 </div>
@@ -421,7 +590,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
                   <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
                 </div>
-                <div className="mt-2.5 flex justify-between px-[5px] text-[13px] text-gray-300">
+                <div className="mt-3 flex justify-between px-[5px] text-[13px] text-gray-300">
                   <span>자유 자리 {frac(used, FREE_SLOTS, used > FREE_SLOTS ? '#f87171' : used === FREE_SLOTS ? '#34d399' : '#e5e7eb')}</span>
                   <span>외국인 {frac(fc, FOREIGN_MAX, fc > FOREIGN_MAX ? '#f87171' : '#e5e7eb')}</span>
                 </div>
@@ -432,7 +601,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
 
         {tab === 'scout' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('Scout', `${ALL.length.toLocaleString()}명 중 ${matched.length.toLocaleString()}명 · 영입한 선수 제외`, undefined, (
+            {head('Scout', null, undefined, (
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-gray-400">정렬</span>
                 <div className="w-40">
@@ -442,13 +611,13 @@ export default function LockerScreen({ account, onSave, onBack }) {
             ))}
             <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut w-full min-w-0 bg-white/[0.06] px-3 py-2.5 text-sm text-white outline-none focus:shadow-[inset_0_0_0_2px_#10b981]" style={cut(6)} />
+                className="mt-cut w-full min-w-0 bg-transparent px-3 py-2.5 text-sm text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:font-normal placeholder:text-gray-500/80 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.26)] focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(6)} />
               <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
               <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap)}
+                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap)} showNote={false} teamTint
                   onPick={setSel} onAct={add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}
@@ -462,15 +631,15 @@ export default function LockerScreen({ account, onSave, onBack }) {
         )}
 
         {tab === 'squad' && (
-          <SquadBoard team={team} squad={squad} bench={bench} cost={cost} sizeLabel={`${squad.length} / ${SQUAD_SIZE}명`}
-            sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench}
+          <SquadBoard team={team} squad={squad} bench={bench}
+            sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench} onRelease={release}
             onAutoFill={autoFill} autoDisabled={squad.length >= SQUAD_SIZE} />
         )}
 
         {tab === 'staff' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-            {head('Staff', `${Object.values(staff).filter(Boolean).length} / 4 자리 · 코치진 ${staffCost} CP`, '#c4b5fd')}
-            <div className="mt-3 grid h-48 shrink-0 grid-cols-4 gap-3">
+            {head('Staff', null, '#c4b5fd')}
+            <div className="mt-3 grid h-[232px] shrink-0 grid-cols-4 gap-3">
               {STAFF_SLOTS.map((s) => {
                 const cur = staff[s.key];
                 const on = staffSlot === s.key;
@@ -478,18 +647,27 @@ export default function LockerScreen({ account, onSave, onBack }) {
                   <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
                     aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`} className="group relative h-full text-left">
                     <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} className="h-full" render={(m) => (
-                      <span className={`mt-cut ${on ? 'mt-frame' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
-                        style={{ ...cut(12), '--a': '#c4b5fd', backgroundImage: 'url(ui/mt/silhouette-coach.webp)', filter: on ? undefined : 'brightness(.82)' }}>
+                      /* 드래프트 PICK 카드 테두리(.mt-frame: 잘린 모서리에 딱 맞는 대각선 + 네온 괄호) — 고른 자리는 밝게(hot), 나머지는 옅게.
+                         빈 자리는 코치 실루엣 그대로 */
+                      <span className={`mt-cut mt-frame ${on ? 'hot' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
+                        style={{ ...cut(16), '--a': on ? '#c4b5fd' : 'rgba(196,181,253,.55)', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
                         {m && (
-                          <span className="absolute inset-0 bg-cover transition-transform duration-300 group-hover:scale-105"
-                            style={{ backgroundPosition: '60% 30%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                          /* 사진 800×600 을 높이 256(폭 341)으로 — 인물(가로 59%)을 카드 가운데 두고도 양옆이 비지 않는 크기. 사진 칸은 카드 아래 끝에서 멈춰 그라데이션 밖으로 삐져나오지 않게 */
+                          <span className="absolute bottom-0 left-1/2 top-[-6px] w-[341px] bg-no-repeat transition-transform duration-300 group-hover:scale-105"
+                            style={{ transform: 'translateX(-59%)', backgroundSize: 'auto 256px', backgroundPosition: 'center top', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                         )}
-                        <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.92) 70%,#05080f)` }} />
-                        <span className="absolute left-3 top-2 font-display text-2xl font-extrabold text-[#c4b5fd]" style={{ textShadow: '0 0 16px #c4b5fd88' }}>{s.label}</span>
-                        {m && <b className="absolute right-3 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
-                        <span className="absolute inset-x-3 bottom-2.5">
+                        <span className="absolute inset-x-0 top-0 -bottom-0.5" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f 94%)` }} />
+                        <span className="absolute left-3.5 top-2.5 font-display text-[22px] font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
+                        {m && <b className="absolute right-3.5 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                        <span className="absolute inset-x-3.5 bottom-3">
                           <b className={`block truncate text-lg font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
-                          <span className="block truncate text-[12px] text-[#c4b5fd]">{m ? effText(staffEffectOf(m)) : '-'}</span>
+                          {m ? (
+                            <span className="block truncate text-[12px] font-semibold text-slate-300">
+                              {effTags(staffEffectOf(m)).map((e, i) => (
+                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-600">·</span>}{e.label} <b className="font-display text-[14px]" style={{ color: e.c }}>{e.n}</b></span>
+                              ))}
+                            </span>
+                          ) : <span className="block text-[12px] text-gray-600">-</span>}
                         </span>
                       </span>
                     )} />
@@ -498,24 +676,37 @@ export default function LockerScreen({ account, onSave, onBack }) {
               })}
             </div>
             <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</div>
-            <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
-              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => {
-                return (
-                  <div key={m.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '46px minmax(0,1fr) minmax(0,1.2fr) 60px 76px', '--a': '#c4b5fd' }}>
-                    <Portrait player={m} staff w={44} h={52} color="#c4b5fd" />
-                    <span className="min-w-0"><b className="block truncate text-base font-black text-white">{m.name}</b><small className="text-[11px] text-gray-500">{m.era} · {m.note}</small></span>
-                    <span className="text-sm text-[#c4b5fd]">{effText(m.effect)}</span>
-                    <b className="text-right font-display text-lg text-amber-300">{m.cost}</b>
+            {/* 후보 명함: 두 열 · 왼쪽 큰 사진(인물이 가운데 오게) · 오른쪽 직함 · 이름 · 시대 · 경력 · 효과 태그 · 가격 · 선임 */}
+            <div className="mt-scroll grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
+              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => (
+                <div key={m.id} className="mt-cut relative grid h-[120px] bg-[#131c2e]" style={{ ...cut(12), gridTemplateColumns: '120px minmax(0,1fr)', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.45)' }}>
+                  {/* 사진 800×600 을 높이 180 으로 · 인물(가로 59%)이 칸 가운데 오게 가로 -82px */}
+                  <span className="bg-no-repeat" style={{ backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundSize: 'auto 180px, auto 100%', backgroundPosition: '-82px -12px, center',
+                    maskImage: 'linear-gradient(90deg,#000 72%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 72%,transparent)' }} />
+                  <span className="flex min-w-0 flex-col gap-1.5 py-3 pl-1 pr-3.5">
+                    <span className="min-w-0 pr-[130px]">
+                      <small className="block font-display text-[11px] font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
+                      <b className="text-lg font-black text-white">{m.name}</b><small className="ml-2 text-[11px] text-gray-500">{m.era}</small>
+                    </span>
+                    <small className="truncate text-[12px] text-gray-400">{m.note}</small>
+                    <span className="text-[13px] font-semibold text-slate-300">
+                      {effTags(m.effect).map((e, i) => (
+                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-600">·</span>}{e.label} <b className="font-display text-[16px]" style={{ color: e.c }}>{e.n}</b></span>
+                      ))}
+                    </span>
+                  </span>
+                  <span className="absolute right-3 top-3 flex items-center gap-2">
+                    <b className="font-display text-lg text-amber-300">{m.cost}</b>
                     <Btn sm a="#c4b5fd" onClick={() => setStaff(listSlot, m)}>{staff[listSlot] ? '교체' : '선임'}</Btn>
-                  </div>
-                );
-              })}
+                  </span>
+                </div>
+              ))}
             </div>
           </section>
         )}
 
         {tab === 'items' && (
-          <ItemsTab team={team} itemId={itemId} target={itemTarget} onPick={(id) => { setItemId(id); setItemTarget(null); }} onTarget={setItemTarget}
+          <ItemsTab team={team} gold={account.gold || 0} onShop={onShop} itemId={itemId} target={itemTarget} onPick={(id) => { const it = SHOP_ITEMS.find((x) => x.id === id); setItemId(id); setItemTarget((t) => (t && it && fitsItem(it, t) ? t : null)); }} onTarget={setItemTarget}
             onUse={(key, t, slot) => { commit(consumeItem(team, key, t, slot)); setItemTarget(null); }} />
         )}
 
@@ -611,8 +802,9 @@ export default function LockerScreen({ account, onSave, onBack }) {
           );
         })()
           : (
-          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release}
-            playing={playing} onBench={tab === 'squad' ? toggleBench : null} />
+          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release} playing={playing}
+            itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
+            onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
         )}
       </div>
     </div>

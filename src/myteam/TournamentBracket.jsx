@@ -7,7 +7,8 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { roundsOf, finishOf, myOpponent, meIndex, teamOf } from './tournament.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
-import { teamFlag } from './teamArt.js';
+import { teamFlag, flagByKey } from './teamArt.js';
+import { myBanner } from './store.js';
 
 /* 팀 칸 배경: 구단 색 깃발이 오른쪽에서 왼쪽으로 스러진다 */
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -40,7 +41,7 @@ function Tree({ t, oppIdx, reveal }) {
         const won = r ? r.winner === i : null;
         const score = r ? (r.a === i ? r.as : r.bs) : null;
         const mine = i === me, opp = i === oppIdx;
-        const flag = t.entrants[i].me ? null : teamFlag(t.entrants[i].name);
+        const flag = t.entrants[i].me ? flagByKey(myBanner()) : teamFlag(t.entrants[i].name); // 내 칸은 프로필 배너
         slots.push(
           <div key={`${c}-${k}`} data-me={mine && c === t.round ? '' : undefined} className="ui-cut absolute flex items-center gap-1.5 overflow-hidden px-2"
             style={{ '--c': '5px', left: x, top: yc - SLOT_H / 2, width: SLOT_W, height: SLOT_H,

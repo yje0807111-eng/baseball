@@ -13,3 +13,12 @@ test('구단 · 국가대표 · 레전드 이름으로 깃발을 찾는다', () 
   expect(teamFlag('홈런왕42 드림팀')).toBeNull();
   for (const key of new Set(Object.values(cases))) expect(existsSync(`public/ui/teams/flag-${key}.webp`)).toBe(true);
 });
+
+test('프로필 배너 목록: 깃발 13장 · key 로 찾기', async () => {
+  const { BANNERS, flagByKey } = await import('../src/myteam/teamArt.js');
+  expect(BANNERS).toHaveLength(13);
+  expect(new Set(BANNERS.map((b) => b.label)).size).toBe(13);
+  expect(flagByKey('kia')?.src).toBe('ui/teams/flag-kia.webp');
+  expect(flagByKey(null)).toBeNull();
+  for (const b of BANNERS) expect(existsSync(`public/${b.src}`)).toBe(true);
+});

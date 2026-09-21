@@ -41,6 +41,7 @@ export function rankSummary(history = []) {
   return {
     form, winRate, streak: form[0] === 'W' ? streak : 0,
     mvp: count(history.map((h) => h.mvp))[0] || null,
+    mvps: count(history.map((h) => h.mvp)).slice(0, 3), // 경기 MVP 많이 뽑힌 선수 TOP 3
     augs: count(history.flatMap((h) => h.augs || [])).slice(0, 3),
   };
 }

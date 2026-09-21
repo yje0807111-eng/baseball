@@ -20,6 +20,13 @@ const TYPE_KO = Object.fromEntries(TYPE_ORDER);
 const RED = '#f87171';
 const GREEN = '#34d399';
 
+/** 효과 문장에서 맨 뒤 수치 한 개를 떼어 [앞 글, 수치] 로 — 수치가 둘 이상이면 떼지 않는다 */
+function splitEffect(desc = '') {
+  const nums = desc.match(/[+−-]\d+(?:\.\d+)?/g) || [];
+  const m = desc.match(/^(.*?)\s*([+−-]\d+(?:\.\d+)?)$/);
+  return nums.length === 1 && m ? [m[1], m[2]] : [desc, null];
+}
+
 const Pips = ({ lv, c }) => (
   <span className="flex gap-[3px]">
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
@@ -40,22 +47,18 @@ const GroupHead = ({ label, n, c }) => (
 function Row({ a, lv, banned, on, upgrade, onPick, onAct }) {
   const c = TIER[a.tier].c;
   const tone = banned ? '#6b7280' : c;
-  let btn;
-  if (upgrade) {
-    btn = lv >= AUG_LEVEL_MAX
+  /* 제외 · 풀기는 오른쪽 PICK 카드에서 한다 — 줄에는 강화 탭의 강화 단추만 둔다 */
+  const btn = !upgrade ? null
+    : lv >= AUG_LEVEL_MAX
       ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] font-display text-xs text-gray-500" style={cut(6)}>MAX</span>
       : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>+{lv + 1} · {lv + 1}장</button>;
-  } else {
-    btn = banned
-      ? <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)] hover:bg-white/10" style={cut(6)}>풀기 ↺</button>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#fca5a5] shadow-[inset_0_0_0_1px_rgba(248,113,113,.5)] hover:bg-red-400/10" style={cut(6)}>제외 ✕</button>;
-  }
   return (
     <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
-      style={{ ...cut(10), '--a': c, gridTemplateColumns: '48px minmax(0,1fr) 92px',
+      style={{ ...cut(10), '--a': c, gridTemplateColumns: upgrade ? '48px minmax(0,1fr) 92px' : '48px minmax(0,1fr)',
         background: on ? `linear-gradient(90deg,${c}2e,rgba(6,10,19,.6))` : banned ? 'rgba(248,113,113,.07)' : 'rgba(255,255,255,.035)' }}>
-      <span className="mt-cut grid h-12 place-items-center font-display text-2xl font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${banned ? '#64748b' : c}40,#0b1220 70%)`, color: tone }}>{a.name[0]}</span>
+      {/* 칸 그림: public/augments/<id>.webp (scripts/augment-art.mjs 로 만든다) */}
+      <span className="mt-cut h-12 bg-[#0b1220] bg-cover" style={{ ...cut(8), backgroundImage: `url(augments/${a.id}.webp)`, backgroundPosition: 'center 22%', boxShadow: `inset 0 0 0 1px ${tone}59`, filter: banned ? 'grayscale(1) brightness(.6)' : undefined }} />
       <div className="min-w-0">
         <div className="flex items-center gap-3">
           <b className={`truncate text-base font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
@@ -116,15 +119,15 @@ export default function AugmentScreen({ account, onBack }) {
   const pickBanned = picked && bans.includes(picked.id);
 
   const NAV = [
-    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, sub: `${AUGMENTS.filter((a) => a.tier === t).length}개 · 제외 ${aug.bans[t].length}/${aug.slots[t]}`, c: TIER[t].c, mark: TIER[t].en.slice(0, 2), t })),
-    { key: 'upgrade', label: '강화', sub: `강화한 증강 ${Object.values(aug.levels).filter(Boolean).length}개`, c: GREEN, mark: '+' },
+    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, c: TIER[t].c, t })),
+    { key: 'upgrade', label: '강화', c: GREEN },
   ];
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/mt-boost.webp" opacity={0.6} />
-      <TopBar eyebrow="Augments" section="증강" team={account.team} account={account} onBack={onBack} />
+      <TopBar eyebrow="Augments" section="증강" account={account} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 사이드 네비 */}
@@ -136,19 +139,12 @@ export default function AugmentScreen({ account, onBack }) {
                 {k === 0 && <p className="mt-lab px-1 pt-1">Pool</p>}
                 {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>Upgrade</p>}
                 <button type="button" onClick={() => { setTab(it.key); setSel(null); if (it.key !== 'upgrade') setUpTier(it.key); }}
-                  className={`mt-nav ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
-                  <span className="mt-cut grid h-[3.2rem] w-11 shrink-0 place-items-center font-display text-sm font-extrabold" style={{ ...cut(8), background: `radial-gradient(circle,${it.c}55,#0b1220 75%)`, color: it.c }}>{it.mark}</span>
+                  className={`mt-nav sm ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
+                  {/* 칸 그림: public/ui/aug/<키>.webp (scripts/aug-tier-art.mjs 로 만든다 — 등급 색 빛 · 같은 어두운 배경) */}
+                  <span className="mt-cut h-[2.75rem] w-10 shrink-0 bg-cover bg-center" style={{ ...cut(8), backgroundImage: `url(ui/aug/${it.key}.webp)`, boxShadow: `inset 0 0 0 1px ${it.c}66`, filter: on ? undefined : 'saturate(.8) brightness(.8)' }} />
                   <span className="min-w-0 flex-1">
                     <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-                    <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
                   </span>
-                  {it.t && (
-                    <span className="grid grid-cols-2 gap-[3px]">
-                      {Array.from({ length: AUG_SLOT_MAX }, (_, i) => (
-                        <i key={i} className="block h-1 w-2.5" style={{ background: i < aug.bans[it.t].length ? RED : i < aug.slots[it.t] ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.06)' }} />
-                      ))}
-                    </span>
-                  )}
                 </button>
               </React.Fragment>
             );
@@ -156,7 +152,6 @@ export default function AugmentScreen({ account, onBack }) {
           <div className="mt-cut mt-auto bg-white/[0.045] p-3" style={cut(8)}>
             <div className="flex justify-between text-sm text-gray-400"><span>제거권</span><b className="font-display text-lg text-rose-300">{aug.removeTickets}</b></div>
             <div className="flex justify-between text-sm text-gray-400"><span>강화권</span><b className="font-display text-lg text-amber-300">{aug.upgradeTickets}</b></div>
-            <p className="mt-1 text-[11px] text-gray-500">상점 · 증강 분류에서 살 수 있어요</p>
           </div>
         </nav>
 
@@ -179,7 +174,7 @@ export default function AugmentScreen({ account, onBack }) {
             {groups.map(([label, list]) => (
               <div key={label}>
                 <GroupHead label={label} n={list.length} c={tab === 'upgrade' ? GREEN : T.c} />
-                <div className="flex flex-col gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
                       onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
@@ -190,7 +185,7 @@ export default function AugmentScreen({ account, onBack }) {
             {tab !== 'upgrade' && bans.length > 0 && (
               <div>
                 <GroupHead label="Excluded · 제외됨" n={bans.length} c={RED} />
-                <div className="flex flex-col gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={toggleBan} />
                   ))}
@@ -208,20 +203,26 @@ export default function AugmentScreen({ account, onBack }) {
             return (
               <>
                 <p className="mt-lab" style={{ '--a': c }}>Pick</p>
-                <div className="mt-cut mt-frame relative flex min-h-0 flex-1 flex-col overflow-hidden p-5"
-                  style={{ ...cut(18), '--a': c, background: `radial-gradient(120% 70% at 50% 0%,${c}3a,transparent 62%),linear-gradient(180deg,#0f1828,#070b14)` }}>
+                <div className="mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
+                  {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
+                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
                   <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
-                  <div className="flex items-center gap-2">
+                  <div className="absolute inset-x-4 top-4 flex items-center gap-2">
                     <span className="mt-cut px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ ...cut(4), background: c }}>{T.en}</span>
-                    <span className="text-xs text-gray-400">{TYPE_KO[picked.type] || picked.type}</span>
+                    <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
                     {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
                   </div>
-                  <div className="grid min-h-0 flex-1 place-items-center">
-                    <span className="font-display text-[96px] font-extrabold leading-none" style={{ color: c, textShadow: `0 0 40px ${c}` }}>{picked.name[0]}</span>
+                  <div className="absolute inset-x-0 bottom-0">
+                    <b className="block px-[18px] pb-3 text-3xl font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    {(() => { const [head, num] = splitEffect(picked.desc); return (
+                      <span className="flex items-center justify-between gap-3 px-[18px] py-3" style={{ background: `linear-gradient(90deg,${c}2a,transparent)`, boxShadow: `inset 0 1px 0 ${c}59` }}>
+                        <b className="min-w-0 text-[15px] leading-snug text-gray-100">{head}</b>
+                        {num && <b className="shrink-0 font-display text-[34px] leading-none" style={{ color: c }}>{num}</b>}
+                      </span>
+                    ); })()}
+                    <span className="block px-[18px] pb-4 pt-3"><Pips lv={lv} c={c} /></span>
                   </div>
-                  <b className="text-3xl font-black text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                  <p className="mt-1.5 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
-                  <div className="mt-3"><Pips lv={lv} c={c} /></div>
                 </div>
                 {tab === 'upgrade' ? (
                   <>

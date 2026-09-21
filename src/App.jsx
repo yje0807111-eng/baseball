@@ -134,7 +134,7 @@ export default function App() {
     );
   }
   if (view === 'augments') return <AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />;
-  if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} />;
+  if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />;
   if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
   if (view === 'bracket' && tournament) {
     return <TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
@@ -154,7 +154,7 @@ export default function App() {
 
   return (
     <LobbyScreen account={account}
-      onLocker={() => setView('locker')} onPlay={() => setView('modes')} onShop={() => setView('shop')} onAugments={() => setView('augments')}
+      onLocker={() => setView('locker')} onPlay={(tab) => toModes(tab || null)} onShop={() => setView('shop')} onAugments={() => setView('augments')}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }
