@@ -315,8 +315,6 @@ const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', staff: '#c4b5fd' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
 /* 팀에서 가장 약한 곳과, 그걸 올려 주는 훈련 한 가지 — 아이템이 없을 때 오른쪽 판에 보여 준다 */
-/** 앞말 받침에 맞는 조사 (훈련 → 을 · 강화 → 를) */
-const josa = (w, withBat, noBat) => (((w.charCodeAt(w.length - 1) - 0xac00) % 28) > 0 ? withBat : noBat);
 const WEAK_ITEM = { bat: 'tr-power', sp: 'tr-stuff', rp: 'tr-stuff' };
 const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
 const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
@@ -402,17 +400,19 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                   <b className="text-right font-display text-[15px]" style={{ color: weak?.k === r.k ? WEAK_COLOR[r.k] : '#e5e7eb' }}>{r.v || '-'}</b>
                 </div>
               ))}
+              {/* 추천 표(A안): 머리글 · 약한 곳(그 칸 색) · 추천 아이템 · 가격(금색) · 상점 버튼 */}
               {weak && buy && (
-                <div className="mt-cut mt-2 p-3.5" style={{ '--c': '12px', background: `${WEAK_COLOR[weak.k]}14`, boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}59` }}>
-                  <small className="font-display text-[11px] tracking-[0.18em]" style={{ color: WEAK_COLOR[weak.k] }}>WEAKEST</small>
-                  <p className="mb-2.5 mt-1.5 text-[13.5px] leading-relaxed text-gray-200">
-                    {WEAK_KO[weak.k]}이 가장 약해요. <b className="text-white">{buy.name}</b>{weak.worst ? <>{josa(buy.name, '을', '를')} <b className="text-white">{weak.worst.name}</b>에게 쓰면 좋아져요.</> : josa(buy.name, '으로', '로') + ' 올릴 수 있어요.'}
-                  </p>
-                  <Btn pri a="#fde047" className="w-full" style={cut(10)} onClick={onShop}>{buy.name} {buy.price} G 사러 가기 ▶</Btn>
+                <div className="mt-cut mt-2 px-3.5 pb-3.5 pt-2.5" style={{ '--c': '12px', background: 'rgba(5,8,15,.5)', boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}40` }}>
+                  <small className="mb-1 block font-display text-[11px] tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>RECOMMEND</small>
+                  {[['약한 곳', `${WEAK_KO[weak.k]} ${weak.v}`, WEAK_COLOR[weak.k]], ['추천 아이템', buy.name, '#fff'], ['가격', `${buy.price} G`, '#fde047']].map(([k, v, c], i) => (
+                    <span key={k} className={`flex items-baseline justify-between py-[7px] text-[12.5px] text-gray-400 ${i < 2 ? 'border-b border-white/[0.07]' : ''}`}>
+                      {k}<b className="text-[13.5px]" style={{ color: c }}>{v}</b>
+                    </span>
+                  ))}
+                  <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
                 </div>
               )}
               {!weak && <p className="text-sm text-gray-500">먼저 선수를 영입하세요.</p>}
-              <div className="mt-auto"><Btn lg a="#fde047" className="w-full" style={cut(12)} onClick={onShop}>상점 가기 ▶</Btn></div>
             </>
           );
         })() : (
