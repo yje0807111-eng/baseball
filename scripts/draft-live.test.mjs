@@ -89,3 +89,21 @@ test('상대는 나를 뺀 구단 중 전력이 가장 가까운 팀', () => {
   expect(opp).not.toBe(s.clubs.findIndex((c) => c.me));
   expect(s.clubs[opp].roster.length).toBeGreaterThan(0);
 });
+
+test('보드는 늘 18명까지 · 선수가 많은 시리즈도 포지션이 고루 깔린다', async () => {
+  const { BOARD_SIZE, sampleBoard } = await import('../src/draft/live.js');
+  const { DRAFT_SERIES } = await import('../src/KboAugmentDraft.jsx');
+  const big = DRAFT_SERIES.filter((x) => x.players.length > BOARD_SIZE);
+  expect(big.length).toBeGreaterThan(0); // 레전드 묶음처럼 큰 시리즈가 있다
+  big.forEach((x) => {
+    const b = sampleBoard(x, seeded(x.players.length));
+    expect(b.players).toHaveLength(BOARD_SIZE);
+    const pos = new Set(b.players.map((p) => p.position));
+    expect(pos.size).toBeGreaterThanOrEqual(6);                       // 포지션이 한쪽으로 쏠리지 않는다
+    expect(b.players.filter((p) => p.type === 'pitcher').length).toBeGreaterThanOrEqual(5);
+    expect(b.players.filter((p) => p.type === 'batter').length).toBeGreaterThanOrEqual(8);
+    expect(new Set(b.players.map((p) => p.id)).size).toBe(BOARD_SIZE); // 같은 선수가 두 번 들어가지 않는다
+  });
+  const s = createLive({ rng: seeded(21) });
+  s.pool.forEach((b) => expect(b.players.length).toBeLessThanOrEqual(BOARD_SIZE));
+});

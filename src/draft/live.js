@@ -9,6 +9,10 @@ import { BANNERS } from '../myteam/teamArt.js';
 export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
 export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
 export const PICK_SECONDS = 25;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
+export const BOARD_SIZE = 18;       // 보드에 까는 선수 수 — 실제 구단 시리즈 한 팀과 같은 수
+/* 보드 포지션 구성: 구단 시즌 87개의 평균(SP 4.4 · RP 3.3 · C 1.4 · 내야 4.7 · OF 3.8 · DH 0.5)을 반올림한 것.
+   선수가 18명보다 많은 시리즈에서 이 구성대로 뽑으면 어느 보드든 한 팀을 꾸릴 만큼 자리가 고루 나온다 */
+const BOARD_MIX = { SP: 4, RP: 3, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 4, DH: 1 };
 /* 보드 수(=10). KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 쓸 때 센다 */
 export const boardCount = () => Math.ceil(ROSTER_SIZE / LAPS_PER_BOARD);
 
@@ -30,6 +34,25 @@ export const emblemOf = (key) => `ui/clubs/${key}.webp`;
 export const bannerEmblem = (key) => emblemOf(key || 'dream');
 
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+/** 시리즈를 보드 한 판(18명)으로 추린다. 포지션은 BOARD_MIX 만큼 먼저 채우고, 모자란 자리는 남은 선수로 메운다 */
+export function sampleBoard(series, rng = Math.random) {
+  if (!series || series.players.length <= BOARD_SIZE) return series;
+  const pool = shuffle(series.players, rng);
+  const picked = [];
+  const taken = new Set();
+  for (const [pos, want] of Object.entries(BOARD_MIX)) {
+    for (const pl of pool) {
+      if (picked.filter((x) => x.position === pos).length >= want) break;
+      if (pl.position === pos && !taken.has(pl.id)) { picked.push(pl); taken.add(pl.id); }
+    }
+  }
+  for (const pl of pool) { // 그 시리즈에 없는 포지션이 있으면 남은 선수로 18명을 맞춘다
+    if (picked.length >= BOARD_SIZE) break;
+    if (!taken.has(pl.id)) { picked.push(pl); taken.add(pl.id); }
+  }
+  return { ...series, players: picked.slice(0, BOARD_SIZE) };
+}
 
 /** 픽 번호(0부터) → 몇 바퀴째 · 그 바퀴의 몇 번째 자리 · 어느 보드 */
 export const lapOf = (pick) => Math.floor(pick / CLUB_COUNT);
@@ -56,11 +79,12 @@ export function createLive({ myName = '나의 드림팀', myShort = null, myColo
   const usable = series.filter((s) => s.players.length);
   const pool = [];
   while (pool.length < boardCount() && usable.length) pool.push(...shuffle(usable, rng).slice(0, boardCount() - pool.length));
+  const boards = pool.map((x) => sampleBoard(x, rng)); // 18명이 넘는 시리즈는 포지션을 고루 섞어 18명으로
   return {
     cap,
     clubs,
     order,
-    pool,                    // 이번 판에서 열 보드(시리즈) 10개
+    pool: boards,            // 이번 판에서 열 보드 (시리즈마다 18명)
     pick: 0,                 // 몇 번째 픽인지 (0부터, 끝은 CLUB_COUNT * ROSTER_SIZE)
     taken: {},               // 선수 id → 데려간 구단 번호
     picks: [],               // { pick, club, player, board }
