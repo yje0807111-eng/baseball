@@ -1566,12 +1566,14 @@ export const KEYFRAMES = `
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
 /* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
 @keyframes mcGone {
-  0% { opacity: 1; transform: none; filter: none; }
-  22% { opacity: 1; transform: translateY(-4px) scale(1.02); filter: brightness(1.25); }
-  100% { opacity: 0; transform: translateY(14px) scale(.9); filter: brightness(.6); }
+  0% { opacity: 1; }
+  35% { opacity: .95; }
+  100% { opacity: 0; }
 }
-.mc.gone { pointer-events: none; z-index: 6; animation: mcGone .62s cubic-bezier(.4,0,.2,1) both; }
-.mc.gone::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: radial-gradient(70% 45% at 50% 42%, color-mix(in srgb, var(--t, #fff) 55%, transparent), transparent 70%); }
+.mc.gone { pointer-events: none; animation: mcGone .5s ease-out both; }
+.mc.gone::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: color-mix(in srgb, var(--t, #fff) 22%, transparent); }
+/* 나간 자리는 빈 칸으로 남아 선반이 흔들리지 않는다 */
+.mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
 .mc.hot { top: -3px; transition: top .2s; }
 .mc.hot:hover { top: -5px; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
@@ -5446,9 +5448,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
   const openOnly = (p) => shelfFilter !== 'open' || !lockOf(p);
-  const shownCards = seriesCards
-    .filter((p) => !live || Live.takenBy(live, p) == null || gone.has(p.id)) // 라이브: 나간 선수는 선반에서 빠진다
-    .filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
+  const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
+  const shelfCols = Math.max(17, shownCards.length);
+  /** 라이브에서 이미 나가 빈 자리로 남은 카드 (자리를 지켜 선반이 흔들리지 않게 한다) */
+  const emptied = (pl) => !!live && Live.takenBy(live, pl) != null && !gone.has(pl.id);
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
@@ -5884,9 +5887,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   </div>
                 </div>
               )}
-              {/* 선반은 늘 한 줄: 칸 수를 카드 수에 맞추고(최소 17), 자리가 모자라면 카드가 같이 좁아진다 */}
+              {/* 선반은 늘 한 줄 · 칸 수는 이 보드의 인원으로 고정한다 — 카드가 빠져도 남은 카드 크기가 변하지 않는다 */}
               <div ref={shelfRef} className="mx-auto grid w-full grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))] lg:gap-[3px]"
-                style={{ '--n': Math.max(17, shownCards.length), maxWidth: `calc(${Math.max(17, shownCards.length)} * var(--card-w) + ${Math.max(17, shownCards.length) - 1} * 3px)` }}>
+                style={{ '--n': shelfCols, maxWidth: `calc(${shelfCols} * var(--card-w) + ${shelfCols - 1} * 3px)` }}>
                 {shownCards.length === 0 && (
                   <p className="col-span-full py-6 text-center text-sm text-gray-400">
                     {posFilter?.pos ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
@@ -5895,6 +5898,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
+                  {emptied(p) ? <span className="mc-slot" aria-hidden="true" /> : (
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
@@ -5902,6 +5906,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
                     onSign={(pl) => (lockOf(pl) ? setPicked(pl) : handleSelectPlayer(pl))}
                     style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
+                  )}
                   </div>
                 ))}
               </div>
