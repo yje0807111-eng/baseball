@@ -1638,7 +1638,7 @@ export const KEYFRAMES = `
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
 /* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
 @keyframes mcGone { 0%, 66% { opacity: 1; } 100% { opacity: 0; } }
-.mc.gone { pointer-events: none; animation: mcGone .5s ease-out both; }
+.mc.gone { pointer-events: none; animation: mcGone .8s ease-out both; }
 .mc.gone-keep { pointer-events: none; } /* 엠블럼만 지나가고 카드는 남는다 */
 /* 엠블럼: 구단 상징이 카드를 덮고 아래에 구단 이름 (그림은 public/ui/clubs/<키>.webp) */
 /* 엠블럼: 카드까지 사라질 때는 끝까지 덮고 있다가 카드와 함께 사라지고(뒤 카드가 다시 드러나지 않게),
@@ -1647,7 +1647,7 @@ export const KEYFRAMES = `
 @keyframes mcEmbInOut { 0% { opacity: 0; transform: scale(1.04); } 20% { opacity: 1; transform: none; } 66% { opacity: 1; } 100% { opacity: 0; } }
 .mc-emb { position: absolute; inset: 0; z-index: 7; display: grid; align-content: end; justify-items: center;
   background: #05080f center / cover no-repeat; background-image: inherit; animation: mcEmbIn .18s ease-out both; }
-.mc.gone-keep .mc-emb { animation: mcEmbInOut .5s ease-out both; }
+.mc.gone-keep .mc-emb { animation: mcEmbInOut .8s ease-out both; }
 .mc-emb::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.2) 40%, rgba(5,8,15,.9)); }
 .mc-emb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px var(--t), inset 0 0 26px -6px var(--t); }
 .mc-emb b { position: relative; padding-bottom: 9cqw; font-size: 17cqw; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 8px #000; }
@@ -5653,8 +5653,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, [live, phase]);
   useEffect(() => { // AI 차례
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
-    // 한 픽 사이 0.5초 — 구단마다 같은 간격으로 (배속을 올리면 그만큼 짧아진다)
-    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 500 / liveSpeed);
+    // 한 픽 사이 0.8초 — 구단마다 같은 간격으로 (배속을 올리면 그만큼 짧아진다)
+    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 800 / liveSpeed);
     return () => clearTimeout(t);
   }, [live, phase, choice, liveSpeed]);
   useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
@@ -5683,7 +5683,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (!last) return;
     const id = last.player.id;
     setGone((g) => new Set(g).add(id));
-    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 520 / liveSpeed));
+    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 820 / liveSpeed));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
     if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
