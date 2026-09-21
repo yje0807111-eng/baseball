@@ -23,27 +23,24 @@ function ItemCard({ it, on, onClick }) {
         <i className="h-3 w-px" style={{ background: `${n}88` }} />
         <small className="text-[11px] text-gray-300" style={{ textShadow: '0 2px 4px #000' }}>{catSub[it.cat]}</small>
       </span>
-      {/* 오르는 값: 이름 · 숫자 · 5칸 게이지(같은 종류 최대치 기준) — 설명 문장 대신 */}
+      {/* 아래: 이름 먼저 · 5칸 게이지 · 오르는 값과 가격을 좌우로 (이름과 수치가 붙어 보이지 않게) */}
       <span className="absolute inset-x-3 bottom-2.5 block">
         {(() => {
           const e = itemEffect(it);
           const on = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
           return (
             <>
-              <span className="mb-1 flex items-baseline gap-1.5">
-                <b className="text-[12.5px] text-gray-200">{e.label}</b>
-                {e.amount != null && <b className="font-display text-base" style={{ color: n }}>+{e.amount}</b>}
-              </span>
-              <span className="mb-[7px] grid h-[6px] grid-cols-5 gap-[3px]">
+              <b className="mb-1 block truncate text-base font-black text-white">{it.name}</b>
+              <span className="mb-1.5 grid h-[6px] grid-cols-5 gap-[3px]">
                 {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on ? n : 'rgba(255,255,255,.1)', boxShadow: i < on ? `0 0 6px ${n}66` : 'none' }} />)}
+              </span>
+              <span className="flex items-baseline justify-between">
+                <b className="text-[12px] text-gray-200">{e.label}{e.amount != null && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{e.amount}</span>}</b>
+                <b className="font-display text-base text-amber-300">{it.price.toLocaleString()} G</b>
               </span>
             </>
           );
         })()}
-        <span className="flex items-end gap-2">
-          <b className="min-w-0 flex-1 truncate text-base font-black text-white">{it.name}</b>
-          <b className="font-display text-lg text-amber-300">{it.price.toLocaleString()} G</b>
-        </span>
       </span>
     </button>
   );
