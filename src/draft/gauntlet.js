@@ -32,6 +32,9 @@ export function teamStats(roster) {
   };
 }
 
+/** 이 구단의 간판 — 종합이 가장 높은 선수 */
+export const starOf = (roster) => (roster || []).reduce((m, p) => (!m || p.overall > m.overall ? p : m), null);
+
 /** 라이브 판 → 도장깨기 탑. 맨 아래가 나, 위로 갈수록 센 구단 (잣대는 화면에 보이는 전력 그대로) */
 export function makeGauntlet(live) {
   const mine = Live.myIndex(live);
@@ -48,6 +51,7 @@ export function makeGauntlet(live) {
       grade: c.grade || null,
       trait: c.trait,
       roster,
+      star: starOf(roster),
       ...teamStats(roster),
     };
   };

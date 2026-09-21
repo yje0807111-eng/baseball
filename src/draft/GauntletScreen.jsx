@@ -47,9 +47,15 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
         clipPath: top ? 'polygon(50% 0,100% 24%,100% 100%,0 100%,0 24%)' : undefined }}>
       <b className="w-5 font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 21 : 14, color: lit ? r.color : '#54606f' }}>{index}</b>
       <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 52 : 26} className="transition-all duration-300 ease-out" style={{ opacity: cleared ? 0.45 : 1 }} />
-      <span className="grid gap-0.5 transition-all duration-300 ease-out" style={{ width: big ? 112 : 84 }}>
+      <span className="grid gap-[3px] transition-all duration-300 ease-out" style={{ width: big ? 184 : 92 }}>
         <b className="truncate transition-all duration-300 ease-out" style={{ fontSize: big ? 16.5 : 12.5, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
-        {big && <small className="text-[0.7rem] text-[#8b97a6]">{TRAIT_KO[r.trait] || ''}</small>}
+        {/* 간판 선수 — 구단 색 세로선을 달아 이름 줄과 나눈다 */}
+        {big && r.star && (
+          <span className="flex items-center gap-1.5 pl-[7px]" style={{ boxShadow: `inset 2px 0 0 ${r.color}` }}>
+            <b className="truncate text-[0.74rem] text-[#cbd5e1]">{r.star.name}</b>
+            <b className="font-display text-[0.78rem]" style={{ color: tone(r.star.overall) }}>{r.star.overall}</b>
+          </span>
+        )}
       </span>
       <span className="ml-auto flex items-center" style={{ gap: big ? 12 : 9 }}>
         {KEYS.slice(0, 3).map(([k, ko]) => (
@@ -141,7 +147,7 @@ function Detail({ r, width }) {
 export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
   const cur = currentRung(gaunt);
   const rec = record(gaunt);
-  const base = 540, grow = 40;
+  const base = 700, grow = 26;
   const myEmb = me.emblem || bannerEmblem(null);
   /* 펼쳐 둔 구단(한 번에 하나)과, 화면에 그리는 판들(접히는 중인 것도 잠시 남는다) */
   const [openClub, setOpenClub] = useState(null);
