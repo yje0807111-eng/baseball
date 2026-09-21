@@ -1,13 +1,14 @@
 /*
- * 도장깨기 — 라이브 드래프트가 끝나면 상대 일곱 구단이 약한 순서로 탑을 이룬다.
- * 1단(약체)부터 차례로 이겨야 다음 단이 열리고, 지면 같은 단을 다시 친다.
+ * 도장깨기 — 라이브 드래프트가 끝나면 여덟 구단이 한 탑에 쌓인다.
+ * 내 자리는 맨 아래(0번), 위로 갈수록 센 구단이다. 바로 윗 칸과 붙어 이기면 그 자리를 빼앗고
+ * 진 구단이 내 아래로 내려온다. 지면 자리는 그대로, 같은 상대를 다시 친다.
  * 화면과 떼어 놓은 순수 상태다 (React 도 타이머도 모른다).
  */
 import { FIELD_SLOTS, PITCH_SLOTS, fillRoster } from '../KboAugmentDraft.jsx';
 import * as Live from './live.js';
 
-/** 도장깨기 한 판의 단 수 = 나를 뺀 구단 수. 모듈을 읽는 때가 아니라 쓸 때 센다 (KboAugmentDraft 와 서로 불러오는 사이) */
-export const steps = () => Live.CLUB_COUNT - 1;
+/** 탑의 칸 수 = 참가 구단 수(나 포함). 모듈을 읽는 때가 아니라 쓸 때 센다 (KboAugmentDraft 와 서로 불러오는 사이) */
+export const steps = () => Live.CLUB_COUNT;
 
 const avg = (a) => (a.length ? a.reduce((t, x) => t + x, 0) / a.length : 0);
 const st = (p, k) => p?.stats?.[k] ?? 60;
@@ -31,46 +32,50 @@ export function teamStats(roster) {
   };
 }
 
-/** 라이브 판 → 도장깨기. 약한 구단이 1단, 강한 구단이 꼭대기 (줄 세우는 잣대는 화면에 보이는 전력 그대로) */
+/** 라이브 판 → 도장깨기 탑. 맨 아래가 나, 위로 갈수록 센 구단 (잣대는 화면에 보이는 전력 그대로) */
 export function makeGauntlet(live) {
-  const me = Live.myIndex(live);
-  const rungs = live.clubs
-    .map((_, club) => ({ club, ...teamStats(Live.rosterOf(live, club)) }))
-    .filter((x) => x.club !== me)
-    .sort((a, b) => a.str - b.str)
-    .map((x, i) => {
-    const c = live.clubs[x.club];
+  const mine = Live.myIndex(live);
+  const one = (club) => {
+    const c = live.clubs[club];
+    const roster = Live.rosterOf(live, club);
     return {
-      step: i + 1,
-      club: x.club,
+      club,
+      me: !!c.me,
       name: c.name,
       short: c.short,
       key: c.key || null,
       color: c.color,
-      grade: c.grade || 'plain',
+      grade: c.grade || null,
       trait: c.trait,
-      roster: Live.rosterOf(live, x.club),
-      bat: x.bat,
-      pit: x.pit,
-      def: x.def,
-      str: x.str,
+      roster,
+      ...teamStats(roster),
     };
-  });
-  return { rungs, step: 0, results: [], done: false };
+  };
+  const rivals = live.clubs
+    .map((_, club) => club)
+    .filter((club) => club !== mine)
+    .map(one)
+    .sort((a, b) => a.str - b.str);
+  return { tower: [one(mine), ...rivals], results: [], done: false };
 }
 
-/** 지금 쳐야 할 단 (다 깼으면 null) */
-export const currentRung = (g) => (g && !g.done ? g.rungs[g.step] || null : null);
-/** 이 단을 이미 깼는지 */
-export const isCleared = (g, step) => step <= g.step;   // 단 번호는 1부터, g.step 은 깬 수
+/** 지금 내가 선 칸 (맨 아래가 0) */
+export const myPos = (g) => (g?.tower || []).findIndex((x) => x.me);
+/** 바로 윗 칸 — 지금 쳐야 할 상대 (꼭대기에 올라섰으면 null) */
+export const currentRung = (g) => (g && !g.done ? g.tower[myPos(g) + 1] || null : null);
+/** 이 칸이 내가 이미 지나온 자리인지 — 내 아래로 내려온 구단 */
+export const isCleared = (g, index) => index < myPos(g);
 /** 몇 승 몇 패 */
 export const record = (g) => g.results.reduce((t, r) => ({ w: t.w + (r.win ? 1 : 0), l: t.l + (r.win ? 0 : 1) }), { w: 0, l: 0 });
 
-/** 경기 결과를 넣는다. 이기면 다음 단, 지면 같은 단을 다시 */
+/** 경기 결과를 넣는다. 이기면 윗 칸과 자리를 바꿔 한 칸 올라서고, 지면 자리는 그대로 */
 export function settle(g, { win, my = null, opp = null } = {}) {
   const cur = currentRung(g);
   if (!cur) return g;
-  const results = [...g.results, { step: cur.step, club: cur.club, win: !!win, my, opp }];
-  const step = win ? g.step + 1 : g.step;
-  return { ...g, results, step, done: step >= g.rungs.length };
+  const at = myPos(g);
+  const results = [...g.results, { at, club: cur.club, win: !!win, my, opp }];
+  if (!win) return { ...g, results };
+  const tower = [...g.tower];
+  [tower[at], tower[at + 1]] = [tower[at + 1], tower[at]];   // 이긴 자리를 빼앗고, 진 구단은 내 아래로
+  return { ...g, tower, results, done: at + 1 >= tower.length - 1 };
 }

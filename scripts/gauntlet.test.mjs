@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 import { createLive, pick, autoPick, currentClub, isDone, myIndex, CLUB_COUNT } from '../src/draft/live.js';
 import { ROSTER_SIZE } from '../src/KboAugmentDraft.jsx';
-import { makeGauntlet, teamStats, currentRung, isCleared, record, settle, steps } from '../src/draft/gauntlet.js';
+import { makeGauntlet, teamStats, currentRung, isCleared, myPos, record, settle, steps } from '../src/draft/gauntlet.js';
 
 const seeded = (seed) => () => {
   seed = (seed + 0x6d2b79f5) | 0;
@@ -16,19 +16,21 @@ const play = (rng = seeded(11)) => {
   return s;
 };
 
-test('탑은 나를 뺀 일곱 구단이 약한 순서로 쌓인다', () => {
+test('탑은 여덟 칸 — 맨 아래가 나, 위로 갈수록 센 구단', () => {
   const live = play();
   const g = makeGauntlet(live);
-  expect(steps()).toBe(CLUB_COUNT - 1);
-  expect(g.rungs).toHaveLength(CLUB_COUNT - 1);
-  expect(g.rungs.map((r) => r.club)).not.toContain(myIndex(live));
-  expect(g.rungs.map((r) => r.step)).toEqual([1, 2, 3, 4, 5, 6, 7]);
-  // 1단이 가장 약하고 꼭대기가 가장 세다 — 화면에 보이는 전력 그대로 줄 세운다
-  g.rungs.forEach((r, i) => { if (i) expect(r.str).toBeGreaterThanOrEqual(g.rungs[i - 1].str); });
-  g.rungs.forEach((r) => {
+  expect(steps()).toBe(CLUB_COUNT);
+  expect(g.tower).toHaveLength(CLUB_COUNT);
+  expect(myPos(g)).toBe(0);
+  expect(g.tower[0].club).toBe(myIndex(live));
+  // 내 위 일곱 칸은 약한 구단부터
+  const rivals = g.tower.slice(1);
+  rivals.forEach((r, i) => { if (i) expect(r.str).toBeGreaterThanOrEqual(rivals[i - 1].str); });
+  g.tower.forEach((r) => {
     expect(r.name).toBeTruthy();
     [r.bat, r.pit, r.def, r.str].forEach((v) => { expect(v).toBeGreaterThan(40); expect(v).toBeLessThan(100); });
   });
+  expect(currentRung(g)).toBe(g.tower[1]); // 첫 상대는 바로 윗 칸
 });
 
 test('팀 수치: 빈 자리는 퓨처스로 채워 넷 다 나온다', () => {
@@ -40,22 +42,28 @@ test('팀 수치: 빈 자리는 퓨처스로 채워 넷 다 나온다', () => {
   expect(full.str).toBeGreaterThan(empty.str); // 사람을 채운 팀이 퓨처스뿐인 팀보다 세다
 });
 
-test('이기면 다음 단, 지면 같은 단을 다시 친다', () => {
+test('이기면 그 칸을 빼앗고 진 구단이 내 아래로 내려온다', () => {
   let g = makeGauntlet(play());
-  expect(currentRung(g).step).toBe(1);
-  g = settle(g, { win: false, my: 2, opp: 5 });
-  expect(currentRung(g).step).toBe(1);      // 그대로
+  const first = g.tower[1], second = g.tower[2];
+
+  g = settle(g, { win: false, my: 2, opp: 5 });     // 지면 자리는 그대로
+  expect(myPos(g)).toBe(0);
+  expect(currentRung(g)).toBe(first);
   expect(record(g)).toEqual({ w: 0, l: 1 });
-  g = settle(g, { win: true, my: 7, opp: 1 });
-  expect(currentRung(g).step).toBe(2);      // 한 단 위로
-  expect(isCleared(g, 1)).toBe(true);
-  expect(isCleared(g, 2)).toBe(false);
+
+  g = settle(g, { win: true, my: 7, opp: 1 });      // 이기면 한 칸 위로
+  expect(myPos(g)).toBe(1);
+  expect(g.tower[0]).toBe(first);                   // 진 구단은 내 아래
+  expect(currentRung(g)).toBe(second);              // 다음 상대는 다시 바로 윗 칸
+  expect(isCleared(g, 0)).toBe(true);
+  expect(isCleared(g, 1)).toBe(false);
   expect(record(g)).toEqual({ w: 1, l: 1 });
 });
 
-test('일곱 단을 다 깨면 끝난다', () => {
+test('꼭대기에 올라서면 끝난다', () => {
   let g = makeGauntlet(play());
   for (let i = 0; i < CLUB_COUNT - 1; i++) g = settle(g, { win: true });
+  expect(myPos(g)).toBe(CLUB_COUNT - 1);
   expect(g.done).toBe(true);
   expect(currentRung(g)).toBe(null);
   expect(record(g).w).toBe(CLUB_COUNT - 1);

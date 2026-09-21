@@ -6223,8 +6223,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               {result && (
                 <ResultPanel result={result} record={record} logs={logs}
                   gauntlet={gaunt ? {
-                    label: gaunt.done ? '일곱 구단을 모두 꺾었다' : `${Gaunt.currentRung(gaunt).step}단 · ${Gaunt.currentRung(gaunt).name}`,
-                    cta: gaunt.done ? '탑으로' : result.winner === 'my' ? '다음 단으로' : '다시 도전',
+                    label: gaunt.done ? '탑 꼭대기에 올라섰다' : `${Gaunt.myPos(gaunt) + 1}칸 · ${Gaunt.currentRung(gaunt).name}`,
+                    cta: gaunt.done ? '탑으로' : result.winner === 'my' ? '한 칸 위로' : '다시 도전',
                   } : null}
                   onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
               )}
