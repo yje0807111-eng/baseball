@@ -5413,6 +5413,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 라이브 드래프트(8구단이 같은 보드를 스네이크로 나눠 갖는 판) — 규칙은 src/draft/live.js · null 이면 지금까지의 혼자 드래프트 */
   const [live, setLive] = useState(null);
   const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
+  const [skipNote, setSkipNote] = useState(false);       // 캡 소진 — 남은 라운드를 넘긴다는 알림
   const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (잠깐 구단 엠블럼이 덮인다)
   const [liveSpeed, setLiveSpeed] = useState(1); // 라이브 진행 배속 (1 · 2 · 4)
   const liveMine = live ? Live.myIndex(live) : -1;
@@ -5698,12 +5699,16 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     return () => clearInterval(id);
   }, [live, phase, choice, liveMine]);
   useEffect(() => {
-    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고 남은 라운드는 한 번에 넘긴다 */
+    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고, 알림을 띄운 뒤 남은 라운드를 한 번에 넘긴다 */
     if (!live || phase !== 'draft' || choice || Live.isDone(live)) return undefined;
     if (live.pick % Live.CLUB_COUNT !== 0 || !Live.cannotPickMore(live)) return undefined;
-    const t = setTimeout(() => setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s)), 500 / liveSpeed);
+    setSkipNote(true);
+    const t = setTimeout(() => {
+      setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s));
+      setSkipNote(false);
+    }, 1000);
     return () => clearTimeout(t);
-  }, [live, phase, choice, liveSpeed]);
+  }, [live, phase, choice]);
   useEffect(() => { // 자동 지명으로 내 선수가 늘었으면 화면의 엔트리도 따라간다
     if (!live || phase !== 'draft') return;
     const mine = Live.myRoster(live);
@@ -5994,6 +5999,16 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {phase === 'mode' && (
         <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView} onNormalView={onNormalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
+      )}
+      {skipNote && (
+        <div className="pointer-events-none fixed inset-x-0 top-[22vh] z-40 flex justify-center px-4" aria-live="assertive">
+          <div className="ui-cut flex items-center gap-3 px-6 py-3.5 animate-[rise_.3s_ease-out_both]"
+            style={{ '--c': '12px', background: 'rgba(8,12,20,.94)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5), 0 18px 40px rgba(0,0,0,.6)' }}>
+            <b className="font-display text-lg tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
+            <span className="h-4 w-px bg-white/20" />
+            <b className="text-[0.95rem] text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
+          </div>
+        </div>
       )}
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
