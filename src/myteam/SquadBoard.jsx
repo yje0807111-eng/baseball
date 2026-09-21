@@ -264,7 +264,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         // 벤치 카드는 떠서 포인터를 따라가고, 같은 묶음(타자 → 구장 · 타순 / 선발 → 로테이션 / 불펜 → 불펜) 칸 위에 있으면 그 선수와 맞바꿀 준비
         const hit = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
         d.target = hit ? hit.id : null;
-        setDrag({ list: 'bench', id: d.id, x: e.clientX - d.ox, y: e.clientY - d.oy, w: d.w, target: d.target });
+        // 자석: 칸 위에 오면 그 칸 가운데에 붙고, 벗어나면 다시 포인터를 따라온다
+        setDrag(hit
+          ? { list: 'bench', id: d.id, x: hit.left + (hit.right - hit.left - d.w) / 2, y: hit.top + (hit.bottom - hit.top - 40) / 2, w: d.w, target: d.target, snap: true }
+          : { list: 'bench', id: d.id, x: e.clientX - d.ox, y: e.clientY - d.oy, w: d.w, target: null });
         return;
       }
       if (d.list === 'field') {
@@ -276,11 +279,14 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         setDrag({ list: 'field', id: d.id, target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
         return;
       }
-      // 줄은 포인터를 그대로 따라가고, 줄 가운데가 넘어선 칸이 새 자리 (첫 칸 · 마지막 칸에서 멈춤)
+      // 줄 가운데가 넘어선 칸이 새 자리 (첫 칸 · 마지막 칸에서 멈춤)
       const off = (d.axis === 'x' ? e.clientX : e.clientY) - (d.axis === 'x' ? d.x0 : d.y0);
       const to = Math.max(0, Math.min(d.count - 1, d.from + Math.round(off / d.pitch)));
       d.to = to;
-      setDrag({ list: d.list, id: d.id, from: d.from, to, off, count: d.count });
+      // 자석: 판(목록) 안에 있는 동안에는 칸에 딱 붙고, 판 밖으로 벗어나면 다시 포인터를 따라온다
+      const r = d.box;
+      const inside = e.clientX >= r.left - 24 && e.clientX <= r.right + 24 && e.clientY >= r.top - 24 && e.clientY <= r.bottom + 24;
+      setDrag({ list: d.list, id: d.id, from: d.from, to, off: inside ? null : off, count: d.count });
     };
     const onUp = () => {
       const d = dragRef.current;
@@ -313,7 +319,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       e.preventDefault();
       const box = e.currentTarget.parentElement;
       const from = idsOf(list).indexOf(id);
-      dragRef.current = { list, id, p, from, to: from, axis: box.dataset.axis, top: box.dataset.axis === 'x' ? box.getBoundingClientRect().left : box.getBoundingClientRect().top, pitch: Number(box.dataset.pitch), count: Number(box.dataset.count), x0: e.clientX, y0: e.clientY, moved: false };
+      const rect = box.getBoundingClientRect();
+      dragRef.current = { list, id, p, from, to: from, axis: box.dataset.axis, box: rect, top: box.dataset.axis === 'x' ? rect.left : rect.top, pitch: Number(box.dataset.pitch), count: Number(box.dataset.count), x0: e.clientX, y0: e.clientY, moved: false };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
@@ -358,13 +365,13 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     : { background: '#0e141f' });
   /** 칸 위치: 판 안 절대 위치 + 칸 번호만큼 아래로. 끌리는 줄은 바로 붙고, 나머지는 미끄러진다 */
   const place = (pos, h, pitch, dragging, axis = 'y') => {
-    // 끌리는 줄: 제 칸에서 포인터만큼(판 안에서만) · 나머지: 칸이 바뀌면 미끄러짐 · 놓으면 끌린 줄도 새 칸으로 미끄러져 들어감
+    // 끌리는 줄: 판 안에서는 갈 칸에 자석처럼 붙고(transition), 판 밖으로 나가면 포인터를 그대로 따라간다
     const follow = dragging && drag?.off != null;
-    const at = follow ? Math.max(0, Math.min((drag.count - 1) * pitch, drag.from * pitch + drag.off)) : pos * pitch;
+    const at = follow ? Math.max(-pitch, Math.min(drag.count * pitch, drag.from * pitch + drag.off)) : pos * pitch;
     return {
       position: 'absolute', left: 0, top: 0, ...(axis === 'x' ? { bottom: 0, width: h } : { right: 0, height: h }),
-      transform: `${axis === 'x' ? `translateX(${at}px)` : `translateY(${at}px)`}${follow ? ' scale(1.03)' : ''}`,
-      transition: follow ? 'none' : 'transform .26s cubic-bezier(.2,.8,.2,1)',
+      transform: `${axis === 'x' ? `translateX(${at}px)` : `translateY(${at}px)`}${dragging ? ' scale(1.03)' : ''}`,
+      transition: follow ? 'none' : `transform ${dragging ? '.16s' : '.26s'} cubic-bezier(.2,.8,.2,1)`,
     };
   };
 
@@ -464,7 +471,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       <style>{'@keyframes sb-in { 0% { filter: brightness(2.2) saturate(1.5); } 100% { filter: none; } }'}</style>
       {drag?.list === 'bench' && byId.get(drag.id) && createPortal(
         <div className="mt-cut pointer-events-none fixed z-50 flex h-[40px] items-center gap-2 px-2"
-          style={{ '--c': '6px', left: drag.x, top: drag.y, width: drag.w, transform: 'scale(1.05)', background: 'linear-gradient(90deg,#26303f,#161d2a)', boxShadow: `inset 0 0 0 2px ${drag.target ? '#34d399' : '#e5e7eb'}, 0 14px 28px -8px rgba(0,0,0,.95)` }}>
+          style={{ '--c': '6px', left: drag.x, top: drag.y, width: drag.w, transform: 'scale(1.05)', transition: drag.snap ? 'left .16s cubic-bezier(.2,.8,.2,1), top .16s cubic-bezier(.2,.8,.2,1)' : 'none', background: 'linear-gradient(90deg,#26303f,#161d2a)', boxShadow: `inset 0 0 0 2px ${drag.target ? '#34d399' : '#e5e7eb'}, 0 14px 28px -8px rgba(0,0,0,.95)` }}>
           <Handle />
           {benchFace(byId.get(drag.id))}
         </div>, document.body,
