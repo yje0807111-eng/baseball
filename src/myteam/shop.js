@@ -44,6 +44,16 @@ export const SHOP_ITEMS = [
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
 export const itemArt = (it) => `ui/shop/${it.id}.webp`;
 
+/** 상품이 올려 주는 값 — [이름, 오르는 값, 같은 종류 최대치(게이지 기준)] */
+export function itemEffect(it) {
+  if (it.stat) return { label: STAT_KO[it.stat] || it.stat, amount: it.amount, max: it.stat === 'stamina' ? 15 : 6 };
+  if (it.cap) return { label: '샐러리 캡', amount: it.cap, max: 100 };
+  if (it.staffRole) return { label: it.staffRole === 'manager' ? '감독 선임' : '코치 선임', amount: null, max: 1 };
+  if (it.staffTicket) return { label: '코치 레벨', amount: 1, max: 1 };
+  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: 1, max: 1 };
+  return { label: it.name, amount: null, max: 1 };
+}
+
 export const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
 
 /* 팀에서 가장 약한 묶음과, 그걸 올려 주는 상품 한 가지 (라커 아이템 탭 · 상점 사이드 공용) */

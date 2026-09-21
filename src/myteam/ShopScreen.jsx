@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -19,12 +19,27 @@ function ItemCard({ it, on, onClick }) {
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
       <span className="absolute left-3 top-2 font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</span>
       <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px', background: n }}>{catSub[it.cat]}</span>
+      {/* 오르는 값: 이름 · 숫자 · 5칸 게이지(같은 종류 최대치 기준) — 설명 문장 대신 */}
       <span className="absolute inset-x-3 bottom-2.5 block">
+        {(() => {
+          const e = itemEffect(it);
+          const on = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
+          return (
+            <>
+              <span className="mb-1 flex items-baseline gap-1.5">
+                <b className="text-[12.5px] text-gray-200">{e.label}</b>
+                {e.amount != null && <b className="font-display text-base" style={{ color: n }}>+{e.amount}</b>}
+              </span>
+              <span className="mb-[7px] grid h-[6px] grid-cols-5 gap-[3px]">
+                {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on ? n : 'rgba(255,255,255,.1)', boxShadow: i < on ? `0 0 6px ${n}66` : 'none' }} />)}
+              </span>
+            </>
+          );
+        })()}
         <span className="flex items-end gap-2">
           <b className="min-w-0 flex-1 truncate text-base font-black text-white">{it.name}</b>
           <b className="font-display text-lg text-amber-300">{it.price.toLocaleString()} G</b>
         </span>
-        <span className="block truncate text-[11px] text-gray-400">{it.desc}</span>
       </span>
     </button>
   );
