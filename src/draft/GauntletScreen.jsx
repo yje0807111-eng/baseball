@@ -18,6 +18,9 @@ const XY = { OF2: [50, 13], OF1: [17, 26], OF3: [83, 26], SS: [34, 47], '2B': [6
 const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const face = (p) => `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
+/* 칸 높이와 펼친 판 높이 — 판은 접힌 일곱 칸이 내준 만큼만 쓴다(84−46)×7. 그래서 탑 전체 높이가 늘 같고 칸이 오르내리지 않는다 */
+const FLOOR_H = 84, FOLD_H = 46, PANEL_H = (FLOOR_H - FOLD_H) * 7;
+const TOWER_H = FLOOR_H * 8 + 46;   // 여덟 칸 + 이름표와 바닥 — 이 높이는 여닫아도 바뀌지 않는다
 /* 야수 자리 — KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 그릴 때 센다 */
 const batSlots = () => FIELD_SLOTS.filter((s) => !PITCH_SLOTS.includes(s.id)).map((s) => s.id);
 
@@ -37,26 +40,26 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
   const lit = now || mine || open;
   const big = !folded;
   return (
-    <div data-rung={r.club} className="relative mx-auto flex items-center transition-[opacity,box-shadow,width,height] duration-300"
-      style={{ width, height: big ? 84 : 46, gap: big ? 12 : 10, padding: top ? '14px 16px 0' : '0 16px', opacity: cleared ? 0.5 : 1,
+    <div data-rung={r.club} className="relative mx-auto flex items-center transition-[opacity,box-shadow,width,height] duration-300 ease-out"
+      style={{ width, height: big ? FLOOR_H : FOLD_H, gap: big ? 12 : 10, padding: top ? '14px 16px 0' : '0 16px', opacity: cleared ? 0.5 : 1,
         background: lit ? `linear-gradient(180deg,${r.color}44,${r.color}18)` : cleared ? 'rgba(52,211,153,.07)' : 'rgba(255,255,255,.04)',
         boxShadow: lit ? `inset 0 0 0 2px ${r.color},0 0 40px -14px ${r.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)',
         clipPath: top ? 'polygon(50% 0,100% 24%,100% 100%,0 100%,0 24%)' : undefined }}>
-      <b className="w-4 font-display" style={{ fontSize: big ? 20 : 15, color: lit ? r.color : '#54606f' }}>{index}</b>
-      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 46 : 30} style={{ opacity: cleared ? 0.45 : 1 }} />
-      <span className="grid gap-0.5" style={{ width: big ? 104 : 88 }}>
-        <b className="truncate" style={{ fontSize: big ? 15 : 13, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
+      <b className="w-4 font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 20 : 15, color: lit ? r.color : '#54606f' }}>{index}</b>
+      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 46 : 30} className="transition-all duration-300 ease-out" style={{ opacity: cleared ? 0.45 : 1 }} />
+      <span className="grid gap-0.5 transition-all duration-300 ease-out" style={{ width: big ? 104 : 88 }}>
+        <b className="truncate transition-all duration-300 ease-out" style={{ fontSize: big ? 15 : 13, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
         {big && <small className="text-[0.7rem] text-[#8b97a6]">{TRAIT_KO[r.trait] || ''}</small>}
       </span>
       <span className="ml-auto flex items-center" style={{ gap: big ? 12 : 9 }}>
         {KEYS.slice(0, 3).map(([k, ko]) => (
-          <span key={k} className="ui-cut grid justify-items-center gap-px"
+          <span key={k} className="ui-cut grid justify-items-center gap-px transition-all duration-300 ease-out"
             style={{ '--c': '4px', width: big ? 52 : 44, padding: big ? '3px 0' : 0, background: big ? 'rgba(255,255,255,.05)' : 'transparent' }}>
             {big && <small className="text-[0.6rem] text-[#6b7787]">{ko}</small>}
-            <b className="font-display" style={{ fontSize: big ? 15 : 13, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
+            <b className="font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 15 : 13, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
           </span>
         ))}
-        <b className="w-12 text-right font-display" style={{ fontSize: big ? 21 : 16, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
+        <b className="w-12 text-right font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 21 : 16, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
         <b className="w-[2.6rem] text-right font-display text-[0.7rem] tracking-[0.12em]"
           style={{ color: mine ? r.color : cleared ? '#34d399' : now ? r.color : '#4b5563' }}>
           {mine ? 'ME' : cleared ? 'CLEAR' : now ? 'NOW' : ''}
@@ -80,7 +83,7 @@ function Detail({ r, width }) {
   const arms = PITCH_SLOTS.map((id) => ({ ...by[id], slot: id, label: FIELD_SLOTS.find((s) => s.id === id)?.label })).filter((p) => p.id);
   const bench = full.filter((p) => p.slot && p.slot.startsWith('BN'));
   return (
-    <div className="ui-cut mx-auto flex gap-3.5 p-3.5" style={{ width, height: 300, '--c': '12px',
+    <div className="ui-cut mx-auto flex gap-3.5 p-3.5" style={{ width, height: PANEL_H, '--c': '12px',
       background: 'linear-gradient(180deg,rgba(8,12,20,.94),rgba(8,12,20,.82))', boxShadow: `inset 0 0 0 1px ${r.color}44, inset 0 2px 0 ${r.color}` }}>
       {/* 구장 위 수비 배치 */}
       <div className="ui-cut relative h-full w-[22.5rem] shrink-0 overflow-hidden bg-cover"
@@ -140,7 +143,28 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
   const rec = record(gaunt);
   const base = 540, grow = 40;
   const myEmb = me.emblem || bannerEmblem(null);
-  const [openClub, setOpenClub] = useState(null); // 명단을 펼쳐 둔 구단 (한 번에 하나)
+  /* 펼쳐 둔 구단(한 번에 하나)과, 화면에 그리는 판들(접히는 중인 것도 잠시 남는다) */
+  const [openClub, setOpenClub] = useState(null);
+  const [draw, setDraw] = useState([]);
+  const timer = useRef(null);
+  /*
+   * 여닫는 동안 탑 전체 높이가 늘 같아야 칸이 오르내리지 않는다.
+   * 판은 접힌 일곱 칸이 내준 높이(PANEL_H)만 쓰고, 칸을 바꿀 때는 옛 판이 접히는 만큼 새 판이 펼쳐진다.
+   * 판을 높이 0 으로 한 번 그린 뒤(setTimeout 0)에 펼쳐야 칸이 접히는 것과 박자가 맞는다.
+   */
+  const toggle = (club) => {
+    clearTimeout(timer.current);
+    if (openClub === club) {                      // 닫기 — 판이 다 접힌 뒤에 치운다
+      setOpenClub(null);
+      timer.current = setTimeout(() => setDraw([]), 320);
+      return;
+    }
+    setDraw((d) => (d.includes(club) ? d : [...d, club]));
+    timer.current = setTimeout(() => {
+      setOpenClub(club);
+      timer.current = setTimeout(() => setDraw([club]), 340);  // 접힌 옛 판은 나중에 치운다
+    }, 0);
+  };
 
   /* 자리가 바뀌면 칸이 미끄러져 오간다 — 새 자리에 그린 뒤 옛 자리에서 출발시킨다(FLIP) */
   const towerRef = useRef(null);
@@ -180,8 +204,9 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
 
       <div className="relative flex min-h-0 flex-1">
         {/* 왼쪽: 탑 */}
-        <div ref={towerRef} className="grid min-w-0 flex-1 place-content-center overflow-hidden px-5 py-2">
-          <b className="mb-2.5 text-center font-display text-[0.8rem] tracking-[0.3em] text-[#6b7787]">TOWER OF {gaunt.tower.length}</b>
+        <div className="grid min-w-0 flex-1 place-content-center overflow-hidden px-5 py-2">
+        <div ref={towerRef} style={{ height: TOWER_H }}>
+          <b className="mb-2.5 block text-center font-display text-[0.8rem] tracking-[0.3em] text-[#6b7787]">TOWER OF {gaunt.tower.length}</b>
           {gaunt.tower.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => {
             const open = openClub === r.club;
             const width = base + (gaunt.tower.length - 1 - i) * grow;
@@ -190,12 +215,19 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
               <React.Fragment key={r.club}>
                 <Floor r={shown} index={i} now={cur?.club === r.club} mine={!!r.me} cleared={isCleared(gaunt, i)}
                   top={i === gaunt.tower.length - 1} width={width} open={open} folded={openClub != null && !open}
-                  onMore={() => setOpenClub(open ? null : r.club)} />
-                {open && <Detail r={shown} width={width + 60} />}
+                  onMore={() => toggle(r.club)} />
+                {/* 펼친 판: 접힌 칸들이 내준 만큼만 자리를 쓴다(탑 전체 높이가 그대로라 다른 칸이 튀지 않는다) */}
+                {draw.includes(r.club) && (
+                  <div className="overflow-hidden transition-[height,opacity] duration-300 ease-out"
+                    style={{ height: open ? PANEL_H : 0, opacity: open ? 1 : 0 }}>
+                    <Detail r={shown} width={width + 60} />
+                  </div>
+                )}
               </React.Fragment>
             );
           })}
           <div className="mx-auto h-4" style={{ width: base + (gaunt.tower.length - 1) * grow, background: 'rgba(255,255,255,.1)' }} />
+        </div>
         </div>
 
         {/* 오른쪽: 지금 상대와 수치 비교 */}
