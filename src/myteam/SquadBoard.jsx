@@ -197,7 +197,10 @@ function Slots({ count, maxH, gap = 4, axis = 'y', style, children }) {
   );
 }
 
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onAutoFill, autoDisabled }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled }) {
+  /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
+  const [fire, setFire] = useState(false);
+  const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
   const order = squadOrder(squad, bench, team.order);
   const byId = new Map(squad.map((p) => [p.id, p]));
   const fatigue = team.pitchFatigue || {};
@@ -248,7 +251,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const [justIn, setJustIn] = useState(null); // 방금 벤치에서 올라온 선수 — 잠깐 빛남
   const justTimer = useRef(null);
   useEffect(() => () => clearTimeout(justTimer.current), []);
-  latest.current = { order, save, onSelect, benchSwap };
+  latest.current = { order, save, onSelect: pickOrFire, benchSwap };
   const cancel = () => { dragRef.current = null; setDrag(null); };
   // 움직임 · 놓기는 창 전체에서 받는다. 최신 값은 ref 로
   useEffect(() => {
@@ -326,7 +329,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       const from = idsOf(list).indexOf(id);
       dragRef.current = { list, id, p, from, to: from, axis: box.dataset.axis, top: box.dataset.axis === 'x' ? box.getBoundingClientRect().left : box.getBoundingClientRect().top, pitch: Number(box.dataset.pitch), count: Number(box.dataset.count), x0: e.clientX, y0: e.clientY, moved: false };
     },
-    onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
+    onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
   const fieldRef = useRef(null);
   const tokenDrag = (id, p) => ({
@@ -337,7 +340,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         .map((el) => { const b = el.getBoundingClientRect(); return { id: el.dataset.token, left: b.left, right: b.right, top: b.top, bottom: b.bottom }; });
       dragRef.current = { list: 'field', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, cards };
     },
-    onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
+    onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
 
   const benchDrag = (p) => ({
@@ -351,7 +354,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       const targets = rects.map(([id, el]) => { const b = el.getBoundingClientRect(); return { id, left: b.left, right: b.right, top: b.top, bottom: b.bottom }; });
       dragRef.current = { list: 'bench', id: p.id, p, x0: e.clientX, y0: e.clientY, ox: e.clientX - r.left, oy: e.clientY - r.top, w: r.width, moved: false, target: null, targets };
     },
-    onKeyDown: (e) => { if (e.key === 'Enter') onSelect(p); },
+    onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
   /** 벤치 선수를 끌어다 놓을 칸: 초록 테두리 · 빛 */
   const benchHit = (id) => drag?.list === 'bench' && drag.target === id;
@@ -480,7 +483,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       )}
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">My Squad</p>
+        {fire && <span className="font-display text-[12px] tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
         <div className="ml-auto flex gap-2">
+          <Btn sm a="#f87171" onClick={() => setFire((v) => !v)} disabled={!squad.length}
+            style={fire ? { background: '#f87171', color: '#1a0505', boxShadow: '0 0 18px -4px #f87171' } : null}>방출 {fire ? 'ON' : 'OFF'}</Btn>
           <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
           <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>
         </div>
@@ -496,7 +502,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
               {nextStarter && (() => {
                 const r = seasonRecord(nextStarter);
                 return (
-                  <div role="button" tabIndex={0} onClick={() => onSelect(nextStarter)} className="absolute cursor-pointer"
+                  <div role="button" tabIndex={0} onClick={() => pickOrFire(nextStarter)} className="absolute cursor-pointer"
                     style={{ left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)', filter: `drop-shadow(0 0 1.5px ${ROLE.SP}) drop-shadow(0 0 8px ${ROLE.SP}88)` }}>
                     <Lower p={nextStarter} c={ROLE.SP} ovr={<Ovr p={nextStarter} size={16} />}
                       sub={`SP · ERA ${r.era != null ? r.era.toFixed(2) : '-'}${r.k != null ? ` · ${r.k}K` : ''}`} />
