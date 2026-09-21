@@ -16,7 +16,7 @@ const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff:
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
-function ItemCard({ it, on, onClick }) {
+function ItemCard({ it, on, onClick, cap = 2000 }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
@@ -33,15 +33,36 @@ function ItemCard({ it, on, onClick }) {
       <span className="absolute inset-x-3 bottom-2.5 block">
         {(() => {
           const e = itemEffect(it);
-          const on = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
+          const on5 = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
+          const mid = it.stat ? (
+            /* 능력치: 같은 종류 최대치 대비 5칸 */
+            <span className="mb-1.5 grid h-[6px] grid-cols-5 gap-[3px]">
+              {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on5 ? n : 'rgba(255,255,255,.1)', boxShadow: i < on5 ? `0 0 6px ${n}66` : 'none' }} />)}
+            </span>
+          ) : it.cap ? (
+            /* 캡 확장: 지금 캡에서 얼마나 늘어나는지 */
+            <span className="mb-1.5 block">
+              <span className="mb-[2px] flex justify-between font-display text-[10.5px] text-gray-400">
+                <span>{cap.toLocaleString()}</span><span style={{ color: n }}>{(cap + it.cap).toLocaleString()}</span>
+              </span>
+              <span className="relative block h-[6px] bg-white/10">
+                <i className="absolute inset-y-0 left-0 bg-slate-500" style={{ width: `${(cap / (cap + it.cap)) * 100}%` }} />
+                <i className="absolute inset-y-0" style={{ left: `${(cap / (cap + it.cap)) * 100}%`, right: 0, background: n, boxShadow: `0 0 6px ${n}66` }} />
+              </span>
+            </span>
+          ) : (
+            /* 계약서 · 권: 한 장(한 명)을 점으로 */
+            <span className="mb-[9px] flex h-[8px] items-center gap-1">
+              {[0, 1, 2].map((i) => <i key={i} className="h-[8px] w-[8px] rounded-full" style={{ background: i === 0 ? n : 'rgba(255,255,255,.12)' }} />)}
+              <small className="ml-1 text-[11px] text-gray-400">{it.staffRole ? '1명' : '1장'}</small>
+            </span>
+          );
           return (
             <>
               <b className="mb-1 block truncate text-base font-black text-white">{it.name}</b>
-              <span className="mb-1.5 grid h-[6px] grid-cols-5 gap-[3px]">
-                {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on ? n : 'rgba(255,255,255,.1)', boxShadow: i < on ? `0 0 6px ${n}66` : 'none' }} />)}
-              </span>
+              {mid}
               <span className="flex items-baseline justify-between">
-                <b className="text-[12px] text-gray-200">{e.label}{e.amount != null && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{e.amount}</span>}</b>
+                <b className="text-[12px] text-gray-200">{e.label}{e.amount != null && it.stat && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{e.amount}</span>}{it.cap && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{it.cap}</span>}</b>
                 <b className="font-display text-base text-amber-300">{it.price.toLocaleString()} G</b>
               </span>
             </>
@@ -136,7 +157,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
             <p className="mt-lab" style={{ '--a': '#fde047' }}>Shop</p>
           </div>
           <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-5 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
-            {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
+            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
 
