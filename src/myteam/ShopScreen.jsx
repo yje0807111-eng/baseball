@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
-import { statBandColor } from './teamColor.js';
+import { statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
@@ -171,8 +171,8 @@ export default function ShopScreen({ account, onChange, onBack }) {
                       const cur = t.stats?.[picked.stat] ?? 70;
                       const after = Math.min(99, cur + picked.amount);
                       const pct = (v) => Math.max(0, Math.min(100, ((v - 50) / 60) * 100));
-                      const cNow = statBandColor(cur);
-                      const cNext = statBandColor(after);
+                      const barNow = statBarStyle(cur);
+                      const barNext = statBarStyle(after);
                       return (
                         <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px minmax(0,1fr)', '--a': n }}>
                           <Portrait player={t} w={36} h={44} color={n} />
@@ -184,13 +184,13 @@ export default function ShopScreen({ account, onChange, onBack }) {
                             <span className="mt-1 flex items-center gap-2">
                               <small className="w-7 shrink-0 text-[11px] text-gray-400">{STAT_KO[picked.stat] || picked.stat}</small>
                               <span className="relative h-[7px] flex-1 bg-white/[0.08]">
-                                <i className="absolute inset-y-0 left-0" style={{ width: `${pct(cur)}%`, background: cNow, opacity: 0.45 }} />
-                                <i className="absolute inset-y-0" style={{ left: `${pct(cur)}%`, width: `${pct(after) - pct(cur)}%`, background: cNext, boxShadow: `0 0 8px ${cNext}` }} />
+                                <i className="absolute inset-y-0 left-0 opacity-70" style={{ width: `${pct(cur)}%`, ...barNow }} />
+                                <i className="absolute inset-y-0" style={{ left: `${pct(cur)}%`, width: `${pct(after) - pct(cur)}%`, ...barNext }} />
                               </span>
                               <span className="flex shrink-0 items-baseline gap-1 font-display">
-                                <small className="text-[11px]" style={{ color: cNow }}>{cur}</small>
+                                <small className="text-[11px] opacity-70" style={statNumStyle(cur)}>{cur}</small>
                                 <i className="text-[11px] not-italic text-slate-500">›</i>
-                                <b className="text-[15px]" style={{ color: cNext }}>{after}</b>
+                                <b className="text-[15px]" style={statNumStyle(after)}>{after}</b>
                               </span>
                             </span>
                           </span>
