@@ -27,15 +27,16 @@ test('스네이크: 바퀴마다 순서가 뒤집히고, 바퀴가 바뀌는 자
   expect(clubAt(CLUB_COUNT * 2, order)).toBe(order[0]);                   // 세 바퀴째는 다시 순번대로
 });
 
-test('보드 하나 = 시리즈 하나 · 두 바퀴, 보드 10개로 20라운드가 딱 맞는다', () => {
+test('보드 하나 = 시리즈 하나 · 한 바퀴, 한 바퀴가 끝나면 선수가 남아도 다음 시리즈', () => {
   expect(boardCount() * LAPS_PER_BOARD).toBe(ROSTER_SIZE);
   expect(boardNo(createLive({ rng: seeded(1) }))).toBe(0);
   let s = createLive({ rng: seeded(1) });
   const first = boardPlayers(s);
-  expect(first.length).toBeGreaterThanOrEqual(16); // 16픽을 받아낼 수 있어야 한다
+  expect(first.length).toBeGreaterThanOrEqual(CLUB_COUNT); // 한 바퀴를 받아낼 수 있어야 한다
   for (let i = 0; i < CLUB_COUNT * LAPS_PER_BOARD; i++) s = pick(s, autoPick(s, currentClub(s), seeded(i)), { auto: true });
   expect(boardNo(s)).toBe(1);
-  expect(boardPlayers(s)).not.toBe(first); // 다음 시리즈가 깔린다
+  expect(boardPlayers(s)).not.toBe(first); // 선수가 남아 있어도 다음 시리즈가 깔린다
+  expect(first.filter((p) => !(p.id in s.taken)).length).toBeGreaterThan(0); // 유찰된 선수가 남는다
 });
 
 test('지명한 선수는 보드에서 잠기고, 데려간 구단만 로스터·CP가 바뀐다', () => {

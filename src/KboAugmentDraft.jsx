@@ -1555,6 +1555,9 @@ export const KEYFRAMES = `
 .mc-nm.l5 { font-size: 13cqw; }
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
+/* 라이브: 데려간 구단 색 덮개(--t)와 띠 안의 구단 약칭 */
+.mc-own { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(170deg, color-mix(in srgb, var(--t) 42%, transparent), color-mix(in srgb, var(--t) 12%, transparent) 62%, transparent); }
+.mc-lk b { font-size: 11.5cqw; font-weight: 800; }
 .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
 .mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
@@ -2349,7 +2352,7 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
-function MiniCard({ player, reason, selected, hint, focus, onPick, onSign, style, leaving = false }) {
+function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2374,8 +2377,15 @@ function MiniCard({ player, reason, selected, hint, focus, onPick, onSign, style
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
       <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected || focus === 'on' ? 'border-2' : 'border'}`}
-        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : `${acc}66` }} />
-      {locked && <span className="mc-lk" title={reason}><LockIcon /><span>{reason.replace(/\s*\(.*\)$/, '')}</span></span>}
+        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : takenClub ? takenClub.color : `${acc}66` }} />
+      {/* 라이브: 다른 구단이 데려간 카드는 그 구단 색 덮개와 띠로 — 그냥 잠긴 카드와 구분된다 */}
+      {takenClub && <span className="mc-own" style={{ '--t': takenClub.color }} aria-hidden="true" />}
+      {locked && (
+        <span className="mc-lk" title={reason} style={takenClub ? { background: takenClub.color, color: '#05080f', boxShadow: `inset 0 0 0 1.5px ${takenClub.color}, 0 2px 10px rgba(0,0,0,.7)` } : undefined}>
+          {takenClub ? <b className="font-display">{takenClub.short}</b> : <LockIcon />}
+          <span>{takenClub ? '지명' : reason.replace(/\s*\(.*\)$/, '')}</span>
+        </span>
+      )}
     </button>
   );
 }
@@ -5839,7 +5849,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
-                  <MiniCard player={p} reason={lockOf(p)} selected={picked?.id === p.id}
+                  <MiniCard player={p} reason={lockOf(p)} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}

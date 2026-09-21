@@ -6,7 +6,7 @@
 import { getLockReason, ROSTER_SIZE, SALARY_CAP, DRAFT_SERIES, freeSlot, FIELD_SLOTS, POS_LABEL } from '../KboAugmentDraft.jsx';
 
 export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
-export const LAPS_PER_BOARD = 2;    // 보드 하나를 도는 바퀴 수 — 18명 중 16명이 나가고 2명은 유찰
+export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
 export const PICK_SECONDS = 25;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
 /* 보드 수(=10). KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 쓸 때 센다 */
 export const boardCount = () => Math.ceil(ROSTER_SIZE / LAPS_PER_BOARD);
@@ -47,9 +47,12 @@ export function createLive({ myName = '나의 드림팀', myColor = '#e879f9', c
   const clubs = [
     { name: myName, trait: 'me', color: myColor, me: true },
     ...AI_CLUBS,
-  ].map((c) => ({ ...c, roster: [], cp: cap }));
+  ].map((c) => ({ ...c, short: c.name.split(' ')[0], roster: [], cp: cap }));
   const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
-  const pool = shuffle(series.filter((s) => s.players.length), rng).slice(0, boardCount());
+  // 보드는 라운드마다 하나씩 — 모드에 시리즈가 모자라면 다시 섞어 이어 붙인다 (이미 나간 선수는 그대로 잠겨 있다)
+  const usable = series.filter((s) => s.players.length);
+  const pool = [];
+  while (pool.length < boardCount() && usable.length) pool.push(...shuffle(usable, rng).slice(0, boardCount() - pool.length));
   return {
     cap,
     clubs,
@@ -90,7 +93,11 @@ export function lockReason(s, player, club = currentClub(s)) {
   const base = getLockReason(player, c.roster, c.cp);
   if (base) return base;
   const forced = forcedPositions(s, club);
-  if (forced && !forced.includes(player.position)) return `${forced.map((p) => POS_LABEL[p]).join(' · ')} 자리를 채울 차례`;
+  // 채워야 할 자리의 선수가 이 보드에 하나도 없으면 강제하지 않는다 (강제하면 한 명도 못 뽑고 지나간다)
+  if (forced && !forced.includes(player.position)
+    && boardPlayers(s).some((p) => forced.includes(p.position) && takenBy(s, p) == null && !getLockReason(p, c.roster, c.cp))) {
+    return `${forced.map((p) => POS_LABEL[p]).join(' · ')} 자리를 채울 차례`;
+  }
   return null;
 }
 
@@ -118,8 +125,17 @@ export function scoreFor(s, player, club = currentClub(s)) {
 
 /** AI(또는 시간 초과)가 고를 선수 — 못 고르면 null(패스) */
 export function autoPick(s, club = currentClub(s), rng = Math.random) {
-  const list = pickable(s, club);
-  if (!list.length) return null;
+  const all = pickable(s, club);
+  if (!all.length) return null;
+  // 남은 자리를 채울 몫(자리당 50 CP)은 남겨 둔다 — 앞에서 다 써 버리면 뒤에서 한 명도 못 뽑는다
+  const c = s.clubs[club];
+  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 50;
+  const afford = all.filter((p) => p.cost <= room);
+  const budget = afford.length ? afford : all;
+  // 주전 자리를 먼저 채운다 — 예비만 남기면 뒤에 오는 보드에서 자리 마감으로 한 명도 못 뽑는다
+  const open = openFieldSlots(c.roster);
+  const starters = budget.filter((p) => open.some((x) => x.pos === p.position));
+  const list = starters.length ? starters : budget;
   const ranked = list.map((p) => ({ p, v: scoreFor(s, p, club) })).sort((a, b) => b.v - a.v);
   const top = ranked.slice(0, Math.min(3, ranked.length));          // 늘 1등만 고르면 판이 똑같아진다
   return top[Math.floor(rng() * top.length)].p;
