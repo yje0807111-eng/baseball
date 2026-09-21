@@ -26,6 +26,8 @@ export const TRAITS = {
 export const CLUB_POOL = BANNERS.filter((b) => !['korea', 'legend'].includes(b.key));
 const TRAIT_ORDER = ['power', 'mound', 'value', 'defense', 'balance', 'power', 'mound'];
 export const emblemOf = (key) => `ui/clubs/${key}.webp`;
+/** 프로필 배너 키 → 내 카드에 뜰 그림. 엠블럼이 없는 배너(국가대표 · 레전드)는 깃발을 쓴다 */
+export const bannerEmblem = (key) => (!key ? null : ['korea', 'legend'].includes(key) ? `ui/teams/flag-${key}.webp` : emblemOf(key));
 
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
@@ -40,13 +42,13 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
+export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
   // 상대 일곱 구단은 실제 구단 중에서 판마다 새로 뽑는다
   const rivals = shuffle(CLUB_POOL, rng).slice(0, CLUB_COUNT - 1)
     .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i] }));
   const clubs = [
     // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
-    { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, me: true },
+    { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, emblem: myEmblem, me: true },
     ...rivals,
   ].map((c) => ({ ...c, roster: [], cp: cap }));
   const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
