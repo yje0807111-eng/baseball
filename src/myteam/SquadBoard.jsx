@@ -8,6 +8,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { playingIds } from './match.js';
+import { PLAY_LIMIT } from './rules.js';
 import { posColor, statColor, teamNeon } from './teamColor.js';
 import { Btn } from './ui.jsx';
 import { offPositionPenalty } from '../KboAugmentDraft.jsx';
@@ -177,7 +178,7 @@ const Handle = () => <span className="cursor-grab select-none text-[14px] tracki
  * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
  * 칸 높이는 판 높이를 줄 수로 나눈 값(최대 maxH). 순서가 바뀌면 목표 위치만 바뀌어 CSS 가 부드럽게 옮긴다.
  */
-function Slots({ count, maxH, gap = 4, axis = 'y', style, children }) {
+function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, children }) {
   const ref = useRef(null);
   const [h, setH] = useState(0);
   useLayoutEffect(() => {
@@ -189,7 +190,7 @@ function Slots({ count, maxH, gap = 4, axis = 'y', style, children }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const rowH = count ? Math.max(24, Math.min(maxH, (h - gap * (count - 1)) / count)) : 0;
+  const rowH = slots ? Math.max(24, Math.min(maxH, (h - gap * (slots - 1)) / slots)) : 0;
   return (
     <div ref={ref} className="relative min-h-0" style={style} data-pitch={rowH + gap} data-count={count} data-axis={axis}>
       {h > 0 && children(rowH, rowH + gap)}
@@ -512,7 +513,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             </div>
             <div className="shrink-0">
               <Grp en="BATTING ORDER" ko={`타순 ${lineupRows.length}`} color="#34d399" />
-              <Slots count={lineupRows.length} maxH={200} gap={5} axis="x" style={{ height: 112 }}>
+              <Slots count={lineupRows.length} slots={PLAY_LIMIT.batters} maxH={200} gap={5} axis="x" style={{ height: 112 }}>
                 {(w, pitch) => stable(lineupRows, (x) => x.id).map((x) => batCell(x, linePos.get(x.id), w, pitch))}
               </Slots>
             </div>
@@ -521,17 +522,17 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           {/* 오른쪽: 로테이션 · 불펜 · 벤치 */}
           <div className="flex min-h-0 flex-col">
             <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} />
-            <Slots count={rotation.length} maxH={52} style={{ flex: Math.max(1, rotation.length) }}>
+            <Slots count={rotation.length} slots={PLAY_LIMIT.SP} maxH={52} style={{ flex: PLAY_LIMIT.SP }}>
               {(h, pitch) => stable(rotation).map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BULLPEN" ko={`불펜 ${bullpen.length}`} color={ROLE.MR} />
-            <Slots count={bullpen.length} maxH={46} style={{ flex: Math.max(1, bullpen.length) }}>
+            <Slots count={bullpen.length} slots={PLAY_LIMIT.RP} maxH={46} style={{ flex: PLAY_LIMIT.RP }}>
               {(h, pitch) => stable(bullpen).map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
             </Slots>
             <div className="h-2 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
-            <div className="mt-scroll slim flex max-h-[150px] shrink-0 flex-col gap-1 overflow-y-auto">
+            <div className="mt-scroll slim grid max-h-[126px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1">
               {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
