@@ -4,6 +4,7 @@
  * 화면과 떼어 놓은 순수 상태 기계다: 상태를 받아 다음 상태를 돌려준다 (React 도 타이머도 모른다).
  */
 import { getLockReason, ROSTER_SIZE, SALARY_CAP, DRAFT_SERIES, freeSlot, FIELD_SLOTS, POS_LABEL } from '../KboAugmentDraft.jsx';
+import { BANNERS } from '../myteam/teamArt.js';
 
 export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
 export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
@@ -20,15 +21,11 @@ export const TRAITS = {
   balance: { ko: '균형', score: () => 0 },
 };
 
-export const AI_CLUBS = [
-  { name: '한빛 다이노스', trait: 'power', color: '#f87171' },
-  { name: '청우 베어스', trait: 'mound', color: '#60a5fa' },
-  { name: '금성 트윈스', trait: 'value', color: '#fbbf24' },
-  { name: '남해 자이언츠', trait: 'defense', color: '#34d399' },
-  { name: '백호 타이거즈', trait: 'balance', color: '#fb923c' },
-  { name: '태극 이글스', trait: 'power', color: '#a78bfa' },
-  { name: '해풍 위즈', trait: 'mound', color: '#38bdf8' },
-];
+/* 상대 구단은 실제 구단에서 뽑는다 (국가대표 · 레전드는 구단이 아니라 뺀다).
+   엠블럼은 public/ui/clubs/<키>.webp — 실제 로고가 아니라 구단 상징을 새로 그린 그림이다 */
+export const CLUB_POOL = BANNERS.filter((b) => !['korea', 'legend'].includes(b.key));
+const TRAIT_ORDER = ['power', 'mound', 'value', 'defense', 'balance', 'power', 'mound'];
+export const emblemOf = (key) => `ui/clubs/${key}.webp`;
 
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
@@ -44,11 +41,14 @@ export function clubAt(pick, order) {
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
 export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
+  // 상대 일곱 구단은 실제 구단 중에서 판마다 새로 뽑는다
+  const rivals = shuffle(CLUB_POOL, rng).slice(0, CLUB_COUNT - 1)
+    .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i] }));
   const clubs = [
     // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
     { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, me: true },
-    ...AI_CLUBS,
-  ].map((c) => ({ ...c, short: c.short || c.name.split(' ')[0], roster: [], cp: cap }));
+    ...rivals,
+  ].map((c) => ({ ...c, roster: [], cp: cap }));
   const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
   // 보드는 라운드마다 하나씩 — 모드에 시리즈가 모자라면 다시 섞어 이어 붙인다 (이미 나간 선수는 그대로 잠겨 있다)
   const usable = series.filter((s) => s.players.length);

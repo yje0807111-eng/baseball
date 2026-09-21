@@ -1572,13 +1572,15 @@ export const KEYFRAMES = `
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
 /* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
-@keyframes mcGone {
-  0% { opacity: 1; }
-  35% { opacity: .95; }
-  100% { opacity: 0; }
-}
-.mc.gone { pointer-events: none; animation: mcGone .5s ease-out both; }
-.mc.gone::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: color-mix(in srgb, var(--t, #fff) 22%, transparent); }
+@keyframes mcGone { 0%, 62% { opacity: 1; } 100% { opacity: 0; } }
+.mc.gone { pointer-events: none; animation: mcGone .92s ease-out both; }
+/* 엠블럼: 구단 상징이 카드를 덮고 아래에 구단 이름 (그림은 public/ui/clubs/<키>.webp) */
+@keyframes mcEmbIn { from { opacity: 0; transform: scale(1.07); } to { opacity: 1; transform: none; } }
+.mc-emb { position: absolute; inset: 0; z-index: 7; display: grid; align-content: end; justify-items: center;
+  background: #05080f center / cover no-repeat; background-image: inherit; animation: mcEmbIn .24s ease-out both; }
+.mc-emb::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.2) 40%, rgba(5,8,15,.9)); }
+.mc-emb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px var(--t), inset 0 0 26px -6px var(--t); }
+.mc-emb b { position: relative; padding-bottom: 9cqw; font-size: 17cqw; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 8px #000; }
 /* 나간 자리는 빈 칸으로 남아 선반이 흔들리지 않는다 */
 .mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
 .mc { transition: top .34s cubic-bezier(.22,1,.36,1); }
@@ -2427,6 +2429,13 @@ function MiniCard({ player, reason, takenClub, gone = false, hot = false, myColo
           <span className="mc-tbar" />
           <b className="mc-tnm">{takenClub.short}</b>
         </>
+      )}
+      {/* 사라지는 순간: 데려간 구단 엠블럼이 카드를 덮고 구단 이름과 함께 사라진다 */}
+      {gone && takenClub && (
+        <span className="mc-emb" aria-hidden="true"
+          style={{ '--t': takenClub.color, backgroundImage: takenClub.emblem ? `url(${takenClub.emblem})` : undefined }}>
+          <b>{takenClub.short}</b>
+        </span>
       )}
       {/* 데려간 카드는 아래 줄이 이미 구단을 말하므로 잠금 알림을 따로 띄우지 않는다 */}
       {locked && !takenClub && <span className="mc-lk" title={reason}><LockIcon /><span>{reason.replace(/\s*\(.*\)$/, '')}</span></span>}
@@ -5571,7 +5580,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const last = live?.picks[live.picks.length - 1];
     if (!last) return undefined;
     setGone((g) => new Set(g).add(last.player.id));
-    const t = setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(last.player.id); return n; }), 620);
+    const t = setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(last.player.id); return n; }), 980);
     return () => clearTimeout(t);
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
