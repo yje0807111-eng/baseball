@@ -1611,14 +1611,16 @@ export const KEYFRAMES = `
 .mc.taken .mc-ov { color: #4b5563; text-shadow: none; background: none; animation: none; filter: none; -webkit-text-fill-color: currentColor; }
 .mc-ttop { position: absolute; z-index: 5; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: var(--t); }
 /* 데려간 카드의 사진 자리에 올라오는 구단 배너 — 아래 정보 줄(이름 · CP)은 그대로 둔다 */
-.mc-flag { position: absolute; z-index: 4; left: 0; right: 0; top: 0; bottom: 38cqw; background: #070b14 center 26% / cover no-repeat; }
+/* 데려간 카드: 위는 선수 사진 그대로, 아래 절반만 구단 엠블럼으로 (둘 다 보인다) */
+.mc-flag { position: absolute; z-index: 4; left: 0; right: 0; bottom: 38cqw; height: 52cqw; background: #070b14 center 30% / cover no-repeat; }
 .mc-flag::after { content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(5,8,15,.15) 45%, rgba(5,8,15,.92));
-  box-shadow: inset 0 -2px 0 var(--t); }
+  background: linear-gradient(180deg, rgba(5,8,15,.3), rgba(5,8,15,.9));
+  box-shadow: inset 0 1px 0 var(--t); }
 .mc-tnm { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 40cqw; font-size: 15cqw; font-weight: 800; line-height: 1; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 6px #000; white-space: nowrap; overflow: hidden; }
 /* 아래 줄은 죽은 톤으로 (카드가 살아 있는 것과 구분) */
-.mc.taken .mc-pos em { background: #64748b; }
-.mc.taken .mc-pos span, .mc.taken .mc-nm { color: #94a3b8; }
+/* 구단 이름과 겹치므로 포지션 칩과 영문 줄은 지운다 */
+.mc.taken .mc-pos { display: none; }
+.mc.taken .mc-nm { color: #94a3b8; }
 .mc.taken .mc-cp b { color: var(--t); text-shadow: none; }
 .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
