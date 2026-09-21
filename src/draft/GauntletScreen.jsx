@@ -1,8 +1,10 @@
 /*
- * 도장깨기 화면 (전체 화면) — 왼쪽: 일곱 구단이 약한 순서로 쌓인 탑 · 오른쪽: 나와 지금 상대의 수치 비교.
- * 아래층(1단 약체)부터 깨고 올라가며, 꼭대기(7단 강호)가 마지막 상대다.
+ * 도장깨기 화면 (전체 화면) — 왼쪽: 여덟 구단이 전력 순으로 쌓인 탑(맨 아래 0번이 나) · 오른쪽: 바로 윗 칸 상대와의 수치 비교.
+ * 이기면 그 칸을 빼앗아 한 칸 올라서고, 진 구단은 내 아래로 내려온다.
+ * 칸의 '자세히'를 누르면 다른 칸은 한 줄로 접히고, 그 칸 아래로 구단의 수비 배치 · 투수진 · 벤치가 열린다.
  */
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import { FIELD_SLOTS, PITCH_SLOTS, fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
 import { GRADES, emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
 
@@ -11,6 +13,13 @@ const TRAIT_KO = { power: '한 방', mound: '마운드', value: '가성비', def
 const KEYS = [['bat', '타격'], ['pit', '마운드'], ['def', '수비'], ['str', '전력']];
 const pct = (v, min = 62, max = 88) => Math.max(4, Math.min(100, ((v - min) / (max - min)) * 100));
 const show = (k, v) => (k === 'str' ? v.toFixed(1) : v);
+/* 구장 위 자리 (%) — 라커(SquadBoard)와 같은 좌표를 쓴다 */
+const XY = { OF2: [50, 13], OF1: [17, 26], OF3: [83, 26], SS: [34, 47], '2B': [66, 47], '3B': [16, 66], '1B': [84, 66], C: [50, 88], DH: [90, 88] };
+const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
+const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
+const face = (p) => `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
+/* 야수 자리 — KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 그릴 때 센다 */
+const batSlots = () => FIELD_SLOTS.filter((s) => !PITCH_SLOTS.includes(s.id)).map((s) => s.id);
 
 const Grade = ({ g, className = '' }) => (
   <span className={`ui-cut px-1.5 py-px text-[0.68rem] font-bold ${className}`}
@@ -23,34 +32,105 @@ const Emb = ({ src, size, className = '', style }) => (
     style={{ '--c': `${Math.round(size * 0.16)}px`, width: size, height: size, backgroundImage: `url(${src})`, backgroundPosition: 'center 26%', ...style }} />
 );
 
-/** 탑 한 칸 — 구단 하나(맨 아래는 나). 지나온 칸은 흐려지고, 다음 상대 칸과 내 칸만 빛난다 */
-function Floor({ r, index, now, mine, cleared, top, width }) {
-  const lit = now || mine;
+/** 탑 한 칸 — 구단 하나(맨 아래는 나). 다른 칸이 펼쳐져 있으면 한 줄로 접힌다 */
+function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore }) {
+  const lit = now || mine || open;
+  const big = !folded;
   return (
-    <div data-rung={r.club} className="relative mx-auto flex items-center gap-3 px-4 transition-[opacity,box-shadow,width,clip-path] duration-500"
-      style={{ width, height: 84, paddingTop: top ? 14 : 0, opacity: cleared ? 0.5 : 1,
+    <div data-rung={r.club} className="relative mx-auto flex items-center transition-[opacity,box-shadow,width,height] duration-300"
+      style={{ width, height: big ? 84 : 46, gap: big ? 12 : 10, padding: top ? '14px 16px 0' : '0 16px', opacity: cleared ? 0.5 : 1,
         background: lit ? `linear-gradient(180deg,${r.color}44,${r.color}18)` : cleared ? 'rgba(52,211,153,.07)' : 'rgba(255,255,255,.04)',
         boxShadow: lit ? `inset 0 0 0 2px ${r.color},0 0 40px -14px ${r.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)',
         clipPath: top ? 'polygon(50% 0,100% 24%,100% 100%,0 100%,0 24%)' : undefined }}>
-      <b className="w-4 font-display text-xl" style={{ color: lit ? r.color : '#54606f' }}>{index}</b>
-      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={46} style={{ opacity: cleared ? 0.45 : 1 }} />
-      <span className="grid w-[6.5rem] gap-0.5">
-        <b className="truncate text-[0.95rem]" style={{ color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
-        <small className="text-[0.7rem] text-[#8b97a6]">{TRAIT_KO[r.trait] || ''}</small>
+      <b className="w-4 font-display" style={{ fontSize: big ? 20 : 15, color: lit ? r.color : '#54606f' }}>{index}</b>
+      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 46 : 30} style={{ opacity: cleared ? 0.45 : 1 }} />
+      <span className="grid gap-0.5" style={{ width: big ? 104 : 88 }}>
+        <b className="truncate" style={{ fontSize: big ? 15 : 13, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
+        {big && <small className="text-[0.7rem] text-[#8b97a6]">{TRAIT_KO[r.trait] || ''}</small>}
       </span>
-      <span className="ml-auto flex items-center gap-3">
+      <span className="ml-auto flex items-center" style={{ gap: big ? 12 : 9 }}>
         {KEYS.slice(0, 3).map(([k, ko]) => (
-          <span key={k} className="ui-cut grid w-[3.4rem] justify-items-center gap-px py-1" style={{ '--c': '4px', background: 'rgba(255,255,255,.05)' }}>
-            <small className="text-[0.6rem] text-[#6b7787]">{ko}</small>
-            <b className="font-display text-base" style={{ color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
+          <span key={k} className="ui-cut grid justify-items-center gap-px"
+            style={{ '--c': '4px', width: big ? 52 : 44, padding: big ? '3px 0' : 0, background: big ? 'rgba(255,255,255,.05)' : 'transparent' }}>
+            {big && <small className="text-[0.6rem] text-[#6b7787]">{ko}</small>}
+            <b className="font-display" style={{ fontSize: big ? 15 : 13, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
           </span>
         ))}
-        <b className="w-12 text-right font-display text-[1.35rem]" style={{ color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
-        <b className="w-[3.6rem] text-right font-display text-[0.8rem] tracking-[0.14em]"
+        <b className="w-12 text-right font-display" style={{ fontSize: big ? 21 : 16, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
+        <b className="w-[2.6rem] text-right font-display text-[0.7rem] tracking-[0.12em]"
           style={{ color: mine ? r.color : cleared ? '#34d399' : now ? r.color : '#4b5563' }}>
-          {mine ? 'ME' : cleared ? 'CLEAR' : now ? '▶ NOW' : ''}
+          {mine ? 'ME' : cleared ? 'CLEAR' : now ? 'NOW' : ''}
         </b>
+        <button type="button" onClick={onMore} className="ui-cut whitespace-nowrap px-2.5 py-1 text-[0.72rem] font-bold"
+          style={{ '--c': '5px', background: open ? `${r.color}2e` : 'rgba(255,255,255,.06)',
+            boxShadow: `inset 0 0 0 1px ${open ? r.color : 'rgba(255,255,255,.14)'}`, color: open ? r.color : '#a8b3c1' }}>
+          {open ? '닫기 ▲' : '자세히 ▼'}
+        </button>
       </span>
+    </div>
+  );
+}
+
+/* 펼친 판 — 구장 위 수비 아홉(라커와 같은 그림) · 선발과 불펜 · 벤치 */
+const Cap = ({ children }) => <b className="font-display text-[0.66rem] tracking-[0.22em] text-[#6b7787]">{children}</b>;
+function Detail({ r, width }) {
+  const full = fillRoster(r.roster || []);
+  const by = {};
+  full.forEach((p) => { if (p.slot) by[p.slot] = p; });
+  const arms = PITCH_SLOTS.map((id) => ({ ...by[id], slot: id, label: FIELD_SLOTS.find((s) => s.id === id)?.label })).filter((p) => p.id);
+  const bench = full.filter((p) => p.slot && p.slot.startsWith('BN'));
+  return (
+    <div className="ui-cut mx-auto flex gap-3.5 p-3.5" style={{ width, height: 300, '--c': '12px',
+      background: 'linear-gradient(180deg,rgba(8,12,20,.94),rgba(8,12,20,.82))', boxShadow: `inset 0 0 0 1px ${r.color}44, inset 0 2px 0 ${r.color}` }}>
+      {/* 구장 위 수비 배치 */}
+      <div className="ui-cut relative h-full w-[22.5rem] shrink-0 overflow-hidden bg-cover"
+        style={{ '--c': '10px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 40%' }}>
+        <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,9,15,.35),rgba(5,9,15,.6))' }} />
+        {batSlots().map((slot) => {
+          const p = by[slot];
+          const at = XY[slot];
+          if (!p || !at) return null;
+          return (
+            <span key={slot} className="absolute flex items-center" style={{ left: `${at[0]}%`, top: `${at[1]}%`, transform: 'translate(-50%,-50%)' }}>
+              <span className="h-8 w-[1.6rem] shrink-0 bg-[#0b1220] bg-cover"
+                style={{ clipPath: SKEW(6), backgroundPosition: 'center 8%', backgroundImage: face(p) }} />
+              <span className="-ml-[3px] grid">
+                <b className="whitespace-nowrap px-1.5 py-px text-[0.6rem] text-white" style={{ clipPath: SKEW(5), background: 'rgba(6,10,19,.95)' }}>{p.name}</b>
+                <b className="ml-1 whitespace-nowrap px-1.5 font-display text-[0.56rem] text-[#05080f]" style={{ clipPath: SKEW(4), background: r.color }}>
+                  {POS_LABEL[p.position] || p.position} {p.overall}
+                </b>
+              </span>
+            </span>
+          );
+        })}
+      </div>
+      {/* 투수진과 벤치 */}
+      <div className="grid min-w-0 flex-1 content-start gap-1.5">
+        <Cap>PITCHERS</Cap>
+        <div className="grid grid-cols-2 gap-1.5">
+          {arms.map((p) => (
+            <span key={p.slot} className="ui-cut flex h-[2.4rem] items-center gap-2 px-2"
+              style={{ '--c': '5px', background: 'rgba(255,255,255,.045)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
+              <span className="ui-cut h-8 w-[1.6rem] shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '4px', backgroundImage: face(p), backgroundPosition: 'center 6%' }} />
+              <span className="grid min-w-0 flex-1 gap-px">
+                <b className="truncate text-[0.75rem] text-[#e8ecf2]">{p.name}</b>
+                <small className="text-[0.6rem] text-[#7c8797]">{p.label}</small>
+              </span>
+              <b className="font-display text-[0.95rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+            </span>
+          ))}
+        </div>
+        <span className="mt-1"><Cap>BENCH</Cap></span>
+        <div className="flex flex-wrap gap-1">
+          {bench.length ? bench.map((p) => (
+            <span key={p.slot} className="ui-cut flex items-center gap-1.5 px-2 py-0.5" style={{ '--c': '4px', background: 'rgba(255,255,255,.05)' }}>
+              <small className="text-[0.62rem] text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
+              <b className="text-[0.72rem] text-[#e8ecf2]">{p.name}</b>
+              <b className="font-display text-[0.72rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+            </span>
+          )) : <small className="text-[0.72rem] text-[#6b7787]">예비 선수 없음</small>}
+        </div>
+      </div>
     </div>
   );
 }
@@ -60,6 +140,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
   const rec = record(gaunt);
   const base = 540, grow = 40;
   const myEmb = me.emblem || bannerEmblem(null);
+  const [openClub, setOpenClub] = useState(null); // 명단을 펼쳐 둔 구단 (한 번에 하나)
 
   /* 자리가 바뀌면 칸이 미끄러져 오간다 — 새 자리에 그린 뒤 옛 자리에서 출발시킨다(FLIP) */
   const towerRef = useRef(null);
@@ -99,12 +180,21 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
 
       <div className="relative flex min-h-0 flex-1">
         {/* 왼쪽: 탑 */}
-        <div ref={towerRef} className="grid flex-1 place-content-center px-5 py-2">
+        <div ref={towerRef} className="grid min-w-0 flex-1 place-content-center overflow-hidden px-5 py-2">
           <b className="mb-2.5 text-center font-display text-[0.8rem] tracking-[0.3em] text-[#6b7787]">TOWER OF {gaunt.tower.length}</b>
-          {gaunt.tower.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => (
-            <Floor key={r.club} r={r.me ? { ...r, ...me.stats } : r} index={i} now={cur?.club === r.club} mine={!!r.me}
-              cleared={isCleared(gaunt, i)} top={i === gaunt.tower.length - 1} width={base + (gaunt.tower.length - 1 - i) * grow} />
-          ))}
+          {gaunt.tower.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => {
+            const open = openClub === r.club;
+            const width = base + (gaunt.tower.length - 1 - i) * grow;
+            const shown = r.me ? { ...r, ...me.stats } : r;
+            return (
+              <React.Fragment key={r.club}>
+                <Floor r={shown} index={i} now={cur?.club === r.club} mine={!!r.me} cleared={isCleared(gaunt, i)}
+                  top={i === gaunt.tower.length - 1} width={width} open={open} folded={openClub != null && !open}
+                  onMore={() => setOpenClub(open ? null : r.club)} />
+                {open && <Detail r={shown} width={width + 60} />}
+              </React.Fragment>
+            );
+          })}
           <div className="mx-auto h-4" style={{ width: base + (gaunt.tower.length - 1) * grow, background: 'rgba(255,255,255,.1)' }} />
         </div>
 
