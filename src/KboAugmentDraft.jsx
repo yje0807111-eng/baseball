@@ -5697,6 +5697,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }), 1000);
     return () => clearInterval(id);
   }, [live, phase, choice, liveMine]);
+  useEffect(() => {
+    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고 남은 라운드는 한 번에 넘긴다 */
+    if (!live || phase !== 'draft' || choice || Live.isDone(live)) return undefined;
+    if (live.pick % Live.CLUB_COUNT !== 0 || !Live.cannotPickMore(live)) return undefined;
+    const t = setTimeout(() => setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s)), 500 / liveSpeed);
+    return () => clearTimeout(t);
+  }, [live, phase, choice, liveSpeed]);
   useEffect(() => { // 자동 지명으로 내 선수가 늘었으면 화면의 엔트리도 따라간다
     if (!live || phase !== 'draft') return;
     const mine = Live.myRoster(live);

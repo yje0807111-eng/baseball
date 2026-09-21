@@ -244,6 +244,27 @@ export function stepAi(s, rng = Math.random) {
   return pick(s, autoPick(s, currentClub(s), rng), { auto: true });
 }
 
+/**
+ * 이 구단이 앞으로 한 명도 데려갈 수 없는지 — 엔트리가 찼거나, 남은 보드를 통틀어 캡 안에 드는 선수가 없다.
+ * 사람 구단이 이렇게 되면 남은 라운드를 기다릴 까닭이 없다
+ */
+export function cannotPickMore(s, club = myIndex(s)) {
+  const c = s.clubs[club];
+  if (c.roster.length >= ROSTER_SIZE) return true;
+  return !s.pool.slice(boardNo(s)).some((b) => b.players
+    .some((pl) => takenBy(s, pl) == null && !getLockReason(pl, c.roster, c.cp)));
+}
+
+/** 남은 픽을 모두 소화한 마지막 판 — AI 는 뽑고, 나는 넘긴다 */
+export function finishAll(s, rng = Math.random) {
+  let out = s;
+  let guard = 0;
+  while (!isDone(out) && guard++ < CLUB_COUNT * ROSTER_SIZE + 10) {
+    out = isMyTurn(out) ? pick(out, null) : stepAi(out, rng);
+  }
+  return out;
+}
+
 /** 판이 끝난 뒤 쓸 구단별 결과 */
 export const rosterOf = (s, club) => s.clubs[club].roster;
 export const myRoster = (s) => rosterOf(s, myIndex(s));

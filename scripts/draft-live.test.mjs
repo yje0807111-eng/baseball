@@ -149,3 +149,25 @@ test('구단 급이 강호 → 약체 순으로 전력 차이를 만든다', asy
   expect([...rung].sort((a, b) => a.strength - b.strength)).toEqual(rung);
   expect(rung.map((x) => x.step)).toEqual([0, 1, 2, 3, 4, 5, 6]);
 });
+
+test('캡을 다 쓰면 남은 라운드를 한 번에 넘긴다', async () => {
+  const { cannotPickMore, finishAll, myIndex, isDone, CLUB_COUNT: N } = await import('../src/draft/live.js');
+  const rng = seeded(21);
+  let s = createLive({ rng });
+  const me = myIndex(s);
+  expect(cannotPickMore(s)).toBe(false);          // 판을 열면 당연히 뽑을 수 있다
+
+  // 내 캡을 0 으로 만들면 어느 보드에서도 데려올 수 없다
+  const broke = { ...s, clubs: s.clubs.map((c, i) => (i === me ? { ...c, cp: 0 } : c)) };
+  expect(cannotPickMore(broke)).toBe(true);
+
+  // 남은 픽을 한 번에 소화한다 — 나는 넘기고 AI 는 계속 뽑는다
+  const end = finishAll(broke, rng);
+  expect(isDone(end)).toBe(true);
+  expect(end.clubs[me].roster).toHaveLength(0);
+  end.clubs.forEach((c, i) => { if (i !== me) expect(c.roster.length).toBeGreaterThan(ROSTER_SIZE - 5); });
+
+  // 엔트리가 다 찬 구단도 더 뽑지 않는다
+  const full = { ...s, clubs: s.clubs.map((c, i) => (i === me ? { ...c, roster: Array.from({ length: ROSTER_SIZE }, () => ({})) } : c)) };
+  expect(cannotPickMore(full)).toBe(true);
+});
