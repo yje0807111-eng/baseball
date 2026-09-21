@@ -39,7 +39,6 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
   const squad = team.squad || [];
   const items = useMemo(() => SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat), [cat]);
-  const counts = useMemo(() => Object.fromEntries(CATEGORIES.map((c) => [c.key, c.key === 'all' ? SHOP_ITEMS.length : SHOP_ITEMS.filter((i) => i.cat === c.key).length])), []);
   const recs = useMemo(() => (picked ? recommendTargets(team, picked) : []), [picked, team]);
   const owned = (it) => (team.items || []).filter((x) => x.itemId === it.id).length;
 
@@ -76,7 +75,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const n = picked ? catColor[picked.cat] : '#34d399';
 
   const NAV = CATEGORIES.map((c) => ({
-    key: c.key, label: c.label, sub: `${counts[c.key]}개${c.key === 'all' ? '' : ` · ${catSub[c.key]}`}`,
+    key: c.key, label: c.label,
     img: itemArt(SHOP_ITEMS.find((i) => c.key === 'all' || i.cat === c.key) || SHOP_ITEMS[0]),
   }));
 
@@ -89,13 +88,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category">
-          <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
-            <p className="text-[11px] text-gray-400">보유 골드</p>
-            <b className="font-display text-2xl text-amber-300">{gold.toLocaleString()} G</b>
-            <p className="mt-1 text-[11px] text-gray-500">승 300 · 무 180 · 패 120</p>
-          </div>
-        </SideNav>
+        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category" />
 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">
