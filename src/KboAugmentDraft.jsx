@@ -10,6 +10,8 @@ import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
 import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
 import * as Live from './draft/live.js';
+import * as Gaunt from './draft/gauntlet.js';
+import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
@@ -29,7 +31,7 @@ const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전�
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
-const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium', bracket: 'stadium' };
+const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium', bracket: 'stadium', gauntlet: 'gauntlet' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -1527,19 +1529,65 @@ export const KEYFRAMES = `
 .ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
 .ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
+/* 라이브 진행 배속 · 건너뛰기 */
+.dr-sp { display: inline-flex; gap: 2px; }
+.dr-sp button { padding: 2px 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #9ca3af;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
+.dr-sp button:hover { color: #fff; }
+.dr-sp button.on { color: #05080f; background: #38e1ff; }
+.dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size: 12px; line-height: 1; color: #cbd5e1;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
+.dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
+.dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
-.dr-order { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; transform: translate(-50%, -50%); pointer-events: none; }
-.dr-pc { position: relative; display: flex; align-items: center; padding: 4px 14px 4px 20px; margin-left: -12px;
+/* 라이브: 한 판 두 층 */
+.dr-panel { display: grid; gap: 4px; margin-top: -26px; padding: 5px 12px;
+  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.dr-top { display: flex; align-items: center; gap: 12px; }
+.dr-top .dr-toggle { margin-left: auto; }
+.dr-bar { display: flex; align-items: center; gap: 10px; }
+/* 가운데: 라운드와 샐러리 캡 잔여 */
+.dr-meta.inline { position: static; transform: none; padding: 0; gap: 10px; background: none; box-shadow: none; }
+.dr-meta.inline .dr-round b { font-size: 18px; }
+.dr-meta.inline .dr-ticks i { height: 10px; }
+.dr-meta.inline .dr-cap b { font-size: 14px; }
+.dr-meta { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 14px; padding: 4px 12px; transform: translate(-50%, -50%);
+  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.dr-round { display: flex; align-items: baseline; gap: 6px; }
+.dr-round small { font-family: 'Saira Condensed', sans-serif; font-size: 10px; letter-spacing: .24em; color: #6b7280; }
+.dr-round b { font-family: 'Saira Condensed', sans-serif; font-size: 22px; line-height: 1; color: #fff; }
+.dr-round small + b + small { font-size: 11px; letter-spacing: 0; }
+.dr-cap { display: flex; align-items: center; gap: 9px; }
+.dr-cap b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; color: var(--a); }
+.dr-cap > small { font-family: 'Saira Condensed', sans-serif; font-size: 10.5px; color: #6b7280; }
+.dr-ticks { display: flex; gap: 2px; }
+.dr-ticks i { width: 4px; height: 13px; transform: skewX(-18deg); background: rgba(255,255,255,.12); }
+.dr-ticks i.on { background: var(--a); box-shadow: 0 0 6px color-mix(in srgb, var(--a) 40%, transparent); }
+.dr-ticks i.spend { background: rgba(148,163,184,.4); }
+/* 오른쪽: 전체보기 토글을 순서 판 위에 작게 */
+.dr-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: #9ca3af; }
+.dr-toggle .tr { position: relative; width: 22px; height: 12px; border-radius: 99px; background: rgba(255,255,255,.14); transition: background .15s; }
+.dr-toggle .tr::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #fff; transition: left .15s; }
+.dr-toggle[aria-pressed="true"] { color: #e8ecf2; }
+.dr-toggle[aria-pressed="true"] .tr { background: #10b981; }
+.dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
+.dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
+.dr-order { display: flex; align-items: center; pointer-events: none; }
+.dr-clock { width: 34px; margin-left: 8px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); }
+.dr-pc { position: relative; display: flex; align-items: center; justify-content: center; width: 72px; height: 24px; padding: 0 8px 0 14px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
-  background: rgba(255,255,255,.05); transition: padding .2s ease, background .3s ease; }
+  background: rgba(255,255,255,.05); transition: background .3s ease, box-shadow .3s ease; }
 .dr-pc:first-child { margin-left: 0; }
 .dr-pc > i { position: absolute; inset: 0; background: center 28% / cover no-repeat; opacity: .1; mix-blend-mode: luminosity; }
-.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; }
+.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
 .dr-pc.past > i { opacity: .18; }
-.dr-pc.now { z-index: 2; padding: 9px 22px 9px 28px; background: var(--t); box-shadow: 0 0 20px -4px var(--t); }
+.dr-pc.now { z-index: 2; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
 .dr-pc.now > i { opacity: .5; }
-.dr-pc.now > b { font-size: 15px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
+.dr-pc.now > b { font-size: 12.5px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
 .ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
 .ser-sw:hover { color: #fff; }
@@ -1586,36 +1634,48 @@ export const KEYFRAMES = `
 .mc-nm.l5 { font-size: 13cqw; }
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
+/* 보기 단추로 카드가 드러나고 숨는 효과 — 카드가 아니라 감싸는 칸에 준다 (카드의 등장 애니와 겹치지 않게) */
+@keyframes scIn { from { opacity: 0; transform: translateY(7px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes scOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(5px) scale(.96); } }
+.sc-in { animation: scIn .36s cubic-bezier(.22,1,.36,1) both; }
+.sc-out { animation: scOut .3s ease-in both; }
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
 /* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
-@keyframes mcGone { 0%, 62% { opacity: 1; } 100% { opacity: 0; } }
-.mc.gone { pointer-events: none; animation: mcGone .92s ease-out both; }
+@keyframes mcGone { 0%, 66% { opacity: 1; } 100% { opacity: 0; } }
+.mc.gone { pointer-events: none; animation: mcGone 1s ease-out both; }
 .mc.gone-keep { pointer-events: none; } /* 엠블럼만 지나가고 카드는 남는다 */
 /* 엠블럼: 구단 상징이 카드를 덮고 아래에 구단 이름 (그림은 public/ui/clubs/<키>.webp) */
 /* 엠블럼: 카드까지 사라질 때는 끝까지 덮고 있다가 카드와 함께 사라지고(뒤 카드가 다시 드러나지 않게),
    카드를 남길 때만 혼자 사라진다 */
 @keyframes mcEmbIn { from { opacity: 0; transform: scale(1.07); } to { opacity: 1; transform: none; } }
-@keyframes mcEmbInOut { 0% { opacity: 0; transform: scale(1.07); } 18% { opacity: 1; transform: none; } 62% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mcEmbInOut { 0% { opacity: 0; transform: scale(1.04); } 20% { opacity: 1; transform: none; } 66% { opacity: 1; } 100% { opacity: 0; } }
 .mc-emb { position: absolute; inset: 0; z-index: 7; display: grid; align-content: end; justify-items: center;
-  background: #05080f center / cover no-repeat; background-image: inherit; animation: mcEmbIn .26s ease-out both; }
-.mc.gone-keep .mc-emb { animation: mcEmbInOut .92s ease-out both; }
+  background: #05080f center / cover no-repeat; background-image: inherit; animation: mcEmbIn .18s ease-out both; }
+.mc.gone-keep .mc-emb { animation: mcEmbInOut 1s ease-out both; }
 .mc-emb::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.2) 40%, rgba(5,8,15,.9)); }
 .mc-emb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px var(--t), inset 0 0 26px -6px var(--t); }
 .mc-emb b { position: relative; padding-bottom: 9cqw; font-size: 17cqw; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 8px #000; }
 /* 나간 자리는 빈 칸으로 남아 선반이 흔들리지 않는다 */
 .mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
-.mc { transition: top .34s cubic-bezier(.22,1,.36,1); }
-.mc.hot { top: -3px; }
-.mc.hot:hover { top: -5px; }
+/* 라이브: 내 차례에 고를 수 있는 카드는 테두리로만 알린다 (자리를 움직이면 선반 전체가 들썩인다) */
+.mc.hot { z-index: 2; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
 .mc.taken .mc-in { filter: grayscale(1) brightness(.3); }
 .mc.taken .mc-tb { display: none; }
 .mc.taken .mc-ov { color: #4b5563; text-shadow: none; background: none; animation: none; filter: none; -webkit-text-fill-color: currentColor; }
 .mc-ttop { position: absolute; z-index: 5; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: var(--t); }
-.mc-trule { position: absolute; z-index: 5; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--t), color-mix(in srgb, var(--t) 20%, transparent)); }
-.mc-tsub { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 32cqw; font-size: 8.5cqw; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #6b7280; }
-.mc-tbar { position: absolute; z-index: 5; left: 7cqw; bottom: 7cqw; width: 3cqw; height: 17cqw; background: var(--t); }
-.mc-tnm { position: absolute; z-index: 5; left: 14cqw; right: 7cqw; bottom: 6cqw; font-size: 18cqw; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; color: #e5e7eb; white-space: nowrap; overflow: hidden; }
+/* 데려간 카드의 사진 자리에 올라오는 구단 배너 — 아래 정보 줄(이름 · CP)은 그대로 둔다 */
+/* 데려간 카드: 위는 선수 사진 그대로, 아래 절반만 구단 엠블럼으로 (둘 다 보인다) */
+.mc-flag { position: absolute; z-index: 4; left: 0; right: 0; bottom: 38cqw; height: 52cqw; background: #070b14 center 30% / cover no-repeat; }
+.mc-flag::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5,8,15,.3), rgba(5,8,15,.9));
+  box-shadow: inset 0 1px 0 var(--t); }
+.mc-tnm { position: absolute; z-index: 5; left: 7cqw; right: 7cqw; bottom: 40cqw; font-size: 15cqw; font-weight: 800; line-height: 1; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 6px #000; white-space: nowrap; overflow: hidden; }
+/* 아래 줄은 죽은 톤으로 (카드가 살아 있는 것과 구분) */
+/* 구단 이름과 겹치므로 포지션 칩과 영문 줄은 지운다 */
+.mc.taken .mc-pos { display: none; }
+.mc.taken .mc-nm { color: #94a3b8; }
+.mc.taken .mc-cp b { color: var(--t); text-shadow: none; }
 .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
 .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
 .mc-lk svg { width: 10cqw; height: 10cqw; flex: none; }
@@ -1742,17 +1802,6 @@ export const KEYFRAMES = `
 .mt-tabs button.on { color: #fff; }
 .mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
 .mt-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
-/* 라이브 드래프트: 보는 구단 고르개 (한 줄 — 뽑는 순번대로 좌우로 넘긴다) */
-.mt-club { flex: none; display: grid; grid-template-columns: 26px minmax(0,1fr) 26px; align-items: center; gap: 4px; padding: 5px 4px;
-  clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), rgba(255,255,255,.04));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 40%, transparent); }
-.mt-club button { font-size: 16px; line-height: 1; color: #9ca3af; transition: color .15s; }
-.mt-club button:hover { color: #fff; }
-.mt-club > span { min-width: 0; text-align: center; }
-.mt-club b { display: block; font-size: 13.5px; font-weight: 800; color: #fff; }
-.mt-club small { display: block; font-size: 10.5px; color: #9ca3af; }
-.mt-club em { font-style: normal; color: var(--a); }
 .mt-team { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
 .mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
 .mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -2203,7 +2252,7 @@ function Badge({ children }) {
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
 /** capAfter: PICK 에 올린 선수를 영입하면 남을 캡 — 있으면 “지금 → 영입 후” 숫자와, 깎일 칸이 노랗게 깜빡이는 게이지 */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit }) {
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit, slim = false }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const pct = clamp01((preview ? capAfter : cp) / cap);
@@ -2230,13 +2279,13 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           </div>
         )}
 
-        <div className="flex items-baseline gap-2">
+        {!slim && <div className="flex items-baseline gap-2">
           <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
-        </div>
+        </div>}
 
-        <div className="min-w-[220px] flex-1">
+        {!slim && <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
@@ -2255,7 +2304,8 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
             {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
           </div>
-        </div>
+        </div>}
+        {slim && <span className="flex-1" aria-hidden="true" />}
 
         <div className="flex items-center gap-3">
           {foreign > 0 && (
@@ -2410,23 +2460,56 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
+/* 선반 머리 가운데: 라운드와 샐러리 캡 잔여 (칸 스물넷) */
+function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
+  const preview = capAfter != null && capAfter !== cp;
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const pct = clamp01((preview ? capAfter : cp) / cap);
+  const tone = pct > 0.5 ? '#10b981' : pct > 0.2 ? '#fbbf24' : '#f87171';
+  const now = Math.round(clamp01(cp / cap) * 24);
+  const lit = preview ? Math.min(now, Math.round(pct * 24)) : now;
+  return (
+    <div className={`dr-meta ${inline ? "inline" : ""}`}>
+      <span className="dr-round">
+        <small>ROUND</small>
+        <b>{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</b>
+        <small>/ {ROSTER_SIZE}</small>
+      </span>
+      <i className="dr-div" aria-hidden="true" />
+      <span className="dr-cap" style={{ '--a': tone }}>
+        <span className="dr-ticks" role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
+          {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
+        </span>
+        <b>{preview ? capAfter : cp}</b>
+        <small>/ {cap}</small>
+      </span>
+    </div>
+  );
+}
+
 /* 라이브 드래프트 · 뽑는 순서 표: 이번 바퀴의 자리 순서대로 구단 조각이 맞물린다 */
-function TurnOrder({ live, clock }) {
-  const start = live.pick - (live.pick % Live.CLUB_COUNT);
-  const at = live.pick % Live.CLUB_COUNT;
+function TurnOrder({ live, clock, hold = false }) {
+  // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다).
+  // 다만 바퀴가 넘어갔으면 기다리지 않는다 — 보드가 바뀌는 순간 새 순서를 보여 줘야 한다
+  const sameLap = Live.lapOf(live.pick) === Live.lapOf(Math.max(0, live.pick - 1));
+  const shown = Math.max(0, live.pick - (hold && sameLap ? 1 : 0));
+  const start = shown - (shown % Live.CLUB_COUNT);
+  const at = shown % Live.CLUB_COUNT;
   const seq = Array.from({ length: Live.CLUB_COUNT }, (_, k) => live.clubs[Live.clubAt(start + k, live.order)]);
   return (
     <div className="dr-order" aria-label="뽑는 순서">
+      {/* 남은 시간은 조각 밖 제 칸에 — 조각 폭이 바뀌지 않아 줄이 흔들리지 않는다 */}
       {seq.map((c, k) => {
         const now = k === at;
         const past = k < at;
         return (
           <span key={k} className={`dr-pc ${now ? 'now' : past ? 'past' : ''}`} style={{ '--t': c.color }}>
             {c.emblem && <i style={{ backgroundImage: `url(${c.emblem})` }} aria-hidden="true" />}
-            <b>{c.short}{now ? ` ${clock}s` : ''}</b>
+            <b>{c.short}</b>
           </span>
         );
       })}
+      <b className="dr-clock" style={{ '--t': live.clubs[Live.currentClub(live)].color }}>{clock}s</b>
     </div>
   );
 }
@@ -2449,7 +2532,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <SynergyPips {...hint} />}
-        {takenClub ? null : (
+        {(
           <>
             <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
             <span className="mc-rule" />
@@ -2466,9 +2549,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
       {takenClub && (
         <>
           <span className="mc-ttop" />
-          <span className="mc-tsub">{player.position} · {player.name}</span>
-          <span className="mc-trule" />
-          <span className="mc-tbar" />
+          <span className="mc-flag" style={takenClub.emblem ? { backgroundImage: `url(${takenClub.emblem})` } : undefined} aria-hidden="true" />
           <b className="mc-tnm">{takenClub.short}</b>
         </>
       )}
@@ -2914,17 +2995,8 @@ REC_COLS.bench = REC_COLS.bat;
 const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '예비', BENCH_SLOTS.map((b) => b.id)]];
 const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
 
-function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap, live }) {
+function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
   const [tab, setTab] = useState('team');
-  const [sel, setSel] = useState(null); // 라이브: 내가 고른 구단 (null 이면 지금 뽑는 차례를 따라간다)
-  const me = live ? Live.myIndex(live) : -1;
-  const myTurn = live ? Live.isMyTurn(live) : true;
-  useEffect(() => { if (myTurn) setSel(null); }, [myTurn]); // 내 차례가 오면 내 구단으로 돌아온다
-  const shown = live ? (sel ?? (myTurn ? me : Live.currentClub(live))) : -1;
-  const club = live ? live.clubs[shown] : null;
-  const view = club ? club.roster : roster;
-  const at = live ? live.order.indexOf(shown) + 1 : 0; // 이 구단의 뽑는 순번
-  const move = (d) => setSel(() => { const i = live.order.indexOf(shown); return live.order[(i + d + live.order.length) % live.order.length]; });
   return (
     <div className="mt-panel">
       <div className="mt-tabs" role="tablist">
@@ -2932,22 +3004,8 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap, live }) {
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
         ))}
       </div>
-      {club && (
-        /* 보는 구단 고르개: 뽑는 순번대로 넘긴다 */
-        <div className="mt-club" style={{ '--a': club.color }}>
-          <button type="button" onClick={() => move(-1)} aria-label="앞 순번 구단">‹</button>
-          <span>
-            <b>{club.name}{club.me && ' (나)'}</b>
-            <small>{at}번 · {club.me ? '내 구단' : Live.TRAITS[club.trait]?.ko}
-              {shown === Live.currentClub(live) && <em> · 지금 차례</em>}
-              {' · '}{club.roster.length}/{ROSTER_SIZE} · {club.cp} CP
-            </small>
-          </span>
-          <button type="button" onClick={() => move(1)} aria-label="다음 순번 구단">›</button>
-        </div>
-      )}
       <div className="mt-body" role="tabpanel">
-        {tab === 'team' ? <TeamReport roster={view} mode={mode} cap={cap} /> : <RecordCards roster={view} selectedSlot={club && !club.me ? null : selectedSlot} onTap={club && !club.me ? undefined : onTap} />}
+        {tab === 'team' ? <TeamReport roster={roster} mode={mode} cap={cap} /> : <RecordCards roster={roster} selectedSlot={selectedSlot} onTap={onTap} />}
       </div>
     </div>
   );
@@ -4531,7 +4589,7 @@ function BroadcastPlates({ log }) {
 /* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
 const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
 
-function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) {
+function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, gauntlet = null }) {
   const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
   const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
   const moments = logs.filter((l) => l.kind === 'augment' || (l.kind === 'score' && l.runs >= 2)).slice(-3);
@@ -4589,10 +4647,19 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
           </div>
         ))}
       </div>
-      <div className="flex flex-wrap justify-end gap-2 lg:col-span-3">
+      <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-3">
         <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
-        <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
-        <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
+        {gauntlet ? (
+          <>
+            <span className="mr-auto font-display text-sm text-gray-400">{gauntlet.label}</span>
+            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>{gauntlet.cta} ▶</button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
+            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
+          </>
+        )}
       </div>
     </section>
   );
@@ -5172,9 +5239,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 라이브 드래프트(8구단이 같은 보드를 스네이크로 나눠 갖는 판) — 규칙은 src/draft/live.js · null 이면 지금까지의 혼자 드래프트 */
   const [live, setLive] = useState(null);
   const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
-  const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (0.6초 뒤 선반에서 빠진다)
+  const [skipNote, setSkipNote] = useState(false);       // 캡 소진 — 남은 라운드를 넘긴다는 알림
+  const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (잠깐 구단 엠블럼이 덮인다)
+  const [liveSpeed, setLiveSpeed] = useState(1); // 라이브 진행 배속 (1 · 2 · 4)
   const liveMine = live ? Live.myIndex(live) : -1;
   const myTurn = !live || Live.isMyTurn(live);
+  /* 방금 지명된 카드가 엠블럼에 덮여 있는 동안에는 순서 띠가 그 구단에 머문다(바퀴가 넘어갔으면 예외).
+     선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
+  const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick) === Live.lapOf(Math.max(0, live.pick - 1));
+  const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
@@ -5183,6 +5256,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const finishDraft = (r) => {
     const filled = fillRoster(r);
     setAutoFilled(filled.length - r.length);
+    if (live) setGaunt(Gaunt.makeGauntlet(live)); // 라이브 판이었으면 상대 일곱 구단으로 도장깨기 탑을 세운다
     setRoster(filled); setSeries(null); setPicked(null); setPhase('ready');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
@@ -5266,6 +5340,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
   const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32 · 64강이면 이 판의 토너먼트 (저장하지 않음)
+  /* 도장깨기 — 라이브 드래프트로 뽑은 판에서는 토너먼트 대신 일곱 구단을 약한 순서로 하나씩 친다 */
+  const [gaunt, setGaunt] = useState(null);
   const tourMode = !!match.format && match.format !== 'single';
   const [board, setBoard] = useState(emptyBoard);
   const [half, setHalf] = useState(null);
@@ -5280,7 +5356,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const runIdRef = useRef(0); // 값이 바뀌면 진행 중인 시뮬레이션은 스스로 중단
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
-  // 개발 전용 바로가기: ?demo=draft | ready | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  // 개발 전용 바로가기: ?demo=draft | ready | gauntlet | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
   // 페이지를 연 뒤 한 번만: 메인으로 나갔다가 플레이를 다시 눌러도 또 열리지 않게 주소에서 demo 를 지운다
   useEffect(() => {
     if (!import.meta.env.DEV) return;
@@ -5301,6 +5377,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const cpParam = Number(new URLSearchParams(window.location.search).get('cp'));
     setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
+    if (demo === 'gauntlet') { // 라이브 판을 끝까지 자동으로 돌려 도장깨기 탑만 바로 본다
+      let s0 = Live.createLive({ cap: match.cap, series: mode.series, myEmblem: Live.bannerEmblem(myBanner()) });
+      let g = 0;
+      while (!Live.isDone(s0) && g++ < Live.CLUB_COUNT * ROSTER_SIZE + 10) s0 = Live.pick(s0, Live.autoPick(s0), { auto: true });
+      setLive(s0); setRoster(fillRoster(Live.myRoster(s0))); setGaunt(Gaunt.makeGauntlet(s0)); setPhase('gauntlet');
+    }
     if (demo === 'ready') setPhase('ready');
     if (/^tourney(16|32|64)$/.test(demo)) { setMatch((m) => ({ ...m, aug: 0, format: Number(demo.slice(7)) })); setPhase('ready'); } // 정비 화면에서 시작하면 대진표
     if (demo === 'crisis') { // 승부처 제구 미니게임만 바로 띄워 보기
@@ -5323,6 +5405,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     ? [...series.players].sort((a, b) => POS_ORDER.indexOf(a.position) - POS_ORDER.indexOf(b.position) || b.overall - a.overall)
     : []), [series]);
   const [shelfFilter, setShelfFilter] = useState('open'); // 선반: 영입 가능만(기본) · 전부
+  const [reveal, setReveal] = useState(null); // 보기 단추를 눌러 카드가 드러나는 중('in') · 숨는 중('out')
+  const revealRef = useRef(0);
   const [posFilter, setPosFilter] = useState(null); // 내 라인업의 자리를 누르면 { slot, pos } — 선반에 그 포지션만
   const [shelfLeaving, setShelfLeaving] = useState(null); // 거르기로 빠지는 카드 id — 잠깐 사라지는 효과 뒤에 실제로 거른다
   const leaveTimerRef = useRef(null);
@@ -5330,11 +5414,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [pendingSlot, setPendingSlot] = useState(undefined);
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
+  /** 보기 단추로 감추는 대상 — 라이브에서는 남이 데려간 선수만. 내 자리가 차서 못 뽑는 선수는 남겨 둬야 다른 구단이 그 자리를 채우는 것이 보인다 */
+  const hideTarget = (pl) => (live ? Live.takenBy(live, pl) != null : !!lockOf(pl));
   /** 이 카드를 지금 선반에 보일지 — 감춘 카드는 빈 칸으로 남아 남은 카드의 크기와 자리가 변하지 않는다 */
   const hiddenCard = (pl) => {
-    if (gone.has(pl.id)) return false;                                   // 사라지는 중인 카드는 끝까지 보여 준다
-    if (live && Live.takenBy(live, pl) != null && shelfFilter === 'open') return true; // 남이 데려간 선수
-    return shelfFilter === 'open' && !!lockOf(pl);                       // 지금 못 뽑는 선수
+    if (gone.has(pl.id)) return false;               // 지명돼 사라지는 중인 카드는 끝까지 보여 준다
+    if (reveal === 'out' && hideTarget(pl)) return false; // 숨는 효과가 도는 동안은 아직 보인다
+    return shelfFilter === 'open' && hideTarget(pl);
   };
   const shownCards = seriesCards.filter((p) => !posFilter?.pos || p.position === posFilter.pos);
   const shelfCols = Math.max(17, seriesCards.length); // 칸 수는 이 보드 인원으로 고정 — 거르기를 해도 카드가 커지지 않는다
@@ -5343,7 +5429,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
     const next = slot == null || (!force && cur === slot) ? null : { slot, pos: slotPos(slot) };
     if ((next?.slot ?? null) === cur) return;
-    const keep = new Set(seriesCards.filter(openOnly).filter((p) => !next?.pos || p.position === next.pos).map((p) => p.id));
+    const keep = new Set(seriesCards.filter((p) => !hiddenCard(p)).filter((p) => !next?.pos || p.position === next.pos).map((p) => p.id));
     const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
     clearTimeout(leaveTimerRef.current);
     const commit = () => {
@@ -5422,9 +5508,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, [live, phase]);
   useEffect(() => { // AI 차례
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
-    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 600 + Math.random() * 800);
+    // 한 픽 사이 1초 — 구단마다 같은 간격으로 (배속을 올리면 그만큼 짧아진다)
+    const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 1000 / liveSpeed);
     return () => clearTimeout(t);
-  }, [live, phase, choice]);
+  }, [live, phase, choice, liveSpeed]);
   useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
     if (!live || phase !== 'draft' || choice || Live.isDone(live) || !Live.isMyTurn(live)) return undefined;
     if (!Live.pickable(live, liveMine).length) { const p = setTimeout(() => setLive((s) => Live.pick(s, null)), 700); return () => clearTimeout(p); }
@@ -5437,21 +5524,42 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }), 1000);
     return () => clearInterval(id);
   }, [live, phase, choice, liveMine]);
+  useEffect(() => {
+    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고, 알림을 띄운 뒤 남은 라운드를 한 번에 넘긴다 */
+    if (!live || phase !== 'draft' || choice || Live.isDone(live)) return undefined;
+    if (live.pick % Live.CLUB_COUNT !== 0 || !Live.cannotPickMore(live)) return undefined;
+    setSkipNote(true);
+    const t = setTimeout(() => {
+      setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s));
+      setSkipNote(false);
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [live, phase, choice]);
   useEffect(() => { // 자동 지명으로 내 선수가 늘었으면 화면의 엔트리도 따라간다
     if (!live || phase !== 'draft') return;
     const mine = Live.myRoster(live);
     if (mine.length !== roster.length) { setRoster(mine); setCp(live.clubs[liveMine].cp); setRound(mine.length + 1); }
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { // 누가 지명하면 그 카드는 구단 색으로 물들었다가 선반에서 빠진다
+  /* 누가 지명하면 그 카드에 구단 엠블럼이 덮였다가 0.98초 뒤 벗겨진다.
+     타이머는 카드마다 따로 둔다 — 다음 지명이 곧바로 이어져도 앞 카드의 엠블럼이 남지 않게 */
+  const goneTimers = useRef([]);
+  useEffect(() => () => goneTimers.current.forEach(clearTimeout), []);
+  useEffect(() => {
     const last = live?.picks[live.picks.length - 1];
-    if (!last) return undefined;
-    setGone((g) => new Set(g).add(last.player.id));
-    const t = setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(last.player.id); return n; }), 980);
-    return () => clearTimeout(t);
+    if (!last) return;
+    const id = last.player.id;
+    setGone((g) => new Set(g).add(id));
+    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 1020 / liveSpeed));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
     if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** 내 차례가 올 때까지 단숨에 진행 (마지막 한 장만 사라지는 연출을 본다) */
+  const skipToMyTurn = () => {
+    if (!live || Live.isMyTurn(live) || Live.isDone(live)) return;
+    setLive((s0) => { let s1 = s0; let guard = 0; while (!Live.isMyTurn(s1) && !Live.isDone(s1) && guard++ < Live.CLUB_COUNT * 2) s1 = Live.stepAi(s1); return s1; });
+  };
 
   const handleChoose = (option) => {
     if (choice.kind === 'augment' && choice.inning) {
@@ -5512,6 +5620,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
   const prepareMatch = (rematch = false) => {
     runIdRef.current += 1;
+    if (gaunt && !gaunt.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
+      setChoice(null);
+      setToast(null);
+      setPhase('gauntlet');
+      return;
+    }
     if (tourMode) { // 토너먼트: 대진표로 (끝난 판이면 새 대진)
       if (!dtour || dtour.done) setDtour(makeDraftTournament());
       setChoice(null);
@@ -5585,6 +5699,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 중계 화면이 끝나면 기존 결과 화면으로 */
   const finishLive = (res) => {
     setLiveTeams(null);
+    if (gaunt && !gaunt.done) { // 도장깨기: 이기면 다음 단, 지면 같은 단을 다시
+      setGaunt((g) => Gaunt.settle(g, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp }));
+      setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
+      setResult(res);
+      setLogs(res.logs);
+      setBoard(res.board);
+      setPhase('result');
+      return;
+    }
     if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
       setDtour(advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments)));
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
@@ -5703,6 +5826,25 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
         <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView} onNormalView={onNormalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
+      {skipNote && (
+        <div className="pointer-events-none fixed inset-x-0 top-[22vh] z-40 flex justify-center px-4" aria-live="assertive">
+          <div className="ui-cut flex items-center gap-3 px-6 py-3.5 animate-[rise_.3s_ease-out_both]"
+            style={{ '--c': '12px', background: 'rgba(8,12,20,.94)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5), 0 18px 40px rgba(0,0,0,.6)' }}>
+            <b className="font-display text-lg tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
+            <span className="h-4 w-px bg-white/20" />
+            <b className="text-[0.95rem] text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
+          </div>
+        </div>
+      )}
+      {phase === 'gauntlet' && gaunt && (
+        <GauntletScreen gaunt={gaunt}
+          me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
+          onBack={() => setPhase('ready')}
+          onPlay={() => {
+            const r = Gaunt.currentRung(gaunt);
+            startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
+          }} />
+      )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
           <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false}
@@ -5711,12 +5853,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
         </div>
       )}
 
-      {phase !== 'mode' && phase !== 'bracket' && (
-        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
+      {phase !== 'mode' && phase !== 'bracket' && phase !== 'gauntlet' && (
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} slim={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
           onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
-      {phase !== 'mode' && phase !== 'bracket' && (
+      {phase !== 'mode' && phase !== 'bracket' && phase !== 'gauntlet' && (
       <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready' || phase === 'matchup'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
         : 'w-full max-w-[1600px] gap-5 py-5'}`}>
@@ -5731,35 +5873,35 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
-              <div className={`bc-grp lg:!px-1.5 ${live && myTurn ? 'myturn' : ''}`}
+              <div className={`bc-grp lg:!px-1.5 ${live && myTurnLit ? 'myturn' : ''}`}
                 style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color } : {}) } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  {live && <TurnOrder live={live} clock={clock} />}
+                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
                     {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
                   </div>
-                  <div className="ml-auto flex shrink-0 items-center gap-2.5">
+                  <div className={`ml-auto flex shrink-0 gap-2.5 ${live ? 'flex-col items-end gap-y-0.5' : 'items-center'}`}>
                     {posFilter?.pos && (
                       <button type="button" className="ser-pf" onClick={() => handleSlotFilter(null)} aria-label={`${SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 선수만 보기 해제`}>
                         {SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 <span aria-hidden="true">✕</span>
                       </button>
                     )}
-                    <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
-                      <span className="tr" aria-hidden="true" />{live ? '못 뽑는 선수 · 남이 데려간 선수도' : '영입할 수 없는 선수도'} 보기
-                    </button>
-                    {/* 라이브: 보드 수만 오른쪽에 (누구 차례인지는 가운데 순서 표가 말한다) */}
-                    {live ? (
-                      <>
-                        <span className="h-5 w-px bg-white/10" aria-hidden="true" />
-                        <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
-                      </>
-                    ) : (
+                    {!live && <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
+                      const next = f === 'open' ? 'all' : 'open';
+                      setReveal(next === 'all' ? 'in' : 'out');
+                      clearTimeout(revealRef.current);
+                      revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
+                      return next;
+                    })}>
+                      <span className="tr" aria-hidden="true" />영입할 수 없는 선수도 보기
+                    </button>}
+                    {live ? null : (
                       <>
                     <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                     <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
@@ -5770,6 +5912,37 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       새로고침 <em>· {rerolls}회</em>
                     </button>
                       </>
+                    )}
+                    {/* 라이브: 한 판 두 층 — 위층은 라운드 · 캡 · 전체보기, 아래층은 뽑는 순서와 조작 */}
+                    {live && (
+                      <span className="dr-panel">
+                        <span className="dr-top">
+                          <DraftMeta inline round={round} cp={cp} cap={match.cap}
+                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+                          <button type="button" className="dr-toggle" aria-pressed={shelfFilter === 'all'}
+                            onClick={() => setShelfFilter((f) => {
+                              const next = f === 'open' ? 'all' : 'open';
+                              setReveal(next === 'all' ? 'in' : 'out');
+                              clearTimeout(revealRef.current);
+                              revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
+                              return next;
+                            })}>
+                            <span className="tr" aria-hidden="true" />전체보기 {shelfFilter === 'all' ? 'ON' : 'OFF'}
+                          </button>
+                        </span>
+                        <span className="dr-bar">
+                        <TurnOrder live={live} clock={clock} hold={holdTurn} />
+                        {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
+                        <i className="dr-div" aria-hidden="true" />
+                        <span className="dr-sp" role="group" aria-label="진행 배속">
+                          {[1, 2, 4].map((v) => (
+                            <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
+                          ))}
+                        </span>
+                        <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
+                          title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
+                        </span>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -5784,16 +5957,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 )}
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
-                  <div key={p.id} data-card={p.id} className="min-w-0">
-                  {hiddenCard(p) ? <span className="mc-slot" aria-hidden="true" /> : (
-                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
+                  <div key={p.id} data-card={p.id}
+                    className={`relative min-w-0 ${reveal && hideTarget(p) && !gone.has(p.id) ? (reveal === 'in' ? 'sc-in' : 'sc-out') : ''}`}
+                    style={reveal && hideTarget(p) ? { animationDelay: `${i * 16}ms` } : undefined}>
+                  {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
+                  {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
+                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurnLit && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
                     onSign={(pl) => (lockOf(pl) ? setPicked(pl) : handleSelectPlayer(pl))}
-                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms` }} />
-                  )}
+                    style={{ animationDelay: shelfLeaving?.has(p.id) ? '0ms' : `${i * 25}ms`, ...(hiddenCard(p) ? { visibility: 'hidden' } : null) }} />
                   </div>
                 ))}
               </div>
@@ -5828,12 +6003,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       ) : null}
                     </div>
                   </div>
-                  {live && !myTurn ? (
-                    /* 라이브: 내 차례가 아니면 영입 단추 자리에 누구 차례인지 */
-                    <div className="pk-go" aria-live="polite" style={{ pointerEvents: 'none', opacity: 0.9 }}>
-                      <i className="h-2.5 w-2.5 -skew-x-12" style={{ background: live.clubs[Live.currentClub(live)].color }} aria-hidden="true" />
-                      <span>{live.clubs[Live.currentClub(live)].name} 지명 중 · {Live.slotInLap(live)}번째</span>
-                    </div>
+                  {live && !myTurnLit ? (
+                    /* 라이브: 내 차례가 아니면 이 자리는 비워 둔다 (누구 차례인지는 위 순서 띠가 말한다) */
+                    <div className="pk-ghostbtn" aria-hidden="true" />
                   ) : picked ? (
                     <>
                       {swapPlan ? (
@@ -5876,7 +6048,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY TEAM</span>
-                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap} live={live}
+                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap}
                     selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
                     onTap={(slot) => lineupTapRef.current?.(slot)} />
                 </div>
@@ -5898,6 +6070,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             <>
               {result && (
                 <ResultPanel result={result} record={record} logs={logs}
+                  gauntlet={gaunt ? {
+                    label: gaunt.done ? '탑 꼭대기에 올라섰다' : `${Gaunt.myPos(gaunt) + 1}칸 · ${Gaunt.currentRung(gaunt).name}`,
+                    cta: gaunt.done ? '탑으로' : result.winner === 'my' ? '한 칸 위로' : '다시 도전',
+                  } : null}
                   onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
               )}
 
@@ -5968,7 +6144,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             if (!options.length) return null;
             return new Promise((resolve) => { midPickRef.current = resolve; setChoice({ kind: 'augment', inning, options }); });
           }}
-          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(tourMode ? 'bracket' : 'matchup'); }} />
+          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(gaunt && !gaunt.done ? 'gauntlet' : tourMode ? 'bracket' : 'matchup'); }} />
       )}
       <HighlightToast toast={toast} />
     </div>

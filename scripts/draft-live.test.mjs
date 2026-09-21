@@ -89,3 +89,85 @@ test('상대는 나를 뺀 구단 중 전력이 가장 가까운 팀', () => {
   expect(opp).not.toBe(s.clubs.findIndex((c) => c.me));
   expect(s.clubs[opp].roster.length).toBeGreaterThan(0);
 });
+
+test('보드는 늘 18명까지 · 선수가 많은 시리즈도 포지션이 고루 깔린다', async () => {
+  const { BOARD_SIZE, sampleBoard } = await import('../src/draft/live.js');
+  const { DRAFT_SERIES } = await import('../src/KboAugmentDraft.jsx');
+  const big = DRAFT_SERIES.filter((x) => x.players.length > BOARD_SIZE);
+  expect(big.length).toBeGreaterThan(0); // 레전드 묶음처럼 큰 시리즈가 있다
+  big.forEach((x) => {
+    const b = sampleBoard(x, seeded(x.players.length));
+    expect(b.players).toHaveLength(BOARD_SIZE);
+    const pos = new Set(b.players.map((p) => p.position));
+    expect(pos.size).toBeGreaterThanOrEqual(6);                       // 포지션이 한쪽으로 쏠리지 않는다
+    expect(b.players.filter((p) => p.type === 'pitcher').length).toBeGreaterThanOrEqual(5);
+    expect(b.players.filter((p) => p.type === 'batter').length).toBeGreaterThanOrEqual(8);
+    expect(new Set(b.players.map((p) => p.id)).size).toBe(BOARD_SIZE); // 같은 선수가 두 번 들어가지 않는다
+  });
+  const s = createLive({ rng: seeded(21) });
+  s.pool.forEach((b) => expect(b.players.length).toBeLessThanOrEqual(BOARD_SIZE));
+});
+
+test('구단마다 드래프트 플랜대로 팀 모양이 달라진다', async () => {
+  const { TRAITS, planTarget } = await import('../src/draft/live.js');
+  const s = play(seeded(31));
+  const by = (t) => s.clubs.filter((c) => c.trait === t);
+  const pitchers = (c) => c.roster.filter((p) => p.type === 'pitcher').length;
+  const power = (c) => { const b = c.roster.filter((p) => p.type === 'batter'); return b.length ? b.reduce((t, p) => t + p.stats.power, 0) / b.length : 0; };
+  const mound = by('mound'), hit = by('power');
+  // 마운드형은 투수를, 한 방형은 파워를 더 챙긴다
+  if (mound.length && hit.length) {
+    expect(Math.max(...mound.map(pitchers))).toBeGreaterThanOrEqual(Math.min(...hit.map(pitchers)));
+    expect(Math.max(...hit.map(power))).toBeGreaterThan(0);
+  }
+  // 플랜은 로스터가 찰수록 다음 자리를 가리킨다
+  const c0 = s.clubs[1];
+  expect(TRAITS[c0.trait].plan).toHaveLength(ROSTER_SIZE);
+  expect(planTarget([], c0.trait)).toBe(TRAITS[c0.trait].plan[0]);
+  s.clubs.forEach((c) => expect(c.roster.length).toBeGreaterThanOrEqual(ROSTER_SIZE - 3));
+});
+
+test('구단 급이 강호 → 약체 순으로 전력 차이를 만든다', async () => {
+  const { GRADES, clubStrength, ladder, myIndex } = await import('../src/draft/live.js');
+  const by = {};
+  for (let n = 0; n < 12; n++) {
+    const s = play(seeded(500 + n * 7));
+    s.clubs.forEach((c, i) => { if (!c.me) (by[c.grade] ||= []).push(clubStrength(s, i)); });
+  }
+  const avg = (a) => a.reduce((t, x) => t + x, 0) / a.length;
+  const g = Object.fromEntries(Object.keys(GRADES).map((k) => [k, avg(by[k])]));
+  // 급대로 전력이 줄어든다 — 도장깨기에서 뒤로 갈수록 어려워지는 근거
+  expect(g.ace).toBeGreaterThan(g.solid);
+  expect(g.solid).toBeGreaterThan(g.plain);
+  expect(g.plain).toBeGreaterThan(g.weak);
+  expect(g.ace - g.weak).toBeGreaterThan(2);   // 체감될 만큼은 벌어진다
+  // 사다리: 나를 뺀 일곱 구단이 약한 순서로 늘어선다
+  const s = play(seeded(77));
+  const rung = ladder(s);
+  expect(rung).toHaveLength(7);
+  expect(rung.map((x) => x.club)).not.toContain(myIndex(s));
+  expect([...rung].sort((a, b) => a.strength - b.strength)).toEqual(rung);
+  expect(rung.map((x) => x.step)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+});
+
+test('캡을 다 쓰면 남은 라운드를 한 번에 넘긴다', async () => {
+  const { cannotPickMore, finishAll, myIndex, isDone, CLUB_COUNT: N } = await import('../src/draft/live.js');
+  const rng = seeded(21);
+  let s = createLive({ rng });
+  const me = myIndex(s);
+  expect(cannotPickMore(s)).toBe(false);          // 판을 열면 당연히 뽑을 수 있다
+
+  // 내 캡을 0 으로 만들면 어느 보드에서도 데려올 수 없다
+  const broke = { ...s, clubs: s.clubs.map((c, i) => (i === me ? { ...c, cp: 0 } : c)) };
+  expect(cannotPickMore(broke)).toBe(true);
+
+  // 남은 픽을 한 번에 소화한다 — 나는 넘기고 AI 는 계속 뽑는다
+  const end = finishAll(broke, rng);
+  expect(isDone(end)).toBe(true);
+  expect(end.clubs[me].roster).toHaveLength(0);
+  end.clubs.forEach((c, i) => { if (i !== me) expect(c.roster.length).toBeGreaterThan(ROSTER_SIZE - 5); });
+
+  // 엔트리가 다 찬 구단도 더 뽑지 않는다
+  const full = { ...s, clubs: s.clubs.map((c, i) => (i === me ? { ...c, roster: Array.from({ length: ROSTER_SIZE }, () => ({})) } : c)) };
+  expect(cannotPickMore(full)).toBe(true);
+});
