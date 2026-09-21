@@ -1525,6 +1525,19 @@ export const KEYFRAMES = `
 .ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
 .ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
+/* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
+.dr-order { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; transform: translate(-50%, -50%); pointer-events: none; }
+.dr-pc { position: relative; display: flex; align-items: center; padding: 4px 14px 4px 20px; margin-left: -12px;
+  clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
+  background: rgba(255,255,255,.05); transition: padding .2s ease, background .3s ease; }
+.dr-pc:first-child { margin-left: 0; }
+.dr-pc > i { position: absolute; inset: 0; background: center 28% / cover no-repeat; opacity: .1; mix-blend-mode: luminosity; }
+.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; }
+.dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
+.dr-pc.past > i { opacity: .18; }
+.dr-pc.now { z-index: 2; padding: 9px 22px 9px 28px; background: var(--t); box-shadow: 0 0 20px -4px var(--t); }
+.dr-pc.now > i { opacity: .5; }
+.dr-pc.now > b { font-size: 15px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
 .ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
 .ser-sw:hover { color: #fff; }
@@ -2395,6 +2408,27 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
+/* 라이브 드래프트 · 뽑는 순서 표: 이번 바퀴의 자리 순서대로 구단 조각이 맞물린다 */
+function TurnOrder({ live, clock }) {
+  const start = live.pick - (live.pick % Live.CLUB_COUNT);
+  const at = live.pick % Live.CLUB_COUNT;
+  const seq = Array.from({ length: Live.CLUB_COUNT }, (_, k) => live.clubs[Live.clubAt(start + k, live.order)]);
+  return (
+    <div className="dr-order" aria-label="뽑는 순서">
+      {seq.map((c, k) => {
+        const now = k === at;
+        const past = k < at;
+        return (
+          <span key={k} className={`dr-pc ${now ? 'now' : past ? 'past' : ''}`} style={{ '--t': c.color }}>
+            {c.emblem && <i style={{ backgroundImage: `url(${c.emblem})` }} aria-hidden="true" />}
+            <b>{c.short}{now ? ` ${clock}s` : ''}</b>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
@@ -5878,6 +5912,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
+                  {live && <TurnOrder live={live} clock={clock} />}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
@@ -5892,18 +5927,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => (f === 'open' ? 'all' : 'open'))}>
                       <span className="tr" aria-hidden="true" />{live ? '못 뽑는 선수 · 남이 데려간 선수도' : '영입할 수 없는 선수도'} 보기
                     </button>
-                    {/* 라이브: 지금 누구 차례인지와 남은 시간 (보드는 모두가 함께 쓰므로 새로고침은 없다) */}
+                    {/* 라이브: 보드 수만 오른쪽에 (누구 차례인지는 가운데 순서 표가 말한다) */}
                     {live ? (
                       <>
                         <span className="h-5 w-px bg-white/10" aria-hidden="true" />
-                        <span className="flex items-center gap-2 px-1">
-                          <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
-                          <i className="h-2 w-2 -skew-x-12" style={{ background: live.clubs[Live.currentClub(live)].color }} aria-hidden="true" />
-                          <b className="text-[13px] font-extrabold" style={{ color: live.clubs[Live.currentClub(live)].color }}>
-                            {myTurn ? '내 차례' : `${live.clubs[Live.currentClub(live)].name} 지명 중`}
-                          </b>
-                          {myTurn && <b className={`font-display text-[15px] tabular-nums ${clock <= 5 ? 'text-red-400' : 'text-white'}`}>{clock}s</b>}
-                        </span>
+                        <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">BOARD {Live.boardNo(live) + 1}/{Live.boardCount()}</span>
                       </>
                     ) : (
                       <>
