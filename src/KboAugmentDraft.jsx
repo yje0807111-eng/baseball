@@ -1499,6 +1499,14 @@ export const KEYFRAMES = `
     linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent);
 }
+/* 라이브: 내 차례면 선반 판이 내 색으로 켜지고 숨쉰다 */
+@keyframes myTurnPulse {
+  0%, 100% { box-shadow: 0 0 16px -10px var(--a); background: rgba(6,10,19,.74); }
+  50% { box-shadow: 0 0 34px -6px var(--a); background: color-mix(in srgb, var(--a) 8%, rgba(6,10,19,.74)); }
+}
+.bc-grp.myturn { animation: myTurnPulse 1.9s ease-in-out infinite; }
+.bc-grp.myturn::after { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 70%, transparent); }
+@media (prefers-reduced-motion: reduce) { .bc-grp.myturn { animation: none; box-shadow: 0 0 26px -8px var(--a); } }
 .bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
 .bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
@@ -1555,6 +1563,9 @@ export const KEYFRAMES = `
 .mc-nm.l5 { font-size: 13cqw; }
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
+/* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
+.mc.hot { top: -3px; transition: top .2s; }
+.mc.hot:hover { top: -5px; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
 .mc.taken .mc-in { filter: grayscale(1) brightness(.3); }
 .mc.taken .mc-tb { display: none; }
@@ -2358,7 +2369,7 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
-function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, onSign, style, leaving = false }) {
+function MiniCard({ player, reason, takenClub, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2367,7 +2378,7 @@ function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, on
     <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, '--n': acc, ...(takenClub ? { '--t': takenClub.color } : {}), clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
-      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
+      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
       <span className="mc-in">
         {art
           ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
@@ -2387,7 +2398,7 @@ function MiniCard({ player, reason, takenClub, selected, hint, focus, onPick, on
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
       <span className={`pointer-events-none absolute inset-[2.5cqw] ${selected || focus === 'on' ? 'border-2' : 'border'}`}
-        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : takenClub ? `${takenClub.color}66` : `${acc}66` }} />
+        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : `${acc}66` }} />
       {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
           회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
       {takenClub && (
@@ -5806,7 +5817,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
-              <div className="bc-grp lg:!px-1.5" style={series ? { '--a': SERIES_NEON[series.kind] } : undefined}>
+              <div className={`bc-grp lg:!px-1.5 ${live && myTurn ? 'myturn' : ''}`}
+                style={series ? { '--a': live && myTurn ? live.clubs[liveMine].color : SERIES_NEON[series.kind] } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
@@ -5865,7 +5877,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
-                  <MiniCard player={p} reason={lockOf(p)} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
+                  <MiniCard player={p} reason={lockOf(p)} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
