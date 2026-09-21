@@ -5582,7 +5582,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
     const next = slot == null || (!force && cur === slot) ? null : { slot, pos: slotPos(slot) };
     if ((next?.slot ?? null) === cur) return;
-    const keep = new Set(seriesCards.filter(openOnly).filter((p) => !next?.pos || p.position === next.pos).map((p) => p.id));
+    const keep = new Set(seriesCards.filter((p) => !hiddenCard(p)).filter((p) => !next?.pos || p.position === next.pos).map((p) => p.id));
     const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
     clearTimeout(leaveTimerRef.current);
     const commit = () => {
