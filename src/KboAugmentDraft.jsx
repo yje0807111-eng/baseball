@@ -1564,6 +1564,14 @@ export const KEYFRAMES = `
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
 /* 라이브: 내 차례에 고를 수 있는 카드는 한 칸 떠오른다 */
+/* 라이브: 지명된 카드가 선반에서 빠지는 연출 — 구단 색이 한 번 번지고 가라앉는다 */
+@keyframes mcGone {
+  0% { opacity: 1; transform: none; filter: none; }
+  22% { opacity: 1; transform: translateY(-4px) scale(1.02); filter: brightness(1.25); }
+  100% { opacity: 0; transform: translateY(14px) scale(.9); filter: brightness(.6); }
+}
+.mc.gone { pointer-events: none; z-index: 6; animation: mcGone .62s cubic-bezier(.4,0,.2,1) both; }
+.mc.gone::before { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; background: radial-gradient(70% 45% at 50% 42%, color-mix(in srgb, var(--t, #fff) 55%, transparent), transparent 70%); }
 .mc.hot { top: -3px; transition: top .2s; }
 .mc.hot:hover { top: -5px; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
@@ -2369,7 +2377,7 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
-function MiniCard({ player, reason, takenClub, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
+function MiniCard({ player, reason, takenClub, gone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2378,7 +2386,7 @@ function MiniCard({ player, reason, takenClub, hot = false, myColor = null, sele
     <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
       style={{ ...style, '--n': acc, ...(takenClub ? { '--t': takenClub.color } : {}), clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
-      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
+      className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${gone ? 'gone' : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
       <span className="mc-in">
         {art
           ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
@@ -5279,6 +5287,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 라이브 드래프트(8구단이 같은 보드를 스네이크로 나눠 갖는 판) — 규칙은 src/draft/live.js · null 이면 지금까지의 혼자 드래프트 */
   const [live, setLive] = useState(null);
   const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
+  const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (0.6초 뒤 선반에서 빠진다)
   const liveMine = live ? Live.myIndex(live) : -1;
   const myTurn = !live || Live.isMyTurn(live);
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
@@ -5437,7 +5446,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const shelfRef = useRef(null);
   const flipRef = useRef(null); // 거르기 직전 카드 위치 (id → rect) — 거른 뒤 남은 카드가 새 자리로 미끄러지게(FLIP)
   const openOnly = (p) => shelfFilter !== 'open' || !lockOf(p);
-  const shownCards = seriesCards.filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
+  const shownCards = seriesCards
+    .filter((p) => !live || Live.takenBy(live, p) == null || gone.has(p.id)) // 라이브: 나간 선수는 선반에서 빠진다
+    .filter(openOnly).filter((p) => !posFilter?.pos || p.position === posFilter.pos);
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
@@ -5542,6 +5553,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const mine = Live.myRoster(live);
     if (mine.length !== roster.length) { setRoster(mine); setCp(live.clubs[liveMine].cp); setRound(mine.length + 1); }
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { // 누가 지명하면 그 카드는 구단 색으로 물들었다가 선반에서 빠진다
+    const last = live?.picks[live.picks.length - 1];
+    if (!last) return undefined;
+    setGone((g) => new Set(g).add(last.player.id));
+    const t = setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(last.player.id); return n; }), 620);
+    return () => clearTimeout(t);
+  }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
     if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -5877,7 +5895,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {shownCards.map((p, i) => (
                   // 위치 이동(FLIP)은 감싸는 칸에 준다 — 카드 자체의 rise 애니메이션과 transform 이 겹치지 않게
                   <div key={p.id} data-card={p.id} className="min-w-0">
-                  <MiniCard player={p} reason={lockOf(p)} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
+                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
