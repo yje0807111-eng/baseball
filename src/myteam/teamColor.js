@@ -12,6 +12,9 @@ export const teamNeon = (p) => TEAM_NEON[p?.team] || '#10b981';
 
 /** 포지션 색 (내 라커): 선발 파랑 · 불펜 빨강 · 포수 금 · 내야 초록 · 외야 보라 · 지명 분홍 */
 export const POS_COLOR = { SP: '#60a5fa', RP: '#f87171', C: '#fbbf24', '1B': '#34d399', '2B': '#34d399', '3B': '#34d399', SS: '#34d399', OF: '#a78bfa', DH: '#f472b6' };
+/** 능력치 구간 색 — 라커 영입 목록과 같은 신호등 (90+ 금 · 80+ 초록 · 70+ 노랑 · 60+ 주황 · 그 아래 빨강) */
+export const statBandColor = (v) => (v >= 90 ? '#fbbf24' : v >= 80 ? '#34d399' : v >= 70 ? '#fde047' : v >= 60 ? '#fb923c' : '#f87171');
+
 export const posColor = (p) => POS_COLOR[p?.position] || '#10b981';
 
 // '#rrggbb' 과 'rgb(r,g,b)' 둘 다 받는다 (mix 결과를 다시 mix 에 넣을 수 있게)

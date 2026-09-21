@@ -2,7 +2,8 @@
 import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
-import { UiStyle, Bg, TopBar, Btn, SideNav, KV, Portrait } from './ui.jsx';
+import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
+import { statBandColor } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
@@ -166,27 +167,30 @@ export default function ShopScreen({ account, onChange, onBack }) {
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
                     {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수가 없습니다.</p>}
                     {recs.map((t) => {
-                      /* 수치 변화: 지금 값까지는 어둡게, 오르는 만큼은 분류 색으로 빛나게 — 옆에 전 → 후와 +n 칩 */
-                      const now = t.stats?.[picked.stat] ?? 70;
-                      const next = Math.min(99, now + picked.amount);
+                      /* 수치 변화: 막대는 50~110 구간(윗 구간이 뭉치지 않게) · 숫자와 막대 색은 라커와 같은 구간 색 */
+                      const cur = t.stats?.[picked.stat] ?? 70;
+                      const after = Math.min(99, cur + picked.amount);
+                      const pct = (v) => Math.max(0, Math.min(100, ((v - 50) / 60) * 100));
+                      const cNow = statBandColor(cur);
+                      const cNext = statBandColor(after);
                       return (
                         <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px minmax(0,1fr)', '--a': n }}>
                           <Portrait player={t} w={36} h={44} color={n} />
                           <span className="min-w-0">
-                            <span className="flex items-baseline gap-1.5">
+                            <span className="flex items-center gap-1.5">
                               <b className="min-w-0 flex-1 truncate text-sm font-black text-white">{t.name}</b>
-                              <b className="font-display text-base" style={{ color: n }}>{t.overall}</b>
-                              <small className="font-display text-[11px] text-gray-500">{t.position}</small>
+                              <small className="bg-white/[0.08] px-1.5 font-display text-[11px] text-gray-300">{t.position} {t.overall}</small>
                             </span>
                             <span className="mt-1 flex items-center gap-2">
+                              <small className="w-7 shrink-0 text-[11px] text-gray-400">{STAT_KO[picked.stat] || picked.stat}</small>
                               <span className="relative h-[7px] flex-1 bg-white/[0.08]">
-                                <i className="absolute inset-y-0 left-0 bg-slate-500" style={{ width: `${now}%` }} />
-                                <i className="absolute inset-y-0" style={{ left: `${now}%`, width: `${next - now}%`, background: n, boxShadow: `0 0 8px ${n}` }} />
+                                <i className="absolute inset-y-0 left-0" style={{ width: `${pct(cur)}%`, background: cNow, opacity: 0.45 }} />
+                                <i className="absolute inset-y-0" style={{ left: `${pct(cur)}%`, width: `${pct(after) - pct(cur)}%`, background: cNext, boxShadow: `0 0 8px ${cNext}` }} />
                               </span>
                               <span className="flex shrink-0 items-baseline gap-1 font-display">
-                                <s className="text-[11px] text-slate-500">{now}</s>
-                                <b className="text-[15px]" style={{ color: n }}>{next}</b>
-                                <em className="not-italic px-1 text-[10.5px] font-bold" style={{ color: '#05080f', background: n }}>+{next - now}</em>
+                                <small className="text-[11px]" style={{ color: cNow }}>{cur}</small>
+                                <i className="text-[11px] not-italic text-slate-500">›</i>
+                                <b className="text-[15px]" style={{ color: cNext }}>{after}</b>
                               </span>
                             </span>
                           </span>
@@ -197,9 +201,9 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 </div>
               )}
 
-              <div className={picked.target ? '' : 'mt-auto'}>
-                {isStorable(picked) && <KV k="보유" v={`${owned(picked)}개 · 라커 › 아이템에서 사용`} color="#fff" />}
-                <KV k="보유 골드" v={`${gold.toLocaleString()} → ${(gold - picked.price).toLocaleString()}`} color={picked.price > gold ? '#f87171' : '#fde047'} />
+              <div className={`flex items-baseline justify-between text-[12.5px] text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
+                <span>보유 <b className="text-white">{isStorable(picked) ? `${owned(picked)}개` : '-'}</b></span>
+                <span>남는 골드 <b className="font-display text-[15px]" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
               <div>
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={buy}>
