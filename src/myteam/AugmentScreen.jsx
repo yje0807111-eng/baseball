@@ -142,13 +142,6 @@ export default function AugmentScreen({ account, onBack }) {
                   <span className="min-w-0 flex-1">
                     <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
                   </span>
-                  {it.t && (
-                    <span className="grid grid-cols-2 gap-[3px]">
-                      {Array.from({ length: AUG_SLOT_MAX }, (_, i) => (
-                        <i key={i} className="block h-1 w-2.5" style={{ background: i < aug.bans[it.t].length ? RED : i < aug.slots[it.t] ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.06)' }} />
-                      ))}
-                    </span>
-                  )}
                 </button>
               </React.Fragment>
             );

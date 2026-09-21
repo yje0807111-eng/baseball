@@ -120,7 +120,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
   const NAV = CATEGORIES.map((c) => ({
     key: c.key, label: c.label,
-    img: itemArt(SHOP_ITEMS.find((i) => c.key === 'all' || i.cat === c.key) || SHOP_ITEMS[0]),
+    img: `ui/nav/shop-${c.key}.webp`,
   }));
 
   return (

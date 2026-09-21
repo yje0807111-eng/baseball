@@ -527,10 +527,10 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const results = matched.slice(0, limit);
 
   const NAV = [
-    { key: 'scout', label: '영입', img: 'ui/mt/tile-locker.webp' },
-    { key: 'squad', label: '내 선수', img: 'ui/mt/mt-card.webp' },
-    { key: 'staff', label: '감독·코치', img: 'ui/mt/silhouette-coach.webp' },
-    { key: 'items', label: '아이템', img: 'ui/mt/mt-boost.webp' },
+    { key: 'scout', label: '영입', img: 'ui/nav/locker-scout.webp' },
+    { key: 'squad', label: '내 선수', img: 'ui/nav/locker-squad.webp' },
+    { key: 'staff', label: '감독·코치', img: 'ui/nav/locker-staff.webp' },
+    { key: 'items', label: '아이템', img: 'ui/nav/locker-items.webp' },
   ];
   const eff = staffEffect(staff);
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
