@@ -333,7 +333,6 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
         <div className="flex items-baseline gap-3">
           <p className="mt-lab" style={{ '--a': '#fde047' }}>Items</p>
-          <p className="text-sm text-gray-400">보유 {inv.length}개 · {groups.length}종</p>
         </div>
         <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
           {groups.map(({ it: x, keys }) => {
@@ -352,13 +351,12 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
               </button>
             );
           })}
-          {groups.length === 0 && <p className="col-span-4 text-sm text-gray-500">보유한 아이템이 없습니다. 상점에서 훈련·부스트·계약서를 사 오세요.</p>}
         </div>
       </section>
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
         <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
-        {!it ? <p className="text-sm text-gray-500">아이템을 고르세요.</p> : (
+        {!it ? null : (
           <>
             <Hero img={`url(ui/mt/${it.img}.webp)`} name={it.name} color={n} h={130} pos="center" />
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
