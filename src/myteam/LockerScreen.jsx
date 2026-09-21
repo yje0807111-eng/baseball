@@ -803,7 +803,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         })()
           : (
           <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release} playing={playing}
-            itemsFit={(team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
+            itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
         )}
       </div>

@@ -118,7 +118,7 @@ export function addToInventory(team, it) {
 }
 
 /** 효과가 닿는 선수인가 — 타격 아이템은 타자, 투구 아이템은 투수만 (투수는 타석에 서지 않는다) */
-export const fitsItem = (it, p) => (it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter');
+export const fitsItem = (it, p) => (!it || !p ? false : it.target === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter');
 
 /** 추천 대상 — 효과가 맞는 쪽(타자/투수)에서 종합이 가장 많이 오르는 순 */
 export function recommendTargets(team, it, n = 5) {
