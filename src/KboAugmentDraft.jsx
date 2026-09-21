@@ -5256,8 +5256,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const finishDraft = (r) => {
     const filled = fillRoster(r);
     setAutoFilled(filled.length - r.length);
-    if (live) setGaunt(Gaunt.makeGauntlet(live)); // 라이브 판이었으면 상대 일곱 구단으로 도장깨기 탑을 세운다
-    setRoster(filled); setSeries(null); setPicked(null); setPhase('ready');
+    const g = live ? Gaunt.makeGauntlet(live) : null;   // 라이브 판이었으면 여덟 구단으로 도장깨기 탑을 세운다
+    if (g) setGaunt(g);
+    setRoster(filled); setSeries(null); setPicked(null);
+    // 도장깨기는 상대를 먼저 정한다 — 정비는 경기 시작을 누른 뒤에 연다
+    if (g) { startSeason(g); return; }
+    setPhase('ready');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
   const advanceRound = (next, nextCp, banned) => {
@@ -5604,8 +5608,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
   /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
-  const startSeason = () => {
-    if (augments.length >= match.aug) { prepareMatch(!!opponent); return; }
+  const startSeason = (g = gaunt) => {
+    if (augments.length >= match.aug) { prepareMatch(!!opponent, g); return; }
     runIdRef.current += 1;
     setPhase('sim');
     setBoard(emptyBoard());
@@ -5618,9 +5622,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   };
 
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
-  const prepareMatch = (rematch = false) => {
+  const prepareMatch = (rematch = false, g = gaunt) => {
     runIdRef.current += 1;
-    if (gaunt && !gaunt.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
+    if (g && !g.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
       setChoice(null);
       setToast(null);
       setPhase('gauntlet');
@@ -5671,6 +5675,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
     const meAt = order.indexOf(mine);
     return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
+  };
+
+  /* 도장깨기: 지금 칠 칸(내 바로 윗 칸)의 구단과 경기를 연다 */
+  const inGauntlet = !!gaunt && !gaunt.done && !!Gaunt.currentRung(gaunt);
+  const startGauntletMatch = () => {
+    const r = Gaunt.currentRung(gaunt);
+    startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
   };
 
   /* entry: 토너먼트 상대(그 팀 그대로) */
@@ -5839,11 +5850,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
           me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
-          onBack={() => setPhase('ready')}
-          onPlay={() => {
-            const r = Gaunt.currentRung(gaunt);
-            startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
-          }} />
+          onBack={newDraft}
+          onPlay={() => setPhase('ready')} />
       )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
@@ -6058,7 +6066,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
           {phase === 'ready' && (
             <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
-              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster} onStart={startSeason} onRestart={newDraft} />
+              opponent={inGauntlet ? Gaunt.currentRung(gaunt).roster : null}
+              startLabel={inGauntlet ? '경기 시작 ▶' : '시즌 시작 ▶'}
+              restartLabel={inGauntlet ? '탑으로 ◀' : '다시 드래프트'}
+              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
+              onStart={inGauntlet ? startGauntletMatch : startSeason}
+              onRestart={inGauntlet ? () => setPhase('gauntlet') : newDraft} />
           )}
 
           {phase === 'matchup' && opponent && (
