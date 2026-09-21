@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, catArt, isStorable, addToInventory, recommendTargets } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -15,7 +15,7 @@ function ItemCard({ it, on, onClick }) {
   return (
     <button type="button" onClick={onClick}
       className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
-      style={{ '--c': '12px', '--a': n, backgroundImage: `url(${catArt(it.cat)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
+      style={{ '--c': '12px', '--a': n, backgroundImage: `url(${itemArt(it)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
       <span className="absolute left-3 top-2 font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</span>
       <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px', background: n }}>{catSub[it.cat]}</span>
@@ -77,7 +77,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
   const NAV = CATEGORIES.map((c) => ({
     key: c.key, label: c.label, sub: `${counts[c.key]}개${c.key === 'all' ? '' : ` · ${catSub[c.key]}`}`,
-    img: catArt(c.key === 'all' ? 'training' : c.key),
+    img: itemArt(SHOP_ITEMS.find((i) => c.key === 'all' || i.cat === c.key) || SHOP_ITEMS[0]),
   }));
 
   return (
@@ -111,7 +111,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
           {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
             <>
-              <Hero img={`url(${catArt(picked.cat)})`} name={picked.name} color={n} h={150} pos="center 30%" />
+              <Hero img={`url(${itemArt(picked)})`} name={picked.name} color={n} h={150} pos="center 30%" />
               <p className="-mt-1 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
 
               {picked.target && (
