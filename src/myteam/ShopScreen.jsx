@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
-import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
+import { UiStyle, Bg, TopBar, Btn, SideNav, KV, Portrait } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
@@ -138,24 +138,61 @@ export default function ShopScreen({ account, onChange, onBack }) {
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
           {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
             <>
-              <Hero img={`url(${itemArt(picked)})`} name={picked.name} color={n} h={150} pos="center 30%" />
-              <p className="-mt-1 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
+              {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
+              {(() => {
+                const e = itemEffect(picked);
+                const on = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
+                return (
+                  <div className="mt-cut relative h-[190px] shrink-0 bg-cover" style={{ '--c': '12px', backgroundImage: `url(${itemArt(picked)})`, backgroundPosition: 'center 28%' }}>
+                    <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.25), rgba(5,8,15,.92))' }} />
+                    <span className="absolute left-3.5 top-2.5 font-display text-[13px] tracking-[0.16em]" style={{ color: n }}>{catLabel[picked.cat]} │ <span className="text-gray-300">{catSub[picked.cat]}</span></span>
+                    <span className="absolute inset-x-3.5 bottom-3">
+                      <b className="block text-2xl font-black text-white">{picked.name}</b>
+                      <span className="mb-1.5 flex items-baseline gap-1.5">
+                        <b className="text-[13px] text-gray-200">{e.label}</b>
+                        {e.amount != null && <b className="font-display text-xl" style={{ color: n }}>+{e.amount}</b>}
+                      </span>
+                      <span className="grid h-[6px] grid-cols-5 gap-[3px]">
+                        {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on ? n : 'rgba(255,255,255,.14)' }} />)}
+                      </span>
+                    </span>
+                  </div>
+                );
+              })()}
 
               {picked.target && (
                 <div className="flex min-h-0 flex-1 flex-col">
                   <p className="mt-grp !mt-0">추천 대상</p>
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
                     {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수가 없습니다.</p>}
-                    {recs.map((t) => (
-                      <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
-                        <Portrait player={t} w={38} h={46} color={n} />
-                        <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall}</b>
-                        <span className="min-w-0">
-                          <b className="block truncate text-sm font-black text-white">{t.name}</b>
-                          <span className="block truncate text-[11px] text-gray-400">{t.position} · {t.year} {t.team} · {t.stats?.[picked.stat] ?? '-'} → {Math.min(99, (t.stats?.[picked.stat] ?? 70) + picked.amount)}</span>
-                        </span>
-                      </div>
-                    ))}
+                    {recs.map((t) => {
+                      /* 수치 변화: 지금 값까지는 어둡게, 오르는 만큼은 분류 색으로 빛나게 — 옆에 전 → 후와 +n 칩 */
+                      const now = t.stats?.[picked.stat] ?? 70;
+                      const next = Math.min(99, now + picked.amount);
+                      return (
+                        <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px minmax(0,1fr)', '--a': n }}>
+                          <Portrait player={t} w={36} h={44} color={n} />
+                          <span className="min-w-0">
+                            <span className="flex items-baseline gap-1.5">
+                              <b className="min-w-0 flex-1 truncate text-sm font-black text-white">{t.name}</b>
+                              <b className="font-display text-base" style={{ color: n }}>{t.overall}</b>
+                              <small className="font-display text-[11px] text-gray-500">{t.position}</small>
+                            </span>
+                            <span className="mt-1 flex items-center gap-2">
+                              <span className="relative h-[7px] flex-1 bg-white/[0.08]">
+                                <i className="absolute inset-y-0 left-0 bg-slate-500" style={{ width: `${now}%` }} />
+                                <i className="absolute inset-y-0" style={{ left: `${now}%`, width: `${next - now}%`, background: n, boxShadow: `0 0 8px ${n}` }} />
+                              </span>
+                              <span className="flex shrink-0 items-baseline gap-1 font-display">
+                                <s className="text-[11px] text-slate-500">{now}</s>
+                                <b className="text-[15px]" style={{ color: n }}>{next}</b>
+                                <em className="not-italic px-1 text-[10.5px] font-bold" style={{ color: '#05080f', background: n }}>+{next - now}</em>
+                              </span>
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
