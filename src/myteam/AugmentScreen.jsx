@@ -20,6 +20,13 @@ const TYPE_KO = Object.fromEntries(TYPE_ORDER);
 const RED = '#f87171';
 const GREEN = '#34d399';
 
+/** 효과 문장에서 맨 뒤 수치 한 개를 떼어 [앞 글, 수치] 로 — 수치가 둘 이상이면 떼지 않는다 */
+function splitEffect(desc = '') {
+  const nums = desc.match(/[+−-]\d+(?:\.\d+)?/g) || [];
+  const m = desc.match(/^(.*?)\s*([+−-]\d+(?:\.\d+)?)$/);
+  return nums.length === 1 && m ? [m[1], m[2]] : [desc, null];
+}
+
 const Pips = ({ lv, c }) => (
   <span className="flex gap-[3px]">
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
@@ -201,21 +208,26 @@ export default function AugmentScreen({ account, onBack }) {
             return (
               <>
                 <p className="mt-lab" style={{ '--a': c }}>Pick</p>
-                <div className="mt-cut mt-frame relative flex min-h-0 flex-1 flex-col overflow-hidden p-5"
-                  style={{ ...cut(18), '--a': c, background: `radial-gradient(120% 70% at 50% 0%,${c}3a,transparent 62%),linear-gradient(180deg,#0f1828,#070b14)` }}>
+                <div className="mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
+                  {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
+                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
+                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
                   <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
-                  <div className="flex items-center gap-2">
+                  <div className="absolute inset-x-4 top-4 flex items-center gap-2">
                     <span className="mt-cut px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ ...cut(4), background: c }}>{T.en}</span>
-                    <span className="text-xs text-gray-400">{TYPE_KO[picked.type] || picked.type}</span>
+                    <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
                     {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
                   </div>
-                  <div className="relative -mx-5 mt-3 min-h-0 flex-1 overflow-hidden">
-                    <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
-                    <span className="absolute inset-x-0 bottom-0 h-1/2" style={{ background: 'linear-gradient(transparent,#070b14 94%)' }} />
+                  <div className="absolute inset-x-0 bottom-0">
+                    <b className="block px-[18px] pb-3 text-3xl font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    {(() => { const [head, num] = splitEffect(picked.desc); return (
+                      <span className="flex items-center justify-between gap-3 px-[18px] py-3" style={{ background: `linear-gradient(90deg,${c}2a,transparent)`, boxShadow: `inset 0 1px 0 ${c}59` }}>
+                        <b className="min-w-0 text-[15px] leading-snug text-gray-100">{head}</b>
+                        {num && <b className="shrink-0 font-display text-[34px] leading-none" style={{ color: c }}>{num}</b>}
+                      </span>
+                    ); })()}
+                    <span className="block px-[18px] pb-4 pt-3"><Pips lv={lv} c={c} /></span>
                   </div>
-                  <b className="text-3xl font-black text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                  <p className="mt-1.5 text-sm leading-relaxed text-gray-300">{picked.desc}</p>
-                  <div className="mt-3"><Pips lv={lv} c={c} /></div>
                 </div>
                 {tab === 'upgrade' ? (
                   <>
