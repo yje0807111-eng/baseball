@@ -47,20 +47,15 @@ const GroupHead = ({ label, n, c }) => (
 function Row({ a, lv, banned, on, upgrade, onPick, onAct }) {
   const c = TIER[a.tier].c;
   const tone = banned ? '#6b7280' : c;
-  let btn;
-  if (upgrade) {
-    btn = lv >= AUG_LEVEL_MAX
+  /* 제외 · 풀기는 오른쪽 PICK 카드에서 한다 — 줄에는 강화 탭의 강화 단추만 둔다 */
+  const btn = !upgrade ? null
+    : lv >= AUG_LEVEL_MAX
       ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] font-display text-xs text-gray-500" style={cut(6)}>MAX</span>
       : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>+{lv + 1} · {lv + 1}장</button>;
-  } else {
-    btn = banned
-      ? <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.25)] hover:bg-white/10" style={cut(6)}>풀기 ↺</button>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#fca5a5] shadow-[inset_0_0_0_1px_rgba(248,113,113,.5)] hover:bg-red-400/10" style={cut(6)}>제외 ✕</button>;
-  }
   return (
     <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
-      style={{ ...cut(10), '--a': c, gridTemplateColumns: '48px minmax(0,1fr) 92px',
+      style={{ ...cut(10), '--a': c, gridTemplateColumns: upgrade ? '48px minmax(0,1fr) 92px' : '48px minmax(0,1fr)',
         background: on ? `linear-gradient(90deg,${c}2e,rgba(6,10,19,.6))` : banned ? 'rgba(248,113,113,.07)' : 'rgba(255,255,255,.035)' }}>
       {/* 칸 그림: public/augments/<id>.webp (scripts/augment-art.mjs 로 만든다) */}
       <span className="mt-cut h-12 bg-[#0b1220] bg-cover" style={{ ...cut(8), backgroundImage: `url(augments/${a.id}.webp)`, backgroundPosition: 'center 22%', boxShadow: `inset 0 0 0 1px ${tone}59`, filter: banned ? 'grayscale(1) brightness(.6)' : undefined }} />
@@ -179,7 +174,7 @@ export default function AugmentScreen({ account, onBack }) {
             {groups.map(([label, list]) => (
               <div key={label}>
                 <GroupHead label={label} n={list.length} c={tab === 'upgrade' ? GREEN : T.c} />
-                <div className="flex flex-col gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
                       onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
@@ -190,7 +185,7 @@ export default function AugmentScreen({ account, onBack }) {
             {tab !== 'upgrade' && bans.length > 0 && (
               <div>
                 <GroupHead label="Excluded · 제외됨" n={bans.length} c={RED} />
-                <div className="flex flex-col gap-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={toggleBan} />
                   ))}
