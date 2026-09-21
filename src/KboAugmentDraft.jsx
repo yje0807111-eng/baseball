@@ -5828,7 +5828,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   </div>
                 </div>
               )}
-              <div ref={shelfRef} className="grid grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(17,minmax(0,var(--card-w)))] lg:justify-center lg:gap-[3px]">
+              {/* 선반은 늘 한 줄: 칸 수를 카드 수에 맞추고(최소 17), 자리가 모자라면 카드가 같이 좁아진다 */}
+              <div ref={shelfRef} className="mx-auto grid w-full grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))] lg:gap-[3px]"
+                style={{ '--n': Math.max(17, shownCards.length), maxWidth: `calc(${Math.max(17, shownCards.length)} * var(--card-w) + ${Math.max(17, shownCards.length) - 1} * 3px)` }}>
                 {shownCards.length === 0 && (
                   <p className="col-span-full py-6 text-center text-sm text-gray-400">
                     {posFilter?.pos ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
