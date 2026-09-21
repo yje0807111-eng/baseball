@@ -1538,7 +1538,7 @@ export const KEYFRAMES = `
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
 /* 라이브: 한 판 두 층 */
-.dr-panel { display: grid; gap: 4px; padding: 5px 12px;
+.dr-panel { display: grid; gap: 4px; margin-top: -26px; padding: 5px 12px;
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .dr-top { display: flex; align-items: center; gap: 12px; }
@@ -1572,17 +1572,17 @@ export const KEYFRAMES = `
 .dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
 .dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
-.dr-pc { position: relative; display: flex; align-items: center; padding: 3px 13px 3px 19px; margin-left: -12px;
+.dr-pc { position: relative; display: flex; align-items: center; justify-content: center; width: 72px; height: 24px; padding: 0 8px 0 14px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
-  background: rgba(255,255,255,.05); transition: padding .2s ease, background .3s ease; }
+  background: rgba(255,255,255,.05); transition: background .3s ease, box-shadow .3s ease; }
 .dr-pc:first-child { margin-left: 0; }
 .dr-pc > i { position: absolute; inset: 0; background: center 28% / cover no-repeat; opacity: .1; mix-blend-mode: luminosity; }
-.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; }
+.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
 .dr-pc.past > i { opacity: .18; }
-.dr-pc.now { z-index: 2; padding: 6px 18px 6px 24px; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
+.dr-pc.now { z-index: 2; width: 92px; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
 .dr-pc.now > i { opacity: .5; }
-.dr-pc.now > b { font-size: 13.5px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
+.dr-pc.now > b { font-size: 13px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
 .ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
 .ser-sw:hover { color: #fff; }
