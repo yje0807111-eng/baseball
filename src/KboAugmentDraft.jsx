@@ -5622,12 +5622,16 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const mine = Live.myRoster(live);
     if (mine.length !== roster.length) { setRoster(mine); setCp(live.clubs[liveMine].cp); setRound(mine.length + 1); }
   }, [live, phase]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { // 누가 지명하면 그 카드는 구단 색으로 물들었다가 선반에서 빠진다
+  /* 누가 지명하면 그 카드에 구단 엠블럼이 덮였다가 0.98초 뒤 벗겨진다.
+     타이머는 카드마다 따로 둔다 — 다음 지명이 곧바로 이어져도 앞 카드의 엠블럼이 남지 않게 */
+  const goneTimers = useRef([]);
+  useEffect(() => () => goneTimers.current.forEach(clearTimeout), []);
+  useEffect(() => {
     const last = live?.picks[live.picks.length - 1];
-    if (!last) return undefined;
-    setGone((g) => new Set(g).add(last.player.id));
-    const t = setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(last.player.id); return n; }), 980);
-    return () => clearTimeout(t);
+    if (!last) return;
+    const id = last.player.id;
+    setGone((g) => new Set(g).add(id));
+    goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 980));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
     if (live && phase === 'draft' && Live.isDone(live)) finishDraft(Live.myRoster(live));
