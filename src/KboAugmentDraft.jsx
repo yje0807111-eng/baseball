@@ -1531,15 +1531,18 @@ export const KEYFRAMES = `
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
 .dr-sp button:hover { color: #fff; }
 .dr-sp button.on { color: #05080f; background: #38e1ff; }
-.dr-skip { padding: 3px 10px; font-size: 12px; font-weight: 700; color: #cbd5e1;
-  clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
-  background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: color .15s, background .15s; }
+.dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size: 12px; line-height: 1; color: #cbd5e1;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
-.dr-bar { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 10px; transform: translate(-50%, -50%); }
+.dr-bar { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 10px; padding: 3px 10px; transform: translate(-50%, -50%);
+  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
-.dr-pc { position: relative; display: flex; align-items: center; padding: 4px 14px 4px 20px; margin-left: -12px;
+.dr-pc { position: relative; display: flex; align-items: center; padding: 3px 13px 3px 19px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
   background: rgba(255,255,255,.05); transition: padding .2s ease, background .3s ease; }
 .dr-pc:first-child { margin-left: 0; }
@@ -1547,9 +1550,9 @@ export const KEYFRAMES = `
 .dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; }
 .dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
 .dr-pc.past > i { opacity: .18; }
-.dr-pc.now { z-index: 2; padding: 9px 22px 9px 28px; background: var(--t); box-shadow: 0 0 20px -4px var(--t); }
+.dr-pc.now { z-index: 2; padding: 6px 18px 6px 24px; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
 .dr-pc.now > i { opacity: .5; }
-.dr-pc.now > b { font-size: 15px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
+.dr-pc.now > b { font-size: 13.5px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
 .ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
 .ser-sw:hover { color: #fff; }
@@ -5920,13 +5923,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   {live && (
                     <span className="dr-bar">
                       <TurnOrder live={live} clock={clock} />
-                      {/* 진행 속도와 건너뛰기 — 지금 차례 표시 바로 오른쪽 */}
+                      {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
+                      <i className="dr-div" aria-hidden="true" />
                       <span className="dr-sp" role="group" aria-label="진행 배속">
                         {[1, 2, 4].map((v) => (
                           <button key={v} type="button" aria-pressed={liveSpeed === v} className={liveSpeed === v ? 'on' : ''} onClick={() => setLiveSpeed(v)}>×{v}</button>
                         ))}
                       </span>
-                      <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}>내 차례로 ▶▶</button>
+                      <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
+                        title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
                     </span>
                   )}
                   <div className="ser-ttl">
