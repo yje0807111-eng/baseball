@@ -8,6 +8,8 @@ import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
 import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
 import * as Live from './draft/live.js';
+import * as Gaunt from './draft/gauntlet.js';
+import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 
@@ -27,7 +29,7 @@ const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전�
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
-const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium', bracket: 'stadium' };
+const PHASE_BG = { mode: 'stadium', draft: 'stadium', ready: 'ready', matchup: 'broadcast', sim: 'broadcast', result: 'stadium', bracket: 'stadium', gauntlet: 'gauntlet' };
 const START_REROLLS = 3;
 
 /* ───────────── 2. 선수 시드 데이터 ─────────────
@@ -4585,7 +4587,7 @@ function BroadcastPlates({ log }) {
 /* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
 const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
 
-function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) {
+function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, gauntlet = null }) {
   const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
   const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
   const moments = logs.filter((l) => l.kind === 'augment' || (l.kind === 'score' && l.runs >= 2)).slice(-3);
@@ -4643,10 +4645,19 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft }) 
           </div>
         ))}
       </div>
-      <div className="flex flex-wrap justify-end gap-2 lg:col-span-3">
+      <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-3">
         <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
-        <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
-        <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
+        {gauntlet ? (
+          <>
+            <span className="mr-auto font-display text-sm text-gray-400">{gauntlet.label}</span>
+            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>{gauntlet.cta} ▶</button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
+            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
+          </>
+        )}
       </div>
     </section>
   );
@@ -5418,6 +5429,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const finishDraft = (r) => {
     const filled = fillRoster(r);
     setAutoFilled(filled.length - r.length);
+    if (live) setGaunt(Gaunt.makeGauntlet(live)); // 라이브 판이었으면 상대 일곱 구단으로 도장깨기 탑을 세운다
     setRoster(filled); setSeries(null); setPicked(null); setPhase('ready');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
@@ -5501,6 +5513,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
   const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32 · 64강이면 이 판의 토너먼트 (저장하지 않음)
+  /* 도장깨기 — 라이브 드래프트로 뽑은 판에서는 토너먼트 대신 일곱 구단을 약한 순서로 하나씩 친다 */
+  const [gaunt, setGaunt] = useState(null);
   const tourMode = !!match.format && match.format !== 'single';
   const [board, setBoard] = useState(emptyBoard);
   const [half, setHalf] = useState(null);
@@ -5515,7 +5529,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const runIdRef = useRef(0); // 값이 바뀌면 진행 중인 시뮬레이션은 스스로 중단
   useEffect(() => { speedRef.current = speed; }, [speed]);
   useEffect(() => () => { runIdRef.current += 1; }, []);
-  // 개발 전용 바로가기: ?demo=draft | ready | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
+  // 개발 전용 바로가기: ?demo=draft | ready | gauntlet | tourney16 · 32 · 64 | augment | matchup — 엔트리를 채워 그 단계 화면을 곧장 연다 (배포 빌드에서는 무시)
   // 페이지를 연 뒤 한 번만: 메인으로 나갔다가 플레이를 다시 눌러도 또 열리지 않게 주소에서 demo 를 지운다
   useEffect(() => {
     if (!import.meta.env.DEV) return;
@@ -5536,6 +5550,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const cpParam = Number(new URLSearchParams(window.location.search).get('cp'));
     setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
+    if (demo === 'gauntlet') { // 라이브 판을 끝까지 자동으로 돌려 도장깨기 탑만 바로 본다
+      let s0 = Live.createLive({ cap: match.cap, series: mode.series, myEmblem: Live.bannerEmblem(myBanner()) });
+      let g = 0;
+      while (!Live.isDone(s0) && g++ < Live.CLUB_COUNT * ROSTER_SIZE + 10) s0 = Live.pick(s0, Live.autoPick(s0), { auto: true });
+      setLive(s0); setRoster(fillRoster(Live.myRoster(s0))); setGaunt(Gaunt.makeGauntlet(s0)); setPhase('gauntlet');
+    }
     if (demo === 'ready') setPhase('ready');
     if (/^tourney(16|32|64)$/.test(demo)) { setMatch((m) => ({ ...m, aug: 0, format: Number(demo.slice(7)) })); setPhase('ready'); } // 정비 화면에서 시작하면 대진표
     if (demo === 'crisis') { // 승부처 제구 미니게임만 바로 띄워 보기
@@ -5762,6 +5782,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
   const prepareMatch = (rematch = false) => {
     runIdRef.current += 1;
+    if (gaunt && !gaunt.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
+      setChoice(null);
+      setToast(null);
+      setPhase('gauntlet');
+      return;
+    }
     if (tourMode) { // 토너먼트: 대진표로 (끝난 판이면 새 대진)
       if (!dtour || dtour.done) setDtour(makeDraftTournament());
       setChoice(null);
@@ -5835,6 +5861,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 중계 화면이 끝나면 기존 결과 화면으로 */
   const finishLive = (res) => {
     setLiveTeams(null);
+    if (gaunt && !gaunt.done) { // 도장깨기: 이기면 다음 단, 지면 같은 단을 다시
+      setGaunt((g) => Gaunt.settle(g, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp }));
+      setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
+      setResult(res);
+      setLogs(res.logs);
+      setBoard(res.board);
+      setPhase('result');
+      return;
+    }
     if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
       setDtour(advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments)));
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
@@ -5953,6 +5988,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
         <ModeSelect initialMode={modeId} onStart={startDraft} onExit={onExit} normal={normal} normalView={normalView} onNormalView={onNormalView}
           record={record.w + record.l + record.d ? `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''} · ${mode.name}` : null} />
       )}
+      {phase === 'gauntlet' && gaunt && (
+        <GauntletScreen gaunt={gaunt}
+          me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
+          onBack={() => setPhase('ready')}
+          onPlay={() => {
+            const r = Gaunt.currentRung(gaunt);
+            startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
+          }} />
+      )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
           <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false}
@@ -5961,12 +6005,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
         </div>
       )}
 
-      {phase !== 'mode' && phase !== 'bracket' && (
+      {phase !== 'mode' && phase !== 'bracket' && phase !== 'gauntlet' && (
         <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} slim={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
           onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
-      {phase !== 'mode' && phase !== 'bracket' && (
+      {phase !== 'mode' && phase !== 'bracket' && phase !== 'gauntlet' && (
       <main className={`relative mx-auto grid px-4 ${phase === 'draft' || phase === 'ready' || phase === 'matchup'
         ? 'w-full max-w-[1920px] gap-3 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]'
         : 'w-full max-w-[1600px] gap-5 py-5'}`}>
@@ -6178,6 +6222,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             <>
               {result && (
                 <ResultPanel result={result} record={record} logs={logs}
+                  gauntlet={gaunt ? {
+                    label: gaunt.done ? '일곱 구단을 모두 꺾었다' : `${Gaunt.currentRung(gaunt).step}단 · ${Gaunt.currentRung(gaunt).name}`,
+                    cta: gaunt.done ? '탑으로' : result.winner === 'my' ? '다음 단으로' : '다시 도전',
+                  } : null}
                   onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
               )}
 
@@ -6248,7 +6296,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             if (!options.length) return null;
             return new Promise((resolve) => { midPickRef.current = resolve; setChoice({ kind: 'augment', inning, options }); });
           }}
-          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(tourMode ? 'bracket' : 'matchup'); }} />
+          onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(gaunt && !gaunt.done ? 'gauntlet' : tourMode ? 'bracket' : 'matchup'); }} />
       )}
       <HighlightToast toast={toast} />
     </div>
