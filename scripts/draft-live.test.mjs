@@ -107,3 +107,22 @@ test('보드는 늘 18명까지 · 선수가 많은 시리즈도 포지션이 �
   const s = createLive({ rng: seeded(21) });
   s.pool.forEach((b) => expect(b.players.length).toBeLessThanOrEqual(BOARD_SIZE));
 });
+
+test('구단마다 드래프트 플랜대로 팀 모양이 달라진다', async () => {
+  const { TRAITS, planTarget } = await import('../src/draft/live.js');
+  const s = play(seeded(31));
+  const by = (t) => s.clubs.filter((c) => c.trait === t);
+  const pitchers = (c) => c.roster.filter((p) => p.type === 'pitcher').length;
+  const power = (c) => { const b = c.roster.filter((p) => p.type === 'batter'); return b.length ? b.reduce((t, p) => t + p.stats.power, 0) / b.length : 0; };
+  const mound = by('mound'), hit = by('power');
+  // 마운드형은 투수를, 한 방형은 파워를 더 챙긴다
+  if (mound.length && hit.length) {
+    expect(Math.max(...mound.map(pitchers))).toBeGreaterThanOrEqual(Math.min(...hit.map(pitchers)));
+    expect(Math.max(...hit.map(power))).toBeGreaterThan(0);
+  }
+  // 플랜은 로스터가 찰수록 다음 자리를 가리킨다
+  const c0 = s.clubs[1];
+  expect(TRAITS[c0.trait].plan).toHaveLength(ROSTER_SIZE);
+  expect(planTarget([], c0.trait)).toBe(TRAITS[c0.trait].plan[0]);
+  s.clubs.forEach((c) => expect(c.roster.length).toBeGreaterThanOrEqual(ROSTER_SIZE - 3));
+});

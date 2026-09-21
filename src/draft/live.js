@@ -16,14 +16,40 @@ const BOARD_MIX = { SP: 4, RP: 3, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 4,
 /* 보드 수(=10). KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 쓸 때 센다 */
 export const boardCount = () => Math.ceil(ROSTER_SIZE / LAPS_PER_BOARD);
 
-/** AI 성향 — 같은 규칙 위에서 무엇을 더 좋아하는지만 다르다 */
+/**
+ * AI 성향 — 구단마다 드래프트 플랜이 있다.
+ *  plan: 몇 번째로 뽑을 때 어느 자리를 노리는지 (앞에서부터 차례로, 그 자리가 보드에 없으면 다음 순위로)
+ *  score: 같은 자리 안에서 무엇을 더 높게 치는지
+ * 플랜이 있으니 구단마다 팀 모양이 다르게 나오고, 판을 다시 해도 그 구단다운 선택이 이어진다.
+ */
 export const TRAITS = {
-  power: { ko: '한 방', score: (p) => (p.type === 'batter' ? p.stats.power * 0.5 : -6) },
-  mound: { ko: '마운드', score: (p) => (p.type === 'pitcher' ? 14 : 0) },
-  value: { ko: '가성비', score: (p) => (p.overall - p.cost) * 1.2 },
-  defense: { ko: '수비', score: (p) => (p.type === 'batter' ? p.stats.defense * 0.4 + (['C', 'SS', '2B'].includes(p.position) ? 8 : 0) : 0) },
-  balance: { ko: '균형', score: () => 0 },
+  power: { ko: '한 방', // 강타선 먼저, 마운드는 중반에
+    plan: ['OF', '1B', 'DH', '3B', 'SP', 'OF', 'C', 'SP', 'RP', '2B', 'SS', 'RP', 'OF', 'SP', 'RP', 'RP', '1B', '3B', 'SP', 'RP'],
+    score: (p) => (p.type === 'batter' ? p.stats.power * 0.5 : -4) },
+  mound: { ko: '마운드', // 선발 · 불펜부터 채우고 야수는 뒤에
+    plan: ['SP', 'SP', 'RP', 'SP', 'RP', 'C', 'SS', 'OF', 'RP', '1B', '2B', 'OF', 'SP', '3B', 'OF', 'RP', 'DH', 'RP', 'SP', 'C'],
+    score: (p) => (p.type === 'pitcher' ? p.stats.stuff * 0.25 + p.stats.control * 0.15 : 0) },
+  value: { ko: '가성비', // 자리는 고루, 대신 값싼 알짜를 노린다
+    plan: ['SP', 'C', 'SS', 'OF', 'RP', '1B', '2B', 'SP', 'OF', '3B', 'RP', 'SP', 'OF', 'RP', 'DH', 'RP', 'SP', 'C', 'SS', '1B'],
+    score: (p) => (p.overall - p.cost) * 1.6 },
+  defense: { ko: '수비', // 센터라인(포수 · 유격수 · 2루)부터
+    plan: ['C', 'SS', '2B', 'OF', 'SP', '3B', 'SP', 'RP', 'OF', '1B', 'RP', 'SP', 'OF', 'RP', 'C', 'SS', 'RP', 'SP', 'DH', '2B'],
+    score: (p) => (p.type === 'batter' ? p.stats.defense * 0.45 : p.stats.stability * 0.2) },
+  balance: { ko: '균형', // 빈 자리 중 가장 좋은 선수
+    plan: ['SP', 'OF', 'C', 'SP', 'SS', 'RP', '1B', 'OF', '3B', 'RP', '2B', 'SP', 'OF', 'RP', 'SP', 'DH', 'RP', 'C', 'SS', '1B'],
+    score: () => 0 },
 };
+/** 이 구단이 이번 차례에 노리는 자리 — 플랜에서 아직 못 채운 자리를 앞에서부터 찾는다 */
+export function planTarget(roster, trait) {
+  const plan = (TRAITS[trait] || TRAITS.balance).plan || [];
+  const have = {};
+  roster.forEach((p) => { have[p.position] = (have[p.position] || 0) + 1; });
+  const want = {};
+  for (const pos of plan.slice(0, roster.length + 1)) want[pos] = (want[pos] || 0) + 1;
+  // 계획한 만큼 아직 못 채운 자리 중 가장 앞선 것
+  for (const pos of plan) if ((want[pos] || 0) > (have[pos] || 0)) return pos;
+  return plan[Math.min(roster.length, plan.length - 1)] || null;
+}
 
 /* 상대 구단은 실제 구단에서 뽑는다 (국가대표 · 레전드는 구단이 아니라 뺀다).
    엠블럼은 public/ui/clubs/<키>.webp — 실제 로고가 아니라 구단 상징을 새로 그린 그림이다 */
@@ -144,28 +170,34 @@ export const pickable = (s, club = currentClub(s)) => boardPlayers(s).filter((p)
 export function scoreFor(s, player, club = currentClub(s)) {
   const c = s.clubs[club];
   const trait = TRAITS[c.trait] || TRAITS.balance;
-  const need = openFieldSlots(c.roster).some((x) => x.pos === player.position) ? 10 : 0; // 빈 자리를 채우는 선수 우대
-  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 55;    // 남은 자리 몫을 남긴 상한 (aiDraft 와 같은 생각)
+  // 막판에는 플랜보다 빈 자리를 먼저 메운다 (플랜만 보다가 자리를 못 채우면 퓨처스가 들어간다)
+  const late = ROSTER_SIZE - c.roster.length <= 6;
+  const need = openFieldSlots(c.roster).some((x) => x.pos === player.position) ? (late ? 26 : 8) : 0;
+  const target = planTarget(c.roster, c.trait);
+  const onPlan = target && player.position === target ? (late ? 6 : 22) : 0;           // 이번 차례에 노리던 자리
+  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 55;    // 남은 자리 몫을 남긴 상한
   const afford = player.cost > room ? -25 : 0;
-  return player.overall + need + afford + trait.score(player);
+  return player.overall + need + onPlan + afford + trait.score(player);
 }
 
 /** AI(또는 시간 초과)가 고를 선수 — 못 고르면 null(패스) */
 export function autoPick(s, club = currentClub(s), rng = Math.random) {
   const all = pickable(s, club);
   if (!all.length) return null;
-  // 남은 자리를 채울 몫(자리당 50 CP)은 남겨 둔다 — 앞에서 다 써 버리면 뒤에서 한 명도 못 뽑는다
+  // 남은 자리를 채울 몫(자리당 58 CP)은 남겨 둔다 — 앞에서 다 써 버리면 뒤에서 한 명도 못 뽑는다
   const c = s.clubs[club];
-  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 50;
+  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 58;
   const afford = all.filter((p) => p.cost <= room);
-  const budget = afford.length ? afford : all;
+  // 그 안에 아무도 없으면 가장 싼 선수 하나만 후보로 둔다 (비싼 선수를 질러 뒤를 비우지 않게)
+  const budget = afford.length ? afford : [all.reduce((m, p) => (p.cost < m.cost ? p : m), all[0])];
   // 주전 자리를 먼저 채운다 — 예비만 남기면 뒤에 오는 보드에서 자리 마감으로 한 명도 못 뽑는다
   const open = openFieldSlots(c.roster);
   const starters = budget.filter((p) => open.some((x) => x.pos === p.position));
   const list = starters.length ? starters : budget;
   const ranked = list.map((p) => ({ p, v: scoreFor(s, p, club) })).sort((a, b) => b.v - a.v);
-  const top = ranked.slice(0, Math.min(3, ranked.length));          // 늘 1등만 고르면 판이 똑같아진다
-  return top[Math.floor(rng() * top.length)].p;
+  // 플랜대로 뽑되, 점수가 엇비슷한(3점 이내) 선수끼리만 갈린다 — 같은 구단은 늘 그 구단답게 고른다
+  const close = ranked.filter((x) => x.v >= ranked[0].v - 3);
+  return close[Math.floor(rng() * close.length)].p;
 }
 
 /** 지명. player 가 null 이면 패스(고를 선수가 없을 때). 규칙에 어긋나면 상태를 그대로 돌려준다 */
