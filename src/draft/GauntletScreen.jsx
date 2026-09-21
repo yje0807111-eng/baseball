@@ -19,7 +19,7 @@ const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const face = (p) => `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
 /* 칸 높이와 펼친 판 높이 — 판은 접힌 일곱 칸이 내준 만큼만 쓴다(84−46)×7. 그래서 탑 전체 높이가 늘 같고 칸이 오르내리지 않는다 */
-const FLOOR_H = 84, FOLD_H = 46, PANEL_H = (FLOOR_H - FOLD_H) * 7;
+const FLOOR_H = 92, FOLD_H = 38, PANEL_H = (FLOOR_H - FOLD_H) * 7;   // 판 378 — 접힌 일곱 칸이 내준 높이 그대로
 const TOWER_H = FLOOR_H * 8 + 46;   // 여덟 칸 + 이름표와 바닥 — 이 높이는 여닫아도 바뀌지 않는다
 /* 야수 자리 — KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 그릴 때 센다 */
 const batSlots = () => FIELD_SLOTS.filter((s) => !PITCH_SLOTS.includes(s.id)).map((s) => s.id);
@@ -45,21 +45,21 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
         background: lit ? `linear-gradient(180deg,${r.color}44,${r.color}18)` : cleared ? 'rgba(52,211,153,.07)' : 'rgba(255,255,255,.04)',
         boxShadow: lit ? `inset 0 0 0 2px ${r.color},0 0 40px -14px ${r.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)',
         clipPath: top ? 'polygon(50% 0,100% 24%,100% 100%,0 100%,0 24%)' : undefined }}>
-      <b className="w-4 font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 20 : 15, color: lit ? r.color : '#54606f' }}>{index}</b>
-      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 46 : 30} className="transition-all duration-300 ease-out" style={{ opacity: cleared ? 0.45 : 1 }} />
-      <span className="grid gap-0.5 transition-all duration-300 ease-out" style={{ width: big ? 104 : 88 }}>
-        <b className="truncate transition-all duration-300 ease-out" style={{ fontSize: big ? 15 : 13, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
+      <b className="w-5 font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 21 : 14, color: lit ? r.color : '#54606f' }}>{index}</b>
+      <Emb src={r.key ? emblemOf(r.key) : bannerEmblem(null)} size={big ? 52 : 26} className="transition-all duration-300 ease-out" style={{ opacity: cleared ? 0.45 : 1 }} />
+      <span className="grid gap-0.5 transition-all duration-300 ease-out" style={{ width: big ? 112 : 84 }}>
+        <b className="truncate transition-all duration-300 ease-out" style={{ fontSize: big ? 16.5 : 12.5, color: mine ? r.color : '#e8ecf2' }}>{r.short}</b>
         {big && <small className="text-[0.7rem] text-[#8b97a6]">{TRAIT_KO[r.trait] || ''}</small>}
       </span>
       <span className="ml-auto flex items-center" style={{ gap: big ? 12 : 9 }}>
         {KEYS.slice(0, 3).map(([k, ko]) => (
           <span key={k} className="ui-cut grid justify-items-center gap-px transition-all duration-300 ease-out"
-            style={{ '--c': '4px', width: big ? 52 : 44, padding: big ? '3px 0' : 0, background: big ? 'rgba(255,255,255,.05)' : 'transparent' }}>
-            {big && <small className="text-[0.6rem] text-[#6b7787]">{ko}</small>}
-            <b className="font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 15 : 13, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
+            style={{ '--c': '4px', width: big ? 58 : 42, padding: big ? '4px 0' : 0, background: big ? 'rgba(255,255,255,.05)' : 'transparent' }}>
+            {big && <small className="text-[0.65rem] text-[#6b7787]">{ko}</small>}
+            <b className="font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 17 : 12.5, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
           </span>
         ))}
-        <b className="w-12 text-right font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 21 : 16, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
+        <b className="w-14 text-right font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 23 : 15, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
         <b className="w-[2.6rem] text-right font-display text-[0.7rem] tracking-[0.12em]"
           style={{ color: mine ? r.color : cleared ? '#34d399' : now ? r.color : '#4b5563' }}>
           {mine ? 'ME' : cleared ? 'CLEAR' : now ? 'NOW' : ''}
@@ -75,7 +75,7 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
 }
 
 /* 펼친 판 — 구장 위 수비 아홉(라커와 같은 그림) · 선발과 불펜 · 벤치 */
-const Cap = ({ children }) => <b className="font-display text-[0.66rem] tracking-[0.22em] text-[#6b7787]">{children}</b>;
+const Cap = ({ children }) => <b className="font-display text-[0.74rem] tracking-[0.22em] text-[#6b7787]">{children}</b>;
 function Detail({ r, width }) {
   const full = fillRoster(r.roster || []);
   const by = {};
@@ -83,10 +83,10 @@ function Detail({ r, width }) {
   const arms = PITCH_SLOTS.map((id) => ({ ...by[id], slot: id, label: FIELD_SLOTS.find((s) => s.id === id)?.label })).filter((p) => p.id);
   const bench = full.filter((p) => p.slot && p.slot.startsWith('BN'));
   return (
-    <div className="ui-cut mx-auto flex gap-3.5 p-3.5" style={{ width, height: PANEL_H, '--c': '12px',
+    <div className="ui-cut mx-auto flex gap-4 p-4" style={{ width, height: PANEL_H, '--c': '14px',
       background: 'linear-gradient(180deg,rgba(8,12,20,.94),rgba(8,12,20,.82))', boxShadow: `inset 0 0 0 1px ${r.color}44, inset 0 2px 0 ${r.color}` }}>
       {/* 구장 위 수비 배치 */}
-      <div className="ui-cut relative h-full w-[22.5rem] shrink-0 overflow-hidden bg-cover"
+      <div className="ui-cut relative h-full w-[26.5rem] shrink-0 overflow-hidden bg-cover"
         style={{ '--c': '10px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 40%' }}>
         <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,9,15,.35),rgba(5,9,15,.6))' }} />
         {batSlots().map((slot) => {
@@ -95,11 +95,11 @@ function Detail({ r, width }) {
           if (!p || !at) return null;
           return (
             <span key={slot} className="absolute flex items-center" style={{ left: `${at[0]}%`, top: `${at[1]}%`, transform: 'translate(-50%,-50%)' }}>
-              <span className="h-8 w-[1.6rem] shrink-0 bg-[#0b1220] bg-cover"
-                style={{ clipPath: SKEW(6), backgroundPosition: 'center 8%', backgroundImage: face(p) }} />
-              <span className="-ml-[3px] grid">
-                <b className="whitespace-nowrap px-1.5 py-px text-[0.6rem] text-white" style={{ clipPath: SKEW(5), background: 'rgba(6,10,19,.95)' }}>{p.name}</b>
-                <b className="ml-1 whitespace-nowrap px-1.5 font-display text-[0.56rem] text-[#05080f]" style={{ clipPath: SKEW(4), background: r.color }}>
+              <span className="h-[2.6rem] w-[2.1rem] shrink-0 bg-[#0b1220] bg-cover"
+                style={{ clipPath: SKEW(7), backgroundPosition: 'center 8%', backgroundImage: face(p) }} />
+              <span className="-ml-[4px] grid">
+                <b className="whitespace-nowrap px-2 py-0.5 text-[0.76rem] text-white" style={{ clipPath: SKEW(6), background: 'rgba(6,10,19,.95)' }}>{p.name}</b>
+                <b className="ml-1.5 whitespace-nowrap px-2 font-display text-[0.7rem] text-[#05080f]" style={{ clipPath: SKEW(5), background: r.color }}>
                   {POS_LABEL[p.position] || p.position} {p.overall}
                 </b>
               </span>
@@ -110,28 +110,28 @@ function Detail({ r, width }) {
       {/* 투수진과 벤치 */}
       <div className="grid min-w-0 flex-1 content-start gap-1.5">
         <Cap>PITCHERS</Cap>
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-2">
           {arms.map((p) => (
-            <span key={p.slot} className="ui-cut flex h-[2.4rem] items-center gap-2 px-2"
+            <span key={p.slot} className="ui-cut flex h-[3rem] items-center gap-2.5 px-2.5"
               style={{ '--c': '5px', background: 'rgba(255,255,255,.045)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
-              <span className="ui-cut h-8 w-[1.6rem] shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '4px', backgroundImage: face(p), backgroundPosition: 'center 6%' }} />
+              <span className="ui-cut h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: face(p), backgroundPosition: 'center 6%' }} />
               <span className="grid min-w-0 flex-1 gap-px">
-                <b className="truncate text-[0.75rem] text-[#e8ecf2]">{p.name}</b>
-                <small className="text-[0.6rem] text-[#7c8797]">{p.label}</small>
+                <b className="truncate text-[0.88rem] text-[#e8ecf2]">{p.name}</b>
+                <small className="text-[0.7rem] text-[#7c8797]">{p.label}</small>
               </span>
-              <b className="font-display text-[0.95rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+              <b className="font-display text-[1.1rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
             </span>
           ))}
         </div>
         <span className="mt-1"><Cap>BENCH</Cap></span>
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1.5">
           {bench.length ? bench.map((p) => (
-            <span key={p.slot} className="ui-cut flex items-center gap-1.5 px-2 py-0.5" style={{ '--c': '4px', background: 'rgba(255,255,255,.05)' }}>
-              <small className="text-[0.62rem] text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
-              <b className="text-[0.72rem] text-[#e8ecf2]">{p.name}</b>
-              <b className="font-display text-[0.72rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+            <span key={p.slot} className="ui-cut flex items-center gap-2 px-2.5 py-1" style={{ '--c': '5px', background: 'rgba(255,255,255,.05)' }}>
+              <small className="text-[0.7rem] text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
+              <b className="text-[0.82rem] text-[#e8ecf2]">{p.name}</b>
+              <b className="font-display text-[0.82rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
             </span>
-          )) : <small className="text-[0.72rem] text-[#6b7787]">예비 선수 없음</small>}
+          )) : <small className="text-[0.8rem] text-[#6b7787]">예비 선수 없음</small>}
         </div>
       </div>
     </div>
@@ -220,7 +220,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
                 {draw.includes(r.club) && (
                   <div className="overflow-hidden transition-[height,opacity] duration-300 ease-out"
                     style={{ height: open ? PANEL_H : 0, opacity: open ? 1 : 0 }}>
-                    <Detail r={shown} width={width + 60} />
+                    <Detail r={shown} width={base + (gaunt.tower.length - 1) * grow + 60} />
                   </div>
                 )}
               </React.Fragment>
