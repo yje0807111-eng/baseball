@@ -3,9 +3,14 @@ import React, { useMemo, useState } from 'react';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
-import { statBarStyle, statNumStyle } from './teamColor.js';
+import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
+/* 종합 등급 색 — 드래프트 카드와 같은 규칙 (90 이상 무지개 · 75 이상 초록) */
+const PRISM = 'linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc)';
+const ovrStyle = (v) => (v >= 90
+  ? { background: `${PRISM} 0 50% / 200% 100%`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', animation: 'prism 3s linear infinite' }
+  : { color: v >= 75 ? '#34d399' : '#f3f4f6' });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강' };
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리' };
@@ -174,12 +179,14 @@ export default function ShopScreen({ account, onChange, onBack }) {
                       const barNow = statBarStyle(cur);
                       const barNext = statBarStyle(after);
                       return (
-                        <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px minmax(0,1fr)', '--a': n }}>
+                        <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px 34px minmax(0,1fr)', '--a': n }}>
                           <Portrait player={t} w={36} h={44} color={n} />
+                          {/* 종합은 사진 옆 자기 열에 크게(등급 색) — 아래 수치 막대와 헷갈리지 않게 */}
+                          <b className="text-center font-display text-[22px] font-extrabold" style={ovrStyle(t.overall)}>{t.overall}</b>
                           <span className="min-w-0">
                             <span className="flex items-center gap-1.5">
                               <b className="min-w-0 flex-1 truncate text-sm font-black text-white">{t.name}</b>
-                              <small className="bg-white/[0.08] px-1.5 font-display text-[11px] text-gray-300">{t.position} {t.overall}</small>
+                              <small className="font-display text-[11px]" style={{ color: POS_COLOR[t.position] }}>{t.position}</small>
                             </span>
                             <span className="mt-1 flex items-center gap-2">
                               <small className="w-7 shrink-0 text-[11px] text-gray-400">{STAT_KO[picked.stat] || picked.stat}</small>

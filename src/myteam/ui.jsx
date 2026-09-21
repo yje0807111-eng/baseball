@@ -6,6 +6,7 @@ export const UiStyle = () => (
   <style>{`
     .mt-cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
     .mt-glass { background:rgba(6,10,19,.74); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+    @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
     .mt-frame { position:relative; }
     .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top/var(--c) var(--c) no-repeat, linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom/var(--c) var(--c) no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c)/2px 30px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c)/2px 30px no-repeat; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 2px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 26%, transparent); }
