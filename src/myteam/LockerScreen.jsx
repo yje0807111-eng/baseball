@@ -314,7 +314,25 @@ const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: 
 const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', staff: '#c4b5fd' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
-function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
+/* 팀에서 가장 약한 곳과, 그걸 올려 주는 훈련 한 가지 — 아이템이 없을 때 오른쪽 판에 보여 준다 */
+/** 앞말 받침에 맞는 조사 (훈련 → 을 · 강화 → 를) */
+const josa = (w, withBat, noBat) => (((w.charCodeAt(w.length - 1) - 0xac00) % 28) > 0 ? withBat : noBat);
+const WEAK_ITEM = { bat: 'tr-power', sp: 'tr-stuff', rp: 'tr-stuff' };
+const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
+const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
+function weakestOf(squad) {
+  const avg = (l) => (l.length ? Math.round(l.reduce((s, p) => s + p.overall, 0) / l.length) : 0);
+  const groups = {
+    bat: squad.filter((p) => p.type === 'batter'),
+    sp: squad.filter((p) => p.position === 'SP'),
+    rp: squad.filter((p) => p.position === 'RP'),
+  };
+  const rows = Object.entries(groups).map(([k, l]) => ({ k, v: avg(l), n: l.length, worst: [...l].sort((a, b) => a.overall - b.overall)[0] }));
+  const filled = rows.filter((r) => r.n);
+  return { rows, weak: filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null };
+}
+
+function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse }) {
   const inv = team.items || [];
   const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
   const g = groups.find((x) => x.it.id === itemId) || groups[0];
@@ -334,6 +352,20 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
         <div className="flex items-baseline gap-3">
           <p className="mt-lab" style={{ '--a': '#fde047' }}>Items</p>
         </div>
+        {groups.length === 0 ? (
+          /* 가진 아이템이 없을 때: 사진 한 장 · 보유 골드 · 상점 버튼 (C안) */
+          <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
+            <div className="text-center">
+              <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
+              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템이 없습니다</b>
+              <p className="m-0 text-sm text-gray-400">훈련으로 능력치를 영구히 올리거나, 부스트로 한 경기를 준비하세요.</p>
+              <div className="mt-5 flex items-center justify-center gap-2.5">
+                <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
+              </div>
+              <Btn pri lg a="#fde047" className="mx-auto mt-5 w-[260px]" style={cut(12)} onClick={onShop}>상점 가기 ▶</Btn>
+            </div>
+          </div>
+        ) : (
         <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
           {groups.map(({ it: x, keys }) => {
             const c = ITEM_COLOR[x.cat] || '#fde047';
@@ -352,11 +384,39 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
             );
           })}
         </div>
+        )}
       </section>
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
         <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
-        {!it ? null : (
+        {!it ? (() => {
+          /* 아이템을 고르지 않았을 때: 우리 팀에서 가장 약한 곳과 그걸 올리는 훈련 (E안) */
+          const { rows, weak } = weakestOf(squad);
+          const buy = weak && SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]);
+          return (
+            <>
+              <b className="-mb-1 text-xl font-black text-white">우리 팀 약한 곳</b>
+              {rows.map((r) => (
+                <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
+                  {WEAK_KO[r.k]}
+                  <span className="h-2 bg-white/[0.08]"><i className="block h-full" style={{ width: `${r.v}%`, background: weak?.k === r.k ? WEAK_COLOR[r.k] : `${WEAK_COLOR[r.k]}66` }} /></span>
+                  <b className="text-right font-display text-[15px]" style={{ color: weak?.k === r.k ? WEAK_COLOR[r.k] : '#e5e7eb' }}>{r.v || '-'}</b>
+                </div>
+              ))}
+              {weak && buy && (
+                <div className="mt-cut mt-2 p-3.5" style={{ '--c': '12px', background: `${WEAK_COLOR[weak.k]}14`, boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}59` }}>
+                  <small className="font-display text-[11px] tracking-[0.18em]" style={{ color: WEAK_COLOR[weak.k] }}>WEAKEST</small>
+                  <p className="mb-2.5 mt-1.5 text-[13.5px] leading-relaxed text-gray-200">
+                    {WEAK_KO[weak.k]}이 가장 약해요. <b className="text-white">{buy.name}</b>{weak.worst ? <>{josa(buy.name, '을', '를')} <b className="text-white">{weak.worst.name}</b>에게 쓰면 좋아져요.</> : josa(buy.name, '으로', '로') + ' 올릴 수 있어요.'}
+                  </p>
+                  <Btn pri a="#fde047" className="w-full" style={cut(10)} onClick={onShop}>{buy.name} {buy.price} G 사러 가기 ▶</Btn>
+                </div>
+              )}
+              {!weak && <p className="text-sm text-gray-500">먼저 선수를 영입하세요.</p>}
+              <div className="mt-auto"><Btn lg a="#fde047" className="w-full" style={cut(12)} onClick={onShop}>상점 가기 ▶</Btn></div>
+            </>
+          );
+        })() : (
           <>
             <Hero img={`url(ui/mt/${it.img}.webp)`} name={it.name} color={n} h={130} pos="center" />
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
@@ -401,7 +461,7 @@ function ItemsTab({ team, itemId, target, onPick, onTarget, onUse }) {
   );
 }
 
-export default function LockerScreen({ account, onSave, onBack }) {
+export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [team, setTeam] = useState(account.team);
   const [tab, setTab] = useState('scout');
   const [q, setQ] = useState('');
@@ -664,7 +724,7 @@ export default function LockerScreen({ account, onSave, onBack }) {
         )}
 
         {tab === 'items' && (
-          <ItemsTab team={team} itemId={itemId} target={itemTarget} onPick={(id) => { const it = SHOP_ITEMS.find((x) => x.id === id); setItemId(id); setItemTarget((t) => (t && it && fitsItem(it, t) ? t : null)); }} onTarget={setItemTarget}
+          <ItemsTab team={team} gold={account.gold || 0} onShop={onShop} itemId={itemId} target={itemTarget} onPick={(id) => { const it = SHOP_ITEMS.find((x) => x.id === id); setItemId(id); setItemTarget((t) => (t && it && fitsItem(it, t) ? t : null)); }} onTarget={setItemTarget}
             onUse={(key, t, slot) => { commit(consumeItem(team, key, t, slot)); setItemTarget(null); }} />
         )}
 
