@@ -1537,10 +1537,18 @@ export const KEYFRAMES = `
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
-.dr-bar { display: flex; align-items: center; gap: 10px; padding: 3px 10px;
+/* 라이브: 한 판 두 층 */
+.dr-panel { display: grid; gap: 4px; padding: 5px 12px;
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.dr-top { display: flex; align-items: center; gap: 12px; }
+.dr-top .dr-toggle { margin-left: auto; }
+.dr-bar { display: flex; align-items: center; gap: 10px; }
 /* 가운데: 라운드와 샐러리 캡 잔여 */
+.dr-meta.inline { position: static; transform: none; padding: 0; gap: 10px; background: none; box-shadow: none; }
+.dr-meta.inline .dr-round b { font-size: 18px; }
+.dr-meta.inline .dr-ticks i { height: 10px; }
+.dr-meta.inline .dr-cap b { font-size: 14px; }
 .dr-meta { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 14px; padding: 4px 12px; transform: translate(-50%, -50%);
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
@@ -2449,7 +2457,7 @@ function SynergyPips({ s, after, named = false }) {
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
 /* 선반 머리 가운데: 라운드와 샐러리 캡 잔여 (칸 스물넷) */
-function DraftMeta({ round, cp, cap, capAfter }) {
+function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const pct = clamp01((preview ? capAfter : cp) / cap);
@@ -2457,7 +2465,7 @@ function DraftMeta({ round, cp, cap, capAfter }) {
   const now = Math.round(clamp01(cp / cap) * 24);
   const lit = preview ? Math.min(now, Math.round(pct * 24)) : now;
   return (
-    <div className="dr-meta">
+    <div className={`dr-meta ${inline ? "inline" : ""}`}>
       <span className="dr-round">
         <small>ROUND</small>
         <b>{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</b>
@@ -5970,7 +5978,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
@@ -5982,15 +5990,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         {SLOTS.find((s) => s.id === posFilter.slot)?.label} 자리 <span aria-hidden="true">✕</span>
                       </button>
                     )}
-                    <button type="button" className={live ? 'dr-toggle' : 'ser-sw'} aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
+                    {!live && <button type="button" className="ser-sw" aria-pressed={shelfFilter === 'all'} onClick={() => setShelfFilter((f) => {
                       const next = f === 'open' ? 'all' : 'open';
                       setReveal(next === 'all' ? 'in' : 'out');
                       clearTimeout(revealRef.current);
                       revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
                       return next;
                     })}>
-                      <span className="tr" aria-hidden="true" />{live ? `전체보기 ${shelfFilter === 'all' ? 'ON' : 'OFF'}` : '영입할 수 없는 선수도 보기'}
-                    </button>
+                      <span className="tr" aria-hidden="true" />영입할 수 없는 선수도 보기
+                    </button>}
                     {live ? null : (
                       <>
                     <span className="h-5 w-px bg-white/10" aria-hidden="true" />
@@ -6003,9 +6011,24 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     </button>
                       </>
                     )}
-                    {/* 라이브: 뽑는 순서 판 — 전체보기 토글 아래에 붙는다 */}
+                    {/* 라이브: 한 판 두 층 — 위층은 라운드 · 캡 · 전체보기, 아래층은 뽑는 순서와 조작 */}
                     {live && (
-                      <span className="dr-bar">
+                      <span className="dr-panel">
+                        <span className="dr-top">
+                          <DraftMeta inline round={round} cp={cp} cap={match.cap}
+                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+                          <button type="button" className="dr-toggle" aria-pressed={shelfFilter === 'all'}
+                            onClick={() => setShelfFilter((f) => {
+                              const next = f === 'open' ? 'all' : 'open';
+                              setReveal(next === 'all' ? 'in' : 'out');
+                              clearTimeout(revealRef.current);
+                              revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
+                              return next;
+                            })}>
+                            <span className="tr" aria-hidden="true" />전체보기 {shelfFilter === 'all' ? 'ON' : 'OFF'}
+                          </button>
+                        </span>
+                        <span className="dr-bar">
                         <TurnOrder live={live} clock={clock} />
                         {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
                         <i className="dr-div" aria-hidden="true" />
@@ -6016,6 +6039,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         </span>
                         <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
                           title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
+                        </span>
                       </span>
                     )}
                   </div>
