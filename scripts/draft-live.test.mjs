@@ -126,3 +126,26 @@ test('구단마다 드래프트 플랜대로 팀 모양이 달라진다', async 
   expect(planTarget([], c0.trait)).toBe(TRAITS[c0.trait].plan[0]);
   s.clubs.forEach((c) => expect(c.roster.length).toBeGreaterThanOrEqual(ROSTER_SIZE - 3));
 });
+
+test('구단 급이 강호 → 약체 순으로 전력 차이를 만든다', async () => {
+  const { GRADES, clubStrength, ladder, myIndex } = await import('../src/draft/live.js');
+  const by = {};
+  for (let n = 0; n < 12; n++) {
+    const s = play(seeded(500 + n * 7));
+    s.clubs.forEach((c, i) => { if (!c.me) (by[c.grade] ||= []).push(clubStrength(s, i)); });
+  }
+  const avg = (a) => a.reduce((t, x) => t + x, 0) / a.length;
+  const g = Object.fromEntries(Object.keys(GRADES).map((k) => [k, avg(by[k])]));
+  // 급대로 전력이 줄어든다 — 도장깨기에서 뒤로 갈수록 어려워지는 근거
+  expect(g.ace).toBeGreaterThan(g.solid);
+  expect(g.solid).toBeGreaterThan(g.plain);
+  expect(g.plain).toBeGreaterThan(g.weak);
+  expect(g.ace - g.weak).toBeGreaterThan(2);   // 체감될 만큼은 벌어진다
+  // 사다리: 나를 뺀 일곱 구단이 약한 순서로 늘어선다
+  const s = play(seeded(77));
+  const rung = ladder(s);
+  expect(rung).toHaveLength(7);
+  expect(rung.map((x) => x.club)).not.toContain(myIndex(s));
+  expect([...rung].sort((a, b) => a.strength - b.strength)).toEqual(rung);
+  expect(rung.map((x) => x.step)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+});

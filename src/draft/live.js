@@ -39,6 +39,22 @@ export const TRAITS = {
     plan: ['SP', 'OF', 'C', 'SP', 'SS', 'RP', '1B', 'OF', '3B', 'RP', '2B', 'SP', 'OF', 'RP', 'SP', 'DH', 'RP', 'C', 'SS', '1B'],
     score: () => 0 },
 };
+/**
+ * 구단 급 — 같은 성향이라도 얼마나 야무지게 뽑는지가 다르다. 도장깨기에서 약한 구단부터 만나게 하는 축이다.
+ *  reserve: 남은 자리 하나에 남겨 두는 CP (적을수록 초반에 특급을 지른다)
+ *  plan:    플랜에 적힌 자리를 얼마나 고집하는지 (낮을수록 자리보다 좋은 선수를 집는다)
+ *  spread:  1등과 이만큼 안쪽이면 그중에서 아무나 (넓을수록 헛발질이 잦다)
+ */
+export const GRADES = {
+  ace:   { ko: '강호', reserve: 42, plan: 10, spread: 1 },  // 좋은 선수를 먼저, 돈도 과감히
+  solid: { ko: '탄탄', reserve: 48, plan: 18, spread: 3 },
+  plain: { ko: '평범', reserve: 52, plan: 22, spread: 5 },
+  weak:  { ko: '약체', reserve: 60, plan: 26, spread: 9 },  // 플랜만 고집하다 돈을 남긴다
+};
+/** 상대 일곱 구단에 돌릴 급 — 강호 하나 · 탄탄 둘 · 평범 둘 · 약체 둘 */
+const GRADE_ORDER = ['ace', 'solid', 'solid', 'plain', 'plain', 'weak', 'weak'];
+export const gradeOf = (club) => GRADES[club?.grade] || GRADES.plain;
+
 /** 이 구단이 이번 차례에 노리는 자리 — 플랜에서 아직 못 채운 자리를 앞에서부터 찾는다 */
 export function planTarget(roster, trait) {
   const plan = (TRAITS[trait] || TRAITS.balance).plan || [];
@@ -94,7 +110,7 @@ export function clubAt(pick, order) {
 export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
   // 상대 일곱 구단은 실제 구단 중에서 판마다 새로 뽑는다
   const rivals = shuffle(CLUB_POOL, rng).slice(0, CLUB_COUNT - 1)
-    .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i] }));
+    .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i], grade: GRADE_ORDER[i] }));
   const clubs = [
     // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
     { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, emblem: myEmblem, me: true },
@@ -174,8 +190,9 @@ export function scoreFor(s, player, club = currentClub(s)) {
   const late = ROSTER_SIZE - c.roster.length <= 6;
   const need = openFieldSlots(c.roster).some((x) => x.pos === player.position) ? (late ? 26 : 8) : 0;
   const target = planTarget(c.roster, c.trait);
-  const onPlan = target && player.position === target ? (late ? 6 : 22) : 0;           // 이번 차례에 노리던 자리
-  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 55;    // 남은 자리 몫을 남긴 상한
+  const g = gradeOf(c);
+  const onPlan = target && player.position === target ? (late ? 6 : g.plan) : 0;      // 이번 차례에 노리던 자리
+  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * (g.reserve - 6); // 남은 자리 몫을 남긴 상한
   const afford = player.cost > room ? -25 : 0;
   return player.overall + need + onPlan + afford + trait.score(player);
 }
@@ -184,9 +201,10 @@ export function scoreFor(s, player, club = currentClub(s)) {
 export function autoPick(s, club = currentClub(s), rng = Math.random) {
   const all = pickable(s, club);
   if (!all.length) return null;
-  // 남은 자리를 채울 몫(자리당 58 CP)은 남겨 둔다 — 앞에서 다 써 버리면 뒤에서 한 명도 못 뽑는다
+  // 남은 자리를 채울 몫은 남겨 둔다 — 앞에서 다 써 버리면 뒤에서 한 명도 못 뽑는다. 얼마를 남기는지는 급마다 다르다
   const c = s.clubs[club];
-  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * 58;
+  const g = gradeOf(c);
+  const room = c.cp - (ROSTER_SIZE - c.roster.length - 1) * g.reserve;
   const afford = all.filter((p) => p.cost <= room);
   // 그 안에 아무도 없으면 가장 싼 선수 하나만 후보로 둔다 (비싼 선수를 질러 뒤를 비우지 않게)
   const budget = afford.length ? afford : [all.reduce((m, p) => (p.cost < m.cost ? p : m), all[0])];
@@ -195,8 +213,8 @@ export function autoPick(s, club = currentClub(s), rng = Math.random) {
   const starters = budget.filter((p) => open.some((x) => x.pos === p.position));
   const list = starters.length ? starters : budget;
   const ranked = list.map((p) => ({ p, v: scoreFor(s, p, club) })).sort((a, b) => b.v - a.v);
-  // 플랜대로 뽑되, 점수가 엇비슷한(3점 이내) 선수끼리만 갈린다 — 같은 구단은 늘 그 구단답게 고른다
-  const close = ranked.filter((x) => x.v >= ranked[0].v - 3);
+  // 플랜대로 뽑되, 점수가 엇비슷한 선수끼리만 갈린다 — 급이 낮을수록 그 폭이 넓어 엉뚱한 선택이 섞인다
+  const close = ranked.filter((x) => x.v >= ranked[0].v - g.spread);
   return close[Math.floor(rng() * close.length)].p;
 }
 
@@ -229,6 +247,27 @@ export function stepAi(s, rng = Math.random) {
 /** 판이 끝난 뒤 쓸 구단별 결과 */
 export const rosterOf = (s, club) => s.clubs[club].roster;
 export const myRoster = (s) => rosterOf(s, myIndex(s));
+/**
+ * 구단 전력 — 주전 자리에 앉은 선수의 평균. 빈 자리는 퓨처스가 들어가므로 60 으로 친다.
+ * 예비까지 넣은 평균보다 실제 경기력과 가깝다
+ */
+export function clubStrength(s, club) {
+  const by = {};
+  s.clubs[club].roster.forEach((p) => { if (p.slot) by[p.slot] = p; });
+  const v = FIELD_SLOTS.map((x) => (by[x.id] ? by[x.id].overall : 60));
+  return v.reduce((t, x) => t + x, 0) / v.length;
+}
+
+/** 도장깨기 사다리 — 나를 뺀 구단을 약한 순서로. 앞에서부터 차례로 만난다 */
+export function ladder(s) {
+  const me = myIndex(s);
+  return s.clubs
+    .map((c, i) => ({ club: i, strength: clubStrength(s, i) }))
+    .filter((x) => x.club !== me)
+    .sort((a, b) => a.strength - b.strength)
+    .map((x, i) => ({ ...x, step: i }));
+}
+
 /** 나를 뺀 구단 중 전력이 가장 가까운 상대 (정비 → 경기로 넘길 때) */
 export function opponentOf(s) {
   const me = myIndex(s);
