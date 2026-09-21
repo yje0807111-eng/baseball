@@ -10,7 +10,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
-import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
+import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
@@ -310,7 +310,6 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
   );
 }
 
-const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
 const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */

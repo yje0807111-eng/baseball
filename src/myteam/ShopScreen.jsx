@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets, teamWeakness, WEAK_KO } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, itemArt, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Hero, KV, Portrait } from './ui.jsx';
 
@@ -101,7 +101,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 <span className="absolute left-2.5 top-2 font-display text-[11px] tracking-[0.2em] text-[#fde047]">추천 상품</span>
                 <span className="absolute inset-x-2.5 bottom-2.5">
                   <b className="block truncate text-[15px] font-black text-white">{item.name}</b>
-                  <small className="mb-1.5 block truncate text-[11px] text-gray-400">{WEAK_KO[weak.k]}이 가장 약해요</small>
+                  <small className="mb-1.5 block truncate text-[11px]" style={{ color: c }}>{STAT_KO[item.stat] || item.name} +{item.amount}</small>
                   <Btn pri a="#fde047" className="w-full" style={cut(8)} disabled={item.price > gold} onClick={() => { setPicked(item); buy(item); }}>{item.price.toLocaleString()} G 구매하기</Btn>
                 </span>
               </div>
@@ -112,7 +112,6 @@ export default function ShopScreen({ account, onChange, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': '#fde047' }}>Shop</p>
-            <p className="text-sm text-gray-400">오늘의 상품 {items.length}개 · 매일 09시 갱신</p>
           </div>
           <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-5 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
             {items.map((it) => <ItemCard key={it.id} it={it} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}

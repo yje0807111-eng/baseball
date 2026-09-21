@@ -44,6 +44,8 @@ export const SHOP_ITEMS = [
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
 export const itemArt = (it) => `ui/shop/${it.id}.webp`;
 
+export const STAT_KO = { power: '파워', contact: '컨택', speed: '주루', control: '제구', stuff: '구위', stamina: '체력' };
+
 /* 팀에서 가장 약한 묶음과, 그걸 올려 주는 상품 한 가지 (라커 아이템 탭 · 상점 사이드 공용) */
 export const WEAK_KO = { bat: '타선', sp: '선발', rp: '불펜' };
 export const WEAK_COLOR = { bat: '#34d399', sp: '#60a5fa', rp: '#f87171' };
