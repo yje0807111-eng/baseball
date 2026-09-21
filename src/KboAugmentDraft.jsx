@@ -5679,6 +5679,23 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   /* 도장깨기: 지금 칠 칸(내 바로 윗 칸)의 구단과 경기를 연다 */
   const inGauntlet = !!gaunt && !gaunt.done && !!Gaunt.currentRung(gaunt);
+  /** 정비 왼쪽 스카우팅 판에 넣을 상대 — 이름 · 엠블럼 · 선발 · 타순까지 */
+  const gauntOpponent = () => {
+    const r = Gaunt.currentRung(gaunt);
+    if (!r) return null;
+    const full = fillRoster(r.roster);
+    const by = {};
+    full.forEach((pl) => { if (pl.slot) by[pl.slot] = pl; });
+    const batSlots = FIELD_SLOTS.filter((x) => !PITCH_SLOTS.includes(x.id)).map((x) => x.id);
+    return {
+      name: r.name,
+      color: r.color,
+      emblem: r.key ? Live.emblemOf(r.key) : Live.bannerEmblem(myBanner()),
+      roster: full,
+      starter: by.SP || null,
+      batters: batSlots.map((id) => by[id]).filter(Boolean),
+    };
+  };
   const startGauntletMatch = () => {
     const r = Gaunt.currentRung(gaunt);
     startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
@@ -6066,7 +6083,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
           {phase === 'ready' && (
             <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
-              opponent={inGauntlet ? Gaunt.currentRung(gaunt).roster : null}
+              opponent={inGauntlet ? gauntOpponent() : null}
               startLabel={inGauntlet ? '경기 시작 ▶' : '시즌 시작 ▶'}
               restartLabel={inGauntlet ? '탑으로 ◀' : '다시 드래프트'}
               onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
