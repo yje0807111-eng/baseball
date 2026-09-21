@@ -212,7 +212,6 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   /* ── 끌어서 바꾸기: 카드는 마우스를 따라가지 않고 가리킨 칸으로 옮겨진 모습만 보여 준다. 놓으면 저장 ── */
   const [drag, setDrag] = useState(null); // 줄: { list, id, from, to } · 구장: { list: 'field', id, target }
   const dragRef = useRef(null);
-  const [settle, setSettle] = useState(null); // 놓은 카드가 새 자리로 들어가는 첫 프레임의 밀림 { id, dx, dy }
   const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
   const swapSlots = (rows, a, b) => {
     const sa = rows.find((x) => x.id === a)?.slot;
@@ -273,7 +272,6 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         const hit = d.cards.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
         const target = hit ? hit.id : null;
         d.target = target;
-        d.last = { dx: e.clientX - d.x0, dy: e.clientY - d.y0 };
         // 끌리는 카드는 포인터를 그대로 따라간다
         setDrag({ list: 'field', id: d.id, target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
         return;
@@ -291,20 +289,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       const { order: o, save: sv, onSelect: pick } = latest.current;
       if (!d.moved) { setDrag(null); pick(d.p); return; }
       if (d.list === 'bench') { if (d.target) latest.current.benchSwap(d.id, d.target); setDrag(null); return; }
-      if (d.list === 'field') {
-        if (d.target) {
-          // 놓은 자리에서 새 자리로 미끄러져 들어가게: 새 자리 기준으로 지금 보이는 위치만큼 밀어 둔 채 그리고, 다음 프레임에 0 으로
-          const box = fieldRef.current?.getBoundingClientRect();
-          const from = o.lineup.find((x) => x.id === d.id)?.slot;
-          const to = o.lineup.find((x) => x.id === d.target)?.slot;
-          if (box && from && to && d.last) {
-            const px = (slot, k) => (XY[slot][k] / 100) * (k ? box.height : box.width);
-            setSettle({ id: d.id, dx: px(from, 0) + d.last.dx - px(to, 0), dy: px(from, 1) + d.last.dy - px(to, 1) });
-            requestAnimationFrame(() => requestAnimationFrame(() => setSettle(null)));
-          }
-          sv({ lineup: swapSlots(o.lineup, d.id, d.target) });
-        }
-      }
+      if (d.list === 'field') { if (d.target) sv({ lineup: swapSlots(o.lineup, d.id, d.target) }); }
       else if (d.to !== d.from) sv({ [d.list]: move(o[d.list], d.from, d.to) });
       setDrag(null);
     };
@@ -448,16 +433,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     const r = seasonRecord(x.p);
     const ring = dragging ? '#e5e7eb' : target ? posColor(x.p) : benchHit(x.id) ? '#34d399' : on ? tone(x.p.overall) : null;
     // 끌리는 카드는 원래 자리에서 포인터만큼 · 방금 놓은 카드는 새 자리에서 밀린 만큼 (다음 프레임에 제자리로 미끄러짐) · 나머지는 자리 바뀌면 미끄러짐
-    const posSlot = dragging ? slotNow.get(x.id) || x.slot : x.slot;
-    const settling = settle?.id === x.id;
-    const off = dragging ? [drag.dx || 0, drag.dy || 0] : settling ? [settle.dx, settle.dy] : [0, 0];
+    const snapped = dragging && !!drag.target; // 자석: 놓을 자리에 붙어 있는 중
+    const posSlot = dragging ? (snapped ? slotNow.get(drag.target) : slotNow.get(x.id)) || x.slot : x.slot;
+    const off = dragging && !snapped ? [drag.dx || 0, drag.dy || 0] : [0, 0];
     const glow = ring ? `drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 1.5px ${ring}) drop-shadow(0 0 8px ${ring})` : 'drop-shadow(0 6px 10px rgba(0,0,0,.7))';
     return (
       <div key={x.id} data-token={x.id} role="button" tabIndex={0} {...tokenDrag(x.id, x.p)}
         className={`absolute touch-none select-none ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ left: `${XY[posSlot][0]}%`, top: `${XY[posSlot][1]}%`, zIndex: dragging || settling ? 5 : undefined,
+        style={{ left: `${XY[posSlot][0]}%`, top: `${XY[posSlot][1]}%`, zIndex: dragging ? 5 : undefined,
           transform: `translate(calc(-50% + ${off[0]}px),calc(-50% + ${off[1]}px))${dragging ? ' scale(1.06)' : ''}`,
-          transition: dragging || settling ? 'none' : 'left .28s cubic-bezier(.2,.8,.2,1), top .28s cubic-bezier(.2,.8,.2,1), transform .28s cubic-bezier(.2,.8,.2,1)',
+          transition: dragging && !snapped ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), top .16s cubic-bezier(.2,.8,.2,1), transform .16s cubic-bezier(.2,.8,.2,1)',
           filter: glow, ...inFx(x.id) }}>
         <Lower p={x.p} c={teamNeon(x.p)} sub={`${shownSlot} · AVG ${r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}`}
           ovr={previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={16} />} />
@@ -465,6 +450,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     );
   };
 
+  /* 야수 카드를 끄는 중(구장 카드 끌기 · 벤치 타자 끌기) — 투수 자리는 바꿀 수 없어 회색으로 보여 준다 */
+  const movingFielder = drag?.list === 'field' || (drag?.list === 'bench' && byId.get(drag.id)?.type === 'batter');
   const lineupRows = order.lineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
   const rotation = order.rotation.map((id) => byId.get(id)).filter(Boolean);
   const bullpen = order.bullpen.map((id) => byId.get(id)).filter(Boolean);
@@ -503,8 +490,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
               {nextStarter && (() => {
                 const r = seasonRecord(nextStarter);
                 return (
-                  <div role="button" tabIndex={0} onClick={() => pickOrFire(nextStarter)} className="absolute cursor-pointer"
-                    style={{ left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)', filter: `drop-shadow(0 0 1.5px ${ROLE.SP}) drop-shadow(0 0 8px ${ROLE.SP}88)` }}>
+                  <div role="button" tabIndex={0} onClick={() => pickOrFire(nextStarter)} className="absolute cursor-pointer transition-[filter,opacity] duration-200"
+                    style={{ left: `${XY.P[0]}%`, top: `${XY.P[1]}%`, transform: 'translate(-50%,-50%)',
+                      /* 야수를 끄는 동안에는 바꿀 수 없는 자리라 회색으로 */
+                      opacity: movingFielder ? 0.45 : 1,
+                      filter: movingFielder ? 'grayscale(1) brightness(.7)' : `drop-shadow(0 0 1.5px ${ROLE.SP}) drop-shadow(0 0 8px ${ROLE.SP}88)` }}>
                     <Lower p={nextStarter} c={ROLE.SP} ovr={<Ovr p={nextStarter} size={16} />}
                       sub={`SP · ERA ${r.era != null ? r.era.toFixed(2) : '-'}${r.k != null ? ` · ${r.k}K` : ''}`} />
                   </div>
