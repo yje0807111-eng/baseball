@@ -37,14 +37,12 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
 }
 
 /** 오늘의 경기장: 모드 카드 넷 — 사진 · 이름 · 한 줄 */
-function MatchDay({ account, onPlay }) {
-  const rk = rankOf(account.rank?.rp || 0);
-  const season = account.ranked?.season;
+function MatchDay({ onPlay }) {
   const modes = [
-    { tab: 'duel', name: '일반 대결', sub: '단판 · 16 · 32 · 64강', c: '#10b981', img: 'ui/broadcast-field.webp' },
-    { tab: 'ranked', name: '랭크전', sub: `${rk.tier.ko} ${rk.div}${season ? ` · 시즌 ${season}` : ''}`, c: '#a78bfa', img: 'ui/stadium.webp' },
-    { tab: 'mix', name: '드래프트', sub: '전체 믹스 · 최근 · 연도별', c: '#38e1ff', img: 'modes/mix.webp' },
-    { tab: 'special', name: '특별 모드', sub: '레전드 · 왕조 · 태극마크', c: '#fbbf24', img: 'modes/legend.webp' },
+    { tab: 'duel', name: '일반 대결', sub: '단판 · 토너먼트', c: '#10b981', img: 'ui/broadcast-field.webp' },
+    { tab: 'ranked', name: '랭크전', sub: '정규시즌 · 등급', c: '#a78bfa', img: 'ui/stadium.webp' },
+    { tab: 'mix', name: '드래프트', sub: '특정 시즌 · 전체 믹스', c: '#38e1ff', img: 'modes/mix.webp' },
+    { tab: 'special', name: '특별 모드', sub: '규칙이 다른 세 모드', c: '#fbbf24', img: 'modes/legend.webp' },
   ];
   return (
     <section className="mt-cut mt-frame relative overflow-hidden" style={{ '--c': '20px', '--a': '#10b981', gridColumn: '1 / span 2', gridRow: '1 / span 2',
@@ -196,7 +194,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridTemplateRows: 'minmax(0,1fr) minmax(0,1fr) minmax(0,0.62fr)' }}>
 
         {/* 경기 — 가장 큰 타일: 제목 · 플레이 버튼 + 모드 사진 카드 넷(누르면 그 모드 탭으로) */}
-        <MatchDay account={account} onPlay={onPlay} />
+        <MatchDay onPlay={onPlay} />
 
         <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="My Locker" title="내 라커"
           desc={`${squad.length}/${SQUAD_SIZE} · 남은 ${(cap - cost).toLocaleString()} CP`} onClick={onLocker} />
