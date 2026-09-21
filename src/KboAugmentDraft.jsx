@@ -1753,17 +1753,6 @@ export const KEYFRAMES = `
 .mt-tabs button.on { color: #fff; }
 .mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
 .mt-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
-/* 라이브 드래프트: 보는 구단 고르개 (한 줄 — 뽑는 순번대로 좌우로 넘긴다) */
-.mt-club { flex: none; display: grid; grid-template-columns: 26px minmax(0,1fr) 26px; align-items: center; gap: 4px; padding: 5px 4px;
-  clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), rgba(255,255,255,.04));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 40%, transparent); }
-.mt-club button { font-size: 16px; line-height: 1; color: #9ca3af; transition: color .15s; }
-.mt-club button:hover { color: #fff; }
-.mt-club > span { min-width: 0; text-align: center; }
-.mt-club b { display: block; font-size: 13.5px; font-weight: 800; color: #fff; }
-.mt-club small { display: block; font-size: 10.5px; color: #9ca3af; }
-.mt-club em { font-style: normal; color: var(--a); }
 .mt-team { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
 .mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
 .mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -2923,17 +2912,8 @@ REC_COLS.bench = REC_COLS.bat;
 const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '예비', BENCH_SLOTS.map((b) => b.id)]];
 const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
 
-function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap, live }) {
+function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
   const [tab, setTab] = useState('team');
-  const [sel, setSel] = useState(null); // 라이브: 내가 고른 구단 (null 이면 지금 뽑는 차례를 따라간다)
-  const me = live ? Live.myIndex(live) : -1;
-  const myTurn = live ? Live.isMyTurn(live) : true;
-  useEffect(() => { if (myTurn) setSel(null); }, [myTurn]); // 내 차례가 오면 내 구단으로 돌아온다
-  const shown = live ? (sel ?? (myTurn ? me : Live.currentClub(live))) : -1;
-  const club = live ? live.clubs[shown] : null;
-  const view = club ? club.roster : roster;
-  const at = live ? live.order.indexOf(shown) + 1 : 0; // 이 구단의 뽑는 순번
-  const move = (d) => setSel(() => { const i = live.order.indexOf(shown); return live.order[(i + d + live.order.length) % live.order.length]; });
   return (
     <div className="mt-panel">
       <div className="mt-tabs" role="tablist">
@@ -2941,22 +2921,8 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap, live }) {
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
         ))}
       </div>
-      {club && (
-        /* 보는 구단 고르개: 뽑는 순번대로 넘긴다 */
-        <div className="mt-club" style={{ '--a': club.color }}>
-          <button type="button" onClick={() => move(-1)} aria-label="앞 순번 구단">‹</button>
-          <span>
-            <b>{club.name}{club.me && ' (나)'}</b>
-            <small>{at}번 · {club.me ? '내 구단' : Live.TRAITS[club.trait]?.ko}
-              {shown === Live.currentClub(live) && <em> · 지금 차례</em>}
-              {' · '}{club.roster.length}/{ROSTER_SIZE} · {club.cp} CP
-            </small>
-          </span>
-          <button type="button" onClick={() => move(1)} aria-label="다음 순번 구단">›</button>
-        </div>
-      )}
       <div className="mt-body" role="tabpanel">
-        {tab === 'team' ? <TeamReport roster={view} mode={mode} cap={cap} /> : <RecordCards roster={view} selectedSlot={club && !club.me ? null : selectedSlot} onTap={club && !club.me ? undefined : onTap} />}
+        {tab === 'team' ? <TeamReport roster={roster} mode={mode} cap={cap} /> : <RecordCards roster={roster} selectedSlot={selectedSlot} onTap={onTap} />}
       </div>
     </div>
   );
@@ -6077,7 +6043,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
                   <span className="bc-label font-display">MY TEAM</span>
-                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap} live={live}
+                  <MyTeamPanel roster={roster} mode={mode} cap={match.cap}
                     selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
                     onTap={(slot) => lineupTapRef.current?.(slot)} />
                 </div>
