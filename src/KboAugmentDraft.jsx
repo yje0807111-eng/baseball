@@ -5406,6 +5406,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [liveSpeed, setLiveSpeed] = useState(1); // 라이브 진행 배속 (1 · 2 · 4)
   const liveMine = live ? Live.myIndex(live) : -1;
   const myTurn = !live || Live.isMyTurn(live);
+  /* 방금 지명된 카드가 엠블럼에 덮여 있는 동안에는 순서 띠가 그 구단에 머문다(바퀴가 넘어갔으면 예외).
+     선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
+  const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick) === Live.lapOf(Math.max(0, live.pick - 1));
+  const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
@@ -5977,7 +5981,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
-              <div className={`bc-grp lg:!px-1.5 ${live && myTurn ? 'myturn' : ''}`}
+              <div className={`bc-grp lg:!px-1.5 ${live && myTurnLit ? 'myturn' : ''}`}
                 style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color } : {}) } : undefined}>
                 <span className="bc-label font-display">SERIES</span>
               {series && (
@@ -6035,7 +6039,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                           </button>
                         </span>
                         <span className="dr-bar">
-                        <TurnOrder live={live} clock={clock} hold={gone.size > 0} />
+                        <TurnOrder live={live} clock={clock} hold={holdTurn} />
                         {/* 진행 속도와 건너뛰기 — 같은 판 안, 가는 선으로만 나눈다 */}
                         <i className="dr-div" aria-hidden="true" />
                         <span className="dr-sp" role="group" aria-label="진행 배속">
@@ -6066,7 +6070,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     style={reveal && hideTarget(p) ? { animationDelay: `${i * 16}ms` } : undefined}>
                   {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
                   {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
-                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurn && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
+                  <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurnLit && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
                     hint={lockOf(p) ? null : hintFor(p)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
@@ -6107,7 +6111,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       ) : null}
                     </div>
                   </div>
-                  {live && !myTurn ? (
+                  {live && !myTurnLit ? (
                     /* 라이브: 내 차례가 아니면 이 자리는 비워 둔다 (누구 차례인지는 위 순서 띠가 말한다) */
                     <div className="pk-ghostbtn" aria-hidden="true" />
                   ) : picked ? (
