@@ -4478,9 +4478,9 @@ function DuelCard({ player, label }) {
   );
 }
 
-function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart, onBack }) {
+function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart, onBack, startLabel = '경기 시작 ▶', oppName = 'AI 올스타' }) {
   const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
-  const opp = useMemo(() => buildTeam('AI 올스타', fillRoster(oppRoster), oppBuff), [oppRoster, oppBuff]);
+  const opp = useMemo(() => buildTeam(oppName, fillRoster(oppRoster), oppBuff), [oppRoster, oppBuff, oppName]);
   const pct = Math.round(winChance(my, opp) * 100);
   const avg = (xs) => (xs.length ? Math.round(xs.reduce((t, p) => t + p.overall, 0) / xs.length) : 0);
   const teamTile = (team, name, acc, mine) => (
@@ -4571,7 +4571,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
             </div>
           ))}
         </div>
-        <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>경기 시작 ▶</button>
+        <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>{startLabel}</button>
       </aside>
     </section>
   );
@@ -5293,8 +5293,14 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const g = live ? Gaunt.makeGauntlet(live) : null;   // 라이브 판이었으면 여덟 구단으로 도장깨기 탑을 세운다
     if (g) setGaunt(g);
     setRoster(filled); setSeries(null); setPicked(null);
-    // 도장깨기는 상대를 먼저 정한다 — 증강과 정비는 경기 시작을 누른 뒤에 온다
+    // 상대를 먼저 정한다 — 증강과 정비는 그 뒤에. 베이직은 탑, 스페셜은 매치업 화면
     if (g) { prepareMatch(false, g); return; }
+    if (!tourMode) {
+      const opp = isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap });
+      setOpponent(opp);
+      setPhase('matchup');
+      return;
+    }
     setPhase('ready');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
@@ -5621,7 +5627,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setAugments(owned);
       setAugPicksLeft(left);
       setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
-      if (left <= 0) { if (gaunt && !gaunt.done) gauntletGo(owned); else prepareMatch(false); } // 마지막 증강을 고르면 경기로
+      if (left <= 0) {                                   // 마지막 증강을 고르면 경기로
+        if (gaunt && !gaunt.done) gauntletGo(owned);
+        else if (!live && !tourMode && opponent) startGame(true, owned.slice(0, match.aug));
+        else prepareMatch(false);
+      }
       return;
     }
     const s = option.apply({ cp, rerolls, buff });
@@ -5727,6 +5737,26 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   /* 도장깨기: 지금 칠 칸(내 바로 윗 칸)의 구단과 경기를 연다 */
   const inGauntlet = !!gaunt && !gaunt.done && !!Gaunt.currentRung(gaunt);
+  /** 로스터 하나를 정비 왼쪽 스카우팅 판이 읽는 모양으로 */
+  const scoutOf = ({ roster: ros, name, color, emblem }) => {
+    const full = fillRoster(ros);
+    const by = {};
+    full.forEach((pl) => { if (pl.slot) by[pl.slot] = pl; });
+    const batSlots = FIELD_SLOTS.filter((x) => !PITCH_SLOTS.includes(x.id)).map((x) => x.id);
+    return { name, color, emblem, roster: full, starter: by.SP || null, batters: batSlots.map((id) => by[id]).filter(Boolean) };
+  };
+  /** 스페셜: 지금 붙을 AI 팀 */
+  const specialOpponent = () => (opponent ? scoutOf({
+    roster: opponent,
+    name: isNoCap(match.cap) ? `${rosterOrigin(opponent)} 연합` : 'AI 올스타',
+    color: '#f87171',
+    emblem: Live.bannerEmblem('legend'),
+  }) : null);
+  /** 스페셜: 정비에서 누르는 경기 시작 — 증강을 아직 안 골랐으면 먼저 고른다 */
+  const startSpecialMatch = () => {
+    if (augments.length < match.aug) { openAugmentPicks(); return; }
+    startGame(true, augments.slice(0, match.aug));
+  };
   /** 정비 왼쪽 스카우팅 판에 넣을 상대 — 이름 · 엠블럼 · 선발 · 타순까지 */
   const gauntOpponent = () => {
     const r = Gaunt.currentRung(gaunt);
@@ -6136,19 +6166,24 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             </section>
           )}
 
-          {phase === 'ready' && (
-            <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
-              opponent={inGauntlet ? gauntOpponent() : null}
-              startLabel={inGauntlet ? '경기 시작 ▶' : '시즌 시작 ▶'}
-              restartLabel={inGauntlet ? '탑으로 ◀' : '다시 드래프트'}
-              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
-              onStart={inGauntlet ? startGauntletMatch : startSeason}
-              onRestart={inGauntlet ? () => setPhase('gauntlet') : newDraft} />
-          )}
+          {phase === 'ready' && (() => {
+            const special = !live && !tourMode && !!opponent;   // 스페셜: 상대를 이미 알고 정비에 왔다
+            return (
+              <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
+                opponent={inGauntlet ? gauntOpponent() : special ? specialOpponent() : null}
+                startLabel={inGauntlet || special ? '경기 시작 ▶' : '시즌 시작 ▶'}
+                restartLabel={inGauntlet ? '탑으로 ◀' : special ? '상대 다시 보기 ◀' : '다시 드래프트'}
+                onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
+                onStart={inGauntlet ? startGauntletMatch : special ? startSpecialMatch : startSeason}
+                onRestart={inGauntlet ? () => setPhase('gauntlet') : special ? () => setPhase('matchup') : newDraft} />
+            );
+          })()}
 
           {phase === 'matchup' && opponent && (
             <MatchupScreen roster={roster} oppRoster={opponent} buff={buff} oppBuff={AI_BUFF[match.ai]} augments={augments}
-              onStart={() => startGame(true)} onBack={() => setPhase('ready')} />
+              startLabel="정비하기 ▶" oppName={isNoCap(match.cap) ? `${rosterOrigin(opponent)} 연합` : 'AI 올스타'}
+              onStart={() => setPhase('ready')}
+              onBack={() => setOpponent(isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap }))} />
           )}
 
           {(phase === 'sim' || phase === 'result') && (
