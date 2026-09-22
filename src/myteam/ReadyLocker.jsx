@@ -197,7 +197,7 @@ const Delta = ({ v }) => (
 );
 
 /** 오른쪽 — 정비: 합계 셋 · 팀 요약 · 투수 휴식 · 버튼 */
-function TunePanel({ sums, deltas, team, rest, autoFilled, onAutoLineup, onReset, onStart, onRestart, startLabel, restartLabel }) {
+function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel }) {
   const TOT = [['타자', sums.bat, deltas.bat, A.bat], ['수비', sums.def, deltas.def, A.def], ['투수', sums.pit, deltas.pit, A.pit]];
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
@@ -234,9 +234,6 @@ function TunePanel({ sums, deltas, team, rest, autoFilled, onAutoLineup, onReset
         </div>
       )}
       <div className="mt-auto flex flex-col gap-2">
-        <Btn style={cut(10)} onClick={onAutoLineup}>자동 라인업</Btn>
-        <Btn style={cut(10)} onClick={onReset}>처음 배치로</Btn>
-        <Btn style={cut(10)} onClick={onRestart}>{restartLabel}</Btn>
         <Btn lg pri a={A.main} style={{ ...cut(12), minHeight: '3.4rem' }} onClick={onStart}>{startLabel}</Btn>
       </div>
     </aside>
@@ -263,8 +260,7 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots footer={<SynergyDockMini synergies={synergies} />} />
 
       <TunePanel sums={sums} deltas={deltas} team={teamInfo} rest={rest} autoFilled={autoFilled}
-        onAutoLineup={onAutoLineup} onReset={onReset} onStart={onStart} onRestart={onRestart}
-        startLabel={startLabel} restartLabel={restartLabel} />
+        onStart={onStart} startLabel={startLabel} />
     </div>
   );
 }
