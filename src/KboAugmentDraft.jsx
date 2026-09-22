@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
-import { flagByKey } from './myteam/teamArt.js';
+import { flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
@@ -4754,9 +4754,18 @@ function YearHero({ mode, acc }) {
   const starArt = useArt(star);
   const rest = list.filter((x) => x !== hero);
   // 우승이 아직 없고 그 해 순위만 있으면 진행 중인 시즌
+  const flag = teamFlag(hero?.title || ''); // 그 해 주인공 구단의 깃발 · 색 (배경으로 은은하게)
   const live = !!hero && !hero.champion && (rankOfSeries(hero) < 99 || /진행/.test(hero.subtitle || ''));
   return (
-    <div className="mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 420px' }}>
+    <>
+      {/* 그 해 주인공 구단의 깃발과 색을 아주 옅게 깔아 준다 */}
+      {flag && (
+        <>
+          <span className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.16 }} />
+          <span className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(75% 95% at 12% 70%, ${flag.color}26, transparent 70%), linear-gradient(90deg,rgba(5,8,15,.92) 18%, rgba(5,8,15,.6))` }} />
+        </>
+      )}
+    <div className="relative mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 420px' }}>
       <div className="flex flex-col justify-end pb-6 pl-1">
         <span className="flex items-center gap-2">
           {hero?.champion && (
@@ -4783,6 +4792,7 @@ function YearHero({ mode, acc }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
 function YearMini({ s }) {
@@ -4919,7 +4929,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         </nav>
 
         {play ? play.main : (
-          <section key={view + mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
+          <section key={view + mode.id} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="flex flex-wrap items-baseline gap-3">
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
               {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
