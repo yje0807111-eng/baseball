@@ -47,11 +47,11 @@ const GroupHead = ({ label, n, c }) => (
 function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = null }) {
   const c = TIER[a.tier].c;
   const tone = banned ? '#6b7280' : c;
-  /* 제외 · 풀기는 오른쪽 PICK 카드에서 한다 — 줄에는 강화 탭의 강화 단추만 둔다 */
+  /* 제외 · 풀기 · 강화는 오른쪽 PICK 카드에서 한다 — 줄의 단추는 그 카드를 여는 것까지 */
   const btn = !upgrade ? null
     : lv >= AUG_LEVEL_MAX
-      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] font-display text-xs text-gray-500" style={cut(6)}>MAX</span>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>+{lv + 1} · {lv + 1}장</button>;
+      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] text-xs font-bold text-gray-500" style={cut(6)}>최대</span>
+      : <button type="button" onClick={(e) => { e.stopPropagation(); onPick(a); }} className="mt-cut h-9 text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>강화</button>;
   return (
     <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
