@@ -27,6 +27,18 @@ function splitEffect(desc = '') {
   return nums.length === 1 && m ? [m[1], m[2]] : [desc, null];
 }
 
+/** 효과 문장 → 칸 여럿. ', ' 와 ' · ' 에서 끊되 괄호 안은 그대로 두고, 칸마다 끝 수치를 뗀다 */
+function effectRows(desc = '') {
+  const open = (t) => (t.match(/\(/g) || []).length > (t.match(/\)/g) || []).length;
+  const parts = [];
+  desc.split(/,\s*|\s+·\s+/).forEach((t) => {
+    const last = parts.length - 1;
+    if (last >= 0 && open(parts[last])) parts[last] = `${parts[last]}, ${t}`;
+    else parts.push(t);
+  });
+  return parts.map(splitEffect);
+}
+
 const Pips = ({ lv, c }) => (
   <span className="flex gap-[3px]">
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
@@ -231,15 +243,21 @@ export default function AugmentScreen({ account, onBack }) {
                     <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
                     {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
                   </div>
-                  <div className="absolute inset-x-0 bottom-0">
-                    <b className="block px-[18px] pb-3 text-3xl font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                    {(() => { const [head, num] = splitEffect(picked.desc); return (
-                      <span className="flex items-center justify-between gap-3 px-[18px] py-3" style={{ background: `linear-gradient(90deg,${c}2a,transparent)`, boxShadow: `inset 0 1px 0 ${c}59` }}>
-                        <b className="min-w-0 text-[15px] leading-snug text-gray-100">{head}</b>
-                        {num && <b className="shrink-0 font-display text-[34px] leading-none" style={{ color: c }}>{num}</b>}
-                      </span>
-                    ); })()}
-                    <span className="block px-[18px] pb-4 pt-3"><Pips lv={lv} c={c} /></span>
+                  <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
+                    <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    <div className="mt-2.5 grid gap-[5px]">
+                      {effectRows(picked.desc).map(([head, num], i) => (
+                        <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
+                          style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
+                          <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
+                          {num && <b className="shrink-0 font-display text-[21px] leading-none" style={{ color: c }}>{num}</b>}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="mt-3 flex items-center gap-2.5">
+                      <small className="font-display text-[11px] font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
+                      <Pips lv={lv} c={c} />
+                    </span>
                   </div>
                 </div>
                 {tab === 'upgrade' ? (
