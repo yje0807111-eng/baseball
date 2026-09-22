@@ -96,7 +96,7 @@ export function scoutTags(opponent) {
     { on: avg(pits.filter((p) => p.position === 'SP'), (p) => st(p, 'stamina')) < 70, label: '선발 이닝 짧음', c: '#34d399' },
     { on: avg(bats, (p) => st(p, 'power')) < 66, label: '한 방 없음', c: '#34d399' },
     { on: (() => { const c = ros.find((x) => x.position === 'C'); return c ? st(c, 'defense') < 72 : false; })(), label: '도루 저지 약함', c: '#fb923c' },
-  ].filter((x) => x.on).slice(0, 5);
+  ].filter((x) => x.on).slice(0, 4);
 }
 
 /** 약점 태그 → 되치는 세부 작전 (★ 로 표시하고 [추천 적용] 이 한 번에 넣는다) */

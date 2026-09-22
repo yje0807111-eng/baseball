@@ -204,7 +204,7 @@ function StyleBlock({ style, onPick, opponent }) {
           const why = reasons[x.id] || [];
           return (
             <button key={x.id} type="button" onClick={() => onPick(x.id)}
-              className="mt-cut relative h-[2.6rem] overflow-hidden text-left"
+              className="mt-cut relative h-[2.9rem] overflow-hidden text-left"
               style={{ ...cut(6), background: '#0b1220', boxShadow: `inset 0 0 0 1px ${on ? x.color : 'rgba(255,255,255,.08)'}` }}>
               <i className="absolute inset-0 bg-cover transition-[opacity,filter] duration-200"
                 style={{ backgroundImage: `url(${x.bg})`, backgroundPosition: 'center 40%', opacity: on ? 0.48 : 0.18, filter: on ? 'none' : 'grayscale(1)' }} />
@@ -231,7 +231,13 @@ function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel, 
   const TOT = [['타자', sums.bat, deltas.bat, A.bat], ['수비', sums.def, deltas.def, A.def], ['투수', sums.pit, deltas.pit, A.pit]];
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
-      <p className="mt-lab">Tune Up</p>
+      <div className="flex shrink-0 items-center gap-2.5">
+        <p className="mt-lab">Tune Up</p>
+        <span className="ml-auto flex items-baseline gap-1.5">
+          <small className="text-[11px] text-gray-500">팀 종합</small>
+          <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: A.syn }}>{team.ovr}</b>
+        </span>
+      </div>
       <div className="grid shrink-0 grid-cols-3 gap-1.5">
         {TOT.map(([t, v, d, a]) => (
           <div key={t} className="mt-cut flex flex-col items-center gap-0.5 py-3" style={{ ...cut(8), background: `linear-gradient(180deg,color-mix(in srgb,${a} 14%,transparent),rgba(6,10,19,.4))` }}>
@@ -241,14 +247,11 @@ function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel, 
           </div>
         ))}
       </div>
-      <div className="mt-cut shrink-0 px-3 py-1.5" style={{ ...cut(10), background: 'rgba(255,255,255,.04)' }}>
-        {[['팀 종합', team.ovr], ['엔트리', `${team.count} / ${team.cap}명`], ['외국인', team.foreign != null ? `${team.foreign} / 3` : '-'],
-          ...(autoFilled ? [['퓨처스 유망주', `${autoFilled}명`, '#fcd34d']] : [])].map(([k, v, c]) => (
-            <div key={k} className="flex items-baseline justify-between border-b border-white/[0.07] py-1.5 text-[12.5px] text-gray-400 last:border-0">
-              <span>{k}</span><b className="font-display text-[15px]" style={{ color: c || '#fff' }}>{v}</b>
-            </div>
-        ))}
-      </div>
+      {!!autoFilled && (
+        <div className="mt-cut flex shrink-0 items-baseline justify-between px-3 py-1.5 text-[12px]" style={{ ...cut(8), background: 'rgba(255,255,255,.04)' }}>
+          <span className="text-gray-400">퓨처스 유망주</span><b className="font-display text-[14px] text-[#fcd34d]">{autoFilled}명</b>
+        </div>
+      )}
       {strategy}
       {!!rest.length && (
         <div className="shrink-0">
