@@ -1236,6 +1236,7 @@ export const KEYFRAMES = `
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: transparent; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bgOut { from { opacity: 1; } to { opacity: 0; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* PICK 카드가 빠질 때: 등장(rise)을 거꾸로 — 조용히 가라앉으며 흐려진다. 영입이면 라인업 쪽(오른쪽)으로 살짝 흘러간다 */
 @keyframes pickDrop { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(20px) scale(.96); } }
@@ -4765,15 +4766,30 @@ function BasicHero({ mode, tickets, acc }) {
   const hero = pool[turn % Math.max(1, pool.length)] || tickets[0];
   const flag = teamFlag(hero?.title || '');
   const rest = tickets.filter((t) => t.key !== hero?.key);
-  const [one, ...more] = yearStars(mode.series, 5);
+  // 대표 선수도 그 구단 시리즈에서 뽑는다 (구단 시리즈가 아니면 모드 전체)
+  const heroSeries = mode.series.find((s) => s.id === hero?.key);
+  const [one, ...more] = yearStars(heroSeries ? [heroSeries] : mode.series, 5);
+  // 배경은 두 겹을 겹쳐 새 그림이 떠오르는 동안 옛 그림이 잦아든다
+  const [layers, setLayers] = useState([]);
+  useEffect(() => {
+    if (!flag) return;
+    setLayers((prev) => (prev[prev.length - 1]?.bg === flag.key ? prev
+      : [...prev.slice(-1), { bg: flag.key, color: flag.color, id: `${flag.key}-${Date.now()}` }]));
+  }, [flag?.key, flag?.color]);
+  useEffect(() => {
+    if (layers.length < 2) return undefined;
+    const t = setTimeout(() => setLayers((l) => l.slice(-1)), 900);
+    return () => clearTimeout(t);
+  }, [layers]);
   return (
     <>
-      {flag && (
-        <React.Fragment key={flag.key}>
-          <span className="pointer-events-none absolute inset-0 animate-[fade_.6s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
-          <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
-        </React.Fragment>
-      )}
+      {layers.map((l, i) => (
+        <span key={l.id} className={`pointer-events-none absolute inset-0 ${i === layers.length - 1 ? 'animate-[fade_.9s_ease-out_both]' : 'animate-[bgOut_.9s_ease-out_both]'}`} style={{ zIndex: 0 }}>
+          <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(ui/teams/bg-${l.bg}.webp)`, opacity: 0.6 }} />
+          <span className="absolute inset-0" style={{ background: `radial-gradient(60% 80% at 20% 75%, ${l.color}2e, transparent 70%)` }} />
+        </span>
+      ))}
+      <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: 'linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%)' }} />
       <div className="relative z-10 grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: '520px minmax(0,1fr)' }}>
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <div className="flex items-end gap-4">
@@ -4782,7 +4798,7 @@ function BasicHero({ mode, tickets, acc }) {
               <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
               <span className="mt-2 block text-[15px] text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
             </div>
-            {hero && <div key={hero.key} className="shrink-0 animate-[fade_.4s_ease-out_both]" style={{ width: 176, height: 112 }}><SeriesTicket t={hero} acc={acc} fit /></div>}
+            {hero && <div key={hero.key} className="shrink-0 animate-[fade_.7s_ease-out_both]" style={{ width: 176, height: 112 }}><SeriesTicket t={hero} acc={acc} fit /></div>}
           </div>
           <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
             {groupTickets(rest).map(([ko, list]) => (
@@ -4800,8 +4816,8 @@ function BasicHero({ mode, tickets, acc }) {
           </div>
         </div>
         <div className="flex min-h-0 flex-col justify-end pb-1">
-          <p className="ui-lab font-display" style={{ '--a': acc }}>Best of all</p>
-          <div className="mt-1.5 flex items-end gap-1.5">
+          <p className="ui-lab font-display" style={{ '--a': acc }}>Stars</p>
+          <div key={hero?.key} className="mt-1.5 flex items-end gap-1.5 animate-[fade_.7s_ease-out_both]">
             {one && <YearBig p={one} w={212} h={248} />}
             <div className="grid min-w-0 flex-1 gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(1, more.length)},minmax(0,1fr))` }}>
               {more.map((p) => <YearFace key={personKey(p)} p={p} w="100%" h={168} />)}
