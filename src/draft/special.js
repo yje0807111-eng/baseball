@@ -49,6 +49,12 @@ export function specialAiRoster({ series = [], rng = Math.random } = {}) {
     if (pick.isForeign) foreign += 1;
     roster.push({ ...pick, slot: freeSlot(roster, pick.position)?.id || null });
   }
+  /* 끝나고도 빈 주전 자리가 있으면 예비에서 옮겨 메운다 — 지명타자는 어느 야수든 설 수 있다 */
+  for (const slot of openSlots(roster).filter((x) => !x.bench)) {
+    const from = roster.find((p) => p.slot?.startsWith('BN')
+      && (slot.pos === 'DH' ? p.type === 'batter' : p.position === slot.pos));
+    if (from) from.slot = slot.id;
+  }
   return roster;
 }
 

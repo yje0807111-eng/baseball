@@ -22,8 +22,24 @@ const TEAM = {
   SS: { ko: '삼성', title: '삼성 라이온즈', fr: 'SAMSUNG' },
   HH: { ko: '한화', title: '한화 이글스', fr: 'HANWHA' },
   SK: { ko: 'SSG', title: 'SSG 랜더스', fr: 'SSG' },
+  LG: { ko: 'LG', title: 'LG 트윈스', fr: 'LG' },
 };
-const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg' };
+/* 그해 당시 이름 — 규격은 그 시즌에 쓰던 구단명을 쓰라고 한다 */
+const THEN = {
+  WO: [[2019, { ko: '키움', title: '키움 히어로즈' }], [2010, { ko: '넥센', title: '넥센 히어로즈' }]],
+  SK: [[2021, { ko: 'SSG', title: 'SSG 랜더스' }], [2000, { ko: 'SK', title: 'SK 와이번스' }]],
+};
+/** 그 해의 구단 이름 · 프랜차이즈 */
+export function teamOf(code, year) {
+  const base = TEAM[code];
+  const rules = THEN[code];
+  if (!rules) return base;
+  for (const [from, name] of rules) if (year >= from) return { ...base, ...name };
+  return base;
+}
+const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg' };
+/** 파일 이름 — 구단명이 바뀌기 전 시즌은 그때 이름으로 (2017-sk · 2014-nexen) */
+export const slugOf = (code, year) => (code === 'SK' && year < 2021 ? 'sk' : code === 'WO' && year < 2019 ? 'nexen' : SLUG[code]);
 const POS = { 포수: 'C', '1루수': '1B', '2루수': '2B', '3루수': '3B', 유격수: 'SS', 좌익수: 'OF', 중견수: 'OF', 우익수: 'OF', 지명타자: 'DH', '?': 'DH' };
 /** 자리별 수비 평판 — 그 자리 주전이면 기본, 출장이 적으면 낮춘다 */
 const FIELD = (pos, pa) => (pa >= 450 ? (pos === 'C' || pos === 'SS' || pos === 'OF' ? 'good' : 'ok') : 'ok');
@@ -52,12 +68,13 @@ export function parseRecords(text) {
 const isStarter = (p) => ipOf(p.ip) / Math.max(1, p.g) >= 3.5;
 
 /** 18명 고르기: 선발 4 · 불펜 4 · 포수 2 · 내야 각 1 · 외야 3 · 남는 한 자리는 타석 많은 순 */
-export function pick18(team) {
+export function pick18(team, fix = {}) {
   const sp = team.pit.filter(isStarter).sort((a, b) => ipOf(b.ip) - ipOf(a.ip));
   const rp = team.pit.filter((p) => !isStarter(p)).sort((a, b) => (b.sv + b.hld) * 3 + ipOf(b.ip) - ((a.sv + a.hld) * 3 + ipOf(a.ip)));
   const take = (list, n) => list.slice(0, n);
   const pit = [...take(sp, 4), ...take(rp, 4)];
-  const byPos = (p) => team.bat.filter((x) => x.pos === p).sort((a, b) => b.pa - a.pa);
+  const posOf = (x) => fix[x.name] || x.pos;
+  const byPos = (p) => team.bat.filter((x) => posOf(x) === p).sort((a, b) => b.pa - a.pa);
   const bat = [];
   const push = (list, n) => list.slice(0, n).forEach((x) => { if (!bat.includes(x)) bat.push(x); });
   push(byPos('C'), 2); push(byPos('1B'), 1); push(byPos('2B'), 1); push(byPos('3B'), 1); push(byPos('SS'), 1); push(byPos('OF'), 3);
@@ -82,8 +99,8 @@ export function knownPlayers(dir = join('src', 'data', 'series'), skip = new Set
 const numText = (v) => String(v).replace(/^0/, '');
 
 export function buildSeries({ year, code, records, hands = {}, foreign = new Set(), meta = {}, dupes = {}, posFix = {}, known = new Map() }) {
-  const t = TEAM[code];
-  const { pit, bat } = pick18(records);
+  const t = teamOf(code, year);
+  const { pit, bat } = pick18(records, posFix[`${year}-${code}`] || {});
   const players = [];
   /* 동명이인은 구분자를 붙인다 — dupes: { 이름: { 팀코드|역할: 'personId' } } */
   const idOf = (name, role) => {
@@ -118,7 +135,7 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
     }));
   }
   return {
-    id: `${year}-${SLUG[code]}`,
+    id: `${year}-${slugOf(code, year)}`,
     ...(meta.champion ? { champion: true } : {}),
     kind: 'team',
     year,
@@ -141,12 +158,12 @@ if (process.argv[1] && process.argv[1].endsWith('series-from-records.mjs')) {
   const dupes = existsSync(join(dir, 'dupes.json')) ? JSON.parse(readFileSync(join(dir, 'dupes.json'), 'utf8')) : {};
   const posFix = existsSync(join(dir, 'positions.json')) ? JSON.parse(readFileSync(join(dir, 'positions.json'), 'utf8')) : {};
   const mine = new Set();
-  for (const year of years) for (const code of Object.keys(TEAM)) mine.add(`${year}-${SLUG[code]}`);
+  for (const year of years) for (const code of Object.keys(TEAM)) mine.add(`${year}-${slugOf(code, year)}`);
   const known = knownPlayers(join('src', 'data', 'series'), mine);   // 내가 만드는 시리즈는 빼고 읽는다
   for (const year of years) {
     const recs = parseRecords(readFileSync(join(dir, `${year}.txt`), 'utf8'));
     for (const code of Object.keys(recs)) {
-      const s = buildSeries({ year, code, records: recs[code], hands, foreign, meta: metaAll[`${year}-${SLUG[code]}`] || {}, dupes, posFix, known });
+      const s = buildSeries({ year, code, records: recs[code], hands, foreign, meta: metaAll[`${year}-${slugOf(code, year)}`] || {}, dupes, posFix, known });
       for (const p of s.players) if (!known.has(`${p.personId}|${p.year}`)) known.set(`${p.personId}|${p.year}`, p);
       const file = join('src', 'data', 'series', `${s.id}.json`);
       writeFileSync(file, `${JSON.stringify(s, null, 2)}\n`);

@@ -1,0 +1,318 @@
+{
+  "id": "2017-samsung",
+  "kind": "team",
+  "year": 2017,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "정규시즌 9위 · 이승엽 은퇴 시즌",
+  "blurb": "이승엽이 마지막 해에 24홈런을 치고 은퇴했고 러프가 124타점을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤성환",
+      "name": "윤성환",
+      "year": 2017,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 85,
+        "stamina": 86,
+        "stability": 74
+      },
+      "note": "",
+      "source": "28G 174 1/3IP ERA4.28 130K 37BB WHIP1.25 12승 — KBO 기록실"
+    },
+    {
+      "personId": "페트릭",
+      "name": "페트릭",
+      "year": 2017,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 62,
+        "control": 66,
+        "stamina": 75,
+        "stability": 51
+      },
+      "note": "",
+      "source": "25G 134IP ERA6.18 87K 52BB WHIP1.69 3승 — KBO 기록실"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2017,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 89,
+        "stamina": 75,
+        "stability": 63
+      },
+      "note": "",
+      "source": "27G 133IP ERA5.21 100K 23BB WHIP1.38 7승 — KBO 기록실"
+    },
+    {
+      "personId": "레나도",
+      "name": "레나도",
+      "year": 2017,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 59,
+        "control": 52,
+        "stamina": 48,
+        "stability": 46
+      },
+      "note": "",
+      "source": "11G 49IP ERA6.80 28K 27BB WHIP1.98 2승 — KBO 기록실"
+    },
+    {
+      "personId": "심창민",
+      "name": "심창민",
+      "year": 2017,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 50,
+        "stamina": 60,
+        "stability": 75
+      },
+      "note": "",
+      "source": "66G 75 1/3IP ERA4.18 103K 44BB WHIP1.31 4승 6SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "장필준",
+      "name": "장필준",
+      "year": 2017,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 66,
+        "stamina": 55,
+        "stability": 68
+      },
+      "note": "21세이브 마무리",
+      "source": "56G 67 1/3IP ERA4.68 82K 26BB WHIP1.60 4승 21SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "백정현",
+      "name": "백정현",
+      "year": 2017,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 69,
+        "stamina": 60,
+        "stability": 72
+      },
+      "note": "",
+      "source": "35G 100 2/3IP ERA4.38 94K 36BB WHIP1.45 8승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "최충연",
+      "name": "최충연",
+      "year": 2017,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 51,
+        "stamina": 60,
+        "stability": 45
+      },
+      "note": "",
+      "source": "42G 84IP ERA7.61 74K 48BB WHIP1.88 3승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "이지영",
+      "name": "이지영",
+      "year": 2017,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 40,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".238/.294 0HR 26타점 4SB 336PA — KBO 기록실"
+    },
+    {
+      "personId": "러프",
+      "name": "러프",
+      "year": 2017,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 83,
+        "power": 83,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".315/.396 31HR 124타점 2SB 591PA — KBO 기록실"
+    },
+    {
+      "personId": "조동찬",
+      "name": "조동찬",
+      "year": 2017,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 63,
+        "speed": 48,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".289/.344 10HR 46타점 3SB 393PA — KBO 기록실"
+    },
+    {
+      "personId": "이원석",
+      "name": "이원석",
+      "year": 2017,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 72,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".265/.323 18HR 62타점 2SB 459PA — KBO 기록실"
+    },
+    {
+      "personId": "강한울",
+      "name": "강한울",
+      "year": 2017,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 40,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".303/.344 0HR 24타점 12SB 448PA — KBO 기록실"
+    },
+    {
+      "personId": "구자욱",
+      "name": "구자욱",
+      "year": 2017,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 80,
+        "speed": 62,
+        "defense": 70
+      },
+      "note": "21홈런 107타점",
+      "source": ".310/.383 21HR 107타점 10SB 647PA — KBO 기록실"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2017,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 52,
+        "speed": 88,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".284/.338 7HR 54타점 40SB 638PA — KBO 기록실"
+    },
+    {
+      "personId": "김헌곤",
+      "name": "김헌곤",
+      "year": 2017,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 61,
+        "speed": 63,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".264/.331 9HR 47타점 11SB 404PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2017,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 75,
+        "speed": 43,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".280/.347 24HR 87타점 1SB 533PA — KBO 기록실"
+    },
+    {
+      "personId": "배영섭",
+      "name": "배영섭",
+      "year": 2017,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 62,
+        "speed": 43,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".303/.365 6HR 26타점 1SB 244PA — KBO 기록실"
+    }
+  ]
+}
