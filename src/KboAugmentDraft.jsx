@@ -4718,6 +4718,87 @@ function groupTickets(list) {
   return out.length ? out : [['그 밖의 시리즈', list]];
 }
 
+/* 연도별 시즌: 그 해 주인공 = 우승 구단 → 없으면 가장 센 구단 시즌 → 구단이 없으면 첫 시리즈 */
+const seriesOvr = (x) => Math.round(x.players.reduce((n, p) => n + p.overall, 0) / Math.max(1, x.players.length));
+/** 진행 중인 시즌이면 부제의 순위("9월 중순 5위")를 읽어 1위에 가까운 구단을 세운다 */
+const rankOfSeries = (x) => Number((/(\d+)위/.exec(x.subtitle || '') || [])[1] || 99);
+function yearHero(list) {
+  const clubs = list.filter((x) => x.kind === 'team');
+  const champ = clubs.find((x) => x.champion);
+  if (champ) return champ;
+  const ranked = clubs.filter((x) => rankOfSeries(x) < 99).sort((a, b) => rankOfSeries(a) - rankOfSeries(b));
+  return ranked[0] || [...clubs].sort((a, b) => seriesOvr(b) - seriesOvr(a))[0] || list[0] || null;
+}
+/** 그 해 대표 선수 n명 (같은 사람은 한 번만) */
+function yearStars(list, n) {
+  const seen = new Set();
+  return list.flatMap((x) => x.players).sort((a, b) => b.overall - a.overall)
+    .filter((p) => !seen.has(personKey(p)) && seen.add(personKey(p))).slice(0, n);
+}
+function YearFace({ p, w = 70, h = 92 }) {
+  const art = useArt(p);
+  return (
+    <div className="ui-cut relative shrink-0 overflow-hidden bg-[#0b1220] bg-cover" title={`${p.name} ${p.overall}`}
+      style={{ '--c': '7px', width: w, height: h, backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 12%' }}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.3),rgba(5,8,15,0) 40%,#05080f)' }} />
+      <b className="absolute left-1.5 top-0.5 font-display text-[13px]" style={{ color: rdTone(p.overall) === 'prism' ? '#fde047' : rdTone(p.overall) }}>{p.overall}</b>
+      <b className="absolute inset-x-1 bottom-0.5 truncate text-center text-[11px] text-white">{p.name}</b>
+    </div>
+  );
+}
+/** 그 해를 한 장면으로: 왼쪽에 주인공 구단, 오른쪽에 대표 선수 카드와 나머지 시리즈 */
+function YearHero({ mode, acc }) {
+  const list = mode.series;
+  const hero = yearHero(list);
+  const star = hero ? [...hero.players].sort((a, b) => b.overall - a.overall)[0] : null;
+  const starArt = useArt(star);
+  const rest = list.filter((x) => x !== hero);
+  // 우승이 아직 없고 그 해 순위만 있으면 진행 중인 시즌
+  const live = !!hero && !hero.champion && (rankOfSeries(hero) < 99 || /진행/.test(hero.subtitle || ''));
+  return (
+    <div className="mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 420px' }}>
+      <div className="flex flex-col justify-end pb-6 pl-1">
+        <span className="flex items-center gap-2">
+          {hero?.champion && (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.85 }}>
+              <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" /><path d="M17 5h3v2a3 3 0 0 1-3 3" /><path d="M7 5H4v2a3 3 0 0 0 3 3" />
+              <path d="M12 14v3" /><path d="M9 20.5h6" /><path d="M10 17.5h4l1 3H9l1-3Z" />
+            </svg>
+          )}
+          <b className="font-display text-[13px] tracking-[0.25em]" style={{ color: hero?.champion ? '#fcd34d' : acc }}>
+            {mode.year} {hero?.champion ? 'CHAMPION' : live ? 'IN PROGRESS' : 'SEASON'}
+          </b>
+        </span>
+        <b className="mt-2 text-6xl font-black leading-none text-white">{hero?.title || mode.name}</b>
+        <span className="mt-2 text-[15px] text-gray-300">{hero?.subtitle || `${list.length} 시리즈 · ${mode.players.length}명`}</span>
+        <div className="mt-4 flex gap-1.5">{yearStars(list, 8).map((p) => <YearFace key={personKey(p)} p={p} />)}</div>
+      </div>
+      <div className="flex min-h-0 flex-col justify-center gap-2">
+        <div className="ui-cut relative shrink-0 overflow-hidden bg-[#0b1220] bg-cover" style={{ '--c': '14px', height: 250, backgroundImage: starArt ? `url(${starArt})` : undefined, backgroundPosition: '60% 8%' }}>
+          <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.2),rgba(5,8,15,0) 40%,#05080f)' }} />
+          <b className="absolute inset-x-4 bottom-3 text-2xl font-black text-white">{star?.name}</b>
+        </div>
+        <div className="syn-scroll flex min-h-0 flex-wrap content-start gap-2 overflow-y-auto pr-1">
+          {rest.map((x) => <YearMini key={x.id} s={x} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+function YearMini({ s }) {
+  const top = [...s.players].sort((a, b) => b.overall - a.overall)[0];
+  const art = useArt(top);
+  return (
+    <div className="ui-cut relative overflow-hidden bg-[#0b1220] bg-cover" style={{ '--c': '8px', width: 132, height: 80, backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 14%' }}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.75),rgba(5,8,15,.88))' }} />
+      <div className="absolute inset-x-2 bottom-1.5">
+        <b className="block truncate text-[12.5px] text-white">{s.title}</b>
+        <span className="block truncate text-[10.5px] text-gray-400">{s.players.length}명</span>
+      </div>
+    </div>
+  );
+}
+
 function SeriesTicket({ t, acc, sm = false }) {
   const art = useArt(t.star);
   return (
@@ -4856,7 +4937,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 ))}
               </div>
             )}
-            {view === 'special' ? (
+            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : view === 'special' ? (
               <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
                 {specials.map((m) => {
                   const on = specialId === m.id;
