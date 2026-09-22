@@ -1932,6 +1932,7 @@ export const KEYFRAMES = `
 .sd-fr u, .ss-fr u { margin-left: 2px; font-size: .8em; text-decoration: none; color: #38bdf8; }
 .sd-row.gr .sd-fr { color: #7dd3fc; }
 .sd-tip { position: absolute; z-index: 30; right: calc(100% + 26px); width: 262px; padding: 12px 13px; background: rgba(6,10,19,.97); box-shadow: 0 0 0 1px rgba(148,163,184,.28), 0 18px 40px -8px rgba(0,0,0,.9); pointer-events: none; }
+.sd-tip.up { right: auto; bottom: calc(100% + 10px); }
 .sd-th { display: flex; align-items: center; gap: 9px; }
 .sd-th b { font-size: 16px; color: #fff; }
 .sd-th .sy-ico { width: 32px; height: 28px; }
@@ -3372,16 +3373,19 @@ function SynergyDock({ roster, candidate, focusId, onFocus, onOpenAll }) {
   );
 }
 
-function SynergyTip({ s, after, candidate, top }) {
+export function SynergyTip({ s, after, candidate, top = 0, up = false, left = 0 }) {
   const ref = useRef(null);
   const [y, setY] = useState(Math.max(0, top - 12));
-  // 도크 아래로 넘치면 올려서 붙인다
+  const [x, setX] = useState(left);
+  // 도크 밖으로 넘치면 안쪽으로 붙인다
   useLayoutEffect(() => {
     const el = ref.current; const box = el?.offsetParent;
-    if (el && box) setY(Math.max(0, Math.min(top - 12, box.clientHeight - el.offsetHeight - 6)));
-  }, [top, s.id]);
+    if (!el || !box) return;
+    if (up) setX(Math.max(6, Math.min(left, box.clientWidth - el.offsetWidth - 6)));
+    else setY(Math.max(0, Math.min(top - 12, box.clientHeight - el.offsetHeight - 6)));
+  }, [top, left, up, s.id]);
   return (
-    <div ref={ref} className={`sd-tip sy${synTier(s)}`} style={{ top: y }} role="tooltip">
+    <div ref={ref} className={`sd-tip sy${synTier(s)} ${up ? 'up' : ''}`} style={up ? { left: x } : { top: y }} role="tooltip">
       <div className="sd-th"><SynIcon id={s.id} /><b>{s.name}</b></div>
       <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 함께 모이면 이 선수들의 능력치가 오릅니다.' : '라인업에 많을수록 이 선수들이 강해집니다.'}</p>
       <ul>{s.tiers.map((t, k) => <li key={t.need} className={k < s.level ? 'ok' : k === s.level ? 'nx' : ''}><span className="font-display">({t.need})</span>{t.effect}</li>)}</ul>

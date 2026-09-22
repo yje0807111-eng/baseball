@@ -3,8 +3,9 @@
  *  왼쪽: 다음 상대 스카우팅(상대가 정해졌을 때) · 가운데: 구장 + 타순 + 선발 · 불펜 · 벤치 · 시너지 · 오른쪽: 정비(합계 · 팀 · 투수 휴식 · 버튼)
  * 자리·타순 바꾸기는 SquadBoard 가 하고, 이 판은 바뀐 결과(order)를 그대로 위로 올린다.
  */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
+import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { STYLES, DEFAULT_STYLE, planOfStyle, styleReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
@@ -35,14 +36,25 @@ const SynIcon = ({ s, w = 38 }) => {
 
 /** 시너지 도크 — 아이콘 한 줄 + 받은 보너스 합계 */
 function SynergyDockMini({ synergies = [] }) {
+  const rootRef = useRef(null);
+  const [hover, setHover] = useState(null); // { id, left } — 마우스를 올린 조각
   const on = synergies.filter((s) => s.active);
   const next = synergies.filter((s) => !s.active && s.count > 0).sort((a, b) => (a.need - a.count) - (b.need - b.count)).slice(0, Math.max(0, 5 - on.length));
   const shown = [...on, ...next].slice(0, 5);
   const sum = {};
   for (const s of on) for (const [k, v] of Object.entries(s.bonus || {})) sum[k] = (sum[k] || 0) + v;
   const totals = Object.entries(sum).filter(([, v]) => v).slice(0, 3);
+  const hv = hover && shown.find((s) => s.id === hover.id);
+  /* 조각 가운데에 맞춰 정보창을 띄운다 (도크 밖으로 나가면 SynergyTip 이 안쪽으로 당긴다) */
+  const show = (id, el) => {
+    const box = rootRef.current;
+    if (!box) return;
+    const r = el.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+    setHover({ id, left: r.left - b.left + r.width / 2 - 131 });
+  };
   return (
-    <>
+    <div ref={rootRef} className="relative" onMouseLeave={() => setHover(null)}>
       <div className="flex shrink-0 items-center gap-2 pb-1">
         <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: A.syn }}>SYNERGY</span>
         <b className="text-[12px] text-gray-300">시너지 {on.length}/{synergies.length}</b>
@@ -50,7 +62,9 @@ function SynergyDockMini({ synergies = [] }) {
       </div>
       <div className="flex shrink-0 gap-1.5">
         {shown.map((s) => (
-          <span key={s.id} className="flex min-w-0 flex-1 flex-col items-center gap-0.5" style={{ opacity: s.active ? 1 : 0.5 }} title={`${s.name} · ${s.effect}`}>
+          <span key={s.id} className="flex min-w-0 flex-1 cursor-default flex-col items-center gap-0.5"
+            style={{ opacity: s.active ? 1 : 0.5 }}
+            onMouseEnter={(e) => show(s.id, e.currentTarget)}>
             <SynIcon s={s} w={36} />
             <b className="w-full truncate text-center text-[10.5px] text-white">{s.name}</b>
             <span className="font-display text-[10px]" style={{ color: TIER[tierOf(s)].bd }}>{s.cur}/{s.need}</span>
@@ -68,7 +82,8 @@ function SynergyDockMini({ synergies = [] }) {
           ))}
         </div>
       )}
-    </>
+      {hv && <SynergyTip s={hv} up left={hover.left} />}
+    </div>
   );
 }
 
