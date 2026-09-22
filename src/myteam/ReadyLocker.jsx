@@ -5,8 +5,7 @@
  */
 import React, { useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
-import GamePlan from './GamePlan.jsx';
-import { BASE, PRESETS, DEFAULT_PLAN, planOf, scoutTags, recommend } from './strategy.js';
+import { STYLES, DEFAULT_STYLE, planOfStyle, styleHints, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 
@@ -190,45 +189,43 @@ const Delta = ({ v }) => (
 );
 
 /** 오른쪽 — 정비: 합계 셋 · 팀 요약 · 투수 휴식 · 버튼 */
-/** 전략 구역 — 프리셋 넷, 기본 세 줄, ⚙ 세부 작전 */
-function StrategyBlock({ plan, setPlan, onOpen, canOpen }) {
-  const pick = (id) => setPlan(planOf(id));
-  const setBase = (k, v) => setPlan((o) => ({ ...o, preset: 'custom', base: { ...o.base, [k]: v } }));
+/**
+ * 플레이스타일 — 경기 전에는 이것 하나만 고른다. 카드마다 그림이 깔리고, 고른 카드만 밝아진다.
+ * 상대 약점을 되치는 스타일에는 ★ 가 붙는다 (세부 작전은 경기에 들어가 고친다)
+ */
+function StyleBlock({ style, onPick, opponent }) {
+  const hints = styleHints(opponent);
+  const tags = scoutTags(opponent);
   return (
     <div className="shrink-0">
-      <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Strategy</p>
+      <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Play Style</p>
+      {!!tags.length && (
+        <div className="flex flex-wrap items-center gap-1.5 pb-1.5">
+          {tags.slice(0, 3).map((t) => (
+            <span key={t.label} className="mt-cut px-1.5 py-px text-[10px] font-bold"
+              style={{ ...cut(3), background: `color-mix(in srgb,${t.c} 16%,transparent)`, boxShadow: `inset 0 0 0 1px ${t.c}55`, color: t.c }}>{t.label}</span>
+          ))}
+        </div>
+      )}
       <div className="grid gap-1.5">
-        <span className="flex gap-1">
-          {[...PRESETS, { id: 'custom', ko: '맞춤', color: A.syn }].map((p) => {
-            const on = plan.preset === p.id;
-            return (
-              <button key={p.id} type="button" disabled={p.id === 'custom'} onClick={() => pick(p.id)}
-                className="mt-cut flex-1 py-1.5 text-[11.5px] font-extrabold disabled:cursor-default"
-                style={{ ...cut(5), background: on ? `color-mix(in srgb,${p.color} 18%,transparent)` : 'rgba(255,255,255,.05)',
-                  boxShadow: `inset 0 0 0 1px ${on ? p.color : 'rgba(255,255,255,.1)'}`, color: on ? p.color : '#94a3b8' }}>{p.ko}</button>
-            );
-          })}
-        </span>
-        {BASE.map((b) => (
-          <span key={b.key} className="flex items-center gap-2">
-            <small className="w-9 shrink-0 text-[11.5px] text-[#8b97a6]">{b.ko}</small>
-            <span className="flex flex-1 gap-1">
-              {b.opts.map((o) => {
-                const on = plan.base[b.key] === o;
-                return (
-                  <button key={o} type="button" onClick={() => setBase(b.key, o)} className="mt-cut flex-1 py-1.5 text-[11.5px] font-bold"
-                    style={{ ...cut(4), background: on ? `color-mix(in srgb,${b.color} 20%,transparent)` : 'rgba(255,255,255,.05)',
-                      boxShadow: `inset 0 0 0 1px ${on ? b.color : 'rgba(255,255,255,.1)'}`, color: on ? b.color : '#94a3b8' }}>{o}</button>
-                );
-              })}
-            </span>
-          </span>
-        ))}
-        <button type="button" onClick={onOpen} disabled={!canOpen}
-          className="mt-cut py-1.5 text-[11.5px] font-bold disabled:opacity-40"
-          style={{ ...cut(5), background: 'rgba(255,255,255,.05)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)', color: '#a8b3c1' }}>
-          ⚙ 세부 작전 손보기
-        </button>
+        {STYLES.map((x) => {
+          const on = style === x.id;
+          const star = hints.has(x.id);
+          return (
+            <button key={x.id} type="button" onClick={() => onPick(x.id)}
+              className="mt-cut relative h-[3.2rem] overflow-hidden text-left"
+              style={{ ...cut(7), background: '#0b1220', boxShadow: `inset 0 0 0 1px ${on ? x.color : 'rgba(255,255,255,.08)'}` }}>
+              <i className="absolute inset-0 bg-cover transition-[opacity,filter] duration-200"
+                style={{ backgroundImage: `url(${x.bg})`, backgroundPosition: 'center 40%', opacity: on ? 0.5 : 0.2, filter: on ? 'none' : 'grayscale(1)' }} />
+              <i className="absolute inset-0" style={{ background: on ? `linear-gradient(90deg,color-mix(in srgb,${x.color} 40%,transparent),rgba(6,10,19,.75) 70%)` : 'rgba(6,10,19,.7)' }} />
+              <span className="absolute inset-0 flex items-center gap-2 px-3.5">
+                <b className="text-[15px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{x.ko}</b>
+                {star && <b className="text-[11px]" style={{ color: A.syn }}>★</b>}
+                <small className="ml-auto text-[11.5px]" style={{ color: on ? '#e8ecf2' : '#8b97a6' }}>{x.tip}</small>
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -283,11 +280,8 @@ export default function ReadyLocker({
   onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트',
 }) {
   const [sel, setSel] = useState(null);
-  /* 경기 전 작전 — 프리셋 · 기본 세 줄 · 세부 여덟. 작전판은 ⚙ 로 연다 */
-  const [plan, setPlan] = useState(DEFAULT_PLAN);
-  const [planOpen, setPlanOpen] = useState(false);
-  const setFine = (k, v) => setPlan((o) => ({ ...o, preset: 'custom', fine: { ...o.fine, [k]: v } }));
-  const applyRec = () => setPlan((o) => ({ ...o, preset: 'custom', fine: { ...o.fine, ...recommend(opponent) } }));
+  /* 경기 전에는 플레이스타일 하나만 — 세부 작전은 경기에 들어가 고친다 */
+  const [style, setStyle] = useState(DEFAULT_STYLE);
   const byId = new Map(squad.map((p) => [p.id, p]));
   const rest = [...(team.order?.rotation || []).slice(0, 1), ...(team.order?.bullpen || []).slice(0, 2)]
     .map((id) => byId.get(id)).filter((p) => p && p.rest != null)
@@ -303,11 +297,8 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots footer={<SynergyDockMini synergies={synergies} />} />
 
       <TunePanel sums={sums} deltas={deltas} team={teamInfo} rest={rest} autoFilled={autoFilled}
-        onStart={() => onStart(plan)} startLabel={startLabel}
-        strategy={<StrategyBlock plan={plan} setPlan={setPlan} canOpen={!!opponent} onOpen={() => setPlanOpen(true)} />} />
-      {planOpen && opponent && (
-        <GamePlan opponent={opponent} plan={plan} onFine={setFine} onApply={applyRec} onClose={() => setPlanOpen(false)} />
-      )}
+        onStart={() => onStart(planOfStyle(style))} startLabel={startLabel}
+        strategy={<StyleBlock style={style} onPick={setStyle} opponent={opponent} />} />
     </div>
   );
 }
