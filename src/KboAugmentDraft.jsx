@@ -4746,7 +4746,22 @@ function YearFace({ p, w = 70, h = 92 }) {
     </div>
   );
 }
-/** 그 해를 한 장면으로: 왼쪽에 주인공 구단, 오른쪽에 대표 선수 카드와 나머지 시리즈 */
+/** 그 해 최고 한 명 — 얼굴을 크게, 아래에 포지션 · 소속 · 그 해 기록 */
+function YearBig({ p, w, h }) {
+  const art = useArt(p);
+  const c = rdTone(p.overall) === 'prism' ? '#fde047' : rdTone(p.overall);
+  return (
+    <div className="ui-cut relative shrink-0 overflow-hidden bg-[#0b1220] bg-cover" style={{ '--c': '12px', width: w, height: h, backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 8%' }}>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.2),rgba(5,8,15,0) 35%,rgba(5,8,15,.92) 74%,#05080f)' }} />
+      <b className="absolute right-2.5 top-2 font-display text-2xl" style={{ color: c, textShadow: '0 2px 6px #000' }}>{p.overall}</b>
+      <div className="absolute inset-x-3 bottom-2.5">
+        <span className="font-display text-[11px] tracking-[0.18em] text-gray-400">{POS_LABEL[p.position] || p.position} · {p.team}</span>
+        <b className="mt-0.5 block truncate text-2xl font-black text-white">{p.name}</b>
+        {p.note && <span className="mt-0.5 block truncate text-[11.5px] text-gray-400">{p.note}</span>}
+      </div>
+    </div>
+  );
+}
 /** 연도 고르개 — 10년대 탭 + 그 안의 연도. 연도마다 그 해 주인공 구단 색 점을 찍는다(우승이면 진하게) */
 function YearPicker({ yearId, onPick }) {
   const decadeOf = (y) => Math.floor(y / 10) * 10;
@@ -4793,6 +4808,10 @@ function YearHero({ mode, acc }) {
   // 우승이 아직 없고 그 해 순위만 있으면 진행 중인 시즌
   const flag = teamFlag(hero?.title || ''); // 그 해 주인공 구단의 상징 그림 · 색 (배경)
   const live = !!hero && !hero.champion && (rankOfSeries(hero) < 99 || /진행/.test(hero.subtitle || ''));
+  const tickets = ticketsOf(mode); // 시리즈 카드는 다른 모드와 같은 티켓을 쓴다
+  const heroT = tickets.find((t) => t.key === hero?.id);
+  const restT = tickets.filter((t) => t.key !== hero?.id);
+  const [one, ...more] = yearStars(list, 7);
   return (
     <>
       {/* 그 해 주인공 구단의 상징이 연기 속에서 떠오르는 배경 — 글자가 놓이는 왼쪽 아래만 어둡게 */}
@@ -4802,8 +4821,9 @@ function YearHero({ mode, acc }) {
           <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
         </>
       )}
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-        <div className="mt-6 max-w-[560px] pl-1">
+      <div className="relative z-10 grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
+        {/* 왼쪽 판 — 제목 · 주인공 구단 카드 · 그 해 나머지 시리즈 */}
+        <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <span className="flex items-center gap-2">
             {hero?.champion && (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.85 }}>
@@ -4815,19 +4835,22 @@ function YearHero({ mode, acc }) {
               {mode.year} {hero?.champion ? 'CHAMPION' : live ? 'IN PROGRESS' : 'SEASON'}
             </b>
           </span>
-          <b className="mt-2 block text-6xl font-black leading-none text-white">{hero?.title || mode.name}</b>
+          <b className="mt-2 block text-5xl font-black leading-none text-white">{hero?.title || mode.name}</b>
           <span className="mt-2 block text-[15px] text-gray-300">{hero?.subtitle || `${list.length} 시리즈 · ${mode.players.length}명`}</span>
-        </div>
-        <div className="mt-auto pl-1">
-          <div className="flex flex-wrap gap-1.5">
-            {yearStars(list, 12).map((p) => <YearFace key={personKey(p)} p={p} w={76} h={100} />)}
+          {heroT && <div className="mt-4 shrink-0" style={{ height: 176 }}><SeriesTicket t={heroT} acc={acc} /></div>}
+          <p className="ui-lab font-display" style={{ '--a': acc }}>Series {rest.length}</p>
+          <div className="syn-scroll mt-1.5 grid min-h-0 gap-1.5 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gridAutoRows: '82px' }}>
+            {restT.map((t) => <SeriesTicket key={t.key} t={t} acc={acc} sm />)}
           </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {rest.map((x) => (
-              <span key={x.id} className="ui-cut px-2.5 py-1 text-[12px] text-gray-300" style={{ '--c': '5px', background: 'rgba(255,255,255,.07)' }}>
-                {x.title} <b className="font-display text-[11px] text-gray-500">{x.players.length}</b>
-              </span>
-            ))}
+        </div>
+        {/* 오른쪽 — 그 해 얼굴 하나를 크게, 나머지는 그 옆으로 한 줄 */}
+        <div className="flex min-h-0 flex-col justify-end pb-1">
+          <p className="ui-lab font-display" style={{ '--a': acc }}>Best of the year</p>
+          <div className="mt-1.5 flex items-end gap-1.5">
+            {one && <YearBig p={one} w={212} h={248} />}
+            <div className="grid min-w-0 flex-1 gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(1, more.length)},minmax(0,1fr))` }}>
+              {more.map((p) => <YearFace key={personKey(p)} p={p} w="100%" h={168} />)}
+            </div>
           </div>
         </div>
       </div>
