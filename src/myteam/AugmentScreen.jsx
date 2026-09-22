@@ -302,9 +302,6 @@ export default function AugmentScreen({ account, onBack }) {
                   <div className="mt-cut py-2 text-center font-display text-xs tracking-[0.2em] text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.15)]" style={cut(6)}>최대 {AUG_SLOT_MAX}칸</div>
                 )}
               </div>
-              <div className="mt-auto">
-                <KV k="등장하는 증강" v={`${pool.length - bans.length}개`} color={GREEN} />
-              </div>
             </>
           )}
           {msg && <p className="text-center text-sm text-amber-200">{msg}</p>}
