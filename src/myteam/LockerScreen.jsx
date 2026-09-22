@@ -380,9 +380,9 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
                   {WEAK_KO[r.k]}
                   <span className="relative block h-[5px] bg-white/[0.08]">
-                    <b className={`st-bar ${statBand(r.v)} absolute inset-y-0 left-0 block`} style={{ width: `${r.v}%` }} />
+                    <b className="absolute inset-y-0 left-0 block" style={{ width: `${r.v}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
                   </span>
-                  <b className={`st-n ${statBand(r.v)} text-right font-display text-[15px]`}>{r.v || '-'}</b>
+                  <b className="text-right font-display text-[15px]" style={{ color: statColor(r.v, WEAK_COLOR[r.k]).num }}>{r.v || '-'}</b>
                 </div>
               ))}
               {/* 추천 표(A안): 머리글 · 약한 곳(그 칸 색) · 추천 아이템 · 가격(금색) · 상점 버튼 */}
@@ -736,8 +736,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
                     <span>{EFF_LABEL[k]}</span>
                     <span className="relative block h-[5px] bg-white/[0.08]">
-                      <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: `color-mix(in srgb,${EFF_COLOR[k]} 34%,transparent)` }} />
-                      <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: EFF_COLOR[k], boxShadow: `0 0 5px ${EFF_COLOR[k]}73` }} />
+                      <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: statColor((size(k, v) / maxV) * 100, EFF_COLOR[k]).bar, opacity: 0.45 }} />
+                      <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: statColor((size(k, mine[k] || 0) / maxV) * 100, EFF_COLOR[k]).bar }} />
                     </span>
                     <b className="text-right font-display text-base text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
                   </div>
