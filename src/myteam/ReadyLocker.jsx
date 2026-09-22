@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
-import { Btn } from './ui.jsx';
+import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
@@ -255,6 +255,8 @@ export default function ReadyLocker({
 
   return (
     <div className="grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+      {/* 라커 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) — 드래프트 화면에는 이 CSS 가 없어서 여기서 함께 올린다 */}
+      <UiStyle />
       {opponent ? <ScoutPanel opponent={opponent} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
