@@ -4800,11 +4800,11 @@ function YearHero({ mode, acc }) {
       {/* 그 해 주인공 구단의 깃발과 색을 아주 옅게 깔아 준다 */}
       {flag && (
         <>
-          <span className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.16 }} />
-          <span className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(75% 95% at 12% 70%, ${flag.color}26, transparent 70%), linear-gradient(90deg,rgba(5,8,15,.92) 18%, rgba(5,8,15,.6))` }} />
+          <span className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(${flag.src})`, opacity: 0.16 }} />
+          <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `radial-gradient(75% 95% at 12% 70%, ${flag.color}22, transparent 70%)` }} />
         </>
       )}
-    <div className="relative mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 420px' }}>
+    <div className="relative z-10 mt-3 grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: 'minmax(0,1fr) 420px' }}>
       <div className="flex flex-col justify-end pb-6 pl-1">
         <span className="flex items-center gap-2">
           {hero?.champion && (
@@ -4969,7 +4969,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
         {play ? play.main : (
           <section key={view + mode.id} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
-            <div className="flex flex-wrap items-baseline gap-3">
+            <div className="relative z-10 flex flex-wrap items-baseline gap-3">
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
               {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
                 <p className="text-sm text-gray-400">
@@ -4977,7 +4977,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 </p>
               )}
             </div>
-            {view === 'year' && <YearPicker yearId={yearId} onPick={setYearId} />}
+            {view === 'year' && <div className="relative z-10"><YearPicker yearId={yearId} onPick={setYearId} /></div>}
             {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : view === 'special' ? (
               <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
                 {specials.map((m) => {
