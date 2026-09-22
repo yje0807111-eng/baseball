@@ -36,6 +36,10 @@ export const SHOP_ART = {
   'dr-protect': ['draft', 'A glowing dome of light shielding one baseball on a dark draft table while other hands stop at the barrier'],
   'dr-series': ['draft', 'A hand pulling one glowing team pennant card out of a fanned row of dark pennant cards on a club desk'],
   'dr-agent': ['draft', 'A club agent in a dark suit shaking hands across a night office desk, a contract and a team cap on the table'],
+  'au-reroll': ['aug', 'Three glowing card-sized plates spinning and flipping over in mid-air above a dark dugout bench, motion trails circling them'],
+  'au-pledge': ['aug', 'A hand pointing at one card-sized plate in a row of three, only that one blazing bright while the others stay dark'],
+  'au-favor': ['aug', 'A card-sized plate rising above a scattered pile of dark plates, a single sharp star mark burning at its center'],
+  'au-upgrade3': ['aug', 'Three identical glowing card-sized plates stacked in a fanned pile on a dark table, each with an upward arrow of light'],
   'au-remove': ['aug', 'A single glowing card-sized plate torn cleanly in half in mid-air, the two halves pulling apart along a jagged break line, shards flying outward'],
   'au-upgrade': ['aug', 'A single glowing card-sized plate levitating flat and low with a tall upward arrow of light rising from it, five chevrons igniting one above another along the arrow'],
 };

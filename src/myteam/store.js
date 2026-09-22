@@ -84,6 +84,36 @@ export function spendDraftTicket(key) {
   return true;
 }
 
+/** 증강 권 { reroll, pledge, favor } — 읽기 · 쓰기 */
+export function augShopTickets() {
+  const a = read();
+  if (!a?.nick || a.signedOut) return {};
+  return { ...(a.augShop || {}) };
+}
+export function saveAugShopTickets(next) {
+  const a = read();
+  if (!a) return null;
+  const out = { ...a, augShop: { ...next } };
+  write(out);
+  return out;
+}
+/** 증강 권 한 장 쓰기 — 없으면 false */
+export function spendAugTicket(key) {
+  const a = read();
+  const have = a?.augShop?.[key] || 0;
+  if (!a || have < 1) return false;
+  write({ ...a, augShop: { ...a.augShop, [key]: have - 1 } });
+  return true;
+}
+/** 지명해 둔 증강 id — 다음 판 첫 선택지에 반드시 낀다 (쓰면 지운다) */
+export const pledgedAugId = () => read()?.pledgeId || null;
+export function setPledgedAug(id) {
+  const a = read();
+  if (!a) return null;
+  write({ ...a, pledgeId: id || null });
+  return id;
+}
+
 /** 강화한 증강 레벨 { id: 레벨 } (로그인 안 했으면 빈 객체) */
 export function augLevels() {
   const a = read();
@@ -106,6 +136,7 @@ const emptyAccount = (nick) => ({
   gold: START_GOLD,
   items: [], // 구매한 부스트 { id, itemId, playerId }
   draft: {}, // 드래프트 권 { reroll, first, protect, series, agent }
+  augShop: {}, // 증강 권 { reroll, pledge, favor } · pledgeId: 지명해 둔 증강
   createdAt: new Date().toISOString(),
   team: emptyTeam(),
   history: [], // 경기 기록 { at, my, opp, myRuns, oppRuns, winner }
@@ -128,7 +159,7 @@ export function peekAccount() {
 export function loadAccount() {
   const a = grantPending(read());
   if (!a?.nick || a.signedOut) return null;
-  return { ...emptyAccount(a.nick), ...a, gold: goldOf(a), draft: { ...(a.draft || {}) }, team: withTeam(a.team), aug: withAug(a) };
+  return { ...emptyAccount(a.nick), ...a, gold: goldOf(a), draft: { ...(a.draft || {}) }, augShop: { ...(a.augShop || {}) }, team: withTeam(a.team), aug: withAug(a) };
 }
 
 export function signIn(nick) {

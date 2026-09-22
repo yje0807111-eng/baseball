@@ -42,6 +42,10 @@ export const SHOP_ITEMS = [
   // 감독 계약 (CP 없이 선임)
   item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
   // 증강 (풀 관리)
+  item('au-reroll', 'aug', '증강 리롤권', '경기 중 증강 선택지를 다시 굴린다', 260, { augShop: 'reroll', img: 'mt-pack' }),
+  item('au-pledge', 'aug', '증강 지명권', '고른 증강 하나가 다음 판 첫 선택지에 꼭 나온다', 700, { augShop: 'pledge', img: 'mt-card' }),
+  item('au-favor', 'aug', '즐겨찾기 우대권', '한 판 동안 즐겨찾기한 증강이 자주 나온다', 540, { augShop: 'favor', img: 'mt-boost' }),
+  item('au-upgrade3', 'aug', '증강 강화권 3장 묶음', '강화권 3장 · 낱장보다 싸다', 1600, { augTicket: 'upgradeTickets', bulk: 3, img: 'mt-boost' }),
   item('au-remove', 'aug', '증강 제거권', '등급 하나의 제외 칸 +1 (최대 8칸)', 400, { augTicket: 'removeTickets', img: 'mt-pack' }),
   item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
   item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 340, { staffRole: 'coach', img: 'mt-card' }),
@@ -57,6 +61,13 @@ export const DRAFT_TICKET_KO = { reroll: '스카우트 리포트', first: '우�
 export const DRAFT_TICKET_TIP = {
   reroll: '새로고침 +3회', first: '순번 맨 앞', protect: '한 명 지켜 두기', series: '다음 보드 고르기', agent: '영입가 15% 할인',
 };
+/* ───── 증강 권: 판에서 쓰는 리롤 · 지명 · 즐겨찾기 우대 ───── */
+export const AUG_SHOP_TICKETS = ['reroll', 'pledge', 'favor'];
+export const AUG_TICKET_KO = { reroll: '증강 리롤권', pledge: '증강 지명권', favor: '즐겨찾기 우대권' };
+export const emptyAugTickets = () => Object.fromEntries(AUG_SHOP_TICKETS.map((k) => [k, 0]));
+export const withAugTickets = (t) => ({ ...emptyAugTickets(), ...(t || {}) });
+export const addAugTicket = (t, key, n = 1) => { const d = withAugTickets(t); return { ...d, [key]: Math.max(0, d[key] + n) }; };
+
 export const emptyDraftTickets = () => Object.fromEntries(DRAFT_TICKETS.map((k) => [k, 0]));
 /** 계정에 저장된 권 수 (없는 칸은 0) */
 export const withDraftTickets = (t) => ({ ...emptyDraftTickets(), ...(t || {}) });
@@ -70,8 +81,9 @@ export function itemEffect(it) {
   if (it.cap) return { label: '샐러리 캡', amount: it.cap, max: 100 };
   if (it.staffRole) return { label: it.staffRole === 'manager' ? '감독 선임' : '코치 선임', amount: null, max: 1 };
   if (it.staffTicket) return { label: '코치 레벨', amount: 1, max: 1 };
-  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: 1, max: 1 };
+  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: it.bulk || 1, max: it.bulk || 1 };
   if (it.draftTicket) return { label: DRAFT_TICKET_KO[it.draftTicket] || '드래프트', amount: 1, max: 1 };
+  if (it.augShop) return { label: AUG_TICKET_KO[it.augShop] || '증강', amount: 1, max: 1 };
   return { label: it.name, amount: null, max: 1 };
 }
 

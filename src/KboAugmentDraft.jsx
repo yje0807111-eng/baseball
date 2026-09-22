@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, loadAccount, myBanner, draftTickets, spendDraftTicket } from './myteam/store.js';
-import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP } from './myteam/shop.js';
+import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, pledgedAugId, setPledgedAug } from './myteam/store.js';
+import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { flagByKey } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
@@ -865,14 +865,27 @@ export const AUGMENTS = [
   ...PASSIVE_AUGMENTS,
 ];
 
-/** 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다 */
-export function rollAugmentOptions(owned = [], rng = Math.random) {
+/**
+ * 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다.
+ *  pledge: 상점 지명권으로 찍어 둔 증강 id — 그 등급을 열고 한 자리를 내준다
+ *  favor:  즐겨찾기 우대권 — 그 등급의 즐겨찾기 증강을 먼저 채운다(최대 둘)
+ */
+export function rollAugmentOptions(owned = [], rng = Math.random, { pledge = null, favor = false, favs = null } = {}) {
   const banned = bannedAugIds(); // 내 증강 풀에서 제외한 증강은 선택지에 나오지 않는다
   const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id) && !banned.has(a.id));
   const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
   if (!tiers.length) return [];
-  const t = tiers[Math.floor(rng() * tiers.length)];
-  return withAugLevels(shuffle(left.filter((a) => a.tier === t)).slice(0, 3));
+  const want = pledge ? left.find((a) => a.id === pledge) : null;   // 지명한 증강이 아직 남아 있으면 그 등급으로
+  const t = want ? want.tier : tiers[Math.floor(rng() * tiers.length)];
+  const pool = shuffle(left.filter((a) => a.tier === t), rng);
+  const out = [];
+  if (want) out.push(want);
+  if (favor) {                                                      // 즐겨찾기를 먼저, 다만 셋을 다 채우지는 않는다
+    const mine = favs || favAugIds();
+    for (const a of pool) { if (out.length >= 2) break; if (mine.has(a.id) && !out.some((x) => x.id === a.id)) out.push(a); }
+  }
+  for (const a of pool) { if (out.length >= 3) break; if (!out.some((x) => x.id === a.id)) out.push(a); }
+  return withAugLevels(out.slice(0, 3));
 }
 
 export const EVENTS = [
@@ -3658,7 +3671,7 @@ function ChoiceCard({ option: o, index, onChoose }) {
   );
 }
 
-function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS }) {
+function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null }) {
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3680,6 +3693,11 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
         <div className="flex flex-wrap justify-center gap-6">
           {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
         </div>
+        {isAug && onReroll && rerolls > 0 && (
+          <button type="button" onClick={onReroll} className="ui-btn ui-cut animate-[rise_.4s_ease-out_both]" style={{ '--c': '9px' }}>
+            ↺ 다시 굴리기 <em className="ml-1.5 font-display not-italic text-fuchsia-300">· 리롤권 {rerolls}장</em>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -4841,6 +4859,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [aug, setAug] = useState(SEASON_AUGMENTS);
   const haveFirst = withDraftTickets(draftTickets()).first;   // 상점에서 산 우선 지명권
   const [useFirst, setUseFirst] = useState(false);
+  const haveFavor = withAugTickets(augShopTickets()).favor;   // 즐겨찾기 우대권
+  const [useFavor, setUseFavor] = useState(false);
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
@@ -4977,6 +4997,9 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
+              {aug > 0 && haveFavor > 0 && (
+                <SettingRow label={`즐겨찾기 우대권 · ${haveFavor}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFavor} onChange={setUseFavor} />
+              )}
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
               <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
                 <span>{live ? '뽑는 순서' : '다른 시리즈 새로고침'}</span>
@@ -4986,7 +5009,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0 })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: aug > 0 && useFavor && haveFavor > 0 })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5354,6 +5377,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 상점에서 산 드래프트 권 — 계정에 쌓여 있고 판에서 한 장씩 쓴다 */
   const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
   const [seriesPick, setSeriesPick] = useState(false); // 시리즈 지정권 고르개가 열렸는지
+  /* 상점에서 산 증강 권 — 리롤은 선택 창에서, 우대는 판이 열릴 때 한 번 */
+  const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
+  const [augFavor, setAugFavor] = useState(false);   // 이번 판에 즐겨찾기 우대가 걸려 있는지
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
@@ -5602,7 +5628,20 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       el.addEventListener('transitionend', done);
     });
   }, [posFilter]);
-  const augmentOptions = (owned) => rollAugmentOptions(owned);
+  /* 선택지 뽑기 — 지명해 둔 증강은 한 번만 끼고 바로 지운다 */
+  const augmentOptions = (owned) => {
+    const pledge = pledgedAugId();
+    const out = rollAugmentOptions(owned, Math.random, { pledge, favor: augFavor });
+    if (pledge && out.some((a) => a.id === pledge)) setPledgedAug(null);
+    return out;
+  };
+  /* 리롤권 — 지금 선택지를 통째로 다시 굴린다 */
+  const rerollAugments = () => {
+    if (!choice || choice.kind !== 'augment') return;
+    if (!spendAugTicket('reroll')) return;
+    setAugTickets(withAugTickets(augShopTickets()));
+    setChoice((c) => (c && c.kind === 'augment' ? { ...c, options: rollAugmentOptions(augments, Math.random, { favor: augFavor }) } : c));
+  };
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
   const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
@@ -5960,6 +5999,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const me = loadAccount();
     const banner = myBanner(); // 프로필에서 고른 배너 구단 — 내가 지명한 카드에 그 구단 그림이 뜬다
     const useFirst = !!(cfg.live && cfg.firstPick && spendDraftTicket('first'));
+    const favorOn = !!(cfg.augFavor && spendAugTicket('favor'));
+    setAugFavor(favorOn);
+    setAugTickets(withAugTickets(augShopTickets()));
     setTickets(withDraftTickets(draftTickets()));
     setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
@@ -6426,7 +6468,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
-      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
+      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
       <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}

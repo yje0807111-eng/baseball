@@ -6,7 +6,7 @@
  */
 import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
-import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
+import { loadAccount, saveAug, augShopTickets, spendAugTicket, pledgedAugId, setPledgedAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, Bg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
@@ -114,6 +114,16 @@ export default function AugmentScreen({ account, onBack }) {
   const [upTier, setUpTier] = useState('silver');
   const [sel, setSel] = useState(null);
   const [msg, setMsg] = useState('');
+  /* 증강 지명권 — 한 장 쓰면 그 증강이 다음 판 첫 선택지에 반드시 나온다 */
+  const [pledgeLeft, setPledgeLeft] = useState(() => augShopTickets().pledge || 0);
+  const [pledged, setPledged] = useState(() => pledgedAugId());
+  const doPledge = (a) => {
+    if (!a || pledged === a.id) return;
+    if (!spendAugTicket('pledge')) { setMsg('증강 지명권이 없습니다 · 상점에서 살 수 있어요'); setTimeout(() => setMsg(''), 2400); return; }
+    setPledgedAug(a.id);
+    setPledged(a.id);
+    setPledgeLeft(augShopTickets().pledge || 0);
+  };
 
   const tier = tab === 'upgrade' ? upTier : tab;
   const T = TIER[tier];
@@ -254,6 +264,7 @@ export default function AugmentScreen({ account, onBack }) {
             const lv = levelOf(picked); const c = T.c;
             const full = bans.length >= slots;
             const pickFav = favs.includes(picked.id);
+            const showPledge = pledgeLeft > 0 || pledged === picked.id;   // 지명 단추가 끼면 제외 문구를 줄인다
             return (
               <>
                 <div className="flex items-baseline justify-between gap-3">
@@ -319,8 +330,16 @@ export default function AugmentScreen({ account, onBack }) {
                     <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
                       style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
                       disabled={!pickBanned && full && (slots >= AUG_SLOT_MAX || aug.removeTickets < 1)} onClick={() => toggleBan(picked)}>
-                      {pickBanned ? '제외 풀기 ↺' : !full ? '이 증강 제외하기 ✕' : slots >= AUG_SLOT_MAX ? '칸 가득 · 최대' : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '칸 열고 제외 · 제거권 1장'}
+                      {pickBanned ? '제외 풀기 ↺' : !full ? (showPledge ? '제외하기 ✕' : '이 증강 제외하기 ✕') : slots >= AUG_SLOT_MAX ? '칸 가득 · 최대' : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '칸 열고 제외 · 제거권 1장'}
                     </button>
+                    {showPledge && (
+                      <button type="button" onClick={() => doPledge(picked)} disabled={pledged === picked.id}
+                        className="mt-btn shrink-0 gap-1.5 px-3 text-[14px]"
+                        style={{ color: pledged === picked.id ? '#e879f9' : '#c4b5fd', boxShadow: pledged === picked.id ? 'inset 0 0 0 1px rgba(232,121,249,.55)' : undefined }}
+                        title={pledged === picked.id ? '다음 판 첫 선택지에 나옵니다' : `증강 지명권 ${pledgeLeft}장 — 다음 판 첫 선택지에 꼭 넣는다`}>
+                        {pledged === picked.id ? '지명됨' : '지명하기'}
+                      </button>
+                    )}
                     <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
                       className="mt-btn shrink-0 gap-1.5 px-4 text-[14px]"
                       style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
