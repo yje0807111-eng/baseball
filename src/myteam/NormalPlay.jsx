@@ -267,11 +267,11 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
                 <b className="font-display text-3xl" style={{ color: A }}>{finishOf(format)[rounds.length].gold} G</b>
               </div>
               <p className="ui-lab font-display" style={{ '--a': A }}>Prize</p>
-              {/* 라운드가 다섯 이상이면(32 · 64강) 두 열로 나눠 스크롤 없이 담는다 */}
-              <div className={`min-h-0 flex-1 ${rounds.length > 4 ? 'grid grid-cols-2 gap-x-3 content-start' : ''}`}>
+              {/* 라운드가 다섯 이상이면(32 · 64강) 줄을 촘촘하게 해 스크롤 없이 담는다 */}
+              <div className="min-h-0 flex-1">
                 {rounds.map((r, i2) => (
                   <KV key={r.key} k={<span className="flex items-center gap-2"><span className="ui-chip font-display" style={{ '--a': A }}>R{i2 + 1}</span>{r.ko} 승리</span>}
-                    v={`${finishOf(format)[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} />
+                    v={`${finishOf(format)[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} sm={rounds.length > 4} />
                 ))}
               </div>
               <p className="ui-lab font-display" style={{ '--a': G }}>My Team</p>
