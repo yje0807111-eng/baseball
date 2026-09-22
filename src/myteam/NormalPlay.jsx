@@ -119,7 +119,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
   const st = teamStats(squad);
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 8);
   return (
-    <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px', '--a': G }}>
+    <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px', '--a': G }}>
       <UiStyle />
       <div className="ui-cut relative min-h-0 flex-1 overflow-hidden bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/broadcast-field.webp)', backgroundPosition: 'center 60%' }}>
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
@@ -164,7 +164,7 @@ export function TourneyHero({ size, t, name, squad }) {
   const now = t ? (t.done ? n : t.round) : -1;
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 6);
   return (
-    <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px', '--a': A }}>
+    <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px', '--a': A }}>
       <UiStyle />
       {/* 더그아웃에서 그라운드로 나가는 장면 */}
       <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/tour/tunnel.webp)', backgroundPosition: 'center 45%' }} />
@@ -236,7 +236,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
     : <TourneyHero key={format} size={format} t={t} name={team.name || '나의 드림팀'} squad={squad} />;
 
   const aside = (
-    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6" style={{ '--c': '20px', '--a': acc,
+    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
       ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
       <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? 'Single Game' : `Tournament · ${format}`}</p>
       <h2 className="-mt-2 text-3xl font-black text-white">일반 대결</h2>

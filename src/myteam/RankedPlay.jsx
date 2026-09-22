@@ -99,7 +99,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   const past = (account.rank?.seasons || []).slice(0, 3);
 
   const main = (
-    <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
+    <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
       <UiStyle />
       <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/rank2/dusk.webp)', backgroundPosition: 'center 45%' }} />
       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 18%,rgba(5,8,15,.6))' }} />
@@ -117,7 +117,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   );
 
   const aside = (
-    <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px', '--a': RK }}>
+    <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
       <p className="ui-lab font-display" style={{ '--a': RK }}>Ranked</p>
       <h2 className="-mt-2 text-3xl font-black text-white">랭크전</h2>
       <div className="ui-cut bg-white/[0.05] px-4 py-3" style={{ '--c': '10px' }}>

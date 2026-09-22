@@ -1236,6 +1236,7 @@ export const KEYFRAMES = `
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: transparent; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes swap { from { opacity: .3; } to { opacity: 1; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* PICK 카드가 빠질 때: 등장(rise)을 거꾸로 — 조용히 가라앉으며 흐려진다. 영입이면 라인업 쪽(오른쪽)으로 살짝 흘러간다 */
 @keyframes pickDrop { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(20px) scale(.96); } }
@@ -4894,13 +4895,14 @@ function YearHero({ mode, acc }) {
   return (
     <>
       {/* 그 해 주인공 구단의 상징이 연기 속에서 떠오르는 배경 — 글자가 놓이는 왼쪽 아래만 어둡게 */}
+      {/* 연도를 바꿀 때 툭 끊기지 않게, 배경과 내용이 같이 떠오른다 */}
       {flag && (
-        <>
-          <span className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
+        <React.Fragment key={flag.key}>
+          <span className="pointer-events-none absolute inset-0 animate-[swap_.45s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
           <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
-        </>
+        </React.Fragment>
       )}
-      <div className="relative z-10 grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
+      <div key={mode.id} className="relative z-10 grid min-h-0 flex-1 animate-[swap_.45s_ease-out_both] gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
         {/* 왼쪽 판 — 제목 · 주인공 구단 카드 · 그 해 나머지 시리즈 */}
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <span className="flex items-center gap-2">
@@ -5057,7 +5059,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         </nav>
 
         {play ? play.main : (
-          <section key={view + mode.id} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
+          <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="relative z-10 flex flex-wrap items-baseline gap-3">
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
               {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
