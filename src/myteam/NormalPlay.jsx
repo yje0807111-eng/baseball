@@ -3,11 +3,107 @@ import React from 'react';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
 import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
+import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
+import { saveNextDuel, peekNextDuel } from './store.js';
+import { posColor } from './teamColor.js';
+
+
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const G = '#10b981', A = '#fbbf24';
 export const FORMATS = ['single', 16, 32, 64];
 export const FORMAT_LABEL = { single: '단판', 16: '16강', 32: '32강', 64: '64강' };
+
+/* ───── 단판: 오늘 상대 + 최근 5경기 ───── */
+const WC = { my: G, opp: '#f87171', draw: '#94a3b8' };
+const WK = { my: '승', opp: '패', draw: '무' };
+const emblemOf = (name) => (/레전드/.test(name) ? 'legend' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'korea' : null);
+const avgOf = (xs, g) => (xs.length ? Math.round(xs.reduce((n, p) => n + g(p), 0) / xs.length) : 0);
+
+/** 다음 단판 상대 — 한 번 뽑아 두고 경기도 이 상대로 치른다 (경기가 끝나면 다시 뽑힌다) */
+function nextDuel() {
+  const pinned = AI_SERIES.find((x) => x.id === peekNextDuel()); // 저장된 값을 바로 읽는다 (화면 상태는 늦게 따라오므로)
+  const series = pinned || AI_SERIES[Math.floor(Math.random() * AI_SERIES.length)];
+  if (!pinned) saveNextDuel(series.id);
+  const t = seriesTeam(series, () => 0.4);
+  const bats = t.roster.filter((p) => p.type === 'batter');
+  const pits = [...t.roster.filter((p) => p.type === 'pitcher')].sort((x, y) => y.overall - x.overall);
+  return {
+    name: seriesName(series),
+    emblem: emblemOf(series.title || ''),
+    starter: pits[0],
+    ovr: avgOf(t.roster, (p) => p.overall),
+    parts: [['타선', avgOf(bats, (p) => p.overall), '#34d399'], ['수비', avgOf(bats, (p) => p.stats.defense), '#60a5fa'],
+      ['선발', avgOf(pits.filter((p) => p.position === 'SP'), (p) => p.overall), '#7dd3fc'], ['불펜', avgOf(pits.filter((p) => p.position === 'RP'), (p) => p.overall), '#f87171']],
+  };
+}
+
+/** 오늘 상대: 이름 · 종합 · 부문 막대 · 상대 선발 */
+function OppPreview({ opp }) {
+  return (
+    <>
+      <div className="ui-cut flex shrink-0 items-center gap-2.5 px-3 py-2" style={{ '--c': '10px', background: 'rgba(255,255,255,.045)' }}>
+        {opp.emblem && <span className="block h-10 w-10 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(ui/clubs/${opp.emblem}.webp)` }} />}
+        <span className="min-w-0 flex-1">
+          <span className="font-display text-[10px] tracking-[0.2em] text-gray-500">오늘 상대</span>
+          <b className="block truncate text-[16px] font-black text-white">{opp.name}</b>
+        </span>
+        <b className="font-display text-[24px]" style={{ color: G }}>{opp.ovr}</b>
+      </div>
+      <div className="flex shrink-0 gap-1.5">
+        {opp.parts.map(([label, v, c]) => (
+          <span key={label} className="min-w-0 flex-1">
+            <span className="flex items-baseline justify-between text-[10.5px] text-gray-500">{label}<b className="font-display text-[13px]" style={{ color: c }}>{v}</b></span>
+            <span className="relative mt-0.5 block h-1.5 bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${Math.max(4, Math.min(100, ((v - 40) / 55) * 100))}%`, background: c }} /></span>
+          </span>
+        ))}
+      </div>
+      {opp.starter && (
+        <div className="ui-cut flex shrink-0 items-center gap-2.5 px-3 py-2" style={{ '--c': '10px', background: 'rgba(255,255,255,.04)' }}>
+          <span className="ui-cut block h-[40px] w-[34px] shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '6px', backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(opp.starter.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+          <span className="min-w-0 flex-1">
+            <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: '#f87171' }}>상대 선발</span>
+            <b className="block truncate text-[14px] font-extrabold text-white">{opp.starter.name}</b>
+          </span>
+          <b className="font-display text-[18px]" style={{ color: posColor(opp.starter) }}>{opp.starter.overall}</b>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** 최근 5경기: 승패 칩 한 줄 + 상대 · 점수 줄 */
+function RecentGames({ games }) {
+  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 경기가 없습니다</p>;
+  return (
+    <>
+      <div className="flex shrink-0 items-center gap-1.5">
+        {games.map((g, i) => (
+          <span key={i} className="grid h-7 flex-1 place-items-center font-display text-[12px] font-extrabold"
+            style={{ color: g.winner === 'my' ? '#05080f' : WC[g.winner], background: g.winner === 'my' ? G : `color-mix(in srgb,${WC[g.winner]} 18%,transparent)` }}>{WK[g.winner]}</span>
+        ))}
+      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-1">
+        {games.map((g, i) => (
+          <div key={i} className="ui-cut flex flex-1 items-center gap-2 px-2.5" style={{ '--c': '6px', background: 'rgba(255,255,255,.035)', boxShadow: `inset 3px 0 0 ${WC[g.winner]}` }}>
+            <b className="font-display text-[12px]" style={{ color: WC[g.winner] }}>{WK[g.winner]}</b>
+            <b className="min-w-0 flex-1 truncate text-[12.5px] text-gray-300">{g.opp}</b>
+            <b className="font-display text-[14px] text-white">{g.myRuns}<small className="text-gray-500"> : </small>{g.oppRuns}</b>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+const grpLine = (en, ko, c = '#9ca3af') => (
+  <div className="flex shrink-0 items-center gap-2">
+    <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: c }}>{en}</span>
+    <b className="text-[12px] text-gray-300">{ko}</b>
+    <span className="h-px flex-1 bg-white/10" />
+  </div>
+);
+
 
 /** 형식 고르기 (단판 · 16강 · 32강 · 64강) */
 export function FormatPicker({ value, onChange, a = G }) {
@@ -27,7 +123,7 @@ export function FormatPicker({ value, onChange, a = G }) {
   );
 }
 
-function SingleHero({ team, squad, ready, issues, onLocker }) {
+function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
   const st = teamStats(squad);
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 8);
   return (
@@ -37,9 +133,9 @@ function SingleHero({ team, squad, ready, issues, onLocker }) {
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
         <div className="absolute bottom-6 left-7">
           <p className="ui-lab font-display">Next Match</p>
-          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> 무작위 팀</p>
+          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> {oppName || '무작위 팀'}</p>
           <p className="mt-2 font-display text-lg" style={{ color: ready ? G : '#fde047' }}>
-            {ready ? `팀 종합 ${st.ovr} · 승리 보상 300 G` : issues[0]}
+            {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
         </div>
       </div>
@@ -129,9 +225,9 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const cap = team.cap || SQUAD_CAP;
   const issues = squadIssues(squad, team.staff, cap);
   const ready = issues.length === 0;
-  const st = teamStats(squad);
-  const rec = team.record || { w: 0, l: 0, d: 0 };
-  const sp = squad.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall).slice(0, 2);
+  const st = teamStats(squad);
+  const recent = (account.history || []).filter((h) => !h.mode).slice(0, 5); // 단판 기록만
+  const recCount = recent.reduce((n, h) => ({ ...n, [h.winner]: (n[h.winner] || 0) + 1 }), { my: 0, opp: 0, draw: 0 });
   const single = format === 'single';
   const cur = account.tournament?.size ? account.tournament : null; // 저장된 토너먼트 (옛 날짜형은 무시)
   const t = !single && cur && cur.size === format && !(cur.done && cur.claimed) ? cur : null; // 이 크기로 이어서 할 판
@@ -139,9 +235,10 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const rounds = single ? null : roundsOf(format);
   const wins = t ? t.results.filter((rs) => rs.some((x) => x.winner === meIndex(t))).length : 0;
   const acc = single ? G : A;
+  const duel = single ? nextDuel() : null;
 
   const main = single
-    ? <SingleHero team={team} squad={squad} ready={ready} issues={issues} onLocker={onLocker} />
+    ? <SingleHero team={team} squad={squad} ready={ready} issues={issues} onLocker={onLocker} oppName={duel?.name} />
     : <TourneyHero key={format} size={format} t={t} name={team.name || '나의 드림팀'} squad={squad} />;
 
   const aside = (
@@ -151,12 +248,9 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
         <>
-          <Stats items={[['팀 OVR', st.ovr || '-'], ['엔트리', `${squad.length}/${SQUAD_SIZE}`], ['CP', squadCost(squad, team.staff)]]} />
-          <div>
-            <KV k="선발" v={sp.map((p) => p.name).join(' · ') || '-'} color={G} />
-            <KV k="승 / 무 / 패 보상" v="300 · 180 · 120 G" color="#fde047" />
-            <KV k="내 전적" v={`${rec.w}승 ${rec.l}패 ${rec.d}무`} />
-          </div>
+          <OppPreview opp={duel} />
+          {grpLine('RECENT', `최근 ${recent.length}경기 · ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패`)}
+          <RecentGames games={recent} />
         </>
       ) : (
         <>
