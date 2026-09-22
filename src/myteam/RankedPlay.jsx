@@ -48,6 +48,32 @@ function Intro() {
   );
 }
 
+const RESULT = { my: ['승', '#34d399'], opp: ['패', '#f87171'], draw: ['무', '#94a3b8'] };
+const avgOf = (xs, g) => (xs.length ? Math.round(xs.reduce((n, p) => n + g(p), 0) / xs.length) : 0);
+/** 내 팀 전력 네 부문 — 타선 · 수비 · 선발 · 불펜 */
+function teamParts(squad) {
+  const bats = squad.filter((p) => p.type === 'batter');
+  const sp = squad.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall).slice(0, 5);
+  const rp = squad.filter((p) => p.position === 'RP').sort((a, b) => b.overall - a.overall).slice(0, 8);
+  return [['타선', avgOf(bats, (p) => p.overall)], ['수비', avgOf(bats, (p) => p.stats.defense)], ['선발', avgOf(sp, (p) => p.overall)], ['불펜', avgOf(rp, (p) => p.overall)]];
+}
+
+/** 최근 랭크전 10경기 — 승패 칸 한 줄 (성적은 제목 옆에) */
+function FormRow({ games }) {
+  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 랭크전이 없습니다</p>;
+  return (
+    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
+      {games.map((g, i) => {
+        const [ko, c] = RESULT[g.winner] || RESULT.draw;
+        return (
+          <span key={i} className="ui-cut py-1 text-center font-display text-[12px] font-extrabold"
+            style={{ '--c': '4px', color: g.winner === 'my' ? '#05080f' : c, background: g.winner === 'my' ? c : 'rgba(255,255,255,.06)' }}>{ko}</span>
+        );
+      })}
+    </div>
+  );
+}
+
 /** onOpen: 시즌 화면으로(없으면 새 시즌을 열고) */
 export function rankedPanels({ account, onOpen, onLocker }) {
   const team = account.team || {};
@@ -62,6 +88,12 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   const opp = s ? myOpponent(s) : null;
   const pm = s ? postMatch(s) : null;
   const state = !s ? '시즌 전' : s.done ? PLACE_REWARD[s.place - 1].ko : s.post ? STAGES[pm.stage].ko : `정규 ${s.round + 1}차전`;
+  const form = (account.history || []).filter((h) => h.mode === 'ranked').slice(0, 10);
+  const fw = form.filter((h) => h.winner === 'my').length;
+  const fl = form.filter((h) => h.winner === 'opp').length;
+  const fd = form.length - fw - fl;
+  const streak = (() => { let n = 0; for (const h of form) { if (h.winner === 'my') n += 1; else break; } return n; })();
+  const past = (account.rank?.seasons || []).slice(0, 3);
 
   const main = (
     <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
@@ -91,14 +123,41 @@ export function rankedPanels({ account, onOpen, onLocker }) {
           <b className="ml-auto font-display text-xl text-white">{rp} RP</b>
         </div>
         <span className="mt-2 block h-1.5 bg-white/10"><i className="block h-full" style={{ width: `${rank.inDiv}%`, background: rank.tier.c }} /></span>
+        <div className="mt-2 flex justify-between font-display text-[12px] text-gray-500">
+          <span>{rank.next ? `다음 등급까지 ${rank.toNext} RP` : '최고 등급'}</span>
+          <span>최고 {account.rank?.best || rp} RP</span>
+        </div>
       </div>
-      <Stats items={[['팀 OVR', teamStats(squad).ovr || '-'], ['시즌', s ? s.season : '-'], ['순위', row && s.games.length ? `${row.rank}위` : '-']]} />
-      <div>
-        <KV k="진행" v={state} color={RK} />
-        {row && <KV k="시즌 성적" v={`${row.w}승 ${row.l}패 ${row.d}무`} />}
-        {opp && <KV k="다음 상대" v={opp.name} />}
-        <KV k="우승 보상" v={`+${PLACE_REWARD[0].rp} RP · ${PLACE_REWARD[0].gold} G`} color="#fde047" />
+      {s && (
+        <div>
+          <KV k="진행" v={state} color={RK} />
+          {row && <KV k="시즌 성적" v={`${row.w}승 ${row.l}패 ${row.d}무`} />}
+          {opp && <KV k="다음 상대" v={opp.name} />}
+        </div>
+      )}
+
+      {/* 최근 랭크전 흐름 — 성적은 제목 옆에 붙여 한 줄로 */}
+      <div className="flex items-baseline gap-2">
+        <p className="ui-lab font-display" style={{ '--a': RK }}>Form · 최근 {form.length || 10}경기</p>
+        {!!form.length && <span className="ml-auto font-display text-[12px] text-gray-400">{fw}승 {fd}무 {fl}패</span>}
       </div>
+      <FormRow games={form} />
+      {!!form.length && <Stats items={[['승률', `${Math.round((fw / form.length) * 100)}%`], ['연승', streak]]} />}
+
+      {/* 지난 시즌 */}
+      <p className="ui-lab font-display" style={{ '--a': RK }}>History</p>
+      {past.length ? (
+        <div>
+          {past.map((h) => (
+            <KV key={h.season} k={`시즌 ${h.season} · ${PLACE_REWARD[h.place - 1]?.ko || '-'}`}
+              v={`${h.rp >= 0 ? '+' : ''}${h.rp} RP`} color={h.rp >= 0 ? '#34d399' : '#f87171'} sm />
+          ))}
+        </div>
+      ) : <p className="text-sm text-gray-500">아직 마친 시즌이 없습니다</p>}
+
+      {/* 내 팀 전력 */}
+      <p className="ui-lab font-display" style={{ '--a': RK }}>My Team</p>
+      <Stats items={teamParts(squad)} />
       {!ready && <p className="text-sm text-amber-300">{issues[0]}</p>}
       <div className="mt-auto">
         {ready || s
