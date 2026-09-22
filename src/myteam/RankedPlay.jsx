@@ -1,6 +1,6 @@
 /* 플레이 화면의 랭크전 — 가운데: 시즌 순위표(없으면 시즌 방식 소개) · 오른쪽: 내 등급과 다음 경기 */
 import React from 'react';
-import { squadIssues, SQUAD_CAP } from './rules.js';
+import { squadIssues, SQUAD_CAP, limitsOf } from './rules.js';
 import { UiStyle, KV, Stats, teamStats } from './ui.jsx';
 import { rankOf } from './rank.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, STAGES, PLACE_REWARD, LEAGUE_SIZE, POST_TEAMS } from './ranked.js';
@@ -34,7 +34,7 @@ function Intro() {
 export function rankedPanels({ account, onOpen, onLocker }) {
   const team = account.team || {};
   const squad = team.squad || [];
-  const issues = squadIssues(squad, team.staff, team.cap || SQUAD_CAP);
+  const issues = squadIssues(squad, team.staff, team.cap || SQUAD_CAP, limitsOf(team));
   const ready = issues.length === 0;
   const s = account.ranked || null;
   const rp = account.rank?.rp || 0;

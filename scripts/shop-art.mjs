@@ -30,6 +30,8 @@ export const SHOP_ART = {
   'bo-meeting': ['boost', 'A hitting coach leaning over a row of seated batters in a dark dugout, bats and helmets lined up'],
   'bo-mound': ['boost', 'Infielders and the catcher gathered on the mound in a tight circle at night, gloves over mouths'],
   'bo-medic': ['boost', "A trainer taping a pitcher's shoulder on a treatment table in a dark clubhouse room, ice packs beside them"],
+  'op-bench': ['ops', 'A long dugout bench at night with jerseys hung in a row and one extra empty space at the end lit brighter than the rest'],
+  'op-foreign': ['ops', 'A stamped work-visa document and a passport on a club office desk at night beside a folded team cap and an airline tag'],
   'op-cap40': ['ops', 'A club front-office desk at night: a glowing salary-cap gauge board, roster papers and a calculator'],
   'op-cap100': ['ops', 'A heavy club vault door swinging open in a dark stadium corridor, glowing gauge meters on the wall'],
   'st-manager': ['staff', "Close-up of a manager's hand signing a contract with a fountain pen, team cap beside the papers"],

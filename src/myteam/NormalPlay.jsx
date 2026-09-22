@@ -1,6 +1,6 @@
 /* 플레이 화면의 일반 대결 — 내 라커 26인으로: 단판 한 경기 또는 16 · 32 · 64강 토너먼트 (언제든 새로 열 수 있다) */
 import React from 'react';
-import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
+import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues, limitsOf } from './rules.js';
 import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
 
@@ -127,7 +127,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const team = account.team || {};
   const squad = team.squad || [];
   const cap = team.cap || SQUAD_CAP;
-  const issues = squadIssues(squad, team.staff, cap);
+  const issues = squadIssues(squad, team.staff, cap, limitsOf(team));
   const ready = issues.length === 0;
   const st = teamStats(squad);
   const rec = team.record || { w: 0, l: 0, d: 0 };

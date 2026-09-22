@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_SIZE, SQUAD_CAP, FOREIGN_MAX, POS_RULES, FREE_SLOTS, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues } from './rules.js';
+import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues, limitsOf } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
@@ -195,13 +195,13 @@ function EmptyDetail() {
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, staff, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0 }) {
+function DetailPanel({ p, squad, staff, cap, lim = BASE_LIMITS, onAdd, onRelease, playing, onUpgrade, itemsFit = 0 }) {
   if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const n = tone(p.overall);
   const cost = squadCost(squad, staff);
   const after = owned ? cost - p.cost : cost + p.cost;
-  const blocked = owned ? null : addBlockReason(p, squad, staff, cap);
+  const blocked = owned ? null : addBlockReason(p, squad, staff, cap, lim);
   const sum = squad.reduce((s, x) => s + x.overall, 0);
   const now = squad.length ? Math.round(sum / squad.length) : 0;
   const next = owned
@@ -461,7 +461,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const staff = team.staff || {};
   const cap = team.cap || SQUAD_CAP;
   const cost = squadCost(squad, staff);
-  const issues = squadIssues(squad, staff, cap);
+  const lim = limitsOf(team);                 // 상점에서 넓힌 엔트리 · 외국인 한도
+  const issues = squadIssues(squad, staff, cap, lim);
   const bench = team.bench || [];
   const playing = useMemo(() => playingIds(squad, bench), [squad, bench]);
   /** 출전 ↔ 벤치 바꾸기. 출전으로 올리면 같은 묶음에서 가장 약한 출전 선수를 대신 벤치로 */
@@ -484,26 +485,26 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   };
 
   const commit = (next) => { setTeam(next); saveTeam(next); onSave?.(next); };
-  const add = (p) => { if (!addBlockReason(p, squad, staff, cap)) commit({ ...team, squad: [...squad, p] }); };
+  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim)) commit({ ...team, squad: [...squad, p] }); };
   const release = (p) => { commit({ ...team, squad: squad.filter((x) => x.id !== p.id), bench: (team.bench || []).filter((id) => id !== p.id) }); setSel(null); };
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
 
   const autoFill = () => {
     let next = [...squad];
     const tryAdd = (want) => {
-      const slots = SQUAD_SIZE - next.length;
+      const slots = lim.size - next.length;
       const budget = Math.max(40, Math.floor((cap - squadCost(next, staff)) / Math.max(1, slots)));
-      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap)).sort((a, b) => b.overall - a.overall);
+      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap, lim)).sort((a, b) => b.overall - a.overall);
       if (!pool.length) return false;
       next = [...next, pool[0]];
       return true;
     };
     for (const r of POS_RULES) {
-      for (let i = next.filter((p) => p.position === r.key).length; i < r.min && next.length < SQUAD_SIZE; i++) tryAdd(r.key);
+      for (let i = next.filter((p) => p.position === r.key).length; i < r.min && next.length < lim.size; i++) tryAdd(r.key);
     }
     // 자유 자리: 경기에 나가는 불펜 8명을 먼저 채우고, 그다음 수비 폭을 넓히는 야수 · 포수 순
-    for (const want of ['RP', 'RP', 'OF', 'SS', 'C']) { if (next.length < SQUAD_SIZE) tryAdd(want); }
-    while (next.length < SQUAD_SIZE) { if (!tryAdd(null)) break; }
+    for (const want of ['RP', 'RP', 'OF', 'SS', 'C']) { if (next.length < lim.size) tryAdd(want); }
+    while (next.length < lim.size) { if (!tryAdd(null)) break; }
     commit({ ...team, squad: next });
   };
 
@@ -581,20 +582,20 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             };
             const used = freeUsed(squad);
             const fc = foreignCount(squad);
-            const entryOk = squad.length === SQUAD_SIZE && !issues.length;
+            const entryOk = squad.length === lim.size && !issues.length;
             return (
               <>
                 <div className="flex items-center justify-between px-0.5 pb-2.5">
                   <p className="mt-lab" style={{ fontSize: 10 }}>Squad</p>
-                  {frac(squad.length, SQUAD_SIZE, entryOk ? '#34d399' : squad.length > SQUAD_SIZE ? '#f87171' : '#e5e7eb')}
+                  {frac(squad.length, lim.size, entryOk ? '#34d399' : squad.length > lim.size ? '#f87171' : '#e5e7eb')}
                 </div>
                 <div className="grid grid-cols-2 gap-x-2.5">
                   <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
                   <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
                 </div>
                 <div className="mt-3 flex justify-between px-[5px] text-[13px] text-gray-300">
-                  <span>자유 자리 {frac(used, FREE_SLOTS, used > FREE_SLOTS ? '#f87171' : used === FREE_SLOTS ? '#34d399' : '#e5e7eb')}</span>
-                  <span>외국인 {frac(fc, FOREIGN_MAX, fc > FOREIGN_MAX ? '#f87171' : '#e5e7eb')}</span>
+                  <span>자유 자리 {frac(used, lim.free, used > lim.free ? '#f87171' : used === lim.free ? '#34d399' : '#e5e7eb')}</span>
+                  <span>외국인 {frac(fc, lim.foreign, fc > lim.foreign ? '#f87171' : '#e5e7eb')}</span>
                 </div>
               </>
             );
@@ -619,7 +620,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap)} showNote={false} teamTint
+                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap, lim)} showNote={false} teamTint
                   onPick={setSel} onAct={add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}
@@ -635,7 +636,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         {tab === 'squad' && (
           <SquadBoard team={team} squad={squad} bench={bench}
             sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench} onRelease={release}
-            onAutoFill={autoFill} autoDisabled={squad.length >= SQUAD_SIZE} />
+            onAutoFill={autoFill} autoDisabled={squad.length >= lim.size} />
         )}
 
         {tab === 'staff' && (
@@ -804,7 +805,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           );
         })()
           : (
-          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} onAdd={add} onRelease={release} playing={playing}
+          <DetailPanel p={sel} squad={squad} staff={staff} cap={cap} lim={lim} onAdd={add} onRelease={release} playing={playing}
             itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
         )}

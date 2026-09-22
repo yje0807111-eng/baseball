@@ -8,6 +8,7 @@
  *  감독 계약: 감독을 CP 없이 선임
  */
 import { overallOf } from '../data/seriesPlayers.js';
+import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX } from './rules.js';
 
 export const CATEGORIES = [
   { key: 'all', label: '전체' },
@@ -44,6 +45,8 @@ export const SHOP_ITEMS = [
   item('bo-mound', 'boost', '마운드 미팅', '투수 전원 제구 +3 · 1경기', 400, { teamBoost: 'pitcher', stat: 'control', amount: 3, games: 1, img: 'mt-boost' }),
   item('bo-medic', 'boost', '재활 트레이너', '투수진에 쌓인 피로를 모두 지운다', 350, { medic: true, img: 'mt-boost' }),
   // 운영
+  item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
+  item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
@@ -93,6 +96,7 @@ export function itemEffect(it) {
   if (it.augShop) return { label: AUG_TICKET_KO[it.augShop] || '증강', amount: 1, max: 1 };
   if (it.teamBoost) return { label: TEAM_BOOST_KO[it.teamBoost] || '팀', amount: it.amount, max: 20 };
   if (it.medic) return { label: '피로 회복', amount: null, max: 1 };
+  if (it.expand) return { label: EXPAND_KO[it.expand] || '확장', amount: 1, max: 1 };
   return { label: it.name, amount: null, max: 1 };
 }
 
@@ -128,6 +132,19 @@ export function applyTeamBoost(team, it) {
 export const clearFatigue = (team) => ({ ...team, pitchFatigue: {} });
 /** 지금 쉬고 있는(피로가 남은) 투수 수 */
 export const tiredCount = (team) => Object.values(team?.pitchFatigue || {}).filter((f) => (f?.rest || 0) > 0).length;
+
+/* ───── 팀 틀 확장: 엔트리 한 자리 · 외국인 한 명 (영구, 횟수 제한) ───── */
+export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign' };
+export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX };
+export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도' };
+/** 몇 번 더 살 수 있나 */
+export const expandLeft = (team, kind) => Math.max(0, EXPAND_MAX[kind] - (team?.[EXPAND_KEY[kind]] || 0));
+/** 한 번 넓힌 팀 — 한도를 넘으면 그대로 */
+export function expandTeam(team, kind) {
+  if (!EXPAND_KEY[kind] || expandLeft(team, kind) < 1) return team;
+  const key = EXPAND_KEY[kind];
+  return { ...team, [key]: (team[key] || 0) + 1 };
+}
 
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
