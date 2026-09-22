@@ -194,7 +194,7 @@ export default function AugmentScreen({ account, onBack }) {
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
                       fav={favs.includes(a.id)} onFav={toggleFav}
-                      onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
+                      onPick={(x) => setSel((s) => (tab === 'upgrade' ? x : s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
                   ))}
                 </div>
               </div>
@@ -221,7 +221,7 @@ export default function AugmentScreen({ account, onBack }) {
             return (
               <>
                 <p className="mt-lab" style={{ '--a': c }}>Pick</p>
-                <div className="mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
+                <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
                   {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
                   <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
                   <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
