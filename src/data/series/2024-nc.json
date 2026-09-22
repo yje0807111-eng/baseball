@@ -1,0 +1,318 @@
+{
+  "id": "2024-nc",
+  "kind": "team",
+  "year": 2024,
+  "title": "NC 다이노스",
+  "franchise": "NC",
+  "subtitle": "정규시즌 9위 · 하트 13승",
+  "blurb": "데이비슨이 46홈런을 쳤고 하트가 ERA 2.69로 마운드를 버텼다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "하트",
+      "name": "하트",
+      "year": 2024,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 91,
+        "control": 82,
+        "stamina": 81,
+        "stability": 88
+      },
+      "note": "",
+      "source": "26G 157IP ERA2.69 182K 38BB WHIP1.03 13승 — KBO 기록실"
+    },
+    {
+      "personId": "신민혁",
+      "name": "신민혁",
+      "year": 2024,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 94,
+        "stamina": 72,
+        "stability": 70
+      },
+      "note": "",
+      "source": "25G 121IP ERA4.31 74K 16BB WHIP1.29 8승 — KBO 기록실"
+    },
+    {
+      "personId": "카스타노",
+      "name": "카스타노",
+      "year": 2024,
+      "team": "NC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 84,
+        "stamina": 69,
+        "stability": 70
+      },
+      "note": "",
+      "source": "19G 111 2/3IP ERA4.35 89K 25BB WHIP1.27 8승 — KBO 기록실"
+    },
+    {
+      "personId": "이재학",
+      "name": "이재학",
+      "year": 2024,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 65,
+        "stamina": 67,
+        "stability": 57
+      },
+      "note": "",
+      "source": "21G 104 1/3IP ERA5.52 97K 42BB WHIP1.44 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김시훈",
+      "name": "김시훈",
+      "year": 2024,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 52,
+        "stamina": 60,
+        "stability": 65
+      },
+      "note": "",
+      "source": "39G 107 1/3IP ERA4.53 74K 59BB WHIP1.57 3승 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "김재열",
+      "name": "김재열",
+      "year": 2024,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 62,
+        "stamina": 59,
+        "stability": 90
+      },
+      "note": "",
+      "source": "69G 68 2/3IP ERA2.49 67K 29BB WHIP1.27 1승 2SV 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "이용찬",
+      "name": "이용찬",
+      "year": 2024,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 66,
+        "stamina": 56,
+        "stability": 48
+      },
+      "note": "",
+      "source": "57G 54 1/3IP ERA6.13 49K 21BB WHIP1.90 3승 16SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "김영규",
+      "name": "김영규",
+      "year": 2024,
+      "team": "NC",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 75,
+        "stamina": 54,
+        "stability": 84
+      },
+      "note": "",
+      "source": "42G 45 2/3IP ERA3.15 48K 14BB WHIP1.18 4승 1SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "김형준",
+      "name": "김형준",
+      "year": 2024,
+      "team": "NC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 75,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".195/.285 17HR 50타점 0SB 414PA — KBO 기록실"
+    },
+    {
+      "personId": "박세혁",
+      "name": "박세혁",
+      "year": 2024,
+      "team": "NC",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 46,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".264/.337 1HR 10타점 4SB 171PA — KBO 기록실"
+    },
+    {
+      "personId": "데이비슨(타자)",
+      "name": "데이비슨",
+      "year": 2024,
+      "team": "NC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 82,
+        "power": 96,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".306/.370 46HR 119타점 0SB 567PA — KBO 기록실"
+    },
+    {
+      "personId": "박민우",
+      "name": "박민우",
+      "year": 2024,
+      "team": "NC",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 56,
+        "speed": 85,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".328/.406 8HR 50타점 32SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "서호철",
+      "name": "서호철",
+      "year": 2024,
+      "team": "NC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 60,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".285/.342 10HR 61타점 1SB 567PA — KBO 기록실"
+    },
+    {
+      "personId": "김휘집",
+      "name": "김휘집",
+      "year": 2024,
+      "team": "NC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 67,
+        "speed": 52,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".258/.337 16HR 73타점 4SB 562PA — KBO 기록실"
+    },
+    {
+      "personId": "권희동",
+      "name": "권희동",
+      "year": 2024,
+      "team": "NC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 64,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".300/.417 13HR 77타점 4SB 511PA — KBO 기록실"
+    },
+    {
+      "personId": "김성욱",
+      "name": "김성욱",
+      "year": 2024,
+      "team": "NC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 75,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".204/.291 17HR 60타점 10SB 412PA — KBO 기록실"
+    },
+    {
+      "personId": "박건우",
+      "name": "박건우",
+      "year": 2024,
+      "team": "NC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 72,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".344/.409 13HR 53타점 4SB 362PA — KBO 기록실"
+    },
+    {
+      "personId": "김주원",
+      "name": "김주원",
+      "year": 2024,
+      "team": "NC",
+      "position": "SS",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 61,
+        "speed": 71,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".252/.371 9HR 49타점 16SB 475PA — KBO 기록실"
+    }
+  ]
+}

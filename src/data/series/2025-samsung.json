@@ -1,0 +1,318 @@
+{
+  "id": "2025-samsung",
+  "kind": "team",
+  "year": 2025,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "정규시즌 4위 · 디아즈 50홈런",
+  "blurb": "디아즈가 50홈런 158타점으로 홈런·타점 2관왕에 오르며 라이온즈를 가을로 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "후라도",
+      "name": "후라도",
+      "year": 2025,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 88,
+        "stamina": 92,
+        "stability": 89
+      },
+      "note": "",
+      "source": "30G 197 1/3IP ERA2.60 142K 36BB WHIP1.08 15승 — KBO 기록실"
+    },
+    {
+      "personId": "원태인",
+      "name": "원태인",
+      "year": 2025,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 91,
+        "stamina": 84,
+        "stability": 83
+      },
+      "note": "",
+      "source": "27G 166 2/3IP ERA3.24 108K 27BB WHIP1.10 12승 — KBO 기록실"
+    },
+    {
+      "personId": "최원태",
+      "name": "최원태",
+      "year": 2025,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 64,
+        "stamina": 72,
+        "stability": 63
+      },
+      "note": "",
+      "source": "27G 124 1/3IP ERA4.92 109K 51BB WHIP1.44 8승 — KBO 기록실"
+    },
+    {
+      "personId": "이승현(좌완)",
+      "name": "이승현",
+      "year": 2025,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 59,
+        "stamina": 66,
+        "stability": 55
+      },
+      "note": "",
+      "source": "25G 101 1/3IP ERA5.42 74K 46BB WHIP1.65 4승 — KBO 기록실"
+    },
+    {
+      "personId": "김태훈(삼성)",
+      "name": "김태훈",
+      "year": 2025,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 66,
+        "stamina": 58,
+        "stability": 68
+      },
+      "note": "",
+      "source": "73G 66 1/3IP ERA4.48 74K 26BB WHIP1.39 2승 2SV 19HLD — KBO 기록실"
+    },
+    {
+      "personId": "배찬승",
+      "name": "배찬승",
+      "year": 2025,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 44,
+        "stamina": 55,
+        "stability": 72
+      },
+      "note": "",
+      "source": "65G 50 2/3IP ERA3.91 57K 34BB WHIP1.66 2승 19HLD — KBO 기록실"
+    },
+    {
+      "personId": "김재윤",
+      "name": "김재윤",
+      "year": 2025,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 84,
+        "stamina": 57,
+        "stability": 62
+      },
+      "note": "",
+      "source": "63G 57 2/3IP ERA4.99 43K 13BB WHIP1.21 4승 13SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "이호성",
+      "name": "이호성",
+      "year": 2025,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 54,
+        "stamina": 56,
+        "stability": 50
+      },
+      "note": "",
+      "source": "58G 55 1/3IP ERA6.34 69K 29BB WHIP1.50 7승 9SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2025,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 65,
+        "speed": 47,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".269/.336 12HR 71타점 2SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "디아즈",
+      "name": "디아즈",
+      "year": 2025,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 84,
+        "power": 98,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".314/.381 50HR 158타점 1SB 628PA — KBO 기록실"
+    },
+    {
+      "personId": "류지혁",
+      "name": "류지혁",
+      "year": 2025,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 42,
+        "speed": 65,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".280/.351 1HR 37타점 11SB 464PA — KBO 기록실"
+    },
+    {
+      "personId": "김영웅",
+      "name": "김영웅",
+      "year": 2025,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 77,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".249/.323 22HR 72타점 6SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "이재현",
+      "name": "이재현",
+      "year": 2025,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 67,
+        "speed": 57,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".254/.360 16HR 67타점 6SB 555PA — KBO 기록실"
+    },
+    {
+      "personId": "구자욱",
+      "name": "구자욱",
+      "year": 2025,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 71,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".319/.402 19HR 96타점 4SB 616PA — KBO 기록실"
+    },
+    {
+      "personId": "김성윤",
+      "name": "김성윤",
+      "year": 2025,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 52,
+        "speed": 81,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".331/.419 6HR 61타점 26SB 538PA — KBO 기록실"
+    },
+    {
+      "personId": "김지찬",
+      "name": "김지찬",
+      "year": 2025,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 40,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".281/.364 0HR 23타점 22SB 373PA — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 2025,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 88,
+        "speed": 42,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".199/.315 15HR 33타점 0SB 232PA — KBO 기록실"
+    },
+    {
+      "personId": "박승규",
+      "name": "박승규",
+      "year": 2025,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 68,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".287/.377 6HR 14타점 5SB 200PA — KBO 기록실"
+    }
+  ]
+}

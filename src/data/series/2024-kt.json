@@ -1,0 +1,318 @@
+{
+  "id": "2024-kt",
+  "kind": "team",
+  "year": 2024,
+  "title": "KT 위즈",
+  "franchise": "KT",
+  "subtitle": "정규시즌 5위 · 로하스 MVP",
+  "blurb": "로하스가 32홈런 112타점으로 MVP에 올랐고 5위에서 준플레이오프까지 올라갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "쿠에바스",
+      "name": "쿠에바스",
+      "year": 2024,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 71,
+        "stamina": 86,
+        "stability": 73
+      },
+      "note": "",
+      "source": "31G 173 1/3IP ERA4.10 154K 59BB WHIP1.25 7승 — KBO 기록실"
+    },
+    {
+      "personId": "엄상백",
+      "name": "엄상백",
+      "year": 2024,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 79,
+        "stamina": 81,
+        "stability": 63
+      },
+      "note": "",
+      "source": "29G 156 2/3IP ERA4.88 159K 42BB WHIP1.31 13승 — KBO 기록실"
+    },
+    {
+      "personId": "벤자민",
+      "name": "벤자민",
+      "year": 2024,
+      "team": "KT",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 86,
+        "control": 73,
+        "stamina": 79,
+        "stability": 66
+      },
+      "note": "",
+      "source": "28G 149 2/3IP ERA4.63 156K 48BB WHIP1.26 11승 — KBO 기록실"
+    },
+    {
+      "personId": "고영표",
+      "name": "고영표",
+      "year": 2024,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 93,
+        "stamina": 66,
+        "stability": 60
+      },
+      "note": "100이닝 볼넷 14개",
+      "source": "18G 100IP ERA4.95 79K 14BB WHIP1.55 6승 — KBO 기록실"
+    },
+    {
+      "personId": "박영현",
+      "name": "박영현",
+      "year": 2024,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 77,
+        "stamina": 55,
+        "stability": 80
+      },
+      "note": "25세이브",
+      "source": "66G 76 2/3IP ERA3.52 87K 22BB WHIP1.11 10승 25SV — KBO 기록실"
+    },
+    {
+      "personId": "김민",
+      "name": "김민",
+      "year": 2024,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 70,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "71G 77 1/3IP ERA4.31 77K 27BB WHIP1.44 8승 21HLD — KBO 기록실"
+    },
+    {
+      "personId": "김민수",
+      "name": "김민수",
+      "year": 2024,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 64,
+        "stamina": 60,
+        "stability": 60
+      },
+      "note": "",
+      "source": "75G 81 1/3IP ERA5.20 75K 33BB WHIP1.44 5승 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "원상현",
+      "name": "원상현",
+      "year": 2024,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 58,
+        "stamina": 58,
+        "stability": 42
+      },
+      "note": "",
+      "source": "22G 65 1/3IP ERA7.03 59K 31BB WHIP2.08 2승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "강백호",
+      "name": "강백호",
+      "year": 2024,
+      "team": "KT",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 79,
+        "speed": 57,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".289/.360 26HR 96타점 6SB 614PA — KBO 기록실"
+    },
+    {
+      "personId": "장성우",
+      "name": "장성우",
+      "year": 2024,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 74,
+        "speed": 55,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".268/.355 19HR 81타점 5SB 489PA — KBO 기록실"
+    },
+    {
+      "personId": "문상철",
+      "name": "문상철",
+      "year": 2024,
+      "team": "KT",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 76,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".256/.351 17HR 58타점 6SB 403PA — KBO 기록실"
+    },
+    {
+      "personId": "천성호",
+      "name": "천성호",
+      "year": 2024,
+      "team": "KT",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 44,
+        "speed": 59,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".295/.346 1HR 17타점 7SB 255PA — KBO 기록실"
+    },
+    {
+      "personId": "황재균",
+      "name": "황재균",
+      "year": 2024,
+      "team": "KT",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 64,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".260/.309 13HR 58타점 4SB 536PA — KBO 기록실"
+    },
+    {
+      "personId": "김상수",
+      "name": "김상수",
+      "year": 2024,
+      "team": "KT",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 50,
+        "speed": 50,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".276/.351 4HR 45타점 3SB 420PA — KBO 기록실"
+    },
+    {
+      "personId": "로하스",
+      "name": "로하스",
+      "year": 2024,
+      "team": "KT",
+      "position": "OF",
+      "hand": "S",
+      "isForeign": true,
+      "stats": {
+        "contact": 89,
+        "power": 86,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".329/.421 32HR 112타점 2SB 670PA — KBO 기록실"
+    },
+    {
+      "personId": "배정대",
+      "name": "배정대",
+      "year": 2024,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 56,
+        "speed": 62,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".275/.355 7HR 59타점 9SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "김민혁",
+      "name": "김민혁",
+      "year": 2024,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 43,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".353/.410 1HR 34타점 4SB 393PA — KBO 기록실"
+    },
+    {
+      "personId": "오재일",
+      "name": "오재일",
+      "year": 2024,
+      "team": "KT",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 69,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".243/.321 11HR 45타점 0SB 343PA — KBO 기록실"
+    }
+  ]
+}

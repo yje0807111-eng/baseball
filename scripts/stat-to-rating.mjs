@@ -60,9 +60,14 @@ const STABILITY = [[2.0, 94], [2.5, 90], [3.0, 85], [3.5, 80], [4.0, 74], [4.5, 
 
 /** x 가 내림차순인 구간표(제구)는 뒤집어 읽는다 */
 const curveDown = (points, x) => curve([...points].reverse(), x);
-/** 이닝 표기 '197.1'(197과 1/3) 을 소수로 */
+/** 이닝을 소수로 — KBO 기록실 표기 '197 1/3' 과 '197.1'(197과 1/3) 을 모두 받는다 */
 export const ipOf = (ip) => {
-  const n = Number(ip);
+  const t = String(ip).trim();
+  if (t.includes('/')) {
+    const m = t.match(/^(\d+)?\s*(?:(\d)\/(\d))?$/);
+    if (m) return Number(m[1] || 0) + (m[2] ? Number(m[2]) / Number(m[3]) : 0);
+  }
+  const n = Number(t);
   if (!Number.isFinite(n)) return 0;
   const whole = Math.trunc(n);
   const frac = Math.round((n - whole) * 10);
