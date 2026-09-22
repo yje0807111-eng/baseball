@@ -358,9 +358,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const hitGlow = { boxShadow: 'inset 0 0 0 2px #34d399, 0 0 18px -4px #34d399' };
   const inFx = (id) => (justIn === id ? { animation: 'sb-in .7s ease-out' } : null);
   const benchFace = (p) => (<>
-    <span className="w-[22px] text-center"><Ovr p={p} size={15} /></span>
-    {face(p, 24, 30)}
-    <b className="min-w-0 flex-1 truncate text-[13px] text-white">{p.name}</b>
+    <span className="w-[22px] text-center"><Ovr p={p} size={14} /></span>
+    <b className="min-w-0 flex-1 truncate text-[12.5px] text-white">{p.name}</b>
     <small className="font-display text-[11px] font-bold" style={{ color: teamNeon(p) }}>{p.position}</small>
   </>);
   const lifted = { boxShadow: 'inset 0 0 0 2px #e5e7eb, 0 10px 24px -8px rgba(0,0,0,.9)', background: 'linear-gradient(90deg,#26303f,#161d2a)', zIndex: 5 };
@@ -528,18 +527,18 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <Slots count={rotation.length} slots={fitSlots ? rotation.length : PLAY_LIMIT.SP} maxH={52} style={fitSlots ? { flex: `0 0 ${rotation.length * 52}px` } : { flex: PLAY_LIMIT.SP }}>
               {(h, pitch) => stable(rotation).map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
             </Slots>
-            <div className="h-2 shrink-0" />
+            <div className="h-1.5 shrink-0" />
             <Grp en="BULLPEN" ko={`불펜 ${bullpen.length}`} color={ROLE.MR} />
             <Slots count={bullpen.length} slots={fitSlots ? bullpen.length : PLAY_LIMIT.RP} maxH={46} style={fitSlots ? { flex: `0 0 ${bullpen.length * 46}px` } : { flex: PLAY_LIMIT.RP }}>
               {(h, pitch) => stable(bullpen).map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch))}
             </Slots>
-            <div className="h-2 shrink-0" />
+            <div className="h-1.5 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
-            <div className={`mt-scroll slim grid max-h-[126px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
+            <div className={`mt-scroll slim grid max-h-[64px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
               {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
-                  className={`mt-cut flex h-[40px] shrink-0 touch-none select-none items-center gap-2 px-2 ${drag?.list === 'bench' && drag.id === p.id ? 'cursor-grabbing opacity-35' : 'cursor-grab'}`}
+                  className={`mt-cut flex h-[30px] shrink-0 touch-none select-none items-center gap-1.5 px-2 ${drag?.list === 'bench' && drag.id === p.id ? 'cursor-grabbing opacity-35' : 'cursor-grab'}`}
                   style={{ '--c': '6px', background: 'rgba(5,8,15,.6)', boxShadow: `inset 0 0 0 1px ${sel?.id === p.id ? teamNeon(p) : 'rgba(148,163,184,.18)'}` }}>
                   <Handle />
                   {benchFace(p)}
