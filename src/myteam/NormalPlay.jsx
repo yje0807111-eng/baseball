@@ -1,6 +1,6 @@
 /* 플레이 화면의 일반 대결 — 내 라커 26인으로: 단판 한 경기 또는 16 · 32 · 64강 토너먼트 (언제든 새로 열 수 있다) */
 import React from 'react';
-import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues } from './rules.js';
+import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues, foreignCount } from './rules.js';
 import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
@@ -161,36 +161,38 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
 export function TourneyHero({ size, t, name, squad }) {
   const rounds = roundsOf(size), finish = finishOf(size);
   const n = rounds.length;
-  const steps = finish.map((f, i) => ({ ...f, label: i === n ? '우승' : i === n - 1 ? '준우승' : rounds[i].ko }));
-  const reached = t ? (t.done ? t.place : t.round) : -1;
+  const now = t ? (t.done ? n : t.round) : -1;
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 6);
   return (
     <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px', '--a': A }}>
       <UiStyle />
-      <span className="absolute inset-0 bg-cover opacity-30" style={{ backgroundImage: 'url(ui/broadcast-field.webp)', backgroundPosition: 'center 60%' }} />
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 18%,rgba(5,8,15,.45))' }} />
+      {/* 더그아웃에서 그라운드로 나가는 장면 */}
+      <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/tour/tunnel.webp)', backgroundPosition: 'center 45%' }} />
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,.15) 45%,#05080f)' }} />
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': A }}>Tournament · {size}</p>
-        <h1 className="mt-2 text-6xl font-black text-white">{size}강 토너먼트</h1>
-        <p className="mt-3 text-lg text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
-        <div className="mt-auto grid min-h-0 items-end gap-2.5" style={{ height: '52%', gridTemplateColumns: `repeat(${steps.length}, minmax(0,1fr))` }}>
-          {steps.map((s, i) => {
-            const champ = i === n;
-            const mine = reached === i;
-            return (
-              <div key={s.ko} className="ui-cut flex flex-col justify-end p-3.5"
-                style={{ '--c': '12px', height: `${30 + (i * 70) / n}%`, background: `linear-gradient(180deg, rgba(251,191,36,${0.05 + (i * 0.25) / n}), rgba(5,8,15,.6))`,
-                  boxShadow: mine ? `inset 0 0 0 2px ${A}` : `inset 0 2px 0 ${champ ? A : 'rgba(251,191,36,.35)'}` }}>
-                {champ && <span className="mb-auto text-center text-6xl leading-none">🏆</span>}
-                {mine && <span className="mb-1 font-display text-xs font-bold tracking-[0.2em]" style={{ color: A }}>{t.done ? 'RESULT' : 'NOW'}</span>}
-                <b className="font-display font-extrabold" style={{ fontSize: champ ? 34 : 24, color: champ ? A : '#fff' }}>{s.label}</b>
-                <span className="font-display text-base text-gray-300">{s.gold} G</span>
-              </div>
-            );
-          })}
+        <div className="mt-auto text-center">
+          <p className="font-display text-xs font-bold tracking-[0.4em]" style={{ color: A }}>ROAD TO THE TITLE</p>
+          <h1 className="mt-2 text-6xl font-black leading-none text-white">{size}강 토너먼트</h1>
+          <p className="mt-3 text-lg text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
+          <div className="mt-5 flex items-center justify-center gap-2">
+            {rounds.map((r, k) => {
+              const done = now > k;
+              const here = now === k;
+              return (
+                <React.Fragment key={r.key}>
+                  <span className="ui-cut px-4 py-1.5 font-display text-[15px] font-bold" style={{ '--c': '6px',
+                    color: here || (k === n - 1 && now < 0) ? '#05080f' : done ? '#05080f' : '#e5e7eb',
+                    background: here ? A : done ? 'rgba(251,191,36,.55)' : k === n - 1 && now < 0 ? A : 'rgba(255,255,255,.08)' }}>{r.ko}</span>
+                  {k < n - 1 && <span className="font-display text-gray-600">›</span>}
+                </React.Fragment>
+              );
+            })}
+          </div>
+          <p className="mt-3 font-display text-base text-gray-400">우승 상금 <b style={{ color: A }}>{finish[n].gold} G</b></p>
         </div>
         {squad && (
-          <div className="ui-cut mt-4 flex items-center gap-5 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
+          <div className="ui-cut mt-auto flex items-center gap-5 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
             <span className="ui-lab font-display" style={{ '--a': '#34d399' }}>My Team</span>
             <b className="text-xl text-white">{name}</b>
             <span className="text-gray-400">팀 종합 <b className="font-display text-xl text-white">{teamStats(squad).ovr || '-'}</b></span>
@@ -217,7 +219,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const cap = team.cap || SQUAD_CAP;
   const issues = squadIssues(squad, team.staff, cap);
   const ready = issues.length === 0;
-  const st = teamStats(squad);
+  const st = teamStats(squad);
   const recent = (account.history || []).filter((h) => !h.mode).slice(0, 5); // 단판 기록만
   const recCount = recent.reduce((n, h) => ({ ...n, [h.winner]: (n[h.winner] || 0) + 1 }), { my: 0, opp: 0, draw: 0 });
   const single = format === 'single';
@@ -234,7 +236,8 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
     : <TourneyHero key={format} size={format} t={t} name={team.name || '나의 드림팀'} squad={squad} />;
 
   const aside = (
-    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6" style={{ '--c': '20px', '--a': acc }}>
+    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6" style={{ '--c': '20px', '--a': acc,
+      ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
       <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? 'Single Game' : `Tournament · ${format}`}</p>
       <h2 className="-mt-2 text-3xl font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
@@ -247,7 +250,9 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
         </>
       ) : (
         <>
-          <Stats items={[['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${finishOf(format)[rounds.length].gold} G`]]} />
+          {/* 시작 전에는 우승 상금을 아래 큰 칸으로 보여 주므로 여기선 뺀다 */}
+          <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${finishOf(format)[rounds.length].gold} G`]]
+            : [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['동점', '종합 높은 쪽']]} />
           {t ? (
             <div>
               <KV k="진행" v={t.done ? finishOf(format)[t.place].ko : rounds[t.round].ko} color={A} />
@@ -257,20 +262,20 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
             </div>
           ) : (
             <>
-              <div>
-                <KV k="내 팀 전력" v={`${st.ovr || '-'} · 후보 ${POOL.length}팀 중 ${poolRank(st.ovr)}위`} color={G} />
+              <div className="ui-cut shrink-0 px-4 py-3" style={{ '--c': '10px', background: `linear-gradient(90deg,${A}1f,rgba(255,255,255,.03))` }}>
+                <p className="text-[11px] text-gray-400">우승 상금</p>
+                <b className="font-display text-3xl" style={{ color: A }}>{finishOf(format)[rounds.length].gold} G</b>
               </div>
-              <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
-              <p className="ui-lab font-display" style={{ '--a': A }}>Road · 우승까지 {rounds.length}승</p>
-              <div>
-                {roadOf(format).map((r) => (
-                  <KV key={r.ko} k={r.ko} v={`예상 ${r.ovr} · ${r.gold} G`} color={r.ovr > (st.ovr || 0) ? '#f87171' : '#fff'} />
+              <p className="ui-lab font-display" style={{ '--a': A }}>Prize</p>
+              <div className="mt-scroll min-h-0 flex-1 overflow-y-auto pr-1">
+                {rounds.map((r, i2) => (
+                  <KV key={r.key} k={<span className="flex items-center gap-2"><span className="ui-chip font-display" style={{ '--a': A }}>R{i2 + 1}</span>{r.ko} 승리</span>}
+                    v={`${finishOf(format)[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} />
                 ))}
               </div>
-              <p className="ui-lab font-display" style={{ '--a': A }}>Favorites</p>
-              <div>
-                {POOL.slice(0, 3).map((x) => <KV key={x.id} k={x.name} v={x.ovr} color={x.ovr > (st.ovr || 0) ? '#f87171' : '#fff'} />)}
-              </div>
+              <p className="ui-lab font-display" style={{ '--a': G }}>My Team</p>
+              <div className="shrink-0">
+                <Stats items={[['팀 종합', st.ovr || '-'], ['엔트리', squad.length], ['외국인', `${foreignCount(squad)}/3`]]} />
               </div>
             </>
           )}
