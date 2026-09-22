@@ -5859,7 +5859,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }) : null;
     setLive(liveNow); setClock(Live.PICK_SECONDS);
     const first = liveNow ? Live.currentSeries(liveNow) : rollSeries([], cfg.cap, null, [], m.series);
-    setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null); setOpponent(null); setDtour(null);
+    setSeries(first); setSeenSeries(first ? [first.id] : []); setAugPicksLeft(0); setChoice(null);
+    // 지난 판의 상대 · 탑 · 대진은 모두 버린다 (베이직을 하다 스페셜을 시작해도 도장깨기가 따라오지 않게)
+    setOpponent(null); setDtour(null); setGaunt(null); setTourEntry(null); setSkipNote(false); setGone(new Set()); setShelfFilter('open');
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
   };
