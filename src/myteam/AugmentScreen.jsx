@@ -58,10 +58,9 @@ const Pips = ({ lv, c }) => (
   </span>
 );
 
-const GroupHead = ({ label, n, c }) => (
+const GroupHead = ({ label, c }) => (
   <div className="flex items-center gap-3 pb-1.5 pt-3">
     <p className="mt-lab" style={{ '--a': c, fontSize: 11 }}>{label}</p>
-    <span className="font-display text-xs text-gray-500">{n}</span>
     <span className="h-px flex-1" style={{ background: c === RED ? 'rgba(248,113,113,.3)' : 'rgba(255,255,255,.1)' }} />
   </div>
 );
@@ -211,7 +210,7 @@ export default function AugmentScreen({ account, onBack }) {
           <div className="mt-scroll mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
             {groups.map(([label, list]) => (
               <div key={label}>
-                <GroupHead label={label} n={list.length} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
+                <GroupHead label={label} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
@@ -223,7 +222,7 @@ export default function AugmentScreen({ account, onBack }) {
             ))}
             {tab !== 'upgrade' && bans.length > 0 && (
               <div>
-                <GroupHead label="Excluded · 제외됨" n={bans.length} c={RED} />
+                <GroupHead label="Excluded · 제외됨" c={RED} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} fav={favs.includes(a.id)} onFav={toggleFav}
