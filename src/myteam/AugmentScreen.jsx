@@ -124,10 +124,13 @@ export default function AugmentScreen({ account, onBack }) {
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
   };
 
-  const groups = TYPE_ORDER.map(([type, label]) => [label, pool.filter((a) => a.type === type && (tab === 'upgrade' || !bans.includes(a.id)))])
+  const shown = (a) => tab === 'upgrade' || !bans.includes(a.id);
+  const groups = TYPE_ORDER.map(([type, label]) => [label, pool.filter((a) => a.type === type && shown(a) && !favs.includes(a.id))])
     .filter(([, list]) => list.length);
-  const others = pool.filter((a) => !TYPE_KO[a.type] && (tab === 'upgrade' || !bans.includes(a.id)));
+  const others = pool.filter((a) => !TYPE_KO[a.type] && shown(a) && !favs.includes(a.id));
   if (others.length) groups.push(['기타', others]);
+  const favList = pool.filter((a) => favs.includes(a.id) && shown(a));
+  if (favList.length) groups.unshift(['즐겨찾기', favList]);
   const picked = sel && sel.tier === tier ? sel : null;
   const pickBanned = picked && bans.includes(picked.id);
 
@@ -186,7 +189,7 @@ export default function AugmentScreen({ account, onBack }) {
           <div className="mt-scroll mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
             {groups.map(([label, list]) => (
               <div key={label}>
-                <GroupHead label={label} n={list.length} c={tab === 'upgrade' ? GREEN : T.c} />
+                <GroupHead label={label} n={list.length} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
