@@ -44,7 +44,7 @@ const GroupHead = ({ label, n, c }) => (
 );
 
 /** 두 줄 줄: 글자 아이콘 · 이름 + 레벨 · 효과 · 끝 버튼 */
-function Row({ a, lv, banned, on, upgrade, onPick, onAct }) {
+function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = null }) {
   const c = TIER[a.tier].c;
   const tone = banned ? '#6b7280' : c;
   /* 제외 · 풀기는 오른쪽 PICK 카드에서 한다 — 줄에는 강화 탭의 강화 단추만 둔다 */
@@ -64,7 +64,14 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct }) {
           <b className={`truncate text-base font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
           {lv > 0 && <span className="font-display text-sm" style={{ color: tone }}>+{lv}</span>}
           <Pips lv={lv} c={banned ? '#4b5563' : c} />
-          <span className="ml-auto font-display text-xs text-gray-500">{TYPE_KO[a.type] || a.type}</span>
+          {onFav && (
+            <button type="button" title={fav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={fav}
+              onClick={(e) => { e.stopPropagation(); onFav(a); }}
+              className="ml-auto shrink-0 px-1 text-base leading-none transition-[color,transform] duration-150 hover:scale-110"
+              style={{ color: fav ? '#fbbf24' : 'rgba(148,163,184,.45)', textShadow: fav ? '0 0 10px rgba(251,191,36,.55)' : 'none' }}>
+              {fav ? '★' : '☆'}
+            </button>
+          )}
         </div>
         <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{a.desc}</p>
       </div>
@@ -89,6 +96,12 @@ export default function AugmentScreen({ account, onBack }) {
   const byId = (id) => AUGMENTS.find((a) => a.id === id);
 
   const commit = (next, text) => { setAug(next); saveAug(next); if (text) { setMsg(text); setTimeout(() => setMsg(''), 2400); } };
+  /* 즐겨찾기 — 줄 오른쪽 별을 눌러 담아 둔다 (계정에 저장된다) */
+  const favs = aug.favs || [];
+  const toggleFav = (a) => {
+    const next = favs.includes(a.id) ? favs.filter((x) => x !== a.id) : [...favs, a.id];
+    commit({ ...aug, favs: next });
+  };
   const openSlot = (t) => {
     if (aug.slots[t] >= AUG_SLOT_MAX || aug.removeTickets < 1) return false;
     return { ...aug, removeTickets: aug.removeTickets - 1, slots: { ...aug.slots, [t]: aug.slots[t] + 1 } };
@@ -177,6 +190,7 @@ export default function AugmentScreen({ account, onBack }) {
                 <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
+                      fav={favs.includes(a.id)} onFav={toggleFav}
                       onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
                   ))}
                 </div>
@@ -187,7 +201,8 @@ export default function AugmentScreen({ account, onBack }) {
                 <GroupHead label="Excluded · 제외됨" n={bans.length} c={RED} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
-                    <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={toggleBan} />
+                    <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} fav={favs.includes(a.id)} onFav={toggleFav}
+                      onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={toggleBan} />
                   ))}
                 </div>
               </div>

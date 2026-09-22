@@ -36,6 +36,7 @@ export const AUG_SLOT_MAX = 8;
 export const AUG_LEVEL_MAX = 5;
 const emptyAug = () => ({
   bans: { silver: [], gold: [], prismatic: [] },
+  favs: [],                       // 즐겨찾기한 증강 id
   slots: { silver: AUG_SLOT_BASE, gold: AUG_SLOT_BASE, prismatic: AUG_SLOT_BASE },
   levels: {},
   removeTickets: 0,
@@ -43,7 +44,7 @@ const emptyAug = () => ({
 });
 const withAug = (a) => {
   const d = emptyAug(); const g = a?.aug || {};
-  return { ...d, ...g, bans: { ...d.bans, ...(g.bans || {}) }, slots: { ...d.slots, ...(g.slots || {}) }, levels: { ...(g.levels || {}) } };
+  return { ...d, ...g, bans: { ...d.bans, ...(g.bans || {}) }, slots: { ...d.slots, ...(g.slots || {}) }, levels: { ...(g.levels || {}) }, favs: [...(g.favs || [])] };
 };
 
 /** 증강 풀 설정 저장 (제외 · 칸 · 레벨 · 권) */
@@ -59,6 +60,13 @@ export function bannedAugIds() {
   const a = read();
   if (!a?.nick || a.signedOut) return new Set();
   return new Set(Object.values(withAug(a).bans).flat());
+}
+
+/** 즐겨찾기한 증강 id */
+export function favAugIds() {
+  const a = read();
+  if (!a?.nick || a.signedOut) return new Set();
+  return new Set(withAug(a).favs);
 }
 
 const emptyAccount = (nick) => ({
