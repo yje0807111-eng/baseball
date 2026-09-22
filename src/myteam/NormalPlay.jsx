@@ -252,7 +252,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
         <>
           {/* 시작 전에는 우승 상금을 아래 큰 칸으로 보여 주므로 여기선 뺀다 */}
           <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${finishOf(format)[rounds.length].gold} G`]]
-            : [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['동점', '종합 높은 쪽']]} />
+            : [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['동점이면', '종합순']]} />
           {t ? (
             <div>
               <KV k="진행" v={t.done ? finishOf(format)[t.place].ko : rounds[t.round].ko} color={A} />
