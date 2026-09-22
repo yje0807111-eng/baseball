@@ -131,13 +131,13 @@ export default function AugmentScreen({ account, onBack }) {
   };
   const toggleBan = (a) => {
     const t = a.tier; const cur = aug.bans[t] || [];
-    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }, `${a.name} 제외를 풀었습니다`); return; }
+    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }); return; }
     let base = aug;
     if (cur.length >= aug.slots[t]) {
       base = openSlot(t);
       if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸은 최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다 · 상점에서 살 수 있어요'); return; }
     }
-    commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } }, `${a.name} 제외`);
+    commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
   };
   const addSlot = () => { const n = openSlot(tier); if (n) commit(n, `${T.ko} 제외 칸 +1`); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다'); };
   const upgrade = (a) => {
@@ -247,15 +247,17 @@ export default function AugmentScreen({ account, onBack }) {
                   <p className="mt-lab" style={{ '--a': c }}>Pick</p>
                   <b className="font-display text-sm" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
                 </div>
-                <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
+                <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]"
+                  style={{ ...cut(18), '--a': c, filter: pickBanned ? 'saturate(.12) brightness(.66)' : 'none', transition: 'filter .38s ease' }}>
                   {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
-                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
+                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)` }} />
                   <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
                   <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
                   <div className="absolute inset-x-4 top-4 flex items-center gap-2">
                     <span className="mt-cut px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ ...cut(4), background: c }}>{T.en}</span>
                     <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
-                    {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
+                    <span aria-hidden={!pickBanned} className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]"
+                      style={{ ...cut(4), opacity: pickBanned ? 1 : 0, transform: pickBanned ? 'none' : 'translateY(-4px)', transition: 'opacity .3s ease, transform .3s ease' }}>제외됨</span>
                   </div>
                   <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
                     <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
