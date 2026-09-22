@@ -4704,10 +4704,18 @@ function ticketsOf(mode) {
       .map((p) => ({ key: p.id, year: p.year, title: p.name, sub: `${p.team} · ${POS_LABEL[p.position]} · 종합 ${p.overall}`, star: p }));
   }
   const list = mode.series.map((s) => ({
-    key: s.id, year: s.year || 'ALL', title: s.title, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
+    key: s.id, year: s.year || 'ALL', title: s.title, kind: s.kind, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
     star: [...s.players].sort((a, b) => b.overall - a.overall)[0], champ: !!s.champion,
   }));
   return [...list, ...(mode.planned || []).map((t) => ({ key: t, year: t.slice(0, 4), title: t.slice(5), sub: '데이터 조사 후 공개', locked: true }))];
+}
+
+/** 티켓을 종류별로 묶는다: 레전드 · 구단 시즌 · 국가대표. 종류가 없으면 한 묶음 */
+function groupTickets(list) {
+  const out = ['legend', 'team', 'national'].map((k) => [SERIES_KIND_LABEL[k], list.filter((t) => t.kind === k)]).filter(([, l]) => l.length);
+  const rest = list.filter((t) => !t.kind);
+  if (rest.length) out.push(['그 밖의 시리즈', rest]);
+  return out.length ? out : [['그 밖의 시리즈', list]];
 }
 
 function SeriesTicket({ t, acc, sm = false }) {
@@ -4715,12 +4723,15 @@ function SeriesTicket({ t, acc, sm = false }) {
   return (
     <div className={`ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat ${sm ? '' : 'min-h-[11rem]'}`}
       style={{ '--c': sm ? '8px' : '12px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }}>
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
+      <span className="absolute inset-0" style={{ background: sm ? 'linear-gradient(180deg,rgba(5,8,15,.82),rgba(5,8,15,.9))' : 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
       {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-xs font-semibold text-gray-500">준비 중</span>}
-      <span className={`absolute font-display font-extrabold leading-none ${sm ? 'left-2 top-1 text-lg' : 'left-3 top-2 text-3xl'} ${t.locked ? 'text-gray-600' : ''}`}
-        style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
+      {!sm && (
+        <span className={`absolute left-3 top-2 font-display text-3xl font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
+          style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
+      )}
       {t.champ && <span className="ui-cut absolute right-2.5 top-2.5 bg-amber-400 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px' }} title="한국시리즈 우승">V</span>}
       <div className={sm ? 'absolute inset-x-2 bottom-1.5' : 'absolute inset-x-3 bottom-2.5'}>
+        {sm && <b className={`block truncate font-display text-[11.5px] ${t.locked ? 'text-gray-600' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
         <p className={`truncate font-black ${sm ? 'text-[12.5px]' : 'text-base'} ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
         {!sm && <p className="truncate text-[11px] text-gray-400">{t.sub}</p>}
       </div>
@@ -4859,22 +4870,25 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               </div>
             ) : (
               <>
-                {/* 대표 넉 장은 크게, 그 밖은 작은 카드로 촘촘히 (자리를 덜 먹는다) */}
+                {/* 대표 넉 장은 크게, 그 밖은 종류별 묶음으로 나눠 작은 카드로 (자리도 덜 먹고 덜 어지럽다) */}
                 <div className="mt-3 grid shrink-0 gap-2.5" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridAutoRows: '9.5rem' }}>
                   {tickets.slice(0, 4).map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
                 </div>
                 {tickets.length > 4 && (
-                  <>
-                    <div className="mt-3 flex shrink-0 items-center gap-2">
-                      <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: mode.neon }}>SERIES</span>
-                      <b className="text-[12px] text-gray-300">그 밖의 시리즈 {tickets.length - 4}</b>
-                      <span className="h-px flex-1 bg-white/10" />
-                    </div>
-                    <div className="syn-scroll mt-2 grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-1"
-                      style={{ gridTemplateColumns: 'repeat(8, minmax(0,1fr))', gridAutoRows: '4.8rem' }}>
-                      {tickets.slice(4).map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} sm />)}
-                    </div>
-                  </>
+                  <div className="syn-scroll mt-1 min-h-0 flex-1 overflow-y-auto pr-1">
+                    {groupTickets(tickets.slice(4)).map(([ko, list]) => (
+                      <React.Fragment key={ko}>
+                        <div className="mt-3 flex items-center gap-2">
+                          <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: mode.neon }}>SERIES</span>
+                          <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
+                          <span className="h-px flex-1 bg-white/10" />
+                        </div>
+                        <div className="mt-2 grid gap-2" style={{ gridTemplateColumns: 'repeat(8, minmax(0,1fr))', gridAutoRows: '4.4rem' }}>
+                          {list.map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} sm />)}
+                        </div>
+                      </React.Fragment>
+                    ))}
+                  </div>
                 )}
               </>
             )}
