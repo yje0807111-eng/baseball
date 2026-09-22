@@ -5240,6 +5240,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [live, setLive] = useState(null);
   const [clock, setClock] = useState(Live.PICK_SECONDS); // 내 차례 남은 시간(초)
   const [skipNote, setSkipNote] = useState(false);       // 캡 소진 — 남은 라운드를 넘긴다는 알림
+  const skipAt = useRef(null);                           // 남은 판을 접을 픽 번호 (이번 바퀴가 끝나는 자리)
   const [gone, setGone] = useState(() => new Set()); // 방금 지명돼 사라지는 중인 카드 (잠깐 구단 엠블럼이 덮인다)
   const [liveSpeed, setLiveSpeed] = useState(1); // 라이브 진행 배속 (1 · 2 · 4)
   const liveMine = live ? Live.myIndex(live) : -1;
@@ -5256,8 +5257,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const finishDraft = (r) => {
     const filled = fillRoster(r);
     setAutoFilled(filled.length - r.length);
-    if (live) setGaunt(Gaunt.makeGauntlet(live)); // 라이브 판이었으면 상대 일곱 구단으로 도장깨기 탑을 세운다
-    setRoster(filled); setSeries(null); setPicked(null); setPhase('ready');
+    const g = live ? Gaunt.makeGauntlet(live) : null;   // 라이브 판이었으면 여덟 구단으로 도장깨기 탑을 세운다
+    if (g) setGaunt(g);
+    setRoster(filled); setSeries(null); setPicked(null);
+    // 도장깨기는 상대를 먼저 정한다 — 증강과 정비는 경기 시작을 누른 뒤에 온다
+    if (g) { prepareMatch(false, g); return; }
+    setPhase('ready');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
   const advanceRound = (next, nextCp, banned) => {
@@ -5507,13 +5512,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (live && phase === 'draft' && !Live.isDone(live)) setSeries(Live.currentSeries(live));
   }, [live, phase]);
   useEffect(() => { // AI 차례
-    if (!live || phase !== 'draft' || choice || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
+    if (!live || phase !== 'draft' || choice || skipNote || Live.isDone(live) || Live.isMyTurn(live)) return undefined;
     // 한 픽 사이 1초 — 구단마다 같은 간격으로 (배속을 올리면 그만큼 짧아진다)
     const t = setTimeout(() => setLive((s) => (s && !Live.isMyTurn(s) && !Live.isDone(s) ? Live.stepAi(s) : s)), 1000 / liveSpeed);
     return () => clearTimeout(t);
   }, [live, phase, choice, liveSpeed]);
   useEffect(() => { // 내 차례: 25초 시계 · 고를 선수가 없으면 곧바로 패스 · 시간을 넘기면 알아서 한 명
-    if (!live || phase !== 'draft' || choice || Live.isDone(live) || !Live.isMyTurn(live)) return undefined;
+    if (!live || phase !== 'draft' || choice || skipNote || Live.isDone(live) || !Live.isMyTurn(live)) return undefined;
     if (!Live.pickable(live, liveMine).length) { const p = setTimeout(() => setLive((s) => Live.pick(s, null)), 700); return () => clearTimeout(p); }
     setClock(Live.PICK_SECONDS);
     const id = setInterval(() => setClock((c) => {
@@ -5526,12 +5531,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   }, [live, phase, choice, liveMine]);
   useEffect(() => {
     /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고, 알림을 띄운 뒤 남은 라운드를 한 번에 넘긴다 */
-    if (!live || phase !== 'draft' || choice || Live.isDone(live)) return undefined;
-    if (live.pick % Live.CLUB_COUNT !== 0 || !Live.cannotPickMore(live)) return undefined;
+    if (!live || phase !== 'draft' || choice || Live.isDone(live)) { skipAt.current = null; return undefined; }
+    if (skipAt.current == null) {
+      if (!Live.cannotPickMore(live)) return undefined;
+      const lap = Live.CLUB_COUNT;
+      skipAt.current = Math.ceil(live.pick / lap) * lap;   // 지금 바퀴가 끝나는 픽
+    }
+    if (live.pick < skipAt.current) return undefined;      // 아직 이번 바퀴가 돌고 있다
     setSkipNote(true);
     const t = setTimeout(() => {
-      setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s));
+      skipAt.current = null;
       setSkipNote(false);
+      setLive((s) => (s && !Live.isDone(s) ? Live.finishAll(s) : s));
     }, 1000);
     return () => clearTimeout(t);
   }, [live, phase, choice]);
@@ -5577,7 +5588,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setAugments(owned);
       setAugPicksLeft(left);
       setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
-      if (left <= 0) prepareMatch(false); // 마지막 증강을 고르면 경기 전 매치업 화면으로
+      if (left <= 0) { if (gaunt && !gaunt.done) gauntletGo(owned); else prepareMatch(false); } // 마지막 증강을 고르면 경기로
       return;
     }
     const s = option.apply({ cp, rerolls, buff });
@@ -5604,8 +5615,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   /* 경기 시작: AI 드래프트 → 비동기 시뮬레이션 루프 */
   /* 시즌 시작: 경기 화면으로 들어가 증강을 고르고, 다 고르면 첫 경기가 열린다 */
-  const startSeason = () => {
-    if (augments.length >= match.aug) { prepareMatch(!!opponent); return; }
+  /** 시즌 증강 고르기 판 — 다 고르면 handleChoose 가 다음으로 넘긴다 */
+  const openAugmentPicks = () => {
     runIdRef.current += 1;
     setPhase('sim');
     setBoard(emptyBoard());
@@ -5616,11 +5627,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setAugPicksLeft(match.aug - augments.length);
     setChoice({ kind: 'augment', options: augmentOptions(augments) });
   };
+  const startSeason = (g = gaunt) => {
+    if (augments.length >= match.aug) { prepareMatch(!!opponent, g); return; }
+    openAugmentPicks();
+  };
 
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
-  const prepareMatch = (rematch = false) => {
+  const prepareMatch = (rematch = false, g = gaunt) => {
     runIdRef.current += 1;
-    if (gaunt && !gaunt.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
+    if (g && !g.done) { // 도장깨기: 탑으로 (지금 칠 단을 고르고 시작한다)
       setChoice(null);
       setToast(null);
       setPhase('gauntlet');
@@ -5671,6 +5686,34 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
     const meAt = order.indexOf(mine);
     return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
+  };
+
+  /* 도장깨기: 지금 칠 칸(내 바로 윗 칸)의 구단과 경기를 연다 */
+  const inGauntlet = !!gaunt && !gaunt.done && !!Gaunt.currentRung(gaunt);
+  /** 정비 왼쪽 스카우팅 판에 넣을 상대 — 이름 · 엠블럼 · 선발 · 타순까지 */
+  const gauntOpponent = () => {
+    const r = Gaunt.currentRung(gaunt);
+    if (!r) return null;
+    const full = fillRoster(r.roster);
+    const by = {};
+    full.forEach((pl) => { if (pl.slot) by[pl.slot] = pl; });
+    const batSlots = FIELD_SLOTS.filter((x) => !PITCH_SLOTS.includes(x.id)).map((x) => x.id);
+    return {
+      name: r.name,
+      color: r.color,
+      emblem: r.key ? Live.emblemOf(r.key) : Live.bannerEmblem(myBanner()),
+      roster: full,
+      starter: by.SP || null,
+      batters: batSlots.map((id) => by[id]).filter(Boolean),
+    };
+  };
+  const gauntletGo = (owned) => {
+    const r = Gaunt.currentRung(gaunt);
+    startGame(false, owned.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
+  };
+  const startGauntletMatch = () => {
+    if (augments.length < match.aug) { openAugmentPicks(); return; }  // 시즌 증강을 아직 안 골랐으면 여기서 고른다
+    gauntletGo(augments);
   };
 
   /* entry: 토너먼트 상대(그 팀 그대로) */
@@ -5839,11 +5882,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
           me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
-          onBack={() => setPhase('ready')}
-          onPlay={() => {
-            const r = Gaunt.currentRung(gaunt);
-            startGame(false, augments.slice(0, match.aug), { roster: r.roster, team: buildTeam(r.name, fillRoster(r.roster), AI_BUFF[match.ai]) });
-          }} />
+          onBack={newDraft}
+          onPlay={() => setPhase('ready')} />
       )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
@@ -6058,7 +6098,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
           {phase === 'ready' && (
             <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
-              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster} onStart={startSeason} onRestart={newDraft} />
+              opponent={inGauntlet ? gauntOpponent() : null}
+              startLabel={inGauntlet ? '경기 시작 ▶' : '시즌 시작 ▶'}
+              restartLabel={inGauntlet ? '탑으로 ◀' : '다시 드래프트'}
+              onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
+              onStart={inGauntlet ? startGauntletMatch : startSeason}
+              onRestart={inGauntlet ? () => setPhase('gauntlet') : newDraft} />
           )}
 
           {phase === 'matchup' && opponent && (
