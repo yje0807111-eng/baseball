@@ -195,18 +195,9 @@ const Delta = ({ v }) => (
  */
 function StyleBlock({ style, onPick, opponent }) {
   const hints = styleHints(opponent);
-  const tags = scoutTags(opponent);
   return (
     <div className="shrink-0">
       <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Play Style</p>
-      {!!tags.length && (
-        <div className="flex flex-wrap items-center gap-1.5 pb-1.5">
-          {tags.slice(0, 3).map((t) => (
-            <span key={t.label} className="mt-cut px-1.5 py-px text-[10px] font-bold"
-              style={{ ...cut(3), background: `color-mix(in srgb,${t.c} 16%,transparent)`, boxShadow: `inset 0 0 0 1px ${t.c}55`, color: t.c }}>{t.label}</span>
-          ))}
-        </div>
-      )}
       <div className="grid gap-1.5">
         {STYLES.map((x) => {
           const on = style === x.id;
@@ -236,7 +227,6 @@ function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel, 
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
       <p className="mt-lab">Tune Up</p>
-      <h2 className="-mt-1 text-[26px] font-black text-white">정비</h2>
       <div className="grid shrink-0 grid-cols-3 gap-1.5">
         {TOT.map(([t, v, d, a]) => (
           <div key={t} className="mt-cut flex flex-col items-center gap-0.5 py-3" style={{ ...cut(8), background: `linear-gradient(180deg,color-mix(in srgb,${a} 14%,transparent),rgba(6,10,19,.4))` }}>
