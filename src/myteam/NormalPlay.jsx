@@ -5,7 +5,6 @@ import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
-import { posColor } from './teamColor.js';
 
 
 
@@ -15,10 +14,67 @@ export const FORMATS = ['single', 16, 32, 64];
 export const FORMAT_LABEL = { single: '단판', 16: '16강', 32: '32강', 64: '64강' };
 
 /* ───── 단판: 오늘 상대 + 최근 5경기 ───── */
+/** 승패 칸 — 형식 고르개와 같은 생김새 */
+const RESULT = { my: ['승', G], opp: ['패', '#f87171'], draw: ['무', '#94a3b8'] };
+
+/** 오늘 상대 — 라벨 · 이름 · 네 부문 칸 · 상대 선발 줄 */
+function OppPreview({ opp }) {
+  return (
+    <>
+      <div className="flex items-center gap-2.5">
+        {opp.emblem && <span className="block h-9 w-9 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(ui/clubs/${opp.emblem}.webp)` }} />}
+        <b className="min-w-0 flex-1 truncate text-xl font-black text-white">{opp.name}</b>
+        <b className="font-display text-2xl" style={{ color: G }}>{opp.ovr}</b>
+      </div>
+      <Stats items={opp.parts} />
+      {opp.starter && (
+        <div>
+          <KV k="상대 선발" v={`${opp.starter.name} ${opp.starter.overall}`} color="#f87171" />
+        </div>
+      )}
+    </>
+  );
+}
+
+/** 최근 5경기 — 승패 칸 한 줄 + 상대 · 점수 줄 */
+function RecentGames({ games }) {
+  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 경기가 없습니다</p>;
+  return (
+    <>
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
+        {games.map((g, i) => {
+          const [ko, c] = RESULT[g.winner] || RESULT.draw;
+          return (
+            <span key={i} className="ui-cut py-1.5 text-center font-display text-base font-extrabold"
+              style={{ '--c': '6px', color: g.winner === 'my' ? '#05080f' : c, background: g.winner === 'my' ? c : 'rgba(255,255,255,.06)' }}>{ko}</span>
+          );
+        })}
+      </div>
+      <div>
+        {games.map((g, i) => (
+          <KV key={i} k={g.opp} v={`${g.myRuns} : ${g.oppRuns}`} color={(RESULT[g.winner] || RESULT.draw)[1]} />
+        ))}
+      </div>
+    </>
+  );
+}
 const WC = { my: G, opp: '#f87171', draw: '#94a3b8' };
 const WK = { my: '승', opp: '패', draw: '무' };
 const emblemOf = (name) => (/레전드/.test(name) ? 'legend' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'korea' : null);
 const avgOf = (xs, g) => (xs.length ? Math.round(xs.reduce((n, p) => n + g(p), 0) / xs.length) : 0);
+
+/** 참가 후보 팀(시리즈) 전력 — 시작 전 토너먼트 판에서 쓴다 */
+const POOL = AI_SERIES.map((x) => ({ id: x.id, name: seriesName(x), ovr: avgOf(x.players, (p) => p.overall) })).sort((a1, b1) => b1.ovr - a1.ovr);
+const poolRank = (ovr) => POOL.filter((x) => x.ovr > (ovr || 0)).length + 1;
+/** 라운드가 올라갈수록 센 팀을 만난다 — 후보 전력 분포에서 위에서부터 잘라 평균 */
+function roadOf(size) {
+  const rs = roundsOf(size), fin = finishOf(size);
+  return rs.map((r, i) => {
+    const share = Math.max(1, Math.round(POOL.length / 2 ** (i + 1)));
+    const slice = POOL.slice(0, share);
+    return { ko: r.ko, ovr: Math.round(slice.reduce((n, x) => n + x.ovr, 0) / slice.length), gold: fin[i + 1].gold };
+  });
+}
 
 /** 다음 단판 상대 — 한 번 뽑아 두고 경기도 이 상대로 치른다 (경기가 끝나면 다시 뽑힌다) */
 function nextDuel() {
@@ -33,76 +89,12 @@ function nextDuel() {
     emblem: emblemOf(series.title || ''),
     starter: pits[0],
     ovr: avgOf(t.roster, (p) => p.overall),
-    parts: [['타선', avgOf(bats, (p) => p.overall), '#34d399'], ['수비', avgOf(bats, (p) => p.stats.defense), '#60a5fa'],
-      ['선발', avgOf(pits.filter((p) => p.position === 'SP'), (p) => p.overall), '#7dd3fc'], ['불펜', avgOf(pits.filter((p) => p.position === 'RP'), (p) => p.overall), '#f87171']],
+    parts: [['타선', avgOf(bats, (p) => p.overall)], ['수비', avgOf(bats, (p) => p.stats.defense)],
+      ['선발', avgOf(pits.filter((p) => p.position === 'SP'), (p) => p.overall)], ['불펜', avgOf(pits.filter((p) => p.position === 'RP'), (p) => p.overall)]],
   };
 }
 
-/** 오늘 상대: 이름 · 종합 · 부문 막대 · 상대 선발 */
-function OppPreview({ opp }) {
-  return (
-    <>
-      <div className="ui-cut flex shrink-0 items-center gap-2.5 px-3 py-2" style={{ '--c': '10px', background: 'rgba(255,255,255,.045)' }}>
-        {opp.emblem && <span className="block h-10 w-10 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(ui/clubs/${opp.emblem}.webp)` }} />}
-        <span className="min-w-0 flex-1">
-          <span className="font-display text-[10px] tracking-[0.2em] text-gray-500">오늘 상대</span>
-          <b className="block truncate text-[16px] font-black text-white">{opp.name}</b>
-        </span>
-        <b className="font-display text-[24px]" style={{ color: G }}>{opp.ovr}</b>
-      </div>
-      <div className="flex shrink-0 gap-1.5">
-        {opp.parts.map(([label, v, c]) => (
-          <span key={label} className="min-w-0 flex-1">
-            <span className="flex items-baseline justify-between text-[10.5px] text-gray-500">{label}<b className="font-display text-[13px]" style={{ color: c }}>{v}</b></span>
-            <span className="relative mt-0.5 block h-1.5 bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${Math.max(4, Math.min(100, ((v - 40) / 55) * 100))}%`, background: c }} /></span>
-          </span>
-        ))}
-      </div>
-      {opp.starter && (
-        <div className="ui-cut flex shrink-0 items-center gap-2.5 px-3 py-2" style={{ '--c': '10px', background: 'rgba(255,255,255,.04)' }}>
-          <span className="ui-cut block h-[40px] w-[34px] shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '6px', backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(opp.starter.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
-          <span className="min-w-0 flex-1">
-            <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: '#f87171' }}>상대 선발</span>
-            <b className="block truncate text-[14px] font-extrabold text-white">{opp.starter.name}</b>
-          </span>
-          <b className="font-display text-[18px]" style={{ color: posColor(opp.starter) }}>{opp.starter.overall}</b>
-        </div>
-      )}
-    </>
-  );
-}
 
-/** 최근 5경기: 승패 칩 한 줄 + 상대 · 점수 줄 */
-function RecentGames({ games }) {
-  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 경기가 없습니다</p>;
-  return (
-    <>
-      <div className="flex shrink-0 items-center gap-1.5">
-        {games.map((g, i) => (
-          <span key={i} className="grid h-7 flex-1 place-items-center font-display text-[12px] font-extrabold"
-            style={{ color: g.winner === 'my' ? '#05080f' : WC[g.winner], background: g.winner === 'my' ? G : `color-mix(in srgb,${WC[g.winner]} 18%,transparent)` }}>{WK[g.winner]}</span>
-        ))}
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1">
-        {games.map((g, i) => (
-          <div key={i} className="ui-cut flex flex-1 items-center gap-2 px-2.5" style={{ '--c': '6px', background: 'rgba(255,255,255,.035)', boxShadow: `inset 3px 0 0 ${WC[g.winner]}` }}>
-            <b className="font-display text-[12px]" style={{ color: WC[g.winner] }}>{WK[g.winner]}</b>
-            <b className="min-w-0 flex-1 truncate text-[12.5px] text-gray-300">{g.opp}</b>
-            <b className="font-display text-[14px] text-white">{g.myRuns}<small className="text-gray-500"> : </small>{g.oppRuns}</b>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-const grpLine = (en, ko, c = '#9ca3af') => (
-  <div className="flex shrink-0 items-center gap-2">
-    <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: c }}>{en}</span>
-    <b className="text-[12px] text-gray-300">{ko}</b>
-    <span className="h-px flex-1 bg-white/10" />
-  </div>
-);
 
 
 /** 형식 고르기 (단판 · 16강 · 32강 · 64강) */
@@ -242,25 +234,46 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
     : <TourneyHero key={format} size={format} t={t} name={team.name || '나의 드림팀'} squad={squad} />;
 
   const aside = (
-    <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px', '--a': acc }}>
+    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6" style={{ '--c': '20px', '--a': acc }}>
       <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? 'Single Game' : `Tournament · ${format}`}</p>
       <h2 className="-mt-2 text-3xl font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
         <>
+          <p className="ui-lab font-display" style={{ '--a': G }}>Today</p>
           <OppPreview opp={duel} />
-          {grpLine('RECENT', `최근 ${recent.length}경기 · ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패`)}
+          <p className="ui-lab font-display" style={{ '--a': G }}>Recent {recent.length ? `· ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패` : ''}</p>
           <RecentGames games={recent} />
         </>
       ) : (
         <>
-          <Stats items={[['팀 OVR', st.ovr || '-'], ['진행', t ? (t.done ? finishOf(format)[t.place].ko : rounds[t.round].ko) : '-'], ['승리', `${wins}/${rounds.length}`]]} />
-          <div>
-            <KV k="참가" v={`${format}팀`} />
-            <KV k="경기 수" v={`최대 ${rounds.length}`} />
-            <KV k="우승 보상" v={`${finishOf(format)[rounds.length].gold} G`} color="#fde047" />
-            <KV k="동점이면" v="팀 종합 높은 쪽" />
-          </div>
+          <Stats items={[['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${finishOf(format)[rounds.length].gold} G`]]} />
+          {t ? (
+            <div>
+              <KV k="진행" v={t.done ? finishOf(format)[t.place].ko : rounds[t.round].ko} color={A} />
+              <KV k="승리" v={`${wins} / ${rounds.length}`} />
+              <KV k="팀 종합" v={st.ovr || '-'} />
+              <KV k="동점이면" v="팀 종합 높은 쪽" />
+            </div>
+          ) : (
+            <>
+              <div>
+                <KV k="내 팀 전력" v={`${st.ovr || '-'} · 후보 ${POOL.length}팀 중 ${poolRank(st.ovr)}위`} color={G} />
+              </div>
+              <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
+              <p className="ui-lab font-display" style={{ '--a': A }}>Road · 우승까지 {rounds.length}승</p>
+              <div>
+                {roadOf(format).map((r) => (
+                  <KV key={r.ko} k={r.ko} v={`예상 ${r.ovr} · ${r.gold} G`} color={r.ovr > (st.ovr || 0) ? '#f87171' : '#fff'} />
+                ))}
+              </div>
+              <p className="ui-lab font-display" style={{ '--a': A }}>Favorites</p>
+              <div>
+                {POOL.slice(0, 3).map((x) => <KV key={x.id} k={x.name} v={x.ovr} color={x.ovr > (st.ovr || 0) ? '#f87171' : '#fff'} />)}
+              </div>
+              </div>
+            </>
+          )}
           {other && <p className="text-sm text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
         </>
       )}
