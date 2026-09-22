@@ -4747,6 +4747,45 @@ function YearFace({ p, w = 70, h = 92 }) {
   );
 }
 /** 그 해를 한 장면으로: 왼쪽에 주인공 구단, 오른쪽에 대표 선수 카드와 나머지 시리즈 */
+/** 연도 고르개 — 10년대 탭 + 그 안의 연도. 연도마다 그 해 주인공 구단 색 점을 찍는다(우승이면 진하게) */
+function YearPicker({ yearId, onPick }) {
+  const decadeOf = (y) => Math.floor(y / 10) * 10;
+  const cur = YEAR_MODES.find((m) => m.id === yearId) || YEAR_MODES[0];
+  const decades = [...new Set(YEAR_MODES.map((m) => decadeOf(m.year)))].sort((a, b) => b - a);
+  const inDecade = (d) => YEAR_MODES.filter((m) => decadeOf(m.year) === d).sort((a, b) => b.year - a.year);
+  const here = decadeOf(cur.year);
+  return (
+    <>
+      <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="시즌 연대">
+        {decades.map((d) => {
+          const on = d === here;
+          return (
+            <button key={d} type="button" role="radio" aria-checked={on} onClick={() => onPick(inDecade(d)[0].id)}
+              className={`ui-cut px-3 py-1 font-display text-sm font-bold ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+              style={{ '--c': '5px', background: on ? '#a3e635' : undefined }}>{d}년대</button>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5" role="radiogroup" aria-label="시즌 연도">
+        {inDecade(here).map((m) => {
+          const on = m.id === yearId;
+          const hero = yearHero(m.series);
+          const flag = teamFlag(hero?.title || '');
+          return (
+            <button key={m.id} type="button" role="radio" aria-checked={on} onClick={() => onPick(m.id)}
+              title={hero ? `${m.year} ${hero.title}` : String(m.year)}
+              className={`ui-cut flex items-center gap-1.5 px-3 py-1 font-display text-sm ${on ? 'font-bold text-white' : 'text-gray-400 hover:text-white'}`}
+              style={{ '--c': '5px', background: 'rgba(255,255,255,.06)', boxShadow: on ? 'inset 0 0 0 1px #a3e635' : 'none' }}>
+              {m.year}
+              <span className="block rounded-full" style={{ width: 5, height: 5, background: flag?.color || '#475569', opacity: hero?.champion ? 1 : 0.45 }} />
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
 function YearHero({ mode, acc }) {
   const list = mode.series;
   const hero = yearHero(list);
@@ -4938,15 +4977,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 </p>
               )}
             </div>
-            {view === 'year' && (
-              <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="시즌 연도">
-                {YEAR_MODES.map((y) => (
-                  <button key={y.id} type="button" role="radio" aria-checked={yearId === y.id} onClick={() => setYearId(y.id)}
-                    className={`ui-cut px-3 py-1 font-display text-sm font-bold ${yearId === y.id ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
-                    style={{ '--c': '5px', background: yearId === y.id ? '#a3e635' : undefined }}>{y.year}</button>
-                ))}
-              </div>
-            )}
+            {view === 'year' && <YearPicker yearId={yearId} onPick={setYearId} />}
             {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : view === 'special' ? (
               <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
                 {specials.map((m) => {
