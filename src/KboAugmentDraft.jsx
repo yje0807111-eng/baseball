@@ -4758,7 +4758,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
-  const [live, setLive] = useState(true); // 드래프트 방식: 라이브(8구단이 한 보드를 나눠 갖기) · 혼자
+  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 8구단 라이브
   const [aug, setAug] = useState(SEASON_AUGMENTS);
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -4766,6 +4766,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const seen = new Set();
   const stars = [...mode.players].sort((a, b) => b.overall - a.overall).filter((p) => !seen.has(personKey(p)) && seen.add(personKey(p))).slice(0, 6);
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
+  const special = mode.group === 'special';
+  useEffect(() => { setLive(mode.group !== 'special'); setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
   const NAV = [
     ...(plays.length ? [{ group: 'Play', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
@@ -4878,15 +4880,17 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             </dl>
             {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
             <div>
-              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '베이직 · 8구단', false: '스페셜 · 자유 영입' }} value={live} onChange={setLive} />
-              {live
-                ? <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
-                : (
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
-                    <span>샐러리 캡</span>
-                    <b className="font-display text-[15px] text-[#fbbf24]">제한 없음</b>
-                  </div>
-                )}
+              {special ? (
+                <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+                  <span>드래프트 방식</span>
+                  <b className="font-display text-[15px]" style={{ color: mode.neon }}>자유 영입 · 캡 없음</b>
+                </div>
+              ) : (
+                <>
+                  <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive} />
+                  <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+                </>
+              )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
@@ -4898,7 +4902,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: live ? cap : NO_CAP, ai, aug, format, live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
               드래프트 시작 ▶
             </button>
           </aside>
