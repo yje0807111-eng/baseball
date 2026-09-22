@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
-import { flagByKey, teamFlag } from './myteam/teamArt.js';
+import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
@@ -1236,7 +1236,7 @@ export const KEYFRAMES = `
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: transparent; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes swap { from { opacity: .3; } to { opacity: 1; } }
+@keyframes swap { from { opacity: .55; } to { opacity: 1; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* PICK 카드가 빠질 때: 등장(rise)을 거꾸로 — 조용히 가라앉으며 흐려진다. 영입이면 라인업 쪽(오른쪽)으로 살짝 흘러간다 */
 @keyframes pickDrop { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(20px) scale(.96); } }
@@ -4898,11 +4898,11 @@ function YearHero({ mode, acc }) {
       {/* 연도를 바꿀 때 툭 끊기지 않게, 배경과 내용이 같이 떠오른다 */}
       {flag && (
         <React.Fragment key={flag.key}>
-          <span className="pointer-events-none absolute inset-0 animate-[swap_.45s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
+          <span className="pointer-events-none absolute inset-0 animate-[swap_.4s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
           <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
         </React.Fragment>
       )}
-      <div key={mode.id} className="relative z-10 grid min-h-0 flex-1 animate-[swap_.45s_ease-out_both] gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
+      <div key={mode.id} className="relative z-10 grid min-h-0 flex-1 animate-[swap_.4s_ease-out_both] gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
         {/* 왼쪽 판 — 제목 · 주인공 구단 카드 · 그 해 나머지 시리즈 */}
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <span className="flex items-center gap-2">
@@ -5059,7 +5059,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         </nav>
 
         {play ? play.main : (
-          <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.4s_ease-out_both]" style={{ '--c': '20px' }}>
+          <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="relative z-10 flex flex-wrap items-baseline gap-3">
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
               {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
@@ -5489,7 +5489,20 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
   );
 }
 
+/* 화면을 옮길 때 큰 그림이 뒤늦게 나타나며 번쩍이지 않도록, 한가할 때 미리 받아 둔다 */
+const WARM_ART = [
+  ...BANNERS.map((b) => `ui/teams/bg-${b.key}.webp`),
+  'ui/broadcast-field.webp', 'ui/tour/tunnel.webp', 'ui/tour/panel-trophy.webp', 'ui/rank2/dusk.webp', 'ui/rank2/panel.webp',
+];
+function useWarmArt() {
+  useEffect(() => {
+    const t = setTimeout(() => WARM_ART.forEach((src) => { const img = new Image(); img.src = src; }), 600);
+    return () => clearTimeout(t);
+  }, []);
+}
+
 export default function KboAugmentDraft({ onExit, normal, normalView = null, onNormalView } = {}) {
+  useWarmArt();
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | matchup | sim | result
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
