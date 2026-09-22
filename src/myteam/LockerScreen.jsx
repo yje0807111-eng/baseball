@@ -379,7 +379,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
               {rows.map((r) => (
                 <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
                   {WEAK_KO[r.k]}
-                  <span className="relative block h-[3px] bg-white/[0.08]">
+                  <span className="relative block h-[5px] bg-white/[0.08]">
                     <b className={`st-bar ${statBand(r.v)} absolute inset-y-0 left-0 block`} style={{ width: `${r.v}%` }} />
                   </span>
                   <b className={`st-n ${statBand(r.v)} text-right font-display text-[15px]`}>{r.v || '-'}</b>
@@ -735,7 +735,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 {shown.map(([k, v]) => (
                   <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
                     <span>{EFF_LABEL[k]}</span>
-                    <span className="relative block h-[3px] bg-white/[0.08]">
+                    <span className="relative block h-[5px] bg-white/[0.08]">
                       <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: `color-mix(in srgb,${EFF_COLOR[k]} 34%,transparent)` }} />
                       <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: EFF_COLOR[k], boxShadow: `0 0 5px ${EFF_COLOR[k]}73` }} />
                     </span>
