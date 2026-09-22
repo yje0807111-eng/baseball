@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
+import { bannedAugIds, augLevels, loadAccount, myBanner } from './myteam/store.js';
 import { flagByKey } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
@@ -490,9 +490,14 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   }
   roster = applySynergies(roster, synergies); // 시너지 보너스는 그 시너지를 만든 선수에게만
   const envX = { ...env, synergies };
-  for (const a of passives) if (a.roster) roster = a.roster(roster, envX);
+  for (const a of passives) if (a.roster) roster = scaleRoster(roster, a.roster(roster, envX), augScale(a.lv));
   const t = { name, roster, synergies, buff, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
-  for (const a of passives) a.team?.(t, envX);
+  for (const a of passives) {
+    if (!a.team) continue;
+    const was = snapTeam(t);
+    a.team(t, envX);
+    scaleTeam(t, was, augScale(a.lv));
+  }
   roster = t.roster;
   const { bonus, weights: w } = t;
 
@@ -866,7 +871,7 @@ export function rollAugmentOptions(owned = [], rng = Math.random) {
   const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
   if (!tiers.length) return [];
   const t = tiers[Math.floor(rng() * tiers.length)];
-  return shuffle(left.filter((a) => a.tier === t)).slice(0, 3);
+  return withAugLevels(shuffle(left.filter((a) => a.tier === t)).slice(0, 3));
 }
 
 export const EVENTS = [
@@ -882,6 +887,63 @@ export const EVENTS = [
    half 의 add(기대 득점) · mul 은 공격 팀의 안타 확률로, pitch 는 수비 투수의 구위 · 제구로,
    runs 는 반 이닝이 끝날 때 그 이닝 점수로 반영하고 중계 자막을 남긴다. */
 const HIT_PER_RUN = 0.2; // 기대 득점 +1 ≈ 안타 확률 +0.2 (엔진으로 실측해 맞춘 값)
+
+/* ───────────── 7-C. 증강 강화 — 레벨이 올라가면 그 증강의 이득이 커진다 ─────────────
+   레벨 1칸에 +20%, 최대 +5 면 두 배다. 대가(능력치가 깎이는 쪽)는 그대로 둔다 —
+   강화는 이득만 키운다. 증강 정의는 손대지 않고, 훅이 돌려준 결과를 배수로 다시 셈한다. */
+export const AUG_LEVEL_STEP = 0.2;
+export const augScale = (lv = 0) => 1 + Math.max(0, lv) * AUG_LEVEL_STEP;
+/** 고른 증강에 내 강화 레벨을 붙인다 */
+export const withAugLevels = (list = [], levels = augLevels()) => list.map((a) => ({ ...a, lv: levels[a.id] || 0 }));
+
+/** 능력치형: 증강이 올려 준 만큼을 배수로 — 깎은 쪽은 그대로 */
+function scaleRoster(before, after, k) {
+  if (k === 1 || before === after || before.length !== after.length) return after;
+  return after.map((p, i) => {
+    const was = before[i];
+    if (!was || was.id !== p.id || !p.stats || !was.stats) return p;
+    let moved = false;
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([key, v]) => {
+      const d = v - (was.stats[key] ?? v);
+      if (d <= 0) return [key, v];
+      moved = true;
+      return [key, clampN(30, 99, Math.round((was.stats[key] ?? v) + d * k))];
+    }));
+    if (!moved) return p;
+    const gain = overallOf(p.position, stats) - overallOf(was.position, was.stats);
+    return { ...p, stats, overall: clampN(30, 99, was.overall + gain) };
+  });
+}
+/** 팀형: 보너스 · 타격 가중치 · 수비 계수가 움직인 폭을 배수로 */
+const TEAM_NUM = ['bat', 'pit'];
+function snapTeam(t) { return { bonus: { ...t.bonus }, weights: { ...t.weights }, defCoef: t.defCoef, roster: t.roster }; }
+function scaleTeam(t, was, k) {
+  if (k === 1) return;
+  TEAM_NUM.forEach((key) => { const d = (t.bonus[key] ?? 0) - (was.bonus[key] ?? 0); if (d) t.bonus[key] = (was.bonus[key] ?? 0) + d * k; });
+  Object.keys(t.weights).forEach((key) => { const d = (t.weights[key] ?? 0) - (was.weights[key] ?? 0); if (d) t.weights[key] = (was.weights[key] ?? 0) + d * k; });
+  const dc = (t.defCoef ?? 0) - (was.defCoef ?? 0); if (dc) t.defCoef = (was.defCoef ?? 0) + dc * k;
+  if (t.roster !== was.roster) t.roster = scaleRoster(was.roster, t.roster, k);
+}
+/** 반 이닝형: 기대 득점 · 투수 보정은 그대로 배수, 곱 보정은 1 에서 벌어진 만큼 */
+const scaleHalf = (r, k) => (!r || k === 1 ? r
+  : { ...r, add: (r.add || 0) * k, pitch: (r.pitch || 0) * k, ...(r.mul != null ? { mul: 1 + (r.mul - 1) * k } : {}) });
+/** 이닝 점수형: 증강이 바꾼 점수 폭을 배수로 (정수로 맞춘다) */
+const scaleRuns = (base, next, k) => (k === 1 ? next : base + Math.round((next - base) * k));
+/** 발동형: 레벨마다 발동 확률 +5%p, +3 부터 경기당 한도 +1 (+5 면 +2) */
+/** 레벨이 반영된 효과 문구 — 이득 수치는 배수로, 발동형은 확률과 경기당 한도까지 */
+const scaleNum = (n, k) => (Number.isInteger(n) ? Math.round(n * k) : Math.round(n * k * 100) / 100);
+export function augDescAt(a, lv = a?.lv || 0) {
+  if (!a?.desc || !lv) return a?.desc || '';
+  const k = augScale(lv);
+  let d = a.desc.replace(/\+(\d+(?:\.\d+)?)/g, (_, n) => `+${scaleNum(Number(n), k)}`);
+  if (a.chance != null && a.when) {
+    d = d.replace(/(\d+)%/g, (_, n) => `${Math.min(100, Math.round(Number(n) + lv * 5))}%`)
+      .replace(/경기당 (\d+)회/g, () => `경기당 ${augMax({ ...a, lv })}회`);
+  }
+  return d;
+}
+export const augChance = (a) => Math.min(1, (a.chance ?? 0) + (a.lv || 0) * 0.05);
+export const augMax = (a) => (a.max ?? 1) + ((a.lv || 0) >= 5 ? 2 : (a.lv || 0) >= 3 ? 1 : 0);
 
 export function makeAugmentRuntime({ augments = [], my, opp, record }) {
   let list = augments;
@@ -903,7 +965,7 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
       const c = ctxOf(g);
       let add = 0; let mul = 1; let pitchAdd = 0;
       for (const a of passive()) {
-        const r = a.half?.(c, stFor(a));
+        const r = scaleHalf(a.half?.(c, stFor(a)), augScale(a.lv));
         if (!r) continue;
         add += r.add || 0; mul *= r.mul ?? 1; pitchAdd += r.pitch || 0;
       }
@@ -919,7 +981,7 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
       for (const a of passive()) {
         if (!a.runs) continue;
         const r = a.runs(c, out, stFor(a));
-        const next = Math.max(0, Math.min(9, typeof r === 'number' ? r : r.runs));
+        const next = Math.max(0, Math.min(9, scaleRuns(out, typeof r === 'number' ? r : r.runs, augScale(a.lv))));
         if (typeof r === 'object' && r.text && next !== out) texts.push({ name: a.name, tier: a.tier, text: r.text });
         out = next;
       }
@@ -1110,7 +1172,7 @@ export async function runSimulation({
       const hctx = { inning, isTop, my, opp, score: { ...score }, rng, myPitcher, oppPitcher };
       let lamAdd = 0; let lamMul = 1; let pitchAdd = 0;
       for (const a of passive()) {
-        const r = a.half?.(hctx, stFor(a));
+        const r = scaleHalf(a.half?.(hctx, stFor(a)), augScale(a.lv));
         if (r) { lamAdd += r.add || 0; lamMul *= r.mul ?? 1; pitchAdd += r.pitch || 0; }
       }
       const afterHalf = (halfRuns) => { for (const a of passive()) a.after?.({ ...hctx, score: { ...score } }, halfRuns, stFor(a)); };
@@ -1166,7 +1228,7 @@ export async function runSimulation({
       const ctx = { inning, isTop, my, opp, score: { ...score }, rng, baseRuns, myPitcher, oppPitcher };
       const fired = augments.filter((a) => !a.passive)
         .sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier])
-        .find((a) => a.side === side && (used[a.id] || 0) < a.max && a.when(ctx) && rng() < a.chance);
+        .find((a) => a.side === side && (used[a.id] || 0) < augMax(a) && a.when(ctx) && rng() < augChance(a));
 
       let runs;
       if (fired) {
@@ -3534,8 +3596,8 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
             <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
-              <span className="text-sm font-bold">{a.name}</span>
-              <p className="mt-0.5 text-xs text-gray-400">{a.desc}</p>
+              <span className="text-sm font-bold">{a.name}{a.lv ? <b className="ml-1 font-display" style={{ color: TIER_NEON[a.tier] }}>+{a.lv}</b> : null}</span>
+              <p className="mt-0.5 text-xs text-gray-400">{augDescAt(a)}</p>
               {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
             </li>
           ))}
@@ -3570,8 +3632,10 @@ function ChoiceCard({ option: o, index, onChoose }) {
         <span className="grid h-12 w-[42px] place-items-center" style={{ color: acc, background: `color-mix(in srgb, ${acc} 22%, rgba(5,8,15,.75))`, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}><TierIcon tier={o.tier} /></span>
       </div>
       <div className="relative z-10 mt-auto px-6 pb-5">
-        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>{o.name}</h3>
-        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{o.desc}</p>
+        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>
+          {o.name}{o.lv ? <b className="ml-1.5 font-display" style={{ color: acc }}>+{o.lv}</b> : null}
+        </h3>
+        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{augDescAt(o)}</p>
         <p className="mt-3 border-t pt-2.5 text-xs font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>{o.cond ? `조건 · ${o.cond}` : AUG_TYPE[o.type] || ''}</p>
         <button type="button" onClick={() => onChoose(o)} className="ui-btn ui-cut mt-3 w-full">선택</button>
       </div>
@@ -6242,9 +6306,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                           <li key={a.id} className={`rounded-md border px-2.5 py-2 ${n ? TIER[a.tier].chip : 'border-gray-700 bg-[#111827]'}`}>
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-sm font-bold">{a.name}</span>
-                              {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{a.max}</span>}
+                              {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{augMax(a)}</span>}
                             </div>
-                            <p className="mt-0.5 text-[11px] text-gray-400">{a.desc}</p>
+                            <p className="mt-0.5 text-[11px] text-gray-400">{augDescAt(a)}</p>
                             {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
                           </li>
                         );

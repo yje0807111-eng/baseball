@@ -62,6 +62,13 @@ export function bannedAugIds() {
   return new Set(Object.values(withAug(a).bans).flat());
 }
 
+/** 강화한 증강 레벨 { id: 레벨 } (로그인 안 했으면 빈 객체) */
+export function augLevels() {
+  const a = read();
+  if (!a?.nick || a.signedOut) return {};
+  return { ...withAug(a).levels };
+}
+
 /** 즐겨찾기한 증강 id */
 export function favAugIds() {
   const a = read();

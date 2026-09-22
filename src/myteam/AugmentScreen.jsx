@@ -5,7 +5,7 @@
  *  오른쪽: 고른 증강이 있으면 PICK 카드, 없으면 제외 칸 목록(+ 칸 열기, 최대 8)
  */
 import React, { useMemo, useState } from 'react';
-import { AUGMENTS } from '../KboAugmentDraft.jsx';
+import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, Bg, TopBar, KV } from './ui.jsx';
 
@@ -85,7 +85,7 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = n
             </button>
           )}
         </div>
-        <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{a.desc}</p>
+        <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{augDescAt(a, lv)}</p>
       </div>
       {btn}
     </div>
@@ -246,7 +246,7 @@ export default function AugmentScreen({ account, onBack }) {
                   <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
                     <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
                     <div className="mt-2.5 grid gap-[5px]">
-                      {effectRows(picked.desc).map(([head, num], i) => (
+                      {effectRows(augDescAt(picked, lv)).map(([head, num], i) => (
                         <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
                           style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
                           <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
