@@ -4729,7 +4729,16 @@ function SeriesTicket({ t, acc, sm = false }) {
         <span className={`absolute left-3 top-2 font-display text-3xl font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
           style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
       )}
-      {t.champ && <span className="ui-cut absolute right-2.5 top-2.5 bg-amber-400 px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ '--c': '5px' }} title="한국시리즈 우승">V</span>}
+      {/* 한국시리즈 우승 — 작은 트로피로 조용하게 */}
+      {t.champ && (
+        <span className={`absolute ${sm ? 'right-1.5 top-1.5' : 'right-2.5 top-2.5'}`} title="한국시리즈 우승" aria-label="한국시리즈 우승">
+          <svg width={sm ? 12 : 15} height={sm ? 12 : 15} viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+            style={{ opacity: 0.7, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,.8))' }}>
+            <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" /><path d="M17 5h3v2a3 3 0 0 1-3 3" /><path d="M7 5H4v2a3 3 0 0 0 3 3" />
+            <path d="M12 14v3" /><path d="M9 20.5h6" /><path d="M10 17.5h4l1 3H9l1-3Z" />
+          </svg>
+        </span>
+      )}
       <div className={sm ? 'absolute inset-x-2 bottom-1.5' : 'absolute inset-x-3 bottom-2.5'}>
         {sm && <b className={`block truncate font-display text-[11.5px] ${t.locked ? 'text-gray-600' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
         <p className={`truncate font-black ${sm ? 'text-[12.5px]' : 'text-base'} ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
