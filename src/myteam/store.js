@@ -183,6 +183,18 @@ export function saveTeam(team) {
   return next;
 }
 
+/** 다음 단판 상대(시리즈 id) — 화면에 미리 보여 주고 경기도 이 상대로 한다 */
+export function saveNextDuel(seriesId) {
+  const a = read();
+  if (!a || a.nextDuel === seriesId) return null;
+  const next = { ...a, nextDuel: seriesId };
+  write(next);
+  return next;
+}
+export function peekNextDuel() {
+  return read()?.nextDuel || null;
+}
+
 export function addHistory(entry) {
   const a = read();
   if (!a) return null;
@@ -191,7 +203,9 @@ export function addHistory(entry) {
   else if (entry.winner === 'opp') record.l += 1;
   else record.d += 1;
   // 랭크 승점은 랭크전 시즌이 끝날 때만 오르내린다 (claimRanked)
-  const next = { ...a, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
+  // 단판이 끝나면 다음 상대를 다시 뽑는다
+  const nextDuel = entry.mode ? a.nextDuel : null;
+  const next = { ...a, nextDuel, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
   write(next);
   return next;
 }

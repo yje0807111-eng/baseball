@@ -4,6 +4,7 @@
  */
 import { SERIES } from '../data/seriesPlayers.js';
 import { lineupOf } from './match.js';
+import { peekNextDuel } from './store.js';
 
 const usageFiles = import.meta.glob('../data/pitching-usage.json', { eager: true, import: 'default' });
 const USAGE = Object.values(usageFiles)[0] || {};
@@ -37,7 +38,8 @@ export function seriesTeam(series, rng = Math.random) {
   };
 }
 
-/** 무작위 시리즈 팀 (일반 대결 상대) */
+/** 무작위 시리즈 팀 (일반 대결 상대) — 화면에서 미리 정해 둔 상대가 있으면 그 팀 */
 export function randomSeriesTeam(rng = Math.random) {
-  return seriesTeam(AI_SERIES[Math.floor(rng() * AI_SERIES.length)], rng);
+  const pinned = AI_SERIES.find((s) => s.id === peekNextDuel());
+  return seriesTeam(pinned || AI_SERIES[Math.floor(rng() * AI_SERIES.length)], rng);
 }

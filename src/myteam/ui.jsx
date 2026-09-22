@@ -268,9 +268,9 @@ export const Hero = ({ img, ovr, name, color = '#10b981', h = 176, pos = '60% 18
 );
 
 /** 오른쪽 패널의 키-값 줄 */
-export const KV = ({ k, v, color = '#fff' }) => (
-  <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-    <span>{k}</span><b className="font-display text-lg" style={{ color }}>{v}</b>
+export const KV = ({ k, v, color = '#fff', sm = false }) => (
+  <div className={`flex items-center justify-between border-b border-white/10 text-gray-300 ${sm ? 'py-1.5 text-[13px]' : 'py-2.5 text-sm'}`}>
+    <span>{k}</span><b className={`font-display ${sm ? 'text-base' : 'text-lg'}`} style={{ color }}>{v}</b>
   </div>
 );
 
