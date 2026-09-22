@@ -6,27 +6,45 @@ import { rankOf } from './rank.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, STAGES, PLACE_REWARD, LEAGUE_SIZE, POST_TEAMS } from './ranked.js';
 import { StandingsTable, RK } from './RankedHub.jsx';
 
+/* 시즌 흐름: 정규 시즌 → 가을야구 네 단계 */
+const FLOW = [
+  ['정규 시즌', `${LEAGUE_SIZE}팀 · ${GAMES}경기`],
+  ...STAGES.map((st, i) => [st.ko, i === 0 ? '4위 vs 5위' : `vs ${STAGES[i].hi}위`]),
+];
+/** 시즌 전 소개 — 무엇을 하는 모드인지(카드 셋) · 어떻게 흘러가는지(칩) · 무엇을 받는지(승점) */
 function Intro() {
-  const steps = [
-    { k: '정규 시즌', v: `${LEAGUE_SIZE}팀 · ${GAMES}경기` },
-    { k: '와일드카드', v: '4위 vs 5위' },
-    { k: '준플레이오프', v: 'vs 3위' },
-    { k: '플레이오프', v: 'vs 2위' },
-    { k: '한국시리즈', v: 'vs 1위' },
-  ];
   return (
-    <>
-      <div className="mt-auto grid grid-cols-5 items-end gap-2.5" style={{ height: '46%' }}>
-        {steps.map((s, i) => (
-          <div key={s.k} className="ui-cut flex flex-col justify-end p-4"
-            style={{ '--c': '12px', height: `${34 + i * 16}%`, background: `linear-gradient(180deg, rgba(167,139,250,${0.06 + i * 0.05}), rgba(5,8,15,.6))`, boxShadow: `inset 0 2px 0 ${i === 4 ? '#fbbf24' : 'rgba(167,139,250,.4)'}` }}>
-            {i === 4 && <span className="mb-auto text-center text-6xl leading-none">🏆</span>}
-            <b className="text-2xl font-black" style={{ color: i === 4 ? '#fbbf24' : '#fff' }}>{s.k}</b>
-            <span className="font-display text-base text-gray-300">{s.v}</span>
-          </div>
-        ))}
+    <div className="mt-auto grid gap-4" style={{ gridTemplateColumns: 'minmax(0,1.2fr) 320px' }}>
+      <div className="flex flex-col gap-3">
+        <p className="ui-lab font-display" style={{ '--a': RK }}>Season</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {FLOW.map(([k], i) => (
+            <React.Fragment key={k}>
+              <span className="ui-cut px-4 py-1.5 font-display text-[15px] font-bold"
+                style={{ '--c': '6px', color: i === FLOW.length - 1 ? '#05080f' : '#e5e7eb', background: i === FLOW.length - 1 ? '#fbbf24' : 'rgba(255,255,255,.08)' }}>{k}</span>
+              {i < FLOW.length - 1 && <span className="font-display text-gray-600">›</span>}
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판 승부`], ['3', '랭크 승점', '최종 순위로 RP가 오르내림']].map(([n, t, d]) => (
+            <div key={n} className="ui-cut px-4 py-3" style={{ '--c': '10px', background: 'rgba(255,255,255,.05)' }}>
+              <span className="ui-chip font-display" style={{ '--a': RK }}>{n}</span>
+              <b className="mt-2 block text-xl font-black text-white">{t}</b>
+              <span className="text-sm text-gray-400">{d}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </>
+      <div>
+        <p className="ui-lab font-display" style={{ '--a': RK }}>Reward</p>
+        <div className="mt-2">
+          {PLACE_REWARD.slice(0, 5).map((r, i) => (
+            <KV key={r.ko} k={r.ko} v={`${r.rp >= 0 ? '+' : ''}${r.rp} RP · ${r.gold} G`} color={i === 0 ? '#fbbf24' : '#fff'} sm />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -48,12 +66,12 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   const main = (
     <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
       <UiStyle />
-      <span className="absolute inset-0 bg-cover opacity-25" style={{ backgroundImage: 'url(ui/stadium.webp)', backgroundPosition: 'center 40%' }} />
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 20%,rgba(5,8,15,.55))' }} />
+      <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/rank2/dusk.webp)', backgroundPosition: 'center 45%' }} />
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 18%,rgba(5,8,15,.6))' }} />
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': RK }}>Ranked · {s ? `Season ${s.season}` : 'Season'}</p>
         <h1 className="mt-2 text-6xl font-black text-white">랭크전</h1>
-        <p className="mt-3 text-lg text-gray-300">{LEAGUE_SIZE}팀 리그 {GAMES}경기, 상위 {POST_TEAMS}팀 가을야구. 최종 순위로 랭크 승점이 오르내립니다.</p>
+        <p className="mt-3 text-lg text-gray-300">정규 시즌을 치르고, 가을야구 성적으로 랭크 승점을 받습니다.</p>
         {s ? (
           <div className="ui-cut mt-auto bg-[#05080f]/60 px-4 py-3" style={{ '--c': '12px' }}>
             <StandingsTable s={s} />
