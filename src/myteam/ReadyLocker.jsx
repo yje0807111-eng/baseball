@@ -5,6 +5,8 @@
  */
 import React, { useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
+import GamePlan from './GamePlan.jsx';
+import { BASE, PRESETS, DEFAULT_PLAN, planOf, scoutTags, recommend } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 
@@ -86,16 +88,7 @@ function ScoutPanel({ opponent }) {
   const danger = new Map();
   [...bats].sort((a, b) => b.stats.power - a.stats.power).slice(0, 2).forEach((p) => danger.set(p.id, { t: '장타', c: '#f87171' }));
   [...bats].sort((a, b) => b.stats.speed - a.stats.speed).slice(0, 1).forEach((p) => { if (!danger.has(p.id)) danger.set(p.id, { t: '주루', c: '#fbbf24' }); });
-  const tags = [
-    { on: avg(bats, (p) => p.stats.power) >= 72, label: '장타 위험', c: '#f87171' },
-    { on: avg(bats, (p) => p.stats.speed) >= 70, label: '발 빠른 타선', c: '#fbbf24' },
-    { on: avg(bats, (p) => p.stats.contact) >= 74, label: '컨택 강함', c: '#fb923c' },
-    { on: avg(bats, (p) => p.stats.defense) >= 72, label: '수비 탄탄', c: A.def },
-    { on: bats.filter((p) => p.hand === 'L').length / Math.max(1, bats.length) >= 0.35, label: '좌타 다수', c: '#a78bfa' },
-    { on: avg(pits.filter((p) => p.position === 'RP'), (p) => p.overall) < 74, label: '불펜 얇음', c: A.bat },
-    { on: avg(pits.filter((p) => p.position === 'SP'), (p) => p.stats.stamina) < 70, label: '선발 이닝 짧음', c: A.bat },
-    { on: avg(bats, (p) => p.stats.power) < 66, label: '한 방 없음', c: A.bat },
-  ].filter((x) => x.on).slice(0, 4);
+  const tags = scoutTags(opponent);
 
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': c }}>
@@ -197,7 +190,51 @@ const Delta = ({ v }) => (
 );
 
 /** 오른쪽 — 정비: 합계 셋 · 팀 요약 · 투수 휴식 · 버튼 */
-function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel }) {
+/** 전략 구역 — 프리셋 넷, 기본 세 줄, ⚙ 세부 작전 */
+function StrategyBlock({ plan, setPlan, onOpen, canOpen }) {
+  const pick = (id) => setPlan(planOf(id));
+  const setBase = (k, v) => setPlan((o) => ({ ...o, preset: 'custom', base: { ...o.base, [k]: v } }));
+  return (
+    <div className="shrink-0">
+      <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Strategy</p>
+      <div className="grid gap-1.5">
+        <span className="flex gap-1">
+          {[...PRESETS, { id: 'custom', ko: '맞춤', color: A.syn }].map((p) => {
+            const on = plan.preset === p.id;
+            return (
+              <button key={p.id} type="button" disabled={p.id === 'custom'} onClick={() => pick(p.id)}
+                className="mt-cut flex-1 py-1.5 text-[11.5px] font-extrabold disabled:cursor-default"
+                style={{ ...cut(5), background: on ? `color-mix(in srgb,${p.color} 18%,transparent)` : 'rgba(255,255,255,.05)',
+                  boxShadow: `inset 0 0 0 1px ${on ? p.color : 'rgba(255,255,255,.1)'}`, color: on ? p.color : '#94a3b8' }}>{p.ko}</button>
+            );
+          })}
+        </span>
+        {BASE.map((b) => (
+          <span key={b.key} className="flex items-center gap-2">
+            <small className="w-9 shrink-0 text-[11.5px] text-[#8b97a6]">{b.ko}</small>
+            <span className="flex flex-1 gap-1">
+              {b.opts.map((o) => {
+                const on = plan.base[b.key] === o;
+                return (
+                  <button key={o} type="button" onClick={() => setBase(b.key, o)} className="mt-cut flex-1 py-1.5 text-[11.5px] font-bold"
+                    style={{ ...cut(4), background: on ? `color-mix(in srgb,${b.color} 20%,transparent)` : 'rgba(255,255,255,.05)',
+                      boxShadow: `inset 0 0 0 1px ${on ? b.color : 'rgba(255,255,255,.1)'}`, color: on ? b.color : '#94a3b8' }}>{o}</button>
+                );
+              })}
+            </span>
+          </span>
+        ))}
+        <button type="button" onClick={onOpen} disabled={!canOpen}
+          className="mt-cut py-1.5 text-[11.5px] font-bold disabled:opacity-40"
+          style={{ ...cut(5), background: 'rgba(255,255,255,.05)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)', color: '#a8b3c1' }}>
+          ⚙ 세부 작전 손보기
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel, strategy }) {
   const TOT = [['타자', sums.bat, deltas.bat, A.bat], ['수비', sums.def, deltas.def, A.def], ['투수', sums.pit, deltas.pit, A.pit]];
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
@@ -220,6 +257,7 @@ function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel }
             </div>
         ))}
       </div>
+      {strategy}
       {!!rest.length && (
         <div className="shrink-0">
           <p className="mt-lab pb-1" style={{ '--a': A.pit, fontSize: 10 }}>Rest</p>
@@ -245,6 +283,11 @@ export default function ReadyLocker({
   onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트',
 }) {
   const [sel, setSel] = useState(null);
+  /* 경기 전 작전 — 프리셋 · 기본 세 줄 · 세부 여덟. 작전판은 ⚙ 로 연다 */
+  const [plan, setPlan] = useState(DEFAULT_PLAN);
+  const [planOpen, setPlanOpen] = useState(false);
+  const setFine = (k, v) => setPlan((o) => ({ ...o, preset: 'custom', fine: { ...o.fine, [k]: v } }));
+  const applyRec = () => setPlan((o) => ({ ...o, preset: 'custom', fine: { ...o.fine, ...recommend(opponent) } }));
   const byId = new Map(squad.map((p) => [p.id, p]));
   const rest = [...(team.order?.rotation || []).slice(0, 1), ...(team.order?.bullpen || []).slice(0, 2)]
     .map((id) => byId.get(id)).filter((p) => p && p.rest != null)
@@ -260,7 +303,11 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots footer={<SynergyDockMini synergies={synergies} />} />
 
       <TunePanel sums={sums} deltas={deltas} team={teamInfo} rest={rest} autoFilled={autoFilled}
-        onStart={onStart} startLabel={startLabel} />
+        onStart={() => onStart(plan)} startLabel={startLabel}
+        strategy={<StrategyBlock plan={plan} setPlan={setPlan} canOpen={!!opponent} onOpen={() => setPlanOpen(true)} />} />
+      {planOpen && opponent && (
+        <GamePlan opponent={opponent} plan={plan} onFine={setFine} onApply={applyRec} onClose={() => setPlanOpen(false)} />
+      )}
     </div>
   );
 }
