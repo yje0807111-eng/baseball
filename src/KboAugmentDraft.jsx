@@ -4746,6 +4746,73 @@ function YearFace({ p, w = 70, h = 92 }) {
     </div>
   );
 }
+/** 전체 믹스 · 최근 시즌 — 왼쪽 판에 대표 구단과 묶음별 시리즈, 오른쪽에 대표 선수.
+ *  대표 구단은 그 모드의 우승 구단들 사이에서 8초마다 바뀌고 배경 그림도 함께 바뀐다 */
+function BasicHero({ mode, tickets, acc }) {
+  const pool = useMemo(() => {
+    const clubs = tickets.filter((t) => t.kind === 'team' && !t.locked && teamFlag(t.title));
+    const champs = clubs.filter((t) => t.champ);
+    const list = champs.length >= 3 ? champs : clubs;
+    return shuffle(list.length ? list : tickets.slice(0, 1));
+  }, [tickets]);
+  const [turn, setTurn] = useState(0);
+  useEffect(() => {
+    setTurn(0);
+    if (pool.length < 2) return undefined;
+    const id = setInterval(() => setTurn((n) => n + 1), 8000);
+    return () => clearInterval(id);
+  }, [pool]);
+  const hero = pool[turn % Math.max(1, pool.length)] || tickets[0];
+  const flag = teamFlag(hero?.title || '');
+  const rest = tickets.filter((t) => t.key !== hero?.key);
+  const [one, ...more] = yearStars(mode.series, 5);
+  return (
+    <>
+      {flag && (
+        <React.Fragment key={flag.key}>
+          <span className="pointer-events-none absolute inset-0 animate-[fade_.6s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
+          <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
+        </React.Fragment>
+      )}
+      <div className="relative z-10 grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: '520px minmax(0,1fr)' }}>
+        <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
+          <div className="flex items-end gap-4">
+            <div className="min-w-0 flex-1">
+              <b className="font-display text-[13px] tracking-[0.25em]" style={{ color: acc }}>{mode.en}</b>
+              <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
+              <span className="mt-2 block text-[15px] text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
+            </div>
+            {hero && <div key={hero.key} className="shrink-0 animate-[fade_.4s_ease-out_both]" style={{ width: 176, height: 112 }}><SeriesTicket t={hero} acc={acc} fit /></div>}
+          </div>
+          <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
+            {groupTickets(rest).map(([ko, list]) => (
+              <React.Fragment key={ko}>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: acc }}>SERIES</span>
+                  <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
+                  <span className="h-px flex-1 bg-white/10" />
+                </div>
+                <div className="mt-1.5 grid gap-1.5" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gridAutoRows: '66px' }}>
+                  {list.map((t) => <SeriesTicket key={t.key} t={t} acc={acc} sm />)}
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+        <div className="flex min-h-0 flex-col justify-end pb-1">
+          <p className="ui-lab font-display" style={{ '--a': acc }}>Best of all</p>
+          <div className="mt-1.5 flex items-end gap-1.5">
+            {one && <YearBig p={one} w={212} h={248} />}
+            <div className="grid min-w-0 flex-1 gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(1, more.length)},minmax(0,1fr))` }}>
+              {more.map((p) => <YearFace key={personKey(p)} p={p} w="100%" h={168} />)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 /** 그 해 최고 한 명 — 얼굴을 크게, 아래에 포지션 · 소속 · 그 해 기록 */
 function YearBig({ p, w, h }) {
   const art = useArt(p);
@@ -4858,10 +4925,10 @@ function YearHero({ mode, acc }) {
   );
 }
 
-function SeriesTicket({ t, acc, sm = false }) {
+function SeriesTicket({ t, acc, sm = false, fit = false }) {
   const art = useArt(t.star);
   return (
-    <div className={`ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat ${sm ? '' : 'min-h-[11rem]'}`}
+    <div className={`ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat ${sm || fit ? '' : 'min-h-[11rem]'}`}
       style={{ '--c': sm ? '8px' : '12px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }}>
       <span className="absolute inset-0" style={{ background: sm ? 'linear-gradient(180deg,rgba(5,8,15,.82),rgba(5,8,15,.9))' : 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
       {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-xs font-semibold text-gray-500">준비 중</span>}
@@ -5010,28 +5077,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <div className="ui-cut grid aspect-square place-items-center bg-white/[0.03] text-sm text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '14px' }}>+ 다음 시즌 공개</div>
               </div>
             ) : (
-              <>
-                {/* 대표 넉 장은 크게, 그 밖은 종류별 묶음으로 나눠 작은 카드로 (자리도 덜 먹고 덜 어지럽다) */}
-                <div className="mt-3 grid shrink-0 gap-2.5" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridAutoRows: '11rem' }}>
-                  {tickets.slice(0, 4).map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
-                </div>
-                {tickets.length > 4 && (
-                  <div className="syn-scroll mt-1 min-h-0 flex-1 overflow-y-auto pr-1">
-                    {groupTickets(tickets.slice(4)).map(([ko, list]) => (
-                      <React.Fragment key={ko}>
-                        <div className="mt-3 flex items-center gap-2">
-                          <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: mode.neon }}>SERIES</span>
-                          <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
-                          <span className="h-px flex-1 bg-white/10" />
-                        </div>
-                        <div className="mt-2 grid gap-2" style={{ gridTemplateColumns: 'repeat(8, minmax(0,1fr))', gridAutoRows: '4.4rem' }}>
-                          {list.map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} sm />)}
-                        </div>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                )}
-              </>
+              <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />
             )}
           </section>
         )}
