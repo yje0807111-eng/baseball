@@ -262,12 +262,14 @@ export default function AugmentScreen({ account, onBack }) {
                 </div>
                 {tab === 'upgrade' ? (
                   <>
-                    <div>
-                      <KV k="지금 레벨" v={`+${lv} / ${AUG_LEVEL_MAX}`} color={c} />
-                      <KV k="필요 강화권" v={lv >= AUG_LEVEL_MAX ? '—' : `${lv + 1}장 / 보유 ${aug.upgradeTickets}장`} color="#fbbf24" />
-                    </div>
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN }} disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
-                      {lv >= AUG_LEVEL_MAX ? '최대 레벨' : aug.upgradeTickets < lv + 1 ? `강화권 ${lv + 1 - aug.upgradeTickets}장 부족` : `+${lv + 1} 강화하기 ▶`}
+                    <button type="button" className="mt-btn pri lg mt-auto w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
+                      disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+                      {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
+                        <>
+                          <span>+{lv + 1} 강화하기</span>
+                          <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
+                        </>
+                      )}
                     </button>
                   </>
                 ) : (
