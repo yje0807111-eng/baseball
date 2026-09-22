@@ -5979,7 +5979,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       revealRef.current = setTimeout(() => setReveal(null), next === 'all' ? 520 : 380);
                       return next;
                     })}>
-                      <span className="tr" aria-hidden="true" />영입할 수 없는 선수도 보기
+                      <span className="tr" aria-hidden="true" />전체보기 {shelfFilter === 'all' ? 'ON' : 'OFF'}
                     </button>}
                     {live ? null : (
                       <>
