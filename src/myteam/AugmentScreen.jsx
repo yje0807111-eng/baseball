@@ -283,15 +283,23 @@ export default function AugmentScreen({ account, onBack }) {
                   </div>
                 </div>
                 <div className="mt-auto flex flex-col gap-2">
-                  <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
-                    disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
-                    {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
-                      <>
-                        <span>+{lv + 1} 강화하기</span>
-                        <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
-                      </>
-                    )}
-                  </button>
+                  {tab === 'upgrade' ? (
+                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
+                      disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+                      {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
+                        <>
+                          <span>+{lv + 1} 강화하기</span>
+                          <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN }} disabled={lv >= AUG_LEVEL_MAX}
+                      onClick={() => { setUpTier(picked.tier); setTab('upgrade'); }}>
+                      {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : '강화하기 ▶'}
+                    </button>
+                  )}
+                  {tab !== 'upgrade' && (
                   <div className="flex gap-2">
                     <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
                       style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
@@ -304,6 +312,7 @@ export default function AugmentScreen({ account, onBack }) {
                       <span className="text-base leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
                     </button>
                   </div>
+                  )}
                 </div>
               </>
             );
