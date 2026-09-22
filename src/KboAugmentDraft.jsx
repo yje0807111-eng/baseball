@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, loadAccount, myBanner } from './myteam/store.js';
+import { bannedAugIds, augLevels, loadAccount, myBanner, draftTickets, spendDraftTicket } from './myteam/store.js';
+import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP } from './myteam/shop.js';
 import { flagByKey } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
@@ -1599,6 +1600,16 @@ export const KEYFRAMES = `
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
 .dr-sp button:hover { color: #fff; }
 .dr-sp button.on { color: #05080f; background: #38e1ff; }
+/* 드래프트 권 — 상점에서 산 장수를 달고 판에서 쓴다 */
+.pk-was { margin-right: 4px; font-size: .62em; color: #64748b; text-decoration-thickness: 1px; }
+.dr-tk { display: inline-flex; gap: 3px; }
+.dr-tk button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11.5px; font-weight: 700; color: #fcd34d;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  background: rgba(251,191,36,.12); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); transition: color .15s, background .15s, opacity .15s; }
+.dr-tk button:hover:not(:disabled) { color: #05080f; background: #fbbf24; }
+.dr-tk button:disabled { opacity: .32; cursor: default; }
+.dr-tk button.on { color: #05080f; background: #fbbf24; }
+.dr-tk em { font-family: 'Saira Condensed', sans-serif; font-style: normal; font-size: 12px; }
 .dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size: 12px; line-height: 1; color: #cbd5e1;
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
   background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
@@ -2439,7 +2450,7 @@ const PK_FS = { SP: 4.4, DH: 4.1 };
  * owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆 변화량, 받은 시너지·원래 포지션 칩, 코스트 대신 자리 이름.
  * hint: 영입하면 채우는 시너지 { s, after }
  */
-export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null }) {
+export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null, cost = null }) {
   const locked = !!reason;
   const art = useArt(player);
   const acc = neonOf(player);
@@ -2493,7 +2504,11 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
           <span className={`pk-nm ${player.name.length >= 5 ? 'l5' : ''}`}>{player.name}</span>
           {owned
             ? <span className="pk-slot">{owned.slotLabel}</span>
-            : <span className="pk-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>}
+            : <span className="pk-cp font-display tabular-nums">
+              <small>CP</small>
+              {cost != null && cost !== player.cost && <s className="pk-was">{player.cost}</s>}
+              <b style={cost != null && cost !== player.cost ? { color: '#fbbf24' } : undefined}>{cost ?? player.cost}</b>
+            </span>}
         </span>
         <span className="pk-fr" />
         {locked && <span className="pk-lk"><LockIcon />{reason.replace(/\s*\(.*\)$/, '')}</span>}
@@ -4824,6 +4839,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [ai, setAi] = useState('normal');
   const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 8구단 라이브
   const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const haveFirst = withDraftTickets(draftTickets()).first;   // 상점에서 산 우선 지명권
+  const [useFirst, setUseFirst] = useState(false);
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
@@ -4953,6 +4970,9 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <>
                   <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive} />
                   <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+                  {live && haveFirst > 0 && (
+                    <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
+                  )}
                 </>
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
@@ -4966,7 +4986,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0 })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5331,6 +5351,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [roster, setRoster] = useState([]);
   const [cp, setCp] = useState(SALARY_CAP);
   const [rerolls, setRerolls] = useState(START_REROLLS);
+  /* 상점에서 산 드래프트 권 — 계정에 쌓여 있고 판에서 한 장씩 쓴다 */
+  const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
+  const [seriesPick, setSeriesPick] = useState(false); // 시리즈 지정권 고르개가 열렸는지
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
@@ -5710,6 +5733,24 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setChoice(null);
   };
 
+  /* 권 한 장 쓰기 — 계정에서 빼고 화면 수를 다시 읽는다 */
+  const spendTicket = (key) => {
+    if (!spendDraftTicket(key)) return false;
+    setTickets(withDraftTickets(draftTickets()));
+    return true;
+  };
+  const useReport = () => { if (phase === 'draft' && spendTicket('reroll')) setRerolls((r) => r + 3); };
+  const useProtect = () => {
+    if (!live || !picked || Live.takenBy(live, picked) != null || live.protect) return;
+    if (spendTicket('protect')) setLive((x) => Live.protectPlayer(x, picked));
+  };
+  const useAgent = () => { if (live && !live.agent && spendTicket('agent')) setLive((x) => Live.useAgent(x)); };
+  const useSeriesTicket = (chosen) => {
+    setSeriesPick(false);
+    if (!live || !chosen) return;
+    if (spendTicket('series')) setLive((x) => Live.setBoardSeries(x, chosen));
+  };
+
   const handleReroll = () => {
     if (rerolls <= 0 || phase !== 'draft') return;
     setRerolls((r) => r - 1);
@@ -5918,8 +5959,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
     const me = loadAccount();
     const banner = myBanner(); // 프로필에서 고른 배너 구단 — 내가 지명한 카드에 그 구단 그림이 뜬다
+    const useFirst = !!(cfg.live && cfg.firstPick && spendDraftTicket('first'));
+    setTickets(withDraftTickets(draftTickets()));
+    setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
-      cap: cfg.cap, series: m.series,
+      cap: cfg.cap, series: m.series, firstPick: useFirst,
       myName: me?.team?.name || me?.nick || '나의 드림팀',
       myShort: me?.nick,
       myColor: flagByKey(banner)?.color || '#e879f9',
@@ -5933,6 +5977,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
   };
+
+  /* 시리즈 지정권 고르개에 올릴 목록 — 이번 모드의 시리즈 중 사람이 열 만한 것 */
+  const seriesChoices = useMemo(() => (mode?.series || DRAFT_SERIES).filter((x) => x.players.length >= Live.BOARD_SIZE), [mode]);
+
+  /* 지금 이 선수를 데려오는 값 — 협상 대리인을 켜 두었으면 깎인 값 */
+  const costNow = (p) => (live ? Live.costOf(live, p, liveMine) : p.cost);
 
   const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
   const btnGhost = 'ui-btn ui-cut';
@@ -6063,7 +6113,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />}
+                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
@@ -6094,6 +6144,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       </svg>
                       새로고침 <em>· {rerolls}회</em>
                     </button>
+                    {tickets.reroll > 0 && (
+                      <span className="dr-tk">
+                        <button type="button" onClick={useReport} title="스카우트 리포트 — 새로고침 +3회">
+                          리포트 <em>· {tickets.reroll}장</em>
+                        </button>
+                      </span>
+                    )}
                       </>
                     )}
                     {/* 라이브: 한 판 두 층 — 위층은 라운드 · 캡 · 전체보기, 아래층은 뽑는 순서와 조작 */}
@@ -6101,7 +6158,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       <span className="dr-panel">
                         <span className="dr-top">
                           <DraftMeta inline round={round} cp={cp} cap={match.cap}
-                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />
                           <button type="button" className="dr-toggle" aria-pressed={shelfFilter === 'all'}
                             onClick={() => setShelfFilter((f) => {
                               const next = f === 'open' ? 'all' : 'open';
@@ -6124,6 +6181,32 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         </span>
                         <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
                           title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
+                        {(tickets.protect > 0 || tickets.agent > 0 || tickets.series > 0 || live.protect || live.agent) && (
+                          <>
+                            <i className="dr-div" aria-hidden="true" />
+                            <span className="dr-tk" role="group" aria-label="드래프트 권">
+                              {(tickets.protect > 0 || live.protect) && (
+                                <button type="button" onClick={useProtect} className={live.protect ? 'on' : ''}
+                                  disabled={!!live.protect || !picked || Live.takenBy(live, picked) != null}
+                                  title={live.protect ? '보호 중인 선수가 있습니다' : picked ? `${picked.name} 을(를) 내 다음 차례까지 지킨다` : '지킬 선수를 먼저 고르세요'}>
+                                  보호 <em>· {tickets.protect}장</em>
+                                </button>
+                              )}
+                              {(tickets.agent > 0 || live.agent) && (
+                                <button type="button" onClick={useAgent} className={live.agent ? 'on' : ''} disabled={!!live.agent}
+                                  title={live.agent ? '다음 영입 한 번이 15% 싸집니다' : '협상 대리인 — 다음 영입 한 번을 15% 싸게'}>
+                                  대리인 <em>· {tickets.agent}장</em>
+                                </button>
+                              )}
+                              {tickets.series > 0 && (
+                                <button type="button" onClick={() => setSeriesPick(true)} disabled={Live.boardNo(live) + 1 >= live.pool.length}
+                                  title="시리즈 지정권 — 다음 보드에 열릴 시리즈를 고른다">
+                                  시리즈 <em>· {tickets.series}장</em>
+                                </button>
+                              )}
+                            </span>
+                          </>
+                        )}
                         </span>
                       </span>
                     )}
@@ -6177,7 +6260,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       )}
                       {picked ? (
                         <div key={`pick-${picked.id}`} className="pk-face pkf-in">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} cost={costNow(picked)} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
                         </div>
                       ) : inspected ? (
                         <div key={`own-${inspected.player.id}`} className="pk-face pkf-in">
@@ -6325,6 +6408,22 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       </main>
       )}
 
+      {seriesPick && live && (
+        <Modal eyebrow="Draft Ticket" title="다음 보드에 열 시리즈" onClose={() => setSeriesPick(false)}>
+          <div className="mt-scroll grid max-h-[54vh] grid-cols-2 gap-1.5 overflow-y-auto pr-1">
+            {seriesChoices.map((x) => (
+              <button key={x.id} type="button" onClick={() => useSeriesTicket(x)}
+                className="ui-cut flex items-center gap-3 bg-white/[0.05] px-3 py-2.5 text-left transition hover:bg-white/[0.1]" style={{ '--c': '8px' }}>
+                <span className="font-display text-sm text-[#fbbf24]">{x.year ?? 'LEG'}</span>
+                <span className="min-w-0">
+                  <b className="block truncate text-sm text-white">{x.title}</b>
+                  <small className="block truncate text-[11.5px] text-gray-400">{SERIES_KIND_LABEL[x.kind]} · {x.players.length}명</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />

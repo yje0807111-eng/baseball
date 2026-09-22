@@ -62,6 +62,28 @@ export function bannedAugIds() {
   return new Set(Object.values(withAug(a).bans).flat());
 }
 
+/** 드래프트 권 { reroll, first, ... } — 읽기 · 쓰기 (로그인 안 했으면 빈 값) */
+export function draftTickets() {
+  const a = read();
+  if (!a?.nick || a.signedOut) return {};
+  return { ...(a.draft || {}) };
+}
+export function saveDraftTickets(next) {
+  const a = read();
+  if (!a) return null;
+  const out = { ...a, draft: { ...next } };
+  write(out);
+  return out;
+}
+/** 권 한 장 쓰기 — 없으면 false */
+export function spendDraftTicket(key) {
+  const a = read();
+  const have = a?.draft?.[key] || 0;
+  if (!a || have < 1) return false;
+  write({ ...a, draft: { ...a.draft, [key]: have - 1 } });
+  return true;
+}
+
 /** 강화한 증강 레벨 { id: 레벨 } (로그인 안 했으면 빈 객체) */
 export function augLevels() {
   const a = read();
@@ -76,10 +98,14 @@ export function favAugIds() {
   return new Set(withAug(a).favs);
 }
 
+/** 저장된 골드 — 깨진 값(NaN · null)은 처음 값으로 되돌린다 */
+const goldOf = (a) => (Number.isFinite(a?.gold) ? a.gold : START_GOLD);
+
 const emptyAccount = (nick) => ({
   nick,
   gold: START_GOLD,
   items: [], // 구매한 부스트 { id, itemId, playerId }
+  draft: {}, // 드래프트 권 { reroll, first, protect, series, agent }
   createdAt: new Date().toISOString(),
   team: emptyTeam(),
   history: [], // 경기 기록 { at, my, opp, myRuns, oppRuns, winner }
@@ -102,7 +128,7 @@ export function peekAccount() {
 export function loadAccount() {
   const a = grantPending(read());
   if (!a?.nick || a.signedOut) return null;
-  return { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) };
+  return { ...emptyAccount(a.nick), ...a, gold: goldOf(a), draft: { ...(a.draft || {}) }, team: withTeam(a.team), aug: withAug(a) };
 }
 
 export function signIn(nick) {
@@ -147,7 +173,7 @@ function withTournamentReward(a) {
   const t = a?.tournament;
   if (!t?.done || t.claimed) return a;
   const gold = finishOf(t.size)[t.place]?.gold || 0;
-  return { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + gold), tournament: { ...t, claimed: true, reward: { gold } } };
+  return { ...a, gold: Math.max(0, goldOf(a) + gold), tournament: { ...t, claimed: true, reward: { gold } } };
 }
 function withRankedReward(a) {
   const s = a?.ranked;
@@ -158,7 +184,7 @@ function withRankedReward(a) {
   const seasons = [{ season: s.season, place: s.place, rp: rp - before, at: new Date().toISOString() }, ...(a.rank?.seasons || [])].slice(0, 20);
   return {
     ...a,
-    gold: Math.max(0, (a.gold ?? START_GOLD) + r.gold),
+    gold: Math.max(0, goldOf(a) + r.gold),
     rank: { rp, best: Math.max(rp, a.rank?.best || 0), seasons },
     ranked: { ...s, claimed: true, reward: { rp: rp - before, gold: r.gold } },
   };
@@ -224,7 +250,7 @@ export const myBanner = () => read()?.profile?.banner ?? null;
 export function addGold(delta) {
   const a = read();
   if (!a) return null;
-  const next = { ...a, gold: Math.max(0, (a.gold ?? START_GOLD) + delta) };
+  const next = { ...a, gold: Math.max(0, goldOf(a) + delta) };
   write(next);
   return next;
 }

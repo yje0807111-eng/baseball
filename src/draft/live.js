@@ -107,7 +107,7 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, rng = Math.random } = {}) {
+export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, firstPick = false, rng = Math.random } = {}) {
   // 상대 일곱 구단은 실제 구단 중에서 판마다 새로 뽑는다
   const rivals = shuffle(CLUB_POOL, rng).slice(0, CLUB_COUNT - 1)
     .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i], grade: GRADE_ORDER[i] }));
@@ -116,7 +116,9 @@ export function createLive({ myName = '나의 드림팀', myShort = null, myColo
     { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, emblem: myEmblem, me: true },
     ...rivals,
   ].map((c) => ({ ...c, roster: [], cp: cap }));
-  const order = shuffle(clubs.map((_, i) => i), rng);          // 추첨한 순번 (order[자리] = 구단 번호)
+  let order = shuffle(clubs.map((_, i) => i), rng);            // 추첨한 순번 (order[자리] = 구단 번호)
+  // 우선 지명권: 내 구단(0번)을 첫 자리로 끌어올린다 — 뒤 순서는 그대로 밀린다
+  if (firstPick) order = [0, ...order.filter((i) => i !== 0)];
   // 보드는 라운드마다 하나씩 — 모드에 시리즈가 모자라면 다시 섞어 이어 붙인다 (이미 나간 선수는 그대로 잠겨 있다)
   const usable = series.filter((s) => s.players.length);
   const pool = [];
@@ -131,7 +133,42 @@ export function createLive({ myName = '나의 드림팀', myShort = null, myColo
     taken: {},               // 선수 id → 데려간 구단 번호
     picks: [],               // { pick, club, player, board }
     lastAuto: null,          // 방금 자동 지명이었는지 (화면 알림용)
+    firstPick,               // 우선 지명권을 쓴 판인지
+    protect: null,           // 보호 지명서 { id, until } — until 픽 전까지 다른 구단이 못 뽑는다
+    agent: false,            // 협상 대리인 — 내 다음 영입 한 번이 싸진다
+    used: { reroll: 0, first: firstPick ? 1 : 0, protect: 0, series: 0, agent: 0 }, // 이 판에서 쓴 권
   };
+}
+
+/* ───── 드래프트 권이 판에 닿는 자리 ───── */
+export const AGENT_OFF = 0.15;                       // 협상 대리인 할인
+/** 이 구단이 이 선수에게 낼 값 — 내 차례에 대리인을 켜 두었으면 깎인다 */
+export function costOf(s, player, club = currentClub(s)) {
+  const off = s.agent && club === myIndex(s) ? AGENT_OFF : 0;
+  return Math.max(1, Math.round(player.cost * (1 - off)));
+}
+/** 보호 지명서를 붙인다 — 내 다음 차례가 올 때까지 다른 구단이 못 뽑는다 */
+export function protectPlayer(s, player) {
+  if (!player || takenBy(s, player) != null) return s;
+  const until = nextMyPick(s);
+  if (until == null) return s;
+  return { ...s, protect: { id: player.id, until }, used: { ...s.used, protect: (s.used?.protect || 0) + 1 } };
+}
+/** 지금 다음에 오는 내 차례 픽 번호 (없으면 null) */
+export function nextMyPick(s) {
+  const me = myIndex(s);
+  for (let i = s.pick + (isMyTurn(s) ? 1 : 0); i < CLUB_COUNT * ROSTER_SIZE; i++) if (clubAt(i, s.order) === me) return i;
+  return null;
+}
+/** 보호가 아직 살아 있는가 */
+export const isProtected = (s, player, club = currentClub(s)) => !!(s.protect && s.protect.id === player?.id && s.pick < s.protect.until && club !== myIndex(s));
+/** 협상 대리인을 켜 둔다 (다음 영입 한 번) */
+export const useAgent = (s) => (s.agent ? s : { ...s, agent: true, used: { ...s.used, agent: (s.used?.agent || 0) + 1 } });
+/** 시리즈 지정권 — 아직 열지 않은 보드 하나를 이 시리즈로 바꾼다 */
+export function setBoardSeries(s, series, at = boardNo(s) + 1, rng = Math.random) {
+  if (!series?.players?.length || at <= boardNo(s) || at >= s.pool.length) return s;
+  const pool = s.pool.map((b, i) => (i === at ? sampleBoard(series, rng) : b));
+  return { ...s, pool, used: { ...s.used, series: (s.used?.series || 0) + 1 } };
 }
 
 export const myIndex = (s) => s.clubs.findIndex((c) => c.me);
@@ -159,7 +196,8 @@ export function lockReason(s, player, club = currentClub(s)) {
   const c = s.clubs[club];
   const owner = takenBy(s, player);
   if (owner != null) return `${s.clubs[owner].name} 지명`;
-  const base = getLockReason(player, c.roster, c.cp);
+  if (isProtected(s, player, club)) return '보호 지명';
+  const base = getLockReason(player, c.roster, c.cp + (club === myIndex(s) && s.agent ? player.cost - costOf(s, player, club) : 0));
   if (base) return base;
   const forced = forcedPositions(s, club);
   // 채워야 할 자리의 선수가 이 보드에 하나도 없으면 강제하지 않는다 (강제하면 한 명도 못 뽑고 지나간다)
@@ -223,14 +261,19 @@ export function pick(s, player, { auto = false } = {}) {
   if (isDone(s)) return s;
   const club = currentClub(s);
   if (player && lockReason(s, player, club)) return s;
+  const paid = player ? costOf(s, player, club) : 0;
+  const cut = player && paid !== player.cost;
   const clubs = s.clubs.map((c, i) => (i !== club || !player ? c : {
     ...c,
-    cp: c.cp - player.cost,
-    roster: [...c.roster, { ...player, slot: freeSlot(c.roster, player.position)?.id || null }],
+    cp: c.cp - paid,
+    roster: [...c.roster, { ...player, cost: paid, listCost: cut ? player.cost : undefined, slot: freeSlot(c.roster, player.position)?.id || null }],
   }));
   return {
     ...s,
     clubs,
+    // 쓴 권은 여기서 꺼진다 — 대리인은 한 번, 보호는 그 선수가 내 손에 들어오면 끝
+    agent: cut ? false : s.agent,
+    protect: player && s.protect?.id === player.id ? null : s.protect,
     taken: player ? { ...s.taken, [player.id]: club } : s.taken,
     picks: player ? [...s.picks, { pick: s.pick, club, player, board: boardNo(s) }] : s.picks,
     pick: s.pick + 1,

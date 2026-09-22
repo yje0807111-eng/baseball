@@ -14,11 +14,18 @@ export const CATEGORIES = [
   { key: 'ops', label: '운영' },
   { key: 'staff', label: '감독' },
   { key: 'aug', label: '증강' },
+  { key: 'draft', label: '드래프트' },
 ];
 
 const item = (id, cat, name, desc, price, opt) => ({ id, cat, name, desc, price, ...opt });
 
 export const SHOP_ITEMS = [
+  // 드래프트 (판을 흔드는 권 — 계정에 쌓아 두고 그 판에서 쓴다)
+  item('dr-reroll', 'draft', '스카우트 리포트', '드래프트 새로고침 +3회 · 판에서 쓴다', 220, { draftTicket: 'reroll', img: 'mt-pack' }),
+  item('dr-first', 'draft', '우선 지명권', '8구단 라이브 순번을 맨 앞으로 · 판 시작에 쓴다', 900, { draftTicket: 'first', img: 'mt-card' }),
+  item('dr-protect', 'draft', '보호 지명서', '선수 한 명을 내 다음 차례까지 다른 구단이 못 뽑게', 500, { draftTicket: 'protect', img: 'mt-card' }),
+  item('dr-series', 'draft', '시리즈 지정권', '다음 보드에 열릴 시리즈를 내가 고른다', 480, { draftTicket: 'series', img: 'mt-pack' }),
+  item('dr-agent', 'draft', '협상 대리인', '다음 영입 한 번을 영입가 15% 싸게', 420, { draftTicket: 'agent', img: 'mt-card' }),
   // 훈련 (영구)
   item('tr-contact', 'training', '타격 특훈', '타자 1명 컨택 +3 · 영구', 300, { target: 'batter', stat: 'contact', amount: 3, img: 'mt-boost' }),
   item('tr-power', 'training', '파워 훈련', '타자 1명 파워 +3 · 영구', 320, { target: 'batter', stat: 'power', amount: 3, img: 'mt-boost' }),
@@ -44,6 +51,19 @@ export const SHOP_ITEMS = [
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
 export const itemArt = (it) => `ui/shop/${it.id}.webp`;
 
+/* ───── 드래프트 권: 사 두면 계정에 쌓이고, 드래프트 판에서 한 장씩 쓴다 ───── */
+export const DRAFT_TICKETS = ['reroll', 'first', 'protect', 'series', 'agent'];
+export const DRAFT_TICKET_KO = { reroll: '스카우트 리포트', first: '우선 지명권', protect: '보호 지명서', series: '시리즈 지정권', agent: '협상 대리인' };
+export const DRAFT_TICKET_TIP = {
+  reroll: '새로고침 +3회', first: '순번 맨 앞', protect: '한 명 지켜 두기', series: '다음 보드 고르기', agent: '영입가 15% 할인',
+};
+export const emptyDraftTickets = () => Object.fromEntries(DRAFT_TICKETS.map((k) => [k, 0]));
+/** 계정에 저장된 권 수 (없는 칸은 0) */
+export const withDraftTickets = (t) => ({ ...emptyDraftTickets(), ...(t || {}) });
+/** 한 장 넣기 · 한 장 쓰기 — 둘 다 새 객체를 돌려준다 */
+export const addDraftTicket = (t, key, n = 1) => { const d = withDraftTickets(t); return { ...d, [key]: Math.max(0, d[key] + n) }; };
+export const useDraftTicket = (t, key) => { const d = withDraftTickets(t); return d[key] > 0 ? { ...d, [key]: d[key] - 1 } : null; };
+
 /** 상품이 올려 주는 값 — [이름, 오르는 값, 같은 종류 최대치(게이지 기준)] */
 export function itemEffect(it) {
   if (it.stat) return { label: STAT_KO[it.stat] || it.stat, amount: it.amount, max: it.stat === 'stamina' ? 15 : 6 };
@@ -51,6 +71,7 @@ export function itemEffect(it) {
   if (it.staffRole) return { label: it.staffRole === 'manager' ? '감독 선임' : '코치 선임', amount: null, max: 1 };
   if (it.staffTicket) return { label: '코치 레벨', amount: 1, max: 1 };
   if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: 1, max: 1 };
+  if (it.draftTicket) return { label: DRAFT_TICKET_KO[it.draftTicket] || '드래프트', amount: 1, max: 1 };
   return { label: it.name, amount: null, max: 1 };
 }
 

@@ -25,6 +25,7 @@ export const NAV_ART = {
   'shop-boost': ['Emerald green (#34d399)', 'A cold energy drink can standing on a dugout bench with condensation beads'],
   'shop-ops': ['Warm red (#f87171)', 'A glowing salary-cap gauge board and stacked roster papers on a club office desk at night'],
   'shop-staff': ['Violet (#c4b5fd)', 'A contract document with a fountain pen resting on it and a team cap beside it, on a dark desk'],
+  'shop-draft': ['Warm gold (#fbbf24)', 'A draft board table at night with a row of name placards and a single glowing baseball in front of them'],
   'shop-aug': ['Magenta (#e879f9)', 'A glowing energy orb hovering above a baseball, prismatic light shards around it'],
 };
 const prompt = (k) => {
