@@ -10,24 +10,28 @@
  *  bg: 카드 배경 그림 · base/fine: 이 스타일이 잡아 주는 값 (경기 중 수정의 출발점)
  */
 export const STYLES = [
-  { id: 'big', ko: '빅볼', en: 'BIG BALL', color: '#34d399', bg: 'ui/clutch-bat.webp',
-    tip: '장타로 밀어붙인다',
+  { id: 'big', ko: '빅볼', en: 'BIG BALL', color: '#34d399', bg: 'ui/clutch-bat.webp', tip: '장타 위주',
     base: { bat: '강공', pit: '길게', run: '보통' },
     fine: { first: '노린다', bunt: '안 함', ph: '보통', hook: '체력 소진', crisis: '정면승부', lead: '직구 위주', shift: '정위치', steal: '보통' } },
-  { id: 'small', ko: '스몰볼', en: 'SMALL BALL', color: '#fbbf24', bg: 'ui/field.webp',
-    tip: '번트와 도루로 짜낸다',
+  { id: 'small', ko: '스몰볼', en: 'SMALL BALL', color: '#fbbf24', bg: 'ui/field.webp', tip: '번트와 작전',
     base: { bat: '짜내기', pit: '길게', run: '적극' },
-    fine: { first: '참는다', bunt: '자주', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '자주' } },
-  { id: 'mound', ko: '마운드', en: 'MOUND', color: '#f87171', bg: 'ui/clutch-mound.webp',
-    tip: '선발을 길게, 실점을 막는다',
+    fine: { first: '참는다', bunt: '자주', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
+  { id: 'speed', ko: '발야구', en: 'SPEED', color: '#fb923c', bg: 'ui/dugout.webp', tip: '도루와 주루',
+    base: { bat: '기동력', pit: '길게', run: '적극' },
+    fine: { first: '보통', bunt: '상황봐서', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '자주' } },
+  { id: 'onbase', ko: '출루', en: 'ON BASE', color: '#a3e635', bg: 'ui/plate-view.webp', tip: '공을 많이 본다',
+    base: { bat: '짜내기', pit: '길게', run: '보통' },
+    fine: { first: '참는다', bunt: '상황봐서', ph: '과감히', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
+  { id: 'mound', ko: '마운드', en: 'MOUND', color: '#f87171', bg: 'ui/clutch-mound.webp', tip: '선발을 길게',
     base: { bat: '기동력', pit: '길게', run: '신중' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '소극적', hook: '실점 시', crisis: '피한다', lead: '변화구 위주', shift: '내야 전진', steal: '거의 안 함' } },
-  { id: 'allin', ko: '총력전', en: 'ALL IN', color: '#a78bfa', bg: 'ui/tunnel.webp',
-    tip: '불펜을 아끼지 않는다',
+    fine: { first: '보통', bunt: '상황봐서', ph: '소극적', hook: '실점 시', crisis: '보통', lead: '변화구 위주', shift: '정위치', steal: '거의 안 함' } },
+  { id: 'allin', ko: '총력전', en: 'ALL IN', color: '#a78bfa', bg: 'ui/tunnel.webp', tip: '불펜 총동원',
     base: { bat: '강공', pit: '빠른 계투', run: '적극' },
     fine: { first: '노린다', bunt: '안 함', ph: '과감히', hook: '조기 교체', crisis: '정면승부', lead: '밸런스', shift: '정위치', steal: '자주' } },
-  { id: 'even', ko: '균형', en: 'BALANCE', color: '#10b981', bg: 'ui/ready.webp',
-    tip: '무리하지 않는다',
+  { id: 'lock', ko: '실점 최소', en: 'LOCK DOWN', color: '#60a5fa', bg: 'ui/field-night.webp', tip: '시프트와 유인구',
+    base: { bat: '기동력', pit: '아끼기', run: '신중' },
+    fine: { first: '보통', bunt: '상황봐서', ph: '소극적', hook: '실점 시', crisis: '피한다', lead: '변화구 위주', shift: '내야 전진', steal: '거의 안 함' } },
+  { id: 'even', ko: '균형', en: 'BALANCE', color: '#10b981', bg: 'ui/ready.webp', tip: '무리 없이',
     base: { bat: '기동력', pit: '길게', run: '보통' },
     fine: { first: '보통', bunt: '상황봐서', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
 ];
@@ -91,7 +95,8 @@ export function scoutTags(opponent) {
     { on: avg(pits.filter((p) => p.position === 'RP'), (p) => p.overall ?? 70) < 74, label: '불펜 얇음', c: '#34d399' },
     { on: avg(pits.filter((p) => p.position === 'SP'), (p) => st(p, 'stamina')) < 70, label: '선발 이닝 짧음', c: '#34d399' },
     { on: avg(bats, (p) => st(p, 'power')) < 66, label: '한 방 없음', c: '#34d399' },
-  ].filter((x) => x.on).slice(0, 4);
+    { on: (() => { const c = ros.find((x) => x.position === 'C'); return c ? st(c, 'defense') < 72 : false; })(), label: '도루 저지 약함', c: '#fb923c' },
+  ].filter((x) => x.on).slice(0, 5);
 }
 
 /** 약점 태그 → 되치는 세부 작전 (★ 로 표시하고 [추천 적용] 이 한 번에 넣는다) */
@@ -105,23 +110,31 @@ const COUNTER = {
   '선발 이닝 짧음': { first: '참는다' },
   '한 방 없음': { crisis: '정면승부', shift: '정위치' },
 };
-/** 상대 약점 → 잘 듣는 플레이스타일 */
+/** 상대 특성 → 그 특성을 되치는 플레이스타일 */
 const STYLE_COUNTER = {
-  '불펜 얇음': ['small'],
-  '선발 이닝 짧음': ['small'],
+  '불펜 얇음': ['onbase', 'small'],
+  '선발 이닝 짧음': ['onbase', 'big'],
   '수비 탄탄': ['big'],
+  '도루 저지 약함': ['speed'],
   '한 방 없음': ['mound'],
-  '장타 위험': ['mound'],
-  '발 빠른 타선': ['mound'],
-  '컨택 강함': ['mound'],
+  '장타 위험': ['lock', 'allin'],
+  '발 빠른 타선': ['lock'],
+  '컨택 강함': ['mound', 'lock'],
   '좌타 다수': ['allin'],
 };
-/** 이 상대에 잘 듣는 스타일 (카드에 ★ 로 붙는다) */
-export function styleHints(opponent) {
-  const out = new Set();
-  scoutTags(opponent).forEach((t) => (STYLE_COUNTER[t.label] || []).forEach((id) => out.add(id)));
+/**
+ * 스타일마다 추천 이유 — { 스타일: [상대 특성, ...] }.
+ * 카드에 ★ 와 그 특성을 함께 달아, 왜 추천인지 한눈에 보이게 한다
+ */
+export function styleReasons(opponent) {
+  const out = {};
+  scoutTags(opponent).forEach((t) => (STYLE_COUNTER[t.label] || []).forEach((id) => {
+    (out[id] ||= []).push(t);
+  }));
   return out;
 }
+/** 이 상대에 잘 듣는 스타일 */
+export const styleHints = (opponent) => new Set(Object.keys(styleReasons(opponent)));
 
 /** 이 상대에게 추천하는 세부 작전 */
 export function recommend(opponent) {

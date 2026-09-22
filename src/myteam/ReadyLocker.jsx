@@ -5,7 +5,7 @@
  */
 import React, { useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
-import { STYLES, DEFAULT_STYLE, planOfStyle, styleHints, scoutTags } from './strategy.js';
+import { STYLES, DEFAULT_STYLE, planOfStyle, styleReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 
@@ -194,25 +194,30 @@ const Delta = ({ v }) => (
  * 상대 약점을 되치는 스타일에는 ★ 가 붙는다 (세부 작전은 경기에 들어가 고친다)
  */
 function StyleBlock({ style, onPick, opponent }) {
-  const hints = styleHints(opponent);
+  const reasons = styleReasons(opponent);
   return (
     <div className="shrink-0">
       <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Play Style</p>
       <div className="grid gap-1.5">
         {STYLES.map((x) => {
           const on = style === x.id;
-          const star = hints.has(x.id);
+          const why = reasons[x.id] || [];
           return (
             <button key={x.id} type="button" onClick={() => onPick(x.id)}
-              className="mt-cut relative h-[3.2rem] overflow-hidden text-left"
-              style={{ ...cut(7), background: '#0b1220', boxShadow: `inset 0 0 0 1px ${on ? x.color : 'rgba(255,255,255,.08)'}` }}>
+              className="mt-cut relative h-[2.6rem] overflow-hidden text-left"
+              style={{ ...cut(6), background: '#0b1220', boxShadow: `inset 0 0 0 1px ${on ? x.color : 'rgba(255,255,255,.08)'}` }}>
               <i className="absolute inset-0 bg-cover transition-[opacity,filter] duration-200"
-                style={{ backgroundImage: `url(${x.bg})`, backgroundPosition: 'center 40%', opacity: on ? 0.5 : 0.2, filter: on ? 'none' : 'grayscale(1)' }} />
-              <i className="absolute inset-0" style={{ background: on ? `linear-gradient(90deg,color-mix(in srgb,${x.color} 40%,transparent),rgba(6,10,19,.75) 70%)` : 'rgba(6,10,19,.7)' }} />
-              <span className="absolute inset-0 flex items-center gap-2 px-3.5">
-                <b className="text-[15px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{x.ko}</b>
-                {star && <b className="text-[11px]" style={{ color: A.syn }}>★</b>}
-                <small className="ml-auto text-[11.5px]" style={{ color: on ? '#e8ecf2' : '#8b97a6' }}>{x.tip}</small>
+                style={{ backgroundImage: `url(${x.bg})`, backgroundPosition: 'center 40%', opacity: on ? 0.48 : 0.18, filter: on ? 'none' : 'grayscale(1)' }} />
+              <i className="absolute inset-0" style={{ background: on ? `linear-gradient(90deg,color-mix(in srgb,${x.color} 42%,transparent),rgba(6,10,19,.78) 68%)` : 'rgba(6,10,19,.72)' }} />
+              <span className="absolute inset-0 flex items-center gap-1.5 px-3">
+                <b className="shrink-0 text-[13.5px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{x.ko}</b>
+                {!!why.length && <b className="shrink-0 text-[10px]" style={{ color: A.syn }}>★</b>}
+                {/* 추천 이유 — 상대의 어떤 점을 되치는지 */}
+                {why.slice(0, 2).map((t) => (
+                  <span key={t.label} className="mt-cut shrink-0 px-1.5 py-px text-[9.5px] font-bold"
+                    style={{ ...cut(3), background: `color-mix(in srgb,${t.c} 20%,transparent)`, boxShadow: `inset 0 0 0 1px ${t.c}66`, color: t.c }}>{t.label}</span>
+                ))}
+                <small className="ml-auto shrink-0 text-[11px]" style={{ color: on ? '#e8ecf2' : '#8b97a6' }}>{x.tip}</small>
               </span>
             </button>
           );
