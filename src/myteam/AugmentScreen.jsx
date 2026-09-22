@@ -7,7 +7,7 @@
 import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
-import { UiStyle, Bg, TopBar, KV } from './ui.jsx';
+import { UiStyle, Bg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TIER = {
@@ -198,7 +198,6 @@ export default function AugmentScreen({ account, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? 'Upgrade' : `${T.en} Pool`}</p>
-            {tab !== 'upgrade' && <p className="text-sm text-gray-400">{`등장 ${pool.length - bans.length} · 제외 ${bans.length}/${slots} · 종류별`}</p>}
             {tab === 'upgrade' && (
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
@@ -241,9 +240,13 @@ export default function AugmentScreen({ account, onBack }) {
           {picked ? (() => {
             const lv = levelOf(picked); const c = T.c;
             const full = bans.length >= slots;
+            const pickFav = favs.includes(picked.id);
             return (
               <>
-                <p className="mt-lab" style={{ '--a': c }}>Pick</p>
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="mt-lab" style={{ '--a': c }}>Pick</p>
+                  <b className="font-display text-sm" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
+                </div>
                 <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
                   {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
                   <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
@@ -279,27 +282,29 @@ export default function AugmentScreen({ account, onBack }) {
                     </span>
                   </div>
                 </div>
-                {tab === 'upgrade' ? (
-                  <>
-                    <button type="button" className="mt-btn pri lg mt-auto w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
-                      disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
-                      {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
-                        <>
-                          <span>+{lv + 1} 강화하기</span>
-                          <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
-                        </>
-                      )}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <KV k={`${T.ko} 제외 칸`} v={`${bans.length} / ${slots}`} color={RED} />
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': pickBanned ? '#94a3b8' : RED }}
+                <div className="mt-auto flex flex-col gap-2">
+                  <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
+                    disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+                    {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
+                      <>
+                        <span>+{lv + 1} 강화하기</span>
+                        <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
+                      </>
+                    )}
+                  </button>
+                  <div className="flex gap-2">
+                    <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
+                      style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
                       disabled={!pickBanned && full && (slots >= AUG_SLOT_MAX || aug.removeTickets < 1)} onClick={() => toggleBan(picked)}>
-                      {pickBanned ? '제외 풀기 ↺' : !full ? '이 증강 제외하기 ✕' : slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸 · 다른 제외를 푸세요` : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '+ 칸 열고 제외 · 제거권 1장'}
+                      {pickBanned ? '제외 풀기 ↺' : !full ? '이 증강 제외하기 ✕' : slots >= AUG_SLOT_MAX ? '칸 가득 · 최대' : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '칸 열고 제외 · 제거권 1장'}
                     </button>
-                  </>
-                )}
+                    <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
+                      className="mt-btn shrink-0 gap-1.5 px-4 text-[14px]"
+                      style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
+                      <span className="text-base leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
+                    </button>
+                  </div>
+                </div>
               </>
             );
           })() : tab === 'upgrade' ? (
