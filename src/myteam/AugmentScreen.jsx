@@ -58,6 +58,12 @@ const Pips = ({ lv, c }) => (
   </span>
 );
 
+/** 제거권 · 강화권 — 상점에서 파는 그 물건 그대로 */
+const TICKETS = [
+  { key: 'removeTickets', ko: '제거권', tip: '제외 칸을 하나 연다', img: 'ui/shop/au-remove.webp', c: '#fb7185' },
+  { key: 'upgradeTickets', ko: '강화권', tip: '증강 레벨을 하나 올린다', img: 'ui/shop/au-upgrade.webp', c: '#fbbf24' },
+];
+
 const GroupHead = ({ label, c }) => (
   <div className="flex items-center gap-3 pb-1.5 pt-3">
     <p className="mt-lab" style={{ '--a': c, fontSize: 11 }}>{label}</p>
@@ -187,9 +193,17 @@ export default function AugmentScreen({ account, onBack }) {
               </React.Fragment>
             );
           })}
-          <div className="mt-cut mt-auto bg-white/[0.045] p-3" style={cut(8)}>
-            <div className="flex justify-between text-sm text-gray-400"><span>제거권</span><b className="font-display text-lg text-rose-300">{aug.removeTickets}</b></div>
-            <div className="flex justify-between text-sm text-gray-400"><span>강화권</span><b className="font-display text-lg text-amber-300">{aug.upgradeTickets}</b></div>
+          <div className="mt-auto grid gap-1.5">
+            {TICKETS.map((t) => (
+              <div key={t.key} className="mt-cut flex h-[62px] items-center gap-[11px] bg-white/[0.04] pr-3" style={cut(8)}>
+                <span className="h-[50px] w-11 shrink-0 bg-cover" style={{ ...cut(7), backgroundImage: `url(${t.img})`, backgroundPosition: 'center 30%', boxShadow: `inset 0 0 0 1px ${t.c}59` }} />
+                <span className="grid min-w-0 flex-1 gap-px">
+                  <b className="text-[13.5px] text-[#e8ecf2]">{t.ko}</b>
+                  <small className="whitespace-nowrap text-[11.5px] text-gray-500">{t.tip}</small>
+                </span>
+                <b className="font-display text-[23px]" style={{ color: t.c }}>{aug[t.key]}</b>
+              </div>
+            ))}
           </div>
         </nav>
 
