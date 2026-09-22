@@ -39,6 +39,17 @@ function effectRows(desc = '') {
   return parts.map(splitEffect);
 }
 
+/** '+35' 같은 표기를 수로 (−는 유니코드 빼기표도 받는다) */
+const numOf = (t) => Number(String(t).replace('−', '-'));
+const signed = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Number.isInteger(v) ? v : Math.round(v * 100) / 100)}`;
+/** 강화 전 수치와 늘어난 몫 — 늘지 않았으면 null */
+function gainOf(now, was) {
+  if (!now || !was || now === was) return null;
+  const a = numOf(now); const b = numOf(was);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
+  return `${was} ${signed(Math.round((a - b) * 100) / 100)}`;
+}
+
 const Pips = ({ lv, c }) => (
   <span className="flex gap-[3px]">
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
@@ -246,13 +257,21 @@ export default function AugmentScreen({ account, onBack }) {
                   <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
                     <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
                     <div className="mt-2.5 grid gap-[5px]">
-                      {effectRows(augDescAt(picked, lv)).map(([head, num], i) => (
-                        <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
-                          style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
-                          <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
-                          {num && <b className="shrink-0 font-display text-[21px] leading-none" style={{ color: c }}>{num}</b>}
-                        </span>
-                      ))}
+                      {(() => { const base = effectRows(picked.desc); return effectRows(augDescAt(picked, lv)).map(([head, num], i) => {
+                        const gain = gainOf(num, base[i]?.[1]);
+                        return (
+                          <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
+                            style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
+                            <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
+                            {num && (
+                              <span className="flex shrink-0 items-baseline gap-2">
+                                {gain && <small className="font-display text-[12px] text-gray-500">{gain}</small>}
+                                <b className="font-display text-[21px] leading-none" style={{ color: c }}>{num}</b>
+                              </span>
+                            )}
+                          </span>
+                        );
+                      }); })()}
                     </div>
                     <span className="mt-3 flex items-center gap-2.5">
                       <small className="font-display text-[11px] font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
