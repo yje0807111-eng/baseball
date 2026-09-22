@@ -175,7 +175,7 @@ export default function AugmentScreen({ account, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? 'Upgrade' : `${T.en} Pool`}</p>
-            <p className="text-sm text-gray-400">{tab === 'upgrade' ? `${T.ko} · 종류별 · 레벨마다 강화권이 1장씩 더 듭니다` : `등장 ${pool.length - bans.length} · 제외 ${bans.length}/${slots} · 종류별`}</p>
+            {tab !== 'upgrade' && <p className="text-sm text-gray-400">{`등장 ${pool.length - bans.length} · 제외 ${bans.length}/${slots} · 종류별`}</p>}
             {tab === 'upgrade' && (
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
@@ -267,12 +267,6 @@ export default function AugmentScreen({ account, onBack }) {
             <>
               <p className="mt-lab" style={{ '--a': GREEN }}>Upgrade</p>
               <h2 className="-mt-2 text-3xl font-black text-white">증강 강화</h2>
-              <p className="text-sm leading-relaxed text-gray-300">자주 쓰는 증강을 골라 강화권으로 레벨을 올립니다. +{AUG_LEVEL_MAX}까지, 레벨마다 강화권이 1장씩 더 듭니다.</p>
-              <div>
-                <KV k="보유 강화권" v={`${aug.upgradeTickets}장`} color="#fbbf24" />
-                <KV k="강화한 증강" v={`${Object.values(aug.levels).filter(Boolean).length}개`} color={GREEN} />
-              </div>
-              <p className="mt-auto text-sm text-gray-500">목록에서 증강을 누르면 여기에 카드로 올라옵니다.</p>
             </>
           ) : (
             <>
