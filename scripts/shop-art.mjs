@@ -15,7 +15,7 @@ const SRC = join(root, 'art-src', 'shop');
 const OUT = join(root, 'public', 'ui', 'shop');
 const W = 720, H = 960;
 
-export const CAT_LIGHT = { training: 'Cold sky-blue (#7dd3fc)', boost: 'Emerald green (#34d399)', ops: 'Warm red (#f87171)', staff: 'Violet (#c4b5fd)', aug: 'Magenta (#e879f9)' };
+export const CAT_LIGHT = { training: 'Cold sky-blue (#7dd3fc)', boost: 'Emerald green (#34d399)', ops: 'Warm red (#f87171)', staff: 'Violet (#c4b5fd)', aug: 'Magenta (#e879f9)', draft: 'Warm gold (#fbbf24)' };
 /** 상품 id → [분류, 장면] */
 export const SHOP_ART = {
   'tr-contact': ['training', 'Extreme close-up of a wooden bat meeting the ball squarely in a dark indoor batting cage, chalk dust and sparks of impact'],
@@ -26,13 +26,28 @@ export const SHOP_ART = {
   'bo-stamina': ['boost', 'A cold energy drink can on a dugout bench beside a folded towel and a rosin bag, condensation beads glowing'],
   'bo-focus': ['boost', "Tight close-up of a batter's face under the helmet at the plate, eyes locked in fierce focus"],
   'bo-power': ['boost', 'A home-run swing at the moment of impact, bat flexing, ball compressing, shockwave of dust'],
+  'bo-bullpen': ['boost', 'A row of relief pitchers warming up in a dimly lit bullpen at night, rosin bags and towels on the bench'],
+  'bo-meeting': ['boost', 'A hitting coach leaning over a row of seated batters in a dark dugout, bats and helmets lined up'],
+  'bo-mound': ['boost', 'Infielders and the catcher gathered on the mound in a tight circle at night, gloves over mouths'],
+  'bo-medic': ['boost', "A trainer taping a pitcher's shoulder on a treatment table in a dark clubhouse room, ice packs beside them"],
+  'op-bench': ['ops', 'A long dugout bench at night with jerseys hung in a row and one extra empty space at the end lit brighter than the rest'],
+  'op-foreign': ['ops', 'A stamped work-visa document and a passport on a club office desk at night beside a folded team cap and an airline tag'],
   'op-cap40': ['ops', 'A club front-office desk at night: a glowing salary-cap gauge board, roster papers and a calculator'],
   'op-cap100': ['ops', 'A heavy club vault door swinging open in a dark stadium corridor, glowing gauge meters on the wall'],
   'st-manager': ['staff', "Close-up of a manager's hand signing a contract with a fountain pen, team cap beside the papers"],
   'st-coach': ['staff', 'A coach in a team jacket holding a clipboard and instructing players on a dark field at night'],
   'st-upgrade': ['staff', "Extreme close-up of a metal star pin being fastened onto a coach's team jacket"],
-  'au-remove': ['aug', 'A blank glowing card dissolving into drifting embers and ash in mid-air'],
-  'au-upgrade': ['aug', 'A blank glowing card rising in mid-air wrapped in swirling energy and sparks'],
+  'dr-reroll': ['draft', "A scout's spiral notebook open on a stadium seat with a radar gun and a stopwatch beside it, pages fluttering"],
+  'dr-first': ['draft', 'A single glowing number-one ball at the head of a row of identical dark baseballs on a draft table'],
+  'dr-protect': ['draft', 'A glowing dome of light shielding one baseball on a dark draft table while other hands stop at the barrier'],
+  'dr-series': ['draft', 'A hand pulling one glowing team pennant card out of a fanned row of dark pennant cards on a club desk'],
+  'dr-agent': ['draft', 'A club agent in a dark suit shaking hands across a night office desk, a contract and a team cap on the table'],
+  'au-reroll': ['aug', 'Three glowing card-sized plates spinning and flipping over in mid-air above a dark dugout bench, motion trails circling them'],
+  'au-pledge': ['aug', 'A hand pointing at one card-sized plate in a row of three, only that one blazing bright while the others stay dark'],
+  'au-favor': ['aug', 'A card-sized plate rising above a scattered pile of dark plates, a single sharp star mark burning at its center'],
+  'au-upgrade3': ['aug', 'Three identical glowing card-sized plates stacked in a fanned pile on a dark table, each with an upward arrow of light'],
+  'au-remove': ['aug', 'A single glowing card-sized plate torn cleanly in half in mid-air, the two halves pulling apart along a jagged break line, shards flying outward'],
+  'au-upgrade': ['aug', 'A single glowing card-sized plate levitating flat and low with a tall upward arrow of light rising from it, five chevrons igniting one above another along the arrow'],
 };
 const prompt = (id) => {
   const [cat, scene] = SHOP_ART[id];

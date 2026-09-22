@@ -1,0 +1,318 @@
+{
+  "id": "2025-kia",
+  "kind": "team",
+  "year": 2025,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "정규시즌 8위 · 부상에 발목",
+  "blurb": "디펜딩 챔피언이었지만 김도영이 햄스트링 부상으로 30경기만 뛰며 가을야구에 닿지 못했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "네일",
+      "name": "네일",
+      "year": 2025,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 84,
+        "control": 81,
+        "stamina": 83,
+        "stability": 92
+      },
+      "note": "",
+      "source": "27G 164 1/3IP ERA2.25 152K 41BB WHIP1.07 8승 — KBO 기록실"
+    },
+    {
+      "personId": "양현종",
+      "name": "양현종",
+      "year": 2025,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 68,
+        "stamina": 80,
+        "stability": 61
+      },
+      "note": "",
+      "source": "30G 153IP ERA5.06 109K 57BB WHIP1.49 7승 — KBO 기록실"
+    },
+    {
+      "personId": "올러",
+      "name": "올러",
+      "year": 2025,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 91,
+        "control": 74,
+        "stamina": 79,
+        "stability": 79
+      },
+      "note": "",
+      "source": "26G 149IP ERA3.62 169K 47BB WHIP1.15 11승 — KBO 기록실"
+    },
+    {
+      "personId": "김도현",
+      "name": "김도현",
+      "year": 2025,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 80,
+        "stamina": 73,
+        "stability": 64
+      },
+      "note": "",
+      "source": "24G 125 1/3IP ERA4.81 71K 33BB WHIP1.45 4승 — KBO 기록실"
+    },
+    {
+      "personId": "전상현",
+      "name": "전상현",
+      "year": 2025,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 77,
+        "stamina": 59,
+        "stability": 82
+      },
+      "note": "",
+      "source": "74G 70IP ERA3.34 50K 20BB WHIP1.20 7승 1SV 25HLD — KBO 기록실"
+    },
+    {
+      "personId": "조상우",
+      "name": "조상우",
+      "year": 2025,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 60,
+        "stamina": 57,
+        "stability": 72
+      },
+      "note": "",
+      "source": "72G 60IP ERA3.90 55K 27BB WHIP1.52 6승 1SV 28HLD — KBO 기록실"
+    },
+    {
+      "personId": "정해영",
+      "name": "정해영",
+      "year": 2025,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 76,
+        "stamina": 57,
+        "stability": 74
+      },
+      "note": "",
+      "source": "60G 61 2/3IP ERA3.79 72K 18BB WHIP1.51 3승 27SV — KBO 기록실"
+    },
+    {
+      "personId": "최지민",
+      "name": "최지민",
+      "year": 2025,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 44,
+        "stamina": 56,
+        "stability": 45
+      },
+      "note": "",
+      "source": "66G 53 1/3IP ERA6.58 39K 51BB WHIP1.82 2승 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "한준수",
+      "name": "한준수",
+      "year": 2025,
+      "team": "KIA",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 65,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".225/.304 7HR 26타점 0SB 276PA — KBO 기록실"
+    },
+    {
+      "personId": "김태군",
+      "name": "김태군",
+      "year": 2025,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 60,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".258/.331 5HR 31타점 0SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "위즈덤",
+      "name": "위즈덤",
+      "year": 2025,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 58,
+        "power": 92,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".236/.321 35HR 85타점 3SB 486PA — KBO 기록실"
+    },
+    {
+      "personId": "김선빈",
+      "name": "김선빈",
+      "year": 2025,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 51,
+        "speed": 52,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".321/.395 3HR 46타점 4SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "변우혁",
+      "name": "변우혁",
+      "year": 2025,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 40,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".218/.275 0HR 17타점 0SB 153PA — KBO 기록실"
+    },
+    {
+      "personId": "박찬호",
+      "name": "박찬호",
+      "year": 2025,
+      "team": "KIA",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 50,
+        "speed": 82,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".287/.363 5HR 42타점 27SB 595PA — KBO 기록실"
+    },
+    {
+      "personId": "김호령",
+      "name": "김호령",
+      "year": 2025,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 57,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".283/.359 6HR 39타점 12SB 381PA — KBO 기록실"
+    },
+    {
+      "personId": "나성범",
+      "name": "나성범",
+      "year": 2025,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 69,
+        "speed": 42,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".268/.381 10HR 36타점 0SB 310PA — KBO 기록실"
+    },
+    {
+      "personId": "김석환",
+      "name": "김석환",
+      "year": 2025,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 56,
+        "speed": 42,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".265/.351 2HR 16타점 0SB 134PA — KBO 기록실"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2025,
+      "team": "KIA",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 77,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".307/.399 24HR 86타점 1SB 549PA — KBO 기록실"
+    }
+  ]
+}

@@ -5,9 +5,9 @@
  *  오른쪽: 고른 증강이 있으면 PICK 카드, 없으면 제외 칸 목록(+ 칸 열기, 최대 8)
  */
 import React, { useMemo, useState } from 'react';
-import { AUGMENTS } from '../KboAugmentDraft.jsx';
-import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
-import { UiStyle, Bg, TopBar, KV } from './ui.jsx';
+import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
+import { loadAccount, saveAug, augShopTickets, spendAugTicket, pledgedAugId, setPledgedAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
+import { UiStyle, Bg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TIER = {
@@ -27,6 +27,29 @@ function splitEffect(desc = '') {
   return nums.length === 1 && m ? [m[1], m[2]] : [desc, null];
 }
 
+/** 효과 문장 → 칸 여럿. ', ' 와 ' · ' 에서 끊되 괄호 안은 그대로 두고, 칸마다 끝 수치를 뗀다 */
+function effectRows(desc = '') {
+  const open = (t) => (t.match(/\(/g) || []).length > (t.match(/\)/g) || []).length;
+  const parts = [];
+  desc.split(/,\s*|\s+·\s+/).forEach((t) => {
+    const last = parts.length - 1;
+    if (last >= 0 && open(parts[last])) parts[last] = `${parts[last]}, ${t}`;
+    else parts.push(t);
+  });
+  return parts.map(splitEffect);
+}
+
+/** '+35' 같은 표기를 수로 (−는 유니코드 빼기표도 받는다) */
+const numOf = (t) => Number(String(t).replace('−', '-'));
+const signed = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Number.isInteger(v) ? v : Math.round(v * 100) / 100)}`;
+/** 강화 전 수치와 늘어난 몫 — 늘지 않았으면 null */
+function gainOf(now, was) {
+  if (!now || !was || now === was) return null;
+  const a = numOf(now); const b = numOf(was);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
+  return `${was} ${signed(Math.round((a - b) * 100) / 100)}`;
+}
+
 const Pips = ({ lv, c }) => (
   <span className="flex gap-[3px]">
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
@@ -35,10 +58,15 @@ const Pips = ({ lv, c }) => (
   </span>
 );
 
-const GroupHead = ({ label, n, c }) => (
+/** 제거권 · 강화권 — 상점에서 파는 그 물건 그대로 */
+const TICKETS = [
+  { key: 'removeTickets', ko: '제거권', tip: '제외 칸을 하나 연다', img: 'ui/shop/au-remove.webp', c: '#fb7185' },
+  { key: 'upgradeTickets', ko: '강화권', tip: '증강 레벨을 하나 올린다', img: 'ui/shop/au-upgrade.webp', c: '#fbbf24' },
+];
+
+const GroupHead = ({ label, c }) => (
   <div className="flex items-center gap-3 pb-1.5 pt-3">
     <p className="mt-lab" style={{ '--a': c, fontSize: 11 }}>{label}</p>
-    <span className="font-display text-xs text-gray-500">{n}</span>
     <span className="h-px flex-1" style={{ background: c === RED ? 'rgba(248,113,113,.3)' : 'rgba(255,255,255,.1)' }} />
   </div>
 );
@@ -47,11 +75,11 @@ const GroupHead = ({ label, n, c }) => (
 function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = null }) {
   const c = TIER[a.tier].c;
   const tone = banned ? '#6b7280' : c;
-  /* 제외 · 풀기는 오른쪽 PICK 카드에서 한다 — 줄에는 강화 탭의 강화 단추만 둔다 */
+  /* 제외 · 풀기 · 강화는 오른쪽 PICK 카드에서 한다 — 줄의 단추는 그 카드를 여는 것까지 */
   const btn = !upgrade ? null
     : lv >= AUG_LEVEL_MAX
-      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] font-display text-xs text-gray-500" style={cut(6)}>MAX</span>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onAct(a); }} className="mt-cut h-9 font-display text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>+{lv + 1} · {lv + 1}장</button>;
+      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] text-xs font-bold text-gray-500" style={cut(6)}>최대</span>
+      : <button type="button" onClick={(e) => { e.stopPropagation(); onPick(a); }} className="mt-cut h-9 text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>강화</button>;
   return (
     <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
@@ -73,7 +101,7 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = n
             </button>
           )}
         </div>
-        <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{a.desc}</p>
+        <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{augDescAt(a, lv)}</p>
       </div>
       {btn}
     </div>
@@ -86,6 +114,16 @@ export default function AugmentScreen({ account, onBack }) {
   const [upTier, setUpTier] = useState('silver');
   const [sel, setSel] = useState(null);
   const [msg, setMsg] = useState('');
+  /* 증강 지명권 — 한 장 쓰면 그 증강이 다음 판 첫 선택지에 반드시 나온다 */
+  const [pledgeLeft, setPledgeLeft] = useState(() => augShopTickets().pledge || 0);
+  const [pledged, setPledged] = useState(() => pledgedAugId());
+  const doPledge = (a) => {
+    if (!a || pledged === a.id) return;
+    if (!spendAugTicket('pledge')) { setMsg('증강 지명권이 없습니다 · 상점에서 살 수 있어요'); setTimeout(() => setMsg(''), 2400); return; }
+    setPledgedAug(a.id);
+    setPledged(a.id);
+    setPledgeLeft(augShopTickets().pledge || 0);
+  };
 
   const tier = tab === 'upgrade' ? upTier : tab;
   const T = TIER[tier];
@@ -108,13 +146,13 @@ export default function AugmentScreen({ account, onBack }) {
   };
   const toggleBan = (a) => {
     const t = a.tier; const cur = aug.bans[t] || [];
-    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }, `${a.name} 제외를 풀었습니다`); return; }
+    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }); return; }
     let base = aug;
     if (cur.length >= aug.slots[t]) {
       base = openSlot(t);
       if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸은 최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다 · 상점에서 살 수 있어요'); return; }
     }
-    commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } }, `${a.name} 제외`);
+    commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
   };
   const addSlot = () => { const n = openSlot(tier); if (n) commit(n, `${T.ko} 제외 칸 +1`); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다'); };
   const upgrade = (a) => {
@@ -165,9 +203,17 @@ export default function AugmentScreen({ account, onBack }) {
               </React.Fragment>
             );
           })}
-          <div className="mt-cut mt-auto bg-white/[0.045] p-3" style={cut(8)}>
-            <div className="flex justify-between text-sm text-gray-400"><span>제거권</span><b className="font-display text-lg text-rose-300">{aug.removeTickets}</b></div>
-            <div className="flex justify-between text-sm text-gray-400"><span>강화권</span><b className="font-display text-lg text-amber-300">{aug.upgradeTickets}</b></div>
+          <div className="mt-auto grid gap-1.5">
+            {TICKETS.map((t) => (
+              <div key={t.key} className="mt-cut flex h-[62px] items-center gap-[11px] bg-white/[0.04] pr-3" style={cut(8)}>
+                <span className="h-[50px] w-11 shrink-0 bg-cover" style={{ ...cut(7), backgroundImage: `url(${t.img})`, backgroundPosition: 'center 30%', boxShadow: `inset 0 0 0 1px ${t.c}59` }} />
+                <span className="grid min-w-0 flex-1 gap-px">
+                  <b className="text-[13.5px] text-[#e8ecf2]">{t.ko}</b>
+                  <small className="whitespace-nowrap text-[11.5px] text-gray-500">{t.tip}</small>
+                </span>
+                <b className="font-display text-[23px]" style={{ color: t.c }}>{aug[t.key]}</b>
+              </div>
+            ))}
           </div>
         </nav>
 
@@ -175,7 +221,6 @@ export default function AugmentScreen({ account, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? 'Upgrade' : `${T.en} Pool`}</p>
-            <p className="text-sm text-gray-400">{tab === 'upgrade' ? `${T.ko} · 종류별 · 레벨마다 강화권이 1장씩 더 듭니다` : `등장 ${pool.length - bans.length} · 제외 ${bans.length}/${slots} · 종류별`}</p>
             {tab === 'upgrade' && (
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
@@ -189,19 +234,19 @@ export default function AugmentScreen({ account, onBack }) {
           <div className="mt-scroll mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
             {groups.map(([label, list]) => (
               <div key={label}>
-                <GroupHead label={label} n={list.length} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
+                <GroupHead label={label} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {list.map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
                       fav={favs.includes(a.id)} onFav={toggleFav}
-                      onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
+                      onPick={(x) => setSel((s) => (tab === 'upgrade' ? x : s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
                   ))}
                 </div>
               </div>
             ))}
             {tab !== 'upgrade' && bans.length > 0 && (
               <div>
-                <GroupHead label="Excluded · 제외됨" n={bans.length} c={RED} />
+                <GroupHead label="Excluded · 제외됨" c={RED} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} fav={favs.includes(a.id)} onFav={toggleFav}
@@ -218,61 +263,97 @@ export default function AugmentScreen({ account, onBack }) {
           {picked ? (() => {
             const lv = levelOf(picked); const c = T.c;
             const full = bans.length >= slots;
+            const pickFav = favs.includes(picked.id);
+            const showPledge = pledgeLeft > 0 || pledged === picked.id;   // 지명 단추가 끼면 제외 문구를 줄인다
             return (
               <>
-                <p className="mt-lab" style={{ '--a': c }}>Pick</p>
-                <div className="mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]" style={{ ...cut(18), '--a': c }}>
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="mt-lab" style={{ '--a': c }}>Pick</p>
+                  <b className="font-display text-sm" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
+                </div>
+                <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]"
+                  style={{ ...cut(18), '--a': c, filter: pickBanned ? 'saturate(.12) brightness(.66)' : 'none', transition: 'filter .38s ease' }}>
                   {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
-                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)`, filter: pickBanned ? 'grayscale(1) brightness(.6)' : undefined }} />
+                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)` }} />
                   <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
                   <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
                   <div className="absolute inset-x-4 top-4 flex items-center gap-2">
                     <span className="mt-cut px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ ...cut(4), background: c }}>{T.en}</span>
                     <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
-                    {pickBanned && <span className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]" style={cut(4)}>제외됨</span>}
+                    <span aria-hidden={!pickBanned} className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]"
+                      style={{ ...cut(4), opacity: pickBanned ? 1 : 0, transform: pickBanned ? 'none' : 'translateY(-4px)', transition: 'opacity .3s ease, transform .3s ease' }}>제외됨</span>
                   </div>
-                  <div className="absolute inset-x-0 bottom-0">
-                    <b className="block px-[18px] pb-3 text-3xl font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                    {(() => { const [head, num] = splitEffect(picked.desc); return (
-                      <span className="flex items-center justify-between gap-3 px-[18px] py-3" style={{ background: `linear-gradient(90deg,${c}2a,transparent)`, boxShadow: `inset 0 1px 0 ${c}59` }}>
-                        <b className="min-w-0 text-[15px] leading-snug text-gray-100">{head}</b>
-                        {num && <b className="shrink-0 font-display text-[34px] leading-none" style={{ color: c }}>{num}</b>}
-                      </span>
-                    ); })()}
-                    <span className="block px-[18px] pb-4 pt-3"><Pips lv={lv} c={c} /></span>
+                  <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
+                    <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    <div className="mt-2.5 grid gap-[5px]">
+                      {(() => { const base = effectRows(picked.desc); return effectRows(augDescAt(picked, lv)).map(([head, num], i) => {
+                        const gain = gainOf(num, base[i]?.[1]);
+                        return (
+                          <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
+                            style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
+                            <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
+                            {num && (
+                              <span className="flex shrink-0 items-baseline gap-2">
+                                {gain && <small className="font-display text-[12px] text-gray-500">{gain}</small>}
+                                <b className="font-display text-[21px] leading-none" style={{ color: c }}>{num}</b>
+                              </span>
+                            )}
+                          </span>
+                        );
+                      }); })()}
+                    </div>
+                    <span className="mt-3 flex items-center gap-2.5">
+                      <small className="font-display text-[11px] font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
+                      <Pips lv={lv} c={c} />
+                    </span>
                   </div>
                 </div>
-                {tab === 'upgrade' ? (
-                  <>
-                    <div>
-                      <KV k="지금 레벨" v={`+${lv} / ${AUG_LEVEL_MAX}`} color={c} />
-                      <KV k="필요 강화권" v={lv >= AUG_LEVEL_MAX ? '—' : `${lv + 1}장 / 보유 ${aug.upgradeTickets}장`} color="#fbbf24" />
-                    </div>
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN }} disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
-                      {lv >= AUG_LEVEL_MAX ? '최대 레벨' : aug.upgradeTickets < lv + 1 ? `강화권 ${lv + 1 - aug.upgradeTickets}장 부족` : `+${lv + 1} 강화하기 ▶`}
+                <div className="mt-auto flex flex-col gap-2">
+                  {tab === 'upgrade' ? (
+                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
+                      disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+                      {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
+                        <>
+                          <span>+{lv + 1} 강화하기</span>
+                          <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
+                        </>
+                      )}
                     </button>
-                  </>
-                ) : (
-                  <>
-                    <KV k={`${T.ko} 제외 칸`} v={`${bans.length} / ${slots}`} color={RED} />
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': pickBanned ? '#94a3b8' : RED }}
+                  ) : (
+                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN }} disabled={lv >= AUG_LEVEL_MAX}
+                      onClick={() => { setUpTier(picked.tier); setTab('upgrade'); }}>
+                      {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : '강화하기 ▶'}
+                    </button>
+                  )}
+                  {tab !== 'upgrade' && (
+                  <div className="flex gap-2">
+                    <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
+                      style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
                       disabled={!pickBanned && full && (slots >= AUG_SLOT_MAX || aug.removeTickets < 1)} onClick={() => toggleBan(picked)}>
-                      {pickBanned ? '제외 풀기 ↺' : !full ? '이 증강 제외하기 ✕' : slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸 · 다른 제외를 푸세요` : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '+ 칸 열고 제외 · 제거권 1장'}
+                      {pickBanned ? '제외 풀기 ↺' : !full ? (showPledge ? '제외하기 ✕' : '이 증강 제외하기 ✕') : slots >= AUG_SLOT_MAX ? '칸 가득 · 최대' : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '칸 열고 제외 · 제거권 1장'}
                     </button>
-                  </>
-                )}
+                    {showPledge && (
+                      <button type="button" onClick={() => doPledge(picked)} disabled={pledged === picked.id}
+                        className="mt-btn shrink-0 gap-1.5 px-3 text-[14px]"
+                        style={{ color: pledged === picked.id ? '#e879f9' : '#c4b5fd', boxShadow: pledged === picked.id ? 'inset 0 0 0 1px rgba(232,121,249,.55)' : undefined }}
+                        title={pledged === picked.id ? '다음 판 첫 선택지에 나옵니다' : `증강 지명권 ${pledgeLeft}장 — 다음 판 첫 선택지에 꼭 넣는다`}>
+                        {pledged === picked.id ? '지명됨' : '지명하기'}
+                      </button>
+                    )}
+                    <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
+                      className="mt-btn shrink-0 gap-1.5 px-4 text-[14px]"
+                      style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
+                      <span className="text-base leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
+                    </button>
+                  </div>
+                  )}
+                </div>
               </>
             );
           })() : tab === 'upgrade' ? (
             <>
               <p className="mt-lab" style={{ '--a': GREEN }}>Upgrade</p>
               <h2 className="-mt-2 text-3xl font-black text-white">증강 강화</h2>
-              <p className="text-sm leading-relaxed text-gray-300">자주 쓰는 증강을 골라 강화권으로 레벨을 올립니다. +{AUG_LEVEL_MAX}까지, 레벨마다 강화권이 1장씩 더 듭니다.</p>
-              <div>
-                <KV k="보유 강화권" v={`${aug.upgradeTickets}장`} color="#fbbf24" />
-                <KV k="강화한 증강" v={`${Object.values(aug.levels).filter(Boolean).length}개`} color={GREEN} />
-              </div>
-              <p className="mt-auto text-sm text-gray-500">목록에서 증강을 누르면 여기에 카드로 올라옵니다.</p>
             </>
           ) : (
             <>

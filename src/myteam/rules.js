@@ -1,6 +1,9 @@
 /*
  * 내 팀(본 게임) 규칙 — 검색으로 직접 뽑아 만드는 26인 엔트리
  * 모드(레전드 드래프트)와 달리 랜덤이 없고, CP 상한·외국인 제한·포지션 구성으로 균형을 잡는다.
+ * 상점에서 산 확장(team.extraSlots · team.extraForeign)은 limitsOf(team) 한 곳에서만 얹는다 —
+ * 엔트리 26 → 최대 28, 외국인 3 → 최대 4. 늘어난 자리는 그대로 자유 자리가 되고 포지션 필수는 그대로다.
+ * (레전드 드래프트 판의 20인 · 외국인 3명은 그 판 규칙이라 여기와 무관하다)
  */
 
 export const SQUAD_SIZE = 26; // 출전 가능 인원
@@ -43,36 +46,49 @@ export const GROUP_RULES = [{ key: 'IF', label: '내야수', positions: ['1B', '
 /** 경기에 실제로 나가는 인원 — 나머지는 벤치(영입해도 안 뜀) */
 export const PLAY_LIMIT = { SP: 5, RP: 8, batters: 9 };
 
+/**
+ * 팀 한도 — 상점에서 산 확장(team.extraSlots · team.extraForeign)을 얹은 값.
+ * 늘어난 엔트리 한 자리는 그대로 자유 자리 한 칸이 된다(포지션 필수는 그대로).
+ */
+export const EXTRA_SLOT_MAX = 2;      // 벤치 확장은 두 번까지
+export const EXTRA_FOREIGN_MAX = 1;   // 외국인 쿼터는 한 번까지
+export function limitsOf(team = {}) {
+  const slots = Math.min(EXTRA_SLOT_MAX, Math.max(0, team.extraSlots || 0));
+  const foreign = Math.min(EXTRA_FOREIGN_MAX, Math.max(0, team.extraForeign || 0));
+  return { size: SQUAD_SIZE + slots, free: FREE_SLOTS + slots, foreign: FOREIGN_MAX + foreign, extraSlots: slots, extraForeign: foreign };
+}
+export const BASE_LIMITS = { size: SQUAD_SIZE, free: FREE_SLOTS, foreign: FOREIGN_MAX, extraSlots: 0, extraForeign: 0 };
+
 export const countBy = (squad, key) => squad.filter((p) => p.position === key).length;
 export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
 /** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다 */
-export function addBlockReason(player, squad, staff, cap = SQUAD_CAP) {
+export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS) {
   if (squad.some((p) => p.id === player.id)) return '이미 영입한 선수';
   if (squad.some((p) => p.personId === player.personId)) return '같은 선수의 다른 시즌은 함께 넣을 수 없음';
-  if (squad.length >= SQUAD_SIZE) return `엔트리 ${SQUAD_SIZE}명이 모두 찼음`;
-  if (player.isForeign && foreignCount(squad) >= FOREIGN_MAX) return `외국인 선수는 최대 ${FOREIGN_MAX}명`;
+  if (squad.length >= lim.size) return `엔트리 ${lim.size}명이 모두 찼음`;
+  if (player.isForeign && foreignCount(squad) >= lim.foreign) return `외국인 선수는 최대 ${lim.foreign}명`;
   const rule = POS_RULES.find((r) => r.key === player.position);
   // 필수를 아직 못 채운 포지션이면 들어갈 수 있고, 이미 채웠으면 자유 자리가 남아야 한다
-  if (rule && countBy(squad, rule.key) >= rule.min && freeUsed(squad) >= FREE_SLOTS) return `자유 자리 없음 (${FREE_SLOTS}/${FREE_SLOTS})`;
+  if (rule && countBy(squad, rule.key) >= rule.min && freeUsed(squad) >= lim.free) return `자유 자리 없음 (${lim.free}/${lim.free})`;
   const left = cap - squadCost(squad, staff);
   if (player.cost > left) return `CP 부족 (남은 ${left})`;
   return null;
 }
 
 /** 엔트리가 경기에 나갈 수 있는 상태인지 */
-export function squadIssues(squad, staff = {}, cap = SQUAD_CAP) {
+export function squadIssues(squad, staff = {}, cap = SQUAD_CAP, lim = BASE_LIMITS) {
   const out = [];
-  if (squad.length !== SQUAD_SIZE) out.push(`엔트리 ${squad.length}/${SQUAD_SIZE}명`);
+  if (squad.length !== lim.size) out.push(`엔트리 ${squad.length}/${lim.size}명`);
   for (const r of POS_RULES) {
     const n = countBy(squad, r.key);
     if (n < r.min) out.push(`${r.label} ${n}/${r.min}명`);
   }
   const used = freeUsed(squad);
-  if (used > FREE_SLOTS) out.push(`자유 자리 ${used - FREE_SLOTS}명 초과 · 방출 필요`);
-  if (foreignCount(squad) > FOREIGN_MAX) out.push(`외국인 ${foreignCount(squad)}명 (최대 ${FOREIGN_MAX})`);
+  if (used > lim.free) out.push(`자유 자리 ${used - lim.free}명 초과 · 방출 필요`);
+  if (foreignCount(squad) > lim.foreign) out.push(`외국인 ${foreignCount(squad)}명 (최대 ${lim.foreign})`);
   const cost = squadCost(squad, staff);
   if (cost > cap) out.push(`CP 초과 ${cost}/${cap}`);
   return out;

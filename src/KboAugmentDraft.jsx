@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
+import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, pledgedAugId, setPledgedAug } from './myteam/store.js';
+import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
@@ -490,9 +491,14 @@ export function buildTeam(name, roster, buff = 0, augments = [], env = {}) {
   }
   roster = applySynergies(roster, synergies); // 시너지 보너스는 그 시너지를 만든 선수에게만
   const envX = { ...env, synergies };
-  for (const a of passives) if (a.roster) roster = a.roster(roster, envX);
+  for (const a of passives) if (a.roster) roster = scaleRoster(roster, a.roster(roster, envX), augScale(a.lv));
   const t = { name, roster, synergies, buff, bonus: { bat: buff, pit: buff }, weights: { contact: 0.4, power: 0.4, speed: 0.2 }, defCoef: 0.01, usage: {} };
-  for (const a of passives) a.team?.(t, envX);
+  for (const a of passives) {
+    if (!a.team) continue;
+    const was = snapTeam(t);
+    a.team(t, envX);
+    scaleTeam(t, was, augScale(a.lv));
+  }
   roster = t.roster;
   const { bonus, weights: w } = t;
 
@@ -859,14 +865,27 @@ export const AUGMENTS = [
   ...PASSIVE_AUGMENTS,
 ];
 
-/** 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다 */
-export function rollAugmentOptions(owned = [], rng = Math.random) {
+/**
+ * 증강 후보: 등급 하나(실버·골드·프리즘 중 무작위)를 정해 그 등급에서만 최대 3개. 남은 게 없는 등급은 뽑지 않는다.
+ *  pledge: 상점 지명권으로 찍어 둔 증강 id — 그 등급을 열고 한 자리를 내준다
+ *  favor:  즐겨찾기 우대권 — 그 등급의 즐겨찾기 증강을 먼저 채운다(최대 둘)
+ */
+export function rollAugmentOptions(owned = [], rng = Math.random, { pledge = null, favor = false, favs = null } = {}) {
   const banned = bannedAugIds(); // 내 증강 풀에서 제외한 증강은 선택지에 나오지 않는다
   const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id) && !banned.has(a.id));
   const tiers = Object.keys(TIER_RANK).filter((t) => left.some((a) => a.tier === t));
   if (!tiers.length) return [];
-  const t = tiers[Math.floor(rng() * tiers.length)];
-  return shuffle(left.filter((a) => a.tier === t)).slice(0, 3);
+  const want = pledge ? left.find((a) => a.id === pledge) : null;   // 지명한 증강이 아직 남아 있으면 그 등급으로
+  const t = want ? want.tier : tiers[Math.floor(rng() * tiers.length)];
+  const pool = shuffle(left.filter((a) => a.tier === t), rng);
+  const out = [];
+  if (want) out.push(want);
+  if (favor) {                                                      // 즐겨찾기를 먼저, 다만 셋을 다 채우지는 않는다
+    const mine = favs || favAugIds();
+    for (const a of pool) { if (out.length >= 2) break; if (mine.has(a.id) && !out.some((x) => x.id === a.id)) out.push(a); }
+  }
+  for (const a of pool) { if (out.length >= 3) break; if (!out.some((x) => x.id === a.id)) out.push(a); }
+  return withAugLevels(out.slice(0, 3));
 }
 
 export const EVENTS = [
@@ -882,6 +901,63 @@ export const EVENTS = [
    half 의 add(기대 득점) · mul 은 공격 팀의 안타 확률로, pitch 는 수비 투수의 구위 · 제구로,
    runs 는 반 이닝이 끝날 때 그 이닝 점수로 반영하고 중계 자막을 남긴다. */
 const HIT_PER_RUN = 0.2; // 기대 득점 +1 ≈ 안타 확률 +0.2 (엔진으로 실측해 맞춘 값)
+
+/* ───────────── 7-C. 증강 강화 — 레벨이 올라가면 그 증강의 이득이 커진다 ─────────────
+   레벨 1칸에 +20%, 최대 +5 면 두 배다. 대가(능력치가 깎이는 쪽)는 그대로 둔다 —
+   강화는 이득만 키운다. 증강 정의는 손대지 않고, 훅이 돌려준 결과를 배수로 다시 셈한다. */
+export const AUG_LEVEL_STEP = 0.2;
+export const augScale = (lv = 0) => 1 + Math.max(0, lv) * AUG_LEVEL_STEP;
+/** 고른 증강에 내 강화 레벨을 붙인다 */
+export const withAugLevels = (list = [], levels = augLevels()) => list.map((a) => ({ ...a, lv: levels[a.id] || 0 }));
+
+/** 능력치형: 증강이 올려 준 만큼을 배수로 — 깎은 쪽은 그대로 */
+function scaleRoster(before, after, k) {
+  if (k === 1 || before === after || before.length !== after.length) return after;
+  return after.map((p, i) => {
+    const was = before[i];
+    if (!was || was.id !== p.id || !p.stats || !was.stats) return p;
+    let moved = false;
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([key, v]) => {
+      const d = v - (was.stats[key] ?? v);
+      if (d <= 0) return [key, v];
+      moved = true;
+      return [key, clampN(30, 99, Math.round((was.stats[key] ?? v) + d * k))];
+    }));
+    if (!moved) return p;
+    const gain = overallOf(p.position, stats) - overallOf(was.position, was.stats);
+    return { ...p, stats, overall: clampN(30, 99, was.overall + gain) };
+  });
+}
+/** 팀형: 보너스 · 타격 가중치 · 수비 계수가 움직인 폭을 배수로 */
+const TEAM_NUM = ['bat', 'pit'];
+function snapTeam(t) { return { bonus: { ...t.bonus }, weights: { ...t.weights }, defCoef: t.defCoef, roster: t.roster }; }
+function scaleTeam(t, was, k) {
+  if (k === 1) return;
+  TEAM_NUM.forEach((key) => { const d = (t.bonus[key] ?? 0) - (was.bonus[key] ?? 0); if (d) t.bonus[key] = (was.bonus[key] ?? 0) + d * k; });
+  Object.keys(t.weights).forEach((key) => { const d = (t.weights[key] ?? 0) - (was.weights[key] ?? 0); if (d) t.weights[key] = (was.weights[key] ?? 0) + d * k; });
+  const dc = (t.defCoef ?? 0) - (was.defCoef ?? 0); if (dc) t.defCoef = (was.defCoef ?? 0) + dc * k;
+  if (t.roster !== was.roster) t.roster = scaleRoster(was.roster, t.roster, k);
+}
+/** 반 이닝형: 기대 득점 · 투수 보정은 그대로 배수, 곱 보정은 1 에서 벌어진 만큼 */
+const scaleHalf = (r, k) => (!r || k === 1 ? r
+  : { ...r, add: (r.add || 0) * k, pitch: (r.pitch || 0) * k, ...(r.mul != null ? { mul: 1 + (r.mul - 1) * k } : {}) });
+/** 이닝 점수형: 증강이 바꾼 점수 폭을 배수로 (정수로 맞춘다) */
+const scaleRuns = (base, next, k) => (k === 1 ? next : base + Math.round((next - base) * k));
+/** 발동형: 레벨마다 발동 확률 +5%p, +3 부터 경기당 한도 +1 (+5 면 +2) */
+/** 레벨이 반영된 효과 문구 — 이득 수치는 배수로, 발동형은 확률과 경기당 한도까지 */
+const scaleNum = (n, k) => (Number.isInteger(n) ? Math.round(n * k) : Math.round(n * k * 100) / 100);
+export function augDescAt(a, lv = a?.lv || 0) {
+  if (!a?.desc || !lv) return a?.desc || '';
+  const k = augScale(lv);
+  let d = a.desc.replace(/\+(\d+(?:\.\d+)?)/g, (_, n) => `+${scaleNum(Number(n), k)}`);
+  if (a.chance != null && a.when) {
+    d = d.replace(/(\d+)%/g, (_, n) => `${Math.min(100, Math.round(Number(n) + lv * 5))}%`)
+      .replace(/경기당 (\d+)회/g, () => `경기당 ${augMax({ ...a, lv })}회`);
+  }
+  return d;
+}
+export const augChance = (a) => Math.min(1, (a.chance ?? 0) + (a.lv || 0) * 0.05);
+export const augMax = (a) => (a.max ?? 1) + ((a.lv || 0) >= 5 ? 2 : (a.lv || 0) >= 3 ? 1 : 0);
 
 export function makeAugmentRuntime({ augments = [], my, opp, record }) {
   let list = augments;
@@ -903,7 +979,7 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
       const c = ctxOf(g);
       let add = 0; let mul = 1; let pitchAdd = 0;
       for (const a of passive()) {
-        const r = a.half?.(c, stFor(a));
+        const r = scaleHalf(a.half?.(c, stFor(a)), augScale(a.lv));
         if (!r) continue;
         add += r.add || 0; mul *= r.mul ?? 1; pitchAdd += r.pitch || 0;
       }
@@ -919,7 +995,7 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
       for (const a of passive()) {
         if (!a.runs) continue;
         const r = a.runs(c, out, stFor(a));
-        const next = Math.max(0, Math.min(9, typeof r === 'number' ? r : r.runs));
+        const next = Math.max(0, Math.min(9, scaleRuns(out, typeof r === 'number' ? r : r.runs, augScale(a.lv))));
         if (typeof r === 'object' && r.text && next !== out) texts.push({ name: a.name, tier: a.tier, text: r.text });
         out = next;
       }
@@ -1110,7 +1186,7 @@ export async function runSimulation({
       const hctx = { inning, isTop, my, opp, score: { ...score }, rng, myPitcher, oppPitcher };
       let lamAdd = 0; let lamMul = 1; let pitchAdd = 0;
       for (const a of passive()) {
-        const r = a.half?.(hctx, stFor(a));
+        const r = scaleHalf(a.half?.(hctx, stFor(a)), augScale(a.lv));
         if (r) { lamAdd += r.add || 0; lamMul *= r.mul ?? 1; pitchAdd += r.pitch || 0; }
       }
       const afterHalf = (halfRuns) => { for (const a of passive()) a.after?.({ ...hctx, score: { ...score } }, halfRuns, stFor(a)); };
@@ -1166,7 +1242,7 @@ export async function runSimulation({
       const ctx = { inning, isTop, my, opp, score: { ...score }, rng, baseRuns, myPitcher, oppPitcher };
       const fired = augments.filter((a) => !a.passive)
         .sort((a, b) => TIER_RANK[b.tier] - TIER_RANK[a.tier])
-        .find((a) => a.side === side && (used[a.id] || 0) < a.max && a.when(ctx) && rng() < a.chance);
+        .find((a) => a.side === side && (used[a.id] || 0) < augMax(a) && a.when(ctx) && rng() < augChance(a));
 
       let runs;
       if (fired) {
@@ -1538,6 +1614,16 @@ export const KEYFRAMES = `
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
 .dr-sp button:hover { color: #fff; }
 .dr-sp button.on { color: #05080f; background: #38e1ff; }
+/* 드래프트 권 — 상점에서 산 장수를 달고 판에서 쓴다 */
+.pk-was { margin-right: 4px; font-size: .62em; color: #64748b; text-decoration-thickness: 1px; }
+.dr-tk { display: inline-flex; gap: 3px; }
+.dr-tk button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11.5px; font-weight: 700; color: #fcd34d;
+  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  background: rgba(251,191,36,.12); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); transition: color .15s, background .15s, opacity .15s; }
+.dr-tk button:hover:not(:disabled) { color: #05080f; background: #fbbf24; }
+.dr-tk button:disabled { opacity: .32; cursor: default; }
+.dr-tk button.on { color: #05080f; background: #fbbf24; }
+.dr-tk em { font-family: 'Saira Condensed', sans-serif; font-style: normal; font-size: 12px; }
 .dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size: 12px; line-height: 1; color: #cbd5e1;
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
   background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
@@ -2378,7 +2464,7 @@ const PK_FS = { SP: 4.4, DH: 4.1 };
  * owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆 변화량, 받은 시너지·원래 포지션 칩, 코스트 대신 자리 이름.
  * hint: 영입하면 채우는 시너지 { s, after }
  */
-export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null }) {
+export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null, cost = null }) {
   const locked = !!reason;
   const art = useArt(player);
   const acc = neonOf(player);
@@ -2432,7 +2518,11 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
           <span className={`pk-nm ${player.name.length >= 5 ? 'l5' : ''}`}>{player.name}</span>
           {owned
             ? <span className="pk-slot">{owned.slotLabel}</span>
-            : <span className="pk-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>}
+            : <span className="pk-cp font-display tabular-nums">
+              <small>CP</small>
+              {cost != null && cost !== player.cost && <s className="pk-was">{player.cost}</s>}
+              <b style={cost != null && cost !== player.cost ? { color: '#fbbf24' } : undefined}>{cost ?? player.cost}</b>
+            </span>}
         </span>
         <span className="pk-fr" />
         {locked && <span className="pk-lk"><LockIcon />{reason.replace(/\s*\(.*\)$/, '')}</span>}
@@ -3535,8 +3625,8 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
             <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
-              <span className="text-sm font-bold">{a.name}</span>
-              <p className="mt-0.5 text-xs text-gray-400">{a.desc}</p>
+              <span className="text-sm font-bold">{a.name}{a.lv ? <b className="ml-1 font-display" style={{ color: TIER_NEON[a.tier] }}>+{a.lv}</b> : null}</span>
+              <p className="mt-0.5 text-xs text-gray-400">{augDescAt(a)}</p>
               {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
             </li>
           ))}
@@ -3571,8 +3661,10 @@ function ChoiceCard({ option: o, index, onChoose }) {
         <span className="grid h-12 w-[42px] place-items-center" style={{ color: acc, background: `color-mix(in srgb, ${acc} 22%, rgba(5,8,15,.75))`, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}><TierIcon tier={o.tier} /></span>
       </div>
       <div className="relative z-10 mt-auto px-6 pb-5">
-        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>{o.name}</h3>
-        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{o.desc}</p>
+        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>
+          {o.name}{o.lv ? <b className="ml-1.5 font-display" style={{ color: acc }}>+{o.lv}</b> : null}
+        </h3>
+        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{augDescAt(o)}</p>
         <p className="mt-3 border-t pt-2.5 text-xs font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>{o.cond ? `조건 · ${o.cond}` : AUG_TYPE[o.type] || ''}</p>
         <button type="button" onClick={() => onChoose(o)} className="ui-btn ui-cut mt-3 w-full">선택</button>
       </div>
@@ -3580,7 +3672,7 @@ function ChoiceCard({ option: o, index, onChoose }) {
   );
 }
 
-function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS }) {
+function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null }) {
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3602,6 +3694,11 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
         <div className="flex flex-wrap justify-center gap-6">
           {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
         </div>
+        {isAug && onReroll && rerolls > 0 && (
+          <button type="button" onClick={onReroll} className="ui-btn ui-cut animate-[rise_.4s_ease-out_both]" style={{ '--c': '9px' }}>
+            ↺ 다시 굴리기 <em className="ml-1.5 font-display not-italic text-fuchsia-300">· 리롤권 {rerolls}장</em>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -5001,6 +5098,10 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [ai, setAi] = useState('normal');
   const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 8구단 라이브
   const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const haveFirst = withDraftTickets(draftTickets()).first;   // 상점에서 산 우선 지명권
+  const [useFirst, setUseFirst] = useState(false);
+  const haveFavor = withAugTickets(augShopTickets()).favor;   // 즐겨찾기 우대권
+  const [useFavor, setUseFavor] = useState(false);
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
@@ -5120,10 +5221,16 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <>
                   <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive} />
                   <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+                  {live && haveFirst > 0 && (
+                    <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
+                  )}
                 </>
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
+              {aug > 0 && haveFavor > 0 && (
+                <SettingRow label={`즐겨찾기 우대권 · ${haveFavor}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFavor} onChange={setUseFavor} />
+              )}
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
               <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
                 <span>{live ? '뽑는 순서' : '다른 시리즈 새로고침'}</span>
@@ -5133,7 +5240,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: aug > 0 && useFavor && haveFavor > 0 })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5511,6 +5618,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [roster, setRoster] = useState([]);
   const [cp, setCp] = useState(SALARY_CAP);
   const [rerolls, setRerolls] = useState(START_REROLLS);
+  /* 상점에서 산 드래프트 권 — 계정에 쌓여 있고 판에서 한 장씩 쓴다 */
+  const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
+  const [seriesPick, setSeriesPick] = useState(false); // 시리즈 지정권 고르개가 열렸는지
+  /* 상점에서 산 증강 권 — 리롤은 선택 창에서, 우대는 판이 열릴 때 한 번 */
+  const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
+  const [augFavor, setAugFavor] = useState(false);   // 이번 판에 즐겨찾기 우대가 걸려 있는지
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
@@ -5759,7 +5872,20 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       el.addEventListener('transitionend', done);
     });
   }, [posFilter]);
-  const augmentOptions = (owned) => rollAugmentOptions(owned);
+  /* 선택지 뽑기 — 지명해 둔 증강은 한 번만 끼고 바로 지운다 */
+  const augmentOptions = (owned) => {
+    const pledge = pledgedAugId();
+    const out = rollAugmentOptions(owned, Math.random, { pledge, favor: augFavor });
+    if (pledge && out.some((a) => a.id === pledge)) setPledgedAug(null);
+    return out;
+  };
+  /* 리롤권 — 지금 선택지를 통째로 다시 굴린다 */
+  const rerollAugments = () => {
+    if (!choice || choice.kind !== 'augment') return;
+    if (!spendAugTicket('reroll')) return;
+    setAugTickets(withAugTickets(augShopTickets()));
+    setChoice((c) => (c && c.kind === 'augment' ? { ...c, options: rollAugmentOptions(augments, Math.random, { favor: augFavor }) } : c));
+  };
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const [clutch, setClutch] = useState(null); // 승부처 개입 대기 { kind, inning, isTop, score, resolve }
   const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
@@ -5888,6 +6014,24 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setRerolls(s.rerolls);
     setBuff(s.buff);
     setChoice(null);
+  };
+
+  /* 권 한 장 쓰기 — 계정에서 빼고 화면 수를 다시 읽는다 */
+  const spendTicket = (key) => {
+    if (!spendDraftTicket(key)) return false;
+    setTickets(withDraftTickets(draftTickets()));
+    return true;
+  };
+  const useReport = () => { if (phase === 'draft' && spendTicket('reroll')) setRerolls((r) => r + 3); };
+  const useProtect = () => {
+    if (!live || !picked || Live.takenBy(live, picked) != null || live.protect) return;
+    if (spendTicket('protect')) setLive((x) => Live.protectPlayer(x, picked));
+  };
+  const useAgent = () => { if (live && !live.agent && spendTicket('agent')) setLive((x) => Live.useAgent(x)); };
+  const useSeriesTicket = (chosen) => {
+    setSeriesPick(false);
+    if (!live || !chosen) return;
+    if (spendTicket('series')) setLive((x) => Live.setBoardSeries(x, chosen));
   };
 
   const handleReroll = () => {
@@ -6098,8 +6242,14 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
     const me = loadAccount();
     const banner = myBanner(); // 프로필에서 고른 배너 구단 — 내가 지명한 카드에 그 구단 그림이 뜬다
+    const useFirst = !!(cfg.live && cfg.firstPick && spendDraftTicket('first'));
+    const favorOn = !!(cfg.augFavor && spendAugTicket('favor'));
+    setAugFavor(favorOn);
+    setAugTickets(withAugTickets(augShopTickets()));
+    setTickets(withDraftTickets(draftTickets()));
+    setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
-      cap: cfg.cap, series: m.series,
+      cap: cfg.cap, series: m.series, firstPick: useFirst,
       myName: me?.team?.name || me?.nick || '나의 드림팀',
       myShort: me?.nick,
       myColor: flagByKey(banner)?.color || '#e879f9',
@@ -6113,6 +6263,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setBoard(emptyBoard()); setHalf(null); setLogs([]); setToast(null); setResult(null); setRecord({ w: 0, l: 0, d: 0 });
     setPhase('draft');
   };
+
+  /* 시리즈 지정권 고르개에 올릴 목록 — 이번 모드의 시리즈 중 사람이 열 만한 것 */
+  const seriesChoices = useMemo(() => (mode?.series || DRAFT_SERIES).filter((x) => x.players.length >= Live.BOARD_SIZE), [mode]);
+
+  /* 지금 이 선수를 데려오는 값 — 협상 대리인을 켜 두었으면 깎인 값 */
+  const costNow = (p) => (live ? Live.costOf(live, p, liveMine) : p.cost);
 
   const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
   const btnGhost = 'ui-btn ui-cut';
@@ -6243,7 +6399,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
-                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />}
+                  {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />}
                   <div className="ser-ttl">
                     <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
                     <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
@@ -6274,6 +6430,13 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       </svg>
                       새로고침 <em>· {rerolls}회</em>
                     </button>
+                    {tickets.reroll > 0 && (
+                      <span className="dr-tk">
+                        <button type="button" onClick={useReport} title="스카우트 리포트 — 새로고침 +3회">
+                          리포트 <em>· {tickets.reroll}장</em>
+                        </button>
+                      </span>
+                    )}
                       </>
                     )}
                     {/* 라이브: 한 판 두 층 — 위층은 라운드 · 캡 · 전체보기, 아래층은 뽑는 순서와 조작 */}
@@ -6281,7 +6444,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       <span className="dr-panel">
                         <span className="dr-top">
                           <DraftMeta inline round={round} cp={cp} cap={match.cap}
-                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
+                            capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />
                           <button type="button" className="dr-toggle" aria-pressed={shelfFilter === 'all'}
                             onClick={() => setShelfFilter((f) => {
                               const next = f === 'open' ? 'all' : 'open';
@@ -6304,6 +6467,32 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                         </span>
                         <button type="button" className="dr-skip" onClick={skipToMyTurn} disabled={myTurn || Live.isDone(live)}
                           title="내 차례로 건너뛰기" aria-label="내 차례로 건너뛰기">⏭</button>
+                        {(tickets.protect > 0 || tickets.agent > 0 || tickets.series > 0 || live.protect || live.agent) && (
+                          <>
+                            <i className="dr-div" aria-hidden="true" />
+                            <span className="dr-tk" role="group" aria-label="드래프트 권">
+                              {(tickets.protect > 0 || live.protect) && (
+                                <button type="button" onClick={useProtect} className={live.protect ? 'on' : ''}
+                                  disabled={!!live.protect || !picked || Live.takenBy(live, picked) != null}
+                                  title={live.protect ? '보호 중인 선수가 있습니다' : picked ? `${picked.name} 을(를) 내 다음 차례까지 지킨다` : '지킬 선수를 먼저 고르세요'}>
+                                  보호 <em>· {tickets.protect}장</em>
+                                </button>
+                              )}
+                              {(tickets.agent > 0 || live.agent) && (
+                                <button type="button" onClick={useAgent} className={live.agent ? 'on' : ''} disabled={!!live.agent}
+                                  title={live.agent ? '다음 영입 한 번이 15% 싸집니다' : '협상 대리인 — 다음 영입 한 번을 15% 싸게'}>
+                                  대리인 <em>· {tickets.agent}장</em>
+                                </button>
+                              )}
+                              {tickets.series > 0 && (
+                                <button type="button" onClick={() => setSeriesPick(true)} disabled={Live.boardNo(live) + 1 >= live.pool.length}
+                                  title="시리즈 지정권 — 다음 보드에 열릴 시리즈를 고른다">
+                                  시리즈 <em>· {tickets.series}장</em>
+                                </button>
+                              )}
+                            </span>
+                          </>
+                        )}
                         </span>
                       </span>
                     )}
@@ -6357,7 +6546,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       )}
                       {picked ? (
                         <div key={`pick-${picked.id}`} className="pk-face pkf-in">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} cost={costNow(picked)} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
                         </div>
                       ) : inspected ? (
                         <div key={`own-${inspected.player.id}`} className="pk-face pkf-in">
@@ -6486,9 +6675,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                           <li key={a.id} className={`rounded-md border px-2.5 py-2 ${n ? TIER[a.tier].chip : 'border-gray-700 bg-[#111827]'}`}>
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-sm font-bold">{a.name}</span>
-                              {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{a.max}</span>}
+                              {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{augMax(a)}</span>}
                             </div>
-                            <p className="mt-0.5 text-[11px] text-gray-400">{a.desc}</p>
+                            <p className="mt-0.5 text-[11px] text-gray-400">{augDescAt(a)}</p>
                             {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
                           </li>
                         );
@@ -6505,9 +6694,25 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       </main>
       )}
 
+      {seriesPick && live && (
+        <Modal eyebrow="Draft Ticket" title="다음 보드에 열 시리즈" onClose={() => setSeriesPick(false)}>
+          <div className="mt-scroll grid max-h-[54vh] grid-cols-2 gap-1.5 overflow-y-auto pr-1">
+            {seriesChoices.map((x) => (
+              <button key={x.id} type="button" onClick={() => useSeriesTicket(x)}
+                className="ui-cut flex items-center gap-3 bg-white/[0.05] px-3 py-2.5 text-left transition hover:bg-white/[0.1]" style={{ '--c': '8px' }}>
+                <span className="font-display text-sm text-[#fbbf24]">{x.year ?? 'LEG'}</span>
+                <span className="min-w-0">
+                  <b className="block truncate text-sm text-white">{x.title}</b>
+                  <small className="block truncate text-[11.5px] text-gray-400">{SERIES_KIND_LABEL[x.kind]} · {x.players.length}명</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
-      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} />
+      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
       <ClutchOverlay clutch={phase === 'sim' ? clutch : null} onPick={pickClutch} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}

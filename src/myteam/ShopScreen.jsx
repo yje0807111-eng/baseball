@@ -1,9 +1,11 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { CATEGORIES, SHOP_ITEMS, itemArt, itemEffect, isStorable, addToInventory, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
-import { saveTeam, addGold, saveAug, loadAccount } from './store.js';
+import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, applyTeamBoost, teamBoostTargets, clearFatigue, tiredCount, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
+import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
+import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
+import { limitsOf } from './rules.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 /* 종합 등급 색 — 드래프트 카드와 같은 규칙 (90 이상 무지개 · 75 이상 초록) */
@@ -11,9 +13,9 @@ const PRISM = 'linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abf
 const ovrStyle = (v) => (v >= 90
   ? { background: `${PRISM} 0 50% / 200% 100%`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', animation: 'prism 3s linear infinite' }
   : { color: v >= 75 ? '#34d399' : '#f3f4f6' });
-const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
-const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강' };
-const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리' };
+const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9', draft: '#fbbf24' };
+const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강', draft: '드래프트' };
+const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
 function ItemCard({ it, on, onClick, cap = 2000 }) {
@@ -74,11 +76,13 @@ function ItemCard({ it, on, onClick, cap = 2000 }) {
 }
 
 export default function ShopScreen({ account, onChange, onBack }) {
-  const [gold, setGold] = useState(account.gold ?? 0);
+  const [gold, setGold] = useState(Number.isFinite(account.gold) ? account.gold : 0);
   const [team, setTeam] = useState(account.team);
   const [cat, setCat] = useState('all');
   const [picked, setPicked] = useState(SHOP_ITEMS[0]);
   const [toast, setToast] = useState('');
+  const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
+  const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
 
   const squad = team.squad || [];
   const items = useMemo(() => SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat), [cat]);
@@ -92,9 +96,9 @@ export default function ShopScreen({ account, onChange, onBack }) {
     setToast(msg);
     setTimeout(() => setToast(''), 2600);
   };
-  const buy = (it = picked) => {
-    const picked = it; // 눌린 상품 하나만 처리 (사이드 추천 카드도 같은 길)
-    if (!picked || picked.price > gold) return;
+  const buy = (it) => {
+    const picked = itemById(it?.id); // 눌린 상품 하나만 처리 (상품이 아닌 게 넘어오면 아무 일도 없다)
+    if (!picked || !Number.isFinite(gold) || picked.price > gold) return;
     if (isStorable(picked)) {
       push(addToInventory(team, picked), gold - picked.price, `${picked.name} — 라커 아이템에 담김 · 보유 ${owned(picked) + 1}개`);
       return;
@@ -104,12 +108,48 @@ export default function ShopScreen({ account, onChange, onBack }) {
       push({ ...team, staffTickets: n }, gold - picked.price, `${picked.name} +1 · 보유 ${n}장`);
       return;
     }
+    if (picked.draftTicket) {
+      const have = draftTickets();
+      const next = addDraftTicket(have, picked.draftTicket);
+      saveDraftTickets(next);
+      setTickets(next);
+      push(team, gold - picked.price, `${picked.name} +1 · 보유 ${next[picked.draftTicket]}장`);
+      return;
+    }
+    if (picked.expand) {
+      if (expandLeft(team, picked.expand) < 1) { setToast(`${picked.name} 은(는) 더 살 수 없습니다`); setTimeout(() => setToast(''), 2400); return; }
+      const next = expandTeam(team, picked.expand);
+      const lim = limitsOf(next);
+      push(next, gold - picked.price, picked.expand === 'slot'
+        ? `엔트리 ${lim.size}명 · 자유 자리 ${lim.free}칸`
+        : `외국인 한도 ${lim.foreign}명`);
+      return;
+    }
+    if (picked.teamBoost) {
+      const n = teamBoostTargets(team.squad || [], picked.teamBoost).length;
+      if (!n) { setToast('엔트리에 닿을 선수가 없습니다'); setTimeout(() => setToast(''), 2400); return; }
+      push(applyTeamBoost(team, picked), gold - picked.price, `${picked.name} — ${n}명에게 다음 경기 적용`);
+      return;
+    }
+    if (picked.medic) {
+      const n = tiredCount(team);
+      push(clearFatigue(team), gold - picked.price, n ? `${picked.name} — 투수 ${n}명 피로를 지웠습니다` : `${picked.name} — 지울 피로가 없었습니다`);
+      return;
+    }
+    if (picked.augShop) {
+      const next = addAugTicket(augTickets, picked.augShop);
+      saveAugShopTickets(next);
+      setAugTickets(next);
+      push(team, gold - picked.price, `${picked.name} +1 · 보유 ${next[picked.augShop]}장`);
+      return;
+    }
     if (picked.augTicket) {
       const aug = loadAccount()?.aug;
       if (!aug) return;
-      const n = (aug[picked.augTicket] || 0) + 1;
+      const add = picked.bulk || 1;
+      const n = (aug[picked.augTicket] || 0) + add;
       saveAug({ ...aug, [picked.augTicket]: n });
-      push(team, gold - picked.price, `${picked.name} +1 · 보유 ${n}장`);
+      push(team, gold - picked.price, `${picked.name} +${add} · 보유 ${n}장`);
       return;
     }
     if (picked.cap) push({ ...team, cap: (team.cap || 2000) + picked.cap }, gold - picked.price, `샐러리 캡 +${picked.cap}`);
@@ -230,11 +270,11 @@ export default function ShopScreen({ account, onChange, onBack }) {
               )}
 
               <div className={`flex items-baseline justify-between text-[12.5px] text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
-                <span>보유 <b className="text-white">{isStorable(picked) ? `${owned(picked)}개` : '-'}</b></span>
+                <span>보유 <b className="text-white">{isStorable(picked) ? `${owned(picked)}개` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
                 <span>남는 골드 <b className="font-display text-[15px]" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
               <div>
-                <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={buy}>
+                <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
                   {picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
                 {toast && <p className="mt-2 text-center text-sm text-emerald-300">{toast}</p>}

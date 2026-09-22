@@ -1,0 +1,318 @@
+{
+  "id": "2024-kiwoom",
+  "kind": "team",
+  "year": 2024,
+  "title": "키움 히어로즈",
+  "franchise": "KIWOOM",
+  "subtitle": "정규시즌 10위 · 송성문·김혜성",
+  "blurb": "김혜성과 송성문이 나란히 3할을 치며 팀 타선을 지탱한 리빌딩 시즌.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "후라도",
+      "name": "후라도",
+      "year": 2024,
+      "team": "키움",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 90,
+        "stamina": 91,
+        "stability": 81
+      },
+      "note": "",
+      "source": "30G 190 1/3IP ERA3.36 169K 32BB WHIP1.14 10승 — KBO 기록실"
+    },
+    {
+      "personId": "헤이수스",
+      "name": "헤이수스",
+      "year": 2024,
+      "team": "키움",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 86,
+        "control": 80,
+        "stamina": 85,
+        "stability": 78
+      },
+      "note": "",
+      "source": "30G 171 1/3IP ERA3.68 178K 44BB WHIP1.25 13승 — KBO 기록실"
+    },
+    {
+      "personId": "하영민",
+      "name": "하영민",
+      "year": 2024,
+      "team": "키움",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 66,
+        "stamina": 79,
+        "stability": 70
+      },
+      "note": "",
+      "source": "28G 150 1/3IP ERA4.37 101K 58BB WHIP1.50 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김윤하",
+      "name": "김윤하",
+      "year": 2024,
+      "team": "키움",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 60,
+        "stamina": 58,
+        "stability": 49
+      },
+      "note": "",
+      "source": "19G 79IP ERA6.04 43K 35BB WHIP1.62 1승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "주승우",
+      "name": "주승우",
+      "year": 2024,
+      "team": "키움",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 70,
+        "stamina": 55,
+        "stability": 70
+      },
+      "note": "",
+      "source": "55G 51 2/3IP ERA4.35 43K 18BB WHIP1.32 4승 14SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "김성민",
+      "name": "김성민",
+      "year": 2024,
+      "team": "키움",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 68,
+        "stamina": 54,
+        "stability": 70
+      },
+      "note": "",
+      "source": "46G 45 2/3IP ERA4.34 34K 17BB WHIP1.36 3승 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "조상우",
+      "name": "조상우",
+      "year": 2024,
+      "team": "키움",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 56,
+        "stamina": 53,
+        "stability": 80
+      },
+      "note": "",
+      "source": "44G 39 2/3IP ERA3.18 36K 20BB WHIP1.51 6SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "김선기",
+      "name": "김선기",
+      "year": 2024,
+      "team": "키움",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 66,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "42G 76 1/3IP ERA5.54 43K 30BB WHIP1.59 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2024,
+      "team": "키움",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 40,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".243/.297 0HR 26타점 1SB 326PA — KBO 기록실"
+    },
+    {
+      "personId": "김건희",
+      "name": "김건희",
+      "year": 2024,
+      "team": "키움",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 69,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".257/.300 9HR 38타점 0SB 283PA — KBO 기록실"
+    },
+    {
+      "personId": "최주환",
+      "name": "최주환",
+      "year": 2024,
+      "team": "키움",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 64,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".257/.325 13HR 84타점 0SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "김혜성",
+      "name": "김혜성",
+      "year": 2024,
+      "team": "키움",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 61,
+        "speed": 84,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".326/.383 11HR 75타점 30SB 567PA — KBO 기록실"
+    },
+    {
+      "personId": "송성문",
+      "name": "송성문",
+      "year": 2024,
+      "team": "키움",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 92,
+        "speed": 77,
+        "defense": 78
+      },
+      "note": "21도루 성공률 100%",
+      "source": ".340/.409 19HR 104타점 21SB 602PA — KBO 기록실"
+    },
+    {
+      "personId": "김태진",
+      "name": "김태진",
+      "year": 2024,
+      "team": "키움",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 40,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".222/.249 0HR 10타점 0SB 202PA — KBO 기록실"
+    },
+    {
+      "personId": "이주형",
+      "name": "이주형",
+      "year": 2024,
+      "team": "키움",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 64,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".266/.352 13HR 60타점 6SB 537PA — KBO 기록실"
+    },
+    {
+      "personId": "도슨",
+      "name": "도슨",
+      "year": 2024,
+      "team": "키움",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 89,
+        "power": 65,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".330/.399 11HR 57타점 2SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "변상권",
+      "name": "변상권",
+      "year": 2024,
+      "team": "키움",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 62,
+        "speed": 42,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".251/.289 5HR 21타점 0SB 232PA — KBO 기록실"
+    },
+    {
+      "personId": "고영우",
+      "name": "고영우",
+      "year": 2024,
+      "team": "키움",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 40,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".256/.329 0HR 35타점 0SB 290PA — KBO 기록실"
+    }
+  ]
+}

@@ -2,10 +2,13 @@
  * 상점 — 재화는 골드 하나.
  *  훈련: 선수 능력치 영구 상승 (CP 영입가는 그대로 → 돈으로 가성비를 산다)
  *  부스트: 다음 N경기 동안만 붙는 소모품
+ *   — 선수 하나짜리와 팀 단위(불펜 데이 · 타선 미팅 · 마운드 미팅)가 같은 자리(team.boosts)를 쓴다
+ *   — 재활 트레이너는 부스트가 아니라 투수진 피로(team.pitchFatigue)를 지운다
  *  운영: 샐러리 캡 확장 등 팀 단위
  *  감독 계약: 감독을 CP 없이 선임
  */
 import { overallOf } from '../data/seriesPlayers.js';
+import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX } from './rules.js';
 
 export const CATEGORIES = [
   { key: 'all', label: '전체' },
@@ -14,11 +17,18 @@ export const CATEGORIES = [
   { key: 'ops', label: '운영' },
   { key: 'staff', label: '감독' },
   { key: 'aug', label: '증강' },
+  { key: 'draft', label: '드래프트' },
 ];
 
 const item = (id, cat, name, desc, price, opt) => ({ id, cat, name, desc, price, ...opt });
 
 export const SHOP_ITEMS = [
+  // 드래프트 (판을 흔드는 권 — 계정에 쌓아 두고 그 판에서 쓴다)
+  item('dr-reroll', 'draft', '스카우트 리포트', '드래프트 새로고침 +3회 · 판에서 쓴다', 220, { draftTicket: 'reroll', img: 'mt-pack' }),
+  item('dr-first', 'draft', '우선 지명권', '8구단 라이브 순번을 맨 앞으로 · 판 시작에 쓴다', 900, { draftTicket: 'first', img: 'mt-card' }),
+  item('dr-protect', 'draft', '보호 지명서', '선수 한 명을 내 다음 차례까지 다른 구단이 못 뽑게', 500, { draftTicket: 'protect', img: 'mt-card' }),
+  item('dr-series', 'draft', '시리즈 지정권', '다음 보드에 열릴 시리즈를 내가 고른다', 480, { draftTicket: 'series', img: 'mt-pack' }),
+  item('dr-agent', 'draft', '협상 대리인', '다음 영입 한 번을 영입가 15% 싸게', 420, { draftTicket: 'agent', img: 'mt-card' }),
   // 훈련 (영구)
   item('tr-contact', 'training', '타격 특훈', '타자 1명 컨택 +3 · 영구', 300, { target: 'batter', stat: 'contact', amount: 3, img: 'mt-boost' }),
   item('tr-power', 'training', '파워 훈련', '타자 1명 파워 +3 · 영구', 320, { target: 'batter', stat: 'power', amount: 3, img: 'mt-boost' }),
@@ -29,12 +39,23 @@ export const SHOP_ITEMS = [
   item('bo-stamina', 'boost', '에너지 드링크', '투수 1명 체력 +15 · 3경기', 120, { target: 'pitcher', stat: 'stamina', amount: 15, games: 3, img: 'mt-boost' }),
   item('bo-focus', 'boost', '집중력 강화', '타자 1명 컨택 +5 · 1경기', 90, { target: 'batter', stat: 'contact', amount: 5, games: 1, img: 'mt-boost' }),
   item('bo-power', 'boost', '파워 스윙', '타자 1명 파워 +6 · 1경기', 110, { target: 'batter', stat: 'power', amount: 6, games: 1, img: 'mt-boost' }),
+  // 경기 운영 (팀 단위 · 사면 바로 다음 경기에 붙는다)
+  item('bo-bullpen', 'boost', '불펜 데이', '불펜 투수 전원 체력 +20 · 1경기', 320, { teamBoost: 'rp', stat: 'stamina', amount: 20, games: 1, img: 'mt-boost' }),
+  item('bo-meeting', 'boost', '타선 미팅', '타자 전원 컨택 +3 · 1경기', 380, { teamBoost: 'batter', stat: 'contact', amount: 3, games: 1, img: 'mt-boost' }),
+  item('bo-mound', 'boost', '마운드 미팅', '투수 전원 제구 +3 · 1경기', 400, { teamBoost: 'pitcher', stat: 'control', amount: 3, games: 1, img: 'mt-boost' }),
+  item('bo-medic', 'boost', '재활 트레이너', '투수진에 쌓인 피로를 모두 지운다', 350, { medic: true, img: 'mt-boost' }),
   // 운영
+  item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
+  item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
   item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
   // 증강 (풀 관리)
+  item('au-reroll', 'aug', '증강 리롤권', '경기 중 증강 선택지를 다시 굴린다', 260, { augShop: 'reroll', img: 'mt-pack' }),
+  item('au-pledge', 'aug', '증강 지명권', '고른 증강 하나가 다음 판 첫 선택지에 꼭 나온다', 700, { augShop: 'pledge', img: 'mt-card' }),
+  item('au-favor', 'aug', '즐겨찾기 우대권', '한 판 동안 즐겨찾기한 증강이 자주 나온다', 540, { augShop: 'favor', img: 'mt-boost' }),
+  item('au-upgrade3', 'aug', '증강 강화권 3장 묶음', '강화권 3장 · 낱장보다 싸다', 1600, { augTicket: 'upgradeTickets', bulk: 3, img: 'mt-boost' }),
   item('au-remove', 'aug', '증강 제거권', '등급 하나의 제외 칸 +1 (최대 8칸)', 400, { augTicket: 'removeTickets', img: 'mt-pack' }),
   item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
   item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 340, { staffRole: 'coach', img: 'mt-card' }),
@@ -44,13 +65,38 @@ export const SHOP_ITEMS = [
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
 export const itemArt = (it) => `ui/shop/${it.id}.webp`;
 
+/* ───── 드래프트 권: 사 두면 계정에 쌓이고, 드래프트 판에서 한 장씩 쓴다 ───── */
+export const DRAFT_TICKETS = ['reroll', 'first', 'protect', 'series', 'agent'];
+export const DRAFT_TICKET_KO = { reroll: '스카우트 리포트', first: '우선 지명권', protect: '보호 지명서', series: '시리즈 지정권', agent: '협상 대리인' };
+export const DRAFT_TICKET_TIP = {
+  reroll: '새로고침 +3회', first: '순번 맨 앞', protect: '한 명 지켜 두기', series: '다음 보드 고르기', agent: '영입가 15% 할인',
+};
+/* ───── 증강 권: 판에서 쓰는 리롤 · 지명 · 즐겨찾기 우대 ───── */
+export const AUG_SHOP_TICKETS = ['reroll', 'pledge', 'favor'];
+export const AUG_TICKET_KO = { reroll: '증강 리롤권', pledge: '증강 지명권', favor: '즐겨찾기 우대권' };
+export const emptyAugTickets = () => Object.fromEntries(AUG_SHOP_TICKETS.map((k) => [k, 0]));
+export const withAugTickets = (t) => ({ ...emptyAugTickets(), ...(t || {}) });
+export const addAugTicket = (t, key, n = 1) => { const d = withAugTickets(t); return { ...d, [key]: Math.max(0, d[key] + n) }; };
+
+export const emptyDraftTickets = () => Object.fromEntries(DRAFT_TICKETS.map((k) => [k, 0]));
+/** 계정에 저장된 권 수 (없는 칸은 0) */
+export const withDraftTickets = (t) => ({ ...emptyDraftTickets(), ...(t || {}) });
+/** 한 장 넣기 · 한 장 쓰기 — 둘 다 새 객체를 돌려준다 */
+export const addDraftTicket = (t, key, n = 1) => { const d = withDraftTickets(t); return { ...d, [key]: Math.max(0, d[key] + n) }; };
+export const useDraftTicket = (t, key) => { const d = withDraftTickets(t); return d[key] > 0 ? { ...d, [key]: d[key] - 1 } : null; };
+
 /** 상품이 올려 주는 값 — [이름, 오르는 값, 같은 종류 최대치(게이지 기준)] */
 export function itemEffect(it) {
   if (it.stat) return { label: STAT_KO[it.stat] || it.stat, amount: it.amount, max: it.stat === 'stamina' ? 15 : 6 };
   if (it.cap) return { label: '샐러리 캡', amount: it.cap, max: 100 };
   if (it.staffRole) return { label: it.staffRole === 'manager' ? '감독 선임' : '코치 선임', amount: null, max: 1 };
   if (it.staffTicket) return { label: '코치 레벨', amount: 1, max: 1 };
-  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: 1, max: 1 };
+  if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: it.bulk || 1, max: it.bulk || 1 };
+  if (it.draftTicket) return { label: DRAFT_TICKET_KO[it.draftTicket] || '드래프트', amount: 1, max: 1 };
+  if (it.augShop) return { label: AUG_TICKET_KO[it.augShop] || '증강', amount: 1, max: 1 };
+  if (it.teamBoost) return { label: TEAM_BOOST_KO[it.teamBoost] || '팀', amount: it.amount, max: 20 };
+  if (it.medic) return { label: '피로 회복', amount: null, max: 1 };
+  if (it.expand) return { label: EXPAND_KO[it.expand] || '확장', amount: 1, max: 1 };
   return { label: it.name, amount: null, max: 1 };
 }
 
@@ -67,6 +113,37 @@ export function teamWeakness(squad = []) {
   const filled = rows.filter((r) => r.n);
   const weak = filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null;
   return { rows, weak, item: weak ? SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]) : null };
+}
+
+/* ───── 경기 운영: 팀 단위 부스트 · 피로 회복 ───── */
+export const TEAM_BOOST_KO = { rp: '불펜 투수', batter: '타자 전원', pitcher: '투수 전원' };
+/** 이 상품이 닿는 선수들 */
+export const teamBoostTargets = (squad = [], key) => squad.filter((p) => (key === 'rp' ? p.position === 'RP' : key === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter'));
+/** 팀 단위 부스트를 건다 — 닿는 선수마다 한 장씩 (기존 부스트와 같은 수명 · 같은 자리) */
+export function applyTeamBoost(team, it) {
+  const now = Date.now();
+  const add = teamBoostTargets(team.squad || [], it.teamBoost).map((p, i) => ({
+    key: `${it.id}-${p.id}-${now}-${i}-${Math.random().toString(36).slice(2, 6)}`, itemId: it.id, playerId: p.id, playerName: p.name,
+    stat: it.stat, amount: it.amount, gamesLeft: it.games,
+  }));
+  return { ...team, boosts: [...(team.boosts || []), ...add] };
+}
+/** 투수진 피로를 지운다 */
+export const clearFatigue = (team) => ({ ...team, pitchFatigue: {} });
+/** 지금 쉬고 있는(피로가 남은) 투수 수 */
+export const tiredCount = (team) => Object.values(team?.pitchFatigue || {}).filter((f) => (f?.rest || 0) > 0).length;
+
+/* ───── 팀 틀 확장: 엔트리 한 자리 · 외국인 한 명 (영구, 횟수 제한) ───── */
+export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign' };
+export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX };
+export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도' };
+/** 몇 번 더 살 수 있나 */
+export const expandLeft = (team, kind) => Math.max(0, EXPAND_MAX[kind] - (team?.[EXPAND_KEY[kind]] || 0));
+/** 한 번 넓힌 팀 — 한도를 넘으면 그대로 */
+export function expandTeam(team, kind) {
+  if (!EXPAND_KEY[kind] || expandLeft(team, kind) < 1) return team;
+  const key = EXPAND_KEY[kind];
+  return { ...team, [key]: (team[key] || 0) + 1 };
 }
 
 export const needsPlayer = (it) => !!it.target;

@@ -1,0 +1,318 @@
+{
+  "id": "2021-ssg",
+  "kind": "team",
+  "year": 2021,
+  "title": "SSG 랜더스",
+  "franchise": "SSG",
+  "subtitle": "정규시즌 6위 · 추신수 합류",
+  "blurb": "추신수가 KBO에 데뷔해 21홈런 25도루를 기록하고 최정이 35홈런을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "폰트",
+      "name": "폰트",
+      "year": 2021,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 88,
+        "control": 75,
+        "stamina": 78,
+        "stability": 80
+      },
+      "note": "",
+      "source": "25G 145 2/3IP ERA3.46 157K 45BB WHIP1.09 8승 — KBO 기록실"
+    },
+    {
+      "personId": "가빌리오",
+      "name": "가빌리오",
+      "year": 2021,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 68,
+        "stamina": 59,
+        "stability": 53
+      },
+      "note": "",
+      "source": "15G 81 1/3IP ERA5.86 70K 30BB WHIP1.45 6승 — KBO 기록실"
+    },
+    {
+      "personId": "박종훈",
+      "name": "박종훈",
+      "year": 2021,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 74,
+        "stamina": 50,
+        "stability": 87
+      },
+      "note": "",
+      "source": "9G 54 1/3IP ERA2.82 41K 17BB WHIP1.05 4승 — KBO 기록실"
+    },
+    {
+      "personId": "오원석",
+      "name": "오원석",
+      "year": 2021,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 44,
+        "stamina": 60,
+        "stability": 50
+      },
+      "note": "",
+      "source": "33G 110IP ERA5.89 95K 73BB WHIP1.80 7승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "이태양",
+      "name": "이태양",
+      "year": 2021,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 75,
+        "stamina": 60,
+        "stability": 55
+      },
+      "note": "",
+      "source": "40G 103 2/3IP ERA5.73 62K 32BB WHIP1.50 5승 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "장지훈",
+      "name": "장지훈",
+      "year": 2021,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 82,
+        "stamina": 60,
+        "stability": 75
+      },
+      "note": "",
+      "source": "60G 80 1/3IP ERA3.92 51K 19BB WHIP1.28 2승 1SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "김태훈(SSG)",
+      "name": "김태훈",
+      "year": 2021,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 45,
+        "stamina": 57,
+        "stability": 59
+      },
+      "note": "",
+      "source": "65G 58IP ERA4.97 49K 38BB WHIP1.60 2승 1SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재원",
+      "name": "이재원",
+      "year": 2021,
+      "team": "SSG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 51,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".280/.358 3HR 30타점 0SB 313PA — KBO 기록실"
+    },
+    {
+      "personId": "로맥",
+      "name": "로맥",
+      "year": 2021,
+      "team": "SSG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 54,
+        "power": 79,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".225/.340 20HR 52타점 1SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "최주환",
+      "name": "최주환",
+      "year": 2021,
+      "team": "SSG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 73,
+        "contact": 65,
+        "speed": 43,
+        "defense": 68
+      },
+      "note": "18홈런",
+      "source": ".256/.353 18HR 67타점 2SB 470PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2021,
+      "team": "SSG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 88,
+        "speed": 60,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".278/.410 35HR 100타점 8SB 555PA — KBO 기록실"
+    },
+    {
+      "personId": "박성한",
+      "name": "박성한",
+      "year": 2021,
+      "team": "SSG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 49,
+        "speed": 66,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".302/.377 4HR 44타점 12SB 471PA — KBO 기록실"
+    },
+    {
+      "personId": "추신수",
+      "name": "추신수",
+      "year": 2021,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 73,
+        "speed": 80,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".265/.409 21HR 69타점 25SB 580PA — KBO 기록실"
+    },
+    {
+      "personId": "최지훈",
+      "name": "최지훈",
+      "year": 2021,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 50,
+        "speed": 81,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".262/.342 5HR 45타점 26SB 534PA — KBO 기록실"
+    },
+    {
+      "personId": "한유섬",
+      "name": "한유섬",
+      "year": 2021,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 85,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".278/.373 31HR 95타점 1SB 519PA — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 2021,
+      "team": "SSG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 62,
+        "speed": 55,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".283/.356 6HR 37타점 5SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2021,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 68,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".238/.327 8HR 27타점 3SB 260PA — KBO 기록실"
+    },
+    {
+      "personId": "오태곤",
+      "name": "오태곤",
+      "year": 2021,
+      "team": "SSG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 71,
+        "speed": 62,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".268/.313 9HR 35타점 9SB 253PA — KBO 기록실"
+    }
+  ]
+}

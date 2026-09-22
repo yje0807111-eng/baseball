@@ -1,0 +1,318 @@
+{
+  "id": "2021-lotte",
+  "kind": "team",
+  "year": 2021,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "정규시즌 8위 · 전준우 .348",
+  "blurb": "전준우와 손아섭이 3할 타선을 이끌고 김원중이 35세이브를 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "스트레일리",
+      "name": "스트레일리",
+      "year": 2021,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 83,
+        "control": 64,
+        "stamina": 84,
+        "stability": 73
+      },
+      "note": "",
+      "source": "31G 165 2/3IP ERA4.07 164K 67BB WHIP1.38 10승 — KBO 기록실"
+    },
+    {
+      "personId": "박세웅",
+      "name": "박세웅",
+      "year": 2021,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 73,
+        "stamina": 83,
+        "stability": 74
+      },
+      "note": "10승 163이닝",
+      "source": "28G 163IP ERA3.98 125K 53BB WHIP1.19 10승 — KBO 기록실"
+    },
+    {
+      "personId": "프랑코",
+      "name": "프랑코",
+      "year": 2021,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 71,
+        "control": 56,
+        "stamina": 79,
+        "stability": 58
+      },
+      "note": "",
+      "source": "37G 150IP ERA5.40 124K 75BB WHIP1.48 9승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이승헌",
+      "name": "이승헌",
+      "year": 2021,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 44,
+        "stamina": 51,
+        "stability": 51
+      },
+      "note": "",
+      "source": "16G 57 2/3IP ERA5.77 31K 43BB WHIP1.87 — KBO 기록실"
+    },
+    {
+      "personId": "김원중",
+      "name": "김원중",
+      "year": 2021,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 60,
+        "stamina": 58,
+        "stability": 79
+      },
+      "note": "",
+      "source": "61G 62 2/3IP ERA3.59 64K 28BB WHIP1.24 4승 35SV — KBO 기록실"
+    },
+    {
+      "personId": "구승민",
+      "name": "구승민",
+      "year": 2021,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 56,
+        "stamina": 57,
+        "stability": 70
+      },
+      "note": "",
+      "source": "68G 62 1/3IP ERA4.33 65K 31BB WHIP1.25 6승 20HLD — KBO 기록실"
+    },
+    {
+      "personId": "최준용",
+      "name": "최준용",
+      "year": 2021,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 71,
+        "stamina": 54,
+        "stability": 87
+      },
+      "note": "",
+      "source": "44G 47 1/3IP ERA2.85 45K 16BB WHIP1.20 4승 1SV 20HLD — KBO 기록실"
+    },
+    {
+      "personId": "김진욱",
+      "name": "김진욱",
+      "year": 2021,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 44,
+        "stamina": 54,
+        "stability": 47
+      },
+      "note": "",
+      "source": "39G 45 2/3IP ERA6.31 45K 49BB WHIP1.99 4승 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "지시완",
+      "name": "지시완",
+      "year": 2021,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 73,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".241/.319 7HR 26타점 0SB 187PA — KBO 기록실"
+    },
+    {
+      "personId": "안중열",
+      "name": "안중열",
+      "year": 2021,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 61,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".232/.370 3HR 16타점 0SB 157PA — KBO 기록실"
+    },
+    {
+      "personId": "정훈",
+      "name": "정훈",
+      "year": 2021,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 65,
+        "speed": 60,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".292/.380 14HR 79타점 8SB 561PA — KBO 기록실"
+    },
+    {
+      "personId": "안치홍",
+      "name": "안치홍",
+      "year": 2021,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 61,
+        "speed": 50,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".306/.379 10HR 82타점 3SB 490PA — KBO 기록실"
+    },
+    {
+      "personId": "한동희",
+      "name": "한동희",
+      "year": 2021,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 71,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".267/.364 17HR 69타점 0SB 496PA — KBO 기록실"
+    },
+    {
+      "personId": "마차도",
+      "name": "마차도",
+      "year": 2021,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 73,
+        "power": 50,
+        "speed": 60,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".279/.359 5HR 58타점 8SB 539PA — KBO 기록실"
+    },
+    {
+      "personId": "전준우",
+      "name": "전준우",
+      "year": 2021,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 54,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".348/.405 7HR 92타점 6SB 619PA — KBO 기록실"
+    },
+    {
+      "personId": "손아섭",
+      "name": "손아섭",
+      "year": 2021,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 46,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".319/.390 3HR 58타점 11SB 610PA — KBO 기록실"
+    },
+    {
+      "personId": "추재현",
+      "name": "추재현",
+      "year": 2021,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 58,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".252/.336 5HR 26타점 4SB 300PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2021,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 75,
+        "speed": 42,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".286/.342 19HR 81타점 0SB 465PA — KBO 기록실"
+    }
+  ]
+}
