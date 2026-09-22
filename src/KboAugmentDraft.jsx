@@ -3,6 +3,7 @@ import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, loadAccount, myBanner } from './myteam/store.js';
 import { flagByKey } from './myteam/teamArt.js';
+import { statOf } from './myteam/teamColor.js';
 import { statColor } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
@@ -2395,8 +2396,8 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
               return (
                 <div key={k} className="pk-st">
                   <dt>{STAT_LABELS[k]}</dt>
-                  <dd className="font-display tabular-nums" style={{ color: statColor(v, acc).num }}>{v}{diffTag(d)}</dd>
-                  <i className="pk-bar"><b style={{ width: `${Math.min(100, v)}%`, background: statColor(v, acc).bar }} /></i>
+                  <dd className="font-display tabular-nums" style={{ color: statOf(k, v).num }}>{v}{diffTag(d)}</dd>
+                  <i className="pk-bar"><b style={{ width: `${Math.min(100, v)}%`, background: statOf(k, v).bar }} /></i>
                 </div>
               );
             })}

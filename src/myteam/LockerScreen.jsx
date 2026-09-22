@@ -12,7 +12,7 @@ import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staf
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
-import { posColor, statColor, teamNeon } from './teamColor.js';
+import { posColor, statColor, statOf, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
@@ -132,9 +132,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className={`st-n ${statBand(v)} font-display text-[15px]`}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statOf(k, v).num }}>{v}</b></span>
             <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
-              <b className={`st-bar ${statBand(v)} absolute inset-y-0 left-0 block`} style={{ width: `${v}%` }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statOf(k, v).bar }} />
             </span>
           </span>
         );

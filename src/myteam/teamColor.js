@@ -28,7 +28,28 @@ const hex = (c) => (c.startsWith('rgb') ? c.match(/\d+/g).slice(0, 3).map(Number
 const mix = (a, b, t) => { const [x, y] = [hex(a), hex(b)]; return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(',')})`; };
 const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 40) / 60));
 
-/** 능력치 막대·숫자 색: 낮으면 푸른 회색, 높을수록 구단 색으로 */
+/**
+ * 능력치 색 — 네 갈래로 묶어 타자와 투수가 짝을 이룬다.
+ *  힘(파워 · 구위) 빨강 · 정확(컨택 · 제구) 초록 · 기동(주루 · 체력) 노랑 · 안정(수비 · 안정) 파랑
+ * 어느 화면에서 보든 같은 수치는 같은 색이다.
+ */
+export const STAT_COLOR = {
+  power: '#f87171', stuff: '#f87171',
+  contact: '#34d399', control: '#34d399',
+  speed: '#fbbf24', stamina: '#fbbf24',
+  defense: '#60a5fa', stability: '#60a5fa',
+};
+/** 한글 이름으로도 찾을 수 있게 (중계 화면처럼 라벨만 들고 있는 곳) */
+export const STAT_COLOR_KO = {
+  파워: '#f87171', 구위: '#f87171',
+  컨택: '#34d399', 제구: '#34d399',
+  주루: '#fbbf24', 체력: '#fbbf24',
+  수비: '#60a5fa', 안정: '#60a5fa',
+};
+/** 그 수치의 막대·숫자 색 (값이 높을수록 그 색이 짙어진다) */
+export const statOf = (key, v) => statColor(v, STAT_COLOR[key] || STAT_COLOR_KO[key] || '#10b981');
+
+/** 능력치 막대·숫자 색: 낮으면 푸른 회색, 높을수록 그 수치의 색으로 */
 export function statColor(v, team = '#10b981') {
   const t = norm(v);
   return {

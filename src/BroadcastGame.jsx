@@ -6,7 +6,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
-import { statColor, teamNeon } from './myteam/teamColor.js';
+import { statColor, statOf, teamNeon } from './myteam/teamColor.js';
 import PlayView from './play/PlayView.jsx';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
@@ -151,10 +151,10 @@ const Bso = ({ b, s, o }) => (
   </div>
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
-const Stat = ({ k, v, c }) => (
+const Stat = ({ k, v }) => (
   <div className="relative mt-2 grid grid-cols-[38px_1fr_30px] items-center gap-2 text-[12px] font-semibold text-gray-300">
-    {k}<i className="block h-[6px] bg-white/[0.08]"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: statColor(v, c).bar }} /></i>
-    <em className="text-right font-display text-[15px] font-extrabold not-italic" style={{ color: statColor(v, c).num }}>{v}</em>
+    {k}<i className="block h-[6px] bg-white/[0.08]"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: statOf(k, v).bar }} /></i>
+    <em className="text-right font-display text-[15px] font-extrabold not-italic" style={{ color: statOf(k, v).num }}>{v}</em>
   </div>
 );
 
