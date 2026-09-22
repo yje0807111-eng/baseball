@@ -27,7 +27,7 @@ const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
 /* 코치 효과: 한 줄 문장 "타격 +2 · 승부처 +1" — 숫자만 효과 색 · 굵게 */
-const EFF_COLOR = { bat: '#34d399', field: '#7dd3fc', pitch: '#60a5fa', stamina: '#fbbf24', steal: '#f472b6', clutch: '#f87171' };
+const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', stamina: '#fbbf24', steal: '#fb923c', clutch: '#e879f9' };
 const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
 const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
 const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
@@ -734,8 +734,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
                     <span>{EFF_LABEL[k]}</span>
                     <span className="relative h-2.5 bg-white/[0.07]">
-                      <i className="absolute inset-y-0 left-0" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: 'rgba(196,181,253,.35)' }} />
-                      <i className="absolute inset-y-0 left-0 transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: VIO, boxShadow: `0 0 10px ${VIO}` }} />
+                      <i className="absolute inset-y-0 left-0" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: `color-mix(in srgb,${EFF_COLOR[k]} 30%,transparent)` }} />
+                      <i className="absolute inset-y-0 left-0 transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: EFF_COLOR[k], boxShadow: `0 0 10px ${EFF_COLOR[k]}` }} />
                     </span>
                     <b className="text-right font-display text-base text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
                   </div>
