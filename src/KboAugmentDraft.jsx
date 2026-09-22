@@ -12,6 +12,7 @@ import TournamentBracket from './myteam/TournamentBracket.jsx';
 import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
 import * as Live from './draft/live.js';
 import * as Gaunt from './draft/gauntlet.js';
+import { NO_CAP, isNoCap, specialAiRoster, rosterOrigin } from './draft/special.js';
 import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
@@ -147,7 +148,7 @@ export const YEAR_MODES = DRAFT_MODES.filter((m) => m.group === 'year');
 export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
 /** 드래프트 토너먼트 구단 팀 전력 보정 상한: 모드 전체 AI 드래프트 팀과 엔진 전력이 벌어진 만큼 경기에서만 더하거나 뺀다 */
 const HANDICAP_MAX = 8;
-const personKey = (p) => p.personId || p.name;
+export const personKey = (p) => p.personId || p.name;
 
 /* 필드 자리: 포지션마다 SLOT_LIMITS 만큼. 선수는 slot 에 서고, position 은 원래 포지션으로 남는다 */
 /* 자리 20개 = 필드 14(투수 5 · 야수 9) + 예비 6. 투수는 역할(선발·롱릴리프·중간계투·셋업맨·마무리)로 나뉘고,
@@ -2287,7 +2288,18 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
         </div>}
 
-        {!slim && <div className="min-w-[220px] flex-1">
+        {!slim && isNoCap(cap) && (
+          <div className="min-w-[220px] flex-1">
+            <div className="mb-1 flex items-baseline justify-between">
+              <span className="text-xs font-semibold text-gray-400">샐러리 캡</span>
+              <b className="font-display text-2xl font-bold text-[#fbbf24]" style={{ textShadow: '0 0 14px rgba(251,191,36,.5)' }}>제한 없음</b>
+            </div>
+            <div className="ui-seg" style={{ '--a': '#fbbf24' }} aria-hidden="true">
+              {Array.from({ length: 24 }, (_, i) => <i key={i} className="on" />)}
+            </div>
+          </div>
+        )}
+        {!slim && !isNoCap(cap) && <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
             <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
@@ -2478,13 +2490,22 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
         <small>/ {ROSTER_SIZE}</small>
       </span>
       <i className="dr-div" aria-hidden="true" />
-      <span className="dr-cap" style={{ '--a': tone }}>
-        <span className="dr-ticks" role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
-          {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
+      {isNoCap(cap) ? (
+        <span className="dr-cap" style={{ '--a': '#fbbf24' }}>
+          <span className="dr-ticks" aria-hidden="true">
+            {Array.from({ length: 24 }, (_, i) => <i key={i} className="on" />)}
+          </span>
+          <b style={{ fontSize: '15px' }}>제한 없음</b>
         </span>
-        <b>{preview ? capAfter : cp}</b>
-        <small>/ {cap}</small>
-      </span>
+      ) : (
+        <span className="dr-cap" style={{ '--a': tone }}>
+          <span className="dr-ticks" role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
+            {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
+          </span>
+          <b>{preview ? capAfter : cp}</b>
+          <small>/ {cap}</small>
+        </span>
+      )}
     </div>
   );
 }
@@ -4857,8 +4878,15 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             </dl>
             {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
             <div>
-              <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
-              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '라이브 8구단', false: '혼자' }} value={live} onChange={setLive} />
+              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '베이직 · 8구단', false: '스페셜 · 자유 영입' }} value={live} onChange={setLive} />
+              {live
+                ? <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
+                : (
+                  <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+                    <span>샐러리 캡</span>
+                    <b className="font-display text-[15px] text-[#fbbf24]">제한 없음</b>
+                  </div>
+                )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
@@ -4870,7 +4898,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
               {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap, ai, aug, format, live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: live ? cap : NO_CAP, ai, aug, format, live })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5653,8 +5681,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setPhase('bracket');
       return;
     }
-    // 라이브 판이었으면 상대도 그 판에서 뽑은 구단 중 전력이 가장 가까운 팀
-    if (!(rematch && opponent)) setOpponent(live ? Live.rosterOf(live, Live.opponentOf(live)) : aiDraft({ players: mode.players, cap: match.cap }));
+    // 라이브 판이었으면 그 판의 구단, 스페셜이면 나와 같은 방식으로 시리즈를 굴려 꾸린 팀
+    if (!(rematch && opponent)) {
+      setOpponent(live
+        ? Live.rosterOf(live, Live.opponentOf(live))
+        : isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap }));
+    }
     setChoice(null);
     setToast(null);
     setPhase('matchup');
@@ -5726,9 +5758,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setAugments(owned); // 지난 경기 중에 고른 증강은 그 경기에서만 — 시즌 증강만 남긴다
     setClutch(null);
     setPlay(null);
-    const oppRoster = entry ? entry.roster : rematch && opponent ? opponent : aiDraft({ players: mode.players, cap: match.cap });
+    const oppRoster = entry ? entry.roster
+      : rematch && opponent ? opponent
+        : isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap });
     setOpponent(oppRoster);
-    const opp = entry ? entry.team : buildTeam('AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
+    const opp = entry ? entry.team
+      : buildTeam(isNoCap(match.cap) ? `${rosterOrigin(oppRoster)} 연합` : 'AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
     const makeMy = (augs) => buildTeam('나의 드림팀', fillRoster(roster), buff, augs, env);
