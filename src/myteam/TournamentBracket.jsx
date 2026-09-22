@@ -81,7 +81,7 @@ function Tree({ t, oppIdx, reveal }) {
 }
 
 /** rewards: 골드 보상 표시 (드래프트 모드 토너먼트는 보상 없음) */
-export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, onClaim, onRestart, rewards = true }) {
+export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, onClaim, onRestart, rewards = true, playLabel = '경기 시작 ▶' }) {
   const size = t.size || 32;
   const ROUNDS = roundsOf(size), FINISH = finishOf(size);
   const { COL } = GEO[size] || GEO[32];
@@ -160,7 +160,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
                 <Row k="경계 선수"><b className="truncate text-right" style={{ color: OPP }}>{keyPlayers.map((p) => `${p.name} ${p.position} ${p.overall}`).join(' · ')}</b></Row>
                 <Row k="이기면"><b className="font-display text-lg text-white">{t.round === ROUNDS.length - 1 ? '우승' : `${ROUNDS[t.round + 1].ko} 진출`}{rewards ? ` · ${FINISH[t.round + 1].gold} G 확보` : ''}</b></Row>
               </div>
-              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} 경기 시작 ▶</button>
+              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} {playLabel}</button>
             </>
           ) : (
             <>

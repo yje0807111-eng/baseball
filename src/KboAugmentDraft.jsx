@@ -5293,15 +5293,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const g = live ? Gaunt.makeGauntlet(live) : null;   // 라이브 판이었으면 여덟 구단으로 도장깨기 탑을 세운다
     if (g) setGaunt(g);
     setRoster(filled); setSeries(null); setPicked(null);
-    // 상대를 먼저 정한다 — 증강과 정비는 그 뒤에. 베이직은 탑, 스페셜은 매치업 화면
+    // 상대를 먼저 정한다 — 증강과 정비는 그 뒤에. 베이직은 탑, 스페셜은 매치업, 토너먼트는 대진표
     if (g) { prepareMatch(false, g); return; }
-    if (!tourMode) {
-      const opp = isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap });
-      setOpponent(opp);
-      setPhase('matchup');
-      return;
-    }
-    setPhase('ready');
+    if (tourMode) { setDtour(makeDraftTournament(filled)); setPhase('bracket'); return; }
+    setOpponent(isNoCap(match.cap) ? specialAiRoster({ series: mode.series }) : aiDraft({ players: mode.players, cap: match.cap }));
+    setPhase('matchup');
   };
   /** 영입·교체 뒤: 라운드를 다 썼거나 · 엔트리가 찼거나 · 캡 등으로 더 영입할 수 없으면 끝, 아니면 다음 라운드 */
   const advanceRound = (next, nextCp, banned) => {
@@ -5384,6 +5380,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
   const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32 · 64강이면 이 판의 토너먼트 (저장하지 않음)
+  const [tourEntry, setTourEntry] = useState(null); // 대진표에서 고른 이번 상대 (정비를 거쳐 경기로 들고 간다)
   /* 도장깨기 — 라이브 드래프트로 뽑은 판에서는 토너먼트 대신 일곱 구단을 약한 순서로 하나씩 친다 */
   const [gaunt, setGaunt] = useState(null);
   const tourMode = !!match.format && match.format !== 'single';
@@ -5428,7 +5425,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setLive(s0); setRoster(fillRoster(Live.myRoster(s0))); setGaunt(Gaunt.makeGauntlet(s0)); setPhase('gauntlet');
     }
     if (demo === 'ready') setPhase('ready');
-    if (/^tourney(16|32|64)$/.test(demo)) { setMatch((m) => ({ ...m, aug: 0, format: Number(demo.slice(7)) })); setPhase('ready'); } // 정비 화면에서 시작하면 대진표
+    if (/^tourney(16|32|64)$/.test(demo)) { // 대진표부터 — 상대를 보고 정비로 들어가는 차례 그대로
+      const size = Number(demo.slice(7));
+      setMatch((m) => ({ ...m, aug: 0, format: size }));
+      setPhase('ready');
+    }
     if (demo === 'crisis') { // 승부처 제구 미니게임만 바로 띄워 보기
       const opp = aiDraft().filter((p) => p.type === 'batter').sort((a, b) => b.stats.power - a.stats.power)[0];
       setPhase('sim');
@@ -5629,7 +5630,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
       if (left <= 0) {                                   // 마지막 증강을 고르면 경기로
         if (gaunt && !gaunt.done) gauntletGo(owned);
-        else if (!live && !tourMode && opponent) startGame(true, owned.slice(0, match.aug));
+        else if (!live && opponent) startGame(true, owned.slice(0, match.aug), tourEntry);
         else prepareMatch(false);
       }
       return;
@@ -5706,7 +5707,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
    * 드래프트 토너먼트 참가 팀: 모드 안의 구단 시즌 · 국가대표 · 레전드 시리즈마다 그 멤버 안에서만 같은 캡으로 AI 가 드래프트한 팀.
    * 시리즈가 모자라면 남는 자리는 모드 전체 선수로 드래프트한 팀. 대진은 비슷한 전력끼리 첫 판에서 만나게(흔들림 조금)
    */
-  const makeDraftTournament = () => {
+  const makeDraftTournament = (myRoster = roster) => {
     const size = match.format;
     const others = [];
     // 전력 보정: 구단 멤버만으로 뽑은 팀은 모드에 따라 훨씬 강하거나 약하다(레전드 테마 시리즈 등). 표시 종합 · 선수 능력치는 그대로 두고 경기 보정만
@@ -5729,7 +5730,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       const name = `${owner} 드림팀`;
       others.push({ id: `dr-${others.length}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
     }
-    const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(roster), buff, augments) };
+    const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(myRoster), buff, augments) };
     const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
     const meAt = order.indexOf(mine);
     return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
@@ -5755,7 +5756,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /** 스페셜: 정비에서 누르는 경기 시작 — 증강을 아직 안 골랐으면 먼저 고른다 */
   const startSpecialMatch = () => {
     if (augments.length < match.aug) { openAugmentPicks(); return; }
-    startGame(true, augments.slice(0, match.aug));
+    startGame(true, augments.slice(0, match.aug), tourEntry);
   };
   /** 정비 왼쪽 스카우팅 판에 넣을 상대 — 이름 · 엠블럼 · 선발 · 타순까지 */
   const gauntOpponent = () => {
@@ -5822,6 +5823,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       return;
     }
     if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
+      setTourEntry(null);
       setDtour(advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments)));
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
       setPhase('bracket');
@@ -5957,8 +5959,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
-          <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false}
-            onBack={() => setPhase('ready')} onPlay={() => startGame(true, augments.slice(0, match.aug), tourneyOpponent(dtour))}
+          <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false} playLabel="정비하기 ▶"
+            onBack={() => setPhase('ready')}
+            onPlay={() => { const e = tourneyOpponent(dtour); setTourEntry(e); setOpponent(e?.roster || null); setPhase('ready'); }}
             onRestart={() => setDtour(makeDraftTournament())} />
         </div>
       )}
@@ -6167,15 +6170,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
           )}
 
           {phase === 'ready' && (() => {
-            const special = !live && !tourMode && !!opponent;   // 스페셜: 상대를 이미 알고 정비에 왔다
+            const special = !live && !!opponent;   // 상대를 이미 알고 정비에 왔다 (스페셜 · 토너먼트)
             return (
               <ReadyScreen roster={roster} buff={buff} autoFilled={autoFilled}
                 opponent={inGauntlet ? gauntOpponent() : special ? specialOpponent() : null}
                 startLabel={inGauntlet || special ? '경기 시작 ▶' : '시즌 시작 ▶'}
-                restartLabel={inGauntlet ? '탑으로 ◀' : special ? '상대 다시 보기 ◀' : '다시 드래프트'}
+                restartLabel={inGauntlet ? '탑으로 ◀' : special ? (tourMode ? '대진표로 ◀' : '상대 다시 보기 ◀') : '다시 드래프트'}
                 onMove={handleMove} onOrder={handleOrder} onReplace={setRoster}
                 onStart={inGauntlet ? startGauntletMatch : special ? startSpecialMatch : startSeason}
-                onRestart={inGauntlet ? () => setPhase('gauntlet') : special ? () => setPhase('matchup') : newDraft} />
+                onRestart={inGauntlet ? () => setPhase('gauntlet') : special ? () => setPhase(tourMode ? 'bracket' : 'matchup') : newDraft} />
             );
           })()}
 
