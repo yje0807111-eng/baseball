@@ -277,8 +277,8 @@ export default function AugmentScreen({ account, onBack }) {
           ) : (
             <>
               <p className="mt-lab" style={{ '--a': RED }}>Excluded</p>
-              <h2 className="-mt-2 text-3xl font-black text-white">{T.ko} 제외 {bans.length} / {slots}</h2>
-              <p className="text-sm leading-relaxed text-gray-300">제외한 증강은 경기 선택지에 나오지 않습니다. 목록에서 증강을 누르면 여기에 카드로 올라옵니다.</p>
+              <h2 className="-mt-2 text-3xl font-black text-white">{T.ko} 증강 제외</h2>
+              <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않습니다.</p>
               <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">
                 {bans.map(byId).filter(Boolean).map((a, k) => (
                   <div key={a.id} className="mt-cut flex items-center gap-3 bg-[#f87171]/10 px-3 py-2" style={cut(6)}>
@@ -295,12 +295,9 @@ export default function AugmentScreen({ account, onBack }) {
                 ))}
                 {slots < AUG_SLOT_MAX ? (
                   <button type="button" onClick={addSlot} disabled={aug.removeTickets < 1}
-                    className="mt-cut flex items-center gap-3 px-3 py-2 text-left text-sm text-[#fda4af] disabled:opacity-50"
-                    style={{ ...cut(6), background: 'repeating-linear-gradient(135deg,rgba(248,113,113,.06) 0 6px,transparent 6px 12px)', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.35)' }}>
-                    <span className="grid h-6 w-6 place-items-center bg-[#f87171] font-display text-base font-extrabold text-[#05080f]">+</span>
-                    <span className="flex-1">{slots + 1}번째 칸 열기</span>
-                    <span className="font-display text-xs text-gray-400">제거권 1장 · 보유 {aug.removeTickets}</span>
-                  </button>
+                    title={`제외 칸 열기 · 제거권 1장 (보유 ${aug.removeTickets})`} aria-label="제외 칸 열기"
+                    className="mt-cut grid place-items-center px-3 py-2 text-base font-extrabold leading-5 text-[#fda4af] shadow-[inset_0_0_0_1px_rgba(148,163,184,.2)] hover:text-white disabled:opacity-40"
+                    style={cut(6)}>+</button>
                 ) : (
                   <div className="mt-cut py-2 text-center font-display text-xs tracking-[0.2em] text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.15)]" style={cut(6)}>최대 {AUG_SLOT_MAX}칸</div>
                 )}
