@@ -1236,7 +1236,6 @@ export const KEYFRAMES = `
 @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 @keyframes cellIn { from { background-color: rgba(16,185,129,.35); } to { background-color: transparent; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bgOut { from { opacity: 1; } to { opacity: 0; } }
 @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 /* PICK 카드가 빠질 때: 등장(rise)을 거꾸로 — 조용히 가라앉으며 흐려진다. 영입이면 라인업 쪽(오른쪽)으로 살짝 흘러간다 */
 @keyframes pickDrop { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(20px) scale(.96); } }
@@ -4749,6 +4748,7 @@ function YearFace({ p, w = 70, h = 92 }) {
 }
 /** 전체 믹스 · 최근 시즌 — 왼쪽 판에 대표 구단과 묶음별 시리즈, 오른쪽에 대표 선수.
  *  대표 구단은 그 모드의 우승 구단들 사이에서 8초마다 바뀌고 배경 그림도 함께 바뀐다 */
+const FADE = 420; // 대표 구단이 바뀔 때 흐려지고 떠오르는 시간(ms)
 function BasicHero({ mode, tickets, acc }) {
   const pool = useMemo(() => {
     const clubs = tickets.filter((t) => t.kind === 'team' && !t.locked && teamFlag(t.title));
@@ -4756,12 +4756,19 @@ function BasicHero({ mode, tickets, acc }) {
     const list = champs.length >= 3 ? champs : clubs;
     return shuffle(list.length ? list : tickets.slice(0, 1));
   }, [tickets]);
+  // 배경 · 대표 카드 · 대표 선수는 한 몸으로 움직인다: 먼저 다 같이 흐려지고, 다 바뀐 뒤 같이 떠오른다
   const [turn, setTurn] = useState(0);
+  const [dim, setDim] = useState(false);
   useEffect(() => {
     setTurn(0);
+    setDim(false);
     if (pool.length < 2) return undefined;
-    const id = setInterval(() => setTurn((n) => n + 1), 8000);
-    return () => clearInterval(id);
+    let out;
+    const id = setInterval(() => {
+      setDim(true);
+      out = setTimeout(() => { setTurn((n) => n + 1); setDim(false); }, FADE);
+    }, 8000);
+    return () => { clearInterval(id); clearTimeout(out); };
   }, [pool]);
   const hero = pool[turn % Math.max(1, pool.length)] || tickets[0];
   const flag = teamFlag(hero?.title || '');
@@ -4769,26 +4776,15 @@ function BasicHero({ mode, tickets, acc }) {
   // 대표 선수도 그 구단 시리즈에서 뽑는다 (구단 시리즈가 아니면 모드 전체)
   const heroSeries = mode.series.find((s) => s.id === hero?.key);
   const [one, ...more] = yearStars(heroSeries ? [heroSeries] : mode.series, 5);
-  // 배경은 두 겹을 겹쳐 새 그림이 떠오르는 동안 옛 그림이 잦아든다
-  const [layers, setLayers] = useState([]);
-  useEffect(() => {
-    if (!flag) return;
-    setLayers((prev) => (prev[prev.length - 1]?.bg === flag.key ? prev
-      : [...prev.slice(-1), { bg: flag.key, color: flag.color, id: `${flag.key}-${Date.now()}` }]));
-  }, [flag?.key, flag?.color]);
-  useEffect(() => {
-    if (layers.length < 2) return undefined;
-    const t = setTimeout(() => setLayers((l) => l.slice(-1)), 900);
-    return () => clearTimeout(t);
-  }, [layers]);
+  const veil = { transition: `opacity ${FADE}ms ease`, opacity: dim ? 0 : 1 };
   return (
     <>
-      {layers.map((l, i) => (
-        <span key={l.id} className={`pointer-events-none absolute inset-0 ${i === layers.length - 1 ? 'animate-[fade_.9s_ease-out_both]' : 'animate-[bgOut_.9s_ease-out_both]'}`} style={{ zIndex: 0 }}>
-          <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(ui/teams/bg-${l.bg}.webp)`, opacity: 0.6 }} />
-          <span className="absolute inset-0" style={{ background: `radial-gradient(60% 80% at 20% 75%, ${l.color}2e, transparent 70%)` }} />
+      {flag && (
+        <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, ...veil }}>
+          <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
+          <span className="absolute inset-0" style={{ background: `radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
         </span>
-      ))}
+      )}
       <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: 'linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%)' }} />
       <div className="relative z-10 grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: '520px minmax(0,1fr)' }}>
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
@@ -4798,7 +4794,7 @@ function BasicHero({ mode, tickets, acc }) {
               <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
               <span className="mt-2 block text-[15px] text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
             </div>
-            {hero && <div key={hero.key} className="shrink-0 animate-[fade_.7s_ease-out_both]" style={{ width: 176, height: 112 }}><SeriesTicket t={hero} acc={acc} fit /></div>}
+            {hero && <div className="shrink-0" style={{ width: 176, height: 112, ...veil }}><SeriesTicket t={hero} acc={acc} fit /></div>}
           </div>
           <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
             {groupTickets(rest).map(([ko, list]) => (
@@ -4817,7 +4813,7 @@ function BasicHero({ mode, tickets, acc }) {
         </div>
         <div className="flex min-h-0 flex-col justify-end pb-1">
           <p className="ui-lab font-display" style={{ '--a': acc }}>Stars</p>
-          <div key={hero?.key} className="mt-1.5 flex items-end gap-1.5 animate-[fade_.7s_ease-out_both]">
+          <div className="mt-1.5 flex items-end gap-1.5" style={veil}>
             {one && <YearBig p={one} w={212} h={248} />}
             <div className="grid min-w-0 flex-1 gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(1, more.length)},minmax(0,1fr))` }}>
               {more.map((p) => <YearFace key={personKey(p)} p={p} w="100%" h={168} />)}
