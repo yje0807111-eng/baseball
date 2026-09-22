@@ -31,8 +31,8 @@ export const SHOP_ART = {
   'st-manager': ['staff', "Close-up of a manager's hand signing a contract with a fountain pen, team cap beside the papers"],
   'st-coach': ['staff', 'A coach in a team jacket holding a clipboard and instructing players on a dark field at night'],
   'st-upgrade': ['staff', "Extreme close-up of a metal star pin being fastened onto a coach's team jacket"],
-  'au-remove': ['aug', 'A blank glowing card dissolving into drifting embers and ash in mid-air'],
-  'au-upgrade': ['aug', 'A blank glowing card rising in mid-air wrapped in swirling energy and sparks'],
+  'au-remove': ['aug', 'A single glowing card-sized plate torn cleanly in half in mid-air, the two halves pulling apart along a jagged break line, shards flying outward'],
+  'au-upgrade': ['aug', 'A single glowing card-sized plate levitating flat and low with a tall upward arrow of light rising from it, five chevrons igniting one above another along the arrow'],
 };
 const prompt = (id) => {
   const [cat, scene] = SHOP_ART[id];
