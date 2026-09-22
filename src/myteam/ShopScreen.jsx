@@ -1,6 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
-import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO } from './shop.js';
+import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, applyTeamBoost, teamBoostTargets, clearFatigue, tiredCount } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
@@ -113,6 +113,17 @@ export default function ShopScreen({ account, onChange, onBack }) {
       saveDraftTickets(next);
       setTickets(next);
       push(team, gold - picked.price, `${picked.name} +1 · 보유 ${next[picked.draftTicket]}장`);
+      return;
+    }
+    if (picked.teamBoost) {
+      const n = teamBoostTargets(team.squad || [], picked.teamBoost).length;
+      if (!n) { setToast('엔트리에 닿을 선수가 없습니다'); setTimeout(() => setToast(''), 2400); return; }
+      push(applyTeamBoost(team, picked), gold - picked.price, `${picked.name} — ${n}명에게 다음 경기 적용`);
+      return;
+    }
+    if (picked.medic) {
+      const n = tiredCount(team);
+      push(clearFatigue(team), gold - picked.price, n ? `${picked.name} — 투수 ${n}명 피로를 지웠습니다` : `${picked.name} — 지울 피로가 없었습니다`);
       return;
     }
     if (picked.augShop) {

@@ -2,6 +2,8 @@
  * 상점 — 재화는 골드 하나.
  *  훈련: 선수 능력치 영구 상승 (CP 영입가는 그대로 → 돈으로 가성비를 산다)
  *  부스트: 다음 N경기 동안만 붙는 소모품
+ *   — 선수 하나짜리와 팀 단위(불펜 데이 · 타선 미팅 · 마운드 미팅)가 같은 자리(team.boosts)를 쓴다
+ *   — 재활 트레이너는 부스트가 아니라 투수진 피로(team.pitchFatigue)를 지운다
  *  운영: 샐러리 캡 확장 등 팀 단위
  *  감독 계약: 감독을 CP 없이 선임
  */
@@ -36,6 +38,11 @@ export const SHOP_ITEMS = [
   item('bo-stamina', 'boost', '에너지 드링크', '투수 1명 체력 +15 · 3경기', 120, { target: 'pitcher', stat: 'stamina', amount: 15, games: 3, img: 'mt-boost' }),
   item('bo-focus', 'boost', '집중력 강화', '타자 1명 컨택 +5 · 1경기', 90, { target: 'batter', stat: 'contact', amount: 5, games: 1, img: 'mt-boost' }),
   item('bo-power', 'boost', '파워 스윙', '타자 1명 파워 +6 · 1경기', 110, { target: 'batter', stat: 'power', amount: 6, games: 1, img: 'mt-boost' }),
+  // 경기 운영 (팀 단위 · 사면 바로 다음 경기에 붙는다)
+  item('bo-bullpen', 'boost', '불펜 데이', '불펜 투수 전원 체력 +20 · 1경기', 320, { teamBoost: 'rp', stat: 'stamina', amount: 20, games: 1, img: 'mt-boost' }),
+  item('bo-meeting', 'boost', '타선 미팅', '타자 전원 컨택 +3 · 1경기', 380, { teamBoost: 'batter', stat: 'contact', amount: 3, games: 1, img: 'mt-boost' }),
+  item('bo-mound', 'boost', '마운드 미팅', '투수 전원 제구 +3 · 1경기', 400, { teamBoost: 'pitcher', stat: 'control', amount: 3, games: 1, img: 'mt-boost' }),
+  item('bo-medic', 'boost', '재활 트레이너', '투수진에 쌓인 피로를 모두 지운다', 350, { medic: true, img: 'mt-boost' }),
   // 운영
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
@@ -84,6 +91,8 @@ export function itemEffect(it) {
   if (it.augTicket) return { label: it.augTicket === 'removeTickets' ? '제외 칸' : '증강 강화', amount: it.bulk || 1, max: it.bulk || 1 };
   if (it.draftTicket) return { label: DRAFT_TICKET_KO[it.draftTicket] || '드래프트', amount: 1, max: 1 };
   if (it.augShop) return { label: AUG_TICKET_KO[it.augShop] || '증강', amount: 1, max: 1 };
+  if (it.teamBoost) return { label: TEAM_BOOST_KO[it.teamBoost] || '팀', amount: it.amount, max: 20 };
+  if (it.medic) return { label: '피로 회복', amount: null, max: 1 };
   return { label: it.name, amount: null, max: 1 };
 }
 
@@ -101,6 +110,24 @@ export function teamWeakness(squad = []) {
   const weak = filled.length ? filled.reduce((a, b) => (b.v < a.v ? b : a)) : null;
   return { rows, weak, item: weak ? SHOP_ITEMS.find((x) => x.id === WEAK_ITEM[weak.k]) : null };
 }
+
+/* ───── 경기 운영: 팀 단위 부스트 · 피로 회복 ───── */
+export const TEAM_BOOST_KO = { rp: '불펜 투수', batter: '타자 전원', pitcher: '투수 전원' };
+/** 이 상품이 닿는 선수들 */
+export const teamBoostTargets = (squad = [], key) => squad.filter((p) => (key === 'rp' ? p.position === 'RP' : key === 'pitcher' ? p.type === 'pitcher' : p.type === 'batter'));
+/** 팀 단위 부스트를 건다 — 닿는 선수마다 한 장씩 (기존 부스트와 같은 수명 · 같은 자리) */
+export function applyTeamBoost(team, it) {
+  const now = Date.now();
+  const add = teamBoostTargets(team.squad || [], it.teamBoost).map((p, i) => ({
+    key: `${it.id}-${p.id}-${now}-${i}-${Math.random().toString(36).slice(2, 6)}`, itemId: it.id, playerId: p.id, playerName: p.name,
+    stat: it.stat, amount: it.amount, gamesLeft: it.games,
+  }));
+  return { ...team, boosts: [...(team.boosts || []), ...add] };
+}
+/** 투수진 피로를 지운다 */
+export const clearFatigue = (team) => ({ ...team, pitchFatigue: {} });
+/** 지금 쉬고 있는(피로가 남은) 투수 수 */
+export const tiredCount = (team) => Object.values(team?.pitchFatigue || {}).filter((f) => (f?.rest || 0) > 0).length;
 
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
