@@ -4820,11 +4820,12 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         {play ? play.main : (
           <section key={view + mode.id} className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="flex flex-wrap items-baseline gap-3">
-              <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : 'Series in Mode'}</p>
-              <p className="text-sm text-gray-400">
-                {view === 'special' ? `기존 상식을 깨는 규칙 모드 ${specials.length}개`
-                  : mode.id === 'legend' && mode.series.length === 1 ? `레전드 ${mode.players.length}명 중 대표 선수` : `${mode.name} · 라운드마다 열리는 시리즈 ${mode.series.length}개`}
-              </p>
+              <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
+              {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
+                <p className="text-sm text-gray-400">
+                  {view === 'special' ? `기존 상식을 깨는 규칙 모드 ${specials.length}개` : `레전드 ${mode.players.length}명 중 대표 선수`}
+                </p>
+              )}
             </div>
             {view === 'year' && (
               <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="시즌 연도">
