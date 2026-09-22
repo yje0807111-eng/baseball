@@ -4871,7 +4871,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             ) : (
               <>
                 {/* 대표 넉 장은 크게, 그 밖은 종류별 묶음으로 나눠 작은 카드로 (자리도 덜 먹고 덜 어지럽다) */}
-                <div className="mt-3 grid shrink-0 gap-2.5" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridAutoRows: '9.5rem' }}>
+                <div className="mt-3 grid shrink-0 gap-2.5" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gridAutoRows: '11rem' }}>
                   {tickets.slice(0, 4).map((t) => <SeriesTicket key={t.key} t={t} acc={mode.neon} />)}
                 </div>
                 {tickets.length > 4 && (
