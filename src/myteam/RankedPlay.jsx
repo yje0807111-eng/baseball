@@ -55,7 +55,9 @@ function teamParts(squad) {
   const bats = squad.filter((p) => p.type === 'batter');
   const sp = squad.filter((p) => p.position === 'SP').sort((a, b) => b.overall - a.overall).slice(0, 5);
   const rp = squad.filter((p) => p.position === 'RP').sort((a, b) => b.overall - a.overall).slice(0, 8);
-  return [['타선', avgOf(bats, (p) => p.overall)], ['수비', avgOf(bats, (p) => p.stats.defense)], ['선발', avgOf(sp, (p) => p.overall)], ['불펜', avgOf(rp, (p) => p.overall)]];
+  // 색은 다른 화면(정비 · 단판 판)과 같은 부문 색
+  return [['타선', avgOf(bats, (p) => p.overall), '#34d399'], ['수비', avgOf(bats, (p) => p.stats.defense), '#60a5fa'],
+    ['선발', avgOf(sp, (p) => p.overall), '#7dd3fc'], ['불펜', avgOf(rp, (p) => p.overall), '#f87171']];
 }
 
 /** 최근 랭크전 10경기 — 승패 칸 한 줄 (성적은 제목 옆에) */
@@ -157,7 +159,17 @@ export function rankedPanels({ account, onOpen, onLocker }) {
 
       {/* 내 팀 전력 */}
       <p className="ui-lab font-display" style={{ '--a': RK }}>My Team</p>
-      <Stats items={teamParts(squad)} />
+      <div className="flex flex-col gap-2">
+        {teamParts(squad).map(([k, v, c]) => (
+          <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '34px 1fr 28px' }}>
+            <span>{k}</span>
+            <span className="relative bg-white/[0.07]" style={{ height: 7 }}>
+              <i className="absolute inset-y-0 left-0" style={{ width: `${Math.max(4, Math.min(100, ((v - 40) / 55) * 100))}%`, background: c, boxShadow: `0 0 10px -3px ${c}` }} />
+            </span>
+            <b className="text-right font-display text-[15px]" style={{ color: c }}>{v}</b>
+          </div>
+        ))}
+      </div>
       {!ready && <p className="text-sm text-amber-300">{issues[0]}</p>}
       <div className="mt-auto">
         {ready || s
