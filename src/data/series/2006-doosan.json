@@ -15,7 +15,7 @@
       "team": "두산",
       "position": "SP",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "stuff": 65,
         "control": 85,
@@ -32,7 +32,7 @@
       "team": "두산",
       "position": "SP",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "stuff": 70,
         "control": 75,

@@ -83,7 +83,7 @@
       "team": "KIA",
       "position": "RP",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "stuff": 66,
         "control": 78,

@@ -15,7 +15,7 @@
       "team": "두산",
       "position": "SP",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "stuff": 67,
         "control": 73,
