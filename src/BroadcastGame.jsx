@@ -148,7 +148,7 @@ const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => 
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
     {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
-        fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
+        fill={bases[i] ? '#f97316' : off} />
     ))}
     {note != null && (
       <text x="50" y="94" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
