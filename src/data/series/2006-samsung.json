@@ -1,0 +1,319 @@
+{
+  "id": "2006-samsung",
+  "champion": true,
+  "kind": "team",
+  "year": 2006,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "한국시리즈 우승 · 오승환 47세이브",
+  "blurb": "오승환이 47세이브 방어율 1.59로 뒷문을 잠그고, 양준혁이 .303 81타점을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 82,
+        "stamina": 81,
+        "stability": 86
+      },
+      "note": "",
+      "source": "32G 157 1/3IP ERA2.92 133K 38BB WHIP1.14 8승 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "브라운",
+      "name": "브라운",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 64,
+        "control": 77,
+        "stamina": 80,
+        "stability": 88
+      },
+      "note": "",
+      "source": "27G 154 1/3IP ERA2.68 92K 44BB WHIP1.05 11승 — KBO 기록실"
+    },
+    {
+      "personId": "임동규",
+      "name": "임동규",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 76,
+        "stamina": 76,
+        "stability": 75
+      },
+      "note": "",
+      "source": "34G 138IP ERA3.91 59K 41BB WHIP1.28 8승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "하리칼라",
+      "name": "하리칼라",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 60,
+        "control": 87,
+        "stamina": 75,
+        "stability": 82
+      },
+      "note": "",
+      "source": "23G 135 1/3IP ERA3.33 70K 26BB WHIP1.16 12승 — KBO 기록실"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 92,
+        "stamina": 55,
+        "stability": 99
+      },
+      "note": "47세이브(당시 아시아 신기록)",
+      "source": "63G 79 1/3IP ERA1.59 109K 12BB WHIP0.69 4승 47SV — KBO 기록실"
+    },
+    {
+      "personId": "권오준",
+      "name": "권오준",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 65,
+        "stamina": 58,
+        "stability": 96
+      },
+      "note": "32홀드 홀드왕",
+      "source": "67G 80IP ERA1.69 83K 32BB WHIP1.16 9승 2SV 32HLD — KBO 기록실"
+    },
+    {
+      "personId": "오상민",
+      "name": "오상민",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 81,
+        "stamina": 51,
+        "stability": 67
+      },
+      "note": "",
+      "source": "49G 31 2/3IP ERA4.55 23K 8BB WHIP1.20 1승 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "정홍준",
+      "name": "정홍준",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 51,
+        "stamina": 55,
+        "stability": 86
+      },
+      "note": "",
+      "source": "24G 52 1/3IP ERA2.92 40K 30BB WHIP1.41 2승 — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2006,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 54,
+        "contact": 76,
+        "speed": 40,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".288/.343 6HR 47타점 1SB 408PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 2006,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 59,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".254/.340 7HR 54타점 6SB 396PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 2006,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 43,
+        "speed": 50,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".238/.325 1HR 30타점 3SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "조동찬",
+      "name": "조동찬",
+      "year": 2006,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 60,
+        "contact": 66,
+        "speed": 76,
+        "defense": 78
+      },
+      "note": "10홈런 20도루",
+      "source": ".259/.323 10HR 46타점 20SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 74,
+        "speed": 64,
+        "defense": 94
+      },
+      "note": "유격수 골든글러브",
+      "source": ".283/.380 11HR 65타점 10SB 452PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2006,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 52,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".285/.393 6HR 43타점 15SB 567PA — KBO 기록실"
+    },
+    {
+      "personId": "김창희",
+      "name": "김창희",
+      "year": 2006,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 63,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".221/.297 8HR 38타점 6SB 351PA — KBO 기록실"
+    },
+    {
+      "personId": "김대익",
+      "name": "김대익",
+      "year": 2006,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 48,
+        "speed": 45,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".243/.300 2HR 23타점 1SB 269PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2006,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 64,
+        "speed": 66,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".303/.445 13HR 81타점 12SB 533PA — KBO 기록실"
+    },
+    {
+      "personId": "조영훈",
+      "name": "조영훈",
+      "year": 2006,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 51,
+        "speed": 62,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".283/.342 2HR 26타점 9SB 204PA — KBO 기록실"
+    }
+  ]
+}

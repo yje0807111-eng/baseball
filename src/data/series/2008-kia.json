@@ -1,0 +1,318 @@
+{
+  "id": "2008-kia",
+  "kind": "team",
+  "year": 2008,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "윤석민 14승 · 이용규 .312",
+  "blurb": "윤석민이 방어율 2.33으로 14승을 올렸고, 이용규가 .312에 28도루로 뛰었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 79,
+        "stamina": 80,
+        "stability": 91
+      },
+      "note": "임태훈 대체 승선, 평균자책점 1위",
+      "source": "24G 154 2/3IP ERA2.33 119K 42BB WHIP1.05 14승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이범석",
+      "name": "이범석",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 66,
+        "stamina": 71,
+        "stability": 84
+      },
+      "note": "",
+      "source": "28G 119 2/3IP ERA3.08 89K 47BB WHIP1.17 7승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이대진",
+      "name": "이대진",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 50,
+        "stamina": 60,
+        "stability": 61
+      },
+      "note": "",
+      "source": "20G 85 2/3IP ERA4.83 37K 50BB WHIP1.61 5승 — KBO 기록실"
+    },
+    {
+      "personId": "서재응",
+      "name": "서재응",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 74,
+        "stamina": 58,
+        "stability": 73
+      },
+      "note": "",
+      "source": "16G 79 1/3IP ERA4.08 45K 25BB WHIP1.45 5승 — KBO 기록실"
+    },
+    {
+      "personId": "한기주",
+      "name": "한기주",
+      "year": 2008,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 78,
+        "stamina": 50,
+        "stability": 96
+      },
+      "note": "",
+      "source": "46G 58IP ERA1.71 46K 16BB WHIP1.03 3승 26SV — KBO 기록실"
+    },
+    {
+      "personId": "유동훈",
+      "name": "유동훈",
+      "year": 2008,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 83,
+        "stamina": 60,
+        "stability": 81
+      },
+      "note": "",
+      "source": "55G 78 2/3IP ERA3.43 39K 18BB WHIP1.06 6승 2SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "양현종",
+      "name": "양현종",
+      "year": 2008,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 46,
+        "stamina": 60,
+        "stability": 51
+      },
+      "note": "",
+      "source": "48G 75 2/3IP ERA5.83 56K 48BB WHIP1.65 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "손영민",
+      "name": "손영민",
+      "year": 2008,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 71,
+        "stamina": 58,
+        "stability": 78
+      },
+      "note": "",
+      "source": "50G 64IP ERA3.66 56K 22BB WHIP1.36 5승 1SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "차일목",
+      "name": "차일목",
+      "year": 2008,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 47,
+        "speed": 55,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".246/.323 2HR 31타점 5SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 2008,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 61,
+        "speed": 70,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".304/.412 7HR 46타점 15SB 352PA — KBO 기록실"
+    },
+    {
+      "personId": "김종국",
+      "name": "김종국",
+      "year": 2008,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 43,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".233/.313 1HR 26타점 13SB 346PA — KBO 기록실"
+    },
+    {
+      "personId": "이현곤",
+      "name": "이현곤",
+      "year": 2008,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 45,
+        "speed": 55,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".257/.312 2HR 40타점 5SB 435PA — KBO 기록실"
+    },
+    {
+      "personId": "김선빈",
+      "name": "김선빈",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 40,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".255/.330 0HR 24타점 5SB 322PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2008,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 40,
+        "contact": 83,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".312/.385 0HR 38타점 28SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "김원섭",
+      "name": "김원섭",
+      "year": 2008,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 40,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".305/.398 0HR 30타점 21SB 404PA — KBO 기록실"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 2008,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 43,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".284/.348 1HR 38타점 9SB 362PA — KBO 기록실"
+    },
+    {
+      "personId": "이재주",
+      "name": "이재주",
+      "year": 2008,
+      "team": "KIA",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 73,
+        "speed": 47,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".276/.382 12HR 58타점 2SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "나지완",
+      "name": "나지완",
+      "year": 2008,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 65,
+        "speed": 45,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".295/.391 6HR 30타점 1SB 239PA — KBO 기록실"
+    }
+  ]
+}

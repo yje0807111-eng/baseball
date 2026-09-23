@@ -1,0 +1,318 @@
+{
+  "id": "2014-sk",
+  "kind": "team",
+  "year": 2014,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "정규시즌 5위 · 김광현 13승",
+  "blurb": "김광현이 13승을 올리고 박정권이 109타점을 쓸어 담았다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2014,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 58,
+        "stamina": 86,
+        "stability": 84
+      },
+      "note": "결승전 선발",
+      "source": "28G 173 2/3IP ERA3.42 145K 81BB WHIP1.49 13승 — KBO 기록실"
+    },
+    {
+      "personId": "채병용",
+      "name": "채병용",
+      "year": 2014,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 67,
+        "stamina": 74,
+        "stability": 49
+      },
+      "note": "",
+      "source": "27G 130IP ERA6.37 87K 49BB WHIP1.54 8승 — KBO 기록실"
+    },
+    {
+      "personId": "울프",
+      "name": "울프",
+      "year": 2014,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 58,
+        "control": 74,
+        "stamina": 60,
+        "stability": 67
+      },
+      "note": "",
+      "source": "23G 85 1/3IP ERA4.85 41K 27BB WHIP1.35 2승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "레이예스",
+      "name": "레이예스",
+      "year": 2014,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 56,
+        "control": 57,
+        "stamina": 57,
+        "stability": 48
+      },
+      "note": "",
+      "source": "13G 78 1/3IP ERA6.55 41K 38BB WHIP1.80 2승 — KBO 기록실"
+    },
+    {
+      "personId": "윤길현",
+      "name": "윤길현",
+      "year": 2014,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 57,
+        "stamina": 57,
+        "stability": 78
+      },
+      "note": "",
+      "source": "59G 57 2/3IP ERA3.90 63K 28BB WHIP1.34 3승 7SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "전유수",
+      "name": "전유수",
+      "year": 2014,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 61,
+        "stamina": 60,
+        "stability": 62
+      },
+      "note": "",
+      "source": "67G 84 2/3IP ERA5.00 72K 37BB WHIP1.61 7승 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "진해수",
+      "name": "진해수",
+      "year": 2014,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 52,
+        "stamina": 55,
+        "stability": 45
+      },
+      "note": "",
+      "source": "75G 49IP ERA7.16 37K 27BB WHIP1.92 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "박정배",
+      "name": "박정배",
+      "year": 2014,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 54,
+        "stamina": 54,
+        "stability": 57
+      },
+      "note": "",
+      "source": "43G 43 1/3IP ERA5.82 34K 23BB WHIP1.50 6승 1SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재원",
+      "name": "이재원",
+      "year": 2014,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 62,
+        "speed": 48,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".337/.413 12HR 83타점 3SB 484PA — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2014,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 68,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".238/.305 9HR 39타점 0SB 269PA — KBO 기록실"
+    },
+    {
+      "personId": "박정권",
+      "name": "박정권",
+      "year": 2014,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 82,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".310/.367 27HR 109타점 7SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "나주환",
+      "name": "나주환",
+      "year": 2014,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 54,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".273/.332 7HR 51타점 10SB 478PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2014,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 72,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".305/.397 14HR 76타점 7SB 361PA — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 2014,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 50,
+        "speed": 55,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".284/.376 5HR 43타점 6SB 476PA — KBO 기록실"
+    },
+    {
+      "personId": "조동화",
+      "name": "조동화",
+      "year": 2014,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 42,
+        "speed": 86,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".262/.330 2HR 52타점 37SB 522PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2014,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 68,
+        "speed": 83,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".302/.368 16HR 82타점 32SB 483PA — KBO 기록실"
+    },
+    {
+      "personId": "임훈",
+      "name": "임훈",
+      "year": 2014,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 45,
+        "speed": 60,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".314/.407 2HR 27타점 9SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "이명기",
+      "name": "이명기",
+      "year": 2014,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 52,
+        "speed": 58,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".368/.414 4HR 28타점 8SB 314PA — KBO 기록실"
+    }
+  ]
+}

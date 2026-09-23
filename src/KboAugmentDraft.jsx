@@ -4894,20 +4894,7 @@ function BasicHero({ mode, tickets, acc }) {
             </div>
             {hero && <div className="shrink-0" style={{ width: 176, height: 112, ...veil }}><SeriesTicket t={hero} acc={acc} fit /></div>}
           </div>
-          <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
-            {groupTickets(rest).map(([ko, list]) => (
-              <React.Fragment key={ko}>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: acc }}>SERIES</span>
-                  <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
-                  <span className="h-px flex-1 bg-white/10" />
-                </div>
-                <div className="mt-1.5 grid gap-1.5" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gridAutoRows: '66px' }}>
-                  {list.map((t) => <SeriesTicket key={t.key} t={t} acc={acc} sm />)}
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+          <SeriesFolds groups={groupTickets(rest)} acc={acc} />
         </div>
         <div className="flex min-h-0 flex-col justify-end pb-1">
           <p className="ui-lab font-display" style={{ '--a': acc }}>Stars</p>
@@ -4922,6 +4909,42 @@ function BasicHero({ mode, tickets, acc }) {
     </>
   );
 }
+
+/** 이 모드에 열리는 시리즈 — 묶음 머리만 보이고, 누른 묶음 하나만 칩으로 펼친다 */
+function SeriesFolds({ groups, acc }) {
+  const [open, setOpen] = useState(groups[0]?.[0] || '');
+  return (
+    <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
+      {groups.map(([ko, list]) => {
+        const on = open === ko;
+        return (
+          <React.Fragment key={ko}>
+            <button type="button" onClick={() => setOpen(on ? '' : ko)}
+              className="mt-3 flex w-full items-center gap-2 text-left transition hover:brightness-125">
+              <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: acc }}>SERIES</span>
+              <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
+              <span className="h-px flex-1 bg-white/10" />
+              <span className="font-display text-[11px] text-gray-500">{on ? '접기 ▲' : '펼치기 ▼'}</span>
+            </button>
+            {on && (
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {list.map((t) => (
+                  <span key={t.key} className="ui-cut inline-flex items-center gap-1.5 bg-white/[0.055] px-2.5 py-1 text-[12.5px] text-gray-200"
+                    style={{ '--c': '5px' }} title={t.sub || t.title}>
+                    {Number.isFinite(t.year) && <b className="font-display text-[12px]" style={{ color: acc }}>{t.year}</b>}
+                    {seriesChipName(t.title)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+/** 칩에 들어갈 짧은 이름 — 구단 별명은 떼고 앞말만 */
+const seriesChipName = (title = '') => title.replace(/ (타이거즈|라이온즈|트윈스|베어스|이글스|자이언츠|다이노스|위즈|랜더스|히어로즈|유니콘스|와이번스)$/, '');
 
 /** 그 해 최고 한 명 — 얼굴을 크게, 아래에 포지션 · 소속 · 그 해 기록 */
 function YearBig({ p, w, h }) {

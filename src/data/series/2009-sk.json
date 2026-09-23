@@ -1,0 +1,318 @@
+{
+  "id": "2009-sk",
+  "kind": "team",
+  "year": 2009,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "김광현 12승 · 정근우 .350",
+  "blurb": "정근우가 .350에 53도루로 뛰었고, 김광현이 2점대 방어율로 마운드를 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "송은범",
+      "name": "송은범",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 73,
+        "stamina": 79,
+        "stability": 84
+      },
+      "note": "",
+      "source": "31G 149 1/3IP ERA3.13 103K 49BB WHIP1.37 12승 — KBO 기록실"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 68,
+        "stamina": 76,
+        "stability": 87
+      },
+      "note": "평균자책점 1위",
+      "source": "21G 138 1/3IP ERA2.80 112K 53BB WHIP1.26 12승 — KBO 기록실"
+    },
+    {
+      "personId": "카도쿠라",
+      "name": "카도쿠라",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 63,
+        "stamina": 73,
+        "stability": 59
+      },
+      "note": "",
+      "source": "28G 126IP ERA5.00 98K 53BB WHIP1.54 8승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "글로버",
+      "name": "글로버",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 80,
+        "control": 81,
+        "stamina": 68,
+        "stability": 94
+      },
+      "note": "",
+      "source": "20G 105 2/3IP ERA1.96 90K 26BB WHIP1.07 9승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "전병두",
+      "name": "전병두",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 69,
+        "stamina": 60,
+        "stability": 84
+      },
+      "note": "",
+      "source": "49G 133 1/3IP ERA3.11 136K 48BB WHIP1.22 8승 8SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 54,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "68G 106IP ERA4.42 96K 56BB WHIP1.52 7승 6SV 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "고효준",
+      "name": "고효준",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 46,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "39G 126 2/3IP ERA4.33 152K 81BB WHIP1.41 11승 2SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 73,
+        "stamina": 50,
+        "stability": 99
+      },
+      "note": "",
+      "source": "56G 52 2/3IP ERA1.20 43K 17BB WHIP1.08 2승 10SV 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2009,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 73,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".288/.365 12HR 49타점 0SB 312PA — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2009,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 69,
+        "speed": 46,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".268/.374 12HR 38타점 3SB 246PA — KBO 기록실"
+    },
+    {
+      "personId": "박정권",
+      "name": "박정권",
+      "year": 2009,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 78,
+        "speed": 55,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".276/.354 25HR 76타점 5SB 511PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2009,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 94,
+        "speed": 95,
+        "defense": 84
+      },
+      "note": "2루수 골든글러브",
+      "source": ".350/.437 9HR 59타점 53SB 565PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2009,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 79,
+        "speed": 65,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".265/.376 19HR 58타점 11SB 410PA — KBO 기록실"
+    },
+    {
+      "personId": "나주환",
+      "name": "나주환",
+      "year": 2009,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 70,
+        "speed": 77,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".288/.364 15HR 65타점 21SB 454PA — KBO 기록실"
+    },
+    {
+      "personId": "박재상",
+      "name": "박재상",
+      "year": 2009,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 66,
+        "speed": 86,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295/.380 15HR 81타점 33SB 614PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2009,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 69,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".267/.323 12HR 42타점 10SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2009,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 69,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".270/.371 12HR 46타점 15SB 376PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2009,
+      "team": "SK",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 66,
+        "speed": 60,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".301/.433 10HR 51타점 8SB 359PA — KBO 기록실"
+    }
+  ]
+}
