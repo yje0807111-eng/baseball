@@ -470,6 +470,35 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
+          {/* 회차별 전광판 — 머리글 한가운데, 지금 치르는 회만 밝게 */}
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+            <table className="mt-cut border-collapse text-center font-display" style={{ '--c': '8px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+              <thead>
+                <tr className="text-[9.5px] font-semibold text-gray-600">
+                  <th className="w-[62px] py-px" />
+                  {innList(g).map((n) => <th key={n} className="w-[26px] py-px font-normal">{n}</th>)}
+                  <th className="w-[26px] py-px text-yellow-300/70">R</th>
+                  <th className="w-[26px] py-px">H</th>
+                  <th className="w-[26px] py-px pr-1">E</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[[away, g.away, false], [home, g.home, true]].map(([t, side, mine]) => (
+                  <tr key={t.name} className="border-t border-white/[0.07]">
+                    <td className="truncate py-px pl-2 text-left text-[11px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
+                    {innList(g).map((n) => {
+                      const v = innAt(g, side, n - 1);
+                      const live = !g.final && n === g.inning && (mine ? !g.top : g.top);
+                      return <td key={n} className={`py-px text-[12px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
+                    })}
+                    <td className="py-px text-[12px] font-extrabold text-yellow-300">{side.runs}</td>
+                    <td className="py-px text-[12px] text-gray-400">{side.hits}</td>
+                    <td className="py-px pr-1 text-[12px] text-gray-400">{side.errors}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </span>
           {holding && (
             <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
               ▶▶ 빨리감기
@@ -526,31 +555,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   </span>
                 </span>
               </div>
-            </div>
-            {/* 회차별 전광판 — 작게, 지금 이닝만 밝게 */}
-            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
-              <table className="w-full border-collapse text-center font-display">
-                <thead>
-                  <tr className="text-[8.5px] font-semibold text-gray-600">
-                    <th className="w-[34px] py-0.5" />
-                    {innList(g).map((n) => <th key={n} className="py-0.5 font-normal">{n}</th>)}
-                    <th className="w-[17px] py-0.5 text-yellow-300/70">R</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[[away, g.away, false], [home, g.home, true]].map(([t, side, mine]) => (
-                    <tr key={t.name} className="border-t border-white/[0.07]">
-                      <td className="w-[34px] truncate py-0.5 pl-1.5 text-left text-[10px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
-                      {innList(g).map((n) => {
-                        const v = innAt(g, side, n - 1);
-                        const live = !g.final && n === g.inning && (mine ? !g.top : g.top);
-                        return <td key={n} className={`py-0.5 text-[11px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
-                      })}
-                      <td className="py-0.5 text-[11px] font-extrabold text-yellow-300">{side.runs}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
