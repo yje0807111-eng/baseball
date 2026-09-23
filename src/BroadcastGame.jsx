@@ -143,13 +143,16 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
-/** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만 */
-const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)' }) => (
-  <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
-    {[[74, 52], [50, 28], [26, 52]].map(([x, y], i) => (
+/** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
+const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => (
+  <svg viewBox="0 0 100 92" style={{ width: size, height: size * 0.92 }}>
+    {[[74, 30], [50, 6], [26, 30]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
         fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
+    {note != null && (
+      <text x="50" y="72" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="26" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
+    )}
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
@@ -502,7 +505,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
                   const c = flag?.color || color;
                   return (
-                    <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-black/20' : ''}`} style={{ height: 44 }}>
+                    <div key={t.name} className="relative flex items-stretch" style={{ height: 37 }}>
                       <span className="relative flex flex-1 items-center gap-2.5 overflow-hidden px-3" style={{ background: c }}>
                         {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
                         <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.55)' }}>{shortTeam(t.name, mine)}</b>
@@ -514,14 +517,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center gap-1.5 px-3.5 py-2">
-                <small className="font-display text-[10.5px] tracking-[0.22em] text-[#0b1220]/50">COUNT</small>
-                <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} off="rgba(0,0,0,.16)" />
+              <span className="grid place-items-center gap-1 px-3 py-1.5">
+                <small className="font-display text-[9.5px] tracking-[0.22em] text-[#0b1220]/50">COUNT</small>
+                <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={11} off="rgba(0,0,0,.16)" />
               </span>
-              {/* 주루 — 그 아래 작게 투구 수 */}
-              <span className="flex flex-col items-center justify-center border-l border-black/20 px-2.5 pb-0.5 pt-2.5">
-                <Diamond bases={g.bases} size={88} />
-                <b className="-mt-3 font-display text-[12px] font-extrabold text-[#0b1220]/70">{def.pitches}<small className="ml-1 font-normal tracking-[0.1em] text-[#0b1220]/45">P</small></b>
+              {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
+              <span className="grid place-items-center border-l border-black/20 px-2.5">
+                <Diamond bases={g.bases} size={76} note={def.pitches} />
               </span>
             </div>
           </div>
