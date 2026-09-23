@@ -19,10 +19,6 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const SB_W = 246;
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
-/** 전광판에 보일 회 — 9회까지, 연장에 들어가면 그만큼 늘린다 */
-const innList = (g) => Array.from({ length: Math.max(9, Math.min(12, g.inning)) }, (_, i) => i + 1);
-/** 그 회 점수 — 아직 치르지 않은 회는 null */
-const innAt = (g, side, i) => side.line[i] ?? ((i + 1 < g.inning || (i + 1 === g.inning && (side === g.home ? !g.top : true))) ? 0 : null);
 /** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
 function shortTeam(name = '', mine = false) {
   if (mine) return name.replace(/^나의\s*/, '').slice(0, 4);
@@ -459,7 +455,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       </div>
       <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
 
-      <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '78px auto 1fr auto auto' }}>
+      <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
         {/* 헤더 */}
         <header className="relative col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
           <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
@@ -470,35 +466,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
-          {/* 회차별 전광판 — 머리글 한가운데, 지금 치르는 회만 밝게 */}
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2">
-            <table className="mt-cut border-collapse text-center font-display" style={{ '--c': '8px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
-              <thead>
-                <tr className="text-[11px] font-semibold text-gray-600">
-                  <th className="w-[84px] py-0.5" />
-                  {innList(g).map((n) => <th key={n} className="w-[34px] py-0.5 font-normal">{n}</th>)}
-                  <th className="w-[34px] py-0.5 text-yellow-300/70">R</th>
-                  <th className="w-[34px] py-0.5">H</th>
-                  <th className="w-[34px] py-0.5 pr-1">E</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[[away, g.away, false], [home, g.home, true]].map(([t, side, mine]) => (
-                  <tr key={t.name} className="border-t border-white/[0.07]">
-                    <td className="truncate py-0.5 pl-2 text-left text-[14px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
-                    {innList(g).map((n) => {
-                      const v = innAt(g, side, n - 1);
-                      const live = !g.final && n === g.inning && (mine ? !g.top : g.top);
-                      return <td key={n} className={`py-0.5 text-[15px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
-                    })}
-                    <td className="py-0.5 text-[15px] font-extrabold text-yellow-300">{side.runs}</td>
-                    <td className="py-0.5 text-[15px] text-gray-400">{side.hits}</td>
-                    <td className="py-0.5 pr-1 text-[15px] text-gray-400">{side.errors}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </span>
           {holding && (
             <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
               ▶▶ 빨리감기
