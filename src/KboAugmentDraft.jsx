@@ -1707,7 +1707,7 @@ export const KEYFRAMES = `
 .mc.t90 .mc-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
 .mc-ov { position: absolute; left: 7cqw; top: 7.5cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
 .mc.t75 .mc-ov { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
-.mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 5px #000); animation: prism 3s linear infinite; }
+.mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 .mc-pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 34cqw; display: flex; align-items: center; gap: 2.5cqw; line-height: 1; white-space: nowrap; overflow: hidden; }
 .mc-pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
 .mc-pos span { min-width: 0; overflow: hidden; font-size: 9.5cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; } /* 가는 획 + 넓은 자간 — 작은 크기에서도 뭉치지 않게 */
@@ -1794,7 +1794,7 @@ export const KEYFRAMES = `
 .pk.t90 .pk-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
 .pk-ov { position: absolute; left: 6cqw; top: 6cqw; font-size: 24cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
 .pk.t75 .pk-ov { color: #34d399; }
-.pk.t90 .pk-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+.pk.t90 .pk-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 .pk-ov em { margin-left: 1cqw; font-style: normal; font-size: .32em; vertical-align: top; -webkit-text-fill-color: currentColor; }
 .pk-ov em.dn, .pk-st dd em.dn { color: #fbbf24; }
 .pk-ov em.up { color: #34d399; }
@@ -2703,7 +2703,8 @@ const FIELD_SPAN = 214 * TOK_SCALE + Math.max(...Object.values(SLOT_XY).map(([x]
 const SLOT_MIN_X = Math.min(...Object.values(SLOT_XY).map(([x]) => x));
 const SLOT_MAX_X = Math.max(...Object.values(SLOT_XY).map(([x]) => x));
 /** 종합 수치 색 등급: 75 미만 흰색 · 75~89 초록 · 90 이상 무지개 (선반 · PICK 카드와 같은 기준) */
-const tierOf = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
+/* 등급 — 눈금 50~110 에서 위쪽 1%(프리즘) · 26%(상위) 자리 */
+const tierOf = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
 
 const Silhouette = () => (
   <svg className="lf-sil" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -5478,7 +5479,8 @@ const RD_ORDER_W = [1.1, 1.08, 1.07, 1.06, 1, 0.97, 0.94, 0.92, 0.9];
 const RD_SYN_TONES = ['#34d399', '#fbbf24', '#60a5fa', '#e879f9', '#f472b6', '#a78bfa', '#2dd4bf', '#ff8a3d'];
 const rdBat = (p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2;
 /* 수치 구간 색: 낮을수록 빨강, 높을수록 초록, 90 이상은 카드 최상위 등급과 같은 프리즘 */
-const rdTone = (v) => (v >= 90 ? 'prism' : v >= 80 ? '#34d399' : v >= 70 ? '#a3e635' : v >= 60 ? '#facc15' : v >= 50 ? '#f97316' : '#ef4444');
+/* 능력치 색 — 예전 눈금의 90·80·70·60·50 과 같은 자리 */
+const rdTone = (v) => (v >= 100 ? 'prism' : v >= 90 ? '#34d399' : v >= 80 ? '#a3e635' : v >= 70 ? '#facc15' : v >= 59 ? '#f97316' : '#ef4444');
 const rdToneStyle = (v) => (rdTone(v) === 'prism' ? undefined : { color: rdTone(v) });
 const rdToneCls = (v) => (rdTone(v) === 'prism' ? 'prism-tx' : '');
 

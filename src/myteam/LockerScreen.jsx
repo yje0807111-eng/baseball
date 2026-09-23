@@ -91,10 +91,10 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-/** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
-const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
-/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 금색(움직임 없음) */
-const statBand = (v) => (v >= 90 ? 'b90' : v >= 80 ? 'b80' : v >= 70 ? 'b70' : v >= 60 ? 'b60' : 'b0');
+/** 드래프트 카드 종합 숫자와 같은 등급 색: 100 이상 무지개 · 85 이상 초록 · 그 밖은 흰색 */
+const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
+/** 능력치 구간 색(신호등): 70 미만 빨강 · 80 미만 주황 · 90 미만 노랑 · 100 미만 초록 · 100 이상 금색(움직임 없음) */
+const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
 function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
@@ -565,7 +565,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         .st-bar.b90 { background: linear-gradient(90deg, #b45309, #fbbf24); }
         .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
         .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
-        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 `}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />

@@ -121,7 +121,7 @@ const face = (p, w, h) => (
 );
 const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-[12px] font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
 /** 종합: 영입 목록과 같은 등급 색 — 90 이상 무지개 · 75 이상 초록 · 그 밖 흰색 (st-v 는 라커 화면 스타일) */
-const Ovr = ({ p, size = 17, v = p.overall }) => <b className={`st-v ${v >= 90 ? 't90' : v >= 75 ? 't75' : ''} font-display font-extrabold leading-none`} style={{ fontSize: size }}>{v}</b>;
+const Ovr = ({ p, size = 17, v = p.overall }) => <b className={`st-v ${v >= 100 ? 't90' : v >= 85 ? 't75' : ''} font-display font-extrabold leading-none`} style={{ fontSize: size }}>{v}</b>;
 /** 이름 칸 두 줄: 위 이름 · 포지션(구단색) · 투타 / 아래 시즌 기록 가로 */
 const recCells = (p) => {
   const r = seasonRecord(p);

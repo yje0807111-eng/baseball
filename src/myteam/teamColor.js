@@ -12,14 +12,14 @@ export const teamNeon = (p) => TEAM_NEON[p?.team] || '#10b981';
 
 /** 포지션 색 (내 라커): 선발 파랑 · 불펜 빨강 · 포수 금 · 내야 초록 · 외야 보라 · 지명 분홍 */
 export const POS_COLOR = { SP: '#60a5fa', RP: '#f87171', C: '#fbbf24', '1B': '#34d399', '2B': '#34d399', '3B': '#34d399', SS: '#34d399', OF: '#a78bfa', DH: '#f472b6' };
-/** 능력치 구간 색 — 라커 영입 목록과 같은 신호등 (90+ 금 · 80+ 초록 · 70+ 노랑 · 60+ 주황 · 그 아래 빨강) */
-export const statBandColor = (v) => (v >= 90 ? '#fbbf24' : v >= 80 ? '#34d399' : v >= 70 ? '#fde047' : v >= 60 ? '#fb923c' : '#f87171');
+/** 능력치 구간 색 — 라커 영입 목록과 같은 신호등 (100+ 금 · 90+ 초록 · 80+ 노랑 · 70+ 주황 · 그 아래 빨강) */
+export const statBandColor = (v) => (v >= 100 ? '#fbbf24' : v >= 90 ? '#34d399' : v >= 80 ? '#fde047' : v >= 70 ? '#fb923c' : '#f87171');
 
 /** 능력치 막대 · 숫자 꾸밈 — 라커 영입 목록(.st-bar/.st-n)과 완전히 같은 값 */
-export const statBarStyle = (v) => (v >= 90 ? { background: 'linear-gradient(90deg, #b45309, #fbbf24)' }
-  : v >= 80 ? { background: '#34d399', boxShadow: '0 0 5px rgba(52,211,153,.45)' }
+export const statBarStyle = (v) => (v >= 100 ? { background: 'linear-gradient(90deg, #b45309, #fbbf24)' }
+  : v >= 90 ? { background: '#34d399', boxShadow: '0 0 5px rgba(52,211,153,.45)' }
   : { background: statBandColor(v) });
-export const statNumStyle = (v) => (v >= 90 ? { color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,.45)' } : { color: statBandColor(v) });
+export const statNumStyle = (v) => (v >= 100 ? { color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,.45)' } : { color: statBandColor(v) });
 
 export const posColor = (p) => POS_COLOR[p?.position] || '#10b981';
 

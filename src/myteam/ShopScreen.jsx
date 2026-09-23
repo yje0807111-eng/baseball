@@ -8,11 +8,11 @@ import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
-/* 종합 등급 색 — 드래프트 카드와 같은 규칙 (90 이상 무지개 · 75 이상 초록) */
+/* 종합 등급 색 — 드래프트 카드와 같은 규칙 (100 이상 무지개 · 85 이상 초록) */
 const PRISM = 'linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc)';
-const ovrStyle = (v) => (v >= 90
+const ovrStyle = (v) => (v >= 100
   ? { background: `${PRISM} 0 50% / 200% 100%`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', animation: 'prism 3s linear infinite' }
-  : { color: v >= 75 ? '#34d399' : '#f3f4f6' });
+  : { color: v >= 85 ? '#34d399' : '#f3f4f6' });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9', draft: '#fbbf24' };
 const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강', draft: '드래프트' };
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
