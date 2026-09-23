@@ -146,12 +146,12 @@ function commentary(ev) {
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
 const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
-    {[[74, 42], [50, 18], [26, 42]].map(([x, y], i) => (
+    {[[74, 50], [50, 26], [26, 50]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
         fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
     {note != null && (
-      <text x="50" y="92" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="21" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
+      <text x="50" y="97" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
     )}
   </svg>
 );
@@ -159,11 +159,11 @@ const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => 
 const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)', lab = '' }) => (
   <div className="grid items-center font-display text-[11px] font-extrabold"
     style={{ gridTemplateColumns: `${label ? 11 : 0}px repeat(3, ${dot}px)`, gap: 4, rowGap: 3 }}>
-    {label ? <span className={lab || 'text-emerald-400'}>B</span> : <span />}
+    {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-emerald-400'}`} style={{ height: dot }}>B</span> : <span />}
     {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#16a34a' : off }} />)}
-    {label ? <span className={lab || 'text-yellow-300'}>S</span> : <span />}
+    {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-yellow-300'}`} style={{ height: dot }}>S</span> : <span />}
     {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#eab308' : off }} />)}<span />
-    {label ? <span className={lab || 'text-red-400'}>O</span> : <span />}
+    {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-red-400'}`} style={{ height: dot }}>O</span> : <span />}
     {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#dc2626' : off }} />)}<span />
   </div>
 );
