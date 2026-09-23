@@ -556,13 +556,21 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const wait = !at && on < 0;
                   const ko = todayKo(g, p);
                   return (
-                    <div key={p.id || p.name} className={`flex items-center gap-2 px-1.5 ${i ? 'border-t border-white/[0.09]' : ''}`}
-                      style={{ height: at ? 40 : 27, opacity: wait ? 0.55 : 1 }}>
-                      <b className="w-3.5 shrink-0 font-display text-[12px] text-white/40">{i + 1}</b>
-                      <b className="truncate text-white" style={{ fontSize: at ? 16 : 13, fontWeight: at ? 900 : 700, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.name}</b>
-                      {on >= 0 && <span className="inline-block shrink-0" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} />}
-                      <span className="ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koDark(ko) }}>{ko}</span>
-                      <b className="w-7 shrink-0 text-right font-display text-white" style={{ fontSize: at ? 17 : 13, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.overall}</b>
+                    <div key={p.id || p.name} className={`relative flex items-center gap-2 px-1.5 ${i ? 'border-t border-white/[0.09]' : ''}`}
+                      style={{ height: at ? 40 : 27, opacity: wait ? 0.55 : 1, background: at ? 'rgba(255,255,255,.1)' : undefined }}>
+                      {/* 지금 타석 — 왼쪽 굵은 막대와 채운 번호 배지로 못 박는다 */}
+                      {at && <i className="absolute inset-y-0 left-0 w-[4px]" style={{ background: offFlag?.color || battingColor }} />}
+                      {at ? (
+                        <span className="relative grid shrink-0 place-items-center font-display text-[12px] font-extrabold text-white"
+                          style={{ width: 18, height: 18, borderRadius: 4, background: offFlag?.color || battingColor }}>{i + 1}</span>
+                      ) : (
+                        <b className="relative w-3.5 shrink-0 font-display text-[12px] text-white/40">{i + 1}</b>
+                      )}
+                      <b className="relative truncate text-white" style={{ fontSize: at ? 16 : 13, fontWeight: at ? 900 : 700, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.name}</b>
+                      {at && <span className="relative font-display text-[10px] font-extrabold tracking-[0.16em]" style={{ color: offFlag?.color || battingColor }}>타석</span>}
+                      {on >= 0 && <span className="relative inline-block shrink-0" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} />}
+                      <span className="relative ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koDark(ko) }}>{ko}</span>
+                      <b className="relative w-7 shrink-0 text-right font-display text-white" style={{ fontSize: at ? 17 : 13, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.overall}</b>
                     </div>
                   );
                 })}
