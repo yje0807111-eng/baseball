@@ -13,6 +13,8 @@ import {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
+/** 스코어보드에 쓰는 이름 — 앞의 연도는 떼고 구단 이름만 */
+const clubName = (s = '') => s.replace(/^\d{4}\s*/, '');
 
 /** 지금 던지는 투수의 오늘 기록 */
 function pitcherLine(g, pitcher) {
@@ -131,7 +133,7 @@ function commentary(ev) {
 
 /* ───────── 작은 부품 ───────── */
 const Diamond = ({ bases }) => (
-  <svg viewBox="0 0 100 100" className="h-[92px] w-[92px]">
+  <svg viewBox="0 0 100 100" className="h-[118px] w-[118px]">
     <path d="M50 88 L86 52 L50 16 L14 52 Z" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" />
     {[[86, 52], [50, 16], [14, 52]].map(([x, y], i) => (
       <rect key={i} x={x - 8} y={y - 8} width="16" height="16" transform={`rotate(45 ${x} ${y})`}
@@ -417,14 +419,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const battingColor = g.top ? cOpp : cMy;
   const pitchingColor = g.top ? cMy : cOpp;
   const mix = pitchMix(pitcher);
-  const line = pitcherLine(g, pitcher);
   const steal0 = stealOdds(g, 0);
   const atBat = atBatPitches(g.events); // 이 타석에 지나간 공 (존 뷰 자취)
 
   const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
   const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
 
-  const innCells = (side) => Array.from({ length: 12 }, (_, i) => (side.line[i] ?? (i + 1 < g.inning || (i + 1 === g.inning && (side === g.home ? !g.top : true)) ? 0 : null)));
 
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200"
@@ -454,18 +454,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
-          {/* 점수 — 화면 한복판을 비우고 머리글 가운데로 올렸다 */}
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2">
-            <span className="mt-cut mt-frame mt-glass flex items-center gap-4 px-6 py-1.5" style={{ '--c': '12px', '--a': '#fde047' }}>
-              <span className="grid h-[30px] w-[26px] shrink-0 place-items-center font-display text-[11px] font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
-              <b className="text-[16px] font-extrabold text-white">{away.name}</b>
-              <span className="font-display text-[30px] font-extrabold leading-none text-white">{g.away.runs}<span className="mx-2 text-gray-600">-</span>{g.home.runs}</span>
-              <b className="text-[16px] font-extrabold text-white">{home.name}</b>
-              <span className="grid h-[30px] w-[26px] shrink-0 place-items-center font-display text-[11px] font-extrabold text-[#05080f]" style={{ background: cMy, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>MY</span>
-              <span className="h-4 w-px bg-white/15" />
-              <span className="font-display text-[13px] font-extrabold tracking-[0.2em] text-yellow-300">{g.final ? '경기 종료' : `${g.inning}회${g.top ? '초' : '말'}`}</span>
-            </span>
-          </span>
           {holding && (
             <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
               ▶▶ 빨리감기
@@ -482,37 +470,28 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
-        {/* 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 (점수는 머리글로 올렸다) */}
-        <div className="relative z-10 col-start-2 row-start-2 self-start text-center">
-          <table className="mt-cut mt-glass w-full border-collapse text-center font-display" style={{ '--c': '12px' }}>
-            <thead><tr className="text-xs font-semibold text-gray-500"><th className="w-[200px] py-1 pl-4 text-left">TEAM</th>{Array.from({ length: 12 }, (_, i) => <th key={i} className="py-1">{i + 1}</th>)}<th>R</th><th>H</th><th>E</th></tr></thead>
-            <tbody>
-              {[[away, g.away, g.top], [home, g.home, !g.top]].map(([t, side, live]) => (
-                <tr key={t.name} className="border-t border-white/[0.07]">
-                  <td className="w-[200px] py-1 pl-4 text-left text-[15px] font-extrabold text-white">{t.name}</td>
-                  {innCells(side).map((v, i) => (
-                    <td key={i} className={`py-1 text-[22px] text-gray-300 ${live && i + 1 === g.inning ? 'bg-yellow-300/15 text-white' : ''}`}>{v ?? '-'}</td>
-                  ))}
-                  <td className="text-[22px] font-extrabold text-yellow-300">{side.runs}</td>
-                  <td className="text-[22px] text-gray-300">{side.hits}</td>
-                  <td className="text-[22px] text-gray-300">{side.errors}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
 
-        {/* 왼쪽: 지금 던지는 투수 */}
-        <div className="col-start-1 row-start-2">
-          <PlayerCard side="P" label="NOW PITCHING" player={pitcher} color={pitchingColor} img="ui/clutch-mound.webp"
-            stats={[['구위', st(pitcher, 'stuff', 80)], ['제구', st(pitcher, 'control', 75)], ['안정', st(pitcher, 'stability', 75)]]}
-            rec={[[def.pitches, '투구수'], [line.k, '탈삼진'], [line.h, '피안타'], [line.r, '실점']]}
-            bottom={(
-              <div className="relative mt-3 grid grid-cols-[1fr_96px] items-center gap-3 bg-[#05080f]/60 p-2.5">
-                <Bso b={g.balls} s={g.strikes} o={g.outs} />
-                <Diamond bases={g.bases} />
+        {/* 왼쪽 위: 중계 스코어보드 — 회 · 점수 · 볼카운트 · 주자 */}
+        <div className="relative z-10 col-start-1 row-start-2 self-start">
+          <div className="mt-cut mt-frame mt-glass inline-block p-3" style={{ '--c': '12px', '--a': '#fde047' }}>
+            <span className="mt-cut inline-block bg-[#fde047] px-2.5 py-0.5 font-display text-[13px] font-extrabold text-[#05080f]" style={{ '--c': '4px' }}>
+              {g.final ? '경기 종료' : <>{g.inning}<i className="not-italic">{g.top ? '▲' : '▼'}</i></>}
+            </span>
+            <div className="mt-2 flex items-center gap-3.5">
+              <div className="flex flex-col gap-1">
+                {[[away, g.away, cOpp], [home, g.home, cMy]].map(([t, side, color], i) => (
+                  <div key={t.name} className="flex items-center gap-2.5 whitespace-nowrap">
+                    <span className="block h-5 w-1.5 shrink-0" style={{ background: color }} />
+                    <b className="text-[14px] font-extrabold text-white">{clubName(t.name)}</b>
+                    <b className="ml-auto pl-3 font-display text-[22px] font-extrabold leading-none" style={{ color: i === 0 ? '#fff' : '#fde047' }}>{side.runs}</b>
+                  </div>
+                ))}
               </div>
-            )} />
+              <span className="w-px self-stretch bg-white/12" />
+              <Bso b={g.balls} s={g.strikes} o={g.outs} />
+              <Diamond bases={g.bases} />
+            </div>
+          </div>
         </div>
 
         {/* 오른쪽: 타석 */}
