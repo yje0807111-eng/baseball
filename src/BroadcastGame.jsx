@@ -7,14 +7,24 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
 import { statColor, statOf, teamNeon } from './myteam/teamColor.js';
+import { teamFlag, flagByKey } from './myteam/teamArt.js';
+import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
-/** 스코어보드에 쓰는 이름 — 앞의 연도는 떼고 구단 이름만 */
-const clubName = (s = '') => s.replace(/^\d{4}\s*/, '');
+/* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
+const SB_W = 212;
+const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
+const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
+/** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
+function shortTeam(name = '', mine = false) {
+  if (mine) return name.replace(/^나의\s*/, '').slice(0, 4);
+  const f = teamFlag(name);
+  return (f && SB_SHORT[f.key]) || name.replace(/^\d{4}\s*/, '').split(' ')[0];
+}
 
 /** 지금 던지는 투수의 오늘 기록 */
 function pitcherLine(g, pitcher) {
@@ -132,8 +142,8 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
-const Diamond = ({ bases }) => (
-  <svg viewBox="0 0 100 100" className="h-[118px] w-[118px]">
+const Diamond = ({ bases, size = 68 }) => (
+  <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
     <path d="M50 88 L86 52 L50 16 L14 52 Z" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" />
     {[[86, 52], [50, 16], [14, 52]].map(([x, y], i) => (
       <rect key={i} x={x - 8} y={y - 8} width="16" height="16" transform={`rotate(45 ${x} ${y})`}
@@ -142,14 +152,16 @@ const Diamond = ({ bases }) => (
     <rect x="45" y="83" width="10" height="10" transform="rotate(45 50 88)" fill="#fff" />
   </svg>
 );
-const Bso = ({ b, s, o }) => (
-  <div className="grid grid-cols-[16px_repeat(3,14px)] items-center gap-1.5 font-display text-[13px] font-extrabold">
-    <span className="text-emerald-400">B</span>
-    {[0, 1, 2].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < b ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-white/15'}`} />)}
-    <span className="text-yellow-300">S</span>
-    {[0, 1].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < s ? 'bg-yellow-300 shadow-[0_0_8px_#fde047]' : 'bg-white/15'}`} />)}<span />
-    <span className="text-red-400">O</span>
-    {[0, 1].map((i) => <i key={i} className={`h-3.5 w-3.5 rounded-full ${i < o ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}<span />
+/** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
+const Bso = ({ b, s, o, label = true, dot = 11 }) => (
+  <div className="grid items-center font-display text-[12px] font-extrabold"
+    style={{ gridTemplateColumns: `${label ? 14 : 0}px repeat(3, ${dot}px)`, gap: 5 }}>
+    {label ? <span className="text-emerald-400">B</span> : <span />}
+    {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#34d399' : 'rgba(255,255,255,.14)', boxShadow: i < b ? '0 0 7px #34d399' : 'none' }} />)}
+    {label ? <span className="text-yellow-300">S</span> : <span />}
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#fde047' : 'rgba(255,255,255,.14)', boxShadow: i < s ? '0 0 7px #fde047' : 'none' }} />)}<span />
+    {label ? <span className="text-red-400">O</span> : <span />}
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#ef4444' : 'rgba(255,255,255,.14)', boxShadow: i < o ? '0 0 7px #ef4444' : 'none' }} />)}<span />
   </div>
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
@@ -471,25 +483,45 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         </header>
 
 
-        {/* 왼쪽 위: 중계 스코어보드 — 회 · 점수 · 볼카운트 · 주자 */}
+        {/* 왼쪽 위: 중계 스코어보드 — 회 · 점수 카드 / 볼카운트 · 주자 · 투구 수 카드 */}
         <div className="relative z-10 col-start-1 row-start-2 self-start">
-          <div className="mt-cut mt-frame mt-glass inline-block p-3" style={{ '--c': '12px', '--a': '#fde047' }}>
-            <span className="mt-cut inline-block bg-[#fde047] px-2.5 py-0.5 font-display text-[13px] font-extrabold text-[#05080f]" style={{ '--c': '4px' }}>
-              {g.final ? '경기 종료' : <>{g.inning}<i className="not-italic">{g.top ? '▲' : '▼'}</i></>}
-            </span>
-            <div className="mt-2 flex items-center gap-3.5">
-              <div className="flex flex-col gap-1">
-                {[[away, g.away, cOpp], [home, g.home, cMy]].map(([t, side, color], i) => (
-                  <div key={t.name} className="flex items-center gap-2.5 whitespace-nowrap">
-                    <span className="block h-5 w-1.5 shrink-0" style={{ background: color }} />
-                    <b className="text-[14px] font-extrabold text-white">{clubName(t.name)}</b>
-                    <b className="ml-auto pl-3 font-display text-[22px] font-extrabold leading-none" style={{ color: i === 0 ? '#fff' : '#fde047' }}>{side.runs}</b>
-                  </div>
-                ))}
+          <div className="flex flex-col gap-2" style={{ width: SB_W, filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.6))' }}>
+            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(253,224,71,.3)' }}>
+              <div className="flex items-center justify-between bg-[#fde047]/[0.12] px-2.5 py-1">
+                <b className="font-display text-[12px] font-extrabold text-yellow-300">
+                  {g.final ? 'FINAL' : <>{g.inning}<i className="not-italic">{g.top ? '▲' : '▼'}</i></>}
+                </b>
+                <span className="font-display text-[10px] tracking-[0.22em] text-gray-500">SCORE</span>
               </div>
-              <span className="w-px self-stretch bg-white/12" />
-              <Bso b={g.balls} s={g.strikes} o={g.outs} />
-              <Diamond bases={g.bases} />
+              {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
+                const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
+                return (
+                  <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-white/[0.09]' : ''}`} style={{ height: 38 }}>
+                    <span className="relative flex flex-1 items-center gap-2 overflow-hidden px-2.5">
+                      {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                      <span className="relative block h-4 w-1 shrink-0" style={{ background: flag?.color || color }} />
+                      <b className="relative truncate text-[15px] font-extrabold text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{shortTeam(t.name, mine)}</b>
+                    </span>
+                    <span className="grid w-12 shrink-0 place-items-center border-l border-white/[0.09] font-display text-[24px] font-extrabold"
+                      style={{ background: mine ? 'rgba(253,224,71,.12)' : 'rgba(0,0,0,.3)', color: mine ? '#fde047' : '#fff' }}>{side.runs}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+              <div className="flex items-stretch">
+                <span className="grid flex-1 place-items-center gap-1 py-1.5">
+                  <small className="font-display text-[9.5px] tracking-[0.22em] text-gray-500">COUNT</small>
+                  <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} />
+                </span>
+                <span className="grid place-items-center border-l border-white/[0.09] px-1.5 py-1"><Diamond bases={g.bases} /></span>
+                <span className="grid w-12 place-items-center border-l border-white/[0.09]">
+                  <span className="text-center leading-tight">
+                    <b className="block font-display text-[17px] font-extrabold text-white">{def.pitches}</b>
+                    <small className="font-display text-[10px] tracking-[0.12em] text-gray-500">PITCH</small>
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
