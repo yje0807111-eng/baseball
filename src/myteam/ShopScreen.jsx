@@ -230,7 +230,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
                     {recs.map((t) => {
                       /* 수치 변화: 막대는 50~110 구간(윗 구간이 뭉치지 않게) · 숫자와 막대 색은 라커와 같은 구간 색 */
                       const cur = t.stats?.[picked.stat] ?? 70;
-                      const after = Math.min(99, cur + picked.amount);
+                      const after = Math.min(110, cur + picked.amount);
                       const pct = (v) => Math.max(0, Math.min(100, ((v - 50) / 60) * 100));
                       const barNow = statBarStyle(cur);
                       const barNext = statBarStyle(after);

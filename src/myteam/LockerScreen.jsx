@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues, limitsOf } from './rules.js';
-import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
+import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
@@ -327,7 +327,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
     ? (it.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')])
     : squad.filter((p) => fitsItem(it, p)).sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
   const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
-  const after = it?.stat && target?.stats ? Math.min(99, (target.stats[it.stat] ?? 70) + it.amount) : null;
+  const after = it?.stat && target?.stats ? Math.min(110, (target.stats[it.stat] ?? 70) + it.amount) : null;
   return (
     <>
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
@@ -424,7 +424,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                       </b>
                       <span className="block truncate text-[11px] text-gray-400">
                         {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
-                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(99, (t.stats[it.stat] ?? 70) + it.amount)}` : ''}
+                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 70) + it.amount)}` : ''}
                       </span>
                     </span>
                   </button>
@@ -488,13 +488,21 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim)) commit({ ...team, squad: [...squad, p] }); };
   const release = (p) => { commit({ ...team, squad: squad.filter((x) => x.id !== p.id), bench: (team.bench || []).filter((id) => id !== p.id) }); setSel(null); };
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
+  /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
+  const staffOver = (slot, person) => {
+    if (!person) return 0;
+    const over = squadCost(squad, { ...staff, [slot]: person }) - cap;
+    return over > 0 ? over : 0;
+  };
 
   const autoFill = () => {
     let next = [...squad];
+    /* 아직 안 앉힌 감독·코치 몫은 남겨 둔다 — 선수로 캡을 다 쓰면 코치진을 못 채운다 */
+    const reserve = staffReserve(staff);
     const tryAdd = (want) => {
       const slots = lim.size - next.length;
-      const budget = Math.max(40, Math.floor((cap - squadCost(next, staff)) / Math.max(1, slots)));
-      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap, lim)).sort((a, b) => b.overall - a.overall);
+      const budget = Math.max(40, Math.floor((cap - reserve - squadCost(next, staff)) / Math.max(1, slots)));
+      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap - reserve, lim)).sort((a, b) => b.overall - a.overall);
       if (!pool.length) return false;
       next = [...next, pool[0]];
       return true;
@@ -700,7 +708,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   </span>
                   <span className="absolute right-3 top-3 flex items-center gap-2">
                     <b className="font-display text-lg text-amber-300">{m.cost}</b>
-                    <Btn sm a="#c4b5fd" onClick={() => setStaff(listSlot, m)}>{staff[listSlot] ? '교체' : '선임'}</Btn>
+                    <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => setStaff(listSlot, m)}>
+                      {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
+                    </Btn>
                   </span>
                 </div>
               ))}
