@@ -454,6 +454,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
+          {/* 점수 — 화면 한복판을 비우고 머리글 가운데로 올렸다 */}
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+            <span className="mt-cut mt-frame mt-glass flex items-center gap-4 px-6 py-1.5" style={{ '--c': '12px', '--a': '#fde047' }}>
+              <span className="grid h-[30px] w-[26px] shrink-0 place-items-center font-display text-[11px] font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
+              <b className="text-[16px] font-extrabold text-white">{away.name}</b>
+              <span className="font-display text-[30px] font-extrabold leading-none text-white">{g.away.runs}<span className="mx-2 text-gray-600">-</span>{g.home.runs}</span>
+              <b className="text-[16px] font-extrabold text-white">{home.name}</b>
+              <span className="grid h-[30px] w-[26px] shrink-0 place-items-center font-display text-[11px] font-extrabold text-[#05080f]" style={{ background: cMy, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>MY</span>
+              <span className="h-4 w-px bg-white/15" />
+              <span className="font-display text-[13px] font-extrabold tracking-[0.2em] text-yellow-300">{g.final ? '경기 종료' : `${g.inning}회${g.top ? '초' : '말'}`}</span>
+            </span>
+          </span>
           {holding && (
             <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
               ▶▶ 빨리감기
@@ -470,19 +482,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
-        {/* 점수 + 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 */}
+        {/* 이닝별 — 중계 자막처럼 플레이 뷰 위에 뜬다 (점수는 머리글로 올렸다) */}
         <div className="relative z-10 col-start-2 row-start-2 self-start text-center">
-          <div className="mt-cut mt-frame mt-glass relative inline-block px-8 pb-2 pt-2.5" style={{ '--c': '20px', '--a': '#fde047' }}>
-            <div className="flex items-center justify-center gap-6">
-              <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cOpp, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>AI</span>
-              <span className="text-[26px] font-extrabold text-white">{away.name}<small className="block font-display text-[10px] tracking-[0.3em] text-gray-400">AWAY</small></span>
-              <span className="font-display text-[64px] font-extrabold leading-none text-white [text-shadow:0_2px_18px_rgba(0,0,0,.85)]">{g.away.runs}<span className="mx-3.5 text-gray-600">-</span>{g.home.runs}</span>
-              <span className="text-right text-[26px] font-extrabold text-white">{home.name}<small className="block font-display text-[10px] tracking-[0.3em] text-gray-400">HOME</small></span>
-              <span className="grid h-[62px] w-14 place-items-center font-display text-sm font-extrabold text-[#05080f]" style={{ background: cMy, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}>MY</span>
-            </div>
-            <p className="m-0 mt-1 font-display text-[15px] font-extrabold tracking-[0.2em] text-yellow-300">{g.final ? '경기 종료' : `${g.inning}회${g.top ? '초' : '말'}`}</p>
-          </div>
-          <table className="mt-cut mt-glass mt-2.5 w-full border-collapse text-center font-display" style={{ '--c': '12px' }}>
+          <table className="mt-cut mt-glass w-full border-collapse text-center font-display" style={{ '--c': '12px' }}>
             <thead><tr className="text-xs font-semibold text-gray-500"><th className="w-[200px] py-1 pl-4 text-left">TEAM</th>{Array.from({ length: 12 }, (_, i) => <th key={i} className="py-1">{i + 1}</th>)}<th>R</th><th>H</th><th>E</th></tr></thead>
             <tbody>
               {[[away, g.away, g.top], [home, g.home, !g.top]].map(([t, side, live]) => (
