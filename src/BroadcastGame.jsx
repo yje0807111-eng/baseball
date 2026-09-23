@@ -19,6 +19,10 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const SB_W = 212;
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
+/** 전광판에 보일 회 — 9회까지, 연장에 들어가면 그만큼 늘린다 */
+const innList = (g) => Array.from({ length: Math.max(9, Math.min(12, g.inning)) }, (_, i) => i + 1);
+/** 그 회 점수 — 아직 치르지 않은 회는 null */
+const innAt = (g, side, i) => side.line[i] ?? ((i + 1 < g.inning || (i + 1 === g.inning && (side === g.home ? !g.top : true))) ? 0 : null);
 /** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
 function shortTeam(name = '', mine = false) {
   if (mine) return name.replace(/^나의\s*/, '').slice(0, 4);
@@ -522,6 +526,31 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   </span>
                 </span>
               </div>
+            </div>
+            {/* 회차별 전광판 — 작게, 지금 이닝만 밝게 */}
+            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+              <table className="w-full border-collapse text-center font-display">
+                <thead>
+                  <tr className="text-[8.5px] font-semibold text-gray-600">
+                    <th className="w-[34px] py-0.5" />
+                    {innList(g).map((n) => <th key={n} className="py-0.5 font-normal">{n}</th>)}
+                    <th className="w-[17px] py-0.5 text-yellow-300/70">R</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[[away, g.away, false], [home, g.home, true]].map(([t, side, mine]) => (
+                    <tr key={t.name} className="border-t border-white/[0.07]">
+                      <td className="w-[34px] truncate py-0.5 pl-1.5 text-left text-[10px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
+                      {innList(g).map((n) => {
+                        const v = innAt(g, side, n - 1);
+                        const live = !g.final && n === g.inning && (mine ? !g.top : g.top);
+                        return <td key={n} className={`py-0.5 text-[11px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
+                      })}
+                      <td className="py-0.5 text-[11px] font-extrabold text-yellow-300">{side.runs}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
