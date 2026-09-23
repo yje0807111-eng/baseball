@@ -116,7 +116,7 @@ export const PLAYERS = [
 export const LEGEND_SERIES = {
   id: 'legend-allstar', kind: 'legend', year: null, title: 'KBO 올타임 레전드',
   subtitle: '시대를 대표한 레전드 시즌',
-  blurb: '연도와 구단을 넘나드는 KBO 역대 최고의 시즌들이 한 자리에 모였어요.',
+  blurb: '연도와 구단을 가리지 않고 모은 역대 최고 시즌',
   players: PLAYERS.map((p) => ({ ...p, seriesId: 'legend-allstar' })),
 };
 export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
@@ -125,21 +125,21 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
-    desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
+    desc: '레전드 시리즈만 나오고 샐러리 캡이 없는 모드', filter: (s) => s.kind === 'legend' },
   { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
-    desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => s.champion },
+    desc: '역대 한국시리즈 우승 팀만 나오는 모드', filter: (s) => s.champion },
   { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
-    desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021 },
+    desc: '2021년부터 올해까지 구단 시즌만 나오는 모드', filter: (s) => s.kind === 'team' && s.year >= 2021 },
   { id: 'national', group: 'special', rules: ['국가대표만', '대회별 버전'], name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 1270,
-    desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
+    desc: 'WBC·올림픽·프리미어12 국가대표만 나오는 모드', filter: (s) => s.kind === 'national' },
   { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1560,
-    desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
+    desc: '가진 시리즈 전체에서 무작위로 열리는 기본 모드', filter: () => true },
   // 연도별 시즌: 그해 구단 시즌이 둘 이상인 해마다 하나씩 (국가대표는 태극마크 모드에서만)
   ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind === 'team').map((x) => x.year))]
     .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind === 'team').length >= 2)
     .sort((a, b) => b - a)
     .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1560,
-      desc: `${y}년 그해 구단 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind === 'team' })),
+      desc: `${y}년 구단 로스터만 나오는 모드`, filter: (x) => x.year === y && x.kind === 'team' })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
   return { ...m, series, players: series.flatMap((s) => s.players) };
@@ -5195,7 +5195,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
               {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
                 <p className="text-sm text-gray-400">
-                  {view === 'special' ? `기존 상식을 깨는 규칙 모드 ${specials.length}개` : `레전드 ${mode.players.length}명 중 대표 선수`}
+                  {view === 'special' ? `규칙이 다른 모드 ${specials.length}개` : `레전드 ${mode.players.length}명 중 대표 선수`}
                 </p>
               )}
             </div>

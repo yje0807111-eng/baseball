@@ -119,7 +119,7 @@ export default function AugmentScreen({ account, onBack }) {
   const [pledged, setPledged] = useState(() => pledgedAugId());
   const doPledge = (a) => {
     if (!a || pledged === a.id) return;
-    if (!spendAugTicket('pledge')) { setMsg('증강 지명권이 없습니다 · 상점에서 살 수 있어요'); setTimeout(() => setMsg(''), 2400); return; }
+    if (!spendAugTicket('pledge')) { setMsg('증강 지명권이 없습니다 · 상점에서 살 수 있습니다'); setTimeout(() => setMsg(''), 2400); return; }
     setPledgedAug(a.id);
     setPledged(a.id);
     setPledgeLeft(augShopTickets().pledge || 0);
@@ -150,7 +150,7 @@ export default function AugmentScreen({ account, onBack }) {
     let base = aug;
     if (cur.length >= aug.slots[t]) {
       base = openSlot(t);
-      if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸은 최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다 · 상점에서 살 수 있어요'); return; }
+      if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸은 최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다 · 상점에서 살 수 있습니다'); return; }
     }
     commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
   };
