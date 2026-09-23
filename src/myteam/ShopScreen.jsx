@@ -198,7 +198,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
         <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
-          {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
+          {!picked ? <p className="text-sm text-gray-500">상품 고르기</p> : (
             <>
               {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
               {(() => {
@@ -226,7 +226,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 <div className="flex min-h-0 flex-1 flex-col">
                   <p className="mt-grp !mt-0">추천 대상</p>
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수가 없습니다.</p>}
+                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수 없음</p>}
                     {recs.map((t) => {
                       /* 수치 변화: 막대는 50~110 구간(윗 구간이 뭉치지 않게) · 숫자와 막대 색은 라커와 같은 구간 색 */
                       const cur = t.stats?.[picked.stat] ?? 70;
@@ -270,7 +270,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
               </div>
               <div>
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
-                  {soldOut ? (picked.expand ? '더 살 수 없습니다' : '적용할 선수가 없습니다') : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
+                  {soldOut ? (picked.expand ? '더 살 수 없음' : '적용할 선수 없음') : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
               </div>
             </>

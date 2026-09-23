@@ -10,7 +10,7 @@ export default function LoginScreen({ onDone }) {
   const [err, setErr] = useState('');
   const go = (name = nick) => {
     const v = (name || '').trim();
-    if (v.length < 2) { setErr('2글자 이상 입력해 주세요'); return; }
+    if (v.length < 2) { setErr('2글자 이상'); return; }
     onDone(signIn(v));
   };
   return (
@@ -42,7 +42,7 @@ export default function LoginScreen({ onDone }) {
               <Chip a="#7dd3fc">엔트리 26명</Chip><Chip a="#fde047">외국인 3명</Chip><Chip a="#34d399">CP {SQUAD_CAP}</Chip><Chip>감독·코치 4명</Chip>
             </div>
           </div>
-          <p className="mt-4 text-[13px] text-gray-500">계정 연동과 다른 감독과의 대결은 준비 중입니다</p>
+          <p className="mt-4 text-[13px] text-gray-500">계정 연동 · 감독 대결 준비 중</p>
         </div>
       </div>
 

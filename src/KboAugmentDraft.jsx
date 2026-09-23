@@ -3412,7 +3412,7 @@ function SynergyPanel({ roster, focusId, onFocus }) {
       <PanelTitle aside={`${list.length} On`}>적용 중인 시너지</PanelTitle>
       {list.length
         ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
-        : <p className="text-xs text-gray-500">완성된 시너지가 없습니다.</p>}
+        : <p className="text-xs text-gray-500">완성된 시너지 없음</p>}
     </section>
   );
 }
@@ -3621,7 +3621,7 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
     <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${augments.length}/${total}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-xs leading-relaxed text-gray-500">{total ? `엔트리를 채우고 정비를 마친 뒤 시즌을 시작하면 증강 ${total}개를 고릅니다.` : '이번 모드는 증강 없이 경기합니다.'}</p>
+        <p className="text-xs leading-relaxed text-gray-500">{total ? `정비를 마치고 시즌을 시작하면 증강 ${total}개 고르기` : '증강 없이 치르는 모드'}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
@@ -3686,11 +3686,11 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
         <div className="text-center animate-[rise_.4s_ease-out_both]">
           <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? 'Season Augment' : 'Season Event'}</p>
           <h2 className="mt-2 text-4xl font-black text-white">
-            {isAug ? (choice.inning ? `${choice.inning}회 증강을 고르세요` : '시즌 증강을 고르세요') : '시즌 돌발 이벤트'}
+            {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : '시즌 증강 고르기') : '시즌 돌발 이벤트'}
             {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
             {tier && <span className="ml-3 font-display font-extrabold" style={{ color: TIER_NEON[tier] }}>{TIER_EN[tier]}</span>}
           </h2>
-          {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향을 결정하세요. 선택은 되돌릴 수 없습니다.</p>}
+          {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-6">
           {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
@@ -4757,7 +4757,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
               <span className="text-sm text-gray-100">{l.text}</span>
             </div>
           );
-        }) : <p className="text-sm text-gray-500">큰 장면 없이 끝난 경기입니다.</p>}
+        }) : <p className="text-sm text-gray-500">큰 장면 없이 끝난 경기</p>}
       </div>
       <div className="flex flex-col gap-1">
         <p className="ui-lab font-display">선수 평점</p>
@@ -5266,7 +5266,7 @@ const RULE_TABS = [
     icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
     lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 한 팀을 만듭니다. 필드 14자리는 포지션마다, 예비 {BENCH_SIZE}자리는 포지션을 가리지 않고 채웁니다.</>,
     groups: [
-      { t: '어떤 자리를 채우나요?', s: `투수 5명과 야수 9명, 예비 ${BENCH_SIZE}명, 모두 ${ROSTER_SIZE}자리입니다.`, b: <>
+      { t: '어떤 자리를 채우나요?', s: `투수 5 · 야수 9 · 예비 ${BENCH_SIZE}, 모두 ${ROSTER_SIZE}자리`, b: <>
         <div className="rl-slots">
           <div><span>투수<i>5</i></span><span className="rl-chips"><span className="rl-chip">선발투수</span><span className="rl-chip">롱릴리프</span><span className="rl-chip">중간계투</span><span className="rl-chip">셋업맨</span><span className="rl-chip">마무리</span></span></div>
           <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루수</span><span className="rl-chip">2루수</span><span className="rl-chip">3루수</span><span className="rl-chip">유격수</span></span></div>
@@ -5276,11 +5276,11 @@ const RULE_TABS = [
         </div>
         <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시됩니다.</p>
       </> },
-      { t: '외국인 선수는 몇 명까지 되나요?', s: `최대 ${FOREIGN_LIMIT}명까지 뽑을 수 있습니다.`, b: <>
+      { t: '외국인 선수는 몇 명까지 되나요?', s: `최대 ${FOREIGN_LIMIT}명`, b: <>
         <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠깁니다.</p>
         <p>한 명을 방출하면 다시 뽑을 수 있습니다.</p>
       </> },
-      { t: '같은 선수를 또 뽑을 수 있나요?', s: '시즌이 달라도 한 사람은 한 번만 뽑습니다.', b: <>
+      { t: '같은 선수를 또 뽑을 수 있나요?', s: '시즌이 달라도 한 사람은 한 번만', b: <>
         <div className="rl-yn">
           <div className="y"><span><b>2006 류현진</b>을 영입합니다.</span></div>
           <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠깁니다.</span></div>
@@ -5291,7 +5291,7 @@ const RULE_TABS = [
     icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
     lead: <><b>{ROSTER_SIZE}라운드</b> 동안 라운드마다 한 명씩 영입합니다. 정해진 CP 안에서 스타와 가성비 선수를 섞는 것이 핵심입니다.</>,
     groups: [
-      { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈를 보고, 고르고, 영입합니다.', b: <>
+      { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈 열기 · 고르기 · 영입', b: <>
         <div className="rl-steps">
           <div><span>시리즈 하나가 열립니다. 구단의 한 시즌, 국가대표, 레전드 중 하나입니다.</span></div>
           <div><span>선수 카드를 누르면 <b>PICK</b>에 올라 능력치와 영입가를 볼 수 있습니다.</span></div>
@@ -5336,7 +5336,7 @@ const RULE_TABS = [
           <div><span>한 번 더 누르면 방출됩니다.</span></div>
         </div>
       </> },
-      { t: '방출하면 무엇이 달라지나요?', s: '영입가의 절반을 돌려받지만 되돌릴 수 없습니다.', b: <>
+      { t: '방출하면 무엇이 달라지나요?', s: '영입가 절반 환급 · 되돌리기 없음', b: <>
         <div className="rl-yn">
           <div className="y"><span>영입가의 <b>절반</b>을 CP로 돌려받습니다. ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
           <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입할 수 없습니다.</b></span></div>
@@ -5371,10 +5371,10 @@ const RULE_TABS = [
         </div>
         <p>내 라인업 선수를 누르면 선 자리에서 달라진 능력치를 볼 수 있습니다.</p>
       </> },
-      { t: '지명타자에는 누구를 세우나요?', s: '야수라면 누구든 감소 없이 설 수 있습니다.', b: <>
+      { t: '지명타자에는 누구를 세우나요?', s: '야수 누구나 · 능력치 감소 없음', b: <>
         <p>수비가 약하지만 방망이가 좋은 선수를 두기 좋은 자리입니다.</p>
       </> },
-      { t: '선수 자리는 어떻게 바꾸나요?', s: '선수를 끌어서 다른 자리에 놓습니다.', b: <>
+      { t: '선수 자리는 어떻게 바꾸나요?', s: '선수를 끌어 다른 자리에 놓기', b: <>
         <div className="rl-yn">
           <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b>합니다.</span></div>
           <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b>됩니다.</span></div>
@@ -5414,18 +5414,18 @@ const RULE_TABS = [
     icon: <><path d="M7 4h10v3a5 5 0 0 1-10 0z" /><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7" /></>,
     lead: <>{ROSTER_SIZE}명을 모두 채우면 라인업을 다듬고, 증강을 골라 <b>AI 올스타</b>와 경기합니다.</>,
     groups: [
-      { t: '드래프트가 끝나면 무엇을 하나요?', s: '정비 화면에서 선수 자리를 다듬습니다.', b: <>
+      { t: '드래프트가 끝나면 무엇을 하나요?', s: '정비 화면에서 자리 다듬기', b: <>
         <div className="rl-yn">
           <div className="y"><span>선수를 끌어 자리를 옮길 수 있습니다.</span></div>
           <div className="n"><span>방출과 영입은 할 수 없습니다.</span></div>
         </div>
       </> },
-      { t: '증강은 언제 고르나요?', s: '시즌을 시작할 때 모드에서 정한 개수만큼 고릅니다.', b: <>
+      { t: '증강은 언제 고르나요?', s: '시즌 시작 때 모드가 정한 개수만큼', b: <>
         <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중에서 정합니다.</p>
         <p>매번 <b>3장 중 1장</b>을 고릅니다. 3장은 <span className="rl-chip">실버</span> <span className="rl-chip g">골드</span> <span className="rl-chip">프리즘</span> 중 한 등급에서만 나옵니다.</p>
         <p>경기 중에는 <b>3 · 5 · 7회</b>에 그 경기에서만 쓰는 증강을 하나씩 더 고릅니다.</p>
       </> },
-      { t: '증강은 어떤 종류가 있나요?', s: '뽑은 선수 구성에 따라 같은 증강도 효과가 크게 달라집니다.', b: <>
+      { t: '증강은 어떤 종류가 있나요?', s: '같은 증강도 선수 구성에 따라 효과가 크게 다름', b: <>
         <div className="rl-kind">
           <div><span className="rl-chip g">라인업 비례</span><span>조건에 맞는 선수가 많을수록 강해집니다. 맞는 선수가 없으면 효과도 적습니다.</span></div>
           <div><span className="rl-chip g">약점 완화</span><span>팀의 가장 약한 곳을 메웁니다. 한쪽으로 치우친 팀일수록 크게 돕습니다.</span></div>
@@ -5435,7 +5435,7 @@ const RULE_TABS = [
         </div>
         <p>조건이 적힌 증강은 경기 중 조건이 맞을 때 확률로 발동하고, 나머지는 고르는 순간부터 계속 적용됩니다.</p>
       </> },
-      { t: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타입니다.', b: <>
+      { t: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타', b: <>
         <p>AI 난이도 <span className="rl-chip">쉬움</span> <span className="rl-chip g">보통</span> <span className="rl-chip">강함</span>에 따라 상대 능력치가 달라집니다.</p>
         <p>경기 결과는 전적에 쌓이고, 같은 상대와 다시 겨룰 수도 있습니다.</p>
       </> },
@@ -5444,16 +5444,16 @@ const RULE_TABS = [
     icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
     lead: <>드래프트 화면 오른쪽 <b>MY TEAM</b> 판에서 지금 라인업의 전력과 선수들의 실제 시즌 기록을 봅니다.</>,
     groups: [
-      { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 선수들의 평균 종합입니다.', b: <>
+      { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
         <p>선수를 세운 자리와 시너지가 반영된 종합의 평균입니다. 비어 있는 자리는 빼고 계산합니다.</p>
         <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지입니다.</p>
         <p>타자 넷은 야수들의 평균 능력치이고, 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력입니다.</p>
       </> },
-      { t: '초록 면과 붉은 점선은 무엇인가요?', s: '초록 면은 우리 팀, 붉은 점선은 AI 평균입니다.', b: <>
+      { t: '초록 면과 붉은 점선은 무엇인가요?', s: '초록 면은 우리 팀 · 붉은 점선은 AI 평균', b: <>
         <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균입니다.</p>
         <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼입니다. 아래 칩은 차이가 큰 순서입니다.</p>
       </> },
-      { t: '홈런 타선 · 불안한 뒷문은 무엇인가요?', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력입니다.', b: <>
+      { t: '홈런 타선 · 불안한 뒷문은 무엇인가요?', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력', b: <>
         <div className="rl-tbl">
           <span className="h">능력</span><span className="h">가장 앞설 때</span><span className="h">가장 밀릴 때</span>
           {TEAM_AXES.map(([k]) => (
@@ -6434,7 +6434,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       <>
                     <span className="h-5 w-px bg-white/10" aria-hidden="true" />
                     <button type="button" onClick={handleReroll} disabled={rerolls <= 0} className="ser-refresh"
-                      title={rerolls > 0 ? `다른 시리즈로 새로고침 · ${rerolls}회 남음` : '새로고침을 모두 썼습니다'} aria-label={`다른 시리즈로 새로고침, ${rerolls}회 남음`}>
+                      title={rerolls > 0 ? `다른 시리즈로 새로고침 · ${rerolls}회 남음` : '남은 새로고침 없음'} aria-label={`다른 시리즈로 새로고침, ${rerolls}회 남음`}>
                       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M16.2 10.4A6.2 6.2 0 1 1 14.4 5.6" /><path d="M16.2 2.8v3.9h-3.9" />
                       </svg>
@@ -6484,7 +6484,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                               {(tickets.protect > 0 || live.protect) && (
                                 <button type="button" onClick={useProtect} className={live.protect ? 'on' : ''}
                                   disabled={!!live.protect || !picked || Live.takenBy(live, picked) != null}
-                                  title={live.protect ? '보호 중인 선수가 있습니다' : picked ? `${picked.name} 을(를) 내 다음 차례까지 지킨다` : '지킬 선수를 먼저 고르세요'}>
+                                  title={live.protect ? '이미 보호 중' : picked ? `${picked.name} 을(를) 내 다음 차례까지 지킨다` : '지킬 선수 먼저 고르기'}>
                                   보호 <em>· {tickets.protect}장</em>
                                 </button>
                               )}
@@ -6514,7 +6514,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 style={{ '--n': shelfCols, maxWidth: `calc(${shelfCols} * var(--card-w) + ${shelfCols - 1} * 3px)` }}>
                 {shownCards.length === 0 && (
                   <p className="col-span-full py-6 text-center text-sm text-gray-400">
-                    {posFilter?.pos ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수가 없습니다 — 새로고침으로 다른 시리즈를 열어 보세요` : '영입 가능한 선수가 없습니다'}
+                    {posFilter?.pos ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수 없음 · 새로고침으로 다른 시리즈` : '영입할 선수 없음'}
                   </p>
                 )}
                 {shownCards.map((p, i) => (
@@ -6594,7 +6594,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   ) : (
                     <>
                       <div className="pk-ghostbtn" aria-hidden="true" />
-                      <span className="sr-only">위 선반에서 선수를 고르거나 내 라인업 선수를 누르면 여기에 표시됩니다</span>
+                      <span className="sr-only">선반이나 내 라인업에서 선수 고르기</span>
                     </>
                   )}
                 </div>
@@ -6677,7 +6677,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 <LiveLog logs={logs} paused={paused} />
                 <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
                   <PanelTitle>증강 리스너</PanelTitle>
-                  {augments.length === 0 ? <p className="text-xs text-gray-500">보유한 증강이 없습니다.</p> : (
+                  {augments.length === 0 ? <p className="text-xs text-gray-500">보유 증강 없음</p> : (
                     <ul className="flex flex-col gap-1.5">
                       {augments.map((a) => {
                         const n = fireCount(a);

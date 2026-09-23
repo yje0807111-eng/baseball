@@ -38,7 +38,7 @@ function OppPreview({ opp }) {
 
 /** 최근 5경기 — 승패 칸 한 줄 + 상대 · 점수 줄 */
 function RecentGames({ games }) {
-  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 경기가 없습니다</p>;
+  if (!games.length) return <p className="text-sm text-gray-500">치른 경기 없음</p>;
   return (
     <>
       <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>

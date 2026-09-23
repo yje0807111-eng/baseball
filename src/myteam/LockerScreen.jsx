@@ -165,7 +165,7 @@ function EmptyDetail() {
   const inset = Math.round(w * 0.016 * 10) / 10;
   const corner = Math.round(w * 0.07);
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="고른 선수">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
       <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
         {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
@@ -350,7 +350,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
           <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
             <div className="text-center">
               <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
-              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템이 없습니다</b>
+              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템 없음</b>
               <div className="mt-5 flex items-center justify-center gap-2.5">
                 <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
               </div>
@@ -408,7 +408,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                   <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
                 </div>
               )}
-              {!weak && <p className="text-sm text-gray-500">먼저 선수를 영입하세요.</p>}
+              {!weak && <p className="text-sm text-gray-500">먼저 선수 영입하기</p>}
             </>
           );
         })() : (
@@ -417,7 +417,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-              {list.length === 0 && <p className="text-sm text-gray-500">대상이 없습니다. 먼저 영입하세요.</p>}
+              {list.length === 0 && <p className="text-sm text-gray-500">대상 없음 · 먼저 영입하기</p>}
               {list.map((t) => {
                 const on = target?.id === t.id;
                 const rec = recIds.has(t.id);
@@ -447,7 +447,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
               <KV k="남는 수량" v={`${g.keys.length} → ${g.keys.length - 1}`} color="#fde047" />
             </div>
             <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!target} onClick={() => onUse(g.keys[0], target, slotOf(target))}>
-              {target ? `${target.name}에게 사용 ▶` : '대상을 고르세요'}
+              {target ? `${target.name}에게 사용 ▶` : '대상 고르기'}
             </Btn>
           </>
         )}
@@ -642,7 +642,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap, lim)} showNote={false} teamTint
                   onPick={setSel} onAct={add} />
               ))}
-              {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}
+              {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
                 <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
                   {matched.length - results.length}명 더 보기

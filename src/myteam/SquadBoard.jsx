@@ -492,7 +492,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>
       </div>
 
-      {squad.length === 0 ? <p className="mt-4 text-sm text-gray-500">아직 영입한 선수가 없습니다. 왼쪽 영입에서 찾아 보세요.</p> : (
+      {squad.length === 0 ? <p className="mt-4 text-sm text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
         <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">
