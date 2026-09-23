@@ -222,12 +222,23 @@ function CardWithRecord({ p, tr }) {
   const box = useRef(null);
   const baseRef = useRef(null);
   const [w, setW] = useState(0);
+  /* 카드 폭이 받침 높이를 바꾸고 받침 높이가 다시 카드 폭을 바꾼다 — 칩이 한 줄과 두 줄 사이를 오가면
+     두 값 사이에서 끝없이 튄다. 같은 폭이 다시 나오면 튀는 중으로 보고 넘치지 않는 작은 쪽에서 멈춘다 */
+  const seen = useRef({ box: '', tried: new Set(), fixed: null });
   useEffect(() => {
     const el = box.current;
     if (!el) return undefined;
+    seen.current = { box: '', tried: new Set(), fixed: null }; // 선수가 바뀌면 받침도 달라지니 이력을 비운다
     const fit = () => {
+      const st = seen.current;
+      const room = `${el.clientWidth}x${el.clientHeight}`;
+      if (room !== st.box) { st.box = room; st.tried = new Set(); st.fixed = null; } // 판이 실제로 바뀌면 다시 잰다
+      if (st.fixed != null) return;
       const baseH = baseRef.current?.offsetHeight || 0;
-      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3))));
+      const next = Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3)));
+      if (st.tried.has(next)) { st.fixed = Math.min(...st.tried); setW(st.fixed); return; }
+      st.tried.add(next);
+      setW(next);
     };
     fit();
     const ro = new ResizeObserver(fit);
