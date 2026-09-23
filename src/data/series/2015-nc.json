@@ -1,0 +1,318 @@
+{
+  "id": "2015-nc",
+  "kind": "team",
+  "year": 2015,
+  "title": "NC 다이노스",
+  "franchise": "NC",
+  "subtitle": "정규시즌 2위 · 테임즈 40-40",
+  "blurb": "테임즈가 47홈런 40도루로 KBO 첫 40-40을 해내고 해커가 19승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "해커",
+      "name": "해커",
+      "year": 2015,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 89,
+        "stamina": 93,
+        "stability": 87
+      },
+      "note": "19승 다승왕·투수 GG",
+      "source": "31G 204IP ERA3.13 164K 36BB WHIP1.03 19승 — KBO 기록실"
+    },
+    {
+      "personId": "이태양",
+      "name": "이태양",
+      "year": 2015,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 77,
+        "stamina": 76,
+        "stability": 81
+      },
+      "note": "",
+      "source": "29G 137 1/3IP ERA3.67 113K 40BB WHIP1.32 10승 — KBO 기록실"
+    },
+    {
+      "personId": "이재학",
+      "name": "이재학",
+      "year": 2015,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 59,
+        "stamina": 73,
+        "stability": 76
+      },
+      "note": "",
+      "source": "29G 125IP ERA4.10 116K 58BB WHIP1.38 10승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "스튜어트",
+      "name": "스튜어트",
+      "year": 2015,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 80,
+        "control": 84,
+        "stamina": 71,
+        "stability": 91
+      },
+      "note": "",
+      "source": "19G 117 2/3IP ERA2.68 109K 26BB WHIP1.21 8승 — KBO 기록실"
+    },
+    {
+      "personId": "임창민",
+      "name": "임창민",
+      "year": 2015,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 73,
+        "stamina": 52,
+        "stability": 80
+      },
+      "note": "31세이브",
+      "source": "61G 64IP ERA3.80 72K 21BB WHIP1.22 1승 31SV — KBO 기록실"
+    },
+    {
+      "personId": "최금강",
+      "name": "최금강",
+      "year": 2015,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 63,
+        "stamina": 60,
+        "stability": 80
+      },
+      "note": "",
+      "source": "78G 89 2/3IP ERA3.71 61K 37BB WHIP1.27 6승 1SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "이민호",
+      "name": "이민호",
+      "year": 2015,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 62,
+        "stamina": 60,
+        "stability": 64
+      },
+      "note": "",
+      "source": "64G 96IP ERA5.06 103K 41BB WHIP1.50 6승 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "김진성",
+      "name": "김진성",
+      "year": 2015,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 79,
+        "stamina": 58,
+        "stability": 71
+      },
+      "note": "",
+      "source": "59G 66IP ERA4.50 70K 18BB WHIP1.17 3승 5SV 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "김태군",
+      "name": "김태군",
+      "year": 2015,
+      "team": "NC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 52,
+        "speed": 43,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".254/.307 6HR 52타점 1SB 474PA — KBO 기록실"
+    },
+    {
+      "personId": "용덕한",
+      "name": "용덕한",
+      "year": 2015,
+      "team": "NC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 45,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".243/.303 1HR 13타점 2SB 157PA — KBO 기록실"
+    },
+    {
+      "personId": "테임즈",
+      "name": "테임즈",
+      "year": 2015,
+      "team": "NC",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 97,
+        "contact": 98,
+        "speed": 90,
+        "defense": 65
+      },
+      "note": "KBO 첫 40-40·MVP",
+      "source": ".381/.497 47HR 140타점 40SB 595PA — KBO 기록실"
+    },
+    {
+      "personId": "박민우",
+      "name": "박민우",
+      "year": 2015,
+      "team": "NC",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 44,
+        "speed": 91,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".304/.399 3HR 47타점 46SB 617PA — KBO 기록실"
+    },
+    {
+      "personId": "지석훈",
+      "name": "지석훈",
+      "year": 2015,
+      "team": "NC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 62,
+        "speed": 50,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".267/.328 11HR 46타점 4SB 466PA — KBO 기록실"
+    },
+    {
+      "personId": "손시헌",
+      "name": "손시헌",
+      "year": 2015,
+      "team": "NC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 62,
+        "speed": 48,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".245/.319 13HR 58타점 3SB 508PA — KBO 기록실"
+    },
+    {
+      "personId": "나성범",
+      "name": "나성범",
+      "year": 2015,
+      "team": "NC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 80,
+        "contact": 86,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "외야수 골든글러브",
+      "source": ".326/.373 28HR 135타점 23SB 622PA — KBO 기록실"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2015,
+      "team": "NC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 48,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".268/.350 5HR 52타점 17SB 504PA — KBO 기록실"
+    },
+    {
+      "personId": "김종호",
+      "name": "김종호",
+      "year": 2015,
+      "team": "NC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 47,
+        "speed": 89,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295/.364 4HR 36타점 41SB 486PA — KBO 기록실"
+    },
+    {
+      "personId": "이호준",
+      "name": "이호준",
+      "year": 2015,
+      "team": "NC",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 75,
+        "speed": 40,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".294/.381 24HR 110타점 0SB 518PA — KBO 기록실"
+    }
+  ]
+}
