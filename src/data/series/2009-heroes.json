@@ -287,7 +287,7 @@
       "team": "히어로즈",
       "position": "DH",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "contact": 62,
         "power": 80,

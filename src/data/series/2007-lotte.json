@@ -83,7 +83,7 @@
       "team": "롯데",
       "position": "RP",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "stuff": 87,
         "control": 72,

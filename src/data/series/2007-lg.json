@@ -253,7 +253,7 @@
       "team": "LG",
       "position": "OF",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "contact": 74,
         "power": 64,

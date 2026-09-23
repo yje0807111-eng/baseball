@@ -253,7 +253,7 @@
       "team": "롯데",
       "position": "OF",
       "hand": "L",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "contact": 69,
         "power": 83,

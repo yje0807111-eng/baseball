@@ -253,7 +253,7 @@
       "team": "한화",
       "position": "OF",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "contact": 86,
         "power": 77,

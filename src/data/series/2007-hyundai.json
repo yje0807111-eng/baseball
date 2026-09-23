@@ -236,7 +236,7 @@
       "team": "현대",
       "position": "OF",
       "hand": "R",
-      "isForeign": false,
+      "isForeign": true,
       "stats": {
         "contact": 82,
         "power": 83,
