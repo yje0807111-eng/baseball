@@ -16,7 +16,7 @@ import {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
-const SB_W = 180;
+const SB_W = 150;
 const SB_PAPER = 'rgba(199,206,217,.95)'; // 중계 자막처럼 밝지만 눈이 편한 회색 판
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
@@ -487,13 +487,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         <div className="relative z-10 col-start-1 row-start-2 self-start">
           <div className="flex items-stretch gap-2" style={{ width: 'max-content', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              {/* 회 — 빨간 기둥에 화살표와 숫자 */}
-              <span className="grid w-9 shrink-0 place-items-center bg-[#dc2626] leading-none text-white">
+              {/* 회 — 밝은 회색 기둥에 빨간 화살표와 숫자 */}
+              <span className="grid w-10 shrink-0 place-items-center border-r border-black/15 leading-none text-[#dc2626]" style={{ background: 'rgba(255,255,255,.5)' }}>
                 {g.final ? (
-                  <b className="font-display text-[11px] font-extrabold">END</b>
+                  <b className="font-display text-[12px] font-extrabold tracking-[0.06em]">END</b>
                 ) : (
-                  <b className="text-center font-display text-[17px] font-extrabold">
-                    <i className="block text-[10px] not-italic">{g.top ? '▲' : '▼'}</i>{g.inning}
+                  <b className="text-center font-display text-[24px] font-extrabold leading-none">
+                    <i className="mb-0.5 block text-[11px] leading-none not-italic">{g.top ? '▲' : '▼'}</i>{g.inning}
                   </b>
                 )}
               </span>
@@ -519,9 +519,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} off="rgba(0,0,0,.16)" />
               </span>
               {/* 주루 — 그 아래 작게 투구 수 */}
-              <span className="flex flex-col items-center justify-center border-l border-black/20 px-2.5 pb-1 pt-1.5">
-                <Diamond bases={g.bases} size={74} />
-                <b className="-mt-1 font-display text-[12px] font-extrabold text-[#0b1220]/70">{def.pitches}<small className="ml-1 font-normal tracking-[0.1em] text-[#0b1220]/45">P</small></b>
+              <span className="flex flex-col items-center justify-center border-l border-black/20 px-2.5 pb-0.5 pt-2.5">
+                <Diamond bases={g.bases} size={88} />
+                <b className="-mt-3 font-display text-[12px] font-extrabold text-[#0b1220]/70">{def.pitches}<small className="ml-1 font-normal tracking-[0.1em] text-[#0b1220]/45">P</small></b>
               </span>
             </div>
           </div>
