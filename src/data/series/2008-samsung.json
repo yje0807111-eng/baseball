@@ -1,0 +1,318 @@
+{
+  "id": "2008-samsung",
+  "kind": "team",
+  "year": 2008,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "최형우 19홈런 · 오승환 39세이브",
+  "blurb": "최형우가 19홈런을 치고, 오승환이 39세이브로 뒷문을 잠갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤성환",
+      "name": "윤성환",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 72,
+        "stamina": 75,
+        "stability": 75
+      },
+      "note": "",
+      "source": "35G 135 1/3IP ERA3.92 102K 45BB WHIP1.31 10승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "이상목",
+      "name": "이상목",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 83,
+        "stamina": 73,
+        "stability": 59
+      },
+      "note": "",
+      "source": "31G 124 2/3IP ERA5.34 53K 29BB WHIP1.45 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 72,
+        "stamina": 70,
+        "stability": 67
+      },
+      "note": "",
+      "source": "27G 114 2/3IP ERA4.55 71K 38BB WHIP1.44 9승 — KBO 기록실"
+    },
+    {
+      "personId": "오버뮬러",
+      "name": "오버뮬러",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 60,
+        "control": 70,
+        "stamina": 59,
+        "stability": 54
+      },
+      "note": "",
+      "source": "17G 82IP ERA5.82 49K 29BB WHIP1.48 6승 — KBO 기록실"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 80,
+        "stamina": 50,
+        "stability": 99
+      },
+      "note": "",
+      "source": "57G 57 2/3IP ERA1.40 51K 15BB WHIP0.85 1승 39SV — KBO 기록실"
+    },
+    {
+      "personId": "정현욱",
+      "name": "정현욱",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 61,
+        "stamina": 60,
+        "stability": 81
+      },
+      "note": "",
+      "source": "53G 127IP ERA3.40 97K 55BB WHIP1.28 10승 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "안지만",
+      "name": "안지만",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 65,
+        "stamina": 59,
+        "stability": 85
+      },
+      "note": "",
+      "source": "51G 69 2/3IP ERA2.97 64K 28BB WHIP1.36 5승 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "권혁",
+      "name": "권혁",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 59,
+        "stamina": 50,
+        "stability": 97
+      },
+      "note": "15홀드",
+      "source": "43G 47 2/3IP ERA1.32 37K 22BB WHIP1.22 6승 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2008,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 73,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".279/.349 11HR 45타점 1SB 313PA — KBO 기록실"
+    },
+    {
+      "personId": "채태인",
+      "name": "채태인",
+      "year": 2008,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 72,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".266/.322 10HR 42타점 1SB 270PA — KBO 기록실"
+    },
+    {
+      "personId": "신명철",
+      "name": "신명철",
+      "year": 2008,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 44,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".184/.244 1HR 17타점 9SB 278PA — KBO 기록실"
+    },
+    {
+      "personId": "박석민",
+      "name": "박석민",
+      "year": 2008,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 67,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".279/.385 14HR 64타점 2SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 50,
+        "contact": 61,
+        "speed": 55,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".244/.335 5HR 38타점 5SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2008,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 50,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".316/.414 4HR 41타점 5SB 442PA — KBO 기록실"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2008,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 77,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".276/.364 19HR 71타점 3SB 440PA — KBO 기록실"
+    },
+    {
+      "personId": "김창희",
+      "name": "김창희",
+      "year": 2008,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 44,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".282/.373 1HR 19타점 2SB 264PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2008,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 60,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".278/.364 8HR 49타점 1SB 443PA — KBO 기록실"
+    },
+    {
+      "personId": "김재걸",
+      "name": "김재걸",
+      "year": 2008,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 45,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".230/.322 1HR 11타점 6SB 219PA — KBO 기록실"
+    }
+  ]
+}

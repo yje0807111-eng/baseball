@@ -1,0 +1,318 @@
+{
+  "id": "2004-doosan",
+  "kind": "team",
+  "year": 2004,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "레스 17승 · 박명환 12승",
+  "blurb": "레스가 17승, 박명환이 방어율 2.50으로 던지고, 홍성흔이 .329를 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "레스",
+      "name": "레스",
+      "year": 2004,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 63,
+        "control": 77,
+        "stamina": 93,
+        "stability": 89
+      },
+      "note": "",
+      "source": "29G 200 2/3IP ERA2.60 116K 57BB WHIP1.23 17승 — KBO 기록실"
+    },
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2004,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 73,
+        "stamina": 82,
+        "stability": 90
+      },
+      "note": "",
+      "source": "26G 158 2/3IP ERA2.50 162K 52BB WHIP1.15 12승 — KBO 기록실"
+    },
+    {
+      "personId": "키퍼",
+      "name": "키퍼",
+      "year": 2004,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 58,
+        "control": 68,
+        "stamina": 67,
+        "stability": 66
+      },
+      "note": "",
+      "source": "19G 103 2/3IP ERA4.69 50K 38BB WHIP1.48 7승 — KBO 기록실"
+    },
+    {
+      "personId": "이경필",
+      "name": "이경필",
+      "year": 2004,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 60,
+        "stamina": 66,
+        "stability": 63
+      },
+      "note": "",
+      "source": "21G 99 2/3IP ERA4.70 49K 44BB WHIP1.58 5승 — KBO 기록실"
+    },
+    {
+      "personId": "구자운",
+      "name": "구자운",
+      "year": 2004,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 79,
+        "stamina": 55,
+        "stability": 79
+      },
+      "note": "",
+      "source": "54G 47 2/3IP ERA3.59 39K 13BB WHIP1.22 4승 32SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재영",
+      "name": "이재영",
+      "year": 2004,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 63,
+        "stamina": 60,
+        "stability": 89
+      },
+      "note": "",
+      "source": "60G 94IP ERA2.59 79K 39BB WHIP1.17 9승 3SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "정성훈",
+      "name": "정성훈",
+      "year": 2004,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 82,
+        "stamina": 60,
+        "stability": 84
+      },
+      "note": "",
+      "source": "79G 83 2/3IP ERA3.12 42K 20BB WHIP1.00 3승 2SV 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2004,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 49,
+        "stamina": 55,
+        "stability": 50
+      },
+      "note": "",
+      "source": "79G 52IP ERA5.88 35K 31BB WHIP1.60 2승 1SV 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2004,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 65,
+        "contact": 89,
+        "speed": 64,
+        "defense": 72
+      },
+      "note": "",
+      "source": ".329/.384 14HR 86타점 10SB 552PA — KBO 기록실"
+    },
+    {
+      "personId": "강인권",
+      "name": "강인권",
+      "year": 2004,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 40,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".238/.290 0HR 23타점 0SB 182PA — KBO 기록실"
+    },
+    {
+      "personId": "장원진",
+      "name": "장원진",
+      "year": 2004,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 51,
+        "speed": 55,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".284/.356 5HR 49타점 5SB 486PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 2004,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 60,
+        "speed": 60,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".280/.372 10HR 51타점 8SB 525PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2004,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 71,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".286/.402 19HR 76타점 4SB 517PA — KBO 기록실"
+    },
+    {
+      "personId": "손시헌",
+      "name": "손시헌",
+      "year": 2004,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 46,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".231/.298 2HR 39타점 0SB 395PA — KBO 기록실"
+    },
+    {
+      "personId": "전상렬",
+      "name": "전상렬",
+      "year": 2004,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 50,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".274/.329 5HR 42타점 15SB 542PA — KBO 기록실"
+    },
+    {
+      "personId": "최경환",
+      "name": "최경환",
+      "year": 2004,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 51,
+        "speed": 69,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".278/.331 5HR 58타점 14SB 480PA — KBO 기록실"
+    },
+    {
+      "personId": "김창희",
+      "name": "김창희",
+      "year": 2004,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 53,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".276/.355 4HR 31타점 2SB 344PA — KBO 기록실"
+    },
+    {
+      "personId": "홍원기",
+      "name": "홍원기",
+      "year": 2004,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 52,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".213/.303 2HR 18타점 0SB 190PA — KBO 기록실"
+    }
+  ]
+}

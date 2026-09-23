@@ -23,10 +23,11 @@ const TEAM = {
   HH: { ko: '한화', title: '한화 이글스', fr: 'HANWHA' },
   SK: { ko: 'SSG', title: 'SSG 랜더스', fr: 'SSG' },
   LG: { ko: 'LG', title: 'LG 트윈스', fr: 'LG' },
+  HD: { ko: '현대', title: '현대 유니콘스', fr: 'HYUNDAI' },
 };
 /* 그해 당시 이름 — 규격은 그 시즌에 쓰던 구단명을 쓰라고 한다 */
 const THEN = {
-  WO: [[2019, { ko: '키움', title: '키움 히어로즈' }], [2010, { ko: '넥센', title: '넥센 히어로즈' }]],
+  WO: [[2019, { ko: '키움', title: '키움 히어로즈' }], [2010, { ko: '넥센', title: '넥센 히어로즈' }], [2008, { ko: '히어로즈', title: '히어로즈' }]],
   SK: [[2021, { ko: 'SSG', title: 'SSG 랜더스' }], [2000, { ko: 'SK', title: 'SK 와이번스' }]],
 };
 /** 그 해의 구단 이름 · 프랜차이즈 */
@@ -37,9 +38,9 @@ export function teamOf(code, year) {
   for (const [from, name] of rules) if (year >= from) return { ...base, ...name };
   return base;
 }
-const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg' };
+const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg', HD: 'hyundai' };
 /** 파일 이름 — 구단명이 바뀌기 전 시즌은 그때 이름으로 (2017-sk · 2014-nexen) */
-export const slugOf = (code, year) => (code === 'SK' && year < 2021 ? 'sk' : code === 'WO' && year < 2019 ? 'nexen' : SLUG[code]);
+export const slugOf = (code, year) => (code === 'SK' && year < 2021 ? 'sk' : code === 'WO' ? (year < 2010 ? 'heroes' : year < 2019 ? 'nexen' : 'kiwoom') : SLUG[code]);
 const POS = { 포수: 'C', '1루수': '1B', '2루수': '2B', '3루수': '3B', 유격수: 'SS', 좌익수: 'OF', 중견수: 'OF', 우익수: 'OF', 지명타자: 'DH', '?': 'DH' };
 /** 자리별 수비 평판 — 그 자리 주전이면 기본, 출장이 적으면 낮춘다 */
 const FIELD = (pos, pa) => (pa >= 450 ? (pos === 'C' || pos === 'SS' || pos === 'OF' ? 'good' : 'ok') : 'ok');
@@ -108,31 +109,33 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
     if (!d) return name;
     return d[`${year}-${code}`] || d[code] || d[role] || name;
   };
-  /* 이미 다른 시리즈에 있는 같은 선수 · 같은 시즌이면 그 값을 그대로 */
-  const reuse = (draft) => {
+  /* 이미 다른 시리즈에 있는 같은 선수 · 같은 시즌이면 그 값을 그대로 — 자리를 손으로 정했으면 그 자리는 지킨다 */
+  const reuse = (draft, keepPos = false) => {
     const had = known.get(`${draft.personId}|${draft.year}`);
     if (!had) return draft;
-    return { ...draft, position: had.position, hand: had.hand, isForeign: had.isForeign, stats: { ...had.stats }, note: had.note || draft.note };
+    return { ...draft, position: keepPos ? draft.position : had.position, hand: had.hand, isForeign: had.isForeign, stats: { ...had.stats }, note: had.note || draft.note };
   };
   for (const p of pit) {
     const role = isStarter(p) ? 'SP' : 'RP';
     players.push(reuse({
       personId: idOf(p.name, role), name: p.name, year, team: t.ko, position: role,
-      hand: (hands[p.name] || 'RR')[0], isForeign: foreign.has(p.name),
+      hand: (hands[idOf(p.name, role)] || hands[p.name] || 'RR')[0], isForeign: foreign.has(p.name),
       stats: pitRating({ ip: p.ip, era: p.era, so: p.so, bb: p.bb, whip: p.whip || null, role, year }),
       note: '',
       source: `${p.g}G ${p.ip}IP ERA${p.era.toFixed(2)} ${p.so}K ${p.bb}BB WHIP${p.whip.toFixed(2)}${p.w ? ` ${p.w}승` : ''}${p.sv ? ` ${p.sv}SV` : ''}${p.hld ? ` ${p.hld}HLD` : ''} — KBO 기록실`,
     }));
   }
   for (const b of bat) {
-    const pos = posFix[`${year}-${code}`]?.[b.name] || b.pos;
+    const fixed = posFix[`${year}-${code}`]?.[b.name];
+    const pos = fixed || b.pos;
     players.push(reuse({
       personId: idOf(b.name, pos), name: b.name, year, team: t.ko, position: pos,
-      hand: (hands[b.name] || 'RR')[1], isForeign: foreign.has(b.name),
+      hand: (hands[idOf(b.name, pos)] || hands[b.name] || 'RR')[1], isForeign: foreign.has(b.name),
       stats: batRating({ avg: b.avg, hr: b.hr, sb: b.sb, pos, pa: b.pa, year, fielding: FIELD(pos, b.pa) }),
       note: '',
-      source: `${numText(b.avg.toFixed(3))}/${numText(b.obp.toFixed(3))} ${b.hr}HR ${b.rbi}타점 ${b.sb}SB ${b.pa}PA — KBO 기록실`,
-    }));
+      /* 옛 시즌은 기록실에 출루율이 없는 팀이 있다 — 타율보다 낮게 들어온 값은 쓰지 않는다 */
+      source: `${numText(b.avg.toFixed(3))}${b.obp > b.avg ? `/${numText(b.obp.toFixed(3))}` : ''} ${b.hr}HR ${b.rbi}타점 ${b.sb}SB ${b.pa}PA — KBO 기록실`,
+    }, !!fixed));
   }
   return {
     id: `${year}-${slugOf(code, year)}`,

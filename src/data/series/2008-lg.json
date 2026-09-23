@@ -1,0 +1,318 @@
+{
+  "id": "2008-lg",
+  "kind": "team",
+  "year": 2008,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "봉중근 11승 · 페타지니 .347",
+  "blurb": "봉중근이 186이닝을 던지고, 페타지니가 .347로 타선의 중심에 섰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 68,
+        "stamina": 89,
+        "stability": 88
+      },
+      "note": "",
+      "source": "28G 186 1/3IP ERA2.66 140K 68BB WHIP1.19 11승 — KBO 기록실"
+    },
+    {
+      "personId": "옥스프링",
+      "name": "옥스프링",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 65,
+        "control": 60,
+        "stamina": 86,
+        "stability": 75
+      },
+      "note": "",
+      "source": "29G 174IP ERA3.93 110K 77BB WHIP1.49 10승 — KBO 기록실"
+    },
+    {
+      "personId": "심수창",
+      "name": "심수창",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 72,
+        "stamina": 54,
+        "stability": 57
+      },
+      "note": "",
+      "source": "16G 66 1/3IP ERA5.16 20K 22BB WHIP1.79 6승 — KBO 기록실"
+    },
+    {
+      "personId": "최원호",
+      "name": "최원호",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 47,
+        "control": 58,
+        "stamina": 45,
+        "stability": 50
+      },
+      "note": "",
+      "source": "11G 39 2/3IP ERA5.90 14K 19BB WHIP1.74 1승 — KBO 기록실"
+    },
+    {
+      "personId": "정재복",
+      "name": "정재복",
+      "year": 2008,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 66,
+        "stamina": 59,
+        "stability": 75
+      },
+      "note": "",
+      "source": "55G 71 2/3IP ERA3.89 44K 28BB WHIP1.38 4승 13SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "정찬헌",
+      "name": "정찬헌",
+      "year": 2008,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 71,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "39G 106 1/3IP ERA5.50 59K 36BB WHIP1.57 3승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2008,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 76,
+        "stamina": 55,
+        "stability": 63
+      },
+      "note": "",
+      "source": "54G 51 1/3IP ERA4.91 16K 15BB WHIP1.40 3승 10SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재영",
+      "name": "이재영",
+      "year": 2008,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 58,
+        "stamina": 59,
+        "stability": 51
+      },
+      "note": "",
+      "source": "48G 68 1/3IP ERA6.19 39K 32BB WHIP1.48 1승 1SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2008,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 67,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".227/.264 10HR 49타점 0SB 353PA — KBO 기록실"
+    },
+    {
+      "personId": "김정민",
+      "name": "김정민",
+      "year": 2008,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 46,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".303/.370 1HR 17타점 1SB 178PA — KBO 기록실"
+    },
+    {
+      "personId": "최동수",
+      "name": "최동수",
+      "year": 2008,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 69,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".265/.331 14HR 62타점 0SB 431PA — KBO 기록실"
+    },
+    {
+      "personId": "박경수",
+      "name": "박경수",
+      "year": 2008,
+      "team": "LG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 60,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".259/.330 8HR 43타점 6SB 444PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 2008,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 44,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".232/.284 1HR 26타점 0SB 303PA — KBO 기록실"
+    },
+    {
+      "personId": "권용관",
+      "name": "권용관",
+      "year": 2008,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 45,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".228/.257 1HR 14타점 1SB 230PA — KBO 기록실"
+    },
+    {
+      "personId": "이대형",
+      "name": "이대형",
+      "year": 2008,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 40,
+        "speed": 98,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".264/.317 0HR 33타점 63SB 574PA — KBO 기록실"
+    },
+    {
+      "personId": "안치용",
+      "name": "안치용",
+      "year": 2008,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 58,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".295/.354 7HR 52타점 7SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2008,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 46,
+        "speed": 71,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".257/.325 2HR 32타점 16SB 374PA — KBO 기록실"
+    },
+    {
+      "personId": "페타지니",
+      "name": "페타지니",
+      "year": 2008,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 94,
+        "power": 66,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".347/.452 7HR 35타점 1SB 259PA — KBO 기록실"
+    }
+  ]
+}

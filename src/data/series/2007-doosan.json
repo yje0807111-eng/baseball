@@ -1,0 +1,318 @@
+{
+  "id": "2007-doosan",
+  "kind": "team",
+  "year": 2007,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "리오스 22승 · 김동주 .322",
+  "blurb": "리오스가 22승 방어율 2.07로 던졌고, 신인 임태훈이 불펜에서 20홀드를 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "리오스",
+      "name": "리오스",
+      "year": 2007,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 81,
+        "stamina": 96,
+        "stability": 94
+      },
+      "note": "22승·ERA 2.07·MVP",
+      "source": "33G 234 2/3IP ERA2.07 147K 58BB WHIP1.06 22승 — KBO 기록실"
+    },
+    {
+      "personId": "랜들",
+      "name": "랜들",
+      "year": 2007,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 68,
+        "control": 72,
+        "stamina": 83,
+        "stability": 84
+      },
+      "note": "",
+      "source": "28G 164 1/3IP ERA3.12 113K 55BB WHIP1.20 12승 — KBO 기록실"
+    },
+    {
+      "personId": "김명제",
+      "name": "김명제",
+      "year": 2007,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 71,
+        "stamina": 71,
+        "stability": 62
+      },
+      "note": "",
+      "source": "30G 117 2/3IP ERA5.05 63K 40BB WHIP1.47 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "임태훈",
+      "name": "임태훈",
+      "year": 2007,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 70,
+        "stamina": 60,
+        "stability": 91
+      },
+      "note": "",
+      "source": "64G 101 1/3IP ERA2.40 93K 36BB WHIP1.12 7승 1SV 20HLD — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2007,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 53,
+        "stamina": 57,
+        "stability": 90
+      },
+      "note": "",
+      "source": "52G 59IP ERA2.44 54K 32BB WHIP1.46 5승 25SV — KBO 기록실"
+    },
+    {
+      "personId": "김승회",
+      "name": "김승회",
+      "year": 2007,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 67,
+        "stamina": 60,
+        "stability": 68
+      },
+      "note": "",
+      "source": "42G 83 1/3IP ERA4.54 36K 32BB WHIP1.50 2승 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "김태영",
+      "name": "김태영",
+      "year": 2007,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 80,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "28G 72 2/3IP ERA4.33 52K 19BB WHIP1.33 4승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "채상병",
+      "name": "채상병",
+      "year": 2007,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 63,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".237/.288 7HR 30타점 2SB 307PA — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2007,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 60,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".268/.354 5HR 39타점 0SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "최준석",
+      "name": "최준석",
+      "year": 2007,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 71,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".244/.330 16HR 75타점 1SB 451PA — KBO 기록실"
+    },
+    {
+      "personId": "고영민",
+      "name": "고영민",
+      "year": 2007,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 69,
+        "speed": 88,
+        "defense": 86
+      },
+      "note": "2루수 골든글러브",
+      "source": ".268/.373 12HR 66타점 36SB 536PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2007,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 86,
+        "speed": 65,
+        "defense": 74
+      },
+      "note": "출루율 1위 .457·GG",
+      "source": ".322/.457 19HR 78타점 11SB 481PA — KBO 기록실"
+    },
+    {
+      "personId": "이대수",
+      "name": "이대수",
+      "year": 2007,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 49,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".252/.324 3HR 36타점 5SB 366PA — KBO 기록실"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2007,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 42,
+        "contact": 85,
+        "speed": 93,
+        "defense": 88
+      },
+      "note": "47도루",
+      "source": ".316/.382 1HR 46타점 47SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "민병헌",
+      "name": "민병헌",
+      "year": 2007,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 49,
+        "speed": 84,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".244/.308 3HR 31타점 30SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2007,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 56,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".273/.335 5HR 32타점 5SB 353PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 2007,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 46,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".274/.341 2HR 49타점 1SB 400PA — KBO 기록실"
+    },
+    {
+      "personId": "윤재국",
+      "name": "윤재국",
+      "year": 2007,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 55,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".257/.321 3HR 23타점 5SB 227PA — KBO 기록실"
+    }
+  ]
+}

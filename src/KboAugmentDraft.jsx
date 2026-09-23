@@ -134,12 +134,12 @@ export const DRAFT_MODES = [
     desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
   { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1330,
     desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
-  // 연도별 시즌: 그해 구단 시즌 · 국가대표가 2개 이상인 해마다 하나씩
-  ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind !== 'legend').map((x) => x.year))]
-    .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind !== 'legend').length >= 2)
+  // 연도별 시즌: 그해 구단 시즌이 둘 이상인 해마다 하나씩 (국가대표는 태극마크 모드에서만)
+  ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind === 'team').map((x) => x.year))]
+    .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind === 'team').length >= 2)
     .sort((a, b) => b - a)
     .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1330,
-      desc: `${y}년 구단 시즌과 국가대표 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind !== 'legend' })),
+      desc: `${y}년 그해 구단 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind === 'team' })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
   return { ...m, series, players: series.flatMap((s) => s.players) };
@@ -4894,20 +4894,7 @@ function BasicHero({ mode, tickets, acc }) {
             </div>
             {hero && <div className="shrink-0" style={{ width: 176, height: 112, ...veil }}><SeriesTicket t={hero} acc={acc} fit /></div>}
           </div>
-          <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
-            {groupTickets(rest).map(([ko, list]) => (
-              <React.Fragment key={ko}>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: acc }}>SERIES</span>
-                  <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
-                  <span className="h-px flex-1 bg-white/10" />
-                </div>
-                <div className="mt-1.5 grid gap-1.5" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gridAutoRows: '66px' }}>
-                  {list.map((t) => <SeriesTicket key={t.key} t={t} acc={acc} sm />)}
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+          <SeriesFolds groups={groupTickets(rest)} acc={acc} />
         </div>
         <div className="flex min-h-0 flex-col justify-end pb-1">
           <p className="ui-lab font-display" style={{ '--a': acc }}>Stars</p>
@@ -4922,6 +4909,42 @@ function BasicHero({ mode, tickets, acc }) {
     </>
   );
 }
+
+/** 이 모드에 열리는 시리즈 — 묶음 머리만 보이고, 누른 묶음 하나만 칩으로 펼친다 */
+function SeriesFolds({ groups, acc }) {
+  const [open, setOpen] = useState(groups[0]?.[0] || '');
+  return (
+    <div className="syn-scroll min-h-0 overflow-y-auto pr-1">
+      {groups.map(([ko, list]) => {
+        const on = open === ko;
+        return (
+          <React.Fragment key={ko}>
+            <button type="button" onClick={() => setOpen(on ? '' : ko)}
+              className="mt-3 flex w-full items-center gap-2 text-left transition hover:brightness-125">
+              <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: acc }}>SERIES</span>
+              <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
+              <span className="h-px flex-1 bg-white/10" />
+              <span className="font-display text-[11px] text-gray-500">{on ? '접기 ▲' : '펼치기 ▼'}</span>
+            </button>
+            {on && (
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {list.map((t) => (
+                  <span key={t.key} className="ui-cut inline-flex items-center gap-1.5 bg-white/[0.055] px-2.5 py-1 text-[12.5px] text-gray-200"
+                    style={{ '--c': '5px' }} title={t.sub || t.title}>
+                    {Number.isFinite(t.year) && <b className="font-display text-[12px]" style={{ color: acc }}>{t.year}</b>}
+                    {seriesChipName(t.title)}
+                  </span>
+                ))}
+              </div>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+/** 칩에 들어갈 짧은 이름 — 구단 별명은 떼고 앞말만 */
+const seriesChipName = (title = '') => title.replace(/ (타이거즈|라이온즈|트윈스|베어스|이글스|자이언츠|다이노스|위즈|랜더스|히어로즈|유니콘스|와이번스)$/, '');
 
 /** 그 해 최고 한 명 — 얼굴을 크게, 아래에 포지션 · 소속 · 그 해 기록 */
 function YearBig({ p, w, h }) {

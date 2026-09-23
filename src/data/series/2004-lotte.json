@@ -1,0 +1,318 @@
+{
+  "id": "2004-lotte",
+  "kind": "team",
+  "year": 2004,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "페레즈 18홈런 · 김주찬 44도루",
+  "blurb": "페레즈가 18홈런 86타점을 치고, 김주찬이 44도루로 뛰었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박지철",
+      "name": "박지철",
+      "year": 2004,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 62,
+        "stamina": 77,
+        "stability": 76
+      },
+      "note": "",
+      "source": "27G 139 2/3IP ERA3.87 94K 60BB WHIP1.37 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김장현",
+      "name": "김장현",
+      "year": 2004,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 75,
+        "stamina": 71,
+        "stability": 58
+      },
+      "note": "",
+      "source": "25G 117 2/3IP ERA5.43 61K 36BB WHIP1.35 4승 — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 2004,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 76,
+        "stamina": 67,
+        "stability": 67
+      },
+      "note": "",
+      "source": "21G 102IP ERA4.59 55K 30BB WHIP1.40 3승 — KBO 기록실"
+    },
+    {
+      "personId": "이상목",
+      "name": "이상목",
+      "year": 2004,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 88,
+        "stamina": 61,
+        "stability": 62
+      },
+      "note": "",
+      "source": "19G 87 2/3IP ERA5.03 51K 16BB WHIP1.46 3승 — KBO 기록실"
+    },
+    {
+      "personId": "임경완",
+      "name": "임경완",
+      "year": 2004,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 66,
+        "stamina": 60,
+        "stability": 83
+      },
+      "note": "",
+      "source": "67G 105 1/3IP ERA3.16 72K 41BB WHIP1.36 4승 5SV 22HLD — KBO 기록실"
+    },
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2004,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 79,
+        "stamina": 60,
+        "stability": 88
+      },
+      "note": "",
+      "source": "42G 108 2/3IP ERA2.73 88K 29BB WHIP1.10 9승 8SV — KBO 기록실"
+    },
+    {
+      "personId": "노장진",
+      "name": "노장진",
+      "year": 2004,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 48,
+        "stamina": 54,
+        "stability": 70
+      },
+      "note": "",
+      "source": "34G 46IP ERA4.11 55K 28BB WHIP1.72 1승 17SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "장원준",
+      "name": "장원준",
+      "year": 2004,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 44,
+        "stamina": 60,
+        "stability": 53
+      },
+      "note": "",
+      "source": "33G 84 2/3IP ERA5.63 36K 57BB WHIP1.67 3승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "최기문",
+      "name": "최기문",
+      "year": 2004,
+      "team": "롯데",
+      "position": "C",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 46,
+        "speed": 59,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".272/.341 2HR 32타점 7SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "라이온",
+      "name": "라이온",
+      "year": 2004,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 80,
+        "power": 66,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".300/.346 12HR 55타점 3SB 438PA — KBO 기록실"
+    },
+    {
+      "personId": "박준서",
+      "name": "박준서",
+      "year": 2004,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 58,
+        "speed": 55,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".242/.314 3HR 18타점 5SB 182PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2004,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 72,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".248/.331 20HR 68타점 4SB 514PA — KBO 기록실"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2004,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 45,
+        "power": 57,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".203/.273 6HR 35타점 11SB 386PA — KBO 기록실"
+    },
+    {
+      "personId": "페레즈",
+      "name": "페레즈",
+      "year": 2004,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 84,
+        "power": 70,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".314/.362 18HR 86타점 7SB 532PA — KBO 기록실"
+    },
+    {
+      "personId": "김주찬",
+      "name": "김주찬",
+      "year": 2004,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 54,
+        "speed": 92,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".242/.310 7HR 42타점 44SB 503PA — KBO 기록실"
+    },
+    {
+      "personId": "손인호",
+      "name": "손인호",
+      "year": 2004,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 51,
+        "speed": 50,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".284/.382 5HR 42타점 3SB 480PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 2004,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 50,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".257/.347 3HR 29타점 24SB 340PA — KBO 기록실"
+    },
+    {
+      "personId": "박현승",
+      "name": "박현승",
+      "year": 2004,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 46,
+        "speed": 47,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".219/.327 1HR 11타점 2SB 174PA — KBO 기록실"
+    }
+  ]
+}

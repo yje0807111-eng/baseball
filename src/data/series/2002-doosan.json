@@ -1,0 +1,318 @@
+{
+  "id": "2002-doosan",
+  "kind": "team",
+  "year": 2002,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "레스 16승 · 박명환 14승",
+  "blurb": "레스 · 박명환 · 콜이 선발을 채우고, 김동주가 .318 26홈런을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "레스",
+      "name": "레스",
+      "year": 2002,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 71,
+        "control": 71,
+        "stamina": 93,
+        "stability": 76
+      },
+      "note": "",
+      "source": "31G 202 1/3IP ERA3.87 154K 69BB WHIP1.34 16승 — KBO 기록실"
+    },
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2002,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 68,
+        "stamina": 89,
+        "stability": 80
+      },
+      "note": "14승",
+      "source": "30G 185 2/3IP ERA3.44 169K 68BB WHIP1.30 14승 — KBO 기록실"
+    },
+    {
+      "personId": "콜",
+      "name": "콜",
+      "year": 2002,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 70,
+        "control": 59,
+        "stamina": 81,
+        "stability": 74
+      },
+      "note": "",
+      "source": "27G 157IP ERA4.01 114K 73BB WHIP1.43 12승 — KBO 기록실"
+    },
+    {
+      "personId": "구자운",
+      "name": "구자운",
+      "year": 2002,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 61,
+        "stamina": 75,
+        "stability": 77
+      },
+      "note": "",
+      "source": "32G 133IP ERA3.79 95K 58BB WHIP1.44 8승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 2002,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 76,
+        "stamina": 60,
+        "stability": 75
+      },
+      "note": "",
+      "source": "70G 133 2/3IP ERA3.91 93K 40BB WHIP1.26 4승 2SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "진필중",
+      "name": "진필중",
+      "year": 2002,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 80,
+        "stamina": 57,
+        "stability": 80
+      },
+      "note": "",
+      "source": "54G 62 1/3IP ERA3.47 58K 16BB WHIP1.22 4승 31SV — KBO 기록실"
+    },
+    {
+      "personId": "이재영",
+      "name": "이재영",
+      "year": 2002,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 57,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "67G 97 1/3IP ERA2.96 112K 47BB WHIP1.14 4승 2SV 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2002,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 50,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "78G 79IP ERA4.67 75K 46BB WHIP1.49 2승 1SV 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2002,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 76,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".289/.350 18HR 70타점 5SB 484PA — KBO 기록실"
+    },
+    {
+      "personId": "장원진",
+      "name": "장원진",
+      "year": 2002,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 42,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".275/.324 1HR 30타점 2SB 488PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 2002,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 56,
+        "speed": 55,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".288/.349 8HR 58타점 5SB 548PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2002,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 85,
+        "speed": 42,
+        "defense": 70
+      },
+      "note": "",
+      "source": ".318/.405 26HR 79타점 1SB 487PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 2002,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 52,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".156/.223 2HR 11타점 7SB 185PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 2002,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 47,
+        "speed": 90,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".235/.310 3HR 22타점 40SB 482PA — KBO 기록실"
+    },
+    {
+      "personId": "심재학",
+      "name": "심재학",
+      "year": 2002,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 69,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".245/.361 15HR 57타점 2SB 463PA — KBO 기록실"
+    },
+    {
+      "personId": "최경환",
+      "name": "최경환",
+      "year": 2002,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 69,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".274/.330 13HR 47타점 15SB 403PA — KBO 기록실"
+    },
+    {
+      "personId": "우즈",
+      "name": "우즈",
+      "year": 2002,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 65,
+        "power": 83,
+        "speed": 55,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".256/.339 25HR 82타점 5SB 469PA — KBO 기록실"
+    },
+    {
+      "personId": "전상렬",
+      "name": "전상렬",
+      "year": 2002,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 59,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".246/.292 5HR 26타점 10SB 290PA — KBO 기록실"
+    }
+  ]
+}

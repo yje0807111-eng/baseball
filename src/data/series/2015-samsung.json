@@ -1,0 +1,318 @@
+{
+  "id": "2015-samsung",
+  "kind": "team",
+  "year": 2015,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "정규시즌 1위 · 나바로 48홈런",
+  "blurb": "다섯 해 연속 정규시즌 1위. 나바로·최형우·박석민이 한 해에 100타점을 넘겼다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤성환",
+      "name": "윤성환",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 91,
+        "stamina": 91,
+        "stability": 80
+      },
+      "note": "17승",
+      "source": "30G 194IP ERA3.76 164K 30BB WHIP1.18 17승 — KBO 기록실"
+    },
+    {
+      "personId": "차우찬",
+      "name": "차우찬",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 62,
+        "stamina": 86,
+        "stability": 68
+      },
+      "note": "탈삼진 1위(194)",
+      "source": "31G 173IP ERA4.79 194K 74BB WHIP1.35 13승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "피가로",
+      "name": "피가로",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 75,
+        "stamina": 84,
+        "stability": 84
+      },
+      "note": "",
+      "source": "25G 165IP ERA3.38 117K 51BB WHIP1.24 13승 — KBO 기록실"
+    },
+    {
+      "personId": "클로이드",
+      "name": "클로이드",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 68,
+        "control": 82,
+        "stamina": 82,
+        "stability": 63
+      },
+      "note": "",
+      "source": "28G 159 2/3IP ERA5.19 123K 38BB WHIP1.43 11승 — KBO 기록실"
+    },
+    {
+      "personId": "안지만",
+      "name": "안지만",
+      "year": 2015,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 72,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "66G 78 1/3IP ERA3.33 96K 26BB WHIP1.30 4승 37HLD — KBO 기록실"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 2015,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 95,
+        "control": 82,
+        "stamina": 56,
+        "stability": 90
+      },
+      "note": "",
+      "source": "55G 54IP ERA2.83 71K 13BB WHIP1.07 5승 33SV — KBO 기록실"
+    },
+    {
+      "personId": "심창민",
+      "name": "심창민",
+      "year": 2015,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 95,
+        "control": 70,
+        "stamina": 58,
+        "stability": 74
+      },
+      "note": "",
+      "source": "61G 67 1/3IP ERA4.28 91K 24BB WHIP1.16 6승 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "박근홍",
+      "name": "박근홍",
+      "year": 2015,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 56,
+        "stamina": 55,
+        "stability": 88
+      },
+      "note": "",
+      "source": "66G 48 2/3IP ERA2.96 55K 24BB WHIP1.29 2승 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "이지영",
+      "name": "이지영",
+      "year": 2015,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 41,
+        "speed": 43,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".305/.333 1HR 55타점 1SB 400PA — KBO 기록실"
+    },
+    {
+      "personId": "구자욱",
+      "name": "구자욱",
+      "year": 2015,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 62,
+        "speed": 70,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".349/.417 11HR 57타점 17SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "나바로",
+      "name": "나바로",
+      "year": 2015,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 96,
+        "contact": 74,
+        "speed": 76,
+        "defense": 78
+      },
+      "note": "2루수 최다 48홈런·GG",
+      "source": ".287/.393 48HR 137타점 22SB 643PA — KBO 기록실"
+    },
+    {
+      "personId": "박석민",
+      "name": "박석민",
+      "year": 2015,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 84,
+        "speed": 42,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".321/.441 26HR 116타점 3SB 559PA — KBO 기록실"
+    },
+    {
+      "personId": "김상수",
+      "name": "김상수",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 54,
+        "speed": 79,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".278/.345 8HR 63타점 26SB 518PA — KBO 기록실"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2015,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 84,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".318/.402 33HR 123타점 2SB 637PA — KBO 기록실"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2015,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 40,
+        "speed": 95,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".293/.362 0HR 47타점 60SB 608PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2015,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 63,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".300/.389 11HR 52타점 6SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2015,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 77,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".332/.387 26HR 90타점 2SB 522PA — KBO 기록실"
+    },
+    {
+      "personId": "채태인",
+      "name": "채태인",
+      "year": 2015,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 60,
+        "speed": 40,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".348/.408 8HR 49타점 0SB 373PA — KBO 기록실"
+    }
+  ]
+}

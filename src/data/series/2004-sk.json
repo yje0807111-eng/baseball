@@ -1,0 +1,318 @@
+{
+  "id": "2004-sk",
+  "kind": "team",
+  "year": 2004,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "박경완 34홈런 · 이호준 112타점",
+  "blurb": "포수 박경완이 34홈런을 치고, 이호준이 30홈런 112타점을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2004,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 52,
+        "stamina": 74,
+        "stability": 88
+      },
+      "note": "",
+      "source": "31G 169IP ERA3.99 145K 87BB WHIP1.46 15승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김원형",
+      "name": "김원형",
+      "year": 2004,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 75,
+        "stamina": 75,
+        "stability": 72
+      },
+      "note": "",
+      "source": "30G 135IP ERA4.20 78K 41BB WHIP1.39 8승 1SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "엄정욱",
+      "name": "엄정욱",
+      "year": 2004,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 58,
+        "stamina": 67,
+        "stability": 77
+      },
+      "note": "",
+      "source": "22G 105 1/3IP ERA3.76 119K 50BB WHIP1.31 7승 1SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "제춘모",
+      "name": "제춘모",
+      "year": 2004,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 44,
+        "stamina": 54,
+        "stability": 50
+      },
+      "note": "",
+      "source": "18G 67 1/3IP ERA5.88 35K 46BB WHIP1.81 4승 — KBO 기록실"
+    },
+    {
+      "personId": "카브레라",
+      "name": "카브레라",
+      "year": 2004,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 75,
+        "control": 57,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "38G 102 2/3IP ERA4.65 85K 50BB WHIP1.45 4승 12SV — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2004,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 72,
+        "stamina": 60,
+        "stability": 84
+      },
+      "note": "",
+      "source": "55G 79IP ERA3.08 85K 26BB WHIP1.33 6승 9SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2004,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 86,
+        "stamina": 59,
+        "stability": 91
+      },
+      "note": "",
+      "source": "52G 69 1/3IP ERA2.34 50K 14BB WHIP1.10 2승 2SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "김건한",
+      "name": "김건한",
+      "year": 2004,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 61,
+        "stamina": 60,
+        "stability": 79
+      },
+      "note": "",
+      "source": "47G 99IP ERA3.55 53K 43BB WHIP1.43 3승 1SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2004,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 90,
+        "contact": 78,
+        "speed": 55,
+        "defense": 92
+      },
+      "note": "34홈런 홈런왕·포수 GG",
+      "source": ".295/.440 34HR 79타점 2SB 526PA — KBO 기록실"
+    },
+    {
+      "personId": "이호준",
+      "name": "이호준",
+      "year": 2004,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 84,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".280/.368 30HR 112타점 7SB 578PA — KBO 기록실"
+    },
+    {
+      "personId": "정경배",
+      "name": "정경배",
+      "year": 2004,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 62,
+        "speed": 47,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".296/.368 9HR 47타점 2SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "브리또",
+      "name": "브리또",
+      "year": 2004,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 67,
+        "power": 68,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".261/.345 13HR 50타점 0SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "김민재",
+      "name": "김민재",
+      "year": 2004,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 49,
+        "speed": 65,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".260/.300 4HR 40타점 11SB 489PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2004,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 68,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".342/.438 15HR 63타점 8SB 483PA — KBO 기록실"
+    },
+    {
+      "personId": "조원우",
+      "name": "조원우",
+      "year": 2004,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 47,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".277/.361 3HR 35타점 5SB 463PA — KBO 기록실"
+    },
+    {
+      "personId": "채종범",
+      "name": "채종범",
+      "year": 2004,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 60,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".293/.374 7HR 43타점 2SB 376PA — KBO 기록실"
+    },
+    {
+      "personId": "김기태",
+      "name": "김기태",
+      "year": 2004,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 62,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".320/.403 10HR 67타점 2SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "조경환",
+      "name": "조경환",
+      "year": 2004,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 60,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".239/.341 5HR 31타점 4SB 268PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "2009-heroes",
+  "kind": "team",
+  "year": 2009,
+  "title": "히어로즈",
+  "franchise": "KIWOOM",
+  "subtitle": "이택근 .311 43도루",
+  "blurb": "황재균 · 강정호 · 이택근이 뛰는 타선을 만들고, 이현승이 13승으로 선발을 맡았다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 66,
+        "stamina": 85,
+        "stability": 72
+      },
+      "note": "",
+      "source": "30G 170IP ERA4.18 120K 66BB WHIP1.34 13승 — KBO 기록실"
+    },
+    {
+      "personId": "김수경",
+      "name": "김수경",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 59,
+        "stamina": 71,
+        "stability": 44
+      },
+      "note": "",
+      "source": "25G 117 1/3IP ERA6.67 66K 53BB WHIP1.66 6승 — KBO 기록실"
+    },
+    {
+      "personId": "마일영",
+      "name": "마일영",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 56,
+        "stamina": 65,
+        "stability": 42
+      },
+      "note": "",
+      "source": "27G 97 1/3IP ERA6.93 51K 48BB WHIP1.80 5승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "장원삼",
+      "name": "장원삼",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 71,
+        "stamina": 62,
+        "stability": 54
+      },
+      "note": "",
+      "source": "19G 91IP ERA5.54 60K 31BB WHIP1.53 4승 — KBO 기록실"
+    },
+    {
+      "personId": "이보근",
+      "name": "이보근",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 56,
+        "stamina": 60,
+        "stability": 71
+      },
+      "note": "",
+      "source": "52G 88 2/3IP ERA4.26 58K 44BB WHIP1.33 7승 7SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "황두성",
+      "name": "황두성",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 67,
+        "stamina": 60,
+        "stability": 80
+      },
+      "note": "",
+      "source": "40G 92 1/3IP ERA3.51 79K 35BB WHIP1.20 8승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "송신영",
+      "name": "송신영",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 65,
+        "stamina": 60,
+        "stability": 57
+      },
+      "note": "",
+      "source": "58G 75 2/3IP ERA5.23 68K 30BB WHIP1.51 3승 4SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "강윤구",
+      "name": "강윤구",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 44,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "45G 80IP ERA5.51 79K 70BB WHIP1.68 3승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "강귀태",
+      "name": "강귀태",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 50,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".249/.319 3HR 37타점 3SB 326PA — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 50,
+        "speed": 60,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".296/.376 4HR 52타점 8SB 422PA — KBO 기록실"
+    },
+    {
+      "personId": "김일경",
+      "name": "김일경",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 47,
+        "speed": 84,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".257/.331 2HR 20타점 30SB 309PA — KBO 기록실"
+    },
+    {
+      "personId": "황재균",
+      "name": "황재균",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 70,
+        "speed": 84,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".284/.349 18HR 63타점 30SB 608PA — KBO 기록실"
+    },
+    {
+      "personId": "강정호",
+      "name": "강정호",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 76,
+        "speed": 50,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".286/.349 23HR 81타점 3SB 538PA — KBO 기록실"
+    },
+    {
+      "personId": "클락",
+      "name": "클락",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 77,
+        "power": 77,
+        "speed": 78,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".290/.376 24HR 90타점 23SB 559PA — KBO 기록실"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 66,
+        "speed": 92,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".311/.408 15HR 66타점 43SB 538PA — KBO 기록실"
+    },
+    {
+      "personId": "송지만",
+      "name": "송지만",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 81,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".289/.384 22HR 67타점 10SB 439PA — KBO 기록실"
+    },
+    {
+      "personId": "브룸바",
+      "name": "브룸바",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 62,
+        "power": 80,
+        "speed": 47,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".245/.371 27HR 86타점 2SB 526PA — KBO 기록실"
+    },
+    {
+      "personId": "정수성",
+      "name": "정수성",
+      "year": 2009,
+      "team": "히어로즈",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 61,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".230/.264 3HR 9타점 21SB 153PA — KBO 기록실"
+    }
+  ]
+}

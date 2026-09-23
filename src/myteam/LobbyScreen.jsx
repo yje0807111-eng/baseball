@@ -177,7 +177,7 @@ function RankPanel({ account, team, onRecord }) {
   );
 }
 
-export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onSignOut }) {
+export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onSignOut }) {
   const team = account.team;
 
   return (
@@ -202,9 +202,9 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
           desc="나올 증강 고르고 강화하기" onClick={onAugments} />
 
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
-          desc="지난 경기 다시 보기 (준비 중)" disabled />
+          desc="치른 경기 · 전적 · MVP" onClick={onRecord} />
 
-        <RankPanel account={account} team={team} />
+        <RankPanel account={account} team={team} onRecord={onRecord} />
       </div>
     </div>
   );

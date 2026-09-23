@@ -1,0 +1,318 @@
+{
+  "id": "2008-lotte",
+  "kind": "team",
+  "year": 2008,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "가르시아 30홈런 · 선발 셋 12승",
+  "blurb": "가르시아가 30홈런 111타점을 치고, 손민한 · 장원준 · 송승준이 나란히 12승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2008,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 84,
+        "stamina": 88,
+        "stability": 85
+      },
+      "note": "",
+      "source": "26G 179IP ERA2.97 80K 40BB WHIP1.25 12승 — KBO 기록실"
+    },
+    {
+      "personId": "장원준",
+      "name": "장원준",
+      "year": 2008,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 71,
+        "stamina": 81,
+        "stability": 80
+      },
+      "note": "",
+      "source": "26G 155 2/3IP ERA3.53 102K 54BB WHIP1.39 12승 — KBO 기록실"
+    },
+    {
+      "personId": "송승준",
+      "name": "송승준",
+      "year": 2008,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 59,
+        "stamina": 80,
+        "stability": 77
+      },
+      "note": "",
+      "source": "26G 153 1/3IP ERA3.76 114K 70BB WHIP1.46 12승 — KBO 기록실"
+    },
+    {
+      "personId": "매클레리",
+      "name": "매클레리",
+      "year": 2008,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 55,
+        "control": 55,
+        "stamina": 66,
+        "stability": 64
+      },
+      "note": "",
+      "source": "19G 101 2/3IP ERA4.60 43K 52BB WHIP1.64 5승 — KBO 기록실"
+    },
+    {
+      "personId": "강영식",
+      "name": "강영식",
+      "year": 2008,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 83,
+        "stamina": 56,
+        "stability": 89
+      },
+      "note": "",
+      "source": "64G 56 1/3IP ERA2.88 41K 13BB WHIP0.85 6승 2SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "최향남",
+      "name": "최향남",
+      "year": 2008,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 78,
+        "stamina": 55,
+        "stability": 82
+      },
+      "note": "",
+      "source": "37G 50 1/3IP ERA3.58 48K 14BB WHIP0.99 2승 9SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "김일엽",
+      "name": "김일엽",
+      "year": 2008,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 60,
+        "stamina": 55,
+        "stability": 83
+      },
+      "note": "",
+      "source": "32G 47 2/3IP ERA3.21 18K 21BB WHIP1.38 2승 1SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "임경완",
+      "name": "임경완",
+      "year": 2008,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 61,
+        "stamina": 53,
+        "stability": 72
+      },
+      "note": "",
+      "source": "38G 38 2/3IP ERA4.19 25K 17BB WHIP1.37 2승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2008,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 77,
+        "speed": 42,
+        "defense": 84
+      },
+      "note": "포수 골든글러브",
+      "source": ".292/.365 19HR 82타점 2SB 501PA — KBO 기록실"
+    },
+    {
+      "personId": "박현승",
+      "name": "박현승",
+      "year": 2008,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 45,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".218/.317 1HR 22타점 3SB 242PA — KBO 기록실"
+    },
+    {
+      "personId": "조성환",
+      "name": "조성환",
+      "year": 2008,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 60,
+        "speed": 85,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".327/.382 10HR 81타점 31SB 525PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2008,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 80,
+        "speed": 40,
+        "defense": 60
+      },
+      "note": "",
+      "source": ".301/.400 18HR 94타점 0SB 527PA — KBO 기록실"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2008,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 43,
+        "speed": 71,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291/.364 1HR 36타점 16SB 404PA — KBO 기록실"
+    },
+    {
+      "personId": "가르시아",
+      "name": "가르시아",
+      "year": 2008,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 84,
+        "contact": 74,
+        "speed": 55,
+        "defense": 80
+      },
+      "note": "타점왕·외야 골든글러브",
+      "source": ".283/.353 30HR 111타점 2SB 513PA — KBO 기록실"
+    },
+    {
+      "personId": "김주찬",
+      "name": "김주찬",
+      "year": 2008,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 42,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".313/.359 1HR 42타점 32SB 458PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 2008,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 40,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".291/.392 0HR 25타점 24SB 362PA — KBO 기록실"
+    },
+    {
+      "personId": "정보명",
+      "name": "정보명",
+      "year": 2008,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 50,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".277/.346 3HR 26타점 4SB 319PA — KBO 기록실"
+    },
+    {
+      "personId": "손아섭",
+      "name": "손아섭",
+      "year": 2008,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 53,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".303/.387 3HR 17타점 2SB 250PA — KBO 기록실"
+    }
+  ]
+}

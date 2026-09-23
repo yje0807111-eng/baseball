@@ -1,0 +1,318 @@
+{
+  "id": "2009-lotte",
+  "kind": "team",
+  "year": 2009,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "홍성흔 .371 · 조정훈 14승",
+  "blurb": "홍성흔이 타율 .371을 쳤고, 포크볼을 던지는 조정훈이 14승으로 선발 맨 앞에 섰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "조정훈",
+      "name": "조정훈",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 77,
+        "stamina": 89,
+        "stability": 73
+      },
+      "note": "",
+      "source": "27G 182 1/3IP ERA4.05 175K 53BB WHIP1.33 14승 — KBO 기록실"
+    },
+    {
+      "personId": "송승준",
+      "name": "송승준",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 64,
+        "stamina": 84,
+        "stability": 65
+      },
+      "note": "",
+      "source": "29G 167 2/3IP ERA4.72 104K 68BB WHIP1.45 13승 — KBO 기록실"
+    },
+    {
+      "personId": "장원준",
+      "name": "장원준",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 56,
+        "stamina": 83,
+        "stability": 69
+      },
+      "note": "",
+      "source": "28G 162 2/3IP ERA4.15 108K 82BB WHIP1.58 13승 — KBO 기록실"
+    },
+    {
+      "personId": "이용훈",
+      "name": "이용훈",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 51,
+        "stamina": 58,
+        "stability": 47
+      },
+      "note": "",
+      "source": "17G 80IP ERA6.30 35K 46BB WHIP1.71 5승 — KBO 기록실"
+    },
+    {
+      "personId": "애킨스",
+      "name": "애킨스",
+      "year": 2009,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 63,
+        "control": 60,
+        "stamina": 50,
+        "stability": 76
+      },
+      "note": "외국인 첫 구원왕",
+      "source": "50G 49 1/3IP ERA3.83 29K 22BB WHIP1.44 3승 26SV — KBO 기록실"
+    },
+    {
+      "personId": "이정훈",
+      "name": "이정훈",
+      "year": 2009,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 67,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "57G 74 1/3IP ERA3.03 50K 28BB WHIP1.41 1승 8SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "임경완",
+      "name": "임경완",
+      "year": 2009,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 77,
+        "stamina": 57,
+        "stability": 90
+      },
+      "note": "",
+      "source": "43G 62 1/3IP ERA2.45 37K 18BB WHIP1.17 4승 1SV 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "강영식",
+      "name": "강영식",
+      "year": 2009,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 50,
+        "stamina": 55,
+        "stability": 61
+      },
+      "note": "",
+      "source": "54G 48 1/3IP ERA4.84 31K 28BB WHIP1.63 4승 2SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2009,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 66,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".260/.346 9HR 30타점 0SB 301PA — KBO 기록실"
+    },
+    {
+      "personId": "최기문",
+      "name": "최기문",
+      "year": 2009,
+      "team": "롯데",
+      "position": "C",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 56,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".217/.323 2HR 10타점 1SB 136PA — KBO 기록실"
+    },
+    {
+      "personId": "김주찬",
+      "name": "김주찬",
+      "year": 2009,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 56,
+        "speed": 86,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".310/.356 7HR 51타점 34SB 479PA — KBO 기록실"
+    },
+    {
+      "personId": "조성환",
+      "name": "조성환",
+      "year": 2009,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 66,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".294/.341 8HR 36타점 13SB 294PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2009,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 82,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".293/.377 28HR 100타점 0SB 549PA — KBO 기록실"
+    },
+    {
+      "personId": "김민성",
+      "name": "김민성",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 51,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".248/.349 4HR 37타점 5SB 389PA — KBO 기록실"
+    },
+    {
+      "personId": "가르시아",
+      "name": "가르시아",
+      "year": 2009,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 83,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".266/.354 29HR 84타점 4SB 539PA — KBO 기록실"
+    },
+    {
+      "personId": "이인구",
+      "name": "이인구",
+      "year": 2009,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 58,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".269/.340 5HR 33타점 6SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "정보명",
+      "name": "정보명",
+      "year": 2009,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 49,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".296/.364 2HR 34타점 2SB 234PA — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2009,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 98,
+        "power": 64,
+        "speed": 62,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".371/.435 12HR 64타점 9SB 487PA — KBO 기록실"
+    }
+  ]
+}

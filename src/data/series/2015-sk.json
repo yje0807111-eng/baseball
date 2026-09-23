@@ -1,0 +1,318 @@
+{
+  "id": "2015-sk",
+  "kind": "team",
+  "year": 2015,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "정규시즌 5위 · 김광현 14승",
+  "blurb": "김광현이 14승, 켈리가 11승을 올리며 마운드로 버틴 해.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "켈리",
+      "name": "켈리",
+      "year": 2015,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 76,
+        "stamina": 88,
+        "stability": 75
+      },
+      "note": "",
+      "source": "30G 181IP ERA4.13 139K 54BB WHIP1.34 11승 — KBO 기록실"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2015,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 69,
+        "stamina": 87,
+        "stability": 80
+      },
+      "note": "",
+      "source": "30G 176 2/3IP ERA3.72 160K 66BB WHIP1.35 14승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "박종훈",
+      "name": "박종훈",
+      "year": 2015,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 60,
+        "stamina": 71,
+        "stability": 63
+      },
+      "note": "",
+      "source": "33G 118IP ERA5.19 105K 53BB WHIP1.49 6승 — KBO 기록실"
+    },
+    {
+      "personId": "윤희상",
+      "name": "윤희상",
+      "year": 2015,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 69,
+        "stamina": 63,
+        "stability": 53
+      },
+      "note": "",
+      "source": "21G 93 1/3IP ERA5.88 67K 34BB WHIP1.58 5승 — KBO 기록실"
+    },
+    {
+      "personId": "윤길현",
+      "name": "윤길현",
+      "year": 2015,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 51,
+        "stamina": 58,
+        "stability": 86
+      },
+      "note": "",
+      "source": "70G 62 2/3IP ERA3.16 62K 36BB WHIP1.50 13SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "정우람",
+      "name": "정우람",
+      "year": 2015,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 66,
+        "stamina": 58,
+        "stability": 86
+      },
+      "note": "",
+      "source": "69G 70IP ERA3.21 90K 28BB WHIP1.14 7승 16SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "문광은",
+      "name": "문광은",
+      "year": 2015,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 63,
+        "stamina": 58,
+        "stability": 46
+      },
+      "note": "",
+      "source": "53G 64 1/3IP ERA6.85 54K 27BB WHIP1.77 1승 1SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "전유수",
+      "name": "전유수",
+      "year": 2015,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 53,
+        "stamina": 60,
+        "stability": 72
+      },
+      "note": "",
+      "source": "66G 77 2/3IP ERA4.40 84K 42BB WHIP1.39 3승 1SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재원",
+      "name": "이재원",
+      "year": 2015,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 66,
+        "speed": 43,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".282/.363 17HR 100타점 1SB 559PA — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2015,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 70,
+        "speed": 43,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".254/.342 12HR 49타점 1SB 324PA — KBO 기록실"
+    },
+    {
+      "personId": "박정권",
+      "name": "박정권",
+      "year": 2015,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 74,
+        "speed": 48,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".281/.353 21HR 70타점 3SB 494PA — KBO 기록실"
+    },
+    {
+      "personId": "박계현",
+      "name": "박계현",
+      "year": 2015,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 40,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".231/.294 0HR 21타점 10SB 302PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2015,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 80,
+        "speed": 53,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".295/.401 17HR 58타점 5SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 2015,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 58,
+        "speed": 43,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".297/.357 8HR 48타점 1SB 449PA — KBO 기록실"
+    },
+    {
+      "personId": "이명기",
+      "name": "이명기",
+      "year": 2015,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 44,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".315/.368 3HR 35타점 22SB 582PA — KBO 기록실"
+    },
+    {
+      "personId": "브라운",
+      "name": "브라운",
+      "year": 2015,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 65,
+        "power": 80,
+        "speed": 53,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".261/.360 28HR 76타점 5SB 539PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2015,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 51,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".246/.315 4HR 31타점 7SB 328PA — KBO 기록실"
+    },
+    {
+      "personId": "조동화",
+      "name": "조동화",
+      "year": 2015,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 45,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".261/.351 2HR 15타점 18SB 304PA — KBO 기록실"
+    }
+  ]
+}

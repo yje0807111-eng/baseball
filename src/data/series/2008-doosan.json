@@ -1,0 +1,318 @@
+{
+  "id": "2008-doosan",
+  "kind": "team",
+  "year": 2008,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "김현수 .357 · 김동주 104타점",
+  "blurb": "김현수가 타율 1위 .357을 쳤고, 김동주가 104타점으로 뒤를 받쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "랜들",
+      "name": "랜들",
+      "year": 2008,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 67,
+        "control": 73,
+        "stamina": 80,
+        "stability": 68
+      },
+      "note": "",
+      "source": "29G 150 2/3IP ERA4.48 101K 49BB WHIP1.46 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김명제",
+      "name": "김명제",
+      "year": 2008,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 76,
+        "stamina": 69,
+        "stability": 76
+      },
+      "note": "",
+      "source": "22G 111IP ERA3.81 59K 33BB WHIP1.20 7승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김선우",
+      "name": "김선우",
+      "year": 2008,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 84,
+        "stamina": 66,
+        "stability": 71
+      },
+      "note": "",
+      "source": "21G 101 2/3IP ERA4.25 46K 23BB WHIP1.47 6승 — KBO 기록실"
+    },
+    {
+      "personId": "이승학",
+      "name": "이승학",
+      "year": 2008,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 75,
+        "stamina": 51,
+        "stability": 59
+      },
+      "note": "",
+      "source": "16G 59 2/3IP ERA4.98 25K 18BB WHIP1.56 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "임태훈",
+      "name": "임태훈",
+      "year": 2008,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 73,
+        "stamina": 60,
+        "stability": 81
+      },
+      "note": "",
+      "source": "57G 87IP ERA3.41 83K 28BB WHIP1.11 6승 6SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재우",
+      "name": "이재우",
+      "year": 2008,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 73,
+        "stamina": 60,
+        "stability": 97
+      },
+      "note": "",
+      "source": "65G 87 1/3IP ERA1.55 68K 28BB WHIP0.94 11승 2SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2008,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 66,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "34G 109 1/3IP ERA4.69 83K 43BB WHIP1.40 7승 — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2008,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 75,
+        "stamina": 56,
+        "stability": 83
+      },
+      "note": "",
+      "source": "42G 53IP ERA3.23 39K 16BB WHIP1.13 3승 18SV — KBO 기록실"
+    },
+    {
+      "personId": "채상병",
+      "name": "채상병",
+      "year": 2008,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 55,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".215/.260 5HR 42타점 0SB 369PA — KBO 기록실"
+    },
+    {
+      "personId": "오재원",
+      "name": "오재원",
+      "year": 2008,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 40,
+        "speed": 82,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".248/.305 0HR 28타점 28SB 311PA — KBO 기록실"
+    },
+    {
+      "personId": "고영민",
+      "name": "고영민",
+      "year": 2008,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 58,
+        "speed": 89,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".267/.388 9HR 70타점 39SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2008,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 82,
+        "speed": 40,
+        "defense": 72
+      },
+      "note": "",
+      "source": ".309/.415 18HR 104타점 2SB 451PA — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2008,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 44,
+        "speed": 66,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".249/.318 1HR 21타점 12SB 292PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 96,
+        "speed": 66,
+        "defense": 68
+      },
+      "note": "타격왕 .357·출루율 .454",
+      "source": ".357/.454 9HR 89타점 13SB 558PA — KBO 기록실"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 40,
+        "contact": 80,
+        "speed": 94,
+        "defense": 86
+      },
+      "note": "외야 골든글러브",
+      "source": ".301/.376 0HR 28타점 47SB 522PA — KBO 기록실"
+    },
+    {
+      "personId": "유재웅",
+      "name": "유재웅",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 55,
+        "speed": 45,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".276/.339 4HR 32타점 1SB 293PA — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2008,
+      "team": "두산",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 59,
+        "speed": 60,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".331/.370 8HR 63타점 8SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "이성열",
+      "name": "이성열",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 44,
+        "speed": 60,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".218/.328 1HR 29타점 8SB 254PA — KBO 기록실"
+    }
+  ]
+}
