@@ -1,0 +1,318 @@
+{
+  "id": "1988-taepyungyang",
+  "kind": "team",
+  "year": 1988,
+  "title": "태평양 돌핀스",
+  "franchise": "HYUNDAI",
+  "subtitle": "태평양의 첫 시즌",
+  "blurb": "김동기가 타율 .358을 치며 태평양이 새 이름으로 첫해를 보냈다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "양상문",
+      "name": "양상문",
+      "year": 1988,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 74,
+        "stamina": 85,
+        "stability": 73
+      },
+      "note": "",
+      "source": "38G 169 1/3IP ERA3.83 68K 54BB WHIP1.41 9승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "신완근",
+      "name": "신완근",
+      "year": 1988,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 74,
+        "stamina": 76,
+        "stability": 72
+      },
+      "note": "",
+      "source": "37G 139IP ERA3.95 73K 44BB WHIP1.33 2승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "조병천",
+      "name": "조병천",
+      "year": 1988,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 71,
+        "stamina": 73,
+        "stability": 72
+      },
+      "note": "",
+      "source": "28G 128IP ERA3.94 40K 44BB WHIP1.39 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김신부",
+      "name": "김신부",
+      "year": 1988,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 83,
+        "stamina": 72,
+        "stability": 73
+      },
+      "note": "",
+      "source": "29G 123 1/3IP ERA3.87 38K 29BB WHIP1.26 9승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이상구",
+      "name": "이상구",
+      "year": 1988,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 68,
+        "stamina": 60,
+        "stability": 58
+      },
+      "note": "",
+      "source": "31G 87IP ERA5.07 49K 32BB WHIP1.25 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김일부",
+      "name": "김일부",
+      "year": 1988,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 58,
+        "stamina": 59,
+        "stability": 66
+      },
+      "note": "",
+      "source": "23G 72IP ERA4.38 39K 34BB WHIP1.44 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "박상범",
+      "name": "박상범",
+      "year": 1988,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 92,
+        "stamina": 52,
+        "stability": 42
+      },
+      "note": "",
+      "source": "10G 33IP ERA7.09 20K 5BB WHIP1.39 1승 — KBO 기록실"
+    },
+    {
+      "personId": "박정현",
+      "name": "박정현",
+      "year": 1988,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 62,
+        "stamina": 49,
+        "stability": 40
+      },
+      "note": "",
+      "source": "6G 18 2/3IP ERA7.71 8K 8BB WHIP1.77 — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1988,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 99,
+        "power": 77,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".358 10HR 39타점 3SB 248PA — KBO 기록실"
+    },
+    {
+      "personId": "금광옥",
+      "name": "금광옥",
+      "year": 1988,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 51,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".242 1HR 8타점 0SB 103PA — KBO 기록실"
+    },
+    {
+      "personId": "김바위",
+      "name": "김바위",
+      "year": 1988,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 66,
+        "speed": 49,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".259 7HR 41타점 2SB 297PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1988,
+      "team": "태평양",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 45,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".308 1HR 41타점 5SB 343PA — KBO 기록실"
+    },
+    {
+      "personId": "곽권희",
+      "name": "곽권희",
+      "year": 1988,
+      "team": "태평양",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 62,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".224 3HR 9타점 3SB 166PA — KBO 기록실"
+    },
+    {
+      "personId": "원원근",
+      "name": "원원근",
+      "year": 1988,
+      "team": "태평양",
+      "position": "SS",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 47,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".263 1HR 22타점 3SB 223PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1988,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 52,
+        "speed": 83,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".301 3HR 34타점 26SB 343PA — KBO 기록실"
+    },
+    {
+      "personId": "김윤환",
+      "name": "김윤환",
+      "year": 1988,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 71,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".272 10HR 40타점 8SB 318PA — KBO 기록실"
+    },
+    {
+      "personId": "여태구",
+      "name": "여태구",
+      "year": 1988,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 42,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".252 0HR 15타점 15SB 281PA — KBO 기록실"
+    },
+    {
+      "personId": "이광근",
+      "name": "이광근",
+      "year": 1988,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 64,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".298 5HR 25타점 0SB 234PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "1990-ob",
+  "kind": "team",
+  "year": 1990,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "김상호의 14홈런",
+  "blurb": "김상호가 14홈런을 치고 구동우가 마운드를 지켰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "구동우",
+      "name": "구동우",
+      "year": 1990,
+      "team": "OB",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 74,
+        "stamina": 81,
+        "stability": 78
+      },
+      "note": "",
+      "source": "36G 155IP ERA3.43 56K 49BB WHIP1.34 9승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "계형철",
+      "name": "계형철",
+      "year": 1990,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 48,
+        "control": 55,
+        "stamina": 70,
+        "stability": 52
+      },
+      "note": "",
+      "source": "27G 114 2/3IP ERA5.42 43K 59BB WHIP1.59 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "장호연",
+      "name": "장호연",
+      "year": 1990,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 63,
+        "stamina": 69,
+        "stability": 64
+      },
+      "note": "",
+      "source": "19G 110 2/3IP ERA4.55 34K 46BB WHIP1.39 5승 — KBO 기록실"
+    },
+    {
+      "personId": "박철순",
+      "name": "박철순",
+      "year": 1990,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 62,
+        "stamina": 64,
+        "stability": 59
+      },
+      "note": "",
+      "source": "18G 96IP ERA4.78 58K 41BB WHIP1.51 4승 — KBO 기록실"
+    },
+    {
+      "personId": "김동현",
+      "name": "김동현",
+      "year": 1990,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 62,
+        "stamina": 60,
+        "stability": 65
+      },
+      "note": "",
+      "source": "40G 125 1/3IP ERA4.52 61K 53BB WHIP1.36 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "박형열",
+      "name": "박형열",
+      "year": 1990,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 48,
+        "stamina": 60,
+        "stability": 74
+      },
+      "note": "",
+      "source": "27G 76IP ERA3.79 28K 46BB WHIP1.50 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김진규",
+      "name": "김진규",
+      "year": 1990,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 44,
+        "stamina": 56,
+        "stability": 66
+      },
+      "note": "",
+      "source": "22G 56IP ERA4.18 31K 43BB WHIP1.68 — KBO 기록실"
+    },
+    {
+      "personId": "이진",
+      "name": "이진",
+      "year": 1990,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 44,
+        "stamina": 53,
+        "stability": 52
+      },
+      "note": "",
+      "source": "21G 38 1/3IP ERA5.40 25K 34BB WHIP1.88 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김태형",
+      "name": "김태형",
+      "year": 1990,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 48,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".181/.239 1HR 7타점 1SB 184PA — KBO 기록실"
+    },
+    {
+      "personId": "조범현",
+      "name": "조범현",
+      "year": 1990,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".137/.200 0HR 6타점 0SB 119PA — KBO 기록실"
+    },
+    {
+      "personId": "신경식",
+      "name": "신경식",
+      "year": 1990,
+      "team": "OB",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 55,
+        "speed": 71,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".255/.314 5HR 42타점 14SB 428PA — KBO 기록실"
+    },
+    {
+      "personId": "이명수",
+      "name": "이명수",
+      "year": 1990,
+      "team": "OB",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 54,
+        "speed": 49,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".188/.282 3HR 30타점 2SB 284PA — KBO 기록실"
+    },
+    {
+      "personId": "임형석",
+      "name": "임형석",
+      "year": 1990,
+      "team": "OB",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 64,
+        "speed": 54,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".227/.293 4HR 14타점 4SB 188PA — KBO 기록실"
+    },
+    {
+      "personId": "이복근",
+      "name": "이복근",
+      "year": 1990,
+      "team": "OB",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 44,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".168/.231 0HR 3타점 0SB 104PA — KBO 기록실"
+    },
+    {
+      "personId": "김형석",
+      "name": "김형석",
+      "year": 1990,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 66,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".280/.341 12HR 61타점 5SB 483PA — KBO 기록실"
+    },
+    {
+      "personId": "김상호",
+      "name": "김상호",
+      "year": 1990,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 70,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".275/.370 14HR 52타점 12SB 466PA — KBO 기록실"
+    },
+    {
+      "personId": "박노준",
+      "name": "박노준",
+      "year": 1990,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 51,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".249/.300 3HR 24타점 13SB 379PA — KBO 기록실"
+    },
+    {
+      "personId": "김광수",
+      "name": "김광수",
+      "year": 1990,
+      "team": "OB",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 52,
+        "speed": 71,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".266/.351 4HR 30타점 14SB 444PA — KBO 기록실"
+    }
+  ]
+}

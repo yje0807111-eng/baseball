@@ -1,0 +1,319 @@
+{
+  "id": "1982-ob",
+  "champion": true,
+  "kind": "team",
+  "year": 1982,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "첫 한국시리즈 우승 · 박철순 22연승",
+  "blurb": "박철순이 24승에 22연승을 이어가며 OB가 원년 한국시리즈에서 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박철순",
+      "name": "박철순",
+      "year": 1982,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 76,
+        "stamina": 96,
+        "stability": 93
+      },
+      "note": "22연승·원년 MVP",
+      "source": "36G 224 2/3IP ERA1.84 108K 67BB WHIP0.97 24승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "선우대영",
+      "name": "선우대영",
+      "year": 1982,
+      "team": "OB",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 84,
+        "stamina": 76,
+        "stability": 78
+      },
+      "note": "",
+      "source": "27G 138IP ERA3.39 65K 31BB WHIP1.23 7승 — KBO 기록실"
+    },
+    {
+      "personId": "박상열",
+      "name": "박상열",
+      "year": 1982,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 75,
+        "stamina": 69,
+        "stability": 68
+      },
+      "note": "",
+      "source": "25G 111IP ERA4.22 35K 34BB WHIP1.39 10승 — KBO 기록실"
+    },
+    {
+      "personId": "계형철",
+      "name": "계형철",
+      "year": 1982,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 44,
+        "stamina": 62,
+        "stability": 57
+      },
+      "note": "",
+      "source": "21G 90 1/3IP ERA4.88 43K 76BB WHIP1.65 4승 — KBO 기록실"
+    },
+    {
+      "personId": "황태환",
+      "name": "황태환",
+      "year": 1982,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 62,
+        "stamina": 60,
+        "stability": 73
+      },
+      "note": "",
+      "source": "27G 86 1/3IP ERA3.86 42K 37BB WHIP1.31 6승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김현홍",
+      "name": "김현홍",
+      "year": 1982,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 44,
+        "stamina": 51,
+        "stability": 79
+      },
+      "note": "",
+      "source": "12G 29 2/3IP ERA3.03 10K 21BB WHIP1.72 — KBO 기록실"
+    },
+    {
+      "personId": "조범현",
+      "name": "조범현",
+      "year": 1982,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 59,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".271/.306 2HR 9타점 2SB 126PA — KBO 기록실"
+    },
+    {
+      "personId": "김경문",
+      "name": "김경문",
+      "year": 1982,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 42,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".217/.265 0HR 6타점 2SB 122PA — KBO 기록실"
+    },
+    {
+      "personId": "신경식",
+      "name": "신경식",
+      "year": 1982,
+      "team": "OB",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 56,
+        "speed": 71,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".334/.383 4HR 54타점 14SB 320PA — KBO 기록실"
+    },
+    {
+      "personId": "구천서",
+      "name": "구천서",
+      "year": 1982,
+      "team": "OB",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 52,
+        "speed": 64,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".308/.405 3HR 25타점 9SB 316PA — KBO 기록실"
+    },
+    {
+      "personId": "양세종",
+      "name": "양세종",
+      "year": 1982,
+      "team": "OB",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 64,
+        "speed": 68,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".269/.333 7HR 37타점 12SB 336PA — KBO 기록실"
+    },
+    {
+      "personId": "유지훤",
+      "name": "유지훤",
+      "year": 1982,
+      "team": "OB",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 57,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".252/.296 4HR 38타점 12SB 299PA — KBO 기록실"
+    },
+    {
+      "personId": "윤동균",
+      "name": "윤동균",
+      "year": 1982,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 66,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".342/.433 8HR 47타점 9SB 334PA — KBO 기록실"
+    },
+    {
+      "personId": "김우열",
+      "name": "김우열",
+      "year": 1982,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 84,
+        "speed": 71,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".310/.429 13HR 41타점 14SB 255PA — KBO 기록실"
+    },
+    {
+      "personId": "이홍범",
+      "name": "이홍범",
+      "year": 1982,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 61,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".235/.320 3HR 15타점 9SB 175PA — KBO 기록실"
+    },
+    {
+      "personId": "김유동",
+      "name": "김유동",
+      "year": 1982,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 74,
+        "speed": 49,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".245/.273 6HR 23타점 2SB 165PA — KBO 기록실"
+    },
+    {
+      "personId": "정혁진",
+      "name": "정혁진",
+      "year": 1982,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 63,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".299/.331 3HR 23타점 3SB 155PA — KBO 기록실"
+    },
+    {
+      "personId": "김광수",
+      "name": "김광수",
+      "year": 1982,
+      "team": "OB",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 51,
+        "speed": 59,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".272/.359 1HR 14타점 6SB 125PA — KBO 기록실"
+    }
+  ]
+}

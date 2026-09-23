@@ -1,0 +1,318 @@
+{
+  "id": "1990-binggrae",
+  "kind": "team",
+  "year": 1990,
+  "title": "빙그레 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "장종훈의 28홈런",
+  "blurb": "장종훈이 28홈런 91타점으로 홈런왕에 오르고 한용덕이 13승을 거뒀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "한용덕",
+      "name": "한용덕",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 71,
+        "stamina": 85,
+        "stability": 87
+      },
+      "note": "",
+      "source": "38G 171IP ERA2.53 100K 58BB WHIP1.20 13승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "한희민",
+      "name": "한희민",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 72,
+        "stamina": 81,
+        "stability": 69
+      },
+      "note": "",
+      "source": "36G 157IP ERA4.13 63K 53BB WHIP1.32 12승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "김대중",
+      "name": "김대중",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 70,
+        "stamina": 78,
+        "stability": 74
+      },
+      "note": "",
+      "source": "35G 146IP ERA3.76 68K 51BB WHIP1.23 10승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "이상군",
+      "name": "이상군",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 78,
+        "stamina": 61,
+        "stability": 81
+      },
+      "note": "",
+      "source": "19G 86 1/3IP ERA3.13 30K 24BB WHIP1.33 6승 — KBO 기록실"
+    },
+    {
+      "personId": "송진우",
+      "name": "송진우",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 62,
+        "stamina": 60,
+        "stability": 93
+      },
+      "note": "27세이브·피홈런 2개",
+      "source": "50G 128 1/3IP ERA1.82 102K 54BB WHIP1.04 11승 27SV — KBO 기록실"
+    },
+    {
+      "personId": "김락기",
+      "name": "김락기",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 57,
+        "stamina": 60,
+        "stability": 49
+      },
+      "note": "",
+      "source": "34G 110 1/3IP ERA5.71 54K 53BB WHIP1.60 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김홍명",
+      "name": "김홍명",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 51,
+        "stamina": 60,
+        "stability": 75
+      },
+      "note": "",
+      "source": "34G 112IP ERA3.38 49K 64BB WHIP1.52 8승 — KBO 기록실"
+    },
+    {
+      "personId": "장정순",
+      "name": "장정순",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 57,
+        "stamina": 57,
+        "stability": 90
+      },
+      "note": "",
+      "source": "20G 59IP ERA2.14 45K 29BB WHIP1.22 1승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김상국",
+      "name": "김상국",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 68,
+        "speed": 67,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".287/.383 10HR 46타점 11SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "유승안",
+      "name": "유승안",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 77,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".256/.336 14HR 54타점 3SB 340PA — KBO 기록실"
+    },
+    {
+      "personId": "강정길",
+      "name": "강정길",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 48,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".267/.347 2HR 32타점 1SB 339PA — KBO 기록실"
+    },
+    {
+      "personId": "김성갑",
+      "name": "김성갑",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 55,
+        "speed": 74,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".219/.329 3HR 18타점 17SB 260PA — KBO 기록실"
+    },
+    {
+      "personId": "강석천",
+      "name": "강석천",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 68,
+        "speed": 73,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".281/.367 12HR 49타점 16SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "장종훈",
+      "name": "장종훈",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 84,
+        "contact": 79,
+        "speed": 62,
+        "defense": 80
+      },
+      "note": "홈런왕·유격수 골든글러브",
+      "source": ".290/.401 28HR 91타점 8SB 496PA — KBO 기록실"
+    },
+    {
+      "personId": "이강돈",
+      "name": "이강돈",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 71,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".335/.400 16HR 84타점 12SB 496PA — KBO 기록실"
+    },
+    {
+      "personId": "이정훈",
+      "name": "이정훈",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 59,
+        "speed": 80,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291/.360 7HR 52타점 22SB 459PA — KBO 기록실"
+    },
+    {
+      "personId": "고원부",
+      "name": "고원부",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 68,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".253/.342 9HR 45타점 4SB 334PA — KBO 기록실"
+    },
+    {
+      "personId": "이중화",
+      "name": "이중화",
+      "year": 1990,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 45,
+        "speed": 74,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".256/.324 1HR 19타점 17SB 316PA — KBO 기록실"
+    }
+  ]
+}

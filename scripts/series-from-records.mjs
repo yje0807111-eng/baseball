@@ -78,6 +78,17 @@ export function parseRecords(text) {
     if (mode === 'bat') out[team].bat.push({ name: f[0], pos: POS[f[1]] || 'DH', avg: num(f[2]), pa: num(f[3]), hr: num(f[4]), rbi: num(f[5]), sb: num(f[6]), obp: num(f[7]) });
     else if (mode === 'pit') out[team].pit.push({ name: f[0], era: num(f[1]), g: num(f[2]), w: num(f[3]), l: num(f[4]), sv: num(f[5]), hld: num(f[6]), ip: f[7], so: num(f[8]), bb: num(f[9]), whip: num(f[10]) });
   }
+  /* 투타를 겸한 선수(김성한처럼)는 한쪽으로만 — 더 많이 나선 쪽을 남긴다 */
+  for (const t of Object.values(out)) {
+    const bat = new Map(t.bat.map((b) => [b.name, b]));
+    t.pit = t.pit.filter((p) => {
+      const b = bat.get(p.name);
+      if (!b) return true;
+      if (b.pa >= 100) { return false; }
+      t.bat = t.bat.filter((x) => x !== b);
+      return true;
+    });
+  }
   return out;
 }
 
@@ -97,6 +108,12 @@ export function pick18(team, fix = {}, roleOf = () => null) {
     const most = [...free].sort((a, b) => ipOf(b.ip) - ipOf(a.ip))[0];
     rp = rp.filter((x) => x !== most);
     sp.push(most);
+  }
+  /* 반대로 선발과 구원을 가르지 않던 옛 시즌에는 불펜이 둘도 안 된다 — 이닝이 적은 쪽을 내린다 */
+  while (rp.length < 2 && sp.length > 3) {
+    const idx = sp.map((p, i) => [ipOf(p.ip), i]).filter(([, i]) => !roleOf(sp[i].name)).sort((a, b) => a[0] - b[0])[0];
+    if (!idx) break;
+    rp.push(...sp.splice(idx[1], 1));
   }
   const take = (list, n) => list.slice(0, n);
   const starters = new Set(take(sp, 4));

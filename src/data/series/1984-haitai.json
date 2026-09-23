@@ -1,0 +1,318 @@
+{
+  "id": "1984-haitai",
+  "kind": "team",
+  "year": 1984,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "김종모의 타율 .316",
+  "blurb": "김봉연이 17홈런을 치고 김종모가 3할 중반을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이상윤",
+      "name": "이상윤",
+      "year": 1984,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 71,
+        "stamina": 94,
+        "stability": 84
+      },
+      "note": "",
+      "source": "40G 211 2/3IP ERA2.85 128K 73BB WHIP1.22 10승 8SV — KBO 기록실"
+    },
+    {
+      "personId": "김용남",
+      "name": "김용남",
+      "year": 1984,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 93,
+        "stamina": 75,
+        "stability": 82
+      },
+      "note": "",
+      "source": "31G 132 2/3IP ERA3.05 68K 19BB WHIP1.15 7승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "강만식",
+      "name": "강만식",
+      "year": 1984,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 78,
+        "stamina": 74,
+        "stability": 79
+      },
+      "note": "",
+      "source": "28G 129 2/3IP ERA3.26 60K 36BB WHIP1.23 11승 — KBO 기록실"
+    },
+    {
+      "personId": "조도연",
+      "name": "조도연",
+      "year": 1984,
+      "team": "해태",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 71,
+        "stamina": 74,
+        "stability": 79
+      },
+      "note": "",
+      "source": "35G 129 1/3IP ERA3.34 63K 44BB WHIP1.28 4승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "황기선",
+      "name": "황기선",
+      "year": 1984,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 60,
+        "stamina": 60,
+        "stability": 74
+      },
+      "note": "",
+      "source": "38G 124 1/3IP ERA3.76 65K 55BB WHIP1.33 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "방수원",
+      "name": "방수원",
+      "year": 1984,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 75,
+        "stamina": 58,
+        "stability": 73
+      },
+      "note": "",
+      "source": "25G 66IP ERA3.82 30K 20BB WHIP1.27 1승 — KBO 기록실"
+    },
+    {
+      "personId": "문희수",
+      "name": "문희수",
+      "year": 1984,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 65,
+        "stamina": 48,
+        "stability": 68
+      },
+      "note": "",
+      "source": "5G 12 2/3IP ERA4.26 14K 5BB WHIP1.34 — KBO 기록실"
+    },
+    {
+      "personId": "김현재",
+      "name": "김현재",
+      "year": 1984,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 44,
+        "stamina": 46,
+        "stability": 82
+      },
+      "note": "",
+      "source": "4G 6 2/3IP ERA2.70 4K 6BB WHIP2.10 — KBO 기록실"
+    },
+    {
+      "personId": "김무종",
+      "name": "김무종",
+      "year": 1984,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 69,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".244/.317 7HR 22타점 0SB 246PA — KBO 기록실"
+    },
+    {
+      "personId": "유승안",
+      "name": "유승안",
+      "year": 1984,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 73,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".263/.387 5HR 21타점 2SB 144PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1984,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 69,
+        "speed": 61,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".258/.336 12HR 41타점 7SB 410PA — KBO 기록실"
+    },
+    {
+      "personId": "차영화",
+      "name": "차영화",
+      "year": 1984,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 48,
+        "power": 42,
+        "speed": 67,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".204/.275 0HR 12타점 11SB 185PA — KBO 기록실"
+    },
+    {
+      "personId": "김일환",
+      "name": "김일환",
+      "year": 1984,
+      "team": "해태",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 42,
+        "speed": 54,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".274/.342 0HR 27타점 4SB 361PA — KBO 기록실"
+    },
+    {
+      "personId": "서정환",
+      "name": "서정환",
+      "year": 1984,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 57,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".250/.319 5HR 27타점 9SB 364PA — KBO 기록실"
+    },
+    {
+      "personId": "김준환",
+      "name": "김준환",
+      "year": 1984,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 62,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".267/.318 6HR 29타점 5SB 336PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1984,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 80,
+        "speed": 49,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".316/.394 14HR 44타점 2SB 310PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1984,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 50,
+        "speed": 93,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".241/.309 2HR 17타점 41SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1984,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 78,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".249/.352 17HR 48타점 3SB 400PA — KBO 기록실"
+    }
+  ]
+}

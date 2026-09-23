@@ -1,0 +1,318 @@
+{
+  "id": "1982-sammi",
+  "kind": "team",
+  "year": 1982,
+  "title": "삼미 슈퍼스타즈",
+  "franchise": "HYUNDAI",
+  "subtitle": "원년의 막내 삼미",
+  "blurb": "금광옥이 타선을 이끌었지만 삼미는 원년부터 최하위에 머물렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 1982,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 73,
+        "stamina": 91,
+        "stability": 45
+      },
+      "note": "",
+      "source": "47G 192 1/3IP ERA6.13 62K 63BB WHIP1.72 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "인호봉",
+      "name": "인호봉",
+      "year": 1982,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 44,
+        "stamina": 75,
+        "stability": 42
+      },
+      "note": "",
+      "source": "38G 133IP ERA6.56 41K 96BB WHIP1.84 5승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "오문현",
+      "name": "오문현",
+      "year": 1982,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 72,
+        "stamina": 67,
+        "stability": 61
+      },
+      "note": "",
+      "source": "22G 102IP ERA4.85 22K 34BB WHIP1.46 2승 — KBO 기록실"
+    },
+    {
+      "personId": "감사용",
+      "name": "감사용",
+      "year": 1982,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 71,
+        "stamina": 60,
+        "stability": 43
+      },
+      "note": "",
+      "source": "41G 133 2/3IP ERA6.46 23K 46BB WHIP1.68 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김동철",
+      "name": "김동철",
+      "year": 1982,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 52,
+        "stamina": 60,
+        "stability": 40
+      },
+      "note": "",
+      "source": "32G 93IP ERA7.06 19K 52BB WHIP1.90 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박경호",
+      "name": "박경호",
+      "year": 1982,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 44,
+        "stamina": 50,
+        "stability": 41
+      },
+      "note": "",
+      "source": "12G 22 2/3IP ERA6.75 5K 15BB WHIP1.94 — KBO 기록실"
+    },
+    {
+      "personId": "한상연",
+      "name": "한상연",
+      "year": 1982,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 64,
+        "stamina": 47,
+        "stability": 51
+      },
+      "note": "",
+      "source": "7G 12 1/3IP ERA5.84 2K 5BB WHIP1.38 — KBO 기록실"
+    },
+    {
+      "personId": "금광옥",
+      "name": "금광옥",
+      "year": 1982,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 69,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".270 9HR 37타점 2SB 306PA — KBO 기록실"
+    },
+    {
+      "personId": "최영환",
+      "name": "최영환",
+      "year": 1982,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 60,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".173 2HR 11타점 0SB 107PA — KBO 기록실"
+    },
+    {
+      "personId": "조흥운",
+      "name": "조흥운",
+      "year": 1982,
+      "team": "삼미",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 55,
+        "speed": 94,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".284 4HR 35타점 44SB 327PA — KBO 기록실"
+    },
+    {
+      "personId": "장정기",
+      "name": "장정기",
+      "year": 1982,
+      "team": "삼미",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 54,
+        "speed": 61,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".234 3HR 27타점 7SB 278PA — KBO 기록실"
+    },
+    {
+      "personId": "송경섭",
+      "name": "송경섭",
+      "year": 1982,
+      "team": "삼미",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 55,
+        "speed": 49,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".197 2HR 20타점 2SB 172PA — KBO 기록실"
+    },
+    {
+      "personId": "허운",
+      "name": "허운",
+      "year": 1982,
+      "team": "삼미",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 54,
+        "speed": 44,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".225 2HR 11타점 0SB 179PA — KBO 기록실"
+    },
+    {
+      "personId": "김경남",
+      "name": "김경남",
+      "year": 1982,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 53,
+        "speed": 49,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".269 3HR 27타점 2SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "김무관",
+      "name": "김무관",
+      "year": 1982,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 46,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".217 1HR 14타점 5SB 292PA — KBO 기록실"
+    },
+    {
+      "personId": "양승관",
+      "name": "양승관",
+      "year": 1982,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 70,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".269 8HR 40타점 3SB 269PA — KBO 기록실"
+    },
+    {
+      "personId": "김호인",
+      "name": "김호인",
+      "year": 1982,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 67,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279 6HR 24타점 4SB 237PA — KBO 기록실"
+    },
+    {
+      "personId": "이철성",
+      "name": "이철성",
+      "year": 1982,
+      "team": "삼미",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 42,
+        "speed": 52,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".260 0HR 10타점 3SB 166PA — KBO 기록실"
+    }
+  ]
+}

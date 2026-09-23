@@ -1,0 +1,318 @@
+{
+  "id": "1984-samsung",
+  "kind": "team",
+  "year": 1984,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "이만수가 23홈런 80타점을 치고 김시진이 19승을 올렸지만 삼성은 마지막에 멈췄다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김일융",
+      "name": "김일융",
+      "year": 1984,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 70,
+        "stamina": 95,
+        "stability": 89
+      },
+      "note": "",
+      "source": "38G 222IP ERA2.27 155K 78BB WHIP1.21 16승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김시진",
+      "name": "김시진",
+      "year": 1984,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 54,
+        "stamina": 94,
+        "stability": 80
+      },
+      "note": "",
+      "source": "39G 215IP ERA3.18 154K 112BB WHIP1.35 19승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "권영호",
+      "name": "권영호",
+      "year": 1984,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 63,
+        "stamina": 76,
+        "stability": 79
+      },
+      "note": "",
+      "source": "29G 137 1/3IP ERA3.28 52K 57BB WHIP1.32 6승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "황규봉",
+      "name": "황규봉",
+      "year": 1984,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 84,
+        "stamina": 68,
+        "stability": 80
+      },
+      "note": "",
+      "source": "30G 108IP ERA3.25 48K 24BB WHIP1.23 10승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "양일환",
+      "name": "양일환",
+      "year": 1984,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 55,
+        "stamina": 58,
+        "stability": 63
+      },
+      "note": "",
+      "source": "20G 64IP ERA4.64 20K 33BB WHIP1.41 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이선희",
+      "name": "이선희",
+      "year": 1984,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 60,
+        "stamina": 55,
+        "stability": 62
+      },
+      "note": "",
+      "source": "17G 51 2/3IP ERA4.53 23K 23BB WHIP1.57 2승 — KBO 기록실"
+    },
+    {
+      "personId": "송진호",
+      "name": "송진호",
+      "year": 1984,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 44,
+        "stamina": 52,
+        "stability": 52
+      },
+      "note": "",
+      "source": "12G 33IP ERA5.45 14K 27BB WHIP1.70 — KBO 기록실"
+    },
+    {
+      "personId": "전용권",
+      "name": "전용권",
+      "year": 1984,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 63,
+        "stamina": 50,
+        "stability": 66
+      },
+      "note": "",
+      "source": "13G 26 1/3IP ERA4.44 6K 11BB WHIP1.41 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1984,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 95,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "타격 트리플크라운",
+      "source": ".340/.414 23HR 80타점 3SB 342PA — KBO 기록실"
+    },
+    {
+      "personId": "송일수",
+      "name": "송일수",
+      "year": 1984,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 57,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".277/.317 2HR 16타점 0SB 150PA — KBO 기록실"
+    },
+    {
+      "personId": "함학수",
+      "name": "함학수",
+      "year": 1984,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 67,
+        "speed": 68,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".277/.318 9HR 45타점 12SB 342PA — KBO 기록실"
+    },
+    {
+      "personId": "배대웅",
+      "name": "배대웅",
+      "year": 1984,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 42,
+        "speed": 54,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".240/.313 0HR 5타점 4SB 118PA — KBO 기록실"
+    },
+    {
+      "personId": "김한근",
+      "name": "김한근",
+      "year": 1984,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 42,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".208/.277 0HR 10타점 1SB 138PA — KBO 기록실"
+    },
+    {
+      "personId": "오대석",
+      "name": "오대석",
+      "year": 1984,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 67,
+        "speed": 54,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".286/.355 7HR 34타점 4SB 267PA — KBO 기록실"
+    },
+    {
+      "personId": "장효조",
+      "name": "장효조",
+      "year": 1984,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 63,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".324/.424 7HR 44타점 8SB 365PA — KBO 기록실"
+    },
+    {
+      "personId": "장태수",
+      "name": "장태수",
+      "year": 1984,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 52,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".286/.380 2HR 8타점 10SB 227PA — KBO 기록실"
+    },
+    {
+      "personId": "홍승규",
+      "name": "홍승규",
+      "year": 1984,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 58,
+        "speed": 61,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".235/.327 3HR 19타점 7SB 212PA — KBO 기록실"
+    },
+    {
+      "personId": "김근석",
+      "name": "김근석",
+      "year": 1984,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 60,
+        "speed": 52,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".299/.348 5HR 30타점 3SB 310PA — KBO 기록실"
+    }
+  ]
+}

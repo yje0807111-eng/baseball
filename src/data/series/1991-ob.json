@@ -1,0 +1,318 @@
+{
+  "id": "1991-ob",
+  "kind": "team",
+  "year": 1991,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "김광림의 3할",
+  "blurb": "김광림이 3할을 치고 강영수가 15홈런을 보탰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김동현",
+      "name": "김동현",
+      "year": 1991,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 78,
+        "stamina": 81,
+        "stability": 75
+      },
+      "note": "",
+      "source": "37G 154 2/3IP ERA3.67 61K 43BB WHIP1.20 10승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 1991,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 61,
+        "stamina": 80,
+        "stability": 74
+      },
+      "note": "",
+      "source": "32G 151 2/3IP ERA3.74 65K 66BB WHIP1.33 10승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김진규",
+      "name": "김진규",
+      "year": 1991,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 56,
+        "speed": 71,
+        "defense": 76
+      },
+      "note": "",
+      "source": "39G 147 2/3IP ERA4.27 78K 75BB WHIP1.41 5승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "박철순",
+      "name": "박철순",
+      "year": 1991,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 59,
+        "stamina": 67,
+        "stability": 77
+      },
+      "note": "",
+      "source": "18G 102 2/3IP ERA3.51 55K 47BB WHIP1.40 7승 — KBO 기록실"
+    },
+    {
+      "personId": "구동우",
+      "name": "구동우",
+      "year": 1991,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 47,
+        "control": 62,
+        "stamina": 60,
+        "stability": 47
+      },
+      "note": "",
+      "source": "29G 89 2/3IP ERA5.92 32K 38BB WHIP1.62 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "계형철",
+      "name": "계형철",
+      "year": 1991,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 57,
+        "stamina": 54,
+        "stability": 47
+      },
+      "note": "",
+      "source": "14G 43IP ERA5.86 14K 21BB WHIP1.79 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1991,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 51,
+        "stamina": 53,
+        "stability": 55
+      },
+      "note": "",
+      "source": "19G 38 2/3IP ERA5.12 8K 22BB WHIP1.58 2승 — KBO 기록실"
+    },
+    {
+      "personId": "김익재",
+      "name": "김익재",
+      "year": 1991,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 44,
+        "stamina": 52,
+        "stability": 44
+      },
+      "note": "",
+      "source": "21G 33IP ERA6.27 22K 24BB WHIP1.97 — KBO 기록실"
+    },
+    {
+      "personId": "김태형",
+      "name": "김태형",
+      "year": 1991,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 70,
+        "stamina": 77,
+        "stability": 79
+      },
+      "note": "",
+      "source": ".226/.279 1HR 24타점 3SB 221PA — KBO 기록실"
+    },
+    {
+      "personId": "김경문",
+      "name": "김경문",
+      "year": 1991,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 51,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".133/.162 1HR 6타점 1SB 120PA — KBO 기록실"
+    },
+    {
+      "personId": "김종석",
+      "name": "김종석",
+      "year": 1991,
+      "team": "OB",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 60,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".276/.348 3HR 25타점 6SB 184PA — KBO 기록실"
+    },
+    {
+      "personId": "구천서",
+      "name": "구천서",
+      "year": 1991,
+      "team": "OB",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 48,
+        "speed": 52,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".201/.281 1HR 8타점 3SB 182PA — KBO 기록실"
+    },
+    {
+      "personId": "임형석",
+      "name": "임형석",
+      "year": 1991,
+      "team": "OB",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 59,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".239/.312 6HR 39타점 1SB 383PA — KBO 기록실"
+    },
+    {
+      "personId": "김광수",
+      "name": "김광수",
+      "year": 1991,
+      "team": "OB",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 44,
+        "speed": 97,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".226/.300 1HR 30타점 50SB 509PA — KBO 기록실"
+    },
+    {
+      "personId": "김형석",
+      "name": "김형석",
+      "year": 1991,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 63,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".288/.355 11HR 71타점 3SB 531PA — KBO 기록실"
+    },
+    {
+      "personId": "박노준",
+      "name": "박노준",
+      "year": 1991,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 54,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".293/.345 5HR 39타점 18SB 470PA — KBO 기록실"
+    },
+    {
+      "personId": "김광림",
+      "name": "김광림",
+      "year": 1991,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 50,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".307/.372 3HR 36타점 20SB 413PA — KBO 기록실"
+    },
+    {
+      "personId": "강영수",
+      "name": "강영수",
+      "year": 1991,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 77,
+        "speed": 49,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".238/.351 15HR 47타점 2SB 361PA — KBO 기록실"
+    }
+  ]
+}

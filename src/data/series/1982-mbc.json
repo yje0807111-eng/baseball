@@ -1,0 +1,318 @@
+{
+  "id": "1982-mbc",
+  "kind": "team",
+  "year": 1982,
+  "title": "MBC 청룡",
+  "franchise": "LG",
+  "subtitle": "백인천의 타율 .412",
+  "blurb": "백인천이 4할 타율로 리그를 지배하고 하기룡이 13승을 거뒀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "하기룡",
+      "name": "하기룡",
+      "year": 1982,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 78,
+        "stamina": 91,
+        "stability": 89
+      },
+      "note": "",
+      "source": "43G 191 2/3IP ERA2.30 108K 53BB WHIP1.11 13승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "이길환",
+      "name": "이길환",
+      "year": 1982,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 77,
+        "stamina": 71,
+        "stability": 76
+      },
+      "note": "",
+      "source": "27G 117 1/3IP ERA3.61 54K 34BB WHIP1.26 7승 — KBO 기록실"
+    },
+    {
+      "personId": "이광권",
+      "name": "이광권",
+      "year": 1982,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 65,
+        "stamina": 70,
+        "stability": 74
+      },
+      "note": "",
+      "source": "31G 116IP ERA3.72 57K 46BB WHIP1.30 7승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "유종겸",
+      "name": "유종겸",
+      "year": 1982,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 58,
+        "stamina": 70,
+        "stability": 80
+      },
+      "note": "",
+      "source": "32G 113 2/3IP ERA3.25 86K 53BB WHIP1.30 6승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "박석채",
+      "name": "박석채",
+      "year": 1982,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 56,
+        "stamina": 52,
+        "stability": 49
+      },
+      "note": "",
+      "source": "12G 35 2/3IP ERA6.06 18K 18BB WHIP1.49 2승 — KBO 기록실"
+    },
+    {
+      "personId": "차준섭",
+      "name": "차준섭",
+      "year": 1982,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 84,
+        "stamina": 52,
+        "stability": 61
+      },
+      "note": "",
+      "source": "12G 35 1/3IP ERA4.84 24K 8BB WHIP1.47 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김시철",
+      "name": "김시철",
+      "year": 1982,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 44,
+        "stamina": 46,
+        "stability": 77
+      },
+      "note": "",
+      "source": "2G 5 2/3IP ERA3.18 0K 9BB WHIP1.94 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김용운",
+      "name": "김용운",
+      "year": 1982,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 56,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".244/.302 3HR 28타점 2SB 238PA — KBO 기록실"
+    },
+    {
+      "personId": "유승안",
+      "name": "유승안",
+      "year": 1982,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 86,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".254/.350 9HR 29타점 2SB 166PA — KBO 기록실"
+    },
+    {
+      "personId": "김용달",
+      "name": "김용달",
+      "year": 1982,
+      "team": "MBC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 67,
+        "speed": 49,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".315/.385 5HR 23타점 2SB 191PA — KBO 기록실"
+    },
+    {
+      "personId": "김인식",
+      "name": "김인식",
+      "year": 1982,
+      "team": "MBC",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 51,
+        "speed": 89,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".259/.334 3HR 26타점 35SB 355PA — KBO 기록실"
+    },
+    {
+      "personId": "조호",
+      "name": "조호",
+      "year": 1982,
+      "team": "MBC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 42,
+        "speed": 54,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".212/.349 0HR 3타점 4SB 64PA — KBO 기록실"
+    },
+    {
+      "personId": "정영기",
+      "name": "정영기",
+      "year": 1982,
+      "team": "MBC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 46,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".228/.288 1HR 23타점 6SB 270PA — KBO 기록실"
+    },
+    {
+      "personId": "이종도",
+      "name": "이종도",
+      "year": 1982,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 72,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".324/.399 11HR 48타점 21SB 327PA — KBO 기록실"
+    },
+    {
+      "personId": "송영운",
+      "name": "송영운",
+      "year": 1982,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 46,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".262/.333 1HR 28타점 15SB 302PA — KBO 기록실"
+    },
+    {
+      "personId": "이광은",
+      "name": "이광은",
+      "year": 1982,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 62,
+        "speed": 74,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".313/.363 5HR 36타점 17SB 271PA — KBO 기록실"
+    },
+    {
+      "personId": "백인천",
+      "name": "백인천",
+      "year": 1982,
+      "team": "MBC",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 99,
+        "speed": 66,
+        "defense": 55
+      },
+      "note": "KBO 유일 4할 타율",
+      "source": ".412/.502 19HR 64타점 11SB 298PA — KBO 기록실"
+    },
+    {
+      "personId": "신언호",
+      "name": "신언호",
+      "year": 1982,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 55,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".240/.315 3HR 26타점 10SB 256PA — KBO 기록실"
+    }
+  ]
+}

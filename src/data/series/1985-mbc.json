@@ -1,0 +1,318 @@
+{
+  "id": "1985-mbc",
+  "kind": "team",
+  "year": 1985,
+  "title": "MBC 청룡",
+  "franchise": "LG",
+  "subtitle": "김재박의 3할",
+  "blurb": "김재박이 3할을 치고 유종겸이 10승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "정삼흠",
+      "name": "정삼흠",
+      "year": 1985,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 68,
+        "stamina": 91,
+        "stability": 81
+      },
+      "note": "",
+      "source": "41G 192 2/3IP ERA3.13 100K 72BB WHIP1.25 9승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "이선희",
+      "name": "이선희",
+      "year": 1985,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 65,
+        "stamina": 76,
+        "stability": 89
+      },
+      "note": "",
+      "source": "28G 138IP ERA2.28 48K 55BB WHIP1.20 5승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "유종겸",
+      "name": "유종겸",
+      "year": 1985,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 67,
+        "stamina": 75,
+        "stability": 82
+      },
+      "note": "",
+      "source": "33G 135 1/3IP ERA2.99 40K 52BB WHIP1.20 10승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "오영일",
+      "name": "오영일",
+      "year": 1985,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 68,
+        "stamina": 73,
+        "stability": 77
+      },
+      "note": "",
+      "source": "28G 127 1/3IP ERA3.53 43K 47BB WHIP1.41 8승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "정순명",
+      "name": "정순명",
+      "year": 1985,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 66,
+        "stamina": 49,
+        "stability": 46
+      },
+      "note": "",
+      "source": "7G 18IP ERA6.00 5K 7BB WHIP1.83 — KBO 기록실"
+    },
+    {
+      "personId": "이광권",
+      "name": "이광권",
+      "year": 1985,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 73,
+        "stamina": 47,
+        "stability": 61
+      },
+      "note": "",
+      "source": "4G 9 1/3IP ERA4.82 1K 3BB WHIP1.39 — KBO 기록실"
+    },
+    {
+      "personId": "차준섭",
+      "name": "차준섭",
+      "year": 1985,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 97,
+        "stamina": 46,
+        "stability": 40
+      },
+      "note": "",
+      "source": "3G 4 1/3IP ERA14.54 0K 0BB WHIP2.54 — KBO 기록실"
+    },
+    {
+      "personId": "심재원",
+      "name": "심재원",
+      "year": 1985,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 48,
+        "power": 58,
+        "speed": 54,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".206/.275 3HR 15타점 4SB 209PA — KBO 기록실"
+    },
+    {
+      "personId": "차동열",
+      "name": "차동열",
+      "year": 1985,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 66,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".219/.285 4HR 20타점 1SB 167PA — KBO 기록실"
+    },
+    {
+      "personId": "김용달",
+      "name": "김용달",
+      "year": 1985,
+      "team": "MBC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 62,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".232/.331 3HR 15타점 3SB 166PA — KBO 기록실"
+    },
+    {
+      "personId": "김인식",
+      "name": "김인식",
+      "year": 1985,
+      "team": "MBC",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 47,
+        "speed": 74,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".275/.337 2HR 16타점 17SB 455PA — KBO 기록실"
+    },
+    {
+      "personId": "안언학",
+      "name": "안언학",
+      "year": 1985,
+      "team": "MBC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 51,
+        "speed": 44,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".181/.274 1HR 7타점 0SB 109PA — KBO 기록실"
+    },
+    {
+      "personId": "김재박",
+      "name": "김재박",
+      "year": 1985,
+      "team": "MBC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 48,
+        "contact": 85,
+        "speed": 97,
+        "defense": 94
+      },
+      "note": "도루왕·유격수 골든글러브",
+      "source": ".313/.385 3HR 36타점 50SB 431PA — KBO 기록실"
+    },
+    {
+      "personId": "신언호",
+      "name": "신언호",
+      "year": 1985,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 45,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".226/.262 1HR 28타점 6SB 398PA — KBO 기록실"
+    },
+    {
+      "personId": "이광은",
+      "name": "이광은",
+      "year": 1985,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 60,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279/.336 6HR 39타점 20SB 358PA — KBO 기록실"
+    },
+    {
+      "personId": "박흥식",
+      "name": "박흥식",
+      "year": 1985,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 42,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".238/.347 0HR 9타점 4SB 259PA — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 1985,
+      "team": "MBC",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 56,
+        "speed": 54,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".300/.355 5HR 51타점 4SB 395PA — KBO 기록실"
+    },
+    {
+      "personId": "유고웅",
+      "name": "유고웅",
+      "year": 1985,
+      "team": "MBC",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 59,
+        "speed": 62,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".193/.281 4HR 15타점 8SB 262PA — KBO 기록실"
+    }
+  ]
+}

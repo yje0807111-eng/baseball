@@ -1,0 +1,318 @@
+{
+  "id": "1983-sammi",
+  "kind": "team",
+  "year": 1983,
+  "title": "삼미 슈퍼스타즈",
+  "franchise": "HYUNDAI",
+  "subtitle": "장명부의 30승",
+  "blurb": "장명부가 한 시즌 30승을 거두며 삼미를 홀로 끌어올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "장명부",
+      "name": "장명부",
+      "year": 1983,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 81,
+        "stamina": 99,
+        "stability": 88
+      },
+      "note": "",
+      "source": "60G 427 1/3IP ERA2.36 220K 106BB WHIP1.16 30승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "임호균",
+      "name": "임호균",
+      "year": 1983,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 84,
+        "stamina": 96,
+        "stability": 82
+      },
+      "note": "",
+      "source": "35G 234 2/3IP ERA3.03 86K 52BB WHIP1.21 12승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "정성만",
+      "name": "정성만",
+      "year": 1983,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 61,
+        "stamina": 52,
+        "stability": 83
+      },
+      "note": "",
+      "source": "12G 61 2/3IP ERA2.92 26K 27BB WHIP1.18 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 1983,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 77,
+        "stamina": 48,
+        "stability": 79
+      },
+      "note": "",
+      "source": "12G 49IP ERA3.31 11K 14BB WHIP1.24 2승 — KBO 기록실"
+    },
+    {
+      "personId": "오문현",
+      "name": "오문현",
+      "year": 1983,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 68,
+        "stamina": 53,
+        "stability": 56
+      },
+      "note": "",
+      "source": "13G 37 2/3IP ERA5.26 12K 14BB WHIP1.30 1승 — KBO 기록실"
+    },
+    {
+      "personId": "유종천",
+      "name": "유종천",
+      "year": 1983,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 44,
+        "stamina": 48,
+        "stability": 40
+      },
+      "note": "",
+      "source": "5G 17IP ERA7.94 7K 14BB WHIP2.24 1승 — KBO 기록실"
+    },
+    {
+      "personId": "감사용",
+      "name": "감사용",
+      "year": 1983,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 73,
+        "stamina": 47,
+        "stability": 83
+      },
+      "note": "",
+      "source": "6G 12 1/3IP ERA2.92 6K 4BB WHIP1.30 — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 1983,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 73,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".253 15HR 49타점 3SB 424PA — KBO 기록실"
+    },
+    {
+      "personId": "금광옥",
+      "name": "금광옥",
+      "year": 1983,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 52,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".222 2HR 13타점 0SB 214PA — KBO 기록실"
+    },
+    {
+      "personId": "조흥운",
+      "name": "조흥운",
+      "year": 1983,
+      "team": "삼미",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 42,
+        "speed": 68,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".236 0HR 27타점 12SB 280PA — KBO 기록실"
+    },
+    {
+      "personId": "정구선",
+      "name": "정구선",
+      "year": 1983,
+      "team": "삼미",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 75,
+        "speed": 47,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".256 15HR 35타점 1SB 404PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1983,
+      "team": "삼미",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 60,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".223 5HR 28타점 3SB 311PA — KBO 기록실"
+    },
+    {
+      "personId": "이영구",
+      "name": "이영구",
+      "year": 1983,
+      "team": "삼미",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 55,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".277 5HR 36타점 5SB 418PA — KBO 기록실"
+    },
+    {
+      "personId": "김대진",
+      "name": "김대진",
+      "year": 1983,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 48,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".277 2HR 23타점 4SB 363PA — KBO 기록실"
+    },
+    {
+      "personId": "양승관",
+      "name": "양승관",
+      "year": 1983,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 69,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".302 9HR 30타점 0SB 312PA — KBO 기록실"
+    },
+    {
+      "personId": "박준영",
+      "name": "박준영",
+      "year": 1983,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 60,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".221 3HR 14타점 0SB 187PA — KBO 기록실"
+    },
+    {
+      "personId": "최홍석",
+      "name": "최홍석",
+      "year": 1983,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 61,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".252 3HR 11타점 0SB 177PA — KBO 기록실"
+    },
+    {
+      "personId": "정구왕",
+      "name": "정구왕",
+      "year": 1983,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 49,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".186 1HR 11타점 3SB 167PA — KBO 기록실"
+    }
+  ]
+}

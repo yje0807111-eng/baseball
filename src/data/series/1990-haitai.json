@@ -1,0 +1,318 @@
+{
+  "id": "1990-haitai",
+  "kind": "team",
+  "year": 1990,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "선동열의 22승",
+  "blurb": "선동열이 22승 평균자책 1.13으로 던지고 한대화가 86타점을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 1990,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 67,
+        "stamina": 95,
+        "stability": 81
+      },
+      "note": "",
+      "source": "44G 220 2/3IP ERA3.14 165K 84BB WHIP1.12 16승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1990,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 80,
+        "stamina": 91,
+        "stability": 94
+      },
+      "note": "",
+      "source": "35G 190 1/3IP ERA1.13 189K 50BB WHIP0.90 22승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 1990,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 61,
+        "stamina": 88,
+        "stability": 79
+      },
+      "note": "",
+      "source": "30G 178 1/3IP ERA3.28 130K 78BB WHIP1.24 14승 — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1990,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 51,
+        "stamina": 67,
+        "stability": 83
+      },
+      "note": "",
+      "source": "26G 104 1/3IP ERA2.93 50K 60BB WHIP1.38 6승 — KBO 기록실"
+    },
+    {
+      "personId": "신동수",
+      "name": "신동수",
+      "year": 1990,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 73,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "42G 143IP ERA4.09 56K 47BB WHIP1.31 5승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1990,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 59,
+        "stamina": 60,
+        "stability": 74
+      },
+      "note": "",
+      "source": "34G 98IP ERA3.77 62K 45BB WHIP1.38 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "이광우",
+      "name": "이광우",
+      "year": 1990,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 83,
+        "stamina": 56,
+        "stability": 47
+      },
+      "note": "",
+      "source": "20G 56 1/3IP ERA5.91 27K 13BB WHIP1.56 2승 — KBO 기록실"
+    },
+    {
+      "personId": "강태원",
+      "name": "강태원",
+      "year": 1990,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 78,
+        "stamina": 52,
+        "stability": 40
+      },
+      "note": "",
+      "source": "17G 35 2/3IP ERA7.32 11K 10BB WHIP1.54 1승 — KBO 기록실"
+    },
+    {
+      "personId": "정회열",
+      "name": "정회열",
+      "year": 1990,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 57,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".257/.300 3HR 26타점 1SB 226PA — KBO 기록실"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1990,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 71,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".224/.287 7HR 21타점 0SB 218PA — KBO 기록실"
+    },
+    {
+      "personId": "박철우",
+      "name": "박철우",
+      "year": 1990,
+      "team": "해태",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 66,
+        "speed": 44,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".284/.373 10HR 45타점 0SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "윤재호",
+      "name": "윤재호",
+      "year": 1990,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 48,
+        "speed": 70,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".260/.331 2HR 33타점 13SB 380PA — KBO 기록실"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1990,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 69,
+        "contact": 91,
+        "speed": 66,
+        "defense": 84
+      },
+      "note": "타격왕·3루수 GG",
+      "source": ".335/.432 15HR 86타점 10SB 500PA — KBO 기록실"
+    },
+    {
+      "personId": "백인수",
+      "name": "백인수",
+      "year": 1990,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 63,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".297/.403 8HR 34타점 9SB 402PA — KBO 기록실"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1990,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 67,
+        "speed": 83,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".249/.356 12HR 51타점 26SB 455PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1990,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 65,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".286/.360 10HR 64타점 0SB 442PA — KBO 기록실"
+    },
+    {
+      "personId": "이호성",
+      "name": "이호성",
+      "year": 1990,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 62,
+        "speed": 73,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".304/.395 7HR 48타점 16SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1990,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 69,
+        "speed": 71,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".281/.361 11HR 49타점 14SB 385PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "1986-ob",
+  "kind": "team",
+  "year": 1986,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "최일언의 평균자책 1.58",
+  "blurb": "최일언이 19승 평균자책 1.58로 던지며 OB 마운드를 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "최일언",
+      "name": "최일언",
+      "year": 1986,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 59,
+        "stamina": 94,
+        "stability": 94
+      },
+      "note": "221.2이닝 피홈런 2개·19승",
+      "source": "33G 221 2/3IP ERA1.58 101K 101BB WHIP1.09 19승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "장호연",
+      "name": "장호연",
+      "year": 1986,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 79,
+        "stamina": 84,
+        "stability": 91
+      },
+      "note": "",
+      "source": "31G 165 2/3IP ERA1.90 44K 45BB WHIP1.09 13승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "계형철",
+      "name": "계형철",
+      "year": 1986,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 60,
+        "stamina": 69,
+        "stability": 80
+      },
+      "note": "",
+      "source": "22G 111IP ERA3.16 47K 50BB WHIP1.30 5승 — KBO 기록실"
+    },
+    {
+      "personId": "박상열",
+      "name": "박상열",
+      "year": 1986,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 61,
+        "stamina": 53,
+        "stability": 72
+      },
+      "note": "",
+      "source": "17G 64 1/3IP ERA3.92 15K 28BB WHIP1.46 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박노준",
+      "name": "박노준",
+      "year": 1986,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 73,
+        "stamina": 60,
+        "stability": 89
+      },
+      "note": "",
+      "source": "33G 110 1/3IP ERA2.28 61K 36BB WHIP1.15 5승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "김진욱",
+      "name": "김진욱",
+      "year": 1986,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 56,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "28G 81 2/3IP ERA4.08 41K 41BB WHIP1.49 4승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "황태환",
+      "name": "황태환",
+      "year": 1986,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 77,
+        "stamina": 60,
+        "stability": 87
+      },
+      "note": "",
+      "source": "28G 73 1/3IP ERA2.45 36K 21BB WHIP1.23 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "황기선",
+      "name": "황기선",
+      "year": 1986,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 48,
+        "stamina": 50,
+        "stability": 63
+      },
+      "note": "",
+      "source": "11G 24 1/3IP ERA4.44 6K 15BB WHIP1.68 — KBO 기록실"
+    },
+    {
+      "personId": "김경문",
+      "name": "김경문",
+      "year": 1986,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".183/.233 0HR 11타점 0SB 202PA — KBO 기록실"
+    },
+    {
+      "personId": "김호근",
+      "name": "김호근",
+      "year": 1986,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 87,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".219/.313 10HR 28타점 1SB 179PA — KBO 기록실"
+    },
+    {
+      "personId": "신경식",
+      "name": "신경식",
+      "year": 1986,
+      "team": "OB",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 45,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".271/.333 1HR 34타점 6SB 427PA — KBO 기록실"
+    },
+    {
+      "personId": "구천서",
+      "name": "구천서",
+      "year": 1986,
+      "team": "OB",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 48,
+        "power": 51,
+        "speed": 44,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".205/.301 1HR 6타점 0SB 94PA — KBO 기록실"
+    },
+    {
+      "personId": "이승희",
+      "name": "이승희",
+      "year": 1986,
+      "team": "OB",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 51,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".307/.352 2HR 28타점 5SB 239PA — KBO 기록실"
+    },
+    {
+      "personId": "유지훤",
+      "name": "유지훤",
+      "year": 1986,
+      "team": "OB",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 48,
+        "speed": 62,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".270/.321 2HR 37타점 8SB 367PA — KBO 기록실"
+    },
+    {
+      "personId": "김형석",
+      "name": "김형석",
+      "year": 1986,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 63,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".286/.331 8HR 47타점 8SB 405PA — KBO 기록실"
+    },
+    {
+      "personId": "윤동균",
+      "name": "윤동균",
+      "year": 1986,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 48,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".267/.352 2HR 37타점 5SB 392PA — KBO 기록실"
+    },
+    {
+      "personId": "박종훈",
+      "name": "박종훈",
+      "year": 1986,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 60,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".259/.341 6HR 28타점 12SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "김광수",
+      "name": "김광수",
+      "year": 1986,
+      "team": "OB",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 42,
+        "speed": 66,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".248/.350 0HR 25타점 10SB 341PA — KBO 기록실"
+    }
+  ]
+}

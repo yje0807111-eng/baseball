@@ -1,0 +1,318 @@
+{
+  "id": "1988-lotte",
+  "kind": "team",
+  "year": 1988,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "윤학길의 18승",
+  "blurb": "윤학길이 18승을 거두고 김용철이 69타점을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤학길",
+      "name": "윤학길",
+      "year": 1988,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 84,
+        "stamina": 96,
+        "stability": 81
+      },
+      "note": "",
+      "source": "35G 234IP ERA3.15 123K 53BB WHIP1.26 18승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "박동수",
+      "name": "박동수",
+      "year": 1988,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 82,
+        "stamina": 70,
+        "stability": 76
+      },
+      "note": "",
+      "source": "31G 114 1/3IP ERA3.62 59K 27BB WHIP1.38 7승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "노상수",
+      "name": "노상수",
+      "year": 1988,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 80,
+        "stamina": 67,
+        "stability": 62
+      },
+      "note": "",
+      "source": "28G 104 2/3IP ERA4.73 41K 27BB WHIP1.27 4승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "김정행",
+      "name": "김정행",
+      "year": 1988,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 54,
+        "stamina": 64,
+        "stability": 75
+      },
+      "note": "",
+      "source": "15G 94IP ERA3.64 29K 50BB WHIP1.40 8승 — KBO 기록실"
+    },
+    {
+      "personId": "안창완",
+      "name": "안창완",
+      "year": 1988,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 63,
+        "stamina": 57,
+        "stability": 67
+      },
+      "note": "",
+      "source": "29G 62 1/3IP ERA4.33 26K 26BB WHIP1.32 1승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김종석(투수)",
+      "name": "김종석",
+      "year": 1988,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 54,
+        "stamina": 56,
+        "stability": 59
+      },
+      "note": "",
+      "source": "20G 55IP ERA4.75 23K 29BB WHIP1.65 — KBO 기록실"
+    },
+    {
+      "personId": "서정용",
+      "name": "서정용",
+      "year": 1988,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 60,
+        "stamina": 54,
+        "stability": 81
+      },
+      "note": "",
+      "source": "14G 47IP ERA3.06 16K 21BB WHIP1.40 3승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1988,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 44,
+        "stamina": 49,
+        "stability": 56
+      },
+      "note": "",
+      "source": "8G 19 2/3IP ERA5.03 6K 13BB WHIP1.88 — KBO 기록실"
+    },
+    {
+      "personId": "김용운",
+      "name": "김용운",
+      "year": 1988,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 42,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".252/.290 0HR 24타점 0SB 244PA — KBO 기록실"
+    },
+    {
+      "personId": "한문연",
+      "name": "한문연",
+      "year": 1988,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 42,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".261/.326 0HR 20타점 2SB 140PA — KBO 기록실"
+    },
+    {
+      "personId": "박태호",
+      "name": "박태호",
+      "year": 1988,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 57,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".239/.269 2HR 13타점 6SB 149PA — KBO 기록실"
+    },
+    {
+      "personId": "정구선",
+      "name": "정구선",
+      "year": 1988,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 70,
+        "speed": 54,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".221/.309 12HR 52타점 4SB 393PA — KBO 기록실"
+    },
+    {
+      "personId": "한영준",
+      "name": "한영준",
+      "year": 1988,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 62,
+        "speed": 81,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".301/.387 6HR 30타점 24SB 320PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 1988,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 72,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".323/.412 14HR 64타점 6SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "김용철",
+      "name": "김용철",
+      "year": 1988,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 78,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".292/.356 18HR 69타점 15SB 422PA — KBO 기록실"
+    },
+    {
+      "personId": "유두열",
+      "name": "유두열",
+      "year": 1988,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 62,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".281/.348 7HR 38타점 9SB 374PA — KBO 기록실"
+    },
+    {
+      "personId": "홍문종",
+      "name": "홍문종",
+      "year": 1988,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 54,
+        "speed": 80,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279/.352 4HR 25타점 22SB 359PA — KBO 기록실"
+    },
+    {
+      "personId": "최계영",
+      "name": "최계영",
+      "year": 1988,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 49,
+        "speed": 71,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".302/.394 2HR 29타점 14SB 299PA — KBO 기록실"
+    }
+  ]
+}

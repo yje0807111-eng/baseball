@@ -1,0 +1,319 @@
+{
+  "id": "1987-haitai",
+  "champion": true,
+  "kind": "team",
+  "year": 1987,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "두 해 연속 우승 · 선동열 0.89",
+  "blurb": "선동열이 평균자책 0.89로 던지고 김성한이 타선을 이끌며 해태가 두 해 연속 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1987,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 77,
+        "stamina": 83,
+        "stability": 94
+      },
+      "note": "",
+      "source": "31G 162IP ERA0.89 144K 47BB WHIP0.84 14승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "차동철",
+      "name": "차동철",
+      "year": 1987,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 82,
+        "stamina": 82,
+        "stability": 80
+      },
+      "note": "",
+      "source": "35G 159 2/3IP ERA3.16 49K 39BB WHIP1.23 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김대현",
+      "name": "김대현",
+      "year": 1987,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 68,
+        "stamina": 77,
+        "stability": 84
+      },
+      "note": "",
+      "source": "31G 142 1/3IP ERA2.78 51K 53BB WHIP1.22 9승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "신동수",
+      "name": "신동수",
+      "year": 1987,
+      "team": "해태",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 63,
+        "stamina": 73,
+        "stability": 82
+      },
+      "note": "",
+      "source": "31G 127 2/3IP ERA3.03 67K 53BB WHIP1.29 5승 — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1987,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 44,
+        "stamina": 60,
+        "stability": 67
+      },
+      "note": "",
+      "source": "23G 80 1/3IP ERA4.37 78K 57BB WHIP1.44 6승 — KBO 기록실"
+    },
+    {
+      "personId": "방수원",
+      "name": "방수원",
+      "year": 1987,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 75,
+        "stamina": 58,
+        "stability": 68
+      },
+      "note": "",
+      "source": "23G 65 2/3IP ERA4.25 29K 20BB WHIP1.39 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "강상진",
+      "name": "강상진",
+      "year": 1987,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 44,
+        "stamina": 54,
+        "stability": 43
+      },
+      "note": "",
+      "source": "13G 45IP ERA6.40 13K 32BB WHIP1.80 — KBO 기록실"
+    },
+    {
+      "personId": "조도연",
+      "name": "조도연",
+      "year": 1987,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 57,
+        "stamina": 50,
+        "stability": 40
+      },
+      "note": "",
+      "source": "13G 27IP ERA7.33 9K 13BB WHIP2.04 — KBO 기록실"
+    },
+    {
+      "personId": "김무종",
+      "name": "김무종",
+      "year": 1987,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 67,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".226/.293 7HR 31타점 1SB 280PA — KBO 기록실"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1987,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 67,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".208/.262 3HR 9타점 1SB 88PA — KBO 기록실"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1987,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 59,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".271/.331 6HR 39타점 1SB 380PA — KBO 기록실"
+    },
+    {
+      "personId": "차영화",
+      "name": "차영화",
+      "year": 1987,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".200/.263 0HR 6타점 5SB 83PA — KBO 기록실"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1987,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 74,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".236/.347 13HR 36타점 5SB 358PA — KBO 기록실"
+    },
+    {
+      "personId": "서정환",
+      "name": "서정환",
+      "year": 1987,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 51,
+        "speed": 77,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".278/.358 3HR 28타점 19SB 383PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1987,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 67,
+        "speed": 49,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".331/.377 9HR 41타점 2SB 360PA — KBO 기록실"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1987,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 63,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".215/.291 6HR 29타점 12SB 299PA — KBO 기록실"
+    },
+    {
+      "personId": "조재환",
+      "name": "조재환",
+      "year": 1987,
+      "team": "해태",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 42,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".232/.311 0HR 7타점 1SB 269PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1987,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 79,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".314/.378 15HR 46타점 3SB 342PA — KBO 기록실"
+    }
+  ]
+}

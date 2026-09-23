@@ -1,0 +1,318 @@
+{
+  "id": "1985-sammi",
+  "kind": "team",
+  "year": 1985,
+  "title": "삼미 슈퍼스타즈",
+  "franchise": "HYUNDAI",
+  "subtitle": "삼미에서 청보로",
+  "blurb": "시즌 도중 청보가 구단을 넘겨받았고 정구선이 14홈런을 치며 타선을 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "장명부",
+      "name": "장명부",
+      "year": 1985,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 64,
+        "stamina": 97,
+        "stability": 53
+      },
+      "note": "",
+      "source": "45G 246IP ERA5.30 128K 100BB WHIP1.64 11승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "정성만",
+      "name": "정성만",
+      "year": 1985,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 68,
+        "stamina": 86,
+        "stability": 56
+      },
+      "note": "",
+      "source": "37G 172 2/3IP ERA5.00 56K 64BB WHIP1.57 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "정은배",
+      "name": "정은배",
+      "year": 1985,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 62,
+        "stamina": 77,
+        "stability": 75
+      },
+      "note": "",
+      "source": "29G 141IP ERA3.64 45K 60BB WHIP1.43 7승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "최계훈",
+      "name": "최계훈",
+      "year": 1985,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 59,
+        "stamina": 71,
+        "stability": 76
+      },
+      "note": "",
+      "source": "20G 118 2/3IP ERA3.56 54K 55BB WHIP1.36 6승 — KBO 기록실"
+    },
+    {
+      "personId": "신태중",
+      "name": "신태중",
+      "year": 1985,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 64,
+        "stamina": 60,
+        "stability": 59
+      },
+      "note": "",
+      "source": "34G 103 2/3IP ERA4.77 48K 42BB WHIP1.54 3승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "오문현",
+      "name": "오문현",
+      "year": 1985,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 75,
+        "stamina": 60,
+        "stability": 44
+      },
+      "note": "",
+      "source": "23G 75 1/3IP ERA6.33 16K 23BB WHIP1.65 4승 — KBO 기록실"
+    },
+    {
+      "personId": "박정후",
+      "name": "박정후",
+      "year": 1985,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 48,
+        "control": 44,
+        "stamina": 53,
+        "stability": 40
+      },
+      "note": "",
+      "source": "16G 38 2/3IP ERA7.22 14K 34BB WHIP1.99 1SV — KBO 기록실"
+    },
+    {
+      "personId": "감사용",
+      "name": "감사용",
+      "year": 1985,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 80,
+        "stamina": 51,
+        "stability": 43
+      },
+      "note": "",
+      "source": "12G 30 2/3IP ERA6.46 17K 8BB WHIP1.63 — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 1985,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 67,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".266 8HR 31타점 0SB 316PA — KBO 기록실"
+    },
+    {
+      "personId": "금광옥",
+      "name": "금광옥",
+      "year": 1985,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 72,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".291 9HR 36타점 1SB 272PA — KBO 기록실"
+    },
+    {
+      "personId": "김바위",
+      "name": "김바위",
+      "year": 1985,
+      "team": "삼미",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 78,
+        "speed": 61,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".245 13HR 34타점 7SB 306PA — KBO 기록실"
+    },
+    {
+      "personId": "정구선",
+      "name": "정구선",
+      "year": 1985,
+      "team": "삼미",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 70,
+        "speed": 49,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".261 14HR 53타점 2SB 468PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1985,
+      "team": "삼미",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 59,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".300 6HR 53타점 1SB 378PA — KBO 기록실"
+    },
+    {
+      "personId": "권두조",
+      "name": "권두조",
+      "year": 1985,
+      "team": "삼미",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 42,
+        "speed": 62,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".237 0HR 19타점 8SB 346PA — KBO 기록실"
+    },
+    {
+      "personId": "김우근",
+      "name": "김우근",
+      "year": 1985,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 54,
+        "speed": 87,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".288 5HR 31타점 31SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "양승관",
+      "name": "양승관",
+      "year": 1985,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 62,
+        "speed": 44,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".210 5HR 32타점 0SB 268PA — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1985,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 61,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".220 4HR 18타점 1SB 237PA — KBO 기록실"
+    },
+    {
+      "personId": "이영구",
+      "name": "이영구",
+      "year": 1985,
+      "team": "삼미",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 54,
+        "speed": 52,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".280 3HR 31타점 3SB 281PA — KBO 기록실"
+    }
+  ]
+}

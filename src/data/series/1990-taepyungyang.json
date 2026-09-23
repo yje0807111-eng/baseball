@@ -1,0 +1,318 @@
+{
+  "id": "1990-taepyungyang",
+  "kind": "team",
+  "year": 1990,
+  "title": "태평양 돌핀스",
+  "franchise": "HYUNDAI",
+  "subtitle": "박정현의 13승",
+  "blurb": "박정현이 13승 평균자책 2.63으로 던지고 김동기가 타선을 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "최창호",
+      "name": "최창호",
+      "year": 1990,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 58,
+        "stamina": 92,
+        "stability": 80
+      },
+      "note": "",
+      "source": "40G 196 2/3IP ERA3.20 158K 93BB WHIP1.30 9승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "박정현",
+      "name": "박정현",
+      "year": 1990,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 77,
+        "stamina": 91,
+        "stability": 86
+      },
+      "note": "",
+      "source": "35G 191 2/3IP ERA2.63 66K 55BB WHIP1.21 13승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "양상문",
+      "name": "양상문",
+      "year": 1990,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 71,
+        "stamina": 83,
+        "stability": 80
+      },
+      "note": "",
+      "source": "34G 162 1/3IP ERA3.22 68K 55BB WHIP1.27 11승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "조병천",
+      "name": "조병천",
+      "year": 1990,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 56,
+        "stamina": 66,
+        "stability": 71
+      },
+      "note": "",
+      "source": "26G 99 1/3IP ERA3.99 36K 50BB WHIP1.45 6승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "박은진",
+      "name": "박은진",
+      "year": 1990,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 70,
+        "stamina": 60,
+        "stability": 91
+      },
+      "note": "",
+      "source": "33G 102IP ERA2.03 42K 36BB WHIP1.22 6승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "허정욱",
+      "name": "허정욱",
+      "year": 1990,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 48,
+        "stamina": 58,
+        "stability": 79
+      },
+      "note": "",
+      "source": "20G 65 2/3IP ERA3.29 43K 40BB WHIP1.49 7승 — KBO 기록실"
+    },
+    {
+      "personId": "정명진",
+      "name": "정명진",
+      "year": 1990,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 60,
+        "stamina": 56,
+        "stability": 49
+      },
+      "note": "",
+      "source": "23G 55 2/3IP ERA5.66 31K 25BB WHIP1.63 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박상범",
+      "name": "박상범",
+      "year": 1990,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 47,
+        "stamina": 53,
+        "stability": 50
+      },
+      "note": "",
+      "source": "12G 38 2/3IP ERA5.59 22K 24BB WHIP1.73 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1990,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 73,
+        "speed": 57,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".250 14HR 46타점 5SB 394PA — KBO 기록실"
+    },
+    {
+      "personId": "김경문",
+      "name": "김경문",
+      "year": 1990,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 42,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".231 0HR 9타점 0SB 99PA — KBO 기록실"
+    },
+    {
+      "personId": "김경기",
+      "name": "김경기",
+      "year": 1990,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 64,
+        "speed": 61,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".285 10HR 68타점 7SB 476PA — KBO 기록실"
+    },
+    {
+      "personId": "이광길",
+      "name": "이광길",
+      "year": 1990,
+      "team": "태평양",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 47,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".146 0HR 9타점 1SB 114PA — KBO 기록실"
+    },
+    {
+      "personId": "김한근",
+      "name": "김한근",
+      "year": 1990,
+      "team": "태평양",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 57,
+        "speed": 49,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".266 3HR 25타점 2SB 217PA — KBO 기록실"
+    },
+    {
+      "personId": "정영기",
+      "name": "정영기",
+      "year": 1990,
+      "team": "태평양",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 49,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".172 0HR 11타점 2SB 181PA — KBO 기록실"
+    },
+    {
+      "personId": "김윤환",
+      "name": "김윤환",
+      "year": 1990,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 50,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".248 3HR 40타점 19SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1990,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 42,
+        "speed": 96,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".253 0HR 27타점 48SB 376PA — KBO 기록실"
+    },
+    {
+      "personId": "여태구",
+      "name": "여태구",
+      "year": 1990,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 57,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".281 4HR 27타점 20SB 293PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1990,
+      "team": "태평양",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 44,
+        "speed": 54,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".260 1HR 47타점 4SB 474PA — KBO 기록실"
+    }
+  ]
+}

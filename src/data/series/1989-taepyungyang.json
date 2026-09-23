@@ -1,0 +1,318 @@
+{
+  "id": "1989-taepyungyang",
+  "kind": "team",
+  "year": 1989,
+  "title": "태평양 돌핀스",
+  "franchise": "HYUNDAI",
+  "subtitle": "박정현의 19승",
+  "blurb": "박정현이 19승 평균자책 2.15로 던지며 태평양을 가을 무대로 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박정현",
+      "name": "박정현",
+      "year": 1989,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 70,
+        "stamina": 96,
+        "stability": 90
+      },
+      "note": "",
+      "source": "38G 242 2/3IP ERA2.15 116K 86BB WHIP1.11 19승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "최창호",
+      "name": "최창호",
+      "year": 1989,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 55,
+        "stamina": 95,
+        "stability": 89
+      },
+      "note": "",
+      "source": "38G 223 1/3IP ERA2.22 191K 114BB WHIP1.27 10승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "양상문",
+      "name": "양상문",
+      "year": 1989,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 61,
+        "stamina": 83,
+        "stability": 79
+      },
+      "note": "",
+      "source": "35G 161 2/3IP ERA3.28 91K 71BB WHIP1.24 8승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "정명원",
+      "name": "정명원",
+      "year": 1989,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 72,
+        "stamina": 76,
+        "stability": 87
+      },
+      "note": "",
+      "source": "38G 139 1/3IP ERA2.45 68K 46BB WHIP1.23 11승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "박은진",
+      "name": "박은진",
+      "year": 1989,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 73,
+        "stamina": 57,
+        "stability": 79
+      },
+      "note": "",
+      "source": "23G 59 1/3IP ERA3.34 31K 19BB WHIP1.37 4승 — KBO 기록실"
+    },
+    {
+      "personId": "신완근",
+      "name": "신완근",
+      "year": 1989,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 78,
+        "stamina": 54,
+        "stability": 75
+      },
+      "note": "",
+      "source": "17G 46 2/3IP ERA3.66 14K 13BB WHIP1.16 2승 — KBO 기록실"
+    },
+    {
+      "personId": "조병천",
+      "name": "조병천",
+      "year": 1989,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 82,
+        "stamina": 51,
+        "stability": 62
+      },
+      "note": "",
+      "source": "13G 28 2/3IP ERA4.71 15K 7BB WHIP1.43 — KBO 기록실"
+    },
+    {
+      "personId": "임호균",
+      "name": "임호균",
+      "year": 1989,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 65,
+        "stamina": 48,
+        "stability": 88
+      },
+      "note": "",
+      "source": "7G 15IP ERA2.40 6K 6BB WHIP1.27 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1989,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 65,
+        "speed": 61,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".251 11HR 59타점 7SB 489PA — KBO 기록실"
+    },
+    {
+      "personId": "최영환",
+      "name": "최영환",
+      "year": 1989,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".158 0HR 0타점 0SB 25PA — KBO 기록실"
+    },
+    {
+      "personId": "김바위",
+      "name": "김바위",
+      "year": 1989,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 73,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".268 7HR 28타점 1SB 198PA — KBO 기록실"
+    },
+    {
+      "personId": "이광길",
+      "name": "이광길",
+      "year": 1989,
+      "team": "태평양",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 42,
+        "speed": 74,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".270 0HR 38타점 17SB 458PA — KBO 기록실"
+    },
+    {
+      "personId": "김한근",
+      "name": "김한근",
+      "year": 1989,
+      "team": "태평양",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 59,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".277 3HR 21타점 3SB 200PA — KBO 기록실"
+    },
+    {
+      "personId": "정영기",
+      "name": "정영기",
+      "year": 1989,
+      "team": "태평양",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 48,
+        "power": 57,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".204 3HR 21타점 1SB 213PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1989,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 45,
+        "speed": 99,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".261 1HR 28타점 62SB 437PA — KBO 기록실"
+    },
+    {
+      "personId": "홍문종",
+      "name": "홍문종",
+      "year": 1989,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 57,
+        "speed": 73,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".241 6HR 31타점 16SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "김윤환",
+      "name": "김윤환",
+      "year": 1989,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 69,
+        "speed": 74,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".222 9HR 42타점 17SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1989,
+      "team": "태평양",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 45,
+        "speed": 67,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".239 1HR 35타점 11SB 394PA — KBO 기록실"
+    }
+  ]
+}

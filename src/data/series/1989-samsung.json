@@ -1,0 +1,318 @@
+{
+  "id": "1989-samsung",
+  "kind": "team",
+  "year": 1989,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "이만수의 20홈런",
+  "blurb": "이만수가 20홈런을 치고 강기웅이 타율 .322를 기록했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김성길",
+      "name": "김성길",
+      "year": 1989,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 79,
+        "stamina": 96,
+        "stability": 84
+      },
+      "note": "",
+      "source": "34G 233 2/3IP ERA2.81 98K 63BB WHIP1.21 14승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "유명선",
+      "name": "유명선",
+      "year": 1989,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 55,
+        "stamina": 85,
+        "stability": 73
+      },
+      "note": "",
+      "source": "34G 170 2/3IP ERA3.85 102K 87BB WHIP1.40 14승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "성준",
+      "name": "성준",
+      "year": 1989,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 65,
+        "stamina": 51,
+        "stability": 78
+      },
+      "note": "",
+      "source": "13G 58 1/3IP ERA3.39 14K 23BB WHIP1.34 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김훈기",
+      "name": "김훈기",
+      "year": 1989,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 59,
+        "stamina": 48,
+        "stability": 69
+      },
+      "note": "",
+      "source": "10G 50IP ERA4.14 14K 23BB WHIP1.42 6승 — KBO 기록실"
+    },
+    {
+      "personId": "권영호",
+      "name": "권영호",
+      "year": 1989,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 60,
+        "stamina": 60,
+        "stability": 75
+      },
+      "note": "",
+      "source": "42G 86 2/3IP ERA3.63 41K 39BB WHIP1.41 4승 19SV — KBO 기록실"
+    },
+    {
+      "personId": "홍성연",
+      "name": "홍성연",
+      "year": 1989,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 47,
+        "control": 65,
+        "stamina": 60,
+        "stability": 58
+      },
+      "note": "",
+      "source": "27G 92 2/3IP ERA5.15 32K 37BB WHIP1.27 3승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이문한",
+      "name": "이문한",
+      "year": 1989,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 44,
+        "stamina": 56,
+        "stability": 63
+      },
+      "note": "",
+      "source": "26G 57IP ERA4.42 31K 39BB WHIP1.67 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "오명록",
+      "name": "오명록",
+      "year": 1989,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 49,
+        "stamina": 56,
+        "stability": 70
+      },
+      "note": "",
+      "source": "18G 53 1/3IP ERA4.05 28K 32BB WHIP1.48 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1989,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 82,
+        "speed": 54,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".284/.373 20HR 64타점 4SB 413PA — KBO 기록실"
+    },
+    {
+      "personId": "박정환",
+      "name": "박정환",
+      "year": 1989,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 60,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".220/.276 2HR 13타점 1SB 98PA — KBO 기록실"
+    },
+    {
+      "personId": "김용철",
+      "name": "김용철",
+      "year": 1989,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 69,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".304/.362 11HR 64타점 3SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "강기웅",
+      "name": "강기웅",
+      "year": 1989,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 45,
+        "speed": 83,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".322/.351 1HR 33타점 26SB 385PA — KBO 기록실"
+    },
+    {
+      "personId": "김용국",
+      "name": "김용국",
+      "year": 1989,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 66,
+        "speed": 62,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".288/.348 9HR 44타점 8SB 373PA — KBO 기록실"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1989,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 56,
+        "speed": 71,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".246/.311 5HR 38타점 14SB 380PA — KBO 기록실"
+    },
+    {
+      "personId": "이종두",
+      "name": "이종두",
+      "year": 1989,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 67,
+        "speed": 83,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".273/.343 10HR 52타점 26SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "장태수",
+      "name": "장태수",
+      "year": 1989,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 58,
+        "speed": 81,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".303/.379 5HR 34타점 24SB 344PA — KBO 기록실"
+    },
+    {
+      "personId": "구윤",
+      "name": "구윤",
+      "year": 1989,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 59,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".286/.365 5HR 30타점 13SB 333PA — KBO 기록실"
+    },
+    {
+      "personId": "박승호",
+      "name": "박승호",
+      "year": 1989,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 74,
+        "speed": 52,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".291/.357 12HR 49타점 3SB 333PA — KBO 기록실"
+    }
+  ]
+}

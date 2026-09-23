@@ -1,0 +1,318 @@
+{
+  "id": "1989-binggrae",
+  "kind": "team",
+  "year": 1989,
+  "title": "빙그레 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "유승안이 21홈런 85타점을 올리고 한희민이 16승을 거두며 빙그레가 다시 결승에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "한희민",
+      "name": "한희민",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 74,
+        "stamina": 87,
+        "stability": 87
+      },
+      "note": "",
+      "source": "30G 176 2/3IP ERA2.50 74K 55BB WHIP1.05 16승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "송진우",
+      "name": "송진우",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 52,
+        "stamina": 81,
+        "stability": 84
+      },
+      "note": "",
+      "source": "35G 156 2/3IP ERA2.81 97K 88BB WHIP1.30 9승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "이상군",
+      "name": "이상군",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 80,
+        "stamina": 77,
+        "stability": 86
+      },
+      "note": "",
+      "source": "27G 140 1/3IP ERA2.57 74K 36BB WHIP1.24 16승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김홍명",
+      "name": "김홍명",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 56,
+        "stamina": 73,
+        "stability": 71
+      },
+      "note": "",
+      "source": "23G 125 2/3IP ERA4.01 78K 63BB WHIP1.45 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김락기",
+      "name": "김락기",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 65,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "31G 108IP ERA2.67 38K 43BB WHIP1.19 8승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "이동석",
+      "name": "이동석",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 60,
+        "stamina": 59,
+        "stability": 43
+      },
+      "note": "",
+      "source": "24G 69IP ERA6.39 23K 31BB WHIP1.65 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "한용덕",
+      "name": "한용덕",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 68,
+        "stamina": 58,
+        "stability": 80
+      },
+      "note": "",
+      "source": "23G 67IP ERA3.22 47K 25BB WHIP1.33 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "진정필",
+      "name": "진정필",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 49,
+        "control": 60,
+        "stamina": 57,
+        "stability": 54
+      },
+      "note": "",
+      "source": "25G 59IP ERA5.49 23K 26BB WHIP1.44 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "유승안",
+      "name": "유승안",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 82,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".281/.363 21HR 85타점 0SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "김상국",
+      "name": "김상국",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 69,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".259/.332 6HR 27타점 1SB 204PA — KBO 기록실"
+    },
+    {
+      "personId": "강정길",
+      "name": "강정길",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 53,
+        "speed": 54,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".284/.349 4HR 48타점 4SB 384PA — KBO 기록실"
+    },
+    {
+      "personId": "김성갑",
+      "name": "김성갑",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 55,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".243/.352 4HR 45타점 12SB 348PA — KBO 기록실"
+    },
+    {
+      "personId": "강석천",
+      "name": "강석천",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 72,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".289/.347 5HR 24타점 1SB 148PA — KBO 기록실"
+    },
+    {
+      "personId": "황대연",
+      "name": "황대연",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 62,
+        "speed": 44,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".196/.267 4HR 12타점 0SB 221PA — KBO 기록실"
+    },
+    {
+      "personId": "이강돈",
+      "name": "이강돈",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 60,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295/.342 9HR 66타점 12SB 507PA — KBO 기록실"
+    },
+    {
+      "personId": "고원부",
+      "name": "고원부",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 59,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".327/.405 6HR 45타점 5SB 395PA — KBO 기록실"
+    },
+    {
+      "personId": "이중화",
+      "name": "이중화",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 42,
+        "speed": 82,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".294/.333 0HR 25타점 25SB 301PA — KBO 기록실"
+    },
+    {
+      "personId": "조양근",
+      "name": "조양근",
+      "year": 1989,
+      "team": "빙그레",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 45,
+        "speed": 78,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".273/.319 1HR 31타점 20SB 374PA — KBO 기록실"
+    }
+  ]
+}
