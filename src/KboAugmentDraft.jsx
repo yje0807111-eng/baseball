@@ -5089,7 +5089,16 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
   );
 }
 
-function SettingRow({ label, options, labels, value, onChange }) {
+/** fixed 를 주면 고를 수 없는 줄 — 줄을 빼면 모드를 바꿀 때 줄 수가 출렁여서, 값만 적어 둔다 */
+function SettingRow({ label, options, labels, value, onChange, fixed = null }) {
+  if (fixed != null) {
+    return (
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+        <span>{label}</span>
+        <b className="font-display text-[15px] text-gray-400">{fixed}</b>
+      </div>
+    );
+  }
   return (
     <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
       <span>{label}</span>
@@ -5128,8 +5137,6 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
-  const seen = new Set();
-  const stars = [...mode.players].sort((a, b) => b.overall - a.overall).filter((p) => !seen.has(personKey(p)) && seen.add(personKey(p))).slice(0, 6);
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
   const special = mode.group === 'special';
   useEffect(() => { setLive(mode.group !== 'special'); setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -5225,29 +5232,15 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <p className="ui-lab font-display">{mode.en}</p>
             <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
             <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
-            <dl className="grid grid-cols-3 gap-1.5">
-              {[['시리즈', mode.series.length], ['선수', mode.players.length], ['난이도', mode.tag]].map(([k, v]) => (
-                <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
-                  <dt className="text-[10px] text-gray-400">{k}</dt>
-                  <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
-                </div>
-              ))}
-            </dl>
             {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
+            {/* 어느 모드든 같은 다섯 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
-              {special ? (
-                <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
-                  <span>드래프트 방식</span>
-                  <b className="font-display text-[15px]" style={{ color: mode.neon }}>자유 영입 · 캡 없음</b>
-                </div>
-              ) : (
-                <>
-                  <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive} />
-                  <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap} />
-                  {live && haveFirst > 0 && (
-                    <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
-                  )}
-                </>
+              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive}
+                fixed={special ? '자유 영입' : null} />
+              <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
+                fixed={special ? '없음' : null} />
+              {!special && live && haveFirst > 0 && (
+                <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
@@ -5255,13 +5248,6 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <SettingRow label={`즐겨찾기 우대권 · ${haveFavor}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFavor} onChange={setUseFavor} />
               )}
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
-              <div className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-                <span>{live ? '뽑는 순서' : '다른 시리즈 새로고침'}</span>
-                <span className="ui-cut bg-white/[0.06] px-2.5 font-display font-bold text-white" style={{ '--c': '5px' }}>{live ? '스네이크 ⇄' : `×${START_REROLLS}`}</span>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5" aria-label="이 모드의 대표 선수">
-              {stars.map((p) => <Portrait key={p.id} player={p} className="h-12 w-10" />)}
             </div>
             <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: aug > 0 && useFavor && haveFavor > 0 })}>
               드래프트 시작 ▶
