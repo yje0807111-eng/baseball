@@ -1,0 +1,318 @@
+{
+  "id": "2001-lg",
+  "kind": "team",
+  "year": 2001,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "신윤호의 15승 18세이브",
+  "blurb": "신윤호가 선발과 마무리를 오가며 15승 18세이브를 올리고 양준혁이 타율 .355를 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "발데스",
+      "name": "발데스",
+      "year": 2001,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 58,
+        "control": 54,
+        "stamina": 83,
+        "stability": 63
+      },
+      "note": "",
+      "source": "30G 164 2/3IP ERA4.65 80K 88BB WHIP1.54 10승 — KBO 기록실"
+    },
+    {
+      "personId": "해리거",
+      "name": "해리거",
+      "year": 2001,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 66,
+        "control": 56,
+        "stamina": 83,
+        "stability": 67
+      },
+      "note": "",
+      "source": "28G 161 2/3IP ERA4.62 104K 80BB WHIP1.49 8승 — KBO 기록실"
+    },
+    {
+      "personId": "린튼",
+      "name": "린튼",
+      "year": 2001,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 68,
+        "control": 78,
+        "stamina": 57,
+        "stability": 83
+      },
+      "note": "",
+      "source": "12G 76 2/3IP ERA3.17 53K 21BB WHIP1.23 4승 — KBO 기록실"
+    },
+    {
+      "personId": "신윤호",
+      "name": "신윤호",
+      "year": 2001,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 53,
+        "stamina": 60,
+        "stability": 84
+      },
+      "note": "",
+      "source": "70G 144 1/3IP ERA3.12 99K 79BB WHIP1.44 15승 18SV — KBO 기록실"
+    },
+    {
+      "personId": "김민기",
+      "name": "김민기",
+      "year": 2001,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 50,
+        "stamina": 60,
+        "stability": 57
+      },
+      "note": "",
+      "source": "45G 107 2/3IP ERA5.18 77K 63BB WHIP1.60 2승 4SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "이동현",
+      "name": "이동현",
+      "year": 2001,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 54,
+        "stamina": 60,
+        "stability": 55
+      },
+      "note": "",
+      "source": "33G 105 2/3IP ERA5.37 51K 56BB WHIP1.76 4승 — KBO 기록실"
+    },
+    {
+      "personId": "경헌호",
+      "name": "경헌호",
+      "year": 2001,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 60,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "46G 80 1/3IP ERA4.37 76K 36BB WHIP1.49 4승 2SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "장재중",
+      "name": "장재중",
+      "year": 2001,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 45,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".194/.267 1HR 14타점 4SB 224PA — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2001,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 64,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".253/.309 5HR 26타점 1SB 210PA — KBO 기록실"
+    },
+    {
+      "personId": "서용빈",
+      "name": "서용빈",
+      "year": 2001,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 40,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".286/.357 0HR 49타점 4SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 2001,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 49,
+        "speed": 52,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".225/.301 2HR 15타점 4SB 246PA — KBO 기록실"
+    },
+    {
+      "personId": "홍현우",
+      "name": "홍현우",
+      "year": 2001,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 50,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".198/.310 2HR 16타점 1SB 213PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 2001,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 58,
+        "speed": 77,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".283/.411 9HR 53타점 21SB 580PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 2001,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 62,
+        "speed": 79,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".308/.373 12HR 83타점 24SB 607PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2001,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 56,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".325/.443 8HR 61타점 10SB 534PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2001,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 96,
+        "power": 65,
+        "speed": 66,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".355/.449 14HR 92타점 12SB 531PA — KBO 기록실"
+    },
+    {
+      "personId": "심성보",
+      "name": "심성보",
+      "year": 2001,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 49,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279/.332 2HR 34타점 3SB 247PA — KBO 기록실"
+    },
+    {
+      "personId": "로마이어",
+      "name": "로마이어",
+      "year": 2001,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 78,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".268/.343 11HR 47타점 0SB 239PA — KBO 기록실"
+    }
+  ]
+}

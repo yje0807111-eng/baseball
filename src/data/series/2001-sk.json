@@ -1,0 +1,318 @@
+{
+  "id": "2001-sk",
+  "kind": "team",
+  "year": 2001,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "이승호의 14승",
+  "blurb": "이승호가 14승을 거두고 브리또가 22홈런을 치며 SK가 두 번째 시즌을 치렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "에르난데스",
+      "name": "에르난데스",
+      "year": 2001,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 80,
+        "control": 51,
+        "stamina": 96,
+        "stability": 75
+      },
+      "note": "",
+      "source": "34G 233 2/3IP ERA3.89 215K 134BB WHIP1.42 14승 — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2001,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 54,
+        "stamina": 95,
+        "stability": 79
+      },
+      "note": "",
+      "source": "35G 220 2/3IP ERA3.55 165K 115BB WHIP1.43 14승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김원형",
+      "name": "김원형",
+      "year": 2001,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 66,
+        "stamina": 80,
+        "stability": 70
+      },
+      "note": "",
+      "source": "26G 154 1/3IP ERA4.37 100K 60BB WHIP1.37 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김기덕",
+      "name": "김기덕",
+      "year": 2001,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 82,
+        "stamina": 54,
+        "stability": 60
+      },
+      "note": "",
+      "source": "19G 67 2/3IP ERA5.19 41K 16BB WHIP1.37 3승 — KBO 기록실"
+    },
+    {
+      "personId": "오상민",
+      "name": "오상민",
+      "year": 2001,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 73,
+        "stamina": 60,
+        "stability": 79
+      },
+      "note": "",
+      "source": "69G 133 2/3IP ERA3.57 121K 43BB WHIP1.24 7승 10SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "조규제",
+      "name": "조규제",
+      "year": 2001,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 72,
+        "stamina": 60,
+        "stability": 79
+      },
+      "note": "",
+      "source": "46G 106 1/3IP ERA3.55 75K 35BB WHIP1.18 8승 9SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2001,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 73,
+        "stamina": 60,
+        "stability": 53
+      },
+      "note": "",
+      "source": "59G 76 2/3IP ERA5.63 77K 25BB WHIP1.58 2승 12SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "김건한",
+      "name": "김건한",
+      "year": 2001,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 60,
+        "stamina": 54,
+        "stability": 42
+      },
+      "note": "",
+      "source": "22G 42 2/3IP ERA7.17 24K 19BB WHIP1.59 2승 — KBO 기록실"
+    },
+    {
+      "personId": "강성우",
+      "name": "강성우",
+      "year": 2001,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".160/.225 0HR 13타점 2SB 222PA — KBO 기록실"
+    },
+    {
+      "personId": "양용모",
+      "name": "양용모",
+      "year": 2001,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 45,
+        "speed": 66,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".234/.294 1HR 19타점 12SB 221PA — KBO 기록실"
+    },
+    {
+      "personId": "이호준",
+      "name": "이호준",
+      "year": 2001,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 65,
+        "speed": 52,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".234/.287 8HR 30타점 4SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "최태원",
+      "name": "최태원",
+      "year": 2001,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 54,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".242/.332 5HR 31타점 13SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "안재만",
+      "name": "안재만",
+      "year": 2001,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 65,
+        "speed": 75,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".255/.352 11HR 44타점 19SB 438PA — KBO 기록실"
+    },
+    {
+      "personId": "브리또",
+      "name": "브리또",
+      "year": 2001,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 74,
+        "contact": 86,
+        "speed": 59,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".320/.425 22HR 80타점 7SB 510PA — KBO 기록실"
+    },
+    {
+      "personId": "채종범",
+      "name": "채종범",
+      "year": 2001,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 59,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".255/.343 8HR 38타점 6SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "에레라",
+      "name": "에레라",
+      "year": 2001,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 92,
+        "power": 70,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".340/.381 15HR 63타점 15SB 450PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2001,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 61,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".280/.351 7HR 31타점 9SB 369PA — KBO 기록실"
+    },
+    {
+      "personId": "조원우",
+      "name": "조원우",
+      "year": 2001,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 61,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".244/.339 7HR 39타점 7SB 363PA — KBO 기록실"
+    }
+  ]
+}

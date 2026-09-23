@@ -1,0 +1,318 @@
+{
+  "id": "2003-samsung",
+  "kind": "team",
+  "year": 2003,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "이승엽의 56홈런",
+  "blurb": "이승엽이 한 시즌 56홈런으로 아시아 기록을 세우고 144타점을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2003,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 58,
+        "stamina": 83,
+        "stability": 65
+      },
+      "note": "",
+      "source": "30G 163 2/3IP ERA4.51 99K 77BB WHIP1.53 13승 — KBO 기록실"
+    },
+    {
+      "personId": "김진웅",
+      "name": "김진웅",
+      "year": 2003,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 59,
+        "stamina": 80,
+        "stability": 73
+      },
+      "note": "",
+      "source": "32G 153 1/3IP ERA4.05 99K 70BB WHIP1.44 9승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 2003,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 76,
+        "stamina": 79,
+        "stability": 79
+      },
+      "note": "",
+      "source": "28G 147IP ERA3.55 85K 44BB WHIP1.26 13승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "라이언",
+      "name": "라이언",
+      "year": 2003,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 78,
+        "stamina": 51,
+        "stability": 62
+      },
+      "note": "",
+      "source": "15G 57 1/3IP ERA5.02 28K 16BB WHIP1.41 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "노장진",
+      "name": "노장진",
+      "year": 2003,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 50,
+        "stamina": 60,
+        "stability": 73
+      },
+      "note": "",
+      "source": "53G 83IP ERA4.12 87K 48BB WHIP1.46 9승 21SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김현욱",
+      "name": "김현욱",
+      "year": 2003,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 84,
+        "stamina": 60,
+        "stability": 97
+      },
+      "note": "",
+      "source": "63G 85 2/3IP ERA2.00 73K 19BB WHIP0.96 8승 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "전병호",
+      "name": "전병호",
+      "year": 2003,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 69,
+        "stamina": 60,
+        "stability": 62
+      },
+      "note": "",
+      "source": "45G 102IP ERA5.03 54K 37BB WHIP1.44 8승 1SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "정현욱",
+      "name": "정현욱",
+      "year": 2003,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 68,
+        "stamina": 60,
+        "stability": 67
+      },
+      "note": "",
+      "source": "43G 86 1/3IP ERA4.59 77K 32BB WHIP1.42 4승 1SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2003,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 73,
+        "contact": 77,
+        "speed": 42,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".290/.356 21HR 53타점 1SB 485PA — KBO 기록실"
+    },
+    {
+      "personId": "현재윤",
+      "name": "현재윤",
+      "year": 2003,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".167/.220 0HR 4타점 0SB 61PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2003,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 99,
+        "contact": 81,
+        "speed": 58,
+        "defense": 66
+      },
+      "note": "56홈런·MVP",
+      "source": ".301/.428 56HR 144타점 7SB 596PA — KBO 기록실"
+    },
+    {
+      "personId": "고지행",
+      "name": "고지행",
+      "year": 2003,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 55,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".281/.336 4HR 27타점 9SB 289PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 2003,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 68,
+        "speed": 55,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".295/.354 17HR 70타점 5SB 532PA — KBO 기록실"
+    },
+    {
+      "personId": "브리또",
+      "name": "브리또",
+      "year": 2003,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 65,
+        "power": 78,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".255/.325 20HR 58타점 2SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2003,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 87,
+        "speed": 72,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".322/.399 12HR 59타점 17SB 612PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2003,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 86,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".329/.395 33HR 92타점 2SB 551PA — KBO 기록실"
+    },
+    {
+      "personId": "강동우",
+      "name": "강동우",
+      "year": 2003,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 58,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".266/.349 9HR 57타점 8SB 520PA — KBO 기록실"
+    },
+    {
+      "personId": "마해영",
+      "name": "마해영",
+      "year": 2003,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 90,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".291/.371 38HR 123타점 1SB 573PA — KBO 기록실"
+    }
+  ]
+}

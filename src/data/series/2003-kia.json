@@ -1,0 +1,318 @@
+{
+  "id": "2003-kia",
+  "kind": "team",
+  "year": 2003,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "홍세완의 100타점",
+  "blurb": "홍세완이 100타점을 올리고 장성호가 3할을 치며 KIA가 정규 2위에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "리오스",
+      "name": "리오스",
+      "year": 2003,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 66,
+        "control": 73,
+        "stamina": 90,
+        "stability": 76
+      },
+      "note": "",
+      "source": "30G 188 2/3IP ERA3.82 121K 62BB WHIP1.31 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 2003,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 68,
+        "stamina": 85,
+        "stability": 81
+      },
+      "note": "",
+      "source": "24G 169 1/3IP ERA3.45 146K 63BB WHIP1.26 11승 — KBO 기록실"
+    },
+    {
+      "personId": "최상덕",
+      "name": "최상덕",
+      "year": 2003,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 76,
+        "stamina": 73,
+        "stability": 79
+      },
+      "note": "",
+      "source": "22G 126 1/3IP ERA3.56 63K 38BB WHIP1.31 11승 — KBO 기록실"
+    },
+    {
+      "personId": "존슨",
+      "name": "존슨",
+      "year": 2003,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 60,
+        "stamina": 54,
+        "stability": 85
+      },
+      "note": "",
+      "source": "18G 69IP ERA3.00 53K 31BB WHIP1.16 8승 3SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "신용운",
+      "name": "신용운",
+      "year": 2003,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 76,
+        "stamina": 60,
+        "stability": 78
+      },
+      "note": "",
+      "source": "70G 119IP ERA3.63 96K 35BB WHIP1.23 11승 4SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 2003,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 72,
+        "stamina": 59,
+        "stability": 97
+      },
+      "note": "",
+      "source": "67G 68 1/3IP ERA1.98 57K 23BB WHIP0.95 6승 9SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "진필중",
+      "name": "진필중",
+      "year": 2003,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 71,
+        "stamina": 58,
+        "stability": 84
+      },
+      "note": "",
+      "source": "46G 64 1/3IP ERA3.08 71K 22BB WHIP1.34 4승 19SV — KBO 기록실"
+    },
+    {
+      "personId": "강철민",
+      "name": "강철민",
+      "year": 2003,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 57,
+        "stamina": 60,
+        "stability": 63
+      },
+      "note": "",
+      "source": "27G 90 1/3IP ERA4.88 44K 44BB WHIP1.39 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 2003,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 56,
+        "speed": 50,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".279/.330 7HR 46타점 3SB 467PA — KBO 기록실"
+    },
+    {
+      "personId": "김지훈",
+      "name": "김지훈",
+      "year": 2003,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 49,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".212/.257 1HR 3타점 0SB 39PA — KBO 기록실"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 2003,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 73,
+        "speed": 68,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".315/.417 21HR 105타점 13SB 571PA — KBO 기록실"
+    },
+    {
+      "personId": "김종국",
+      "name": "김종국",
+      "year": 2003,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 52,
+        "speed": 85,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".250/.330 6HR 46타점 31SB 539PA — KBO 기록실"
+    },
+    {
+      "personId": "이현곤",
+      "name": "이현곤",
+      "year": 2003,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 54,
+        "speed": 60,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".263/.316 5HR 43타점 8SB 397PA — KBO 기록실"
+    },
+    {
+      "personId": "홍세완",
+      "name": "홍세완",
+      "year": 2003,
+      "team": "KIA",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 74,
+        "speed": 59,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".290/.347 22HR 100타점 7SB 549PA — KBO 기록실"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 2003,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 72,
+        "speed": 95,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".315/.389 20HR 61타점 50SB 595PA — KBO 기록실"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2003,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 75,
+        "speed": 69,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".301/.393 19HR 66타점 14SB 461PA — KBO 기록실"
+    },
+    {
+      "personId": "김경언",
+      "name": "김경언",
+      "year": 2003,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 51,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".258/.337 4HR 46타점 7SB 388PA — KBO 기록실"
+    },
+    {
+      "personId": "이재주",
+      "name": "이재주",
+      "year": 2003,
+      "team": "KIA",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 73,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".280/.353 11HR 42타점 1SB 296PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "2005-lotte",
+  "kind": "team",
+  "year": 2005,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "손민한의 18승",
+  "blurb": "손민한이 18승 평균자책 2.46으로 다승왕에 오르며 롯데 마운드를 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2005,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 84,
+        "stamina": 84,
+        "stability": 90
+      },
+      "note": "다승·ERA 1위 MVP",
+      "source": "28G 168 1/3IP ERA2.46 105K 38BB WHIP1.11 18승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "장원준",
+      "name": "장원준",
+      "year": 2005,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 56,
+        "stamina": 68,
+        "stability": 61
+      },
+      "note": "",
+      "source": "28G 107 1/3IP ERA5.11 79K 53BB WHIP1.47 5승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 2005,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 85,
+        "stamina": 68,
+        "stability": 77
+      },
+      "note": "",
+      "source": "22G 107 1/3IP ERA3.77 58K 23BB WHIP1.18 3승 — KBO 기록실"
+    },
+    {
+      "personId": "이용훈",
+      "name": "이용훈",
+      "year": 2005,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 62,
+        "stamina": 68,
+        "stability": 62
+      },
+      "note": "",
+      "source": "22G 106IP ERA5.01 106K 45BB WHIP1.31 7승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이정민",
+      "name": "이정민",
+      "year": 2005,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 56,
+        "stamina": 60,
+        "stability": 76
+      },
+      "note": "",
+      "source": "56G 94 1/3IP ERA3.82 63K 47BB WHIP1.41 6승 7SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "이정훈",
+      "name": "이정훈",
+      "year": 2005,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 68,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "54G 75IP ERA4.44 46K 28BB WHIP1.52 2승 1SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재율",
+      "name": "이재율",
+      "year": 2005,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 73,
+        "stamina": 58,
+        "stability": 74
+      },
+      "note": "",
+      "source": "51G 65IP ERA4.02 63K 21BB WHIP1.12 5승 3SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "노장진",
+      "name": "노장진",
+      "year": 2005,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 85,
+        "stamina": 52,
+        "stability": 93
+      },
+      "note": "",
+      "source": "35G 33IP ERA2.45 52K 7BB WHIP0.79 1승 18SV — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2005,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 50,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".243/.267 2HR 18타점 1SB 230PA — KBO 기록실"
+    },
+    {
+      "personId": "최기문",
+      "name": "최기문",
+      "year": 2005,
+      "team": "롯데",
+      "position": "C",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".192/.280 0HR 10타점 3SB 209PA — KBO 기록실"
+    },
+    {
+      "personId": "라이온",
+      "name": "라이온",
+      "year": 2005,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 61,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".268/.321 11HR 73타점 7SB 534PA — KBO 기록실"
+    },
+    {
+      "personId": "신명철",
+      "name": "신명철",
+      "year": 2005,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 54,
+        "speed": 77,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".256/.311 5HR 33타점 21SB 398PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2005,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 73,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".266/.354 21HR 80타점 1SB 512PA — KBO 기록실"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2005,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 49,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".278/.349 3HR 27타점 8SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "펠로우",
+      "name": "펠로우",
+      "year": 2005,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 75,
+        "power": 82,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".284/.348 23HR 69타점 3SB 443PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 2005,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 40,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".286/.374 0HR 29타점 21SB 431PA — KBO 기록실"
+    },
+    {
+      "personId": "손인호",
+      "name": "손인호",
+      "year": 2005,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 46,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".241/.312 2HR 27타점 3SB 387PA — KBO 기록실"
+    },
+    {
+      "personId": "최준석",
+      "name": "최준석",
+      "year": 2005,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 65,
+        "speed": 52,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".246/.312 8HR 42타점 4SB 309PA — KBO 기록실"
+    }
+  ]
+}

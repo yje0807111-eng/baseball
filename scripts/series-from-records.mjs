@@ -82,12 +82,16 @@ export function parseRecords(text) {
 const isStarter = (p) => ipOf(p.ip) / Math.max(1, p.g) >= 3.5;
 
 /** 18명 고르기: 선발 4 · 불펜 4 · 포수 2 · 내야 각 1 · 외야 3 · 남는 한 자리는 타석 많은 순 */
-export function pick18(team, fix = {}) {
-  const sp = team.pit.filter(isStarter).sort((a, b) => ipOf(b.ip) - ipOf(a.ip));
-  let rp = team.pit.filter((p) => !isStarter(p)).sort((a, b) => (b.sv + b.hld) * 3 + ipOf(b.ip) - ((a.sv + a.hld) * 3 + ipOf(a.ip)));
+export function pick18(team, fix = {}, roleOf = () => null) {
+  /* 다른 시리즈에서 이미 자리가 정해진 투수는 그 자리를 따른다 — 같은 시즌은 같은 값이어야 한다 */
+  const isSp = (p) => (roleOf(p.name) ? roleOf(p.name) === 'SP' : isStarter(p));
+  const sp = team.pit.filter(isSp).sort((a, b) => ipOf(b.ip) - ipOf(a.ip));
+  let rp = team.pit.filter((p) => !isSp(p)).sort((a, b) => (b.sv + b.hld) * 3 + ipOf(b.ip) - ((a.sv + a.hld) * 3 + ipOf(a.ip)));
   /* 선발 로테이션이 흔들린 해에는 선발로 볼 만한 투수가 셋도 안 된다 — 이닝을 많이 던진 쪽을 올린다 */
   while (sp.length < 3 && rp.length) {
-    const most = [...rp].sort((a, b) => ipOf(b.ip) - ipOf(a.ip))[0];
+    const free = rp.filter((p) => !roleOf(p.name));
+    if (!free.length) break;
+    const most = [...free].sort((a, b) => ipOf(b.ip) - ipOf(a.ip))[0];
     rp = rp.filter((x) => x !== most);
     sp.push(most);
   }
@@ -121,7 +125,9 @@ const numText = (v) => String(v).replace(/^0/, '');
 
 export function buildSeries({ year, code, records, hands = {}, foreign = new Set(), meta = {}, dupes = {}, posFix = {}, known = new Map() }) {
   const t = teamOf(code, year);
-  const { pit, bat, starters } = pick18(records, posFix[`${year}-${code}`] || {});
+  /* 이미 다른 시리즈에 있는 투수의 자리 — 선발·불펜을 그대로 따른다 */
+  const roleOf = (name) => { const had = known.get(`${name}|${year}`); return had && (had.position === 'SP' || had.position === 'RP') ? had.position : null; };
+  const { pit, bat, starters } = pick18(records, posFix[`${year}-${code}`] || {}, roleOf);
   const players = [];
   /* 동명이인은 구분자를 붙인다 — dupes: { 이름: { 팀코드|역할: 'personId' } } */
   const idOf = (name, role) => {

@@ -1,0 +1,319 @@
+{
+  "id": "2000-hyundai",
+  "champion": true,
+  "kind": "team",
+  "year": 2000,
+  "title": "현대 유니콘스",
+  "franchise": "HYUNDAI",
+  "subtitle": "한국시리즈 우승 · 박경완 40홈런",
+  "blurb": "포수 박경완이 40홈런을 치고 임선동이 18승을 올리며 현대가 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "정민태",
+      "name": "정민태",
+      "year": 2000,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 74,
+        "stamina": 93,
+        "stability": 83
+      },
+      "note": "18승 다승 공동 1위",
+      "source": "29G 207IP ERA3.48 153K 66BB WHIP1.25 18승 — KBO 기록실"
+    },
+    {
+      "personId": "임선동",
+      "name": "임선동",
+      "year": 2000,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 74,
+        "stamina": 91,
+        "stability": 84
+      },
+      "note": "다승·탈삼진 1위, 골든글러브",
+      "source": "29G 195 1/3IP ERA3.36 174K 61BB WHIP1.22 18승 — KBO 기록실"
+    },
+    {
+      "personId": "김수경",
+      "name": "김수경",
+      "year": 2000,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 58,
+        "stamina": 91,
+        "stability": 80
+      },
+      "note": "18승 다승 공동 1위",
+      "source": "29G 195IP ERA3.74 172K 91BB WHIP1.32 18승 — KBO 기록실"
+    },
+    {
+      "personId": "박장희",
+      "name": "박장희",
+      "year": 2000,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 75,
+        "stamina": 66,
+        "stability": 78
+      },
+      "note": "",
+      "source": "24G 99 1/3IP ERA3.90 57K 30BB WHIP1.38 9승 — KBO 기록실"
+    },
+    {
+      "personId": "위재영",
+      "name": "위재영",
+      "year": 2000,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 72,
+        "stamina": 55,
+        "stability": 93
+      },
+      "note": "39세이브",
+      "source": "54G 73 1/3IP ERA2.09 71K 24BB WHIP1.17 3승 39SV — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2000,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 85,
+        "stamina": 60,
+        "stability": 88
+      },
+      "note": "",
+      "source": "74G 94 1/3IP ERA3.05 99K 20BB WHIP1.03 8승 8SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "마일영",
+      "name": "마일영",
+      "year": 2000,
+      "team": "현대",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 48,
+        "stamina": 60,
+        "stability": 81
+      },
+      "note": "",
+      "source": "46G 93 1/3IP ERA3.38 62K 57BB WHIP1.51 5승 2SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "신철인",
+      "name": "신철인",
+      "year": 2000,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 51,
+        "stamina": 60,
+        "stability": 74
+      },
+      "note": "",
+      "source": "31G 75 2/3IP ERA4.28 92K 43BB WHIP1.44 6승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2000,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 72,
+        "speed": 52,
+        "defense": 92
+      },
+      "note": "40홈런 MVP",
+      "source": ".282 40HR 95타점 7SB 517PA — KBO 기록실"
+    },
+    {
+      "personId": "이재주",
+      "name": "이재주",
+      "year": 2000,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 42,
+        "power": 61,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".193 3HR 14타점 0SB 132PA — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 2000,
+      "team": "현대",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 76,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".285 15HR 50타점 2SB 325PA — KBO 기록실"
+    },
+    {
+      "personId": "퀸란",
+      "name": "퀸란",
+      "year": 2000,
+      "team": "현대",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 88,
+        "contact": 57,
+        "speed": 43,
+        "defense": 82
+      },
+      "note": "37홈런·한국시리즈 MVP",
+      "source": ".236 37HR 91타점 2SB 537PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2000,
+      "team": "현대",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 74,
+        "speed": 45,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".288 15HR 58타점 0SB 477PA — KBO 기록실"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2000,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 84,
+        "contact": 81,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "32홈런·30도루",
+      "source": ".309 32HR 115타점 30SB 572PA — KBO 기록실"
+    },
+    {
+      "personId": "심재학",
+      "name": "심재학",
+      "year": 2000,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 71,
+        "speed": 48,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".265 21HR 75타점 3SB 502PA — KBO 기록실"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 2000,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 41,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".316 1HR 18타점 18SB 334PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 2000,
+      "team": "현대",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 91,
+        "speed": 60,
+        "defense": 84
+      },
+      "note": "타격왕 .340, 골든글러브",
+      "source": ".340 10HR 58타점 9SB 541PA — KBO 기록실"
+    },
+    {
+      "personId": "김인호",
+      "name": "김인호",
+      "year": 2000,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 48,
+        "speed": 58,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".228 3HR 21타점 8SB 324PA — KBO 기록실"
+    }
+  ]
+}

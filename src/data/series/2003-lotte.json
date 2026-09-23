@@ -1,0 +1,318 @@
+{
+  "id": "2003-lotte",
+  "kind": "team",
+  "year": 2003,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "긴 침체의 한가운데",
+  "blurb": "조성환이 3할을 쳤지만 롯데는 마운드가 무너지며 최하위로 시즌을 마쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박지철",
+      "name": "박지철",
+      "year": 2003,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 61,
+        "stamina": 74,
+        "stability": 75
+      },
+      "note": "",
+      "source": "28G 129 2/3IP ERA3.89 78K 57BB WHIP1.43 8승 — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 2003,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 67,
+        "stamina": 72,
+        "stability": 60
+      },
+      "note": "",
+      "source": "24G 123 2/3IP ERA5.17 85K 47BB WHIP1.45 7승 — KBO 기록실"
+    },
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2003,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 70,
+        "stamina": 68,
+        "stability": 64
+      },
+      "note": "",
+      "source": "18G 109 1/3IP ERA4.86 54K 38BB WHIP1.40 3승 — KBO 기록실"
+    },
+    {
+      "personId": "이정민",
+      "name": "이정민",
+      "year": 2003,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 46,
+        "control": 84,
+        "stamina": 45,
+        "stability": 52
+      },
+      "note": "",
+      "source": "2G 9IP ERA6.00 1K 2BB WHIP1.33 1승 — KBO 기록실"
+    },
+    {
+      "personId": "임경완",
+      "name": "임경완",
+      "year": 2003,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 73,
+        "stamina": 60,
+        "stability": 65
+      },
+      "note": "",
+      "source": "59G 93 2/3IP ERA4.71 45K 30BB WHIP1.36 3승 11SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "노승욱",
+      "name": "노승욱",
+      "year": 2003,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 89,
+        "stamina": 60,
+        "stability": 68
+      },
+      "note": "",
+      "source": "78G 94 1/3IP ERA4.48 45K 17BB WHIP1.38 2승 1SV 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "이정훈",
+      "name": "이정훈",
+      "year": 2003,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 59,
+        "stamina": 60,
+        "stability": 57
+      },
+      "note": "",
+      "source": "44G 110 2/3IP ERA5.20 67K 51BB WHIP1.60 7승 1SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "양성제",
+      "name": "양성제",
+      "year": 2003,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 68,
+        "stamina": 60,
+        "stability": 60
+      },
+      "note": "",
+      "source": "50G 99 1/3IP ERA4.89 42K 37BB WHIP1.59 1승 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "최기문",
+      "name": "최기문",
+      "year": 2003,
+      "team": "롯데",
+      "position": "C",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 46,
+        "speed": 57,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".294/.363 2HR 41타점 6SB 392PA — KBO 기록실"
+    },
+    {
+      "personId": "허일상",
+      "name": "허일상",
+      "year": 2003,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 40,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".236/.268 0HR 6타점 0SB 113PA — KBO 기록실"
+    },
+    {
+      "personId": "박현승",
+      "name": "박현승",
+      "year": 2003,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 40,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".235/.279 0HR 18타점 7SB 386PA — KBO 기록실"
+    },
+    {
+      "personId": "신명철",
+      "name": "신명철",
+      "year": 2003,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 61,
+        "speed": 50,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".247/.283 6HR 33타점 3SB 296PA — KBO 기록실"
+    },
+    {
+      "personId": "조성환",
+      "name": "조성환",
+      "year": 2003,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 52,
+        "speed": 78,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".307/.369 6HR 38타점 23SB 543PA — KBO 기록실"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2003,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 54,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".246/.298 4HR 32타점 7SB 321PA — KBO 기록실"
+    },
+    {
+      "personId": "이시온",
+      "name": "이시온",
+      "year": 2003,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 71,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".290/.363 13HR 45타점 7SB 377PA — KBO 기록실"
+    },
+    {
+      "personId": "손인호",
+      "name": "손인호",
+      "year": 2003,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 52,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".278/.340 4HR 42타점 3SB 371PA — KBO 기록실"
+    },
+    {
+      "personId": "박연수",
+      "name": "박연수",
+      "year": 2003,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 66,
+        "speed": 42,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".249/.327 6HR 26타점 0SB 218PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2003,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 85,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".216/.273 3HR 32타점 3SB 264PA — KBO 기록실"
+    }
+  ]
+}

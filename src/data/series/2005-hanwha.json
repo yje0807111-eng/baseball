@@ -1,0 +1,318 @@
+{
+  "id": "2005-hanwha",
+  "kind": "team",
+  "year": 2005,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "이범호의 26홈런",
+  "blurb": "이범호가 26홈런을 치고 송진우가 11승을 거두며 한화가 가을 무대에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "문동환",
+      "name": "문동환",
+      "year": 2005,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 73,
+        "stamina": 86,
+        "stability": 80
+      },
+      "note": "",
+      "source": "26G 173 2/3IP ERA3.47 103K 57BB WHIP1.33 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김해님",
+      "name": "김해님",
+      "year": 2005,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 83,
+        "stamina": 74,
+        "stability": 71
+      },
+      "note": "",
+      "source": "32G 128 1/3IP ERA4.28 61K 30BB WHIP1.42 6승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "송진우",
+      "name": "송진우",
+      "year": 2005,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 72,
+        "stamina": 73,
+        "stability": 76
+      },
+      "note": "",
+      "source": "23G 127 2/3IP ERA3.81 88K 42BB WHIP1.32 11승 — KBO 기록실"
+    },
+    {
+      "personId": "정민철",
+      "name": "정민철",
+      "year": 2005,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 84,
+        "stamina": 70,
+        "stability": 64
+      },
+      "note": "",
+      "source": "25G 115 2/3IP ERA4.82 56K 26BB WHIP1.30 9승 — KBO 기록실"
+    },
+    {
+      "personId": "최영필",
+      "name": "최영필",
+      "year": 2005,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 79,
+        "stamina": 60,
+        "stability": 86
+      },
+      "note": "",
+      "source": "40G 112IP ERA2.89 72K 30BB WHIP1.24 8승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "윤규진",
+      "name": "윤규진",
+      "year": 2005,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 63,
+        "stamina": 58,
+        "stability": 82
+      },
+      "note": "",
+      "source": "53G 67 1/3IP ERA3.34 55K 28BB WHIP1.44 4승 5SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "정병희",
+      "name": "정병희",
+      "year": 2005,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 55,
+        "stamina": 59,
+        "stability": 45
+      },
+      "note": "",
+      "source": "58G 70IP ERA6.56 55K 36BB WHIP1.69 3승 1SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "지연규",
+      "name": "지연규",
+      "year": 2005,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 68,
+        "stamina": 53,
+        "stability": 87
+      },
+      "note": "",
+      "source": "33G 38IP ERA2.84 32K 14BB WHIP1.16 20SV — KBO 기록실"
+    },
+    {
+      "personId": "신경현",
+      "name": "신경현",
+      "year": 2005,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 52,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".277/.338 4HR 23타점 2SB 358PA — KBO 기록실"
+    },
+    {
+      "personId": "심광호",
+      "name": "심광호",
+      "year": 2005,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 86,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".265/.290 7HR 22타점 1SB 108PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2005,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 76,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".317/.401 23HR 100타점 3SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "백재호",
+      "name": "백재호",
+      "year": 2005,
+      "team": "한화",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 57,
+        "speed": 55,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".277/.329 4HR 20타점 5SB 260PA — KBO 기록실"
+    },
+    {
+      "personId": "이범호",
+      "name": "이범호",
+      "year": 2005,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 79,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".273/.357 26HR 68타점 6SB 513PA — KBO 기록실"
+    },
+    {
+      "personId": "브리또",
+      "name": "브리또",
+      "year": 2005,
+      "team": "한화",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 75,
+        "power": 84,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".286/.328 17HR 43타점 0SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "데이비스",
+      "name": "데이비스",
+      "year": 2005,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 87,
+        "power": 77,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".323/.412 24HR 86타점 7SB 507PA — KBO 기록실"
+    },
+    {
+      "personId": "조원우",
+      "name": "조원우",
+      "year": 2005,
+      "team": "한화",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 57,
+        "speed": 59,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".302/.362 6HR 42타점 7SB 392PA — KBO 기록실"
+    },
+    {
+      "personId": "김수연",
+      "name": "김수연",
+      "year": 2005,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 40,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".253/.305 0HR 14타점 9SB 299PA — KBO 기록실"
+    },
+    {
+      "personId": "이도형",
+      "name": "이도형",
+      "year": 2005,
+      "team": "한화",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 82,
+        "speed": 42,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".258/.325 22HR 72타점 0SB 431PA — KBO 기록실"
+    }
+  ]
+}
