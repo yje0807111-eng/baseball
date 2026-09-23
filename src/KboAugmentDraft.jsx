@@ -134,12 +134,12 @@ export const DRAFT_MODES = [
     desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
   { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1330,
     desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
-  // 연도별 시즌: 그해 구단 시즌 · 국가대표가 2개 이상인 해마다 하나씩
-  ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind !== 'legend').map((x) => x.year))]
-    .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind !== 'legend').length >= 2)
+  // 연도별 시즌: 그해 구단 시즌이 둘 이상인 해마다 하나씩 (국가대표는 태극마크 모드에서만)
+  ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind === 'team').map((x) => x.year))]
+    .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind === 'team').length >= 2)
     .sort((a, b) => b - a)
     .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1330,
-      desc: `${y}년 구단 시즌과 국가대표 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind !== 'legend' })),
+      desc: `${y}년 그해 구단 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind === 'team' })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
   return { ...m, series, players: series.flatMap((s) => s.players) };
