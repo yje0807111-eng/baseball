@@ -1,0 +1,318 @@
+{
+  "id": "2002-sk",
+  "kind": "team",
+  "year": 2002,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "페르난데스 45홈런 107타점",
+  "blurb": "페르난데스가 45홈런 107타점을 치고, 채종범과 이진영이 3할 가까이 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "제춘모",
+      "name": "제춘모",
+      "year": 2002,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 70,
+        "stamina": 78,
+        "stability": 66
+      },
+      "note": "",
+      "source": "30G 146IP ERA4.68 93K 51BB WHIP1.40 9승 — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2002,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 78,
+        "stamina": 77,
+        "stability": 84
+      },
+      "note": "",
+      "source": "27G 142 2/3IP ERA3.15 144K 40BB WHIP1.12 6승 — KBO 기록실"
+    },
+    {
+      "personId": "매기",
+      "name": "매기",
+      "year": 2002,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 81,
+        "control": 48,
+        "stamina": 75,
+        "stability": 63
+      },
+      "note": "",
+      "source": "23G 132 1/3IP ERA4.69 124K 81BB WHIP1.57 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 2002,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 81,
+        "stamina": 70,
+        "stability": 65
+      },
+      "note": "",
+      "source": "32G 116 2/3IP ERA4.71 95K 29BB WHIP1.29 6승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "채병용",
+      "name": "채병용",
+      "year": 2002,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 74,
+        "stamina": 60,
+        "stability": 83
+      },
+      "note": "",
+      "source": "51G 141IP ERA3.19 126K 44BB WHIP1.16 7승 11SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2002,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 81,
+        "stamina": 60,
+        "stability": 82
+      },
+      "note": "",
+      "source": "56G 82 2/3IP ERA3.27 63K 21BB WHIP1.10 9승 6SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "조규제",
+      "name": "조규제",
+      "year": 2002,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 71,
+        "stamina": 60,
+        "stability": 71
+      },
+      "note": "",
+      "source": "46G 78 2/3IP ERA4.23 64K 27BB WHIP1.37 6승 6SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "권명철",
+      "name": "권명철",
+      "year": 2002,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 70,
+        "stamina": 56,
+        "stability": 53
+      },
+      "note": "",
+      "source": "45G 54 2/3IP ERA5.93 36K 19BB WHIP1.50 2승 1SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 2002,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 72,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".243/.323 11HR 32타점 1SB 299PA — KBO 기록실"
+    },
+    {
+      "personId": "이호준",
+      "name": "이호준",
+      "year": 2002,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 78,
+        "speed": 55,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".288/.358 23HR 64타점 5SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "최태원",
+      "name": "최태원",
+      "year": 2002,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 47,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".262/.331 2HR 22타점 6SB 300PA — KBO 기록실"
+    },
+    {
+      "personId": "페르난데스",
+      "name": "페르난데스",
+      "year": 2002,
+      "team": "SK",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 74,
+        "power": 95,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".281/.353 45HR 107타점 4SB 556PA — KBO 기록실"
+    },
+    {
+      "personId": "김민재",
+      "name": "김민재",
+      "year": 2002,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 62,
+        "speed": 70,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".258/.308 12HR 50타점 15SB 548PA — KBO 기록실"
+    },
+    {
+      "personId": "채종범",
+      "name": "채종범",
+      "year": 2002,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 68,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291/.374 17HR 68타점 10SB 557PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2002,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 66,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".308/.375 13HR 40타점 11SB 475PA — KBO 기록실"
+    },
+    {
+      "personId": "조원우",
+      "name": "조원우",
+      "year": 2002,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 64,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".269/.320 8HR 36타점 4SB 329PA — KBO 기록실"
+    },
+    {
+      "personId": "김기태",
+      "name": "김기태",
+      "year": 2002,
+      "team": "SK",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 66,
+        "speed": 47,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".257/.359 9HR 46타점 2SB 337PA — KBO 기록실"
+    },
+    {
+      "personId": "조경환",
+      "name": "조경환",
+      "year": 2002,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 76,
+        "speed": 42,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".214/.279 13HR 33타점 0SB 310PA — KBO 기록실"
+    }
+  ]
+}

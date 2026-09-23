@@ -1,0 +1,318 @@
+{
+  "id": "2002-lotte",
+  "kind": "team",
+  "year": 2002,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "스무 살 이대호의 첫 시즌",
+  "blurb": "염종석이 159이닝을 던지고, 스무 살 이대호가 8홈런으로 첫발을 뗐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 2002,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 84,
+        "stamina": 82,
+        "stability": 70
+      },
+      "note": "",
+      "source": "31G 159IP ERA4.36 108K 36BB WHIP1.36 8승 — KBO 기록실"
+    },
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2002,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 85,
+        "stamina": 77,
+        "stability": 78
+      },
+      "note": "",
+      "source": "23G 142 1/3IP ERA3.67 82K 30BB WHIP1.22 4승 — KBO 기록실"
+    },
+    {
+      "personId": "문동환",
+      "name": "문동환",
+      "year": 2002,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 73,
+        "stamina": 54,
+        "stability": 58
+      },
+      "note": "",
+      "source": "17G 67IP ERA5.10 49K 22BB WHIP1.57 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "에르난데스",
+      "name": "에르난데스",
+      "year": 2002,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 84,
+        "control": 81,
+        "stamina": 47,
+        "stability": 87
+      },
+      "note": "",
+      "source": "7G 44 2/3IP ERA2.82 45K 11BB WHIP1.12 2승 — KBO 기록실"
+    },
+    {
+      "personId": "김장현",
+      "name": "김장현",
+      "year": 2002,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 73,
+        "stamina": 60,
+        "stability": 59
+      },
+      "note": "",
+      "source": "44G 119 2/3IP ERA5.26 70K 39BB WHIP1.38 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김영수",
+      "name": "김영수",
+      "year": 2002,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 57,
+        "stamina": 60,
+        "stability": 62
+      },
+      "note": "",
+      "source": "36G 118 1/3IP ERA4.79 76K 58BB WHIP1.64 2승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김사율",
+      "name": "김사율",
+      "year": 2002,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 55,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "49G 108 1/3IP ERA5.48 64K 55BB WHIP1.61 4승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "강상수",
+      "name": "강상수",
+      "year": 2002,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 45,
+        "stamina": 56,
+        "stability": 64
+      },
+      "note": "",
+      "source": "39G 55IP ERA4.58 33K 36BB WHIP1.80 2승 7SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "최기문",
+      "name": "최기문",
+      "year": 2002,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 61,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".285/.337 8HR 50타점 1SB 415PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2002,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 67,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".278/.345 8HR 32타점 1SB 281PA — KBO 기록실"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 2002,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 63,
+        "speed": 42,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".262/.356 7HR 38타점 0SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "박현승",
+      "name": "박현승",
+      "year": 2002,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 64,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".260/.310 9HR 35타점 6SB 379PA — KBO 기록실"
+    },
+    {
+      "personId": "조성환",
+      "name": "조성환",
+      "year": 2002,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 40,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".235/.300 0HR 21타점 10SB 293PA — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 2002,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 48,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".284/.346 3HR 49타점 12SB 412PA — KBO 기록실"
+    },
+    {
+      "personId": "김대익",
+      "name": "김대익",
+      "year": 2002,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 50,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".264/.315 3HR 21타점 6SB 332PA — KBO 기록실"
+    },
+    {
+      "personId": "김주찬",
+      "name": "김주찬",
+      "year": 2002,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 64,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".220/.271 7HR 25타점 9SB 291PA — KBO 기록실"
+    },
+    {
+      "personId": "허문회",
+      "name": "허문회",
+      "year": 2002,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 65,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".263/.332 6HR 21타점 3SB 233PA — KBO 기록실"
+    },
+    {
+      "personId": "에레라",
+      "name": "에레라",
+      "year": 2002,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 82,
+        "power": 66,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".305/.332 6HR 20타점 2SB 222PA — KBO 기록실"
+    }
+  ]
+}

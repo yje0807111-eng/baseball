@@ -1,0 +1,318 @@
+{
+  "id": "2007-lg",
+  "kind": "team",
+  "year": 2007,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "이대형 53도루 · 박명환 10승",
+  "blurb": "이대형이 53도루로 뛰고, 박명환이 10승, 우규민이 30세이브를 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2007,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 59,
+        "stamina": 81,
+        "stability": 83
+      },
+      "note": "",
+      "source": "27G 155 1/3IP ERA3.19 117K 72BB WHIP1.32 10승 — KBO 기록실"
+    },
+    {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2007,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 58,
+        "stamina": 69,
+        "stability": 56
+      },
+      "note": "",
+      "source": "24G 111 2/3IP ERA5.32 56K 53BB WHIP1.56 6승 — KBO 기록실"
+    },
+    {
+      "personId": "최원호",
+      "name": "최원호",
+      "year": 2007,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 53,
+        "stamina": 68,
+        "stability": 63
+      },
+      "note": "",
+      "source": "26G 108IP ERA4.67 58K 59BB WHIP1.57 7승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "하리칼라",
+      "name": "하리칼라",
+      "year": 2007,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 46,
+        "control": 60,
+        "stamina": 61,
+        "stability": 57
+      },
+      "note": "",
+      "source": "16G 86 1/3IP ERA5.21 24K 38BB WHIP1.77 6승 — KBO 기록실"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2007,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 65,
+        "stamina": 60,
+        "stability": 89
+      },
+      "note": "",
+      "source": "62G 78IP ERA2.65 26K 31BB WHIP1.14 5승 30SV — KBO 기록실"
+    },
+    {
+      "personId": "김민기",
+      "name": "김민기",
+      "year": 2007,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 79,
+        "stamina": 60,
+        "stability": 71
+      },
+      "note": "",
+      "source": "69G 88 1/3IP ERA4.28 43K 24BB WHIP1.44 7승 1SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "정재복",
+      "name": "정재복",
+      "year": 2007,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 76,
+        "stamina": 60,
+        "stability": 69
+      },
+      "note": "",
+      "source": "44G 126 1/3IP ERA4.42 71K 38BB WHIP1.36 6승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "심수창",
+      "name": "심수창",
+      "year": 2007,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 55,
+        "stamina": 60,
+        "stability": 67
+      },
+      "note": "",
+      "source": "56G 77 1/3IP ERA4.31 47K 40BB WHIP1.59 3승 2SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2007,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 65,
+        "contact": 74,
+        "speed": 45,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".282/.332 13HR 73타점 1SB 464PA — KBO 기록실"
+    },
+    {
+      "personId": "최동수",
+      "name": "최동수",
+      "year": 2007,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 64,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".306/.378 12HR 58타점 1SB 493PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 2007,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 50,
+        "speed": 55,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".285/.359 4HR 53타점 5SB 459PA — KBO 기록실"
+    },
+    {
+      "personId": "김상현",
+      "name": "김상현",
+      "year": 2007,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 58,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".235/.311 7HR 41타점 6SB 434PA — KBO 기록실"
+    },
+    {
+      "personId": "권용관",
+      "name": "권용관",
+      "year": 2007,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 51,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".241/.298 4HR 36타점 11SB 398PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2007,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 65,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".278/.335 14HR 66타점 20SB 532PA — KBO 기록실"
+    },
+    {
+      "personId": "발데스",
+      "name": "발데스",
+      "year": 2007,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 64,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".283/.381 13HR 72타점 4SB 512PA — KBO 기록실"
+    },
+    {
+      "personId": "이대형",
+      "name": "이대형",
+      "year": 2007,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 42,
+        "contact": 82,
+        "speed": 95,
+        "defense": 88
+      },
+      "note": "도루왕 53도루·GG",
+      "source": ".308/.367 1HR 31타점 53SB 509PA — KBO 기록실"
+    },
+    {
+      "personId": "박경수",
+      "name": "박경수",
+      "year": 2007,
+      "team": "LG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 51,
+        "speed": 64,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".238/.338 3HR 19타점 10SB 295PA — KBO 기록실"
+    },
+    {
+      "personId": "정의윤",
+      "name": "정의윤",
+      "year": 2007,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 56,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".280/.316 3HR 20타점 2SB 208PA — KBO 기록실"
+    }
+  ]
+}

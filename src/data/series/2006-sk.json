@@ -1,0 +1,318 @@
+{
+  "id": "2006-sk",
+  "kind": "team",
+  "year": 2006,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "정근우 45도루 · 정대현 · 정우람",
+  "blurb": "정근우가 45도루로 뛰고, 정대현과 정우람이 82경기까지 나서며 불펜을 메웠다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "채병용",
+      "name": "채병용",
+      "year": 2006,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 69,
+        "stamina": 80,
+        "stability": 84
+      },
+      "note": "",
+      "source": "27G 152 2/3IP ERA3.07 97K 55BB WHIP1.25 7승 — KBO 기록실"
+    },
+    {
+      "personId": "윤길현",
+      "name": "윤길현",
+      "year": 2006,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 67,
+        "stamina": 77,
+        "stability": 75
+      },
+      "note": "",
+      "source": "32G 140 2/3IP ERA3.90 91K 54BB WHIP1.28 5승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "김원형",
+      "name": "김원형",
+      "year": 2006,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 76,
+        "stamina": 76,
+        "stability": 73
+      },
+      "note": "",
+      "source": "24G 139 1/3IP ERA4.07 52K 41BB WHIP1.39 5승 — KBO 기록실"
+    },
+    {
+      "personId": "신승현",
+      "name": "신승현",
+      "year": 2006,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 76,
+        "stamina": 68,
+        "stability": 81
+      },
+      "note": "",
+      "source": "24G 107 1/3IP ERA3.44 53K 32BB WHIP1.30 8승 — KBO 기록실"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2006,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 74,
+        "stamina": 55,
+        "stability": 94
+      },
+      "note": "",
+      "source": "59G 74 1/3IP ERA1.94 52K 23BB WHIP1.05 8승 15SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "정우람",
+      "name": "정우람",
+      "year": 2006,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 50,
+        "stamina": 54,
+        "stability": 71
+      },
+      "note": "",
+      "source": "82G 46 2/3IP ERA4.24 47K 27BB WHIP1.35 3승 20HLD — KBO 기록실"
+    },
+    {
+      "personId": "이영욱",
+      "name": "이영욱",
+      "year": 2006,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 75,
+        "stamina": 60,
+        "stability": 84
+      },
+      "note": "",
+      "source": "55G 92 2/3IP ERA3.11 52K 28BB WHIP1.24 6승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 2006,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 91,
+        "stamina": 58,
+        "stability": 66
+      },
+      "note": "",
+      "source": "51G 63 1/3IP ERA4.69 46K 10BB WHIP1.44 6승 1SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2006,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 71,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".253/.342 13HR 51타점 2SB 380PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2006,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 74,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".221/.275 12HR 40타점 3SB 304PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2006,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 74,
+        "speed": 92,
+        "defense": 76
+      },
+      "note": "45도루",
+      "source": ".284/.342 8HR 42타점 45SB 487PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균(SK)",
+      "name": "김태균",
+      "year": 2006,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 44,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".224/.295 1HR 14타점 1SB 261PA — KBO 기록실"
+    },
+    {
+      "personId": "이대수",
+      "name": "이대수",
+      "year": 2006,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 53,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".253/.307 5HR 26타점 5SB 428PA — KBO 기록실"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2006,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 66,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "18홈런 22도루",
+      "source": ".259/.353 18HR 73타점 22SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2006,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 71,
+        "speed": 48,
+        "defense": 86
+      },
+      "note": "국민 우익수",
+      "source": ".273/.340 11HR 41타점 3SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "박재상",
+      "name": "박재상",
+      "year": 2006,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 56,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".250/.314 3HR 23타점 6SB 201PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2006,
+      "team": "SK",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 60,
+        "speed": 55,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".287/.418 8HR 51타점 5SB 441PA — KBO 기록실"
+    },
+    {
+      "personId": "피커링",
+      "name": "피커링",
+      "year": 2006,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 73,
+        "power": 72,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".278/.382 9HR 34타점 2SB 249PA — KBO 기록실"
+    }
+  ]
+}

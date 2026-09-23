@@ -1,0 +1,318 @@
+{
+  "id": "2006-kia",
+  "kind": "team",
+  "year": 2006,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "그레이싱어 14승 · 이용규 .318",
+  "blurb": "그레이싱어가 188이닝 14승을 던지고, 이용규가 .318에 38도루로 뛰었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "그레이싱어",
+      "name": "그레이싱어",
+      "year": 2006,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 77,
+        "control": 81,
+        "stamina": 90,
+        "stability": 85
+      },
+      "note": "",
+      "source": "29G 188IP ERA3.02 164K 47BB WHIP1.05 14승 — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 2006,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 61,
+        "stamina": 71,
+        "stability": 88
+      },
+      "note": "",
+      "source": "20G 117IP ERA2.69 65K 51BB WHIP1.24 10승 — KBO 기록실"
+    },
+    {
+      "personId": "강철민",
+      "name": "강철민",
+      "year": 2006,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 48,
+        "stamina": 51,
+        "stability": 84
+      },
+      "note": "",
+      "source": "10G 58 2/3IP ERA2.76 32K 36BB WHIP1.53 3승 — KBO 기록실"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2006,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 77,
+        "stamina": 60,
+        "stability": 92
+      },
+      "note": "중간·마무리 19세이브 9홀드",
+      "source": "63G 94 2/3IP ERA2.28 75K 27BB WHIP1.14 5승 19SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "한기주",
+      "name": "한기주",
+      "year": 2006,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 68,
+        "stamina": 60,
+        "stability": 82
+      },
+      "note": "",
+      "source": "44G 140 2/3IP ERA3.26 78K 52BB WHIP1.20 10승 1SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "이상화",
+      "name": "이상화",
+      "year": 2006,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 70,
+        "stamina": 60,
+        "stability": 76
+      },
+      "note": "",
+      "source": "45G 121IP ERA3.87 50K 43BB WHIP1.34 5승 — KBO 기록실"
+    },
+    {
+      "personId": "전병두",
+      "name": "전병두",
+      "year": 2006,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 53,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "44G 101 1/3IP ERA4.35 94K 55BB WHIP1.42 5승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 2006,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 45,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".234/.296 2HR 35타점 1SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 2006,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 81,
+        "speed": 56,
+        "defense": 62
+      },
+      "note": "9년 연속 3할·출루율 .413",
+      "source": ".306/.413 13HR 79타점 6SB 540PA — KBO 기록실"
+    },
+    {
+      "personId": "김종국",
+      "name": "김종국",
+      "year": 2006,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 44,
+        "contact": 55,
+        "speed": 71,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".226/.286 1HR 26타점 16SB 369PA — KBO 기록실"
+    },
+    {
+      "personId": "이현곤",
+      "name": "이현곤",
+      "year": 2006,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 60,
+        "speed": 47,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".243/.281 5HR 27타점 2SB 272PA — KBO 기록실"
+    },
+    {
+      "personId": "홍세완",
+      "name": "홍세완",
+      "year": 2006,
+      "team": "KIA",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 45,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".206/.280 1HR 17타점 0SB 243PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2006,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 42,
+        "contact": 85,
+        "speed": 89,
+        "defense": 82
+      },
+      "note": ".318 38도루",
+      "source": ".318/.391 1HR 39타점 38SB 552PA — KBO 기록실"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 2006,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 44,
+        "contact": 60,
+        "speed": 66,
+        "defense": 72
+      },
+      "note": "",
+      "source": ".242/.302 1HR 21타점 10SB 379PA — KBO 기록실"
+    },
+    {
+      "personId": "김원섭",
+      "name": "김원섭",
+      "year": 2006,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 40,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".337/.383 0HR 13타점 12SB 213PA — KBO 기록실"
+    },
+    {
+      "personId": "이재주",
+      "name": "이재주",
+      "year": 2006,
+      "team": "KIA",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 68,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".284/.370 13HR 59타점 1SB 436PA — KBO 기록실"
+    },
+    {
+      "personId": "손지환",
+      "name": "손지환",
+      "year": 2006,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 55,
+        "speed": 45,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".264/.303 4HR 21타점 1SB 293PA — KBO 기록실"
+    },
+    {
+      "personId": "스캇",
+      "name": "스캇",
+      "year": 2006,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 44,
+        "power": 71,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".163/.237 6HR 14타점 0SB 169PA — KBO 기록실"
+    }
+  ]
+}

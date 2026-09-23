@@ -1,0 +1,318 @@
+{
+  "id": "2006-hyundai",
+  "kind": "team",
+  "year": 2006,
+  "title": "현대 유니콘스",
+  "franchise": "HYUNDAI",
+  "subtitle": "장원삼 12승 · 이택근 .322",
+  "blurb": "장원삼과 캘러웨이가 2점대 방어율로 던졌고, 이택근이 .322를 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "장원삼",
+      "name": "장원삼",
+      "year": 2006,
+      "team": "현대",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 71,
+        "stamina": 89,
+        "stability": 87
+      },
+      "note": "데뷔 시즌 12승 183이닝",
+      "source": "29G 183 1/3IP ERA2.85 142K 63BB WHIP1.14 12승 — KBO 기록실"
+    },
+    {
+      "personId": "캘러웨이",
+      "name": "캘러웨이",
+      "year": 2006,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 63,
+        "control": 85,
+        "stamina": 84,
+        "stability": 86
+      },
+      "note": "14승·ERA 2.87",
+      "source": "27G 166 1/3IP ERA2.87 95K 35BB WHIP1.24 14승 — KBO 기록실"
+    },
+    {
+      "personId": "전준호(투수)",
+      "name": "전준호",
+      "year": 2006,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 63,
+        "stamina": 78,
+        "stability": 81
+      },
+      "note": "",
+      "source": "30G 143 1/3IP ERA3.39 82K 60BB WHIP1.40 14승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "손승락",
+      "name": "손승락",
+      "year": 2006,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 84,
+        "stamina": 64,
+        "stability": 72
+      },
+      "note": "",
+      "source": "24G 95IP ERA4.17 48K 21BB WHIP1.40 6승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "박승민",
+      "name": "박승민",
+      "year": 2006,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 91,
+        "stamina": 59,
+        "stability": 97
+      },
+      "note": "",
+      "source": "61G 69 1/3IP ERA1.82 65K 11BB WHIP0.85 5승 38SV — KBO 기록실"
+    },
+    {
+      "personId": "신철인",
+      "name": "신철인",
+      "year": 2006,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 66,
+        "stamina": 60,
+        "stability": 92
+      },
+      "note": "",
+      "source": "65G 77IP ERA2.22 85K 30BB WHIP1.12 2승 1SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "송신영",
+      "name": "송신영",
+      "year": 2006,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 73,
+        "stamina": 60,
+        "stability": 68
+      },
+      "note": "",
+      "source": "43G 95 1/3IP ERA4.53 60K 31BB WHIP1.32 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2006,
+      "team": "현대",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 71,
+        "stamina": 53,
+        "stability": 77
+      },
+      "note": "",
+      "source": "70G 40 1/3IP ERA3.79 43K 14BB WHIP1.44 2승 19HLD — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 2006,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 54,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".279 5HR 40타점 3SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "강귀태",
+      "name": "강귀태",
+      "year": 2006,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 65,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".299 4HR 18타점 0SB 159PA — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 2006,
+      "team": "현대",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 57,
+        "speed": 50,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".286 7HR 43타점 3SB 449PA — KBO 기록실"
+    },
+    {
+      "personId": "채종국",
+      "name": "채종국",
+      "year": 2006,
+      "team": "현대",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 49,
+        "speed": 45,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".212 2HR 19타점 1SB 257PA — KBO 기록실"
+    },
+    {
+      "personId": "정성훈",
+      "name": "정성훈",
+      "year": 2006,
+      "team": "현대",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 65,
+        "speed": 50,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".291 13HR 66타점 3SB 492PA — KBO 기록실"
+    },
+    {
+      "personId": "서한규",
+      "name": "서한규",
+      "year": 2006,
+      "team": "현대",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 45,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".250 1HR 14타점 8SB 244PA — KBO 기록실"
+    },
+    {
+      "personId": "송지만",
+      "name": "송지만",
+      "year": 2006,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 67,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".270 16HR 53타점 8SB 510PA — KBO 기록실"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2006,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 87,
+        "speed": 61,
+        "defense": 86
+      },
+      "note": "중견수 골든글러브 .322",
+      "source": ".322 9HR 66타점 8SB 486PA — KBO 기록실"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 2006,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 43,
+        "speed": 76,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".287 1HR 26타점 20SB 346PA — KBO 기록실"
+    },
+    {
+      "personId": "서튼",
+      "name": "서튼",
+      "year": 2006,
+      "team": "현대",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 78,
+        "speed": 42,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".266 18HR 61타점 0SB 394PA — KBO 기록실"
+    }
+  ]
+}
