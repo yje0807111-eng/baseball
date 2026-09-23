@@ -1,0 +1,319 @@
+{
+  "id": "2012-samsung",
+  "champion": true,
+  "kind": "team",
+  "year": 2012,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "두 해 연속 통합우승",
+  "blurb": "장원삼이 17승, 오승환이 37세이브를 올리며 삼성이 두 해 연속 통합우승을 했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2012,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 95,
+        "stamina": 94,
+        "stability": 86
+      },
+      "note": "",
+      "source": "26G 160IP ERA3.21 89K 39BB WHIP1.24 12승 — KBO 기록실"
+    },
+    {
+      "personId": "장원삼",
+      "name": "장원삼",
+      "year": 2012,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 95,
+        "stamina": 93,
+        "stability": 82
+      },
+      "note": "",
+      "source": "27G 157IP ERA3.55 127K 38BB WHIP1.15 17승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "탈보트",
+      "name": "탈보트",
+      "year": 2012,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 62,
+        "control": 76,
+        "stamina": 88,
+        "stability": 77
+      },
+      "note": "",
+      "source": "25G 138 1/3IP ERA3.97 68K 54BB WHIP1.37 14승 — KBO 기록실"
+    },
+    {
+      "personId": "고든",
+      "name": "고든",
+      "year": 2012,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 88,
+        "stamina": 85,
+        "stability": 78
+      },
+      "note": "",
+      "source": "25G 128IP ERA3.94 80K 38BB WHIP1.42 11승 — KBO 기록실"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2012,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 96,
+        "stamina": 67,
+        "stability": 100
+      },
+      "note": "",
+      "source": "50G 55 2/3IP ERA1.94 81K 13BB WHIP0.83 2승 37SV — KBO 기록실"
+    },
+    {
+      "personId": "안지만",
+      "name": "안지만",
+      "year": 2012,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 86,
+        "stamina": 69,
+        "stability": 100
+      },
+      "note": "",
+      "source": "56G 63 1/3IP ERA1.71 58K 20BB WHIP0.98 1승 28HLD — KBO 기록실"
+    },
+    {
+      "personId": "권혁",
+      "name": "권혁",
+      "year": 2012,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 74,
+        "stamina": 66,
+        "stability": 87
+      },
+      "note": "",
+      "source": "64G 49 1/3IP ERA3.10 38K 20BB WHIP1.38 2승 1SV 18HLD — KBO 기록실"
+    },
+    {
+      "personId": "차우찬",
+      "name": "차우찬",
+      "year": 2012,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 59,
+        "stamina": 71,
+        "stability": 51
+      },
+      "note": "",
+      "source": "26G 83 2/3IP ERA6.02 52K 48BB WHIP1.57 6승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2012,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 81,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".307/.354 6HR 57타점 0SB 349PA — KBO 기록실"
+    },
+    {
+      "personId": "이지영",
+      "name": "이지영",
+      "year": 2012,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 60,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".304/.343 0HR 13타점 0SB 145PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2012,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 96,
+        "speed": 77,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".307/.384 21HR 85타점 6SB 556PA — KBO 기록실"
+    },
+    {
+      "personId": "조동찬",
+      "name": "조동찬",
+      "year": 2012,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 83,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".285/.363 6HR 39타점 12SB 313PA — KBO 기록실"
+    },
+    {
+      "personId": "박석민",
+      "name": "박석민",
+      "year": 2012,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 100,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".312/.433 23HR 91타점 2SB 549PA — KBO 기록실"
+    },
+    {
+      "personId": "김상수",
+      "name": "김상수",
+      "year": 2012,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 64,
+        "speed": 98,
+        "defense": 96
+      },
+      "note": "",
+      "source": ".274/.345 2HR 36타점 25SB 489PA — KBO 기록실"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2012,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 87,
+        "speed": 67,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".271/.348 14HR 77타점 2SB 531PA — KBO 기록실"
+    },
+    {
+      "personId": "배영섭",
+      "name": "배영섭",
+      "year": 2012,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 65,
+        "speed": 100,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".245/.335 2HR 34타점 27SB 479PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2012,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 62,
+        "speed": 72,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".304/.393 1HR 51타점 4SB 463PA — KBO 기록실"
+    },
+    {
+      "personId": "정형식",
+      "name": "정형식",
+      "year": 2012,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 75,
+        "speed": 96,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".237/.323 4HR 19타점 22SB 325PA — KBO 기록실"
+    }
+  ]
+}

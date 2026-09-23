@@ -1,21 +1,27 @@
 /*
  * 시즌 기록 → 능력치. 규격은 src/data/SERIES_SPEC.md 의 '능력치 기준'을 그대로 코드로 옮긴 것이다.
- * 시리즈 JSON 을 손으로 쓰지 않고 기록 파일(스탯티즈 · KBO 기록실 내보내기)에서 만들 때 쓴다.
+ * 시리즈 JSON 을 손으로 쓰지 않고 기록 파일(KBO 기록실 내보내기)에서 만들 때 쓴다.
  *
  *   import { batRating, pitRating } from './stat-to-rating.mjs';
- *   batRating({ avg: .314, hr: 50, sb: 1, pos: '1B', year: 2025 })
- *   pitRating({ ip: 197.1, era: 2.60, so: 142, bb: 40, whip: 1.10, role: 'SP', year: 2025 })
+ *   batRating({ avg: .314, hr: 50, sb: 1, pos: '1B', norms })
+ *   pitRating({ ip: 197.1, era: 2.60, so: 142, bb: 40, whip: 1.10, role: 'SP', norms })
  *
- * 돌려주는 값은 40~99 정수다. 전설적인 시즌(MVP · 타이틀)은 +2~4 까지 손으로 더 올려도 된다.
+ * 돌려주는 값은 50~110 정수, 리그 평균이 78 이다.
+ * 기록을 그대로 재지 않고 그 시즌 리그 평균과 견준다 — 1982년은 K/9 이 4.1, 2024년은 8.1 이라
+ * 같은 탈삼진이라도 시대에 따라 값이 다르기 때문이다. norms 는 data/kbo/league.json 의 그 해 항목이다.
  */
 
-const clamp = (v) => Math.max(40, Math.min(99, Math.round(v)));
+export const FLOOR = 50;
+export const CEIL = 110;
+export const MID = 78;
+const clamp = (v) => Math.max(FLOOR, Math.min(CEIL, Math.round(v)));
+
 /** 구간표 사이를 곧은 선으로 잇는다 — [입력, 값] 이 커지는 순서 */
 function curve(points, x) {
   if (x <= points[0][0]) return points[0][1];
   const last = points[points.length - 1];
   if (x >= last[0]) return last[1];
-  for (let i = 1; i < points.length; i++) {
+  for (let i = 1; i < points.length; i += 1) {
     const [x1, y1] = points[i - 1];
     const [x2, y2] = points[i];
     if (x <= x2) return y1 + ((x - x1) / (x2 - x1)) * (y2 - y1);
@@ -23,44 +29,43 @@ function curve(points, x) {
   return last[1];
 }
 
-/* 시대 보정 — 타고투저 해는 타자를 조금 깎고 투수 안정을 올린다 */
-const HIGH_OFFENSE = new Set([1999, 2000, 2014, 2015, 2016, 2017, 2018, 2020]);
-const LOW_OFFENSE = (y) => y >= 1980 && y <= 1995;
-export const eraAdjust = (year) => (HIGH_OFFENSE.has(year) ? { bat: -2, stability: 3 } : LOW_OFFENSE(year) ? { bat: 2, stability: -3 } : { bat: 0, stability: 0 });
+/** 리그 평균이 없을 때 쓰는 값 — 2020년대 평균쯤 */
+export const DEFAULT_NORMS = { avg: 0.2790, hr: 14.5, sb: 9.5, k9: 7.8, bb9: 3.3, era: 4.5, ip: 132 };
+const normsOf = (n) => ({ ...DEFAULT_NORMS, ...(n || {}) });
+/** 리그 대비 몇 배인가 — 0으로 나누지 않게 */
+const ratio = (v, base) => (base > 0 ? v / base : 1);
 
-/* ───── 타자 ───── */
-const CONTACT = [[0.200, 44], [0.240, 60], [0.270, 70], [0.300, 80], [0.320, 86], [0.340, 92], [0.360, 97], [0.400, 99]];
-const POWER = [[0, 40], [5, 50], [10, 60], [20, 72], [25, 78], [30, 84], [40, 92], [50, 98], [60, 99]];
-const SPEED = [[0, 42], [5, 55], [10, 64], [20, 76], [30, 84], [40, 90], [50, 95], [70, 99]];
+/* ───── 타자 ───── 리그 평균이 1.0 = 78 */
+const CONTACT = [[0.62, 50], [0.78, 62], [0.90, 70], [1.00, 78], [1.08, 85], [1.16, 92], [1.25, 100], [1.40, 110]];
+const POWER = [[0, 52], [0.25, 61], [0.5, 69], [0.8, 76], [1.0, 80], [1.4, 88], [2.0, 97], [2.8, 105], [3.6, 110]];
+const SPEED = [[0, 55], [0.2, 64], [0.5, 72], [1.0, 81], [1.8, 92], [2.8, 101], [4.0, 110]];
 /** 자리별 기본 수비 — 골든글러브급은 fielding 으로 따로 올린다 */
-const DEF_BASE = { C: 80, SS: 82, '2B': 78, '3B': 74, OF: 76, '1B': 58, DH: 50, SP: 50, RP: 50 };
+const DEF_BASE = { C: 88, SS: 90, '2B': 85, '3B': 79, OF: 82, '1B': 59, DH: 55, SP: 55, RP: 55 };
+const DEF_BUMP = { gg: 16, good: 8, ok: 0, poor: -11 };
 
 /**
- * @param avg 타율 · hr 홈런 · sb 도루 · pos 주 포지션 · pa 타석(적으면 홈런을 풀시즌으로 환산)
+ * @param avg 타율 · hr 홈런 · sb 도루 · pos 주 포지션 · pa 타석(적으면 홈런·도루를 풀시즌으로 환산)
  * @param fielding 수비 평판: 'gg'(골든글러브급) · 'good' · 'ok'(기본) · 'poor'
+ * @param norms 그 시즌 리그 평균 (data/kbo/league.json)
  */
-export function batRating({ avg, hr = 0, sb = 0, pos = 'OF', pa = 550, year = 2025, fielding = 'ok' }) {
-  const full = pa > 0 && pa < 500 ? hr * (550 / Math.max(120, pa)) : hr;   // 부분 시즌은 550타석 기준으로
-  const adj = eraAdjust(year).bat;
-  const def = DEF_BASE[pos] ?? 70;
-  const bump = { gg: 12, good: 6, ok: 0, poor: -8 }[fielding] ?? 0;
+export function batRating({ avg, hr = 0, sb = 0, pos = 'OF', pa = 550, fielding = 'ok', norms = null }) {
+  const n = normsOf(norms);
+  const scale = pa > 0 && pa < 500 ? 550 / Math.max(120, pa) : 1;   // 부분 시즌은 550타석 기준으로
   return {
-    contact: clamp(curve(CONTACT, avg) + adj),
-    power: clamp(curve(POWER, full) + adj),
-    speed: clamp(curve(SPEED, sb) + adj),
-    defense: clamp(def + bump),
+    contact: clamp(curve(CONTACT, ratio(avg, n.avg))),
+    power: clamp(curve(POWER, ratio(hr * scale, n.hr))),
+    speed: clamp(curve(SPEED, ratio(sb * scale, n.sb))),
+    defense: clamp((DEF_BASE[pos] ?? 72) + (DEF_BUMP[fielding] ?? 0)),
   };
 }
 
-/* ───── 투수 ───── */
-const STUFF = [[3, 50], [5, 62], [7, 72], [8, 78], [9, 84], [10, 90], [12, 95], [14, 99]];
-const CONTROL = [[6, 44], [5, 52], [4, 60], [3, 72], [2.5, 78], [2, 84], [1.5, 90], [1.2, 94], [0.8, 97]];
-const STAMINA = [[40, 45], [80, 58], [100, 66], [130, 74], [160, 82], [180, 88], [200, 93], [250, 97], [300, 99]];
-const STABILITY = [[2.0, 94], [2.5, 90], [3.0, 85], [3.5, 80], [4.0, 74], [4.5, 68], [5.0, 62], [6.0, 52], [7.0, 45]];
+/* ───── 투수 ───── 탈삼진·이닝은 많을수록, 볼넷·평균자책은 적을수록 좋다 */
+const STUFF = [[0.45, 50], [0.65, 62], [0.82, 70], [1.0, 78], [1.18, 87], [1.35, 95], [1.6, 104], [1.9, 110]];
+const CONTROL = [[0.45, 50], [0.65, 62], [0.82, 70], [1.0, 78], [1.25, 88], [1.6, 98], [2.1, 106], [2.8, 110]];
+const STABILITY = [[0.5, 50], [0.7, 62], [0.85, 70], [1.0, 78], [1.2, 88], [1.45, 97], [1.8, 105], [2.3, 110]];
+const STAMINA = [[0.25, 50], [0.45, 60], [0.7, 70], [1.0, 80], [1.25, 90], [1.45, 98], [1.7, 106], [2.0, 110]];
 
-/** x 가 내림차순인 구간표(제구)는 뒤집어 읽는다 */
-const curveDown = (points, x) => curve([...points].reverse(), x);
-/** 이닝을 소수로 — KBO 기록실 표기 '197 1/3' 과 '197.1'(197과 1/3) 을 모두 받는다 */
+/** 이닝을 소수로 — KBO 기록실 표기 '197 1/3' 과 '197.1'(197과 3분의 1) 을 모두 받는다 */
 export const ipOf = (ip) => {
   const t = String(ip).trim();
   if (t.includes('/')) {
@@ -76,22 +81,26 @@ export const ipOf = (ip) => {
 
 /**
  * @param ip 이닝(197.1 표기 그대로) · era 평균자책 · so 탈삼진 · bb 볼넷 · whip · role 'SP'|'RP'
+ * @param norms 그 시즌 리그 평균
  */
-export function pitRating({ ip, era, so = 0, bb = 0, whip = null, role = 'SP', year = 2025 }) {
+export function pitRating({ ip, era, so = 0, bb = 0, whip = null, role = 'SP', norms = null }) {
+  const n = normsOf(norms);
   const innings = ipOf(ip);
   const k9 = innings > 0 ? (so * 9) / innings : 0;
-  const bb9 = innings > 0 ? (bb * 9) / innings : 4;
-  let stuff = curve(STUFF, k9);
-  if (era < 2.5) stuff += 4;
-  if (era > 5.0) stuff -= 4;
-  let stability = curve(STABILITY, era) + eraAdjust(year).stability;
-  if (whip != null) { if (whip < 1.0) stability += 3; if (whip > 1.5) stability -= 3; }
+  const bb9 = innings > 0 ? (bb * 9) / innings : n.bb9 * 1.3;
+
+  let stuff = curve(STUFF, ratio(k9, n.k9));
+  if (era > 0 && era < n.era * 0.6) stuff += 5;          // 맞혀 잡는 압도적인 해
+  if (era > n.era * 1.3) stuff -= 5;
+  let stability = curve(STABILITY, era > 0 ? ratio(n.era, era) : 1);
+  if (whip != null) { if (whip < 1.05) stability += 4; if (whip > 1.45) stability -= 4; }
+  /* 불펜은 이닝이 애초에 적다 — 선발과 같은 잣대로 재지 않고 따로 낮게 둔다 */
   const stamina = role === 'RP'
-    ? clamp(45 + Math.min(15, innings / 5))          // 불펜은 45~60
-    : curve(STAMINA, innings);
+    ? clamp(55 + Math.min(18, innings / 4))
+    : curve(STAMINA, ratio(innings, n.ip));
   return {
     stuff: clamp(stuff),
-    control: clamp(curveDown(CONTROL, bb9)),
+    control: clamp(curve(CONTROL, ratio(n.bb9, bb9))),
     stamina: clamp(stamina),
     stability: clamp(stability),
   };

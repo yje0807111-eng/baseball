@@ -1,0 +1,318 @@
+{
+  "id": "2018-hanwha",
+  "kind": "team",
+  "year": 2018,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "11년 만의 가을야구",
+  "blurb": "정우람이 35세이브를 올리고 호잉과 이성열이 타선을 이끌며 한화가 11년 만에 가을에 갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "샘슨",
+      "name": "샘슨",
+      "year": 2018,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 105,
+        "control": 61,
+        "stamina": 94,
+        "stability": 76
+      },
+      "note": "",
+      "source": "30G 161 2/3IP ERA4.68 195K 79BB WHIP1.38 13승 — KBO 기록실"
+    },
+    {
+      "personId": "김재영",
+      "name": "김재영",
+      "year": 2018,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 78,
+        "stamina": 79,
+        "stability": 62
+      },
+      "note": "",
+      "source": "29G 111 1/3IP ERA5.66 56K 37BB WHIP1.55 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "휠러",
+      "name": "휠러",
+      "year": 2018,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 81,
+        "control": 78,
+        "stamina": 76,
+        "stability": 68
+      },
+      "note": "",
+      "source": "19G 101 2/3IP ERA5.13 94K 34BB WHIP1.59 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김민우",
+      "name": "김민우",
+      "year": 2018,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 68,
+        "stamina": 76,
+        "stability": 55
+      },
+      "note": "",
+      "source": "23G 99 1/3IP ERA6.52 73K 41BB WHIP1.75 5승 — KBO 기록실"
+    },
+    {
+      "personId": "정우람",
+      "name": "정우람",
+      "year": 2018,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 90,
+        "stamina": 62,
+        "stability": 92
+      },
+      "note": "세이브 1위(35)",
+      "source": "55G 53IP ERA3.40 56K 12BB WHIP1.15 5승 35SV — KBO 기록실"
+    },
+    {
+      "personId": "이태양",
+      "name": "이태양",
+      "year": 2018,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 84,
+        "stamina": 70,
+        "stability": 98
+      },
+      "note": "",
+      "source": "63G 79 1/3IP ERA2.84 85K 23BB WHIP1.12 4승 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "송은범",
+      "name": "송은범",
+      "year": 2018,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 68,
+        "stamina": 70,
+        "stability": 101
+      },
+      "note": "",
+      "source": "68G 79 1/3IP ERA2.50 61K 33BB WHIP1.39 7승 1SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "안영명",
+      "name": "안영명",
+      "year": 2018,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 90,
+        "stamina": 68,
+        "stability": 65
+      },
+      "note": "",
+      "source": "53G 66IP ERA5.73 48K 15BB WHIP1.48 8승 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "최재훈",
+      "name": "최재훈",
+      "year": 2018,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 57,
+        "speed": 82,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".262/.337 1HR 27타점 8SB 341PA — KBO 기록실"
+    },
+    {
+      "personId": "지시완",
+      "name": "지시완",
+      "year": 2018,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 83,
+        "speed": 66,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".275/.320 7HR 29타점 1SB 224PA — KBO 기록실"
+    },
+    {
+      "personId": "이성열",
+      "name": "이성열",
+      "year": 2018,
+      "team": "한화",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 101,
+        "speed": 84,
+        "defense": 53
+      },
+      "note": "",
+      "source": ".295/.347 34HR 102타점 9SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2018,
+      "team": "한화",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 79,
+        "speed": 79,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".304/.377 11HR 57타점 6SB 425PA — KBO 기록실"
+    },
+    {
+      "personId": "송광민",
+      "name": "송광민",
+      "year": 2018,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 88,
+        "speed": 74,
+        "defense": 75
+      },
+      "note": "",
+      "source": ".297/.328 18HR 79타점 4SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "하주석",
+      "name": "하주석",
+      "year": 2018,
+      "team": "한화",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 72,
+        "speed": 92,
+        "defense": 95
+      },
+      "note": "",
+      "source": ".254/.300 9HR 52타점 14SB 517PA — KBO 기록실"
+    },
+    {
+      "personId": "호잉",
+      "name": "호잉",
+      "year": 2018,
+      "team": "한화",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 86,
+        "power": 98,
+        "speed": 101,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".306/.369 30HR 110타점 23SB 590PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2018,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 56,
+        "speed": 108,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".293/.379 1HR 36타점 30SB 575PA — KBO 기록실"
+    },
+    {
+      "personId": "양성우",
+      "name": "양성우",
+      "year": 2018,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 63,
+        "speed": 66,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".254/.335 2HR 13타점 1SB 236PA — KBO 기록실"
+    },
+    {
+      "personId": "강경학",
+      "name": "강경학",
+      "year": 2018,
+      "team": "한화",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 73,
+        "speed": 79,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".278/.382 5HR 27타점 6SB 289PA — KBO 기록실"
+    }
+  ]
+}

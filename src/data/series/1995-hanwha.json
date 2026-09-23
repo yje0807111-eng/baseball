@@ -1,0 +1,318 @@
+{
+  "id": "1995-hanwha",
+  "kind": "team",
+  "year": 1995,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "장종훈 타율 .326",
+  "blurb": "장종훈이 22홈런에 타율 .326을 치고 송진우가 13승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "송진우",
+      "name": "송진우",
+      "year": 1995,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 71,
+        "stamina": 99,
+        "stability": 83
+      },
+      "note": "",
+      "source": "26G 183IP ERA3.20 121K 75BB WHIP1.31 13승 — KBO 기록실"
+    },
+    {
+      "personId": "한용덕",
+      "name": "한용덕",
+      "year": 1995,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 92,
+        "stamina": 98,
+        "stability": 82
+      },
+      "note": "",
+      "source": "26G 180 1/3IP ERA3.29 121K 41BB WHIP1.13 8승 — KBO 기록실"
+    },
+    {
+      "personId": "정민철",
+      "name": "정민철",
+      "year": 1995,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 90,
+        "stamina": 93,
+        "stability": 83
+      },
+      "note": "",
+      "source": "22G 162 2/3IP ERA3.21 127K 40BB WHIP1.18 13승 — KBO 기록실"
+    },
+    {
+      "personId": "이상목",
+      "name": "이상목",
+      "year": 1995,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 87,
+        "stamina": 85,
+        "stability": 76
+      },
+      "note": "",
+      "source": "32G 134 1/3IP ERA3.75 112K 37BB WHIP1.24 7승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "구대성",
+      "name": "구대성",
+      "year": 1995,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 106,
+        "control": 66,
+        "stamina": 70,
+        "stability": 80
+      },
+      "note": "",
+      "source": "47G 155IP ERA3.54 161K 72BB WHIP1.28 4승 18SV — KBO 기록실"
+    },
+    {
+      "personId": "김민태",
+      "name": "김민태",
+      "year": 1995,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 68,
+        "stamina": 66,
+        "stability": 52
+      },
+      "note": "",
+      "source": "25G 53IP ERA5.60 27K 23BB WHIP1.60 — KBO 기록실"
+    },
+    {
+      "personId": "정의성",
+      "name": "정의성",
+      "year": 1995,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 86,
+        "stamina": 61,
+        "stability": 50
+      },
+      "note": "",
+      "source": "21G 31 1/3IP ERA6.89 13K 9BB WHIP1.56 — KBO 기록실"
+    },
+    {
+      "personId": "지연규",
+      "name": "지연규",
+      "year": 1995,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 50,
+        "stamina": 61,
+        "stability": 57
+      },
+      "note": "",
+      "source": "9G 28IP ERA5.14 8K 20BB WHIP1.89 1승 — KBO 기록실"
+    },
+    {
+      "personId": "강인권",
+      "name": "강인권",
+      "year": 1995,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 63,
+        "speed": 66,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".220/.345 1HR 22타점 1SB 297PA — KBO 기록실"
+    },
+    {
+      "personId": "김상국",
+      "name": "김상국",
+      "year": 1995,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 83,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".227/.303 3HR 19타점 0SB 149PA — KBO 기록실"
+    },
+    {
+      "personId": "장종훈",
+      "name": "장종훈",
+      "year": 1995,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 103,
+        "power": 101,
+        "speed": 80,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".326/.424 22HR 78타점 8SB 498PA — KBO 기록실"
+    },
+    {
+      "personId": "김용선",
+      "name": "김용선",
+      "year": 1995,
+      "team": "한화",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 85,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".262/.333 10HR 38타점 12SB 432PA — KBO 기록실"
+    },
+    {
+      "personId": "정경훈",
+      "name": "정경훈",
+      "year": 1995,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 69,
+        "speed": 106,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".212/.290 2HR 16타점 37SB 255PA — KBO 기록실"
+    },
+    {
+      "personId": "황대연",
+      "name": "황대연",
+      "year": 1995,
+      "team": "한화",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 92,
+        "speed": 71,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".223/.283 11HR 49타점 3SB 354PA — KBO 기록실"
+    },
+    {
+      "personId": "정영규",
+      "name": "정영규",
+      "year": 1995,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 86,
+        "speed": 71,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".287/.357 11HR 45타점 3SB 446PA — KBO 기록실"
+    },
+    {
+      "personId": "이강돈",
+      "name": "이강돈",
+      "year": 1995,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 74,
+        "speed": 72,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".248/.319 4HR 40타점 4SB 326PA — KBO 기록실"
+    },
+    {
+      "personId": "박지상",
+      "name": "박지상",
+      "year": 1995,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 63,
+        "speed": 68,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".245/.327 1HR 23타점 2SB 285PA — KBO 기록실"
+    },
+    {
+      "personId": "강석천",
+      "name": "강석천",
+      "year": 1995,
+      "team": "한화",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 77,
+        "speed": 85,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".245/.290 4HR 16타점 12SB 279PA — KBO 기록실"
+    }
+  ]
+}

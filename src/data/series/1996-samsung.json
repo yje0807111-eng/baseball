@@ -1,0 +1,318 @@
+{
+  "id": "1996-samsung",
+  "kind": "team",
+  "year": 1996,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "양준혁의 타율 .346",
+  "blurb": "양준혁이 28홈런에 타율 .346을 치며 타격에서 리그를 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "최재호",
+      "name": "최재호",
+      "year": 1996,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 55,
+        "stamina": 84,
+        "stability": 63
+      },
+      "note": "",
+      "source": "35G 126 1/3IP ERA4.84 66K 76BB WHIP1.59 9승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "최창양",
+      "name": "최창양",
+      "year": 1996,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 56,
+        "stamina": 84,
+        "stability": 78
+      },
+      "note": "",
+      "source": "24G 126IP ERA3.86 82K 74BB WHIP1.41 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김태한",
+      "name": "김태한",
+      "year": 1996,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 64,
+        "stamina": 71,
+        "stability": 70
+      },
+      "note": "",
+      "source": "19G 86 1/3IP ERA4.48 65K 42BB WHIP1.44 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김인철",
+      "name": "김인철",
+      "year": 1996,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 61,
+        "stamina": 69,
+        "stability": 73
+      },
+      "note": "",
+      "source": "21G 83IP ERA4.01 26K 44BB WHIP1.55 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박충식",
+      "name": "박충식",
+      "year": 1996,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 109,
+        "stamina": 70,
+        "stability": 100
+      },
+      "note": "",
+      "source": "29G 89 2/3IP ERA2.01 56K 7BB WHIP0.83 8승 12SV — KBO 기록실"
+    },
+    {
+      "personId": "전병호",
+      "name": "전병호",
+      "year": 1996,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 60,
+        "stamina": 70,
+        "stability": 91
+      },
+      "note": "",
+      "source": "39G 108 2/3IP ERA2.65 87K 59BB WHIP1.36 4승 — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1996,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 87,
+        "stamina": 70,
+        "stability": 84
+      },
+      "note": "",
+      "source": "25G 76 1/3IP ERA3.30 35K 22BB WHIP1.22 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "장정순",
+      "name": "장정순",
+      "year": 1996,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 74,
+        "stamina": 68,
+        "stability": 80
+      },
+      "note": "",
+      "source": "28G 67IP ERA3.63 52K 26BB WHIP1.28 3승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1996,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 85,
+        "speed": 67,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".285/.359 6HR 38타점 2SB 222PA — KBO 기록실"
+    },
+    {
+      "personId": "김영진",
+      "name": "김영진",
+      "year": 1996,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 58,
+        "speed": 65,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".134/.178 0HR 6타점 1SB 160PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 1996,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 77,
+        "speed": 72,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".303/.354 9HR 76타점 4SB 504PA — KBO 기록실"
+    },
+    {
+      "personId": "김재걸",
+      "name": "김재걸",
+      "year": 1996,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 64,
+        "speed": 106,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".228/.303 2HR 28타점 40SB 362PA — KBO 기록실"
+    },
+    {
+      "personId": "이동수",
+      "name": "이동수",
+      "year": 1996,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 87,
+        "speed": 65,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".266/.351 8HR 38타점 1SB 277PA — KBO 기록실"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1996,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 63,
+        "speed": 86,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".245/.327 2HR 35타점 13SB 413PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 1996,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 103,
+        "contact": 106,
+        "speed": 95,
+        "defense": 59
+      },
+      "note": "20홈런-20도루",
+      "source": ".346/.452 28HR 87타점 23SB 530PA — KBO 기록실"
+    },
+    {
+      "personId": "신동주",
+      "name": "신동주",
+      "year": 1996,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 98,
+        "speed": 76,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".230/.330 9HR 22타점 6SB 201PA — KBO 기록실"
+    },
+    {
+      "personId": "이중화",
+      "name": "이중화",
+      "year": 1996,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 72,
+        "speed": 76,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".247/.305 2HR 11타점 6SB 174PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 1996,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 82,
+        "speed": 72,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".226/.321 6HR 21타점 4SB 259PA — KBO 기록실"
+    }
+  ]
+}

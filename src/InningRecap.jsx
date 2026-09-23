@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 /** 다음 이닝 기조 — 반이닝마다 따로 묻지 않고 이닝 단위로 하나만 고른다 */
 export const PLANS = [
   { key: 'balanced', name: '균형', desc: '기본 — 맡긴다' },
-  { key: 'aggressive', name: '공격적으로', desc: '작전 · 대타를 아끼지 않는다' },
+  { key: 'aggressive', name: '공격적으로', desc: '작전 · 대타 아끼지 않기' },
   { key: 'protect', name: '지키기', desc: '불펜 · 전진 수비' },
 ];
 
@@ -52,7 +52,7 @@ function Side({ side, half, team, runs, hero, events, batters }) {
             <em>{e.rt || '·'}</em>
           </div>
         )) : (
-          <div className="ir-quiet"><b>아무 일도 없었다</b><span>삼자범퇴</span></div>
+          <div className="ir-quiet"><b>조용한 이닝</b><span>삼자범퇴</span></div>
         )}
       </div>
     </div>
@@ -134,7 +134,7 @@ export default function InningRecap({ inning, mine, theirs, board, score, final,
             </span>
             <Flow home={board.home} away={board.away} now={inning} />
             {final ? (
-              <div className="ir-fin"><b>{final.head}</b><span>결과 화면으로 넘어갑니다</span></div>
+              <div className="ir-fin"><b>{final.head}</b><span>결과 화면으로</span></div>
             ) : (
               <div className="ir-tally">
                 <div className="s me"><b className={mine.runs ? '' : 'z'}>{mine.runs ? `+${mine.runs}` : '0'}</b>
@@ -160,7 +160,7 @@ export default function InningRecap({ inning, mine, theirs, board, score, final,
             <>
               <div className="hd">
                 <p className="mt-lab" style={{ '--a': '#34d399' }}>Next</p>
-                <p className="ir-np"><b>{inning + 1}회</b> — 다음 이닝 기조를 고르세요</p>
+                <p className="ir-np"><b>{inning + 1}회</b> — 다음 이닝 기조 고르기</p>
               </div>
               <div className="ir-opts">
                 {PLANS.map((p) => (

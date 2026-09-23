@@ -1,0 +1,318 @@
+{
+  "id": "1997-lg",
+  "kind": "team",
+  "year": 1997,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "이상훈이 37세이브를 올리고 서용빈이 3할을 치며 LG가 한국시리즈까지 갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 1997,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 92,
+        "stamina": 98,
+        "stability": 80
+      },
+      "note": "",
+      "source": "28G 177 2/3IP ERA3.70 121K 43BB WHIP1.16 12승 — KBO 기록실"
+    },
+    {
+      "personId": "임선동",
+      "name": "임선동",
+      "year": 1997,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 91,
+        "stamina": 87,
+        "stability": 82
+      },
+      "note": "",
+      "source": "22G 135 2/3IP ERA3.52 77K 34BB WHIP1.20 11승 — KBO 기록실"
+    },
+    {
+      "personId": "전승남",
+      "name": "전승남",
+      "year": 1997,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 91,
+        "stamina": 83,
+        "stability": 84
+      },
+      "note": "",
+      "source": "32G 123IP ERA3.29 74K 31BB WHIP1.20 6승 — KBO 기록실"
+    },
+    {
+      "personId": "최향남",
+      "name": "최향남",
+      "year": 1997,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 80,
+        "stamina": 82,
+        "stability": 87
+      },
+      "note": "",
+      "source": "23G 120 1/3IP ERA2.99 74K 41BB WHIP1.27 8승 — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1997,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 86,
+        "stamina": 70,
+        "stability": 99
+      },
+      "note": "",
+      "source": "57G 85 1/3IP ERA2.11 103K 25BB WHIP0.95 10승 37SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 1997,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 90,
+        "stamina": 70,
+        "stability": 89
+      },
+      "note": "",
+      "source": "68G 119 1/3IP ERA2.79 66K 31BB WHIP1.10 11승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1997,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 69,
+        "stamina": 70,
+        "stability": 69
+      },
+      "note": "",
+      "source": "47G 78 1/3IP ERA4.37 41K 34BB WHIP1.53 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김기범",
+      "name": "김기범",
+      "year": 1997,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 57,
+        "stamina": 63,
+        "stability": 51
+      },
+      "note": "",
+      "source": "54G 38IP ERA5.92 28K 22BB WHIP1.58 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 1997,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 92,
+        "speed": 68,
+        "defense": 94
+      },
+      "note": "",
+      "source": ".236/.335 17HR 66타점 2SB 472PA — KBO 기록실"
+    },
+    {
+      "personId": "최동수",
+      "name": "최동수",
+      "year": 1997,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 104,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".223/.310 7HR 21타점 0SB 130PA — KBO 기록실"
+    },
+    {
+      "personId": "서용빈",
+      "name": "서용빈",
+      "year": 1997,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 99,
+        "power": 68,
+        "speed": 73,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".316/.379 4HR 69타점 4SB 459PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 1997,
+      "team": "LG",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 58,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".219/.337 0HR 11타점 2SB 199PA — KBO 기록실"
+    },
+    {
+      "personId": "송구홍",
+      "name": "송구홍",
+      "year": 1997,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 80,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".264/.337 5HR 25타점 7SB 258PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 1997,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 64,
+        "speed": 110,
+        "defense": 97
+      },
+      "note": "",
+      "source": ".269/.364 3HR 45타점 44SB 569PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 1997,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 73,
+        "speed": 97,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".305/.368 7HR 69타점 23SB 550PA — KBO 기록실"
+    },
+    {
+      "personId": "심재학",
+      "name": "심재학",
+      "year": 1997,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 89,
+        "speed": 76,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".285/.363 15HR 84타점 5SB 478PA — KBO 기록실"
+    },
+    {
+      "personId": "동봉철",
+      "name": "동봉철",
+      "year": 1997,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 72,
+        "speed": 99,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".262/.348 5HR 29타점 25SB 428PA — KBO 기록실"
+    },
+    {
+      "personId": "신국환",
+      "name": "신국환",
+      "year": 1997,
+      "team": "LG",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 78,
+        "speed": 82,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".281/.336 8HR 58타점 9SB 455PA — KBO 기록실"
+    }
+  ]
+}

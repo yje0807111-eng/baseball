@@ -2,17 +2,12 @@
 import React from 'react';
 import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
-import { AI_SERIES } from './aiTeam.js';
+import LEAGUE from '../data/leagueAverage.json';
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
-let leagueCache = null;
-export function leagueAverage() {
-  if (leagueCache) return leagueCache;
-  const all = AI_SERIES.map((x) => teamStats(x.players));
-  const mean = (k) => Math.round(all.reduce((n, t) => n + t[k], 0) / Math.max(1, all.length));
-  leagueCache = { ovr: mean('ovr'), bat: mean('bat'), sp: mean('sp'), rp: mean('rp'), def: mean('def') };
-  return leagueCache;
-}
+/* 리그 평균은 미리 세어 둔 값을 읽는다 — 로비를 열자고 시즌 로스터 412개를 받지 않도록.
+   데이터가 바뀌면 node scripts/league-average.mjs 로 다시 만든다 */
+export const leagueAverage = () => LEAGUE;
 
 
 /** 메트로 타일 */

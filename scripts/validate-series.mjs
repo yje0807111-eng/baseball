@@ -8,7 +8,7 @@ const dir = join(root, 'src', 'data', 'series');
 const files = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => join(dir, f));
 
 const KINDS = ['team', 'national', 'legend'];
-const FRANCHISES = ['KIA', 'SAMSUNG', 'LG', 'DOOSAN', 'SSG', 'LOTTE', 'HANWHA', 'KIWOOM', 'NC', 'KT', 'HYUNDAI'];
+const FRANCHISES = ['KIA', 'SAMSUNG', 'LG', 'DOOSAN', 'SSG', 'LOTTE', 'HANWHA', 'KIWOOM', 'NC', 'KT', 'HYUNDAI', 'SSANGBANGWOOL'];
 const POSITIONS = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 const MIN = { SP: 3, RP: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 2 };
 const BAT = ['power', 'contact', 'speed', 'defense'];
@@ -63,7 +63,7 @@ for (const file of files) {
     const st = p.stats || {};
     const extra = Object.keys(st).filter((k) => !keys.includes(k));
     if (extra.length) err(`${at}: 필요 없는 stats 키 ${extra.join(',')}`);
-    for (const k of keys) if (!Number.isInteger(st[k]) || st[k] < 40 || st[k] > 99) err(`${at}: stats.${k} 40~99 정수`);
+    for (const k of keys) if (!Number.isInteger(st[k]) || st[k] < 50 || st[k] > 110) err(`${at}: stats.${k} 50~110 정수`);
     if (typeof p.note !== 'string' || p.note.length > 24) err(`${at}: note 0~24자`);
     if (typeof p.source !== 'string' || !p.source) err(`${at}: source 필요`);
   });

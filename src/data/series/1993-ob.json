@@ -1,0 +1,318 @@
+{
+  "id": "1993-ob",
+  "kind": "team",
+  "year": 1993,
+  "title": "OB 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "김경원의 23세이브",
+  "blurb": "김상진이 선발을 맡고 김경원이 23세이브를 올리며 OB 마운드를 지켰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 1993,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 88,
+        "stamina": 98,
+        "stability": 86
+      },
+      "note": "",
+      "source": "33G 187 1/3IP ERA3.07 142K 56BB WHIP1.13 11승 — KBO 기록실"
+    },
+    {
+      "personId": "장호연",
+      "name": "장호연",
+      "year": 1993,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 94,
+        "stamina": 92,
+        "stability": 91
+      },
+      "note": "",
+      "source": "27G 161 2/3IP ERA2.56 51K 41BB WHIP1.08 10승 — KBO 기록실"
+    },
+    {
+      "personId": "강병규",
+      "name": "강병규",
+      "year": 1993,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 93,
+        "stamina": 86,
+        "stability": 86
+      },
+      "note": "",
+      "source": "29G 139 2/3IP ERA3.09 70K 36BB WHIP1.15 10승 — KBO 기록실"
+    },
+    {
+      "personId": "권명철",
+      "name": "권명철",
+      "year": 1993,
+      "team": "OB",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 70,
+        "stamina": 84,
+        "stability": 87
+      },
+      "note": "",
+      "source": "25G 134 1/3IP ERA3.01 84K 60BB WHIP1.21 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김경원",
+      "name": "김경원",
+      "year": 1993,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 77,
+        "stamina": 70,
+        "stability": 99
+      },
+      "note": "",
+      "source": "48G 129 1/3IP ERA1.11 126K 50BB WHIP0.98 9승 23SV — KBO 기록실"
+    },
+    {
+      "personId": "김익재",
+      "name": "김익재",
+      "year": 1993,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 58,
+        "stamina": 62,
+        "stability": 96
+      },
+      "note": "",
+      "source": "23G 34IP ERA1.85 22K 20BB WHIP1.50 1승 — KBO 기록실"
+    },
+    {
+      "personId": "구동우",
+      "name": "구동우",
+      "year": 1993,
+      "team": "OB",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 95,
+        "stamina": 62,
+        "stability": 63
+      },
+      "note": "",
+      "source": "18G 32 2/3IP ERA5.23 14K 8BB WHIP1.32 1승 — KBO 기록실"
+    },
+    {
+      "personId": "이진",
+      "name": "이진",
+      "year": 1993,
+      "team": "OB",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 51,
+        "stamina": 59,
+        "stability": 50
+      },
+      "note": "",
+      "source": "10G 18 2/3IP ERA10.13 10K 22BB WHIP2.14 — KBO 기록실"
+    },
+    {
+      "personId": "김태형",
+      "name": "김태형",
+      "year": 1993,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 63,
+        "speed": 65,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".277/.318 1HR 27타점 1SB 278PA — KBO 기록실"
+    },
+    {
+      "personId": "박현영",
+      "name": "박현영",
+      "year": 1993,
+      "team": "OB",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 87,
+        "speed": 62,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".258/.305 6HR 29타점 0SB 232PA — KBO 기록실"
+    },
+    {
+      "personId": "김종석",
+      "name": "김종석",
+      "year": 1993,
+      "team": "OB",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 66,
+        "speed": 67,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".191/.261 1HR 16타점 2SB 159PA — KBO 기록실"
+    },
+    {
+      "personId": "이명수",
+      "name": "이명수",
+      "year": 1993,
+      "team": "OB",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 69,
+        "speed": 77,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".283/.367 4HR 56타점 6SB 494PA — KBO 기록실"
+    },
+    {
+      "personId": "임형석",
+      "name": "임형석",
+      "year": 1993,
+      "team": "OB",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 63,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".253/.331 1HR 25타점 3SB 254PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호(두산)",
+      "name": "김민호",
+      "year": 1993,
+      "team": "OB",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 58,
+        "speed": 86,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".239/.280 0HR 21타점 12SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "김형석",
+      "name": "김형석",
+      "year": 1993,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 81,
+        "speed": 67,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".306/.366 10HR 62타점 2SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "김상호",
+      "name": "김상호",
+      "year": 1993,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 84,
+        "speed": 95,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".264/.333 11HR 56타점 19SB 495PA — KBO 기록실"
+    },
+    {
+      "personId": "김광림",
+      "name": "김광림",
+      "year": 1993,
+      "team": "OB",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 66,
+        "speed": 88,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".300/.358 3HR 32타점 13SB 492PA — KBO 기록실"
+    },
+    {
+      "personId": "강영수",
+      "name": "강영수",
+      "year": 1993,
+      "team": "OB",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 85,
+        "speed": 62,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".221/.328 7HR 29타점 0SB 290PA — KBO 기록실"
+    }
+  ]
+}

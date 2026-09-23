@@ -1,0 +1,318 @@
+{
+  "id": "2005-lg",
+  "kind": "team",
+  "year": 2005,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "이병규의 타율 .337",
+  "blurb": "이병규가 타율 .337을 치고 최원호가 13승을 올렸지만 LG는 하위권에 머물렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "최원호",
+      "name": "최원호",
+      "year": 2005,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 77,
+        "stamina": 97,
+        "stability": 74
+      },
+      "note": "",
+      "source": "27G 163 2/3IP ERA4.07 106K 60BB WHIP1.30 13승 — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2005,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 67,
+        "stamina": 81,
+        "stability": 52
+      },
+      "note": "",
+      "source": "23G 111IP ERA5.51 94K 51BB WHIP1.56 5승 — KBO 기록실"
+    },
+    {
+      "personId": "김광삼",
+      "name": "김광삼",
+      "year": 2005,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 62,
+        "stamina": 79,
+        "stability": 58
+      },
+      "note": "",
+      "source": "23G 103 1/3IP ERA4.96 76K 53BB WHIP1.63 7승 — KBO 기록실"
+    },
+    {
+      "personId": "왈론드",
+      "name": "왈론드",
+      "year": 2005,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 75,
+        "control": 60,
+        "stamina": 73,
+        "stability": 61
+      },
+      "note": "",
+      "source": "19G 89 1/3IP ERA5.04 68K 49BB WHIP1.50 4승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "정재복",
+      "name": "정재복",
+      "year": 2005,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 67,
+        "stamina": 71,
+        "stability": 74
+      },
+      "note": "",
+      "source": "65G 79IP ERA4.10 63K 36BB WHIP1.42 5승 4SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "장문석",
+      "name": "장문석",
+      "year": 2005,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 77,
+        "stamina": 71,
+        "stability": 79
+      },
+      "note": "",
+      "source": "27G 84IP ERA3.75 60K 31BB WHIP1.48 5승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "경헌호",
+      "name": "경헌호",
+      "year": 2005,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 91,
+        "stamina": 67,
+        "stability": 75
+      },
+      "note": "",
+      "source": "43G 54 1/3IP ERA3.98 37K 14BB WHIP1.12 9SV 4HLD — KBO 기록실"
+    },
+    {
+      "personId": "류택현",
+      "name": "류택현",
+      "year": 2005,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 86,
+        "stamina": 66,
+        "stability": 80
+      },
+      "note": "",
+      "source": "69G 52IP ERA3.63 41K 16BB WHIP1.29 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2005,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 84,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".224/.285 6HR 34타점 0SB 230PA — KBO 기록실"
+    },
+    {
+      "personId": "김정민",
+      "name": "김정민",
+      "year": 2005,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 83,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".274/.318 5HR 29타점 0SB 211PA — KBO 기록실"
+    },
+    {
+      "personId": "클리어",
+      "name": "클리어",
+      "year": 2005,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 94,
+        "power": 90,
+        "speed": 99,
+        "defense": 56
+      },
+      "note": "",
+      "source": ".303/.371 15HR 61타점 19SB 453PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 2005,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 80,
+        "speed": 78,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".253/.314 6HR 29타점 5SB 303PA — KBO 기록실"
+    },
+    {
+      "personId": "안재만",
+      "name": "안재만",
+      "year": 2005,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 69,
+        "speed": 94,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".236/.289 2HR 18타점 15SB 199PA — KBO 기록실"
+    },
+    {
+      "personId": "한규식",
+      "name": "한규식",
+      "year": 2005,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 57,
+        "speed": 64,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".236/.324 0HR 23타점 0SB 325PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2005,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 85,
+        "speed": 110,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".280/.344 15HR 71타점 43SB 523PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 2005,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 107,
+        "power": 77,
+        "speed": 87,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".337/.388 9HR 75타점 10SB 517PA — KBO 기록실"
+    },
+    {
+      "personId": "정의윤",
+      "name": "정의윤",
+      "year": 2005,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 83,
+        "speed": 73,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".242/.288 8HR 42타점 3SB 340PA — KBO 기록실"
+    },
+    {
+      "personId": "이성열",
+      "name": "이성열",
+      "year": 2005,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 94,
+        "speed": 73,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".235/.374 9HR 30타점 3SB 230PA — KBO 기록실"
+    }
+  ]
+}

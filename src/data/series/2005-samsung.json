@@ -1,0 +1,319 @@
+{
+  "id": "2005-samsung",
+  "champion": true,
+  "kind": "team",
+  "year": 2005,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "한국시리즈 우승",
+  "blurb": "배영수가 평균자책 2.86으로 던지고 심정수가 28홈런을 치며 삼성이 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2005,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 89,
+        "stamina": 100,
+        "stability": 89
+      },
+      "note": "",
+      "source": "31G 173IP ERA2.86 147K 48BB WHIP1.13 11승 2SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "바르가스",
+      "name": "바르가스",
+      "year": 2005,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 61,
+        "control": 64,
+        "stamina": 86,
+        "stability": 60
+      },
+      "note": "",
+      "source": "26G 128IP ERA5.06 66K 63BB WHIP1.43 10승 — KBO 기록실"
+    },
+    {
+      "personId": "전병호",
+      "name": "전병호",
+      "year": 2005,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 87,
+        "stamina": 79,
+        "stability": 69
+      },
+      "note": "",
+      "source": "29G 104 2/3IP ERA4.39 51K 31BB WHIP1.35 6승 — KBO 기록실"
+    },
+    {
+      "personId": "해크먼",
+      "name": "해크먼",
+      "year": 2005,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 77,
+        "control": 67,
+        "stamina": 69,
+        "stability": 64
+      },
+      "note": "",
+      "source": "15G 80 2/3IP ERA4.80 57K 37BB WHIP1.43 3승 — KBO 기록실"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2005,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 109,
+        "control": 99,
+        "stamina": 71,
+        "stability": 102
+      },
+      "note": "",
+      "source": "61G 99IP ERA1.18 115K 20BB WHIP0.67 10승 16SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "안지만",
+      "name": "안지만",
+      "year": 2005,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 69,
+        "stamina": 71,
+        "stability": 82
+      },
+      "note": "",
+      "source": "63G 82 2/3IP ERA3.48 72K 36BB WHIP1.22 8승 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "권오준",
+      "name": "권오준",
+      "year": 2005,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 107,
+        "control": 96,
+        "stamina": 69,
+        "stability": 99
+      },
+      "note": "",
+      "source": "46G 63IP ERA2.29 69K 14BB WHIP0.97 3승 17SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "박석진",
+      "name": "박석진",
+      "year": 2005,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 109,
+        "stamina": 68,
+        "stability": 82
+      },
+      "note": "",
+      "source": "70G 62 1/3IP ERA3.47 24K 7BB WHIP1.06 8승 1SV 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2005,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 74,
+        "speed": 67,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".288/.365 6HR 41타점 1SB 406PA — KBO 기록실"
+    },
+    {
+      "personId": "이정식",
+      "name": "이정식",
+      "year": 2005,
+      "team": "삼성",
+      "position": "C",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 67,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".224/.297 1HR 4타점 0SB 78PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 2005,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 89,
+        "speed": 67,
+        "defense": 56
+      },
+      "note": "",
+      "source": ".293/.372 15HR 73타점 1SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 2005,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 67,
+        "speed": 78,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".268/.368 4HR 36타점 5SB 484PA — KBO 기록실"
+    },
+    {
+      "personId": "조동찬",
+      "name": "조동찬",
+      "year": 2005,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 92,
+        "speed": 96,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".274/.360 16HR 63타점 17SB 447PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2005,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 81,
+        "speed": 78,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".249/.343 7HR 44타점 5SB 333PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2005,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 77,
+        "speed": 90,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".295/.377 9HR 59타점 12SB 551PA — KBO 기록실"
+    },
+    {
+      "personId": "심정수",
+      "name": "심정수",
+      "year": 2005,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 103,
+        "speed": 73,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".275/.402 28HR 87타점 3SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "강동우",
+      "name": "강동우",
+      "year": 2005,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 73,
+        "speed": 85,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".240/.322 6HR 38타점 9SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2005,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 86,
+        "speed": 87,
+        "defense": 56
+      },
+      "note": "",
+      "source": ".261/.367 13HR 50타점 10SB 463PA — KBO 기록실"
+    }
+  ]
+}

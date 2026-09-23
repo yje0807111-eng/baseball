@@ -1,0 +1,318 @@
+{
+  "id": "1985-lotte",
+  "kind": "team",
+  "year": 1985,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "최동원의 평균자책 1.92",
+  "blurb": "최동원이 20승 평균자책 1.92로 던지며 롯데 마운드를 홀로 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "최동원",
+      "name": "최동원",
+      "year": 1985,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 104,
+        "control": 99,
+        "stamina": 100,
+        "stability": 96
+      },
+      "note": "",
+      "source": "42G 225IP ERA1.92 161K 41BB WHIP0.94 20승 8SV — KBO 기록실"
+    },
+    {
+      "personId": "박동수",
+      "name": "박동수",
+      "year": 1985,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 96,
+        "stamina": 91,
+        "stability": 88
+      },
+      "note": "",
+      "source": "32G 168IP ERA2.73 84K 36BB WHIP1.15 9승 — KBO 기록실"
+    },
+    {
+      "personId": "임호균",
+      "name": "임호균",
+      "year": 1985,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 62,
+        "stamina": 86,
+        "stability": 84
+      },
+      "note": "",
+      "source": "27G 145IP ERA3.23 43K 77BB WHIP1.47 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김정행",
+      "name": "김정행",
+      "year": 1985,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 67,
+        "stamina": 80,
+        "stability": 88
+      },
+      "note": "",
+      "source": "19G 115 1/3IP ERA2.73 55K 54BB WHIP1.36 7승 — KBO 기록실"
+    },
+    {
+      "personId": "양상문",
+      "name": "양상문",
+      "year": 1985,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 92,
+        "stamina": 72,
+        "stability": 78
+      },
+      "note": "",
+      "source": "33G 101IP ERA3.83 58K 25BB WHIP1.44 6승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "이진우",
+      "name": "이진우",
+      "year": 1985,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 51,
+        "stamina": 71,
+        "stability": 69
+      },
+      "note": "",
+      "source": "34G 69IP ERA4.30 44K 48BB WHIP1.71 3SV — KBO 기록실"
+    },
+    {
+      "personId": "이충우",
+      "name": "이충우",
+      "year": 1985,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 89,
+        "stamina": 64,
+        "stability": 60
+      },
+      "note": "",
+      "source": "12G 29 1/3IP ERA5.22 13K 8BB WHIP1.60 — KBO 기록실"
+    },
+    {
+      "personId": "천창호",
+      "name": "천창호",
+      "year": 1985,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 85,
+        "stamina": 63,
+        "stability": 69
+      },
+      "note": "",
+      "source": "7G 23IP ERA4.70 10K 7BB WHIP1.22 1승 — KBO 기록실"
+    },
+    {
+      "personId": "한문연",
+      "name": "한문연",
+      "year": 1985,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 72,
+        "speed": 68,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".267/.329 3HR 30타점 2SB 313PA — KBO 기록실"
+    },
+    {
+      "personId": "김용운",
+      "name": "김용운",
+      "year": 1985,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 80,
+        "speed": 66,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".300/.333 2HR 13타점 1SB 108PA — KBO 기록실"
+    },
+    {
+      "personId": "김용철",
+      "name": "김용철",
+      "year": 1985,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 80,
+        "speed": 80,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".223/.295 7HR 36타점 7SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "박영태",
+      "name": "박영태",
+      "year": 1985,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 68,
+        "speed": 78,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".269/.332 2HR 24타점 6SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "한영준",
+      "name": "한영준",
+      "year": 1985,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 76,
+        "speed": 80,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".219/.327 5HR 27타점 7SB 406PA — KBO 기록실"
+    },
+    {
+      "personId": "정영기",
+      "name": "정영기",
+      "year": 1985,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 64,
+        "speed": 71,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".304/.348 1HR 24타점 3SB 306PA — KBO 기록실"
+    },
+    {
+      "personId": "홍문종",
+      "name": "홍문종",
+      "year": 1985,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 87,
+        "speed": 93,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".260/.331 11HR 58타점 16SB 445PA — KBO 기록실"
+    },
+    {
+      "personId": "유두열",
+      "name": "유두열",
+      "year": 1985,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 91,
+        "speed": 92,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".287/.388 13HR 50타점 15SB 425PA — KBO 기록실"
+    },
+    {
+      "personId": "조성옥",
+      "name": "조성옥",
+      "year": 1985,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 69,
+        "speed": 80,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".251/.331 2HR 19타점 7SB 260PA — KBO 기록실"
+    },
+    {
+      "personId": "김용희",
+      "name": "김용희",
+      "year": 1985,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 95,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".277/.348 14HR 47타점 2SB 404PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "2000-samsung",
+  "kind": "team",
+  "year": 2000,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "이승엽의 36홈런",
+  "blurb": "이승엽이 36홈런을 치고 임창용이 30세이브를 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김진웅",
+      "name": "김진웅",
+      "year": 2000,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 79,
+        "stamina": 98,
+        "stability": 74
+      },
+      "note": "",
+      "source": "32G 173 1/3IP ERA4.93 136K 67BB WHIP1.44 15승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이용훈",
+      "name": "이용훈",
+      "year": 2000,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 66,
+        "stamina": 88,
+        "stability": 64
+      },
+      "note": "",
+      "source": "33G 139IP ERA5.63 112K 72BB WHIP1.57 9승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "노장진",
+      "name": "노장진",
+      "year": 2000,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 56,
+        "stamina": 88,
+        "stability": 79
+      },
+      "note": "",
+      "source": "28G 138 1/3IP ERA4.29 103K 86BB WHIP1.65 11승 — KBO 기록실"
+    },
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 2000,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 84,
+        "stamina": 73,
+        "stability": 87
+      },
+      "note": "",
+      "source": "22G 89IP ERA3.84 63K 31BB WHIP1.37 12승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 2000,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 105,
+        "control": 98,
+        "stamina": 62,
+        "stability": 102
+      },
+      "note": "30세이브",
+      "source": "52G 88 2/3IP ERA1.52 95K 22BB WHIP0.90 5승 30SV — KBO 기록실"
+    },
+    {
+      "personId": "김현욱",
+      "name": "김현욱",
+      "year": 2000,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 95,
+        "stamina": 71,
+        "stability": 95
+      },
+      "note": "",
+      "source": "63G 109IP ERA3.14 105K 29BB WHIP1.19 4승 2SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "최창양",
+      "name": "최창양",
+      "year": 2000,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 62,
+        "stamina": 71,
+        "stability": 58
+      },
+      "note": "",
+      "source": "23G 74 2/3IP ERA6.27 50K 42BB WHIP1.83 5승 — KBO 기록실"
+    },
+    {
+      "personId": "박동희",
+      "name": "박동희",
+      "year": 2000,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 63,
+        "stamina": 66,
+        "stability": 65
+      },
+      "note": "",
+      "source": "19G 57 1/3IP ERA5.49 37K 31BB WHIP1.69 4승 — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2000,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 78,
+        "speed": 67,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".273/.333 8HR 58타점 2SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 2000,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 91,
+        "speed": 62,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".205/.319 11HR 30타점 0SB 238PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2000,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 101,
+        "contact": 85,
+        "speed": 68,
+        "defense": 65
+      },
+      "note": "동메달전 결승 2루타",
+      "source": ".293/.404 36HR 95타점 4SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "박정환",
+      "name": "박정환",
+      "year": 2000,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 72,
+        "speed": 62,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".267/.343 2HR 5타점 0SB 68PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 2000,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 68,
+        "speed": 80,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".263/.322 7HR 57타점 8SB 519PA — KBO 기록실"
+    },
+    {
+      "personId": "김수관",
+      "name": "김수관",
+      "year": 2000,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 64,
+        "speed": 62,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".163/.226 1HR 5타점 0SB 54PA — KBO 기록실"
+    },
+    {
+      "personId": "프랑코",
+      "name": "프랑코",
+      "year": 2000,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 95,
+        "power": 87,
+        "speed": 86,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".327/.403 22HR 110타점 12SB 549PA — KBO 기록실"
+    },
+    {
+      "personId": "김종훈",
+      "name": "김종훈",
+      "year": 2000,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 75,
+        "speed": 79,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".245/.323 11HR 40타점 7SB 504PA — KBO 기록실"
+    },
+    {
+      "personId": "김기태",
+      "name": "김기태",
+      "year": 2000,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 101,
+        "speed": 75,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".309/.410 26HR 80타점 5SB 395PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2000,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 65,
+        "speed": 75,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".240/.300 4HR 36타점 5SB 446PA — KBO 기록실"
+    }
+  ]
+}

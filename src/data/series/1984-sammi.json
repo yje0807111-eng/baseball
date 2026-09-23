@@ -1,0 +1,318 @@
+{
+  "id": "1984-sammi",
+  "kind": "team",
+  "year": 1984,
+  "title": "삼미 슈퍼스타즈",
+  "franchise": "HYUNDAI",
+  "subtitle": "정구선의 타선",
+  "blurb": "정구선이 12홈런을 치고 장명부가 13승을 거뒀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "장명부",
+      "name": "장명부",
+      "year": 1984,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 91,
+        "stamina": 100,
+        "stability": 84
+      },
+      "note": "",
+      "source": "45G 261 2/3IP ERA3.30 145K 66BB WHIP1.25 13승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "정성만",
+      "name": "정성만",
+      "year": 1984,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 60,
+        "stamina": 86,
+        "stability": 66
+      },
+      "note": "",
+      "source": "29G 150IP ERA4.86 67K 83BB WHIP1.55 8승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박정후",
+      "name": "박정후",
+      "year": 1984,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 65,
+        "stamina": 84,
+        "stability": 82
+      },
+      "note": "",
+      "source": "31G 139IP ERA3.50 60K 70BB WHIP1.43 5승 — KBO 기록실"
+    },
+    {
+      "personId": "최계훈",
+      "name": "최계훈",
+      "year": 1984,
+      "team": "삼미",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 100,
+        "control": 74,
+        "stamina": 84,
+        "stability": 82
+      },
+      "note": "",
+      "source": "34G 137 1/3IP ERA3.54 99K 55BB WHIP1.36 8승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "신태중",
+      "name": "신태중",
+      "year": 1984,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 52,
+        "stamina": 68,
+        "stability": 50
+      },
+      "note": "",
+      "source": "14G 48 1/3IP ERA6.89 30K 34BB WHIP1.84 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "오문현",
+      "name": "오문현",
+      "year": 1984,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 76,
+        "stamina": 65,
+        "stability": 61
+      },
+      "note": "",
+      "source": "11G 29IP ERA5.59 7K 11BB WHIP1.41 — KBO 기록실"
+    },
+    {
+      "personId": "김상기",
+      "name": "김상기",
+      "year": 1984,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 84,
+        "stamina": 63,
+        "stability": 88
+      },
+      "note": "",
+      "source": "11G 22 1/3IP ERA2.82 5K 7BB WHIP1.39 — KBO 기록실"
+    },
+    {
+      "personId": "인호봉",
+      "name": "인호봉",
+      "year": 1984,
+      "team": "삼미",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 52,
+        "stamina": 63,
+        "stability": 59
+      },
+      "note": "",
+      "source": "8G 17 2/3IP ERA5.60 4K 13BB WHIP1.53 — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 1984,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 91,
+        "speed": 66,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".224 9HR 27타점 1SB 288PA — KBO 기록실"
+    },
+    {
+      "personId": "금광옥",
+      "name": "금광옥",
+      "year": 1984,
+      "team": "삼미",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 90,
+        "speed": 63,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".179 6HR 18타점 0SB 202PA — KBO 기록실"
+    },
+    {
+      "personId": "김정수(삼미)",
+      "name": "김정수",
+      "year": 1984,
+      "team": "삼미",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 75,
+        "speed": 66,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".224 4HR 25타점 1SB 324PA — KBO 기록실"
+    },
+    {
+      "personId": "정구선",
+      "name": "정구선",
+      "year": 1984,
+      "team": "삼미",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 89,
+        "speed": 71,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".293 12HR 46타점 3SB 420PA — KBO 기록실"
+    },
+    {
+      "personId": "이영구",
+      "name": "이영구",
+      "year": 1984,
+      "team": "삼미",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 73,
+        "speed": 77,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".257 5HR 37타점 5SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "권두조",
+      "name": "권두조",
+      "year": 1984,
+      "team": "삼미",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 62,
+        "speed": 71,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".267 1HR 25타점 3SB 423PA — KBO 기록실"
+    },
+    {
+      "personId": "김우근",
+      "name": "김우근",
+      "year": 1984,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 68,
+        "speed": 92,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".262 2HR 21타점 15SB 264PA — KBO 기록실"
+    },
+    {
+      "personId": "우경하",
+      "name": "우경하",
+      "year": 1984,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 88,
+        "speed": 63,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".205 6HR 18타점 0SB 224PA — KBO 기록실"
+    },
+    {
+      "personId": "박준영",
+      "name": "박준영",
+      "year": 1984,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 59,
+        "speed": 63,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".216 0HR 8타점 0SB 154PA — KBO 기록실"
+    },
+    {
+      "personId": "양승관",
+      "name": "양승관",
+      "year": 1984,
+      "team": "삼미",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 76,
+        "speed": 66,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".289 2HR 17타점 1SB 146PA — KBO 기록실"
+    }
+  ]
+}

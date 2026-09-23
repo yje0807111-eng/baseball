@@ -1,0 +1,318 @@
+{
+  "id": "2005-doosan",
+  "kind": "team",
+  "year": 2005,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "리오스가 15승, 정재훈이 30세이브를 올리며 두산이 한국시리즈까지 올라갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "리오스",
+      "name": "리오스",
+      "year": 2005,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 77,
+        "control": 89,
+        "stamina": 108,
+        "stability": 82
+      },
+      "note": "",
+      "source": "32G 205 1/3IP ERA3.51 147K 57BB WHIP1.27 15승 — KBO 기록실"
+    },
+    {
+      "personId": "랜들",
+      "name": "랜들",
+      "year": 2005,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 84,
+        "stamina": 92,
+        "stability": 85
+      },
+      "note": "",
+      "source": "29G 149 2/3IP ERA3.25 111K 47BB WHIP1.40 12승 — KBO 기록실"
+    },
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2005,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 62,
+        "stamina": 81,
+        "stability": 88
+      },
+      "note": "",
+      "source": "20G 112 1/3IP ERA2.96 113K 58BB WHIP1.24 11승 — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2005,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 63,
+        "stamina": 80,
+        "stability": 76
+      },
+      "note": "",
+      "source": "30G 109 1/3IP ERA3.95 59K 54BB WHIP1.45 7승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재우",
+      "name": "이재우",
+      "year": 2005,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 91,
+        "stamina": 71,
+        "stability": 98
+      },
+      "note": "",
+      "source": "76G 99 2/3IP ERA1.72 79K 26BB WHIP1.08 7승 1SV 28HLD — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2005,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 106,
+        "control": 75,
+        "stamina": 67,
+        "stability": 97
+      },
+      "note": "",
+      "source": "51G 56IP ERA2.09 60K 22BB WHIP1.07 1승 30SV — KBO 기록실"
+    },
+    {
+      "personId": "김성배",
+      "name": "김성배",
+      "year": 2005,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 88,
+        "stamina": 71,
+        "stability": 85
+      },
+      "note": "",
+      "source": "72G 82 1/3IP ERA3.17 60K 24BB WHIP1.15 8승 2SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "금민철",
+      "name": "금민철",
+      "year": 2005,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 75,
+        "stamina": 66,
+        "stability": 65
+      },
+      "note": "",
+      "source": "39G 51 1/3IP ERA4.73 44K 20BB WHIP1.27 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2005,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 84,
+        "speed": 69,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".272/.324 11HR 74타점 2SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "용덕한",
+      "name": "용덕한",
+      "year": 2005,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 57,
+        "speed": 67,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".238/.293 0HR 10타점 1SB 141PA — KBO 기록실"
+    },
+    {
+      "personId": "장원진",
+      "name": "장원진",
+      "year": 2005,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 64,
+        "speed": 75,
+        "defense": 56
+      },
+      "note": "",
+      "source": ".286/.361 3HR 42타점 4SB 478PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 2005,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 69,
+        "speed": 67,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".293/.382 4HR 62타점 1SB 415PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2005,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 87,
+        "speed": 67,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".302/.444 10HR 50타점 1SB 338PA — KBO 기록실"
+    },
+    {
+      "personId": "손시헌",
+      "name": "손시헌",
+      "year": 2005,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 67,
+        "speed": 69,
+        "defense": 96
+      },
+      "note": "",
+      "source": ".276/.352 4HR 60타점 2SB 480PA — KBO 기록실"
+    },
+    {
+      "personId": "임재철",
+      "name": "임재철",
+      "year": 2005,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 97,
+        "power": 66,
+        "speed": 87,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".310/.377 3HR 30타점 10SB 401PA — KBO 기록실"
+    },
+    {
+      "personId": "최경환",
+      "name": "최경환",
+      "year": 2005,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 67,
+        "speed": 89,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".262/.333 3HR 38타점 11SB 379PA — KBO 기록실"
+    },
+    {
+      "personId": "전상렬",
+      "name": "전상렬",
+      "year": 2005,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 60,
+        "speed": 73,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".241/.316 1HR 25타점 3SB 355PA — KBO 기록실"
+    },
+    {
+      "personId": "문희성",
+      "name": "문희성",
+      "year": 2005,
+      "team": "두산",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 85,
+        "speed": 90,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".273/.353 10HR 50타점 12SB 369PA — KBO 기록실"
+    }
+  ]
+}

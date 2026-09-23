@@ -1,0 +1,318 @@
+{
+  "id": "1993-taepyungyang",
+  "kind": "team",
+  "year": 1993,
+  "title": "태평양 돌핀스",
+  "franchise": "HYUNDAI",
+  "subtitle": "김경기의 태평양",
+  "blurb": "김경기가 중심을 잡았지만 태평양은 타선이 가벼워 하위권에 머물렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "안병원",
+      "name": "안병원",
+      "year": 1993,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 81,
+        "stamina": 94,
+        "stability": 87
+      },
+      "note": "",
+      "source": "22G 170IP ERA3.02 100K 60BB WHIP1.32 4승 — KBO 기록실"
+    },
+    {
+      "personId": "최창호",
+      "name": "최창호",
+      "year": 1993,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 84,
+        "stamina": 92,
+        "stability": 87
+      },
+      "note": "",
+      "source": "24G 162 1/3IP ERA2.99 104K 54BB WHIP1.16 7승 — KBO 기록실"
+    },
+    {
+      "personId": "가내영",
+      "name": "가내영",
+      "year": 1993,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 92,
+        "stamina": 83,
+        "stability": 84
+      },
+      "note": "",
+      "source": "25G 128 2/3IP ERA3.36 57K 34BB WHIP1.13 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "노승욱",
+      "name": "노승욱",
+      "year": 1993,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 90,
+        "stamina": 82,
+        "stability": 80
+      },
+      "note": "",
+      "source": "28G 127IP ERA3.76 56K 36BB WHIP1.28 3승 — KBO 기록실"
+    },
+    {
+      "personId": "박은진",
+      "name": "박은진",
+      "year": 1993,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 71,
+        "stamina": 70,
+        "stability": 91
+      },
+      "note": "",
+      "source": "31G 85 2/3IP ERA2.63 50K 37BB WHIP1.37 1승 10SV — KBO 기록실"
+    },
+    {
+      "personId": "신완근",
+      "name": "신완근",
+      "year": 1993,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 85,
+        "stamina": 66,
+        "stability": 69
+      },
+      "note": "",
+      "source": "19G 52 2/3IP ERA4.44 19K 17BB WHIP1.59 — KBO 기록실"
+    },
+    {
+      "personId": "박상범",
+      "name": "박상범",
+      "year": 1993,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 80,
+        "stamina": 65,
+        "stability": 57
+      },
+      "note": "",
+      "source": "16G 52 1/3IP ERA5.50 26K 19BB WHIP1.53 — KBO 기록실"
+    },
+    {
+      "personId": "김민태",
+      "name": "김민태",
+      "year": 1993,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 51,
+        "stamina": 59,
+        "stability": 50
+      },
+      "note": "",
+      "source": "9G 18 1/3IP ERA6.87 11K 13BB WHIP1.96 — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1993,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 69,
+        "speed": 65,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".244 3HR 34타점 1SB 364PA — KBO 기록실"
+    },
+    {
+      "personId": "장광호",
+      "name": "장광호",
+      "year": 1993,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 74,
+        "speed": 65,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".172 4HR 24타점 1SB 321PA — KBO 기록실"
+    },
+    {
+      "personId": "김경기",
+      "name": "김경기",
+      "year": 1993,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 84,
+        "speed": 67,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".280 8HR 49타점 2SB 351PA — KBO 기록실"
+    },
+    {
+      "personId": "김성갑",
+      "name": "김성갑",
+      "year": 1993,
+      "team": "태평양",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 66,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".232 1HR 15타점 3SB 164PA — KBO 기록실"
+    },
+    {
+      "personId": "권준헌",
+      "name": "권준헌",
+      "year": 1993,
+      "team": "태평양",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 83,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".222 3HR 13타점 2SB 140PA — KBO 기록실"
+    },
+    {
+      "personId": "염경엽",
+      "name": "염경엽",
+      "year": 1993,
+      "team": "태평양",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 58,
+        "speed": 88,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".213 0HR 18타점 13SB 294PA — KBO 기록실"
+    },
+    {
+      "personId": "이희성",
+      "name": "이희성",
+      "year": 1993,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 64,
+        "speed": 95,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".231 2HR 21타점 19SB 440PA — KBO 기록실"
+    },
+    {
+      "personId": "윤덕규",
+      "name": "윤덕규",
+      "year": 1993,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 62,
+        "speed": 82,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".300 1HR 31타점 9SB 396PA — KBO 기록실"
+    },
+    {
+      "personId": "김인호",
+      "name": "김인호",
+      "year": 1993,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 75,
+        "speed": 65,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".222 3HR 10타점 1SB 226PA — KBO 기록실"
+    },
+    {
+      "personId": "손차훈",
+      "name": "손차훈",
+      "year": 1993,
+      "team": "태평양",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 63,
+        "speed": 70,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".219 1HR 7타점 3SB 304PA — KBO 기록실"
+    }
+  ]
+}

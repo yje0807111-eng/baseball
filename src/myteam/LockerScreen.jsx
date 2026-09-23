@@ -8,11 +8,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, squadIssues, limitsOf } from './rules.js';
-import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staff.js';
+import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
-import { posColor, statColor, statOf, teamNeon } from './teamColor.js';
+import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
@@ -91,10 +91,10 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 (드래프트 선수 평점 문법) */
-/** 드래프트 카드 종합 숫자와 같은 등급 색: 90 이상 무지개 · 75 이상 초록 · 그 밖은 흰색 */
-const statTier = (v) => (v >= 90 ? 't90' : v >= 75 ? 't75' : '');
-/** 능력치 구간 색(신호등): 60 미만 빨강 · 70 미만 주황 · 80 미만 노랑 · 90 미만 초록 · 90 이상 금색(움직임 없음) */
-const statBand = (v) => (v >= 90 ? 'b90' : v >= 80 ? 'b80' : v >= 70 ? 'b70' : v >= 60 ? 'b60' : 'b0');
+/** 드래프트 카드 종합 숫자와 같은 등급 색: 100 이상 무지개 · 85 이상 초록 · 그 밖은 흰색 */
+const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
+/** 능력치 구간 색(신호등): 70 미만 빨강 · 80 미만 주황 · 90 미만 노랑 · 100 미만 초록 · 100 이상 금색(움직임 없음) */
+const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
 function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
@@ -134,7 +134,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
           <span key={k} className="min-w-0">
             <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statOf(k, v).num }}>{v}</b></span>
             <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statOf(k, v).bar }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
             </span>
           </span>
         );
@@ -165,7 +165,7 @@ function EmptyDetail() {
   const inset = Math.round(w * 0.016 * 10) / 10;
   const corner = Math.round(w * 0.07);
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="선수를 고르면 여기에 표시됩니다">
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="고른 선수">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
       <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
         {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
@@ -222,12 +222,23 @@ function CardWithRecord({ p, tr }) {
   const box = useRef(null);
   const baseRef = useRef(null);
   const [w, setW] = useState(0);
+  /* 카드 폭이 받침 높이를 바꾸고 받침 높이가 다시 카드 폭을 바꾼다 — 칩이 한 줄과 두 줄 사이를 오가면
+     두 값 사이에서 끝없이 튄다. 같은 폭이 다시 나오면 튀는 중으로 보고 넘치지 않는 작은 쪽에서 멈춘다 */
+  const seen = useRef({ box: '', tried: new Set(), fixed: null });
   useEffect(() => {
     const el = box.current;
     if (!el) return undefined;
+    seen.current = { box: '', tried: new Set(), fixed: null }; // 선수가 바뀌면 받침도 달라지니 이력을 비운다
     const fit = () => {
+      const st = seen.current;
+      const room = `${el.clientWidth}x${el.clientHeight}`;
+      if (room !== st.box) { st.box = room; st.tried = new Set(); st.fixed = null; } // 판이 실제로 바뀌면 다시 잰다
+      if (st.fixed != null) return;
       const baseH = baseRef.current?.offsetHeight || 0;
-      setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3))));
+      const next = Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3)));
+      if (st.tried.has(next)) { st.fixed = Math.min(...st.tried); setW(st.fixed); return; }
+      st.tried.add(next);
+      setW(next);
     };
     fit();
     const ro = new ResizeObserver(fit);
@@ -327,7 +338,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
     ? (it.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')])
     : squad.filter((p) => fitsItem(it, p)).sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
   const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
-  const after = it?.stat && target?.stats ? Math.min(99, (target.stats[it.stat] ?? 70) + it.amount) : null;
+  const after = it?.stat && target?.stats ? Math.min(110, (target.stats[it.stat] ?? 78) + it.amount) : null;
   return (
     <>
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
@@ -339,7 +350,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
           <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
             <div className="text-center">
               <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
-              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템이 없습니다</b>
+              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템 없음</b>
               <div className="mt-5 flex items-center justify-center gap-2.5">
                 <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
               </div>
@@ -380,7 +391,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
                   {WEAK_KO[r.k]}
                   <span className="relative block h-[5px] bg-white/[0.08]">
-                    <b className="absolute inset-y-0 left-0 block" style={{ width: `${r.v}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
+                    <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(r.v)}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
                   </span>
                   <b className="text-right font-display text-[15px]" style={{ color: statColor(r.v, WEAK_COLOR[r.k]).num }}>{r.v || '-'}</b>
                 </div>
@@ -397,7 +408,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                   <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
                 </div>
               )}
-              {!weak && <p className="text-sm text-gray-500">먼저 선수를 영입하세요.</p>}
+              {!weak && <p className="text-sm text-gray-500">먼저 선수 영입하기</p>}
             </>
           );
         })() : (
@@ -406,7 +417,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-              {list.length === 0 && <p className="text-sm text-gray-500">대상이 없습니다. 먼저 영입하세요.</p>}
+              {list.length === 0 && <p className="text-sm text-gray-500">대상 없음 · 먼저 영입하기</p>}
               {list.map((t) => {
                 const on = target?.id === t.id;
                 const rec = recIds.has(t.id);
@@ -424,7 +435,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                       </b>
                       <span className="block truncate text-[11px] text-gray-400">
                         {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
-                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(99, (t.stats[it.stat] ?? 70) + it.amount)}` : ''}
+                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
                       </span>
                     </span>
                   </button>
@@ -436,7 +447,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
               <KV k="남는 수량" v={`${g.keys.length} → ${g.keys.length - 1}`} color="#fde047" />
             </div>
             <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!target} onClick={() => onUse(g.keys[0], target, slotOf(target))}>
-              {target ? `${target.name}에게 사용 ▶` : '대상을 고르세요'}
+              {target ? `${target.name}에게 사용 ▶` : '대상 고르기'}
             </Btn>
           </>
         )}
@@ -488,13 +499,21 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim)) commit({ ...team, squad: [...squad, p] }); };
   const release = (p) => { commit({ ...team, squad: squad.filter((x) => x.id !== p.id), bench: (team.bench || []).filter((id) => id !== p.id) }); setSel(null); };
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
+  /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
+  const staffOver = (slot, person) => {
+    if (!person) return 0;
+    const over = squadCost(squad, { ...staff, [slot]: person }) - cap;
+    return over > 0 ? over : 0;
+  };
 
   const autoFill = () => {
     let next = [...squad];
+    /* 아직 안 앉힌 감독·코치 몫은 남겨 둔다 — 선수로 캡을 다 쓰면 코치진을 못 채운다 */
+    const reserve = staffReserve(staff);
     const tryAdd = (want) => {
       const slots = lim.size - next.length;
-      const budget = Math.max(40, Math.floor((cap - squadCost(next, staff)) / Math.max(1, slots)));
-      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap, lim)).sort((a, b) => b.overall - a.overall);
+      const budget = Math.max(40, Math.floor((cap - reserve - squadCost(next, staff)) / Math.max(1, slots)));
+      const pool = ALL.filter((p) => (!want || p.position === want) && p.cost <= budget && !addBlockReason(p, next, staff, cap - reserve, lim)).sort((a, b) => b.overall - a.overall);
       if (!pool.length) return false;
       next = [...next, pool[0]];
       return true;
@@ -557,7 +576,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         .st-bar.b90 { background: linear-gradient(90deg, #b45309, #fbbf24); }
         .st-v { color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
         .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
-        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+        .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 `}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
@@ -623,7 +642,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action="영입" blocked={addBlockReason(p, squad, staff, cap, lim)} showNote={false} teamTint
                   onPick={setSel} onAct={add} />
               ))}
-              {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수가 없습니다.</p>}
+              {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
                 <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
                   {matched.length - results.length}명 더 보기
@@ -700,7 +719,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   </span>
                   <span className="absolute right-3 top-3 flex items-center gap-2">
                     <b className="font-display text-lg text-amber-300">{m.cost}</b>
-                    <Btn sm a="#c4b5fd" onClick={() => setStaff(listSlot, m)}>{staff[listSlot] ? '교체' : '선임'}</Btn>
+                    <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => setStaff(listSlot, m)}>
+                      {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
+                    </Btn>
                   </span>
                 </div>
               ))}

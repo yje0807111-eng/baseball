@@ -1,0 +1,318 @@
+{
+  "id": "2000-sk",
+  "kind": "team",
+  "year": 2000,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "창단 첫 시즌",
+  "blurb": "브리또가 타율 .338을 치고 이승호가 선발과 마무리를 오가며 SK가 첫 시즌을 치렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김기덕",
+      "name": "김기덕",
+      "year": 2000,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 99,
+        "stamina": 88,
+        "stability": 71
+      },
+      "note": "",
+      "source": "32G 138IP ERA5.22 72K 33BB WHIP1.45 5승 1SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "콜",
+      "name": "콜",
+      "year": 2000,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 67,
+        "control": 52,
+        "stamina": 81,
+        "stability": 59
+      },
+      "note": "",
+      "source": "37G 114 1/3IP ERA6.14 71K 78BB WHIP1.70 8승 2SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "오상민",
+      "name": "오상민",
+      "year": 2000,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 67,
+        "stamina": 77,
+        "stability": 73
+      },
+      "note": "",
+      "source": "63G 100 2/3IP ERA4.74 71K 50BB WHIP1.55 7승 3SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2000,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 59,
+        "stamina": 69,
+        "stability": 94
+      },
+      "note": "",
+      "source": "42G 139 2/3IP ERA4.51 132K 70BB WHIP1.43 10승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "김원형",
+      "name": "김원형",
+      "year": 2000,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 87,
+        "stamina": 71,
+        "stability": 62
+      },
+      "note": "",
+      "source": "29G 93IP ERA5.81 52K 31BB WHIP1.54 2승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "강희석",
+      "name": "강희석",
+      "year": 2000,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 72,
+        "stamina": 71,
+        "stability": 53
+      },
+      "note": "",
+      "source": "37G 97 2/3IP ERA7.56 62K 43BB WHIP1.70 1승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "유현승",
+      "name": "유현승",
+      "year": 2000,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 74,
+        "stamina": 71,
+        "stability": 60
+      },
+      "note": "",
+      "source": "29G 93 2/3IP ERA5.96 49K 40BB WHIP1.64 1승 — KBO 기록실"
+    },
+    {
+      "personId": "양용모",
+      "name": "양용모",
+      "year": 2000,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 76,
+        "speed": 79,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".269/.339 5HR 32타점 7SB 238PA — KBO 기록실"
+    },
+    {
+      "personId": "장재중",
+      "name": "장재중",
+      "year": 2000,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 64,
+        "speed": 67,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".245/.296 2HR 21타점 2SB 237PA — KBO 기록실"
+    },
+    {
+      "personId": "김경기",
+      "name": "김경기",
+      "year": 2000,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 77,
+        "speed": 67,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".282/.417 4HR 21타점 2SB 177PA — KBO 기록실"
+    },
+    {
+      "personId": "최태원",
+      "name": "최태원",
+      "year": 2000,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 65,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".262/.348 5HR 50타점 9SB 568PA — KBO 기록실"
+    },
+    {
+      "personId": "이동수",
+      "name": "이동수",
+      "year": 2000,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 94,
+        "speed": 65,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".259/.374 14HR 40타점 1SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "박계원",
+      "name": "박계원",
+      "year": 2000,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 68,
+        "speed": 79,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".198/.260 3HR 32타점 7SB 258PA — KBO 기록실"
+    },
+    {
+      "personId": "채종범",
+      "name": "채종범",
+      "year": 2000,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 70,
+        "speed": 75,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".247/.311 8HR 52타점 5SB 518PA — KBO 기록실"
+    },
+    {
+      "personId": "윤재국",
+      "name": "윤재국",
+      "year": 2000,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 61,
+        "speed": 79,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".276/.310 2HR 30타점 7SB 381PA — KBO 기록실"
+    },
+    {
+      "personId": "풀리엄",
+      "name": "풀리엄",
+      "year": 2000,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 76,
+        "power": 92,
+        "speed": 67,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".267/.340 16HR 55타점 2SB 326PA — KBO 기록실"
+    },
+    {
+      "personId": "브리또",
+      "name": "브리또",
+      "year": 2000,
+      "team": "SK",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 98,
+        "power": 83,
+        "speed": 70,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".338/.399 15HR 70타점 3SB 452PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2000,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 77,
+        "speed": 67,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".247/.298 7HR 33타점 2SB 316PA — KBO 기록실"
+    }
+  ]
+}

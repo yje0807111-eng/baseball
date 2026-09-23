@@ -1,0 +1,318 @@
+{
+  "id": "1998-lotte",
+  "kind": "team",
+  "year": 1998,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "박정태 타율 .318",
+  "blurb": "박정태가 타율 .318을 치고 문동환이 12승을 거두며 롯데 마운드를 이끌었다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "주형광",
+      "name": "주형광",
+      "year": 1998,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 95,
+        "stamina": 100,
+        "stability": 83
+      },
+      "note": "",
+      "source": "31G 183 1/3IP ERA3.63 148K 43BB WHIP1.21 11승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 1998,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 85,
+        "stamina": 94,
+        "stability": 80
+      },
+      "note": "",
+      "source": "27G 163 2/3IP ERA3.90 108K 50BB WHIP1.23 7승 — KBO 기록실"
+    },
+    {
+      "personId": "문동환",
+      "name": "문동환",
+      "year": 1998,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 88,
+        "stamina": 87,
+        "stability": 88
+      },
+      "note": "",
+      "source": "31G 136 2/3IP ERA3.16 86K 39BB WHIP1.17 12승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "김태석",
+      "name": "김태석",
+      "year": 1998,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 92,
+        "stamina": 70,
+        "stability": 71
+      },
+      "note": "",
+      "source": "40G 138IP ERA4.63 62K 34BB WHIP1.33 9승 — KBO 기록실"
+    },
+    {
+      "personId": "강상수",
+      "name": "강상수",
+      "year": 1998,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 75,
+        "stamina": 70,
+        "stability": 73
+      },
+      "note": "",
+      "source": "41G 111IP ERA4.46 85K 43BB WHIP1.26 4승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "차명주",
+      "name": "차명주",
+      "year": 1998,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 70,
+        "stamina": 70,
+        "stability": 68
+      },
+      "note": "",
+      "source": "33G 92IP ERA4.99 41K 39BB WHIP1.46 — KBO 기록실"
+    },
+    {
+      "personId": "박지철",
+      "name": "박지철",
+      "year": 1998,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 54,
+        "stamina": 70,
+        "stability": 50
+      },
+      "note": "",
+      "source": "36G 80 1/3IP ERA7.73 63K 49BB WHIP2.03 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "임수혁",
+      "name": "임수혁",
+      "year": 1998,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 81,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".247/.327 9HR 55타점 0SB 378PA — KBO 기록실"
+    },
+    {
+      "personId": "강성우",
+      "name": "강성우",
+      "year": 1998,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 58,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".158/.199 0HR 5타점 0SB 149PA — KBO 기록실"
+    },
+    {
+      "personId": "마해영",
+      "name": "마해영",
+      "year": 1998,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 83,
+        "speed": 69,
+        "defense": 53
+      },
+      "note": "",
+      "source": ".292/.375 15HR 64타점 2SB 534PA — KBO 기록실"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 1998,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 96,
+        "power": 83,
+        "speed": 67,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".318/.394 13HR 79타점 1SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "공필성",
+      "name": "공필성",
+      "year": 1998,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 72,
+        "speed": 86,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".245/.327 6HR 42타점 12SB 428PA — KBO 기록실"
+    },
+    {
+      "personId": "김민재",
+      "name": "김민재",
+      "year": 1998,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 72,
+        "speed": 88,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".238/.306 5HR 43타점 13SB 367PA — KBO 기록실"
+    },
+    {
+      "personId": "김대익",
+      "name": "김대익",
+      "year": 1998,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 68,
+        "speed": 101,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".292/.363 5HR 40타점 27SB 527PA — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1998,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 70,
+        "speed": 69,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".266/.340 4HR 36타점 2SB 342PA — KBO 기록실"
+    },
+    {
+      "personId": "조경환",
+      "name": "조경환",
+      "year": 1998,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 83,
+        "speed": 67,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".231/.317 9HR 40타점 1SB 339PA — KBO 기록실"
+    },
+    {
+      "personId": "손인호",
+      "name": "손인호",
+      "year": 1998,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 74,
+        "speed": 69,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".278/.356 4HR 23타점 2SB 259PA — KBO 기록실"
+    },
+    {
+      "personId": "유필선",
+      "name": "유필선",
+      "year": 1998,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 79,
+        "speed": 71,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".245/.338 5HR 20타점 3SB 230PA — KBO 기록실"
+    }
+  ]
+}

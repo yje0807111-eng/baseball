@@ -1,0 +1,319 @@
+{
+  "id": "1986-haitai",
+  "champion": true,
+  "kind": "team",
+  "year": 1986,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "한국시리즈 우승 · 선동열 0.99",
+  "blurb": "선동열이 24승 평균자책 0.99를 기록하고 김봉연이 21홈런을 치며 해태가 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 97,
+        "stamina": 104,
+        "stability": 101
+      },
+      "note": "24승·ERA 0.99·MVP",
+      "source": "39G 262 2/3IP ERA0.99 214K 52BB WHIP0.78 24승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "차동철",
+      "name": "차동철",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 98,
+        "stamina": 84,
+        "stability": 88
+      },
+      "note": "",
+      "source": "33G 131IP ERA2.82 35K 24BB WHIP1.21 10승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "이상윤",
+      "name": "이상윤",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 69,
+        "stamina": 80,
+        "stability": 86
+      },
+      "note": "",
+      "source": "21G 115IP ERA2.97 48K 51BB WHIP1.23 10승 — KBO 기록실"
+    },
+    {
+      "personId": "문희수",
+      "name": "문희수",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 83,
+        "stamina": 69,
+        "stability": 86
+      },
+      "note": "",
+      "source": "15G 75IP ERA3.00 23K 24BB WHIP1.20 7승 — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1986,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 103,
+        "control": 52,
+        "stamina": 72,
+        "stability": 90
+      },
+      "note": "",
+      "source": "41G 125 2/3IP ERA2.65 92K 89BB WHIP1.45 9승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "방수원",
+      "name": "방수원",
+      "year": 1986,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 89,
+        "stamina": 70,
+        "stability": 87
+      },
+      "note": "",
+      "source": "29G 63IP ERA2.86 34K 17BB WHIP1.32 2승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "김대현",
+      "name": "김대현",
+      "year": 1986,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 84,
+        "stamina": 69,
+        "stability": 74
+      },
+      "note": "",
+      "source": "18G 53 2/3IP ERA4.36 20K 17BB WHIP1.34 — KBO 기록실"
+    },
+    {
+      "personId": "김용남",
+      "name": "김용남",
+      "year": 1986,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 101,
+        "control": 97,
+        "stamina": 65,
+        "stability": 68
+      },
+      "note": "",
+      "source": "13G 30 2/3IP ERA4.70 22K 6BB WHIP1.66 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김무종",
+      "name": "김무종",
+      "year": 1986,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 87,
+        "speed": 62,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".224/.283 8HR 44타점 0SB 362PA — KBO 기록실"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1986,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 81,
+        "speed": 62,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".190/.277 2HR 3타점 0SB 48PA — KBO 기록실"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1986,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 105,
+        "speed": 71,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".300/.363 21HR 67타점 3SB 453PA — KBO 기록실"
+    },
+    {
+      "personId": "차영화",
+      "name": "차영화",
+      "year": 1986,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 60,
+        "speed": 71,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".199/.242 0HR 3타점 3SB 192PA — KBO 기록실"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1986,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 96,
+        "speed": 81,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".298/.372 14HR 66타점 8SB 394PA — KBO 기록실"
+    },
+    {
+      "personId": "서정환",
+      "name": "서정환",
+      "year": 1986,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 69,
+        "speed": 110,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".256/.335 3HR 24타점 43SB 432PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1986,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 96,
+        "power": 89,
+        "speed": 78,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".313/.381 11HR 61타점 6SB 427PA — KBO 기록실"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1986,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 100,
+        "speed": 97,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".257/.325 14HR 40타점 19SB 358PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1986,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 65,
+        "speed": 101,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".186/.259 1HR 20타점 22SB 297PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1986,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 100,
+        "speed": 86,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".280/.340 18HR 57타점 10SB 449PA — KBO 기록실"
+    }
+  ]
+}

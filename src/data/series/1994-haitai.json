@@ -1,0 +1,318 @@
+{
+  "id": "1994-haitai",
+  "kind": "team",
+  "year": 1994,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "이종범의 타율 .393",
+  "blurb": "이종범이 타율 .393에 84도루를 기록하고 조계현이 18승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 1994,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 85,
+        "stamina": 103,
+        "stability": 89
+      },
+      "note": "",
+      "source": "27G 210IP ERA2.61 135K 62BB WHIP1.11 18승 — KBO 기록실"
+    },
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 1994,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 56,
+        "stamina": 98,
+        "stability": 78
+      },
+      "note": "",
+      "source": "33G 185 2/3IP ERA3.64 140K 105BB WHIP1.37 12승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1994,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 81,
+        "stamina": 86,
+        "stability": 81
+      },
+      "note": "",
+      "source": "28G 141IP ERA3.38 126K 46BB WHIP1.18 9승 — KBO 기록실"
+    },
+    {
+      "personId": "이대진",
+      "name": "이대진",
+      "year": 1994,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 71,
+        "stamina": 85,
+        "stability": 72
+      },
+      "note": "",
+      "source": "31G 137IP ERA4.20 90K 56BB WHIP1.25 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1994,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 75,
+        "stamina": 70,
+        "stability": 81
+      },
+      "note": "",
+      "source": "41G 116 1/3IP ERA3.40 57K 44BB WHIP1.42 10승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "강태원",
+      "name": "강태원",
+      "year": 1994,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 89,
+        "stamina": 70,
+        "stability": 81
+      },
+      "note": "",
+      "source": "29G 81 2/3IP ERA3.42 44K 21BB WHIP1.14 3승 — KBO 기록실"
+    },
+    {
+      "personId": "문희수",
+      "name": "문희수",
+      "year": 1994,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 64,
+        "stamina": 66,
+        "stability": 55
+      },
+      "note": "",
+      "source": "18G 53 1/3IP ERA5.40 21K 25BB WHIP1.56 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이재만",
+      "name": "이재만",
+      "year": 1994,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 90,
+        "stamina": 61,
+        "stability": 75
+      },
+      "note": "",
+      "source": "16G 32 1/3IP ERA3.90 12K 8BB WHIP1.39 — KBO 기록실"
+    },
+    {
+      "personId": "정회열",
+      "name": "정회열",
+      "year": 1994,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 89,
+        "speed": 62,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".236/.264 8HR 34타점 0SB 291PA — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 1994,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 81,
+        "speed": 62,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".232/.267 3HR 20타점 0SB 171PA — KBO 기록실"
+    },
+    {
+      "personId": "이건열",
+      "name": "이건열",
+      "year": 1994,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 81,
+        "speed": 75,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".250/.314 7HR 39타점 5SB 400PA — KBO 기록실"
+    },
+    {
+      "personId": "이경복",
+      "name": "이경복",
+      "year": 1994,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 102,
+        "power": 82,
+        "speed": 65,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".327/.361 4HR 25타점 1SB 224PA — KBO 기록실"
+    },
+    {
+      "personId": "홍현우",
+      "name": "홍현우",
+      "year": 1994,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 90,
+        "speed": 89,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".272/.347 16HR 72타점 15SB 524PA — KBO 기록실"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 1994,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 97,
+        "contact": 110,
+        "speed": 110,
+        "defense": 101
+      },
+      "note": "타율 .393·84도루·MVP",
+      "source": ".393/.452 19HR 77타점 84SB 561PA — KBO 기록실"
+    },
+    {
+      "personId": "이호성",
+      "name": "이호성",
+      "year": 1994,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 84,
+        "speed": 95,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".265/.358 9HR 49타점 21SB 440PA — KBO 기록실"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1994,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 100,
+        "power": 86,
+        "speed": 93,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".322/.386 8HR 54타점 18SB 360PA — KBO 기록실"
+    },
+    {
+      "personId": "이병훈",
+      "name": "이병훈",
+      "year": 1994,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 86,
+        "speed": 62,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".279/.317 8HR 41타점 0SB 355PA — KBO 기록실"
+    },
+    {
+      "personId": "박재용",
+      "name": "박재용",
+      "year": 1994,
+      "team": "해태",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 59,
+        "speed": 62,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".259/.278 0HR 27타점 0SB 232PA — KBO 기록실"
+    }
+  ]
+}

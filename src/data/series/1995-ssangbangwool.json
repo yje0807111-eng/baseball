@@ -1,0 +1,318 @@
+{
+  "id": "1995-ssangbangwool",
+  "kind": "team",
+  "year": 1995,
+  "title": "쌍방울 레이더스",
+  "franchise": "SSANGBANGWOOL",
+  "subtitle": "박경완의 19홈런",
+  "blurb": "박경완이 19홈런을 치고 김기덕이 마운드를 지키며 쌍방울이 중위권 싸움을 했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "성영재",
+      "name": "성영재",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 70,
+        "stamina": 90,
+        "stability": 57
+      },
+      "note": "",
+      "source": "27G 154IP ERA5.08 92K 64BB WHIP1.51 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김원형",
+      "name": "김원형",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 71,
+        "stamina": 88,
+        "stability": 74
+      },
+      "note": "",
+      "source": "25G 143 2/3IP ERA3.95 69K 58BB WHIP1.41 9승 — KBO 기록실"
+    },
+    {
+      "personId": "유현승",
+      "name": "유현승",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 61,
+        "stamina": 87,
+        "stability": 63
+      },
+      "note": "",
+      "source": "32G 143IP ERA4.85 77K 75BB WHIP1.40 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "박진석",
+      "name": "박진석",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 79,
+        "stamina": 80,
+        "stability": 72
+      },
+      "note": "",
+      "source": "30G 114IP ERA4.11 62K 39BB WHIP1.44 3승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "김기덕",
+      "name": "김기덕",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 88,
+        "stamina": 70,
+        "stability": 88
+      },
+      "note": "",
+      "source": "44G 116 1/3IP ERA2.71 90K 31BB WHIP1.11 9승 12SV — KBO 기록실"
+    },
+    {
+      "personId": "김진철",
+      "name": "김진철",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 70,
+        "stamina": 70,
+        "stability": 76
+      },
+      "note": "",
+      "source": "31G 80IP ERA3.71 48K 33BB WHIP1.35 1승 — KBO 기록실"
+    },
+    {
+      "personId": "유명선",
+      "name": "유명선",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 55,
+        "stamina": 67,
+        "stability": 50
+      },
+      "note": "",
+      "source": "25G 58IP ERA6.36 34K 35BB WHIP1.83 1승 — KBO 기록실"
+    },
+    {
+      "personId": "조한철",
+      "name": "조한철",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 93,
+        "stamina": 61,
+        "stability": 63
+      },
+      "note": "",
+      "source": "17G 31 2/3IP ERA4.83 10K 7BB WHIP1.45 — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 101,
+        "speed": 75,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".227 19HR 46타점 5SB 429PA — KBO 기록실"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 89,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".175 4HR 23타점 0SB 140PA — KBO 기록실"
+    },
+    {
+      "personId": "김기태",
+      "name": "김기태",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 101,
+        "power": 86,
+        "speed": 85,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".321 12HR 72타점 12SB 482PA — KBO 기록실"
+    },
+    {
+      "personId": "최태원",
+      "name": "최태원",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 61,
+        "speed": 101,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".296 1HR 30타점 29SB 548PA — KBO 기록실"
+    },
+    {
+      "personId": "김호",
+      "name": "김호",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 80,
+        "speed": 93,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".199 6HR 29타점 18SB 354PA — KBO 기록실"
+    },
+    {
+      "personId": "백인수",
+      "name": "백인수",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 82,
+        "speed": 71,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".244 7HR 40타점 3SB 394PA — KBO 기록실"
+    },
+    {
+      "personId": "김광림",
+      "name": "김광림",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 106,
+        "power": 77,
+        "speed": 90,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".337 7HR 49타점 16SB 489PA — KBO 기록실"
+    },
+    {
+      "personId": "박노준",
+      "name": "박노준",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 66,
+        "speed": 95,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".220 2HR 20타점 20SB 371PA — KBO 기록실"
+    },
+    {
+      "personId": "심성보",
+      "name": "심성보",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 84,
+        "speed": 75,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".234 7HR 31타점 5SB 329PA — KBO 기록실"
+    },
+    {
+      "personId": "박철우",
+      "name": "박철우",
+      "year": 1995,
+      "team": "쌍방울",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 78,
+        "speed": 71,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".265 5HR 35타점 3SB 315PA — KBO 기록실"
+    }
+  ]
+}

@@ -7,11 +7,11 @@
 import { FIELD_SLOTS, PITCH_SLOTS, fillRoster } from '../KboAugmentDraft.jsx';
 import * as Live from './live.js';
 
-/** 탑의 칸 수 = 참가 구단 수(나 포함). 모듈을 읽는 때가 아니라 쓸 때 센다 (KboAugmentDraft 와 서로 불러오는 사이) */
-export const steps = () => Live.CLUB_COUNT;
+/** 탑의 칸 수 = 그 판의 구단 수(나 포함). 판을 주면 그 판 기준, 안 주면 기본값 */
+export const steps = (g) => g?.tower?.length || Live.CLUB_COUNT;
 
 const avg = (a) => (a.length ? a.reduce((t, x) => t + x, 0) / a.length : 0);
-const st = (p, k) => p?.stats?.[k] ?? 60;
+const st = (p, k) => p?.stats?.[k] ?? 78;
 
 /**
  * 팀 수치 넷 — 주전 자리에 앉은 선수만 본다 (빈 자리는 퓨처스가 들어간다).

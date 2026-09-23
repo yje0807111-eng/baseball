@@ -1,0 +1,318 @@
+{
+  "id": "1999-lg",
+  "kind": "team",
+  "year": 1999,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "이병규의 타율 .349",
+  "blurb": "이병규가 30홈런에 타율 .349를 치고 김용수가 26세이브로 마무리를 맡았다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김상태",
+      "name": "김상태",
+      "year": 1999,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 52,
+        "stamina": 90,
+        "stability": 58
+      },
+      "note": "",
+      "source": "31G 147 1/3IP ERA6.17 110K 95BB WHIP1.89 9승 — KBO 기록실"
+    },
+    {
+      "personId": "손혁",
+      "name": "손혁",
+      "year": 1999,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 77,
+        "stamina": 88,
+        "stability": 80
+      },
+      "note": "",
+      "source": "26G 142 2/3IP ERA4.29 75K 54BB WHIP1.45 10승 — KBO 기록실"
+    },
+    {
+      "personId": "최향남",
+      "name": "최향남",
+      "year": 1999,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 77,
+        "stamina": 73,
+        "stability": 80
+      },
+      "note": "",
+      "source": "15G 93IP ERA4.26 87K 35BB WHIP1.22 8승 — KBO 기록실"
+    },
+    {
+      "personId": "안병원",
+      "name": "안병원",
+      "year": 1999,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 76,
+        "stamina": 54,
+        "stability": 52
+      },
+      "note": "",
+      "source": "7G 28IP ERA12.54 17K 11BB WHIP2.21 — KBO 기록실"
+    },
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 1999,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 102,
+        "stamina": 69,
+        "stability": 95
+      },
+      "note": "",
+      "source": "46G 68 2/3IP ERA2.88 48K 13BB WHIP1.21 3승 26SV — KBO 기록실"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1999,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 83,
+        "stamina": 70,
+        "stability": 74
+      },
+      "note": "",
+      "source": "52G 82IP ERA4.72 51K 27BB WHIP1.39 5승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "장문석",
+      "name": "장문석",
+      "year": 1999,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 53,
+        "stamina": 67,
+        "stability": 80
+      },
+      "note": "",
+      "source": "23G 62IP ERA4.21 51K 39BB WHIP1.50 4승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 1999,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 91,
+        "stamina": 69,
+        "stability": 89
+      },
+      "note": "",
+      "source": "50G 67 2/3IP ERA3.46 45K 18BB WHIP1.27 7승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 1999,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 89,
+        "speed": 66,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".287/.376 16HR 65타점 1SB 389PA — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 1999,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 83,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".254/.285 5HR 22타점 0SB 157PA — KBO 기록실"
+    },
+    {
+      "personId": "김선진",
+      "name": "김선진",
+      "year": 1999,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 61,
+        "speed": 75,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".234/.310 1HR 21타점 5SB 238PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 1999,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 73,
+        "speed": 94,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291/.378 9HR 55타점 18SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "안상준",
+      "name": "안상준",
+      "year": 1999,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 69,
+        "speed": 72,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".284/.318 4HR 39타점 4SB 350PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 1999,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 80,
+        "speed": 89,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".303/.392 11HR 45타점 14SB 422PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 1999,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 103,
+        "power": 97,
+        "speed": 105,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".349/.394 30HR 99타점 31SB 599PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 1999,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 87,
+        "speed": 80,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".287/.371 21HR 94타점 8SB 520PA — KBO 기록실"
+    },
+    {
+      "personId": "펠릭스",
+      "name": "펠릭스",
+      "year": 1999,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 72,
+        "power": 84,
+        "speed": 66,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".253/.333 13HR 58타점 1SB 384PA — KBO 기록실"
+    },
+    {
+      "personId": "신국환",
+      "name": "신국환",
+      "year": 1999,
+      "team": "LG",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 74,
+        "speed": 72,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".227/.284 6HR 36타점 4SB 343PA — KBO 기록실"
+    }
+  ]
+}

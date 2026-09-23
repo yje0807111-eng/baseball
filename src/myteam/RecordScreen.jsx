@@ -90,7 +90,7 @@ export default function RecordScreen({ account, onBack }) {
           </div>
           <p className="mt-lab px-1 pb-2 pt-3" style={{ fontSize: 10, '--a': '#7dd3fc' }}>Last 10</p>
           <div className="flex flex-wrap gap-1 px-1">
-            {sum.form.length === 0 && <small className="text-[11px] text-gray-500">아직 경기가 없습니다</small>}
+            {sum.form.length === 0 && <small className="text-[11px] text-gray-500">경기 없음</small>}
             {sum.form.map((f, i) => {
               const c = f === 'W' ? '#34d399' : f === 'L' ? '#f87171' : '#94a3b8';
               return <b key={`${f}${i}`} className="mt-cut grid h-6 w-6 place-items-center font-display text-[12px] font-extrabold"
@@ -98,7 +98,7 @@ export default function RecordScreen({ account, onBack }) {
             })}
           </div>
           <p className="mt-lab px-1 pb-2 pt-4" style={{ fontSize: 10, '--a': '#fbbf24' }}>MVP Top 3</p>
-          {sum.mvps.length === 0 && <small className="px-1 text-[11px] text-gray-500">MVP 기록이 없습니다</small>}
+          {sum.mvps.length === 0 && <small className="px-1 text-[11px] text-gray-500">MVP 기록 없음</small>}
           {sum.mvps.map((m, i) => (
             <div key={m.id} className="flex items-center gap-2 border-b border-white/10 px-1 py-1.5">
               <b className="w-3 font-display text-[13px] text-gray-500">{i + 1}</b>
@@ -116,13 +116,13 @@ export default function RecordScreen({ account, onBack }) {
           </div>
           <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
             {list.map((h) => <GameRow key={h.at + h.opp} h={h} on={sel?.at === h.at} onPick={setSel} />)}
-            {list.length === 0 && <p className="text-sm text-gray-500">아직 치른 경기가 없습니다. 플레이에서 경기를 치르면 여기에 쌓입니다.</p>}
+            {list.length === 0 && <p className="text-sm text-gray-500">치른 경기 없음 · 플레이에서 치르면 여기에 쌓인다</p>}
           </div>
         </section>
 
         <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': sel ? resultOf(sel)[1] : n }}>
           <p className="mt-lab" style={{ '--a': sel ? resultOf(sel)[1] : n }}>Game</p>
-          {!sel ? <p className="text-sm text-gray-500">목록에서 경기를 고르세요.</p> : (() => {
+          {!sel ? <p className="text-sm text-gray-500">목록에서 경기 고르기</p> : (() => {
             const [ko, c] = resultOf(sel);
             const m = modeOf(sel);
             return (

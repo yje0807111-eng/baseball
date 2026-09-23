@@ -1,0 +1,318 @@
+{
+  "id": "1991-lotte",
+  "kind": "team",
+  "year": 1991,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "윤학길의 17승",
+  "blurb": "윤학길이 17승을 거두고 장효조가 타율 .347을 기록했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "윤학길",
+      "name": "윤학길",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 92,
+        "stamina": 101,
+        "stability": 89
+      },
+      "note": "",
+      "source": "34G 205IP ERA3.25 99K 60BB WHIP1.18 17승 — KBO 기록실"
+    },
+    {
+      "personId": "박동희",
+      "name": "박동희",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 102,
+        "control": 70,
+        "stamina": 98,
+        "stability": 95
+      },
+      "note": "",
+      "source": "30G 189 2/3IP ERA2.47 152K 96BB WHIP1.20 14승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김청수",
+      "name": "김청수",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 94,
+        "stamina": 93,
+        "stability": 82
+      },
+      "note": "",
+      "source": "28G 166 2/3IP ERA3.83 83K 47BB WHIP1.15 10승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김태형",
+      "name": "김태형",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 85,
+        "stamina": 86,
+        "stability": 88
+      },
+      "note": "",
+      "source": "30G 140 2/3IP ERA3.26 81K 50BB WHIP1.24 11승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "박동수",
+      "name": "박동수",
+      "year": 1991,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 93,
+        "stamina": 69,
+        "stability": 67
+      },
+      "note": "",
+      "source": "30G 69IP ERA4.96 38K 20BB WHIP1.52 2승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김태석",
+      "name": "김태석",
+      "year": 1991,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 56,
+        "stamina": 65,
+        "stability": 62
+      },
+      "note": "",
+      "source": "21G 51 1/3IP ERA5.61 35K 36BB WHIP1.83 1승 — KBO 기록실"
+    },
+    {
+      "personId": "서정용",
+      "name": "서정용",
+      "year": 1991,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 93,
+        "stamina": 63,
+        "stability": 79
+      },
+      "note": "",
+      "source": "15G 41 1/3IP ERA4.14 13K 12BB WHIP1.40 1승 — KBO 기록실"
+    },
+    {
+      "personId": "윤동배",
+      "name": "윤동배",
+      "year": 1991,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 56,
+        "stamina": 63,
+        "stability": 53
+      },
+      "note": "",
+      "source": "18G 40 1/3IP ERA6.92 14K 31BB WHIP1.88 — KBO 기록실"
+    },
+    {
+      "personId": "김선일",
+      "name": "김선일",
+      "year": 1991,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 68,
+        "speed": 76,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".201/.244 2HR 25타점 6SB 275PA — KBO 기록실"
+    },
+    {
+      "personId": "한문연",
+      "name": "한문연",
+      "year": 1991,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 73,
+        "speed": 60,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".288/.354 2HR 24타점 0SB 172PA — KBO 기록실"
+    },
+    {
+      "personId": "박영태",
+      "name": "박영태",
+      "year": 1991,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 59,
+        "speed": 66,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".179/.240 0HR 12타점 2SB 127PA — KBO 기록실"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 1991,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 86,
+        "speed": 69,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".285/.346 14HR 75타점 3SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "공필성",
+      "name": "공필성",
+      "year": 1991,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 77,
+        "speed": 69,
+        "defense": 77
+      },
+      "note": "",
+      "source": ".215/.280 3HR 16타점 3SB 190PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 102,
+        "speed": 63,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".303/.388 20HR 68타점 1SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1991,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 78,
+        "speed": 100,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".300/.388 9HR 50타점 25SB 504PA — KBO 기록실"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 1991,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 65,
+        "speed": 94,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".263/.360 2HR 48타점 18SB 451PA — KBO 기록실"
+    },
+    {
+      "personId": "장효조",
+      "name": "장효조",
+      "year": 1991,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 106,
+        "power": 70,
+        "speed": 85,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".347/.452 4HR 54타점 12SB 424PA — KBO 기록실"
+    },
+    {
+      "personId": "오대석",
+      "name": "오대석",
+      "year": 1991,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 67,
+        "speed": 69,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".234/.332 2HR 25타점 3SB 333PA — KBO 기록실"
+    }
+  ]
+}

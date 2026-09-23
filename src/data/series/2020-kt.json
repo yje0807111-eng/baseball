@@ -1,0 +1,318 @@
+{
+  "id": "2020-kt",
+  "kind": "team",
+  "year": 2020,
+  "title": "KT 위즈",
+  "franchise": "KT",
+  "subtitle": "창단 첫 가을야구 3위",
+  "blurb": "로하스가 47홈런으로 MVP에 오르고 소형준이 신인왕을 받으며 kt가 처음 가을에 나섰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "데스파이네",
+      "name": "데스파이네",
+      "year": 2020,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 83,
+        "stamina": 106,
+        "stability": 76
+      },
+      "note": "",
+      "source": "35G 207 2/3IP ERA4.33 152K 68BB WHIP1.45 15승 — KBO 기록실"
+    },
+    {
+      "personId": "쿠에바스",
+      "name": "쿠에바스",
+      "year": 2020,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 70,
+        "control": 87,
+        "stamina": 93,
+        "stability": 79
+      },
+      "note": "",
+      "source": "27G 158IP ERA4.10 110K 46BB WHIP1.25 10승 — KBO 기록실"
+    },
+    {
+      "personId": "배제성",
+      "name": "배제성",
+      "year": 2020,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 61,
+        "stamina": 89,
+        "stability": 81
+      },
+      "note": "",
+      "source": "26G 141 1/3IP ERA3.95 83K 76BB WHIP1.46 10승 — KBO 기록실"
+    },
+    {
+      "personId": "소형준",
+      "name": "소형준",
+      "year": 2020,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 81,
+        "stamina": 87,
+        "stability": 82
+      },
+      "note": "",
+      "source": "26G 133IP ERA3.86 92K 45BB WHIP1.40 13승 — KBO 기록실"
+    },
+    {
+      "personId": "주권",
+      "name": "주권",
+      "year": 2020,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 68,
+        "stamina": 71,
+        "stability": 94
+      },
+      "note": "",
+      "source": "77G 70IP ERA2.70 37K 32BB WHIP1.23 6승 31HLD — KBO 기록실"
+    },
+    {
+      "personId": "김재윤",
+      "name": "김재윤",
+      "year": 2020,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 92,
+        "stamina": 69,
+        "stability": 88
+      },
+      "note": "",
+      "source": "56G 60 2/3IP ERA3.26 58K 15BB WHIP1.27 5승 21SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김민수",
+      "name": "김민수",
+      "year": 2020,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 87,
+        "stamina": 72,
+        "stability": 54
+      },
+      "note": "",
+      "source": "33G 103 1/3IP ERA6.10 63K 30BB WHIP1.75 3승 — KBO 기록실"
+    },
+    {
+      "personId": "유원상",
+      "name": "유원상",
+      "year": 2020,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 70,
+        "stamina": 70,
+        "stability": 82
+      },
+      "note": "",
+      "source": "62G 64IP ERA3.80 37K 28BB WHIP1.25 2승 2SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "장성우",
+      "name": "장성우",
+      "year": 2020,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 84,
+        "speed": 63,
+        "defense": 92
+      },
+      "note": "",
+      "source": ".278/.337 13HR 79타점 0SB 455PA — KBO 기록실"
+    },
+    {
+      "personId": "이홍구",
+      "name": "이홍구",
+      "year": 2020,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 82,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".190/.266 3HR 8타점 0SB 96PA — KBO 기록실"
+    },
+    {
+      "personId": "강백호",
+      "name": "강백호",
+      "year": 2020,
+      "team": "KT",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 97,
+        "power": 93,
+        "speed": 80,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".330/.411 23HR 89타점 7SB 574PA — KBO 기록실"
+    },
+    {
+      "personId": "박경수",
+      "name": "박경수",
+      "year": 2020,
+      "team": "KT",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 87,
+        "speed": 63,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".281/.381 13HR 59타점 0SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "황재균",
+      "name": "황재균",
+      "year": 2020,
+      "team": "KT",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 90,
+        "speed": 86,
+        "defense": 75
+      },
+      "note": "",
+      "source": ".312/.370 21HR 97타점 11SB 600PA — KBO 기록실"
+    },
+    {
+      "personId": "심우준",
+      "name": "심우준",
+      "year": 2020,
+      "team": "KT",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 63,
+        "speed": 108,
+        "defense": 95
+      },
+      "note": "",
+      "source": ".235/.291 3HR 51타점 35SB 535PA — KBO 기록실"
+    },
+    {
+      "personId": "로하스",
+      "name": "로하스",
+      "year": 2020,
+      "team": "KT",
+      "position": "OF",
+      "hand": "S",
+      "isForeign": true,
+      "stats": {
+        "power": 110,
+        "contact": 102,
+        "speed": 78,
+        "defense": 72
+      },
+      "note": "타격 4관왕·MVP",
+      "source": ".349/.417 47HR 135타점 0SB 628PA — KBO 기록실"
+    },
+    {
+      "personId": "배정대",
+      "name": "배정대",
+      "year": 2020,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 81,
+        "speed": 99,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".289/.372 13HR 65타점 22SB 615PA — KBO 기록실"
+    },
+    {
+      "personId": "조용호",
+      "name": "조용호",
+      "year": 2020,
+      "team": "KT",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 58,
+        "speed": 87,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".296/.392 0HR 32타점 12SB 482PA — KBO 기록실"
+    },
+    {
+      "personId": "유한준",
+      "name": "유한준",
+      "year": 2020,
+      "team": "KT",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 82,
+        "speed": 63,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".280/.347 11HR 64타점 0SB 428PA — KBO 기록실"
+    }
+  ]
+}

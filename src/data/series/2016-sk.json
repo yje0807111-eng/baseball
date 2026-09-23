@@ -1,0 +1,318 @@
+{
+  "id": "2016-sk",
+  "kind": "team",
+  "year": 2016,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "6위 · 최정의 40홈런",
+  "blurb": "최정이 40홈런을 때리고 김광현이 마운드를 지켰지만 SK는 6위로 가을을 놓쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "켈리",
+      "name": "켈리",
+      "year": 2016,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 74,
+        "control": 85,
+        "stamina": 104,
+        "stability": 89
+      },
+      "note": "",
+      "source": "31G 200 1/3IP ERA3.68 152K 60BB WHIP1.32 9승 — KBO 기록실"
+    },
+    {
+      "personId": "박종훈",
+      "name": "박종훈",
+      "year": 2016,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 51,
+        "stamina": 88,
+        "stability": 63
+      },
+      "note": "",
+      "source": "28G 140IP ERA5.66 104K 91BB WHIP1.66 8승 — KBO 기록실"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2016,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 85,
+        "stamina": 87,
+        "stability": 86
+      },
+      "note": "",
+      "source": "27G 137IP ERA3.88 116K 41BB WHIP1.31 11승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "윤희상",
+      "name": "윤희상",
+      "year": 2016,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 77,
+        "stamina": 83,
+        "stability": 72
+      },
+      "note": "",
+      "source": "23G 122 2/3IP ERA4.84 74K 44BB WHIP1.52 9승 — KBO 기록실"
+    },
+    {
+      "personId": "박희수",
+      "name": "박희수",
+      "year": 2016,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 65,
+        "stamina": 67,
+        "stability": 93
+      },
+      "note": "",
+      "source": "51G 54 2/3IP ERA3.29 37K 26BB WHIP1.26 4승 26SV — KBO 기록실"
+    },
+    {
+      "personId": "채병용",
+      "name": "채병용",
+      "year": 2016,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 79,
+        "stamina": 71,
+        "stability": 81
+      },
+      "note": "",
+      "source": "68G 83 2/3IP ERA4.30 67K 29BB WHIP1.27 6승 2SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "박정배",
+      "name": "박정배",
+      "year": 2016,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 80,
+        "stamina": 66,
+        "stability": 69
+      },
+      "note": "",
+      "source": "49G 51 2/3IP ERA5.40 26K 17BB WHIP1.39 2승 2SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "김주한",
+      "name": "김주한",
+      "year": 2016,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 93,
+        "stamina": 68,
+        "stability": 82
+      },
+      "note": "",
+      "source": "39G 59 1/3IP ERA4.25 50K 14BB WHIP1.28 3승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재원",
+      "name": "이재원",
+      "year": 2016,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 82,
+        "speed": 67,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".290/.364 15HR 64타점 1SB 472PA — KBO 기록실"
+    },
+    {
+      "personId": "김민식",
+      "name": "김민식",
+      "year": 2016,
+      "team": "SK",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 67,
+        "speed": 67,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".257/.359 2HR 14타점 1SB 170PA — KBO 기록실"
+    },
+    {
+      "personId": "박정권",
+      "name": "박정권",
+      "year": 2016,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 86,
+        "speed": 74,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".277/.337 18HR 59타점 4SB 468PA — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 2016,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 70,
+        "speed": 72,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".319/.366 8HR 65타점 3SB 530PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2016,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 104,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".288/.403 40HR 106타점 1SB 606PA — KBO 기록실"
+    },
+    {
+      "personId": "고메즈",
+      "name": "고메즈",
+      "year": 2016,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 76,
+        "power": 88,
+        "speed": 93,
+        "defense": 95
+      },
+      "note": "",
+      "source": ".283/.324 21HR 62타점 16SB 492PA — KBO 기록실"
+    },
+    {
+      "personId": "정의윤",
+      "name": "정의윤",
+      "year": 2016,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 92,
+        "speed": 69,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".311/.347 27HR 100타점 2SB 616PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2016,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 77,
+        "speed": 88,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".298/.371 10HR 47타점 12SB 422PA — KBO 기록실"
+    },
+    {
+      "personId": "이명기",
+      "name": "이명기",
+      "year": 2016,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 57,
+        "speed": 91,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".272/.332 1HR 22타점 14SB 326PA — KBO 기록실"
+    },
+    {
+      "personId": "박재상",
+      "name": "박재상",
+      "year": 2016,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 75,
+        "speed": 72,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".298/.363 6HR 35타점 3SB 288PA — KBO 기록실"
+    }
+  ]
+}

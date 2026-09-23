@@ -10,23 +10,311 @@
     "18명 구성: 봉중근·정현욱·강민호·이진영 추가. 장원삼·고영민·최정·이종욱·이택근은 미수록."
   ],
   "players": [
-    { "personId": "류현진", "name": "류현진", "year": 2009, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 84, "control": 70, "stamina": 90, "stability": 79 }, "note": "탈삼진 1위", "source": "27GS 13승12패 ERA3.57 189.1IP 188K 67BB WHIP1.31 — wikipedia" },
-    { "personId": "김광현", "name": "김광현", "year": 2009, "team": "SK", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 75, "control": 68, "stamina": 76, "stability": 87 }, "note": "평균자책점 1위", "source": "21GS 12승2패 ERA2.80 138.1IP 112K 53BB WHIP1.26 — wikipedia" },
-    { "personId": "윤석민", "name": "윤석민", "year": 2009, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 69, "stamina": 70, "stability": 80 }, "note": "", "source": "16GS 9승4패 7SV ERA3.46 119.2IP 117K 44BB — wikipedia" },
-    { "personId": "봉중근", "name": "봉중근", "year": 2009, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 70, "control": 72, "stamina": 86, "stability": 82 }, "note": "", "source": "26GS 11승12패 ERA3.29 172.1IP 127K 57BB WHIP1.26 — kowiki" },
-    { "personId": "오승환", "name": "오승환", "year": 2009, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 88, "control": 54, "stamina": 45, "stability": 64 }, "note": "어깨 부상 시즌", "source": "35G 2승2패 19SV ERA4.83 31.2IP 51K 17BB WHIP1.42 — wikipedia" },
-    { "personId": "정대현", "name": "정대현", "year": 2009, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 73, "stamina": 50, "stability": 99 }, "note": "", "source": "56G 2승3패 10SV 13HLD ERA1.20 52.2IP 43K 17BB — wikipedia" },
-    { "personId": "임창용", "name": "임창용", "year": 2009, "team": "야쿠르트", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 83, "control": 72, "stamina": 50, "stability": 94 }, "note": "", "source": "NPB 야쿠르트 57G 5승4패 28SV 5HLD ERA2.05 57IP 52K 19BB — wikipedia" },
-    { "personId": "정현욱", "name": "정현욱", "year": 2009, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 59, "stamina": 58, "stability": 80 }, "note": "", "source": "62G 8승5패 6SV 16HLD ERA3.42 79IP 66K 36BB — kowiki" },
-    { "personId": "박경완", "name": "박경완", "year": 2009, "team": "SK", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 69, "speed": 46, "defense": 88 }, "note": "", "source": ".268/.375 12HR 33BB 3SB 65G — wikipedia" },
-    { "personId": "강민호", "name": "강민호", "year": 2009, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 66, "speed": 40, "defense": 80 }, "note": "", "source": ".260 9HR 33BB 0SB 83G(팔꿈치 부상) — kowiki" },
-    { "personId": "김태균", "name": "김태균", "year": 2009, "team": "한화", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 78, "contact": 88, "speed": 40, "defense": 60 }, "note": "", "source": ".330/.417 19HR 45BB 0SB 95G — wikipedia" },
-    { "personId": "정근우", "name": "정근우", "year": 2009, "team": "SK", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 94, "speed": 95, "defense": 84 }, "note": "2루수 골든글러브", "source": ".350 9HR 168H 67BB 53SB 127G — wikipedia" },
-    { "personId": "박기혁", "name": "박기혁", "year": 2009, "team": "롯데", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 40, "contact": 52, "speed": 58, "defense": 84 }, "note": "", "source": ".217 0HR 28BB 7SB 109G(2008 유격수 GG) — wikipedia" },
-    { "personId": "이범호", "name": "이범호", "year": 2009, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 78, "contact": 75, "speed": 46, "defense": 74 }, "note": "", "source": ".284/.369 25HR 53BB 3SB 126G — wikipedia" },
-    { "personId": "추신수", "name": "추신수", "year": 2009, "team": "MLB 클리블랜드", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 84, "contact": 86, "speed": 77, "defense": 80 }, "note": "20-20(20HR·21SB)", "source": ".300/.394 20HR 78BB 21SB 156G — wikipedia" },
-    { "personId": "김현수", "name": "김현수", "year": 2009, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 96, "speed": 56, "defense": 66 }, "note": "안타 1위", "source": ".357/.448 23HR 104RBI 80BB 6SB 133G — wikipedia" },
-    { "personId": "이용규", "name": "이용규", "year": 2009, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 84, "speed": 82, "defense": 82 }, "note": "", "source": ".316 0HR 22BB 50G — wikipedia" },
-    { "personId": "이진영", "name": "이진영", "year": 2009, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 66, "contact": 80, "speed": 52, "defense": 84 }, "note": "", "source": ".300 14HR 40BB 5SB 120G — kowiki" }
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2009,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 84,
+        "stamina": 106,
+        "stability": 84
+      },
+      "note": "탈삼진 1위",
+      "source": "27GS 13승12패 ERA3.57 189.1IP 188K 67BB WHIP1.31 — wikipedia"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2009,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 81,
+        "stamina": 91,
+        "stability": 91
+      },
+      "note": "평균자책점 1위",
+      "source": "21GS 12승2패 ERA2.80 138.1IP 112K 53BB WHIP1.26 — wikipedia"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2009,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 95,
+        "control": 82,
+        "stamina": 84,
+        "stability": 85
+      },
+      "note": "",
+      "source": "16GS 9승4패 7SV ERA3.46 119.2IP 117K 44BB — wikipedia"
+    },
+    {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2009,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 86,
+        "stamina": 102,
+        "stability": 87
+      },
+      "note": "",
+      "source": "26GS 11승12패 ERA3.29 172.1IP 127K 57BB WHIP1.26 — kowiki"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2009,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 103,
+        "control": 64,
+        "stamina": 55,
+        "stability": 71
+      },
+      "note": "어깨 부상 시즌",
+      "source": "35G 2승2패 19SV ERA4.83 31.2IP 51K 17BB WHIP1.42 — wikipedia"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2009,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 87,
+        "stamina": 61,
+        "stability": 102
+      },
+      "note": "",
+      "source": "56G 2승3패 10SV 13HLD ERA1.20 52.2IP 43K 17BB — wikipedia"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 2009,
+      "team": "야쿠르트",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 86,
+        "stamina": 61,
+        "stability": 98
+      },
+      "note": "",
+      "source": "NPB 야쿠르트 57G 5승4패 28SV 5HLD ERA2.05 57IP 52K 19BB — wikipedia"
+    },
+    {
+      "personId": "정현욱",
+      "name": "정현욱",
+      "year": 2009,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 70,
+        "stamina": 70,
+        "stability": 85
+      },
+      "note": "",
+      "source": "62G 8승5패 6SV 16HLD ERA3.42 79IP 66K 36BB — kowiki"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2009,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 75,
+        "speed": 67,
+        "defense": 96
+      },
+      "note": "",
+      "source": ".268/.375 12HR 33BB 3SB 65G — wikipedia"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2009,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 72,
+        "speed": 62,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".260 9HR 33BB 0SB 83G(팔꿈치 부상) — kowiki"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2009,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 96,
+        "contact": 97,
+        "speed": 62,
+        "defense": 59
+      },
+      "note": "",
+      "source": ".330/.417 19HR 45BB 0SB 95G — wikipedia"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2009,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 75,
+        "contact": 104,
+        "speed": 109,
+        "defense": 91
+      },
+      "note": "2루수 골든글러브",
+      "source": ".350 9HR 168H 67BB 53SB 127G — wikipedia"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2009,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 56,
+        "contact": 55,
+        "speed": 77,
+        "defense": 91
+      },
+      "note": "",
+      "source": ".217 0HR 28BB 7SB 109G(2008 유격수 GG) — wikipedia"
+    },
+    {
+      "personId": "이범호",
+      "name": "이범호",
+      "year": 2009,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 96,
+        "contact": 82,
+        "speed": 67,
+        "defense": 77
+      },
+      "note": "",
+      "source": ".284/.369 25HR 53BB 3SB 126G — wikipedia"
+    },
+    {
+      "personId": "추신수",
+      "name": "추신수",
+      "year": 2009,
+      "team": "MLB 클리블랜드",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 102,
+        "contact": 95,
+        "speed": 93,
+        "defense": 85
+      },
+      "note": "20-20(20HR·21SB)",
+      "source": ".300/.394 20HR 78BB 21SB 156G — wikipedia"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2009,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 93,
+        "contact": 106,
+        "speed": 75,
+        "defense": 67
+      },
+      "note": "안타 1위",
+      "source": ".357/.448 23HR 104RBI 80BB 6SB 133G — wikipedia"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2009,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 56,
+        "contact": 92,
+        "speed": 98,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".316 0HR 22BB 50G — wikipedia"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2009,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 88,
+        "speed": 72,
+        "defense": 91
+      },
+      "note": "",
+      "source": ".300 14HR 40BB 5SB 120G — kowiki"
+    }
   ]
 }

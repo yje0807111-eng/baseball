@@ -11,23 +11,311 @@
     "18명 구성: 최원태·유영찬·문성주·허도환 추가(정우영은 제외). 최원태는 7월 말 키움에서 이적해 시즌 전체 기록에 LG 부진을 반영했다."
   ],
   "players": [
-    { "personId": "켈리", "name": "켈리", "year": 2023, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 69, "control": 85, "stamina": 88, "stability": 76 }, "note": "", "source": "178.2IP ERA3.83 129K 39BB WHIP1.24 10승 — KBO 기록실" },
-    { "personId": "플럿코", "name": "플럿코", "year": 2023, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 78, "control": 81, "stamina": 72, "stability": 91 }, "note": "", "source": "21G 123.1IP ERA2.41 101K 31BB WHIP1.18 11승 — KBO 기록실" },
-    { "personId": "임찬규", "name": "임찬규", "year": 2023, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 69, "stamina": 78, "stability": 81 }, "note": "", "source": "144.2IP ERA3.42 103K 54BB WHIP1.35 14승 — KBO 기록실" },
-    { "personId": "최원태", "name": "최원태", "year": 2023, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 74, "stamina": 77, "stability": 66 }, "note": "7월 키움서 트레이드 이적", "source": "2023 26G 146.2IP ERA4.30 118K 46BB 9승(키움 포함); LG 9G 44.1IP ERA6.70 WHIP1.71 — kowiki·namu" },
-    { "personId": "고우석", "name": "고우석", "year": 2023, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 55, "stamina": 45, "stability": 78 }, "note": "15세이브", "source": "44G 44IP ERA3.68 59K 22BB WHIP1.36 15SV — KBO 기록실" },
-    { "personId": "함덕주", "name": "함덕주", "year": 2023, "team": "LG", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 90, "control": 66, "stamina": 50, "stability": 99 }, "note": "", "source": "57G 55.2IP ERA1.62 59K 22BB WHIP0.97 16HLD 4SV — KBO 기록실" },
-    { "personId": "김진성", "name": "김진성", "year": 2023, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 70, "stamina": 55, "stability": 96 }, "note": "불펜 최다 등판", "source": "80G 70.1IP ERA2.18 69K 26BB WHIP0.95 21HLD 4SV — KBO 기록실" },
-    { "personId": "유영찬", "name": "유영찬", "year": 2023, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 50, "stamina": 55, "stability": 80 }, "note": "", "source": "67G 68IP ERA3.44 55K 40BB WHIP1.40 12HLD 6승 — KBO 기록실" },
-    { "personId": "박동원", "name": "박동원", "year": 2023, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 63, "speed": 55, "defense": 84 }, "note": "", "source": ".249/.334 20HR 8SB(8CS) 481PA — KBO 기록실" },
-    { "personId": "허도환", "name": "허도환", "year": 2023, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 46, "contact": 44, "speed": 40, "defense": 76 }, "note": "", "source": ".141 2HR 0SB 64AB(47G) — kowiki" },
-    { "personId": "오스틴", "name": "오스틴", "year": 2023, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 76, "contact": 84, "speed": 58, "defense": 66 }, "note": "1루수 골든글러브", "source": ".313/.376 23HR 7SB(3CS) 583PA 95타점 — KBO 기록실" },
-    { "personId": "신민재", "name": "신민재", "year": 2023, "team": "LG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 72, "speed": 88, "defense": 76 }, "note": "", "source": ".277/.344 0HR 37SB(17CS) 331PA(122G) — KBO 기록실" },
-    { "personId": "문보경", "name": "문보경", "year": 2023, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 80, "speed": 58, "defense": 76 }, "note": "", "source": ".301/.377 10HR 9SB(8CS) 542PA — KBO 기록실" },
-    { "personId": "오지환", "name": "오지환", "year": 2023, "team": "LG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 57, "contact": 69, "speed": 72, "defense": 90 }, "note": "KS MVP·유격수 골든글러브", "source": ".268/.371 8HR 16SB(7CS) 502PA 64BB — KBO 기록실" },
-    { "personId": "박해민", "name": "박해민", "year": 2023, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 75, "speed": 84, "defense": 94 }, "note": "", "source": ".285/.348 6HR 26SB(12CS) 558PA(144G 전경기) — KBO 기록실" },
-    { "personId": "홍창기", "name": "홍창기", "year": 2023, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 89, "speed": 68, "defense": 74 }, "note": "출루율 1위·외야 골든글러브", "source": ".332/.444 1HR 23SB(23CS) 643PA 88BB 109득점 — KBO 기록실" },
-    { "personId": "문성주", "name": "문성주", "year": 2023, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 78, "speed": 74, "defense": 72 }, "note": "", "source": ".294 2HR 24SB(14CS) 449AB(136G) 67BB — kowiki" },
-    { "personId": "김현수", "name": "김현수", "year": 2023, "team": "LG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 78, "speed": 44, "defense": 58 }, "note": "", "source": ".293/.364 6HR 2SB 556PA 88타점 — KBO 기록실" }
+    {
+      "personId": "켈리",
+      "name": "켈리",
+      "year": 2023,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 68,
+        "control": 93,
+        "stamina": 101,
+        "stability": 78
+      },
+      "note": "",
+      "source": "178.2IP ERA3.83 129K 39BB WHIP1.24 10승 — KBO 기록실"
+    },
+    {
+      "personId": "플럿코",
+      "name": "플럿코",
+      "year": 2023,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 81,
+        "control": 89,
+        "stamina": 84,
+        "stability": 95
+      },
+      "note": "",
+      "source": "21G 123.1IP ERA2.41 101K 31BB WHIP1.18 11승 — KBO 기록실"
+    },
+    {
+      "personId": "임찬규",
+      "name": "임찬규",
+      "year": 2023,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 77,
+        "stamina": 91,
+        "stability": 84
+      },
+      "note": "",
+      "source": "144.2IP ERA3.42 103K 54BB WHIP1.35 14승 — KBO 기록실"
+    },
+    {
+      "personId": "최원태",
+      "name": "최원태",
+      "year": 2023,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 82,
+        "stamina": 90,
+        "stability": 67
+      },
+      "note": "7월 키움서 트레이드 이적",
+      "source": "2023 26G 146.2IP ERA4.30 118K 46BB 9승(키움 포함); LG 9G 44.1IP ERA6.70 WHIP1.71 — kowiki·namu"
+    },
+    {
+      "personId": "고우석",
+      "name": "고우석",
+      "year": 2023,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 105,
+        "control": 63,
+        "stamina": 56,
+        "stability": 80
+      },
+      "note": "15세이브",
+      "source": "44G 44IP ERA3.68 59K 22BB WHIP1.36 15SV — KBO 기록실"
+    },
+    {
+      "personId": "함덕주",
+      "name": "함덕주",
+      "year": 2023,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 74,
+        "stamina": 61,
+        "stability": 104
+      },
+      "note": "",
+      "source": "57G 55.2IP ERA1.62 59K 22BB WHIP0.97 16HLD 4SV — KBO 기록실"
+    },
+    {
+      "personId": "김진성",
+      "name": "김진성",
+      "year": 2023,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 78,
+        "stamina": 66,
+        "stability": 101
+      },
+      "note": "불펜 최다 등판",
+      "source": "80G 70.1IP ERA2.18 69K 26BB WHIP0.95 21HLD 4SV — KBO 기록실"
+    },
+    {
+      "personId": "유영찬",
+      "name": "유영찬",
+      "year": 2023,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 57,
+        "stamina": 66,
+        "stability": 83
+      },
+      "note": "",
+      "source": "67G 68IP ERA3.44 55K 40BB WHIP1.40 12HLD 6승 — KBO 기록실"
+    },
+    {
+      "personId": "박동원",
+      "name": "박동원",
+      "year": 2023,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 69,
+        "speed": 76,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".249/.334 20HR 8SB(8CS) 481PA — KBO 기록실"
+    },
+    {
+      "personId": "허도환",
+      "name": "허도환",
+      "year": 2023,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 50,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".141 2HR 0SB 64AB(47G) — kowiki"
+    },
+    {
+      "personId": "오스틴",
+      "name": "오스틴",
+      "year": 2023,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 96,
+        "contact": 93,
+        "speed": 79,
+        "defense": 64
+      },
+      "note": "1루수 골든글러브",
+      "source": ".313/.376 23HR 7SB(3CS) 583PA 95타점 — KBO 기록실"
+    },
+    {
+      "personId": "신민재",
+      "name": "신민재",
+      "year": 2023,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 57,
+        "contact": 79,
+        "speed": 108,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".277/.344 0HR 37SB(17CS) 331PA(122G) — KBO 기록실"
+    },
+    {
+      "personId": "문보경",
+      "name": "문보경",
+      "year": 2023,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 88,
+        "speed": 79,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".301/.377 10HR 9SB(8CS) 542PA — KBO 기록실"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2023,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 76,
+        "contact": 76,
+        "speed": 93,
+        "defense": 99
+      },
+      "note": "KS MVP·유격수 골든글러브",
+      "source": ".268/.371 8HR 16SB(7CS) 502PA 64BB — KBO 기록실"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2023,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 83,
+        "speed": 104,
+        "defense": 104
+      },
+      "note": "",
+      "source": ".285/.348 6HR 26SB(12CS) 558PA(144G 전경기) — KBO 기록실"
+    },
+    {
+      "personId": "홍창기",
+      "name": "홍창기",
+      "year": 2023,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 99,
+        "speed": 89,
+        "defense": 75
+      },
+      "note": "출루율 1위·외야 골든글러브",
+      "source": ".332/.444 1HR 23SB(23CS) 643PA 88BB 109득점 — KBO 기록실"
+    },
+    {
+      "personId": "문성주",
+      "name": "문성주",
+      "year": 2023,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 86,
+        "speed": 95,
+        "defense": 73
+      },
+      "note": "",
+      "source": ".294 2HR 24SB(14CS) 449AB(136G) 67BB — kowiki"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2023,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 86,
+        "speed": 66,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".293/.364 6HR 2SB 556PA 88타점 — KBO 기록실"
+    }
   ]
 }

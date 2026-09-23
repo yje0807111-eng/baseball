@@ -1,0 +1,318 @@
+{
+  "id": "1983-mbc",
+  "kind": "team",
+  "year": 1983,
+  "title": "MBC 청룡",
+  "franchise": "LG",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "이길환이 15승을 거두고 이종도가 62타점을 올리며 MBC가 한국시리즈까지 갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이길환",
+      "name": "이길환",
+      "year": 1983,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 89,
+        "stamina": 98,
+        "stability": 91
+      },
+      "note": "",
+      "source": "33G 208 1/3IP ERA2.51 85K 56BB WHIP1.15 15승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "하기룡",
+      "name": "하기룡",
+      "year": 1983,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 88,
+        "stamina": 92,
+        "stability": 91
+      },
+      "note": "",
+      "source": "36G 173 1/3IP ERA2.34 73K 48BB WHIP1.07 10승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "오영일",
+      "name": "오영일",
+      "year": 1983,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 80,
+        "stamina": 92,
+        "stability": 87
+      },
+      "note": "",
+      "source": "36G 173IP ERA2.91 69K 59BB WHIP1.19 10승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "유종겸",
+      "name": "유종겸",
+      "year": 1983,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 78,
+        "stamina": 84,
+        "stability": 91
+      },
+      "note": "",
+      "source": "34G 139IP ERA2.40 74K 50BB WHIP1.10 8승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "박석채",
+      "name": "박석채",
+      "year": 1983,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 52,
+        "stamina": 61,
+        "stability": 88
+      },
+      "note": "",
+      "source": "5G 11IP ERA2.45 4K 8BB WHIP1.82 — KBO 기록실"
+    },
+    {
+      "personId": "차준섭",
+      "name": "차준섭",
+      "year": 1983,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 52,
+        "stamina": 61,
+        "stability": 52
+      },
+      "note": "",
+      "source": "2G 3 1/3IP ERA8.10 2K 3BB WHIP1.20 — KBO 기록실"
+    },
+    {
+      "personId": "신계석",
+      "name": "신계석",
+      "year": 1983,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 65,
+        "stamina": 60,
+        "stability": 50
+      },
+      "note": "",
+      "source": "1G 2IP ERA9.00 0K 1BB WHIP3.00 — KBO 기록실"
+    },
+    {
+      "personId": "김용운",
+      "name": "김용운",
+      "year": 1983,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 72,
+        "speed": 63,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".190/.234 2HR 13타점 0SB 194PA — KBO 기록실"
+    },
+    {
+      "personId": "유승안",
+      "name": "유승안",
+      "year": 1983,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 68,
+        "speed": 68,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".236/.318 1HR 10타점 2SB 160PA — KBO 기록실"
+    },
+    {
+      "personId": "김용달",
+      "name": "김용달",
+      "year": 1983,
+      "team": "MBC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 70,
+        "speed": 66,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".217/.278 1HR 8타점 1SB 93PA — KBO 기록실"
+    },
+    {
+      "personId": "김인식",
+      "name": "김인식",
+      "year": 1983,
+      "team": "MBC",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 63,
+        "speed": 91,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".263/.307 1HR 30타점 14SB 416PA — KBO 기록실"
+    },
+    {
+      "personId": "김바위",
+      "name": "김바위",
+      "year": 1983,
+      "team": "MBC",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 69,
+        "speed": 63,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".157/.311 1HR 11타점 0SB 136PA — KBO 기록실"
+    },
+    {
+      "personId": "김재박",
+      "name": "김재박",
+      "year": 1983,
+      "team": "MBC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 74,
+        "speed": 109,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".290/.376 5HR 46타점 34SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "이해창",
+      "name": "이해창",
+      "year": 1983,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 81,
+        "speed": 104,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".294/.372 8HR 47타점 26SB 444PA — KBO 기록실"
+    },
+    {
+      "personId": "이종도",
+      "name": "이종도",
+      "year": 1983,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 83,
+        "speed": 93,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".296/.373 8HR 62타점 16SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "이광은",
+      "name": "이광은",
+      "year": 1983,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 83,
+        "speed": 94,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".271/.335 8HR 36타점 17SB 366PA — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1983,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 78,
+        "speed": 81,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".240/.323 5HR 34타점 7SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "신언호",
+      "name": "신언호",
+      "year": 1983,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 81,
+        "speed": 71,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".270/.300 5HR 33타점 3SB 282PA — KBO 기록실"
+    }
+  ]
+}

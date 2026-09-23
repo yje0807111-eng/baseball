@@ -1,5 +1,6 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 드래프트 화면과 같은 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) */
 import React, { useEffect, useState } from 'react';
+import { SQUAD_CAP } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 
 export const UiStyle = () => (
@@ -182,7 +183,7 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
  */
 export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, account, onBack, right, steps, onSignOut }) => {
   const squad = team?.squad || [];
-  const cap = team?.cap || 2000;
+  const cap = team?.cap || SQUAD_CAP;
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (

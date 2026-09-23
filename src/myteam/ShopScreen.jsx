@@ -1,5 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
+import { SQUAD_CAP } from './rules.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, applyTeamBoost, teamBoostTargets, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
@@ -7,17 +8,17 @@ import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
-/* 종합 등급 색 — 드래프트 카드와 같은 규칙 (90 이상 무지개 · 75 이상 초록) */
+/* 종합 등급 색 — 드래프트 카드와 같은 규칙 (100 이상 무지개 · 85 이상 초록) */
 const PRISM = 'linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc)';
-const ovrStyle = (v) => (v >= 90
+const ovrStyle = (v) => (v >= 100
   ? { background: `${PRISM} 0 50% / 200% 100%`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', animation: 'prism 3s linear infinite' }
-  : { color: v >= 75 ? '#34d399' : '#f3f4f6' });
+  : { color: v >= 85 ? '#34d399' : '#f3f4f6' });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9', draft: '#fbbf24' };
 const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff: '감독', aug: '증강', draft: '드래프트' };
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
-function ItemCard({ it, on, onClick, cap = 2000 }) {
+function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
@@ -144,7 +145,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
       push(team, gold - picked.price);
       return;
     }
-    if (picked.cap) push({ ...team, cap: (team.cap || 2000) + picked.cap }, gold - picked.price);
+    if (picked.cap) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
   };
 
   // 살 수 없는 상품은 버튼에서 막는다 (구매 뒤 알림 문구는 두지 않는다)
@@ -197,7 +198,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
         <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
           <p className="mt-lab" style={{ '--a': n }}>Pick</p>
-          {!picked ? <p className="text-sm text-gray-500">상품을 고르세요.</p> : (
+          {!picked ? <p className="text-sm text-gray-500">상품 고르기</p> : (
             <>
               {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
               {(() => {
@@ -225,11 +226,11 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 <div className="flex min-h-0 flex-1 flex-col">
                   <p className="mt-grp !mt-0">추천 대상</p>
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수가 없습니다.</p>}
+                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수 없음</p>}
                     {recs.map((t) => {
                       /* 수치 변화: 막대는 50~110 구간(윗 구간이 뭉치지 않게) · 숫자와 막대 색은 라커와 같은 구간 색 */
                       const cur = t.stats?.[picked.stat] ?? 70;
-                      const after = Math.min(99, cur + picked.amount);
+                      const after = Math.min(110, cur + picked.amount);
                       const pct = (v) => Math.max(0, Math.min(100, ((v - 50) / 60) * 100));
                       const barNow = statBarStyle(cur);
                       const barNext = statBarStyle(after);
@@ -269,7 +270,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
               </div>
               <div>
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
-                  {soldOut ? (picked.expand ? '더 살 수 없습니다' : '적용할 선수가 없습니다') : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
+                  {soldOut ? (picked.expand ? '더 살 수 없음' : '적용할 선수 없음') : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
               </div>
             </>

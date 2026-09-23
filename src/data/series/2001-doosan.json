@@ -1,0 +1,319 @@
+{
+  "id": "2001-doosan",
+  "champion": true,
+  "kind": "team",
+  "year": 2001,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "한국시리즈 우승",
+  "blurb": "우즈가 34홈런 113타점을 치고 진필중이 뒷문을 지키며 두산이 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "콜",
+      "name": "콜",
+      "year": 2001,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 76,
+        "control": 68,
+        "stamina": 83,
+        "stability": 69
+      },
+      "note": "",
+      "source": "21G 119 2/3IP ERA5.04 95K 56BB WHIP1.43 6승 — KBO 기록실"
+    },
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 2001,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 79,
+        "stamina": 72,
+        "stability": 63
+      },
+      "note": "",
+      "source": "18G 87IP ERA5.28 38K 33BB WHIP1.52 3승 — KBO 기록실"
+    },
+    {
+      "personId": "최용호",
+      "name": "최용호",
+      "year": 2001,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 62,
+        "stamina": 71,
+        "stability": 66
+      },
+      "note": "",
+      "source": "22G 85IP ERA4.98 58K 46BB WHIP1.54 7승 — KBO 기록실"
+    },
+    {
+      "personId": "구자운",
+      "name": "구자운",
+      "year": 2001,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 65,
+        "stamina": 60,
+        "stability": 68
+      },
+      "note": "",
+      "source": "13G 54 1/3IP ERA4.80 46K 28BB WHIP1.55 6승 — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2001,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 65,
+        "stamina": 71,
+        "stability": 83
+      },
+      "note": "",
+      "source": "53G 141 2/3IP ERA3.62 107K 72BB WHIP1.58 9승 3SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "진필중",
+      "name": "진필중",
+      "year": 2001,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 71,
+        "stamina": 71,
+        "stability": 90
+      },
+      "note": "",
+      "source": "51G 89 1/3IP ERA3.22 88K 40BB WHIP1.42 9승 23SV — KBO 기록실"
+    },
+    {
+      "personId": "차명주",
+      "name": "차명주",
+      "year": 2001,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 68,
+        "stamina": 71,
+        "stability": 88
+      },
+      "note": "",
+      "source": "84G 97 1/3IP ERA3.42 73K 46BB WHIP1.36 6승 1SV 18HLD — KBO 기록실"
+    },
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2001,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 77,
+        "stamina": 71,
+        "stability": 78
+      },
+      "note": "",
+      "source": "38G 77 2/3IP ERA4.29 77K 31BB WHIP1.38 8승 7SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2001,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 74,
+        "speed": 85,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".267/.318 8HR 48타점 9SB 452PA — KBO 기록실"
+    },
+    {
+      "personId": "이도형",
+      "name": "이도형",
+      "year": 2001,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 73,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".256/.312 2HR 13타점 0SB 93PA — KBO 기록실"
+    },
+    {
+      "personId": "우즈",
+      "name": "우즈",
+      "year": 2001,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 86,
+        "power": 101,
+        "speed": 89,
+        "defense": 53
+      },
+      "note": "",
+      "source": ".291/.402 34HR 113타점 12SB 525PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 2001,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 83,
+        "speed": 74,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".282/.368 17HR 87타점 4SB 539PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2001,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 97,
+        "power": 91,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".324/.401 18HR 62타점 2SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 2001,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 67,
+        "speed": 92,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".216/.299 4HR 29타점 14SB 357PA — KBO 기록실"
+    },
+    {
+      "personId": "장원진",
+      "name": "장원진",
+      "year": 2001,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 65,
+        "speed": 88,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".285/.336 5HR 53타점 11SB 559PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 2001,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 59,
+        "speed": 110,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".306/.395 2HR 53타점 52SB 546PA — KBO 기록실"
+    },
+    {
+      "personId": "심재학",
+      "name": "심재학",
+      "year": 2001,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 104,
+        "power": 97,
+        "speed": 81,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".344/.473 24HR 88타점 7SB 469PA — KBO 기록실"
+    },
+    {
+      "personId": "홍원기",
+      "name": "홍원기",
+      "year": 2001,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 77,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".264/.353 6HR 42타점 1SB 284PA — KBO 기록실"
+    }
+  ]
+}

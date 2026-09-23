@@ -1,0 +1,318 @@
+{
+  "id": "1982-haitai",
+  "kind": "team",
+  "year": 1982,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "김봉연의 22홈런",
+  "blurb": "김봉연이 22홈런으로 홈런왕에 오르고 김성한이 투타를 겸했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김용남",
+      "name": "김용남",
+      "year": 1982,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 92,
+        "stamina": 93,
+        "stability": 85
+      },
+      "note": "",
+      "source": "33G 175IP ERA3.09 85K 42BB WHIP1.25 9승 — KBO 기록실"
+    },
+    {
+      "personId": "방수원",
+      "name": "방수원",
+      "year": 1982,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 84,
+        "stamina": 87,
+        "stability": 78
+      },
+      "note": "",
+      "source": "34G 154 1/3IP ERA3.85 63K 48BB WHIP1.37 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "강만식",
+      "name": "강만식",
+      "year": 1982,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 67,
+        "stamina": 86,
+        "stability": 70
+      },
+      "note": "",
+      "source": "29G 144IP ERA4.44 86K 69BB WHIP1.53 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "신태중",
+      "name": "신태중",
+      "year": 1982,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 52,
+        "stamina": 64,
+        "stability": 50
+      },
+      "note": "",
+      "source": "8G 26 1/3IP ERA7.52 7K 28BB WHIP2.20 1승 — KBO 기록실"
+    },
+    {
+      "personId": "이상윤",
+      "name": "이상윤",
+      "year": 1982,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 56,
+        "stamina": 72,
+        "stability": 78
+      },
+      "note": "",
+      "source": "23G 102IP ERA3.88 58K 63BB WHIP1.47 7승 — KBO 기록실"
+    },
+    {
+      "personId": "박전섭",
+      "name": "박전섭",
+      "year": 1982,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 60,
+        "speed": 63,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".217/.272 0HR 7타점 0SB 115PA — KBO 기록실"
+    },
+    {
+      "personId": "김용만",
+      "name": "김용만",
+      "year": 1982,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 60,
+        "speed": 68,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".147/.202 0HR 7타점 2SB 110PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1982,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 95,
+        "speed": 86,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".305/.340 13HR 69타점 10SB 340PA — KBO 기록실"
+    },
+    {
+      "personId": "차영화",
+      "name": "차영화",
+      "year": 1982,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 63,
+        "speed": 108,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".259/.339 1HR 12타점 32SB 323PA — KBO 기록실"
+    },
+    {
+      "personId": "조충열",
+      "name": "조충열",
+      "year": 1982,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 68,
+        "speed": 82,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".231/.297 2HR 21타점 8SB 298PA — KBO 기록실"
+    },
+    {
+      "personId": "최영조",
+      "name": "최영조",
+      "year": 1982,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 60,
+        "speed": 66,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".156/.270 0HR 1타점 1SB 37PA — KBO 기록실"
+    },
+    {
+      "personId": "김준환",
+      "name": "김준환",
+      "year": 1982,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 92,
+        "power": 107,
+        "speed": 86,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".301/.348 19HR 45타점 10SB 331PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1982,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 91,
+        "speed": 110,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".270/.370 11HR 36타점 53SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1982,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 93,
+        "speed": 81,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".291/.342 10HR 43타점 7SB 286PA — KBO 기록실"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1982,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 108,
+        "contact": 100,
+        "speed": 77,
+        "defense": 58
+      },
+      "note": "원년 홈런왕",
+      "source": ".331/.406 22HR 52타점 7SB 304PA — KBO 기록실"
+    },
+    {
+      "personId": "김종윤",
+      "name": "김종윤",
+      "year": 1982,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 66,
+        "speed": 87,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".244/.332 1HR 15타점 11SB 194PA — KBO 기록실"
+    },
+    {
+      "personId": "김우근",
+      "name": "김우근",
+      "year": 1982,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 85,
+        "speed": 87,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".189/.275 4HR 18타점 11SB 166PA — KBO 기록실"
+    },
+    {
+      "personId": "임정면",
+      "name": "임정면",
+      "year": 1982,
+      "team": "해태",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 70,
+        "speed": 68,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".219/.337 1HR 5타점 2SB 90PA — KBO 기록실"
+    }
+  ]
+}

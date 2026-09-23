@@ -1,22 +1,272 @@
 [
-{ "id": "mg-kimeungyong", "name": "김응용", "role": "manager", "era": "1983-2004", "cost": 68, "effect": { "bat": 2, "clutch": 1, "steal": 0.01 }, "note": "한국시리즈 10회 우승", "source": "해태 1983~2000·삼성 2001~2004 감독, KS 우승 10회(1983·86~89·91·93·96·97·2002) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kimsunggeun", "name": "김성근", "role": "manager", "era": "1984-2017", "cost": 68, "effect": { "field": 2, "pitch": 2 }, "note": "SK 왕조 3회 우승", "source": "OB·태평양·삼성·쌍방울·LG·SK·한화 감독, SK로 KS 우승 3회(2007·08·10) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kimjaepark", "name": "김재박", "role": "manager", "era": "1996-2009", "cost": 68, "effect": { "field": 1, "pitch": 1, "clutch": 1, "steal": 0.01 }, "note": "현대 한국시리즈 4회 우승", "source": "현대 1996~2006·LG 2007~2009 감독, KS 우승 4회(1998·2000·03·04) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-ryujungil", "name": "류중일", "role": "manager", "era": "2011-2020", "cost": 68, "effect": { "bat": 1, "field": 2, "steal": 0.02 }, "note": "삼성 4년 연속 통합 우승", "source": "삼성 2011~2016·LG 2018~2020 감독, KS 우승 4회(2011~2014) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kimtaehyung", "name": "김태형", "role": "manager", "era": "2015-", "cost": 68, "effect": { "clutch": 1, "field": 2, "stamina": 2 }, "note": "두산 7년 연속 한국시리즈", "source": "두산 2015~2022·롯데 2024~ 감독, KS 우승 3회(2015·16·19)·7년 연속 KS 진출 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kimyoungdeok", "name": "김영덕", "role": "manager", "era": "1982-1993", "cost": 65, "effect": { "pitch": 2, "field": 1, "stamina": 2 }, "note": "원년 OB·85 삼성 우승", "source": "OB 1982~83·삼성 1984~86·빙그레 1988~93 감독, 1982 KS 우승·1985 전후기 통합 우승 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kangbyungchul", "name": "강병철", "role": "manager", "era": "1984-2008", "cost": 65, "effect": { "clutch": 1, "stamina": 8 }, "note": "롯데 우승 2회(1984·1992)", "source": "롯데 1984~86·91~93·2006~07, 한화 1994~98, SK 2000~02 감독, KS 우승 2회 — namu 감독/목록, ko.wikipedia 한국시리즈" },
-{ "id": "mg-baekincheon", "name": "백인천", "role": "manager", "era": "1982-2003", "cost": 65, "effect": { "bat": 3, "steal": 0.01 }, "note": "LG 첫해 우승(1990)", "source": "MBC 1982·LG 1990~91·삼성 1996~97·롯데 2002~03 감독, 1990 KS 우승 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-leekwanghwan", "name": "이광환", "role": "manager", "era": "1989-2008", "cost": 65, "effect": { "pitch": 2, "bat": 1, "stamina": 2 }, "note": "자율야구 LG 1994 우승", "source": "OB 1989~90·LG 1992~96·2003·한화 2002·히어로즈 2008 감독, 1994 KS 우승 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kiminsik", "name": "김인식", "role": "manager", "era": "1990-2009", "cost": 65, "effect": { "pitch": 2, "clutch": 1 }, "note": "두산 우승 2회·WBC 지휘", "source": "쌍방울·OB/두산 1995~2003·한화 2005~09 감독, KS 우승 2회(1995·2001), 2006·09 WBC 감독 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-leeheesoo", "name": "이희수", "role": "manager", "era": "1999-2000", "cost": 65, "effect": { "bat": 3, "stamina": 2 }, "note": "한화 유일의 우승(1999)", "source": "한화 1999~2000 감독, 1999 KS 우승(한화 창단 첫 우승) — ko.wikipedia 한국시리즈, 대전일보" },
-{ "id": "mg-sundongyol", "name": "선동열", "role": "manager", "era": "2005-2014", "cost": 65, "effect": { "pitch": 3, "stamina": 2 }, "note": "지키는 야구 삼성 2연패", "source": "삼성 2005~2010·KIA 2012~14 감독, KS 우승 2회(2005·06) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-jobeomhyeon", "name": "조범현", "role": "manager", "era": "2003-2016", "cost": 65, "effect": { "pitch": 1, "field": 2, "stamina": 2 }, "note": "KIA 2009 우승", "source": "SK 2003~06·KIA 2008~11·KT 2013~16 감독, 2009 KS 우승·2003 SK KS 진출 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-kimgitae", "name": "김기태", "role": "manager", "era": "2012-2019", "cost": 65, "effect": { "bat": 2, "clutch": 1 }, "note": "KIA 2017 통합 우승", "source": "LG 2012~14·KIA 2015~19 감독, 2017 KS 우승 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-treyhillman", "name": "트레이 힐만", "role": "manager", "era": "2017-2018", "cost": 65, "effect": { "bat": 2, "pitch": 1, "stamina": 2 }, "note": "첫 외국인 우승 감독", "source": "SK 2017~18 감독, 2018 KS 우승(KBO 첫 외국인 감독 우승) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-leedongwook", "name": "이동욱", "role": "manager", "era": "2019-2022", "cost": 65, "effect": { "field": 2, "bat": 1, "steal": 0.01 }, "note": "NC 창단 첫 우승(2020)", "source": "NC 2019~22 감독, 2020 KS 우승 — ko.wikipedia 한국시리즈" },
-{ "id": "mg-leegangchul", "name": "이강철", "role": "manager", "era": "2019-", "cost": 65, "effect": { "pitch": 1, "stamina": 10 }, "note": "KT 창단 첫 우승", "source": "KT 2019~ 감독, 2021 KS 우승·2023 KS 진출 — ko.wikipedia 한국시리즈, 2026 KBO 리그" },
-{ "id": "mg-yeomgyeongyeop", "name": "염경엽", "role": "manager", "era": "2013-", "cost": 65, "effect": { "steal": 0.05, "bat": 1 }, "note": "LG 우승 2회(2023·2025)", "source": "넥센 2013~16·SK 2019~20·LG 2023~ 감독, KS 우승 2회(2023·25) — ko.wikipedia 한국시리즈" },
-{ "id": "mg-leebeomho", "name": "이범호", "role": "manager", "era": "2024-", "cost": 65, "effect": { "bat": 2, "clutch": 1 }, "note": "부임 첫해 KIA 우승", "source": "KIA 2024~ 감독, 2024 KS 우승 — ko.wikipedia 한국시리즈, 2026 KBO 리그" },
-{ "id": "mg-kimkyungmoon", "name": "김경문", "role": "manager", "era": "2004-", "cost": 61, "effect": { "steal": 0.04, "field": 1 }, "note": "베이징 올림픽 금메달", "source": "두산 2004~11·NC 2011~18·한화 2024~ 감독, KS 준우승 5회(2005·07·08·16·25), 2008 베이징 올림픽 금 — namu 감독/목록, ko.wikipedia 한국시리즈" }
+  {
+    "id": "mg-kimeungyong",
+    "name": "김응용",
+    "role": "manager",
+    "era": "1983-2004",
+    "cost": 79,
+    "effect": {
+      "bat": 2,
+      "clutch": 1,
+      "steal": 0.01
+    },
+    "note": "한국시리즈 10회 우승",
+    "source": "해태 1983~2000·삼성 2001~2004 감독, KS 우승 10회(1983·86~89·91·93·96·97·2002) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kimsunggeun",
+    "name": "김성근",
+    "role": "manager",
+    "era": "1984-2017",
+    "cost": 79,
+    "effect": {
+      "field": 2,
+      "pitch": 2
+    },
+    "note": "SK 왕조 3회 우승",
+    "source": "OB·태평양·삼성·쌍방울·LG·SK·한화 감독, SK로 KS 우승 3회(2007·08·10) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kimjaepark",
+    "name": "김재박",
+    "role": "manager",
+    "era": "1996-2009",
+    "cost": 79,
+    "effect": {
+      "field": 1,
+      "pitch": 1,
+      "clutch": 1,
+      "steal": 0.01
+    },
+    "note": "현대 한국시리즈 4회 우승",
+    "source": "현대 1996~2006·LG 2007~2009 감독, KS 우승 4회(1998·2000·03·04) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-ryujungil",
+    "name": "류중일",
+    "role": "manager",
+    "era": "2011-2020",
+    "cost": 79,
+    "effect": {
+      "bat": 1,
+      "field": 2,
+      "steal": 0.02
+    },
+    "note": "삼성 4년 연속 통합 우승",
+    "source": "삼성 2011~2016·LG 2018~2020 감독, KS 우승 4회(2011~2014) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kimtaehyung",
+    "name": "김태형",
+    "role": "manager",
+    "era": "2015-",
+    "cost": 79,
+    "effect": {
+      "clutch": 1,
+      "field": 2,
+      "stamina": 2
+    },
+    "note": "두산 7년 연속 한국시리즈",
+    "source": "두산 2015~2022·롯데 2024~ 감독, KS 우승 3회(2015·16·19)·7년 연속 KS 진출 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kimyoungdeok",
+    "name": "김영덕",
+    "role": "manager",
+    "era": "1982-1993",
+    "cost": 75,
+    "effect": {
+      "pitch": 2,
+      "field": 1,
+      "stamina": 2
+    },
+    "note": "원년 OB·85 삼성 우승",
+    "source": "OB 1982~83·삼성 1984~86·빙그레 1988~93 감독, 1982 KS 우승·1985 전후기 통합 우승 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kangbyungchul",
+    "name": "강병철",
+    "role": "manager",
+    "era": "1984-2008",
+    "cost": 75,
+    "effect": {
+      "clutch": 1,
+      "stamina": 8
+    },
+    "note": "롯데 우승 2회(1984·1992)",
+    "source": "롯데 1984~86·91~93·2006~07, 한화 1994~98, SK 2000~02 감독, KS 우승 2회 — namu 감독/목록, ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-baekincheon",
+    "name": "백인천",
+    "role": "manager",
+    "era": "1982-2003",
+    "cost": 75,
+    "effect": {
+      "bat": 3,
+      "steal": 0.01
+    },
+    "note": "LG 첫해 우승(1990)",
+    "source": "MBC 1982·LG 1990~91·삼성 1996~97·롯데 2002~03 감독, 1990 KS 우승 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-leekwanghwan",
+    "name": "이광환",
+    "role": "manager",
+    "era": "1989-2008",
+    "cost": 75,
+    "effect": {
+      "pitch": 2,
+      "bat": 1,
+      "stamina": 2
+    },
+    "note": "자율야구 LG 1994 우승",
+    "source": "OB 1989~90·LG 1992~96·2003·한화 2002·히어로즈 2008 감독, 1994 KS 우승 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kiminsik",
+    "name": "김인식",
+    "role": "manager",
+    "era": "1990-2009",
+    "cost": 75,
+    "effect": {
+      "pitch": 2,
+      "clutch": 1
+    },
+    "note": "두산 우승 2회·WBC 지휘",
+    "source": "쌍방울·OB/두산 1995~2003·한화 2005~09 감독, KS 우승 2회(1995·2001), 2006·09 WBC 감독 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-leeheesoo",
+    "name": "이희수",
+    "role": "manager",
+    "era": "1999-2000",
+    "cost": 75,
+    "effect": {
+      "bat": 3,
+      "stamina": 2
+    },
+    "note": "한화 유일의 우승(1999)",
+    "source": "한화 1999~2000 감독, 1999 KS 우승(한화 창단 첫 우승) — ko.wikipedia 한국시리즈, 대전일보"
+  },
+  {
+    "id": "mg-sundongyol",
+    "name": "선동열",
+    "role": "manager",
+    "era": "2005-2014",
+    "cost": 75,
+    "effect": {
+      "pitch": 3,
+      "stamina": 2
+    },
+    "note": "지키는 야구 삼성 2연패",
+    "source": "삼성 2005~2010·KIA 2012~14 감독, KS 우승 2회(2005·06) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-jobeomhyeon",
+    "name": "조범현",
+    "role": "manager",
+    "era": "2003-2016",
+    "cost": 75,
+    "effect": {
+      "pitch": 1,
+      "field": 2,
+      "stamina": 2
+    },
+    "note": "KIA 2009 우승",
+    "source": "SK 2003~06·KIA 2008~11·KT 2013~16 감독, 2009 KS 우승·2003 SK KS 진출 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-kimgitae",
+    "name": "김기태",
+    "role": "manager",
+    "era": "2012-2019",
+    "cost": 75,
+    "effect": {
+      "bat": 2,
+      "clutch": 1
+    },
+    "note": "KIA 2017 통합 우승",
+    "source": "LG 2012~14·KIA 2015~19 감독, 2017 KS 우승 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-treyhillman",
+    "name": "트레이 힐만",
+    "role": "manager",
+    "era": "2017-2018",
+    "cost": 75,
+    "effect": {
+      "bat": 2,
+      "pitch": 1,
+      "stamina": 2
+    },
+    "note": "첫 외국인 우승 감독",
+    "source": "SK 2017~18 감독, 2018 KS 우승(KBO 첫 외국인 감독 우승) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-leedongwook",
+    "name": "이동욱",
+    "role": "manager",
+    "era": "2019-2022",
+    "cost": 75,
+    "effect": {
+      "field": 2,
+      "bat": 1,
+      "steal": 0.01
+    },
+    "note": "NC 창단 첫 우승(2020)",
+    "source": "NC 2019~22 감독, 2020 KS 우승 — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-leegangchul",
+    "name": "이강철",
+    "role": "manager",
+    "era": "2019-",
+    "cost": 75,
+    "effect": {
+      "pitch": 1,
+      "stamina": 10
+    },
+    "note": "KT 창단 첫 우승",
+    "source": "KT 2019~ 감독, 2021 KS 우승·2023 KS 진출 — ko.wikipedia 한국시리즈, 2026 KBO 리그"
+  },
+  {
+    "id": "mg-yeomgyeongyeop",
+    "name": "염경엽",
+    "role": "manager",
+    "era": "2013-",
+    "cost": 75,
+    "effect": {
+      "steal": 0.05,
+      "bat": 1
+    },
+    "note": "LG 우승 2회(2023·2025)",
+    "source": "넥센 2013~16·SK 2019~20·LG 2023~ 감독, KS 우승 2회(2023·25) — ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-leebeomho",
+    "name": "이범호",
+    "role": "manager",
+    "era": "2024-",
+    "cost": 75,
+    "effect": {
+      "bat": 2,
+      "clutch": 1
+    },
+    "note": "부임 첫해 KIA 우승",
+    "source": "KIA 2024~ 감독, 2024 KS 우승 — ko.wikipedia 한국시리즈, 2026 KBO 리그"
+  },
+  {
+    "id": "mg-kimkyungmoon",
+    "name": "김경문",
+    "role": "manager",
+    "era": "2004-",
+    "cost": 71,
+    "effect": {
+      "steal": 0.04,
+      "field": 1
+    },
+    "note": "베이징 올림픽 금메달",
+    "source": "두산 2004~11·NC 2011~18·한화 2024~ 감독, KS 준우승 5회(2005·07·08·16·25), 2008 베이징 올림픽 금 — namu 감독/목록, ko.wikipedia 한국시리즈"
+  }
 ]

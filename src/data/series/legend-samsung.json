@@ -14,23 +14,311 @@
     "김시진 1985 47경기에는 구원 등판 포함."
   ],
   "players": [
-    { "personId": "김시진", "name": "김시진", "year": 1985, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 60, "stamina": 98, "stability": 91 }, "note": "25승 다승왕", "source": "47G 25승5패10SV 269.2IP ERA2.00 201K 121BB — 위키백과" },
-    { "personId": "배영수", "name": "배영수", "year": 2004, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 66, "stamina": 90, "stability": 90 }, "note": "17승2패·정규시즌 MVP", "source": "35G 17승2패 189.2IP ERA2.61 144K 74BB — 위키백과" },
-    { "personId": "뷰캐넌", "name": "뷰캐넌", "year": 2021, "team": "삼성", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 79, "control": 72, "stamina": 87, "stability": 84 }, "note": "16승 공동 다승왕", "source": "30G 16승5패 177IP ERA3.10 162K 61사사구 WHIP1.31 — 기사" },
-    { "personId": "윤성환", "name": "윤성환", "year": 2015, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 91, "stamina": 91, "stability": 80 }, "note": "17승", "source": "30G 17승8패 194IP ERA3.76 164K 30BB — 위키백과" },
-    { "personId": "오승환", "name": "오승환", "year": 2011, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 95, "control": 87, "stamina": 50, "stability": 99 }, "note": "47세이브·ERA 0.63", "source": "54G 1승47SV 57IP ERA0.63 76K 11BB — 위키백과" },
-    { "personId": "권오준", "name": "권오준", "year": 2006, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 65, "stamina": 58, "stability": 96 }, "note": "32홀드 홀드왕", "source": "67G 9승1패2SV32HLD 80IP ERA1.69 83K 32BB — 위키백과" },
-    { "personId": "이만수", "name": "이만수", "year": 1984, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 89, "contact": 95, "speed": 45, "defense": 82 }, "note": "타격 트리플크라운", "source": "89G .340 23HR 80RBI 3SB 26BB — 위키백과" },
-    { "personId": "진갑용", "name": "진갑용", "year": 2003, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 73, "contact": 77, "speed": 42, "defense": 86 }, "note": "", "source": "126G .290 21HR 53RBI 1SB — 위키백과" },
-    { "personId": "이승엽", "name": "이승엽", "year": 2003, "team": "삼성", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 99, "contact": 81, "speed": 58, "defense": 66 }, "note": "56홈런·MVP", "source": "131G .301 56HR 144RBI 7SB 101BB — 위키백과" },
-    { "personId": "나바로", "name": "나바로", "year": 2015, "team": "삼성", "position": "2B", "hand": "R", "isForeign": true, "stats": { "power": 96, "contact": 74, "speed": 76, "defense": 78 }, "note": "2루수 최다 48홈런·GG", "source": "140G .287 48HR 137RBI 22SB 126득점 — 기사·namu" },
-    { "personId": "김성래", "name": "김성래", "year": 1987, "team": "삼성", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 91, "speed": 42, "defense": 74 }, "note": "홈런왕", "source": "99G .332 22HR 70RBI 2SB 45BB — 위키백과" },
-    { "personId": "박석민", "name": "박석민", "year": 2015, "team": "삼성", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 77, "contact": 84, "speed": 42, "defense": 78 }, "note": "", "source": "135G .321 26HR 104RBI 2SB 56BB — 위키백과" },
-    { "personId": "류중일", "name": "류중일", "year": 1990, "team": "삼성", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 85, "speed": 80, "defense": 88 }, "note": "", "source": "120G .311 6HR 45RBI 23SB — 위키백과" },
-    { "personId": "장효조", "name": "장효조", "year": 1987, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 99, "speed": 60, "defense": 72 }, "note": "타율 .387 타격왕", "source": "88G .387 2HR 58RBI 7SB 41BB — 위키백과" },
-    { "personId": "최형우", "name": "최형우", "year": 2016, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 83, "contact": 97, "speed": 42, "defense": 62 }, "note": "타율 .376·144타점", "source": ".376 31HR 144RBI — 삼성 라이온즈 구단 발표·위키백과" },
-    { "personId": "구자욱", "name": "구자욱", "year": 2024, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 88, "contact": 93, "speed": 68, "defense": 76 }, "note": "", "source": "129G .343 33HR 115RBI 13SB 55BB — 위키백과" },
-    { "personId": "박한이", "name": "박한이", "year": 2003, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 87, "speed": 72, "defense": 80 }, "note": "", "source": "133G .322 170안타 12HR 59RBI 17SB 63BB — 위키백과" },
-    { "personId": "양준혁", "name": "양준혁", "year": 1996, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 82, "contact": 93, "speed": 78, "defense": 64 }, "note": "20홈런-20도루", "source": "126G .346 28HR 87RBI 23SB 82BB — 위키백과" }
+    {
+      "personId": "김시진",
+      "name": "김시진",
+      "year": 1985,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 108,
+        "control": 69,
+        "stamina": 103,
+        "stability": 94
+      },
+      "note": "25승 다승왕",
+      "source": "47G 25승5패10SV 269.2IP ERA2.00 201K 121BB — 위키백과"
+    },
+    {
+      "personId": "배영수",
+      "name": "배영수",
+      "year": 2004,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 76,
+        "stamina": 107,
+        "stability": 96
+      },
+      "note": "17승2패·정규시즌 MVP",
+      "source": "35G 17승2패 189.2IP ERA2.61 144K 74BB — 위키백과"
+    },
+    {
+      "personId": "뷰캐넌",
+      "name": "뷰캐넌",
+      "year": 2021,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 83,
+        "control": 82,
+        "stamina": 99,
+        "stability": 86
+      },
+      "note": "16승 공동 다승왕",
+      "source": "30G 16승5패 177IP ERA3.10 162K 61사사구 WHIP1.31 — 기사"
+    },
+    {
+      "personId": "윤성환",
+      "name": "윤성환",
+      "year": 2015,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 105,
+        "stamina": 103,
+        "stability": 89
+      },
+      "note": "17승",
+      "source": "30G 17승8패 194IP ERA3.76 164K 30BB — 위키백과"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2011,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 109,
+        "control": 101,
+        "stamina": 60,
+        "stability": 102
+      },
+      "note": "47세이브·ERA 0.63",
+      "source": "54G 1승47SV 57IP ERA0.63 76K 11BB — 위키백과"
+    },
+    {
+      "personId": "권오준",
+      "name": "권오준",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 104,
+        "control": 73,
+        "stamina": 69,
+        "stability": 101
+      },
+      "note": "32홀드 홀드왕",
+      "source": "67G 9승1패2SV32HLD 80IP ERA1.69 83K 32BB — 위키백과"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1984,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 106,
+        "speed": 64,
+        "defense": 90
+      },
+      "note": "타격 트리플크라운",
+      "source": "89G .340 23HR 80RBI 3SB 26BB — 위키백과"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2003,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 86,
+        "speed": 63,
+        "defense": 93
+      },
+      "note": "",
+      "source": "126G .290 21HR 53RBI 1SB — 위키백과"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2003,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 91,
+        "speed": 81,
+        "defense": 64
+      },
+      "note": "56홈런·MVP",
+      "source": "131G .301 56HR 144RBI 7SB 101BB — 위키백과"
+    },
+    {
+      "personId": "나바로",
+      "name": "나바로",
+      "year": 2015,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 110,
+        "contact": 78,
+        "speed": 97,
+        "defense": 82
+      },
+      "note": "2루수 최다 48홈런·GG",
+      "source": "140G .287 48HR 137RBI 22SB 126득점 — 기사·namu"
+    },
+    {
+      "personId": "김성래",
+      "name": "김성래",
+      "year": 1987,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 107,
+        "contact": 100,
+        "speed": 60,
+        "defense": 77
+      },
+      "note": "홈런왕",
+      "source": "99G .332 22HR 70RBI 2SB 45BB — 위키백과"
+    },
+    {
+      "personId": "박석민",
+      "name": "박석민",
+      "year": 2015,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 88,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": "135G .321 26HR 104RBI 2SB 56BB — 위키백과"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1990,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 96,
+        "speed": 96,
+        "defense": 97
+      },
+      "note": "",
+      "source": "120G .311 6HR 45RBI 23SB — 위키백과"
+    },
+    {
+      "personId": "장효조",
+      "name": "장효조",
+      "year": 1987,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 65,
+        "contact": 108,
+        "speed": 79,
+        "defense": 74
+      },
+      "note": "타율 .387 타격왕",
+      "source": "88G .387 2HR 58RBI 7SB 41BB — 위키백과"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2016,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 97,
+        "contact": 103,
+        "speed": 66,
+        "defense": 60
+      },
+      "note": "타율 .376·144타점",
+      "source": ".376 31HR 144RBI — 삼성 라이온즈 구단 발표·위키백과"
+    },
+    {
+      "personId": "구자욱",
+      "name": "구자욱",
+      "year": 2024,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 107,
+        "contact": 103,
+        "speed": 88,
+        "defense": 78
+      },
+      "note": "",
+      "source": "129G .343 33HR 115RBI 13SB 55BB — 위키백과"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2003,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 98,
+        "speed": 96,
+        "defense": 85
+      },
+      "note": "",
+      "source": "133G .322 170안타 12HR 59RBI 17SB 63BB — 위키백과"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 1996,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 103,
+        "contact": 106,
+        "speed": 95,
+        "defense": 59
+      },
+      "note": "20홈런-20도루",
+      "source": "126G .346 28HR 87RBI 23SB 82BB — 위키백과"
+    }
   ]
 }

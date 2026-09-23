@@ -15,23 +15,311 @@
     "18명 구성: 선발 4·불펜 4·야수 10. 이병헌(ERA 5.03)·최승용(ERA 5.92)·최지강(ERA 9.45)은 제외했다."
   ],
   "players": [
-    { "personId": "곽빈", "name": "곽빈", "year": 2026, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 81, "stamina": 86, "stability": 92 }, "note": "평균자책점 1위·186탈삼진", "source": "26G 11승7패 ERA2.26 155IP 186K 39BB WHIP1.06 — KBO 기록실" },
-    { "personId": "최민석", "name": "최민석", "year": 2026, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 77, "control": 66, "stamina": 80, "stability": 87 }, "note": "데뷔 2년차 14승", "source": "25G 14승4패 ERA2.73 138.2IP 121K 53BB WHIP1.28 — KBO 기록실" },
-    { "personId": "벤자민", "name": "벤자민", "year": 2026, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 88, "control": 81, "stamina": 72, "stability": 90 }, "note": "부상 대체로 4월 합류", "source": "20G 5승7패 ERA2.44 110.2IP 115K 28BB WHIP1.17 — 두산 구단 기록실" },
-    { "personId": "잭로그", "name": "잭로그", "year": 2026, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 77, "control": 86, "stamina": 82, "stability": 73 }, "note": "볼넷 28개 제구형 좌완", "source": "26G 7승7패 ERA4.10 142.2IP 126K 28BB WHIP1.28 — KBO 기록실" },
-    { "personId": "이영하", "name": "이영하", "year": 2026, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 92, "control": 61, "stamina": 60, "stability": 79 }, "note": "21세이브 마무리", "source": "50G 5승5패 21SV ERA3.59 57.2IP 77K 25BB WHIP1.21 — 두산 구단 기록실" },
-    { "personId": "김택연", "name": "김택연", "year": 2026, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 55, "stamina": 54, "stability": 93 }, "note": "3세이브·10홀드", "source": "44G 3승3패 3SV 10HLD ERA2.14 46.1IP 62K 25BB WHIP1.21 — KBO 기록실" },
-    { "personId": "김정우", "name": "김정우", "year": 2026, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 61, "stamina": 56, "stability": 92 }, "note": "팀 최다 55경기", "source": "55G 2승3패 2SV 9HLD ERA2.19 53.1IP 44K 23BB WHIP1.05 — KBO 기록실" },
-    { "personId": "박치국", "name": "박치국", "year": 2026, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 75, "stamina": 52, "stability": 66 }, "note": "8홀드", "source": "50G 1패 8HLD ERA4.40 43IP 39K 13BB WHIP1.56 — 두산 구단 기록실" },
-    { "personId": "양의지", "name": "양의지", "year": 2026, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 76, "contact": 65, "speed": 44, "defense": 86 }, "note": "20홈런·71타점", "source": ".253/.359 20HR 71타점 2SB 488PA(122G) — KBO 기록실" },
-    { "personId": "양석환", "name": "양석환", "year": 2026, "team": "두산", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 48, "speed": 42, "defense": 58 }, "note": "38경기 출전에 그침", "source": ".198/.244 2HR 12타점 135PA(38G) — 두산 구단 기록실" },
-    { "personId": "박준순", "name": "박준순", "year": 2026, "team": "두산", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 77, "contact": 79, "speed": 46, "defense": 74 }, "note": "16홈런·OPS .859", "source": ".299/.356 16HR 59타점 393PA(93G) — 두산 구단 기록실" },
-    { "personId": "안재석", "name": "안재석", "year": 2026, "team": "두산", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 67, "contact": 66, "speed": 52, "defense": 76 }, "note": "2루타 24개", "source": ".256/.311 10HR 57타점 4SB 381PA(95G) — 두산 구단 기록실" },
-    { "personId": "박찬호", "name": "박찬호", "year": 2026, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 52, "contact": 74, "speed": 84, "defense": 84 }, "note": "30도루", "source": ".283/.355 5HR 49타점 30SB 541PA(127G) — KBO 기록실" },
-    { "personId": "정수빈", "name": "정수빈", "year": 2026, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 66, "speed": 72, "defense": 90 }, "note": "중견수 수비율 .993", "source": ".257/.335 7HR 44타점 16SB 474PA(126G), 중견수 991이닝 — KBO 기록실" },
-    { "personId": "김민석", "name": "김민석", "year": 2026, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 83, "speed": 48, "defense": 76 }, "note": "타율 .311", "source": ".311/.390 5HR 47타점 3SB 451PA(119G), 좌익수 752.1이닝 — KBO 기록실" },
-    { "personId": "조수행", "name": "조수행", "year": 2026, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 88, "speed": 92, "defense": 84 }, "note": "186타석에 17도루", "source": ".335/.410 0HR 19타점 17SB 186PA(104G) — 두산 구단 기록실" },
-    { "personId": "카메론", "name": "카메론", "year": 2026, "team": "두산", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 69, "contact": 76, "speed": 70, "defense": 80 }, "note": "6월 말 방출", "source": ".287/.360 9HR 43타점 9SB 314PA(75G) — 두산 구단 기록실" },
-    { "personId": "세베리노", "name": "세베리노", "year": 2026, "team": "두산", "position": "DH", "hand": "S", "isForeign": true, "stats": { "power": 64, "contact": 71, "speed": 42, "defense": 50 }, "note": "카메론 대체 외인", "source": ".273/.357 3HR 17타점 112PA(31G) — 두산 구단 기록실" }
+    {
+      "personId": "곽빈",
+      "name": "곽빈",
+      "year": 2026,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 102,
+        "control": 91,
+        "stamina": 99,
+        "stability": 98
+      },
+      "note": "평균자책점 1위·186탈삼진",
+      "source": "26G 11승7패 ERA2.26 155IP 186K 39BB WHIP1.06 — KBO 기록실"
+    },
+    {
+      "personId": "최민석",
+      "name": "최민석",
+      "year": 2026,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 75,
+        "stamina": 93,
+        "stability": 93
+      },
+      "note": "데뷔 2년차 14승",
+      "source": "25G 14승4패 ERA2.73 138.2IP 121K 53BB WHIP1.28 — KBO 기록실"
+    },
+    {
+      "personId": "벤자민",
+      "name": "벤자민",
+      "year": 2026,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 93,
+        "control": 91,
+        "stamina": 84,
+        "stability": 96
+      },
+      "note": "부상 대체로 4월 합류",
+      "source": "20G 5승7패 ERA2.44 110.2IP 115K 28BB WHIP1.17 — 두산 구단 기록실"
+    },
+    {
+      "personId": "잭로그",
+      "name": "잭로그",
+      "year": 2026,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 77,
+        "control": 96,
+        "stamina": 95,
+        "stability": 78
+      },
+      "note": "볼넷 28개 제구형 좌완",
+      "source": "26G 7승7패 ERA4.10 142.2IP 126K 28BB WHIP1.28 — KBO 기록실"
+    },
+    {
+      "personId": "이영하",
+      "name": "이영하",
+      "year": 2026,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 70,
+        "stamina": 72,
+        "stability": 84
+      },
+      "note": "21세이브 마무리",
+      "source": "50G 5승5패 21SV ERA3.59 57.2IP 77K 25BB WHIP1.21 — 두산 구단 기록실"
+    },
+    {
+      "personId": "김택연",
+      "name": "김택연",
+      "year": 2026,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 102,
+        "control": 64,
+        "stamina": 65,
+        "stability": 99
+      },
+      "note": "3세이브·10홀드",
+      "source": "44G 3승3패 3SV 10HLD ERA2.14 46.1IP 62K 25BB WHIP1.21 — KBO 기록실"
+    },
+    {
+      "personId": "김정우",
+      "name": "김정우",
+      "year": 2026,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 70,
+        "stamina": 67,
+        "stability": 98
+      },
+      "note": "팀 최다 55경기",
+      "source": "55G 2승3패 2SV 9HLD ERA2.19 53.1IP 44K 23BB WHIP1.05 — KBO 기록실"
+    },
+    {
+      "personId": "박치국",
+      "name": "박치국",
+      "year": 2026,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 85,
+        "stamina": 63,
+        "stability": 71
+      },
+      "note": "8홀드",
+      "source": "50G 1패 8HLD ERA4.40 43IP 39K 13BB WHIP1.56 — 두산 구단 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2026,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 70,
+        "speed": 67,
+        "defense": 93
+      },
+      "note": "20홈런·71타점",
+      "source": ".253/.359 20HR 71타점 2SB 488PA(122G) — KBO 기록실"
+    },
+    {
+      "personId": "양석환",
+      "name": "양석환",
+      "year": 2026,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 50,
+        "speed": 65,
+        "defense": 53
+      },
+      "note": "38경기 출전에 그침",
+      "source": ".198/.244 2HR 12타점 135PA(38G) — 두산 구단 기록실"
+    },
+    {
+      "personId": "박준순",
+      "name": "박준순",
+      "year": 2026,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 87,
+        "speed": 69,
+        "defense": 76
+      },
+      "note": "16홈런·OPS .859",
+      "source": ".299/.356 16HR 59타점 393PA(93G) — 두산 구단 기록실"
+    },
+    {
+      "personId": "안재석",
+      "name": "안재석",
+      "year": 2026,
+      "team": "두산",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 71,
+        "speed": 74,
+        "defense": 79
+      },
+      "note": "2루타 24개",
+      "source": ".256/.311 10HR 57타점 4SB 381PA(95G) — 두산 구단 기록실"
+    },
+    {
+      "personId": "박찬호",
+      "name": "박찬호",
+      "year": 2026,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 81,
+        "speed": 103,
+        "defense": 90
+      },
+      "note": "30도루",
+      "source": ".283/.355 5HR 49타점 30SB 541PA(127G) — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2026,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 71,
+        "speed": 92,
+        "defense": 99
+      },
+      "note": "중견수 수비율 .993",
+      "source": ".257/.335 7HR 44타점 16SB 474PA(126G), 중견수 991이닝 — KBO 기록실"
+    },
+    {
+      "personId": "김민석",
+      "name": "김민석",
+      "year": 2026,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 92,
+        "speed": 70,
+        "defense": 79
+      },
+      "note": "타율 .311",
+      "source": ".311/.390 5HR 47타점 3SB 451PA(119G), 좌익수 752.1이닝 — KBO 기록실"
+    },
+    {
+      "personId": "조수행",
+      "name": "조수행",
+      "year": 2026,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 57,
+        "contact": 97,
+        "speed": 110,
+        "defense": 90
+      },
+      "note": "186타석에 17도루",
+      "source": ".335/.410 0HR 19타점 17SB 186PA(104G) — 두산 구단 기록실"
+    },
+    {
+      "personId": "카메론",
+      "name": "카메론",
+      "year": 2026,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 84,
+        "contact": 83,
+        "speed": 91,
+        "defense": 85
+      },
+      "note": "6월 말 방출",
+      "source": ".287/.360 9HR 43타점 9SB 314PA(75G) — 두산 구단 기록실"
+    },
+    {
+      "personId": "세베리노",
+      "name": "세베리노",
+      "year": 2026,
+      "team": "두산",
+      "position": "DH",
+      "hand": "S",
+      "isForeign": true,
+      "stats": {
+        "power": 80,
+        "contact": 77,
+        "speed": 65,
+        "defense": 50
+      },
+      "note": "카메론 대체 외인",
+      "source": ".273/.357 3HR 17타점 112PA(31G) — 두산 구단 기록실"
+    }
   ]
 }

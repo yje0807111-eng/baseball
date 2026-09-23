@@ -16,23 +16,311 @@
     "1980~1995 시즌은 투고타저 보정, 2017 시즌은 타고투저 보정 적용. 80~90년대 짧은 시즌 홈런은 126경기 기준으로 환산."
   ],
   "players": [
-    { "personId": "선동열", "name": "선동열", "year": 1986, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 87, "stamina": 98, "stability": 99 }, "note": "24승·ERA 0.99·MVP", "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과" },
-    { "personId": "윤석민", "name": "윤석민", "year": 2011, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 91, "control": 80, "stamina": 86, "stability": 92 }, "note": "투수 4관왕·MVP", "source": "27G 17승5패 172.1IP ERA2.45 178K 44BB WHIP1.05 — 위키백과" },
-    { "personId": "양현종", "name": "양현종", "year": 2017, "team": "KIA", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 76, "control": 83, "stamina": 91, "stability": 86 }, "note": "20승·정규시즌/KS MVP", "source": "20승 ERA3.44 193.1IP 158K 45BB — namu" },
-    { "personId": "헥터", "name": "헥터", "year": 2017, "team": "KIA", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 70, "control": 84, "stamina": 93, "stability": 83 }, "note": "20승·승률왕", "source": "30G 20승5패 201.2IP ERA3.48 149K 45BB — 2017 KIA 시즌 위키백과" },
-    { "personId": "이강철", "name": "이강철", "year": 1991, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 79, "control": 81, "stamina": 95, "stability": 80 }, "note": "10년 연속 10승-100K", "source": "36G 15승11패 214.2IP ERA3.19 193K 54BB — 위키백과" },
-    { "personId": "임창용", "name": "임창용", "year": 1998, "team": "해태", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 89, "control": 84, "stamina": 58, "stability": 94 }, "note": "34세이브·최연소 구원왕", "source": "8승7패34SV 133.2IP ERA1.89 141K — namu" },
-    { "personId": "정해영", "name": "정해영", "year": 2021, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 72, "stamina": 55, "stability": 92 }, "note": "34세이브", "source": "64G 5승4패34SV 65.1IP ERA2.20 — 스포츠경향 (K·BB 미확인)" },
-    { "personId": "장채근", "name": "장채근", "year": 1988, "team": "해태", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 65, "speed": 42, "defense": 84 }, "note": "26홈런·포수 골든글러브", "source": ".249 26HR 58RBI — thewiki·위키백과(GG 1988)" },
-    { "personId": "김성한", "name": "김성한", "year": 1988, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 91, "contact": 88, "speed": 74, "defense": 62 }, "note": "KBO 첫 30홈런·MVP", "source": "104G .324 30HR 89RBI 16SB 31BB — 위키백과" },
-    { "personId": "장성호", "name": "장성호", "year": 2002, "team": "KIA", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 71, "contact": 93, "speed": 57, "defense": 64 }, "note": "타격왕·출루율 1위", "source": "133G .343/.445 19HR 95RBI 7SB 86BB — 위키백과" },
-    { "personId": "김봉연", "name": "김봉연", "year": 1982, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 88, "contact": 90, "speed": 58, "defense": 60 }, "note": "원년 홈런왕", "source": "74G .331 22HR 52RBI 7SB 28BB — 위키백과" },
-    { "personId": "안치홍", "name": "안치홍", "year": 2017, "team": "KIA", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 83, "speed": 56, "defense": 78 }, "note": "", "source": "132G .316 21HR 93RBI 7SB 43BB — 위키백과" },
-    { "personId": "김도영", "name": "김도영", "year": 2024, "team": "KIA", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 93, "contact": 96, "speed": 93, "defense": 74 }, "note": "38-40·정규시즌 MVP", "source": ".347/.420 38HR 40SB(4CS) 625PA 143득점, 3루수 GG — KBO 기록실" },
-    { "personId": "한대화", "name": "한대화", "year": 1990, "team": "해태", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 91, "speed": 66, "defense": 84 }, "note": "타격왕·3루수 GG", "source": "119G .335/.432 15HR 86RBI 10SB 76BB — 위키백과" },
-    { "personId": "이종범", "name": "이종범", "year": 1994, "team": "해태", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 75, "contact": 99, "speed": 99, "defense": 90 }, "note": "타율 .393·84도루·MVP", "source": "124G .393/.452 196안타 19HR 77RBI 84SB — 위키백과" },
-    { "personId": "이순철", "name": "이순철", "year": 1992, "team": "해태", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 75, "contact": 85, "speed": 94, "defense": 90 }, "note": "도루왕·최다안타", "source": "122G .309 152안타 21HR 76RBI 44SB 60BB — 위키백과" },
-    { "personId": "최형우", "name": "최형우", "year": 2017, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 77, "contact": 90, "speed": 42, "defense": 60 }, "note": "출루율 1위·통합우승", "source": "142G .342/.450 26HR 120RBI — 스포츠경향" },
-    { "personId": "버나디나", "name": "버나디나", "year": 2017, "team": "KIA", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 78, "contact": 84, "speed": 83, "defense": 88 }, "note": "득점왕·외야수 GG", "source": "139G .320/.372 27HR 111RBI 32SB 118득점 — namu·위키백과" }
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 97,
+        "stamina": 104,
+        "stability": 101
+      },
+      "note": "24승·ERA 0.99·MVP",
+      "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2011,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 103,
+        "control": 93,
+        "stamina": 100,
+        "stability": 95
+      },
+      "note": "투수 4관왕·MVP",
+      "source": "27G 17승5패 172.1IP ERA2.45 178K 44BB WHIP1.05 — 위키백과"
+    },
+    {
+      "personId": "양현종",
+      "name": "양현종",
+      "year": 2017,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 91,
+        "stamina": 102,
+        "stability": 96
+      },
+      "note": "20승·정규시즌/KS MVP",
+      "source": "20승 ERA3.44 193.1IP 158K 45BB — namu"
+    },
+    {
+      "personId": "헥터",
+      "name": "헥터",
+      "year": 2017,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 93,
+        "stamina": 105,
+        "stability": 93
+      },
+      "note": "20승·승률왕",
+      "source": "30G 20승5패 201.2IP ERA3.48 149K 45BB — 2017 KIA 시즌 위키백과"
+    },
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 1991,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 104,
+        "control": 98,
+        "stamina": 103,
+        "stability": 89
+      },
+      "note": "10년 연속 10승-100K",
+      "source": "36G 15승11패 214.2IP ERA3.19 193K 54BB — 위키백과"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 1998,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 96,
+        "stamina": 68,
+        "stability": 99
+      },
+      "note": "34세이브·최연소 구원왕",
+      "source": "8승7패34SV 133.2IP ERA1.89 141K — namu"
+    },
+    {
+      "personId": "정해영",
+      "name": "정해영",
+      "year": 2021,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 82,
+        "stamina": 66,
+        "stability": 95
+      },
+      "note": "34세이브",
+      "source": "64G 5승4패34SV 65.1IP ERA2.20 — 스포츠경향 (K·BB 미확인)"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1988,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 108,
+        "contact": 72,
+        "speed": 59,
+        "defense": 93
+      },
+      "note": "26홈런·포수 골든글러브",
+      "source": ".249 26HR 58RBI — thewiki·위키백과(GG 1988)"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1988,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 96,
+        "speed": 92,
+        "defense": 59
+      },
+      "note": "KBO 첫 30홈런·MVP",
+      "source": "104G .324 30HR 89RBI 16SB 31BB — 위키백과"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 2002,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 103,
+        "speed": 79,
+        "defense": 60
+      },
+      "note": "타격왕·출루율 1위",
+      "source": "133G .343/.445 19HR 95RBI 7SB 86BB — 위키백과"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1982,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 108,
+        "contact": 100,
+        "speed": 77,
+        "defense": 58
+      },
+      "note": "원년 홈런왕",
+      "source": "74G .331 22HR 52RBI 7SB 28BB — 위키백과"
+    },
+    {
+      "personId": "안치홍",
+      "name": "안치홍",
+      "year": 2017,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 88,
+        "speed": 81,
+        "defense": 82
+      },
+      "note": "",
+      "source": "132G .316 21HR 93RBI 7SB 43BB — 위키백과"
+    },
+    {
+      "personId": "김도영",
+      "name": "김도영",
+      "year": 2024,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 107,
+        "speed": 110,
+        "defense": 75
+      },
+      "note": "38-40·정규시즌 MVP",
+      "source": ".347/.420 38HR 40SB(4CS) 625PA 143득점, 3루수 GG — KBO 기록실"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1990,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 102,
+        "speed": 82,
+        "defense": 92
+      },
+      "note": "타격왕·3루수 GG",
+      "source": "119G .335/.432 15HR 86RBI 10SB 76BB — 위키백과"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 1994,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 97,
+        "contact": 110,
+        "speed": 110,
+        "defense": 101
+      },
+      "note": "타율 .393·84도루·MVP",
+      "source": "124G .393/.452 196안타 19HR 77RBI 84SB — 위키백과"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1992,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 95,
+        "contact": 95,
+        "speed": 110,
+        "defense": 100
+      },
+      "note": "도루왕·최다안타",
+      "source": "122G .309 152안타 21HR 76RBI 44SB 60BB — 위키백과"
+    },
+    {
+      "personId": "최형우",
+      "name": "최형우",
+      "year": 2017,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 95,
+        "speed": 66,
+        "defense": 58
+      },
+      "note": "출루율 1위·통합우승",
+      "source": "142G .342/.450 26HR 120RBI — 스포츠경향"
+    },
+    {
+      "personId": "버나디나",
+      "name": "버나디나",
+      "year": 2017,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 91,
+        "contact": 89,
+        "speed": 110,
+        "defense": 95
+      },
+      "note": "득점왕·외야수 GG",
+      "source": "139G .320/.372 27HR 111RBI 32SB 118득점 — namu·위키백과"
+    }
   ]
 }

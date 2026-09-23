@@ -1,0 +1,318 @@
+{
+  "id": "1986-samsung",
+  "kind": "team",
+  "year": 1986,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "김시진이 16승을 올리고 장효조가 타율 .329를 쳤지만 삼성은 또 해태에 막혔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김시진",
+      "name": "김시진",
+      "year": 1986,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 61,
+        "stamina": 99,
+        "stability": 91
+      },
+      "note": "",
+      "source": "30G 196 2/3IP ERA2.47 87K 110BB WHIP1.38 16승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "성준",
+      "name": "성준",
+      "year": 1986,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 89,
+        "stamina": 88,
+        "stability": 92
+      },
+      "note": "",
+      "source": "29G 149IP ERA2.36 60K 40BB WHIP1.17 15승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "권영호",
+      "name": "권영호",
+      "year": 1986,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 79,
+        "stamina": 87,
+        "stability": 88
+      },
+      "note": "",
+      "source": "38G 146 1/3IP ERA2.77 74K 53BB WHIP1.18 7승 19SV — KBO 기록실"
+    },
+    {
+      "personId": "김일융",
+      "name": "김일융",
+      "year": 1986,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 83,
+        "stamina": 85,
+        "stability": 91
+      },
+      "note": "",
+      "source": "19G 138 2/3IP ERA2.53 60K 45BB WHIP1.19 13승 — KBO 기록실"
+    },
+    {
+      "personId": "전용권",
+      "name": "전용권",
+      "year": 1986,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 72,
+        "stamina": 65,
+        "stability": 80
+      },
+      "note": "",
+      "source": "11G 28 2/3IP ERA3.77 8K 12BB WHIP1.26 1승 — KBO 기록실"
+    },
+    {
+      "personId": "송진호",
+      "name": "송진호",
+      "year": 1986,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 94,
+        "stamina": 62,
+        "stability": 84
+      },
+      "note": "",
+      "source": "6G 13 2/3IP ERA3.29 2K 3BB WHIP1.02 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김준희",
+      "name": "김준희",
+      "year": 1986,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 70,
+        "stamina": 62,
+        "stability": 57
+      },
+      "note": "",
+      "source": "8G 13 2/3IP ERA5.93 7K 6BB WHIP1.83 — KBO 기록실"
+    },
+    {
+      "personId": "권기홍",
+      "name": "권기홍",
+      "year": 1986,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 92,
+        "stamina": 62,
+        "stability": 51
+      },
+      "note": "",
+      "source": "5G 12 2/3IP ERA9.24 7K 3BB WHIP1.66 — KBO 기록실"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1986,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 98,
+        "power": 110,
+        "speed": 65,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".321/.397 16HR 39타점 1SB 239PA — KBO 기록실"
+    },
+    {
+      "personId": "손상득",
+      "name": "손상득",
+      "year": 1986,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 60,
+        "speed": 71,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".230/.302 0HR 6타점 3SB 98PA — KBO 기록실"
+    },
+    {
+      "personId": "함학수",
+      "name": "함학수",
+      "year": 1986,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 94,
+        "speed": 76,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".243/.286 4HR 17타점 5SB 123PA — KBO 기록실"
+    },
+    {
+      "personId": "김성래",
+      "name": "김성래",
+      "year": 1986,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 86,
+        "speed": 71,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".288/.362 8HR 48타점 3SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "김용국",
+      "name": "김용국",
+      "year": 1986,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 60,
+        "speed": 78,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".216/.261 0HR 31타점 6SB 314PA — KBO 기록실"
+    },
+    {
+      "personId": "오대석",
+      "name": "오대석",
+      "year": 1986,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 81,
+        "speed": 73,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".256/.339 4HR 24타점 4SB 244PA — KBO 기록실"
+    },
+    {
+      "personId": "허규옥",
+      "name": "허규옥",
+      "year": 1986,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 73,
+        "speed": 105,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".293/.344 4HR 33타점 27SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "장효조",
+      "name": "장효조",
+      "year": 1986,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 101,
+        "power": 81,
+        "speed": 93,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".329/.436 6HR 41타점 16SB 367PA — KBO 기록실"
+    },
+    {
+      "personId": "이종두",
+      "name": "이종두",
+      "year": 1986,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 89,
+        "speed": 88,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".294/.344 9HR 42타점 12SB 360PA — KBO 기록실"
+    },
+    {
+      "personId": "이해창",
+      "name": "이해창",
+      "year": 1986,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 97,
+        "power": 75,
+        "speed": 80,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".315/.360 3HR 19타점 7SB 260PA — KBO 기록실"
+    }
+  ]
+}

@@ -85,17 +85,18 @@ export function scoutTags(opponent) {
   const ros = opponent?.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = ros.filter((p) => p.type === 'pitcher');
-  const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
+  const st = (p, k, d = 78) => p?.stats?.[k] ?? d;
+  /* 붙는 기준은 구단 시즌 373개의 팀 평균에서 위아래 20% 자리 — 어느 팀에나 붙으면 알려 줄 게 없다 */
   return [
-    { on: avg(bats, (p) => st(p, 'power')) >= 72, label: '장타 위험', c: '#f87171' },
-    { on: avg(bats, (p) => st(p, 'speed')) >= 70, label: '발 빠른 타선', c: '#fbbf24' },
-    { on: avg(bats, (p) => st(p, 'contact')) >= 74, label: '컨택 강함', c: '#fb923c' },
-    { on: avg(bats, (p) => st(p, 'defense')) >= 72, label: '수비 탄탄', c: '#60a5fa' },
+    { on: avg(bats, (p) => st(p, 'power')) >= 82, label: '장타 위험', c: '#f87171' },
+    { on: avg(bats, (p) => st(p, 'speed')) >= 81, label: '발 빠른 타선', c: '#fbbf24' },
+    { on: avg(bats, (p) => st(p, 'contact')) >= 82, label: '컨택 강함', c: '#fb923c' },
+    { on: avg(bats, (p) => st(p, 'defense')) >= 80, label: '수비 탄탄', c: '#60a5fa' },
     { on: bats.filter((p) => p.hand === 'L').length / Math.max(1, bats.length) >= 0.35, label: '좌타 다수', c: '#a78bfa' },
-    { on: avg(pits.filter((p) => p.position === 'RP'), (p) => p.overall ?? 70) < 74, label: '불펜 얇음', c: '#34d399' },
-    { on: avg(pits.filter((p) => p.position === 'SP'), (p) => st(p, 'stamina')) < 70, label: '선발 이닝 짧음', c: '#34d399' },
-    { on: avg(bats, (p) => st(p, 'power')) < 66, label: '한 방 없음', c: '#34d399' },
-    { on: (() => { const c = ros.find((x) => x.position === 'C'); return c ? st(c, 'defense') < 72 : false; })(), label: '도루 저지 약함', c: '#fb923c' },
+    { on: avg(pits.filter((p) => p.position === 'RP'), (p) => p.overall ?? 78) < 73, label: '불펜 얇음', c: '#34d399' },
+    { on: avg(pits.filter((p) => p.position === 'SP'), (p) => st(p, 'stamina')) < 74, label: '선발 이닝 짧음', c: '#34d399' },
+    { on: avg(bats, (p) => st(p, 'power')) < 74, label: '한 방 없음', c: '#34d399' },
+    { on: (() => { const c = ros.find((x) => x.position === 'C'); return c ? st(c, 'defense') < 84 : false; })(), label: '도루 저지 약함', c: '#fb923c' },
   ].filter((x) => x.on).slice(0, 4);
 }
 

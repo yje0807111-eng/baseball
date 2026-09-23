@@ -16,23 +16,311 @@
     "18명 구성: 선발 5·불펜 4·야수 9. 이유찬·박준영·김인태는 제외."
   ],
   "players": [
-    { "personId": "알칸타라", "name": "알칸타라", "year": 2023, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 76, "control": 88, "stamina": 91, "stability": 88 }, "note": "13승·192이닝", "source": "31G 13승9패 ERA2.67 192IP 162K 35BB WHIP1.07 — KBO 기록실" },
-    { "personId": "브랜든", "name": "브랜든", "year": 2023, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 86, "control": 77, "stamina": 72, "stability": 90 }, "note": "11승3패 ERA 2.49", "source": "18G 11승3패 ERA2.49 104.2IP 100K 30BB WHIP1.05 — KBO 기록실" },
-    { "personId": "곽빈", "name": "곽빈", "year": 2023, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 59, "stamina": 73, "stability": 86 }, "note": "12승", "source": "23G 12승7패 ERA2.90 127.1IP 106K 58BB WHIP1.21 — KBO 기록실" },
-    { "personId": "최승용", "name": "최승용", "year": 2023, "team": "두산", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 70, "control": 75, "stamina": 69, "stability": 74 }, "note": "", "source": "34G 3승6패 1SV ERA3.97 111IP 82K 34BB WHIP1.35 — KBO 기록실" },
-    { "personId": "최원준(투수)", "name": "최원준", "year": 2023, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 80, "stamina": 68, "stability": 63 }, "note": "", "source": "26G 3승10패 ERA4.93 107.2IP 71K 28BB WHIP1.37 — KBO 기록실" },
-    { "personId": "홍건희", "name": "홍건희", "year": 2023, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 84, "control": 66, "stamina": 50, "stability": 84 }, "note": "22세이브", "source": "64G 1승5패 22SV 5HLD ERA3.06 61.2IP 62K 24BB WHIP1.48 — KBO 기록실" },
-    { "personId": "정철원", "name": "정철원", "year": 2023, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 60, "stamina": 55, "stability": 75 }, "note": "13세이브·11홀드", "source": "67G 7승6패 13SV 11HLD ERA3.96 72.2IP 55K 32BB WHIP1.35 — KBO 기록실" },
-    { "personId": "김명신", "name": "김명신", "year": 2023, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 71, "stamina": 57, "stability": 78 }, "note": "70경기 24홀드", "source": "70G 3승3패 1SV 24HLD ERA3.65 79IP 65K 27BB WHIP1.25 — KBO 기록실" },
-    { "personId": "박치국", "name": "박치국", "year": 2023, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 79, "control": 65, "stamina": 48, "stability": 79 }, "note": "11홀드", "source": "62G 5승3패 2SV 11HLD ERA3.59 52.2IP 48K 21BB WHIP1.42 — KBO 기록실" },
-    { "personId": "양의지", "name": "양의지", "year": 2023, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 82, "speed": 58, "defense": 90 }, "note": "포수 골든글러브", "source": ".305/.396 17HR 68타점 8SB 510PA(129G) — KBO 기록실" },
-    { "personId": "양석환", "name": "양석환", "year": 2023, "team": "두산", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 73, "contact": 74, "speed": 52, "defense": 64 }, "note": "21홈런·89타점", "source": ".281/.333 21HR 89타점 4SB 582PA(140G) — KBO 기록실" },
-    { "personId": "강승호", "name": "강승호", "year": 2023, "team": "두산", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 68, "speed": 68, "defense": 76 }, "note": "", "source": ".265/.316 7HR 59타점 13SB 459PA(127G) — KBO 기록실" },
-    { "personId": "허경민", "name": "허경민", "year": 2023, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 69, "speed": 62, "defense": 84 }, "note": "주장", "source": ".268/.328 7HR 48타점 9SB 475PA(130G) — KBO 기록실" },
-    { "personId": "김재호", "name": "김재호", "year": 2023, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 74, "speed": 52, "defense": 86 }, "note": "", "source": ".283/.376 3HR 29타점 4SB 302PA(91G) — KBO 기록실" },
-    { "personId": "정수빈", "name": "정수빈", "year": 2023, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 46, "contact": 76, "speed": 91, "defense": 92 }, "note": "39도루 도루왕", "source": ".287/.375 2HR 11 3루타 39SB 583PA(137G) — KBO 기록실" },
-    { "personId": "로하스(두산)", "name": "로하스", "year": 2023, "team": "두산", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 73, "contact": 64, "speed": 42, "defense": 68 }, "note": "개막전 끝내기 3점 홈런", "source": ".253/.345 19HR 65타점 0SB 464PA(122G) — KBO 기록실" },
-    { "personId": "김재환", "name": "김재환", "year": 2023, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 53, "speed": 48, "defense": 66 }, "note": "", "source": ".220/.343 10HR 46타점 3SB 72BB 484PA(132G) — KBO 기록실" },
-    { "personId": "조수행", "name": "조수행", "year": 2023, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 53, "speed": 81, "defense": 84 }, "note": "", "source": ".219/.298 1HR 17타점 26SB 249PA(126G) — KBO 기록실" }
+    {
+      "personId": "알칸타라",
+      "name": "알칸타라",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 96,
+        "stamina": 105,
+        "stability": 92
+      },
+      "note": "13승·192이닝",
+      "source": "31G 13승9패 ERA2.67 192IP 162K 35BB WHIP1.07 — KBO 기록실"
+    },
+    {
+      "personId": "브랜든",
+      "name": "브랜든",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 93,
+        "control": 85,
+        "stamina": 84,
+        "stability": 94
+      },
+      "note": "11승3패 ERA 2.49",
+      "source": "18G 11승3패 ERA2.49 104.2IP 100K 30BB WHIP1.05 — KBO 기록실"
+    },
+    {
+      "personId": "곽빈",
+      "name": "곽빈",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 67,
+        "stamina": 86,
+        "stability": 90
+      },
+      "note": "12승",
+      "source": "23G 12승7패 ERA2.90 127.1IP 106K 58BB WHIP1.21 — KBO 기록실"
+    },
+    {
+      "personId": "최승용",
+      "name": "최승용",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 83,
+        "stamina": 81,
+        "stability": 76
+      },
+      "note": "",
+      "source": "34G 3승6패 1SV ERA3.97 111IP 82K 34BB WHIP1.35 — KBO 기록실"
+    },
+    {
+      "personId": "최원준(투수)",
+      "name": "최원준",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 88,
+        "stamina": 80,
+        "stability": 63
+      },
+      "note": "",
+      "source": "26G 3승10패 ERA4.93 107.2IP 71K 28BB WHIP1.37 — KBO 기록실"
+    },
+    {
+      "personId": "홍건희",
+      "name": "홍건희",
+      "year": 2023,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 74,
+        "stamina": 61,
+        "stability": 87
+      },
+      "note": "22세이브",
+      "source": "64G 1승5패 22SV 5HLD ERA3.06 61.2IP 62K 24BB WHIP1.48 — KBO 기록실"
+    },
+    {
+      "personId": "정철원",
+      "name": "정철원",
+      "year": 2023,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 68,
+        "stamina": 66,
+        "stability": 77
+      },
+      "note": "13세이브·11홀드",
+      "source": "67G 7승6패 13SV 11HLD ERA3.96 72.2IP 55K 32BB WHIP1.35 — KBO 기록실"
+    },
+    {
+      "personId": "김명신",
+      "name": "김명신",
+      "year": 2023,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 79,
+        "stamina": 69,
+        "stability": 80
+      },
+      "note": "70경기 24홀드",
+      "source": "70G 3승3패 1SV 24HLD ERA3.65 79IP 65K 27BB WHIP1.25 — KBO 기록실"
+    },
+    {
+      "personId": "박치국",
+      "name": "박치국",
+      "year": 2023,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 73,
+        "stamina": 59,
+        "stability": 82
+      },
+      "note": "11홀드",
+      "source": "62G 5승3패 2SV 11HLD ERA3.59 52.2IP 48K 21BB WHIP1.42 — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2023,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 90,
+        "contact": 91,
+        "speed": 79,
+        "defense": 99
+      },
+      "note": "포수 골든글러브",
+      "source": ".305/.396 17HR 68타점 8SB 510PA(129G) — KBO 기록실"
+    },
+    {
+      "personId": "양석환",
+      "name": "양석환",
+      "year": 2023,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 93,
+        "contact": 82,
+        "speed": 73,
+        "defense": 61
+      },
+      "note": "21홈런·89타점",
+      "source": ".281/.333 21HR 89타점 4SB 582PA(140G) — KBO 기록실"
+    },
+    {
+      "personId": "강승호",
+      "name": "강승호",
+      "year": 2023,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 75,
+        "speed": 89,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".265/.316 7HR 59타점 13SB 459PA(127G) — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2023,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 76,
+        "speed": 83,
+        "defense": 90
+      },
+      "note": "주장",
+      "source": ".268/.328 7HR 48타점 9SB 475PA(130G) — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2023,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 82,
+        "speed": 73,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".283/.376 3HR 29타점 4SB 302PA(91G) — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2023,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 84,
+        "speed": 110,
+        "defense": 101
+      },
+      "note": "39도루 도루왕",
+      "source": ".287/.375 2HR 11 3루타 39SB 583PA(137G) — KBO 기록실"
+    },
+    {
+      "personId": "로하스(두산)",
+      "name": "로하스",
+      "year": 2023,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 93,
+        "contact": 70,
+        "speed": 64,
+        "defense": 67
+      },
+      "note": "개막전 끝내기 3점 홈런",
+      "source": ".253/.345 19HR 65타점 0SB 464PA(122G) — KBO 기록실"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2023,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 58,
+        "speed": 69,
+        "defense": 64
+      },
+      "note": "",
+      "source": ".220/.343 10HR 46타점 3SB 72BB 484PA(132G) — KBO 기록실"
+    },
+    {
+      "personId": "조수행",
+      "name": "조수행",
+      "year": 2023,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 58,
+        "speed": 102,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".219/.298 1HR 17타점 26SB 249PA(126G) — KBO 기록실"
+    }
   ]
 }

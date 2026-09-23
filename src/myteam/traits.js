@@ -32,28 +32,28 @@ export function playerTraits(p) {
     const k9 = r.k != null && r.ip ? (r.k * 9) / r.ip : null;
     const bb9 = r.bb != null && r.ip ? (r.bb * 9) / r.ip : null;
     const ipg = r.ip && r.g ? r.ip / r.g : null;
-    if ((k9 ?? 0) >= 9 || st.stuff >= 88) add(good, 'strikeout', '탈삼진', k9 != null ? `9이닝 ${k9.toFixed(1)}K` : `구위 ${st.stuff}`);
-    if ((bb9 != null && bb9 <= 2.5) || st.control >= 88) add(good, 'control', '제구', bb9 != null ? `9이닝 볼넷 ${bb9.toFixed(1)}` : `제구 ${st.control}`);
-    if ((p.position === 'SP' && (ipg ?? 0) >= 6) || st.stamina >= 88) add(good, 'innings', '이닝이터', ipg != null && p.position === 'SP' ? `경기당 ${ipg.toFixed(1)}이닝` : `체력 ${st.stamina}`);
+    if ((k9 ?? 0) >= 9 || st.stuff >= 98) add(good, 'strikeout', '탈삼진', k9 != null ? `9이닝 ${k9.toFixed(1)}K` : `구위 ${st.stuff}`);
+    if ((bb9 != null && bb9 <= 2.5) || st.control >= 96) add(good, 'control', '제구', bb9 != null ? `9이닝 볼넷 ${bb9.toFixed(1)}` : `제구 ${st.control}`);
+    if ((p.position === 'SP' && (ipg ?? 0) >= 6) || st.stamina >= 98) add(good, 'innings', '이닝이터', ipg != null && p.position === 'SP' ? `경기당 ${ipg.toFixed(1)}이닝` : `체력 ${st.stamina}`);
     if ((r.era != null && r.era <= 2.8) || (r.whip != null && r.whip <= 1.1)) add(good, 'stingy', '짠물', r.era != null ? `ERA ${r.era.toFixed(2)}` : `WHIP ${r.whip}`);
-    if (st.stability >= 88) add(good, 'nerve', '강심장', `안정 ${st.stability}`);
-    if ((bb9 ?? 0) >= 4.5 || st.control <= 60) add(bad, 'walks', '볼넷 많음', bb9 != null ? `9이닝 볼넷 ${bb9.toFixed(1)}` : `제구 ${st.control}`);
+    if (st.stability >= 97) add(good, 'nerve', '강심장', `안정 ${st.stability}`);
+    if ((bb9 ?? 0) >= 4.5 || st.control <= 62) add(bad, 'walks', '볼넷 많음', bb9 != null ? `9이닝 볼넷 ${bb9.toFixed(1)}` : `제구 ${st.control}`);
     if ((r.era ?? 0) >= 5) add(bad, 'runs', '실점 많음', `ERA ${r.era.toFixed(2)}`);
-    if (p.position === 'SP' && st.stamina <= 60) add(bad, 'short', '짧은 이닝', `체력 ${st.stamina}`);
-    if (st.stuff <= 60) add(bad, 'weakstuff', '구위 약함', `구위 ${st.stuff}`);
+    if (p.position === 'SP' && st.stamina <= 65) add(bad, 'short', '짧은 이닝', `체력 ${st.stamina}`);
+    if (st.stuff <= 64) add(bad, 'weakstuff', '구위 약함', `구위 ${st.stuff}`);
   } else {
     const sb = per144(r.sb, r.g);
     const hr = per144(r.hr, r.g);
-    if ((sb ?? 0) >= 25 || st.speed >= 85) add(good, 'steal', '도루', sb != null ? `144경기 ${sb}도루` : `주루 ${st.speed}`);
-    if ((hr ?? 0) >= 25 || st.power >= 88) add(good, 'power', '장타', hr != null ? `144경기 ${hr}홈런` : `파워 ${st.power}`);
-    if ((r.avg ?? 0) >= 0.31 || st.contact >= 88) add(good, 'contact', '정교함', r.avg != null ? `타율 ${rate(r.avg)}` : `컨택 ${st.contact}`);
+    if ((sb ?? 0) >= 25 || st.speed >= 98) add(good, 'steal', '도루', sb != null ? `144경기 ${sb}도루` : `주루 ${st.speed}`);
+    if ((hr ?? 0) >= 25 || st.power >= 98) add(good, 'power', '장타', hr != null ? `144경기 ${hr}홈런` : `파워 ${st.power}`);
+    if ((r.avg ?? 0) >= 0.31 || st.contact >= 98) add(good, 'contact', '정교함', r.avg != null ? `타율 ${rate(r.avg)}` : `컨택 ${st.contact}`);
     if (r.obp != null && r.avg != null && r.obp - r.avg >= 0.08) add(good, 'eye', '선구안', `출루 ${rate(r.obp)}`);
-    if (st.contact >= 75 && st.power < 65 && st.speed >= 70) add(good, 'smallball', '작전', `컨택 ${st.contact} · 주루 ${st.speed}`);
-    if (st.defense >= 88) add(good, 'glove', '수비', `수비 ${st.defense}`);
-    if (st.speed <= 45) add(bad, 'slow', '발 느림', `주루 ${st.speed}`);
-    if (st.power <= 50) add(bad, 'nopower', '장타 없음', hr != null ? `144경기 ${hr}홈런` : `파워 ${st.power}`);
-    if ((r.avg != null && r.avg < 0.25) || st.contact <= 60) add(bad, 'nocontact', '정교함 부족', r.avg != null ? `타율 ${rate(r.avg)}` : `컨택 ${st.contact}`);
-    if (st.defense <= 60) add(bad, 'error', '수비 불안', `수비 ${st.defense}`);
+    if (st.contact >= 82 && st.power < 72 && st.speed >= 80) add(good, 'smallball', '작전', `컨택 ${st.contact} · 주루 ${st.speed}`);
+    if (st.defense >= 92) add(good, 'glove', '수비', `수비 ${st.defense}`);
+    if (st.speed <= 60) add(bad, 'slow', '발 느림', `주루 ${st.speed}`);
+    if (st.power <= 62) add(bad, 'nopower', '장타 없음', hr != null ? `144경기 ${hr}홈런` : `파워 ${st.power}`);
+    if ((r.avg != null && r.avg < 0.25) || st.contact <= 62) add(bad, 'nocontact', '정교함 부족', r.avg != null ? `타율 ${rate(r.avg)}` : `컨택 ${st.contact}`);
+    if (st.defense <= 56) add(bad, 'error', '수비 불안', `수비 ${st.defense}`);
   }
   return { good, bad, record: r };
 }

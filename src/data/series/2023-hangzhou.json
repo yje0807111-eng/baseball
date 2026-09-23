@@ -16,23 +16,311 @@
     "수비(defense)는 수비 이닝·실책·평판 기반 추정, 투타(hand)는 일반 알려진 정보로 넣음."
   ],
   "players": [
-    { "personId": "문동주", "name": "문동주", "year": 2023, "team": "한화", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 73, "control": 70, "stamina": 71, "stability": 77 }, "note": "결승전 선발", "source": "23G 8승8패 ERA3.72 118.2IP 95K 42BB WHIP1.31 — KBO 기록실" },
-    { "personId": "원태인", "name": "원태인", "year": 2023, "team": "삼성", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 83, "stamina": 79, "stability": 83 }, "note": "", "source": "26G 7승7패 ERA3.24 150IP 102K 34BB WHIP1.27 — KBO 기록실" },
-    { "personId": "곽빈", "name": "곽빈", "year": 2023, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 59, "stamina": 73, "stability": 86 }, "note": "12승", "source": "23G 12승7패 ERA2.90 127.1IP 106K 58BB WHIP1.21 — KBO 기록실" },
-    { "personId": "박세웅", "name": "박세웅", "year": 2023, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 75, "control": 67, "stamina": 80, "stability": 80 }, "note": "와일드카드 발탁", "source": "27G 9승7패 ERA3.45 154IP 129K 59BB WHIP1.32 — KBO 기록실" },
-    { "personId": "고우석", "name": "고우석", "year": 2023, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 55, "stamina": 45, "stability": 78 }, "note": "15세이브", "source": "44G 3승8패 15SV ERA3.68 44IP 59K 22BB WHIP1.36 — KBO 기록실" },
-    { "personId": "박영현", "name": "박영현", "year": 2023, "team": "KT", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 75, "stamina": 55, "stability": 88 }, "note": "홀드왕 32홀드", "source": "68G 3승3패 4SV 32HLD ERA2.75 75.1IP 79K 23BB WHIP1.14 — KBO 기록실" },
-    { "personId": "최지민", "name": "최지민", "year": 2023, "team": "KIA", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 74, "control": 61, "stamina": 55, "stability": 90 }, "note": "", "source": "58G 6승3패 3SV 12HLD ERA2.12 59.1IP 44K 26BB WHIP1.20 — KBO 기록실" },
-    { "personId": "김형준", "name": "김형준", "year": 2023, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 58, "speed": 42, "defense": 78 }, "note": "", "source": ".236 6HR 13RBI 0SB 82PA(26G, 포수 24G) — KBO 기록실" },
-    { "personId": "최원준", "name": "최원준", "year": 2023, "team": "KIA", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 65, "speed": 76, "defense": 60 }, "note": "와일드카드 발탁", "source": ".255 1HR 23RBI 13SB 274PA(67G, 1루 39G) — KBO 기록실" },
-    { "personId": "김혜성", "name": "김혜성", "year": 2023, "team": "키움", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 90, "speed": 80, "defense": 88 }, "note": "타율 .335·186안타", "source": ".335 7HR 57RBI 25SB 186H 621PA(137G) — KBO 기록실" },
-    { "personId": "노시환", "name": "노시환", "year": 2023, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 87, "contact": 79, "speed": 45, "defense": 78 }, "note": "홈런·타점 2관왕", "source": ".298 31HR 101RBI 2SB 595PA(131G) — KBO 기록실" },
-    { "personId": "문보경", "name": "문보경", "year": 2023, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 80, "speed": 58, "defense": 76 }, "note": "", "source": ".301 10HR 72RBI 9SB 542PA(131G) — KBO 기록실" },
-    { "personId": "박성한", "name": "박성한", "year": 2023, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 69, "speed": 51, "defense": 82 }, "note": "", "source": ".266 9HR 47RBI 4SB 529PA(128G) — KBO 기록실" },
-    { "personId": "김주원", "name": "김주원", "year": 2023, "team": "NC", "position": "SS", "hand": "S", "isForeign": false, "stats": { "power": 60, "contact": 58, "speed": 70, "defense": 78 }, "note": "", "source": ".233 10HR 54RBI 15SB 474PA(127G) — KBO 기록실" },
-    { "personId": "최지훈", "name": "최지훈", "year": 2023, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 69, "speed": 77, "defense": 86 }, "note": "", "source": ".268 2HR 30RBI 21SB 503PA(117G, 중견 109G) — KBO 기록실" },
-    { "personId": "윤동희", "name": "윤동희", "year": 2023, "team": "롯데", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 76, "speed": 49, "defense": 74 }, "note": "대체 발탁", "source": ".287 2HR 41RBI 3SB 423PA(107G) — KBO 기록실" },
-    { "personId": "김성윤", "name": "김성윤", "year": 2023, "team": "삼성", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 80, "speed": 76, "defense": 78 }, "note": "대체 발탁", "source": ".314 2HR 28RBI 20SB 272PA(101G) — KBO 기록실" },
-    { "personId": "강백호", "name": "강백호", "year": 2023, "team": "KT", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 67, "contact": 68, "speed": 57, "defense": 52 }, "note": "", "source": ".265 8HR 39RBI 3SB 271PA(71G) — KBO 기록실" }
+    {
+      "personId": "문동주",
+      "name": "문동주",
+      "year": 2023,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 78,
+        "stamina": 83,
+        "stability": 79
+      },
+      "note": "결승전 선발",
+      "source": "23G 8승8패 ERA3.72 118.2IP 95K 42BB WHIP1.31 — KBO 기록실"
+    },
+    {
+      "personId": "원태인",
+      "name": "원태인",
+      "year": 2023,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 91,
+        "stamina": 92,
+        "stability": 86
+      },
+      "note": "",
+      "source": "26G 7승7패 ERA3.24 150IP 102K 34BB WHIP1.27 — KBO 기록실"
+    },
+    {
+      "personId": "곽빈",
+      "name": "곽빈",
+      "year": 2023,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 67,
+        "stamina": 86,
+        "stability": 90
+      },
+      "note": "12승",
+      "source": "23G 12승7패 ERA2.90 127.1IP 106K 58BB WHIP1.21 — KBO 기록실"
+    },
+    {
+      "personId": "박세웅",
+      "name": "박세웅",
+      "year": 2023,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 75,
+        "stamina": 93,
+        "stability": 83
+      },
+      "note": "와일드카드 발탁",
+      "source": "27G 9승7패 ERA3.45 154IP 129K 59BB WHIP1.32 — KBO 기록실"
+    },
+    {
+      "personId": "고우석",
+      "name": "고우석",
+      "year": 2023,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 105,
+        "control": 63,
+        "stamina": 56,
+        "stability": 80
+      },
+      "note": "15세이브",
+      "source": "44G 3승8패 15SV ERA3.68 44IP 59K 22BB WHIP1.36 — KBO 기록실"
+    },
+    {
+      "personId": "박영현",
+      "name": "박영현",
+      "year": 2023,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 83,
+        "stamina": 66,
+        "stability": 92
+      },
+      "note": "홀드왕 32홀드",
+      "source": "68G 3승3패 4SV 32HLD ERA2.75 75.1IP 79K 23BB WHIP1.14 — KBO 기록실"
+    },
+    {
+      "personId": "최지민",
+      "name": "최지민",
+      "year": 2023,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 69,
+        "stamina": 66,
+        "stability": 94
+      },
+      "note": "",
+      "source": "58G 6승3패 3SV 12HLD ERA2.12 59.1IP 44K 26BB WHIP1.20 — KBO 기록실"
+    },
+    {
+      "personId": "김형준",
+      "name": "김형준",
+      "year": 2023,
+      "team": "NC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 64,
+        "speed": 64,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".236 6HR 13RBI 0SB 82PA(26G, 포수 24G) — KBO 기록실"
+    },
+    {
+      "personId": "최원준",
+      "name": "최원준",
+      "year": 2023,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 63,
+        "contact": 72,
+        "speed": 97,
+        "defense": 55
+      },
+      "note": "와일드카드 발탁",
+      "source": ".255 1HR 23RBI 13SB 274PA(67G, 1루 39G) — KBO 기록실"
+    },
+    {
+      "personId": "김혜성",
+      "name": "김혜성",
+      "year": 2023,
+      "team": "키움",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 100,
+        "speed": 101,
+        "defense": 96
+      },
+      "note": "타율 .335·186안타",
+      "source": ".335 7HR 57RBI 25SB 186H 621PA(137G) — KBO 기록실"
+    },
+    {
+      "personId": "노시환",
+      "name": "노시환",
+      "year": 2023,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 108,
+        "contact": 87,
+        "speed": 67,
+        "defense": 81
+      },
+      "note": "홈런·타점 2관왕",
+      "source": ".298 31HR 101RBI 2SB 595PA(131G) — KBO 기록실"
+    },
+    {
+      "personId": "문보경",
+      "name": "문보경",
+      "year": 2023,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 88,
+        "speed": 79,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".301 10HR 72RBI 9SB 542PA(131G) — KBO 기록실"
+    },
+    {
+      "personId": "박성한",
+      "name": "박성한",
+      "year": 2023,
+      "team": "SSG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 76,
+        "speed": 72,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".266 9HR 47RBI 4SB 529PA(128G) — KBO 기록실"
+    },
+    {
+      "personId": "김주원",
+      "name": "김주원",
+      "year": 2023,
+      "team": "NC",
+      "position": "SS",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 64,
+        "speed": 91,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".233 10HR 54RBI 15SB 474PA(127G) — KBO 기록실"
+    },
+    {
+      "personId": "최지훈",
+      "name": "최지훈",
+      "year": 2023,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 76,
+        "speed": 98,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".268 2HR 30RBI 21SB 503PA(117G, 중견 109G) — KBO 기록실"
+    },
+    {
+      "personId": "윤동희",
+      "name": "윤동희",
+      "year": 2023,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 84,
+        "speed": 70,
+        "defense": 75
+      },
+      "note": "대체 발탁",
+      "source": ".287 2HR 41RBI 3SB 423PA(107G) — KBO 기록실"
+    },
+    {
+      "personId": "김성윤",
+      "name": "김성윤",
+      "year": 2023,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 88,
+        "speed": 97,
+        "defense": 81
+      },
+      "note": "대체 발탁",
+      "source": ".314 2HR 28RBI 20SB 272PA(101G) — KBO 기록실"
+    },
+    {
+      "personId": "강백호",
+      "name": "강백호",
+      "year": 2023,
+      "team": "KT",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 86,
+        "contact": 75,
+        "speed": 78,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".265 8HR 39RBI 3SB 271PA(71G) — KBO 기록실"
+    }
   ]
 }

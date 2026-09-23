@@ -12,21 +12,23 @@ export const teamNeon = (p) => TEAM_NEON[p?.team] || '#10b981';
 
 /** 포지션 색 (내 라커): 선발 파랑 · 불펜 빨강 · 포수 금 · 내야 초록 · 외야 보라 · 지명 분홍 */
 export const POS_COLOR = { SP: '#60a5fa', RP: '#f87171', C: '#fbbf24', '1B': '#34d399', '2B': '#34d399', '3B': '#34d399', SS: '#34d399', OF: '#a78bfa', DH: '#f472b6' };
-/** 능력치 구간 색 — 라커 영입 목록과 같은 신호등 (90+ 금 · 80+ 초록 · 70+ 노랑 · 60+ 주황 · 그 아래 빨강) */
-export const statBandColor = (v) => (v >= 90 ? '#fbbf24' : v >= 80 ? '#34d399' : v >= 70 ? '#fde047' : v >= 60 ? '#fb923c' : '#f87171');
+/** 능력치 구간 색 — 라커 영입 목록과 같은 신호등 (100+ 금 · 90+ 초록 · 80+ 노랑 · 70+ 주황 · 그 아래 빨강) */
+export const statBandColor = (v) => (v >= 100 ? '#fbbf24' : v >= 90 ? '#34d399' : v >= 80 ? '#fde047' : v >= 70 ? '#fb923c' : '#f87171');
 
 /** 능력치 막대 · 숫자 꾸밈 — 라커 영입 목록(.st-bar/.st-n)과 완전히 같은 값 */
-export const statBarStyle = (v) => (v >= 90 ? { background: 'linear-gradient(90deg, #b45309, #fbbf24)' }
-  : v >= 80 ? { background: '#34d399', boxShadow: '0 0 5px rgba(52,211,153,.45)' }
+export const statBarStyle = (v) => (v >= 100 ? { background: 'linear-gradient(90deg, #b45309, #fbbf24)' }
+  : v >= 90 ? { background: '#34d399', boxShadow: '0 0 5px rgba(52,211,153,.45)' }
   : { background: statBandColor(v) });
-export const statNumStyle = (v) => (v >= 90 ? { color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,.45)' } : { color: statBandColor(v) });
+export const statNumStyle = (v) => (v >= 100 ? { color: '#fbbf24', textShadow: '0 0 8px rgba(251,191,36,.45)' } : { color: statBandColor(v) });
 
 export const posColor = (p) => POS_COLOR[p?.position] || '#10b981';
 
 // '#rrggbb' 과 'rgb(r,g,b)' 둘 다 받는다 (mix 결과를 다시 mix 에 넣을 수 있게)
 const hex = (c) => (c.startsWith('rgb') ? c.match(/\d+/g).slice(0, 3).map(Number) : [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)));
 const mix = (a, b, t) => { const [x, y] = [hex(a), hex(b)]; return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(',')})`; };
-const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 40) / 60));
+const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 50) / 60));
+/** 능력치(50~110)를 막대 길이 퍼센트로 */
+export const statPct = (v) => Math.max(0, Math.min(100, (((v ?? 0) - 50) / 60) * 100));
 
 /**
  * 능력치 색 — 네 갈래로 묶어 타자와 투수가 짝을 이룬다.

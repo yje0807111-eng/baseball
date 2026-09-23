@@ -1,0 +1,318 @@
+{
+  "id": "2018-nexen",
+  "kind": "team",
+  "year": 2018,
+  "title": "넥센 히어로즈",
+  "franchise": "KIWOOM",
+  "subtitle": "박병호의 43홈런",
+  "blurb": "박병호가 43홈런을 치고 이정후가 타율 .355를 기록하며 넥센이 준플레이오프에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "브리검",
+      "name": "브리검",
+      "year": 2018,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 83,
+        "control": 88,
+        "stamina": 104,
+        "stability": 87
+      },
+      "note": "",
+      "source": "31G 199IP ERA3.84 175K 50BB WHIP1.20 11승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "한현희",
+      "name": "한현희",
+      "year": 2018,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 84,
+        "stamina": 96,
+        "stability": 72
+      },
+      "note": "",
+      "source": "30G 169IP ERA4.79 105K 49BB WHIP1.52 11승 — KBO 기록실"
+    },
+    {
+      "personId": "최원태",
+      "name": "최원태",
+      "year": 2018,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 87,
+        "stamina": 85,
+        "stability": 86
+      },
+      "note": "13승·대체 발탁",
+      "source": "23G 134 1/3IP ERA3.95 101K 35BB WHIP1.33 13승 — KBO 기록실"
+    },
+    {
+      "personId": "신재영",
+      "name": "신재영",
+      "year": 2018,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 90,
+        "stamina": 76,
+        "stability": 54
+      },
+      "note": "",
+      "source": "26G 101 1/3IP ERA6.75 53K 23BB WHIP1.54 8승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김태혁",
+      "name": "김태혁",
+      "year": 2018,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 68,
+        "stamina": 66,
+        "stability": 70
+      },
+      "note": "",
+      "source": "58G 55 2/3IP ERA5.17 68K 23BB WHIP1.37 2승 18SV 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "이보근",
+      "name": "이보근",
+      "year": 2018,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 90,
+        "stamina": 67,
+        "stability": 81
+      },
+      "note": "",
+      "source": "64G 61IP ERA4.28 54K 14BB WHIP1.31 7승 24HLD — KBO 기록실"
+    },
+    {
+      "personId": "오주원",
+      "name": "오주원",
+      "year": 2018,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 88,
+        "stamina": 65,
+        "stability": 61
+      },
+      "note": "",
+      "source": "61G 52 1/3IP ERA6.19 36K 13BB WHIP1.41 3승 1SV 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "김성민",
+      "name": "김성민",
+      "year": 2018,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 66,
+        "stamina": 65,
+        "stability": 58
+      },
+      "note": "",
+      "source": "46G 48IP ERA6.19 45K 21BB WHIP1.71 2승 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2018,
+      "team": "넥센",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 68,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".228/.293 3HR 18타점 0SB 234PA — KBO 기록실"
+    },
+    {
+      "personId": "박동원",
+      "name": "박동원",
+      "year": 2018,
+      "team": "넥센",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 93,
+        "speed": 63,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".248/.302 6HR 17타점 0SB 128PA — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 2018,
+      "team": "넥센",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 108,
+        "contact": 99,
+        "speed": 65,
+        "defense": 61
+      },
+      "note": "43홈런",
+      "source": ".345/.457 43HR 112타점 0SB 488PA — KBO 기록실"
+    },
+    {
+      "personId": "김혜성",
+      "name": "김혜성",
+      "year": 2018,
+      "team": "넥센",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 66,
+        "speed": 109,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".270/.328 5HR 45타점 31SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "김민성",
+      "name": "김민성",
+      "year": 2018,
+      "team": "넥센",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 76,
+        "speed": 66,
+        "defense": 75
+      },
+      "note": "",
+      "source": ".283/.351 10HR 45타점 1SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "김하성",
+      "name": "김하성",
+      "year": 2018,
+      "team": "넥센",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 86,
+        "contact": 80,
+        "speed": 84,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".288/.358 20HR 84타점 8SB 576PA — KBO 기록실"
+    },
+    {
+      "personId": "이정후",
+      "name": "이정후",
+      "year": 2018,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 101,
+        "speed": 90,
+        "defense": 81
+      },
+      "note": "타율 .355·대체 발탁",
+      "source": ".355/.412 6HR 57타점 11SB 520PA — KBO 기록실"
+    },
+    {
+      "personId": "임병욱",
+      "name": "임병욱",
+      "year": 2018,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 81,
+        "speed": 94,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".293/.327 13HR 60타점 16SB 447PA — KBO 기록실"
+    },
+    {
+      "personId": "초이스",
+      "name": "초이스",
+      "year": 2018,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 90,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".258/.335 17HR 61타점 2SB 397PA — KBO 기록실"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2018,
+      "team": "넥센",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 66,
+        "speed": 66,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".308/.385 4HR 52타점 1SB 356PA — KBO 기록실"
+    }
+  ]
+}

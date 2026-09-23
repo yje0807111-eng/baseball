@@ -1,0 +1,318 @@
+{
+  "id": "2000-lg",
+  "kind": "team",
+  "year": 2000,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "해리거의 17승",
+  "blurb": "해리거가 17승을 거두고 스미스가 35홈런을 치며 LG가 가을 무대에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "해리거",
+      "name": "해리거",
+      "year": 2000,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 95,
+        "stamina": 108,
+        "stability": 95
+      },
+      "note": "",
+      "source": "31G 225IP ERA3.12 162K 61BB WHIP1.12 17승 — KBO 기록실"
+    },
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 2000,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 87,
+        "stamina": 85,
+        "stability": 71
+      },
+      "note": "",
+      "source": "32G 127IP ERA5.24 85K 42BB WHIP1.45 6승 4SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "경헌호",
+      "name": "경헌호",
+      "year": 2000,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 88,
+        "stamina": 71,
+        "stability": 81
+      },
+      "note": "",
+      "source": "24G 85 1/3IP ERA4.32 56K 28BB WHIP1.37 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "최향남",
+      "name": "최향남",
+      "year": 2000,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 101,
+        "control": 83,
+        "stamina": 68,
+        "stability": 91
+      },
+      "note": "",
+      "source": "21G 78IP ERA3.46 80K 28BB WHIP1.37 4승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "장문석",
+      "name": "장문석",
+      "year": 2000,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 83,
+        "stamina": 71,
+        "stability": 92
+      },
+      "note": "",
+      "source": "40G 137IP ERA3.42 134K 50BB WHIP1.26 9승 11SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 2000,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 83,
+        "stamina": 71,
+        "stability": 75
+      },
+      "note": "",
+      "source": "54G 74 2/3IP ERA4.82 50K 27BB WHIP1.49 3승 2SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "이승호",
+      "name": "이승호",
+      "year": 2000,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 59,
+        "stamina": 69,
+        "stability": 94
+      },
+      "note": "",
+      "source": "41G 64 2/3IP ERA3.20 52K 38BB WHIP1.36 6승 5SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "김민기",
+      "name": "김민기",
+      "year": 2000,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 77,
+        "stamina": 70,
+        "stability": 82
+      },
+      "note": "",
+      "source": "29G 71 2/3IP ERA4.27 50K 29BB WHIP1.47 5승 2SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2000,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 75,
+        "speed": 67,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".225/.282 5HR 33타점 2SB 258PA — KBO 기록실"
+    },
+    {
+      "personId": "김정민",
+      "name": "김정민",
+      "year": 2000,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 64,
+        "speed": 67,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".238/.310 2HR 22타점 2SB 242PA — KBO 기록실"
+    },
+    {
+      "personId": "서용빈",
+      "name": "서용빈",
+      "year": 2000,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 62,
+        "speed": 72,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".274/.355 2HR 40타점 4SB 333PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 2000,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 68,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".250/.326 6HR 35타점 9SB 492PA — KBO 기록실"
+    },
+    {
+      "personId": "안상준",
+      "name": "안상준",
+      "year": 2000,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 72,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".222/.311 4HR 26타점 3SB 250PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 2000,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 68,
+        "speed": 100,
+        "defense": 95
+      },
+      "note": "",
+      "source": ".281/.373 7HR 38타점 25SB 592PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 2000,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 83,
+        "speed": 89,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".323/.383 18HR 99타점 14SB 595PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 2000,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 75,
+        "speed": 77,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".308/.415 11HR 62타점 6SB 560PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 2000,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 79,
+        "speed": 90,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".313/.415 15HR 92타점 15SB 514PA — KBO 기록실"
+    },
+    {
+      "personId": "스미스",
+      "name": "스미스",
+      "year": 2000,
+      "team": "LG",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 83,
+        "power": 103,
+        "speed": 62,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".288/.366 35HR 100타점 0SB 484PA — KBO 기록실"
+    }
+  ]
+}

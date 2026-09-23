@@ -2,7 +2,7 @@
 import React from 'react';
 import { squadIssues, SQUAD_CAP, limitsOf } from './rules.js';
 import { UiStyle, KV, Stats, teamStats } from './ui.jsx';
-import { statColor } from './teamColor.js';
+import { statColor, statPct } from './teamColor.js';
 import { rankOf } from './rank.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, STAGES, PLACE_REWARD, LEAGUE_SIZE, POST_TEAMS } from './ranked.js';
 import { StandingsTable, RK } from './RankedHub.jsx';
@@ -63,7 +63,7 @@ function teamParts(squad) {
 
 /** 최근 랭크전 10경기 — 승패 칸 한 줄 (성적은 제목 옆에) */
 function FormRow({ games }) {
-  if (!games.length) return <p className="text-sm text-gray-500">아직 치른 랭크전이 없습니다</p>;
+  if (!games.length) return <p className="text-sm text-gray-500">치른 랭크전 없음</p>;
   return (
     <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
       {games.map((g, i) => {
@@ -106,7 +106,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': RK }}>Ranked · {s ? `Season ${s.season}` : 'Season'}</p>
         <h1 className="mt-2 text-6xl font-black text-white">랭크전</h1>
-        <p className="mt-3 text-lg text-gray-300">정규 시즌을 치르고, 가을야구 성적으로 랭크 승점을 받습니다.</p>
+        <p className="mt-3 text-lg text-gray-300">정규 시즌 · 가을야구 성적으로 랭크 승점</p>
         {s ? (
           <div className="ui-cut mt-auto bg-[#05080f]/60 px-4 py-3" style={{ '--c': '12px' }}>
             <StandingsTable s={s} />
@@ -156,7 +156,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
               v={`${h.rp >= 0 ? '+' : ''}${h.rp} RP`} color={h.rp >= 0 ? '#34d399' : '#f87171'} sm />
           ))}
         </div>
-      ) : <p className="text-sm text-gray-500">아직 마친 시즌이 없습니다</p>}
+      ) : <p className="text-sm text-gray-500">마친 시즌 없음</p>}
 
       {/* 내 팀 전력 */}
       <p className="ui-lab font-display" style={{ '--a': RK }}>My Team</p>
@@ -166,7 +166,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
             <span>{k}</span>
             <span className="relative bg-white/[0.07]" style={{ height: 7 }}>
               {/* 드래프트 선수 카드와 같은 막대: 낮으면 푸른 회색, 높을수록 그 부문 색으로 짙어진다 */}
-              <i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: statColor(v, c).bar }} />
+              <i className="absolute inset-y-0 left-0" style={{ width: `${statPct(v)}%`, background: statColor(v, c).bar }} />
             </span>
             <b className="text-right font-display text-[15px]" style={{ color: statColor(v, c).num }}>{v}</b>
           </div>

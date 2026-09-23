@@ -20,23 +20,311 @@
     "18명 구성: 선발 5 · 불펜 4 · 야수 9. 한유섬(189타석 .209)·오태곤(256타석)은 제외."
   ],
   "players": [
-    { "personId": "아빌라", "name": "아빌라", "year": 2026, "team": "SSG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 88, "control": 75, "stamina": 80, "stability": 97 }, "note": "10선발 ERA 1.41", "source": "10G 10GS 6승1패 ERA1.41 64IP 64K 19BB WHIP1.00 9QS — MyKBO Stats" },
-    { "personId": "김건우", "name": "김건우", "year": 2026, "team": "SSG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 73, "control": 52, "stamina": 73, "stability": 50 }, "note": "8승 118.1이닝", "source": "25G 25GS 8승10패 ERA6.08 118.1IP 102K 67BB WHIP1.73 — MyKBO Stats" },
-    { "personId": "최민준", "name": "최민준", "year": 2026, "team": "SSG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 70, "control": 57, "stamina": 67, "stability": 64 }, "note": "", "source": "27G 19GS 3승6패 ERA4.80 95.2IP 70K 46BB WHIP1.44 — MyKBO Stats" },
-    { "personId": "김민준(2006)", "name": "김민준", "year": 2026, "team": "SSG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 60, "stamina": 72, "stability": 80 }, "note": "신인 7승 ERA 3.47", "source": "14G 14GS 7승2패 ERA3.47 72.2IP 57K 32BB WHIP1.21 8QS — MyKBO Stats" },
-    { "personId": "타케다 쇼타", "name": "타케다 쇼타", "year": 2026, "team": "SSG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 68, "control": 59, "stamina": 66, "stability": 41 }, "note": "", "source": "22G 20GS 2승10패 ERA7.69 91.1IP 72K 42BB WHIP1.87 — MyKBO Stats" },
-    { "personId": "조병현", "name": "조병현", "year": 2026, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 92, "control": 55, "stamina": 52, "stability": 90 }, "note": "20세이브", "source": "52G 2승4패 20SV ERA2.50 50.1IP 64K 26BB WHIP1.15 — MyKBO Stats" },
-    { "personId": "김민", "name": "김민", "year": 2026, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 89, "control": 56, "stamina": 56, "stability": 78 }, "note": "66경기 18홀드", "source": "66G 5승4패 1SV 18HLD ERA3.64 59.1IP 65K 30BB WHIP1.38 — MyKBO Stats" },
-    { "personId": "문승원", "name": "문승원", "year": 2026, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 56, "control": 54, "stamina": 54, "stability": 78 }, "note": "12홀드", "source": "56G 2승2패 1SV 12HLD ERA3.63 57IP 25K 30BB WHIP1.40 — MyKBO Stats" },
-    { "personId": "노경은", "name": "노경은", "year": 2026, "team": "SSG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 66, "stamina": 52, "stability": 65 }, "note": "42세 10홀드", "source": "52G 3승5패 10HLD ERA4.72 47.2IP 36K 19BB WHIP1.43 — MyKBO Stats" },
-    { "personId": "조형우", "name": "조형우", "year": 2026, "team": "SSG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 67, "speed": 42, "defense": 78 }, "note": "주전 포수 8홈런", "source": ".257/.316/.401 8HR 37타점 0SB 345PA(98G) — MyKBO Stats" },
-    { "personId": "고명준", "name": "고명준", "year": 2026, "team": "SSG", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 78, "contact": 78, "speed": 44, "defense": 62 }, "note": "42경기 OPS .876", "source": ".293/.341/.535 10HR 23타점 1SB 170PA(42G) — MyKBO Stats" },
-    { "personId": "정준재", "name": "정준재", "year": 2026, "team": "SSG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 70, "speed": 74, "defense": 78 }, "note": "19도루", "source": ".271/.347/.337 1HR 38타점 19SB 532PA(125G) — MyKBO Stats" },
-    { "personId": "최정", "name": "최정", "year": 2026, "team": "SSG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 86, "contact": 81, "speed": 44, "defense": 74 }, "note": "71경기 OPS 1.013", "source": ".306/.397/.616 20HR 57타점 3SB 305PA(71G) — MyKBO Stats" },
-    { "personId": "박성한", "name": "박성한", "year": 2026, "team": "SSG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 89, "speed": 54, "defense": 84 }, "note": "타율 .331 출루율 .425", "source": ".331/.425/.421 4HR 64타점 5SB 78BB 158안타 560PA(129G) — MyKBO Stats" },
-    { "personId": "에레디아", "name": "에레디아", "year": 2026, "team": "SSG", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 72, "contact": 74, "speed": 44, "defense": 72 }, "note": "86타점", "source": ".283/.338/.470 17HR 86타점 2SB 435PA(100G) — MyKBO Stats" },
-    { "personId": "최지훈", "name": "최지훈", "year": 2026, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 63, "contact": 60, "speed": 76, "defense": 88 }, "note": "중견수 18도루", "source": ".240/.298/.391 12HR 52타점 18SB 516PA(126G) — MyKBO Stats" },
-    { "personId": "김재환", "name": "김재환", "year": 2026, "team": "SSG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 75, "contact": 56, "speed": 42, "defense": 58 }, "note": "21홈런 볼넷 66개", "source": ".223/.338/.409 21HR 66타점 2SB 66BB 471PA(117G) — MyKBO Stats" },
-    { "personId": "전의산", "name": "전의산", "year": 2026, "team": "SSG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 70, "contact": 66, "speed": 42, "defense": 58 }, "note": "71경기 10홈런", "source": ".255/.316/.437 10HR 44타점 1SB 272PA(71G) — MyKBO Stats" }
+    {
+      "personId": "아빌라",
+      "name": "아빌라",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 93,
+        "control": 85,
+        "stamina": 93,
+        "stability": 103
+      },
+      "note": "10선발 ERA 1.41",
+      "source": "10G 10GS 6승1패 ERA1.41 64IP 64K 19BB WHIP1.00 9QS — MyKBO Stats"
+    },
+    {
+      "personId": "김건우",
+      "name": "김건우",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 61,
+        "stamina": 86,
+        "stability": 54
+      },
+      "note": "8승 118.1이닝",
+      "source": "25G 25GS 8승10패 ERA6.08 118.1IP 102K 67BB WHIP1.73 — MyKBO Stats"
+    },
+    {
+      "personId": "최민준",
+      "name": "최민준",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 66,
+        "stamina": 79,
+        "stability": 68
+      },
+      "note": "",
+      "source": "27G 19GS 3승6패 ERA4.80 95.2IP 70K 46BB WHIP1.44 — MyKBO Stats"
+    },
+    {
+      "personId": "김민준(2006)",
+      "name": "김민준",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 69,
+        "stamina": 84,
+        "stability": 85
+      },
+      "note": "신인 7승 ERA 3.47",
+      "source": "14G 14GS 7승2패 ERA3.47 72.2IP 57K 32BB WHIP1.21 8QS — MyKBO Stats"
+    },
+    {
+      "personId": "타케다 쇼타",
+      "name": "타케다 쇼타",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 64,
+        "control": 68,
+        "stamina": 78,
+        "stability": 50
+      },
+      "note": "",
+      "source": "22G 20GS 2승10패 ERA7.69 91.1IP 72K 42BB WHIP1.87 — MyKBO Stats"
+    },
+    {
+      "personId": "조병현",
+      "name": "조병현",
+      "year": 2026,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 64,
+        "stamina": 63,
+        "stability": 96
+      },
+      "note": "20세이브",
+      "source": "52G 2승4패 20SV ERA2.50 50.1IP 64K 26BB WHIP1.15 — MyKBO Stats"
+    },
+    {
+      "personId": "김민",
+      "name": "김민",
+      "year": 2026,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 95,
+        "control": 65,
+        "stamina": 67,
+        "stability": 83
+      },
+      "note": "66경기 18홀드",
+      "source": "66G 5승4패 1SV 18HLD ERA3.64 59.1IP 65K 30BB WHIP1.38 — MyKBO Stats"
+    },
+    {
+      "personId": "문승원",
+      "name": "문승원",
+      "year": 2026,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 63,
+        "stamina": 65,
+        "stability": 83
+      },
+      "note": "12홀드",
+      "source": "56G 2승2패 1SV 12HLD ERA3.63 57IP 25K 30BB WHIP1.40 — MyKBO Stats"
+    },
+    {
+      "personId": "노경은",
+      "name": "노경은",
+      "year": 2026,
+      "team": "SSG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 75,
+        "stamina": 63,
+        "stability": 70
+      },
+      "note": "42세 10홀드",
+      "source": "52G 3승5패 10HLD ERA4.72 47.2IP 36K 19BB WHIP1.43 — MyKBO Stats"
+    },
+    {
+      "personId": "조형우",
+      "name": "조형우",
+      "year": 2026,
+      "team": "SSG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 72,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "주전 포수 8홈런",
+      "source": ".257/.316/.401 8HR 37타점 0SB 345PA(98G) — MyKBO Stats"
+    },
+    {
+      "personId": "고명준",
+      "name": "고명준",
+      "year": 2026,
+      "team": "SSG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 93,
+        "contact": 86,
+        "speed": 67,
+        "defense": 59
+      },
+      "note": "42경기 OPS .876",
+      "source": ".293/.341/.535 10HR 23타점 1SB 170PA(42G) — MyKBO Stats"
+    },
+    {
+      "personId": "정준재",
+      "name": "정준재",
+      "year": 2026,
+      "team": "SSG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 76,
+        "speed": 94,
+        "defense": 82
+      },
+      "note": "19도루",
+      "source": ".271/.347/.337 1HR 38타점 19SB 532PA(125G) — MyKBO Stats"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2026,
+      "team": "SSG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 101,
+        "contact": 89,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "71경기 OPS 1.013",
+      "source": ".306/.397/.616 20HR 57타점 3SB 305PA(71G) — MyKBO Stats"
+    },
+    {
+      "personId": "박성한",
+      "name": "박성한",
+      "year": 2026,
+      "team": "SSG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 99,
+        "speed": 76,
+        "defense": 90
+      },
+      "note": "타율 .331 출루율 .425",
+      "source": ".331/.425/.421 4HR 64타점 5SB 78BB 158안타 560PA(129G) — MyKBO Stats"
+    },
+    {
+      "personId": "에레디아",
+      "name": "에레디아",
+      "year": 2026,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 87,
+        "contact": 81,
+        "speed": 67,
+        "defense": 73
+      },
+      "note": "86타점",
+      "source": ".283/.338/.470 17HR 86타점 2SB 435PA(100G) — MyKBO Stats"
+    },
+    {
+      "personId": "최지훈",
+      "name": "최지훈",
+      "year": 2026,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 64,
+        "speed": 96,
+        "defense": 96
+      },
+      "note": "중견수 18도루",
+      "source": ".240/.298/.391 12HR 52타점 18SB 516PA(126G) — MyKBO Stats"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2026,
+      "team": "SSG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 90,
+        "contact": 59,
+        "speed": 65,
+        "defense": 53
+      },
+      "note": "21홈런 볼넷 66개",
+      "source": ".223/.338/.409 21HR 66타점 2SB 66BB 471PA(117G) — MyKBO Stats"
+    },
+    {
+      "personId": "전의산",
+      "name": "전의산",
+      "year": 2026,
+      "team": "SSG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 71,
+        "speed": 65,
+        "defense": 53
+      },
+      "note": "71경기 10홈런",
+      "source": ".255/.316/.437 10HR 44타점 1SB 272PA(71G) — MyKBO Stats"
+    }
   ]
 }

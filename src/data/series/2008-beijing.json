@@ -10,23 +10,311 @@
     "18명 구성: 봉중근·권혁·진갑용·이대호 추가. 송승준·장원삼·고영민·김민재·이택근은 미수록."
   ],
   "players": [
-    { "personId": "류현진", "name": "류현진", "year": 2008, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 65, "stamina": 83, "stability": 82 }, "note": "", "source": "26G 14승7패 165.2IP ERA3.31 143K 67BB WHIP1.22 — kowiki" },
-    { "personId": "김광현", "name": "김광현", "year": 2008, "team": "SK", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 66, "stamina": 82, "stability": 91 }, "note": "", "source": "27G 16승4패 162IP ERA2.39 150K 63BB — kowiki" },
-    { "personId": "윤석민", "name": "윤석민", "year": 2008, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 79, "stamina": 80, "stability": 91 }, "note": "임태훈 대체 승선, 평균자책점 1위", "source": "24G(23GS) 14승5패 154.2IP ERA2.33 119K 42BB WHIP1.05 — kowiki" },
-    { "personId": "봉중근", "name": "봉중근", "year": 2008, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 68, "stamina": 89, "stability": 88 }, "note": "", "source": "28G 11승8패 186.1IP ERA2.66 140K 68BB WHIP1.19 — kowiki" },
-    { "personId": "오승환", "name": "오승환", "year": 2008, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 80, "stamina": 50, "stability": 99 }, "note": "", "source": "57G 39SV 57.2IP ERA1.40 51K 15BB WHIP0.85 — kowiki" },
-    { "personId": "정대현", "name": "정대현", "year": 2008, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 70, "stamina": 50, "stability": 88 }, "note": "", "source": "49G 20SV 60.2IP ERA2.67 50K 22BB — kowiki" },
-    { "personId": "한기주", "name": "한기주", "year": 2008, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 78, "stamina": 50, "stability": 96 }, "note": "", "source": "46G 26SV 58IP ERA1.71 46K 16BB — kowiki" },
-    { "personId": "권혁", "name": "권혁", "year": 2008, "team": "삼성", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 76, "control": 59, "stamina": 50, "stability": 97 }, "note": "15홀드", "source": "43G 6승0패 15HLD 47.2IP ERA1.32 37K 22BB — kowiki" },
-    { "personId": "강민호", "name": "강민호", "year": 2008, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 77, "speed": 42, "defense": 84 }, "note": "포수 골든글러브", "source": "122G .292 19HR 49BB 2SB — kowiki" },
-    { "personId": "진갑용", "name": "진갑용", "year": 2008, "team": "삼성", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 73, "speed": 40, "defense": 80 }, "note": "", "source": "105G .279 11HR 30BB 1SB — kowiki" },
-    { "personId": "이승엽", "name": "이승엽", "year": 2008, "team": "요미우리", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 62, "speed": 44, "defense": 66 }, "note": "준결승 일본전 결승 홈런", "source": "2008 요미우리 45G .248/.324 8HR 11BB 1SB — kowiki" },
-    { "personId": "정근우", "name": "정근우", "year": 2008, "team": "SK", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 84, "speed": 90, "defense": 82 }, "note": "", "source": "124G .314 8HR 46BB 40SB — kowiki" },
-    { "personId": "김동주", "name": "김동주", "year": 2008, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 82, "speed": 40, "defense": 72 }, "note": "", "source": "109G .309/.415 18HR 63BB 2SB 104RBI — kowiki" },
-    { "personId": "박진만", "name": "박진만", "year": 2008, "team": "삼성", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 61, "speed": 55, "defense": 90 }, "note": "", "source": "104G .244/.335 5HR 44BB 5SB — kowiki" },
-    { "personId": "이종욱", "name": "이종욱", "year": 2008, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 80, "speed": 94, "defense": 86 }, "note": "외야 골든글러브", "source": "122G .301 0HR 52BB 47SB — kowiki" },
-    { "personId": "김현수", "name": "김현수", "year": 2008, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 96, "speed": 66, "defense": 68 }, "note": "타격왕 .357·출루율 .454", "source": "126G .357/.454 9HR 80BB 13SB — kowiki" },
-    { "personId": "이용규", "name": "이용규", "year": 2008, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 83, "speed": 82, "defense": 82 }, "note": "", "source": "106G .312 0HR 47BB 28SB — kowiki" },
-    { "personId": "이대호", "name": "이대호", "year": 2008, "team": "롯데", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 80, "speed": 40, "defense": 60 }, "note": "", "source": "122G .301/.400 18HR 0SB 94RBI — kowiki" }
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2008,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 77,
+        "stamina": 98,
+        "stability": 86
+      },
+      "note": "",
+      "source": "26G 14승7패 165.2IP ERA3.31 143K 67BB WHIP1.22 — kowiki"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2008,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 102,
+        "control": 78,
+        "stamina": 97,
+        "stability": 95
+      },
+      "note": "",
+      "source": "27G 16승4패 162IP ERA2.39 150K 63BB — kowiki"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2008,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 95,
+        "stamina": 94,
+        "stability": 95
+      },
+      "note": "임태훈 대체 승선, 평균자책점 1위",
+      "source": "24G(23GS) 14승5패 154.2IP ERA2.33 119K 42BB WHIP1.05 — kowiki"
+    },
+    {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2008,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 81,
+        "stamina": 104,
+        "stability": 92
+      },
+      "note": "",
+      "source": "28G 11승8패 186.1IP ERA2.66 140K 68BB WHIP1.19 — kowiki"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 96,
+        "stamina": 61,
+        "stability": 103
+      },
+      "note": "",
+      "source": "57G 39SV 57.2IP ERA1.40 51K 15BB WHIP0.85 — kowiki"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2008,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 83,
+        "stamina": 61,
+        "stability": 92
+      },
+      "note": "",
+      "source": "49G 20SV 60.2IP ERA2.67 50K 22BB — kowiki"
+    },
+    {
+      "personId": "한기주",
+      "name": "한기주",
+      "year": 2008,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 94,
+        "stamina": 61,
+        "stability": 100
+      },
+      "note": "",
+      "source": "46G 26SV 58IP ERA1.71 46K 16BB — kowiki"
+    },
+    {
+      "personId": "권혁",
+      "name": "권혁",
+      "year": 2008,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 69,
+        "stamina": 61,
+        "stability": 101
+      },
+      "note": "15홀드",
+      "source": "43G 6승0패 15HLD 47.2IP ERA1.32 37K 22BB — kowiki"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2008,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 85,
+        "speed": 63,
+        "defense": 90
+      },
+      "note": "포수 골든글러브",
+      "source": "122G .292 19HR 49BB 2SB — kowiki"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 2008,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 80,
+        "speed": 61,
+        "defense": 85
+      },
+      "note": "",
+      "source": "105G .279 11HR 30BB 1SB — kowiki"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2008,
+      "team": "요미우리",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 95,
+        "contact": 68,
+        "speed": 65,
+        "defense": 66
+      },
+      "note": "준결승 일본전 결승 홈런",
+      "source": "2008 요미우리 45G .248/.324 8HR 11BB 1SB — kowiki"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2008,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 93,
+        "speed": 107,
+        "defense": 88
+      },
+      "note": "",
+      "source": "124G .314 8HR 46BB 40SB — kowiki"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2008,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 90,
+        "contact": 90,
+        "speed": 61,
+        "defense": 74
+      },
+      "note": "",
+      "source": "109G .309/.415 18HR 63BB 2SB 104RBI — kowiki"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2008,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 66,
+        "speed": 75,
+        "defense": 98
+      },
+      "note": "",
+      "source": "104G .244/.335 5HR 44BB 5SB — kowiki"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 57,
+        "contact": 88,
+        "speed": 110,
+        "defense": 93
+      },
+      "note": "외야 골든글러브",
+      "source": "122G .301 0HR 52BB 47SB — kowiki"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2008,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 106,
+        "speed": 85,
+        "defense": 69
+      },
+      "note": "타격왕 .357·출루율 .454",
+      "source": "126G .357/.454 9HR 80BB 13SB — kowiki"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2008,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 57,
+        "contact": 92,
+        "speed": 100,
+        "defense": 88
+      },
+      "note": "",
+      "source": "106G .312 0HR 47BB 28SB — kowiki"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2008,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 90,
+        "contact": 88,
+        "speed": 61,
+        "defense": 58
+      },
+      "note": "",
+      "source": "122G .301/.400 18HR 0SB 94RBI — kowiki"
+    }
   ]
 }

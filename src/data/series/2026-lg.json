@@ -19,23 +19,311 @@
     "18명 구성: 선발 5·불펜 3·야수 10. 한국시리즈 전이라 champion 필드는 넣지 않았다."
   ],
   "players": [
-    { "personId": "임찬규", "name": "임찬규", "year": 2026, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 63, "control": 78, "stamina": 83, "stability": 72 }, "note": "통산 100승 달성", "source": "26G 146IP 14승5패 ERA4.19 85K 40BB WHIP1.36 — KBO 기록실" },
-    { "personId": "톨허스트", "name": "톨허스트", "year": 2026, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 73, "control": 83, "stamina": 81, "stability": 72 }, "note": "팀 최다 이닝", "source": "25G 139.2IP 11승9패 ERA4.19 112K 32BB WHIP1.24 — KBO 기록실" },
-    { "personId": "웰스", "name": "웰스", "year": 2026, "team": "LG", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 76, "control": 72, "stamina": 74, "stability": 73 }, "note": "아시아쿼터·8월 어깨 부상", "source": "19G 96.1IP 5승5패 ERA4.11 83K 32사사구 WHIP1.25 — namu" },
-    { "personId": "카라스코", "name": "카라스코", "year": 2026, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 72, "control": 78, "stamina": 78, "stability": 80 }, "note": "8월 영입·6등판 5QS", "source": "6G 36.1IP 4승1패 ERA3.47 5QS — namu·스타뉴스" },
-    { "personId": "송승기", "name": "송승기", "year": 2026, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 73, "control": 74, "stamina": 66, "stability": 58 }, "note": "8월 팔꿈치 염증", "source": "전반기 11G 49.1IP 3승1패 ERA5.11 40K 15사사구 WHIP1.54 — namu" },
-    { "personId": "손주영", "name": "손주영", "year": 2026, "team": "LG", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 48, "stamina": 50, "stability": 93 }, "note": "선발에서 마무리로 전환", "source": "전반기 22G 25.2IP 19SV ERA1.40 26K 20사사구 WHIP1.40 — namu" },
-    { "personId": "김진성", "name": "김진성", "year": 2026, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 67, "stamina": 55, "stability": 72 }, "note": "KBO 통산 최다 홀드", "source": "전반기 42G 39IP 6승0패 16HLD ERA4.15 28K 15BB WHIP1.44 — namu" },
-    { "personId": "유영찬", "name": "유영찬", "year": 2026, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 84, "control": 60, "stamina": 48, "stability": 93 }, "note": "4월 팔꿈치 부상 이탈", "source": "13G 12IP 11SV ERA0.75 12K 6사사구 WHIP0.83 — namu" },
-    { "personId": "박동원", "name": "박동원", "year": 2026, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 57, "speed": 44, "defense": 80 }, "note": "", "source": "3~8월 104G .228 12HR 50타점 46BB — namu 월별 합산" },
-    { "personId": "오스틴", "name": "오스틴", "year": 2026, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 94, "contact": 92, "speed": 55, "defense": 66 }, "note": "39홈런 121타점 MVP 후보", "source": ".342 166안타 39HR 121타점 103득점(127G) — KBO 기록실" },
-    { "personId": "신민재", "name": "신민재", "year": 2026, "team": "LG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 68, "speed": 68, "defense": 84 }, "note": "4년 연속 10도루", "source": "3~8월 111G .263 83안타 316타수 — namu 월별 합산" },
-    { "personId": "문보경", "name": "문보경", "year": 2026, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 66, "contact": 64, "speed": 44, "defense": 74 }, "note": "WBC 부상 뒤 지명타자", "source": "3~8월 89G .255 9HR 51타점 55BB — namu 월별 합산" },
-    { "personId": "오지환", "name": "오지환", "year": 2026, "team": "LG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 58, "speed": 54, "defense": 85 }, "note": "", "source": "3~8월 106G .236 9HR 50타점 4SB 37BB — namu 월별 합산" },
-    { "personId": "박해민", "name": "박해민", "year": 2026, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 75, "speed": 84, "defense": 94 }, "note": "주장·도루 2위 17개", "source": ".286 4HR 55타점(127G) 17SB — KBO 기록실·국민일보" },
-    { "personId": "홍창기", "name": "홍창기", "year": 2026, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 63, "speed": 58, "defense": 74 }, "note": "출루율 .385", "source": "3~8월 107G .251 92안타 OBP.385 — namu 월별 합산" },
-    { "personId": "문성주", "name": "문성주", "year": 2026, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 78, "speed": 52, "defense": 72 }, "note": "5월 옆구리 부상", "source": "전반기 54G .296 50안타 1HR 19타점 2SB — namu" },
-    { "personId": "송찬의", "name": "송찬의", "year": 2026, "team": "LG", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 82, "speed": 55, "defense": 70 }, "note": "첫 풀타임·4번 타자", "source": ".311 8HR 50안타 31타점 OBP.416 OPS.987 — 스포츠경향·namu" },
-    { "personId": "문정빈", "name": "문정빈", "year": 2026, "team": "LG", "position": "DH", "hand": "R", "isForeign": false, "stats": { "power": 78, "contact": 76, "speed": 50, "defense": 58 }, "note": "신인왕 후보 우타 거포", "source": ".290 15HR 47타점 OPS.979 — namu·스타뉴스" }
+    {
+      "personId": "임찬규",
+      "name": "임찬규",
+      "year": 2026,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 88,
+        "stamina": 96,
+        "stability": 77
+      },
+      "note": "통산 100승 달성",
+      "source": "26G 146IP 14승5패 ERA4.19 85K 40BB WHIP1.36 — KBO 기록실"
+    },
+    {
+      "personId": "톨허스트",
+      "name": "톨허스트",
+      "year": 2026,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 71,
+        "control": 93,
+        "stamina": 94,
+        "stability": 77
+      },
+      "note": "팀 최다 이닝",
+      "source": "25G 139.2IP 11승9패 ERA4.19 112K 32BB WHIP1.24 — KBO 기록실"
+    },
+    {
+      "personId": "웰스",
+      "name": "웰스",
+      "year": 2026,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 76,
+        "control": 82,
+        "stamina": 87,
+        "stability": 78
+      },
+      "note": "아시아쿼터·8월 어깨 부상",
+      "source": "19G 96.1IP 5승5패 ERA4.11 83K 32사사구 WHIP1.25 — namu"
+    },
+    {
+      "personId": "카라스코",
+      "name": "카라스코",
+      "year": 2026,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 70,
+        "control": 88,
+        "stamina": 91,
+        "stability": 85
+      },
+      "note": "8월 영입·6등판 5QS",
+      "source": "6G 36.1IP 4승1패 ERA3.47 5QS — namu·스타뉴스"
+    },
+    {
+      "personId": "송승기",
+      "name": "송승기",
+      "year": 2026,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 84,
+        "stamina": 78,
+        "stability": 62
+      },
+      "note": "8월 팔꿈치 염증",
+      "source": "전반기 11G 49.1IP 3승1패 ERA5.11 40K 15사사구 WHIP1.54 — namu"
+    },
+    {
+      "personId": "손주영",
+      "name": "손주영",
+      "year": 2026,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 57,
+        "stamina": 61,
+        "stability": 99
+      },
+      "note": "선발에서 마무리로 전환",
+      "source": "전반기 22G 25.2IP 19SV ERA1.40 26K 20사사구 WHIP1.40 — namu"
+    },
+    {
+      "personId": "김진성",
+      "name": "김진성",
+      "year": 2026,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 76,
+        "stamina": 66,
+        "stability": 77
+      },
+      "note": "KBO 통산 최다 홀드",
+      "source": "전반기 42G 39IP 6승0패 16HLD ERA4.15 28K 15BB WHIP1.44 — namu"
+    },
+    {
+      "personId": "유영찬",
+      "name": "유영찬",
+      "year": 2026,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 69,
+        "stamina": 59,
+        "stability": 99
+      },
+      "note": "4월 팔꿈치 부상 이탈",
+      "source": "13G 12IP 11SV ERA0.75 12K 6사사구 WHIP0.83 — namu"
+    },
+    {
+      "personId": "박동원",
+      "name": "박동원",
+      "year": 2026,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 84,
+        "contact": 61,
+        "speed": 67,
+        "defense": 85
+      },
+      "note": "",
+      "source": "3~8월 104G .228 12HR 50타점 46BB — namu 월별 합산"
+    },
+    {
+      "personId": "오스틴",
+      "name": "오스틴",
+      "year": 2026,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 108,
+        "contact": 102,
+        "speed": 77,
+        "defense": 65
+      },
+      "note": "39홈런 121타점 MVP 후보",
+      "source": ".342 166안타 39HR 121타점 103득점(127G) — KBO 기록실"
+    },
+    {
+      "personId": "신민재",
+      "name": "신민재",
+      "year": 2026,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 74,
+        "speed": 89,
+        "defense": 90
+      },
+      "note": "4년 연속 10도루",
+      "source": "3~8월 111G .263 83안타 316타수 — namu 월별 합산"
+    },
+    {
+      "personId": "문보경",
+      "name": "문보경",
+      "year": 2026,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 82,
+        "contact": 69,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "WBC 부상 뒤 지명타자",
+      "source": "3~8월 89G .255 9HR 51타점 55BB — namu 월별 합산"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2026,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 62,
+        "speed": 76,
+        "defense": 92
+      },
+      "note": "",
+      "source": "3~8월 106G .236 9HR 50타점 4SB 37BB — namu 월별 합산"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2026,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 64,
+        "contact": 82,
+        "speed": 103,
+        "defense": 104
+      },
+      "note": "주장·도루 2위 17개",
+      "source": ".286 4HR 55타점(127G) 17SB — KBO 기록실·국민일보"
+    },
+    {
+      "personId": "홍창기",
+      "name": "홍창기",
+      "year": 2026,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 68,
+        "speed": 80,
+        "defense": 76
+      },
+      "note": "출루율 .385",
+      "source": "3~8월 107G .251 92안타 OBP.385 — namu 월별 합산"
+    },
+    {
+      "personId": "문성주",
+      "name": "문성주",
+      "year": 2026,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 86,
+        "speed": 74,
+        "defense": 73
+      },
+      "note": "5월 옆구리 부상",
+      "source": "전반기 54G .296 50안타 1HR 19타점 2SB — namu"
+    },
+    {
+      "personId": "송찬의",
+      "name": "송찬의",
+      "year": 2026,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 90,
+        "speed": 77,
+        "defense": 70
+      },
+      "note": "첫 풀타임·4번 타자",
+      "source": ".311 8HR 50안타 31타점 OBP.416 OPS.987 — 스포츠경향·namu"
+    },
+    {
+      "personId": "문정빈",
+      "name": "문정빈",
+      "year": 2026,
+      "team": "LG",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 93,
+        "contact": 83,
+        "speed": 72,
+        "defense": 53
+      },
+      "note": "신인왕 후보 우타 거포",
+      "source": ".290 15HR 47타점 OPS.979 — namu·스타뉴스"
+    }
   ]
 }

@@ -119,7 +119,7 @@ export default function AugmentScreen({ account, onBack }) {
   const [pledged, setPledged] = useState(() => pledgedAugId());
   const doPledge = (a) => {
     if (!a || pledged === a.id) return;
-    if (!spendAugTicket('pledge')) { setMsg('증강 지명권이 없습니다 · 상점에서 살 수 있어요'); setTimeout(() => setMsg(''), 2400); return; }
+    if (!spendAugTicket('pledge')) { setMsg('증강 지명권 없음 · 상점에서 구입'); setTimeout(() => setMsg(''), 2400); return; }
     setPledgedAug(a.id);
     setPledged(a.id);
     setPledgeLeft(augShopTickets().pledge || 0);
@@ -150,15 +150,15 @@ export default function AugmentScreen({ account, onBack }) {
     let base = aug;
     if (cur.length >= aug.slots[t]) {
       base = openSlot(t);
-      if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸은 최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다 · 상점에서 살 수 있어요'); return; }
+      if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸 최대 ${AUG_SLOT_MAX}칸` : '제거권 없음 · 상점에서 구입'); return; }
     }
     commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
   };
-  const addSlot = () => { const n = openSlot(tier); if (n) commit(n, `${T.ko} 제외 칸 +1`); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸입니다` : '제거권이 없습니다'); };
+  const addSlot = () => { const n = openSlot(tier); if (n) commit(n, `${T.ko} 제외 칸 +1`); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸` : '제거권 없음'); };
   const upgrade = (a) => {
     const lv = levelOf(a); const need = lv + 1;
     if (lv >= AUG_LEVEL_MAX) return;
-    if (aug.upgradeTickets < need) { setMsg(`강화권이 ${need - aug.upgradeTickets}장 부족합니다`); return; }
+    if (aug.upgradeTickets < need) { setMsg(`강화권 ${need - aug.upgradeTickets}장 부족`); return; }
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
   };
 
@@ -359,7 +359,7 @@ export default function AugmentScreen({ account, onBack }) {
             <>
               <p className="mt-lab" style={{ '--a': RED }}>Excluded</p>
               <h2 className="-mt-2 text-3xl font-black text-white">{T.ko} 증강 제외</h2>
-              <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않습니다.</p>
+              <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
               <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">
                 {bans.map(byId).filter(Boolean).map((a, k) => (
                   <div key={a.id} className="mt-cut flex items-center gap-3 bg-[#f87171]/10 px-3 py-2" style={cut(6)}>

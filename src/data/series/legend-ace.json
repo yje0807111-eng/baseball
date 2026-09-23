@@ -14,23 +14,311 @@
     "정대현 2007 BB·김강민 2010 도루는 미확인 (기존 시리즈와 동일)."
   ],
   "players": [
-    { "personId": "최동원", "name": "최동원", "year": 1984, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 82, "stamina": 99, "stability": 90 }, "note": "시즌 27승·223탈삼진", "source": "51G 27승13패 6SV 284.2IP ERA2.40 223K 68BB — kowiki" },
-    { "personId": "선동열", "name": "선동열", "year": 1986, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 87, "stamina": 98, "stability": 99 }, "note": "24승·ERA 0.99·MVP", "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과" },
-    { "personId": "정민태", "name": "정민태", "year": 1999, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 79, "stamina": 95, "stability": 93 }, "note": "20승 다승왕·투수 GG", "source": "33G 20승7패3SV 230.2IP ERA2.54 178K 63BB 208H — KBO 기록실" },
-    { "personId": "리오스", "name": "리오스", "year": 2007, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 69, "control": 81, "stamina": 96, "stability": 94 }, "note": "22승·ERA 2.07·MVP", "source": "33G 22승5패 234.1IP ERA2.07 147K 58BB — 위키백과" },
-    { "personId": "류현진", "name": "류현진", "year": 2010, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 86, "control": 83, "stamina": 91, "stability": 97 }, "note": "평균자책점 1.82 1위", "source": "25G 16승4패 192.2IP ERA1.82 187K 45BB 149H — KBO 기록실" },
-    { "personId": "윤석민", "name": "윤석민", "year": 2011, "team": "KIA", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 91, "control": 80, "stamina": 86, "stability": 92 }, "note": "투수 4관왕·MVP", "source": "27G 17승5패 172.1IP ERA2.45 178K 44BB WHIP1.05 — 위키백과" },
-    { "personId": "페디", "name": "페디", "year": 2023, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 94, "control": 87, "stamina": 88, "stability": 97 }, "note": "투수 3관왕·MVP", "source": "30G 180.1IP 20승6패 ERA2.00 209K 35BB WHIP0.95 — KBO" },
-    { "personId": "폰세", "name": "폰세", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 97, "control": 84, "stamina": 88, "stability": 98 }, "note": "4관왕·MVP·252K 신기록", "source": "29G 180.2IP 17승1패 ERA1.89 252K 41BB WHIP0.94 — KBO" },
-    { "personId": "구대성", "name": "구대성", "year": 1996, "team": "한화", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 96, "control": 87, "stamina": 60, "stability": 97 }, "note": "구원 18승·24세이브", "source": "55G 18승3패 24SV 139IP ERA1.88 183K 27BB — kowiki" },
-    { "personId": "정대현", "name": "정대현", "year": 2007, "team": "SK", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 72, "stamina": 58, "stability": 99 }, "note": "27세이브 ERA 0.92", "source": "60G 3승2패 27SV 3HLD 78.1IP ERA0.92 65K (BB 미확인) — kowiki" },
-    { "personId": "오승환", "name": "오승환", "year": 2011, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 95, "control": 87, "stamina": 50, "stability": 99 }, "note": "47세이브·ERA 0.63", "source": "54G 1승47SV 57IP ERA0.63 76K 11BB — 위키백과" },
-    { "personId": "박경완", "name": "박경완", "year": 2000, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 92, "contact": 72, "speed": 52, "defense": 92 }, "note": "40홈런 MVP·포수 GG", "source": "130G .282/.419 40HR 95RBI 7SB — KBO 기록실" },
-    { "personId": "이승엽", "name": "이승엽", "year": 2002, "team": "삼성", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 97, "contact": 87, "speed": 42, "defense": 68 }, "note": "47홈런·1루수 GG", "source": "133G .323/.436 47HR 126RBI 1SB — KBO 기록실" },
-    { "personId": "김혜성", "name": "김혜성", "year": 2023, "team": "키움", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 90, "speed": 80, "defense": 88 }, "note": "2루수 수비상·GG", "source": ".335 7HR 57RBI 25SB 186H 621PA(137G) — KBO 기록실" },
-    { "personId": "허경민", "name": "허경민", "year": 2018, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 85, "speed": 74, "defense": 86 }, "note": "생애 첫 3루수 GG", "source": "133G .324 10HR 79RBI 20SB — MK스포츠·엑스포츠뉴스" },
-    { "personId": "박진만", "name": "박진만", "year": 2006, "team": "삼성", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 74, "speed": 64, "defense": 94 }, "note": "유격수 골든글러브", "source": "2006 삼성 115G .283/.380 11HR 56BB 10SB — kowiki" },
-    { "personId": "이순철", "name": "이순철", "year": 1993, "team": "해태", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 63, "contact": 66, "speed": 83, "defense": 90 }, "note": "외야 골든글러브", "source": "102G .253 11HR 29SB — namu" },
-    { "personId": "김강민", "name": "김강민", "year": 2010, "team": "SK", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 63, "contact": 85, "speed": 76, "defense": 94 }, "note": "외야수 GG·무실책", "source": ".317/.369/.449 12HR (SB 미확인) — namu" }
+    {
+      "personId": "최동원",
+      "name": "최동원",
+      "year": 1984,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 92,
+        "stamina": 102,
+        "stability": 93
+      },
+      "note": "시즌 27승·223탈삼진",
+      "source": "51G 27승13패 6SV 284.2IP ERA2.40 223K 68BB — kowiki"
+    },
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1986,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 97,
+        "stamina": 104,
+        "stability": 101
+      },
+      "note": "24승·ERA 0.99·MVP",
+      "source": "24승6패6SV 262.2IP ERA0.99 214K 52BB 153피안타 — 위키백과"
+    },
+    {
+      "personId": "정민태",
+      "name": "정민태",
+      "year": 1999,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 91,
+        "stamina": 106,
+        "stability": 98
+      },
+      "note": "20승 다승왕·투수 GG",
+      "source": "33G 20승7패3SV 230.2IP ERA2.54 178K 63BB 208H — KBO 기록실"
+    },
+    {
+      "personId": "리오스",
+      "name": "리오스",
+      "year": 2007,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 80,
+        "control": 94,
+        "stamina": 110,
+        "stability": 97
+      },
+      "note": "22승·ERA 2.07·MVP",
+      "source": "33G 22승5패 234.1IP ERA2.07 147K 58BB — 위키백과"
+    },
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2010,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 98,
+        "stamina": 107,
+        "stability": 101
+      },
+      "note": "평균자책점 1.82 1위",
+      "source": "25G 16승4패 192.2IP ERA1.82 187K 45BB 149H — KBO 기록실"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2011,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 103,
+        "control": 93,
+        "stamina": 100,
+        "stability": 95
+      },
+      "note": "투수 4관왕·MVP",
+      "source": "27G 17승5패 172.1IP ERA2.45 178K 44BB WHIP1.05 — 위키백과"
+    },
+    {
+      "personId": "페디",
+      "name": "페디",
+      "year": 2023,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 105,
+        "control": 95,
+        "stamina": 101,
+        "stability": 102
+      },
+      "note": "투수 3관왕·MVP",
+      "source": "30G 180.1IP 20승6패 ERA2.00 209K 35BB WHIP0.95 — KBO"
+    },
+    {
+      "personId": "폰세",
+      "name": "폰세",
+      "year": 2025,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 106,
+        "control": 94,
+        "stamina": 101,
+        "stability": 104
+      },
+      "note": "4관왕·MVP·252K 신기록",
+      "source": "29G 180.2IP 17승1패 ERA1.89 252K 41BB WHIP0.94 — KBO"
+    },
+    {
+      "personId": "구대성",
+      "name": "구대성",
+      "year": 1996,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 98,
+        "stamina": 70,
+        "stability": 100
+      },
+      "note": "구원 18승·24세이브",
+      "source": "55G 18승3패 24SV 139IP ERA1.88 183K 27BB — kowiki"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2007,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 83,
+        "stamina": 70,
+        "stability": 103
+      },
+      "note": "27세이브 ERA 0.92",
+      "source": "60G 3승2패 27SV 3HLD 78.1IP ERA0.92 65K (BB 미확인) — kowiki"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2011,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 109,
+        "control": 101,
+        "stamina": 60,
+        "stability": 102
+      },
+      "note": "47세이브·ERA 0.63",
+      "source": "54G 1승47SV 57IP ERA0.63 76K 11BB — 위키백과"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 2000,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 105,
+        "contact": 81,
+        "speed": 74,
+        "defense": 101
+      },
+      "note": "40홈런 MVP·포수 GG",
+      "source": "130G .282/.419 40HR 95RBI 7SB — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 2002,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 96,
+        "speed": 62,
+        "defense": 66
+      },
+      "note": "47홈런·1루수 GG",
+      "source": "133G .323/.436 47HR 126RBI 1SB — KBO 기록실"
+    },
+    {
+      "personId": "김혜성",
+      "name": "김혜성",
+      "year": 2023,
+      "team": "키움",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 100,
+        "speed": 101,
+        "defense": 96
+      },
+      "note": "2루수 수비상·GG",
+      "source": ".335 7HR 57RBI 25SB 186H 621PA(137G) — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2018,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 92,
+        "speed": 99,
+        "defense": 92
+      },
+      "note": "생애 첫 3루수 GG",
+      "source": "133G .324 10HR 79RBI 20SB — MK스포츠·엑스포츠뉴스"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 85,
+        "speed": 86,
+        "defense": 104
+      },
+      "note": "유격수 골든글러브",
+      "source": "2006 삼성 115G .283/.380 11HR 56BB 10SB — kowiki"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1993,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 82,
+        "contact": 75,
+        "speed": 101,
+        "defense": 100
+      },
+      "note": "외야 골든글러브",
+      "source": "102G .253 11HR 29SB — namu"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2010,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 94,
+        "speed": 93,
+        "defense": 105
+      },
+      "note": "외야수 GG·무실책",
+      "source": ".317/.369/.449 12HR (SB 미확인) — namu"
+    }
   ]
 }

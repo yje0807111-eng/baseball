@@ -1,0 +1,318 @@
+{
+  "id": "1999-ssangbangwool",
+  "kind": "team",
+  "year": 1999,
+  "title": "쌍방울 레이더스",
+  "franchise": "SSANGBANGWOOL",
+  "subtitle": "쌍방울의 마지막 해",
+  "blurb": "선수들이 하나둘 팀을 떠난 쌍방울이 마지막 시즌을 치르고 이듬해 역사 속으로 사라졌다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김기덕",
+      "name": "김기덕",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 99,
+        "stamina": 90,
+        "stability": 77
+      },
+      "note": "",
+      "source": "31G 150IP ERA4.50 84K 30BB WHIP1.43 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "성영재",
+      "name": "성영재",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 79,
+        "stamina": 85,
+        "stability": 58
+      },
+      "note": "",
+      "source": "31G 131 1/3IP ERA6.10 74K 47BB WHIP1.54 5승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "앤더슨",
+      "name": "앤더슨",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 54,
+        "control": 56,
+        "stamina": 65,
+        "stability": 54
+      },
+      "note": "",
+      "source": "19G 69 1/3IP ERA6.75 31K 41BB WHIP1.95 2승 — KBO 기록실"
+    },
+    {
+      "personId": "강희석",
+      "name": "강희석",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 82,
+        "stamina": 58,
+        "stability": 71
+      },
+      "note": "",
+      "source": "13G 49IP ERA5.14 19K 17BB WHIP1.33 1승 — KBO 기록실"
+    },
+    {
+      "personId": "박정현",
+      "name": "박정현",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 65,
+        "stamina": 70,
+        "stability": 84
+      },
+      "note": "",
+      "source": "37G 124IP ERA3.92 56K 60BB WHIP1.37 5승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "가내영",
+      "name": "가내영",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 72,
+        "stamina": 70,
+        "stability": 62
+      },
+      "note": "",
+      "source": "57G 116IP ERA5.66 82K 48BB WHIP1.53 4SV — KBO 기록실"
+    },
+    {
+      "personId": "유현승",
+      "name": "유현승",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 85,
+        "stamina": 70,
+        "stability": 60
+      },
+      "note": "",
+      "source": "42G 121 1/3IP ERA6.23 62K 38BB WHIP1.48 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "오상민",
+      "name": "오상민",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 79,
+        "stamina": 70,
+        "stability": 60
+      },
+      "note": "",
+      "source": "67G 80 1/3IP ERA5.94 59K 29BB WHIP1.51 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "장재중",
+      "name": "장재중",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 68,
+        "speed": 75,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".211 4HR 36타점 5SB 380PA — KBO 기록실"
+    },
+    {
+      "personId": "양용모",
+      "name": "양용모",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 76,
+        "speed": 86,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".242 4HR 23타점 12SB 199PA — KBO 기록실"
+    },
+    {
+      "personId": "김성래",
+      "name": "김성래",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 78,
+        "speed": 66,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".272 9HR 48타점 1SB 401PA — KBO 기록실"
+    },
+    {
+      "personId": "최태원",
+      "name": "최태원",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 60,
+        "speed": 86,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".239 2HR 40타점 12SB 563PA — KBO 기록실"
+    },
+    {
+      "personId": "이동수",
+      "name": "이동수",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 97,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".320 19HR 68타점 2SB 357PA — KBO 기록실"
+    },
+    {
+      "personId": "이민호",
+      "name": "이민호",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 83,
+        "speed": 68,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".235 9HR 31타점 2SB 283PA — KBO 기록실"
+    },
+    {
+      "personId": "박재용",
+      "name": "박재용",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 66,
+        "speed": 80,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".233 3HR 36타점 8SB 330PA — KBO 기록실"
+    },
+    {
+      "personId": "윤재국",
+      "name": "윤재국",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 60,
+        "speed": 90,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".265 1HR 21타점 15SB 304PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 76,
+        "speed": 75,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".258 4HR 13타점 5SB 210PA — KBO 기록실"
+    },
+    {
+      "personId": "김호",
+      "name": "김호",
+      "year": 1999,
+      "team": "쌍방울",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 78,
+        "speed": 85,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".255 8HR 36타점 11SB 351PA — KBO 기록실"
+    }
+  ]
+}

@@ -11,23 +11,311 @@
     "18명 구성: 유희관·에반스·민병헌·박세혁 추가. 2016년 타고투저 시즌 보정으로 투수 stability +3 반영."
   ],
   "players": [
-    { "personId": "니퍼트", "name": "니퍼트", "year": 2016, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 80, "control": 73, "stamina": 86, "stability": 89 }, "note": "22승·MVP·투수 골든글러브", "source": "22승3패 ERA2.95 167.2IP 142K 57BB WHIP1.24 — KBO 기록실" },
-    { "personId": "보우덴", "name": "보우덴", "year": 2016, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 78, "control": 75, "stamina": 88, "stability": 79 }, "note": "", "source": "18승 ERA3.80 180IP 160K 54BB WHIP1.18 — KBO 기록실" },
-    { "personId": "장원준", "name": "장원준", "year": 2016, "team": "두산", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 74, "control": 60, "stamina": 84, "stability": 85 }, "note": "", "source": "15승 ERA3.32 168IP 137K 76BB WHIP1.41 — KBO 기록실" },
-    { "personId": "유희관", "name": "유희관", "year": 2016, "team": "두산", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 60, "control": 76, "stamina": 90, "stability": 72 }, "note": "15승", "source": "15승6패 ERA4.41 185.2IP 102K 58BB WHIP1.45 — kowiki" },
-    { "personId": "이현승", "name": "이현승", "year": 2016, "team": "두산", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 68, "control": 76, "stamina": 50, "stability": 67 }, "note": "", "source": "56G 25SV ERA4.84 57.2IP 41K 17BB WHIP1.42 — KBO 기록실" },
-    { "personId": "정재훈", "name": "정재훈", "year": 2016, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 87, "control": 73, "stamina": 50, "stability": 85 }, "note": "23홀드", "source": "46G 23HLD ERA3.27 52.1IP 56K 17BB WHIP1.15 — KBO 기록실" },
-    { "personId": "윤명준", "name": "윤명준", "year": 2016, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 76, "stamina": 50, "stability": 78 }, "note": "", "source": "55G 11HLD 2SV ERA3.95 57IP 39K 17BB WHIP1.19 — KBO 기록실" },
-    { "personId": "양의지", "name": "양의지", "year": 2016, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 85, "speed": 42, "defense": 92 }, "note": "포수 골든글러브 3년연속", "source": ".319/.404 22HR 2SB 392PA(108G) — KBO 기록실" },
-    { "personId": "박세혁", "name": "박세혁", "year": 2016, "team": "두산", "position": "C", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 50, "speed": 46, "defense": 74 }, "note": "", "source": ".209 5HR 2SB(2CS) 172AB(87G) 22BB — kowiki" },
-    { "personId": "오재일", "name": "오재일", "year": 2016, "team": "두산", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 82, "contact": 84, "speed": 42, "defense": 62 }, "note": "", "source": ".316/.411 27HR 1SB 455PA(105G) — KBO 기록실" },
-    { "personId": "오재원", "name": "오재원", "year": 2016, "team": "두산", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 70, "speed": 68, "defense": 80 }, "note": "", "source": ".272/.358 5HR 13SB(10CS) 484PA — KBO 기록실" },
-    { "personId": "허경민", "name": "허경민", "year": 2016, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 75, "speed": 57, "defense": 84 }, "note": "", "source": ".286/.360 7HR 6SB(6CS) 609PA(144G 전경기) — KBO 기록실" },
-    { "personId": "김재호", "name": "김재호", "year": 2016, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 82, "speed": 61, "defense": 90 }, "note": "유격수 골든글러브 2년연속", "source": ".310/.389 7HR 8SB 496PA — KBO 기록실" },
-    { "personId": "김재환", "name": "김재환", "year": 2016, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 90, "contact": 87, "speed": 61, "defense": 62 }, "note": "외야 골든글러브", "source": ".325/.407 37HR 8SB 568PA 124타점 — KBO 기록실" },
-    { "personId": "박건우", "name": "박건우", "year": 2016, "team": "두산", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 90, "speed": 73, "defense": 80 }, "note": "", "source": ".335/.390 20HR 17SB(6CS) 540PA — KBO 기록실" },
-    { "personId": "정수빈", "name": "정수빈", "year": 2016, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 46, "contact": 60, "speed": 72, "defense": 90 }, "note": "", "source": ".242/.319 2HR 12SB(4CS) 305PA(114G) — KBO 기록실" },
-    { "personId": "민병헌", "name": "민병헌", "year": 2016, "team": "두산", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 86, "speed": 64, "defense": 80 }, "note": "", "source": ".325 16HR 9SB 511AB(134G) 87타점 — kowiki" },
-    { "personId": "에반스", "name": "에반스", "year": 2016, "team": "두산", "position": "DH", "hand": "R", "isForeign": true, "stats": { "power": 80, "contact": 80, "speed": 42, "defense": 55 }, "note": "", "source": ".308/.410 24HR 81타점 118G — kowiki·namu" }
+    {
+      "personId": "니퍼트",
+      "name": "니퍼트",
+      "year": 2016,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 86,
+        "control": 82,
+        "stamina": 97,
+        "stability": 97
+      },
+      "note": "22승·MVP·투수 골든글러브",
+      "source": "22승3패 ERA2.95 167.2IP 142K 57BB WHIP1.24 — KBO 기록실"
+    },
+    {
+      "personId": "보우덴",
+      "name": "보우덴",
+      "year": 2016,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 83,
+        "control": 84,
+        "stamina": 99,
+        "stability": 87
+      },
+      "note": "",
+      "source": "18승 ERA3.80 180IP 160K 54BB WHIP1.18 — KBO 기록실"
+    },
+    {
+      "personId": "장원준",
+      "name": "장원준",
+      "year": 2016,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 67,
+        "stamina": 95,
+        "stability": 93
+      },
+      "note": "",
+      "source": "15승 ERA3.32 168IP 137K 76BB WHIP1.41 — KBO 기록실"
+    },
+    {
+      "personId": "유희관",
+      "name": "유희관",
+      "year": 2016,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 85,
+        "stamina": 101,
+        "stability": 80
+      },
+      "note": "15승",
+      "source": "15승6패 ERA4.41 185.2IP 102K 58BB WHIP1.45 — kowiki"
+    },
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2016,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 85,
+        "stamina": 61,
+        "stability": 75
+      },
+      "note": "",
+      "source": "56G 25SV ERA4.84 57.2IP 41K 17BB WHIP1.42 — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2016,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 82,
+        "stamina": 61,
+        "stability": 93
+      },
+      "note": "23홀드",
+      "source": "46G 23HLD ERA3.27 52.1IP 56K 17BB WHIP1.15 — KBO 기록실"
+    },
+    {
+      "personId": "윤명준",
+      "name": "윤명준",
+      "year": 2016,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 85,
+        "stamina": 61,
+        "stability": 86
+      },
+      "note": "",
+      "source": "55G 11HLD 2SV ERA3.95 57IP 39K 17BB WHIP1.19 — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2016,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 96,
+        "contact": 90,
+        "speed": 66,
+        "defense": 101
+      },
+      "note": "포수 골든글러브 3년연속",
+      "source": ".319/.404 22HR 2SB 392PA(108G) — KBO 기록실"
+    },
+    {
+      "personId": "박세혁",
+      "name": "박세혁",
+      "year": 2016,
+      "team": "두산",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 51,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".209 5HR 2SB(2CS) 172AB(87G) 22BB — kowiki"
+    },
+    {
+      "personId": "오재일",
+      "name": "오재일",
+      "year": 2016,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 96,
+        "contact": 89,
+        "speed": 66,
+        "defense": 60
+      },
+      "note": "",
+      "source": ".316/.411 27HR 1SB 455PA(105G) — KBO 기록실"
+    },
+    {
+      "personId": "오재원",
+      "name": "오재원",
+      "year": 2016,
+      "team": "두산",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 73,
+        "speed": 92,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".272/.358 5HR 13SB(10CS) 484PA — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2016,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 79,
+        "speed": 81,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".286/.360 7HR 6SB(6CS) 609PA(144G 전경기) — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2016,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 87,
+        "speed": 85,
+        "defense": 98
+      },
+      "note": "유격수 골든글러브 2년연속",
+      "source": ".310/.389 7HR 8SB 496PA — KBO 기록실"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2016,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 104,
+        "contact": 92,
+        "speed": 85,
+        "defense": 60
+      },
+      "note": "외야 골든글러브",
+      "source": ".325/.407 37HR 8SB 568PA 124타점 — KBO 기록실"
+    },
+    {
+      "personId": "박건우",
+      "name": "박건우",
+      "year": 2016,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 86,
+        "contact": 96,
+        "speed": 97,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".335/.390 20HR 17SB(6CS) 540PA — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2016,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 62,
+        "speed": 96,
+        "defense": 98
+      },
+      "note": "",
+      "source": ".242/.319 2HR 12SB(4CS) 305PA(114G) — KBO 기록실"
+    },
+    {
+      "personId": "민병헌",
+      "name": "민병헌",
+      "year": 2016,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 91,
+        "speed": 88,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".325 16HR 9SB 511AB(134G) 87타점 — kowiki"
+    },
+    {
+      "personId": "에반스",
+      "name": "에반스",
+      "year": 2016,
+      "team": "두산",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 94,
+        "contact": 85,
+        "speed": 66,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".308/.410 24HR 81타점 118G — kowiki·namu"
+    }
   ]
 }

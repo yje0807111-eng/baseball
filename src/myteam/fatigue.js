@@ -4,7 +4,7 @@
  *  - 경기가 끝나면 등판한 투수는 투구 수로 휴식 경기 수가 정해지고, 등판하지 않은 투수는 휴식이 1 줄어든다
  *  - 휴식이 남은 채로 나오면 컨디션이 떨어져 구위 · 제구가 깎인다
  */
-import { overallOf } from '../data/seriesPlayers.js';
+import { overallOf } from '../data/ratings.js';
 
 /** 휴식 경기 수: 선발 80구↑ 4 · 60~79 3 · 40~59 2 · 그 미만 1 / 불펜 30구↑ 2 · 15~29 1 · 그 미만 0. 연투면 +1 */
 export function restAfter(role, pitches, streak = 0) {
@@ -24,7 +24,7 @@ export function withFatigue(player, fatigue = {}) {
   const cond = conditionOf(f?.rest);
   if (cond === 100) return { ...player, condition: 100, rest: 0 };
   const cut = Math.round((100 - cond) * 0.2);
-  const stats = { ...player.stats, stuff: Math.max(30, (player.stats.stuff ?? 70) - cut), control: Math.max(30, (player.stats.control ?? 70) - cut) };
+  const stats = { ...player.stats, stuff: Math.max(50, (player.stats.stuff ?? 78) - cut), control: Math.max(50, (player.stats.control ?? 78) - cut) };
   return { ...player, stats, overall: overallOf(player.position, stats), condition: cond, rest: f.rest, tired: true };
 }
 export const applyFatigue = (roster, fatigue) => roster.map((p) => withFatigue(p, fatigue));

@@ -1,0 +1,318 @@
+{
+  "id": "1987-chungbo",
+  "kind": "team",
+  "year": 1987,
+  "title": "청보 핀토스",
+  "franchise": "HYUNDAI",
+  "subtitle": "청보의 마지막 해",
+  "blurb": "양상문이 12승을 거뒀지만 청보는 이 해를 끝으로 태평양에 넘어갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "양상문",
+      "name": "양상문",
+      "year": 1987,
+      "team": "청보",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 84,
+        "stamina": 103,
+        "stability": 87
+      },
+      "note": "",
+      "source": "36G 209 1/3IP ERA3.10 84K 66BB WHIP1.21 12승 — KBO 기록실"
+    },
+    {
+      "personId": "임호균",
+      "name": "임호균",
+      "year": 1987,
+      "team": "청보",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 69,
+        "stamina": 96,
+        "stability": 78
+      },
+      "note": "",
+      "source": "27G 173 2/3IP ERA3.78 38K 80BB WHIP1.53 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김봉근",
+      "name": "김봉근",
+      "year": 1987,
+      "team": "청보",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 88,
+        "stamina": 86,
+        "stability": 69
+      },
+      "note": "",
+      "source": "27G 135IP ERA4.87 41K 37BB WHIP1.48 4승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김신부",
+      "name": "김신부",
+      "year": 1987,
+      "team": "청보",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 88,
+        "stamina": 81,
+        "stability": 78
+      },
+      "note": "",
+      "source": "27G 113 2/3IP ERA4.04 33K 32BB WHIP1.44 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "정은배",
+      "name": "정은배",
+      "year": 1987,
+      "team": "청보",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 84,
+        "stamina": 70,
+        "stability": 63
+      },
+      "note": "",
+      "source": "22G 60 2/3IP ERA5.19 27K 19BB WHIP1.75 1승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "이진우",
+      "name": "이진우",
+      "year": 1987,
+      "team": "청보",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 54,
+        "stamina": 64,
+        "stability": 53
+      },
+      "note": "",
+      "source": "15G 30IP ERA6.60 17K 22BB WHIP1.80 1SV — KBO 기록실"
+    },
+    {
+      "personId": "최창호",
+      "name": "최창호",
+      "year": 1987,
+      "team": "청보",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 54,
+        "stamina": 62,
+        "stability": 51
+      },
+      "note": "",
+      "source": "8G 16 2/3IP ERA7.56 7K 11BB WHIP1.92 — KBO 기록실"
+    },
+    {
+      "personId": "이동수",
+      "name": "이동수",
+      "year": 1987,
+      "team": "청보",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 84,
+        "stamina": 62,
+        "stability": 51
+      },
+      "note": "",
+      "source": "7G 16IP ERA12.38 6K 5BB WHIP2.00 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1987,
+      "team": "청보",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 86,
+        "speed": 71,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".277 9HR 48타점 3SB 414PA — KBO 기록실"
+    },
+    {
+      "personId": "김진우",
+      "name": "김진우",
+      "year": 1987,
+      "team": "청보",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 79,
+        "speed": 71,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".238 3HR 16타점 3SB 212PA — KBO 기록실"
+    },
+    {
+      "personId": "김바위",
+      "name": "김바위",
+      "year": 1987,
+      "team": "청보",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 87,
+        "speed": 78,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".248 9HR 53타점 6SB 396PA — KBO 기록실"
+    },
+    {
+      "personId": "이선웅",
+      "name": "이선웅",
+      "year": 1987,
+      "team": "청보",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 66,
+        "speed": 71,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".257 1HR 27타점 3SB 303PA — KBO 기록실"
+    },
+    {
+      "personId": "김근석",
+      "name": "김근석",
+      "year": 1987,
+      "team": "청보",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 73,
+        "speed": 65,
+        "defense": 77
+      },
+      "note": "",
+      "source": ".201 2HR 15타점 1SB 207PA — KBO 기록실"
+    },
+    {
+      "personId": "권두조",
+      "name": "권두조",
+      "year": 1987,
+      "team": "청보",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 61,
+        "speed": 71,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".237 0HR 12타점 3SB 231PA — KBO 기록실"
+    },
+    {
+      "personId": "이해창",
+      "name": "이해창",
+      "year": 1987,
+      "team": "청보",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 71,
+        "speed": 110,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".232 3HR 23타점 54SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "정진호",
+      "name": "정진호",
+      "year": 1987,
+      "team": "청보",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 69,
+        "speed": 87,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".250 2HR 23타점 11SB 338PA — KBO 기록실"
+    },
+    {
+      "personId": "정현발",
+      "name": "정현발",
+      "year": 1987,
+      "team": "청보",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 99,
+        "speed": 73,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".264 13HR 49타점 4SB 329PA — KBO 기록실"
+    },
+    {
+      "personId": "김윤환",
+      "name": "김윤환",
+      "year": 1987,
+      "team": "청보",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 86,
+        "speed": 90,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".283 6HR 42타점 13SB 282PA — KBO 기록실"
+    }
+  ]
+}

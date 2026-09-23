@@ -1,0 +1,319 @@
+{
+  "id": "1983-haitai",
+  "champion": true,
+  "kind": "team",
+  "year": 1983,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "첫 한국시리즈 우승",
+  "blurb": "이상윤이 20승을 올리고 김봉연이 22홈런을 치며 해태가 첫 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이상윤",
+      "name": "이상윤",
+      "year": 1983,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 105,
+        "control": 72,
+        "stamina": 99,
+        "stability": 89
+      },
+      "note": "",
+      "source": "46G 229 1/3IP ERA2.67 178K 95BB WHIP1.20 20승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "김용남",
+      "name": "김용남",
+      "year": 1983,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 100,
+        "stamina": 93,
+        "stability": 88
+      },
+      "note": "",
+      "source": "36G 181 1/3IP ERA2.83 80K 30BB WHIP1.11 13승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "주동식",
+      "name": "주동식",
+      "year": 1983,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 89,
+        "stamina": 86,
+        "stability": 85
+      },
+      "note": "",
+      "source": "30G 143 1/3IP ERA3.14 56K 38BB WHIP1.19 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "강만식",
+      "name": "강만식",
+      "year": 1983,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 93,
+        "stamina": 75,
+        "stability": 88
+      },
+      "note": "",
+      "source": "22G 94IP ERA2.78 51K 22BB WHIP1.12 6승 — KBO 기록실"
+    },
+    {
+      "personId": "방수원",
+      "name": "방수원",
+      "year": 1983,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 62,
+        "stamina": 72,
+        "stability": 65
+      },
+      "note": "",
+      "source": "32G 94IP ERA4.88 30K 49BB WHIP1.60 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "황기선",
+      "name": "황기선",
+      "year": 1983,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 92,
+        "control": 95,
+        "stamina": 70,
+        "stability": 95
+      },
+      "note": "",
+      "source": "19G 66 1/3IP ERA2.31 35K 14BB WHIP0.96 4승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "엄평재",
+      "name": "엄평재",
+      "year": 1983,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 66,
+        "stamina": 65,
+        "stability": 60
+      },
+      "note": "",
+      "source": "13G 33IP ERA5.45 12K 16BB WHIP1.52 — KBO 기록실"
+    },
+    {
+      "personId": "김현재",
+      "name": "김현재",
+      "year": 1983,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 53,
+        "stamina": 64,
+        "stability": 73
+      },
+      "note": "",
+      "source": "10G 24 1/3IP ERA4.07 6K 16BB WHIP1.97 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김무종",
+      "name": "김무종",
+      "year": 1983,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 93,
+        "speed": 68,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".262/.317 12HR 60타점 2SB 345PA — KBO 기록실"
+    },
+    {
+      "personId": "조종규",
+      "name": "조종규",
+      "year": 1983,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 60,
+        "speed": 63,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".037/.071 0HR 0타점 0SB 28PA — KBO 기록실"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1983,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 100,
+        "power": 81,
+        "speed": 90,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".327/.402 7HR 40타점 13SB 382PA — KBO 기록실"
+    },
+    {
+      "personId": "차영화",
+      "name": "차영화",
+      "year": 1983,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 64,
+        "speed": 93,
+        "defense": 84
+      },
+      "note": "",
+      "source": ".266/.311 1HR 23타점 16SB 252PA — KBO 기록실"
+    },
+    {
+      "personId": "양승호",
+      "name": "양승호",
+      "year": 1983,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 79,
+        "speed": 71,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".236/.294 2HR 11타점 3SB 122PA — KBO 기록실"
+    },
+    {
+      "personId": "서정환",
+      "name": "서정환",
+      "year": 1983,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 70,
+        "speed": 90,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".257/.323 3HR 34타점 13SB 358PA — KBO 기록실"
+    },
+    {
+      "personId": "김일권",
+      "name": "김일권",
+      "year": 1983,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 77,
+        "speed": 110,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".275/.347 6HR 26타점 48SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "김준환",
+      "name": "김준환",
+      "year": 1983,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 87,
+        "speed": 87,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".248/.312 10HR 43타점 11SB 363PA — KBO 기록실"
+    },
+    {
+      "personId": "김종모",
+      "name": "김종모",
+      "year": 1983,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 107,
+        "power": 90,
+        "speed": 81,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".350/.406 11HR 44타점 7SB 342PA — KBO 기록실"
+    },
+    {
+      "personId": "김봉연",
+      "name": "김봉연",
+      "year": 1983,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 110,
+        "speed": 68,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".280/.372 22HR 59타점 2SB 329PA — KBO 기록실"
+    }
+  ]
+}

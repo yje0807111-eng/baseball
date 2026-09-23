@@ -1,0 +1,318 @@
+{
+  "id": "1999-samsung",
+  "kind": "team",
+  "year": 1999,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "이승엽의 54홈런",
+  "blurb": "이승엽이 한 시즌 최다 홈런 기록을 새로 쓰고 임창용이 38세이브로 뒷문을 잠갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "노장진",
+      "name": "노장진",
+      "year": 1999,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 61,
+        "stamina": 101,
+        "stability": 79
+      },
+      "note": "",
+      "source": "33G 188 1/3IP ERA4.35 173K 102BB WHIP1.50 15승 — KBO 기록실"
+    },
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 1999,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 83,
+        "stamina": 99,
+        "stability": 75
+      },
+      "note": "",
+      "source": "31G 179 1/3IP ERA4.67 136K 59BB WHIP1.42 12승 — KBO 기록실"
+    },
+    {
+      "personId": "김진웅",
+      "name": "김진웅",
+      "year": 1999,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 64,
+        "stamina": 97,
+        "stability": 65
+      },
+      "note": "",
+      "source": "34G 171 2/3IP ERA5.40 144K 86BB WHIP1.51 11승 — KBO 기록실"
+    },
+    {
+      "personId": "정성훈",
+      "name": "정성훈",
+      "year": 1999,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 107,
+        "stamina": 54,
+        "stability": 60
+      },
+      "note": "",
+      "source": "5G 19 2/3IP ERA5.95 9K 3BB WHIP1.63 1승 — KBO 기록실"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 1999,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 107,
+        "control": 98,
+        "stamina": 70,
+        "stability": 104
+      },
+      "note": "",
+      "source": "71G 138 2/3IP ERA2.14 141K 29BB WHIP0.87 13승 38SV — KBO 기록실"
+    },
+    {
+      "personId": "김현욱",
+      "name": "김현욱",
+      "year": 1999,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 84,
+        "stamina": 70,
+        "stability": 83
+      },
+      "note": "",
+      "source": "54G 93IP ERA3.97 55K 30BB WHIP1.34 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "정현욱",
+      "name": "정현욱",
+      "year": 1999,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 78,
+        "stamina": 70,
+        "stability": 72
+      },
+      "note": "",
+      "source": "25G 78 2/3IP ERA5.03 56K 29BB WHIP1.39 3승 — KBO 기록실"
+    },
+    {
+      "personId": "전병호",
+      "name": "전병호",
+      "year": 1999,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 77,
+        "stamina": 69,
+        "stability": 62
+      },
+      "note": "",
+      "source": "44G 71 1/3IP ERA5.68 39K 27BB WHIP1.64 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김영진",
+      "name": "김영진",
+      "year": 1999,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 66,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".138/.185 2HR 13타점 0SB 212PA — KBO 기록실"
+    },
+    {
+      "personId": "진갑용",
+      "name": "진갑용",
+      "year": 1999,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 78,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".212/.265 4HR 17타점 0SB 172PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 1999,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 96,
+        "power": 110,
+        "speed": 84,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".323/.458 54HR 123타점 10SB 614PA — KBO 기록실"
+    },
+    {
+      "personId": "정경배",
+      "name": "정경배",
+      "year": 1999,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 88,
+        "speed": 91,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".312/.385 18HR 53타점 16SB 453PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 1999,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 101,
+        "power": 84,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".340/.391 18HR 88타점 7SB 551PA — KBO 기록실"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1999,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 58,
+        "speed": 66,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".233/.313 0HR 6타점 1SB 70PA — KBO 기록실"
+    },
+    {
+      "personId": "김기태",
+      "name": "김기태",
+      "year": 1999,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 96,
+        "speed": 75,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".293/.403 28HR 88타점 5SB 560PA — KBO 기록실"
+    },
+    {
+      "personId": "신동주",
+      "name": "신동주",
+      "year": 1999,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 92,
+        "speed": 101,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".278/.333 22HR 87타점 26SB 484PA — KBO 기록실"
+    },
+    {
+      "personId": "홀",
+      "name": "홀",
+      "year": 1999,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 69,
+        "power": 66,
+        "speed": 110,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".244/.303 4HR 23타점 47SB 458PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 1999,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 80,
+        "speed": 72,
+        "defense": 55
+      },
+      "note": "",
+      "source": ".244/.345 12HR 53타점 4SB 477PA — KBO 기록실"
+    }
+  ]
+}

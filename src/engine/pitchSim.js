@@ -121,7 +121,8 @@ function choosePitch(g, pitcher, order) {
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
-  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 80) - 65 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 30, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
+  /* 구위 60 이면 그 구종의 가장 느린 쪽, 105 면 가장 빠른 쪽 — 능력치 눈금(50~110)에 맞춘 폭 */
+  const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
   return { type, zone, inZone: isIn, velo, tired };
 }
 

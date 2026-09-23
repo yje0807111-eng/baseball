@@ -1,0 +1,318 @@
+{
+  "id": "1995-lotte",
+  "kind": "team",
+  "year": 1995,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "한국시리즈 준우승",
+  "blurb": "마해영이 18홈런을 치고 전준호가 3할을 넘기며 롯데가 한국시리즈까지 올라갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "주형광",
+      "name": "주형광",
+      "year": 1995,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 91,
+        "stamina": 103,
+        "stability": 85
+      },
+      "note": "",
+      "source": "30G 200 1/3IP ERA3.05 152K 49BB WHIP1.09 10승 — KBO 기록실"
+    },
+    {
+      "personId": "윤학길",
+      "name": "윤학길",
+      "year": 1995,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 97,
+        "stamina": 92,
+        "stability": 82
+      },
+      "note": "",
+      "source": "24G 159 1/3IP ERA3.28 71K 31BB WHIP1.12 12승 — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 1995,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 90,
+        "stamina": 83,
+        "stability": 85
+      },
+      "note": "",
+      "source": "18G 127IP ERA2.98 56K 32BB WHIP1.20 7승 — KBO 기록실"
+    },
+    {
+      "personId": "강상수",
+      "name": "강상수",
+      "year": 1995,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 97,
+        "stamina": 77,
+        "stability": 82
+      },
+      "note": "",
+      "source": "18G 102IP ERA3.35 64K 20BB WHIP1.15 7승 — KBO 기록실"
+    },
+    {
+      "personId": "김상현",
+      "name": "김상현",
+      "year": 1995,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 99,
+        "stamina": 70,
+        "stability": 85
+      },
+      "note": "",
+      "source": "42G 89IP ERA3.03 47K 16BB WHIP1.10 4승 9SV — KBO 기록실"
+    },
+    {
+      "personId": "가득염",
+      "name": "가득염",
+      "year": 1995,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 70,
+        "stamina": 70,
+        "stability": 72
+      },
+      "note": "",
+      "source": "39G 96 2/3IP ERA4.10 74K 40BB WHIP1.23 7승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "박동희",
+      "name": "박동희",
+      "year": 1995,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 73,
+        "stamina": 67,
+        "stability": 97
+      },
+      "note": "",
+      "source": "34G 60IP ERA1.50 41K 24BB WHIP0.97 5승 14SV — KBO 기록실"
+    },
+    {
+      "personId": "박지철",
+      "name": "박지철",
+      "year": 1995,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 63,
+        "stamina": 70,
+        "stability": 73
+      },
+      "note": "",
+      "source": "28G 77 1/3IP ERA3.96 36K 39BB WHIP1.45 5승 — KBO 기록실"
+    },
+    {
+      "personId": "임수혁",
+      "name": "임수혁",
+      "year": 1995,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 105,
+        "speed": 68,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".247/.310 15HR 68타점 2SB 300PA — KBO 기록실"
+    },
+    {
+      "personId": "강성우",
+      "name": "강성우",
+      "year": 1995,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 59,
+        "speed": 68,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".222/.266 0HR 12타점 2SB 173PA — KBO 기록실"
+    },
+    {
+      "personId": "마해영",
+      "name": "마해영",
+      "year": 1995,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 93,
+        "speed": 90,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".275/.359 18HR 87타점 16SB 551PA — KBO 기록실"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 1995,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 106,
+        "power": 71,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".337/.408 2HR 34타점 2SB 201PA — KBO 기록실"
+    },
+    {
+      "personId": "공필성",
+      "name": "공필성",
+      "year": 1995,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 69,
+        "speed": 96,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".264/.378 4HR 50타점 22SB 476PA — KBO 기록실"
+    },
+    {
+      "personId": "김민재",
+      "name": "김민재",
+      "year": 1995,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 62,
+        "speed": 75,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".215/.299 1HR 32타점 5SB 383PA — KBO 기록실"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 1995,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 96,
+        "power": 61,
+        "speed": 110,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".308/.393 1HR 42타점 69SB 540PA — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1995,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 82,
+        "speed": 103,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".299/.394 8HR 61타점 31SB 435PA — KBO 기록실"
+    },
+    {
+      "personId": "김종헌",
+      "name": "김종헌",
+      "year": 1995,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 59,
+        "speed": 95,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".239/.308 0HR 31타점 21SB 306PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 1995,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 65,
+        "speed": 110,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".215/.261 5HR 39타점 2SB 310PA — KBO 기록실"
+    }
+  ]
+}

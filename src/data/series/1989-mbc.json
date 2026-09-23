@@ -1,0 +1,318 @@
+{
+  "id": "1989-mbc",
+  "kind": "team",
+  "year": 1989,
+  "title": "MBC 청룡",
+  "franchise": "LG",
+  "subtitle": "MBC라는 이름의 끝",
+  "blurb": "김상호가 13홈런을 쳤지만 MBC는 이 이름으로 치르는 마지막 해를 보냈다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이용철",
+      "name": "이용철",
+      "year": 1989,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 84,
+        "stamina": 83,
+        "stability": 60
+      },
+      "note": "",
+      "source": "29G 120 2/3IP ERA5.44 35K 41BB WHIP1.59 7승 — KBO 기록실"
+    },
+    {
+      "personId": "유종겸",
+      "name": "유종겸",
+      "year": 1989,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 72,
+        "stamina": 78,
+        "stability": 85
+      },
+      "note": "",
+      "source": "29G 102IP ERA3.44 38K 46BB WHIP1.47 3승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "정삼흠",
+      "name": "정삼흠",
+      "year": 1989,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 68,
+        "stamina": 77,
+        "stability": 82
+      },
+      "note": "",
+      "source": "21G 100 2/3IP ERA3.67 37K 50BB WHIP1.42 5승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김태원",
+      "name": "김태원",
+      "year": 1989,
+      "team": "MBC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 70,
+        "stamina": 76,
+        "stability": 90
+      },
+      "note": "",
+      "source": "24G 98 2/3IP ERA2.83 68K 47BB WHIP1.34 2승 — KBO 기록실"
+    },
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 1989,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 91,
+        "stamina": 71,
+        "stability": 87
+      },
+      "note": "",
+      "source": "47G 104 1/3IP ERA3.19 51K 29BB WHIP1.30 5승 22SV — KBO 기록실"
+    },
+    {
+      "personId": "이국성",
+      "name": "이국성",
+      "year": 1989,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 68,
+        "stamina": 71,
+        "stability": 69
+      },
+      "note": "",
+      "source": "42G 121 2/3IP ERA4.51 71K 60BB WHIP1.51 4승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김기범",
+      "name": "김기범",
+      "year": 1989,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 68,
+        "stamina": 71,
+        "stability": 70
+      },
+      "note": "",
+      "source": "30G 103 2/3IP ERA4.69 42K 52BB WHIP1.48 7승 — KBO 기록실"
+    },
+    {
+      "personId": "문병권",
+      "name": "문병권",
+      "year": 1989,
+      "team": "MBC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 92,
+        "stamina": 66,
+        "stability": 71
+      },
+      "note": "",
+      "source": "20G 52IP ERA4.33 16K 14BB WHIP1.58 4승 — KBO 기록실"
+    },
+    {
+      "personId": "차동열",
+      "name": "차동열",
+      "year": 1989,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 68,
+        "speed": 63,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".198/.262 1HR 18타점 1SB 150PA — KBO 기록실"
+    },
+    {
+      "personId": "서효인",
+      "name": "서효인",
+      "year": 1989,
+      "team": "MBC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 85,
+        "speed": 65,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".254/.380 3HR 17타점 2SB 145PA — KBO 기록실"
+    },
+    {
+      "personId": "김상호",
+      "name": "김상호",
+      "year": 1989,
+      "team": "MBC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 92,
+        "speed": 96,
+        "defense": 54
+      },
+      "note": "",
+      "source": ".257/.351 13HR 56타점 21SB 425PA — KBO 기록실"
+    },
+    {
+      "personId": "김동재",
+      "name": "김동재",
+      "year": 1989,
+      "team": "MBC",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 80,
+        "speed": 81,
+        "defense": 83
+      },
+      "note": "",
+      "source": ".263/.330 5HR 33타점 9SB 308PA — KBO 기록실"
+    },
+    {
+      "personId": "민경삼",
+      "name": "민경삼",
+      "year": 1989,
+      "team": "MBC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 66,
+        "speed": 85,
+        "defense": 77
+      },
+      "note": "",
+      "source": ".229/.299 1HR 14타점 12SB 210PA — KBO 기록실"
+    },
+    {
+      "personId": "김재박",
+      "name": "김재박",
+      "year": 1989,
+      "team": "MBC",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 69,
+        "speed": 108,
+        "defense": 89
+      },
+      "note": "",
+      "source": ".286/.380 3HR 27타점 39SB 425PA — KBO 기록실"
+    },
+    {
+      "personId": "노찬엽",
+      "name": "노찬엽",
+      "year": 1989,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 64,
+        "speed": 87,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".287/.374 1HR 56타점 13SB 422PA — KBO 기록실"
+    },
+    {
+      "personId": "윤덕규",
+      "name": "윤덕규",
+      "year": 1989,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 64,
+        "speed": 85,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".300/.385 1HR 34타점 12SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "이광은",
+      "name": "이광은",
+      "year": 1989,
+      "team": "MBC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 76,
+        "speed": 85,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".234/.325 4HR 47타점 12SB 319PA — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 1989,
+      "team": "MBC",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 75,
+        "speed": 84,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".280/.344 5HR 57타점 11SB 421PA — KBO 기록실"
+    }
+  ]
+}

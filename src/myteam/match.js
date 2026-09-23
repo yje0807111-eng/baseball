@@ -32,13 +32,13 @@ export function applyStaff(roster, staff) {
   return roster.map((p) => {
     const s = { ...p.stats };
     if (p.type === 'pitcher') {
-      s.stuff = (s.stuff ?? 70) + e.pitch;
-      s.control = (s.control ?? 70) + e.pitch;
-      s.stability = (s.stability ?? 70) + Math.round(e.stamina / 3);
+      s.stuff = (s.stuff ?? 78) + e.pitch;
+      s.control = (s.control ?? 78) + e.pitch;
+      s.stability = (s.stability ?? 78) + Math.round(e.stamina / 3);
     } else {
-      s.contact = (s.contact ?? 70) + e.bat;
-      s.power = (s.power ?? 70) + e.bat;
-      s.defense = (s.defense ?? 70) + e.field;
+      s.contact = (s.contact ?? 78) + e.bat;
+      s.power = (s.power ?? 78) + e.bat;
+      s.defense = (s.defense ?? 78) + e.field;
     }
     return { ...p, stats: s };
   });

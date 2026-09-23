@@ -1,0 +1,319 @@
+{
+  "id": "1997-haitai",
+  "champion": true,
+  "kind": "team",
+  "year": 1997,
+  "title": "해태 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "한국시리즈 우승(아홉 번째)",
+  "blurb": "이종범이 30홈런을 치고 이대진이 17승, 임창용이 26세이브를 올리며 해태가 다시 정상에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이대진",
+      "name": "이대진",
+      "year": 1997,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 78,
+        "stamina": 99,
+        "stability": 86
+      },
+      "note": "",
+      "source": "28G 180 2/3IP ERA3.14 140K 65BB WHIP1.21 17승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 1997,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 77,
+        "stamina": 94,
+        "stability": 87
+      },
+      "note": "",
+      "source": "30G 162 2/3IP ERA2.99 128K 60BB WHIP1.17 11승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김상진",
+      "name": "김상진",
+      "year": 1997,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 78,
+        "stamina": 90,
+        "stability": 81
+      },
+      "note": "",
+      "source": "30G 147 2/3IP ERA3.60 91K 54BB WHIP1.28 9승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 1997,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 91,
+        "stamina": 81,
+        "stability": 79
+      },
+      "note": "",
+      "source": "25G 114IP ERA3.71 71K 29BB WHIP1.23 8승 — KBO 기록실"
+    },
+    {
+      "personId": "임창용",
+      "name": "임창용",
+      "year": 1997,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 99,
+        "control": 89,
+        "stamina": 70,
+        "stability": 97
+      },
+      "note": "",
+      "source": "64G 135IP ERA2.33 120K 36BB WHIP0.96 14승 26SV — KBO 기록실"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1997,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 101,
+        "control": 73,
+        "stamina": 70,
+        "stability": 76
+      },
+      "note": "",
+      "source": "41G 80 2/3IP ERA4.02 79K 32BB WHIP1.28 5승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "이원식",
+      "name": "이원식",
+      "year": 1997,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 77,
+        "stamina": 70,
+        "stability": 82
+      },
+      "note": "",
+      "source": "28G 75IP ERA3.48 39K 28BB WHIP1.15 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "강태원",
+      "name": "강태원",
+      "year": 1997,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 73,
+        "stamina": 69,
+        "stability": 85
+      },
+      "note": "",
+      "source": "41G 70 1/3IP ERA3.20 40K 28BB WHIP1.19 1승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "최해식",
+      "name": "최해식",
+      "year": 1997,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 62,
+        "speed": 66,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".250/.310 1HR 28타점 1SB 303PA — KBO 기록실"
+    },
+    {
+      "personId": "권오성",
+      "name": "권오성",
+      "year": 1997,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 58,
+        "speed": 63,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".228/.315 0HR 11타점 0SB 93PA — KBO 기록실"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 1997,
+      "team": "해태",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 72,
+        "speed": 68,
+        "defense": 51
+      },
+      "note": "",
+      "source": ".268/.305 4HR 35타점 2SB 334PA — KBO 기록실"
+    },
+    {
+      "personId": "김종국",
+      "name": "김종국",
+      "year": 1997,
+      "team": "해태",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 81,
+        "speed": 88,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".210/.283 9HR 35타점 13SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "홍현우",
+      "name": "홍현우",
+      "year": 1997,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 94,
+        "speed": 95,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".271/.395 22HR 79타점 20SB 534PA — KBO 기록실"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 1997,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 101,
+        "power": 104,
+        "speed": 110,
+        "defense": 97
+      },
+      "note": "",
+      "source": ".324/.428 30HR 74타점 64SB 577PA — KBO 기록실"
+    },
+    {
+      "personId": "이호성",
+      "name": "이호성",
+      "year": 1997,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 90,
+        "speed": 95,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".276/.370 15HR 63타점 20SB 443PA — KBO 기록실"
+    },
+    {
+      "personId": "최훈재",
+      "name": "최훈재",
+      "year": 1997,
+      "team": "해태",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 87,
+        "speed": 71,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".292/.359 12HR 70타점 3SB 394PA — KBO 기록실"
+    },
+    {
+      "personId": "김창희",
+      "name": "김창희",
+      "year": 1997,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 84,
+        "speed": 68,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".263/.330 9HR 43타점 2SB 350PA — KBO 기록실"
+    },
+    {
+      "personId": "박재용",
+      "name": "박재용",
+      "year": 1997,
+      "team": "해태",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 81,
+        "speed": 66,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".245/.318 7HR 33타점 1SB 331PA — KBO 기록실"
+    }
+  ]
+}

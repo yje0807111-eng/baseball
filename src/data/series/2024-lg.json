@@ -15,23 +15,311 @@
     "18명 구성: 선발 6(켈리·에르난데스 포함)·불펜 2·야수 10. 함덕주(15경기 11.2이닝)·정우영은 제외."
   ],
   "players": [
-    { "personId": "엔스", "name": "엔스", "year": 2024, "team": "LG", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 81, "control": 76, "stamina": 84, "stability": 72 }, "note": "팀 최다 13승", "source": "30G 13승6패 ERA4.19 167.2IP 157K 50BB WHIP1.31 — KBO 기록실" },
-    { "personId": "임찬규", "name": "임찬규", "year": 2024, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 85, "control": 74, "stamina": 75, "stability": 76 }, "note": "10승", "source": "25G 10승6패 ERA3.83 134IP 136K 42BB WHIP1.39 — KBO 기록실" },
-    { "personId": "손주영", "name": "손주영", "year": 2024, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 72, "control": 68, "stamina": 78, "stability": 76 }, "note": "9승", "source": "28G 9승10패 ERA3.79 144.2IP 112K 54BB WHIP1.46 — KBO 기록실" },
-    { "personId": "최원태", "name": "최원태", "year": 2024, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 74, "control": 59, "stamina": 73, "stability": 71 }, "note": "9승", "source": "24G 9승7패 ERA4.26 126.2IP 103K 57BB WHIP1.44 — KBO 기록실" },
-    { "personId": "켈리", "name": "켈리", "year": 2024, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 64, "control": 84, "stamina": 70, "stability": 68 }, "note": "", "source": "19G 5승8패 ERA4.51 113.2IP 69K 25BB WHIP1.37 — KBO 기록실" },
-    { "personId": "에르난데스", "name": "에르난데스", "year": 2024, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 90, "control": 71, "stamina": 58, "stability": 74 }, "note": "대체 외국인 투수", "source": "11G 3승2패 1SV 1HLD ERA4.02 47IP 55K 16BB WHIP1.21 — KBO 기록실" },
-    { "personId": "유영찬", "name": "유영찬", "year": 2024, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 57, "stamina": 50, "stability": 85 }, "note": "26세이브 마무리", "source": "62G 7승5패 26SV 1HLD ERA2.97 63.2IP 77K 30BB WHIP1.43 — KBO 기록실" },
-    { "personId": "김진성", "name": "김진성", "year": 2024, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 77, "control": 73, "stamina": 55, "stability": 74 }, "note": "27홀드", "source": "71G 3승3패 1SV 27HLD ERA3.97 70.1IP 61K 23BB WHIP1.21 — KBO 기록실" },
-    { "personId": "박동원", "name": "박동원", "year": 2024, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 71, "speed": 44, "defense": 84 }, "note": "20홈런 포수", "source": ".272/.349 20HR 80타점 1SB 498PA(130G) — KBO 기록실" },
-    { "personId": "오스틴", "name": "오스틴", "year": 2024, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 86, "contact": 86, "speed": 64, "defense": 66 }, "note": "타점왕·1루수 골든글러브", "source": ".319/.384 32HR 132타점 12SB 140G — KBO 기록실" },
-    { "personId": "신민재", "name": "신민재", "year": 2024, "team": "LG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 79, "speed": 85, "defense": 80 }, "note": "32도루", "source": ".297/.401 0HR 40타점 32SB 64BB 474PA(128G) — KBO 기록실" },
-    { "personId": "문보경", "name": "문보경", "year": 2024, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 74, "contact": 80, "speed": 59, "defense": 80 }, "note": "첫 3할-20홈런-100타점", "source": ".301 22HR 101타점 7SB 65BB 144G — KBO 기록실" },
-    { "personId": "오지환", "name": "오지환", "year": 2024, "team": "LG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 65, "speed": 72, "defense": 88 }, "note": "", "source": ".254/.350 10HR 59타점 17SB 428PA(108G) — KBO 기록실" },
-    { "personId": "홍창기", "name": "홍창기", "year": 2024, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 91, "speed": 62, "defense": 74 }, "note": "출루율 .447", "source": ".336/.447 5HR 73타점 10SB 96BB 637PA(139G) — KBO 기록실" },
-    { "personId": "박해민", "name": "박해민", "year": 2024, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 68, "speed": 91, "defense": 94 }, "note": "43도루·144경기 전경기", "source": ".263/.336 6HR 56타점 43SB 553PA(144G) — KBO 기록실" },
-    { "personId": "문성주", "name": "문성주", "year": 2024, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 84, "speed": 68, "defense": 72 }, "note": "", "source": ".315/.411 0HR 48타점 13SB 361PA(96G) — KBO 기록실" },
-    { "personId": "김현수", "name": "김현수", "year": 2024, "team": "LG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 56, "contact": 78, "speed": 50, "defense": 58 }, "note": "", "source": ".294/.357 8HR 69타점 6SB 583PA(137G) — KBO 기록실" },
-    { "personId": "구본혁", "name": "구본혁", "year": 2024, "team": "LG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 66, "speed": 60, "defense": 84 }, "note": "내야 유틸리티", "source": ".257/.335 2HR 43타점 8SB 389PA(133G) — KBO 기록실" }
+    {
+      "personId": "엔스",
+      "name": "엔스",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 84,
+        "control": 85,
+        "stamina": 98,
+        "stability": 75
+      },
+      "note": "팀 최다 13승",
+      "source": "30G 13승6패 ERA4.19 167.2IP 157K 50BB WHIP1.31 — KBO 기록실"
+    },
+    {
+      "personId": "임찬규",
+      "name": "임찬규",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 83,
+        "stamina": 88,
+        "stability": 80
+      },
+      "note": "10승",
+      "source": "25G 10승6패 ERA3.83 134IP 136K 42BB WHIP1.39 — KBO 기록실"
+    },
+    {
+      "personId": "손주영",
+      "name": "손주영",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 77,
+        "stamina": 91,
+        "stability": 80
+      },
+      "note": "9승",
+      "source": "28G 9승10패 ERA3.79 144.2IP 112K 54BB WHIP1.46 — KBO 기록실"
+    },
+    {
+      "personId": "최원태",
+      "name": "최원태",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 68,
+        "stamina": 86,
+        "stability": 74
+      },
+      "note": "9승",
+      "source": "24G 9승7패 ERA4.26 126.2IP 103K 57BB WHIP1.44 — KBO 기록실"
+    },
+    {
+      "personId": "켈리",
+      "name": "켈리",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 60,
+        "control": 93,
+        "stamina": 83,
+        "stability": 71
+      },
+      "note": "",
+      "source": "19G 5승8패 ERA4.51 113.2IP 69K 25BB WHIP1.37 — KBO 기록실"
+    },
+    {
+      "personId": "에르난데스",
+      "name": "에르난데스",
+      "year": 2024,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 97,
+        "control": 80,
+        "stamina": 70,
+        "stability": 77
+      },
+      "note": "대체 외국인 투수",
+      "source": "11G 3승2패 1SV 1HLD ERA4.02 47IP 55K 16BB WHIP1.21 — KBO 기록실"
+    },
+    {
+      "personId": "유영찬",
+      "name": "유영찬",
+      "year": 2024,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 66,
+        "stamina": 61,
+        "stability": 90
+      },
+      "note": "26세이브 마무리",
+      "source": "62G 7승5패 26SV 1HLD ERA2.97 63.2IP 77K 30BB WHIP1.43 — KBO 기록실"
+    },
+    {
+      "personId": "김진성",
+      "name": "김진성",
+      "year": 2024,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 82,
+        "stamina": 66,
+        "stability": 77
+      },
+      "note": "27홀드",
+      "source": "71G 3승3패 1SV 27HLD ERA3.97 70.1IP 61K 23BB WHIP1.21 — KBO 기록실"
+    },
+    {
+      "personId": "박동원",
+      "name": "박동원",
+      "year": 2024,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 78,
+        "speed": 65,
+        "defense": 90
+      },
+      "note": "20홈런 포수",
+      "source": ".272/.349 20HR 80타점 1SB 498PA(130G) — KBO 기록실"
+    },
+    {
+      "personId": "오스틴",
+      "name": "오스틴",
+      "year": 2024,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 105,
+        "contact": 95,
+        "speed": 84,
+        "defense": 64
+      },
+      "note": "타점왕·1루수 골든글러브",
+      "source": ".319/.384 32HR 132타점 12SB 140G — KBO 기록실"
+    },
+    {
+      "personId": "신민재",
+      "name": "신민재",
+      "year": 2024,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 87,
+        "speed": 104,
+        "defense": 84
+      },
+      "note": "32도루",
+      "source": ".297/.401 0HR 40타점 32SB 64BB 474PA(128G) — KBO 기록실"
+    },
+    {
+      "personId": "문보경",
+      "name": "문보경",
+      "year": 2024,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 93,
+        "contact": 88,
+        "speed": 79,
+        "defense": 84
+      },
+      "note": "첫 3할-20홈런-100타점",
+      "source": ".301 22HR 101타점 7SB 65BB 144G — KBO 기록실"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2024,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 80,
+        "contact": 71,
+        "speed": 92,
+        "defense": 96
+      },
+      "note": "",
+      "source": ".254/.350 10HR 59타점 17SB 428PA(108G) — KBO 기록실"
+    },
+    {
+      "personId": "홍창기",
+      "name": "홍창기",
+      "year": 2024,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 101,
+        "speed": 82,
+        "defense": 75
+      },
+      "note": "출루율 .447",
+      "source": ".336/.447 5HR 73타점 10SB 96BB 637PA(139G) — KBO 기록실"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2024,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 74,
+        "speed": 110,
+        "defense": 104
+      },
+      "note": "43도루·144경기 전경기",
+      "source": ".263/.336 6HR 56타점 43SB 553PA(144G) — KBO 기록실"
+    },
+    {
+      "personId": "문성주",
+      "name": "문성주",
+      "year": 2024,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 93,
+        "speed": 88,
+        "defense": 72
+      },
+      "note": "",
+      "source": ".315/.411 0HR 48타점 13SB 361PA(96G) — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2024,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 86,
+        "speed": 71,
+        "defense": 52
+      },
+      "note": "",
+      "source": ".294/.357 8HR 69타점 6SB 583PA(137G) — KBO 기록실"
+    },
+    {
+      "personId": "구본혁",
+      "name": "구본혁",
+      "year": 2024,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 72,
+        "speed": 80,
+        "defense": 90
+      },
+      "note": "내야 유틸리티",
+      "source": ".257/.335 2HR 43타점 8SB 389PA(133G) — KBO 기록실"
+    }
   ]
 }

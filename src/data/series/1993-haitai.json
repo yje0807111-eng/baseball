@@ -12,23 +12,311 @@
     "18명 구성: 김정수·문희수·강태원·장채근·박철우·이건열 추가. 이건열 포지션은 위키백과 1993 우승 명단(외야수) 기준."
   ],
   "players": [
-    { "personId": "조계현", "name": "조계현", "year": 1993, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 76, "stamina": 92, "stability": 90 }, "note": "다승왕(17승)", "source": "28G 196.1IP 17승6패 ERA2.15 118K 58BB — namu" },
-    { "personId": "이강철", "name": "이강철", "year": 1993, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 53, "stamina": 80, "stability": 82 }, "note": "사이드암 10승", "source": "31G 154IP 10승10패 ERA3.04 131K 78BB — namu" },
-    { "personId": "이대진", "name": "이대진", "year": 1993, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 53, "stamina": 72, "stability": 81 }, "note": "고졸 신인 10승", "source": "31G 124.1IP 10승5패 ERA3.11 97K 63BB — namu" },
-    { "personId": "김정수", "name": "김정수", "year": 1993, "team": "해태", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 71, "control": 64, "stamina": 73, "stability": 85 }, "note": "좌완 10승", "source": "30G 127.2IP 10승8패 1SV ERA2.75 96K 50BB — kowiki" },
-    { "personId": "문희수", "name": "문희수", "year": 1993, "team": "해태", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 60, "control": 80, "stamina": 58, "stability": 73 }, "note": "", "source": "18G 63.2IP 5승2패 ERA3.82 35K 14BB WHIP1.34 — namu" },
-    { "personId": "선동열", "name": "선동열", "year": 1993, "team": "해태", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 96, "control": 88, "stamina": 58, "stability": 96 }, "note": "31세이브", "source": "49G 126IP 10승3패 31SV ERA0.78 — namu" },
-    { "personId": "송유석", "name": "송유석", "year": 1993, "team": "해태", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 61, "control": 59, "stamina": 58, "stability": 83 }, "note": "구원 11승", "source": "11승6패 ERA2.90 124.1IP 67K 56BB(주로 구원) — namu" },
-    { "personId": "강태원", "name": "강태원", "year": 1993, "team": "해태", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 54, "control": 63, "stamina": 48, "stability": 72 }, "note": "", "source": "21G 46IP 2승1패 1SV ERA3.72 17K 17BB WHIP1.39 — namu" },
-    { "personId": "정회열", "name": "정회열", "year": 1993, "team": "해태", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 56, "contact": 74, "speed": 44, "defense": 76 }, "note": "", "source": "117G .275 7HR 0SB — namu" },
-    { "personId": "장채근", "name": "장채근", "year": 1993, "team": "해태", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 56, "contact": 48, "speed": 42, "defense": 72 }, "note": "", "source": "67G .178/.309 4HR 2SB 31BB 163AB — namu" },
-    { "personId": "김성한", "name": "김성한", "year": 1993, "team": "해태", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 73, "speed": 46, "defense": 58 }, "note": "", "source": "107G .273 6HR 4SB — namu" },
-    { "personId": "홍현우", "name": "홍현우", "year": 1993, "team": "해태", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 69, "speed": 64, "defense": 78 }, "note": "", "source": "123G .262 13HR 10SB — namu" },
-    { "personId": "한대화", "name": "한대화", "year": 1993, "team": "해태", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 66, "contact": 71, "speed": 46, "defense": 76 }, "note": "", "source": "107G .266 13HR 46RBI 4SB — namu" },
-    { "personId": "이종범", "name": "이종범", "year": 1993, "team": "해태", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 69, "contact": 75, "speed": 95, "defense": 84 }, "note": "신인왕·한국시리즈 MVP", "source": "126G .280 16HR 73SB 85득점 OBP.331 — namu" },
-    { "personId": "이순철", "name": "이순철", "year": 1993, "team": "해태", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 63, "contact": 66, "speed": 83, "defense": 90 }, "note": "외야 골든글러브", "source": "102G .253 11HR 29SB — namu" },
-    { "personId": "이호성(1967)", "name": "이호성", "year": 1993, "team": "해태", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 85, "speed": 64, "defense": 72 }, "note": "", "source": "75G .310 3HR 10SB OPS.856 — namu" },
-    { "personId": "이건열", "name": "이건열", "year": 1993, "team": "해태", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 52, "contact": 58, "speed": 62, "defense": 68 }, "note": "", "source": "111G .228 5HR 10SB 29BB 302AB — kowiki" },
-    { "personId": "박철우", "name": "박철우", "year": 1993, "team": "해태", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 70, "speed": 42, "defense": 52 }, "note": "", "source": "81G .264 2HR 0SB 23BB 197AB(1B/DH) — kowiki" }
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 1993,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 88,
+        "stamina": 100,
+        "stability": 95
+      },
+      "note": "다승왕(17승)",
+      "source": "28G 196.1IP 17승6패 ERA2.15 118K 58BB — namu"
+    },
+    {
+      "personId": "이강철",
+      "name": "이강철",
+      "year": 1993,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 62,
+        "stamina": 89,
+        "stability": 87
+      },
+      "note": "사이드암 10승",
+      "source": "31G 154IP 10승10패 ERA3.04 131K 78BB — namu"
+    },
+    {
+      "personId": "이대진",
+      "name": "이대진",
+      "year": 1993,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 62,
+        "stamina": 81,
+        "stability": 86
+      },
+      "note": "고졸 신인 10승",
+      "source": "31G 124.1IP 10승5패 ERA3.11 97K 63BB — namu"
+    },
+    {
+      "personId": "김정수",
+      "name": "김정수",
+      "year": 1993,
+      "team": "해태",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 74,
+        "stamina": 82,
+        "stability": 90
+      },
+      "note": "좌완 10승",
+      "source": "30G 127.2IP 10승8패 1SV ERA2.75 96K 50BB — kowiki"
+    },
+    {
+      "personId": "문희수",
+      "name": "문희수",
+      "year": 1993,
+      "team": "해태",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 93,
+        "stamina": 68,
+        "stability": 79
+      },
+      "note": "",
+      "source": "18G 63.2IP 5승2패 ERA3.82 35K 14BB WHIP1.34 — namu"
+    },
+    {
+      "personId": "선동열",
+      "name": "선동열",
+      "year": 1993,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 102,
+        "stamina": 68,
+        "stability": 101
+      },
+      "note": "31세이브",
+      "source": "49G 126IP 10승3패 31SV ERA0.78 — namu"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1993,
+      "team": "해태",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 69,
+        "stamina": 68,
+        "stability": 88
+      },
+      "note": "구원 11승",
+      "source": "11승6패 ERA2.90 124.1IP 67K 56BB(주로 구원) — namu"
+    },
+    {
+      "personId": "강태원",
+      "name": "강태원",
+      "year": 1993,
+      "team": "해태",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 73,
+        "stamina": 59,
+        "stability": 78
+      },
+      "note": "",
+      "source": "21G 46IP 2승1패 1SV ERA3.72 17K 17BB WHIP1.39 — namu"
+    },
+    {
+      "personId": "정회열",
+      "name": "정회열",
+      "year": 1993,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 83,
+        "speed": 62,
+        "defense": 79
+      },
+      "note": "",
+      "source": "117G .275 7HR 0SB — namu"
+    },
+    {
+      "personId": "장채근",
+      "name": "장채근",
+      "year": 1993,
+      "team": "해태",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 56,
+        "speed": 60,
+        "defense": 73
+      },
+      "note": "",
+      "source": "67G .178/.309 4HR 2SB 31BB 163AB — namu"
+    },
+    {
+      "personId": "김성한",
+      "name": "김성한",
+      "year": 1993,
+      "team": "해태",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 82,
+        "speed": 64,
+        "defense": 52
+      },
+      "note": "",
+      "source": "107G .273 6HR 4SB — namu"
+    },
+    {
+      "personId": "홍현우",
+      "name": "홍현우",
+      "year": 1993,
+      "team": "해태",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 78,
+        "speed": 82,
+        "defense": 82
+      },
+      "note": "",
+      "source": "123G .262 13HR 10SB — namu"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1993,
+      "team": "해태",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 80,
+        "speed": 64,
+        "defense": 79
+      },
+      "note": "",
+      "source": "107G .266 13HR 46RBI 4SB — namu"
+    },
+    {
+      "personId": "이종범",
+      "name": "이종범",
+      "year": 1993,
+      "team": "해태",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 85,
+        "speed": 110,
+        "defense": 91
+      },
+      "note": "신인왕·한국시리즈 MVP",
+      "source": "126G .280 16HR 73SB 85득점 OBP.331 — namu"
+    },
+    {
+      "personId": "이순철",
+      "name": "이순철",
+      "year": 1993,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 82,
+        "contact": 75,
+        "speed": 101,
+        "defense": 100
+      },
+      "note": "외야 골든글러브",
+      "source": "102G .253 11HR 29SB — namu"
+    },
+    {
+      "personId": "이호성(1967)",
+      "name": "이호성",
+      "year": 1993,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 95,
+        "speed": 82,
+        "defense": 73
+      },
+      "note": "",
+      "source": "75G .310 3HR 10SB OPS.856 — namu"
+    },
+    {
+      "personId": "이건열",
+      "name": "이건열",
+      "year": 1993,
+      "team": "해태",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 67,
+        "speed": 80,
+        "defense": 67
+      },
+      "note": "",
+      "source": "111G .228 5HR 10SB 29BB 302AB — kowiki"
+    },
+    {
+      "personId": "박철우",
+      "name": "박철우",
+      "year": 1993,
+      "team": "해태",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 65,
+        "contact": 79,
+        "speed": 60,
+        "defense": 50
+      },
+      "note": "",
+      "source": "81G .264 2HR 0SB 23BB 197AB(1B/DH) — kowiki"
+    }
   ]
 }
