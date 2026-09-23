@@ -6,7 +6,18 @@
 import { getLockReason, ROSTER_SIZE, SALARY_CAP, DRAFT_SERIES, freeSlot, FIELD_SLOTS, POS_LABEL } from '../KboAugmentDraft.jsx';
 import { BANNERS } from '../myteam/teamArt.js';
 
-export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
+export const CLUB_COUNT = 8;        // 참가 구단 기본값 (나 1 + AI 7)
+/** 이 판의 구단 수 — 판마다 다를 수 있어 상태에서 읽는다 */
+export const clubCountOf = (s) => (s?.order?.length || s?.clubs?.length || CLUB_COUNT);
+/**
+ * 이 시리즈 묶음으로 몇 구단까지 돌릴 수 있나.
+ * 1982년처럼 그해 구단이 여섯뿐이면 선수가 108명이라 8구단 × 20명(160명)을 채울 수 없다.
+ * 보드에 깔리는 18명 중 열에 아홉은 쓸 수 있다고 보고 구단 수를 줄인다.
+ */
+export const clubsFor = (series = [], roster = ROSTER_SIZE) => {
+  const players = series.filter((x) => x.players?.length).length * BOARD_SIZE;
+  return Math.max(4, Math.min(CLUB_COUNT, Math.floor((players * 0.9) / Math.max(1, roster))));
+};
 export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
 export const PICK_SECONDS = 25;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
 export const BOARD_SIZE = 18;       // 보드에 까는 선수 수 — 실제 구단 시리즈 한 팀과 같은 수
@@ -97,19 +108,21 @@ export function sampleBoard(series, rng = Math.random) {
 }
 
 /** 픽 번호(0부터) → 몇 바퀴째 · 그 바퀴의 몇 번째 자리 · 어느 보드 */
-export const lapOf = (pick) => Math.floor(pick / CLUB_COUNT);
-export const boardOf = (pick) => Math.floor(lapOf(pick) / LAPS_PER_BOARD);
+export const lapOf = (pick, n = CLUB_COUNT) => Math.floor(pick / n);
+export const boardOf = (pick, n = CLUB_COUNT) => Math.floor(lapOf(pick, n) / LAPS_PER_BOARD);
 /** 스네이크: 짝수 바퀴는 순번대로, 홀수 바퀴는 거꾸로 */
 export function clubAt(pick, order) {
-  const lap = lapOf(pick);
-  const i = pick % CLUB_COUNT;
-  return order[lap % 2 === 0 ? i : CLUB_COUNT - 1 - i];
+  const n = order.length;
+  const lap = lapOf(pick, n);
+  const i = pick % n;
+  return order[lap % 2 === 0 ? i : n - 1 - i];
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, firstPick = false, rng = Math.random } = {}) {
-  // 상대 일곱 구단은 실제 구단 중에서 판마다 새로 뽑는다
-  const rivals = shuffle(CLUB_POOL, rng).slice(0, CLUB_COUNT - 1)
+export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, rng = Math.random } = {}) {
+  // 상대 구단은 실제 구단 중에서 판마다 새로 뽑는다 — 그해 선수가 모자라면 수를 줄인다
+  const count = clubCount || clubsFor(series);
+  const rivals = shuffle(CLUB_POOL, rng).slice(0, count - 1)
     .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i], grade: GRADE_ORDER[i] }));
   const clubs = [
     // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
@@ -157,7 +170,7 @@ export function protectPlayer(s, player) {
 /** 지금 다음에 오는 내 차례 픽 번호 (없으면 null) */
 export function nextMyPick(s) {
   const me = myIndex(s);
-  for (let i = s.pick + (isMyTurn(s) ? 1 : 0); i < CLUB_COUNT * ROSTER_SIZE; i++) if (clubAt(i, s.order) === me) return i;
+  for (let i = s.pick + (isMyTurn(s) ? 1 : 0); i < clubCountOf(s) * ROSTER_SIZE; i++) if (clubAt(i, s.order) === me) return i;
   return null;
 }
 /** 보호가 아직 살아 있는가 */
@@ -174,13 +187,13 @@ export function setBoardSeries(s, series, at = boardNo(s) + 1, rng = Math.random
 export const myIndex = (s) => s.clubs.findIndex((c) => c.me);
 export const currentClub = (s) => clubAt(s.pick, s.order);
 export const isMyTurn = (s) => !isDone(s) && currentClub(s) === myIndex(s);
-export const isDone = (s) => s.pick >= CLUB_COUNT * ROSTER_SIZE;
-export const boardNo = (s) => Math.min(boardCount() - 1, boardOf(s.pick));
+export const isDone = (s) => s.pick >= clubCountOf(s) * ROSTER_SIZE;
+export const boardNo = (s) => Math.min(boardCount() - 1, boardOf(s.pick, clubCountOf(s)));
 export const currentSeries = (s) => s.pool[boardNo(s)];
 /** 지금 보드에 깔린 선수 — 데려간 선수도 그대로 두고 taken 으로 표시한다 */
 export const boardPlayers = (s) => currentSeries(s)?.players || [];
 /** 이 구단이 지금 순번에서 몇 번째로 뽑는지 (1부터) */
-export const slotInLap = (s) => (s.pick % CLUB_COUNT) + 1;
+export const slotInLap = (s) => (s.pick % clubCountOf(s)) + 1;
 
 /** 아직 못 채운 필드 자리 (예비 자리는 아무나 받으므로 세지 않는다) */
 export function openFieldSlots(roster) {
@@ -302,7 +315,7 @@ export function cannotPickMore(s, club = myIndex(s)) {
 export function finishAll(s, rng = Math.random) {
   let out = s;
   let guard = 0;
-  while (!isDone(out) && guard++ < CLUB_COUNT * ROSTER_SIZE + 10) {
+  while (!isDone(out) && guard++ < clubCountOf(out) * ROSTER_SIZE + 10) {
     out = isMyTurn(out) ? pick(out, null) : stepAi(out, rng);
   }
   return out;

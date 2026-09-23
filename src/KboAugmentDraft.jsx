@@ -2605,11 +2605,11 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
 function TurnOrder({ live, clock, hold = false }) {
   // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다).
   // 다만 바퀴가 넘어갔으면 기다리지 않는다 — 보드가 바뀌는 순간 새 순서를 보여 줘야 한다
-  const sameLap = Live.lapOf(live.pick) === Live.lapOf(Math.max(0, live.pick - 1));
+  const sameLap = Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const shown = Math.max(0, live.pick - (hold && sameLap ? 1 : 0));
-  const start = shown - (shown % Live.CLUB_COUNT);
+  const start = shown - (shown % live.order.length);
   const at = shown % Live.CLUB_COUNT;
-  const seq = Array.from({ length: Live.CLUB_COUNT }, (_, k) => live.clubs[Live.clubAt(start + k, live.order)]);
+  const seq = Array.from({ length: live.order.length }, (_, k) => live.clubs[Live.clubAt(start + k, live.order)]);
   return (
     <div className="dr-order" aria-label="뽑는 순서">
       {/* 남은 시간은 조각 밖 제 칸에 — 조각 폭이 바뀌지 않아 줄이 흔들리지 않는다 */}
@@ -5664,7 +5664,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const myTurn = !live || Live.isMyTurn(live);
   /* 방금 지명된 카드가 엠블럼에 덮여 있는 동안에는 순서 띠가 그 구단에 머문다(바퀴가 넘어갔으면 예외).
      선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
-  const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick) === Live.lapOf(Math.max(0, live.pick - 1));
+  const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
