@@ -287,7 +287,7 @@ function sampleSeries(series, roster, cp, banned, rng) {
   return { ...series, players: picked };
 }
 
-/** 빈 자리를 퓨처스 유망주(능력치 55)로 채운다 */
+/** 빈 자리를 퓨처스 유망주(능력치 70)로 채운다 — 눈금 50~110 에서 아래쪽 15% 자리 */
 export function fillRoster(roster) {
   const out = withSlots(roster);
   const used = new Set(out.map((p) => p.slot));
@@ -295,8 +295,8 @@ export function fillRoster(roster) {
     if (used.has(slot)) continue;
     const id = `rep-${slot}`;
     out.push(pos === 'SP' || pos === 'RP'
-      ? { ...P(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 55, [55, 55, 60, 55]), isReplacement: true, slot }
-      : { ...B(id, '퓨처스 유망주', 2026, '퓨처스', pos || 'DH', 'R', 55, [55, 55, 55, 55]), isReplacement: true, slot });
+      ? { ...P(id, '퓨처스 유망주', 2026, '퓨처스', pos, 'R', 70, [70, 70, 75, 70]), isReplacement: true, slot }
+      : { ...B(id, '퓨처스 유망주', 2026, '퓨처스', pos || 'DH', 'R', 70, [70, 70, 70, 70]), isReplacement: true, slot });
   }
   return out;
 }
@@ -682,7 +682,7 @@ const PASSIVE_AUGMENTS = [
   { id: 'rally', name: '몰아치기', tier: 'gold', type: 'build', desc: '득점할 때마다 다음 공격 +0.1 (최대 +0.4 · 무득점이면 0)',
     after: (c, runs, st) => { if (myOff(c)) st.stack = runs > 0 ? Math.min(0.4, (st.stack || 0) + 0.1) : 0; }, half: (c, st) => (myOff(c) && st.stack ? { add: st.stack } : null) },
   { id: 'bargain', name: '가성비 군단', tier: 'gold', type: 'build', desc: '영입가 72 이하 능력치 +4',
-    roster: (r) => bump(r, (p) => !p.isReplacement && (p.cost ?? 99) <= 72, every(4)) },
+    roster: (r) => bump(r, (p) => !p.isReplacement && (p.cost ?? 99) <= 82, every(4)) },
   { id: 'clutchMaster', name: '승부처 달인', tier: 'gold', type: 'play', desc: '7회부터 2점 차 이내면 공격 +0.5 · 투구 +12',
     half: (c) => { if (c.inning < 7 || Math.abs(c.score.my - c.score.opp) > 2) return null; return myOff(c) ? { add: 0.5 } : { pitch: 12 }; } },
   { id: 'bullpenGame', name: '불펜 데이', tier: 'gold', type: 'extreme', desc: '선발은 4회까지 · 불펜 구위 +12, 안정 +12',
@@ -5319,9 +5319,9 @@ const RULE_TABS = [
         </div>
         <p><b>72~84</b>는 종합과 같은 값이고, <b>85 이상</b>은 비싸지며 <b>71 이하</b>는 쌉니다.</p>
       </> },
-      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 55)가 채웁니다.', b: <>
+      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 70)가 채웁니다.', b: <>
         <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없으면</b> 끝납니다.</p>
-        <p>이때 비어 있는 자리는 모두 종합 55의 퓨처스 유망주로 채워집니다.</p>
+        <p>이때 비어 있는 자리는 모두 종합 70의 퓨처스 유망주로 채워집니다.</p>
         <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리를 유망주로 채우게 됩니다.</span></div>
       </> },
     ] },
@@ -5656,7 +5656,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */
   const nextSeries = (r, c, banned) => rollSeries(r, c, series?.id, banned, mode.series, seenSeries) || rollSeries(r, c, series?.id, banned, DRAFT_SERIES, seenSeries);
-  /** 드래프트 종료: 빈 자리는 퓨처스 유망주(종합 55)로 자동으로 채우고 정비 화면으로 */
+  /** 드래프트 종료: 빈 자리는 퓨처스 유망주(종합 70)로 자동으로 채우고 정비 화면으로 */
   const finishDraft = (r) => {
     const filled = fillRoster(r);
     setAutoFilled(filled.length - r.length);
@@ -6396,7 +6396,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'clamp(4.2rem, 13vh, 8rem)' }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
-                  <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 55)로 채워집니다.</p>
+                  <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 70)로 채워집니다.</p>
                   <button type="button" className={btnPrimary} onClick={() => finishDraft(roster)}>이대로 정비하러 가기</button>
                 </div>
               )}
