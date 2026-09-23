@@ -16,7 +16,7 @@ import {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
-const SB_W = 150;
+const SB_W = 224;
 const SB_PAPER = 'rgba(199,206,217,.95)'; // 중계 자막처럼 밝지만 눈이 편한 회색 판
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
@@ -486,46 +486,38 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         </header>
 
 
-        {/* 왼쪽 위: 중계 스코어보드 — 밝은 판에 회 · 점수 / 볼카운트 · 주루 · 투구 수 */}
+        {/* 왼쪽 위: 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
         <div className="relative z-10 col-start-1 row-start-2 self-start">
-          <div className="flex items-stretch gap-2" style={{ width: 'max-content', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
-            <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              {/* 회 — 밝은 회색 기둥에 빨간 화살표와 숫자 */}
-              <span className="grid w-10 shrink-0 place-items-center border-r border-black/15 leading-none text-[#dc2626]" style={{ background: 'rgba(255,255,255,.5)' }}>
+          <div className="mt-cut overflow-hidden" style={{ '--c': '12px', width: SB_W, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
+            {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine]) => {
+              const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
+              const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽
+              return (
+                <div key={t.name} className="relative flex items-center gap-2.5 overflow-hidden px-3" style={{ height: 44, background: flag?.color || color }}>
+                  {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.32, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                  <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(0,0,0,.18),transparent 45%)' }} />
+                  <b className="relative truncate text-[17px] font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)' }}>{shortTeam(t.name, mine)}</b>
+                  {atBat && !g.final && <span className="relative font-display text-[11px] font-extrabold tracking-[0.18em] text-white/85">AT BAT</span>}
+                  <b className="relative ml-auto font-display text-[28px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)' }}>{side.runs}</b>
+                </div>
+              );
+            })}
+            <div className="flex items-stretch" style={{ background: SB_PAPER }}>
+              <span className="grid shrink-0 place-items-center px-2.5" style={{ background: 'rgba(255,255,255,.45)' }}>
                 {g.final ? (
-                  <b className="font-display text-[12px] font-extrabold tracking-[0.06em]">END</b>
+                  <b className="font-display text-[13px] font-extrabold" style={{ color: '#0b1220' }}>END</b>
                 ) : (
-                  <b className="text-center font-display text-[24px] font-extrabold leading-none text-[#0b1220]">
-                    <i className="mb-0.5 block text-[11px] leading-none not-italic text-[#dc2626]">{g.top ? '▲' : '▼'}</i>{g.inning}
+                  <b className="font-display text-[18px] font-extrabold leading-none" style={{ color: '#0b1220' }}>
+                    <i className="mr-0.5 not-italic text-[#dc2626]">{g.top ? '▲' : '▼'}</i>{g.inning}
                   </b>
                 )}
               </span>
-              <span className="relative block" style={{ width: SB_W }}>
-                {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
-                  const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
-                  const c = flag?.color || color;
-                  return (
-                    <div key={t.name} className="relative flex items-stretch" style={{ height: 37 }}>
-                      <span className="relative flex flex-1 items-center justify-center overflow-hidden px-2" style={{ background: c }}>
-                        {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                        <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.55)' }}>{shortTeam(t.name, mine)}</b>
-                      </span>
-                      <span className="grid w-12 shrink-0 place-items-center border-l border-black/20 font-display text-[26px] font-extrabold leading-none text-[#0b1220]">{side.runs}</span>
-                    </div>
-                  );
-                })}
-                {/* 두 팀 사이 — 왼쪽은 밝게, 점수 칸으로 갈수록 어둡게 잦아드는 실선 */}
-                <i className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2" style={{ background: 'linear-gradient(90deg,rgba(255,255,255,.4),rgba(255,255,255,.18) 58%,rgba(0,0,0,.22))' }} />
+              <span className="w-px shrink-0 bg-black/20" />
+              <span className="grid flex-1 place-items-center py-1">
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={12} font={12} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
-            </div>
-            <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center" style={{ width: 92 }}>
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={4} rowGap={5} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
-              </span>
-              {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
-              <span className="grid place-items-center border-l border-black/20" style={{ width: 92 }}>
-                <Diamond bases={g.bases} size={72} note={def.pitches} />
-              </span>
+              <span className="w-px shrink-0 bg-black/20" />
+              <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={56} note={def.pitches} /></span>
             </div>
           </div>
         </div>
