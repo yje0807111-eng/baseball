@@ -16,8 +16,8 @@ import {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
-const SB_W = 246;
-const SB_PAPER = 'rgba(238,242,248,.96)'; // 중계 자막처럼 밝은 판
+const SB_W = 180;
+const SB_PAPER = 'rgba(199,206,217,.95)'; // 중계 자막처럼 밝지만 눈이 편한 회색 판
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
 /** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
@@ -518,12 +518,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <small className="font-display text-[10.5px] tracking-[0.22em] text-[#0b1220]/50">COUNT</small>
                 <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} off="rgba(0,0,0,.16)" />
               </span>
-              <span className="grid place-items-center border-l border-black/20 px-2"><Diamond bases={g.bases} size={86} /></span>
-              <span className="grid w-14 place-items-center border-l border-black/20">
-                <span className="text-center leading-tight">
-                  <b className="block font-display text-[22px] font-extrabold text-[#0b1220]">{def.pitches}</b>
-                  <small className="font-display text-[10.5px] tracking-[0.12em] text-[#0b1220]/50">PITCH</small>
-                </span>
+              {/* 주루 — 그 아래 작게 투구 수 */}
+              <span className="flex flex-col items-center justify-center border-l border-black/20 px-2.5 pb-1 pt-1.5">
+                <Diamond bases={g.bases} size={74} />
+                <b className="-mt-1 font-display text-[12px] font-extrabold text-[#0b1220]/70">{def.pitches}<small className="ml-1 font-normal tracking-[0.1em] text-[#0b1220]/45">P</small></b>
               </span>
             </div>
           </div>
