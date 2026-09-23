@@ -11,23 +11,311 @@
     "강백호는 부상으로 62경기만 뛰어 지명타자로 넣었다."
   ],
   "players": [
-    { "personId": "고영표", "name": "고영표", "year": 2022, "team": "KT", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 76, "control": 94, "stamina": 88, "stability": 83 }, "note": "13승", "source": "28G 182.1IP ERA3.26 156K 23BB WHIP1.17 13승 — KBO 기록실" },
-    { "personId": "소형준", "name": "소형준", "year": 2022, "team": "KT", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 83, "stamina": 85, "stability": 84 }, "note": "13승", "source": "27G 171.1IP ERA3.05 117K 39BB WHIP1.15 13승 — KBO 기록실" },
-    { "personId": "엄상백", "name": "엄상백", "year": 2022, "team": "KT", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 83, "control": 73, "stamina": 77, "stability": 85 }, "note": "11승 2패", "source": "33G 140.1IP ERA2.95 139K 46BB WHIP1.22 11승2패 — KBO 기록실" },
-    { "personId": "벤자민", "name": "벤자민", "year": 2022, "team": "KT", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 73, "control": 81, "stamina": 65, "stability": 88 }, "note": "", "source": "17G 96.2IP ERA2.70 77K 24BB WHIP1.02 5승 — KBO 기록실" },
-    { "personId": "데스파이네", "name": "데스파이네", "year": 2022, "team": "KT", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 71, "control": 76, "stamina": 83, "stability": 65 }, "note": "", "source": "30G 163IP ERA4.53 123K 48BB WHIP1.51 8승12패 — KBO 기록실" },
-    { "personId": "김재윤", "name": "김재윤", "year": 2022, "team": "KT", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 74, "stamina": 55, "stability": 83 }, "note": "33세이브", "source": "61G 66.1IP ERA3.26 78K 21BB WHIP1.01 33SV 9승 — KBO 기록실" },
-    { "personId": "김민수", "name": "김민수", "year": 2022, "team": "KT", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 88, "stamina": 60, "stability": 95 }, "note": "30홀드 ERA 1.90", "source": "76G 80.2IP ERA1.90 91K 15BB WHIP1.00 30HLD 3SV — KBO 기록실" },
-    { "personId": "주권", "name": "주권", "year": 2022, "team": "KT", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 64, "control": 91, "stamina": 50, "stability": 75 }, "note": "", "source": "58G 50.2IP ERA3.91 31K 8BB WHIP1.30 15HLD — KBO 기록실" },
-    { "personId": "장성우", "name": "장성우", "year": 2022, "team": "KT", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 67, "speed": 42, "defense": 80 }, "note": "", "source": ".260/.353 18HR 1SB(0CS) 420PA(117G) 포수 101G — KBO 기록실" },
-    { "personId": "박병호", "name": "박병호", "year": 2022, "team": "KT", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 90, "contact": 72, "speed": 50, "defense": 65 }, "note": "35홈런 홈런왕", "source": ".275/.349 35HR 5SB(3CS) 487PA(124G) 98타점 — KBO 기록실" },
-    { "personId": "오윤석", "name": "오윤석", "year": 2022, "team": "KT", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 58, "speed": 45, "defense": 72 }, "note": "", "source": ".234/.322 6HR 2SB(1CS) 337PA(112G) 2루 85G — KBO 기록실" },
-    { "personId": "황재균", "name": "황재균", "year": 2022, "team": "KT", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 67, "speed": 56, "defense": 76 }, "note": "", "source": ".262/.335 10HR 6SB(3CS) 581PA(141G) — KBO 기록실" },
-    { "personId": "심우준", "name": "심우준", "year": 2022, "team": "KT", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 60, "speed": 78, "defense": 82 }, "note": "", "source": ".240/.316 4HR 23SB(2CS) 449PA(132G) — KBO 기록실" },
-    { "personId": "배정대", "name": "배정대", "year": 2022, "team": "KT", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 52, "contact": 69, "speed": 75, "defense": 86 }, "note": "144경기 전 경기 출장", "source": ".266/.339 6HR 19SB(4CS) 575PA(144G) 중견수 144G — KBO 기록실" },
-    { "personId": "조용호", "name": "조용호", "year": 2022, "team": "KT", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 46, "contact": 82, "speed": 55, "defense": 74 }, "note": "타율 .308", "source": ".308/.374 3HR 5SB(4CS) 531PA(131G) — KBO 기록실" },
-    { "personId": "알포드", "name": "알포드", "year": 2022, "team": "KT", "position": "OF", "hand": "R", "isForeign": true, "stats": { "power": 70, "contact": 75, "speed": 56, "defense": 70 }, "note": "", "source": ".286/.362 14HR 5SB(1CS) 323PA(80G) — KBO 기록실" },
-    { "personId": "김민혁", "name": "김민혁", "year": 2022, "team": "KT", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 75, "speed": 56, "defense": 70 }, "note": "", "source": ".284/.349 0HR 6SB(9CS) 434PA(132G) — KBO 기록실" },
-    { "personId": "강백호", "name": "강백호", "year": 2022, "team": "KT", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 61, "speed": 45, "defense": 52 }, "note": "", "source": ".245/.312 6HR 0SB(0CS) 264PA(62G) — KBO 기록실" }
+    {
+      "personId": "고영표",
+      "name": "고영표",
+      "year": 2022,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 104,
+        "stamina": 101,
+        "stability": 84
+      },
+      "note": "13승",
+      "source": "28G 182.1IP ERA3.26 156K 23BB WHIP1.17 13승 — KBO 기록실"
+    },
+    {
+      "personId": "소형준",
+      "name": "소형준",
+      "year": 2022,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 93,
+        "stamina": 98,
+        "stability": 85
+      },
+      "note": "13승",
+      "source": "27G 171.1IP ERA3.05 117K 39BB WHIP1.15 13승 — KBO 기록실"
+    },
+    {
+      "personId": "엄상백",
+      "name": "엄상백",
+      "year": 2022,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 82,
+        "stamina": 90,
+        "stability": 86
+      },
+      "note": "11승 2패",
+      "source": "33G 140.1IP ERA2.95 139K 46BB WHIP1.22 11승2패 — KBO 기록실"
+    },
+    {
+      "personId": "벤자민",
+      "name": "벤자민",
+      "year": 2022,
+      "team": "KT",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 75,
+        "control": 91,
+        "stamina": 77,
+        "stability": 90
+      },
+      "note": "",
+      "source": "17G 96.2IP ERA2.70 77K 24BB WHIP1.02 5승 — KBO 기록실"
+    },
+    {
+      "personId": "데스파이네",
+      "name": "데스파이네",
+      "year": 2022,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 85,
+        "stamina": 96,
+        "stability": 65
+      },
+      "note": "",
+      "source": "30G 163IP ERA4.53 123K 48BB WHIP1.51 8승12패 — KBO 기록실"
+    },
+    {
+      "personId": "김재윤",
+      "name": "김재윤",
+      "year": 2022,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 83,
+        "stamina": 67,
+        "stability": 84
+      },
+      "note": "33세이브",
+      "source": "61G 66.1IP ERA3.26 78K 21BB WHIP1.01 33SV 9승 — KBO 기록실"
+    },
+    {
+      "personId": "김민수",
+      "name": "김민수",
+      "year": 2022,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 104,
+        "control": 98,
+        "stamina": 72,
+        "stability": 97
+      },
+      "note": "30홀드 ERA 1.90",
+      "source": "76G 80.2IP ERA1.90 91K 15BB WHIP1.00 30HLD 3SV — KBO 기록실"
+    },
+    {
+      "personId": "주권",
+      "name": "주권",
+      "year": 2022,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 101,
+        "stamina": 61,
+        "stability": 76
+      },
+      "note": "",
+      "source": "58G 50.2IP ERA3.91 31K 8BB WHIP1.30 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "장성우",
+      "name": "장성우",
+      "year": 2022,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 94,
+        "contact": 76,
+        "speed": 64,
+        "defense": 85
+      },
+      "note": "",
+      "source": ".260/.353 18HR 1SB(0CS) 420PA(117G) 포수 101G — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 2022,
+      "team": "KT",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 110,
+        "contact": 81,
+        "speed": 72,
+        "defense": 64
+      },
+      "note": "35홈런 홈런왕",
+      "source": ".275/.349 35HR 5SB(3CS) 487PA(124G) 98타점 — KBO 기록실"
+    },
+    {
+      "personId": "오윤석",
+      "name": "오윤석",
+      "year": 2022,
+      "team": "KT",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 66,
+        "speed": 67,
+        "defense": 73
+      },
+      "note": "",
+      "source": ".234/.322 6HR 2SB(1CS) 337PA(112G) 2루 85G — KBO 기록실"
+    },
+    {
+      "personId": "황재균",
+      "name": "황재균",
+      "year": 2022,
+      "team": "KT",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 80,
+        "contact": 76,
+        "speed": 78,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".262/.335 10HR 6SB(3CS) 581PA(141G) — KBO 기록실"
+    },
+    {
+      "personId": "심우준",
+      "name": "심우준",
+      "year": 2022,
+      "team": "KT",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 67,
+        "contact": 68,
+        "speed": 100,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".240/.316 4HR 23SB(2CS) 449PA(132G) — KBO 기록실"
+    },
+    {
+      "personId": "배정대",
+      "name": "배정대",
+      "year": 2022,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 78,
+        "speed": 97,
+        "defense": 93
+      },
+      "note": "144경기 전 경기 출장",
+      "source": ".266/.339 6HR 19SB(4CS) 575PA(144G) 중견수 144G — KBO 기록실"
+    },
+    {
+      "personId": "조용호",
+      "name": "조용호",
+      "year": 2022,
+      "team": "KT",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 65,
+        "contact": 93,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "타율 .308",
+      "source": ".308/.374 3HR 5SB(4CS) 531PA(131G) — KBO 기록실"
+    },
+    {
+      "personId": "알포드",
+      "name": "알포드",
+      "year": 2022,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 91,
+        "contact": 85,
+        "speed": 78,
+        "defense": 71
+      },
+      "note": "",
+      "source": ".286/.362 14HR 5SB(1CS) 323PA(80G) — KBO 기록실"
+    },
+    {
+      "personId": "김민혁",
+      "name": "김민혁",
+      "year": 2022,
+      "team": "KT",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 85,
+        "speed": 78,
+        "defense": 71
+      },
+      "note": "",
+      "source": ".284/.349 0HR 6SB(9CS) 434PA(132G) — KBO 기록실"
+    },
+    {
+      "personId": "강백호",
+      "name": "강백호",
+      "year": 2022,
+      "team": "KT",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 69,
+        "speed": 67,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".245/.312 6HR 0SB(0CS) 264PA(62G) — KBO 기록실"
+    }
   ]
 }

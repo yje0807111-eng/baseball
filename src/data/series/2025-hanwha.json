@@ -17,23 +17,311 @@
     "18명 구성: 선발 4·불펜 4·야수 10. 엄상백·김범수·안치홍·이원석은 제외."
   ],
   "players": [
-    { "personId": "폰세", "name": "폰세", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 97, "control": 84, "stamina": 88, "stability": 98 }, "note": "4관왕·MVP·252K 신기록", "source": "29G 180.2IP 17승1패 ERA1.89 252K 41BB WHIP0.94 — KBO" },
-    { "personId": "와이스", "name": "와이스", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 90, "control": 74, "stamina": 88, "stability": 86 }, "note": "16승 207탈삼진", "source": "30G 178.2IP 16승5패 ERA2.87 207K 56BB WHIP1.02 — KBO" },
-    { "personId": "류현진", "name": "류현진", "year": 2025, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 89, "stamina": 77, "stability": 83 }, "note": "", "source": "26G 139.1IP 9승7패 ERA3.23 122K 25BB WHIP1.21 — KBO" },
-    { "personId": "문동주", "name": "문동주", "year": 2025, "team": "한화", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 80, "stamina": 72, "stability": 74 }, "note": "11승", "source": "24G 121IP 11승5패 ERA4.02 135K 31BB WHIP1.18 — KBO" },
-    { "personId": "김서현", "name": "김서현", "year": 2025, "team": "한화", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 88, "control": 57, "stamina": 52, "stability": 84 }, "note": "33세이브 마무리", "source": "69G 66IP 2승4패 33SV ERA3.14 71K 31BB WHIP1.26 — KBO" },
-    { "personId": "한승혁", "name": "한승혁", "year": 2025, "team": "한화", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 79, "control": 69, "stamina": 52, "stability": 92 }, "note": "16홀드 ERA 2.25", "source": "71G 64IP 3승3패 3SV 16HLD ERA2.25 53K 23BB WHIP1.23 — KBO" },
-    { "personId": "정우주", "name": "정우주", "year": 2025, "team": "한화", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 91, "control": 66, "stamina": 50, "stability": 87 }, "note": "", "source": "51G 53.2IP 3승0패 3HLD ERA2.85 82K 21BB WHIP1.02 — KBO" },
-    { "personId": "박상원", "name": "박상원", "year": 2025, "team": "한화", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 74, "stamina": 55, "stability": 72 }, "note": "16홀드", "source": "74G 66.2IP 4승3패 16HLD ERA4.19 52K 21BB WHIP1.32 — KBO" },
-    { "personId": "최재훈", "name": "최재훈", "year": 2025, "team": "한화", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 42, "contact": 75, "speed": 42, "defense": 82 }, "note": "출루율 .414", "source": ".286/.414/.353 1HR 35타점(121G) — KBO" },
-    { "personId": "채은성", "name": "채은성", "year": 2025, "team": "한화", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 72, "contact": 76, "speed": 42, "defense": 64 }, "note": "19홈런 88타점", "source": ".288/.347/.467 19HR 88타점 1SB(132G) — KBO" },
-    { "personId": "황영묵", "name": "황영묵", "year": 2025, "team": "한화", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 71, "speed": 46, "defense": 76 }, "note": "", "source": ".273/.329/.358 1HR 22타점 1SB(117G) — KBO" },
-    { "personId": "노시환", "name": "노시환", "year": 2025, "team": "한화", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 86, "contact": 67, "speed": 69, "defense": 80 }, "note": "32홈런·101타점 전경기", "source": ".260/.354/.497 32HR 101타점 14SB(144G) — KBO" },
-    { "personId": "심우준", "name": "심우준", "year": 2025, "team": "한화", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 57, "speed": 70, "defense": 84 }, "note": "", "source": ".231/.287/.300 2HR 22타점 11SB(94G) — KBO" },
-    { "personId": "하주석", "name": "하주석", "year": 2025, "team": "한화", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 51, "contact": 79, "speed": 45, "defense": 76 }, "note": "", "source": ".297/.337/.391 4HR 28타점 2SB(95G) — KBO" },
-    { "personId": "문현빈", "name": "문현빈", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 86, "speed": 72, "defense": 72 }, "note": "타율 .320·17도루", "source": ".320/.370/.453 12HR 80타점 17SB(141G) — KBO" },
-    { "personId": "리베라토", "name": "리베라토", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 75, "contact": 84, "speed": 50, "defense": 80 }, "note": "6월 대체 영입", "source": ".313/.366/.524 10HR 39타점(62G) — KBO" },
-    { "personId": "이진영(1997)", "name": "이진영", "year": 2025, "team": "한화", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 64, "contact": 71, "speed": 45, "defense": 74 }, "note": "", "source": ".274/.350/.417 11HR 43타점 1SB(115G) — KBO" },
-    { "personId": "플로리얼", "name": "플로리얼", "year": 2025, "team": "한화", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 68, "contact": 70, "speed": 76, "defense": 78 }, "note": "부상 후 7월 웨이버", "source": ".271/.333/.450 8HR 29타점 13SB(65G) — KBO" }
+    {
+      "personId": "폰세",
+      "name": "폰세",
+      "year": 2025,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 106,
+        "control": 94,
+        "stamina": 101,
+        "stability": 104
+      },
+      "note": "4관왕·MVP·252K 신기록",
+      "source": "29G 180.2IP 17승1패 ERA1.89 252K 41BB WHIP0.94 — KBO"
+    },
+    {
+      "personId": "와이스",
+      "name": "와이스",
+      "year": 2025,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 96,
+        "control": 84,
+        "stamina": 101,
+        "stability": 92
+      },
+      "note": "16승 207탈삼진",
+      "source": "30G 178.2IP 16승5패 ERA2.87 207K 56BB WHIP1.02 — KBO"
+    },
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2025,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 99,
+        "stamina": 90,
+        "stability": 89
+      },
+      "note": "",
+      "source": "26G 139.1IP 9승7패 ERA3.23 122K 25BB WHIP1.21 — KBO"
+    },
+    {
+      "personId": "문동주",
+      "name": "문동주",
+      "year": 2025,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 96,
+        "control": 90,
+        "stamina": 84,
+        "stability": 79
+      },
+      "note": "11승",
+      "source": "24G 121IP 11승5패 ERA4.02 135K 31BB WHIP1.18 — KBO"
+    },
+    {
+      "personId": "김서현",
+      "name": "김서현",
+      "year": 2025,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 66,
+        "stamina": 63,
+        "stability": 90
+      },
+      "note": "33세이브 마무리",
+      "source": "69G 66IP 2승4패 33SV ERA3.14 71K 31BB WHIP1.26 — KBO"
+    },
+    {
+      "personId": "한승혁",
+      "name": "한승혁",
+      "year": 2025,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 79,
+        "stamina": 63,
+        "stability": 98
+      },
+      "note": "16홀드 ERA 2.25",
+      "source": "71G 64IP 3승3패 3SV 16HLD ERA2.25 53K 23BB WHIP1.23 — KBO"
+    },
+    {
+      "personId": "정우주",
+      "name": "정우주",
+      "year": 2025,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 97,
+        "control": 75,
+        "stamina": 61,
+        "stability": 93
+      },
+      "note": "",
+      "source": "51G 53.2IP 3승0패 3HLD ERA2.85 82K 21BB WHIP1.02 — KBO"
+    },
+    {
+      "personId": "박상원",
+      "name": "박상원",
+      "year": 2025,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 84,
+        "stamina": 66,
+        "stability": 77
+      },
+      "note": "16홀드",
+      "source": "74G 66.2IP 4승3패 16HLD ERA4.19 52K 21BB WHIP1.32 — KBO"
+    },
+    {
+      "personId": "최재훈",
+      "name": "최재훈",
+      "year": 2025,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 82,
+        "speed": 65,
+        "defense": 87
+      },
+      "note": "출루율 .414",
+      "source": ".286/.414/.353 1HR 35타점(121G) — KBO"
+    },
+    {
+      "personId": "채은성",
+      "name": "채은성",
+      "year": 2025,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 87,
+        "contact": 83,
+        "speed": 65,
+        "defense": 62
+      },
+      "note": "19홈런 88타점",
+      "source": ".288/.347/.467 19HR 88타점 1SB(132G) — KBO"
+    },
+    {
+      "personId": "황영묵",
+      "name": "황영묵",
+      "year": 2025,
+      "team": "한화",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 77,
+        "speed": 69,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".273/.329/.358 1HR 22타점 1SB(117G) — KBO"
+    },
+    {
+      "personId": "노시환",
+      "name": "노시환",
+      "year": 2025,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 101,
+        "contact": 72,
+        "speed": 90,
+        "defense": 85
+      },
+      "note": "32홈런·101타점 전경기",
+      "source": ".260/.354/.497 32HR 101타점 14SB(144G) — KBO"
+    },
+    {
+      "personId": "심우준",
+      "name": "심우준",
+      "year": 2025,
+      "team": "한화",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 61,
+        "contact": 61,
+        "speed": 91,
+        "defense": 90
+      },
+      "note": "",
+      "source": ".231/.287/.300 2HR 22타점 11SB(94G) — KBO"
+    },
+    {
+      "personId": "하주석",
+      "name": "하주석",
+      "year": 2025,
+      "team": "한화",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 67,
+        "contact": 87,
+        "speed": 68,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".297/.337/.391 4HR 28타점 2SB(95G) — KBO"
+    },
+    {
+      "personId": "문현빈",
+      "name": "문현빈",
+      "year": 2025,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 95,
+        "speed": 92,
+        "defense": 73
+      },
+      "note": "타율 .320·17도루",
+      "source": ".320/.370/.453 12HR 80타점 17SB(141G) — KBO"
+    },
+    {
+      "personId": "리베라토",
+      "name": "리베라토",
+      "year": 2025,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 90,
+        "contact": 93,
+        "speed": 72,
+        "defense": 85
+      },
+      "note": "6월 대체 영입",
+      "source": ".313/.366/.524 10HR 39타점(62G) — KBO"
+    },
+    {
+      "personId": "이진영(1997)",
+      "name": "이진영",
+      "year": 2025,
+      "team": "한화",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 80,
+        "contact": 77,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".274/.350/.417 11HR 43타점 1SB(115G) — KBO"
+    },
+    {
+      "personId": "플로리얼",
+      "name": "플로리얼",
+      "year": 2025,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 84,
+        "contact": 76,
+        "speed": 96,
+        "defense": 82
+      },
+      "note": "부상 후 7월 웨이버",
+      "source": ".271/.333/.450 8HR 29타점 13SB(65G) — KBO"
+    }
   ]
 }

@@ -143,7 +143,7 @@ export function knownPlayers(dir = join('src', 'data', 'series'), skip = new Set
 
 const numText = (v) => String(v).replace(/^0/, '');
 
-export function buildSeries({ year, code, records, hands = {}, foreign = new Set(), meta = {}, dupes = {}, posFix = {}, known = new Map() }) {
+export function buildSeries({ year, code, records, hands = {}, foreign = new Set(), meta = {}, dupes = {}, posFix = {}, known = new Map(), norms = null }) {
   const t = teamOf(code, year);
   /* 이미 다른 시리즈에 있는 투수의 자리 — 선발·불펜을 그대로 따른다 */
   const roleOf = (name) => { const had = known.get(`${name}|${year}`); return had && (had.position === 'SP' || had.position === 'RP') ? had.position : null; };
@@ -166,7 +166,7 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
     players.push(reuse({
       personId: idOf(p.name, role), name: p.name, year, team: t.ko, position: role,
       hand: (hands[idOf(p.name, role)] || hands[p.name] || 'RR')[0], isForeign: foreign.has(p.name),
-      stats: pitRating({ ip: p.ip, era: p.era, so: p.so, bb: p.bb, whip: p.whip || null, role, year }),
+      stats: pitRating({ ip: p.ip, era: p.era, so: p.so, bb: p.bb, whip: p.whip || null, role, norms }),
       note: '',
       source: `${p.g}G ${p.ip}IP ERA${p.era.toFixed(2)} ${p.so}K ${p.bb}BB WHIP${p.whip.toFixed(2)}${p.w ? ` ${p.w}승` : ''}${p.sv ? ` ${p.sv}SV` : ''}${p.hld ? ` ${p.hld}HLD` : ''} — KBO 기록실`,
     }));
@@ -177,7 +177,7 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
     players.push(reuse({
       personId: idOf(b.name, pos), name: b.name, year, team: t.ko, position: pos,
       hand: (hands[idOf(b.name, pos)] || hands[b.name] || 'RR')[1], isForeign: foreign.has(b.name),
-      stats: batRating({ avg: b.avg, hr: b.hr, sb: b.sb, pos, pa: b.pa, year, fielding: FIELD(pos, b.pa) }),
+      stats: batRating({ avg: b.avg, hr: b.hr, sb: b.sb, pos, pa: b.pa, fielding: FIELD(pos, b.pa), norms }),
       note: '',
       /* 옛 시즌은 기록실에 출루율이 없는 팀이 있다 — 타율보다 낮게 들어온 값은 쓰지 않는다 */
       source: `${numText(b.avg.toFixed(3))}${b.obp > b.avg ? `/${numText(b.obp.toFixed(3))}` : ''} ${b.hr}HR ${b.rbi}타점 ${b.sb}SB ${b.pa}PA — KBO 기록실`,
@@ -207,6 +207,7 @@ if (process.argv[1] && process.argv[1].endsWith('series-from-records.mjs')) {
   const metaAll = existsSync(join(dir, 'meta.json')) ? JSON.parse(readFileSync(join(dir, 'meta.json'), 'utf8')) : {};
   const dupes = existsSync(join(dir, 'dupes.json')) ? JSON.parse(readFileSync(join(dir, 'dupes.json'), 'utf8')) : {};
   const posFix = existsSync(join(dir, 'positions.json')) ? JSON.parse(readFileSync(join(dir, 'positions.json'), 'utf8')) : {};
+  const league = existsSync(join(dir, 'league.json')) ? JSON.parse(readFileSync(join(dir, 'league.json'), 'utf8')) : {};
   const mine = new Set();
   for (const year of years) for (const code of Object.keys(TEAM)) {
     const id = `${year}-${slugOf(code, year)}`;
@@ -216,7 +217,7 @@ if (process.argv[1] && process.argv[1].endsWith('series-from-records.mjs')) {
   for (const year of years) {
     const recs = parseRecords(readFileSync(join(dir, `${year}.txt`), 'utf8'));
     for (const code of Object.keys(recs)) {
-      const s = buildSeries({ year, code, records: recs[code], hands, foreign, meta: metaAll[`${year}-${slugOf(code, year)}`] || {}, dupes, posFix, known });
+      const s = buildSeries({ year, code, records: recs[code], hands, foreign, meta: metaAll[`${year}-${slugOf(code, year)}`] || {}, dupes, posFix, known, norms: league[year] });
       for (const p of s.players) if (!known.has(`${p.personId}|${p.year}`)) known.set(`${p.personId}|${p.year}`, p);
       const file = join('src', 'data', 'series', `${s.id}.json`);
       if (!mine.has(s.id)) { console.log(`${s.id}  그대로 둠`); continue; }

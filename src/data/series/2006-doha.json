@@ -13,23 +13,311 @@
     "포수 조인성·강민호, 야수 다수의 출루율은 출처에 없어 타율·볼넷으로 대신 판단했다."
   ],
   "players": [
-    { "personId": "류현진", "name": "류현진", "year": 2006, "team": "한화", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 91, "control": 80, "stamina": 93, "stability": 92 }, "note": "투수 3관왕·신인왕·MVP", "source": "30G 18승6패 201.2IP ERA2.23 204K 52BB WHIP1.05 — kowiki/namu" },
-    { "personId": "손민한", "name": "손민한", "year": 2006, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 66, "control": 82, "stamina": 82, "stability": 87 }, "note": "", "source": "2006 롯데 25G 10승8패 161.2IP ERA2.78 96K 39BB WHIP1.15 — kowiki" },
-    { "personId": "장원삼", "name": "장원삼", "year": 2006, "team": "현대", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 72, "control": 71, "stamina": 89, "stability": 87 }, "note": "데뷔 시즌 12승 183이닝", "source": "2006 현대 29G 12승10패 183.1IP ERA2.85 142K 63BB — kowiki" },
-    { "personId": "오승환", "name": "오승환", "year": 2006, "team": "삼성", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 96, "control": 92, "stamina": 55, "stability": 99 }, "note": "47세이브(당시 아시아 신기록)", "source": "2006 삼성 63G 47SV 79.1IP ERA1.59 109K 12BB WHIP0.69 — kowiki" },
-    { "personId": "윤석민", "name": "윤석민", "year": 2006, "team": "KIA", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 77, "control": 77, "stamina": 60, "stability": 92 }, "note": "중간·마무리 19세이브 9홀드", "source": "2006 KIA 63G(선발 0) 5승6패 19SV 9HLD 94.2IP ERA2.28 75K 27BB — kowiki" },
-    { "personId": "우규민", "name": "우규민", "year": 2006, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 58, "control": 79, "stamina": 58, "stability": 96 }, "note": "언더핸드 17세이브 ERA1.55", "source": "2006 LG 62G 3승4패 17SV 75.2IP ERA1.55 30K 20BB — kowiki" },
-    { "personId": "조인성", "name": "조인성", "year": 2006, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 61, "speed": 42, "defense": 78 }, "note": "", "source": "2006 LG 112G .245 10HR 38RBI 28BB 0SB — kowiki" },
-    { "personId": "강민호", "name": "강민호", "year": 2006, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 59, "contact": 62, "speed": 52, "defense": 78 }, "note": "만 21세 주전 포수", "source": "2006 롯데 126G .251 9HR 53RBI 23BB 4SB — kowiki" },
-    { "personId": "장성호", "name": "장성호", "year": 2006, "team": "KIA", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 64, "contact": 81, "speed": 56, "defense": 62 }, "note": "9년 연속 3할·출루율 .413", "source": "2006 KIA 126G .306/.413 13HR 79RBI 83BB 6SB — kowiki" },
-    { "personId": "정근우", "name": "정근우", "year": 2006, "team": "SK", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 58, "contact": 74, "speed": 92, "defense": 76 }, "note": "45도루", "source": "2006 SK 120G .284 8HR 42RBI 36BB 45SB — kowiki" },
-    { "personId": "이대호", "name": "이대호", "year": 2006, "team": "롯데", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 81, "contact": 92, "speed": 40, "defense": 58 }, "note": "타격 트리플크라운", "source": "2006 롯데 122G .336/.409 26HR 88RBI 39BB 0SB — kowiki" },
-    { "personId": "조동찬", "name": "조동찬", "year": 2006, "team": "삼성", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 60, "contact": 66, "speed": 76, "defense": 78 }, "note": "10홈런 20도루", "source": "2006 삼성 107G .259 10HR 46RBI 29BB 20SB — kowiki" },
-    { "personId": "박진만", "name": "박진만", "year": 2006, "team": "삼성", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 74, "speed": 64, "defense": 94 }, "note": "유격수 골든글러브", "source": "2006 삼성 115G .283/.380 11HR 56BB 10SB — kowiki" },
-    { "personId": "이용규", "name": "이용규", "year": 2006, "team": "KIA", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 85, "speed": 89, "defense": 82 }, "note": ".318 38도루", "source": "2006 KIA 125G .318 154H 1HR 39RBI 50BB 38SB — kowiki" },
-    { "personId": "이택근", "name": "이택근", "year": 2006, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 59, "contact": 87, "speed": 61, "defense": 86 }, "note": "중견수 골든글러브 .322", "source": "2006 현대 118G .322 9HR 66RBI 45BB 8SB — kowiki" },
-    { "personId": "박재홍", "name": "박재홍", "year": 2006, "team": "SK", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 66, "speed": 77, "defense": 76 }, "note": "18홈런 22도루", "source": "2006 SK 124G .259 18HR 73RBI 63BB 22SB — kowiki" },
-    { "personId": "이병규(1974)", "name": "이병규", "year": 2006, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 55, "contact": 78, "speed": 48, "defense": 78 }, "note": "", "source": "2006 LG 120G .297/.344 7HR 31BB 3SB — kowiki" },
-    { "personId": "이진영", "name": "이진영", "year": 2006, "team": "SK", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 71, "speed": 48, "defense": 86 }, "note": "국민 우익수", "source": "2006 SK 118G .273 11HR 41BB 3SB — kowiki" }
+    {
+      "personId": "류현진",
+      "name": "류현진",
+      "year": 2006,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 105,
+        "control": 92,
+        "stamina": 108,
+        "stability": 96
+      },
+      "note": "투수 3관왕·신인왕·MVP",
+      "source": "30G 18승6패 201.2IP ERA2.23 204K 52BB WHIP1.05 — kowiki/namu"
+    },
+    {
+      "personId": "손민한",
+      "name": "손민한",
+      "year": 2006,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 94,
+        "stamina": 96,
+        "stability": 89
+      },
+      "note": "",
+      "source": "2006 롯데 25G 10승8패 161.2IP ERA2.78 96K 39BB WHIP1.15 — kowiki"
+    },
+    {
+      "personId": "장원삼",
+      "name": "장원삼",
+      "year": 2006,
+      "team": "현대",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 81,
+        "stamina": 103,
+        "stability": 89
+      },
+      "note": "데뷔 시즌 12승 183이닝",
+      "source": "2006 현대 29G 12승10패 183.1IP ERA2.85 142K 63BB — kowiki"
+    },
+    {
+      "personId": "오승환",
+      "name": "오승환",
+      "year": 2006,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 110,
+        "control": 107,
+        "stamina": 66,
+        "stability": 104
+      },
+      "note": "47세이브(당시 아시아 신기록)",
+      "source": "2006 삼성 63G 47SV 79.1IP ERA1.59 109K 12BB WHIP0.69 — kowiki"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2006,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 88,
+        "stamina": 71,
+        "stability": 96
+      },
+      "note": "중간·마무리 19세이브 9홀드",
+      "source": "2006 KIA 63G(선발 0) 5승6패 19SV 9HLD 94.2IP ERA2.28 75K 27BB — kowiki"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2006,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 91,
+        "stamina": 69,
+        "stability": 101
+      },
+      "note": "언더핸드 17세이브 ERA1.55",
+      "source": "2006 LG 62G 3승4패 17SV 75.2IP ERA1.55 30K 20BB — kowiki"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2006,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 69,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": "2006 LG 112G .245 10HR 38RBI 28BB 0SB — kowiki"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2006,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 71,
+        "speed": 74,
+        "defense": 82
+      },
+      "note": "만 21세 주전 포수",
+      "source": "2006 롯데 126G .251 9HR 53RBI 23BB 4SB — kowiki"
+    },
+    {
+      "personId": "장성호",
+      "name": "장성호",
+      "year": 2006,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 85,
+        "contact": 94,
+        "speed": 78,
+        "defense": 61
+      },
+      "note": "9년 연속 3할·출루율 .413",
+      "source": "2006 KIA 126G .306/.413 13HR 79RBI 83BB 6SB — kowiki"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2006,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 78,
+        "contact": 85,
+        "speed": 110,
+        "defense": 80
+      },
+      "note": "45도루",
+      "source": "2006 SK 120G .284 8HR 42RBI 36BB 45SB — kowiki"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2006,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 104,
+        "contact": 108,
+        "speed": 62,
+        "defense": 55
+      },
+      "note": "타격 트리플크라운",
+      "source": "2006 롯데 122G .336/.409 26HR 88RBI 39BB 0SB — kowiki"
+    },
+    {
+      "personId": "조동찬",
+      "name": "조동찬",
+      "year": 2006,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 76,
+        "speed": 99,
+        "defense": 82
+      },
+      "note": "10홈런 20도루",
+      "source": "2006 삼성 107G .259 10HR 46RBI 29BB 20SB — kowiki"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2006,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 85,
+        "speed": 86,
+        "defense": 104
+      },
+      "note": "유격수 골든글러브",
+      "source": "2006 삼성 115G .283/.380 11HR 56BB 10SB — kowiki"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2006,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 60,
+        "contact": 99,
+        "speed": 110,
+        "defense": 88
+      },
+      "note": ".318 38도루",
+      "source": "2006 KIA 125G .318 154H 1HR 39RBI 50BB 38SB — kowiki"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2006,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 102,
+        "speed": 83,
+        "defense": 93
+      },
+      "note": "중견수 골든글러브 .322",
+      "source": "2006 현대 118G .322 9HR 66RBI 45BB 8SB — kowiki"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 2006,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 76,
+        "speed": 100,
+        "defense": 80
+      },
+      "note": "18홈런 22도루",
+      "source": "2006 SK 124G .259 18HR 73RBI 63BB 22SB — kowiki"
+    },
+    {
+      "personId": "이병규(1974)",
+      "name": "이병규",
+      "year": 2006,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 75,
+        "contact": 90,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": "2006 LG 120G .297/.344 7HR 31BB 3SB — kowiki"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2006,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 82,
+        "speed": 70,
+        "defense": 93
+      },
+      "note": "국민 우익수",
+      "source": "2006 SK 118G .273 11HR 41BB 3SB — kowiki"
+    }
   ]
 }

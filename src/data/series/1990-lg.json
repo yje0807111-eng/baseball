@@ -18,10 +18,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 67,
-        "control": 74,
-        "stamina": 91,
-        "stability": 87
+        "stuff": 89,
+        "control": 89,
+        "stamina": 99,
+        "stability": 93
       },
       "note": "",
       "source": "33G 193 1/3IP ERA2.51 127K 61BB WHIP1.10 18승 1SV — KBO 기록실"
@@ -35,10 +35,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 77,
-        "control": 81,
-        "stamina": 79,
-        "stability": 91
+        "stuff": 103,
+        "control": 97,
+        "stamina": 88,
+        "stability": 97
       },
       "note": "",
       "source": "33G 149 2/3IP ERA2.04 119K 38BB WHIP1.07 12승 5SV — KBO 기록실"
@@ -52,10 +52,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 50,
-        "control": 80,
-        "stamina": 76,
-        "stability": 74
+        "stuff": 65,
+        "control": 96,
+        "stamina": 85,
+        "stability": 81
       },
       "note": "",
       "source": "27G 138IP ERA3.72 45K 36BB WHIP1.29 10승 — KBO 기록실"
@@ -69,10 +69,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 60,
-        "control": 71,
-        "stamina": 60,
-        "stability": 84
+        "stuff": 79,
+        "control": 86,
+        "stamina": 70,
+        "stability": 91
       },
       "note": "",
       "source": "55G 168 1/3IP ERA2.78 86K 57BB WHIP1.13 8승 23SV — KBO 기록실"
@@ -86,10 +86,10 @@
       "hand": "L",
       "isForeign": false,
       "stats": {
-        "stuff": 59,
-        "control": 65,
-        "stamina": 60,
-        "stability": 77
+        "stuff": 78,
+        "control": 79,
+        "stamina": 70,
+        "stability": 84
       },
       "note": "",
       "source": "29G 90 1/3IP ERA3.49 46K 36BB WHIP1.33 4승 2SV — KBO 기록실"
@@ -103,10 +103,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 55,
-        "control": 64,
-        "stamina": 58,
-        "stability": 84
+        "stuff": 72,
+        "control": 78,
+        "stamina": 68,
+        "stability": 91
       },
       "note": "",
       "source": "23G 64IP ERA2.81 27K 26BB WHIP1.22 5승 — KBO 기록실"
@@ -120,10 +120,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 46,
-        "control": 64,
-        "stamina": 55,
-        "stability": 51
+        "stuff": 60,
+        "control": 78,
+        "stamina": 66,
+        "stability": 60
       },
       "note": "",
       "source": "16G 49IP ERA5.51 7K 20BB WHIP1.55 3승 — KBO 기록실"
@@ -137,10 +137,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 79,
-        "power": 71,
-        "speed": 72,
-        "defense": 80
+        "contact": 89,
+        "power": 93,
+        "speed": 88,
+        "defense": 86
       },
       "note": "",
       "source": ".290/.379 13HR 62타점 15SB 416PA — KBO 기록실"
@@ -154,10 +154,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 50,
-        "power": 51,
-        "speed": 52,
-        "defense": 80
+        "contact": 59,
+        "power": 70,
+        "speed": 68,
+        "defense": 86
       },
       "note": "",
       "source": ".211/.276 1HR 12타점 3SB 99PA — KBO 기록실"
@@ -171,10 +171,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 95,
-        "power": 42,
-        "speed": 54,
-        "defense": 58
+        "contact": 106,
+        "power": 60,
+        "speed": 70,
+        "defense": 55
       },
       "note": "",
       "source": ".344/.388 0HR 9타점 4SB 98PA — KBO 기록실"
@@ -188,10 +188,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 74,
-        "power": 64,
-        "speed": 61,
-        "defense": 78
+        "contact": 84,
+        "power": 85,
+        "speed": 77,
+        "defense": 83
       },
       "note": "",
       "source": ".276/.350 7HR 38타점 7SB 327PA — KBO 기록실"
@@ -205,10 +205,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 56,
-        "power": 42,
-        "speed": 72,
-        "defense": 74
+        "contact": 65,
+        "power": 60,
+        "speed": 88,
+        "defense": 77
       },
       "note": "",
       "source": ".225/.323 0HR 16타점 15SB 273PA — KBO 기록실"
@@ -222,10 +222,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 62,
-        "power": 47,
-        "speed": 71,
-        "defense": 82
+        "contact": 71,
+        "power": 66,
+        "speed": 87,
+        "defense": 89
       },
       "note": "",
       "source": ".239/.306 2HR 45타점 14SB 431PA — KBO 기록실"
@@ -239,10 +239,10 @@
       "hand": "L",
       "isForeign": false,
       "stats": {
-        "contact": 75,
-        "power": 57,
-        "speed": 59,
-        "defense": 76
+        "contact": 85,
+        "power": 77,
+        "speed": 75,
+        "defense": 80
       },
       "note": "",
       "source": ".279/.366 6HR 44타점 6SB 426PA — KBO 기록실"
@@ -256,10 +256,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 77,
-        "power": 63,
-        "speed": 67,
-        "defense": 76
+        "contact": 87,
+        "power": 84,
+        "speed": 83,
+        "defense": 80
       },
       "note": "",
       "source": ".286/.375 8HR 44타점 11SB 393PA — KBO 기록실"
@@ -273,10 +273,10 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 92,
-        "power": 56,
-        "speed": 62,
-        "defense": 76
+        "contact": 103,
+        "power": 76,
+        "speed": 78,
+        "defense": 80
       },
       "note": "",
       "source": ".333/.403 5HR 51타점 8SB 380PA — KBO 기록실"
@@ -290,9 +290,9 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 89,
-        "power": 58,
-        "speed": 61,
+        "contact": 100,
+        "power": 78,
+        "speed": 77,
         "defense": 50
       },
       "note": "",
@@ -307,10 +307,10 @@
       "hand": "L",
       "isForeign": false,
       "stats": {
-        "contact": 64,
-        "power": 42,
-        "speed": 73,
-        "defense": 76
+        "contact": 73,
+        "power": 60,
+        "speed": 89,
+        "defense": 80
       },
       "note": "",
       "source": ".245/.370 0HR 25타점 16SB 334PA — KBO 기록실"

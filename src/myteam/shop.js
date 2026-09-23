@@ -154,7 +154,7 @@ export function applyToPlayer(team, it, player) {
   if (it.cat === 'training') {
     const squad = (team.squad || []).map((p) => {
       if (p.id !== player.id) return p;
-      const stats = { ...p.stats, [it.stat]: Math.min(99, (p.stats?.[it.stat] ?? 70) + it.amount) };
+      const stats = { ...p.stats, [it.stat]: Math.min(110, (p.stats?.[it.stat] ?? 70) + it.amount) };
       const trained = [...(p.trained || []), { stat: it.stat, amount: it.amount }];
       return { ...p, stats, trained, overall: overallOf(p.position, stats) };
     });
@@ -173,7 +173,7 @@ export function withBoosts(team) {
     const mine = boosts.filter((b) => b.playerId === p.id && b.gamesLeft > 0);
     if (!mine.length) return p;
     const stats = { ...p.stats };
-    for (const b of mine) stats[b.stat] = Math.min(99, (stats[b.stat] ?? 70) + b.amount);
+    for (const b of mine) stats[b.stat] = Math.min(110, (stats[b.stat] ?? 70) + b.amount);
     return { ...p, stats, overall: overallOf(p.position, stats), boosted: true };
   });
 }
@@ -201,7 +201,7 @@ export const fitsItem = (it, p) => (!it || !p ? false : it.target === 'pitcher' 
 export function recommendTargets(team, it, n = 5) {
   if (!needsPlayer(it)) return [];
   return (team.squad || []).filter((p) => fitsItem(it, p))
-    .map((p) => ({ p, gain: overallOf(p.position, { ...p.stats, [it.stat]: Math.min(99, (p.stats?.[it.stat] ?? 70) + it.amount) }) - p.overall }))
+    .map((p) => ({ p, gain: overallOf(p.position, { ...p.stats, [it.stat]: Math.min(110, (p.stats?.[it.stat] ?? 70) + it.amount) }) - p.overall }))
     .sort((a, b) => b.gain - a.gain || b.p.overall - a.p.overall).slice(0, n).map((x) => x.p);
 }
 

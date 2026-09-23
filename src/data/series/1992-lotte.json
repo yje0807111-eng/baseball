@@ -16,23 +16,311 @@
     "수비 능력치는 포지션·골든글러브·평판 기반 추정치."
   ],
   "players": [
-    { "personId": "염종석", "name": "염종석", "year": 1992, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 89, "stamina": 93, "stability": 88 }, "note": "신인왕·평균자책점 1위", "source": "35G 17승9패 6SV 204.2IP ERA2.33 127K 35BB — kowiki" },
-    { "personId": "윤학길", "name": "윤학길", "year": 1992, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 65, "control": 78, "stamina": 94, "stability": 76 }, "note": "17선발승 공동 1위", "source": "30G 17승5패 2SV 212IP ERA3.61 131K 58BB — kowiki" },
-    { "personId": "박동희", "name": "박동희", "year": 1992, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 68, "control": 52, "stamina": 78, "stability": 70 }, "note": "한국시리즈 MVP", "source": "17G 7승4패 1SV 98IP ERA4.13 67K 54BB, KS 2승1세이브 — namu" },
-    { "personId": "윤형배", "name": "윤형배", "year": 1992, "team": "롯데", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 48, "control": 72, "stamina": 69, "stability": 60 }, "note": "KS 2차전 8이닝 무실점", "source": "32G 8승4패 3SV 113IP ERA4.86 31K 37BB — namu" },
-    { "personId": "김상현(1968)", "name": "김상현", "year": 1992, "team": "롯데", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 64, "control": 55, "stamina": 68, "stability": 68 }, "note": "데뷔 시즌 완봉승", "source": "33G 7승9패 4SV 113.1IP ERA4.21 68K 56BB — namu" },
-    { "personId": "가득염", "name": "가득염", "year": 1992, "team": "롯데", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 56, "control": 43, "stamina": 48, "stability": 47 }, "note": "좌완 중간계투 신인", "source": "15G 1승0패 30.1IP ERA6.82 16K 20BB — namu" },
-    { "personId": "강성우", "name": "강성우", "year": 1992, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 48, "contact": 82, "speed": 42, "defense": 78 }, "note": "신인 주전 포수 3할", "source": "94G .303 61안타 2HR 31타점 0SB 201타수 — kowiki" },
-    { "personId": "한문연", "name": "한문연", "year": 1992, "team": "롯데", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 45, "contact": 40, "speed": 40, "defense": 72 }, "note": "플레잉코치 마지막 시즌", "source": "16G .091 2안타 1HR 1타점 — kowiki" },
-    { "personId": "김민호(1961)", "name": "김민호", "year": 1992, "team": "롯데", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 71, "contact": 88, "speed": 55, "defense": 62 }, "note": "4번타자 타율 4위", "source": "118G .322 133안타 16HR 88타점 5SB — namu" },
-    { "personId": "박상국", "name": "박상국", "year": 1992, "team": "롯데", "position": "1B", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 45, "speed": 50, "defense": 60 }, "note": "", "source": "36G .196 11안타 1SB — kowiki" },
-    { "personId": "박정태", "name": "박정태", "year": 1992, "team": "롯데", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 68, "contact": 92, "speed": 58, "defense": 80 }, "note": "타율 2위·2루타 43개", "source": "124G .335 149안타 14HR 79타점 7SB 69BB 445타수 — kowiki" },
-    { "personId": "공필성", "name": "공필성", "year": 1992, "team": "롯데", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 77, "speed": 45, "defense": 76 }, "note": "", "source": "100G .286 80안타 6HR 40타점 2SB 280타수 — kowiki" },
-    { "personId": "박계원", "name": "박계원", "year": 1992, "team": "롯데", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 63, "speed": 56, "defense": 88 }, "note": "유격수 골든글러브", "source": "121G .243 82안타 6HR 47타점 6SB — kowiki" },
-    { "personId": "김민재", "name": "김민재", "year": 1992, "team": "롯데", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 42, "contact": 44, "speed": 46, "defense": 82 }, "note": "", "source": "82G .177 17안타 0HR 3타점 96타수 — kowiki" },
-    { "personId": "김응국", "name": "김응국", "year": 1992, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 62, "contact": 88, "speed": 85, "defense": 82 }, "note": "외야수 골든글러브·우승", "source": ".319 10HR 79타점 29SB — 기사·namu" },
-    { "personId": "전준호", "name": "전준호", "year": 1992, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 52, "contact": 82, "speed": 86, "defense": 78 }, "note": "3할·33도루 톱타자", "source": "120G .300 140안타 5HR 49타점 33SB 51BB — kowiki" },
-    { "personId": "이종운", "name": "이종운", "year": 1992, "team": "롯데", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 86, "speed": 77, "defense": 74 }, "note": "시즌 최다 3루타 14개", "source": "108G .314 126안타 3HR 57타점 21SB 401타수 — kowiki" },
-    { "personId": "장효조", "name": "장효조", "year": 1992, "team": "롯데", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 71, "speed": 50, "defense": 55 }, "note": "우승 뒤 은퇴", "source": "82G .265 54안타 0HR 25타점 3SB 204타수 — kowiki" }
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 106,
+        "stamina": 101,
+        "stability": 94
+      },
+      "note": "신인왕·평균자책점 1위",
+      "source": "35G 17승9패 6SV 204.2IP ERA2.33 127K 35BB — kowiki"
+    },
+    {
+      "personId": "윤학길",
+      "name": "윤학길",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 93,
+        "stamina": 101,
+        "stability": 83
+      },
+      "note": "17선발승 공동 1위",
+      "source": "30G 17승5패 2SV 212IP ERA3.61 131K 58BB — kowiki"
+    },
+    {
+      "personId": "박동희",
+      "name": "박동희",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 63,
+        "stamina": 87,
+        "stability": 78
+      },
+      "note": "한국시리즈 MVP",
+      "source": "17G 7승4패 1SV 98IP ERA4.13 67K 54BB, KS 2승1세이브 — namu"
+    },
+    {
+      "personId": "윤형배",
+      "name": "윤형배",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 86,
+        "stamina": 78,
+        "stability": 68
+      },
+      "note": "KS 2차전 8이닝 무실점",
+      "source": "32G 8승4패 3SV 113IP ERA4.86 31K 37BB — namu"
+    },
+    {
+      "personId": "김상현(1968)",
+      "name": "김상현",
+      "year": 1992,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 67,
+        "stamina": 77,
+        "stability": 76
+      },
+      "note": "데뷔 시즌 완봉승",
+      "source": "33G 7승9패 4SV 113.1IP ERA4.21 68K 56BB — namu"
+    },
+    {
+      "personId": "가득염",
+      "name": "가득염",
+      "year": 1992,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 53,
+        "stamina": 59,
+        "stability": 56
+      },
+      "note": "좌완 중간계투 신인",
+      "source": "15G 1승0패 30.1IP ERA6.82 16K 20BB — namu"
+    },
+    {
+      "personId": "강성우",
+      "name": "강성우",
+      "year": 1992,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 92,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "신인 주전 포수 3할",
+      "source": "94G .303 61안타 2HR 31타점 0SB 201타수 — kowiki"
+    },
+    {
+      "personId": "한문연",
+      "name": "한문연",
+      "year": 1992,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 50,
+        "speed": 58,
+        "defense": 74
+      },
+      "note": "플레잉코치 마지막 시즌",
+      "source": "16G .091 2안타 1HR 1타점 — kowiki"
+    },
+    {
+      "personId": "김민호(1961)",
+      "name": "김민호",
+      "year": 1992,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 91,
+        "contact": 98,
+        "speed": 73,
+        "defense": 59
+      },
+      "note": "4번타자 타율 4위",
+      "source": "118G .322 133안타 16HR 88타점 5SB — namu"
+    },
+    {
+      "personId": "박상국",
+      "name": "박상국",
+      "year": 1992,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 61,
+        "contact": 54,
+        "speed": 68,
+        "defense": 56
+      },
+      "note": "",
+      "source": "36G .196 11안타 1SB — kowiki"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 1992,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 102,
+        "speed": 76,
+        "defense": 85
+      },
+      "note": "타율 2위·2루타 43개",
+      "source": "124G .335 149안타 14HR 79타점 7SB 69BB 445타수 — kowiki"
+    },
+    {
+      "personId": "공필성",
+      "name": "공필성",
+      "year": 1992,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 87,
+        "speed": 63,
+        "defense": 80
+      },
+      "note": "",
+      "source": "100G .286 80안타 6HR 40타점 2SB 280타수 — kowiki"
+    },
+    {
+      "personId": "박계원",
+      "name": "박계원",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 73,
+        "speed": 74,
+        "defense": 97
+      },
+      "note": "유격수 골든글러브",
+      "source": "121G .243 82안타 6HR 47타점 6SB — kowiki"
+    },
+    {
+      "personId": "김민재",
+      "name": "김민재",
+      "year": 1992,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 53,
+        "speed": 64,
+        "defense": 88
+      },
+      "note": "",
+      "source": "82G .177 17안타 0HR 3타점 96타수 — kowiki"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1992,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 98,
+        "speed": 103,
+        "defense": 88
+      },
+      "note": "외야수 골든글러브·우승",
+      "source": ".319 10HR 79타점 29SB — 기사·namu"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 1992,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 92,
+        "speed": 104,
+        "defense": 82
+      },
+      "note": "3할·33도루 톱타자",
+      "source": "120G .300 140안타 5HR 49타점 33SB 51BB — kowiki"
+    },
+    {
+      "personId": "이종운",
+      "name": "이종운",
+      "year": 1992,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 96,
+        "speed": 95,
+        "defense": 77
+      },
+      "note": "시즌 최다 3루타 14개",
+      "source": "108G .314 126안타 3HR 57타점 21SB 401타수 — kowiki"
+    },
+    {
+      "personId": "장효조",
+      "name": "장효조",
+      "year": 1992,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 81,
+        "speed": 68,
+        "defense": 50
+      },
+      "note": "우승 뒤 은퇴",
+      "source": "82G .265 54안타 0HR 25타점 3SB 204타수 — kowiki"
+    }
   ]
 }

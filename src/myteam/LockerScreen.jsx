@@ -12,7 +12,7 @@ import { staffByRole, staffEffect, staffEffectOf, STAFF_LEVEL_MAX } from './staf
 import { saveTeam } from './store.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
-import { posColor, statColor, statOf, teamNeon } from './teamColor.js';
+import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
@@ -134,7 +134,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
           <span key={k} className="min-w-0">
             <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statOf(k, v).num }}>{v}</b></span>
             <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${v}%`, background: statOf(k, v).bar }} />
+              <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
             </span>
           </span>
         );
@@ -380,7 +380,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
                   {WEAK_KO[r.k]}
                   <span className="relative block h-[5px] bg-white/[0.08]">
-                    <b className="absolute inset-y-0 left-0 block" style={{ width: `${r.v}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
+                    <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(r.v)}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
                   </span>
                   <b className="text-right font-display text-[15px]" style={{ color: statColor(r.v, WEAK_COLOR[r.k]).num }}>{r.v || '-'}</b>
                 </div>

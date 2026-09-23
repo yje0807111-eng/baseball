@@ -5,7 +5,7 @@ import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
-import { statColor } from './myteam/teamColor.js';
+import { statColor, statPct } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -23,7 +23,7 @@ import { setMods, addRuns } from './engine/pitchSim.js';
    ════════════════════════════════════════════════════════════════════ */
 
 /* ───────────── 1. 규칙 상수 ───────────── */
-export const SALARY_CAP = 1330; // 자리 20개 × 약 67 CP
+export const SALARY_CAP = 1560; // 자리 20개 × 약 78 CP
 export const FOREIGN_LIMIT = 3;
 export const SLOT_LIMITS = { SP: 1, RP: 4, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 3, DH: 1 };
 export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리
@@ -126,19 +126,19 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 1,580'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
-  { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1330,
+  { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
     desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => s.champion },
-  { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1330,
+  { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
     desc: '요즘 야구의 얼굴들. 2021년부터 올해까지 시즌별 로스터로 겨룹니다.', filter: (s) => s.kind === 'team' && s.year >= 2021 },
   { id: 'national', group: 'special', rules: ['국가대표만', '대회별 버전'], name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 1270,
     desc: 'WBC·올림픽·프리미어12 국가대표만. 같은 선수의 대회별 버전이 섞여 나옵니다.', filter: (s) => s.kind === 'national' },
-  { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1330,
+  { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1560,
     desc: '레전드·구단 시즌·국가대표가 무작위로 열리는 기본 모드. 어떤 조합이 나올지 모릅니다.', filter: () => true },
   // 연도별 시즌: 그해 구단 시즌이 둘 이상인 해마다 하나씩 (국가대표는 태극마크 모드에서만)
   ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind === 'team').map((x) => x.year))]
     .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind === 'team').length >= 2)
     .sort((a, b) => b - a)
-    .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1330,
+    .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1560,
       desc: `${y}년 그해 구단 로스터만 열립니다. 같은 해 선수들이라 시대 차이가 없습니다.`, filter: (x) => x.year === y && x.kind === 'team' })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
@@ -212,10 +212,10 @@ export function playAt(p) {
   const pos = slotPos(p.slot);
   const pen = offPositionPenalty(p, pos);
   if (!pen) return p;
-  const overall = Math.max(30, p.overall - pen);
+  const overall = Math.max(50, p.overall - pen);
   const pitchSlot = pos === 'SP' || pos === 'RP';
   if ((p.type === 'pitcher') === pitchSlot) {
-    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - pen)]));
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(50, v - pen)]));
     return { ...p, position: pos, naturalPosition: p.position, stats, overall };
   }
   // 투타가 바뀌면 원래 스탯을 쓸 수 없으니, 깎인 종합을 새 역할의 네 능력치에 고르게 둔다
@@ -466,9 +466,9 @@ export function applySynergies(roster, synergies = checkSynergies(roster)) {
   return roster.map((p) => {
     const a = adds.get(p.id);
     if (!a) return p;
-    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(99, v + Math.min(SYNERGY_STAT_CAP, a.stats[k] || 0))]));
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(110, v + Math.min(SYNERGY_STAT_CAP, a.stats[k] || 0))]));
     const gain = overallOf(p.position, stats) - overallOf(p.position, p.stats);
-    return { ...p, stats, overall: Math.min(99, p.overall + Math.max(0, gain)), synergyBoost: a.names };
+    return { ...p, stats, overall: Math.min(110, p.overall + Math.max(0, gain)), synergyBoost: a.names };
   });
 }
 
@@ -581,9 +581,9 @@ const clampN = (lo, hi, v) => Math.max(lo, Math.min(hi, v));
 const bump = (r, test, delta) => r.map((p) => {
   if (!test(p)) return p;
   const d = typeof delta === 'function' ? delta(p) : delta;
-  const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, d[k] ? clampN(30, 99, Math.round(v + d[k])) : v]));
+  const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, d[k] ? clampN(50, 110, Math.round(v + d[k])) : v]));
   const gain = overallOf(p.position, stats) - overallOf(p.position, p.stats);
-  return { ...p, stats, overall: clampN(30, 99, p.overall + gain) };
+  return { ...p, stats, overall: clampN(50, 110, p.overall + gain) };
 });
 const every = (n) => ({ power: n, contact: n, speed: n, defense: n, stuff: n, control: n, stamina: n, stability: n });
 const bat3 = (n) => ({ power: n, contact: n, speed: n });
@@ -921,11 +921,11 @@ function scaleRoster(before, after, k) {
       const d = v - (was.stats[key] ?? v);
       if (d <= 0) return [key, v];
       moved = true;
-      return [key, clampN(30, 99, Math.round((was.stats[key] ?? v) + d * k))];
+      return [key, clampN(50, 110, Math.round((was.stats[key] ?? v) + d * k))];
     }));
     if (!moved) return p;
     const gain = overallOf(p.position, stats) - overallOf(was.position, was.stats);
-    return { ...p, stats, overall: clampN(30, 99, was.overall + gain) };
+    return { ...p, stats, overall: clampN(50, 110, was.overall + gain) };
   });
 }
 /** 팀형: 보너스 · 타격 가중치 · 수비 계수가 움직인 폭을 배수로 */
@@ -2329,9 +2329,9 @@ function StatBar({ label, value }) {
     <div className="grid grid-cols-[2rem_1fr_1.5rem] items-center gap-1.5">
       <span className="text-[11px] text-gray-400">{label}</span>
       <span className="h-1.5 overflow-hidden rounded-full bg-gray-800">
-        <span className={`block h-full rounded-full ${value >= 90 ? 'bg-[#10b981]' : 'bg-gray-400'}`} style={{ width: `${value}%` }} />
+        <span className={`block h-full rounded-full ${value >= 100 ? 'bg-[#10b981]' : 'bg-gray-400'}`} style={{ width: `${statPct(value)}%` }} />
       </span>
-      <span className={`text-right font-display text-sm font-semibold tabular-nums ${value >= 90 ? 'text-[#10b981]' : 'text-gray-200'}`}>{value}</span>
+      <span className={`text-right font-display text-sm font-semibold tabular-nums ${value >= 100 ? 'text-[#10b981]' : 'text-gray-200'}`}>{value}</span>
     </div>
   );
 }

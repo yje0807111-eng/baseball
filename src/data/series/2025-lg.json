@@ -18,23 +18,311 @@
     "18명 구성: 선발 5(톨허스트 포함)·불펜 3·야수 10. 에르난데스(8월 방출)·함덕주·장현식은 제외."
   ],
   "players": [
-    { "personId": "치리노스", "name": "치리노스", "year": 2025, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 72, "control": 80, "stamina": 87, "stability": 82 }, "note": "팀 최다 13승", "source": "30G 177.1IP 13승6패 ERA3.31 137K WHIP1.18 — namu" },
-    { "personId": "임찬규", "name": "임찬규", "year": 2025, "team": "LG", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 76, "stamina": 82, "stability": 85 }, "note": "토종 투수 ERA 1위", "source": "27G 160.1IP 11승7패 ERA3.03 107K — namu" },
-    { "personId": "손주영", "name": "손주영", "year": 2025, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 73, "stamina": 80, "stability": 81 }, "note": "데뷔 첫 10승", "source": "30G 153IP 11승6패 ERA3.41 132K 49사사구 WHIP1.32 — namu" },
-    { "personId": "송승기", "name": "송승기", "year": 2025, "team": "LG", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 70, "stamina": 78, "stability": 77 }, "note": "첫 풀타임 선발 11승", "source": "28G 144IP 11승6패 ERA3.50 125K WHIP1.38 — namu" },
-    { "personId": "톨허스트", "name": "톨허스트", "year": 2025, "team": "LG", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 85, "control": 64, "stamina": 72, "stability": 86 }, "note": "8월 대체 영입·KS 2승", "source": "8G 44IP 6승2패 ERA2.86 45K 18BB WHIP1.25 — namu" },
-    { "personId": "유영찬", "name": "유영찬", "year": 2025, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 60, "stamina": 50, "stability": 86 }, "note": "21세이브 마무리", "source": "39G 41IP 2승2패 21SV ERA2.63 WHIP1.32 — namu" },
-    { "personId": "김진성", "name": "김진성", "year": 2025, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 78, "control": 72, "stamina": 55, "stability": 81 }, "note": "33홀드", "source": "78G 70.2IP 6승4패 1SV 33HLD ERA3.44 — 머니투데이·OSEN" },
-    { "personId": "김영우", "name": "김영우", "year": 2025, "team": "LG", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 82, "control": 58, "stamina": 52, "stability": 91 }, "note": "신인 66경기 등판", "source": "66G 60IP 3승2패 1SV 7HLD ERA2.40 — namu" },
-    { "personId": "박동원", "name": "박동원", "year": 2025, "team": "LG", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 74, "contact": 64, "speed": 48, "defense": 82 }, "note": "올스타전 MVP", "source": ".253 22HR 76타점 451AB(139G) OPS.797 — namu" },
-    { "personId": "오스틴", "name": "오스틴", "year": 2025, "team": "LG", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 88, "contact": 84, "speed": 55, "defense": 66 }, "note": "구단 첫 2년 연속 30홈런", "source": ".313/.393/.595 31HR 95타점(116G) — namu" },
-    { "personId": "신민재", "name": "신민재", "year": 2025, "team": "LG", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 84, "speed": 76, "defense": 84 }, "note": "2루수 골든글러브", "source": ".313/.395 1HR 15SB 145안타 87득점(135G) — namu" },
-    { "personId": "문보경", "name": "문보경", "year": 2025, "team": "LG", "position": "3B", "hand": "L", "isForeign": false, "stats": { "power": 77, "contact": 72, "speed": 58, "defense": 78 }, "note": "108타점·볼넷 1위", "source": ".276/.371 24HR 108타점 79BB(141G) — namu" },
-    { "personId": "오지환", "name": "오지환", "year": 2025, "team": "LG", "position": "SS", "hand": "L", "isForeign": false, "stats": { "power": 68, "contact": 64, "speed": 62, "defense": 86 }, "note": "", "source": ".253/.314 16HR 62타점 9SB(127G) — namu" },
-    { "personId": "박해민", "name": "박해민", "year": 2025, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 46, "contact": 72, "speed": 93, "defense": 95 }, "note": "49도루 도루왕", "source": ".276/.379 3HR 43타점 49SB(144G 전경기) — namu" },
-    { "personId": "문성주", "name": "문성주", "year": 2025, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 46, "contact": 81, "speed": 66, "defense": 72 }, "note": "첫 규정타석 3할", "source": ".305/.375 3HR 70타점 475AB(135G) — namu" },
-    { "personId": "홍창기", "name": "홍창기", "year": 2025, "team": "LG", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 76, "speed": 60, "defense": 74 }, "note": "5월 무릎 부상 후 복귀", "source": ".287/.399 (51G) — namu" },
-    { "personId": "김현수", "name": "김현수", "year": 2025, "team": "LG", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 63, "contact": 79, "speed": 44, "defense": 58 }, "note": "한국시리즈 MVP", "source": ".298/.384/.422 12HR 90타점(140G) — namu·위키백과" },
-    { "personId": "구본혁", "name": "구본혁", "year": 2025, "team": "LG", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 45, "contact": 76, "speed": 64, "defense": 82 }, "note": "내야 유틸리티", "source": ".286/.363/.354 38타점 10SB 397AB(131G) — namu" }
+    {
+      "personId": "치리노스",
+      "name": "치리노스",
+      "year": 2025,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 70,
+        "control": 90,
+        "stamina": 100,
+        "stability": 87
+      },
+      "note": "팀 최다 13승",
+      "source": "30G 177.1IP 13승6패 ERA3.31 137K WHIP1.18 — namu"
+    },
+    {
+      "personId": "임찬규",
+      "name": "임찬규",
+      "year": 2025,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 86,
+        "stamina": 95,
+        "stability": 91
+      },
+      "note": "토종 투수 ERA 1위",
+      "source": "27G 160.1IP 11승7패 ERA3.03 107K — namu"
+    },
+    {
+      "personId": "손주영",
+      "name": "손주영",
+      "year": 2025,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 83,
+        "stamina": 93,
+        "stability": 86
+      },
+      "note": "데뷔 첫 10승",
+      "source": "30G 153IP 11승6패 ERA3.41 132K 49사사구 WHIP1.32 — namu"
+    },
+    {
+      "personId": "송승기",
+      "name": "송승기",
+      "year": 2025,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 80,
+        "stamina": 91,
+        "stability": 82
+      },
+      "note": "첫 풀타임 선발 11승",
+      "source": "28G 144IP 11승6패 ERA3.50 125K WHIP1.38 — namu"
+    },
+    {
+      "personId": "톨허스트",
+      "name": "톨허스트",
+      "year": 2025,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 89,
+        "control": 73,
+        "stamina": 84,
+        "stability": 92
+      },
+      "note": "8월 대체 영입·KS 2승",
+      "source": "8G 44IP 6승2패 ERA2.86 45K 18BB WHIP1.25 — namu"
+    },
+    {
+      "personId": "유영찬",
+      "name": "유영찬",
+      "year": 2025,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 69,
+        "stamina": 61,
+        "stability": 92
+      },
+      "note": "21세이브 마무리",
+      "source": "39G 41IP 2승2패 21SV ERA2.63 WHIP1.32 — namu"
+    },
+    {
+      "personId": "김진성",
+      "name": "김진성",
+      "year": 2025,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 82,
+        "stamina": 66,
+        "stability": 86
+      },
+      "note": "33홀드",
+      "source": "78G 70.2IP 6승4패 1SV 33HLD ERA3.44 — 머니투데이·OSEN"
+    },
+    {
+      "personId": "김영우",
+      "name": "김영우",
+      "year": 2025,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 67,
+        "stamina": 63,
+        "stability": 97
+      },
+      "note": "신인 66경기 등판",
+      "source": "66G 60IP 3승2패 1SV 7HLD ERA2.40 — namu"
+    },
+    {
+      "personId": "박동원",
+      "name": "박동원",
+      "year": 2025,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 69,
+        "speed": 70,
+        "defense": 87
+      },
+      "note": "올스타전 MVP",
+      "source": ".253 22HR 76타점 451AB(139G) OPS.797 — namu"
+    },
+    {
+      "personId": "오스틴",
+      "name": "오스틴",
+      "year": 2025,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 103,
+        "contact": 93,
+        "speed": 77,
+        "defense": 65
+      },
+      "note": "구단 첫 2년 연속 30홈런",
+      "source": ".313/.393/.595 31HR 95타점(116G) — namu"
+    },
+    {
+      "personId": "신민재",
+      "name": "신민재",
+      "year": 2025,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 93,
+        "speed": 96,
+        "defense": 90
+      },
+      "note": "2루수 골든글러브",
+      "source": ".313/.395 1HR 15SB 145안타 87득점(135G) — namu"
+    },
+    {
+      "personId": "문보경",
+      "name": "문보경",
+      "year": 2025,
+      "team": "LG",
+      "position": "3B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 92,
+        "contact": 78,
+        "speed": 80,
+        "defense": 82
+      },
+      "note": "108타점·볼넷 1위",
+      "source": ".276/.371 24HR 108타점 79BB(141G) — namu"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2025,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 84,
+        "contact": 69,
+        "speed": 83,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".253/.314 16HR 62타점 9SB(127G) — namu"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2025,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 78,
+        "speed": 110,
+        "defense": 106
+      },
+      "note": "49도루 도루왕",
+      "source": ".276/.379 3HR 43타점 49SB(144G 전경기) — namu"
+    },
+    {
+      "personId": "문성주",
+      "name": "문성주",
+      "year": 2025,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 89,
+        "speed": 87,
+        "defense": 73
+      },
+      "note": "첫 규정타석 3할",
+      "source": ".305/.375 3HR 70타점 475AB(135G) — namu"
+    },
+    {
+      "personId": "홍창기",
+      "name": "홍창기",
+      "year": 2025,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 83,
+        "speed": 81,
+        "defense": 76
+      },
+      "note": "5월 무릎 부상 후 복귀",
+      "source": ".287/.399 (51G) — namu"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2025,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 87,
+        "speed": 67,
+        "defense": 53
+      },
+      "note": "한국시리즈 MVP",
+      "source": ".298/.384/.422 12HR 90타점(140G) — namu·위키백과"
+    },
+    {
+      "personId": "구본혁",
+      "name": "구본혁",
+      "year": 2025,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 61,
+        "contact": 83,
+        "speed": 85,
+        "defense": 87
+      },
+      "note": "내야 유틸리티",
+      "source": ".286/.363/.354 38타점 10SB 397AB(131G) — namu"
+    }
   ]
 }

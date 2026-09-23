@@ -63,7 +63,7 @@ for (const file of files) {
     const st = p.stats || {};
     const extra = Object.keys(st).filter((k) => !keys.includes(k));
     if (extra.length) err(`${at}: 필요 없는 stats 키 ${extra.join(',')}`);
-    for (const k of keys) if (!Number.isInteger(st[k]) || st[k] < 40 || st[k] > 99) err(`${at}: stats.${k} 40~99 정수`);
+    for (const k of keys) if (!Number.isInteger(st[k]) || st[k] < 50 || st[k] > 110) err(`${at}: stats.${k} 50~110 정수`);
     if (typeof p.note !== 'string' || p.note.length > 24) err(`${at}: note 0~24자`);
     if (typeof p.source !== 'string' || !p.source) err(`${at}: source 필요`);
   });

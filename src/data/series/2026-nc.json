@@ -17,23 +17,311 @@
     "18명 구성: 선발 4·불펜 5·야수 9. 6월 26일 방출된 맷 데이비슨, 이용준·서호철 등은 18명 제한으로 제외했다."
   ],
   "players": [
-    { "personId": "라일리", "name": "라일리", "year": 2026, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 92, "control": 83, "stamina": 82, "stability": 88 }, "note": "ERA 2.67·145탈삼진", "source": "19G 114.2IP 7승1패 ERA2.67 145K 27BB WHIP1.00 — KBO(9/15)" },
-    { "personId": "구창모", "name": "구창모", "year": 2026, "team": "NC", "position": "SP", "hand": "L", "isForeign": false, "stats": { "stuff": 75, "control": 75, "stamina": 80, "stability": 73 }, "note": "팀 내 최다 10승", "source": "25G 140IP 10승6패 ERA4.05 116K 42BB WHIP1.32 — KBO(9/15)" },
-    { "personId": "테일러", "name": "테일러", "year": 2026, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 71, "control": 64, "stamina": 77, "stability": 65 }, "note": "새 외국인 투수", "source": "23G 124.1IP 7승6패 ERA4.78 95K 50BB WHIP1.33 — KBO(9/15)" },
-    { "personId": "토다", "name": "토다", "year": 2026, "team": "NC", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 67, "control": 70, "stamina": 77, "stability": 55 }, "note": "아시아쿼터 선발", "source": "25G 127IP 7승10패 ERA5.39 96K 44BB WHIP1.57 — KBO(9/15)" },
-    { "personId": "전사민", "name": "전사민", "year": 2026, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 67, "control": 53, "stamina": 57, "stability": 74 }, "note": "10세이브 6홀드", "source": "61G 57IP 6승6패 10SV 6HLD ERA3.95 40K 31BB WHIP1.37 — KBO(9/15)" },
-    { "personId": "김진호", "name": "김진호", "year": 2026, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 42, "stamina": 53, "stability": 52 }, "note": "팀 내 최다 18홀드", "source": "55G 44.1IP 3승4패 1SV 18HLD ERA5.68 38K 47BB WHIP1.89 — KBO(9/15)" },
-    { "personId": "배재환", "name": "배재환", "year": 2026, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 59, "stamina": 50, "stability": 60 }, "note": "15홀드", "source": "48G 37IP 4승2패 1SV 15HLD ERA4.86 35K 17BB WHIP1.51 — KBO(9/15)" },
-    { "personId": "임지민", "name": "임지민", "year": 2026, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 46, "stamina": 52, "stability": 58 }, "note": "46.2이닝 57탈삼진", "source": "49G 46.2IP 4승5패 6SV 9HLD ERA5.40 57K 31BB WHIP1.48 — KBO(9/15)" },
-    { "personId": "류진욱", "name": "류진욱", "year": 2026, "team": "NC", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 56, "stamina": 48, "stability": 40 }, "note": "", "source": "38G 30IP 3승7패 4SV 1HLD ERA8.40 26K 15BB WHIP1.90 — KBO(9/15)" },
-    { "personId": "김형준", "name": "김형준", "year": 2026, "team": "NC", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 67, "contact": 62, "speed": 42, "defense": 85 }, "note": "주전 포수 14홈런", "source": ".248/.328/.430 14HR 57타점 76안타(111G) — KBO(9/15)" },
-    { "personId": "블레인", "name": "블레인", "year": 2026, "team": "NC", "position": "1B", "hand": "R", "isForeign": true, "stats": { "power": 80, "contact": 67, "speed": 41, "defense": 58 }, "note": "7월 합류 9홈런", "source": ".262/.319/.464 9HR 37타점(46G, 7월 2일 합류) — KBO(9/15)" },
-    { "personId": "박민우", "name": "박민우", "year": 2026, "team": "NC", "position": "2B", "hand": "L", "isForeign": false, "stats": { "power": 54, "contact": 86, "speed": 93, "defense": 84 }, "note": "타율 .322·43도루", "source": ".322/.411/.432 6HR 63타점 43SB 132안타(118G) — KBO(9/15)" },
-    { "personId": "김휘집", "name": "김휘집", "year": 2026, "team": "NC", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 73, "contact": 70, "speed": 62, "defense": 76 }, "note": "OPS .860", "source": ".271/.380/.480 10HR 50타점 5SB(69G) — KBO(9/15)" },
-    { "personId": "김주원", "name": "김주원", "year": 2026, "team": "NC", "position": "SS", "hand": "S", "isForeign": false, "stats": { "power": 73, "contact": 75, "speed": 87, "defense": 84 }, "note": "18홈런 30도루", "source": ".288 138안타 18HR 59타점 30SB(121G, 유격수 119G) — KBO(9/15)" },
-    { "personId": "박건우", "name": "박건우", "year": 2026, "team": "NC", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 73, "contact": 78, "speed": 62, "defense": 78 }, "note": "18홈런 72타점", "source": ".295/.368/.478 18HR 72타점 9SB(120G) — KBO(9/15)" },
-    { "personId": "이우성", "name": "이우성", "year": 2026, "team": "NC", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 55, "contact": 79, "speed": 53, "defense": 76 }, "note": "타율 .298", "source": ".298/.343/.393 6HR 46타점 4SB 113안타(111G) — KBO(9/15)" },
-    { "personId": "최정원", "name": "최정원", "year": 2026, "team": "NC", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 42, "contact": 71, "speed": 84, "defense": 82 }, "note": "25도루", "source": ".274/.351/.299 0HR 9타점 25SB(103G, 201타수) — KBO(9/15)" },
-    { "personId": "오영수", "name": "오영수", "year": 2026, "team": "NC", "position": "DH", "hand": "L", "isForeign": false, "stats": { "power": 58, "contact": 53, "speed": 41, "defense": 55 }, "note": "", "source": ".217/.333/.348 2HR 3타점(26G, 46타수) — KBO(9/15)" }
+    {
+      "personId": "라일리",
+      "name": "라일리",
+      "year": 2026,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 99,
+        "control": 93,
+        "stamina": 95,
+        "stability": 94
+      },
+      "note": "ERA 2.67·145탈삼진",
+      "source": "19G 114.2IP 7승1패 ERA2.67 145K 27BB WHIP1.00 — KBO(9/15)"
+    },
+    {
+      "personId": "구창모",
+      "name": "구창모",
+      "year": 2026,
+      "team": "NC",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 85,
+        "stamina": 93,
+        "stability": 78
+      },
+      "note": "팀 내 최다 10승",
+      "source": "25G 140IP 10승6패 ERA4.05 116K 42BB WHIP1.32 — KBO(9/15)"
+    },
+    {
+      "personId": "테일러",
+      "name": "테일러",
+      "year": 2026,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 73,
+        "stamina": 90,
+        "stability": 70
+      },
+      "note": "새 외국인 투수",
+      "source": "23G 124.1IP 7승6패 ERA4.78 95K 50BB WHIP1.33 — KBO(9/15)"
+    },
+    {
+      "personId": "토다",
+      "name": "토다",
+      "year": 2026,
+      "team": "NC",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 63,
+        "control": 80,
+        "stamina": 90,
+        "stability": 59
+      },
+      "note": "아시아쿼터 선발",
+      "source": "25G 127IP 7승10패 ERA5.39 96K 44BB WHIP1.57 — KBO(9/15)"
+    },
+    {
+      "personId": "전사민",
+      "name": "전사민",
+      "year": 2026,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 62,
+        "stamina": 68,
+        "stability": 79
+      },
+      "note": "10세이브 6홀드",
+      "source": "61G 57IP 6승6패 10SV 6HLD ERA3.95 40K 31BB WHIP1.37 — KBO(9/15)"
+    },
+    {
+      "personId": "김진호",
+      "name": "김진호",
+      "year": 2026,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 51,
+        "stamina": 64,
+        "stability": 56
+      },
+      "note": "팀 내 최다 18홀드",
+      "source": "55G 44.1IP 3승4패 1SV 18HLD ERA5.68 38K 47BB WHIP1.89 — KBO(9/15)"
+    },
+    {
+      "personId": "배재환",
+      "name": "배재환",
+      "year": 2026,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 68,
+        "stamina": 61,
+        "stability": 64
+      },
+      "note": "15홀드",
+      "source": "48G 37IP 4승2패 1SV 15HLD ERA4.86 35K 17BB WHIP1.51 — KBO(9/15)"
+    },
+    {
+      "personId": "임지민",
+      "name": "임지민",
+      "year": 2026,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 55,
+        "stamina": 63,
+        "stability": 62
+      },
+      "note": "46.2이닝 57탈삼진",
+      "source": "49G 46.2IP 4승5패 6SV 9HLD ERA5.40 57K 31BB WHIP1.48 — KBO(9/15)"
+    },
+    {
+      "personId": "류진욱",
+      "name": "류진욱",
+      "year": 2026,
+      "team": "NC",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 65,
+        "stamina": 59,
+        "stability": 50
+      },
+      "note": "",
+      "source": "38G 30IP 3승7패 4SV 1HLD ERA8.40 26K 15BB WHIP1.90 — KBO(9/15)"
+    },
+    {
+      "personId": "김형준",
+      "name": "김형준",
+      "year": 2026,
+      "team": "NC",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 66,
+        "speed": 65,
+        "defense": 92
+      },
+      "note": "주전 포수 14홈런",
+      "source": ".248/.328/.430 14HR 57타점 76안타(111G) — KBO(9/15)"
+    },
+    {
+      "personId": "블레인",
+      "name": "블레인",
+      "year": 2026,
+      "team": "NC",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 95,
+        "contact": 72,
+        "speed": 64,
+        "defense": 53
+      },
+      "note": "7월 합류 9홈런",
+      "source": ".262/.319/.464 9HR 37타점(46G, 7월 2일 합류) — KBO(9/15)"
+    },
+    {
+      "personId": "박민우",
+      "name": "박민우",
+      "year": 2026,
+      "team": "NC",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 95,
+        "speed": 110,
+        "defense": 90
+      },
+      "note": "타율 .322·43도루",
+      "source": ".322/.411/.432 6HR 63타점 43SB 132안타(118G) — KBO(9/15)"
+    },
+    {
+      "personId": "김휘집",
+      "name": "김휘집",
+      "year": 2026,
+      "team": "NC",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 76,
+        "speed": 83,
+        "defense": 79
+      },
+      "note": "OPS .860",
+      "source": ".271/.380/.480 10HR 50타점 5SB(69G) — KBO(9/15)"
+    },
+    {
+      "personId": "김주원",
+      "name": "김주원",
+      "year": 2026,
+      "team": "NC",
+      "position": "SS",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 82,
+        "speed": 106,
+        "defense": 90
+      },
+      "note": "18홈런 30도루",
+      "source": ".288 138안타 18HR 59타점 30SB(121G, 유격수 119G) — KBO(9/15)"
+    },
+    {
+      "personId": "박건우",
+      "name": "박건우",
+      "year": 2026,
+      "team": "NC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 86,
+        "speed": 83,
+        "defense": 82
+      },
+      "note": "18홈런 72타점",
+      "source": ".295/.368/.478 18HR 72타점 9SB(120G) — KBO(9/15)"
+    },
+    {
+      "personId": "이우성",
+      "name": "이우성",
+      "year": 2026,
+      "team": "NC",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 87,
+        "speed": 75,
+        "defense": 79
+      },
+      "note": "타율 .298",
+      "source": ".298/.343/.393 6HR 46타점 4SB 113안타(111G) — KBO(9/15)"
+    },
+    {
+      "personId": "최정원",
+      "name": "최정원",
+      "year": 2026,
+      "team": "NC",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 59,
+        "contact": 77,
+        "speed": 103,
+        "defense": 87
+      },
+      "note": "25도루",
+      "source": ".274/.351/.299 0HR 9타점 25SB(103G, 201타수) — KBO(9/15)"
+    },
+    {
+      "personId": "오영수",
+      "name": "오영수",
+      "year": 2026,
+      "team": "NC",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 56,
+        "speed": 64,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".217/.333/.348 2HR 3타점(26G, 46타수) — KBO(9/15)"
+    }
   ]
 }

@@ -15,23 +15,311 @@
     "18명 구성: 선발 4·불펜 5·야수 9. 알칸타라(12경기 ERA 4.76)·최원준(ERA 6.46)은 제외."
   ],
   "players": [
-    { "personId": "곽빈", "name": "곽빈", "year": 2024, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 80, "control": 59, "stamina": 84, "stability": 71 }, "note": "15승 다승왕", "source": "30G 15승9패 ERA4.24 167.2IP 154K 76BB WHIP1.30 — KBO 기록실" },
-    { "personId": "브랜든", "name": "브랜든", "year": 2024, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 84, "control": 92, "stamina": 62, "stability": 84 }, "note": "부상으로 14경기", "source": "14G 7승4패 ERA3.12 75IP 75K 11BB WHIP1.15 — KBO 기록실" },
-    { "personId": "발라조빅", "name": "발라조빅", "year": 2024, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 90, "control": 55, "stamina": 60, "stability": 71 }, "note": "대체 외국인 투수", "source": "12G 2승6패 1HLD ERA4.26 57IP 69K 28BB WHIP1.44 — KBO 기록실" },
-    { "personId": "시라카와", "name": "시라카와", "year": 2024, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 69, "control": 46, "stamina": 58, "stability": 51 }, "note": "SSG 거쳐 두산 합류", "source": "두산 12G 4승5패 ERA5.65 57.1IP 46K 33BB WHIP1.60 — KBO 기록실" },
-    { "personId": "김택연", "name": "김택연", "year": 2024, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 94, "control": 57, "stamina": 50, "stability": 93 }, "note": "신인왕·19세이브", "source": "60G 3승2패 19SV 4HLD ERA2.08 65IP 78K 31BB WHIP1.26 — KBO 기록실" },
-    { "personId": "이병헌", "name": "이병헌", "year": 2024, "team": "두산", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 77, "control": 52, "stamina": 56, "stability": 86 }, "note": "77경기 22홀드", "source": "77G 6승1패 1SV 22HLD ERA2.89 65.1IP 57K 34BB WHIP1.45 — KBO 기록실" },
-    { "personId": "최지강", "name": "최지강", "year": 2024, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 79, "control": 56, "stamina": 50, "stability": 83 }, "note": "15홀드", "source": "55G 3승1패 1SV 15HLD ERA3.24 50IP 45K 24BB WHIP1.44 — KBO 기록실" },
-    { "personId": "이영하", "name": "이영하", "year": 2024, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 79, "control": 48, "stamina": 55, "stability": 74 }, "note": "", "source": "59G 5승4패 2SV 5HLD ERA3.99 65.1IP 59K 36BB WHIP1.50 — KBO 기록실" },
-    { "personId": "홍건희", "name": "홍건희", "year": 2024, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 48, "stamina": 50, "stability": 88 }, "note": "9세이브·11홀드", "source": "65G 4승3패 9SV 11HLD ERA2.73 59.1IP 45K 33BB WHIP1.48 — KBO 기록실" },
-    { "personId": "양의지", "name": "양의지", "year": 2024, "team": "두산", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 84, "speed": 44, "defense": 86 }, "note": "94타점", "source": ".314/.379 17HR 94타점 2SB 485PA(119G) — KBO 기록실" },
-    { "personId": "양석환", "name": "양석환", "year": 2024, "team": "두산", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 87, "contact": 62, "speed": 53, "defense": 64 }, "note": "34홈런·107타점", "source": ".246/.316 34HR 107타점 5SB 593PA(142G) — KBO 기록실" },
-    { "personId": "강승호", "name": "강승호", "year": 2024, "team": "두산", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 73, "speed": 71, "defense": 76 }, "note": "", "source": ".280/.328 18HR 81타점 16SB 566PA(140G) — KBO 기록실" },
-    { "personId": "허경민", "name": "허경민", "year": 2024, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 83, "speed": 55, "defense": 84 }, "note": "타율 .309", "source": ".309/.384 7HR 61타점 5SB 477PA(115G) — KBO 기록실" },
-    { "personId": "전민재", "name": "전민재", "year": 2024, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 62, "speed": 59, "defense": 78 }, "note": "", "source": ".246/.301 2HR 32타점 7SB 276PA(100G) — KBO 기록실" },
-    { "personId": "정수빈", "name": "정수빈", "year": 2024, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 48, "contact": 75, "speed": 95, "defense": 92 }, "note": "52도루", "source": ".284/.376 4HR 47타점 52SB 608PA(136G) — KBO 기록실" },
-    { "personId": "조수행", "name": "조수행", "year": 2024, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 68, "speed": 96, "defense": 84 }, "note": "64도루 도루왕", "source": ".265/.334 0HR 30타점 64SB 382PA(130G) — KBO 기록실" },
-    { "personId": "김재환", "name": "김재환", "year": 2024, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 83, "contact": 74, "speed": 42, "defense": 64 }, "note": "29홈런", "source": ".283/.368 29HR 92타점 1SB 552PA(136G) — KBO 기록실" },
-    { "personId": "제러드", "name": "제러드", "year": 2024, "team": "두산", "position": "OF", "hand": "L", "isForeign": true, "stats": { "power": 80, "contact": 82, "speed": 58, "defense": 68 }, "note": "38경기 10홈런", "source": ".326/.420 10HR 39타점 4SB 169PA(38G) — KBO 기록실" }
+    {
+      "personId": "곽빈",
+      "name": "곽빈",
+      "year": 2024,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 83,
+        "control": 68,
+        "stamina": 98,
+        "stability": 74
+      },
+      "note": "15승 다승왕",
+      "source": "30G 15승9패 ERA4.24 167.2IP 154K 76BB WHIP1.30 — KBO 기록실"
+    },
+    {
+      "personId": "브랜든",
+      "name": "브랜든",
+      "year": 2024,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 88,
+        "control": 101,
+        "stamina": 74,
+        "stability": 88
+      },
+      "note": "부상으로 14경기",
+      "source": "14G 7승4패 ERA3.12 75IP 75K 11BB WHIP1.15 — KBO 기록실"
+    },
+    {
+      "personId": "발라조빅",
+      "name": "발라조빅",
+      "year": 2024,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 97,
+        "control": 64,
+        "stamina": 72,
+        "stability": 74
+      },
+      "note": "대체 외국인 투수",
+      "source": "12G 2승6패 1HLD ERA4.26 57IP 69K 28BB WHIP1.44 — KBO 기록실"
+    },
+    {
+      "personId": "시라카와",
+      "name": "시라카와",
+      "year": 2024,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 67,
+        "control": 54,
+        "stamina": 70,
+        "stability": 52
+      },
+      "note": "SSG 거쳐 두산 합류",
+      "source": "두산 12G 4승5패 ERA5.65 57.1IP 46K 33BB WHIP1.60 — KBO 기록실"
+    },
+    {
+      "personId": "김택연",
+      "name": "김택연",
+      "year": 2024,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 103,
+        "control": 66,
+        "stamina": 61,
+        "stability": 98
+      },
+      "note": "신인왕·19세이브",
+      "source": "60G 3승2패 19SV 4HLD ERA2.08 65IP 78K 31BB WHIP1.26 — KBO 기록실"
+    },
+    {
+      "personId": "이병헌",
+      "name": "이병헌",
+      "year": 2024,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 60,
+        "stamina": 68,
+        "stability": 91
+      },
+      "note": "77경기 22홀드",
+      "source": "77G 6승1패 1SV 22HLD ERA2.89 65.1IP 57K 34BB WHIP1.45 — KBO 기록실"
+    },
+    {
+      "personId": "최지강",
+      "name": "최지강",
+      "year": 2024,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 65,
+        "stamina": 61,
+        "stability": 87
+      },
+      "note": "15홀드",
+      "source": "55G 3승1패 1SV 15HLD ERA3.24 50IP 45K 24BB WHIP1.44 — KBO 기록실"
+    },
+    {
+      "personId": "이영하",
+      "name": "이영하",
+      "year": 2024,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 56,
+        "stamina": 66,
+        "stability": 77
+      },
+      "note": "",
+      "source": "59G 5승4패 2SV 5HLD ERA3.99 65.1IP 59K 36BB WHIP1.50 — KBO 기록실"
+    },
+    {
+      "personId": "홍건희",
+      "name": "홍건희",
+      "year": 2024,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 56,
+        "stamina": 61,
+        "stability": 93
+      },
+      "note": "9세이브·11홀드",
+      "source": "65G 4승3패 9SV 11HLD ERA2.73 59.1IP 45K 33BB WHIP1.48 — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2024,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 93,
+        "speed": 65,
+        "defense": 93
+      },
+      "note": "94타점",
+      "source": ".314/.379 17HR 94타점 2SB 485PA(119G) — KBO 기록실"
+    },
+    {
+      "personId": "양석환",
+      "name": "양석환",
+      "year": 2024,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 106,
+        "contact": 67,
+        "speed": 74,
+        "defense": 61
+      },
+      "note": "34홈런·107타점",
+      "source": ".246/.316 34HR 107타점 5SB 593PA(142G) — KBO 기록실"
+    },
+    {
+      "personId": "강승호",
+      "name": "강승호",
+      "year": 2024,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 89,
+        "contact": 80,
+        "speed": 91,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".280/.328 18HR 81타점 16SB 566PA(140G) — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2024,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 92,
+        "speed": 76,
+        "defense": 90
+      },
+      "note": "타율 .309",
+      "source": ".309/.384 7HR 61타점 5SB 477PA(115G) — KBO 기록실"
+    },
+    {
+      "personId": "전민재",
+      "name": "전민재",
+      "year": 2024,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 67,
+        "speed": 79,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".246/.301 2HR 32타점 7SB 276PA(100G) — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2024,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 83,
+        "speed": 110,
+        "defense": 101
+      },
+      "note": "52도루",
+      "source": ".284/.376 4HR 47타점 52SB 608PA(136G) — KBO 기록실"
+    },
+    {
+      "personId": "조수행",
+      "name": "조수행",
+      "year": 2024,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 74,
+        "speed": 110,
+        "defense": 90
+      },
+      "note": "64도루 도루왕",
+      "source": ".265/.334 0HR 30타점 64SB 382PA(130G) — KBO 기록실"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2024,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 102,
+        "contact": 81,
+        "speed": 63,
+        "defense": 61
+      },
+      "note": "29홈런",
+      "source": ".283/.368 29HR 92타점 1SB 552PA(136G) — KBO 기록실"
+    },
+    {
+      "personId": "제러드",
+      "name": "제러드",
+      "year": 2024,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 99,
+        "contact": 91,
+        "speed": 79,
+        "defense": 66
+      },
+      "note": "38경기 10홈런",
+      "source": ".326/.420 10HR 39타점 4SB 169PA(38G) — KBO 기록실"
+    }
   ]
 }

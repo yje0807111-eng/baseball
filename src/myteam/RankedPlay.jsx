@@ -2,7 +2,7 @@
 import React from 'react';
 import { squadIssues, SQUAD_CAP, limitsOf } from './rules.js';
 import { UiStyle, KV, Stats, teamStats } from './ui.jsx';
-import { statColor } from './teamColor.js';
+import { statColor, statPct } from './teamColor.js';
 import { rankOf } from './rank.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, STAGES, PLACE_REWARD, LEAGUE_SIZE, POST_TEAMS } from './ranked.js';
 import { StandingsTable, RK } from './RankedHub.jsx';
@@ -166,7 +166,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
             <span>{k}</span>
             <span className="relative bg-white/[0.07]" style={{ height: 7 }}>
               {/* 드래프트 선수 카드와 같은 막대: 낮으면 푸른 회색, 높을수록 그 부문 색으로 짙어진다 */}
-              <i className="absolute inset-y-0 left-0" style={{ width: `${v}%`, background: statColor(v, c).bar }} />
+              <i className="absolute inset-y-0 left-0" style={{ width: `${statPct(v)}%`, background: statColor(v, c).bar }} />
             </span>
             <b className="text-right font-display text-[15px]" style={{ color: statColor(v, c).num }}>{v}</b>
           </div>

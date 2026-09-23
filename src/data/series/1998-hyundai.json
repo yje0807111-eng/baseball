@@ -15,23 +15,311 @@
     "1998년은 타고투저·투고타저 보정 구간이 아니라 시대 보정 미적용."
   ],
   "players": [
-    { "personId": "정민태", "name": "정민태", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 72, "control": 82, "stamina": 93, "stability": 86 }, "note": "17승·한국시리즈 MVP", "source": "28G 17승9패 200.2IP ERA2.83 159K 49BB 184H — kowiki" },
-    { "personId": "정명원", "name": "정명원", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 73, "stamina": 89, "stability": 95 }, "note": "평균자책점 1위(1.86)", "source": "28G 14승8패 184IP ERA1.86 123K 60BB 141H — KBO 기록실" },
-    { "personId": "김수경", "name": "김수경", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 86, "control": 62, "stamina": 82, "stability": 87 }, "note": "신인왕·승률 1위", "source": "32G 12승4패 160IP ERA2.76 168K(신인 최다) — namu" },
-    { "personId": "위재영", "name": "위재영", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 70, "control": 63, "stamina": 83, "stability": 82 }, "note": "13승", "source": "26G 13승8패 164.1IP ERA3.23 122K 68BB 143H — kowiki" },
-    { "personId": "최원호", "name": "최원호", "year": 1998, "team": "현대", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 71, "control": 55, "stamina": 78, "stability": 84 }, "note": "", "source": "39G 10승5패1SV 151IP ERA3.04 112K 77BB 118H — KBO 기록실" },
-    { "personId": "스트롱", "name": "스트롱", "year": 1998, "team": "현대", "position": "RP", "hand": "R", "isForeign": true, "stats": { "stuff": 74, "control": 58, "stamina": 52, "stability": 80 }, "note": "27세이브", "source": "6승5패27SV 65IP ERA2.95 54K WHIP1.60 — enwiki·namu" },
-    { "personId": "조규제", "name": "조규제", "year": 1998, "team": "현대", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 68, "control": 77, "stamina": 52, "stability": 72 }, "note": "", "source": "40G 5승4패2SV 56IP ERA4.18 40K 16BB 65H — kowiki" },
-    { "personId": "박경완", "name": "박경완", "year": 1998, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 71, "contact": 63, "speed": 48, "defense": 90 }, "note": "포수 골든글러브", "source": "123G .250 19HR 66RBI 3SB 39BB 101H — kowiki" },
-    { "personId": "장광호", "name": "장광호", "year": 1998, "team": "현대", "position": "C", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 68, "speed": 44, "defense": 74 }, "note": "", "source": "65G .259 15H 2HR 10RBI 1SB — kowiki" },
-    { "personId": "김경기", "name": "김경기", "year": 1998, "team": "현대", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 70, "contact": 71, "speed": 55, "defense": 62 }, "note": "18홈런", "source": "126G .274 18HR 59RBI 5SB 43BB 118H — kowiki" },
-    { "personId": "이명수", "name": "이명수", "year": 1998, "team": "현대", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 84, "speed": 55, "defense": 78 }, "note": "타율 .315", "source": "106G .315 11HR 46RBI 5SB 35BB 103H — kowiki" },
-    { "personId": "염경엽", "name": "염경엽", "year": 1998, "team": "현대", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 69, "speed": 68, "defense": 78 }, "note": "", "source": "103G .265 22H 0HR 8RBI 13SB 10BB — kowiki" },
-    { "personId": "쿨바", "name": "쿨바", "year": 1998, "team": "현대", "position": "3B", "hand": "R", "isForeign": true, "stats": { "power": 79, "contact": 85, "speed": 50, "defense": 76 }, "note": "26홈런·97타점", "source": ".317 26HR 97RBI (G·SB 미확인) — 뉴시스" },
-    { "personId": "박진만", "name": "박진만", "year": 1998, "team": "현대", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 50, "contact": 48, "speed": 60, "defense": 88 }, "note": "", "source": "123G .203 4HR 33RBI 8SB 18BB 67H — kowiki" },
-    { "personId": "전준호", "name": "전준호", "year": 1998, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 50, "contact": 86, "speed": 87, "defense": 86 }, "note": "타율 .321·외야 GG", "source": "126G .321 5HR 43RBI 35SB 49BB 143H — kowiki" },
-    { "personId": "박재홍", "name": "박재홍", "year": 1998, "team": "현대", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 84, "contact": 69, "speed": 90, "defense": 82 }, "note": "30홈런·43도루", "source": "119G .266/.373 30HR 84RBI 43SB — KBO 기록실" },
-    { "personId": "이숭용", "name": "이숭용", "year": 1998, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 60, "contact": 72, "speed": 56, "defense": 74 }, "note": "", "source": "107G .278 10HR 45RBI 6SB 31BB 101H — kowiki" },
-    { "personId": "장정석", "name": "장정석", "year": 1998, "team": "현대", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 45, "contact": 57, "speed": 53, "defense": 74 }, "note": "", "source": "99G .228 1HR 23RBI 4SB 12BB 52H — kowiki" }
+    {
+      "personId": "정민태",
+      "name": "정민태",
+      "year": 1998,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 94,
+        "stamina": 104,
+        "stability": 91
+      },
+      "note": "17승·한국시리즈 MVP",
+      "source": "28G 17승9패 200.2IP ERA2.83 159K 49BB 184H — kowiki"
+    },
+    {
+      "personId": "정명원",
+      "name": "정명원",
+      "year": 1998,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 83,
+        "stamina": 100,
+        "stability": 100
+      },
+      "note": "평균자책점 1위(1.86)",
+      "source": "28G 14승8패 184IP ERA1.86 123K 60BB 141H — KBO 기록실"
+    },
+    {
+      "personId": "김수경",
+      "name": "김수경",
+      "year": 1998,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 106,
+        "control": 70,
+        "stamina": 93,
+        "stability": 92
+      },
+      "note": "신인왕·승률 1위",
+      "source": "32G 12승4패 160IP ERA2.76 168K(신인 최다) — namu"
+    },
+    {
+      "personId": "위재영",
+      "name": "위재영",
+      "year": 1998,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 71,
+        "stamina": 94,
+        "stability": 87
+      },
+      "note": "13승",
+      "source": "26G 13승8패 164.1IP ERA3.23 122K 68BB 143H — kowiki"
+    },
+    {
+      "personId": "최원호",
+      "name": "최원호",
+      "year": 1998,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 62,
+        "stamina": 89,
+        "stability": 89
+      },
+      "note": "",
+      "source": "39G 10승5패1SV 151IP ERA3.04 112K 77BB 118H — KBO 기록실"
+    },
+    {
+      "personId": "스트롱",
+      "name": "스트롱",
+      "year": 1998,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 88,
+        "control": 66,
+        "stamina": 62,
+        "stability": 85
+      },
+      "note": "27세이브",
+      "source": "6승5패27SV 65IP ERA2.95 54K WHIP1.60 — enwiki·namu"
+    },
+    {
+      "personId": "조규제",
+      "name": "조규제",
+      "year": 1998,
+      "team": "현대",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 88,
+        "stamina": 62,
+        "stability": 77
+      },
+      "note": "",
+      "source": "40G 5승4패2SV 56IP ERA4.18 40K 16BB 65H — kowiki"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 1998,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 88,
+        "contact": 74,
+        "speed": 70,
+        "defense": 99
+      },
+      "note": "포수 골든글러브",
+      "source": "123G .250 19HR 66RBI 3SB 39BB 101H — kowiki"
+    },
+    {
+      "personId": "장광호",
+      "name": "장광호",
+      "year": 1998,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 79,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": "65G .259 15H 2HR 10RBI 1SB — kowiki"
+    },
+    {
+      "personId": "김경기",
+      "name": "김경기",
+      "year": 1998,
+      "team": "현대",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 87,
+        "contact": 82,
+        "speed": 76,
+        "defense": 59
+      },
+      "note": "18홈런",
+      "source": "126G .274 18HR 59RBI 5SB 43BB 118H — kowiki"
+    },
+    {
+      "personId": "이명수",
+      "name": "이명수",
+      "year": 1998,
+      "team": "현대",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 79,
+        "contact": 95,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "타율 .315",
+      "source": "106G .315 11HR 46RBI 5SB 35BB 103H — kowiki"
+    },
+    {
+      "personId": "염경엽",
+      "name": "염경엽",
+      "year": 1998,
+      "team": "현대",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 80,
+        "speed": 88,
+        "defense": 82
+      },
+      "note": "",
+      "source": "103G .265 22H 0HR 8RBI 13SB 10BB — kowiki"
+    },
+    {
+      "personId": "쿨바",
+      "name": "쿨바",
+      "year": 1998,
+      "team": "현대",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "power": 96,
+        "contact": 96,
+        "speed": 71,
+        "defense": 79
+      },
+      "note": "26홈런·97타점",
+      "source": ".317 26HR 97RBI (G·SB 미확인) — 뉴시스"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 1998,
+      "team": "현대",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 59,
+        "speed": 81,
+        "defense": 96
+      },
+      "note": "",
+      "source": "123G .203 4HR 33RBI 8SB 18BB 67H — kowiki"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 1998,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 97,
+        "speed": 106,
+        "defense": 93
+      },
+      "note": "타율 .321·외야 GG",
+      "source": "126G .321 5HR 43RBI 35SB 49BB 143H — kowiki"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 1998,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 100,
+        "contact": 80,
+        "speed": 109,
+        "defense": 88
+      },
+      "note": "30홈런·43도루",
+      "source": "119G .266/.373 30HR 84RBI 43SB — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 1998,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 77,
+        "contact": 83,
+        "speed": 77,
+        "defense": 76
+      },
+      "note": "",
+      "source": "107G .278 10HR 45RBI 6SB 31BB 101H — kowiki"
+    },
+    {
+      "personId": "장정석",
+      "name": "장정석",
+      "year": 1998,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 63,
+        "contact": 68,
+        "speed": 74,
+        "defense": 76
+      },
+      "note": "",
+      "source": "99G .228 1HR 23RBI 4SB 12BB 52H — kowiki"
+    }
   ]
 }

@@ -16,23 +16,311 @@
     "투타(hand)는 일반 알려진 정보로 넣었고 KBO 선수 페이지에서 개별 확인은 하지 않음."
   ],
   "players": [
-    { "personId": "미란다", "name": "미란다", "year": 2021, "team": "두산", "position": "SP", "hand": "L", "isForeign": true, "stats": { "stuff": 97, "control": 69, "stamina": 86, "stability": 91 }, "note": "MVP·단일시즌 최다 225K", "source": "28G 173.2IP ERA2.33 225K 63BB WHIP1.14 14승 — KBO 기록실" },
-    { "personId": "최원준(투수)", "name": "최원준", "year": 2021, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 69, "control": 83, "stamina": 82, "stability": 82 }, "note": "12승", "source": "29G 158.1IP ERA3.30 113K 37BB WHIP1.24 12승 — KBO 기록실" },
-    { "personId": "로켓", "name": "로켓", "year": 2021, "team": "두산", "position": "SP", "hand": "R", "isForeign": true, "stats": { "stuff": 79, "control": 71, "stamina": 72, "stability": 85 }, "note": "", "source": "21G 124IP ERA2.98 112K 42BB WHIP1.40 9승 — KBO 기록실" },
-    { "personId": "곽빈", "name": "곽빈", "year": 2021, "team": "두산", "position": "SP", "hand": "R", "isForeign": false, "stats": { "stuff": 83, "control": 40, "stamina": 66, "stability": 70 }, "note": "", "source": "21G 98.2IP ERA4.10 96K 79BB WHIP1.59 4승 — KBO 기록실" },
-    { "personId": "김강률", "name": "김강률", "year": 2021, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 77, "control": 56, "stamina": 52, "stability": 90 }, "note": "21세이브", "source": "50G 51.2IP ERA2.09 41K 25BB WHIP1.53 3승 21SV 3HLD — KBO 기록실" },
-    { "personId": "홍건희", "name": "홍건희", "year": 2021, "team": "두산", "position": "RP", "hand": "R", "isForeign": false, "stats": { "stuff": 90, "control": 69, "stamina": 55, "stability": 87 }, "note": "17홀드", "source": "65G 74.1IP ERA2.78 82K 27BB WHIP1.24 6승 3SV 17HLD — KBO 기록실" },
-    { "personId": "이현승", "name": "이현승", "year": 2021, "team": "두산", "position": "RP", "hand": "L", "isForeign": false, "stats": { "stuff": 80, "control": 80, "stamina": 50, "stability": 86 }, "note": "", "source": "38G 23.1IP ERA1.93 20K 6BB WHIP0.94 5승 7HLD — KBO 기록실" },
-    { "personId": "박세혁", "name": "박세혁", "year": 2021, "team": "두산", "position": "C", "hand": "L", "isForeign": false, "stats": { "power": 40, "contact": 53, "speed": 61, "defense": 78 }, "note": "", "source": ".219/.296 0HR 4SB(2CS) 270PA(96G) — KBO 기록실" },
-    { "personId": "양석환", "name": "양석환", "year": 2021, "team": "두산", "position": "1B", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 71, "speed": 45, "defense": 62 }, "note": "28홈런 96타점", "source": ".273/.337 28HR 2SB(3CS) 546PA(133G) — KBO 기록실" },
-    { "personId": "강승호", "name": "강승호", "year": 2021, "team": "두산", "position": "2B", "hand": "R", "isForeign": false, "stats": { "power": 62, "contact": 60, "speed": 68, "defense": 76 }, "note": "", "source": ".239/.301 7HR 8SB(2CS) 340PA(113G) — KBO 기록실" },
-    { "personId": "허경민", "name": "허경민", "year": 2021, "team": "두산", "position": "3B", "hand": "R", "isForeign": false, "stats": { "power": 51, "contact": 73, "speed": 56, "defense": 86 }, "note": "", "source": ".278/.338 5HR 5SB(7CS) 518PA(136G) — KBO 기록실" },
-    { "personId": "김재호", "name": "김재호", "year": 2021, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 44, "contact": 50, "speed": 46, "defense": 82 }, "note": "", "source": ".209/.306 1HR 1SB(1CS) 251PA(89G) — KBO 기록실" },
-    { "personId": "박계범", "name": "박계범", "year": 2021, "team": "두산", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 54, "contact": 69, "speed": 56, "defense": 76 }, "note": "", "source": ".267/.368 5HR 4SB(3CS) 385PA(118G) — KBO 기록실" },
-    { "personId": "김재환", "name": "김재환", "year": 2021, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 80, "contact": 71, "speed": 45, "defense": 64 }, "note": "27홈런 102타점", "source": ".274/.382 27HR 2SB(3CS) 566PA(137G) — KBO 기록실" },
-    { "personId": "정수빈", "name": "정수빈", "year": 2021, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 49, "contact": 66, "speed": 75, "defense": 90 }, "note": "", "source": ".259/.326 3HR 12SB(7CS) 351PA(104G) — KBO 기록실" },
-    { "personId": "박건우", "name": "박건우", "year": 2021, "team": "두산", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 53, "contact": 88, "speed": 68, "defense": 80 }, "note": "타율 .325", "source": ".325/.400 6HR 13SB(0CS) 525PA(126G) — KBO 기록실" },
-    { "personId": "김인태", "name": "김인태", "year": 2021, "team": "두산", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 61, "contact": 66, "speed": 42, "defense": 72 }, "note": "", "source": ".259/.373 8HR 0SB(2CS) 418PA(133G) — KBO 기록실" },
-    { "personId": "페르난데스", "name": "페르난데스", "year": 2021, "team": "두산", "position": "DH", "hand": "L", "isForeign": true, "stats": { "power": 66, "contact": 85, "speed": 42, "defense": 50 }, "note": "170안타", "source": ".315/.391 15HR 0SB(2CS) 617PA(141G) — KBO 기록실" }
+    {
+      "personId": "미란다",
+      "name": "미란다",
+      "year": 2021,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 107,
+        "control": 78,
+        "stamina": 98,
+        "stability": 94
+      },
+      "note": "MVP·단일시즌 최다 225K",
+      "source": "28G 173.2IP ERA2.33 225K 63BB WHIP1.14 14승 — KBO 기록실"
+    },
+    {
+      "personId": "최원준(투수)",
+      "name": "최원준",
+      "year": 2021,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 93,
+        "stamina": 94,
+        "stability": 84
+      },
+      "note": "12승",
+      "source": "29G 158.1IP ERA3.30 113K 37BB WHIP1.24 12승 — KBO 기록실"
+    },
+    {
+      "personId": "로켓",
+      "name": "로켓",
+      "year": 2021,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 83,
+        "control": 81,
+        "stamina": 84,
+        "stability": 87
+      },
+      "note": "",
+      "source": "21G 124IP ERA2.98 112K 42BB WHIP1.40 9승 — KBO 기록실"
+    },
+    {
+      "personId": "곽빈",
+      "name": "곽빈",
+      "year": 2021,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 50,
+        "stamina": 78,
+        "stability": 72
+      },
+      "note": "",
+      "source": "21G 98.2IP ERA4.10 96K 79BB WHIP1.59 4승 — KBO 기록실"
+    },
+    {
+      "personId": "김강률",
+      "name": "김강률",
+      "year": 2021,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 65,
+        "stamina": 63,
+        "stability": 92
+      },
+      "note": "21세이브",
+      "source": "50G 51.2IP ERA2.09 41K 25BB WHIP1.53 3승 21SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍건희",
+      "name": "홍건희",
+      "year": 2021,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 98,
+        "control": 78,
+        "stamina": 66,
+        "stability": 89
+      },
+      "note": "17홀드",
+      "source": "65G 74.1IP ERA2.78 82K 27BB WHIP1.24 6승 3SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2021,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 90,
+        "stamina": 61,
+        "stability": 88
+      },
+      "note": "",
+      "source": "38G 23.1IP ERA1.93 20K 6BB WHIP0.94 5승 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "박세혁",
+      "name": "박세혁",
+      "year": 2021,
+      "team": "두산",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 61,
+        "speed": 85,
+        "defense": 81
+      },
+      "note": "",
+      "source": ".219/.296 0HR 4SB(2CS) 270PA(96G) — KBO 기록실"
+    },
+    {
+      "personId": "양석환",
+      "name": "양석환",
+      "year": 2021,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 101,
+        "contact": 80,
+        "speed": 68,
+        "defense": 59
+      },
+      "note": "28홈런 96타점",
+      "source": ".273/.337 28HR 2SB(3CS) 546PA(133G) — KBO 기록실"
+    },
+    {
+      "personId": "강승호",
+      "name": "강승호",
+      "year": 2021,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 81,
+        "contact": 68,
+        "speed": 92,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".239/.301 7HR 8SB(2CS) 340PA(113G) — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2021,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 69,
+        "contact": 83,
+        "speed": 79,
+        "defense": 93
+      },
+      "note": "",
+      "source": ".278/.338 5HR 5SB(7CS) 518PA(136G) — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2021,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 62,
+        "contact": 57,
+        "speed": 69,
+        "defense": 87
+      },
+      "note": "",
+      "source": ".209/.306 1HR 1SB(1CS) 251PA(89G) — KBO 기록실"
+    },
+    {
+      "personId": "박계범",
+      "name": "박계범",
+      "year": 2021,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 72,
+        "contact": 78,
+        "speed": 79,
+        "defense": 79
+      },
+      "note": "",
+      "source": ".267/.368 5HR 4SB(3CS) 385PA(118G) — KBO 기록실"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2021,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 99,
+        "contact": 80,
+        "speed": 68,
+        "defense": 61
+      },
+      "note": "27홈런 102타점",
+      "source": ".274/.382 27HR 2SB(3CS) 566PA(137G) — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2021,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 67,
+        "contact": 75,
+        "speed": 99,
+        "defense": 98
+      },
+      "note": "",
+      "source": ".259/.326 3HR 12SB(7CS) 351PA(104G) — KBO 기록실"
+    },
+    {
+      "personId": "박건우",
+      "name": "박건우",
+      "year": 2021,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 71,
+        "contact": 99,
+        "speed": 92,
+        "defense": 84
+      },
+      "note": "타율 .325",
+      "source": ".325/.400 6HR 13SB(0CS) 525PA(126G) — KBO 기록실"
+    },
+    {
+      "personId": "김인태",
+      "name": "김인태",
+      "year": 2021,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 80,
+        "contact": 75,
+        "speed": 65,
+        "defense": 73
+      },
+      "note": "",
+      "source": ".259/.373 8HR 0SB(2CS) 418PA(133G) — KBO 기록실"
+    },
+    {
+      "personId": "페르난데스",
+      "name": "페르난데스",
+      "year": 2021,
+      "team": "두산",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "power": 85,
+        "contact": 96,
+        "speed": 65,
+        "defense": 50
+      },
+      "note": "170안타",
+      "source": ".315/.391 15HR 0SB(2CS) 617PA(141G) — KBO 기록실"
+    }
   ]
 }

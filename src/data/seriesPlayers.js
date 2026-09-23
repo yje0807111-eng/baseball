@@ -11,10 +11,10 @@ export function overallOf(position, s) {
 }
 
 /**
- * 영입가(CP). 종합 84 초과 스타는 할증, 72 미만은 할인 — 스타만 모으면 샐러리 캡을 넘고,
- * 가성비 선수와 섞어야 11명을 채울 수 있게 한다. (캡 800 기준 시뮬레이션: 매 시리즈 최고 선수만 고르면 약 880 CP)
+ * 영입가(CP). 종합 90 초과 스타는 할증, 82 미만은 할인 — 스타만 모으면 샐러리 캡을 넘고,
+ * 가성비 선수와 섞어야 11명을 채울 수 있게 한다. (눈금은 리그 평균 78 · 50~110)
  */
-export const costOf = (overall) => Math.round(overall + Math.max(0, overall - 84) * 0.8 - Math.max(0, 72 - overall) * 0.4);
+export const costOf = (overall) => Math.round(overall + Math.max(0, overall - 90) * 0.8 - Math.max(0, 82 - overall) * 0.4);
 
 /** 카드 id·그림 파일명에 쓸 수 있게 괄호 등을 뺀다. scripts/art-plan.mjs 와 같은 규칙 */
 export const safeId = (s) => s.replace(/[^\p{L}\p{N}-]/gu, '');

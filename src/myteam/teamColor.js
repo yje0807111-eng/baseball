@@ -26,7 +26,9 @@ export const posColor = (p) => POS_COLOR[p?.position] || '#10b981';
 // '#rrggbb' 과 'rgb(r,g,b)' 둘 다 받는다 (mix 결과를 다시 mix 에 넣을 수 있게)
 const hex = (c) => (c.startsWith('rgb') ? c.match(/\d+/g).slice(0, 3).map(Number) : [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)));
 const mix = (a, b, t) => { const [x, y] = [hex(a), hex(b)]; return `rgb(${x.map((v, i) => Math.round(v + (y[i] - v) * t)).join(',')})`; };
-const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 40) / 60));
+const norm = (v) => Math.max(0, Math.min(1, ((v ?? 0) - 50) / 60));
+/** 능력치(50~110)를 막대 길이 퍼센트로 */
+export const statPct = (v) => Math.max(0, Math.min(100, (((v ?? 0) - 50) / 60) * 100));
 
 /**
  * 능력치 색 — 네 갈래로 묶어 타자와 투수가 짝을 이룬다.

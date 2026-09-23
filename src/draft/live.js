@@ -46,10 +46,10 @@ export const TRAITS = {
  *  spread:  1등과 이만큼 안쪽이면 그중에서 아무나 (넓을수록 헛발질이 잦다)
  */
 export const GRADES = {
-  ace:   { ko: '강호', reserve: 42, plan: 10, spread: 1 },  // 좋은 선수를 먼저, 돈도 과감히
-  solid: { ko: '탄탄', reserve: 46, plan: 16, spread: 2 },
-  plain: { ko: '평범', reserve: 54, plan: 24, spread: 6 },
-  weak:  { ko: '약체', reserve: 60, plan: 26, spread: 9 },  // 플랜만 고집하다 돈을 남긴다
+  ace:   { ko: '강호', reserve: 48, plan: 9, spread: 1 },  // 좋은 선수를 먼저, 돈도 과감히
+  solid: { ko: '탄탄', reserve: 54, plan: 17, spread: 2 },
+  plain: { ko: '평범', reserve: 63, plan: 26, spread: 7 },
+  weak:  { ko: '약체', reserve: 72, plan: 32, spread: 11 },  // 플랜만 고집하다 돈을 남긴다
 };
 /** 상대 일곱 구단에 돌릴 급 — 강호 하나 · 탄탄 둘 · 평범 둘 · 약체 둘 */
 const GRADE_ORDER = ['ace', 'solid', 'solid', 'plain', 'plain', 'weak', 'weak'];
@@ -318,7 +318,7 @@ export const myRoster = (s) => rosterOf(s, myIndex(s));
 export function clubStrength(s, club) {
   const by = {};
   s.clubs[club].roster.forEach((p) => { if (p.slot) by[p.slot] = p; });
-  const v = FIELD_SLOTS.map((x) => (by[x.id] ? by[x.id].overall : 60));
+  const v = FIELD_SLOTS.map((x) => (by[x.id] ? by[x.id].overall : 70));
   return v.reduce((t, x) => t + x, 0) / v.length;
 }
 
