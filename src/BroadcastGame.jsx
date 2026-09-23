@@ -500,7 +500,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   </b>
                 )}
               </span>
-              <span style={{ width: SB_W }}>
+              <span className="relative block" style={{ width: SB_W }}>
                 {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
                   const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
                   const c = flag?.color || color;
@@ -514,10 +514,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     </div>
                   );
                 })}
+                {/* 두 팀 사이 — 왼쪽은 밝게, 점수 칸으로 갈수록 어둡게 잦아드는 실선 */}
+                <i className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2" style={{ background: 'linear-gradient(90deg,rgba(255,255,255,.4),rgba(255,255,255,.18) 58%,rgba(0,0,0,.22))' }} />
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center pb-1.5" style={{ width: 92 }}>
+              <span className="grid place-items-center" style={{ width: 92 }}>
                 <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={4} rowGap={5} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
               {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
