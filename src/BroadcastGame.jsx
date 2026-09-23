@@ -281,8 +281,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const pickerRef = useRef(null);
   pickerRef.current = picker;
   const aliveRef = useRef(true);
+  const endedRef = useRef(false); // 결과를 한 번만 넘기도록
   speedRef.current = speed;
   pausedRef.current = paused;
+  /** 결과를 위로 넘긴다 — 두 번 불러도 한 번만 */
+  const handOver = () => {
+    if (endedRef.current) return false;
+    endedRef.current = true;
+    onFinish?.(buildResult(g, my));
+    return true;
+  };
+  /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
+  const leave = () => { if (!(g.final && handOver())) onExit?.(); };
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
   const [holding, setHolding] = useState(false);
@@ -439,7 +449,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         redraw();
         setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
         await sleep(quiet() ? 300 : 700);
-        onFinish?.(buildResult(g, my));
+        handOver();
       }
     })();
     return () => { stop = true; };
@@ -483,7 +493,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         {/* 헤더 */}
         <header className="relative col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
           <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
-          <button type="button" onClick={onExit} aria-label="나가기"
+          <button type="button" onClick={leave} aria-label="나가기"
             className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
           <div className="leading-none">
             <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Manager Mode</p>
