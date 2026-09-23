@@ -5,6 +5,7 @@ import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
 import LockerScreen from './myteam/LockerScreen.jsx';
 import ShopScreen from './myteam/ShopScreen.jsx';
+import RecordScreen from './myteam/RecordScreen.jsx';
 import AugmentScreen from './myteam/AugmentScreen.jsx';
 import BroadcastGame from './BroadcastGame.jsx';
 import { tickBoosts } from './myteam/shop.js';
@@ -135,6 +136,7 @@ export default function App() {
   }
   if (view === 'augments') return <AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />;
   if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />;
+  if (view === 'record') return <RecordScreen account={account} onBack={() => setView('lobby')} />;
   if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
   if (view === 'bracket' && tournament) {
     return <TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
@@ -154,7 +156,7 @@ export default function App() {
 
   return (
     <LobbyScreen account={account}
-      onLocker={() => setView('locker')} onPlay={(tab) => toModes(tab || null)} onShop={() => setView('shop')} onAugments={() => setView('augments')}
+      onLocker={() => setView('locker')} onPlay={(tab) => toModes(tab || null)} onShop={() => setView('shop')} onAugments={() => setView('augments')} onRecord={() => setView('record')}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }
