@@ -125,7 +125,7 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
-    desc: '레전드 시리즈만 나오고 샐러리 캡이 없는 모드', filter: (s) => s.kind === 'legend' },
+    desc: '레전드 시리즈만 나오는 모드', filter: (s) => s.kind === 'legend' },
   { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
     desc: '역대 한국시리즈 우승 팀만 나오는 모드', filter: (s) => s.champion },
   { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
@@ -5232,7 +5232,6 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <p className="ui-lab font-display">{mode.en}</p>
             <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
             <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
-            {mode.rules && <div className="ui-cut bg-white/[0.045] p-3 text-sm" style={{ '--c': '8px', color: mode.neon }}>특별 규칙 · {mode.rules.join(' · ')}</div>}
             {/* 어느 모드든 같은 다섯 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
               <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive}

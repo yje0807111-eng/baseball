@@ -19,7 +19,10 @@ const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(
 const OLD_SQUAD_CAP = 2000;
 const withTeam = (team) => {
   const t = { ...emptyTeam(), ...(team || {}) };
-  const cap = t.capBase === SQUAD_CAP ? t.cap : SQUAD_CAP + Math.max(0, (t.cap ?? SQUAD_CAP) - OLD_SQUAD_CAP);
+  /* 한 번 저장된 적 있는 팀(updatedAt)이면서 아직 새 눈금을 안 거친 것만 다시 센다.
+     새로 만든 팀까지 이 길을 타면 열 때마다 캡이 불어난다 */
+  const older = t.updatedAt && t.capBase !== SQUAD_CAP;
+  const cap = older ? SQUAD_CAP + Math.max(0, (t.cap ?? SQUAD_CAP) - OLD_SQUAD_CAP) : t.cap;
   return { ...t, cap, capBase: SQUAD_CAP, staff: freshStaff(t.staff) };
 };
 
@@ -185,7 +188,8 @@ export function signOut() {
 export function saveTeam(team) {
   const a = read();
   if (!a) return null;
-  const next = { ...a, team: { ...team, updatedAt: new Date().toISOString() } };
+  /* capBase 를 같이 적어 둬야 다음에 열 때 캡을 또 옮기지 않는다 */
+  const next = { ...a, team: { ...team, capBase: SQUAD_CAP, updatedAt: new Date().toISOString() } };
   write(next);
   return next;
 }
