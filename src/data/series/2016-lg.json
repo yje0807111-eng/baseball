@@ -1,0 +1,318 @@
+{
+  "id": "2016-lg",
+  "kind": "team",
+  "year": 2016,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "4위 · 가을 연승 행진",
+  "blurb": "허프와 류제국이 마운드를 지키며 LG가 와일드카드부터 플레이오프까지 올라갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "소사",
+      "name": "소사",
+      "year": 2016,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 57,
+        "control": 87,
+        "stamina": 93,
+        "stability": 63
+      },
+      "note": "",
+      "source": "33G 199IP ERA5.16 107K 38BB WHIP1.49 10승 — KBO 기록실"
+    },
+    {
+      "personId": "류제국",
+      "name": "류제국",
+      "year": 2016,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 61,
+        "stamina": 82,
+        "stability": 73
+      },
+      "note": "",
+      "source": "29G 161 1/3IP ERA4.30 138K 70BB WHIP1.38 13승 — KBO 기록실"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2016,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 79,
+        "stamina": 75,
+        "stability": 63
+      },
+      "note": "",
+      "source": "28G 132IP ERA4.91 81K 36BB WHIP1.53 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "허프",
+      "name": "허프",
+      "year": 2016,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 65,
+        "control": 95,
+        "stamina": 56,
+        "stability": 87
+      },
+      "note": "",
+      "source": "13G 74 2/3IP ERA3.13 46K 9BB WHIP1.08 7승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "임정우",
+      "name": "임정우",
+      "year": 2016,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 93,
+        "control": 55,
+        "stamina": 59,
+        "stability": 76
+      },
+      "note": "",
+      "source": "67G 70 2/3IP ERA3.82 87K 36BB WHIP1.54 3승 28SV — KBO 기록실"
+    },
+    {
+      "personId": "김지용",
+      "name": "김지용",
+      "year": 2016,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 77,
+        "stamina": 58,
+        "stability": 82
+      },
+      "note": "",
+      "source": "51G 63IP ERA3.57 56K 18BB WHIP1.11 3승 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "진해수",
+      "name": "진해수",
+      "year": 2016,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 44,
+        "stamina": 56,
+        "stability": 66
+      },
+      "note": "",
+      "source": "75G 54IP ERA4.67 54K 37BB WHIP1.74 1SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "윤지웅",
+      "name": "윤지웅",
+      "year": 2016,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 64,
+        "stamina": 54,
+        "stability": 51
+      },
+      "note": "",
+      "source": "59G 44IP ERA6.55 37K 18BB WHIP1.50 4승 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "유강남",
+      "name": "유강남",
+      "year": 2016,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 64,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".266/.321 8HR 47타점 0SB 297PA — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2016,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 42,
+        "power": 45,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".182/.290 1HR 10타점 0SB 159PA — KBO 기록실"
+    },
+    {
+      "personId": "정성훈",
+      "name": "정성훈",
+      "year": 2016,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 54,
+        "speed": 58,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".322/.380 6HR 64타점 8SB 418PA — KBO 기록실"
+    },
+    {
+      "personId": "손주인",
+      "name": "손주인",
+      "year": 2016,
+      "team": "LG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 43,
+        "speed": 53,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".322/.385 2HR 39타점 5SB 409PA — KBO 기록실"
+    },
+    {
+      "personId": "히메네스",
+      "name": "히메네스",
+      "year": 2016,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 80,
+        "power": 77,
+        "speed": 72,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".308/.363 26HR 102타점 18SB 579PA — KBO 기록실"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2016,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 74,
+        "speed": 70,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".280/.387 20HR 78타점 17SB 472PA — KBO 기록실"
+    },
+    {
+      "personId": "채은성",
+      "name": "채은성",
+      "year": 2016,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 59,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".313/.365 9HR 81타점 7SB 451PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 2016,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 59,
+        "speed": 58,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".272/.389 7HR 37타점 8SB 350PA — KBO 기록실"
+    },
+    {
+      "personId": "김용의",
+      "name": "김용의",
+      "year": 2016,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 41,
+        "speed": 73,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".318/.388 1HR 20타점 19SB 347PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2016,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 59,
+        "speed": 55,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".346/.412 11HR 90타점 6SB 578PA — KBO 기록실"
+    }
+  ]
+}

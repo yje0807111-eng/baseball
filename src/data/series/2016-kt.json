@@ -1,0 +1,318 @@
+{
+  "id": "2016-kt",
+  "kind": "team",
+  "year": 2016,
+  "title": "KT 위즈",
+  "franchise": "KT",
+  "subtitle": "창단 두 번째 해 10위",
+  "blurb": "유한준과 마르테가 타선을 이끌었지만 kt는 창단 두 번째 해에도 최하위에 그쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "피어밴드",
+      "name": "피어밴드",
+      "year": 2016,
+      "team": "KT",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 80,
+        "stamina": 89,
+        "stability": 69
+      },
+      "note": "",
+      "source": "31G 182IP ERA4.45 144K 48BB WHIP1.53 7승 — KBO 기록실"
+    },
+    {
+      "personId": "밴와트",
+      "name": "밴와트",
+      "year": 2016,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 64,
+        "control": 69,
+        "stamina": 75,
+        "stability": 53
+      },
+      "note": "",
+      "source": "28G 134 2/3IP ERA5.95 92K 49BB WHIP1.64 6승 — KBO 기록실"
+    },
+    {
+      "personId": "주권",
+      "name": "주권",
+      "year": 2016,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 73,
+        "stamina": 75,
+        "stability": 61
+      },
+      "note": "",
+      "source": "28G 134IP ERA5.10 63K 44BB WHIP1.54 6승 — KBO 기록실"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2016,
+      "team": "KT",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 57,
+        "stamina": 63,
+        "stability": 45
+      },
+      "note": "",
+      "source": "22G 91 1/3IP ERA7.29 57K 44BB WHIP1.74 4승 — KBO 기록실"
+    },
+    {
+      "personId": "장시환",
+      "name": "장시환",
+      "year": 2016,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 51,
+        "stamina": 60,
+        "stability": 50
+      },
+      "note": "",
+      "source": "40G 75 1/3IP ERA6.33 67K 43BB WHIP1.81 3승 6SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "엄상백",
+      "name": "엄상백",
+      "year": 2016,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 53,
+        "stamina": 60,
+        "stability": 47
+      },
+      "note": "",
+      "source": "52G 73 1/3IP ERA6.75 57K 40BB WHIP1.81 1승 1SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "김재윤",
+      "name": "김재윤",
+      "year": 2016,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 95,
+        "control": 78,
+        "stamina": 56,
+        "stability": 65
+      },
+      "note": "",
+      "source": "52G 54 1/3IP ERA4.97 73K 15BB WHIP1.40 8승 14SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성용",
+      "name": "홍성용",
+      "year": 2016,
+      "team": "KT",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 64,
+        "stamina": 54,
+        "stability": 52
+      },
+      "note": "",
+      "source": "67G 46 1/3IP ERA6.02 33K 19BB WHIP1.83 2승 2SV 12HLD — KBO 기록실"
+    },
+    {
+      "personId": "이해창",
+      "name": "이해창",
+      "year": 2016,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 43,
+        "power": 62,
+        "speed": 43,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".203/.240 6HR 22타점 1SB 254PA — KBO 기록실"
+    },
+    {
+      "personId": "김종민",
+      "name": "김종민",
+      "year": 2016,
+      "team": "KT",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 59,
+        "power": 40,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".244/.329 0HR 20타점 0SB 217PA — KBO 기록실"
+    },
+    {
+      "personId": "유민상",
+      "name": "유민상",
+      "year": 2016,
+      "team": "KT",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 55,
+        "speed": 43,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".282/.375 4HR 37타점 1SB 254PA — KBO 기록실"
+    },
+    {
+      "personId": "박경수",
+      "name": "박경수",
+      "year": 2016,
+      "team": "KT",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 74,
+        "speed": 48,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".313/.412 20HR 80타점 3SB 476PA — KBO 기록실"
+    },
+    {
+      "personId": "마르테",
+      "name": "마르테",
+      "year": 2016,
+      "team": "KT",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 66,
+        "power": 83,
+        "speed": 40,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".265/.360 22HR 74타점 0SB 381PA — KBO 기록실"
+    },
+    {
+      "personId": "박기혁",
+      "name": "박기혁",
+      "year": 2016,
+      "team": "KT",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 44,
+        "speed": 40,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".273/.331 2HR 34타점 0SB 348PA — KBO 기록실"
+    },
+    {
+      "personId": "이대형",
+      "name": "이대형",
+      "year": 2016,
+      "team": "KT",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 40,
+        "speed": 86,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".320/.368 1HR 42타점 37SB 654PA — KBO 기록실"
+    },
+    {
+      "personId": "유한준",
+      "name": "유한준",
+      "year": 2016,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 66,
+        "speed": 50,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".336/.404 14HR 64타점 4SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "오정복",
+      "name": "오정복",
+      "year": 2016,
+      "team": "KT",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 54,
+        "speed": 43,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".304/.358 5HR 36타점 1SB 344PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2016,
+      "team": "KT",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 62,
+        "speed": 45,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".332/.403 10HR 72타점 2SB 424PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "2016-lotte",
+  "kind": "team",
+  "year": 2016,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "8위 · 황재균의 27홈런",
+  "blurb": "황재균이 27홈런을 치고 린드블럼이 선발을 이끌었지만 롯데는 8위로 시즌을 마쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "레일리",
+      "name": "레일리",
+      "year": 2016,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 78,
+        "stamina": 89,
+        "stability": 73
+      },
+      "note": "",
+      "source": "31G 184 2/3IP ERA4.34 147K 51BB WHIP1.40 8승 — KBO 기록실"
+    },
+    {
+      "personId": "린드블럼",
+      "name": "린드블럼",
+      "year": 2016,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 71,
+        "control": 61,
+        "stamina": 87,
+        "stability": 59
+      },
+      "note": "",
+      "source": "30G 177 1/3IP ERA5.28 148K 77BB WHIP1.55 10승 — KBO 기록실"
+    },
+    {
+      "personId": "박세웅",
+      "name": "박세웅",
+      "year": 2016,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 60,
+        "stamina": 76,
+        "stability": 54
+      },
+      "note": "",
+      "source": "27G 139IP ERA5.76 133K 62BB WHIP1.60 7승 — KBO 기록실"
+    },
+    {
+      "personId": "노경은",
+      "name": "노경은",
+      "year": 2016,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 55,
+        "stamina": 64,
+        "stability": 46
+      },
+      "note": "",
+      "source": "22G 94 2/3IP ERA6.85 52K 48BB WHIP1.86 3승 — KBO 기록실"
+    },
+    {
+      "personId": "윤길현",
+      "name": "윤길현",
+      "year": 2016,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 68,
+        "stamina": 57,
+        "stability": 52
+      },
+      "note": "",
+      "source": "62G 60IP ERA6.00 50K 22BB WHIP1.62 7승 2SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "손승락",
+      "name": "손승락",
+      "year": 2016,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 58,
+        "stamina": 55,
+        "stability": 71
+      },
+      "note": "",
+      "source": "48G 50 2/3IP ERA4.26 48K 24BB WHIP1.68 7승 20SV — KBO 기록실"
+    },
+    {
+      "personId": "이정민",
+      "name": "이정민",
+      "year": 2016,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 79,
+        "stamina": 60,
+        "stability": 86
+      },
+      "note": "",
+      "source": "67G 77IP ERA3.16 60K 21BB WHIP1.35 5승 2SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "박진형",
+      "name": "박진형",
+      "year": 2016,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 71,
+        "control": 50,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "39G 93IP ERA5.81 78K 54BB WHIP1.67 6승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2016,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 75,
+        "speed": 50,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".323/.433 20HR 72타점 4SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "김준태",
+      "name": "김준태",
+      "year": 2016,
+      "team": "롯데",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 53,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".275/.385 2HR 16타점 0SB 144PA — KBO 기록실"
+    },
+    {
+      "personId": "김상호",
+      "name": "김상호",
+      "year": 2016,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 57,
+        "speed": 48,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".290/.358 7HR 56타점 3SB 415PA — KBO 기록실"
+    },
+    {
+      "personId": "정훈",
+      "name": "정훈",
+      "year": 2016,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 43,
+        "speed": 57,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".262/.362 2HR 46타점 7SB 439PA — KBO 기록실"
+    },
+    {
+      "personId": "황재균",
+      "name": "황재균",
+      "year": 2016,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 78,
+        "speed": 78,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".335/.394 27HR 113타점 25SB 559PA — KBO 기록실"
+    },
+    {
+      "personId": "문규현",
+      "name": "문규현",
+      "year": 2016,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 50,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".272/.333 4HR 40타점 2SB 368PA — KBO 기록실"
+    },
+    {
+      "personId": "손아섭",
+      "name": "손아섭",
+      "year": 2016,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 85,
+        "power": 65,
+        "speed": 89,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".323/.418 16HR 81타점 42SB 672PA — KBO 기록실"
+    },
+    {
+      "personId": "김문호",
+      "name": "김문호",
+      "year": 2016,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 52,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".325/.401 7HR 70타점 12SB 599PA — KBO 기록실"
+    },
+    {
+      "personId": "아두치",
+      "name": "아두치",
+      "year": 2016,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 75,
+        "power": 63,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".291/.336 7HR 41타점 15SB 272PA — KBO 기록실"
+    },
+    {
+      "personId": "최준석",
+      "name": "최준석",
+      "year": 2016,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 78,
+        "speed": 40,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".262/.384 19HR 70타점 0SB 396PA — KBO 기록실"
+    }
+  ]
+}

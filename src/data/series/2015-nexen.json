@@ -264,18 +264,18 @@
       "source": ".310/.358 10HR 51타점 22SB 443PA — KBO 기록실"
     },
     {
-      "personId": "윤석민",
+      "personId": "윤석민(내야수)",
       "name": "윤석민",
       "year": 2015,
       "team": "넥센",
-      "position": "RP",
+      "position": "3B",
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "stuff": 82,
-        "control": 71,
-        "stamina": 59,
-        "stability": 88
+        "contact": 76,
+        "power": 68,
+        "speed": 48,
+        "defense": 74
       },
       "note": "",
       "source": ".294/.366 14HR 71타점 3SB 418PA — KBO 기록실"

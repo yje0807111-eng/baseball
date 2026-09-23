@@ -9,7 +9,7 @@
   "notes": [],
   "players": [
     {
-      "personId": "이승호",
+      "personId": "이승호(SK)",
       "name": "이승호",
       "year": 2004,
       "team": "SK",
@@ -17,10 +17,10 @@
       "hand": "L",
       "isForeign": false,
       "stats": {
-        "stuff": 78,
-        "control": 52,
-        "stamina": 74,
-        "stability": 88
+        "stuff": 76,
+        "control": 55,
+        "stamina": 85,
+        "stability": 74
       },
       "note": "",
       "source": "31G 169IP ERA3.99 145K 87BB WHIP1.46 15승 1HLD — KBO 기록실"

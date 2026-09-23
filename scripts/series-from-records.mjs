@@ -154,14 +154,18 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
 /* ── 실행 ── */
 if (process.argv[1] && process.argv[1].endsWith('series-from-records.mjs')) {
   const dir = process.argv[2];
-  const years = process.argv.slice(3).map(Number);
+  const force = process.argv.includes('--force');   // 이미 있는 시리즈까지 다시 만든다
+  const years = process.argv.slice(3).filter((x) => x !== '--force').map(Number);
   const hands = existsSync(join(dir, 'hands.json')) ? JSON.parse(readFileSync(join(dir, 'hands.json'), 'utf8')) : {};
   const foreign = new Set(existsSync(join(dir, 'foreign.json')) ? JSON.parse(readFileSync(join(dir, 'foreign.json'), 'utf8')) : []);
   const metaAll = existsSync(join(dir, 'meta.json')) ? JSON.parse(readFileSync(join(dir, 'meta.json'), 'utf8')) : {};
   const dupes = existsSync(join(dir, 'dupes.json')) ? JSON.parse(readFileSync(join(dir, 'dupes.json'), 'utf8')) : {};
   const posFix = existsSync(join(dir, 'positions.json')) ? JSON.parse(readFileSync(join(dir, 'positions.json'), 'utf8')) : {};
   const mine = new Set();
-  for (const year of years) for (const code of Object.keys(TEAM)) mine.add(`${year}-${slugOf(code, year)}`);
+  for (const year of years) for (const code of Object.keys(TEAM)) {
+    const id = `${year}-${slugOf(code, year)}`;
+    if (force || !existsSync(join('src', 'data', 'series', `${id}.json`))) mine.add(id);
+  }
   const known = knownPlayers(join('src', 'data', 'series'), mine);   // 내가 만드는 시리즈는 빼고 읽는다
   for (const year of years) {
     const recs = parseRecords(readFileSync(join(dir, `${year}.txt`), 'utf8'));
@@ -169,6 +173,7 @@ if (process.argv[1] && process.argv[1].endsWith('series-from-records.mjs')) {
       const s = buildSeries({ year, code, records: recs[code], hands, foreign, meta: metaAll[`${year}-${slugOf(code, year)}`] || {}, dupes, posFix, known });
       for (const p of s.players) if (!known.has(`${p.personId}|${p.year}`)) known.set(`${p.personId}|${p.year}`, p);
       const file = join('src', 'data', 'series', `${s.id}.json`);
+      if (!mine.has(s.id)) { console.log(`${s.id}  그대로 둠`); continue; }
       writeFileSync(file, `${JSON.stringify(s, null, 2)}\n`);
       console.log(`${s.id}  선수 ${s.players.length}`);
     }

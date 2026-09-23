@@ -1,0 +1,318 @@
+{
+  "id": "2016-hanwha",
+  "kind": "team",
+  "year": 2016,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "7위 · 김태균의 타율",
+  "blurb": "김태균이 3할 후반을 치고 정우람이 뒷문을 맡았지만 한화는 7위에 머물렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "송은범",
+      "name": "송은범",
+      "year": 2016,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 65,
+        "stamina": 72,
+        "stability": 49
+      },
+      "note": "",
+      "source": "30G 122IP ERA6.42 85K 49BB WHIP1.70 2승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "이태양(한화)",
+      "name": "이태양",
+      "year": 2016,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 52,
+        "stamina": 69,
+        "stability": 62
+      },
+      "note": "",
+      "source": "29G 112 1/3IP ERA4.97 60K 62BB WHIP1.69 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "카스티요",
+      "name": "카스티요",
+      "year": 2016,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 65,
+        "control": 58,
+        "stamina": 60,
+        "stability": 49
+      },
+      "note": "",
+      "source": "20G 84IP ERA6.43 60K 40BB WHIP1.74 7승 — KBO 기록실"
+    },
+    {
+      "personId": "로저스",
+      "name": "로저스",
+      "year": 2016,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 66,
+        "control": 74,
+        "stamina": 45,
+        "stability": 73
+      },
+      "note": "",
+      "source": "6G 37 2/3IP ERA4.30 24K 12BB WHIP1.43 2승 — KBO 기록실"
+    },
+    {
+      "personId": "권혁",
+      "name": "권혁",
+      "year": 2016,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 60,
+        "stamina": 60,
+        "stability": 79
+      },
+      "note": "",
+      "source": "66G 95 1/3IP ERA3.87 77K 42BB WHIP1.42 6승 3SV 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "심수창",
+      "name": "심수창",
+      "year": 2016,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 55,
+        "stamina": 60,
+        "stability": 52
+      },
+      "note": "",
+      "source": "66G 113 1/3IP ERA5.96 76K 58BB WHIP1.73 5승 2SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "정우람",
+      "name": "정우람",
+      "year": 2016,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 87,
+        "control": 73,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "61G 81IP ERA3.33 85K 26BB WHIP1.11 8승 16SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "장민재",
+      "name": "장민재",
+      "year": 2016,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 52,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "48G 119 1/3IP ERA4.68 92K 67BB WHIP1.68 6승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "차일목",
+      "name": "차일목",
+      "year": 2016,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 48,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".228/.307 3HR 38타점 0SB 329PA — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2016,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 42,
+        "power": 60,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".168/.186 3HR 7타점 0SB 146PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2016,
+      "team": "한화",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 97,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "출루율 1위·지명타자 GG",
+      "source": ".365/.475 23HR 136타점 1SB 652PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2016,
+      "team": "한화",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 68,
+        "contact": 81,
+        "speed": 76,
+        "defense": 80
+      },
+      "note": "커리어하이 121득점",
+      "source": ".310/.381 18HR 88타점 22SB 650PA — KBO 기록실"
+    },
+    {
+      "personId": "송광민",
+      "name": "송광민",
+      "year": 2016,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 69,
+        "speed": 48,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".325/.366 17HR 83타점 3SB 494PA — KBO 기록실"
+    },
+    {
+      "personId": "하주석",
+      "name": "하주석",
+      "year": 2016,
+      "team": "한화",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 61,
+        "speed": 53,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".279/.323 10HR 57타점 5SB 441PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2016,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 44,
+        "speed": 75,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".352/.438 3HR 41타점 21SB 530PA — KBO 기록실"
+    },
+    {
+      "personId": "양성우",
+      "name": "양성우",
+      "year": 2016,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 48,
+        "speed": 53,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".271/.347 4HR 53타점 5SB 446PA — KBO 기록실"
+    },
+    {
+      "personId": "장민석",
+      "name": "장민석",
+      "year": 2016,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 43,
+        "speed": 48,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".229/.285 1HR 16타점 3SB 227PA — KBO 기록실"
+    },
+    {
+      "personId": "로사리오",
+      "name": "로사리오",
+      "year": 2016,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 84,
+        "power": 84,
+        "speed": 43,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".321/.367 33HR 120타점 1SB 532PA — KBO 기록실"
+    }
+  ]
+}

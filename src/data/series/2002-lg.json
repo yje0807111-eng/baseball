@@ -111,7 +111,7 @@
       "source": "59G 101 1/3IP ERA1.60 86K 39BB WHIP1.13 10승 4SV 9HLD — KBO 기록실"
     },
     {
-      "personId": "이상훈",
+      "personId": "이상훈(LG)",
       "name": "이상훈",
       "year": 2002,
       "team": "LG",
@@ -119,10 +119,10 @@
       "hand": "L",
       "isForeign": false,
       "stats": {
-        "stuff": 68,
-        "control": 76,
+        "stuff": 92,
+        "control": 70,
         "stamina": 60,
-        "stability": 75
+        "stability": 97
       },
       "note": "",
       "source": "52G 85 2/3IP ERA1.68 92K 30BB WHIP0.97 7승 18SV — KBO 기록실"
