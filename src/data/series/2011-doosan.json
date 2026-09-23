@@ -1,0 +1,318 @@
+{
+  "id": "2011-doosan",
+  "kind": "team",
+  "year": 2011,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "김선우의 16승",
+  "blurb": "김선우가 16승을 거두고 김동주와 이종욱이 타선의 중심을 잡았다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "니퍼트",
+      "name": "니퍼트",
+      "year": 2011,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 73,
+        "control": 71,
+        "stamina": 90,
+        "stability": 90
+      },
+      "note": "",
+      "source": "29G 187IP ERA2.55 150K 64BB WHIP1.14 15승 — KBO 기록실"
+    },
+    {
+      "personId": "김선우",
+      "name": "김선우",
+      "year": 2011,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 86,
+        "stamina": 87,
+        "stability": 84
+      },
+      "note": "",
+      "source": "28G 175 2/3IP ERA3.13 89K 35BB WHIP1.27 16승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "이용찬",
+      "name": "이용찬",
+      "year": 2011,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 59,
+        "stamina": 74,
+        "stability": 69
+      },
+      "note": "",
+      "source": "28G 129IP ERA4.19 99K 60BB WHIP1.52 6승 — KBO 기록실"
+    },
+    {
+      "personId": "안규영",
+      "name": "안규영",
+      "year": 2011,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 69,
+        "stamina": 45,
+        "stability": 42
+      },
+      "note": "",
+      "source": "6G 22 1/3IP ERA8.87 11K 8BB WHIP1.84 — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2011,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 86,
+        "control": 70,
+        "stamina": 58,
+        "stability": 86
+      },
+      "note": "",
+      "source": "45G 62 2/3IP ERA2.87 65K 22BB WHIP1.10 2승 8SV 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2011,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 70,
+        "stamina": 60,
+        "stability": 64
+      },
+      "note": "",
+      "source": "50G 74 2/3IP ERA4.82 50K 26BB WHIP1.49 3승 4SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "페르난도",
+      "name": "페르난도",
+      "year": 2011,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 71,
+        "control": 52,
+        "stamina": 60,
+        "stability": 48
+      },
+      "note": "",
+      "source": "25G 78 1/3IP ERA6.09 66K 44BB WHIP1.79 3승 6SV — KBO 기록실"
+    },
+    {
+      "personId": "고창성",
+      "name": "고창성",
+      "year": 2011,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 58,
+        "stamina": 55,
+        "stability": 69
+      },
+      "note": "",
+      "source": "51G 50 2/3IP ERA4.44 40K 24BB WHIP1.46 1승 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2011,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 50,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".301/.375 4HR 46타점 3SB 438PA — KBO 기록실"
+    },
+    {
+      "personId": "용덕한",
+      "name": "용덕한",
+      "year": 2011,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".149/.184 0HR 2타점 0SB 52PA — KBO 기록실"
+    },
+    {
+      "personId": "최준석",
+      "name": "최준석",
+      "year": 2011,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 68,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".271/.354 15HR 75타점 0SB 485PA — KBO 기록실"
+    },
+    {
+      "personId": "오재원",
+      "name": "오재원",
+      "year": 2011,
+      "team": "두산",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 52,
+        "speed": 93,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".277/.342 6HR 46타점 46SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 2011,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 71,
+        "speed": 57,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".286/.393 17HR 75타점 6SB 483PA — KBO 기록실"
+    },
+    {
+      "personId": "손시헌",
+      "name": "손시헌",
+      "year": 2011,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 53,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".282/.378 4HR 28타점 2SB 351PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2011,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 64,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".301/.392 13HR 91타점 5SB 561PA — KBO 기록실"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2011,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 51,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".303/.377 5HR 44타점 20SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2011,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 42,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".285/.361 1HR 38타점 31SB 476PA — KBO 기록실"
+    },
+    {
+      "personId": "이원석",
+      "name": "이원석",
+      "year": 2011,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 65,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".216/.298 8HR 35타점 1SB 311PA — KBO 기록실"
+    }
+  ]
+}

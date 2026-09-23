@@ -1,0 +1,318 @@
+{
+  "id": "2019-lotte",
+  "kind": "team",
+  "year": 2019,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "최하위로 끝난 해",
+  "blurb": "전준우가 22홈런을 치고 민병헌이 3할을 넘겼지만 롯데는 최하위로 시즌을 마쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "레일리",
+      "name": "레일리",
+      "year": 2019,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 69,
+        "stamina": 88,
+        "stability": 75
+      },
+      "note": "",
+      "source": "30G 181IP ERA3.88 140K 65BB WHIP1.41 5승 — KBO 기록실"
+    },
+    {
+      "personId": "다익손",
+      "name": "다익손",
+      "year": 2019,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 79,
+        "stamina": 79,
+        "stability": 70
+      },
+      "note": "",
+      "source": "29G 149 1/3IP ERA4.34 117K 40BB WHIP1.37 6승 — KBO 기록실"
+    },
+    {
+      "personId": "장시환",
+      "name": "장시환",
+      "year": 2019,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 77,
+        "control": 59,
+        "stamina": 73,
+        "stability": 60
+      },
+      "note": "",
+      "source": "27G 125 1/3IP ERA4.95 109K 58BB WHIP1.64 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김원중",
+      "name": "김원중",
+      "year": 2019,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 59,
+        "stamina": 67,
+        "stability": 53
+      },
+      "note": "",
+      "source": "28G 102 1/3IP ERA5.63 93K 47BB WHIP1.70 5승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "고효준",
+      "name": "고효준",
+      "year": 2019,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 50,
+        "stamina": 57,
+        "stability": 62
+      },
+      "note": "",
+      "source": "75G 62 1/3IP ERA4.76 72K 36BB WHIP1.51 2승 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "서준원",
+      "name": "서준원",
+      "year": 2019,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 66,
+        "stamina": 60,
+        "stability": 54
+      },
+      "note": "",
+      "source": "33G 97IP ERA5.47 60K 38BB WHIP1.60 4승 — KBO 기록실"
+    },
+    {
+      "personId": "진명호",
+      "name": "진명호",
+      "year": 2019,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 52,
+        "stamina": 58,
+        "stability": 81
+      },
+      "note": "",
+      "source": "60G 63 1/3IP ERA3.41 51K 35BB WHIP1.44 3승 9HLD — KBO 기록실"
+    },
+    {
+      "personId": "손승락",
+      "name": "손승락",
+      "year": 2019,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 69,
+        "stamina": 56,
+        "stability": 75
+      },
+      "note": "",
+      "source": "53G 52 2/3IP ERA3.93 44K 19BB WHIP1.41 4승 9SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "나균안",
+      "name": "나균안",
+      "year": 2019,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 56,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".124/.188 3HR 13타점 0SB 209PA — KBO 기록실"
+    },
+    {
+      "personId": "안중열",
+      "name": "안중열",
+      "year": 2019,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 55,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".191/.236 2HR 4타점 0SB 145PA — KBO 기록실"
+    },
+    {
+      "personId": "오윤석",
+      "name": "오윤석",
+      "year": 2019,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 45,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".222/.295 1HR 21타점 0SB 228PA — KBO 기록실"
+    },
+    {
+      "personId": "강로한",
+      "name": "강로한",
+      "year": 2019,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 54,
+        "speed": 59,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".240/.279 4HR 25타점 7SB 306PA — KBO 기록실"
+    },
+    {
+      "personId": "윌슨(타자)",
+      "name": "윌슨",
+      "year": 2019,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 64,
+        "power": 70,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".251/.351 9HR 37타점 1SB 268PA — KBO 기록실"
+    },
+    {
+      "personId": "신본기",
+      "name": "신본기",
+      "year": 2019,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 43,
+        "speed": 50,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".256/.314 1HR 26타점 3SB 413PA — KBO 기록실"
+    },
+    {
+      "personId": "전준우",
+      "name": "전준우",
+      "year": 2019,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 74,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".301/.359 22HR 83타점 8SB 606PA — KBO 기록실"
+    },
+    {
+      "personId": "손아섭",
+      "name": "손아섭",
+      "year": 2019,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 60,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295/.360 10HR 63타점 13SB 568PA — KBO 기록실"
+    },
+    {
+      "personId": "민병헌",
+      "name": "민병헌",
+      "year": 2019,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 60,
+        "contact": 81,
+        "speed": 68,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".304/.379 9HR 43타점 13SB 420PA — KBO 기록실"
+    },
+    {
+      "personId": "이대호",
+      "name": "이대호",
+      "year": 2019,
+      "team": "롯데",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 67,
+        "speed": 42,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".285/.355 16HR 88타점 0SB 549PA — KBO 기록실"
+    }
+  ]
+}

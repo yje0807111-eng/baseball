@@ -1,0 +1,318 @@
+{
+  "id": "2011-sk",
+  "kind": "team",
+  "year": 2011,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "최정의 20홈런",
+  "blurb": "최정이 20홈런을 치고 정대현이 뒷문을 지키며 SK가 다시 가을 무대에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "글로버",
+      "name": "글로버",
+      "year": 2011,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 84,
+        "control": 71,
+        "stamina": 72,
+        "stability": 71
+      },
+      "note": "",
+      "source": "24G 121IP ERA4.24 122K 41BB WHIP1.29 7승 — KBO 기록실"
+    },
+    {
+      "personId": "고든",
+      "name": "고든",
+      "year": 2011,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 79,
+        "stamina": 57,
+        "stability": 76
+      },
+      "note": "",
+      "source": "14G 75 2/3IP ERA3.81 70K 20BB WHIP1.16 6승 — KBO 기록실"
+    },
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2011,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 48,
+        "stamina": 56,
+        "stability": 61
+      },
+      "note": "",
+      "source": "17G 74 1/3IP ERA4.84 61K 45BB WHIP1.55 4승 — KBO 기록실"
+    },
+    {
+      "personId": "정우람",
+      "name": "정우람",
+      "year": 2011,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 82,
+        "stamina": 60,
+        "stability": 97
+      },
+      "note": "",
+      "source": "68G 94 1/3IP ERA1.81 68K 23BB WHIP0.89 4승 7SV 25HLD — KBO 기록실"
+    },
+    {
+      "personId": "정대현",
+      "name": "정대현",
+      "year": 2011,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 59,
+        "stamina": 56,
+        "stability": 94
+      },
+      "note": "",
+      "source": "53G 54 2/3IP ERA1.48 39K 25BB WHIP1.24 3승 16SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "전병두",
+      "name": "전병두",
+      "year": 2011,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 48,
+        "stamina": 60,
+        "stability": 76
+      },
+      "note": "",
+      "source": "51G 92 1/3IP ERA3.80 87K 56BB WHIP1.33 3승 3SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "고효준",
+      "name": "고효준",
+      "year": 2011,
+      "team": "SK",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 45,
+        "stamina": 60,
+        "stability": 71
+      },
+      "note": "",
+      "source": "35G 105 2/3IP ERA4.26 89K 69BB WHIP1.48 5승 — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2011,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 66,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".260/.314 11HR 50타점 0SB 401PA — KBO 기록실"
+    },
+    {
+      "personId": "허웅",
+      "name": "허웅",
+      "year": 2011,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 40,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".220/.250 0HR 3타점 1SB 53PA — KBO 기록실"
+    },
+    {
+      "personId": "박정권",
+      "name": "박정권",
+      "year": 2011,
+      "team": "SK",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 64,
+        "speed": 62,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".252/.317 13HR 53타점 9SB 507PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2011,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 57,
+        "speed": 76,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".307/.384 6HR 40타점 20SB 385PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2011,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 75,
+        "speed": 70,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".310/.402 20HR 75타점 15SB 488PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 2011,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 59,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".280/.363 6HR 39타점 6SB 340PA — KBO 기록실"
+    },
+    {
+      "personId": "박재상",
+      "name": "박재상",
+      "year": 2011,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 53,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".256/.337 4HR 39타점 13SB 352PA — KBO 기록실"
+    },
+    {
+      "personId": "조동화",
+      "name": "조동화",
+      "year": 2011,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 40,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".236/.302 0HR 16타점 10SB 345PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2011,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 65,
+        "speed": 62,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".281/.331 8HR 33타점 9SB 310PA — KBO 기록실"
+    },
+    {
+      "personId": "이호준",
+      "name": "이호준",
+      "year": 2011,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 70,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".253/.333 14HR 62타점 2SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "임훈",
+      "name": "임훈",
+      "year": 2011,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 40,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".266/.355 0HR 24타점 5SB 281PA — KBO 기록실"
+    }
+  ]
+}

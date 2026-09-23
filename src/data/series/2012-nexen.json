@@ -1,0 +1,318 @@
+{
+  "id": "2012-nexen",
+  "kind": "team",
+  "year": 2012,
+  "title": "넥센 히어로즈",
+  "franchise": "KIWOOM",
+  "subtitle": "박병호의 첫 홈런왕",
+  "blurb": "박병호가 31홈런 105타점으로 첫 홈런왕에 오르고 나이트가 16승을 거뒀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "나이트",
+      "name": "나이트",
+      "year": 2012,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 70,
+        "control": 82,
+        "stamina": 90,
+        "stability": 92
+      },
+      "note": "평균자책점 1위(2.20)",
+      "source": "30G 208 2/3IP ERA2.20 102K 53BB WHIP1.12 16승 — KBO 기록실"
+    },
+    {
+      "personId": "밴헤켄",
+      "name": "밴헤켄",
+      "year": 2012,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "stuff": 72,
+        "control": 70,
+        "stamina": 85,
+        "stability": 82
+      },
+      "note": "",
+      "source": "28G 170IP ERA3.28 132K 60BB WHIP1.33 11승 — KBO 기록실"
+    },
+    {
+      "personId": "강윤구",
+      "name": "강윤구",
+      "year": 2012,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 50,
+        "stamina": 73,
+        "stability": 73
+      },
+      "note": "",
+      "source": "27G 125 2/3IP ERA4.08 127K 74BB WHIP1.30 4승 — KBO 기록실"
+    },
+    {
+      "personId": "김세현",
+      "name": "김세현",
+      "year": 2012,
+      "team": "넥센",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 50,
+        "stamina": 72,
+        "stability": 63
+      },
+      "note": "",
+      "source": "30G 121IP ERA4.69 90K 70BB WHIP1.76 5승 — KBO 기록실"
+    },
+    {
+      "personId": "손승락",
+      "name": "손승락",
+      "year": 2012,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 76,
+        "stamina": 55,
+        "stability": 93
+      },
+      "note": "",
+      "source": "53G 50 1/3IP ERA2.15 47K 15BB WHIP1.29 3승 33SV — KBO 기록실"
+    },
+    {
+      "personId": "한현희",
+      "name": "한현희",
+      "year": 2012,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 74,
+        "stamina": 59,
+        "stability": 84
+      },
+      "note": "",
+      "source": "43G 69 1/3IP ERA3.12 54K 22BB WHIP1.10 3승 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "이정훈",
+      "name": "이정훈",
+      "year": 2012,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 67,
+        "stamina": 54,
+        "stability": 66
+      },
+      "note": "",
+      "source": "40G 44 1/3IP ERA4.67 32K 17BB WHIP1.40 4승 1SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "김병현",
+      "name": "김병현",
+      "year": 2012,
+      "team": "넥센",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 53,
+        "stamina": 57,
+        "stability": 52
+      },
+      "note": "",
+      "source": "19G 62IP ERA5.66 43K 34BB WHIP1.60 3승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "허도환",
+      "name": "허도환",
+      "year": 2012,
+      "team": "넥센",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 45,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".195/.272 1HR 14타점 0SB 237PA — KBO 기록실"
+    },
+    {
+      "personId": "최경철",
+      "name": "최경철",
+      "year": 2012,
+      "team": "넥센",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 40,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".223/.263 0HR 7타점 1SB 144PA — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 2012,
+      "team": "넥센",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 85,
+        "speed": 76,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".290/.393 31HR 105타점 20SB 560PA — KBO 기록실"
+    },
+    {
+      "personId": "서건창",
+      "name": "서건창",
+      "year": 2012,
+      "team": "넥센",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 42,
+        "speed": 89,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".266/.342 1HR 40타점 39SB 501PA — KBO 기록실"
+    },
+    {
+      "personId": "김민성",
+      "name": "김민성",
+      "year": 2012,
+      "team": "넥센",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 57,
+        "speed": 59,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".283/.346 4HR 22타점 7SB 254PA — KBO 기록실"
+    },
+    {
+      "personId": "강정호",
+      "name": "강정호",
+      "year": 2012,
+      "team": "넥센",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 78,
+        "speed": 77,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".314/.413 25HR 82타점 21SB 519PA — KBO 기록실"
+    },
+    {
+      "personId": "장민석",
+      "name": "장민석",
+      "year": 2012,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 59,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".246/.315 8HR 35타점 32SB 475PA — KBO 기록실"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2012,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 62,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".275/.335 8HR 55타점 13SB 391PA — KBO 기록실"
+    },
+    {
+      "personId": "이성열",
+      "name": "이성열",
+      "year": 2012,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 64,
+        "speed": 55,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".219/.300 7HR 35타점 5SB 298PA — KBO 기록실"
+    },
+    {
+      "personId": "유한준",
+      "name": "유한준",
+      "year": 2012,
+      "team": "넥센",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 52,
+        "speed": 50,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".240/.299 3HR 25타점 3SB 274PA — KBO 기록실"
+    }
+  ]
+}

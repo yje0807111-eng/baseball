@@ -1,0 +1,318 @@
+{
+  "id": "2019-sk",
+  "kind": "team",
+  "year": 2019,
+  "title": "SK 와이번스",
+  "franchise": "SSG",
+  "subtitle": "김광현 17승 · 하재훈 36세이브",
+  "blurb": "김광현이 17승, 신인 하재훈이 36세이브를 올리며 SK가 정규 2위에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김광현",
+      "name": "김광현",
+      "year": 2019,
+      "team": "SK",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 86,
+        "stamina": 90,
+        "stability": 90
+      },
+      "note": "17승",
+      "source": "31G 190 1/3IP ERA2.51 180K 38BB WHIP1.24 17승 — KBO 기록실"
+    },
+    {
+      "personId": "산체스",
+      "name": "산체스",
+      "year": 2019,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 81,
+        "stamina": 84,
+        "stability": 89
+      },
+      "note": "",
+      "source": "28G 165IP ERA2.62 148K 42BB WHIP1.17 17승 — KBO 기록실"
+    },
+    {
+      "personId": "박종훈",
+      "name": "박종훈",
+      "year": 2019,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 64,
+        "stamina": 78,
+        "stability": 75
+      },
+      "note": "",
+      "source": "28G 144IP ERA3.88 100K 59BB WHIP1.50 8승 — KBO 기록실"
+    },
+    {
+      "personId": "문승원",
+      "name": "문승원",
+      "year": 2019,
+      "team": "SK",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 83,
+        "stamina": 78,
+        "stability": 75
+      },
+      "note": "",
+      "source": "26G 144IP ERA3.88 99K 33BB WHIP1.13 11승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "서진용",
+      "name": "서진용",
+      "year": 2019,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 94,
+        "control": 64,
+        "stamina": 59,
+        "stability": 91
+      },
+      "note": "",
+      "source": "72G 68IP ERA2.38 76K 28BB WHIP1.19 3승 4SV 33HLD — KBO 기록실"
+    },
+    {
+      "personId": "하재훈",
+      "name": "하재훈",
+      "year": 2019,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 60,
+        "stamina": 52,
+        "stability": 92
+      },
+      "note": "세이브 1위(36)",
+      "source": "61G 59IP ERA1.98 64K 26BB WHIP1.24 5승 36SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "김태훈",
+      "name": "김태훈",
+      "year": 2019,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 89,
+        "control": 68,
+        "stamina": 59,
+        "stability": 75
+      },
+      "note": "",
+      "source": "71G 69 2/3IP ERA3.88 76K 26BB WHIP1.26 4승 7SV 27HLD — KBO 기록실"
+    },
+    {
+      "personId": "정영일",
+      "name": "정영일",
+      "year": 2019,
+      "team": "SK",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 75,
+        "control": 54,
+        "stamina": 53,
+        "stability": 83
+      },
+      "note": "",
+      "source": "44G 42IP ERA3.21 35K 22BB WHIP1.29 1승 1SV 8HLD — KBO 기록실"
+    },
+    {
+      "personId": "이재원",
+      "name": "이재원",
+      "year": 2019,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 62,
+        "speed": 45,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".268/.327 12HR 75타점 1SB 502PA — KBO 기록실"
+    },
+    {
+      "personId": "허도환",
+      "name": "허도환",
+      "year": 2019,
+      "team": "SK",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 49,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".127/.202 1HR 6타점 0SB 93PA — KBO 기록실"
+    },
+    {
+      "personId": "로맥",
+      "name": "로맥",
+      "year": 2019,
+      "team": "SK",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 72,
+        "power": 83,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".276/.370 29HR 95타점 6SB 589PA — KBO 기록실"
+    },
+    {
+      "personId": "나주환",
+      "name": "나주환",
+      "year": 2019,
+      "team": "SK",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 53,
+        "power": 53,
+        "speed": 45,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".222/.270 3HR 20타점 1SB 245PA — KBO 기록실"
+    },
+    {
+      "personId": "최정",
+      "name": "최정",
+      "year": 2019,
+      "team": "SK",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 83,
+        "contact": 77,
+        "speed": 49,
+        "defense": 80
+      },
+      "note": "29홈런",
+      "source": ".292/.399 29HR 99타점 3SB 606PA — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 2019,
+      "team": "SK",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 42,
+        "speed": 57,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".246/.302 1HR 34타점 6SB 472PA — KBO 기록실"
+    },
+    {
+      "personId": "고종욱",
+      "name": "고종욱",
+      "year": 2019,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 46,
+        "speed": 85,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".323/.347 3HR 56타점 31SB 513PA — KBO 기록실"
+    },
+    {
+      "personId": "한유섬",
+      "name": "한유섬",
+      "year": 2019,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 62,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".265/.375 12HR 52타점 0SB 502PA — KBO 기록실"
+    },
+    {
+      "personId": "김강민",
+      "name": "김강민",
+      "year": 2019,
+      "team": "SK",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 59,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".270/.324 8HR 50타점 15SB 460PA — KBO 기록실"
+    },
+    {
+      "personId": "노수광",
+      "name": "노수광",
+      "year": 2019,
+      "team": "SK",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 45,
+        "speed": 82,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".250/.333 2HR 28타점 27SB 445PA — KBO 기록실"
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "2018-lg",
+  "kind": "team",
+  "year": 2018,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "김현수의 타율 .362",
+  "blurb": "김현수가 타율 .362를 치고 채은성이 119타점을 올렸지만 마운드가 무너졌다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "소사",
+      "name": "소사",
+      "year": 2018,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 84,
+        "control": 91,
+        "stamina": 88,
+        "stability": 83
+      },
+      "note": "",
+      "source": "27G 181 1/3IP ERA3.52 181K 28BB WHIP1.21 9승 — KBO 기록실"
+    },
+    {
+      "personId": "차우찬",
+      "name": "차우찬",
+      "year": 2018,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 59,
+        "stamina": 85,
+        "stability": 51
+      },
+      "note": "",
+      "source": "29G 170IP ERA6.09 136K 79BB WHIP1.51 12승 — KBO 기록실"
+    },
+    {
+      "personId": "윌슨",
+      "name": "윌슨",
+      "year": 2018,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 77,
+        "control": 86,
+        "stamina": 85,
+        "stability": 87
+      },
+      "note": "",
+      "source": "26G 170IP ERA3.07 149K 35BB WHIP1.14 9승 — KBO 기록실"
+    },
+    {
+      "personId": "임찬규",
+      "name": "임찬규",
+      "year": 2018,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 73,
+        "stamina": 78,
+        "stability": 54
+      },
+      "note": "",
+      "source": "29G 146 2/3IP ERA5.77 125K 47BB WHIP1.65 11승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "정찬헌",
+      "name": "정찬헌",
+      "year": 2018,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 68,
+        "stamina": 58,
+        "stability": 64
+      },
+      "note": "",
+      "source": "66G 65IP ERA4.85 50K 24BB WHIP1.54 5승 27SV — KBO 기록실"
+    },
+    {
+      "personId": "김지용",
+      "name": "김지용",
+      "year": 2018,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 87,
+        "stamina": 54,
+        "stability": 61
+      },
+      "note": "",
+      "source": "48G 47IP ERA5.36 42K 9BB WHIP1.30 5승 1SV 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "진해수",
+      "name": "진해수",
+      "year": 2018,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 76,
+        "stamina": 54,
+        "stability": 45
+      },
+      "note": "",
+      "source": "66G 43 2/3IP ERA7.21 37K 13BB WHIP1.74 2승 14HLD — KBO 기록실"
+    },
+    {
+      "personId": "고우석",
+      "name": "고우석",
+      "year": 2018,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 52,
+        "stamina": 58,
+        "stability": 53
+      },
+      "note": "",
+      "source": "56G 67IP ERA5.91 44K 37BB WHIP1.58 3승 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "유강남",
+      "name": "유강남",
+      "year": 2018,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 73,
+        "speed": 40,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".296/.352 19HR 66타점 0SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "정상호",
+      "name": "정상호",
+      "year": 2018,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 47,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".223/.304 1HR 9타점 0SB 128PA — KBO 기록실"
+    },
+    {
+      "personId": "김용의",
+      "name": "김용의",
+      "year": 2018,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 40,
+        "speed": 62,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".233/.298 0HR 13타점 10SB 185PA — KBO 기록실"
+    },
+    {
+      "personId": "정주현",
+      "name": "정주현",
+      "year": 2018,
+      "team": "LG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 57,
+        "speed": 72,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".261/.324 6HR 31타점 18SB 339PA — KBO 기록실"
+    },
+    {
+      "personId": "양석환",
+      "name": "양석환",
+      "year": 2018,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 72,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".263/.303 22HR 82타점 2SB 519PA — KBO 기록실"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2018,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 59,
+        "speed": 62,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".278/.354 11HR 71타점 10SB 617PA — KBO 기록실"
+    },
+    {
+      "personId": "채은성",
+      "name": "채은성",
+      "year": 2018,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 76,
+        "speed": 48,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".331/.379 25HR 119타점 3SB 578PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2018,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 70,
+        "contact": 95,
+        "speed": 43,
+        "defense": 68
+      },
+      "note": "타격왕(.362)",
+      "source": ".362/.415 20HR 101타점 1SB 511PA — KBO 기록실"
+    },
+    {
+      "personId": "이형종",
+      "name": "이형종",
+      "year": 2018,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 64,
+        "speed": 55,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".316/.377 13HR 42타점 6SB 485PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2018,
+      "team": "LG",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 64,
+        "speed": 48,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".303/.362 15HR 76타점 3SB 583PA — KBO 기록실"
+    }
+  ]
+}

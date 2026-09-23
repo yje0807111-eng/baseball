@@ -1,0 +1,318 @@
+{
+  "id": "2018-doosan",
+  "kind": "team",
+  "year": 2018,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "정규 1위 · 김재환 MVP",
+  "blurb": "김재환이 44홈런 133타점으로 MVP에 오르고 후랭코프가 18승을 거뒀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "린드블럼",
+      "name": "린드블럼",
+      "year": 2018,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 80,
+        "control": 84,
+        "stamina": 85,
+        "stability": 89
+      },
+      "note": "",
+      "source": "26G 168 2/3IP ERA2.88 157K 38BB WHIP1.07 15승 — KBO 기록실"
+    },
+    {
+      "personId": "후랭코프",
+      "name": "후랭코프",
+      "year": 2018,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 68,
+        "stamina": 79,
+        "stability": 80
+      },
+      "note": "",
+      "source": "28G 149 1/3IP ERA3.74 134K 55BB WHIP1.16 18승 — KBO 기록실"
+    },
+    {
+      "personId": "이용찬",
+      "name": "이용찬",
+      "year": 2018,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 81,
+        "stamina": 78,
+        "stability": 81
+      },
+      "note": "15승",
+      "source": "25G 144IP ERA3.63 102K 36BB WHIP1.30 15승 — KBO 기록실"
+    },
+    {
+      "personId": "유희관",
+      "name": "유희관",
+      "year": 2018,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 76,
+        "stamina": 77,
+        "stability": 47
+      },
+      "note": "",
+      "source": "29G 141IP ERA6.70 81K 42BB WHIP1.70 10승 — KBO 기록실"
+    },
+    {
+      "personId": "함덕주",
+      "name": "함덕주",
+      "year": 2018,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 48,
+        "stamina": 55,
+        "stability": 88
+      },
+      "note": "27세이브",
+      "source": "62G 67IP ERA2.96 75K 37BB WHIP1.42 6승 27SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "이영하",
+      "name": "이영하",
+      "year": 2018,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 60,
+        "stamina": 60,
+        "stability": 59
+      },
+      "note": "",
+      "source": "40G 122 2/3IP ERA5.28 90K 54BB WHIP1.58 10승 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "박치국",
+      "name": "박치국",
+      "year": 2018,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 84,
+        "stamina": 58,
+        "stability": 81
+      },
+      "note": "",
+      "source": "67G 67IP ERA3.63 60K 15BB WHIP1.42 1승 3SV 17HLD — KBO 기록실"
+    },
+    {
+      "personId": "김강률",
+      "name": "김강률",
+      "year": 2018,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 74,
+        "stamina": 60,
+        "stability": 70
+      },
+      "note": "",
+      "source": "65G 76IP ERA4.62 81K 24BB WHIP1.26 5승 6SV 11HLD — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2018,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 74,
+        "contact": 94,
+        "speed": 57,
+        "defense": 92
+      },
+      "note": "타율 .358",
+      "source": ".358/.427 23HR 77타점 6SB 503PA — KBO 기록실"
+    },
+    {
+      "personId": "박세혁",
+      "name": "박세혁",
+      "year": 2018,
+      "team": "두산",
+      "position": "C",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 55,
+        "speed": 53,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".282/.356 3HR 22타점 5SB 194PA — KBO 기록실"
+    },
+    {
+      "personId": "오재일",
+      "name": "오재일",
+      "year": 2018,
+      "team": "두산",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 83,
+        "speed": 43,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".279/.373 27HR 80타점 1SB 477PA — KBO 기록실"
+    },
+    {
+      "personId": "오재원",
+      "name": "오재원",
+      "year": 2018,
+      "team": "두산",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 64,
+        "speed": 68,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".313/.369 15HR 81타점 15SB 521PA — KBO 기록실"
+    },
+    {
+      "personId": "허경민",
+      "name": "허경민",
+      "year": 2018,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 58,
+        "contact": 85,
+        "speed": 74,
+        "defense": 86
+      },
+      "note": "생애 첫 3루수 GG",
+      "source": ".324/.376 10HR 79타점 20SB 577PA — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2018,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 69,
+        "speed": 55,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".311/.390 16HR 75타점 6SB 467PA — KBO 기록실"
+    },
+    {
+      "personId": "김재환",
+      "name": "김재환",
+      "year": 2018,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 94,
+        "contact": 88,
+        "speed": 45,
+        "defense": 64
+      },
+      "note": "44홈런 홈런왕·MVP",
+      "source": ".334/.405 44HR 133타점 2SB 602PA — KBO 기록실"
+    },
+    {
+      "personId": "박건우",
+      "name": "박건우",
+      "year": 2018,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 60,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".326/.373 12HR 84타점 7SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "정진호",
+      "name": "정진호",
+      "year": 2018,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 45,
+        "speed": 58,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".301/.348 2HR 37타점 8SB 299PA — KBO 기록실"
+    },
+    {
+      "personId": "최주환",
+      "name": "최주환",
+      "year": 2018,
+      "team": "두산",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 77,
+        "speed": 43,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".333/.397 26HR 108타점 1SB 590PA — KBO 기록실"
+    }
+  ]
+}

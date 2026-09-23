@@ -1,0 +1,318 @@
+{
+  "id": "2018-samsung",
+  "kind": "team",
+  "year": 2018,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "러프의 125타점",
+  "blurb": "러프가 33홈런 125타점을 올리고 구자욱이 3할 중반을 쳤지만 삼성은 가을을 놓쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "아델만",
+      "name": "아델만",
+      "year": 2018,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 74,
+        "stamina": 85,
+        "stability": 65
+      },
+      "note": "",
+      "source": "31G 171IP ERA5.05 137K 54BB WHIP1.50 8승 — KBO 기록실"
+    },
+    {
+      "personId": "보니야",
+      "name": "보니야",
+      "year": 2018,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 75,
+        "control": 68,
+        "stamina": 84,
+        "stability": 59
+      },
+      "note": "",
+      "source": "29G 168IP ERA5.30 151K 63BB WHIP1.52 7승 — KBO 기록실"
+    },
+    {
+      "personId": "백정현",
+      "name": "백정현",
+      "year": 2018,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 77,
+        "stamina": 73,
+        "stability": 70
+      },
+      "note": "",
+      "source": "25G 125 2/3IP ERA4.58 99K 36BB WHIP1.42 7승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "윤성환",
+      "name": "윤성환",
+      "year": 2018,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 79,
+        "stamina": 71,
+        "stability": 45
+      },
+      "note": "",
+      "source": "24G 117 1/3IP ERA6.98 89K 32BB WHIP1.67 5승 — KBO 기록실"
+    },
+    {
+      "personId": "최충연",
+      "name": "최충연",
+      "year": 2018,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 75,
+        "stamina": 58,
+        "stability": 82
+      },
+      "note": "16홀드",
+      "source": "70G 85IP ERA3.60 101K 26BB WHIP1.16 2승 8SV 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "심창민",
+      "name": "심창민",
+      "year": 2018,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 72,
+        "stamina": 58,
+        "stability": 76
+      },
+      "note": "",
+      "source": "59G 66 1/3IP ERA4.07 68K 22BB WHIP1.19 5승 17SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "장필준",
+      "name": "장필준",
+      "year": 2018,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 90,
+        "control": 67,
+        "stamina": 58,
+        "stability": 73
+      },
+      "note": "",
+      "source": "61G 66 1/3IP ERA4.34 74K 25BB WHIP1.36 5승 6SV 13HLD — KBO 기록실"
+    },
+    {
+      "personId": "우규민",
+      "name": "우규민",
+      "year": 2018,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 86,
+        "stamina": 57,
+        "stability": 73
+      },
+      "note": "",
+      "source": "48G 58 2/3IP ERA4.30 48K 12BB WHIP1.40 4승 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "강민호",
+      "name": "강민호",
+      "year": 2018,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 76,
+        "speed": 40,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".269/.331 22HR 71타점 0SB 477PA — KBO 기록실"
+    },
+    {
+      "personId": "이지영",
+      "name": "이지영",
+      "year": 2018,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 91,
+        "power": 49,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".343/.406 2HR 19타점 0SB 203PA — KBO 기록실"
+    },
+    {
+      "personId": "러프",
+      "name": "러프",
+      "year": 2018,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 87,
+        "power": 84,
+        "speed": 53,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".330/.419 33HR 125타점 5SB 597PA — KBO 기록실"
+    },
+    {
+      "personId": "손주인",
+      "name": "손주인",
+      "year": 2018,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 53,
+        "speed": 48,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".238/.282 4HR 28타점 3SB 297PA — KBO 기록실"
+    },
+    {
+      "personId": "이원석",
+      "name": "이원석",
+      "year": 2018,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 70,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".301/.374 20HR 93타점 2SB 543PA — KBO 기록실"
+    },
+    {
+      "personId": "김상수",
+      "name": "김상수",
+      "year": 2018,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 59,
+        "speed": 64,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".263/.314 10HR 50타점 12SB 499PA — KBO 기록실"
+    },
+    {
+      "personId": "박해민",
+      "name": "박해민",
+      "year": 2018,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 56,
+        "contact": 78,
+        "speed": 88,
+        "defense": 94
+      },
+      "note": "36도루",
+      "source": ".299/.360 9HR 68타점 36SB 649PA — KBO 기록실"
+    },
+    {
+      "personId": "김헌곤",
+      "name": "김헌곤",
+      "year": 2018,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 59,
+        "speed": 76,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".300/.375 11HR 71타점 22SB 586PA — KBO 기록실"
+    },
+    {
+      "personId": "구자욱",
+      "name": "구자욱",
+      "year": 2018,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 88,
+        "power": 70,
+        "speed": 62,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".333/.392 20HR 84타점 10SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "박한이",
+      "name": "박한이",
+      "year": 2018,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 63,
+        "speed": 53,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".284/.363 10HR 43타점 5SB 392PA — KBO 기록실"
+    }
+  ]
+}

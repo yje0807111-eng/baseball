@@ -1,0 +1,318 @@
+{
+  "id": "2012-kia",
+  "kind": "team",
+  "year": 2012,
+  "title": "KIA 타이거즈",
+  "franchise": "KIA",
+  "subtitle": "앤서니의 11승",
+  "blurb": "앤서니가 11승을 올리고 김원섭이 3할을 쳤지만 KIA는 가을 문턱에서 멈췄다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "앤서니",
+      "name": "앤서니",
+      "year": 2012,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 62,
+        "control": 66,
+        "stamina": 86,
+        "stability": 76
+      },
+      "note": "",
+      "source": "32G 171 2/3IP ERA3.83 94K 67BB WHIP1.40 11승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "서재응",
+      "name": "서재응",
+      "year": 2012,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 74,
+        "stamina": 82,
+        "stability": 89
+      },
+      "note": "",
+      "source": "29G 160IP ERA2.59 97K 51BB WHIP1.21 9승 — KBO 기록실"
+    },
+    {
+      "personId": "윤석민(투수)",
+      "name": "윤석민",
+      "year": 2012,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 85,
+        "stamina": 80,
+        "stability": 84
+      },
+      "note": "",
+      "source": "28G 153IP ERA3.12 137K 33BB WHIP1.00 9승 — KBO 기록실"
+    },
+    {
+      "personId": "소사",
+      "name": "소사",
+      "year": 2012,
+      "team": "KIA",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 69,
+        "control": 79,
+        "stamina": 79,
+        "stability": 80
+      },
+      "note": "",
+      "source": "23G 147 1/3IP ERA3.54 104K 39BB WHIP1.19 9승 — KBO 기록실"
+    },
+    {
+      "personId": "박지훈",
+      "name": "박지훈",
+      "year": 2012,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 57,
+        "stamina": 57,
+        "stability": 81
+      },
+      "note": "",
+      "source": "50G 61 1/3IP ERA3.38 37K 30BB WHIP1.39 3승 2SV 10HLD — KBO 기록실"
+    },
+    {
+      "personId": "홍성민",
+      "name": "홍성민",
+      "year": 2012,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 60,
+        "stamina": 56,
+        "stability": 78
+      },
+      "note": "",
+      "source": "48G 56IP ERA3.38 32K 25BB WHIP1.54 1SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "유동훈",
+      "name": "유동훈",
+      "year": 2012,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 76,
+        "stamina": 52,
+        "stability": 59
+      },
+      "note": "",
+      "source": "43G 34IP ERA5.29 29K 10BB WHIP1.26 1승 6SV 5HLD — KBO 기록실"
+    },
+    {
+      "personId": "진해수",
+      "name": "진해수",
+      "year": 2012,
+      "team": "KIA",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 59,
+        "stamina": 53,
+        "stability": 56
+      },
+      "note": "",
+      "source": "56G 41IP ERA5.27 24K 19BB WHIP1.63 1승 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "차일목",
+      "name": "차일목",
+      "year": 2012,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 40,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".256/.353 0HR 15타점 2SB 251PA — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 2012,
+      "team": "KIA",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 51,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".172/.262 2HR 20타점 0SB 192PA — KBO 기록실"
+    },
+    {
+      "personId": "최희섭",
+      "name": "최희섭",
+      "year": 2012,
+      "team": "KIA",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 63,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".252/.379 7HR 42타점 1SB 301PA — KBO 기록실"
+    },
+    {
+      "personId": "안치홍",
+      "name": "안치홍",
+      "year": 2012,
+      "team": "KIA",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 46,
+        "speed": 76,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".288/.347 3HR 64타점 20SB 558PA — KBO 기록실"
+    },
+    {
+      "personId": "박기남",
+      "name": "박기남",
+      "year": 2012,
+      "team": "KIA",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 48,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".253/.341 2HR 25타점 1SB 274PA — KBO 기록실"
+    },
+    {
+      "personId": "김선빈",
+      "name": "김선빈",
+      "year": 2012,
+      "team": "KIA",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 50,
+        "speed": 84,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".281/.363 5HR 55타점 30SB 532PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2012,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 44,
+        "speed": 92,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".283/.377 2HR 37타점 44SB 580PA — KBO 기록실"
+    },
+    {
+      "personId": "나지완",
+      "name": "나지완",
+      "year": 2012,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 63,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".274/.377 11HR 56타점 7SB 480PA — KBO 기록실"
+    },
+    {
+      "personId": "김원섭",
+      "name": "김원섭",
+      "year": 2012,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 47,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".303/.409 3HR 61타점 8SB 472PA — KBO 기록실"
+    },
+    {
+      "personId": "이준호",
+      "name": "이준호",
+      "year": 2012,
+      "team": "KIA",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 55,
+        "power": 40,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".227/.303 0HR 21타점 4SB 295PA — KBO 기록실"
+    }
+  ]
+}

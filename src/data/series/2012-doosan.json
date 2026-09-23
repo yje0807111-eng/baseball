@@ -1,0 +1,318 @@
+{
+  "id": "2012-doosan",
+  "kind": "team",
+  "year": 2012,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "노경은의 평균자책 2.53",
+  "blurb": "노경은이 평균자책 2.53으로 던지고 김현수가 타선을 이끌며 두산이 가을에 올랐다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "니퍼트",
+      "name": "니퍼트",
+      "year": 2012,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 66,
+        "control": 70,
+        "stamina": 92,
+        "stability": 83
+      },
+      "note": "",
+      "source": "29G 194IP ERA3.20 126K 68BB WHIP1.15 11승 — KBO 기록실"
+    },
+    {
+      "personId": "김선우",
+      "name": "김선우",
+      "year": 2012,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 81,
+        "stamina": 83,
+        "stability": 68
+      },
+      "note": "",
+      "source": "28G 163 1/3IP ERA4.52 63K 41BB WHIP1.37 6승 — KBO 기록실"
+    },
+    {
+      "personId": "이용찬",
+      "name": "이용찬",
+      "year": 2012,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 66,
+        "stamina": 83,
+        "stability": 85
+      },
+      "note": "",
+      "source": "26G 162IP ERA3.00 113K 63BB WHIP1.34 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김승회",
+      "name": "김승회",
+      "year": 2012,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 74,
+        "stamina": 71,
+        "stability": 74
+      },
+      "note": "",
+      "source": "24G 120 1/3IP ERA4.04 62K 38BB WHIP1.22 6승 — KBO 기록실"
+    },
+    {
+      "personId": "노경은",
+      "name": "노경은",
+      "year": 2012,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 79,
+        "control": 58,
+        "stamina": 60,
+        "stability": 90
+      },
+      "note": "",
+      "source": "42G 146IP ERA2.53 133K 69BB WHIP1.20 12승 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "프록터",
+      "name": "프록터",
+      "year": 2012,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 79,
+        "control": 65,
+        "stamina": 52,
+        "stability": 95
+      },
+      "note": "35세이브·외국인 최다",
+      "source": "57G 55 1/3IP ERA1.79 46K 21BB WHIP1.16 4승 35SV — KBO 기록실"
+    },
+    {
+      "personId": "홍상삼",
+      "name": "홍상삼",
+      "year": 2012,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 91,
+        "control": 60,
+        "stamina": 58,
+        "stability": 97
+      },
+      "note": "",
+      "source": "53G 65 1/3IP ERA1.93 69K 29BB WHIP0.98 5승 1SV 22HLD — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 2012,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 53,
+        "stamina": 53,
+        "stability": 42
+      },
+      "note": "",
+      "source": "48G 38 2/3IP ERA7.45 25K 21BB WHIP1.63 1승 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2012,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 53,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".279/.361 5HR 27타점 1SB 416PA — KBO 기록실"
+    },
+    {
+      "personId": "최재훈",
+      "name": "최재훈",
+      "year": 2012,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 48,
+        "power": 49,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".209/.270 1HR 8타점 0SB 104PA — KBO 기록실"
+    },
+    {
+      "personId": "윤석민",
+      "name": "윤석민",
+      "year": 2012,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 69,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".291/.328 10HR 48타점 2SB 320PA — KBO 기록실"
+    },
+    {
+      "personId": "최주환",
+      "name": "최주환",
+      "year": 2012,
+      "team": "두산",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 70,
+        "power": 49,
+        "speed": 52,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".271/.336 2HR 22타점 4SB 238PA — KBO 기록실"
+    },
+    {
+      "personId": "이원석",
+      "name": "이원석",
+      "year": 2012,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 62,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".268/.337 8HR 42타점 1SB 372PA — KBO 기록실"
+    },
+    {
+      "personId": "손시헌",
+      "name": "손시헌",
+      "year": 2012,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 58,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".246/.306 5HR 31타점 4SB 312PA — KBO 기록실"
+    },
+    {
+      "personId": "이종욱",
+      "name": "이종욱",
+      "year": 2012,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 40,
+        "speed": 77,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".240/.309 0HR 39타점 21SB 497PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2012,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 56,
+        "speed": 57,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291/.358 7HR 65타점 6SB 491PA — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2012,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 40,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".235/.281 0HR 32타점 24SB 357PA — KBO 기록실"
+    },
+    {
+      "personId": "최준석",
+      "name": "최준석",
+      "year": 2012,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 62,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".250/.322 6HR 30타점 1SB 278PA — KBO 기록실"
+    }
+  ]
+}
