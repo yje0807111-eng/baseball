@@ -66,7 +66,6 @@ export default function RecordScreen({ account, onBack }) {
     d: rows.filter((h) => h.winner !== 'my' && h.winner !== 'opp').length,
   });
   const all = tally(history);
-  const cur = tally(list);
   const runs = list.reduce((s, h) => s + (h.myRuns || 0), 0);
   const given = list.reduce((s, h) => s + (h.oppRuns || 0), 0);
   const avg = (v) => (list.length ? (v / list.length).toFixed(1) : '—');
@@ -85,7 +84,7 @@ export default function RecordScreen({ account, onBack }) {
 
         <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); }} a="#7dd3fc" label="Mode">
           <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
-            <p className="text-[11px] text-gray-400">통산 전적</p>
+            <p className="flex items-baseline justify-between text-[11px] text-gray-400">통산 전적<b className="font-display text-[13px] text-gray-300">{history.length}경기</b></p>
             <b className="font-display text-2xl text-white">{all.w}승 {all.d}무 {all.l}패</b>
             <p className="mt-1 text-[11px] text-gray-500">승률 {rate == null ? '—' : `${rate}%`}{sum.streak > 1 ? ` · ${sum.streak}연승 중` : ''}</p>
           </div>
@@ -113,7 +112,6 @@ export default function RecordScreen({ account, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': n }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': n }}>Games</p>
-            <p className="text-sm text-gray-400">{list.length}경기 · {cur.w}승 {cur.d}무 {cur.l}패</p>
             <p className="ml-auto text-sm text-gray-400">평균 득점 <b className="font-display text-base text-white">{avg(runs)}</b> · 실점 <b className="font-display text-base text-white">{avg(given)}</b></p>
           </div>
           <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
