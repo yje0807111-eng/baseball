@@ -8,7 +8,7 @@
 
 export const SQUAD_SIZE = 26; // 출전 가능 인원
 export const FOREIGN_MAX = 3; // 외국인 선수 한도
-export const SQUAD_CAP = 2000; // 샐러리 캡(CP)
+export const SQUAD_CAP = 2330; // 샐러리 캡(CP) — 26명 × 약 78 + 코치진
 
 /** 포지션 구성: 최소~최대. 합이 26이 되도록 뽑는다 */
 export const POS_RULES = [
