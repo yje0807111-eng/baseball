@@ -16,7 +16,7 @@ import {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
-const SB_W = 224;
+const SB_W = 272;
 const SB_PAPER = 'rgba(199,206,217,.95)'; // 중계 자막처럼 밝지만 눈이 편한 회색 판
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
@@ -493,31 +493,31 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
               const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽
               return (
-                <div key={t.name} className="relative flex items-center gap-2.5 overflow-hidden px-3" style={{ height: 44, background: flag?.color || color }}>
+                <div key={t.name} className="relative flex items-center gap-2.5 overflow-hidden px-3" style={{ height: 52, background: flag?.color || color }}>
                   {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.32, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
                   <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(0,0,0,.18),transparent 45%)' }} />
-                  <b className="relative truncate text-[17px] font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)' }}>{shortTeam(t.name, mine)}</b>
-                  {atBat && !g.final && <span className="relative font-display text-[11px] font-extrabold tracking-[0.18em] text-white/85">AT BAT</span>}
-                  <b className="relative ml-auto font-display text-[28px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)' }}>{side.runs}</b>
+                  <b className="relative truncate text-[22px] font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)' }}>{shortTeam(t.name, mine)}</b>
+                  {atBat && !g.final && <span className="relative font-display text-[12px] font-extrabold tracking-[0.18em] text-white/85">AT BAT</span>}
+                  <b className="relative ml-auto font-display text-[34px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)' }}>{side.runs}</b>
                 </div>
               );
             })}
             <div className="flex items-stretch" style={{ background: SB_PAPER }}>
-              <span className="grid shrink-0 place-items-center px-2.5" style={{ background: 'rgba(255,255,255,.45)' }}>
+              <span className="grid shrink-0 place-items-center px-3" style={{ background: 'rgba(255,255,255,.45)' }}>
                 {g.final ? (
                   <b className="font-display text-[13px] font-extrabold" style={{ color: '#0b1220' }}>END</b>
                 ) : (
-                  <b className="font-display text-[18px] font-extrabold leading-none" style={{ color: '#0b1220' }}>
+                  <b className="font-display text-[21px] font-extrabold leading-none" style={{ color: '#0b1220' }}>
                     <i className="mr-0.5 not-italic text-[#dc2626]">{g.top ? '▲' : '▼'}</i>{g.inning}
                   </b>
                 )}
               </span>
               <span className="w-px shrink-0 bg-black/20" />
               <span className="grid flex-1 place-items-center py-1">
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={12} font={12} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={14} font={13} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
               <span className="w-px shrink-0 bg-black/20" />
-              <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={56} note={def.pitches} /></span>
+              <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={70} note={def.pitches} /></span>
             </div>
           </div>
         </div>
