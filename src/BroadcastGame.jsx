@@ -45,10 +45,8 @@ function todayKo(g, batter) {
   if (k) return '삼진';
   return '무안타';
 }
-/** 성적 글자색 — 장타는 밝게, 못 친 날은 흐리게 */
-const koColor = (ko) => (/홈런|루타/.test(ko) ? '#fde047' : /안타/.test(ko) && !/무/.test(ko) ? '#a7f3d0' : /볼넷/.test(ko) ? '#93c5fd' : 'rgba(255,255,255,.45)');
-/** 타순 줄 종합 색 — 카드와 같은 눈금 */
-const rdTone2 = (o) => (o >= 88 ? '#fde047' : o >= 82 ? '#34d399' : o >= 76 ? '#7dd3fc' : '#94a3b8');
+/** 밝은 판 위 성적 글자색 — 장타는 진한 금, 안타는 초록, 볼넷은 파랑, 못 친 날은 흐리게 */
+const koPaper = (ko) => (/홈런|루타/.test(ko) ? '#a16207' : /안타/.test(ko) && !/무/.test(ko) ? '#047857' : /볼넷/.test(ko) ? '#1d4ed8' : 'rgba(11,18,32,.45)');
 
 /** 지금 던지는 투수의 오늘 기록 */
 function pitcherLine(g, pitcher) {
@@ -449,6 +447,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
   const off = offenseOf(g);
   const def = defenseOf(g);
+  const offFlag = g.top ? teamFlag(away.name) : flagByKey(myBanner()); // 공격 팀 색
   const pitcher = pitcherOf(g);
   const myIsHome = true;
   const cMy = '#34d399';
@@ -509,8 +508,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
 
         {/* 왼쪽 위: 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
-        <div className="relative z-10 col-start-1 row-start-2 self-start">
-          <div className="mt-cut overflow-hidden" style={{ '--c': '12px', width: SB_W, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
+        <div className="relative z-10 col-start-1 row-start-2 flex flex-col gap-2 self-start" style={{ width: SB_W, filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
+          <div className="mt-cut overflow-hidden" style={{ '--c': '12px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)' }}>
             {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine]) => {
               const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
               const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽
@@ -542,32 +541,33 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={70} note={def.pitches} /></span>
             </div>
           </div>
+            {/* 타순 — 지금 공격하는 팀만. 머리에는 그 팀 색, 몸은 스코어보드 아래와 같은 밝은 판 */}
+            <div className="mt-cut overflow-hidden" style={{ '--c': '12px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)' }}>
+              <div className="flex items-center gap-2 px-3 py-1" style={{ background: offFlag?.color || battingColor }}>
+                <b className="truncate text-[13px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.5)' }}>{shortTeam(off.team.name, !g.top)} 공격</b>
+                <span className="ml-auto font-display text-[10.5px] tracking-[0.2em] text-white/75">ORDER</span>
+              </div>
+              <div className="px-2 py-1" style={{ background: SB_PAPER }}>
+                {off.team.batters.map((p, i) => {
+                  const at = i === off.idx % off.team.batters.length;
+                  const on = g.bases.findIndex((r) => r === p);
+                  const wait = !at && on < 0;
+                  const ko = todayKo(g, p);
+                  return (
+                    <div key={p.id || p.name} className={`flex items-center gap-2 px-1.5 ${i ? 'border-t border-black/10' : ''}`}
+                      style={{ height: at ? 40 : 27, opacity: wait ? 0.5 : 1 }}>
+                      <b className="w-3.5 shrink-0 font-display text-[12px]" style={{ color: 'rgba(11,18,32,.45)' }}>{i + 1}</b>
+                      <b className="truncate" style={{ color: '#0b1220', fontSize: at ? 16 : 13, fontWeight: at ? 900 : 700 }}>{p.name}</b>
+                      {on >= 0 && <span className="inline-block shrink-0" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} />}
+                      <span className="ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koPaper(ko) }}>{ko}</span>
+                      <b className="w-7 shrink-0 text-right font-display" style={{ fontSize: at ? 17 : 13, color: '#0b1220' }}>{p.overall}</b>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
         </div>
 
-        {/* 오른쪽: 공격 팀 타순 — 타석은 크게, 나가 있는 선수는 색이 남고, 대기는 흐리게 */}
-        <div className="col-start-3 row-start-2">
-          <div className="mt-cut mt-frame mt-glass p-3" style={{ '--c': '16px', '--a': battingColor }}>
-            <p className="mt-lab mb-2" style={{ '--a': battingColor }}>Batting Order</p>
-            <div className="flex flex-col">
-              {off.team.batters.map((p, i) => {
-                const at = i === off.idx % off.team.batters.length;
-                const on = g.bases.findIndex((r) => r === p); // 나가 있으면 그 베이스
-                const wait = !at && on < 0;
-                const ko = todayKo(g, p);
-                return (
-                  <div key={p.id || p.name} className={`flex items-center gap-2 px-1.5 ${i ? 'border-t border-white/[0.07]' : ''}`}
-                    style={{ height: at ? 44 : 29, opacity: wait ? 0.42 : 1 }}>
-                    <b className="w-3.5 shrink-0 font-display text-[12px] text-gray-500">{i + 1}</b>
-                    <b className={`truncate text-white ${at ? 'text-[17px]' : 'text-[13.5px]'}`}>{p.name}</b>
-                    {on >= 0 && <span className="inline-block shrink-0" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} />}
-                    <span className="ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koColor(ko) }}>{ko}</span>
-                    <b className={`w-7 shrink-0 text-right font-display ${at ? 'text-[18px]' : 'text-[13px]'}`} style={{ color: rdTone2(p.overall) }}>{p.overall}</b>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
         {/* 결과 자막 */}
         {flash && (
