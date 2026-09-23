@@ -151,7 +151,7 @@ const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => 
         fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
     {note != null && (
-      <text x="50" y="97" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
+      <text x="50" y="94" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
     )}
   </svg>
 );
@@ -517,12 +517,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center px-3.5">
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={5} rowGap={7} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
+              <span className="grid place-items-center" style={{ width: 92 }}>
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={4} rowGap={5} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
               {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
-              <span className="grid place-items-center border-l border-black/20 px-2.5">
-                <Diamond bases={g.bases} size={70} note={def.pitches} />
+              <span className="grid place-items-center border-l border-black/20" style={{ width: 92 }}>
+                <Diamond bases={g.bases} size={72} note={def.pitches} />
               </span>
             </div>
           </div>
