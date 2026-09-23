@@ -156,9 +156,9 @@ const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => 
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)', lab = '' }) => (
-  <div className="grid items-center font-display text-[11px] font-extrabold"
-    style={{ gridTemplateColumns: `${label ? 11 : 0}px repeat(3, ${dot}px)`, gap: 4, rowGap: 3 }}>
+const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
+  <div className="grid items-center font-display font-extrabold"
+    style={{ gridTemplateColumns: `${label ? font + 2 : 0}px repeat(3, ${dot}px)`, gap, rowGap, fontSize: font }}>
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-emerald-400'}`} style={{ height: dot }}>B</span> : <span />}
     {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#16a34a' : off }} />)}
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-yellow-300'}`} style={{ height: dot }}>S</span> : <span />}
@@ -495,8 +495,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 {g.final ? (
                   <b className="font-display text-[12px] font-extrabold tracking-[0.06em]">END</b>
                 ) : (
-                  <b className="text-center font-display text-[24px] font-extrabold leading-none">
-                    <i className="mb-0.5 block text-[11px] leading-none not-italic">{g.top ? '▲' : '▼'}</i>{g.inning}
+                  <b className="text-center font-display text-[24px] font-extrabold leading-none text-[#0b1220]">
+                    <i className="mb-0.5 block text-[11px] leading-none not-italic text-[#dc2626]">{g.top ? '▲' : '▼'}</i>{g.inning}
                   </b>
                 )}
               </span>
@@ -506,8 +506,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const c = flag?.color || color;
                   return (
                     <div key={t.name} className="relative flex items-stretch" style={{ height: 37 }}>
-                      <span className="relative flex flex-1 items-center gap-2.5 overflow-hidden px-3" style={{ background: c }}>
-                        {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                      <span className="relative flex flex-1 items-center justify-center overflow-hidden px-2" style={{ background: c }}>
+                        {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
                         <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.55)' }}>{shortTeam(t.name, mine)}</b>
                       </span>
                       <span className="grid w-12 shrink-0 place-items-center border-l border-black/20 font-display text-[26px] font-extrabold leading-none text-[#0b1220]">{side.runs}</span>
@@ -517,8 +517,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center px-3">
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={10} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/60" />
+              <span className="grid place-items-center px-3.5">
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={5} rowGap={7} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
               {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
               <span className="grid place-items-center border-l border-black/20 px-2.5">
