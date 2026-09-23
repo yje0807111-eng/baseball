@@ -1,26 +1,34 @@
 /* 앱 입구: 로그인 → 메인 로비 → 라커 / 상점 / 경기 / 추가 모드 */
-import React, { useState } from 'react';
-import KboAugmentDraft from './KboAugmentDraft.jsx';
+import React, { useState, lazy, Suspense } from 'react';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
-import LockerScreen from './myteam/LockerScreen.jsx';
-import ShopScreen from './myteam/ShopScreen.jsx';
-import RecordScreen from './myteam/RecordScreen.jsx';
-import AugmentScreen from './myteam/AugmentScreen.jsx';
-import BroadcastGame from './BroadcastGame.jsx';
+
+/* 로그인·로비 말고는 그 화면에 들어갈 때 받아 온다 — 한 덩어리로 실으면
+   첫 화면이 뜨기까지 시즌 로스터 412개까지 다 받아야 한다 */
+const KboAugmentDraft = lazy(() => import('./KboAugmentDraft.jsx'));
+const LockerScreen = lazy(() => import('./myteam/LockerScreen.jsx'));
+const ShopScreen = lazy(() => import('./myteam/ShopScreen.jsx'));
+const RecordScreen = lazy(() => import('./myteam/RecordScreen.jsx'));
+const AugmentScreen = lazy(() => import('./myteam/AugmentScreen.jsx'));
+const BroadcastGame = lazy(() => import('./BroadcastGame.jsx'));
 import { tickBoosts } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload } from './myteam/store.js';
 import { loadAccount, signOut } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
-import TournamentBracket from './myteam/TournamentBracket.jsx';
-import RankedHub from './myteam/RankedHub.jsx';
-import PrepScreen from './myteam/PrepScreen.jsx';
+const TournamentBracket = lazy(() => import('./myteam/TournamentBracket.jsx'));
+const RankedHub = lazy(() => import('./myteam/RankedHub.jsx'));
+const PrepScreen = lazy(() => import('./myteam/PrepScreen.jsx'));
 import { prepOf, matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
 import { randomSeriesTeam } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
+
+/** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
+const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
+/** lazy 화면은 Suspense 로 감싸야 한다 */
+const screen = (node) => <Suspense fallback={<Loading />}>{node}</Suspense>;
 
 export default function App() {
   const [account, setAccount] = useState(() => loadAccount());
@@ -126,32 +134,32 @@ export default function App() {
 
   if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
   if (view === 'modes') {
-    return (
+    return screen(
       <KboAugmentDraft onExit={() => { setPlayTab(null); setView('lobby'); }} normalView={playTab} onNormalView={setPlayTab}
         normal={[
           normalPanels({ account, format, onFormat: setFormat, onPlay: openDuel, onTourney: openTourney, onLocker: () => setView('locker') }),
           rankedPanels({ account, onOpen: openRanked, onLocker: () => setView('locker') }),
-        ]} />
+        ]} />,
     );
   }
-  if (view === 'augments') return <AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />;
-  if (view === 'locker') return <LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />;
-  if (view === 'record') return <RecordScreen account={account} onBack={() => setView('lobby')} />;
-  if (view === 'shop') return <ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />;
+  if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
+  if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team) => setAccount((a) => ({ ...a, team }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
+  if (view === 'record') return screen(<RecordScreen account={account} onBack={() => setView('lobby')} />);
+  if (view === 'shop') return screen(<ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
   if (view === 'bracket' && tournament) {
-    return <TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
-      onRestart={() => openTourney(tournament.size, true)} />;
+    return screen(<TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
+      onRestart={() => openTourney(tournament.size, true)} />);
   }
   if (view === 'ranked' && season) {
-    return <RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />;
+    return screen(<RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />);
   }
   if (view === 'prep' && prep) {
-    return <PrepScreen team={account.team} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} onStart={startFromPrep} onBack={prep.back}
-      backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} />;
+    return screen(<PrepScreen team={account.team} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} onStart={startFromPrep} onBack={prep.back}
+      backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} />);
   }
   if (view === 'play' && match) {
-    return <BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch}
-      onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} />;
+    return screen(<BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch}
+      onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} />);
   }
 
   return (

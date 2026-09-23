@@ -7,7 +7,7 @@
  *  운영: 샐러리 캡 확장 등 팀 단위
  *  감독 계약: 감독을 CP 없이 선임
  */
-import { overallOf } from '../data/seriesPlayers.js';
+import { overallOf } from '../data/ratings.js';
 import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX } from './rules.js';
 
 export const CATEGORIES = [
