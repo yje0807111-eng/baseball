@@ -795,7 +795,7 @@ export const AUGMENTS = [
     apply: (c) => {
       const d = c.score.opp - c.score.my;
       const hero = c.my.topBatter('speed');
-      return { runs: d + 1, hero, text: `${hero.name}, 전력 질주로 홈 쇄도! ${d + 1}점 확정, 경기를 뒤집습니다` };
+      return { runs: d + 1, hero, text: `${hero.name}, 전력 질주로 홈 쇄도 · ${d + 1}점 확정으로 역전` };
     },
   },
   {
@@ -3501,7 +3501,7 @@ export function SynergyTip({ s, after, candidate, top = 0, up = false, left = 0 
   return (
     <div ref={ref} className={`sd-tip sy${synTier(s)} ${up ? 'up' : ''}`} style={up ? { left: x } : { top: y }} role="tooltip">
       <div className="sd-th"><SynIcon id={s.id} /><b>{s.name}</b></div>
-      <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 함께 모이면 이 선수들의 능력치가 오릅니다.' : '라인업에 많을수록 이 선수들이 강해집니다.'}</p>
+      <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 함께 모이면 이 선수들의 능력치 상승' : '라인업에 많을수록 이 선수들이 강해집니다.'}</p>
       <ul>{s.tiers.map((t, k) => <li key={t.need} className={k < s.level ? 'ok' : k === s.level ? 'nx' : ''}><span className="font-display">({t.need})</span>{t.effect}</li>)}</ul>
       <div className="sd-pfs">{synPeople(s, after, candidate).slice(0, 12).map((p) => <SynFace key={p.key} p={p} />)}</div>
     </div>
@@ -5264,7 +5264,7 @@ const RL_REFUND_EX = { cost: 95 };
 const RULE_TABS = [
   { id: 'entry', label: '엔트리',
     icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
-    lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 한 팀을 만듭니다. 필드 14자리는 포지션마다, 예비 {BENCH_SIZE}자리는 포지션을 가리지 않고 채웁니다.</>,
+    lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 꾸리는 한 팀 · 필드 14자리는 포지션마다, 예비 {BENCH_SIZE}자리는 포지션 상관없음</>,
     groups: [
       { t: '어떤 자리를 채우나요?', s: `투수 5 · 야수 9 · 예비 ${BENCH_SIZE}, 모두 ${ROSTER_SIZE}자리`, b: <>
         <div className="rl-slots">
@@ -5274,37 +5274,37 @@ const RULE_TABS = [
           <div><span>지명<i>1</i></span><span className="rl-chips"><span className="rl-chip g">지명타자 · 야수 누구나</span></span></div>
           <div><span>예비<i>{BENCH_SIZE}</i></span><span className="rl-chips"><span className="rl-chip g">포지션 상관없음 · 경기에는 나서지 않고 시너지에만 보탬</span></span></div>
         </div>
-        <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시됩니다.</p>
+        <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시</p>
       </> },
       { t: '외국인 선수는 몇 명까지 되나요?', s: `최대 ${FOREIGN_LIMIT}명`, b: <>
-        <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠깁니다.</p>
-        <p>한 명을 방출하면 다시 뽑을 수 있습니다.</p>
+        <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠김</p>
+        <p>한 명을 방출하면 다시 뽑기 가능</p>
       </> },
       { t: '같은 선수를 또 뽑을 수 있나요?', s: '시즌이 달라도 한 사람은 한 번만', b: <>
         <div className="rl-yn">
-          <div className="y"><span><b>2006 류현진</b>을 영입합니다.</span></div>
-          <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠깁니다.</span></div>
+          <div className="y"><span><b>2006 류현진</b> 영입</span></div>
+          <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠김</span></div>
         </div>
       </> },
     ] },
   { id: 'draft', label: '드래프트',
     icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
-    lead: <><b>{ROSTER_SIZE}라운드</b> 동안 라운드마다 한 명씩 영입합니다. 정해진 CP 안에서 스타와 가성비 선수를 섞는 것이 핵심입니다.</>,
+    lead: <><b>{ROSTER_SIZE}라운드</b> · 라운드마다 한 명씩 영입 · 정해진 CP 안에서 스타와 가성비 섞기</>,
     groups: [
       { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈 열기 · 고르기 · 영입', b: <>
         <div className="rl-steps">
-          <div><span>시리즈 하나가 열립니다. 구단의 한 시즌, 국가대표, 레전드 중 하나입니다.</span></div>
-          <div><span>선수 카드를 누르면 <b>PICK</b>에 올라 능력치와 영입가를 볼 수 있습니다.</span></div>
-          <div><span><b>영입</b>을 누르면 내 라인업에 들어가고 다음 라운드로 넘어갑니다.</span></div>
+          <div><span>시리즈 하나 열림 — 구단의 한 시즌 · 국가대표 · 레전드 중 하나</span></div>
+          <div><span>선수 카드를 누르면 <b>PICK</b>에 올라 능력치와 영입가 확인</span></div>
+          <div><span><b>영입</b>을 누르면 라인업에 들어가고 다음 라운드로</span></div>
         </div>
-        <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈를 엽니다. 드래프트마다 {START_REROLLS}번 쓸 수 있습니다.</span></div>
+        <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈 · 드래프트마다 {START_REROLLS}번</span></div>
       </> },
-      { t: 'CP는 얼마나 쓸 수 있나요?', s: '모드 화면에서 정한 샐러리 캡만큼 씁니다.', b: <>
-        <p>샐러리 캡은 <span className="rl-chip">700</span> <span className="rl-chip g">800</span> <span className="rl-chip">900</span> CP 중에서 고릅니다.</p>
-        <p>영입할 때마다 영입가만큼 줄어들고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠깁니다.</p>
-        <div className="rl-tip"><span>PICK에 선수를 올리면 위쪽 캡 막대에 쓰일 CP가 미리 표시됩니다.</span></div>
+      { t: 'CP는 얼마나 쓸 수 있나요?', s: '모드 화면에서 정한 샐러리 캡만큼', b: <>
+        <p>샐러리 캡은 <span className="rl-chip">700</span> <span className="rl-chip g">800</span> <span className="rl-chip">900</span> CP 중 하나</p>
+        <p>영입할 때마다 영입가만큼 줄고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠김</p>
+        <div className="rl-tip"><span>PICK에 선수를 올리면 위쪽 캡 막대에 쓰일 CP 미리 표시</span></div>
       </> },
-      { t: '영입가는 어떻게 정해지나요?', s: '종합이 높을수록 점수보다 더 비싸집니다.', b: <>
+      { t: '영입가는 어떻게 정해지나요?', s: '종합이 높을수록 점수보다 비쌈', b: <>
         <div className="rl-tbl">
           <span className="h">종합</span><span className="h">영입가</span><span className="h">차이</span>
           {[95, 90, 80, 65].map((o) => {
@@ -5312,52 +5312,52 @@ const RULE_TABS = [
             return (
               <React.Fragment key={o}>
                 <span className="n">{o}</span><span className="n">{costOf(o)}</span>
-                <span className={d > 0 ? 'up' : d < 0 ? 'dn' : ''}>{d > 0 ? `${d} CP 더 비쌉니다` : d < 0 ? `${-d} CP 더 쌉니다` : '점수와 같습니다'}</span>
+                <span className={d > 0 ? 'up' : d < 0 ? 'dn' : ''}>{d > 0 ? `${d} CP 비쌈` : d < 0 ? `${-d} CP 쌈` : '점수와 같음'}</span>
               </React.Fragment>
             );
           })}
         </div>
-        <p><b>72~84</b>는 종합과 같은 값이고, <b>85 이상</b>은 비싸지며 <b>71 이하</b>는 쌉니다.</p>
+        <p><b>72~84</b>는 종합과 같은 값 · <b>85 이상</b>은 비싸고 <b>71 이하</b>는 쌈</p>
       </> },
-      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 70)가 채웁니다.', b: <>
-        <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없으면</b> 끝납니다.</p>
-        <p>이때 비어 있는 자리는 모두 종합 70의 퓨처스 유망주로 채워집니다.</p>
-        <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리를 유망주로 채우게 됩니다.</span></div>
+      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 70)', b: <>
+        <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없을 때</b> 종료</p>
+        <p>이때 비어 있는 자리는 모두 종합 70의 퓨처스 유망주</p>
+        <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리는 유망주</span></div>
       </> },
     ] },
   { id: 'swap', label: '방출 · 교체',
     icon: <path d="M5 8h13l-3-3M19 16H6l3 3" />,
-    lead: <>뽑은 선수를 내보내거나, 이미 찬 자리에 더 좋은 선수를 바로 들일 수 있습니다. 대신 <b>손해</b>가 있습니다.</>,
+    lead: <>뽑은 선수 내보내기 · 찬 자리에 더 좋은 선수 바로 들이기 · 대신 <b>손해</b> 있음</>,
     groups: [
-      { t: '방출은 어떻게 하나요?', s: '내 라인업에서 선수를 누르고 방출을 두 번 누릅니다.', b: <>
+      { t: '방출은 어떻게 하나요?', s: '라인업에서 선수 누르고 방출 두 번', b: <>
         <div className="rl-steps">
-          <div><span>내 라인업에서 내보낼 선수를 누릅니다.</span></div>
-          <div><span><b>방출</b>을 누르면 <b>한 번 더 누르면 방출</b>로 바뀝니다.</span></div>
-          <div><span>한 번 더 누르면 방출됩니다.</span></div>
+          <div><span>라인업에서 내보낼 선수 누르기</span></div>
+          <div><span><b>방출</b>을 누르면 <b>한 번 더 누르면 방출</b>로 바뀜</span></div>
+          <div><span>한 번 더 누르면 방출</span></div>
         </div>
       </> },
       { t: '방출하면 무엇이 달라지나요?', s: '영입가 절반 환급 · 되돌리기 없음', b: <>
         <div className="rl-yn">
-          <div className="y"><span>영입가의 <b>절반</b>을 CP로 돌려받습니다. ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
-          <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입할 수 없습니다.</b></span></div>
-          <div className="n"><span>이미 쓴 라운드는 <b>돌아오지 않습니다.</b></span></div>
-          <div className="n"><span>드래프트가 끝난 뒤(정비 화면)에는 방출할 수 없습니다.</span></div>
+          <div className="y"><span>영입가의 <b>절반</b>을 CP로 환급 ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
+          <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입 불가</b></span></div>
+          <div className="n"><span>이미 쓴 라운드는 <b>돌아오지 않음</b></span></div>
+          <div className="n"><span>드래프트가 끝난 뒤(정비 화면)에는 방출 불가</span></div>
         </div>
       </> },
-      { t: '찬 자리에 선수를 데려오려면?', s: '교체 영입으로 한 번에 맞바꿉니다.', b: <>
+      { t: '찬 자리에 선수를 데려오려면?', s: '교체 영입으로 한 번에 맞바꾸기', b: <>
         <p>이미 찬 포지션의 선수를 PICK에 올리면 버튼이 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>처럼 바뀝니다.</p>
         <div className="rl-steps">
-          <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 바꿉니다.</span></div>
-          <div><span>누르지 않았다면 그 포지션에서 <b>가장 약한 선수</b>와 바꿉니다.</span></div>
+          <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 교체</span></div>
+          <div><span>누르지 않았다면 그 포지션에서 <b>가장 약한 선수</b>와 교체</span></div>
         </div>
-        <p>나가는 선수는 방출과 같이 처리되고, 교체 영입도 한 라운드를 씁니다.</p>
+        <p>나가는 선수는 방출과 같은 처리 · 교체 영입도 한 라운드</p>
       </> },
     ] },
   { id: 'pos', label: '포지션',
     icon: <><path d="M12 20 4 12l8-8 8 8z" /><circle cx="12" cy="12" r="1.6" /></>,
-    lead: <>선수는 <b>원래 포지션</b>에서 가장 잘합니다. 다른 자리에 세우면 종합이 떨어집니다.</>,
+    lead: <>선수는 <b>원래 포지션</b>에서 가장 잘함 · 다른 자리에 세우면 종합 하락</>,
     groups: [
-      { t: '다른 자리에 세우면 얼마나 약해지나요?', s: '원래 자리와 멀수록 많이 떨어집니다.', b: <>
+      { t: '다른 자리에 세우면 얼마나 약해지나요?', s: '원래 자리와 멀수록 큰 하락', b: <>
         <div className="rl-ladder">
           {[
             ['0', 2, '#34d399', '제자리 · 야수가 지명타자일 때'],
@@ -5369,89 +5369,89 @@ const RULE_TABS = [
             <div key={v}><b style={{ color: k }}>{v}</b><i style={{ '--w': `${w}%`, '--k': k }} /><span>{txt}</span></div>
           ))}
         </div>
-        <p>내 라인업 선수를 누르면 선 자리에서 달라진 능력치를 볼 수 있습니다.</p>
+        <p>라인업 선수를 누르면 선 자리에서 달라진 능력치 확인</p>
       </> },
       { t: '지명타자에는 누구를 세우나요?', s: '야수 누구나 · 능력치 감소 없음', b: <>
-        <p>수비가 약하지만 방망이가 좋은 선수를 두기 좋은 자리입니다.</p>
+        <p>수비가 약하고 방망이가 좋은 선수를 두는 자리</p>
       </> },
       { t: '선수 자리는 어떻게 바꾸나요?', s: '선수를 끌어 다른 자리에 놓기', b: <>
         <div className="rl-yn">
-          <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b>합니다.</span></div>
-          <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b>됩니다.</span></div>
+          <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b></span></div>
+          <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b></span></div>
         </div>
-        <div className="rl-tip"><span>라인업의 자리를 누르면 선반에 그 포지션 선수만 모아 보여 줍니다.</span></div>
+        <div className="rl-tip"><span>라인업 자리를 누르면 선반에 그 포지션 선수만</span></div>
       </> },
     ] },
   { id: 'syn', label: '시너지',
     icon: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
-    lead: <>실제로 함께 뛰었던 선수나 조건이 맞는 선수를 모으면 <b>그 선수들이 강해집니다.</b></>,
+    lead: <>실제로 함께 뛰었던 선수나 조건이 맞는 선수를 모으면 <b>그 선수들 강화</b></>,
     groups: [
-      { t: '시너지를 만들면 무엇이 좋아지나요?', s: '시너지에 속한 선수만 능력치가 오릅니다.', b: <>
-        <p>팀 전체가 아니라 <b>조건을 채운 선수들만</b> 능력치가 오릅니다.</p>
-        <p>여러 시너지가 겹쳐도 한 능력치는 <em>최대 +{SYNERGY_STAT_CAP}</em>까지만 오릅니다.</p>
+      { t: '시너지를 만들면 무엇이 좋아지나요?', s: '시너지에 속한 선수만 능력치 상승', b: <>
+        <p>팀 전체가 아니라 <b>조건을 채운 선수들만</b> 능력치 상승</p>
+        <p>여러 시너지가 겹쳐도 한 능력치는 <em>최대 +{SYNERGY_STAT_CAP}</em>까지만</p>
       </> },
-      { t: '실화 조합', s: '실제로 함께한 선수들을 모읍니다.', b: <>
+      { t: '실화 조합', s: '실제로 함께한 선수 모으기', b: <>
         <div className="rl-syn"><span><b>클린업 트리오</b><small>이승엽 · 이대호 · 김동주 중 2명</small></span><em>파워 +5</em></div>
         <div className="rl-syn"><span><b>SK 왕조 배터리</b><small>김광현 · 박경완</small></span><em>안정 · 수비 +4</em></div>
-        <p>카드 시즌이 달라도 같은 사람이면 인정됩니다.</p>
+        <p>카드 시즌이 달라도 같은 사람이면 인정</p>
       </> },
-      { t: '팀 구성', s: '조건에 맞는 선수가 많을수록 단계가 오릅니다.', b: <>
+      { t: '팀 구성', s: '조건에 맞는 선수가 많을수록 단계 상승', b: <>
         <p><b>홈런 군단</b> — 파워 80 이상 타자</p>
         <div className="rl-tiers"><span><b>3명</b>파워 +2</span><span><b>4명</b>파워 +4</span><span><b>6명</b>파워 +7</span></div>
-        <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸이 표시됩니다.</span></div>
+        <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸 표시</span></div>
       </> },
-      { t: '아이콘 테두리 색은 무엇인가요?', s: '시너지 단계가 오를수록 색이 바뀝니다.', b: <>
+      { t: '아이콘 테두리 색은 무엇인가요?', s: '단계가 오를수록 바뀌는 색', b: <>
         <div className="rl-tiers"><span><b>회색</b>아직 없음</span><span><b>브론즈</b>1단계</span><span><b>실버</b>2단계</span><span><b>골드</b>최종 단계</span><span><b>프리즘</b>3단계 이상 시너지의 최종</span></div>
-        <p>이름 아래 <b>3 › 5 › 7</b>은 단계마다 필요한 인원이고, 오른쪽 숫자는 지금 인원 / 다음 단계 인원입니다.</p>
-        <p>시너지에 마우스를 올리면 조건 · 단계별 효과 · 해당 선수가 나오고, 누르면 구장에서 그 선수들을 보여줍니다.</p>
+        <p>이름 아래 <b>3 › 5 › 7</b>은 단계마다 필요한 인원 · 오른쪽 숫자는 지금 인원 / 다음 단계 인원</p>
+        <p>시너지에 마우스를 올리면 조건 · 단계별 효과 · 해당 선수가 나오고, 누르면 구장에서 그 선수들 표시</p>
       </> },
-      { t: '프랜차이즈의 기억', s: '가장 많이 뽑은 구단의 선수들이 강해집니다.', b: <>
+      { t: '프랜차이즈의 기억', s: '가장 많이 뽑은 구단의 선수 강화', b: <>
         <div className="rl-tiers"><span><b>3명</b>능력치 +1</span><span><b>5명</b>+2 · 수비·안정 +2</span><span><b>7명</b>+4 · 수비·안정 +3</span></div>
-        <p>드래프트 중에는 보이지 않고, <b>드래프트가 끝나면 공개</b>됩니다. 인원이 같은 구단이 여럿이면 모두 혜택을 받습니다.</p>
+        <p>드래프트 중에는 숨김 · <b>드래프트가 끝나면 공개</b> · 인원이 같은 구단이 여럿이면 모두 적용</p>
       </> },
     ] },
   { id: 'season', label: '시즌',
     icon: <><path d="M7 4h10v3a5 5 0 0 1-10 0z" /><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7" /></>,
-    lead: <>{ROSTER_SIZE}명을 모두 채우면 라인업을 다듬고, 증강을 골라 <b>AI 올스타</b>와 경기합니다.</>,
+    lead: <>{ROSTER_SIZE}명을 모두 채우면 라인업 다듬기 · 증강 고르기 · <b>AI 올스타</b>와 경기</>,
     groups: [
       { t: '드래프트가 끝나면 무엇을 하나요?', s: '정비 화면에서 자리 다듬기', b: <>
         <div className="rl-yn">
-          <div className="y"><span>선수를 끌어 자리를 옮길 수 있습니다.</span></div>
-          <div className="n"><span>방출과 영입은 할 수 없습니다.</span></div>
+          <div className="y"><span>선수를 끌어 자리 옮기기</span></div>
+          <div className="n"><span>방출과 영입 불가</span></div>
         </div>
       </> },
       { t: '증강은 언제 고르나요?', s: '시즌 시작 때 모드가 정한 개수만큼', b: <>
-        <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중에서 정합니다.</p>
-        <p>매번 <b>3장 중 1장</b>을 고릅니다. 3장은 <span className="rl-chip">실버</span> <span className="rl-chip g">골드</span> <span className="rl-chip">프리즘</span> 중 한 등급에서만 나옵니다.</p>
-        <p>경기 중에는 <b>3 · 5 · 7회</b>에 그 경기에서만 쓰는 증강을 하나씩 더 고릅니다.</p>
+        <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중 하나</p>
+        <p>매번 <b>3장 중 1장</b> · 3장은 <span className="rl-chip">실버</span> <span className="rl-chip g">골드</span> <span className="rl-chip">프리즘</span> 중 한 등급</p>
+        <p>경기 중에는 <b>3 · 5 · 7회</b>에 그 경기에서만 쓰는 증강 하나씩 더</p>
       </> },
       { t: '증강은 어떤 종류가 있나요?', s: '같은 증강도 선수 구성에 따라 효과가 크게 다름', b: <>
         <div className="rl-kind">
-          <div><span className="rl-chip g">라인업 비례</span><span>조건에 맞는 선수가 많을수록 강해집니다. 맞는 선수가 없으면 효과도 적습니다.</span></div>
-          <div><span className="rl-chip g">약점 완화</span><span>팀의 가장 약한 곳을 메웁니다. 한쪽으로 치우친 팀일수록 크게 돕습니다.</span></div>
-          <div><span className="rl-chip g">몰빵</span><span>강한 쪽을 더 키우는 대신 대가가 있습니다. 극단적인 팀에서 가장 빛납니다.</span></div>
-          <div><span className="rl-chip g">경기 운영</span><span>투수 교체 · 승부처 개입 · 위기 탈출처럼 경기 흐름을 바꿉니다.</span></div>
-          <div><span className="rl-chip g">운</span><span>경기마다 결과가 크게 갈립니다.</span></div>
+          <div><span className="rl-chip g">라인업 비례</span><span>조건에 맞는 선수가 많을수록 강함 · 맞는 선수가 없으면 효과도 적음</span></div>
+          <div><span className="rl-chip g">약점 완화</span><span>팀의 가장 약한 곳 보강 · 한쪽으로 치우친 팀일수록 큰 효과</span></div>
+          <div><span className="rl-chip g">몰빵</span><span>강한 쪽을 더 키우는 대신 대가 · 극단적인 팀에서 가장 큰 효과</span></div>
+          <div><span className="rl-chip g">경기 운영</span><span>투수 교체 · 승부처 개입 · 위기 탈출처럼 흐름을 바꾸는 쪽</span></div>
+          <div><span className="rl-chip g">운</span><span>경기마다 크게 갈리는 결과</span></div>
         </div>
-        <p>조건이 적힌 증강은 경기 중 조건이 맞을 때 확률로 발동하고, 나머지는 고르는 순간부터 계속 적용됩니다.</p>
+        <p>조건이 적힌 증강은 조건이 맞을 때 확률로 발동 · 나머지는 고른 순간부터 계속 적용</p>
       </> },
       { t: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타', b: <>
-        <p>AI 난이도 <span className="rl-chip">쉬움</span> <span className="rl-chip g">보통</span> <span className="rl-chip">강함</span>에 따라 상대 능력치가 달라집니다.</p>
-        <p>경기 결과는 전적에 쌓이고, 같은 상대와 다시 겨룰 수도 있습니다.</p>
+        <p>AI 난이도 <span className="rl-chip">쉬움</span> <span className="rl-chip g">보통</span> <span className="rl-chip">강함</span>에 따라 달라지는 상대 능력치</p>
+        <p>경기 결과는 전적에 쌓임 · 같은 상대와 다시 겨루기 가능</p>
       </> },
     ] },
   { id: 'team', label: '내 팀',
     icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
-    lead: <>드래프트 화면 오른쪽 <b>MY TEAM</b> 판에서 지금 라인업의 전력과 선수들의 실제 시즌 기록을 봅니다.</>,
+    lead: <>드래프트 화면 오른쪽 <b>MY TEAM</b> 판 — 지금 라인업의 전력과 선수들의 실제 시즌 기록</>,
     groups: [
       { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
-        <p>선수를 세운 자리와 시너지가 반영된 종합의 평균입니다. 비어 있는 자리는 빼고 계산합니다.</p>
-        <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지입니다.</p>
-        <p>타자 넷은 야수들의 평균 능력치이고, 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력입니다.</p>
+        <p>선수를 세운 자리와 시너지가 반영된 종합의 평균 · 빈 자리는 빼고 계산</p>
+        <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지</p>
+        <p>타자 넷은 야수 평균 능력치 · 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력</p>
       </> },
       { t: '초록 면과 붉은 점선은 무엇인가요?', s: '초록 면은 우리 팀 · 붉은 점선은 AI 평균', b: <>
-        <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균입니다.</p>
-        <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼입니다. 아래 칩은 차이가 큰 순서입니다.</p>
+        <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균</p>
+        <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼 · 아래 칩은 차이가 큰 순서</p>
       </> },
       { t: '홈런 타선 · 불안한 뒷문은 무엇인가요?', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력', b: <>
         <div className="rl-tbl">
@@ -5461,11 +5461,11 @@ const RULE_TABS = [
           ))}
         </div>
       </> },
-      { t: '선수 기록은 어떻게 보나요?', s: '투수와 타자의 실제 시즌 기록을 따로 봅니다.', b: <>
-        <p>투수는 <b>ERA · 승 · 세이브(S) 또는 홀드(H) · 삼진</b>, 타자는 <b>타율 · 홈런 · 도루 · 타점</b>입니다.</p>
-        <p>초록 기록은 그 열에서 <b>우리 팀 1등</b>입니다. ERA는 가장 낮은 값이 초록입니다.</p>
-        <p>레전드 카드처럼 시즌 기록 자료가 없는 선수는 <b>-</b>로 표시됩니다.</p>
-        <div className="rl-tip"><span>기록 줄을 누르면 내 라인업에서 그 자리를 누른 것과 같습니다.</span></div>
+      { t: '선수 기록은 어떻게 보나요?', s: '투수와 타자의 실제 시즌 기록을 따로', b: <>
+        <p>투수는 <b>ERA · 승 · 세이브(S) 또는 홀드(H) · 삼진</b>, 타자는 <b>타율 · 홈런 · 도루 · 타점</b></p>
+        <p>초록 기록은 그 열에서 <b>우리 팀 1등</b> · ERA는 가장 낮은 값이 초록</p>
+        <p>레전드 카드처럼 시즌 기록 자료가 없는 선수는 <b>-</b>로 표시</p>
+        <div className="rl-tip"><span>기록 줄을 누르면 라인업에서 그 자리를 누른 것과 같음</span></div>
       </> },
     ] },
 ];

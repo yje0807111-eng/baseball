@@ -133,9 +133,9 @@ function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
   const out = [];
-  if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루로 뜁니다 — ${ev.steal.ok ? '세이프! 도루 성공!' : '아웃! 잡혔습니다'}`);
+  if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루 도루 ${ev.steal.ok ? '성공' : '실패'}`);
   if (!ev.result) {
-    const call = { ball: '볼', called: '스트라이크, 루킹입니다', swinging: '헛스윙!', foul: '파울' }[ev.call];
+    const call = { ball: '볼', called: '루킹 스트라이크', swinging: '헛스윙!', foul: '파울' }[ev.call];
     if (call) out.push(`${p} — ${call}. ${ev.after.balls}볼 ${ev.after.strikes}스트라이크`);
     return out;
   }
@@ -143,23 +143,23 @@ function commentary(ev) {
   // 실제 타구가 간 곳을 그대로 부른다 (ev.hit)
   const dir = ev.hit ? dirName(ev.hit.dir) : null;
   const by = ev.hit?.by ? FIELD_KO[ev.hit.by] : null;
-  if (r === 'HR') out.push(`${b}, 쳤습니다! ${dir ? `${dir}으로 ` : ''}크게 뻗습니다… 넘어갑니다! ${ev.runs}점 홈런!`);
-  else if (r === '3B') out.push(`${b}, ${dir ? `${dir}을 ` : ''}완전히 가릅니다! 3루까지!`);
-  else if (r === '2B') out.push(`${b}, ${dir ? `${dir} ` : ''}2루타!${ev.runs ? ` 주자 ${ev.runs}명 홈으로!` : ''}`);
-  else if (r === '1B') out.push(`${b}, ${by ? `${by} 앞으로 빠지는 ` : '깨끗한 '}안타.${ev.runs ? ` ${ev.runs}점!` : ''}`);
-  else if (r === 'BB') out.push(`${b}, 볼넷으로 걸어 나갑니다.${ev.runs ? ' 밀어내기 득점!' : ''}`);
-  else if (r === 'IBB') out.push(`${b}, 고의사구. 1루가 채워집니다.`);
-  else if (r === 'K') out.push(`${p} — 삼진! ${b}, 돌아섭니다.`);
-  else if (r === 'DP') out.push(`${b}의 타구, 병살입니다! 이닝 종료 분위기`);
-  else if (r === 'SF') out.push(`${b} 희생플라이. 3루 주자 여유 있게 득점!`);
-  else if (r === 'SAC') out.push(`${b}, 번트를 댑니다. 주자 진루 성공`);
+  if (r === 'HR') out.push(`${b}, ${dir ? `${dir} ` : ''}담장 밖으로 · ${ev.runs}점 홈런`);
+  else if (r === '3B') out.push(`${b}, ${dir ? `${dir} ` : ''}가르는 3루타`);
+  else if (r === '2B') out.push(`${b}, ${dir ? `${dir} ` : ''}2루타${ev.runs ? ` · ${ev.runs}명 득점` : ''}`);
+  else if (r === '1B') out.push(`${b}, ${by ? `${by} 앞 ` : '깨끗한 '}안타${ev.runs ? ` · ${ev.runs}점` : ''}`);
+  else if (r === 'BB') out.push(`${b}, 볼넷${ev.runs ? ' · 밀어내기 득점' : ''}`);
+  else if (r === 'IBB') out.push(`${b}, 고의사구 · 1루 채움`);
+  else if (r === 'K') out.push(`${p} — ${b} 삼진`);
+  else if (r === 'DP') out.push(`${b}, 병살타 · 이닝 종료`);
+  else if (r === 'SF') out.push(`${b}, 희생플라이 · 3루 주자 득점`);
+  else if (r === 'SAC') out.push(`${b}, 희생번트 · 주자 진루`);
   else if (r === 'BH') out.push(`${b}, 기습 번트 안타!`);
-  else if (r === 'E') out.push(`${b}의 평범한 타구… 수비 실책! 주자 살아 나갑니다`);
-  else if (r === 'CS') out.push('도루 실패로 이닝이 끝납니다');
-  else if (r === 'GO') out.push(`${b}, ${by ? `${by} 앞 ` : ''}땅볼 아웃.`);
-  else if (r === 'FO') out.push(`${b}, ${by ? `${by} ` : ''}뜬공 아웃.`);
-  else if (r === 'LO') out.push(`${b}, ${by ? `${by} 정면 ` : ''}직선타 아웃.`);
-  else out.push(`${b}, ${RESULT_LABEL[r]}.`);
+  else if (r === 'E') out.push(`${b}, 평범한 타구 · 수비 실책으로 출루`);
+  else if (r === 'CS') out.push('도루 실패 · 이닝 종료');
+  else if (r === 'GO') out.push(`${b}, ${by ? `${by} 앞 ` : ''}땅볼 아웃`);
+  else if (r === 'FO') out.push(`${b}, ${by ? `${by} ` : ''}뜬공 아웃`);
+  else if (r === 'LO') out.push(`${b}, ${by ? `${by} 정면 ` : ''}직선타 아웃`);
+  else out.push(`${b}, ${RESULT_LABEL[r]}`);
   return out;
 }
 
@@ -508,7 +508,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
-                title={v === SKIP ? '남은 경기를 10초 안에 몰아서 끝냅니다' : v === AUTO ? '지시를 묻지 않고 끝까지 진행합니다' : '보통 속도 — 화면을 꾹 누르면 빨리감기'}
+                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : v === AUTO ? '지시 없이 끝까지 진행' : '보통 속도 — 화면을 꾹 누르면 빨리감기'}
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
@@ -597,7 +597,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         {/* 승부처 지시 */}
         {orders && !picker && (
           <div className="col-start-2 row-start-3 z-10 self-end pb-2.5">
-            <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시를 내리세요</p>
+            <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시 내리기</p>
             <div className="flex justify-center gap-3">
               {(orders.offense
                 ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
@@ -731,7 +731,7 @@ function halfSummary(evs, top, mine) {
     if (pitcher) {
       hero = {
         id: pitcher.id, name: pitcher.name, pos: `${pitcher.position} · ${pitcher.overall ?? ''}`.trim(),
-        act: done.length <= 3 ? '삼자범퇴' : '무실점으로 막았다',
+        act: done.length <= 3 ? '삼자범퇴' : '무실점',
         sub: `${done.length}타자 · ${list.length}구${ks ? ` · 탈삼진 ${ks}` : ''}`,
         side: mine ? 'opp' : 'my', // 우리 공격인데 무득점이면 상대 투수가 주인공
       };
