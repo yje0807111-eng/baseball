@@ -1,0 +1,318 @@
+{
+  "id": "1998-lg",
+  "kind": "team",
+  "year": 1998,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "한국시리즈 준우승 · 김용수 18승",
+  "blurb": "김용수가 18승을 올리고 김재현과 김동수가 타선을 받치며 LG가 한국시리즈까지 갔다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 1998,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 80,
+        "stamina": 87,
+        "stability": 81
+      },
+      "note": "",
+      "source": "32G 175IP ERA3.45 116K 45BB WHIP1.26 18승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "최향남",
+      "name": "최향남",
+      "year": 1998,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 77,
+        "stamina": 86,
+        "stability": 78
+      },
+      "note": "",
+      "source": "28G 173 1/3IP ERA3.63 111K 50BB WHIP1.12 12승 — KBO 기록실"
+    },
+    {
+      "personId": "손혁",
+      "name": "손혁",
+      "year": 1998,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 78,
+        "stamina": 78,
+        "stability": 78
+      },
+      "note": "",
+      "source": "28G 143 1/3IP ERA3.70 88K 40BB WHIP1.23 11승 — KBO 기록실"
+    },
+    {
+      "personId": "임선동",
+      "name": "임선동",
+      "year": 1998,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 54,
+        "control": 72,
+        "stamina": 51,
+        "stability": 42
+      },
+      "note": "",
+      "source": "15G 59 2/3IP ERA6.94 29K 20BB WHIP1.53 1승 — KBO 기록실"
+    },
+    {
+      "personId": "앤더슨",
+      "name": "앤더슨",
+      "year": 1998,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 61,
+        "control": 71,
+        "stamina": 56,
+        "stability": 79
+      },
+      "note": "",
+      "source": "45G 55 2/3IP ERA3.56 30K 19BB WHIP1.29 4승 21SV — KBO 기록실"
+    },
+    {
+      "personId": "전승남",
+      "name": "전승남",
+      "year": 1998,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 89,
+        "stamina": 60,
+        "stability": 72
+      },
+      "note": "",
+      "source": "33G 112 2/3IP ERA4.15 70K 20BB WHIP1.31 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "송유석",
+      "name": "송유석",
+      "year": 1998,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 58,
+        "control": 84,
+        "stamina": 60,
+        "stability": 85
+      },
+      "note": "",
+      "source": "55G 91IP ERA2.97 44K 20BB WHIP1.23 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 1998,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 83,
+        "stamina": 60,
+        "stability": 74
+      },
+      "note": "",
+      "source": "56G 77 1/3IP ERA3.96 43K 18BB WHIP1.24 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 1998,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 76,
+        "speed": 47,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".284/.362 20HR 66타점 2SB 471PA — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 1998,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 50,
+        "contact": 66,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".269/.283 2HR 15타점 0SB 141PA — KBO 기록실"
+    },
+    {
+      "personId": "김선진",
+      "name": "김선진",
+      "year": 1998,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 61,
+        "speed": 68,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".282/.333 8HR 46타점 13SB 408PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 1998,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 50,
+        "speed": 60,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".215/.286 4HR 29타점 8SB 443PA — KBO 기록실"
+    },
+    {
+      "personId": "손지환",
+      "name": "손지환",
+      "year": 1998,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 40,
+        "speed": 42,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".233/.313 0HR 4타점 0SB 70PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 1998,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 62,
+        "speed": 90,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".277/.377 12HR 61타점 40SB 564PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 1998,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 58,
+        "speed": 65,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".279/.329 9HR 67타점 11SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 1998,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 67,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295/.364 16HR 76타점 8SB 541PA — KBO 기록실"
+    },
+    {
+      "personId": "심재학",
+      "name": "심재학",
+      "year": 1998,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 61,
+        "contact": 69,
+        "speed": 42,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".267/.360 11HR 70타점 0SB 490PA — KBO 기록실"
+    },
+    {
+      "personId": "신국환",
+      "name": "신국환",
+      "year": 1998,
+      "team": "LG",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 64,
+        "speed": 50,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".282/.342 8HR 51타점 3SB 330PA — KBO 기록실"
+    }
+  ]
+}

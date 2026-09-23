@@ -9,7 +9,7 @@ const series = readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JS
 
 const FRANCHISE = [
   ['KIA', '해태·KIA 타이거즈'], ['SAMSUNG', '삼성 라이온즈'], ['LG', 'MBC·LG 트윈스'], ['DOOSAN', 'OB·두산 베어스'], ['SSG', 'SK·SSG 랜더스'],
-  ['LOTTE', '롯데 자이언츠'], ['HANWHA', '빙그레·한화 이글스'], ['KIWOOM', '넥센·키움 히어로즈'], ['NC', 'NC 다이노스'], ['KT', 'KT 위즈'], ['HYUNDAI', '현대 유니콘스'],
+  ['LOTTE', '롯데 자이언츠'], ['HANWHA', '빙그레·한화 이글스'], ['KIWOOM', '넥센·키움 히어로즈'], ['NC', 'NC 다이노스'], ['KT', 'KT 위즈'], ['HYUNDAI', '태평양 돌핀스·현대 유니콘스'], ['SSANGBANGWOOL', '쌍방울 레이더스'],
 ];
 const teams = series.filter((s) => s.kind === 'team').sort((a, b) => a.year - b.year);
 const nationals = series.filter((s) => s.kind === 'national').sort((a, b) => a.year - b.year);

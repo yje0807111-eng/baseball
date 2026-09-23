@@ -1,0 +1,318 @@
+{
+  "id": "1993-samsung",
+  "kind": "team",
+  "year": 1993,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "한국시리즈 준우승 · 김성래 MVP",
+  "blurb": "김성래가 28홈런으로 MVP에 오르고 신인 양준혁이 타율 .341을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김상엽",
+      "name": "김상엽",
+      "year": 1993,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 81,
+        "control": 63,
+        "stamina": 88,
+        "stability": 86
+      },
+      "note": "",
+      "source": "36G 181 1/3IP ERA2.58 170K 76BB WHIP1.25 13승 8SV — KBO 기록실"
+    },
+    {
+      "personId": "김태한",
+      "name": "김태한",
+      "year": 1993,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 61,
+        "stamina": 83,
+        "stability": 84
+      },
+      "note": "",
+      "source": "31G 162IP ERA2.83 91K 71BB WHIP1.26 14승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "박충식",
+      "name": "박충식",
+      "year": 1993,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 80,
+        "stamina": 81,
+        "stability": 87
+      },
+      "note": "",
+      "source": "32G 155 2/3IP ERA2.54 97K 40BB WHIP1.04 14승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "성준",
+      "name": "성준",
+      "year": 1993,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 68,
+        "stamina": 76,
+        "stability": 90
+      },
+      "note": "",
+      "source": "21G 139IP ERA2.07 51K 51BB WHIP1.19 12승 — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1993,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 71,
+        "stamina": 60,
+        "stability": 86
+      },
+      "note": "",
+      "source": "26G 84 1/3IP ERA2.56 46K 29BB WHIP1.25 2승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "오봉옥",
+      "name": "오봉옥",
+      "year": 1993,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 57,
+        "stamina": 60,
+        "stability": 78
+      },
+      "note": "",
+      "source": "38G 74 1/3IP ERA3.39 43K 36BB WHIP1.45 2승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "박용준",
+      "name": "박용준",
+      "year": 1993,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 56,
+        "control": 57,
+        "stamina": 57,
+        "stability": 81
+      },
+      "note": "",
+      "source": "23G 58IP ERA3.10 26K 28BB WHIP1.45 1승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "한희민",
+      "name": "한희민",
+      "year": 1993,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 60,
+        "stamina": 53,
+        "stability": 78
+      },
+      "note": "",
+      "source": "16G 40IP ERA3.38 21K 18BB WHIP1.38 4승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김성현",
+      "name": "김성현",
+      "year": 1993,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 72,
+        "power": 73,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".270/.315 11HR 45타점 0SB 321PA — KBO 기록실"
+    },
+    {
+      "personId": "이만수",
+      "name": "이만수",
+      "year": 1993,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 65,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".207/.294 5HR 20타점 0SB 219PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 1993,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 94,
+        "power": 83,
+        "speed": 54,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".341/.436 23HR 90타점 4SB 456PA — KBO 기록실"
+    },
+    {
+      "personId": "김성래",
+      "name": "김성래",
+      "year": 1993,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 84,
+        "speed": 49,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".300/.395 28HR 91타점 2SB 521PA — KBO 기록실"
+    },
+    {
+      "personId": "김용국",
+      "name": "김용국",
+      "year": 1993,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 51,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".208/.306 2HR 13타점 3SB 236PA — KBO 기록실"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1993,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 62,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".281/.378 8HR 45타점 6SB 444PA — KBO 기록실"
+    },
+    {
+      "personId": "정영규",
+      "name": "정영규",
+      "year": 1993,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 67,
+        "speed": 52,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".257/.325 11HR 41타점 3SB 425PA — KBO 기록실"
+    },
+    {
+      "personId": "이종두",
+      "name": "이종두",
+      "year": 1993,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 72,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".249/.338 14HR 51타점 4SB 413PA — KBO 기록실"
+    },
+    {
+      "personId": "동봉철",
+      "name": "동봉철",
+      "year": 1993,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 61,
+        "speed": 78,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".345/.442 5HR 28타점 20SB 295PA — KBO 기록실"
+    },
+    {
+      "personId": "강기웅",
+      "name": "강기웅",
+      "year": 1993,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 90,
+        "power": 75,
+        "speed": 78,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".325/.366 16HR 75타점 20SB 420PA — KBO 기록실"
+    }
+  ]
+}

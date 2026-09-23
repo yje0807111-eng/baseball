@@ -8,7 +8,7 @@ const dir = join(root, 'src', 'data', 'series');
 const files = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => join(dir, f));
 
 const KINDS = ['team', 'national', 'legend'];
-const FRANCHISES = ['KIA', 'SAMSUNG', 'LG', 'DOOSAN', 'SSG', 'LOTTE', 'HANWHA', 'KIWOOM', 'NC', 'KT', 'HYUNDAI'];
+const FRANCHISES = ['KIA', 'SAMSUNG', 'LG', 'DOOSAN', 'SSG', 'LOTTE', 'HANWHA', 'KIWOOM', 'NC', 'KT', 'HYUNDAI', 'SSANGBANGWOOL'];
 const POSITIONS = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 const MIN = { SP: 3, RP: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 2 };
 const BAT = ['power', 'contact', 'speed', 'defense'];

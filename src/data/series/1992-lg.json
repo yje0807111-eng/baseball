@@ -1,0 +1,318 @@
+{
+  "id": "1992-lg",
+  "kind": "team",
+  "year": 1992,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "송구홍의 20홈런",
+  "blurb": "송구홍이 20홈런에 3할을 치고 정삼흠이 14승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "정삼흠",
+      "name": "정삼흠",
+      "year": 1992,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 67,
+        "stamina": 88,
+        "stability": 71
+      },
+      "note": "",
+      "source": "46G 180 1/3IP ERA4.04 128K 68BB WHIP1.33 14승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "김태원",
+      "name": "김태원",
+      "year": 1992,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 69,
+        "stamina": 87,
+        "stability": 78
+      },
+      "note": "",
+      "source": "31G 177 1/3IP ERA3.40 119K 64BB WHIP1.38 10승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김기범",
+      "name": "김기범",
+      "year": 1992,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 71,
+        "stamina": 78,
+        "stability": 82
+      },
+      "note": "",
+      "source": "28G 145IP ERA2.98 92K 50BB WHIP1.24 8승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김기덕",
+      "name": "김기덕",
+      "year": 1992,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 58,
+        "stamina": 58,
+        "stability": 49
+      },
+      "note": "",
+      "source": "22G 78 2/3IP ERA5.72 40K 37BB WHIP1.74 2승 — KBO 기록실"
+    },
+    {
+      "personId": "문병권",
+      "name": "문병권",
+      "year": 1992,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 52,
+        "control": 54,
+        "stamina": 60,
+        "stability": 55
+      },
+      "note": "",
+      "source": "32G 100IP ERA5.13 45K 53BB WHIP1.63 6승 2SV — KBO 기록실"
+    },
+    {
+      "personId": "서왕권",
+      "name": "서왕권",
+      "year": 1992,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 53,
+        "stamina": 60,
+        "stability": 62
+      },
+      "note": "",
+      "source": "31G 92IP ERA4.50 56K 50BB WHIP1.63 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 1992,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 69,
+        "stamina": 60,
+        "stability": 72
+      },
+      "note": "",
+      "source": "27G 85IP ERA3.92 52K 31BB WHIP1.27 2SV — KBO 기록실"
+    },
+    {
+      "personId": "김종철",
+      "name": "김종철",
+      "year": 1992,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 50,
+        "control": 71,
+        "stamina": 55,
+        "stability": 79
+      },
+      "note": "",
+      "source": "23G 52IP ERA3.29 17K 18BB WHIP1.31 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김상훈",
+      "name": "김상훈",
+      "year": 1992,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 79,
+        "power": 67,
+        "speed": 64,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".292/.352 14HR 77타점 9SB 529PA — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 1992,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 80,
+        "speed": 52,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".257/.343 20HR 69타점 3SB 433PA — KBO 기록실"
+    },
+    {
+      "personId": "김선진",
+      "name": "김선진",
+      "year": 1992,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 61,
+        "power": 60,
+        "speed": 47,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".237/.378 2HR 18타점 1SB 119PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 1992,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 49,
+        "power": 51,
+        "speed": 52,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".208/.292 1HR 10타점 3SB 117PA — KBO 기록실"
+    },
+    {
+      "personId": "송구홍",
+      "name": "송구홍",
+      "year": 1992,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 77,
+        "speed": 78,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".304/.347 20HR 59타점 20SB 493PA — KBO 기록실"
+    },
+    {
+      "personId": "이우수",
+      "name": "이우수",
+      "year": 1992,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 44,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".181/.230 0HR 5타점 0SB 156PA — KBO 기록실"
+    },
+    {
+      "personId": "노찬엽",
+      "name": "노찬엽",
+      "year": 1992,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 56,
+        "speed": 59,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".272/.354 6HR 50타점 6SB 465PA — KBO 기록실"
+    },
+    {
+      "personId": "박준태",
+      "name": "박준태",
+      "year": 1992,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 60,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".236/.321 7HR 42타점 21SB 427PA — KBO 기록실"
+    },
+    {
+      "personId": "김영직",
+      "name": "김영직",
+      "year": 1992,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 58,
+        "speed": 54,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".256/.342 6HR 44타점 4SB 406PA — KBO 기록실"
+    },
+    {
+      "personId": "이병훈",
+      "name": "이병훈",
+      "year": 1992,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 87,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".300/.353 16HR 45타점 1SB 286PA — KBO 기록실"
+    }
+  ]
+}

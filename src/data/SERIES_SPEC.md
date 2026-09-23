@@ -19,7 +19,7 @@
 | `kind` | `"team"` \| `"national"` \| `"legend"` | 구단 시즌 / 국가대표 대회 / 레전드 모음 |
 | `year` | number \| null | team·national은 그 해. legend는 `null` (선수별 `year`가 따로 있음) |
 | `title` | string | **그 해 당시** 이름. 예: `"해태 타이거즈"`, `"SK 와이번스"`, `"넥센 히어로즈"`, `"베이징 올림픽 국가대표"`, `"외국인 레전드"` |
-| `franchise` | string \| null | team은 필수: `KIA`(해태 포함) `SAMSUNG` `LG`(MBC 포함) `DOOSAN`(OB 포함) `SSG`(SK 포함) `LOTTE` `HANWHA`(빙그레 포함) `KIWOOM`(넥센·히어로즈 포함) `NC` `KT` `HYUNDAI`(현대 유니콘스). 구단별 legend는 그 구단 코드, 외국인 레전드 등 구단 없는 legend와 national은 `null` |
+| `franchise` | string \| null | team은 필수: `KIA`(해태 포함) `SAMSUNG` `LG`(MBC 포함) `DOOSAN`(OB 포함) `SSG`(SK 포함) `LOTTE` `HANWHA`(빙그레 포함) `KIWOOM`(넥센·히어로즈 포함) `NC` `KT` `HYUNDAI`(태평양 돌핀스 포함) `SSANGBANGWOOL`. 구단별 legend는 그 구단 코드, 외국인 레전드 등 구단 없는 legend와 national은 `null` |
 | `champion` | `true` (선택) | 한국시리즈 우승 구단 시즌만 넣는다. 아니면 필드를 뺀다. 게임의 "가을의 왕조" 모드가 이 필드로 팀을 고른다 |
 | `subtitle` | string | 30자 이하, 검증된 성과. 예: `"한국시리즈 우승 · 정규시즌 1위"`, `"9전 전승 금메달"` |
 | `blurb` | string | 90자 이하, 야구를 잘 모르는 사람에게 이 팀/대회가 왜 유명한지 1~2문장 |

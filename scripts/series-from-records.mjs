@@ -24,11 +24,17 @@ const TEAM = {
   SK: { ko: 'SSG', title: 'SSG 랜더스', fr: 'SSG' },
   LG: { ko: 'LG', title: 'LG 트윈스', fr: 'LG' },
   HD: { ko: '현대', title: '현대 유니콘스', fr: 'HYUNDAI' },
+  SB: { ko: '쌍방울', title: '쌍방울 레이더스', fr: 'SSANGBANGWOOL' },
 };
 /* 그해 당시 이름 — 규격은 그 시즌에 쓰던 구단명을 쓰라고 한다 */
 const THEN = {
   WO: [[2019, { ko: '키움', title: '키움 히어로즈' }], [2010, { ko: '넥센', title: '넥센 히어로즈' }], [2008, { ko: '히어로즈', title: '히어로즈' }]],
   SK: [[2021, { ko: 'SSG', title: 'SSG 랜더스' }], [2000, { ko: 'SK', title: 'SK 와이번스' }]],
+  HT: [[2001, { ko: 'KIA', title: 'KIA 타이거즈' }], [1982, { ko: '해태', title: '해태 타이거즈' }]],
+  OB: [[1999, { ko: '두산', title: '두산 베어스' }], [1982, { ko: 'OB', title: 'OB 베어스' }]],
+  HH: [[1994, { ko: '한화', title: '한화 이글스' }], [1986, { ko: '빙그레', title: '빙그레 이글스' }]],
+  /* 현대는 1996년에 태평양을 인수해 이름을 바꿨다 — 기록실도 같은 코드로 준다 */
+  HD: [[1996, { ko: '현대', title: '현대 유니콘스' }], [1982, { ko: '태평양', title: '태평양 돌핀스' }]],
 };
 /** 그 해의 구단 이름 · 프랜차이즈 */
 export function teamOf(code, year) {
@@ -38,10 +44,17 @@ export function teamOf(code, year) {
   for (const [from, name] of rules) if (year >= from) return { ...base, ...name };
   return base;
 }
-const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg', HD: 'hyundai' };
-/** 파일 이름 — 구단명이 바뀌기 전 시즌은 그때 이름으로 (2017-sk · 2014-nexen) */
-export const slugOf = (code, year) => (code === 'SK' && year < 2021 ? 'sk' : code === 'WO' ? (year < 2010 ? 'heroes' : year < 2019 ? 'nexen' : 'kiwoom') : SLUG[code]);
-const POS = { 포수: 'C', '1루수': '1B', '2루수': '2B', '3루수': '3B', 유격수: 'SS', 좌익수: 'OF', 중견수: 'OF', 우익수: 'OF', 지명타자: 'DH', '?': 'DH' };
+const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg', HD: 'hyundai', SB: 'ssangbangwool' };
+/** 옛 이름으로 파일을 두는 구단 — [바뀐 해, 그 전 이름] */
+const OLD_SLUG = { SK: [2021, 'sk'], HT: [2001, 'haitai'], OB: [1999, 'ob'], HH: [1994, 'binggrae'], HD: [1996, 'taepyungyang'] };
+/** 파일 이름 — 구단명이 바뀌기 전 시즌은 그때 이름으로 (2017-sk · 2014-nexen · 1993-haitai) */
+export const slugOf = (code, year) => {
+  if (code === 'WO') return year < 2010 ? 'heroes' : year < 2019 ? 'nexen' : 'kiwoom';
+  const old = OLD_SLUG[code];
+  if (old && year < old[0]) return old[1];
+  return SLUG[code];
+};
+const POS = { 포수: 'C', '1루수': '1B', '2루수': '2B', '3루수': '3B', 유격수: 'SS', 좌익수: 'OF', 중견수: 'OF', 우익수: 'OF', 외야수: 'OF', 지명타자: 'DH', 내야수: 'DH', '?': 'DH' };
 /** 자리별 수비 평판 — 그 자리 주전이면 기본, 출장이 적으면 낮춘다 */
 const FIELD = (pos, pa) => (pa >= 450 ? (pos === 'C' || pos === 'SS' || pos === 'OF' ? 'good' : 'ok') : 'ok');
 
@@ -71,8 +84,15 @@ const isStarter = (p) => ipOf(p.ip) / Math.max(1, p.g) >= 3.5;
 /** 18명 고르기: 선발 4 · 불펜 4 · 포수 2 · 내야 각 1 · 외야 3 · 남는 한 자리는 타석 많은 순 */
 export function pick18(team, fix = {}) {
   const sp = team.pit.filter(isStarter).sort((a, b) => ipOf(b.ip) - ipOf(a.ip));
-  const rp = team.pit.filter((p) => !isStarter(p)).sort((a, b) => (b.sv + b.hld) * 3 + ipOf(b.ip) - ((a.sv + a.hld) * 3 + ipOf(a.ip)));
+  let rp = team.pit.filter((p) => !isStarter(p)).sort((a, b) => (b.sv + b.hld) * 3 + ipOf(b.ip) - ((a.sv + a.hld) * 3 + ipOf(a.ip)));
+  /* 선발 로테이션이 흔들린 해에는 선발로 볼 만한 투수가 셋도 안 된다 — 이닝을 많이 던진 쪽을 올린다 */
+  while (sp.length < 3 && rp.length) {
+    const most = [...rp].sort((a, b) => ipOf(b.ip) - ipOf(a.ip))[0];
+    rp = rp.filter((x) => x !== most);
+    sp.push(most);
+  }
   const take = (list, n) => list.slice(0, n);
+  const starters = new Set(take(sp, 4));
   const pit = [...take(sp, 4), ...take(rp, 4)];
   const posOf = (x) => fix[x.name] || x.pos;
   const byPos = (p) => team.bat.filter((x) => posOf(x) === p).sort((a, b) => b.pa - a.pa);
@@ -80,7 +100,7 @@ export function pick18(team, fix = {}) {
   const push = (list, n) => list.slice(0, n).forEach((x) => { if (!bat.includes(x)) bat.push(x); });
   push(byPos('C'), 2); push(byPos('1B'), 1); push(byPos('2B'), 1); push(byPos('3B'), 1); push(byPos('SS'), 1); push(byPos('OF'), 3);
   for (const x of [...team.bat].sort((a, b) => b.pa - a.pa)) { if (bat.length >= 18 - pit.length) break; if (!bat.includes(x)) bat.push(x); }
-  return { pit, bat };
+  return { pit, bat, starters };
 }
 
 /** 이미 쓰인 값 — src/data/series 의 모든 시리즈에서 (personId|year) → 선수 */
@@ -101,7 +121,7 @@ const numText = (v) => String(v).replace(/^0/, '');
 
 export function buildSeries({ year, code, records, hands = {}, foreign = new Set(), meta = {}, dupes = {}, posFix = {}, known = new Map() }) {
   const t = teamOf(code, year);
-  const { pit, bat } = pick18(records, posFix[`${year}-${code}`] || {});
+  const { pit, bat, starters } = pick18(records, posFix[`${year}-${code}`] || {});
   const players = [];
   /* 동명이인은 구분자를 붙인다 — dupes: { 이름: { 팀코드|역할: 'personId' } } */
   const idOf = (name, role) => {
@@ -116,7 +136,7 @@ export function buildSeries({ year, code, records, hands = {}, foreign = new Set
     return { ...draft, position: keepPos ? draft.position : had.position, hand: had.hand, isForeign: had.isForeign, stats: { ...had.stats }, note: had.note || draft.note };
   };
   for (const p of pit) {
-    const role = isStarter(p) ? 'SP' : 'RP';
+    const role = starters.has(p) ? 'SP' : 'RP';
     players.push(reuse({
       personId: idOf(p.name, role), name: p.name, year, team: t.ko, position: role,
       hand: (hands[idOf(p.name, role)] || hands[p.name] || 'RR')[0], isForeign: foreign.has(p.name),

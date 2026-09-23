@@ -1,0 +1,318 @@
+{
+  "id": "1998-samsung",
+  "kind": "team",
+  "year": 1998,
+  "title": "삼성 라이온즈",
+  "franchise": "SAMSUNG",
+  "subtitle": "이승엽의 38홈런",
+  "blurb": "이승엽이 38홈런을 치고 양준혁이 타율 .342를 기록했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "베이커",
+      "name": "베이커",
+      "year": 1998,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 59,
+        "control": 59,
+        "stamina": 86,
+        "stability": 72
+      },
+      "note": "",
+      "source": "26G 172IP ERA4.13 87K 78BB WHIP1.45 15승 — KBO 기록실"
+    },
+    {
+      "personId": "박충식",
+      "name": "박충식",
+      "year": 1998,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 91,
+        "stamina": 82,
+        "stability": 81
+      },
+      "note": "",
+      "source": "24G 159 1/3IP ERA3.45 100K 25BB WHIP1.18 11승 — KBO 기록실"
+    },
+    {
+      "personId": "조계현",
+      "name": "조계현",
+      "year": 1998,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 62,
+        "stamina": 79,
+        "stability": 57
+      },
+      "note": "",
+      "source": "29G 150 1/3IP ERA5.21 94K 64BB WHIP1.56 8승 — KBO 기록실"
+    },
+    {
+      "personId": "김상엽",
+      "name": "김상엽",
+      "year": 1998,
+      "team": "삼성",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 59,
+        "stamina": 45,
+        "stability": 58
+      },
+      "note": "",
+      "source": "8G 36 2/3IP ERA5.40 17K 17BB WHIP1.50 3승 — KBO 기록실"
+    },
+    {
+      "personId": "파라",
+      "name": "파라",
+      "year": 1998,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 63,
+        "control": 63,
+        "stamina": 60,
+        "stability": 78
+      },
+      "note": "",
+      "source": "60G 95 2/3IP ERA3.67 55K 40BB WHIP1.24 7승 19SV — KBO 기록실"
+    },
+    {
+      "personId": "곽채진",
+      "name": "곽채진",
+      "year": 1998,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 78,
+        "control": 62,
+        "stamina": 60,
+        "stability": 78
+      },
+      "note": "",
+      "source": "42G 111 1/3IP ERA3.64 98K 47BB WHIP1.22 7승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "전병호",
+      "name": "전병호",
+      "year": 1998,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 53,
+        "stamina": 60,
+        "stability": 56
+      },
+      "note": "",
+      "source": "47G 87 2/3IP ERA5.34 64K 48BB WHIP1.53 6승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김진웅",
+      "name": "김진웅",
+      "year": 1998,
+      "team": "삼성",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 52,
+        "stamina": 60,
+        "stability": 83
+      },
+      "note": "",
+      "source": "28G 76 2/3IP ERA3.17 55K 43BB WHIP1.37 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김영진",
+      "name": "김영진",
+      "year": 1998,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 42,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".180/.240 0HR 8타점 0SB 204PA — KBO 기록실"
+    },
+    {
+      "personId": "양용모",
+      "name": "양용모",
+      "year": 1998,
+      "team": "삼성",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 54,
+        "power": 47,
+        "speed": 57,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".224/.302 1HR 16타점 6SB 167PA — KBO 기록실"
+    },
+    {
+      "personId": "이승엽",
+      "name": "이승엽",
+      "year": 1998,
+      "team": "삼성",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 90,
+        "speed": 42,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".306/.404 38HR 102타점 0SB 568PA — KBO 기록실"
+    },
+    {
+      "personId": "정경배",
+      "name": "정경배",
+      "year": 1998,
+      "team": "삼성",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 66,
+        "speed": 62,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".235/.287 11HR 55타점 9SB 405PA — KBO 기록실"
+    },
+    {
+      "personId": "김한수",
+      "name": "김한수",
+      "year": 1998,
+      "team": "삼성",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 66,
+        "speed": 55,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".300/.332 15HR 80타점 5SB 503PA — KBO 기록실"
+    },
+    {
+      "personId": "류중일",
+      "name": "류중일",
+      "year": 1998,
+      "team": "삼성",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".200/.271 0HR 13타점 4SB 158PA — KBO 기록실"
+    },
+    {
+      "personId": "양준혁",
+      "name": "양준혁",
+      "year": 1998,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 93,
+        "power": 80,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".342/.450 27HR 89타점 15SB 552PA — KBO 기록실"
+    },
+    {
+      "personId": "강동우",
+      "name": "강동우",
+      "year": 1998,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 62,
+        "speed": 78,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".300/.365 10HR 30타점 22SB 468PA — KBO 기록실"
+    },
+    {
+      "personId": "최익성",
+      "name": "최익성",
+      "year": 1998,
+      "team": "삼성",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 67,
+        "speed": 76,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".262/.372 13HR 42타점 20SB 446PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 1998,
+      "team": "삼성",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 63,
+        "speed": 50,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".201/.292 8HR 33타점 3SB 351PA — KBO 기록실"
+    }
+  ]
+}

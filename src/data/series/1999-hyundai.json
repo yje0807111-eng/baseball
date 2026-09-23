@@ -1,0 +1,318 @@
+{
+  "id": "1999-hyundai",
+  "kind": "team",
+  "year": 1999,
+  "title": "현대 유니콘스",
+  "franchise": "HYUNDAI",
+  "subtitle": "정민태의 20승",
+  "blurb": "정민태가 20승을 거두며 마운드를 이끌었고 박종호가 3할 타율로 타선을 받쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "정민태",
+      "name": "정민태",
+      "year": 1999,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 79,
+        "stamina": 95,
+        "stability": 93
+      },
+      "note": "20승 다승왕·투수 GG",
+      "source": "33G 230 2/3IP ERA2.54 178K 63BB WHIP1.17 20승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "김수경",
+      "name": "김수경",
+      "year": 1999,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 84,
+        "control": 50,
+        "stamina": 89,
+        "stability": 72
+      },
+      "note": "",
+      "source": "40G 184 2/3IP ERA4.14 184K 109BB WHIP1.56 10승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "최원호",
+      "name": "최원호",
+      "year": 1999,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 58,
+        "stamina": 72,
+        "stability": 48
+      },
+      "note": "",
+      "source": "35G 123 2/3IP ERA6.62 80K 58BB WHIP1.75 6승 — KBO 기록실"
+    },
+    {
+      "personId": "위재영",
+      "name": "위재영",
+      "year": 1999,
+      "team": "현대",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 54,
+        "stamina": 70,
+        "stability": 73
+      },
+      "note": "",
+      "source": "20G 116 1/3IP ERA4.10 100K 62BB WHIP1.62 6승 — KBO 기록실"
+    },
+    {
+      "personId": "박장희",
+      "name": "박장희",
+      "year": 1999,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 80,
+        "stamina": 60,
+        "stability": 66
+      },
+      "note": "",
+      "source": "54G 117 1/3IP ERA4.91 70K 30BB WHIP1.47 6승 5SV — KBO 기록실"
+    },
+    {
+      "personId": "정명원",
+      "name": "정명원",
+      "year": 1999,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 64,
+        "stamina": 60,
+        "stability": 76
+      },
+      "note": "",
+      "source": "30G 84 1/3IP ERA4.06 52K 34BB WHIP1.49 5승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "최영필",
+      "name": "최영필",
+      "year": 1999,
+      "team": "현대",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 63,
+        "stamina": 60,
+        "stability": 56
+      },
+      "note": "",
+      "source": "40G 88 2/3IP ERA5.58 53K 37BB WHIP1.61 3승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김홍집",
+      "name": "김홍집",
+      "year": 1999,
+      "team": "현대",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 73,
+        "control": 66,
+        "stamina": 55,
+        "stability": 65
+      },
+      "note": "",
+      "source": "59G 52IP ERA5.02 45K 20BB WHIP1.37 2승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "박경완",
+      "name": "박경완",
+      "year": 1999,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 79,
+        "speed": 45,
+        "defense": 86
+      },
+      "note": "",
+      "source": ".221 23HR 67타점 2SB 467PA — KBO 기록실"
+    },
+    {
+      "personId": "장광호",
+      "name": "장광호",
+      "year": 1999,
+      "team": "현대",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 63,
+        "speed": 43,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".274 3HR 18타점 1SB 82PA — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 1999,
+      "team": "현대",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 71,
+        "speed": 45,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".264 14HR 39타점 2SB 367PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 1999,
+      "team": "현대",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 60,
+        "speed": 66,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".301 10HR 55타점 13SB 473PA — KBO 기록실"
+    },
+    {
+      "personId": "권준헌",
+      "name": "권준헌",
+      "year": 1999,
+      "team": "현대",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 42,
+        "power": 40,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".173 0HR 5타점 2SB 63PA — KBO 기록실"
+    },
+    {
+      "personId": "박진만",
+      "name": "박진만",
+      "year": 1999,
+      "team": "현대",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 45,
+        "speed": 53,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".263 3HR 42타점 5SB 459PA — KBO 기록실"
+    },
+    {
+      "personId": "박재홍",
+      "name": "박재홍",
+      "year": 1999,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 75,
+        "speed": 70,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".295 24HR 98타점 17SB 572PA — KBO 기록실"
+    },
+    {
+      "personId": "전준호",
+      "name": "전준호",
+      "year": 1999,
+      "team": "현대",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 46,
+        "speed": 87,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".291 4HR 43타점 38SB 562PA — KBO 기록실"
+    },
+    {
+      "personId": "김인호",
+      "name": "김인호",
+      "year": 1999,
+      "team": "현대",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 59,
+        "speed": 66,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".256 7HR 43타점 13SB 356PA — KBO 기록실"
+    },
+    {
+      "personId": "피어슨",
+      "name": "피어슨",
+      "year": 1999,
+      "team": "현대",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 74,
+        "power": 83,
+        "speed": 40,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".289 31HR 108타점 0SB 561PA — KBO 기록실"
+    }
+  ]
+}

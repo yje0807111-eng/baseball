@@ -1,0 +1,318 @@
+{
+  "id": "1995-taepyungyang",
+  "kind": "team",
+  "year": 1995,
+  "title": "태평양 돌핀스",
+  "franchise": "HYUNDAI",
+  "subtitle": "태평양의 마지막 해",
+  "blurb": "위재영이 13승을 거두고 정명원이 뒷문을 지킨 태평양이 마지막 시즌을 치렀다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "정민태",
+      "name": "정민태",
+      "year": 1995,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 75,
+        "stamina": 90,
+        "stability": 75
+      },
+      "note": "",
+      "source": "28G 188IP ERA3.69 115K 58BB WHIP1.30 8승 — KBO 기록실"
+    },
+    {
+      "personId": "위재영",
+      "name": "위재영",
+      "year": 1995,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 69,
+        "control": 75,
+        "stamina": 81,
+        "stability": 76
+      },
+      "note": "",
+      "source": "36G 157 2/3IP ERA3.60 113K 48BB WHIP1.21 13승 4SV — KBO 기록실"
+    },
+    {
+      "personId": "안병원",
+      "name": "안병원",
+      "year": 1995,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 72,
+        "stamina": 71,
+        "stability": 66
+      },
+      "note": "",
+      "source": "19G 117 1/3IP ERA4.45 77K 39BB WHIP1.40 4승 — KBO 기록실"
+    },
+    {
+      "personId": "가내영",
+      "name": "가내영",
+      "year": 1995,
+      "team": "태평양",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 82,
+        "stamina": 65,
+        "stability": 59
+      },
+      "note": "",
+      "source": "23G 97IP ERA5.01 55K 23BB WHIP1.36 4승 — KBO 기록실"
+    },
+    {
+      "personId": "정명원",
+      "name": "정명원",
+      "year": 1995,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 67,
+        "control": 84,
+        "stamina": 60,
+        "stability": 94
+      },
+      "note": "",
+      "source": "52G 103IP ERA1.75 59K 23BB WHIP0.88 9승 19SV — KBO 기록실"
+    },
+    {
+      "personId": "조웅천",
+      "name": "조웅천",
+      "year": 1995,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 72,
+        "stamina": 60,
+        "stability": 86
+      },
+      "note": "",
+      "source": "29G 80 2/3IP ERA2.57 63K 27BB WHIP1.21 2승 — KBO 기록실"
+    },
+    {
+      "personId": "노승욱",
+      "name": "노승욱",
+      "year": 1995,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 76,
+        "stamina": 59,
+        "stability": 78
+      },
+      "note": "",
+      "source": "26G 71 2/3IP ERA3.39 55K 21BB WHIP1.35 1승 — KBO 기록실"
+    },
+    {
+      "personId": "김억만",
+      "name": "김억만",
+      "year": 1995,
+      "team": "태평양",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 46,
+        "stamina": 51,
+        "stability": 60
+      },
+      "note": "",
+      "source": "16G 31IP ERA4.65 19K 20BB WHIP1.97 — KBO 기록실"
+    },
+    {
+      "personId": "김동기",
+      "name": "김동기",
+      "year": 1995,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 80,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".173 9HR 28타점 1SB 200PA — KBO 기록실"
+    },
+    {
+      "personId": "김성태",
+      "name": "김성태",
+      "year": 1995,
+      "team": "태평양",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 42,
+        "speed": 54,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".226 0HR 18타점 4SB 161PA — KBO 기록실"
+    },
+    {
+      "personId": "김경기",
+      "name": "김경기",
+      "year": 1995,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 70,
+        "speed": 54,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".295 12HR 46타점 4SB 398PA — KBO 기록실"
+    },
+    {
+      "personId": "김성갑",
+      "name": "김성갑",
+      "year": 1995,
+      "team": "태평양",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 57,
+        "power": 42,
+        "speed": 54,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".228 0HR 23타점 4SB 325PA — KBO 기록실"
+    },
+    {
+      "personId": "권준헌",
+      "name": "권준헌",
+      "year": 1995,
+      "team": "태평양",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 58,
+        "speed": 71,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".306 6HR 34타점 14SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "염경엽",
+      "name": "염경엽",
+      "year": 1995,
+      "team": "태평양",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 46,
+        "power": 42,
+        "speed": 64,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".162 0HR 9타점 9SB 186PA — KBO 기록실"
+    },
+    {
+      "personId": "강영수",
+      "name": "강영수",
+      "year": 1995,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 79,
+        "speed": 52,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".243 21HR 68타점 3SB 484PA — KBO 기록실"
+    },
+    {
+      "personId": "김인호",
+      "name": "김인호",
+      "year": 1995,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 65,
+        "speed": 64,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".234 7HR 25타점 9SB 305PA — KBO 기록실"
+    },
+    {
+      "personId": "이희성",
+      "name": "이희성",
+      "year": 1995,
+      "team": "태평양",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 46,
+        "speed": 74,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".245 1HR 17타점 17SB 265PA — KBO 기록실"
+    },
+    {
+      "personId": "이숭용",
+      "name": "이숭용",
+      "year": 1995,
+      "team": "태평양",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 74,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".255 11HR 45타점 5SB 300PA — KBO 기록실"
+    }
+  ]
+}

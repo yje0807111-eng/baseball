@@ -1,0 +1,318 @@
+{
+  "id": "1999-doosan",
+  "kind": "team",
+  "year": 1999,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "우즈·심정수의 홈런 쌍포",
+  "blurb": "우즈가 34홈런, 심정수가 31홈런을 치고 진필중이 혼자 16승 36세이브를 쌓았다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이경필",
+      "name": "이경필",
+      "year": 1999,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 72,
+        "stamina": 84,
+        "stability": 86
+      },
+      "note": "",
+      "source": "28G 166 2/3IP ERA3.19 91K 55BB WHIP1.24 13승 — KBO 기록실"
+    },
+    {
+      "personId": "최용호",
+      "name": "최용호",
+      "year": 1999,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 49,
+        "stamina": 80,
+        "stability": 74
+      },
+      "note": "",
+      "source": "38G 154 1/3IP ERA4.26 108K 92BB WHIP1.44 8승 — KBO 기록실"
+    },
+    {
+      "personId": "강병규",
+      "name": "강병규",
+      "year": 1999,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 72,
+        "stamina": 78,
+        "stability": 63
+      },
+      "note": "",
+      "source": "29G 143 1/3IP ERA5.21 92K 48BB WHIP1.48 13승 — KBO 기록실"
+    },
+    {
+      "personId": "이광우",
+      "name": "이광우",
+      "year": 1999,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 81,
+        "stamina": 69,
+        "stability": 61
+      },
+      "note": "",
+      "source": "32G 112 2/3IP ERA5.43 66K 28BB WHIP1.45 9승 — KBO 기록실"
+    },
+    {
+      "personId": "진필중",
+      "name": "진필중",
+      "year": 1999,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 88,
+        "control": 73,
+        "stamina": 60,
+        "stability": 94
+      },
+      "note": "36세이브·세이브왕",
+      "source": "73G 114IP ERA2.37 114K 37BB WHIP1.06 16승 36SV — KBO 기록실"
+    },
+    {
+      "personId": "이혜천",
+      "name": "이혜천",
+      "year": 1999,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 74,
+        "control": 50,
+        "stamina": 60,
+        "stability": 65
+      },
+      "note": "",
+      "source": "77G 119IP ERA4.76 98K 70BB WHIP1.59 8승 — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1999,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 45,
+        "stamina": 60,
+        "stability": 51
+      },
+      "note": "",
+      "source": "37G 101 2/3IP ERA6.20 59K 66BB WHIP1.82 4승 — KBO 기록실"
+    },
+    {
+      "personId": "김유봉",
+      "name": "김유봉",
+      "year": 1999,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 56,
+        "stamina": 60,
+        "stability": 45
+      },
+      "note": "",
+      "source": "46G 88 2/3IP ERA7.51 56K 44BB WHIP1.70 3승 — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 1999,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 73,
+        "speed": 48,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".258/.304 16HR 63타점 3SB 392PA — KBO 기록실"
+    },
+    {
+      "personId": "김태형",
+      "name": "김태형",
+      "year": 1999,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 42,
+        "power": 47,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".200/.256 1HR 4타점 0SB 89PA — KBO 기록실"
+    },
+    {
+      "personId": "우즈",
+      "name": "우즈",
+      "year": 1999,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 77,
+        "power": 85,
+        "speed": 53,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".297/.406 34HR 101타점 5SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "안경현",
+      "name": "안경현",
+      "year": 1999,
+      "team": "두산",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 60,
+        "speed": 53,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".247/.322 7HR 32타점 5SB 337PA — KBO 기록실"
+    },
+    {
+      "personId": "김동주",
+      "name": "김동주",
+      "year": 1999,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 78,
+        "speed": 45,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".321/.394 22HR 84타점 2SB 455PA — KBO 기록실"
+    },
+    {
+      "personId": "김민호",
+      "name": "김민호",
+      "year": 1999,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 69,
+        "power": 44,
+        "speed": 86,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".273/.329 3HR 46타점 37SB 515PA — KBO 기록실"
+    },
+    {
+      "personId": "정수근",
+      "name": "정수근",
+      "year": 1999,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 86,
+        "power": 42,
+        "speed": 94,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".325/.408 2HR 55타점 57SB 589PA — KBO 기록실"
+    },
+    {
+      "personId": "심정수",
+      "name": "심정수",
+      "year": 1999,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 83,
+        "speed": 43,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".335/.408 31HR 110타점 1SB 544PA — KBO 기록실"
+    },
+    {
+      "personId": "장원진",
+      "name": "장원진",
+      "year": 1999,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 43,
+        "speed": 48,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".317/.372 2HR 58타점 3SB 480PA — KBO 기록실"
+    },
+    {
+      "personId": "최훈재",
+      "name": "최훈재",
+      "year": 1999,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 58,
+        "speed": 57,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279/.344 8HR 58타점 7SB 433PA — KBO 기록실"
+    }
+  ]
+}

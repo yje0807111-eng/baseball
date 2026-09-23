@@ -47,8 +47,8 @@ export const TRAITS = {
  */
 export const GRADES = {
   ace:   { ko: '강호', reserve: 42, plan: 10, spread: 1 },  // 좋은 선수를 먼저, 돈도 과감히
-  solid: { ko: '탄탄', reserve: 48, plan: 18, spread: 3 },
-  plain: { ko: '평범', reserve: 52, plan: 22, spread: 5 },
+  solid: { ko: '탄탄', reserve: 46, plan: 16, spread: 2 },
+  plain: { ko: '평범', reserve: 54, plan: 24, spread: 6 },
   weak:  { ko: '약체', reserve: 60, plan: 26, spread: 9 },  // 플랜만 고집하다 돈을 남긴다
 };
 /** 상대 일곱 구단에 돌릴 급 — 강호 하나 · 탄탄 둘 · 평범 둘 · 약체 둘 */
