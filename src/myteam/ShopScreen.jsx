@@ -1,5 +1,6 @@
 /* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
 import React, { useMemo, useState } from 'react';
+import { SQUAD_CAP } from './rules.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, applyTeamBoost, teamBoostTargets, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
@@ -17,7 +18,7 @@ const catLabel = { training: '훈련', boost: '부스트', ops: '운영', staff:
 const catSub = { training: '영구 상승', boost: '경기 한정', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
-function ItemCard({ it, on, onClick, cap = 2000 }) {
+function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
@@ -144,7 +145,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
       push(team, gold - picked.price);
       return;
     }
-    if (picked.cap) push({ ...team, cap: (team.cap || 2000) + picked.cap }, gold - picked.price);
+    if (picked.cap) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
   };
 
   // 살 수 없는 상품은 버튼에서 막는다 (구매 뒤 알림 문구는 두지 않는다)

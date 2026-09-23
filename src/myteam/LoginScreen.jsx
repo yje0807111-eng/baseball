@@ -1,6 +1,7 @@
 /* 로그인 — 지금은 감독 이름만으로 브라우저에 저장. 나중에 계정 로그인으로 갈아 끼운다 */
 import React, { useState } from 'react';
 import { signIn, peekAccount } from './store.js';
+import { SQUAD_CAP } from './rules.js';
 import { UiStyle, Btn, Chip } from './ui.jsx';
 
 export default function LoginScreen({ onDone }) {
@@ -25,7 +26,7 @@ export default function LoginScreen({ onDone }) {
           <h1 className="mt-2.5 text-[62px] font-extrabold leading-[1.02] text-white">내 팀을<br />만든다</h1>
           <p className="mt-4 max-w-[440px] text-base leading-[1.75] text-gray-400">
             1982년부터 오늘까지, 역대 KBO 선수를 직접 검색해 26인 엔트리와 코치진을 꾸립니다.<br />
-            샐러리 캡 2000 CP 안에서 당신의 최적해를 찾으세요.
+            샐러리 캡 {SQUAD_CAP} CP 안에서 당신의 최적해를 찾으세요.
           </p>
 
           <div className="mt-cut mt-frame mt-8 bg-[#060a13]/88 p-7 backdrop-blur-[10px]" style={{ '--c': '16px' }}>
@@ -38,7 +39,7 @@ export default function LoginScreen({ onDone }) {
             </div>
             {err && <p className="mt-2 text-sm text-red-400">{err}</p>}
             <div className="mt-4 flex flex-wrap gap-2.5">
-              <Chip a="#7dd3fc">엔트리 26명</Chip><Chip a="#fde047">외국인 3명</Chip><Chip a="#34d399">CP 2000</Chip><Chip>감독·코치 4명</Chip>
+              <Chip a="#7dd3fc">엔트리 26명</Chip><Chip a="#fde047">외국인 3명</Chip><Chip a="#34d399">CP {SQUAD_CAP}</Chip><Chip>감독·코치 4명</Chip>
             </div>
           </div>
           <p className="mt-4 text-[13px] text-gray-500">계정 연동과 다른 감독과의 대결은 준비 중입니다</p>
