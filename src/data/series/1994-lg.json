@@ -1,0 +1,319 @@
+{
+  "id": "1994-lg",
+  "champion": true,
+  "kind": "team",
+  "year": 1994,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "한국시리즈 우승 · 신인들의 해",
+  "blurb": "이상훈이 18승, 김용수가 30세이브를 올리고 신인 김재현과 서용빈이 타선에 힘을 보탰다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "김태원",
+      "name": "김태원",
+      "year": 1994,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 80,
+        "stamina": 91,
+        "stability": 88
+      },
+      "note": "",
+      "source": "28G 190 2/3IP ERA2.41 96K 50BB WHIP1.01 16승 — KBO 기록실"
+    },
+    {
+      "personId": "이상훈",
+      "name": "이상훈",
+      "year": 1994,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 76,
+        "control": 76,
+        "stamina": 90,
+        "stability": 87
+      },
+      "note": "",
+      "source": "27G 189 2/3IP ERA2.47 148K 57BB WHIP1.04 18승 — KBO 기록실"
+    },
+    {
+      "personId": "정삼흠",
+      "name": "정삼흠",
+      "year": 1994,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 55,
+        "control": 84,
+        "stamina": 89,
+        "stability": 82
+      },
+      "note": "2년 연속 15승·우승",
+      "source": "27G 186 1/3IP ERA2.95 76K 41BB WHIP1.15 15승 — KBO 기록실"
+    },
+    {
+      "personId": "인현배",
+      "name": "인현배",
+      "year": 1994,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 51,
+        "control": 72,
+        "stamina": 73,
+        "stability": 69
+      },
+      "note": "",
+      "source": "23G 124 2/3IP ERA4.19 44K 42BB WHIP1.34 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김용수",
+      "name": "김용수",
+      "year": 1994,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 91,
+        "stamina": 58,
+        "stability": 89
+      },
+      "note": "",
+      "source": "42G 63 1/3IP ERA2.56 44K 10BB WHIP0.88 5승 30SV — KBO 기록실"
+    },
+    {
+      "personId": "차동철",
+      "name": "차동철",
+      "year": 1994,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 59,
+        "control": 73,
+        "stamina": 57,
+        "stability": 83
+      },
+      "note": "",
+      "source": "34G 59IP ERA2.59 29K 19BB WHIP1.59 2승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "차명석",
+      "name": "차명석",
+      "year": 1994,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 53,
+        "control": 74,
+        "stamina": 57,
+        "stability": 68
+      },
+      "note": "",
+      "source": "26G 61IP ERA4.28 24K 19BB WHIP1.44 2승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "김기범",
+      "name": "김기범",
+      "year": 1994,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 72,
+        "stamina": 58,
+        "stability": 61
+      },
+      "note": "",
+      "source": "20G 63IP ERA4.86 33K 21BB WHIP1.41 3승 — KBO 기록실"
+    },
+    {
+      "personId": "김동수",
+      "name": "김동수",
+      "year": 1994,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 78,
+        "power": 60,
+        "speed": 54,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".288/.381 6HR 42타점 4SB 369PA — KBO 기록실"
+    },
+    {
+      "personId": "김정민",
+      "name": "김정민",
+      "year": 1994,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 65,
+        "speed": 44,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".281/.341 3HR 17타점 0SB 136PA — KBO 기록실"
+    },
+    {
+      "personId": "서용빈",
+      "name": "서용빈",
+      "year": 1994,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 87,
+        "power": 50,
+        "speed": 59,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".318/.371 4HR 72타점 6SB 543PA — KBO 기록실"
+    },
+    {
+      "personId": "이종열",
+      "name": "이종열",
+      "year": 1994,
+      "team": "LG",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 50,
+        "power": 45,
+        "speed": 67,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".211/.267 1HR 25타점 11SB 316PA — KBO 기록실"
+    },
+    {
+      "personId": "한대화",
+      "name": "한대화",
+      "year": 1994,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 66,
+        "speed": 52,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".297/.384 10HR 67타점 3SB 414PA — KBO 기록실"
+    },
+    {
+      "personId": "류지현",
+      "name": "류지현",
+      "year": 1994,
+      "team": "LG",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 84,
+        "power": 68,
+        "speed": 97,
+        "defense": 88
+      },
+      "note": "",
+      "source": ".305/.391 15HR 51타점 51SB 574PA — KBO 기록실"
+    },
+    {
+      "personId": "김재현",
+      "name": "김재현",
+      "year": 1994,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 75,
+        "contact": 78,
+        "speed": 79,
+        "defense": 76
+      },
+      "note": "신인 최초 20-20",
+      "source": ".289/.376 21HR 80타점 21SB 535PA — KBO 기록실"
+    },
+    {
+      "personId": "노찬엽",
+      "name": "노찬엽",
+      "year": 1994,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 75,
+        "power": 67,
+        "speed": 61,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".279/.357 10HR 59타점 7SB 393PA — KBO 기록실"
+    },
+    {
+      "personId": "박준태",
+      "name": "박준태",
+      "year": 1994,
+      "team": "LG",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 45,
+        "speed": 67,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".274/.343 1HR 39타점 11SB 339PA — KBO 기록실"
+    },
+    {
+      "personId": "박종호",
+      "name": "박종호",
+      "year": 1994,
+      "team": "LG",
+      "position": "2B",
+      "hand": "S",
+      "isForeign": false,
+      "stats": {
+        "power": 56,
+        "contact": 69,
+        "speed": 79,
+        "defense": 84
+      },
+      "note": "2루수 골든글러브·우승",
+      "source": ".260/.366 6HR 56타점 21SB 400PA — KBO 기록실"
+    }
+  ]
+}

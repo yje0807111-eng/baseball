@@ -33,8 +33,10 @@ const THEN = {
   HT: [[2001, { ko: 'KIA', title: 'KIA 타이거즈' }], [1982, { ko: '해태', title: '해태 타이거즈' }]],
   OB: [[1999, { ko: '두산', title: '두산 베어스' }], [1982, { ko: 'OB', title: 'OB 베어스' }]],
   HH: [[1994, { ko: '한화', title: '한화 이글스' }], [1986, { ko: '빙그레', title: '빙그레 이글스' }]],
-  /* 현대는 1996년에 태평양을 인수해 이름을 바꿨다 — 기록실도 같은 코드로 준다 */
-  HD: [[1996, { ko: '현대', title: '현대 유니콘스' }], [1982, { ko: '태평양', title: '태평양 돌핀스' }]],
+  /* 삼미 → 청보 → 태평양 → 현대로 이어진 구단 — 기록실도 같은 코드로 준다 */
+  HD: [[1996, { ko: '현대', title: '현대 유니콘스' }], [1988, { ko: '태평양', title: '태평양 돌핀스' }],
+    [1986, { ko: '청보', title: '청보 핀토스' }], [1982, { ko: '삼미', title: '삼미 슈퍼스타즈' }]],
+  LG: [[1990, { ko: 'LG', title: 'LG 트윈스' }], [1982, { ko: 'MBC', title: 'MBC 청룡' }]],
 };
 /** 그 해의 구단 이름 · 프랜차이즈 */
 export function teamOf(code, year) {
@@ -46,10 +48,11 @@ export function teamOf(code, year) {
 }
 const SLUG = { OB: 'doosan', HT: 'kia', WO: 'kiwoom', KT: 'kt', LT: 'lotte', NC: 'nc', SS: 'samsung', HH: 'hanwha', SK: 'ssg', LG: 'lg', HD: 'hyundai', SB: 'ssangbangwool' };
 /** 옛 이름으로 파일을 두는 구단 — [바뀐 해, 그 전 이름] */
-const OLD_SLUG = { SK: [2021, 'sk'], HT: [2001, 'haitai'], OB: [1999, 'ob'], HH: [1994, 'binggrae'], HD: [1996, 'taepyungyang'] };
+const OLD_SLUG = { SK: [2021, 'sk'], HT: [2001, 'haitai'], OB: [1999, 'ob'], HH: [1994, 'binggrae'], LG: [1990, 'mbc'] };
 /** 파일 이름 — 구단명이 바뀌기 전 시즌은 그때 이름으로 (2017-sk · 2014-nexen · 1993-haitai) */
 export const slugOf = (code, year) => {
   if (code === 'WO') return year < 2010 ? 'heroes' : year < 2019 ? 'nexen' : 'kiwoom';
+  if (code === 'HD') return year >= 1996 ? 'hyundai' : year >= 1988 ? 'taepyungyang' : year >= 1986 ? 'chungbo' : 'sammi';
   const old = OLD_SLUG[code];
   if (old && year < old[0]) return old[1];
   return SLUG[code];

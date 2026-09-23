@@ -1,0 +1,318 @@
+{
+  "id": "1997-lotte",
+  "kind": "team",
+  "year": 1997,
+  "title": "롯데 자이언츠",
+  "franchise": "LOTTE",
+  "subtitle": "마해영의 25홈런",
+  "blurb": "마해영이 25홈런을 치고 박지철이 14승 평균자책 2.45를 기록했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "박지철",
+      "name": "박지철",
+      "year": 1997,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 66,
+        "stamina": 81,
+        "stability": 90
+      },
+      "note": "",
+      "source": "40G 157 2/3IP ERA2.45 96K 61BB WHIP1.14 14승 7SV — KBO 기록실"
+    },
+    {
+      "personId": "염종석",
+      "name": "염종석",
+      "year": 1997,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 61,
+        "control": 70,
+        "stamina": 75,
+        "stability": 76
+      },
+      "note": "",
+      "source": "23G 133 2/3IP ERA3.84 71K 47BB WHIP1.29 6승 — KBO 기록실"
+    },
+    {
+      "personId": "주형광",
+      "name": "주형광",
+      "year": 1997,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 59,
+        "stamina": 74,
+        "stability": 50
+      },
+      "note": "",
+      "source": "32G 131 2/3IP ERA5.88 84K 61BB WHIP1.51 6승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "차명주",
+      "name": "차명주",
+      "year": 1997,
+      "team": "롯데",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 55,
+        "stamina": 68,
+        "stability": 63
+      },
+      "note": "",
+      "source": "25G 107 2/3IP ERA4.68 64K 55BB WHIP1.66 7승 — KBO 기록실"
+    },
+    {
+      "personId": "김태석",
+      "name": "김태석",
+      "year": 1997,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 66,
+        "stamina": 60,
+        "stability": 72
+      },
+      "note": "",
+      "source": "35G 109 2/3IP ERA4.19 51K 43BB WHIP1.36 5승 1SV — KBO 기록실"
+    },
+    {
+      "personId": "강상수",
+      "name": "강상수",
+      "year": 1997,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 60,
+        "stamina": 60,
+        "stability": 58
+      },
+      "note": "",
+      "source": "36G 101 2/3IP ERA5.13 70K 45BB WHIP1.71 3승 3SV — KBO 기록실"
+    },
+    {
+      "personId": "문동환",
+      "name": "문동환",
+      "year": 1997,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 64,
+        "control": 66,
+        "stamina": 53,
+        "stability": 64
+      },
+      "note": "",
+      "source": "22G 39IP ERA4.85 23K 15BB WHIP1.41 2승 8SV — KBO 기록실"
+    },
+    {
+      "personId": "박보현",
+      "name": "박보현",
+      "year": 1997,
+      "team": "롯데",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 62,
+        "stamina": 54,
+        "stability": 71
+      },
+      "note": "",
+      "source": "20G 44 2/3IP ERA4.23 21K 19BB WHIP1.41 1SV — KBO 기록실"
+    },
+    {
+      "personId": "강성우",
+      "name": "강성우",
+      "year": 1997,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 40,
+        "speed": 47,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".199/.245 0HR 13타점 2SB 191PA — KBO 기록실"
+    },
+    {
+      "personId": "임수혁",
+      "name": "임수혁",
+      "year": 1997,
+      "team": "롯데",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 71,
+        "speed": 45,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".248/.368 6HR 25타점 1SB 176PA — KBO 기록실"
+    },
+    {
+      "personId": "마해영",
+      "name": "마해영",
+      "year": 1997,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 66,
+        "power": 78,
+        "speed": 57,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".259/.328 25HR 75타점 6SB 505PA — KBO 기록실"
+    },
+    {
+      "personId": "박정태",
+      "name": "박정태",
+      "year": 1997,
+      "team": "롯데",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 56,
+        "power": 49,
+        "speed": 47,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".229/.293 3HR 40타점 2SB 384PA — KBO 기록실"
+    },
+    {
+      "personId": "공필성",
+      "name": "공필성",
+      "year": 1997,
+      "team": "롯데",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 45,
+        "speed": 62,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".246/.307 1HR 20타점 9SB 235PA — KBO 기록실"
+    },
+    {
+      "personId": "박계원",
+      "name": "박계원",
+      "year": 1997,
+      "team": "롯데",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 51,
+        "power": 40,
+        "speed": 47,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".218/.292 0HR 8타점 2SB 114PA — KBO 기록실"
+    },
+    {
+      "personId": "김대익",
+      "name": "김대익",
+      "year": 1997,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 71,
+        "power": 56,
+        "speed": 68,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".272/.346 6HR 35타점 13SB 412PA — KBO 기록실"
+    },
+    {
+      "personId": "이종운",
+      "name": "이종운",
+      "year": 1997,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 64,
+        "power": 40,
+        "speed": 70,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".252/.276 0HR 11타점 15SB 317PA — KBO 기록실"
+    },
+    {
+      "personId": "김응국",
+      "name": "김응국",
+      "year": 1997,
+      "team": "롯데",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 63,
+        "power": 49,
+        "speed": 47,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".250/.340 2HR 22타점 2SB 236PA — KBO 기록실"
+    },
+    {
+      "personId": "박현승",
+      "name": "박현승",
+      "year": 1997,
+      "team": "롯데",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 77,
+        "speed": 66,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".301/.369 19HR 63타점 12SB 430PA — KBO 기록실"
+    }
+  ]
+}
