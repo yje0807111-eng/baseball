@@ -167,7 +167,7 @@
       "year": 2009,
       "team": "롯데",
       "position": "C",
-      "hand": "R",
+      "hand": "S",
       "isForeign": false,
       "stats": {
         "contact": 51,
@@ -252,7 +252,7 @@
       "year": 2009,
       "team": "롯데",
       "position": "OF",
-      "hand": "R",
+      "hand": "L",
       "isForeign": false,
       "stats": {
         "contact": 69,
@@ -269,7 +269,7 @@
       "year": 2009,
       "team": "롯데",
       "position": "OF",
-      "hand": "R",
+      "hand": "L",
       "isForeign": false,
       "stats": {
         "contact": 70,
