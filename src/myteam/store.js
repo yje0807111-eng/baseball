@@ -17,13 +17,30 @@ const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(
 /* 능력치 눈금을 50~110 으로 넓히며 기본 캡이 2000 에서 올랐다.
    그전에 저장된 팀은 cap 에 옛 기본값이 박혀 있으니, 상점에서 산 만큼만 새 기본에 얹어 다시 센다. */
 const OLD_SQUAD_CAP = 2000;
+/** 상점에서 살 수 있는 캡 확장은 +40 과 +100 뿐 — 이 둘로 만들 수 있는 값인가 */
+const buyableCap = (v) => v >= 0 && v % 20 === 0 && v !== 20 && v !== 60;
+/**
+ * 한때 라커를 열 때마다 캡이 330(= 2330 − 2000)씩 불어나던 적이 있다.
+ * 기본 캡을 넘는 몫에서 330의 배수를 덜어 내되, 남는 값이 상점에서 산 만큼으로
+ * 설명될 때만 덜어 낸다 — 정상으로 늘린 캡을 깎지 않기 위해서다.
+ * 이미 바른 값이면 아무것도 덜지 않으므로 몇 번을 거쳐도 같은 값이 나온다.
+ */
+export function fixInflatedCap(cap, base = SQUAD_CAP, step = SQUAD_CAP - OLD_SQUAD_CAP) {
+  const extra = (cap ?? base) - base;
+  if (extra <= 0 || step <= 0) return cap ?? base;
+  for (let n = Math.floor(extra / step); n >= 1; n -= 1) {
+    if (buyableCap(extra - step * n)) return base + (extra - step * n);
+  }
+  return cap;
+}
+
 const withTeam = (team) => {
   const t = { ...emptyTeam(), ...(team || {}) };
   /* 한 번 저장된 적 있는 팀(updatedAt)이면서 아직 새 눈금을 안 거친 것만 다시 센다.
      새로 만든 팀까지 이 길을 타면 열 때마다 캡이 불어난다 */
   const older = t.updatedAt && t.capBase !== SQUAD_CAP;
-  const cap = older ? SQUAD_CAP + Math.max(0, (t.cap ?? SQUAD_CAP) - OLD_SQUAD_CAP) : t.cap;
-  return { ...t, cap, capBase: SQUAD_CAP, staff: freshStaff(t.staff) };
+  const moved = older ? SQUAD_CAP + Math.max(0, (t.cap ?? SQUAD_CAP) - OLD_SQUAD_CAP) : t.cap;
+  return { ...t, cap: fixInflatedCap(moved), capBase: SQUAD_CAP, staff: freshStaff(t.staff) };
 };
 
 const emptyTeam = () => ({
