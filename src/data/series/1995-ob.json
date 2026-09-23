@@ -30,7 +30,7 @@
     { "personId": "김민호(1969)", "name": "김민호", "year": 1995, "team": "OB", "position": "SS", "hand": "R", "isForeign": false, "stats": { "power": 47, "contact": 78, "speed": 93, "defense": 89 }, "note": "한국시리즈 MVP", "source": "113G .288 2HR 30타점 47SB OBP.353 유격수 골든글러브 — namu" },
     { "personId": "김상호(1965)", "name": "김상호", "year": 1995, "team": "OB", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 82, "contact": 73, "speed": 64, "defense": 80 }, "note": "MVP·홈런왕·타점왕", "source": "126G .272 25HR 101타점 10SB OPS.809 — namu" },
     { "personId": "심정수", "name": "심정수", "year": 1995, "team": "OB", "position": "OF", "hand": "R", "isForeign": false, "stats": { "power": 75, "contact": 76, "speed": 52, "defense": 66 }, "note": "고졸 신인 21홈런", "source": "116G .282 21HR 59타점 4SB OBP.344 — kowiki" },
-    { "personId": "장원진", "name": "장원진", "year": 1995, "team": "OB", "position": "OF", "hand": "S", "isForeign": false, "stats": { "power": 61, "contact": 69, "speed": 61, "defense": 78 }, "note": "", "source": "123G .260 9HR 58타점 8SB — namu" },
+    { "personId": "장원진", "name": "장원진", "year": 1995, "team": "OB", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 61, "contact": 69, "speed": 61, "defense": 78 }, "note": "", "source": "123G .260 9HR 58타점 8SB — namu" },
     { "personId": "정수근", "name": "정수근", "year": 1995, "team": "OB", "position": "OF", "hand": "L", "isForeign": false, "stats": { "power": 44, "contact": 53, "speed": 80, "defense": 80 }, "note": "신인 25도루", "source": "117G .214 0HR 10타점 25SB — kowiki" }
   ]
 }
