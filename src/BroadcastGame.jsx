@@ -16,7 +16,7 @@ import {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
-const SB_W = 212;
+const SB_W = 246;
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
 /** 전광판에 보일 회 — 9회까지, 연장에 들어가면 그만큼 늘린다 */
@@ -459,7 +459,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       </div>
       <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
 
-      <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '63px auto 1fr auto auto' }}>
+      <div className="relative grid h-full gap-x-5 gap-y-3 px-5 pb-3.5" style={{ gridTemplateColumns: '272px 1fr 272px', gridTemplateRows: '78px auto 1fr auto auto' }}>
         {/* 헤더 */}
         <header className="relative col-span-3 -mx-5 flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
           <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
@@ -474,26 +474,26 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2">
             <table className="mt-cut border-collapse text-center font-display" style={{ '--c': '8px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
               <thead>
-                <tr className="text-[9.5px] font-semibold text-gray-600">
-                  <th className="w-[62px] py-px" />
-                  {innList(g).map((n) => <th key={n} className="w-[26px] py-px font-normal">{n}</th>)}
-                  <th className="w-[26px] py-px text-yellow-300/70">R</th>
-                  <th className="w-[26px] py-px">H</th>
-                  <th className="w-[26px] py-px pr-1">E</th>
+                <tr className="text-[11px] font-semibold text-gray-600">
+                  <th className="w-[84px] py-0.5" />
+                  {innList(g).map((n) => <th key={n} className="w-[34px] py-0.5 font-normal">{n}</th>)}
+                  <th className="w-[34px] py-0.5 text-yellow-300/70">R</th>
+                  <th className="w-[34px] py-0.5">H</th>
+                  <th className="w-[34px] py-0.5 pr-1">E</th>
                 </tr>
               </thead>
               <tbody>
                 {[[away, g.away, false], [home, g.home, true]].map(([t, side, mine]) => (
                   <tr key={t.name} className="border-t border-white/[0.07]">
-                    <td className="truncate py-px pl-2 text-left text-[11px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
+                    <td className="truncate py-0.5 pl-2 text-left text-[14px] font-extrabold text-gray-300">{shortTeam(t.name, mine)}</td>
                     {innList(g).map((n) => {
                       const v = innAt(g, side, n - 1);
                       const live = !g.final && n === g.inning && (mine ? !g.top : g.top);
-                      return <td key={n} className={`py-px text-[12px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
+                      return <td key={n} className={`py-0.5 text-[15px] ${live ? 'bg-yellow-300/15 text-white' : 'text-gray-400'}`}>{v ?? '·'}</td>;
                     })}
-                    <td className="py-px text-[12px] font-extrabold text-yellow-300">{side.runs}</td>
-                    <td className="py-px text-[12px] text-gray-400">{side.hits}</td>
-                    <td className="py-px pr-1 text-[12px] text-gray-400">{side.errors}</td>
+                    <td className="py-0.5 text-[15px] font-extrabold text-yellow-300">{side.runs}</td>
+                    <td className="py-0.5 text-[15px] text-gray-400">{side.hits}</td>
+                    <td className="py-0.5 pr-1 text-[15px] text-gray-400">{side.errors}</td>
                   </tr>
                 ))}
               </tbody>
@@ -516,42 +516,42 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         </header>
 
 
-        {/* 왼쪽 위: 중계 스코어보드 — 회 · 점수 카드 / 볼카운트 · 주자 · 투구 수 카드 */}
+        {/* 왼쪽 위: 중계 스코어보드 — 왼쪽에 회 · 점수, 오른쪽에 볼카운트 · 주자 · 투구 수 */}
         <div className="relative z-10 col-start-1 row-start-2 self-start">
-          <div className="flex flex-col gap-2" style={{ width: SB_W, filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.6))' }}>
-            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(253,224,71,.3)' }}>
-              <div className="flex items-center justify-between bg-[#fde047]/[0.12] px-2.5 py-1">
-                <b className="font-display text-[12px] font-extrabold text-yellow-300">
+          <div className="flex items-stretch gap-2" style={{ width: 'max-content', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.6))' }}>
+            <div className="mt-cut overflow-hidden" style={{ '--c': '10px', width: SB_W, background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(253,224,71,.3)' }}>
+              <div className="flex items-center justify-between bg-[#fde047]/[0.12] px-3 py-1">
+                <b className="font-display text-[15px] font-extrabold text-yellow-300">
                   {g.final ? 'FINAL' : <>{g.inning}<i className="not-italic">{g.top ? '▲' : '▼'}</i></>}
                 </b>
-                <span className="font-display text-[10px] tracking-[0.22em] text-gray-500">SCORE</span>
+                <span className="font-display text-[11px] tracking-[0.22em] text-gray-500">SCORE</span>
               </div>
               {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
                 const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
                 return (
-                  <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-white/[0.09]' : ''}`} style={{ height: 38 }}>
-                    <span className="relative flex flex-1 items-center gap-2 overflow-hidden px-2.5">
+                  <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-white/[0.09]' : ''}`} style={{ height: 48 }}>
+                    <span className="relative flex flex-1 items-center gap-2.5 overflow-hidden px-3">
                       {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                      <span className="relative block h-4 w-1 shrink-0" style={{ background: flag?.color || color }} />
-                      <b className="relative truncate text-[15px] font-extrabold text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{shortTeam(t.name, mine)}</b>
+                      <span className="relative block h-5 w-1.5 shrink-0" style={{ background: flag?.color || color }} />
+                      <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{shortTeam(t.name, mine)}</b>
                     </span>
-                    <span className="grid w-12 shrink-0 place-items-center border-l border-white/[0.09] font-display text-[24px] font-extrabold"
+                    <span className="grid w-14 shrink-0 place-items-center border-l border-white/[0.09] font-display text-[30px] font-extrabold"
                       style={{ background: mine ? 'rgba(253,224,71,.12)' : 'rgba(0,0,0,.3)', color: mine ? '#fde047' : '#fff' }}>{side.runs}</span>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-cut overflow-hidden" style={{ '--c': '9px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
-              <div className="flex items-stretch">
-                <span className="grid flex-1 place-items-center gap-1 py-1.5">
-                  <small className="font-display text-[9.5px] tracking-[0.22em] text-gray-500">COUNT</small>
-                  <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} />
+            <div className="mt-cut overflow-hidden" style={{ '--c': '10px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+              <div className="flex h-full items-stretch">
+                <span className="grid place-items-center gap-1.5 px-3.5 py-2">
+                  <small className="font-display text-[10.5px] tracking-[0.22em] text-gray-500">COUNT</small>
+                  <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} />
                 </span>
-                <span className="grid place-items-center border-l border-white/[0.09] px-1.5 py-1"><Diamond bases={g.bases} /></span>
-                <span className="grid w-12 place-items-center border-l border-white/[0.09]">
+                <span className="grid place-items-center border-l border-white/[0.09] px-2"><Diamond bases={g.bases} size={92} /></span>
+                <span className="grid w-14 place-items-center border-l border-white/[0.09]">
                   <span className="text-center leading-tight">
-                    <b className="block font-display text-[17px] font-extrabold text-white">{def.pitches}</b>
-                    <small className="font-display text-[10px] tracking-[0.12em] text-gray-500">PITCH</small>
+                    <b className="block font-display text-[22px] font-extrabold text-white">{def.pitches}</b>
+                    <small className="font-display text-[10.5px] tracking-[0.12em] text-gray-500">PITCH</small>
                   </span>
                 </span>
               </div>
