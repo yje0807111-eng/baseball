@@ -14,7 +14,14 @@ const freshStaff = (staff = {}) => Object.fromEntries(Object.entries(staff).map(
   if (!base) return [slot, null];
   return [slot, { ...base, ...(s.level > 1 ? { level: s.level } : {}), ...(s.contracted ? { contracted: true, cost: 0 } : {}) }];
 }));
-const withTeam = (team) => { const t = { ...emptyTeam(), ...(team || {}) }; return { ...t, staff: freshStaff(t.staff) }; };
+/* 능력치 눈금을 50~110 으로 넓히며 기본 캡이 2000 에서 올랐다.
+   그전에 저장된 팀은 cap 에 옛 기본값이 박혀 있으니, 상점에서 산 만큼만 새 기본에 얹어 다시 센다. */
+const OLD_SQUAD_CAP = 2000;
+const withTeam = (team) => {
+  const t = { ...emptyTeam(), ...(team || {}) };
+  const cap = t.capBase === SQUAD_CAP ? t.cap : SQUAD_CAP + Math.max(0, (t.cap ?? SQUAD_CAP) - OLD_SQUAD_CAP);
+  return { ...t, cap, capBase: SQUAD_CAP, staff: freshStaff(t.staff) };
+};
 
 const emptyTeam = () => ({
   name: '나의 드림팀',

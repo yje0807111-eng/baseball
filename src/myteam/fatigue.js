@@ -24,7 +24,7 @@ export function withFatigue(player, fatigue = {}) {
   const cond = conditionOf(f?.rest);
   if (cond === 100) return { ...player, condition: 100, rest: 0 };
   const cut = Math.round((100 - cond) * 0.2);
-  const stats = { ...player.stats, stuff: Math.max(50, (player.stats.stuff ?? 70) - cut), control: Math.max(50, (player.stats.control ?? 70) - cut) };
+  const stats = { ...player.stats, stuff: Math.max(50, (player.stats.stuff ?? 78) - cut), control: Math.max(50, (player.stats.control ?? 78) - cut) };
   return { ...player, stats, overall: overallOf(player.position, stats), condition: cond, rest: f.rest, tired: true };
 }
 export const applyFatigue = (roster, fatigue) => roster.map((p) => withFatigue(p, fatigue));

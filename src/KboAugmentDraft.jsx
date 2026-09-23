@@ -124,7 +124,7 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
 export const DRAFT_MODES = [
-  { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 1,580'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
+  { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '시대를 대표한 레전드 시즌만으로 드림팀을 짭니다. 전원 스타라 캡 운영이 승부처.', filter: (s) => s.kind === 'legend' },
   { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
     desc: '한국시리즈 우승팀만 모았습니다. 왕조의 로스터를 섞어 누가 진짜 최강인지 가립니다.', filter: (s) => s.champion },
@@ -415,7 +415,7 @@ export const SYNERGIES = [
     tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +4', { bat: 4, pit: 4 }),
   ]),
   // ── 팀 구성 (인원이 늘면 단계가 오른다)
-  build('power', '홈런 군단', '파워 80+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 80), [
+  build('power', '홈런 군단', '파워 80+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 98), [
     tier(3, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
   ]),
   build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
@@ -547,7 +547,7 @@ export function teamEnv(opp, record) {
 function pitcherFor(team, inning) {
   const ace = team.sps[0];
   const u = team.usage || {}; // 효과형 증강: completeGame 완투 · extraInnings · aceMax 선발 상한 · noTired · bullpenAce
-  let aceInnings = u.completeGame ? 9 : (ace.stats.stamina >= 90 ? 7 : ace.stats.stamina >= 80 ? 6 : 5) + (u.extraInnings || 0);
+  let aceInnings = u.completeGame ? 9 : (ace.stats.stamina >= 101 ? 7 : ace.stats.stamina >= 91 ? 6 : 5) + (u.extraInnings || 0);
   if (u.aceMax) aceInnings = Math.min(aceInnings, u.aceMax);
   const tiredAt = u.noTired || u.completeGame ? 0 : aceInnings;
   const pen = team.pen;
@@ -646,15 +646,15 @@ const PASSIVE_AUGMENTS = [
   { id: 'legendAura', name: '전설의 기운', tier: 'silver', type: 'build', desc: '레전드 카드 선수 능력치 +6',
     roster: (r) => bump(r, isLegendCard, every(6)) },
   { id: 'rookieHunger', name: '무명의 반란', tier: 'silver', type: 'balance', desc: '종합 70 미만 능력치 +2',
-    roster: (r) => bump(r, (p) => p.overall < 70, every(2)) },
+    roster: (r) => bump(r, (p) => p.overall < 80, every(2)) },
   { id: 'veteran', name: '베테랑의 품격', tier: 'silver', type: 'build', desc: '종합 88+ 능력치 +5',
-    roster: (r) => bump(r, (p) => p.overall >= 88, every(5)) },
+    roster: (r) => bump(r, (p) => p.overall >= 99, every(5)) },
   { id: 'closerFocus', name: '마무리 집중', tier: 'silver', type: 'build', desc: '9회 수비 투구 +14',
     half: (c) => (oppOff(c) && c.inning === 9 ? { pitch: 14 } : null) },
   { id: 'aceDay', name: '에이스 등판', tier: 'silver', type: 'build', desc: '1~5회 선발 투구 +4',
     half: (c) => (oppOff(c) && c.inning <= 5 && c.myPitcher.slot === 'SP' ? { pitch: 4 } : null) },
   { id: 'smallBall', name: '스몰볼', tier: 'silver', type: 'balance', desc: '파워 75 미만 타자 컨택 +7, 주루 +7',
-    roster: (r) => bump(r, (p) => isBat(p) && p.stats.power < 75, { contact: 7, speed: 7 }) },
+    roster: (r) => bump(r, (p) => isBat(p) && p.stats.power < 93, { contact: 7, speed: 7 }) },
   { id: 'fullSwing', name: '풀스윙', tier: 'silver', type: 'extreme', desc: '타자 파워 +12, 컨택 −4',
     roster: (r) => bump(r, isBat, { power: 12, contact: -4 }) },
   { id: 'grind', name: '끈질긴 타격', tier: 'silver', type: 'build', desc: '6회부터 공격 +0.15',
@@ -662,7 +662,7 @@ const PASSIVE_AUGMENTS = [
   { id: 'staminaTrain', name: '체력 훈련', tier: 'silver', type: 'play', desc: '선발 체력 +20 · 불펜 능력치 +5',
     roster: (r) => bump(bump(r, isSP, { stamina: 20 }), isRelief, every(5)) },
   { id: 'catcherLead', name: '포수 리드', tier: 'silver', type: 'build', desc: '포수 수비 80+ 면 투수 제구 +12',
-    roster: (r) => { const cat = bySlot(r, 'C'); return cat && cat.stats.defense >= 80 ? bump(r, isPit, { control: 12 }) : r; } },
+    roster: (r) => { const cat = bySlot(r, 'C'); return cat && cat.stats.defense >= 84 ? bump(r, isPit, { control: 12 }) : r; } },
 
   // ───── 골드 26 — 실버의 두 배쯤, 방향이 분명한 한 수
   { id: 'cleanupUp', name: '클린업 강화', tier: 'gold', type: 'build', desc: '파워 상위 3명 파워 +35, 컨택 +18',
@@ -711,7 +711,7 @@ const PASSIVE_AUGMENTS = [
   { id: 'doubleSwitch', name: '더블 스위치', tier: 'gold', type: 'play', desc: '선발 뒤는 최고 불펜이 끝까지 · 불펜 능력치 +8',
     roster: (r) => bump(r, isRelief, every(8)), team: (t) => { t.usage.bullpenAce = true; } },
   { id: 'scoutReport', name: '전력 분석', tier: 'gold', type: 'build', desc: '포수 수비 80+ 면 실점 −0.3',
-    half: (c) => { if (!oppOff(c)) return null; const cat = bySlot(c.my.roster, 'C'); return cat && cat.stats.defense >= 80 ? { add: -0.3 } : null; } },
+    half: (c) => { if (!oppOff(c)) return null; const cat = bySlot(c.my.roster, 'C'); return cat && cat.stats.defense >= 84 ? { add: -0.3 } : null; } },
   { id: 'tightPitching', name: '짠물 야구', tier: 'gold', type: 'build', desc: '상대가 2점+ 낸 이닝 50%로 −1점',
     runs: (c, runs) => (oppOff(c) && runs >= 2 && c.rng() < 0.5 ? { runs: runs - 1, text: '위기에서 병살타 유도, 한 점을 지움' } : runs) },
   { id: 'captain', name: '캡틴', tier: 'gold', type: 'balance', desc: '타자 능력치 +3 · 종합 1위 타자는 +15',
@@ -733,7 +733,7 @@ const PASSIVE_AUGMENTS = [
   { id: 'synCopy', name: '시너지 복사', tier: 'prismatic', type: 'build', desc: '가장 센 시너지를 전원이 받음 · 능력치 +3',
     flag: 'synCopy', roster: (r) => bump(r, () => true, every(3)) },
   { id: 'cleanupCore', name: '4번 타자 중심', tier: 'prismatic', type: 'build', desc: '파워 90+ 타자 있으면 공격 +0.3',
-    half: (c) => (myOff(c) && c.my.batters.some((p) => p.stats.power >= 90) ? { add: 0.3 } : null) },
+    half: (c) => (myOff(c) && c.my.batters.some((p) => p.stats.power >= 108) ? { add: 0.3 } : null) },
   { id: 'pressure', name: '끝없는 압박', tier: 'prismatic', type: 'build', desc: '득점할 때마다 상대 투구 −4 (최대 −20)',
     after: (c, runs, st) => { if (myOff(c) && runs > 0) st.p = Math.min(20, (st.p || 0) + 4); }, half: (c, st) => (myOff(c) && st.p ? { pitch: -st.p } : null) },
   { id: 'legendsWeight', name: '레전드의 무게', tier: 'prismatic', type: 'build', desc: '레전드 카드 1명당 능력치 +1 (최대 +8)',
@@ -801,7 +801,7 @@ export const AUGMENTS = [
   {
     id: 'cleanupBomb', name: '클린업 폭격', tier: 'prismatic', side: 'offense', chance: 0.75, max: 1,
     cond: '4회 이후 공격 · 파워 90+ 타자 보유', desc: '75%로 그 이닝 4점',
-    when: (c) => c.inning >= 4 && c.my.topBatter('power').stats.power >= 90,
+    when: (c) => c.inning >= 4 && c.my.topBatter('power').stats.power >= 108,
     apply: (c) => {
       const hero = c.my.topBatter('power');
       return { runs: 4, hero, text: `클린업 연속 장타! ${hero.name}의 쐐기포로 이닝 4점 확정` };
@@ -810,7 +810,7 @@ export const AUGMENTS = [
   {
     id: 'daesseuyo', name: '대쓰요!', tier: 'gold', side: 'offense', chance: 0.35, max: 2,
     cond: '파워 90+ 타자 보유', desc: '35%로 투런 홈런 · 그 이닝 2점 (경기당 2회)',
-    when: (c) => c.my.topBatter('power').stats.power >= 90,
+    when: (c) => c.my.topBatter('power').stats.power >= 108,
     apply: (c) => {
       const hero = c.my.topBatter('power');
       return { runs: 2, hero, text: `${hero.name}의 담장을 넘기는 투런 홈런! 이닝 2점 확정` };
@@ -819,13 +819,13 @@ export const AUGMENTS = [
   {
     id: 'closer', name: '철벽 마무리', tier: 'gold', side: 'defense', chance: 1, max: 2,
     cond: '8 · 9회 수비 · 등판 투수 안정 80+', desc: '그 이닝 무실점 (경기당 2회)',
-    when: (c) => c.inning >= 8 && c.myPitcher.position === 'RP' && c.myPitcher.stats.stability >= 80,
+    when: (c) => c.inning >= 8 && c.myPitcher.position === 'RP' && c.myPitcher.stats.stability >= 84,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}, 세 타자를 돌려세우며 문을 걸어 잠급니다` }),
   },
   {
     id: 'ace', name: '에이스의 품격', tier: 'gold', side: 'defense', chance: 0.7, max: 3,
     cond: '1~4회 수비 · 선발 종합 80+', desc: '70%로 그 이닝 무실점 (경기당 3회)',
-    when: (c) => c.inning <= 4 && c.myPitcher.overall >= 80,
+    when: (c) => c.inning <= 4 && c.myPitcher.overall >= 90,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}의 삼진 쇼, 이닝 무실점 확정` }),
   },
   {
@@ -850,13 +850,13 @@ export const AUGMENTS = [
   {
     id: 'rightLock', name: '우타 봉쇄', tier: 'silver', side: 'defense', chance: 0.3, max: 3,
     cond: '아군 투수 제구 85+', desc: '30%로 그 이닝 무실점 (경기당 3회)',
-    when: (c) => c.myPitcher.stats.control >= 85,
+    when: (c) => c.myPitcher.stats.control >= 96,
     apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}의 바깥쪽 제구, 세 타자를 연속 범타 처리` }),
   },
   {
     id: 'speedBall', name: '발야구', tier: 'silver', side: 'offense', chance: 0.35, max: 2,
     cond: '주루 85+ 타자 2명 이상', desc: '35%로 그 이닝 +1점 (경기당 2회)',
-    when: (c) => c.my.batters.filter((p) => p.stats.speed >= 85).length >= 2,
+    when: (c) => c.my.batters.filter((p) => p.stats.speed >= 104).length >= 2,
     apply: (c) => {
       const hero = c.my.topBatter('speed');
       return { runs: c.baseRuns + 1, hero, text: `${hero.name} 2루·3루 연속 도루 후 내야 땅볼에 득점` };
@@ -2471,7 +2471,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
   const eff = owned?.eff || player;
   const statKeys = eff.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
   const overallDiff = owned ? eff.overall - player.overall : 0;
-  const tier = eff.overall >= 90 ? 't90' : eff.overall >= 75 ? 't75' : '';
+  const tier = eff.overall >= 100 ? 't90' : eff.overall >= 85 ? 't75' : '';
   const pos = eff.position || player.position;
   const diffTag = (d) => (d ? <em className={d > 0 ? 'up' : 'dn'}>{d > 0 ? `+${d}` : `−${-d}`}</em> : null);
   return (
@@ -2632,7 +2632,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
-  const tier = player.overall >= 90 ? 't90' : player.overall >= 75 ? 't75' : '';
+  const tier = player.overall >= 100 ? 't90' : player.overall >= 85 ? 't75' : '';
   return (
     <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}

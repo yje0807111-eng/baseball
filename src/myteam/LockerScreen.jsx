@@ -327,7 +327,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
     ? (it.staffRole === 'manager' ? staffByRole('manager') : [...staffByRole('head'), ...staffByRole('batting'), ...staffByRole('pitching')])
     : squad.filter((p) => fitsItem(it, p)).sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
   const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
-  const after = it?.stat && target?.stats ? Math.min(110, (target.stats[it.stat] ?? 70) + it.amount) : null;
+  const after = it?.stat && target?.stats ? Math.min(110, (target.stats[it.stat] ?? 78) + it.amount) : null;
   return (
     <>
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
@@ -424,7 +424,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                       </b>
                       <span className="block truncate text-[11px] text-gray-400">
                         {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
-                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 70) + it.amount)}` : ''}
+                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
                       </span>
                     </span>
                   </button>

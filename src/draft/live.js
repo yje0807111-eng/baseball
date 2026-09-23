@@ -10,7 +10,7 @@ export const CLUB_COUNT = 8;        // 참가 구단 (나 1 + AI 7)
 export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
 export const PICK_SECONDS = 25;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
 export const BOARD_SIZE = 18;       // 보드에 까는 선수 수 — 실제 구단 시리즈 한 팀과 같은 수
-/* 보드 포지션 구성: 구단 시즌 87개의 평균(SP 4.4 · RP 3.3 · C 1.4 · 내야 4.7 · OF 3.8 · DH 0.5)을 반올림한 것.
+/* 보드 포지션 구성: 구단 시즌 373개의 평균(SP 4.0 · RP 3.9 · C 1.8 · 내야 4.4 · OF 3.5 · DH 0.5)에 맞춘 것.
    선수가 18명보다 많은 시리즈에서 이 구성대로 뽑으면 어느 보드든 한 팀을 꾸릴 만큼 자리가 고루 나온다 */
 const BOARD_MIX = { SP: 4, RP: 3, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 4, DH: 1 };
 /* 보드 수(=10). KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 쓸 때 센다 */
