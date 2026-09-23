@@ -45,8 +45,8 @@ function todayKo(g, batter) {
   if (k) return '삼진';
   return '무안타';
 }
-/** 밝은 판 위 성적 글자색 — 장타는 진한 금, 안타는 초록, 볼넷은 파랑, 못 친 날은 흐리게 */
-const koPaper = (ko) => (/홈런|루타/.test(ko) ? '#a16207' : /안타/.test(ko) && !/무/.test(ko) ? '#047857' : /볼넷/.test(ko) ? '#1d4ed8' : 'rgba(11,18,32,.45)');
+/** 어두운 유리판 위 성적 글자색 — 장타는 노랑, 안타는 연초록, 볼넷은 하늘, 못 친 날은 흐리게 */
+const koDark = (ko) => (/홈런|루타/.test(ko) ? '#fde047' : /안타/.test(ko) && !/무/.test(ko) ? '#a7f3d0' : /볼넷/.test(ko) ? '#93c5fd' : 'rgba(255,255,255,.5)');
 
 /** 지금 던지는 투수의 오늘 기록 */
 function pitcherLine(g, pitcher) {
@@ -165,27 +165,27 @@ function commentary(ev) {
 
 /* ───────── 작은 부품 ───────── */
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
-const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => (
+const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink = 'rgba(11,18,32,.72)', edge = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
     {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
-        fill={bases[i] ? '#f97316' : off} />
+        fill={bases[i] ? '#f97316' : 'transparent'} stroke={bases[i] ? 'none' : (edge || off)} strokeWidth={bases[i] ? 0 : 1.6} />
     ))}
     {note != null && (
-      <text x="50" y="94" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
+      <text x="50" y="94" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="20" fontWeight="800" fill={ink}>{note}</text>
     )}
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
+const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.45)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
   <div className="grid items-center font-display font-extrabold"
     style={{ gridTemplateColumns: `${label ? font + 2 : 0}px repeat(3, ${dot}px)`, gap, rowGap, fontSize: font }}>
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-emerald-400'}`} style={{ height: dot }}>B</span> : <span />}
-    {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#16a34a' : off }} />)}
+    {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#22c55e' : 'transparent', border: i < b ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box' }} />)}
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-yellow-300'}`} style={{ height: dot }}>S</span> : <span />}
-    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#eab308' : off }} />)}<span />
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#facc15' : 'transparent', border: i < s ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box' }} />)}<span />
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-red-400'}`} style={{ height: dot }}>O</span> : <span />}
-    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#dc2626' : off }} />)}<span />
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#ef4444' : 'transparent', border: i < o ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box' }} />)}<span />
   </div>
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
@@ -509,58 +509,60 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         {/* 왼쪽 위: 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
         <div className="relative z-10 col-start-1 row-start-2 flex flex-col gap-2 self-start" style={{ width: SB_W, filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
-          <div className="mt-cut overflow-hidden" style={{ '--c': '12px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)' }}>
-            {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine]) => {
+          <div className="mt-cut overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
+            {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
               const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
-              const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽
+              const c = flag?.color || color;
+              const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽 — 그 줄만 색이 진하다
               return (
-                <div key={t.name} className="relative flex items-center gap-2.5 overflow-hidden px-3" style={{ height: 52, background: flag?.color || color }}>
-                  {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.32, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                  <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(0,0,0,.18),transparent 45%)' }} />
-                  <b className="relative truncate text-[22px] font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)' }}>{shortTeam(t.name, mine)}</b>
-                  {atBat && !g.final && <span className="relative font-display text-[12px] font-extrabold tracking-[0.18em] text-white/85">AT BAT</span>}
-                  <b className="relative ml-auto font-display text-[34px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)' }}>{side.runs}</b>
+                <div key={t.name} className={`relative flex items-center gap-2.5 overflow-hidden px-3 ${i ? 'border-t border-white/10' : ''}`}
+                  style={{ height: 52, background: atBat ? `linear-gradient(90deg, ${c}e0, ${c}40 72%, transparent)` : `linear-gradient(90deg, ${c}4d, transparent 60%)` }}>
+                  {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.16, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                  <b className="relative truncate text-[22px] font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)', opacity: atBat ? 1 : 0.85 }}>{shortTeam(t.name, mine)}</b>
+                  {atBat && !g.final && <span className="relative font-display text-[12px] font-extrabold tracking-[0.18em] text-white/80">AT BAT</span>}
+                  <b className="relative ml-auto font-display text-[34px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)', opacity: atBat ? 1 : 0.85 }}>{side.runs}</b>
                 </div>
               );
             })}
-            <div className="flex items-stretch" style={{ background: SB_PAPER }}>
-              <span className="grid shrink-0 place-items-center px-3" style={{ background: 'rgba(255,255,255,.45)' }}>
+            <div className="flex items-stretch border-t border-white/10">
+              <span className="grid shrink-0 place-items-center px-3" style={{ background: 'rgba(255,255,255,.07)' }}>
                 {g.final ? (
-                  <b className="font-display text-[13px] font-extrabold" style={{ color: '#0b1220' }}>END</b>
+                  <b className="font-display text-[13px] font-extrabold text-white">END</b>
                 ) : (
-                  <b className="font-display text-[21px] font-extrabold leading-none" style={{ color: '#0b1220' }}>
-                    <i className="mr-0.5 not-italic text-[#dc2626]">{g.top ? '▲' : '▼'}</i>{g.inning}
+                  <b className="font-display text-[21px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>
+                    {g.inning}<i className="ml-0.5 not-italic text-[#f87171]">{g.top ? '▲' : '▼'}</i>
                   </b>
                 )}
               </span>
-              <span className="w-px shrink-0 bg-black/20" />
+              <span className="w-px shrink-0 bg-white/12" />
               <span className="grid flex-1 place-items-center py-1">
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={14} font={13} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={14} font={13} off="rgba(255,255,255,.45)" lab="text-white/90" />
               </span>
-              <span className="w-px shrink-0 bg-black/20" />
-              <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={70} note={def.pitches} /></span>
+              <span className="w-px shrink-0 bg-white/12" />
+              <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={70} note={def.pitches} off="rgba(255,255,255,.45)" ink="rgba(255,255,255,.92)" /></span>
             </div>
           </div>
-            {/* 타순 — 지금 공격하는 팀만. 머리에는 그 팀 색, 몸은 스코어보드 아래와 같은 밝은 판 */}
-            <div className="mt-cut overflow-hidden" style={{ '--c': '12px', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.35)' }}>
-              <div className="flex items-center gap-2 px-3 py-1" style={{ background: offFlag?.color || battingColor }}>
-                <b className="truncate text-[13px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.5)' }}>{shortTeam(off.team.name, !g.top)} 공격</b>
-                <span className="ml-auto font-display text-[10.5px] tracking-[0.2em] text-white/75">ORDER</span>
+            {/* 타순 — 지금 공격하는 팀만. 어두운 유리판에 팀 색이 왼쪽에서 번지는 머리 */}
+            <div className="mt-cut overflow-hidden backdrop-blur-[3px]" style={{ '--c': '11px', width: 244, background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
+              <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: `linear-gradient(90deg, ${offFlag?.color || battingColor}cc, ${offFlag?.color || battingColor}33 70%, transparent)` }}>
+                <b className="truncate text-[13px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{shortTeam(off.team.name, !g.top)}</b>
+                <span className="font-display text-[10.5px] tracking-[0.2em] text-white/70">공격</span>
+                <span className="ml-auto font-display text-[10px] tracking-[0.22em] text-white/45">ORDER</span>
               </div>
-              <div className="px-2 py-1" style={{ background: SB_PAPER }}>
+              <div className="px-2 py-1">
                 {off.team.batters.map((p, i) => {
                   const at = i === off.idx % off.team.batters.length;
                   const on = g.bases.findIndex((r) => r === p);
                   const wait = !at && on < 0;
                   const ko = todayKo(g, p);
                   return (
-                    <div key={p.id || p.name} className={`flex items-center gap-2 px-1.5 ${i ? 'border-t border-black/10' : ''}`}
-                      style={{ height: at ? 40 : 27, opacity: wait ? 0.5 : 1 }}>
-                      <b className="w-3.5 shrink-0 font-display text-[12px]" style={{ color: 'rgba(11,18,32,.45)' }}>{i + 1}</b>
-                      <b className="truncate" style={{ color: '#0b1220', fontSize: at ? 16 : 13, fontWeight: at ? 900 : 700 }}>{p.name}</b>
+                    <div key={p.id || p.name} className={`flex items-center gap-2 px-1.5 ${i ? 'border-t border-white/[0.09]' : ''}`}
+                      style={{ height: at ? 40 : 27, opacity: wait ? 0.55 : 1 }}>
+                      <b className="w-3.5 shrink-0 font-display text-[12px] text-white/40">{i + 1}</b>
+                      <b className="truncate text-white" style={{ fontSize: at ? 16 : 13, fontWeight: at ? 900 : 700, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.name}</b>
                       {on >= 0 && <span className="inline-block shrink-0" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} />}
-                      <span className="ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koPaper(ko) }}>{ko}</span>
-                      <b className="w-7 shrink-0 text-right font-display" style={{ fontSize: at ? 17 : 13, color: '#0b1220' }}>{p.overall}</b>
+                      <span className="ml-auto w-12 shrink-0 text-right text-[11.5px]" style={{ color: koDark(ko) }}>{ko}</span>
+                      <b className="w-7 shrink-0 text-right font-display text-white" style={{ fontSize: at ? 17 : 13, textShadow: '0 1px 4px rgba(0,0,0,.6)' }}>{p.overall}</b>
                     </div>
                   );
                 })}
