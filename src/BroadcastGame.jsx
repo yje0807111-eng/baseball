@@ -447,6 +447,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
   const off = offenseOf(g);
   const def = defenseOf(g);
+  const fielders = (() => {
+    const men = def.team?.batters || [];
+    const of = men.filter((p) => p.position === 'OF').sort((a, b) => b.overall - a.overall);
+    const one = (pos) => men.find((p) => p.position === pos) || null;
+    return {
+      P: def.pitcher || null, C: def.team?.catcher || one('C'),
+      '1B': one('1B'), '2B': one('2B'), '3B': one('3B'), SS: one('SS'),
+      LF: of[0] || null, CF: of[1] || null, RF: of[2] || null,
+    };
+  })();
   const offFlag = g.top ? teamFlag(away.name) : flagByKey(myBanner()); // 공격 팀 색
   const pitcher = pitcherOf(g);
   const myIsHome = true;
@@ -475,7 +485,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       {/* 경기장 사진이 곧 배경이다 — 플레이는 화면 전체에서 벌어지고, UI 는 그 위에 얹힌다 */}
       <div className="absolute inset-0">
         <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
-          bases={g.bases} offColor={battingColor} defColor={pitchingColor} />
+          bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batterOf(g)} />
       </div>
       <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
 

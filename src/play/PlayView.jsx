@@ -14,9 +14,11 @@ import { DEFAULT_BG } from './backgrounds.js';
 
 const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
 const FIELDERS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'];
+const EMPTY_DEF = {};
 /** 야수 기본 자리 (필드 좌표) */
+const BOX = { R: [-0.013, 0.004], L: [0.013, 0.004] }; // 타석 — 홈플레이트 양옆
 const SPOTS = {
-  P: [0, 0.151], C: [0, -0.035], '1B': [0.185, 0.2], '2B': [0.105, 0.33], SS: [-0.105, 0.33],
+  P: [0, 0.151], C: [0, -0.014], '1B': [0.185, 0.2], '2B': [0.105, 0.33], SS: [-0.105, 0.33],
   '3B': [-0.185, 0.2], LF: [-0.37, 0.64], CF: [0, 0.76], RF: [0.37, 0.64],
 };
 
@@ -67,19 +69,49 @@ function Photo({ bg, dim }) {
   );
 }
 
-/** 선수 한 명 — 멀수록 작게 */
-const Chip = ({ at, s = 1, u = 1, color, label, name, dim, ring }) => {
-  const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
-  const r = 30 * k;
+/* 선수 얼굴 — 프로필 · 카드 · 실루엣 순으로 찾는다 */
+const FACE_FALLBACK = 'ui/mt/silhouette-player.webp';
+const faceSrcs = (id) => (id
+  ? [`profiles/${encodeURIComponent(id)}.webp`, `cards/${encodeURIComponent(id)}.webp`, FACE_FALLBACK]
+  : [FACE_FALLBACK]);
+let faceSeq = 0;
+const Face = ({ id, cx, cy, r }) => {
+  const [step, setStep] = useState(0);
+  useEffect(() => { setStep(0); }, [id]);
+  const list = faceSrcs(id);
+  const src = list[Math.min(step, list.length - 1)];
+  const cid = useMemo(() => `fc${(faceSeq += 1)}`, []);
   return (
-    <g opacity={dim ? 0.85 : 1}>
-      {ring && <circle cx={at[0]} cy={at[1]} r={r * 2.1} fill="none" stroke={color} strokeWidth={5 * k} opacity="0.7" />}
-      <ellipse cx={at[0]} cy={at[1] + r * 0.9} rx={r * 0.9} ry={r * 0.32} fill="rgba(0,0,0,.5)" />
-      <circle cx={at[0]} cy={at[1]} r={r} fill={color} stroke="rgba(0,0,0,.65)" strokeWidth={5 * k} />
-      {label && <text x={at[0]} y={at[1] + 10 * k} textAnchor="middle" fontSize={(label.length > 1 ? 25 : 32) * k} fontWeight="800" fill="#05080f">{label}</text>}
-      {name && (
-        <text x={at[0]} y={at[1] - r - 12 * k} textAnchor="middle" fontSize={34 * k} fontWeight="700" fill="#fff"
-          stroke="rgba(0,0,0,.85)" strokeWidth={11 * k} paintOrder="stroke">{name}</text>
+    <>
+      <clipPath id={cid}><circle cx={cx} cy={cy} r={r} /></clipPath>
+      <image href={src} x={cx - r} y={cy - r * 1.05} width={r * 2} height={r * 2.6}
+        preserveAspectRatio="xMidYMin slice" clipPath={`url(#${cid})`}
+        style={{ filter: 'brightness(1.22) saturate(1.08) contrast(1.05)' }}
+        onError={() => setStep((v) => v + 1)} />
+    </>
+  );
+};
+
+/** 선수 한 명 — 얼굴에 팀 색 테를 두르고 이름을 아래에 적는다. 멀수록 작게 */
+const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring }) => {
+  const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
+  const r = 38 * k;
+  const who = player && player.id != null ? player.id : null;
+  const tag = name || (player && player.name) || null;
+  return (
+    <g opacity={dim ? 0.82 : 1}>
+      {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.55} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
+      <ellipse cx={at[0]} cy={at[1] + r * 0.95} rx={r * 0.92} ry={r * 0.3} fill="rgba(0,0,0,.55)" />
+      <circle cx={at[0]} cy={at[1]} r={r} fill="#0b1220" />
+      <Face id={who} cx={at[0]} cy={at[1]} r={r} />
+      <circle cx={at[0]} cy={at[1]} r={r} fill="none" stroke={color} strokeWidth={5 * k} />
+      {label && !who && (
+        <text x={at[0]} y={at[1] + 10 * k} textAnchor="middle" fontSize={(label.length > 1 ? 25 : 32) * k} fontWeight="800" fill="#e6edf6"
+          stroke="rgba(0,0,0,.8)" strokeWidth={6 * k} paintOrder="stroke">{label}</text>
+      )}
+      {tag && (
+        <text x={at[0]} y={at[1] + r + 30 * k} textAnchor="middle" fontSize={30 * k} fontWeight="700" fill={color}
+          stroke="rgba(0,0,0,.9)" strokeWidth={9 * k} paintOrder="stroke">{tag}</text>
       )}
     </g>
   );
@@ -120,7 +152,7 @@ const Pitcher = ({ mound, h, w, color }) => {
 };
 
 /* ───────── 필드 뷰 ───────── */
-function FieldView({ play, t, u, bases, offColor, defColor, bg }) {
+function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, batter = null }) {
   const { at, scaleAt } = useMemo(() => makeMapper(bg.marks), [bg]);
   const beats = play?.beats || [];
   const ball = beats.find((b) => b.kind === 'ball');
@@ -157,21 +189,23 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg }) {
           const u = ease(phase(t, fielder.t0, fielder.t1));
           p = [p[0] + (fielder.to[0] - p[0]) * u, p[1] + (fielder.to[1] - p[1]) * u];
         }
-        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} ring={acting} dim={!acting && !!play} />;
+        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting} dim={!acting && !!play} />;
       })}
 
-      {!play && bases.map((r, i) => (r ? <Chip key={i} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} name={r.name} /> : null))}
+      {!play && batter && (() => { const p = BOX[batter.hand === 'L' ? 'L' : 'R'];
+        return <Chip at={at(p)} s={scaleAt(p)} u={u} color={offColor} player={batter} />; })()}
+      {!play && bases.map((r, i) => (r ? <Chip key={i} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} /> : null))}
       {runs.map((b, i) => {
         const u = ease(phase(t, b.t0, b.t1));
         const p = along(b.path, u);
         const done = u >= 1;
-        return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} name={b.player?.name} dim={(b.out && done) || b.still} ring={b.scored && done}
+        return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} player={b.player} dim={(b.out && done) || b.still} ring={b.scored && done}
           color={b.out && done ? '#6b7280' : b.scored && done ? '#fde047' : offColor} />;
       })}
       {steal && t >= steal.t0 && (() => {
         const k = ease(phase(t, steal.t0, steal.t1));
         const p = along(steal.path, k);
-        return <Chip at={at(p)} s={scaleAt(p)} u={u} name={steal.player?.name} ring={k >= 1} color={steal.ok ? offColor : '#6b7280'} />;
+        return <Chip at={at(p)} s={scaleAt(p)} u={u} player={steal.player} ring={k >= 1} color={steal.ok ? offColor : '#6b7280'} />;
       })()}
 
       {throwAt && <circle cx={throwAt[0]} cy={throwAt[1]} r={9 * u} fill="#fff" />}
@@ -291,7 +325,7 @@ function ZoneView({ play, t, u, history, atBat, bg, defColor }) {
 /* ───────── 본체 ───────── */
 export default function PlayView({
   event, atBat = [], beatMs = 1200, paused = false, bases = [null, null, null],
-  offColor = '#34d399', defColor = '#94a3b8', bg = DEFAULT_BG,
+  offColor = '#34d399', defColor = '#94a3b8', bg = DEFAULT_BG, defense = null, batter = null,
 }) {
   const boxRef = useRef(null);
   // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
@@ -327,7 +361,7 @@ export default function PlayView({
       {onField ? (
         <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" style={{ opacity: fade }}>
           <g transform={shift(bg.field)}>
-            <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={bg.field} />
+            <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={bg.field} defense={defense || EMPTY_DEF} batter={batter} />
           </g>
         </svg>
       ) : (
