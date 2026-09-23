@@ -29,7 +29,7 @@ function GameRow({ h, on, onPick }) {
   const [ko, c] = resultOf(h);
   return (
     <button type="button" onClick={() => onPick(h)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
-      style={{ gridTemplateColumns: '112px 96px minmax(0,1fr) 128px 46px minmax(0,0.9fr)', '--a': c }}>
+      style={{ gridTemplateColumns: '104px 88px minmax(0,1.6fr) 120px 40px 152px', '--a': c }}>
       <span className="font-display text-[13px] text-gray-400">{fmtDate(h.at)}</span>
       <span className="mt-cut px-2 py-0.5 text-center text-[11px] font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
       <span className="min-w-0">
@@ -43,7 +43,7 @@ function GameRow({ h, on, onPick }) {
       <span className="flex min-w-0 items-center gap-2">
         {h.mvp ? (
           <>
-            <Portrait player={h.mvp} w={30} h={36} color="#fbbf24" />
+            <Portrait player={h.mvp} w={32} h={38} color="#fbbf24" />
             <span className="min-w-0"><small className="block text-[10px] text-gray-500">MVP</small><b className="block truncate text-[13px] text-white">{h.mvp.name}</b></span>
           </>
         ) : <small className="text-[11px] text-gray-600">MVP 없음</small>}
