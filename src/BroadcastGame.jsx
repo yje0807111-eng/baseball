@@ -146,7 +146,7 @@ function commentary(ev) {
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
 const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
-    {[[74, 50], [50, 26], [26, 50]].map(([x, y], i) => (
+    {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
         fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
@@ -517,7 +517,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center" style={{ width: 92 }}>
+              <span className="grid place-items-center pb-1.5" style={{ width: 92 }}>
                 <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} gap={4} rowGap={5} font={14} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/70" />
               </span>
               {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
