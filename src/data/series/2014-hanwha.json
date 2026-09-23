@@ -1,0 +1,318 @@
+{
+  "id": "2014-hanwha",
+  "kind": "team",
+  "year": 2014,
+  "title": "한화 이글스",
+  "franchise": "HANWHA",
+  "subtitle": "정규시즌 9위 · 김태균 .365",
+  "blurb": "김태균이 타율 1위(.365)에 올랐지만 팀은 마지막 자리를 벗어나지 못했다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "이태양",
+      "name": "이태양",
+      "year": 2014,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 79,
+        "stamina": 80,
+        "stability": 62
+      },
+      "note": "",
+      "source": "30G 153IP ERA5.29 96K 41BB WHIP1.46 7승 — KBO 기록실"
+    },
+    {
+      "personId": "앨버스",
+      "name": "앨버스",
+      "year": 2014,
+      "team": "한화",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 65,
+        "control": 79,
+        "stamina": 80,
+        "stability": 53
+      },
+      "note": "",
+      "source": "28G 151 1/3IP ERA5.89 107K 40BB WHIP1.59 6승 — KBO 기록실"
+    },
+    {
+      "personId": "유창식",
+      "name": "유창식",
+      "year": 2014,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 44,
+        "stamina": 63,
+        "stability": 72
+      },
+      "note": "",
+      "source": "21G 91 1/3IP ERA4.14 53K 72BB WHIP1.88 4승 — KBO 기록실"
+    },
+    {
+      "personId": "송창현",
+      "name": "송창현",
+      "year": 2014,
+      "team": "한화",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 48,
+        "control": 44,
+        "stamina": 58,
+        "stability": 47
+      },
+      "note": "",
+      "source": "20G 79 1/3IP ERA6.69 30K 60BB WHIP2.07 1승 — KBO 기록실"
+    },
+    {
+      "personId": "안영명",
+      "name": "안영명",
+      "year": 2014,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 66,
+        "control": 68,
+        "stamina": 60,
+        "stability": 68
+      },
+      "note": "",
+      "source": "48G 97 2/3IP ERA4.52 64K 36BB WHIP1.54 7승 4SV 6HLD — KBO 기록실"
+    },
+    {
+      "personId": "윤규진",
+      "name": "윤규진",
+      "year": 2014,
+      "team": "한화",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 85,
+        "control": 62,
+        "stamina": 59,
+        "stability": 69
+      },
+      "note": "",
+      "source": "43G 72IP ERA4.63 73K 31BB WHIP1.39 7승 9SV 3HLD — KBO 기록실"
+    },
+    {
+      "personId": "박정진",
+      "name": "박정진",
+      "year": 2014,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 56,
+        "stamina": 55,
+        "stability": 52
+      },
+      "note": "",
+      "source": "60G 49 1/3IP ERA6.02 51K 25BB WHIP1.60 4승 9SV 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "최설우",
+      "name": "최설우",
+      "year": 2014,
+      "team": "한화",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 62,
+        "control": 44,
+        "stamina": 58,
+        "stability": 45
+      },
+      "note": "",
+      "source": "50G 64 2/3IP ERA7.10 42K 43BB WHIP1.84 1승 1SV 2HLD — KBO 기록실"
+    },
+    {
+      "personId": "정범모",
+      "name": "정범모",
+      "year": 2014,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 65,
+        "speed": 43,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".253/.314 6HR 23타점 1SB 212PA — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2014,
+      "team": "한화",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 52,
+        "power": 71,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".226/.290 7HR 34타점 0SB 185PA — KBO 기록실"
+    },
+    {
+      "personId": "김태균",
+      "name": "김태균",
+      "year": 2014,
+      "team": "한화",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 95,
+        "power": 68,
+        "speed": 40,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".365/.463 18HR 84타점 0SB 508PA — KBO 기록실"
+    },
+    {
+      "personId": "정근우",
+      "name": "정근우",
+      "year": 2014,
+      "team": "한화",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 50,
+        "speed": 83,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".295/.391 6HR 44타점 32SB 549PA — KBO 기록실"
+    },
+    {
+      "personId": "송광민",
+      "name": "송광민",
+      "year": 2014,
+      "team": "한화",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 63,
+        "speed": 48,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".316/.357 11HR 58타점 3SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "한상훈",
+      "name": "한상훈",
+      "year": 2014,
+      "team": "한화",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 73,
+        "power": 43,
+        "speed": 48,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".286/.372 1HR 21타점 3SB 203PA — KBO 기록실"
+    },
+    {
+      "personId": "피에",
+      "name": "피에",
+      "year": 2014,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": true,
+      "stats": {
+        "contact": 86,
+        "power": 69,
+        "speed": 60,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".326/.373 17HR 92타점 9SB 498PA — KBO 기록실"
+    },
+    {
+      "personId": "김경언",
+      "name": "김경언",
+      "year": 2014,
+      "team": "한화",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 82,
+        "power": 61,
+        "speed": 43,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".313/.397 8HR 52타점 1SB 355PA — KBO 기록실"
+    },
+    {
+      "personId": "최진행",
+      "name": "최진행",
+      "year": 2014,
+      "team": "한화",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 65,
+        "power": 70,
+        "speed": 43,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".261/.317 12HR 45타점 1SB 328PA — KBO 기록실"
+    },
+    {
+      "personId": "이용규",
+      "name": "이용규",
+      "year": 2014,
+      "team": "한화",
+      "position": "DH",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 74,
+        "power": 40,
+        "speed": 64,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".288/.385 0HR 20타점 12SB 418PA — KBO 기록실"
+    }
+  ]
+}

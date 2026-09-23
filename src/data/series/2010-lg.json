@@ -1,0 +1,318 @@
+{
+  "id": "2010-lg",
+  "kind": "team",
+  "year": 2010,
+  "title": "LG 트윈스",
+  "franchise": "LG",
+  "subtitle": "정규시즌 6위 · 이대형 66도루",
+  "blurb": "이대형이 66도루로 네 해 연속 도루왕에 올랐고 조인성이 28홈런을 쳤다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "봉중근",
+      "name": "봉중근",
+      "year": 2010,
+      "team": "LG",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 66,
+        "stamina": 87,
+        "stability": 78
+      },
+      "note": "대표팀 주장",
+      "source": "28G 178 1/3IP ERA3.58 130K 69BB WHIP1.32 10승 — KBO 기록실"
+    },
+    {
+      "personId": "김광삼",
+      "name": "김광삼",
+      "year": 2010,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 57,
+        "control": 60,
+        "stamina": 69,
+        "stability": 52
+      },
+      "note": "",
+      "source": "24G 111IP ERA5.68 60K 50BB WHIP1.58 7승 — KBO 기록실"
+    },
+    {
+      "personId": "박명환",
+      "name": "박명환",
+      "year": 2010,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 60,
+        "control": 64,
+        "stamina": 57,
+        "stability": 45
+      },
+      "note": "",
+      "source": "15G 76IP ERA6.63 46K 31BB WHIP1.64 4승 — KBO 기록실"
+    },
+    {
+      "personId": "더마트레",
+      "name": "더마트레",
+      "year": 2010,
+      "team": "LG",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 54,
+        "control": 49,
+        "stamina": 52,
+        "stability": 42
+      },
+      "note": "",
+      "source": "15G 61 1/3IP ERA8.22 29K 37BB WHIP1.96 4승 — KBO 기록실"
+    },
+    {
+      "personId": "이동현",
+      "name": "이동현",
+      "year": 2010,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 72,
+        "control": 59,
+        "stamina": 60,
+        "stability": 80
+      },
+      "note": "",
+      "source": "68G 74IP ERA3.53 58K 34BB WHIP1.34 7승 4SV 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "김광수",
+      "name": "김광수",
+      "year": 2010,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 64,
+        "stamina": 60,
+        "stability": 78
+      },
+      "note": "",
+      "source": "68G 76 2/3IP ERA3.40 71K 31BB WHIP1.58 4승 8SV 7HLD — KBO 기록실"
+    },
+    {
+      "personId": "이상열",
+      "name": "이상열",
+      "year": 2010,
+      "team": "LG",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 70,
+        "control": 72,
+        "stamina": 57,
+        "stability": 82
+      },
+      "note": "",
+      "source": "76G 59 2/3IP ERA3.32 44K 20BB WHIP1.21 2승 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "오카모토",
+      "name": "오카모토",
+      "year": 2010,
+      "team": "LG",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 75,
+        "control": 49,
+        "stamina": 55,
+        "stability": 85
+      },
+      "note": "",
+      "source": "46G 48IP ERA3.00 40K 29BB WHIP1.35 5승 16SV 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "조인성",
+      "name": "조인성",
+      "year": 2010,
+      "team": "LG",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 82,
+        "contact": 85,
+        "speed": 44,
+        "defense": 86
+      },
+      "note": "포수 첫 100타점·GG",
+      "source": ".317/.374 28HR 107타점 2SB 511PA — KBO 기록실"
+    },
+    {
+      "personId": "이진영",
+      "name": "이진영",
+      "year": 2010,
+      "team": "LG",
+      "position": "1B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 89,
+        "power": 58,
+        "speed": 64,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".331/.381 7HR 50타점 10SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "박경수",
+      "name": "박경수",
+      "year": 2010,
+      "team": "LG",
+      "position": "2B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 52,
+        "speed": 64,
+        "defense": 78
+      },
+      "note": "",
+      "source": ".260/.381 3HR 21타점 10SB 286PA — KBO 기록실"
+    },
+    {
+      "personId": "정성훈",
+      "name": "정성훈",
+      "year": 2010,
+      "team": "LG",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 68,
+        "power": 51,
+        "speed": 50,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".263/.342 4HR 38타점 3SB 418PA — KBO 기록실"
+    },
+    {
+      "personId": "오지환",
+      "name": "오지환",
+      "year": 2010,
+      "team": "LG",
+      "position": "SS",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 60,
+        "power": 69,
+        "speed": 68,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".241/.332 13HR 61타점 13SB 417PA — KBO 기록실"
+    },
+    {
+      "personId": "이대형",
+      "name": "이대형",
+      "year": 2010,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 67,
+        "power": 42,
+        "speed": 98,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".261/.341 1HR 43타점 66SB 568PA — KBO 기록실"
+    },
+    {
+      "personId": "이병규",
+      "name": "이병규",
+      "year": 2010,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 77,
+        "power": 61,
+        "speed": 50,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".290/.345 9HR 64타점 3SB 451PA — KBO 기록실"
+    },
+    {
+      "personId": "박용택",
+      "name": "박용택",
+      "year": 2010,
+      "team": "LG",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 62,
+        "speed": 75,
+        "defense": 76
+      },
+      "note": "",
+      "source": ".300/.372 9HR 45타점 19SB 420PA — KBO 기록실"
+    },
+    {
+      "personId": "이택근",
+      "name": "이택근",
+      "year": 2010,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 81,
+        "power": 72,
+        "speed": 69,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".303/.377 14HR 50타점 14SB 388PA — KBO 기록실"
+    },
+    {
+      "personId": "박병호",
+      "name": "박병호",
+      "year": 2010,
+      "team": "LG",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 44,
+        "power": 72,
+        "speed": 55,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".188/.305 7HR 22타점 5SB 192PA — KBO 기록실"
+    }
+  ]
+}

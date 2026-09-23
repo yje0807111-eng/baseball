@@ -1,0 +1,318 @@
+{
+  "id": "2014-doosan",
+  "kind": "team",
+  "year": 2014,
+  "title": "두산 베어스",
+  "franchise": "DOOSAN",
+  "subtitle": "정규시즌 6위 · 민병헌 .345",
+  "blurb": "김현수·민병헌·홍성흔이 3할 타선을 만들고 니퍼트가 14승을 올렸다.",
+  "notes": [],
+  "players": [
+    {
+      "personId": "니퍼트",
+      "name": "니퍼트",
+      "year": 2014,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 78,
+        "control": 79,
+        "stamina": 88,
+        "stability": 79
+      },
+      "note": "",
+      "source": "30G 179 1/3IP ERA3.81 158K 48BB WHIP1.30 14승 1HLD — KBO 기록실"
+    },
+    {
+      "personId": "유희관",
+      "name": "유희관",
+      "year": 2014,
+      "team": "두산",
+      "position": "SP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 77,
+        "stamina": 87,
+        "stability": 72
+      },
+      "note": "",
+      "source": "30G 177 1/3IP ERA4.42 112K 51BB WHIP1.43 12승 — KBO 기록실"
+    },
+    {
+      "personId": "노경은",
+      "name": "노경은",
+      "year": 2014,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 63,
+        "control": 47,
+        "stamina": 69,
+        "stability": 45
+      },
+      "note": "",
+      "source": "29G 109 2/3IP ERA9.03 74K 69BB WHIP1.97 3승 — KBO 기록실"
+    },
+    {
+      "personId": "볼스테드",
+      "name": "볼스테드",
+      "year": 2014,
+      "team": "두산",
+      "position": "SP",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "stuff": 48,
+        "control": 62,
+        "stamina": 61,
+        "stability": 51
+      },
+      "note": "",
+      "source": "17G 87IP ERA6.21 32K 37BB WHIP1.76 5승 — KBO 기록실"
+    },
+    {
+      "personId": "윤명준",
+      "name": "윤명준",
+      "year": 2014,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 68,
+        "control": 73,
+        "stamina": 59,
+        "stability": 62
+      },
+      "note": "",
+      "source": "61G 71 2/3IP ERA5.27 55K 23BB WHIP1.41 7승 16HLD — KBO 기록실"
+    },
+    {
+      "personId": "정재훈",
+      "name": "정재훈",
+      "year": 2014,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 82,
+        "control": 70,
+        "stamina": 56,
+        "stability": 61
+      },
+      "note": "",
+      "source": "54G 53 2/3IP ERA5.37 56K 19BB WHIP1.29 1승 2SV 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "이용찬",
+      "name": "이용찬",
+      "year": 2014,
+      "team": "두산",
+      "position": "RP",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "stuff": 80,
+        "control": 74,
+        "stamina": 55,
+        "stability": 74
+      },
+      "note": "",
+      "source": "48G 51IP ERA4.24 47K 16BB WHIP1.41 5승 17SV — KBO 기록실"
+    },
+    {
+      "personId": "이현승",
+      "name": "이현승",
+      "year": 2014,
+      "team": "두산",
+      "position": "RP",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "stuff": 65,
+        "control": 63,
+        "stamina": 56,
+        "stability": 61
+      },
+      "note": "",
+      "source": "65G 55IP ERA5.07 39K 23BB WHIP1.65 3승 15HLD — KBO 기록실"
+    },
+    {
+      "personId": "양의지",
+      "name": "양의지",
+      "year": 2014,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 76,
+        "power": 66,
+        "speed": 50,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".294/.360 10HR 46타점 4SB 338PA — KBO 기록실"
+    },
+    {
+      "personId": "최재훈",
+      "name": "최재훈",
+      "year": 2014,
+      "team": "두산",
+      "position": "C",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 58,
+        "power": 47,
+        "speed": 40,
+        "defense": 80
+      },
+      "note": "",
+      "source": ".241/.287 1HR 10타점 0SB 125PA — KBO 기록실"
+    },
+    {
+      "personId": "칸투",
+      "name": "칸투",
+      "year": 2014,
+      "team": "두산",
+      "position": "1B",
+      "hand": "R",
+      "isForeign": true,
+      "stats": {
+        "contact": 81,
+        "power": 74,
+        "speed": 43,
+        "defense": 58
+      },
+      "note": "",
+      "source": ".309/.375 18HR 72타점 1SB 419PA — KBO 기록실"
+    },
+    {
+      "personId": "오재원",
+      "name": "오재원",
+      "year": 2014,
+      "team": "두산",
+      "position": "2B",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 51,
+        "contact": 83,
+        "speed": 86,
+        "defense": 80
+      },
+      "note": "33도루",
+      "source": ".318/.404 5HR 40타점 33SB 420PA — KBO 기록실"
+    },
+    {
+      "personId": "이원석",
+      "name": "이원석",
+      "year": 2014,
+      "team": "두산",
+      "position": "3B",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 59,
+        "speed": 40,
+        "defense": 74
+      },
+      "note": "",
+      "source": ".251/.308 5HR 25타점 0SB 255PA — KBO 기록실"
+    },
+    {
+      "personId": "김재호",
+      "name": "김재호",
+      "year": 2014,
+      "team": "두산",
+      "position": "SS",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 62,
+        "power": 46,
+        "speed": 45,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".252/.348 3HR 54타점 2SB 421PA — KBO 기록실"
+    },
+    {
+      "personId": "김현수",
+      "name": "김현수",
+      "year": 2014,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "power": 66,
+        "contact": 85,
+        "speed": 45,
+        "defense": 72
+      },
+      "note": "",
+      "source": ".322/.396 17HR 90타점 2SB 528PA — KBO 기록실"
+    },
+    {
+      "personId": "민병헌",
+      "name": "민병헌",
+      "year": 2014,
+      "team": "두산",
+      "position": "OF",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "power": 60,
+        "contact": 91,
+        "speed": 71,
+        "defense": 78
+      },
+      "note": "타율 .345",
+      "source": ".345/.395 12HR 79타점 16SB 527PA — KBO 기록실"
+    },
+    {
+      "personId": "정수빈",
+      "name": "정수빈",
+      "year": 2014,
+      "team": "두산",
+      "position": "OF",
+      "hand": "L",
+      "isForeign": false,
+      "stats": {
+        "contact": 80,
+        "power": 50,
+        "speed": 83,
+        "defense": 82
+      },
+      "note": "",
+      "source": ".306/.379 6HR 49타점 32SB 507PA — KBO 기록실"
+    },
+    {
+      "personId": "홍성흔",
+      "name": "홍성흔",
+      "year": 2014,
+      "team": "두산",
+      "position": "DH",
+      "hand": "R",
+      "isForeign": false,
+      "stats": {
+        "contact": 83,
+        "power": 70,
+        "speed": 53,
+        "defense": 50
+      },
+      "note": "",
+      "source": ".315/.405 20HR 82타점 5SB 521PA — KBO 기록실"
+    }
+  ]
+}
