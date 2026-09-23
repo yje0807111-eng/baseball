@@ -17,6 +17,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
 const SB_W = 246;
+const SB_PAPER = 'rgba(238,242,248,.96)'; // 중계 자막처럼 밝은 판
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
 /** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
@@ -142,26 +143,25 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
-const Diamond = ({ bases, size = 68 }) => (
+/** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만 */
+const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)' }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
-    <path d="M50 88 L86 52 L50 16 L14 52 Z" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" />
-    {[[86, 52], [50, 16], [14, 52]].map(([x, y], i) => (
-      <rect key={i} x={x - 8} y={y - 8} width="16" height="16" transform={`rotate(45 ${x} ${y})`}
-        fill={bases[i] ? '#fde047' : 'rgba(255,255,255,.14)'} style={bases[i] ? { filter: 'drop-shadow(0 0 7px #fde047)' } : undefined} />
+    {[[74, 52], [50, 28], [26, 52]].map(([x, y], i) => (
+      <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
+        fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
-    <rect x="45" y="83" width="10" height="10" transform="rotate(45 50 88)" fill="#fff" />
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-const Bso = ({ b, s, o, label = true, dot = 11 }) => (
+const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)' }) => (
   <div className="grid items-center font-display text-[12px] font-extrabold"
     style={{ gridTemplateColumns: `${label ? 14 : 0}px repeat(3, ${dot}px)`, gap: 5 }}>
     {label ? <span className="text-emerald-400">B</span> : <span />}
-    {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#34d399' : 'rgba(255,255,255,.14)', boxShadow: i < b ? '0 0 7px #34d399' : 'none' }} />)}
+    {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#16a34a' : off }} />)}
     {label ? <span className="text-yellow-300">S</span> : <span />}
-    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#fde047' : 'rgba(255,255,255,.14)', boxShadow: i < s ? '0 0 7px #fde047' : 'none' }} />)}<span />
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#eab308' : off }} />)}<span />
     {label ? <span className="text-red-400">O</span> : <span />}
-    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#ef4444' : 'rgba(255,255,255,.14)', boxShadow: i < o ? '0 0 7px #ef4444' : 'none' }} />)}<span />
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#dc2626' : off }} />)}<span />
   </div>
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
@@ -483,45 +483,48 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         </header>
 
 
-        {/* 왼쪽 위: 중계 스코어보드 — 왼쪽에 회 · 점수, 오른쪽에 볼카운트 · 주자 · 투구 수 */}
+        {/* 왼쪽 위: 중계 스코어보드 — 밝은 판에 회 · 점수 / 볼카운트 · 주루 · 투구 수 */}
         <div className="relative z-10 col-start-1 row-start-2 self-start">
-          <div className="flex items-stretch gap-2" style={{ width: 'max-content', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.6))' }}>
-            <div className="mt-cut overflow-hidden" style={{ '--c': '10px', width: SB_W, background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(253,224,71,.3)' }}>
-              <div className="flex items-center justify-between bg-[#fde047]/[0.12] px-3 py-1">
-                <b className="font-display text-[15px] font-extrabold text-yellow-300">
-                  {g.final ? 'FINAL' : <>{g.inning}<i className="not-italic">{g.top ? '▲' : '▼'}</i></>}
-                </b>
-                <span className="font-display text-[11px] tracking-[0.22em] text-gray-500">SCORE</span>
-              </div>
-              {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
-                const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
-                return (
-                  <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-white/[0.09]' : ''}`} style={{ height: 48 }}>
-                    <span className="relative flex flex-1 items-center gap-2.5 overflow-hidden px-3">
-                      {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                      <span className="relative block h-5 w-1.5 shrink-0" style={{ background: flag?.color || color }} />
-                      <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{shortTeam(t.name, mine)}</b>
-                    </span>
-                    <span className="grid w-14 shrink-0 place-items-center border-l border-white/[0.09] font-display text-[30px] font-extrabold"
-                      style={{ background: mine ? 'rgba(253,224,71,.12)' : 'rgba(0,0,0,.3)', color: mine ? '#fde047' : '#fff' }}>{side.runs}</span>
-                  </div>
-                );
-              })}
+          <div className="flex items-stretch gap-2" style={{ width: 'max-content', filter: 'drop-shadow(0 12px 26px rgba(0,0,0,.55))' }}>
+            <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
+              {/* 회 — 빨간 기둥에 화살표와 숫자 */}
+              <span className="grid w-9 shrink-0 place-items-center bg-[#dc2626] leading-none text-white">
+                {g.final ? (
+                  <b className="font-display text-[11px] font-extrabold">END</b>
+                ) : (
+                  <b className="text-center font-display text-[17px] font-extrabold">
+                    <i className="block text-[10px] not-italic">{g.top ? '▲' : '▼'}</i>{g.inning}
+                  </b>
+                )}
+              </span>
+              <span style={{ width: SB_W }}>
+                {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
+                  const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
+                  const c = flag?.color || color;
+                  return (
+                    <div key={t.name} className={`relative flex items-stretch ${i === 0 ? 'border-b border-black/20' : ''}`} style={{ height: 44 }}>
+                      <span className="relative flex flex-1 items-center gap-2.5 overflow-hidden px-3" style={{ background: c }}>
+                        {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                        <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.55)' }}>{shortTeam(t.name, mine)}</b>
+                      </span>
+                      <span className="grid w-14 shrink-0 place-items-center border-l border-black/20 font-display text-[30px] font-extrabold text-[#0b1220]">{side.runs}</span>
+                    </div>
+                  );
+                })}
+              </span>
             </div>
-            <div className="mt-cut overflow-hidden" style={{ '--c': '10px', background: 'rgba(8,12,20,.92)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
-              <div className="flex h-full items-stretch">
-                <span className="grid place-items-center gap-1.5 px-3.5 py-2">
-                  <small className="font-display text-[10.5px] tracking-[0.22em] text-gray-500">COUNT</small>
-                  <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} />
+            <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
+              <span className="grid place-items-center gap-1.5 px-3.5 py-2">
+                <small className="font-display text-[10.5px] tracking-[0.22em] text-[#0b1220]/50">COUNT</small>
+                <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={14} off="rgba(0,0,0,.16)" />
+              </span>
+              <span className="grid place-items-center border-l border-black/20 px-2"><Diamond bases={g.bases} size={86} /></span>
+              <span className="grid w-14 place-items-center border-l border-black/20">
+                <span className="text-center leading-tight">
+                  <b className="block font-display text-[22px] font-extrabold text-[#0b1220]">{def.pitches}</b>
+                  <small className="font-display text-[10.5px] tracking-[0.12em] text-[#0b1220]/50">PITCH</small>
                 </span>
-                <span className="grid place-items-center border-l border-white/[0.09] px-2"><Diamond bases={g.bases} size={92} /></span>
-                <span className="grid w-14 place-items-center border-l border-white/[0.09]">
-                  <span className="text-center leading-tight">
-                    <b className="block font-display text-[22px] font-extrabold text-white">{def.pitches}</b>
-                    <small className="font-display text-[10.5px] tracking-[0.12em] text-gray-500">PITCH</small>
-                  </span>
-                </span>
-              </div>
+              </span>
             </div>
           </div>
         </div>
