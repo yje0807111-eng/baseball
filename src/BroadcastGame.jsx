@@ -145,25 +145,25 @@ function commentary(ev) {
 /* ───────── 작은 부품 ───────── */
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
 const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null }) => (
-  <svg viewBox="0 0 100 92" style={{ width: size, height: size * 0.92 }}>
-    {[[74, 30], [50, 6], [26, 30]].map(([x, y], i) => (
+  <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
+    {[[74, 42], [50, 18], [26, 42]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
         fill={bases[i] ? '#fbbf24' : off} style={bases[i] ? { filter: 'drop-shadow(0 0 6px rgba(251,191,36,.7))' } : undefined} />
     ))}
     {note != null && (
-      <text x="50" y="72" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="26" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
+      <text x="50" y="92" textAnchor="middle" fontFamily="'Saira Condensed', sans-serif" fontSize="21" fontWeight="800" fill="rgba(11,18,32,.72)">{note}</text>
     )}
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)' }) => (
-  <div className="grid items-center font-display text-[12px] font-extrabold"
-    style={{ gridTemplateColumns: `${label ? 14 : 0}px repeat(3, ${dot}px)`, gap: 5 }}>
-    {label ? <span className="text-emerald-400">B</span> : <span />}
+const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.14)', lab = '' }) => (
+  <div className="grid items-center font-display text-[11px] font-extrabold"
+    style={{ gridTemplateColumns: `${label ? 11 : 0}px repeat(3, ${dot}px)`, gap: 4, rowGap: 3 }}>
+    {label ? <span className={lab || 'text-emerald-400'}>B</span> : <span />}
     {[0, 1, 2].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < b ? '#16a34a' : off }} />)}
-    {label ? <span className="text-yellow-300">S</span> : <span />}
+    {label ? <span className={lab || 'text-yellow-300'}>S</span> : <span />}
     {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#eab308' : off }} />)}<span />
-    {label ? <span className="text-red-400">O</span> : <span />}
+    {label ? <span className={lab || 'text-red-400'}>O</span> : <span />}
     {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#dc2626' : off }} />)}<span />
   </div>
 );
@@ -510,20 +510,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                         {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.35, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
                         <b className="relative truncate text-[19px] font-extrabold text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.55)' }}>{shortTeam(t.name, mine)}</b>
                       </span>
-                      <span className="grid w-14 shrink-0 place-items-center border-l border-black/20 font-display text-[30px] font-extrabold text-[#0b1220]">{side.runs}</span>
+                      <span className="grid w-12 shrink-0 place-items-center border-l border-black/20 font-display text-[26px] font-extrabold leading-none text-[#0b1220]">{side.runs}</span>
                     </div>
                   );
                 })}
               </span>
             </div>
             <div className="mt-cut flex items-stretch overflow-hidden" style={{ '--c': '10px', background: SB_PAPER, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,.3)' }}>
-              <span className="grid place-items-center gap-1 px-3 py-1.5">
-                <small className="font-display text-[9.5px] tracking-[0.22em] text-[#0b1220]/50">COUNT</small>
-                <Bso b={g.balls} s={g.strikes} o={g.outs} label={false} dot={11} off="rgba(0,0,0,.16)" />
+              <span className="grid place-items-center px-3">
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={10} off="rgba(0,0,0,.16)" lab="text-[#0b1220]/60" />
               </span>
               {/* 주루 — 마름모 아래 안쪽에 던진 공 수 */}
               <span className="grid place-items-center border-l border-black/20 px-2.5">
-                <Diamond bases={g.bases} size={76} note={def.pitches} />
+                <Diamond bases={g.bases} size={70} note={def.pitches} />
               </span>
             </div>
           </div>
