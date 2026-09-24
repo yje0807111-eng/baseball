@@ -203,13 +203,18 @@ function courseKo(x, y) {
 }
 
 /** 스트라이크존 — 지나간 공은 번호 붙은 테, 지금 공은 흰 점. x · y 는 존 반폭 · 반높이가 1 */
+const ZONE_CLAMP = 1.55; // 존 반폭의 이만큼까지만 — 더 빠진 공도 판 안에 그린다
 const ZoneBox = ({ shots, w = 150 }) => {
-  const pad = 0.22; // 존 밖으로 빠진 공이 담길 만큼만
+  const pad = 0.42; // 존 밖으로 빠진 공이 담길 여유
   const V = 100;
   const box = V / (1 + pad * 2);
   const o = (V - box) / 2;
   const plate = 0;
-  const at = (x, y) => [o + box / 2 + (x * box) / 2, o + box / 2 + (y * box) / 2];
+  const at = (x, y) => {
+    const cx = Math.max(-ZONE_CLAMP, Math.min(ZONE_CLAMP, x));
+    const cy = Math.max(-ZONE_CLAMP, Math.min(ZONE_CLAMP, y));
+    return [o + box / 2 + (cx * box) / 2, o + box / 2 + (cy * box) / 2];
+  };
   const now = shots[shots.length - 1];
   return (
     <svg width={w} height={Math.round((w * (V + plate)) / V)} viewBox={`0 0 ${V} ${V + plate}`}>
@@ -223,9 +228,9 @@ const ZoneBox = ({ shots, w = 150 }) => {
       {shots.slice(0, -1).map((p, i) => {
         const [cx, cy] = at(p.x, p.y);
         return (
-          <g key={i} opacity="0.85">
-            <circle cx={cx} cy={cy} r="7" fill="rgba(5,8,15,.55)" stroke={p.tone} strokeWidth="1.8" />
-            <text x={cx} y={cy + 3} textAnchor="middle" fontSize="8" fontWeight="800" fill={p.tone}>{i + 1}</text>
+          <g key={i} opacity="0.4">
+            <circle cx={cx} cy={cy} r="6" fill="rgba(5,8,15,.4)" stroke="rgba(255,255,255,.55)" strokeWidth="1.3" />
+            <text x={cx} y={cy + 2.6} textAnchor="middle" fontSize="7" fontWeight="700" fill="rgba(255,255,255,.7)">{i + 1}</text>
           </g>
         );
       })}
@@ -644,16 +649,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
               {lastShot && (
-                <div key={shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-end gap-2.5 px-2.5 py-2"
+                <div key={shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
                   style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)', '--f': lastShot.tone, animation: 'mtZoneFlash .5s ease-out both' }}>
                   <ZoneBox shots={shots} w={150} />
-                  <div className="pb-1 leading-tight">
-                    <span className="mt-cut mb-1 inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>
-                    <b className="block text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
-                    <em className="font-display text-[22px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
+                  {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
+                  <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
+                    <span><span className="mt-cut inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span></span>
+                    <b className="truncate text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
+                    <em className="font-display text-[24px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
                       {lastShot.ev.pitch?.velo}<span className="ml-0.5 text-[11px] text-white/60">km</span>
                     </em>
-                    <span className="mt-0.5 block text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
+                    <span className="text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
                   </div>
                 </div>
               )}
