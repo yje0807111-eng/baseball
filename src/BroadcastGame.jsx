@@ -18,10 +18,10 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
 const SB_W = 272;
 const SB_PAPER = 'rgba(199,206,217,.95)'; // 중계 자막처럼 밝지만 눈이 편한 회색 판
-const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
+export const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
 /** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
-function shortTeam(name = '', mine = false) {
+export function shortTeam(name = '', mine = false) {
   if (mine) return name.replace(/^나의\s*/, '').slice(0, 4);
   const f = teamFlag(name);
   return (f && SB_SHORT[f.key]) || name.replace(/^\d{4}\s*/, '').split(' ')[0];
@@ -165,7 +165,7 @@ function commentary(ev) {
 
 /* ───────── 작은 부품 ───────── */
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
-const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink = 'rgba(11,18,32,.72)', edge = null }) => (
+export const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink = 'rgba(11,18,32,.72)', edge = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
     {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
       <rect key={i} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
@@ -177,7 +177,7 @@ const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink =
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.45)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
+export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.45)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
   <div className="grid items-center font-display font-extrabold"
     style={{ gridTemplateColumns: `${label ? font + 2 : 0}px repeat(3, ${dot}px)`, gap, rowGap, fontSize: font }}>
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-emerald-400'}`} style={{ height: dot }}>B</span> : <span />}
