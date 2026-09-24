@@ -140,7 +140,6 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
   const runs = beats.filter((b) => b.kind === 'run');
   const steal = beats.find((b) => b.kind === 'steal');
   const pitch = beats.find((b) => b.kind === 'pitch');
-  const call = beats.find((b) => b.kind === 'call');
   const baseAt = (i) => at([[0.1591, 0.1591], [0, 0.318], [-0.1591, 0.1591]][i]);
 
   let ballAt = null; let lift = 0; let trail = null; let landed = false;
@@ -205,16 +204,6 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
           <circle cx={pitchAt[0]} cy={pitchAt[1] - pitchHop} r={18 * u} fill={pitch.inZone ? 'rgba(253,224,71,.2)' : 'rgba(52,211,153,.18)'} />
           <circle cx={pitchAt[0]} cy={pitchAt[1] - pitchHop} r={8 * u} fill="#fff" stroke="rgba(0,0,0,.5)" strokeWidth={3 * u} />
         </g>
-      )}
-      {pitch && t >= pitch.t0 && !(ball && t >= ball.t0) && (
-        <text x={at(MOUND)[0] + 150 * u} y={at(MOUND)[1] - 26 * u} fontSize={44 * u} fontWeight="800" fill="rgba(255,255,255,.9)"
-          stroke="rgba(0,0,0,.7)" strokeWidth={9 * u} paintOrder="stroke">
-          {pitch.velo}<tspan fontSize={24 * u} fill="rgba(255,255,255,.6)"> km/h</tspan>
-        </text>
-      )}
-      {call && t >= call.t0 && (
-        <text x={at(HOME_G)[0]} y={at(HOME_G)[1] - 58 * u} textAnchor="middle" fontSize={76 * u} fontWeight="900"
-          fill={call.tone === 'ball' ? '#34d399' : '#fde047'} stroke="rgba(0,0,0,.85)" strokeWidth={20 * u} paintOrder="stroke">{call.label}</text>
       )}
       {throwAt && <circle cx={throwAt[0]} cy={throwAt[1]} r={9 * u} fill="#fff" />}
       {ballAt && (

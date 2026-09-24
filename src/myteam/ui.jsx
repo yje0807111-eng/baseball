@@ -81,6 +81,12 @@ export const UiStyle = () => (
     .mt-flip > .mt-flipface { position:absolute; inset:0; backface-visibility:hidden; }
     .mt-flip > .mt-flipface.in { animation: mtFlipIn .26s ease-in-out both; }
     .mt-flip > .mt-flipface.out { animation: mtFlipOut .26s ease-in-out both; pointer-events:none; }
+    /* 존 판 — 공이 위에서 날아와 꽂히고, 판이 판정 색으로 한 번 번쩍인다 */
+    @keyframes mtZoneHit { 0% { transform: translateY(-22px) scale(2.6); opacity: 0; } 45% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+    @keyframes mtZonePulse { 0% { transform: scale(.35); opacity: .85; } 100% { transform: scale(2.1); opacity: 0; } }
+    @keyframes mtZoneFlash { 0% { box-shadow: inset 0 0 0 2px var(--f,#fff), 0 0 26px -6px var(--f,#fff); } 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); } }
+    .mt-zhit { transform-box: fill-box; transform-origin: center; animation: mtZoneHit .3s cubic-bezier(.2,.9,.3,1) both; }
+    .mt-zpulse { transform-box: fill-box; transform-origin: center; animation: mtZonePulse .55s ease-out both; }
     @keyframes mtFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
     @keyframes mtFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
     @keyframes mtStaffIn { from { opacity:0; transform:translateY(18px) scale(1.06); } to { opacity:1; transform:none; } }

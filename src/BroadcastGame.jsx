@@ -193,6 +193,7 @@ function atBatPitches(events) {
 }
 
 const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
+const CALL_KO = { ball: '볼', called: '스트라이크', swinging: '헛스윙', foul: '파울', inplay: '인플레이', ibb: '고의사구' };
 const CALL_TONE = { ball: '#34d399', called: '#fde047', swinging: '#fde047', foul: '#94a3b8', inplay: '#fff', ibb: '#34d399' };
 /** 코스 한 마디 — 존 반폭·반높이를 1 로 잰 자리에서 */
 function courseKo(x, y) {
@@ -207,7 +208,7 @@ const ZoneBox = ({ shots, w = 150 }) => {
   const V = 100;
   const box = V / (1 + pad * 2);
   const o = (V - box) / 2;
-  const plate = 15; // 아래 홈플레이트 자리
+  const plate = 0;
   const at = (x, y) => [o + box / 2 + (x * box) / 2, o + box / 2 + (y * box) / 2];
   const now = shots[shots.length - 1];
   return (
@@ -219,9 +220,6 @@ const ZoneBox = ({ shots, w = 150 }) => {
           <line x1={o} y1={o + (box / 3) * i} x2={o + box} y2={o + (box / 3) * i} />
         </g>
       ))}
-      {/* 홈플레이트 — 위에서 본 오각형. 존의 어느 쪽이 안팎인지 알려 준다 */}
-      <path d={`M ${o + box * 0.28} ${V + 1} L ${o + box * 0.72} ${V + 1} L ${o + box * 0.72} ${V + 6} L ${o + box / 2} ${V + 11} L ${o + box * 0.28} ${V + 6} Z`}
-        fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.4)" strokeWidth="1" />
       {shots.slice(0, -1).map((p, i) => {
         const [cx, cy] = at(p.x, p.y);
         return (
@@ -233,7 +231,15 @@ const ZoneBox = ({ shots, w = 150 }) => {
       })}
       {now && (() => {
         const [cx, cy] = at(now.x, now.y);
-        return <g><circle cx={cx} cy={cy} r="13" fill={`${now.tone}33`} /><circle cx={cx} cy={cy} r="7" fill="#fff" stroke={now.tone} strokeWidth="2.4" /></g>;
+        return (
+          <g key={shots.length}>
+            <circle className="mt-zpulse" cx={cx} cy={cy} r="12" fill="none" stroke={now.tone} strokeWidth="2.5" />
+            <g className="mt-zhit">
+              <circle cx={cx} cy={cy} r="13" fill={`${now.tone}33`} />
+              <circle cx={cx} cy={cy} r="7" fill="#fff" stroke={now.tone} strokeWidth="2.4" />
+            </g>
+          </g>
+        );
       })()}
     </svg>
   );
@@ -638,10 +644,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
               {lastShot && (
-                <div className="pointer-events-none absolute bottom-3 right-3 flex items-end gap-2.5 px-2.5 py-2"
-                  style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
+                <div key={shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-end gap-2.5 px-2.5 py-2"
+                  style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)', '--f': lastShot.tone, animation: 'mtZoneFlash .5s ease-out both' }}>
                   <ZoneBox shots={shots} w={150} />
                   <div className="pb-1 leading-tight">
+                    <span className="mt-cut mb-1 inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>
                     <b className="block text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
                     <em className="font-display text-[22px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
                       {lastShot.ev.pitch?.velo}<span className="ml-0.5 text-[11px] text-white/60">km</span>
