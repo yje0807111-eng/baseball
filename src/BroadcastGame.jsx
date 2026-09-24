@@ -246,17 +246,6 @@ function TeamPanel({ team, side, color, pitcher, pitches, pitcherIdx = 0 }) {
   );
 }
 
-/** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
-function atBatPitches(events) {
-  const out = [];
-  for (let i = events.length - 1; i >= 0; i -= 1) {
-    const e = events[i];
-    if (out.length && e.result) break;
-    if (e.pitch) out.unshift(e);
-  }
-  return out;
-}
-
 /* ───────── 본체 ───────── */
 export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined }) {
   const home = useMemo(() => engineTeam(my), [my]);
@@ -476,7 +465,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const pitchingColor = g.top ? cMy : cOpp;
   const mix = pitchMix(pitcher);
   const steal0 = stealOdds(g, 0);
-  const atBat = atBatPitches(g.events); // 이 타석에 지나간 공 (존 뷰 자취)
 
   const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
   const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
@@ -494,7 +482,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       {recap && <InningRecap {...recap} onPick={(k) => recap.resolve(k)} />}
       {/* 경기장 사진이 곧 배경이다 — 플레이는 화면 전체에서 벌어지고, UI 는 그 위에 얹힌다 */}
       <div className="absolute inset-0">
-        <PlayView event={play?.ev || null} atBat={atBat} beatMs={play?.ms || 1200} paused={paused} bg={bg}
+        <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
           bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batterOf(g)} />
       </div>
       <div className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.9) 0,rgba(3,5,10,.2) 22%,rgba(3,5,10,.12) 78%,rgba(3,5,10,.9) 100%), linear-gradient(180deg,rgba(3,5,10,.86) 0,rgba(3,5,10,0) 24%,rgba(3,5,10,0) 62%,rgba(3,5,10,.88) 100%)' }} />
