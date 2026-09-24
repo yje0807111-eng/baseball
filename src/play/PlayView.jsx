@@ -241,7 +241,9 @@ export default function PlayView({
   // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
   const [u, setU] = useState(1);
   const [ar, setAr] = useState(ART.w / ART.h); // 화면 가로세로 비
-  const zoom = (bg.field || bg).stage?.zoom || 0.82;
+  const want = (bg.field || bg).stage?.zoom || 0.82;
+  // 칸이 옆으로 길면 그만큼 더 줄여야 구장 위아래가 잘리지 않는다
+  const zoom = Math.min(want, (ART.w / ART.h / ar) * 0.97);
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return undefined;
@@ -249,7 +251,7 @@ export default function PlayView({
       const { width, height } = el.getBoundingClientRect();
       if (!width || !height) return;
       setAr(width / height);
-      const s = Math.max(width * zoom / ART.w, height * zoom / ART.h);
+      const s = width * zoom / ART.w; // 실제로 그려지는 배율 (viewBox 가로 = ART.w / zoom)
       setU(Math.max(0.3, Math.min(1.6, 0.514 / s))); // 0.514 = 예전 칸 크기 기준
     };
     read();
