@@ -32,6 +32,13 @@ const orderKo = (o = {}) => Object.entries(o).map(([k, v]) => {
 }).filter(Boolean);
 /* 승부처에 화면을 한 번 붙잡는 빛 */
 const CLUTCH_CSS = `
+@keyframes halfSwipe { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.86); letter-spacing: .4em; }
+  18% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
+  76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06); letter-spacing: .2em; } }
+@keyframes halfWipe { 0% { transform: scaleX(0); opacity: .9; } 55% { transform: scaleX(1); opacity: .55; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
+@keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 @keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
 @keyframes clutchEdge { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
 `;
@@ -280,7 +287,7 @@ export const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null
   </svg>
 );
 /** 볼 · 스트라이크 · 아웃 세 줄. label 을 끄면 점만 남는다 (색으로 구분) */
-export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.45)', lab = '', gap = 4, rowGap = 3, font = 11 }) => (
+export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.45)', lab = '', gap = 4, rowGap = 3, font = 11, popOut = -1 }) => (
   <div className="grid items-center font-display font-extrabold"
     style={{ gridTemplateColumns: `${label ? font + 2 : 0}px repeat(3, ${dot}px)`, gap, rowGap, fontSize: font }}>
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-emerald-400'}`} style={{ height: dot }}>B</span> : <span />}
@@ -288,7 +295,9 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-yellow-300'}`} style={{ height: dot }}>S</span> : <span />}
     {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < s ? '#facc15' : 'transparent', border: i < s ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box' }} />)}<span />
     {label ? <span className={`flex items-center justify-center leading-none ${lab || 'text-red-400'}`} style={{ height: dot }}>O</span> : <span />}
-    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#ef4444' : 'transparent', border: i < o ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box' }} />)}<span />
+    {[0, 1].map((i) => <i key={i} className="rounded-full" style={{ width: dot, height: dot, background: i < o ? '#ef4444' : 'transparent', border: i < o ? 'none' : `1.5px solid ${off}`, boxSizing: 'border-box',
+      /* 방금 늘어난 아웃은 한 번 크게 튄다 */
+      ...(i === popOut ? { animation: 'outPop .5s ease-out', boxShadow: '0 0 14px #ef4444' } : null) }} />)}<span />
   </div>
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
@@ -307,6 +316,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
+  const [swap, setSwap] = useState(null); // 공수 교대 띠
+  const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
+  const outsRef = useRef(0); // 아웃이 늘면 표시가 한 번 튄다
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
   const speedRef = useRef(1);
@@ -462,6 +474,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           aug.beforeHalf(g);
         }
 
+        /* 공수 교대 — 띠가 쓸고 지나가며 이번엔 누가 치는지 알린다 */
+        if (!g.final && (g.top !== sideRef.current.top || g.inning !== sideRef.current.inning)) {
+          sideRef.current = { inning: g.inning, top: g.top };
+          setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
+          redraw();
+          await sleep(1150 / curSpeed());
+          if (aliveRef.current) setSwap(null);
+        }
+
         // 이닝이 넘어가면 자막만 스치고 지나간다 — 멈추는 자리는 승부처뿐이다
         if (g.inning !== inningNo || g.final) {
           const shown = inningNo;
@@ -522,6 +543,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const myPen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1, g.home.pitcherIdx + 5);
   const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
   const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
+  /* 아웃이 늘어난 그 점만 한 번 튀게 — 렌더마다 견주어 둔다 */
+  const justOut = g.outs > outsRef.current ? g.outs - 1 : -1;
+  outsRef.current = g.outs;
   const mineBat = !g.top; // 내가 치는 회
   const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
@@ -628,8 +652,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </div>
 
-            {/* 타석 — 얼굴에 파워 · 컨택 두 줄 */}
-            <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden" style={{ '--c': '14px', '--a': battingColor }}>
+            {/* 타석 — 얼굴에 파워 · 컨택 두 줄. 타자가 바뀌면 카드가 아래에서 올라온다 */}
+            <section key={batter?.id} className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden"
+              style={{ '--c': '14px', '--a': battingColor, animation: 'batterIn .34s ease-out both' }}>
               <div className="relative shrink-0 bg-[#0b1220] bg-cover" style={{ height: 152, backgroundImage: faceArt(batter), backgroundPosition: '50% 16%' }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
                 <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
@@ -688,7 +713,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 style={{ clipPath: 'polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
                 <Diamond bases={g.bases} size={76} off="rgba(255,255,255,.45)" />
                 <span className="h-[62px] w-px bg-white/15" />
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" />
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" popOut={justOut} />
               </div>
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
@@ -711,6 +736,23 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               {/* 결과 자막 */}
               {flash && (
                 <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
+              )}
+
+              {/* 공수 교대 — 띠가 한 번 쓸고 지나가며 이번 반 이닝의 주인을 알린다 */}
+              {swap && (
+                <div key={swap.key} className="pointer-events-none absolute inset-0 grid place-items-center">
+                  <i className="absolute inset-x-0 top-1/2 h-[118px] -translate-y-1/2 origin-left"
+                    style={{ background: `linear-gradient(90deg,${tint(swap.mine ? battingColor : pitchingColor, 62)},transparent)`,
+                      animation: 'halfWipe 1.1s cubic-bezier(.2,.8,.2,1) both' }} />
+                  <div className="absolute left-1/2 top-1/2 grid justify-items-center gap-1.5"
+                    style={{ animation: 'halfSwipe 1.15s ease-out both' }}>
+                    <span className="font-display text-[15px] font-bold tracking-[0.34em]"
+                      style={{ color: swap.mine ? battingColor : pitchingColor }}>{swap.inning}회{swap.top ? '초' : '말'}</span>
+                    <b className="font-display text-[62px] font-black leading-none text-white [text-shadow:0_6px_30px_rgba(0,0,0,.85)]">
+                      {swap.mine ? '우리 공격' : '우리 수비'}
+                    </b>
+                  </div>
+                </div>
               )}
 
             </section>
