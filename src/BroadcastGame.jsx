@@ -10,11 +10,16 @@ import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
-import { pitchTarget, ZONE } from './play/playScript.js';
+import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import {
   createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+/** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
+const shotsOf = (g) => atBatPitches(g.events).map((e) => {
+  const t = pitchTarget(e) || [0, 0];
+  return { x: t[0] / ZONE.w, y: t[1] / ZONE.h, tone: CALL_TONE[e.call] || '#fff', ev: e };
+});
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
 /* 담아 둔 지시를 사람 말로 — 눌렀다는 것이 보이게 */
 const ORDER_KO = { steal: '도루', bunt: '번트', hitAndRun: '히트앤런', ibb: '고의사구', changePitcher: '투수 교체' };
@@ -299,6 +304,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const redraw = () => force((v) => v + 1);
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
+  const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
@@ -416,6 +422,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         setLines((l) => [...l, ...commentary(ev)].slice(-4));
         const beat = (ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
+        /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
+        setTimeout(() => { if (aliveRef.current) setZoneShots(shotsOf(g)); }, beat * pitchArrival(beat));
+        /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
+        if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
         if (ev.result && BIG.includes(ev.result)) {
           // 맞아 나간 공은 타구가 다 지나간 뒤에 자막을 띄운다
           const wait = ev.call === 'inplay' ? beat * 0.66 : 0;
@@ -538,10 +548,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
   // 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리
-  const shots = atBatPitches(g.events).map((e) => {
-    const t = pitchTarget(e) || [0, 0];
-    return { x: t[0] / ZONE.w, y: t[1] / ZONE.h, tone: CALL_TONE[e.call] || '#fff', ev: e };
-  });
+  const shots = zoneShots;
   const lastShot = shots[shots.length - 1];
 
   return (
@@ -673,7 +680,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           {/* ── 가운데: 구장과 작전 버튼 ── */}
           <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: '1fr 54px 84px' }}>
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
-              <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
+              <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
                 bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
 
               {/* 주루 · 볼카운트 — 구장 왼쪽 위 */}

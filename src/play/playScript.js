@@ -101,6 +101,8 @@ export function runPath(from, to, off = 0, dash = 0) {
 const PITCH_WIND = 40;  // 와인드업
 const PITCH_FLY = 420;  // 공이 마운드에서 홈까지
 const CUT_AFTER = 90;   // 맞고 나서 타구가 시작되기까지
+/** 공이 홈에 닿는 때 (재생 시간 대비 0~1) — 존 판도 이때 찍혀야 구장과 맞는다 */
+export const pitchArrival = (ms) => Math.min(0.66, (PITCH_WIND + PITCH_FLY) / ms);
 
 /** 그 공이 존 뷰 어디에 꽂혔는지 — 지나간 공을 다시 찍을 때도 같은 자리가 나온다 */
 export function pitchTarget(ev) {
