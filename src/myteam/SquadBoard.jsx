@@ -215,7 +215,12 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
   const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
-  const order = squadOrder(squad, bench, team.order);
+  const auto = squadOrder(squad, bench, team.order);
+  /* 정비 화면은 투수 자리가 다섯뿐이라(선발 1 · 불펜 4) 판이 정해 준 자리를 그대로 쓴다.
+     라커는 선발 5 · 불펜 8 자리라 지금 뛰는 투수를 모두 펼친다 */
+  const order = fitSlots && team.order?.rotation && team.order?.bullpen
+    ? { ...auto, rotation: team.order.rotation, bullpen: team.order.bullpen }
+    : auto;
   const byId = new Map(squad.map((p) => [p.id, p]));
   const fatigue = team.pitchFatigue || {};
   const restOf = (p) => fatigue[p.id]?.rest || 0;
@@ -381,7 +386,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       if (e.button !== 0 || dragRef.current) return;
       e.preventDefault();
       const r = e.currentTarget.getBoundingClientRect();
-      const lists = p.type === 'batter' ? ['lineup'] : p.position === 'SP' ? ['rotation'] : ['bullpen'];
+      /* 투수는 한 묶음 — 선발 · 마무리 · 불펜 어느 칸에든 놓을 수 있다 (자리가 곧 역할) */
+      const lists = p.type === 'batter' ? ['lineup'] : ['pitch'];
       const rects = [...(p.type === 'batter' ? [...fieldRef.current.querySelectorAll('[data-token]')].map((el) => [el.dataset.token, el]) : []),
         ...lists.flatMap((l) => [...document.querySelectorAll(`[data-row^="${l}:"]`)].map((el) => [el.dataset.row.split(':')[1], el]))];
       const targets = rects.map(([id, el]) => { const b = el.getBoundingClientRect(); return { id, left: b.left, right: b.right, top: b.top, bottom: b.bottom }; });
@@ -449,7 +455,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const pitRow = (p, list, pos, h, pitch, off = 0) => {
     const on = sel?.id === p.id;
     const dragging = drag?.list === 'pitch' && drag.id === p.id;
-    const [label, color] = list === 'rotation' ? [`${pos + 1}SP`, ROLE.SP] : pos === 0 ? ['CL', ROLE.CL] : pos <= 2 ? ['SU', ROLE.SU] : [`MR${pos - 2}`, ROLE.MR];
+    const PREP_PEN = [['CL', ROLE.CL], ['SU', ROLE.SU], ['MR', ROLE.MR], ['LR', ROLE.MR]];
+    const [label, color] = list === 'rotation' ? [fitSlots && rotation.length === 1 ? 'SP' : `${pos + 1}SP`, ROLE.SP]
+      : fitSlots ? (PREP_PEN[pos] || ['MR', ROLE.MR])
+      : pos === 0 ? ['CL', ROLE.CL] : pos <= 2 ? ['SU', ROLE.SU] : [`MR${pos - 2}`, ROLE.MR];
     const next = list === 'rotation' && p.id === nextStarter?.id;
     const rest = restOf(p);
     const c = conditionOf(rest);
