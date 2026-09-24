@@ -11,6 +11,7 @@ import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
+import { winProb } from './engine/winProb.js';
 import {
   createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
@@ -278,6 +279,47 @@ const ZoneBox = ({ shots, w = 150 }) => {
   );
 };
 
+/** 승률 띠 — 구장 위에 걸린다. 왼쪽이 우리, 오른쪽이 상대 */
+const WinBar = ({ p, prev, mine, opp }) => {
+  const pct = Math.round(p * 100);
+  const move = Math.round((p - prev) * 100);
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[38px] items-stretch overflow-hidden"
+      style={{ background: 'rgba(5,8,15,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.12)' }}>
+      <i className="block h-full transition-[width] duration-500" style={{ width: `${pct}%`, background: `linear-gradient(90deg,${tint(mine, 22)},${tint(mine, 62)})` }} />
+      <i className="block h-full flex-1" style={{ background: `linear-gradient(90deg,${tint(opp, 52)},${tint(opp, 18)})` }} />
+      <span className="absolute inset-0 flex items-center gap-2.5 px-4">
+        <span className="font-display text-[11px] font-bold tracking-[0.3em] text-white/70">WIN</span>
+        <b className="font-display text-[23px] font-black leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{pct}%</b>
+        {move !== 0 && (
+          <b className="font-display text-[15px] font-extrabold" style={{ color: move > 0 ? '#34d399' : '#f87171', textShadow: '0 1px 5px #000' }}>
+            {move > 0 ? '▲' : '▼'}{Math.abs(move)}
+          </b>
+        )}
+        <b className="ml-auto font-display text-[17px] font-extrabold text-white/80" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{100 - pct}%</b>
+      </span>
+    </div>
+  );
+};
+
+/** 승률 흐름 — 타석마다 찍은 점을 잇는다. 가운데 선이 반반 */
+const WinLine = ({ log, mine, w = 268, h = 66 }) => {
+  const xs = log.length > 1 ? log : [...log, ...log];
+  const step = w / (xs.length - 1);
+  const y = (v) => h - v * h;
+  const d = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const fill = `${d} L ${w} ${h / 2} L 0 ${h / 2} Z`;
+  return (
+    <svg width={w} height={h} className="block">
+      <rect x="0" y="0" width={w} height={h} fill="rgba(255,255,255,.03)" />
+      <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="rgba(255,255,255,.22)" strokeWidth="1" strokeDasharray="3 3" />
+      <path d={fill} fill={tint(mine, 18)} />
+      <path d={d} fill="none" stroke={mine} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={w} cy={y(xs[xs.length - 1])} r="3.6" fill="#fff" stroke={mine} strokeWidth="2" />
+    </svg>
+  );
+};
+
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
 export const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink = 'rgba(11,18,32,.72)', edge = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
@@ -317,6 +359,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const redraw = () => force((v) => v + 1);
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
+  /* 승률 — 타석마다 한 점씩 찍어 흐름을 만든다. 내 지시가 얼마나 밀어 올렸는지도 센다 */
+  const wpRef = useRef([0.5]);
+  const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
+  const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
   digestRef.current = digest;
@@ -446,6 +492,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
+        if (fresh) wpAt.current = winProb(g);
+        const gave = asked || Object.keys(pendingRef.current).length > 0; // 이 타석에 지시를 냈다
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
@@ -479,6 +527,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
+        }
+        if (ev.result) {
+          const wpNow = winProb(g);
+          wpRef.current = [...wpRef.current, wpNow].slice(-200);
+          if (gave) gainRef.current += wpNow - wpAt.current;
         }
         redraw();
         await sleep(beat);
@@ -612,6 +665,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   // 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리
   const shots = zoneShots;
   const lastShot = shots[shots.length - 1];
+  /* 승률 — 마지막 두 점으로 지금 값과 직전 값을 잡는다 */
+  const wpLog = wpRef.current;
+  const wpShow = wpLog[wpLog.length - 1] ?? 0.5;
+  const wpWas = wpLog[wpLog.length - 2] ?? wpShow;
+  const myGain = Math.round(gainRef.current * 100);
 
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200"
@@ -748,8 +806,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
                 bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
 
-              {/* 주루 · 볼카운트 — 구장 왼쪽 위 */}
-              <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-3.5 px-3.5 py-3"
+              {/* 승률 — 구장 맨 위에 걸린다. 이 경기의 축 */}
+              <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
+
+              {/* 주루 · 볼카운트 — 승률 띠 아래 */}
+              <div className="pointer-events-none absolute left-3 top-[50px] flex items-center gap-3.5 px-3.5 py-3"
                 style={{ clipPath: 'polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
                 <Diamond bases={g.bases} size={76} off="rgba(255,255,255,.45)" />
                 <span className="h-[62px] w-px bg-white/15" />
@@ -817,6 +878,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     {clutch ? clutch.head : `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`}
                   </b>
                   {clutch && <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>}
+                  {clutch && (
+                    <span className="mt-cut shrink-0 px-2.5 py-1 text-[12.5px] font-bold" style={{ '--c': '4px', background: tint(clutchColor, 22), color: '#fff' }}>
+                      승률 <b className="font-display text-[15px]" style={{ color: clutchColor }}>{Math.round(clutch.wp * 100)}%</b>
+                    </span>
+                  )}
                   <small className="truncate text-[13px] text-gray-300">
                     {mineBat ? `${batter?.name} ${batter?.overall} 타석` : `${pitcher?.name} ${def.pitches}구`}
                   </small>
@@ -869,8 +935,29 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </div>
           </div>
 
-          {/* ── 오른쪽: 지금 투수 · 내 불펜 · 해설 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto 1fr' }}>
+          {/* ── 오른쪽: 승부 흐름 · 지금 투수 · 내 불펜 · 해설 ── */}
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto auto 1fr' }}>
+            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': cMy }}>
+              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
+                <p className="mt-lab" style={{ '--a': cMy }}>승부 흐름</p>
+                <b className="ml-auto font-display text-[26px] font-black leading-none" style={{ color: cMy }}>{Math.round(wpShow * 100)}<small className="ml-0.5 text-[13px] text-gray-400">%</small></b>
+              </div>
+              <div className="px-3.5 pb-3">
+                <WinLine log={wpLog} mine={cMy} />
+                <div className="mt-2 grid grid-cols-2 gap-1.5">
+                  <div className="mt-cut bg-white/[0.045] px-2 py-1.5" style={{ '--c': '6px' }}>
+                    <span className="block text-[11px] font-semibold text-gray-400">내 지시</span>
+                    <b className="font-display text-[17px] font-extrabold leading-tight" style={{ color: myGain > 0 ? '#34d399' : myGain < 0 ? '#f87171' : '#9ca3af' }}>
+                      {myGain > 0 ? '+' : ''}{myGain}<small className="ml-0.5 text-[11px] text-gray-500">%p</small>
+                    </b>
+                  </div>
+                  <div className="mt-cut bg-white/[0.045] px-2 py-1.5" style={{ '--c': '6px' }}>
+                    <span className="block text-[11px] font-semibold text-gray-400">남은 지시</span>
+                    <b className="font-display text-[17px] font-extrabold leading-tight text-white">{clutchLeft.current}<small className="ml-0.5 text-[11px] text-gray-500">번</small></b>
+                  </div>
+                </div>
+              </div>
+            </section>
             <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': pitchingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': pitchingColor }}>투수</p>
@@ -889,11 +976,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   </div>
                   <em className="font-display text-[24px] font-extrabold not-italic" style={{ color: pitchingColor }}>{pitcher?.overall}</em>
                 </div>
-                <div className="mt-2.5 space-y-1.5">
-                  {[['체력', Math.round(stamina), 0, 100], ['구위', st(pitcher, 'stuff'), 40, 120], ['제구', st(pitcher, 'control'), 40, 120]].map(([k, v, lo, hi]) => (
+                <div className="mt-2.5">
+                  {[['체력', Math.round(stamina), 0, 100]].map(([k, v, lo, hi]) => (
                     <div key={k} className="flex items-center gap-2">
                       <span className="w-[32px] shrink-0 text-[12px] font-bold text-gray-200">{k}</span>
-                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={k === '체력' && v <= 40 ? '#f87171' : null} />
+                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={v <= 40 ? '#f87171' : null} />
                       <em className="ml-auto font-display text-[13px] font-bold not-italic text-gray-200">{v}</em>
                     </div>
                   ))}
@@ -906,15 +993,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     </div>
                   ))}
                 </div>
-                <ul className="mt-2.5 space-y-1">
-                  {[['직구', mix.fast], ['슬라이더', mix.slider], ['체인지업', mix.change]].map(([n, v]) => (
-                    <li key={n} className="flex items-center gap-2">
-                      <b className="w-[62px] shrink-0 text-[12px] font-semibold text-gray-200">{n}</b>
-                      <StatCells v={v * 100} lo={0} hi={60} width={158} cell={8} h={7} color={pitchingColor} />
-                      <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-400">{Math.round(v * 100)}%</em>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </section>
 
@@ -1060,6 +1138,7 @@ function askOf(g, home, away, left, resolve) {
     batter: batterOf(g),
     pitcher: pitcherOf(g),
     weight: leverage(g),
+    wp: winProb(g),
     pitch: defenseOf(g).pitches ?? 0,
   };
 }
