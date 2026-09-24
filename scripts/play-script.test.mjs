@@ -66,7 +66,7 @@ describe('주자 대본', () => {
   it('달리는 길은 사이의 루를 모두 밟는다', () => {
     expect(runPath(0, 2)).toHaveLength(3); // 1루 → 2루 → 3루
     expect(runPath(-1, 0)).toHaveLength(2); // 타석 → 1루
-    expect(runPath(0, 3)).toHaveLength(5); // 1루 → 2 → 3 → 홈 → 비켜서기
+    expect(runPath(0, 3)).toHaveLength(4); // 1루 → 2 → 3 → 홈 (홈을 밟으면 거기서 끝)
     expect(finite(runPath(2, 3).flat())).toBe(true);
   });
   it('길 위 어느 지점이든 좌표가 나온다', () => {

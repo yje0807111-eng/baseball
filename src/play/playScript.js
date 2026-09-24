@@ -79,7 +79,7 @@ export function runnerMoves(ev) {
 }
 
 /** 루에서 루로 달리는 길 — 사이에 있는 루를 모두 밟는다. off 는 홈에 들어온 뒤 비켜설 자리 */
-export function runPath(from, to, off = 0, dash = 0) {
+export function runPath(from, to, dash = 0) {
   const pos = (i) => (i < 0 || i >= 3 ? HOME : BASE_POS[i]);
   if (to == null) {
     // 아웃 — 그래도 다음 루 쪽으로 dash 만큼 달리다 멈춘다
@@ -89,7 +89,6 @@ export function runPath(from, to, off = 0, dash = 0) {
   }
   const pts = [pos(from)];
   for (let i = from + 1; i <= to; i += 1) pts.push(i >= 3 ? HOME : BASE_POS[i]);
-  if (to === 3) pts.push(spot(-1, 0.05 + off)); // 홈을 밟고 3루 더그아웃 쪽으로
   return pts.length > 1 ? pts : [pos(from), pos(from)];
 }
 
@@ -161,10 +160,9 @@ export function buildPlay(ev, beatMs = 1200) {
     const scorers = moves.filter((m) => m.to === 3).length;
     let k = 0;
     for (const m of moves.sort((a, b) => b.from - a.from)) { // 앞선 주자부터
-      const off = m.to === 3 ? k * 0.06 : 0;
       beats.push({
         kind: 'run', t0: Math.min(0.9, CUT + 0.03 + k * 0.03), t1: Math.min(0.99, 0.84 + k * 0.045),
-        player: m.player, path: runPath(m.from, m.to, off, m.dash || 0), out: m.to == null, scored: m.to === 3, still: m.from === m.to && !m.dash,
+        player: m.player, path: runPath(m.from, m.to, m.dash || 0), out: m.to == null, scored: m.to === 3, still: m.from === m.to && !m.dash,
       });
       if (m.to === 3) k += 1; else k += 0.4;
     }
