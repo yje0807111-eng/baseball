@@ -44,6 +44,11 @@ function todayKo(g, batter) {
   return '무안타';
 }
 /** 어두운 유리판 위 성적 글자색 — 장타는 노랑, 안타는 연초록, 볼넷은 하늘, 못 친 날은 흐리게 */
+/** 선수 그림 — 카드가 있으면 카드, 없으면 프로필, 그것도 없으면 실루엣 */
+const faceArt = (p) => (p?.id
+  ? `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`
+  : 'url(ui/mt/silhouette-player.webp)');
+
 const koDark = (ko) => (/홈런|루타/.test(ko) ? '#fde047' : /안타/.test(ko) && !/무/.test(ko) ? '#a7f3d0' : /볼넷/.test(ko) ? '#93c5fd' : 'rgba(255,255,255,.5)');
 
 /** 지금 던지는 투수의 오늘 기록 */
@@ -494,24 +499,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </div>
 
             {/* 타석 — 얼굴에 파워 · 컨택 두 줄 */}
-            <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col" style={{ '--c': '14px', '--a': battingColor }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': battingColor }}>타석</p>
-                <span className="ml-auto truncate text-[11px]" style={{ color: koDark(batterKo) }}>{batterKo}</span>
+            <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden" style={{ '--c': '14px', '--a': battingColor }}>
+              <div className="relative shrink-0 bg-[#0b1220] bg-cover" style={{ height: 152, backgroundImage: faceArt(batter), backgroundPosition: '50% 16%' }}>
+                <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
+                <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
+                  style={{ color: battingColor, textShadow: `0 0 16px ${battingColor}88, 0 2px 4px #000` }}>{batter?.overall}</em>
+                <span className="absolute right-3 top-2.5 truncate text-[11px]" style={{ color: koDark(batterKo), textShadow: '0 1px 4px #000' }}>{batterKo}</span>
+                <b className="absolute bottom-1 left-3 right-3 truncate text-[22px] font-black text-white [text-shadow:0_2px_8px_#000]">{batter?.name}</b>
+                <span className="absolute bottom-1.5 right-3 font-display text-[11px] tracking-[0.14em] text-gray-400">{batter?.position} · {batter?.hand}타</span>
               </div>
-              <div className="flex gap-3 px-3.5 pb-1">
-                <Portrait player={batter} w={112} h={150} color={battingColor} />
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <b className="truncate text-[20px] font-extrabold leading-tight text-white">{batter?.name}</b>
-                  <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">{batter?.position} · {batter?.hand}타</span>
-                  <em className="mt-auto font-display text-[34px] font-extrabold leading-none not-italic" style={{ color: battingColor }}>{batter?.overall}</em>
-                </div>
-              </div>
-              <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2">
+              <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2.5">
                 {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
                   <div key={k} className="grid grid-cols-[30px_1fr_24px] items-center gap-2">
                     <span className="font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
-                    <SegBar pct={v} width={202} ticks={22} />
+                    <SegBar pct={v} width={202} ticks={24} />
                     <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
                   </div>
                 ))}
