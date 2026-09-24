@@ -511,7 +511,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2.5">
                 {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
                   <div key={k} className="flex items-center gap-2">
-                    <span className="w-[30px] font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
+                    <span className="w-[32px] shrink-0 text-[12px] font-bold text-gray-200">{k}</span>
                     <StatCells v={v} width={202} />
                     <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
                   </div>
@@ -645,7 +645,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <div className="mt-2.5 space-y-1.5">
                   {[['체력', Math.round(stamina), 0, 100], ['구위', st(pitcher, 'stuff'), 40, 120], ['제구', st(pitcher, 'control'), 40, 120]].map(([k, v, lo, hi]) => (
                     <div key={k} className="flex items-center gap-2">
-                      <span className="w-[30px] font-display text-[11px] tracking-[0.12em] text-gray-400">{k}</span>
+                      <span className="w-[32px] shrink-0 text-[12px] font-bold text-gray-200">{k}</span>
                       <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={k === '체력' && v <= 40 ? '#f87171' : null} />
                       <em className="ml-auto font-display text-[13px] font-bold not-italic text-gray-200">{v}</em>
                     </div>
