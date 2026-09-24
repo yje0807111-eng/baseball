@@ -15,6 +15,7 @@ import {
   createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
 export const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
@@ -306,7 +307,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
   const [holding, setHolding] = useState(false);
-  const [clutch, setClutch] = useState(null); // 승부처 — 멈추고 감독에게 묻는 판
+  const [clutch, setClutch] = useState(null); // 승부처 — 경기를 멈추고 아래 작전 줄에서 지시를 받는다
+  const clutchColor = '#fbbf24';
   const clutchRef = useRef(null);
   const clutchLeft = useRef(CLUTCH_LIMIT); // 이 경기에 남은 개입 횟수
   const lastAskHalf = useRef(''); // 한 반이닝에 한 번만 묻는다
@@ -480,7 +482,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const mix = pitchMix(pitcher);
   const steal0 = stealOdds(g, 0);
 
-  const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
+  const give = (o) => {
+    pendingRef.current = { ...pendingRef.current, ...o };
+    /* 승부처에서 고른 것이면 그걸로 답하고 경기를 다시 굴린다 */
+    if (clutchRef.current) { const done = clutchRef.current; clutchRef.current = null; setClutch(null); done(o); return; }
+    redraw();
+  };
 
 
   const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
@@ -529,7 +536,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       onPointerLeave={() => hold(false)}
       onContextMenu={(e) => e.preventDefault()}>
       <UiStyle />
-      {clutch && <ClutchAsk {...clutch} onPick={(o) => clutch.resolve(o)} />}
 
       <div className="grid h-full" style={{ gridTemplateRows: '63px 1fr' }}>
         {/* 헤더 */}
@@ -642,7 +648,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           </div>
 
           {/* ── 가운데: 구장과 작전 버튼 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: '1fr 84px' }}>
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: clutch ? '1fr auto 84px' : '1fr 84px' }}>
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
                 bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
@@ -679,18 +685,43 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             </section>
 
-            {/* 작전 버튼 */}
+            {/* 승부처 — 경기를 멈추고 아래에서 지시를 받는다. 구장 · 점수 · 주자는 이미 위에 떠 있다 */}
+            {clutch && (
+              <div className="mt-cut flex items-center gap-4 px-4 py-2.5 animate-[rise_.25s_ease-out_both]"
+                style={{ '--c': '12px', background: `linear-gradient(90deg,${tint(clutchColor, 22)},rgba(6,10,19,.72))`,
+                  boxShadow: `inset 0 0 0 1px ${tint(clutchColor, 55)}, 0 0 28px -8px ${clutchColor}` }}>
+                <p className="mt-lab shrink-0" style={{ '--a': clutchColor }}>{clutch.weDefend ? 'Crisis' : 'Chance'}</p>
+                <b className="shrink-0 text-[17px] font-extrabold text-white">{clutch.head}</b>
+                <small className="shrink-0 text-[13px] text-gray-300">{clutch.lead}</small>
+                <small className="truncate text-[12.5px] text-gray-400">
+                  {clutch.weDefend ? '상대' : '우리'} {clutch.batter?.name} {clutch.batter?.overall} 타석 · {clutch.pitcher?.name} {clutch.pitch}구
+                </small>
+                <span className="ml-auto flex shrink-0 items-baseline gap-1.5">
+                  <small className="text-[12px] text-gray-400">남은 지시</small>
+                  <b className="font-display text-[19px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
+                </span>
+              </div>
+            )}
+            {/* 작전 버튼 — 승부처에는 이 줄이 답을 받는 자리가 된다 */}
             <div className="flex items-stretch gap-2.5">
               {ACTS.map(([ic, t, s, fn, on]) => {
                 const live = on && !g.final;
                 return (
                   <button key={t} type="button" disabled={!live} onClick={fn}
                     className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
-                    style={{ '--c': '11px', '--a': mineBat ? battingColor : pitchingColor }}>
+                    style={{ '--c': '11px', '--a': clutch && live ? clutchColor : mineBat ? battingColor : pitchingColor,
+                      ...(clutch && live ? { boxShadow: `0 0 22px -6px ${clutchColor}` } : null) }}>
                     <b className="text-lg leading-none">{ic}</b>{t}<small className="text-[12px] font-semibold text-gray-400">{s}</small>
                   </button>
                 );
               })}
+              {clutch && (
+                <button type="button" onClick={() => clutch.resolve(null)}
+                  className="mt-cut mt-frame mt-glass flex w-[104px] shrink-0 flex-col items-center justify-center gap-0.5 text-[13px] text-gray-300 hover:brightness-125"
+                  style={{ '--c': '11px', '--a': '#64748b' }}>
+                  <b className="text-lg leading-none">⏭</b>맡긴다<small className="text-[12px] font-semibold text-gray-500">지시 없이</small>
+                </button>
+              )}
             </div>
           </div>
 
@@ -863,32 +894,6 @@ function halfSummary(evs, top, mine) {
 
 /** 이닝 하나(초·말)를 정리 화면에 넘길 모양으로 */
 /* ───────── 승부처: 멈추고 감독에게 묻는다 ───────── */
-/** 이 자리에서 낼 수 있는 지시 — 우리가 막는 중인지 치는 중인지에 따라 다르다 */
-function ordersFor(g) {
-  const [b1, b2, b3] = g.bases;
-  if (g.top) {
-    /* 우리 수비 (홈이 우리라 초에는 막는다) */
-    const openBase = !b1 && (b2 || b3); // 1루가 비어 거를 수 있다
-    return [
-      { key: 'duel', ko: '정면 승부', tip: '피하지 않고 붙는다', orders: {} },
-      openBase
-        ? { key: 'ibb', ko: '거른다', tip: '1루를 채우고 다음 타자와', orders: { ibb: true } }
-        : { key: 'chase', ko: '유인구', tip: '존 밖으로 빼 본다', orders: { zone: 'chase' } },
-      { key: 'change', ko: '투수 교체', tip: '불펜을 올린다', orders: { changePitcher: true } },
-    ];
-  }
-  /* 우리 공격 */
-  const steal = b1 && !b2 ? { key: 'steal', ko: '뛴다', tip: '2루를 훔친다', orders: { steal: 0 } }
-    : b2 && !b3 ? { key: 'steal3', ko: '뛴다', tip: '3루를 훔친다', orders: { steal: 1 } } : null;
-  const move = b1 || b2
-    ? { key: 'bunt', ko: '작전', tip: '번트로 주자를 보낸다', orders: { bunt: true } }
-    : { key: 'guess', ko: '노림수', tip: '직구를 노린다', orders: { guess: 'fast' } };
-  return [
-    { key: 'swing', ko: '강공', tip: '그대로 친다', orders: {} },
-    move,
-    steal || { key: 'guess', ko: '노림수', tip: '직구를 노린다', orders: { guess: 'fast' } },
-  ];
-}
 /** 주자를 사람 말로 */
 const basesKo = (bases) => {
   const on = bases.map((b, i) => (b ? ['1루', '2루', '3루'][i] : null)).filter(Boolean);
@@ -911,58 +916,8 @@ function askOf(g, home, away, left, resolve) {
     batter: batterOf(g),
     pitcher: pitcherOf(g),
     weight: leverage(g),
-    opts: ordersFor(g),
+    pitch: defenseOf(g).pitches ?? 0,
   };
-}
-/** 승부처 판 — 위에 상황, 아래에 선택지. 보고 있지 않다가 와도 읽히게 */
-function ClutchAsk({ head, score, lead, batter, pitcher, teamKo, weDefend, opts, left, onPick }) {
-  const acc = weDefend ? '#f87171' : '#34d399';
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-[#03050a]/80 px-6 backdrop-blur-[4px]" role="dialog" aria-modal="true" aria-label="승부처">
-      <div className="ui-cut ui-frame ui-glass w-full max-w-3xl p-8 animate-[rise_.3s_ease-out_both]"
-        style={{ '--c': '20px', '--a': acc }}>
-        {/* 위 — 지금 무슨 상황인가 */}
-        <div className="flex items-baseline gap-3">
-          <p className="ui-lab font-display" style={{ '--a': acc }}>{weDefend ? 'Crisis' : 'Chance'}</p>
-          <b className="text-[15px] text-gray-300">{weDefend ? '막아야 한다' : '칠 자리다'}</b>
-          <span className="ml-auto flex items-baseline gap-2">
-            <small className="text-[12px] text-gray-500">남은 지시</small>
-            <b className="font-display text-[20px] font-extrabold" style={{ color: acc }}>{left}</b>
-          </span>
-        </div>
-        <h2 className="mt-3 text-[40px] font-black leading-tight text-white">{head}</h2>
-        <p className="mt-1 flex items-baseline gap-3">
-          <b className="font-display text-[26px] font-extrabold tabular-nums text-gray-200">{score}</b>
-          <span className="text-[15px] text-gray-400">{lead}</span>
-        </p>
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          {[[weDefend ? '상대 타자' : '우리 타자', batter], [weDefend ? '우리 투수' : '상대 투수', pitcher]].map(([ko, p]) => (
-            <div key={ko} className="mt-cut flex items-center gap-3 px-4 py-3"
-              style={{ '--c': '8px', background: 'rgba(255,255,255,.05)' }}>
-              <span className="grid gap-0.5">
-                <small className="text-[11px] text-gray-500">{ko}</small>
-                <b className="text-[17px] text-white">{p?.name || '-'}</b>
-              </span>
-              <b className="ml-auto font-display text-[24px] font-extrabold text-gray-200">{p?.overall ?? '-'}</b>
-            </div>
-          ))}
-        </div>
-        {/* 아래 — 무엇을 할까 */}
-        <div className="mt-6 grid grid-cols-3 gap-3">
-          {opts.map((o) => (
-            <button key={o.key} type="button" onClick={() => onPick(o.orders)}
-              className="ui-cut flex flex-col gap-1 px-4 py-4 text-left transition-[background,box-shadow]"
-              style={{ '--c': '10px', background: 'rgba(255,255,255,.05)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `inset 0 0 0 2px \${acc}`; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255,255,255,.14)'; }}>
-              <b className="text-[19px] font-extrabold text-white">{o.ko}</b>
-              <small className="text-[12px] text-gray-400">{o.tip}</small>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 }
 export function buildInningRecap(g, evs, inning) {
   return {
