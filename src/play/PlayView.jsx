@@ -199,9 +199,10 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
         r && !(steal && steal.player && steal.player.id === r.id)
           ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} enter /> : null))}
       {runs.map((b, i) => {
-        const u = ease(phase(t, b.t0, b.t1));
-        const p = along(b.path, u);
-        const done = u >= 1;
+        /* 진행도는 k 로 — 바깥 u 는 화면 확대 보정값이라 덮으면 칩이 0 에서 커진다 */
+        const k = ease(phase(t, b.t0, b.t1));
+        const p = along(b.path, k);
+        const done = k >= 1;
         return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} player={b.player} dim={(b.out && done) || b.still} ring={b.scored && done}
           leave={(b.out || b.scored) && done}
           color={b.out && done ? '#6b7280' : b.scored && done ? '#fde047' : offColor} />;
