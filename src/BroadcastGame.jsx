@@ -11,6 +11,7 @@ import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
+import { pitchTarget, ZONE } from './play/playScript.js';
 import {
   createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
 
@@ -180,6 +181,64 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
+/** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
+function atBatPitches(events) {
+  const out = [];
+  for (let i = events.length - 1; i >= 0; i -= 1) {
+    const e = events[i];
+    if (out.length && e.result) break;
+    if (e.pitch) out.unshift(e);
+  }
+  return out;
+}
+
+const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
+const CALL_TONE = { ball: '#34d399', called: '#fde047', swinging: '#fde047', foul: '#94a3b8', inplay: '#fff', ibb: '#34d399' };
+/** 코스 한 마디 — 존 반폭·반높이를 1 로 잰 자리에서 */
+function courseKo(x, y) {
+  const lr = x < -0.55 ? '몸쪽' : x > 0.55 ? '바깥쪽' : '가운데';
+  const ud = y < -0.55 ? '높게' : y > 0.55 ? '낮게' : '';
+  return ud ? `${lr} ${ud}` : lr;
+}
+
+/** 스트라이크존 — 지나간 공은 번호 붙은 테, 지금 공은 흰 점. x · y 는 존 반폭 · 반높이가 1 */
+const ZoneBox = ({ shots, w = 150 }) => {
+  const pad = 0.22; // 존 밖으로 빠진 공이 담길 만큼만
+  const V = 100;
+  const box = V / (1 + pad * 2);
+  const o = (V - box) / 2;
+  const plate = 15; // 아래 홈플레이트 자리
+  const at = (x, y) => [o + box / 2 + (x * box) / 2, o + box / 2 + (y * box) / 2];
+  const now = shots[shots.length - 1];
+  return (
+    <svg width={w} height={Math.round((w * (V + plate)) / V)} viewBox={`0 0 ${V} ${V + plate}`}>
+      <rect x={o} y={o} width={box} height={box} fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.55)" strokeWidth="1.6" />
+      {[1, 2].map((i) => (
+        <g key={i} stroke="rgba(255,255,255,.2)" strokeWidth="1">
+          <line x1={o + (box / 3) * i} y1={o} x2={o + (box / 3) * i} y2={o + box} />
+          <line x1={o} y1={o + (box / 3) * i} x2={o + box} y2={o + (box / 3) * i} />
+        </g>
+      ))}
+      {/* 홈플레이트 — 위에서 본 오각형. 존의 어느 쪽이 안팎인지 알려 준다 */}
+      <path d={`M ${o + box * 0.28} ${V + 1} L ${o + box * 0.72} ${V + 1} L ${o + box * 0.72} ${V + 6} L ${o + box / 2} ${V + 11} L ${o + box * 0.28} ${V + 6} Z`}
+        fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.4)" strokeWidth="1" />
+      {shots.slice(0, -1).map((p, i) => {
+        const [cx, cy] = at(p.x, p.y);
+        return (
+          <g key={i} opacity="0.85">
+            <circle cx={cx} cy={cy} r="7" fill="rgba(5,8,15,.55)" stroke={p.tone} strokeWidth="1.8" />
+            <text x={cx} y={cy + 3} textAnchor="middle" fontSize="8" fontWeight="800" fill={p.tone}>{i + 1}</text>
+          </g>
+        );
+      })}
+      {now && (() => {
+        const [cx, cy] = at(now.x, now.y);
+        return <g><circle cx={cx} cy={cy} r="13" fill={`${now.tone}33`} /><circle cx={cx} cy={cy} r="7" fill="#fff" stroke={now.tone} strokeWidth="2.4" /></g>;
+      })()}
+    </svg>
+  );
+};
+
 /** 주루 — 중계처럼 선도 홈도 없이 1 · 2 · 3루 마름모 셋만. note 를 주면 마름모 아래 안쪽에 작게 적는다 */
 export const Diamond = ({ bases, size = 68, off = 'rgba(0,0,0,.16)', note = null, ink = 'rgba(11,18,32,.72)', edge = null }) => (
   <svg viewBox="0 0 100 100" style={{ width: size, height: size }}>
@@ -435,6 +494,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
+  // 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리
+  const shots = atBatPitches(g.events).map((e) => {
+    const t = pitchTarget(e) || [0, 0];
+    return { x: t[0] / ZONE.w, y: t[1] / ZONE.h, tone: CALL_TONE[e.call] || '#fff', ev: e };
+  });
+  const lastShot = shots[shots.length - 1];
 
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200"
@@ -570,6 +635,21 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <span className="h-[62px] w-px bg-white/15" />
                 <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" />
               </div>
+
+              {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
+              {lastShot && (
+                <div className="pointer-events-none absolute bottom-3 right-3 flex items-end gap-2.5 px-2.5 py-2"
+                  style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
+                  <ZoneBox shots={shots} w={150} />
+                  <div className="pb-1 leading-tight">
+                    <b className="block text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
+                    <em className="font-display text-[22px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
+                      {lastShot.ev.pitch?.velo}<span className="ml-0.5 text-[11px] text-white/60">km</span>
+                    </em>
+                    <span className="mt-0.5 block text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
+                  </div>
+                </div>
+              )}
 
               {/* 결과 자막 */}
               {flash && (
