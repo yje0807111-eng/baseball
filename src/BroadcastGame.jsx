@@ -16,6 +16,15 @@ import {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
+/* 담아 둔 지시를 사람 말로 — 눌렀다는 것이 보이게 */
+const ORDER_KO = { steal: '도루', bunt: '번트', hitAndRun: '히트앤런', ibb: '고의사구', changePitcher: '투수 교체' };
+const PITCH_NAME = { fast: '직구', slider: '변화구', change: '변화구' };
+const orderKo = (o = {}) => Object.entries(o).map(([k, v]) => {
+  if (k === 'zone') return v === 'chase' ? '유인구' : '코스 승부';
+  if (k === 'guess') return `${PITCH_NAME[v] || ''} 노림`;
+  if (k === 'pitchType') return `${PITCH_NAME[v] || ''} 승부`;
+  return ORDER_KO[k];
+}).filter(Boolean);
 /* 승부처에 화면을 한 번 붙잡는 빛 */
 const CLUTCH_CSS = `
 @keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
@@ -504,6 +513,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
   const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
   const mineBat = !g.top; // 내가 치는 회
+  const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
   const onePoint = g.inning >= 7 && Math.abs(g.home.runs - g.away.runs) <= 1;
@@ -511,18 +521,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const ACTS = mineBat
     ? [
       ['🏃', '도루', on1 ? `${Math.round(steal0 * 100)}% · ${onePoint ? '한 점이 급할 때' : '되면 크다'}` : on2 ? '2루 주자' : '주자 없음',
-        () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2])],
-      ['🪃', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true],
-      ['🏹', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1],
-      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true],
-      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true],
+        () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2]), pend.steal != null],
+      ['🪃', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true, !!pend.bunt],
+      ['🏹', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1, !!pend.hitAndRun],
+      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true, pend.guess === 'fast'],
+      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true, pend.guess === 'slider'],
     ]
     : [
-      ['🎯', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true],
-      ['🧊', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true],
-      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true],
-      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true],
-      ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true],
+      ['🎯', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true, typeof pend.zone === 'number'],
+      ['🧊', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true, pend.zone === 'chase'],
+      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true, pend.pitchType === 'fast'],
+      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true, pend.pitchType === 'slider'],
+      ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true, !!pend.ibb],
     ];
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
@@ -699,38 +709,57 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </section>
 
             {/* 승부처 — 경기를 멈추고 아래에서 지시를 받는다. 구장 · 점수 · 주자는 이미 위에 떠 있다 */}
-            {/* 작전 띠 — 평소에는 지금 자리를 담담히, 승부처에는 노랗게 물든다. 자리는 늘 같다 */}
-            <div className="mt-cut flex items-center gap-5 px-5"
-              style={{ '--c': '14px',
-                background: clutch ? `linear-gradient(90deg,${tint(clutchColor, 30)},rgba(6,10,19,.76))` : 'rgba(6,10,19,.55)',
-                boxShadow: clutch ? `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}` : 'inset 0 0 0 1px rgba(255,255,255,.08)',
-                animation: clutch ? 'clutchPulse 1.5s ease-in-out infinite' : 'none',
-                transition: 'background .25s, box-shadow .25s' }}>
-              <p className="mt-lab shrink-0 text-[13px]" style={{ '--a': clutch ? clutchColor : '#64748b' }}>
-                {clutch ? (clutch.weDefend ? 'Crisis' : 'Chance') : 'Orders'}
-              </p>
-              <b className="shrink-0 text-[19px] font-extrabold text-white">
-                {clutch ? clutch.head : `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`}
-              </b>
-              {clutch && <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>}
-              <small className="truncate text-[13px] text-gray-300">
-                {mineBat ? '우리' : '상대'} {batter?.name} {batter?.overall} 타석 · {pitcher?.name} {def.pitches}구
-              </small>
-              <span className="ml-auto flex shrink-0 items-baseline gap-2">
-                <small className="text-[12.5px] text-gray-400">{clutch ? '남은 지시' : '아래에서 지시'}</small>
-                {clutch && <b className="font-display text-[24px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>}
-              </span>
-            </div>
+            {/* 작전 띠 — 치는 회인지 막는 회인지 색과 말로 알린다. 승부처에는 노랗게 물든다. 자리는 늘 같다 */}
+            {(() => {
+              const bandColor = clutch ? clutchColor : mineBat ? battingColor : pitchingColor;
+              const queuedKo = orderKo(pend);
+              return (
+                <div className="mt-cut flex items-center gap-4 px-5"
+                  style={{ '--c': '14px',
+                    background: `linear-gradient(90deg,${tint(bandColor, clutch ? 30 : 14)},rgba(6,10,19,.7))`,
+                    boxShadow: clutch ? `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}` : `inset 0 0 0 1px ${tint(bandColor, 40)}`,
+                    animation: clutch ? 'clutchPulse 1.5s ease-in-out infinite' : 'none',
+                    transition: 'background .25s, box-shadow .25s' }}>
+                  <p className="mt-lab shrink-0 text-[13px]" style={{ '--a': bandColor }}>
+                    {clutch ? (clutch.weDefend ? 'Crisis' : 'Chance') : mineBat ? 'Offense' : 'Defense'}
+                  </p>
+                  <b className="shrink-0 text-[15px] font-extrabold" style={{ color: bandColor }}>{mineBat ? '우리 공격' : '우리 수비'}</b>
+                  <b className="shrink-0 text-[18px] font-extrabold text-white">
+                    {clutch ? clutch.head : `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`}
+                  </b>
+                  {clutch && <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>}
+                  <small className="truncate text-[13px] text-gray-300">
+                    {mineBat ? `${batter?.name} ${batter?.overall} 타석` : `${pitcher?.name} ${def.pitches}구`}
+                  </small>
+                  <span className="ml-auto flex shrink-0 items-center gap-3">
+                    {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
+                    {queuedKo.map((k) => (
+                      <span key={k} className="mt-cut px-2.5 py-1 text-[12px] font-bold"
+                        style={{ '--c': '4px', background: tint(bandColor, 26), boxShadow: `inset 0 0 0 1px ${bandColor}`, color: '#fff' }}>{k} 지시</span>
+                    ))}
+                    {clutch && <span className="flex items-baseline gap-2">
+                      <small className="text-[12.5px] text-gray-400">남은 지시</small>
+                      <b className="font-display text-[24px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
+                    </span>}
+                  </span>
+                </div>
+              );
+            })()}
             {/* 작전 버튼 — 승부처에는 이 줄이 답을 받는 자리가 된다 */}
             <div className="flex items-stretch gap-2.5">
-              {ACTS.map(([ic, t, s, fn, on]) => {
+              {ACTS.map(([ic, t, s, fn, on, picked]) => {
                 const live = on && !g.final;
+                const acc = clutch && live ? clutchColor : mineBat ? battingColor : pitchingColor;
                 return (
                   <button key={t} type="button" disabled={!live} onClick={fn}
-                    className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
-                    style={{ '--c': '11px', '--a': clutch && live ? clutchColor : mineBat ? battingColor : pitchingColor,
-                      ...(clutch && live ? { boxShadow: `0 0 22px -6px ${clutchColor}` } : null) }}>
-                    <b className="text-lg leading-none">{ic}</b>{t}<small className="text-[12px] font-semibold text-gray-400">{s}</small>
+                    className={`mt-cut relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] transition-[background,box-shadow,transform] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'} ${picked ? 'scale-[1.03]' : ''}`}
+                    style={{ '--c': '11px', '--a': acc,
+                      /* 누른 작전은 색이 차고 테두리가 굵어져 한눈에 보인다 */
+                      ...(picked ? { background: tint(acc, 26), boxShadow: `inset 0 0 0 2px ${acc}, 0 0 26px -6px ${acc}` }
+                        : clutch && live ? { boxShadow: `0 0 22px -6px ${clutchColor}` } : null) }}>
+                    {picked && <b className="absolute right-1.5 top-1 text-[11px]" style={{ color: acc }}>✓</b>}
+                    <b className="text-lg leading-none">{ic}</b>{t}
+                    <small className="text-[12px] font-semibold" style={{ color: picked ? acc : '#9ca3af' }}>{picked ? '다음 공에 낸다' : s}</small>
                   </button>
                 );
               })}
