@@ -187,7 +187,7 @@ const Handle = () => <span className="cursor-grab select-none text-[14px] tracki
  * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
  * 칸 높이는 판 높이를 줄 수로 나눈 값(최대 maxH). 순서가 바뀌면 목표 위치만 바뀌어 CSS 가 부드럽게 옮긴다.
  */
-function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, children }) {
+function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, children, heads = [] }) {
   const ref = useRef(null);
   const [h, setH] = useState(0);
   useLayoutEffect(() => {
@@ -199,10 +199,18 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const rowH = slots ? Math.max(24, Math.min(maxH, (h - gap * (slots - 1)) / slots)) : 0;
+  /* 머리글도 자리를 차지한다 — 그만큼 빼고 줄 높이를 잡는다 */
+  const headH = 20;
+  const rowH = slots ? Math.max(24, Math.min(maxH, (h - gap * (slots - 1) - headH * heads.length) / slots)) : 0;
+  const pitch = rowH + gap;
+  /* i 번째 줄의 자리: 앞에 놓인 머리글 수만큼 아래로 */
+  const topOf = (i) => i * pitch + headH * heads.filter((x) => x.at <= i).length;
   return (
-    <div ref={ref} className="relative min-h-0" style={style} data-pitch={rowH + gap} data-count={count} data-axis={axis}>
-      {h > 0 && children(rowH, rowH + gap)}
+    <div ref={ref} className="relative min-h-0" style={style} data-pitch={pitch} data-count={count} data-axis={axis}>
+      {h > 0 && heads.map((x) => (
+        <div key={x.at} className="absolute inset-x-0" style={{ top: topOf(x.at) - headH, height: headH }}>{x.node}</div>
+      ))}
+      {h > 0 && children(rowH, pitch, topOf)}
     </div>
   );
 }
@@ -254,10 +262,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   })();
 
   const save = (next) => onCommit({ ...team, order: { ...order, ...next } });
-  /** 투수 둘의 자리를 맞바꾼다 — 선발 ↔ 마무리 ↔ 불펜 모두 같은 방식 */
-  const swapPitchers = (a, b) => {
-    const sw2 = (ids) => ids.map((id) => (id === a ? b : id === b ? a : id));
-    save({ rotation: sw2(order.rotation), bullpen: sw2(order.bullpen) });
+  /** 투수 한 명을 다른 칸으로 — 사이에 있던 줄들은 한 칸씩 밀린다. 자리 수는 그대로 */
+  const movePitcher = (from, to) => {
+    const all = move([...order.rotation, ...order.bullpen], from, to);
+    save({ rotation: all.slice(0, order.rotation.length), bullpen: all.slice(order.rotation.length) });
   };
   const latest = useRef({});
   /** 벤치 선수 b 를 출전 선수 t 자리에: 타순 · 수비 자리 · 로테이션 · 불펜 칸은 그대로 두고 사람만 바꾼다.
@@ -274,7 +282,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const [justIn, setJustIn] = useState(null); // 방금 벤치에서 올라온 선수 — 잠깐 빛남
   const justTimer = useRef(null);
   useEffect(() => () => clearTimeout(justTimer.current), []);
-  latest.current = { order, save, onSelect: pickOrFire, benchSwap, swapPitchers };
+  latest.current = { order, save, onSelect: pickOrFire, benchSwap, movePitcher };
   const cancel = () => { dragRef.current = null; setDrag(null); };
   // 움직임 · 놓기는 창 전체에서 받는다. 최신 값은 ref 로
   useEffect(() => {
@@ -294,10 +302,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         return;
       }
       if (d.list === 'pitch') {
-        // 선발 · 마무리 · 불펜은 한 묶음이라 어느 칸 위에 놓아도 그 선수와 맞바꾼다
-        const hit = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
-        d.target = hit && hit.id !== d.id ? hit.id : null;
-        setDrag({ list: 'pitch', id: d.id, target: d.target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
+        // 포인터에 가장 가까운 줄이 새 자리 — 줄 사이 빈틈이 없어 끊기지 않는다
+        let to = 0; let best = Infinity;
+        d.mids.forEach((m, i) => { const gap = Math.abs(e.clientY - m.mid); if (gap < best) { best = gap; to = i; } });
+        d.to = to;
+        setDrag((v) => (v && v.from === d.from && v.to === to ? v : { list: 'pitch', id: d.id, from: d.from, to }));
         return;
       }
       if (d.list === 'field') {
@@ -325,7 +334,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       const { order: o, save: sv, onSelect: pick } = latest.current;
       if (!d.moved) { setDrag(null); pick(d.p); return; }
       if (d.list === 'bench') { if (d.target) latest.current.benchSwap(d.id, d.target); setDrag(null); return; }
-      if (d.list === 'pitch') { if (d.target && d.target !== d.id) latest.current.swapPitchers(d.id, d.target); setDrag(null); return; }
+      if (d.list === 'pitch') { if (d.to !== d.from) latest.current.movePitcher(d.from, d.to); setDrag(null); return; }
       if (d.list === 'field') { if (d.target) sv({ lineup: swapSlots(o.lineup, d.id, d.target) }); }
       else if (d.to !== d.from) sv({ [d.list]: move(o[d.list], d.from, d.to) });
       setDrag(null);
@@ -343,17 +352,19 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** 투수 줄 끌기: 선발 · 마무리 · 불펜을 가리지 않고 놓은 자리의 선수와 맞바꾼다 (자리가 곧 역할) */
+  /** 투수 줄 끌기: 선발 · 마무리 · 불펜을 한 목록으로 보고 타순 줄처럼 칸 번호로 옮긴다.
+   *  칸이 셋으로 나뉘어 있어 칸 높이가 저마다 달라, 각 줄 가운데를 적어 두고 가장 가까운 칸을 새 자리로 삼는다 */
   const pitchDrag = (id, p) => ({
     'data-row': `pitch:${id}`,
     onPointerDown: (e) => {
       if (e.button !== 0 || dragRef.current) return;
       e.preventDefault();
-      const targets = [...document.querySelectorAll('[data-row^="pitch:"]')].map((el) => {
+      const mids = [...document.querySelectorAll('[data-row^="pitch:"]')].map((el) => {
         const b = el.getBoundingClientRect();
-        return { id: el.dataset.row.split(':')[1], left: b.left, right: b.right, top: b.top, bottom: b.bottom };
-      });
-      dragRef.current = { list: 'pitch', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, targets };
+        return { id: el.dataset.row.split(':')[1], mid: b.top + b.height / 2 };
+      }).sort((a, b) => a.mid - b.mid);
+      const from = mids.findIndex((m) => m.id === id);
+      dragRef.current = { list: 'pitch', id, p, x0: e.clientX, y0: e.clientY, moved: false, from, to: from, mids };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
@@ -409,10 +420,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
     ? { background: `linear-gradient(90deg,color-mix(in srgb,${hot} 20%,#0b111c),#0b111c)`, boxShadow: `inset 3px 0 0 ${hot}` }
     : { background: '#0e141f' });
   /** 칸 위치: 판 안 절대 위치 + 칸 번호만큼 아래로. 끌리는 줄은 바로 붙고, 나머지는 미끄러진다 */
-  const place = (pos, h, pitch, dragging, axis = 'y') => {
+  const place = (pos, h, pitch, dragging, axis = 'y', topOf = null) => {
     // 끌리는 줄: 판 안에서는 갈 칸에 자석처럼 붙고(transition), 판 밖으로 나가면 포인터를 그대로 따라간다
     const follow = dragging && drag?.off != null;
-    const at = follow ? Math.max(-pitch, Math.min(drag.count * pitch, drag.from * pitch + drag.off)) : pos * pitch;
+    const at = follow ? Math.max(-pitch, Math.min(drag.count * pitch, drag.from * pitch + drag.off))
+      : (topOf ? topOf(pos) : pos * pitch);
     return {
       position: 'absolute', left: 0, top: 0, ...(axis === 'x' ? { bottom: 0, width: h } : { right: 0, height: h }),
       transform: `${axis === 'x' ? `translateX(${at}px)` : `translateY(${at}px)`}${dragging ? ' scale(1.03)' : ''}`,
@@ -452,26 +464,31 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       </div>
     );
   };
-  const pitRow = (p, list, pos, h, pitch, off = 0) => {
+  const pitRow = (p, list, pos, h, pitch, topOf) => {
     const on = sel?.id === p.id;
     const dragging = drag?.list === 'pitch' && drag.id === p.id;
+    /* 선 자리 기준 수치 — 야수 카드와 같게, 선발 자리에 선 불펜 투수는 깎인 값으로 보인다 */
+    const mySlot = list === 'rotation' ? 'SP' : 'RP';
+    const was = effAt(p, slotWas(p.id));
+    const eff = effAt(p, mySlot);
     const PREP_PEN = [['CL', ROLE.CL], ['SU', ROLE.SU], ['MR', ROLE.MR], ['LR', ROLE.MR]];
+    const bp = pos - SP_N; // 불펜 안에서 몇 번째 (마무리가 0)
     const [label, color] = list === 'rotation' ? [fitSlots && rotation.length === 1 ? 'SP' : `${pos + 1}SP`, ROLE.SP]
-      : fitSlots ? (PREP_PEN[pos] || ['MR', ROLE.MR])
-      : pos === 0 ? ['CL', ROLE.CL] : pos <= 2 ? ['SU', ROLE.SU] : [`MR${pos - 2}`, ROLE.MR];
+      : fitSlots ? (PREP_PEN[bp] || ['MR', ROLE.MR])
+      : bp === 0 ? ['CL', ROLE.CL] : bp <= 2 ? ['SU', ROLE.SU] : [`MR${bp - 2}`, ROLE.MR];
     const next = list === 'rotation' && p.id === nextStarter?.id;
     const rest = restOf(p);
     const c = conditionOf(rest);
     return (
       <div key={p.id} role="button" tabIndex={0} {...pitchDrag(p.id, p)}
         className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{ '--c': '7px', ...place(pos - off, h, pitch, dragging),
-          ...(dragging ? { transform: `translate(${drag.dx}px,${(pos - off) * pitch + drag.dy}px) scale(1.03)`, transition: 'none' } : null),
-          ...(drag?.list === 'pitch' && drag.target === p.id ? hitGlow : null),
+        style={{ '--c': '7px', ...place(pos, h, pitch, dragging, 'y', topOf),
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
         <Handle />
         <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
-        <span className="w-[26px] shrink-0 text-center"><Ovr p={p} size={18} /></span>
+        <span className={`shrink-0 text-center ${was.ovr !== eff.ovr ? '' : 'w-[26px]'}`}>
+          {was.ovr !== eff.ovr ? <Delta before={was.ovr} after={eff.ovr} size={15} /> : <Ovr p={p} v={eff.ovr} size={18} />}
+        </span>
         <NameBlock p={p} size={13.5} />
         {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
         <span className="pointer-events-none absolute bottom-[3px] left-[9px] right-[9px] h-[2px] bg-white/[0.06]" title={`컨디션 ${c}%`}><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
@@ -510,14 +527,24 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   /* 야수 카드를 끄는 중(구장 카드 끌기 · 벤치 타자 끌기) — 투수 자리는 바꿀 수 없어 회색으로 보여 준다 */
   const movingFielder = drag?.list === 'field' || (drag?.list === 'bench' && byId.get(drag.id)?.type === 'batter');
   const lineupRows = order.lineup.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
-  const rotation = order.rotation.map((id) => byId.get(id)).filter(Boolean);
-  const bullpen = order.bullpen.map((id) => byId.get(id)).filter(Boolean);
+  /* 투수는 선발 · 불펜을 이은 한 목록 — 끌고 있는 동안에는 밀어낸 순서로 보여 준다 */
+  const pitchAll = [...order.rotation, ...order.bullpen];
+  const pitchShown = drag?.list === 'pitch' && drag.to !== drag.from ? move(pitchAll, drag.from, drag.to) : pitchAll;
+  const SP_N = order.rotation.length;
+  const rotation = pitchShown.slice(0, SP_N).map((id) => byId.get(id)).filter(Boolean);
+  const bullpen = pitchShown.slice(SP_N).map((id) => byId.get(id)).filter(Boolean);
   /* 마무리는 불펜 첫 자리 — 칸을 따로 떼어 자리가 곧 역할임을 드러낸다 */
   const closer = bullpen[0] || null;
   const relief = bullpen.slice(1);
+  const pitchRows = [...rotation, ...bullpen];
+  const pitchHeads = [
+    { at: 0, node: <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} /> },
+    ...(closer ? [{ at: SP_N, node: <Grp en="CLOSER" ko="마무리 1" color={ROLE.CL} /> }] : []),
+    ...(relief.length ? [{ at: SP_N + 1, node: <Grp en="BULLPEN" ko={`불펜 ${relief.length}`} color={ROLE.MR} /> }] : []),
+  ];
+  /* 끌기 전 자리 — 바뀌는 줄만 수치를 미리 고쳐 적는다 */
+  const slotWas = (id) => (pitchAll.indexOf(id) < SP_N ? 'SP' : 'RP');
   const linePos = posMap('lineup');
-  const rotPos = posMap('rotation');
-  const penPos = posMap('bullpen');
 
   return (
     <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
@@ -573,21 +600,16 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
 
           {/* 오른쪽: 로테이션 · 불펜 · 벤치 */}
           <div className="flex min-h-0 flex-col">
-            <Grp en="ROTATION" ko={`선발 ${rotation.length}`} color={ROLE.SP} />
-            <Slots count={rotation.length} slots={fitSlots ? rotation.length : PLAY_LIMIT.SP} maxH={52} style={fitSlots ? { flex: `0 0 ${rotation.length * 52}px` } : { flex: PLAY_LIMIT.SP }}>
-              {(h, pitch) => stable(rotation).map((p) => pitRow(p, 'rotation', rotPos.get(p.id), h, pitch))}
-            </Slots>
-            {closer && <>
-              <div className="h-1.5 shrink-0" />
-              <Grp en="CLOSER" ko="마무리 1" color={ROLE.CL} />
-              <Slots count={1} slots={1} maxH={46} style={{ flex: '0 0 46px' }}>
-                {(h, pitch) => [pitRow(closer, 'bullpen', 0, h, pitch)]}
-              </Slots>
-            </>}
-            <div className="h-1.5 shrink-0" />
-            <Grp en="BULLPEN" ko={`불펜 ${relief.length}`} color={ROLE.MR} />
-            <Slots count={relief.length} slots={fitSlots ? relief.length : PLAY_LIMIT.RP - 1} maxH={46} style={fitSlots ? { flex: `0 0 ${relief.length * 46}px` } : { flex: PLAY_LIMIT.RP - 1 }}>
-              {(h, pitch) => stable(relief).map((p) => pitRow(p, 'bullpen', penPos.get(p.id), h, pitch, 1))}
+            {/* 선발 · 마무리 · 불펜을 한 판에 — 머리글만 사이에 끼우고 줄은 하나의 칸 번호를 쓴다(타순 줄과 같은 방식).
+                야수를 끄는 동안에는 놓을 수 없는 구역이라 판 전체를 회색으로 내린다 */}
+            <Slots count={pitchRows.length} slots={fitSlots ? pitchRows.length : PLAY_LIMIT.SP + PLAY_LIMIT.RP} maxH={48}
+              heads={pitchHeads}
+              style={{
+                ...(fitSlots ? { flex: `0 0 ${pitchRows.length * 46 + 20 * pitchHeads.length}px` } : { flex: 1 }),
+                ...(movingFielder ? { filter: 'grayscale(1) brightness(.62)', opacity: 0.42, pointerEvents: 'none' } : null),
+                transition: 'filter .16s, opacity .16s',
+              }}>
+              {(h, pitch, topOf) => stable(pitchRows).map((p) => pitRow(p, pitchRows.indexOf(p) < SP_N ? 'rotation' : 'bullpen', pitchRows.indexOf(p), h, pitch, topOf))}
             </Slots>
             <div className="h-1.5 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />

@@ -5597,7 +5597,6 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
     <ReadyLocker
       team={team} squad={roster} bench={benchIds} synergies={now.t.synergies} opponent={opponent} autoFilled={autoFilled}
       sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum }}
-      deltas={{ bat: d(now.batSum, was.batSum), def: d(now.defSum, was.defSum), pit: d(now.pitSum, was.pitSum) }}
       teamInfo={teamInfo}
       onCommit={commit}
       onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}

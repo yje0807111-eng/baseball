@@ -83,8 +83,9 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
 
   /* 정비 화면에서 시작: 바꾼 자리·타순을 저장하고, 정비 결과 그대로 상대와 경기 */
-  const startFromPrep = (ready, rest) => {
-    const team = { ...account.team, prep: prepOf(ready) };
+  const startFromPrep = (ready, rest, plan) => {
+    /* 전략실에서 고른 작전은 팀에 남겨 다음 경기에도 그대로 이어 쓴다 */
+    const team = { ...account.team, prep: prepOf(ready), ...(plan ? { plan } : {}) };
     let opp = null;
     if (prep.kind === 'duel') opp = randomSeriesTeam();
     else if (prep.kind === 'tourney') { const e = myOpponent(tournament); opp = e && teamOf(e, team); }
