@@ -76,7 +76,7 @@ const Scout = () => (
       display: 'grid', placeItems: 'center' }}>
       <small style={{ fontFamily: disp, fontSize: 9.5, letterSpacing: '.2em', color: '#55606f' }}>상대 수비 배치</small>
     </div>
-    <Lab size={10}>Lineup 타순 9</Lab>
+    <Lab size={10} color={A.foe}>Lineup 상대 타순 9</Lab>
     <div style={{ display: 'grid', gap: 3, flex: 1, minHeight: 0, overflow: 'hidden' }}>
       {LINEUP.map(([p, n, v], i) => <Row key={i} pos={p} name={n} v={v} a={A.bat} h={24} />)}
     </div>
@@ -150,7 +150,7 @@ const Tune = ({ styles = 8, w = 384, extra = null, compact = false }) => (
 const Order = ({ h = 96, synergy = true }) => (
   <div style={{ display: 'flex', gap: 10, height: h }}>
     <Panel pad={8} style={{ flex: 1, gap: 5 }}>
-      <Lab size={10}>Batting Order 타순 9</Lab>
+      <Lab size={10}>Batting Order 내 타순 9</Lab>
       <div style={{ display: 'flex', gap: 5, flex: 1 }}>
         {LINEUP.map(([p, n, v], i) => (
           <span key={i} style={{ flex: 1, position: 'relative', background: 'linear-gradient(180deg,#14243c,#080e1a)', clipPath: cut(5),
@@ -426,7 +426,7 @@ const P0 = () => (
 
 const PLANS = [
   ['지금', '벤치 아래 기둥이 비어 있음', P0],
-  ['1 · 상대 타순', '내 투수진 아래에 상대 타순 아홉을 마주 세우기', P1],
+  ['1 · 상대 타순', '⛔ 왼쪽 스카우팅이 이미 상대 타순 — 겹쳐서 버린 안', P1],
   ['2 · 맞대결', '타자 · 수비 · 투수 · 종합을 좌우 막대로 견주기', P2],
   ['3 · 전적', '최근 다섯 경기와 이 상대와의 지난 결과', P3],
   ['4 · 시너지', '아래 작은 줄을 기둥으로 올려 조건과 보탬까지', P4],
