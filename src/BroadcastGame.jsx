@@ -457,7 +457,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         <div className="grid min-h-0 gap-3 p-3" style={{ gridTemplateColumns: '300px 1fr 320px' }}>
           {/* ── 왼쪽: 점수판과 타순 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr) auto' }}>
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto minmax(0,1fr)' }}>
             {/* 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
             <div className="mt-cut shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
               {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
@@ -494,17 +494,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </div>
 
             {/* 타석 — 얼굴에 파워 · 컨택 두 줄 */}
-            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': battingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col" style={{ '--c': '14px', '--a': battingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': battingColor }}>타석</p>
                 <span className="ml-auto truncate text-[11px]" style={{ color: koDark(batterKo) }}>{batterKo}</span>
               </div>
-              <div className="flex min-h-0 flex-1 gap-3 px-3.5 pb-1">
-                <Portrait player={batter} w={148} h="100%" color={battingColor} />
+              <div className="flex gap-3 px-3.5 pb-1">
+                <Portrait player={batter} w={112} h={150} color={battingColor} />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <b className="truncate text-[20px] font-extrabold leading-tight text-white">{batter?.name}</b>
                   <span className="font-display text-[11px] tracking-[0.14em] text-gray-500">{batter?.position} · {batter?.hand}타</span>
-                  <em className="mt-auto font-display text-[40px] font-extrabold leading-none not-italic" style={{ color: battingColor }}>{batter?.overall}</em>
+                  <em className="mt-auto font-display text-[34px] font-extrabold leading-none not-italic" style={{ color: battingColor }}>{batter?.overall}</em>
                 </div>
               </div>
               <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2">
@@ -519,12 +519,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </section>
 
             {/* 타순 — 지금 공격하는 팀만. 오늘 한 마디 · 종합 */}
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': offFlag?.color || battingColor }}>타순</p>
                 <span className="ml-auto truncate font-display text-[11px] tracking-[0.14em] text-gray-500">{shortTeam(off.team.name, !g.top)} 공격</span>
               </div>
-              <ul className="flex flex-col gap-[3px] px-2 pb-2">
+              <ul className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-2 pb-2">
                 {off.team.batters.map((p, i) => {
                   const at = i === off.idx % off.team.batters.length;
                   const on = g.bases.findIndex((r) => r === p);
@@ -532,7 +532,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const c = offFlag?.color || battingColor;
                   return (
                     <li key={p.id || p.name} className={`mt-row mt-cut team ${at ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '14px minmax(0,1fr) auto auto 30px', gap: 8, padding: '2px 9px', opacity: at || on >= 0 ? 1 : 0.62, '--c': '4px', '--a': c, '--t': c }}>
+                      style={{ flex: '1 1 0', gridTemplateColumns: '14px minmax(0,1fr) auto auto 30px', gap: 8, padding: '2px 9px', opacity: at || on >= 0 ? 1 : 0.62, '--c': '4px', '--a': c, '--t': c }}>
                       <em className="text-right font-display text-[12px] font-bold not-italic text-gray-500">{i + 1}</em>
                       <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
                       <span>{at ? <span className="mt-chip" style={{ '--a': c }}>타석</span>
