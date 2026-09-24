@@ -295,12 +295,25 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       }
       if (d.list === 'pitch') {
         // 선발 · 마무리 · 불펜은 한 묶음이라 어느 칸 위에 놓아도 그 선수와 맞바꾼다
-        const hit = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
+        /* 줄과 줄 사이 빈틈에서 붙을 칸을 놓치면 자석이 켜졌다 꺼졌다 하며 줄이 튄다.
+           칸 안이 아니어도 가장 가까운 칸(세로 한 칸 반 안)을 잡아 둔다 */
+        const inside = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
+        let hit = inside;
+        if (!hit) {
+          let near = null; let gap = Infinity;
+          for (const c of d.targets) {
+            if (e.clientX < c.left - 60 || e.clientX > c.right + 60) continue;
+            const dy = e.clientY < c.top ? c.top - e.clientY : e.clientY > c.bottom ? e.clientY - c.bottom : 0;
+            if (dy < gap) { gap = dy; near = c; }
+          }
+          if (near && gap <= (near.bottom - near.top) * 0.75) hit = near;
+        }
         d.target = hit && hit.id !== d.id ? hit.id : null;
-        // 자석: 놓을 칸 위에 오면 그 칸에 딱 붙고(snap), 벗어나면 다시 포인터를 따라온다
         const snap = d.target && d.self ? { x: hit.left - d.self.left, y: hit.top - d.self.top } : null;
-        setDrag({ list: 'pitch', id: d.id, target: d.target, dx: e.clientX - d.x0, dy: e.clientY - d.y0,
-          snap, back: snap ? { x: -snap.x, y: -snap.y } : null });
+        const at = { list: 'pitch', id: d.id, target: d.target, dx: e.clientX - d.x0, dy: e.clientY - d.y0,
+          snap, back: snap ? { x: -snap.x, y: -snap.y } : null };
+        /* 바뀐 것이 없으면 다시 그리지 않는다 */
+        setDrag((v) => (v && v.target === at.target && v.dx === at.dx && v.dy === at.dy ? v : at));
         return;
       }
       if (d.list === 'field') {
@@ -479,12 +492,15 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ '--c': '7px', ...place(pos - off, h, pitch, dragging),
           /* 끌리는 줄: 붙을 칸이 있으면 그 칸에 자석처럼, 없으면 포인터를 그대로 따라간다 */
-          ...(dragging ? (drag.snap
-            ? { transform: `translate(${drag.snap.x}px,${(pos - off) * pitch + drag.snap.y}px) scale(1.03)`, transition: 'transform .13s ease-out' }
-            : { transform: `translate(${drag.dx}px,${(pos - off) * pitch + drag.dy}px) scale(1.03)`, transition: 'none' }) : null),
+          ...(dragging ? {
+            transform: drag.snap
+              ? `translate(${drag.snap.x}px,${(pos - off) * pitch + drag.snap.y}px) scale(1.03)`
+              : `translate(${drag.dx}px,${(pos - off) * pitch + drag.dy}px) scale(1.03)`,
+            transition: 'transform .09s cubic-bezier(.2,.7,.3,1)',
+          } : null),
           /* 맞바꿀 줄: 끌리는 줄이 있던 자리로 옮겨 온 모습 */
           ...(!dragging && drag?.list === 'pitch' && drag.target === p.id && drag.back
-            ? { transform: `translate(${drag.back.x}px,${(pos - off) * pitch + drag.back.y}px)`, transition: 'transform .13s ease-out', zIndex: 4 }
+            ? { transform: `translate(${drag.back.x}px,${(pos - off) * pitch + drag.back.y}px)`, transition: 'transform .13s cubic-bezier(.2,.7,.3,1)', zIndex: 4 }
             : null),
           ...(drag?.list === 'pitch' && drag.target === p.id ? hitGlow : null),
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
