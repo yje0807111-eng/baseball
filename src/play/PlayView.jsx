@@ -106,13 +106,21 @@ const Face = ({ id, cx, cy, r }) => {
 };
 
 /** 선수 한 명 — 얼굴에 팀 색 테를 두르고 이름을 아래에 적는다. 멀수록 작게 */
-const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring }) => {
+/* 선수가 들고 날 때 — 툭 끊기지 않게 */
+export const CHIP_CSS = `
+@keyframes chipIn { from { opacity: 0; transform: translateY(14px) scale(.82); } to { opacity: 1; transform: none; } }
+@keyframes chipOut { from { opacity: .85; transform: scale(1); } to { opacity: 0; transform: scale(.72); } }
+.pv-chip { transform-box: fill-box; transform-origin: center; }
+.pv-in { animation: chipIn .34s cubic-bezier(.2,.9,.3,1) both; }
+.pv-out { animation: chipOut .5s ease-in both; }
+`;
+const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, leave }) => {
   const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
   const r = 38 * k;
   const who = player && player.id != null ? player.id : null;
   const tag = name || (player && player.name) || null;
   return (
-    <g opacity={dim ? 0.82 : 1}>
+    <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}`} opacity={dim ? 0.82 : 1}>
       {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.55} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
       <ellipse cx={at[0]} cy={at[1] + r * 0.95} rx={r * 0.92} ry={r * 0.3} fill="rgba(0,0,0,.55)" />
       <circle cx={at[0]} cy={at[1]} r={r} fill="#0b1220" />
@@ -173,24 +181,29 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
 
       {FIELDERS.map((pos) => {
         const acting = fielder?.pos === pos;
-        let p = SPOTS[pos];
+        const home = SPOTS[pos];
+        let p = home;
         if (acting && t >= fielder.t0) {
           const u = ease(phase(t, fielder.t0, fielder.t1));
-          p = [p[0] + (fielder.to[0] - p[0]) * u, p[1] + (fielder.to[1] - p[1]) * u];
+          const to = [home[0] + (fielder.to[0] - home[0]) * u, home[1] + (fielder.to[1] - home[1]) * u];
+          /* 쫓아가 잡은 뒤에는 남은 시간 동안 제자리로 — 다음 공에 툭 되돌아가 있지 않게 */
+          const back = t > fielder.t1 ? ease(phase(t, fielder.t1 + 0.08, 0.99)) : 0;
+          p = back > 0 ? [to[0] + (home[0] - to[0]) * back, to[1] + (home[1] - to[1]) * back] : to;
         }
         return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting} dim={!acting && !!play} />;
       })}
 
       {!runs.length && batter && (() => { const p = BOX[batter.hand === 'L' ? 'L' : 'R'];
-        return <Chip at={at(p)} s={scaleAt(p)} u={u} color={offColor} player={batter} />; })()}
+        return <Chip key={batter.id} at={at(p)} s={scaleAt(p)} u={u} color={offColor} player={batter} enter />; })()}
       {!runs.length && bases.map((r, i) => (
         r && !(steal && steal.player && steal.player.id === r.id)
-          ? <Chip key={i} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} /> : null))}
+          ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} enter /> : null))}
       {runs.map((b, i) => {
         const u = ease(phase(t, b.t0, b.t1));
         const p = along(b.path, u);
         const done = u >= 1;
         return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} player={b.player} dim={(b.out && done) || b.still} ring={b.scored && done}
+          leave={(b.out || b.scored) && done}
           color={b.out && done ? '#6b7280' : b.scored && done ? '#fde047' : offColor} />;
       })}
       {steal && t >= steal.t0 && (() => {
@@ -260,6 +273,7 @@ export default function PlayView({
 
   return (
     <div ref={boxRef} className="relative h-full w-full overflow-hidden">
+      <style>{CHIP_CSS}</style>
       <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
         <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={field} defense={defense || EMPTY_DEF} batter={batter} />
       </svg>
