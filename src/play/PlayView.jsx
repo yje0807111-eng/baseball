@@ -208,13 +208,14 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
         return <Chip key={batter.id} at={at(p)} s={scaleAt(p)} u={u} color={offColor} player={batter} enter />; })()}
       {!runs.length && bases.map((r, i) => (
         r && !(steal && steal.player && steal.player.id === r.id)
-          ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} enter /> : null))}
+          /* 베이스에 선 주자는 이미 달려와 선 사람이다 — 다음 공마다 다시 솟아오르지 않는다 */
+          ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} /> : null))}
       {runs.map((b, i) => {
         /* 진행도는 k 로 — 바깥 u 는 화면 확대 보정값이라 덮으면 칩이 0 에서 커진다 */
         const k = ease(phase(t, b.t0, b.t1));
         const p = along(b.path, k);
         const done = k >= 1;
-        return <Chip key={`r${i}`} at={at(p)} s={scaleAt(p)} u={u} player={b.player} dim={(b.out && done) || b.still} ring={b.scored && done}
+        return <Chip key={`r${b.player?.id ?? i}`} at={at(p)} s={scaleAt(p)} u={u} player={b.player} dim={(b.out && done) || b.still} ring={b.scored && done}
           leave={(b.out || b.scored) && done}
           color={b.out && done ? '#6b7280' : b.scored && done ? '#fde047' : offColor} />;
       })}
