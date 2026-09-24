@@ -1,11 +1,11 @@
 /*
  * 중계형 경기 화면: 공 하나 단위 엔진(pitchSim)을 그대로 보여 준다.
  * 화면은 칸 셋이다 — 왼쪽에 점수판과 타순, 가운데에 구장과 작전 버튼,
- * 오른쪽에 지금 던지는 투수 · 내 불펜 · 해설. 타석에 선 선수는 구장 왼쪽 아래에 얹는다.
+ * 오른쪽에 지금 던지는 투수 · 내 불펜 · 해설. 타석에 선 선수는 점수판과 타순 사이에 둔다.
  * 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { UiStyle, Portrait } from './myteam/ui.jsx';
+import { UiStyle, Portrait, SegBar } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { myBanner } from './myteam/store.js';
@@ -457,7 +457,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         <div className="grid min-h-0 gap-3 p-3" style={{ gridTemplateColumns: '300px 1fr 320px' }}>
           {/* ── 왼쪽: 점수판과 타순 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto 1fr' }}>
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto 1fr' }}>
             {/* 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
             <div className="mt-cut shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
               {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
@@ -493,13 +493,39 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </div>
 
-            {/* 타순 — 지금 공격하는 팀만. 줄마다 얼굴 · 오늘 한 마디 · 종합 */}
+            {/* 타석 — 얼굴에 파워 · 컨택 두 줄 */}
+            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': battingColor }}>
+              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
+                <p className="mt-lab" style={{ '--a': battingColor }}>타석</p>
+                <span className="ml-auto truncate text-[11px]" style={{ color: koDark(batterKo) }}>{batterKo}</span>
+              </div>
+              <div className="flex gap-2.5 px-3.5 pb-3">
+                <Portrait player={batter} w={50} h={64} color={battingColor} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <b className="truncate text-[18px] font-extrabold text-white">{batter?.name}</b>
+                    <em className="ml-auto font-display text-[20px] font-extrabold not-italic" style={{ color: battingColor }}>{batter?.overall}</em>
+                  </div>
+                  <div className="mt-1.5 space-y-1">
+                    {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')]].map(([k, v]) => (
+                      <div key={k} className="flex items-center gap-2">
+                        <span className="w-8 font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
+                        <SegBar pct={v} width={128} ticks={14} />
+                        <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 타순 — 지금 공격하는 팀만. 오늘 한 마디 · 종합 */}
             <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': offFlag?.color || battingColor }}>타순</p>
                 <span className="ml-auto truncate font-display text-[11px] tracking-[0.14em] text-gray-500">{shortTeam(off.team.name, !g.top)} 공격</span>
               </div>
-              <ul className="min-h-0 flex-1 space-y-1 overflow-hidden px-2 pb-2">
+              <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden px-2 pb-2">
                 {off.team.batters.map((p, i) => {
                   const at = i === off.idx % off.team.batters.length;
                   const on = g.bases.findIndex((r) => r === p);
@@ -507,9 +533,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const c = offFlag?.color || battingColor;
                   return (
                     <li key={p.id || p.name} className={`mt-row mt-cut team ${at ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '14px 26px minmax(0,1fr) auto auto 30px', gap: 8, padding: '4px 9px', opacity: at || on >= 0 ? 1 : 0.62, '--c': '5px', '--a': c, '--t': c }}>
+                      style={{ flex: '1 1 0', gridTemplateColumns: '14px minmax(0,1fr) auto auto 30px', gap: 8, padding: '4px 9px', opacity: at || on >= 0 ? 1 : 0.62, '--c': '5px', '--a': c, '--t': c }}>
                       <em className="text-right font-display text-[12px] font-bold not-italic text-gray-500">{i + 1}</em>
-                      <Portrait player={p} w={26} h={33} color={at ? c : '#334155'} />
                       <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
                       <span>{at ? <span className="mt-chip" style={{ '--a': c }}>타석</span>
                         : on >= 0 ? <i className="inline-block" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} /> : null}</span>
@@ -527,17 +552,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
                 bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
-
-              {/* 타석 — 구장 왼쪽 아래에 얹는다 */}
-              <div className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-2.5 px-3 py-2 backdrop-blur-[3px]"
-                style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', boxShadow: `inset 0 0 0 1px ${battingColor}55` }}>
-                <Portrait player={batter} w={40} h={51} color={battingColor} />
-                <div>
-                  <b className="block text-[16px] font-extrabold text-white">{batter?.name}</b>
-                  <span className="font-display text-[11px] tracking-[0.14em] text-gray-400">{batter?.position} · {batterKo}</span>
-                </div>
-                <em className="ml-1 font-display text-[22px] font-extrabold not-italic" style={{ color: battingColor }}>{batter?.overall}</em>
-              </div>
 
               {/* 결과 자막 */}
               {flash && (
