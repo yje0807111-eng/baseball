@@ -163,6 +163,23 @@ export function teamStats(squad = []) {
 }
 
 /** 눈금 게이지 (드래프트 화면 샐러리 캡 바 문법) */
+/**
+ * 능력치 칸 막대 — 칸 폭과 사이가 늘 정수라 눈금이 삐뚤어지지 않는다.
+ * 40 이하는 빈 칸, 120 이면 꽉 참 — 70 과 90 의 차이가 한눈에 갈린다.
+ */
+export const StatCells = ({ v, width = 202, cell = 10, gap = 2, lo = 40, hi = 120, color = '#10b981', top = '#fde047', h = 11 }) => {
+  const n = Math.max(1, Math.floor((width + gap) / (cell + gap)));
+  const on = Math.round(Math.max(0, Math.min(1, ((v ?? lo) - lo) / (hi - lo))) * n);
+  const hot = Math.round(((100 - lo) / (hi - lo)) * n); // 이 칸부터는 빼어난 수치
+  return (
+    <span className="flex" style={{ width: n * cell + (n - 1) * gap, height: h, gap }}>
+      {Array.from({ length: n }, (_, i) => (
+        <i key={i} style={{ width: cell, background: i < on ? (i >= hot ? top : color) : 'rgba(255,255,255,.07)' }} />
+      ))}
+    </span>
+  );
+};
+
 export const SegBar = ({ pct, width = 200, ticks = 20, over }) => (
   <span className="relative block h-2.5 bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]" style={{ width }}>
     <span className="absolute inset-y-0 left-0" style={{ width: `${Math.min(100, pct)}%`, background: over ? '#f87171' : 'linear-gradient(90deg,#10b981,#fde047)' }} />

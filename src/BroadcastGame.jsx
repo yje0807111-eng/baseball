@@ -5,7 +5,7 @@
  * 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { UiStyle, Portrait, SegBar } from './myteam/ui.jsx';
+import { UiStyle, Portrait, StatCells } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { myBanner } from './myteam/store.js';
@@ -510,10 +510,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
               <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2.5">
                 {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
-                  <div key={k} className="grid grid-cols-[30px_1fr_24px] items-center gap-2">
-                    <span className="font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
-                    <SegBar pct={v} width={202} ticks={24} />
-                    <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
+                  <div key={k} className="flex items-center gap-2">
+                    <span className="w-[30px] font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
+                    <StatCells v={v} width={202} color={battingColor} />
+                    <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
                   </div>
                 ))}
               </div>
@@ -643,11 +643,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   <em className="font-display text-[24px] font-extrabold not-italic" style={{ color: pitchingColor }}>{pitcher?.overall}</em>
                 </div>
                 <div className="mt-2.5 space-y-1.5">
-                  {[['체력', Math.round(stamina)], ['구위', st(pitcher, 'stuff')], ['제구', st(pitcher, 'control')]].map(([k, v], i) => (
-                    <div key={k} className="grid grid-cols-[30px_1fr_26px] items-center gap-2">
-                      <span className="font-display text-[11px] tracking-[0.12em] text-gray-400">{k}</span>
-                      <i className="block h-[6px] bg-white/[0.08]"><b className="block h-full" style={{ width: `${Math.min(100, v)}%`, background: i === 0 && v <= 40 ? '#f87171' : pitchingColor }} /></i>
-                      <em className="text-right font-display text-[13px] font-bold not-italic text-gray-200">{v}</em>
+                  {[['체력', Math.round(stamina), 0, 100], ['구위', st(pitcher, 'stuff'), 40, 120], ['제구', st(pitcher, 'control'), 40, 120]].map(([k, v, lo, hi]) => (
+                    <div key={k} className="flex items-center gap-2">
+                      <span className="w-[30px] font-display text-[11px] tracking-[0.12em] text-gray-400">{k}</span>
+                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={k === '체력' && v <= 40 ? '#f87171' : pitchingColor} />
+                      <em className="ml-auto font-display text-[13px] font-bold not-italic text-gray-200">{v}</em>
                     </div>
                   ))}
                 </div>
@@ -661,10 +661,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 </div>
                 <ul className="mt-2.5 space-y-1">
                   {[['직구', mix.fast], ['슬라이더', mix.slider], ['체인지업', mix.change]].map(([n, v]) => (
-                    <li key={n} className="grid grid-cols-[62px_1fr_34px] items-center gap-2">
-                      <b className="text-[12px] font-semibold text-gray-200">{n}</b>
-                      <i className="block h-[5px] bg-white/[0.08]"><b className="block h-full" style={{ width: `${v * 160}%`, background: pitchingColor }} /></i>
-                      <em className="text-right font-display text-[12px] font-bold not-italic text-gray-400">{Math.round(v * 100)}%</em>
+                    <li key={n} className="flex items-center gap-2">
+                      <b className="w-[62px] shrink-0 text-[12px] font-semibold text-gray-200">{n}</b>
+                      <StatCells v={v * 100} lo={0} hi={60} width={158} cell={8} h={7} color={pitchingColor} top={pitchingColor} />
+                      <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-400">{Math.round(v * 100)}%</em>
                     </li>
                   ))}
                 </ul>
