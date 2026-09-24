@@ -770,6 +770,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   <b className="text-lg leading-none">⏭</b>맡긴다<small className="text-[12px] font-semibold text-gray-500">지시 없이</small>
                 </button>
               )}
+              {/* 작전을 고르다 멈추고 싶을 때 — 위 머리띠까지 가지 않아도 되게 여기에도 둔다 */}
+              <button type="button" onClick={() => setPaused((v) => !v)} aria-label={paused ? '계속' : '일시정지'}
+                className="mt-cut mt-frame mt-glass flex w-[84px] shrink-0 flex-col items-center justify-center gap-0.5 text-[13px] text-gray-200 hover:brightness-125"
+                style={{ '--c': '11px', '--a': paused ? '#fbbf24' : '#64748b' }}>
+                <b className="text-lg leading-none">{paused ? '▶' : '⏸'}</b>{paused ? '계속' : '멈춤'}
+              </button>
             </div>
           </div>
 
