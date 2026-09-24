@@ -432,8 +432,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
-        setLines((l) => [...l, ...commentary(ev)].slice(-4));
         const beat = (ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
+        /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
+        const told = beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
+        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...commentary(ev)].slice(-4)); }, told);
         setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
         /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
         setTimeout(() => { if (aliveRef.current) setZoneShots(shotsOf(g)); }, beat * pitchArrival(beat));
@@ -443,9 +445,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
         if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
         if (ev.result && BIG.includes(ev.result)) {
-          // 맞아 나간 공은 타구가 다 지나간 뒤에 자막을 띄운다
-          const wait = ev.call === 'inplay' ? beat * 0.66 : 0;
-          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, wait);
+          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
         }
         redraw();
         await sleep(beat);
