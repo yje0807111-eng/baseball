@@ -110,17 +110,23 @@ const Face = ({ id, cx, cy, r }) => {
 export const CHIP_CSS = `
 @keyframes chipIn { from { opacity: 0; transform: translateY(14px) scale(.82); } to { opacity: 1; transform: none; } }
 @keyframes chipOut { from { opacity: .85; transform: scale(1); } to { opacity: 0; transform: scale(.72); } }
+@keyframes chipPuff { from { opacity: .95; transform: scale(1); filter: blur(0); }
+  to { opacity: 0; transform: scale(1.3) translateY(-10px); filter: blur(5px); } }
+@keyframes chipForm { from { opacity: 0; transform: scale(.66) translateY(12px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); } }
 .pv-chip { transform-box: fill-box; transform-origin: center; }
 .pv-in { animation: chipIn .34s cubic-bezier(.2,.9,.3,1) both; }
 .pv-out { animation: chipOut .5s ease-in both; }
+.pv-puff { animation: chipPuff .46s ease-in both; }
+.pv-form { animation: chipForm .5s cubic-bezier(.2,.9,.3,1) both; }
 `;
-const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, leave }) => {
+const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, leave, puff, form }) => {
   const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
   const r = 38 * k;
   const who = player && player.id != null ? player.id : null;
   const tag = name || (player && player.name) || null;
   return (
-    <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}`} opacity={dim ? 0.82 : 1}>
+    <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}${puff ? ' pv-puff' : ''}${form ? ' pv-form' : ''}`} opacity={dim ? 0.82 : 1}>
       {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.55} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
       <ellipse cx={at[0]} cy={at[1] + r * 0.95} rx={r * 0.92} ry={r * 0.3} fill="rgba(0,0,0,.55)" />
       <circle cx={at[0]} cy={at[1]} r={r} fill="#0b1220" />
@@ -139,7 +145,7 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
 };
 
 /* ───────── 필드 뷰 ───────── */
-function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, batter = null }) {
+function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, batter = null, gone = null, fresh = false }) {
   const { at, scaleAt } = useMemo(() => makeMapper(bg.marks), [bg]);
   const beats = play?.beats || [];
   const ball = beats.find((b) => b.kind === 'ball');
@@ -179,6 +185,10 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
       <Photo bg={bg} dim={0.18} />
       {trail && <path d={trail} stroke="rgba(253,224,71,.65)" strokeWidth={7 * u} fill="none" strokeLinecap="round" />}
 
+      {/* 막 물러난 수비 — 연기처럼 흩어진다. 자리가 그대로면 그냥 서 있는다 */}
+      {gone && FIELDERS.filter((pos) => (gone[pos]?.id ?? '') !== (defense[pos]?.id ?? '')).map((pos) => (
+        <Chip key={`gone-${pos}`} at={at(SPOTS[pos])} s={scaleAt(SPOTS[pos])} u={u} color={defColor} label={pos} player={gone[pos]} puff />
+      ))}
       {FIELDERS.map((pos) => {
         const acting = fielder?.pos === pos;
         const home = SPOTS[pos];
@@ -190,7 +200,8 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
           const back = t > fielder.t1 ? ease(phase(t, fielder.t1 + 0.08, 0.99)) : 0;
           p = back > 0 ? [to[0] + (home[0] - to[0]) * back, to[1] + (home[1] - to[1]) * back] : to;
         }
-        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting} dim={!acting && !!play} />;
+        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting} dim={!acting && !!play}
+          form={fresh && (gone?.[pos]?.id ?? '') !== (defense[pos]?.id ?? '')} />;
       })}
 
       {!runs.length && batter && (() => { const p = BOX[batter.hand === 'L' ? 'L' : 'R'];
@@ -240,6 +251,17 @@ export default function PlayView({
   event, beatMs = 1200, paused = false, bases = [null, null, null],
   offColor = '#34d399', defColor = '#94a3b8', bg = DEFAULT_BG, defense = null, batter = null,
 }) {
+  /* 공수가 바뀌면 옛 아홉은 연기처럼 흩어지고 새 아홉이 맺힌다 — 잠깐 겹쳐 그린다 */
+  const dKey = FIELDERS.map((p) => defense?.[p]?.id ?? '').join('|');
+  const [shown, setShown] = useState({ men: defense, key: dKey });
+  const [gone, setGone] = useState(null);
+  useEffect(() => {
+    if (dKey === shown.key) return undefined;
+    setGone(shown.men);
+    setShown({ men: defense, key: dKey });
+    const id = setTimeout(() => setGone(null), 520);
+    return () => clearTimeout(id);
+  }, [dKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const boxRef = useRef(null);
   // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
   const [u, setU] = useState(1);
@@ -276,7 +298,8 @@ export default function PlayView({
     <div ref={boxRef} className="relative h-full w-full overflow-hidden">
       <style>{CHIP_CSS}</style>
       <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
-        <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={field} defense={defense || EMPTY_DEF} batter={batter} />
+        <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={field}
+          defense={shown.men || EMPTY_DEF} gone={gone} fresh={!!gone} batter={batter} />
       </svg>
     </div>
   );
