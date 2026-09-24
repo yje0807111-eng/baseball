@@ -147,3 +147,71 @@ export function recommend(opponent) {
   if (cd != null) out.steal = cd < 72 ? '자주' : cd > 80 ? '거의 안 함' : out.steal || '보통';
   return out;
 }
+
+/* ───────────── 전략실: 세 갈래 ─────────────
+ * 공격 · 마운드 · 수비에서 하나씩 고르면 큰 틀이 잡히고, 갈래마다 눈금 몇 개로 세부를 손본다.
+ * 갈래를 고르면 그 갈래의 눈금이 기본값으로 잡히고, 손댄 눈금은 그대로 남는다.
+ */
+export const SIDES = [
+  { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['first', 'bunt', 'ph'],
+    opts: [
+      { id: 'big', ko: '빅볼', tip: '장타 위주', base: { bat: '강공' }, fine: { first: '노린다', bunt: '안 함', ph: '보통' } },
+      { id: 'small', ko: '스몰볼', tip: '번트와 작전', base: { bat: '짜내기' }, fine: { first: '참는다', bunt: '자주', ph: '보통' } },
+      { id: 'speed', ko: '발야구', tip: '도루와 주루', base: { bat: '기동력' }, fine: { first: '보통', bunt: '상황봐서', ph: '보통' } },
+      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { first: '참는다', bunt: '상황봐서', ph: '과감히' } },
+    ] },
+  { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'crisis', 'lead'],
+    opts: [
+      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '체력 소진', crisis: '정면승부', lead: '밸런스' } },
+      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '조기 교체', crisis: '보통', lead: '밸런스' } },
+      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '조기 교체', crisis: '정면승부', lead: '직구 위주' } },
+      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '실점 시', crisis: '피한다', lead: '변화구 위주' } },
+    ] },
+  { key: 'def', en: 'Defense', ko: '수비 · 주루', color: '#60a5fa', dials: ['shift', 'steal'],
+    opts: [
+      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { shift: '정위치', steal: '보통' } },
+      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { shift: '외야 깊게', steal: '거의 안 함' } },
+      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { shift: '내야 전진', steal: '보통' } },
+      { id: 'run', ko: '뛰는 야구', tip: '도루와 주루', base: { run: '적극' }, fine: { shift: '정위치', steal: '자주' } },
+    ] },
+];
+export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };
+export const sideOpt = (key, id) => {
+  const s = SIDES.find((x) => x.key === key);
+  return s?.opts.find((o) => o.id === id) || s?.opts[0];
+};
+/** 세 갈래가 잡아 주는 값 (손댄 눈금 touched 가 있으면 그쪽이 이긴다) */
+export function planOfSides(sides = DEFAULT_SIDES, touched = {}) {
+  const base = { ...DEFAULT_PLAN.base };
+  const fine = { ...DEFAULT_PLAN.fine };
+  for (const s of SIDES) {
+    const o = sideOpt(s.key, sides[s.key]);
+    Object.assign(base, o.base);
+    Object.assign(fine, o.fine);
+  }
+  return { sides: { ...sides }, base, fine: { ...fine, ...touched } };
+}
+/** 갈래 하나를 바꿀 때: 그 갈래의 눈금만 기본값으로 되돌린다 */
+export const untouch = (touched, key) => {
+  const dials = SIDES.find((x) => x.key === key)?.dials || [];
+  const out = { ...touched };
+  dials.forEach((d) => delete out[d]);
+  return out;
+};
+/** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
+const SIDE_COUNTER = {
+  '불펜 얇음': ['onbase', 'small'],
+  '선발 이닝 짧음': ['onbase', 'big'],
+  '수비 탄탄': ['big'],
+  '도루 저지 약함': ['speed', 'run'],
+  '한 방 없음': ['long', 'in'],
+  '장타 위험': ['deep', 'allin'],
+  '발 빠른 타선': ['in', 'quick'],
+  '컨택 강함': ['long', 'deep'],
+  '좌타 다수': ['allin', 'quick'],
+};
+export function sideReasons(opponent) {
+  const out = {};
+  scoutTags(opponent).forEach((t) => (SIDE_COUNTER[t.label] || []).forEach((id) => { (out[id] ||= []).push(t); }));
+  return out;
+}

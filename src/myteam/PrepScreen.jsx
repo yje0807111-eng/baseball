@@ -53,7 +53,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       <main className="relative mx-auto grid w-full max-w-[1920px] gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
-            onStart={() => onStart(ready, init.rest)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
+            onStart={(plan) => onStart(ready, init.rest, plan)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
         </div>
       </main>
     </div>

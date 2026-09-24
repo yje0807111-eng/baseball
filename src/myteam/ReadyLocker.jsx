@@ -6,7 +6,7 @@
 import React, { useRef, useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
-import { STYLES, DEFAULT_STYLE, planOfStyle, styleReasons, scoutTags } from './strategy.js';
+import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 
@@ -240,106 +240,114 @@ function RosterPanel({ squad, cap }) {
   );
 }
 
-const Delta = ({ v }) => (
-  <em className={`font-display text-[12px] not-italic ${v > 0 ? 'text-emerald-400' : v < 0 ? 'text-rose-400' : 'text-gray-500'}`}>{v > 0 ? '+' : ''}{v}</em>
-);
-
-/** 오른쪽 — 정비: 합계 셋 · 팀 요약 · 투수 휴식 · 버튼 */
-/**
- * 플레이스타일 — 경기 전에는 이것 하나만 고른다. 카드마다 그림이 깔리고, 고른 카드만 밝아진다.
- * 상대 약점을 되치는 스타일에는 ★ 가 붙는다 (세부 작전은 경기에 들어가 고친다)
- */
-function StyleBlock({ style, onPick, opponent }) {
-  const reasons = styleReasons(opponent);
+/** 오른쪽 — 전략실: 팀 종합 · 세 갈래 · 경기 시작 */
+/* 전략실 속 — 공격 · 마운드 · 수비에서 하나씩. 더보기를 펼치면 그 갈래의 성향 눈금이 나온다.
+   접혀 있을 때도 지금 잡힌 세부가 한 줄로 보인다. */
+function SideBlock({ sides, touched, onPick, onDial, opponent }) {
+  const [open, setOpen] = useState(null);
+  const reasons = sideReasons(opponent);
+  const plan = planOfSides(sides, touched);
   return (
-    <div className="shrink-0">
-      <p className="mt-lab pb-1" style={{ '--a': A.syn, fontSize: 10 }}>Play Style</p>
-      <div className="grid gap-1.5">
-        {STYLES.map((x) => {
-          const on = style === x.id;
-          const why = reasons[x.id] || [];
-          return (
-            <button key={x.id} type="button" onClick={() => onPick(x.id)}
-              className="mt-cut relative h-[2.9rem] overflow-hidden text-left"
-              style={{ ...cut(6), background: '#0b1220', boxShadow: `inset 0 0 0 1px ${on ? x.color : 'rgba(255,255,255,.08)'}` }}>
-              <i className="absolute inset-0 bg-cover transition-[opacity,filter] duration-200"
-                style={{ backgroundImage: `url(${x.bg})`, backgroundPosition: 'center 40%', opacity: on ? 0.48 : 0.18, filter: on ? 'none' : 'grayscale(1)' }} />
-              <i className="absolute inset-0" style={{ background: on ? `linear-gradient(90deg,color-mix(in srgb,${x.color} 42%,transparent),rgba(6,10,19,.78) 68%)` : 'rgba(6,10,19,.72)' }} />
-              <span className="absolute inset-0 flex items-center gap-1.5 px-3">
-                <b className="shrink-0 text-[13.5px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{x.ko}</b>
-                {!!why.length && <b className="shrink-0 text-[10px]" style={{ color: A.syn }}>★</b>}
-                {/* 추천 이유 — 상대의 어떤 점을 되치는지 */}
-                {why.slice(0, 2).map((t) => (
-                  <span key={t.label} className="mt-cut shrink-0 px-1.5 py-px text-[9.5px] font-bold"
-                    style={{ ...cut(3), background: `color-mix(in srgb,${t.c} 20%,transparent)`, boxShadow: `inset 0 0 0 1px ${t.c}66`, color: t.c }}>{t.label}</span>
-                ))}
-                <small className="ml-auto shrink-0 text-[11px]" style={{ color: on ? '#e8ecf2' : '#8b97a6' }}>{x.tip}</small>
-              </span>
+    <div className="flex min-h-0 flex-1 flex-col gap-2.5">
+      {SIDES.map((g) => {
+        const on = open === g.key;
+        const dials = g.dials.map((k) => FINE.find((f) => f.key === k)).filter(Boolean);
+        return (
+          <div key={g.key} className="flex shrink-0 flex-col gap-1.5">
+            <button type="button" onClick={() => setOpen(on ? null : g.key)} className="flex items-baseline gap-2 text-left">
+              <span className="font-display text-[10px] font-bold tracking-[0.26em]" style={{ color: g.color }}>{g.en.toUpperCase()}</span>
+              <b className="text-[12.5px] text-gray-100">{g.ko}</b>
+              <span className="h-px flex-1 bg-white/10" />
+              <b className="text-[11px]" style={{ color: on ? g.color : '#7d8a9c' }}>{on ? '접기 ▴' : '더보기 ▾'}</b>
             </button>
-          );
-        })}
-      </div>
+
+            <div className="grid grid-cols-2 gap-1.5">
+              {g.opts.map((o) => {
+                const pick = sides[g.key] === o.id;
+                const why = reasons[o.id] || [];
+                return (
+                  <button key={o.id} type="button" onClick={() => onPick(g.key, o.id)}
+                    className="mt-cut flex h-[2.9rem] flex-col justify-center gap-0.5 px-3 text-left"
+                    style={{ ...cut(5), background: pick ? `color-mix(in srgb,${g.color} 20%,transparent)` : 'rgba(255,255,255,.04)',
+                      boxShadow: `inset 0 0 0 ${pick ? 2 : 1}px ${pick ? g.color : 'rgba(255,255,255,.09)'}` }}>
+                    <span className="flex items-center gap-1">
+                      <b className="text-[13px]" style={{ color: pick ? '#fff' : '#cbd5e1' }}>{o.ko}</b>
+                      {!!why.length && <b className="text-[9.5px]" style={{ color: A.syn }}>★</b>}
+                    </span>
+                    <small className="truncate text-[10px] text-gray-500">{why.length ? why[0].label : o.tip}</small>
+                  </button>
+                );
+              })}
+            </div>
+
+            {on ? (
+              <div className="mt-cut flex flex-col gap-3 p-3" style={{ ...cut(7), background: `color-mix(in srgb,${g.color} 7%,transparent)`,
+                boxShadow: `inset 0 0 0 1px color-mix(in srgb,${g.color} 22%,transparent)` }}>
+                {dials.map((f) => (
+                  <div key={f.key} className="flex flex-col gap-1.5">
+                    <span className="flex items-baseline">
+                      <small className="text-[11px] text-gray-400">{f.ko}</small>
+                      <b className="ml-auto text-[13px] font-extrabold text-white">{plan.fine[f.key]}</b>
+                    </span>
+                    <span className="flex gap-1">
+                      {f.opts.map((o) => (
+                        <button key={o} type="button" onClick={() => onDial(f.key, o)} aria-label={`${f.ko} ${o}`}
+                          className="h-[7px] flex-1" style={{ background: plan.fine[f.key] === o ? g.color : 'rgba(255,255,255,.1)' }} />
+                      ))}
+                    </span>
+                    <span className="flex text-[10px] text-gray-500"><span>{f.opts[0]}</span><span className="ml-auto">{f.opts[f.opts.length - 1]}</span></span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* 접혀 있어도 지금 무엇으로 잡혀 있는지는 보인다 */
+              <button type="button" onClick={() => setOpen(g.key)}
+                className="mt-cut flex h-[1.9rem] items-center gap-2 px-3 text-left"
+                style={{ ...cut(4), background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
+                <small className="truncate text-[10.5px] text-gray-400">{g.dials.map((k) => plan.fine[k]).join(' · ')}</small>
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function TunePanel({ sums, deltas, team, rest, autoFilled, onStart, startLabel, strategy }) {
-  const TOT = [['타자', sums.bat, deltas.bat, A.bat], ['수비', sums.def, deltas.def, A.def], ['투수', sums.pit, deltas.pit, A.pit]];
+/* 전략실 판 — 수치 총합과 투수 휴식은 뺐다. 팀 종합 하나와 세 갈래, 그리고 경기 시작. */
+function WarRoom({ team, autoFilled, onStart, startLabel, children }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
-      <div className="flex shrink-0 items-center gap-2.5">
-        <p className="mt-lab">Tune Up</p>
+      <div className="flex shrink-0 items-baseline gap-2.5">
+        <p className="mt-lab">War Room</p>
         <span className="ml-auto flex items-baseline gap-1.5">
           <small className="text-[11px] text-gray-500">팀 종합</small>
           <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: A.syn }}>{team.ovr}</b>
         </span>
-      </div>
-      <div className="grid shrink-0 grid-cols-3 gap-1.5">
-        {TOT.map(([t, v, d, a]) => (
-          <div key={t} className="mt-cut flex flex-col items-center gap-0.5 py-3" style={{ ...cut(8), background: `linear-gradient(180deg,color-mix(in srgb,${a} 14%,transparent),rgba(6,10,19,.4))` }}>
-            <span className="font-display text-[10px] tracking-[0.18em] text-gray-400">{t}</span>
-            <b className="font-display text-[26px] font-extrabold leading-none" style={{ color: a }}>{v}</b>
-            <Delta v={d} />
-          </div>
-        ))}
       </div>
       {!!autoFilled && (
         <div className="mt-cut flex shrink-0 items-baseline justify-between px-3 py-1.5 text-[12px]" style={{ ...cut(8), background: 'rgba(255,255,255,.04)' }}>
           <span className="text-gray-400">퓨처스 유망주</span><b className="font-display text-[14px] text-[#fcd34d]">{autoFilled}명</b>
         </div>
       )}
-      {strategy}
-      {!!rest.length && (
-        <div className="shrink-0">
-          <p className="mt-lab pb-1" style={{ '--a': A.pit, fontSize: 10 }}>Rest</p>
-          <div className="flex gap-1.5">
-            {rest.map((r) => (
-              <div key={r.label} className="mt-cut flex flex-1 flex-col items-center py-1.5" style={{ ...cut(6), background: 'rgba(255,255,255,.04)' }}>
-                <span className="truncate text-[11px] text-gray-400">{r.label}</span>
-                <b className="font-display text-[15px]" style={{ color: r.rest <= 0 ? '#34d399' : r.rest === 1 ? '#a3e635' : '#fbbf24' }}>{r.rest <= 0 ? '준비됨' : `−${r.rest}`}</b>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      <div className="mt-auto flex flex-col gap-2">
+      {children}
+      <div className="mt-auto flex shrink-0 flex-col gap-2">
         <Btn lg pri a={A.main} style={{ ...cut(12), minHeight: '3.4rem' }} onClick={onStart}>{startLabel}</Btn>
       </div>
     </aside>
   );
 }
-
 export default function ReadyLocker({
-  team, squad, bench, sums, deltas, synergies = [], opponent = null, autoFilled = 0, teamInfo,
+  team, squad, bench, sums, synergies = [], opponent = null, autoFilled = 0, teamInfo,
   onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트',
 }) {
   const [sel, setSel] = useState(null);
-  /* 경기 전에는 플레이스타일 하나만 — 세부 작전은 경기에 들어가 고친다 */
-  const [style, setStyle] = useState(DEFAULT_STYLE);
+  /* 전략실 — 세 갈래를 고르고, 손댄 눈금(touched)만 따로 기억한다 */
+  const [sides, setSides] = useState(team.plan?.sides || DEFAULT_SIDES);
+  const [touched, setTouched] = useState(team.plan?.touched || {});
+  /* 갈래를 바꾸면 그 갈래의 눈금만 기본값으로 돌아간다 — 다른 갈래에서 만진 값은 남는다 */
+  const pickSide = (key, id) => { setSides((v) => ({ ...v, [key]: id })); setTouched((t) => untouch(t, key)); };
   const byId = new Map(squad.map((p) => [p.id, p]));
-  const rest = [...(team.order?.rotation || []).slice(0, 1), ...(team.order?.bullpen || []).slice(0, 2)]
-    .map((id) => byId.get(id)).filter((p) => p && p.rest != null)
-    .map((p, i) => ({ label: i === 0 ? '선발' : `불펜${i}`, rest: p.rest || 0 }));
 
   return (
     <div className="grid min-h-0 flex-1 gap-2" style={{ gridTemplateColumns: '16.5rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
@@ -350,9 +358,11 @@ export default function ReadyLocker({
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
         onToggleBench={() => {}} fitSlots railW={264} footer={<SynergyDockMini synergies={synergies} />} />
 
-      <TunePanel sums={sums} deltas={deltas} team={teamInfo} rest={rest} autoFilled={autoFilled}
-        onStart={() => onStart(planOfStyle(style))} startLabel={startLabel}
-        strategy={<StyleBlock style={style} onPick={setStyle} opponent={opponent} />} />
+      <WarRoom team={teamInfo} autoFilled={autoFilled}
+        onStart={() => onStart({ ...planOfSides(sides, touched), touched })} startLabel={startLabel}>
+        <SideBlock sides={sides} touched={touched} onPick={pickSide}
+          onDial={(k, v) => setTouched((t) => ({ ...t, [k]: v }))} opponent={opponent} />
+      </WarRoom>
     </div>
   );
 }
