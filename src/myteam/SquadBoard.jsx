@@ -455,6 +455,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const pitRow = (p, list, pos, h, pitch, off = 0) => {
     const on = sel?.id === p.id;
     const dragging = drag?.list === 'pitch' && drag.id === p.id;
+    /* 선 자리 기준 수치 — 야수 카드와 같게, 선발 자리에 선 불펜 투수는 깎인 값으로 보인다 */
+    const eff = effAt(p, list === 'rotation' ? 'SP' : 'RP');
     const PREP_PEN = [['CL', ROLE.CL], ['SU', ROLE.SU], ['MR', ROLE.MR], ['LR', ROLE.MR]];
     const [label, color] = list === 'rotation' ? [fitSlots && rotation.length === 1 ? 'SP' : `${pos + 1}SP`, ROLE.SP]
       : fitSlots ? (PREP_PEN[pos] || ['MR', ROLE.MR])
@@ -471,7 +473,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
         <Handle />
         <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
-        <span className="w-[26px] shrink-0 text-center"><Ovr p={p} size={18} /></span>
+        <span className="w-[26px] shrink-0 text-center"><Ovr p={p} v={eff.ovr} size={18} /></span>
         <NameBlock p={p} size={13.5} />
         {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
         <span className="pointer-events-none absolute bottom-[3px] left-[9px] right-[9px] h-[2px] bg-white/[0.06]" title={`컨디션 ${c}%`}><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
