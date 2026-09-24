@@ -144,6 +144,17 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
   );
 };
 
+/* 타구가 뜬 높이 — 발사각이 크면 아치를 그리고, 낮으면 땅을 튀며 간다.
+   정점을 앞쪽에 두어 떨어질 때가 더 가파르다 */
+const HOPS = 3.1;
+function ballRise(u, loft = 0) {
+  const k = Math.min(1, Math.max(0, u));
+  const arc = Math.sin(Math.PI * k ** 0.86) * Math.max(0, loft) * 2.6;
+  if (loft >= 9) return arc;
+  /* 바운드는 뒤로 갈수록 낮고 잦아진다 */
+  return arc + Math.abs(Math.sin(Math.PI * HOPS * k ** 1.25)) * 24 * (1 - k) ** 1.5;
+}
+
 /* ───────── 필드 뷰 ───────── */
 function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, batter = null, gone = null, fresh = false }) {
   const { at, scaleAt } = useMemo(() => makeMapper(bg.marks), [bg]);
@@ -159,11 +170,37 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
   let ballAt = null; let lift = 0; let trail = null; let landed = false;
   if (ball && t >= ball.t0) {
     const u = phase(t, ball.t0, ball.t1);
-    const g = [ball.from[0] + (ball.to[0] - ball.from[0]) * u, ball.from[1] + (ball.to[1] - ball.from[1]) * u];
-    ballAt = at(g);
-    lift = Math.sin(Math.PI * Math.min(1, u)) * Math.max(0, ball.loft) * 2.6 * scaleAt(g);
+    /* 진행도 하나에 공의 땅 그림자와 뜬 높이가 함께 나온다 */
+    const shot = (v) => {
+      const k = Math.min(1, Math.max(0, v));
+      const g = [ball.from[0] + (ball.to[0] - ball.from[0]) * k, ball.from[1] + (ball.to[1] - ball.from[1]) * k];
+      const p = at(g);
+      return [p[0], p[1], ballRise(k, ball.loft) * scaleAt(g)];
+    };
+    const now = shot(u);
+    ballAt = [now[0], now[1]];
+    lift = now[2];
     landed = u >= 1;
-    trail = `M ${at(ball.from).join(' ')} L ${ballAt[0]} ${ballAt[1] - lift}`;
+
+    /* 꼬리 — 지나온 곡선을 잘게 잇고 뒤로 갈수록 가늘고 옅게.
+       담장을 넘는 타구는 날아온 길 전체를 남긴다 */
+    const far = !!ball.gone;
+    const span = Math.min(u, far ? 1 : 0.46);
+    const seg = far ? 26 : 18;
+    const fade = landed && !far ? Math.max(0, 1 - (t - ball.t1) / 0.1) : 1;
+    if (fade > 0.02 && span > 0.001) {
+      trail = [];
+      for (let i = 0; i < seg; i += 1) {
+        const a = shot(u - (span * (i + 1)) / seg); const b = shot(u - (span * i) / seg);
+        const back = i / seg;
+        trail.push({
+          d: `M ${a[0]} ${a[1] - a[2]} L ${b[0]} ${b[1] - b[2]}`,
+          w: 1.8 + 7 * (1 - back) ** 1.2,
+          o: fade * (far ? 0.2 + 0.68 * (1 - back) ** 1.4 : 0.9 * (1 - back) ** 1.5),
+          c: back < 0.12 ? '#fffbe6' : '#fde047',
+        });
+      }
+    }
   }
   // 투구 — 마운드에서 홈으로. 존 좌표의 좌우 코스만 1m 안쪽으로 옮겨 담는다
   let pitchAt = null; let pitchHop = 0;
@@ -183,7 +220,11 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
   return (
     <>
       <Photo bg={bg} dim={0.18} />
-      {trail && <path d={trail} stroke="rgba(253,224,71,.65)" strokeWidth={7 * u} fill="none" strokeLinecap="round" />}
+      {trail && (
+        <g fill="none" strokeLinecap="round">
+          {trail.map((g, i) => <path key={i} d={g.d} stroke={g.c} strokeWidth={g.w * u} opacity={g.o} />)}
+        </g>
+      )}
 
       {/* 막 물러난 수비 — 연기처럼 흩어진다. 자리가 그대로면 그냥 서 있는다 */}
       {gone && FIELDERS.filter((pos) => (gone[pos]?.id ?? '') !== (defense[pos]?.id ?? '')).map((pos) => (
@@ -232,13 +273,13 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
         </g>
       )}
       {throwAt && <circle cx={throwAt[0]} cy={throwAt[1]} r={9 * u} fill="#fff" />}
-      {ballAt && (
+      {ballAt && (() => { const shade = 1 / (1 + lift / 95); return (
         <g>
-          <ellipse cx={ballAt[0]} cy={ballAt[1]} rx={14 * u} ry={6 * u} fill="rgba(0,0,0,.55)" />
+          <ellipse cx={ballAt[0]} cy={ballAt[1]} rx={14 * u * shade} ry={6 * u * shade} fill={`rgba(0,0,0,${0.55 * shade})`} />
           <circle cx={ballAt[0]} cy={ballAt[1] - lift} r={30 * u} fill="rgba(253,224,71,.25)" />
           <circle cx={ballAt[0]} cy={ballAt[1] - lift} r={(landed ? 11 : 14) * u} fill="#fff" stroke="#fde047" strokeWidth={5 * u} />
         </g>
-      )}
+      ); })()}
       {ball?.gone && t > ball.t1 - 0.12 && (
         <text x={ART.w / 2} y="250" textAnchor="middle" fontSize={92 * u} fontWeight="900" fill="#fde047"
           stroke="rgba(0,0,0,.9)" strokeWidth={20 * u} paintOrder="stroke">GONE!</text>
