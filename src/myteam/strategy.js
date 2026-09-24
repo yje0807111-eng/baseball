@@ -1,81 +1,37 @@
 /*
- * 경기 전 작전 — 정비 화면에서 고른다.
- *  기본 세 줄(타선 · 마운드 · 주루)은 큰 갈래, 세부 여덟은 상대를 되치는 손질이다.
- *  프리셋(공격형 · 균형 · 수비형)으로 한 번에 잡을 수 있고, 무엇이든 손대면 '맞춤'이 된다.
- *  상대 스카우팅에서 뽑은 약점으로 추천(★)을 만들고, [추천 적용]이 그 값들을 한 번에 넣는다.
+ * 경기 전 작전 — 전략실(정비 화면 오른쪽 판)에서 고른다.
+ *  공격 · 마운드 · 수비에서 하나씩 고르면 큰 틀이 잡히고, 갈래마다 성향 축 몇 개로 세부를 손본다.
+ *  성향 축은 한 타석 단위 지시가 아니라 한 경기 내내 쓰는 기울기다 — 왼쪽이 소극, 오른쪽이 적극.
+ *  상대 스카우팅에서 뽑은 약점으로 추천(★)을 만든다.
  */
 
-/**
- * 플레이스타일 — 경기 전에는 이것 하나만 고른다. 세부 작전은 경기에 들어가 고친다.
- *  bg: 카드 배경 그림 · base/fine: 이 스타일이 잡아 주는 값 (경기 중 수정의 출발점)
- */
-export const STYLES = [
-  { id: 'big', ko: '빅볼', en: 'BIG BALL', color: '#34d399', bg: 'ui/clutch-bat.webp', tip: '장타 위주',
-    base: { bat: '강공', pit: '길게', run: '보통' },
-    fine: { first: '노린다', bunt: '안 함', ph: '보통', hook: '체력 소진', crisis: '정면승부', lead: '직구 위주', shift: '정위치', steal: '보통' } },
-  { id: 'small', ko: '스몰볼', en: 'SMALL BALL', color: '#fbbf24', bg: 'ui/field.webp', tip: '번트와 작전',
-    base: { bat: '짜내기', pit: '길게', run: '적극' },
-    fine: { first: '참는다', bunt: '자주', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
-  { id: 'speed', ko: '발야구', en: 'SPEED', color: '#fb923c', bg: 'ui/dugout.webp', tip: '도루와 주루',
-    base: { bat: '기동력', pit: '길게', run: '적극' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '자주' } },
-  { id: 'onbase', ko: '출루', en: 'ON BASE', color: '#a3e635', bg: 'ui/plate-view.webp', tip: '공을 많이 본다',
-    base: { bat: '짜내기', pit: '길게', run: '보통' },
-    fine: { first: '참는다', bunt: '상황봐서', ph: '과감히', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
-  { id: 'mound', ko: '마운드', en: 'MOUND', color: '#f87171', bg: 'ui/clutch-mound.webp', tip: '선발을 길게',
-    base: { bat: '기동력', pit: '길게', run: '신중' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '소극적', hook: '실점 시', crisis: '보통', lead: '변화구 위주', shift: '정위치', steal: '거의 안 함' } },
-  { id: 'allin', ko: '총력전', en: 'ALL IN', color: '#a78bfa', bg: 'ui/tunnel.webp', tip: '불펜 총동원',
-    base: { bat: '강공', pit: '빠른 계투', run: '적극' },
-    fine: { first: '노린다', bunt: '안 함', ph: '과감히', hook: '조기 교체', crisis: '정면승부', lead: '밸런스', shift: '정위치', steal: '자주' } },
-  { id: 'lock', ko: '실점 최소', en: 'LOCK DOWN', color: '#60a5fa', bg: 'ui/field-night.webp', tip: '시프트와 유인구',
-    base: { bat: '기동력', pit: '아끼기', run: '신중' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '소극적', hook: '실점 시', crisis: '피한다', lead: '변화구 위주', shift: '내야 전진', steal: '거의 안 함' } },
-  { id: 'even', ko: '균형', en: 'BALANCE', color: '#10b981', bg: 'ui/ready.webp', tip: '무리 없이',
-    base: { bat: '기동력', pit: '길게', run: '보통' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
-];
-export const styleOf = (id) => STYLES.find((x) => x.id === id) || STYLES[4];
-/** 이 스타일로 경기에 들고 갈 값 */
-export const planOfStyle = (id) => { const x = styleOf(id); return { style: x.id, base: { ...x.base }, fine: { ...x.fine } }; };
-export const DEFAULT_STYLE = 'even';
 
-/** 큰 갈래 세 줄 */
+/** 큰 갈래 세 줄 — 전략실의 세 섹션이 잡아 주는 값 */
 export const BASE = [
   { key: 'bat', ko: '타선', color: '#34d399', opts: ['강공', '기동력', '짜내기'] },
   { key: 'pit', ko: '마운드', color: '#f87171', opts: ['길게', '빠른 계투', '아끼기'] },
   { key: 'run', ko: '주루', color: '#fbbf24', opts: ['적극', '보통', '신중'] },
 ];
-/** 세부 여덟 — 갈래별로 묶는다 */
+/**
+ * 성향 축 여덟 — 한 경기 내내 쓰는 기울기다. 왼쪽이 소극, 가운데가 보통, 오른쪽이 적극.
+ * "이 타석에 번트" 같은 낱낱의 지시가 아니라 "작전을 얼마나 거는 편인가" 를 정한다.
+ */
 export const FINE = [
-  { g: '타격', color: '#34d399', key: 'first', ko: '초구 스윙', opts: ['참는다', '보통', '노린다'] },
-  { g: '타격', color: '#34d399', key: 'bunt', ko: '작전 · 번트', opts: ['안 함', '상황봐서', '자주'] },
-  { g: '타격', color: '#34d399', key: 'ph', ko: '대타 기용', opts: ['소극적', '보통', '과감히'] },
-  { g: '마운드', color: '#f87171', key: 'hook', ko: '선발 교체', opts: ['실점 시', '체력 소진', '조기 교체'] },
-  { g: '마운드', color: '#f87171', key: 'crisis', ko: '위기 대응', opts: ['정면승부', '보통', '피한다'] },
-  { g: '마운드', color: '#f87171', key: 'lead', ko: '포수 리드', opts: ['직구 위주', '밸런스', '변화구 위주'] },
-  { g: '수비 · 주루', color: '#60a5fa', key: 'shift', ko: '수비 시프트', opts: ['정위치', '내야 전진', '외야 깊게'] },
-  { g: '수비 · 주루', color: '#60a5fa', key: 'steal', ko: '도루 시도', opts: ['거의 안 함', '보통', '자주'] },
+  { g: '타격', color: '#34d399', key: 'swing', ko: '스윙', opts: ['신중', '보통', '과감'] },
+  { g: '타격', color: '#34d399', key: 'sign', ko: '작전', opts: ['정석', '보통', '자주'] },
+  { g: '타격', color: '#34d399', key: 'sub', ko: '선수 교체', opts: ['아낌', '보통', '적극'] },
+  { g: '마운드', color: '#f87171', key: 'hook', ko: '투수 교체', opts: ['길게', '보통', '짧게'] },
+  { g: '마운드', color: '#f87171', key: 'duel', ko: '승부', opts: ['피함', '보통', '정면'] },
+  { g: '마운드', color: '#f87171', key: 'mix', ko: '볼 배합', opts: ['안전', '보통', '공격'] },
+  { g: '수비 · 주루', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['정석', '보통', '과감'] },
+  { g: '수비 · 주루', color: '#60a5fa', key: 'steal', ko: '도루', opts: ['자제', '보통', '적극'] },
 ];
 export const GROUPS = [['타격', '#34d399'], ['마운드', '#f87171'], ['수비 · 주루', '#60a5fa']];
-
-export const PRESETS = [
-  { id: 'attack', ko: '공격형', color: '#34d399',
-    base: { bat: '강공', pit: '빠른 계투', run: '적극' },
-    fine: { first: '노린다', bunt: '안 함', ph: '과감히', hook: '조기 교체', crisis: '정면승부', lead: '직구 위주', shift: '정위치', steal: '자주' } },
-  { id: 'balance', ko: '균형', color: '#10b981',
-    base: { bat: '기동력', pit: '길게', run: '보통' },
-    fine: { first: '보통', bunt: '상황봐서', ph: '보통', hook: '체력 소진', crisis: '보통', lead: '밸런스', shift: '정위치', steal: '보통' } },
-  { id: 'defense', ko: '수비형', color: '#60a5fa',
-    base: { bat: '짜내기', pit: '아끼기', run: '신중' },
-    fine: { first: '참는다', bunt: '자주', ph: '소극적', hook: '실점 시', crisis: '피한다', lead: '변화구 위주', shift: '내야 전진', steal: '거의 안 함' } },
-];
-export const DEFAULT_PLAN = { preset: 'balance', base: { ...PRESETS[1].base }, fine: { ...PRESETS[1].fine } };
-export const planOf = (id) => {
-  const p = PRESETS.find((x) => x.id === id) || PRESETS[1];
-  return { preset: p.id, base: { ...p.base }, fine: { ...p.fine } };
+/** 아무것도 손대지 않았을 때 */
+export const DEFAULT_PLAN = {
+  base: { bat: '기동력', pit: '길게', run: '보통' },
+  fine: { swing: '보통', sign: '보통', sub: '보통', hook: '보통', duel: '보통', mix: '보통', guard: '보통', steal: '보통' },
 };
-
 const avg = (a, f) => (a.length ? a.reduce((s, x) => s + f(x), 0) / a.length : 0);
 /**
  * 상대 약점 태그 — 정비 왼쪽 스카우팅 판과 같은 잣대(그 판도 이 함수를 쓴다).
@@ -100,43 +56,18 @@ export function scoutTags(opponent) {
   ].filter((x) => x.on).slice(0, 4);
 }
 
-/** 약점 태그 → 되치는 세부 작전 (★ 로 표시하고 [추천 적용] 이 한 번에 넣는다) */
+/** 약점 태그 → 그 약점을 되치는 성향 (★ 로 표시한다) */
 const COUNTER = {
-  '장타 위험': { lead: '변화구 위주', shift: '외야 깊게', crisis: '피한다' },
-  '발 빠른 타선': { lead: '직구 위주', shift: '내야 전진' },
-  '컨택 강함': { lead: '변화구 위주' },
-  '수비 탄탄': { bunt: '안 함' },
-  '좌타 다수': { ph: '과감히' },
-  '불펜 얇음': { first: '참는다', ph: '과감히' },
-  '선발 이닝 짧음': { first: '참는다' },
-  '한 방 없음': { crisis: '정면승부', shift: '정위치' },
+  '장타 위험': { mix: '안전', guard: '과감', duel: '피함' },
+  '발 빠른 타선': { mix: '공격', guard: '과감' },
+  '컨택 강함': { mix: '안전' },
+  '수비 탄탄': { sign: '정석' },
+  '좌타 다수': { sub: '적극' },
+  '불펜 얇음': { swing: '신중', sub: '적극' },
+  '선발 이닝 짧음': { swing: '신중' },
+  '한 방 없음': { duel: '정면', guard: '정석' },
+  '도루 저지 약함': { steal: '적극' },
 };
-/** 상대 특성 → 그 특성을 되치는 플레이스타일 */
-const STYLE_COUNTER = {
-  '불펜 얇음': ['onbase', 'small'],
-  '선발 이닝 짧음': ['onbase', 'big'],
-  '수비 탄탄': ['big'],
-  '도루 저지 약함': ['speed'],
-  '한 방 없음': ['mound'],
-  '장타 위험': ['lock', 'allin'],
-  '발 빠른 타선': ['lock'],
-  '컨택 강함': ['mound', 'lock'],
-  '좌타 다수': ['allin'],
-};
-/**
- * 스타일마다 추천 이유 — { 스타일: [상대 특성, ...] }.
- * 카드에 ★ 와 그 특성을 함께 달아, 왜 추천인지 한눈에 보이게 한다
- */
-export function styleReasons(opponent) {
-  const out = {};
-  scoutTags(opponent).forEach((t) => (STYLE_COUNTER[t.label] || []).forEach((id) => {
-    (out[id] ||= []).push(t);
-  }));
-  return out;
-}
-/** 이 상대에 잘 듣는 스타일 */
-export const styleHints = (opponent) => new Set(Object.keys(styleReasons(opponent)));
-
 /** 이 상대에게 추천하는 세부 작전 */
 export function recommend(opponent) {
   const out = {};
@@ -144,7 +75,7 @@ export function recommend(opponent) {
   // 상대 포수 수비가 무르면 뛴다
   const c = (opponent?.roster || []).find((p) => p.position === 'C');
   const cd = c?.stats?.defense;
-  if (cd != null) out.steal = cd < 72 ? '자주' : cd > 80 ? '거의 안 함' : out.steal || '보통';
+  if (cd != null) out.steal = cd < 76 ? '적극' : cd > 86 ? '자제' : out.steal || '보통';
   return out;
 }
 
@@ -153,26 +84,26 @@ export function recommend(opponent) {
  * 갈래를 고르면 그 갈래의 눈금이 기본값으로 잡히고, 손댄 눈금은 그대로 남는다.
  */
 export const SIDES = [
-  { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['first', 'bunt', 'ph'],
+  { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'sign', 'sub'],
     opts: [
-      { id: 'big', ko: '빅볼', tip: '장타 위주', base: { bat: '강공' }, fine: { first: '노린다', bunt: '안 함', ph: '보통' } },
-      { id: 'small', ko: '스몰볼', tip: '번트와 작전', base: { bat: '짜내기' }, fine: { first: '참는다', bunt: '자주', ph: '보통' } },
-      { id: 'speed', ko: '발야구', tip: '도루와 주루', base: { bat: '기동력' }, fine: { first: '보통', bunt: '상황봐서', ph: '보통' } },
-      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { first: '참는다', bunt: '상황봐서', ph: '과감히' } },
+      { id: 'big', ko: '빅볼', tip: '장타 위주', base: { bat: '강공' }, fine: { swing: '과감', sign: '정석', sub: '보통' } },
+      { id: 'small', ko: '스몰볼', tip: '번트와 작전', base: { bat: '짜내기' }, fine: { swing: '신중', sign: '자주', sub: '보통' } },
+      { id: 'speed', ko: '발야구', tip: '도루와 주루', base: { bat: '기동력' }, fine: { swing: '보통', sign: '자주', sub: '적극' } },
+      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { swing: '신중', sign: '보통', sub: '적극' } },
     ] },
-  { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'crisis', 'lead'],
+  { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
-      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '체력 소진', crisis: '정면승부', lead: '밸런스' } },
-      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '조기 교체', crisis: '보통', lead: '밸런스' } },
-      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '조기 교체', crisis: '정면승부', lead: '직구 위주' } },
-      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '실점 시', crisis: '피한다', lead: '변화구 위주' } },
+      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '길게', duel: '정면', mix: '보통' } },
+      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '짧게', duel: '보통', mix: '보통' } },
+      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '짧게', duel: '정면', mix: '공격' } },
+      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '길게', duel: '피함', mix: '안전' } },
     ] },
-  { key: 'def', en: 'Defense', ko: '수비 · 주루', color: '#60a5fa', dials: ['shift', 'steal'],
+  { key: 'def', en: 'Defense', ko: '수비 · 주루', color: '#60a5fa', dials: ['guard', 'steal'],
     opts: [
-      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { shift: '정위치', steal: '보통' } },
-      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { shift: '외야 깊게', steal: '거의 안 함' } },
-      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { shift: '내야 전진', steal: '보통' } },
-      { id: 'run', ko: '뛰는 야구', tip: '도루와 주루', base: { run: '적극' }, fine: { shift: '정위치', steal: '자주' } },
+      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', steal: '보통' } },
+      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '과감', steal: '자제' } },
+      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '과감', steal: '보통' } },
+      { id: 'run', ko: '뛰는 야구', tip: '도루와 주루', base: { run: '적극' }, fine: { guard: '정석', steal: '적극' } },
     ] },
 ];
 export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };
