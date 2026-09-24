@@ -103,7 +103,7 @@ function Lab() {
         {guide && <Guide marks={marks} />}
       </div>
       <p className="mt-2 text-[12px] text-gray-500">
-        경기 화면에서는 이 자리 위에 점수판이, 아래에 작전 버튼과 해설이 얹힙니다. 실제 화면은 /play-lab.html?full
+        이 자리 위에 점수판 · 아래에 작전 버튼과 해설 · 실제 화면은 /play-lab.html?full
       </p>
     </div>
   );

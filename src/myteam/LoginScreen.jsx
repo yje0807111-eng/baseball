@@ -25,8 +25,8 @@ export default function LoginScreen({ onDone }) {
           <p className="mt-lab">Legend Draft</p>
           <h1 className="mt-2.5 text-[62px] font-extrabold leading-[1.02] text-white">내 팀을<br />만든다</h1>
           <p className="mt-4 max-w-[440px] text-base leading-[1.75] text-gray-400">
-            1982년부터 오늘까지, 역대 KBO 선수를 직접 검색해 26인 엔트리와 코치진을 꾸립니다.<br />
-            샐러리 캡 {SQUAD_CAP} CP 안에서 당신의 최적해를 찾으세요.
+            1982년부터 오늘까지, 역대 KBO 선수로 26인 엔트리와 코치진 꾸리기<br />
+            샐러리 캡 {SQUAD_CAP} CP 안에서 최적해 찾기
           </p>
 
           <div className="mt-cut mt-frame mt-8 bg-[#060a13]/88 p-7 backdrop-blur-[10px]" style={{ '--c': '16px' }}>

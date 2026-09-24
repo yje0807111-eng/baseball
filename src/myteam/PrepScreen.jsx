@@ -50,7 +50,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
           <b className="text-xl font-extrabold text-white">{title}</b>
         </div>
       </header>
-      <main className="relative mx-auto grid w-full max-w-[1920px] gap-3 px-4 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
+      <main className="relative mx-auto grid w-full max-w-[1920px] gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
             onStart={() => onStart(ready, init.rest)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
