@@ -41,6 +41,13 @@ function noise(ev, salt) {
 
 /* ───────── 주자 ───────── */
 /** 공 하나 앞뒤의 루 상황을 견줘 "누가 어디서 어디로" 를 뽑는다. to: 0~2 루 · 3 득점 · null 아웃 */
+/**
+ * 아웃이 될 줄 알아도 타자는 1루로 뛴다. 다만 뜬공은 몇 걸음 나갔다 멈춘다.
+ * 0 은 제자리, 1 은 다음 루까지.
+ */
+const DASH = { FO: 0.3, LO: 0.22, SF: 0.3, DP: 1, GO: 1, SAC: 1, E: 1, FC: 1 };
+const batterDash = (ev) => (ev.call === 'inplay' ? (DASH[ev.result] ?? 1) : 0);
+
 export function runnerMoves(ev) {
   const before = ev.before?.bases || [null, null, null];
   const after = ev.after?.bases || [null, null, null];
@@ -59,18 +66,27 @@ export function runnerMoves(ev) {
   const batterTo = at(after, ev.batter);
   if (batterTo >= 0) moves.push({ player: ev.batter, from: -1, to: batterTo });
   else if (ev.result === 'HR') gone.push({ player: ev.batter, from: -1 });
-  else if (ev.call === 'inplay' || ev.result === 'K') moves.push({ player: ev.batter, from: -1, to: null, quiet: true });
+  else if (ev.call === 'inplay') moves.push({ player: ev.batter, from: -1, to: null, dash: batterDash(ev) });
+  else if (ev.result === 'K') moves.push({ player: ev.batter, from: -1, to: null, quiet: true });
 
   // 사라진 주자 가운데 앞선 주자부터 득점으로 본다 (남으면 아웃)
   gone.sort((a, b) => b.from - a.from);
-  gone.forEach((m, i) => moves.push({ ...m, to: i < (ev.runs || 0) ? 3 : null }));
+  gone.forEach((m, i) => {
+    const scored = i < (ev.runs || 0);
+    moves.push({ ...m, to: scored ? 3 : null, dash: scored || ev.call !== 'inplay' ? 0 : 0.9 });
+  });
   return moves;
 }
 
 /** 루에서 루로 달리는 길 — 사이에 있는 루를 모두 밟는다. off 는 홈에 들어온 뒤 비켜설 자리 */
-export function runPath(from, to, off = 0) {
+export function runPath(from, to, off = 0, dash = 0) {
   const pos = (i) => (i < 0 || i >= 3 ? HOME : BASE_POS[i]);
-  if (to == null) return [pos(from), pos(from)]; // 아웃 — 제자리에서 사라진다
+  if (to == null) {
+    // 아웃 — 그래도 다음 루 쪽으로 dash 만큼 달리다 멈춘다
+    if (!dash) return [pos(from), pos(from)];
+    const a = pos(from); const b = pos(Math.min(2, from + 1));
+    return [a, [a[0] + (b[0] - a[0]) * dash, a[1] + (b[1] - a[1]) * dash]];
+  }
   const pts = [pos(from)];
   for (let i = from + 1; i <= to; i += 1) pts.push(i >= 3 ? HOME : BASE_POS[i]);
   if (to === 3) pts.push(spot(-1, 0.05 + off)); // 홈을 밟고 3루 더그아웃 쪽으로
@@ -139,14 +155,14 @@ export function buildPlay(ev, beatMs = 1200) {
       const throwTo = ['GO', 'DP', 'E', 'SAC', 'BH'].includes(ev.result) ? BASE_POS[0] : null;
       if (throwTo) beats.push({ kind: 'throw', t0: 0.78, t1: 0.92, from: land, to: throwTo });
     }
-    const moves = runnerMoves(ev).filter((m) => !(m.quiet && m.to == null)); // 타석에서 바로 아웃이면 그릴 것이 없다
+    const moves = runnerMoves(ev).filter((m) => !m.quiet); // 삼진처럼 칠 일이 없었으면 그릴 것이 없다
     const scorers = moves.filter((m) => m.to === 3).length;
     let k = 0;
     for (const m of moves.sort((a, b) => b.from - a.from)) { // 앞선 주자부터
       const off = m.to === 3 ? k * 0.06 : 0;
       beats.push({
         kind: 'run', t0: Math.min(0.9, CUT + 0.03 + k * 0.03), t1: Math.min(0.99, 0.84 + k * 0.045),
-        player: m.player, path: runPath(m.from, m.to, off), out: m.to == null, scored: m.to === 3, still: m.from === m.to,
+        player: m.player, path: runPath(m.from, m.to, off, m.dash || 0), out: m.to == null, scored: m.to === 3, still: m.from === m.to && !m.dash,
       });
       if (m.to === 3) k += 1; else k += 0.4;
     }
