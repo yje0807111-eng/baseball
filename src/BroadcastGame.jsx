@@ -700,10 +700,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
                   return (
-                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px auto minmax(0,1fr) auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
+                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px minmax(0,1fr) 96px auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
                       <Portrait player={p} w={22} h={28} color={cMy} />
-                      <span className="flex items-baseline gap-1.5">
-                        <b className="max-w-[70px] truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
+                      <span className="flex min-w-0 items-baseline gap-1.5">
+                        <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
                         <em className="font-display text-[12px] font-bold not-italic" style={{ color: statBandColor(p.overall) }}>{p.overall}</em>
                       </span>
                       <span className="flex items-center gap-1.5" title={`체력 ${cond}`}>
