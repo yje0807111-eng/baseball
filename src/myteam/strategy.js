@@ -20,8 +20,8 @@ export const BASE = [
 export const FINE = [
   { g: '타격', color: '#34d399', key: 'swing', ko: '스윙', opts: ['신중', '보통', '과감'] },
   { g: '타격', color: '#34d399', key: 'take', ko: '주루', opts: ['안전', '보통', '과감'] },
-  { g: '마운드', color: '#f87171', key: 'hook', ko: '투수 교체', opts: ['길게', '보통', '짧게'] },
-  { g: '마운드', color: '#f87171', key: 'duel', ko: '승부', opts: ['피함', '보통', '정면'] },
+  { g: '마운드', color: '#f87171', key: 'hook', ko: '투수 교체', opts: ['늦게', '보통', '빠르게'] },
+  { g: '마운드', color: '#f87171', key: 'duel', ko: '승부', opts: ['회피', '보통', '정면'] },
   { g: '마운드', color: '#f87171', key: 'mix', ko: '볼 배합', opts: ['안전', '보통', '공격'] },
   { g: '수비', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['정석', '보통', '과감'] },
   { g: '수비', color: '#60a5fa', key: 'hold', ko: '주자 견제', opts: ['느슨', '보통', '바짝'] },
@@ -58,7 +58,7 @@ export function scoutTags(opponent) {
 
 /** 약점 태그 → 그 약점을 되치는 성향 (★ 로 표시한다) */
 const COUNTER = {
-  '장타 위험': { mix: '안전', guard: '과감', duel: '피함' },
+  '장타 위험': { mix: '안전', guard: '과감', duel: '회피' },
   '발 빠른 타선': { hold: '바짝', guard: '과감' },
   '컨택 강함': { mix: '안전' },
   '수비 탄탄': { swing: '과감' },
@@ -93,10 +93,10 @@ export const SIDES = [
     ] },
   { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
-      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '길게', duel: '정면', mix: '보통' } },
-      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '짧게', duel: '보통', mix: '보통' } },
-      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '짧게', duel: '정면', mix: '공격' } },
-      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '길게', duel: '피함', mix: '안전' } },
+      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
+      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
+      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
+      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
     ] },
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [
