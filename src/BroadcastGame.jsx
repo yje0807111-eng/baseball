@@ -13,7 +13,7 @@ import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE } from './play/playScript.js';
 import {
-  createGame, pitch, isClutch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -119,15 +119,13 @@ export function engineTeam(team) {
 
 /* 속도는 셋뿐이다 — 보통 · 자동(안 묻고 끝까지) · 스킵. 그 위에 "꾹 누르는 동안만" 빨리감기가 얹힌다 */
 const PLAY = 1;
-const AUTO = 3.5; // 자동 진행 — 지시를 묻지 않는다
 const SKIP = 0; // 배속이 아니라 "남은 경기를 목표 시간 안에 끝내기" — skipSpeed 가 공마다 배속을 다시 잡는다
 const HOLD = 5; // 화면을 꾹 누르거나 스페이스바를 누르고 있는 동안
-const MODES = [['1×', PLAY], ['2×', 2], ['3×', 3], ['자동', AUTO], ['스킵', SKIP]];
+const MODES = [['1×', PLAY], ['2×', 2], ['3×', 3], ['스킵', SKIP]];
 const COUNT_MS = 750; // 공 하나 사이 — 투구가 늘 같은 속도라 이만큼은 있어야 공이 다 온다
 const RESULT_MS = 2400; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
 const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
-const RESIST_MS = 800; // 꾹 누르는 중에 승부처가 오면 잠깐 저항한다 (손을 떼면 만날 수 있게)
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
 
@@ -135,7 +133,7 @@ const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 
  * SKIP 배속: 남은 아웃카운트로 남은 길이를 어림잡아 목표 시각(endAt)에 맞춘다.
  * 공마다 다시 재니 어림이 빗나가도 스스로 따라잡는다.
  * 남은 아웃은 9이닝이 아니라 **연장까지 간 가장 긴 경기**(maxInnings)로 잡는다 — 늘 일정보다 조금 앞서 달려서
- * 끝에서 굼떠지지 않고, 연장에 들어가도 목표 시간을 넘기지 않는다. 하한 3.5 는 AUTO — SKIP 이 AUTO 보다 느릴 일은 없다.
+ * 끝에서 굼떠지지 않고, 연장에 들어가도 목표 시간을 넘기지 않는다. 하한 3.5 아래로는 내려가지 않는다.
  */
 function skipSpeed(g, endAt) {
   const outsDone = ((g.inning - 1) * 2 + (g.top ? 0 : 1)) * 3 + g.outs;
@@ -290,14 +288,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
-  const [orders, setOrders] = useState(null); // 승부처 지시 대기
-  const ordersRef = useRef(null);
   const pendingRef = useRef({}); // 다음 공에 실릴 지시
   const speedRef = useRef(1);
   const pausedRef = useRef(false);
-  const [picker, setPicker] = useState(null); // 투수 고르기: 'order' 작전 버튼 · 'clutch' 승부처 지시
-  const pickerRef = useRef(null);
-  pickerRef.current = picker;
   const aliveRef = useRef(true);
   const endedRef = useRef(false); // 결과를 한 번만 넘기도록
   speedRef.current = speed;
@@ -314,22 +307,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
   const [holding, setHolding] = useState(false);
-  const resistRef = useRef(0); // 저항이 끝나는 시각 — 그때까지는 꾹 눌러도 느리게 간다
   const [recap, setRecap] = useState(null); // 이닝 정리 화면
   const recapRef = useRef(null);
   const planRef = useRef('balanced'); // 이번 이닝 기조
   const curSpeed = () => {
     if (speedRef.current === SKIP) return skipSpeed(g, skipEndRef.current);
-    if (holdRef.current) return Date.now() < resistRef.current ? 1.5 : HOLD;
+    if (holdRef.current) return HOLD;
     return speedRef.current;
   };
-  /** 지금 지시를 묻지 않는 상태인가 — 자동 · 스킵 · 꾹 누르는 중. 배속(2× · 3×)은 묻는다 */
-  const quiet = () => speedRef.current === AUTO || speedRef.current === SKIP || holdRef.current;
+  /** 몰아서 넘기는 중인가 — 스킵 · 꾹 누르는 중 */
+  const quiet = () => speedRef.current === SKIP || holdRef.current;
   const flashMs = () => (quiet() ? 300 : 1400); // 몰아서 넘길 땐 자막도 짧게
   /** 속도 고르기. SKIP 은 목표 시각을 새로 잡고, 지시를 기다리던 중이면 정면 승부로 넘긴다 */
   const pickSpeed = (v) => {
     if (v === SKIP) skipEndRef.current = Date.now() + SKIP_MS;
-    if (v !== PLAY && ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
     setSpeed(v);
   };
   /* 꾹 누르기 — 누르는 동안만 5배속 + 자동. 버튼 위에서는 안 잡고, 창을 벗어나면 반드시 풀린다 */
@@ -337,7 +328,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     if (holdRef.current === on) return;
     holdRef.current = on;
     setHolding(on);
-    if (on && ordersRef.current) { ordersRef.current({}); ordersRef.current = null; setOrders(null); }
   };
   useEffect(() => {
     const off = () => hold(false);
@@ -367,24 +357,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       let evAt = 0; // 이 이닝이 시작된 시점의 events 인덱스
       aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
-        while ((pausedRef.current || ordersRef.current || pickerRef.current || recapRef.current) && !stop) await sleep(100);
+        while ((pausedRef.current || recapRef.current) && !stop) await sleep(100);
         if (stop || g.final) break;
-        // 승부처면 멈추고 지시를 받는다 (내 공격·수비 모두)
-        if (isClutch(g) && g.balls === 0 && g.strikes === 0 && !g.clutchAsked) {
-          g.clutchAsked = g.inning;
-          // 꾹 누르는 중이면 잠깐 저항한다 — 손을 떼면 이 승부처를 만날 수 있게
-          if (holdRef.current) { resistRef.current = Date.now() + RESIST_MS; setFlash({ text: '승부처', key: Date.now() }); setTimeout(() => setFlash(null), RESIST_MS); }
-          if (!quiet()) { // 자동 · 스킵 · 꾹 누르는 중이면 멈춰 세우지 않고 정면 승부로 간다
-            const picked = await new Promise((resolve) => {
-              ordersRef.current = resolve;
-              setOrders({ offense: !g.top, resolve });
-            });
-            ordersRef.current = null;
-            setOrders(null);
-            pendingRef.current = { ...pendingRef.current, ...picked };
-          }
-        }
-        if (g.inning !== g.clutchAsked) g.clutchAsked = null;
         // 적 수비(내 공격) 중이면 AI 감독이 투수를 바꾼다
         if (!g.top) {
           const change = aiPitchingChange(g, g.away);
@@ -496,7 +470,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const steal0 = stealOdds(g, 0);
 
   const give = (o) => { pendingRef.current = { ...pendingRef.current, ...o }; redraw(); };
-  const answer = (o) => { const r = ordersRef.current; ordersRef.current = null; setOrders(null); r?.(o); };
 
 
   const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
@@ -547,7 +520,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
-                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : v === AUTO ? '지시 없이 끝까지 진행' : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
+                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
@@ -674,54 +647,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
               )}
 
-              {/* 승부처 지시 */}
-              {orders && !picker && (
-                <div className="absolute inset-x-0 bottom-0 z-10 bg-[linear-gradient(0deg,rgba(3,5,10,.92),transparent)] px-4 pb-4 pt-8">
-                  <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': '#fde047' }}>Clutch · 지시 내리기</p>
-                  <div className="flex justify-center gap-3">
-                    {(orders.offense
-                      ? [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '직구 노리기', '적중 시 유리', { guess: 'fast' }], ['🏃', '도루', `${Math.round(steal0 * 100)}%`, { steal: 0 }], ['🪃', '번트', '주자 진루', { bunt: true }]]
-                      : [['⚔', '정면 승부', '자동 진행', {}], ['🎯', '몸쪽 승부', '헛스윙 유도', { zone: 0 }], ['🧊', '유인구', '참으면 볼', { zone: 'chase' }], ['🔁', '투수 교체', '불펜에서 고르기', 'pick']]
-                    ).map(([ic, t, s, o]) => (
-                      <button key={t} type="button" onClick={() => (o === 'pick' ? setPicker('clutch') : answer(o))}
-                        className="mt-cut mt-frame mt-glass w-[186px] p-3.5 text-left hover:brightness-125" style={{ '--c': '12px', '--a': '#fde047' }}>
-                        <span className="text-2xl">{ic}</span>
-                        <b className="mt-1 block text-lg text-white">{t}</b>
-                        <small className="text-xs text-gray-400">{s}</small>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 투수 교체: 아직 안 나온 투수 중에서 고르기 */}
-              {picker && (
-                <div className="absolute inset-x-0 bottom-0 z-20 bg-[linear-gradient(0deg,rgba(3,5,10,.94),transparent)] px-4 pb-4 pt-8">
-                  <p className="mt-lab mb-2.5 w-full justify-center" style={{ '--a': cMy }}>Pitching Change · 현재 {g.home.pitcher?.name} {g.home.pitches}구</p>
-                  <div className="flex flex-wrap justify-center gap-2.5">
-                    {g.home.team.pitchers.slice(g.home.pitcherIdx + 1).map((p) => {
-                      const tired = p.condition != null && p.condition < 100;
-                      return (
-                        <button key={p.id} type="button"
-                          onClick={() => { const o = { changePitcher: p.id }; setPicker(null); if (picker === 'clutch') answer(o); else give(o); }}
-                          className="mt-cut mt-frame mt-glass w-[176px] p-3 text-left hover:brightness-125" style={{ '--c': '12px', '--a': cMy }}>
-                          <span className="flex items-baseline gap-1.5">
-                            <em className="font-display text-xs font-bold not-italic" style={{ color: cMy }}>{p.slot && !String(p.slot).startsWith('BN') ? p.slot : p.position}</em>
-                            <b className="font-display ml-auto text-xl text-white">{p.overall}</b>
-                          </span>
-                          <b className="mt-0.5 block truncate text-lg text-white">{p.name}</b>
-                          <small className="block text-xs text-gray-400">구위 {st(p, 'stuff')} · 제구 {st(p, 'control')}</small>
-                          {tired && <small className="block text-xs font-bold text-orange-400">컨디션 {p.condition}% · 휴식 {p.rest}</small>}
-                        </button>
-                      );
-                    })}
-                    <button type="button" onClick={() => setPicker(null)}
-                      className="mt-cut mt-glass w-[110px] p-3 text-center text-sm text-gray-300 shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)] hover:brightness-125" style={{ '--c': '12px' }}>
-                      그대로<small className="mt-1 block text-xs text-gray-500">교체 안 함</small>
-                    </button>
-                  </div>
-                </div>
-              )}
             </section>
 
             {/* 작전 버튼 */}
@@ -731,7 +656,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 ['🪃', '번트', !g.top ? '주자 진루' : '내 공격 아님', () => give({ bunt: true }), !g.top],
                 ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), !g.top],
                 ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), !g.top],
-                ['🔁', '투수 교체', !g.top ? '내 수비 아님' : g.home.team.pitchers[g.home.pitcherIdx + 1] ? '불펜에서 고르기' : '남은 투수 없음', () => setPicker('order'), g.top && !!g.home.team.pitchers[g.home.pitcherIdx + 1]],
               ].map(([ic, t, s, fn, on]) => (
                 <button key={t} type="button" disabled={!on} onClick={fn}
                   className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
