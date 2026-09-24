@@ -125,20 +125,35 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
   const r = 38 * k;
   const who = player && player.id != null ? player.id : null;
   const tag = name || (player && player.name) || null;
+  const foot = at[1] + r * 1.04;                                   // 고리가 깔리는 발밑
+  const plate = Math.max(74, 26 + (tag ? tag.length : 0) * 21) * k; // 이름 판은 이름만큼만
+  const plateH = 28 * k;
+  const plateY = at[1] + r + 12 * k;
   return (
     <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}${puff ? ' pv-puff' : ''}${form ? ' pv-form' : ''}`} opacity={dim ? 0.82 : 1}>
-      {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.55} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
-      <ellipse cx={at[0]} cy={at[1] + r * 0.95} rx={r * 0.92} ry={r * 0.3} fill="rgba(0,0,0,.55)" />
+      {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.62} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
+      {/* 발밑 고리 두 겹 — 가는 바깥 테가 자리를 잡고 진한 안쪽이 땅에 붙인다 */}
+      <ellipse cx={at[0]} cy={foot} rx={r * 1.38} ry={r * 0.42} fill="none" stroke={color} strokeWidth={2 * k} opacity="0.5" />
+      <ellipse cx={at[0]} cy={foot} rx={r * 1.08} ry={r * 0.33} fill={color} opacity="0.22" />
+      <ellipse cx={at[0]} cy={foot} rx={r * 1.08} ry={r * 0.33} fill="none" stroke={color} strokeWidth={5 * k} opacity="0.9" />
+      {/* 몸통 — 검은 테로 잔디에서 띄우고 안쪽에 팀 색 */}
+      <circle cx={at[0]} cy={at[1]} r={r + 5 * k} fill="#05080f" opacity="0.9" />
       <circle cx={at[0]} cy={at[1]} r={r} fill="#0b1220" />
       <Face id={who} cx={at[0]} cy={at[1]} r={r} />
-      <circle cx={at[0]} cy={at[1]} r={r} fill="none" stroke={color} strokeWidth={5 * k} />
+      <circle cx={at[0]} cy={at[1]} r={r} fill="none" stroke={color} strokeWidth={4.5 * k} />
+      <circle cx={at[0]} cy={at[1]} r={r + 4 * k} fill="none" stroke="rgba(5,8,15,.95)" strokeWidth={3 * k} />
       {label && !who && (
         <text x={at[0]} y={at[1] + 10 * k} textAnchor="middle" fontSize={(label.length > 1 ? 25 : 32) * k} fontWeight="800" fill="#e6edf6"
           stroke="rgba(0,0,0,.8)" strokeWidth={6 * k} paintOrder="stroke">{label}</text>
       )}
       {tag && (
-        <text x={at[0]} y={at[1] + r + 30 * k} textAnchor="middle" fontSize={30 * k} fontWeight="700" fill={color}
-          stroke="rgba(0,0,0,.9)" strokeWidth={9 * k} paintOrder="stroke">{tag}</text>
+        <g>
+          <rect x={at[0] - plate / 2} y={plateY} width={plate} height={plateH} rx={3 * k} fill="rgba(5,8,15,.86)" />
+          <rect x={at[0] - plate / 2} y={plateY} width={4 * k} height={plateH} fill={color} />
+          {/* 위아래 여백을 같게 — 판 한가운데에 글자를 앉힌다 */}
+          <text x={at[0] + 2 * k} y={plateY + plateH / 2} textAnchor="middle" dominantBaseline="central"
+            fontSize={20 * k} fontWeight="700" fill="#e6edf6">{tag}</text>
+        </g>
       )}
     </g>
   );

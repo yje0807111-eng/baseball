@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>9번에서 갈라진 여덟</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:10px 20px 6px}
+  h1{font-family:'Saira Condensed';font-size:22px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:12px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px;padding:0 12px 12px;height:calc(911px - 46px)}
+  .cell{position:relative;overflow:hidden;background:#070b14;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .cell svg{display:block;width:100%;height:100%}
+  .tag{position:absolute;left:0;top:0;display:flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;background:rgba(5,8,15,.82)}
+  .tag b{font-family:'Saira Condensed';font-size:17px;font-weight:900;color:#10b981}
+  .tag span{font-size:12px;font-weight:700}
+  .tag i{font-style:normal;font-size:11px;color:#8b95a6}
+</style></head><body>
+<header><h1>9번에서 갈라진 여덟</h1><p>두 겹 테 + 발밑 고리는 그대로 · 테 두께 · 고리 모양 · 이름 표기만 다르게</p></header>
+<div class="grid" id="g"></div>
+<script>
+const BG = '../../public/ui/field/park-16.webp';
+const FACE = (n) => '../../public/profiles/' + encodeURIComponent(n) + '.webp';
+const OFF = '#34d399', TEAM = '#38bdf8', ACT = '#ffffff';
+const U = 1.2; // 1600 폭 그림이 1920 화면에 그려질 때의 배율 — 게임에서 보이는 실제 크기
+const MEN = [
+  { x: 105, y: 95, k: 0.70 * U, pos: 'SS', name: '김재호', face: '2002-doosan_김동주', c: TEAM },
+  { x: 355, y: 95, k: 0.70 * U, pos: '2B', name: '오재원', face: '2002-doosan_김민호', c: TEAM },
+  { x: 232, y: 180, k: 0.72 * U, pos: 'P', name: '레스', face: '2002-doosan_레스', c: ACT, act: 1 },
+  { x: 175, y: 282, k: 0.99 * U, pos: '', name: '구자운', face: '2002-doosan_구자운', c: OFF },
+];
+const hue = (m) => (m.act ? ACT : m.c);
+const face = (m, r, cid) => '' +
+  '<clipPath id="' + cid + '"><circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '"/></clipPath>' +
+  '<image href="' + FACE(m.face) + '" x="' + (m.x - r) + '" y="' + (m.y - r * 1.05) + '" width="' + (r * 2) + '" height="' + (r * 2.6) + '"' +
+  ' preserveAspectRatio="xMidYMin slice" clip-path="url(#' + cid + ')" style="filter:brightness(1.22) saturate(1.08) contrast(1.05)"/>';
+const inkName = (m, r, k, c) => '<text x="' + m.x + '" y="' + (m.y + r + 30 * k) + '" text-anchor="middle" font-size="' + (30 * k) + '" font-weight="700" fill="' + c + '"' +
+  ' stroke="rgba(0,0,0,.9)" stroke-width="' + (9 * k) + '" paint-order="stroke">' + m.name + '</text>';
+/* 9번의 몸통 — 검은 테로 띄우고 안쪽에 팀 색 */
+const body9 = (m, k, r, cid, teamW, darkW) =>
+  '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + (r + 5 * k) + '" fill="#05080f" opacity=".9"/>' +
+  '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="#0b1220"/>' + face(m, r, cid) +
+  '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="none" stroke="' + hue(m) + '" stroke-width="' + (teamW * k) + '"/>' +
+  '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + (r + 4 * k) + '" fill="none" stroke="rgba(5,8,15,.95)" stroke-width="' + (darkW * k) + '"/>';
+/* 9번의 고리 */
+const ring9 = (m, k, r, c, rx, ry, w, o, fill) => {
+  const cy = m.y + r * 1.04;
+  return (fill ? '<ellipse cx="' + m.x + '" cy="' + cy + '" rx="' + (r * rx) + '" ry="' + (r * ry) + '" fill="' + c + '" opacity="' + fill + '"/>' : '') +
+    '<ellipse cx="' + m.x + '" cy="' + cy + '" rx="' + (r * rx) + '" ry="' + (r * ry) + '" fill="none" stroke="' + c + '" stroke-width="' + (w * k) + '" opacity="' + o + '"/>';
+};
+
+const LOOKS = [
+  ['9번 그대로', '견줄 기준', (m, k, r, cid) =>
+    ring9(m, k, r, hue(m), 1.15, 0.36, 4.5, 0.8, 0.16) + body9(m, k, r, cid, 4.5, 3) + inkName(m, r, k, hue(m))],
+
+  ['고리 크고 얇게', '바닥에 넓게 깔린다', (m, k, r, cid) =>
+    ring9(m, k, r, hue(m), 1.38, 0.42, 3, 0.85, 0.1) + body9(m, k, r, cid, 4.5, 3) + inkName(m, r, k, hue(m))],
+
+  ['고리 두 겹', '가는 바깥 테 · 진한 안쪽', (m, k, r, cid) => {
+    const c = hue(m);
+    return ring9(m, k, r, c, 1.38, 0.42, 2, 0.5, 0) + ring9(m, k, r, c, 1.08, 0.33, 5, 0.9, 0.22) +
+      body9(m, k, r, cid, 4.5, 3) + inkName(m, r, k, c); }],
+
+  ['고리 앞쪽만', '앞으로 걸어 나오는 결', (m, k, r, cid) => {
+    const c = hue(m); const cy = m.y + r * 1.04; const rx = r * 1.18, ry = r * 0.36;
+    return '<path d="M ' + (m.x - rx) + ' ' + cy + ' A ' + rx + ' ' + ry + ' 0 0 0 ' + (m.x + rx) + ' ' + cy + '"' +
+      ' fill="none" stroke="' + c + '" stroke-width="' + (5.5 * k) + '" stroke-linecap="round" opacity=".9"/>' +
+      '<ellipse cx="' + m.x + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + c + '" opacity=".12"/>' +
+      body9(m, k, r, cid, 4.5, 3) + inkName(m, r, k, c); }],
+
+  ['테 얇게', '팀 색 테를 가늘게 · 얼굴이 커 보인다', (m, k, r, cid) =>
+    ring9(m, k, r, hue(m), 1.15, 0.36, 4.5, 0.8, 0.16) + body9(m, k, r, cid, 2.5, 4) + inkName(m, r, k, hue(m))],
+
+  ['포지션 배지', '얼굴 옆에 자리 이름', (m, k, r, cid) => {
+    const c = hue(m);
+    return ring9(m, k, r, c, 1.15, 0.36, 4.5, 0.8, 0.16) + body9(m, k, r, cid, 4.5, 3) +
+      (m.pos ? '<g><circle cx="' + (m.x - r * 0.8) + '" cy="' + (m.y - r * 0.8) + '" r="' + (14 * k) + '" fill="#05080f" stroke="' + c + '" stroke-width="' + (2.5 * k) + '"/>' +
+        '<text x="' + (m.x - r * 0.8) + '" y="' + (m.y - r * 0.8 + 6 * k) + '" text-anchor="middle" font-size="' + (15 * k) + '" font-weight="900" fill="' + c + '" font-family="Saira Condensed">' + m.pos + '</text></g>' : '') +
+      inkName(m, r, k, c); }],
+
+  ['이름 판', '맨 글자 대신 얇은 판 위에', (m, k, r, cid) => {
+    const c = hue(m);
+    return ring9(m, k, r, c, 1.15, 0.36, 4.5, 0.8, 0.16) + body9(m, k, r, cid, 4.5, 3) +
+      '<g><rect x="' + (m.x - 44 * k) + '" y="' + (m.y + r + 12 * k) + '" width="' + (88 * k) + '" height="' + (28 * k) + '" rx="' + (3 * k) + '" fill="rgba(5,8,15,.86)"/>' +
+      '<rect x="' + (m.x - 44 * k) + '" y="' + (m.y + r + 12 * k) + '" width="' + (4 * k) + '" height="' + (28 * k) + '" fill="' + c + '"/>' +
+      '<text x="' + (m.x + 2 * k) + '" y="' + (m.y + r + 32 * k) + '" text-anchor="middle" font-size="' + (20 * k) + '" font-weight="700" fill="#e6edf6">' + m.name + '</text></g>'; }],
+
+  ['고리에 자리', '이름은 아래 · 자리는 고리 앞에', (m, k, r, cid) => {
+    const c = hue(m); const cy = m.y + r * 1.04;
+    return ring9(m, k, r, c, 1.15, 0.36, 4.5, 0.8, 0.16) + body9(m, k, r, cid, 4.5, 3) +
+      '<g><rect x="' + (m.x - 15 * k) + '" y="' + (cy - 9 * k) + '" width="' + (30 * k) + '" height="' + (18 * k) + '" rx="' + (2 * k) + '" fill="' + c + '"/>' +
+      '<text x="' + m.x + '" y="' + (cy + 6 * k) + '" text-anchor="middle" font-size="' + (15 * k) + '" font-weight="900" fill="#05080f" font-family="Saira Condensed">' + (m.pos || '打') + '</text></g>' +
+      inkName(m, r, k, c); }],
+];
+
+let seq = 0;
+document.getElementById('g').innerHTML = LOOKS.map((look, n) => {
+  const draw = look[2];
+  const body = MEN.map((m) => '<g>' + draw(m, m.k, 38 * m.k, 'c' + (seq += 1)) + '</g>').join('');
+  return '<div class="cell"><svg viewBox="0 0 465 372">' +
+    '<image href="' + BG + '" x="-1050" y="-800" width="2560" height="1432" preserveAspectRatio="none"/>' +
+    '<rect x="0" y="0" width="465" height="372" fill="rgba(5,8,15,.18)"/>' + body +
+    '</svg><div class="tag"><b>' + (n + 18) + '</b><span>' + look[0] + '</span><i>' + look[1] + '</i></div></div>';
+}).join('');
+</script></body></html>
