@@ -297,7 +297,10 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         // 선발 · 마무리 · 불펜은 한 묶음이라 어느 칸 위에 놓아도 그 선수와 맞바꾼다
         const hit = d.targets.find((c) => e.clientX >= c.left && e.clientX <= c.right && e.clientY >= c.top && e.clientY <= c.bottom);
         d.target = hit && hit.id !== d.id ? hit.id : null;
-        setDrag({ list: 'pitch', id: d.id, target: d.target, dx: e.clientX - d.x0, dy: e.clientY - d.y0 });
+        // 자석: 놓을 칸 위에 오면 그 칸에 딱 붙고(snap), 벗어나면 다시 포인터를 따라온다
+        const snap = d.target && d.self ? { x: hit.left - d.self.left, y: hit.top - d.self.top } : null;
+        setDrag({ list: 'pitch', id: d.id, target: d.target, dx: e.clientX - d.x0, dy: e.clientY - d.y0,
+          snap, back: snap ? { x: -snap.x, y: -snap.y } : null });
         return;
       }
       if (d.list === 'field') {
@@ -353,7 +356,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         const b = el.getBoundingClientRect();
         return { id: el.dataset.row.split(':')[1], left: b.left, right: b.right, top: b.top, bottom: b.bottom };
       });
-      dragRef.current = { list: 'pitch', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, targets };
+      const self = targets.find((t) => t.id === id);
+      dragRef.current = { list: 'pitch', id, p, x0: e.clientX, y0: e.clientY, moved: false, target: null, targets, self };
     },
     onKeyDown: (e) => { if (e.key === 'Enter') pickOrFire(p); },
   });
@@ -452,11 +456,17 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       </div>
     );
   };
+  /** 그 투수가 지금 선 칸 (선발 자리면 SP · 나머지는 RP) */
+  const pitchSlotOf = (id) => (order.rotation.includes(id) ? 'SP' : 'RP');
   const pitRow = (p, list, pos, h, pitch, off = 0) => {
     const on = sel?.id === p.id;
     const dragging = drag?.list === 'pitch' && drag.id === p.id;
+    const swapping = drag?.list === 'pitch' && !!drag.target && (dragging || drag.target === p.id);
     /* 선 자리 기준 수치 — 야수 카드와 같게, 선발 자리에 선 불펜 투수는 깎인 값으로 보인다 */
-    const eff = effAt(p, list === 'rotation' ? 'SP' : 'RP');
+    const mySlot = list === 'rotation' ? 'SP' : 'RP';
+    const eff = effAt(p, mySlot);
+    /* 맞바꾸는 중에는 옮겨 갈 자리 기준으로 미리 보여 준다 */
+    const nextEff = swapping ? effAt(p, pitchSlotOf(dragging ? drag.target : drag.id)) : eff;
     const PREP_PEN = [['CL', ROLE.CL], ['SU', ROLE.SU], ['MR', ROLE.MR], ['LR', ROLE.MR]];
     const [label, color] = list === 'rotation' ? [fitSlots && rotation.length === 1 ? 'SP' : `${pos + 1}SP`, ROLE.SP]
       : fitSlots ? (PREP_PEN[pos] || ['MR', ROLE.MR])
@@ -468,12 +478,23 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       <div key={p.id} role="button" tabIndex={0} {...pitchDrag(p.id, p)}
         className={`mt-cut flex touch-none select-none items-center gap-[7px] px-[9px] ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ '--c': '7px', ...place(pos - off, h, pitch, dragging),
-          ...(dragging ? { transform: `translate(${drag.dx}px,${(pos - off) * pitch + drag.dy}px) scale(1.03)`, transition: 'none' } : null),
+          /* 끌리는 줄: 붙을 칸이 있으면 그 칸에 자석처럼, 없으면 포인터를 그대로 따라간다 */
+          ...(dragging ? (drag.snap
+            ? { transform: `translate(${drag.snap.x}px,${(pos - off) * pitch + drag.snap.y}px) scale(1.03)`, transition: 'transform .13s ease-out' }
+            : { transform: `translate(${drag.dx}px,${(pos - off) * pitch + drag.dy}px) scale(1.03)`, transition: 'none' }) : null),
+          /* 맞바꿀 줄: 끌리는 줄이 있던 자리로 옮겨 온 모습 */
+          ...(!dragging && drag?.list === 'pitch' && drag.target === p.id && drag.back
+            ? { transform: `translate(${drag.back.x}px,${(pos - off) * pitch + drag.back.y}px)`, transition: 'transform .13s ease-out', zIndex: 4 }
+            : null),
           ...(drag?.list === 'pitch' && drag.target === p.id ? hitGlow : null),
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
         <Handle />
         <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
-        <span className="w-[26px] shrink-0 text-center"><Ovr p={p} v={eff.ovr} size={18} /></span>
+        <span className={`shrink-0 text-center ${swapping && nextEff.ovr !== eff.ovr ? '' : 'w-[26px]'}`}>
+          {swapping && nextEff.ovr !== eff.ovr
+            ? <Delta before={eff.ovr} after={nextEff.ovr} size={15} />
+            : <Ovr p={p} v={eff.ovr} size={18} />}
+        </span>
         <NameBlock p={p} size={13.5} />
         {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
         <span className="pointer-events-none absolute bottom-[3px] left-[9px] right-[9px] h-[2px] bg-white/[0.06]" title={`컨디션 ${c}%`}><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
