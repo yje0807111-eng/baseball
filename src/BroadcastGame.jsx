@@ -480,6 +480,25 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const myPen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1, g.home.pitcherIdx + 5);
   const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
   const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
+  const mineBat = !g.top; // 내가 치는 회
+  const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
+  /* 아래 작전 — 치는 회와 막는 회가 다르다. [그림, 이름, 한 마디, 누르면, 눌리는가] */
+  const ACTS = mineBat
+    ? [
+      ['🏃', '도루', on1 ? `${Math.round(steal0 * 100)}%` : on2 ? '2루 주자' : '주자 없음',
+        () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2])],
+      ['🪃', '번트', on1 || on2 ? '주자 진루' : '기습', () => give({ bunt: true }), true],
+      ['🏹', '히트앤런', on1 ? '주자 먼저 뛴다' : '1루 주자 없음', () => give({ hitAndRun: true }), on1],
+      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), true],
+      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), true],
+    ]
+    : [
+      ['🎯', '몸쪽 승부', '헛스윙 유도', () => give({ zone: 0 }), true],
+      ['🧊', '유인구', '참으면 볼', () => give({ zone: 'chase' }), true],
+      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}%`, () => give({ pitchType: 'fast' }), true],
+      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ pitchType: 'slider' }), true],
+      ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true],
+    ];
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
@@ -651,18 +670,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 작전 버튼 */}
             <div className="flex items-stretch gap-2.5">
-              {[
-                ['🏃', '도루', g.bases[0] && !g.top ? `${Math.round(steal0 * 100)}%` : '주자 없음', () => give({ steal: 0 }), !!(g.bases[0] && !g.top)],
-                ['🪃', '번트', !g.top ? '주자 진루' : '내 공격 아님', () => give({ bunt: true }), !g.top],
-                ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), !g.top],
-                ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), !g.top],
-              ].map(([ic, t, s, fn, on]) => (
-                <button key={t} type="button" disabled={!on} onClick={fn}
-                  className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
-                  style={{ '--c': '11px', '--a': '#10b981' }}>
-                  <b className="text-lg leading-none">{ic}</b>{t}<small className="text-[12px] font-semibold text-gray-400">{s}</small>
-                </button>
-              ))}
+              {ACTS.map(([ic, t, s, fn, on]) => {
+                const live = on && !g.final;
+                return (
+                  <button key={t} type="button" disabled={!live} onClick={fn}
+                    className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
+                    style={{ '--c': '11px', '--a': mineBat ? battingColor : pitchingColor }}>
+                    <b className="text-lg leading-none">{ic}</b>{t}<small className="text-[12px] font-semibold text-gray-400">{s}</small>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
