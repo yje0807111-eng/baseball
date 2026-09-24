@@ -84,13 +84,28 @@ export const defenseOf = (g) => (g.top ? g.home : g.away);
 export const batterOf = (g) => { const o = offenseOf(g); return o.team.batters[o.idx % o.team.batters.length]; };
 export const pitcherOf = (g) => defenseOf(g).pitcher;
 
-/** 중요한 순간: 7회 이후 2점 차 이내에서 득점권 주자 또는 만루 · 9회 이후 동점/1점 차는 무조건 */
-export function isClutch(g) {
-  const diff = g.home.runs - g.away.runs;
-  const close = Math.abs(diff) <= 2;
-  const risp = g.bases[1] || g.bases[2];
-  return g.inning >= 7 && close && (risp || (g.inning >= 9 && Math.abs(diff) <= 1));
+/* 주자 · 아웃 → 이 타석이 점수로 이어질 무게 (실제 득점 기대값 표를 거칠게 따온 값) */
+const BASE_WEIGHT = {
+  '000': [0.30, 0.20, 0.12], '100': [0.52, 0.38, 0.22], '010': [0.66, 0.50, 0.30], '001': [0.78, 0.66, 0.40],
+  '110': [0.82, 0.62, 0.38], '101': [0.88, 0.72, 0.44], '011': [0.94, 0.80, 0.50], '111': [1.00, 0.88, 0.56],
+};
+/**
+ * 승부처 무게 0~1 — 늦은 이닝일수록 · 점수가 붙어 있을수록 · 주자가 쌓일수록 높다.
+ * 1회는 남은 기회가 여덟 번이라 만루여도 승부처가 아니다.
+ */
+export function leverage(g) {
+  const key = g.bases.map((b) => (b ? 1 : 0)).join('');
+  const base = (BASE_WEIGHT[key] || BASE_WEIGHT['000'])[Math.min(2, g.outs)];
+  const late = Math.min(1, (Math.min(g.inning, 9) - 1) / 8);
+  const inningW = 0.18 + 0.82 * late ** 1.6;
+  const closeW = Math.max(0.12, 1 - Math.abs(g.home.runs - g.away.runs) / 5);
+  return base * inningW * closeW;
 }
+/** 멈추고 물을 만한 자리 — 80경기를 돌려 경기당 두어 번 걸리게 맞춘 문턱 */
+export const CLUTCH_MARK = 0.15;
+/** 감독이 손댈 수 있는 횟수 — 승부처는 더 자주 오지만 이만큼만 쓴다 */
+export const CLUTCH_LIMIT = 3;
+export const isClutch = (g) => leverage(g) >= CLUTCH_MARK;
 
 /** 도루 성공 확률: 주자 스피드 vs 포수 수비 */
 export function stealOdds(g, from) {
