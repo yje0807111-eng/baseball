@@ -49,6 +49,18 @@ const faceArt = (p) => (p?.id
   ? `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`
   : 'url(ui/mt/silhouette-player.webp)');
 
+/** 체력 색 — 0 은 붉고 100 은 초록. 사이는 주황 · 노랑 · 연두로 건너간다 */
+const STAMINA_HUE = [[0, 0], [35, 22], [60, 46], [80, 88], [100, 152]];
+function staminaTone(v) {
+  const x = Math.max(0, Math.min(100, v));
+  let h = 152;
+  for (let i = 1; i < STAMINA_HUE.length; i += 1) {
+    const [p0, h0] = STAMINA_HUE[i - 1]; const [p1, h1] = STAMINA_HUE[i];
+    if (x <= p1) { h = h0 + (h1 - h0) * ((x - p0) / (p1 - p0)); break; }
+  }
+  return { ink: `hsl(${h.toFixed(0)} 80% 58%)`, bar: `linear-gradient(90deg, hsl(${h.toFixed(0)} 72% 42%), hsl(${h.toFixed(0)} 86% 58%))` };
+}
+
 const koDark = (ko) => (/홈런|루타/.test(ko) ? '#fde047' : /안타/.test(ko) && !/무/.test(ko) ? '#a7f3d0' : /볼넷/.test(ko) ? '#93c5fd' : 'rgba(255,255,255,.5)');
 
 /** 지금 던지는 투수의 오늘 기록 */
@@ -685,15 +697,15 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 {myPen.length === 0 && <li className="px-2 py-1.5 text-[12px] text-gray-500">남은 투수 없음</li>}
                 {myPen.map((p) => {
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
-                  const tone = cond >= 85 ? '#34d399' : cond >= 60 ? '#fbbf24' : '#f87171';
+                  const tone = staminaTone(cond);
                   return (
-                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px minmax(0,1fr) 26px 58px auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
+                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px auto 24px minmax(0,1fr) auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
                       <Portrait player={p} w={22} h={28} color={cMy} />
-                      <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
+                      <b className="max-w-[70px] truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
                       <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{p.overall}</em>
                       <span className="flex items-center gap-1.5" title={`체력 ${cond}`}>
-                        <i className="block h-[5px] flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone }} /></i>
-                        <em className="w-[18px] text-right font-display text-[11px] font-bold not-italic" style={{ color: tone }}>{cond}</em>
+                        <i className="block h-[6px] min-w-0 flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone.bar }} /></i>
+                        <em className="w-[18px] shrink-0 text-right font-display text-[11px] font-bold not-italic" style={{ color: tone.ink }}>{cond}</em>
                       </span>
                       <button type="button" disabled={!canSwap} onClick={() => give({ changePitcher: p.id })}
                         title={canSwap ? `${p.name} 으로 바꾼다` : '내 수비 때만 바꾼다'}
