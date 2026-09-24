@@ -500,8 +500,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
 
   const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
+  // 내 투수가 지쳤는가 — 불펜 쪽으로 눈이 가게 한다
+  const mineOnMound = g.top;
+  const worn = mineOnMound && stamina <= 55;
+  const spent = mineOnMound && stamina <= 35;
   const myPen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1, g.home.pitcherIdx + 5);
   const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
+  const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
@@ -748,7 +753,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <div className="flex items-center gap-2.5">
                   <Portrait player={pitcher} w={44} h={56} color={pitchingColor} />
                   <div className="min-w-0 flex-1">
-                    <b className="block truncate text-[17px] font-extrabold text-white">{pitcher?.name}</b>
+                    <span className="flex items-center gap-1.5">
+                      <b className="truncate text-[17px] font-extrabold text-white">{pitcher?.name}</b>
+                      {worn && <span className="mt-cut shrink-0 px-1.5 py-0.5 text-[11px] font-extrabold text-[#05080f]"
+                        style={{ '--c': '4px', background: spent ? '#f87171' : '#fbbf24' }}>{spent ? '한계' : '지침'}</span>}
+                    </span>
                     <span className="text-[12px] font-semibold text-gray-400">{pitcher?.position} · {def.pitches}구</span>
                   </div>
                   <em className="font-display text-[24px] font-extrabold not-italic" style={{ color: pitchingColor }}>{pitcher?.overall}</em>
@@ -782,18 +791,26 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </section>
 
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': cMy }}>
+            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': cMy }}>불펜</p>
-                <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(home.name, true)}</span>
+                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>불펜</p>
+                {queued ? (
+                  <span className="ml-auto truncate text-[12px] font-bold text-[#fde047]">교체 대기</span>
+                ) : worn ? (
+                  <span className="ml-auto truncate text-[12px] font-bold" style={{ color: spent ? '#f87171' : '#fbbf24' }}>교체 때</span>
+                ) : (
+                  <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(home.name, true)}</span>
+                )}
               </div>
               <ul className="space-y-1 px-2 pb-2">
                 {myPen.length === 0 && <li className="px-2 py-1.5 text-[12px] text-gray-500">남은 투수 없음</li>}
                 {myPen.map((p) => {
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
+                  const mine = queued === p.id; // 이 투수로 바꾸라고 일러 둔 참이다
                   return (
-                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px minmax(0,1fr) 96px auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
+                    <li key={p.id} className={`mt-row mt-cut ${mine ? 'on' : ''}`}
+                      style={{ gridTemplateColumns: '22px minmax(0,1fr) 96px auto', gap: 7, padding: '3px 8px', opacity: queued && !mine ? 0.5 : 1, '--c': '5px', '--a': mine ? '#fde047' : cMy }}>
                       <Portrait player={p} w={22} h={28} color={cMy} />
                       <span className="flex min-w-0 items-baseline gap-1.5">
                         <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
@@ -803,10 +820,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                         <i className="block h-[6px] min-w-0 flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone.bar }} /></i>
                         <em className="w-[18px] shrink-0 text-right font-display text-[11px] font-bold not-italic" style={{ color: tone.ink }}>{cond}</em>
                       </span>
-                      <button type="button" disabled={!canSwap} onClick={() => give({ changePitcher: p.id })}
-                        title={canSwap ? `${p.name} 으로 바꾼다` : '내 수비 때만 바꾼다'}
-                        className={`mt-cut px-2 py-1 text-[12px] font-bold ${canSwap ? 'bg-[#10b981] text-[#05080f] hover:brightness-110' : 'bg-white/[0.07] text-gray-600'}`}
-                        style={{ '--c': '4px' }}>교체</button>
+                      <button type="button" disabled={!canSwap || !!queued} onClick={() => give({ changePitcher: p.id })}
+                        title={mine ? '다음 공에 올라간다' : queued ? '이미 교체를 일러 두었다' : canSwap ? `${p.name} 으로 바꾼다` : '내 수비 때만 바꾼다'}
+                        className={`mt-cut px-2 py-1 text-[12px] font-bold ${mine ? 'bg-[#fde047] text-[#05080f]' : canSwap && !queued ? 'bg-[#10b981] text-[#05080f] hover:brightness-110' : 'bg-white/[0.07] text-gray-600'}`}
+                        style={{ '--c': '4px' }}>{mine ? '대기' : '교체'}</button>
                     </li>
                   );
                 })}
