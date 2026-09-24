@@ -352,6 +352,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     aliveRef.current = true;
     (async () => {
       await sleep(600);
+      /* 플레이볼 직후 한 장 — 아래 이닝 넘김 판정은 1회를 잡지 못한다 */
+      if (!stop && aliveRef.current && midPickInnings.includes(1) && onMidPick) {
+        const first = await onMidPick(1);
+        if (first && aliveRef.current) {
+          const nextMy = rebuildMy?.(first);
+          if (nextMy) replaceTeam(g.home, engineTeam(nextMy));
+          aug.update(first, nextMy);
+          redraw();
+        }
+      }
       let half = { inning: g.inning, top: g.top, home: g.home.runs, away: g.away.runs };
       let inningNo = g.inning; // 지금 진행 중인 이닝
       let evAt = 0; // 이 이닝이 시작된 시점의 events 인덱스

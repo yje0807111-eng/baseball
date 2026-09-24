@@ -30,7 +30,8 @@ export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
-const MID_AUG_INNINGS = [3, 5, 7]; // 경기 중 이 이닝이 시작되기 전에 증강을 하나씩 더 고른다 (그 경기에만)
+/* 경기 중 증강은 두 번만 — 플레이볼 직후와 7회 시작 전. 자주 멈추면 경기 흐름이 끊긴다 */
+const MID_AUG_INNINGS = [1, 7];
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
@@ -5423,7 +5424,7 @@ const RULE_TABS = [
       { t: '증강은 언제 고르나요?', s: '시즌 시작 때 모드가 정한 개수만큼', b: <>
         <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중 하나</p>
         <p>매번 <b>3장 중 1장</b> · 3장은 <span className="rl-chip">실버</span> <span className="rl-chip g">골드</span> <span className="rl-chip">프리즘</span> 중 한 등급</p>
-        <p>경기 중에는 <b>3 · 5 · 7회</b>에 그 경기에서만 쓰는 증강 하나씩 더</p>
+        <p>경기 중에는 <b>플레이볼 직후</b>와 <b>7회 시작</b>에 그 경기에서만 쓰는 증강 하나씩 더</p>
       </> },
       { t: '증강은 어떤 종류가 있나요?', s: '같은 증강도 선수 구성에 따라 효과가 크게 다름', b: <>
         <div className="rl-kind">
