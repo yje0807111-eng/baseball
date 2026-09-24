@@ -463,8 +463,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         <div className="grid min-h-0 gap-3 p-3" style={{ gridTemplateColumns: '300px 1fr 320px' }}>
           {/* ── 왼쪽: 점수판과 타순 ── */}
           <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto minmax(0,1fr)' }}>
-            {/* 중계 스코어보드 — 구단 색 줄 둘(공격 중인 쪽에 AT BAT) 아래 회 · 볼카운트 · 주루 */}
-            <div className="mt-cut shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
+            {/* 중계 스코어보드 — 왼쪽에 회, 오른쪽에 구단 색 줄 둘(공격 중인 쪽에 AT BAT) */}
+            <div className="mt-cut flex shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
+              <span className="grid shrink-0 place-items-center px-3.5 py-2.5" style={{ background: 'rgba(255,255,255,.07)' }}>
+                {g.final ? (
+                  <b className="font-display text-[15px] font-extrabold text-white">END</b>
+                ) : (
+                  <>
+                    <b className="font-display text-[32px] font-extrabold leading-[0.8] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>{g.inning}</b>
+                    <i className="mt-px text-[13px] not-italic leading-none text-[#f87171]">{g.top ? '▲' : '▼'}</i>
+                  </>
+                )}
+              </span>
+              <div className="min-w-0 flex-1">
               {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
                 const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
                 const c = flag?.color || color;
@@ -479,22 +490,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   </div>
                 );
               })}
-              <div className="flex items-stretch border-t border-white/10">
-                <span className="grid shrink-0 place-items-center px-3" style={{ background: 'rgba(255,255,255,.07)' }}>
-                  {g.final ? (
-                    <b className="font-display text-[13px] font-extrabold text-white">END</b>
-                  ) : (
-                    <b className="font-display text-[21px] font-extrabold leading-none text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>
-                      {g.inning}<i className="ml-0.5 not-italic text-[#f87171]">{g.top ? '▲' : '▼'}</i>
-                    </b>
-                  )}
-                </span>
-                <span className="w-px shrink-0 bg-white/12" />
-                <span className="grid flex-1 place-items-center py-1">
-                  <Bso b={g.balls} s={g.strikes} o={g.outs} dot={14} font={13} off="rgba(255,255,255,.45)" lab="text-white/90" />
-                </span>
-                <span className="w-px shrink-0 bg-white/12" />
-                <span className="grid place-items-center px-1.5"><Diamond bases={g.bases} size={70} note={def.pitches} off="rgba(255,255,255,.45)" ink="rgba(255,255,255,.92)" /></span>
               </div>
             </div>
 
@@ -552,6 +547,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
                 bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
+
+              {/* 주루 · 볼카운트 — 구장 왼쪽 위 */}
+              <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-3.5 px-3.5 py-3"
+                style={{ clipPath: 'polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
+                <Diamond bases={g.bases} size={76} off="rgba(255,255,255,.45)" />
+                <span className="h-[62px] w-px bg-white/15" />
+                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" />
+              </div>
 
               {/* 결과 자막 */}
               {flash && (
