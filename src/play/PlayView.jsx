@@ -61,12 +61,23 @@ function Photo({ bg, dim }) {
   const src = chain[step];
   return (
     <>
-      <rect x="-400" y="-400" width={ART.w + 800} height={ART.h + 800} fill="#060c16" />
+      <defs>
+        <filter id="pv-haze" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="64" />
+        </filter>
+      </defs>
+      <rect x={-ART.w} y={-ART.h} width={ART.w * 3} height={ART.h * 3} fill="#060c16" />
       {src && (
-        <image key={src} href={src} x="0" y="0" width={ART.w} height={ART.h} preserveAspectRatio="xMidYMid slice"
-          onError={() => setStep((v) => v + 1)} />
+        <>
+          {/* 사진보다 화면이 넓다 — 남는 자리는 같은 사진을 키워 흐리게 깔아 메운다 */}
+          <image href={src} x={-ART.w * 0.34} y={-ART.h * 0.34} width={ART.w * 1.68} height={ART.h * 1.68}
+            preserveAspectRatio="xMidYMid slice" filter="url(#pv-haze)" />
+          <rect x={-ART.w} y={-ART.h} width={ART.w * 3} height={ART.h * 3} fill="#03060c" opacity="0.62" />
+          <image key={src} href={src} x="0" y="0" width={ART.w} height={ART.h} preserveAspectRatio="xMidYMid slice"
+            onError={() => setStep((v) => v + 1)} />
+        </>
       )}
-      <rect x="0" y="0" width={ART.w} height={ART.h} fill="#03060c" opacity={dim} />
+      <rect x={-ART.w} y={-ART.h} width={ART.w * 3} height={ART.h * 3} fill="#03060c" opacity={dim} />
     </>
   );
 }
@@ -229,13 +240,16 @@ export default function PlayView({
   const boxRef = useRef(null);
   // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
   const [u, setU] = useState(1);
+  const [ar, setAr] = useState(ART.w / ART.h); // 화면 가로세로 비
+  const zoom = (bg.field || bg).stage?.zoom || 0.82;
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return undefined;
     const read = () => {
       const { width, height } = el.getBoundingClientRect();
       if (!width || !height) return;
-      const s = Math.max(width / ART.w, height / ART.h);
+      setAr(width / height);
+      const s = Math.max(width * zoom / ART.w, height * zoom / ART.h);
       setU(Math.max(0.3, Math.min(1.6, 0.514 / s))); // 0.514 = 예전 칸 크기 기준
     };
     read();
@@ -243,19 +257,20 @@ export default function PlayView({
     const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [zoom]);
   const play = useMemo(() => buildPlay(event), [event]);
   const t = useClock(event, beatMs, paused);
   const field = bg.field || bg;
-  const box = `0 0 ${ART.w} ${ART.h}`;
+  // 구장을 화면에 꽉 채우면 위로는 외야수가 머리칸에, 아래로는 포수·타자가 작전 버튼에 가린다.
+  // 아트보다 넓은 창(vw × vh)을 잡아 그만큼 구장을 작게 그린다 — 남는 자리는 흐린 사진이 메운다.
+  const vw = ART.w / zoom;
+  const vh = vw / ar;
+  const box = [(ART.w - vw) / 2, (ART.h - vh) / 2 - (field.stage?.dy || 0), vw, vh].join(' ');
 
   return (
     <div ref={boxRef} className="relative h-full w-full overflow-hidden">
       <svg viewBox={box} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
-        {/* 화면을 꽉 채운 사진을 위아래로 밀어 맞춘다 */}
-        <g transform={`translate(0 ${field.stage?.dy || 0})`}>
-          <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={field} defense={defense || EMPTY_DEF} batter={batter} />
-        </g>
+        <FieldView play={play} t={t} u={u} bases={bases} offColor={offColor} defColor={defColor} bg={field} defense={defense || EMPTY_DEF} batter={batter} />
       </svg>
     </div>
   );
