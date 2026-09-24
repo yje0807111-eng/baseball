@@ -659,7 +659,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           </div>
 
           {/* ── 가운데: 구장과 작전 버튼 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: clutch ? '1fr auto 84px' : '1fr 84px' }}>
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: '1fr 54px 84px' }}>
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} paused={paused} bg={bg}
                 bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
@@ -697,23 +697,28 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </section>
 
             {/* 승부처 — 경기를 멈추고 아래에서 지시를 받는다. 구장 · 점수 · 주자는 이미 위에 떠 있다 */}
-            {clutch && (
-              <div className="mt-cut flex items-center gap-5 px-5 py-3.5 animate-[rise_.25s_ease-out_both]"
-                style={{ '--c': '14px', background: `linear-gradient(90deg,${tint(clutchColor, 30)},rgba(6,10,19,.76))`,
-                  boxShadow: `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}`,
-                  animation: 'rise .25s ease-out both, clutchPulse 1.5s ease-in-out .3s infinite' }}>
-                <p className="mt-lab shrink-0 text-[13px]" style={{ '--a': clutchColor }}>{clutch.weDefend ? 'Crisis' : 'Chance'}</p>
-                <b className="shrink-0 text-[21px] font-extrabold text-white">{clutch.head}</b>
-                <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>
-                <small className="truncate text-[13px] text-gray-300">
-                  {clutch.weDefend ? '상대' : '우리'} {clutch.batter?.name} {clutch.batter?.overall} 타석 · {clutch.pitcher?.name} {clutch.pitch}구
-                </small>
-                <span className="ml-auto flex shrink-0 items-baseline gap-2">
-                  <small className="text-[12.5px] text-gray-400">남은 지시</small>
-                  <b className="font-display text-[24px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
-                </span>
-              </div>
-            )}
+            {/* 작전 띠 — 평소에는 지금 자리를 담담히, 승부처에는 노랗게 물든다. 자리는 늘 같다 */}
+            <div className="mt-cut flex items-center gap-5 px-5"
+              style={{ '--c': '14px',
+                background: clutch ? `linear-gradient(90deg,${tint(clutchColor, 30)},rgba(6,10,19,.76))` : 'rgba(6,10,19,.55)',
+                boxShadow: clutch ? `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}` : 'inset 0 0 0 1px rgba(255,255,255,.08)',
+                animation: clutch ? 'clutchPulse 1.5s ease-in-out infinite' : 'none',
+                transition: 'background .25s, box-shadow .25s' }}>
+              <p className="mt-lab shrink-0 text-[13px]" style={{ '--a': clutch ? clutchColor : '#64748b' }}>
+                {clutch ? (clutch.weDefend ? 'Crisis' : 'Chance') : 'Orders'}
+              </p>
+              <b className="shrink-0 text-[19px] font-extrabold text-white">
+                {clutch ? clutch.head : `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`}
+              </b>
+              {clutch && <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>}
+              <small className="truncate text-[13px] text-gray-300">
+                {mineBat ? '우리' : '상대'} {batter?.name} {batter?.overall} 타석 · {pitcher?.name} {def.pitches}구
+              </small>
+              <span className="ml-auto flex shrink-0 items-baseline gap-2">
+                <small className="text-[12.5px] text-gray-400">{clutch ? '남은 지시' : '아래에서 지시'}</small>
+                {clutch && <b className="font-display text-[24px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>}
+              </span>
+            </div>
             {/* 작전 버튼 — 승부처에는 이 줄이 답을 받는 자리가 된다 */}
             <div className="flex items-stretch gap-2.5">
               {ACTS.map(([ic, t, s, fn, on]) => {

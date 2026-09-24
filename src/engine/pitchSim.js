@@ -125,20 +125,23 @@ function choosePitch(g, pitcher, order) {
   const r = g.rng();
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
+  /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
+  const picked = order?.pitchType ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
   const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
   if (order?.zone === 'chase') inZone = Math.min(inZone, 0.25);
-  if (typeof order?.zone === 'number') { inZone = clamp(inZone + 0.1, 0, 0.9); zone = order.zone; }
+  /* 코스를 찍으면 존 구석을 노린다 — 들어갈 확률은 조금 오르지만 맞히기는 어렵다 */
+  if (typeof order?.zone === 'number') { inZone = clamp(inZone + 0.06, 0, 0.9); zone = order.zone; }
   const isIn = g.rng() < inZone;
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
   /* 구위 60 이면 그 구종의 가장 느린 쪽, 105 면 가장 빠른 쪽 — 능력치 눈금(50~110)에 맞춘 폭 */
   const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
-  return { type, zone, inZone: isIn, velo, tired };
+  return { type, zone, inZone: isIn, velo, tired, picked, corner: typeof order?.zone === 'number' };
 }
 
 function advance(g, n, batter, extra = {}) {
@@ -254,8 +257,10 @@ export function pitch(g, orders = {}) {
 
   const contact = st(batter, 'contact') + tb(off, 'bat');
   const power = st(batter, 'power') + tb(off, 'bat');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
-  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.1 : -0.08) : 0;
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
+  /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
+  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
+  const cornerPen = p.corner ? 0.07 : 0; // 구석에 꽂힌 공은 맞히기 어렵다
 
   // 스윙 여부
   let swing;
@@ -267,7 +272,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus); }
