@@ -16,6 +16,11 @@ import {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
+/* 승부처에 화면을 한 번 붙잡는 빛 */
+const CLUTCH_CSS = `
+@keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
+@keyframes clutchEdge { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+`;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
 export const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
@@ -536,6 +541,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       onPointerLeave={() => hold(false)}
       onContextMenu={(e) => e.preventDefault()}>
       <UiStyle />
+      <style>{CLUTCH_CSS}</style>
+      {/* 승부처에는 화면 가장자리에 빛이 돌아 딴 데 보고 있어도 눈에 든다 */}
+      {clutch && (
+        <span aria-hidden="true" className="pointer-events-none fixed inset-0 z-40"
+          style={{ boxShadow: `inset 0 0 0 3px ${clutchColor}, inset 0 0 90px -20px ${clutchColor}`, animation: "clutchEdge 1.5s ease-in-out infinite" }} />
+      )}
 
       <div className="grid h-full" style={{ gridTemplateRows: '63px 1fr' }}>
         {/* 헤더 */}
@@ -687,18 +698,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 승부처 — 경기를 멈추고 아래에서 지시를 받는다. 구장 · 점수 · 주자는 이미 위에 떠 있다 */}
             {clutch && (
-              <div className="mt-cut flex items-center gap-4 px-4 py-2.5 animate-[rise_.25s_ease-out_both]"
-                style={{ '--c': '12px', background: `linear-gradient(90deg,${tint(clutchColor, 22)},rgba(6,10,19,.72))`,
-                  boxShadow: `inset 0 0 0 1px ${tint(clutchColor, 55)}, 0 0 28px -8px ${clutchColor}` }}>
-                <p className="mt-lab shrink-0" style={{ '--a': clutchColor }}>{clutch.weDefend ? 'Crisis' : 'Chance'}</p>
-                <b className="shrink-0 text-[17px] font-extrabold text-white">{clutch.head}</b>
-                <small className="shrink-0 text-[13px] text-gray-300">{clutch.lead}</small>
-                <small className="truncate text-[12.5px] text-gray-400">
+              <div className="mt-cut flex items-center gap-5 px-5 py-3.5 animate-[rise_.25s_ease-out_both]"
+                style={{ '--c': '14px', background: `linear-gradient(90deg,${tint(clutchColor, 30)},rgba(6,10,19,.76))`,
+                  boxShadow: `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}`,
+                  animation: 'rise .25s ease-out both, clutchPulse 1.5s ease-in-out .3s infinite' }}>
+                <p className="mt-lab shrink-0 text-[13px]" style={{ '--a': clutchColor }}>{clutch.weDefend ? 'Crisis' : 'Chance'}</p>
+                <b className="shrink-0 text-[21px] font-extrabold text-white">{clutch.head}</b>
+                <small className="shrink-0 text-[14px] font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>
+                <small className="truncate text-[13px] text-gray-300">
                   {clutch.weDefend ? '상대' : '우리'} {clutch.batter?.name} {clutch.batter?.overall} 타석 · {clutch.pitcher?.name} {clutch.pitch}구
                 </small>
-                <span className="ml-auto flex shrink-0 items-baseline gap-1.5">
-                  <small className="text-[12px] text-gray-400">남은 지시</small>
-                  <b className="font-display text-[19px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
+                <span className="ml-auto flex shrink-0 items-baseline gap-2">
+                  <small className="text-[12.5px] text-gray-400">남은 지시</small>
+                  <b className="font-display text-[24px] font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
                 </span>
               </div>
             )}
