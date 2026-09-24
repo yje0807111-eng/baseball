@@ -122,10 +122,10 @@ const PLAY = 1;
 const AUTO = 3.5; // 자동 진행 — 지시를 묻지 않는다
 const SKIP = 0; // 배속이 아니라 "남은 경기를 목표 시간 안에 끝내기" — skipSpeed 가 공마다 배속을 다시 잡는다
 const HOLD = 5; // 화면을 꾹 누르거나 스페이스바를 누르고 있는 동안
-const MODES = [['보통', PLAY], ['자동', AUTO], ['스킵', SKIP]];
-const COUNT_MS = 400; // 공 하나 사이 — 볼카운트는 촤르륵 넘어간다
-const RESULT_MS = 2000; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
-const BIG_MS = 2800; // 홈런 · 병살 · 삼진처럼 큰 결과
+const MODES = [['1×', PLAY], ['2×', 2], ['3×', 3], ['자동', AUTO], ['스킵', SKIP]];
+const COUNT_MS = 750; // 공 하나 사이 — 투구가 늘 같은 속도라 이만큼은 있어야 공이 다 온다
+const RESULT_MS = 2400; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
+const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
 const RESIST_MS = 800; // 꾹 누르는 중에 승부처가 오면 잠깐 저항한다 (손을 떼면 만날 수 있게)
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
@@ -323,8 +323,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     if (holdRef.current) return Date.now() < resistRef.current ? 1.5 : HOLD;
     return speedRef.current;
   };
-  /** 지금 지시를 묻지 않는 상태인가 — 자동 · 스킵 · 꾹 누르는 중 */
-  const quiet = () => speedRef.current !== PLAY || holdRef.current;
+  /** 지금 지시를 묻지 않는 상태인가 — 자동 · 스킵 · 꾹 누르는 중. 배속(2× · 3×)은 묻는다 */
+  const quiet = () => speedRef.current === AUTO || speedRef.current === SKIP || holdRef.current;
   const flashMs = () => (quiet() ? 300 : 1400); // 몰아서 넘길 땐 자막도 짧게
   /** 속도 고르기. SKIP 은 목표 시각을 새로 잡고, 지시를 기다리던 중이면 정면 승부로 넘긴다 */
   const pickSpeed = (v) => {
@@ -542,7 +542,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
-                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : v === AUTO ? '지시 없이 끝까지 진행' : '보통 속도 — 화면을 꾹 누르면 빨리감기'}
+                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : v === AUTO ? '지시 없이 끝까지 진행' : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>

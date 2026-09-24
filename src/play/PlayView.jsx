@@ -249,7 +249,7 @@ export default function PlayView({
     ro.observe(el);
     return () => ro.disconnect();
   }, [zoom]);
-  const play = useMemo(() => buildPlay(event), [event]);
+  const play = useMemo(() => buildPlay(event, beatMs), [event, beatMs]);
   const t = useClock(event, beatMs, paused);
   const field = bg.field || bg;
   // 구장을 화면에 꽉 채우면 위로는 외야수가 머리칸에, 아래로는 포수·타자가 작전 버튼에 가린다.

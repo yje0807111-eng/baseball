@@ -78,7 +78,13 @@ export function runPath(from, to, off = 0) {
 }
 
 /* ───────── 대본 ───────── */
-const CUT = 0.44; // 인플레이일 때 존 뷰 → 필드 뷰로 넘어가는 시점
+/*
+ * 대본의 시간은 0~1 이지만 투구만은 늘 같은 초를 쓴다 — 공 하나에 주는 시간(beatMs)이
+ * 길어져도 공이 늘어지지 않고, 남는 시간은 타구 · 주루 · 자막이 가져간다.
+ */
+const PITCH_WIND = 40;  // 와인드업
+const PITCH_FLY = 420;  // 공이 마운드에서 홈까지
+const CUT_AFTER = 90;   // 맞고 나서 타구가 시작되기까지
 
 /** 그 공이 존 뷰 어디에 꽂혔는지 — 지나간 공을 다시 찍을 때도 같은 자리가 나온다 */
 export function pitchTarget(ev) {
@@ -91,27 +97,31 @@ export function pitchTarget(ev) {
   ];
 }
 
-export function buildPlay(ev) {
+export function buildPlay(ev, beatMs = 1200) {
   if (!ev) return null;
   const beats = [];
   const p = ev.pitch;
   const swung = ['swinging', 'foul', 'inplay'].includes(ev.call);
+  const ms = Math.max(240, beatMs);
+  const P0 = Math.min(0.06, PITCH_WIND / ms);
+  const P1 = Math.min(0.66, (PITCH_WIND + PITCH_FLY) / ms); // 공이 홈에 닿는 때
+  const CUT = Math.min(0.62, P1 + CUT_AFTER / ms);
 
   // 1. 투구 — 마운드에서 존으로. 변화구는 늦게 휜다
   if (p) {
     const bend = { fast: [0, -0.04], slider: [-0.24, 0.06], change: [0.06, 0.2] }[p.type] || [0, 0];
-    beats.push({ kind: 'pitch', t0: 0.06, t1: 0.4, from: [0.06, -0.45], to: pitchTarget(ev), bend, type: p.type, velo: p.velo, inZone: p.inZone });
+    beats.push({ kind: 'pitch', t0: P0, t1: P1, from: [0.06, -0.45], to: pitchTarget(ev), bend, type: p.type, velo: p.velo, inZone: p.inZone });
   }
   // 2. 스윙 / 판정
-  if (swung) beats.push({ kind: 'swing', t0: 0.32, t1: 0.48, contact: ev.call !== 'swinging' });
+  if (swung) beats.push({ kind: 'swing', t0: Math.max(0, P1 - 0.08), t1: Math.min(1, P1 + 0.08), contact: ev.call !== 'swinging' });
   if (ev.call !== 'inplay') {
     const label = { ball: '볼', called: '스트라이크', swinging: '헛스윙', foul: '파울', ibb: '고의사구' }[ev.call];
-    if (label) beats.push({ kind: 'call', t0: 0.44, t1: 1, label, tone: ev.call === 'ball' ? 'ball' : 'strike' });
+    if (label) beats.push({ kind: 'call', t0: Math.min(0.95, P1 + 0.03), t1: 1, label, tone: ev.call === 'ball' ? 'ball' : 'strike' });
   }
   // 3. 도루 — 투구와 함께 출발한다
   if (ev.steal) {
     beats.push({
-      kind: 'steal', t0: 0.05, t1: 0.7, player: ev.steal.runner, ok: ev.steal.ok,
+      kind: 'steal', t0: P0, t1: Math.min(0.95, CUT + 0.2), player: ev.steal.runner, ok: ev.steal.ok,
       path: runPath(ev.steal.from, ev.steal.from + 1),
     });
   }
