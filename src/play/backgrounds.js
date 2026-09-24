@@ -1,13 +1,12 @@
 /*
  * 플레이 뷰 배경.
  *
- * kind 'field' 는 위에서 본 그라운드(타구·주자), 'zone' 은 타석 시점(투구).
+ * 위에서 본 그라운드 사진 — 투구도 타구도 이 한 화면에서 벌어진다.
  * 사진에는 아무도 없다 — 투수·야수·주자는 전부 PlayView 가 그려서 올린다.
  *
  * src        저장소 안 파일. 아직 없으면 remoteSrc 로 떨어진다(개발 중 비교용).
  * remoteSrc  생성 원본. `node scripts/fetch-ui-art.mjs <id>` 로 src 자리에 받는다.
- * marks      사진에서 잰 홈·1루·2루·3루 픽셀 자리 (필드). play-lab 의 '다이아몬드 자'로 맞춘다.
- * mound·zone 투수 발자리와 스트라이크존 상자 (존). play-lab 의 '존 보정'으로 맞춘다.
+ * marks      사진에서 잰 홈·1루·2루·3루 픽셀 자리. play-lab 의 '다이아몬드 자'로 맞춘다.
  */
 import { marksFrom } from './fieldMap.js';
 
@@ -25,8 +24,8 @@ const STEEP = marksFrom({ homeY: 790, sideY: 565, secondY: 395, halfW: 340 });
 
 /* 새 부감 구장(park-16.webp) — 사진에서 잰 베이스 자리. 홈 800,776 · 1루 1245,502 · 2루 800,383 · 3루 352,502 */
 const PARK = marksFrom({ homeY: 776, sideY: 502, secondY: 383, halfW: 445 });
-/* 이 사진은 홈이 더 아래에 찍혀 있다 — 타석이 작전 버튼에 가리지 않게 그만큼 더 올린다 */
-const PARK_STAGE = { dy: -145 };
+/* 구장은 제 칸 안에 있다 — 사진이 칸을 꽉 덮는다 */
+const PARK_STAGE = { dy: 0, zoom: 1 };
 
 export const FIELD_BGS = [
   { id: 'park-night', stage: PARK_STAGE, name: '0 · 야간 도심 부감 ★새', src: 'ui/field/park-16.webp', marks: PARK },
@@ -44,22 +43,4 @@ export const FIELD_BGS = [
   { id: 'field-stadium', stage: STAGE, name: '야간 도심 구장(기존 아트)', src: 'ui/stadium.webp', marks: marksFrom({ homeY: 712, sideY: 599, secondY: 533, halfW: 303 }) },
 ];
 
-/* 존 뷰 기준: 배경은 빈 마운드, 투수는 PlayView 가 그린다. 아직 눈으로 맞추지 못한 어림값 */
-/* 화면을 꽉 채우면 위는 점수판, 아래는 작전 버튼이 가린다 — 투수와 존이 그 사이(아트 y 270~690)에
-   들어가야 한다. 투수 머리 ≈280 · 발 374 · 존 상자 404~674 */
-const ZSPEC = {
-  mound: [800, 374],                            // 마운드에 선 투수의 발자리
-  pitcherH: 100,                                // 그려 올릴 투수 키
-  zone: { cx: 806, cy: 539, hw: 122, hh: 135 }, // 스트라이크존 상자
-};
-
-export const ZONE_BGS = [
-  { id: 'zone-a', name: 'A · 빈 마운드, 포수 눈높이 ★', src: 'ui/zone-a.webp', remoteSrc: gen2('ff28145e-9776-4010-b059-e30783eae655'), ...ZSPEC },
-  { id: 'zone-b', name: 'B · 빈 마운드, 조금 높게', src: 'ui/zone-b.webp', remoteSrc: gen2('e7cb94b0-e44a-4259-8898-61eb0d36d8ba'), ...ZSPEC },
-  { id: 'zone-c', name: 'C · 빈 마운드, 아웃포커스', src: 'ui/zone-c.webp', remoteSrc: gen2('156f6a35-7b66-4a4c-8a2d-27c0729170c3'), ...ZSPEC },
-  { id: 'zone-d', name: 'D · 빈 마운드, 안개·역광', src: 'ui/zone-d.webp', remoteSrc: gen2('f2e9f091-85ea-431d-a886-1d8898cf84a2'), ...ZSPEC },
-  // 사진에 투수가 박힌 예전 배경 — 우리 투수를 겹쳐 그리지 않는다
-  { id: 'zone-old', name: '예전 배경(투수 있음)', src: 'ui/plate-view.webp', hasPitcher: true, release: [820, 200], zone: { cx: 806, cy: 539, hw: 122, hh: 135 } },
-];
-
-export const DEFAULT_BG = { field: FIELD_BGS[0], zone: ZONE_BGS[0] };
+export const DEFAULT_BG = FIELD_BGS[0];

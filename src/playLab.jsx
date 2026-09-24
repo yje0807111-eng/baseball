@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import BroadcastGame from './BroadcastGame.jsx';
 import PlayView from './play/PlayView.jsx';
-import { FIELD_BGS, ZONE_BGS } from './play/backgrounds.js';
+import { FIELD_BGS } from './play/backgrounds.js';
 import { makeMapper, marksFrom, ART, BASE_FIELD } from './play/fieldMap.js';
 import { spot, fenceAt } from './play/playScript.js';
 import { randomSeriesTeam } from './myteam/aiTeam.js';
@@ -61,14 +61,11 @@ const Pick = ({ on, onClick, children }) => (
 );
 
 function Lab() {
-  const [zi, setZi] = useState(0);
   const [fi, setFi] = useState(0);
   const [ci, setCi] = useState(0);
   const [guide, setGuide] = useState(false);
   const [cal, setCal] = useState({ homeY: 731, sideY: 548, secondY: 450, halfW: 324 });
   const [auto, setAuto] = useState(true);
-  const [zcal, setZcal] = useState({ moundY: 470, zoneY: 608, zoneH: 196 });
-  const [drawP, setDrawP] = useState(false); // 사진에 투수가 박힌 임시 배경에서도 그려 보기
   useEffect(() => {
     if (!auto) return undefined;
     const h = setInterval(() => setCi((v) => (v + 1) % CASES.length), 3200);
@@ -76,37 +73,16 @@ function Lab() {
   }, [auto]);
 
   const marks = useMemo(() => marksFrom(cal), [cal]);
-  const z = ZONE_BGS[zi];
-  const bg = {
-    zone: {
-      ...z,
-      hasPitcher: drawP ? false : z.hasPitcher,
-      mound: [z.mound?.[0] ?? 800, zcal.moundY],
-      zone: { ...(z.zone || {}), cy: zcal.zoneY, hh: zcal.zoneH, hw: Math.round(zcal.zoneH * 0.8) },
-    },
-    field: { ...FIELD_BGS[fi], marks },
-  };
+  const bg = { ...FIELD_BGS[fi], marks };
   const [label, ev] = CASES[ci];
 
   return (
     <div className="min-h-dvh bg-[#05080f] p-4 text-gray-200">
       <div className="mb-3 flex flex-col gap-2">
-        <Row label="ZONE 배경">{ZONE_BGS.map((b, i) => <Pick key={b.id} on={i === zi} onClick={() => setZi(i)}>{b.name}</Pick>)}</Row>
         <Row label="FIELD 배경">{FIELD_BGS.map((b, i) => <Pick key={b.id} on={i === fi} onClick={() => setFi(i)}>{b.name}</Pick>)}</Row>
         <Row label="상황">
           {CASES.map(([n], i) => <Pick key={n} on={i === ci} onClick={() => { setAuto(false); setCi(i); }}>{n}</Pick>)}
           <Pick on={auto} onClick={() => setAuto((v) => !v)}>자동 넘김</Pick>
-        </Row>
-        <Row label="존 보정">
-          <Pick on={drawP} onClick={() => setDrawP((v) => !v)}>투수 그리기</Pick>
-          {[['moundY', '마운드 Y', 320, 640], ['zoneY', '존 Y', 420, 800], ['zoneH', '존 크기', 120, 280]].map(([k, n, lo, hi]) => (
-            <label key={k} className="flex items-center gap-1.5 text-[11px] text-gray-400">
-              {n}
-              <input type="range" min={lo} max={hi} value={zcal[k]} onChange={(e) => setZcal((c) => ({ ...c, [k]: +e.target.value }))} className="w-24" />
-              <em className="w-9 font-display not-italic text-gray-200">{zcal[k]}</em>
-            </label>
-          ))}
-          <code className="bg-white/[0.06] px-2 py-1 text-[11px] text-emerald-300">{JSON.stringify(zcal)}</code>
         </Row>
         <Row label="필드 보정">
           <Pick on={guide} onClick={() => setGuide((v) => !v)}>다이아몬드 자</Pick>
@@ -121,9 +97,9 @@ function Lab() {
         </Row>
       </div>
 
-      <p className="mb-1.5 font-display text-sm text-yellow-300">{label} — {bg.zone.name} / {bg.field.name}</p>
+      <p className="mb-1.5 font-display text-sm text-yellow-300">{label} — {bg.name}</p>
       <div className="relative" style={{ width: 816, height: 500, maxWidth: '100%' }}>
-        <PlayView event={ev} atBat={[ev]} beatMs={2600} bases={ev.before.bases} offColor="#34d399" defColor="#f87171" bg={bg} />
+        <PlayView event={ev} beatMs={2600} bases={ev.before.bases} offColor="#34d399" defColor="#f87171" bg={bg} />
         {guide && <Guide marks={marks} />}
       </div>
       <p className="mt-2 text-[12px] text-gray-500">
@@ -135,7 +111,7 @@ function Lab() {
 
 const q = new URLSearchParams(location.search);
 const my = randomSeriesTeam(); const opp = randomSeriesTeam();
-const fullBg = { zone: ZONE_BGS[Number(q.get('z') || 0)], field: FIELD_BGS[Number(q.get('f') || 0)] };
+const fullBg = FIELD_BGS[Number(q.get('f') || 0)];
 createRoot(document.getElementById('root')).render(
   q.has('full')
     ? <BroadcastGame my={{ ...my, name: '우리 팀' }} opp={opp} bg={fullBg} onFinish={() => {}} onExit={() => {}} />

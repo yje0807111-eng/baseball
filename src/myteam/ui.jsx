@@ -163,6 +163,37 @@ export function teamStats(squad = []) {
 }
 
 /** 눈금 게이지 (드래프트 화면 샐러리 캡 바 문법) */
+/* 칸 색 — 왼쪽 찬 물빛에서 오른쪽 금빛까지. 멀리 갈수록 진해지고 밝아진다 */
+const CELL_HUE = [[0, 198], [0.26, 160], [0.46, 104], [0.64, 62], [0.82, 38], [1, 20]];
+const cellTone = (t) => {
+  let h = 36;
+  for (let i = 1; i < CELL_HUE.length; i += 1) {
+    const [p0, h0] = CELL_HUE[i - 1]; const [p1, h1] = CELL_HUE[i];
+    if (t <= p1) { h = h0 + (h1 - h0) * ((t - p0) / (p1 - p0)); break; }
+  }
+  return `hsl(${h.toFixed(0)} ${(64 + 30 * t).toFixed(0)}% ${(45 + 12 * t).toFixed(0)}%)`;
+};
+
+/**
+ * 능력치 칸 막대 — 칸 폭과 사이가 늘 정수라 눈금이 삐뚤어지지 않는다.
+ * 40 이하는 빈 칸, 120 이면 꽉 참 — 70 과 90 의 차이가 한눈에 갈린다.
+ * 색을 주지 않으면 칸마다 물빛 → 금빛으로 달아오르고, 끝 칸은 빛을 낸다.
+ */
+export const StatCells = ({ v, width = 202, cell = 10, gap = 2, lo = 40, hi = 120, color = null, h = 11 }) => {
+  const n = Math.max(1, Math.floor((width + gap) / (cell + gap)));
+  const on = Math.round(Math.max(0, Math.min(1, ((v ?? lo) - lo) / (hi - lo))) * n);
+  return (
+    <span className="flex" style={{ width: n * cell + (n - 1) * gap, height: h, gap }}>
+      {Array.from({ length: n }, (_, i) => {
+        if (i >= on) return <i key={i} style={{ width: cell, background: 'rgba(255,255,255,.07)' }} />;
+        const tone = color || cellTone((i + 0.5) / n);
+        const last = i === on - 1;
+        return <i key={i} style={{ width: cell, background: tone, boxShadow: last ? `0 0 7px ${tone}` : undefined }} />;
+      })}
+    </span>
+  );
+};
+
 export const SegBar = ({ pct, width = 200, ticks = 20, over }) => (
   <span className="relative block h-2.5 bg-white/[0.06] shadow-[inset_0_0_0_1px_rgba(255,255,255,.1)]" style={{ width }}>
     <span className="absolute inset-y-0 left-0" style={{ width: `${Math.min(100, pct)}%`, background: over ? '#f87171' : 'linear-gradient(90deg,#10b981,#fde047)' }} />
