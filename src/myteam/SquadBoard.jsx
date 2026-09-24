@@ -600,10 +600,15 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
 
           {/* 오른쪽: 로테이션 · 불펜 · 벤치 */}
           <div className="flex min-h-0 flex-col">
-            {/* 선발 · 마무리 · 불펜을 한 판에 — 머리글만 사이에 끼우고 줄은 하나의 칸 번호를 쓴다(타순 줄과 같은 방식) */}
+            {/* 선발 · 마무리 · 불펜을 한 판에 — 머리글만 사이에 끼우고 줄은 하나의 칸 번호를 쓴다(타순 줄과 같은 방식).
+                야수를 끄는 동안에는 놓을 수 없는 구역이라 판 전체를 회색으로 내린다 */}
             <Slots count={pitchRows.length} slots={fitSlots ? pitchRows.length : PLAY_LIMIT.SP + PLAY_LIMIT.RP} maxH={48}
               heads={pitchHeads}
-              style={fitSlots ? { flex: `0 0 ${pitchRows.length * 46 + 20 * pitchHeads.length}px` } : { flex: 1 }}>
+              style={{
+                ...(fitSlots ? { flex: `0 0 ${pitchRows.length * 46 + 20 * pitchHeads.length}px` } : { flex: 1 }),
+                ...(movingFielder ? { filter: 'grayscale(1) brightness(.62)', opacity: 0.42, pointerEvents: 'none' } : null),
+                transition: 'filter .16s, opacity .16s',
+              }}>
               {(h, pitch, topOf) => stable(pitchRows).map((p) => pitRow(p, pitchRows.indexOf(p) < SP_N ? 'rotation' : 'bullpen', pitchRows.indexOf(p), h, pitch, topOf))}
             </Slots>
             <div className="h-1.5 shrink-0" />
