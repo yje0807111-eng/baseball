@@ -418,6 +418,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
   const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
   const myPen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1, g.home.pitcherIdx + 5);
+  const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
@@ -683,13 +684,21 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <ul className="space-y-1 px-2 pb-2">
                 {myPen.length === 0 && <li className="px-2 py-1.5 text-[12px] text-gray-500">남은 투수 없음</li>}
                 {myPen.map((p) => {
-                  const tired = p.condition != null && p.condition < 100;
+                  const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
+                  const tone = cond >= 85 ? '#34d399' : cond >= 60 ? '#fbbf24' : '#f87171';
                   return (
-                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px minmax(0,1fr) auto 28px', gap: 8, padding: '4px 9px', '--c': '5px', '--a': cMy }}>
+                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px minmax(0,1fr) 26px 58px auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
                       <Portrait player={p} w={22} h={28} color={cMy} />
                       <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
-                      <span className="mt-chip" style={{ '--a': tired ? '#fbbf24' : '#34d399' }}>{tired ? `${p.condition}%` : '대기'}</span>
                       <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{p.overall}</em>
+                      <span className="flex items-center gap-1.5" title={`체력 ${cond}`}>
+                        <i className="block h-[5px] flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone }} /></i>
+                        <em className="w-[18px] text-right font-display text-[11px] font-bold not-italic" style={{ color: tone }}>{cond}</em>
+                      </span>
+                      <button type="button" disabled={!canSwap} onClick={() => give({ changePitcher: p.id })}
+                        title={canSwap ? `${p.name} 으로 바꾼다` : '내 수비 때만 바꾼다'}
+                        className={`mt-cut px-2 py-1 text-[12px] font-bold ${canSwap ? 'bg-[#10b981] text-[#05080f] hover:brightness-110' : 'bg-white/[0.07] text-gray-600'}`}
+                        style={{ '--c': '4px' }}>교체</button>
                     </li>
                   );
                 })}
