@@ -512,7 +512,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
                   <div key={k} className="flex items-center gap-2">
                     <span className="w-[30px] font-display text-[10px] tracking-[0.12em] text-gray-400">{k}</span>
-                    <StatCells v={v} width={202} color={battingColor} />
+                    <StatCells v={v} width={202} />
                     <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-300">{v}</em>
                   </div>
                 ))}
@@ -646,7 +646,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   {[['체력', Math.round(stamina), 0, 100], ['구위', st(pitcher, 'stuff'), 40, 120], ['제구', st(pitcher, 'control'), 40, 120]].map(([k, v, lo, hi]) => (
                     <div key={k} className="flex items-center gap-2">
                       <span className="w-[30px] font-display text-[11px] tracking-[0.12em] text-gray-400">{k}</span>
-                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={k === '체력' && v <= 40 ? '#f87171' : pitchingColor} />
+                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={k === '체력' && v <= 40 ? '#f87171' : null} />
                       <em className="ml-auto font-display text-[13px] font-bold not-italic text-gray-200">{v}</em>
                     </div>
                   ))}
@@ -663,7 +663,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   {[['직구', mix.fast], ['슬라이더', mix.slider], ['체인지업', mix.change]].map(([n, v]) => (
                     <li key={n} className="flex items-center gap-2">
                       <b className="w-[62px] shrink-0 text-[12px] font-semibold text-gray-200">{n}</b>
-                      <StatCells v={v * 100} lo={0} hi={60} width={158} cell={8} h={7} color={pitchingColor} top={pitchingColor} />
+                      <StatCells v={v * 100} lo={0} hi={60} width={158} cell={8} h={7} color={pitchingColor} />
                       <em className="ml-auto font-display text-[12px] font-bold not-italic text-gray-400">{Math.round(v * 100)}%</em>
                     </li>
                   ))}
