@@ -24,8 +24,8 @@ const STEEP = marksFrom({ homeY: 790, sideY: 565, secondY: 395, halfW: 340 });
 
 /* 새 부감 구장(park-16.webp) — 사진에서 잰 베이스 자리. 홈 800,776 · 1루 1245,502 · 2루 800,383 · 3루 352,502 */
 const PARK = marksFrom({ homeY: 776, sideY: 502, secondY: 383, halfW: 445 });
-/* 구장은 이제 제 칸 안에 있다 — 칸을 거의 꽉 채우고 위아래 보정은 두지 않는다 */
-const PARK_STAGE = { dy: 0, zoom: 0.98 };
+/* 구장은 제 칸 안에 있다 — 사진이 칸을 꽉 덮는다 */
+const PARK_STAGE = { dy: 0, zoom: 1 };
 
 export const FIELD_BGS = [
   { id: 'park-night', stage: PARK_STAGE, name: '0 · 야간 도심 부감 ★새', src: 'ui/field/park-16.webp', marks: PARK },

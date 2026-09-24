@@ -465,14 +465,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto minmax(0,1fr)' }}>
             {/* 중계 스코어보드 — 왼쪽에 회, 오른쪽에 구단 색 줄 둘(공격 중인 쪽에 AT BAT) */}
             <div className="mt-cut flex shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
-              <span className="grid shrink-0 place-items-center px-3.5 py-2.5" style={{ background: 'rgba(255,255,255,.07)' }}>
+              <span className="flex shrink-0 flex-col items-center justify-center px-3.5 py-2.5" style={{ background: 'rgba(255,255,255,.07)' }}>
                 {g.final ? (
                   <b className="font-display text-[15px] font-extrabold text-white">END</b>
                 ) : (
                   <>
                     <b className="font-display text-[32px] font-extrabold leading-[0.8] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>{g.inning}</b>
                     {/* 글자 ▲▼ 는 위아래 빈 곳이 넓어 숫자에 붙지 않는다 — 직접 그린다 */}
-                    <svg width="22" height="11" viewBox="0 0 22 11" className="mt-0.5" aria-hidden><path d={g.top ? 'M11 0 L22 11 L0 11 Z' : 'M0 0 L22 0 L11 11 Z'} fill="#f87171" /></svg>
+                    <svg width="20" height="14" viewBox="0 0 20 14" className="mt-1" aria-hidden><path d={g.top ? 'M10 0 L20 14 L0 14 Z' : 'M0 0 L20 0 L10 14 Z'} fill="#f87171" /></svg>
                   </>
                 )}
               </span>

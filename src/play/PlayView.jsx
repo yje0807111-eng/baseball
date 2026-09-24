@@ -241,9 +241,9 @@ export default function PlayView({
   // 배경 아트가 화면에 얼마나 확대돼 그려지는지 — 오버레이는 그 반대로 줄여 늘 같은 크기로 보인다
   const [u, setU] = useState(1);
   const [ar, setAr] = useState(ART.w / ART.h); // 화면 가로세로 비
-  const want = (bg.field || bg).stage?.zoom || 0.82;
-  // 칸이 옆으로 길면 그만큼 더 줄여야 구장 위아래가 잘리지 않는다
-  const zoom = Math.min(want, (ART.w / ART.h / ar) * 0.97);
+  const want = (bg.field || bg).stage?.zoom || 1;
+  // 사진이 칸을 여백 없이 덮게 — 칸이 세로로 길면 그만큼 더 키운다
+  const zoom = Math.max(want, ART.w / ART.h / ar);
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return undefined;
