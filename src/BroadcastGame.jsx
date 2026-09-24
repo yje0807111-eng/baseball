@@ -505,21 +505,23 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
   const mineBat = !g.top; // 내가 치는 회
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
-  /* 아래 작전 — 치는 회와 막는 회가 다르다. [그림, 이름, 한 마디, 누르면, 눌리는가] */
+  /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
+  const onePoint = g.inning >= 7 && Math.abs(g.home.runs - g.away.runs) <= 1;
+  /* 아래 작전 — 치는 회와 막는 회가 다르다. [그림, 이름, 언제 쓰나, 누르면, 눌리는가] */
   const ACTS = mineBat
     ? [
-      ['🏃', '도루', on1 ? `${Math.round(steal0 * 100)}%` : on2 ? '2루 주자' : '주자 없음',
+      ['🏃', '도루', on1 ? `${Math.round(steal0 * 100)}% · ${onePoint ? '한 점이 급할 때' : '되면 크다'}` : on2 ? '2루 주자' : '주자 없음',
         () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2])],
-      ['🪃', '번트', on1 || on2 ? '주자 진루' : '기습', () => give({ bunt: true }), true],
-      ['🏹', '히트앤런', on1 ? '주자 먼저 뛴다' : '1루 주자 없음', () => give({ hitAndRun: true }), on1],
-      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}%`, () => give({ guess: 'fast' }), true],
-      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ guess: 'slider' }), true],
+      ['🪃', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true],
+      ['🏹', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1],
+      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true],
+      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true],
     ]
     : [
-      ['🎯', '몸쪽 승부', '헛스윙 유도', () => give({ zone: 0 }), true],
-      ['🧊', '유인구', '참으면 볼', () => give({ zone: 'chase' }), true],
-      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}%`, () => give({ pitchType: 'fast' }), true],
-      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}%`, () => give({ pitchType: 'slider' }), true],
+      ['🎯', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true],
+      ['🧊', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true],
+      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true],
+      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true],
       ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true],
     ];
   const batter = batterOf(g);
