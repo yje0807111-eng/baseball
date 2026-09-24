@@ -13,24 +13,24 @@ export const BASE = [
   { key: 'run', ko: '주루', color: '#fbbf24', opts: ['적극', '보통', '신중'] },
 ];
 /**
- * 성향 축 여덟 — 한 경기 내내 쓰는 기울기다. 왼쪽이 소극, 가운데가 보통, 오른쪽이 적극.
- * "이 타석에 번트" 같은 낱낱의 지시가 아니라 "작전을 얼마나 거는 편인가" 를 정한다.
+ * 성향 축 — 경기가 알아서 판단하는 자리의 기울기다. 왼쪽이 소극, 가운데가 보통, 오른쪽이 적극.
+ * 번트 · 히트앤런 · 도루처럼 플레이어가 그때그때 누르는 작전은 여기 없다.
+ * 대타 · 대주자도 없다 — 예비 선수는 경기에 나서지 않고 타순 아홉이 끝까지 간다.
  */
 export const FINE = [
   { g: '타격', color: '#34d399', key: 'swing', ko: '스윙', opts: ['신중', '보통', '과감'] },
-  { g: '타격', color: '#34d399', key: 'sign', ko: '작전', opts: ['정석', '보통', '자주'] },
-  { g: '타격', color: '#34d399', key: 'sub', ko: '선수 교체', opts: ['아낌', '보통', '적극'] },
+  { g: '타격', color: '#34d399', key: 'take', ko: '주루', opts: ['안전', '보통', '과감'] },
   { g: '마운드', color: '#f87171', key: 'hook', ko: '투수 교체', opts: ['길게', '보통', '짧게'] },
   { g: '마운드', color: '#f87171', key: 'duel', ko: '승부', opts: ['피함', '보통', '정면'] },
   { g: '마운드', color: '#f87171', key: 'mix', ko: '볼 배합', opts: ['안전', '보통', '공격'] },
-  { g: '수비 · 주루', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['정석', '보통', '과감'] },
-  { g: '수비 · 주루', color: '#60a5fa', key: 'steal', ko: '도루', opts: ['자제', '보통', '적극'] },
+  { g: '수비', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['정석', '보통', '과감'] },
+  { g: '수비', color: '#60a5fa', key: 'hold', ko: '주자 견제', opts: ['느슨', '보통', '바짝'] },
 ];
-export const GROUPS = [['타격', '#34d399'], ['마운드', '#f87171'], ['수비 · 주루', '#60a5fa']];
+export const GROUPS = [['타격', '#34d399'], ['마운드', '#f87171'], ['수비', '#60a5fa']];
 /** 아무것도 손대지 않았을 때 */
 export const DEFAULT_PLAN = {
   base: { bat: '기동력', pit: '길게', run: '보통' },
-  fine: { swing: '보통', sign: '보통', sub: '보통', hook: '보통', duel: '보통', mix: '보통', guard: '보통', steal: '보통' },
+  fine: { swing: '보통', take: '보통', hook: '보통', duel: '보통', mix: '보통', guard: '보통', hold: '보통' },
 };
 const avg = (a, f) => (a.length ? a.reduce((s, x) => s + f(x), 0) / a.length : 0);
 /**
@@ -59,14 +59,14 @@ export function scoutTags(opponent) {
 /** 약점 태그 → 그 약점을 되치는 성향 (★ 로 표시한다) */
 const COUNTER = {
   '장타 위험': { mix: '안전', guard: '과감', duel: '피함' },
-  '발 빠른 타선': { mix: '공격', guard: '과감' },
+  '발 빠른 타선': { hold: '바짝', guard: '과감' },
   '컨택 강함': { mix: '안전' },
-  '수비 탄탄': { sign: '정석' },
-  '좌타 다수': { sub: '적극' },
-  '불펜 얇음': { swing: '신중', sub: '적극' },
+  '수비 탄탄': { swing: '과감' },
+  '좌타 다수': { mix: '공격' },
+  '불펜 얇음': { swing: '신중' },
   '선발 이닝 짧음': { swing: '신중' },
   '한 방 없음': { duel: '정면', guard: '정석' },
-  '도루 저지 약함': { steal: '적극' },
+  '도루 저지 약함': { take: '과감' },
 };
 /** 이 상대에게 추천하는 세부 작전 */
 export function recommend(opponent) {
@@ -75,7 +75,7 @@ export function recommend(opponent) {
   // 상대 포수 수비가 무르면 뛴다
   const c = (opponent?.roster || []).find((p) => p.position === 'C');
   const cd = c?.stats?.defense;
-  if (cd != null) out.steal = cd < 76 ? '적극' : cd > 86 ? '자제' : out.steal || '보통';
+  if (cd != null) out.take = cd < 76 ? '과감' : cd > 86 ? '안전' : out.take || '보통';
   return out;
 }
 
@@ -84,12 +84,12 @@ export function recommend(opponent) {
  * 갈래를 고르면 그 갈래의 눈금이 기본값으로 잡히고, 손댄 눈금은 그대로 남는다.
  */
 export const SIDES = [
-  { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'sign', 'sub'],
+  { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'take'],
     opts: [
-      { id: 'big', ko: '빅볼', tip: '장타 위주', base: { bat: '강공' }, fine: { swing: '과감', sign: '정석', sub: '보통' } },
-      { id: 'small', ko: '스몰볼', tip: '번트와 작전', base: { bat: '짜내기' }, fine: { swing: '신중', sign: '자주', sub: '보통' } },
-      { id: 'speed', ko: '발야구', tip: '도루와 주루', base: { bat: '기동력' }, fine: { swing: '보통', sign: '자주', sub: '적극' } },
-      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { swing: '신중', sign: '보통', sub: '적극' } },
+      { id: 'big', ko: '빅볼', tip: '한 방을 노린다', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
+      { id: 'contact', ko: '컨택', tip: '맞혀 나간다', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통' } },
+      { id: 'speed', ko: '발야구', tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
+      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
     ] },
   { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
@@ -98,12 +98,12 @@ export const SIDES = [
       { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '짧게', duel: '정면', mix: '공격' } },
       { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '길게', duel: '피함', mix: '안전' } },
     ] },
-  { key: 'def', en: 'Defense', ko: '수비 · 주루', color: '#60a5fa', dials: ['guard', 'steal'],
+  { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [
-      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', steal: '보통' } },
-      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '과감', steal: '자제' } },
-      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '과감', steal: '보통' } },
-      { id: 'run', ko: '뛰는 야구', tip: '도루와 주루', base: { run: '적극' }, fine: { guard: '정석', steal: '적극' } },
+      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
+      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '과감', hold: '느슨' } },
+      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '과감', hold: '보통' } },
+      { id: 'tight', ko: '주자 묶기', tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
     ] },
 ];
 export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };
@@ -131,13 +131,13 @@ export const untouch = (touched, key) => {
 };
 /** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
 const SIDE_COUNTER = {
-  '불펜 얇음': ['onbase', 'small'],
+  '불펜 얇음': ['onbase', 'contact'],
   '선발 이닝 짧음': ['onbase', 'big'],
   '수비 탄탄': ['big'],
-  '도루 저지 약함': ['speed', 'run'],
+  '도루 저지 약함': ['speed'],
   '한 방 없음': ['long', 'in'],
   '장타 위험': ['deep', 'allin'],
-  '발 빠른 타선': ['in', 'quick'],
+  '발 빠른 타선': ['tight', 'quick'],
   '컨택 강함': ['long', 'deep'],
   '좌타 다수': ['allin', 'quick'],
 };
