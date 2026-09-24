@@ -147,12 +147,13 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
 /* 타구가 뜬 높이 — 발사각이 크면 아치를 그리고, 낮으면 땅을 튀며 간다.
    정점을 앞쪽에 두어 떨어질 때가 더 가파르다 */
 const HOPS = 3.1;
+const RISE = 8; // 발사각 1도가 화면에서 뜨는 높이
 function ballRise(u, loft = 0) {
   const k = Math.min(1, Math.max(0, u));
-  const arc = Math.sin(Math.PI * k ** 0.86) * Math.max(0, loft) * 2.6;
+  const arc = Math.sin(Math.PI * k ** 0.86) * Math.max(0, loft) * RISE;
   if (loft >= 9) return arc;
   /* 바운드는 뒤로 갈수록 낮고 잦아진다 */
-  return arc + Math.abs(Math.sin(Math.PI * HOPS * k ** 1.25)) * 24 * (1 - k) ** 1.5;
+  return arc + Math.abs(Math.sin(Math.PI * HOPS * k ** 1.25)) * 40 * (1 - k) ** 1.5;
 }
 
 /* ───────── 필드 뷰 ───────── */
@@ -175,7 +176,8 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
       const k = Math.min(1, Math.max(0, v));
       const g = [ball.from[0] + (ball.to[0] - ball.from[0]) * k, ball.from[1] + (ball.to[1] - ball.from[1]) * k];
       const p = at(g);
-      return [p[0], p[1], ballRise(k, ball.loft) * scaleAt(g)];
+      /* 높이는 땅과 달리 멀어져도 크게 줄지 않는다 — 원근을 반만 먹인다 */
+      return [p[0], p[1], ballRise(k, ball.loft) * (0.55 + 0.45 * scaleAt(g))];
     };
     const now = shot(u);
     ballAt = [now[0], now[1]];

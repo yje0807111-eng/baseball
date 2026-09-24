@@ -253,8 +253,8 @@ const ZoneBox = ({ shots, w = 150 }) => {
         const [cx, cy] = at(p.x, p.y);
         return (
           <g key={i} opacity="0.4">
-            <circle cx={cx} cy={cy} r="6" fill="rgba(5,8,15,.4)" stroke="rgba(255,255,255,.55)" strokeWidth="1.3" />
-            <text x={cx} y={cy + 2.6} textAnchor="middle" fontSize="7" fontWeight="700" fill="rgba(255,255,255,.7)">{i + 1}</text>
+            <circle cx={cx} cy={cy} r="4.3" fill="rgba(5,8,15,.4)" stroke="rgba(255,255,255,.55)" strokeWidth="1.1" />
+            <text x={cx} y={cy + 2} textAnchor="middle" fontSize="5.4" fontWeight="700" fill="rgba(255,255,255,.7)">{i + 1}</text>
           </g>
         );
       })}
@@ -262,10 +262,10 @@ const ZoneBox = ({ shots, w = 150 }) => {
         const [cx, cy] = at(now.x, now.y);
         return (
           <g key={shots.length}>
-            <circle className="mt-zpulse" cx={cx} cy={cy} r="12" fill="none" stroke={now.tone} strokeWidth="2.5" />
+            <circle className="mt-zpulse" cx={cx} cy={cy} r="9" fill="none" stroke={now.tone} strokeWidth="2" />
             <g className="mt-zhit">
-              <circle cx={cx} cy={cy} r="13" fill={`${now.tone}33`} />
-              <circle cx={cx} cy={cy} r="7" fill="#fff" stroke={now.tone} strokeWidth="2.4" />
+              <circle cx={cx} cy={cy} r="9" fill={`${now.tone}33`} />
+              <circle cx={cx} cy={cy} r="4.6" fill="#fff" stroke={now.tone} strokeWidth="1.9" />
             </g>
           </g>
         );
@@ -314,6 +314,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
+  const [count, setCount] = useState({ b: 0, s: 0, o: 0 }); // 볼·스트라이크·아웃 — 공이 꽂힐 때 오른다
   const [lines, setLines] = useState(['플레이볼!']);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [swap, setSwap] = useState(null); // 공수 교대 띠
@@ -436,6 +437,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
         /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
         setTimeout(() => { if (aliveRef.current) setZoneShots(shotsOf(g)); }, beat * pitchArrival(beat));
+        /* 볼카운트도 같은 때에 — 친 공은 처리가 끝난 뒤에 아웃이 오른다 */
+        setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
+          beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
         /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
         if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
         if (ev.result && BIG.includes(ev.result)) {
@@ -477,6 +481,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         /* 공수 교대 — 띠가 쓸고 지나가며 이번엔 누가 치는지 알린다 */
         if (!g.final && (g.top !== sideRef.current.top || g.inning !== sideRef.current.inning)) {
           sideRef.current = { inning: g.inning, top: g.top };
+          setCount({ b: 0, s: 0, o: 0 });
           setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
           redraw();
           await sleep(1150 / curSpeed());
@@ -544,8 +549,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const canSwap = g.top && !g.final; // 내가 수비하는 회에만 마운드를 바꾼다
   const queued = pendingRef.current.changePitcher || null; // 다음 공에 올라갈 투수
   /* 아웃이 늘어난 그 점만 한 번 튀게 — 렌더마다 견주어 둔다 */
-  const justOut = g.outs > outsRef.current ? g.outs - 1 : -1;
-  outsRef.current = g.outs;
+  const justOut = count.o > outsRef.current ? count.o - 1 : -1;
+  outsRef.current = count.o;
   const mineBat = !g.top; // 내가 치는 회
   const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
@@ -713,7 +718,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 style={{ clipPath: 'polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
                 <Diamond bases={g.bases} size={76} off="rgba(255,255,255,.45)" />
                 <span className="h-[62px] w-px bg-white/15" />
-                <Bso b={g.balls} s={g.strikes} o={g.outs} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" popOut={justOut} />
+                <Bso b={count.b} s={count.s} o={count.o} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" popOut={justOut} />
               </div>
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
