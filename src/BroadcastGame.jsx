@@ -12,6 +12,7 @@ import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
+import { playsFor } from './engine/plays.js';
 import {
   createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
@@ -659,6 +660,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true, pend.pitchType === 'slider'],
       ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true, !!pend.ibb],
     ];
+  /* 승부처에는 그 자리에서만 말이 되는 세 장으로 갈아 끼운다 */
+  const PICKS = clutch ? playsFor(g, { mine: mineBat, tired: 1 - stamina / 100 }) : null;
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
@@ -909,16 +912,32 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             })()}
             {/* 작전 버튼 — 승부처에는 이 줄이 답을 받는 자리가 된다 */}
             <div className="flex items-stretch gap-2.5">
-              {ACTS.map(([ic, t, s, fn, on, picked]) => {
+              {/* 승부처 — 그 자리의 세 장. 고르면 승률이 어디로 갈지까지 적는다 */}
+              {PICKS && PICKS.map((c) => (
+                <button key={c.key} type="button" onClick={() => give(c.order)}
+                  className="mt-cut mt-frame mt-glass relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[14px] text-gray-100 hover:brightness-125"
+                  style={{ '--c': '11px', '--a': clutchColor, boxShadow: `0 0 22px -6px ${clutchColor}` }}>
+                  <span className="flex items-center gap-2">
+                    <b className="text-lg leading-none">{c.icon}</b>
+                    <b className="text-[15px] font-extrabold text-white">{c.title}</b>
+                    {c.move !== 0 && (
+                      <b className="font-display text-[14px] font-extrabold" style={{ color: c.move > 0 ? '#34d399' : '#f87171' }}>
+                        {c.move > 0 ? '+' : ''}{c.move}
+                      </b>
+                    )}
+                  </span>
+                  <small className="text-[12px] font-semibold text-gray-400">{c.note}</small>
+                </button>
+              ))}
+              {!PICKS && ACTS.map(([ic, t, s, fn, on, picked]) => {
                 const live = on && !g.final;
-                const acc = clutch && live ? clutchColor : mineBat ? battingColor : pitchingColor;
+                const acc = mineBat ? battingColor : pitchingColor;
                 return (
                   <button key={t} type="button" disabled={!live} onClick={fn}
                     className={`mt-cut relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] transition-[background,box-shadow,transform] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'} ${picked ? 'scale-[1.03]' : ''}`}
                     style={{ '--c': '11px', '--a': acc,
                       /* 누른 작전은 색이 차고 테두리가 굵어져 한눈에 보인다 */
-                      ...(picked ? { background: tint(acc, 26), boxShadow: `inset 0 0 0 2px ${acc}, 0 0 26px -6px ${acc}` }
-                        : clutch && live ? { boxShadow: `0 0 22px -6px ${clutchColor}` } : null) }}>
+                      ...(picked ? { background: tint(acc, 26), boxShadow: `inset 0 0 0 2px ${acc}, 0 0 26px -6px ${acc}` } : null) }}>
                     {picked && <b className="absolute right-1.5 top-1 text-[11px]" style={{ color: acc }}>✓</b>}
                     <b className="text-lg leading-none">{ic}</b>{t}
                     <small className="text-[12px] font-semibold" style={{ color: picked ? acc : '#9ca3af' }}>{picked ? '다음 공에 낸다' : s}</small>
@@ -929,7 +948,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <button type="button" onClick={() => clutch.resolve(null)}
                   className="mt-cut mt-frame mt-glass flex w-[104px] shrink-0 flex-col items-center justify-center gap-0.5 text-[13px] text-gray-300 hover:brightness-125"
                   style={{ '--c': '11px', '--a': '#64748b' }}>
-                  <b className="text-lg leading-none">⏭</b>맡긴다<small className="text-[12px] font-semibold text-gray-500">지시 없이</small>
+                  <span className="flex items-center gap-2"><b className="text-lg leading-none">⏭</b><b className="text-[15px] font-extrabold text-white">맡긴다</b><b className="font-display text-[14px] font-extrabold text-gray-500">0</b></span>
+                  <small className="text-[12px] font-semibold text-gray-500">지시 없이</small>
                 </button>
               )}
             </div>
