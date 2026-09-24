@@ -31,8 +31,7 @@ export default function RotateHint() {
         <b className="mt-5 font-display text-xs tracking-[0.35em] text-emerald-400">ROTATE</b>
         <p className="mt-1.5 text-[22px] font-bold text-white">가로로 돌리기</p>
         <p className="mt-2 text-sm leading-relaxed text-gray-400">
-          라커·드래프트·경기 화면이 모두 가로에 맞춰 있습니다.
-          기기를 눕히면 화면 크기에 맞게 알아서 맞춰 보여 드립니다.
+          라커 · 드래프트 · 경기 화면 모두 가로 기준 · 눕히면 화면 크기에 맞춰 표시
         </p>
         <button type="button" onClick={() => setClosed(true)} style={CUT}
           className="mt-6 bg-white/[0.07] px-5 py-2.5 text-sm text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.2)]">
