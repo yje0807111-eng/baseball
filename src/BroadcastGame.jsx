@@ -152,6 +152,10 @@ const COUNT_MS = 750; // 공 하나 사이 — 투구가 늘 같은 속도라 �
 const RESULT_MS = 2400; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
 const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
+const WATCH_MARK = 0.12; // 이 무게부터는 공마다 본다 — 경기당 15 타석쯤
+const BRIEF_MS = 1250;   // 볼거리 있는 타석 — 타구만 한 번
+const FLASH_MS = 460;    // 그 밖 — 결과 한 줄
+const WORTH = ['HR', '3B', '2B', 'DP', 'E']; // 접어도 타구는 보여 주는 결과
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
 
@@ -313,6 +317,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const redraw = () => force((v) => v + 1);
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
+  const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
+  const digestRef = useRef(true);
+  digestRef.current = digest;
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [count, setCount] = useState({ b: 0, s: 0, o: 0 }); // 볼·스트라이크·아웃 — 공이 꽂힐 때 오른다
   const [lines, setLines] = useState(['플레이볼!']);
@@ -422,8 +429,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지 */
         const halfKey = `${g.inning}${g.top ? 'T' : 'B'}`;
+        let asked = false; // 물어본 타석은 접지 않고 공마다 본다
         if (!quiet() && clutchLeft.current > 0 && lastAskHalf.current !== halfKey
             && g.balls === 0 && g.strikes === 0 && isClutch(g)) {
+          asked = true;
           lastAskHalf.current = halfKey;
           clutchLeft.current -= 1;
           const picked = await new Promise((resolve) => {
@@ -435,21 +444,39 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (picked) pendingRef.current = { ...pendingRef.current, ...picked };
           if (stop || !aliveRef.current) break;
         }
-        let ev; try { ev = pitch(g, pendingRef.current); } catch (err) { console.error('pitch 실패', err); break; }
+        /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
+        const fresh = g.balls === 0 && g.strikes === 0;
+        const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
+        const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
+        let ev;
+        try {
+          if (fold) { do { ev = pitch(g, pendingRef.current); } while (ev && !ev.result && !g.final); }
+          else ev = pitch(g, pendingRef.current);
+        } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
-        const beat = (ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
+        /* 접은 타석: 볼거리가 있으면 타구만, 아니면 결과 한 줄 */
+        const worth = fold && (WORTH.includes(ev.result) || ev.runs > 0);
+        const beat = (fold ? (worth ? BRIEF_MS : FLASH_MS)
+          : ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
-        const told = beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
+        const told = fold ? (worth ? beat * 0.5 : 0) : beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
         setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...commentary(ev)].slice(-4)); }, told);
-        setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
-        /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
-        setTimeout(() => { if (aliveRef.current) setZoneShots(shotsOf(g)); }, beat * pitchArrival(beat));
-        /* 볼카운트도 같은 때에 — 친 공은 처리가 끝난 뒤에 아웃이 오른다 */
-        setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
-          beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
-        /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
-        if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
+        if (fold) {
+          /* 접은 타석은 존 판에 찍지 않는다 — 공을 보여 주지 않았으니 */
+          setZoneShots([]);
+          setPlay(worth ? { ev, ms: beat, bases: wasOn } : null);
+          setCount({ b: 0, s: 0, o: g.outs });
+        } else {
+          setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
+          /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
+          setTimeout(() => { if (aliveRef.current) setZoneShots(shotsOf(g)); }, beat * pitchArrival(beat));
+          /* 볼카운트도 같은 때에 — 친 공은 처리가 끝난 뒤에 아웃이 오른다 */
+          setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
+            beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
+          /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
+          if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
+        }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
         }
@@ -625,7 +652,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
-          <span className="hidden text-[12px] font-semibold text-gray-400 xl:block">화면을 꾹 누르면 빨리감기</span>
+          <button type="button" onClick={() => setDigest((v) => !v)} aria-pressed={digest}
+            title={digest ? '승부처가 아닌 타석은 접어서 빠르게' : '모든 공을 하나하나 보여 준다'}
+            className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${digest ? 'bg-[#38bdf8] text-[#05080f]' : 'mt-glass text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>요약</button>
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
@@ -717,7 +746,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: '1fr 54px 84px' }}>
             <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
               <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
-                bases={g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
+                bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
 
               {/* 주루 · 볼카운트 — 구장 왼쪽 위 */}
               <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-3.5 px-3.5 py-3"
