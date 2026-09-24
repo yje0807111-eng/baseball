@@ -338,6 +338,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
   const leave = () => { if (!(g.final && handOver())) onExit?.(); };
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
+  const beforeSkipRef = useRef(PLAY); // SKIP 을 누르기 전 배속 — 한 번 더 누르면 여기로 돌아온다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
   const [holding, setHolding] = useState(false);
   const [clutch, setClutch] = useState(null); // 승부처 — 경기를 멈추고 아래 작전 줄에서 지시를 받는다
@@ -353,9 +354,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   /** 몰아서 넘기는 중인가 — 스킵 · 꾹 누르는 중 */
   const quiet = () => speedRef.current === SKIP || holdRef.current;
   const flashMs = () => (quiet() ? 300 : 1400); // 몰아서 넘길 땐 자막도 짧게
-  /** 속도 고르기. SKIP 은 목표 시각을 새로 잡고, 지시를 기다리던 중이면 정면 승부로 넘긴다 */
+  /** 속도 고르기. SKIP 은 목표 시각을 새로 잡고, 지시를 기다리던 중이면 정면 승부로 넘긴다.
+   *  SKIP 중에 SKIP 을 다시 누르면 누르기 전 배속으로 돌아온다 */
   const pickSpeed = (v) => {
-    if (v === SKIP) skipEndRef.current = Date.now() + SKIP_MS;
+    if (v === SKIP) {
+      if (speedRef.current === SKIP) { setSpeed(beforeSkipRef.current); return; }
+      beforeSkipRef.current = speedRef.current;
+      skipEndRef.current = Date.now() + SKIP_MS;
+    }
     setSpeed(v);
   };
   /* 꾹 누르기 — 누르는 동안만 5배속 + 자동. 버튼 위에서는 안 잡고, 창을 벗어나면 반드시 풀린다 */
@@ -615,7 +621,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
-                title={v === SKIP ? '남은 경기 10초 안에 몰아서 끝내기' : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
+                title={v === SKIP ? (speed === SKIP ? '한 번 더 누르면 원래 배속으로' : '남은 경기 10초 안에 몰아서 끝내기') : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
