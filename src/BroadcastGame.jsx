@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { UiStyle, Portrait, StatCells } from './myteam/ui.jsx';
 import InningRecap from './InningRecap.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
+import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import PlayView from './play/PlayView.jsx';
 import {
@@ -548,7 +549,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       <span>{at ? <span className="mt-chip" style={{ '--a': c }}>타석</span>
                         : on >= 0 ? <i className="inline-block" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} /> : null}</span>
                       <span className="truncate text-right text-[12px] font-semibold" style={{ color: koDark(ko) }}>{ko}</span>
-                      <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{p.overall}</em>
+                      <em className="text-right font-display text-[12px] font-bold not-italic" style={{ color: statBandColor(p.overall) }}>{p.overall}</em>
                     </li>
                   );
                 })}
@@ -699,10 +700,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
                   return (
-                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px auto 24px minmax(0,1fr) auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
+                    <li key={p.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '22px auto minmax(0,1fr) auto', gap: 7, padding: '3px 8px', '--c': '5px', '--a': cMy }}>
                       <Portrait player={p} w={22} h={28} color={cMy} />
-                      <b className="max-w-[70px] truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
-                      <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{p.overall}</em>
+                      <span className="flex items-baseline gap-1.5">
+                        <b className="max-w-[70px] truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
+                        <em className="font-display text-[12px] font-bold not-italic" style={{ color: statBandColor(p.overall) }}>{p.overall}</em>
+                      </span>
                       <span className="flex items-center gap-1.5" title={`체력 ${cond}`}>
                         <i className="block h-[6px] min-w-0 flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone.bar }} /></i>
                         <em className="w-[18px] shrink-0 text-right font-display text-[11px] font-bold not-italic" style={{ color: tone.ink }}>{cond}</em>
