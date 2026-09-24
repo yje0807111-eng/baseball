@@ -456,7 +456,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 className={`mt-cut px-3.5 py-1 font-display text-sm font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
             ))}
           </div>
-          <span className="hidden font-display text-[11px] tracking-[.18em] text-gray-500 xl:block">화면을 꾹 누르면 빨리감기</span>
+          <span className="hidden text-[12px] font-semibold text-gray-400 xl:block">화면을 꾹 누르면 빨리감기</span>
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
@@ -504,9 +504,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
                 <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
                   style={{ color: battingColor, textShadow: `0 0 16px ${battingColor}88, 0 2px 4px #000` }}>{batter?.overall}</em>
-                <span className="absolute right-3 top-2.5 truncate text-[11px]" style={{ color: koDark(batterKo), textShadow: '0 1px 4px #000' }}>{batterKo}</span>
+                <span className="absolute right-3 top-2.5 truncate text-[12px] font-bold" style={{ color: koDark(batterKo), textShadow: '0 1px 4px #000' }}>{batterKo}</span>
                 <b className="absolute bottom-1 left-3 right-3 truncate text-[22px] font-black text-white [text-shadow:0_2px_8px_#000]">{batter?.name}</b>
-                <span className="absolute bottom-1.5 right-3 font-display text-[11px] tracking-[0.14em] text-gray-400">{batter?.position} · {batter?.hand}타</span>
+                <span className="absolute bottom-1.5 right-3 text-[12px] font-semibold text-gray-300 [text-shadow:0_1px_4px_#000]">{batter?.position} · {batter?.hand}타</span>
               </div>
               <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2.5">
                 {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
@@ -523,7 +523,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': offFlag?.color || battingColor }}>타순</p>
-                <span className="ml-auto truncate font-display text-[11px] tracking-[0.14em] text-gray-500">{shortTeam(off.team.name, !g.top)} 공격</span>
+                <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(off.team.name, !g.top)} 공격</span>
               </div>
               <ul className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-2 pb-2">
                 {off.team.batters.map((p, i) => {
@@ -538,7 +538,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       <b className="truncate text-[13px] font-semibold text-gray-100">{p.name}</b>
                       <span>{at ? <span className="mt-chip" style={{ '--a': c }}>타석</span>
                         : on >= 0 ? <i className="inline-block" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} /> : null}</span>
-                      <span className="truncate text-right text-[11px]" style={{ color: koDark(ko) }}>{ko}</span>
+                      <span className="truncate text-right text-[12px] font-semibold" style={{ color: koDark(ko) }}>{ko}</span>
                       <em className="text-right font-display text-[12px] font-bold not-italic text-gray-300">{p.overall}</em>
                     </li>
                   );
@@ -620,7 +620,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <button key={t} type="button" disabled={!on} onClick={fn}
                   className={`mt-cut flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] ${on ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'}`}
                   style={{ '--c': '11px', '--a': '#10b981' }}>
-                  <b className="text-lg leading-none">{ic}</b>{t}<small className="font-display text-[11px] text-gray-500">{s}</small>
+                  <b className="text-lg leading-none">{ic}</b>{t}<small className="text-[12px] font-semibold text-gray-400">{s}</small>
                 </button>
               ))}
             </div>
@@ -631,14 +631,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': pitchingColor }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': pitchingColor }}>투수</p>
-                <span className="ml-auto truncate font-display text-[11px] tracking-[0.14em] text-gray-500">{shortTeam(def.team.name, g.top)} 수비</span>
+                <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(def.team.name, g.top)} 수비</span>
               </div>
               <div className="px-3.5 pb-3">
                 <div className="flex items-center gap-2.5">
                   <Portrait player={pitcher} w={44} h={56} color={pitchingColor} />
                   <div className="min-w-0 flex-1">
                     <b className="block truncate text-[17px] font-extrabold text-white">{pitcher?.name}</b>
-                    <span className="font-display text-[11px] tracking-[0.16em] text-gray-500">{pitcher?.position} · {def.pitches}구</span>
+                    <span className="text-[12px] font-semibold text-gray-400">{pitcher?.position} · {def.pitches}구</span>
                   </div>
                   <em className="font-display text-[24px] font-extrabold not-italic" style={{ color: pitchingColor }}>{pitcher?.overall}</em>
                 </div>
@@ -655,7 +655,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   {[[armLine.k, '탈삼진'], [armLine.h, '피안타'], [armLine.bb, '볼넷'], [armLine.r, '실점']].map(([v, k]) => (
                     <div key={k} className="mt-cut bg-white/[0.045] py-1" style={{ '--c': '6px' }}>
                       <b className="block font-display text-[17px] font-extrabold leading-tight text-white">{v}</b>
-                      <span className="font-display text-[10px] text-gray-400">{k}</span>
+                      <span className="text-[11px] font-semibold text-gray-300">{k}</span>
                     </div>
                   ))}
                 </div>
@@ -674,7 +674,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': cMy }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
                 <p className="mt-lab" style={{ '--a': cMy }}>불펜</p>
-                <span className="ml-auto truncate font-display text-[11px] tracking-[0.14em] text-gray-500">{shortTeam(home.name, true)}</span>
+                <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(home.name, true)}</span>
               </div>
               <ul className="space-y-1 px-2 pb-2">
                 {myPen.length === 0 && <li className="px-2 py-1.5 text-[12px] text-gray-500">남은 투수 없음</li>}
@@ -699,7 +699,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
               <div className="min-h-0 flex-1 space-y-1.5 overflow-hidden px-3.5 pb-3">
                 {[...lines].reverse().map((t, i) => (
-                  <p key={`${i}${t}`} className={`m-0 leading-snug ${i === 0 ? 'text-[14px] font-bold text-white' : 'text-[12px] text-gray-500'}`}>{t}</p>
+                  <p key={`${i}${t}`} className={`m-0 leading-snug ${i === 0 ? 'text-[14px] font-bold text-white' : 'text-[12.5px] font-medium text-gray-400'}`}>{t}</p>
                 ))}
               </div>
             </section>
