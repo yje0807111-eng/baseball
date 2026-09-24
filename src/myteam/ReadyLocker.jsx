@@ -35,6 +35,45 @@ const SynIcon = ({ s, w = 38 }) => {
 };
 
 /** 시너지 도크 — 아이콘 한 줄 + 받은 보너스 합계 */
+const foeSums = (opponent) => {
+  const ros = opponent?.roster || [];
+  if (!ros.length) return null;
+  const bats = ros.filter((p) => p.type === 'batter');
+  const line = (opponent.batters || [...bats].sort((a, b) => b.overall - a.overall)).slice(0, 9);
+  const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall).slice(0, 8);
+  return {
+    bat: Math.round(line.reduce((s, p) => s + p.overall, 0)),
+    def: Math.round(line.filter((p) => p.position !== 'DH').reduce((s, p) => s + p.stats.defense, 0)),
+    pit: Math.round(pits.reduce((s, p) => s + p.overall, 0)),
+    ovr: Math.round(ros.reduce((s, p) => s + p.overall, 0) / ros.length),
+  };
+};
+/* 벤치와 시너지 사이 남던 자리 — 우리와 상대를 같은 잣대로 견준다 */
+function VersusBar({ sums, ovr, opponent }) {
+  const foe = foeSums(opponent);
+  if (!foe) return null;
+  const c = opponent.color || '#f472b6';
+  const cols = [['타자', sums.bat, foe.bat, A.bat], ['수비', sums.def, foe.def, A.def], ['투수', sums.pit, foe.pit, A.pit], ['종합', ovr, foe.ovr, A.syn]];
+  return (
+    <div className="flex shrink-0 gap-1 pb-1.5">
+      {cols.map(([ko, mine, them, a]) => (
+        <div key={ko} className="mt-cut flex flex-1 flex-col items-center gap-[3px] py-1.5" style={{ ...cut(5), background: 'rgba(255,255,255,.04)' }}>
+          <span className="font-display text-[9.5px] tracking-[0.14em] text-gray-400">{ko}</span>
+          <span className="flex items-baseline gap-[3px] leading-none">
+            <b className="font-display text-[13px] font-extrabold" style={{ color: a }}>{mine}</b>
+            <small className="text-[8.5px] text-gray-600">vs</small>
+            <b className="font-display text-[12px] font-bold" style={{ color: c }}>{them}</b>
+          </span>
+          <span className="flex h-[3px] w-full bg-white/[0.07]">
+            <i style={{ width: `${(mine / (mine + them || 1)) * 100}%`, background: a }} />
+            <i className="flex-1" style={{ background: `color-mix(in srgb,${c} 65%,transparent)` }} />
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SynergyDockMini({ synergies = [] }) {
   const rootRef = useRef(null);
   const [hover, setHover] = useState(null); // { id, left } — 마우스를 올린 조각
@@ -91,7 +130,7 @@ function SynergyDockMini({ synergies = [] }) {
 const SPOT = [[50, 13], [20, 27], [80, 27], [34, 47], [66, 47], [20, 68], [80, 68], [50, 88], [88, 88]];
 const avg = (xs, f) => (xs.length ? xs.reduce((s, p) => s + f(p), 0) / xs.length : 0);
 
-function ScoutPanel({ opponent }) {
+function ScoutPanel({ opponent, sums, myOvr }) {
   const ros = opponent.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall);
@@ -147,6 +186,8 @@ function ScoutPanel({ opponent }) {
           );
         })}
       </div>
+
+      {sums && <VersusBar sums={sums} ovr={myOvr} opponent={opponent} />}
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex shrink-0 items-center gap-2 pb-1">
@@ -301,13 +342,13 @@ export default function ReadyLocker({
     .map((p, i) => ({ label: i === 0 ? '선발' : `불펜${i}`, rest: p.rest || 0 }));
 
   return (
-    <div className="grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+    <div className="grid min-h-0 flex-1 gap-2" style={{ gridTemplateColumns: '16.5rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
       {/* 라커 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) — 드래프트 화면에는 이 CSS 가 없어서 여기서 함께 올린다 */}
       <UiStyle />
-      {opponent ? <ScoutPanel opponent={opponent} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
+      {opponent ? <ScoutPanel opponent={opponent} sums={sums} myOvr={teamInfo.ovr} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
-        onToggleBench={() => {}} fitSlots footer={<SynergyDockMini synergies={synergies} />} />
+        onToggleBench={() => {}} fitSlots railW={264} footer={<SynergyDockMini synergies={synergies} />} />
 
       <TunePanel sums={sums} deltas={deltas} team={teamInfo} rest={rest} autoFilled={autoFilled}
         onStart={() => onStart(planOfStyle(style))} startLabel={startLabel}

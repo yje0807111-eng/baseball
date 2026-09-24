@@ -202,7 +202,7 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
  * fitSlots: 빈 칸을 남기지 않고 있는 만큼만 (드래프트 정비처럼 자리 수가 다를 때)
  * footer: 벤치 아래 남는 자리에 끼워 넣을 것 (시너지 등)
  */
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 300 }) {
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
   const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
@@ -493,7 +493,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       </div>
 
       {squad.length === 0 ? <p className="mt-4 text-sm text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
-        <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: 'minmax(0,1fr) 300px' }}>
+        <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: `minmax(0,1fr) ${railW}px` }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">
             <div ref={fieldRef} className="mt-cut relative min-h-0 flex-1 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '18px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 58%' }}>
