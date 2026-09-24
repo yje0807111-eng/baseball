@@ -471,7 +471,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 ) : (
                   <>
                     <b className="font-display text-[32px] font-extrabold leading-[0.8] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>{g.inning}</b>
-                    <i className="-mt-[5px] text-[19px] not-italic leading-none text-[#f87171]">{g.top ? '▲' : '▼'}</i>
+                    {/* 글자 ▲▼ 는 위아래 빈 곳이 넓어 숫자에 붙지 않는다 — 직접 그린다 */}
+                    <svg width="22" height="11" viewBox="0 0 22 11" className="mt-0.5" aria-hidden><path d={g.top ? 'M11 0 L22 11 L0 11 Z' : 'M0 0 L22 0 L11 11 Z'} fill="#f87171" /></svg>
                   </>
                 )}
               </span>
