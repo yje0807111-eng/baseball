@@ -471,7 +471,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 ) : (
                   <>
                     <b className="font-display text-[32px] font-extrabold leading-[0.8] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>{g.inning}</b>
-                    <i className="mt-px text-[13px] not-italic leading-none text-[#f87171]">{g.top ? '▲' : '▼'}</i>
+                    <i className="-mt-[5px] text-[19px] not-italic leading-none text-[#f87171]">{g.top ? '▲' : '▼'}</i>
                   </>
                 )}
               </span>
