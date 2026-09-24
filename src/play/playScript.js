@@ -143,6 +143,17 @@ export function buildPlay(ev, beatMs = 1200) {
     });
   }
 
+  // 3-b. 파울 — 옆으로 크게 빠진 타구는 잠깐 필드로. 뒤로 넘어간 파울은 존 뷰에 남는다
+  if (ev.call === 'foul') {
+    const zx = (pitchTarget(ev) || [0, 0])[0];
+    const h = Math.round(Math.abs((p?.velo || 140) * 7 + (p?.zone ?? 4) * 13)) % 10;
+    if (h < 6) {
+      const dir = (zx > 0 ? -1 : 1) * (1.02 + (h % 3) * 0.06); // 파울 라인 바깥
+      beats.push({ kind: 'cut', t: CUT });
+      beats.push({ kind: 'ball', t0: CUT, t1: 0.9, from: HOME, to: spot(dir, 0.3 + (h % 4) * 0.1), loft: 22 + h * 2, foul: true });
+    }
+  }
+
   // 4. 인플레이 — 필드로 컷 전환
   if (ev.call === 'inplay' && ev.hit) {
     const { dir, dist, loft, by } = ev.hit;
@@ -167,7 +178,7 @@ export function buildPlay(ev, beatMs = 1200) {
       if (m.to === 3) k += 1; else k += 0.4;
     }
   }
-  return { beats, cut: ev.call === 'inplay' && ev.hit ? CUT : null, ev };
+  return { beats, cut: beats.find((b) => b.kind === 'cut')?.t ?? null, ev };
 }
 
 /* ───────── 대본 읽기 ───────── */
