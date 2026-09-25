@@ -14,6 +14,9 @@ import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
+import { SIDES, DEFAULT_SIDES, planOfSides, untouch, sideOpt } from './myteam/strategy.js';
+import { tacticOrders } from './engine/tactics.js';
+import { artId } from './data/artAlias.js';
 import {
   createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
@@ -41,6 +44,7 @@ const CLUTCH_CSS = `
   76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06); letter-spacing: .2em; } }
 @keyframes halfWipe { 0% { transform: scaleX(0); opacity: .9; } 55% { transform: scaleX(1); opacity: .55; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes sidePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
@@ -79,7 +83,7 @@ function todayKo(g, batter) {
 /** 어두운 유리판 위 성적 글자색 — 장타는 노랑, 안타는 연초록, 볼넷은 하늘, 못 친 날은 흐리게 */
 /** 선수 그림 — 카드가 있으면 카드, 없으면 프로필, 그것도 없으면 실루엣 */
 const faceArt = (p) => (p?.id
-  ? `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`
+  ? `url(cards/${encodeURIComponent(artId(p.id))}.webp), url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`
   : 'url(ui/mt/silhouette-player.webp)');
 
 /** 체력 색 — 0 은 붉고 100 은 초록. 사이는 주황 · 노랑 · 연두로 건너간다 */
@@ -235,23 +239,6 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
-/** 작전 아이콘 — 24×24 선 그림. 굵기와 끝맺음을 화면 전체와 맞춘다 */
-const Ic = ({ d, dots }) => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    {d.map((p, i) => <path key={i} d={p} />)}
-    {dots && dots.map(([cx, cy, r], i) => <circle key={`c${i}`} cx={cx} cy={cy} r={r} fill="currentColor" stroke="none" />)}
-  </svg>
-);
-const ACT_ICON = {
-  steal: <Ic d={['M4 18h10', 'M11 15l3 3-3 3', 'M8 5.5l3.5 4.5L9 14']} dots={[[14, 4, 1.8]]} />,          // 파고드는 주자
-  bunt: <Ic d={['M6 17l7-7', 'M14 6l4 4-3 3-4-4z', 'M4 19l2-2']} />,                                       // 눕혀 댄 배트
-  hnr: <Ic d={['M3 16h7', 'M8 13l3 3-3 3', 'M13 8h7', 'M18 5l3 3-3 3']} />,                                // 둘이 함께 뛴다
-  fast: <Ic d={['M3 12h14', 'M14 8l4 4-4 4']} />,                                                           // 곧게 오는 공
-  slider: <Ic d={['M3 15c5 0 6-9 11-9', 'M12 3l3 3-3 3']} />,                                               // 휘어 오는 공
-  inside: <Ic d={['M4 5h16v14H4z', 'M4 9.7h16M4 14.3h16M9.3 5v14M14.7 5v14']} dots={[[6.6, 16.6, 2.2]]} />, // 존 안쪽 낮게
-  chase: <Ic d={['M5 6h14v12H5z']} dots={[[21, 19.5, 2]]} />,                                               // 존 밖으로 빼는 공
-  ibb: <Ic d={['M6 20l3-6 3 2 3-6', 'M18 7h3']} dots={[[18, 4, 1.6]]} />,                                   // 걸어 나간다
-};
 
 /** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
 function atBatPitches(events) {
@@ -404,10 +391,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [paused, setPaused] = useState(false);
   /* 승률 — 타석마다 한 점씩 찍어 흐름을 만든다. 내 지시가 얼마나 밀어 올렸는지도 센다 */
   const wpRef = useRef([0.5]);
+  const wpAtRef = useRef([{ i: 1, t: true, r: 0 }]); // 승률 점마다 몇 회 · 초말 · 그 타석 득점
   const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
   const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
   const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리
+  /* 전술 — 정비에서 고른 세 갈래를 경기 중에도 바꾼다. 바꾸면 다음 공부터 먹는다 */
+  const [sides, setSides] = useState(my?.plan?.sides || DEFAULT_SIDES);
+  const sidesRef = useRef(sides);
+  sidesRef.current = sides;
+  const [touched, setTouched] = useState(my?.plan?.touched || {});
+  const fineRef = useRef(planOfSides(sides, touched).fine);
+  fineRef.current = planOfSides(sides, touched).fine;
+  const pickSide = (key, id) => { setSides((v) => ({ ...v, [key]: id })); setTouched((t) => untouch(t, key)); };
+  const [openSide, setOpenSide] = useState(null); // 펼쳐 둔 전술 갈래
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
   digestRef.current = digest;
@@ -431,7 +428,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const handOver = () => {
     if (endedRef.current) return false;
     endedRef.current = true;
-    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current }));
+    onFinish?.(buildResult(g, my, { flow: wpRef.current, flowAt: wpAtRef.current, calls: callsRef.current, gain: gainRef.current, sides: sidesRef.current }));
     return true;
   };
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
@@ -550,8 +547,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         let ev;
         const folded = []; // 접은 타석에서 지나간 공 — 빨리 흘려보낼 것들
         try {
-          if (fold) { do { ev = pitch(g, pendingRef.current); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
-          else ev = pitch(g, pendingRef.current);
+          /* 전술 성향은 늘 깔리고, 내가 낸 지시가 그 위에 얹힌다 */
+          const tac = () => ({ ...tacticOrders(fineRef.current, !g.top), ...pendingRef.current });
+          if (fold) { do { ev = pitch(g, tac()); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
+          else ev = pitch(g, tac());
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
@@ -599,6 +598,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         if (ev.result) {
           const wpNow = winProb(g);
           wpRef.current = [...wpRef.current, wpNow].slice(-200);
+          wpAtRef.current = [...wpAtRef.current, { i: ev.inning, t: !!ev.top, r: ev.runs || 0 }].slice(-200);
           if (gave) gainRef.current += wpNow - wpAt.current;
           if (gaveKo) callsRef.current.push({ ...spotRef.current, ko: gaveKo, delta: wpNow - wpAt.current });
         }
@@ -716,23 +716,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
   const onePoint = g.inning >= 7 && Math.abs(g.home.runs - g.away.runs) <= 1;
-  /* 아래 작전 — 치는 회와 막는 회가 다르다. [그림, 이름, 언제 쓰나, 누르면, 눌리는가] */
-  const ACTS = mineBat
-    ? [
-      ['steal', '도루', on1 ? `${Math.round(steal0 * 100)}% · ${onePoint ? '한 점이 급할 때' : '되면 크다'}` : on2 ? '2루 주자' : '주자 없음',
-        () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2]), pend.steal != null],
-      ['bunt', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true, !!pend.bunt],
-      ['hnr', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1, !!pend.hitAndRun],
-      ['fast', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true, pend.guess === 'fast'],
-      ['slider', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true, pend.guess === 'slider'],
-    ]
-    : [
-      ['inside', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true, typeof pend.zone === 'number'],
-      ['chase', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true, pend.zone === 'chase'],
-      ['fast', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true, pend.pitchType === 'fast'],
-      ['slider', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true, pend.pitchType === 'slider'],
-      ['ibb', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true, !!pend.ibb],
-    ];
   /* 승부처에는 그 자리에서만 말이 되는 세 장으로 갈아 끼운다 */
   const PICKS = clutch ? playsFor(g, { mine: mineBat, tired: 1 - stamina / 100 }) : null;
   const batter = batterOf(g);
@@ -1013,20 +996,45 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   <small className="text-[12px] font-semibold text-gray-400">{c.note}</small>
                 </button>
               ))}
-              {!PICKS && ACTS.map(([ic, t, s, fn, on, picked]) => {
-                const live = on && !g.final;
-                const acc = mineBat ? battingColor : pitchingColor;
+              {/* 평소에는 전술 — 갈래를 누르면 그 위로 고를 판이 올라온다 */}
+              {!PICKS && SIDES.map((sd) => {
+                const cur = sideOpt(sd.key, sides[sd.key]);
+                const open = openSide === sd.key;
                 return (
-                  <button key={t} type="button" disabled={!live} onClick={fn}
-                    className={`mt-cut relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[13px] transition-[background,box-shadow,transform] ${live ? 'mt-frame mt-glass text-gray-100 hover:brightness-125' : 'bg-[#05080f]/60 text-gray-600'} ${picked ? 'scale-[1.03]' : ''}`}
-                    style={{ '--c': '11px', '--a': acc,
-                      /* 누른 작전은 색이 차고 테두리가 굵어져 한눈에 보인다 */
-                      ...(picked ? { background: tint(acc, 26), boxShadow: `inset 0 0 0 2px ${acc}, 0 0 26px -6px ${acc}` } : null) }}>
-                    {picked && <b className="absolute right-1.5 top-1 text-[11px]" style={{ color: acc }}>✓</b>}
-                    <span style={{ color: live ? acc : '#4b5563' }}>{ACT_ICON[ic]}</span>
-                    <b className="text-[14px] font-bold">{t}</b>
-                    <small className="text-[12px] font-semibold" style={{ color: picked ? acc : '#9ca3af' }}>{picked ? '다음 공에 낸다' : s}</small>
-                  </button>
+                  <div key={sd.key} className="relative min-w-0 flex-1">
+                    {open && (
+                      <>
+                        <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
+                        <div className="mt-cut mt-frame absolute bottom-full left-0 z-20 mb-2 w-[22rem] p-2.5"
+                          style={{ '--c': '14px', '--a': sd.color, background: 'rgba(6,10,19,.97)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
+                          <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {sd.opts.map((o) => {
+                              const on = sides[sd.key] === o.id;
+                              return (
+                                <button key={o.id} type="button" onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
+                                  className="mt-cut px-3 py-2 text-left transition-[background,box-shadow]"
+                                  style={{ '--c': '6px',
+                                    background: on ? `color-mix(in srgb,${sd.color} 22%,transparent)` : 'rgba(255,255,255,.045)',
+                                    boxShadow: on ? `inset 0 0 0 1.5px ${sd.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+                                  <b className="block text-[13.5px] font-extrabold" style={{ color: on ? sd.color : '#e6edf6' }}>{o.ko}</b>
+                                  <small className="text-[11.5px] text-gray-400">{o.tip}</small>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
+                      className="mt-cut mt-frame mt-glass flex h-full w-full items-center gap-2.5 px-4 text-left hover:brightness-125"
+                      style={{ '--c': '11px', '--a': sd.color, ...(open ? { background: `color-mix(in srgb,${sd.color} 14%,transparent)` } : null) }}>
+                      <p className="mt-lab shrink-0" style={{ '--a': sd.color }}>{sd.ko}</p>
+                      <b className="min-w-0 flex-1 truncate text-[15px] font-extrabold" style={{ color: sd.color }}>{cur?.ko}</b>
+                      <small className="hidden shrink-0 text-[11.5px] text-gray-400 xl:block">{cur?.tip}</small>
+                      <b className="shrink-0 text-[11px] text-gray-500" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▲</b>
+                    </button>
+                  </div>
                 );
               })}
               {clutch && (
@@ -1205,6 +1213,7 @@ export function buildResult(g, myTeam, manager = null) {
   };
   /* 감독이 한 일 — 승률이 그린 선과 내가 낸 지시 */
   const flow = manager?.flow?.length ? [...manager.flow] : null;
+  const flowAt = manager?.flowAt?.length ? [...manager.flowAt] : null;
   const calls = manager?.calls?.length ? [...manager.calls].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)) : [];
   const credit = new Map();
   const add = (p, pts, key) => {
@@ -1237,12 +1246,38 @@ export function buildResult(g, myTeam, manager = null) {
   const myPitcherIds = new Set(g.home.team.pitchers.map((p) => p.id));
   const pitchCounts = {};
   for (const ev of g.events) if (ev.pitcher && myPitcherIds.has(ev.pitcher.id)) pitchCounts[ev.pitcher.id] = (pitchCounts[ev.pitcher.id] || 0) + 1;
+  /* 기록실에 남길 박스 스코어 — 내 타자(말 공격)와 내 투수(초 수비) */
+  const bat = {};
+  const arm = {};
+  const hits = { my: 0, opp: 0 };
+  for (const ev of g.events) {
+    if (!ev.result || ev.result === 'SB' || ev.result === 'CS') continue;
+    const hit = ['1B', '2B', '3B', 'HR', 'BH'].includes(ev.result);
+    if (hit) hits[ev.top ? 'opp' : 'my'] += 1;
+    if (!ev.top && ev.batter) {
+      const b = bat[ev.batter.id] || (bat[ev.batter.id] = { ab: 0, h: 0, hr: 0, rbi: 0, bb: 0, k: 0 });
+      if (!['BB', 'IBB', 'SF', 'SAC'].includes(ev.result)) b.ab += 1;
+      if (hit) b.h += 1;
+      if (ev.result === 'HR') b.hr += 1;
+      if (ev.result === 'BB' || ev.result === 'IBB') b.bb += 1;
+      if (ev.result === 'K') b.k += 1;
+      if (ev.result !== 'E') b.rbi += ev.runs || 0;
+    }
+    if (ev.top && ev.pitcher && myPitcherIds.has(ev.pitcher.id)) {
+      const p = arm[ev.pitcher.id] || (arm[ev.pitcher.id] = { at: Object.keys(arm).length, bf: 0, h: 0, k: 0, r: 0 });
+      p.bf += 1;
+      if (hit) p.h += 1;
+      if (ev.result === 'K') p.k += 1;
+      p.r += ev.runs || 0;
+    }
+  }
   return {
+    box: { bat, arm }, hits, line: { my: [...g.home.line], opp: [...g.away.line] }, sides: manager?.sides || null,
     board,
     pitchCounts, starterId: g.home.team.pitchers[0]?.id || null,
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
-    flow, calls, gain: manager?.gain ?? 0,
+    flow, flowAt, calls, gain: manager?.gain ?? 0,
   };
 }

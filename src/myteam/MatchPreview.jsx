@@ -1,6 +1,7 @@
 /* 경기 전 상대 분석 조각 — 토너먼트 대진표 · 랭크전 순위표 화면이 함께 쓴다 */
 import React from 'react';
 import { teamRating } from './match.js';
+import { artId } from '../data/artAlias.js';
 
 export const ME = '#34d399', OPP = '#f87171';
 
@@ -22,7 +23,7 @@ export function Faces({ roster, n = 3, align }) {
     <div className={`flex gap-1.5 ${align === 'right' ? 'justify-end' : ''}`}>
       {top.map((p) => (
         <span key={p.id} title={`${p.name} ${p.overall}`} className="ui-cut relative h-16 w-12 overflow-hidden bg-[#0b1220] bg-cover"
-          style={{ '--c': '6px', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 10%' }}>
+          style={{ '--c': '6px', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 10%' }}>
           <b className="absolute inset-x-0 bottom-0 bg-[#05080f]/80 text-center font-display text-[11px] leading-4 text-white">{p.overall}</b>
         </span>
       ))}

@@ -19,6 +19,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import { faceAt } from './data/cardFace.js';
+import { artId } from './data/artAlias.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -131,7 +132,7 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '레전드 시리즈만 나오는 모드', filter: (s) => s.kind === 'legend' },
-  { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
+  { id: 'champ', group: 'special', rules: ['각 시즌 우승팀', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
     desc: '역대 한국시리즈 우승 팀만 나오는 모드', filter: (s) => s.champion },
   { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
     desc: '2021년부터 올해까지 구단 시즌만 나오는 모드', filter: (s) => s.kind === 'team' && s.year >= 2021 },
@@ -2223,7 +2224,7 @@ const artCache = new Map();
 /** 카드 그림을 미리 불러와 캐시에 채운다 (첫 렌더부터 그림이 보이게) */
 export function preloadArt(players) {
   return Promise.all(players.map((p) => new Promise((resolve) => {
-    const src = `cards/${encodeURIComponent(p.id)}.webp`;
+    const src = `cards/${encodeURIComponent(artId(p.id))}.webp`;
     if (artCache.has(src)) { resolve(); return; }
     const img = new Image();
     img.onload = () => { artCache.set(src, true); resolve(); };
@@ -2233,11 +2234,11 @@ export function preloadArt(players) {
 }
 /** 카드 그림(public/cards/<id>.webp) 경로. 없으면 null */
 function useArt(player) {
-  return useImage(player && !player.isReplacement ? `cards/${encodeURIComponent(player.id)}.webp` : null);
+  return useImage(player && !player.isReplacement ? `cards/${encodeURIComponent(artId(player.id))}.webp` : null);
 }
 /** 정면 상체 프로필(public/profiles/<id>.webp, 3:4) 경로. 없으면 null */
 function useProfile(player) {
-  return useImage(player && !player.isReplacement ? `profiles/${encodeURIComponent(player.id)}.webp` : null);
+  return useImage(player && !player.isReplacement ? `profiles/${encodeURIComponent(artId(player.id))}.webp` : null);
 }
 /** 필드·드래그용 흉상 배경: 프로필이 있으면 위쪽 기준으로 꽉 채우고, 없으면 카드 그림에서 얼굴을 확대해 대신한다 */
 function useBust(player, cropSize = '260%') {
@@ -5198,20 +5199,23 @@ function SettingRow({ label, options, labels, value, onChange, fixed = null }) {
 }
 
 function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null, onNormalView }) {
-  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · special(특별 모드)
+  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · 특별 모드 하나씩
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
-  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · special)
-  const [view, setView] = useState(plays.length ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special'].includes(normalView)) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  const specialIds = DRAFT_MODES.filter((m) => m.group === 'special').map((m) => m.id);
+  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · 특별 모드 id)
+  const openAt = (v) => (v === 'special' ? specialIds[0] : v); // 예전에 묶어 두던 '특별 모드' 칸은 첫 특별 모드로
+  const [view, setView] = useState(plays.length
+    ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special', ...specialIds].includes(normalView)) ? openAt(normalView) : plays[0].key)
+    : (firstMode.group === 'year' ? 'year' : firstMode.id));
   const play = plays.find((x) => x.key === view) || null;
   const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
-  const [specialId, setSpecialId] = useState(firstMode.group === 'special' ? firstMode.id : 'legend');
-  const modeId = view === 'year' ? yearId : view === 'special' ? specialId : play ? null : view;
+  const modeId = view === 'year' ? yearId : play ? null : view;
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
-  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 8구단 라이브
-  const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 여덟 구단이 같이 뽑는다
+  const aug = SEASON_AUGMENTS; // 시즌 증강은 늘 있다
   const haveFirst = withDraftTickets(draftTickets()).first;   // 상점에서 산 우선 지명권
   const [useFirst, setUseFirst] = useState(false);
   const haveFavor = withAugTickets(augShopTickets()).favor;   // 즐겨찾기 우대권
@@ -5230,7 +5234,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
       { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
       { key: 'year', label: '연도별 시즌', sub: `${YEAR_MODES.length}개 시즌 · 한 해 고르기`, img: 'modes/recent.webp', neon: '#a3e635' },
     ] },
-    { group: 'Special', items: [{ key: 'special', label: '특별 모드', sub: `규칙이 다른 ${specials.length}개`, img: 'modes/legend.webp', neon: '#fbbf24' }] },
+    { group: 'Special', items: specials.map((m) => ({ key: m.id, label: m.name, sub: m.rules.join(' · '), img: `modes/${m.id}.webp`, neon: m.neon })) },
   ];
   const acc = play ? play.neon : mode.neon;
 
@@ -5274,38 +5278,18 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         {play ? play.main : (
           <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="relative z-10 flex flex-wrap items-baseline gap-3">
-              <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
-              {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
-                <p className="text-sm text-gray-400">
-                  {view === 'special' ? `규칙이 다른 모드 ${specials.length}개` : `레전드 ${mode.players.length}명 중 대표 선수`}
-                </p>
+              <p className="ui-lab font-display">{special ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
+              {special && (
+                <span className="flex flex-wrap gap-1.5">
+                  {mode.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: mode.neon }}>{r}</span>)}
+                </span>
+              )}
+              {mode.id === 'legend' && mode.series.length === 1 && (
+                <p className="text-sm text-gray-400">{`레전드 ${mode.players.length}명 중 대표 선수`}</p>
               )}
             </div>
             {view === 'year' && <div className="relative z-10"><YearPicker yearId={yearId} onPick={setYearId} /></div>}
-            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : view === 'special' ? (
-              <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
-                {specials.map((m) => {
-                  const on = specialId === m.id;
-                  return (
-                    <button key={m.id} type="button" onClick={() => setSpecialId(m.id)} aria-pressed={on}
-                      className={`ui-cut ${on ? 'ui-frame' : ''} relative aspect-square overflow-hidden bg-[#0b1220] bg-cover text-left transition hover:brightness-110`}
-                      style={{ '--c': '14px', '--a': m.neon, backgroundImage: `url(modes/${m.id}.webp)`, backgroundPosition: '60% 20%' }}>
-                      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.3),rgba(5,8,15,.1) 35%,rgba(5,8,15,.95) 75%)' }} />
-                      <span className="absolute left-4 top-3 font-display text-sm font-extrabold tracking-[0.2em]" style={{ color: m.neon, textShadow: `0 0 12px ${m.neon}` }}>{m.tag}</span>
-                      <span className="absolute inset-x-4 bottom-3 block">
-                        <b className="block text-2xl font-black text-white">{m.name}</b>
-                        <span className="mt-2 flex flex-wrap gap-1.5">
-                          {m.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: m.neon }}>{r}</span>)}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-                <div className="ui-cut grid aspect-square place-items-center bg-white/[0.03] text-sm text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '14px' }}>+ 다음 시즌 공개</div>
-              </div>
-            ) : (
-              <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />
-            )}
+            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />}
           </section>
         )}
 
@@ -5314,9 +5298,9 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <p className="ui-lab font-display">{mode.en}</p>
             <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
             <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
-            {/* 어느 모드든 같은 다섯 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
+            {/* 어느 모드든 같은 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
-              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive}
+              <SettingRow label="드래프트 방식" options={[false, true]} labels={{ false: '혼자 뽑기', true: '같이 뽑기' }} value={live} onChange={setLive}
                 fixed={special ? '자유 영입' : null} />
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
                 fixed={special ? '없음' : null} />
@@ -5324,13 +5308,12 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-              <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
-              {aug > 0 && haveFavor > 0 && (
+              {haveFavor > 0 && (
                 <SettingRow label={`즐겨찾기 우대권 · ${haveFavor}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFavor} onChange={setUseFavor} />
               )}
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: aug > 0 && useFavor && haveFavor > 0 })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: useFavor && haveFavor > 0 })}>
               드래프트 시작 ▶
             </button>
           </aside>

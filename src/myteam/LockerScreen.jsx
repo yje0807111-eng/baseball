@@ -17,6 +17,7 @@ import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
 import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
+import { artId } from '../data/artAlias.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
 const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
@@ -40,7 +41,7 @@ const cardCache = new Map(); // id → Promise<url>
 function preloadCard(p) {
   if (!p || cardCache.has(p.id)) return cardCache.get(p?.id);
   const tryLoad = (src) => new Promise((ok, no) => { const im = new Image(); im.onload = () => ok(src); im.onerror = no; im.src = src; });
-  const id = encodeURIComponent(p.id);
+  const id = encodeURIComponent(artId(p.id)); // 그림이 없는 시즌은 같은 구단 다른 시즌 것을 빌린다
   const job = tryLoad(`cards/${id}.webp`).catch(() => tryLoad(`profiles/${id}.webp`)).catch(() => 'ui/mt/silhouette-player.webp');
   cardCache.set(p.id, job);
   return job;
@@ -676,7 +677,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                         {m && (
                           /* 사진 800×600 을 높이 256(폭 341)으로 — 인물(가로 59%)을 카드 가운데 두고도 양옆이 비지 않는 크기. 사진 칸은 카드 아래 끝에서 멈춰 그라데이션 밖으로 삐져나오지 않게 */
                           <span className="absolute bottom-0 left-1/2 top-[-6px] w-[341px] bg-no-repeat transition-transform duration-300 group-hover:scale-105"
-                            style={{ transform: 'translateX(-59%)', backgroundSize: 'auto 256px', backgroundPosition: 'center top', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
+                            style={{ transform: 'translateX(-59%)', backgroundSize: 'auto 256px', backgroundPosition: 'center top', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(artId(m.id))}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                         )}
                         <span className="absolute inset-x-0 top-0 -bottom-0.5" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f 94%)` }} />
                         <span className="absolute left-3.5 top-2.5 font-display text-[22px] font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>

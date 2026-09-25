@@ -14,6 +14,7 @@ import { randomSeriesTeam } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
+import { gameDetail } from './myteam/gameDetail.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
 const KboAugmentDraft = lazy(() => import('./KboAugmentDraft.jsx'));
@@ -106,7 +107,8 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const pitcherIds = (played.squad || []).filter((p) => p.type === 'pitcher').map((p) => p.id);
     saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
     const mvp = res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null;
-    const base = { my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp };
+    const detail = gameDetail(res, match.my, match.opp, played.boosts);
+    const base = { my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp, detail };
     setMatch(null);
     if (match.kind === 'tourney') {
       // 토너먼트 경기는 경기마다 골드 대신, 끝난 뒤 성적 보상을 한 번에 받는다

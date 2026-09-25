@@ -7,6 +7,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FIELD_SLOTS, PITCH_SLOTS, fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
 import { GRADES, emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
+import { artId } from '../data/artAlias.js';
 
 const GRADE_COLOR = { weak: '#4b5563', plain: '#0ea5e9', solid: '#f59e0b', ace: '#ef4444' };
 const TRAIT_KO = { power: '한 방', mound: '마운드', value: '가성비', defense: '수비', balance: '균형', me: '나' };
@@ -17,7 +18,7 @@ const show = (k, v) => (k === 'str' ? v.toFixed(1) : v);
 const XY = { OF2: [50, 13], OF1: [17, 26], OF3: [83, 26], SS: [34, 47], '2B': [66, 47], '3B': [16, 66], '1B': [84, 66], C: [50, 88], DH: [90, 88] };
 const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
-const face = (p) => `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`;
+const face = (p) => `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`;
 /* 칸 높이와 펼친 판 높이 — 판은 접힌 일곱 칸이 내준 만큼만 쓴다(84−46)×7. 그래서 탑 전체 높이가 늘 같고 칸이 오르내리지 않는다 */
 const FLOOR_H = 92, FOLD_H = 38, PANEL_H = (FLOOR_H - FOLD_H) * 7;   // 판 378 — 접힌 일곱 칸이 내준 높이 그대로
 const TOWER_H = FLOOR_H * 8 + 46;   // 여덟 칸 + 이름표와 바닥 — 이 높이는 여닫아도 바뀌지 않는다

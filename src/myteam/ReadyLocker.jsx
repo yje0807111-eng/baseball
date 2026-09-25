@@ -10,6 +10,7 @@ import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons,
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
+import { artId } from '../data/artAlias.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const A = { bat: '#34d399', def: '#60a5fa', pit: '#f87171', syn: '#fbbf24', main: '#10b981' };
@@ -25,7 +26,7 @@ const TIER = [
 const tierOf = (s) => (!s.level ? 0 : s.level === s.tiers.length ? (s.tiers.length >= 3 ? 4 : 3) : Math.min(s.level, 2));
 const BONUS_KO = { bat: '타격', pit: '투구', power: '파워', contact: '컨택', speed: '주루', defense: '수비', stability: '안정' };
 
-const SynIcon = ({ s, w = 38 }) => {
+export const SynIcon = ({ s, w = 38 }) => {
   const t = TIER[tierOf(s)];
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: w, height: Math.round(w * 0.87), background: t.bd, clipPath: HEX }}>
@@ -155,7 +156,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
       {ace && (
         <div className="mt-cut relative shrink-0 overflow-hidden" style={{ height: 116, ...cut(12), background: '#0b1220' }}>
-          <span className="absolute inset-0 bg-cover" style={{ backgroundPosition: '60% 12%', backgroundImage: `url(cards/${encodeURIComponent(ace.id)}.webp), url(profiles/${encodeURIComponent(ace.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+          <span className="absolute inset-0 bg-cover" style={{ backgroundPosition: '60% 12%', backgroundImage: `url(cards/${encodeURIComponent(artId(ace.id))}.webp), url(profiles/${encodeURIComponent(artId(ace.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
           <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 22%,rgba(5,8,15,.45) 62%,rgba(5,8,15,0))' }} />
           <span className="absolute inset-y-2.5 left-3 flex flex-col justify-center">
             <span className="font-display text-[10px] tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>

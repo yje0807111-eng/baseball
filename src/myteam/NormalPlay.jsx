@@ -6,6 +6,7 @@ import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
+import { artId } from '../data/artAlias.js';
 
 
 
@@ -143,7 +144,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
           const c = tone(p.overall);
           return (
             <div key={p.id} className="ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover"
-              style={{ '--c': '10px', backgroundImage: `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '60% 18%' }}>
+              style={{ '--c': '10px', backgroundImage: `url(cards/${encodeURIComponent(artId(p.id))}.webp), url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '60% 18%' }}>
               <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 70%)' }} />
               <span className="absolute left-2 top-1 font-display text-2xl font-extrabold" style={{ color: c, textShadow: `0 0 12px ${c}88` }}>{p.overall}</span>
               <span className="ui-cut absolute right-2 top-2 px-1.5 font-display text-[10px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: c }}>{p.position}</span>
@@ -201,7 +202,7 @@ export function TourneyHero({ size, t, name, squad }) {
             <span className="ml-auto flex gap-1.5">
               {top.map((p) => (
                 <span key={p.id} title={`${p.name} ${p.overall}`} className="ui-cut h-12 w-9 bg-[#0b1220] bg-cover"
-                  style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 10%' }} />
+                  style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 10%' }} />
               ))}
             </span>
           </div>
