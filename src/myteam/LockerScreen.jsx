@@ -1,5 +1,5 @@
 /*
- * 내 라커 — 사이드 네비(영입 · 내 선수 · 감독·코치)와 드래프트 '선수 평점' 문법의 리스트
+ * 내 라커 — 위 탭(영입 · 내 선수 · 보관함 · 감독·코치 · 아이템) · 넓은 목록 · 오른쪽 상세(유리 결)
  *  영입(L1): 검색 + 후보 리스트 + 오른쪽 상세
  *  내 선수(L2): 포지션 그룹 목록 + 오른쪽 상세(방출)
  *  감독·코치(L6): 네 자리 슬롯 + 후보 리스트 + 효과 합계
@@ -15,10 +15,10 @@ import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quo
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
-import { UiStyle, Bg, TopBar, Btn, Portrait, SideNav, Hero, KV, Stats, FlipFaces } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, Btn, Portrait, Hero, KV, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
-import { KEYFRAMES, PlayerCard, PK_SKELETON } from '../KboAugmentDraft.jsx';
-import { playerTraits, recordCells, HAND_LABEL, traitIconStyle } from './traits.js';
+import { KEYFRAMES } from '../KboAugmentDraft.jsx';
+import { playerTraits, HAND_LABEL } from './traits.js';
 import { artId } from '../data/artAlias.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
@@ -34,8 +34,9 @@ const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', stamina:
 const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
 const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 52px 84px 76px';
+const ROW_COLS = '52px 50px minmax(0,1fr) repeat(4,62px) 64px 118px 88px';
 const GOLD = '#fde047';
+const WARN = '#fbbf24';
 
 /*
  * 선수 카드 그림(cards/ → profiles/ → 실루엣)을 미리 받아 둔다: 목록에서 마우스를 올리면(preloadCard) 상세 판 카드가 누르는 순간 바로 뜬다.
@@ -94,122 +95,66 @@ function Select({ value, onChange, options, all }) {
   );
 }
 
-/** 선수 한 줄 (드래프트 선수 평점 문법) */
-/** 드래프트 카드 종합 숫자와 같은 등급 색: 100 이상 무지개 · 85 이상 초록 · 그 밖은 흰색 */
-const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
-/** 능력치 구간 색(신호등): 70 미만 빨강 · 80 미만 주황 · 90 미만 노랑 · 100 미만 초록 · 100 이상 금색(움직임 없음) */
-const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
-
-/** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false, price = null, capQuiet = false }) {
-  const n = tone(p.overall);
-  const neon = teamNeon(p);
+/** 선수 한 줄 — 동그란 얼굴(구단 색 테) · 은빛 종합 · 이름 · 능력 넷 · CP · 값(특가면 표시) · 단추. 고르면 초록으로 떠오른다 */
+function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stored = false, price = null, capQuiet = false }) {
   const keys = KEYS[p.type] || KEYS.batter;
+  const q = stored ? null : quoteOf(p);
+  const deal = q && price != null && price < q.price;
   return (
-    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
-      <Portrait player={p} w={46} h={54} color={teamTint ? neon : n} />
-      {teamTint
-        ? <b className={`st-v ${statTier(p.overall)} font-display text-t1 font-extrabold leading-none`}>{p.overall}</b>
-        : <b className="font-display text-t1 font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row h-[62px] cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, gap: 14 }}>
+      <Portrait player={p} w={48} h={48} round t={teamNeon(p)} />
+      <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{p.overall}</b>
       <span className="min-w-0">
-        {/* 영입 목록: 포지션은 칩 대신 이름 위 작은 구단색 영문 라벨 */}
-        {teamTint && <small className="block truncate font-display text-t4 font-bold leading-tight tracking-[0.16em]" style={{ color: neon }}>{POS_FULL[p.position]}</small>}
-        <b className="block truncate text-t3 font-black text-white">
+        <b className="block truncate text-t3 font-bold text-white">
           {p.name}
-          {!teamTint && <em className="ml-1.5 px-1.5 py-px text-t4 not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
-          {teamTint && <span className="ml-2 text-t4 font-medium text-gray-500">{p.year} {p.team}</span>}
-          {p.isForeign && <em className="ml-1.5 text-t4 not-italic text-amber-300">외국인</em>}
+          {p.isForeign && <em className="ml-1.5 text-t4 not-italic" style={{ color: WARN }}>외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
-              className={`mt-cut ml-2 px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`} style={{ '--c': '4px' }}>
+              className={`ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`}>
               {bench ? '벤치 ↑' : '출전 ●'}
             </button>
           )}
         </b>
-        {!teamTint && (
-          <small className="block truncate text-t4 text-gray-500">
-            {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
-          </small>
-        )}
+        <small className="block truncate text-t4 text-gray-500">{POS_FULL[p.position]} · {p.year} {p.team}</small>
       </span>
       {keys.map(([label, k]) => {
         const v = p.stats?.[k] ?? 0;
         return (
-          <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-t4 font-semibold text-gray-300">{label}<b className="font-display text-t3" style={{ color: statOf(k, v).num }}>{v}</b></span>
-            <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
-            </span>
+          <span key={k} className="flex flex-col items-center gap-[3px]">
+            <span className="text-t4 text-gray-500">{label}</span>
+            <b className="font-display text-t3 leading-none text-white">{v}</b>
+            <i className="relative block h-[3px] w-[38px] overflow-hidden rounded-full bg-white/[0.08]">
+              <b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
+            </i>
           </span>
         );
       })}
       {/* CP — 캡에 여유가 있을 때(90% 전)는 작게 · 흐리게: 초반엔 골드가 막는다 */}
-      <b className={`text-right font-display ${capQuiet ? 'text-t3 text-gray-500' : 'text-t2 text-amber-300'}`}>{p.cost}<small className="ml-0.5 text-t4 text-gray-500">CP</small></b>
+      <b className={`text-right font-display ${capQuiet ? 'text-t4 text-gray-500' : 'text-t3 text-amber-300'}`}>{p.cost} CP</b>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-t3 text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
-        : (() => {
-          /* 오늘 시세 — 특가면 시세를 줄 긋고, 아니면 기준과 견준 흐름 % */
-          const q = quoteOf(p);
-          const deal = price != null && price < q.price;
-          return (
-            <span className="text-right leading-tight">
-              {deal
-                ? <small className="block font-display text-t4 text-gray-500 line-through">{q.price.toLocaleString()}</small>
-                : <small className="block font-display text-t4" style={{ color: q.pct > 0 ? '#f87171' : q.pct < 0 ? '#60a5fa' : '#6b7280' }}>{q.pct > 0 ? '▲ +' : q.pct < 0 ? '▼ ' : ''}{q.pct}%</small>}
-              <b className="font-display text-t2" style={{ color: deal ? '#fb923c' : GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-t4 text-gray-500">G</small></b>
-            </span>
-          );
-        })()}
-      <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
+        : (
+          <span className="flex flex-col items-end leading-tight">
+            {deal && <small className="text-t4 font-bold" style={{ color: WARN }}>특가</small>}
+            <b className="font-display text-t2" style={{ color: GOLD }}>{(deal ? price : q.price).toLocaleString()}</b>
+          </span>
+        )}
+      <Btn sm pri={on} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
 }
 
-/** 선수를 고르기 전 오른쪽 상세: 실제 상세 판과 같은 자리에 스켈레톤 블록 (드래프트 빈 PICK 과 같은 대기 움직임) */
+/** 선수를 고르기 전 오른쪽 상세 — 고른 뒤와 같은 자리에 숨 쉬는 블록 */
 function EmptyDetail() {
   let i = 0;
   const sk = (style, cls = '') => <span className={`mt-sk ${cls}`} style={{ ...style, '--i': i++ }} />;
-  // 선수를 골랐을 때의 한 장짜리 긴 카드와 같은 틀: 판에서 남은 높이를 재서 카드 크기를 정한다
-  const box = useRef(null);
-  const baseRef = useRef(null);
-  const [w, setW] = useState(0);
-  useEffect(() => {
-    const el = box.current;
-    if (!el) return undefined;
-    const fit = () => setW(Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - (baseRef.current?.offsetHeight || 0)) * 2) / 3))));
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const inset = Math.round(w * 0.016 * 10) / 10;
-  const corner = Math.round(w * 0.07);
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="고른 선수">
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={cut(22)} aria-label="고른 선수">
       <p className="mt-lab" style={{ '--a': '#64748b' }}>선수 정보</p>
-      <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
-        {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
-        <div className="mt-skring" style={{ width: w, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
-          <div>
-            <div className="relative aspect-[2/3] w-full" style={{ containerType: 'inline-size' }}>
-              {PK_SKELETON.map((st, k) => <span key={k} className="pk-sk" style={{ ...st, '--i': k }} />)}
-            </div>
-            <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px` }}>
-              <span className="mb-2 block h-px bg-emerald-400/20" />
-              <div className="grid grid-cols-6 gap-2 py-1.5">
-                {[0, 1, 2, 3, 4, 5].map((k) => <div key={k} className="flex flex-col items-center gap-1.5">{sk({ width: '70%', height: 7 })}{sk({ width: '60%', height: 15 })}</div>)}
-              </div>
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                {[92, 110, 80, 104].map((tw) => <span key={tw}>{sk({ width: tw, height: 26, boxShadow: 'inset 3px 0 0 rgba(148,163,184,.25)' })}</span>)}
-              </div>
-            </div>
-            <span className="pointer-events-none absolute" style={{ inset, border: '1px solid rgba(148,163,184,.14)' }} />
-          </div>
-        </div>
-      </div>
-      {/* 캡 · 팀 종합 한 줄 · 버튼 자리 */}
-      <div className="flex items-center justify-between border-y border-white/10 py-2.5">{sk({ width: 130, height: 12 })}{sk({ width: 110, height: 12 })}</div>
-      <div className="mt-cut mt-skbtn h-[46px] w-full" style={cut(10)} />
+      {sk({ flex: 1, minHeight: 0, borderRadius: 18 })}
+      <div className="grid grid-cols-2 gap-2">{[0, 1, 2, 3].map((k) => <span key={k}>{sk({ height: 52, borderRadius: 14 })}</span>)}</div>
+      <div className="flex flex-col gap-2.5">{[0, 1, 2].map((k) => <span key={k} className="flex justify-between">{sk({ width: 80, height: 12, borderRadius: 6 })}{sk({ width: 70, height: 12, borderRadius: 6 })}</span>)}</div>
+      <div className="mt-skbtn h-[62px] w-full rounded-2xl" />
     </aside>
   );
 }
@@ -244,100 +189,74 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand}
     gold={gold} price={price} refund={refund} cands={cands} out={out} onOut={onOut} onSwap={onSwap}
-    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} quote={owned || stored ? null : { ...quoteOf(p), base: priceOf(p) }} />;
+    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} />;
 }
 
-/**
- * 카드(2:3) + 바로 아래 붙은 받침(실적 줄 · 강점/약점 칩): 받침은 카드와 같은 문법 —
- * 검은 면 · 구단 네온 안쪽 테두리 · 네온 구분선 · Saira 영문 라벨 · 카드 칩 모양. 판에서 남은 높이를 재서 카드 크기를 정한다
- */
-function CardWithRecord({ p, tr }) {
-  const box = useRef(null);
-  const baseRef = useRef(null);
-  const [w, setW] = useState(0);
-  /* 카드 폭이 받침 높이를 바꾸고 받침 높이가 다시 카드 폭을 바꾼다 — 칩이 한 줄과 두 줄 사이를 오가면
-     두 값 사이에서 끝없이 튄다. 같은 폭이 다시 나오면 튀는 중으로 보고 넘치지 않는 작은 쪽에서 멈춘다 */
-  const seen = useRef({ box: '', tried: new Set(), fixed: null });
+/** 반짝이 카드 — 선수 카드 그림 · 이름 · 은빛 종합. 빛줄기가 지나가고 마우스를 따라 기울어진다 */
+function HoloCard({ p }) {
+  const ref = useRef(null);
+  const [src, setSrc] = useState(null);
   useEffect(() => {
-    const el = box.current;
-    if (!el) return undefined;
-    seen.current = { box: '', tried: new Set(), fixed: null }; // 선수가 바뀌면 받침도 달라지니 이력을 비운다
-    const fit = () => {
-      const st = seen.current;
-      const room = `${el.clientWidth}x${el.clientHeight}`;
-      if (room !== st.box) { st.box = room; st.tried = new Set(); st.fixed = null; } // 판이 실제로 바뀌면 다시 잰다
-      if (st.fixed != null) return;
-      const baseH = baseRef.current?.offsetHeight || 0;
-      const next = Math.max(0, Math.floor(Math.min(el.clientWidth, ((el.clientHeight - baseH) * 2) / 3)));
-      if (st.tried.has(next)) { st.fixed = Math.min(...st.tried); setW(st.fixed); return; }
-      st.tried.add(next);
-      setW(next);
+    let live = true;
+    setSrc(null);
+    preloadCard(p).then((u) => { if (live) setSrc(u); });
+    return () => { live = false; };
+  }, [p.id]);
+  useEffect(() => {
+    const move = (e) => {
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      const near = Math.abs(x) < 1.2 && Math.abs(y) < 1.2;
+      el.style.setProperty('--ry', `${near ? x * 16 : -6}deg`);
+      el.style.setProperty('--rx', `${near ? -y * 12 : 2}deg`);
     };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    if (baseRef.current) ro.observe(baseRef.current);
-    return () => ro.disconnect();
-  }, [p.id]); // 선수가 바뀌면 받침이 새로 그려지므로 다시 잰다
-  const neon = teamNeon(p);
-  const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])];
-  const inset = Math.round(w * 0.016 * 10) / 10; // 카드 속 안쪽 테두리(pk-fr)와 같은 1.6%
-  const corner = Math.round(w * 0.07); // 카드 잘린 모서리와 같은 7%
+    window.addEventListener('pointermove', move);
+    return () => window.removeEventListener('pointermove', move);
+  }, []);
   return (
-    <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
-      {/* 한 장짜리 긴 카드: 카드 자체 모서리 · 안쪽 테두리는 끄고(pk-long) 카드+받침 전체를 한 번에 자르고 두른다.
-          카드 혼자 떠오르면 받침과 어긋나 보여서 등장 움직임도 전체에 */}
-      <div key={p.id} className="pk-long relative animate-[rise_.35s_ease-out_both] bg-[#05080f]"
-        style={{ width: w, '--n': neon, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
-        <div className="aspect-[2/3] w-full">
-          <PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none', transform: 'none' }} />
-        </div>
-        <div ref={baseRef} style={{ padding: `2px ${inset + 10}px ${inset + 12}px`, background: 'linear-gradient(180deg,#05080f,#070c16)' }}>
-          <span className="mb-2 block h-px" style={{ background: 'linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent))' }} />
-          {/* 실적: 작은 영문 라벨 + 굵은 숫자 */}
-          <div className="grid grid-cols-6">
-            {recordCells(p).map(([k, v], i) => (
-              <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 rgba(255,255,255,.07)' : undefined }}>
-                <span className="font-display text-t4 font-semibold tracking-[0.08em] text-gray-400">{k}</span>
-                <b className={`font-display text-t2 font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
-              </div>
-            ))}
-          </div>
-          {/* 강점 · 약점: 잘린 모서리 태그 · 왼쪽 구단 네온 줄 · ▲ 강점 / ▼ 약점만 색 */}
-          {chips.length > 0 && (
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {chips.map(([t, good]) => (
-                <span key={t.id} className="inline-flex h-[26px] items-center gap-1.5 pl-[9px] pr-2.5"
-                  style={{ clipPath: 'polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--n) 22%, transparent), rgba(5,8,15,.7))', boxShadow: 'inset 3px 0 0 var(--n)' }}>
-                  <b className="text-t4" style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>
-                  <span className="text-t4 font-bold text-gray-100">{t.name}</span>
-                  <span className="font-display text-t4 text-gray-400">{t.why}</span>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-        {/* 카드+받침 전체에 한 번만: 카드 속 테두리와 같은 간격 · 같은 색 */}
-        <span className="pointer-events-none absolute" style={{ inset, border: '1px solid color-mix(in srgb, var(--n) 45%, transparent)' }} />
+    /* 떠오르는 움직임은 바깥 틀에 — 카드 자체의 기울기(transform)와 겹치지 않게 */
+    <div key={p.id} className="flex min-h-0 flex-1 animate-[rise_.35s_ease-out_both] flex-col">
+      <div ref={ref} className="mt-holo min-h-0 flex-1" style={{ '--t': teamNeon(p), backgroundImage: src ? `url(${src})` : undefined }}>
+        <span className="bottom-3.5 left-4 flex flex-col">
+          <small className="text-t4 text-gray-300">{POS_FULL[p.position]} · {p.year} {p.team}</small>
+          <b className="text-t1 font-black leading-tight text-white">{p.name}</b>
+        </span>
+        <b className="mt-ovr bottom-1.5 right-4 font-display text-[52px] font-extrabold leading-none">{p.overall}</b>
       </div>
     </div>
   );
 }
 
 function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], out = null, onOut, onSwap,
-  stored = false, clubFull = false, onStore, onEnter, quote = null }) {
+  stored = false, clubFull = false, onStore, onEnter }) {
   const goldAfter = owned || stored ? gold + (stored ? 0 : refund) : gold + refund - price;
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
-      <p className="mt-lab" style={{ '--a': n }}>{owned ? '내 선수 정보' : stored ? '보관함 선수' : '영입 후보 정보'}</p>
-      {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
-      <CardWithRecord p={p} tr={tr} />
-      {/* 영입 후보: 기준 영입가 · 인기 · 오늘 시세 */}
-      {quote && (
-        <div className="flex items-baseline justify-between text-t4 text-gray-400">
-          <span>기준 <b className="font-display text-t3 text-gray-200">{quote.base.toLocaleString()}</b></span>
-          <span>인기 <b className="font-display text-t3" style={{ color: quote.pop ? '#fbbf24' : '#9ca3af' }}>{quote.pop ? `+${quote.pop}%` : '—'}</b></span>
-          <span>시세 <b className="font-display text-t3" style={{ color: quote.pct > 0 ? '#f87171' : quote.pct < 0 ? '#60a5fa' : '#9ca3af' }}>{quote.pct > 0 ? '▲ +' : quote.pct < 0 ? '▼ ' : ''}{quote.pct}%</b></span>
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3.5 p-5" style={cut(22)}>
+      <p className="mt-lab">{owned ? '내 선수 정보' : stored ? '보관함 선수' : '영입 후보 정보'}</p>
+      <HoloCard p={p} />
+      {/* 능력 넷 — 2×2 칸 · 숫자 · 가는 막대 */}
+      <div className="grid shrink-0 grid-cols-2 gap-2">
+        {keys.map(([label, k]) => {
+          const v = p.stats?.[k] ?? 0;
+          return (
+            <div key={k} className="mt-tile flex flex-col gap-1.5">
+              <span className="flex items-baseline justify-between"><span className="text-t4 text-gray-400">{label}</span><b className="font-display text-t2 leading-none text-white">{v}</b></span>
+              <span className="block h-1 overflow-hidden rounded-full bg-white/[0.08]"><i className="block h-full rounded-full" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} /></span>
+            </div>
+          );
+        })}
+      </div>
+      {/* 강점 · 약점 */}
+      {(tr.good.length + tr.bad.length > 0) && (
+        <div className="flex shrink-0 flex-wrap gap-1.5">
+          {[...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])].slice(0, 4).map(([t, good]) => (
+            <span key={t.id} className="mt-chip" style={{ '--a': good ? '#34d399' : '#f87171' }} title={t.why}>
+              <b style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>{t.name}
+            </span>
+          ))}
         </div>
       )}
       {/* 교체 영입: 내보낼 선수 고르기 (같은 포지션 약한 순) */}
@@ -350,8 +269,8 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
               const back = stored ? 0 : refundOf(x); // 보관함에서 들이면 나가는 선수는 보관함으로
               return (
                 <button key={x.id} type="button" onClick={() => onOut?.(x.id)} aria-pressed={on}
-                  className="mt-cut min-w-0 px-2 py-1 text-left"
-                  style={{ ...cut(5), background: on ? 'rgba(248,113,113,.16)' : 'rgba(255,255,255,.045)', boxShadow: on ? 'inset 0 0 0 1px rgba(248,113,113,.7)' : undefined }}>
+                  className="mt-cut min-w-0 px-2.5 py-1.5 text-left"
+                  style={{ ...cut(10), background: on ? 'rgba(248,113,113,.16)' : 'rgba(255,255,255,.05)', boxShadow: on ? 'inset 0 0 0 1px rgba(248,113,113,.7)' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
                   <b className="block truncate text-t4" style={{ color: on ? '#fecaca' : '#e5e7eb' }}>{x.name}</b>
                   <small className="block truncate font-display text-t4 text-gray-400">{x.position} · {x.overall}{back ? ` · +${back} G` : ''}</small>
                 </button>
@@ -361,10 +280,11 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
         </div>
       )}
       {/* 맨 아래: 남는 캡 · 남는 골드 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
-      <div className="grid grid-cols-3 border-y border-white/10 py-1.5 text-t4 text-gray-400">
-        <span>남는 캡<b className="block font-display text-t3" style={{ color: after > cap ? '#f87171' : '#fff' }}>{(cap - after).toLocaleString()}</b></span>
-        <span className="text-center">남는 골드<b className="block font-display text-t3" style={{ color: goldAfter < 0 ? '#f87171' : GOLD }}>{goldAfter.toLocaleString()}</b></span>
-        <span className="text-right">팀 종합<b className="block font-display text-t3" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
+      <div className="shrink-0">
+        {!owned && !stored && <KV sm k="영입가" v={`${price.toLocaleString()} G`} color={GOLD} />}
+        <KV sm k="남는 골드" v={goldAfter.toLocaleString()} color={goldAfter < 0 ? '#f87171' : '#fff'} />
+        <KV sm k="남는 캡" v={(cap - after).toLocaleString()} color={after > cap ? '#f87171' : '#fff'} />
+        <KV sm k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
       </div>
       <div>
         {owned
@@ -562,6 +482,85 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
   );
 }
 
+/** 상단 바 — 엔트리 · 외국인 요약. 누르면 포지션별 구성 창 */
+function EntryBox({ squad, lim, issues }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    window.addEventListener('pointerdown', close);
+    return () => window.removeEventListener('pointerdown', close);
+  }, [open]);
+  const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
+  // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
+  const tint = (n, min) => (n < min ? '#f87171' : n > min ? '#7dd3fc' : min ? '#34d399' : '#6b7280');
+  const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-t3" style={{ color }}>{n}</b><small className="text-t4 text-gray-500">/{d}</small></span>;
+  const cell = (key) => {
+    const r = pos[key];
+    const n = squad.filter((p) => p.position === key).length;
+    return (
+      <div key={key} className="flex h-[34px] items-center justify-between border-b border-white/[0.07] px-1">
+        <span className="text-t3 text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
+      </div>
+    );
+  };
+  const used = freeUsed(squad);
+  const fc = foreignCount(squad);
+  const ok = squad.length === lim.size && !issues.length;
+  const ec = ok ? '#34d399' : squad.length > lim.size || issues.length ? '#f87171' : '#e5e7eb';
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
+        className="mt-cut flex items-center gap-5 px-4 py-1.5 hover:bg-white/[0.06]" style={{ ...cut(12), background: open ? 'rgba(255,255,255,.08)' : undefined }}>
+        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-500">엔트리</small><b className="font-display text-t2" style={{ color: ec }}>{squad.length} / {lim.size}</b></span>
+        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-500">외국인</small><b className="font-display text-t2 text-white">{fc} / {lim.foreign}</b></span>
+      </button>
+      {open && (
+        <div className="mt-cut mt-glass absolute right-0 top-[calc(100%+8px)] z-40 w-[320px] p-4" style={{ ...cut(18), background: 'rgba(10,15,26,.96)' }}>
+          <p className="mt-lab pb-2">엔트리 구성</p>
+          <div className="grid grid-cols-2 gap-x-3">
+            <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
+            <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
+          </div>
+          <div className="mt-3 flex justify-between px-1 text-t3 text-gray-300">
+            <span>자유 자리 {frac(used, lim.free, used > lim.free ? '#f87171' : used === lim.free ? '#34d399' : '#e5e7eb')}</span>
+            <span>외국인 {frac(fc, lim.foreign, fc > lim.foreign ? '#f87171' : '#e5e7eb')}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** 엔트리 프리셋 — 저장 · 불러오기 (칸은 상점). 내 선수 탭 위 한 줄 */
+function PresetBar({ team, squad, onSave, onLoad }) {
+  return (
+    <div className="mt-cut mt-glass flex items-center gap-3 px-4 py-2.5" style={cut(18)}>
+      <p className="mt-lab shrink-0">프리셋</p>
+      {Array.from({ length: PRESET_BASE + PRESET_EXTRA_MAX }, (_, i) => {
+        const open = i < presetCount(team);
+        const ps = team.presets?.[i];
+        const why = open && ps ? presetIssue(team, ps) : null;
+        const on = team.presetOn === i && !!ps;
+        const ovr = ps ? Math.round(ps.ids.map((id) => [...squad, ...(team.club || [])].find((x) => x.id === id)).filter(Boolean).reduce((n, x, _, l) => n + x.overall / l.length, 0)) : 0;
+        return (
+          <div key={i} className="mt-cut flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5" style={{ ...cut(12), opacity: open ? 1 : 0.4, background: on ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.04)', boxShadow: on ? 'inset 0 0 0 1px rgba(16,185,129,.45)' : undefined }}>
+            <span className="min-w-0 flex-1 leading-tight">
+              <b className="block truncate text-t3" style={{ color: on ? '#34d399' : '#e5e7eb' }}>{ps?.name || `프리셋 ${i + 1}`}</b>
+              <small className="block truncate text-t4" style={{ color: why && ps ? '#fca5a5' : '#6b7280' }}>
+                {!open ? '상점에서 열기' : !ps ? '비어 있음' : why || `${ps.ids.length}명 · 종합 ${ovr || '-'}`}
+              </small>
+            </span>
+            <Btn sm disabled={!open} onClick={() => onSave(i)}>저장</Btn>
+            <Btn sm pri disabled={!open || !ps || !!why} onClick={() => onLoad(i)}>불러오기</Btn>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
@@ -577,6 +576,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [year, setYear] = useState('');
   const [club, setClub] = useState('');
   const [pos, setPos] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false); // 연도 · 구단 · 포지션 칸
   const [sel, setSel] = useState(null);
   const [staffSlot, setStaffSlot] = useState(null); // null = 지정 해제(오른쪽에 코치진 한 줄 프로필)
   const [itemId, setItemId] = useState(null);
@@ -714,102 +714,61 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         .st-v.t75 { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
         .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 `}</style>
-      <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
+      <GlassBg tint={sel ? teamNeon(sel) : '#10b981'} />
       <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack}
-        right={<button type="button" onClick={() => setRulesOpen(true)} aria-label="라커 규칙"
-          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-t3 font-black text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>?</button>} />
+        steps={(
+          <nav className="mt-tabs ml-2" aria-label="라커 메뉴">
+            {NAV.map((it) => (
+              <button key={it.key} type="button" className={`mt-tab ${tab === it.key ? 'on' : ''}`} aria-pressed={tab === it.key}
+                onClick={() => { setTab(it.key); setSel(null); setItemTarget(null); }}>{it.label}</button>
+            ))}
+          </nav>
+        )}
+        right={(
+          <>
+            <EntryBox squad={squad} lim={lim} issues={issues} />
+            <button type="button" onClick={() => setRulesOpen(true)} aria-label="라커 규칙"
+              className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t3 font-black text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={cut(12)}>?</button>
+          </>
+        )} />
       {rulesOpen && <LockerRules onClose={() => setRulesOpen(false)} />}
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
-        style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
-
-        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); setItemTarget(null); }} label="라커 메뉴" compact>
-          {(() => {
-            // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
-            const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
-            const tint = (n, min) => (n < min ? '#f87171' : n > min ? '#7dd3fc' : min ? '#34d399' : '#6b7280');
-            const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-t3" style={{ color }}>{n}</b><small className="text-t4 text-gray-500">/{d}</small></span>;
-            const cell = (key) => {
-              const r = pos[key];
-              const n = squad.filter((p) => p.position === key).length;
-              return (
-                <div key={key} className="flex h-[34px] items-center justify-between border-b border-white/[0.07] px-[5px]">
-                  <span className="text-t3 text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
-                </div>
-              );
-            };
-            const used = freeUsed(squad);
-            const fc = foreignCount(squad);
-            const entryOk = squad.length === lim.size && !issues.length;
-            return (
-              <>
-                <div className="flex items-center justify-between px-0.5 pb-2.5">
-                  <p className="mt-lab" style={{ fontSize: 12 }}>엔트리 구성</p>
-                  {frac(squad.length, lim.size, entryOk ? '#34d399' : squad.length > lim.size ? '#f87171' : '#e5e7eb')}
-                </div>
-                <div className="grid grid-cols-2 gap-x-2.5">
-                  <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
-                  <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
-                </div>
-                <div className="mt-3 flex justify-between px-[5px] text-t3 text-gray-300">
-                  <span>자유 자리 {frac(used, lim.free, used > lim.free ? '#f87171' : used === lim.free ? '#34d399' : '#e5e7eb')}</span>
-                  <span>외국인 {frac(fc, lim.foreign, fc > lim.foreign ? '#f87171' : '#e5e7eb')}</span>
-                </div>
-                {/* 엔트리 프리셋 — 저장 · 불러오기 (칸은 상점) */}
-                <p className="mt-lab px-0.5 pb-1.5 pt-4" style={{ fontSize: 12 }}>프리셋</p>
-                {Array.from({ length: PRESET_BASE + PRESET_EXTRA_MAX }, (_, i) => {
-                  const open = i < presetCount(team);
-                  const ps = team.presets?.[i];
-                  const why = open && ps ? presetIssue(team, ps) : null;
-                  const on = team.presetOn === i && !!ps;
-                  const ovr = ps ? Math.round(ps.ids.map((id) => [...squad, ...(team.club || [])].find((x) => x.id === id)).filter(Boolean).reduce((n, x, _, l) => n + x.overall / l.length, 0)) : 0;
-                  return (
-                    <div key={i} className="mb-1 flex items-center gap-1.5 px-0.5" style={{ opacity: open ? 1 : 0.4 }}>
-                      <span className="min-w-0 flex-1">
-                        <b className="block truncate text-t4" style={{ color: on ? '#34d399' : '#e5e7eb' }}>{ps?.name || `프리셋 ${i + 1}`}{on ? ' ●' : ''}</b>
-                        <small className="block truncate text-t4" style={{ color: why && ps ? '#fca5a5' : '#6b7280' }}>
-                          {!open ? '상점에서 열기' : !ps ? '비어 있음' : why || `${ps.ids.length}명 · 종합 ${ovr || '-'}`}
-                        </small>
-                      </span>
-                      <button type="button" disabled={!open} onClick={() => settle(savePreset(team, i))}
-                        className="mt-cut px-2 py-1 text-t4 font-bold text-gray-300 hover:text-white disabled:pointer-events-none" style={{ ...cut(4), background: 'rgba(255,255,255,.06)' }}>저장</button>
-                      <button type="button" disabled={!open || !ps || !!why} onClick={() => { const next = loadPreset(team, i); if (next) { settle(next); setSel(null); } }}
-                        className="mt-cut px-2 py-1 text-t4 font-bold text-[#05080f] disabled:opacity-30" style={{ ...cut(4), background: '#34d399' }}>불러오기</button>
-                    </div>
-                  );
-                })}
-              </>
-            );
-          })()}
-        </SideNav>
+      <div className="relative grid min-h-0 flex-1 gap-5 px-7 pb-6 pt-2"
+        style={{ gridTemplateColumns: 'minmax(0,1fr) 460px', gridTemplateRows: 'minmax(0,1fr)' }}>
 
         {tab === 'scout' && (
-          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('선수 영입', null, undefined, (
-              <div className="flex items-center gap-2">
-                <button type="button" aria-pressed={dealOnly} onClick={() => { setDealOnly((v) => !v); setLimit(60); }}
-                  className="mt-cut px-3 py-2 text-t3 font-bold"
-                  style={{ ...cut(6), color: dealOnly ? '#05080f' : '#fdba74', background: dealOnly ? '#fb923c' : 'rgba(255,255,255,.06)', boxShadow: dealOnly ? undefined : 'inset 0 0 0 1px rgba(251,146,60,.45)' }}>
-                  오늘의 특가 {deals.size}
-                </button>
-                <button type="button" aria-pressed={canOnly} onClick={() => { setCanOnly((v) => !v); setLimit(60); }}
-                  className="mt-cut mr-2 px-3 py-2 text-t3 font-bold"
-                  style={{ ...cut(6), color: canOnly ? '#05080f' : '#d1d5db', background: canOnly ? '#34d399' : 'rgba(255,255,255,.06)', boxShadow: canOnly ? undefined : 'inset 0 0 0 1px rgba(255,255,255,.16)' }}>
-                  영입 가능만
-                </button>
-                <span className="text-t3 text-gray-400">정렬</span>
-                <div className="w-40">
-                  <Select value={sort} onChange={(v) => { setSort(v); setLimit(60); }} options={['스탯 낮은 순', 'CP 높은 순', 'CP 낮은 순', '영입가 낮은 순', '시세 내린 순']} all={SORT_DEFAULT} />
-                </div>
-              </div>
-            ))}
-            <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
+          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
+            <div className="flex items-center gap-2">
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut w-full min-w-0 bg-transparent px-3 py-2.5 text-t3 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:font-normal placeholder:text-gray-500/80 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.26)] focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(6)} />
-              <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
-              <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
-              <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
+                className="mt-cut h-10 min-w-0 flex-1 bg-white/[0.05] px-4 text-t3 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.07)] outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(12)} />
+              {(() => {
+                const n = [year, club, pos].filter(Boolean).length;
+                const chip = (on, label, color, onClick) => (
+                  <button type="button" aria-pressed={on} onClick={onClick}
+                    className="mt-cut h-10 px-4 text-t3 font-bold transition"
+                    style={{ ...cut(12), color: on ? '#03140c' : color, background: on ? 'linear-gradient(180deg,#34d399,#0e9f6e)' : 'rgba(255,255,255,.05)', boxShadow: on ? '0 8px 20px -8px rgba(16,185,129,.7)' : 'inset 0 1px 0 rgba(255,255,255,.07)' }}>{label}</button>
+                );
+                return (
+                  <>
+                    {chip(filterOpen || n > 0, n ? `필터 ${n}` : '필터', '#9ca3af', () => setFilterOpen((v) => !v))}
+                    {chip(dealOnly, `오늘의 특가 ${deals.size}`, WARN, () => { setDealOnly((v) => !v); setLimit(60); })}
+                    {chip(canOnly, '영입 가능만', '#9ca3af', () => { setCanOnly((v) => !v); setLimit(60); })}
+                  </>
+                );
+              })()}
+              <div className="w-40">
+                <Select value={sort} onChange={(v) => { setSort(v); setLimit(60); }} options={['스탯 낮은 순', 'CP 높은 순', 'CP 낮은 순', '영입가 낮은 순', '시세 내린 순']} all={SORT_DEFAULT} />
+              </div>
+            </div>
+            {filterOpen && (
+              <div className="mt-2 grid items-center gap-2" style={{ gridTemplateColumns: 'repeat(3,180px) auto' }}>
+                <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
+                <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
+                <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />
+                {(year || club || pos) && <button type="button" onClick={() => { setYear(''); setClub(''); setPos(''); }} className="justify-self-start px-2 text-t3 text-gray-400 hover:text-white">초기화</button>}
+              </div>
+            )}
+            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
               {results.map((p) => (
                 <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
@@ -825,15 +784,19 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         )}
 
         {tab === 'squad' && (
-          <SquadBoard team={team} squad={squad} bench={bench}
-            sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench} onRelease={release}
-            onAutoFill={autoFill} autoDisabled={squad.length >= lim.size} />
+          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
+            <PresetBar team={team} squad={squad} onSave={(i) => settle(savePreset(team, i))}
+              onLoad={(i) => { const next = loadPreset(team, i); if (next) { settle(next); setSel(null); } }} />
+            <SquadBoard team={team} squad={squad} bench={bench}
+              sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench} onRelease={release}
+              onAutoFill={autoFill} autoDisabled={squad.length >= lim.size} />
+          </div>
         )}
 
         {tab === 'club' && (
-          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
+          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             {head('보관함', `${clubList.length} / ${CLUB_MAX}`)}
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
+            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
               {clubList.map((p) => {
                 const full = squad.length >= lim.size;
                 const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);

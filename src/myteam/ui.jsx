@@ -1,4 +1,4 @@
-/* 내 팀 화면들이 함께 쓰는 조각 — 드래프트 화면과 같은 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) */
+/* 내 팀 화면들이 함께 쓰는 조각 — 유리 · 깊이 결(둥근 유리 판 · 윗선 빛 · 그림자 · Saira 숫자) */
 import React, { useEffect, useState } from 'react';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
@@ -6,22 +6,28 @@ import { artId } from '../data/artAlias.js';
 
 export const UiStyle = () => (
   <style>{`
-    .mt-cut { --c:14px; clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
-    .mt-glass { background:rgba(6,10,19,.74); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+    /* 둥근 모서리 — --c 가 곧 둥글기(예전 잘린 모서리 크기 그대로). 안쪽 그림은 둥글기 밖으로 나가지 않게(우선순위 0 이라 스크롤 칸은 그대로) */
+    .mt-cut { --c:14px; border-radius:min(var(--c),22px); }
+    :where(.mt-cut) { overflow:hidden; }
+    /* 유리 판 — 위가 조금 밝은 반투명 · 윗선 빛 · 아래 그림자 */
+    .mt-glass { background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.62); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 30px 60px -30px rgba(0,0,0,.9); }
     @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
     .mt-frame { position:relative; }
-    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top/var(--c) var(--c) no-repeat, linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom/var(--c) var(--c) no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c)/2px 30px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c)/2px 30px no-repeat; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
-    .mt-frame.hot::after { box-shadow:inset 0 0 0 2px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 26%, transparent); }
+    /* 판 테두리 — 옅은 흰 선에 판 색(--a)을 조금. 고른 판(hot)은 판 색 선 · 안쪽 빛 */
+    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 16%,rgba(255,255,255,.07)); }
+    .mt-frame.hot::after { box-shadow:inset 0 0 0 1.5px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 22%, transparent); }
     .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:14px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
-    .mt-lab::before { content:''; width:14px; height:10px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
-    .mt-btn { --c:9px; display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); transition:background .15s, box-shadow .15s, filter .15s; }
-    .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.42); }
+    .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
+    .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
+    .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
-    .mt-btn.pri { background:var(--a,#10b981); color:#05080f; font-weight:800; box-shadow:none; }
-    .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.12); box-shadow:none; }
-    .mt-btn.lg { min-height:62px; font-size:18px; }
-    .mt-btn.sm { --c:7px; min-height:34px; padding:0 14px; font-size:14px; }
-    .mt-chip { --c:6px; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; font-size:12px; font-weight:600; color:#cbd5e1; background:rgba(5,8,15,.6); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 45%,transparent); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+    /* 주 단추 — 판 색 그라데이션 · 윗선 빛 · 판 색 그림자 */
+    .mt-btn.pri { color:#03140c; font-weight:800; background:linear-gradient(180deg,color-mix(in srgb,var(--a,#10b981) 78%,#fff),color-mix(in srgb,var(--a,#10b981) 88%,#000)); box-shadow:0 8px 20px -6px color-mix(in srgb,var(--a,#10b981) 70%,transparent),inset 0 1px 0 rgba(255,255,255,.35); }
+    .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
+    .mt-btn.lg { min-height:62px; border-radius:16px; font-size:18px; }
+    .mt-btn.sm { min-height:34px; padding:0 14px; border-radius:10px; font-size:14px; }
+    .mt-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,.05); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 40%,transparent); }
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
     .mt-bar { height:6px; background:rgba(255,255,255,.08); } .mt-bar > i { display:block; height:100%; }
     .mt-card { position:relative; width:150px; height:200px; overflow:hidden; background:linear-gradient(180deg,#0e1726,#05080f); }
@@ -69,13 +75,14 @@ export const UiStyle = () => (
     .mt-pk .ft b { font-family:'Saira Condensed',sans-serif; font-size:7.4cqw; color:var(--n); }
     .mt-pk .ft span { padding:1cqw 2.4cqw; font-size:4cqw; font-weight:700; color:#05080f; background:var(--n); }
     .mt-wm { position:absolute; left:14px; top:2px; font-family:'Saira Condensed',sans-serif; font-size:58px; font-weight:800; color:rgba(16,185,129,.16); line-height:1; pointer-events:none; }
-    .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:14px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
-    .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
-    .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
-    .mt-row:hover { background:rgba(255,255,255,.05); }
-    /* 구단 색 줄 (영입 목록): 왼쪽에서 구단 색이 은은하게 번지고 왼쪽 네온 줄 · 옅은 구단색 테두리 */
-    .mt-row.team { background:linear-gradient(90deg,color-mix(in srgb,var(--t) 16%,transparent),rgba(255,255,255,.03) 38%); box-shadow:inset 2px 0 0 color-mix(in srgb,var(--t) 70%,transparent), inset 0 0 0 1px color-mix(in srgb,var(--t) 16%,transparent); }
-    .mt-row.team:hover { background:linear-gradient(90deg,color-mix(in srgb,var(--t) 24%,transparent),rgba(255,255,255,.05) 45%); }
+    .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; border-radius:12px; font-size:14px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); }
+    .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; border-radius:10px; }
+    /* 동그란 얼굴 — 구단 색 테(--t) */
+    .mt-por.round { border-radius:50%; background-position:50% 12%; box-shadow:0 0 0 2px #05080f,0 0 0 3.5px var(--t,#334155) !important; }
+    .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; border-radius:14px; background:transparent; text-align:left; width:100%; transition:background .2s, box-shadow .2s; }
+    .mt-row:hover { background:rgba(255,255,255,.045); }
+    .mt-row.team { background:transparent; }
+    .mt-row.team:hover { background:rgba(255,255,255,.045); }
     .mt-staff-in { animation: mtStaffIn .32s cubic-bezier(.2,.8,.2,1) backwards; }
     /* 드래프트 PICK 카드와 같은 뒤집기: 나가는 면은 앞 반(0→90°), 들어오는 면은 뒤 반(−90°→0) · 옆면일 때 4% 들어 올림 */
     .mt-flip { position:relative; perspective:1000px; }
@@ -91,19 +98,37 @@ export const UiStyle = () => (
     @keyframes mtFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
     @keyframes mtFlipOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(1.04); } }
     @keyframes mtStaffIn { from { opacity:0; transform:translateY(18px) scale(1.06); } to { opacity:1; transform:none; } }
-    .mt-row.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a,#10b981) 20%,transparent),rgba(6,10,19,.6)); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 60%,transparent), inset 3px 0 0 var(--a,#10b981); }
+    /* 고른 줄 — 초록으로 물들고 떠오른다 */
+    .mt-row.on, .mt-row.team.on { background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(16,185,129,.03)); box-shadow:inset 0 0 0 1px rgba(16,185,129,.45),0 10px 30px -12px rgba(16,185,129,.5); }
+    /* 종합 숫자 — 위가 밝은 은빛 */
+    .mt-ovr { background:linear-gradient(180deg,#fff,#b6c2d1); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    /* 반짝이 카드 — 빛줄기가 지나가고, 마우스를 따라 기울어진다(--rx · --ry) */
+    @keyframes mtSheen { 0% { background-position:-160% 0; } 100% { background-position:260% 0; } }
+    .mt-holo { position:relative; overflow:hidden; border-radius:18px; background:#0b1220 center 15%/cover no-repeat; transition:transform .25s ease-out;
+      transform:perspective(900px) rotateY(var(--ry,-6deg)) rotateX(var(--rx,2deg));
+      box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12),0 0 60px -10px color-mix(in srgb,var(--t,#10b981) 55%,transparent); }
+    .mt-holo::before { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; mix-blend-mode:screen; background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 47%,rgba(125,211,252,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat; animation:mtSheen 4.5s ease-in-out infinite; }
+    .mt-holo::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(5,8,15,.94)); }
+    .mt-holo > * { position:absolute; z-index:2; }
+    /* 작은 수치 칸 */
+    .mt-tile { border-radius:14px; padding:10px 12px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
     .mt-sb { display:block; height:4px; background:rgba(255,255,255,.1); }
     .mt-sb > b { display:block; height:100%; }
-    .mt-grp { display:flex; align-items:center; gap:10px; margin:14px 0 8px; font-family:'Saira Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.2em; color:#9ca3af; }
+    .mt-grp { display:flex; align-items:center; gap:10px; margin:14px 0 8px; font-size:12px; font-weight:700; color:#9ca3af; }
     .mt-grp::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
-    .mt-nav { position:relative; display:flex; height:4.4rem; flex:none; align-items:center; gap:12px; overflow:hidden; padding:0 14px; text-align:left; background:rgba(255,255,255,.03); clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition:filter .15s; }
+    .mt-nav { position:relative; display:flex; height:4.4rem; flex:none; align-items:center; gap:12px; overflow:hidden; padding:0 14px; border-radius:14px; text-align:left; background:rgba(255,255,255,.03); transition:filter .15s, background .2s; }
     .mt-nav:hover { filter:brightness(1.25); }
-    .mt-nav .th { width:44px; height:3.2rem; flex:none; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
-    .mt-nav.on { background:linear-gradient(90deg,color-mix(in srgb,var(--a) 24%,transparent),rgba(6,10,19,.92)); }
+    .mt-nav .th { width:44px; height:3.2rem; flex:none; border-radius:10px; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); }
+    .mt-nav.on { background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)); box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -8px rgba(0,0,0,.8); }
     .mt-nav.on .th { filter:none; }
     .mt-nav.sm { height:62px; gap:12px; }
     .mt-nav.sm .th { width:40px; height:44px; }
-    .mt-nav.on::after { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--a); box-shadow:0 0 12px var(--a); }
+    .mt-nav.on::after { content:''; position:absolute; left:6px; top:30%; bottom:30%; width:3px; border-radius:3px; background:var(--a); box-shadow:0 0 10px var(--a); }
+    /* 위 탭 — 알약 틀 안에 고른 탭만 떠오른다 */
+    .mt-tabs { display:flex; gap:4px; padding:5px; border-radius:14px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
+    .mt-tab { height:38px; padding:0 20px; border-radius:10px; font-size:14px; font-weight:700; color:#9ca3af; transition:color .2s, background .2s; }
+    .mt-tab:hover { color:#e5e7eb; }
+    .mt-tab.on { color:#fff; background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05)); box-shadow:0 6px 18px -6px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );
@@ -142,8 +167,8 @@ export const PlayerTile = ({ player, img = 'ui/mt/mt-card.webp', onClick, width 
 };
 
 /** 선수 초상 — public/profiles/<id>.webp 가 있으면 그것, 없으면 실루엣 */
-export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff }) => (
-  <span className="mt-por" style={{
+export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff, round = false, t }) => (
+  <span className={`mt-por ${round ? 'round' : ''}`} style={{ '--t': t,
     width: w, height: h,
     backgroundImage: `url(profiles/${encodeURIComponent(artId(player?.id || ''))}.webp), url(ui/mt/silhouette-${staff ? 'coach' : 'player'}.webp)`,
     boxShadow: `inset 0 0 0 1px ${color}99`,
@@ -153,6 +178,14 @@ export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff }) =
 export const Bg = ({ img = 'ui/mt/mt-bg.webp', opacity = 0.9 }) => (
   <div className="fixed inset-0 bg-[#05080f] bg-cover bg-center" style={{ backgroundImage: `url(${img})` }}>
     <div className="absolute inset-0" style={{ background: `radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,${(1 - opacity * 0.6).toFixed(2)}), rgba(5,8,15,.95) 78%), repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px)` }} />
+  </div>
+);
+
+/** 유리 결 배경 — 오른쪽 위에 tint(고른 선수 구단 색) 빛, 왼쪽 아래 초록 빛, 옅은 입자 */
+const NOISE = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E\")";
+export const GlassBg = ({ tint = '#10b981' }) => (
+  <div className="fixed inset-0" style={{ background: `radial-gradient(900px 600px at 78% 18%,color-mix(in srgb,${tint} 30%,transparent),transparent 60%),radial-gradient(800px 700px at 10% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)` }}>
+    <div className="absolute inset-0 opacity-[0.16] mix-blend-overlay" style={{ backgroundImage: NOISE }} />
   </div>
 );
 
@@ -225,11 +258,10 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (
-    <header className="relative z-10 flex h-16 shrink-0 items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
-      <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
+    <header className="relative z-10 flex h-[4.5rem] shrink-0 items-center gap-6 bg-[linear-gradient(180deg,rgba(5,8,15,.7),rgba(5,8,15,0))] px-7">
       {onBack && (
         <button type="button" onClick={onBack} aria-label="메인으로"
-          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-t2 text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
+          className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
       <div className="leading-none">
         <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">{eyebrow}</p>
@@ -244,8 +276,8 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
               <b style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()} / {cap.toLocaleString()}</b>
             </div>
-            <div className="mt-1 h-1.5 bg-white/10">
-              <i className="block h-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : cost < cap * CAP_LOUD ? '#6b7280' : '#10b981', boxShadow: cost < cap * CAP_LOUD && !over ? 'none' : `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
+            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <i className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : cost < cap * CAP_LOUD ? '#6b7280' : '#10b981', boxShadow: cost < cap * CAP_LOUD && !over ? 'none' : `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
             </div>
           </div>
         )}
