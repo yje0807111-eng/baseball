@@ -4581,56 +4581,47 @@ function DuelRow({ label, mine, opp }) {
  * 조각을 제 크기(판의 절반 + 기울기만큼)로 세워 그 안에서 배경을 잡는다.
  * 판 전체를 기준으로 잡으면 확대율이 얼굴을 지나쳐 엉뚱한 곳이 보인다.
  */
-function StarterHalf({ player, right, h }) {
+/**
+ * 선발 한 명 — 카드 하나를 제 색으로 채운다.
+ * 사진은 세로라 넓은 카드를 꽉 채우면 얼굴만 커진다. 높이 기준으로 줄여 상반신을 담고,
+ * 사진이 카드보다 좁아 드러나는 좌우 가장자리는 어둠으로 녹인다.
+ */
+function StarterCard({ player, right, c }) {
   const profile = useProfile(player);
-  /* 프로필은 세로 사진이라 넓은 창을 꽉 채우면 얼굴만 커진다 —
-     높이 기준으로 줄여 상반신을 담고, 둘이 가운데를 보고 서도록 안쪽에 세운다 */
   const bust = useBust(player, '120%');
-  const look = profile
-    ? { ...bust, backgroundSize: 'auto 130%', backgroundPosition: right ? '40% 10%' : '60% 10%' }
-    : bust;
-  const g = h / 2; // 45도: 위 경계가 아래보다 높이만큼 오른쪽에 선다
-  const box = { top: 0, bottom: 0, width: `calc(50% + ${g}px)`, ...(right ? { right: 0 } : { left: 0 }) };
-  const cut = right
-    ? `polygon(${h}px 0, 100% 0, 100% 100%, 0 100%)`
-    : `polygon(0 0, 100% 0, calc(100% - ${h}px) 100%, 0 100%)`;
-  const c = neonOf(player);
+  const look = profile ? { ...bust, backgroundSize: 'auto 130%', backgroundPosition: '50% 10%' } : bust;
   return (
-    <span className="absolute overflow-hidden" style={{ ...box, clipPath: cut }}>
+    <div className="ui-cut relative min-w-0 flex-1 overflow-hidden" style={{ '--c': '14px',
+      background: `linear-gradient(180deg, ${c}3d, rgba(7,11,20,.96) 66%)`,
+      boxShadow: `inset 0 0 0 1px ${c}55, inset 0 -3px 0 ${c}` }}>
+      {/* 인물 뒤에서 번지는 팀 색 */}
+      <span className="absolute inset-0" style={{ background: `radial-gradient(57% 52% at 50% 31%, ${c}5c, transparent 73%)` }} />
       <span className="absolute inset-0 bg-no-repeat" style={look} />
-      {/* 사진이 조각보다 좁아 가장자리가 드러난다 — 양옆에서 어둠이 스며 경계를 지운다 */}
-      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, rgba(5,8,15,.98) 8%, rgba(5,8,15,.08) 46%, rgba(5,8,15,.08) 64%, rgba(5,8,15,.98) 99%)` }} />
-      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, transparent 58%)` }} />
-      {/* 아래는 이름이 앉을 자리 */}
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(0deg, rgba(5,8,15,.92), rgba(5,8,15,.1) 52%, transparent)' }} />
-    </span>
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.97) 4%, rgba(5,8,15,.05) 38%, rgba(5,8,15,.05) 62%, rgba(5,8,15,.97) 96%)' }} />
+      <span className="absolute inset-0" style={{ background: `linear-gradient(0deg, rgba(5,8,15,.93), ${c}1f 55%, transparent)` }} />
+      <b className="absolute top-2 font-display text-[30px] font-extrabold leading-none"
+        style={{ [right ? 'right' : 'left']: 14, color: c, textShadow: `0 0 18px ${c}88` }}>{player.overall}</b>
+      <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: c }}>{right ? 'AI Starter' : 'My Starter'}</p>
+        <p className="text-[25px] font-black leading-tight text-white">{player.name}</p>
+        <p className="text-[11px] text-gray-400">{player.year} {player.team}</p>
+        <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
+          {[['구위', player.stats.stuff], ['제구', player.stats.control], ['체력', player.stats.stamina]].map(([k, v]) => (
+            <span key={k}>{k} <b className="font-display text-[12.5px] text-gray-100">{v}</b></span>
+          ))}
+        </p>
+      </div>
+    </div>
   );
 }
 
-/** 선발 맞대결 — 한 판을 비스듬히 갈라 둘이 마주 선다 */
+/** 선발 맞대결 — 두 장이 폭을 절반씩 나눠 가진다 */
 function StarterDuel({ mine, opp, h = 200 }) {
   if (!mine || !opp) return null;
-  const g = h / 2;
-  const edge = `polygon(calc(50% + ${g}px) 0, calc(50% + ${g + 2}px) 0, calc(50% - ${g - 2}px) 100%, calc(50% - ${g}px) 100%)`;
-  const face = (p, right) => (
-    <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
-      <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: neonOf(p) }}>{right ? 'AI Starter' : 'My Starter'}</p>
-      <p className="text-[26px] font-black leading-tight text-white">{p.name}</p>
-      <p className="text-[11px] text-gray-400">{p.year} {p.team}</p>
-      <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
-        {[['구위', p.stats.stuff], ['제구', p.stats.control], ['체력', p.stats.stamina]].map(([k, v]) => (
-          <span key={k}>{k} <b className="font-display text-[12.5px] text-gray-100">{v}</b></span>
-        ))}
-      </p>
-    </div>
-  );
   return (
-    <div className="ui-cut ui-frame relative shrink-0 overflow-hidden bg-[#0b1220]" style={{ height: h, '--c': '18px', '--a': '#10b981' }}>
-      <StarterHalf player={mine} h={h} />
-      <StarterHalf player={opp} h={h} right />
-      <span className="absolute inset-0" style={{ clipPath: edge, background: 'linear-gradient(180deg,transparent,rgba(255,255,255,.7),transparent)' }} />
-      {face(mine, false)}
-      {face(opp, true)}
+    <div className="relative flex shrink-0 gap-1.5" style={{ height: h }}>
+      <StarterCard player={mine} c="#10b981" />
+      <StarterCard player={opp} c="#f87171" right />
       <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_28px_rgba(255,255,255,.55),0_4px_0_rgba(0,0,0,.6)]">VS</span>
     </div>
   );

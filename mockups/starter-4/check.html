@@ -1,50 +1,51 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><title>선발 맞대결 — 가장자리 녹이기</title>
+<html lang="ko"><head><meta charset="utf-8"><title>선발 맞대결 — 반반 카드</title>
 <style>
   body{margin:0;background:#05080f;color:#e6edf6;font-family:sans-serif;padding:16px}
   h2{font-size:13px;margin:0 0 7px;color:#7c8798;font-weight:600}
-  .panel{position:relative;width:740px;height:200px;overflow:hidden;background:#0b1220;margin-bottom:16px;
-    clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px)}
-  .half{position:absolute;top:0;bottom:0;overflow:hidden}
-  .bg{position:absolute;inset:0;background-repeat:no-repeat}
-  .shade{position:absolute;inset:0}
+  .duel{position:relative;display:flex;gap:6px;width:740px;height:200px;margin-bottom:16px}
+  .card{position:relative;flex:1;min-width:0;overflow:hidden;
+    clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)}
+  .l{position:absolute;inset:0}
   .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;font-size:44px;font-style:italic;font-weight:900;color:#fff;text-shadow:0 0 26px rgba(255,255,255,.55)}
+  .ovr{position:absolute;top:8px;font-size:30px;font-weight:800;line-height:1}
   .who{position:absolute;bottom:12px;z-index:4}
-  .who b{font-size:25px;font-weight:900;display:block}
-  .who small{font-size:11px;color:#94a3b8}
+  .who b{font-size:25px;font-weight:900;display:block;color:#fff}
+  .who small{font-size:11px;color:#94a3b8;display:block}
+  .who em{font-size:11px;letter-spacing:.2em;font-style:normal}
+  .k{font-size:11px;color:#94a3b8;margin-top:2px;display:flex;gap:10px}
 </style></head><body>
 <div id="out"></div>
 <script>
-const H = 200, G = H / 2;
 const MEN = [
-  { id: '2002-doosan_레스', name: '레스', c: '#10b981', l: 'MY STARTER', s: '2002 두산 · 구위 104' },
-  { id: '2002-doosan_김동주', name: '김동주', c: '#f87171', l: 'AI STARTER', s: '2002 두산 · 구위 99' },
+  { id: '2002-doosan_레스', name: '레스', c: '#10b981', l: 'MY STARTER', y: '2002 두산', ovr: 104, k: [['구위',108],['제구',101],['체력',101]] },
+  { id: '2002-doosan_김동주', name: '김동주', c: '#f87171', l: 'AI STARTER', y: '2002 두산', ovr: 99, k: [['구위',105],['제구',99],['체력',105]] },
 ];
 const url = (id) => `../../public/profiles/${encodeURIComponent(id)}.webp`;
-/* 높이 130% · 안쪽 세우기는 고정. 가장자리를 녹이는 겹만 바꾼다 */
-const panel = (melt) => MEN.map((m, i) => {
-  const cut = i ? `polygon(${H}px 0,100% 0,100% 100%,0 100%)` : `polygon(0 0,100% 0,calc(100% - ${H}px) 100%,0 100%)`;
-  const deg = i ? 270 : 90;
-  return `<span class="half" style="width:calc(50% + ${G}px);${i ? 'right:0' : 'left:0'};clip-path:${cut}">
-    <i class="bg" style="background-image:url('${url(m.id)}');background-size:auto 130%;background-position:${i ? '40%' : '60%'} 10%"></i>
-    ${melt(deg, i)}
-    <i class="shade" style="background:linear-gradient(${deg},${m.c}2e,transparent 58%)"></i>
-    <i class="shade" style="background:linear-gradient(0deg,rgba(5,8,15,.92),rgba(5,8,15,.1) 52%,transparent)"></i>
-  </span>`; }).join('')
-  + MEN.map((m, i) => `<span class="who" style="${i ? 'right:16px;text-align:right' : 'left:16px'}">
-      <span style="font-size:11px;letter-spacing:.2em;color:${m.c}">${m.l}</span>
-      <b>${m.name}</b><small>${m.s}</small></span>`).join('')
-  + '<span class="vs">VS</span>';
-
+const card = (m, right, tint) => `<div class="card" style="background:${tint.base(m.c)};box-shadow:inset 0 0 0 1px ${m.c}55, inset 0 -3px 0 ${m.c}">
+  <i class="l" style="background:${tint.glow(m.c)}"></i>
+  <i class="l" style="background-image:url('${url(m.id)}');background-size:auto 130%;background-position:50% 10%;background-repeat:no-repeat"></i>
+  <i class="l" style="background:linear-gradient(90deg,rgba(5,8,15,.97) 4%,rgba(5,8,15,.05) 38%,rgba(5,8,15,.05) 62%,rgba(5,8,15,.97) 96%)"></i>
+  <i class="l" style="background:${tint.foot(m.c)}"></i>
+  <b class="ovr" style="${right ? 'right' : 'left'}:14px;color:${m.c};text-shadow:0 0 18px ${m.c}88">${m.ovr}</b>
+  <span class="who" style="${right ? 'right:16px;text-align:right' : 'left:16px'}">
+    <em style="color:${m.c}">${m.l}</em><b>${m.name}</b><small>${m.y}</small>
+    <span class="k" style="${right ? 'justify-content:flex-end' : ''}">${m.k.map(([k, v]) => `<span>${k} <b style="font-size:12.5px;display:inline;color:#e6edf6">${v}</b></span>`).join('')}</span>
+  </span></div>`;
 const CASES = [
-  ['지금 — 녹이는 겹 없음 (가장자리가 그대로 보인다)', () => ''],
-  ['좌우를 어둠으로 — 이미지 가장자리(35% · 77%)에 맞춰',
-    (deg) => `<i class="shade" style="background:linear-gradient(${deg === 90 ? 90 : 270}deg,rgba(5,8,15,.96) 14%,rgba(5,8,15,.1) 40%,rgba(5,8,15,.1) 70%,rgba(5,8,15,.96) 94%)"></i>`],
-  ['좌우를 넓게 — 더 멀리서부터 스민다',
-    (deg) => `<i class="shade" style="background:linear-gradient(${deg === 90 ? 90 : 270}deg,rgba(5,8,15,.98) 8%,rgba(5,8,15,.08) 46%,rgba(5,8,15,.08) 64%,rgba(5,8,15,.98) 99%)"></i>`],
-  ['가운데만 남기고 — 인물 주변으로 둥글게',
-    () => `<i class="shade" style="background:radial-gradient(58% 92% at 52% 46%,transparent 34%,rgba(5,8,15,.95) 86%)"></i>`],
+  ['지금 적용한 것 — 위에서 팀 색이 깔리고 인물 뒤에서 번진다', {
+    base: (c) => `linear-gradient(180deg,${c}2a,rgba(7,11,20,.97) 64%)`,
+    glow: (c) => `radial-gradient(54% 48% at 50% 32%,${c}4d,transparent 72%)`,
+    foot: (c) => `linear-gradient(0deg,rgba(5,8,15,.94),${c}14 54%,transparent)` }],
+  ['더 진하게 — 카드가 팀 색으로 물든다', {
+    base: (c) => `linear-gradient(180deg,${c}4d,rgba(7,11,20,.94) 70%)`,
+    glow: (c) => `radial-gradient(60% 55% at 50% 30%,${c}66,transparent 74%)`,
+    foot: (c) => `linear-gradient(0deg,rgba(5,8,15,.92),${c}26 56%,transparent)` }],
+  ['옅게 — 바탕만 살짝', {
+    base: (c) => `linear-gradient(180deg,${c}18,rgba(7,11,20,.98) 58%)`,
+    glow: (c) => `radial-gradient(48% 44% at 50% 34%,${c}33,transparent 70%)`,
+    foot: () => 'linear-gradient(0deg,rgba(5,8,15,.95),rgba(5,8,15,.1) 52%,transparent)' }],
 ];
-document.getElementById('out').innerHTML = CASES.map(([t, melt]) =>
-  `<h2>${t}</h2><div class="panel">${panel(melt)}</div>`).join('');
+document.getElementById('out').innerHTML = CASES.map(([t, tint]) =>
+  `<h2>${t}</h2><div class="duel">${card(MEN[0], false, tint)}${card(MEN[1], true, tint)}<span class="vs">VS</span></div>`).join('');
 </script></body></html>
