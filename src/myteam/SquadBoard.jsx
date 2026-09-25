@@ -227,10 +227,12 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
 /**
  * fitSlots: 빈 칸을 남기지 않고 있는 만큼만 (드래프트 정비처럼 자리 수가 다를 때)
  * footer: 벤치 아래 남는 자리에 끼워 넣을 것 (시너지 등)
+ * compact: 경기 준비 — 투수진 · 벤치 칸은 단추로 열고(처음엔 닫힘), 타순 칸 · 구장 카드의 기록을 빼고, footer 는 타순 아래
  */
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 300 }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 300, compact = false }) {
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
+  const [rail, setRail] = useState(!compact); // 투수진 · 벤치 칸 (경기 준비에서는 단추로 연다)
   const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
   const auto = squadOrder(squad, bench, team.order);
   /* 정비 화면은 투수 자리가 다섯뿐이라(선발 1 · 불펜 4) 판이 정해 준 자리를 그대로 쓴다.
@@ -465,10 +467,12 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={14} /></span>
         <span className="absolute inset-x-[7px] bottom-[7px] leading-tight">
           <b className="block truncate text-t4 font-extrabold text-white">{x.p.name}</b>
-          <span className="mt-0.5 flex items-baseline gap-2 font-display leading-none">
-            <span><b className="text-t3 font-bold text-white">{r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">AVG</small></span>
-            <span><b className="text-t3 font-bold text-white">{r.hr ?? '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">HR</small></span>
-          </span>
+          {!compact && (
+            <span className="mt-0.5 flex items-baseline gap-2 font-display leading-none">
+              <span><b className="text-t3 font-bold text-white">{r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">AVG</small></span>
+              <span><b className="text-t3 font-bold text-white">{r.hr ?? '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">HR</small></span>
+            </span>
+          )}
         </span>
       </div>
     );
@@ -527,7 +531,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           transform: `translate(calc(-50% + ${off[0]}px),calc(-50% + ${off[1]}px))${dragging ? ' scale(1.06)' : ''}`,
           transition: dragging && !snapped ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), top .16s cubic-bezier(.2,.8,.2,1), transform .16s cubic-bezier(.2,.8,.2,1)',
           filter: glow, ...inFx(x.id) }}>
-        <Lower p={x.p} c={teamNeon(x.p)} sub={`${shownSlot} · AVG ${r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}`}
+        <Lower p={x.p} c={teamNeon(x.p)} sub={compact ? shownSlot : `${shownSlot} · AVG ${r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}`}
           ovr={previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={18} /> : <Ovr p={x.p} v={after.ovr} size={18} />} />
       </div>
     );
@@ -566,7 +570,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>, document.body,
       )}
       <div className="flex items-baseline gap-3">
-        <p className="mt-lab">선수 배치</p>
+        <p className="mt-lab">{compact ? '라인업' : '선수 배치'}</p>
         {fire && <span className="font-display text-t4 tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
         <div className="ml-auto flex gap-2">
           {onRelease && (
@@ -575,11 +579,15 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           )}
           <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
           {onAutoFill && <Btn sm onClick={onAutoFill} disabled={autoDisabled}>빈 자리 채우기</Btn>}
+          {compact && (
+            <Btn sm onClick={() => setRail((v) => !v)} aria-pressed={rail}
+              style={rail ? { background: 'color-mix(in srgb,#10b981 22%,transparent)', boxShadow: 'inset 0 0 0 2px #10b981' } : null}>투수진 · 벤치</Btn>
+          )}
         </div>
       </div>
 
       {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
-        <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: `minmax(0,1fr) ${railW}px` }}>
+        <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: rail ? `minmax(0,1fr) ${railW}px` : 'minmax(0,1fr)' }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">
             <div ref={fieldRef} className="mt-cut relative min-h-0 flex-1 overflow-hidden bg-[#07130c] bg-cover" style={{ '--c': '18px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 58%' }}>
@@ -605,9 +613,11 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
                 {(w, pitch) => stable(lineupRows, (x) => x.id).map((x) => batCell(x, linePos.get(x.id), w, pitch))}
               </Slots>
             </div>
+            {compact && footer && <div className="shrink-0">{footer}</div>}
           </div>
 
           {/* 오른쪽: 로테이션 · 불펜 · 벤치 */}
+          {rail && (
           <div className="flex min-h-0 flex-col">
             {/* 선발 · 마무리 · 불펜을 한 판에 — 머리글만 사이에 끼우고 줄은 하나의 칸 번호를 쓴다(타순 줄과 같은 방식).
                 야수를 끄는 동안에는 놓을 수 없는 구역이라 판 전체를 회색으로 내린다 */}
@@ -633,8 +643,9 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
                 </div>
               ))}
             </div>
-            {footer && <div className="mt-auto flex shrink-0 flex-col pt-2">{footer}</div>}
+            {!compact && footer && <div className="mt-auto flex shrink-0 flex-col pt-2">{footer}</div>}
           </div>
+          )}
         </div>
       )}
     </section>
