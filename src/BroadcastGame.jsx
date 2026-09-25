@@ -157,6 +157,8 @@ const COUNT_MS = 750; // 공 하나 사이 — 투구가 늘 같은 속도라 �
 const RESULT_MS = 2400; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
 const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
+const OURS = '#10b981';   // 우리 쪽 구역 테두리
+const THEIRS = '#f87171'; // 상대 쪽 구역 테두리
 const WATCH_MARK = 0.09; // 이 무게부터는 공마다 본다 — 경기당 22 타석쯤
 const BRIEF_MS = 1800;   // 볼거리 있는 타석 — 타구만 한 번
 const FLASH_MS = 620;    // 그 밖 — 결과 한 줄
@@ -703,6 +705,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const justOut = count.o > outsRef.current ? count.o - 1 : -1;
   outsRef.current = count.o;
   const mineBat = !g.top; // 내가 치는 회
+  /* 구역 테두리는 팀 색이 아니라 우리 · 상대로 갈린다 — 회가 바뀌어도 헷갈리지 않게 */
+  const offSide = mineBat ? OURS : THEIRS; // 타순 판 = 지금 치는 팀
+  const defSide = mineBat ? THEIRS : OURS; // 투수 판 = 지금 막는 팀
   const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
@@ -819,7 +824,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 타석 — 얼굴에 파워 · 컨택 두 줄. 타자가 바뀌면 카드가 아래에서 올라온다 */}
             <section key={batter?.id} className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden"
-              style={{ '--c': '14px', '--a': battingColor, animation: 'batterIn .34s ease-out both' }}>
+              style={{ '--c': '14px', '--a': offSide, animation: 'batterIn .34s ease-out both' }}>
               <div className="relative shrink-0 bg-[#0b1220] bg-cover" style={{ height: 152, backgroundImage: faceArt(batter), backgroundPosition: '50% 16%' }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
                 <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
@@ -845,9 +850,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </section>
 
             {/* 타순 — 지금 공격하는 팀만. 오늘 한 마디 · 종합 */}
-            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': offFlag?.color || battingColor }}>타순</p>
+                <p className="mt-lab" style={{ '--a': offSide }}>타순</p>
                 <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(off.team.name, !g.top)} 공격</span>
               </div>
               <ul className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-2 pb-2">
@@ -1054,9 +1059,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 </div>
               </div>
             </section>
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': pitchingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': defSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': pitchingColor }}>투수</p>
+                <p className="mt-lab" style={{ '--a': defSide }}>투수</p>
                 <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(def.team.name, g.top)} 수비</span>
               </div>
               <div className="px-3.5 pb-3">
@@ -1092,9 +1097,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </section>
 
-            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>
+            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : OURS }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>불펜</p>
+                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : OURS }}>불펜</p>
                 {queued ? (
                   <span className="ml-auto truncate text-[12px] font-bold text-[#fde047]">교체 대기</span>
                 ) : worn ? (
