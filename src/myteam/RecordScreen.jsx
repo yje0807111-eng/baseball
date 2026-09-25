@@ -31,10 +31,10 @@ const fmtDate = (at) => {
 const STYLE = `
   @keyframes recOpen { from { opacity:0; transform:translateY(-6px); clip-path:inset(0 0 100% 0); } to { opacity:1; transform:none; clip-path:inset(0 0 0 0); } }
   .rec-open { animation: recOpen .28s cubic-bezier(.2,.8,.2,1) both; }
-  .rec-more { display:grid; place-items:center; width:40px; flex:none; background:rgba(255,255,255,.035); color:#9ca3af; transition:background .15s,color .15s; }
-  .rec-more:hover:not(:disabled) { background:rgba(255,255,255,.07); color:#fff; }
+  .rec-more { display:grid; place-items:center; width:52px; flex:none; background:rgba(255,255,255,.06); color:#d1d5db; box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); transition:background .15s,color .15s,box-shadow .15s; }
+  .rec-more:hover:not(:disabled) { background:rgba(255,255,255,.12); color:#fff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.3); }
   .rec-more.on { background:color-mix(in srgb,var(--a) 22%,transparent); color:var(--a); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a) 60%,transparent); }
-  .rec-more:disabled { opacity:.25; cursor:default; }
+  .rec-more:disabled { opacity:.4; cursor:default; }
   .rec-more svg { transition: transform .22s ease; }
   .rec-more.on svg { transform: rotate(180deg); }
 `;
@@ -233,7 +233,7 @@ function GameRow({ h, on, open, onPick, onOpen }) {
         <GameLine h={h} on={on} onPick={onPick} />
         <button type="button" className={`rec-more mt-cut ${open ? 'on' : ''}`} style={{ ...cut(7), '--a': c }} disabled={!h.detail}
           aria-expanded={open} aria-label="경기 상세" onClick={() => onOpen(h)}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5.2 7 9l4-3.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none"><path d="M3 5.2 7 9l4-3.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </div>
       {open && h.detail && <GameDetail h={h} />}
@@ -245,8 +245,8 @@ function GameLine({ h, on, onPick }) {
   const m = modeOf(h);
   const [ko, c] = resultOf(h);
   return (
-    <button type="button" onClick={() => onPick(h)} className={`mt-row mt-cut min-w-0 flex-1 ${on ? 'on' : ''}`}
-      style={{ gridTemplateColumns: '104px 88px minmax(0,1.6fr) 120px 40px 152px', '--a': c }}>
+    <button type="button" onClick={() => onPick(h)} className={`mt-row mt-cut min-w-0 ${on ? 'on' : ''}`}
+      style={{ flex: '1 1 0%', gridTemplateColumns: '104px 88px minmax(0,1.6fr) 120px 40px 152px', '--a': c }}>
       <span className="font-display text-[13px] text-gray-400">{fmtDate(h.at)}</span>
       <span className="mt-cut px-2 py-0.5 text-center text-[11px] font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
       <span className="min-w-0">
