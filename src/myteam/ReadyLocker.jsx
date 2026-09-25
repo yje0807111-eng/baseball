@@ -39,7 +39,7 @@ export const SynIcon = ({ s, w = 38 }) => {
 };
 
 const Rule = () => <span className="block h-px shrink-0 bg-white/[0.08]" />;
-const Sub = ({ children }) => <span className="text-t4 text-gray-400">{children}</span>;
+const Sub = ({ children }) => <span className="text-t3 font-bold text-gray-300">{children}</span>;
 
 /** 상대 전력 합계 — 타순 9명 · 수비 8자리 · 투수 8명 */
 const foeSums = (opponent) => {
