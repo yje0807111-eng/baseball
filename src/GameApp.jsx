@@ -34,7 +34,7 @@ const PrepScreen = lazy(() => import('./myteam/PrepScreen.jsx'));
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
 const screen = (node) => <Suspense fallback={<Loading />}>{node}</Suspense>;
 
-export default function GameApp({ account, setAccount, view, setView, playTab, setPlayTab }) {
+export default function GameApp({ account, setAccount, view, setView, playTab, setPlayTab, recordTab = 'all' }) {
   const [match, setMatch] = useState(null); // 경기 중인 두 팀 { my, opp, kind: 'duel' | 'tourney' | 'ranked' }
   const [prep, setPrep] = useState(null); // 경기 전 정비 { kind, sub, title, startLabel, back }
   const [cup, setCup] = useState('open'); // 새 토너먼트에 걸 조건 (cups.js)
@@ -206,7 +206,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   }
   if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
   if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
-  if (view === 'record') return screen(<RecordScreen account={account} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
+  if (view === 'record') return screen(<RecordScreen account={account} initialMode={recordTab} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
   if (view === 'shop') return screen(<ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
   if (view === 'bracket' && tournament) {
     return screen(<TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}

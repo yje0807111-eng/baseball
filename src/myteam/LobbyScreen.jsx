@@ -2,6 +2,7 @@
 import React from 'react';
 import { UiStyle, Bg, TopBar, teamStats, Stats, KV, Btn, Portrait } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
+import { missionState, WEEK_BONUS, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
 
@@ -71,7 +72,34 @@ function MatchDay({ onPlay }) {
 }
 
 /** 아래 줄: 랭크 판 (R2) — 엠블럼 · 등급 · RP / 다음 등급 RP · 남은 RP · 긴 막대(끝에 다음 등급 엠블럼) · 경기 MVP TOP 3 | 팀 스탯 */
-function RankPanel({ account, team, onRecord }) {
+/** 이번 주 과제 셋 — 진행 막대 · 받을 보상. 누르면 기록 화면의 주간 과제로 */
+function WeekStrip({ account, onOpen }) {
+  const list = missionState(account.week);
+  const ready = list.filter((x) => x.done && !x.claimed).length;
+  const bonusTaken = account.week?.key === weekKey() && account.week?.bonus;
+  const A = '#fbbf24';
+  return (
+    <button type="button" onClick={onOpen} className="flex h-full min-w-0 flex-col justify-center gap-2 border-l border-white/10 pl-5 text-left hover:brightness-125">
+      <div className="flex items-baseline gap-2">
+        <p className="mt-lab" style={{ '--a': A }}>주간 과제</p>
+        <small className="ml-auto text-[11.5px] font-bold" style={{ color: ready ? A : '#6b7280' }}>
+          {ready ? `받을 보상 ${ready}` : bonusTaken ? '보너스 받음 ✓' : `보너스 ${WEEK_BONUS} G`}
+        </small>
+      </div>
+      {list.map(({ m, n, done, claimed }) => (
+        <div key={m.id} className="min-w-0">
+          <span className="flex items-baseline gap-2 text-[12.5px]">
+            <b className="min-w-0 flex-1 truncate" style={{ color: claimed ? '#6b7280' : '#e5e7eb' }}>{m.ko}</b>
+            <b className="shrink-0 font-display text-[13px]" style={{ color: claimed ? '#6b7280' : done ? A : '#9ca3af' }}>{claimed ? '✓' : done ? '받기' : `${n}/${m.goal}`}</b>
+          </span>
+          <span className="relative mt-1 block h-[3px] bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${(n / m.goal) * 100}%`, background: claimed ? '#4b5563' : A }} /></span>
+        </div>
+      ))}
+    </button>
+  );
+}
+
+function RankPanel({ account, team, onRecord, onWeek }) {
   const rp = account.rank?.rp || 0;
   const r = rankOf(rp);
   const sum = rankSummary(account.history || []);
@@ -88,7 +116,7 @@ function RankPanel({ account, team, onRecord }) {
       {/* 배경: 관중석 휴대폰 불빛 띠(판 비율 1920×200) — 오른쪽 팀 스탯 뒤는 어둡게 */}
       <div className="absolute inset-0 bg-cover opacity-45" style={{ backgroundImage: 'url(ui/rank/crowd.webp)', backgroundPosition: 'center' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.6), rgba(5,8,15,.3) 30%, rgba(5,8,15,.4) 60%, rgba(5,8,15,.9) 80%)' }} />
-      <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
+      <div className="relative grid h-full items-center gap-6 px-6 py-2" style={{ gridTemplateColumns: '150px minmax(0,1fr) 290px 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 엠블럼 */}
         <div className="relative h-[150px] w-[150px] shrink-0">
           <span className="absolute inset-[18%] rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${c}40, transparent 70%)` }} />
@@ -140,6 +168,8 @@ function RankPanel({ account, team, onRecord }) {
             )) : <span className="font-display text-xs tracking-[0.24em] text-gray-500">MVP TOP 3 —</span>}
           </button>
         </div>
+
+        <WeekStrip account={account} onOpen={onWeek || onRecord} />
 
         {/* 팀 스탯 (오른쪽 아래) — 리그 평균이 가운데 세로선: 높으면 오른쪽 구단 색, 낮으면 왼쪽 붉게 */}
         <div className="flex h-full flex-col justify-center gap-2.5 border-l border-white/10 pl-5">
@@ -230,7 +260,7 @@ function RefundNotice({ refund, onClose }) {
   );
 }
 
-export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onSignOut, onNotice }) {
+export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onWeek, onSignOut, onNotice }) {
   const team = account.team;
 
   return (
@@ -257,7 +287,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="경기 기록" title="기록"
           desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} />
 
-        <RankPanel account={account} team={team} onRecord={onRecord} />
+        <RankPanel account={account} team={team} onRecord={onRecord} onWeek={onWeek} />
       </div>
       {account.notice === 'starter' && (team.squad || []).length > 0 && <StarterNotice team={team} gold={account.gold} onClose={(go) => onNotice?.(go)} />}
       {account.notice === 'refund' && account.refund && <RefundNotice refund={account.refund} onClose={(go) => onNotice?.(go)} />}

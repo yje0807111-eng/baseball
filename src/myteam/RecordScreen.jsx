@@ -291,12 +291,12 @@ function GameLine({ h, on, onPick }) {
   );
 }
 
-export default function RecordScreen({ account: first, onBack, onAccount }) {
+export default function RecordScreen({ account: first, initialMode = 'all', onBack, onAccount }) {
   /* 도감 · 과제 값은 다른 화면(라커 · 드래프트)에서 바로 저장되니 들어올 때 새로 읽는다 */
   const [account, setAccount] = useState(() => loadAccount() || first);
   const takeAccount = (next) => { setAccount(next); onAccount?.(next); };
   const history = account.history || [];
-  const [mode, setMode] = useState('all');
+  const [mode, setMode] = useState(initialMode);
   const [sel, setSel] = useState(history[0] || null);
   const [open, setOpen] = useState(null); // 펼친 경기의 at
 

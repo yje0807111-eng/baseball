@@ -17,6 +17,10 @@ export default function App() {
   const [account, setAccount] = useState(() => loadAccount());
   const [view, setView] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
   const [playTab, setPlayTab] = useState(null); // 경기를 마치고 돌아올 플레이 탭
+  const [recordTab, setRecordTab] = useState('all'); // 기록 화면을 열 칸 (메인 주간 과제에서 오면 'week')
+
+  /* 메인으로 돌아올 때 저장본을 다시 읽는다 — 라커 · 드래프트에서 바로 저장한 값(과제 진행 등)을 메인 판에 */
+  useEffect(() => { if (view === 'lobby' && account) setAccount(loadAccount()); }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* 빈 라커로 시작하는 계정에는 스타터 26명을 한 번 준다 — 선수 데이터가 무거워 로비와 떼어 필요할 때만 받아 온다 */
   const starterDue = needsStarter(account);
@@ -33,14 +37,14 @@ export default function App() {
   if (view !== 'lobby') {
     return (
       <Suspense fallback={<Loading />}>
-        <GameApp account={account} setAccount={setAccount} view={view} setView={setView} playTab={playTab} setPlayTab={setPlayTab} />
+        <GameApp account={account} setAccount={setAccount} view={view} setView={setView} playTab={playTab} setPlayTab={setPlayTab} recordTab={recordTab} />
       </Suspense>
     );
   }
   return (
     <LobbyScreen account={account}
       onLocker={() => setView('locker')} onPlay={(tab) => { setPlayTab(tab || null); setView('modes'); }} onShop={() => setView('shop')}
-      onAugments={() => setView('augments')} onRecord={() => setView('record')}
+      onAugments={() => setView('augments')} onRecord={() => { setRecordTab('all'); setView('record'); }} onWeek={() => { setRecordTab('week'); setView('record'); }}
       onNotice={(go) => { dismissNotice(); setAccount(loadAccount()); if (go) setView('locker'); }}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
