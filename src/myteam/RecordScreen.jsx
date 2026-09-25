@@ -84,12 +84,12 @@ const FormText = ({ form }) => {
 /* 박스 스코어 — 머리글과 줄이 같은 칸을 쓴다 */
 const BOX_COLS = '20px 36px minmax(0,1fr) 52px repeat(5,50px)';
 const Num = ({ v, c = '#fff', dim = true }) => (
-  <b className="text-right font-display text-[16px] tabular-nums" style={{ color: dim && !v ? '#4b5563' : c }}>{v}</b>
+  <b className="text-center font-display text-[16px] tabular-nums" style={{ color: dim && !v ? '#4b5563' : c }}>{v}</b>
 );
 const BoxHead = ({ label, a, cols }) => (
   <div className="grid items-end gap-2 pb-1" style={{ gridTemplateColumns: BOX_COLS }}>
     <p className="mt-lab" style={{ ...lab(a), gridColumn: 'span 3' }}>{label}</p>
-    {cols.map((k) => <span key={k} className="text-right text-[12px] text-gray-500">{k}</span>)}
+    {cols.map((k) => <span key={k} className="text-center text-[12px] text-gray-500">{k}</span>)}
   </div>
 );
 /** 타순 · 등판 투수 표 */
@@ -103,7 +103,7 @@ function BoxScore({ d }) {
           <b className="font-display text-gray-500">{i + 1}</b>
           <span className="font-display text-[12px] text-gray-400">{b.pos}</span>
           <b className="truncate text-white">{b.name}</b>
-          <span className="text-right"><FormText form={b.form} /></span>
+          <span className="text-center"><FormText form={b.form} /></span>
           <Num v={b.ab} dim={false} c="#d1d5db" />
           <Num v={b.h} />
           <Num v={b.hr} c="#fbbf24" />
@@ -118,7 +118,7 @@ function BoxScore({ d }) {
         <div key={p.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
           <span className="col-span-2 font-display text-[12px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
           <b className="truncate text-white">{p.name}</b>
-          <span className="text-right"><FormText form={p.form} /></span>
+          <span className="text-center"><FormText form={p.form} /></span>
           <Num v={p.pc} dim={false} c="#d1d5db" />
           <Num v={p.bf} dim={false} c="#d1d5db" />
           <Num v={p.h} dim={false} />
