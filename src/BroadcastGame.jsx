@@ -492,8 +492,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     aliveRef.current = true;
     (async () => {
       await sleep(600);
+      /* 한 이닝에 한 번만 묻는다 — 화면이 두 번 올라와도(개발 모드) 증강 판이 겹쳐 뜨지 않게 */
+      const askedAt = aug ? (aug.askedAt || (aug.askedAt = new Set())) : new Set();
       /* 플레이볼 직후 한 장 — 아래 이닝 넘김 판정은 1회를 잡지 못한다 */
-      if (!stop && aliveRef.current && midPickInnings.includes(1) && onMidPick) {
+      if (!stop && aliveRef.current && midPickInnings.includes(1) && onMidPick && !askedAt.has(1)) {
+        askedAt.add(1);
         const first = await onMidPick(1);
         if (first && aliveRef.current) {
           const nextMy = rebuildMy?.(first);
@@ -617,7 +620,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           }
           if (g.final) g.winner = g.home.runs > g.away.runs ? 'home' : g.away.runs > g.home.runs ? 'away' : 'draw';
           // 새 이닝이 시작될 때 그 경기에서만 쓰는 증강을 하나 더
-          if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick) {
+          if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick && !askedAt.has(g.inning)) {
+            askedAt.add(g.inning);
             const picked = await onMidPick(g.inning);
             if (picked && aliveRef.current) {
               const nextMy = rebuildMy?.(picked);
