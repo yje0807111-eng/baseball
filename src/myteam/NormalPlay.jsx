@@ -1,6 +1,7 @@
 /* 플레이 화면의 일반 대결 — 내 라커 26인으로: 단판 한 경기 또는 16 · 32 · 64강 토너먼트 (언제든 새로 열 수 있다) */
 import React from 'react';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues, foreignCount, limitsOf } from './rules.js';
+import CapBar from './CapBar.jsx';
 import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
@@ -129,6 +130,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
           <p className="mt-2 font-display text-lg" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
+          <CapBar team={team} sm className="mt-3 w-[260px]" />
         </div>
       </div>
       <div className="flex items-baseline gap-3 pt-4">
@@ -283,7 +285,12 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
           {other && <p className="text-sm text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
         </>
       )}
-      {!ready && <p className="text-sm text-amber-300">{issues[0]}</p>}
+      {!ready && (
+        <ul className="flex flex-col gap-1">
+          {issues.slice(0, 4).map((x) => <li key={x} className="text-sm text-amber-300">· {x}</li>)}
+        </ul>
+      )}
+      <CapBar team={team} sm />
       <div className="mt-auto flex flex-col gap-2">
         {!ready ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onLocker}>라커에서 채우기 ›</button>
           : single ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onPlay}>경기 시작 ▶</button>

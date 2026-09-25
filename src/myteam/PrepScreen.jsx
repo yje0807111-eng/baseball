@@ -8,6 +8,8 @@ import { myOpponent as rankedOpponent } from './ranked.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { peekNextDuel } from './store.js';
 import { formSeed, oppSeed, applyFormTeam } from './form.js';
+import CapBar from './CapBar.jsx';
+import { capUse } from './rules.js';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -54,10 +56,12 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
           <p className="font-display text-[10px] font-bold tracking-[0.3em] text-gray-500">{sub}</p>
           <b className="text-xl font-extrabold text-white">{title}</b>
         </div>
+        <CapBar team={team} sm className="ml-auto w-[248px]" />
       </header>
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
+            startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : null}
             onStart={(plan) => onStart(ready, init.rest, plan)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
         </div>
       </main>

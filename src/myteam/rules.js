@@ -93,3 +93,10 @@ export function squadIssues(squad, staff = {}, cap = SQUAD_CAP, lim = BASE_LIMIT
   if (cost > cap) out.push(`CP 초과 ${cost}/${cap}`);
   return out;
 }
+
+/** 지금 엔트리가 쓰고 있는 캡 — 화면 어디서나 같은 숫자를 쓰도록 한곳에서 센다 */
+export function capUse(team = {}) {
+  const cap = team.cap || SQUAD_CAP;
+  const cost = squadCost(team.squad || [], team.staff);
+  return { cost, cap, left: cap - cost, over: Math.max(0, cost - cap), pct: Math.min(1.4, cost / cap) };
+}

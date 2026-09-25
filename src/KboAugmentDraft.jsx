@@ -5606,7 +5606,7 @@ const DRAFT_SLOT = { LF: 'OF1', CF: 'OF2', RF: 'OF3' };
 /* 라커 판의 불펜 순서 = 마무리 → 셋업 → 중간 → 롱릴리프 */
 const PEN_ORDER = ['CL', 'SU', 'MR', 'LR'];
 
-export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
+export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트', startBlock = null }) {
   const init = useRef(roster);
   const now = useMemo(() => readyStats(roster, buff), [roster, buff]);
   const was = useMemo(() => readyStats(init.current, buff), [buff]);
@@ -5655,7 +5655,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
       onCommit={commit}
       onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}
       onReset={() => onReplace(init.current)}
-      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} />
+      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} startBlock={startBlock} />
   );
 }
 

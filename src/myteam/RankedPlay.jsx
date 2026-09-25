@@ -1,6 +1,7 @@
 /* 플레이 화면의 랭크전 — 가운데: 시즌 순위표(없으면 시즌 방식 소개) · 오른쪽: 내 등급과 다음 경기 */
 import React from 'react';
 import { squadIssues, SQUAD_CAP, limitsOf } from './rules.js';
+import CapBar from './CapBar.jsx';
 import { UiStyle, KV, Stats, teamStats } from './ui.jsx';
 import { statColor, statPct } from './teamColor.js';
 import { rankOf } from './rank.js';
@@ -172,7 +173,12 @@ export function rankedPanels({ account, onOpen, onLocker }) {
           </div>
         ))}
       </div>
-      {!ready && <p className="text-sm text-amber-300">{issues[0]}</p>}
+      {!ready && (
+        <ul className="flex flex-col gap-1">
+          {issues.slice(0, 4).map((x) => <li key={x} className="text-sm text-amber-300">· {x}</li>)}
+        </ul>
+      )}
+      <CapBar team={team} sm />
       <div className="mt-auto">
         {ready || s
           ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" style={{ '--a': RK }} onClick={onOpen}>
