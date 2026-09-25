@@ -131,7 +131,7 @@ export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '레전드 시리즈만 나오는 모드', filter: (s) => s.kind === 'legend' },
-  { id: 'champ', group: 'special', rules: ['우승팀만', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
+  { id: 'champ', group: 'special', rules: ['각 시즌 우승팀', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
     desc: '역대 한국시리즈 우승 팀만 나오는 모드', filter: (s) => s.champion },
   { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
     desc: '2021년부터 올해까지 구단 시즌만 나오는 모드', filter: (s) => s.kind === 'team' && s.year >= 2021 },
