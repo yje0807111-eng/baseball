@@ -707,7 +707,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const mineBat = !g.top; // 내가 치는 회
   /* 구역 테두리는 팀 색이 아니라 우리 · 상대로 갈린다 — 회가 바뀌어도 헷갈리지 않게 */
   const offSide = mineBat ? OURS : THEIRS; // 타순 판 = 지금 치는 팀
-  const defSide = mineBat ? THEIRS : OURS; // 투수 판 = 지금 막는 팀
+  const defSide = mineBat ? THEIRS : OURS; // 투수 · 불펜 판 = 지금 막는 팀
   const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
@@ -1097,9 +1097,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </section>
 
-            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : OURS }}>
+            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : OURS }}>불펜</p>
+                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>불펜</p>
                 {queued ? (
                   <span className="ml-auto truncate text-[12px] font-bold text-[#fde047]">교체 대기</span>
                 ) : worn ? (
