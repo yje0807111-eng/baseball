@@ -15,10 +15,11 @@ describe('체력이 바닥나면 알아서 내려간다', () => {
   it('체력은 0~100 이고 던질수록 줄어든다', () => {
     const g = createGame({ home: team('H'), away: team('A') });
     expect(staminaOf(g.home)).toBe(100);
-    const before = staminaOf(g.away);
+    expect(staminaOf(g.away)).toBe(100);
+    /* 1회초는 홈이 막는다 — 줄어드는 쪽은 홈 투수 */
     for (let i = 0; i < 20; i += 1) pitch(g, {});
-    expect(staminaOf(g.away)).toBeLessThan(before);
-    expect(staminaOf(g.away)).toBeGreaterThanOrEqual(0);
+    expect(staminaOf(g.home)).toBeLessThan(100);
+    expect(staminaOf(g.home)).toBeGreaterThanOrEqual(0);
   });
   it('양 팀 모두 경기 중에 저절로 바뀐다', () => {
     let swaps = 0; let mine = 0; let theirs = 0;
