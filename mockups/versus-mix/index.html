@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>차이 막대 + 육각 레이더 4안</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:10px 20px 6px}
+  h1{font-family:'Saira Condensed';font-size:22px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:12px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:10px;padding:0 12px 12px;height:calc(911px - 46px)}
+  .cell{position:relative;display:flex;flex-direction:column;overflow:hidden;background:rgba(8,12,20,.5);
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tag{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 10px;background:rgba(5,8,15,.6);flex:0 0 auto}
+  .tag b{font-family:'Saira Condensed';font-size:17px;font-weight:900;color:#10b981}
+  .tag span{font-size:12.5px;font-weight:700}
+  .tag i{font-style:normal;font-size:11px;color:#8b95a6;margin-left:auto}
+  .stage{flex:1;min-height:0;display:grid;place-items:center}
+  /* 실제 오른쪽 판과 같은 폭으로 — 이 안이 화면에 들어갈 몫이다 */
+  .panel{width:540px;background:rgba(8,12,20,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);padding:14px 16px}
+  .who{display:flex;justify-content:space-between;font-family:'Saira Condensed';font-size:10.5px;font-weight:800;letter-spacing:.2em;padding-bottom:9px}
+  .me{color:#34d399} .op{color:#f87171}
+  table{width:100%;border-collapse:collapse}
+  .k{font-size:12px;font-weight:700;color:#cbd5e1;white-space:nowrap}
+  .n{font-family:'Saira Condensed';font-weight:800;font-variant-numeric:tabular-nums}
+</style></head><body>
+<header><h1>차이 막대 + 육각 레이더</h1><p>2번과 4번을 겹친 네 가지 — 안쪽 판은 실제 폭 540px</p></header>
+<div class="grid" id="g"></div>
+<script>
+const ME = '#34d399', OP = '#f87171', DIM = 'rgba(255,255,255,.08)', FLAT = '#94a3b8';
+const ROWS = [['파워', 105, 90], ['컨택', 95, 90], ['주루', 86, 75], ['수비', 83, 81], ['선발', 102, 88], ['불펜', 97, 97]];
+const MAX = 120, MIN = 60;
+const pc = (v) => Math.max(0, Math.min(1, (v - MIN) / (MAX - MIN)));
+const win = (a, b) => (a > b ? ME : a < b ? OP : FLAT);
+const ang = (i) => (Math.PI * 2 * i) / 6 - Math.PI / 2;
+
+/* 값 레이더 — 두 팀을 겹쳐 그린다 */
+function radar(R, pad = 20, label = true) {
+  const S = (R + pad) * 2, c = S / 2;
+  const at = (i, r) => [c + Math.cos(ang(i)) * r, c + Math.sin(ang(i)) * r];
+  const poly = (idx) => ROWS.map((r, i) => at(i, R * (0.22 + 0.78 * pc(r[idx]))).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const web = [0.34, 0.67, 1].map((f) => ROWS.map((_, i) => at(i, R * f).map((n) => n.toFixed(1)).join(',')).join(' '));
+  return `<svg viewBox="0 0 ${S} ${S}" style="width:${S}px;height:${S}px;flex:0 0 auto">
+    ${ROWS.map((_, i) => { const [x, y] = at(i, R); return `<line x1="${c}" y1="${c}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.09)"/>`; }).join('')}
+    ${web.map((p) => `<polygon points="${p}" fill="none" stroke="rgba(255,255,255,.13)"/>`).join('')}
+    <polygon points="${poly(2)}" fill="${OP}3a" stroke="${OP}" stroke-width="2.4"/>
+    <polygon points="${poly(1)}" fill="${ME}3a" stroke="${ME}" stroke-width="2.4"/>
+    ${label ? ROWS.map((r, i) => { const [x, y] = at(i, R + pad * 0.62);
+      return `<text x="${x.toFixed(0)}" y="${(y + 4).toFixed(0)}" text-anchor="middle" font-size="11" font-weight="700" fill="#cbd5e1">${r[0]}</text>`; }).join('') : ''}
+  </svg>`;
+}
+
+/* 차이 막대 — 가운데 0 선에서 앞선 쪽으로만 */
+function diffRows(font = 12) {
+  return `<table>${ROWS.map(([k, a, b]) => {
+    const d = a - b; const w = Math.min(50, Math.abs(d) * 2.4);
+    return `<tr>
+      <td class="k" style="width:22%;padding:4px 0;font-size:${font}px">${k}</td>
+      <td style="width:56%"><div style="position:relative;height:14px;background:${DIM}">
+        <i style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.35)"></i>
+        <i style="position:absolute;top:0;bottom:0;${d >= 0 ? 'left:50%' : 'right:50%'};width:${w}%;background:${win(a, b)}"></i></div></td>
+      <td class="n" style="width:22%;text-align:right;font-size:${font + 2}px;color:${win(a, b)}">${d > 0 ? '+' : ''}${d}</td>
+    </tr>`; }).join('')}</table>`;
+}
+
+const won = ROWS.filter(([, a, b]) => a > b).length;
+const lost = ROWS.filter(([, a, b]) => a < b).length;
+
+/* ── 9. 레이더 위 · 차이 아래 ── */
+const stacked = () => `
+  <div class="who"><span class="me">MY TEAM</span><span class="op">OPPONENT</span></div>
+  <div style="display:grid;place-items:center;padding-bottom:6px">${radar(78, 22)}</div>
+  ${diffRows()}`;
+
+/* ── 10. 레이더 옆 · 차이 목록 ── */
+const side = () => `
+  <div class="who"><span class="me">MY TEAM</span><span class="op">OPPONENT</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    ${radar(72, 20)}
+    <div style="flex:1;min-width:0">${diffRows(11.5)}</div>
+  </div>`;
+
+/* ── 11. 꼭짓점에 차이를 적는 레이더 ── */
+const badge = () => {
+  const R = 84, pad = 30, S = (R + pad) * 2, c = S / 2;
+  const at = (i, r) => [c + Math.cos(ang(i)) * r, c + Math.sin(ang(i)) * r];
+  const poly = (idx) => ROWS.map((r, i) => at(i, R * (0.22 + 0.78 * pc(r[idx]))).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const web = [0.34, 0.67, 1].map((f) => ROWS.map((_, i) => at(i, R * f).map((n) => n.toFixed(1)).join(',')).join(' '));
+  return `
+  <div class="who"><span class="me">MY TEAM</span><span class="op">OPPONENT</span></div>
+  <div style="display:grid;place-items:center">
+    <svg viewBox="0 0 ${S} ${S}" style="width:${S}px;height:${S}px">
+      ${ROWS.map((_, i) => { const [x, y] = at(i, R); return `<line x1="${c}" y1="${c}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.09)"/>`; }).join('')}
+      ${web.map((p) => `<polygon points="${p}" fill="none" stroke="rgba(255,255,255,.13)"/>`).join('')}
+      <polygon points="${poly(2)}" fill="${OP}3a" stroke="${OP}" stroke-width="2.4"/>
+      <polygon points="${poly(1)}" fill="${ME}3a" stroke="${ME}" stroke-width="2.4"/>
+      ${ROWS.map((r, i) => { const d = r[1] - r[2]; const col = win(r[1], r[2]);
+        const [x, y] = at(i, R + pad * 0.66);
+        return `<g><rect x="${(x - 20).toFixed(0)}" y="${(y - 15).toFixed(0)}" width="40" height="15" rx="2" fill="${col}" opacity=".18"/>
+          <text x="${x.toFixed(0)}" y="${(y - 4).toFixed(0)}" text-anchor="middle" font-family="Saira Condensed" font-size="12" font-weight="800" fill="${col}">${d > 0 ? '+' : ''}${d}</text>
+          <text x="${x.toFixed(0)}" y="${(y + 11).toFixed(0)}" text-anchor="middle" font-size="11" font-weight="700" fill="#cbd5e1">${r[0]}</text></g>`; }).join('')}
+    </svg>
+  </div>`;
+};
+
+/* ── 12. 차이 레이더 — 가운데 고리가 동점선 ── */
+const diffRadar = () => {
+  const R = 86, pad = 30, S = (R + pad) * 2, c = S / 2;
+  const at = (i, r) => [c + Math.cos(ang(i)) * r, c + Math.sin(ang(i)) * r];
+  const dr = (d) => R * (0.5 + Math.max(-0.48, Math.min(0.48, d / 40)));
+  const poly = ROWS.map(([, a, b], i) => at(i, dr(a - b)).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const even = ROWS.map((_, i) => at(i, R * 0.5).map((n) => n.toFixed(1)).join(',')).join(' ');
+  return `
+  <div style="display:flex;align-items:baseline;gap:8px;padding-bottom:6px">
+    <span class="me" style="font-family:'Saira Condensed';font-size:10.5px;font-weight:800;letter-spacing:.2em">MY TEAM</span>
+    <b class="n" style="font-size:22px;color:${ME}">${won}</b><small style="font-size:11px;color:#7c8798">앞섬</small>
+    <b class="n" style="font-size:16px;color:${OP};margin-left:auto">${lost}</b><small style="font-size:11px;color:#7c8798">뒤짐</small>
+  </div>
+  <div style="display:grid;place-items:center">
+    <svg viewBox="0 0 ${S} ${S}" style="width:${S}px;height:${S}px">
+      ${ROWS.map((_, i) => { const [x, y] = at(i, R); return `<line x1="${c}" y1="${c}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.08)"/>`; }).join('')}
+      <polygon points="${ROWS.map((_, i) => at(i, R).map((n) => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.12)"/>
+      <polygon points="${poly}" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+      <polygon points="${even}" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.4" stroke-dasharray="4 4"/>
+      ${ROWS.map(([k, a, b], i) => { const d = a - b; const col = win(a, b);
+        const [px, py] = at(i, dr(d)); const [lx, ly] = at(i, R + pad * 0.6);
+        return `<g><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.5" fill="${col}" stroke="#05080f" stroke-width="1.5"/>
+          <text x="${lx.toFixed(0)}" y="${(ly - 3).toFixed(0)}" text-anchor="middle" font-family="Saira Condensed" font-size="12.5" font-weight="800" fill="${col}">${d > 0 ? '+' : ''}${d}</text>
+          <text x="${lx.toFixed(0)}" y="${(ly + 11).toFixed(0)}" text-anchor="middle" font-size="11" font-weight="700" fill="#cbd5e1">${k}</text></g>`; }).join('')}
+    </svg>
+  </div>`;
+};
+
+const LOOKS = [
+  ['레이더 위 · 차이 아래', '모양을 먼저 보고 수치로 확인', stacked],
+  ['레이더 옆 · 차이 목록', '한 줄에 나란히 — 세로를 아낀다', side],
+  ['꼭짓점에 차이', '레이더 하나에 격차까지 얹는다', badge],
+  ['차이 레이더', '점선이 동점 · 밖으로 나가면 내가 앞섬', diffRadar],
+];
+
+document.getElementById('g').innerHTML = LOOKS.map(([title, note, draw], n) => `
+  <div class="cell">
+    <div class="tag"><b>${n + 9}</b><span>${title}</span><i>${note}</i></div>
+    <div class="stage"><div class="panel">${draw()}</div></div>
+  </div>`).join('');
+</script></body></html>

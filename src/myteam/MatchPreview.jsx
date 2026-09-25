@@ -52,23 +52,59 @@ export function Versus({ mine, opp, owner, className = 'h-56' }) {
   );
 }
 
-/** 여섯 축 맞대기 */
+/* ── 여섯 축 맞대기 ── 모양은 레이더로, 격차는 막대로 ── */
+const FLAT = '#94a3b8';
+const LOW = 60, HIGH = 120; // 축 눈금 — 이 사이를 0~1 로 편다
+const near = (v) => Math.max(0, Math.min(1, (v - LOW) / (HIGH - LOW)));
+const sideOf = (a, b) => (a > b ? ME : a < b ? OPP : FLAT);
+const angOf = (i, n) => (Math.PI * 2 * i) / n - Math.PI / 2;
+
+/** 두 팀을 겹쳐 그리는 육각 레이더 */
+function Hex({ rows, r = 64, pad = 22 }) {
+  const n = rows.length;
+  const S = (r + pad) * 2, c = S / 2;
+  const at = (i, rad) => [c + Math.cos(angOf(i, n)) * rad, c + Math.sin(angOf(i, n)) * rad];
+  const poly = (key) => rows.map((x, i) => at(i, r * (0.22 + 0.78 * near(x[key]))).map((v) => v.toFixed(1)).join(',')).join(' ');
+  const web = (f) => rows.map((_, i) => at(i, r * f).map((v) => v.toFixed(1)).join(',')).join(' ');
+  return (
+    <svg viewBox={`0 0 ${S} ${S}`} className="block h-auto w-full" style={{ maxWidth: S }} aria-hidden="true">
+      {rows.map((_, i) => { const [x, y] = at(i, r);
+        return <line key={`s${i}`} x1={c} y1={c} x2={x.toFixed(1)} y2={y.toFixed(1)} stroke="rgba(255,255,255,.09)" />; })}
+      {[0.34, 0.67, 1].map((f) => <polygon key={f} points={web(f)} fill="none" stroke="rgba(255,255,255,.13)" />)}
+      <polygon points={poly('b')} fill={`${OPP}3a`} stroke={OPP} strokeWidth="2.4" />
+      <polygon points={poly('a')} fill={`${ME}3a`} stroke={ME} strokeWidth="2.4" />
+      {rows.map((x, i) => { const [lx, ly] = at(i, r + pad * 0.62);
+        return <text key={x.k} x={lx.toFixed(0)} y={(ly + 4).toFixed(0)} textAnchor="middle" fontSize="11" fontWeight="700" fill="#cbd5e1">{x.k}</text>; })}
+    </svg>
+  );
+}
+
+/** 여섯 축 맞대기 — 위는 팀 모양, 아래는 앞선 쪽으로만 뻗는 막대 */
 export function Axes({ mine, opp }) {
   const a1 = axesOf(mine.roster), a2 = axesOf(opp.roster);
+  const rows = a1.map(([k, a], i) => ({ k, a, b: a2[i][1] }));
   return (
-    <div className="ui-cut grid shrink-0 items-center gap-x-2.5 gap-y-1.5 bg-white/[0.04] px-4 py-3 text-[13px]" style={{ '--c': '10px', gridTemplateColumns: '44px 1fr 34px 1fr 34px' }}>
-      {a1.map(([k, a], i) => {
-        const b = a2[i][1];
-        return (
-          <React.Fragment key={k}>
-            <span className="text-gray-300">{k}</span>
-            <span className="h-2 bg-white/[0.07]"><i className="block h-full" style={{ width: `${a}%`, background: a >= b ? ME : 'rgba(52,211,153,.35)' }} /></span>
-            <b className="text-center font-display" style={{ color: a >= b ? ME : '#94a3b8' }}>{a}</b>
-            <span className="h-2 bg-white/[0.07]"><i className="block h-full" style={{ width: `${b}%`, background: b > a ? OPP : 'rgba(248,113,113,.35)' }} /></span>
-            <b className="text-center font-display" style={{ color: b > a ? OPP : '#94a3b8' }}>{b}</b>
-          </React.Fragment>
-        );
-      })}
+    <div className="ui-cut shrink-0 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
+      <div className="flex justify-between pb-1 font-display text-[10px] font-bold tracking-[0.2em]">
+        <span style={{ color: ME }}>MY TEAM</span><span style={{ color: OPP }}>OPPONENT</span>
+      </div>
+      <div className="grid place-items-center"><Hex rows={rows} /></div>
+      <div className="mt-1 grid items-center gap-x-2.5 gap-y-1 text-[12.5px]" style={{ gridTemplateColumns: '40px 1fr 38px' }}>
+        {rows.map(({ k, a, b }) => {
+          const d = a - b; const c = sideOf(a, b);
+          return (
+            <React.Fragment key={k}>
+              <span className="text-gray-300">{k}</span>
+              {/* 가운데가 동점 · 앞선 쪽으로만 뻗는다 */}
+              <span className="relative block h-[13px] bg-white/[0.07]">
+                <i className="absolute inset-y-0 left-1/2 w-px bg-white/30" />
+                <i className="absolute inset-y-0" style={{ [d >= 0 ? 'left' : 'right']: '50%', width: `${Math.min(50, Math.abs(d) * 2.4)}%`, background: c }} />
+              </span>
+              <b className="text-right font-display" style={{ color: c }}>{d > 0 ? '+' : ''}{d}</b>
+            </React.Fragment>
+          );
+        })}
+      </div>
     </div>
   );
 }

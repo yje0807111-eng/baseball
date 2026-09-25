@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>맞대결 비교 8안</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:10px 20px 6px}
+  h1{font-family:'Saira Condensed';font-size:22px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:12px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:10px;padding:0 12px 12px;height:calc(911px - 46px)}
+  .cell{position:relative;display:flex;flex-direction:column;overflow:hidden;background:rgba(8,12,20,.66);
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tag{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 10px;background:rgba(5,8,15,.6);flex:0 0 auto}
+  .tag b{font-family:'Saira Condensed';font-size:17px;font-weight:900;color:#10b981}
+  .tag span{font-size:12.5px;font-weight:700}
+  .tag i{font-style:normal;font-size:11px;color:#8b95a6;margin-left:auto}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;padding:10px 14px 14px}
+  .who{display:flex;justify-content:space-between;font-family:'Saira Condensed';font-size:10.5px;font-weight:800;letter-spacing:.2em;padding:0 2px 7px}
+  .me{color:#34d399} .op{color:#f87171}
+  table{width:100%;border-collapse:collapse}
+  .k{font-size:12px;font-weight:700;color:#cbd5e1;white-space:nowrap}
+  .n{font-family:'Saira Condensed';font-weight:800;font-variant-numeric:tabular-nums}
+</style></head><body>
+<header><h1>맞대결 비교</h1><p>나의 드림팀 vs 2013 삼성 라이온즈 — 같은 수치를 여덟 가지로</p></header>
+<div class="grid" id="g"></div>
+<script>
+const ME = '#34d399', OP = '#f87171', DIM = 'rgba(255,255,255,.08)';
+const ROWS = [
+  ['파워', 105, 90], ['컨택', 95, 90], ['주루', 86, 75],
+  ['수비', 83, 81], ['선발', 102, 88], ['불펜', 97, 97],
+];
+const MAX = 120, MIN = 60;
+const pc = (v) => Math.max(0, Math.min(1, (v - MIN) / (MAX - MIN)));
+const win = (a, b) => (a > b ? ME : a < b ? OP : '#94a3b8');
+
+/* ── 1. 마주보는 막대 ── */
+const facing = () => `<table>${ROWS.map(([k, a, b]) => `
+  <tr>
+    <td style="width:42%;padding:3px 0"><div style="display:flex;justify-content:flex-end;height:15px;background:${DIM}">
+      <i style="display:block;margin-left:auto;width:${pc(a) * 100}%;background:${ME}"></i></div></td>
+    <td class="k" style="text-align:center;width:16%">${k}</td>
+    <td style="width:42%;padding:3px 0"><div style="height:15px;background:${DIM}">
+      <i style="display:block;width:${pc(b) * 100}%;background:${OP}"></i></div></td>
+  </tr>
+  <tr><td class="n" style="text-align:right;font-size:13px;color:${ME};padding-bottom:5px">${a}</td><td></td>
+      <td class="n" style="font-size:13px;color:${OP};padding-bottom:5px">${b}</td></tr>`).join('')}</table>`;
+
+/* ── 2. 차이만 ── */
+const diff = () => `<table>${ROWS.map(([k, a, b]) => {
+  const d = a - b; const w = Math.min(50, Math.abs(d) * 2.2);
+  return `<tr>
+    <td class="k" style="width:22%;padding:5px 0">${k}</td>
+    <td style="width:56%"><div style="position:relative;height:16px;background:${DIM}">
+      <i style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.35)"></i>
+      <i style="position:absolute;top:0;bottom:0;${d >= 0 ? 'left:50%' : `right:50%`};width:${w}%;background:${win(a, b)}"></i></div></td>
+    <td class="n" style="width:22%;text-align:right;font-size:14px;color:${win(a, b)}">${d > 0 ? '+' : ''}${d}</td>
+  </tr>`; }).join('')}</table>`;
+
+/* ── 3. 한 막대를 나눠 갖기 ── */
+const share = () => `<table>${ROWS.map(([k, a, b]) => {
+  const r = (a / (a + b)) * 100;
+  return `<tr>
+    <td class="k" style="width:20%;padding:4px 0">${k}</td>
+    <td><div style="display:flex;height:22px;overflow:hidden">
+      <i style="display:flex;align-items:center;justify-content:flex-start;padding-left:6px;width:${r}%;background:${ME}"><b class="n" style="font-size:12px;color:#05080f">${a}</b></i>
+      <i style="display:flex;align-items:center;justify-content:flex-end;padding-right:6px;flex:1;background:${OP}"><b class="n" style="font-size:12px;color:#05080f">${b}</b></i>
+    </div></td>
+  </tr>`; }).join('')}</table>`;
+
+/* ── 4. 육각 레이더 ── */
+const radar = () => {
+  const R = 78, cx = 110, cy = 96;
+  const pt = (i, v) => { const t = (Math.PI * 2 * i) / 6 - Math.PI / 2; const r = R * (0.22 + 0.78 * pc(v));
+    return [cx + Math.cos(t) * r, cy + Math.sin(t) * r]; };
+  const poly = (idx) => ROWS.map((r, i) => pt(i, r[idx]).map((n) => n.toFixed(1)).join(',')).join(' ');
+  const web = [0.34, 0.67, 1].map((f) => ROWS.map((_, i) => { const t = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+    return [(cx + Math.cos(t) * R * f).toFixed(1), (cy + Math.sin(t) * R * f).toFixed(1)].join(','); }).join(' ')).join('|');
+  return `<div style="display:flex;align-items:center;gap:6px">
+    <svg viewBox="0 0 220 192" style="width:210px;height:184px;flex:0 0 auto">
+      ${web.split('|').map((p) => `<polygon points="${p}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`).join('')}
+      <polygon points="${poly(2)}" fill="${OP}44" stroke="${OP}" stroke-width="2.4"/>
+      <polygon points="${poly(1)}" fill="${ME}44" stroke="${ME}" stroke-width="2.4"/>
+      ${ROWS.map((r, i) => { const t = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+        const x = cx + Math.cos(t) * (R + 16), y = cy + Math.sin(t) * (R + 16);
+        return `<text x="${x.toFixed(0)}" y="${(y + 4).toFixed(0)}" text-anchor="middle" font-size="11" font-weight="700" fill="#cbd5e1">${r[0]}</text>`; }).join('')}
+    </svg>
+    <table style="flex:1">${ROWS.map(([k, a, b]) => `<tr>
+      <td class="k" style="font-size:11px">${k}</td>
+      <td class="n" style="text-align:right;font-size:12.5px;color:${ME}">${a}</td>
+      <td class="n" style="text-align:right;font-size:12.5px;color:${OP};padding-left:6px">${b}</td></tr>`).join('')}</table>
+  </div>`;
+};
+
+/* ── 5. 덤벨 ── */
+const dumbbell = () => `<table>${ROWS.map(([k, a, b]) => {
+  const x1 = pc(a) * 100, x2 = pc(b) * 100; const lo = Math.min(x1, x2), hi = Math.max(x1, x2);
+  return `<tr>
+    <td class="k" style="width:20%;padding:6px 0">${k}</td>
+    <td><div style="position:relative;height:16px">
+      <i style="position:absolute;left:0;right:0;top:7px;height:2px;background:${DIM}"></i>
+      <i style="position:absolute;left:${lo}%;width:${hi - lo}%;top:7px;height:2px;background:${win(a, b)}"></i>
+      <i style="position:absolute;left:calc(${x2}% - 5px);top:3px;width:10px;height:10px;border-radius:50%;background:${OP}"></i>
+      <i style="position:absolute;left:calc(${x1}% - 6px);top:2px;width:12px;height:12px;border-radius:50%;background:${ME};box-shadow:0 0 0 2px #05080f"></i>
+    </div></td>
+    <td class="n" style="width:14%;text-align:right;font-size:13px;color:${ME}">${a}</td>
+    <td class="n" style="width:14%;text-align:right;font-size:13px;color:${OP};padding-left:5px">${b}</td>
+  </tr>`; }).join('')}</table>`;
+
+/* ── 6. 이긴 칸 ── */
+const scoreCard = () => {
+  const w = ROWS.filter(([, a, b]) => a > b).length, l = ROWS.filter(([, a, b]) => a < b).length;
+  return `<div style="display:flex;align-items:baseline;gap:10px;padding-bottom:8px">
+      <b class="n" style="font-size:34px;color:${ME}">${w}</b><span style="font-size:12px;color:#7c8798">앞선 항목</span>
+      <b class="n" style="font-size:22px;color:${OP};margin-left:auto">${l}</b><span style="font-size:11px;color:#7c8798">뒤진 항목</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+      ${ROWS.map(([k, a, b]) => { const c = win(a, b);
+        return `<div style="padding:7px 8px;background:color-mix(in srgb,${c} 13%,transparent);box-shadow:inset 0 0 0 1px ${c}55">
+          <span class="k" style="font-size:11px;display:block">${k}</span>
+          <span style="display:flex;align-items:baseline;gap:4px">
+            <b class="n" style="font-size:19px;color:${c}">${a}</b>
+            <small class="n" style="font-size:12px;color:#64748b">vs ${b}</small></span>
+        </div>`; }).join('')}
+    </div>`;
+};
+
+/* ── 7. 수치 먼저 ── */
+const bigNum = () => `<table>${ROWS.map(([k, a, b]) => {
+  const c = win(a, b);
+  return `<tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+    <td class="n" style="width:26%;padding:5px 0;font-size:20px;color:${a >= b ? ME : '#64748b'};text-align:right">${a}</td>
+    <td style="width:12%;text-align:center"><i style="display:inline-block;width:6px;height:6px;transform:rotate(45deg);background:${c}"></i></td>
+    <td class="n" style="width:26%;font-size:20px;color:${b > a ? OP : '#64748b'}">${b}</td>
+    <td class="k" style="text-align:right;font-size:12px">${k}</td>
+  </tr>`; }).join('')}</table>`;
+
+/* ── 8. 작은 도넛 여섯 ── */
+const donuts = () => `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+  ${ROWS.map(([k, a, b]) => { const r = a / (a + b); const C = 2 * Math.PI * 26;
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <svg viewBox="0 0 64 64" style="width:64px;height:64px">
+        <circle cx="32" cy="32" r="26" fill="none" stroke="${OP}" stroke-width="8"/>
+        <circle cx="32" cy="32" r="26" fill="none" stroke="${ME}" stroke-width="8"
+          stroke-dasharray="${(C * r).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 32 32)"/>
+        <text x="32" y="36" text-anchor="middle" font-family="Saira Condensed" font-size="17" font-weight="800" fill="${win(a, b)}">${a}</text>
+      </svg>
+      <span class="k" style="font-size:11px">${k}</span>
+      <span class="n" style="font-size:11px;color:${OP}">${b}</span>
+    </div>`; }).join('')}
+</div>`;
+
+const LOOKS = [
+  ['마주보는 막대', '가운데 이름 · 양쪽으로 뻗는다', facing],
+  ['차이만', '앞선 쪽으로만 · 격차가 곧 길이', diff],
+  ['한 줄 나눠 갖기', '막대 하나를 둘이 가른다', share],
+  ['육각 레이더', '팀 모양을 한눈에', radar],
+  ['덤벨', '두 점을 잇는 선이 곧 격차', dumbbell],
+  ['이긴 칸', '앞선 항목 수를 먼저', scoreCard],
+  ['수치 먼저', '큰 숫자와 방향 표식만', bigNum],
+  ['도넛 여섯', '항목마다 작은 고리로', donuts],
+];
+
+document.getElementById('g').innerHTML = LOOKS.map(([title, note, draw], n) => `
+  <div class="cell">
+    <div class="tag"><b>${n + 1}</b><span>${title}</span><i>${note}</i></div>
+    <div class="body">
+      <div class="who"><span class="me">MY TEAM</span><span class="op">OPPONENT</span></div>
+      ${draw()}
+    </div>
+  </div>`).join('');
+</script></body></html>
