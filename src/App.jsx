@@ -3,10 +3,10 @@
  * 로비까지는 가볍게 뜨도록, 시즌 로스터·경기 엔진이 딸린 화면들은 GameApp 으로 떼어
  * 로비에서 어딘가로 들어갈 때 받아 온다.
  */
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
-import { loadAccount, signOut } from './myteam/store.js';
+import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from './myteam/store.js';
 
 const GameApp = lazy(() => import('./GameApp.jsx'));
 
@@ -17,6 +17,17 @@ export default function App() {
   const [account, setAccount] = useState(() => loadAccount());
   const [view, setView] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
   const [playTab, setPlayTab] = useState(null); // 경기를 마치고 돌아올 플레이 탭
+
+  /* 빈 라커로 시작하는 계정에는 스타터 26명을 한 번 준다 — 선수 데이터가 무거워 로비와 떼어 필요할 때만 받아 온다 */
+  const starterDue = needsStarter(account);
+  useEffect(() => {
+    if (!starterDue) return undefined;
+    let alive = true;
+    import('./myteam/starter.js').then(({ starterSquad }) => {
+      if (alive && grantStarter(starterSquad(account.nick))) setAccount(loadAccount());
+    });
+    return () => { alive = false; };
+  }, [starterDue, account?.nick]);
 
   if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
   if (view !== 'lobby') {
@@ -30,6 +41,7 @@ export default function App() {
     <LobbyScreen account={account}
       onLocker={() => setView('locker')} onPlay={(tab) => { setPlayTab(tab || null); setView('modes'); }} onShop={() => setView('shop')}
       onAugments={() => setView('augments')} onRecord={() => setView('record')}
+      onNotice={(go) => { dismissNotice(); setAccount(loadAccount()); if (go) setView('locker'); }}
       onSignOut={() => { signOut(); setAccount(null); }} />
   );
 }

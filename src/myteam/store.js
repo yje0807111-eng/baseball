@@ -229,6 +229,19 @@ export function recruitPlayer(team, player, price) {
   return next;
 }
 
+/** 교체 영입 — out 을 방출(환급)하고 player 를 산다. 한 번에 저장, 골드가 모자라면 null */
+export function swapPlayer(team, player, price, outId) {
+  const a = read();
+  const out = (team.squad || []).find((x) => x.id === outId);
+  if (!a || !out) return null;
+  const gold = goldOf(a) + refundOf(out);
+  if (!(price >= 0) || price > gold) return null;
+  const squad = [...team.squad.filter((x) => x.id !== outId), { ...player, paid: price }];
+  const next = { ...a, gold: gold - price, team: stamp({ ...team, squad, bench: (team.bench || []).filter((b) => b !== outId) }) };
+  write(next);
+  return next;
+}
+
 /** 방출 — 엔트리 · 벤치에서 빼고 산 값의 절반을 돌려준다 */
 export function releasePlayer(team, id) {
   const a = read();

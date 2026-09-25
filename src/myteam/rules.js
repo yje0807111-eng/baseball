@@ -6,7 +6,7 @@
  * (레전드 드래프트 판의 20인 · 외국인 3명은 그 판 규칙이라 여기와 무관하다)
  */
 
-import { priceOf } from './market.js';
+import { priceOf, refundOf } from './market.js';
 
 export const SQUAD_SIZE = 26; // 출전 가능 인원
 export const FOREIGN_MAX = 3; // 외국인 선수 한도
@@ -80,6 +80,30 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE
   const price = priceOf(player);
   if (gold != null && price > gold) return `골드 부족 (${(price - gold).toLocaleString()} G 모자람)`;
   return null;
+}
+
+/**
+ * 교체 영입 — 엔트리가 꽉 찼을 때 한 명을 내보내며 들인다(스타터로 시작하면 늘 꽉 차 있다).
+ * 내보낼 후보: 같은 포지션에서 약한 순 → 같은 유형(타자 · 투수)에서 약한 순.
+ */
+export function swapCandidates(player, squad) {
+  const weak = (a, b) => a.overall - b.overall;
+  const same = squad.filter((p) => p.position === player.position).sort(weak);
+  const kind = squad.filter((p) => p.position !== player.position && p.type === player.type).sort(weak);
+  return [...same, ...kind];
+}
+/** out 을 내보내고 player 를 들일 수 있나 — 안 되면 이유. 내보내는 선수의 환급도 골드에 셈한다 */
+export function swapBlockReason(player, out, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null) {
+  if (!out) return '내보낼 선수 없음';
+  /* 필수 포지션을 비우는 교체는 먼저 막는다 — 자리 이유보다 이쪽이 진짜 이유 */
+  const need = POS_RULES.find((r) => r.key === out.position);
+  if (need && player.position !== out.position && countBy(squad, out.position) <= need.min) return `${need.label} 최소 ${need.min}명`;
+  const rest = squad.filter((p) => p.id !== out.id);
+  const why = addBlockReason(player, rest, staff, cap, lim, gold == null ? null : gold + refundOf(out));
+  if (why) return why;
+  /* 필수 포지션이 비는 교체는 막는다 — 경기에 못 나가는 엔트리가 된다 */
+  const before = new Set(squadIssues(squad, staff, cap, lim));
+  return squadIssues([...rest, player], staff, cap, lim).find((x) => !before.has(x)) || null;
 }
 
 /** 엔트리가 경기에 나갈 수 있는 상태인지 */

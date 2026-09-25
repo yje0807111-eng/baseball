@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { priceOf, refundOf, isFreeFill, FREE_FILL_MAX, PRICE_MIN } from '../src/myteam/market.js';
-import { addBlockReason, SQUAD_CAP, BASE_LIMITS } from '../src/myteam/rules.js';
+import { addBlockReason, swapCandidates, swapBlockReason, SQUAD_CAP, BASE_LIMITS } from '../src/myteam/rules.js';
+import { starterSquad } from '../src/myteam/starter.js';
 
 /* 저장소는 localStorage 를 쓴다 — 테스트에서는 메모리 판으로 */
 const mem = new Map();
@@ -82,5 +83,44 @@ describe('골드와 엔트리를 함께 저장', () => {
     expect(store.needsStarter(store.loadAccount())).toBe(false);
     store.dismissNotice();
     expect(store.loadAccount().notice).toBeUndefined();
+  });
+});
+
+describe('교체 영입 (꽉 찬 엔트리)', () => {
+  const squad = starterSquad('교체');
+  const star = (position, type = 'batter') => ({ id: 'star', personId: '스타', name: '스타', overall: 90, cost: 90, position, type });
+  beforeEach(() => { mem.clear(); store.signIn('테스터'); });
+
+  it('꽉 차면 그냥 영입은 막히고, 교체는 된다', () => {
+    expect(addBlockReason(star('OF'), squad, {}, SQUAD_CAP, BASE_LIMITS, 5000)).toMatch('모두 찼음');
+    const out = swapCandidates(star('OF'), squad)[0];
+    expect(out.position).toBe('OF');
+    expect(swapBlockReason(star('OF'), out, squad, {}, SQUAD_CAP, BASE_LIMITS, 5000)).toBeNull();
+  });
+  it('후보는 같은 포지션 약한 순이 먼저', () => {
+    const c = swapCandidates(star('SP', 'pitcher'), squad);
+    const sps = c.filter((p) => p.position === 'SP');
+    expect(c.slice(0, sps.length)).toEqual(sps);
+    for (let i = 1; i < sps.length; i += 1) expect(sps[i].overall).toBeGreaterThanOrEqual(sps[i - 1].overall);
+  });
+  it('필수 포지션이 비는 교체는 막는다', () => {
+    const only1B = squad.find((p) => p.position === '1B'); // 스타터 1루수는 한 명
+    expect(swapBlockReason(star('OF'), only1B, squad, {}, SQUAD_CAP, BASE_LIMITS, 5000)).toMatch('1루수');
+  });
+  it('골드는 내보내는 선수의 환급까지 셈한다', () => {
+    const out = { ...squad.find((p) => p.position === 'OF'), paid: 600 };
+    const sq = squad.map((p) => (p.id === out.id ? out : p));
+    expect(swapBlockReason(star('OF'), out, sq, {}, SQUAD_CAP, BASE_LIMITS, 900)).toBeNull(); // 900 + 300 = 1200
+    expect(swapBlockReason(star('OF'), out, sq, {}, SQUAD_CAP, BASE_LIMITS, 890)).toMatch('골드 부족');
+  });
+  it('교체 영입을 한 번에 저장한다', () => {
+    const a = store.loadAccount();
+    const team = { ...a.team, squad };
+    const out = swapCandidates(star('OF'), squad)[0];
+    const next = store.swapPlayer(team, star('OF'), 1200, out.id);
+    expect(next.gold).toBe(store.START_GOLD - 1200);
+    expect(next.team.squad).toHaveLength(26);
+    expect(next.team.squad.some((p) => p.id === out.id)).toBe(false);
+    expect(next.team.squad.find((p) => p.id === 'star').paid).toBe(1200);
   });
 });

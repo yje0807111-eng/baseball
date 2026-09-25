@@ -1,6 +1,6 @@
 /* 메인 — 메트로 타일 배치: 큰 플레이 타일(모드 선택 화면으로) + 라커·상점·증강·기록 타일 + 아래 랭크 판 */
 import React from 'react';
-import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
+import { UiStyle, Bg, TopBar, teamStats, Stats, KV, Btn, Portrait } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
@@ -173,7 +173,45 @@ function RankPanel({ account, team, onRecord }) {
   );
 }
 
-export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onSignOut }) {
+/** 스타터 스쿼드를 받은 뒤 한 번 뜨는 창 — 받은 팀 · 영입 규칙 · 라커로 가는 단추 */
+function StarterNotice({ team, gold, onClose }) {
+  const squad = team.squad || [];
+  const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 4);
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
+      <div className="mt-cut mt-frame mt-glass flex w-[640px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
+        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="스타터 스쿼드">
+        <div>
+          <p className="mt-lab">스타터 스쿼드</p>
+          <h2 className="mt-1 text-3xl font-black text-white">선수 {squad.length}명 지급</h2>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {top.map((p) => (
+            <div key={p.id} className="mt-cut flex items-center gap-2 bg-white/[0.045] p-2" style={{ '--c': '8px' }}>
+              <Portrait player={p} w={34} h={42} color="#34d399" />
+              <span className="min-w-0">
+                <b className="block truncate text-[13px] text-white">{p.name}</b>
+                <small className="font-display text-[12px] text-gray-400">{p.position} · {p.overall}</small>
+              </span>
+            </div>
+          ))}
+        </div>
+        <Stats items={[['선수', `${squad.length}명`], ['팀 종합', teamStats(squad).ovr || '-'], ['보유 골드', `${(gold || 0).toLocaleString()} G`]]} />
+        <div>
+          <KV sm k="더 좋은 선수" v="골드로 영입" color="#fde047" />
+          <KV sm k="경기 보상" v="승 300 · 무 180 · 패 120 G" />
+          <KV sm k="방출" v="산 값의 절반 환급" />
+        </div>
+        <div className="grid grid-cols-[1fr_auto] gap-2">
+          <Btn pri onClick={() => onClose(true)}>내 라커로 ▶</Btn>
+          <Btn onClick={() => onClose(false)}>닫기</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onSignOut, onNotice }) {
   const team = account.team;
 
   return (
@@ -202,6 +240,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
 
         <RankPanel account={account} team={team} onRecord={onRecord} />
       </div>
+      {account.notice === 'starter' && (team.squad || []).length > 0 && <StarterNotice team={team} gold={account.gold} onClose={(go) => onNotice?.(go)} />}
     </div>
   );
 }

@@ -574,7 +574,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
               style={fire ? { background: '#f87171', color: '#1a0505', boxShadow: '0 0 18px -4px #f87171' } : null}>방출 {fire ? 'ON' : 'OFF'}</Btn>
           )}
           <Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn>
-          {onAutoFill && <Btn sm onClick={onAutoFill} disabled={autoDisabled}>자동 채우기</Btn>}
+          {onAutoFill && <Btn sm onClick={onAutoFill} disabled={autoDisabled}>빈 자리 채우기</Btn>}
         </div>
       </div>
 
