@@ -97,10 +97,10 @@ export default function AugmentScreen({ account, onBack }) {
           </>
         )} />
 
-      <div className="relative grid min-h-0 flex-1 gap-5 px-7 pb-6 pt-1" style={{ gridTemplateColumns: '580px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
-        {/* 왼쪽 — 진열장: 육각 그림 · 이름 · 레벨 보석 · 레벨별 효과(지금 · 다음) · 강화 */}
+      <div className="relative grid min-h-0 flex-1 gap-5 px-7 pb-6 pt-1" style={{ gridTemplateColumns: 'minmax(0,1fr) 580px', gridTemplateRows: 'minmax(0,1fr)' }}>
+        {/* 오른쪽 — 진열장: 육각 그림 · 이름 · 레벨 보석 · 레벨별 효과(지금 · 다음) · 강화 · 제외 · 즐겨찾기 */}
         {picked && (
-          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={cut(22)}>
+          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(22), order: 2 }}>
             <div key={picked.id} className="flex items-center gap-5" style={{ animation: 'mtStaffIn .35s cubic-bezier(.2,.8,.2,1) both' }}>
               <span className="ag-hexf h-[138px] w-[156px]" style={{ filter: isBan ? 'grayscale(1) brightness(.5)' : 'drop-shadow(0 0 22px rgba(167,139,250,.7))' }}>
                 <i style={{ backgroundImage: art(picked) }} /><span className="ag-shine" />
@@ -146,7 +146,7 @@ export default function AugmentScreen({ account, onBack }) {
           </section>
         )}
 
-        {/* 오른쪽 — 도감: 육각 아이콘 · 이름 · 레벨 보석, 제외 도장 · 즐겨찾기 별 */}
+        {/* 왼쪽 — 도감: 육각 아이콘 · 이름 · 레벨 보석, 제외 도장 · 즐겨찾기 별 */}
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={cut(22)}>
           <div className="flex items-center gap-3">
             <b className="text-t2 font-black text-white">증강 {pool.length}</b>
