@@ -9,6 +9,7 @@ import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
+import { FORM_OF } from './form.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const A = { bat: '#34d399', def: '#60a5fa', pit: '#f87171', syn: '#fbbf24', main: '#10b981' };
@@ -158,7 +159,10 @@ function ScoutPanel({ opponent, sums, myOvr }) {
           <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 22%,rgba(5,8,15,.45) 62%,rgba(5,8,15,0))' }} />
           <span className="absolute inset-y-2.5 left-3 flex flex-col justify-center">
             <span className="font-display text-[10px] tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>
-            <b className="text-[19px] font-black leading-tight text-white">{ace.name}</b>
+            <b className="flex items-baseline gap-1.5 text-[19px] font-black leading-tight text-white">
+              {ace.name}
+              {FORM_OF[ace.form]?.swing ? <em className="font-display text-[13px] font-extrabold not-italic" style={{ color: FORM_OF[ace.form].color }}>{FORM_OF[ace.form].mark} {FORM_OF[ace.form].ko}</em> : null}
+            </b>
             <span className="mt-0.5 flex items-baseline gap-1.5">
               <b className="font-display text-[21px]" style={{ color: c }}>{ace.overall}</b>
               <small className="text-[10.5px] text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</small>
@@ -204,6 +208,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
                 <b className="w-3 text-center font-display text-[11px] text-gray-500">{i + 1}</b>
                 <span className="shrink-0 px-[4px] font-display text-[10.5px] font-extrabold leading-[15px] text-[#05080f]" style={{ background: posColor(p) }}>{p.position}</span>
                 <b className="min-w-0 flex-1 truncate text-[12.5px] text-white">{p.name}</b>
+                {FORM_OF[p.form]?.swing ? <b className="shrink-0 font-display text-[10px] font-extrabold" style={{ color: FORM_OF[p.form].color }} title={`오늘 ${FORM_OF[p.form].ko}`}>{FORM_OF[p.form].mark}</b> : null}
                 {d && <span className="font-display text-[10px]" style={{ color: d.c }}>{d.t}</span>}
                 <b className="font-display text-[13px]" style={{ color: c }}>{p.overall}</b>
               </div>

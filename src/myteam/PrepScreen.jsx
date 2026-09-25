@@ -7,7 +7,7 @@ import { myOpponent as tourOpponent, teamOf } from './tournament.js';
 import { myOpponent as rankedOpponent } from './ranked.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { peekNextDuel } from './store.js';
-import { formSeed } from './form.js';
+import { formSeed, oppSeed, applyFormTeam } from './form.js';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -29,7 +29,9 @@ function opponentOf(sub, myTeam) {
   const byId = new Map(t.roster.map((p) => [p.id, p]));
   const starter = (t.pitchOrder || []).map((id) => byId.get(id)).find(Boolean)
     || [...t.roster].filter((p) => p.type === 'pitcher').sort((x, y) => y.overall - x.overall)[0];
-  return { name: t.name, roster: t.roster, batters: t.batters, starter, emblem: emblemOf(t.name), color: '#a78bfa' };
+  /* 상대도 오늘 몸 상태를 안고 나온다 — 경기에서 쓰는 씨앗과 같다 */
+  const w = applyFormTeam({ name: t.name, roster: t.roster, batters: t.batters, starter }, oppSeed(t.name, sub));
+  return { ...w, emblem: emblemOf(t.name), color: '#a78bfa' };
 }
 
 

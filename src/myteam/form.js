@@ -52,3 +52,20 @@ export function applyForm(roster = [], seed = 0) {
   const r = rng(seed);
   return roster.map((p) => withForm(p, roll(r)));
 }
+
+/** 상대 팀 씨앗 — 정비 화면과 경기가 같은 값을 쓰도록 이름과 모드만으로 심는다 */
+export const oppSeed = (name = '', sub = '') => formSeed('opp', name, sub);
+
+/** 팀 하나에 통째로 — 로스터를 새로 만들면 타순 · 선발도 같은 객체를 보게 이어 준다 */
+export function applyFormTeam(team, seed = 0) {
+  if (!team?.roster?.length || !seed) return team;
+  const roster = applyForm(team.roster, seed);
+  const byId = new Map(roster.map((p) => [p.id, p]));
+  const keep = (p) => (p && byId.get(p.id)) || p;
+  return {
+    ...team,
+    roster,
+    ...(team.batters ? { batters: team.batters.map(keep) } : {}),
+    ...(team.starter ? { starter: keep(team.starter) } : {}),
+  };
+}
