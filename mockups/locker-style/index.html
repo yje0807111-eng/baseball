@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>라커 디자인 결 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --bg:#05080f; --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --gold:#fde047; --warn:#fbbf24; --bad:#f87171;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:var(--bg);color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800;letter-spacing:.01em}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .stage{position:absolute;inset:0;z-index:0}
+  .shell{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+  .body{flex:1;min-height:0;display:grid;grid-template-columns:1fr 460px;gap:20px;padding:4px 28px 24px}
+  .list{min-height:0;display:flex;flex-direction:column;gap:14px}
+  .rows{display:flex;flex-direction:column;overflow:hidden}
+  .pr{display:grid;grid-template-columns:var(--c1,52px) var(--c2,64px) minmax(0,1fr) repeat(4,62px) 64px 118px 88px;align-items:center;gap:14px;cursor:pointer;position:relative;
+    transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s,box-shadow .18s}
+  .ph{background:#0b1220 center 12%/cover no-repeat;flex:none}
+  .stat{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .stat i{display:block;height:2px;width:36px;background:rgba(255,255,255,.08);position:relative}
+  .stat i::after{content:'';position:absolute;inset:0 auto 0 0;width:var(--p);background:var(--sc,#e5e7eb)}
+  .deal{font-size:var(--t4);font-weight:700;color:var(--warn)}
+  .ring{--p:50;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+    background:conic-gradient(var(--rc,var(--a)) calc(var(--p)*1%),rgba(255,255,255,.08) 0);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px))}
+  .ringbox{position:relative;display:grid;place-items:center}
+  .ringbox>b{position:absolute}
+  @keyframes sheen{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .rise{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+
+  /* ═══ A. 방송 그래픽 — 비스듬한 면 · 큰 숫자 · 구단 색 띠 ═══ */
+  .A .stage{background:#04070d url(/ui/field-night.webp) center 30%/cover}
+  .A .stage::after{content:'';position:absolute;inset:0;background:
+    linear-gradient(90deg,rgba(4,7,13,.97) 0%,rgba(4,7,13,.9) 55%,rgba(4,7,13,.7) 100%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px)}
+  .A header{height:84px;display:flex;align-items:center;gap:22px;padding:0 28px}
+  .A .tab{height:40px;padding:0 22px;font-weight:700;color:var(--m);transform:skewX(-14deg);background:rgba(255,255,255,.04)}
+  .A .tab span{display:inline-block;transform:skewX(14deg)}
+  .A .tab.on{color:#04140d;background:linear-gradient(90deg,#34d399,#10b981);box-shadow:0 0 22px rgba(16,185,129,.45)}
+  .A .rows{gap:6px}
+  .A .pr{--c1:84px;--c2:64px}
+  .A .pr{height:62px;padding-right:14px;background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
+    clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+  .A .pr::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;background:var(--tc);transform:skewX(-14deg)}
+  .A .pr:hover{background:linear-gradient(90deg,rgba(255,255,255,.1),rgba(255,255,255,.03));transform:translateX(4px)}
+  .A .pr.on{background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 38%,transparent),rgba(16,185,129,.06) 60%,transparent);transform:translateX(8px)}
+  .A .pr .ovr{height:62px;display:grid;place-items:center;font-size:30px;background:rgba(0,0,0,.35);clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%)}
+  .A .pr .ph{width:52px;height:62px;margin-left:10px;-webkit-mask:linear-gradient(90deg,#000 70%,transparent);mask:linear-gradient(90deg,#000 70%,transparent)}
+  .A .pr .nm{font-size:var(--t2);font-weight:700;font-style:italic;letter-spacing:-.01em}
+  .A .buy{height:36px;padding:0 18px;font-weight:700;transform:skewX(-14deg);background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+  .A .buy span{display:inline-block;transform:skewX(14deg)}
+  .A .pr.on .buy{background:var(--a);color:#04140d;box-shadow:0 0 18px rgba(16,185,129,.5)}
+  .A .tool button,.A .tool .inp{height:40px;padding:0 16px;background:rgba(255,255,255,.05);box-shadow:inset 0 -2px 0 rgba(255,255,255,.12);font-weight:700;color:var(--m)}
+  .A .tool .inp{display:flex;align-items:center;flex:1}
+  .A .det{position:relative;display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(180deg,rgba(10,16,28,.2),rgba(6,10,19,.92) 46%);clip-path:polygon(28px 0,100% 0,100% 100%,0 100%,0 28px)}
+  .A .det .bgteam{position:absolute;inset:0 0 50% 0;background:center/cover;opacity:.55;-webkit-mask:linear-gradient(#000 40%,transparent);mask:linear-gradient(#000 40%,transparent)}
+  .A .det .cut{position:absolute;right:-30px;top:0;width:420px;height:460px;background:center 8%/cover no-repeat;
+    -webkit-mask:linear-gradient(180deg,#000 62%,transparent 96%),linear-gradient(90deg,transparent,#000 30%);-webkit-mask-composite:source-in;mask:linear-gradient(180deg,#000 62%,transparent 96%);}
+  .A .det .big{font-size:120px;line-height:.8;font-style:italic;color:transparent;-webkit-text-stroke:2px var(--tc);text-shadow:0 0 40px color-mix(in srgb,var(--tc) 40%,transparent)}
+  .A .det .name{font-size:44px;font-weight:700;font-style:italic;line-height:1}
+  .A .pay{height:64px;font-size:var(--t2);font-weight:700;color:#04140d;background:linear-gradient(90deg,#34d399,#10b981);clip-path:polygon(16px 0,100% 0,calc(100% - 16px) 100%,0 100%);box-shadow:0 0 30px rgba(16,185,129,.45)}
+
+  /* ═══ B. 유리 · 깊이 — 부드러운 빛 · 떠 있는 면 · 반짝이는 카드 ═══ */
+  .B .stage{background:radial-gradient(900px 600px at 78% 18%,color-mix(in srgb,var(--tc) 30%,transparent),transparent 60%),
+    radial-gradient(800px 700px at 10% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .B .stage::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.18;mix-blend-mode:overlay}
+  .B header{height:84px;display:flex;align-items:center;gap:18px;padding:0 28px}
+  .B nav{padding:5px;border-radius:14px;background:rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .B .tab{height:38px;padding:0 20px;border-radius:10px;font-weight:700;color:var(--m);transition:.2s}
+  .B .tab.on{color:var(--w);background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));box-shadow:0 6px 18px -6px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18)}
+  .B .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .B .list{padding:18px}
+  .B .rows{gap:4px}
+  .B .pr{height:62px;padding:0 12px 0 8px;border-radius:14px}
+  .B .pr:hover{background:rgba(255,255,255,.04)}
+  .B .pr.on{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(16,185,129,.03));box-shadow:inset 0 0 0 1px rgba(16,185,129,.45),0 10px 30px -12px rgba(16,185,129,.5)}
+  .B .pr .ph{width:48px;height:48px;border-radius:50%;box-shadow:0 0 0 2px #05080f,0 0 0 3.5px var(--tc)}
+  .B .pr .ovr{font-size:30px;text-align:center;background:linear-gradient(180deg,#fff,#b6c2d1);-webkit-background-clip:text;color:transparent}
+  .B .pr .nm{font-weight:700}
+  .B .buy{height:36px;padding:0 18px;border-radius:10px;font-weight:700;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  .B .pr.on .buy{background:linear-gradient(180deg,#34d399,#0e9f6e);color:#03140c;box-shadow:0 8px 20px -6px rgba(16,185,129,.7),inset 0 1px 0 rgba(255,255,255,.35)}
+  .B .tool button,.B .tool .inp{height:40px;padding:0 16px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.07);font-weight:700;color:var(--m)}
+  .B .tool .inp{display:flex;align-items:center;flex:1}
+  .B .det{padding:22px;display:flex;flex-direction:column;gap:16px}
+  .B .holo{position:relative;height:330px;border-radius:18px;overflow:hidden;background:#0b1220 center 15%/cover;
+    box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12),0 0 60px -10px color-mix(in srgb,var(--tc) 55%,transparent);transform:perspective(900px) rotateY(-6deg) rotateX(2deg)}
+  .B .holo::before{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 47%,rgba(125,211,252,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:screen}
+  .B .holo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,8,15,.92))}
+  .B .tile{border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  .B .pay{height:62px;border-radius:16px;font-size:var(--t2);font-weight:700;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 14px 30px -10px rgba(16,185,129,.8),inset 0 1px 0 rgba(255,255,255,.4)}
+
+  /* ═══ C. 매거진 — 글자와 여백 · 가는 선 · 사진 한 장 ═══ */
+  .C .stage{background:#07090d}
+  .C .stage::after{content:'';position:absolute;inset:0;background:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px) 0 0/100% 48px,
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px) 0 0/48px 100%}
+  .C header{height:92px;display:flex;align-items:flex-end;gap:34px;padding:0 40px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+  .C .tab{height:34px;font-weight:700;color:var(--d);position:relative;padding:0 2px}
+  .C .tab.on{color:var(--w)}
+  .C .tab.on::after{content:'';position:absolute;left:0;right:0;bottom:-15px;height:2px;background:var(--a)}
+  .C .body{padding:18px 40px 24px;gap:40px;grid-template-columns:1fr 480px}
+  .C .rows{gap:0}
+  .C .pr{height:60px;border-bottom:1px solid rgba(255,255,255,.07);padding-right:6px}
+  .C .pr:hover{background:linear-gradient(90deg,rgba(255,255,255,.035),transparent)}
+  .C .pr.on{background:linear-gradient(90deg,rgba(16,185,129,.1),transparent 70%)}
+  .C .pr.on::before{content:'';position:absolute;left:-14px;top:18px;bottom:18px;width:3px;background:var(--a)}
+  .C .pr .ph{width:44px;height:52px;filter:grayscale(1) contrast(1.1);opacity:.85}
+  .C .pr.on .ph{filter:none;opacity:1}
+  .C .pr .ovr{font-size:34px;font-weight:600;text-align:right;color:var(--w)}
+  .C .pr .nm{font-size:var(--t2);font-weight:700}
+  .C .buy{height:34px;padding:0 16px;font-weight:700;color:var(--m);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+  .C .pr.on .buy{color:#04140d;background:var(--w);box-shadow:none}
+  .C .tool{border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:12px}
+  .C .tool button{height:34px;padding:0 4px;margin-left:16px;font-weight:700;color:var(--m)}
+  .C .tool .inp{flex:1;display:flex;align-items:center;color:var(--d);font-size:var(--t2)}
+  .C .det{position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .C .det .photo{position:absolute;inset:0 0 34% 0;background:center 12%/cover no-repeat;filter:grayscale(1) contrast(1.15) brightness(.9)}
+  .C .det .photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 45%,transparent),transparent 45%,#07090d 98%);mix-blend-mode:normal}
+  .C .det .photo::before{content:'';position:absolute;inset:0;background:var(--tc);mix-blend-mode:color;opacity:.55}
+  .C .det .vname{position:absolute;right:-6px;top:10px;writing-mode:vertical-rl;font-size:110px;line-height:.8;font-weight:900;color:rgba(255,255,255,.08);letter-spacing:-.02em}
+  .C .big{font-size:128px;line-height:.78;font-weight:600}
+  .C .pay{height:60px;font-size:var(--t2);font-weight:700;color:#04140d;background:var(--w)}
+  .C .pay:hover{background:var(--a)}
+
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}
+  #tool button.on{background:#fde047;color:#111}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"><button data-s="A">A 방송 그래픽</button><button data-s="B">B 유리 · 깊이</button><button data-s="C">C 매거진</button></div>
+
+<script>
+const P = [["최동원",1984,"롯데","SP",100,[110,92,102,93],108,5400,-10,"legend-1980s_최동원"],["조병현",2025,"SSG","RP",100,[102,89,61,104],108,5680,-5,"legend-2020s_조병현"],["선동열",1989,"해태","SP",100,[110,90,95,100],108,4400,-8,"1993-haitai_선동열"],["구자운",2000,"두산","RP",100,[105,80,71,105],108,5140,7,"2000-doosan_구자운"],["정재훈",2010,"두산","RP",100,[110,82,72,98],108,4740,-1,"2016-doosan_정재훈"],["김민수",2022,"KT","RP",100,[104,98,72,97],108,4970,4,"2022-kt_김민수"],["안우진",2022,"키움","SP",99,[105,87,105,98],106,4710,-10,"legend-2020s_안우진"],["위재영",2000,"현대","RP",99,[102,87,65,101],106,5730,10,"legend-hyundai_위재영"],["양준혁",1997,"삼성","OF",99,[104,102,99,88],106,4470,7,"1997-samsung_양준혁"],["조무근",2015,"KT","RP",99,[106,70,70,106],106,3880,-7,"2015-kt_조무근"],["정민철",1994,"한화","SP",98,[105,89,103,93],104,4290,-6,"legend-1990s_정민철"],["고우석",2022,"LG","RP",98,[104,80,67,100],104,5270,7,"legend-2020s_고우석"]]
+  .map(([name, year, team, pos, ovr, st, cp, price, pct, art], i) => ({ name, year, team, pos, ovr, st, cp, price, art, deal: i === 2 || i === 9 ? Math.round(price * 0.7 / 10) * 10 : null }));
+const TEAM = { 롯데: ['#3b82f6', 'lotte'], SSG: ['#ef4444', 'sk'], 해태: ['#ef4444', 'kia'], 두산: ['#6366f1', 'doosan'], KT: ['#e5e7eb', 'kt'], 키움: ['#a855f7', 'kiwoom'], 현대: ['#22d3ee', 'hyundai'], 삼성: ['#3b82f6', 'samsung'], 한화: ['#f97316', 'hanwha'], LG: ['#f43f5e', 'lg'] };
+const POS_KO = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
+const KEYS = { pit: ['구위', '제구', '체력', '안정'], bat: ['파워', '컨택', '주루', '수비'] };
+const isP = (p) => p.pos === 'SP' || p.pos === 'RP';
+const tc = (p) => (TEAM[p.team] || ['#10b981'])[0];
+const bgOf = (p) => `/ui/teams/bg-${(TEAM[p.team] || [0, 'legend'])[1]}.webp`;
+const img = (p, kind = 'profiles') => `url(/${kind}/${encodeURIComponent(p.art)}.webp),url(/profiles/${encodeURIComponent(p.art)}.webp),url(/ui/mt/silhouette-player.webp)`;
+const pct = (v) => Math.max(4, Math.min(100, ((v - 40) / 70) * 100));
+const sc = (v) => (v >= 105 ? '#fbbf24' : v >= 95 ? '#34d399' : v >= 80 ? '#e5e7eb' : '#f87171');
+const GOLD = 5600;
+const NAV = ['영입', '내 선수', '보관함', '감독 · 코치', '아이템'];
+let S = location.hash.slice(1) || 'A';
+let sel = 2;
+
+const header = () => `
+  <header>
+    <button class="n" style="font-size:22px;color:var(--m)">←</button>
+    <div class="col"><span class="t4 d">메인</span><b class="t1" style="line-height:1.1">내 라커</b></div>
+    <nav class="row" style="gap:${S === 'C' ? 30 : 6}px;margin-left:${S === 'C' ? 30 : 20}px">${NAV.map((n, i) => `<button class="tab ${i === 0 ? 'on' : ''}"><span>${n}</span></button>`).join('')}</nav>
+    <div class="grow"></div>
+    <div class="row" style="gap:26px">
+      <span class="col" style="align-items:flex-end"><span class="t4 d">엔트리</span><b class="n" style="font-size:var(--t2);color:var(--a)">26 / 26</b></span>
+      <span class="col" style="align-items:flex-end"><span class="t4 d">샐러리 캡</span><b class="n" style="font-size:var(--t2)">2,131 <span class="d" style="font-size:var(--t4)">/ 2,330</span></b></span>
+      <span class="col" style="align-items:flex-end"><span class="t4 d">골드</span><b class="n" style="font-size:var(--t2);color:var(--gold)">${GOLD.toLocaleString()}</b></span>
+    </div>
+  </header>`;
+
+const tool = () => `
+  <div class="tool row" style="gap:8px">
+    <div class="inp">선수 이름 · 연도 · 구단 검색</div>
+    <button>필터</button><button style="color:var(--warn)">오늘의 특가</button><button>영입 가능만</button><button>스탯 높은 순 ▾</button>
+  </div>`;
+
+const rows = () => P.slice(0, 11).map((p, i) => {
+  const keys = KEYS[isP(p) ? 'pit' : 'bat'];
+  return `
+  <div class="pr ${i === sel ? 'on' : ''}" data-sel="${i}" style="--tc:${tc(p)}">
+    ${S === 'A' ? `<b class="ovr n">${p.ovr}</b><span class="ph" style="background-image:${img(p)}"></span>` : `<span class="ph" style="background-image:${img(p)}"></span><b class="ovr n">${p.ovr}</b>`}
+    <span class="col" style="gap:2px;min-width:0"><b class="nm tr">${p.name}</b><span class="t4 d tr">${POS_KO[p.pos]} · ${p.year} ${p.team}</span></span>
+    ${keys.map((k, j) => `<span class="stat"><span class="t4 d">${k}</span><b class="n" style="font-size:var(--t3)">${p.st[j]}</b><i style="--p:${pct(p.st[j])}%;--sc:${sc(p.st[j])}"></i></span>`).join('')}
+    <span class="n t4 d" style="text-align:right">${p.cp} CP</span>
+    <span class="col" style="align-items:flex-end;line-height:1.1">${p.deal ? '<span class="deal">특가</span>' : ''}<b class="n" style="font-size:var(--t2);color:var(--gold)">${(p.deal || p.price).toLocaleString()}</b></span>
+    <button class="buy"><span>교체</span></button>
+  </div>`; }).join('');
+
+const detail = () => {
+  const p = P[sel];
+  const keys = KEYS[isP(p) ? 'pit' : 'bat'];
+  const pay = p.deal || p.price;
+  const kv = (k, v, c = 'var(--w)') => `<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)"><span class="m">${k}</span><b class="n" style="font-size:var(--t2);color:${c}">${v}</b></div>`;
+  const money = `${kv('영입가', `${pay.toLocaleString()} G`, 'var(--gold)')}${kv('남는 골드', (GOLD - pay).toLocaleString())}${kv('팀 종합', '82 → 83', 'var(--a)')}`;
+  if (S === 'A') return `
+    <aside class="det rise" style="--tc:${tc(p)}">
+      <span class="bgteam" style="background-image:url(${bgOf(p)})"></span>
+      <span class="cut" style="background-image:${img(p, 'cards')}"></span>
+      <div class="col" style="position:relative;padding:28px 26px 0;gap:6px">
+        <b class="big n">${p.ovr}</b>
+        <span class="t4" style="color:var(--tc);font-weight:700;margin-top:14px">${POS_KO[p.pos]}</span>
+        <b class="name">${p.name}</b>
+        <span class="m">${p.year} ${p.team}</span>
+      </div>
+      <div class="grow"></div>
+      <div class="col" style="position:relative;padding:0 26px 26px;gap:16px">
+        <div class="row" style="justify-content:space-between">${keys.map((k, j) => `<div class="col" style="align-items:center;gap:6px"><div class="ringbox"><span class="ring" style="--p:${pct(p.st[j])};--rc:${sc(p.st[j])}"></span><b class="n" style="font-size:var(--t2)">${p.st[j]}</b></div><span class="t4 m">${k}</span></div>`).join('')}</div>
+        <div class="col">${money}</div>
+        <button class="pay">교체 영입 · ${pay.toLocaleString()} G</button>
+      </div>
+    </aside>`;
+  if (S === 'B') return `
+    <aside class="det glass rise" style="--tc:${tc(p)}">
+      <div class="holo" style="background-image:${img(p, 'cards')}">
+        <div style="position:absolute;left:18px;bottom:14px;z-index:1" class="col"><span class="t4 m">${POS_KO[p.pos]} · ${p.year} ${p.team}</span><b class="t1">${p.name}</b></div>
+        <b class="n" style="position:absolute;right:16px;bottom:8px;z-index:1;font-size:52px;line-height:1;background:linear-gradient(180deg,#fff,#9fb0c4);-webkit-background-clip:text;color:transparent">${p.ovr}</b>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${keys.map((k, j) => `<div class="tile col" style="gap:6px"><span class="row" style="justify-content:space-between"><span class="t4 m">${k}</span><b class="n" style="font-size:var(--t2)">${p.st[j]}</b></span><span style="height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden"><i style="display:block;height:100%;width:${pct(p.st[j])}%;border-radius:4px;background:linear-gradient(90deg,color-mix(in srgb,${sc(p.st[j])} 50%,transparent),${sc(p.st[j])})"></i></span></div>`).join('')}</div>
+      <div class="col">${money}</div>
+      <div class="grow"></div>
+      <button class="pay">교체 영입 · ${pay.toLocaleString()} G</button>
+    </aside>`;
+  return `
+    <aside class="det rise" style="--tc:${tc(p)}">
+      <span class="photo" style="background-image:${img(p, 'cards')}"></span>
+      <span class="vname">${p.name}</span>
+      <div class="grow"></div>
+      <div class="col" style="position:relative;gap:18px">
+        <div class="row" style="align-items:flex-end;gap:18px"><b class="big n">${p.ovr}</b>
+          <span class="col" style="gap:4px;padding-bottom:6px"><span class="t4" style="color:var(--a);font-weight:700">${POS_KO[p.pos]}</span><b class="t1">${p.name}</b><span class="m">${p.year} ${p.team}</span></span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14)">${keys.map((k, j) => `<div class="col" style="padding:12px 0;gap:2px;${j ? 'border-left:1px solid rgba(255,255,255,.08);padding-left:14px' : ''}"><span class="t4 d">${k}</span><b class="n" style="font-size:32px;font-weight:600;line-height:1;color:${p.st[j] >= 105 ? 'var(--warn)' : 'var(--w)'}">${p.st[j]}</b></div>`).join('')}</div>
+        <div class="col">${money}</div>
+        <button class="pay">교체 영입 · ${pay.toLocaleString()} G</button>
+      </div>
+    </aside>`;
+};
+
+function draw() {
+  document.getElementById('app').className = S;
+  document.getElementById('app').innerHTML = `
+    <div class="stage" style="--tc:${tc(P[sel])}"></div>
+    <div class="shell">
+      ${header()}
+      <div class="body">
+        <section class="list ${S === 'B' ? 'glass' : ''}">${tool()}<div class="rows">${rows()}</div></section>
+        ${detail()}
+      </div>
+    </div>`;
+  document.querySelectorAll('#tool [data-s]').forEach((b) => b.classList.toggle('on', b.dataset.s === S));
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-s],[data-sel]');
+  if (!t) return;
+  if (t.dataset.s) { S = t.dataset.s; location.hash = S; }
+  if (t.dataset.sel) sel = +t.dataset.sel;
+  draw();
+});
+addEventListener('keydown', (e) => { const k = { 1: 'A', 2: 'B', 3: 'C', a: 'A', b: 'B', c: 'C' }[e.key]; if (k) { S = k; location.hash = S; draw(); } });
+draw();
+</script>
+</body></html>
