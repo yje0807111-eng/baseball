@@ -34,7 +34,7 @@ const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', stamina:
 const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
 const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const ROW_COLS = '52px 50px minmax(0,1fr) repeat(4,62px) 64px 118px 88px';
+const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
 const GOLD = '#fde047';
 const WARN = '#fbbf24';
 
@@ -101,13 +101,13 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
   const q = stored ? null : quoteOf(p);
   const deal = q && price != null && price < q.price;
   return (
-    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row h-[62px] cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, gap: 14 }}>
-      <Portrait player={p} w={48} h={48} round t={teamNeon(p)} />
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row h-[72px] cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, gap: 14, padding: '0 14px 0 8px' }}>
+      <Portrait player={p} w={52} h={52} round t={teamNeon(p)} />
       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{p.overall}</b>
       <span className="min-w-0">
-        <b className="block truncate text-t3 font-bold text-white">
+        <b className="block truncate text-t2 font-black text-white">
           {p.name}
-          {p.isForeign && <em className="ml-1.5 text-t4 not-italic" style={{ color: WARN }}>외국인</em>}
+          {p.isForeign && <em className="ml-2 align-middle text-t4 not-italic" style={{ color: WARN }}>외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
               className={`ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`}>
@@ -115,31 +115,35 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
             </button>
           )}
         </b>
-        <small className="block truncate text-t4 text-gray-500">{POS_FULL[p.position]} · {p.year} {p.team}</small>
+        <small className="mt-0.5 block truncate text-t4 text-gray-400">{POS_FULL[p.position]} · {p.year} {p.team}</small>
       </span>
+      {/* 능력치 넷 — 칸마다 이름 · 큰 숫자 · 막대 */}
       {keys.map(([label, k]) => {
         const v = p.stats?.[k] ?? 0;
+        const c = statOf(k, v);
         return (
-          <span key={k} className="flex flex-col items-center gap-[3px]">
-            <span className="text-t4 text-gray-500">{label}</span>
-            <b className="font-display text-t3 leading-none text-white">{v}</b>
-            <i className="relative block h-[3px] w-[38px] overflow-hidden rounded-full bg-white/[0.08]">
-              <b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
+          <span key={k} className="flex min-w-0 flex-col gap-1 rounded-xl bg-white/[0.04] px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
+            <span className="flex items-baseline justify-between">
+              <span className="text-t4 text-gray-400">{label}</span>
+              <b className="font-display text-t2 leading-none" style={{ color: c.num }}>{v}</b>
+            </span>
+            <i className="relative block h-1 overflow-hidden rounded-full bg-white/[0.08]">
+              <b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${statPct(v)}%`, background: c.bar }} />
             </i>
           </span>
         );
       })}
-      {/* CP — 캡에 여유가 있을 때(90% 전)는 작게 · 흐리게: 초반엔 골드가 막는다 */}
-      <b className={`text-right font-display ${capQuiet ? 'text-t4 text-gray-500' : 'text-t3 text-amber-300'}`}>{p.cost} CP</b>
+      {/* CP — 캡에 여유가 있을 때(90% 전)는 흐리게: 초반엔 골드가 막는다 */}
+      <span className={`justify-self-center rounded-full px-2.5 py-1 font-display text-t3 font-bold ${capQuiet ? 'bg-white/[0.04] text-gray-500' : 'bg-amber-400/10 text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]'}`}>{p.cost} CP</span>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-t3 text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
         : (
           <span className="flex flex-col items-end leading-tight">
-            {deal && <small className="text-t4 font-bold" style={{ color: WARN }}>특가</small>}
-            <b className="font-display text-t2" style={{ color: GOLD }}>{(deal ? price : q.price).toLocaleString()}</b>
+            {deal && <small className="rounded-full bg-amber-400/15 px-2 text-t4 font-bold" style={{ color: WARN }}>특가</small>}
+            <b className="font-display text-t2" style={{ color: GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-t4 text-gray-500">G</small></b>
           </span>
         )}
-      <Btn sm pri={on} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
+      <Btn pri={on} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }} style={{ minHeight: 42, padding: '0 16px' }}>{action}</Btn>
     </div>
   );
 }
@@ -682,6 +686,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
     return list.sort(by);
   }, [q, year, club, pos, sort, squad, team.club, canOnly, dealOnly, gold, staff, cap, lim.size, lim.free, lim.foreign]);
   const results = matched.slice(0, limit);
+  /* 오른쪽 상세에 보일 선수 — 고른 선수, 없으면 지금 탭 목록의 첫 선수 */
+  const shown = sel || (tab === 'scout' ? results[0] : tab === 'club' ? (team.club || [])[0] : tab === 'squad' ? [...squad].sort((x, y) => y.overall - x.overall)[0] : null) || null;
 
   const NAV = [
     { key: 'scout', label: '영입', img: 'ui/nav/locker-scout.webp' },
@@ -770,7 +776,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             )}
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
+                <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
               ))}
               {results.length === 0 && <p className="text-t3 text-gray-500">조건에 맞는 선수 없음</p>}
@@ -801,7 +807,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 const full = squad.length >= lim.size;
                 const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
                 return (
-                  <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '넣기'} blocked={why} showNote={false} teamTint stored
+                  <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '넣기'} blocked={why} showNote={false} teamTint stored
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
                 );
               })}
@@ -978,7 +984,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           );
         })()
           : (
-          <DetailPanel p={sel} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
+          <DetailPanel p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
             itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />

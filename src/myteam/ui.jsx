@@ -142,10 +142,15 @@ export const UiStyle = () => (
     .mt-nav.sm .th { width:40px; height:44px; }
     .mt-nav.on::after { content:''; position:absolute; left:6px; top:30%; bottom:30%; width:3px; border-radius:3px; background:var(--a); box-shadow:0 0 10px var(--a); }
     /* 위 탭 — 알약 틀 안에 고른 탭만 떠오른다 */
-    .mt-tabs { display:flex; gap:4px; padding:5px; border-radius:14px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
-    .mt-tab { height:38px; padding:0 20px; border-radius:10px; font-size:14px; font-weight:700; color:#9ca3af; transition:color .2s, background .2s; }
+    .mt-tabs { display:flex; align-items:stretch; gap:2px; height:100%; }
+    .mt-tab { position:relative; display:flex; align-items:center; padding:0 22px; font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
     .mt-tab:hover { color:#e5e7eb; }
-    .mt-tab.on { color:#fff; background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05)); box-shadow:0 6px 18px -6px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18); }
+    .mt-tab.on { color:#fff; text-shadow:0 0 18px rgba(245,210,122,.35); background:radial-gradient(70% 90% at 50% 100%,rgba(245,210,122,.16),transparent 70%); }
+    .mt-tab.on::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
+    /* 알약 고르기(배속 등) — 작은 알약 틀 */
+    .mt-seg { display:flex; gap:4px; padding:4px; border-radius:12px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
+    .mt-segb { height:32px; padding:0 14px; border-radius:8px; font-size:14px; font-weight:700; color:#9ca3af; }
+    .mt-segb.on { color:#fff; background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06)); box-shadow:inset 0 1px 0 rgba(255,255,255,.2); }
     @keyframes mtPulse { 50% { opacity:.5; } }
   `}</style>
 );
@@ -277,25 +282,26 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (
-    <header className="relative z-10 flex h-[4.5rem] shrink-0 items-center gap-6 bg-[linear-gradient(180deg,rgba(5,8,15,.7),rgba(5,8,15,0))] px-7">
+    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7">
       {onBack && (
         <button type="button" onClick={onBack} aria-label="메인으로"
           className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
-      <div className="leading-none">
-        <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">{eyebrow}</p>
-        <h1 className="mt-1 text-t2 font-black leading-none text-white">{section}</h1>
+      <div className="shrink-0 leading-none">
+        <p className="text-t4 font-bold text-gray-500">{eyebrow}</p>
+        <h1 className="mt-1 whitespace-nowrap text-t1 font-black leading-none text-white">{section}</h1>
       </div>
-      {steps}
+      {steps && <span className="h-9 w-px shrink-0 bg-white/10" aria-hidden="true" />}
+      {steps && <div className="flex h-full min-w-0 items-stretch">{steps}</div>}
       <div className="ml-auto flex items-center gap-6">
         {team && (
-          <div className="w-60" style={{ opacity: !over && cost < cap * CAP_LOUD ? 0.55 : 1 }}>
-            <div className="flex justify-between text-t4 text-gray-500">
-              <span className="font-bold">샐러리 캡</span>
+          <div className="mt-cut mt-glass w-64 px-4 py-2" style={{ '--c': '14px', opacity: !over && cost < cap * CAP_LOUD ? 0.7 : 1 }}>
+            <div className="flex items-baseline justify-between">
+              <span className="text-t4 font-bold text-gray-400">남은 캡</span>
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
-              <b style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()} / {cap.toLocaleString()}</b>
+              <span className="font-display"><b className="text-t2" style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()}</b><small className="text-t4 text-gray-500"> / {cap.toLocaleString()}</small></span>
             </div>
-            <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
               <i className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : cost < cap * CAP_LOUD ? '#6b7280' : '#10b981', boxShadow: cost < cap * CAP_LOUD && !over ? 'none' : `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
             </div>
           </div>

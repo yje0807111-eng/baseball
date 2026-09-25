@@ -798,11 +798,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           {holding && (
             <span className="ml-auto flex items-center gap-2 rounded-full bg-[#fde047] px-3 py-1 font-display text-t3 font-extrabold text-[#05080f]">▶▶ 빨리감기</span>
           )}
-          <div className={`mt-tabs ${holding ? '' : 'ml-auto'}`}>
+          <div className={`mt-seg ${holding ? '' : 'ml-auto'}`}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
                 title={v === SKIP ? (speed === SKIP ? '한 번 더 누르면 원래 배속으로' : '남은 경기 10초 안에 몰아서 끝내기') : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
-                className={`mt-tab !h-8 !px-3.5 font-display ${speed === v ? 'on' : ''}`} style={speed === v && v === SKIP ? { color: '#fde047' } : null}>{label}</button>
+                className={`mt-segb font-display ${speed === v ? 'on' : ''}`} style={speed === v && v === SKIP ? { color: '#fde047' } : null}>{label}</button>
             ))}
           </div>
           <button type="button" onClick={() => setDigest((v) => !v)} aria-pressed={digest}

@@ -1903,12 +1903,12 @@ export const KEYFRAMES = `
 /* 오른쪽 LINEUP 명단: 묶음 상자 위 “선 위 라벨”(이름만) · 줄은 판 높이에 맞춰 늘고 줄어 12줄이 늘 들어감 */
 /* 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] */
 .mt-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-.mt-tabs { flex: none; display: flex; gap: 20px; padding: 0 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.16); }
-.mt-tabs button { position: relative; padding: 3px 1px 8px; font-size:14px; font-weight: 600; color: #6b7280; transition: color .15s; }
-.mt-tabs button:hover { color: #cbd5e1; }
-.mt-tabs button.on { color: #fff; }
-.mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
-.mt-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
+.mtp-tabs { flex: none; display: flex; gap: 20px; padding: 0 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.16); }
+.mtp-tabs button { position: relative; padding: 3px 1px 8px; font-size:14px; font-weight: 600; color: #6b7280; transition: color .15s; }
+.mtp-tabs button:hover { color: #cbd5e1; }
+.mtp-tabs button.on { color: #fff; }
+.mtp-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
+.mtp-tabs button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
 .mt-team { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
 .mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
 .mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -3188,7 +3188,7 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
   const [tab, setTab] = useState('team');
   return (
     <div className="mt-panel">
-      <div className="mt-tabs" role="tablist">
+      <div className="mtp-tabs" role="tablist">
         {[['team', '팀 분석'], ['rec', '선수 기록']].map(([k, t]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
         ))}
