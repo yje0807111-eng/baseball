@@ -35,9 +35,7 @@ function draftBy(score, hit = null) {
 /** 이 선수가 시너지 조건에 드는가 — 조합형은 따로 본다 */
 const HIT = {
   battery: (p) => (p.position === 'C' && p.stats.defense >= 90) || (p.type === 'pitcher' && p.stats.control >= p.stats.stuff + 5),
-  era: (p) => Math.floor(p.year / 10) * 10 === 2010,
   franchise: (p) => p.team === '삼성',
-  teamYear: (p) => p.team === '삼성' && p.year === 2014,
 };
 const hits = (s) => HIT[s.id] || ((p) => s.members([p]).length > 0);
 /** 가성비 — 종합에서 평균(78 CP)보다 비싼 만큼을 뺀다. 종합만 보면 앞자리 투수가 CP 를 다 써 버린다 */
