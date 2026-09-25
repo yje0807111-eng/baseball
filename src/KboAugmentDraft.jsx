@@ -17,6 +17,7 @@ import { NO_CAP, isNoCap, specialAiRoster, rosterOrigin } from './draft/special.
 import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
+import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -4664,13 +4665,8 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
             <i className="-skew-x-12 bg-red-400" style={{ flex: 100 - pct }} />
           </div>
         </div>
-        <div>
-          {[['선발', my.sps[0]?.name, opp.sps[0]?.name], ['타선 평균', avg(my.batters), avg(opp.batters)]].map(([k, m, o]) => (
-            <div key={k} className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-              <span>{k}</span><b className="font-display text-lg"><span className="text-[#10b981]">{m}</span> <span className="text-gray-600">·</span> <span className="text-red-400">{o}</span></b>
-            </div>
-          ))}
-        </div>
+        {/* 여섯 축 맞대기 — 토너먼트 · 랭크전과 같은 판 */}
+        <VsAxes mine={my} opp={opp} />
         <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>{startLabel}</button>
       </aside>
     </section>
