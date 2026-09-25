@@ -4604,7 +4604,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [ai, setAi] = useState('normal');
   const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 여덟 구단이 같이 뽑는다
   const aug = SEASON_AUGMENTS; // 시즌 증강은 늘 있다
-  const [format, setFormat] = useState('single'); // 단판 · 16 · 32 · 64강
+  const [format, setFormat] = useState('single'); // 단판 · 16 · 32강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
@@ -4689,7 +4689,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
                 fixed={special ? '없음' : null} />
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-              <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
+              <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat} />
             </div>
             <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
               드래프트 시작 ▶
@@ -5190,7 +5190,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [released, setReleased] = useState([]); // 방출한 선수(동일인 키) — 이번 드래프트 동안 재영입 불가
   // 경기 상태
   const [opponent, setOpponent] = useState(null);
-  const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32 · 64강이면 이 판의 토너먼트 (저장하지 않음)
+  const [dtour, setDtour] = useState(null); // 경기 방식이 16 · 32강이면 이 판의 토너먼트 (저장하지 않음)
   const [tourEntry, setTourEntry] = useState(null); // 대진표에서 고른 이번 상대 (정비를 거쳐 경기로 들고 간다)
   /* 도장깨기 — 라이브 드래프트로 뽑은 판에서는 토너먼트 대신 일곱 구단을 약한 순서로 하나씩 친다 */
   const [gaunt, setGaunt] = useState(null);

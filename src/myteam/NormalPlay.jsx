@@ -1,4 +1,4 @@
-/* 플레이 화면의 일반 대결 — 내 라커 26인으로: 단판 한 경기 또는 16 · 32 · 64강 토너먼트 (언제든 새로 열 수 있다) */
+/* 플레이 화면의 일반 대결 — 내 라커 26인으로: 단판 한 경기 또는 16 · 32강 토너먼트 (64강은 한 번에 끝내기 길어 뺐다 — 진행 중인 64강은 끝까지 한다) (언제든 새로 열 수 있다) */
 import React from 'react';
 import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues, foreignCount, limitsOf } from './rules.js';
 import CapBar from './CapBar.jsx';
@@ -12,7 +12,7 @@ import { artId } from '../data/artAlias.js';
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const G = '#10b981', A = '#fbbf24';
-export const FORMATS = ['single', 16, 32, 64];
+export const FORMATS = ['single', 16, 32];
 export const FORMAT_LABEL = { single: '단판', 16: '16강', 32: '32강', 64: '64강' };
 
 /* ───── 단판: 오늘 상대 + 최근 5경기 ───── */
@@ -99,7 +99,7 @@ function nextDuel() {
 
 
 
-/** 형식 고르기 (단판 · 16강 · 32강 · 64강) */
+/** 형식 고르기 (단판 · 16강 · 32강) */
 export function FormatPicker({ value, onChange, a = G }) {
   return (
     <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="경기 방식">
@@ -213,7 +213,7 @@ export function TourneyHero({ size, t, name, squad }) {
 }
 
 /**
- * format: 'single' | 16 | 32 | 64 · onFormat 형식 바꾸기
+ * format: 'single' | 16 | 32 (진행 중인 옛 64강도 받는다) · onFormat 형식 바꾸기
  * onPlay 단판 시작 · onTourney(size, fresh) 토너먼트 대진표로(fresh 면 새 대진) · onLocker
  */
 export function normalPanels({ account, format = 'single', onFormat, onPlay, onTourney, onLocker }) {
@@ -307,5 +307,5 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
     </aside>
   );
 
-  return { key: 'duel', label: '일반 대결', sub: single ? '단판 · 16 · 32 · 64강' : `${format}강 토너먼트${t ? ` · ${t.done ? '결과' : `${t.round + 1}/${rounds.length}`}` : ''}`, img: 'ui/broadcast-field.webp', neon: G, main, aside };
+  return { key: 'duel', label: '일반 대결', sub: single ? '단판 · 16 · 32강' : `${format}강 토너먼트${t ? ` · ${t.done ? '결과' : `${t.round + 1}/${rounds.length}`}` : ''}`, img: 'ui/broadcast-field.webp', neon: G, main, aside };
 }

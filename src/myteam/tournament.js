@@ -1,5 +1,5 @@
 /*
- * 토너먼트 — 16강 · 32강 · 64강. 언제든 새로 열 수 있고, 열 때마다 대진이 새로 정해진다.
+ * 토너먼트 — 16강 · 32강(64강은 고르는 칸에서 뺐고, 엔진은 그대로 받는다). 언제든 새로 열 수 있고, 열 때마다 대진이 새로 정해진다.
  * 지금은 서버가 없어 참가 팀이 AI 시리즈 팀(구단 시즌 · 국가대표 · 레전드 멤버 그대로)이다. 나중에 다른 유저 팀 스냅샷을 받으면 entrantsFor() 만 바꿔 끼우면 된다
  * (유저 팀이 모자라면 남는 자리를 AI 팀으로 채운다).
  * 드래프트 모드는 참가 팀을 직접 만들어 넘긴다(entry.team) — 저장하지 않는 한 판짜리 토너먼트.
@@ -13,7 +13,7 @@ import { roundsOf, finishOf } from './rewards.js';
 
 export { roundsOf, finishOf };
 
-export const SIZES = [16, 32, 64];
+export const SIZES = [16, 32];
 
 const hash = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 export const seeded = (seed) => () => { // mulberry32
