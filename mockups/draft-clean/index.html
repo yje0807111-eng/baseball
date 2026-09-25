@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>드래프트 판 정리 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --bad:#f87171; --tc:#a855f7;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#05080f;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .bgx{position:absolute;inset:0;background:radial-gradient(900px 600px at 78% 12%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 60%),radial-gradient(800px 700px at 8% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .bgx::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.16;mix-blend-mode:overlay}
+  .shell{position:relative;height:100%;display:flex;flex-direction:column}
+  .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+  .pill{height:36px;padding:0 14px;border-radius:10px;font-weight:700;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  .seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(255,255,255,.05)}
+  .seg button{height:30px;padding:0 12px;border-radius:8px;font-weight:700;color:var(--m)}
+  .seg button.on{color:var(--w);background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+  .pri{border-radius:16px;font-size:var(--t2);font-weight:700;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 14px 30px -10px rgba(16,185,129,.8),inset 0 1px 0 rgba(255,255,255,.4)}
+  .bar{height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;border-radius:5px}
+  /* 선반 카드 */
+  .card{position:relative;overflow:hidden;border-radius:14px;background:#0b1220 center 12%/cover no-repeat;cursor:pointer;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 14px 24px -14px rgba(0,0,0,.9)}
+  .card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.35),transparent 30%,transparent 48%,rgba(5,8,15,.95) 86%)}
+  .card>*{position:absolute;z-index:1}
+  .card:hover{transform:translateY(-4px)}
+  .card.on{transform:translateY(-6px);box-shadow:0 0 0 2px var(--a),0 18px 34px -12px rgba(16,185,129,.7)}
+  .card.gone{filter:grayscale(1) brightness(.45)}
+  .card .ov{left:9px;top:6px;font-size:var(--t1);line-height:1;background:linear-gradient(180deg,#fff,#b6c2d1);-webkit-background-clip:text;color:transparent}
+  .card .ps{right:8px;top:9px;font-size:var(--t4);font-weight:700;padding:1px 7px;border-radius:999px;background:rgba(5,8,15,.7)}
+  .card .nm{left:9px;right:9px;bottom:22px;font-weight:700}
+  .card .cp{left:9px;bottom:6px;font-size:var(--t4);color:var(--m)}
+  .card .cp b{color:var(--warn)}
+  .holo{position:relative;overflow:hidden;border-radius:18px;background:#0b1220 center 14%/cover;transform:perspective(900px) rotateY(-6deg) rotateX(2deg);
+    box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12),0 0 60px -10px color-mix(in srgb,var(--tc) 55%,transparent)}
+  .holo::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 47%,rgba(125,211,252,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:screen}
+  .holo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(5,8,15,.94))}
+  .holo>*{position:absolute;z-index:2}
+  @keyframes sheen{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  .ring{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--warn) calc(var(--p)*1%),rgba(255,255,255,.08) 0);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))}
+  .field{position:relative;background:url(/ui/field-wide.webp) center 60%/cover;border-radius:20px;overflow:hidden}
+  .field::after{content:'';position:absolute;inset:0;background:radial-gradient(80% 80% at 50% 55%,transparent,rgba(5,8,15,.7))}
+  .slot{position:absolute;z-index:1;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;background:rgba(5,8,15,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);font-size:var(--t4);font-weight:700;white-space:nowrap}
+  .slot i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06) center 14%/cover;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+  .slot.fill{box-shadow:inset 0 0 0 1.5px var(--a2)}
+  .slot.fill i{box-shadow:0 0 0 2px var(--a2)}
+  .slot.empty{color:var(--d)}
+  .hex{width:34px;height:30px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:#3a4556;display:grid;place-items:center;flex:none}
+  .hex i{width:60%;height:66%;background:#9ca3af;-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+  .prow{display:grid;grid-template-columns:44px 40px minmax(0,1fr) 60px 70px;align-items:center;gap:12px;height:54px;padding:0 10px 0 6px;border-radius:14px;cursor:pointer}
+  .prow:hover{background:rgba(255,255,255,.045)}
+  .prow.on{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(16,185,129,.03));box-shadow:inset 0 0 0 1px rgba(16,185,129,.45)}
+  .prow .ph{width:40px;height:40px;border-radius:50%;background:#0b1220 center 14%/cover;box-shadow:0 0 0 2px #05080f,0 0 0 3.5px var(--tc)}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+  #tool span{color:#cbd5e1;margin-left:6px}#tool b{color:#fde047}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"><button data-v="1">1 세 칸 정리</button><button data-v="2">2 선반 크게</button><button data-v="3">3 목록 · 구장</button><span id="meter"></span></div>
+
+<script>
+/* 실제 드래프트 판 값 — 2023 키움 선반, 두 번째 지명 */
+const art = (n) => `url(/cards/2022-kiwoom_${encodeURIComponent(n)}.webp),url(/ui/mt/silhouette-player.webp)`;
+const SHELF = [['안우진','SP',96,101],['후라도','SP',88,88],['요키시','SP',76,74],['정찬헌','SP',69,64],['임창민','RP',84,84],['김재웅','RP',72,68],['장재영','RP',63,55],['양현','RP',59,50],['김동헌','C',70,65],['이지영','C',68,62],['임지열','1B',70,65],['이원석','1B',63,55],['김혜성','2B',91,92],['송성문','3B',73,69],['이정후','OF',88,88],['도슨','OF',85,85],['이형종','OF',65,58]]
+  .map(([name, pos, ovr, cp], i) => ({ name, pos, ovr, cp, gone: i === 1 || i === 15 }));
+const POS_KO = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF: '외야', DH: '지명' };
+const TEAMS = [['KIA', 0], ['롯데', 0], ['SSG', 0], ['두산', 0], ['삼성', 0], ['현대', 0], ['LG', 0]];
+const SLOTS = [['SP', 50, 58], ['C', 50, 90], ['1B', 69, 60], ['2B', 61, 44], ['3B', 31, 60], ['SS', 39, 44], ['LF', 22, 26, '김우근'], ['CF', 50, 18], ['RF', 78, 26], ['DH', 86, 86]];
+const SYN = [['외야 수비망', 'outfieldNet', '1/2'], ['발야구', 'speedLine', '1/3'], ['교타 군단', 'contactLine', '1/4'], ['우타 라인', 'rightLine', '1/7']];
+const STATS = [['파워', 73, -15], ['컨택', 89, 1], ['주루', 108, 20], ['수비', 90, 11]];
+let v = +(location.hash.slice(1) || 1);
+let sel = 12;
+
+const header = () => `
+  <header class="row" style="height:72px;padding:0 24px;gap:16px">
+    <button class="pill" style="width:40px;padding:0">←</button>
+    <div class="col"><span class="t4 d">드래프트 · 전체 믹스</span><b class="t2">2023 키움 히어로즈</b></div>
+    <span class="t4 m" style="margin-left:4px">정규시즌 10위 · 이정후 고별 시즌</span>
+    <div class="grow"></div>
+    <div class="row" style="gap:6px">${TEAMS.map(([t], i) => `<span class="row" style="gap:6px;height:32px;padding:0 12px;border-radius:999px;font-weight:700;${i === 0 ? 'background:rgba(16,185,129,.18);box-shadow:inset 0 0 0 1.5px var(--a);color:#fff' : 'color:var(--d);background:rgba(255,255,255,.04)'}">${i === 0 ? '내 차례' : t}</span>`).join('')}</div>
+    <div class="ring" style="--p:68"><b class="n" style="font-size:var(--t2);color:var(--warn)">17</b></div>
+    <div class="seg">${['×1', '×2', '×4', '⏭'].map((s, i) => `<button class="${i === 0 ? 'on' : ''}">${s}</button>`).join('')}</div>
+    <button class="pill">?</button>
+  </header>`;
+const capBox = () => `
+  <div class="row" style="gap:22px">
+    <span class="col"><span class="t4 d">지명</span><b class="n" style="font-size:var(--t2)">02 <span class="d" style="font-size:var(--t4)">/ 20</span></b></span>
+    <span class="col" style="width:200px;gap:4px"><span class="row t4 d" style="justify-content:space-between">남은 캡<b class="n" style="font-size:var(--t3);color:var(--w)">1,473 / 1,560</b></span><div class="bar"><i style="width:94%;background:var(--a2)"></i></div></span>
+  </div>`;
+const card = (p, i, h) => `
+  <div class="card ${i === sel ? 'on' : ''} ${p.gone ? 'gone' : ''}" data-sel="${i}" style="height:${h}px;background-image:${art(p.name)}">
+    <b class="ov n">${p.ovr}</b><span class="ps">${POS_KO[p.pos]}</span>
+    <b class="nm tr">${p.name}</b><span class="cp"><b class="n">${p.cp}</b> CP</span>
+    ${p.gone ? '<span style="left:0;right:0;top:44%;text-align:center;font-weight:700;color:#fff">지명됨</span>' : ''}
+  </div>`;
+const detail = (hh = 300) => {
+  const p = SHELF[sel];
+  return `
+    <div class="holo" style="height:${hh}px;background-image:${art(p.name)}">
+      <span class="col" style="left:16px;bottom:12px"><span class="t4 m">${POS_KO[p.pos]} · 2023 키움</span><b class="t1">${p.name}</b></span>
+      <b class="n" style="right:14px;bottom:4px;font-size:52px;line-height:1;background:linear-gradient(180deg,#fff,#9fb0c4);-webkit-background-clip:text;color:transparent">${p.ovr}</b>
+    </div>`;
+};
+const pickBtn = () => `<button class="pri" style="height:60px;width:100%">지명 · ${SHELF[sel].cp} CP</button>`;
+const field = (style) => `
+  <div class="field" style="${style}">
+    ${SLOTS.map(([k, x, y, who]) => `<span class="slot ${who ? 'fill' : 'empty'}" style="left:${x}%;top:${y}%">
+      <i ${who ? 'style="background-image:url(/ui/mt/silhouette-player.webp)"' : ''}></i>${who ? `${who} <b class="n" style="color:var(--a2)">87</b>` : POS_KO[k === 'LF' || k === 'CF' || k === 'RF' ? 'OF' : k]}</span>`).join('')}
+  </div>`;
+const synRow = () => `<div class="row" style="gap:12px">${SYN.map(([n, img, c]) => `<span class="row" style="gap:6px" title="${n}"><span class="hex" style="--img:url(/ui/synergy/${img}.png)"><i></i></span><span class="col"><b class="t4">${n}</b><span class="t4 d n">${c}</span></span></span>`).join('')}</div>`;
+const analysis = () => `
+  <div class="col" style="gap:12px">
+    <div class="row"><span class="lab">팀 분석</span><span class="grow"></span><span class="t4 d">AI 평균 79.8</span><b class="n" style="font-size:var(--t1);color:var(--a2)">87.0</b></div>
+    ${STATS.map(([k, val, d]) => `<div class="row" style="gap:12px"><span class="t4 m" style="width:32px">${k}</span><div class="bar grow" style="height:6px"><i style="width:${Math.min(100, (val - 40) / 0.8)}%;background:${d >= 0 ? 'var(--a2)' : 'var(--bad)'}"></i></div><b class="n" style="width:30px;text-align:right">${val}</b><span class="n t4" style="width:30px;color:${d >= 0 ? 'var(--a2)' : 'var(--bad)'}">${d > 0 ? '+' : ''}${d}</span></div>`).join('')}
+    <span class="t4 m">발 빠른 야구 · 장타 부족</span>
+  </div>`;
+const pen = () => `<div class="row" style="gap:6px">${['롱', '중간', '셋업', '마무리'].map((k) => `<span class="row" style="flex:1;height:34px;padding:0 10px;border-radius:10px;background:rgba(255,255,255,.04);gap:6px"><span class="t4 d">${k}</span><span class="t4 d grow" style="text-align:right">–</span></span>`).join('')}</div>`;
+
+/* ── 1. 세 칸 정리 — 선반 한 줄 + 아래 세 칸 ── */
+function v1() {
+  return `<div class="bgx"></div><div class="shell">${header()}
+    <div class="col" style="padding:0 24px 20px;gap:14px;flex:1;min-height:0">
+      <section class="glass col" style="padding:14px 16px;gap:12px">
+        <div class="row"><span class="lab">영입 후보</span><span class="t4 m">17명 · 포지션 순</span><span class="grow"></span>${capBox()}</div>
+        <div style="display:grid;grid-template-columns:repeat(17,1fr);gap:8px">${SHELF.map((p, i) => card(p, i, 178)).join('')}</div>
+      </section>
+      <div style="display:grid;grid-template-columns:400px 1fr 400px;gap:14px;flex:1;min-height:0">
+        <section class="glass col" style="padding:16px;gap:12px;min-height:0">${detail(250)}<div class="grow"></div>${pickBtn()}</section>
+        <section class="glass col" style="padding:14px 16px;gap:10px;min-height:0">
+          <div class="row"><span class="lab">내 라인업</span><span class="grow"></span>${synRow()}</div>
+          ${field('flex:1;min-height:0')}
+          ${pen()}
+        </section>
+        <section class="glass" style="padding:18px 20px">${analysis()}</section>
+      </div>
+    </div></div>`;
+}
+
+/* ── 2. 선반 크게 — 두 줄 큰 카드로 고르고, 오른쪽에 고른 선수 · 지명 · 팀 요약 ── */
+function v2() {
+  return `<div class="bgx"></div><div class="shell">${header()}
+    <div style="display:grid;grid-template-columns:1fr 440px;gap:16px;padding:0 24px 20px;flex:1;min-height:0">
+      <section class="glass col" style="padding:16px 18px;gap:14px;min-height:0">
+        <div class="row"><span class="lab">영입 후보</span><span class="t4 m">17명</span><span class="grow"></span>${capBox()}<button class="pill" style="margin-left:8px">내 라인업 보기</button></div>
+        <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:12px;flex:1;align-content:start">${SHELF.map((p, i) => card(p, i, 318)).join('')}</div>
+      </section>
+      <aside class="col" style="gap:14px;min-height:0">
+        <section class="glass col" style="padding:18px;gap:12px">${detail(330)}${pickBtn()}</section>
+        <section class="glass" style="padding:18px 20px;flex:1">${analysis()}</section>
+      </aside>
+    </div></div>`;
+}
+
+/* ── 3. 목록 · 구장 — 왼쪽 포지션 탭 목록, 가운데 구장, 오른쪽 고른 선수 · 분석 ── */
+function v3() {
+  return `<div class="bgx"></div><div class="shell">${header()}
+    <div style="display:grid;grid-template-columns:460px 1fr 400px;gap:16px;padding:0 24px 20px;flex:1;min-height:0">
+      <section class="glass col" style="padding:16px;gap:12px;min-height:0;overflow:hidden">
+        <div class="seg">${['전체', '투수', '포수', '내야', '외야'].map((s, i) => `<button class="${i === 0 ? 'on' : ''}" style="flex:1">${s}</button>`).join('')}</div>
+        <div class="col" style="gap:3px">${SHELF.slice(0, 13).map((p, i) => `
+          <div class="prow ${i === sel ? 'on' : ''}" data-sel="${i}" style="${p.gone ? 'opacity:.35' : ''}">
+            <span class="ph" style="background-image:${art(p.name)}"></span>
+            <b class="n" style="font-size:var(--t1);text-align:center;background:linear-gradient(180deg,#fff,#b6c2d1);-webkit-background-clip:text;color:transparent">${p.ovr}</b>
+            <span class="col" style="min-width:0"><b class="tr">${p.name}</b><span class="t4 d">${p.gone ? '지명됨' : POS_KO[p.pos]}</span></span>
+            <span class="n" style="text-align:right;color:var(--warn)">${p.cp} <small class="t4 d">CP</small></span>
+            <button class="pill" style="height:30px;font-size:var(--t4)">지명</button>
+          </div>`).join('')}</div>
+      </section>
+      <section class="glass col" style="padding:14px 16px;gap:10px;min-height:0">
+        <div class="row"><span class="lab">내 라인업</span><span class="grow"></span>${capBox()}</div>
+        ${field('flex:1;min-height:0')}
+        <div class="row" style="justify-content:space-between">${synRow()}</div>
+        ${pen()}
+      </section>
+      <aside class="col" style="gap:14px;min-height:0">
+        <section class="glass col" style="padding:16px;gap:12px">${detail(280)}${pickBtn()}</section>
+        <section class="glass" style="padding:18px 20px;flex:1">${analysis()}</section>
+      </aside>
+    </div></div>`;
+}
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length, f: new Set(text.map((e) => getComputedStyle(e).fontSize)).size, c: new Set(text.map((e) => getComputedStyle(e).color)).size };
+};
+function draw() {
+  document.getElementById('app').innerHTML = [0, v1, v2, v3][v]();
+  document.querySelectorAll('#tool [data-v]').forEach((b) => b.classList.toggle('on', +b.dataset.v === v));
+  const m = measure();
+  document.getElementById('meter').innerHTML = `글 <b>${m.t}</b>/219 · 단추 <b>${m.b}</b>/28 · 크기 <b>${m.f}</b>/22 · 색 <b>${m.c}</b>/19 <span style="color:#6b7280">(지금 화면)</span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-sel]');
+  if (!t) return;
+  if (t.dataset.v) { v = +t.dataset.v; location.hash = v; }
+  if (t.dataset.sel) sel = +t.dataset.sel;
+  draw();
+});
+addEventListener('keydown', (e) => { if ('123'.includes(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>
