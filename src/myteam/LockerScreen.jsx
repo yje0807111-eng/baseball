@@ -100,7 +100,7 @@ const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
 const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false }) {
   const n = tone(p.overall);
   const neon = teamNeon(p);
   const keys = KEYS[p.type] || KEYS.batter;
@@ -143,7 +143,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         );
       })}
       <b className="text-right font-display text-lg text-amber-300">{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
-      <b className="text-right font-display text-lg" style={{ color: GOLD }}>{priceOf(p).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>
+      {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
+        ? <b className="text-right text-[13px] text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
+        : <b className="text-right font-display text-lg" style={{ color: GOLD }}>{priceOf(p).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>}
       <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
@@ -746,7 +748,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 const full = squad.length >= lim.size;
                 const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
                 return (
-                  <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '넣기'} blocked={why} showNote={false} teamTint
+                  <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '넣기'} blocked={why} showNote={false} teamTint stored
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
                 );
               })}

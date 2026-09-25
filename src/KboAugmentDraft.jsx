@@ -5275,6 +5275,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setPhase('ready');
     }
     if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: rollAugmentOptions(), free: FREE_REROLL }); }
+    if (demo === 'memento') { setPhase('mode'); setMemento({ ...GAUNTLET_MEMENTO, options: aiDraft().filter((p) => p.overall >= 85).slice(0, 5), full: false }); } // 기념 카드 창만 바로
     if (demo === 'matchup') { setAugments(shuffle(AUGMENTS).slice(0, SEASON_AUGMENTS)); setOpponent(aiDraft()); setPhase('matchup'); }
   }, []);
 
