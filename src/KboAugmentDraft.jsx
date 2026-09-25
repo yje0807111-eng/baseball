@@ -690,6 +690,20 @@ const PASSIVE_AUGMENTS = [
     half: (c) => (oppOff(c) && c.inning >= 8 ? { pitch: 14 } : null) },
   { id: 'starterFocus', name: '선발 집중', tier: 'silver', type: 'fire', desc: '1~4회 수비 투구 +10',
     half: (c) => (oppOff(c) && c.inning <= 4 ? { pitch: 10 } : null) },
+
+  /* ─ 상황 (6) — 경기가 어떻게 흘러가느냐에 따라 켜지고 꺼진다 ─ */
+  { id: 'firstBlood', name: '선취점', tier: 'silver', type: 'situ', desc: '1 · 2회 우리 공격 안타 확률 +12%',
+    half: (c) => (myOff(c) && c.inning <= 2 ? { add: 0.6 } : null) },
+  { id: 'holdLead', name: '리드 지키기', tier: 'silver', type: 'situ', desc: '앞서고 있으면 수비 투구 +12',
+    half: (c) => (oppOff(c) && c.score.my > c.score.opp ? { pitch: 12 } : null) },
+  { id: 'tieBreak', name: '동점 승부', tier: 'silver', type: 'situ', desc: '점수가 같으면 안타 확률 +10% · 수비 투구 +10',
+    half: (c) => (c.score.my !== c.score.opp ? null : myOff(c) ? { add: 0.5 } : { pitch: 10 }) },
+  { id: 'extraGame', name: '연장 승부', tier: 'silver', type: 'situ', desc: '10회부터 안타 확률 +16% · 수비 투구 +16',
+    half: (c) => (c.inning < 10 ? null : myOff(c) ? { add: 0.8 } : { pitch: 16 }) },
+  { id: 'aceKiller', name: '에이스 킬러', tier: 'silver', type: 'situ', desc: '상대 마운드가 종합 90+ 면 안타 확률 +12%',
+    half: (c) => (myOff(c) && (c.oppPitcher?.overall || 0) >= 90 ? { add: 0.6 } : null) },
+  { id: 'setupCrew', name: '필승조', tier: 'silver', type: 'situ', desc: '불펜이 던지는 이닝 수비 투구 +12',
+    half: (c) => (oppOff(c) && c.myPitcher?.position === 'RP' ? { pitch: 12 } : null) },
 ].map((a) => ({ ...a, passive: true }));
 
 /* 증강은 모두 평상시 효과다 — 한 이닝을 통째로 정하는 발동형은 두지 않는다 */
@@ -2050,7 +2064,7 @@ const TIER = new Proxy({}, { get: () => SILVER });
 const AUG_NEON = '#cbd5e1';
 const TIER_NEON = new Proxy({}, { get: () => AUG_NEON });
 const TIER_EN = new Proxy({}, { get: () => '증강' });
-const AUG_TYPE = { build: '키우기', defense: '수비', extreme: '맞바꾸기', balance: '약점 보강', fire: '경기 중' };
+const AUG_TYPE = { build: '키우기', defense: '수비', extreme: '맞바꾸기', balance: '약점 보강', fire: '경기 중', situ: '상황' };
 
 /** 증강 테두리 — 등급이 하나라 모두 같은 테를 두른다 */
 function TierFrame({ className = '', innerClassName = '', style, children }) {

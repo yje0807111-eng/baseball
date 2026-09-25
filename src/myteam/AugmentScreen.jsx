@@ -13,7 +13,7 @@ const cut = (n) => ({ '--c': `${n}px` });
 /* 증강 등급은 하나로 합쳤다 — 어느 이름으로 물어도 같은 것이 나온다 */
 const AUG_LOOK = { c: '#cbd5e1', en: 'AUGMENT', ko: '증강' };
 const TIER = new Proxy({}, { get: () => AUG_LOOK });
-const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중']];
+const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
 const TYPE_KO = Object.fromEntries(TYPE_ORDER);
 const RED = '#f87171';
 const GREEN = '#34d399';
