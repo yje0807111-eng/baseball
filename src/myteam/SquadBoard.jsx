@@ -14,6 +14,7 @@ import { Btn } from './ui.jsx';
 import { offPositionPenalty } from '../KboAugmentDraft.jsx';
 import { seasonRecord, HAND_LABEL } from './traits.js';
 import { FORM_OF } from './form.js';
+import { artId } from '../data/artAlias.js';
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const ROLE = { SP: '#60a5fa', CL: '#fbbf24', SU: '#fb923c', MR: '#f87171' };
@@ -24,7 +25,7 @@ const XY = { CF: [50, 14], LF: [17, 26], RF: [83, 26], SS: [35, 46], '2B': [65, 
 const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
 const Lower = ({ p, c, ovr, sub }) => (
   <span className="flex items-center">
-    <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+    <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
     <span className="-ml-[5px] block">
       <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-[13px] font-extrabold text-white">{p.name}</b><FormMark p={p} size={10} /></span>
       <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-[11px] font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
@@ -133,7 +134,7 @@ export function autoArrange(squad, bench = [], fatigue = {}) {
 }
 
 const face = (p, w, h) => (
-  <span className="mt-cut block shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': `${Math.max(4, Math.round(w / 8))}px`, width: w, height: h, backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+  <span className="mt-cut block shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': `${Math.max(4, Math.round(w / 8))}px`, width: w, height: h, backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
 );
 const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-[12px] font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
 /** 종합: 영입 목록과 같은 등급 색 — 90 이상 무지개 · 75 이상 초록 · 그 밖 흰색 (st-v 는 라커 화면 스타일) */
@@ -458,7 +459,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         style={{ '--c': '8px', ...place(pos, w, pitch, dragging, 'x'), zIndex: dragging ? 5 : undefined,
           boxShadow: `inset 0 -2px 0 ${c}${ring ? `, inset 0 0 0 2px ${ring}` : ''}${dragging ? ', 0 12px 24px -8px rgba(0,0,0,.95)' : ''}`, ...inFx(x.id) }}>
         <span className="absolute inset-0 bg-no-repeat"
-          style={{ backgroundImage: `url(profiles/${encodeURIComponent(x.p.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '76px auto', backgroundPosition: 'center 2px',
+          style={{ backgroundImage: `url(profiles/${encodeURIComponent(artId(x.p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '76px auto', backgroundPosition: 'center 2px',
             maskImage: FADE, WebkitMaskImage: FADE, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }} />
         <b className="absolute left-1.5 top-0.5 font-display text-[26px] font-extrabold leading-tight text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
         <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={15} /></span>

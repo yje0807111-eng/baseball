@@ -7,6 +7,8 @@
  *
  * 눈으로 고치고 싶으면 mockups/card-face/ 에서 카드를 끌어 맞춘 뒤 값을 내보낸다.
  */
+import { artId } from './artAlias.js';
+
 export const DEFAULT_FACE = 0;
 
 /** 선수 id → 세로 % */
@@ -1973,4 +1975,4 @@ export const CARD_FACE = {
 };
 
 /** 그 선수의 카드 배경 자리 — background-position 값 */
-export const faceAt = (id) => `50% ${CARD_FACE[id] ?? DEFAULT_FACE}%`;
+export const faceAt = (id) => `50% ${CARD_FACE[artId(id)] ?? DEFAULT_FACE}%`;

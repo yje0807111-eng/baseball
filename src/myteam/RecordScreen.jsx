@@ -6,6 +6,7 @@
 import React, { useMemo, useState } from 'react';
 import { rankSummary } from './rank.js';
 import { UiStyle, Bg, TopBar, SideNav, Hero, KV, Stats, Portrait } from './ui.jsx';
+import { artId } from '../data/artAlias.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const MODES = [
@@ -127,7 +128,7 @@ export default function RecordScreen({ account, onBack }) {
             const m = modeOf(sel);
             return (
               <>
-                <Hero img={sel.mvp ? `url(cards/${encodeURIComponent(sel.mvp.id)}.webp), url(profiles/${encodeURIComponent(sel.mvp.id)}.webp), url(ui/mt/tile-record.webp)` : 'url(ui/mt/tile-record.webp)'}
+                <Hero img={sel.mvp ? `url(cards/${encodeURIComponent(artId(sel.mvp.id))}.webp), url(profiles/${encodeURIComponent(artId(sel.mvp.id))}.webp), url(ui/mt/tile-record.webp)` : 'url(ui/mt/tile-record.webp)'}
                   name={sel.opp} color={c} h={150} pos="60% 12%" />
                 <div className="flex items-end justify-between">
                   <span>

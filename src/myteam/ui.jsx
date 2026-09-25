@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
+import { artId } from '../data/artAlias.js';
 
 export const UiStyle = () => (
   <style>{`
@@ -144,7 +145,7 @@ export const PlayerTile = ({ player, img = 'ui/mt/mt-card.webp', onClick, width 
 export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff }) => (
   <span className="mt-por" style={{
     width: w, height: h,
-    backgroundImage: `url(profiles/${encodeURIComponent(player?.id || '')}.webp), url(ui/mt/silhouette-${staff ? 'coach' : 'player'}.webp)`,
+    backgroundImage: `url(profiles/${encodeURIComponent(artId(player?.id || ''))}.webp), url(ui/mt/silhouette-${staff ? 'coach' : 'player'}.webp)`,
     boxShadow: `inset 0 0 0 1px ${color}99`,
   }} />
 );

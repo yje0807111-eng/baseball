@@ -19,6 +19,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import { faceAt } from './data/cardFace.js';
+import { artId } from './data/artAlias.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -2156,7 +2157,7 @@ const artCache = new Map();
 /** 카드 그림을 미리 불러와 캐시에 채운다 (첫 렌더부터 그림이 보이게) */
 export function preloadArt(players) {
   return Promise.all(players.map((p) => new Promise((resolve) => {
-    const src = `cards/${encodeURIComponent(p.id)}.webp`;
+    const src = `cards/${encodeURIComponent(artId(p.id))}.webp`;
     if (artCache.has(src)) { resolve(); return; }
     const img = new Image();
     img.onload = () => { artCache.set(src, true); resolve(); };
@@ -2166,11 +2167,11 @@ export function preloadArt(players) {
 }
 /** 카드 그림(public/cards/<id>.webp) 경로. 없으면 null */
 function useArt(player) {
-  return useImage(player && !player.isReplacement ? `cards/${encodeURIComponent(player.id)}.webp` : null);
+  return useImage(player && !player.isReplacement ? `cards/${encodeURIComponent(artId(player.id))}.webp` : null);
 }
 /** 정면 상체 프로필(public/profiles/<id>.webp, 3:4) 경로. 없으면 null */
 function useProfile(player) {
-  return useImage(player && !player.isReplacement ? `profiles/${encodeURIComponent(player.id)}.webp` : null);
+  return useImage(player && !player.isReplacement ? `profiles/${encodeURIComponent(artId(player.id))}.webp` : null);
 }
 /** 필드·드래그용 흉상 배경: 프로필이 있으면 위쪽 기준으로 꽉 채우고, 없으면 카드 그림에서 얼굴을 확대해 대신한다 */
 function useBust(player, cropSize = '260%') {

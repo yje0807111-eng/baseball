@@ -16,6 +16,7 @@ import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, untouch, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
+import { artId } from './data/artAlias.js';
 import {
   createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
@@ -82,7 +83,7 @@ function todayKo(g, batter) {
 /** 어두운 유리판 위 성적 글자색 — 장타는 노랑, 안타는 연초록, 볼넷은 하늘, 못 친 날은 흐리게 */
 /** 선수 그림 — 카드가 있으면 카드, 없으면 프로필, 그것도 없으면 실루엣 */
 const faceArt = (p) => (p?.id
-  ? `url(cards/${encodeURIComponent(p.id)}.webp), url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)`
+  ? `url(cards/${encodeURIComponent(artId(p.id))}.webp), url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`
   : 'url(ui/mt/silhouette-player.webp)');
 
 /** 체력 색 — 0 은 붉고 100 은 초록. 사이는 주황 · 노랑 · 연두로 건너간다 */

@@ -11,6 +11,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { buildPlay, along, phase, ease } from './playScript.js';
 import { makeMapper, ART } from './fieldMap.js';
 import { DEFAULT_BG } from './backgrounds.js';
+import { artId } from '../data/artAlias.js';
 
 const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
 const FIELDERS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'];
@@ -85,7 +86,7 @@ function Photo({ bg, dim }) {
 /* 선수 얼굴 — 프로필 · 카드 · 실루엣 순으로 찾는다 */
 const FACE_FALLBACK = 'ui/mt/silhouette-player.webp';
 const faceSrcs = (id) => (id
-  ? [`profiles/${encodeURIComponent(id)}.webp`, `cards/${encodeURIComponent(id)}.webp`, FACE_FALLBACK]
+  ? [`profiles/${encodeURIComponent(artId(id))}.webp`, `cards/${encodeURIComponent(artId(id))}.webp`, FACE_FALLBACK]
   : [FACE_FALLBACK]);
 let faceSeq = 0;
 const Face = ({ id, cx, cy, r }) => {

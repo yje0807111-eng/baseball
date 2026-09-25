@@ -3,6 +3,7 @@ import React from 'react';
 import { UiStyle, Bg, TopBar, teamStats } from './ui.jsx';
 import { rankOf, rankSummary } from './rank.js';
 import LEAGUE from '../data/leagueAverage.json';
+import { artId } from '../data/artAlias.js';
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
 /* 리그 평균은 미리 세어 둔 값을 읽는다 — 로비를 열자고 시즌 로스터 412개를 받지 않도록.
@@ -130,7 +131,7 @@ function RankPanel({ account, team, onRecord }) {
             {sum.mvps.length ? sum.mvps.map((m, i) => (
               <span key={m.id} className="relative flex items-center gap-2.5 pl-[18px]">
                 <b className="absolute -left-1 top-1/2 -translate-y-1/2 font-display text-[52px] font-extrabold leading-none" style={{ color: `${MEDAL[i]}33` }}>{i + 1}</b>
-                <span className="mt-cut relative h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />
+                <span className="mt-cut relative h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(artId(m.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />
                 <span className="relative leading-tight">
                   <b className="block whitespace-nowrap text-sm text-white">{m.name}</b>
                   <small className="font-display text-[11px]" style={{ color: MEDAL[i] }}>MVP {m.n}회</small>

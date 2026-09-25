@@ -10,6 +10,7 @@ import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons,
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
+import { artId } from '../data/artAlias.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const A = { bat: '#34d399', def: '#60a5fa', pit: '#f87171', syn: '#fbbf24', main: '#10b981' };
@@ -155,7 +156,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
       {ace && (
         <div className="mt-cut relative shrink-0 overflow-hidden" style={{ height: 116, ...cut(12), background: '#0b1220' }}>
-          <span className="absolute inset-0 bg-cover" style={{ backgroundPosition: '60% 12%', backgroundImage: `url(cards/${encodeURIComponent(ace.id)}.webp), url(profiles/${encodeURIComponent(ace.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
+          <span className="absolute inset-0 bg-cover" style={{ backgroundPosition: '60% 12%', backgroundImage: `url(cards/${encodeURIComponent(artId(ace.id))}.webp), url(profiles/${encodeURIComponent(artId(ace.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
           <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 22%,rgba(5,8,15,.45) 62%,rgba(5,8,15,0))' }} />
           <span className="absolute inset-y-2.5 left-3 flex flex-col justify-center">
             <span className="font-display text-[10px] tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>
