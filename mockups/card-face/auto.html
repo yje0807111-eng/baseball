@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>자동으로 맞춘 결과</title>
+<style>
+  body{margin:0;background:#05080f;color:#e6edf6;font-family:sans-serif;padding:14px}
+  p{font-size:12px;color:#7c8798;margin:0 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(3,367px);gap:8px}
+  .card{position:relative;width:367px;height:260px;overflow:hidden;background:#0b1220;
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+  .art{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat}
+  .mid{position:absolute;left:0;right:0;top:36%;height:1px;background:rgba(255,80,80,.75)}
+  .nm{position:absolute;left:10px;bottom:7px;font-size:13px;font-weight:800;text-shadow:0 1px 4px #000}
+  .v{position:absolute;right:8px;top:7px;font-size:13px;font-weight:800;color:#34d399;background:rgba(5,8,15,.8);padding:1px 7px}
+</style></head><body>
+<p>붉은 선(36%)에 코가 오면 맞은 것 · 값은 자동으로 찾은 것</p>
+<div class="grid" id="g"></div>
+<script>
+fetch('sample.json').then((r) => r.json()).then((m) => {
+  document.getElementById('g').innerHTML = Object.entries(m).map(([id, v]) =>
+    '<div class="card"><i class="art" style="background-image:url(&quot;../../public/cards/'
+    + encodeURIComponent(id) + '.webp&quot;);background-position:50% ' + v + '%"></i>'
+    + '<i class="mid"></i><b class="v">' + v + '%</b><b class="nm">' + id.split('_')[1] + '</b></div>').join('');
+});
+</script></body></html>

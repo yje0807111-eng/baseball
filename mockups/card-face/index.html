@@ -133,5 +133,7 @@ document.getElementById('dump').onclick = () => {
 q.oninput = () => { shown = 30; draw(); };
 only.onchange = () => { shown = 30; draw(); };
 
-fetch('cards.json').then((r) => r.json()).then((ids) => { ALL = ids; draw(); });
+/* 자동으로 찾아 둔 값 위에서 시작한다 — 손으로 고친 것이 있으면 그쪽이 이긴다 */
+Promise.all([fetch('cards.json').then((r) => r.json()), fetch('auto.json').then((r) => r.json()).catch(() => ({}))])
+  .then(([ids, auto]) => { ALL = ids; saved = { ...auto, ...saved }; draw(); });
 </script></body></html>
