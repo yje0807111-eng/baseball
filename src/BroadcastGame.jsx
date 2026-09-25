@@ -177,6 +177,23 @@ function skipSpeed(g, endAt) {
 
 /* ───────── 해설 문장 ───────── */
 const FIELD_KO = { P: '투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수' };
+/** 줄의 결 — 득점 · 장타 · 아웃 · 그 밖. 색과 굵기가 여기서 갈린다 */
+const KIND_TONE = { run: '#fde047', hit: '#34d399', out: '#94a3b8', note: '#60a5fa', plain: '#cbd5e1' };
+function kindOf(ev) {
+  if (!ev) return 'note';
+  if (ev.runs > 0 || ev.result === 'HR') return 'run';
+  if (['1B', '2B', '3B', 'BB', 'E'].includes(ev.result)) return 'hit';
+  if (['K', 'GO', 'FO', 'LO', 'DP', 'SF', 'SAC', 'BH'].includes(ev.result)) return 'out';
+  return 'plain';
+}
+let lineSeq = 0;
+/** 화면에 쌓을 한 줄 */
+const lineOf = (text, kind = 'plain', g = null) => ({
+  id: (lineSeq += 1), text, kind,
+  at: g ? `${g.inning}${g.top ? '초' : '말'}` : '',
+});
+const KEEP = 14; // 남겨 두는 줄 수
+
 function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
@@ -372,7 +389,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   digestRef.current = digest;
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [count, setCount] = useState({ b: 0, s: 0, o: 0 }); // 볼·스트라이크·아웃 — 공이 꽂힐 때 오른다
-  const [lines, setLines] = useState(['플레이볼!']);
+  const [lines, setLines] = useState([lineOf('플레이볼!', 'note')]);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [swap, setSwap] = useState(null); // 공수 교대 띠
   const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
@@ -474,7 +491,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             pendingRef.current = { ...pendingRef.current, changePitcher: change };
             const next = typeof change === 'string' ? g.away.team.pitchers.find((p) => p.id === change) : g.away.team.pitchers[g.away.pitcherIdx + 1];
             const text = next && `${away.name} 투수 교체 — ${g.away.pitcher?.name} → ${next.name}`; // 교체 전에 글을 만들어 둔다
-            if (text) setLines((l) => [...l, text].slice(-4));
+            if (text) setLines((l) => [...l, lineOf(text, 'note', g)].slice(-KEEP));
           }
         }
         /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지 */
@@ -515,7 +532,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           : ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
         const told = fold ? (worth ? beat * 0.5 : 0) : beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
-        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...commentary(ev)].slice(-4)); }, told);
+        const said = commentary(ev).map((t) => lineOf(t, kindOf(ev), g));
+        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
         if (fold) {
           /* 접은 타석은 존 판에 찍지 않는다 — 공을 보여 주지 않았으니 */
           setZoneShots([]);
@@ -549,7 +567,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           const scored = (half.top ? g.away.runs : g.home.runs) - before;
           const res = aug.afterHalf(g, scored, half.inning, half.top);
           if (res.texts.length) {
-            setLines((l) => [...l, ...res.texts.map((t) => `[증강: ${t.name}] ${t.text}`)].slice(-4));
+            setLines((l) => [...l, ...res.texts.map((t) => lineOf(`[증강: ${t.name}] ${t.text}`, 'note', g))].slice(-KEEP));
             const t = res.texts[res.texts.length - 1];
             setFlash({ text: t.name, key: Date.now() });
             setTimeout(() => setFlash(null), flashMs());
@@ -575,6 +593,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         if (!g.final && (g.top !== sideRef.current.top || g.inning !== sideRef.current.inning)) {
           sideRef.current = { inning: g.inning, top: g.top };
           setCount({ b: 0, s: 0, o: 0 });
+          setLines((l) => [...l, lineOf(`${g.inning}회${g.top ? '초' : '말'} — ${!g.top ? '우리 공격' : '우리 수비'} · ${g.away.runs} : ${g.home.runs}`, 'half', g)].slice(-KEEP));
           setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
           redraw();
           await sleep(1150 / curSpeed());
@@ -595,7 +614,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       }
       if (g.final && aliveRef.current) {
         redraw();
-        setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
+        setLines((l) => [...l, lineOf(`경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`, 'note')].slice(-KEEP));
         await sleep(quiet() ? 300 : 700);
         handOver();
       }
@@ -1071,9 +1090,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <p className="mt-lab">해설</p>
                 <span className="ml-auto text-[15px]">🎙</span>
               </div>
-              <div className="min-h-0 flex-1 space-y-1.5 overflow-hidden px-3.5 pb-3">
-                {[...lines].reverse().map((t, i) => (
-                  <p key={`${i}${t}`} className={`m-0 leading-snug ${i === 0 ? 'text-[14px] font-bold text-white' : 'text-[12.5px] font-medium text-gray-400'}`}>{t}</p>
+              <div className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-3 pb-3">
+                {[...lines].reverse().map((l, i) => (
+                  l.kind === 'half' ? (
+                    <p key={l.id} className="m-0 mt-1 flex shrink-0 items-center gap-2 font-display text-[11px] font-bold tracking-[0.14em] text-gray-500">
+                      <i className="h-px flex-1 bg-white/10" />{l.text}<i className="h-px flex-1 bg-white/10" />
+                    </p>
+                  ) : (
+                    <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug"
+                      style={{ opacity: i < 3 ? 1 : 0.62 }}>
+                      {l.at && <em className="shrink-0 font-display text-[10.5px] font-bold not-italic text-gray-600">{l.at}</em>}
+                      <span className={i === 0 ? 'text-[13.5px] font-bold' : 'text-[12px] font-medium'}
+                        style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
+                    </p>
+                  )
                 ))}
               </div>
             </section>
