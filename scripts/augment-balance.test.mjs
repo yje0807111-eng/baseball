@@ -10,6 +10,7 @@ import {
 } from '../src/KboAugmentDraft.jsx';
 
 const N = Number(process.env.N || 60); // 아키타입 × 증강마다 치를 경기 수
+const SEED = Number(process.env.SEED || 1234); // 판을 바꿔 여러 번 돌려 볼 때
 const CAP = SALARY_CAP;
 const POOL = DRAFT_MODES.find((m) => m.id === 'mix').players;
 
@@ -67,7 +68,7 @@ const sign = (v, d = 0) => `${v > 0 ? '+' : ''}${v.toFixed(d)}`;
 
 test.skipIf(!process.env.BALANCE)('증강 밸런스', async () => {
   const base = {};
-  for (const [name, roster] of ARCHETYPES) base[name] = await play(roster, [], 1234);
+  for (const [name, roster] of ARCHETYPES) base[name] = await play(roster, [], SEED);
   const head = ARCHETYPES.map(([n]) => n.padStart(8)).join('');
   out(`\nN=${N}  기준 (증강 없음)${head}`);
   out(`${pad('  승률', 20)}${ARCHETYPES.map(([n]) => `${base[n].win.toFixed(0)}%`.padStart(8)).join('')}`);
@@ -77,14 +78,14 @@ test.skipIf(!process.env.BALANCE)('증강 밸런스', async () => {
   for (const a of AUGMENTS) {
     const d = {}; const g = {};
     for (const [name, roster] of ARCHETYPES) {
-      const r = await play(roster, [a], 1234);
+      const r = await play(roster, [a], SEED);
       d[name] = r.win - base[name].win;
       g[name] = r.diff - base[name].diff;
     }
     const gv = Object.values(g);
     rows.push({ a, d, g, avg: gv.reduce((s, x) => s + x, 0) / gv.length, hi: Math.max(...gv), lo: Math.min(...gv) });
   }
-  for (const tier of ['silver', 'gold', 'prismatic']) {
+  for (const tier of ['silver']) {
     out(`\n── ${TIER_LABEL[tier]} ─ 득실차 변화 (괄호는 승률 %p) ${head}     평균    최고    최저`);
     rows.filter((r) => r.a.tier === tier).sort((x, y) => y.avg - x.avg).forEach((r) => {
       const cols = ARCHETYPES.map(([n]) => `${sign(r.g[n], 1)}(${sign(r.d[n])})`.padStart(8)).join('');
