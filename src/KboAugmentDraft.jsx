@@ -33,7 +33,8 @@ export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
 /* 경기 중 증강은 두 번만 — 플레이볼 직후와 7회 시작 전. 자주 멈추면 경기 흐름이 끊긴다 */
-const MID_AUG_INNINGS = [1, 7];
+/* 경기 중 증강을 묻는 회 — 1회 몫은 정비를 마치며 이미 골랐으니 7회 한 번만 */
+const MID_AUG_INNINGS = [7];
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
@@ -1883,22 +1884,25 @@ export const KEYFRAMES = `
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
 /* 아래에서 솟아오르며 자리를 잡는다 */
 @keyframes augIn { from { opacity: 0; transform: translateY(54px) scale(.9); } to { opacity: 1; transform: none; } }
-/* 고른 카드 — 한 번 커졌다가 빛에 싸여 떠오른다 */
-@keyframes augTake { 0% { transform: translateY(-10px) scale(1.04); filter: brightness(1); }
-  30% { transform: translateY(-16px) scale(1.1); filter: brightness(1.55) saturate(1.2); }
-  100% { transform: translateY(-64px) scale(1.16); filter: brightness(2.2); opacity: 0; } }
-/* 고르지 않은 카드 — 물러나 사라진다 */
-@keyframes augDrop { to { opacity: 0; transform: translateY(26px) scale(.9); filter: brightness(.5); } }
-/* 고른 자리에서 퍼지는 고리 */
-@keyframes augRing { from { opacity: .9; transform: scale(.55); } to { opacity: 0; transform: scale(1.9); } }
-.aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .28s cubic-bezier(.2,.9,.3,1), opacity .28s, filter .28s; }
-/* 올려 둔 카드는 커지고, 나머지는 한 발 물러선다 */
-.aug-card.hot { transform: translateY(-14px) scale(1.045); z-index: 2; }
-.aug-card.cold { opacity: .58; filter: saturate(.55) brightness(.8); transform: scale(.97); }
-.aug-card.take { animation: augTake .52s cubic-bezier(.3,.7,.4,1) both; z-index: 3; }
-.aug-card.gone { animation: augDrop .4s ease-in both; }
-.aug-ring { position: absolute; inset: -6%; border-radius: 12px; pointer-events: none; z-index: 4;
-  box-shadow: 0 0 0 3px var(--a), 0 0 60px -6px var(--a); animation: augRing .55s ease-out both; }
+/* 고른 카드 — 한 번 눌렸다가 빛을 머금고 천천히 떠오른다 */
+@keyframes augTake {
+  0% { transform: translateY(-20px) scale(1.085); filter: brightness(1); }
+  14% { transform: translateY(-12px) scale(1.03); filter: brightness(1.1); }
+  46% { transform: translateY(-30px) scale(1.14); filter: brightness(1.5) saturate(1.25); }
+  100% { transform: translateY(-78px) scale(1.2); filter: brightness(2.1) saturate(1.1); opacity: 0; } }
+/* 고르지 않은 카드 — 뒤로 가라앉는다 */
+@keyframes augDrop { 0% { opacity: .5; } 100% { opacity: 0; transform: translateY(34px) scale(.86); filter: brightness(.35) blur(2px); } }
+/* 고른 자리에서 두 겹으로 퍼지는 고리 */
+@keyframes augRing { 0% { opacity: 0; transform: scale(.7); } 18% { opacity: .95; } 100% { opacity: 0; transform: scale(2.1); } }
+.aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .3s cubic-bezier(.18,.9,.28,1), opacity .3s, filter .3s; }
+/* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
+.aug-card.hot { transform: translateY(-20px) scale(1.085); z-index: 2; }
+.aug-card.cold { opacity: .5; filter: saturate(.4) brightness(.68); transform: translateY(6px) scale(.94); }
+.aug-card.take { animation: augTake .74s cubic-bezier(.22,.66,.3,1) both; z-index: 3; }
+.aug-card.gone { animation: augDrop .5s cubic-bezier(.4,0,.7,.4) both; }
+.aug-ring { position: absolute; inset: -6%; border-radius: 14px; pointer-events: none; z-index: 4;
+  box-shadow: 0 0 0 3px var(--a), 0 0 70px -6px var(--a); animation: augRing .7s cubic-bezier(.2,.7,.3,1) both; }
+.aug-ring.late { animation-delay: .12s; box-shadow: 0 0 0 1px var(--a), 0 0 40px -10px var(--a); }
 /* 올려 두면 그림이 천천히 밀려 들어온다 */
 .aug-card .aug-art { transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; }
 .aug-card.hot .aug-art { transform: scale(1.06); }
@@ -3678,7 +3682,7 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
       onMouseEnter={() => onHot?.(index)} onMouseLeave={() => onHot?.(-1)}
       onFocusCapture={() => onHot?.(index)} onBlurCapture={() => onHot?.(-1)}
       className={`ui-choice ui-cut ui-frame aug-card group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left ${state}`}>
-      {state === 'take' && <span className="aug-ring" style={{ '--a': acc }} />}
+      {state === 'take' && <><span className="aug-ring" style={{ '--a': acc }} /><span className="aug-ring late" style={{ '--a': acc }} /></>}
       {art
         ? <img src={art} alt="" className="aug-art absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
         : <span className="absolute inset-0" style={{ background: `radial-gradient(80% 50% at 50% 30%, ${acc}40, transparent 70%)` }} />}
@@ -3726,7 +3730,7 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
           {choice.options.map((o, i) => (
             <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
               state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
-              onChoose={(pick) => { if (took >= 0) return; setTook(i); setTimeout(() => onChoose(pick), 460); }} />
+              onChoose={(pick) => { if (took >= 0) return; setTook(i); setTimeout(() => onChoose(pick), 620); }} />
           ))}
         </div>
         {isAug && onReroll && rerolls > 0 && (
