@@ -14,7 +14,7 @@ import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
-import { SIDES, DEFAULT_SIDES, planOfSides, untouch } from './myteam/strategy.js';
+import { SIDES, DEFAULT_SIDES, planOfSides, untouch, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
 import {
   createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
@@ -43,6 +43,7 @@ const CLUTCH_CSS = `
   76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06); letter-spacing: .2em; } }
 @keyframes halfWipe { 0% { transform: scaleX(0); opacity: .9; } 55% { transform: scaleX(1); opacity: .55; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes sidePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
@@ -399,6 +400,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const fineRef = useRef(planOfSides(sides, touched).fine);
   fineRef.current = planOfSides(sides, touched).fine;
   const pickSide = (key, id) => { setSides((v) => ({ ...v, [key]: id })); setTouched((t) => untouch(t, key)); };
+  const [openSide, setOpenSide] = useState(null); // 펼쳐 둔 전술 갈래
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
   digestRef.current = digest;
@@ -989,28 +991,47 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                   <small className="text-[12px] font-semibold text-gray-400">{c.note}</small>
                 </button>
               ))}
-              {/* 평소에는 전술 세 갈래 — 바꾸면 다음 공부터 먹는다 */}
-              {!PICKS && SIDES.map((sd) => (
-                <div key={sd.key} className="mt-cut mt-frame mt-glass flex min-w-0 flex-1 items-center gap-2 px-3"
-                  style={{ '--c': '11px', '--a': sd.color }}>
-                  <p className="mt-lab shrink-0" style={{ '--a': sd.color }}>{sd.ko}</p>
-                  <div className="flex min-w-0 flex-1 gap-1">
-                    {sd.opts.map((o) => {
-                      const on = sides[sd.key] === o.id;
-                      return (
-                        <button key={o.id} type="button" onClick={() => pickSide(sd.key, o.id)} title={o.tip}
-                          className="mt-cut min-w-0 flex-1 whitespace-nowrap px-1 py-2 text-[12.5px] font-bold transition-[background,color,box-shadow]"
-                          style={{ '--c': '4px',
-                            background: on ? sd.color : 'rgba(255,255,255,.05)',
-                            color: on ? '#05080f' : '#9ca3af',
-                            boxShadow: on ? `0 0 18px -6px ${sd.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
-                          {o.ko}
-                        </button>
-                      );
-                    })}
+              {/* 평소에는 전술 — 갈래를 누르면 그 위로 고를 판이 올라온다 */}
+              {!PICKS && SIDES.map((sd) => {
+                const cur = sideOpt(sd.key, sides[sd.key]);
+                const open = openSide === sd.key;
+                return (
+                  <div key={sd.key} className="relative min-w-0 flex-1">
+                    {open && (
+                      <>
+                        <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
+                        <div className="mt-cut mt-frame absolute bottom-full left-0 z-20 mb-2 w-[22rem] p-2.5"
+                          style={{ '--c': '14px', '--a': sd.color, background: 'rgba(6,10,19,.97)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
+                          <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {sd.opts.map((o) => {
+                              const on = sides[sd.key] === o.id;
+                              return (
+                                <button key={o.id} type="button" onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
+                                  className="mt-cut px-3 py-2 text-left transition-[background,box-shadow]"
+                                  style={{ '--c': '6px',
+                                    background: on ? `color-mix(in srgb,${sd.color} 22%,transparent)` : 'rgba(255,255,255,.045)',
+                                    boxShadow: on ? `inset 0 0 0 1.5px ${sd.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+                                  <b className="block text-[13.5px] font-extrabold" style={{ color: on ? sd.color : '#e6edf6' }}>{o.ko}</b>
+                                  <small className="text-[11.5px] text-gray-400">{o.tip}</small>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
+                      className="mt-cut mt-frame mt-glass flex h-full w-full items-center gap-2.5 px-4 text-left hover:brightness-125"
+                      style={{ '--c': '11px', '--a': sd.color, ...(open ? { background: `color-mix(in srgb,${sd.color} 14%,transparent)` } : null) }}>
+                      <p className="mt-lab shrink-0" style={{ '--a': sd.color }}>{sd.ko}</p>
+                      <b className="min-w-0 flex-1 truncate text-[15px] font-extrabold" style={{ color: sd.color }}>{cur?.ko}</b>
+                      <small className="hidden shrink-0 text-[11.5px] text-gray-400 xl:block">{cur?.tip}</small>
+                      <b className="shrink-0 text-[11px] text-gray-500" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▲</b>
+                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {clutch && (
                 <button type="button" onClick={() => clutch.resolve(null)}
                   className="mt-cut mt-frame mt-glass flex w-[104px] shrink-0 flex-col items-center justify-center gap-0.5 text-[13px] text-gray-300 hover:brightness-125"
