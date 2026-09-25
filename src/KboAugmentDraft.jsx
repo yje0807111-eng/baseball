@@ -1738,8 +1738,13 @@ export const KEYFRAMES = `
 .pk-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; transition: transform .5s; }
 .pk:hover .pk-art { transform: scale(1.04); }
 .pk-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 44%, rgba(5,8,15,.9) 70%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.5) 0, rgba(5,8,15,0) 50%); }
-.pk-fr { position: absolute; inset: 1.6cqw; border: 1px solid color-mix(in srgb, var(--n) 45%, transparent); pointer-events: none; }
-.pk-tb { position: absolute; left: 6cqw; right: 1.6cqw; top: 1.6cqw; height: 1.3cqw; background: rgba(255,255,255,.55); }
+.pk-fr { position: absolute; inset: 0; z-index: 5; border-radius: 6% / 4%; border: 1px solid color-mix(in srgb, var(--n) 30%, rgba(255,255,255,.14)); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); pointer-events: none; }
+/* 빛줄기 — 반짝이 카드(내 라커 상세 카드와 같은 결) */
+@keyframes pkSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
+.pk-in::after { content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none; mix-blend-mode: screen; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.26) 47%, rgba(125,211,252,.18) 52%, transparent 64%) 0 0 / 220% 100% no-repeat; animation: pkSheen 4.5s ease-in-out infinite; }
+.pk.lock .pk-in::after { animation: none; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .pk-in::after { animation: none; opacity: 0; } }
+.pk-tb { display: none; }
 .pk.t75 .pk-tb { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.7); }
 .pk.t90 .pk-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
 .pk-ov { position: absolute; left: 6cqw; top: 6cqw; font-size: 24cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
@@ -1749,7 +1754,7 @@ export const KEYFRAMES = `
 .pk-ov em.dn, .pk-st dd em.dn { color: #fbbf24; }
 .pk-ov em.up { color: #34d399; }
 .pk-meta { position: absolute; left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; font-weight: 600; letter-spacing: .08em; color: rgba(255,255,255,.75); white-space: nowrap; text-shadow: 0 1px 4px #000; }
-.pk-stats { position: absolute; left: 5cqw; top: 35cqw; width: 42cqw; margin: 0; padding: 2.4cqw 3cqw 1cqw; background: rgba(5,8,15,.66); backdrop-filter: blur(3px); }
+.pk-stats { position: absolute; left: 5cqw; top: 35cqw; width: 42cqw; margin: 0; padding: 2.4cqw 3cqw 1cqw; border-radius: 2.6cqw; background: rgba(5,8,15,.6); backdrop-filter: blur(6px); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
 .pk-st { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; padding-bottom: 1.6cqw; }
 .pk-st dt { font-size: 4cqw; font-weight: 600; color: #cbd5e1; }
 .pk-st dd { margin: 0; font-size: 6cqw; font-weight: 700; line-height: 1; color: #f3f4f6; }
@@ -1757,7 +1762,7 @@ export const KEYFRAMES = `
 .pk-st dd em { margin-left: .8cqw; font-style: normal; font-size: .62em; }
 .pk-st dd em.up { color: #34d399; }
 /* 능력치 막대: 내 라커와 같은 규칙 — 낮으면 푸른 회색 → 높을수록 카드(구단) 색, 빛 번짐 없음 */
-.pk-bar { display: block; flex-basis: 100%; height: 1.4cqw; margin-top: .8cqw; background: rgba(255,255,255,.08); }
+.pk-bar { display: block; flex-basis: 100%; height: 1.4cqw; margin-top: .8cqw; border-radius: 1cqw; overflow: hidden; background: rgba(255,255,255,.08); }
 .pk-bar b { display: block; height: 100%; }
 .pk .mc-syn { right: 4cqw; top: 5cqw; gap: .8cqw; padding: 1.4cqw 1.8cqw; }
 .pk .mc-syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; }
@@ -1765,15 +1770,15 @@ export const KEYFRAMES = `
 .pk .mc-syn em { font-size: 3.6cqw; }
 .mc-syn b { margin-left: 1cqw; font-size: 3.6cqw; font-weight: 700; color: #a7f3d0; white-space: nowrap; }
 .pk-chips { position: absolute; left: 6cqw; right: 6cqw; bottom: 50cqw; display: flex; flex-wrap: wrap; gap: 1.2cqw; }
-.pk-chips span { padding: .8cqw 2cqw; font-size: 3.4cqw; font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
+.pk-chips span { padding: .8cqw 2.2cqw; border-radius: 999px; font-size: 3.4cqw; font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
 .pk-chips .sy { color: #a7f3d0; box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
 .pk-chips .off { color: #fde68a; box-shadow: inset 0 0 0 1px rgba(251,191,36,.55); }
 .pk-note { position: absolute; left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; font-weight: 500; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px #000; }
 .pk-pos { position: absolute; left: 6cqw; right: 6cqw; bottom: 35.5cqw; display: flex; align-items: center; gap: 1.8cqw; line-height: 1; white-space: nowrap; }
-.pk-pos em { flex: none; padding: .8cqw 1.6cqw; font-style: normal; font-size: 4.4cqw; font-weight: 800; color: #05080f; background: var(--n); }
+.pk-pos em { flex: none; padding: .8cqw 2cqw; border-radius: 1.4cqw; font-style: normal; font-size: 4.4cqw; font-weight: 800; color: #05080f; background: var(--n); }
 .pk-pos > span:not(.tg) { min-width: 0; overflow: hidden; font-size: 4.6cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; }
 .pk-pos .tg { margin-left: auto; display: flex; gap: 1cqw; }
-.pk-pos .tg b { padding: .7cqw 1.6cqw; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; font-size: 3.6cqw; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.45); }
+.pk-pos .tg b { padding: .7cqw 2cqw; border-radius: 999px; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; font-size: 3.6cqw; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
 .pk-rule { position: absolute; left: 6cqw; right: 6cqw; bottom: 32.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent)); }
 .pk-nm { position: absolute; left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 2px 8px #000; }
 .pk-nm.l5 { font-size: 11cqw; }
@@ -1786,7 +1791,7 @@ export const KEYFRAMES = `
 .pk-lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 1cqw; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
 .pk-lk svg { width: 5.5cqw; height: 5.5cqw; flex: none; }
 /* PICK 카드 무대 · 뒤집기 (반쪽 0.22초, 옆면일 때 4% 들어 올림) */
-.pk-stage { position: relative; perspective: 1000px; }
+.pk-stage { position: relative; perspective: 1000px; filter: drop-shadow(0 22px 28px rgba(0,0,0,.65)); }
 .pk-face { position: absolute; inset: 0; backface-visibility: hidden; }
 .pk-face > * { width: 100%; }
 @keyframes pkFlipIn { 0%, 50% { transform: rotateY(-90deg) scale(1.04); } 100% { transform: rotateY(0) scale(1); } }
