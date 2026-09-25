@@ -33,5 +33,49 @@ export function priceOf(p) {
 /** 방출 환급 — 산 값(paid)의 절반, 10 G 단위 버림 */
 export const refundOf = (p) => Math.floor(((p?.paid || 0) * REFUND_RATE) / 10) * 10;
 
+/*
+ * 오늘의 특가 — 날짜(현지 자정 기준)를 씨앗으로 매일 12명을 30% 싸게. 모두에게 같은 날 같은 명단.
+ * 포지션을 고르게(선발 2 · 불펜 2 · 포수 · 1 · 2 · 3루 · 유격 · 외야 3), 종합 82~100 — 스타터를 넘어서는 한 자리.
+ * 7,056명 전원을 언제든 살 수 있는 시장에 '오늘 들러 볼 이유'를 하나 둔다(막지는 않는다).
+ */
+export const DEAL_COUNT = 12;
+export const DEAL_OFF = 0.3;
+export const DEAL_BAND = [82, 100];
+const DEAL_PLAN = [['SP', 2], ['RP', 2], ['C', 1], ['1B', 1], ['2B', 1], ['3B', 1], ['SS', 1], ['OF', 3]];
+/** 오늘 날짜 열쇠 YYYY-MM-DD (현지 시각) */
+export const todayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function seeded(key) {
+  let h = 2166136261;
+  for (const ch of String(key)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); }
+  let t = h >>> 0;
+  return () => {
+    t = (t + 0x6d2b79f5) >>> 0;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+/** 특가 값 — 영입가의 70%, 10 G 단위 */
+export const dealPriceOf = (p) => Math.max(PRICE_MIN, round10(priceOf(p) * (1 - DEAL_OFF)));
+/** 오늘의 특가 명단 → Map(선수 id → 특가). pool 은 영입 풀(구단 시즌 선수) */
+export function dailyDeals(pool = [], key = todayKey()) {
+  const rng = seeded(`deal-${key}`);
+  const band = pool.filter((p) => p.overall >= DEAL_BAND[0] && p.overall <= DEAL_BAND[1]);
+  const used = new Set();
+  const out = new Map();
+  for (const [pos, n] of DEAL_PLAN) {
+    const cands = band.filter((p) => p.position === pos);
+    for (let i = 0; i < n && cands.length; i += 1) {
+      let tries = 0;
+      let p = null;
+      while (tries++ < 20) { const c = cands[Math.floor(rng() * cands.length)]; if (!used.has(c.personId)) { p = c; break; } }
+      if (!p) continue;
+      used.add(p.personId);
+      out.set(p.id, dealPriceOf(p));
+    }
+  }
+  return out;
+}
+
 /** 무상으로 채워 줄 수 있는 선수인가 (빈 자리 채우기) */
 export const isFreeFill = (p) => !p.isForeign && !isLegend(p) && priceOf(p) <= FREE_FILL_MAX;

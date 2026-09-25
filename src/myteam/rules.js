@@ -68,8 +68,8 @@ export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
-/** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다. gold 를 넘기면 영입가(골드)도 본다 */
-export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null) {
+/** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다. gold 를 넘기면 값(price, 없으면 영입가)도 본다 */
+export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
   if (squad.some((p) => p.id === player.id)) return '이미 영입한 선수';
   if (squad.some((p) => p.personId === player.personId)) return '같은 선수의 다른 시즌은 함께 넣을 수 없음';
   if (squad.length >= lim.size) return `엔트리 ${lim.size}명이 모두 찼음`;
@@ -79,8 +79,8 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE
   if (rule && countBy(squad, rule.key) >= rule.min && freeUsed(squad) >= lim.free) return `자유 자리 없음 (${lim.free}/${lim.free})`;
   const left = cap - squadCost(squad, staff);
   if (player.cost > left) return `CP 부족 (남은 ${left})`;
-  const price = priceOf(player);
-  if (gold != null && price > gold) return `골드 부족 (${(price - gold).toLocaleString()} G 모자람)`;
+  const cost = price ?? priceOf(player);
+  if (gold != null && cost > gold) return `골드 부족 (${(cost - gold).toLocaleString()} G 모자람)`;
   return null;
 }
 
@@ -95,13 +95,13 @@ export function swapCandidates(player, squad) {
   return [...same, ...kind];
 }
 /** out 을 내보내고 player 를 들일 수 있나 — 안 되면 이유. 내보내는 선수의 환급도 골드에 셈한다 */
-export function swapBlockReason(player, out, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null) {
+export function swapBlockReason(player, out, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
   if (!out) return '내보낼 선수 없음';
   /* 필수 포지션을 비우는 교체는 먼저 막는다 — 자리 이유보다 이쪽이 진짜 이유 */
   const need = POS_RULES.find((r) => r.key === out.position);
   if (need && player.position !== out.position && countBy(squad, out.position) <= need.min) return `${need.label} 최소 ${need.min}명`;
   const rest = squad.filter((p) => p.id !== out.id);
-  const why = addBlockReason(player, rest, staff, cap, lim, gold == null ? null : gold + refundOf(out));
+  const why = addBlockReason(player, rest, staff, cap, lim, gold == null ? null : gold + refundOf(out), price);
   if (why) return why;
   /* 필수 포지션이 비는 교체는 막는다 — 경기에 못 나가는 엔트리가 된다 */
   const before = new Set(squadIssues(squad, staff, cap, lim));

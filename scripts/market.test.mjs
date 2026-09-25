@@ -190,3 +190,37 @@ describe('보관함', () => {
     expect(r.team.club).toEqual([]);
   });
 });
+
+describe('오늘의 특가', async () => {
+  const { dailyDeals, dealPriceOf, todayKey, DEAL_COUNT } = await import('../src/myteam/market.js');
+  const { SERIES } = await import('../src/data/seriesPlayers.js');
+  const pool = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
+  const byId = new Map(pool.map((p) => [p.id, p]));
+  it('매일 12명, 같은 날은 같은 명단 · 다른 날은 다른 명단', () => {
+    const a = dailyDeals(pool, '2026-09-25');
+    expect(a.size).toBe(DEAL_COUNT);
+    expect([...dailyDeals(pool, '2026-09-25').keys()]).toEqual([...a.keys()]);
+    expect([...dailyDeals(pool, '2026-09-26').keys()]).not.toEqual([...a.keys()]);
+  });
+  it('포지션을 고르게, 종합 82~100, 같은 사람 없이, 값은 30% 싸게', () => {
+    const d = dailyDeals(pool, '2026-10-01');
+    const ps = [...d.keys()].map((id) => byId.get(id));
+    const count = (pos) => ps.filter((p) => p.position === pos).length;
+    expect([count('SP'), count('RP'), count('C'), count('OF')]).toEqual([2, 2, 1, 3]);
+    for (const p of ps) {
+      expect(p.overall).toBeGreaterThanOrEqual(82);
+      expect(p.overall).toBeLessThanOrEqual(100);
+      expect(d.get(p.id)).toBe(dealPriceOf(p));
+      expect(d.get(p.id)).toBeLessThan(priceOf(p));
+    }
+    expect(new Set(ps.map((p) => p.personId)).size).toBe(ps.length);
+  });
+  it('특가 값으로 골드를 따진다', () => {
+    const p = { id: 'x', personId: 'x', overall: 90, cost: 90, position: 'OF', type: 'batter' };
+    expect(addBlockReason(p, [], {}, SQUAD_CAP, BASE_LIMITS, 900)).toMatch('골드 부족');
+    expect(addBlockReason(p, [], {}, SQUAD_CAP, BASE_LIMITS, 900, 840)).toBeNull();
+  });
+  it('날짜 열쇠는 현지 날짜', () => {
+    expect(todayKey(new Date(2026, 8, 5, 23, 59))).toBe('2026-09-05');
+  });
+});

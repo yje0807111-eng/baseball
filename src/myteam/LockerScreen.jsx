@@ -10,7 +10,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub } from './store.js';
-import { priceOf, refundOf, isFreeFill } from './market.js';
+import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey } from './market.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
@@ -100,7 +100,7 @@ const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
 const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false, price = null }) {
   const n = tone(p.overall);
   const neon = teamNeon(p);
   const keys = KEYS[p.type] || KEYS.batter;
@@ -145,7 +145,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
       <b className="text-right font-display text-lg text-amber-300">{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-[13px] text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
-        : <b className="text-right font-display text-lg" style={{ color: GOLD }}>{priceOf(p).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>}
+        : price != null && price < priceOf(p) /* 오늘의 특가: 원래 값은 작게 줄 긋고 */
+          ? <span className="text-right leading-tight"><small className="block font-display text-[11px] text-gray-500 line-through">{priceOf(p).toLocaleString()}</small><b className="font-display text-lg text-[#fb923c]">{price.toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b></span>
+          : <b className="text-right font-display text-lg" style={{ color: GOLD }}>{priceOf(p).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>}
       <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
@@ -201,7 +203,7 @@ function EmptyDetail() {
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold = 0, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0 }) {
+function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold = 0, priceFor = priceOf, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0 }) {
   if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const stored = !owned && club.some((x) => x.id === p.id); // 보관함 선수 — 엔트리로 들이는 데 골드가 들지 않는다
@@ -213,9 +215,9 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   const out = swap ? cands.find((x) => x.id === outId) || cands[0] || null : null;
   const after = owned ? cost - p.cost : cost + p.cost - (out?.cost || 0);
   const pay = stored ? null : gold; // 보관함 선수는 골드를 따지지 않는다
-  const blocked = owned ? null : swap ? swapBlockReason(p, out, squad, staff, cap, lim, pay) : addBlockReason(p, squad, staff, cap, lim, pay);
+  const price = stored ? 0 : priceFor(p); // 오늘의 특가면 그 값
+  const blocked = owned ? null : swap ? swapBlockReason(p, out, squad, staff, cap, lim, pay, price) : addBlockReason(p, squad, staff, cap, lim, pay, price);
   const mine = owned ? squad.find((x) => x.id === p.id) : stored ? club.find((x) => x.id === p.id) : null;
-  const price = stored ? 0 : priceOf(p);
   /* 환급: 엔트리 · 보관함 선수는 그 선수 몫, 영입 교체면 내보내는 선수 몫(보관함으로 들이는 교체는 나가는 선수가 보관함으로 가니 없음) */
   const refund = mine ? refundOf(mine) : out && !stored ? refundOf(out) : 0;
   const sum = squad.reduce((s, x) => s + x.overall, 0);
@@ -516,6 +518,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
+  const [dealOnly, setDealOnly] = useState(false); // 오늘의 특가만
+  const deals = useMemo(() => dailyDeals(ALL, todayKey()), []); // 하루 한 번 바뀐다 (라커를 다시 열면 새 날짜)
+  const priceFor = (p) => deals.get(p.id) ?? priceOf(p);
   const [outId, setOutId] = useState(null); // 교체 영입에서 내보낼 선수 (없으면 첫 후보)
   const [tab, setTab] = useState('scout');
   const [q, setQ] = useState('');
@@ -559,7 +564,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const settle = (next) => { if (!next) return; setTeam(next.team); setGold(next.gold); onSave?.(next.team, next.gold); };
   const clubList = team.club || [];
   const inClub = (p) => clubList.some((x) => x.id === p.id);
-  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold)) settle(recruitPlayer(team, p, priceOf(p))); };
+  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p))) settle(recruitPlayer(team, p, priceFor(p))); };
   const release = (p) => { settle(inClub(p) ? releaseFromClub(team, p.id) : releasePlayer(team, p.id)); setSel(null); };
   /* 보관함: 엔트리에서 빼 두기 · 엔트리로 들이기(꽉 찼으면 out 과 자리 바꿈 — out 은 보관함으로) */
   const store = (p) => { settle(storePlayer(team, p.id)); setSel(null); };
@@ -567,10 +572,10 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
     const why = out ? swapBlockReason(p, out, squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
     if (!why) { settle(enterFromClub(team, p.id, out?.id || null)); setOutId(null); setSel(null); }
   };
-  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold)) { settle(swapPlayer(team, p, priceOf(p), out.id)); setOutId(null); } };
+  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(swapPlayer(team, p, priceFor(p), out.id)); setOutId(null); } };
   /* 목록 한 줄의 막는 이유 — 꽉 찼으면 첫 교체 후보로 따진다 */
   const full = squad.length >= lim.size;
-  const rowBlock = (p) => (full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold) : addBlockReason(p, squad, staff, cap, lim, gold));
+  const rowBlock = (p) => (full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
   useEffect(() => { setOutId(null); }, [sel?.id]);
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
   /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
@@ -613,6 +618,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
     const list = ALL.filter((p) => !owned.has(p.personId || p.name)
       && (!year || String(p.year) === String(year)) && (!club || p.team === club) && (!pos || p.position === pos)
       && (!kw || p.name.includes(kw) || String(p.year).includes(kw) || p.team.includes(kw))
+      && (!dealOnly || deals.has(p.id))
       && (!canOnly || !rowBlock(p)));
     const by = {
       '스탯 높은 순': (a, b) => b.overall - a.overall || a.cost - b.cost,
@@ -621,7 +627,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
       'CP 낮은 순': (a, b) => a.cost - b.cost || b.overall - a.overall,
     }[sort || SORT_DEFAULT];
     return list.sort(by);
-  }, [q, year, club, pos, sort, squad, team.club, canOnly, gold, staff, cap, lim.size, lim.free, lim.foreign]);
+  }, [q, year, club, pos, sort, squad, team.club, canOnly, dealOnly, gold, staff, cap, lim.size, lim.free, lim.foreign]);
   const results = matched.slice(0, limit);
 
   const NAV = [
@@ -702,6 +708,11 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
             {head('선수 영입', null, undefined, (
               <div className="flex items-center gap-2">
+                <button type="button" aria-pressed={dealOnly} onClick={() => { setDealOnly((v) => !v); setLimit(60); }}
+                  className="mt-cut px-3 py-2 text-[13px] font-bold"
+                  style={{ ...cut(6), color: dealOnly ? '#05080f' : '#fdba74', background: dealOnly ? '#fb923c' : 'rgba(255,255,255,.06)', boxShadow: dealOnly ? undefined : 'inset 0 0 0 1px rgba(251,146,60,.45)' }}>
+                  오늘의 특가 {deals.size}
+                </button>
                 <button type="button" aria-pressed={canOnly} onClick={() => { setCanOnly((v) => !v); setLimit(60); }}
                   className="mt-cut mr-2 px-3 py-2 text-[13px] font-bold"
                   style={{ ...cut(6), color: canOnly ? '#05080f' : '#d1d5db', background: canOnly ? '#34d399' : 'rgba(255,255,255,.06)', boxShadow: canOnly ? undefined : 'inset 0 0 0 1px rgba(255,255,255,.16)' }}>
@@ -721,7 +732,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint
+                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)}
                   onPick={setSel} onAct={full ? setSel : add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수 없음</p>}
@@ -925,7 +936,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           );
         })()
           : (
-          <DetailPanel p={sel} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
+          <DetailPanel p={sel} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
             itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
