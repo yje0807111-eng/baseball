@@ -365,6 +365,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const wpRef = useRef([0.5]);
   const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
+  const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
+  const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
   digestRef.current = digest;
@@ -387,7 +389,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const handOver = () => {
     if (endedRef.current) return false;
     endedRef.current = true;
-    onFinish?.(buildResult(g, my));
+    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current }));
     return true;
   };
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
@@ -494,8 +496,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
-        if (fresh) wpAt.current = winProb(g);
-        const gave = asked || Object.keys(pendingRef.current).length > 0; // 이 타석에 지시를 냈다
+        if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top }; }
+        const ordered = Object.keys(pendingRef.current).length > 0;
+        const gave = asked || ordered; // 이 타석에 지시를 냈다
+        const gaveKo = ordered ? orderKo(pendingRef.current).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
@@ -534,6 +538,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           const wpNow = winProb(g);
           wpRef.current = [...wpRef.current, wpNow].slice(-200);
           if (gave) gainRef.current += wpNow - wpAt.current;
+          if (gaveKo) callsRef.current.push({ ...spotRef.current, ko: gaveKo, delta: wpNow - wpAt.current });
         }
         redraw();
         await sleep(beat);
@@ -1080,67 +1085,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 }
 
 /** 엔진 경기를 기존 결과 화면(ResultPanel)이 쓰는 모양으로 바꾼다 */
-/** 타점이 붙은 결과를 사람 말로 — "쓰리런 홈런" · "2타점 적시타" */
-function actText(ev) {
-  const r = ev.runs || 0;
-  if (ev.result === 'HR') return r >= 4 ? '만루 홈런' : r === 3 ? '쓰리런 홈런' : r === 2 ? '투런 홈런' : '솔로 홈런';
-  const label = RESULT_LABEL[ev.result] || ev.result;
-  return r > 0 ? `${r}타점 ${label}` : label;
-}
-
-/**
- * 한 반이닝을 정리 카드 한 칸으로 — 득점 · 주인공 · 사건 목록.
- * 점수가 났으면 가장 크게 기여한 타자가, 안 났으면 막아낸 투수가 주인공이다.
- * mine=true 면 우리 공격(말)이라 타자가 우리 편 · 투수가 상대 편이다.
- */
-function halfSummary(evs, top, mine) {
-  const list = evs.filter((e) => e.top === top);
-  const done = list.filter((e) => e.result);
-  const runs = list.reduce((s, e) => s + (e.runs || 0), 0);
-  const events = done.map((e) => ({
-    name: e.batter?.name || '타자',
-    text: actText(e),
-    rt: e.runs ? `+${e.runs}` : '',
-    hot: !!e.runs,
-  })).slice(-5);
-
-  let hero = null;
-  if (runs > 0) {
-    const PTS = { '1B': 2, '2B': 3, '3B': 4, HR: 6, BB: 1, IBB: 0, SF: 1, SAC: 1, BH: 2, E: 1 };
-    const credit = new Map();
-    for (const e of done) {
-      if (!e.batter) continue;
-      const pts = (PTS[e.result] || 0) + (e.runs || 0) * 3;
-      if (pts <= 0) continue;
-      const c = credit.get(e.batter.id) || { p: e.batter, pts: 0, best: null };
-      c.pts += pts;
-      if (!c.best || (e.runs || 0) >= (c.best.runs || 0)) c.best = e;
-      credit.set(e.batter.id, c);
-    }
-    const top1 = [...credit.values()].sort((a, b) => b.pts - a.pts)[0];
-    if (top1) {
-      hero = {
-        id: top1.p.id, name: top1.p.name, pos: `${top1.p.position} · ${top1.p.overall ?? ''}`.trim(),
-        act: actText(top1.best), side: mine ? 'my' : 'opp',
-        sub: `이 이닝 ${done.filter((e) => e.batter?.id === top1.p.id).length}타석`,
-      };
-    }
-  } else {
-    const pitcher = done.find((e) => e.pitcher)?.pitcher || list.find((e) => e.pitcher)?.pitcher;
-    const ks = done.filter((e) => e.result === 'K').length;
-    if (pitcher) {
-      hero = {
-        id: pitcher.id, name: pitcher.name, pos: `${pitcher.position} · ${pitcher.overall ?? ''}`.trim(),
-        act: done.length <= 3 ? '삼자범퇴' : '무실점',
-        sub: `${done.length}타자 · ${list.length}구${ks ? ` · 탈삼진 ${ks}` : ''}`,
-        side: mine ? 'opp' : 'my', // 우리 공격인데 무득점이면 상대 투수가 주인공
-      };
-    }
-  }
-  return { runs, batters: done.length, events, hero };
-}
-
-/** 이닝 하나(초·말)를 정리 화면에 넘길 모양으로 */
 /* ───────── 승부처: 멈추고 감독에게 묻는다 ───────── */
 /** 주자를 사람 말로 */
 const basesKo = (bases) => {
@@ -1168,24 +1112,15 @@ function askOf(g, home, away, left, resolve) {
     pitch: defenseOf(g).pitches ?? 0,
   };
 }
-export function buildInningRecap(g, evs, inning) {
-  return {
-    inning,
-    mine: halfSummary(evs, false, true), // 말 = 우리 공격
-    theirs: halfSummary(evs, true, false), // 초 = 상대 공격
-    board: {
-      home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
-      away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
-    },
-    score: { home: g.home.runs, away: g.away.runs },
-  };
-}
 
-export function buildResult(g, myTeam) {
+export function buildResult(g, myTeam, manager = null) {
   const board = {
     home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
     away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
   };
+  /* 감독이 한 일 — 승률이 그린 선과 내가 낸 지시 */
+  const flow = manager?.flow?.length ? [...manager.flow] : null;
+  const calls = manager?.calls?.length ? [...manager.calls].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)) : [];
   const credit = new Map();
   const add = (p, pts, key) => {
     if (!p) return;
@@ -1223,5 +1158,6 @@ export function buildResult(g, myTeam) {
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
+    flow, calls, gain: manager?.gain ?? 0,
   };
 }

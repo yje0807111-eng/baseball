@@ -4715,6 +4715,58 @@ function BroadcastPlates({ log }) {
 /* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
 const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
 
+/** 경기 내내 승률이 그린 선 — 반 위는 우리 쪽, 아래는 상대 쪽 */
+function WinCurve({ flow, tone, h = 96 }) {
+  const w = 1000;
+  const xs = flow.length > 1 ? flow : [...flow, ...flow];
+  const step = w / (xs.length - 1);
+  const y = (v) => h - v * h;
+  const d = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const top = `${d} L ${w} 0 L 0 0 Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="block h-[96px] w-full">
+      <rect x="0" y="0" width={w} height={h} fill="rgba(255,255,255,.035)" />
+      <clipPath id="wc-up"><path d={top} /></clipPath>
+      <rect x="0" y="0" width={w} height={h} fill={tone} opacity=".16" clipPath="url(#wc-up)" />
+      <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="rgba(255,255,255,.28)" strokeWidth="1" strokeDasharray="6 5" />
+      <path d={d} fill="none" stroke={tone} strokeWidth="2.6" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+/** 감독이 한 일 — 승률 곡선 · 내 지시의 몫 · 가장 크게 움직인 지시 */
+function ManagerBlock({ flow, calls, gain, tone }) {
+  const pct = Math.round(gain * 100);
+  const top3 = calls.slice(0, 3);
+  return (
+    <div className="grid gap-4 border-b border-white/10 pb-4 lg:col-span-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="min-w-0">
+        <p className="ui-lab font-display mb-1.5" style={{ '--a': tone }}>승부 흐름</p>
+        <WinCurve flow={flow} tone={tone} />
+        <p className="mt-1 flex justify-between font-display text-[11px] text-gray-500"><span>플레이볼</span><span>경기 끝</span></p>
+      </div>
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="ui-cut flex items-baseline gap-3 bg-white/[0.045] px-4 py-2.5" style={{ '--c': '10px' }}>
+          <span className="text-[12px] text-gray-400">내 지시</span>
+          <b className="font-display text-4xl font-extrabold leading-none" style={{ color: pct > 0 ? '#34d399' : pct < 0 ? '#f87171' : '#9ca3af' }}>
+            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-[13px] text-gray-500">%p</small>
+          </b>
+          <span className="ml-auto font-display text-[13px] text-gray-400">{calls.length}번</span>
+        </div>
+        {top3.length ? top3.map((c, i) => (
+          <div key={i} className="ui-cut grid grid-cols-[3.2rem_minmax(0,1fr)_2.8rem] items-center gap-2 bg-white/[0.035] px-3 py-1.5" style={{ '--c': '7px' }}>
+            <span className="font-display text-[12px] font-bold text-gray-400">{c.inning}회{c.top ? '초' : '말'}</span>
+            <span className="truncate text-[12.5px] text-gray-100">{c.ko}</span>
+            <b className="text-right font-display text-[14px] font-extrabold" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>
+              {c.delta > 0 ? '+' : ''}{Math.round(c.delta * 100)}
+            </b>
+          </div>
+        )) : <p className="px-1 text-[12.5px] text-gray-500">지시 없이 끝난 경기</p>}
+      </div>
+    </div>
+  );
+}
+
 function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, gauntlet = null }) {
   const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
   const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
@@ -4735,6 +4787,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
           <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
         </div>
       </div>
+      {result.flow && <ManagerBlock flow={result.flow} calls={result.calls || []} gain={result.gain || 0} tone={tone} />}
       <div className="relative">
         <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-lg font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
         <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
