@@ -348,6 +348,24 @@ export function aiDraft({ players = ALL_PLAYERS, cap = SALARY_CAP, rng = Math.ra
 const posOf = (p) => slotPos(p.slot) || p.position;
 const realOnly = (r) => r.filter((p) => !p.isReplacement);
 const battersOf = (r) => realOnly(r).filter((p) => p.type === 'batter' && !isBenchSlot(p.slot));
+const pitchersOf = (r) => realOnly(r).filter((p) => p.type === 'pitcher' && !isBenchSlot(p.slot));
+const startersOf = (r) => realOnly(r).filter((p) => !isBenchSlot(p.slot));
+const INFIELD_POS = new Set(['1B', '2B', '3B', 'SS']);
+const DEF_GOOD = { C: 90, '1B': 58, '2B': 84, '3B': 80, SS: 95, OF: 88 }; // 포지션별 수비 상위 20% 안팎
+const goodGlove = (p) => p.stats.defense >= (DEF_GOOD[posOf(p)] ?? 999);
+const handIs = (h) => (p) => p.hand === h || p.hand === 'S'; // 스위치 히터는 좌우 모두로 센다
+/** 주전 가운데 같은 연대(10년 단위) 선수가 가장 많은 무리 — 동률이면 최근 연대 */
+function topDecade(roster) {
+  const groups = {};
+  startersOf(roster).forEach((p) => { const d = Math.floor(p.year / 10) * 10; (groups[d] = groups[d] || []).push(p); });
+  const [dec, players = []] = Object.entries(groups).sort((a, b) => b[1].length - a[1].length || b[0] - a[0])[0] || [];
+  return { dec: dec ? Number(dec) : null, players };
+}
+/** 수비 90+ 포수가 주전이면 그 포수와 제구 95+ 투수들 */
+function batteryOf(roster) {
+  const c = battersOf(roster).find((p) => posOf(p) === 'C' && goodGlove(p));
+  return c ? [c, ...pitchersOf(roster).filter((p) => p.stats.control >= 95)] : [];
+}
 /** 이름 목록에 든 선수(동일인은 한 번) */
 const personMembers = (r, names) => {
   const seen = new Set();
@@ -379,49 +397,49 @@ const FRANCHISE_EXTRA = {
 };
 
 /* members(r): 조건을 채우는 선수들. 단계(tiers)를 넘으면 그 단계 보너스가 이 선수들에게만 붙는다
-   bonus 키 → 타자: bat(파워·컨택) power contact speed defense / 투수: pit(구위·제구·안정) stability
+   bonus 키 → 타자: bat(파워·컨택) power contact speed defense / 투수: pit(구위·제구·안정) stability control
    단계 인원의 상한은 포지션별로 실제로 뽑을 수 있는 카드 수를 보고 정했다 (예: 주루 75+ 는 포수·지명 카드가 없어 4명이 끝) */
 export const SYNERGIES = [
   // ── 실화 · 선수 조합 (같은 선수면 카드 시즌과 상관없이 인정)
   story('beijing', '베이징 9전 전승', '베이징 금메달 멤버', BEIJING_2008, [
-    tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +2', { bat: 2, pit: 2 }), tier(7, '능력치 +4', { bat: 4, pit: 4 }),
+    tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +2', { bat: 2, pit: 2 }), tier(7, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
-  story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', ['이승엽', '이대호', '김동주'], [tier(2, '파워 +5', { power: 5 })]),
+  story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', ['이승엽', '이대호', '김동주'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })]),
   story('skMound', 'SK 왕조 마운드', '김광현·정우람·정대현 (2008 선발·셋업·마무리)', ['김광현', '정우람', '정대현'], [
-    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }),
+    tier(2, '투수 +2', { pit: 2 }), tier(3, '투수 +3', { pit: 3 }),
   ]),
   story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +3', { bat: 3, pit: 3 })]),
-  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택 +4 · 주루 +5', { contact: 4, speed: 5 })]),
-  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +4', { power: 4, contact: 4 })]),
-  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
-  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +4', { stability: 4, defense: 4 })]),
-  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '안정 +3 · 파워 +4', { stability: 3, power: 4 })]),
-  story('changeup', '체인지업 전수', '구대성 · 류현진 (2006 한화)', ['구대성', '류현진'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택·주루 +8', { contact: 8, speed: 8 })]),
+  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })]),
+  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })]),
+  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })]),
+  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '투수 +5 · 파워·컨택 +5', { pit: 5, power: 5, contact: 5 })]),
+  story('changeup', '체인지업 전수', '구대성 · 류현진 (2006 한화)', ['구대성', '류현진'], [tier(2, '투수 +3', { pit: 3 })]),
   story('premier12', '프리미어12 초대 우승', '2015 대표팀 멤버', PREMIER12_2015, [
     tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
-  story('beijingFinal', '베이징 결승전', '류현진 · 정대현 (선발과 병살 마무리)', ['류현진', '정대현'], [tier(2, '투수 +4', { pit: 4 })]),
+  story('beijingFinal', '베이징 결승전', '류현진 · 정대현 (선발과 병살 마무리)', ['류현진', '정대현'], [tier(2, '투수 +3', { pit: 3 })]),
   story('doosanMound', '2016 두산 마운드', '니퍼트·정재훈·이현승 (선발·셋업·마무리)', ['니퍼트', '정재훈', '이현승'], [
-    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }),
+    tier(2, '투수 +2', { pit: 2 }), tier(3, '투수 +3', { pit: 3 }),
   ]),
   story('lotte10', '2010 롯데 폭격', '이대호·홍성흔·강민호·손아섭·전준우', ['이대호', '홍성흔', '강민호', '손아섭', '전준우'], [
-    tier(2, '파워 +3', { power: 3 }), tier(3, '파워 +5', { power: 5 }),
+    tier(2, '파워·컨택 +3', { power: 3, contact: 3 }), tier(3, '파워·컨택 +5', { power: 5, contact: 5 }),
   ]),
   story('samsung14', '통합 4연패', '최형우·박석민·나바로·채태인·박해민', ['최형우', '박석민', '나바로', '채태인', '박해민'], [
     tier(2, '파워·컨택 +2', { power: 2, contact: 2 }), tier(3, '파워·컨택 +4', { power: 4, contact: 4 }),
   ]),
   story('nc20', 'NC 창단 첫 우승', '양의지·나성범·박민우·알테어·루친스키', ['양의지', '나성범', '박민우', '알테어', '루친스키'], [
-    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +4', { bat: 4, pit: 4 }),
+    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   story('lg23', 'LG 29년의 한', '오지환·김현수·박해민·홍창기·오스틴', ['오지환', '김현수', '박해민', '홍창기', '오스틴'], [
     tier(2, '컨택 +3', { contact: 3 }), tier(3, '컨택 +5 · 수비 +3', { contact: 5, defense: 3 }),
   ]),
   story('kia24', 'KIA V12', '김도영·최형우·양현종·나성범·소크라테스', ['김도영', '최형우', '양현종', '나성범', '소크라테스'], [
-    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +4', { bat: 4, pit: 4 }),
+    tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   // ── 팀 구성 (인원이 늘면 단계가 오른다)
-  build('power', '홈런 군단', '파워 80+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 98), [
-    tier(3, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
+  build('power', '홈런 군단', '파워 95+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 95), [
+    tier(3, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(5, '파워 +7', { power: 7 }),
   ]),
   build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
     tier(2, '능력치 +1', { bat: 1, pit: 1 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
@@ -430,14 +448,57 @@ export const SYNERGIES = [
   build('franchise', '프랜차이즈의 기억', '가장 많이 뽑은 구단', (r) => topFranchises(r).players, [
     tier(3, '능력치 +1', { bat: 1, pit: 1 }),
     tier(5, '능력치 +2 · 수비·안정 +2', { bat: 2, pit: 2, defense: 2, stability: 2 }),
-    tier(7, '능력치 +4 · 수비·안정 +3', { bat: 4, pit: 4, defense: 3, stability: 3 }),
+    tier(7, '능력치 +3 · 수비·안정 +3', { bat: 3, pit: 3, defense: 3, stability: 3 }),
+  ]),
+  // ── 타선 색깔 (문턱은 카드 풀 상위 10% 안팎)
+  build('contactLine', '교타 군단', '컨택 93+ 타자', (r) => battersOf(r).filter((p) => p.stats.contact >= 93), [
+    tier(3, '컨택 +2', { contact: 2 }), tier(4, '컨택 +4', { contact: 4 }), tier(5, '컨택 +7', { contact: 7 }),
+  ]),
+  build('speedLine', '발야구', '주루 95+ 타자', (r) => battersOf(r).filter((p) => p.stats.speed >= 95), [
+    tier(3, '주루 +4 · 컨택 +1', { speed: 4, contact: 1 }), tier(4, '주루 +6 · 컨택 +2', { speed: 6, contact: 2 }), tier(5, '주루 +8 · 컨택 +3', { speed: 8, contact: 3 }),
+  ]),
+  build('leftLine', '좌타 라인', '좌타자 (스위치 포함)', (r) => battersOf(r).filter(handIs('L')), [
+    tier(5, '컨택 +2', { contact: 2 }), tier(7, '컨택 +4', { contact: 4 }),
+  ]),
+  build('rightLine', '우타 라인', '우타자 (스위치 포함)', (r) => battersOf(r).filter(handIs('R')), [
+    tier(5, '파워 +3', { power: 3 }), tier(7, '파워 +5', { power: 5 }),
+  ]),
+  build('switchHit', '스위치 히터', '양타 타자', (r) => battersOf(r).filter((p) => p.hand === 'S'), [
+    tier(2, '컨택·주루 +3', { contact: 3, speed: 3 }), tier(3, '컨택·주루 +5', { contact: 5, speed: 5 }),
+  ]),
+  // ── 수비
+  build('infieldNet', '내야 그물', '수비 상위 내야수', (r) => battersOf(r).filter((p) => INFIELD_POS.has(posOf(p)) && goodGlove(p)), [
+    tier(3, '수비 +5 · 컨택 +2', { defense: 5, contact: 2 }), tier(4, '수비 +8 · 컨택 +3', { defense: 8, contact: 3 }),
+  ]),
+  build('outfieldNet', '외야 수비망', '수비 88+ 외야수', (r) => battersOf(r).filter((p) => posOf(p) === 'OF' && goodGlove(p)), [
+    tier(2, '수비 +5 · 컨택 +2', { defense: 5, contact: 2 }), tier(3, '수비 +8 · 컨택 +4', { defense: 8, contact: 4 }),
+  ]),
+  build('battery', '안방마님', '수비 90+ 포수와 제구 95+ 투수', batteryOf, [
+    tier(2, '수비·제구 +4', { defense: 4, control: 4 }), tier(3, '수비·제구 +6', { defense: 6, control: 6 }), tier(4, '수비·제구 +8', { defense: 8, control: 8 }),
+  ]),
+  // ── 마운드 (주전 투수는 선발 1 · 불펜 4)
+  build('mound', '마운드 왕국', '종합 93+ 투수', (r) => pitchersOf(r).filter((p) => p.overall >= 93), [
+    tier(3, '투수 +2', { pit: 2 }), tier(4, '투수 +4', { pit: 4 }), tier(5, '투수 +5', { pit: 5 }),
+  ]),
+  build('bullpenWall', '철벽 불펜', '구위 98+ 불펜', (r) => pitchersOf(r).filter((p) => posOf(p) === 'RP' && p.stats.stuff >= 98), [
+    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }), tier(4, '투수 +7', { pit: 7 }),
+  ]),
+  build('southpaw', '좌완 군단', '좌투수', (r) => pitchersOf(r).filter((p) => p.hand === 'L'), [
+    tier(2, '안정 +3', { stability: 3 }), tier(3, '안정 +5', { stability: 5 }), tier(4, '안정 +7', { stability: 7 }),
+  ]),
+  // ── 시대 · 출신 (주전 14명 기준)
+  { ...build('era', '한 시대', '같은 연대 주전', (r) => topDecade(r).players, [
+    tier(5, '능력치 +1', { bat: 1, pit: 1 }), tier(7, '능력치 +2', { bat: 2, pit: 2 }), tier(9, '능력치 +3', { bat: 3, pit: 3 }),
+  ]), condOf: (r) => { const { dec, players } = topDecade(r); return dec ? `최다 연대: ${dec}년대 ${players.length}명` : '같은 연대 주전'; } },
+  build('national', '태극마크', '국가대표 주전', (r) => startersOf(r).filter((p) => p.isNational), [
+    tier(5, '능력치 +1', { bat: 1, pit: 1 }), tier(7, '능력치 +2', { bat: 2, pit: 2 }), tier(9, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
 ];
 
 /** 시너지 현황: level(넘은 단계 수) · cur(채운 칸, 최종 단계에서 멈춤) · top(최종 단계 인원) · 지금 단계의 effect/bonus */
 export function checkSynergies(roster) {
   return SYNERGIES.map((s) => {
-    const extra = s.id === 'franchise' ? FRANCHISE_EXTRA : null;
+    const extra = s.id === 'franchise' ? FRANCHISE_EXTRA : s.condOf ? { count: (r) => s.members(r).length, condOf: s.condOf } : null;
     const members = s.members(roster);
     const count = extra ? extra.count(roster) : members.length;
     const top = s.tiers[s.tiers.length - 1].need;
@@ -457,7 +518,7 @@ export const SYNERGY_STAT_CAP = 8; // 한 선수가 시너지로 받는 보너�
 
 const BONUS_STATS = {
   batter: { bat: ['power', 'contact'], power: ['power'], contact: ['contact'], speed: ['speed'], defense: ['defense'] },
-  pitcher: { pit: ['stuff', 'control', 'stability'], stability: ['stability'] },
+  pitcher: { pit: ['stuff', 'control', 'stability'], stability: ['stability'], control: ['control'] },
 };
 /** 완성된 시너지의 보너스를 그 시너지를 만든 선수에게만 더한다. 오른 선수에게는 synergyBoost(시너지 이름 목록)가 붙는다 */
 export function applySynergies(roster, synergies = checkSynergies(roster)) {
