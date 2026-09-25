@@ -1350,7 +1350,7 @@ export const KEYFRAMES = `
 .lf-ovx.dn2 em { color: #f87171; }
 .lf-sil { position: absolute; inset: 0; width: 100%; height: 100%; fill: #26324a; }
 /* 시너지 도크 아래 예비 여섯: 두 줄 세 칸씩 미니 칩. 필드 토큰과 같은 끌기·강조 규칙을 쓴다 */
-.lf-bn { flex: none; margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.1); }
+.lf-bn { flex: none; margin-top: 12px; padding-top: 11px; border-top: 1px solid rgba(255,255,255,.08); }
 .lf-bn-h { display: flex; align-items: baseline; gap: 7px; margin-bottom: 7px; padding-left: 4px; }
 .lf-bn-h span { font-size:12px; font-weight: 700; color: #cbd5e1; text-shadow: 0 1px 3px #000; }
 .lf-bn-h em { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-style: normal; font-weight: 700; letter-spacing: .18em; color: #64748b; }
@@ -1358,9 +1358,9 @@ export const KEYFRAMES = `
 .lf-bn-h small b { color: #cbd5e1; }
 .lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .lf-bn + .lf-bn { margin-top: 8px; padding-top: 8px; }
-.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: inset(0 round 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
+.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(255,255,255,.05); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); clip-path: inset(0 round 10px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
 .lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
-.lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
+.lf-bc-ph { border-radius: 6px; background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
 .lf-bc.empty .lf-bc-pos { color: #64748b; }
 .lf-bc:not(:has(.lf-bc-pos)) { grid-template-columns: 22px minmax(0, 1fr) auto; }
@@ -1368,11 +1368,13 @@ export const KEYFRAMES = `
 .lf-bc em { font-size:14px; font-weight: 800; color: #fff; text-shadow: 0 0 9px var(--n); }
 .lf-bc em.up { color: #6ee7b7; }
 .lf-bc i { position: absolute; right: 4px; top: 4px; width: 4px; height: 4px; background: #fbbf24; transform: rotate(45deg); }
-.lf-bc.empty { cursor: pointer; background: rgba(10,15,26,.5); }
+.lf-bc.empty { cursor: pointer; background: rgba(255,255,255,.025); }
+.lf-bc.empty:has(.lf-bc-pos) { box-shadow: inset 0 0 0 1px rgba(52,211,153,.45); }
+.lf-bc.empty:has(.lf-bc-pos) b { color: #6ee7b7; }
 .lf-bc.empty b { color: #6b7280; font-weight: 500; }
 .lf-bc.empty em { color: #3f4a5c; }
 .lf-bc:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
-.lf-bc.mine { background: linear-gradient(90deg, color-mix(in srgb, var(--n) 26%, rgba(15,23,42,.62)), rgba(15,23,42,.62)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); }
+.lf-bc.mine { background: linear-gradient(90deg, color-mix(in srgb, var(--n) 22%, rgba(255,255,255,.05)), rgba(255,255,255,.05)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 1px color-mix(in srgb, var(--n) 40%, transparent); }
 .lf-bc.ghost { background: rgba(56,189,248,.16); box-shadow: inset 0 0 0 1px #38bdf8; }
 .lf-bc:is(.picked, .want, .over) { background: rgba(56,189,248,.24); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 14px rgba(56,189,248,.45); }
 .lf-bc.lifted { opacity: .35; }
@@ -1858,9 +1860,10 @@ export const KEYFRAMES = `
 .aug-card .aug-art { transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; }
 .aug-card.hot .aug-art { transform: scale(1.06); }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
-.syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
+.syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 24px 26px 22px 30px; }
+.syn-dock::before { content: ""; position: absolute; z-index: -1; inset: 12px 12px 12px 16px; border-radius: 20px; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)), rgba(6,10,19,.7); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(255,255,255,.06), 0 24px 44px -24px rgba(0,0,0,.9); }
 /* 넓은 화면: 시너지는 구장 바로 오른쪽(판 끝까지), 그늘은 옅게 해 사진이 뒤로 이어 보이게 */
-.syn-dock.wide { right: auto; padding: 12px 16px 10px 22px; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)); }
+.syn-dock.wide { right: auto; padding: 24px 26px 22px 28px; }
 /* 오른쪽 LINEUP 명단: 묶음 상자 위 “선 위 라벨”(이름만) · 줄은 판 높이에 맞춰 늘고 줄어 12줄이 늘 들어감 */
 /* 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] */
 .mt-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
@@ -1983,19 +1986,20 @@ export const KEYFRAMES = `
 .sy-ico i { position: relative; width: 58%; height: 66%; background: var(--gc); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 /* 드래프트 시너지 도크 */
 .sd { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.syn-dock.wide .sd { padding-top: 60px; } /* 넓은 구장 사진의 전광판 조명 아래부터 */
+.syn-dock.wide .sd { padding-top: 0; }
 .sd-hd { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-left: 4px; }
 .sd-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
 .sd-lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-.sd-hd em { padding: 0 6px; font-style: normal; font-size:12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
-.sd-hd button { margin-left: auto; padding: 2px 6px; font-size:12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
-.sd-hd button:hover { background: rgba(16,185,129,.12); }
+.sd-hd em { min-width: 20px; padding: 0 7px; border-radius: 999px; text-align: center; font-style: normal; font-size:12px; font-weight: 800; line-height: 18px; color: #03140c; background: linear-gradient(180deg, #34d399, #0e9f6e); }
+.sd-hd button { margin-left: auto; padding: 3px 10px; border-radius: 999px; font-size:12px; font-weight: 700; color: #9ca3af; background: rgba(255,255,255,.06); }
+.sd-hd button:hover { color: #fff; background: rgba(255,255,255,.12); }
 .sd-hd button:focus-visible { outline: 2px solid #10b981; outline-offset: 1px; }
 .sd-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
-.sd-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 4px; text-align: left; border-radius: 3px; transition: background .12s; }
+.sd-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; text-align: left; border-radius: 12px; transition: background .15s, box-shadow .15s; }
 .sd-row:hover, .sd-row.hv { background: rgba(255,255,255,.06); }
 .sd-row:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .sd-row.fo { background: rgba(56,189,248,.1); box-shadow: inset 0 0 0 1px rgba(56,189,248,.45); }
+.sd-row.on { background: rgba(255,255,255,.04); }
 .sd-row.on .sy-ico { animation: synShine 3s ease-in-out infinite; }
 @keyframes synShine { 50% { filter: brightness(1.22); } }
 .sd-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
