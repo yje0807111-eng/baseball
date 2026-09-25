@@ -56,7 +56,8 @@ test.skipIf(!process.env.SYN_GAME)('시너지 — 실제 경기', async () => {
   out('전략|모드|목표단계(평균)|전력점수|득실차');
   const muscle = AUGMENTS.find((a) => a.id === 'muscle');
   let calPts = 0; let calRuns = 0;
-  for (const [id, modeId] of PLAN) {
+  const only = process.env.ONLY ? process.env.ONLY.split(',') : null; // 몇 전략만 다시 볼 때 (근력 운동 눈금을 위해 안 노림 · mix 는 늘 둔다)
+  for (const [id, modeId] of PLAN.filter(([x, md]) => !only || only.includes(x) || (!x && md === 'mix'))) {
     const m = mode(modeId); const s = id && ALL.find((x) => x.id === id);
     let pts = 0; let gd = 0; let lv = 0;
     for (let r = 0; r < R; r++) {

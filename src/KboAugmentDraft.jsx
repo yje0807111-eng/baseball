@@ -467,7 +467,7 @@ export const SYNERGIES = [
   ]),
   // ── 수비
   build('infieldNet', '내야 그물', '수비 상위 내야수', (r) => battersOf(r).filter((p) => INFIELD_POS.has(posOf(p)) && goodGlove(p)), [
-    tier(3, '수비 +5 · 컨택 +2', { defense: 5, contact: 2 }), tier(4, '수비 +8 · 컨택 +3', { defense: 8, contact: 3 }),
+    tier(3, '수비 +6 · 컨택 +4', { defense: 6, contact: 4 }), tier(4, '수비 +8 · 컨택 +7', { defense: 8, contact: 7 }),
   ]),
   build('outfieldNet', '외야 수비망', '수비 88+ 외야수', (r) => battersOf(r).filter((p) => posOf(p) === 'OF' && goodGlove(p)), [
     tier(2, '수비 +5 · 컨택 +2', { defense: 5, contact: 2 }), tier(3, '수비 +8 · 컨택 +4', { defense: 8, contact: 4 }),
