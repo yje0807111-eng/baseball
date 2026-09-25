@@ -1296,8 +1296,8 @@ export const KEYFRAMES = `
 .lf-k { position: absolute; left: 24px; right: 24px; top: 14px; bottom: 20px; transform-origin: 50% 100%; transition: transform .09s ease-in; }
 .lf-k::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: -16px; height: 12px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.72), transparent); opacity: 0; transition: opacity .09s; pointer-events: none; }
 .lf-chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); transition: background .09s, color .09s; }
-.lf-bar { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: rgba(15,23,42,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); transition: background .09s, box-shadow .09s; }
-.lf-bar::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 10px var(--n); }
+.lf-bar { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 14px; background: rgba(8,12,22,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); transition: background .09s, box-shadow .09s; }
+.lf-bar::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); opacity: .7; }
 .lf-bp { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
 /* 빈 사진 칸: 흉상과 같은 자리 · 크기. 불투명하게 칠해 뒤 판 테두리를 가리고 아래는 판 속으로 흐려져 네모 두 개로 겹쳐 보이지 않게 */
 .lf-ph { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: inset 0 1px 0 rgba(148,163,184,.3); -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); transition: background .09s; }
@@ -1307,9 +1307,9 @@ export const KEYFRAMES = `
 .lf-bx small { display: block; font-size:12px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lf-ov { font-size:28px; font-weight: 700; line-height: 1; color: var(--n); text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
 .lf-ov.up { color: #34d399; text-shadow: 0 0 12px rgba(52,211,153,.6); }
-.lf-tok.empty .lf-bar { background: rgba(10,15,26,.5); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
-.lf-tok.empty .lf-bar::after { background: linear-gradient(90deg, transparent, rgba(148,163,184,.3) 30%, rgba(148,163,184,.3) 70%, transparent); box-shadow: none; }
-.lf-tok.empty .lf-bx b { color: #9aa4b5; font-weight: 600; }
+.lf-tok.empty .lf-bar { background: rgba(8,12,22,.55); box-shadow: inset 0 0 0 1.5px rgba(52,211,153,.55), 0 0 18px -6px rgba(52,211,153,.5); }
+.lf-tok.empty .lf-bar::after { display: none; }
+.lf-tok.empty .lf-bx b { color: #6ee7b7; font-weight: 700; }
 .lf-tok.empty .lf-bx small { color: #6b7280; }
 /* 지정(선수를 누름 · 자리로 선반을 거름): 판이 팀 색(빈 자리는 하늘색)으로 차오르며 떠오르고 살짝 커진다.
    전환 시간은 도착하는 상태의 값이 쓰이므로 지정은 .22s 로 튀어 오르고, 해제는 위 기본값 .09s 로 빨리 돌아가
@@ -1515,18 +1515,8 @@ export const KEYFRAMES = `
 .ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,.4), rgba(5,8,15,.93) 78%); }
 .ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%); }
 /* 중계 그래픽 묶음 → HUD 판: 컷 코너 유리 판 + 브래킷 프레임 + 왼쪽 위 라벨 */
-.bc-grp { --c: 16px; --a: #10b981; position: relative; padding: 30px 10px 10px; background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); clip-path: inset(0 round min(var(--c), 22px)); }
-.bc-grp::after {
-  content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
-  background:
-    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
-    linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
-    linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat,
-    linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
-    linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat,
-    linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent);
-}
+.bc-grp { --c: 22px; --a: #10b981; position: relative; padding: 34px 12px 12px; border-radius: 22px; background: linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); clip-path: inset(0 round 22px); }
+.bc-grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.06); }
 /* 라이브: 내 차례면 선반 판 위로 내 색 빛이 차오르고, 차례가 끝나면 같은 속도로 잦아든다 */
 /* 숨쉬는 빛은 그림자 세기로만 준다 — 투명도는 켜고 끄는 전환에만 쓰여야 뚝 끊기지 않는다 */
 @keyframes myTurnPulse {
@@ -1542,7 +1532,7 @@ export const KEYFRAMES = `
 }
 .bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
 @media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
-.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: var(--a); }
+.bc-label { position: absolute; z-index: 8; left: 20px; top: 10px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 700; color: var(--a, #10b981); }
 .bc-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
 .ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
@@ -1662,25 +1652,25 @@ export const KEYFRAMES = `
 @keyframes mcLeave { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(.9); } }
 .mc.mc-leave { pointer-events: none; animation: mcLeave .18s ease-in both; }
 .mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
-.mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: rgba(255,255,255,.55); }
+.mc-tb { display: none; }
 .mc.t75 .mc-tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
 .mc.t90 .mc-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
-.mc-ov { position: absolute; left: 7cqw; top: 7.5cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
-.mc.t75 .mc-ov { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+.mc-ov { position: absolute; left: 8cqw; top: 6cqw; font-size: 28cqw; font-weight: 800; line-height: .9; background: linear-gradient(180deg,#fff,#b6c2d1); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,.7)); }
+.mc.t75 .mc-ov { background: linear-gradient(180deg,#d1fae5,#34d399); -webkit-background-clip: text; background-clip: text; }
 .mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
-.mc-pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 34cqw; display: flex; align-items: center; gap: 2.5cqw; line-height: 1; white-space: nowrap; overflow: hidden; }
-.mc-pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
-.mc-pos span { min-width: 0; overflow: hidden; font-size: 9.5cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; } /* 가는 획 + 넓은 자간 — 작은 크기에서도 뭉치지 않게 */
-.mc-rule { position: absolute; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 20%, transparent)); }
-.mc-nm { position: absolute; left: 7cqw; right: 31cqw; bottom: 7cqw; font-size: 20.5cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 1px 4px #000; }
-.mc-cp { position: absolute; right: 8cqw; bottom: 8cqw; text-align: right; line-height: .9; }
-.mc-cp small { display: block; font-size: 7cqw; font-weight: 700; letter-spacing: .08em; color: #9ca3af; }
-.mc-cp b { display: block; font-size: 18cqw; font-weight: 800; letter-spacing: -.02em; color: var(--n); text-shadow: 0 0 8px color-mix(in srgb, var(--n) 55%, transparent); }
-.mc.c3 .mc-cp b { font-size: 14.5cqw; } /* 세 자리 코스트는 이름 칸을 침범하지 않게 */
-.mc:not(.c3) .mc-nm { right: 27cqw; } /* 두 자리 코스트면 이름 칸을 조금 더 넓게 */
+.mc-pos { position: absolute; right: 6cqw; top: 8cqw; display: flex; line-height: 1; }
+.mc-pos em { padding: 2.5cqw 5cqw; border-radius: 999px; font-style: normal; font-size: 10cqw; font-weight: 700; color: #e5e7eb; background: rgba(5,8,15,.72); }
+.mc-pos span { display: none; }
+.mc-rule { display: none; }
+.mc-nm { position: absolute; left: 8cqw; right: 8cqw; bottom: 19cqw; font-size: 17cqw; font-weight: 700; line-height: 1.1; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; }
+.mc-cp { position: absolute; left: 8cqw; bottom: 7cqw; display: flex; align-items: baseline; gap: 2cqw; line-height: 1; }
+.mc-cp small { order: 2; font-size: 9cqw; font-weight: 600; color: #9ca3af; }
+.mc-cp b { font-size: 12cqw; font-weight: 800; color: #fbbf24; }
+.mc.c3 .mc-cp b { font-size: 12cqw; }
+.mc:not(.c3) .mc-nm { right: 8cqw; }
 /* 긴 이름(외국인 등)은 글자 수만큼 줄여 한 줄에 다 보이게 */
-.mc-nm.l4 { font-size: 16.5cqw; }
-.mc-nm.l5 { font-size: 13cqw; }
+.mc-nm.l4 { font-size: 15cqw; }
+.mc-nm.l5 { font-size: 12.5cqw; }
 .mc-nm.l6 { font-size: 11cqw; }
 .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
 /* 보기 단추로 카드가 드러나고 숨는 효과 — 카드가 아니라 감싸는 칸에 준다 (카드의 등장 애니와 겹치지 않게) */
@@ -1731,7 +1721,7 @@ export const KEYFRAMES = `
 .mc-lk span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 시너지 칸 (선반 카드 오른쪽 위) */
 @keyframes mcPip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-.mc-syn { position: absolute; z-index: 5; right: 5cqw; top: 7cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+.mc-syn { position: absolute; z-index: 5; right: 5cqw; top: 26cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; border-radius: 999px; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.4); }
 .mc-syn svg { width: 8cqw; height: 8cqw; margin-right: .6cqw; color: #6ee7b7; }
 .mc-syn i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
 .mc-syn i.on { background: #e5e7eb; }
@@ -1882,6 +1872,16 @@ export const KEYFRAMES = `
 .mt-trio small { font-size:12px; color: #6b7280; }
 .mt-trio b { font-size:28px; font-weight: 700; line-height: 1; color: #fff; }
 .mt-radar { position: relative; }
+.mt-bars { display: flex; flex-direction: column; gap: 12px; padding: 6px 2px; }
+.mt-bhd { display: flex; justify-content: flex-end; align-items: baseline; gap: 6px; font-size: 12px; color: #6b7280; }
+.mt-bhd b { font-size: 14px; color: #cbd5e1; }
+.mt-bar { display: grid; grid-template-columns: 34px minmax(0,1fr) 34px 34px; align-items: center; gap: 10px; }
+.mt-bar > span { font-size: 12px; color: #9ca3af; }
+.mt-bar > i { position: relative; height: 6px; border-radius: 6px; background: rgba(255,255,255,.08); }
+.mt-bar > i > b { position: absolute; inset: 0 auto 0 0; border-radius: 6px; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.mt-bar > i > em { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 2px; background: rgba(255,255,255,.75); }
+.mt-bar > b { text-align: right; font-size: 18px; font-weight: 700; color: #fff; }
+.mt-bar > small { font-size: 12px; font-weight: 700; }
 .mt-rd { display: block; width: 100%; height: auto; }
 .mt-rd text { font-size:12px; fill: #cbd5e1; }
 .mt-rd text.v { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 700; fill: #fff; }
@@ -1890,7 +1890,7 @@ export const KEYFRAMES = `
 .mt-lgd i { display: inline-block; width: 9px; margin-right: 4px; vertical-align: 2px; border-top: 2px solid #34d399; }
 .mt-lgd i.ai { border-top: 2px dashed #f87171; }
 .mt-lgd b { margin-left: 3px; font-size:12px; font-weight: 700; color: #cbd5e1; }
-.mt-style { font-size:18px; font-weight: 700; color: #fff; }
+.mt-style { font-size:14px; font-weight: 700; color: #fff; }
 .mt-style .g { color: #34d399; }
 .mt-style .o { color: #fb923c; }
 .mt-style i { margin: 0 6px; font-style: normal; color: #4b5563; }
@@ -2558,6 +2558,8 @@ function PickInfo({ player }) {
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 /** 칩 옆 한 줄에 다 들어가게 줄이는 긴 포지션의 글자 크기(cqw, 기본 9.5) — Saira Condensed 500 · 자간 .07em 기준으로 잰 값 */
 const POS_FS = { SP: 9.3, DH: 8.4 };
+/** 선반 카드 포지션 알약 — 짧게 */
+const POS_SHORT = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF: '외야', DH: '지명' };
 
 /**
  * 선반 카드 오른쪽 위 시너지 칸: 목록(도크)의 단계 칸을 축소한 것.
@@ -2667,23 +2669,23 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
       <span className="mc-in">
         {art
           ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%]" />
-          : <span className="absolute inset-0" style={{ background: `linear-gradient(160deg, ${teamColor(player)}66, #05080f 70%)` }} />}
+          : <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `linear-gradient(160deg, ${teamColor(player)}55, transparent 60%), url(ui/mt/silhouette-player.webp)`, backgroundColor: '#0b1220' }} />}
         <span className="mc-sh" />
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <SynergyPips {...hint} />}
         {(
           <>
-            <span className="mc-pos font-display"><em>{player.position}</em><span style={POS_FS[player.position] ? { fontSize: `${POS_FS[player.position]}cqw` } : undefined}>{POS_FULL[player.position]}</span></span>
+            <span className="mc-pos"><em>{POS_SHORT[player.position] || player.position}</em></span>
             <span className="mc-rule" />
             <span className={`mc-nm ${player.name.length >= 6 ? 'l6' : player.name.length >= 5 ? 'l5' : player.name.length >= 4 ? 'l4' : ''}`}>{player.name}</span>
-            <span className="mc-cp font-display tabular-nums"><small>CP</small><b>{player.cost}</b></span>
+            <span className="mc-cp font-display tabular-nums"><b>{player.cost}</b><small>CP</small></span>
           </>
         )}
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
-      <span className={`pointer-events-none absolute inset-[2.5cqw] transition-[border-color,box-shadow] duration-300 ${selected || focus === 'on' || (need && !takenClub) ? 'border-2' : 'border'}`}
-        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : need && !takenClub ? 'rgba(52,211,153,.8)' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : `${acc}66`,
+      <span className={`pointer-events-none absolute inset-0 transition-[border-color,box-shadow] duration-300 ${selected || focus === 'on' || (need && !takenClub) ? 'border-2' : 'border'}`}
+        style={{ borderRadius: '7% / 4.7%', borderColor: selected ? '#34d399' : focus === 'on' ? '#38bdf8' : need && !takenClub ? 'rgba(52,211,153,.8)' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : 'rgba(255,255,255,.1)',
           boxShadow: need && !takenClub && !selected ? 'inset 0 0 16px -4px rgba(52,211,153,.6)' : 'none' }} />
       {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
           회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
@@ -3197,21 +3199,25 @@ function TeamReport({ roster, mode, cap }) {
           <div key={k}><small>{k}</small><b className={`font-display tabular-nums ${v != null ? tierOf(v) : ''}`}>{fmt1(v)}</b></div>
         ))}
       </div>
-      <div className="mt-radar">
-        <TeamRadar axes={axes} />
-        <div className="mt-lgd" aria-hidden="true">
-          <span><i />우리 팀<b className="font-display tabular-nums">{fmt1(me.team)}</b></span>
-          <span><i className="ai" />AI 평균<b className="font-display tabular-nums">{fmt1(ai.team)}</b></span>
-        </div>
+      {/* 여섯 축 — 막대는 우리 팀, 흰 눈금은 AI 평균, 오른쪽은 차이 */}
+      <div className="mt-bars">
+        <div className="mt-bhd"><span>AI 평균</span><b className="font-display tabular-nums">{fmt1(ai.team)}</b></div>
+        {axes.map((x) => {
+          const pos = (v) => `${Math.max(3, Math.min(100, ((v - 40) / 80) * 100))}%`;
+          const up = x.d == null || x.d >= 0;
+          return (
+            <div key={x.k} className="mt-bar">
+              <span>{x.k}</span>
+              <i>{x.m != null && <b style={{ width: pos(x.m), background: up ? '#34d399' : '#f87171' }} />}{x.a != null && <em style={{ left: pos(x.a) }} />}</i>
+              <b className="font-display tabular-nums">{x.m == null ? '-' : Math.round(x.m)}</b>
+              <small className="font-display tabular-nums" style={{ color: x.d == null ? '#6b7280' : up ? '#34d399' : '#f87171' }}>{x.d == null ? '' : signed(x.d)}</small>
+            </div>
+          );
+        })}
       </div>
       {ranked.length > 0 && (
         <div className="mt-style"><span className="g">{STYLE_STRONG[ranked[0].k]}</span><i>·</i><span className="o">{STYLE_WEAK[ranked[ranked.length - 1].k]}</span></div>
       )}
-      <div className="mt-chips">
-        {ranked.map((x) => (
-          <span key={x.k} className={x.d >= 0 ? 'up' : 'dn'}>{x.d >= 0 ? '▲' : '▼'} {x.k}<b className="font-display tabular-nums">{signed(x.d)}</b></span>
-        ))}
-      </div>
     </div>
   );
 }
