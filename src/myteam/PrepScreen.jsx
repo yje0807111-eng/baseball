@@ -7,6 +7,7 @@ import { myOpponent as tourOpponent, teamOf } from './tournament.js';
 import { myOpponent as rankedOpponent } from './ranked.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { peekNextDuel } from './store.js';
+import { formSeed } from './form.js';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -33,8 +34,10 @@ function opponentOf(sub, myTeam) {
 
 
 export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null }) {
-  const init = useMemo(() => readyRoster(team), [team]);
   const opp = useMemo(() => opponent || opponentOf(sub || '', team), [opponent, sub, team]);
+  /* 오늘 몸 상태 — 상대와 내 엔트리로 씨를 심어, 같은 경기에서는 다시 굴러가지 않는다 */
+  const seed = useMemo(() => formSeed(opp?.name || '', sub || '', String((team.roster || []).length)), [opp, sub, team]);
+  const init = useMemo(() => readyRoster(team, seed), [team, seed]);
   const [ready, setReady] = useState(init.ready);
   const onMove = (from, to) => setReady((r) => r.map((p) => (p.slot === from ? { ...p, slot: to } : p.slot === to ? { ...p, slot: from } : p)));
   const onOrder = (ids) => setReady((r) => r.map((p) => (ids.includes(p.id) ? { ...p, batOrder: ids.indexOf(p.id) } : p)));

@@ -13,6 +13,7 @@ import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
+import { FORM_OF } from './myteam/form.js';
 import {
   createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
@@ -760,7 +761,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
                 <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
                   style={{ color: battingColor, textShadow: `0 0 16px ${battingColor}88, 0 2px 4px #000` }}>{batter?.overall}</em>
-                <span className="absolute right-3 top-2.5 truncate text-[12px] font-bold" style={{ color: koDark(batterKo), textShadow: '0 1px 4px #000' }}>{batterKo}</span>
+                <span className="absolute right-3 top-2.5 flex items-center gap-1.5 text-[12px] font-bold" style={{ textShadow: '0 1px 4px #000' }}>
+                  {FORM_OF[batter?.form]?.swing ? (
+                    <b className="font-display" style={{ color: FORM_OF[batter.form].color }}>{FORM_OF[batter.form].mark} {FORM_OF[batter.form].ko}</b>
+                  ) : null}
+                  <span className="truncate" style={{ color: koDark(batterKo) }}>{batterKo}</span>
+                </span>
                 <b className="absolute bottom-1 left-3 right-3 truncate text-[22px] font-black text-white [text-shadow:0_2px_8px_#000]">{batter?.name}</b>
                 <span className="absolute bottom-1.5 right-3 text-[12px] font-semibold text-gray-300 [text-shadow:0_1px_4px_#000]">{batter?.position} · {batter?.hand}타</span>
               </div>
