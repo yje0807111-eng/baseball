@@ -18,6 +18,7 @@ node scripts/kbo-fetch.mjs data/kbo 2027          # 기록 받기
 node scripts/kbo-hands.mjs data/kbo 2027          # 좌우 모르는 선수 채우기(위키백과)
 node scripts/series-from-records.mjs data/kbo 2027   # 시리즈 만들기
 node scripts/validate-series.mjs                  # 규격 확인
+node scripts/audit-ratings.mjs --list             # 능력치 점검 — 카드의 기록 한 줄과 크게 어긋난 카드(동명이인 값 등)
 node scripts/series-catalog.mjs                   # 목록 갱신
 ```
 

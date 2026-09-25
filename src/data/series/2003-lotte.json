@@ -298,7 +298,7 @@
       "source": ".249/.327 6HR 26타점 0SB 218PA — KBO 기록실"
     },
     {
-      "personId": "김태균",
+      "personId": "김태균(롯데)",
       "name": "김태균",
       "year": 2003,
       "team": "롯데",
@@ -306,9 +306,9 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 96,
-        "power": 101,
-        "speed": 72,
+        "contact": 62,
+        "power": 66,
+        "speed": 74,
         "defense": 53
       },
       "note": "",

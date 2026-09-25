@@ -306,9 +306,9 @@
       "hand": "R",
       "isForeign": false,
       "stats": {
-        "contact": 90,
-        "power": 65,
-        "speed": 110,
+        "contact": 64,
+        "power": 75,
+        "speed": 65,
         "defense": 50
       },
       "note": "",
