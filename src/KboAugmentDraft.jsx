@@ -6019,7 +6019,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 <span className="bc-label font-display">영입 후보</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
-                <div className="ser-hd mb-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
+                <div className="ser-hd relative mb-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />}
                   <div className="ser-tabs" role="group" aria-label="포지션">
                     {['전체', ...Object.keys(GROUP_POS)].map((g) => {
