@@ -2,7 +2,7 @@
  * 내 팀 저장소 — 지금은 브라우저(localStorage). 나중에 로그인 서버가 생기면
  * loadAccount/saveAccount 안쪽만 바꿔 끼우면 된다 (화면은 이 파일만 본다).
  */
-import { SQUAD_CAP } from './rules.js';
+import { SQUAD_CAP, CLUB_MAX } from './rules.js';
 import { STAFF } from './staff.js';
 import { finishOf, PLACE_REWARD } from './rewards.js';
 import { refundOf } from './market.js';
@@ -284,6 +284,55 @@ export function releasePlayer(team, id) {
   write(next);
   return next;
 }
+
+/*
+ * 보관함(team.club) — 엔트리 밖에 둔 보유 선수. 엔트리와 보관함을 합쳐 같은 사람은 한 번만.
+ * 오가기는 공짜(이미 가진 선수라서), 방출은 산 값의 절반(기념 카드는 산 값 0).
+ */
+const ownsPerson = (team, p) => [...(team.squad || []), ...(team.club || [])].some((x) => x.personId === p.personId);
+
+/** 엔트리 → 보관함 */
+export function storePlayer(team, id) {
+  const a = read();
+  const p = (team.squad || []).find((x) => x.id === id);
+  if (!a || !p || (team.club || []).length >= CLUB_MAX) return null;
+  const next = { ...a, team: stamp({ ...team, squad: team.squad.filter((x) => x.id !== id), bench: (team.bench || []).filter((b) => b !== id), club: [...(team.club || []), p] }) };
+  write(next);
+  return next;
+}
+/** 보관함 → 엔트리. outId 가 있으면 그 선수와 자리를 바꾼다(나가는 선수는 보관함으로) */
+export function enterFromClub(team, id, outId = null) {
+  const a = read();
+  const p = (team.club || []).find((x) => x.id === id);
+  if (!a || !p) return null;
+  const out = outId ? (team.squad || []).find((x) => x.id === outId) : null;
+  if (outId && !out) return null;
+  const squad = [...(team.squad || []).filter((x) => x.id !== outId), p];
+  const club = [...team.club.filter((x) => x.id !== id), ...(out ? [out] : [])];
+  const next = { ...a, team: stamp({ ...team, squad, club, bench: (team.bench || []).filter((b) => b !== outId) }) };
+  write(next);
+  return next;
+}
+/** 보관함에서 방출 — 산 값의 절반 */
+export function releaseFromClub(team, id) {
+  const a = read();
+  const p = (team.club || []).find((x) => x.id === id);
+  if (!a || !p) return null;
+  const next = { ...a, gold: goldOf(a) + refundOf(p), team: stamp({ ...team, club: team.club.filter((x) => x.id !== id) }) };
+  write(next);
+  return next;
+}
+/** 기념 카드 넣기 — 보관함이 차 있거나 이미 가진 사람이면 null */
+export function addToClub(player) {
+  const a = read();
+  const team = a?.team;
+  if (!team || (team.club || []).length >= CLUB_MAX || ownsPerson(team, player)) return null;
+  const next = { ...a, team: stamp({ ...team, club: [...(team.club || []), { ...player, paid: 0, memento: true }] }) };
+  write(next);
+  return next;
+}
+/** 이 사람을 이미 가졌나 (엔트리 · 보관함) */
+export const ownsInAccount = (player) => { const t = read()?.team; return !!t && ownsPerson(t, player); };
 
 /** 스타터를 받아야 하는 계정인가 — 한 번도 받은 적 없고 라커가 비어 있을 때만 */
 export const needsStarter = (account) => !!account && !account.team?.starterGiven && !(account.team?.squad || []).length;

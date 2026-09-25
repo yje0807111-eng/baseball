@@ -154,3 +154,39 @@ describe('상점 정리 환급 (옛 저장본)', () => {
     expect(store.loadAccount().aug.slots.silver).toBe(8);
   });
 });
+
+describe('보관함', () => {
+  beforeEach(() => { mem.clear(); store.signIn('보관감독'); });
+  const star = { id: 'star', personId: '스타', name: '스타', overall: 90, cost: 90, position: 'OF', type: 'batter' };
+  it('엔트리 ↔ 보관함은 공짜로 오간다', () => {
+    const a = store.loadAccount();
+    const squad = starterSquad('보관');
+    const team = { ...a.team, squad };
+    const out = squad.find((p) => p.position === 'OF');
+    const b = store.storePlayer(team, out.id);
+    expect(b.team.squad).toHaveLength(25);
+    expect(b.team.club.map((p) => p.id)).toEqual([out.id]);
+    expect(b.gold).toBe(store.START_GOLD);
+    const c = store.enterFromClub(b.team, out.id);
+    expect(c.team.squad).toHaveLength(26);
+    expect(c.team.club).toEqual([]);
+  });
+  it('꽉 찬 엔트리로 들이면 나가는 선수는 보관함으로', () => {
+    const a = store.loadAccount();
+    const squad = starterSquad('보관');
+    const team = { ...a.team, squad, club: [star] };
+    const out = swapCandidates(star, squad)[0];
+    const next = store.enterFromClub(team, 'star', out.id);
+    expect(next.team.squad.some((p) => p.id === 'star')).toBe(true);
+    expect(next.team.club.map((p) => p.id)).toEqual([out.id]);
+  });
+  it('기념 카드는 산 값 0 · 같은 사람은 두 번 못 받는다 · 보관함에서 방출하면 환급 없음', () => {
+    const first = store.addToClub(star);
+    expect(first.team.club[0].paid).toBe(0);
+    expect(first.team.club[0].memento).toBe(true);
+    expect(store.addToClub({ ...star, id: 'star2' })).toBeNull(); // 같은 personId
+    const r = store.releaseFromClub(first.team, 'star');
+    expect(r.gold).toBe(store.START_GOLD);
+    expect(r.team.club).toEqual([]);
+  });
+});
