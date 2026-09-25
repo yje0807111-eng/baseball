@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>라커 영입 정리 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── 공통 규칙: 글자 크기 4 · 색 8 ── */
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --bg:#05080f; --w:#ffffff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --gold:#fde047; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:var(--bg) radial-gradient(1200px 600px at 55% 20%,#0d1626,var(--bg));color:var(--w);
+    font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button,input,select{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .cut{clip-path:polygon(var(--c,12px) 0,100% 0,100% calc(100% - var(--c,12px)),calc(100% - var(--c,12px)) 100%,0 100%,0 var(--c,12px))}
+  .pane{background:rgba(6,10,19,.74);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-size:var(--t3);font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:14px;height:10px;background:currentColor;clip-path:polygon(0 0,60% 0,100% 100%,40% 100%)}
+  .t1{font-size:var(--t1);font-weight:700}.t2{font-size:var(--t2);font-weight:700}.t4{font-size:var(--t4)}
+  .m{color:var(--m)}.d{color:var(--d)}
+  .row{display:flex;align-items:center;gap:10px}
+  .col{display:flex;flex-direction:column}
+  .grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .line{height:1px;background:rgba(255,255,255,.08);flex:none}
+  .btn{padding:0 14px;height:38px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);font-weight:700;white-space:nowrap}
+  .btn.on{background:rgba(16,185,129,.18);box-shadow:inset 0 0 0 2px var(--a)}
+  .pri{height:60px;background:var(--a);color:#04140d;font-size:var(--t2);font-weight:700;box-shadow:0 0 24px rgba(16,185,129,.35)}
+  .inp{height:38px;padding:0 12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);color:var(--m)}
+  .pic{background:#0b1220 center 12%/cover no-repeat;flex:none}
+  .prow{display:grid;align-items:center;gap:14px;height:58px;padding:0 12px 0 6px;background:rgba(255,255,255,.035)}
+  .prow.on{background:rgba(16,185,129,.12);box-shadow:inset 3px 0 0 var(--a)}
+  .deal{font-size:var(--t4);font-weight:700;color:var(--warn)}
+  .nav button{height:48px;text-align:left;padding:0 16px;font-size:var(--t3);font-weight:700;color:var(--m)}
+  .nav button.on{background:rgba(16,185,129,.16);box-shadow:inset 3px 0 0 var(--a);color:var(--w)}
+  .kv{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+  .gcard{position:relative;height:238px;overflow:hidden;background:#0b1220}
+  .gcard .pic{position:absolute;inset:0;background-position:center 10%}
+  .gcard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,0) 40%,rgba(5,8,15,.96) 82%)}
+  .gcard>div{position:absolute;inset:auto 10px 10px;z-index:1}
+  .gcard.on{box-shadow:inset 0 0 0 2px var(--a)}
+  /* 비교 막대 (목업 밖 도구) */
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}
+  #tool button.on{background:#fde047;color:#111}
+  #tool span{color:#cbd5e1;margin-left:6px}
+  #tool b{color:#fde047}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool" data-x>
+  <button data-v="1">1 세 칸 정리</button><button data-v="2">2 카드 격자</button><button data-v="3">3 두 칸 · 위 탭</button>
+  <span id="meter"></span>
+</div>
+
+<script>
+/* 실제 선수 값 (라커 영입 목록에서) — [이름, 연도, 구단, 자리, 종합, 능력 4, CP, 오늘 시세, 흐름 %, 그림 id] */
+const P = [["최동원",1984,"롯데","SP",100,[110,92,102,93],108,5400,-10,"legend-1980s_최동원"],["조병현",2025,"SSG","RP",100,[102,89,61,104],108,5680,-5,"legend-2020s_조병현"],["선동열",1989,"해태","SP",100,[110,90,95,100],108,4400,-8,"1993-haitai_선동열"],["구자운",2000,"두산","RP",100,[105,80,71,105],108,5140,7,"2000-doosan_구자운"],["정재훈",2010,"두산","RP",100,[110,82,72,98],108,4740,-1,"2016-doosan_정재훈"],["김민수",2022,"KT","RP",100,[104,98,72,97],108,4970,4,"2022-kt_김민수"],["안우진",2022,"키움","SP",99,[105,87,105,98],106,4710,-10,"legend-2020s_안우진"],["위재영",2000,"현대","RP",99,[102,87,65,101],106,5730,10,"legend-hyundai_위재영"],["양준혁",1997,"삼성","OF",99,[104,102,99,88],106,4470,7,"1997-samsung_양준혁"],["조무근",2015,"KT","RP",99,[106,70,70,106],106,3880,-7,"2015-kt_조무근"],["정민철",1994,"한화","SP",98,[105,89,103,93],104,4290,-6,"legend-1990s_정민철"],["고우석",2022,"LG","RP",98,[104,80,67,100],104,5270,7,"legend-2020s_고우석"],["김정수",1996,"해태","RP",98,[110,71,70,100],104,3500,-4,"1996-haitai_김정수"],["권혁",2010,"삼성","RP",98,[101,95,72,97],104,3750,3,"2010-samsung_권혁"],["주형광",1996,"롯데","SP",97,[104,96,106,83],103,3950,-8,"legend-1990s_주형광"],["구자욱",2024,"삼성","OF",97,[107,103,88,78],103,4600,8,"legend-2020s_구자욱"]]
+  .map(([name, year, team, pos, ovr, st, cp, price, pct, art], i) => ({ name, year, team, pos, ovr, st, cp, price, pct, art, deal: i === 2 || i === 9 ? Math.round(price * 0.7 / 10) * 10 : null }));
+const POS_KO = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
+const KEYS = { pit: ['구위', '제구', '체력', '안정'], bat: ['파워', '컨택', '주루', '수비'] };
+const isP = (p) => p.pos === 'SP' || p.pos === 'RP';
+const pic = (p) => `background-image:url(/profiles/${encodeURIComponent(p.art)}.webp),url(/ui/mt/silhouette-player.webp)`;
+const card = (p) => `background-image:url(/cards/${encodeURIComponent(p.art)}.webp),url(/profiles/${encodeURIComponent(p.art)}.webp),url(/ui/mt/silhouette-player.webp)`;
+const GOLD = 5600;
+let sel = 2;
+const NAV = ['영입', '내 선수', '보관함', '감독 · 코치', '아이템'];
+
+const topbar = (tabs = false) => `
+  <header class="row" style="height:64px;padding:0 24px;gap:14px">
+    <button class="btn cut" style="--c:7px;width:38px;padding:0">←</button>
+    <div class="col"><span class="t4 d">메인</span><b class="t2">내 라커</b></div>
+    ${tabs ? `<nav class="row" style="gap:4px;margin-left:28px">${NAV.map((n, i) => `<button class="cut" style="--c:7px;height:42px;padding:0 20px;font-weight:700;${i === 0 ? 'background:rgba(16,185,129,.16);box-shadow:inset 0 -3px 0 var(--a)' : 'color:var(--m)'}">${n}</button>`).join('')}</nav>` : ''}
+    <div class="grow"></div>
+    ${tabs ? `<span class="t4 d">엔트리</span><b class="n" style="font-size:var(--t2);color:var(--a)">26/26</b><span class="t4 d" style="margin-left:10px">외국인</span><b class="n" style="font-size:var(--t2)">0/3</b><span style="width:18px"></span>` : ''}
+    <span class="t4 d">샐러리 캡</span><b class="n" style="font-size:var(--t2)">2,131<span class="d" style="font-size:var(--t4)"> / 2,330</span></b>
+    <span style="width:18px"></span>
+    <b class="n" style="font-size:var(--t2);color:var(--gold)">${GOLD.toLocaleString()} G</b>
+    <button class="btn cut" style="--c:7px;width:38px;padding:0">?</button>
+  </header>`;
+
+const side = () => `
+  <nav class="pane cut col nav" style="--c:18px;padding:12px;gap:4px">
+    ${NAV.map((n, i) => `<button class="cut ${i === 0 ? 'on' : ''}" style="--c:7px">${n}</button>`).join('')}
+    <div class="line" style="margin:12px 0"></div>
+    <div class="col" style="gap:10px;padding:0 6px">
+      <div class="row"><span class="grow m">엔트리</span><b class="n" style="font-size:var(--t2);color:var(--a)">26/26</b></div>
+      <div class="row"><span class="grow m">자유 자리</span><b class="n" style="font-size:var(--t2)">5/5</b></div>
+      <div class="row"><span class="grow m">외국인</span><b class="n" style="font-size:var(--t2)">0/3</b></div>
+    </div>
+    <div class="grow"></div>
+    <div class="col" style="gap:6px;padding:0 6px">
+      <span class="t4 d">프리셋</span>
+      <div class="row" style="gap:6px"><button class="btn cut grow" style="--c:6px;text-align:left">프리셋 1 ▾</button><button class="btn cut" style="--c:6px">저장</button></div>
+    </div>
+  </nav>`;
+
+const toolbar = () => `
+  <div class="row" style="gap:8px">
+    <div class="inp cut grow row" style="--c:6px">선수 이름 · 연도 · 구단 검색</div>
+    <button class="btn cut" style="--c:6px">필터 ▾</button>
+    <button class="btn cut" style="--c:6px;color:var(--warn)">오늘의 특가</button>
+    <button class="btn cut" style="--c:6px">영입 가능만</button>
+    <button class="btn cut" style="--c:6px">스탯 높은 순 ▾</button>
+  </div>`;
+
+const priceCell = (p) => p.deal
+  ? `<span class="col" style="align-items:flex-end;line-height:1.1"><span class="deal">특가</span><b class="n" style="font-size:var(--t2);color:var(--gold)">${p.deal.toLocaleString()}</b></span>`
+  : `<b class="n" style="font-size:var(--t2);color:var(--gold);text-align:right">${p.price.toLocaleString()}</b>`;
+
+/* 오른쪽 상세 — 카드 · 능력 4 · 값 한 묶음 · 영입 */
+const detail = (w = 420) => {
+  const p = P[sel];
+  const pay = p.deal || p.price;
+  const keys = KEYS[isP(p) ? 'pit' : 'bat'];
+  return `
+  <aside class="pane cut col" style="--c:18px;padding:18px;gap:14px;width:${w}px">
+    <div class="row"><span class="lab">선수 정보</span></div>
+    <div class="cut pic" style="--c:14px;height:360px;background-size:cover;background-position:center 18%;${card(p)}"></div>
+    <div class="row" style="align-items:baseline"><b class="t1">${p.name}</b><span class="m">${p.year} ${p.team} · ${POS_KO[p.pos]}</span><span class="grow"></span><b class="n" style="font-size:40px;line-height:1;color:var(--a)">${p.ovr}</b></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+      ${keys.map((k, i) => `<div class="cut col" style="--c:6px;padding:6px 10px;background:rgba(255,255,255,.045)"><span class="t4 m">${k}</span><b class="n" style="font-size:var(--t2)">${p.st[i]}</b></div>`).join('')}
+    </div>
+    <div class="col">
+      <div class="kv"><span class="m">영입가</span><b class="n" style="font-size:var(--t2);color:var(--gold)">${pay.toLocaleString()} G</b></div>
+      <div class="kv"><span class="m">남는 골드</span><b class="n" style="font-size:var(--t2);color:${GOLD - pay < 0 ? 'var(--bad)' : 'var(--w)'}">${(GOLD - pay).toLocaleString()}</b></div>
+      <div class="kv"><span class="m">팀 종합</span><b class="n" style="font-size:var(--t2);color:var(--a)">82 → 83</b></div>
+    </div>
+    <div class="grow"></div>
+    <button class="pri cut" style="--c:12px;width:100%">교체 영입 · ${pay.toLocaleString()} G</button>
+  </aside>`;
+};
+
+/* ── 1. 세 칸 정리 — 지금 틀, 한 줄은 이름 · 자리 · 종합 · 값만 ── */
+function v1() {
+  const rows = P.slice(0, 11).map((p, i) => `
+    <div class="prow cut ${i === sel ? 'on' : ''}" data-sel="${i}" style="--c:8px;grid-template-columns:48px 46px minmax(0,1fr) 70px 110px 76px">
+      <span class="pic cut" style="--c:6px;width:48px;height:50px;${pic(p)}"></span>
+      <b class="n" style="font-size:var(--t1);text-align:center">${p.ovr}</b>
+      <span class="col" style="gap:1px;min-width:0"><b class="tr">${p.name}</b><span class="t4 d tr">${POS_KO[p.pos]} · ${p.year} ${p.team}</span></span>
+      <span class="t4 d n" style="text-align:right">${p.cp} CP</span>
+      ${priceCell(p)}
+      <button class="btn cut" style="--c:6px;height:34px">교체</button>
+    </div>`).join('');
+  return `${topbar()}
+  <div style="display:grid;grid-template-columns:240px 1fr 420px;gap:12px;padding:0 24px 12px;height:835px">
+    ${side()}
+    <section class="pane cut col" style="--c:18px;padding:18px;gap:12px;min-height:0">
+      <span class="lab">선수 영입</span>
+      ${toolbar()}
+      <div class="col" style="gap:5px;overflow:hidden">${rows}</div>
+    </section>
+    ${detail()}
+  </div>`;
+}
+
+/* ── 2. 카드 격자 — 얼굴 · 종합 · 값으로 고르고, 수치는 오른쪽 ── */
+function v2() {
+  const cards = P.slice(0, 12).map((p, i) => `
+    <div class="gcard cut ${i === sel ? 'on' : ''}" data-sel="${i}" style="--c:12px">
+      <span class="pic" style="${card(p)}"></span>
+      <b class="n" style="position:absolute;left:10px;top:6px;z-index:1;font-size:var(--t1);text-shadow:0 2px 8px #000">${p.ovr}</b>
+      ${p.deal ? '<span class="deal" style="position:absolute;right:10px;top:10px;z-index:1;background:rgba(5,8,15,.8);padding:2px 6px">특가</span>' : ''}
+      <div class="col" style="gap:2px"><b class="tr">${p.name}</b><span class="t4 m tr">${POS_KO[p.pos]} · ${p.year}</span>
+        <b class="n" style="font-size:var(--t2);color:var(--gold)">${(p.deal || p.price).toLocaleString()} G</b></div>
+    </div>`).join('');
+  return `${topbar()}
+  <div style="display:grid;grid-template-columns:240px 1fr 420px;gap:12px;padding:0 24px 12px;height:835px">
+    ${side()}
+    <section class="pane cut col" style="--c:18px;padding:18px;gap:12px;min-height:0">
+      <span class="lab">선수 영입</span>
+      ${toolbar()}
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;overflow:hidden">${cards}</div>
+    </section>
+    ${detail()}
+  </div>`;
+}
+
+/* ── 3. 두 칸 · 위 탭 — 왼쪽 메뉴를 위로, 목록을 넓게 (능력 4 는 숫자만) ── */
+function v3() {
+  const rows = P.slice(0, 11).map((p, i) => {
+    const keys = KEYS[isP(p) ? 'pit' : 'bat'];
+    return `
+    <div class="prow cut ${i === sel ? 'on' : ''}" data-sel="${i}" style="--c:8px;grid-template-columns:48px 46px minmax(0,1fr) repeat(4,64px) 70px 110px 76px">
+      <span class="pic cut" style="--c:6px;width:48px;height:50px;${pic(p)}"></span>
+      <b class="n" style="font-size:var(--t1);text-align:center">${p.ovr}</b>
+      <span class="col" style="gap:1px;min-width:0"><b class="tr">${p.name}</b><span class="t4 d tr">${POS_KO[p.pos]} · ${p.year} ${p.team}</span></span>
+      ${keys.map((k, j) => `<span class="col" style="align-items:center"><span class="t4 d">${k}</span><b class="n">${p.st[j]}</b></span>`).join('')}
+      <span class="t4 d n" style="text-align:right">${p.cp} CP</span>
+      ${priceCell(p)}
+      <button class="btn cut" style="--c:6px;height:34px">교체</button>
+    </div>`; }).join('');
+  return `${topbar(true)}
+  <div style="display:grid;grid-template-columns:1fr 420px;gap:12px;padding:0 24px 12px;height:835px">
+    <section class="pane cut col" style="--c:18px;padding:18px;gap:12px;min-height:0">
+      ${toolbar()}
+      <div class="col" style="gap:5px;overflow:hidden">${rows}</div>
+    </section>
+    ${detail()}
+  </div>`;
+}
+
+let v = +(location.hash.slice(1) || 1);
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length, f: new Set(text.map((e) => getComputedStyle(e).fontSize)).size, c: new Set(text.map((e) => getComputedStyle(e).color)).size };
+};
+function draw() {
+  document.getElementById('app').innerHTML = [0, v1, v2, v3][v]();
+  document.querySelectorAll('#tool [data-v]').forEach((b) => b.classList.toggle('on', +b.dataset.v === v));
+  const m = measure();
+  document.getElementById('meter').innerHTML = `글 <b>${m.t}</b>/259 · 단추 <b>${m.b}</b>/30 · 크기 <b>${m.f}</b>/4 · 색 <b>${m.c}</b>/33 <span style="color:#6b7280">(지금 화면)</span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-sel]');
+  if (!t) return;
+  if (t.dataset.v) { v = +t.dataset.v; location.hash = v; }
+  if (t.dataset.sel) sel = +t.dataset.sel;
+  draw();
+});
+addEventListener('keydown', (e) => { if ('123'.includes(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>
