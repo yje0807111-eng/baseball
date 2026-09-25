@@ -38,7 +38,7 @@ const STYLE = `
   .rec-more svg { transition: transform .22s ease; }
   .rec-more.on svg { transform: rotate(180deg); }
 `;
-const lab = (a) => ({ fontSize: 10, '--a': a });
+const lab = (a) => ({ fontSize: 11, '--a': a });
 const pct = (v) => `${v > 0 ? '+' : ''}${Math.round(v * 100)}`;
 const half = (x) => `${x.inning}회${x.top ? '초' : '말'}`;
 /** 같은 반 이닝의 득점은 한 줄로 */
@@ -52,24 +52,24 @@ const byHalf = (plays) => plays.reduce((out, p) => {
 function LineScore({ h, d }) {
   const rows = [['my', h.my, d.board.my, h.myRuns, d.hits?.my], ['opp', h.opp, d.board.opp, h.oppRuns, d.hits?.opp]];
   const n = Math.max(9, d.board.my.length, d.board.opp.length);
-  const cols = `132px repeat(${n},minmax(0,1fr)) 44px 44px`;
+  const cols = `150px repeat(${n},minmax(0,1fr)) 50px 50px`;
   return (
     <div className="mt-cut min-w-0 bg-white/[0.035] px-3 py-2" style={cut(8)}>
-      <div className="grid items-center gap-1 pb-1 text-center font-display text-[11px] text-gray-500" style={{ gridTemplateColumns: cols }}>
+      <div className="grid items-center gap-1 pb-1 text-center font-display text-[12px] text-gray-500" style={{ gridTemplateColumns: cols }}>
         <span />
         {Array.from({ length: n }, (_, i) => <span key={i}>{i + 1}</span>)}
         <span className="text-gray-300">R</span><span>H</span>
       </div>
       {rows.map(([k, name, line, r, hits]) => (
         <div key={k} className="grid items-center gap-1 border-t border-white/10 py-1 text-center font-display tabular-nums" style={{ gridTemplateColumns: cols }}>
-          <b className="truncate text-left font-sans text-[13px]" style={{ color: k === 'my' ? '#6ee7b7' : '#fca5a5' }}>{name}</b>
+          <b className="truncate text-left font-sans text-[14.5px]" style={{ color: k === 'my' ? '#6ee7b7' : '#fca5a5' }}>{name}</b>
           {Array.from({ length: n }, (_, i) => {
             const v = line[i];
             const x = v == null && k === 'my' && i === n - 1 && h.winner === 'my';
-            return <span key={i} className={`text-[15px] ${v ? 'font-bold text-white' : 'text-gray-500'}`}>{x ? 'X' : v ?? '-'}</span>;
+            return <span key={i} className={`text-[17px] ${v ? 'font-bold text-white' : 'text-gray-500'}`}>{x ? 'X' : v ?? '-'}</span>;
           })}
-          <b className="text-[18px] font-extrabold text-white">{r}</b>
-          <span className="text-[15px] text-gray-300">{hits ?? '-'}</span>
+          <b className="text-[20px] font-extrabold text-white">{r}</b>
+          <span className="text-[17px] text-gray-300">{hits ?? '-'}</span>
         </div>
       ))}
     </div>
@@ -78,7 +78,7 @@ function LineScore({ h, d }) {
 
 const FormMark = ({ form }) => {
   const f = form && form !== 'flat' ? FORM_OF[form] : null;
-  return f ? <b className="font-display text-[10px] leading-none" style={{ color: f.color }}>{f.mark}</b> : <span />;
+  return f ? <b className="font-display text-[11px] leading-none" style={{ color: f.color }}>{f.mark}</b> : <span />;
 };
 /** 타순 · 등판 투수 — 오늘 친 것 · 던진 것 */
 function Box({ d }) {
@@ -87,29 +87,29 @@ function Box({ d }) {
     <div className="flex min-w-0 flex-col gap-0.5">
       <p className="mt-lab pb-1" style={lab('#34d399')}>Lineup</p>
       {d.lineup.map((b, i) => (
-        <div key={b.id} className="grid items-center gap-2 border-b border-white/[0.06] py-[3px] text-[12.5px]"
-          style={{ gridTemplateColumns: '14px 30px minmax(0,1fr) 20px 40px 104px' }}>
+        <div key={b.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
+          style={{ gridTemplateColumns: '16px 34px minmax(0,1fr) 24px 48px 132px' }}>
           <b className="font-display text-gray-500">{i + 1}</b>
-          <span className="font-display text-[11px] text-gray-400">{b.pos}</span>
+          <span className="font-display text-[12px] text-gray-400">{b.pos}</span>
           <b className="truncate text-white">{b.name}</b>
           <FormMark form={b.form} />
-          <b className="text-right font-display text-[14px] tabular-nums" style={{ color: b.h ? '#fff' : '#6b7280' }}>{b.h}<span className="text-gray-600">/</span>{b.ab}</b>
-          <span className="flex gap-1.5 text-[11px] text-gray-400">
+          <b className="text-right font-display text-[16px] tabular-nums" style={{ color: b.h ? '#fff' : '#6b7280' }}>{b.h}<span className="text-gray-600">/</span>{b.ab}</b>
+          <span className="flex gap-1.5 text-[12px] text-gray-400">
             {[tag(b.hr, '홈런', '#fbbf24'), tag(b.rbi, '타점', '#6ee7b7'), tag(b.bb, '볼넷', '#93c5fd')]}
           </span>
         </div>
       ))}
       <p className="mt-lab pb-1 pt-3" style={lab('#f87171')}>Mound</p>
-      {d.arms.length === 0 && <small className="text-[11px] text-gray-500">등판 기록 없음</small>}
+      {d.arms.length === 0 && <small className="text-[12px] text-gray-500">등판 기록 없음</small>}
       {d.arms.map((p) => (
-        <div key={p.id} className="grid items-center gap-2 border-b border-white/[0.06] py-[3px] text-[12.5px]"
-          style={{ gridTemplateColumns: '30px minmax(0,1fr) 20px 52px 44px 44px' }}>
-          <span className="font-display text-[11px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
+        <div key={p.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
+          style={{ gridTemplateColumns: '36px minmax(0,1fr) 24px 64px 54px 54px' }}>
+          <span className="font-display text-[12px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
           <b className="truncate text-white">{p.name}</b>
           <FormMark form={p.form} />
-          <span className="text-right text-[11px] text-gray-400">투구 <b className="font-display text-[13px] text-white">{p.pc}</b></span>
-          <span className="text-right text-[11px] text-gray-400">삼진 <b className="font-display text-[13px] text-white">{p.k}</b></span>
-          <span className="text-right text-[11px] text-gray-400">실점 <b className="font-display text-[13px]" style={{ color: p.r ? '#fca5a5' : '#fff' }}>{p.r}</b></span>
+          <span className="text-right text-[12px] text-gray-400">투구 <b className="font-display text-[14.5px] text-white">{p.pc}</b></span>
+          <span className="text-right text-[12px] text-gray-400">삼진 <b className="font-display text-[14.5px] text-white">{p.k}</b></span>
+          <span className="text-right text-[12px] text-gray-400">실점 <b className="font-display text-[14.5px]" style={{ color: p.r ? '#fca5a5' : '#fff' }}>{p.r}</b></span>
         </div>
       ))}
     </div>
@@ -121,7 +121,7 @@ function TeamSide({ d }) {
   const side = (s) => {
     const o = s.opts.find((x) => x.id === d.sides?.[s.key]);
     return o ? (
-      <div key={s.key} className="flex items-center justify-between border-b border-white/10 py-1.5 text-[13px]">
+      <div key={s.key} className="flex items-center justify-between border-b border-white/10 py-1.5 text-[14.5px]">
         <span className="text-gray-400">{s.ko}</span><b style={{ color: s.color }}>{o.ko}</b>
       </div>
     ) : null;
@@ -131,14 +131,14 @@ function TeamSide({ d }) {
   return (
     <div className="flex min-w-0 flex-col">
       <p className="mt-lab pb-2" style={lab('#fbbf24')}>Synergy</p>
-      {d.synergies.length === 0 && <small className="pb-1 text-[11px] text-gray-500">켜진 시너지 없음</small>}
+      {d.synergies.length === 0 && <small className="pb-1 text-[12px] text-gray-500">켜진 시너지 없음</small>}
       <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
         {d.synergies.map((s) => (
           <div key={s.id} className="flex min-w-0 items-center gap-2">
-            <SynIcon s={{ ...s, tiers: Array(s.tiers) }} w={28} />
+            <SynIcon s={{ ...s, tiers: Array(s.tiers) }} w={32} />
             <span className="min-w-0">
-              <b className="block truncate text-[12.5px] text-white">{s.name}</b>
-              <small className="block font-display text-[10px] text-gray-500">{s.level}/{s.tiers}단계</small>
+              <b className="block truncate text-[14px] text-white">{s.name}</b>
+              <small className="block font-display text-[11px] text-gray-500">{s.level}/{s.tiers}단계</small>
             </span>
           </div>
         ))}
@@ -148,10 +148,10 @@ function TeamSide({ d }) {
         {SIDES.map(side)}
       </>}
       <p className="mt-lab pb-1 pt-4" style={lab('#c4b5fd')}>Items</p>
-      {items.length === 0 && <small className="text-[11px] text-gray-500">쓴 증강 · 아이템 없음</small>}
+      {items.length === 0 && <small className="text-[12px] text-gray-500">쓴 증강 · 아이템 없음</small>}
       {items.map((it) => (
-        <div key={it.k} className="flex items-center justify-between gap-2 border-b border-white/10 py-1.5 text-[13px]">
-          <b className="min-w-0 truncate" style={{ color: it.c }}>{it.name}</b><span className="shrink-0 text-[11px] text-gray-400">{it.who}</span>
+        <div key={it.k} className="flex items-center justify-between gap-2 border-b border-white/10 py-1.5 text-[14.5px]">
+          <b className="min-w-0 truncate" style={{ color: it.c }}>{it.name}</b><span className="shrink-0 text-[12px] text-gray-400">{it.who}</span>
         </div>
       ))}
     </div>
@@ -162,12 +162,12 @@ function TeamSide({ d }) {
 function Curve({ flow, tone }) {
   const id = useId().replace(/:/g, '');
   const w = 1000;
-  const hh = 72;
+  const hh = 84;
   const xs = flow.length > 1 ? flow : [...flow, ...flow];
   const step = w / (xs.length - 1);
   const d = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${(hh - v * hh).toFixed(1)}`).join(' ');
   return (
-    <svg viewBox={`0 0 ${w} ${hh}`} preserveAspectRatio="none" className="block h-[72px] w-full">
+    <svg viewBox={`0 0 ${w} ${hh}`} preserveAspectRatio="none" className="block h-[84px] w-full">
       <rect width={w} height={hh} fill="rgba(255,255,255,.035)" />
       <clipPath id={id}><path d={`${d} L ${w} 0 L 0 0 Z`} /></clipPath>
       <rect width={w} height={hh} fill={tone} opacity=".16" clipPath={`url(#${id})`} />
@@ -180,23 +180,23 @@ function FlowSide({ d, tone }) {
   return (
     <div className="flex min-w-0 flex-col">
       <p className="mt-lab pb-2" style={lab(tone)}>Win Flow</p>
-      {d.flow ? <Curve flow={d.flow} tone={tone} /> : <small className="text-[11px] text-gray-500">흐름 기록 없음</small>}
+      {d.flow ? <Curve flow={d.flow} tone={tone} /> : <small className="text-[12px] text-gray-500">흐름 기록 없음</small>}
       <p className="mt-lab pb-1 pt-4" style={lab('#34d399')}>Calls</p>
-      {d.calls.length === 0 && <small className="text-[11px] text-gray-500">지시 없이 끝난 경기</small>}
+      {d.calls.length === 0 && <small className="text-[12px] text-gray-500">지시 없이 끝난 경기</small>}
       {d.calls.map((c, i) => (
-        <div key={i} className="grid items-center gap-2 border-b border-white/10 py-1 text-[12.5px]" style={{ gridTemplateColumns: '52px minmax(0,1fr) 36px' }}>
-          <span className="font-display text-[12px] text-gray-400">{half(c)}</span>
+        <div key={i} className="grid items-center gap-2 border-b border-white/10 py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 40px' }}>
+          <span className="font-display text-[13px] text-gray-400">{half(c)}</span>
           <span className="truncate text-gray-100">{c.ko}</span>
-          <b className="text-right font-display text-[14px]" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>{pct(c.delta)}</b>
+          <b className="text-right font-display text-[16px]" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>{pct(c.delta)}</b>
         </div>
       ))}
       <p className="mt-lab pb-1 pt-4" style={lab('#fbbf24')}>Scoring</p>
-      {d.plays.length === 0 && <small className="text-[11px] text-gray-500">득점 없음</small>}
+      {d.plays.length === 0 && <small className="text-[12px] text-gray-500">득점 없음</small>}
       {byHalf(d.plays).map((p, i) => (
-        <div key={i} className="grid items-center gap-2 border-b border-white/[0.06] py-[3px] text-[12.5px]" style={{ gridTemplateColumns: '52px minmax(0,1fr) 28px' }}>
-          <span className="font-display text-[12px] text-gray-400">{half(p)}</span>
-          <span className="truncate text-gray-200">{p.text.join(' · ')}</span>
-          <b className="text-right font-display text-[14px]" style={{ color: p.top ? '#f87171' : '#34d399' }}>+{p.runs}</b>
+        <div key={i} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 34px' }}>
+          <span className="font-display text-[13px] text-gray-400">{half(p)}</span>
+          <span className="truncate text-gray-200" title={p.text.join(' · ')}>{p.text.join(' · ')}</span>
+          <b className="text-right font-display text-[16px]" style={{ color: p.top ? '#f87171' : '#34d399' }}>+{p.runs}</b>
         </div>
       ))}
     </div>
