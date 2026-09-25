@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>메인 플레이 크게 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --bad:#f87171; --rk:#94a3b8;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#05080f;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .bgx{position:absolute;inset:0;background:radial-gradient(900px 600px at 80% 10%,rgba(99,102,241,.14),transparent 60%),radial-gradient(900px 700px at 10% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .bgx::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.16;mix-blend-mode:overlay}
+  .shell{position:relative;height:100%;display:flex;flex-direction:column}
+  .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+  .pri{border-radius:18px;font-weight:800;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 18px 40px -12px rgba(16,185,129,.85),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .2s;text-align:center}
+  .pri:hover{transform:translateY(-2px)}
+  .photo{position:relative;overflow:hidden;border-radius:22px;background:#0b1220 center/cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 30px 60px -30px rgba(0,0,0,.9);transition:transform .25s cubic-bezier(.2,.8,.2,1),background-image .3s}
+  .photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.05),rgba(5,8,15,.35) 45%,rgba(5,8,15,.92))}
+  .photo>*{position:relative;z-index:1}
+  button.photo:hover{transform:translateY(-3px)}
+  .mode{position:relative;overflow:hidden;border-radius:16px;background:#0b1220 center/cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.14);transition:transform .2s,box-shadow .2s}
+  .mode::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.1),rgba(5,8,15,.9))}
+  .mode>*{position:relative;z-index:1}
+  .mode:hover{transform:translateY(-3px)}
+  .mode.on{box-shadow:inset 0 0 0 2px var(--c),0 18px 36px -14px var(--c)!important;transform:translateY(-4px)}
+  .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;border-radius:6px}
+  .face{border-radius:50%;background:#0b1220 url(/ui/mt/silhouette-player.webp) center 14%/cover;flex:none}
+  .emb{background:center/contain no-repeat;flex:none}
+  @keyframes sheen{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  @keyframes floaty{0%,100%{transform:perspective(900px) rotateY(-8deg) translateY(0)}50%{transform:perspective(900px) rotateY(-8deg) translateY(-8px)}}
+  .ring{position:relative;display:grid;place-items:center;flex:none}
+  .ring>span{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--rc) calc(var(--p)*1%),rgba(255,255,255,.08) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--rw,6px)),#000 calc(100% - var(--rw,6px) + 1px));mask:radial-gradient(farthest-side,transparent calc(100% - var(--rw,6px)),#000 calc(100% - var(--rw,6px) + 1px))}
+  .wl{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:var(--t3)}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 9px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"></div>
+
+<script type="module">
+const { artId } = await import('/src/data/artAlias.js');
+let ACC = null;
+try { ACC = JSON.parse(localStorage.getItem('kbo.myteam.v1') || 'null'); } catch { ACC = null; }
+const SQUAD = ACC?.team?.squad || [];
+/* 에이스 — 카드 그림이 있는 선수 가운데 종합이 가장 높은 선수(그림이 없으면 실루엣 대신 다음 선수) */
+const loads = (src) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(true); im.onerror = () => ok(false); im.src = src; });
+let ACE = null;
+for (const p of [...SQUAD].sort((a, b) => b.overall - a.overall).slice(0, 26)) {
+  if (await loads(`/cards/${encodeURIComponent(artId(p.id))}.webp`)) { ACE = p; break; }
+}
+ACE ||= { name: '선동열', overall: 100, position: 'SP', year: 1993, team: '해태', id: '1993-haitai_선동열' };
+const TEAM_OVR = SQUAD.length ? Math.round(SQUAD.reduce((n, p) => n + p.overall, 0) / SQUAD.length) : 82;
+const HIST = (ACC?.history || []).slice(-5);
+const RESULTS = HIST.length ? HIST.map((h) => (h.result === 'W' || h.win || h.res === 'win' ? 'W' : h.result === 'D' ? 'D' : 'L')) : ['W', 'L', 'W', 'W', 'L'];
+
+const MODES = [['일반 대결', '단판 · 토너먼트', '/ui/broadcast-field.webp', '#10b981'], ['랭크전', '정규시즌 · 등급', '/ui/stadium.webp', '#a78bfa'], ['드래프트', '특정 시즌 · 전체 믹스', '/modes/mix.webp', '#38e1ff'], ['특별 모드', '규칙이 다른 세 모드', '/modes/legend.webp', '#fbbf24']];
+const MENU = [['내 라커', '선수 영입 · 타순 · 코치', '/ui/mt/tile-locker.webp', '#34d399'], ['상점', '선수 능력치 · 캡 늘리기', '/ui/mt/tile-shop.webp', '#fde047'], ['증강', '나올 증강 고르고 강화하기', '/ui/mt/mt-boost.webp', '#c4b5fd'], ['기록', '경기 기록 · 도감 · 주간 과제', '/ui/mt/tile-record.webp', '#7dd3fc']];
+const WEEK = [['승리 5번', 2, 5], ['증강 10장 고르기', 3, 10], ['토너먼트 8강 이상', 0, 1]];
+const POS_KO = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
+const cardOf = (p) => `url(/cards/${encodeURIComponent(artId(p.id))}.webp),url(/ui/mt/silhouette-player.webp)`;
+let v = +(location.hash.slice(1) || 0);
+let pick = 0;
+
+const topbar = (extra = '') => `
+  <header class="row" style="height:72px;padding:0 28px;gap:16px">
+    <div class="col"><span class="t4 d">레전드 드래프트</span><b class="t2">메인</b></div>${extra}
+    <div class="grow"></div>
+    <div class="row glass" style="height:48px;padding:0 16px 0 8px;border-radius:14px;gap:12px"><span class="face" style="width:34px;height:34px"></span>
+      <div class="col"><b>123213 <span class="m" style="font-weight:500">감독</span></b><span class="t4 d">루키 III · 0 RP</span></div></div>
+    <div class="row glass" style="height:48px;padding:0 16px;border-radius:14px;gap:8px"><b class="n" style="color:var(--gold);font-size:var(--t2)">5,600</b><span class="t4 d">G</span></div>
+  </header>`;
+const modes = (h, cols = 4, sel = false) => `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px">${MODES.map(([n, s, img, c], i) => `
+  <button class="mode ${sel && pick === i ? 'on' : ''}" data-pick="${i}" style="--c:${c};height:${h}px;background-image:url(${img});box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -3px 0 ${c}">
+    <span class="col" style="position:absolute;left:14px;right:14px;bottom:12px"><b class="t2">${n}</b><span class="t4 m tr">${s}</span></span></button>`).join('')}</div>`;
+const menuTiles = (h = '100%') => MENU.map(([t, s, img, c]) => `<button class="photo col" style="height:${h};justify-content:flex-end;padding:18px;background-image:url(${img})"><b class="t2">${t}</b><span class="t4 tr" style="color:${c}">${s}</span></button>`).join('');
+const rankRow = () => `
+  <div class="row" style="gap:16px"><span class="emb" style="width:78px;height:78px;background-image:url(/ui/rank/rookie.webp);filter:drop-shadow(0 0 12px rgba(148,163,184,.4))"></span>
+    <div class="col grow" style="gap:7px"><span class="lab" style="--k:var(--rk)">내 등급</span>
+      <div class="row" style="align-items:baseline;gap:12px"><b class="t1">루키 III</b><b class="n" style="font-size:var(--t2);color:var(--rk)">0 <span class="d">/ 300</span></b></div>
+      <div class="bar"><i style="width:4%;background:#94a3b8"></i></div><span class="t4 m">퓨처스까지 <b class="n" style="font-size:var(--t3);color:var(--w)">300</b> RP</span></div></div>`;
+const weekCard = () => `
+  <div class="col" style="gap:10px">
+    <div class="row"><span class="lab" style="--k:var(--warn)">주간 과제</span><span class="grow"></span><span class="t4 d">보너스 <b style="color:var(--warn)">500 G</b></span></div>
+    ${WEEK.map(([k, n, g]) => `<div class="col" style="gap:5px"><div class="row"><span class="grow">${k}</span><b class="n m">${n}/${g}</b></div><div class="bar" style="height:4px"><i style="width:${(n / g) * 100}%;background:var(--warn)"></i></div></div>`).join('')}
+  </div>`;
+const ring = (p, size, color, inner, w = 6) => `<div class="ring" style="width:${size}px;height:${size}px;--p:${p};--rc:${color};--rw:${w}px"><span></span>${inner}</div>`;
+const heroTitle = (size = 60) => `<span class="lab">경기 모드</span><b style="font-size:${size}px;font-weight:800;line-height:1.05">오늘의 경기장</b>`;
+const playBtn = (w = 340, h = 82, label = '플레이 ▶') => `<button class="pri" style="height:${h}px;width:${w}px;font-size:28px">${label}</button>`;
+const bottom = (h = 230) => `<div style="display:grid;grid-template-columns:repeat(4,1fr) 1.3fr 1fr;gap:14px;height:${h}px">${menuTiles()}<section class="glass" style="padding:20px 22px;display:flex;align-items:center">${rankRow()}</section><section class="glass" style="padding:20px 22px">${weekCard()}</section></div>`;
+const holo = (w, h, extra = '') => `<div style="position:relative;width:${w}px;height:${h}px;border-radius:20px;overflow:hidden;background:#0b1220 center 14%/cover;background-image:${cardOf(ACE)};box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.14),0 0 70px -10px rgba(16,185,129,.6);${extra}">
+  <span style="position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.3) 47%,rgba(125,211,252,.2) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:screen"></span>
+  <span style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(5,8,15,.95))"></span>
+  <span class="col" style="position:absolute;left:16px;bottom:12px"><span class="t4 m">${POS_KO[ACE.position] || ''} · ${ACE.year} ${ACE.team}</span><b class="t1">${ACE.name}</b></span>
+  <b class="n" style="position:absolute;right:14px;bottom:4px;font-size:52px;line-height:1;background:linear-gradient(180deg,#fff,#9fb0c4);-webkit-background-clip:text;color:transparent">${ACE.overall}</b></div>`;
+const wrap = (body) => `<div class="bgx"></div><div class="shell">${topbar()}<div class="col" style="gap:14px;padding:0 28px 24px;flex:1;min-height:0">${body}</div></div>`;
+
+const V = [
+  /* 0. 기준 — 앞 목업 2번 */
+  ['기준 2번', () => wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 860px;align-items:end;gap:30px;padding:30px;background-image:url(/ui/stadium.webp);background-position:center 40%">
+      <div class="col" style="gap:18px">${heroTitle()}${playBtn()}</div>${modes(150)}</section>${bottom()}`)],
+
+  /* 1. 모드 고르기 — 모드 카드를 누르면 경기장 사진 · 시작 단추가 그 모드로 바뀐다 */
+  ['모드 고르기', () => { const [n, s, img, c] = MODES[pick]; return wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 900px;align-items:end;gap:30px;padding:30px;background-image:url(${img})">
+      <div class="col" style="gap:14px"><span class="lab" style="--k:${c}">고른 모드</span><b style="font-size:64px;font-weight:800;line-height:1">${n}</b><span class="m" style="font-size:var(--t2)">${s}</span>
+        ${playBtn(380, 82, `${n} 시작 ▶`)}</div>${modes(160, 4, true)}</section>${bottom()}`); }],
+
+  /* 2. 에이스와 함께 — 경기장 오른쪽에 내 에이스 카드가 떠 있다 */
+  ['에이스와 함께', () => wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 250px;align-items:end;gap:40px;padding:30px 40px 30px 30px;background-image:url(/ui/broadcast-field.webp)">
+      <div class="col" style="gap:18px">${heroTitle(56)}<div class="row" style="gap:18px;align-items:stretch">${playBtn(300, 82)}<div class="grow">${modes(82)}</div></div></div>
+      <div class="col" style="gap:10px;align-self:center"><span class="lab">내 팀 에이스</span>${holo(250, 340, 'animation:floaty 5s ease-in-out infinite')}<span class="t4 m">팀 종합 <b class="n" style="font-size:var(--t2);color:var(--a2)">${TEAM_OVR}</b></span></div></section>${bottom()}`)],
+
+  /* 3. 얇은 메뉴 띠 — 아래 줄을 한 판짜리 띠로 줄여 경기장을 더 크게 */
+  ['얇은 메뉴 띠', () => wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 900px;align-items:end;gap:30px;padding:34px;background-image:url(/ui/stadium.webp);background-position:center 40%">
+      <div class="col" style="gap:20px">${heroTitle(68)}${playBtn(360, 88)}</div>${modes(200)}</section>
+    <section class="glass row" style="height:120px;padding:0 14px;gap:8px">
+      ${MENU.map(([t, s, img, c]) => `<button class="row" style="flex:1;height:92px;padding:0 14px;gap:14px;border-radius:16px"><span style="width:64px;height:64px;border-radius:16px;background:url(${img}) center/cover;flex:none"></span><span class="col" style="min-width:0"><b class="t2">${t}</b><span class="t4 tr" style="color:${c}">${s}</span></span></button>`).join('<i style="width:1px;height:56px;background:rgba(255,255,255,.08)"></i>')}
+      <i style="width:1px;height:56px;background:rgba(255,255,255,.08)"></i>
+      <div class="row" style="width:300px;padding:0 14px;gap:14px"><span class="emb" style="width:60px;height:60px;background-image:url(/ui/rank/rookie.webp)"></span><div class="col grow" style="gap:6px"><b>루키 III</b><div class="bar"><i style="width:4%;background:#94a3b8"></i></div><span class="t4 m">퓨처스까지 300 RP</span></div></div>
+    </section>`)],
+
+  /* 4. 고리 — 등급 · 주간 과제를 둥근 진행 고리로 */
+  ['고리', () => wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 860px;align-items:end;gap:30px;padding:30px;background-image:url(/ui/stadium.webp);background-position:center 40%">
+      <div class="col" style="gap:18px">${heroTitle()}${playBtn()}</div>${modes(150)}</section>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr) 1fr 1.6fr;gap:14px;height:230px">${menuTiles()}
+      <section class="glass col" style="align-items:center;justify-content:center;gap:8px">${ring(4, 140, '#94a3b8', '<span class="emb" style="width:80px;height:80px;background-image:url(/ui/rank/rookie.webp)"></span>', 7)}<b>루키 III</b><span class="t4 m">퓨처스까지 300 RP</span></section>
+      <section class="glass col" style="padding:18px 22px;gap:14px"><div class="row"><span class="lab" style="--k:var(--warn)">주간 과제</span><span class="grow"></span><span class="t4 d">보너스 <b style="color:var(--warn)">500 G</b></span></div>
+        <div class="row" style="justify-content:space-around">${WEEK.map(([k, n, g]) => `<div class="col" style="align-items:center;gap:8px;width:130px">${ring((n / g) * 100, 92, '#fbbf24', `<b class="n" style="font-size:var(--t2)">${n}<span class="d" style="font-size:var(--t4)">/${g}</span></b>`)}<span class="t4 m tr" style="max-width:130px">${k}</span></div>`).join('')}</div></section></div>`)],
+
+  /* 5. 최근 흐름 — 경기장 위에 최근 다섯 경기 결과 · 연승과 오늘 할 일 */
+  ['최근 흐름', () => { const streak = (() => { let n = 0; for (let i = RESULTS.length - 1; i >= 0 && RESULTS[i] === RESULTS[RESULTS.length - 1]; i--) n++; return `${n}${RESULTS[RESULTS.length - 1] === 'W' ? '연승' : '연패'}`; })(); return wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 860px;grid-template-rows:auto 1fr;align-items:end;gap:20px 30px;padding:30px;background-image:url(/ui/broadcast-field.webp)">
+      <div class="glass row" style="grid-column:1/span 2;align-self:start;justify-self:start;padding:12px 18px;gap:12px;border-radius:16px"><span class="t4 m">최근 경기</span>
+        ${RESULTS.map((r) => `<span class="wl" style="${r === 'W' ? 'background:rgba(16,185,129,.2);color:#6ee7b7;box-shadow:inset 0 0 0 1px rgba(16,185,129,.5)' : 'background:rgba(248,113,113,.14);color:#fca5a5;box-shadow:inset 0 0 0 1px rgba(248,113,113,.4)'}">${r === 'W' ? '승' : r === 'D' ? '무' : '패'}</span>`).join('')}
+        <b style="margin-left:6px;color:${RESULTS[RESULTS.length - 1] === 'W' ? '#6ee7b7' : '#fca5a5'}">${streak}</b></div>
+      <div class="col" style="gap:18px">${heroTitle()}${playBtn()}</div>${modes(150)}</section>${bottom()}`); }],
+
+  /* 6. 나눈 경기장 — 왼쪽 큰 판은 일반 대결 바로 시작, 오른쪽 세 판은 다른 모드 */
+  ['나눈 경기장', () => wrap(`
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:1.5fr 1fr;gap:14px">
+      <section class="photo col" style="justify-content:flex-end;padding:30px;gap:16px;background-image:url(/ui/broadcast-field.webp)"><span class="lab">빠른 경기</span><b style="font-size:60px;font-weight:800;line-height:1">일반 대결</b><span class="m" style="font-size:var(--t2)">단판 · 토너먼트</span>${playBtn(320, 82)}</section>
+      <div class="col" style="gap:14px">${MODES.slice(1).map(([n, s, img, c]) => `<button class="photo row" style="flex:1;padding:0 26px;gap:16px;background-image:url(${img});box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 4px 0 0 ${c}"><span class="col grow"><b class="t1">${n}</b><span class="m">${s}</span></span><b class="t2" style="color:${c}">›</b></button>`).join('')}</div>
+    </div>${bottom(220)}`)],
+
+  /* 7. 크게 한 단추 — 경기장 가운데 큰 제목과 단추 하나, 모드는 그 위 글자 탭 */
+  ['크게 한 단추', () => { const [n, , img, c] = MODES[pick]; return wrap(`
+    <section class="photo col" style="flex:1;min-height:0;align-items:center;justify-content:center;gap:22px;background-image:url(${img});text-align:center">
+      <div class="row" style="gap:6px;padding:5px;border-radius:14px;background:rgba(5,8,15,.55);backdrop-filter:blur(12px)">${MODES.map(([mn, , , mc], i) => `<button data-pick="${i}" style="height:40px;padding:0 20px;border-radius:10px;font-weight:700;${pick === i ? `color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));box-shadow:inset 0 -2px 0 ${mc}` : 'color:var(--m)'}">${mn}</button>`).join('')}</div>
+      <b style="font-size:88px;font-weight:900;line-height:1;letter-spacing:-.02em;text-shadow:0 10px 40px rgba(0,0,0,.6)">오늘의 경기장</b>
+      ${playBtn(420, 92, `${n} 시작 ▶`)}</section>${bottom()}`); }],
+
+  /* 8. 다음 상대 — 경기장에 오늘의 상대와 내 팀을 맞세워 두고 바로 붙는다 */
+  ['다음 상대', () => wrap(`
+    <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 700px;align-items:end;gap:30px;padding:30px;background-image:url(/ui/broadcast-field.webp)">
+      <div class="col" style="gap:18px">${heroTitle(56)}${modes(96)}</div>
+      <div class="glass col" style="padding:22px 26px;gap:18px;border-radius:22px">
+        <div class="row"><span class="lab">오늘의 상대</span><span class="grow"></span><span class="t4 m">일반 대결 · 단판</span></div>
+        <div class="row" style="gap:24px;justify-content:space-between">
+          <div class="col" style="align-items:center;gap:6px"><span class="emb" style="width:72px;height:72px;background-image:url(/ui/clubs/dream.webp)"></span><b>내 팀</b><b class="n" style="font-size:40px;line-height:1;color:var(--a2)">${TEAM_OVR}</b></div>
+          <b class="d" style="font-size:var(--t2)">대</b>
+          <div class="col" style="align-items:center;gap:6px"><span class="emb" style="width:72px;height:72px;background-image:url(/ui/clubs/samsung.webp)"></span><b>2004 삼성 라이온즈</b><b class="n" style="font-size:40px;line-height:1;color:#60a5fa">82</b></div>
+        </div>
+        ${playBtn(648, 76, '바로 붙기 ▶')}
+      </div></section>${bottom()}`)],
+];
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length };
+};
+function draw() {
+  document.getElementById('app').innerHTML = V[v][1]();
+  document.getElementById('tool').innerHTML = V.map(([n], i) => `<button data-v="${i}" class="${i === v ? 'on' : ''}">${i} ${n}</button>`).join('') + (() => { const m = measure(); return `<span style="color:#cbd5e1;margin-left:6px">글 <b style="color:#fde047">${m.t}</b> · 단추 <b style="color:#fde047">${m.b}</b></span>`; })();
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-pick]');
+  if (!t) return;
+  if (t.dataset.v) { v = +t.dataset.v; location.hash = v; }
+  if (t.dataset.pick) pick = +t.dataset.pick;
+  draw();
+});
+addEventListener('keydown', (e) => { if (/^[0-8]$/.test(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>
