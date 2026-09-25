@@ -390,7 +390,7 @@ export function addHistory(entry) {
 function withTournamentReward(a) {
   const t = a?.tournament;
   if (!t?.done || t.claimed) return a;
-  const gold = finishOf(t.size)[t.place]?.gold || 0;
+  const gold = finishOf(t.size, t.cup)[t.place]?.gold || 0; // 조건부 대회면 배수까지
   return { ...a, gold: Math.max(0, goldOf(a) + gold), tournament: { ...t, claimed: true, reward: { gold } } };
 }
 function withRankedReward(a) {

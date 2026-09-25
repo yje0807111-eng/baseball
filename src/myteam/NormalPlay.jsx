@@ -7,6 +7,7 @@ import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
 import { artId } from '../data/artAlias.js';
+import { CUPS, cupOf, cupMult, cupIssue } from './cups.js';
 
 
 
@@ -102,7 +103,7 @@ function nextDuel() {
 /** 형식 고르기 (단판 · 16강 · 32강) */
 export function FormatPicker({ value, onChange, a = G }) {
   return (
-    <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="경기 방식">
+    <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="경기 방식">
       {FORMATS.map((f) => {
         const on = value === f;
         return (
@@ -161,8 +162,8 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
 }
 
 /** 토너먼트 소개: 보상 계단 (진행 중이면 지금 라운드 표시) */
-export function TourneyHero({ size, t, name, squad }) {
-  const rounds = roundsOf(size), finish = finishOf(size);
+export function TourneyHero({ size, t, name, squad, cup = 'open' }) {
+  const rounds = roundsOf(size), finish = finishOf(size, t ? t.cup : cup); // 조건부 대회면 배수까지
   const n = rounds.length;
   const now = t ? (t.done ? n : t.round) : -1;
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 6);
@@ -216,7 +217,25 @@ export function TourneyHero({ size, t, name, squad }) {
  * format: 'single' | 16 | 32 (진행 중인 옛 64강도 받는다) · onFormat 형식 바꾸기
  * onPlay 단판 시작 · onTourney(size, fresh) 토너먼트 대진표로(fresh 면 새 대진) · onLocker
  */
-export function normalPanels({ account, format = 'single', onFormat, onPlay, onTourney, onLocker }) {
+/** 대회 조건 고르기 — 새 토너먼트를 열 때만 */
+function CupPicker({ value, onChange }) {
+  return (
+    <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label="대회 조건">
+      {CUPS.map((c) => {
+        const on = value === c.id;
+        return (
+          <button key={c.id} type="button" role="radio" aria-checked={on} onClick={() => onChange?.(c.id)}
+            className={`ui-cut flex items-baseline justify-between px-3 py-1.5 text-left text-[13px] font-bold ${c.id === 'open' ? 'col-span-2' : ''} ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-300 hover:text-white'}`}
+            style={{ '--c': '6px', background: on ? A : undefined }}>
+            <span>{c.ko}</span>{c.mult > 1 && <small className="font-display text-[12px]">×{c.mult}</small>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function normalPanels({ account, format = 'single', onFormat, cup = 'open', onCup, onPlay, onTourney, onLocker }) {
   const team = account.team || {};
   const squad = team.squad || [];
   const cap = team.cap || SQUAD_CAP;
@@ -232,11 +251,14 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const rounds = single ? null : roundsOf(format);
   const wins = t ? t.results.filter((rs) => rs.some((x) => x.winner === meIndex(t))).length : 0;
   const acc = single ? G : A;
+  const cupId = t ? t.cup || 'open' : cup; // 진행 중이면 그 판의 조건, 아니면 고른 조건
+  const fin = single ? null : finishOf(format, cupId);
+  const cupWhy = single ? null : cupIssue(cupId, team);
   const duel = single ? nextDuel() : null;
 
   const main = single
     ? <SingleHero team={team} squad={squad} ready={ready} issues={issues} onLocker={onLocker} oppName={duel?.name} />
-    : <TourneyHero key={format} size={format} t={t} name={team.name || '나의 드림팀'} squad={squad} />;
+    : <TourneyHero key={format} size={format} t={t} cup={cup} name={team.name || '나의 드림팀'} squad={squad} />;
 
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
@@ -254,27 +276,30 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
       ) : (
         <>
           {/* 시작 전에는 우승 상금을 아래 큰 칸으로 보여 주므로 여기선 뺀다 */}
-          <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${finishOf(format)[rounds.length].gold} G`]]
+          <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${fin[rounds.length].gold} G`]]
             : [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['동점이면', '종합순']]} />
           {t ? (
             <div>
-              <KV k="진행" v={t.done ? finishOf(format)[t.place].ko : rounds[t.round].ko} color={A} />
+              <KV k="진행" v={t.done ? fin[t.place].ko : rounds[t.round].ko} color={A} />
+              {cupId !== 'open' && <KV k="대회 조건" v={`${cupOf(cupId).ko} · ×${cupMult(cupId)}`} color={A} />}
               <KV k="승리" v={`${wins} / ${rounds.length}`} />
               <KV k="팀 종합" v={st.ovr || '-'} />
               <KV k="동점이면" v="팀 종합 높은 쪽" />
             </div>
           ) : (
             <>
+              <p className="ui-lab font-display" style={{ '--a': A }}>대회 조건</p>
+              <CupPicker value={cup} onChange={onCup} />
               <div className="ui-cut shrink-0 px-4 py-3" style={{ '--c': '10px', background: `linear-gradient(90deg,${A}1f,rgba(255,255,255,.03))` }}>
                 <p className="text-[11px] text-gray-400">우승 상금</p>
-                <b className="font-display text-3xl" style={{ color: A }}>{finishOf(format)[rounds.length].gold} G</b>
+                <b className="font-display text-3xl" style={{ color: A }}>{fin[rounds.length].gold} G</b>
               </div>
               <p className="ui-lab font-display" style={{ '--a': A }}>라운드 보상</p>
               {/* 라운드가 다섯 이상이면(32 · 64강) 줄을 촘촘하게 해 스크롤 없이 담는다 */}
               <div className="min-h-0 flex-1">
                 {rounds.map((r, i2) => (
                   <KV key={r.key} k={<span className="flex items-center gap-2"><span className="ui-chip font-display" style={{ '--a': A }}>R{i2 + 1}</span>{r.ko} 승리</span>}
-                    v={`${finishOf(format)[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} sm={rounds.length > 4} />
+                    v={`${fin[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} sm={rounds.length > 3} />
                 ))}
               </div>
               <p className="ui-lab font-display" style={{ '--a': G }}>우리 팀</p>
@@ -283,6 +308,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
               </div>
             </>
           )}
+          {cupWhy && <p className="text-sm text-amber-300">· 조건 불충족 — {cupWhy}</p>}
           {other && <p className="text-sm text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
         </>
       )}

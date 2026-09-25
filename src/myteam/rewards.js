@@ -1,3 +1,4 @@
+import { cupMult } from './cups.js';
 /*
  * 모드 보상표 — 토너먼트 최종 성적 골드 · 랭크전 최종 순위 RP/골드.
  * 엔진을 끌어오지 않는 가벼운 파일이라 저장소(store.js)가 끝난 판의 보상을 바로 지급할 때 쓴다.
@@ -17,13 +18,13 @@ const REWARD_TAIL = [
 ];
 const SIZE_MUL = { 16: 0.8, 32: 1, 64: 1.25 };
 /** 최종 성적(0: 첫 라운드 탈락 … rounds−1: 준우승 · rounds: 우승)별 보상 */
-export function finishOf(size = 32) {
+export function finishOf(size = 32, cup = null) {
   const rounds = roundsOf(size);
   const n = rounds.length;
   const mul = SIZE_MUL[size] || 1;
   return Array.from({ length: n + 1 }, (_, place) => ({
     ko: place === n ? '우승' : place === n - 1 ? '준우승' : `${rounds[place].ko} 탈락`,
-    gold: Math.round((REWARD_TAIL[n - place]?.gold || 50) * mul / 10) * 10,
+    gold: Math.round((REWARD_TAIL[n - place]?.gold || 50) * mul * cupMult(cup) / 10) * 10,
   }));
 }
 

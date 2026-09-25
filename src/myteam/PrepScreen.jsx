@@ -38,7 +38,7 @@ function opponentOf(sub, myTeam) {
 }
 
 
-export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null }) {
+export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null }) {
   const opp = useMemo(() => opponent || opponentOf(sub || '', team), [opponent, sub, team]);
   /* 오늘 몸 상태 — 상대와 내 엔트리로 씨를 심어, 같은 경기에서는 다시 굴러가지 않는다 */
   const seed = useMemo(() => formSeed(opp?.name || '', sub || '', String((team.roster || []).length)), [opp, sub, team]);
@@ -62,7 +62,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
-            startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : null}
+            startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : block ? `조건 불충족 · ${block}` : null}
             cards={CARD_ITEMS.map((it) => ({ id: it.id, name: it.name, effect: `${TEAM_BOOST_KO[it.teamBoost]} ${STAT_KO[it.stat]} +${it.amount}`, n: cardCount(team, it.id) }))}
             onStart={(plan, card) => onStart(ready, init.rest, plan, card)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
         </div>
