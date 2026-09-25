@@ -78,7 +78,7 @@ function LineScore({ h, d }) {
 
 const FormMark = ({ form }) => {
   const f = form && form !== 'flat' ? FORM_OF[form] : null;
-  return f ? <b className="font-display text-[11px] leading-none" style={{ color: f.color }}>{f.mark}</b> : <span />;
+  return f ? <b className="whitespace-nowrap font-display text-[12px] leading-none" style={{ color: f.color }}>{f.mark} {f.ko}</b> : <span />;
 };
 /** 타순 · 등판 투수 — 오늘 친 것 · 던진 것 */
 function Box({ d }) {
@@ -88,7 +88,7 @@ function Box({ d }) {
       <p className="mt-lab pb-1" style={lab('#34d399')}>Lineup</p>
       {d.lineup.map((b, i) => (
         <div key={b.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
-          style={{ gridTemplateColumns: '16px 34px minmax(0,1fr) 24px 48px 132px' }}>
+          style={{ gridTemplateColumns: '16px 34px minmax(0,1fr) 58px 48px 132px' }}>
           <b className="font-display text-gray-500">{i + 1}</b>
           <span className="font-display text-[12px] text-gray-400">{b.pos}</span>
           <b className="truncate text-white">{b.name}</b>
@@ -103,7 +103,7 @@ function Box({ d }) {
       {d.arms.length === 0 && <small className="text-[12px] text-gray-500">등판 기록 없음</small>}
       {d.arms.map((p) => (
         <div key={p.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
-          style={{ gridTemplateColumns: '36px minmax(0,1fr) 24px 64px 54px 54px' }}>
+          style={{ gridTemplateColumns: '36px minmax(0,1fr) 58px 64px 54px 54px' }}>
           <span className="font-display text-[12px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
           <b className="truncate text-white">{p.name}</b>
           <FormMark form={p.form} />
