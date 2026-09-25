@@ -9,8 +9,9 @@ const num = (re, s) => { const m = s?.match(re); return m ? Number(m[1]) : null;
 export function seasonRecord(p) {
   const s = p?.source || '';
   if (p?.type === 'pitcher') {
-    const ipRaw = num(/([\d.]+)\s?IP/, s);
-    const ip = ipRaw == null ? null : Math.floor(ipRaw) + (Math.round((ipRaw % 1) * 10)) / 3;
+    /* 이닝은 두 가지로 적힌다 — "150 2/3IP"(기록실) · "149.1IP"(소수 한 자리가 아웃 수) */
+    const ipM = s.match(/(\d+)(?:\s+(\d)\/3|\.(\d))?\s?IP/);
+    const ip = ipM ? Number(ipM[1]) + Number(ipM[2] || ipM[3] || 0) / 3 : null;
     return { g: num(/(\d+)G/, s), ip, era: num(/ERA\s?([\d.]+)/, s), k: num(/(\d+)K\b/, s), bb: num(/(\d+)BB/, s), whip: num(/WHIP\s?([\d.]+)/, s), w: num(/(\d+)승/, s), sv: num(/(\d+)\s?SV/, s), hld: num(/(\d+)\s?HLD/, s) };
   }
   const avg = num(/(?:^|\s)\.(\d{3})/, s);
