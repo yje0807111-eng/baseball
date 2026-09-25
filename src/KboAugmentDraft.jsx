@@ -680,34 +680,20 @@ const PASSIVE_AUGMENTS = [
     roster: (r) => bump(r, (p) => CENTER.has(p.position), { defense: 20 }) },
   { id: 'catcherLead', name: '포수 리드', tier: 'silver', type: 'defense', desc: '포수 수비 +15 · 투수 제구 +10',
     roster: (r) => bump(bump(r, (p) => p.position === 'C', { defense: 15 }), isPit, { control: 10 }) },
+
+  /* ─ 경기 중 (4) — 반 이닝마다 확률이 오르내린다. 한 이닝을 통째로 정하지는 않는다 ─ */
+  { id: 'focusLine', name: '집중 타선', tier: 'silver', type: 'fire', desc: '4회부터 우리 공격 안타 확률 +8%',
+    half: (c) => (myOff(c) && c.inning >= 4 ? { add: 0.4 } : null) },
+  { id: 'lateBlast', name: '뒷심', tier: 'silver', type: 'fire', desc: '8회부터 지고 있으면 안타 확률 +14%',
+    half: (c) => (myOff(c) && c.inning >= 8 && c.score.opp > c.score.my ? { add: 0.7 } : null) },
+  { id: 'closer', name: '마무리 투수', tier: 'silver', type: 'fire', desc: '8 · 9회 수비 투구 +14',
+    half: (c) => (oppOff(c) && c.inning >= 8 ? { pitch: 14 } : null) },
+  { id: 'starterFocus', name: '선발 집중', tier: 'silver', type: 'fire', desc: '1~4회 수비 투구 +10',
+    half: (c) => (oppOff(c) && c.inning <= 4 ? { pitch: 10 } : null) },
 ].map((a) => ({ ...a, passive: true }));
 
-/* ── 발동형 증강 4: 조건이 맞고 확률에 걸리면 그 이닝 점수를 아예 확정한다 ── */
+/* 증강은 모두 평상시 효과다 — 한 이닝을 통째로 정하는 발동형은 두지 않는다 */
 export const AUGMENTS = [
-  {
-    id: 'bigHit', type: 'fire', name: '한 방', tier: 'silver', side: 'offense', chance: 0.4, max: 2,
-    cond: '4회 이후 공격', desc: '40%로 그 이닝 2점 (경기당 2회)',
-    when: (c) => c.inning >= 4,
-    apply: (c) => { const hero = c.my.topBatter('power'); return { runs: 2, hero, text: `${hero.name}의 한 방, 이닝 2점` }; },
-  },
-  {
-    id: 'lateBlast', type: 'fire', name: '뒷심 한 방', tier: 'silver', side: 'offense', chance: 0.7, max: 1,
-    cond: '8회 이후 · 지고 있을 때', desc: '70%로 그 이닝 3점 (경기당 1회)',
-    when: (c) => c.inning >= 8 && c.score.opp > c.score.my,
-    apply: (c) => { const hero = c.my.topBatter('contact'); return { runs: 3, hero, text: `${hero.name}부터 타자 일순, 뒤늦게 터진 3점` }; },
-  },
-  {
-    id: 'closer', type: 'fire', name: '철벽 마무리', tier: 'silver', side: 'defense', chance: 1, max: 2,
-    cond: '8 · 9회 수비 · 등판 투수 안정 84+', desc: '그 이닝 무실점 (경기당 2회)',
-    when: (c) => c.inning >= 8 && c.myPitcher.position === 'RP' && c.myPitcher.stats.stability >= 84,
-    apply: (c) => ({ runs: 0, hero: c.myPitcher, text: `${c.myPitcher.name}, 세 타자를 돌려세우며 문을 걸어 잠급니다` }),
-  },
-  {
-    id: 'greatPlay', type: 'fire', name: '호수비', tier: 'silver', side: 'defense', chance: 0.5, max: 3,
-    cond: '수비 · 야수 수비 88+ 보유', desc: '50%로 그 이닝 무실점 (경기당 3회)',
-    when: (c) => c.my.topBatter('defense').stats.defense >= 88,
-    apply: (c) => { const hero = c.my.topBatter('defense'); return { runs: 0, hero, text: `${hero.name}의 호수비, 흐름을 끊고 이닝 종료` }; },
-  },
   ...PASSIVE_AUGMENTS,
 ];
 

@@ -50,8 +50,8 @@ test('대가는 커지지 않는다 — 깎이는 쪽은 레벨과 무관', () =
   expect(statOf(lv5, hit.id, 'contact') - was.contact).toBeGreaterThan(statOf(plain, hit.id, 'contact') - was.contact);
 });
 
-test('발동형: 레벨마다 확률 +5%p, +3 부터 경기당 한도가 는다', () => {
-  const a = { ...byId('bigHit') };                                  // 40% · 경기당 2회
+test('발동형 눈금: 레벨마다 확률 +5%p, +3 부터 경기당 한도가 는다', () => {
+  const a = { id: 'probe', chance: 0.4, max: 2 };                  // 40% · 경기당 2회
   expect(augChance({ ...a, lv: 0 })).toBeCloseTo(0.4);
   expect(augChance({ ...a, lv: 4 })).toBeCloseTo(0.6);
   expect(augChance({ ...a, lv: 5 })).toBeCloseTo(0.65);
@@ -64,8 +64,7 @@ test('효과 문구도 레벨을 따라간다 — 이득만, 조건 수치는 �
   expect(augDescAt(byId('muscle'), 0)).toBe('타자 파워 +10');
   expect(augDescAt(byId('muscle'), 5)).toBe('타자 파워 +20');
   expect(augDescAt(byId('toContact'), 5)).toBe('타자 컨택 +44 · 파워 −8');
-  const big = byId('bigHit');                                      // '40%로 그 이닝 2점 (경기당 2회)'
-  expect(augDescAt(big, 3)).toContain('경기당 3회');
+  expect(augDescAt(byId('focusLine'), 5)).toBe('4회부터 우리 공격 안타 확률 +16%');
 });
 
 test('강화 레벨을 붙여도 증강 원본은 그대로다', () => {
