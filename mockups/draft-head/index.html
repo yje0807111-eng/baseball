@@ -83,7 +83,12 @@
 <main id="app"></main>
 <div id="tool"><button data-v="1">1 구단 배너</button><button data-v="2">2 선반 구단 판</button><button data-v="3">3 시즌 표</button><button data-v="4">4 구단 색 물들임</button><span id="meter"></span></div>
 
-<script>
+<script type="module">
+/* 실제 카드 값 — 2023 키움 시즌 선수 · 능력치 · 시즌 기록 · 강점/약점 */
+const { SERIES } = await import('/src/data/seriesPlayers.js');
+const TR = await import('/src/myteam/traits.js');
+const SER = SERIES.find((x) => x.year === 2023 && x.players.some((p) => p.team === '키움'));
+const real = (name) => SER?.players.find((p) => p.name === name) || null;
 /* 2023 키움 선반 · 아홉 번째 지명 — 빈 자리: 2루 · 3루 · 우익수 · 지명 · 불펜 둘 */
 const art = (n) => `url(/cards/2022-kiwoom_${encodeURIComponent(n)}.webp),url(/ui/mt/silhouette-player.webp)`;
 const GROUP = { SP: '투수', RP: '투수', C: '포수', '1B': '내야', '2B': '내야', '3B': '내야', SS: '내야', OF: '외야', DH: '외야' };
@@ -129,6 +134,21 @@ const detail = (hh) => {
       <b class="n" style="right:14px;bottom:4px;font-size:52px;line-height:1;background:linear-gradient(180deg,#fff,#9fb0c4);-webkit-background-clip:text;color:transparent">${p.ovr}</b>
     </div>`;
 };
+/* 고른 선수 세부 — 능력 넷(숫자 + 막대) · 시즌 기록 여섯 칸 · 강점/약점 */
+const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
+const sc = (v) => (v >= 100 ? '#fbbf24' : v >= 90 ? '#34d399' : v >= 80 ? '#fde047' : v >= 70 ? '#fb923c' : '#f87171');
+const statsBlock = () => {
+  const r = real(SHELF[sel].name);
+  if (!r) return '';
+  const keys = KEYS[r.type] || KEYS.batter;
+  const rec = TR.recordCells(r);
+  const tr = TR.playerTraits(r);
+  const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])].slice(0, 3);
+  return `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${keys.map(([k, key]) => { const v = r.stats?.[key] ?? 0; return `<div class="col" style="gap:5px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05)"><span class="row" style="justify-content:space-between"><span class="t4 m">${k}</span><b class="n" style="font-size:var(--t2);line-height:1">${v}</b></span><div class="bar" style="height:4px"><i style="width:${Math.max(4, Math.min(100, (v - 40) / 0.8))}%;background:${sc(v)}"></i></div></div>`; }).join('')}</div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)">${rec.map(([k, v], i) => `<div class="col" style="align-items:center;gap:2px;padding:7px 0;${i ? 'border-left:1px solid rgba(255,255,255,.06)' : ''}"><span class="t4 d">${k}</span><b class="n" style="font-size:var(--t3);color:${v == null ? 'var(--d)' : 'var(--w)'}">${v ?? '-'}</b></div>`).join('')}</div>
+    ${chips.length ? `<div class="row" style="gap:6px;flex-wrap:wrap">${chips.map(([t, good]) => `<span class="row" style="gap:4px;height:24px;padding:0 9px;border-radius:999px;font-size:var(--t4);font-weight:700;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px ${good ? 'rgba(52,211,153,.5)' : 'rgba(248,113,113,.5)'}"><b style="color:${good ? 'var(--a2)' : 'var(--bad)'}">${good ? '▲' : '▼'}</b>${t.name}</span>`).join('')}</div>` : ''}`;
+};
 const field = () => `<div class="field" style="flex:1;min-height:0">${SLOTS.map(([k, x, y, who]) => `<span class="slot ${who ? 'fill' : 'empty'}" style="left:${x}%;top:${y}%"><i ${who ? 'style="background-image:url(/ui/mt/silhouette-player.webp)"' : ''}></i>${who || `${POS_KO[k === 'LF' || k === 'CF' || k === 'RF' ? 'OF' : k]} 빈 자리`}</span>`).join('')}</div>`;
 const synRow = () => `<div class="row" style="gap:12px">${SYN.map(([n, img, c]) => `<span class="row" style="gap:6px"><span class="hex" style="--img:url(/ui/synergy/${img}.png)"><i></i></span><span class="col"><b class="t4">${n}</b><span class="t4 d n">${c}</span></span></span>`).join('')}</div>`;
 const pen = () => `<div class="row" style="gap:6px">${[['롱', '김용남'], ['중간', ''], ['셋업', '김진규'], ['마무리', '']].map(([k, who]) => `<span class="row" style="flex:1;height:34px;padding:0 10px;border-radius:10px;gap:6px;${who ? 'background:rgba(255,255,255,.04)' : 'box-shadow:inset 0 0 0 1.5px rgba(52,211,153,.6);color:var(--a2)'}"><span class="t4 ${who ? 'd' : ''}">${k}</span><b class="t4 grow" style="text-align:right">${who || '빈 자리'}</b></span>`).join('')}</div>`;
@@ -138,7 +158,7 @@ const analysis = () => `<div class="col" style="gap:12px">
     <span class="t4 m">발 빠른 야구 · 장타 조금 부족</span></div>`;
 const bottom = () => `
   <div style="display:grid;grid-template-columns:400px 1fr 400px;gap:14px;flex:1;min-height:0">
-    <section class="glass col" style="padding:16px;gap:12px;min-height:0">${detail(236)}<div class="grow"></div><button class="pri" style="height:58px;width:100%">지명 · ${SHELF[sel].cp} CP</button></section>
+    <section class="glass col" style="padding:16px;gap:12px;min-height:0">${detail(186)}${statsBlock()}<div class="grow"></div><button class="pri" style="height:58px;width:100%">지명 · ${SHELF[sel].cp} CP</button></section>
     <section class="glass col" style="padding:14px 16px;gap:10px;min-height:0"><div class="row"><span class="lab">내 라인업</span><span class="grow"></span>${synRow()}</div>${field()}${pen()}</section>
     <section class="glass" style="padding:18px 20px">${analysis()}</section>
   </div>`;
