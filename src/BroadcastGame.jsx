@@ -391,6 +391,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [paused, setPaused] = useState(false);
   /* 승률 — 타석마다 한 점씩 찍어 흐름을 만든다. 내 지시가 얼마나 밀어 올렸는지도 센다 */
   const wpRef = useRef([0.5]);
+  const wpAtRef = useRef([{ i: 1, t: true, r: 0 }]); // 승률 점마다 몇 회 · 초말 · 그 타석 득점
   const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
   const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
@@ -427,7 +428,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const handOver = () => {
     if (endedRef.current) return false;
     endedRef.current = true;
-    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current, sides: sidesRef.current }));
+    onFinish?.(buildResult(g, my, { flow: wpRef.current, flowAt: wpAtRef.current, calls: callsRef.current, gain: gainRef.current, sides: sidesRef.current }));
     return true;
   };
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
@@ -597,6 +598,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         if (ev.result) {
           const wpNow = winProb(g);
           wpRef.current = [...wpRef.current, wpNow].slice(-200);
+          wpAtRef.current = [...wpAtRef.current, { i: ev.inning, t: !!ev.top, r: ev.runs || 0 }].slice(-200);
           if (gave) gainRef.current += wpNow - wpAt.current;
           if (gaveKo) callsRef.current.push({ ...spotRef.current, ko: gaveKo, delta: wpNow - wpAt.current });
         }
@@ -1211,6 +1213,7 @@ export function buildResult(g, myTeam, manager = null) {
   };
   /* 감독이 한 일 — 승률이 그린 선과 내가 낸 지시 */
   const flow = manager?.flow?.length ? [...manager.flow] : null;
+  const flowAt = manager?.flowAt?.length ? [...manager.flowAt] : null;
   const calls = manager?.calls?.length ? [...manager.calls].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)) : [];
   const credit = new Map();
   const add = (p, pts, key) => {
@@ -1275,6 +1278,6 @@ export function buildResult(g, myTeam, manager = null) {
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
-    flow, calls, gain: manager?.gain ?? 0,
+    flow, flowAt, calls, gain: manager?.gain ?? 0,
   };
 }

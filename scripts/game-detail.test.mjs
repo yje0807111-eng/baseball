@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createGame, pitch } from '../src/engine/pitchSim.js';
 import { buildResult } from '../src/BroadcastGame.jsx';
-import { gameDetail, thinFlow } from '../src/myteam/gameDetail.js';
+import { gameDetail, thinFlow, flowMarks } from '../src/myteam/gameDetail.js';
 
 const P = (i, t, n) => ({
   id: `${n}${t}${i}`, name: `${n}${t}${i}`, overall: 78, type: t === 'b' ? 'batter' : 'pitcher',
@@ -43,7 +43,7 @@ describe('기록실 경기 상세', () => {
     expect(d.synergies).toEqual([{ id: 'cleanup', name: '클린업 트리오', level: 1, tiers: 1 }]);
     expect(d.sides).toEqual({ off: 'big', mound: 'long', def: 'std' });
     expect(d.boosts).toEqual([{ id: 'nope', name: 'nope', who: '2명' }]);
-    expect(d.flow.length).toBeLessThanOrEqual(48);
+    expect(d.flow.length).toBeLessThanOrEqual(100);
     expect(JSON.stringify(d).length).toBeLessThan(6000);
   });
   it('흐름을 줄여도 처음과 끝은 남는다', () => {
@@ -52,5 +52,12 @@ describe('기록실 경기 상세', () => {
     expect(t[0]).toBe(0);
     expect(t.at(-1)).toBe(1);
     expect(thinFlow(null)).toBeNull();
+  });
+  it('회차 눈금은 각 회가 시작하는 자리, 점은 득점한 타석', () => {
+    const at = [{ i: 1, t: true, r: 0 }, { i: 1, t: true, r: 0 }, { i: 1, t: false, r: 2 }, { i: 2, t: true, r: 0 }, { i: 2, t: false, r: 0 }];
+    const { ticks, dots } = flowMarks([0.5, 0.45, 0.62, 0.6, 0.66], at);
+    expect(ticks).toEqual([0, 0.5]);
+    expect(dots).toEqual([{ x: 0.5, v: 0.62, top: false }]);
+    expect(flowMarks([0.5], null)).toEqual({ ticks: null, dots: null });
   });
 });

@@ -10,11 +10,24 @@ const avgOvr = (team) => {
   return on.length ? Math.round(on.reduce((s, p) => s + (p.overall || 0), 0) / on.length) : null;
 };
 /** 승률 곡선을 n 점 이하로 줄이고 소수 둘째 자리까지 */
-export function thinFlow(flow, n = 48) {
+export function thinFlow(flow, n = 100) {
   if (!Array.isArray(flow) || !flow.length) return null;
   const m = Math.min(n, flow.length);
   const out = m < 2 ? [flow[0]] : Array.from({ length: m }, (_, j) => flow[Math.round((j * (flow.length - 1)) / (m - 1))]);
   return out.map((v) => Math.round(v * 100) / 100);
+}
+/** 승률 곡선 위 회차 눈금(각 회가 시작하는 자리, 0~1)과 득점한 타석의 점 */
+export function flowMarks(flow, at) {
+  if (!Array.isArray(flow) || !Array.isArray(at) || at.length !== flow.length || flow.length < 2) return { ticks: null, dots: null };
+  const last = flow.length - 1;
+  const x = (j) => Math.round((j / last) * 1000) / 1000;
+  const ticks = [];
+  for (let k = 1; k <= at[last].i; k += 1) {
+    const j = at.findIndex((p, n) => n > 0 && p.i === k);
+    if (j > 0) ticks.push(x(j - 1));
+  }
+  const dots = at.flatMap((p, j) => (j > 0 && p.r > 0 ? [{ x: x(j), v: Math.round(flow[j] * 100) / 100, top: p.t }] : []));
+  return { ticks, dots };
 }
 /** 걸려 있던 상점 부스트 — 같은 상품은 하나로 묶는다 */
 function boostsOf(boosts = []) {
@@ -54,6 +67,7 @@ export function gameDetail(res, my, opp, boosts = []) {
     boosts: boostsOf(boosts),
     augs: (res.augs || []).map((a) => ({ id: a.id, name: a.name })),
     flow: thinFlow(res.flow),
+    ...flowMarks(res.flow, res.flowAt),
     gain: res.gain || 0,
     calls: (res.calls || []).slice(0, 3).map((c) => ({ inning: c.inning, top: !!c.top, ko: c.ko, delta: Math.round(c.delta * 100) / 100 })),
     plays: (res.logs || []).filter((l) => l.kind === 'score').slice(0, 10).map((l) => ({ inning: l.inning, top: !!l.isTop, text: l.text, runs: l.runs })),

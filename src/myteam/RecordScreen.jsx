@@ -2,7 +2,7 @@
  * 기록 — 치른 경기 목록 (최근 50경기). 라커·상점과 같은 문법: 왼쪽 사이드 분류 / 가운데 경기 줄 / 오른쪽 상세
  *  분류: 전체 · 단판 · 토너먼트 · 랭크
  *  사이드 아래: 전적 · 승률 · 최근 10경기 흐름 · 경기 MVP TOP 3
- *  줄 오른쪽 ▾: 그 경기 상세(gameDetail.js 가 남긴 것) — 라인 스코어 / 타순 · 등판 투수 / 시너지 · 작전 · 아이템 / 승률 흐름 · 지시 · 득점
+ *  줄 오른쪽 ▾: 그 경기 상세(gameDetail.js 가 남긴 것) — 라인 스코어 / 시너지 · 작전 · 아이템 칩 / 박스 스코어 | 승률 흐름 · 지시 · 득점
  */
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { rankSummary } from './rank.js';
@@ -76,112 +76,131 @@ function LineScore({ h, d }) {
   );
 }
 
-const FormMark = ({ form }) => {
-  const f = form && form !== 'flat' ? FORM_OF[form] : null;
-  return f ? <b className="whitespace-nowrap font-display text-[12px] leading-none" style={{ color: f.color }}>{f.mark} {f.ko}</b> : <span />;
+/** 컨디션 — 글자만. 보통은 흐리게 */
+const FormText = ({ form }) => {
+  const f = FORM_OF[form] || FORM_OF.flat;
+  return <b className="text-[13px]" style={{ color: f.swing ? f.color : '#4b5563' }}>{f.ko}</b>;
 };
-/** 타순 · 등판 투수 — 오늘 친 것 · 던진 것 */
-function Box({ d }) {
-  const tag = (n, k, c) => (n ? <span key={k} className="whitespace-nowrap" style={{ color: c }}>{k}{n > 1 ? ` ${n}` : ''}</span> : null);
+/* 박스 스코어 — 머리글과 줄이 같은 칸을 쓴다 */
+const BOX_COLS = '20px 36px minmax(0,1fr) 52px repeat(5,50px)';
+const Num = ({ v, c = '#fff', dim = true }) => (
+  <b className="text-right font-display text-[16px] tabular-nums" style={{ color: dim && !v ? '#4b5563' : c }}>{v}</b>
+);
+const BoxHead = ({ label, a, cols }) => (
+  <div className="grid items-end gap-2 pb-1" style={{ gridTemplateColumns: BOX_COLS }}>
+    <p className="mt-lab" style={{ ...lab(a), gridColumn: 'span 3' }}>{label}</p>
+    {cols.map((k) => <span key={k} className="text-right text-[12px] text-gray-500">{k}</span>)}
+  </div>
+);
+/** 타순 · 등판 투수 표 */
+function BoxScore({ d }) {
+  const row = 'grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]';
   return (
-    <div className="flex min-w-0 flex-col gap-0.5">
-      <p className="mt-lab pb-1" style={lab('#34d399')}>Lineup</p>
+    <div className="flex min-w-0 flex-col">
+      <BoxHead label="Lineup" a="#34d399" cols={['컨디션', '타수', '안타', '홈런', '타점', '볼넷']} />
       {d.lineup.map((b, i) => (
-        <div key={b.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
-          style={{ gridTemplateColumns: '16px 34px minmax(0,1fr) 58px 48px 132px' }}>
+        <div key={b.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
           <b className="font-display text-gray-500">{i + 1}</b>
           <span className="font-display text-[12px] text-gray-400">{b.pos}</span>
           <b className="truncate text-white">{b.name}</b>
-          <FormMark form={b.form} />
-          <b className="text-right font-display text-[16px] tabular-nums" style={{ color: b.h ? '#fff' : '#6b7280' }}>{b.h}<span className="text-gray-600">/</span>{b.ab}</b>
-          <span className="flex gap-1.5 text-[12px] text-gray-400">
-            {[tag(b.hr, '홈런', '#fbbf24'), tag(b.rbi, '타점', '#6ee7b7'), tag(b.bb, '볼넷', '#93c5fd')]}
-          </span>
+          <span className="text-right"><FormText form={b.form} /></span>
+          <Num v={b.ab} dim={false} c="#d1d5db" />
+          <Num v={b.h} />
+          <Num v={b.hr} c="#fbbf24" />
+          <Num v={b.rbi} c="#6ee7b7" />
+          <Num v={b.bb} c="#93c5fd" />
         </div>
       ))}
-      <p className="mt-lab pb-1 pt-3" style={lab('#f87171')}>Mound</p>
+      <div className="h-4" />
+      <BoxHead label="Mound" a="#f87171" cols={['컨디션', '투구', '타자', '피안타', '삼진', '실점']} />
       {d.arms.length === 0 && <small className="text-[12px] text-gray-500">등판 기록 없음</small>}
       {d.arms.map((p) => (
-        <div key={p.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]"
-          style={{ gridTemplateColumns: '36px minmax(0,1fr) 58px 64px 54px 54px' }}>
-          <span className="font-display text-[12px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
+        <div key={p.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
+          <span className="col-span-2 font-display text-[12px]" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
           <b className="truncate text-white">{p.name}</b>
-          <FormMark form={p.form} />
-          <span className="text-right text-[12px] text-gray-400">투구 <b className="font-display text-[14.5px] text-white">{p.pc}</b></span>
-          <span className="text-right text-[12px] text-gray-400">삼진 <b className="font-display text-[14.5px] text-white">{p.k}</b></span>
-          <span className="text-right text-[12px] text-gray-400">실점 <b className="font-display text-[14.5px]" style={{ color: p.r ? '#fca5a5' : '#fff' }}>{p.r}</b></span>
+          <span className="text-right"><FormText form={p.form} /></span>
+          <Num v={p.pc} dim={false} c="#d1d5db" />
+          <Num v={p.bf} dim={false} c="#d1d5db" />
+          <Num v={p.h} dim={false} />
+          <Num v={p.k} />
+          <Num v={p.r} c="#fca5a5" />
         </div>
       ))}
     </div>
   );
 }
 
-/** 시너지 · 작전 · 증강과 아이템 */
-function TeamSide({ d }) {
-  const side = (s) => {
-    const o = s.opts.find((x) => x.id === d.sides?.[s.key]);
-    return o ? (
-      <div key={s.key} className="flex items-center justify-between border-b border-white/10 py-1.5 text-[14.5px]">
-        <span className="text-gray-400">{s.ko}</span><b style={{ color: s.color }}>{o.ko}</b>
-      </div>
-    ) : null;
-  };
+/** 시너지 · 작전 · 증강과 아이템 — 칩 한 줄 */
+function TeamChips({ d }) {
+  const chip = 'mt-cut inline-flex items-center gap-1.5 bg-white/[0.05] px-2.5 py-1 text-[13px] font-bold';
+  const ring = (a) => ({ ...cut(6), color: a, boxShadow: `inset 0 0 0 1px ${a}80` });
   const items = [...(d.augs || []).map((a) => ({ k: `a-${a.id}`, name: a.name, who: '증강', c: '#c4b5fd' })),
     ...(d.boosts || []).map((b) => ({ k: `b-${b.id}`, name: b.name, who: b.who, c: '#fbbf24' }))];
+  const groups = [
+    d.synergies.map((s) => (
+      <span key={s.id} className={chip} style={ring('#fde68a')}>
+        <SynIcon s={{ ...s, tiers: Array(s.tiers) }} w={22} />{s.name}<small className="font-display font-medium text-gray-400">{s.level}/{s.tiers}</small>
+      </span>
+    )),
+    d.sides ? SIDES.map((s) => {
+      const o = s.opts.find((x) => x.id === d.sides[s.key]);
+      return o ? <span key={s.key} className={chip} style={ring(s.color)}><small className="font-medium text-gray-400">{s.ko}</small>{o.ko}</span> : null;
+    }) : [],
+    items.map((it) => <span key={it.k} className={chip} style={ring(it.c)}>{it.name}<small className="font-medium text-gray-400">{it.who}</small></span>),
+  ].filter((g) => g.some(Boolean));
+  if (!groups.length) return null;
   return (
-    <div className="flex min-w-0 flex-col">
-      <p className="mt-lab pb-2" style={lab('#fbbf24')}>Synergy</p>
-      {d.synergies.length === 0 && <small className="pb-1 text-[12px] text-gray-500">켜진 시너지 없음</small>}
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-        {d.synergies.map((s) => (
-          <div key={s.id} className="flex min-w-0 items-center gap-2">
-            <SynIcon s={{ ...s, tiers: Array(s.tiers) }} w={32} />
-            <span className="min-w-0">
-              <b className="block truncate text-[14px] text-white">{s.name}</b>
-              <small className="block font-display text-[11px] text-gray-500">{s.level}/{s.tiers}단계</small>
-            </span>
-          </div>
-        ))}
-      </div>
-      {d.sides && <>
-        <p className="mt-lab pb-1 pt-4" style={lab('#60a5fa')}>Tactics</p>
-        {SIDES.map(side)}
-      </>}
-      <p className="mt-lab pb-1 pt-4" style={lab('#c4b5fd')}>Items</p>
-      {items.length === 0 && <small className="text-[12px] text-gray-500">쓴 증강 · 아이템 없음</small>}
-      {items.map((it) => (
-        <div key={it.k} className="flex items-center justify-between gap-2 border-b border-white/10 py-1.5 text-[14.5px]">
-          <b className="min-w-0 truncate" style={{ color: it.c }}>{it.name}</b><span className="shrink-0 text-[12px] text-gray-400">{it.who}</span>
-        </div>
+    <div className="flex flex-wrap items-center gap-1.5">
+      {groups.map((g, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span className="mx-1 h-5 w-px bg-white/15" />}
+          {g}
+        </React.Fragment>
       ))}
     </div>
   );
 }
 
-/** 승률 흐름 — 50% 점선 위는 우리 쪽 */
-function Curve({ flow, tone }) {
+/** 승률 흐름 — 50% 점선 위는 우리 쪽. 회차 눈금 · 득점한 곳에 점 */
+function Curve({ d, tone }) {
   const id = useId().replace(/:/g, '');
   const w = 1000;
-  const hh = 84;
-  const xs = flow.length > 1 ? flow : [...flow, ...flow];
+  const hh = 96;
+  const xs = d.flow.length > 1 ? d.flow : [...d.flow, ...d.flow];
   const step = w / (xs.length - 1);
-  const d = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${(hh - v * hh).toFixed(1)}`).join(' ');
+  const path = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${(hh - v * hh).toFixed(1)}`).join(' ');
+  const ticks = d.ticks || [];
   return (
-    <svg viewBox={`0 0 ${w} ${hh}`} preserveAspectRatio="none" className="block h-[84px] w-full">
-      <rect width={w} height={hh} fill="rgba(255,255,255,.035)" />
-      <clipPath id={id}><path d={`${d} L ${w} 0 L 0 0 Z`} /></clipPath>
-      <rect width={w} height={hh} fill={tone} opacity=".16" clipPath={`url(#${id})`} />
-      <line x1="0" y1={hh / 2} x2={w} y2={hh / 2} stroke="rgba(255,255,255,.28)" strokeDasharray="6 5" />
-      <path d={d} fill="none" stroke={tone} strokeWidth="2.4" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-    </svg>
+    <div>
+      <div className="relative">
+        <svg viewBox={`0 0 ${w} ${hh}`} preserveAspectRatio="none" className="block w-full" style={{ height: hh }}>
+          <rect width={w} height={hh} fill="rgba(255,255,255,.035)" />
+          <clipPath id={id}><path d={`${path} L ${w} 0 L 0 0 Z`} /></clipPath>
+          <rect width={w} height={hh} fill={tone} opacity=".16" clipPath={`url(#${id})`} />
+          {ticks.map((x, i) => i > 0 && <line key={i} x1={x * w} y1="0" x2={x * w} y2={hh} stroke="rgba(255,255,255,.08)" vectorEffect="non-scaling-stroke" />)}
+          <line x1="0" y1={hh / 2} x2={w} y2={hh / 2} stroke="rgba(255,255,255,.28)" strokeDasharray="6 5" vectorEffect="non-scaling-stroke" />
+          <path d={path} fill="none" stroke={tone} strokeWidth="2.4" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        {/* 점은 SVG 밖에 — 늘어난 좌표계에서도 동그랗게 */}
+        {(d.dots || []).map((p, i) => (
+          <i key={i} className="absolute h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ left: `${p.x * 100}%`, top: `${(1 - p.v) * 100}%`, background: p.top ? '#f87171' : '#34d399', boxShadow: '0 0 0 2px #05080f' }} />
+        ))}
+      </div>
+      {ticks.length > 0 && (
+        <div className="relative h-4 font-display text-[11px] text-gray-500">
+          {ticks.map((x, i) => <span key={i} className="absolute top-0.5" style={{ left: `calc(${x * 100}% + 3px)` }}>{i + 1}</span>)}
+        </div>
+      )}
+    </div>
   );
 }
 function FlowSide({ d, tone }) {
   return (
     <div className="flex min-w-0 flex-col">
       <p className="mt-lab pb-2" style={lab(tone)}>Win Flow</p>
-      {d.flow ? <Curve flow={d.flow} tone={tone} /> : <small className="text-[12px] text-gray-500">흐름 기록 없음</small>}
-      <p className="mt-lab pb-1 pt-4" style={lab('#34d399')}>Calls</p>
+      {d.flow ? <Curve d={d} tone={tone} /> : <small className="text-[12px] text-gray-500">흐름 기록 없음</small>}
+      <p className="mt-lab pb-1 pt-3" style={lab('#34d399')}>Calls</p>
       {d.calls.length === 0 && <small className="text-[12px] text-gray-500">지시 없이 끝난 경기</small>}
       {d.calls.map((c, i) => (
         <div key={i} className="grid items-center gap-2 border-b border-white/10 py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 40px' }}>
@@ -193,17 +212,17 @@ function FlowSide({ d, tone }) {
       <p className="mt-lab pb-1 pt-4" style={lab('#fbbf24')}>Scoring</p>
       {d.plays.length === 0 && <small className="text-[12px] text-gray-500">득점 없음</small>}
       {byHalf(d.plays).map((p, i) => (
-        <div key={i} className="grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 34px' }}>
-          <span className="font-display text-[13px] text-gray-400">{half(p)}</span>
-          <span className="truncate text-gray-200" title={p.text.join(' · ')}>{p.text.join(' · ')}</span>
-          <b className="text-right font-display text-[16px]" style={{ color: p.top ? '#f87171' : '#34d399' }}>+{p.runs}</b>
+        <div key={i} className="grid items-start gap-2 border-b border-white/[0.06] py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 34px' }}>
+          <span className="font-display text-[13px] leading-[1.45] text-gray-400">{half(p)}</span>
+          <span className="leading-[1.45] text-gray-200">{p.text.join(' · ')}</span>
+          <b className="text-right font-display text-[16px] leading-[1.35]" style={{ color: p.top ? '#f87171' : '#34d399' }}>+{p.runs}</b>
         </div>
       ))}
     </div>
   );
 }
 
-/** 펼친 상세 — 라인 스코어 + 세 칸 */
+/** 펼친 상세 — 라인 스코어 · 칩 한 줄 · 박스 스코어 | 흐름 */
 function GameDetail({ h }) {
   const d = h.detail;
   const [, c] = resultOf(h);
@@ -215,9 +234,9 @@ function GameDetail({ h }) {
         <LineScore h={h} d={d} />
         <Stats items={[['우리 종합', d.ovr.my ?? '—'], ['상대 종합', d.ovr.opp ?? '—'], ['내 지시', d.flow ? `${pct(d.gain)}%p` : '—']]} />
       </div>
-      <div className="grid gap-6" style={{ gridTemplateColumns: 'minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr)' }}>
-        <Box d={d} />
-        <TeamSide d={d} />
+      <TeamChips d={d} />
+      <div className="grid gap-7" style={{ gridTemplateColumns: 'minmax(0,1.25fr) minmax(0,1fr)' }}>
+        <BoxScore d={d} />
         <FlowSide d={d} tone={c} />
       </div>
     </div>
