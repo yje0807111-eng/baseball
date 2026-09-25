@@ -576,7 +576,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           setPlay({ ev, ms: beat, bases: wasOn });
           setZoneShots(shotsOf(g));
           setCount({ b: 0, s: 0, o: g.outs });
-          setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
         } else {
           setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
           /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
@@ -584,8 +583,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           /* 볼카운트도 같은 때에 — 친 공은 처리가 끝난 뒤에 아웃이 오른다 */
           setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
             beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
-          /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
-          if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
+
         }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
@@ -889,21 +887,21 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
-              {lastShot && (
-                <div key={shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
-                  style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)', '--f': lastShot.tone, animation: 'mtZoneFlash .5s ease-out both' }}>
-                  <ZoneBox shots={shots} w={150} />
-                  {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
-                  <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
-                    <span><span className="mt-cut inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span></span>
-                    <b className="truncate text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
-                    <em className="font-display text-[24px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
-                      {lastShot.ev.pitch?.velo}<span className="ml-0.5 text-[11px] text-white/60">km</span>
-                    </em>
-                    <span className="text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
-                  </div>
+              {/* 존 판 — 늘 떠 있다. 새 공이 오면 갈릴 뿐, 꺼졌다 켜지지 않는다 */}
+              <div key={rush ? 'rush' : shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
+                style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)',
+                  '--f': lastShot?.tone || '#94a3b8', animation: lastShot && !rush ? 'mtZoneFlash .5s ease-out both' : 'none' }}>
+                <ZoneBox shots={shots} w={150} />
+                {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
+                <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
+                  <span>{lastShot && <span className="mt-cut inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>}</span>
+                  <b className="truncate text-[13px] font-bold text-white">{lastShot ? PITCH_KO[lastShot.ev.pitch?.type] || '' : ''}</b>
+                  <em className="font-display text-[24px] font-extrabold leading-none not-italic" style={{ color: lastShot?.tone || '#4b5563' }}>
+                    {lastShot?.ev.pitch?.velo ?? '--'}<span className="ml-0.5 text-[11px] text-white/60">km</span>
+                  </em>
+                  <span className="text-[11px] font-semibold text-gray-400">{lastShot ? courseKo(lastShot.x, lastShot.y) : '투구 대기'}</span>
                 </div>
-              )}
+              </div>
 
               {/* 접은 타석을 흘려보내는 중 — 넘어갔다는 것이 보이게 */}
               {rush && (
