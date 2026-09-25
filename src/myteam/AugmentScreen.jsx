@@ -1,6 +1,6 @@
 /*
  * 증강 — 내 증강 풀 관리 (W1·W2·W3·W7·W8)
- *  사이드: 실버 · 골드 · 프리즘(제외 칸 눈금) + 강화 + 제거권·강화권
+ *  사이드: 증강 풀(제외 칸 눈금) + 강화 + 제거권·강화권
  *  가운데: 종류별 묶음 · 두 줄 줄 · 제외한 증강은 맨 아래 묶음
  *  오른쪽: 고른 증강이 있으면 PICK 카드, 없으면 제외 칸 목록(+ 칸 열기, 최대 8)
  */
@@ -152,7 +152,7 @@ export default function AugmentScreen({ account, onBack }) {
     }
     commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
   };
-  const addSlot = () => { const n = openSlot(tier); if (n) commit(n, `${T.ko} 제외 칸 +1`); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸` : '제거권 없음'); };
+  const addSlot = () => { const n = openSlot(tier); if (n) commit(n, '제외 칸 +1'); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸` : '제거권 없음'); };
   const upgrade = (a) => {
     const lv = levelOf(a); const need = lv + 1;
     if (lv >= AUG_LEVEL_MAX) return;
@@ -356,7 +356,7 @@ export default function AugmentScreen({ account, onBack }) {
           ) : (
             <>
               <p className="mt-lab" style={{ '--a': RED }}>Excluded</p>
-              <h2 className="-mt-2 text-3xl font-black text-white">{T.ko} 증강 제외</h2>
+              <h2 className="-mt-2 text-3xl font-black text-white">증강 제외</h2>
               <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
               <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">
                 {bans.map(byId).filter(Boolean).map((a, k) => (
