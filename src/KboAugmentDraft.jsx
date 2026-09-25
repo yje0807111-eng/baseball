@@ -5143,8 +5143,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
-  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 8구단 라이브
-  const [aug, setAug] = useState(SEASON_AUGMENTS);
+  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 여덟 구단이 같이 뽑는다
+  const aug = SEASON_AUGMENTS; // 시즌 증강은 늘 있다
   const haveFirst = withDraftTickets(draftTickets()).first;   // 상점에서 산 우선 지명권
   const [useFirst, setUseFirst] = useState(false);
   const haveFavor = withAugTickets(augShopTickets()).favor;   // 즐겨찾기 우대권
@@ -5247,9 +5247,9 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <p className="ui-lab font-display">{mode.en}</p>
             <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
             <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
-            {/* 어느 모드든 같은 다섯 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
+            {/* 어느 모드든 같은 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
-              <SettingRow label="드래프트 방식" options={[true, false]} labels={{ true: '8구단 라이브', false: '혼자 뽑기' }} value={live} onChange={setLive}
+              <SettingRow label="드래프트 방식" options={[false, true]} labels={{ false: '혼자 뽑기', true: '같이 뽑기' }} value={live} onChange={setLive}
                 fixed={special ? '자유 영입' : null} />
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
                 fixed={special ? '없음' : null} />
@@ -5257,13 +5257,12 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                 <SettingRow label={`우선 지명권 · ${haveFirst}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFirst} onChange={setUseFirst} />
               )}
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-              <SettingRow label="시즌 증강" options={[0, 1]} labels={{ 0: '없음', 1: '있음' }} value={aug} onChange={setAug} />
-              {aug > 0 && haveFavor > 0 && (
+              {haveFavor > 0 && (
                 <SettingRow label={`즐겨찾기 우대권 · ${haveFavor}장`} options={[false, true]} labels={{ false: '아껴 둔다', true: '이번 판에 쓴다' }} value={useFavor} onChange={setUseFavor} />
               )}
               <SettingRow label="경기 방식" options={['single', 16, 32, 64]} labels={{ single: '단판', 16: '16강', 32: '32강', 64: '64강' }} value={format} onChange={setFormat} />
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: aug > 0 && useFavor && haveFavor > 0 })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live, firstPick: !special && live && useFirst && haveFirst > 0, augFavor: useFavor && haveFavor > 0 })}>
               드래프트 시작 ▶
             </button>
           </aside>
