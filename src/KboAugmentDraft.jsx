@@ -3318,7 +3318,7 @@ function RecordCards({ roster, selectedSlot, onTap }) {
         });
         return (
           <section key={kind} className={`mt-card ${kind}`} style={{ '--n': slots.length, flexGrow: slots.length + 2 }}>
-            <div className="mt-gh"><span className="en font-display">{en}</span><b>{ko}</b><em>{rows.filter((x) => x.player).length}/{slots.length}</em></div>
+            <div className="mt-gh"><b>{ko}</b><em>{rows.filter((x) => x.player).length}/{slots.length}</em></div>
             <table>
               <colgroup><col style={{ width: 44 }} /><col style={{ width: 36 }} /><col />{cols.map((c) => <col key={c.h} style={{ width: 38 }} />)}<col style={{ width: 30 }} /></colgroup>
               <thead><tr><th className="l">자리</th><th /><th className="l">선수</th>{cols.map((c) => <th key={c.h}>{c.h}</th>)}<th>종합</th></tr></thead>
@@ -3974,7 +3974,7 @@ function Scoreboard({ board, half, myName, oppName }) {
             <tr key={r.key} className="border-t border-white/[0.07]">
               <td className="whitespace-nowrap px-3 py-1 font-sans text-t3 font-bold text-white">
                 <span className="mr-2.5 inline-block h-5 w-1.5 -skew-x-12 align-middle" style={{ background: r.top ? '#f87171' : '#10b981' }} />
-                <span className="mr-2 font-display text-t4 font-semibold tracking-widest text-gray-400">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
+                <span className="mr-2 font-display text-t4 font-semibold tracking-widest text-gray-400">{r.top ? '원정' : '홈'}</span>{r.name}
               </td>
               {r.arr.map((v, i) => {
                 const live = half && half.inning === i + 1 && half.isTop === r.top;
@@ -4344,7 +4344,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
   return (
     <section className="ui-cut ui-frame ui-glass2 grid gap-6 p-6 animate-[rise_.35s_ease-out_both] lg:grid-cols-[16rem_minmax(0,1fr)_19rem]" style={{ '--c': '26px', '--a': tone }}>
       <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
-        <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? 'WIN' : winner === 'opp' ? 'LOSE' : 'DRAW'}</p>
+        <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? '승리' : winner === 'opp' ? '패배' : '무승부'}</p>
         <div>
           <p className="mb-1 text-t4 text-gray-400">나의 드림팀 vs AI 올스타</p>
           <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-500">:</span>{score.opp}</p>
@@ -4654,7 +4654,7 @@ function YearHero({ mode, acc }) {
               </svg>
             )}
             <b className="font-display text-t3 tracking-[0.25em]" style={{ color: hero?.champion ? '#fcd34d' : acc }}>
-              {mode.year} {hero?.champion ? 'CHAMPION' : live ? 'IN PROGRESS' : 'SEASON'}
+              {mode.year} {hero?.champion ? '우승' : live ? '진행 중' : '시즌'}
             </b>
           </span>
           <b className="mt-2 block text-5xl font-black leading-none text-white">{hero?.title || mode.name}</b>
@@ -5975,7 +5975,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             style={{ '--c': '12px', background: 'rgba(8,12,20,.94)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5), 0 18px 40px rgba(0,0,0,.6)' }}>
             <b className="font-display text-t2 tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
             <span className="h-4 w-px bg-white/20" />
-            <b className="text-[0.95rem] text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
+            <b className="text-t3 text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
           </div>
         </div>
       )}

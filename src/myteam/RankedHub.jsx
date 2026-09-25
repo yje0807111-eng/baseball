@@ -19,9 +19,11 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
   const me = meOf(s);
   const cell = big ? 'py-[7px]' : 'py-1';
   return (
-    <table className={`w-full border-collapse text-right tabular-nums ${big ? 'text-t3' : 'text-t3'}`}>
+    <table className="w-full table-fixed border-collapse text-right tabular-nums text-t3">
+      {/* 팀 이름 칸이 넓고 숫자 칸은 좁게 — 이름이 잘리지 않게 */}
+      <colgroup><col style={{ width: 52 }} /><col /><col style={{ width: 52 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 64 }} /><col style={{ width: 60 }} />{big && <><col style={{ width: 52 }} /><col style={{ width: 52 }} /></>}<col style={{ width: 96 }} /></colgroup>
       <thead>
-        <tr className="font-display text-t4 font-bold tracking-[0.14em] text-gray-400">
+        <tr className="text-t4 font-bold text-gray-400">
           <th className="w-10 text-center">순위</th><th className="pl-2 text-left">팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th>
           {big && <><th>득점</th><th>실점</th></>}<th className="pr-3">최근</th>
         </tr>
@@ -36,7 +38,7 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
               <td className={`${cell} text-center font-display text-t2 font-extrabold`} style={{ color: r.rank <= POST_TEAMS ? '#fbbf24' : '#64748b' }}>{r.rank}</td>
               <td className={`${cell} max-w-0 pl-2 text-left`}>
                 <span className="flex items-center gap-2">
-                  <b className={`truncate ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
+                  <b className={`truncate text-t3 font-bold ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
                   {move !== 0 && <em className="shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
                 </span>
               </td>

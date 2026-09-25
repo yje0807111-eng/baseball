@@ -1018,8 +1018,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                         <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
                           className="mt-cut flex h-11 w-full items-center gap-3 px-4 text-left transition hover:bg-white/[0.1]"
                           style={{ '--c': '12px', background: open ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.08)' }}>
-                          <span className="w-12 shrink-0 text-t4 text-gray-400">{sd.ko}</span>
-                          <b className="min-w-0 flex-1 truncate text-t3 font-extrabold text-white">
+                          <span className="w-14 shrink-0 text-t3 text-gray-300">{sd.ko}</span>
+                          <b className="min-w-0 flex-1 truncate text-t2 font-extrabold text-white">
                             {cur?.ko}{want && <span style={{ color: '#fbbf24' }}> → {want.ko}</span>}
                           </b>
                           {want && <small className="shrink-0 text-t4 font-bold text-amber-300">예약</small>}

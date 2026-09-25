@@ -26,7 +26,7 @@ const TOWER_H = FLOOR_H * 8 + 46;   // 여덟 칸 + 이름표와 바닥 — 이 
 const batSlots = () => FIELD_SLOTS.filter((s) => !PITCH_SLOTS.includes(s.id)).map((s) => s.id);
 
 const Grade = ({ g, className = '' }) => (
-  <span className={`ui-cut px-1.5 py-px text-[0.68rem] font-bold ${className}`}
+  <span className={`ui-cut px-1.5 py-px text-t4 font-bold ${className}`}
     style={{ '--c': '4px', background: `${GRADE_COLOR[g]}2e`, boxShadow: `inset 0 0 0 1px ${GRADE_COLOR[g]}77`, color: GRADE_COLOR[g] }}>
     {GRADES[g]?.ko || '평범'}
   </span>
@@ -53,8 +53,8 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
         {/* 간판 선수 — 구단 색 세로선을 달아 이름 줄과 나눈다 */}
         {big && r.star && (
           <span className="flex items-center gap-1.5 pl-[7px]" style={{ boxShadow: `inset 2px 0 0 ${r.color}` }}>
-            <b className="truncate text-[0.74rem] text-[#cbd5e1]">{r.star.name}</b>
-            <b className="font-display text-[0.78rem]" style={{ color: tone(r.star.overall) }}>{r.star.overall}</b>
+            <b className="truncate text-t4 text-[#cbd5e1]">{r.star.name}</b>
+            <b className="font-display text-t4" style={{ color: tone(r.star.overall) }}>{r.star.overall}</b>
           </span>
         )}
       </span>
@@ -62,16 +62,16 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
         {KEYS.slice(0, 3).map(([k, ko]) => (
           <span key={k} className="ui-cut grid justify-items-center gap-px transition-all duration-300 ease-out"
             style={{ '--c': '4px', width: big ? 58 : 42, padding: big ? '4px 0' : 0, background: big ? 'rgba(255,255,255,.05)' : 'transparent' }}>
-            {big && <small className="text-[0.65rem] text-[#6b7787]">{ko}</small>}
+            {big && <small className="text-t4 text-[#6b7787]">{ko}</small>}
             <b className="font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 17 : 12.5, color: r[k] >= 78 ? '#fbbf24' : '#cbd5e1' }}>{r[k]}</b>
           </span>
         ))}
         <b className="w-14 text-right font-display transition-all duration-300 ease-out" style={{ fontSize: big ? 23 : 15, color: lit ? '#e8ecf2' : '#93a0af' }}>{r.str.toFixed(1)}</b>
-        <b className="w-[2.6rem] text-right font-display text-[0.7rem] tracking-[0.12em]"
+        <b className="w-[2.6rem] text-right font-display text-t4 tracking-[0.12em]"
           style={{ color: mine ? r.color : cleared ? '#34d399' : now ? r.color : '#4b5563' }}>
-          {mine ? 'ME' : cleared ? 'CLEAR' : now ? 'NOW' : ''}
+          {mine ? '나' : cleared ? '통과' : now ? '지금' : ''}
         </b>
-        <button type="button" onClick={onMore} className="ui-cut whitespace-nowrap px-2.5 py-1 text-[0.72rem] font-bold"
+        <button type="button" onClick={onMore} className="ui-cut whitespace-nowrap px-2.5 py-1 text-t4 font-bold"
           style={{ '--c': '5px', background: open ? `${r.color}2e` : 'rgba(255,255,255,.06)',
             boxShadow: `inset 0 0 0 1px ${open ? r.color : 'rgba(255,255,255,.14)'}`, color: open ? r.color : '#a8b3c1' }}>
           {open ? '닫기 ▲' : '자세히 ▼'}
@@ -82,7 +82,7 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
 }
 
 /* 펼친 판 — 구장 위 수비 아홉(라커와 같은 그림) · 선발과 불펜 · 벤치 */
-const Cap = ({ children }) => <b className="text-[0.8rem] text-[#6b7787]">{children}</b>;
+const Cap = ({ children }) => <b className="text-t4 text-[#6b7787]">{children}</b>;
 function Detail({ r, width }) {
   const full = fillRoster(r.roster || []);
   const by = {};
@@ -105,8 +105,8 @@ function Detail({ r, width }) {
               <span className="h-[2.6rem] w-[2.1rem] shrink-0 bg-[#0b1220] bg-cover"
                 style={{ clipPath: SKEW(7), backgroundPosition: 'center 8%', backgroundImage: face(p) }} />
               <span className="-ml-[4px] grid">
-                <b className="whitespace-nowrap px-2 py-0.5 text-[0.76rem] text-white" style={{ clipPath: SKEW(6), background: 'rgba(6,10,19,.95)' }}>{p.name}</b>
-                <b className="ml-1.5 whitespace-nowrap px-2 font-display text-[0.7rem] text-[#05080f]" style={{ clipPath: SKEW(5), background: r.color }}>
+                <b className="whitespace-nowrap px-2 py-0.5 text-t4 text-white" style={{ clipPath: SKEW(6), background: 'rgba(6,10,19,.95)' }}>{p.name}</b>
+                <b className="ml-1.5 whitespace-nowrap px-2 font-display text-t4 text-[#05080f]" style={{ clipPath: SKEW(5), background: r.color }}>
                   {POS_LABEL[p.position] || p.position} {p.overall}
                 </b>
               </span>
@@ -123,10 +123,10 @@ function Detail({ r, width }) {
               style={{ '--c': '5px', background: 'rgba(255,255,255,.045)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
               <span className="ui-cut h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: face(p), backgroundPosition: 'center 6%' }} />
               <span className="grid min-w-0 flex-1 gap-px">
-                <b className="truncate text-[0.88rem] text-[#e8ecf2]">{p.name}</b>
-                <small className="text-[0.7rem] text-[#7c8797]">{p.label}</small>
+                <b className="truncate text-t3 text-[#e8ecf2]">{p.name}</b>
+                <small className="text-t4 text-[#7c8797]">{p.label}</small>
               </span>
-              <b className="font-display text-[1.1rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+              <b className="font-display text-t2" style={{ color: tone(p.overall) }}>{p.overall}</b>
             </span>
           ))}
         </div>
@@ -134,11 +134,11 @@ function Detail({ r, width }) {
         <div className="flex flex-wrap gap-1.5">
           {bench.length ? bench.map((p) => (
             <span key={p.slot} className="ui-cut flex items-center gap-2 px-2.5 py-1" style={{ '--c': '5px', background: 'rgba(255,255,255,.05)' }}>
-              <small className="text-[0.7rem] text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
-              <b className="text-[0.82rem] text-[#e8ecf2]">{p.name}</b>
-              <b className="font-display text-[0.82rem]" style={{ color: tone(p.overall) }}>{p.overall}</b>
+              <small className="text-t4 text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
+              <b className="text-t3 text-[#e8ecf2]">{p.name}</b>
+              <b className="font-display text-t3" style={{ color: tone(p.overall) }}>{p.overall}</b>
             </span>
-          )) : <small className="text-[0.8rem] text-[#6b7787]">예비 선수 없음</small>}
+          )) : <small className="text-t4 text-[#6b7787]">예비 선수 없음</small>}
         </div>
       </div>
     </div>
@@ -201,7 +201,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
       {/* 머리 줄 */}
       <div className="relative flex h-14 items-center gap-3.5 px-7" style={{ background: 'rgba(6,10,19,.7)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
         <button type="button" className="ui-btn ui-cut px-3 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
-        <b className="font-display text-[0.95rem] tracking-[0.22em] text-[#7c8797]">도장깨기</b>
+        <b className="text-t1 font-black text-white">도장깨기</b>
         <span className="ml-auto flex items-center gap-2.5">
           <Emb src={myEmb} size={30} />
           <b className="text-t3 text-[#e8ecf2]">{me.name}</b>
@@ -213,7 +213,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
         {/* 왼쪽: 탑 */}
         <div className="grid min-w-0 flex-1 place-content-center overflow-hidden px-5 py-2">
         <div ref={towerRef} style={{ height: TOWER_H }}>
-          <b className="mb-2.5 block text-center font-display text-[0.8rem] tracking-[0.3em] text-[#6b7787]">TOWER OF {gaunt.tower.length}</b>
+          <p className="mb-2.5 flex items-center gap-3 text-t3 font-extrabold text-[#f5d27a] before:h-px before:flex-1 before:bg-[#f5d27a]/40 before:content-[''] after:h-px after:flex-1 after:bg-[#f5d27a]/40 after:content-['']">도장 {gaunt.tower.length}곳</p>
           {gaunt.tower.map((r, i) => ({ r, i })).reverse().map(({ r, i }) => {
             const open = openClub === r.club;
             const width = base + (gaunt.tower.length - 1 - i) * grow;
@@ -241,7 +241,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
         <div className="grid w-[37.5rem] shrink-0 content-center justify-items-center gap-4 px-9 py-5" style={{ borderLeft: '1px solid rgba(255,255,255,.07)' }}>
           {cur ? (
             <>
-              <b className="font-display text-[0.8rem] tracking-[0.3em] text-[#7c8797]">{myPos(gaunt)} → {myPos(gaunt) + 1} 칸 · 지금 상대</b>
+              <b className="font-display text-t4 tracking-[0.3em] text-[#7c8797]">{myPos(gaunt)} → {myPos(gaunt) + 1} 칸 · 지금 상대</b>
               <span className="flex items-center gap-5">
                 <span className="grid justify-items-center gap-1.5"><Emb src={myEmb} size={104} /><b className="max-w-[7rem] truncate text-t3 text-[#e8ecf2]">{me.name}</b></span>
                 <b className="font-display text-t1 text-[#7c8797]">VS</b>
@@ -252,7 +252,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
               </span>
               <span className="flex items-center gap-2.5">
                 <Grade g={cur.grade} />
-                <small className="text-[0.8rem] text-[#8b97a6]">{TRAIT_KO[cur.trait] || ''} · {cur.name}</small>
+                <small className="text-t4 text-[#8b97a6]">{TRAIT_KO[cur.trait] || ''} · {cur.name}</small>
               </span>
               {/* 항목마다 몇 점 앞서는지 */}
               <span className="grid w-full gap-2.5">
@@ -262,15 +262,15 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
                   return (
                     <span key={k} className="ui-cut flex h-[3.4rem] items-center gap-3 px-4"
                       style={{ '--c': '6px', background: 'rgba(255,255,255,.04)', boxShadow: `inset ${up ? 3 : -3}px 0 0 ${up ? '#34d399' : '#f87171'}` }}>
-                      <small className="w-11 text-[0.78rem] text-[#8b97a6]">{ko}</small>
-                      <b className="w-12 font-display text-[1.15rem] text-[#e8ecf2]">{show(k, me.stats[k])}</b>
+                      <small className="w-11 text-t4 text-[#8b97a6]">{ko}</small>
+                      <b className="w-12 font-display text-t2 text-[#e8ecf2]">{show(k, me.stats[k])}</b>
                       <span className="relative h-2 flex-1" style={{ background: 'rgba(255,255,255,.07)' }}>
                         <i className="absolute bottom-0 top-0" style={{ left: '50%', width: `${Math.min(50, Math.abs(d) * 6)}%`,
                           transform: up ? 'none' : 'translateX(-100%)', background: up ? '#34d399' : '#f87171' }} />
                         <i className="absolute -bottom-1 -top-1 w-px" style={{ left: '50%', background: 'rgba(255,255,255,.25)' }} />
                       </span>
-                      <b className="w-12 text-right font-display text-[1.15rem] text-[#93a0af]">{show(k, cur[k])}</b>
-                      <b className="w-11 text-right font-display text-[0.95rem]" style={{ color: up ? '#34d399' : '#f87171' }}>{up ? '+' : ''}{d}</b>
+                      <b className="w-12 text-right font-display text-t2 text-[#93a0af]">{show(k, cur[k])}</b>
+                      <b className="w-11 text-right font-display text-t3" style={{ color: up ? '#34d399' : '#f87171' }}>{up ? '+' : ''}{d}</b>
                     </span>
                   );
                 })}

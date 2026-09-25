@@ -855,7 +855,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 );
               })}
             </div>
-            <div className="mt-grp">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</div>
+            <p className="mt-hd !text-t3 pb-1 pt-4">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</p>
             {/* 후보 명함: 두 열 · 왼쪽 큰 사진(인물이 가운데 오게) · 오른쪽 직함 · 이름 · 시대 · 경력 · 효과 태그 · 가격 · 선임 */}
             <div className="mt-scroll grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
               {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => (
@@ -876,7 +876,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     </span>
                   </span>
                   <span className="absolute right-3 top-3 flex items-center gap-2">
-                    <b className="font-display text-t2 text-amber-300">{m.cost}</b>
+                    <b className="font-display text-t2 text-amber-300">{m.cost}<small className="ml-0.5 text-t4 text-gray-400">CP</small></b>
                     <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => setStaff(listSlot, m)}>
                       {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
                     </Btn>
@@ -937,7 +937,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                         <span className="mt-cut block h-[66px] bg-[#0b1220] bg-cover" style={{ ...cut(7), backgroundPosition: '60% 25%', backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` : 'url(ui/mt/silhouette-coach.webp)', opacity: m ? 1 : 0.35 }} />
                         <span className="min-w-0">
                           <span className="block font-display text-t4 tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
-                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '-'}</b>
+                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '비어 있음'}</b>
                           {m && <span className="block truncate text-t4 text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
                         </span>
                         {m && <b className="self-start font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
