@@ -3651,7 +3651,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
-  const tier = isAug && choice.options[0]?.tier;
+  /* 증강 등급은 하나로 합쳤다 — 제목 뒤에 등급 이름을 붙이지 않는다 ("… 고르기 증강"으로 겹쳐 읽혔다) */
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
       <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
@@ -3662,7 +3662,6 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           <h2 className="mt-2 text-4xl font-black text-white">
             {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : heading) : '시즌 돌발 이벤트'}
             {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
-            {tier && <span className="ml-3 font-display font-extrabold" style={{ color: TIER_NEON[tier] }}>{TIER_EN[tier]}</span>}
           </h2>
           {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
