@@ -15,7 +15,7 @@ import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
 import {
-  createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
@@ -201,6 +201,7 @@ function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
   const out = [];
+  if (ev.swapped) out.push(`${ev.swapped.out.name} 체력 한계 — ${ev.swapped.in.name} 교체`);
   if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루 도루 ${ev.steal.ok ? '성공' : '실패'}`);
   if (!ev.result) {
     const call = { ball: '볼', called: '루킹 스트라이크', swinging: '헛스윙!', foul: '파울' }[ev.call];
@@ -555,7 +556,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           : ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
         const told = fold ? (worth ? beat * 0.5 : 0) : beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
-        const said = commentary(ev).map((t) => lineOf(t, kindOf(ev), g));
+        const swaps = folded.slice(0, -1).filter((e) => e.swapped)
+          .map((e) => lineOf(`${e.swapped.out.name} 체력 한계 — ${e.swapped.in.name} 교체`, 'note', g));
+        const said = [...swaps, ...commentary(ev).map((t) => lineOf(t, kindOf(ev), g))];
         setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
         if (fold) {
           /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다.
@@ -688,7 +691,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   };
 
 
-  const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
+  const stamina = staminaOf(def);
   // 내 투수가 지쳤는가 — 불펜 쪽으로 눈이 가게 한다
   const mineOnMound = g.top;
   const worn = mineOnMound && stamina <= 55;
