@@ -9,7 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
-import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub } from './store.js';
+import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek } from './store.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey } from './market.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
@@ -564,7 +564,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const settle = (next) => { if (!next) return; setTeam(next.team); setGold(next.gold); onSave?.(next.team, next.gold); };
   const clubList = team.club || [];
   const inClub = (p) => clubList.some((x) => x.id === p.id);
-  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p))) settle(recruitPlayer(team, p, priceFor(p))); };
+  const dealBump = (p, next) => { if (next && deals.has(p.id)) bumpWeek('deal'); return next; }; // 주간 과제: 특가 영입
+  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p))) settle(dealBump(p, recruitPlayer(team, p, priceFor(p)))); };
   const release = (p) => { settle(inClub(p) ? releaseFromClub(team, p.id) : releasePlayer(team, p.id)); setSel(null); };
   /* 보관함: 엔트리에서 빼 두기 · 엔트리로 들이기(꽉 찼으면 out 과 자리 바꿈 — out 은 보관함으로) */
   const store = (p) => { settle(storePlayer(team, p.id)); setSel(null); };
@@ -572,7 +573,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
     const why = out ? swapBlockReason(p, out, squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
     if (!why) { settle(enterFromClub(team, p.id, out?.id || null)); setOutId(null); setSel(null); }
   };
-  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(swapPlayer(team, p, priceFor(p), out.id)); setOutId(null); } };
+  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, swapPlayer(team, p, priceFor(p), out.id))); setOutId(null); } };
   /* 목록 한 줄의 막는 이유 — 꽉 찼으면 첫 교체 후보로 따진다 */
   const full = squad.length >= lim.size;
   const rowBlock = (p) => (full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));

@@ -11,6 +11,9 @@ import { artId } from '../data/artAlias.js';
 import { SynIcon } from './ReadyLocker.jsx';
 import { SIDES } from './strategy.js';
 import { FORM_OF } from './form.js';
+import { DexView, WeekView } from './ProgressPanels.jsx';
+import { loadAccount } from './store.js';
+import { missionState } from './missions.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const MODES = [
@@ -288,7 +291,10 @@ function GameLine({ h, on, onPick }) {
   );
 }
 
-export default function RecordScreen({ account, onBack }) {
+export default function RecordScreen({ account: first, onBack, onAccount }) {
+  /* 도감 · 과제 값은 다른 화면(라커 · 드래프트)에서 바로 저장되니 들어올 때 새로 읽는다 */
+  const [account, setAccount] = useState(() => loadAccount() || first);
+  const takeAccount = (next) => { setAccount(next); onAccount?.(next); };
   const history = account.history || [];
   const [mode, setMode] = useState('all');
   const [sel, setSel] = useState(history[0] || null);
@@ -307,8 +313,13 @@ export default function RecordScreen({ account, onBack }) {
   const given = list.reduce((s, h) => s + (h.oppRuns || 0), 0);
   const avg = (v) => (list.length ? (v / list.length).toFixed(1) : '—');
   const rate = all.w + all.l + all.d ? Math.round((all.w / (all.w + all.l + all.d)) * 100) : null;
-  const n = MODES.find((m) => m.key === mode).c;
-  const NAV = MODES.map((m) => ({ key: m.key, label: m.label, sub: `${counts[m.key]}경기`, img: 'ui/mt/tile-record.webp' }));
+  const n = MODES.find((m) => m.key === mode)?.c || '#7dd3fc';
+  const weekLeft = missionState(account.week).filter((x) => x.done && !x.claimed).length;
+  const NAV = [
+    ...MODES.map((m) => ({ key: m.key, label: m.label, sub: `${counts[m.key]}경기`, img: 'ui/mt/tile-record.webp' })),
+    { key: 'dex', label: '도감', sub: `${(account.dex || []).length}명`, img: 'ui/mt/tile-record.webp' },
+    { key: 'week', label: '주간 과제', sub: weekLeft ? `받을 보상 ${weekLeft}` : '이번 주', img: 'ui/mt/tile-record.webp' },
+  ];
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -320,7 +331,7 @@ export default function RecordScreen({ account, onBack }) {
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); setOpen(null); }} a="#7dd3fc" label="경기 종류">
+        <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); setOpen(null); }} a="#7dd3fc" label="기록 메뉴" compact>
           <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
             <p className="flex items-baseline justify-between text-[11px] text-gray-400">통산 전적<b className="font-display text-[13px] text-gray-300">{history.length}경기</b></p>
             <b className="font-display text-2xl text-white">{all.w}승 {all.d}무 {all.l}패</b>
@@ -347,6 +358,10 @@ export default function RecordScreen({ account, onBack }) {
           ))}
         </SideNav>
 
+        {mode === 'dex' ? <DexView account={account} onAccount={takeAccount} />
+          : mode === 'week' ? <WeekView account={account} onAccount={takeAccount} />
+          : (
+        <>
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': n }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': n }}>치른 경기</p>
@@ -389,6 +404,8 @@ export default function RecordScreen({ account, onBack }) {
             );
           })()}
         </aside>
+        </>
+          )}
       </div>
     </div>
   );

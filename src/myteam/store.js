@@ -6,6 +6,8 @@ import { SQUAD_CAP, CLUB_MAX } from './rules.js';
 import { STAFF } from './staff.js';
 import { finishOf, PLACE_REWARD } from './rewards.js';
 import { refundOf } from './market.js';
+import { claimableSteps } from './dex.js';
+import { weekOf, missionState, WEEK_BONUS } from './missions.js';
 
 const KEY = 'kbo.myteam.v1';
 
@@ -246,6 +248,8 @@ export function saveTeam(team) {
  * 산 값은 선수에 paid 로 적어 둔다: 방출하면 그 절반을 돌려준다(market.js). 스타터 · 무상 채우기 선수는 paid 0.
  */
 const stamp = (team) => ({ ...team, capBase: SQUAD_CAP, updatedAt: new Date().toISOString() });
+/** 도감(account.dex)에 선수 id 를 올린다 — 한 번 가진 선수는 방출해도 남는다 */
+const withDex = (a, players = []) => ({ ...a, dex: [...new Set([...(a.dex || []), ...players.map((p) => p.id)])] });
 
 /** 선수 영입 — 골드가 모자라면 null */
 export function recruitPlayer(team, player, price) {
@@ -253,7 +257,7 @@ export function recruitPlayer(team, player, price) {
   if (!a) return null;
   const gold = goldOf(a);
   if (!(price >= 0) || price > gold) return null;
-  const next = { ...a, gold: gold - price, team: stamp({ ...team, squad: [...(team.squad || []), { ...player, paid: price }] }) };
+  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, squad: [...(team.squad || []), { ...player, paid: price }] }) }, [player]);
   write(next);
   return next;
 }
@@ -266,7 +270,7 @@ export function swapPlayer(team, player, price, outId) {
   const gold = goldOf(a) + refundOf(out);
   if (!(price >= 0) || price > gold) return null;
   const squad = [...team.squad.filter((x) => x.id !== outId), { ...player, paid: price }];
-  const next = { ...a, gold: gold - price, team: stamp({ ...team, squad, bench: (team.bench || []).filter((b) => b !== outId) }) };
+  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, squad, bench: (team.bench || []).filter((b) => b !== outId) }) }, [player]);
   write(next);
   return next;
 }
@@ -328,7 +332,7 @@ export function addToClub(player) {
   const a = read();
   const team = a?.team;
   if (!team || (team.club || []).length >= CLUB_MAX || ownsPerson(team, player)) return null;
-  const next = { ...a, team: stamp({ ...team, club: [...(team.club || []), { ...player, paid: 0, memento: true }] }) };
+  const next = withDex({ ...a, team: stamp({ ...team, club: [...(team.club || []), { ...player, paid: 0, memento: true }] }) }, [player]);
   write(next);
   return next;
 }
@@ -342,7 +346,58 @@ export const needsStarter = (account) => !!account && !account.team?.starterGive
 export function grantStarter(squad) {
   const a = read();
   if (!a || !needsStarter(a)) return null;
-  const next = { ...a, notice: 'starter', team: stamp({ ...emptyTeam(), ...(a.team || {}), squad, starterGiven: true }) };
+  const next = withDex({ ...a, notice: 'starter', team: stamp({ ...emptyTeam(), ...(a.team || {}), squad, starterGiven: true }) }, squad);
+  write(next);
+  return next;
+}
+
+/** 도감이 없는 옛 저장본은 지금 엔트리 · 보관함으로 시작한다 */
+function withDexStart(a) {
+  if (!a?.nick || Array.isArray(a.dex)) return a;
+  return withDex(a, [...(a.team?.squad || []), ...(a.team?.club || [])]);
+}
+
+/** 도감 보상 받기 — series 는 그 시리즈(선수 목록 포함). 받을 단계가 없으면 null */
+export function claimDex(series) {
+  const a = read();
+  if (!a) return null;
+  const claimed = a.dexClaimed || {};
+  const steps = claimableSteps(series, new Set(a.dex || []), claimed);
+  if (!steps.length) return null;
+  const gold = steps.reduce((s, x) => s + x.gold, 0);
+  const next = { ...a, gold: goldOf(a) + gold, dexClaimed: { ...claimed, [series.id]: steps[steps.length - 1].i + 1 } };
+  write(next);
+  return next;
+}
+
+/* ───── 주간 과제: 사건을 센다 · 보상을 받는다 (missions.js) ───── */
+/** 사건 수 올리기 — ev: win · game · gain10 · aug · cup · tour8 · memento · deal */
+export function bumpWeek(ev, n = 1) {
+  const a = read();
+  if (!a?.nick || !(n > 0)) return null;
+  const w = weekOf(a.week);
+  const next = { ...a, week: { ...w, counts: { ...w.counts, [ev]: (w.counts[ev] || 0) + n } } };
+  write(next);
+  return next;
+}
+/** 과제 하나 보상 */
+export function claimMission(id) {
+  const a = read();
+  if (!a) return null;
+  const s = missionState(a.week).find((x) => x.m.id === id);
+  if (!s || !s.done || s.claimed) return null;
+  const w = weekOf(a.week);
+  const next = { ...a, gold: goldOf(a) + s.m.gold, week: { ...w, claimed: [...w.claimed, id] } };
+  write(next);
+  return next;
+}
+/** 셋을 다 받았으면 보너스 */
+export function claimWeekBonus() {
+  const a = read();
+  if (!a) return null;
+  const w = weekOf(a.week);
+  if (w.bonus || !missionState(a.week).every((x) => x.claimed)) return null;
+  const next = { ...a, gold: goldOf(a) + WEEK_BONUS, week: { ...w, bonus: true } };
   write(next);
   return next;
 }
@@ -409,7 +464,7 @@ function withRankedReward(a) {
 }
 function grantPending(a) {
   if (!a) return a;
-  const next = withRankedReward(withTournamentReward(withShopCleanup(a)));
+  const next = withRankedReward(withTournamentReward(withShopCleanup(withDexStart(a))));
   if (next !== a) write(next);
   return next;
 }

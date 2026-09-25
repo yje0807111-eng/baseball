@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount } from './myteam/store.js';
+import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
 import { CLUB_MAX } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
 import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, asClubPlayer } from './draft/memento.js';
@@ -5685,6 +5685,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   /* 중계 화면이 끝나면 기존 결과 화면으로 */
   const finishLive = (res) => {
+    /* 주간 과제: 드래프트 경기도 센다 */
+    bumpWeek('game');
+    if (res.winner === 'my') bumpWeek('win');
+    if ((res.gain || 0) >= 0.1) bumpWeek('gain10');
+    bumpWeek('aug', (liveTeams?.aug?.list || []).length);
     setLiveTeams(null);
     if (gaunt && !gaunt.done) { // 도장깨기: 이기면 다음 단, 지면 같은 단을 다시
       const ng = Gaunt.settle(gaunt, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp });
@@ -6184,7 +6189,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
-      <MementoOverlay memento={memento} onTake={(p) => { addToClub(asClubPlayer(p)); setMemento(null); }} onSkip={() => setMemento(null)} />
+      <MementoOverlay memento={memento} onTake={(p) => { if (addToClub(asClubPlayer(p))) bumpWeek('memento'); setMemento(null); }} onSkip={() => setMemento(null)} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
           midPickInnings={match.aug ? MID_AUG_INNINGS : []}

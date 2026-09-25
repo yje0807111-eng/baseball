@@ -5,7 +5,7 @@
  */
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
-import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket } from './myteam/store.js';
+import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
 import { prepOf, matchTeamOf } from './myteam/prep.js';
@@ -53,7 +53,10 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
   const openTourney = (size, fresh) => {
-    if (fresh || !tournament || tournament.size !== size) saveTournament(makeTournament({ size, myName: account.team?.name, cup }));
+    if (fresh || !tournament || tournament.size !== size) {
+      saveTournament(makeTournament({ size, myName: account.team?.name, cup }));
+      if (cup !== 'open') bumpWeek('cup'); // 주간 과제: 조건부 대회 열기
+    }
     refresh();
     setView('bracket');
   };
@@ -154,6 +157,11 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const pitcherIds = (played.squad || []).filter((p) => p.type === 'pitcher').map((p) => p.id);
     saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
     const mvp = res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null;
+    /* 주간 과제: 경기 · 승리 · 내 지시 +10%p · 고른 증강 */
+    bumpWeek('game');
+    if (res.winner === 'my') bumpWeek('win');
+    if ((res.gain || 0) >= 0.1) bumpWeek('gain10');
+    bumpWeek('aug', ownedRef.current.length);
     const augs = augsForHistory(ownedRef.current);
     /* 기록에 남길 아이템: 살아 있던 옛 부스트 + 이번 경기에 쓴 준비 카드 */
     const cardUsed = match.card ? itemById(match.card) : null;
@@ -164,7 +172,9 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     if (match.kind === 'tourney') {
       // 토너먼트 경기는 경기마다 골드 대신, 끝난 뒤 성적 보상을 한 번에 받는다
       const round = roundsOf(tournament.size)[tournament.round]?.ko;
-      saveTournament(advance(tournament, res.score, account.team));
+      const nt = advance(tournament, res.score, account.team);
+      saveTournament(nt);
+      if (nt.done && nt.place >= roundsOf(nt.size).length - 3) bumpWeek('tour8'); // 주간 과제: 8강 이상에서 끝
       addHistory({ ...base, mode: 'tournament', round });
       refresh();
       setView('bracket');
@@ -196,7 +206,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   }
   if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
   if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
-  if (view === 'record') return screen(<RecordScreen account={account} onBack={() => setView('lobby')} />);
+  if (view === 'record') return screen(<RecordScreen account={account} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
   if (view === 'shop') return screen(<ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
   if (view === 'bracket' && tournament) {
     return screen(<TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}

@@ -255,7 +255,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
           desc="나올 증강 고르고 강화하기" onClick={onAugments} />
 
         <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="경기 기록" title="기록"
-          desc="치른 경기 · 전적 · MVP" onClick={onRecord} />
+          desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} />
 
         <RankPanel account={account} team={team} onRecord={onRecord} />
       </div>
