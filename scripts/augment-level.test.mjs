@@ -64,7 +64,7 @@ test('효과 문구도 레벨을 따라간다 — 이득만, 조건 수치는 �
   expect(augDescAt(byId('muscle'), 0)).toBe('타자 파워 +10');
   expect(augDescAt(byId('muscle'), 5)).toBe('타자 파워 +20');
   expect(augDescAt(byId('toContact'), 5)).toBe('타자 컨택 +44 · 파워 −8');
-  expect(augDescAt(byId('focusLine'), 5)).toBe('4회부터 우리 공격 안타 확률 +16%');
+  expect(augDescAt(byId('focusLine'), 5)).toBe('4회부터 우리 공격 안타 확률 +10%');
 });
 
 test('강화 레벨을 붙여도 증강 원본은 그대로다', () => {
