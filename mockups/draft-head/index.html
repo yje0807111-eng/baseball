@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>드래프트 판 구단 머리 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --bad:#f87171; --tc:#c0264b;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#05080f;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .bgx{position:absolute;inset:0;background:radial-gradient(900px 600px at 78% 12%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 60%),radial-gradient(800px 700px at 8% 100%,rgba(16,185,129,.14),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .bgx::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.16;mix-blend-mode:overlay}
+  .shell{position:relative;height:100%;display:flex;flex-direction:column}
+  .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+  .pill{height:36px;padding:0 14px;border-radius:10px;font-weight:700;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  .seg{display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(255,255,255,.05)}
+  .seg button{height:32px;padding:0 14px;border-radius:8px;font-weight:700;color:var(--m);display:flex;align-items:center;gap:6px}
+  .seg button.on{color:var(--w);background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+  .seg button small{font-size:var(--t4);color:var(--d);font-family:'Saira Condensed';font-weight:700}
+  .seg button .need{width:6px;height:6px;border-radius:50%;background:var(--a2);box-shadow:0 0 8px var(--a2)}
+  .pri{border-radius:16px;font-size:var(--t2);font-weight:700;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 14px 30px -10px rgba(16,185,129,.8),inset 0 1px 0 rgba(255,255,255,.4)}
+  .bar{height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;border-radius:5px}
+  .emb{background:center/contain no-repeat;flex:none}
+  /* 선반 카드 */
+  .card{position:relative;overflow:hidden;border-radius:14px;background:#0b1220 center 12%/cover no-repeat;cursor:pointer;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;
+    box-shadow:0 0 0 1px rgba(255,255,255,.08),0 14px 24px -14px rgba(0,0,0,.9)}
+  .card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.35),transparent 30%,transparent 48%,rgba(5,8,15,.95) 86%)}
+  .card>*{position:absolute;z-index:1}
+  .card:hover{transform:translateY(-4px)}
+  .card.need{box-shadow:0 0 0 1.5px rgba(52,211,153,.7),0 0 22px -6px rgba(52,211,153,.7)}
+  .card.on{transform:translateY(-6px);box-shadow:0 0 0 2.5px var(--a2),0 18px 34px -12px rgba(16,185,129,.8)}
+  .card.gone{filter:grayscale(1) brightness(.45)}
+  .card .ov{left:9px;top:6px;font-size:var(--t1);line-height:1;background:linear-gradient(180deg,#fff,#b6c2d1);-webkit-background-clip:text;color:transparent}
+  .card .ps{right:8px;top:9px;font-size:var(--t4);font-weight:700;padding:1px 7px;border-radius:999px;background:rgba(5,8,15,.7);display:flex;align-items:center;gap:4px}
+  .card.need .ps{color:var(--a2);box-shadow:inset 0 0 0 1px rgba(52,211,153,.6)}
+  .card .nm{left:9px;right:9px;bottom:22px;font-weight:700}
+  .card .cp{left:9px;bottom:6px;font-size:var(--t4);color:var(--m)}
+  .card .cp b{color:var(--warn)}
+  .holo{position:relative;overflow:hidden;border-radius:18px;background:#0b1220 center 14%/cover;transform:perspective(900px) rotateY(-6deg) rotateX(2deg);
+    box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12),0 0 60px -10px color-mix(in srgb,var(--tc) 55%,transparent)}
+  .holo::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.35) 47%,rgba(125,211,252,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:screen}
+  .holo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(5,8,15,.94))}
+  .holo>*{position:absolute;z-index:2}
+  @keyframes sheen{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  .ring{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--warn) calc(var(--p)*1%),rgba(255,255,255,.08) 0);
+    -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))}
+  .ringbox{position:relative;display:grid;place-items:center}.ringbox>b{position:absolute}
+  .field{position:relative;background:url(/ui/field-wide.webp) center 60%/cover;border-radius:20px;overflow:hidden}
+  .field::after{content:'';position:absolute;inset:0;background:radial-gradient(80% 80% at 50% 55%,transparent,rgba(5,8,15,.7))}
+  .slot{position:absolute;z-index:1;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;background:rgba(5,8,15,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);font-size:var(--t4);font-weight:700;white-space:nowrap}
+  .slot i{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06) center 14%/cover;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+  .slot.fill i{box-shadow:0 0 0 2px var(--m)}
+  .slot.empty{color:var(--a2);box-shadow:inset 0 0 0 1.5px rgba(52,211,153,.7),0 0 18px -4px rgba(52,211,153,.6)}
+  .hex{width:34px;height:30px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:#d69a62;display:grid;place-items:center;flex:none}
+  .hex i{width:60%;height:66%;background:#1a0f07;-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+  /* 머리 변형 */
+  .h1-banner{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;height:60px;padding:0 22px 0 14px;border-radius:18px;
+    background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 70%,#05080f),color-mix(in srgb,var(--tc) 22%,transparent) 80%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 30px -14px var(--tc)}
+  .h1-banner::after{content:'';position:absolute;inset:0;background:url(/ui/teams/bg-kiwoom.webp) right center/cover;opacity:.25;-webkit-mask:linear-gradient(90deg,transparent 30%,#000);mask:linear-gradient(90deg,transparent 30%,#000)}
+  .h1-banner>*{position:relative;z-index:1}
+  .shelf-team{position:relative;overflow:hidden}
+  .shelf-team::before{content:'';position:absolute;inset:0;background:url(/ui/teams/bg-kiwoom.webp) right 30%/cover;opacity:.3;-webkit-mask:linear-gradient(90deg,transparent 20%,#000 70%);mask:linear-gradient(90deg,transparent 20%,#000 70%)}
+  .shelf-team::after{content:'';position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--tc),transparent)}
+  .shelf-team>*{position:relative}
+  .wm{position:absolute;left:14px;top:-18px;font-size:150px;font-weight:900;line-height:1;letter-spacing:-.04em;color:color-mix(in srgb,var(--tc) 22%,transparent);pointer-events:none;white-space:nowrap}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+  #tool span{color:#cbd5e1;margin-left:6px}#tool b{color:#fde047}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"><button data-v="1">1 구단 배너</button><button data-v="2">2 선반 구단 판</button><button data-v="3">3 시즌 표</button><button data-v="4">4 구단 색 물들임</button><span id="meter"></span></div>
+
+<script>
+/* 2023 키움 선반 · 아홉 번째 지명 — 빈 자리: 2루 · 3루 · 우익수 · 지명 · 불펜 둘 */
+const art = (n) => `url(/cards/2022-kiwoom_${encodeURIComponent(n)}.webp),url(/ui/mt/silhouette-player.webp)`;
+const GROUP = { SP: '투수', RP: '투수', C: '포수', '1B': '내야', '2B': '내야', '3B': '내야', SS: '내야', OF: '외야', DH: '외야' };
+const NEED = new Set(['2B', '3B', 'OF', 'RP']);
+const SHELF = [['안우진','SP',96,101],['후라도','SP',88,88],['요키시','SP',76,74],['정찬헌','SP',69,64],['임창민','RP',84,84],['김재웅','RP',72,68],['장재영','RP',63,55],['양현','RP',59,50],['김동헌','C',70,65],['이지영','C',68,62],['임지열','1B',70,65],['이원석','1B',63,55],['김혜성','2B',91,92],['송성문','3B',73,69],['이정후','OF',88,88],['도슨','OF',85,85],['이형종','OF',65,58]]
+  .map(([name, pos, ovr, cp], i) => ({ name, pos, ovr, cp, gone: i === 1 || i === 15 }));
+const POS_KO = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF: '외야', DH: '지명' };
+const TABS = ['전체', '투수', '포수', '내야', '외야'];
+const TEAMS = ['KIA', '롯데', 'SSG', '두산', '삼성', '현대', 'LG'];
+const SLOTS = [['SP', 50, 58, '최동원'], ['C', 50, 90, '김동수'], ['1B', 69, 60, '이승엽'], ['2B', 61, 44], ['3B', 31, 60], ['SS', 39, 44, '이종범'], ['LF', 22, 26, '김우근'], ['CF', 50, 18, '이순철'], ['RF', 78, 26], ['DH', 86, 86]];
+const SYN = [['외야 수비망', 'outfieldNet', '2/2'], ['발야구', 'speedLine', '3/3'], ['교타 군단', 'contactLine', '2/4']];
+const STATS = [['파워', 84, -4], ['컨택', 92, 4], ['주루', 104, 16], ['수비', 91, 12]];
+let v = +(location.hash.slice(1) || 1);
+let sel = 12;
+let tab = '전체';
+
+const turn = () => `
+  <div class="row" style="gap:6px">${TEAMS.map((t, i) => `<span class="row" style="height:30px;padding:0 12px;border-radius:999px;font-weight:700;font-size:var(--t4);${i === 0 ? 'background:rgba(16,185,129,.18);box-shadow:inset 0 0 0 1.5px var(--a);color:#fff' : 'color:var(--d);background:rgba(255,255,255,.04)'}">${i === 0 ? '내 차례' : t}</span>`).join('')}</div>
+  <div class="ringbox"><span class="ring" style="--p:68"></span><b class="n" style="font-size:var(--t2);color:var(--warn)">17</b></div>
+  <div class="seg">${['×1', '×2', '×4', '⏭'].map((s, i) => `<button class="${i === 0 ? 'on' : ''}" style="height:28px;padding:0 10px">${s}</button>`).join('')}</div>
+  <button class="pill" style="width:36px;padding:0">?</button>`;
+const capBox = () => `
+  <div class="row" style="gap:22px">
+    <span class="col"><span class="t4 d">지명</span><b class="n" style="font-size:var(--t2)">09 <span class="d" style="font-size:var(--t4)">/ 20</span></b></span>
+    <span class="col" style="width:190px;gap:4px"><span class="row t4 d" style="justify-content:space-between">남은 캡<b class="n" style="font-size:var(--t3);color:var(--w)">1,012 / 1,560</b></span><div class="bar"><i style="width:65%;background:var(--a2)"></i></div></span>
+  </div>`;
+const tabs = () => `<div class="seg">${TABS.map((t) => {
+  const list = SHELF.filter((p) => t === '전체' || GROUP[p.pos] === t);
+  const need = list.some((p) => NEED.has(p.pos));
+  return `<button class="${tab === t ? 'on' : ''}" data-tab="${t}">${t}<small>${list.length}</small>${need && t !== '전체' ? '<i class="need"></i>' : ''}</button>`;
+}).join('')}</div>`;
+const shown = () => SHELF.map((p, i) => [p, i]).filter(([p]) => tab === '전체' || GROUP[p.pos] === tab);
+const cards = (h) => `<div style="display:grid;grid-template-columns:repeat(17,1fr);gap:8px">${shown().map(([p, i]) => `
+  <div class="card ${i === sel ? 'on' : ''} ${p.gone ? 'gone' : NEED.has(p.pos) ? 'need' : ''}" data-sel="${i}" style="height:${h}px;background-image:${art(p.name)}">
+    <b class="ov n">${p.ovr}</b><span class="ps">${POS_KO[p.pos]}</span>
+    <b class="nm tr">${p.name}</b><span class="cp"><b class="n">${p.cp}</b> CP</span>
+    ${p.gone ? '<span style="left:0;right:0;top:44%;text-align:center;font-weight:700;color:#fff">지명됨</span>' : ''}
+  </div>`).join('')}</div>`;
+const detail = (hh) => {
+  const p = SHELF[sel];
+  return `<div class="holo" style="height:${hh}px;background-image:${art(p.name)}">
+      <span class="col" style="left:16px;bottom:12px"><span class="t4 m">${POS_KO[p.pos]} · 2023 키움</span><b class="t1">${p.name}</b></span>
+      <b class="n" style="right:14px;bottom:4px;font-size:52px;line-height:1;background:linear-gradient(180deg,#fff,#9fb0c4);-webkit-background-clip:text;color:transparent">${p.ovr}</b>
+    </div>`;
+};
+const field = () => `<div class="field" style="flex:1;min-height:0">${SLOTS.map(([k, x, y, who]) => `<span class="slot ${who ? 'fill' : 'empty'}" style="left:${x}%;top:${y}%"><i ${who ? 'style="background-image:url(/ui/mt/silhouette-player.webp)"' : ''}></i>${who || `${POS_KO[k === 'LF' || k === 'CF' || k === 'RF' ? 'OF' : k]} 빈 자리`}</span>`).join('')}</div>`;
+const synRow = () => `<div class="row" style="gap:12px">${SYN.map(([n, img, c]) => `<span class="row" style="gap:6px"><span class="hex" style="--img:url(/ui/synergy/${img}.png)"><i></i></span><span class="col"><b class="t4">${n}</b><span class="t4 d n">${c}</span></span></span>`).join('')}</div>`;
+const pen = () => `<div class="row" style="gap:6px">${[['롱', '김용남'], ['중간', ''], ['셋업', '김진규'], ['마무리', '']].map(([k, who]) => `<span class="row" style="flex:1;height:34px;padding:0 10px;border-radius:10px;gap:6px;${who ? 'background:rgba(255,255,255,.04)' : 'box-shadow:inset 0 0 0 1.5px rgba(52,211,153,.6);color:var(--a2)'}"><span class="t4 ${who ? 'd' : ''}">${k}</span><b class="t4 grow" style="text-align:right">${who || '빈 자리'}</b></span>`).join('')}</div>`;
+const analysis = () => `<div class="col" style="gap:12px">
+    <div class="row"><span class="lab">팀 분석</span><span class="grow"></span><span class="t4 d">AI 평균 79.8</span><b class="n" style="font-size:var(--t1);color:var(--a2)">88.4</b></div>
+    ${STATS.map(([k, val, d]) => `<div class="row" style="gap:12px"><span class="t4 m" style="width:32px">${k}</span><div class="bar grow" style="height:6px"><i style="width:${Math.min(100, (val - 40) / 0.8)}%;background:${d >= 0 ? 'var(--a2)' : 'var(--bad)'}"></i></div><b class="n" style="width:30px;text-align:right">${val}</b><span class="n t4" style="width:30px;color:${d >= 0 ? 'var(--a2)' : 'var(--bad)'}">${d > 0 ? '+' : ''}${d}</span></div>`).join('')}
+    <span class="t4 m">발 빠른 야구 · 장타 조금 부족</span></div>`;
+const bottom = () => `
+  <div style="display:grid;grid-template-columns:400px 1fr 400px;gap:14px;flex:1;min-height:0">
+    <section class="glass col" style="padding:16px;gap:12px;min-height:0">${detail(236)}<div class="grow"></div><button class="pri" style="height:58px;width:100%">지명 · ${SHELF[sel].cp} CP</button></section>
+    <section class="glass col" style="padding:14px 16px;gap:10px;min-height:0"><div class="row"><span class="lab">내 라인업</span><span class="grow"></span>${synRow()}</div>${field()}${pen()}</section>
+    <section class="glass" style="padding:18px 20px">${analysis()}</section>
+  </div>`;
+const back = () => '<button class="pill" style="width:40px;padding:0">←</button>';
+
+/* ── 1. 구단 배너 — 머리 왼쪽에 구단 색 배너(엠블럼 · 이름 · 연도) ── */
+function v1() {
+  return `<div class="bgx"></div><div class="shell">
+    <header class="row" style="height:84px;padding:0 24px;gap:16px">${back()}
+      <div class="h1-banner"><span class="emb" style="width:46px;height:46px;background-image:url(/ui/clubs/kiwoom.webp)"></span>
+        <div class="col"><b class="t1" style="line-height:1.1">키움 히어로즈</b><span class="t4" style="color:rgba(255,255,255,.75)">정규시즌 10위 · 이정후 고별 시즌</span></div>
+        <b class="n" style="font-size:var(--t1);padding:2px 10px;border-radius:10px;background:rgba(5,8,15,.45);margin-left:6px">2023</b></div>
+      <span class="t4 d">드래프트 · 전체 믹스</span><div class="grow"></div>${turn()}</header>
+    <div class="col" style="padding:0 24px 20px;gap:14px;flex:1;min-height:0">
+      <section class="glass col" style="padding:14px 16px;gap:12px"><div class="row">${tabs()}<span class="grow"></span>${capBox()}</div>${cards(172)}</section>
+      ${bottom()}
+    </div></div>`;
+}
+/* ── 2. 선반 구단 판 — 영입 후보 판 자체가 구단 그림 · 큰 이름 ── */
+function v2() {
+  return `<div class="bgx"></div><div class="shell">
+    <header class="row" style="height:64px;padding:0 24px;gap:16px">${back()}<div class="col"><span class="t4 d">드래프트</span><b class="t2">전체 믹스</b></div><div class="grow"></div>${turn()}</header>
+    <div class="col" style="padding:0 24px 20px;gap:14px;flex:1;min-height:0">
+      <section class="glass shelf-team col" style="padding:16px 18px;gap:12px">
+        <div class="row" style="gap:16px"><span class="emb" style="width:60px;height:60px;background-image:url(/ui/clubs/kiwoom.webp);filter:drop-shadow(0 0 14px var(--tc))"></span>
+          <div class="col"><span class="row" style="gap:10px"><b class="n" style="font-size:var(--t1);color:var(--tc);filter:brightness(1.6)">2023</b><b style="font-size:36px;font-weight:800;line-height:1.1">키움 히어로즈</b></span>
+          <span class="t4 m">정규시즌 10위 · 이정후 고별 시즌</span></div>
+          <span class="grow"></span>${tabs()}<span style="width:14px"></span>${capBox()}</div>
+        ${cards(160)}</section>
+      ${bottom()}
+    </div></div>`;
+}
+/* ── 3. 시즌 표 — 큰 연도 숫자 · 구단 색 세로 띠 · 이름 두 줄 ── */
+function v3() {
+  return `<div class="bgx"></div><div class="shell">
+    <header class="row" style="height:92px;padding:0 24px;gap:18px">${back()}
+      <div class="row" style="gap:16px;padding:6px 22px 6px 0">
+        <i style="width:6px;height:64px;border-radius:6px;background:linear-gradient(var(--tc),color-mix(in srgb,var(--tc) 30%,transparent));box-shadow:0 0 18px var(--tc)"></i>
+        <b class="n" style="font-size:64px;line-height:.9;letter-spacing:-.01em">2023</b>
+        <div class="col" style="gap:2px"><span class="row" style="gap:8px"><span class="emb" style="width:28px;height:28px;background-image:url(/ui/clubs/kiwoom.webp)"></span><b class="t1">키움 히어로즈</b></span>
+          <span class="t4 m">정규시즌 10위 · 이정후 고별 시즌</span></div>
+        <span style="width:1px;height:48px;border-left:1px dashed rgba(255,255,255,.2);margin-left:10px"></span>
+        <span class="t4 d">드래프트<br>전체 믹스</span></div>
+      <div class="grow"></div>${turn()}</header>
+    <div class="col" style="padding:0 24px 20px;gap:14px;flex:1;min-height:0">
+      <section class="glass col" style="padding:14px 16px;gap:12px"><div class="row">${tabs()}<span class="grow"></span>${capBox()}</div>${cards(164)}</section>
+      ${bottom()}
+    </div></div>`;
+}
+/* ── 4. 구단 색 물들임 — 화면 위쪽이 구단 그림 · 색으로 물들고 큰 이름이 워터마크로 ── */
+function v4() {
+  return `<div class="bgx"></div>
+    <div style="position:absolute;inset:0 0 auto;height:340px;background:url(/ui/teams/bg-kiwoom.webp) center 30%/cover;opacity:.45;-webkit-mask:linear-gradient(#000 30%,transparent);mask:linear-gradient(#000 30%,transparent)"></div>
+    <div style="position:absolute;inset:0 0 auto;height:340px;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 55%,transparent),transparent 70%);-webkit-mask:linear-gradient(#000 30%,transparent);mask:linear-gradient(#000 30%,transparent)"></div>
+    <div class="shell">
+    <header class="row" style="height:92px;padding:0 24px;gap:16px;position:relative">${back()}
+      <span class="emb" style="width:56px;height:56px;background-image:url(/ui/clubs/kiwoom.webp);filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))"></span>
+      <div class="col"><span class="t4" style="color:rgba(255,255,255,.8)">2023 · 정규시즌 10위 · 이정후 고별 시즌</span><b style="font-size:40px;font-weight:800;line-height:1.05;text-shadow:0 4px 18px rgba(0,0,0,.6)">키움 히어로즈</b></div>
+      <div class="grow"></div>${turn()}</header>
+    <div class="col" style="padding:0 24px 20px;gap:14px;flex:1;min-height:0">
+      <section class="glass col" style="padding:14px 16px;gap:12px"><div class="row">${tabs()}<span class="grow"></span>${capBox()}</div>${cards(158)}</section>
+      ${bottom()}
+    </div></div>`;
+}
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length, c: new Set(text.map((e) => getComputedStyle(e).color)).size };
+};
+function draw() {
+  document.getElementById('app').innerHTML = [0, v1, v2, v3, v4][v]();
+  document.querySelectorAll('#tool [data-v]').forEach((b) => b.classList.toggle('on', +b.dataset.v === v));
+  const m = measure();
+  document.getElementById('meter').innerHTML = `글 <b>${m.t}</b>/219 · 단추 <b>${m.b}</b>/28 · 색 <b>${m.c}</b>/19 <span style="color:#6b7280">(지금 화면)</span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-sel],[data-tab]');
+  if (!t) return;
+  if (t.dataset.v) { v = +t.dataset.v; location.hash = v; }
+  if (t.dataset.sel) sel = +t.dataset.sel;
+  if (t.dataset.tab) tab = t.dataset.tab;
+  draw();
+});
+addEventListener('keydown', (e) => { if ('1234'.includes(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>
