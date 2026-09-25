@@ -71,5 +71,5 @@ export function prepOf(ready) {
 /** 경기용 팀: 정비 20명은 드래프트 규칙(buildTeam)으로, 나머지는 벤치 */
 export function matchTeamOf(team, ready, rest) {
   const t = buildTeam(team.name || '나의 드림팀', ready);
-  return { name: team.name || '나의 드림팀', roster: [...t.roster, ...rest.map((p) => ({ ...p, slot: 'BN' }))], batters: t.batters };
+  return { name: team.name || '나의 드림팀', roster: [...t.roster, ...rest.map((p) => ({ ...p, slot: 'BN' }))], batters: t.batters, synergies: t.synergies };
 }

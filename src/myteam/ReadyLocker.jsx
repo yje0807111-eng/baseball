@@ -26,7 +26,7 @@ const TIER = [
 const tierOf = (s) => (!s.level ? 0 : s.level === s.tiers.length ? (s.tiers.length >= 3 ? 4 : 3) : Math.min(s.level, 2));
 const BONUS_KO = { bat: '타격', pit: '투구', power: '파워', contact: '컨택', speed: '주루', defense: '수비', stability: '안정' };
 
-const SynIcon = ({ s, w = 38 }) => {
+export const SynIcon = ({ s, w = 38 }) => {
   const t = TIER[tierOf(s)];
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: w, height: Math.round(w * 0.87), background: t.bd, clipPath: HEX }}>

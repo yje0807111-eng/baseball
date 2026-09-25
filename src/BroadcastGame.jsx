@@ -397,6 +397,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리
   /* 전술 — 정비에서 고른 세 갈래를 경기 중에도 바꾼다. 바꾸면 다음 공부터 먹는다 */
   const [sides, setSides] = useState(my?.plan?.sides || DEFAULT_SIDES);
+  const sidesRef = useRef(sides);
+  sidesRef.current = sides;
   const [touched, setTouched] = useState(my?.plan?.touched || {});
   const fineRef = useRef(planOfSides(sides, touched).fine);
   fineRef.current = planOfSides(sides, touched).fine;
@@ -425,7 +427,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const handOver = () => {
     if (endedRef.current) return false;
     endedRef.current = true;
-    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current }));
+    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current, sides: sidesRef.current }));
     return true;
   };
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
@@ -1241,7 +1243,33 @@ export function buildResult(g, myTeam, manager = null) {
   const myPitcherIds = new Set(g.home.team.pitchers.map((p) => p.id));
   const pitchCounts = {};
   for (const ev of g.events) if (ev.pitcher && myPitcherIds.has(ev.pitcher.id)) pitchCounts[ev.pitcher.id] = (pitchCounts[ev.pitcher.id] || 0) + 1;
+  /* 기록실에 남길 박스 스코어 — 내 타자(말 공격)와 내 투수(초 수비) */
+  const bat = {};
+  const arm = {};
+  const hits = { my: 0, opp: 0 };
+  for (const ev of g.events) {
+    if (!ev.result || ev.result === 'SB' || ev.result === 'CS') continue;
+    const hit = ['1B', '2B', '3B', 'HR', 'BH'].includes(ev.result);
+    if (hit) hits[ev.top ? 'opp' : 'my'] += 1;
+    if (!ev.top && ev.batter) {
+      const b = bat[ev.batter.id] || (bat[ev.batter.id] = { ab: 0, h: 0, hr: 0, rbi: 0, bb: 0, k: 0 });
+      if (!['BB', 'IBB', 'SF', 'SAC'].includes(ev.result)) b.ab += 1;
+      if (hit) b.h += 1;
+      if (ev.result === 'HR') b.hr += 1;
+      if (ev.result === 'BB' || ev.result === 'IBB') b.bb += 1;
+      if (ev.result === 'K') b.k += 1;
+      if (ev.result !== 'E') b.rbi += ev.runs || 0;
+    }
+    if (ev.top && ev.pitcher && myPitcherIds.has(ev.pitcher.id)) {
+      const p = arm[ev.pitcher.id] || (arm[ev.pitcher.id] = { at: Object.keys(arm).length, bf: 0, h: 0, k: 0, r: 0 });
+      p.bf += 1;
+      if (hit) p.h += 1;
+      if (ev.result === 'K') p.k += 1;
+      p.r += ev.runs || 0;
+    }
+  }
   return {
+    box: { bat, arm }, hits, line: { my: [...g.home.line], opp: [...g.away.line] }, sides: manager?.sides || null,
     board,
     pitchCounts, starterId: g.home.team.pitchers[0]?.id || null,
     score: { my: g.home.runs, opp: g.away.runs },
