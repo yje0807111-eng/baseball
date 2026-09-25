@@ -40,6 +40,7 @@ const CLUTCH_CSS = `
   76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06); letter-spacing: .2em; } }
 @keyframes halfWipe { 0% { transform: scaleX(0); opacity: .9; } 55% { transform: scaleX(1); opacity: .55; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 @keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
@@ -157,7 +158,8 @@ const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
 const WATCH_MARK = 0.09; // 이 무게부터는 공마다 본다 — 경기당 22 타석쯤
 const BRIEF_MS = 1800;   // 볼거리 있는 타석 — 타구만 한 번
-const FLASH_MS = 800;    // 그 밖 — 결과 한 줄
+const FLASH_MS = 620;    // 그 밖 — 결과 한 줄
+const RUSH_MS = 110;     // 접은 타석에서 공 하나가 지나가는 간격
 const WORTH = ['HR', '3B', '2B', 'DP', 'E']; // 접어도 타구는 보여 주는 결과
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
@@ -410,6 +412,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [lines, setLines] = useState([lineOf('플레이볼!', 'note')]);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [swap, setSwap] = useState(null); // 공수 교대 띠
+  const [rush, setRush] = useState(false); // 접은 타석을 흘려보내는 중
   const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
   const outsRef = useRef(0); // 아웃이 늘면 표시가 한 번 튄다
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
@@ -538,8 +541,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
+        const folded = []; // 접은 타석에서 지나간 공 — 빨리 흘려보낼 것들
         try {
-          if (fold) { do { ev = pitch(g, pendingRef.current); } while (ev && !ev.result && !g.final); }
+          if (fold) { do { ev = pitch(g, pendingRef.current); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, pendingRef.current);
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
@@ -553,9 +557,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         const said = commentary(ev).map((t) => lineOf(t, kindOf(ev), g));
         setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
         if (fold) {
-          /* 접은 타석은 존 판에 찍지 않는다 — 공을 보여 주지 않았으니 */
+          /* 접은 타석은 존 판에 찍지 않는다 — 공을 하나씩 보여 주는 것이 아니니 */
           setZoneShots([]);
-          setPlay(worth ? { ev, ms: beat, bases: wasOn } : null);
+          /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다 */
+          if (folded.length > 1) {
+            setRush(true);
+            const step = Math.max(45, RUSH_MS / curSpeed());
+            for (const e of folded.slice(0, -1)) {
+              if (stop || !aliveRef.current) break;
+              setPlay({ ev: e, ms: step * 3, bases: wasOn });
+              await sleep(step);
+            }
+            setRush(false);
+          }
+          setPlay({ ev, ms: beat, bases: wasOn });
           setCount({ b: 0, s: 0, o: g.outs });
         } else {
           setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
@@ -883,6 +898,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     <span className="text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
                   </div>
                 </div>
+              )}
+
+              {/* 접은 타석을 흘려보내는 중 — 넘어갔다는 것이 보이게 */}
+              {rush && (
+                <span className="mt-cut pointer-events-none absolute right-3 top-[50px] flex items-center gap-1.5 px-2.5 py-1 font-display text-[12px] font-extrabold text-[#05080f]"
+                  style={{ '--c': '4px', background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
               )}
 
               {/* 결과 자막 */}
