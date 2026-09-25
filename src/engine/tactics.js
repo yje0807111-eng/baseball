@@ -14,13 +14,13 @@ const LEVEL = {
   hook: { 늦게: -1, 보통: 0, 빠르게: 1 },
   duel: { 회피: -1, 보통: 0, 정면: 1 },
   mix: { 안전: -1, 보통: 0, 공격: 1 },
-  guard: { 정석: -1, 보통: 0, 과감: 1 },
+  guard: { 깊게: -1, 정석: 0, 전진: 1 },
   hold: { 느슨: -1, 보통: 0, 바짝: 1 },
 };
 export const levelOf = (fine = {}, key) => LEVEL[key]?.[fine[key]] ?? 0;
 
-/** 투수를 내리는 문턱 — 늦게 고르면 더 버티고, 빠르게면 일찍 내린다 */
-export const hookAt = (fine = {}) => 1 - levelOf(fine, 'hook') * 0.18;
+/** 투수를 내리는 체력 문턱 — 늦게는 바닥까지, 빠르게는 여유 있을 때 */
+export const hookAt = (fine = {}) => [0, 8, 20][levelOf(fine, 'hook') + 1];
 
 /**
  * 이 공에 실을 지시.
@@ -44,9 +44,13 @@ export function tacticOrders(fine = {}, mineBat = true, rng = Math.random) {
     else if (duel < 0 && rng() < 0.34) out.zone = 'chase'; // 회피 · 유인구로 뺀다
     const mix = levelOf(fine, 'mix');
     if (mix !== 0 && rng() < 0.3) out.pitchType = mix > 0 ? 'slider' : 'fast';
-    /* 수비 — 주자를 얼마나 묶나 */
+    /* 수비 — 주자를 얼마나 묶고, 어디에 서나 */
     const hold = levelOf(fine, 'hold');
     if (hold !== 0) out.hold = hold;
+    /* 깊게 서면 장타를 막는 대신 앞이 비고, 전진하면 그 반대다. 정석이 기준 */
+    const guard = levelOf(fine, 'guard');
+    if (guard) out.guard = guard;
+    out.hookAt = hookAt(fine); // 내 투수를 언제 내릴지
   }
   return out;
 }

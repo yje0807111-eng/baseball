@@ -15,7 +15,8 @@
  *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다) }
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
- *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다) }
+ *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다), guard: -1|1 (제자리 · 붙어 선다),
+ *     hookAt: 0~20 (이 체력 아래면 투수를 내린다) }
  */
 
 export const PITCHES = {
@@ -241,13 +242,14 @@ export function pitch(g, orders = {}) {
   }
   /* 체력이 바닥난 투수는 타석이 바뀔 때 알아서 내려간다 — 어느 팀이든 */
   let swapped = null;
-  if (!orders.changePitcher && !g.balls && !g.strikes && staminaOf(def) <= 0 && def.team.pitchers[def.pitcherIdx + 1]) {
+  if (!orders.changePitcher && !g.balls && !g.strikes && staminaOf(def) <= (orders.hookAt ?? 0) && def.team.pitchers[def.pitcherIdx + 1]) {
     const out = def.pitcher;
     def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
     swapped = { out, in: def.pitcher };
   }
-  /* 수비가 정한 주자 묶기 세기 — 도루 성공률이 이 값을 본다 */
+  /* 수비가 정한 값 — 주자 묶기는 도루 성공률이, 수비 위치는 타구 처리가 본다 */
   g.hold = orders.hold || 0;
+  g.guard = orders.guard || 0;
   const pitcher = def.pitcher;
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, ...(swapped ? { swapped } : {}), before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
   let runs = 0;
@@ -330,12 +332,13 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
     return score(g, advance(g, 1, batter, { scoreFrom2: 0.7 }));
   }
 
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.022 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
     const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
-    const dbl = clamp(0.18 + (power - 70) * 0.004, 0.08, 0.35);
+    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.07, 0.08, 0.35);
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;

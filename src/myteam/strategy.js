@@ -23,14 +23,14 @@ export const FINE = [
   { g: '마운드', color: '#f87171', key: 'hook', ko: '투수 교체', opts: ['늦게', '보통', '빠르게'] },
   { g: '마운드', color: '#f87171', key: 'duel', ko: '승부', opts: ['회피', '보통', '정면'] },
   { g: '마운드', color: '#f87171', key: 'mix', ko: '볼 배합', opts: ['안전', '보통', '공격'] },
-  { g: '수비', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['정석', '보통', '과감'] },
+  { g: '수비', color: '#60a5fa', key: 'guard', ko: '수비 위치', opts: ['깊게', '정석', '전진'] },
   { g: '수비', color: '#60a5fa', key: 'hold', ko: '주자 견제', opts: ['느슨', '보통', '바짝'] },
 ];
 export const GROUPS = [['타격', '#34d399'], ['마운드', '#f87171'], ['수비', '#60a5fa']];
 /** 아무것도 손대지 않았을 때 */
 export const DEFAULT_PLAN = {
   base: { bat: '기동력', pit: '길게', run: '보통' },
-  fine: { swing: '보통', take: '보통', hook: '보통', duel: '보통', mix: '보통', guard: '보통', hold: '보통' },
+  fine: { swing: '보통', take: '보통', hook: '보통', duel: '보통', mix: '보통', guard: '정석', hold: '보통' },
 };
 const avg = (a, f) => (a.length ? a.reduce((s, x) => s + f(x), 0) / a.length : 0);
 /**
@@ -58,8 +58,8 @@ export function scoutTags(opponent) {
 
 /** 약점 태그 → 그 약점을 되치는 성향 (★ 로 표시한다) */
 const COUNTER = {
-  '장타 위험': { mix: '안전', guard: '과감', duel: '회피' },
-  '발 빠른 타선': { hold: '바짝', guard: '과감' },
+  '장타 위험': { mix: '안전', guard: '깊게', duel: '회피' },
+  '발 빠른 타선': { hold: '바짝', guard: '전진' },
   '컨택 강함': { mix: '안전' },
   '수비 탄탄': { swing: '과감' },
   '좌타 다수': { mix: '공격' },
@@ -101,8 +101,8 @@ export const SIDES = [
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [
       { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
-      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '과감', hold: '느슨' } },
-      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '과감', hold: '보통' } },
+      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '깊게', hold: '느슨' } },
+      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '전진', hold: '보통' } },
       { id: 'tight', ko: '주자 묶기', tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
     ] },
 ];
