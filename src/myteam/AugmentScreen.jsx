@@ -283,6 +283,7 @@ export default function AugmentScreen({ account, onBack }) {
                   </div>
                   <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
                     <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    {picked.note && <p className="mt-1.5 text-[13px] leading-snug text-gray-400">{picked.note}</p>}
                     <div className="mt-2.5 grid gap-[5px]">
                       {(() => { const base = effectRows(picked.desc); return effectRows(augDescAt(picked, lv)).map(([head, num], i) => {
                         const gain = gainOf(num, base[i]?.[1]);
