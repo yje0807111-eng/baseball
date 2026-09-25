@@ -2379,7 +2379,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           const flag = teamFlag(series.title || '');
           const c = flag?.color || SERIES_NEON[series.kind] || '#10b981';
           return (
-            <div key={series.id} className="flex animate-[rise_.35s_ease-out_both] items-center gap-4 py-0.5">
+            <div className="flex items-center gap-4 py-0.5">
               <i className="block h-14 w-1.5 shrink-0 rounded-full" style={{ background: `linear-gradient(${c}, ${c}44)`, boxShadow: `0 0 18px ${c}` }} aria-hidden="true" />
               {series.year && <b className="font-display text-[60px] font-extrabold leading-[.85] text-white">{series.year}</b>}
               <div className="min-w-0 leading-tight">
@@ -6019,7 +6019,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 <span className="bc-label font-display">영입 후보</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
-                <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
+                <div className="ser-hd mb-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
                   {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />}
                   <div className="ser-tabs" role="group" aria-label="포지션">
                     {['전체', ...Object.keys(GROUP_POS)].map((g) => {
