@@ -57,7 +57,7 @@ const emptyTeam = () => ({
 export const START_GOLD = 5000;
 
 /* 증강 풀 관리: 등급마다 제외 목록 · 제외 칸(기본 5, 제거권으로 최대 8) · 증강 레벨 · 제거권/강화권 */
-export const AUG_TIERS = ['silver', 'gold', 'prismatic'];
+export const AUG_TIERS = ['silver']; // 증강 등급은 하나로 합쳤다
 export const AUG_SLOT_BASE = 5;
 export const AUG_SLOT_MAX = 8;
 export const AUG_LEVEL_MAX = 5;

@@ -10,11 +10,9 @@ import { loadAccount, saveAug, augShopTickets, spendAugTicket, pledgedAugId, set
 import { UiStyle, Bg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
-const TIER = {
-  silver: { c: '#cbd5e1', en: 'SILVER', ko: '실버' },
-  gold: { c: '#fbbf24', en: 'GOLD', ko: '골드' },
-  prismatic: { c: '#e879f9', en: 'PRISM', ko: '프리즘' },
-};
+/* 증강 등급은 하나로 합쳤다 — 어느 이름으로 물어도 같은 것이 나온다 */
+const AUG_LOOK = { c: '#cbd5e1', en: 'AUGMENT', ko: '증강' };
+const TIER = new Proxy({}, { get: () => AUG_LOOK });
 const TYPE_ORDER = [['build', '빌드'], ['play', '운영'], ['balance', '밸런스'], ['extreme', '극단'], ['luck', '운']];
 const TYPE_KO = Object.fromEntries(TYPE_ORDER);
 const RED = '#f87171';
@@ -173,7 +171,7 @@ export default function AugmentScreen({ account, onBack }) {
   const pickBanned = picked && bans.includes(picked.id);
 
   const NAV = [
-    ...AUG_TIERS.map((t) => ({ key: t, label: `${TIER[t].ko} 증강`, c: TIER[t].c, t })),
+    ...AUG_TIERS.map((t) => ({ key: t, label: '증강', c: TIER[t].c, t })),
     { key: 'upgrade', label: '강화', c: GREEN },
   ];
 
@@ -221,7 +219,7 @@ export default function AugmentScreen({ account, onBack }) {
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? 'Upgrade' : `${T.en} Pool`}</p>
-            {tab === 'upgrade' && (
+            {tab === 'upgrade' && AUG_TIERS.length > 1 && (
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
                   <button key={t} type="button" onClick={() => { setUpTier(t); setSel(null); }}
