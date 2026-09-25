@@ -19,10 +19,11 @@ import {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
-const shotsOf = (g) => atBatPitches(g.events).map((e) => {
+const shotOf = (e) => {
   const t = pitchTarget(e) || [0, 0];
   return { x: t[0] / ZONE.w, y: t[1] / ZONE.h, tone: CALL_TONE[e.call] || '#fff', ev: e };
-});
+};
+const shotsOf = (g) => atBatPitches(g.events).map(shotOf);
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
 /* 담아 둔 지시를 사람 말로 — 눌렀다는 것이 보이게 */
 const ORDER_KO = { steal: '도루', bunt: '번트', hitAndRun: '히트앤런', ibb: '고의사구', changePitcher: '투수 교체' };
@@ -159,7 +160,7 @@ const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
 const WATCH_MARK = 0.09; // 이 무게부터는 공마다 본다 — 경기당 22 타석쯤
 const BRIEF_MS = 1800;   // 볼거리 있는 타석 — 타구만 한 번
 const FLASH_MS = 620;    // 그 밖 — 결과 한 줄
-const RUSH_MS = 110;     // 접은 타석에서 공 하나가 지나가는 간격
+const RUSH_MS = 80;     // 접은 타석에서 공 하나가 지나가는 간격
 const WORTH = ['HR', '3B', '2B', 'DP', 'E']; // 접어도 타구는 보여 주는 결과
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
@@ -557,21 +558,25 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         const said = commentary(ev).map((t) => lineOf(t, kindOf(ev), g));
         setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
         if (fold) {
-          /* 접은 타석은 존 판에 찍지 않는다 — 공을 하나씩 보여 주는 것이 아니니 */
-          setZoneShots([]);
-          /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다 */
+          /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다.
+             존 판과 볼카운트도 같이 달려야 공이 지나갔다는 것이 읽힌다 */
           if (folded.length > 1) {
             setRush(true);
-            const step = Math.max(45, RUSH_MS / curSpeed());
-            for (const e of folded.slice(0, -1)) {
+            const step = Math.max(35, RUSH_MS / curSpeed());
+            for (let i = 0; i < folded.length - 1; i += 1) {
               if (stop || !aliveRef.current) break;
+              const e = folded[i];
               setPlay({ ev: e, ms: step * 3, bases: wasOn });
+              setZoneShots(folded.slice(0, i + 1).map(shotOf));
+              setCount({ b: e.after.balls, s: e.after.strikes, o: e.after.outs });
               await sleep(step);
             }
             setRush(false);
           }
           setPlay({ ev, ms: beat, bases: wasOn });
+          setZoneShots(shotsOf(g));
           setCount({ b: 0, s: 0, o: g.outs });
+          setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
         } else {
           setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
           /* 존 판은 구장에 공이 닿는 때에 함께 찍는다 — 먼저 뜨면 김이 샌다 */
