@@ -354,6 +354,13 @@ const INFIELD_POS = new Set(['1B', '2B', '3B', 'SS']);
 const DEF_GOOD = { C: 90, '1B': 58, '2B': 84, '3B': 80, SS: 95, OF: 88 }; // 포지션별 수비 상위 20% 안팎
 const goodGlove = (p) => p.stats.defense >= (DEF_GOOD[posOf(p)] ?? 999);
 const handIs = (h) => (p) => p.hand === h || p.hand === 'S'; // 스위치 히터는 좌우 모두로 센다
+/* 스타일은 선수 안에서 무엇이 두드러지는가로 가른다 — 종합이 높다고 켜지지 않게 (카드 풀에서 각 38% 안팎, 종합과 상관없음) */
+const STYLE_GAP = 5;
+const slugger = (p) => p.stats.power >= p.stats.contact + STYLE_GAP;
+const hitter = (p) => p.stats.contact >= p.stats.power + STYLE_GAP;
+const burner = (p) => p.stats.speed >= Math.max(p.stats.power, p.stats.contact) + STYLE_GAP;
+const flamer = (p) => p.stats.stuff >= p.stats.control + STYLE_GAP;
+const painter = (p) => p.stats.control >= p.stats.stuff + STYLE_GAP;
 /** 주전 가운데 같은 연대(10년 단위) 선수가 가장 많은 무리 — 동률이면 최근 연대 */
 function topDecade(roster) {
   const groups = {};
@@ -361,10 +368,17 @@ function topDecade(roster) {
   const [dec, players = []] = Object.entries(groups).sort((a, b) => b[1].length - a[1].length || b[0] - a[0])[0] || [];
   return { dec: dec ? Number(dec) : null, players };
 }
-/** 수비 90+ 포수가 주전이면 그 포수와 제구 95+ 투수들 */
+/** 주전 가운데 같은 구단 · 같은 시즌 카드가 가장 많은 무리 — 동률이면 최근 시즌 */
+function topTeamYear(roster) {
+  const groups = {};
+  startersOf(roster).filter((p) => p.team !== KR).forEach((p) => { const k = `${p.year} ${FRANCHISE[p.team] || p.team}`; (groups[k] = groups[k] || []).push(p); });
+  const [key, players = []] = Object.entries(groups).sort((a, b) => b[1].length - a[1].length || b[0].localeCompare(a[0]))[0] || [];
+  return { key: key || null, players };
+}
+/** 수비 좋은 포수가 주전이면 그 포수와 제구형 투수들 */
 function batteryOf(roster) {
   const c = battersOf(roster).find((p) => posOf(p) === 'C' && goodGlove(p));
-  return c ? [c, ...pitchersOf(roster).filter((p) => p.stats.control >= 95)] : [];
+  return c ? [c, ...pitchersOf(roster).filter(painter)] : [];
 }
 /** 이름 목록에 든 선수(동일인은 한 번) */
 const personMembers = (r, names) => {
@@ -408,7 +422,7 @@ export const SYNERGIES = [
   story('skMound', 'SK 왕조 마운드', '김광현·정우람·정대현 (2008 선발·셋업·마무리)', ['김광현', '정우람', '정대현'], [
     tier(2, '투수 +2', { pit: 2 }), tier(3, '투수 +3', { pit: 3 }),
   ]),
-  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +3', { bat: 3, pit: 3 })]),
+  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +2', { bat: 2, pit: 2 })]),
   story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택·주루 +8', { contact: 8, speed: 8 })]),
   story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })]),
   story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })]),
@@ -438,30 +452,30 @@ export const SYNERGIES = [
     tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   // ── 팀 구성 (인원이 늘면 단계가 오른다)
-  build('power', '홈런 군단', '파워 95+ 타자', (r) => battersOf(r).filter((p) => p.stats.power >= 95), [
-    tier(3, '파워 +2', { power: 2 }), tier(4, '파워 +4', { power: 4 }), tier(5, '파워 +7', { power: 7 }),
+  build('power', '홈런 군단', '파워형 타자 (파워가 컨택보다 5+)', (r) => battersOf(r).filter(slugger), [
+    tier(4, '파워 +2', { power: 2 }), tier(5, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
   ]),
   build('mercenary', '용병 트리오', '외국인 선수', (r) => realOnly(r).filter((p) => p.isForeign), [
     tier(2, '능력치 +1', { bat: 1, pit: 1 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   // 가장 많이 뽑힌 구단의 인원 수로 단계가 정해지고, 그 구단(동률이면 모두) 선수들이 혜택을 받는다
   build('franchise', '프랜차이즈의 기억', '가장 많이 뽑은 구단', (r) => topFranchises(r).players, [
-    tier(3, '능력치 +1', { bat: 1, pit: 1 }),
-    tier(5, '능력치 +2 · 수비·안정 +2', { bat: 2, pit: 2, defense: 2, stability: 2 }),
-    tier(7, '능력치 +3 · 수비·안정 +3', { bat: 3, pit: 3, defense: 3, stability: 3 }),
+    tier(5, '능력치 +1', { bat: 1, pit: 1 }),
+    tier(7, '능력치 +2 · 수비·안정 +2', { bat: 2, pit: 2, defense: 2, stability: 2 }),
+    tier(9, '능력치 +3 · 수비·안정 +3', { bat: 3, pit: 3, defense: 3, stability: 3 }),
   ]),
   // ── 타선 색깔 (문턱은 카드 풀 상위 10% 안팎)
-  build('contactLine', '교타 군단', '컨택 93+ 타자', (r) => battersOf(r).filter((p) => p.stats.contact >= 93), [
-    tier(3, '컨택 +2', { contact: 2 }), tier(4, '컨택 +4', { contact: 4 }), tier(5, '컨택 +7', { contact: 7 }),
+  build('contactLine', '교타 군단', '교타형 타자 (컨택이 파워보다 5+)', (r) => battersOf(r).filter(hitter), [
+    tier(4, '컨택 +2', { contact: 2 }), tier(5, '컨택 +4', { contact: 4 }), tier(6, '컨택 +7', { contact: 7 }),
   ]),
-  build('speedLine', '발야구', '주루 95+ 타자', (r) => battersOf(r).filter((p) => p.stats.speed >= 95), [
+  build('speedLine', '발야구', '준족형 타자 (주루가 파워·컨택보다 5+)', (r) => battersOf(r).filter(burner), [
     tier(3, '주루 +4 · 컨택 +1', { speed: 4, contact: 1 }), tier(4, '주루 +6 · 컨택 +2', { speed: 6, contact: 2 }), tier(5, '주루 +8 · 컨택 +3', { speed: 8, contact: 3 }),
   ]),
   build('leftLine', '좌타 라인', '좌타자 (스위치 포함)', (r) => battersOf(r).filter(handIs('L')), [
     tier(5, '컨택 +2', { contact: 2 }), tier(7, '컨택 +4', { contact: 4 }),
   ]),
   build('rightLine', '우타 라인', '우타자 (스위치 포함)', (r) => battersOf(r).filter(handIs('R')), [
-    tier(5, '파워 +3', { power: 3 }), tier(7, '파워 +5', { power: 5 }),
+    tier(7, '파워 +3', { power: 3 }), tier(9, '파워 +5', { power: 5 }),
   ]),
   build('switchHit', '스위치 히터', '양타 타자', (r) => battersOf(r).filter((p) => p.hand === 'S'), [
     tier(2, '컨택·주루 +3', { contact: 3, speed: 3 }), tier(3, '컨택·주루 +5', { contact: 5, speed: 5 }),
@@ -473,23 +487,26 @@ export const SYNERGIES = [
   build('outfieldNet', '외야 수비망', '수비 88+ 외야수', (r) => battersOf(r).filter((p) => posOf(p) === 'OF' && goodGlove(p)), [
     tier(2, '수비 +5 · 컨택 +2', { defense: 5, contact: 2 }), tier(3, '수비 +8 · 컨택 +4', { defense: 8, contact: 4 }),
   ]),
-  build('battery', '안방마님', '수비 90+ 포수와 제구 95+ 투수', batteryOf, [
-    tier(2, '수비·제구 +4', { defense: 4, control: 4 }), tier(3, '수비·제구 +6', { defense: 6, control: 6 }), tier(4, '수비·제구 +8', { defense: 8, control: 8 }),
+  build('battery', '안방마님', '수비 좋은 포수와 제구형 투수', batteryOf, [
+    tier(3, '수비·제구 +4', { defense: 4, control: 4 }), tier(4, '수비·제구 +6', { defense: 6, control: 6 }), tier(5, '수비·제구 +8', { defense: 8, control: 8 }),
   ]),
   // ── 마운드 (주전 투수는 선발 1 · 불펜 4)
-  build('mound', '마운드 왕국', '종합 93+ 투수', (r) => pitchersOf(r).filter((p) => p.overall >= 93), [
-    tier(3, '투수 +2', { pit: 2 }), tier(4, '투수 +4', { pit: 4 }), tier(5, '투수 +5', { pit: 5 }),
+  build('fireball', '파이어볼러', '구위형 투수 (구위가 제구보다 5+)', (r) => pitchersOf(r).filter(flamer), [
+    tier(3, '구위 +3', { stuff: 3 }), tier(4, '구위 +5', { stuff: 5 }), tier(5, '구위 +8', { stuff: 8 }),
   ]),
-  build('bullpenWall', '철벽 불펜', '구위 98+ 불펜', (r) => pitchersOf(r).filter((p) => posOf(p) === 'RP' && p.stats.stuff >= 98), [
-    tier(2, '투수 +3', { pit: 3 }), tier(3, '투수 +5', { pit: 5 }), tier(4, '투수 +7', { pit: 7 }),
+  build('finesse', '기교파', '제구형 투수 (제구가 구위보다 5+)', (r) => pitchersOf(r).filter(painter), [
+    tier(3, '제구·안정 +2', { control: 2, stability: 2 }), tier(4, '제구·안정 +3', { control: 3, stability: 3 }), tier(5, '제구·안정 +4', { control: 4, stability: 4 }),
   ]),
   build('southpaw', '좌완 군단', '좌투수', (r) => pitchersOf(r).filter((p) => p.hand === 'L'), [
     tier(2, '안정 +3', { stability: 3 }), tier(3, '안정 +5', { stability: 5 }), tier(4, '안정 +7', { stability: 7 }),
   ]),
   // ── 시대 · 출신 (주전 14명 기준)
   { ...build('era', '한 시대', '같은 연대 주전', (r) => topDecade(r).players, [
-    tier(5, '능력치 +1', { bat: 1, pit: 1 }), tier(7, '능력치 +2', { bat: 2, pit: 2 }), tier(9, '능력치 +3', { bat: 3, pit: 3 }),
+    tier(6, '능력치 +1', { bat: 1, pit: 1 }), tier(8, '능력치 +2', { bat: 2, pit: 2 }), tier(10, '능력치 +3', { bat: 3, pit: 3 }),
   ]), condOf: (r) => { const { dec, players } = topDecade(r); return dec ? `최다 연대: ${dec}년대 ${players.length}명` : '같은 연대 주전'; } },
+  { ...build('teamYear', '그해 그 팀', '같은 구단 · 같은 시즌 주전', (r) => topTeamYear(r).players, [
+    tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +2', { bat: 2, pit: 2 }), tier(7, '능력치 +4', { bat: 4, pit: 4 }),
+  ]), condOf: (r) => { const { key, players } = topTeamYear(r); return key ? `최다: ${key} ${players.length}명` : '같은 구단 · 같은 시즌 주전'; } },
   build('national', '태극마크', '국가대표 주전', (r) => startersOf(r).filter((p) => p.isNational), [
     tier(5, '능력치 +1', { bat: 1, pit: 1 }), tier(7, '능력치 +2', { bat: 2, pit: 2 }), tier(9, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
@@ -515,24 +532,36 @@ export function checkSynergies(roster) {
 }
 
 export const SYNERGY_STAT_CAP = 8; // 한 선수가 시너지로 받는 보너스는 능력치마다 이만큼까지
+export const SYNERGY_STAT_MAX = 115; // 시너지로는 능력치 상한 110 을 이만큼까지 넘길 수 있다 — 최상급 카드끼리 조합이 헛돌지 않게
 
 const BONUS_STATS = {
   batter: { bat: ['power', 'contact'], power: ['power'], contact: ['contact'], speed: ['speed'], defense: ['defense'] },
-  pitcher: { pit: ['stuff', 'control', 'stability'], stability: ['stability'], control: ['control'] },
+  pitcher: { pit: ['stuff', 'control', 'stability'], stability: ['stability'], control: ['control'], stuff: ['stuff'] },
 };
 /** 완성된 시너지의 보너스를 그 시너지를 만든 선수에게만 더한다. 오른 선수에게는 synergyBoost(시너지 이름 목록)가 붙는다 */
+/* 무리형 — 많은 인원이 한꺼번에 받는 시너지. 한 선수에게는 이 가운데 가장 큰 것 하나만 붙는다 (FC온라인 팀컬러처럼).
+   한 구단 · 한 시즌으로 몰면 프랜차이즈 · 한 시대 · 그해 그 팀이 같은 선수에게 셋 다 겹쳐 튀었다 */
+const CROWD_SYNERGIES = new Set(['beijing', 'premier12', 'franchise', 'era', 'teamYear', 'national']);
+const bonusSize = (b) => Object.values(b).reduce((s, v) => s + v, 0);
 export function applySynergies(roster, synergies = checkSynergies(roster)) {
   const adds = new Map();
-  synergies.filter((s) => s.active).forEach((s) => s.members.forEach((m) => {
+  const crowdBest = new Map(); // 선수 id → 가장 큰 무리형 시너지
+  const give = (m, s) => {
     const a = adds.get(m.id) || { stats: {}, names: [] };
     Object.entries(s.bonus).forEach(([k, v]) => (BONUS_STATS[m.type][k] || []).forEach((stat) => { a.stats[stat] = (a.stats[stat] || 0) + v; }));
     a.names.push(s.name);
     adds.set(m.id, a);
+  };
+  synergies.filter((s) => s.active).forEach((s) => s.members.forEach((m) => {
+    if (!CROWD_SYNERGIES.has(s.id)) { give(m, s); return; }
+    const was = crowdBest.get(m.id);
+    if (!was || bonusSize(s.bonus) > bonusSize(was.s.bonus)) crowdBest.set(m.id, { m, s });
   }));
+  crowdBest.forEach(({ m, s }) => give(m, s));
   return roster.map((p) => {
     const a = adds.get(p.id);
     if (!a) return p;
-    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(110, v + Math.min(SYNERGY_STAT_CAP, a.stats[k] || 0))]));
+    const stats = Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.min(Math.max(v, SYNERGY_STAT_MAX), v + Math.min(SYNERGY_STAT_CAP, a.stats[k] || 0))]));
     const gain = overallOf(p.position, stats) - overallOf(p.position, p.stats);
     return { ...p, stats, overall: Math.min(110, p.overall + Math.max(0, gain)), synergyBoost: a.names };
   });

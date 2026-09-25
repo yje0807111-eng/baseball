@@ -28,10 +28,11 @@ test('레벨 배수는 한 칸에 20%, +5 면 두 배', () => {
 
 test('능력치형: 올려 준 폭이 레벨만큼 커진다', () => {
   const r = roster();
+  const none = buildTeam('나', r, 0);                               // 시너지까지 든 증강 전 능력치
   const plain = buildTeam('나', r, 0, [byId('muscle')]);           // 타자 파워 +10
   const lv5 = buildTeam('나', r, 0, withAugLevels([byId('muscle')], { muscle: 5 }));
-  const bat = plain.roster.find(isBat);
-  const base = r.find((p) => p.id === bat.id).stats.power;
+  const bat = none.roster.filter(isBat).sort((x, y) => x.stats.power - y.stats.power)[0]; // 상한에 막히지 않게 파워가 가장 낮은 타자
+  const base = statOf(none, bat.id, 'power');
   expect(statOf(plain, bat.id, 'power') - base).toBe(10);
   expect(statOf(lv5, bat.id, 'power') - base).toBe(20);
 });
