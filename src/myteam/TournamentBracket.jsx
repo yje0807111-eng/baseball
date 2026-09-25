@@ -120,7 +120,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(251,191,36,.25)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-lg" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
         <div>
-          <p className="font-display text-[10px] font-bold tracking-[0.3em] text-gray-500">TOURNAMENT · {size}</p>
+          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">플레이</p>
           <b className="text-xl font-extrabold text-white">{title || `${size}강 토너먼트`} · {t.done ? finish.ko : ROUNDS[t.round].ko}</b>
         </div>
         <div className="ml-auto flex gap-1.5">

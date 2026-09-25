@@ -42,7 +42,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
 
   /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
   const openDuel = () => {
-    setPrep({ kind: 'duel', sub: 'SINGLE GAME', title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
+    setPrep({ kind: 'duel', sub: '단판 승부', title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
     setView('prep');
   };
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
@@ -53,7 +53,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
   const openTourneyPrep = () => {
     const r = roundsOf(tournament.size)[tournament.round];
-    setPrep({ kind: 'tourney', sub: `TOURNAMENT · ${r.en}`, title: `${r.ko} 경기 전 정비`, startLabel: `${r.ko} 경기 시작 ▶`, back: () => setView('bracket') });
+    setPrep({ kind: 'tourney', sub: `토너먼트 · ${r.ko}`, title: `${r.ko} 경기 전 정비`, startLabel: `${r.ko} 경기 시작 ▶`, back: () => setView('bracket') });
     setView('prep');
   };
   const claimTourney = () => {
@@ -75,7 +75,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const openRankedPrep = () => {
     const pm = ranked.postMatch(season);
     const label = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
-    setPrep({ kind: 'ranked', sub: `RANKED · SEASON ${season.season}`, title: `${label} 경기 전 정비`, startLabel: `${label} 시작 ▶`, back: () => setView('ranked') });
+    setPrep({ kind: 'ranked', sub: `랭크전 · 시즌 ${season.season}`, title: `${label} 경기 전 정비`, startLabel: `${label} 시작 ▶`, back: () => setView('ranked') });
     setView('prep');
   };
   const claimSeason = () => {

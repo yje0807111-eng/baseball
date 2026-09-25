@@ -53,7 +53,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b border-[#10b981]/25 px-6" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-lg" style={{ '--c': '8px' }} aria-label={`${backLabel} 돌아가기`}>←</button>
         <div>
-          <p className="font-display text-[10px] font-bold tracking-[0.3em] text-gray-500">{sub}</p>
+          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">{sub}</p>
           <b className="text-xl font-extrabold text-white">{title}</b>
         </div>
         <CapBar team={team} sm className="ml-auto w-[248px]" />
