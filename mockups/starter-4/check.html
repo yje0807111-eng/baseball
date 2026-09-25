@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>선발 맞대결 확인</title>
+<style>
+  body{margin:0;background:#05080f;color:#e6edf6;font-family:sans-serif;padding:18px}
+  h2{font-size:14px;margin:0 0 8px;color:#7c8798;font-weight:600}
+  .panel{position:relative;width:740px;height:200px;overflow:hidden;background:#0b1220;margin-bottom:18px;
+    clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px)}
+  .half{position:absolute;top:0;bottom:0;overflow:hidden}
+  .bg{position:absolute;inset:0;background-repeat:no-repeat}
+  .shade{position:absolute;inset:0}
+  .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;font-size:46px;font-style:italic;font-weight:900;color:#fff;text-shadow:0 0 26px rgba(255,255,255,.55)}
+  .who{position:absolute;bottom:12px;z-index:4}
+  b{font-size:26px;font-weight:900}
+</style></head><body>
+<h2>고친 뒤 — 조각을 제 크기 요소로 세우고 그 안에서 배경을 잡는다 (cover · 위 기준)</h2>
+<div class="panel" id="a" style="--y:0%"></div>
+<h2>같은 구조에 y 만 26% — 얼굴이 창 가운데로 내려온다</h2>
+<div class="panel" id="b" style="--y:26%"></div>
+<script>
+const H = 200, G = H / 2;
+const MEN = [
+  { id: '2002-doosan_레스', name: '레스', c: '#10b981', l: 'MY STARTER' },
+  { id: '2002-doosan_김동주', name: '김동주', c: '#f87171', l: 'AI STARTER' },
+];
+const url = (id) => `../../public/profiles/${encodeURIComponent(id)}.webp`;
+/* 고친 뒤 */
+document.getElementById('a').innerHTML = MEN.map((m, i) => {
+  const cut = i ? `polygon(${H}px 0,100% 0,100% 100%,0 100%)` : `polygon(0 0,100% 0,calc(100% - ${H}px) 100%,0 100%)`;
+  return `<span class="half" style="width:calc(50% + ${G}px);${i ? 'right:0' : 'left:0'};clip-path:${cut}">
+    <i class="bg" style="background-image:url('${url(m.id)}');background-size:cover;background-position:50% var(--y,0%)"></i>
+    <i class="shade" style="background:linear-gradient(${i ? 270 : 90}deg,${m.c}2e,rgba(5,8,15,.18) 52%,rgba(5,8,15,.92))"></i>
+  </span>`; }).join('')
+  + MEN.map((m, i) => `<span class="who" style="${i ? 'right:16px;text-align:right' : 'left:16px'}">
+      <span style="font-size:11px;letter-spacing:.2em;color:${m.c}">${m.l}</span><br><b>${m.name}</b></span>`).join('')
+  + '<span class="vs">VS</span>';
+document.getElementById('b').innerHTML = document.getElementById('a').innerHTML;
+</script></body></html>

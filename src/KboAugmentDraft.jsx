@@ -4576,20 +4576,27 @@ function DuelRow({ label, mine, opp }) {
   );
 }
 
-/** 45도로 갈린 한쪽 — 판 모서리 컷과 같은 기울기라 화면 전체와 결이 맞는다 */
+/**
+ * 45도로 갈린 한쪽 — 판 모서리 컷과 같은 기울기라 화면 전체와 결이 맞는다.
+ * 조각을 제 크기(판의 절반 + 기울기만큼)로 세워 그 안에서 배경을 잡는다.
+ * 판 전체를 기준으로 잡으면 확대율이 얼굴을 지나쳐 엉뚱한 곳이 보인다.
+ */
 function StarterHalf({ player, right, h }) {
-  const bust = useBust(player, '210%');
+  const profile = useProfile(player);
+  /* 프로필은 위 기준으로 붙어 머리 위가 먼저 온다 — 얼굴이 창 가운데 오도록 조금 내린다 */
+  const bust = useBust(player, '150%');
+  const look = profile ? { ...bust, backgroundPosition: '50% 22%' } : bust;
   const g = h / 2; // 45도: 위 경계가 아래보다 높이만큼 오른쪽에 선다
+  const box = { top: 0, bottom: 0, width: `calc(50% + ${g}px)`, ...(right ? { right: 0 } : { left: 0 }) };
   const cut = right
-    ? `polygon(calc(50% + ${g}px) 0, 100% 0, 100% 100%, calc(50% - ${g}px) 100%)`
-    : `polygon(0 0, calc(50% + ${g}px) 0, calc(50% - ${g}px) 100%, 0 100%)`;
+    ? `polygon(${h}px 0, 100% 0, 100% 100%, 0 100%)`
+    : `polygon(0 0, 100% 0, calc(100% - ${h}px) 100%, 0 100%)`;
   const c = neonOf(player);
   return (
-    <>
-      <span className="absolute inset-0 bg-no-repeat" style={{ ...bust, clipPath: cut }} />
-      <span className="absolute inset-0" style={{ clipPath: cut,
-        background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, rgba(5,8,15,.18) 52%, rgba(5,8,15,.9))` }} />
-    </>
+    <span className="absolute overflow-hidden" style={{ ...box, clipPath: cut }}>
+      <span className="absolute inset-0 bg-no-repeat" style={look} />
+      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, rgba(5,8,15,.18) 52%, rgba(5,8,15,.92))` }} />
+    </span>
   );
 }
 
