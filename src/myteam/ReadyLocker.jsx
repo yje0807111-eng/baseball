@@ -244,7 +244,36 @@ function RosterPanel({ squad, cap }) {
   );
 }
 
-/** 오른쪽 — 전략실: 팀 종합 · 세 갈래 · 경기 시작 */
+/** 준비 카드 — 가진 카드 가운데 한 장(또는 안 씀). 고른 카드는 이 경기에만 */
+function CardBlock({ cards, value, onPick }) {
+  return (
+    <div className="flex shrink-0 flex-col gap-1.5">
+      <div className="flex items-baseline gap-2">
+        <b className="text-[13px]" style={{ color: A.syn }}>준비 카드</b>
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {cards.map((c) => {
+          const on = value === c.id;
+          return (
+            <button key={c.id} type="button" disabled={!c.n} onClick={() => onPick(on ? null : c.id)} aria-pressed={on}
+              className="mt-cut flex h-[3.1rem] flex-col justify-center gap-0.5 px-2.5 text-left disabled:opacity-35"
+              style={{ ...cut(5), background: on ? 'color-mix(in srgb,#fbbf24 20%,transparent)' : 'rgba(255,255,255,.04)',
+                boxShadow: `inset 0 0 0 ${on ? 2 : 1}px ${on ? '#fbbf24' : 'rgba(255,255,255,.09)'}` }}>
+              <span className="flex items-baseline justify-between gap-1">
+                <b className="truncate text-[12.5px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{c.name}</b>
+                <small className="shrink-0 font-display text-[11px] text-gray-400">{c.n}장</small>
+              </span>
+              <small className="truncate text-[10px] text-gray-500">{c.effect}</small>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** 오른쪽 — 전략실: 팀 종합 · 세 갈래 · 준비 카드 · 경기 시작 */
 /* 전략실 속 — 공격 · 마운드 · 수비에서 하나씩. 갈래 하나가 세부 성향을 함께 정한다(세부 눈금은 없앴다).
    경기 중에는 공수 교대 때만, 경기당 몇 번만 바꿀 수 있으니 여기서 고르는 것이 기본 계획이다. */
 function SideBlock({ sides, onPick, opponent }) {
@@ -315,11 +344,13 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
 export default function ReadyLocker({
   team, squad, bench, sums, synergies = [], opponent = null, autoFilled = 0, teamInfo,
   onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트', startBlock = null,
+  cards = null, // 준비 카드 [{ id, name, effect, n }] — 내 팀 경기에서만 넘긴다
 }) {
   const [sel, setSel] = useState(null);
   /* 전략실 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
   const [sides, setSides] = useState(team.plan?.sides || DEFAULT_SIDES);
   const pickSide = (key, id) => setSides((v) => ({ ...v, [key]: id }));
+  const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
   const byId = new Map(squad.map((p) => [p.id, p]));
 
   return (
@@ -332,8 +363,9 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots railW={264} footer={<SynergyDockMini synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart(planOfSides(sides))} startLabel={startLabel} startBlock={startBlock}>
+        onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock}>
         <SideBlock sides={sides} onPick={pickSide} opponent={opponent} />
+        {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
       </WarRoom>
     </div>
   );

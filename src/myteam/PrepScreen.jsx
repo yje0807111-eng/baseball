@@ -10,6 +10,7 @@ import { peekNextDuel } from './store.js';
 import { formSeed, oppSeed, applyFormTeam } from './form.js';
 import CapBar from './CapBar.jsx';
 import { capUse } from './rules.js';
+import { CARD_ITEMS, TEAM_BOOST_KO, STAT_KO, cardCount } from './shop.js';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -62,7 +63,8 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : null}
-            onStart={(plan) => onStart(ready, init.rest, plan)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
+            cards={CARD_ITEMS.map((it) => ({ id: it.id, name: it.name, effect: `${TEAM_BOOST_KO[it.teamBoost]} ${STAT_KO[it.stat]} +${it.amount}`, n: cardCount(team, it.id) }))}
+            onStart={(plan, card) => onStart(ready, init.rest, plan, card)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
         </div>
       </main>
     </div>

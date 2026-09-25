@@ -32,13 +32,14 @@ describe('내 팀 경기의 증강', () => {
       expect(o.some((x) => x.id === owned[0].id || x.id === banned.id)).toBe(false);
     }
   });
-  it('지명해 둔 증강은 첫 장에만 끼고, 끼면 지명이 풀린다', () => {
-    const want = AUGMENTS[5];
-    store.setPledgedAug(want.id);
-    for (let i = 0; i < 10; i += 1) augOptions([AUGMENTS[0]]); // 7회 장은 지명을 쓰지 않는다
-    expect(store.pledgedAugId()).toBe(want.id);
-    expect(augOptions([], { first: true }).some((x) => x.id === want.id)).toBe(true);
-    expect(store.pledgedAugId()).toBeNull();
+  it('즐겨찾기한 증강은 권 없이 더 자주', () => {
+    const a = store.loadAccount();
+    const favs = AUGMENTS.slice(0, 5).map((x) => x.id);
+    store.saveAug({ ...a.aug, favs });
+    let hit = 0;
+    for (let i = 0; i < 400; i += 1) hit += augOptions([]).filter((x) => favs.includes(x.id)).length;
+    const base = (5 / AUGMENTS.length) * 3 * 400; // 무게가 없을 때의 기댓값
+    expect(hit).toBeGreaterThan(base * 1.4);
   });
   it('기록에는 이름만', () => {
     expect(augsForHistory([AUGMENTS[0]])).toEqual([{ id: AUGMENTS[0].id, name: AUGMENTS[0].name, tier: AUGMENTS[0].tier }]);

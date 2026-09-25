@@ -59,8 +59,8 @@ export const START_GOLD = 5000;
 
 /* 증강 풀 관리: 등급마다 제외 목록 · 제외 칸(기본 5, 제거권으로 최대 8) · 증강 레벨 · 제거권/강화권 */
 export const AUG_TIERS = ['silver']; // 증강 등급은 하나로 합쳤다
-export const AUG_SLOT_BASE = 5;
 export const AUG_SLOT_MAX = 8;
+export const AUG_SLOT_BASE = AUG_SLOT_MAX; // 제거권을 없애며 제외 칸은 처음부터 최대
 export const AUG_LEVEL_MAX = 5;
 const emptyAug = () => ({
   bans: { silver: [], gold: [], prismatic: [] },
@@ -72,7 +72,8 @@ const emptyAug = () => ({
 });
 const withAug = (a) => {
   const d = emptyAug(); const g = a?.aug || {};
-  return { ...d, ...g, bans: { ...d.bans, ...(g.bans || {}) }, slots: { ...d.slots, ...(g.slots || {}) }, levels: { ...(g.levels || {}) }, favs: [...(g.favs || [])] };
+  /* 옛 저장본의 좁은 제외 칸(5~7)도 최대로 — 제거권이 없어졌다 */
+  return { ...d, ...g, bans: { ...d.bans, ...(g.bans || {}) }, slots: { ...d.slots }, levels: { ...(g.levels || {}) }, favs: [...(g.favs || [])] };
 };
 
 /** 증강 풀 설정 저장 (제외 · 칸 · 레벨 · 권) */
@@ -112,7 +113,7 @@ export function spendDraftTicket(key) {
   return true;
 }
 
-/** 증강 권 { reroll, pledge, favor } — 읽기 · 쓰기 */
+/** 증강 권 { reroll } — 읽기 · 쓰기 */
 export function augShopTickets() {
   const a = read();
   if (!a?.nick || a.signedOut) return {};
@@ -133,14 +134,6 @@ export function spendAugTicket(key) {
   write({ ...a, augShop: { ...a.augShop, [key]: have - 1 } });
   return true;
 }
-/** 지명해 둔 증강 id — 다음 판 첫 선택지에 반드시 낀다 (쓰면 지운다) */
-export const pledgedAugId = () => read()?.pledgeId || null;
-export function setPledgedAug(id) {
-  const a = read();
-  if (!a) return null;
-  write({ ...a, pledgeId: id || null });
-  return id;
-}
 
 /** 강화한 증강 레벨 { id: 레벨 } (로그인 안 했으면 빈 객체) */
 export function augLevels() {
@@ -159,12 +152,48 @@ export function favAugIds() {
 /** 저장된 골드 — 깨진 값(NaN · null)은 처음 값으로 되돌린다 */
 const goldOf = (a) => (Number.isFinite(a?.gold) ? a.gold : START_GOLD);
 
+/*
+ * 상점 정리(2026-09, 로드맵 4단계): 없어진 권 · 부스트를 가진 옛 저장본은 산 값만큼 골드로 한 번 돌려준다(shopV).
+ * 우선 지명권 · 보호 지명서 · 협상 대리인 · 증강 지명권 · 즐겨찾기 우대권 · 증강 제거권, 라커에 담아 둔 선수 부스트 셋.
+ * 이미 선수에게 건 부스트(team.boosts)는 남은 경기 수만큼 그대로 먹는다.
+ */
+export const SHOP_VERSION = 2;
+const RETIRED = [
+  ['draft', 'first', '우선 지명권', 900], ['draft', 'protect', '보호 지명서', 500], ['draft', 'agent', '협상 대리인', 420],
+  ['augShop', 'pledge', '증강 지명권', 700], ['augShop', 'favor', '즐겨찾기 우대권', 540],
+  ['aug', 'removeTickets', '증강 제거권', 400],
+];
+const RETIRED_ITEMS = { 'bo-stamina': ['에너지 드링크', 120], 'bo-focus': ['집중력 강화', 90], 'bo-power': ['파워 스윙', 110] };
+export function withShopCleanup(a) {
+  if (!a?.nick || (a.shopV || 0) >= SHOP_VERSION) return a;
+  let gold = 0;
+  const lines = [];
+  const next = { ...a, shopV: SHOP_VERSION, draft: { ...(a.draft || {}) }, augShop: { ...(a.augShop || {}) } };
+  if (a.aug) next.aug = { ...a.aug };
+  for (const [box, key, name, price] of RETIRED) {
+    const n = next[box]?.[key] || 0;
+    if (n > 0) { gold += n * price; lines.push({ name, n, gold: n * price }); }
+    if (next[box]) delete next[box][key];
+  }
+  if (a.team?.items?.length) {
+    const count = {};
+    const keep = a.team.items.filter((x) => { if (!RETIRED_ITEMS[x.itemId]) return true; count[x.itemId] = (count[x.itemId] || 0) + 1; return false; });
+    for (const [id, n] of Object.entries(count)) { const [name, price] = RETIRED_ITEMS[id]; gold += n * price; lines.push({ name, n, gold: n * price }); }
+    next.team = { ...a.team, items: keep };
+  }
+  delete next.pledgeId;
+  next.gold = goldOf(a) + gold;
+  if (gold > 0) { next.refund = { gold, lines }; if (!next.notice) next.notice = 'refund'; }
+  return next;
+}
+
 const emptyAccount = (nick) => ({
   nick,
+  shopV: SHOP_VERSION,
   gold: START_GOLD,
   items: [], // 구매한 부스트 { id, itemId, playerId }
   draft: {}, // 드래프트 권 { reroll, first, protect, series, agent }
-  augShop: {}, // 증강 권 { reroll, pledge, favor } · pledgeId: 지명해 둔 증강
+  augShop: {}, // 증강 권 { reroll }
   createdAt: new Date().toISOString(),
   team: emptyTeam(),
   history: [], // 경기 기록 { at, my, opp, myRuns, oppRuns, winner }
@@ -268,11 +297,11 @@ export function grantStarter(squad) {
   return next;
 }
 
-/** 안내 창을 닫았다 */
+/** 안내 창을 닫았다 (환급 내역도 함께 지운다) */
 export function dismissNotice() {
   const a = read();
   if (!a?.notice) return null;
-  const { notice, ...next } = a;
+  const { notice, refund, ...next } = a;
   write(next);
   return next;
 }
@@ -330,7 +359,7 @@ function withRankedReward(a) {
 }
 function grantPending(a) {
   if (!a) return a;
-  const next = withRankedReward(withTournamentReward(a));
+  const next = withRankedReward(withTournamentReward(withShopCleanup(a)));
   if (next !== a) write(next);
   return next;
 }

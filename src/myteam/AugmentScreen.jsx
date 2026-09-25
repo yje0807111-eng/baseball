@@ -6,7 +6,7 @@
  */
 import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
-import { loadAccount, saveAug, augShopTickets, spendAugTicket, pledgedAugId, setPledgedAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
+import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, Bg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
@@ -56,9 +56,8 @@ const Pips = ({ lv, c }) => (
   </span>
 );
 
-/** 제거권 · 강화권 — 상점에서 파는 그 물건 그대로 */
+/** 강화권 — 상점에서 파는 그 물건 그대로 (제거권은 없앴다 — 제외 칸은 처음부터 최대) */
 const TICKETS = [
-  { key: 'removeTickets', ko: '제거권', tip: '제외 칸을 하나 연다', img: 'ui/shop/au-remove.webp', c: '#fb7185' },
   { key: 'upgradeTickets', ko: '강화권', tip: '증강 레벨을 하나 올린다', img: 'ui/shop/au-upgrade.webp', c: '#fbbf24' },
 ];
 
@@ -112,16 +111,6 @@ export default function AugmentScreen({ account, onBack }) {
   const [upTier, setUpTier] = useState('silver');
   const [sel, setSel] = useState(null);
   const [msg, setMsg] = useState('');
-  /* 증강 지명권 — 한 장 쓰면 그 증강이 다음 판 첫 선택지에 반드시 나온다 */
-  const [pledgeLeft, setPledgeLeft] = useState(() => augShopTickets().pledge || 0);
-  const [pledged, setPledged] = useState(() => pledgedAugId());
-  const doPledge = (a) => {
-    if (!a || pledged === a.id) return;
-    if (!spendAugTicket('pledge')) { setMsg('증강 지명권 없음 · 상점에서 구입'); setTimeout(() => setMsg(''), 2400); return; }
-    setPledgedAug(a.id);
-    setPledged(a.id);
-    setPledgeLeft(augShopTickets().pledge || 0);
-  };
 
   const tier = tab === 'upgrade' ? upTier : tab;
   const T = TIER[tier];
@@ -138,21 +127,12 @@ export default function AugmentScreen({ account, onBack }) {
     const next = favs.includes(a.id) ? favs.filter((x) => x !== a.id) : [...favs, a.id];
     commit({ ...aug, favs: next });
   };
-  const openSlot = (t) => {
-    if (aug.slots[t] >= AUG_SLOT_MAX || aug.removeTickets < 1) return false;
-    return { ...aug, removeTickets: aug.removeTickets - 1, slots: { ...aug.slots, [t]: aug.slots[t] + 1 } };
-  };
   const toggleBan = (a) => {
     const t = a.tier; const cur = aug.bans[t] || [];
     if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }); return; }
-    let base = aug;
-    if (cur.length >= aug.slots[t]) {
-      base = openSlot(t);
-      if (!base) { setMsg(aug.slots[t] >= AUG_SLOT_MAX ? `제외 칸 최대 ${AUG_SLOT_MAX}칸` : '제거권 없음 · 상점에서 구입'); return; }
-    }
-    commit({ ...base, bans: { ...base.bans, [t]: [...cur, a.id] } });
+    if (cur.length >= aug.slots[t]) { setMsg(`제외 칸 최대 ${aug.slots[t]}칸`); return; }
+    commit({ ...aug, bans: { ...aug.bans, [t]: [...cur, a.id] } });
   };
-  const addSlot = () => { const n = openSlot(tier); if (n) commit(n, '제외 칸 +1'); else setMsg(slots >= AUG_SLOT_MAX ? `최대 ${AUG_SLOT_MAX}칸` : '제거권 없음'); };
   const upgrade = (a) => {
     const lv = levelOf(a); const need = lv + 1;
     if (lv >= AUG_LEVEL_MAX) return;
@@ -262,7 +242,6 @@ export default function AugmentScreen({ account, onBack }) {
             const lv = levelOf(picked); const c = T.c;
             const full = bans.length >= slots;
             const pickFav = favs.includes(picked.id);
-            const showPledge = pledgeLeft > 0 || pledged === picked.id;   // 지명 단추가 끼면 제외 문구를 줄인다
             return (
               <>
                 <div className="flex items-baseline justify-between gap-3">
@@ -328,17 +307,9 @@ export default function AugmentScreen({ account, onBack }) {
                   <div className="flex gap-2">
                     <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
                       style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
-                      disabled={!pickBanned && full && (slots >= AUG_SLOT_MAX || aug.removeTickets < 1)} onClick={() => toggleBan(picked)}>
-                      {pickBanned ? '제외 풀기 ↺' : !full ? (showPledge ? '제외하기 ✕' : '이 증강 제외하기 ✕') : slots >= AUG_SLOT_MAX ? '칸 가득 · 최대' : aug.removeTickets < 1 ? '칸 가득 · 제거권 없음' : '칸 열고 제외 · 제거권 1장'}
+                      disabled={!pickBanned && full} onClick={() => toggleBan(picked)}>
+                      {pickBanned ? '제외 풀기 ↺' : full ? `칸 가득 · 최대 ${slots}칸` : '이 증강 제외하기 ✕'}
                     </button>
-                    {showPledge && (
-                      <button type="button" onClick={() => doPledge(picked)} disabled={pledged === picked.id}
-                        className="mt-btn shrink-0 gap-1.5 px-3 text-[14px]"
-                        style={{ color: pledged === picked.id ? '#e879f9' : '#c4b5fd', boxShadow: pledged === picked.id ? 'inset 0 0 0 1px rgba(232,121,249,.55)' : undefined }}
-                        title={pledged === picked.id ? '다음 판 첫 선택지에 나옵니다' : `증강 지명권 ${pledgeLeft}장 — 다음 판 첫 선택지에 꼭 넣는다`}>
-                        {pledged === picked.id ? '지명됨' : '지명하기'}
-                      </button>
-                    )}
                     <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
                       className="mt-btn shrink-0 gap-1.5 px-4 text-[14px]"
                       style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
@@ -373,14 +344,6 @@ export default function AugmentScreen({ account, onBack }) {
                     <span className="w-4 font-display text-xs">{bans.length + k + 1}</span>빈 제외 칸
                   </div>
                 ))}
-                {slots < AUG_SLOT_MAX ? (
-                  <button type="button" onClick={addSlot} disabled={aug.removeTickets < 1}
-                    title={`제외 칸 열기 · 제거권 1장 (보유 ${aug.removeTickets})`} aria-label="제외 칸 열기"
-                    className="mt-cut grid place-items-center px-3 py-2 text-base font-extrabold leading-5 text-[#fda4af] shadow-[inset_0_0_0_1px_rgba(148,163,184,.2)] hover:text-white disabled:opacity-40"
-                    style={cut(6)}>+</button>
-                ) : (
-                  <div className="mt-cut py-2 text-center font-display text-xs tracking-[0.2em] text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.15)]" style={cut(6)}>최대 {AUG_SLOT_MAX}칸</div>
-                )}
               </div>
             </>
           )}

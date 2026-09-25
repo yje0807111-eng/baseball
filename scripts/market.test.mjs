@@ -124,3 +124,33 @@ describe('교체 영입 (꽉 찬 엔트리)', () => {
     expect(next.team.squad.find((p) => p.id === 'star').paid).toBe(1200);
   });
 });
+
+describe('상점 정리 환급 (옛 저장본)', () => {
+  beforeEach(() => { mem.clear(); });
+  it('없어진 권 · 부스트를 산 값만큼 한 번 돌려준다', () => {
+    const old = {
+      nick: '옛감독', gold: 1000, draft: { reroll: 2, first: 1, protect: 2, agent: 0, series: 1 },
+      augShop: { reroll: 1, pledge: 1, favor: 2 }, pledgeId: 'x',
+      aug: { bans: {}, slots: { silver: 5 }, levels: {}, favs: [], removeTickets: 3, upgradeTickets: 4 },
+      team: { name: 't', squad: [], items: [{ key: 'a', itemId: 'bo-focus' }, { key: 'b', itemId: 'bo-focus' }, { key: 'c', itemId: 'tr-power' }] },
+    };
+    const next = store.withShopCleanup(old);
+    // 900 + 500×2 + 700 + 540×2 + 400×3 + 90×2 = 5060
+    expect(next.gold).toBe(1000 + 5060);
+    expect(next.refund.gold).toBe(5060);
+    expect(next.notice).toBe('refund');
+    expect(next.draft).toEqual({ reroll: 2, series: 1 });
+    expect(next.augShop).toEqual({ reroll: 1 });
+    expect(next.aug.removeTickets).toBeUndefined();
+    expect(next.aug.upgradeTickets).toBe(4);
+    expect(next.team.items.map((x) => x.itemId)).toEqual(['tr-power']);
+    expect(next.pledgeId).toBeUndefined();
+    expect(store.withShopCleanup(next)).toBe(next); // 두 번은 안 한다
+  });
+  it('새 계정은 정리할 것이 없다', () => {
+    const a = store.signIn('새감독');
+    expect(a.shopV).toBe(store.SHOP_VERSION);
+    expect(store.loadAccount().notice).toBeUndefined();
+    expect(store.loadAccount().aug.slots.silver).toBe(8);
+  });
+});

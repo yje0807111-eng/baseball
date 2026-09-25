@@ -1,5 +1,5 @@
-/* 드래프트 권 — 상점에서 산 다섯 장이 판에서 실제로 먹히는지.
-   우선 지명권(순번) · 보호 지명서(다른 구단 잠금) · 협상 대리인(영입가 15%) · 시리즈 지정권(다음 보드) · 스카우트 리포트(새로고침은 화면 쪽) */
+/* 드래프트 권 — 상점 정리(로드맵 4단계) 뒤 파는 것은 스카우트 리포트(새로고침) · 시리즈 지정권(다음 보드) 둘.
+   우선 지명 · 보호 · 협상 대리인은 상점과 화면에서 뺐고, 판 엔진(live.js)의 기능 시험만 남겨 둔다. */
 import { test, expect } from 'vitest';
 import { DRAFT_SERIES, ROSTER_SIZE } from '../src/KboAugmentDraft.jsx';
 import * as Live from '../src/draft/live.js';
@@ -15,22 +15,23 @@ const make = (opt = {}, seed = 5) => Live.createLive({ series: DRAFT_SERIES, rng
 /** 내 차례가 올 때까지 AI 를 돌린다 */
 const toMyTurn = (s, rng = seeded(9)) => { let x = s; let guard = 0; while (!Live.isMyTurn(x) && !Live.isDone(x) && guard++ < 200) x = Live.stepAi(x, rng); return x; };
 
-test('상점에 드래프트 권 다섯 장이 있고, 값은 저마다 다르다', () => {
+test('상점에 드래프트 권 두 장 — 스카우트 리포트 · 시리즈 지정권', () => {
   const items = SHOP_ITEMS.filter((i) => i.cat === 'draft');
-  expect(items.length).toBe(5);
+  expect(items.length).toBe(2);
+  expect(DRAFT_TICKETS).toEqual(['reroll', 'series']);
   expect(new Set(items.map((i) => i.draftTicket))).toEqual(new Set(DRAFT_TICKETS));
   items.forEach((i) => { expect(DRAFT_TICKET_KO[i.draftTicket]).toBeTruthy(); expect(i.price).toBeGreaterThan(0); });
 });
 
 test('보관: 사면 쌓이고 쓰면 준다 · 없으면 못 쓴다', () => {
   let t = withDraftTickets();
-  expect(t.protect).toBe(0);
-  t = addDraftTicket(t, 'protect');
-  t = addDraftTicket(t, 'protect');
-  expect(t.protect).toBe(2);
-  t = useDraftTicket(t, 'protect');
-  expect(t.protect).toBe(1);
-  expect(useDraftTicket(withDraftTickets(), 'first')).toBe(null);
+  expect(t.series).toBe(0);
+  t = addDraftTicket(t, 'series');
+  t = addDraftTicket(t, 'series');
+  expect(t.series).toBe(2);
+  t = useDraftTicket(t, 'series');
+  expect(t.series).toBe(1);
+  expect(useDraftTicket(withDraftTickets(), 'reroll')).toBe(null);
 });
 
 test('우선 지명권: 내 구단이 첫 순번이 된다', () => {

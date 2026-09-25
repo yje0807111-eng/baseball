@@ -211,6 +211,25 @@ function StarterNotice({ team, gold, onClose }) {
   );
 }
 
+/** 상점 정리 환급 — 없어진 권 · 부스트를 산 값만큼 돌려받은 내역 (한 번) */
+function RefundNotice({ refund, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
+      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#fde047' }}
+        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상점 정리 환급">
+        <div>
+          <p className="mt-lab">상점 정리</p>
+          <h2 className="mt-1 text-3xl font-black text-white">환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></h2>
+        </div>
+        <div>
+          {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
+        </div>
+        <Btn pri a="#fde047" onClick={() => onClose(false)}>확인</Btn>
+      </div>
+    </div>
+  );
+}
+
 export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onSignOut, onNotice }) {
   const team = account.team;
 
@@ -241,6 +260,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <RankPanel account={account} team={team} onRecord={onRecord} />
       </div>
       {account.notice === 'starter' && (team.squad || []).length > 0 && <StarterNotice team={team} gold={account.gold} onClose={(go) => onNotice?.(go)} />}
+      {account.notice === 'refund' && account.refund && <RefundNotice refund={account.refund} onClose={(go) => onNotice?.(go)} />}
     </div>
   );
 }

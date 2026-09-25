@@ -3,7 +3,7 @@
  *  영입(L1): 검색 + 후보 리스트 + 오른쪽 상세
  *  내 선수(L2): 포지션 그룹 목록 + 오른쪽 상세(방출)
  *  감독·코치(L6): 네 자리 슬롯 + 후보 리스트 + 효과 합계
- *  아이템: 상점에서 산 훈련·부스트·계약서 — 고른 뒤 아무 선수·감독/코치에게 사용
+ *  아이템: 상점에서 산 훈련 · 계약서 — 고른 뒤 선수 · 감독/코치에게 사용 (준비 카드는 경기 전 정비에서)
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';

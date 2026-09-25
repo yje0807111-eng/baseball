@@ -1,7 +1,7 @@
-/* 경기 운영 소모품 — 팀 단위 부스트 셋과 재활 트레이너.
-   사면 바로 팀에 붙고, 경기를 한 판 치르면 수명이 하나 줄어든다(기존 부스트와 같은 자리). */
+/* 준비 카드 — 상점에서 사면 쌓이고(team.cards), 경기 전 정비에서 한 장 골라 그 경기 로스터에만 얹는다.
+   재활 트레이너는 운영 쪽(바로 쓴다). 옛 부스트(team.boosts)는 남은 경기 수만큼 계속 먹는다. */
 import { test, expect } from 'vitest';
-import { SHOP_ITEMS, applyTeamBoost, teamBoostTargets, clearFatigue, tiredCount, withBoosts, tickBoosts, TEAM_BOOST_KO } from '../src/myteam/shop.js';
+import { SHOP_ITEMS, CARD_ITEMS, addCard, cardCount, spendCard, applyCard, teamBoostTargets, clearFatigue, tiredCount, withBoosts, tickBoosts, TEAM_BOOST_KO } from '../src/myteam/shop.js';
 
 const P = (id, type, position, stats) => ({ id, name: id, type, position, stats, overall: 75 });
 const team = () => ({
@@ -18,16 +18,23 @@ const team = () => ({
 const byId = (id) => SHOP_ITEMS.find((i) => i.id === id);
 const statOf = (roster, id, k) => roster.find((p) => p.id === id).stats[k];
 
-test('상점에 경기 운영 넷이 있다', () => {
-  ['bo-bullpen', 'bo-meeting', 'bo-mound', 'bo-medic'].forEach((id) => expect(byId(id)).toBeTruthy());
-  expect(TEAM_BOOST_KO[byId('bo-bullpen').teamBoost]).toBe('불펜 투수');
-  expect(byId('bo-medic').medic).toBe(true);
+test('준비 카드는 셋 — 타선 미팅 · 마운드 미팅 · 불펜 데이, 재활 트레이너는 운영', () => {
+  expect(CARD_ITEMS.map((i) => i.id)).toEqual(['bo-meeting', 'bo-mound', 'bo-bullpen']);
+  CARD_ITEMS.forEach((i) => expect(TEAM_BOOST_KO[i.teamBoost]).toBeTruthy());
+  expect(byId('bo-medic').cat).toBe('ops');
+  ['bo-stamina', 'bo-focus', 'bo-power'].forEach((id) => expect(byId(id)).toBeUndefined());
+});
+
+test('사면 쌓이고, 쓰면 한 장 준다 · 없으면 못 쓴다', () => {
+  let t = addCard(addCard(team(), byId('bo-meeting')), byId('bo-meeting'));
+  expect(cardCount(t, 'bo-meeting')).toBe(2);
+  t = spendCard(t, 'bo-meeting');
+  expect(cardCount(t, 'bo-meeting')).toBe(1);
+  expect(spendCard(team(), 'bo-mound')).toBeNull();
 });
 
 test('불펜 데이: 불펜만 체력이 오르고, 선발과 타자는 그대로', () => {
-  const t = applyTeamBoost(team(), byId('bo-bullpen'));
-  expect(t.boosts.length).toBe(2);                          // RP 둘
-  const r = withBoosts(t);
+  const r = applyCard(team().squad, byId('bo-bullpen'));
   expect(statOf(r, 'rp1', 'stamina')).toBe(80);             // 60 + 20
   expect(statOf(r, 'rp2', 'stamina')).toBe(78);
   expect(statOf(r, 'sp1', 'stamina')).toBe(80);             // 선발은 그대로
@@ -37,18 +44,26 @@ test('불펜 데이: 불펜만 체력이 오르고, 선발과 타자는 그대�
 test('타선 · 마운드 미팅: 닿는 무리가 다르다', () => {
   expect(teamBoostTargets(team().squad, 'batter').length).toBe(2);
   expect(teamBoostTargets(team().squad, 'pitcher').length).toBe(3);
-  const r = withBoosts(applyTeamBoost(team(), byId('bo-meeting')));
+  const r = applyCard(team().squad, byId('bo-meeting'));
   expect(statOf(r, 'b1', 'contact')).toBe(75);
   expect(statOf(r, 'sp1', 'control')).toBe(70);
-  const m = withBoosts(applyTeamBoost(team(), byId('bo-mound')));
+  const m = applyCard(team().squad, byId('bo-mound'));
   expect(statOf(m, 'sp1', 'control')).toBe(73);
   expect(statOf(m, 'rp1', 'control')).toBe(75);
 });
 
-test('한 경기 쓰면 사라진다', () => {
-  const t = tickBoosts(applyTeamBoost(team(), byId('bo-bullpen')));
-  expect(t.boosts.length).toBe(0);
-  expect(statOf(withBoosts(t), 'rp1', 'stamina')).toBe(60);
+test('카드는 그 경기 로스터에만 — 저장된 선수는 그대로', () => {
+  const t = team();
+  applyCard(t.squad, byId('bo-meeting'));
+  expect(statOf(t.squad, 'b1', 'contact')).toBe(72);
+});
+
+test('옛 부스트는 남은 경기 수만큼 먹고 사라진다', () => {
+  const t = { ...team(), boosts: [{ key: 'k', itemId: 'bo-focus', playerId: 'b1', playerName: 'b1', stat: 'contact', amount: 5, gamesLeft: 1 }] };
+  expect(statOf(withBoosts(t), 'b1', 'contact')).toBe(77);
+  const after = tickBoosts(t);
+  expect(after.boosts.length).toBe(0);
+  expect(statOf(withBoosts(after), 'b1', 'contact')).toBe(72);
 });
 
 test('재활 트레이너: 쌓인 피로를 모두 지운다', () => {
@@ -57,10 +72,4 @@ test('재활 트레이너: 쌓인 피로를 모두 지운다', () => {
   const healed = clearFatigue(t);
   expect(tiredCount(healed)).toBe(0);
   expect(healed.squad).toBe(t.squad);                       // 선수는 건드리지 않는다
-});
-
-test('두 장을 겹쳐 사면 둘 다 붙는다', () => {
-  const t = applyTeamBoost(applyTeamBoost(team(), byId('bo-meeting')), byId('bo-meeting'));
-  expect(statOf(withBoosts(t), 'b1', 'contact')).toBe(78);  // 72 + 3 + 3
-  expect(new Set(t.boosts.map((b) => b.key)).size).toBe(t.boosts.length); // 키가 겹치지 않는다
 });

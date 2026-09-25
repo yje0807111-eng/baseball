@@ -4,7 +4,7 @@
  * 상태 중 account · view · playTab 은 App 이 들고 있고 나머지는 여기서 갖는다.
  */
 import React, { useState, useRef, lazy, Suspense } from 'react';
-import { tickBoosts } from './myteam/shop.js';
+import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
@@ -89,9 +89,14 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
 
   /* 정비 화면에서 시작: 바꾼 자리·타순을 저장하고, 정비 결과 그대로 상대와 경기 */
-  const startFromPrep = (ready, rest, plan) => {
+  const startFromPrep = (ready0, rest, plan, cardId = null) => {
     /* 전략실에서 고른 작전은 팀에 남겨 다음 경기에도 그대로 이어 쓴다 */
-    const team = { ...account.team, prep: prepOf(ready), ...(plan ? { plan } : {}) };
+    let team = { ...account.team, prep: prepOf(ready0), ...(plan ? { plan } : {}) };
+    /* 준비 카드: 한 장 쓰고 이 경기 로스터에만 얹는다 */
+    const card = cardId ? itemById(cardId) : null;
+    const spent = card ? spendCard(team, card.id) : null;
+    if (spent) team = spent;
+    const ready = spent ? applyCard(ready0, card) : ready0;
     let opp = null;
     if (prep.kind === 'duel') opp = randomSeriesTeam();
     else if (prep.kind === 'tourney') { const e = myOpponent(tournament); opp = e && teamOf(e, team); }
@@ -109,10 +114,10 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       ownedRef.current = owned;
       const my = makeMy(owned);
       setAugPick(null);
-      setMatch({ my, opp, kind: prep.kind, makeMy, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
+      setMatch({ my, opp, kind: prep.kind, makeMy, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
       setView('play');
     };
-    const options = augOptions([], { first: true });
+    const options = augOptions([]);
     if (!options.length) { go([]); return; }
     setAugPick({ options, free: FREE_REROLL, onPick: (a) => go([a]) });
   };
@@ -146,7 +151,10 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
     const mvp = res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null;
     const augs = augsForHistory(ownedRef.current);
-    const detail = gameDetail({ ...res, augs }, match.my, match.opp, played.boosts);
+    /* 기록에 남길 아이템: 살아 있던 옛 부스트 + 이번 경기에 쓴 준비 카드 */
+    const cardUsed = match.card ? itemById(match.card) : null;
+    const used = [...(played.boosts || []), ...(cardUsed ? [{ itemId: cardUsed.id, playerName: TEAM_BOOST_KO[cardUsed.teamBoost], gamesLeft: 1 }] : [])];
+    const detail = gameDetail({ ...res, augs }, match.my, match.opp, used);
     const base = { my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp, detail, ...(augs.length ? { augs } : {}) };
     setMatch(null);
     if (match.kind === 'tourney') {
