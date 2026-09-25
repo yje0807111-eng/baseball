@@ -11,9 +11,11 @@
  *   usage.fatigueGrace: 투수가 지치기 시작하는 투구 수 여유 (증강 투수 운용)
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
- *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change' }
+ *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change',
+ *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다) }
  * orders (수비 측 지시):
- *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true }
+ *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
+ *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다) }
  */
 
 export const PITCHES = {
@@ -112,7 +114,8 @@ export function stealOdds(g, from) {
   const runner = g.bases[from];
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
-  return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0) + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
+  return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0)
+    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
 }
 
 /** 이 투수가 오늘 던질 수 있는 공 수 */
@@ -243,6 +246,8 @@ export function pitch(g, orders = {}) {
     def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
     swapped = { out, in: def.pitcher };
   }
+  /* 수비가 정한 주자 묶기 세기 — 도루 성공률이 이 값을 본다 */
+  g.hold = orders.hold || 0;
   const pitcher = def.pitcher;
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, ...(swapped ? { swapped } : {}), before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
   let runs = 0;
@@ -278,8 +283,8 @@ export function pitch(g, orders = {}) {
   // 스윙 여부
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
-  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08, 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0), 0.06, 0.55);
+  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.13 : 0), 0, 0.92);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.09 : 0), 0.06, 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
@@ -334,7 +339,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;
-    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, scoreFrom2: 0.55 + (speed - 70) * 0.01 }));
+    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, scoreFrom2: 0.55 + (speed - 70) * 0.01 + (orders.dash || 0) * 0.12 }));
   }
 
   // 아웃
@@ -347,7 +352,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
   if (r < fly + 0.12) { ev.result = 'LO'; g.outs += 1; return 0; }
   ev.result = 'GO'; g.outs += 1;
-  if (g.bases[0] && g.outs < 3 && !orders.hitAndRun && g.rng() < clamp(0.5 - (speed - 70) * 0.01, 0.2, 0.7)) {
+  if (g.bases[0] && g.outs < 3 && !orders.hitAndRun && g.rng() < clamp(0.5 - (speed - 70) * 0.01 - (orders.dash || 0) * 0.1, 0.2, 0.7)) {
     ev.result = 'DP'; g.outs += 1; g.bases[0] = null;
   }
   if (g.outs < 3) {
