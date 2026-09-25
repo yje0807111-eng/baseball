@@ -18,6 +18,7 @@ import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
+import { faceAt } from './data/cardFace.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -4590,7 +4591,7 @@ function StarterCard({ player, right, side }) {
   const art = useArt(player);
   const profile = useProfile(player);
   const src = art || profile;
-  const look = src ? { backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: '50% 0%', backgroundRepeat: 'no-repeat' } : undefined;
+  const look = src ? { backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: faceAt(player.id), backgroundRepeat: 'no-repeat' } : undefined;
   const c = teamNeon(player); // 구단 색 — 두산이면 파랑
   return (
     <div className="ui-cut relative min-w-0 flex-1 overflow-hidden" style={{ '--c': '14px',
