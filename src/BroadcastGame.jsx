@@ -14,7 +14,7 @@ import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
-import { SIDES, DEFAULT_SIDES, planOfSides, untouch, sideOpt } from './myteam/strategy.js';
+import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
 import { artId } from './data/artAlias.js';
 import {
@@ -202,6 +202,7 @@ const lineOf = (text, kind = 'plain', g = null) => ({
   at: g ? `${g.inning}${g.top ? '초' : '말'}` : '',
 });
 const KEEP = 14; // 남겨 두는 줄 수
+export const TACTIC_CHANGES = 3; // 경기 중 전술을 바꿀 수 있는 횟수 (공수 교대 때 먹는다)
 
 function commentary(ev) {
   const b = ev.batter?.name || '타자';
@@ -396,14 +397,42 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
   const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
   const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리
-  /* 전술 — 정비에서 고른 세 갈래를 경기 중에도 바꾼다. 바꾸면 다음 공부터 먹는다 */
+  /*
+   * 전술 — 정비에서 고른 세 갈래로 시작한다. 경기 중에 바꾸면 '다음 공수 교대'에 먹고, 한 번 먹을 때마다 1회를 쓴다(경기당 TACTIC_CHANGES).
+   * 공마다 만지는 조작이 아니라, 흐름을 보고 몇 번 크게 트는 선택으로 — 승부처 지시(CLUTCH_LIMIT)와 같은 무게.
+   * 첫 공 전에는 정비의 연장이라 바로 먹고 횟수도 쓰지 않는다.
+   */
   const [sides, setSides] = useState(my?.plan?.sides || DEFAULT_SIDES);
   const sidesRef = useRef(sides);
   sidesRef.current = sides;
-  const [touched, setTouched] = useState(my?.plan?.touched || {});
-  const fineRef = useRef(planOfSides(sides, touched).fine);
-  fineRef.current = planOfSides(sides, touched).fine;
-  const pickSide = (key, id) => { setSides((v) => ({ ...v, [key]: id })); setTouched((t) => untouch(t, key)); };
+  const fineRef = useRef(planOfSides(sides).fine);
+  fineRef.current = planOfSides(sides).fine;
+  const [tacQ, setTacQ] = useState({}); // 다음 공수 교대에 먹을 전술 { off?, mound?, def? }
+  const queuedRef = useRef(tacQ);
+  queuedRef.current = tacQ;
+  const [tacticsLeft, setTacticsLeft] = useState(TACTIC_CHANGES);
+  const tacticsLeftRef = useRef(tacticsLeft);
+  tacticsLeftRef.current = tacticsLeft;
+  const pickSide = (key, id) => {
+    const g0 = gameRef.current;
+    if (!g0.events.length) { setSides((v) => ({ ...v, [key]: id })); return; } // 첫 공 전: 바로
+    setTacQ((q) => {
+      const next = { ...q };
+      if (id === sidesRef.current[key]) delete next[key]; else next[key] = id; // 지금 것으로 되돌리면 예약 취소
+      return next;
+    });
+  };
+  /** 공수 교대 — 예약한 전술이 있으면 이제 먹는다 */
+  const applyQueued = () => {
+    const q = queuedRef.current;
+    if (!Object.keys(q).length || tacticsLeftRef.current <= 0) { if (Object.keys(q).length) setTacQ({}); return; }
+    const next = { ...sidesRef.current, ...q };
+    sidesRef.current = next;
+    fineRef.current = planOfSides(next).fine;
+    setSides(next);
+    setTacQ({});
+    setTacticsLeft((n) => n - 1);
+  };
   const [openSide, setOpenSide] = useState(null); // 펼쳐 둔 전술 갈래
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
@@ -637,6 +666,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         /* 공수 교대 — 띠가 쓸고 지나가며 이번엔 누가 치는지 알린다 */
         if (!g.final && (g.top !== sideRef.current.top || g.inning !== sideRef.current.inning)) {
           sideRef.current = { inning: g.inning, top: g.top };
+          applyQueued();
           setCount({ b: 0, s: 0, o: 0 });
           setLines((l) => [...l, lineOf(`${g.inning}회${g.top ? '초' : '말'} — ${!g.top ? '우리 공격' : '우리 수비'} · ${g.away.runs} : ${g.home.runs}`, 'half', g)].slice(-KEEP));
           setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
@@ -1010,7 +1040,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               {/* 평소에는 전술 — 갈래를 누르면 그 위로 고를 판이 올라온다 */}
               {!PICKS && SIDES.map((sd) => {
                 const cur = sideOpt(sd.key, sides[sd.key]);
+                const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
                 const open = openSide === sd.key;
+                const locked = tacticsLeft <= 0 && g.events.length > 0; // 다 쓴 뒤에는 못 바꾼다
                 return (
                   <div key={sd.key} className="relative min-w-0 flex-1">
                     {open && (
@@ -1018,13 +1050,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                         <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
                         <div className="mt-cut mt-frame absolute bottom-full left-0 z-20 mb-2 w-[22rem] p-2.5"
                           style={{ '--c': '14px', '--a': sd.color, background: 'rgba(6,10,19,.97)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
-                          <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
+                          <div className="flex items-baseline justify-between px-1 pb-2">
+                            <p className="mt-lab" style={{ '--a': sd.color }}>{sd.ko}</p>
+                            {g.events.length > 0 && <small className="text-[11.5px] text-gray-400">공수 교대 때 적용 · 남은 변경 <b className="font-display text-[13px]" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></small>}
+                          </div>
                           <div className="grid grid-cols-2 gap-1.5">
                             {sd.opts.map((o) => {
-                              const on = sides[sd.key] === o.id;
+                              const on = (tacQ[sd.key] || sides[sd.key]) === o.id;
                               return (
-                                <button key={o.id} type="button" onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
-                                  className="mt-cut px-3 py-2 text-left transition-[background,box-shadow]"
+                                <button key={o.id} type="button" disabled={locked} onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
+                                  className="mt-cut px-3 py-2 text-left transition-[background,box-shadow] disabled:opacity-40"
                                   style={{ '--c': '6px',
                                     background: on ? `color-mix(in srgb,${sd.color} 22%,transparent)` : 'rgba(255,255,255,.045)',
                                     boxShadow: on ? `inset 0 0 0 1.5px ${sd.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
@@ -1041,8 +1076,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       className="mt-cut mt-frame mt-glass flex h-full w-full items-center gap-2.5 px-4 text-left hover:brightness-125"
                       style={{ '--c': '11px', '--a': sd.color, ...(open ? { background: `color-mix(in srgb,${sd.color} 14%,transparent)` } : null) }}>
                       <p className="mt-lab shrink-0" style={{ '--a': sd.color }}>{sd.ko}</p>
-                      <b className="min-w-0 flex-1 truncate text-[15px] font-extrabold" style={{ color: sd.color }}>{cur?.ko}</b>
-                      <small className="hidden shrink-0 text-[11.5px] text-gray-400 xl:block">{cur?.tip}</small>
+                      <b className="min-w-0 flex-1 truncate text-[15px] font-extrabold" style={{ color: sd.color }}>
+                        {cur?.ko}{want && <span className="text-white"> → {want.ko}</span>}
+                      </b>
+                      {want
+                        ? <small className="shrink-0 font-bold text-[11.5px] text-amber-300">예약</small>
+                        : <small className="hidden shrink-0 text-[11.5px] text-gray-400 xl:block">{cur?.tip}</small>}
                       <b className="shrink-0 text-[11px] text-gray-500" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▲</b>
                     </button>
                   </div>

@@ -111,8 +111,8 @@ export const sideOpt = (key, id) => {
   const s = SIDES.find((x) => x.key === key);
   return s?.opts.find((o) => o.id === id) || s?.opts[0];
 };
-/** 세 갈래가 잡아 주는 값 (손댄 눈금 touched 가 있으면 그쪽이 이긴다) */
-export function planOfSides(sides = DEFAULT_SIDES, touched = {}) {
+/** 세 갈래가 잡아 주는 값. 세부 눈금을 손으로 만지는 판은 없앴다 — 갈래 하나가 눈금 여럿을 함께 정한다 */
+export function planOfSides(sides = DEFAULT_SIDES) {
   const base = { ...DEFAULT_PLAN.base };
   const fine = { ...DEFAULT_PLAN.fine };
   for (const s of SIDES) {
@@ -120,15 +120,8 @@ export function planOfSides(sides = DEFAULT_SIDES, touched = {}) {
     Object.assign(base, o.base);
     Object.assign(fine, o.fine);
   }
-  return { sides: { ...sides }, base, fine: { ...fine, ...touched } };
+  return { sides: { ...sides }, base, fine };
 }
-/** 갈래 하나를 바꿀 때: 그 갈래의 눈금만 기본값으로 되돌린다 */
-export const untouch = (touched, key) => {
-  const dials = SIDES.find((x) => x.key === key)?.dials || [];
-  const out = { ...touched };
-  dials.forEach((d) => delete out[d]);
-  return out;
-};
 /** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
 const SIDE_COUNTER = {
   '불펜 얇음': ['onbase', 'contact'],

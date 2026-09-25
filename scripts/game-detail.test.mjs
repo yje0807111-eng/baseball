@@ -24,7 +24,7 @@ describe('기록실 경기 상세', () => {
   const d = gameDetail(res, my, opp, [{ itemId: 'nope', playerName: '갑', gamesLeft: 2 }, { itemId: 'nope', playerName: '을', gamesLeft: 1 }, { itemId: 'gone', playerName: '병', gamesLeft: 0 }]);
 
   it('라인 스코어 합이 점수와 같다', () => {
-    const sum = (a) => a.reduce((s, v) => s + (v || 0), 0);
+    const sum = (a) => a.reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0); // 치지 않은 9회 말은 'X'
     expect(sum(d.board.my)).toBe(res.score.my);
     expect(sum(d.board.opp)).toBe(res.score.opp);
   });

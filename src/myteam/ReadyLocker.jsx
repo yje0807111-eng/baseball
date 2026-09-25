@@ -6,7 +6,7 @@
 import React, { useRef, useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
-import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons, scoutTags } from './strategy.js';
+import { SIDES, DEFAULT_SIDES, sideOpt, planOfSides, sideReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
@@ -245,25 +245,19 @@ function RosterPanel({ squad, cap }) {
 }
 
 /** 오른쪽 — 전략실: 팀 종합 · 세 갈래 · 경기 시작 */
-/* 전략실 속 — 공격 · 마운드 · 수비에서 하나씩. 더보기를 펼치면 그 갈래의 성향 눈금이 나온다.
-   접혀 있을 때도 지금 잡힌 세부가 한 줄로 보인다. */
-function SideBlock({ sides, touched, onPick, onDial, opponent }) {
-  const [open, setOpen] = useState(null);
+/* 전략실 속 — 공격 · 마운드 · 수비에서 하나씩. 갈래 하나가 세부 성향을 함께 정한다(세부 눈금은 없앴다).
+   경기 중에는 공수 교대 때만, 경기당 몇 번만 바꿀 수 있으니 여기서 고르는 것이 기본 계획이다. */
+function SideBlock({ sides, onPick, opponent }) {
   const reasons = sideReasons(opponent);
-  const plan = planOfSides(sides, touched);
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2.5">
+    <div className="flex min-h-0 flex-1 flex-col gap-3.5">
       {SIDES.map((g) => {
-        const on = open === g.key;
-        const dials = g.dials.map((k) => FINE.find((f) => f.key === k)).filter(Boolean);
         return (
           <div key={g.key} className="flex shrink-0 flex-col gap-1.5">
-            <button type="button" onClick={() => setOpen(on ? null : g.key)} className="flex items-baseline gap-2 text-left">
-              <span className="font-display text-[10px] font-bold tracking-[0.26em]" style={{ color: g.color }}>{g.en.toUpperCase()}</span>
-              <b className="text-[12.5px] text-gray-100">{g.ko}</b>
+            <div className="flex items-baseline gap-2">
+              <b className="text-[13px]" style={{ color: g.color }}>{g.ko}</b>
               <span className="h-px flex-1 bg-white/10" />
-              <b className="text-[11px]" style={{ color: on ? g.color : '#7d8a9c' }}>{on ? '접기 ▴' : '더보기 ▾'}</b>
-            </button>
+            </div>
 
             <div className="grid grid-cols-2 gap-1.5">
               {g.opts.map((o) => {
@@ -284,33 +278,6 @@ function SideBlock({ sides, touched, onPick, onDial, opponent }) {
               })}
             </div>
 
-            {on ? (
-              <div className="mt-cut flex flex-col gap-3 p-3" style={{ ...cut(7), background: `color-mix(in srgb,${g.color} 7%,transparent)`,
-                boxShadow: `inset 0 0 0 1px color-mix(in srgb,${g.color} 22%,transparent)` }}>
-                {dials.map((f) => (
-                  <div key={f.key} className="flex flex-col gap-1.5">
-                    <span className="flex items-baseline">
-                      <small className="text-[11px] text-gray-400">{f.ko}</small>
-                      <b className="ml-auto text-[13px] font-extrabold text-white">{plan.fine[f.key]}</b>
-                    </span>
-                    <span className="flex gap-1">
-                      {f.opts.map((o) => (
-                        <button key={o} type="button" onClick={() => onDial(f.key, o)} aria-label={`${f.ko} ${o}`}
-                          className="h-[7px] flex-1" style={{ background: plan.fine[f.key] === o ? g.color : 'rgba(255,255,255,.1)' }} />
-                      ))}
-                    </span>
-                    <span className="flex text-[10px] text-gray-500"><span>{f.opts[0]}</span><span className="ml-auto">{f.opts[f.opts.length - 1]}</span></span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              /* 접혀 있어도 지금 무엇으로 잡혀 있는지는 보인다 */
-              <button type="button" onClick={() => setOpen(g.key)}
-                className="mt-cut flex h-[1.9rem] items-center gap-2 px-3 text-left"
-                style={{ ...cut(4), background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
-                <small className="truncate text-[10.5px] text-gray-400">{g.dials.map((k) => plan.fine[k]).join(' · ')}</small>
-              </button>
-            )}
           </div>
         );
       })}
@@ -350,11 +317,9 @@ export default function ReadyLocker({
   onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트', startBlock = null,
 }) {
   const [sel, setSel] = useState(null);
-  /* 전략실 — 세 갈래를 고르고, 손댄 눈금(touched)만 따로 기억한다 */
+  /* 전략실 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
   const [sides, setSides] = useState(team.plan?.sides || DEFAULT_SIDES);
-  const [touched, setTouched] = useState(team.plan?.touched || {});
-  /* 갈래를 바꾸면 그 갈래의 눈금만 기본값으로 돌아간다 — 다른 갈래에서 만진 값은 남는다 */
-  const pickSide = (key, id) => { setSides((v) => ({ ...v, [key]: id })); setTouched((t) => untouch(t, key)); };
+  const pickSide = (key, id) => setSides((v) => ({ ...v, [key]: id }));
   const byId = new Map(squad.map((p) => [p.id, p]));
 
   return (
@@ -367,9 +332,8 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots railW={264} footer={<SynergyDockMini synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart({ ...planOfSides(sides, touched), touched })} startLabel={startLabel} startBlock={startBlock}>
-        <SideBlock sides={sides} touched={touched} onPick={pickSide}
-          onDial={(k, v) => setTouched((t) => ({ ...t, [k]: v }))} opponent={opponent} />
+        onStart={() => onStart(planOfSides(sides))} startLabel={startLabel} startBlock={startBlock}>
+        <SideBlock sides={sides} onPick={pickSide} opponent={opponent} />
       </WarRoom>
     </div>
   );

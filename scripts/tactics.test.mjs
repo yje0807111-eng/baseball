@@ -95,3 +95,11 @@ describe('전술 눈금', () => {
     expect(g.home.pitcherIdx).toBe(0);
   });
 });
+
+describe('정비 계획이 경기로', () => {
+  it('세부 눈금 없이 갈래가 정한 값 그대로', () => {
+    const p = planOfSides({ ...DEFAULT_SIDES, off: 'speed' });
+    expect(p.fine.take).toBe('과감');
+    expect(p.sides.off).toBe('speed');
+  });
+});
