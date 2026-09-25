@@ -23,6 +23,7 @@ import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
+import { recordCells, playerTraits } from './myteam/traits.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -1546,6 +1547,22 @@ export const KEYFRAMES = `
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
 .ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
 .ser-ttl { position: relative; min-width: 0; display: flex; align-items: center; gap: 12px; }
+/* 선반 포지션 탭 — 알약 틀 · 고른 탭만 떠오름 · 후보 수 · 내 라인업에 빈 자리가 있으면 초록 점 */
+.ser-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(255,255,255,.05); }
+.ser-tabs button { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 14px; font-weight: 700; color: #9ca3af; transition: color .2s, background .2s; }
+.ser-tabs button:hover { color: #e5e7eb; }
+.ser-tabs button.on { color: #fff; background: linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06)); box-shadow: inset 0 1px 0 rgba(255,255,255,.2); }
+.ser-tabs small { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #6b7280; }
+.ser-tabs i { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
+/* 고른 선수 — 카드 아래 시즌 기록(있는 칸만) · 강점/약점 */
+.pk-rec { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
+.pk-rec div { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; }
+.pk-rec div + div { box-shadow: inset 1px 0 0 rgba(255,255,255,.06); }
+.pk-rec span { font-size: 12px; color: #6b7280; }
+.pk-rec b { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; color: #fff; }
+.pk-trs { display: flex; flex-wrap: wrap; gap: 6px; }
+.pk-trs span { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 700; color: #e5e7eb; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px var(--c); }
+.pk-trs b { color: var(--c); }
 .ser-kind { flex: none; font-size:12px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
 .ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size:28px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
 .ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size:14px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: inset(0 round 0 8px 8px 0); }
@@ -2298,7 +2315,7 @@ function Badge({ children }) {
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
 /** capAfter: PICK 에 올린 선수를 영입하면 남을 캡 — 있으면 “지금 → 영입 후” 숫자와, 깎일 칸이 노랗게 깜빡이는 게이지 */
-function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit, slim = false }) {
+function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules, wide = false, modeName = null, modeNeon = '#10b981', capAfter = null, onExit, slim = false, series = null }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const pct = clamp01((preview ? capAfter : cp) / cap);
@@ -2310,15 +2327,39 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.74))] backdrop-blur">
       <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
-      <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
+      <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2.5' : 'max-w-7xl py-3'}`}>
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
+        {series ? (() => {
+          /* 드래프트 중: 지금 열린 시리즈를 시즌 표로 — 어느 구단 · 어느 해인지 한눈에 */
+          const flag = teamFlag(series.title || '');
+          const c = flag?.color || SERIES_NEON[series.kind] || '#10b981';
+          return (
+            <div key={series.id} className="flex animate-[rise_.35s_ease-out_both] items-center gap-4 py-0.5">
+              <i className="block h-14 w-1.5 shrink-0 rounded-full" style={{ background: `linear-gradient(${c}, ${c}44)`, boxShadow: `0 0 18px ${c}` }} aria-hidden="true" />
+              {series.year && <b className="font-display text-[60px] font-extrabold leading-[.85] text-white">{series.year}</b>}
+              <div className="min-w-0 leading-tight">
+                <span className="flex items-center gap-2">
+                  {flag && <i className="block h-7 w-7 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(ui/clubs/${flag.key}.webp)` }} aria-hidden="true" />}
+                  <h1 className="truncate text-t1 font-black text-white">{series.title}</h1>
+                </span>
+                <p className="mt-0.5 truncate text-t4 text-gray-400">{series.subtitle || SERIES_KIND_LABEL[series.kind]}</p>
+              </div>
+              {modeName && (
+                <p className="ml-2 shrink-0 border-l border-dashed border-white/20 pl-5 text-t4 leading-snug text-gray-500">
+                  드래프트<br /><b className="text-t3" style={{ color: modeNeon }}>{modeName}</b>
+                </p>
+              )}
+            </div>
+          );
+        })() : (
         <div className="leading-none">
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">메인</p>
           <h1 className="mt-1 text-t2 font-black leading-none text-white">레전드 드래프트</h1>
         </div>
+        )}
 
         {/* 지금 드래프트 모드 (가을의 왕조 · 전체 믹스 …) */}
-        {modeName && (
+        {modeName && !series && (
           <div className="border-l border-white/10 pl-6 leading-none">
             <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">드래프트 모드</p>
             <p className="mt-1 whitespace-nowrap text-t2 font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
@@ -2487,6 +2528,32 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
   );
 }
 
+/** 고른 선수 카드 아래 — 시즌 기록(기록 있는 칸만) · 강점/약점 칩 셋. 능력치는 카드 안에 있다 */
+function PickInfo({ player }) {
+  const rec = recordCells(player).filter(([, v]) => v != null && v !== '').slice(0, 6);
+  const tr = playerTraits(player);
+  const chips = [...tr.good.map((t) => [t, true]), ...tr.bad.map((t) => [t, false])].slice(0, 3);
+  if (!rec.length && !chips.length) return null;
+  return (
+    <div key={player.id} className="flex shrink-0 animate-[rise_.3s_ease-out_both] flex-col gap-2">
+      {rec.length > 0 && (
+        <div className="pk-rec">
+          {rec.map(([k, v]) => <div key={k}><span>{k}</span><b>{v}</b></div>)}
+        </div>
+      )}
+      {chips.length > 0 && (
+        <div className="pk-trs">
+          {chips.map(([t, good]) => (
+            <span key={t.id} title={t.why} style={{ '--c': good ? 'rgba(52,211,153,.55)' : 'rgba(248,113,113,.55)' }}>
+              <b style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>{t.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 /** 칩 옆 한 줄에 다 들어가게 줄이는 긴 포지션의 글자 크기(cqw, 기본 9.5) — Saira Condensed 500 · 자간 .07em 기준으로 잰 값 */
@@ -2521,6 +2588,9 @@ function SynergyPips({ s, after, named = false }) {
  * 선반 카드: 위 가장자리 등급 줄 · 종합(75 미만 흰 · 75~89 초록 · 90+ 무지개) · 포지션 약어 칩+영문 · 팀 색 구분선 · 이름 · 오른쪽 아래 CP/숫자.
  * 살 수 없으면 카드 전체가 무채색이 되고 가운데에 사유 알림.
  */
+/* 선반 포지션 탭 — 묶음별 포지션 */
+const GROUP_POS = { 투수: ['SP', 'RP'], 포수: ['C'], 내야: ['1B', '2B', '3B', 'SS'], 외야: ['OF', 'DH'] };
+
 /* 선반 머리 가운데: 라운드와 샐러리 캡 잔여 (칸 스물넷) */
 function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
   const preview = capAfter != null && capAfter !== cp;
@@ -2584,7 +2654,7 @@ function TurnOrder({ live, clock, hold = false }) {
   );
 }
 
-function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false }) {
+function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false, need = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2612,8 +2682,9 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
         )}
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
-      <span className={`pointer-events-none absolute inset-[2.5cqw] transition-colors duration-300 ${selected || focus === 'on' ? 'border-2' : 'border'}`}
-        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : `${acc}66` }} />
+      <span className={`pointer-events-none absolute inset-[2.5cqw] transition-[border-color,box-shadow] duration-300 ${selected || focus === 'on' || (need && !takenClub) ? 'border-2' : 'border'}`}
+        style={{ borderColor: selected ? '#10b981' : focus === 'on' ? '#38bdf8' : need && !takenClub ? 'rgba(52,211,153,.8)' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : `${acc}66`,
+          boxShadow: need && !takenClub && !selected ? 'inset 0 0 16px -4px rgba(52,211,153,.6)' : 'none' }} />
       {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
           회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
       {takenClub && (
@@ -5292,14 +5363,30 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (reveal === 'out' && hideTarget(pl)) return false; // 숨는 효과가 도는 동안은 아직 보인다
     return shelfFilter === 'open' && hideTarget(pl);
   };
-  const shownCards = seriesCards.filter((p) => !posFilter?.pos || p.position === posFilter.pos);
+  /** 거르기 한 벌: { slot, pos } = 라인업 자리를 눌러 그 포지션만 · { group } = 위 포지션 탭 */
+  const fitsFilter = (f, p) => !f || (f.pos ? p.position === f.pos : !f.group || GROUP_POS[f.group].includes(p.position));
+  const shownCards = seriesCards.filter((p) => fitsFilter(posFilter, p));
+  /** 내 라인업에서 아직 빈 필드 자리의 포지션 — 선반 카드 · 탭에 초록으로 */
+  const needPos = useMemo(() => {
+    const filled = new Set(withSlots(roster).map((p) => p.slot));
+    return new Set(FIELD_SLOTS.filter((sl) => !filled.has(sl.id)).map((sl) => sl.pos));
+  }, [roster]);
   const shelfCols = Math.max(17, seriesCards.length); // 칸 수는 이 보드 인원으로 고정 — 거르기를 해도 카드가 커지지 않는다
   /** 자리 거르기 바꾸기: 빠질 카드는 먼저 사라지고(0.18초) 남는 카드가 다시 차례로 떠오른다. slot=null 이면 해제 */
   const handleSlotFilter = (slot, force = false) => {
     const cur = pendingSlot !== undefined ? pendingSlot : (posFilter?.slot ?? null);
     const next = slot == null || (!force && cur === slot) ? null : { slot, pos: slotPos(slot) };
-    if ((next?.slot ?? null) === cur) return;
-    const keep = new Set(seriesCards.filter((p) => !hiddenCard(p)).filter((p) => !next?.pos || p.position === next.pos).map((p) => p.id));
+    if ((next?.slot ?? null) === cur && !posFilter?.group) return;
+    applyShelfFilter(next);
+  };
+  /** 위 포지션 탭 — '전체' 면 거르기 해제 */
+  const handleGroupFilter = (g) => {
+    const next = g === '전체' ? null : { group: g };
+    if (!posFilter?.slot && (posFilter?.group ?? null) === (next?.group ?? null)) return;
+    applyShelfFilter(next);
+  };
+  const applyShelfFilter = (next) => {
+    const keep = new Set(seriesCards.filter((p) => !hiddenCard(p)).filter((p) => fitsFilter(next, p)).map((p) => p.id));
     const leaving = new Set(shownCards.filter((p) => !keep.has(p.id)).map((p) => p.id));
     clearTimeout(leaveTimerRef.current);
     const commit = () => {
@@ -5852,7 +5939,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
 
       {phase !== 'mode' && phase !== 'bracket' && phase !== 'gauntlet' && (
-        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} slim={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon}
+        <CapDashboard round={phase === 'draft' ? round : roster.length} cp={cp} cap={match.cap} roster={roster} phase={phase} onOpenRules={() => setModal('rules')} wide={phase === 'draft'} slim={phase === 'draft'} modeName={mode.name} modeNeon={mode.neon} series={phase === 'draft' ? series : null}
           onExit={onExit} capAfter={phase === 'draft' && picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - picked.cost) : (pickedReason ? null : cp - picked.cost)) : null} />
       )}
 
@@ -5877,12 +5964,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
-                  <span className="ser-wm font-display" aria-hidden="true">{series.year ?? 'LEGEND'}</span>
                   {!live && <DraftMeta round={round} cp={cp} cap={match.cap} capAfter={picked ? (swapPlan ? (swapPlan.reason ? null : cp + swapPlan.refund - costNow(picked)) : (pickedReason ? null : cp - costNow(picked))) : null} />}
-                  <div className="ser-ttl">
-                    <span className="ser-kind">{SERIES_KIND_LABEL[series.kind]}</span>
-                    <h2 className="ser-name">{series.year && <span className="sr-only">{series.year}년 </span>}{series.title}</h2>
-                    {series.subtitle && <span className="ser-sub">{series.subtitle}</span>}
+                  <div className="ser-tabs" role="group" aria-label="포지션">
+                    {['전체', ...Object.keys(GROUP_POS)].map((g) => {
+                      const list = seriesCards.filter((p) => !hiddenCard(p) && (g === '전체' || GROUP_POS[g].includes(p.position)));
+                      const on = g === '전체' ? !posFilter?.group && !posFilter?.slot : posFilter?.group === g;
+                      const need = g !== '전체' && GROUP_POS[g].some((pos) => needPos.has(pos));
+                      return (
+                        <button key={g} type="button" className={on ? 'on' : ''} aria-pressed={on} onClick={() => handleGroupFilter(g)}>
+                          {g}<small>{list.length}</small>{need && <i aria-label="빈 자리" />}
+                        </button>
+                      );
+                    })}
                   </div>
                   <div className={`ml-auto flex shrink-0 gap-2.5 ${live ? 'flex-col items-end gap-y-0.5' : 'items-center'}`}>
                     {posFilter?.pos && (
@@ -5981,7 +6074,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
                   {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurnLit && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
-                    hint={lockOf(p) ? null : hintFor(p)}
+                    hint={lockOf(p) ? null : hintFor(p)} need={!lockOf(p) && needPos.has(p.position)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
@@ -5992,7 +6085,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               </div>
               </div>
               {/* 넓은 화면: 구장이 줄 높이를 정하고, 영입 카드 묶음은 그 높이에 맞춘다 */}
-              <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)_clamp(20rem,21vw,25rem)] lg:grid-rows-[minmax(0,1fr)]">
+              <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(18rem,21vw,25rem)_minmax(0,1fr)_clamp(20rem,21vw,25rem)] lg:grid-rows-[minmax(0,1fr)]">
                 <div className="bc-grp lg:min-h-0">
                   <span className="bc-label font-display">고른 선수</span>
                 <div className="relative flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
@@ -6021,6 +6114,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       ) : null}
                     </div>
                   </div>
+                  {(picked || inspected) && <PickInfo player={picked || inspected.player} />}
                   {live && !myTurnLit ? (
                     /* 라이브: 내 차례가 아니면 이 자리는 비워 둔다 (누구 차례인지는 위 순서 띠가 말한다) */
                     <div className="pk-ghostbtn" aria-hidden="true" />
