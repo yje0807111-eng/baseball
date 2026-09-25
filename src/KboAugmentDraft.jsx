@@ -1298,10 +1298,10 @@ export const KEYFRAMES = `
 .lf-chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); transition: background .09s, color .09s; }
 .lf-bar { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 14px; background: rgba(8,12,22,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); transition: background .09s, box-shadow .09s; }
 .lf-bar::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); opacity: .7; }
-.lf-bp { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.lf-bp { position: absolute; left: 8px; top: 19px; width: 44px; height: 44px; z-index: 2; border-radius: 50%; background-color: #0b1220; background-repeat: no-repeat; box-shadow: 0 0 0 2px #05080f, 0 0 0 3.5px var(--n); }
 /* 빈 사진 칸: 흉상과 같은 자리 · 크기. 불투명하게 칠해 뒤 판 테두리를 가리고 아래는 판 속으로 흐려져 네모 두 개로 겹쳐 보이지 않게 */
-.lf-ph { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: inset 0 1px 0 rgba(148,163,184,.3); -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); transition: background .09s; }
-.lf-ph::before { content: ""; position: absolute; left: 50%; top: 44%; width: 30px; height: 33px; transform: translate(-50%, -50%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") center / contain no-repeat; opacity: .5; }
+.lf-ph { position: absolute; left: 8px; top: 19px; width: 44px; height: 44px; z-index: 2; border-radius: 50%; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: 0 0 0 1.5px rgba(148,163,184,.3); }
+.lf-ph::before { content: ""; position: absolute; left: 50%; top: 50%; width: 24px; height: 26px; transform: translate(-50%, -46%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 44c0-11 7-18 16-18s16 7 16 18z' fill='%2394a3b8'/%3E%3C/svg%3E") center / contain no-repeat; opacity: .55; }
 .lf-bx { min-width: 0; flex: 1; line-height: 1.25; }
 .lf-bx b { display: block; font-size:14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lf-bx small { display: block; font-size:12px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1359,8 +1359,8 @@ export const KEYFRAMES = `
 .lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .lf-bn + .lf-bn { margin-top: 8px; padding-top: 8px; }
 .lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(255,255,255,.05); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); clip-path: inset(0 round 10px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
-.lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
-.lf-bc-ph { border-radius: 6px; background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
+.lf-bc-bp, .lf-bc-ph { width: 22px; height: 22px; border-radius: 50%; background-repeat: no-repeat; }
+.lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
 .lf-bc.empty .lf-bc-pos { color: #64748b; }
 .lf-bc:not(:has(.lf-bc-pos)) { grid-template-columns: 22px minmax(0, 1fr) auto; }

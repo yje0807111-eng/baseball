@@ -22,13 +22,12 @@ const FIELD = [['C', 'C'], ['1B', '1B'], ['2B', '2B'], ['3B', '3B'], ['SS', 'SS'
 /* 구장 사진(ui/field.webp) 위 카드 가운데 자리 (%) — 세로 카드가 판 안에 들도록 외야 · 코너를 안쪽에 */
 const XY = { CF: [50, 14], LF: [17, 26], RF: [83, 26], SS: [35, 46], '2B': [65, 46], '3B': [17, 65], '1B': [83, 65], C: [50, 87], DH: [89, 87], P: [50, 64] };
 /** 구장 위 선수 표시: 중계 자막처럼 기운 사진 + 위 어두운 이름 띠(종합 · 이름) + 아래 구단색 정보 띠 */
-const SKEW = (n) => `polygon(${n}px 0,100% 0,calc(100% - ${n}px) 100%,0 100%)`;
 const Lower = ({ p, c, ovr, sub }) => (
   <span className="flex items-center">
-    <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
-    <span className="-ml-[5px] block">
-      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-t3 font-extrabold text-white">{p.name}</b><FormMark p={p} size={12} /></span>
-      <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-t4 font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
+    <span className="block h-[44px] w-[44px] shrink-0 rounded-full bg-[#0b1220] bg-cover" style={{ backgroundPosition: 'center 10%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, boxShadow: `0 0 0 2px #05080f, 0 0 0 3.5px ${c}` }} />
+    <span className="ml-2 block">
+      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap rounded-lg bg-[rgba(6,10,19,.88)] pl-2.5 pr-3 pt-1 shadow-[inset_0_1px_0_rgba(255,255,255,.1)]">{ovr}<b className="text-t3 font-extrabold text-white">{p.name}</b><FormMark p={p} size={12} /></span>
+      <span className="mt-0.5 inline-block h-[20px] whitespace-nowrap rounded-md px-2.5 pt-[2px] font-display text-t4 font-extrabold text-[#05080f]" style={{ background: c }}>{sub}</span>
     </span>
   </span>
 );
