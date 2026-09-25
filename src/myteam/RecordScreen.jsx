@@ -272,7 +272,7 @@ function GameLine({ h, on, onPick }) {
       <span className="font-display text-t3 text-gray-400">{fmtDate(h.at)}</span>
       <span className="mt-cut px-2 py-0.5 text-center text-t4 font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
       <span className="min-w-0">
-        <b className="block truncate text-t3 font-black text-white">{h.opp}</b>
+        <b className="block truncate text-t2 font-black text-white">{h.opp}</b>
         <small className="block truncate text-t4 text-gray-400">{h.round || '단판 승부'}</small>
       </span>
       <b className="text-center font-display text-t1 font-extrabold tabular-nums text-white">
