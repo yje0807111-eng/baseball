@@ -1444,7 +1444,7 @@ export const KEYFRAMES = `
 .rl-chip { display: inline-block; padding: 1px 8px; font-size: 12px; font-weight: 600; line-height: 1.6; color: #e5e7eb; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .rl-chip.g { color: #bbf7d0; background: rgba(16,185,129,.12); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); }
 .rl-tip { display: flex; gap: 8px; margin: 10px 0 2px; padding: 7px 10px; font-size: 12.5px; line-height: 1.6; color: #bae6fd; background: rgba(56,189,248,.07); }
-.rl-tip::before { content: "TIP"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
+.rl-tip::before { content: "팁"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
 .rl-slots { display: grid; gap: 6px; margin: 4px 0 10px; }
 .rl-slots > div { display: grid; grid-template-columns: 58px minmax(0, 1fr); align-items: center; gap: 8px; }
 .rl-slots > div > span:first-child { font-size: 12px; font-weight: 700; color: #9ca3af; }
@@ -1549,7 +1549,7 @@ export const KEYFRAMES = `
 }
 .bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
 @media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
-.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size: 13px; font-weight: 800; letter-spacing: .02em; color: var(--a); }
 .bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
 .ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
@@ -1597,7 +1597,7 @@ export const KEYFRAMES = `
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .dr-round { display: flex; align-items: baseline; gap: 6px; }
-.dr-round small { font-family: 'Saira Condensed', sans-serif; font-size: 10px; letter-spacing: .24em; color: #6b7280; }
+.dr-round small { font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif; font-size: 11px; font-weight: 700; color: #6b7280; }
 .dr-round b { font-family: 'Saira Condensed', sans-serif; font-size: 22px; line-height: 1; color: #fff; }
 .dr-round small + b + small { font-size: 11px; letter-spacing: 0; }
 .dr-cap { display: flex; align-items: center; gap: 9px; }
@@ -1971,7 +1971,7 @@ export const KEYFRAMES = `
 .sd { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .syn-dock.wide .sd { padding-top: 60px; } /* 넓은 구장 사진의 전광판 조명 아래부터 */
 .sd-hd { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-left: 4px; }
-.sd-lab { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
+.sd-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size: 13px; font-weight: 800; letter-spacing: .02em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
 .sd-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 .sd-hd em { padding: 0 6px; font-style: normal; font-size: 12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
 .sd-hd button { margin-left: auto; padding: 2px 6px; font-size: 12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
@@ -2321,20 +2321,20 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Legend Draft</p>
+          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">메인</p>
           <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
         </div>
 
         {/* 지금 드래프트 모드 (가을의 왕조 · 전체 믹스 …) */}
         {modeName && (
           <div className="border-l border-white/10 pl-6 leading-none">
-            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Mode</p>
+            <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">드래프트 모드</p>
             <p className="mt-1 whitespace-nowrap text-lg font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
           </div>
         )}
 
         {!slim && <div className="flex items-baseline gap-2">
-          <span className="font-display text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">Round</span>
+          <span className="text-xs font-bold text-gray-500">지명</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
           <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
         </div>}
@@ -2540,7 +2540,7 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
   return (
     <div className={`dr-meta ${inline ? "inline" : ""}`}>
       <span className="dr-round">
-        <small>ROUND</small>
+        <small>지명</small>
         <b>{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</b>
         <small>/ {ROSTER_SIZE}</small>
       </span>
@@ -2973,14 +2973,14 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
         <div className={`syn-dock ${dockL != null ? 'wide' : ''}`} style={dockL != null ? { left: dockL, width: box.w - dockL } : { width: reserve }}>
           {overlay}
           <div className="lf-bn">
-            <div className="lf-bn-h"><span>불펜</span><em>BULLPEN</em><small><b>{PEN_SLOTS.filter((b) => at(b.id)).length}</b>/{PEN_SLOTS.length}</small></div>
+            <div className="lf-bn-h"><span>불펜</span><small><b>{PEN_SLOTS.filter((b) => at(b.id)).length}</b>/{PEN_SLOTS.length}</small></div>
             <div className="lf-bn-g">
               {PEN_SLOTS.map((b) => <BenchSlot key={b.id} slot={b} player={playerOf(b)} kind={kindOf(b)} flags={flagsOf(b)} bind={bind(b.id)}
                 boosted={kindOf(b) === 'ghost' ? boostedPreview : boosted} />)}
             </div>
           </div>
           <div className="lf-bn">
-            <div className="lf-bn-h"><span>예비</span><em>BENCH</em><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
+            <div className="lf-bn-h"><span>예비</span><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
             <div className="lf-bn-g">
               {BENCH_SLOTS.map((b) => <BenchSlot key={b.id} slot={b} player={playerOf(b)} kind={kindOf(b)} flags={flagsOf(b)} bind={bind(b.id)}
                 boosted={kindOf(b) === 'ghost' ? boostedPreview : boosted} />)}
@@ -3422,7 +3422,7 @@ function SynergyDock({ roster, candidate, focusId, onFocus, onOpenAll }) {
   return (
     <section ref={rootRef} className="sd" onMouseLeave={() => setHover(null)}>
       <div className="sd-hd">
-        <span className="sd-lab font-display">SYNERGY</span>
+        <span className="sd-lab font-display">시너지</span>
         <em className="font-display tabular-nums">{list.filter((s) => s.active).length}</em>
         <button type="button" onClick={onOpenAll}>전체 보기</button>
       </div>
@@ -4425,7 +4425,7 @@ function Scoreboard({ board, half, myName, oppName }) {
       <table className="w-full min-w-[600px] border-collapse font-display">
         <thead>
           <tr className="text-xs font-semibold uppercase tracking-widest text-gray-500">
-            <th className="px-3 pb-1 text-left">Team</th>
+            <th className="px-3 pb-1 text-left">팀</th>
             {Array.from({ length: 9 }, (_, i) => <th key={i} className="w-11 pb-1">{i + 1}</th>)}
             <th className="w-14 pb-1 text-[#10b981]">R</th>
           </tr>
@@ -4971,7 +4971,7 @@ function BasicHero({ mode, tickets, acc }) {
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <div className="flex items-end gap-4">
             <div className="min-w-0 flex-1">
-              <b className="font-display text-[13px] tracking-[0.25em]" style={{ color: acc }}>{mode.en}</b>
+              <b className="text-[13px] font-extrabold" style={{ color: acc }}>{mode.group === 'special' ? '특별 모드' : '베이직 모드'}</b>
               <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
               <span className="mt-2 block text-[15px] text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
             </div>
@@ -5357,7 +5357,7 @@ const RULE_TABS = [
       { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈 열기 · 고르기 · 영입', b: <>
         <div className="rl-steps">
           <div><span>시리즈 하나 열림 — 구단의 한 시즌 · 국가대표 · 레전드 중 하나</span></div>
-          <div><span>선수 카드를 누르면 <b>PICK</b>에 올라 능력치와 영입가 확인</span></div>
+          <div><span>선수 카드를 누르면 <b>고른 선수</b> 칸에 올라 능력치와 영입가 확인</span></div>
           <div><span><b>영입</b>을 누르면 라인업에 들어가고 다음 라운드로</span></div>
         </div>
         <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈 · 드래프트마다 {START_REROLLS}번</span></div>
@@ -6471,7 +6471,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
               <div className={`bc-grp lg:!px-1.5 ${live && myTurnLit ? 'myturn' : ''}`}
                 style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color } : {}) } : undefined}>
-                <span className="bc-label font-display">SERIES</span>
+                <span className="bc-label font-display">영입 후보</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
                 <div key={series.id} className="ser-hd mb-2 flex animate-[rise_.35s_ease-out_both] flex-wrap items-center gap-x-3 gap-y-2 px-1.5 lg:flex-nowrap">
@@ -6605,7 +6605,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               {/* 넓은 화면: 구장이 줄 높이를 정하고, 영입 카드 묶음은 그 높이에 맞춘다 */}
               <div className="grid gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[clamp(15rem,19vw,21rem)_minmax(0,1fr)_clamp(20rem,21vw,25rem)] lg:grid-rows-[minmax(0,1fr)]">
                 <div className="bc-grp lg:min-h-0">
-                  <span className="bc-label font-display">PICK</span>
+                  <span className="bc-label font-display">고른 선수</span>
                 <div className="relative flex flex-col gap-2 lg:absolute lg:inset-x-2.5 lg:bottom-2.5 lg:top-[26px]">
                   {/* 카드 무대: 뒷면(스켈레톤) · 빠지는 카드 · 지금 카드가 같은 자리에 겹쳐 뒤집힌다 (실제 PICK 카드와 같은 감싸는 틀 → 늘 2:3) */}
                   <div className="flex min-h-0 justify-center lg:flex-1">
@@ -6668,15 +6668,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 </div>
                 {/* 내 라인업: 구장이 판 전체의 배경, 시너지는 오른쪽 도크로 그 위에 얹힌다 */}
                 <div className="bc-grp !px-0 !pb-0 lg:flex lg:min-h-0 lg:flex-col">
-                  <span className="bc-label font-display">MY LINEUP</span>
+                  <span className="bc-label font-display">포지션 배치</span>
                   <LineupField roster={roster} candidate={picked} candidateReason={pickedReason} onMove={handleMove} onInspect={handleInspect} onSlotFilter={handleSlotFilter} onClearCandidate={() => setPicked(null)} wantSlot={pendingSlot !== undefined ? pendingSlot : posFilter?.slot} draftView
                     highlight={focusIds} focusLabel={focused?.name} onClearFocus={() => setFocusSynergy(null)}
                     reserve={320} fill wide tapRef={lineupTapRef} className="lg:min-h-0 lg:flex-1"
                     overlay={<SynergyDock roster={roster} candidate={previewTarget} focusId={focusSynergy} onFocus={toggleFocus} onOpenAll={() => setModal('synergy')} />} />
                 </div>
-                {/* MY TEAM: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
+                {/* 팀 분석: 팀 분석 · 선수 기록 탭. 기록 줄을 누르면 필드에서 그 자리를 누른 것과 같다 */}
                 <div className="bc-grp lg:flex lg:min-h-0 lg:flex-col">
-                  <span className="bc-label font-display">MY TEAM</span>
+                  <span className="bc-label font-display">팀 분석</span>
                   <MyTeamPanel roster={roster} mode={mode} cap={match.cap}
                     selectedSlot={inspected?.player.slot ?? (pendingSlot !== undefined ? pendingSlot : posFilter?.slot) ?? null}
                     onTap={(slot) => lineupTapRef.current?.(slot)} />

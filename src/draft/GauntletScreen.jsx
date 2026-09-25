@@ -82,7 +82,7 @@ function Floor({ r, index, now, mine, cleared, top, width, open, folded, onMore 
 }
 
 /* 펼친 판 — 구장 위 수비 아홉(라커와 같은 그림) · 선발과 불펜 · 벤치 */
-const Cap = ({ children }) => <b className="font-display text-[0.74rem] tracking-[0.22em] text-[#6b7787]">{children}</b>;
+const Cap = ({ children }) => <b className="text-[0.8rem] text-[#6b7787]">{children}</b>;
 function Detail({ r, width }) {
   const full = fillRoster(r.roster || []);
   const by = {};
@@ -116,7 +116,7 @@ function Detail({ r, width }) {
       </div>
       {/* 투수진과 벤치 */}
       <div className="grid min-w-0 flex-1 content-start gap-1.5">
-        <Cap>PITCHERS</Cap>
+        <Cap>투수진</Cap>
         <div className="grid grid-cols-2 gap-2">
           {arms.map((p) => (
             <span key={p.slot} className="ui-cut flex h-[3rem] items-center gap-2.5 px-2.5"
@@ -130,7 +130,7 @@ function Detail({ r, width }) {
             </span>
           ))}
         </div>
-        <span className="mt-1"><Cap>BENCH</Cap></span>
+        <span className="mt-1"><Cap>벤치</Cap></span>
         <div className="flex flex-wrap gap-1.5">
           {bench.length ? bench.map((p) => (
             <span key={p.slot} className="ui-cut flex items-center gap-2 px-2.5 py-1" style={{ '--c': '5px', background: 'rgba(255,255,255,.05)' }}>
@@ -279,7 +279,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
             </>
           ) : (
             <>
-              <b className="font-display text-2xl tracking-[0.2em] text-[#fbbf24]">ALL CLEAR</b>
+              <b className="text-2xl font-black text-[#fbbf24]">탑 완주</b>
               <p className="text-center text-sm text-[#b8c2ce]">탑 꼭대기에 올라섰다 · {rec.w}승 {rec.l}패</p>
               <button type="button" className="ui-btn ui-cut pri mt-2 min-h-[3.2rem] px-12 text-lg" style={{ '--c': '9px' }} onClick={onBack}>정비로</button>
             </>
