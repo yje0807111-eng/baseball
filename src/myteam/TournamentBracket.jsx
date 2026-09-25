@@ -50,7 +50,7 @@ function Tree({ t, oppIdx, reveal }) {
               opacity: won === false ? 0.38 : 1, animation: reveal && c === 0 ? `tbIn .38s ${k * (1.1 / size)}s both` : undefined }}>
             {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
             <span className={`relative min-w-0 flex-1 truncate ${mine ? 'font-black' : 'font-semibold'}`} style={{ fontSize: font, color: mine ? ME : opp ? '#fecaca' : '#e5e7eb', textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{t.entrants[i].name}</span>
-            {score != null && <b className="relative font-display text-sm text-white">{score}</b>}
+            {score != null && <b className="relative font-display text-t3 text-white">{score}</b>}
           </div>,
         );
       } else {
@@ -74,7 +74,7 @@ function Tree({ t, oppIdx, reveal }) {
       <div className="absolute text-center" style={{ left: LEFT + (rounds - 1) * COL, top: TOP + (size / 2) * ROW - 96, width: SLOT_W }}>
         <div className="text-5xl">🏆</div>
         <p className="ui-lab font-display justify-center" style={{ '--a': A }}>우승</p>
-        {champ != null && <b className="block truncate text-base" style={{ color: champ === me ? ME : '#fff' }}>{t.entrants[champ].name}</b>}
+        {champ != null && <b className="block truncate text-t3" style={{ color: champ === me ? ME : '#fff' }}>{t.entrants[champ].name}</b>}
       </div>
     </div>
   );
@@ -118,10 +118,10 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
         @keyframes tbIn { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }`}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(251,191,36,.25)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-lg" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
+        <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
         <div>
-          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">플레이</p>
-          <b className="text-xl font-extrabold text-white">{title || `${size}강 토너먼트`} · {t.done ? finish.ko : ROUNDS[t.round].ko}</b>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">플레이</p>
+          <b className="text-t2 font-extrabold text-white">{title || `${size}강 토너먼트`} · {t.done ? finish.ko : ROUNDS[t.round].ko}</b>
         </div>
         <div className="ml-auto flex gap-1.5">
           {ROUNDS.map((r, i) => {
@@ -129,7 +129,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
             const cur = !t.done && t.round === i;
             const done = i < past && !out;
             return (
-              <span key={r.key} className="ui-cut px-3 py-1.5 font-display text-sm font-bold"
+              <span key={r.key} className="ui-cut px-3 py-1.5 font-display text-t3 font-bold"
                 style={{ '--c': '7px', color: cur ? '#05080f' : out ? OPP : done ? ME : '#475569', background: cur ? A : 'rgba(255,255,255,.05)', boxShadow: cur ? 'none' : `inset 0 0 0 1px ${out ? OPP : done ? 'rgba(52,211,153,.5)' : 'rgba(255,255,255,.1)'}` }}>
                 {done ? '✓ ' : ''}{r.ko}
               </span>
@@ -152,44 +152,44 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
           {oppTeam ? (
             <>
               <p className="ui-lab font-display" style={{ '--a': A }}>다음 경기{myLast ? ` · 지난 경기 ${myLast.a === me ? myLast.as : myLast.bs}:${myLast.a === me ? myLast.bs : myLast.as} 승리` : ''}</p>
-              <h2 className="-mt-1 text-3xl font-black text-white">{past ? `${ROUNDS[t.round].ko} 상대 분석` : `내 ${ROUNDS[t.round].ko} 경기`}</h2>
+              <h2 className="-mt-1 text-t1 font-black text-white">{past ? `${ROUNDS[t.round].ko} 상대 분석` : `내 ${ROUNDS[t.round].ko} 경기`}</h2>
               <Versus mine={mine} opp={oppTeam} owner={opp.owner} />
               <Axes mine={mine} opp={oppTeam} />
               <div>
                 {road.length > 0 && <Row k="상대가 올라온 길"><b className="truncate text-right text-white">{road.join(' · ')}</b></Row>}
                 <Row k="경계 선수"><b className="truncate text-right" style={{ color: OPP }}>{keyPlayers.map((p) => `${p.name} ${p.position} ${p.overall}`).join(' · ')}</b></Row>
-                <Row k="이기면"><b className="font-display text-lg text-white">{t.round === ROUNDS.length - 1 ? '우승' : `${ROUNDS[t.round + 1].ko} 진출`}{rewards ? ` · ${FINISH[t.round + 1].gold} G 확보` : ''}</b></Row>
+                <Row k="이기면"><b className="font-display text-t2 text-white">{t.round === ROUNDS.length - 1 ? '우승' : `${ROUNDS[t.round + 1].ko} 진출`}{rewards ? ` · ${FINISH[t.round + 1].gold} G 확보` : ''}</b></Row>
               </div>
-              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} {playLabel}</button>
+              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} {playLabel}</button>
             </>
           ) : (
             <>
               <p className="ui-lab font-display" style={{ '--a': champion ? A : OPP }}>최종 성적</p>
               <h2 className="-mt-1 text-6xl font-black" style={{ color: champion ? A : '#fff' }}>{finish.ko}</h2>
               {myLast && (
-                <p className="text-base text-gray-300">
-                  {ROUNDS[past - 1].ko} · {t.entrants[myLast.a].name} <b className="font-display text-xl text-white">{myLast.as} : {myLast.bs}</b> {t.entrants[myLast.b].name}
+                <p className="text-t3 text-gray-300">
+                  {ROUNDS[past - 1].ko} · {t.entrants[myLast.a].name} <b className="font-display text-t2 text-white">{myLast.as} : {myLast.bs}</b> {t.entrants[myLast.b].name}
                   {myLast.tiebreak ? ' · 동점, 팀 종합으로 결정' : ''}
                 </p>
               )}
               <Faces roster={mine.roster} n={6} />
               <div className="mt-2">
                 {rewards && FINISH.slice().reverse().map((f) => (
-                  <div key={f.ko} className="flex items-baseline justify-between border-b border-white/10 py-2 text-sm text-gray-300">
+                  <div key={f.ko} className="flex items-baseline justify-between border-b border-white/10 py-2 text-t3 text-gray-300">
                     <span style={{ color: f === finish ? A : undefined }}>{f.ko}</span>
-                    <b className="font-display text-lg" style={{ color: f === finish ? A : '#94a3b8' }}>{f.gold} G</b>
+                    <b className="font-display text-t2" style={{ color: f === finish ? A : '#94a3b8' }}>{f.gold} G</b>
                   </div>
                 ))}
               </div>
               {t.claimed && rewards && (
                 <div className="ui-cut flex items-center gap-3 px-4 py-2.5" style={{ '--c': '10px', background: 'rgba(251,191,36,.1)' }}>
-                  <span className="text-sm text-gray-300">받은 보상</span>
-                  <b className="ml-auto font-display text-lg" style={{ color: '#fbbf24' }}>{(t.reward || finish).gold} G</b>
+                  <span className="text-t3 text-gray-300">받은 보상</span>
+                  <b className="ml-auto font-display text-t2" style={{ color: '#fbbf24' }}>{(t.reward || finish).gold} G</b>
                 </div>
               )}
               {t.claimed || !onClaim || !rewards
-                ? onRestart && <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onRestart}>새 {size}강 시작 ▶</button>
-                : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={onClaim}>보상 받기 · {finish.gold} G</button>}
+                ? onRestart && <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={onRestart}>새 {size}강 시작 ▶</button>
+                : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={onClaim}>보상 받기 · {finish.gold} G</button>}
             </>
           )}
         </aside>

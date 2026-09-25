@@ -24,7 +24,7 @@ export function Faces({ roster, n = 3, align }) {
       {top.map((p) => (
         <span key={p.id} title={`${p.name} ${p.overall}`} className="ui-cut relative h-16 w-12 overflow-hidden bg-[#0b1220] bg-cover"
           style={{ '--c': '6px', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 10%' }}>
-          <b className="absolute inset-x-0 bottom-0 bg-[#05080f]/80 text-center font-display text-[11px] leading-4 text-white">{p.overall}</b>
+          <b className="absolute inset-x-0 bottom-0 bg-[#05080f]/80 text-center font-display text-t4 leading-4 text-white">{p.overall}</b>
         </span>
       ))}
     </div>
@@ -38,15 +38,15 @@ export function Versus({ mine, opp, owner, className = 'h-56' }) {
       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(5,8,15,.94),rgba(5,8,15,.6) 50%,rgba(5,8,15,.94))' }} />
       <div className="absolute left-5 top-4">
         <p className="ui-lab font-display" style={{ '--a': ME }}>우리 팀</p>
-        <b className="block text-2xl font-black text-white">{mine.name}</b>
-        <span className="text-sm text-gray-400">팀 종합 <b className="font-display text-lg text-white">{teamRating(mine.roster)}</b></span>
+        <b className="block text-t1 font-black text-white">{mine.name}</b>
+        <span className="text-t3 text-gray-400">팀 종합 <b className="font-display text-t2 text-white">{teamRating(mine.roster)}</b></span>
         <div className="mt-2"><Faces roster={mine.roster} /></div>
       </div>
       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-6xl font-extrabold italic text-white">VS</span>
       <div className="absolute right-5 top-4 text-right">
         <p className="ui-lab font-display justify-end" style={{ '--a': OPP }}>상대 팀</p>
-        <b className="block text-2xl font-black text-white">{opp.name}</b>
-        <span className="text-sm text-gray-400">{owner ? `${owner} · ` : ''}<b className="font-display text-lg text-white">{teamRating(opp.roster)}</b></span>
+        <b className="block text-t1 font-black text-white">{opp.name}</b>
+        <span className="text-t3 text-gray-400">{owner ? `${owner} · ` : ''}<b className="font-display text-t2 text-white">{teamRating(opp.roster)}</b></span>
         <div className="mt-2"><Faces roster={opp.roster} align="right" /></div>
       </div>
     </div>
@@ -86,11 +86,11 @@ export function Axes({ mine, opp }) {
   const rows = a1.map(([k, a], i) => ({ k, a, b: a2[i][1] }));
   return (
     <div className="ui-cut shrink-0 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
-      <div className="flex justify-between pb-1 font-display text-[10px] font-bold tracking-[0.2em]">
+      <div className="flex justify-between pb-1 font-display text-t4 font-bold tracking-[0.2em]">
         <span style={{ color: ME }}>MY TEAM</span><span style={{ color: OPP }}>OPPONENT</span>
       </div>
       <div className="grid place-items-center"><Hex rows={rows} /></div>
-      <div className="mt-1 grid items-center gap-x-2.5 gap-y-1 text-[12.5px]" style={{ gridTemplateColumns: '40px 1fr 38px' }}>
+      <div className="mt-1 grid items-center gap-x-2.5 gap-y-1 text-t4" style={{ gridTemplateColumns: '40px 1fr 38px' }}>
         {rows.map(({ k, a, b }) => {
           const d = a - b; const c = sideOf(a, b);
           return (
@@ -116,7 +116,7 @@ export const keyPlayersOf = (roster) => [
 ].filter(Boolean);
 
 export const Row = ({ k, children }) => (
-  <div className="flex items-baseline justify-between gap-4 border-b border-white/10 py-2.5 text-sm text-gray-300">
+  <div className="flex items-baseline justify-between gap-4 border-b border-white/10 py-2.5 text-t3 text-gray-300">
     <span className="shrink-0">{k}</span>{children}
   </div>
 );

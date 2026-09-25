@@ -12,15 +12,15 @@ export const UiStyle = () => (
     .mt-frame { position:relative; }
     .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top/var(--c) var(--c) no-repeat, linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom/var(--c) var(--c) no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c)/2px 30px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c)/2px 30px no-repeat; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 2px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 26%, transparent); }
-    .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:13px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
+    .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:14px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
     .mt-lab::before { content:''; width:14px; height:10px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
-    .mt-btn { --c:9px; display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; font-size:15px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); transition:background .15s, box-shadow .15s, filter .15s; }
+    .mt-btn { --c:9px; display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); transition:background .15s, box-shadow .15s, filter .15s; }
     .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.42); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
     .mt-btn.pri { background:var(--a,#10b981); color:#05080f; font-weight:800; box-shadow:none; }
     .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.12); box-shadow:none; }
-    .mt-btn.lg { min-height:62px; font-size:19px; }
-    .mt-btn.sm { --c:7px; min-height:34px; padding:0 14px; font-size:13px; }
+    .mt-btn.lg { min-height:62px; font-size:18px; }
+    .mt-btn.sm { --c:7px; min-height:34px; padding:0 14px; font-size:14px; }
     .mt-chip { --c:6px; display:inline-flex; align-items:center; gap:6px; padding:4px 10px; font-size:12px; font-weight:600; color:#cbd5e1; background:rgba(5,8,15,.6); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 45%,transparent); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
     .mt-bar { height:6px; background:rgba(255,255,255,.08); } .mt-bar > i { display:block; height:100%; }
@@ -69,7 +69,7 @@ export const UiStyle = () => (
     .mt-pk .ft b { font-family:'Saira Condensed',sans-serif; font-size:7.4cqw; color:var(--n); }
     .mt-pk .ft span { padding:1cqw 2.4cqw; font-size:4cqw; font-weight:700; color:#05080f; background:var(--n); }
     .mt-wm { position:absolute; left:14px; top:2px; font-family:'Saira Condensed',sans-serif; font-size:58px; font-weight:800; color:rgba(16,185,129,.16); line-height:1; pointer-events:none; }
-    .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:13px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
+    .mt-rf { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; font-size:14px; font-weight:700; color:#6ee7b7; background:rgba(16,185,129,.08); box-shadow:inset 0 0 0 1px rgba(16,185,129,.5); clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
     .mt-por { position:relative; flex:none; background-color:#0b1220; background-size:cover; background-position:50% 0%; clip-path:polygon(12% 0,100% 0,100% 88%,88% 100%,0 100%,0 12%); }
     .mt-row { display:grid; flex:none; align-items:center; gap:12px; padding:6px 12px; background:rgba(255,255,255,.035); clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px); text-align:left; width:100%; }
     .mt-row:hover { background:rgba(255,255,255,.05); }
@@ -132,11 +132,11 @@ export const PlayerTile = ({ player, img = 'ui/mt/mt-card.webp', onClick, width 
       <div className="absolute inset-x-0" style={{ top: 34, bottom: 52, background: `url(${img}) center/cover`, opacity: 0.5 }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.1) 40%,rgba(5,8,15,.95))' }} />
       <div className="mt-scan absolute inset-0 opacity-50" />
-      <span className="absolute left-2.5 top-2 font-display text-[30px] font-extrabold leading-none" style={{ color: a, textShadow: `0 0 18px ${a}80` }}>{player.overall}</span>
-      <span className="absolute right-2.5 top-2.5 px-1.5 py-0.5 font-display text-[11px] font-extrabold tracking-wider text-[#05080f]" style={{ background: a }}>{player.position}</span>
+      <span className="absolute left-2.5 top-2 font-display text-t1 font-extrabold leading-none" style={{ color: a, textShadow: `0 0 18px ${a}80` }}>{player.overall}</span>
+      <span className="absolute right-2.5 top-2.5 px-1.5 py-0.5 font-display text-t4 font-extrabold tracking-wider text-[#05080f]" style={{ background: a }}>{player.position}</span>
       {badge}
-      <span className="absolute inset-x-2.5 bottom-[26px] truncate text-base font-bold text-white [text-shadow:0_2px_8px_#000]">{player.name}</span>
-      <span className="absolute inset-x-2.5 bottom-2 truncate font-display text-[11px] font-semibold tracking-wide text-gray-400">{player.year} {player.team} · {player.cost} CP</span>
+      <span className="absolute inset-x-2.5 bottom-[26px] truncate text-t3 font-bold text-white [text-shadow:0_2px_8px_#000]">{player.name}</span>
+      <span className="absolute inset-x-2.5 bottom-2 truncate font-display text-t4 font-semibold tracking-wide text-gray-400">{player.year} {player.team} · {player.cost} CP</span>
     </div>
   );
 };
@@ -229,17 +229,17 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
       <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
       {onBack && (
         <button type="button" onClick={onBack} aria-label="메인으로"
-          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
+          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-t2 text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
       )}
       <div className="leading-none">
-        <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">{eyebrow}</p>
-        <h1 className="mt-1 text-xl font-black leading-none text-white">{section}</h1>
+        <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">{eyebrow}</p>
+        <h1 className="mt-1 text-t2 font-black leading-none text-white">{section}</h1>
       </div>
       {steps}
       <div className="ml-auto flex items-center gap-6">
         {team && (
           <div className="w-60" style={{ opacity: !over && cost < cap * CAP_LOUD ? 0.55 : 1 }}>
-            <div className="flex justify-between text-[11px] text-gray-500">
+            <div className="flex justify-between text-t4 text-gray-500">
               <span className="font-bold">샐러리 캡</span>
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
               <b style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()} / {cap.toLocaleString()}</b>
@@ -288,8 +288,8 @@ export const SideNav = ({ items, value, onChange, a = '#10b981', label = '메뉴
       <button key={it.key} type="button" onClick={() => onChange(it.key)} className={`mt-nav ${compact ? 'sm' : ''} ${value === it.key ? 'on' : ''}`} style={{ '--a': a }}>
         <span className="th" style={{ backgroundImage: `url(${it.img})` }} />
         <span className="min-w-0">
-          <b className={`block truncate text-base font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-          {it.sub && <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>}
+          <b className={`block truncate text-t3 font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
+          {it.sub && <small className="font-display text-t4 tracking-[0.12em] text-gray-400">{it.sub}</small>}
         </span>
       </button>
     ))}
@@ -302,14 +302,14 @@ export const Hero = ({ img, ovr, name, color = '#10b981', h = 176, pos = '60% 18
   <div className="mt-cut relative shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '12px', height: h, backgroundImage: img, backgroundPosition: pos }}>
     <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,#05080f)' }} />
     {ovr != null && <span className="absolute left-3 top-2 font-display text-4xl font-extrabold" style={{ color, textShadow: `0 0 16px ${color}88,0 2px 4px #000` }}>{ovr}</span>}
-    <b className="absolute bottom-2 left-3 right-3 truncate text-3xl font-black text-white">{name}</b>
+    <b className="absolute bottom-2 left-3 right-3 truncate text-t1 font-black text-white">{name}</b>
   </div>
 );
 
 /** 오른쪽 패널의 키-값 줄 */
 export const KV = ({ k, v, color = '#fff', sm = false }) => (
-  <div className={`flex items-center justify-between border-b border-white/10 text-gray-300 ${sm ? 'py-1.5 text-[13px]' : 'py-2.5 text-sm'}`}>
-    <span>{k}</span><b className={`font-display ${sm ? 'text-base' : 'text-lg'}`} style={{ color }}>{v}</b>
+  <div className={`flex items-center justify-between border-b border-white/10 text-gray-300 ${sm ? 'py-1.5 text-t3' : 'py-2.5 text-t3'}`}>
+    <span>{k}</span><b className={`font-display ${sm ? 'text-t3' : 'text-t2'}`} style={{ color }}>{v}</b>
   </div>
 );
 
@@ -318,8 +318,8 @@ export const Stats = ({ items }) => (
   <dl className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${items.length},1fr)` }}>
     {items.map(([k, v]) => (
       <div key={k} className="mt-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
-        <dt className="text-[10px] text-gray-400">{k}</dt>
-        <dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+        <dt className="text-t4 text-gray-400">{k}</dt>
+        <dd className="font-display text-t2 font-bold leading-tight text-white">{v}</dd>
       </div>
     ))}
   </dl>

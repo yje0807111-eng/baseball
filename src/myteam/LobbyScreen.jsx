@@ -23,9 +23,9 @@ function Tile({ img, a, label, title, desc, style, onClick, disabled, children, 
       }}>
       <span className="absolute inset-0" style={{ background: `radial-gradient(90% 70% at 20% 100%, ${a}22, transparent 70%)` }} />
       <div className="absolute inset-x-5 bottom-4">
-        {label && <p className="mt-lab" style={{ '--a': a, fontSize: 10 }}>{label}</p>}
-        <b className={`mt-1 block font-extrabold text-white ${big ? 'text-[44px] leading-tight' : 'text-[24px]'}`}>{title}</b>
-        {desc && <span className="text-[13px]" style={{ color: a }}>{desc}</span>}
+        {label && <p className="mt-lab" style={{ '--a': a, fontSize: 12 }}>{label}</p>}
+        <b className={`mt-1 block font-extrabold text-white ${big ? 'text-[44px] leading-tight' : 'text-t1'}`}>{title}</b>
+        {desc && <span className="text-t3" style={{ color: a }}>{desc}</span>}
         {children}
       </div>
     </button>
@@ -49,7 +49,7 @@ function MatchDay({ onPlay }) {
             <p className="mt-lab" style={{ '--a': '#10b981' }}>경기 모드</p>
             <b className="mt-1 block text-[52px] font-black leading-tight text-white">오늘의 경기장</b>
           </div>
-          <button type="button" onClick={() => onPlay()} className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
+          <button type="button" onClick={() => onPlay()} className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 28, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
             플레이 ▶
           </button>
         </div>
@@ -60,8 +60,8 @@ function MatchDay({ onPlay }) {
               style={{ '--c': '10px', backgroundImage: `url(${m.img})`, boxShadow: `inset 0 -3px 0 ${m.c}` }}>
               <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.1), rgba(5,8,15,.92))' }} />
               <span className="absolute inset-x-3 bottom-2.5">
-                <b className="block text-[17px] font-extrabold text-white">{m.name}</b>
-                <small className="block truncate text-[13px] text-gray-300">{m.sub}</small>
+                <b className="block text-t2 font-extrabold text-white">{m.name}</b>
+                <small className="block truncate text-t3 text-gray-300">{m.sub}</small>
               </span>
             </button>
           ))}
@@ -82,15 +82,15 @@ function WeekStrip({ account, onOpen }) {
     <button type="button" onClick={onOpen} className="flex h-full min-w-0 flex-col justify-center gap-2 border-l border-white/10 pl-5 text-left hover:brightness-125">
       <div className="flex items-baseline gap-2">
         <p className="mt-lab" style={{ '--a': A }}>주간 과제</p>
-        <small className="ml-auto text-[11.5px] font-bold" style={{ color: ready ? A : '#6b7280' }}>
+        <small className="ml-auto text-t4 font-bold" style={{ color: ready ? A : '#6b7280' }}>
           {ready ? `받을 보상 ${ready}` : bonusTaken ? '보너스 받음 ✓' : `보너스 ${WEEK_BONUS} G`}
         </small>
       </div>
       {list.map(({ m, n, done, claimed }) => (
         <div key={m.id} className="min-w-0">
-          <span className="flex items-baseline gap-2 text-[12.5px]">
+          <span className="flex items-baseline gap-2 text-t4">
             <b className="min-w-0 flex-1 truncate" style={{ color: claimed ? '#6b7280' : '#e5e7eb' }}>{m.ko}</b>
-            <b className="shrink-0 font-display text-[13px]" style={{ color: claimed ? '#6b7280' : done ? A : '#9ca3af' }}>{claimed ? '✓' : done ? '받기' : `${n}/${m.goal}`}</b>
+            <b className="shrink-0 font-display text-t3" style={{ color: claimed ? '#6b7280' : done ? A : '#9ca3af' }}>{claimed ? '✓' : done ? '받기' : `${n}/${m.goal}`}</b>
           </span>
           <span className="relative mt-1 block h-[3px] bg-white/[0.08]"><i className="absolute inset-y-0 left-0" style={{ width: `${(n / m.goal) * 100}%`, background: claimed ? '#4b5563' : A }} /></span>
         </div>
@@ -128,16 +128,16 @@ function RankPanel({ account, team, onRecord, onWeek }) {
           <div className="flex items-end gap-5">
             <div>
               <p className="mt-lab" style={{ '--a': c }}>내 등급</p>
-              <b className="text-[26px] font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
+              <b className="text-t1 font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
             </div>
             <span className="font-display leading-none">
               <b className="text-[40px] font-extrabold" style={{ color: c, textShadow: `0 0 18px ${c}44` }}>{rp.toLocaleString()}</b>
-              {r.next && <b className="text-xl font-extrabold text-slate-500"> / {goal.toLocaleString()}</b>}
+              {r.next && <b className="text-t2 font-extrabold text-slate-500"> / {goal.toLocaleString()}</b>}
             </span>
             {r.next && (
               <span className="ml-auto mr-[60px] text-right leading-none">
-                <b className="font-display text-2xl font-extrabold text-white">{(goal - rp).toLocaleString()}</b>
-                <small className="mt-0.5 block font-display text-[11px] font-bold tracking-[0.2em] text-gray-400">RP TO {r.next.ko}</small>
+                <b className="font-display text-t1 font-extrabold text-white">{(goal - rp).toLocaleString()}</b>
+                <small className="mt-0.5 block font-display text-t4 font-bold tracking-[0.2em] text-gray-400">RP TO {r.next.ko}</small>
               </span>
             )}
           </div>
@@ -161,11 +161,11 @@ function RankPanel({ account, team, onRecord, onWeek }) {
                 <b className="absolute -left-1 top-1/2 -translate-y-1/2 font-display text-[52px] font-extrabold leading-none" style={{ color: `${MEDAL[i]}33` }}>{i + 1}</b>
                 <span className="mt-cut relative h-10 w-8 shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': '5px', backgroundImage: `url(profiles/${encodeURIComponent(artId(m.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '50% 0' }} />
                 <span className="relative leading-tight">
-                  <b className="block whitespace-nowrap text-sm text-white">{m.name}</b>
-                  <small className="font-display text-[11px]" style={{ color: MEDAL[i] }}>MVP {m.n}회</small>
+                  <b className="block whitespace-nowrap text-t3 text-white">{m.name}</b>
+                  <small className="font-display text-t4" style={{ color: MEDAL[i] }}>MVP {m.n}회</small>
                 </span>
               </span>
-            )) : <span className="font-display text-xs tracking-[0.24em] text-gray-500">MVP TOP 3 —</span>}
+            )) : <span className="font-display text-t4 tracking-[0.24em] text-gray-500">MVP TOP 3 —</span>}
           </button>
         </div>
 
@@ -175,7 +175,7 @@ function RankPanel({ account, team, onRecord, onWeek }) {
         <div className="flex h-full flex-col justify-center gap-2.5 border-l border-white/10 pl-5">
           <div className="flex items-baseline gap-2">
             <p className="mt-lab" style={{ '--a': '#10b981' }}>팀 능력치</p>
-            <b className="ml-auto font-display text-3xl font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-xs text-gray-500">OVR</small>
+            <b className="ml-auto font-display text-t1 font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-t4 text-gray-500">OVR</small>
           </div>
           <div className="flex flex-col gap-[9px]">
             {STATS.map(([k, v, avg, col, col2]) => {
@@ -183,7 +183,7 @@ function RankPanel({ account, team, onRecord, onWeek }) {
               const up = d >= 0;
               return (
                 <div key={k} className="grid items-center gap-2" style={{ gridTemplateColumns: '38px 1fr 30px 32px' }}>
-                  <span className="text-[13px] font-bold text-white">{k}</span>
+                  <span className="text-t3 font-bold text-white">{k}</span>
                   <div className="relative h-2.5 bg-white/[0.05]">
                     <i className="absolute -inset-y-[5px] left-1/2 w-px bg-white/45" />
                     {v > 0 && d !== 0 && (
@@ -191,8 +191,8 @@ function RankPanel({ account, team, onRecord, onWeek }) {
                         background: up ? `linear-gradient(90deg, ${col2}, ${col})` : 'linear-gradient(270deg, #7f1d1d, #f87171)', boxShadow: `0 0 8px ${up ? col : '#f87171'}66` }} />
                     )}
                   </div>
-                  <b className="text-right font-display text-[19px] font-extrabold leading-none" style={{ color: v ? '#fff' : '#4b5563' }}>{v || '-'}</b>
-                  <b className="text-right font-display text-sm font-extrabold leading-none" style={{ color: !v ? '#4b5563' : up ? '#34d399' : '#f87171' }}>{v ? `${up ? '+' : ''}${d}` : ''}</b>
+                  <b className="text-right font-display text-t2 font-extrabold leading-none" style={{ color: v ? '#fff' : '#4b5563' }}>{v || '-'}</b>
+                  <b className="text-right font-display text-t3 font-extrabold leading-none" style={{ color: !v ? '#4b5563' : up ? '#34d399' : '#f87171' }}>{v ? `${up ? '+' : ''}${d}` : ''}</b>
                 </div>
               );
             })}
@@ -213,15 +213,15 @@ function StarterNotice({ team, gold, onClose }) {
         onClick={(e) => e.stopPropagation()} role="dialog" aria-label="스타터 스쿼드">
         <div>
           <p className="mt-lab">스타터 스쿼드</p>
-          <h2 className="mt-1 text-3xl font-black text-white">선수 {squad.length}명 지급</h2>
+          <h2 className="mt-1 text-t1 font-black text-white">선수 {squad.length}명 지급</h2>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {top.map((p) => (
             <div key={p.id} className="mt-cut flex items-center gap-2 bg-white/[0.045] p-2" style={{ '--c': '8px' }}>
               <Portrait player={p} w={34} h={42} color="#34d399" />
               <span className="min-w-0">
-                <b className="block truncate text-[13px] text-white">{p.name}</b>
-                <small className="font-display text-[12px] text-gray-400">{p.position} · {p.overall}</small>
+                <b className="block truncate text-t3 text-white">{p.name}</b>
+                <small className="font-display text-t4 text-gray-400">{p.position} · {p.overall}</small>
               </span>
             </div>
           ))}
@@ -250,7 +250,7 @@ function RefundNotice({ refund, onClose }) {
         onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상점 정리 환급">
         <div>
           <p className="mt-lab">상점 정리</p>
-          <h2 className="mt-1 text-3xl font-black text-white">환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></h2>
+          <h2 className="mt-1 text-t1 font-black text-white">환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></h2>
         </div>
         <div>
           {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}

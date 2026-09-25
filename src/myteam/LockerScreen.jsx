@@ -31,9 +31,9 @@ const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 
 const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
 /* 코치 효과: 한 줄 문장 "타격 +2 · 승부처 +1" — 숫자만 효과 색 · 굵게 */
 const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', stamina: '#fbbf24', steal: '#fb923c', clutch: '#e879f9' };
-const ROLE_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING COACH', pitching: 'PITCHING COACH' };
+const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
 const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
-const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const ROW_COLS = '48px 50px minmax(0,1.3fr) repeat(4,minmax(0,1fr)) 52px 84px 76px';
 const GOLD = '#fde047';
 
@@ -67,19 +67,19 @@ function Select({ value, onChange, options, all }) {
     const on = String(value) === String(v);
     return (
       <button key={v || 'all'} type="button" role="option" aria-selected={on} onClick={() => pick(v)}
-        className={`relative flex h-7 w-full shrink-0 items-center justify-between pl-3 pr-2 text-left text-[13px] leading-none ${on ? 'text-emerald-300' : 'text-gray-300 hover:bg-white/[0.06] hover:text-white'}`}
+        className={`relative flex h-7 w-full shrink-0 items-center justify-between pl-3 pr-2 text-left text-t3 leading-none ${on ? 'text-emerald-300' : 'text-gray-300 hover:bg-white/[0.06] hover:text-white'}`}
         style={{ background: on ? 'rgba(16,185,129,.12)' : undefined, boxShadow: on ? 'inset 2px 0 0 #10b981' : undefined, fontWeight: on ? 700 : 500 }}>
-        {label}{on && <span aria-hidden="true" className="text-[11px]">✓</span>}
+        {label}{on && <span aria-hidden="true" className="text-t4">✓</span>}
       </button>
     );
   };
   return (
     <div ref={ref} className="relative min-w-0">
       <button type="button" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}
-        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-[13px] ${value ? 'text-white' : 'text-gray-300'}`}
+        className={`mt-cut flex w-full min-w-0 items-center justify-between gap-2 px-3 py-2.5 text-t3 ${value ? 'text-white' : 'text-gray-300'}`}
         style={{ ...cut(6), background: open ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.06)', boxShadow: open || value ? 'inset 0 0 0 1px rgba(16,185,129,.55)' : undefined }}>
         <span className="truncate">{value || all}</span>
-        <span className="font-display text-[10px] text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
+        <span className="font-display text-t4 text-emerald-400 transition" style={{ transform: open ? 'rotate(180deg)' : undefined }}>▼</span>
       </button>
       {open && (
         <div role="listbox" className="absolute left-0 right-0 top-[calc(100%+4px)] z-30 animate-[fade_.15s_ease-out_both] p-1"
@@ -109,25 +109,25 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
     <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row mt-cut cursor-pointer ${teamTint ? 'team' : ''} ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, '--a': teamTint ? neon : n, '--t': neon }}>
       <Portrait player={p} w={46} h={54} color={teamTint ? neon : n} />
       {teamTint
-        ? <b className={`st-v ${statTier(p.overall)} font-display text-[30px] font-extrabold leading-none`}>{p.overall}</b>
-        : <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
+        ? <b className={`st-v ${statTier(p.overall)} font-display text-t1 font-extrabold leading-none`}>{p.overall}</b>
+        : <b className="font-display text-t1 font-extrabold leading-none" style={{ color: n, textShadow: `0 0 14px ${n}88` }}>{p.overall}</b>}
       <span className="min-w-0">
         {/* 영입 목록: 포지션은 칩 대신 이름 위 작은 구단색 영문 라벨 */}
-        {teamTint && <small className="block truncate font-display text-[11px] font-bold leading-tight tracking-[0.16em]" style={{ color: neon }}>{POS_FULL[p.position]}</small>}
-        <b className="block truncate text-base font-black text-white">
+        {teamTint && <small className="block truncate font-display text-t4 font-bold leading-tight tracking-[0.16em]" style={{ color: neon }}>{POS_FULL[p.position]}</small>}
+        <b className="block truncate text-t3 font-black text-white">
           {p.name}
-          {!teamTint && <em className="ml-1.5 px-1.5 py-px text-[11px] not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
-          {teamTint && <span className="ml-2 text-xs font-medium text-gray-500">{p.year} {p.team}</span>}
-          {p.isForeign && <em className="ml-1.5 text-[10px] not-italic text-amber-300">외국인</em>}
+          {!teamTint && <em className="ml-1.5 px-1.5 py-px text-t4 not-italic text-[#05080f]" style={{ background: n }}>{p.position}</em>}
+          {teamTint && <span className="ml-2 text-t4 font-medium text-gray-500">{p.year} {p.team}</span>}
+          {p.isForeign && <em className="ml-1.5 text-t4 not-italic text-amber-300">외국인</em>}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
-              className={`mt-cut ml-2 px-2 py-px align-middle text-[11px] font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`} style={{ '--c': '4px' }}>
+              className={`mt-cut ml-2 px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`} style={{ '--c': '4px' }}>
               {bench ? '벤치 ↑' : '출전 ●'}
             </button>
           )}
         </b>
         {!teamTint && (
-          <small className="block truncate text-[11px] text-gray-500">
+          <small className="block truncate text-t4 text-gray-500">
             {p.year} {p.team}{showNote && p.note ? ` · ${p.note}` : ''}
           </small>
         )}
@@ -136,7 +136,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         const v = p.stats?.[k] ?? 0;
         return (
           <span key={k} className="min-w-0">
-            <span className="flex items-baseline justify-between text-[12px] font-semibold text-gray-300">{label}<b className="font-display text-[15px]" style={{ color: statOf(k, v).num }}>{v}</b></span>
+            <span className="flex items-baseline justify-between text-t4 font-semibold text-gray-300">{label}<b className="font-display text-t3" style={{ color: statOf(k, v).num }}>{v}</b></span>
             <span className="relative mt-[5px] block h-[3px] bg-white/[0.08]">
               <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(v)}%`, background: statOf(k, v).bar }} />
             </span>
@@ -144,9 +144,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
         );
       })}
       {/* CP — 캡에 여유가 있을 때(90% 전)는 작게 · 흐리게: 초반엔 골드가 막는다 */}
-      <b className={`text-right font-display ${capQuiet ? 'text-[13px] text-gray-500' : 'text-lg text-amber-300'}`}>{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
+      <b className={`text-right font-display ${capQuiet ? 'text-t3 text-gray-500' : 'text-t2 text-amber-300'}`}>{p.cost}<small className="ml-0.5 text-t4 text-gray-500">CP</small></b>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
-        ? <b className="text-right text-[13px] text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
+        ? <b className="text-right text-t3 text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
         : (() => {
           /* 오늘 시세 — 특가면 시세를 줄 긋고, 아니면 기준과 견준 흐름 % */
           const q = quoteOf(p);
@@ -154,9 +154,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
           return (
             <span className="text-right leading-tight">
               {deal
-                ? <small className="block font-display text-[11px] text-gray-500 line-through">{q.price.toLocaleString()}</small>
-                : <small className="block font-display text-[11px]" style={{ color: q.pct > 0 ? '#f87171' : q.pct < 0 ? '#60a5fa' : '#6b7280' }}>{q.pct > 0 ? '▲ +' : q.pct < 0 ? '▼ ' : ''}{q.pct}%</small>}
-              <b className="font-display text-lg" style={{ color: deal ? '#fb923c' : GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>
+                ? <small className="block font-display text-t4 text-gray-500 line-through">{q.price.toLocaleString()}</small>
+                : <small className="block font-display text-t4" style={{ color: q.pct > 0 ? '#f87171' : q.pct < 0 ? '#60a5fa' : '#6b7280' }}>{q.pct > 0 ? '▲ +' : q.pct < 0 ? '▼ ' : ''}{q.pct}%</small>}
+              <b className="font-display text-t2" style={{ color: deal ? '#fb923c' : GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-t4 text-gray-500">G</small></b>
             </span>
           );
         })()}
@@ -298,8 +298,8 @@ function CardWithRecord({ p, tr }) {
           <div className="grid grid-cols-6">
             {recordCells(p).map(([k, v], i) => (
               <div key={k} className="flex flex-col items-center gap-1 py-1.5 leading-none" style={{ boxShadow: i ? 'inset 1px 0 0 rgba(255,255,255,.07)' : undefined }}>
-                <span className="font-display text-[11px] font-semibold tracking-[0.08em] text-gray-400">{k}</span>
-                <b className={`font-display text-[19px] font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
+                <span className="font-display text-t4 font-semibold tracking-[0.08em] text-gray-400">{k}</span>
+                <b className={`font-display text-t2 font-bold tabular-nums ${v == null ? 'text-gray-600' : 'text-gray-100'}`}>{v ?? '-'}</b>
               </div>
             ))}
           </div>
@@ -309,9 +309,9 @@ function CardWithRecord({ p, tr }) {
               {chips.map(([t, good]) => (
                 <span key={t.id} className="inline-flex h-[26px] items-center gap-1.5 pl-[9px] pr-2.5"
                   style={{ clipPath: 'polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px)', background: 'linear-gradient(90deg, color-mix(in srgb, var(--n) 22%, transparent), rgba(5,8,15,.7))', boxShadow: 'inset 3px 0 0 var(--n)' }}>
-                  <b className="text-[10px]" style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>
-                  <span className="text-[12.5px] font-bold text-gray-100">{t.name}</span>
-                  <span className="font-display text-xs text-gray-400">{t.why}</span>
+                  <b className="text-t4" style={{ color: good ? '#34d399' : '#f87171' }}>{good ? '▲' : '▼'}</b>
+                  <span className="text-t4 font-bold text-gray-100">{t.name}</span>
+                  <span className="font-display text-t4 text-gray-400">{t.why}</span>
                 </span>
               ))}
             </div>
@@ -334,16 +334,16 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
       <CardWithRecord p={p} tr={tr} />
       {/* 영입 후보: 기준 영입가 · 인기 · 오늘 시세 */}
       {quote && (
-        <div className="flex items-baseline justify-between text-[12px] text-gray-400">
-          <span>기준 <b className="font-display text-[14px] text-gray-200">{quote.base.toLocaleString()}</b></span>
-          <span>인기 <b className="font-display text-[14px]" style={{ color: quote.pop ? '#fbbf24' : '#9ca3af' }}>{quote.pop ? `+${quote.pop}%` : '—'}</b></span>
-          <span>시세 <b className="font-display text-[14px]" style={{ color: quote.pct > 0 ? '#f87171' : quote.pct < 0 ? '#60a5fa' : '#9ca3af' }}>{quote.pct > 0 ? '▲ +' : quote.pct < 0 ? '▼ ' : ''}{quote.pct}%</b></span>
+        <div className="flex items-baseline justify-between text-t4 text-gray-400">
+          <span>기준 <b className="font-display text-t3 text-gray-200">{quote.base.toLocaleString()}</b></span>
+          <span>인기 <b className="font-display text-t3" style={{ color: quote.pop ? '#fbbf24' : '#9ca3af' }}>{quote.pop ? `+${quote.pop}%` : '—'}</b></span>
+          <span>시세 <b className="font-display text-t3" style={{ color: quote.pct > 0 ? '#f87171' : quote.pct < 0 ? '#60a5fa' : '#9ca3af' }}>{quote.pct > 0 ? '▲ +' : quote.pct < 0 ? '▼ ' : ''}{quote.pct}%</b></span>
         </div>
       )}
       {/* 교체 영입: 내보낼 선수 고르기 (같은 포지션 약한 순) */}
       {out && (
         <div>
-          <p className="pb-1 text-[12px] text-gray-400">내보낼 선수</p>
+          <p className="pb-1 text-t4 text-gray-400">내보낼 선수</p>
           <div className="grid grid-cols-3 gap-1">
             {cands.map((x) => {
               const on = x.id === out.id;
@@ -352,8 +352,8 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
                 <button key={x.id} type="button" onClick={() => onOut?.(x.id)} aria-pressed={on}
                   className="mt-cut min-w-0 px-2 py-1 text-left"
                   style={{ ...cut(5), background: on ? 'rgba(248,113,113,.16)' : 'rgba(255,255,255,.045)', boxShadow: on ? 'inset 0 0 0 1px rgba(248,113,113,.7)' : undefined }}>
-                  <b className="block truncate text-[12.5px]" style={{ color: on ? '#fecaca' : '#e5e7eb' }}>{x.name}</b>
-                  <small className="block truncate font-display text-[11px] text-gray-400">{x.position} · {x.overall}{back ? ` · +${back} G` : ''}</small>
+                  <b className="block truncate text-t4" style={{ color: on ? '#fecaca' : '#e5e7eb' }}>{x.name}</b>
+                  <small className="block truncate font-display text-t4 text-gray-400">{x.position} · {x.overall}{back ? ` · +${back} G` : ''}</small>
                 </button>
               );
             })}
@@ -361,10 +361,10 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
         </div>
       )}
       {/* 맨 아래: 남는 캡 · 남는 골드 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
-      <div className="grid grid-cols-3 border-y border-white/10 py-1.5 text-[12px] text-gray-400">
-        <span>남는 캡<b className="block font-display text-[15px]" style={{ color: after > cap ? '#f87171' : '#fff' }}>{(cap - after).toLocaleString()}</b></span>
-        <span className="text-center">남는 골드<b className="block font-display text-[15px]" style={{ color: goldAfter < 0 ? '#f87171' : GOLD }}>{goldAfter.toLocaleString()}</b></span>
-        <span className="text-right">팀 종합<b className="block font-display text-[15px]" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
+      <div className="grid grid-cols-3 border-y border-white/10 py-1.5 text-t4 text-gray-400">
+        <span>남는 캡<b className="block font-display text-t3" style={{ color: after > cap ? '#f87171' : '#fff' }}>{(cap - after).toLocaleString()}</b></span>
+        <span className="text-center">남는 골드<b className="block font-display text-t3" style={{ color: goldAfter < 0 ? '#f87171' : GOLD }}>{goldAfter.toLocaleString()}</b></span>
+        <span className="text-right">팀 종합<b className="block font-display text-t3" style={{ color: next >= now ? '#34d399' : '#f87171' }}>{now || '-'} → {next || '-'}</b></span>
       </div>
       <div>
         {owned
@@ -373,28 +373,28 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
             <div className={`grid gap-2 ${onUpgrade ? 'grid-cols-[1.3fr_1fr_1fr]' : 'grid-cols-2'}`}>
               {onUpgrade && (
                 <Btn lg a={n} pri={itemsFit > 0} disabled={!itemsFit} style={cut(12)} onClick={() => onUpgrade(p)}>
-                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{itemsFit ? `아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
+                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{itemsFit ? `아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
                 </Btn>
               )}
               <Btn lg disabled={clubFull || !onStore} style={cut(12)} onClick={() => onStore?.(p)}>
-                <span className="flex flex-col items-center leading-tight">보관<small className="text-[11px] opacity-75">{clubFull ? '보관함 가득' : '엔트리에서 빼 두기'}</small></span>
+                <span className="flex flex-col items-center leading-tight">보관<small className="text-t4 opacity-75">{clubFull ? '보관함 가득' : '엔트리에서 빼 두기'}</small></span>
               </Btn>
               <Btn lg className="text-[#ff5a67]" style={cut(12)} onClick={() => onRelease(p)}>
-                <span className="flex flex-col items-center leading-tight">방출<small className="text-[11px] opacity-75">{refund ? `+${refund.toLocaleString()} G` : '환급 없음'}</small></span>
+                <span className="flex flex-col items-center leading-tight">방출<small className="text-t4 opacity-75">{refund ? `+${refund.toLocaleString()} G` : '환급 없음'}</small></span>
               </Btn>
             </div>
           )
           : stored ? (
             <div className="grid grid-cols-[1.6fr_1fr] gap-2">
-              <Btn lg pri={!blocked} a={n} className={blocked ? 'text-[13px] !text-red-300' : ''} disabled={!!blocked} style={cut(12)} onClick={() => onEnter?.(p, out)}>
+              <Btn lg pri={!blocked} a={n} className={blocked ? 'text-t3 !text-red-300' : ''} disabled={!!blocked} style={cut(12)} onClick={() => onEnter?.(p, out)}>
                 {blocked || (out ? '교체 · 엔트리로 ▶' : '엔트리로 ▶')}
               </Btn>
               <Btn lg className="text-[#ff5a67]" style={cut(12)} onClick={() => onRelease(p)}>
-                <span className="flex flex-col items-center leading-tight">방출<small className="text-[11px] opacity-75">{refund ? `+${refund.toLocaleString()} G` : '환급 없음'}</small></span>
+                <span className="flex flex-col items-center leading-tight">방출<small className="text-t4 opacity-75">{refund ? `+${refund.toLocaleString()} G` : '환급 없음'}</small></span>
               </Btn>
             </div>
           )
-          : <Btn pri={!blocked} a={n} className={`w-full ${blocked ? 'text-[14px] !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(10)} disabled={!!blocked} onClick={() => (out ? onSwap(p, out) : onAdd(p))}>{blocked || `${out ? '교체 영입' : '영입'} · ${price.toLocaleString()} G ▶`}</Btn>}
+          : <Btn pri={!blocked} a={n} className={`w-full ${blocked ? 'text-t3 !text-red-300 shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)]' : ''}`} style={cut(10)} disabled={!!blocked} onClick={() => (out ? onSwap(p, out) : onAdd(p))}>{blocked || `${out ? '교체 영입' : '영입'} · ${price.toLocaleString()} G ▶`}</Btn>}
       </div>
     </aside>
   );
@@ -419,7 +419,7 @@ function LockerRules({ onClose }) {
         onClick={(e) => e.stopPropagation()} role="dialog" aria-label="라커 규칙">
         <div>
           <p className="mt-lab">도움말</p>
-          <h2 className="mt-1 text-3xl font-black text-white">라커 규칙</h2>
+          <h2 className="mt-1 text-t1 font-black text-white">라커 규칙</h2>
         </div>
         <div>{LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}</div>
         <Btn pri onClick={onClose}>닫기</Btn>
@@ -456,9 +456,9 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
           /* 가진 아이템이 없을 때: 사진 한 장 · 보유 골드 · 상점 버튼 (C안) */
           <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
             <div className="text-center">
-              <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템 없음</b>
+              <b className="mb-1.5 mt-2 block text-t1 font-black text-white">아이템 없음</b>
               <div className="mt-5 flex items-center justify-center gap-2.5">
-                <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
+                <b className="font-display text-t1 text-[#fde047]">{gold.toLocaleString()}</b><small className="text-t3 text-gray-400">G 보유</small>
               </div>
               <Btn pri lg a="#fde047" className="mx-auto mt-5 w-[260px]" style={cut(12)} onClick={onShop}>상점 가기 ▶</Btn>
             </div>
@@ -473,10 +473,10 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
                 style={{ '--c': '12px', '--a': c, backgroundImage: `url(${itemArt(x)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${c}59` }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
-                <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-lg font-extrabold text-[#05080f]" style={{ '--c': '5px', background: c }}>×{keys.length}</span>
+                <span className="mt-cut absolute right-2.5 top-2.5 px-2 font-display text-t2 font-extrabold text-[#05080f]" style={{ '--c': '5px', background: c }}>×{keys.length}</span>
                 <span className="absolute inset-x-3 bottom-2.5 block">
-                  <b className="block truncate text-base font-black text-white">{x.name}</b>
-                  <span className="block truncate text-[11px] text-gray-400">{x.desc}</span>
+                  <b className="block truncate text-t3 font-black text-white">{x.name}</b>
+                  <span className="block truncate text-t4 text-gray-400">{x.desc}</span>
                 </span>
               </button>
             );
@@ -492,38 +492,38 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
           const { rows, weak, item: buy } = teamWeakness(squad);
           return (
             <>
-              <b className="-mb-1 text-xl font-black text-white">우리 팀 약한 곳</b>
+              <b className="-mb-1 text-t2 font-black text-white">우리 팀 약한 곳</b>
               {rows.map((r) => (
-                <div key={r.k} className="-my-1 grid items-center gap-2 text-[13px] text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
+                <div key={r.k} className="-my-1 grid items-center gap-2 text-t3 text-gray-300" style={{ gridTemplateColumns: '44px 1fr 34px' }}>
                   {WEAK_KO[r.k]}
                   <span className="relative block h-[5px] bg-white/[0.08]">
                     <b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(r.v)}%`, background: statColor(r.v, WEAK_COLOR[r.k]).bar }} />
                   </span>
-                  <b className="text-right font-display text-[15px]" style={{ color: statColor(r.v, WEAK_COLOR[r.k]).num }}>{r.v || '-'}</b>
+                  <b className="text-right font-display text-t3" style={{ color: statColor(r.v, WEAK_COLOR[r.k]).num }}>{r.v || '-'}</b>
                 </div>
               ))}
               {/* 추천 표(A안): 머리글 · 약한 곳(그 칸 색) · 추천 아이템 · 가격(금색) · 상점 버튼 */}
               {weak && buy && (
                 <div className="mt-cut mt-2 px-3.5 pb-3.5 pt-2.5" style={{ '--c': '12px', background: 'rgba(5,8,15,.5)', boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}40` }}>
-                  <small className="mb-1 block font-display text-[11px] tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>추천</small>
+                  <small className="mb-1 block font-display text-t4 tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>추천</small>
                   {[['약한 곳', `${WEAK_KO[weak.k]} ${weak.v}`, WEAK_COLOR[weak.k]], ['추천 아이템', buy.name, '#fff'], ['가격', `${buy.price} G`, '#fde047']].map(([k, v, c], i) => (
-                    <span key={k} className={`flex items-baseline justify-between py-[7px] text-[12.5px] text-gray-400 ${i < 2 ? 'border-b border-white/[0.07]' : ''}`}>
-                      {k}<b className="text-[13.5px]" style={{ color: c }}>{v}</b>
+                    <span key={k} className={`flex items-baseline justify-between py-[7px] text-t4 text-gray-400 ${i < 2 ? 'border-b border-white/[0.07]' : ''}`}>
+                      {k}<b className="text-t3" style={{ color: c }}>{v}</b>
                     </span>
                   ))}
                   <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
                 </div>
               )}
-              {!weak && <p className="text-sm text-gray-500">먼저 선수 영입하기</p>}
+              {!weak && <p className="text-t3 text-gray-500">먼저 선수 영입하기</p>}
             </>
           );
         })() : (
           <>
             <Hero img={`url(${itemArt(it)})`} name={it.name} color={n} h={130} pos="center 30%" />
-            <p className="-mt-1 text-sm leading-relaxed text-gray-300">{it.desc}</p>
+            <p className="-mt-1 text-t3 leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-              {list.length === 0 && <p className="text-sm text-gray-500">대상 없음 · 먼저 영입하기</p>}
+              {list.length === 0 && <p className="text-t3 text-gray-500">대상 없음 · 먼저 영입하기</p>}
               {list.map((t) => {
                 const on = target?.id === t.id;
                 const rec = recIds.has(t.id);
@@ -532,14 +532,14 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                   <button key={t.id} type="button" onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
                     style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
                     <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
-                    <b className="font-display text-2xl font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
+                    <b className="font-display text-t1 font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
                     <span className="min-w-0">
-                      <b className="block truncate text-sm font-black text-white">
+                      <b className="block truncate text-t3 font-black text-white">
                         {t.name}
-                        {rec && <em className="ml-1.5 text-[11px] not-italic text-amber-300">★ 추천</em>}
-                        {cur && <em className="ml-1.5 text-[11px] not-italic text-gray-400">선임 중</em>}
+                        {rec && <em className="ml-1.5 text-t4 not-italic text-amber-300">★ 추천</em>}
+                        {cur && <em className="ml-1.5 text-t4 not-italic text-gray-400">선임 중</em>}
                       </b>
-                      <span className="block truncate text-[11px] text-gray-400">
+                      <span className="block truncate text-t4 text-gray-400">
                         {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
                         {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
                       </span>
@@ -695,7 +695,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
       <p className="mt-lab" style={{ '--a': a }}>{label}</p>
-      {sub && <p className="text-sm text-gray-400">{sub}</p>}
+      {sub && <p className="text-t3 text-gray-400">{sub}</p>}
       <div className="ml-auto flex gap-2">{extra}</div>
     </div>
   );
@@ -717,7 +717,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
       <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack}
         right={<button type="button" onClick={() => setRulesOpen(true)} aria-label="라커 규칙"
-          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-[15px] font-black text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>?</button>} />
+          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-t3 font-black text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>?</button>} />
       {rulesOpen && <LockerRules onClose={() => setRulesOpen(false)} />}
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
@@ -728,13 +728,13 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
             const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
             const tint = (n, min) => (n < min ? '#f87171' : n > min ? '#7dd3fc' : min ? '#34d399' : '#6b7280');
-            const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-[15px]" style={{ color }}>{n}</b><small className="text-[12px] text-gray-500">/{d}</small></span>;
+            const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-t3" style={{ color }}>{n}</b><small className="text-t4 text-gray-500">/{d}</small></span>;
             const cell = (key) => {
               const r = pos[key];
               const n = squad.filter((p) => p.position === key).length;
               return (
                 <div key={key} className="flex h-[34px] items-center justify-between border-b border-white/[0.07] px-[5px]">
-                  <span className="text-[13px] text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
+                  <span className="text-t3 text-gray-400">{r.label}</span>{frac(n, r.min, tint(n, r.min))}
                 </div>
               );
             };
@@ -744,19 +744,19 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             return (
               <>
                 <div className="flex items-center justify-between px-0.5 pb-2.5">
-                  <p className="mt-lab" style={{ fontSize: 10 }}>엔트리 구성</p>
+                  <p className="mt-lab" style={{ fontSize: 12 }}>엔트리 구성</p>
                   {frac(squad.length, lim.size, entryOk ? '#34d399' : squad.length > lim.size ? '#f87171' : '#e5e7eb')}
                 </div>
                 <div className="grid grid-cols-2 gap-x-2.5">
                   <div>{['SP', 'RP', 'C', 'OF', 'DH'].map(cell)}</div>
                   <div>{['1B', '2B', '3B', 'SS'].map(cell)}</div>
                 </div>
-                <div className="mt-3 flex justify-between px-[5px] text-[13px] text-gray-300">
+                <div className="mt-3 flex justify-between px-[5px] text-t3 text-gray-300">
                   <span>자유 자리 {frac(used, lim.free, used > lim.free ? '#f87171' : used === lim.free ? '#34d399' : '#e5e7eb')}</span>
                   <span>외국인 {frac(fc, lim.foreign, fc > lim.foreign ? '#f87171' : '#e5e7eb')}</span>
                 </div>
                 {/* 엔트리 프리셋 — 저장 · 불러오기 (칸은 상점) */}
-                <p className="mt-lab px-0.5 pb-1.5 pt-4" style={{ fontSize: 10 }}>프리셋</p>
+                <p className="mt-lab px-0.5 pb-1.5 pt-4" style={{ fontSize: 12 }}>프리셋</p>
                 {Array.from({ length: PRESET_BASE + PRESET_EXTRA_MAX }, (_, i) => {
                   const open = i < presetCount(team);
                   const ps = team.presets?.[i];
@@ -766,15 +766,15 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   return (
                     <div key={i} className="mb-1 flex items-center gap-1.5 px-0.5" style={{ opacity: open ? 1 : 0.4 }}>
                       <span className="min-w-0 flex-1">
-                        <b className="block truncate text-[12.5px]" style={{ color: on ? '#34d399' : '#e5e7eb' }}>{ps?.name || `프리셋 ${i + 1}`}{on ? ' ●' : ''}</b>
-                        <small className="block truncate text-[10.5px]" style={{ color: why && ps ? '#fca5a5' : '#6b7280' }}>
+                        <b className="block truncate text-t4" style={{ color: on ? '#34d399' : '#e5e7eb' }}>{ps?.name || `프리셋 ${i + 1}`}{on ? ' ●' : ''}</b>
+                        <small className="block truncate text-t4" style={{ color: why && ps ? '#fca5a5' : '#6b7280' }}>
                           {!open ? '상점에서 열기' : !ps ? '비어 있음' : why || `${ps.ids.length}명 · 종합 ${ovr || '-'}`}
                         </small>
                       </span>
                       <button type="button" disabled={!open} onClick={() => settle(savePreset(team, i))}
-                        className="mt-cut px-2 py-1 text-[11px] font-bold text-gray-300 hover:text-white disabled:pointer-events-none" style={{ ...cut(4), background: 'rgba(255,255,255,.06)' }}>저장</button>
+                        className="mt-cut px-2 py-1 text-t4 font-bold text-gray-300 hover:text-white disabled:pointer-events-none" style={{ ...cut(4), background: 'rgba(255,255,255,.06)' }}>저장</button>
                       <button type="button" disabled={!open || !ps || !!why} onClick={() => { const next = loadPreset(team, i); if (next) { settle(next); setSel(null); } }}
-                        className="mt-cut px-2 py-1 text-[11px] font-bold text-[#05080f] disabled:opacity-30" style={{ ...cut(4), background: '#34d399' }}>불러오기</button>
+                        className="mt-cut px-2 py-1 text-t4 font-bold text-[#05080f] disabled:opacity-30" style={{ ...cut(4), background: '#34d399' }}>불러오기</button>
                     </div>
                   );
                 })}
@@ -788,16 +788,16 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             {head('선수 영입', null, undefined, (
               <div className="flex items-center gap-2">
                 <button type="button" aria-pressed={dealOnly} onClick={() => { setDealOnly((v) => !v); setLimit(60); }}
-                  className="mt-cut px-3 py-2 text-[13px] font-bold"
+                  className="mt-cut px-3 py-2 text-t3 font-bold"
                   style={{ ...cut(6), color: dealOnly ? '#05080f' : '#fdba74', background: dealOnly ? '#fb923c' : 'rgba(255,255,255,.06)', boxShadow: dealOnly ? undefined : 'inset 0 0 0 1px rgba(251,146,60,.45)' }}>
                   오늘의 특가 {deals.size}
                 </button>
                 <button type="button" aria-pressed={canOnly} onClick={() => { setCanOnly((v) => !v); setLimit(60); }}
-                  className="mt-cut mr-2 px-3 py-2 text-[13px] font-bold"
+                  className="mt-cut mr-2 px-3 py-2 text-t3 font-bold"
                   style={{ ...cut(6), color: canOnly ? '#05080f' : '#d1d5db', background: canOnly ? '#34d399' : 'rgba(255,255,255,.06)', boxShadow: canOnly ? undefined : 'inset 0 0 0 1px rgba(255,255,255,.16)' }}>
                   영입 가능만
                 </button>
-                <span className="text-[13px] text-gray-400">정렬</span>
+                <span className="text-t3 text-gray-400">정렬</span>
                 <div className="w-40">
                   <Select value={sort} onChange={(v) => { setSort(v); setLimit(60); }} options={['스탯 낮은 순', 'CP 높은 순', 'CP 낮은 순', '영입가 낮은 순', '시세 내린 순']} all={SORT_DEFAULT} />
                 </div>
@@ -805,7 +805,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             ))}
             <div className="mt-3 grid items-center gap-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 140px 140px 120px' }}>
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut w-full min-w-0 bg-transparent px-3 py-2.5 text-sm text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:font-normal placeholder:text-gray-500/80 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.26)] focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(6)} />
+                className="mt-cut w-full min-w-0 bg-transparent px-3 py-2.5 text-t3 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:font-normal placeholder:text-gray-500/80 hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,.26)] focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(6)} />
               <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
               <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
@@ -814,7 +814,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
               ))}
-              {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수 없음</p>}
+              {results.length === 0 && <p className="text-t3 text-gray-500">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
                 <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
                   {matched.length - results.length}명 더 보기
@@ -842,7 +842,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
                 );
               })}
-              {clubList.length === 0 && <p className="text-sm text-gray-500">보관한 선수 없음</p>}
+              {clubList.length === 0 && <p className="text-t3 text-gray-500">보관한 선수 없음</p>}
             </div>
           </section>
         )}
@@ -868,17 +868,17 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                             style={{ transform: 'translateX(-59%)', backgroundSize: 'auto 256px', backgroundPosition: 'center top', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(artId(m.id))}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                         )}
                         <span className="absolute inset-x-0 top-0 -bottom-0.5" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f 94%)` }} />
-                        <span className="absolute left-3.5 top-2.5 font-display text-[22px] font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
-                        {m && <b className="absolute right-3.5 top-3 font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                        <span className="absolute left-3.5 top-2.5 font-display text-t2 font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
+                        {m && <b className="absolute right-3.5 top-3 font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
                         <span className="absolute inset-x-3.5 bottom-3">
-                          <b className={`block truncate text-lg font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
+                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
                           {m ? (
-                            <span className="block truncate text-[12px] font-semibold text-slate-300">
+                            <span className="block truncate text-t4 font-semibold text-slate-300">
                               {effTags(staffEffectOf(m)).map((e, i) => (
-                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-600">·</span>}{e.label} <b className="font-display text-[14px]" style={{ color: e.c }}>{e.n}</b></span>
+                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-600">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                               ))}
                             </span>
-                          ) : <span className="block text-[12px] text-gray-600">-</span>}
+                          ) : <span className="block text-t4 text-gray-600">-</span>}
                         </span>
                       </span>
                     )} />
@@ -896,18 +896,18 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     maskImage: 'linear-gradient(90deg,#000 72%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 72%,transparent)' }} />
                   <span className="flex min-w-0 flex-col gap-1.5 py-3 pl-1 pr-3.5">
                     <span className="min-w-0 pr-[130px]">
-                      <small className="block font-display text-[11px] font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
-                      <b className="text-lg font-black text-white">{m.name}</b><small className="ml-2 text-[11px] text-gray-500">{m.era}</small>
+                      <small className="block font-display text-t4 font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
+                      <b className="text-t2 font-black text-white">{m.name}</b><small className="ml-2 text-t4 text-gray-500">{m.era}</small>
                     </span>
-                    <small className="truncate text-[12px] text-gray-400">{m.note}</small>
-                    <span className="text-[13px] font-semibold text-slate-300">
+                    <small className="truncate text-t4 text-gray-400">{m.note}</small>
+                    <span className="text-t3 font-semibold text-slate-300">
                       {effTags(m.effect).map((e, i) => (
-                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-600">·</span>}{e.label} <b className="font-display text-[16px]" style={{ color: e.c }}>{e.n}</b></span>
+                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-600">·</span>}{e.label} <b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b></span>
                       ))}
                     </span>
                   </span>
                   <span className="absolute right-3 top-3 flex items-center gap-2">
-                    <b className="font-display text-lg text-amber-300">{m.cost}</b>
+                    <b className="font-display text-t2 text-amber-300">{m.cost}</b>
                     <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => setStaff(listSlot, m)}>
                       {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
                     </Btn>
@@ -940,20 +940,20 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           return (
             <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': VIO }}>
               <p className="mt-lab" style={{ '--a': VIO }}>팀 보정</p>
-              <h2 className="-mt-1 text-[26px] font-black text-white">코치진 효과</h2>
+              <h2 className="-mt-1 text-t1 font-black text-white">코치진 효과</h2>
               {/* 기여도 막대: 전체 효과 중 선택한 코치 몫을 밝게 */}
               <div className="flex flex-col gap-2">
                 {shown.map(([k, v]) => (
-                  <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
+                  <div key={k} className="grid items-center gap-2.5 text-t3 text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
                     <span>{EFF_LABEL[k]}</span>
                     <span className="relative block h-[5px] bg-white/[0.08]">
                       <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: statColor((size(k, v) / maxV) * 100, EFF_COLOR[k]).bar, opacity: 0.45 }} />
                       <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: statColor((size(k, mine[k] || 0) / maxV) * 100, EFF_COLOR[k]).bar }} />
                     </span>
-                    <b className="text-right font-display text-base text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                    <b className="text-right font-display text-t3 text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
                   </div>
                 ))}
-                {!shown.length && <span className="text-sm text-gray-600">-</span>}
+                {!shown.length && <span className="text-t3 text-gray-600">-</span>}
               </div>
               <div className="h-px shrink-0" style={{ background: `linear-gradient(90deg,${VIO}80,transparent)` }} />
 
@@ -967,11 +967,11 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                         className="mt-cut grid items-center gap-3 p-2 text-left hover:brightness-125" style={{ ...cut(10), gridTemplateColumns: '56px minmax(0,1fr) auto', background: 'rgba(255,255,255,.04)' }}>
                         <span className="mt-cut block h-[66px] bg-[#0b1220] bg-cover" style={{ ...cut(7), backgroundPosition: '60% 25%', backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` : 'url(ui/mt/silhouette-coach.webp)', opacity: m ? 1 : 0.35 }} />
                         <span className="min-w-0">
-                          <span className="block font-display text-[11px] tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
-                          <b className={`block truncate text-[19px] font-black ${m ? 'text-white' : 'text-gray-600'}`}>{m ? m.name : '-'}</b>
-                          {m && <span className="block truncate text-[12px] text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
+                          <span className="block font-display text-t4 tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
+                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-600'}`}>{m ? m.name : '-'}</b>
+                          {m && <span className="block truncate text-t4 text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
                         </span>
-                        {m && <b className="self-start font-display text-[14px] text-amber-300">Lv.{m.level || 1}</b>}
+                        {m && <b className="self-start font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
                       </button>
                     );
                   })}
@@ -979,27 +979,27 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
               ) : (
                 (() => {
                   const m = cur;
-                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-sm text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
+                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-t3 text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
                   const mLv = m.level || 1;
                   return (
                     <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
                       <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
                       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
                       <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
-                        <span className="font-display text-[12px] tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
-                        <b className="text-[28px] font-black leading-tight text-white">{m.name}</b>
-                        <span className="text-[12px] text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
-                        <span className="mt-0.5 text-[12.5px] leading-snug text-gray-300">{m.note}</span>
+                        <span className="font-display text-t4 tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
+                        <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
+                        <span className="text-t4 text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
+                        <span className="mt-0.5 text-t4 leading-snug text-gray-300">{m.note}</span>
                         <div className="mt-auto flex flex-col gap-0.5">
                           {Object.entries(staffEffectOf(m)).map(([k, v]) => (
-                            <span key={k} className="flex items-baseline gap-1.5 text-[13px] text-gray-300">
-                              {EFF_LABEL[k]}<b className="font-display text-[17px]" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
-                              {mLv > 1 && <small className="font-display text-[12px] text-emerald-300">▲{k === 'steal' ? `${mLv - 1}%p` : mLv - 1}</small>}
+                            <span key={k} className="flex items-baseline gap-1.5 text-t3 text-gray-300">
+                              {EFF_LABEL[k]}<b className="font-display text-t2" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                              {mLv > 1 && <small className="font-display text-t4 text-emerald-300">▲{k === 'steal' ? `${mLv - 1}%p` : mLv - 1}</small>}
                             </span>
                           ))}
                         </div>
                       </div>
-                      <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-[15px] text-amber-300">Lv.{mLv}</b>
+                      <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-t3 text-amber-300">Lv.{mLv}</b>
                     </div>
                   );
                 })()
@@ -1007,7 +1007,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
 
               {staffSlot && <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
                 <Btn lg a={VIO} pri={!!cur && tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
-                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-[11px] opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
+                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
                 </Btn>
                 <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && setStaff(staffSlot, null)}>해임</Btn>
               </div>}

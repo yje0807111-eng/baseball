@@ -27,9 +27,9 @@ function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
       {/* 분류 · 꼬리표를 왼쪽 위 한 줄로 (오른쪽 위는 비운다) */}
       <span className="absolute left-3 top-2 inline-flex items-center gap-1.5">
-        <b className="font-display text-[15px] font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</b>
+        <b className="font-display text-t3 font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</b>
         <i className="h-3 w-px" style={{ background: `${n}88` }} />
-        <small className="text-[11px] text-gray-300" style={{ textShadow: '0 2px 4px #000' }}>{catSub[it.cat]}</small>
+        <small className="text-t4 text-gray-300" style={{ textShadow: '0 2px 4px #000' }}>{catSub[it.cat]}</small>
       </span>
       {/* 아래: 이름 먼저 · 5칸 게이지 · 오르는 값과 가격을 좌우로 (이름과 수치가 붙어 보이지 않게) */}
       <span className="absolute inset-x-3 bottom-2.5 block">
@@ -44,7 +44,7 @@ function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
           ) : it.cap ? (
             /* 캡 확장: 지금 캡에서 얼마나 늘어나는지 */
             <span className="mb-1.5 block">
-              <span className="mb-[2px] flex justify-between font-display text-[10.5px] text-gray-400">
+              <span className="mb-[2px] flex justify-between font-display text-t4 text-gray-400">
                 <span>{cap.toLocaleString()}</span><span style={{ color: n }}>{(cap + it.cap).toLocaleString()}</span>
               </span>
               <span className="relative block h-[6px] bg-white/10">
@@ -56,16 +56,16 @@ function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
             /* 계약서 · 권: 한 장(한 명)을 점으로 */
             <span className="mb-[9px] flex h-[8px] items-center gap-1">
               {[0, 1, 2].map((i) => <i key={i} className="h-[8px] w-[8px] rounded-full" style={{ background: i === 0 ? n : 'rgba(255,255,255,.12)' }} />)}
-              <small className="ml-1 text-[11px] text-gray-400">{it.staffRole ? '1명' : '1장'}</small>
+              <small className="ml-1 text-t4 text-gray-400">{it.staffRole ? '1명' : '1장'}</small>
             </span>
           );
           return (
             <>
-              <b className="mb-1 block truncate text-base font-black text-white">{it.name}</b>
+              <b className="mb-1 block truncate text-t3 font-black text-white">{it.name}</b>
               {mid}
               <span className="flex items-baseline justify-between">
-                <b className="text-[12px] text-gray-200">{e.label}{e.amount != null && it.stat && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{e.amount}</span>}{it.cap && <span className="ml-1 font-display text-[14px]" style={{ color: n }}>+{it.cap}</span>}</b>
-                <b className="font-display text-base text-amber-300">{it.price.toLocaleString()} G</b>
+                <b className="text-t4 text-gray-200">{e.label}{e.amount != null && it.stat && <span className="ml-1 font-display text-t3" style={{ color: n }}>+{e.amount}</span>}{it.cap && <span className="ml-1 font-display text-t3" style={{ color: n }}>+{it.cap}</span>}</b>
+                <b className="font-display text-t3 text-amber-300">{it.price.toLocaleString()} G</b>
               </span>
             </>
           );
@@ -174,10 +174,10 @@ export default function ShopScreen({ account, onChange, onBack }) {
             return (
               <div className="mt-cut relative h-[200px] bg-cover" style={{ ...cut(10), backgroundImage: `url(${itemArt(item)})`, backgroundPosition: 'center 25%', boxShadow: `inset 0 0 0 1px ${c}66` }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.3), #05080f 82%)' }} />
-                <span className="absolute left-2.5 top-2 font-display text-[11px] tracking-[0.2em] text-[#fde047]">추천 상품</span>
+                <span className="absolute left-2.5 top-2 font-display text-t4 tracking-[0.2em] text-[#fde047]">추천 상품</span>
                 <span className="absolute inset-x-2.5 bottom-2.5">
-                  <b className="block truncate text-[15px] font-black text-white">{item.name}</b>
-                  <small className="mb-1.5 block truncate text-[11px]" style={{ color: c }}>{STAT_KO[item.stat] || item.name} +{item.amount}</small>
+                  <b className="block truncate text-t3 font-black text-white">{item.name}</b>
+                  <small className="mb-1.5 block truncate text-t4" style={{ color: c }}>{STAT_KO[item.stat] || item.name} +{item.amount}</small>
                   <Btn pri a="#fde047" className="w-full" style={cut(8)} disabled={item.price > gold} onClick={() => { setPicked(item); buy(item); }}>{item.price.toLocaleString()} G 구매하기</Btn>
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
         <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
           <p className="mt-lab" style={{ '--a': n }}>고른 상품</p>
-          {!picked ? <p className="text-sm text-gray-500">상품 고르기</p> : (
+          {!picked ? <p className="text-t3 text-gray-500">상품 고르기</p> : (
             <>
               {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
               {(() => {
@@ -205,12 +205,12 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 return (
                   <div className="mt-cut relative h-[190px] shrink-0 bg-cover" style={{ '--c': '12px', backgroundImage: `url(${itemArt(picked)})`, backgroundPosition: 'center 28%' }}>
                     <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.25), rgba(5,8,15,.92))' }} />
-                    <span className="absolute left-3.5 top-2.5 font-display text-[13px] tracking-[0.16em]" style={{ color: n }}>{catLabel[picked.cat]} │ <span className="text-gray-300">{catSub[picked.cat]}</span></span>
+                    <span className="absolute left-3.5 top-2.5 font-display text-t3 tracking-[0.16em]" style={{ color: n }}>{catLabel[picked.cat]} │ <span className="text-gray-300">{catSub[picked.cat]}</span></span>
                     <span className="absolute inset-x-3.5 bottom-3">
-                      <b className="block text-2xl font-black text-white">{picked.name}</b>
+                      <b className="block text-t1 font-black text-white">{picked.name}</b>
                       <span className="mb-1.5 flex items-baseline gap-1.5">
-                        <b className="text-[13px] text-gray-200">{e.label}</b>
-                        {e.amount != null && <b className="font-display text-xl" style={{ color: n }}>+{e.amount}</b>}
+                        <b className="text-t3 text-gray-200">{e.label}</b>
+                        {e.amount != null && <b className="font-display text-t2" style={{ color: n }}>+{e.amount}</b>}
                       </span>
                       <span className="grid h-[6px] grid-cols-5 gap-[3px]">
                         {[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ background: i < on ? n : 'rgba(255,255,255,.14)' }} />)}
@@ -224,7 +224,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 <div className="flex min-h-0 flex-1 flex-col">
                   <p className="mt-grp !mt-0">추천 대상</p>
                   <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-                    {recs.length === 0 && <p className="text-sm text-gray-500">추천할 선수 없음</p>}
+                    {recs.length === 0 && <p className="text-t3 text-gray-500">추천할 선수 없음</p>}
                     {recs.map((t) => {
                       /* 수치 변화: 막대는 50~110 구간(윗 구간이 뭉치지 않게) · 숫자와 막대 색은 라커와 같은 구간 색 */
                       const cur = t.stats?.[picked.stat] ?? 70;
@@ -236,22 +236,22 @@ export default function ShopScreen({ account, onChange, onBack }) {
                         <div key={t.id} className="mt-row mt-cut" style={{ gridTemplateColumns: '38px 34px minmax(0,1fr)', '--a': n }}>
                           <Portrait player={t} w={36} h={44} color={n} />
                           {/* 종합은 사진 옆 자기 열에 크게(등급 색) — 아래 수치 막대와 헷갈리지 않게 */}
-                          <b className="text-center font-display text-[22px] font-extrabold" style={ovrStyle(t.overall)}>{t.overall}</b>
+                          <b className="text-center font-display text-t2 font-extrabold" style={ovrStyle(t.overall)}>{t.overall}</b>
                           <span className="min-w-0">
                             <span className="flex items-center gap-1.5">
-                              <b className="min-w-0 flex-1 truncate text-sm font-black text-white">{t.name}</b>
-                              <small className="font-display text-[11px]" style={{ color: POS_COLOR[t.position] }}>{t.position}</small>
+                              <b className="min-w-0 flex-1 truncate text-t3 font-black text-white">{t.name}</b>
+                              <small className="font-display text-t4" style={{ color: POS_COLOR[t.position] }}>{t.position}</small>
                             </span>
                             <span className="mt-1 flex items-center gap-2">
-                              <small className="w-7 shrink-0 text-[11px] text-gray-400">{STAT_KO[picked.stat] || picked.stat}</small>
+                              <small className="w-7 shrink-0 text-t4 text-gray-400">{STAT_KO[picked.stat] || picked.stat}</small>
                               <span className="relative h-[7px] flex-1 bg-white/[0.08]">
                                 <i className="absolute inset-y-0 left-0 opacity-70" style={{ width: `${pct(cur)}%`, ...barNow }} />
                                 <i className="absolute inset-y-0" style={{ left: `${pct(cur)}%`, width: `${pct(after) - pct(cur)}%`, ...barNext }} />
                               </span>
                               <span className="flex shrink-0 items-baseline gap-1 font-display">
-                                <small className="text-[11px] opacity-70" style={statNumStyle(cur)}>{cur}</small>
-                                <i className="text-[11px] not-italic text-slate-500">›</i>
-                                <b className="text-[15px]" style={statNumStyle(after)}>{after}</b>
+                                <small className="text-t4 opacity-70" style={statNumStyle(cur)}>{cur}</small>
+                                <i className="text-t4 not-italic text-slate-500">›</i>
+                                <b className="text-t3" style={statNumStyle(after)}>{after}</b>
                               </span>
                             </span>
                           </span>
@@ -262,9 +262,9 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 </div>
               )}
 
-              <div className={`flex items-baseline justify-between text-[12.5px] text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
+              <div className={`flex items-baseline justify-between text-t4 text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
                 <span>보유 <b className="text-white">{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
-                <span>남는 골드 <b className="font-display text-[15px]" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
+                <span>남는 골드 <b className="font-display text-t3" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
               <div>
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>

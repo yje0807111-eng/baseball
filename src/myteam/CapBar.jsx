@@ -12,10 +12,10 @@ export default function CapBar({ team, sm = false, className = '' }) {
     <div className={`mt-cut ${sm ? 'px-3 py-1.5' : 'px-4 py-2.5'} ${className}`}
       style={{ '--c': '8px', background: 'rgba(255,255,255,.045)', boxShadow: `inset 0 0 0 1px ${c}44`, opacity: quiet ? 0.6 : 1 }}>
       <div className="flex items-baseline gap-2">
-        <span className={`font-display font-bold tracking-[0.2em] text-gray-500 ${sm ? 'text-[9.5px]' : 'text-[10px]'}`}>CP</span>
-        <b className={`font-display font-extrabold tabular-nums ${sm ? 'text-[15px]' : 'text-[19px]'}`} style={{ color: c }}>{cost.toLocaleString()}</b>
-        <span className={`text-gray-500 ${sm ? 'text-[11px]' : 'text-[12px]'}`}>/ {cap.toLocaleString()}</span>
-        <b className={`ml-auto font-display font-bold tabular-nums ${sm ? 'text-[11.5px]' : 'text-[13px]'}`} style={{ color: over ? '#f87171' : '#9ca3af' }}>
+        <span className={`font-display font-bold tracking-[0.2em] text-gray-500 ${sm ? 'text-t4' : 'text-t4'}`}>CP</span>
+        <b className={`font-display font-extrabold tabular-nums ${sm ? 'text-t3' : 'text-t2'}`} style={{ color: c }}>{cost.toLocaleString()}</b>
+        <span className={`text-gray-500 ${sm ? 'text-t4' : 'text-t4'}`}>/ {cap.toLocaleString()}</span>
+        <b className={`ml-auto font-display font-bold tabular-nums ${sm ? 'text-t4' : 'text-t3'}`} style={{ color: over ? '#f87171' : '#9ca3af' }}>
           {over ? `${over.toLocaleString()} 초과` : `${left.toLocaleString()} 남음`}
         </b>
       </div>

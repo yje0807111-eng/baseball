@@ -24,7 +24,7 @@ function StepChips({ prog, got }) {
       {prog.steps.map((s) => {
         const taken = s.i < got;
         return (
-          <b key={s.n} className="mt-cut px-1.5 font-display text-[11px]"
+          <b key={s.n} className="mt-cut px-1.5 font-display text-t4"
             style={{ ...cut(3), color: s.reached ? '#05080f' : '#6b7280', background: s.reached ? (taken ? '#4d7c0f' : DEX) : 'rgba(255,255,255,.06)' }}>
             {taken ? '✓' : ''}{s.n}
           </b>
@@ -56,10 +56,10 @@ export function DexView({ account, onAccount }) {
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': DEX }}>
         <div className="flex items-baseline gap-3">
           <p className="mt-lab" style={{ '--a': DEX }}>시리즈 도감</p>
-          <p className="ml-auto text-sm text-gray-400">모은 선수 <b className="font-display text-base text-white">{have.toLocaleString()}</b> / {DEX_TOTAL.toLocaleString()} · 완성 <b className="font-display text-base text-white">{done}</b></p>
+          <p className="ml-auto text-t3 text-gray-400">모은 선수 <b className="font-display text-t3 text-white">{have.toLocaleString()}</b> / {DEX_TOTAL.toLocaleString()} · 완성 <b className="font-display text-t3 text-white">{done}</b></p>
         </div>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="시리즈 이름 · 연도 · 구단 검색"
-          className="mt-cut mt-3 w-full bg-transparent px-3 py-2.5 text-sm text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:text-gray-500/80 focus:shadow-[inset_0_0_0_1.5px_#a3e635]" style={cut(6)} />
+          className="mt-cut mt-3 w-full bg-transparent px-3 py-2.5 text-t3 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:text-gray-500/80 focus:shadow-[inset_0_0_0_1.5px_#a3e635]" style={cut(6)} />
         <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
           {rows.slice(0, 120).map((r) => {
             const on = sel?.s.id === r.s.id;
@@ -67,22 +67,22 @@ export function DexView({ account, onAccount }) {
             return (
               <button key={r.s.id} type="button" onClick={() => setPick(r.s.id)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
                 style={{ gridTemplateColumns: 'minmax(0,1fr) 220px 110px 52px', '--a': DEX }}>
-                <b className="truncate text-[15px] text-white">{r.name}</b>
+                <b className="truncate text-t3 text-white">{r.name}</b>
                 <span className="relative h-2 bg-white/[0.07]"><i className="absolute inset-y-0 left-0" style={{ width: `${(r.prog.have / r.prog.total) * 100}%`, background: DEX }} /></span>
                 <StepChips prog={r.prog} got={claimed[r.s.id] || 0} />
-                <b className="text-right font-display text-[15px]" style={{ color: ready ? DEX : '#9ca3af' }}>{r.prog.have}/{r.prog.total}</b>
+                <b className="text-right font-display text-t3" style={{ color: ready ? DEX : '#9ca3af' }}>{r.prog.have}/{r.prog.total}</b>
               </button>
             );
           })}
-          {rows.length > 120 && <p className="py-2 text-center text-[12px] text-gray-500">검색으로 더 찾기 · {rows.length - 120}개</p>}
+          {rows.length > 120 && <p className="py-2 text-center text-t4 text-gray-500">검색으로 더 찾기 · {rows.length - 120}개</p>}
         </div>
       </section>
 
       <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': DEX }}>
         <p className="mt-lab" style={{ '--a': DEX }}>시리즈 보상</p>
-        {!sel ? <p className="text-sm text-gray-500">시리즈 고르기</p> : (
+        {!sel ? <p className="text-t3 text-gray-500">시리즈 고르기</p> : (
           <>
-            <h2 className="-mt-2 text-2xl font-black text-white">{sel.name}</h2>
+            <h2 className="-mt-2 text-t1 font-black text-white">{sel.name}</h2>
             <Stats items={[['모은 선수', `${sel.prog.have}/${sel.prog.total}`], ...DEX_STEPS.map((s) => [`${s.n}명`, `${s.gold} G`])]} />
             <div className="grid grid-cols-3 gap-1.5">
               {sel.s.players.map((p) => {
@@ -90,7 +90,7 @@ export function DexView({ account, onAccount }) {
                 return (
                   <div key={p.id} className="mt-cut flex items-center gap-1.5 p-1.5" style={{ ...cut(5), background: got ? 'rgba(163,230,53,.1)' : 'rgba(255,255,255,.03)', opacity: got ? 1 : 0.45 }}>
                     <Portrait player={p} w={24} h={30} color={got ? DEX : '#334155'} />
-                    <span className="min-w-0"><b className="block truncate text-[12px] text-white">{p.name}</b><small className="font-display text-[11px] text-gray-400">{p.position} · {p.overall}</small></span>
+                    <span className="min-w-0"><b className="block truncate text-t4 text-white">{p.name}</b><small className="font-display text-t4 text-gray-400">{p.position} · {p.overall}</small></span>
                   </div>
                 );
               })}
@@ -123,18 +123,18 @@ export function WeekView({ account, onAccount }) {
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': WEEK }}>
         <div className="flex items-baseline gap-3">
           <p className="mt-lab" style={{ '--a': WEEK }}>이번 주 과제</p>
-          <p className="ml-auto text-sm text-gray-400">{Number(key.slice(5, 7))}월 {Number(key.slice(8))}일 ~ {end.getMonth() + 1}월 {end.getDate()}일</p>
+          <p className="ml-auto text-t3 text-gray-400">{Number(key.slice(5, 7))}월 {Number(key.slice(8))}일 ~ {end.getMonth() + 1}월 {end.getDate()}일</p>
         </div>
         <div className="mt-4 grid gap-3" style={{ gridTemplateRows: `repeat(${WEEK_COUNT}, auto)` }}>
           {list.map(({ m, n, done, claimed }) => (
             <div key={m.id} className="mt-cut grid items-center gap-5 p-5" style={{ ...cut(12), gridTemplateColumns: 'minmax(0,1fr) 260px 170px',
               background: done ? 'linear-gradient(90deg,rgba(251,191,36,.14),rgba(255,255,255,.03))' : 'rgba(255,255,255,.04)', boxShadow: done && !claimed ? `inset 0 0 0 1px ${WEEK}` : undefined }}>
               <span className="min-w-0">
-                <b className="block truncate text-xl font-black text-white">{m.ko}</b>
-                <small className="font-display text-[14px] text-amber-300">{m.gold} G</small>
+                <b className="block truncate text-t2 font-black text-white">{m.ko}</b>
+                <small className="font-display text-t3 text-amber-300">{m.gold} G</small>
               </span>
               <span>
-                <span className="flex justify-between text-[12px] text-gray-400"><span>진행</span><b className="font-display text-[15px] text-white">{n} / {m.goal}</b></span>
+                <span className="flex justify-between text-t4 text-gray-400"><span>진행</span><b className="font-display text-t3 text-white">{n} / {m.goal}</b></span>
                 <span className="relative mt-1.5 block h-2 bg-white/[0.07]"><i className="absolute inset-y-0 left-0" style={{ width: `${(n / m.goal) * 100}%`, background: WEEK }} /></span>
               </span>
               <Btn pri={done && !claimed} a={WEEK} disabled={!done || claimed} onClick={() => take(m.id)}>{claimed ? '받음 ✓' : done ? '받기' : '진행 중'}</Btn>
@@ -145,7 +145,7 @@ export function WeekView({ account, onAccount }) {
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': WEEK }}>
         <p className="mt-lab" style={{ '--a': WEEK }}>주간 보너스</p>
-        <h2 className="-mt-2 text-3xl font-black text-white">{WEEK_BONUS} G</h2>
+        <h2 className="-mt-2 text-t1 font-black text-white">{WEEK_BONUS} G</h2>
         <Stats items={[['끝낸 과제', `${doneN}/${WEEK_COUNT}`], ['받은 과제', `${list.filter((x) => x.claimed).length}/${WEEK_COUNT}`]]} />
         <div>
           <KV k="새 과제" v={`${next.getMonth() + 1}월 ${next.getDate()}일`} />

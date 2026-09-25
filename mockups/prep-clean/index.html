@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>경기 준비 정리 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── 공통 규칙: 글자 크기 4 · 색 8 ── */
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;           /* 제목 · 소제목 · 본문 · 보조 */
+    --bg:#05080f; --w:#ffffff; --m:#9ca3af; --d:#6b7280;   /* 배경 · 글 3단 */
+    --a:#10b981; --foe:#3b82f6; --warn:#fbbf24; --bad:#f87171; /* 우리 · 상대 · 주의 · 나쁨 */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:var(--bg) radial-gradient(1200px 600px at 55% 20%,#0d1626,var(--bg));color:var(--w);
+    font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .cut{clip-path:polygon(var(--c,12px) 0,100% 0,100% calc(100% - var(--c,12px)),calc(100% - var(--c,12px)) 100%,0 100%,0 var(--c,12px))}
+  .pane{background:rgba(6,10,19,.74);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-size:var(--t3);font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:14px;height:10px;background:currentColor;clip-path:polygon(0 0,60% 0,100% 100%,40% 100%)}
+  .t1{font-size:var(--t1);font-weight:700}.t2{font-size:var(--t2);font-weight:700}.t4{font-size:var(--t4)}
+  .m{color:var(--m)}.d{color:var(--d)}
+  .row{display:flex;align-items:center;gap:10px}
+  .col{display:flex;flex-direction:column}
+  .grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .line{height:1px;background:rgba(255,255,255,.08)}
+  .btn{padding:0 16px;height:40px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);font-weight:700}
+  .btn:hover{background:rgba(255,255,255,.1)}
+  .pri{height:64px;background:var(--a);color:#04140d;font-size:var(--t2);font-weight:700;box-shadow:0 0 24px rgba(16,185,129,.35)}
+  .seg{display:grid;gap:4px}
+  .seg button{height:44px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);font-weight:700;color:var(--m);position:relative}
+  .seg button.on{background:rgba(16,185,129,.18);box-shadow:inset 0 0 0 2px var(--a);color:var(--w)}
+  .seg button .rec{position:absolute;top:3px;right:6px;font-size:10px;color:var(--warn)}
+  .bar{height:6px;background:rgba(255,255,255,.07);display:flex}
+  .field{position:relative;background:#07130c url(/ui/field.webp) center 58%/cover;overflow:hidden}
+  .field::before{content:'';position:absolute;inset:0;background:radial-gradient(75% 75% at 50% 55%,rgba(5,8,15,.05),rgba(5,8,15,.6))}
+  .spot{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(5,8,15,.8);
+    box-shadow:inset 0 -2px 0 var(--a);font-weight:700;white-space:nowrap}
+  .spot .n{font-size:var(--t2);color:var(--a)}
+  .spot small{font-size:var(--t4);color:var(--d);font-weight:500}
+  .hex{width:40px;height:35px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:grid;place-items:center;flex:none}
+  .hex i{width:60%;height:66%;background:#1a0f07;-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+  .emb{width:44px;height:44px;background:center/contain no-repeat;flex:none}
+  /* 비교 막대 (목업 밖 도구) */
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.82);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}
+  #tool button.on{background:#fde047;color:#111}
+  #tool span{color:#cbd5e1;margin-left:6px}
+  #tool b{color:#fde047}
+  #rules{position:fixed;right:12px;bottom:10px;z-index:9;display:none;width:360px;padding:14px;background:rgba(0,0,0,.9);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font-size:13px}
+  #rules div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+</style></head>
+<body>
+<main id="app"></main>
+
+<div id="tool" data-x>
+  <button data-v="1">1 세 칸 정리</button><button data-v="2">2 맞대결 중심</button><button data-v="3">3 탭</button>
+  <span id="meter"></span>
+  <button id="rb">규칙</button>
+</div>
+<div id="rules" data-x>
+  <b style="display:block;margin-bottom:6px;color:#fde047">공통 규칙</b>
+  <div><span>제목</span><b>28</b></div><div><span>소제목 · 큰 숫자</span><b>18</b></div><div><span>본문</span><b>14</b></div><div><span>보조</span><b>12</b></div>
+  <div><span>글 3단</span><b>흰 · 회 · 흐린 회</b></div><div><span>우리 · 주 단추</span><b style="color:#10b981">초록</b></div>
+  <div><span>상대</span><b style="color:#3b82f6">구단 색</b></div><div><span>주의 · 나쁨</span><b><span style="color:#fbbf24">노랑</span> · <span style="color:#f87171">빨강</span></b></div>
+  <div><span>주 단추</span><b>화면마다 하나</b></div><div><span>영어 대문자</span><b>없음</b></div>
+</div>
+
+<script>
+/* ── 실제 경기 준비 화면 값 (2004 삼성 단판) ── */
+const FOE = { name: '2004 삼성 라이온즈', ovr: 82, emb: '/ui/clubs/samsung.webp', ace: { name: '호지스', ovr: 80, form: '▲ 좋음', sub: '구위 84 · 제구 68' },
+  tags: ['수비 탄탄', '좌타 다수'], watch: [['박한이', 90, '주루'], ['양준혁', 85, '장타'], ['오리어리', 80, '장타']],
+  lineup: [['OF','박한이',90],['1B','양준혁',85],['OF','강동우',80],['2B','박종호',83],['OF','김대익',81],['C','진갑용',80],['3B','김한수',78],['OF','오리어리',80],['SS','조동찬',72]] };
+const VS = [['타자', 765, 729], ['수비', 763, 727], ['투수', 416, 600]];
+const ME = { name: '내 팀', ovr: 82, ace: { name: '계형철', ovr: 82, sub: 'ERA 3.44 · 86K' } };
+const POS = { C: [50, 88], '1B': [80, 55], '2B': [64, 36], '3B': [20, 55], SS: [36, 36], LF: [17, 20], CF: [50, 11], RF: [83, 20], DH: [88, 88] };
+const MY = [['2B','김인식',85,'▲'],['3B','양세종',88,'▲▲'],['LF','김준환',82,''],['C','김진우',85,'▲'],['CF','홍문종',82,''],['RF','박흥식',85,'▲'],['1B','오재일',79,'▼'],['SS','박진만',82,''],['DH','박성한',79,'▼']];
+const PEN = [['마무리','송유석',80],['필승','김진규',85],['중간','김용남',85],['롱','김태원',75]];
+const SYN = [['프랜차이즈의 기억','franchise','5/6',1],['교타 군단','contactLine','4/5',1],['발야구','speedLine','3/4',1],['내야 그물','infieldNet','3/4',1],['홈런 군단','power','3/4',0]];
+const SIDES = [
+  { k: 'bat', ko: '공격', opts: [['빅볼', 1], ['컨택'], ['발야구'], ['출루']], on: 0 },
+  { k: 'pit', ko: '마운드', opts: [['선발 완주'], ['빠른 교체', 1], ['총력전', 1], ['아끼기']], on: 1 },
+  { k: 'def', ko: '수비', opts: [['정석'], ['외야 깊게'], ['내야 전진'], ['주자 묶기']], on: 0 },
+];
+const CARDS = [['타선 미팅', 1, '타자 컨택 +3'], ['마운드 미팅', 0, '투수 제구 +3'], ['불펜 데이', 0, '불펜 체력 +20']];
+
+const formC = (f) => (f.startsWith('▲') ? 'var(--a)' : f.startsWith('▼') ? 'var(--bad)' : 'var(--d)');
+const topbar = () => `
+  <header class="row" style="height:64px;padding:0 24px;gap:14px">
+    <button class="btn cut" style="--c:7px;width:40px;padding:0">←</button>
+    <div class="col"><span class="t4 d">일반 대결 · 단판</span><b class="t2">경기 준비</b></div>
+    <div class="grow"></div>
+    <span class="t4 d">샐러리 캡</span><b class="n" style="font-size:var(--t2)">2,131<span class="d" style="font-size:var(--t4)"> / 2,330</span></b>
+  </header>`;
+const vsRows = (w = 1) => VS.map(([k, a, b]) => `
+  <div class="row" style="gap:12px">
+    <b class="n" style="width:56px;text-align:right;font-size:var(--t2);color:${a >= b ? 'var(--a)' : 'var(--m)'}">${a}</b>
+    <div class="grow col" style="gap:4px"><span class="t4 m" style="text-align:center">${k}</span>
+      <div class="bar"><i style="width:${(a / (a + b)) * 100}%;background:var(--a)"></i><i class="grow" style="background:color-mix(in srgb,var(--foe) 70%,transparent)"></i></div></div>
+    <b class="n" style="width:56px;font-size:var(--t2);color:${b > a ? 'var(--foe)' : 'var(--m)'}">${b}</b>
+  </div>`).join('');
+const field = (h, big = false) => `
+  <div class="field cut" style="--c:14px;height:${h}px">
+    ${MY.map(([p, n, o, f]) => `<span class="spot" style="left:${POS[p][0]}%;top:${POS[p][1]}%">
+      ${n}${f ? `<small style="color:${formC(f)}">${f}</small>` : ''}<b class="n">${o}</b></span>`).join('')}
+  </div>`;
+const synRow = (names = false) => `
+  <div class="row" style="gap:${names ? 14 : 8}px">
+    ${SYN.map(([ko, img, c, on]) => `<span class="row" style="gap:6px;opacity:${on ? 1 : .45}" title="${ko}">
+      <span class="hex" style="background:${on ? '#d69a62' : '#3a4556'};--img:url(/ui/synergy/${img}.png)"><i></i></span>
+      ${names ? `<span class="col"><b class="t4">${ko}</b><span class="t4 d n">${c}</span></span>` : ''}</span>`).join('')}
+  </div>`;
+const sideSeg = (s, cols = 4) => `
+  <div class="col" style="gap:8px">
+    <b class="t4 m">${s.ko}</b>
+    <div class="seg" style="grid-template-columns:repeat(${cols},1fr)">
+      ${s.opts.map(([o, rec], i) => `<button class="cut ${i === s.on ? 'on' : ''}" style="--c:6px" data-side="${s.k}" data-i="${i}">${o}${rec ? '<span class="rec">★</span>' : ''}</button>`).join('')}
+    </div>
+  </div>`;
+const cardSeg = () => `
+  <div class="col" style="gap:8px">
+    <b class="t4 m">준비 카드</b>
+    <div class="seg" style="grid-template-columns:repeat(3,1fr)">
+      ${CARDS.map(([c, n]) => `<button class="cut" style="--c:6px;${n ? '' : 'opacity:.35'}" ${n ? '' : 'disabled'} data-card>${c} <span class="n d">${n}</span></button>`).join('')}
+    </div>
+  </div>`;
+const start = () => `<button class="pri cut" style="--c:12px;width:100%">경기 시작</button>`;
+
+/* ── 1. 세 칸 정리 — 지금 틀 그대로, 칸마다 절반만 ── */
+function v1() {
+  return `${topbar()}
+  <div style="display:grid;grid-template-columns:340px 1fr 420px;gap:12px;padding:0 24px;height:835px;padding-bottom:12px">
+    <aside class="pane cut col" style="--c:18px;padding:20px;gap:18px">
+      <span class="lab" style="--k:var(--foe)">오늘 상대</span>
+      <div class="row"><span class="emb" style="background-image:url(${FOE.emb})"></span><b class="t2 grow tr">${FOE.name}</b><b class="n" style="font-size:var(--t1);color:var(--foe)">${FOE.ovr}</b></div>
+      <div class="line"></div>
+      <div class="col" style="gap:4px"><span class="t4 d">상대 선발</span>
+        <div class="row"><b class="t2">${FOE.ace.name}</b><span class="t4" style="color:var(--a)">${FOE.ace.form}</span><span class="grow"></span><b class="n" style="font-size:var(--t2);color:var(--foe)">${FOE.ace.ovr}</b></div>
+        <span class="t4 m">${FOE.ace.sub}</span></div>
+      <div class="line"></div>
+      <div class="col" style="gap:10px"><span class="t4 d">경계 타자</span>
+        ${FOE.watch.map(([n, o, t]) => `<div class="row"><b class="grow">${n}</b><span class="t4" style="color:var(--warn)">${t}</span><b class="n" style="font-size:var(--t2);width:30px;text-align:right">${o}</b></div>`).join('')}</div>
+      <div class="line"></div>
+      <div class="col" style="gap:14px"><span class="t4 d">전력 비교</span>${vsRows()}</div>
+      <div class="grow"></div>
+      <button class="btn cut" style="--c:8px">상대 타순 보기</button>
+    </aside>
+
+    <section class="pane cut col" style="--c:18px;padding:16px;gap:12px">
+      <div class="row"><span class="lab">라인업</span><span class="grow"></span><button class="btn cut" style="--c:8px">자동 배치</button><button class="btn cut" style="--c:8px">타순 · 투수진</button></div>
+      ${field(560)}
+      <div class="row" style="gap:6px">
+        ${MY.map(([p, n, o], i) => `<div class="cut grow col" style="--c:6px;padding:8px 10px;background:rgba(255,255,255,.04);gap:2px">
+          <span class="row" style="gap:6px"><b class="n d">${i + 1}</b><span class="t4 d">${p}</span></span><b class="tr">${n}</b></div>`).join('')}
+      </div>
+      <div class="row"><span class="t4 d">선발</span><b>${ME.ace.name}</b><b class="n" style="color:var(--a);font-size:var(--t2)">${ME.ace.ovr}</b>
+        <span class="t4 m">${ME.ace.sub}</span><span class="grow"></span>${synRow()}</div>
+    </section>
+
+    <aside class="pane cut col" style="--c:18px;padding:20px;gap:22px">
+      <div class="row"><span class="lab">작전</span><span class="grow"></span><span class="t4 d">팀 종합</span><b class="n" style="font-size:var(--t1);color:var(--a)">${ME.ovr}</b></div>
+      ${SIDES.map((s) => sideSeg(s, 2)).join('')}
+      ${cardSeg()}
+      <div class="grow"></div>
+      ${start()}
+    </aside>
+  </div>`;
+}
+
+/* ── 2. 맞대결 중심 — 우리 vs 상대가 주인공, 라인업 편집은 따로 ── */
+function v2() {
+  const team = (side, t, emb, c) => `
+    <div class="col" style="align-items:${side === 'l' ? 'flex-end' : 'flex-start'};gap:10px;text-align:${side === 'l' ? 'right' : 'left'}">
+      <div class="row" style="flex-direction:${side === 'l' ? 'row-reverse' : 'row'};gap:16px">
+        ${emb ? `<span class="emb" style="width:96px;height:96px;background-image:url(${emb})"></span>` : `<span class="cut grid" style="--c:14px;width:96px;height:96px;display:grid;place-items:center;background:rgba(16,185,129,.15);box-shadow:inset 0 0 0 2px var(--a)"><b class="n" style="font-size:40px;color:var(--a)">K</b></span>`}
+        <div class="col"><b class="t1">${t.name}</b><span class="t4 d">팀 종합</span><b class="n" style="font-size:64px;line-height:1;color:${c}">${t.ovr}</b></div>
+      </div>
+    </div>`;
+  const ace = (t, c, lab) => `
+    <div class="pane cut col" style="--c:12px;padding:16px 20px;gap:4px;flex:1">
+      <span class="t4 d">${lab}</span>
+      <div class="row"><b class="t2">${t.ace.name}</b>${t.ace.form ? `<span class="t4" style="color:var(--a)">${t.ace.form}</span>` : ''}<span class="grow"></span><b class="n" style="font-size:var(--t1);color:${c}">${t.ace.ovr}</b></div>
+      <span class="t4 m">${t.ace.sub}</span>
+    </div>`;
+  return `${topbar()}
+  <div class="col" style="padding:0 24px 16px;height:835px;gap:16px">
+    <section class="pane cut" style="--c:22px;display:grid;grid-template-columns:1fr 520px 1fr;align-items:center;padding:28px 48px;gap:40px;
+      background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(6,10,19,.8) 35%,rgba(6,10,19,.8) 65%,rgba(59,130,246,.18))">
+      ${team('l', ME, null, 'var(--a)')}
+      <div class="col" style="gap:14px">${vsRows()}</div>
+      ${team('r', FOE, FOE.emb, 'var(--foe)')}
+    </section>
+
+    <div class="row" style="gap:16px;align-items:stretch">
+      ${ace(ME, 'var(--a)', '우리 선발')}
+      <div class="pane cut col" style="--c:12px;padding:16px 20px;gap:10px;flex:1.4">
+        <span class="t4 d">상대 경계</span>
+        <div class="row" style="gap:18px">${FOE.watch.map(([n, o, t]) => `<span class="row" style="gap:6px"><b>${n}</b><span class="t4" style="color:var(--warn)">${t}</span></span>`).join('')}
+          <span class="grow"></span><span class="t4 m">${FOE.tags.join(' · ')}</span></div>
+      </div>
+      ${ace(FOE, 'var(--foe)', '상대 선발')}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 420px;gap:16px;flex:1;min-height:0">
+      ${SIDES.map((s) => `<section class="pane cut col" style="--c:16px;padding:20px;gap:14px">
+        <span class="lab">${s.ko}</span>
+        <div class="seg" style="grid-template-columns:1fr 1fr;flex:1;grid-auto-rows:1fr">
+          ${s.opts.map(([o, rec], i) => `<button class="cut ${i === s.on ? 'on' : ''}" style="--c:8px;height:auto;font-size:var(--t2)" data-side="${s.k}" data-i="${i}">${o}${rec ? '<span class="rec" style="font-size:12px">★ 추천</span>' : ''}</button>`).join('')}
+        </div></section>`).join('')}
+      <section class="col" style="gap:12px">
+        ${cardSeg()}
+        <div class="row" style="gap:8px"><button class="btn cut grow" style="--c:8px;height:48px">라인업 편집</button><button class="btn cut grow" style="--c:8px;height:48px">상대 타순</button></div>
+        <div class="grow"></div>
+        ${start()}
+      </section>
+    </div>
+  </div>`;
+}
+
+/* ── 3. 탭 — 한 번에 한 가지만, 오른쪽 시작 칸은 고정 ── */
+let tab = 'sum';
+function v3() {
+  const TABS = [['sum', '요약'], ['line', '라인업'], ['pit', '투수진'], ['plan', '작전'], ['foe', '상대']];
+  const body = {
+    sum: `<div class="col" style="gap:28px;padding:8px 12px">
+      <div class="row" style="gap:28px"><span class="emb" style="width:72px;height:72px;background-image:url(${FOE.emb})"></span>
+        <div class="col grow"><span class="t4 d">오늘 상대</span><b class="t1">${FOE.name}</b><span class="m">${FOE.tags.join(' · ')}</span></div>
+        <div class="col" style="align-items:center"><span class="t4 d">우리</span><b class="n" style="font-size:56px;line-height:1;color:var(--a)">${ME.ovr}</b></div>
+        <b class="n d" style="font-size:var(--t1)">:</b>
+        <div class="col" style="align-items:center"><span class="t4 d">상대</span><b class="n" style="font-size:56px;line-height:1;color:var(--foe)">${FOE.ovr}</b></div></div>
+      <div class="col" style="gap:16px;width:720px">${vsRows()}</div>
+      <div class="row" style="gap:16px">
+        ${[['우리 선발', ME, 'var(--a)'], ['상대 선발', FOE, 'var(--foe)']].map(([l, t, c]) => `<div class="pane cut col grow" style="--c:12px;padding:16px 20px;gap:4px"><span class="t4 d">${l}</span>
+          <div class="row"><b class="t2">${t.ace.name}</b><span class="grow"></span><b class="n" style="font-size:var(--t1);color:${c}">${t.ace.ovr}</b></div><span class="t4 m">${t.ace.sub}</span></div>`).join('')}
+      </div>
+      <div class="col" style="gap:10px"><span class="t4 d">시너지</span>${synRow(true)}</div>
+    </div>`,
+    line: `<div style="display:grid;grid-template-columns:1fr 360px;gap:16px;height:100%">
+      ${field(700)}
+      <div class="col" style="gap:6px">${MY.map(([p, n, o, f], i) => `<div class="cut row" style="--c:6px;padding:0 14px;height:56px;background:rgba(255,255,255,.04)">
+        <b class="n d" style="width:16px">${i + 1}</b><span class="t4 d" style="width:26px">${p}</span><b class="grow">${n}</b>
+        ${f ? `<span class="t4" style="color:${formC(f)}">${f}</span>` : ''}<b class="n" style="font-size:var(--t2);color:var(--a)">${o}</b></div>`).join('')}
+        <div class="grow"></div><button class="btn cut" style="--c:8px;height:48px">자동 배치</button></div>
+    </div>`,
+    pit: `<div class="col" style="gap:8px;width:760px;padding:8px 12px">
+      ${[['선발', ME.ace.name, ME.ace.ovr], ...PEN].map(([r, n, o]) => `<div class="cut row" style="--c:6px;padding:0 18px;height:60px;background:rgba(255,255,255,.04)">
+        <span class="t4 d" style="width:60px">${r}</span><b class="grow t2">${n}</b><b class="n" style="font-size:var(--t2);color:var(--a)">${o}</b></div>`).join('')}
+      <div class="row" style="padding-top:10px"><span class="t4 d">벤치</span><b>김동기</b><span class="t4 d">C</span></div></div>`,
+    plan: `<div class="col" style="gap:30px;width:900px;padding:8px 12px">${SIDES.map((s) => sideSeg(s, 4)).join('')}</div>`,
+    foe: `<div class="col" style="gap:6px;width:760px;padding:8px 12px">${FOE.lineup.map(([p, n, o], i) => {
+      const w = FOE.watch.find((x) => x[0] === n);
+      return `<div class="cut row" style="--c:6px;padding:0 18px;height:52px;background:${w ? 'rgba(251,191,36,.08)' : 'rgba(255,255,255,.04)'}">
+        <b class="n d" style="width:16px">${i + 1}</b><span class="t4 d" style="width:26px">${p}</span><b class="grow">${n}</b>
+        ${w ? `<span class="t4" style="color:var(--warn)">${w[2]}</span>` : ''}<b class="n" style="font-size:var(--t2);color:var(--foe)">${o}</b></div>`; }).join('')}</div>`,
+  };
+  return `${topbar()}
+  <div style="display:grid;grid-template-columns:200px 1fr 400px;gap:12px;padding:0 24px 12px;height:835px">
+    <nav class="pane cut col" style="--c:18px;padding:14px;gap:6px">
+      ${TABS.map(([k, ko]) => `<button class="cut" data-tab="${k}" style="--c:8px;height:56px;text-align:left;padding:0 18px;font-size:var(--t2);font-weight:700;
+        ${tab === k ? 'background:rgba(16,185,129,.18);box-shadow:inset 3px 0 0 var(--a);color:var(--w)' : 'color:var(--m)'}">${ko}</button>`).join('')}
+    </nav>
+    <section class="pane cut" style="--c:18px;padding:20px;min-height:0">${body[tab]}</section>
+    <aside class="pane cut col" style="--c:18px;padding:20px;gap:20px">
+      <div class="row"><span class="lab">경기 준비</span><span class="grow"></span><span class="t4 d">팀 종합</span><b class="n" style="font-size:var(--t1);color:var(--a)">${ME.ovr}</b></div>
+      <div class="col" style="gap:10px">
+        ${SIDES.map((s) => `<div class="row"><span class="t4 d" style="width:52px">${s.ko}</span><b class="grow">${s.opts[s.on][0]}</b><button class="t4 m" data-tab="plan">바꾸기</button></div>`).join('')}
+      </div>
+      <div class="line"></div>
+      ${cardSeg()}
+      <div class="grow"></div>
+      ${start()}
+    </aside>
+  </div>`;
+}
+
+/* ── 그리기 · 세기 ── */
+let v = +(location.hash.slice(1) || 1);
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => {
+    const r = e.getBoundingClientRect();
+    return r.width && r.height && r.bottom > 0 && r.top < innerHeight;
+  });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  const fs = new Set(text.map((e) => getComputedStyle(e).fontSize));
+  const cs = new Set(text.map((e) => getComputedStyle(e).color));
+  const btn = els.filter((e) => e.tagName === 'BUTTON').length;
+  return { t: text.length, b: btn, f: fs.size, c: cs.size };
+};
+function draw() {
+  document.getElementById('app').innerHTML = [0, v1, v2, v3][v]();
+  document.querySelectorAll('#tool [data-v]').forEach((b) => b.classList.toggle('on', +b.dataset.v === v));
+  const m = measure();
+  document.getElementById('meter').innerHTML = `글 <b>${m.t}</b>/320 · 단추 <b>${m.b}</b>/43 · 크기 <b>${m.f}</b>/20 · 색 <b>${m.c}</b>/26 <span style="color:#6b7280">(지금 화면)</span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-side],[data-tab],#rb');
+  if (!t) return;
+  if (t.id === 'rb') { const r = document.getElementById('rules'); r.style.display = r.style.display === 'block' ? 'none' : 'block'; return; }
+  if (t.dataset.v) { v = +t.dataset.v; location.hash = v; }
+  if (t.dataset.side) SIDES.find((s) => s.k === t.dataset.side).on = +t.dataset.i;
+  if (t.dataset.tab) tab = t.dataset.tab;
+  draw();
+});
+addEventListener('keydown', (e) => { if ('123'.includes(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>

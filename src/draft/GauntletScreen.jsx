@@ -200,12 +200,12 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/gauntlet.webp)' }} aria-hidden="true" />
       {/* 머리 줄 */}
       <div className="relative flex h-14 items-center gap-3.5 px-7" style={{ background: 'rgba(6,10,19,.7)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
-        <button type="button" className="ui-btn ui-cut px-3 py-1.5 text-sm" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
+        <button type="button" className="ui-btn ui-cut px-3 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
         <b className="font-display text-[0.95rem] tracking-[0.22em] text-[#7c8797]">도장깨기</b>
         <span className="ml-auto flex items-center gap-2.5">
           <Emb src={myEmb} size={30} />
-          <b className="text-sm text-[#e8ecf2]">{me.name}</b>
-          <b className="font-display text-sm text-[#fbbf24]">{rec.w}승 {rec.l}패</b>
+          <b className="text-t3 text-[#e8ecf2]">{me.name}</b>
+          <b className="font-display text-t3 text-[#fbbf24]">{rec.w}승 {rec.l}패</b>
         </span>
       </div>
 
@@ -243,11 +243,11 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
             <>
               <b className="font-display text-[0.8rem] tracking-[0.3em] text-[#7c8797]">{myPos(gaunt)} → {myPos(gaunt) + 1} 칸 · 지금 상대</b>
               <span className="flex items-center gap-5">
-                <span className="grid justify-items-center gap-1.5"><Emb src={myEmb} size={104} /><b className="max-w-[7rem] truncate text-sm text-[#e8ecf2]">{me.name}</b></span>
-                <b className="font-display text-3xl text-[#7c8797]">VS</b>
+                <span className="grid justify-items-center gap-1.5"><Emb src={myEmb} size={104} /><b className="max-w-[7rem] truncate text-t3 text-[#e8ecf2]">{me.name}</b></span>
+                <b className="font-display text-t1 text-[#7c8797]">VS</b>
                 <span className="grid justify-items-center gap-1.5">
                   <Emb src={cur.key ? emblemOf(cur.key) : bannerEmblem(null)} size={104} />
-                  <b className="text-sm text-[#e8ecf2]">{cur.short}</b>
+                  <b className="text-t3 text-[#e8ecf2]">{cur.short}</b>
                 </span>
               </span>
               <span className="flex items-center gap-2.5">
@@ -275,13 +275,13 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack }) {
                   );
                 })}
               </span>
-              <button type="button" className="ui-btn ui-cut pri mt-1 min-h-[3.2rem] px-12 text-lg" style={{ '--c': '9px' }} onClick={onPlay}>경기 시작</button>
+              <button type="button" className="ui-btn ui-cut pri mt-1 min-h-[3.2rem] px-12 text-t2" style={{ '--c': '9px' }} onClick={onPlay}>경기 시작</button>
             </>
           ) : (
             <>
-              <b className="text-2xl font-black text-[#fbbf24]">탑 완주</b>
-              <p className="text-center text-sm text-[#b8c2ce]">탑 꼭대기에 올라섰다 · {rec.w}승 {rec.l}패</p>
-              <button type="button" className="ui-btn ui-cut pri mt-2 min-h-[3.2rem] px-12 text-lg" style={{ '--c': '9px' }} onClick={onBack}>정비로</button>
+              <b className="text-t1 font-black text-[#fbbf24]">탑 완주</b>
+              <p className="text-center text-t3 text-[#b8c2ce]">탑 꼭대기에 올라섰다 · {rec.w}승 {rec.l}패</p>
+              <button type="button" className="ui-btn ui-cut pri mt-2 min-h-[3.2rem] px-12 text-t2" style={{ '--c': '9px' }} onClick={onBack}>정비로</button>
             </>
           )}
         </div>

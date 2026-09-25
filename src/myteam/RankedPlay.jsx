@@ -22,7 +22,7 @@ function Intro() {
         <div className="flex flex-wrap items-center gap-2">
           {FLOW.map(([k], i) => (
             <React.Fragment key={k}>
-              <span className="ui-cut px-4 py-1.5 font-display text-[15px] font-bold"
+              <span className="ui-cut px-4 py-1.5 font-display text-t3 font-bold"
                 style={{ '--c': '6px', color: i === FLOW.length - 1 ? '#05080f' : '#e5e7eb', background: i === FLOW.length - 1 ? '#fbbf24' : 'rgba(255,255,255,.08)' }}>{k}</span>
               {i < FLOW.length - 1 && <span className="font-display text-gray-600">›</span>}
             </React.Fragment>
@@ -32,8 +32,8 @@ function Intro() {
           {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판 승부`], ['3', '랭크 승점', '최종 순위로 RP가 오르내림']].map(([n, t, d]) => (
             <div key={n} className="ui-cut px-4 py-3" style={{ '--c': '10px', background: 'rgba(255,255,255,.05)' }}>
               <span className="ui-chip font-display" style={{ '--a': RK }}>{n}</span>
-              <b className="mt-2 block text-xl font-black text-white">{t}</b>
-              <span className="text-sm text-gray-400">{d}</span>
+              <b className="mt-2 block text-t2 font-black text-white">{t}</b>
+              <span className="text-t3 text-gray-400">{d}</span>
             </div>
           ))}
         </div>
@@ -64,13 +64,13 @@ function teamParts(squad) {
 
 /** 최근 랭크전 10경기 — 승패 칸 한 줄 (성적은 제목 옆에) */
 function FormRow({ games }) {
-  if (!games.length) return <p className="text-sm text-gray-500">치른 랭크전 없음</p>;
+  if (!games.length) return <p className="text-t3 text-gray-500">치른 랭크전 없음</p>;
   return (
     <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
       {games.map((g, i) => {
         const [ko, c] = RESULT[g.winner] || RESULT.draw;
         return (
-          <span key={i} className="ui-cut py-1 text-center font-display text-[12px] font-extrabold"
+          <span key={i} className="ui-cut py-1 text-center font-display text-t4 font-extrabold"
             style={{ '--c': '4px', color: g.winner === 'my' ? '#05080f' : c, background: g.winner === 'my' ? c : 'rgba(255,255,255,.06)' }}>{ko}</span>
         );
       })}
@@ -107,7 +107,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': RK }}>{s ? `시즌 ${s.season}` : '새 시즌'}</p>
         <h1 className="mt-2 text-6xl font-black text-white">랭크전</h1>
-        <p className="mt-3 text-lg text-gray-300">정규 시즌 · 가을야구 성적으로 랭크 승점</p>
+        <p className="mt-3 text-t2 text-gray-300">정규 시즌 · 가을야구 성적으로 랭크 승점</p>
         {s ? (
           <div className="ui-cut mt-auto bg-[#05080f]/60 px-4 py-3" style={{ '--c': '12px' }}>
             <StandingsTable s={s} />
@@ -120,14 +120,14 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
       <p className="ui-lab font-display" style={{ '--a': RK }}>랭크 현황</p>
-      <h2 className="-mt-2 text-3xl font-black text-white">랭크전</h2>
+      <h2 className="-mt-2 text-t1 font-black text-white">랭크전</h2>
       <div className="ui-cut bg-white/[0.05] px-4 py-3" style={{ '--c': '10px' }}>
         <div className="flex items-baseline gap-2">
-          <b className="font-display text-2xl font-extrabold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</b>
-          <b className="ml-auto font-display text-xl text-white">{rp} RP</b>
+          <b className="font-display text-t1 font-extrabold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</b>
+          <b className="ml-auto font-display text-t2 text-white">{rp} RP</b>
         </div>
         <span className="mt-2 block h-1.5 bg-white/10"><i className="block h-full" style={{ width: `${rank.inDiv}%`, background: rank.tier.c }} /></span>
-        <div className="mt-2 flex justify-between font-display text-[12px] text-gray-500">
+        <div className="mt-2 flex justify-between font-display text-t4 text-gray-500">
           <span>{rank.next ? `다음 등급까지 ${rank.toNext} RP` : '최고 등급'}</span>
           <span>최고 {account.rank?.best || rp} RP</span>
         </div>
@@ -143,7 +143,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       {/* 최근 랭크전 흐름 — 성적은 제목 옆에 붙여 한 줄로 */}
       <div className="flex items-baseline gap-2">
         <p className="ui-lab font-display" style={{ '--a': RK }}>최근 {form.length || 10}경기</p>
-        {!!form.length && <span className="ml-auto font-display text-[12px] text-gray-400">{fw}승 {fd}무 {fl}패</span>}
+        {!!form.length && <span className="ml-auto font-display text-t4 text-gray-400">{fw}승 {fd}무 {fl}패</span>}
       </div>
       <FormRow games={form} />
       {!!form.length && <Stats items={[['승률', `${Math.round((fw / form.length) * 100)}%`], ['연승', streak]]} />}
@@ -157,34 +157,34 @@ export function rankedPanels({ account, onOpen, onLocker }) {
               v={`${h.rp >= 0 ? '+' : ''}${h.rp} RP`} color={h.rp >= 0 ? '#34d399' : '#f87171'} sm />
           ))}
         </div>
-      ) : <p className="text-sm text-gray-500">마친 시즌 없음</p>}
+      ) : <p className="text-t3 text-gray-500">마친 시즌 없음</p>}
 
       {/* 내 팀 전력 */}
       <p className="ui-lab font-display" style={{ '--a': RK }}>우리 팀</p>
       <div className="flex flex-col gap-2">
         {teamParts(squad).map(([k, v, c]) => (
-          <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '34px 1fr 28px' }}>
+          <div key={k} className="grid items-center gap-2.5 text-t3 text-gray-300" style={{ gridTemplateColumns: '34px 1fr 28px' }}>
             <span>{k}</span>
             <span className="relative bg-white/[0.07]" style={{ height: 7 }}>
               {/* 드래프트 선수 카드와 같은 막대: 낮으면 푸른 회색, 높을수록 그 부문 색으로 짙어진다 */}
               <i className="absolute inset-y-0 left-0" style={{ width: `${statPct(v)}%`, background: statColor(v, c).bar }} />
             </span>
-            <b className="text-right font-display text-[15px]" style={{ color: statColor(v, c).num }}>{v}</b>
+            <b className="text-right font-display text-t3" style={{ color: statColor(v, c).num }}>{v}</b>
           </div>
         ))}
       </div>
       {!ready && (
         <ul className="flex flex-col gap-1">
-          {issues.slice(0, 4).map((x) => <li key={x} className="text-sm text-amber-300">· {x}</li>)}
+          {issues.slice(0, 4).map((x) => <li key={x} className="text-t3 text-amber-300">· {x}</li>)}
         </ul>
       )}
       <CapBar team={team} sm />
       <div className="mt-auto">
         {ready || s
-          ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" style={{ '--a': RK }} onClick={onOpen}>
+          ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onOpen}>
             {!s ? '시즌 1 시작 ▶' : s.done ? '시즌 결과 · 새 시즌 ▶' : '순위표 · 다음 경기 ▶'}
           </button>
-          : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onLocker}>라커에서 채우기 ›</button>}
+          : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>}
       </div>
     </aside>
   );

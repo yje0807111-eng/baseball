@@ -18,7 +18,7 @@ function SlotPreview({ name, banner }) {
   return (
     <div className="mt-cut relative flex h-12 items-center overflow-hidden px-4" style={{ '--c': '7px', background: 'rgba(52,211,153,.16)', boxShadow: 'inset 0 0 0 1.5px #34d399' }}>
       {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
-      <b className="relative truncate text-lg font-black text-[#34d399]" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{name}</b>
+      <b className="relative truncate text-t2 font-black text-[#34d399]" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{name}</b>
     </div>
   );
 }
@@ -38,21 +38,21 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
       <div className="mt-cut mt-frame mt-glass flex w-[760px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
         <div className="flex items-baseline gap-3">
           <p className="mt-lab">프로필</p>
-          <b className="text-2xl font-black text-white">프로필</b>
-          <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-xl text-gray-400 hover:text-white" aria-label="닫기">×</button>
+          <b className="text-t1 font-black text-white">프로필</b>
+          <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-t2 text-gray-400 hover:text-white" aria-label="닫기">×</button>
         </div>
 
         <label className="flex flex-col gap-2">
-          <span className="font-display text-xs font-bold tracking-[0.24em] text-gray-400">이름</span>
+          <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">이름</span>
           <span className="flex items-center gap-3">
             <input value={nick} maxLength={NICK_MAX} onChange={(e) => setNick(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && save()}
-              className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-lg font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-            <span className="font-display text-sm text-gray-500">{nick.length}/{NICK_MAX}</span>
+              className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
+            <span className="font-display text-t3 text-gray-500">{nick.length}/{NICK_MAX}</span>
           </span>
         </label>
 
         <div className="flex flex-col gap-2">
-          <span className="font-display text-xs font-bold tracking-[0.24em] text-gray-400">배너</span>
+          <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">배너</span>
           <SlotPreview name={teamName} banner={banner} />
           <div className="mt-1 grid grid-cols-4 gap-2">
             {[{ key: null, label: '없음' }, ...BANNERS].map((b) => {
@@ -62,7 +62,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
                   className="mt-cut relative h-14 overflow-hidden text-left transition hover:brightness-125"
                   style={{ '--c': '6px', background: '#0b1220', boxShadow: on ? 'inset 0 0 0 2px #10b981' : `inset 0 0 0 1px ${b.color ? `${b.color}55` : 'rgba(255,255,255,.12)'}` }}>
                   {b.src && <i className="absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${b.src})`, opacity: 0.8, WebkitMaskImage: 'linear-gradient(90deg,transparent 5%,#000 60%)', maskImage: 'linear-gradient(90deg,transparent 5%,#000 60%)' }} />}
-                  <b className={`relative block px-3 text-sm ${on ? 'text-[#34d399]' : 'text-white'}`} style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{b.label}</b>
+                  <b className={`relative block px-3 text-t3 ${on ? 'text-[#34d399]' : 'text-white'}`} style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{b.label}</b>
                 </button>
               );
             })}
@@ -102,13 +102,13 @@ export default function ProfileBadge({ account, onSignOut }) {
         )}
         <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="relative -my-1 h-[60px] w-[60px] object-contain" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,.7))' }} />
         <span className="relative mr-3.5 leading-tight" style={{ textShadow: '0 1px 8px rgba(0,0,0,.85)' }}>
-          <b className="block whitespace-nowrap text-base font-extrabold text-white">{nick} <span className="font-semibold text-gray-300">감독</span></b>
-          <span className="whitespace-nowrap font-display text-[11px] font-bold tracking-[0.16em] text-gray-400">{r.tier.en} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
+          <b className="block whitespace-nowrap text-t3 font-extrabold text-white">{nick} <span className="font-semibold text-gray-300">감독</span></b>
+          <span className="whitespace-nowrap font-display text-t4 font-bold text-gray-400">{r.tier.ko} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
         </span>
         <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'polygon(8px 0,100% 0,100% 100%,0 100%,0 8px)' }}>
-          <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-xs font-extrabold text-[#7c2d12]"
+          <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
             style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
-          <b className="font-display text-[22px] font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+          <b className="font-display text-t2 font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
             {(account?.gold ?? 0).toLocaleString()}
           </b>
         </span>

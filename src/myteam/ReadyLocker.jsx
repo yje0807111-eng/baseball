@@ -60,11 +60,11 @@ function VersusBar({ sums, ovr, opponent }) {
     <div className="flex shrink-0 gap-1 pb-1.5">
       {cols.map(([ko, mine, them, a]) => (
         <div key={ko} className="mt-cut flex flex-1 flex-col items-center gap-[3px] py-1.5" style={{ ...cut(5), background: 'rgba(255,255,255,.04)' }}>
-          <span className="font-display text-[9.5px] tracking-[0.14em] text-gray-400">{ko}</span>
+          <span className="font-display text-t4 tracking-[0.14em] text-gray-400">{ko}</span>
           <span className="flex items-baseline gap-[3px] leading-none">
-            <b className="font-display text-[13px] font-extrabold" style={{ color: a }}>{mine}</b>
-            <small className="text-[8.5px] text-gray-600">vs</small>
-            <b className="font-display text-[12px] font-bold" style={{ color: c }}>{them}</b>
+            <b className="font-display text-t3 font-extrabold" style={{ color: a }}>{mine}</b>
+            <small className="text-t4 text-gray-600">vs</small>
+            <b className="font-display text-t4 font-bold" style={{ color: c }}>{them}</b>
           </span>
           <span className="flex h-[3px] w-full bg-white/[0.07]">
             <i style={{ width: `${(mine / (mine + them || 1)) * 100}%`, background: a }} />
@@ -97,7 +97,7 @@ function SynergyDockMini({ synergies = [] }) {
   return (
     <div ref={rootRef} className="relative" onMouseLeave={() => setHover(null)}>
       <div className="flex shrink-0 items-center gap-2 pb-1">
-        <b className="text-[12px] text-gray-300">시너지 {on.length}/{synergies.length}</b>
+        <b className="text-t4 text-gray-300">시너지 {on.length}/{synergies.length}</b>
         <span className="h-px flex-1 bg-white/10" />
       </div>
       <div className="flex shrink-0 gap-1.5">
@@ -106,18 +106,18 @@ function SynergyDockMini({ synergies = [] }) {
             style={{ opacity: s.active ? 1 : 0.5 }}
             onMouseEnter={(e) => show(s.id, e.currentTarget)}>
             <SynIcon s={s} w={36} />
-            <b className="w-full truncate text-center text-[10.5px] text-white">{s.name}</b>
-            <span className="font-display text-[10px]" style={{ color: TIER[tierOf(s)].bd }}>{s.cur}/{s.need}</span>
+            <b className="w-full truncate text-center text-t4 text-white">{s.name}</b>
+            <span className="font-display text-t4" style={{ color: TIER[tierOf(s)].bd }}>{s.cur}/{s.need}</span>
           </span>
         ))}
-        {!shown.length && <span className="text-[12px] text-gray-600">-</span>}
+        {!shown.length && <span className="text-t4 text-gray-600">-</span>}
       </div>
       {!!totals.length && (
         <div className="mt-1.5 grid shrink-0 gap-1" style={{ gridTemplateColumns: `repeat(${totals.length},minmax(0,1fr))` }}>
           {totals.map(([k, v]) => (
             <div key={k} className="mt-cut flex items-baseline justify-between px-2 py-1" style={{ ...cut(5), background: 'rgba(255,255,255,.04)' }}>
-              <span className="text-[11px] text-gray-400">{BONUS_KO[k] || k}</span>
-              <b className="font-display text-[14px]" style={{ color: A.bat }}>+{v}</b>
+              <span className="text-t4 text-gray-400">{BONUS_KO[k] || k}</span>
+              <b className="font-display text-t3" style={{ color: A.bat }}>+{v}</b>
             </div>
           ))}
         </div>
@@ -149,8 +149,8 @@ function ScoutPanel({ opponent, sums, myOvr }) {
       <p className="mt-lab" style={{ '--a': c }}>상대 분석</p>
       <div className="flex shrink-0 items-center gap-2.5">
         {opponent.emblem && <span className="block h-11 w-11 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${opponent.emblem})` }} />}
-        <b className="min-w-0 flex-1 truncate text-[17px] font-black text-white">{opponent.name}</b>
-        <b className="font-display text-[26px] font-extrabold leading-none" style={{ color: c }}>{ovr}</b>
+        <b className="min-w-0 flex-1 truncate text-t2 font-black text-white">{opponent.name}</b>
+        <b className="font-display text-t1 font-extrabold leading-none" style={{ color: c }}>{ovr}</b>
       </div>
 
       {ace && (
@@ -158,14 +158,14 @@ function ScoutPanel({ opponent, sums, myOvr }) {
           <span className="absolute inset-0 bg-cover" style={{ backgroundPosition: '60% 12%', backgroundImage: `url(cards/${encodeURIComponent(artId(ace.id))}.webp), url(profiles/${encodeURIComponent(artId(ace.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
           <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 22%,rgba(5,8,15,.45) 62%,rgba(5,8,15,0))' }} />
           <span className="absolute inset-y-2.5 left-3 flex flex-col justify-center">
-            <span className="font-display text-[10px] tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>
-            <b className="flex items-baseline gap-1.5 text-[19px] font-black leading-tight text-white">
+            <span className="font-display text-t4 tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>
+            <b className="flex items-baseline gap-1.5 text-t2 font-black leading-tight text-white">
               {ace.name}
-              {FORM_OF[ace.form]?.swing ? <em className="font-display text-[13px] font-extrabold not-italic" style={{ color: FORM_OF[ace.form].color }}>{FORM_OF[ace.form].mark} {FORM_OF[ace.form].ko}</em> : null}
+              {FORM_OF[ace.form]?.swing ? <em className="font-display text-t3 font-extrabold not-italic" style={{ color: FORM_OF[ace.form].color }}>{FORM_OF[ace.form].mark} {FORM_OF[ace.form].ko}</em> : null}
             </b>
             <span className="mt-0.5 flex items-baseline gap-1.5">
-              <b className="font-display text-[21px]" style={{ color: c }}>{ace.overall}</b>
-              <small className="text-[10.5px] text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</small>
+              <b className="font-display text-t2" style={{ color: c }}>{ace.overall}</b>
+              <small className="text-t4 text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</small>
             </span>
           </span>
         </div>
@@ -173,7 +173,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
       <div className="flex shrink-0 gap-1">
         {tags.map((x) => (
-          <span key={x.label} className="mt-cut min-w-0 flex-1 truncate px-1 py-[3px] text-center text-[10.5px] font-bold"
+          <span key={x.label} className="mt-cut min-w-0 flex-1 truncate px-1 py-[3px] text-center text-t4 font-bold"
             style={{ ...cut(4), color: x.c, background: `color-mix(in srgb,${x.c} 16%,transparent)`, boxShadow: `inset 0 0 0 1px ${x.c}55` }}>{x.label}</span>
         ))}
       </div>
@@ -183,7 +183,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
         {lineup.map((p, i) => {
           const d = danger.get(p.id);
           return (
-            <span key={p.id} className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap px-1 text-[10px] font-bold text-white"
+            <span key={p.id} className="absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap px-1 text-t4 font-bold text-white"
               style={{ left: `${SPOT[i][0]}%`, top: `${SPOT[i][1]}%`, background: 'rgba(5,8,15,.76)', boxShadow: `inset 0 -2px 0 ${d ? d.c : posColor(p)}${d ? `, 0 0 0 1px ${d.c}88` : ''}` }}>
               {p.name}<b className="ml-1 font-display" style={{ color: d ? d.c : c }}>{p.overall}</b>
             </span>
@@ -195,7 +195,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex shrink-0 items-center gap-2 pb-1">
-          <b className="text-[12px] text-gray-300">타순 {lineup.length}</b>
+          <b className="text-t4 text-gray-300">타순 {lineup.length}</b>
           <span className="h-px flex-1 bg-white/10" />
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-[3px]">
@@ -204,12 +204,12 @@ function ScoutPanel({ opponent, sums, myOvr }) {
             return (
               <div key={p.id} className="mt-cut flex flex-1 items-center gap-1.5 px-1.5"
                 style={{ ...cut(5), background: d ? `color-mix(in srgb,${d.c} 14%,transparent)` : 'rgba(255,255,255,.035)', boxShadow: d ? `inset 0 0 0 1px ${d.c}55` : 'none' }}>
-                <b className="w-3 text-center font-display text-[11px] text-gray-500">{i + 1}</b>
-                <span className="shrink-0 px-[4px] font-display text-[10.5px] font-extrabold leading-[15px] text-[#05080f]" style={{ background: posColor(p) }}>{p.position}</span>
-                <b className="min-w-0 flex-1 truncate text-[12.5px] text-white">{p.name}</b>
-                {FORM_OF[p.form]?.swing ? <b className="shrink-0 font-display text-[10px] font-extrabold" style={{ color: FORM_OF[p.form].color }} title={`오늘 ${FORM_OF[p.form].ko}`}>{FORM_OF[p.form].mark}</b> : null}
-                {d && <span className="font-display text-[10px]" style={{ color: d.c }}>{d.t}</span>}
-                <b className="font-display text-[13px]" style={{ color: c }}>{p.overall}</b>
+                <b className="w-3 text-center font-display text-t4 text-gray-500">{i + 1}</b>
+                <span className="shrink-0 px-[4px] font-display text-t4 font-extrabold leading-[15px] text-[#05080f]" style={{ background: posColor(p) }}>{p.position}</span>
+                <b className="min-w-0 flex-1 truncate text-t4 text-white">{p.name}</b>
+                {FORM_OF[p.form]?.swing ? <b className="shrink-0 font-display text-t4 font-extrabold" style={{ color: FORM_OF[p.form].color }} title={`오늘 ${FORM_OF[p.form].ko}`}>{FORM_OF[p.form].mark}</b> : null}
+                {d && <span className="font-display text-t4" style={{ color: d.c }}>{d.t}</span>}
+                <b className="font-display text-t3" style={{ color: c }}>{p.overall}</b>
               </div>
             );
           })}
@@ -226,16 +226,16 @@ function RosterPanel({ squad, cap }) {
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': A.main }}>
       <p className="mt-lab">선수 구성</p>
       <div className="flex items-baseline justify-between">
-        <h2 className="text-[24px] font-black text-white">내 엔트리</h2>
-        <span className="font-display"><b className="text-[17px] text-emerald-400">{squad.length}</b><small className="text-[13px] text-gray-500">/{cap}</small></span>
+        <h2 className="text-t1 font-black text-white">내 엔트리</h2>
+        <span className="font-display"><b className="text-t2 text-emerald-400">{squad.length}</b><small className="text-t3 text-gray-500">/{cap}</small></span>
       </div>
       <div className="grid grid-cols-2 gap-x-3">
         {POS.map(([key, label]) => {
           const n = squad.filter((p) => p.position === key).length;
           return (
             <div key={key} className="flex h-8 items-center justify-between border-b border-white/[0.07] px-[5px]">
-              <span className="text-[13px] text-gray-400">{label}</span>
-              <b className="font-display text-[16px]" style={{ color: n ? posColor({ position: key }) : '#6b7280' }}>{n}</b>
+              <span className="text-t3 text-gray-400">{label}</span>
+              <b className="font-display text-t2" style={{ color: n ? posColor({ position: key }) : '#6b7280' }}>{n}</b>
             </div>
           );
         })}
@@ -249,7 +249,7 @@ function CardBlock({ cards, value, onPick }) {
   return (
     <div className="flex shrink-0 flex-col gap-1.5">
       <div className="flex items-baseline gap-2">
-        <b className="text-[13px]" style={{ color: A.syn }}>준비 카드</b>
+        <b className="text-t3" style={{ color: A.syn }}>준비 카드</b>
         <span className="h-px flex-1 bg-white/10" />
       </div>
       <div className="grid grid-cols-3 gap-1.5">
@@ -261,10 +261,10 @@ function CardBlock({ cards, value, onPick }) {
               style={{ ...cut(5), background: on ? 'color-mix(in srgb,#fbbf24 20%,transparent)' : 'rgba(255,255,255,.04)',
                 boxShadow: `inset 0 0 0 ${on ? 2 : 1}px ${on ? '#fbbf24' : 'rgba(255,255,255,.09)'}` }}>
               <span className="flex items-baseline justify-between gap-1">
-                <b className="truncate text-[12.5px]" style={{ color: on ? '#fff' : '#cbd5e1' }}>{c.name}</b>
-                <small className="shrink-0 font-display text-[11px] text-gray-400">{c.n}장</small>
+                <b className="truncate text-t4" style={{ color: on ? '#fff' : '#cbd5e1' }}>{c.name}</b>
+                <small className="shrink-0 font-display text-t4 text-gray-400">{c.n}장</small>
               </span>
-              <small className="truncate text-[10px] text-gray-500">{c.effect}</small>
+              <small className="truncate text-t4 text-gray-500">{c.effect}</small>
             </button>
           );
         })}
@@ -284,7 +284,7 @@ function SideBlock({ sides, onPick, opponent }) {
         return (
           <div key={g.key} className="flex shrink-0 flex-col gap-1.5">
             <div className="flex items-baseline gap-2">
-              <b className="text-[13px]" style={{ color: g.color }}>{g.ko}</b>
+              <b className="text-t3" style={{ color: g.color }}>{g.ko}</b>
               <span className="h-px flex-1 bg-white/10" />
             </div>
 
@@ -298,10 +298,10 @@ function SideBlock({ sides, onPick, opponent }) {
                     style={{ ...cut(5), background: pick ? `color-mix(in srgb,${g.color} 20%,transparent)` : 'rgba(255,255,255,.04)',
                       boxShadow: `inset 0 0 0 ${pick ? 2 : 1}px ${pick ? g.color : 'rgba(255,255,255,.09)'}` }}>
                     <span className="flex items-center gap-1">
-                      <b className="text-[13px]" style={{ color: pick ? '#fff' : '#cbd5e1' }}>{o.ko}</b>
-                      {!!why.length && <b className="text-[9.5px]" style={{ color: A.syn }}>★</b>}
+                      <b className="text-t3" style={{ color: pick ? '#fff' : '#cbd5e1' }}>{o.ko}</b>
+                      {!!why.length && <b className="text-t4" style={{ color: A.syn }}>★</b>}
                     </span>
-                    <small className="truncate text-[10px] text-gray-500">{why.length ? why[0].label : o.tip}</small>
+                    <small className="truncate text-t4 text-gray-500">{why.length ? why[0].label : o.tip}</small>
                   </button>
                 );
               })}
@@ -321,19 +321,19 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
       <div className="flex shrink-0 items-baseline gap-2.5">
         <p className="mt-lab">경기 준비</p>
         <span className="ml-auto flex items-baseline gap-1.5">
-          <small className="text-[11px] text-gray-500">팀 종합</small>
-          <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: A.syn }}>{team.ovr}</b>
+          <small className="text-t4 text-gray-500">팀 종합</small>
+          <b className="font-display text-t1 font-extrabold leading-none" style={{ color: A.syn }}>{team.ovr}</b>
         </span>
       </div>
       {!!autoFilled && (
-        <div className="mt-cut flex shrink-0 items-baseline justify-between px-3 py-1.5 text-[12px]" style={{ ...cut(8), background: 'rgba(255,255,255,.04)' }}>
-          <span className="text-gray-400">퓨처스 유망주</span><b className="font-display text-[14px] text-[#fcd34d]">{autoFilled}명</b>
+        <div className="mt-cut flex shrink-0 items-baseline justify-between px-3 py-1.5 text-t4" style={{ ...cut(8), background: 'rgba(255,255,255,.04)' }}>
+          <span className="text-gray-400">퓨처스 유망주</span><b className="font-display text-t3 text-[#fcd34d]">{autoFilled}명</b>
         </div>
       )}
       {children}
       <div className="mt-auto flex shrink-0 flex-col gap-2">
         {startBlock && (
-          <p className="mt-cut px-3 py-2 text-center text-[12.5px] font-bold text-[#f87171]"
+          <p className="mt-cut px-3 py-2 text-center text-t4 font-bold text-[#f87171]"
             style={{ ...cut(8), background: 'rgba(248,113,113,.12)', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.45)' }}>{startBlock}</p>
         )}
         <Btn lg pri a={A.main} disabled={!!startBlock} style={{ ...cut(12), minHeight: '3.4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>

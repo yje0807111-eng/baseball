@@ -26,8 +26,8 @@ function OppPreview({ opp }) {
     <>
       <div className="flex items-center gap-2.5">
         {opp.emblem && <span className="block h-9 w-9 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(ui/clubs/${opp.emblem}.webp)` }} />}
-        <b className="min-w-0 flex-1 truncate text-xl font-black text-white">{opp.name}</b>
-        <b className="font-display text-2xl" style={{ color: G }}>{opp.ovr}</b>
+        <b className="min-w-0 flex-1 truncate text-t2 font-black text-white">{opp.name}</b>
+        <b className="font-display text-t1" style={{ color: G }}>{opp.ovr}</b>
       </div>
       <Stats items={opp.parts} />
       {opp.starter && (
@@ -41,14 +41,14 @@ function OppPreview({ opp }) {
 
 /** 최근 5경기 — 승패 칸 한 줄 + 상대 · 점수 줄 */
 function RecentGames({ games }) {
-  if (!games.length) return <p className="text-sm text-gray-500">치른 경기 없음</p>;
+  if (!games.length) return <p className="text-t3 text-gray-500">치른 경기 없음</p>;
   return (
     <>
       <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
         {games.map((g, i) => {
           const [ko, c] = RESULT[g.winner] || RESULT.draw;
           return (
-            <span key={i} className="ui-cut py-1.5 text-center font-display text-base font-extrabold"
+            <span key={i} className="ui-cut py-1.5 text-center font-display text-t3 font-extrabold"
               style={{ '--c': '6px', color: g.winner === 'my' ? '#05080f' : c, background: g.winner === 'my' ? c : 'rgba(255,255,255,.06)' }}>{ko}</span>
           );
         })}
@@ -108,7 +108,7 @@ export function FormatPicker({ value, onChange, a = G }) {
         const on = value === f;
         return (
           <button key={f} type="button" role="radio" aria-checked={on} onClick={() => onChange(f)}
-            className={`ui-cut py-2 text-center font-display text-lg font-extrabold ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+            className={`ui-cut py-2 text-center font-display text-t2 font-extrabold ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
             style={{ '--c': '7px', background: on ? (f === 'single' ? a : A) : undefined }}>
             {FORMAT_LABEL[f]}
           </button>
@@ -129,7 +129,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
         <div className="absolute bottom-6 left-7">
           <p className="ui-lab font-display">다음 경기</p>
           <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> {oppName || '무작위 팀'}</p>
-          <p className="mt-2 font-display text-lg" style={{ color: ready ? G : '#fde047' }}>
+          <p className="mt-2 font-display text-t2" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
           <CapBar team={team} sm className="mt-3 w-[260px]" />
@@ -137,7 +137,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
       </div>
       <div className="flex items-baseline gap-3 pt-4">
         <p className="ui-lab font-display">주전 선수</p>
-        <p className="text-sm text-gray-400">{squad.length} / {SQUAD_SIZE} · 종합 상위 8명</p>
+        <p className="text-t3 text-gray-400">{squad.length} / {SQUAD_SIZE} · 종합 상위 8명</p>
         <Btn sm className="ml-auto" onClick={onLocker}>내 라커 ›</Btn>
       </div>
       <div className="mt-2 grid h-40 shrink-0 grid-cols-8 gap-2">
@@ -147,14 +147,14 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
             <div key={p.id} className="ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover"
               style={{ '--c': '10px', backgroundImage: `url(cards/${encodeURIComponent(artId(p.id))}.webp), url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundPosition: '60% 18%' }}>
               <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.4),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 70%)' }} />
-              <span className="absolute left-2 top-1 font-display text-2xl font-extrabold" style={{ color: c, textShadow: `0 0 12px ${c}88` }}>{p.overall}</span>
-              <span className="ui-cut absolute right-2 top-2 px-1.5 font-display text-[10px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: c }}>{p.position}</span>
-              <b className="absolute bottom-1.5 left-2 right-2 truncate text-sm text-white">{p.name}</b>
+              <span className="absolute left-2 top-1 font-display text-t1 font-extrabold" style={{ color: c, textShadow: `0 0 12px ${c}88` }}>{p.overall}</span>
+              <span className="ui-cut absolute right-2 top-2 px-1.5 font-display text-t4 font-extrabold text-[#05080f]" style={{ '--c': '4px', background: c }}>{p.position}</span>
+              <b className="absolute bottom-1.5 left-2 right-2 truncate text-t3 text-white">{p.name}</b>
             </div>
           );
         })}
         {Array.from({ length: Math.max(0, 8 - top.length) }, (_, i) => (
-          <button key={`e${i}`} type="button" onClick={onLocker} className="ui-cut grid place-items-center bg-white/[0.03] text-xs text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '10px' }}>+ 영입</button>
+          <button key={`e${i}`} type="button" onClick={onLocker} className="ui-cut grid place-items-center bg-white/[0.03] text-t4 text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '10px' }}>+ 영입</button>
         ))}
       </div>
     </section>
@@ -176,16 +176,16 @@ export function TourneyHero({ size, t, name, squad, cup = 'open' }) {
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': A }}>{size}강 토너먼트</p>
         <div className="mt-auto text-center">
-          <p className="font-display text-xs font-bold tracking-[0.4em]" style={{ color: A }}>우승까지</p>
+          <p className="font-display text-t4 font-bold tracking-[0.4em]" style={{ color: A }}>우승까지</p>
           <h1 className="mt-2 text-6xl font-black leading-none text-white">{size}강 토너먼트</h1>
-          <p className="mt-3 text-lg text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
+          <p className="mt-3 text-t2 text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
           <div className="mt-5 flex items-center justify-center gap-2">
             {rounds.map((r, k) => {
               const done = now > k;
               const here = now === k;
               return (
                 <React.Fragment key={r.key}>
-                  <span className="ui-cut px-4 py-1.5 font-display text-[15px] font-bold" style={{ '--c': '6px',
+                  <span className="ui-cut px-4 py-1.5 font-display text-t3 font-bold" style={{ '--c': '6px',
                     color: here || (k === n - 1 && now < 0) ? '#05080f' : done ? '#05080f' : '#e5e7eb',
                     background: here ? A : done ? 'rgba(251,191,36,.55)' : k === n - 1 && now < 0 ? A : 'rgba(255,255,255,.08)' }}>{r.ko}</span>
                   {k < n - 1 && <span className="font-display text-gray-600">›</span>}
@@ -193,13 +193,13 @@ export function TourneyHero({ size, t, name, squad, cup = 'open' }) {
               );
             })}
           </div>
-          <p className="mt-3 font-display text-base text-gray-400">우승 상금 <b style={{ color: A }}>{finish[n].gold} G</b></p>
+          <p className="mt-3 font-display text-t3 text-gray-400">우승 상금 <b style={{ color: A }}>{finish[n].gold} G</b></p>
         </div>
         {squad && (
           <div className="ui-cut mt-auto flex items-center gap-5 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
             <span className="ui-lab font-display" style={{ '--a': '#34d399' }}>우리 팀</span>
-            <b className="text-xl text-white">{name}</b>
-            <span className="text-gray-400">팀 종합 <b className="font-display text-xl text-white">{teamStats(squad).ovr || '-'}</b></span>
+            <b className="text-t2 text-white">{name}</b>
+            <span className="text-gray-400">팀 종합 <b className="font-display text-t2 text-white">{teamStats(squad).ovr || '-'}</b></span>
             <span className="ml-auto flex gap-1.5">
               {top.map((p) => (
                 <span key={p.id} title={`${p.name} ${p.overall}`} className="ui-cut h-12 w-9 bg-[#0b1220] bg-cover"
@@ -225,9 +225,9 @@ function CupPicker({ value, onChange }) {
         const on = value === c.id;
         return (
           <button key={c.id} type="button" role="radio" aria-checked={on} onClick={() => onChange?.(c.id)}
-            className={`ui-cut flex items-baseline justify-between px-3 py-1.5 text-left text-[13px] font-bold ${c.id === 'open' ? 'col-span-2' : ''} ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-300 hover:text-white'}`}
+            className={`ui-cut flex items-baseline justify-between px-3 py-1.5 text-left text-t3 font-bold ${c.id === 'open' ? 'col-span-2' : ''} ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-300 hover:text-white'}`}
             style={{ '--c': '6px', background: on ? A : undefined }}>
-            <span>{c.ko}</span>{c.mult > 1 && <small className="font-display text-[12px]">×{c.mult}</small>}
+            <span>{c.ko}</span>{c.mult > 1 && <small className="font-display text-t4">×{c.mult}</small>}
           </button>
         );
       })}
@@ -264,7 +264,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
       ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
       <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? '단판 승부' : `${format}강 토너먼트`}</p>
-      <h2 className="-mt-2 text-3xl font-black text-white">일반 대결</h2>
+      <h2 className="-mt-2 text-t1 font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
         <>
@@ -291,8 +291,8 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
               <p className="ui-lab font-display" style={{ '--a': A }}>대회 조건</p>
               <CupPicker value={cup} onChange={onCup} />
               <div className="ui-cut shrink-0 px-4 py-3" style={{ '--c': '10px', background: `linear-gradient(90deg,${A}1f,rgba(255,255,255,.03))` }}>
-                <p className="text-[11px] text-gray-400">우승 상금</p>
-                <b className="font-display text-3xl" style={{ color: A }}>{fin[rounds.length].gold} G</b>
+                <p className="text-t4 text-gray-400">우승 상금</p>
+                <b className="font-display text-t1" style={{ color: A }}>{fin[rounds.length].gold} G</b>
               </div>
               <p className="ui-lab font-display" style={{ '--a': A }}>라운드 보상</p>
               {/* 라운드가 다섯 이상이면(32 · 64강) 줄을 촘촘하게 해 스크롤 없이 담는다 */}
@@ -308,27 +308,27 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
               </div>
             </>
           )}
-          {cupWhy && <p className="text-sm text-amber-300">· 조건 불충족 — {cupWhy}</p>}
-          {other && <p className="text-sm text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
+          {cupWhy && <p className="text-t3 text-amber-300">· 조건 불충족 — {cupWhy}</p>}
+          {other && <p className="text-t3 text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
         </>
       )}
       {!ready && (
         <ul className="flex flex-col gap-1">
-          {issues.slice(0, 4).map((x) => <li key={x} className="text-sm text-amber-300">· {x}</li>)}
+          {issues.slice(0, 4).map((x) => <li key={x} className="text-t3 text-amber-300">· {x}</li>)}
         </ul>
       )}
       <CapBar team={team} sm />
       <div className="mt-auto flex flex-col gap-2">
-        {!ready ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onLocker}>라커에서 채우기 ›</button>
-          : single ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" onClick={onPlay}>경기 시작 ▶</button>
+        {!ready ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>
+          : single ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>경기 시작 ▶</button>
             : t ? (
               <>
-                <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={() => onTourney(format, false)}>
+                <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, false)}>
                   {t.done ? '결과 · 보상 받기 ▶' : `${rounds[t.round].ko} 대진표로 ▶`}
                 </button>
-                {!t.done && <button type="button" className="ui-btn ui-cut w-full py-2 text-sm" onClick={() => onTourney(format, true)}>새 대진으로 다시 시작</button>}
+                {!t.done && <button type="button" className="ui-btn ui-cut w-full py-2 text-t3" onClick={() => onTourney(format, true)}>새 대진으로 다시 시작</button>}
               </>
-            ) : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-lg" style={{ '--a': A }} onClick={() => onTourney(format, true)}>{format}강 시작 ▶</button>}
+            ) : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, true)}>{format}강 시작 ▶</button>}
       </div>
     </aside>
   );

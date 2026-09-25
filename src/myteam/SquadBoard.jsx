@@ -27,13 +27,13 @@ const Lower = ({ p, c, ovr, sub }) => (
   <span className="flex items-center">
     <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
     <span className="-ml-[5px] block">
-      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-[13px] font-extrabold text-white">{p.name}</b><FormMark p={p} size={10} /></span>
-      <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-[11px] font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
+      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-t3 font-extrabold text-white">{p.name}</b><FormMark p={p} size={12} /></span>
+      <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-t4 font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
     </span>
   </span>
 );
 /** 오늘 몸 상태 표식 — 보통이면 띄우지 않는다 */
-const FormMark = ({ p, size = 11 }) => {
+const FormMark = ({ p, size = 12 }) => {
   const f = FORM_OF[p?.form];
   if (!f || !f.swing) return null;
   return <small className="shrink-0 font-display font-extrabold leading-none" style={{ fontSize: size, color: f.color }} title={`오늘 ${f.ko}`}>{f.mark}</small>;
@@ -136,9 +136,9 @@ export function autoArrange(squad, bench = [], fatigue = {}) {
 const face = (p, w, h) => (
   <span className="mt-cut block shrink-0 bg-[#0b1220] bg-cover" style={{ '--c': `${Math.max(4, Math.round(w / 8))}px`, width: w, height: h, backgroundPosition: 'center 12%', backgroundImage: `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` }} />
 );
-const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-[12px] font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
+const Chip = ({ children, c }) => <span className="shrink-0 px-[5px] font-display text-t4 font-extrabold leading-[17px] text-[#05080f]" style={{ background: c }}>{children}</span>;
 /** 종합: 영입 목록과 같은 등급 색 — 90 이상 무지개 · 75 이상 초록 · 그 밖 흰색 (st-v 는 라커 화면 스타일) */
-const Ovr = ({ p, size = 17, v = p.overall }) => <b className={`st-v ${v >= 100 ? 't90' : v >= 85 ? 't75' : ''} font-display font-extrabold leading-none`} style={{ fontSize: size }}>{v}</b>;
+const Ovr = ({ p, size = 18, v = p.overall }) => <b className={`st-v ${v >= 100 ? 't90' : v >= 85 ? 't75' : ''} font-display font-extrabold leading-none`} style={{ fontSize: size }}>{v}</b>;
 /** 이름 칸 두 줄: 위 이름 · 포지션(구단색) · 투타 / 아래 시즌 기록 가로 */
 const recCells = (p) => {
   const r = seasonRecord(p);
@@ -153,12 +153,12 @@ const NameBlock = ({ p, pos = p.position, size = 14 }) => {
       <span className="flex min-w-0 items-baseline gap-1.5">
         <b className="truncate font-extrabold text-white" style={{ fontSize: size }}>{p.name}</b>
         <FormMark p={p} />
-        <small className="shrink-0 font-display text-[10.5px] font-bold tracking-[0.1em]" style={{ color: teamNeon(p) }}>{pos}</small>
-        <small className="shrink-0 text-[10.5px] font-semibold" style={{ color: h.color }}>{h.long}</small>
+        <small className="shrink-0 font-display text-t4 font-bold tracking-[0.1em]" style={{ color: teamNeon(p) }}>{pos}</small>
+        <small className="shrink-0 text-t4 font-semibold" style={{ color: h.color }}>{h.long}</small>
       </span>
-      <span className="flex gap-2.5 font-display text-[13px]">
+      <span className="flex gap-2.5 font-display text-t3">
         {recCells(p).map(([l, v]) => (
-          <span key={l} className="whitespace-nowrap"><small className="text-[10px] text-gray-400">{l} </small><b className={`tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></span>
+          <span key={l} className="whitespace-nowrap"><small className="text-t4 text-gray-400">{l} </small><b className={`tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></span>
         ))}
       </span>
     </span>
@@ -166,8 +166,8 @@ const NameBlock = ({ p, pos = p.position, size = 14 }) => {
 };
 const Grp = ({ en, ko, color, right }) => (
   <div className="mt-grp !my-0 !mb-[5px]" style={{ color }}>
-    {en} <b className="text-[14px] tracking-[0.04em] text-white">{ko}</b>
-    {right && <span className="order-last ml-1 font-display text-[11px] tracking-[0.1em] text-gray-500">{right}</span>}
+    <b className="text-t3 tracking-[0.04em] text-white">{ko}</b>
+    {right && <span className="order-last ml-1 font-display text-t4 tracking-[0.1em] text-gray-500">{right}</span>}
   </div>
 );
 /* 선 자리 기준 실전 수치: 드래프트와 같은 포지션 이탈 감소(비슷한 자리 3 · 같은 계열 6 · 포수 8, 지명타자 0) */
@@ -179,18 +179,18 @@ const effAt = (p, slot) => {
   return { ovr: Math.max(30, p.overall - pen), stats: Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, Math.max(30, v - pen)])), pen };
 };
 /** 놓기 전 미리보기: 77 → 71 (오르면 초록 · 조금 내리면 노랑 · 많이 내리면 빨강) */
-const Delta = ({ before, after, size = 17 }) => {
+const Delta = ({ before, after, size = 18 }) => {
   const dv = after - before;
   const c = dv > 0 ? '#34d399' : dv > -8 ? '#fbbf24' : '#f87171';
   return (
     <span className="flex shrink-0 items-baseline gap-[3px] whitespace-nowrap font-display font-bold leading-none">
-      <s className="text-slate-400" style={{ fontSize: size * 0.62, textDecorationThickness: 2 }}>{before}</s>
-      <i className="not-italic text-sky-300" style={{ fontSize: size * 0.5 }}>→</i>
+      <s className="text-slate-400" style={{ fontSize: 12, textDecorationThickness: 2 }}>{before}</s>
+      <i className="not-italic text-sky-300" style={{ fontSize: 12 }}>→</i>
       <em className="not-italic" style={{ fontSize: size, color: c, textShadow: `0 0 10px ${c}66` }}>{after}</em>
     </span>
   );
 };
-const Handle = () => <span className="cursor-grab select-none text-[14px] tracking-[-2px] text-slate-600" aria-hidden="true">⋮⋮</span>;
+const Handle = () => <span className="cursor-grab select-none text-t3 tracking-[-2px] text-slate-600" aria-hidden="true">⋮⋮</span>;
 
 /**
  * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
@@ -421,8 +421,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const inFx = (id) => (justIn === id ? { animation: 'sb-in .7s ease-out' } : null);
   const benchFace = (p) => (<>
     <span className="w-[22px] text-center"><Ovr p={p} size={14} /></span>
-    <b className="min-w-0 flex-1 truncate text-[12.5px] text-white">{p.name}</b>
-    <small className="font-display text-[11px] font-bold" style={{ color: teamNeon(p) }}>{p.position}</small>
+    <b className="min-w-0 flex-1 truncate text-t4 text-white">{p.name}</b>
+    <small className="font-display text-t4 font-bold" style={{ color: teamNeon(p) }}>{p.position}</small>
   </>);
   const lifted = { boxShadow: 'inset 0 0 0 2px #e5e7eb, 0 10px 24px -8px rgba(0,0,0,.9)', background: 'linear-gradient(90deg,#26303f,#161d2a)', zIndex: 5 };
   const rowBg = (hot) => (hot
@@ -461,13 +461,13 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         <span className="absolute inset-0 bg-no-repeat"
           style={{ backgroundImage: `url(profiles/${encodeURIComponent(artId(x.p.id))}.webp), url(ui/mt/silhouette-player.webp)`, backgroundSize: '76px auto', backgroundPosition: 'center 2px',
             maskImage: FADE, WebkitMaskImage: FADE, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }} />
-        <b className="absolute left-1.5 top-0.5 font-display text-[26px] font-extrabold leading-tight text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
-        <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={15} /></span>
+        <b className="absolute left-1.5 top-0.5 font-display text-t1 font-extrabold leading-tight text-white" style={{ textShadow: '0 2px 6px #000' }}>{pos + 1}</b>
+        <span className="absolute right-1.5 top-1 bg-[rgba(5,8,15,.7)] px-[3px]"><Ovr p={x.p} v={after.ovr} size={14} /></span>
         <span className="absolute inset-x-[7px] bottom-[7px] leading-tight">
-          <b className="block truncate text-[12.5px] font-extrabold text-white">{x.p.name}</b>
+          <b className="block truncate text-t4 font-extrabold text-white">{x.p.name}</b>
           <span className="mt-0.5 flex items-baseline gap-2 font-display leading-none">
-            <span><b className="text-[15px] font-bold text-white">{r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}</b><small className="ml-0.5 text-[9.5px] font-semibold text-slate-400">AVG</small></span>
-            <span><b className="text-[15px] font-bold text-white">{r.hr ?? '-'}</b><small className="ml-0.5 text-[9.5px] font-semibold text-slate-400">HR</small></span>
+            <span><b className="text-t3 font-bold text-white">{r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">AVG</small></span>
+            <span><b className="text-t3 font-bold text-white">{r.hr ?? '-'}</b><small className="ml-0.5 text-t4 font-semibold text-slate-400">HR</small></span>
           </span>
         </span>
       </div>
@@ -494,14 +494,14 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         style={{ '--c': '7px', ...place(pos, h, pitch, dragging, 'y', topOf),
           ...(next ? { background: 'linear-gradient(90deg,#16263f,#0b111c)', boxShadow: 'inset 3px 0 0 #60a5fa, inset 0 0 0 1px rgba(96,165,250,.35)' } : rowBg(on && tone(p.overall))), ...(dragging ? lifted : null), ...(benchHit(p.id) ? hitGlow : null), ...inFx(p.id) }}>
         <Handle />
-        <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-[11.5px] font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
+        <b className="w-[32px] shrink-0 px-0.5 text-center font-display text-t4 font-extrabold text-[#05080f]" style={{ background: color }}>{label}</b>
         <span className={`shrink-0 text-center ${was.ovr !== eff.ovr ? '' : 'w-[26px]'}`}>
-          {was.ovr !== eff.ovr ? <Delta before={was.ovr} after={eff.ovr} size={15} /> : <Ovr p={p} v={eff.ovr} size={18} />}
+          {was.ovr !== eff.ovr ? <Delta before={was.ovr} after={eff.ovr} size={14} /> : <Ovr p={p} v={eff.ovr} size={18} />}
         </span>
-        <NameBlock p={p} size={13.5} />
-        {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-[10.5px] tracking-[0.06em] text-[#05080f]">NEXT</b>}
+        <NameBlock p={p} size={14} />
+        {next && <b className="shrink-0 bg-[#60a5fa] px-[4px] font-display text-t4 text-[#05080f]">다음</b>}
         <span className="pointer-events-none absolute bottom-[3px] left-[9px] right-[9px] h-[2px] bg-white/[0.06]" title={`컨디션 ${c}%`}><i className="absolute inset-y-0 left-0" style={{ width: `${c}%`, background: condColor(c) }} /></span>
-        {rest > 0 && <b className="pointer-events-none absolute right-[6px] top-[2px] font-display text-[10.5px]" style={{ color: condColor(c) }}>-{rest}</b>}
+        {rest > 0 && <b className="pointer-events-none absolute right-[6px] top-[2px] font-display text-t4" style={{ color: condColor(c) }}>-{rest}</b>}
       </div>
     );
   };
@@ -528,7 +528,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           transition: dragging && !snapped ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), top .16s cubic-bezier(.2,.8,.2,1), transform .16s cubic-bezier(.2,.8,.2,1)',
           filter: glow, ...inFx(x.id) }}>
         <Lower p={x.p} c={teamNeon(x.p)} sub={`${shownSlot} · AVG ${r.avg != null ? r.avg.toFixed(3).slice(1) : '-'}`}
-          ovr={previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={16} /> : <Ovr p={x.p} v={after.ovr} size={16} />} />
+          ovr={previewing(x.id) ? <Delta before={before.ovr} after={after.ovr} size={18} /> : <Ovr p={x.p} v={after.ovr} size={18} />} />
       </div>
     );
   };
@@ -567,7 +567,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
       )}
       <div className="flex items-baseline gap-3">
         <p className="mt-lab">선수 배치</p>
-        {fire && <span className="font-display text-[12px] tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
+        {fire && <span className="font-display text-t4 tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
         <div className="ml-auto flex gap-2">
           {onRelease && (
             <Btn sm a="#f87171" onClick={() => setFire((v) => !v)} disabled={!squad.length}
@@ -578,7 +578,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>
       </div>
 
-      {squad.length === 0 ? <p className="mt-4 text-sm text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
+      {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
         <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: `minmax(0,1fr) ${railW}px` }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">
@@ -593,7 +593,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
                       /* 야수를 끄는 동안에는 바꿀 수 없는 자리라 회색으로 */
                       opacity: movingFielder ? 0.45 : 1,
                       filter: movingFielder ? 'grayscale(1) brightness(.7)' : `drop-shadow(0 0 1.5px ${ROLE.SP}) drop-shadow(0 0 8px ${ROLE.SP}88)` }}>
-                    <Lower p={nextStarter} c={ROLE.SP} ovr={<Ovr p={nextStarter} size={16} />}
+                    <Lower p={nextStarter} c={ROLE.SP} ovr={<Ovr p={nextStarter} size={18} />}
                       sub={`SP · ERA ${r.era != null ? r.era.toFixed(2) : '-'}${r.k != null ? ` · ${r.k}K` : ''}`} />
                   </div>
                 );
@@ -623,7 +623,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <div className="h-1.5 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
             <div className={`mt-scroll slim grid max-h-[64px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
-              {benchList.length === 0 && <span className="text-sm text-gray-500">-</span>}
+              {benchList.length === 0 && <span className="text-t3 text-gray-500">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
                   className={`mt-cut flex h-[30px] shrink-0 touch-none select-none items-center gap-1.5 px-2 ${drag?.list === 'bench' && drag.id === p.id ? 'cursor-grabbing opacity-35' : 'cursor-grab'}`}

@@ -1294,7 +1294,7 @@ export const KEYFRAMES = `
 .lf-in > * { pointer-events: auto; }
 .lf-k { position: absolute; left: 24px; right: 24px; top: 14px; bottom: 20px; transform-origin: 50% 100%; transition: transform .09s ease-in; }
 .lf-k::before { content: ""; position: absolute; left: 10%; right: 10%; bottom: -16px; height: 12px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.72), transparent); opacity: 0; transition: opacity .09s; pointer-events: none; }
-.lf-chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); transition: background .09s, color .09s; }
+.lf-chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); transition: background .09s, color .09s; }
 .lf-bar { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: rgba(15,23,42,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); transition: background .09s, box-shadow .09s; }
 .lf-bar::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 10px var(--n); }
 .lf-bp { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
@@ -1302,9 +1302,9 @@ export const KEYFRAMES = `
 .lf-ph { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: inset 0 1px 0 rgba(148,163,184,.3); -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); transition: background .09s; }
 .lf-ph::before { content: ""; position: absolute; left: 50%; top: 44%; width: 30px; height: 33px; transform: translate(-50%, -50%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") center / contain no-repeat; opacity: .5; }
 .lf-bx { min-width: 0; flex: 1; line-height: 1.25; }
-.lf-bx b { display: block; font-size: 15px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lf-bx small { display: block; font-size: 11px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lf-ov { font-size: 29px; font-weight: 700; line-height: 1; color: var(--n); text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
+.lf-bx b { display: block; font-size:14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-bx small { display: block; font-size:12px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-ov { font-size:28px; font-weight: 700; line-height: 1; color: var(--n); text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
 .lf-ov.up { color: #34d399; text-shadow: 0 0 12px rgba(52,211,153,.6); }
 .lf-tok.empty .lf-bar { background: rgba(10,15,26,.5); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
 .lf-tok.empty .lf-bar::after { background: linear-gradient(90deg, transparent, rgba(148,163,184,.3) 30%, rgba(148,163,184,.3) 70%, transparent); box-shadow: none; }
@@ -1341,9 +1341,9 @@ export const KEYFRAMES = `
 .lf-pv .lf-ov { color: #fff; text-shadow: 0 0 10px rgba(56,189,248,.8); }
 /* 놓기 전 수치 변화: 원래 수치(취소선) → 놓았을 때 수치 · 줄면 노랑, −8 이상 빨강, 오르면 초록 */
 .lf-ovx { display: flex; align-items: baseline; gap: 3px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; white-space: nowrap; }
-.lf-ovx s { font-size: 16px; color: #94a3b8; text-decoration-thickness: 2px; }
-.lf-ovx i { font-style: normal; font-size: 13px; color: #7dd3fc; }
-.lf-ovx em { font-style: normal; font-size: 29px; color: #fff; }
+.lf-ovx s { font-size:18px; color: #94a3b8; text-decoration-thickness: 2px; }
+.lf-ovx i { font-style: normal; font-size:14px; color: #7dd3fc; }
+.lf-ovx em { font-style: normal; font-size:28px; color: #fff; }
 .lf-ovx.up em { color: #34d399; }
 .lf-ovx.dn em { color: #fbbf24; }
 .lf-ovx.dn2 em { color: #f87171; }
@@ -1351,20 +1351,20 @@ export const KEYFRAMES = `
 /* 시너지 도크 아래 예비 여섯: 두 줄 세 칸씩 미니 칩. 필드 토큰과 같은 끌기·강조 규칙을 쓴다 */
 .lf-bn { flex: none; margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,.1); }
 .lf-bn-h { display: flex; align-items: baseline; gap: 7px; margin-bottom: 7px; padding-left: 4px; }
-.lf-bn-h span { font-size: 12px; font-weight: 700; color: #cbd5e1; text-shadow: 0 1px 3px #000; }
-.lf-bn-h em { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-style: normal; font-weight: 700; letter-spacing: .18em; color: #64748b; }
-.lf-bn-h small { margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 600; color: #64748b; }
+.lf-bn-h span { font-size:12px; font-weight: 700; color: #cbd5e1; text-shadow: 0 1px 3px #000; }
+.lf-bn-h em { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-style: normal; font-weight: 700; letter-spacing: .18em; color: #64748b; }
+.lf-bn-h small { margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 600; color: #64748b; }
 .lf-bn-h small b { color: #cbd5e1; }
 .lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .lf-bn + .lf-bn { margin-top: 8px; padding-top: 8px; }
 .lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
 .lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
 .lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
-.lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
+.lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
 .lf-bc.empty .lf-bc-pos { color: #64748b; }
 .lf-bc:not(:has(.lf-bc-pos)) { grid-template-columns: 22px minmax(0, 1fr) auto; }
-.lf-bc b { min-width: 0; overflow: hidden; font-size: 12.5px; font-weight: 600; color: #e5e7eb; text-overflow: ellipsis; white-space: nowrap; }
-.lf-bc em { font-size: 15px; font-weight: 800; color: #fff; text-shadow: 0 0 9px var(--n); }
+.lf-bc b { min-width: 0; overflow: hidden; font-size:12px; font-weight: 600; color: #e5e7eb; text-overflow: ellipsis; white-space: nowrap; }
+.lf-bc em { font-size:14px; font-weight: 800; color: #fff; text-shadow: 0 0 9px var(--n); }
 .lf-bc em.up { color: #6ee7b7; }
 .lf-bc i { position: absolute; right: 4px; top: 4px; width: 4px; height: 4px; background: #fbbf24; transform: rotate(45deg); }
 .lf-bc.empty { cursor: pointer; background: rgba(10,15,26,.5); }
@@ -1379,14 +1379,14 @@ export const KEYFRAMES = `
 .lf-bc.focus { box-shadow: inset 0 0 0 2px #38bdf8; }
 .lf-bc.clash { box-shadow: inset 0 0 0 2px #fbbf24; }
 .lf-rot { position: absolute; width: 196px; transform: translate(-50%, -50%); background: linear-gradient(180deg, #141d2b, #0b111b); box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 2px 0 #cbd5e1; }
-.lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
+.lf-rh { display: flex; justify-content: space-between; padding: 6px 10px; font-size:12px; font-weight: 700; letter-spacing: .14em; color: #cbd5e1; border-bottom: 1px solid #243044; }
 .lf-row { position: relative; display: grid; grid-template-columns: 12px 34px minmax(0,1fr) auto; align-items: end; gap: 8px; height: 46px; padding: 0 10px; border-bottom: 1px solid #1a2333; box-shadow: inset 3px 0 0 var(--n); touch-action: none; user-select: none; cursor: grab; outline: none; }
 .lf-row:focus-visible { outline: 2px solid #10b981; outline-offset: -2px; }
 .lf-row.empty { cursor: pointer; }
-.lf-row .rn { align-self: center; font-size: 13px; color: #8791a3; }
+.lf-row .rn { align-self: center; font-size:14px; color: #8791a3; }
 .lf-row .rb { position: relative; display: block; width: 34px; height: 42px; overflow: hidden; background-repeat: no-repeat; }
-.lf-row .nm { align-self: center; min-width: 0; font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lf-row .nm small { display: block; font-size: 10px; font-weight: 600; color: #8791a3; }
+.lf-row .nm { align-self: center; min-width: 0; font-size:14px; font-weight: 700; color: #fff; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-row .nm small { display: block; font-size:12px; font-weight: 600; color: #8791a3; }
 .lf-row.empty .nm { color: #5b6577; font-weight: 500; }
 .lf-row.ghost { background: rgba(16,185,129,.12); }
 .lf-row.picked, .lf-row.over { background: rgba(16,185,129,.2); box-shadow: inset 3px 0 0 #10b981, inset 0 0 0 1px #10b981; }
@@ -1418,14 +1418,14 @@ export const KEYFRAMES = `
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
 .rl-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } /* 탭 7개: 4 + 3 */
-.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size: 13px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); transition: background .15s, color .15s; }
+.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size:14px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); transition: background .15s, color .15s; }
 .rl-tabs button:hover { color: #fff; background: rgba(255,255,255,.08); }
 .rl-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .rl-tabs svg { width: 18px; height: 18px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .rl-tabs button.on { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
 .rl-tabs button.on svg { stroke: #34d399; }
-@media (max-width: 420px) { .rl-tabs { gap: 5px; } .rl-tabs button { gap: 5px; padding: 8px 7px; font-size: 12px; } .rl-tabs svg { width: 16px; height: 16px; } }
-.rl-lead { margin: 0 0 12px; padding: 10px 12px; font-size: 13.5px; line-height: 1.65; color: #e5e7eb; background: rgba(16,185,129,.07); box-shadow: inset 2px 0 0 #10b981; }
+@media (max-width: 420px) { .rl-tabs { gap: 5px; } .rl-tabs button { gap: 5px; padding: 8px 7px; font-size:12px; } .rl-tabs svg { width: 16px; height: 16px; } }
+.rl-lead { margin: 0 0 12px; padding: 10px 12px; font-size:14px; line-height: 1.65; color: #e5e7eb; background: rgba(16,185,129,.07); box-shadow: inset 2px 0 0 #10b981; }
 .rl-lead b, .rl-bd b { color: #fff; font-weight: 700; }
 .rl-grp + .rl-grp { border-top: 1px solid rgba(255,255,255,.06); }
 .rl-hd { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 11px 0; text-align: left; }
@@ -1433,58 +1433,58 @@ export const KEYFRAMES = `
 .rl-hd:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
 .rl-grp.open .rl-hd::before { background: #10b981; box-shadow: 0 0 8px #10b981; }
 .rl-tx { flex: 1; min-width: 0; }
-.rl-t { display: block; font-size: 14px; font-weight: 700; color: #fff; }
-.rl-sm { display: block; margin-top: 1px; font-size: 12.5px; color: #9ca3af; }
+.rl-t { display: block; font-size:14px; font-weight: 700; color: #fff; }
+.rl-sm { display: block; margin-top: 1px; font-size:12px; color: #9ca3af; }
 .rl-grp.open .rl-sm { color: #6ee7b7; }
 .rl-chev { flex: none; width: 16px; height: 16px; margin-top: 3px; fill: none; stroke: #6b7280; stroke-width: 1.8; transition: transform .2s; }
 .rl-grp.open .rl-chev { transform: rotate(180deg); stroke: #10b981; }
-.rl-bd { margin: 0 0 14px 3px; padding: 2px 0 2px 15px; border-left: 1px solid rgba(16,185,129,.3); font-size: 13px; line-height: 1.7; color: #d1d5db; animation: fade .18s ease-out both; }
+.rl-bd { margin: 0 0 14px 3px; padding: 2px 0 2px 15px; border-left: 1px solid rgba(16,185,129,.3); font-size:14px; line-height: 1.7; color: #d1d5db; animation: fade .18s ease-out both; }
 .rl-bd p { margin: 0 0 8px; }
 .rl-bd > :last-child { margin-bottom: 0; }
 .rl-bd em { font-style: normal; font-weight: 600; color: #6ee7b7; }
-.rl-tag { display: inline-block; padding: 0 6px; font-size: 12px; font-weight: 600; line-height: 1.6; color: #fcd34d; background: rgba(251,191,36,.1); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); }
-.rl-chip { display: inline-block; padding: 1px 8px; font-size: 12px; font-weight: 600; line-height: 1.6; color: #e5e7eb; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.rl-tag { display: inline-block; padding: 0 6px; font-size:12px; font-weight: 600; line-height: 1.6; color: #fcd34d; background: rgba(251,191,36,.1); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); }
+.rl-chip { display: inline-block; padding: 1px 8px; font-size:12px; font-weight: 600; line-height: 1.6; color: #e5e7eb; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .rl-chip.g { color: #bbf7d0; background: rgba(16,185,129,.12); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); }
-.rl-tip { display: flex; gap: 8px; margin: 10px 0 2px; padding: 7px 10px; font-size: 12.5px; line-height: 1.6; color: #bae6fd; background: rgba(56,189,248,.07); }
-.rl-tip::before { content: "팁"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
+.rl-tip { display: flex; gap: 8px; margin: 10px 0 2px; padding: 7px 10px; font-size:12px; line-height: 1.6; color: #bae6fd; background: rgba(56,189,248,.07); }
+.rl-tip::before { content: "팁"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
 .rl-slots { display: grid; gap: 6px; margin: 4px 0 10px; }
 .rl-slots > div { display: grid; grid-template-columns: 58px minmax(0, 1fr); align-items: center; gap: 8px; }
-.rl-slots > div > span:first-child { font-size: 12px; font-weight: 700; color: #9ca3af; }
+.rl-slots > div > span:first-child { font-size:12px; font-weight: 700; color: #9ca3af; }
 .rl-slots i { margin-left: 3px; font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; }
 .rl-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .rl-steps { display: grid; gap: 6px; margin: 4px 0 8px; counter-reset: rl; }
 .rl-steps > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
-.rl-steps > div::before { counter-increment: rl; content: counter(rl); display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rl-steps > div::before { counter-increment: rl; content: counter(rl); display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
 .rl-yn { display: grid; gap: 4px; margin: 4px 0 8px; }
 .rl-yn > div { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
 .rl-yn > div::before { font-weight: 800; text-align: center; }
 .rl-yn .y::before { content: "✓"; color: #34d399; }
 .rl-yn .n::before { content: "✕"; color: #f87171; }
-.rl-tbl { display: grid; grid-template-columns: auto auto minmax(0, 1fr); margin: 4px 0 8px; font-size: 12.5px; background: rgba(255,255,255,.03); }
+.rl-tbl { display: grid; grid-template-columns: auto auto minmax(0, 1fr); margin: 4px 0 8px; font-size:12px; background: rgba(255,255,255,.03); }
 .rl-tbl > span { padding: 5px 10px; border-top: 1px solid rgba(255,255,255,.05); }
-.rl-tbl > span.h { border-top: 0; font-size: 11px; font-weight: 700; color: #6b7280; background: rgba(255,255,255,.03); }
-.rl-tbl .n { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; color: #fff; text-align: right; }
+.rl-tbl > span.h { border-top: 0; font-size:12px; font-weight: 700; color: #6b7280; background: rgba(255,255,255,.03); }
+.rl-tbl .n { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 700; color: #fff; text-align: right; }
 .rl-tbl .up { color: #fca5a5; }
 .rl-tbl .dn { color: #6ee7b7; }
-.rl-kind { display: grid; grid-template-columns: auto minmax(0, 1fr); margin: 4px 0 8px; font-size: 12.5px; background: rgba(255,255,255,.03); }
+.rl-kind { display: grid; grid-template-columns: auto minmax(0, 1fr); margin: 4px 0 8px; font-size:12px; background: rgba(255,255,255,.03); }
 .rl-kind > div { display: contents; }
 .rl-kind > div > span { padding: 6px 10px; border-top: 1px solid rgba(255,255,255,.05); line-height: 1.5; }
 .rl-kind > div:first-child > span { border-top: 0; }
 .rl-kind .rl-chip { margin: 0; }
 .rl-ladder { display: grid; gap: 5px; margin: 4px 0 8px; }
-.rl-ladder > div { display: grid; grid-template-columns: 34px 56px minmax(0, 1fr); align-items: center; gap: 8px; font-size: 12.5px; line-height: 1.45; }
-.rl-ladder b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-weight: 800; text-align: right; }
+.rl-ladder > div { display: grid; grid-template-columns: 34px 56px minmax(0, 1fr); align-items: center; gap: 8px; font-size:12px; line-height: 1.45; }
+.rl-ladder b { font-family: 'Saira Condensed', sans-serif; font-size:18px; font-weight: 800; text-align: right; }
 .rl-ladder i { display: block; height: 6px; background: rgba(255,255,255,.06); }
 .rl-ladder i::after { content: ""; display: block; height: 100%; width: var(--w); background: var(--k); }
 .rl-tiers { display: flex; gap: 4px; margin: 6px 0 8px; }
-.rl-tiers > span { flex: 1; min-width: 0; padding: 5px 4px; text-align: center; font-size: 12px; line-height: 1.35; color: #d1d5db; background: rgba(255,255,255,.04); box-shadow: inset 0 2px 0 rgba(16,185,129,.35); }
-.rl-tiers > span b { display: block; font-family: 'Saira Condensed', sans-serif; font-size: 15px; }
+.rl-tiers > span { flex: 1; min-width: 0; padding: 5px 4px; text-align: center; font-size:12px; line-height: 1.35; color: #d1d5db; background: rgba(255,255,255,.04); box-shadow: inset 0 2px 0 rgba(16,185,129,.35); }
+.rl-tiers > span b { display: block; font-family: 'Saira Condensed', sans-serif; font-size:14px; }
 .rl-tiers > span:nth-child(2) { box-shadow: inset 0 2px 0 rgba(16,185,129,.65); }
 .rl-tiers > span:nth-child(3) { background: rgba(16,185,129,.08); box-shadow: inset 0 2px 0 #10b981; }
 .rl-syn { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 6px 0; padding: 7px 10px; background: rgba(255,255,255,.035); }
-.rl-syn b { display: block; font-size: 13px; }
-.rl-syn small { font-size: 12px; color: #9ca3af; }
-.rl-syn em { flex: none; font-size: 12px; }
+.rl-syn b { display: block; font-size:14px; }
+.rl-syn small { font-size:12px; color: #9ca3af; }
+.rl-syn em { flex: none; font-size:12px; }
 /* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
    --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
 .ui-cut { --c: 14px; clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
@@ -1504,17 +1504,17 @@ export const KEYFRAMES = `
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 32%, transparent);
 }
 .ui-frame.hot::after { box-shadow: inset 0 0 0 2px var(--a, #10b981), inset 0 0 36px color-mix(in srgb, var(--a, #10b981) 30%, transparent); }
-.ui-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size: 13px !important; font-weight: 800; letter-spacing: .02em; color: var(--a, #10b981); }
+.ui-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px !important; font-weight: 800; letter-spacing: .02em; color: var(--a, #10b981); }
 .ui-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
-.ui-btn { --c: 9px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; font-size: 15px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); transition: background .15s, box-shadow .15s, filter .15s; }
+.ui-btn { --c: 9px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; font-size:14px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); transition: background .15s, box-shadow .15s, filter .15s; }
 .ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
 .ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
 .ui-btn:disabled { opacity: .4; cursor: not-allowed; }
 .ui-btn.pri { background: var(--a, #10b981); color: #05080f; box-shadow: none; }
 .ui-btn.pri:hover:not(:disabled) { background: var(--a, #10b981); filter: brightness(1.12); box-shadow: none; }
 .ui-btn.pri:focus-visible { box-shadow: inset 0 0 0 2px #05080f; }
-.ui-btn.sm { --c: 7px; min-height: 32px; padding: 0 12px; font-size: 13px; }
-.ui-chip { --c: 6px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; font-size: 12px; font-weight: 600; color: #cbd5e1; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 45%, transparent); }
+.ui-btn.sm { --c: 7px; min-height: 32px; padding: 0 12px; font-size:14px; }
+.ui-chip { --c: 6px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; font-size:12px; font-weight: 600; color: #cbd5e1; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 45%, transparent); }
 .ui-seg { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; height: 10px; }
 .ui-seg i { background: rgba(255,255,255,.07); transform: skewX(-24deg); transition: background .4s, box-shadow .4s; }
 .ui-seg i.on { background: var(--a, #10b981); box-shadow: 0 0 8px var(--a, #10b981); }
@@ -1551,33 +1551,33 @@ export const KEYFRAMES = `
 }
 .bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
 @media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
-.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size: 13px; font-weight: 800; letter-spacing: .02em; color: var(--a); }
+.bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: var(--a); }
 .bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
 .ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
 .ser-ttl { position: relative; min-width: 0; display: flex; align-items: center; gap: 12px; }
-.ser-kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
-.ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size: 26px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
-.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size: 13px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.ser-kind { flex: none; font-size:12px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
+.ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size:28px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
+.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size:14px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
-.ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; color: #cbd5e1; }
+.ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size:14px; font-weight: 600; color: #cbd5e1; }
 /* 라이브 진행 배속 · 건너뛰기 */
 .dr-sp { display: inline-flex; gap: 2px; }
-.dr-sp button { padding: 2px 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #9ca3af;
+.dr-sp button { padding: 2px 7px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; color: #9ca3af;
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
 .dr-sp button:hover { color: #fff; }
 .dr-sp button.on { color: #05080f; background: #38e1ff; }
 /* 드래프트 권 — 상점에서 산 장수를 달고 판에서 쓴다 */
 .pk-was { margin-right: 4px; font-size: .62em; color: #64748b; text-decoration-thickness: 1px; }
 .dr-tk { display: inline-flex; gap: 3px; }
-.dr-tk button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11.5px; font-weight: 700; color: #fcd34d;
+.dr-tk button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size:12px; font-weight: 700; color: #fcd34d;
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
   background: rgba(251,191,36,.12); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); transition: color .15s, background .15s, opacity .15s; }
 .dr-tk button:hover:not(:disabled) { color: #05080f; background: #fbbf24; }
 .dr-tk button:disabled { opacity: .32; cursor: default; }
 .dr-tk button.on { color: #05080f; background: #fbbf24; }
-.dr-tk em { font-family: 'Saira Condensed', sans-serif; font-style: normal; font-size: 12px; }
-.dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size: 12px; line-height: 1; color: #cbd5e1;
+.dr-tk em { font-family: 'Saira Condensed', sans-serif; font-style: normal; font-size:12px; }
+.dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size:12px; line-height: 1; color: #cbd5e1;
   clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
   background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
@@ -1592,25 +1592,25 @@ export const KEYFRAMES = `
 .dr-bar { display: flex; align-items: center; gap: 10px; }
 /* 가운데: 라운드와 샐러리 캡 잔여 */
 .dr-meta.inline { position: static; transform: none; padding: 0; gap: 10px; background: none; box-shadow: none; }
-.dr-meta.inline .dr-round b { font-size: 18px; }
+.dr-meta.inline .dr-round b { font-size:18px; }
 .dr-meta.inline .dr-ticks i { height: 10px; }
-.dr-meta.inline .dr-cap b { font-size: 14px; }
+.dr-meta.inline .dr-cap b { font-size:14px; }
 .dr-meta { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 14px; padding: 4px 12px; transform: translate(-50%, -50%);
   clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .dr-round { display: flex; align-items: baseline; gap: 6px; }
-.dr-round small { font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif; font-size: 11px; font-weight: 700; color: #6b7280; }
-.dr-round b { font-family: 'Saira Condensed', sans-serif; font-size: 22px; line-height: 1; color: #fff; }
-.dr-round small + b + small { font-size: 11px; letter-spacing: 0; }
+.dr-round small { font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif; font-size:12px; font-weight: 700; color: #6b7280; }
+.dr-round b { font-family: 'Saira Condensed', sans-serif; font-size:18px; line-height: 1; color: #fff; }
+.dr-round small + b + small { font-size:12px; letter-spacing: 0; }
 .dr-cap { display: flex; align-items: center; gap: 9px; }
-.dr-cap b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; color: var(--a); }
-.dr-cap > small { font-family: 'Saira Condensed', sans-serif; font-size: 10.5px; color: #6b7280; }
+.dr-cap b { font-family: 'Saira Condensed', sans-serif; font-size:18px; color: var(--a); }
+.dr-cap > small { font-family: 'Saira Condensed', sans-serif; font-size:12px; color: #6b7280; }
 .dr-ticks { display: flex; gap: 2px; }
 .dr-ticks i { width: 4px; height: 13px; transform: skewX(-18deg); background: rgba(255,255,255,.12); }
 .dr-ticks i.on { background: var(--a); box-shadow: 0 0 6px color-mix(in srgb, var(--a) 40%, transparent); }
 .dr-ticks i.spend { background: rgba(148,163,184,.4); }
 /* 오른쪽: 전체보기 토글을 순서 판 위에 작게 */
-.dr-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: #9ca3af; }
+.dr-toggle { display: inline-flex; align-items: center; gap: 6px; font-size:12px; font-weight: 700; color: #9ca3af; }
 .dr-toggle .tr { position: relative; width: 22px; height: 12px; border-radius: 99px; background: rgba(255,255,255,.14); transition: background .15s; }
 .dr-toggle .tr::after { content: ""; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: #fff; transition: left .15s; }
 .dr-toggle[aria-pressed="true"] { color: #e8ecf2; }
@@ -1618,18 +1618,18 @@ export const KEYFRAMES = `
 .dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
 .dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
-.dr-clock { width: 34px; margin-left: 8px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); }
+.dr-clock { width: 34px; margin-left: 8px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); }
 .dr-pc { position: relative; display: flex; align-items: center; justify-content: center; width: 72px; height: 24px; padding: 0 8px 0 14px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
   background: rgba(255,255,255,.05); transition: background .3s ease, box-shadow .3s ease; }
 .dr-pc:first-child { margin-left: 0; }
 .dr-pc > i { position: absolute; inset: 0; background: center 28% / cover no-repeat; opacity: .1; mix-blend-mode: luminosity; }
-.dr-pc > b { position: relative; font-size: 11.5px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dr-pc > b { position: relative; font-size:12px; font-weight: 700; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
 .dr-pc.past > i { opacity: .18; }
 .dr-pc.now { z-index: 2; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
 .dr-pc.now > i { opacity: .5; }
-.dr-pc.now > b { font-size: 12.5px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
+.dr-pc.now > b { font-size:12px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
 .ser-sw .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; border-radius: 50%; background: #9ca3af; transition: transform .2s, background-color .2s; }
 .ser-sw:hover { color: #fff; }
@@ -1637,7 +1637,7 @@ export const KEYFRAMES = `
 .ser-sw[aria-pressed="true"] .tr { background: color-mix(in srgb, var(--a) 35%, transparent); box-shadow: inset 0 0 0 1px var(--a); }
 .ser-sw[aria-pressed="true"] .tr::after { transform: translateX(16px); background: var(--a); }
 /* 새로고침: 네온 테두리 텍스트 버튼 “새로고침 · N회” */
-.ser-refresh { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--a); background: color-mix(in srgb, var(--a) 8%, transparent); box-shadow: inset 0 0 0 1px var(--a); transition: background-color .15s; }
+.ser-refresh { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; font-size:14px; font-weight: 700; white-space: nowrap; color: var(--a); background: color-mix(in srgb, var(--a) 8%, transparent); box-shadow: inset 0 0 0 1px var(--a); transition: background-color .15s; }
 .ser-refresh em { font-style: normal; font-weight: 600; color: #cbd5e1; }
 .ser-refresh svg { width: 16px; height: 16px; transition: transform .45s cubic-bezier(.3,0,.2,1); }
 .ser-refresh:hover:not(:disabled) { background: color-mix(in srgb, var(--a) 18%, transparent); }
@@ -1645,9 +1645,9 @@ export const KEYFRAMES = `
 .ser-refresh:disabled { opacity: .4; cursor: not-allowed; }
 .ser-sw:focus-visible, .ser-refresh:focus-visible { outline: 2px solid var(--a); outline-offset: 2px; }
 /* 빈 자리 포지션 거르기 칩 (누르면 해제) */
-.ser-pf { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; font-size: 13px; font-weight: 700; white-space: nowrap; color: #bae6fd; background: rgba(12,34,51,.85); box-shadow: inset 0 0 0 1px #38bdf8; transition: background-color .15s; }
+.ser-pf { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; font-size:14px; font-weight: 700; white-space: nowrap; color: #bae6fd; background: rgba(12,34,51,.85); box-shadow: inset 0 0 0 1px #38bdf8; transition: background-color .15s; }
 .ser-pf:hover { background: rgba(17,48,74,.95); }
-.ser-pf span { font-size: 11px; color: #7dd3fc; }
+.ser-pf span { font-size:12px; color: #7dd3fc; }
 .ser-pf:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
 /* 선반 카드 (MiniCard) — 단위는 카드 폭 기준 cqw */
 .mc-in { position: absolute; inset: 0; }
@@ -1818,7 +1818,7 @@ export const KEYFRAMES = `
 @keyframes pkSkBreath { 0%, 100% { filter: brightness(1); } 30% { filter: brightness(2.1); } }
 @keyframes pkBtnBreath { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); } 30% { box-shadow: inset 0 0 0 1px rgba(110,231,183,.35); } }
 /* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
-.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
+.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
 .pk-go:hover:not(:disabled) { filter: brightness(1.1); }
 /* 내 라인업 선수 방출: 같은 버튼 틀을 붉은 테두리로, 한 번 누르면 붉게 채워져 확정 대기 */
 .pk-go.out { color: #fecaca; background: rgba(239,68,68,.14); box-shadow: inset 0 0 0 1.5px rgba(248,113,113,.7); }
@@ -1863,7 +1863,7 @@ export const KEYFRAMES = `
 /* 드래프트 화면 오른쪽 MY TEAM 판: 탭 [팀 분석 · 선수 기록] */
 .mt-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
 .mt-tabs { flex: none; display: flex; gap: 20px; padding: 0 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.16); }
-.mt-tabs button { position: relative; padding: 3px 1px 8px; font-size: 13px; font-weight: 600; color: #6b7280; transition: color .15s; }
+.mt-tabs button { position: relative; padding: 3px 1px 8px; font-size:14px; font-weight: 600; color: #6b7280; transition: color .15s; }
 .mt-tabs button:hover { color: #cbd5e1; }
 .mt-tabs button.on { color: #fff; }
 .mt-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
@@ -1872,24 +1872,24 @@ export const KEYFRAMES = `
 .mt-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 2px 0 8px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.12); }
 .mt-trio > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .mt-trio > div + div { box-shadow: inset 1px 0 0 rgba(148,163,184,.12); }
-.mt-trio small { font-size: 11px; color: #6b7280; }
-.mt-trio b { font-size: 30px; font-weight: 700; line-height: 1; color: #fff; }
+.mt-trio small { font-size:12px; color: #6b7280; }
+.mt-trio b { font-size:28px; font-weight: 700; line-height: 1; color: #fff; }
 .mt-radar { position: relative; }
 .mt-rd { display: block; width: 100%; height: auto; }
-.mt-rd text { font-size: 11px; fill: #cbd5e1; }
-.mt-rd text.v { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; fill: #fff; }
-.mt-rd tspan.d { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; }
-.mt-lgd { position: absolute; right: 0; bottom: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 9.5px; color: #6b7280; pointer-events: none; }
+.mt-rd text { font-size:12px; fill: #cbd5e1; }
+.mt-rd text.v { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 700; fill: #fff; }
+.mt-rd tspan.d { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; }
+.mt-lgd { position: absolute; right: 0; bottom: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size:12px; color: #6b7280; pointer-events: none; }
 .mt-lgd i { display: inline-block; width: 9px; margin-right: 4px; vertical-align: 2px; border-top: 2px solid #34d399; }
 .mt-lgd i.ai { border-top: 2px dashed #f87171; }
-.mt-lgd b { margin-left: 3px; font-size: 11px; font-weight: 700; color: #cbd5e1; }
-.mt-style { font-size: 17px; font-weight: 700; color: #fff; }
+.mt-lgd b { margin-left: 3px; font-size:12px; font-weight: 700; color: #cbd5e1; }
+.mt-style { font-size:18px; font-weight: 700; color: #fff; }
 .mt-style .g { color: #34d399; }
 .mt-style .o { color: #fb923c; }
 .mt-style i { margin: 0 6px; font-style: normal; color: #4b5563; }
 .mt-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
-.mt-chips span { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 8px; font-size: 12px; color: #cbd5e1; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); }
-.mt-chips b { font-size: 15px; font-weight: 700; }
+.mt-chips span { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 8px; font-size:12px; color: #cbd5e1; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); }
+.mt-chips b { font-size:14px; font-weight: 700; }
 .mt-chips .up b { color: #34d399; }
 .mt-chips .dn b { color: #fb923c; }
 .mt-rec { display: flex; flex-direction: column; gap: 10px; }
@@ -1897,12 +1897,12 @@ export const KEYFRAMES = `
 .mt-card.bat { --ac: #34d399; }
 .mt-gh { display: flex; align-items: center; gap: 8px; height: 22px; padding: 0 2px; }
 .mt-gh::after { content: ""; flex: 1; height: 1px; background: rgba(148,163,184,.2); order: 2; }
-.mt-gh .en { font-size: 14px; font-weight: 800; letter-spacing: .18em; color: var(--ac); }
-.mt-gh b { order: 1; font-size: 12px; color: #cbd5e1; }
-.mt-gh em { order: 3; font-style: normal; font-size: 11px; color: #6b7280; }
+.mt-gh .en { font-size:14px; font-weight: 800; letter-spacing: .18em; color: var(--ac); }
+.mt-gh b { order: 1; font-size:12px; color: #cbd5e1; }
+.mt-gh em { order: 3; font-style: normal; font-size:12px; color: #6b7280; }
 .mt-rec table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.mt-rec th { height: 22px; padding: 0 4px; font-size: 10.5px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
-.mt-rec td { height: 29px; padding: 0 4px; font-size: 13px; text-align: right; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
+.mt-rec th { height: 22px; padding: 0 4px; font-size:12px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
+.mt-rec td { height: 29px; padding: 0 4px; font-size:14px; text-align: right; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
 .mt-rec tbody tr:last-child td { box-shadow: none; }
 .mt-rec .l { text-align: left; }
 .mt-rec tbody tr { cursor: pointer; transition: background .12s; }
@@ -1913,16 +1913,16 @@ export const KEYFRAMES = `
 .mt-rec tr.on .mt-face { box-shadow: 0 0 0 2px var(--ac), 0 0 10px 1px color-mix(in srgb, var(--ac) 60%, transparent); }
 .mt-rec tr.on .who b { color: var(--ac); }
 .mt-rec tr.on td.ov b { display: inline-block; min-width: 26px; padding: 2px 4px; text-align: center; border-radius: 3px; background: color-mix(in srgb, var(--ac) 22%, transparent); }
-.mt-rec tr.e td { height: 24px; font-size: 11.5px; color: #4b5563; }
-.mt-rec .pos { font-size: 11.5px; color: #9ca3af; }
+.mt-rec tr.e td { height: 24px; font-size:12px; color: #4b5563; }
+.mt-rec .pos { font-size:12px; color: #9ca3af; }
 .mt-face { display: inline-block; width: 22px; height: 22px; vertical-align: middle; border-radius: 50%; background-color: #1b2537; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .mt-rec .who { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
-.mt-rec .who b { font-size: 13px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
-.mt-rec .who small { font-size: 10px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; }
-.mt-rec .st { font-size: 15px; font-weight: 600; }
+.mt-rec .who b { font-size:14px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
+.mt-rec .who small { font-size:12px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; }
+.mt-rec .st { font-size:14px; font-weight: 600; }
 .mt-rec .st.none { color: #4b5563; }
 .mt-rec .st.best { font-weight: 700; color: #34d399; }
-.mt-rec td.ov b { font-size: 17px; font-weight: 700; color: #fff; }
+.mt-rec td.ov b { font-size:18px; font-weight: 700; color: #fff; }
 /* 종합 수치 색 등급 (선반 · PICK 카드와 같게) */
 .mt-trio b.t75, .mt-rec td.ov b.t75 { color: #34d399; }
 .mt-trio b.t90, .mt-rec td.ov b.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
@@ -1938,21 +1938,21 @@ export const KEYFRAMES = `
   .mt-rec td, .mt-rec tr.e td { height: clamp(26px, calc((100cqh - 60px) / var(--n)), 42px); }
   /* 판이 큰 만큼 글자 · 사진도 한 단계 크게 */
   .mt-trio { padding-bottom: 12px; }
-  .mt-trio small { font-size: 12px; }
+  .mt-trio small { font-size:12px; }
   .mt-trio b { font-size: 36px; }
-  .mt-style { font-size: 20px; }
+  .mt-style { font-size:18px; }
   .mt-chips { gap: 6px; }
-  .mt-chips span { padding: 10px; font-size: 13px; }
-  .mt-chips b { font-size: 17px; }
+  .mt-chips span { padding: 10px; font-size:14px; }
+  .mt-chips b { font-size:18px; }
   .mt-gh { height: 26px; }
-  .mt-gh .en { font-size: 15.5px; }
-  .mt-gh b { font-size: 13px; }
-  .mt-rec th { font-size: 11px; }
+  .mt-gh .en { font-size:14px; }
+  .mt-gh b { font-size:14px; }
+  .mt-rec th { font-size:12px; }
   .mt-face { width: 28px; height: 28px; }
-  .mt-rec .who b { font-size: 14px; }
-  .mt-rec .who small { font-size: 10.5px; }
-  .mt-rec .st { font-size: 17px; }
-  .mt-rec td.ov b { font-size: 19px; }
+  .mt-rec .who b { font-size:14px; }
+  .mt-rec .who small { font-size:12px; }
+  .mt-rec .st { font-size:18px; }
+  .mt-rec td.ov b { font-size:18px; }
 }
 .dock-row { display: block; width: 100%; text-align: left; padding: 8px 6px 8px 12px; border-bottom: 1px solid rgba(255,255,255,.07); background: none; }
 .dock-row:hover { background: rgba(255,255,255,.03); }
@@ -1973,10 +1973,10 @@ export const KEYFRAMES = `
 .sd { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .syn-dock.wide .sd { padding-top: 60px; } /* 넓은 구장 사진의 전광판 조명 아래부터 */
 .sd-hd { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-left: 4px; }
-.sd-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size: 13px; font-weight: 800; letter-spacing: .02em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
+.sd-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
 .sd-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
-.sd-hd em { padding: 0 6px; font-style: normal; font-size: 12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
-.sd-hd button { margin-left: auto; padding: 2px 6px; font-size: 12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
+.sd-hd em { padding: 0 6px; font-style: normal; font-size:12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
+.sd-hd button { margin-left: auto; padding: 2px 6px; font-size:12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
 .sd-hd button:hover { background: rgba(16,185,129,.12); }
 .sd-hd button:focus-visible { outline: 2px solid #10b981; outline-offset: 1px; }
 .sd-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
@@ -1987,24 +1987,24 @@ export const KEYFRAMES = `
 .sd-row.on .sy-ico { animation: synShine 3s ease-in-out infinite; }
 @keyframes synShine { 50% { filter: brightness(1.22); } }
 .sd-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.sd-tx b { font-size: 13px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-tx b { font-size:14px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sd-row.on .sd-tx b { color: #fff; }
-.sd-stp { font-size: 12px; font-weight: 600; color: #4b5563; }
+.sd-stp { font-size:12px; font-weight: 600; color: #4b5563; }
 .sd-stp .ok { color: #e5e7eb; }
 .sd-stp i { margin: 0 3px; font-style: normal; color: #374151; }
-.sd-fr, .ss-fr { flex: none; font-size: 18px; font-weight: 700; color: #fff; }
-.sd-fr small, .ss-fr small { font-size: 12px; color: #6b7280; }
+.sd-fr, .ss-fr { flex: none; font-size:18px; font-weight: 700; color: #fff; }
+.sd-fr small, .ss-fr small { font-size:12px; color: #6b7280; }
 .sd-row.sy0 .sd-fr { color: #6b7280; }
 .sd-fr u, .ss-fr u { margin-left: 2px; font-size: .8em; text-decoration: none; color: #38bdf8; }
 .sd-row.gr .sd-fr { color: #7dd3fc; }
 .sd-tip { position: absolute; z-index: 30; right: calc(100% + 26px); width: 262px; padding: 12px 13px; background: rgba(6,10,19,.97); box-shadow: 0 0 0 1px rgba(148,163,184,.28), 0 18px 40px -8px rgba(0,0,0,.9); pointer-events: none; }
 .sd-tip.up { right: auto; bottom: calc(100% + 10px); }
 .sd-th { display: flex; align-items: center; gap: 9px; }
-.sd-th b { font-size: 16px; color: #fff; }
+.sd-th b { font-size:18px; color: #fff; }
 .sd-th .sy-ico { width: 32px; height: 28px; }
-.sd-tip p { margin: 9px 0 8px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+.sd-tip p { margin: 9px 0 8px; font-size:12px; line-height: 1.5; color: #9ca3af; }
 .sd-tip p b { color: #fff; }
-.sd-tip ul { margin: 0 0 10px; font-size: 12.5px; line-height: 1.6; color: #6b7280; }
+.sd-tip ul { margin: 0 0 10px; font-size:12px; line-height: 1.6; color: #6b7280; }
 .sd-tip li span { display: inline-block; min-width: 28px; font-weight: 700; }
 .sd-tip li.ok { color: #fff; }
 .sd-tip li.ok span { color: #34d399; }
@@ -2013,15 +2013,15 @@ export const KEYFRAMES = `
 .sd-pf { width: 44px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .sd-pf i { width: 40px; height: 40px; border-radius: 3px; background-color: #1b2537; background-repeat: no-repeat; box-shadow: 0 0 0 2px var(--bd); }
 .sy0 .sd-pf.in i { box-shadow: 0 0 0 2px #9ca3af; }
-.sd-pf small { max-width: 44px; font-size: 10px; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-pf small { max-width: 44px; font-size:12px; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sd-pf.out i { filter: grayscale(1) brightness(.5); box-shadow: 0 0 0 1px #374151; }
 .sd-pf.out small { color: #6b7280; }
 .sd-pf.cd i { box-shadow: 0 0 0 2px #38bdf8; }
 .sd-pf.cd small { color: #7dd3fc; }
 /* 전체 시너지 창 */
 .ss-flt { display: flex; gap: 6px; }
-.ss-flt button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; color: #9ca3af; background: rgba(255,255,255,.05); border-radius: 3px; }
-.ss-flt button b { font-size: 14px; color: #e5e7eb; }
+.ss-flt button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; font-size:12px; font-weight: 600; color: #9ca3af; background: rgba(255,255,255,.05); border-radius: 3px; }
+.ss-flt button b { font-size:14px; color: #e5e7eb; }
 .ss-flt button.on { color: #05080f; background: #10b981; }
 .ss-flt button.on b { color: #05080f; }
 .ss-flt button:focus-visible { outline: 2px solid #10b981; outline-offset: 1px; }
@@ -2035,12 +2035,12 @@ export const KEYFRAMES = `
 .ss-card > .sy-ico { width: 48px; height: 42px; margin-top: 2px; }
 .ss-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 7px; }
 .ss-l1 { display: flex; align-items: baseline; gap: 8px; }
-.ss-l1 b { font-size: 15.5px; color: #fff; }
+.ss-l1 b { font-size:14px; color: #fff; }
 .ss-card.sy0 .ss-l1 b { color: #cbd5e1; }
-.ss-fr { margin-left: auto; font-size: 19px; }
-.ss-cond { font-size: 12px; color: #6b7280; }
+.ss-fr { margin-left: auto; font-size:18px; }
+.ss-cond { font-size:12px; color: #6b7280; }
 .ss-tiers { display: flex; flex-wrap: wrap; gap: 5px; }
-.ss-tiers > span { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px 1px 2px; font-size: 12px; line-height: 19px; color: #6b7280; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16); }
+.ss-tiers > span { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px 1px 2px; font-size:12px; line-height: 19px; color: #6b7280; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16); }
 .ss-tiers em { min-width: 19px; padding: 0 4px; font-style: normal; font-weight: 700; text-align: center; color: #9ca3af; background: rgba(148,163,184,.12); border-radius: 2px; }
 .ss-tiers .ok { color: #fff; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bd) 60%, transparent); }
 .ss-tiers .ok em { color: #05080f; background: var(--bd); }
@@ -2048,8 +2048,8 @@ export const KEYFRAMES = `
 .ss-pfs { margin-top: 1px; }
 .ss-pfs .sd-pf { width: 42px; }
 .ss-pfs .sd-pf i { width: 36px; height: 36px; }
-.ss-more { align-self: center; padding: 0 6px; font-size: 13px; font-weight: 700; color: #6b7280; }
-.lf-row .ov { align-self: center; font-size: 20px; font-weight: 700; color: var(--n); }
+.ss-more { align-self: center; padding: 0 6px; font-size:14px; font-weight: 700; color: #6b7280; }
+.lf-row .ov { align-self: center; font-size:18px; font-weight: 700; color: var(--n); }
 /* 끌기 카드(body 포털): 토큰과 같은 판을 반투명 + 하늘색 브래킷으로. 커서는 흉상 가슴께, 크기는 필드 배율에 맞춘 뒤 조금 작게(×0.92)
    판 위 칩이 “SS ››› 2B” 로 놓을 자리까지 이어진다 — 셰브론이 차례로 흐르고 놓을 자리 칩이 톡 튀어나옴, 사람이 있으면 양쪽 셰브론(맞바꿈) */
 .lf-drag { position: fixed; z-index: 60; left: 0; top: 0; width: 214px; height: 72px; pointer-events: none; transform-origin: 0 0; transform: scale(calc(var(--k, 1) * .92)) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
@@ -2059,7 +2059,7 @@ export const KEYFRAMES = `
 .lf-drag::after { content: ""; position: absolute; left: -7px; right: -7px; top: -5px; bottom: -3px;
   background: linear-gradient(#38bdf8, #38bdf8) 0 0 / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 0 0 / 2px 14px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 0 / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 0 / 2px 14px no-repeat,
     linear-gradient(#38bdf8, #38bdf8) 0 100% / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 0 100% / 2px 14px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 100% / 14px 2px no-repeat, linear-gradient(#38bdf8, #38bdf8) 100% 100% / 2px 14px no-repeat; }
-.lf-route { position: absolute; left: 58px; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
+.lf-route { position: absolute; left: 58px; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
 .lf-route .a, .lf-route .b { padding: 0 7px; }
 .lf-route .a { color: var(--n); background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 60%, transparent); }
 .lf-route .a.on { color: #05080f; background: var(--n); box-shadow: none; }
@@ -2074,11 +2074,11 @@ export const KEYFRAMES = `
 /* ───── 정비 화면 (ReadyScreen): 왼쪽 타순 · 가운데 수비 포지션 · 오른쪽 투수 로테이션과 시너지 ───── */
 .rd-top { display: flex; align-items: center; gap: 10px; }
 .rd-tot { --a: #34d399; min-width: 150px; padding: 7px 14px; background: linear-gradient(180deg, rgba(10,18,30,.92), rgba(6,11,19,.86)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 28%, transparent); }
-.rd-tot > span { display: block; font-size: 11px; font-weight: 700; color: #94a3b8; }
-.rd-tot b { font-family: 'Saira Condensed', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.05; color: var(--a); font-variant-numeric: tabular-nums; }
+.rd-tot > span { display: block; font-size:12px; font-weight: 700; color: #94a3b8; }
+.rd-tot b { font-family: 'Saira Condensed', sans-serif; font-size:28px; font-weight: 800; line-height: 1.05; color: var(--a); font-variant-numeric: tabular-nums; }
 .rd-tot i { display: block; height: 3px; margin-top: 4px; background: rgba(255,255,255,.08); }
 .rd-tot i::after { content: ""; display: block; width: var(--w); height: 100%; background: var(--a); }
-.rd-dl { font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; margin-left: 6px; color: #475569; }
+.rd-dl { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 700; margin-left: 6px; color: #475569; }
 .rd-dl.up { color: #34d399; }
 .rd-dl.dn { color: #fbbf24; }
 /* 판 */
@@ -2097,28 +2097,28 @@ export const KEYFRAMES = `
 .rd-side .rd-tot { position: relative; display: flex; min-height: 4.4rem; flex-direction: column; justify-content: center; padding: 6px 14px 6px 17px; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), rgba(6,10,19,.7)); box-shadow: none; }
 .rd-side .rd-tot::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--a); box-shadow: 0 0 12px var(--a); }
 .rd-ph { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px 10px; }
-.rd-ph h3 { margin: 4px 0 0; font-size: 22px; font-weight: 900; line-height: 1; color: #fff; }
-.rd-ph em { display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; font-style: normal; letter-spacing: .32em; text-transform: uppercase; color: var(--a); }
+.rd-ph h3 { margin: 4px 0 0; font-size:18px; font-weight: 900; line-height: 1; color: #fff; }
+.rd-ph em { display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; font-style: normal; letter-spacing: .32em; text-transform: uppercase; color: var(--a); }
 .rd-ph em::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
 .rd-ph > div { display: flex; flex-direction: column-reverse; }
 .rd-ph .sum { margin-left: auto; text-align: right; line-height: 1.1; }
-.rd-ph .sum small { display: block; font-size: 11px; color: #94a3b8; }
-.rd-ph .sum b { font-family: 'Saira Condensed', sans-serif; font-size: 26px; font-weight: 800; color: var(--a); font-variant-numeric: tabular-nums; }
+.rd-ph .sum small { display: block; font-size:12px; color: #94a3b8; }
+.rd-ph .sum b { font-family: 'Saira Condensed', sans-serif; font-size:28px; font-weight: 800; color: var(--a); font-variant-numeric: tabular-nums; }
 /* 타순 줄 */
 .rd-rows { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 5px; padding: 0 14px 14px; }
 /* 타순 아래 예비 명단: 제목 줄 + 옅은 칸 */
-.rd-bnh { display: flex; align-items: baseline; gap: 7px; margin: 0 14px; padding: 7px 0 6px; font-size: 13px; font-weight: 700; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,.08); }
-.rd-bnh em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: .08em; color: #64748b; }
-.rd-bnh small { margin-left: auto; font-size: 11px; color: #6b7280; }
+.rd-bnh { display: flex; align-items: baseline; gap: 7px; margin: 0 14px; padding: 7px 0 6px; font-size:14px; font-weight: 700; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,.08); }
+.rd-bnh em { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-style: normal; font-weight: 700; letter-spacing: .08em; color: #64748b; }
+.rd-bnh small { margin-left: auto; font-size:12px; color: #6b7280; }
 .rd-rows .rd-row.empty { opacity: .45; }
 .rd-rows .rd-row.empty .rd-nm { color: #6b7280; }
 .rd-bn-g { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; padding: 0 14px 14px; }
 .rd-bc { position: relative; display: grid; grid-template-columns: 24px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 34px; padding: 0 9px 0 6px; background: linear-gradient(90deg, rgba(255,255,255,.05), transparent 70%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); cursor: grab; user-select: none; touch-action: none; outline: none; transition: background .12s, box-shadow .12s; }
 .rd-bc:hover { background: linear-gradient(90deg, rgba(255,255,255,.09), transparent 70%); }
-.rd-bc-pos, .rd-bc .rd-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: #94a3b8; }
-.rd-bc b { min-width: 0; overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.rd-bc em { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-style: normal; font-weight: 800; }
-.rd-bc-rest { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: #fb923c; }
+.rd-bc-pos, .rd-bc .rd-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; color: #94a3b8; }
+.rd-bc b { min-width: 0; overflow: hidden; font-size:14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.rd-bc em { font-family: 'Saira Condensed', sans-serif; font-size:18px; font-style: normal; font-weight: 800; }
+.rd-bc-rest { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; color: #fb923c; }
 .rd-bc-ph { width: 24px; height: 26px; background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .rd-bc.empty { opacity: .45; cursor: default; }
 .rd-bc.empty b { color: #6b7280; font-weight: 500; }
@@ -2130,25 +2130,25 @@ export const KEYFRAMES = `
 .rd-row:is(.sel, .over) { background: linear-gradient(90deg, rgba(56,189,248,.26), rgba(56,189,248,.03)); box-shadow: inset 0 0 0 1px #38bdf8; }
 .rd-row.lifted { opacity: .3; }
 .rd-row:focus-visible { box-shadow: inset 0 0 0 1px #10b981; }
-.rd-no { font-family: 'Saira Condensed', sans-serif; font-size: 24px; font-weight: 800; line-height: 1; text-align: center; color: #e2e8f0; font-variant-numeric: tabular-nums; }
-.rd-pos { display: grid; place-items: center; height: 21px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 21px; color: #93c5fd; background: rgba(12,22,38,.9); box-shadow: inset 0 0 0 1px rgba(96,165,250,.45); }
+.rd-no { font-family: 'Saira Condensed', sans-serif; font-size:28px; font-weight: 800; line-height: 1; text-align: center; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+.rd-pos { display: grid; place-items: center; height: 21px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; line-height: 21px; color: #93c5fd; background: rgba(12,22,38,.9); box-shadow: inset 0 0 0 1px rgba(96,165,250,.45); }
 .rd-pos.dh { color: #ffb27a; box-shadow: inset 0 0 0 1px rgba(255,138,61,.55); }
 .rd-pos.p { color: #fca5a5; box-shadow: inset 0 0 0 1px rgba(248,113,113,.5); }
 .rd-pos.off { color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.5); }
-.rd-hand { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #64748b; text-align: center; }
+.rd-hand { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; color: #64748b; text-align: center; }
 .rd-thumb { position: relative; overflow: hidden; background-color: #111827; background-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
-.rd-nm { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rd-ovr { font-family: 'Saira Condensed', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; }
+.rd-nm { font-size:14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-ovr { font-family: 'Saira Condensed', sans-serif; font-size:18px; font-weight: 800; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; }
 /* 카드 (수비 · 투수 공통) */
 .rd-card { position: relative; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; background: linear-gradient(180deg, rgba(13,24,40,.55), rgba(5,9,16,.95)), #0b1220; box-shadow: inset 0 0 0 1.5px var(--cc, rgba(96,165,250,.55)), 0 12px 24px -14px #000; cursor: grab; user-select: none; touch-action: none; outline: none; transition: box-shadow .12s, filter .12s; }
 .rd-card .art { position: absolute; inset: 0; background-position: 50% 6%; background-repeat: no-repeat; background-size: cover; }
 .rd-card .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,9,16,.12) 32%, rgba(5,9,16,.92) 76%); }
 .rd-card .top { position: absolute; left: 0; right: 0; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; }
 .rd-card .top .rd-pos { background: none; box-shadow: none; }
-.rd-card .ov { font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 800; line-height: 1; color: #fff; text-shadow: 0 2px 6px #000; font-variant-numeric: tabular-nums; }
+.rd-card .ov { font-family: 'Saira Condensed', sans-serif; font-size:18px; font-weight: 800; line-height: 1; color: #fff; text-shadow: 0 2px 6px #000; font-variant-numeric: tabular-nums; }
 .rd-card .nmb { position: relative; z-index: 2; padding: 4px 7px 6px; text-align: center; }
-.rd-card .nmb b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rd-card .nmb small { display: block; font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 700; color: #94a3b8; }
+.rd-card .nmb b { display: block; font-size:14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-card .nmb small { display: block; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; color: #94a3b8; }
 .rd-card.dh { --cc: rgba(255,138,61,.6); }
 .rd-card.p { --cc: rgba(248,113,113,.6); }
 .rd-card.off { --cc: rgba(251,191,36,.7); }
@@ -2164,26 +2164,26 @@ export const KEYFRAMES = `
 /* 투수 로테이션 */
 .rd-rot { display: grid; gap: 10px; padding: 0 16px 14px; min-height: 0; }
 .rd-slot { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
-.rd-slot > span { display: flex; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 700; color: #cbd5e1; }
-.rd-slot > span em { font-family: 'Saira Condensed', sans-serif; font-size: 10px; font-weight: 700; font-style: normal; letter-spacing: .2em; color: #64748b; }
+.rd-slot > span { display: flex; align-items: baseline; gap: 8px; font-size:14px; font-weight: 700; color: #cbd5e1; }
+.rd-slot > span em { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; font-style: normal; letter-spacing: .2em; color: #64748b; }
 .rd-slot > div { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.rd-empty { display: grid; place-items: center; font-size: 20px; color: #475569; background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1.5px rgba(148,163,184,.22); }
+.rd-empty { display: grid; place-items: center; font-size:18px; color: #475569; background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1.5px rgba(148,163,184,.22); }
 /* 시너지 */
 .rd-syn { display: flex; flex-direction: column; gap: 8px; padding: 0 16px 14px; min-height: 0; overflow-y: auto; }
 .rd-sc { --s: #34d399; flex: none; display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--s) 12%, rgba(6,11,19,.9)), rgba(6,11,19,.9)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 38%, transparent); }
-.rd-sc .ic { display: grid; place-items: center; width: 42px; height: 42px; font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 800; color: var(--s); background: rgba(5,8,15,.65); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--s) 60%, transparent); }
-.rd-sc b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rd-sc .ef { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; color: var(--s); }
-.rd-sc small { display: block; font-size: 11.5px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-sc .ic { display: grid; place-items: center; width: 42px; height: 42px; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: var(--s); background: rgba(5,8,15,.65); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--s) 60%, transparent); }
+.rd-sc b { display: block; font-size:14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rd-sc .ef { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: var(--s); }
+.rd-sc small { display: block; font-size:12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rd-sc.lock { --s: #64748b; opacity: .78; }
-.rd-tag { padding: 3px 9px; font-size: 11.5px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rd-tag { padding: 3px 9px; font-size:12px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
 /* 추천 선수 (타순·수비 판 아래 띠) */
 .rd-cond { position: absolute; left: 6px; right: 6px; bottom: 34px; z-index: 3; display: flex; align-items: center; gap: 4px; height: 15px; padding: 0 4px; background: rgba(5,8,15,.82); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 55%, transparent); }
 .rd-cond .bar { flex: 1; height: 4px; background: rgba(255,255,255,.1); }
 .rd-cond .bar i { display: block; height: 100%; background: var(--k); box-shadow: 0 0 6px var(--k); }
-.rd-cond b { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; color: var(--k); }
-.rd-cond em { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-style: normal; font-weight: 700; color: #cbd5e1; }
-.rd-gain { position: absolute; left: 6px; bottom: 34px; z-index: 3; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 17px; color: #04150e; background: #34d399; }
+.rd-cond b { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; color: var(--k); }
+.rd-cond em { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-style: normal; font-weight: 700; color: #cbd5e1; }
+.rd-gain { position: absolute; left: 6px; bottom: 34px; z-index: 3; padding: 0 6px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; line-height: 17px; color: #04150e; background: #34d399; }
 .rd-ghost { position: fixed; z-index: 60; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
 .rd-ghost > * { box-shadow: inset 0 0 0 2px #38bdf8 !important; }
 .prism-tx { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: prism 3s linear infinite; }
@@ -2273,7 +2273,7 @@ function FaceChip({ player, className = 'h-16 w-16' }) {
     <div className={`relative shrink-0 overflow-hidden rounded-md border border-white/25 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.9)] ${className}`}
       style={{ background: profile ? `url(${profile}) 50% 8% / cover no-repeat, #111827`
         : src ? `url(${src}) ${player.face || '50% 14%'} / 300% auto no-repeat, #111827` : `linear-gradient(150deg, ${teamColor(player)}, #111827 85%)` }}>
-      {!src && !profile && <span className="absolute inset-0 grid place-items-center text-xl font-black text-white/75">{player.name[0]}</span>}
+      {!src && !profile && <span className="absolute inset-0 grid place-items-center text-t2 font-black text-white/75">{player.name[0]}</span>}
     </div>
   );
 }
@@ -2293,17 +2293,17 @@ const STAT_LABELS = { power: '파워', contact: '컨택', speed: '주루', defen
 function StatBar({ label, value }) {
   return (
     <div className="grid grid-cols-[2rem_1fr_1.5rem] items-center gap-1.5">
-      <span className="text-[11px] text-gray-400">{label}</span>
+      <span className="text-t4 text-gray-400">{label}</span>
       <span className="h-1.5 overflow-hidden rounded-full bg-gray-800">
         <span className={`block h-full rounded-full ${value >= 100 ? 'bg-[#10b981]' : 'bg-gray-400'}`} style={{ width: `${statPct(value)}%` }} />
       </span>
-      <span className={`text-right font-display text-sm font-semibold tabular-nums ${value >= 100 ? 'text-[#10b981]' : 'text-gray-200'}`}>{value}</span>
+      <span className={`text-right font-display text-t3 font-semibold tabular-nums ${value >= 100 ? 'text-[#10b981]' : 'text-gray-200'}`}>{value}</span>
     </div>
   );
 }
 
 function Badge({ children }) {
-  return <span className="rounded border border-gray-600 px-1.5 py-px text-[10px] font-semibold text-gray-300">{children}</span>;
+  return <span className="rounded border border-gray-600 px-1.5 py-px text-t4 font-semibold text-gray-300">{children}</span>;
 }
 
 /* ───── 상단 샐러리 캡 대시보드 ───── */
@@ -2323,29 +2323,29 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2' : 'max-w-7xl py-3'}`}>
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
-          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">메인</p>
-          <h1 className="mt-1 text-xl font-black leading-none text-white">레전드 드래프트</h1>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">메인</p>
+          <h1 className="mt-1 text-t2 font-black leading-none text-white">레전드 드래프트</h1>
         </div>
 
         {/* 지금 드래프트 모드 (가을의 왕조 · 전체 믹스 …) */}
         {modeName && (
           <div className="border-l border-white/10 pl-6 leading-none">
-            <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">드래프트 모드</p>
-            <p className="mt-1 whitespace-nowrap text-lg font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
+            <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">드래프트 모드</p>
+            <p className="mt-1 whitespace-nowrap text-t2 font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
           </div>
         )}
 
         {!slim && <div className="flex items-baseline gap-2">
-          <span className="text-xs font-bold text-gray-500">지명</span>
+          <span className="text-t4 font-bold text-gray-500">지명</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
-          <span className="font-display text-lg font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
+          <span className="font-display text-t2 font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
         </div>}
 
         {!slim && isNoCap(cap) && (
           <div className="min-w-[220px] flex-1">
             <div className="mb-1 flex items-baseline justify-between">
-              <span className="text-xs font-semibold text-gray-400">샐러리 캡</span>
-              <b className="font-display text-2xl font-bold text-[#fbbf24]" style={{ textShadow: '0 0 14px rgba(251,191,36,.5)' }}>제한 없음</b>
+              <span className="text-t4 font-semibold text-gray-400">샐러리 캡</span>
+              <b className="font-display text-t1 font-bold text-[#fbbf24]" style={{ textShadow: '0 0 14px rgba(251,191,36,.5)' }}>제한 없음</b>
             </div>
             <div className="ui-seg" style={{ '--a': '#fbbf24' }} aria-hidden="true">
               {Array.from({ length: 24 }, (_, i) => <i key={i} className="on" />)}
@@ -2354,18 +2354,18 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
         )}
         {!slim && !isNoCap(cap) && <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
-            <span className="text-xs font-semibold text-gray-400">샐러리 캡 잔여</span>
+            <span className="text-t4 font-semibold text-gray-400">샐러리 캡 잔여</span>
             <span className="font-display tabular-nums">
               {preview ? (
                 <>
-                  <span className="text-lg font-bold text-gray-400">{cp}</span>
-                  <span className="mx-1 text-sm font-bold text-gray-500" aria-hidden="true">→</span>
-                  <span className="text-2xl font-bold text-[#34d399]" style={{ textShadow: '0 0 14px rgba(52,211,153,.5)' }} aria-label={`영입하면 ${capAfter}`}>{capAfter}</span>
+                  <span className="text-t2 font-bold text-gray-400">{cp}</span>
+                  <span className="mx-1 text-t3 font-bold text-gray-500" aria-hidden="true">→</span>
+                  <span className="text-t1 font-bold text-[#34d399]" style={{ textShadow: '0 0 14px rgba(52,211,153,.5)' }} aria-label={`영입하면 ${capAfter}`}>{capAfter}</span>
                 </>
               ) : (
-                <span className="text-2xl font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
+                <span className="text-t1 font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
               )}
-              <span className="text-sm text-gray-500"> / {cap} CP</span>
+              <span className="text-t3 text-gray-500"> / {cap} CP</span>
             </span>
           </div>
           <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
@@ -2377,13 +2377,13 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
         <div className="flex items-center gap-3">
           {foreign > 0 && (
             <span title={foreign >= FOREIGN_LIMIT ? '외국인 한도에 도달해 외국인 후보는 잠깁니다' : `외국인 선수는 최대 ${FOREIGN_LIMIT}명`}
-              className="ui-chip ui-cut font-display text-base font-bold tabular-nums" style={{ '--a': foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#94a3b8' }}>
-              <span className="font-sans text-xs font-semibold text-gray-400">외국인</span>
+              className="ui-chip ui-cut font-display text-t3 font-bold tabular-nums" style={{ '--a': foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#94a3b8' }}>
+              <span className="font-sans text-t4 font-semibold text-gray-400">외국인</span>
               <span style={{ color: foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#fff' }}>{foreign}/{FOREIGN_LIMIT}</span>
             </span>
           )}
           <button type="button" onClick={onOpenRules} className="ui-btn ui-cut sm">
-            <span className="grid h-5 w-5 place-items-center rounded-full border border-gray-500 font-display text-xs leading-none" aria-hidden="true">?</span>
+            <span className="grid h-5 w-5 place-items-center rounded-full border border-gray-500 font-display text-t4 leading-none" aria-hidden="true">?</span>
             드래프트 규칙
           </button>
         </div>
@@ -2498,7 +2498,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
 }
 
 /* ───── 드래프트 선반 미니 카드 (누르면 살펴보기, 영입은 왼쪽 판에서) ───── */
-const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 /** 칩 옆 한 줄에 다 들어가게 줄이는 긴 포지션의 글자 크기(cqw, 기본 9.5) — Saira Condensed 500 · 자간 .07em 기준으로 잰 값 */
 const POS_FS = { SP: 9.3, DH: 8.4 };
 
@@ -2552,7 +2552,7 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
           <span className="dr-ticks" aria-hidden="true">
             {Array.from({ length: 24 }, (_, i) => <i key={i} className="on" />)}
           </span>
-          <b style={{ fontSize: '15px' }}>제한 없음</b>
+          <b style={{ fontSize: 14 }}>제한 없음</b>
         </span>
       ) : (
         <span className="dr-cap" style={{ '--a': tone }}>
@@ -2745,7 +2745,7 @@ function SlotToken({ slot, player, kind, flags, bind, boosted, swapIn = null }) 
         <div className="lf-bx"><b>{player ? player.name : '빈 자리'}</b><small className={moved && kind === 'mine' ? 'lf-off' : ''}>{sub}</small></div>
         {eff && (
           <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`} title={boost ? `시너지: ${boost.join(', ')}` : undefined}>
-            {boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}
+            {boost && <span className="mr-0.5 text-t4">▲</span>}{eff.overall}
           </em>
         )}
       </div>
@@ -2805,7 +2805,7 @@ function DragGhost({ player, eff, from, to, delta, x, y, k }) {
         <div className="lf-bx"><b>{player.name}</b><small>{player.year} {player.team}</small></div>
         {to && delta
           ? <DeltaOv before={delta.before} after={delta.after} />
-          : <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{boost && <span className="mr-0.5 text-xs">▲</span>}{eff.overall}</em>}
+          : <em className={`lf-ov font-display not-italic tabular-nums ${boost ? 'up' : ''}`}>{boost && <span className="mr-0.5 text-t4">▲</span>}{eff.overall}</em>}
       </div>
     </div>,
     document.body,
@@ -2992,7 +2992,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
       )}
       {highlight && (
         <button type="button" onClick={onClearFocus}
-          className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-xs font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
+          className="absolute left-3 top-2 z-10 flex items-center gap-1.5 bg-sky-500/15 px-2 py-1 text-t4 font-semibold text-sky-200 shadow-[inset_0_0_0_1px_rgba(56,189,248,.5)] hover:bg-sky-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
           {focusLabel} · {highlight.size}명 <span aria-hidden="true">✕</span>
         </button>
       )}
@@ -3250,8 +3250,8 @@ function RecordRow({ slot, player, eff, rec, cols, best, on, onTap }) {
 function PanelTitle({ children, aside }) {
   return (
     <div className="mb-2 flex items-baseline justify-between">
-      <h3 className="text-sm font-bold text-white">{children}</h3>
-      {aside && <span className="font-display text-sm tabular-nums text-gray-400">{aside}</span>}
+      <h3 className="text-t3 font-bold text-white">{children}</h3>
+      {aside && <span className="font-display text-t3 tabular-nums text-gray-400">{aside}</span>}
     </div>
   );
 }
@@ -3266,17 +3266,17 @@ function RosterPanel({ roster }) {
       <ul className="flex flex-col gap-1">
         {rows.map(({ pos, key, player }) => (
           <li key={key} className={`ui-cut flex items-center gap-2.5 px-2 py-1 ${player ? 'bg-white/[0.045]' : 'shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]'}`} style={{ '--c': '6px' }}>
-            <span className="w-9 shrink-0 font-display text-sm font-bold text-gray-400">{pos}</span>
+            <span className="w-9 shrink-0 font-display text-t3 font-bold text-gray-400">{pos}</span>
             {player ? (
               <>
                 <FaceChip player={player} className="h-8 w-8" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-white">{player.name}</span>
-                  <span className="block font-display text-xs tabular-nums text-gray-500">{player.year} {player.team}{player.naturalPosition && <span className="text-amber-300"> · 원래 {player.naturalPosition}</span>}</span>
+                  <span className="block truncate text-t3 font-semibold text-white">{player.name}</span>
+                  <span className="block font-display text-t4 tabular-nums text-gray-500">{player.year} {player.team}{player.naturalPosition && <span className="text-amber-300"> · 원래 {player.naturalPosition}</span>}</span>
                 </span>
-                <span className="font-display text-lg font-bold tabular-nums text-gray-100">{player.overall}</span>
+                <span className="font-display text-t2 font-bold tabular-nums text-gray-100">{player.overall}</span>
               </>
-            ) : <span className="py-2 text-xs text-gray-600">빈 자리</span>}
+            ) : <span className="py-2 text-t4 text-gray-600">빈 자리</span>}
           </li>
         ))}
       </ul>
@@ -3326,8 +3326,8 @@ function SynergyRow({ s, after, candidate, focused, onFocus }) {
       <Box {...(onFocus ? { type: 'button', onClick: () => onFocus(s.id), 'aria-expanded': !!focused } : {})}
         className={`dock-row ${s.active ? 'on' : ''} ${focused ? 'open' : ''}`}>
         <span className="flex items-center gap-2">
-          <span className={`whitespace-nowrap text-sm font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-100'}`}>{s.name}</span>
-          {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-[11px] font-bold text-[#10b981]">{s.level}단계</span>}
+          <span className={`whitespace-nowrap text-t3 font-bold ${s.active ? 'text-[#10b981]' : 'text-gray-100'}`}>{s.name}</span>
+          {s.tiers.length > 1 && s.level > 0 && <span className="shrink-0 font-display text-t4 font-bold text-[#10b981]">{s.level}단계</span>}
           <span className="ml-auto flex shrink-0 items-center gap-1"
             aria-label={`${maxed ? '최종 단계' : `${stage + 1}단계까지 ${to - s.cur}명`}${next > s.cur ? `, 영입하면 ${Math.min(next, to) - s.cur}칸` : ''}${nextExtra > extra ? ', 영입하면 추가 혜택' : ''}`}>
             <span className="flex gap-0.5">
@@ -3336,30 +3336,30 @@ function SynergyRow({ s, after, candidate, focused, onFocus }) {
               ))}
             </span>
             {nextExtra > 0 && (
-              <span className={`rounded-sm px-1 font-display text-[11px] font-bold leading-4 ${nextExtra > extra ? 'bg-sky-400/20 text-sky-300' : 'bg-[#10b981]/20 text-[#10b981]'}`}>+{nextExtra}</span>
+              <span className={`rounded-sm px-1 font-display text-t4 font-bold leading-4 ${nextExtra > extra ? 'bg-sky-400/20 text-sky-300' : 'bg-[#10b981]/20 text-[#10b981]'}`}>+{nextExtra}</span>
             )}
           </span>
         </span>
         {focused ? (
           <span className="mt-1.5 block">
             {s.names ? (
-              <span className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs">
+              <span className="flex flex-wrap gap-x-2 gap-y-0.5 text-t4">
                 {s.names.map((k) => (
                   <span key={k} className={mine.has(k) ? 'font-semibold text-gray-100' : k === candKey ? 'font-semibold text-sky-300' : 'text-gray-500'}>{k}</span>
                 ))}
               </span>
             ) : (
-              <span className="block text-xs">
+              <span className="block text-t4">
                 <span className="text-gray-500">{s.cond}</span>
                 {inLineup.length > 0 && (
                   <span className="mt-0.5 flex flex-wrap gap-x-2">{inLineup.map((x) => <span key={x.key} className={x.cls}>{x.label}</span>)}</span>
                 )}
               </span>
             )}
-            <span className="mt-1 block text-[11px] font-semibold text-[#10b981]">{s.effect}</span>
+            <span className="mt-1 block text-t4 font-semibold text-[#10b981]">{s.effect}</span>
           </span>
         ) : (
-          <span className="mt-0.5 block truncate text-xs">
+          <span className="mt-0.5 block truncate text-t4">
             {inLineup.length
               ? inLineup.map((x, i) => <span key={x.key} className={x.cls}>{i ? ' · ' : ''}{x.label}</span>)
               : <span className="text-gray-500">{s.cond}</span>}
@@ -3378,7 +3378,7 @@ function SynergyPanel({ roster, focusId, onFocus }) {
       <PanelTitle aside={`${list.length} On`}>적용 중인 시너지</PanelTitle>
       {list.length
         ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
-        : <p className="text-xs text-gray-500">완성된 시너지 없음</p>}
+        : <p className="text-t4 text-gray-500">완성된 시너지 없음</p>}
     </section>
   );
 }
@@ -3488,7 +3488,7 @@ function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
         <header className={`flex items-start justify-between gap-4 px-6 pt-5 ${bar ? 'pb-3' : 'border-b border-white/10 pb-4'}`}>
           <div>
             {eyebrow && <p className="ui-lab font-display">{eyebrow}</p>}
-            <h2 className="mt-1 text-2xl font-black text-white">{title}</h2>
+            <h2 className="mt-1 text-t1 font-black text-white">{title}</h2>
           </div>
           <button type="button" onClick={onClose} aria-label="닫기" autoFocus
             className="grid h-9 w-9 place-items-center text-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
@@ -3587,14 +3587,14 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
     <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${augments.length}/${total}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-xs leading-relaxed text-gray-500">{total ? `정비를 마치고 시즌을 시작하면 증강 ${total}개 고르기` : '증강 없이 치르는 모드'}</p>
+        <p className="text-t4 leading-relaxed text-gray-500">{total ? `정비를 마치고 시즌을 시작하면 증강 ${total}개 고르기` : '증강 없이 치르는 모드'}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
             <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
-              <span className="text-sm font-bold">{a.name}{a.lv ? <b className="ml-1 font-display" style={{ color: TIER_NEON[a.tier] }}>+{a.lv}</b> : null}</span>
-              <p className="mt-0.5 text-xs text-gray-400">{augDescAt(a)}</p>
-              {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
+              <span className="text-t3 font-bold">{a.name}{a.lv ? <b className="ml-1 font-display" style={{ color: TIER_NEON[a.tier] }}>+{a.lv}</b> : null}</span>
+              <p className="mt-0.5 text-t4 text-gray-400">{augDescAt(a)}</p>
+              {a.cond && <p className="text-t4 text-gray-500">조건 · {a.cond}</p>}
             </li>
           ))}
         </ul>
@@ -3627,15 +3627,15 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
       <span className="absolute inset-0" style={{ background: `radial-gradient(80% 45% at 50% 28%, ${acc}33, transparent 70%), linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%)` }} />
       <span className="ui-scan absolute inset-0 opacity-70" />
       <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between">
-        <span className="ui-cut px-3 py-0.5 font-display text-[13px] font-extrabold tracking-[0.34em] text-[#05080f]" style={{ '--c': '6px', background: acc }}>{TIER_EN[o.tier]}</span>
+        <span className="ui-cut px-3 py-0.5 font-display text-t3 font-extrabold tracking-[0.34em] text-[#05080f]" style={{ '--c': '6px', background: acc }}>{TIER_EN[o.tier]}</span>
         <span className="grid h-12 w-[42px] place-items-center" style={{ color: acc, background: `color-mix(in srgb, ${acc} 22%, rgba(5,8,15,.75))`, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}><TierIcon tier={o.tier} /></span>
       </div>
       <div className="relative z-10 mt-auto px-6 pb-5">
         <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>
           {o.name}{o.lv ? <b className="ml-1.5 font-display" style={{ color: acc }}>+{o.lv}</b> : null}
         </h3>
-        <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{augDescAt(o)}</p>
-        <p className="mt-3 border-t pt-2.5 text-xs font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>{o.cond ? `조건 · ${o.cond}` : AUG_TYPE[o.type] || ''}</p>
+        <p className="mt-2 min-h-[2.75rem] text-t3 leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{augDescAt(o)}</p>
+        <p className="mt-3 border-t pt-2.5 text-t4 font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>{o.cond ? `조건 · ${o.cond}` : AUG_TYPE[o.type] || ''}</p>
         <button type="button" onClick={() => onChoose(o)} className="ui-btn ui-cut mt-3 w-full">선택</button>
       </div>
     </section>
@@ -3655,7 +3655,7 @@ function MementoOverlay({ memento, onTake, onSkip }) {
         <div className="text-center animate-[rise_.4s_ease-out_both]">
           <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>드래프트 기념 카드 · {memento.why}</p>
           <h2 className="mt-2 text-4xl font-black text-white">한 명 데려오기</h2>
-          {memento.full && <p className="mt-2 text-sm font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
+          {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-5">
           {memento.options.map((p, i) => (
@@ -3693,7 +3693,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
             {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : heading) : '시즌 돌발 이벤트'}
             {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
           </h2>
-          {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
+          {!isAug && <p className="mt-2 text-t3 text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-6">
           {choice.options.map((o, i) => (
@@ -3813,18 +3813,18 @@ function FieldView({ play, myName }) {
         </svg>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 px-3 pb-3 md:py-4">
-          {!play ? <p className="text-sm text-gray-500">플레이볼을 기다리는 중…</p> : (
+          {!play ? <p className="text-t3 text-gray-500">플레이볼을 기다리는 중…</p> : (
             <>
-              <p className="font-display text-xs tracking-[0.3em] text-gray-400">{play.inning}회{play.isTop ? '초' : '말'} · {play.isTop ? 'AI 올스타' : myName} 공격</p>
-              <div className="flex items-center gap-2 font-display text-sm text-gray-300">
+              <p className="font-display text-t4 tracking-[0.3em] text-gray-400">{play.inning}회{play.isTop ? '초' : '말'} · {play.isTop ? 'AI 올스타' : myName} 공격</p>
+              <div className="flex items-center gap-2 font-display text-t3 text-gray-300">
                 OUT {[0, 1, 2].map((i) => <span key={i} className={`h-3.5 w-3.5 rounded-full ${i < play.outs ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}
               </div>
               <div key={play.key} className="animate-[rise_.35s_ease-out_both]">
-                <p className="text-lg font-bold text-white">{play.batter?.name}</p>
+                <p className="text-t2 font-bold text-white">{play.batter?.name}</p>
                 <p className="font-display text-4xl font-extrabold" style={{ color: play.kind === 'HR' ? '#fde047' : good ? offColor : '#9ca3af', textShadow: play.kind === 'HR' ? '0 0 24px rgba(253,224,71,.7)' : undefined }}>
-                  {PLAY_LABEL[play.kind]}{play.scored.length ? <span className="ml-2 text-2xl text-white">+{play.scored.length}</span> : null}
+                  {PLAY_LABEL[play.kind]}{play.scored.length ? <span className="ml-2 text-t1 text-white">+{play.scored.length}</span> : null}
                 </p>
-                {play.scored.length > 0 && <p className="mt-1 text-sm text-gray-300">홈인 · {play.scored.map((p) => p.name).join(', ')}</p>}
+                {play.scored.length > 0 && <p className="mt-1 text-t3 text-gray-300">홈인 · {play.scored.map((p) => p.name).join(', ')}</p>}
               </div>
             </>
           )}
@@ -3846,7 +3846,7 @@ function Scoreboard({ board, half, myName, oppName }) {
     <div className="ui-cut ui-frame ui-glass2 overflow-x-auto px-3 py-2.5" style={{ '--c': '14px' }}>
       <table className="w-full min-w-[600px] border-collapse font-display">
         <thead>
-          <tr className="text-xs font-semibold uppercase tracking-widest text-gray-500">
+          <tr className="text-t4 font-semibold uppercase tracking-widest text-gray-500">
             <th className="px-3 pb-1 text-left">팀</th>
             {Array.from({ length: 9 }, (_, i) => <th key={i} className="w-11 pb-1">{i + 1}</th>)}
             <th className="w-14 pb-1 text-[#10b981]">R</th>
@@ -3855,20 +3855,20 @@ function Scoreboard({ board, half, myName, oppName }) {
         <tbody>
           {rows.map((r) => (
             <tr key={r.key} className="border-t border-white/[0.07]">
-              <td className="whitespace-nowrap px-3 py-1 font-sans text-base font-bold text-white">
+              <td className="whitespace-nowrap px-3 py-1 font-sans text-t3 font-bold text-white">
                 <span className="mr-2.5 inline-block h-5 w-1.5 -skew-x-12 align-middle" style={{ background: r.top ? '#f87171' : '#10b981' }} />
-                <span className="mr-2 font-display text-[10px] font-semibold tracking-widest text-gray-500">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
+                <span className="mr-2 font-display text-t4 font-semibold tracking-widest text-gray-500">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
               </td>
               {r.arr.map((v, i) => {
                 const live = half && half.inning === i + 1 && half.isTop === r.top;
                 return (
                   <td key={i} style={v !== null ? { animation: 'cellIn .8s ease-out' } : undefined}
-                    className={`h-11 text-center text-2xl font-bold tabular-nums ${live ? 'bg-[#10b981]/15 shadow-[inset_0_-2px_0_#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-500' : 'text-white'}`}>
-                    {v === null ? (live ? <span className="text-base text-[#10b981]">●</span> : '') : v}
+                    className={`h-11 text-center text-t1 font-bold tabular-nums ${live ? 'bg-[#10b981]/15 shadow-[inset_0_-2px_0_#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-500' : 'text-white'}`}>
+                    {v === null ? (live ? <span className="text-t3 text-[#10b981]">●</span> : '') : v}
                   </td>
                 );
               })}
-              <td className={`text-center text-3xl font-bold tabular-nums ${leader === r.key ? 'text-[#10b981] [text-shadow:0_0_14px_rgba(16,185,129,.6)]' : 'text-white'}`}>{total(r.arr)}</td>
+              <td className={`text-center text-t1 font-bold tabular-nums ${leader === r.key ? 'text-[#10b981] [text-shadow:0_0_14px_rgba(16,185,129,.6)]' : 'text-white'}`}>{total(r.arr)}</td>
             </tr>
           ))}
         </tbody>
@@ -3885,7 +3885,7 @@ function LiveLog({ logs, paused }) {
     <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col" style={{ '--c': '14px' }}>
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
         <h3 className="ui-lab font-display">문자 중계</h3>
-        {paused && <span className="text-xs font-bold text-[#10b981]">하이라이트 · 일시정지</span>}
+        {paused && <span className="text-t4 font-bold text-[#10b981]">하이라이트 · 일시정지</span>}
       </div>
       <ol ref={ref} className="syn-scroll flex max-h-[26rem] flex-col gap-1 overflow-y-auto p-2">
         {logs.map((l) => {
@@ -3893,16 +3893,16 @@ function LiveLog({ logs, paused }) {
           if (l.kind === 'augment') {
             const cut = l.text.indexOf('] ');
             return (
-              <li key={l.id} className="animate-[rise_.3s_ease-out_both] bg-white/[0.045] px-3 py-2 text-sm" style={{ boxShadow: `inset 3px 0 0 ${TIER_NEON[l.tier]}` }}>
-                <span className="mr-2 font-display text-xs font-semibold text-gray-500">{inn}</span>
+              <li key={l.id} className="animate-[rise_.3s_ease-out_both] bg-white/[0.045] px-3 py-2 text-t3" style={{ boxShadow: `inset 3px 0 0 ${TIER_NEON[l.tier]}` }}>
+                <span className="mr-2 font-display text-t4 font-semibold text-gray-500">{inn}</span>
                 <span className="font-bold" style={{ color: TIER_NEON[l.tier] }}>{cut > 0 ? l.text.slice(0, cut + 1) : ''}</span>
                 <span className="text-white"> {cut > 0 ? l.text.slice(cut + 2) : l.text}</span>
               </li>
             );
           }
           return (
-            <li key={l.id} className={`grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-2 rounded px-2 py-1 text-sm ${l.kind === 'system' ? 'text-gray-400' : l.kind === 'score' ? 'bg-white/[0.03] text-white' : 'text-gray-400'}`}>
-              <span className="font-display text-xs font-semibold text-gray-500">{inn}</span>
+            <li key={l.id} className={`grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-2 rounded px-2 py-1 text-t3 ${l.kind === 'system' ? 'text-gray-400' : l.kind === 'score' ? 'bg-white/[0.03] text-white' : 'text-gray-400'}`}>
+              <span className="font-display text-t4 font-semibold text-gray-500">{inn}</span>
               <span>{l.text}</span>
               {l.runs > 0 && <span className="font-display font-bold tabular-nums text-white">+{l.runs}</span>}
             </li>
@@ -3931,7 +3931,7 @@ function HighlightToast({ toast }) {
           style={{ clipPath: 'polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%)' }}>
           <p className="ui-lab font-display">증강 발동</p>
           <p className="mt-1 font-display text-5xl font-extrabold italic leading-none text-white" style={{ textShadow: `0 0 30px ${acc}`, textWrap: 'balance' }}>{augment.name}!</p>
-          <p className="mt-2 text-base text-gray-100">{text}</p>
+          <p className="mt-2 text-t3 text-gray-100">{text}</p>
         </div>
       </div>
     </div>
@@ -3961,14 +3961,14 @@ function DuelRow({ label, mine, opp }) {
       style={{ background: v >= other ? `linear-gradient(${right ? 270 : 90}deg,transparent,${c}33)` : 'rgba(255,255,255,.035)',
         boxShadow: v > other ? `inset 0 -2px 0 ${c}` : 'none' }}>
       <Portrait player={p} className="h-8 w-6 shrink-0" />
-      <b className={`min-w-0 flex-1 truncate text-[13px] font-bold ${v >= other ? 'text-white' : 'text-gray-400'}`}>{p?.name}</b>
-      <b className="font-display text-[17px] font-bold tabular-nums" style={{ color: v > other ? c : v < other ? '#475569' : '#94a3b8' }}>{v}</b>
+      <b className={`min-w-0 flex-1 truncate text-t3 font-bold ${v >= other ? 'text-white' : 'text-gray-400'}`}>{p?.name}</b>
+      <b className="font-display text-t2 font-bold tabular-nums" style={{ color: v > other ? c : v < other ? '#475569' : '#94a3b8' }}>{v}</b>
     </span>
   );
   return (
     <div className="grid items-stretch" style={{ gridTemplateColumns: 'minmax(0,1fr) 34px minmax(0,1fr)' }}>
       {side(mine, a, b, '#10b981', false)}
-      <em className="grid place-items-center font-display text-[12px] font-bold not-italic text-gray-600">{label}</em>
+      <em className="grid place-items-center font-display text-t4 font-bold not-italic text-gray-600">{label}</em>
       {side(opp, b, a, '#f87171', true)}
     </div>
   );
@@ -3998,15 +3998,15 @@ function StarterCard({ player, right, side }) {
       {/* 이름이 앉을 아래쪽과 바깥쪽에만 구단 색이 스민다 */}
       <span className="absolute inset-0" style={{ background: `linear-gradient(0deg, rgba(5,8,15,.96) 4%, ${c}1c 46%, transparent 74%)` }} />
       <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, transparent 54%)` }} />
-      <b className="absolute top-2 font-display text-[30px] font-extrabold leading-none"
+      <b className="absolute top-2 font-display text-t1 font-extrabold leading-none"
         style={{ [right ? 'right' : 'left']: 14, color: c, textShadow: `0 0 18px ${c}88` }}>{player.overall}</b>
       <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: side }}>{right ? 'AI Starter' : 'My Starter'}</p>
-        <p className="text-[25px] font-black leading-tight text-white">{player.name}</p>
-        <p className="text-[11px] text-gray-400">{player.year} {player.team}</p>
-        <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
+        <p className="font-display text-t4 font-bold uppercase tracking-[0.24em]" style={{ color: side }}>{right ? 'AI Starter' : 'My Starter'}</p>
+        <p className="text-t1 font-black leading-tight text-white">{player.name}</p>
+        <p className="text-t4 text-gray-400">{player.year} {player.team}</p>
+        <p className={`mt-0.5 flex gap-2.5 text-t4 text-gray-400 ${right ? 'justify-end' : ''}`}>
           {[['구위', player.stats.stuff], ['제구', player.stats.control], ['체력', player.stats.stamina]].map(([k, v]) => (
-            <span key={k}>{k} <b className="font-display text-[12.5px] text-gray-100">{v}</b></span>
+            <span key={k}>{k} <b className="font-display text-t4 text-gray-100">{v}</b></span>
           ))}
         </p>
       </div>
@@ -4036,8 +4036,8 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
     <div className="ui-cut relative flex min-h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5" style={{ '--c': '10px', background: `linear-gradient(90deg,${acc}30,rgba(6,10,19,.92))` }}>
       <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: acc, boxShadow: `0 0 12px ${acc}` }} />
       <span className="min-w-0 flex-1">
-        <b className="block truncate text-base font-black text-white">{name}</b>
-        <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{mine ? 'MY TEAM' : 'AI OPPONENT'} · 타선 {avg(team.batters)} · 마운드 {avg([team.sps[0], ...team.pen].filter(Boolean))}</small>
+        <b className="block truncate text-t3 font-black text-white">{name}</b>
+        <small className="font-display text-t4 tracking-[0.12em] text-gray-400">{mine ? 'MY TEAM' : 'AI OPPONENT'} · 타선 {avg(team.batters)} · 마운드 {avg([team.sps[0], ...team.pen].filter(Boolean))}</small>
       </span>
       <b className="font-display text-4xl font-extrabold leading-none" style={{ color: acc, textShadow: `0 0 18px ${acc}88` }}>{teamOvr(team)}</b>
     </div>
@@ -4048,15 +4048,15 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px' }}>
         <p className="ui-lab font-display px-1 pt-1">경기 준비</p>
         {teamTile(my, '나의 드림팀', '#10b981', true)}
-        <p className="py-0.5 text-center font-display text-sm font-extrabold italic text-gray-500">VS</p>
+        <p className="py-0.5 text-center font-display text-t3 font-extrabold italic text-gray-500">VS</p>
         {teamTile(opp, 'AI 올스타', '#f87171', false)}
         {augments.length > 0 && (
           <div className="mt-2">
-            <p className="ui-lab font-display px-1 pb-2" style={{ fontSize: 10, '--a': '#c4b5fd' }}>가진 증강</p>
+            <p className="ui-lab font-display px-1 pb-2" style={{ fontSize: 12, '--a': '#c4b5fd' }}>가진 증강</p>
             <div className="flex flex-col gap-1.5">
               {augments.map((au) => (
-                <span key={au.id} className="ui-cut flex items-center gap-2 bg-white/[0.045] px-2.5 py-1.5 text-sm text-gray-200" style={{ '--c': '6px' }}>
-                  <b className="font-display text-[11px]" style={{ color: TIER_NEON[au.tier] }}>{TIER_EN[au.tier]}</b><span className="truncate">{au.name}</span>
+                <span key={au.id} className="ui-cut flex items-center gap-2 bg-white/[0.045] px-2.5 py-1.5 text-t3 text-gray-200" style={{ '--c': '6px' }}>
+                  <b className="font-display text-t4" style={{ color: TIER_NEON[au.tier] }}>{TIER_EN[au.tier]}</b><span className="truncate">{au.name}</span>
                 </span>
               ))}
             </div>
@@ -4087,9 +4087,9 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
                 <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
                   <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>포지션 맞대결</p>
                   <span className="ml-auto flex items-baseline gap-1.5">
-                    <b className="font-display text-xl font-extrabold text-[#10b981]">{won}</b>
+                    <b className="font-display text-t2 font-extrabold text-[#10b981]">{won}</b>
                     <small className="text-gray-600">:</small>
-                    <b className="font-display text-xl font-extrabold text-[#f87171]">{lost}</b>
+                    <b className="font-display text-t2 font-extrabold text-[#f87171]">{lost}</b>
                   </span>
                 </div>
                 <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-[3px] overflow-y-auto pr-1">
@@ -4104,16 +4104,16 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       {/* 오른쪽: 예상 승률 · 경기 시작 */}
       <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
         <p className="ui-lab font-display">예상 승률</p>
-        <h2 className="-mt-2 text-3xl font-black text-white">나의 드림팀 <span className="font-display text-gray-500">vs</span> AI 올스타</h2>
+        <h2 className="-mt-2 text-t1 font-black text-white">나의 드림팀 <span className="font-display text-gray-500">vs</span> AI 올스타</h2>
         <dl className="grid grid-cols-3 gap-1.5">
           {[['팀 OVR', teamOvr(my)], ['상대 OVR', teamOvr(opp)], ['증강', augments.length]].map(([k, v]) => (
             <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
-              <dt className="text-[10px] text-gray-400">{k}</dt><dd className="font-display text-xl font-bold leading-tight text-white">{v}</dd>
+              <dt className="text-t4 text-gray-400">{k}</dt><dd className="font-display text-t2 font-bold leading-tight text-white">{v}</dd>
             </div>
           ))}
         </dl>
         <div>
-          <div className="flex justify-between font-display text-3xl font-bold tabular-nums"><span className="text-[#10b981]">{pct}%</span><span className="text-red-400">{100 - pct}%</span></div>
+          <div className="flex justify-between font-display text-t1 font-bold tabular-nums"><span className="text-[#10b981]">{pct}%</span><span className="text-red-400">{100 - pct}%</span></div>
           <div className="mt-1.5 flex h-3 gap-1">
             <i className="-skew-x-12 bg-[#10b981] shadow-[0_0_10px_#10b981]" style={{ flex: pct }} />
             <i className="-skew-x-12 bg-red-400" style={{ flex: 100 - pct }} />
@@ -4121,7 +4121,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
         </div>
         {/* 여섯 축 맞대기 — 토너먼트 · 랭크전과 같은 판 */}
         <VsAxes mine={my} opp={opp} />
-        <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>{startLabel}</button>
+        <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={onStart} autoFocus>{startLabel}</button>
       </aside>
     </section>
   );
@@ -4137,12 +4137,12 @@ function Plate({ player, label }) {
     <div className="ui-cut ui-glass2 flex gap-3 p-2.5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '14px' }}>
       <span className="ui-cut ui-frame relative block h-[5.5rem] w-[4.5rem] shrink-0 bg-[#0b1220] bg-no-repeat" style={{ '--c': '10px', '--a': acc, ...bust }} />
       <div className="min-w-0 flex-1">
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
-        <p className="truncate text-xl font-black leading-tight text-white">{player.name}</p>
-        <p className="truncate text-xs text-gray-400">{player.year} {player.team} · {POS_LABEL[player.position]}</p>
+        <p className="font-display text-t4 font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
+        <p className="truncate text-t2 font-black leading-tight text-white">{player.name}</p>
+        <p className="truncate text-t4 text-gray-400">{player.year} {player.team} · {POS_LABEL[player.position]}</p>
         <div className="mt-1.5 flex flex-wrap gap-1">
           {keys.map((k) => (
-            <span key={k} className="ui-cut bg-white/[0.05] px-2 py-0.5 text-[10px] text-gray-400" style={{ '--c': '4px' }}>{STAT_LABELS[k]} <b className="font-display text-sm text-white">{player.stats[k]}</b></span>
+            <span key={k} className="ui-cut bg-white/[0.05] px-2 py-0.5 text-t4 text-gray-400" style={{ '--c': '4px' }}>{STAT_LABELS[k]} <b className="font-display text-t3 text-white">{player.stats[k]}</b></span>
           ))}
         </div>
       </div>
@@ -4193,25 +4193,25 @@ function ManagerBlock({ flow, calls, gain, tone }) {
       <div className="min-w-0">
         <p className="ui-lab font-display mb-1.5" style={{ '--a': tone }}>승부 흐름</p>
         <WinCurve flow={flow} tone={tone} />
-        <p className="mt-1 flex justify-between font-display text-[11px] text-gray-500"><span>플레이볼</span><span>경기 끝</span></p>
+        <p className="mt-1 flex justify-between font-display text-t4 text-gray-500"><span>플레이볼</span><span>경기 끝</span></p>
       </div>
       <div className="flex min-w-0 flex-col gap-2">
         <div className="ui-cut flex items-baseline gap-3 bg-white/[0.045] px-4 py-2.5" style={{ '--c': '10px' }}>
-          <span className="text-[12px] text-gray-400">내 지시</span>
+          <span className="text-t4 text-gray-400">내 지시</span>
           <b className="font-display text-4xl font-extrabold leading-none" style={{ color: pct > 0 ? '#34d399' : pct < 0 ? '#f87171' : '#9ca3af' }}>
-            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-[13px] text-gray-500">%p</small>
+            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-t3 text-gray-500">%p</small>
           </b>
-          <span className="ml-auto font-display text-[13px] text-gray-400">{calls.length}번</span>
+          <span className="ml-auto font-display text-t3 text-gray-400">{calls.length}번</span>
         </div>
         {top3.length ? top3.map((c, i) => (
           <div key={i} className="ui-cut grid grid-cols-[3.2rem_minmax(0,1fr)_2.8rem] items-center gap-2 bg-white/[0.035] px-3 py-1.5" style={{ '--c': '7px' }}>
-            <span className="font-display text-[12px] font-bold text-gray-400">{c.inning}회{c.top ? '초' : '말'}</span>
-            <span className="truncate text-[12.5px] text-gray-100">{c.ko}</span>
-            <b className="text-right font-display text-[14px] font-extrabold" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>
+            <span className="font-display text-t4 font-bold text-gray-400">{c.inning}회{c.top ? '초' : '말'}</span>
+            <span className="truncate text-t4 text-gray-100">{c.ko}</span>
+            <b className="text-right font-display text-t3 font-extrabold" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>
               {c.delta > 0 ? '+' : ''}{Math.round(c.delta * 100)}
             </b>
           </div>
-        )) : <p className="px-1 text-[12.5px] text-gray-500">지시 없이 끝난 경기</p>}
+        )) : <p className="px-1 text-t4 text-gray-500">지시 없이 끝난 경기</p>}
       </div>
     </div>
   );
@@ -4229,17 +4229,17 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
       <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
         <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? 'WIN' : winner === 'opp' ? 'LOSE' : 'DRAW'}</p>
         <div>
-          <p className="mb-1 text-xs text-gray-400">나의 드림팀 vs AI 올스타</p>
+          <p className="mb-1 text-t4 text-gray-400">나의 드림팀 vs AI 올스타</p>
           <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-600">:</span>{score.opp}</p>
         </div>
         <div className="ml-auto text-right">
-          <p className="text-[12px] font-bold text-gray-500">시즌 전적</p>
+          <p className="text-t4 font-bold text-gray-500">시즌 전적</p>
           <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
         </div>
       </div>
       {result.flow && <ManagerBlock flow={result.flow} calls={result.calls || []} gain={result.gain || 0} tone={tone} />}
       <div className="relative">
-        <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-lg font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
+        <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-t2 font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
         <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
       </div>
       <div className="flex min-w-0 flex-col gap-3">
@@ -4247,8 +4247,8 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
         <dl className="ui-cut grid grid-cols-3 bg-white/[0.045]" style={{ '--c': '10px' }}>
           {lines.map(([k, v], i) => (
             <div key={k} className={`px-4 py-2.5 ${i ? 'border-l border-white/10' : ''}`}>
-              <dt className="text-[11px] text-gray-400">{k}</dt>
-              <dd className="font-display text-3xl font-bold tabular-nums" style={{ color: neonOf(mvp) }}>{v}</dd>
+              <dt className="text-t4 text-gray-400">{k}</dt>
+              <dd className="font-display text-t1 font-bold tabular-nums" style={{ color: neonOf(mvp) }}>{v}</dd>
             </div>
           ))}
         </dl>
@@ -4257,11 +4257,11 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
           const c = l.kind === 'augment' ? TIER_NEON[l.tier] : '#10b981';
           return (
             <div key={l.id} className="ui-cut grid grid-cols-[3.5rem_1fr] items-center gap-3 bg-white/[0.045] px-3 py-2" style={{ '--c': '8px', boxShadow: `inset 3px 0 0 ${c}` }}>
-              <span className="font-display text-sm font-bold" style={{ color: c }}>{l.inning}회{l.isTop ? '초' : '말'}</span>
-              <span className="text-sm text-gray-100">{l.text}</span>
+              <span className="font-display text-t3 font-bold" style={{ color: c }}>{l.inning}회{l.isTop ? '초' : '말'}</span>
+              <span className="text-t3 text-gray-100">{l.text}</span>
             </div>
           );
-        }) : <p className="text-sm text-gray-500">큰 장면 없이 끝난 경기</p>}
+        }) : <p className="text-t3 text-gray-500">큰 장면 없이 끝난 경기</p>}
       </div>
       <div className="flex flex-col gap-1">
         <p className="ui-lab font-display">선수 평점</p>
@@ -4269,10 +4269,10 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
           <div key={c.player.id} className="grid grid-cols-[2rem_minmax(0,1fr)_2.75rem] items-center gap-2.5 py-1">
             <Portrait player={c.player} className="h-10 w-8" />
             <span className="min-w-0">
-              <b className="block truncate text-sm text-white">{c.player.name}</b>
-              <small className="block truncate text-[11px] text-gray-500">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
+              <b className="block truncate text-t3 text-white">{c.player.name}</b>
+              <small className="block truncate text-t4 text-gray-500">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
             </span>
-            <span className="text-center font-display text-2xl font-extrabold" style={{ color: neonOf(c.player) }}>{gradeOf(c.pts)}</span>
+            <span className="text-center font-display text-t1 font-extrabold" style={{ color: neonOf(c.player) }}>{gradeOf(c.pts)}</span>
           </div>
         ))}
       </div>
@@ -4280,7 +4280,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
         <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
         {gauntlet ? (
           <>
-            <span className="mr-auto font-display text-sm text-gray-400">{gauntlet.label}</span>
+            <span className="mr-auto font-display text-t3 text-gray-400">{gauntlet.label}</span>
             <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>{gauntlet.cta} ▶</button>
           </>
         ) : (
@@ -4344,8 +4344,8 @@ function YearFace({ p, w = 70, h = 92 }) {
     <div className="ui-cut relative shrink-0 overflow-hidden bg-[#0b1220] bg-cover" title={`${p.name} ${p.overall}`}
       style={{ '--c': '7px', width: w, height: h, backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 12%' }}>
       <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.3),rgba(5,8,15,0) 40%,#05080f)' }} />
-      <b className="absolute left-1.5 top-0.5 font-display text-[13px]" style={{ color: rdTone(p.overall) === 'prism' ? '#fde047' : rdTone(p.overall) }}>{p.overall}</b>
-      <b className="absolute inset-x-1 bottom-0.5 truncate text-center text-[11px] text-white">{p.name}</b>
+      <b className="absolute left-1.5 top-0.5 font-display text-t3" style={{ color: rdTone(p.overall) === 'prism' ? '#fde047' : rdTone(p.overall) }}>{p.overall}</b>
+      <b className="absolute inset-x-1 bottom-0.5 truncate text-center text-t4 text-white">{p.name}</b>
     </div>
   );
 }
@@ -4393,9 +4393,9 @@ function BasicHero({ mode, tickets, acc }) {
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <div className="flex items-end gap-4">
             <div className="min-w-0 flex-1">
-              <b className="text-[13px] font-extrabold" style={{ color: acc }}>{mode.group === 'special' ? '특별 모드' : '베이직 모드'}</b>
+              <b className="text-t3 font-extrabold" style={{ color: acc }}>{mode.group === 'special' ? '특별 모드' : '베이직 모드'}</b>
               <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
-              <span className="mt-2 block text-[15px] text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
+              <span className="mt-2 block text-t3 text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
             </div>
             {hero && <div className="shrink-0" style={{ width: 176, height: 112, ...veil }}><SeriesTicket t={hero} acc={acc} fit /></div>}
           </div>
@@ -4426,16 +4426,16 @@ function SeriesFolds({ groups, acc }) {
           <React.Fragment key={ko}>
             <button type="button" onClick={() => setOpen(on ? '' : ko)}
               className="mt-3 flex w-full items-center gap-2 text-left transition hover:brightness-125">
-              <b className="text-[12px] text-gray-300">{ko} {list.length}</b>
+              <b className="text-t4 text-gray-300">{ko} {list.length}</b>
               <span className="h-px flex-1 bg-white/10" />
-              <span className="font-display text-[11px] text-gray-500">{on ? '접기 ▲' : '펼치기 ▼'}</span>
+              <span className="font-display text-t4 text-gray-500">{on ? '접기 ▲' : '펼치기 ▼'}</span>
             </button>
             {on && (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {list.map((t) => (
-                  <span key={t.key} className="ui-cut inline-flex items-center gap-1.5 bg-white/[0.055] px-2.5 py-1 text-[12.5px] text-gray-200"
+                  <span key={t.key} className="ui-cut inline-flex items-center gap-1.5 bg-white/[0.055] px-2.5 py-1 text-t4 text-gray-200"
                     style={{ '--c': '5px' }} title={t.sub || t.title}>
-                    {Number.isFinite(t.year) && <b className="font-display text-[12px]" style={{ color: acc }}>{t.year}</b>}
+                    {Number.isFinite(t.year) && <b className="font-display text-t4" style={{ color: acc }}>{t.year}</b>}
                     {seriesChipName(t.title)}
                   </span>
                 ))}
@@ -4457,11 +4457,11 @@ function YearBig({ p, w, h }) {
   return (
     <div className="ui-cut relative shrink-0 overflow-hidden bg-[#0b1220] bg-cover" style={{ '--c': '12px', width: w, height: h, backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 8%' }}>
       <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.2),rgba(5,8,15,0) 35%,rgba(5,8,15,.92) 74%,#05080f)' }} />
-      <b className="absolute right-2.5 top-2 font-display text-2xl" style={{ color: c, textShadow: '0 2px 6px #000' }}>{p.overall}</b>
+      <b className="absolute right-2.5 top-2 font-display text-t1" style={{ color: c, textShadow: '0 2px 6px #000' }}>{p.overall}</b>
       <div className="absolute inset-x-3 bottom-2.5">
-        <span className="font-display text-[11px] tracking-[0.18em] text-gray-400">{POS_LABEL[p.position] || p.position} · {p.team}</span>
-        <b className="mt-0.5 block truncate text-2xl font-black text-white">{p.name}</b>
-        {p.note && <span className="mt-0.5 block truncate text-[11.5px] text-gray-400">{p.note}</span>}
+        <span className="font-display text-t4 tracking-[0.18em] text-gray-400">{POS_LABEL[p.position] || p.position} · {p.team}</span>
+        <b className="mt-0.5 block truncate text-t1 font-black text-white">{p.name}</b>
+        {p.note && <span className="mt-0.5 block truncate text-t4 text-gray-400">{p.note}</span>}
       </div>
     </div>
   );
@@ -4480,7 +4480,7 @@ function YearPicker({ yearId, onPick }) {
           const on = d === here;
           return (
             <button key={d} type="button" role="radio" aria-checked={on} onClick={() => onPick(inDecade(d)[0].id)}
-              className={`ui-cut px-3 py-1 font-display text-sm font-bold ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+              className={`ui-cut px-3 py-1 font-display text-t3 font-bold ${on ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
               style={{ '--c': '5px', background: on ? '#a3e635' : undefined }}>{d}년대</button>
           );
         })}
@@ -4493,7 +4493,7 @@ function YearPicker({ yearId, onPick }) {
           return (
             <button key={m.id} type="button" role="radio" aria-checked={on} onClick={() => onPick(m.id)}
               title={hero ? `${m.year} ${hero.title}` : String(m.year)}
-              className={`ui-cut flex items-center gap-1.5 px-3 py-1 font-display text-sm ${on ? 'font-bold text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`ui-cut flex items-center gap-1.5 px-3 py-1 font-display text-t3 ${on ? 'font-bold text-white' : 'text-gray-400 hover:text-white'}`}
               style={{ '--c': '5px', background: 'rgba(255,255,255,.06)', boxShadow: on ? 'inset 0 0 0 1px #a3e635' : 'none' }}>
               {m.year}
               <span className="block rounded-full" style={{ width: 5, height: 5, background: flag?.color || '#475569', opacity: hero?.champion ? 1 : 0.45 }} />
@@ -4536,12 +4536,12 @@ function YearHero({ mode, acc }) {
                 <path d="M12 14v3" /><path d="M9 20.5h6" /><path d="M10 17.5h4l1 3H9l1-3Z" />
               </svg>
             )}
-            <b className="font-display text-[13px] tracking-[0.25em]" style={{ color: hero?.champion ? '#fcd34d' : acc }}>
+            <b className="font-display text-t3 tracking-[0.25em]" style={{ color: hero?.champion ? '#fcd34d' : acc }}>
               {mode.year} {hero?.champion ? 'CHAMPION' : live ? 'IN PROGRESS' : 'SEASON'}
             </b>
           </span>
           <b className="mt-2 block text-5xl font-black leading-none text-white">{hero?.title || mode.name}</b>
-          <span className="mt-2 block text-[15px] text-gray-300">{hero?.subtitle || `${list.length} 시리즈 · ${mode.players.length}명`}</span>
+          <span className="mt-2 block text-t3 text-gray-300">{hero?.subtitle || `${list.length} 시리즈 · ${mode.players.length}명`}</span>
           {heroT && <div className="mt-4 shrink-0" style={{ height: 176 }}><SeriesTicket t={heroT} acc={acc} /></div>}
           <p className="ui-lab font-display" style={{ '--a': acc }}>시리즈 {rest.length}</p>
           <div className="syn-scroll mt-1.5 grid min-h-0 gap-1.5 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gridAutoRows: '82px' }}>
@@ -4569,9 +4569,9 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
     <div className={`ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat ${sm || fit ? '' : 'min-h-[11rem]'}`}
       style={{ '--c': sm ? '8px' : '12px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }}>
       <span className="absolute inset-0" style={{ background: sm ? 'linear-gradient(180deg,rgba(5,8,15,.82),rgba(5,8,15,.9))' : 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
-      {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-xs font-semibold text-gray-500">준비 중</span>}
+      {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-t4 font-semibold text-gray-500">준비 중</span>}
       {!sm && (
-        <span className={`absolute left-3 top-2 font-display text-3xl font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
+        <span className={`absolute left-3 top-2 font-display text-t1 font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
           style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
       )}
       {/* 한국시리즈 우승 — 작은 트로피로 조용하게 */}
@@ -4585,9 +4585,9 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
         </span>
       )}
       <div className={sm ? 'absolute inset-x-2 bottom-1.5' : 'absolute inset-x-3 bottom-2.5'}>
-        {sm && <b className={`block truncate font-display text-[11.5px] ${t.locked ? 'text-gray-600' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
-        <p className={`truncate font-black ${sm ? 'text-[12.5px]' : 'text-base'} ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
-        {!sm && <p className="truncate text-[11px] text-gray-400">{t.sub}</p>}
+        {sm && <b className={`block truncate font-display text-t4 ${t.locked ? 'text-gray-600' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
+        <p className={`truncate font-black ${sm ? 'text-t4' : 'text-t3'} ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
+        {!sm && <p className="truncate text-t4 text-gray-400">{t.sub}</p>}
       </div>
     </div>
   );
@@ -4597,19 +4597,19 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
 function SettingRow({ label, options, labels, value, onChange, fixed = null }) {
   if (fixed != null) {
     return (
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-t3 text-gray-300">
         <span>{label}</span>
-        <b className="font-display text-[15px] text-gray-400">{fixed}</b>
+        <b className="font-display text-t3 text-gray-400">{fixed}</b>
       </div>
     );
   }
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-sm text-gray-300">
+    <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2.5 text-t3 text-gray-300">
       <span>{label}</span>
       <div className="flex gap-1" role="radiogroup" aria-label={label}>
         {options.map((o) => (
           <button key={o} type="button" role="radio" aria-checked={value === o} onClick={() => onChange(o)}
-            className={`ui-cut px-2.5 py-0.5 font-display text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${value === o ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+            className={`ui-cut px-2.5 py-0.5 font-display text-t3 font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${value === o ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
             style={{ '--c': '5px', background: value === o ? 'var(--a)' : undefined }}>
             {labels ? labels[o] : o}
           </button>
@@ -4661,10 +4661,10 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
-          <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">메인</p>
-          <h1 className="mt-1 text-xl font-black leading-none text-white">플레이</h1>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">메인</p>
+          <h1 className="mt-1 text-t2 font-black leading-none text-white">플레이</h1>
         </div>
-        {record && <p className="ml-auto text-sm text-gray-400">최근 기록 <b className="font-display text-lg text-white">{record}</b></p>}
+        {record && <p className="ml-auto text-t3 text-gray-400">최근 기록 <b className="font-display text-t2 text-white">{record}</b></p>}
       </header>
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>
@@ -4681,8 +4681,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
                     style={{ '--c': '10px', background: on ? `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))` : undefined }}>
                     <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
                     <span className="min-w-0">
-                      <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-                      <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{it.sub}</small>
+                      <b className={`block truncate text-t3 font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
+                      <small className="font-display text-t4 tracking-[0.12em] text-gray-400">{it.sub}</small>
                     </span>
                     {on && <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: it.neon, boxShadow: `0 0 12px ${it.neon}` }} />}
                   </button>
@@ -4698,11 +4698,11 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <p className="ui-lab font-display">{special ? '모드 규칙' : view === 'year' ? '시즌 고르기' : '나오는 시리즈'}</p>
               {special && (
                 <span className="flex flex-wrap gap-1.5">
-                  {mode.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: mode.neon }}>{r}</span>)}
+                  {mode.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-t4 font-bold text-[#05080f]" style={{ '--c': '4px', background: mode.neon }}>{r}</span>)}
                 </span>
               )}
               {mode.id === 'legend' && mode.series.length === 1 && (
-                <p className="text-sm text-gray-400">{`레전드 ${mode.players.length}명 중 대표 선수`}</p>
+                <p className="text-t3 text-gray-400">{`레전드 ${mode.players.length}명 중 대표 선수`}</p>
               )}
             </div>
             {view === 'year' && <div className="relative z-10"><YearPicker yearId={yearId} onPick={setYearId} /></div>}
@@ -4713,8 +4713,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         {play ? play.aside : (
           <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
             <p className="ui-lab font-display">고른 모드</p>
-            <h2 className="-mt-2 text-3xl font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
-            <p className="text-sm leading-relaxed text-gray-300">{mode.desc}</p>
+            <h2 className="-mt-2 text-t1 font-black text-white">{view === 'year' && yearMode ? yearMode.name : mode.name}</h2>
+            <p className="text-t3 leading-relaxed text-gray-300">{mode.desc}</p>
             {/* 어느 모드든 같은 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
               <SettingRow label="드래프트 방식" options={[false, true]} labels={{ false: '혼자 뽑기', true: '같이 뽑기' }} value={live} onChange={setLive}
@@ -4724,7 +4724,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
               <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat} />
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5840,7 +5840,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
         <div className="pointer-events-none fixed inset-x-0 top-[22vh] z-40 flex justify-center px-4" aria-live="assertive">
           <div className="ui-cut flex items-center gap-3 px-6 py-3.5 animate-[rise_.3s_ease-out_both]"
             style={{ '--c': '12px', background: 'rgba(8,12,20,.94)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5), 0 18px 40px rgba(0,0,0,.6)' }}>
-            <b className="font-display text-lg tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
+            <b className="font-display text-t2 tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
             <span className="h-4 w-px bg-white/20" />
             <b className="text-[0.95rem] text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
           </div>
@@ -5876,7 +5876,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'clamp(4.2rem, 13vh, 8rem)' }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
-                  <p className="text-sm text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 70)로 채워집니다.</p>
+                  <p className="text-t3 text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 70)로 채워집니다.</p>
                   <button type="button" className={btnPrimary} onClick={() => finishDraft(roster)}>이대로 정비하러 가기</button>
                 </div>
               )}
@@ -5979,7 +5979,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               <div ref={shelfRef} className="mx-auto grid w-full grid-cols-[repeat(auto-fill,minmax(4.6rem,1fr))] gap-1.5 lg:grid-cols-[repeat(var(--n),minmax(0,1fr))] lg:gap-[3px]"
                 style={{ '--n': shelfCols, maxWidth: `calc(${shelfCols} * var(--card-w) + ${shelfCols - 1} * 3px)` }}>
                 {shownCards.length === 0 && (
-                  <p className="col-span-full py-6 text-center text-sm text-gray-400">
+                  <p className="col-span-full py-6 text-center text-t3 text-gray-400">
                     {posFilter?.pos ? `이 시리즈에는 ${shelfFilter === 'open' ? '영입 가능한 ' : ''}${POS_LABEL[posFilter.pos]} 선수 없음 · 새로고침으로 다른 시리즈` : '영입할 선수 없음'}
                   </p>
                 )}
@@ -6118,15 +6118,15 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="ui-lab font-display" style={{ '--a': phase === 'sim' ? '#f87171' : '#10b981' }}>{phase === 'sim' ? '경기 중' : '경기 끝'}</p>
-                  <h2 className="mt-1 text-2xl font-black text-white">AI 올스타 <span className="font-display text-gray-500">vs</span> 나의 드림팀</h2>
+                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-500">vs</span> 나의 드림팀</h2>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="font-display text-lg tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
+                  <span className="font-display text-t2 tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
                   {phase === 'sim' && (
                     <div className="ui-cut ui-glass2 flex gap-1 p-1" style={{ '--c': '8px' }} role="group" aria-label="중계 배속">
                       {[1, 2, 4].map((s) => (
                         <button key={s} type="button" onClick={() => setSpeed(s)} aria-pressed={speed === s}
-                          className={`ui-cut px-3.5 py-1 font-display text-sm font-bold ${speed === s ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>
+                          className={`ui-cut px-3.5 py-1 font-display text-t3 font-bold ${speed === s ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>
                           ×{s}
                         </button>
                       ))}
@@ -6143,18 +6143,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 <LiveLog logs={logs} paused={paused} />
                 <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
                   <PanelTitle>증강 리스너</PanelTitle>
-                  {augments.length === 0 ? <p className="text-xs text-gray-500">보유 증강 없음</p> : (
+                  {augments.length === 0 ? <p className="text-t4 text-gray-500">보유 증강 없음</p> : (
                     <ul className="flex flex-col gap-1.5">
                       {augments.map((a) => {
                         const n = fireCount(a);
                         return (
                           <li key={a.id} className={`rounded-md border px-2.5 py-2 ${n ? TIER[a.tier].chip : 'border-gray-700 bg-[#111827]'}`}>
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm font-bold">{a.name}</span>
-                              {!a.passive && <span className="font-display text-sm tabular-nums">{n}/{augMax(a)}</span>}
+                              <span className="text-t3 font-bold">{a.name}</span>
+                              {!a.passive && <span className="font-display text-t3 tabular-nums">{n}/{augMax(a)}</span>}
                             </div>
-                            <p className="mt-0.5 text-[11px] text-gray-400">{augDescAt(a)}</p>
-                            {a.cond && <p className="text-[11px] text-gray-500">조건 · {a.cond}</p>}
+                            <p className="mt-0.5 text-t4 text-gray-400">{augDescAt(a)}</p>
+                            {a.cond && <p className="text-t4 text-gray-500">조건 · {a.cond}</p>}
                           </li>
                         );
                       })}
@@ -6176,10 +6176,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             {seriesChoices.map((x) => (
               <button key={x.id} type="button" onClick={() => useSeriesTicket(x)}
                 className="ui-cut flex items-center gap-3 bg-white/[0.05] px-3 py-2.5 text-left transition hover:bg-white/[0.1]" style={{ '--c': '8px' }}>
-                <span className="font-display text-sm text-[#fbbf24]">{x.year ?? 'LEG'}</span>
+                <span className="font-display text-t3 text-[#fbbf24]">{x.year ?? 'LEG'}</span>
                 <span className="min-w-0">
-                  <b className="block truncate text-sm text-white">{x.title}</b>
-                  <small className="block truncate text-[11.5px] text-gray-400">{SERIES_KIND_LABEL[x.kind]} · {x.players.length}명</small>
+                  <b className="block truncate text-t3 text-white">{x.title}</b>
+                  <small className="block truncate text-t4 text-gray-400">{SERIES_KIND_LABEL[x.kind]} · {x.players.length}명</small>
                 </span>
               </button>
             ))}

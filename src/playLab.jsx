@@ -51,13 +51,13 @@ function Guide({ marks }) {
 
 const Row = ({ label, children }) => (
   <div className="flex items-center gap-2">
-    <b className="w-[92px] shrink-0 font-display text-[11px] tracking-[0.18em] text-emerald-400">{label}</b>
+    <b className="w-[92px] shrink-0 font-display text-t4 tracking-[0.18em] text-emerald-400">{label}</b>
     <div className="flex flex-wrap items-center gap-1.5">{children}</div>
   </div>
 );
 const Pick = ({ on, onClick, children }) => (
   <button type="button" onClick={onClick}
-    className={`px-2.5 py-1 text-[12px] ${on ? 'bg-emerald-400 font-bold text-[#05080f]' : 'bg-white/[0.07] text-gray-300 hover:bg-white/15'}`}>{children}</button>
+    className={`px-2.5 py-1 text-t4 ${on ? 'bg-emerald-400 font-bold text-[#05080f]' : 'bg-white/[0.07] text-gray-300 hover:bg-white/15'}`}>{children}</button>
 );
 
 function Lab() {
@@ -87,22 +87,22 @@ function Lab() {
         <Row label="필드 보정">
           <Pick on={guide} onClick={() => setGuide((v) => !v)}>다이아몬드 자</Pick>
           {[['homeY', '홈 Y', 600, 890], ['sideY', '1·3루 Y', 400, 750], ['secondY', '2루 Y', 300, 650], ['halfW', '좌우 반폭', 180, 520]].map(([k, n, lo, hi]) => (
-            <label key={k} className="flex items-center gap-1.5 text-[11px] text-gray-400">
+            <label key={k} className="flex items-center gap-1.5 text-t4 text-gray-400">
               {n}
               <input type="range" min={lo} max={hi} value={cal[k]} onChange={(e) => setCal((c) => ({ ...c, [k]: +e.target.value }))} className="w-24" />
               <em className="w-9 font-display not-italic text-gray-200">{cal[k]}</em>
             </label>
           ))}
-          <code className="bg-white/[0.06] px-2 py-1 text-[11px] text-emerald-300">{JSON.stringify(cal)}</code>
+          <code className="bg-white/[0.06] px-2 py-1 text-t4 text-emerald-300">{JSON.stringify(cal)}</code>
         </Row>
       </div>
 
-      <p className="mb-1.5 font-display text-sm text-yellow-300">{label} — {bg.name}</p>
+      <p className="mb-1.5 font-display text-t3 text-yellow-300">{label} — {bg.name}</p>
       <div className="relative" style={{ width: 816, height: 500, maxWidth: '100%' }}>
         <PlayView event={ev} beatMs={2600} bases={ev.before.bases} offColor="#34d399" defColor="#f87171" bg={bg} />
         {guide && <Guide marks={marks} />}
       </div>
-      <p className="mt-2 text-[12px] text-gray-500">
+      <p className="mt-2 text-t4 text-gray-500">
         이 자리 위에 점수판 · 아래에 작전 버튼과 해설 · 실제 화면은 /play-lab.html?full
       </p>
     </div>

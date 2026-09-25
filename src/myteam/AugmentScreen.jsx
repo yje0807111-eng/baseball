@@ -63,7 +63,7 @@ const TICKETS = [
 
 const GroupHead = ({ label, c }) => (
   <div className="flex items-center gap-3 pb-1.5 pt-3">
-    <p className="mt-lab" style={{ '--a': c, fontSize: 11 }}>{label}</p>
+    <p className="mt-lab" style={{ '--a': c, fontSize: 12 }}>{label}</p>
     <span className="h-px flex-1" style={{ background: c === RED ? 'rgba(248,113,113,.3)' : 'rgba(255,255,255,.1)' }} />
   </div>
 );
@@ -75,8 +75,8 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = n
   /* 제외 · 풀기 · 강화는 오른쪽 PICK 카드에서 한다 — 줄의 단추는 그 카드를 여는 것까지 */
   const btn = !upgrade ? null
     : lv >= AUG_LEVEL_MAX
-      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] text-xs font-bold text-gray-500" style={cut(6)}>최대</span>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onPick(a); }} className="mt-cut h-9 text-xs font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>강화</button>;
+      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] text-t4 font-bold text-gray-500" style={cut(6)}>최대</span>
+      : <button type="button" onClick={(e) => { e.stopPropagation(); onPick(a); }} className="mt-cut h-9 text-t4 font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>강화</button>;
   return (
     <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
       className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
@@ -86,19 +86,19 @@ function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = n
       <span className="mt-cut h-12 bg-[#0b1220] bg-cover" style={{ ...cut(8), backgroundImage: `url(augments/${a.id}.webp)`, backgroundPosition: 'center 22%', boxShadow: `inset 0 0 0 1px ${tone}59`, filter: banned ? 'grayscale(1) brightness(.6)' : undefined }} />
       <div className="min-w-0">
         <div className="flex items-center gap-3">
-          <b className={`truncate text-base font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
-          {lv > 0 && <span className="font-display text-sm" style={{ color: tone }}>+{lv}</span>}
+          <b className={`truncate text-t3 font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
+          {lv > 0 && <span className="font-display text-t3" style={{ color: tone }}>+{lv}</span>}
           <Pips lv={lv} c={banned ? '#4b5563' : c} />
           {onFav && (
             <button type="button" title={fav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={fav}
               onClick={(e) => { e.stopPropagation(); onFav(a); }}
-              className="ml-auto shrink-0 px-1 text-base leading-none transition-[color,transform] duration-150 hover:scale-110"
+              className="ml-auto shrink-0 px-1 text-t3 leading-none transition-[color,transform] duration-150 hover:scale-110"
               style={{ color: fav ? '#fbbf24' : 'rgba(148,163,184,.45)', textShadow: fav ? '0 0 10px rgba(251,191,36,.55)' : 'none' }}>
               {fav ? '★' : '☆'}
             </button>
           )}
         </div>
-        <p className={`mt-0.5 truncate text-[13px] ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{augDescAt(a, lv)}</p>
+        <p className={`mt-0.5 truncate text-t3 ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{augDescAt(a, lv)}</p>
       </div>
       {btn}
     </div>
@@ -175,7 +175,7 @@ export default function AugmentScreen({ account, onBack }) {
                   {/* 칸 그림: public/ui/aug/<키>.webp (scripts/aug-tier-art.mjs 로 만든다 — 등급 색 빛 · 같은 어두운 배경) */}
                   <span className="mt-cut h-[2.75rem] w-10 shrink-0 bg-cover bg-center" style={{ ...cut(8), backgroundImage: `url(ui/aug/${it.key}.webp)`, boxShadow: `inset 0 0 0 1px ${it.c}66`, filter: on ? undefined : 'saturate(.8) brightness(.8)' }} />
                   <span className="min-w-0 flex-1">
-                    <b className={`block truncate text-base font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
+                    <b className={`block truncate text-t3 font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
                   </span>
                 </button>
               </React.Fragment>
@@ -186,10 +186,10 @@ export default function AugmentScreen({ account, onBack }) {
               <div key={t.key} className="mt-cut flex h-[62px] items-center gap-[11px] bg-white/[0.04] pr-3" style={cut(8)}>
                 <span className="h-[50px] w-11 shrink-0 bg-cover" style={{ ...cut(7), backgroundImage: `url(${t.img})`, backgroundPosition: 'center 30%', boxShadow: `inset 0 0 0 1px ${t.c}59` }} />
                 <span className="grid min-w-0 flex-1 gap-px">
-                  <b className="text-[13.5px] text-[#e8ecf2]">{t.ko}</b>
-                  <small className="whitespace-nowrap text-[11.5px] text-gray-500">{t.tip}</small>
+                  <b className="text-t3 text-[#e8ecf2]">{t.ko}</b>
+                  <small className="whitespace-nowrap text-t4 text-gray-500">{t.tip}</small>
                 </span>
-                <b className="font-display text-[23px]" style={{ color: t.c }}>{aug[t.key]}</b>
+                <b className="font-display text-t1" style={{ color: t.c }}>{aug[t.key]}</b>
               </div>
             ))}
           </div>
@@ -203,7 +203,7 @@ export default function AugmentScreen({ account, onBack }) {
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
                   <button key={t} type="button" onClick={() => { setUpTier(t); setSel(null); }}
-                    className={`mt-cut px-3 py-1 font-display text-sm font-bold ${upTier === t ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
+                    className={`mt-cut px-3 py-1 font-display text-t3 font-bold ${upTier === t ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
                     style={{ ...cut(5), background: upTier === t ? GREEN : undefined }}>{TIER[t].ko}</button>
                 ))}
               </div>
@@ -246,7 +246,7 @@ export default function AugmentScreen({ account, onBack }) {
               <>
                 <div className="flex items-baseline justify-between gap-3">
                   <p className="mt-lab" style={{ '--a': c }}>고른 증강</p>
-                  <b className="font-display text-sm" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
+                  <b className="font-display text-t3" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
                 </div>
                 <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]"
                   style={{ ...cut(18), '--a': c, filter: pickBanned ? 'saturate(.12) brightness(.66)' : 'none', transition: 'filter .38s ease' }}>
@@ -255,25 +255,25 @@ export default function AugmentScreen({ account, onBack }) {
                   <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
                   <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
                   <div className="absolute inset-x-4 top-4 flex items-center gap-2">
-                    <span className="mt-cut px-2 font-display text-[11px] font-extrabold tracking-[0.14em] text-[#05080f]" style={{ ...cut(4), background: c }}>{T.en}</span>
-                    <span className="text-xs text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
-                    <span aria-hidden={!pickBanned} className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-[11px] font-extrabold text-[#05080f]"
+                    <span className="mt-cut px-2 font-display text-t4 font-extrabold text-[#05080f]" style={{ ...cut(4), background: c }}>{T.ko}</span>
+                    <span className="text-t4 text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
+                    <span aria-hidden={!pickBanned} className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-t4 font-extrabold text-[#05080f]"
                       style={{ ...cut(4), opacity: pickBanned ? 1 : 0, transform: pickBanned ? 'none' : 'translateY(-4px)', transition: 'opacity .3s ease, transform .3s ease' }}>제외됨</span>
                   </div>
                   <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
-                    <b className="block text-[27px] font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                    {picked.note && <p className="mt-1.5 text-[13px] leading-snug text-gray-400">{picked.note}</p>}
+                    <b className="block text-t1 font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
+                    {picked.note && <p className="mt-1.5 text-t3 leading-snug text-gray-400">{picked.note}</p>}
                     <div className="mt-2.5 grid gap-[5px]">
                       {(() => { const base = effectRows(picked.desc); return effectRows(augDescAt(picked, lv)).map(([head, num], i) => {
                         const gain = gainOf(num, base[i]?.[1]);
                         return (
                           <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
                             style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
-                            <small className="min-w-0 text-[13px] leading-snug text-gray-300">{head}</small>
+                            <small className="min-w-0 text-t3 leading-snug text-gray-300">{head}</small>
                             {num && (
                               <span className="flex shrink-0 items-baseline gap-2">
-                                {gain && <small className="font-display text-[12px] text-gray-500">{gain}</small>}
-                                <b className="font-display text-[21px] leading-none" style={{ color: c }}>{num}</b>
+                                {gain && <small className="font-display text-t4 text-gray-500">{gain}</small>}
+                                <b className="font-display text-t2 leading-none" style={{ color: c }}>{num}</b>
                               </span>
                             )}
                           </span>
@@ -281,7 +281,7 @@ export default function AugmentScreen({ account, onBack }) {
                       }); })()}
                     </div>
                     <span className="mt-3 flex items-center gap-2.5">
-                      <small className="font-display text-[11px] font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
+                      <small className="font-display text-t4 font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
                       <Pips lv={lv} c={c} />
                     </span>
                   </div>
@@ -293,7 +293,7 @@ export default function AugmentScreen({ account, onBack }) {
                       {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
                         <>
                           <span>+{lv + 1} 강화하기</span>
-                          <small className="text-[12.5px] font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
+                          <small className="text-t4 font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
                         </>
                       )}
                     </button>
@@ -305,15 +305,15 @@ export default function AugmentScreen({ account, onBack }) {
                   )}
                   {tab !== 'upgrade' && (
                   <div className="flex gap-2">
-                    <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-[14px]"
+                    <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-t3"
                       style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
                       disabled={!pickBanned && full} onClick={() => toggleBan(picked)}>
                       {pickBanned ? '제외 풀기 ↺' : full ? `칸 가득 · 최대 ${slots}칸` : '이 증강 제외하기 ✕'}
                     </button>
                     <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
-                      className="mt-btn shrink-0 gap-1.5 px-4 text-[14px]"
+                      className="mt-btn shrink-0 gap-1.5 px-4 text-t3"
                       style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
-                      <span className="text-base leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
+                      <span className="text-t3 leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
                     </button>
                   </div>
                   )}
@@ -323,31 +323,31 @@ export default function AugmentScreen({ account, onBack }) {
           })() : tab === 'upgrade' ? (
             <>
               <p className="mt-lab" style={{ '--a': GREEN }}>강화 현황</p>
-              <h2 className="-mt-2 text-3xl font-black text-white">증강 강화</h2>
+              <h2 className="-mt-2 text-t1 font-black text-white">증강 강화</h2>
             </>
           ) : (
             <>
               <p className="mt-lab" style={{ '--a': RED }}>제외 칸</p>
-              <h2 className="-mt-2 text-3xl font-black text-white">증강 제외</h2>
-              <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
+              <h2 className="-mt-2 text-t1 font-black text-white">증강 제외</h2>
+              <p className="text-t3 leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
               <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">
                 {bans.map(byId).filter(Boolean).map((a, k) => (
                   <div key={a.id} className="mt-cut flex items-center gap-3 bg-[#f87171]/10 px-3 py-2" style={cut(6)}>
-                    <span className="w-4 font-display text-xs text-gray-500">{k + 1}</span>
-                    <span className="font-display text-lg font-extrabold" style={{ color: T.c }}>{a.name[0]}</span>
-                    <span className="min-w-0 flex-1"><b className="block truncate text-sm text-white">{a.name}</b><small className="block truncate text-[11px] text-gray-500">{a.desc}</small></span>
-                    <button type="button" onClick={() => toggleBan(a)} className="text-xs text-[#f87171] hover:text-white" aria-label={`${a.name} 제외 풀기`}>↺</button>
+                    <span className="w-4 font-display text-t4 text-gray-500">{k + 1}</span>
+                    <span className="font-display text-t2 font-extrabold" style={{ color: T.c }}>{a.name[0]}</span>
+                    <span className="min-w-0 flex-1"><b className="block truncate text-t3 text-white">{a.name}</b><small className="block truncate text-t4 text-gray-500">{a.desc}</small></span>
+                    <button type="button" onClick={() => toggleBan(a)} className="text-t4 text-[#f87171] hover:text-white" aria-label={`${a.name} 제외 풀기`}>↺</button>
                   </div>
                 ))}
                 {Array.from({ length: Math.max(0, slots - bans.length) }, (_, k) => (
-                  <div key={`e${k}`} className="mt-cut flex items-center gap-3 px-3 py-2 text-sm text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.2)]" style={cut(6)}>
-                    <span className="w-4 font-display text-xs">{bans.length + k + 1}</span>빈 제외 칸
+                  <div key={`e${k}`} className="mt-cut flex items-center gap-3 px-3 py-2 text-t3 text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.2)]" style={cut(6)}>
+                    <span className="w-4 font-display text-t4">{bans.length + k + 1}</span>빈 제외 칸
                   </div>
                 ))}
               </div>
             </>
           )}
-          {msg && <p className="text-center text-sm text-amber-200">{msg}</p>}
+          {msg && <p className="text-center text-t3 text-amber-200">{msg}</p>}
         </aside>
       </div>
     </div>
