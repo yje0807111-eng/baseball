@@ -126,7 +126,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
       <div className="ui-cut relative min-h-0 flex-1 overflow-hidden bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/broadcast-field.webp)', backgroundPosition: 'center 60%' }}>
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
         <div className="absolute bottom-6 left-7">
-          <p className="ui-lab font-display">Next Match</p>
+          <p className="ui-lab font-display">다음 경기</p>
           <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> {oppName || '무작위 팀'}</p>
           <p className="mt-2 font-display text-lg" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
@@ -135,7 +135,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
         </div>
       </div>
       <div className="flex items-baseline gap-3 pt-4">
-        <p className="ui-lab font-display">My Squad</p>
+        <p className="ui-lab font-display">주전 선수</p>
         <p className="text-sm text-gray-400">{squad.length} / {SQUAD_SIZE} · 종합 상위 8명</p>
         <Btn sm className="ml-auto" onClick={onLocker}>내 라커 ›</Btn>
       </div>
@@ -173,9 +173,9 @@ export function TourneyHero({ size, t, name, squad }) {
       <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/tour/tunnel.webp)', backgroundPosition: 'center 45%' }} />
       <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,.15) 45%,#05080f)' }} />
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <p className="ui-lab font-display" style={{ '--a': A }}>Tournament · {size}</p>
+        <p className="ui-lab font-display" style={{ '--a': A }}>{size}강 토너먼트</p>
         <div className="mt-auto text-center">
-          <p className="font-display text-xs font-bold tracking-[0.4em]" style={{ color: A }}>ROAD TO THE TITLE</p>
+          <p className="font-display text-xs font-bold tracking-[0.4em]" style={{ color: A }}>우승까지</p>
           <h1 className="mt-2 text-6xl font-black leading-none text-white">{size}강 토너먼트</h1>
           <p className="mt-3 text-lg text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
           <div className="mt-5 flex items-center justify-center gap-2">
@@ -196,7 +196,7 @@ export function TourneyHero({ size, t, name, squad }) {
         </div>
         {squad && (
           <div className="ui-cut mt-auto flex items-center gap-5 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
-            <span className="ui-lab font-display" style={{ '--a': '#34d399' }}>My Team</span>
+            <span className="ui-lab font-display" style={{ '--a': '#34d399' }}>우리 팀</span>
             <b className="text-xl text-white">{name}</b>
             <span className="text-gray-400">팀 종합 <b className="font-display text-xl text-white">{teamStats(squad).ovr || '-'}</b></span>
             <span className="ml-auto flex gap-1.5">
@@ -241,14 +241,14 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
       ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
-      <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? 'Single Game' : `Tournament · ${format}`}</p>
+      <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? '단판 승부' : `${format}강 토너먼트`}</p>
       <h2 className="-mt-2 text-3xl font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
         <>
-          <p className="ui-lab font-display" style={{ '--a': G }}>Today</p>
+          <p className="ui-lab font-display" style={{ '--a': G }}>오늘의 상대</p>
           <OppPreview opp={duel} />
-          <p className="ui-lab font-display" style={{ '--a': G }}>Recent {recent.length ? `· ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패` : ''}</p>
+          <p className="ui-lab font-display" style={{ '--a': G }}>최근 경기 {recent.length ? `· ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패` : ''}</p>
           <RecentGames games={recent} />
         </>
       ) : (
@@ -269,7 +269,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
                 <p className="text-[11px] text-gray-400">우승 상금</p>
                 <b className="font-display text-3xl" style={{ color: A }}>{finishOf(format)[rounds.length].gold} G</b>
               </div>
-              <p className="ui-lab font-display" style={{ '--a': A }}>Prize</p>
+              <p className="ui-lab font-display" style={{ '--a': A }}>라운드 보상</p>
               {/* 라운드가 다섯 이상이면(32 · 64강) 줄을 촘촘하게 해 스크롤 없이 담는다 */}
               <div className="min-h-0 flex-1">
                 {rounds.map((r, i2) => (
@@ -277,7 +277,7 @@ export function normalPanels({ account, format = 'single', onFormat, onPlay, onT
                     v={`${finishOf(format)[i2 + 1].gold} G`} color={i2 === rounds.length - 1 ? A : '#fff'} sm={rounds.length > 4} />
                 ))}
               </div>
-              <p className="ui-lab font-display" style={{ '--a': G }}>My Team</p>
+              <p className="ui-lab font-display" style={{ '--a': G }}>우리 팀</p>
               <div className="shrink-0">
                 <Stats items={[['팀 종합', st.ovr || '-'], ['엔트리', squad.length], ['외국인', `${foreignCount(squad)}/3`]]} />
               </div>

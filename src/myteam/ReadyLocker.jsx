@@ -97,7 +97,6 @@ function SynergyDockMini({ synergies = [] }) {
   return (
     <div ref={rootRef} className="relative" onMouseLeave={() => setHover(null)}>
       <div className="flex shrink-0 items-center gap-2 pb-1">
-        <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: A.syn }}>SYNERGY</span>
         <b className="text-[12px] text-gray-300">시너지 {on.length}/{synergies.length}</b>
         <span className="h-px flex-1 bg-white/10" />
       </div>
@@ -147,7 +146,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': c }}>
-      <p className="mt-lab" style={{ '--a': c }}>Scouting</p>
+      <p className="mt-lab" style={{ '--a': c }}>상대 분석</p>
       <div className="flex shrink-0 items-center gap-2.5">
         {opponent.emblem && <span className="block h-11 w-11 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${opponent.emblem})` }} />}
         <b className="min-w-0 flex-1 truncate text-[17px] font-black text-white">{opponent.name}</b>
@@ -196,7 +195,6 @@ function ScoutPanel({ opponent, sums, myOvr }) {
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex shrink-0 items-center gap-2 pb-1">
-          <span className="font-display text-[10px] tracking-[0.2em]" style={{ color: A.bat }}>LINEUP</span>
           <b className="text-[12px] text-gray-300">타순 {lineup.length}</b>
           <span className="h-px flex-1 bg-white/10" />
         </div>
@@ -226,7 +224,7 @@ function RosterPanel({ squad, cap }) {
   const POS = [['SP', '선발'], ['RP', '불펜'], ['C', '포수'], ['1B', '1루수'], ['2B', '2루수'], ['3B', '3루수'], ['SS', '유격수'], ['OF', '외야수'], ['DH', '지명타자']];
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': A.main }}>
-      <p className="mt-lab">Roster</p>
+      <p className="mt-lab">선수 구성</p>
       <div className="flex items-baseline justify-between">
         <h2 className="text-[24px] font-black text-white">내 엔트리</h2>
         <span className="font-display"><b className="text-[17px] text-emerald-400">{squad.length}</b><small className="text-[13px] text-gray-500">/{cap}</small></span>
@@ -325,7 +323,7 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
       <div className="flex shrink-0 items-baseline gap-2.5">
-        <p className="mt-lab">War Room</p>
+        <p className="mt-lab">경기 준비</p>
         <span className="ml-auto flex items-baseline gap-1.5">
           <small className="text-[11px] text-gray-500">팀 종합</small>
           <b className="font-display text-[30px] font-extrabold leading-none" style={{ color: A.syn }}>{team.ovr}</b>

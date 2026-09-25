@@ -97,7 +97,7 @@ function BoxScore({ d }) {
   const row = 'grid items-center gap-2 border-b border-white/[0.06] py-1 text-[14px]';
   return (
     <div className="flex min-w-0 flex-col">
-      <BoxHead label="Lineup" a="#34d399" cols={['컨디션', '타수', '안타', '홈런', '타점', '볼넷']} />
+      <BoxHead label="타격 기록" a="#34d399" cols={['컨디션', '타수', '안타', '홈런', '타점', '볼넷']} />
       {d.lineup.map((b, i) => (
         <div key={b.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
           <b className="font-display text-gray-500">{i + 1}</b>
@@ -112,7 +112,7 @@ function BoxScore({ d }) {
         </div>
       ))}
       <div className="h-4" />
-      <BoxHead label="Mound" a="#f87171" cols={['컨디션', '투구', '타자', '피안타', '삼진', '실점']} />
+      <BoxHead label="투구 기록" a="#f87171" cols={['컨디션', '투구', '타자', '피안타', '삼진', '실점']} />
       {d.arms.length === 0 && <small className="text-[12px] text-gray-500">등판 기록 없음</small>}
       {d.arms.map((p) => (
         <div key={p.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
@@ -198,9 +198,9 @@ function Curve({ d, tone }) {
 function FlowSide({ d, tone }) {
   return (
     <div className="flex min-w-0 flex-col">
-      <p className="mt-lab pb-2" style={lab(tone)}>Win Flow</p>
+      <p className="mt-lab pb-2" style={lab(tone)}>승률 흐름</p>
       {d.flow ? <Curve d={d} tone={tone} /> : <small className="text-[12px] text-gray-500">흐름 기록 없음</small>}
-      <p className="mt-lab pb-1 pt-3" style={lab('#34d399')}>Calls</p>
+      <p className="mt-lab pb-1 pt-3" style={lab('#34d399')}>승부처 지시</p>
       {d.calls.length === 0 && <small className="text-[12px] text-gray-500">지시 없이 끝난 경기</small>}
       {d.calls.map((c, i) => (
         <div key={i} className="grid items-center gap-2 border-b border-white/10 py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 40px' }}>
@@ -209,7 +209,7 @@ function FlowSide({ d, tone }) {
           <b className="text-right font-display text-[16px]" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>{pct(c.delta)}</b>
         </div>
       ))}
-      <p className="mt-lab pb-1 pt-4" style={lab('#fbbf24')}>Scoring</p>
+      <p className="mt-lab pb-1 pt-4" style={lab('#fbbf24')}>득점 장면</p>
       {d.plays.length === 0 && <small className="text-[12px] text-gray-500">득점 없음</small>}
       {byHalf(d.plays).map((p, i) => (
         <div key={i} className="grid items-start gap-2 border-b border-white/[0.06] py-1 text-[14px]" style={{ gridTemplateColumns: '62px minmax(0,1fr) 34px' }}>
@@ -315,18 +315,18 @@ export default function RecordScreen({ account, onBack }) {
       <UiStyle />
       <style>{STYLE}</style>
       <Bg img="ui/mt/tile-record.webp" opacity={0.55} />
-      <TopBar eyebrow="Record" section="기록" team={account.team} account={account} onBack={onBack} />
+      <TopBar eyebrow="메인" section="기록" team={account.team} account={account} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); setOpen(null); }} a="#7dd3fc" label="Mode">
+        <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); setOpen(null); }} a="#7dd3fc" label="경기 종류">
           <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
             <p className="flex items-baseline justify-between text-[11px] text-gray-400">통산 전적<b className="font-display text-[13px] text-gray-300">{history.length}경기</b></p>
             <b className="font-display text-2xl text-white">{all.w}승 {all.d}무 {all.l}패</b>
             <p className="mt-1 text-[11px] text-gray-500">승률 {rate == null ? '—' : `${rate}%`}{sum.streak > 1 ? ` · ${sum.streak}연승 중` : ''}</p>
           </div>
-          <p className="mt-lab px-1 pb-2 pt-3" style={{ fontSize: 10, '--a': '#7dd3fc' }}>Last 10</p>
+          <p className="mt-lab px-1 pb-2 pt-3" style={{ fontSize: 10, '--a': '#7dd3fc' }}>최근 10경기</p>
           <div className="flex flex-wrap gap-1 px-1">
             {sum.form.length === 0 && <small className="text-[11px] text-gray-500">경기 없음</small>}
             {sum.form.map((f, i) => {
@@ -335,7 +335,7 @@ export default function RecordScreen({ account, onBack }) {
                 style={{ ...cut(4), color: c, boxShadow: `inset 0 0 0 1px ${c}66` }}>{f}</b>;
             })}
           </div>
-          <p className="mt-lab px-1 pb-2 pt-4" style={{ fontSize: 10, '--a': '#fbbf24' }}>MVP Top 3</p>
+          <p className="mt-lab px-1 pb-2 pt-4" style={{ fontSize: 10, '--a': '#fbbf24' }}>MVP 순위</p>
           {sum.mvps.length === 0 && <small className="px-1 text-[11px] text-gray-500">MVP 기록 없음</small>}
           {sum.mvps.map((m, i) => (
             <div key={m.id} className="flex items-center gap-2 border-b border-white/10 px-1 py-1.5">
@@ -349,7 +349,7 @@ export default function RecordScreen({ account, onBack }) {
 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': n }}>
           <div className="flex items-baseline gap-3">
-            <p className="mt-lab" style={{ '--a': n }}>Games</p>
+            <p className="mt-lab" style={{ '--a': n }}>치른 경기</p>
             <p className="ml-auto text-sm text-gray-400">평균 득점 <b className="font-display text-base text-white">{avg(runs)}</b> · 실점 <b className="font-display text-base text-white">{avg(given)}</b></p>
           </div>
           <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
@@ -360,7 +360,7 @@ export default function RecordScreen({ account, onBack }) {
         </section>
 
         <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': sel ? resultOf(sel)[1] : n }}>
-          <p className="mt-lab" style={{ '--a': sel ? resultOf(sel)[1] : n }}>Game</p>
+          <p className="mt-lab" style={{ '--a': sel ? resultOf(sel)[1] : n }}>경기 요약</p>
           {!sel ? <p className="text-sm text-gray-500">목록에서 경기 고르기</p> : (() => {
             const [ko, c] = resultOf(sel);
             const m = modeOf(sel);

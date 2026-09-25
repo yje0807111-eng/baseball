@@ -73,7 +73,7 @@ function Tree({ t, oppIdx, reveal }) {
       {slots}
       <div className="absolute text-center" style={{ left: LEFT + (rounds - 1) * COL, top: TOP + (size / 2) * ROW - 96, width: SLOT_W }}>
         <div className="text-5xl">🏆</div>
-        <p className="ui-lab font-display justify-center" style={{ '--a': A }}>Champion</p>
+        <p className="ui-lab font-display justify-center" style={{ '--a': A }}>우승</p>
         {champ != null && <b className="block truncate text-base" style={{ color: champ === me ? ME : '#fff' }}>{t.entrants[champ].name}</b>}
       </div>
     </div>
@@ -151,7 +151,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
         <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-3.5 p-6" style={{ '--c': '18px', '--a': oppTeam ? OPP : A }}>
           {oppTeam ? (
             <>
-              <p className="ui-lab font-display" style={{ '--a': A }}>{ROUNDS[t.round].en}{myLast ? ` · 지난 경기 ${myLast.a === me ? myLast.as : myLast.bs}:${myLast.a === me ? myLast.bs : myLast.as} 승리` : ''}</p>
+              <p className="ui-lab font-display" style={{ '--a': A }}>다음 경기{myLast ? ` · 지난 경기 ${myLast.a === me ? myLast.as : myLast.bs}:${myLast.a === me ? myLast.bs : myLast.as} 승리` : ''}</p>
               <h2 className="-mt-1 text-3xl font-black text-white">{past ? `${ROUNDS[t.round].ko} 상대 분석` : `내 ${ROUNDS[t.round].ko} 경기`}</h2>
               <Versus mine={mine} opp={oppTeam} owner={opp.owner} />
               <Axes mine={mine} opp={oppTeam} />
@@ -164,7 +164,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
             </>
           ) : (
             <>
-              <p className="ui-lab font-display" style={{ '--a': champion ? A : OPP }}>Result</p>
+              <p className="ui-lab font-display" style={{ '--a': champion ? A : OPP }}>최종 성적</p>
               <h2 className="-mt-1 text-6xl font-black" style={{ color: champion ? A : '#fff' }}>{finish.ko}</h2>
               {myLast && (
                 <p className="text-base text-gray-300">

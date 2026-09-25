@@ -37,14 +37,14 @@ export function Versus({ mine, opp, owner, className = 'h-56' }) {
     <div className={`ui-cut relative shrink-0 overflow-hidden bg-cover ${className}`} style={{ '--c': '14px', backgroundImage: 'url(ui/broadcast-field.webp)', backgroundPosition: 'center 60%' }}>
       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(5,8,15,.94),rgba(5,8,15,.6) 50%,rgba(5,8,15,.94))' }} />
       <div className="absolute left-5 top-4">
-        <p className="ui-lab font-display" style={{ '--a': ME }}>My Team</p>
+        <p className="ui-lab font-display" style={{ '--a': ME }}>우리 팀</p>
         <b className="block text-2xl font-black text-white">{mine.name}</b>
         <span className="text-sm text-gray-400">팀 종합 <b className="font-display text-lg text-white">{teamRating(mine.roster)}</b></span>
         <div className="mt-2"><Faces roster={mine.roster} /></div>
       </div>
       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-6xl font-extrabold italic text-white">VS</span>
       <div className="absolute right-5 top-4 text-right">
-        <p className="ui-lab font-display justify-end" style={{ '--a': OPP }}>Opponent</p>
+        <p className="ui-lab font-display justify-end" style={{ '--a': OPP }}>상대 팀</p>
         <b className="block text-2xl font-black text-white">{opp.name}</b>
         <span className="text-sm text-gray-400">{owner ? `${owner} · ` : ''}<b className="font-display text-lg text-white">{teamRating(opp.roster)}</b></span>
         <div className="mt-2"><Faces roster={opp.roster} align="right" /></div>

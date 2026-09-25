@@ -18,7 +18,7 @@ function Intro() {
   return (
     <div className="mt-auto grid gap-4" style={{ gridTemplateColumns: 'minmax(0,1.2fr) 320px' }}>
       <div className="flex flex-col gap-3">
-        <p className="ui-lab font-display" style={{ '--a': RK }}>Season</p>
+        <p className="ui-lab font-display" style={{ '--a': RK }}>시즌 진행</p>
         <div className="flex flex-wrap items-center gap-2">
           {FLOW.map(([k], i) => (
             <React.Fragment key={k}>
@@ -39,7 +39,7 @@ function Intro() {
         </div>
       </div>
       <div>
-        <p className="ui-lab font-display" style={{ '--a': RK }}>Reward</p>
+        <p className="ui-lab font-display" style={{ '--a': RK }}>순위 보상</p>
         <div className="mt-2">
           {PLACE_REWARD.slice(0, 5).map((r, i) => (
             <KV key={r.ko} k={r.ko} v={`${r.rp >= 0 ? '+' : ''}${r.rp} RP · ${r.gold} G`} color={i === 0 ? '#fbbf24' : '#fff'} sm />
@@ -105,7 +105,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/rank2/dusk.webp)', backgroundPosition: 'center 45%' }} />
       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 18%,rgba(5,8,15,.6))' }} />
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <p className="ui-lab font-display" style={{ '--a': RK }}>Ranked · {s ? `Season ${s.season}` : 'Season'}</p>
+        <p className="ui-lab font-display" style={{ '--a': RK }}>{s ? `시즌 ${s.season}` : '새 시즌'}</p>
         <h1 className="mt-2 text-6xl font-black text-white">랭크전</h1>
         <p className="mt-3 text-lg text-gray-300">정규 시즌 · 가을야구 성적으로 랭크 승점</p>
         {s ? (
@@ -119,7 +119,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
 
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
-      <p className="ui-lab font-display" style={{ '--a': RK }}>Ranked</p>
+      <p className="ui-lab font-display" style={{ '--a': RK }}>랭크 현황</p>
       <h2 className="-mt-2 text-3xl font-black text-white">랭크전</h2>
       <div className="ui-cut bg-white/[0.05] px-4 py-3" style={{ '--c': '10px' }}>
         <div className="flex items-baseline gap-2">
@@ -142,14 +142,14 @@ export function rankedPanels({ account, onOpen, onLocker }) {
 
       {/* 최근 랭크전 흐름 — 성적은 제목 옆에 붙여 한 줄로 */}
       <div className="flex items-baseline gap-2">
-        <p className="ui-lab font-display" style={{ '--a': RK }}>Form · 최근 {form.length || 10}경기</p>
+        <p className="ui-lab font-display" style={{ '--a': RK }}>최근 {form.length || 10}경기</p>
         {!!form.length && <span className="ml-auto font-display text-[12px] text-gray-400">{fw}승 {fd}무 {fl}패</span>}
       </div>
       <FormRow games={form} />
       {!!form.length && <Stats items={[['승률', `${Math.round((fw / form.length) * 100)}%`], ['연승', streak]]} />}
 
       {/* 지난 시즌 */}
-      <p className="ui-lab font-display" style={{ '--a': RK }}>History</p>
+      <p className="ui-lab font-display" style={{ '--a': RK }}>지난 시즌</p>
       {past.length ? (
         <div>
           {past.map((h) => (
@@ -160,7 +160,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       ) : <p className="text-sm text-gray-500">마친 시즌 없음</p>}
 
       {/* 내 팀 전력 */}
-      <p className="ui-lab font-display" style={{ '--a': RK }}>My Team</p>
+      <p className="ui-lab font-display" style={{ '--a': RK }}>우리 팀</p>
       <div className="flex flex-col gap-2">
         {teamParts(squad).map(([k, v, c]) => (
           <div key={k} className="grid items-center gap-2.5 text-[13px] text-gray-300" style={{ gridTemplateColumns: '34px 1fr 28px' }}>

@@ -37,7 +37,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     <div className="fixed inset-0 z-[80] grid place-items-center bg-[#02040a]/80 backdrop-blur-sm" onClick={onClose} role="presentation">
       <div className="mt-cut mt-frame mt-glass flex w-[760px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
         <div className="flex items-baseline gap-3">
-          <p className="mt-lab">Profile</p>
+          <p className="mt-lab">프로필</p>
           <b className="text-2xl font-black text-white">프로필</b>
           <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-xl text-gray-400 hover:text-white" aria-label="닫기">×</button>
         </div>

@@ -57,7 +57,7 @@ export default function GamePlan({ opponent, plan, onFine, onApply, onClose }) {
           background: `linear-gradient(90deg,${mix(color, 20)},rgba(255,255,255,.02) 62%)`, boxShadow: `inset 3px 0 0 ${color}` }}>
           {emb && <span className="mt-cut h-[2.9rem] w-[2.9rem] shrink-0 bg-cover" style={{ ...cut(7), backgroundImage: `url(${emb})`, backgroundPosition: 'center 26%' }} />}
           <span className="grid gap-0.5">
-            <p className="mt-lab" style={{ '--a': color, fontSize: 10 }}>Next Opponent</p>
+            <p className="mt-lab" style={{ '--a': color, fontSize: 10 }}>다음 상대</p>
             <b className="text-[17px] text-white">{opponent?.name}</b>
           </span>
           <b className="ml-1 font-display text-[26px]" style={{ color }}>{ovr || '-'}</b>
@@ -72,7 +72,7 @@ export default function GamePlan({ opponent, plan, onFine, onApply, onClose }) {
 
         {/* 제목 */}
         <div className="mt-4 flex items-baseline gap-2.5">
-          <p className="mt-lab" style={{ '--a': W }}>Game Plan</p>
+          <p className="mt-lab" style={{ '--a': W }}>작전 선택</p>
           <b className="text-xl font-black text-white">작전판</b>
           <small className="text-[11px] text-[#6b7787]">★ 은 상대 약점을 되치는 쪽</small>
         </div>
