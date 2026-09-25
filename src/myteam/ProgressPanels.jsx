@@ -59,7 +59,7 @@ export function DexView({ account, onAccount }) {
           <p className="ml-auto text-t3 text-gray-400">모은 선수 <b className="font-display text-t3 text-white">{have.toLocaleString()}</b> / {DEX_TOTAL.toLocaleString()} · 완성 <b className="font-display text-t3 text-white">{done}</b></p>
         </div>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="시리즈 이름 · 연도 · 구단 검색"
-          className="mt-cut mt-3 w-full bg-transparent px-3 py-2.5 text-t3 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:text-gray-500/80 focus:shadow-[inset_0_0_0_1.5px_#a3e635]" style={cut(6)} />
+          className="mt-cut mt-3 w-full bg-transparent px-3 py-2.5 text-t3 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,.16)] outline-none placeholder:text-gray-400/80 focus:shadow-[inset_0_0_0_1.5px_#a3e635]" style={cut(6)} />
         <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
           {rows.slice(0, 120).map((r) => {
             const on = sel?.s.id === r.s.id;
@@ -74,13 +74,13 @@ export function DexView({ account, onAccount }) {
               </button>
             );
           })}
-          {rows.length > 120 && <p className="py-2 text-center text-t4 text-gray-500">검색으로 더 찾기 · {rows.length - 120}개</p>}
+          {rows.length > 120 && <p className="py-2 text-center text-t4 text-gray-400">검색으로 더 찾기 · {rows.length - 120}개</p>}
         </div>
       </section>
 
       <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': DEX }}>
         <p className="mt-lab" style={{ '--a': DEX }}>시리즈 보상</p>
-        {!sel ? <p className="text-t3 text-gray-500">시리즈 고르기</p> : (
+        {!sel ? <p className="text-t3 text-gray-400">시리즈 고르기</p> : (
           <>
             <h2 className="-mt-2 text-t1 font-black text-white">{sel.name}</h2>
             <Stats items={[['모은 선수', `${sel.prog.have}/${sel.prog.total}`], ...DEX_STEPS.map((s) => [`${s.n}명`, `${s.gold} G`])]} />

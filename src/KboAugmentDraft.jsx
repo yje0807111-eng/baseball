@@ -2390,7 +2390,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
                 <p className="mt-0.5 truncate text-t4 text-gray-400">{series.subtitle || SERIES_KIND_LABEL[series.kind]}</p>
               </div>
               {modeName && (
-                <p className="ml-2 shrink-0 border-l border-dashed border-white/20 pl-5 text-t4 leading-snug text-gray-500">
+                <p className="ml-2 shrink-0 border-l border-dashed border-white/20 pl-5 text-t4 leading-snug text-gray-400">
                   드래프트<br /><b className="text-t3" style={{ color: modeNeon }}>{modeName}</b>
                 </p>
               )}
@@ -2398,7 +2398,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
           );
         })() : (
         <div className="leading-none">
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">메인</p>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">메인</p>
           <h1 className="mt-1 text-t2 font-black leading-none text-white">레전드 드래프트</h1>
         </div>
         )}
@@ -2406,15 +2406,15 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
         {/* 지금 드래프트 모드 (가을의 왕조 · 전체 믹스 …) */}
         {modeName && !series && (
           <div className="border-l border-white/10 pl-6 leading-none">
-            <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">드래프트 모드</p>
+            <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">드래프트 모드</p>
             <p className="mt-1 whitespace-nowrap text-t2 font-black leading-none" style={{ color: modeNeon, textShadow: `0 0 14px ${modeNeon}66` }}>{modeName}</p>
           </div>
         )}
 
         {!slim && <div className="flex items-baseline gap-2">
-          <span className="text-t4 font-bold text-gray-500">지명</span>
+          <span className="text-t4 font-bold text-gray-400">지명</span>
           <span className="font-display text-[2.6rem] font-bold leading-none tabular-nums text-white [text-shadow:0_0_18px_rgba(16,185,129,.35)]">{String(Math.min(round, ROSTER_SIZE)).padStart(2, '0')}</span>
-          <span className="font-display text-t2 font-semibold text-gray-500">/ {ROSTER_SIZE}</span>
+          <span className="font-display text-t2 font-semibold text-gray-400">/ {ROSTER_SIZE}</span>
         </div>}
 
         {!slim && isNoCap(cap) && (
@@ -2435,13 +2435,13 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
               {preview ? (
                 <>
                   <span className="text-t2 font-bold text-gray-400">{cp}</span>
-                  <span className="mx-1 text-t3 font-bold text-gray-500" aria-hidden="true">→</span>
+                  <span className="mx-1 text-t3 font-bold text-gray-400" aria-hidden="true">→</span>
                   <span className="text-t1 font-bold text-[#34d399]" style={{ textShadow: '0 0 14px rgba(52,211,153,.5)' }} aria-label={`영입하면 ${capAfter}`}>{capAfter}</span>
                 </>
               ) : (
                 <span className="text-t1 font-bold transition-colors" style={{ color: tone, textShadow: `0 0 14px ${tone}80` }}>{cp}</span>
               )}
-              <span className="text-t3 text-gray-500"> / {cap} CP</span>
+              <span className="text-t3 text-gray-400"> / {cap} CP</span>
             </span>
           </div>
           <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
@@ -3384,11 +3384,11 @@ function RosterPanel({ roster }) {
                 <FaceChip player={player} className="h-8 w-8" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-t3 font-semibold text-white">{player.name}</span>
-                  <span className="block font-display text-t4 tabular-nums text-gray-500">{player.year} {player.team}{player.naturalPosition && <span className="text-amber-300"> · 원래 {player.naturalPosition}</span>}</span>
+                  <span className="block font-display text-t4 tabular-nums text-gray-400">{player.year} {player.team}{player.naturalPosition && <span className="text-amber-300"> · 원래 {player.naturalPosition}</span>}</span>
                 </span>
                 <span className="font-display text-t2 font-bold tabular-nums text-gray-100">{player.overall}</span>
               </>
-            ) : <span className="py-2 text-t4 text-gray-600">빈 자리</span>}
+            ) : <span className="py-2 text-t4 text-gray-500">빈 자리</span>}
           </li>
         ))}
       </ul>
@@ -3457,12 +3457,12 @@ function SynergyRow({ s, after, candidate, focused, onFocus }) {
             {s.names ? (
               <span className="flex flex-wrap gap-x-2 gap-y-0.5 text-t4">
                 {s.names.map((k) => (
-                  <span key={k} className={mine.has(k) ? 'font-semibold text-gray-100' : k === candKey ? 'font-semibold text-sky-300' : 'text-gray-500'}>{k}</span>
+                  <span key={k} className={mine.has(k) ? 'font-semibold text-gray-100' : k === candKey ? 'font-semibold text-sky-300' : 'text-gray-400'}>{k}</span>
                 ))}
               </span>
             ) : (
               <span className="block text-t4">
-                <span className="text-gray-500">{s.cond}</span>
+                <span className="text-gray-400">{s.cond}</span>
                 {inLineup.length > 0 && (
                   <span className="mt-0.5 flex flex-wrap gap-x-2">{inLineup.map((x) => <span key={x.key} className={x.cls}>{x.label}</span>)}</span>
                 )}
@@ -3474,7 +3474,7 @@ function SynergyRow({ s, after, candidate, focused, onFocus }) {
           <span className="mt-0.5 block truncate text-t4">
             {inLineup.length
               ? inLineup.map((x, i) => <span key={x.key} className={x.cls}>{i ? ' · ' : ''}{x.label}</span>)
-              : <span className="text-gray-500">{s.cond}</span>}
+              : <span className="text-gray-400">{s.cond}</span>}
           </span>
         )}
       </Box>
@@ -3490,7 +3490,7 @@ function SynergyPanel({ roster, focusId, onFocus }) {
       <PanelTitle aside={`${list.length} On`}>적용 중인 시너지</PanelTitle>
       {list.length
         ? <ul className="flex flex-col gap-1.5">{list.map((s) => <SynergyRow key={s.id} s={s} focused={focusId === s.id} onFocus={onFocus} />)}</ul>
-        : <p className="text-t4 text-gray-500">완성된 시너지 없음</p>}
+        : <p className="text-t4 text-gray-400">완성된 시너지 없음</p>}
     </section>
   );
 }
@@ -3688,7 +3688,7 @@ function SynergySheetModal({ roster, candidate, focusId, onFocus, onClose, draft
             </button>
           );
         })}
-        {!groups[filter].length && <p className="py-6 text-center text-gray-600">-</p>}
+        {!groups[filter].length && <p className="py-6 text-center text-gray-500">-</p>}
       </div>
     </Modal>
   );
@@ -3699,14 +3699,14 @@ function AugmentShelf({ augments, total = SEASON_AUGMENTS }) {
     <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
       <PanelTitle aside={`${augments.length}/${total}`}>보유 증강</PanelTitle>
       {augments.length === 0 ? (
-        <p className="text-t4 leading-relaxed text-gray-500">{total ? `정비를 마치고 시즌을 시작하면 증강 ${total}개 고르기` : '증강 없이 치르는 모드'}</p>
+        <p className="text-t4 leading-relaxed text-gray-400">{total ? `정비를 마치고 시즌을 시작하면 증강 ${total}개 고르기` : '증강 없이 치르는 모드'}</p>
       ) : (
         <ul className="flex flex-col gap-1.5">
           {augments.map((a) => (
             <li key={a.id} className="ui-cut bg-white/[0.045] px-2.5 py-2 text-gray-100" style={{ '--c': '7px', boxShadow: `inset 3px 0 0 ${TIER_NEON[a.tier]}` }}>
               <span className="text-t3 font-bold">{a.name}{a.lv ? <b className="ml-1 font-display" style={{ color: TIER_NEON[a.tier] }}>+{a.lv}</b> : null}</span>
               <p className="mt-0.5 text-t4 text-gray-400">{augDescAt(a)}</p>
-              {a.cond && <p className="text-t4 text-gray-500">조건 · {a.cond}</p>}
+              {a.cond && <p className="text-t4 text-gray-400">조건 · {a.cond}</p>}
             </li>
           ))}
         </ul>
@@ -3930,7 +3930,7 @@ function FieldView({ play, myName }) {
         </svg>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 px-3 pb-3 md:py-4">
-          {!play ? <p className="text-t3 text-gray-500">플레이볼을 기다리는 중…</p> : (
+          {!play ? <p className="text-t3 text-gray-400">플레이볼을 기다리는 중…</p> : (
             <>
               <p className="font-display text-t4 tracking-[0.3em] text-gray-400">{play.inning}회{play.isTop ? '초' : '말'} · {play.isTop ? 'AI 올스타' : myName} 공격</p>
               <div className="flex items-center gap-2 font-display text-t3 text-gray-300">
@@ -3963,7 +3963,7 @@ function Scoreboard({ board, half, myName, oppName }) {
     <div className="ui-cut ui-frame ui-glass2 overflow-x-auto px-3 py-2.5" style={{ '--c': '14px' }}>
       <table className="w-full min-w-[600px] border-collapse font-display">
         <thead>
-          <tr className="text-t4 font-semibold uppercase tracking-widest text-gray-500">
+          <tr className="text-t4 font-semibold uppercase tracking-widest text-gray-400">
             <th className="px-3 pb-1 text-left">팀</th>
             {Array.from({ length: 9 }, (_, i) => <th key={i} className="w-11 pb-1">{i + 1}</th>)}
             <th className="w-14 pb-1 text-[#10b981]">R</th>
@@ -3974,13 +3974,13 @@ function Scoreboard({ board, half, myName, oppName }) {
             <tr key={r.key} className="border-t border-white/[0.07]">
               <td className="whitespace-nowrap px-3 py-1 font-sans text-t3 font-bold text-white">
                 <span className="mr-2.5 inline-block h-5 w-1.5 -skew-x-12 align-middle" style={{ background: r.top ? '#f87171' : '#10b981' }} />
-                <span className="mr-2 font-display text-t4 font-semibold tracking-widest text-gray-500">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
+                <span className="mr-2 font-display text-t4 font-semibold tracking-widest text-gray-400">{r.top ? 'AWAY' : 'HOME'}</span>{r.name}
               </td>
               {r.arr.map((v, i) => {
                 const live = half && half.inning === i + 1 && half.isTop === r.top;
                 return (
                   <td key={i} style={v !== null ? { animation: 'cellIn .8s ease-out' } : undefined}
-                    className={`h-11 text-center text-t1 font-bold tabular-nums ${live ? 'bg-[#10b981]/15 shadow-[inset_0_-2px_0_#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-500' : 'text-white'}`}>
+                    className={`h-11 text-center text-t1 font-bold tabular-nums ${live ? 'bg-[#10b981]/15 shadow-[inset_0_-2px_0_#10b981]' : ''} ${v === null ? 'text-gray-700' : v === 0 ? 'text-gray-400' : 'text-white'}`}>
                     {v === null ? (live ? <span className="text-t3 text-[#10b981]">●</span> : '') : v}
                   </td>
                 );
@@ -4011,7 +4011,7 @@ function LiveLog({ logs, paused }) {
             const cut = l.text.indexOf('] ');
             return (
               <li key={l.id} className="animate-[rise_.3s_ease-out_both] bg-white/[0.045] px-3 py-2 text-t3" style={{ boxShadow: `inset 3px 0 0 ${TIER_NEON[l.tier]}` }}>
-                <span className="mr-2 font-display text-t4 font-semibold text-gray-500">{inn}</span>
+                <span className="mr-2 font-display text-t4 font-semibold text-gray-400">{inn}</span>
                 <span className="font-bold" style={{ color: TIER_NEON[l.tier] }}>{cut > 0 ? l.text.slice(0, cut + 1) : ''}</span>
                 <span className="text-white"> {cut > 0 ? l.text.slice(cut + 2) : l.text}</span>
               </li>
@@ -4019,7 +4019,7 @@ function LiveLog({ logs, paused }) {
           }
           return (
             <li key={l.id} className={`grid grid-cols-[3.25rem_1fr_auto] items-baseline gap-2 rounded px-2 py-1 text-t3 ${l.kind === 'system' ? 'text-gray-400' : l.kind === 'score' ? 'bg-white/[0.03] text-white' : 'text-gray-400'}`}>
-              <span className="font-display text-t4 font-semibold text-gray-500">{inn}</span>
+              <span className="font-display text-t4 font-semibold text-gray-400">{inn}</span>
               <span>{l.text}</span>
               {l.runs > 0 && <span className="font-display font-bold tabular-nums text-white">+{l.runs}</span>}
             </li>
@@ -4085,7 +4085,7 @@ function DuelRow({ label, mine, opp }) {
   return (
     <div className="grid items-stretch" style={{ gridTemplateColumns: 'minmax(0,1fr) 34px minmax(0,1fr)' }}>
       {side(mine, a, b, '#10b981', false)}
-      <em className="grid place-items-center font-display text-t4 font-bold not-italic text-gray-600">{label}</em>
+      <em className="grid place-items-center font-display text-t4 font-bold not-italic text-gray-500">{label}</em>
       {side(opp, b, a, '#f87171', true)}
     </div>
   );
@@ -4165,7 +4165,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px' }}>
         <p className="ui-lab font-display px-1 pt-1">경기 준비</p>
         {teamTile(my, '나의 드림팀', '#10b981', true)}
-        <p className="py-0.5 text-center font-display text-t3 font-extrabold italic text-gray-500">VS</p>
+        <p className="py-0.5 text-center font-display text-t3 font-extrabold italic text-gray-400">VS</p>
         {teamTile(opp, 'AI 올스타', '#f87171', false)}
         {augments.length > 0 && (
           <div className="mt-2">
@@ -4205,7 +4205,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
                   <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>포지션 맞대결</p>
                   <span className="ml-auto flex items-baseline gap-1.5">
                     <b className="font-display text-t2 font-extrabold text-[#10b981]">{won}</b>
-                    <small className="text-gray-600">:</small>
+                    <small className="text-gray-500">:</small>
                     <b className="font-display text-t2 font-extrabold text-[#f87171]">{lost}</b>
                   </span>
                 </div>
@@ -4221,7 +4221,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       {/* 오른쪽: 예상 승률 · 경기 시작 */}
       <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6" style={{ '--c': '20px' }}>
         <p className="ui-lab font-display">예상 승률</p>
-        <h2 className="-mt-2 text-t1 font-black text-white">나의 드림팀 <span className="font-display text-gray-500">vs</span> AI 올스타</h2>
+        <h2 className="-mt-2 text-t1 font-black text-white">나의 드림팀 <span className="font-display text-gray-400">vs</span> AI 올스타</h2>
         <dl className="grid grid-cols-3 gap-1.5">
           {[['팀 OVR', teamOvr(my)], ['상대 OVR', teamOvr(opp)], ['증강', augments.length]].map(([k, v]) => (
             <div key={k} className="ui-cut bg-white/[0.045] px-3 py-1.5" style={{ '--c': '7px' }}>
@@ -4310,13 +4310,13 @@ function ManagerBlock({ flow, calls, gain, tone }) {
       <div className="min-w-0">
         <p className="ui-lab font-display mb-1.5" style={{ '--a': tone }}>승부 흐름</p>
         <WinCurve flow={flow} tone={tone} />
-        <p className="mt-1 flex justify-between font-display text-t4 text-gray-500"><span>플레이볼</span><span>경기 끝</span></p>
+        <p className="mt-1 flex justify-between font-display text-t4 text-gray-400"><span>플레이볼</span><span>경기 끝</span></p>
       </div>
       <div className="flex min-w-0 flex-col gap-2">
         <div className="ui-cut flex items-baseline gap-3 bg-white/[0.045] px-4 py-2.5" style={{ '--c': '10px' }}>
           <span className="text-t4 text-gray-400">내 지시</span>
           <b className="font-display text-4xl font-extrabold leading-none" style={{ color: pct > 0 ? '#34d399' : pct < 0 ? '#f87171' : '#9ca3af' }}>
-            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-t3 text-gray-500">%p</small>
+            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-t3 text-gray-400">%p</small>
           </b>
           <span className="ml-auto font-display text-t3 text-gray-400">{calls.length}번</span>
         </div>
@@ -4328,7 +4328,7 @@ function ManagerBlock({ flow, calls, gain, tone }) {
               {c.delta > 0 ? '+' : ''}{Math.round(c.delta * 100)}
             </b>
           </div>
-        )) : <p className="px-1 text-t4 text-gray-500">지시 없이 끝난 경기</p>}
+        )) : <p className="px-1 text-t4 text-gray-400">지시 없이 끝난 경기</p>}
       </div>
     </div>
   );
@@ -4347,10 +4347,10 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
         <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? 'WIN' : winner === 'opp' ? 'LOSE' : 'DRAW'}</p>
         <div>
           <p className="mb-1 text-t4 text-gray-400">나의 드림팀 vs AI 올스타</p>
-          <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-600">:</span>{score.opp}</p>
+          <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-500">:</span>{score.opp}</p>
         </div>
         <div className="ml-auto text-right">
-          <p className="text-t4 font-bold text-gray-500">시즌 전적</p>
+          <p className="text-t4 font-bold text-gray-400">시즌 전적</p>
           <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
         </div>
       </div>
@@ -4378,7 +4378,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
               <span className="text-t3 text-gray-100">{l.text}</span>
             </div>
           );
-        }) : <p className="text-t3 text-gray-500">큰 장면 없이 끝난 경기</p>}
+        }) : <p className="text-t3 text-gray-400">큰 장면 없이 끝난 경기</p>}
       </div>
       <div className="flex flex-col gap-1">
         <p className="ui-lab font-display">선수 평점</p>
@@ -4387,7 +4387,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
             <Portrait player={c.player} className="h-10 w-8" />
             <span className="min-w-0">
               <b className="block truncate text-t3 text-white">{c.player.name}</b>
-              <small className="block truncate text-t4 text-gray-500">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
+              <small className="block truncate text-t4 text-gray-400">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
             </span>
             <span className="text-center font-display text-t1 font-extrabold" style={{ color: neonOf(c.player) }}>{gradeOf(c.pts)}</span>
           </div>
@@ -4545,7 +4545,7 @@ function SeriesFolds({ groups, acc }) {
               className="mt-3 flex w-full items-center gap-2 text-left transition hover:brightness-125">
               <b className="text-t4 text-gray-300">{ko} {list.length}</b>
               <span className="h-px flex-1 bg-white/10" />
-              <span className="font-display text-t4 text-gray-500">{on ? '접기 ▲' : '펼치기 ▼'}</span>
+              <span className="font-display text-t4 text-gray-400">{on ? '접기 ▲' : '펼치기 ▼'}</span>
             </button>
             {on && (
               <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -4686,9 +4686,9 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
     <div className={`ui-cut relative h-full overflow-hidden bg-[#0b1220] bg-cover bg-no-repeat ${sm || fit ? '' : 'min-h-[11rem]'}`}
       style={{ '--c': sm ? '8px' : '12px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }}>
       <span className="absolute inset-0" style={{ background: sm ? 'linear-gradient(180deg,rgba(5,8,15,.82),rgba(5,8,15,.9))' : 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,0) 30%,rgba(5,8,15,0) 45%,rgba(5,8,15,.92) 72%,#05080f)' }} />
-      {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-t4 font-semibold text-gray-500">준비 중</span>}
+      {t.locked && <span className="absolute inset-0 grid place-items-center bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.03)_0_8px,transparent_8px_16px)] text-t4 font-semibold text-gray-400">준비 중</span>}
       {!sm && (
-        <span className={`absolute left-3 top-2 font-display text-t1 font-extrabold leading-none ${t.locked ? 'text-gray-600' : ''}`}
+        <span className={`absolute left-3 top-2 font-display text-t1 font-extrabold leading-none ${t.locked ? 'text-gray-500' : ''}`}
           style={t.locked ? undefined : { color: acc, textShadow: `0 0 16px ${acc}88, 0 2px 4px #000` }}>{t.year}</span>
       )}
       {/* 한국시리즈 우승 — 작은 트로피로 조용하게 */}
@@ -4702,8 +4702,8 @@ function SeriesTicket({ t, acc, sm = false, fit = false }) {
         </span>
       )}
       <div className={sm ? 'absolute inset-x-2 bottom-1.5' : 'absolute inset-x-3 bottom-2.5'}>
-        {sm && <b className={`block truncate font-display text-t4 ${t.locked ? 'text-gray-600' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
-        <p className={`truncate font-black ${sm ? 'text-t4' : 'text-t3'} ${t.locked ? 'text-gray-500' : 'text-white'}`}>{t.title}</p>
+        {sm && <b className={`block truncate font-display text-t4 ${t.locked ? 'text-gray-500' : ''}`} style={t.locked ? undefined : { color: acc }}>{t.year}</b>}
+        <p className={`truncate font-black ${sm ? 'text-t4' : 'text-t3'} ${t.locked ? 'text-gray-400' : 'text-white'}`}>{t.title}</p>
         {!sm && <p className="truncate text-t4 text-gray-400">{t.sub}</p>}
       </div>
     </div>
@@ -4778,7 +4778,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <div className="leading-none">
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">메인</p>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">메인</p>
           <h1 className="mt-1 text-t2 font-black leading-none text-white">플레이</h1>
         </div>
         {record && <p className="ml-auto text-t3 text-gray-400">최근 기록 <b className="font-display text-t2 text-white">{record}</b></p>}
@@ -6258,7 +6258,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="ui-lab font-display" style={{ '--a': phase === 'sim' ? '#f87171' : '#10b981' }}>{phase === 'sim' ? '경기 중' : '경기 끝'}</p>
-                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-500">vs</span> 나의 드림팀</h2>
+                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-400">vs</span> 나의 드림팀</h2>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="font-display text-t2 tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
@@ -6283,7 +6283,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 <LiveLog logs={logs} paused={paused} />
                 <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
                   <PanelTitle>증강 리스너</PanelTitle>
-                  {augments.length === 0 ? <p className="text-t4 text-gray-500">보유 증강 없음</p> : (
+                  {augments.length === 0 ? <p className="text-t4 text-gray-400">보유 증강 없음</p> : (
                     <ul className="flex flex-col gap-1.5">
                       {augments.map((a) => {
                         const n = fireCount(a);
@@ -6294,7 +6294,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                               {!a.passive && <span className="font-display text-t3 tabular-nums">{n}/{augMax(a)}</span>}
                             </div>
                             <p className="mt-0.5 text-t4 text-gray-400">{augDescAt(a)}</p>
-                            {a.cond && <p className="text-t4 text-gray-500">조건 · {a.cond}</p>}
+                            {a.cond && <p className="text-t4 text-gray-400">조건 · {a.cond}</p>}
                           </li>
                         );
                       })}

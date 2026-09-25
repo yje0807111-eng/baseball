@@ -21,7 +21,7 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
   return (
     <table className={`w-full border-collapse text-right tabular-nums ${big ? 'text-t3' : 'text-t3'}`}>
       <thead>
-        <tr className="font-display text-t4 font-bold tracking-[0.14em] text-gray-500">
+        <tr className="font-display text-t4 font-bold tracking-[0.14em] text-gray-400">
           <th className="w-10 text-center">순위</th><th className="pl-2 text-left">팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th>
           {big && <><th>득점</th><th>실점</th></>}<th className="pr-3">최근</th>
         </tr>
@@ -70,7 +70,7 @@ function PostLadder({ s }) {
         const hi = seeds[st.hi - 1];
         const lo = res ? res.lo : i === 0 ? seeds[4] : s.post?.results[i - 1]?.winner;
         const live = now?.stage === i;
-        const name = (idx, seedNo) => (idx == null ? <span className="text-gray-500">{seedNo ? '-' : '승자'}</span>
+        const name = (idx, seedNo) => (idx == null ? <span className="text-gray-400">{seedNo ? '-' : '승자'}</span>
           : <span className={idx === me ? 'text-[#34d399]' : 'text-white'}>{s.teams[idx].name}</span>);
         const line = (idx, score, seedNo) => (
           <div className="flex items-baseline gap-2" style={{ opacity: res && res.winner !== idx ? 0.45 : 1 }}>
@@ -123,7 +123,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
         <div>
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">플레이</p>
+          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
           <b className="text-t2 font-extrabold text-white">랭크전 시즌 {s.season} · {s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}</b>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
@@ -178,12 +178,12 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                     );
                     return (
                       <div key={`${g.a}-${g.b}`} className="ui-cut flex items-center gap-3 px-3 py-1.5" style={{ '--c': '7px', background: mineG ? 'rgba(52,211,153,.1)' : 'rgba(255,255,255,.03)' }}>
-                        {side(g.a, g.as, g.bs)}<span className="font-display text-t4 text-gray-500">:</span>{side(g.b, g.bs, g.as)}
+                        {side(g.a, g.as, g.bs)}<span className="font-display text-t4 text-gray-400">:</span>{side(g.b, g.bs, g.as)}
                       </div>
                     );
                   })}
                 </div>
-              ) : <p className="mt-2 text-t3 text-gray-500">개막 전</p>}
+              ) : <p className="mt-2 text-t3 text-gray-400">개막 전</p>}
             </section>
             <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col px-5 py-4" style={{ '--c': '18px', '--a': '#fbbf24' }}>
               <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>가을야구</p>

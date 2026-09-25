@@ -24,7 +24,7 @@ function Intro() {
             <React.Fragment key={k}>
               <span className="ui-cut px-4 py-1.5 font-display text-t3 font-bold"
                 style={{ '--c': '6px', color: i === FLOW.length - 1 ? '#05080f' : '#e5e7eb', background: i === FLOW.length - 1 ? '#fbbf24' : 'rgba(255,255,255,.08)' }}>{k}</span>
-              {i < FLOW.length - 1 && <span className="font-display text-gray-600">›</span>}
+              {i < FLOW.length - 1 && <span className="font-display text-gray-500">›</span>}
             </React.Fragment>
           ))}
         </div>
@@ -64,7 +64,7 @@ function teamParts(squad) {
 
 /** 최근 랭크전 10경기 — 승패 칸 한 줄 (성적은 제목 옆에) */
 function FormRow({ games }) {
-  if (!games.length) return <p className="text-t3 text-gray-500">치른 랭크전 없음</p>;
+  if (!games.length) return <p className="text-t3 text-gray-400">치른 랭크전 없음</p>;
   return (
     <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
       {games.map((g, i) => {
@@ -127,7 +127,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
           <b className="ml-auto font-display text-t2 text-white">{rp} RP</b>
         </div>
         <span className="mt-2 block h-1.5 bg-white/10"><i className="block h-full" style={{ width: `${rank.inDiv}%`, background: rank.tier.c }} /></span>
-        <div className="mt-2 flex justify-between font-display text-t4 text-gray-500">
+        <div className="mt-2 flex justify-between font-display text-t4 text-gray-400">
           <span>{rank.next ? `다음 등급까지 ${rank.toNext} RP` : '최고 등급'}</span>
           <span>최고 {account.rank?.best || rp} RP</span>
         </div>
@@ -157,7 +157,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
               v={`${h.rp >= 0 ? '+' : ''}${h.rp} RP`} color={h.rp >= 0 ? '#34d399' : '#f87171'} sm />
           ))}
         </div>
-      ) : <p className="text-t3 text-gray-500">마친 시즌 없음</p>}
+      ) : <p className="text-t3 text-gray-400">마친 시즌 없음</p>}
 
       {/* 내 팀 전력 */}
       <p className="ui-lab font-display" style={{ '--a': RK }}>우리 팀</p>

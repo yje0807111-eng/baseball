@@ -58,7 +58,7 @@ function LineScore({ h, d }) {
   const cols = `150px repeat(${n},minmax(0,1fr)) 50px 50px`;
   return (
     <div className="mt-cut min-w-0 bg-white/[0.035] px-3 py-2" style={cut(8)}>
-      <div className="grid items-center gap-1 pb-1 text-center font-display text-t4 text-gray-500" style={{ gridTemplateColumns: cols }}>
+      <div className="grid items-center gap-1 pb-1 text-center font-display text-t4 text-gray-400" style={{ gridTemplateColumns: cols }}>
         <span />
         {Array.from({ length: n }, (_, i) => <span key={i}>{i + 1}</span>)}
         <span className="text-gray-300">R</span><span>H</span>
@@ -69,7 +69,7 @@ function LineScore({ h, d }) {
           {Array.from({ length: n }, (_, i) => {
             const v = line[i];
             const x = v == null && k === 'my' && i === n - 1 && h.winner === 'my';
-            return <span key={i} className={`text-t2 ${v ? 'font-bold text-white' : 'text-gray-500'}`}>{x ? 'X' : v ?? '-'}</span>;
+            return <span key={i} className={`text-t2 ${v ? 'font-bold text-white' : 'text-gray-400'}`}>{x ? 'X' : v ?? '-'}</span>;
           })}
           <b className="text-t2 font-extrabold text-white">{r}</b>
           <span className="text-t2 text-gray-300">{hits ?? '-'}</span>
@@ -92,7 +92,7 @@ const Num = ({ v, c = '#fff', dim = true }) => (
 const BoxHead = ({ label, a, cols }) => (
   <div className="grid items-end gap-2 pb-1" style={{ gridTemplateColumns: BOX_COLS }}>
     <p className="mt-lab" style={{ ...lab(a), gridColumn: 'span 3' }}>{label}</p>
-    {cols.map((k) => <span key={k} className="text-center text-t4 text-gray-500">{k}</span>)}
+    {cols.map((k) => <span key={k} className="text-center text-t4 text-gray-400">{k}</span>)}
   </div>
 );
 /** 타순 · 등판 투수 표 */
@@ -103,7 +103,7 @@ function BoxScore({ d }) {
       <BoxHead label="타격 기록" a="#34d399" cols={['컨디션', '타수', '안타', '홈런', '타점', '볼넷']} />
       {d.lineup.map((b, i) => (
         <div key={b.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
-          <b className="font-display text-gray-500">{i + 1}</b>
+          <b className="font-display text-gray-400">{i + 1}</b>
           <span className="font-display text-t4 text-gray-400">{b.pos}</span>
           <b className="truncate text-white">{b.name}</b>
           <span className="text-center"><FormText form={b.form} /></span>
@@ -116,7 +116,7 @@ function BoxScore({ d }) {
       ))}
       <div className="h-4" />
       <BoxHead label="투구 기록" a="#f87171" cols={['컨디션', '투구', '타자', '피안타', '삼진', '실점']} />
-      {d.arms.length === 0 && <small className="text-t4 text-gray-500">등판 기록 없음</small>}
+      {d.arms.length === 0 && <small className="text-t4 text-gray-400">등판 기록 없음</small>}
       {d.arms.map((p) => (
         <div key={p.id} className={row} style={{ gridTemplateColumns: BOX_COLS }}>
           <span className="col-span-2 font-display text-t4" style={{ color: p.sp ? '#fca5a5' : '#9ca3af' }}>{p.sp ? '선발' : '구원'}</span>
@@ -191,7 +191,7 @@ function Curve({ d, tone }) {
         ))}
       </div>
       {ticks.length > 0 && (
-        <div className="relative h-4 font-display text-t4 text-gray-500">
+        <div className="relative h-4 font-display text-t4 text-gray-400">
           {ticks.map((x, i) => <span key={i} className="absolute top-0.5" style={{ left: `calc(${x * 100}% + 3px)` }}>{i + 1}</span>)}
         </div>
       )}
@@ -202,9 +202,9 @@ function FlowSide({ d, tone }) {
   return (
     <div className="flex min-w-0 flex-col">
       <p className="mt-lab pb-2" style={lab(tone)}>승률 흐름</p>
-      {d.flow ? <Curve d={d} tone={tone} /> : <small className="text-t4 text-gray-500">흐름 기록 없음</small>}
+      {d.flow ? <Curve d={d} tone={tone} /> : <small className="text-t4 text-gray-400">흐름 기록 없음</small>}
       <p className="mt-lab pb-1 pt-3" style={lab('#34d399')}>승부처 지시</p>
-      {d.calls.length === 0 && <small className="text-t4 text-gray-500">지시 없이 끝난 경기</small>}
+      {d.calls.length === 0 && <small className="text-t4 text-gray-400">지시 없이 끝난 경기</small>}
       {d.calls.map((c, i) => (
         <div key={i} className="grid items-center gap-2 border-b border-white/10 py-1 text-t3" style={{ gridTemplateColumns: '62px minmax(0,1fr) 40px' }}>
           <span className="font-display text-t3 text-gray-400">{half(c)}</span>
@@ -213,7 +213,7 @@ function FlowSide({ d, tone }) {
         </div>
       ))}
       <p className="mt-lab pb-1 pt-4" style={lab('#fbbf24')}>득점 장면</p>
-      {d.plays.length === 0 && <small className="text-t4 text-gray-500">득점 없음</small>}
+      {d.plays.length === 0 && <small className="text-t4 text-gray-400">득점 없음</small>}
       {byHalf(d.plays).map((p, i) => (
         <div key={i} className="grid items-start gap-2 border-b border-white/[0.06] py-1 text-t3" style={{ gridTemplateColumns: '62px minmax(0,1fr) 34px' }}>
           <span className="font-display text-t3 leading-[1.45] text-gray-400">{half(p)}</span>
@@ -273,19 +273,19 @@ function GameLine({ h, on, onPick }) {
       <span className="mt-cut px-2 py-0.5 text-center text-t4 font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
       <span className="min-w-0">
         <b className="block truncate text-t3 font-black text-white">{h.opp}</b>
-        <small className="block truncate text-t4 text-gray-500">{h.round || '단판 승부'}</small>
+        <small className="block truncate text-t4 text-gray-400">{h.round || '단판 승부'}</small>
       </span>
       <b className="text-center font-display text-t1 font-extrabold tabular-nums text-white">
-        {h.myRuns} <span className="text-gray-600">:</span> {h.oppRuns}
+        {h.myRuns} <span className="text-gray-500">:</span> {h.oppRuns}
       </b>
       <b className="text-center font-display text-t2 font-extrabold" style={{ color: c }}>{ko}</b>
       <span className="flex min-w-0 items-center gap-2">
         {h.mvp ? (
           <>
             <Portrait player={h.mvp} w={32} h={38} color="#fbbf24" />
-            <span className="min-w-0"><small className="block text-t4 text-gray-500">MVP</small><b className="block truncate text-t3 text-white">{h.mvp.name}</b></span>
+            <span className="min-w-0"><small className="block text-t4 text-gray-400">MVP</small><b className="block truncate text-t3 text-white">{h.mvp.name}</b></span>
           </>
-        ) : <small className="text-t4 text-gray-600">MVP 없음</small>}
+        ) : <small className="text-t4 text-gray-500">MVP 없음</small>}
       </span>
     </button>
   );
@@ -335,11 +335,11 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
           <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
             <p className="flex items-baseline justify-between text-t4 text-gray-400">통산 전적<b className="font-display text-t3 text-gray-300">{history.length}경기</b></p>
             <b className="font-display text-t1 text-white">{all.w}승 {all.d}무 {all.l}패</b>
-            <p className="mt-1 text-t4 text-gray-500">승률 {rate == null ? '—' : `${rate}%`}{sum.streak > 1 ? ` · ${sum.streak}연승 중` : ''}</p>
+            <p className="mt-1 text-t4 text-gray-400">승률 {rate == null ? '—' : `${rate}%`}{sum.streak > 1 ? ` · ${sum.streak}연승 중` : ''}</p>
           </div>
           <p className="mt-lab px-1 pb-2 pt-3" style={{ fontSize: 12, '--a': '#7dd3fc' }}>최근 10경기</p>
           <div className="flex flex-wrap gap-1 px-1">
-            {sum.form.length === 0 && <small className="text-t4 text-gray-500">경기 없음</small>}
+            {sum.form.length === 0 && <small className="text-t4 text-gray-400">경기 없음</small>}
             {sum.form.map((f, i) => {
               const c = f === 'W' ? '#34d399' : f === 'L' ? '#f87171' : '#94a3b8';
               return <b key={`${f}${i}`} className="mt-cut grid h-6 w-6 place-items-center font-display text-t4 font-extrabold"
@@ -347,10 +347,10 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
             })}
           </div>
           <p className="mt-lab px-1 pb-2 pt-4" style={{ fontSize: 12, '--a': '#fbbf24' }}>MVP 순위</p>
-          {sum.mvps.length === 0 && <small className="px-1 text-t4 text-gray-500">MVP 기록 없음</small>}
+          {sum.mvps.length === 0 && <small className="px-1 text-t4 text-gray-400">MVP 기록 없음</small>}
           {sum.mvps.map((m, i) => (
             <div key={m.id} className="flex items-center gap-2 border-b border-white/10 px-1 py-1.5">
-              <b className="w-3 font-display text-t3 text-gray-500">{i + 1}</b>
+              <b className="w-3 font-display text-t3 text-gray-400">{i + 1}</b>
               <Portrait player={m} w={26} h={32} color="#fbbf24" />
               <b className="min-w-0 flex-1 truncate text-t3 text-white">{m.name}</b>
               <b className="font-display text-t3 text-amber-300">{m.n}회</b>
@@ -370,13 +370,13 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
           <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
             {list.map((h) => <GameRow key={h.at + h.opp} h={h} on={sel?.at === h.at} open={open === h.at} onPick={setSel}
               onOpen={(x) => { setSel(x); setOpen((v) => (v === x.at ? null : x.at)); }} />)}
-            {list.length === 0 && <p className="text-t3 text-gray-500">치른 경기 없음 · 플레이에서 치르면 여기에 쌓인다</p>}
+            {list.length === 0 && <p className="text-t3 text-gray-400">치른 경기 없음 · 플레이에서 치르면 여기에 쌓인다</p>}
           </div>
         </section>
 
         <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': sel ? resultOf(sel)[1] : n }}>
           <p className="mt-lab" style={{ '--a': sel ? resultOf(sel)[1] : n }}>경기 요약</p>
-          {!sel ? <p className="text-t3 text-gray-500">목록에서 경기 고르기</p> : (() => {
+          {!sel ? <p className="text-t3 text-gray-400">목록에서 경기 고르기</p> : (() => {
             const [ko, c] = resultOf(sel);
             const m = modeOf(sel);
             return (

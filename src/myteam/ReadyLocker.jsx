@@ -39,7 +39,7 @@ export const SynIcon = ({ s, w = 38 }) => {
 };
 
 const Rule = () => <span className="block h-px shrink-0 bg-white/[0.08]" />;
-const Sub = ({ children }) => <span className="text-t4 text-gray-500">{children}</span>;
+const Sub = ({ children }) => <span className="text-t4 text-gray-400">{children}</span>;
 
 /** 상대 전력 합계 — 타순 9명 · 수비 8자리 · 투수 8명 */
 const foeSums = (opponent) => {
@@ -164,8 +164,8 @@ function FoeLineup({ opponent, onClose }) {
             return (
               <div key={p.id} className="mt-cut flex h-10 items-center gap-3 px-3"
                 style={{ ...cut(6), background: d ? 'rgba(251,191,36,.08)' : 'rgba(255,255,255,.04)' }}>
-                <b className="w-4 font-display text-t3 text-gray-500">{i + 1}</b>
-                <span className="w-7 text-t4 text-gray-500">{p.position}</span>
+                <b className="w-4 font-display text-t3 text-gray-400">{i + 1}</b>
+                <span className="w-7 text-t4 text-gray-400">{p.position}</span>
                 <b className="min-w-0 flex-1 truncate text-t3 text-white">{p.name}</b>
                 {f?.swing ? <b className="text-t4" style={{ color: f.color }}>{f.mark}</b> : null}
                 {d && <span className="text-t4" style={{ color: WARN }}>{d}</span>}
@@ -225,7 +225,7 @@ function RosterPanel({ squad, cap }) {
       <p className="mt-lab">선수 구성</p>
       <div className="flex items-baseline justify-between">
         <h2 className="text-t1 font-black text-white">내 엔트리</h2>
-        <span className="font-display"><b className="text-t2 text-emerald-400">{squad.length}</b><small className="text-t3 text-gray-500">/{cap}</small></span>
+        <span className="font-display"><b className="text-t2 text-emerald-400">{squad.length}</b><small className="text-t3 text-gray-400">/{cap}</small></span>
       </div>
       <div className="grid grid-cols-2 gap-x-3">
         {POS.map(([key, label]) => {
@@ -261,7 +261,7 @@ function CardBlock({ cards, value, onPick }) {
             <button key={c.id} type="button" disabled={!c.n} onClick={() => onPick(on ? null : c.id)} aria-pressed={on} title={c.effect}
               className="mt-cut flex h-11 items-center justify-center gap-1.5 px-2 disabled:opacity-35" style={pickStyle(on)}>
               <b className="truncate text-t3" style={{ color: on ? '#fff' : '#9ca3af' }}>{c.name}</b>
-              <span className="shrink-0 font-display text-t4 text-gray-500">{c.n}</span>
+              <span className="shrink-0 font-display text-t4 text-gray-400">{c.n}</span>
             </button>
           );
         })}

@@ -134,13 +134,13 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
         );
       })}
       {/* CP — 캡에 여유가 있을 때(90% 전)는 흐리게: 초반엔 골드가 막는다 */}
-      <span className={`justify-self-center rounded-full px-2.5 py-1 font-display text-t3 font-bold ${capQuiet ? 'bg-white/[0.04] text-gray-500' : 'bg-amber-400/10 text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]'}`}>{p.cost} CP</span>
+      <span className={`justify-self-center rounded-full px-2.5 py-1 font-display text-t3 font-bold ${capQuiet ? 'bg-white/[0.04] text-gray-400' : 'bg-amber-400/10 text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]'}`}>{p.cost} CP</span>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-t3 text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
         : (
           <span className="flex flex-col items-end leading-tight">
             {deal && <small className="rounded-full bg-amber-400/15 px-2 text-t4 font-bold" style={{ color: WARN }}>특가</small>}
-            <b className="font-display text-t2" style={{ color: GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-t4 text-gray-500">G</small></b>
+            <b className="font-display text-t2" style={{ color: GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-t4 text-gray-400">G</small></b>
           </span>
         )}
       <Btn pri={on} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }} style={{ minHeight: 42, padding: '0 16px' }}>{action}</Btn>
@@ -438,7 +438,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                   <Btn pri a="#fde047" className="mt-2.5 w-full" style={cut(10)} onClick={onShop}>상점 가기 ▶</Btn>
                 </div>
               )}
-              {!weak && <p className="text-t3 text-gray-500">먼저 선수 영입하기</p>}
+              {!weak && <p className="text-t3 text-gray-400">먼저 선수 영입하기</p>}
             </>
           );
         })() : (
@@ -447,7 +447,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <p className="-mt-1 text-t3 leading-relaxed text-gray-300">{it.desc}</p>
             <p className="mt-grp !mt-0">적용 대상</p>
             <div className="mt-scroll flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-1.5">
-              {list.length === 0 && <p className="text-t3 text-gray-500">대상 없음 · 먼저 영입하기</p>}
+              {list.length === 0 && <p className="text-t3 text-gray-400">대상 없음 · 먼저 영입하기</p>}
               {list.map((t) => {
                 const on = target?.id === t.id;
                 const rec = recIds.has(t.id);
@@ -499,7 +499,7 @@ function EntryBox({ squad, lim, issues }) {
   const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
   // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
   const tint = (n, min) => (n < min ? '#f87171' : n > min ? '#7dd3fc' : min ? '#34d399' : '#6b7280');
-  const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-t3" style={{ color }}>{n}</b><small className="text-t4 text-gray-500">/{d}</small></span>;
+  const frac = (n, d, color) => <span className="whitespace-nowrap font-display"><b className="text-t3" style={{ color }}>{n}</b><small className="text-t4 text-gray-400">/{d}</small></span>;
   const cell = (key) => {
     const r = pos[key];
     const n = squad.filter((p) => p.position === key).length;
@@ -517,8 +517,8 @@ function EntryBox({ squad, lim, issues }) {
     <div ref={ref} className="relative">
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
         className="mt-cut flex items-center gap-5 px-4 py-1.5 hover:bg-white/[0.06]" style={{ ...cut(12), background: open ? 'rgba(255,255,255,.08)' : undefined }}>
-        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-500">엔트리</small><b className="font-display text-t2" style={{ color: ec }}>{squad.length} / {lim.size}</b></span>
-        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-500">외국인</small><b className="font-display text-t2 text-white">{fc} / {lim.foreign}</b></span>
+        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-400">엔트리</small><b className="font-display text-t2" style={{ color: ec }}>{squad.length} / {lim.size}</b></span>
+        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-400">외국인</small><b className="font-display text-t2 text-white">{fc} / {lim.foreign}</b></span>
       </button>
       {open && (
         <div className="mt-cut mt-glass absolute right-0 top-[calc(100%+8px)] z-40 w-[320px] p-4" style={{ ...cut(18), background: 'rgba(10,15,26,.96)' }}>
@@ -746,7 +746,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             <div className="flex items-center gap-2">
               <input value={q} onChange={(e) => { setQ(e.target.value); setLimit(60); }} placeholder="선수 이름 · 연도 · 구단 검색"
-                className="mt-cut h-10 min-w-0 flex-1 bg-white/[0.05] px-4 text-t3 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.07)] outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(12)} />
+                className="mt-cut h-10 min-w-0 flex-1 bg-white/[0.05] px-4 text-t3 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.07)] outline-none placeholder:text-gray-400 focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={cut(12)} />
               {(() => {
                 const n = [year, club, pos].filter(Boolean).length;
                 const chip = (on, label, color, onClick) => (
@@ -779,7 +779,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
               ))}
-              {results.length === 0 && <p className="text-t3 text-gray-500">조건에 맞는 선수 없음</p>}
+              {results.length === 0 && <p className="text-t3 text-gray-400">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
                 <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
                   {matched.length - results.length}명 더 보기
@@ -811,7 +811,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
                 );
               })}
-              {clubList.length === 0 && <p className="text-t3 text-gray-500">보관한 선수 없음</p>}
+              {clubList.length === 0 && <p className="text-t3 text-gray-400">보관한 선수 없음</p>}
             </div>
           </section>
         )}
@@ -840,14 +840,14 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                         <span className="absolute left-3.5 top-2.5 font-display text-t2 font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
                         {m && <b className="absolute right-3.5 top-3 font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
                         <span className="absolute inset-x-3.5 bottom-3">
-                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m?.name || '비어 있음'}</b>
+                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-400'}`}>{m?.name || '비어 있음'}</b>
                           {m ? (
                             <span className="block truncate text-t4 font-semibold text-slate-300">
                               {effTags(staffEffectOf(m)).map((e, i) => (
-                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-600">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
+                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                               ))}
                             </span>
-                          ) : <span className="block text-t4 text-gray-600">-</span>}
+                          ) : <span className="block text-t4 text-gray-500">-</span>}
                         </span>
                       </span>
                     )} />
@@ -866,12 +866,12 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   <span className="flex min-w-0 flex-col gap-1.5 py-3 pl-1 pr-3.5">
                     <span className="min-w-0 pr-[130px]">
                       <small className="block font-display text-t4 font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
-                      <b className="text-t2 font-black text-white">{m.name}</b><small className="ml-2 text-t4 text-gray-500">{m.era}</small>
+                      <b className="text-t2 font-black text-white">{m.name}</b><small className="ml-2 text-t4 text-gray-400">{m.era}</small>
                     </span>
                     <small className="truncate text-t4 text-gray-400">{m.note}</small>
                     <span className="text-t3 font-semibold text-slate-300">
                       {effTags(m.effect).map((e, i) => (
-                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-600">·</span>}{e.label} <b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b></span>
+                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-500">·</span>}{e.label} <b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b></span>
                       ))}
                     </span>
                   </span>
@@ -922,7 +922,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     <b className="text-right font-display text-t3 text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
                   </div>
                 ))}
-                {!shown.length && <span className="text-t3 text-gray-600">-</span>}
+                {!shown.length && <span className="text-t3 text-gray-500">-</span>}
               </div>
               <div className="h-px shrink-0" style={{ background: `linear-gradient(90deg,${VIO}80,transparent)` }} />
 
@@ -937,7 +937,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                         <span className="mt-cut block h-[66px] bg-[#0b1220] bg-cover" style={{ ...cut(7), backgroundPosition: '60% 25%', backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` : 'url(ui/mt/silhouette-coach.webp)', opacity: m ? 1 : 0.35 }} />
                         <span className="min-w-0">
                           <span className="block font-display text-t4 tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
-                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-600'}`}>{m ? m.name : '-'}</b>
+                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '-'}</b>
                           {m && <span className="block truncate text-t4 text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
                         </span>
                         {m && <b className="self-start font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
@@ -948,7 +948,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
               ) : (
                 (() => {
                   const m = cur;
-                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-t3 text-gray-600" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
+                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-t3 text-gray-500" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
                   const mLv = m.level || 1;
                   return (
                     <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>

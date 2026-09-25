@@ -780,7 +780,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={leave} aria-label="나가기"
             className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
           <div className="leading-none">
-            <p className="text-t4 font-bold text-gray-500">플레이</p>
+            <p className="text-t4 font-bold text-gray-400">플레이</p>
             <h1 className="mt-1 text-t2 font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="flex items-center gap-1.5 text-t4 font-bold text-red-400"><i className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_8px_#f87171]" />중계</span>
@@ -874,7 +874,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     <span className="flex items-baseline gap-3 text-t4 text-gray-400">
                       <span>파워 <b className="font-display text-t3 text-white">{st(batter, 'power')}</b></span>
                       <span>컨택 <b className="font-display text-t3 text-white">{st(batter, 'contact')}</b></span>
-                      {!!next.length && <span className="truncate text-gray-500">다음 {next.map((p) => p.name).join(' · ')}</span>}
+                      {!!next.length && <span className="truncate text-gray-400">다음 {next.map((p) => p.name).join(' · ')}</span>}
                     </span>
                   </div>
                   <b className="font-display text-[40px] font-extrabold leading-none" style={{ color: battingColor }}>{batter?.overall}</b>
@@ -1023,7 +1023,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                             {cur?.ko}{want && <span style={{ color: '#fbbf24' }}> → {want.ko}</span>}
                           </b>
                           {want && <small className="shrink-0 text-t4 font-bold text-amber-300">예약</small>}
-                          <b className="shrink-0 text-t4 text-gray-500" style={{ transform: open ? 'rotate(90deg)' : 'none' }}>◀</b>
+                          <b className="shrink-0 text-t4 text-gray-400" style={{ transform: open ? 'rotate(90deg)' : 'none' }}>◀</b>
                         </button>
                       </div>
                     );
@@ -1057,7 +1057,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 </span>
               </div>
               <ul className="flex flex-col gap-1">
-                {myPen.length === 0 && <li className="px-1 py-1 text-t4 text-gray-500">남은 투수 없음</li>}
+                {myPen.length === 0 && <li className="px-1 py-1 text-t4 text-gray-400">남은 투수 없음</li>}
                 {myPen.slice(0, clutch ? 2 : 3).map((p) => {
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
@@ -1084,7 +1084,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden px-5 py-4" style={{ '--c': '22px' }}>
               {[...lines].reverse().filter((l) => l.kind !== 'half').slice(0, 4).map((l, i) => (
                 <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug" style={{ opacity: 1 - i * 0.22 }}>
-                  {l.at && <em className="shrink-0 font-display text-t4 font-bold not-italic text-gray-500">{l.at}</em>}
+                  {l.at && <em className="shrink-0 font-display text-t4 font-bold not-italic text-gray-400">{l.at}</em>}
                   <span className={`truncate ${i === 0 ? 'text-t3 font-bold' : 'text-t4'}`} style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
                 </p>
               ))}

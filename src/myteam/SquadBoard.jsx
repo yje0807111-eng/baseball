@@ -157,7 +157,7 @@ const NameBlock = ({ p, pos = p.position, size = 14 }) => {
       </span>
       <span className="flex gap-2.5 font-display text-t3">
         {recCells(p).map(([l, v]) => (
-          <span key={l} className="whitespace-nowrap"><small className="text-t4 text-gray-400">{l} </small><b className={`tabular-nums ${v == null ? 'text-gray-600' : 'text-white'}`}>{v ?? '-'}</b></span>
+          <span key={l} className="whitespace-nowrap"><small className="text-t4 text-gray-400">{l} </small><b className={`tabular-nums ${v == null ? 'text-gray-500' : 'text-white'}`}>{v ?? '-'}</b></span>
         ))}
       </span>
     </span>
@@ -166,7 +166,7 @@ const NameBlock = ({ p, pos = p.position, size = 14 }) => {
 const Grp = ({ en, ko, color, right }) => (
   <div className="mt-grp !my-0 !mb-[5px]" style={{ color }}>
     <b className="text-t3 tracking-[0.04em] text-white">{ko}</b>
-    {right && <span className="order-last ml-1 font-display text-t4 tracking-[0.1em] text-gray-500">{right}</span>}
+    {right && <span className="order-last ml-1 font-display text-t4 tracking-[0.1em] text-gray-400">{right}</span>}
   </div>
 );
 /* 선 자리 기준 실전 수치: 드래프트와 같은 포지션 이탈 감소(비슷한 자리 3 · 같은 계열 6 · 포수 8, 지명타자 0) */
@@ -189,7 +189,7 @@ const Delta = ({ before, after, size = 18 }) => {
     </span>
   );
 };
-const Handle = () => <span className="cursor-grab select-none text-t3 tracking-[-2px] text-slate-600" aria-hidden="true">⋮⋮</span>;
+const Handle = () => <span className="cursor-grab select-none text-t3 tracking-[-2px] text-slate-500" aria-hidden="true">⋮⋮</span>;
 
 /**
  * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
@@ -228,7 +228,7 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
  * footer: 벤치 아래 남는 자리에 끼워 넣을 것 (시너지 등)
  * compact: 경기 준비 — 투수진 · 벤치 칸은 단추로 열고(처음엔 닫힘), 타순 칸 · 구장 카드의 기록을 빼고, footer 는 타순 아래
  */
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 300, compact = false }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 360, compact = false }) {
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
   const [rail, setRail] = useState(!compact); // 투수진 · 벤치 칸 (경기 준비에서는 단추로 연다)
@@ -585,7 +585,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>
       </div>
 
-      {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-500">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
+      {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-400">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
         <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: rail ? `minmax(0,1fr) ${railW}px` : 'minmax(0,1fr)' }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">
@@ -632,7 +632,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
             <div className="h-1.5 shrink-0" />
             <Grp en="BENCH" ko={`벤치 ${benchList.length}`} color="#94a3b8" />
             <div className={`mt-scroll slim grid max-h-[64px] shrink-0 content-start grid-cols-2 gap-1 overflow-y-auto pr-1`}>
-              {benchList.length === 0 && <span className="text-t3 text-gray-500">-</span>}
+              {benchList.length === 0 && <span className="text-t3 text-gray-400">-</span>}
               {benchList.map((p) => (
                 <div key={p.id} role="button" tabIndex={0} {...benchDrag(p)}
                   className={`mt-cut flex h-[30px] shrink-0 touch-none select-none items-center gap-1.5 px-2 ${drag?.list === 'bench' && drag.id === p.id ? 'cursor-grabbing opacity-35' : 'cursor-grab'}`}

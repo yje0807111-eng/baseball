@@ -41,7 +41,7 @@ function OppPreview({ opp }) {
 
 /** 최근 5경기 — 승패 칸 한 줄 + 상대 · 점수 줄 */
 function RecentGames({ games }) {
-  if (!games.length) return <p className="text-t3 text-gray-500">치른 경기 없음</p>;
+  if (!games.length) return <p className="text-t3 text-gray-400">치른 경기 없음</p>;
   return (
     <>
       <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${games.length},1fr)` }}>
@@ -128,7 +128,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
         <div className="absolute bottom-6 left-7">
           <p className="ui-lab font-display">다음 경기</p>
-          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-500">vs</span> {oppName || '무작위 팀'}</p>
+          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-400">vs</span> {oppName || '무작위 팀'}</p>
           <p className="mt-2 font-display text-t2" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
@@ -154,7 +154,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
           );
         })}
         {Array.from({ length: Math.max(0, 8 - top.length) }, (_, i) => (
-          <button key={`e${i}`} type="button" onClick={onLocker} className="ui-cut grid place-items-center bg-white/[0.03] text-t4 text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '10px' }}>+ 영입</button>
+          <button key={`e${i}`} type="button" onClick={onLocker} className="ui-cut grid place-items-center bg-white/[0.03] text-t4 text-gray-400 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '10px' }}>+ 영입</button>
         ))}
       </div>
     </section>
@@ -188,7 +188,7 @@ export function TourneyHero({ size, t, name, squad, cup = 'open' }) {
                   <span className="ui-cut px-4 py-1.5 font-display text-t3 font-bold" style={{ '--c': '6px',
                     color: here || (k === n - 1 && now < 0) ? '#05080f' : done ? '#05080f' : '#e5e7eb',
                     background: here ? A : done ? 'rgba(251,191,36,.55)' : k === n - 1 && now < 0 ? A : 'rgba(255,255,255,.08)' }}>{r.ko}</span>
-                  {k < n - 1 && <span className="font-display text-gray-600">›</span>}
+                  {k < n - 1 && <span className="font-display text-gray-500">›</span>}
                 </React.Fragment>
               );
             })}

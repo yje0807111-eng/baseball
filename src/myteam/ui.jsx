@@ -288,7 +288,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
           className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
       <div className="shrink-0 leading-none">
-        <p className="text-t4 font-bold text-gray-500">{eyebrow}</p>
+        <p className="text-t4 font-bold text-gray-400">{eyebrow}</p>
         <h1 className="mt-1 whitespace-nowrap text-t1 font-black leading-none text-white">{section}</h1>
       </div>
       {steps && <span className="h-9 w-px shrink-0 bg-white/10" aria-hidden="true" />}
@@ -299,7 +299,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
             <div className="flex items-baseline justify-between">
               <span className="text-t4 font-bold text-gray-400">남은 캡</span>
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
-              <span className="font-display"><b className="text-t2" style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()}</b><small className="text-t4 text-gray-500"> / {cap.toLocaleString()}</small></span>
+              <span className="font-display"><b className="text-t2" style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()}</b><small className="text-t4 text-gray-400"> / {cap.toLocaleString()}</small></span>
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
               <i className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : cost < cap * CAP_LOUD ? '#6b7280' : '#10b981', boxShadow: cost < cap * CAP_LOUD && !over ? 'none' : `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />

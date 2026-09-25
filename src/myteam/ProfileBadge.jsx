@@ -47,7 +47,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
           <span className="flex items-center gap-3">
             <input value={nick} maxLength={NICK_MAX} onChange={(e) => setNick(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && save()}
               className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-            <span className="font-display text-t3 text-gray-500">{nick.length}/{NICK_MAX}</span>
+            <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
           </span>
         </label>
 

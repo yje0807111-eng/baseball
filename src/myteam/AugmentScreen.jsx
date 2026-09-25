@@ -107,7 +107,7 @@ export default function AugmentScreen({ account, onBack }) {
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-2">
                 <span className="self-start rounded-full bg-[#c4b5fd]/15 px-2.5 py-0.5 text-t4 font-bold text-[#c4b5fd]">{TYPE_KO[picked.type] || '증강'}</span>
-                <b className={`text-[32px] font-black leading-tight ${isBan ? 'text-gray-500 line-through' : 'text-white'}`}>{picked.name}</b>
+                <b className={`text-[32px] font-black leading-tight ${isBan ? 'text-gray-400 line-through' : 'text-white'}`}>{picked.name}</b>
                 <Gems lv={lv} />
                 {picked.note && <small className="text-t4 text-gray-400">{picked.note}</small>}
               </div>
@@ -170,7 +170,7 @@ export default function AugmentScreen({ account, onBack }) {
                 </button>
               );
             })}
-            {list.length === 0 && <p className="col-span-full py-10 text-center text-t3 text-gray-500">{filter === 'fav' ? '즐겨찾기한 증강 없음' : filter === 'ban' ? '제외한 증강 없음' : '증강 없음'}</p>}
+            {list.length === 0 && <p className="col-span-full py-10 text-center text-t3 text-gray-400">{filter === 'fav' ? '즐겨찾기한 증강 없음' : filter === 'ban' ? '제외한 증강 없음' : '증강 없음'}</p>}
           </div>
         </section>
       </div>

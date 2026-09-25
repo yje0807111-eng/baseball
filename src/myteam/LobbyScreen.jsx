@@ -195,7 +195,7 @@ function AcePanel({ account, team, onLocker }) {
           <div className="flex items-baseline gap-2">
             <b className="text-t2 font-black text-white">{r.tier.ko} {r.div}</b>
             <b className="ml-auto font-display text-t2" style={{ color: r.tier.c }}>{rp.toLocaleString()}</b>
-            {r.next && <small className="font-display text-t4 text-gray-500">/ {r.next.min.toLocaleString()} RP</small>}
+            {r.next && <small className="font-display text-t4 text-gray-400">/ {r.next.min.toLocaleString()} RP</small>}
           </div>
           <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><i className="block h-full rounded-full" style={{ width: `${Math.max(2, tierPct)}%`, background: `linear-gradient(90deg, ${r.tier.c}66, ${r.tier.c})`, boxShadow: `0 0 10px ${r.tier.c}` }} /></span>
           {r.next && <small className="mt-1.5 block text-t4 text-gray-400">{r.next.ko}까지 <b className="font-display text-t3 text-white">{(r.next.min - rp).toLocaleString()}</b> RP</small>}
