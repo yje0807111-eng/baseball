@@ -4632,7 +4632,6 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
         <div className="flex items-baseline gap-3">
           <p className="ui-lab font-display">Play Ball</p>
-          <p className="text-sm text-gray-400">선발 맞대결</p>
         </div>
         <div className="mt-2 grid min-h-0 flex-1 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
           {/* 선발 맞대결 */}
@@ -4655,7 +4654,6 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
               <div className="flex min-h-0 flex-col">
                 <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
                   <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>Head to Head</p>
-                  <span className="text-sm text-gray-400">자리마다 맞대기</span>
                   <span className="ml-auto flex items-baseline gap-1.5">
                     <b className="font-display text-xl font-extrabold text-[#10b981]">{won}</b>
                     <small className="text-gray-600">:</small>
