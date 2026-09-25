@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>빈 PICK 구역 목업 4종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .row { display: flex; flex-wrap: wrap; gap: 22px; padding: 18px; background: linear-gradient(180deg, rgba(5,8,15,.55), rgba(5,8,15,.9)), url(/ui/stadium.webp) center 30%/cover; min-height: calc(100vh - 44px); }
+  .cell { display: flex; flex-direction: column; gap: 8px; }
+  .cell > b { font-size: 14px; color: #fff; }
+  .cell > b i { font-style: normal; color: #10b981; margin-right: 6px; font-family: 'Saira Condensed', sans-serif; }
+  .cell > span { max-width: 300px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+
+  /* ── 게임의 PICK 판 ── */
+  .grp { --c: 16px; --a: #10b981; position: relative; width: 300px; height: 540px; padding: 30px 10px 10px; background: rgba(6,10,19,.8); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); display: flex; flex-direction: column; gap: 8px; }
+  .grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+    background: linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+      linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent); }
+  .lab { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+  .lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+  .slot { position: relative; flex: 1; min-height: 0; }
+  .ghostbtn { flex: none; height: 44px; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+
+  /* ════ E1 · 빈 카드 자리 + 실루엣 ════ */
+  @keyframes shimmer { 0% { transform: translateX(-120%) skewX(-18deg); } 60%, 100% { transform: translateX(220%) skewX(-18deg); } }
+  .e1 .card { position: absolute; inset: 0; margin: auto; aspect-ratio: 2/3; max-width: 100%; max-height: 100%; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)); overflow: hidden; }
+  .e1 .card::before { content: ""; position: absolute; inset: 6px; border: 1.5px dashed rgba(148,163,184,.28); clip-path: inherit; }
+  .e1 .card::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); animation: shimmer 3.2s ease-in-out infinite; }
+  .e1 svg { position: absolute; left: 50%; bottom: 0; width: 78%; transform: translateX(-50%); fill: rgba(148,163,184,.11); }
+  .e1 .tb { position: absolute; left: 7%; right: 3%; top: 3%; height: 3px; background: rgba(148,163,184,.25); }
+  .e1 .bars { position: absolute; left: 7%; top: 20%; width: 36%; display: flex; flex-direction: column; gap: 9px; }
+  .e1 .bars i { height: 5px; background: rgba(148,163,184,.14); }
+  .e1 .bars i:nth-child(1) { width: 80%; } .e1 .bars i:nth-child(2) { width: 60%; } .e1 .bars i:nth-child(3) { width: 90%; } .e1 .bars i:nth-child(4) { width: 50%; }
+
+  /* ════ E2 · 카드 뒷면 엠블럼 ════ */
+  @keyframes emblem { 0%, 100% { filter: drop-shadow(0 0 6px rgba(16,185,129,.25)); opacity: .75; } 50% { filter: drop-shadow(0 0 18px rgba(16,185,129,.6)); opacity: 1; } }
+  .e2 .card { position: absolute; inset: 0; margin: auto; aspect-ratio: 2/3; max-width: 100%; max-height: 100%; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%);
+    background: radial-gradient(60% 45% at 50% 48%, rgba(16,185,129,.12), transparent 70%), repeating-linear-gradient(45deg, rgba(255,255,255,.028) 0 1px, transparent 1px 14px), repeating-linear-gradient(-45deg, rgba(255,255,255,.028) 0 1px, transparent 1px 14px), #070c16; }
+  .e2 .card::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(16,185,129,.22); clip-path: inherit; }
+  .e2 .emb { position: absolute; left: 50%; top: 50%; width: 46%; transform: translate(-50%, -50%); animation: emblem 3s ease-in-out infinite; }
+  .e2 .emb svg { display: block; width: 100%; }
+
+  /* ════ E3 · 위를 가리키는 셰브론 + HUD 꺾쇠 ════ */
+  @keyframes chev { 0% { opacity: 0; transform: translateY(14px); } 35% { opacity: 1; } 70%, 100% { opacity: 0; transform: translateY(-14px); } }
+  .e3 .bk { position: absolute; width: 34px; height: 34px; border: 0 solid rgba(16,185,129,.55); }
+  .e3 .bk.tl { left: 8px; top: 8px; border-top-width: 2px; border-left-width: 2px; }
+  .e3 .bk.tr { right: 8px; top: 8px; border-top-width: 2px; border-right-width: 2px; }
+  .e3 .bk.bl { left: 8px; bottom: 8px; border-bottom-width: 2px; border-left-width: 2px; }
+  .e3 .bk.br { right: 8px; bottom: 8px; border-bottom-width: 2px; border-right-width: 2px; }
+  .e3 .chevs { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .e3 .chevs svg { width: 56px; height: 26px; stroke: #10b981; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; animation: chev 1.8s ease-in-out infinite; }
+  .e3 .chevs svg:nth-child(2) { animation-delay: .2s; opacity: 0; }
+  .e3 .chevs svg:nth-child(3) { animation-delay: .4s; opacity: 0; }
+  .e3 .mini { position: absolute; left: 50%; top: 66%; transform: translateX(-50%); display: flex; gap: 6px; }
+  .e3 .mini i { width: 22px; height: 33px; clip-path: polygon(12% 0,100% 0,100% 90%,88% 100%,0 100%,0 10%); background: rgba(148,163,184,.14); }
+  .e3 .mini i:nth-child(2) { background: rgba(16,185,129,.35); box-shadow: 0 0 10px rgba(16,185,129,.5); transform: translateY(-6px); }
+
+  /* ════ E4 · 야구공 + 레이더 파동 ════ */
+  @keyframes ring { 0% { transform: translate(-50%, -50%) scale(.35); opacity: .7; } 100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; } }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .e4 .slot { background: radial-gradient(55% 40% at 50% 46%, rgba(16,185,129,.1), transparent 70%); }
+  .e4 .rg { position: absolute; left: 50%; top: 46%; width: 190px; height: 190px; border-radius: 50%; border: 1.5px solid rgba(16,185,129,.55); transform: translate(-50%, -50%); animation: ring 2.4s ease-out infinite; }
+  .e4 .rg:nth-child(2) { animation-delay: .8s; } .e4 .rg:nth-child(3) { animation-delay: 1.6s; }
+  .e4 .sweep { position: absolute; left: 50%; top: 46%; width: 220px; height: 220px; border-radius: 50%; transform: translate(-50%, -50%); background: conic-gradient(from 0deg, rgba(16,185,129,.22), transparent 25%); animation: spin 4s linear infinite; mask: radial-gradient(circle, transparent 38%, #000 39%); -webkit-mask: radial-gradient(circle, transparent 38%, #000 39%); }
+  .e4 .ball { position: absolute; left: 50%; top: 46%; width: 84px; height: 84px; transform: translate(-50%, -50%); }
+  .e4 .ball svg { width: 100%; height: 100%; filter: drop-shadow(0 0 14px rgba(16,185,129,.35)); }
+</style>
+</head>
+<body>
+<div class="top"><b>빈 PICK 구역 목업 4종</b><span>설명 글 없이, 비어 있을 때의 모습만 · 아래 버튼 자리는 흐린 빈 틀로 남겨 구역 모양 유지</span></div>
+<div class="row">
+  <div class="cell"><b><i>1</i>빈 카드 자리</b><span>PICK 카드와 같은 모양의 점선 틀 + 흐린 선수 실루엣과 능력치 막대 자리 · 은은한 빛이 지나감 — “여기에 카드가 온다”가 바로 보임</span>
+    <div class="grp e1"><span class="lab">PICK</span>
+      <div class="slot"><div class="card"><span class="tb"></span><div class="bars"><i></i><i></i><i></i><i></i></div>
+        <svg viewBox="0 0 100 120" aria-hidden="true"><circle cx="50" cy="34" r="17"/><path d="M14 122 C16 84 30 64 50 64 C70 64 84 84 86 122 Z"/><path d="M68 44 L94 16 L98 20 L73 49 Z"/></svg>
+      </div></div>
+      <div class="ghostbtn"></div>
+    </div></div>
+
+  <div class="cell"><b><i>2</i>카드 뒷면</b><span>카드를 뒤집어 놓은 뒷면 — 격자 무늬 위 야구공 · 다이아몬드 엠블럼이 천천히 숨쉬듯 빛남 · 가장 “게임 카드”다운 느낌</span>
+    <div class="grp e2"><span class="lab">PICK</span>
+      <div class="slot"><div class="card"><div class="emb">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <path d="M50 4 L96 50 L50 96 L4 50 Z" fill="none" stroke="#10b981" stroke-width="2.2" opacity=".7"/>
+          <path d="M50 16 L84 50 L50 84 L16 50 Z" fill="none" stroke="#10b981" stroke-width="1" opacity=".35"/>
+          <circle cx="50" cy="50" r="20" fill="#0b1422" stroke="#e5e7eb" stroke-width="2"/>
+          <path d="M38 36 C44 44 44 56 38 64 M62 36 C56 44 56 56 62 64" fill="none" stroke="#f87171" stroke-width="1.8"/>
+          <path d="M39 42 l3 -1.5 M40 48 l3 -.6 M40 54 l3 .6 M39 59 l3 1.5 M61 42 l-3 -1.5 M60 48 l-3 -.6 M60 54 l-3 .6 M61 59 l-3 1.5" stroke="#f87171" stroke-width="1.2"/>
+        </svg></div></div></div>
+      <div class="ghostbtn"></div>
+    </div></div>
+
+  <div class="cell"><b><i>3</i>위로 올라가는 화살표</b><span>HUD 꺾쇠 네 모서리 안에서 셰브론이 위(선반 쪽)로 차례로 흘러감 + 작은 카드 셋 중 하나가 떠오름 — “위에서 골라라”를 글 없이 전달</span>
+    <div class="grp e3"><span class="lab">PICK</span>
+      <div class="slot"><span class="bk tl"></span><span class="bk tr"></span><span class="bk bl"></span><span class="bk br"></span>
+        <div class="chevs"><svg viewBox="0 0 56 26"><path d="M6 22 L28 6 L50 22"/></svg><svg viewBox="0 0 56 26"><path d="M6 22 L28 6 L50 22"/></svg><svg viewBox="0 0 56 26"><path d="M6 22 L28 6 L50 22"/></svg></div>
+        <div class="mini"><i></i><i></i><i></i></div>
+      </div>
+      <div class="ghostbtn"></div>
+    </div></div>
+
+  <div class="cell"><b><i>4</i>야구공 레이더</b><span>가운데 야구공에서 초록 파동이 퍼지고 레이더 빛이 돌며 “스카우팅 대기 중” 느낌 — 가장 움직임이 살아 있음</span>
+    <div class="grp e4"><span class="lab">PICK</span>
+      <div class="slot"><span class="rg"></span><span class="rg"></span><span class="rg"></span><span class="sweep"></span>
+        <div class="ball"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="#0e1726" stroke="#e5e7eb" stroke-width="3"/><path d="M26 18 C40 36 40 64 26 82 M74 18 C60 36 60 64 74 82" fill="none" stroke="#f87171" stroke-width="3"/><path d="M29 28 l6 -3 M32 40 l6 -1 M32 52 l6 0 M31 64 l6 1.5 M71 28 l-6 -3 M68 40 l-6 -1 M68 52 l-6 0 M69 64 l-6 1.5" stroke="#f87171" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="ghostbtn"></div>
+    </div></div>
+</div>
+</body>
+</html>

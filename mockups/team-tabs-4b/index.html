@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>팀 분석 4안 · 기록표 다듬기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 16px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .wrapall { display: grid; grid-template-columns: repeat(auto-fill, minmax(830px, 1fr)); gap: 40px 34px; max-width: 1760px; margin: 0 auto; padding: 22px 20px 60px; }
+  .ver .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; margin: 0 2px 10px; }
+  .ver .hd b { font-size: 15px; color: #fff; }
+  .ver .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .ver .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .ver .desc { flex-basis: 100%; font-size: 12.5px; color: #9ca3af; }
+  .ver .desc > b { font-size: 12.5px; color: #cbd5e1; }
+  .pair { display: flex; gap: 16px; }
+  .pair figure { margin: 0; }
+  .pair figcaption { margin-top: 6px; font-size: 11.5px; color: #6b7280; text-align: center; }
+  .pn { --c: 16px; position: relative; width: 400px; height: 552px; display: flex; flex-direction: column; padding: 30px 10px 10px; background: radial-gradient(120% 60% at 50% 0%, rgba(16,185,129,.05), transparent 60%), rgba(8,13,24,.96); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
+  .pn .lab { position: absolute; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: #10b981; }
+  .pn .lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+  @keyframes prism { to { background-position: 200% 50%; } }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+  .srcframe { position: fixed; left: -3000px; top: 0; width: 1902px; height: 901px; border: 0; visibility: hidden; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 팀 분석을 “비교 · 성격 · 경기 운영 · 순위” 네 방향으로 새로, 선수 기록은 V3 기록표(투수표 · 타자표)를 네 가지로 다듬음.
+   상대 비교는 게임의 aiDraft 로 같은 모드 · 같은 캡의 AI 팀을 고정 시드로 여러 번 뽑아 평균을 낸다. */
+const G = await import('/src/KboAugmentDraft.jsx');
+const { ALL_PLAYERS, DRAFT_MODES, checkSynergies, applySynergies, playAt, withSlots, aiDraft } = G;
+const { safeId } = await import('/src/data/seriesPlayers.js');
+const SRC = '/?demo=draft';
+const SERIES_FILES = ['1993-haitai', '2006-hanwha', '2006-wbc', '2008-beijing', '2008-sk', '2009-kia', '2009-wbc', '2010-lotte', '2014-nexen', '2014-samsung', '2015-premier12', '2016-doosan', '2020-nc', '2023-lg', '2024-kia'];
+const SOURCE = new Map();
+await Promise.all(SERIES_FILES.map(async (f) => {
+  const s = (await import(`/src/data/series/${f}.json`)).default;
+  s.players.forEach((p) => SOURCE.set(`${s.id}_${safeId(p.personId)}`, p.source));
+}));
+const HIDDEN = new Set(['franchise']);
+const ORDER = ['SP', 'MR', 'CL', 'C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH'];
+const LABEL = { SP: '선발', MR: '중간계투', CL: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자' };
+const SHORT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
+const PITCH = ['SP', 'MR', 'CL'];
+const BATS = ORDER.filter((s) => !PITCH.includes(s));
+const SLOT_POS = { SP: 'SP', MR: 'RP', CL: 'RP', C: 'C', '1B': '1B', '2B': '2B', '3B': '3B', SS: 'SS', OF1: 'OF', OF2: 'OF', OF3: 'OF', DH: 'DH' };
+
+const VERS = [
+  { id: 'W1', title: 'VS 상대 AI · 얼굴 넣은 기록표', t: 'T1', r: 'Ra',
+    team: '내 팀 종합 VS 같은 모드 AI 올스타 평균, 간이 예상 승률 막대, 공격력 · 수비력 · 선발 · 불펜 · 파워 · 컨택 · 주루를 가운데 이름 기준 양쪽 막대로 맞대결',
+    rec: '작은 얼굴 + 이름/시즌 두 줄, 열마다 우리 팀 1등 기록을 초록으로(ERA 는 가장 낮은 값) — 레전드 카드는 기록 칸을 합쳐 노트로' },
+  { id: 'W2', title: '팀 컬러 · 대단한 시즌 색 기록표', t: 'T2', r: 'Rb',
+    team: '“컨택 타선 · 불안한 뒷문” 같은 팀 성격 한 줄, 여섯 축 레이더에 AI 평균 점선을 겹쳐 모양으로 비교, 축마다 ▲▼ 차이 칩',
+    rec: '얼굴 없이 한 줄, 줄무늬 · 기록 자체에 등급 색: 타율 .310+ 초록 .350+ 무지개, 홈런 25+/40+, ERA 3.00↓/2.00↓ 등 — 대단한 시즌이 바로 보임' },
+  { id: 'W3', title: '경기 운영 미리보기 · 칩 기록표', t: 'T3', r: 'Rc',
+    team: '지금 라인업으로 짠 예상 타순 1~9번(리드오프 · 테이블세터 · 클린업 · 하위)과 9이닝 투수 운용 막대(선발 체력만큼 → 중계 → 마무리)',
+    rec: '포지션 칩 + 얼굴 + 이름 한 줄, 시즌은 ’10 롯데 짧게, 종합은 등급 색 네모 — 기록 등급 색도 함께' },
+  { id: 'W4', title: '예상 순위 · 두 줄 상세 기록표', t: 'T4', r: 'Rd',
+    team: 'AI 올스타 9팀과 함께 매긴 예상 순위(빈 자리는 남은 CP로 데려올 수 있는 선수 수준으로 채웠다고 가정), 10팀 순위표에 내 팀 강조, 빈 자리를 채웠을 때 오르는 폭',
+    rec: '이름 아래 회색 한 줄에 보조 기록(14승 7패 · 165.2이닝 / 출루 .420 · 625타석), 윗줄은 주요 기록 네 칸' },
+];
+
+const CSS = `
+body.mk-hasside .ll-body { display: none !important; }
+.mk { color: #e5e7eb; font-family: 'IBM Plex Sans KR', sans-serif; font-size: 12px; line-height: 1.3; }
+.mk * { box-sizing: border-box; }
+.mk button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: left; }
+.mk .num { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.mk .t75 { color: #34d399 !important; }
+.mk .t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent !important; animation: prism 3s linear infinite; }
+.mk .cap { font-size: 11px; color: #6b7280; }
+.mk-side { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.mk .tabs { flex: none; display: flex; gap: 20px; padding: 0 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.16); }
+.mk .tabs button { position: relative; padding: 3px 1px 8px; font-size: 13px; font-weight: 600; color: #6b7280; }
+.mk .tabs button:hover { color: #cbd5e1; }
+.mk .tabs button.on { color: #fff; }
+.mk .tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: #10b981; }
+.mk .tb { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.4) transparent; }
+.mk .tb > .ta { height: 100%; overflow: hidden; }
+.mk .face { flex: none; display: inline-block; background-color: #1b2537; background-repeat: no-repeat; background-size: cover !important; background-position: 50% 8% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.mk .face.nof { background: linear-gradient(180deg, #2c3749, #222c3e) !important; }
+.mk .eyebrow { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .22em; color: #6b7280; }
+.mk .sech { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 8px; font-size: 12px; font-weight: 600; color: #e5e7eb; }
+.mk .sech small { font-size: 10.5px; font-weight: 400; color: #6b7280; }
+
+/* ── T1 VS ── */
+.t1 { display: flex; flex-direction: column; gap: 16px; padding: 4px 4px 0; }
+.vs { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; }
+.vs > div { display: flex; flex-direction: column; gap: 6px; }
+.vs > div:last-child { align-items: flex-end; }
+.vs .num { font-size: 46px; color: #fff; }
+.vs .ai .num { color: #fca5a5; }
+.vs .eyebrow.me { color: #34d399; } .vs .eyebrow.ai { color: #f87171; }
+.vs > b { align-self: center; margin-top: 16px; font-family: 'Saira Condensed', sans-serif; font-size: 18px; font-style: italic; font-weight: 800; letter-spacing: .06em; color: #4b5563; }
+.wp { display: flex; flex-direction: column; gap: 6px; }
+.wp .row { display: flex; justify-content: space-between; font-size: 11.5px; color: #9ca3af; }
+.wp .row b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; color: #fff; }
+.wp .row b.ai { color: #fca5a5; }
+.wp .bar { display: flex; height: 8px; gap: 2px; }
+.wp .bar i { display: block; height: 100%; }
+.wp .bar i:first-child { background: linear-gradient(90deg, #059669, #34d399); border-radius: 2px 0 0 2px; }
+.wp .bar i:last-child { flex: 1; background: linear-gradient(90deg, #f87171, #b91c1c); border-radius: 0 2px 2px 0; }
+.h2h { display: flex; flex-direction: column; gap: 2px; }
+.hh { display: grid; grid-template-columns: 28px 1fr 52px 1fr 28px; align-items: center; column-gap: 8px; height: 29px; }
+.hh .num { font-size: 16px; color: #6b7280; }
+.hh .num.win { color: #fff; }
+.hh .num:last-child { text-align: right; }
+.hh .me { display: flex; justify-content: flex-end; height: 8px; background: rgba(255,255,255,.04); }
+.hh .ai { display: flex; height: 8px; background: rgba(255,255,255,.04); }
+.hh .me i { background: #34d399; border-radius: 2px 0 0 2px; opacity: .45; }
+.hh .ai i { background: #f87171; border-radius: 0 2px 2px 0; opacity: .45; }
+.hh .me i.win, .hh .ai i.win { opacity: 1; }
+.hh > span { font-size: 12px; text-align: center; color: #cbd5e1; }
+.t1-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.t1-foot div { padding: 9px 10px; background: rgba(255,255,255,.03); box-shadow: inset 3px 0 0 var(--k); }
+.t1-foot small { display: block; font-size: 10.5px; color: #6b7280; }
+.t1-foot b { display: block; margin-top: 3px; font-size: 13px; color: #fff; }
+.t1-foot b em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 15px; color: var(--k); margin-left: 4px; }
+
+/* ── T2 팀 컬러 ── */
+.t2 { display: flex; flex-direction: column; gap: 6px; padding: 4px 4px 0; }
+.t2 h3 { margin: 4px 0 0; font-size: 22px; font-weight: 700; line-height: 1.25; color: #fff; letter-spacing: -.01em; }
+.t2 h3 .g { color: #34d399; } .t2 h3 .o { color: #fb923c; }
+.t2 .lead { font-size: 11.5px; color: #6b7280; }
+.t2 svg { display: block; width: 100%; height: auto; margin: 2px 0; }
+.t2 svg text { font-family: 'IBM Plex Sans KR', sans-serif; font-size: 11px; fill: #cbd5e1; }
+.t2 svg text.v { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; fill: #fff; }
+.t2 svg text.d { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; }
+.legend2 { display: flex; gap: 14px; font-size: 11px; color: #9ca3af; }
+.legend2 i { display: inline-block; width: 14px; height: 0; margin-right: 5px; vertical-align: 3px; border-top: 2px solid #34d399; }
+.legend2 i.ai { border-top: 2px dashed #f87171; }
+.trs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 6px; }
+.trs span { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 8px; font-size: 12px; color: #cbd5e1; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); }
+.trs span b { font-family: 'Saira Condensed', sans-serif; font-size: 15px; }
+.trs .up b { color: #34d399; } .trs .dn b { color: #fb923c; }
+
+/* ── T3 경기 운영 ── */
+.t3 { display: flex; flex-direction: column; gap: 14px; padding: 2px 2px 0; }
+.bo { display: flex; flex-direction: column; }
+.bo-r { display: grid; grid-template-columns: 20px 36px minmax(0,1fr) 74px 44px; align-items: center; column-gap: 8px; height: 26px; padding: 0 4px; }
+.bo-r + .bo-r { box-shadow: inset 0 1px 0 rgba(148,163,184,.07); }
+.bo-r .no { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; color: #6b7280; text-align: center; }
+.bo-r.core .no { color: #34d399; }
+.bo-r .pos { font-size: 11px; color: #9ca3af; }
+.bo-r b { font-size: 13px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bo-r .role { justify-self: start; padding: 0 6px; font-size: 10.5px; line-height: 17px; color: #9ca3af; background: rgba(148,163,184,.1); border-radius: 2px; }
+.bo-r .role.lead { color: #7dd3fc; background: rgba(56,189,248,.12); }
+.bo-r .role.core { color: #34d399; background: rgba(16,185,129,.13); }
+.bo-r .kst { font-size: 11px; color: #6b7280; text-align: right; white-space: nowrap; }
+.bo-r .kst b { font-family: 'Saira Condensed', sans-serif; font-size: 14px; color: #e5e7eb; margin-left: 3px; }
+.bo-r.e b { font-weight: 400; color: #4b5563; }
+.inn { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+.inn span { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 11px; color: #6b7280; }
+.inn i { width: 100%; height: 18px; border-radius: 2px; background: var(--pc); opacity: .9; }
+.inn i.tired { background: repeating-linear-gradient(135deg, var(--pc) 0 5px, color-mix(in srgb, var(--pc) 45%, transparent) 5px 9px); }
+.inn i.none { background: repeating-linear-gradient(135deg, rgba(148,163,184,.25) 0 4px, transparent 4px 8px); box-shadow: inset 0 0 0 1px rgba(148,163,184,.3); }
+.segs { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; margin-top: 6px; }
+.segs div { min-width: 0; padding-top: 5px; box-shadow: inset 0 2px 0 var(--pc); font-size: 11.5px; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.segs div small { display: block; font-size: 10px; color: #6b7280; }
+
+/* ── T4 순위 ── */
+.t4 { display: flex; flex-direction: column; gap: 12px; padding: 4px 4px 0; }
+.rk { display: flex; align-items: flex-end; justify-content: space-between; }
+.rk .big { display: flex; align-items: baseline; gap: 6px; }
+.rk .big .num { font-size: 56px; color: #fff; }
+.rk .big span { font-size: 16px; font-weight: 600; color: #9ca3af; }
+.rk .side { text-align: right; }
+.rk .side .num { display: block; margin-top: 4px; font-size: 24px; color: #34d399; }
+.lb { display: flex; flex-direction: column; gap: 2px; }
+.lb-r { display: grid; grid-template-columns: 20px 92px 1fr 34px; align-items: center; column-gap: 8px; height: 22px; padding: 0 6px; }
+.lb-r .n { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; color: #6b7280; text-align: center; }
+.lb-r > span { font-size: 12px; color: #9ca3af; white-space: nowrap; }
+.lb-r i { height: 6px; background: rgba(148,163,184,.3); border-radius: 0 2px 2px 0; }
+.lb-r .num { font-size: 15px; text-align: right; color: #cbd5e1; }
+.lb-r.me { background: rgba(16,185,129,.12); box-shadow: inset 2px 0 0 #10b981; }
+.lb-r.me .n, .lb-r.me > span { color: #fff; font-weight: 600; }
+.lb-r.me i { background: linear-gradient(90deg, #059669, #34d399); }
+.lb-r.me .num { color: #fff; }
+.lb-r.ghost { opacity: .55; }
+.lb-r.ghost i { background: repeating-linear-gradient(90deg, #34d399 0 4px, transparent 4px 7px); }
+.t4-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.t4-foot div { padding: 9px 10px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); }
+.t4-foot small { display: block; font-size: 10.5px; color: #6b7280; }
+.t4-foot b { display: block; margin-top: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 19px; color: #fff; }
+.t4-foot b em { font-style: normal; color: #34d399; }
+
+/* ── 기록표 공통 ── */
+.rt { display: flex; flex-direction: column; gap: 12px; }
+.rt table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.rt caption { text-align: left; padding: 0 4px 5px; font-size: 11px; font-weight: 700; color: #6ee7b7; }
+.rt caption small { margin-left: 6px; font-weight: 400; color: #6b7280; }
+.rt th { height: 22px; padding: 0 4px; font-size: 10.5px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
+.rt th.l { text-align: left; }
+.rt td { padding: 0 4px; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rt td.l { text-align: left; }
+.rt td .st { font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+.rt td.ov .num { font-size: 17px; color: #fff; }
+.rt td.lg { text-align: left; font-size: 11px; color: #6b7280; }
+.rt td.lg em { font-style: normal; color: #a1a1aa; }
+.rt tr[data-slot] { cursor: pointer; transition: background .12s; }
+.rt tbody tr[data-slot]:hover { background: rgba(255,255,255,.05); }
+.rt tr.on { background: rgba(56,189,248,.13) !important; box-shadow: inset 2px 0 0 #38bdf8; }
+.rt tr.e td { height: 24px; font-size: 11.5px; color: #4b5563; }
+.rt .pos { font-size: 11.5px; color: #9ca3af; }
+.rt .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rt .who .nm { min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+.rt .who b { font-size: 13px; color: #fff; overflow: hidden; text-overflow: ellipsis; }
+.rt .who small { font-size: 10px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; }
+.rt .best { color: #34d399; font-weight: 700; }
+/* Ra */
+.ra td { height: 32px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
+.ra .face { width: 24px; height: 24px; border-radius: 50%; }
+/* Rb */
+.rb td { height: 28px; }
+.rb tbody tr[data-slot]:nth-child(odd) { background: rgba(255,255,255,.025); }
+.rb .who b { font-size: 13px; }
+.rb .who small { font-size: 10.5px; margin-left: 5px; }
+.rb .who { gap: 0; align-items: baseline; }
+/* Rc */
+.rc td { height: 30px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
+.rc .chip { display: inline-block; min-width: 34px; padding: 0 5px; font-size: 10.5px; font-weight: 600; line-height: 18px; text-align: center; color: #cbd5e1; background: rgba(148,163,184,.12); border-radius: 2px; }
+.rc .face { width: 22px; height: 26px; border-radius: 2px; }
+.rc .sea { font-size: 10.5px; color: #6b7280; }
+.rc td.ov .box { display: inline-grid; place-items: center; width: 28px; height: 20px; border-radius: 2px; background: rgba(255,255,255,.06); }
+.rc td.ov .box.t75b { background: rgba(16,185,129,.16); }
+.rc td.ov .box.t90b { background: linear-gradient(90deg, rgba(240,171,252,.2), rgba(125,211,252,.2), rgba(110,231,183,.2)); }
+.rc td.ov .num { font-size: 15px; }
+/* Rd */
+.rd td { height: 34px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
+.rd .who .nm small { margin-top: 2px; color: #6b7280; }
+.rd .who .nm small b { font-size: 10px; font-weight: 500; color: #9ca3af; }
+`;
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const tierOf = (v) => (v == null ? '' : v >= 90 ? 't90' : v >= 75 ? 't75' : '');
+const mean = (a) => { const b = a.filter((x) => x != null && !Number.isNaN(x)); return b.length ? b.reduce((s, x) => s + x, 0) / b.length : null; };
+const fmt = (v, d = 1) => (v == null ? '-' : d ? v.toFixed(d) : String(Math.round(v)));
+const numT = (v, d = 1, extra = '') => `<span class="num ${tierOf(v)}" ${extra}>${fmt(v, d)}</span>`;
+const mulberry = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+
+/* ── 시즌 기록 ── */
+function parse(p) {
+  const s = (p.source || '').split('—')[0];
+  const g = (re) => (s.match(re) || [])[1];
+  if (p.type === 'pitcher') return { kind: 'p', era: g(/ERA\s?([\d.]+)/), w: g(/(\d+)승/), l: g(/(\d+)패/), sv: g(/(\d+)SV/), hld: g(/(\d+)HLD/), k: g(/(\d+)K\b/), ip: g(/([\d.]+)IP/), gm: g(/(\d+)G\b/), whip: g(/WHIP\s?([\d.]+)/) };
+  return { kind: 'b', avg: g(/(\.\d{3})/), obp: g(/\.\d{3}\/(\.\d{3})/), hr: g(/(\d+)HR/), sb: g(/(\d+)SB/), rbi: g(/(\d+)타점/), run: g(/(\d+)득점/), pa: g(/(\d+)PA/), gm: g(/(\d+)G\b/) };
+}
+/** 대단한 시즌 기준: t75 초록 · t90 무지개 */
+const GREAT = {
+  era: (v) => (v <= 2 ? 't90' : v <= 3 ? 't75' : ''), w: (v) => (v >= 18 ? 't90' : v >= 13 ? 't75' : ''),
+  sv: (v) => (v >= 35 ? 't90' : v >= 25 ? 't75' : ''), hld: (v) => (v >= 25 ? 't90' : v >= 15 ? 't75' : ''), k: (v) => (v >= 180 ? 't90' : v >= 130 ? 't75' : ''),
+  avg: (v) => (v >= 0.35 ? 't90' : v >= 0.31 ? 't75' : ''), hr: (v) => (v >= 40 ? 't90' : v >= 25 ? 't75' : ''),
+  sb: (v) => (v >= 40 ? 't90' : v >= 20 ? 't75' : ''), rbi: (v) => (v >= 120 ? 't90' : v >= 90 ? 't75' : ''),
+};
+/** 표의 열: [머리, 값 뽑기(표시 문자열), 크기 비교용 숫자, 등급 키, 낮을수록 좋음] */
+const PCOLS = [
+  ['ERA', (r) => r.era, (r) => +r.era, 'era', true],
+  ['승', (r) => r.w, (r) => +r.w, 'w'],
+  ['S/H', (r) => (r.sv && +r.sv >= +(r.hld || 0) ? `${r.sv}S` : r.hld ? `${r.hld}H` : null), (r) => Math.max(+(r.sv || 0), +(r.hld || 0)) || NaN, (r) => (r.sv && +r.sv >= +(r.hld || 0) ? 'sv' : 'hld')],
+  ['K', (r) => r.k, (r) => +r.k, 'k'],
+];
+const BCOLS = [
+  ['타율', (r) => r.avg, (r) => +r.avg, 'avg'],
+  ['HR', (r) => r.hr, (r) => +r.hr, 'hr'],
+  ['도루', (r) => r.sb, (r) => +r.sb, 'sb'],
+  ['타점', (r) => r.rbi, (r) => +r.rbi, 'rbi'],
+];
+
+/* ── 게임 화면에서 라인업 읽기 ── */
+function readState(doc) {
+  const rows = [...doc.querySelectorAll('.ll-row')];
+  if (rows.length !== 12) return null;
+  const roster = [], face = {};
+  let sel = null;
+  rows.forEach((r, i) => {
+    const slot = ORDER[i];
+    if (r.classList.contains('on')) sel = slot;
+    if (r.classList.contains('e')) return;
+    const name = r.querySelector('.ll-nm')?.textContent, sea = r.querySelector('.ll-sea')?.textContent;
+    const p = ALL_PLAYERS.find((x) => x.name === name && `${x.year} ${x.team}` === sea);
+    if (!p) return;
+    roster.push({ ...p, source: SOURCE.get(p.id), slot });
+    face[p.name] = (r.querySelector('.ll-fc')?.getAttribute('style') || '').replace(/"/g, "'").replace(/url\('(?!\/|https?:|data:)/g, "url('/");
+  });
+  const meter = doc.querySelector('[role="meter"][aria-label="샐러리 캡 잔여"]');
+  const text = doc.body.innerText;
+  const mode = DRAFT_MODES.find((m) => text.includes(m.name)) || DRAFT_MODES.find((m) => m.id === 'mix');
+  return { roster, face, sel, mode, cp: +(meter?.getAttribute('aria-valuenow') || 0), cap: +(meter?.getAttribute('aria-valuemax') || 0) };
+}
+
+const pv = (p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3;
+/** 한 팀의 지표 (시너지 · 제자리 반영) */
+function metrics(roster, hideDraftOnly) {
+  const on = withSlots(roster).map(playAt);
+  const syn = checkSynergies(on).filter((s) => !hideDraftOnly || !HIDDEN.has(s.id));
+  const eff = applySynergies(on, syn);
+  const by = new Map(eff.map((p) => [p.slot, p]));
+  const bats = eff.filter((p) => p.type === 'batter');
+  const st = (key) => mean(bats.map((p) => p.stats[key]));
+  return {
+    eff, by, on, syn,
+    avgT: mean(eff.map((p) => p.overall)), avgP: mean(eff.filter((p) => PITCH.includes(p.slot)).map((p) => p.overall)), avgB: mean(eff.filter((p) => !PITCH.includes(p.slot)).map((p) => p.overall)),
+    offense: mean(bats.map((p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2)),
+    defense: st('defense'), power: st('power'), contact: st('contact'), speed: st('speed'),
+    sp: by.get('SP') ? pv(by.get('SP')) : null, pen: mean(['MR', 'CL'].map((s) => by.get(s)).filter(Boolean).map(pv)),
+  };
+}
+/** 같은 모드 · 같은 캡의 AI 올스타 (고정 시드) */
+const aiCache = new Map();
+function aiTeams(mode, cap) {
+  const key = `${mode.id}:${cap}`;
+  if (!aiCache.has(key)) {
+    const teams = Array.from({ length: 24 }, (_, i) => metrics(aiDraft({ players: mode.players, cap: cap || mode.cap, rng: mulberry(1000 + i * 7919) })));
+    const avgOf = (k) => mean(teams.map((t) => t[k]));
+    aiCache.set(key, { teams, avg: Object.fromEntries(['avgT', 'avgP', 'avgB', 'offense', 'defense', 'power', 'contact', 'speed', 'sp', 'pen'].map((k) => [k, avgOf(k)])) });
+  }
+  return aiCache.get(key);
+}
+
+function compute(st) {
+  const me = metrics(st.roster, true);
+  const rawBy = new Map(st.roster.map((p) => [p.slot, p]));
+  const emptySlots = ORDER.filter((s) => !me.by.has(s));
+  const per = emptySlots.length ? Math.floor(st.cp / emptySlots.length) : 0;
+  const ai = aiTeams(st.mode, st.cap);
+  // 빈 자리를 자리당 CP 로 살 수 있는 상위 5명 평균으로 채운 예상 종합
+  const fills = emptySlots.map((s) => { const pool = st.mode.players.filter((p) => p.position === SLOT_POS[s] && p.cost <= per).sort((a, b) => b.overall - a.overall).slice(0, 5); return pool.length ? mean(pool.map((p) => p.overall)) : 55; });
+  const projT = mean([...me.eff.map((p) => p.overall), ...fills]);
+  return { ...st, ...me, rawBy, emptySlots, per, ai, projT, fills };
+}
+
+/* ───────── 팀 분석 4안 ───────── */
+const AXES = [['공격력', 'offense'], ['수비력', 'defense'], ['선발', 'sp'], ['불펜', 'pen'], ['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed']];
+
+const TEAM = {
+  T1: (c) => {
+    const d = (c.avgT ?? 0) - c.ai.avg.avgT;
+    const win = Math.round(100 / (1 + Math.exp(-d / 4)));
+    const rows = AXES.map(([k, key]) => { const m = c[key], a = c.ai.avg[key]; return { k, m, a, d: m == null ? null : m - a }; });
+    const lead = rows.filter((r) => r.d != null && r.d >= 0), lag = rows.filter((r) => r.d != null && r.d < 0);
+    const top = lead.sort((x, y) => y.d - x.d)[0], low = lag.sort((x, y) => x.d - y.d)[0];
+    const w = (v) => `${Math.max(0, Math.min(100, ((v ?? 40) - 40) / 60 * 100))}%`;
+    return `<div class="ta t1">
+      <div class="vs"><div><span class="eyebrow me">MY TEAM</span>${numT(c.avgT)}</div><b>VS</b><div class="ai"><span class="eyebrow ai">AI 올스타 평균</span><span class="num">${fmt(c.ai.avg.avgT)}</span></div></div>
+      <div class="wp"><div class="row"><span>간이 예상 승률 <b>${win}%</b></span><span><b class="ai">${100 - win}%</b></span></div><div class="bar"><i style="width:${win}%"></i><i></i></div></div>
+      <div class="h2h">${rows.map((r) => { const mw = r.d != null && r.d >= 0;
+        return `<div class="hh"><span class="num ${mw ? 'win' : ''}">${fmt(r.m, 0)}</span><span class="me"><i class="${mw ? 'win' : ''}" style="width:${w(r.m)}"></i></span><span>${r.k}</span><span class="ai"><i class="${mw ? '' : 'win'}" style="width:${w(r.a)}"></i></span><span class="num ${mw ? '' : 'win'}">${fmt(r.a, 0)}</span></div>`; }).join('')}</div>
+      <div class="t1-foot"><div style="--k:#34d399"><small>가장 앞서는 곳 · ${lead.length}개 우세</small><b>${top ? `${top.k}<em>+${Math.round(top.d)}</em>` : '없음'}</b></div>
+        <div style="--k:#f87171"><small>가장 밀리는 곳 · ${lag.length}개 열세</small><b>${low ? `${low.k}<em>${Math.round(low.d)}</em>` : '없음'}</b></div></div>
+    </div>`;
+  },
+
+  T2: (c) => {
+    const axes = [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense'], ['선발', 'sp'], ['불펜', 'pen']].map(([k, key]) => ({ k, m: c[key], a: c.ai.avg[key], d: c[key] == null ? null : c[key] - c.ai.avg[key] }));
+    const STR = { 파워: '홈런 타선', 컨택: '컨택 타선', 주루: '발 빠른 야구', 수비: '짠물 수비', 선발: '선발 야구', 불펜: '철벽 불펜' };
+    const WEAK = { 파워: '장타 부족', 컨택: '정교함 부족', 주루: '느린 발', 수비: '불안한 수비', 선발: '얇은 선발', 불펜: '불안한 뒷문' };
+    const known = axes.filter((x) => x.d != null);
+    const best = [...known].sort((x, y) => y.d - x.d)[0], worst = [...known].sort((x, y) => x.d - y.d)[0];
+    const cx = 170, cy = 128, R = 88, lo = 40;
+    const at = (i, r) => { const ang = -Math.PI / 2 + (i * Math.PI * 2) / 6; return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)]; };
+    const rOf = (v) => (R * Math.max(0, Math.min(100, v ?? lo) - lo)) / (100 - lo);
+    const poly = (f) => axes.map((_, i) => at(i, f(i)).map((n) => n.toFixed(1)).join(',')).join(' ');
+    const grid = [0.25, 0.5, 0.75, 1].map((k) => `<polygon points="${poly(() => R * k)}" fill="none" stroke="rgba(148,163,184,${k === 1 ? 0.3 : 0.12})"/>`).join('')
+      + axes.map((_, i) => { const [x, y] = at(i, R); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(148,163,184,.12)"/>`; }).join('');
+    const labels = axes.map((x, i) => { const [lx, ly] = at(i, R + 26); const an = Math.abs(lx - cx) < 4 ? 'middle' : lx > cx ? 'start' : 'end';
+      const dx = an === 'start' ? -10 : an === 'end' ? 10 : 0;
+      return `<text x="${lx + dx}" y="${ly - 4}" text-anchor="${an}">${x.k}</text><text class="v" x="${lx + dx}" y="${ly + 11}" text-anchor="${an}">${fmt(x.m, 0)}<tspan class="d" dx="4" fill="${x.d >= 0 ? '#34d399' : '#fb923c'}">${x.d == null ? '' : `${x.d >= 0 ? '+' : ''}${Math.round(x.d)}`}</tspan></text>`; }).join('');
+    return `<div class="ta t2">
+      <span class="eyebrow">TEAM STYLE</span>
+      <h3><span class="g">${best ? STR[best.k] : '-'}</span> · <span class="o">${worst ? WEAK[worst.k] : '-'}</span></h3>
+      <span class="lead">같은 모드 AI 올스타 평균과 견준 우리 팀의 색깔</span>
+      <svg viewBox="0 0 340 262">${grid}<polygon points="${poly((i) => rOf(axes[i].a))}" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <polygon points="${poly((i) => rOf(axes[i].m))}" fill="#34d399" fill-opacity=".2" stroke="#34d399" stroke-width="2" stroke-linejoin="round"/>${labels}</svg>
+      <div class="legend2"><span><i></i>우리 팀 ${fmt(c.avgT)}</span><span><i class="ai"></i>AI 평균 ${fmt(c.ai.avg.avgT)}</span></div>
+      <div class="trs">${[...known].sort((x, y) => y.d - x.d).map((x) => `<span class="${x.d >= 0 ? 'up' : 'dn'}">${x.d >= 0 ? '▲' : '▼'} ${x.k}<b>${x.d >= 0 ? '+' : ''}${Math.round(x.d)}</b></span>`).join('')}</div>
+    </div>`;
+  },
+
+  T3: (c) => {
+    const bats = c.eff.filter((p) => p.type === 'batter' && !PITCH.includes(p.slot));
+    const left = [...bats];
+    const take = (score) => { if (!left.length) return null; left.sort((a, b) => score(b) - score(a)); return left.shift(); };
+    const lineup = new Array(9).fill(null);
+    lineup[0] = take((p) => p.stats.speed * 0.55 + p.stats.contact * 0.45);
+    lineup[1] = take((p) => p.stats.contact);
+    lineup[3] = take((p) => p.stats.power);
+    lineup[2] = take((p) => p.stats.power * 0.5 + p.stats.contact * 0.5);
+    lineup[4] = take((p) => p.stats.power);
+    for (let i = 5; i < 9; i++) lineup[i] = take((p) => p.overall);
+    const empties = c.emptySlots.filter((s) => !PITCH.includes(s));
+    const role = (i) => (i === 0 ? ['리드오프', 'lead'] : i === 1 ? ['테이블세터', 'lead'] : i <= 4 ? ['클린업', 'core'] : ['하위 타선', '']);
+    const key = (i, p) => (i <= 1 ? ['컨택', p.stats.contact] : i <= 4 ? ['파워', p.stats.power] : ['종합', p.overall]);
+    const rows = lineup.map((p, i) => {
+      const [r, rc] = role(i);
+      if (!p) { const s = empties.shift(); return `<div class="bo-r e"><span class="no">${i + 1}</span><span class="pos">${s ? SHORT[s] : ''}</span><b>비어 있음</b><span></span><span></span></div>`; }
+      const [kk, kv] = key(i, p);
+      return `<div class="bo-r ${rc === 'core' ? 'core' : ''}"><span class="no">${i + 1}</span><span class="pos">${SHORT[p.slot]}</span><b>${esc(p.name)}</b><span class="role ${rc}">${r}</span><span class="kst">${kk}<b>${kv}</b></span></div>`;
+    }).join('');
+    const sp = c.by.get('SP'), mr = c.by.get('MR'), cl = c.by.get('CL');
+    const inn = sp ? (sp.stats.stamina >= 90 ? 7 : sp.stats.stamina >= 80 ? 6 : 5) : 0;
+    const who = (i) => (i === 9 ? (cl ? ['CL', cl] : mr ? ['MR', mr] : ['SP', sp]) : i <= inn ? ['SP', sp] : mr ? ['MR', mr] : cl ? ['CL', cl] : ['SP', sp]);
+    const COL = { SP: '#34d399', MR: '#38bdf8', CL: '#fbbf24' };
+    const cells = Array.from({ length: 9 }, (_, k) => { const i = k + 1; const [r, p] = who(i); const tired = r === 'SP' && i === inn;
+      const missing = (i === 9 && !cl) || (i > inn && i < 9 && !mr);
+      return `<span style="--pc:${COL[r]}"><i class="${missing ? 'none' : tired ? 'tired' : ''}"></i>${i}</span>`; }).join('');
+    const segs = [['SP', 1, inn, sp], ['MR', inn + 1, 8, mr], ['CL', 9, 9, cl]].filter(([, a, b]) => b >= a)
+      .map(([r, a, b, p]) => `<div style="grid-column:${a} / ${b + 1};--pc:${p ? COL[r] : 'rgba(148,163,184,.4)'}">${p ? esc(p.name) : '없음'}<small>${LABEL[r]}${r === 'SP' && p ? ` · 체력 ${p.stats.stamina}` : ''}</small></div>`).join('');
+    return `<div class="ta t3">
+      <div><div class="sech">예상 타순<small>빠른 발 · 컨택은 앞, 파워는 3~5번</small></div><div class="bo">${rows}</div></div>
+      <div><div class="sech">투수 운용 9이닝<small>선발 체력 80+ 6이닝 · 90+ 7이닝</small></div><div class="inn">${cells}</div><div class="segs">${segs}</div></div>
+    </div>`;
+  },
+
+  T4: (c) => {
+    const others = c.ai.teams.slice(0, 9).map((t, i) => ({ name: `AI 올스타 ${'ABCDEFGHI'[i]}`, v: t.avgT }));
+    const ranked = [...others, { name: 'MY TEAM', v: c.projT, me: true }].sort((a, b) => b.v - a.v);
+    const rank = ranked.findIndex((t) => t.me) + 1;
+    const nowRank = [...others, { v: c.avgT ?? 0, me: true }].sort((a, b) => b.v - a.v).findIndex((t) => t.me) + 1;
+    // 순위표: 채웠을 때(순위 번호) + 지금 라인업 그대로(흐린 줄, 번호 없음)
+    const table = c.emptySlots.length ? [...ranked, { name: `지금 (${c.eff.length}명)`, v: c.avgT ?? 0, ghost: true }].sort((a, b) => b.v - a.v) : ranked;
+    let no = 0;
+    const vals = table.map((t) => t.v); const lo = Math.min(...vals) - 2, hi = Math.max(...vals) + 1;
+    return `<div class="ta t4">
+      <div class="rk"><div><span class="eyebrow">예상 순위 · 10팀</span><div class="big"><span class="num ${rank <= 3 ? 't75' : ''}">${rank}</span><span>위</span></div></div>
+        <div class="side"><span class="cap">빈 자리 채운 예상 종합</span><span class="num">${fmt(c.projT)}</span></div></div>
+      <div class="lb">${table.map((t) => `<div class="lb-r ${t.me ? 'me' : ''} ${t.ghost ? 'ghost' : ''}"><span class="n">${t.ghost ? '' : ++no}</span><span>${t.name}</span><i style="width:${((t.v - lo) / (hi - lo)) * 100}%"></i><span class="num ${t.me ? tierOf(t.v) : ''}">${fmt(t.v)}</span></div>`).join('')}</div>
+      <div class="t4-foot"><div><small>지금 라인업 그대로 (빈 자리 ${c.emptySlots.length})</small><b>${fmt(c.avgT)} · ${nowRank}위</b></div>
+        <div><small>남은 ${c.cp} CP로 빈 자리를 채우면</small><b>${fmt(c.projT)} · ${rank}위 <em>${c.projT >= (c.avgT ?? 0) ? '+' : ''}${fmt(c.projT - (c.avgT ?? 0))}</em></b></div></div>
+    </div>`;
+  },
+};
+
+/* ───────── 기록표 4안 ───────── */
+function bestOf(c, slots, cols) {
+  return cols.map(([, , n, , low]) => {
+    const vals = slots.map((s) => c.rawBy.get(s)).filter((p) => p?.source).map((p) => n(parse(p))).filter((v) => !Number.isNaN(v) && v != null);
+    return vals.length > 1 ? (low ? Math.min(...vals) : Math.max(...vals)) : null;
+  });
+}
+function recTable(c, sel, kind, style) {
+  const pitch = kind === 'p';
+  const slots = pitch ? PITCH : BATS;
+  const cols = pitch ? PCOLS : BCOLS;
+  const best = style === 'Ra' ? bestOf(c, slots, cols) : [];
+  const great = style !== 'Ra';
+  const faceW = style === 'Ra' ? 32 : style === 'Rc' ? 28 : 0;
+  const statW = style === 'Rc' ? 36 : 40;
+  const colg = `<colgroup><col style="width:${style === 'Rc' ? 44 : 40}px">${faceW ? `<col style="width:${faceW}px">` : ''}<col>${cols.map(() => `<col style="width:${statW}px">`).join('')}<col style="width:${style === 'Rc' ? 36 : 32}px"></colgroup>`;
+  const nCols = cols.length;
+  const rows = slots.map((s) => {
+    const p = c.by.get(s);
+    const posCell = style === 'Rc' ? `<td class="l"><span class="chip">${SHORT[s]}</span></td>` : `<td class="l pos">${SHORT[s]}</td>`;
+    if (!p) return `<tr class="e ${sel === s ? 'on' : ''}" data-slot="${s}">${posCell}${faceW ? '<td></td>' : ''}<td class="l" colspan="${nCols + 1}">비어 있음</td><td></td></tr>`;
+    const raw = c.rawBy.get(s);
+    const r = parse(raw);
+    const faceCell = faceW ? `<td class="l"><i class="face ${c.face[p.name] ? '' : 'nof'}" style="${c.face[p.name] || ''}"></i></td>` : '';
+    let nameCell;
+    if (style === 'Rb') nameCell = `<td class="l"><span class="who"><b>${esc(p.name)}</b><small>’${String(p.year).slice(2)} ${esc(p.team)}</small></span></td>`;
+    else if (style === 'Rc') nameCell = `<td class="l" title="${p.year} ${esc(p.team)}"><span class="who" style="gap:0;align-items:baseline"><b>${esc(p.name)}</b><small class="sea" style="margin-left:5px;flex:none">’${String(p.year).slice(2)}</small></span></td>`;
+    else if (style === 'Rd') {
+      const sub = !raw.source ? (raw.note || '올타임 레전드 시즌') : pitch
+        ? [r.w && `${r.w}승${r.l ? ` ${r.l}패` : ''}`, r.ip && `${r.ip}이닝`, r.whip && `WHIP ${r.whip}`].filter(Boolean).join(' · ')
+        : [r.obp && `출루 ${r.obp}`, r.pa && `${r.pa}타석`, r.run && `${r.run}득점`].filter(Boolean).join(' · ');
+      nameCell = `<td class="l"><span class="who"><span class="nm"><b>${esc(p.name)} <small style="display:inline;font-size:10.5px;color:#6b7280">${p.year} ${esc(p.team)}</small></b><small>${esc(sub)}</small></span></span></td>`;
+    } else nameCell = `<td class="l"><span class="who"><span class="nm"><b>${esc(p.name)}</b><small>${p.year} ${esc(p.team)}</small></span></span></td>`;
+    const statCells = !raw.source
+      ? `<td class="lg" colspan="${nCols}">레전드 카드 · <em>${esc(raw.note || '시즌 기록 없음')}</em></td>`
+      : cols.map(([, show, n, gk], i) => {
+        const v = show(r); const nv = n(r);
+        const gkey = typeof gk === 'function' ? gk(r) : gk;
+        const cls = v == null ? '' : best[i] != null && nv === best[i] ? 'best' : great ? (GREAT[gkey]?.(nv) || '') : '';
+        return `<td><span class="st ${cls}">${v ?? '-'}</span></td>`;
+      }).join('');
+    const ovCell = style === 'Rc'
+      ? `<td class="ov"><span class="box ${tierOf(p.overall) ? `${tierOf(p.overall)}b` : ''}"><span class="num ${tierOf(p.overall)}">${p.overall}</span></span></td>`
+      : `<td class="ov">${numT(p.overall, 0)}</td>`;
+    return `<tr class="${sel === s ? 'on' : ''}" data-slot="${s}">${posCell}${faceCell}${nameCell}${statCells}${ovCell}</tr>`;
+  }).join('');
+  const heads = `<tr><th class="l">자리</th>${faceW ? '<th></th>' : ''}<th class="l">선수</th>${cols.map(([h]) => `<th>${h}</th>`).join('')}<th>종합</th></tr>`;
+  const capNote = style === 'Ra' ? '초록 = 우리 팀 1등' : great ? '초록 · 무지개 = 대단한 시즌' : '';
+  return `<table><caption>${pitch ? '투수' : '타자'}<small>${capNote}</small></caption>${colg}<thead>${heads}</thead><tbody>${rows}</tbody></table>`;
+}
+const REC = (style) => (c, sel) => `<div class="rt ${style.toLowerCase()}">${recTable(c, sel, 'p', style)}${recTable(c, sel, 'b', style)}</div>`;
+
+const panelHtml = (c, v, ui, sel) => `<div class="tabs">${[['rep', '팀 분석'], ['rec', '선수 기록']].map(([k, t]) => `<button type="button" data-tab="${k}" class="${ui.tab === k ? 'on' : ''}">${t}</button>`).join('')}</div>
+  <div class="tb">${ui.tab === 'rec' ? REC(v.r)(c, sel) : TEAM[v.t](c)}</div>`;
+
+/* ───────── 화면 ───────── */
+const one = new URLSearchParams(location.search).get('v');
+if (!one) {
+  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>팀 분석 4안 · 기록표 다듬기</b><span>판 크기 = 실제 1902×901 화면 오른쪽 판(400×552) · 왼쪽 팀 분석 탭(기본) · 오른쪽 선수 기록 탭 · 누르면 탭/줄 선택이 바뀜</span>
+      <nav>${VERS.map((v) => `<a href="#${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="wrapall">${VERS.map((v) => `<section class="ver" id="${v.id}">
+      <div class="hd"><b><i>${v.id}</i>${v.title}</b><a href="./?v=${v.id}" target="_blank">게임에서 보기 ↗</a><span class="desc"><b>팀 분석</b> ${v.team}</span><span class="desc"><b>선수 기록</b> ${v.rec}</span></div>
+      <div class="pair">${['rep', 'rec'].map((tab) => `<figure><div class="pn"><span class="lab">MY TEAM</span><div class="mk mk-side" data-v="${v.id}" data-tab="${tab}" data-sel=""></div></div><figcaption>${tab === 'rep' ? '팀 분석 탭' : '선수 기록 탭'}</figcaption></figure>`).join('')}</div>
+    </section>`).join('')}</div>
+    <iframe class="srcframe" src="${SRC}" title="데이터 원본"></iframe>`);
+  const src = document.querySelector('.srcframe');
+  let last = '', cache = null;
+  const render = (force) => {
+    const doc = src.contentDocument; if (!doc) return;
+    const state = readState(doc); if (!state) return;
+    const key = JSON.stringify([state.roster.map((p) => p.id + p.slot), state.cp, state.mode.id]);
+    if (!force && key === last) return;
+    if (key !== last) { last = key; cache = compute(state); }
+    document.querySelectorAll('.mk-side[data-v]').forEach((el) => {
+      const v = VERS.find((x) => x.id === el.dataset.v);
+      el.innerHTML = panelHtml(cache, v, { tab: el.dataset.tab }, el.dataset.sel || null);
+    });
+  };
+  document.addEventListener('click', (e) => {
+    const side = e.target.closest('.mk-side[data-v]'); if (!side) return;
+    const t = e.target.closest('[data-tab],[data-slot]'); if (!t) return;
+    if (t.dataset.tab) side.dataset.tab = t.dataset.tab;
+    else side.dataset.sel = side.dataset.sel === t.dataset.slot ? '' : t.dataset.slot;
+    render(true);
+  });
+  src.addEventListener('load', () => { setInterval(() => render(false), 400); });
+} else {
+  const v = VERS.find((x) => x.id === one) || VERS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => {
+    const ui = { tab: 'rep' };
+    let lastKey = '', c = null;
+    const tick = () => {
+      const doc = ifr.contentDocument;
+      const listP = doc?.querySelector('.ll-body')?.closest('.bc-grp');
+      if (!listP) return;
+      if (!doc.getElementById('mk-style')) { const s = doc.createElement('style'); s.id = 'mk-style'; s.textContent = CSS; doc.body.appendChild(s); }
+      doc.body.classList.add('mk-hasside');
+      const state = readState(doc); if (!state) return;
+      const key = JSON.stringify([state.roster.map((p) => p.id + p.slot), state.cp, state.mode.id]);
+      if (key !== lastKey) { lastKey = key; c = compute(state); }
+      const lab = listP.querySelector('.bc-label'); if (lab && lab.textContent !== 'MY TEAM') lab.textContent = 'MY TEAM';
+      let side = listP.querySelector(':scope > .mk-side');
+      if (!side) {
+        side = doc.createElement('div'); side.className = 'mk mk-side'; listP.appendChild(side);
+        side.addEventListener('click', (e) => {
+          const t = e.target.closest('[data-tab],[data-slot]'); if (!t) return;
+          if (t.dataset.tab) { ui.tab = t.dataset.tab; side.dataset.h = ''; tick(); }
+          else doc.querySelectorAll('.ll-row')[ORDER.indexOf(t.dataset.slot)]?.click();
+        });
+      }
+      const html = panelHtml(c, v, ui, state.sel);
+      if (side.dataset.h !== html) { side.innerHTML = html; side.dataset.h = html; }
+    };
+    tick(); setInterval(tick, 250);
+  });
+}
+</script>
+</body>
+</html>

@@ -229,6 +229,24 @@ function commentary(ev) {
 }
 
 /* ───────── 작은 부품 ───────── */
+/** 작전 아이콘 — 24×24 선 그림. 굵기와 끝맺음을 화면 전체와 맞춘다 */
+const Ic = ({ d, dots }) => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    {d.map((p, i) => <path key={i} d={p} />)}
+    {dots && dots.map(([cx, cy, r], i) => <circle key={`c${i}`} cx={cx} cy={cy} r={r} fill="currentColor" stroke="none" />)}
+  </svg>
+);
+const ACT_ICON = {
+  steal: <Ic d={['M4 18h10', 'M11 15l3 3-3 3', 'M8 5.5l3.5 4.5L9 14']} dots={[[14, 4, 1.8]]} />,          // 파고드는 주자
+  bunt: <Ic d={['M6 17l7-7', 'M14 6l4 4-3 3-4-4z', 'M4 19l2-2']} />,                                       // 눕혀 댄 배트
+  hnr: <Ic d={['M3 16h7', 'M8 13l3 3-3 3', 'M13 8h7', 'M18 5l3 3-3 3']} />,                                // 둘이 함께 뛴다
+  fast: <Ic d={['M3 12h14', 'M14 8l4 4-4 4']} />,                                                           // 곧게 오는 공
+  slider: <Ic d={['M3 15c5 0 6-9 11-9', 'M12 3l3 3-3 3']} />,                                               // 휘어 오는 공
+  inside: <Ic d={['M4 5h16v14H4z', 'M4 9.7h16M4 14.3h16M9.3 5v14M14.7 5v14']} dots={[[6.6, 16.6, 2.2]]} />, // 존 안쪽 낮게
+  chase: <Ic d={['M5 6h14v12H5z']} dots={[[21, 19.5, 2]]} />,                                               // 존 밖으로 빼는 공
+  ibb: <Ic d={['M6 20l3-6 3 2 3-6', 'M18 7h3']} dots={[[18, 4, 1.6]]} />,                                   // 걸어 나간다
+};
+
 /** 지금 타석에서 지나간 공들 — 뒤에서부터 앞 타석의 마지막 공을 만날 때까지 */
 function atBatPitches(events) {
   const out = [];
@@ -671,19 +689,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   /* 아래 작전 — 치는 회와 막는 회가 다르다. [그림, 이름, 언제 쓰나, 누르면, 눌리는가] */
   const ACTS = mineBat
     ? [
-      ['🏃', '도루', on1 ? `${Math.round(steal0 * 100)}% · ${onePoint ? '한 점이 급할 때' : '되면 크다'}` : on2 ? '2루 주자' : '주자 없음',
+      ['steal', '도루', on1 ? `${Math.round(steal0 * 100)}% · ${onePoint ? '한 점이 급할 때' : '되면 크다'}` : on2 ? '2루 주자' : '주자 없음',
         () => give({ steal: on1 ? 0 : 1 }), on1 || (on2 && !g.bases[2]), pend.steal != null],
-      ['🪃', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true, !!pend.bunt],
-      ['🏹', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1, !!pend.hitAndRun],
-      ['🎯', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true, pend.guess === 'fast'],
-      ['🌀', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true, pend.guess === 'slider'],
+      ['bunt', '번트', on1 || on2 ? (onePoint ? '한 점이 급할 때' : '점수는 준다') : '기습', () => give({ bunt: true }), true, !!pend.bunt],
+      ['hnr', '히트앤런', on1 ? '병살 피하기' : '1루 주자 없음', () => give({ hitAndRun: true }), on1, !!pend.hitAndRun],
+      ['fast', '직구 노리기', `${Math.round(mix.fast * 100)}% · 맞히면 장타`, () => give({ guess: 'fast' }), true, pend.guess === 'fast'],
+      ['slider', '변화구 노리기', `${Math.round((1 - mix.fast) * 100)}% · 맞히면 장타`, () => give({ guess: 'slider' }), true, pend.guess === 'slider'],
     ]
     : [
-      ['🎯', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true, typeof pend.zone === 'number'],
-      ['🧊', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true, pend.zone === 'chase'],
-      ['🔥', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true, pend.pitchType === 'fast'],
-      ['🌀', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true, pend.pitchType === 'slider'],
-      ['🚶', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true, !!pend.ibb],
+      ['inside', '몸쪽 승부', '삼진 노리기', () => give({ zone: 0 }), true, typeof pend.zone === 'number'],
+      ['chase', '유인구', '볼넷 각오 · 실점 최소', () => give({ zone: 'chase' }), true, pend.zone === 'chase'],
+      ['fast', '직구 승부', `${Math.round(mix.fast * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'fast' }), true, pend.pitchType === 'fast'],
+      ['slider', '변화구 승부', `${Math.round((1 - mix.fast) * 100)}% · 많이 쓸수록 강함`, () => give({ pitchType: 'slider' }), true, pend.pitchType === 'slider'],
+      ['ibb', '고의사구', on1 && !on2 ? '2루 채우기' : !on1 ? '1루 채우기' : '만루 각오', () => give({ ibb: true }), true, !!pend.ibb],
     ];
   /* 승부처에는 그 자리에서만 말이 되는 세 장으로 갈아 끼운다 */
   const PICKS = clutch ? playsFor(g, { mine: mineBat, tired: 1 - stamina / 100 }) : null;
@@ -969,7 +987,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       /* 누른 작전은 색이 차고 테두리가 굵어져 한눈에 보인다 */
                       ...(picked ? { background: tint(acc, 26), boxShadow: `inset 0 0 0 2px ${acc}, 0 0 26px -6px ${acc}` } : null) }}>
                     {picked && <b className="absolute right-1.5 top-1 text-[11px]" style={{ color: acc }}>✓</b>}
-                    <b className="text-lg leading-none">{ic}</b>{t}
+                    <span style={{ color: live ? acc : '#4b5563' }}>{ACT_ICON[ic]}</span>
+                    <b className="text-[14px] font-bold">{t}</b>
                     <small className="text-[12px] font-semibold" style={{ color: picked ? acc : '#9ca3af' }}>{picked ? '다음 공에 낸다' : s}</small>
                   </button>
                 );

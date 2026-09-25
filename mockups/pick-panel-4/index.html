@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PICK 구역 합본 목업 4종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; white-space: nowrap; }
+  .top .g { margin-left: auto; display: flex; gap: 4px; flex: none; }
+  .top .g button { padding: 5px 11px; font-weight: 700; white-space: nowrap; color: #d1d5db; box-shadow: inset 0 0 0 1px #374151; }
+  .top .g button.on { color: #04150e; background: #10b981; box-shadow: none; }
+  .wrap { display: flex; flex-direction: column; gap: 26px; padding: 16px 12px 60px; }
+  .vlab { display: flex; align-items: baseline; gap: 12px; margin: 0 4px 8px; }
+  .vlab b { font-size: 15px; color: #fff; white-space: nowrap; }
+  .vlab b i { font-style: normal; color: #10b981; margin-right: 6px; }
+  .vlab span { font-size: 12px; color: #9ca3af; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; background: linear-gradient(180deg, rgba(5,8,15,.6), rgba(5,8,15,.9)), url(/ui/stadium.webp) center 30%/cover; }
+  .cell { display: flex; flex-direction: column; gap: 6px; }
+  .cell > small { font-size: 11px; color: #9ca3af; }
+
+  /* ── 게임의 HUD 판 (PICK 묶음) ── */
+  .grp { --c: 16px; --a: #10b981; position: relative; width: var(--pw, 300px); padding: 30px 10px 10px; background: rgba(6,10,19,.8); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); display: flex; flex-direction: column; gap: 8px; }
+  .sm .grp { --pw: 250px; }
+  .grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+    background: linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+      linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent); }
+  .lab { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+  .lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+
+  /* ── 합본 카드: 위 = 막대 그래프 판(3번), 아래 = 중계 자막(6번) ── */
+  .pc { position: relative; width: 100%; aspect-ratio: 2/3; background: #05080f; container-type: inline-size; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); overflow: hidden; }
+  .in { position: absolute; inset: 0; }
+  .pc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; }
+  .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 48%, rgba(5,8,15,.8) 70%, #05080f 90%), linear-gradient(90deg, rgba(5,8,15,.45) 0, rgba(5,8,15,0) 55%); }
+  .fr { position: absolute; inset: 1.6cqw; border: 1px solid color-mix(in srgb, var(--n) 45%, transparent); pointer-events: none; }
+  .tb { position: absolute; left: 6cqw; right: 1.6cqw; top: 1.6cqw; height: 1.3cqw; background: rgba(255,255,255,.55); }
+  @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .t75 .tb { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.7); }
+  .t90 .tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; }
+  .ov { position: absolute; left: 6cqw; top: 6cqw; font-family: 'Saira Condensed', sans-serif; font-size: 24cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
+  .t75 .ov { color: #34d399; }
+  .t90 .ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+  .ov em { font-style: normal; font-size: .32em; margin-left: 1cqw; vertical-align: top; -webkit-text-fill-color: #fbbf24; color: #fbbf24; }
+  .meta { position: absolute; left: 6.5cqw; top: 28cqw; display: flex; align-items: center; gap: 1.6cqw; font-family: 'Saira Condensed', sans-serif; font-size: 4.2cqw; font-weight: 600; letter-spacing: .08em; color: rgba(255,255,255,.75); white-space: nowrap; text-shadow: 0 1px 4px #000; }
+  .meta b { padding: .5cqw 1.4cqw; font-family: 'IBM Plex Sans KR', sans-serif; font-size: 3.3cqw; font-weight: 700; letter-spacing: 0; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.45); }
+  .stats { position: absolute; left: 5cqw; top: 35cqw; width: 42cqw; margin: 0; padding: 2.4cqw 3cqw 1cqw; background: rgba(5,8,15,.66); backdrop-filter: blur(3px); }
+  .st { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; padding-bottom: 1.6cqw; }
+  .st dt { font-size: 4cqw; font-weight: 600; color: #cbd5e1; }
+  .st dd { margin: 0; font-family: 'Saira Condensed', sans-serif; font-size: 6cqw; font-weight: 700; line-height: 1; color: #f3f4f6; }
+  .st dd.hi { color: var(--n); }
+  .st dd em { font-style: normal; margin-left: .8cqw; font-size: .62em; }
+  .st dd em.up { color: #34d399; } .st dd em.dn { color: #fbbf24; }
+  .st .bar { flex-basis: 100%; height: 1.2cqw; margin-top: .8cqw; background: rgba(255,255,255,.12); }
+  .st .bar i { display: block; height: 100%; background: var(--n); box-shadow: 0 0 4px color-mix(in srgb, var(--n) 60%, transparent); }
+  .syn { position: absolute; z-index: 5; right: 4cqw; top: 5cqw; display: flex; align-items: center; gap: .8cqw; padding: 1.4cqw 1.8cqw; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+  .syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; color: #6ee7b7; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+  .syn i { width: 2cqw; height: 3.6cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
+  .syn i.on { background: #e5e7eb; }
+  @keyframes pip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  .syn i.nx { background: #38bdf8; animation: pip 1.2s ease-in-out infinite; }
+  .syn b { margin-left: 1cqw; font-size: 3.6cqw; font-weight: 700; color: #a7f3d0; white-space: nowrap; }
+  .ochips { position: absolute; left: 5cqw; right: 5cqw; bottom: 44cqw; display: flex; flex-wrap: wrap; gap: 1.2cqw; }
+  .ochips span { padding: .8cqw 2cqw; font-size: 3.4cqw; font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
+  .ochips .sy { color: #a7f3d0; box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+  .ochips .off { color: #fde68a; box-shadow: inset 0 0 0 1px rgba(251,191,36,.55); }
+  .note { position: absolute; left: 5.5cqw; right: 5cqw; bottom: 37.5cqw; font-size: 4cqw; font-weight: 500; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px #000; }
+  /* 중계 자막 판 */
+  .lt { position: absolute; left: 0; right: 0; bottom: 4.7cqw; height: 29cqw; background: linear-gradient(90deg, #0d1624 0, #111c2d 70%, rgba(17,28,45,.9) 100%); box-shadow: inset 1.6cqw 0 0 var(--n), inset 0 1px 0 rgba(255,255,255,.08); }
+  .pos { position: absolute; left: 7cqw; right: 27cqw; bottom: 25cqw; display: flex; align-items: center; gap: 1.8cqw; line-height: 1; white-space: nowrap; }
+  .pos em { flex: none; padding: .8cqw 1.6cqw; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 4.2cqw; font-weight: 800; color: #05080f; background: var(--n); }
+  .pos span { min-width: 0; overflow: hidden; font-family: 'Saira Condensed', sans-serif; font-size: 4.4cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; }
+  .nm { position: absolute; left: 7cqw; right: 28cqw; bottom: 9cqw; margin: 0; font-size: 13cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; }
+  .cp { position: absolute; right: 0; bottom: 4.7cqw; height: 29cqw; width: 24cqw; padding: 0 5cqw 4cqw 0; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; line-height: .9; background: var(--n); clip-path: polygon(30% 0,100% 0,100% 100%,0 100%); }
+  .cp small { font-family: 'Saira Condensed', sans-serif; font-size: 3.6cqw; font-weight: 700; letter-spacing: .1em; color: rgba(5,8,15,.7); }
+  .cp b { font-family: 'Saira Condensed', sans-serif; font-size: 11cqw; font-weight: 800; color: #05080f; }
+  .cp.slot { justify-content: flex-end; }
+  .cp.slot b { font-family: 'IBM Plex Sans KR', sans-serif; font-size: 4.6cqw; }
+  .pc.lock .in { filter: grayscale(1) brightness(.55); }
+  .pc.lock .ov, .pc.lock .tb { animation: none; }
+  .lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 0; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
+  svg.ico { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── 버튼 · 안내 공통 ── */
+  .act { position: relative; display: flex; align-items: stretch; width: 100%; min-height: 48px; text-align: left; transition: filter .15s, background-color .15s; }
+  .act:disabled { cursor: not-allowed; }
+  /* 버튼 글자는 늘 한 줄 — 좁으면 말줄임 */
+  .act .l, .act .l b, .act .r { min-width: 0; white-space: nowrap; }
+  .act .l { overflow: hidden; }
+  .act .l b { overflow: hidden; text-overflow: ellipsis; }
+  .p2 .act .l, .p3 .act .l, .p4 .act .l { text-overflow: ellipsis; }
+  .act .r { flex: none; }
+  .hint2 { font-size: 12px; line-height: 1.5; color: #9ca3af; }
+  .hint2 b { color: #e5e7eb; }
+  .hint2 .rf { color: #34d399; font-weight: 700; }
+  .hint2.warn { padding-left: 9px; box-shadow: inset 2px 0 0 #fbbf24; }
+  .own { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; font-size: 13px; color: #9ca3af; }
+  .own b { color: #fff; }
+
+  /* ════ P1 · 자막 연장형 — 버튼이 카드 아래 자막 판과 같은 판 ════ */
+  .p1 .act { background: linear-gradient(90deg, #0d1624, #111c2d); box-shadow: inset 4px 0 0 #10b981, inset 0 0 0 1px rgba(255,255,255,.08); }
+  .p1 .act .l { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 12px 0 16px; }
+  .p1 .act .l small { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .2em; color: #10b981; }
+  .p1 .act .l b { font-size: 16px; font-weight: 800; color: #fff; }
+  .p1 .act .r { display: flex; align-items: center; gap: 4px; padding: 0 16px 0 26px; font-family: 'Saira Condensed', sans-serif; font-size: 22px; font-weight: 800; color: #05080f; background: #10b981; clip-path: polygon(18px 0,100% 0,100% 100%,0 100%); }
+  .p1 .act .r small { font-size: 12px; }
+  .p1 .act:hover:not(:disabled) { filter: brightness(1.15); }
+  .p1 .act:disabled { box-shadow: inset 4px 0 0 #4b5563, inset 0 0 0 1px rgba(255,255,255,.08); }
+  .p1 .act:disabled .l small { color: #6b7280; }
+  .p1 .act:disabled .l b { color: #9ca3af; display: flex; align-items: center; gap: 6px; }
+  .p1 .act:disabled .r { color: #9ca3af; background: #1f2937; }
+  .p1 .act.swap { box-shadow: inset 4px 0 0 #fbbf24, inset 0 0 0 1px rgba(255,255,255,.08); }
+  .p1 .act.swap .l small { color: #fbbf24; }
+  .p1 .act.swap .r { background: #fbbf24; }
+  .p1 .own { background: linear-gradient(90deg, #0d1624, #111c2d); box-shadow: inset 4px 0 0 var(--n, #10b981); }
+
+  /* ════ P2 · 네온 채움 — 초록 사선 버튼, 오른쪽에 어두운 코스트 칸 ════ */
+  .p2 .act { background: #10b981; clip-path: polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%); }
+  .p2 .act .l { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 16px; font-weight: 800; color: #04150e; }
+  .p2 .act .l svg { width: 18px; height: 18px; }
+  .p2 .act .r { display: flex; align-items: center; gap: 3px; margin: 5px 5px 5px 0; padding: 0 12px 0 18px; font-family: 'Saira Condensed', sans-serif; font-size: 20px; font-weight: 800; color: #6ee7b7; background: #062a1f; clip-path: polygon(10px 0,100% 0,100% 100%,0 100%); }
+  .p2 .act .r small { font-size: 11px; color: #34d399; }
+  .p2 .act:hover:not(:disabled) { filter: brightness(1.1); }
+  .p2 .act:disabled { background: #1f2937; box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
+  .p2 .act:disabled .l { color: #d1d5db; }
+  .p2 .act:disabled .r { color: #6b7280; background: #111827; }
+  .p2 .act.swap { background: #fbbf24; }
+  .p2 .act.swap .l { color: #1f1302; }
+  .p2 .act.swap .r { color: #fde68a; background: #3b2a06; }
+  .p2 .act.swap .r small { color: #fbbf24; }
+  .p2 .own { box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+
+  /* ════ P3 · 카드와 한 몸 — 자막 판이 카드 밖으로 이어져 버튼이 됨 ════ */
+  .p3 .grp { gap: 0; }
+  .p3 .pc { clip-path: polygon(7% 0,100% 0,100% 100%,0 100%,0 4.7%); }
+  .p3 .act { min-height: 50px; background: linear-gradient(90deg, #0d1624, #111c2d); box-shadow: inset 0 1px 0 rgba(16,185,129,.7), inset 4px 0 0 var(--n); clip-path: polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%); }
+  .p3 .act .l { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 15px; font-weight: 800; color: #6ee7b7; }
+  .p3 .act .l svg { width: 17px; height: 17px; color: #10b981; }
+  .p3 .act .r { display: flex; align-items: center; padding: 0 18px; font-size: 13px; font-weight: 600; color: #9ca3af; box-shadow: inset 1px 0 0 rgba(255,255,255,.1); }
+  .p3 .act .r b { margin: 0 3px; font-family: 'Saira Condensed', sans-serif; font-size: 18px; color: #fff; }
+  .p3 .act:hover:not(:disabled) { background: linear-gradient(90deg, #0f2a22, #133528); }
+  .p3 .act:disabled .l { color: #9ca3af; }
+  .p3 .act:disabled .l svg { color: #9ca3af; }
+  .p3 .act.swap { box-shadow: inset 0 1px 0 rgba(251,191,36,.8), inset 4px 0 0 #fbbf24; }
+  .p3 .act.swap .l, .p3 .act.swap .l svg { color: #fcd34d; }
+  .p3 .hint2 { margin-top: 8px; }
+  .p3 .own { min-height: 50px; background: linear-gradient(90deg, #0d1624, #111c2d); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 4px 0 0 var(--n); clip-path: polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%); }
+
+  /* ════ P4 · 두 칸: 영입 + 캡 미리보기 ════ */
+  .p4 .act { gap: 4px; background: none; }
+  .p4 .act .l { flex: 1.3; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 17px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%); }
+  .p4 .act .l svg { width: 18px; height: 18px; }
+  .p4 .act .r { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 2px; padding: 0 12px 0 14px; margin-left: -8px; background: #0d1624; box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); clip-path: polygon(10px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%); }
+  .p4 .act .r small { font-size: 10px; font-weight: 600; color: #9ca3af; }
+  .p4 .act .r span { font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 700; color: #9ca3af; white-space: nowrap; }
+  .p4 .act .r span b { color: #34d399; font-size: 19px; }
+  .p4 .act:hover:not(:disabled) .l { filter: brightness(1.1); }
+  .p4 .act:disabled .l { color: #d1d5db; background: #1f2937; }
+  .p4 .act:disabled .r { box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+  .p4 .act:disabled .r span b { color: #f87171; }
+  .p4 .act.swap .l { background: #fbbf24; color: #1f1302; }
+  .p4 .act.swap .r { box-shadow: inset 0 0 0 1px rgba(251,191,36,.45); }
+  .p4 .own { background: #0d1624; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+</style>
+</head>
+<body>
+<div class="top"><b>PICK 구역 합본 목업 4종</b><span>카드 = 막대 그래프 판(위) + 중계 자막(아래) · 네 상태: 영입 가능(시너지 칸) · 살 수 없음 · 교체 영입(마감 포지션) · 내 라인업 선수</span>
+  <div class="g"><button data-s="lg" class="on">판 300px</button><button data-s="sm">판 250px</button></div></div>
+<div class="wrap" id="wrap"></div>
+<script type="module">
+const M = await import('/src/KboAugmentDraft.jsx');
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const STAT = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', stability: '안정' };
+const TEAM_NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff' };
+const hand = (p) => (p.hand === 'S' ? '양타' : p.type === 'batter' ? `${p.hand === 'L' ? '좌' : '우'}타` : `${p.hand === 'L' ? '좌' : '우'}투`);
+const LINK = '<svg viewBox="0 0 20 20"><path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l1-1"/></svg>';
+const LOCK = '<svg class="ico" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>';
+const PLUS = '<svg class="ico" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>';
+const SWAP = '<svg class="ico" viewBox="0 0 20 20"><path d="M4 7h11l-3-3M16 13H5l3 3"/></svg>';
+const MOVE = '<svg class="ico" viewBox="0 0 20 20"><path d="M10 3v14M3 10h14M10 3l-2.5 2.5M10 3l2.5 2.5M10 17l-2.5-2.5M10 17l2.5-2.5"/></svg>';
+
+const all = M.ALL_PLAYERS;
+// 조건을 차례로 완화하며 예시 선수를 찾는다 (조건에 맞는 선수가 없으면 다음 조건으로)
+const find = (...fs) => { for (const f of fs) { const hit = all.filter(f).sort((a, b) => (b.note ? 1 : 0) - (a.note ? 1 : 0) || b.overall - a.overall)[0]; if (hit) return hit; } return all[0]; };
+const CAP = 542;
+const S = [
+  { key: 'buy', label: '영입 가능 · 시너지 칸', p: find((p) => p.isForeign && p.overall >= 80 && p.overall < 90 && p.type === 'pitcher', (p) => p.isForeign && p.overall >= 75), syn: { name: '용병 트리오', on: 1, nx: 1, total: 2 } },
+  { key: 'lock', label: '살 수 없음', p: find((p) => p.overall < 75 && p.type === 'pitcher' && p.note, (p) => p.overall < 75), lock: '투수 마감' },
+  { key: 'swap', label: '교체 영입 (마감 포지션)', p: find((p) => p.isNational && p.overall >= 90 && p.type === 'batter', (p) => p.overall >= 90 && p.type === 'batter', (p) => p.overall >= 85 && p.type === 'batter'), swap: { out: '오재원', outOv: 71, refund: 35 } },
+  { key: 'own', label: '내 라인업 선수', p: find((p) => p.position === 'SS' && p.overall >= 80 && p.overall < 90, (p) => p.type === 'batter' && p.overall >= 75), owned: { slot: '2루수', off: '유격수', diff: { power: 2, contact: 2, speed: -3, defense: -3 }, ovDiff: -3, syns: ['베이징 9전 전승', '국민 테이블세터'] } },
+];
+
+function card(s) {
+  const p = s.p;
+  const ov = p.overall + (s.owned?.ovDiff || 0);
+  const tier = ov >= 90 ? 't90' : ov >= 75 ? 't75' : '';
+  const ks = p.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
+  const stats = ks.map((k) => { const d = s.owned?.diff?.[k] || 0; const v = p.stats[k] + d; return `<div class="st"><dt>${STAT[k]}</dt><dd class="${v >= 90 ? 'hi' : ''}">${v}${d ? `<em class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' + d : '−' + -d}</em>` : ''}</dd><b class="bar"><i style="width:${v}%"></i></b></div>`; }).join('');
+  const tags = [p.isNational && '국대', p.isForeign && '외인'].filter(Boolean).map((t) => `<b>${t}</b>`).join('');
+  const pos = s.owned ? '2B' : p.position;
+  const fs = pos === 'DH' ? 'style="font-size:3.9cqw"' : pos === 'SP' ? 'style="font-size:4.2cqw"' : '';
+  return `<div class="pc ${tier} ${s.lock ? 'lock' : ''}"><div class="in">
+    <img src="/cards/${encodeURIComponent(p.id)}.webp" alt="" /><span class="sh"></span><span class="tb"></span>
+    <span class="ov">${ov}${s.owned?.ovDiff ? `<em>−${-s.owned.ovDiff}</em>` : ''}</span>
+    <span class="meta">${p.year} · ${p.team} · ${hand(p)}${tags}</span>
+    <dl class="stats">${stats}</dl>
+    ${s.syn ? `<span class="syn">${LINK}${Array.from({ length: s.syn.total }, (_, i) => `<i class="${i < s.syn.on ? 'on' : i < s.syn.on + s.syn.nx ? 'nx' : ''}"></i>`).join('')}<b>${s.syn.name}</b></span>` : ''}
+    ${s.owned ? `<div class="ochips">${s.owned.syns.map((n) => `<span class="sy">▲ ${n}</span>`).join('')}<span class="off">원래 ${s.owned.off}</span></div>` : ''}
+    ${p.note ? `<span class="note">${p.note}</span>` : ''}
+    <span class="lt"></span>
+    <span class="pos"><em>${pos}</em><span ${fs}>${s.owned ? POS_FULL['2B'] : POS_FULL[p.position]}</span></span>
+    <h3 class="nm">${p.name}</h3>
+    ${s.owned ? `<span class="cp slot"><small>SLOT</small><b>${s.owned.slot}</b></span>` : `<span class="cp"><small>CP</small><b>${p.cost}</b></span>`}
+  </div><span class="fr"></span>${s.lock ? `<span class="lk">${LOCK}${s.lock}</span>` : ''}</div>`;
+}
+
+// 변형별 버튼 · 안내
+const ACT = {
+  p1: (s) => {
+    const p = s.p;
+    if (s.owned) return `<div class="own">${MOVE}<b>${s.owned.slot}</b> · 다른 자리를 누르면 이동</div>`;
+    if (s.lock) return `<button class="act" disabled><span class="l"><small>RECRUIT</small><b>${LOCK}${s.lock}</b></span><span class="r">${p.cost}<small>CP</small></span></button>`;
+    if (s.swap) return `<button class="act swap"><span class="l"><small>SWAP IN · ${s.swap.out} 방출</small><b>${p.name} 교체 영입</b></span><span class="r">${p.cost}<small>CP</small></span></button><p class="hint2 warn">${s.swap.out}(${s.swap.outOv}) 방출 → <span class="rf">+${s.swap.refund} CP</span> 환불(영입가 절반), 다시 영입할 수 없습니다.</p>`;
+    return `<button class="act"><span class="l"><small>RECRUIT</small><b>${p.name} 영입</b></span><span class="r">${p.cost}<small>CP</small></span></button>`;
+  },
+  p2: (s) => {
+    const p = s.p;
+    if (s.owned) return `<div class="own">${MOVE}<b>${s.owned.slot}</b> · 다른 자리를 누르면 이동</div>`;
+    if (s.lock) return `<button class="act" disabled><span class="l">${LOCK}${s.lock}</span><span class="r">${p.cost}<small>CP</small></span></button>`;
+    if (s.swap) return `<button class="act swap"><span class="l">${SWAP}교체 영입</span><span class="r">${p.cost}<small>CP</small></span></button><p class="hint2 warn">${s.swap.out}(${s.swap.outOv}) 방출 → <span class="rf">+${s.swap.refund} CP</span> 환불(영입가 절반), 다시 영입할 수 없습니다.</p>`;
+    return `<button class="act"><span class="l">${PLUS}${p.name} 영입</span><span class="r">${p.cost}<small>CP</small></span></button>`;
+  },
+  p3: (s) => {
+    const p = s.p;
+    if (s.owned) return `<div class="own">${MOVE}<b>${s.owned.slot}</b> · 다른 자리를 누르면 이동</div>`;
+    if (s.lock) return `<button class="act" disabled><span class="l">${LOCK}${s.lock}</span><span class="r">잔여<b>${CAP}</b>CP</span></button>`;
+    if (s.swap) return `<button class="act swap"><span class="l">${SWAP}교체 영입</span><span class="r">+<b>${s.swap.refund}</b>환불</span></button><p class="hint2 warn">${s.swap.out}(${s.swap.outOv}) 방출 → <span class="rf">+${s.swap.refund} CP</span> 환불(영입가 절반), 다시 영입할 수 없습니다.</p>`;
+    return `<button class="act"><span class="l">${PLUS}${p.name} 영입</span><span class="r">남는 캡<b>${CAP - p.cost}</b></span></button>`;
+  },
+  p4: (s) => {
+    const p = s.p;
+    if (s.owned) return `<div class="own">${MOVE}<b>${s.owned.slot}</b> · 다른 자리를 누르면 이동</div>`;
+    if (s.lock) return `<button class="act" disabled><span class="l">${LOCK}${s.lock}</span><span class="r"><small>샐러리 캡</small><span>${CAP} → <b>—</b></span></span></button>`;
+    const after = CAP - p.cost + (s.swap ? s.swap.refund : 0);
+    if (s.swap) return `<button class="act swap"><span class="l">${SWAP}교체 영입</span><span class="r"><small>${s.swap.out} 방출 +${s.swap.refund}</small><span>${CAP} → <b>${after}</b></span></span></button><p class="hint2 warn">${s.swap.out}(${s.swap.outOv}) 방출 → <span class="rf">+${s.swap.refund} CP</span> 환불(영입가 절반), 다시 영입할 수 없습니다.</p>`;
+    return `<button class="act"><span class="l">${PLUS}영입</span><span class="r"><small>영입 후 샐러리 캡</small><span>${CAP} → <b>${after}</b></span></span></button>`;
+  },
+};
+const V = [
+  ['p1', '자막 연장형', '버튼을 카드 아래 자막 판과 같은 판으로 — 왼쪽 초록 세로선 + “RECRUIT / 니퍼트 영입”, 오른쪽 사선 초록 코스트 탭. 교체는 호박색, 잠김은 회색'],
+  ['p2', '네온 채움', '버튼 전체를 초록으로 채워 “누르는 곳”을 가장 확실하게 · 오른쪽에 어두운 사선 코스트 칸 · 오른쪽 아래 컷 모서리'],
+  ['p3', '카드와 한 몸', '카드 아래 모서리를 펴고 버튼을 바로 붙여 자막 판이 카드 밖까지 이어진 모양 · 오른쪽에 “남는 캡 451” 미리보기'],
+  ['p4', '두 칸: 영입 + 캡 미리보기', '왼쪽 초록 “영입” · 오른쪽 “542 → 451” 영입 후 샐러리 캡 — 누르기 전에 결과가 보임'],
+];
+let size = 'lg';
+function render() {
+  document.body.classList.toggle('sm', size === 'sm');
+  document.getElementById('wrap').innerHTML = V.map(([k, n, d], i) => `
+    <section class="${k}"><div class="vlab"><b><i class="disp">${i + 1}</i>${n}</b><span>${d}</span></div>
+    <div class="row">${S.map((s) => `<div class="cell"><small>${s.label} — ${s.p.name}</small><div class="grp" style="--n:${TEAM_NEON[s.p.team] || '#10b981'}"><span class="lab disp">PICK</span>${card(s)}${ACT[k](s)}</div></div>`).join('')}</div></section>`).join('');
+  document.querySelectorAll('.pc').forEach((c) => c.style.setProperty('--n', c.closest('.grp').style.getPropertyValue('--n')));
+}
+document.querySelectorAll('.top [data-s]').forEach((b) => b.onclick = () => { size = b.dataset.s; document.querySelectorAll('.top [data-s]').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+render();
+window.__who = S.map((s) => `${s.key}:${s.p?.name}`);
+</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>끌기 카드 · 놓기 전 수치 변화 8안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1480px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)에서 유격수 이종범을 끄는 중. 필드 위에서 마우스를 움직이면 적용된 G4B 끌기 카드가 따라오고,
+   커서 아래 자리에 놓았을 때의 실전 종합(제자리 밖 감소 + 시너지까지 게임 계산 그대로)이 놓기 전에 카드에 보인다. */
+const { ALL_PLAYERS, SLOTS, playAt, applySynergies, checkSynergies } = await import('/src/KboAugmentDraft.jsx');
+const SRC = '/?demo=draft';
+const FROM = 'SS';
+const STAT = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', stability: '안정' };
+// 드래프트 화면과 같은 계산: 제자리 밖 감소(playAt) → 드래프트 중 숨기는 프랜차이즈를 뺀 시너지
+const effMap = (r) => { const on = r.map(playAt); return new Map(applySynergies(on, checkSynergies(on).filter((s) => s.id !== 'franchise')).map((p) => [p.id, p])); };
+const tone = (dv) => (dv > 0 ? 'upx' : dv === 0 ? 'eq' : dv > -8 ? 'dn' : 'dn2');
+const sgn = (dv) => (dv > 0 ? `+${dv}` : dv === 0 ? '±0' : `−${-dv}`);
+
+/* 적용된 G4B 끌기 카드 그대로 */
+const BASE = `
+.lf-drag { display: none !important; }
+.lf-tok.mk-lift > .lf-in { opacity: .35; }
+.lf-tok.mk-over .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.55); }
+.dg { position: fixed; z-index: 60; left: 0; top: 0; width: 214px; height: 72px; pointer-events: none; transform-origin: 0 0; transform: scale(calc(var(--k) * .92)) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); font-family: 'IBM Plex Sans KR', sans-serif; --dc: #fff; }
+.dg .t { display: block; white-space: nowrap; overflow: hidden; }
+.dg::after { content: ""; position: absolute; left: -7px; right: -7px; top: -5px; bottom: -3px; --b: #38bdf8;
+  background: linear-gradient(var(--b), var(--b)) 0 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 0 / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 2px 14px no-repeat,
+    linear-gradient(var(--b), var(--b)) 0 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 100% / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 2px 14px no-repeat; }
+.dg .face { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.dg .pn { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: rgba(15,23,42,.62); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.dg .pn::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.dg .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.dg b { font-size: 15px; color: #fff; }
+.dg small { font-size: 11px; color: #cbd5e1; }
+.dg .ov { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-style: normal; line-height: 1; white-space: nowrap; font-size: 29px; color: var(--dc); text-shadow: 0 0 10px rgba(56,189,248,.8); }
+.dg .route { position: absolute; left: 58px; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
+.dg .route .a, .dg .route .b { padding: 0 7px; }
+.dg .route .a { color: var(--n); background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 60%, transparent); }
+.dg .route .a.on { color: #05080f; background: var(--n); box-shadow: none; }
+.dg .route .fl { display: inline-flex; gap: 1px; }
+.dg .route .fl i { width: 6px; height: 10px; background: #38bdf8; opacity: .2; animation: dgFlow .9s linear infinite; clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%); }
+.dg .route .fl.sw i:first-child { clip-path: polygon(100% 0, 55% 0, 0 50%, 55% 100%, 100% 100%, 45% 50%); }
+.dg .route .fl i:nth-child(2) { animation-delay: .15s; }
+.dg .route .fl i:nth-child(3) { animation-delay: .3s; }
+@keyframes dgFlow { 25% { opacity: 1; filter: drop-shadow(0 0 3px #38bdf8); } 55% { opacity: .2; } }
+.dg .route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,.65); animation: dgPop .24s cubic-bezier(.3,1.6,.55,1) both; }
+@keyframes dgPop { from { transform: scale(.5); opacity: 0; } }
+.dg.upx { --dc: #34d399; } .dg.eq { --dc: #fff; } .dg.dn { --dc: #fbbf24; } .dg.dn2 { --dc: #f87171; }
+.dg2 { position: fixed; z-index: 59; left: 0; top: 0; pointer-events: none; transform-origin: 50% 100%; }
+`;
+const route = (d, g, extra = {}) => `<span class="route">${g
+  ? `<span class="a">${d.slot}${extra.a || ''}</span><span class="fl ${g.swap ? 'sw' : 'go'}">${g.swap ? '<i></i><i></i>' : '<i></i><i></i><i></i>'}</span><span class="b">${g.slot}${extra.b || ''}</span>`
+  : `<span class="a on">${d.slot}</span>`}</span>`;
+const shell = (d, g, ov, small = `<small class="t">${d.season}</small>`, ex = {}) =>
+  `${route(d, g, ex)}<div class="face" style="${d.face}"></div><div class="pn"><span class="tx"><b class="t">${d.name}</b>${small}</span>${ov}</div>`;
+
+const VARS = [
+  { id: 'D1', title: '78 → 75', desc: '종합 자리에 원래 수치(작게 · 취소선) → 놓았을 때 수치(크게) · 줄면 노랑, 크게 줄면(−8 이상) 빨강, 그대로면 흰색 — 가장 직관적', css: `
+.dg .ovx { display: flex; align-items: baseline; gap: 3px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; white-space: nowrap; }
+.dg .ovx s { font-size: 16px; color: #94a3b8; text-decoration-thickness: 2px; }
+.dg .ovx i { font-style: normal; font-size: 13px; color: #7dd3fc; }
+.dg .ovx em { font-style: normal; font-size: 29px; color: var(--dc); text-shadow: 0 0 10px color-mix(in srgb, var(--dc) 55%, transparent); }`,
+    tpl: (d, g) => shell(d, g, g && g.dv !== 0 ? `<span class="ovx"><s>${g.before}</s><i>→</i><em>${g.after}</em></span>` : `<em class="ov">${g ? g.after : d.ov}</em>`) },
+
+  { id: 'D2', title: '델타 배지', desc: '종합은 놓았을 때 수치로 바뀌고, 카드 오른쪽 위 모서리에 “−3” 배지가 튀어나옴 · 감소 없음이면 초록 “±0”', css: `
+.dg .dl { position: absolute; right: -8px; top: 4px; z-index: 4; padding: 0 7px; border-radius: 9px; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; line-height: 18px; color: #05080f; background: var(--dc); box-shadow: 0 0 0 2px #05080f, 0 0 12px color-mix(in srgb, var(--dc) 60%, transparent); animation: dgPop .24s cubic-bezier(.3,1.6,.55,1) both; }
+.dg.eq .dl { background: #34d399; }`,
+    tpl: (d, g) => shell(d, g, `<em class="ov">${g ? g.after : d.ov}</em>`) + (g ? `<span class="dl">${sgn(g.dv)}</span>` : '') },
+
+  { id: 'D3', title: '숫자 굴림', desc: '자리를 옮길 때마다 원래 수치가 위로 빠지고 새 수치가 아래에서 올라옴(슬롯머신) · 숫자 아래 작은 “−3”', css: `
+.dg .rb { position: relative; width: 36px; height: 40px; overflow: hidden; }
+.dg .rb em { position: absolute; right: 0; top: 2px; font-family: 'Saira Condensed', sans-serif; font-style: normal; font-weight: 700; font-size: 29px; line-height: 1; color: var(--dc); }
+.dg .rb .o { color: #fff; animation: rOut .32s ease-in both; }
+.dg .rb .n { animation: rIn .32s cubic-bezier(.3,1.4,.55,1) .06s both; }
+.dg .rb small { position: absolute; right: 0; bottom: 0; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; color: var(--dc); }
+@keyframes rOut { to { transform: translateY(-110%); opacity: 0; } }
+@keyframes rIn { from { transform: translateY(110%); opacity: 0; } }`,
+    tpl: (d, g) => shell(d, g, g ? `<span class="rb"><em class="o">${g.prev}</em><em class="n">${g.after}</em>${g.dv ? `<small>${sgn(g.dv)}</small>` : ''}</span>` : `<em class="ov">${d.ov}</em>`) },
+
+  { id: 'D4', title: '능력치 막대', desc: '카드 아래에 네 능력치 막대 — 회색은 지금, 색 막대는 놓았을 때(깎인 만큼 빗금) · 종합은 새 수치', css: `
+.dg .st { position: absolute; left: 0; right: 0; top: 74px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 5px 8px 6px; background: rgba(5,8,15,.92); box-shadow: inset 0 0 0 1px rgba(56,189,248,.35); border-radius: 3px; }
+.dg .st div { display: grid; gap: 2px; }
+.dg .st span { display: flex; justify-content: space-between; font-size: 10px; color: #9aa4b5; }
+.dg .st span em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: var(--dc); }
+.dg .st i { position: relative; display: block; height: 4px; background: rgba(255,255,255,.08); }
+.dg .st i::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--b); background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--dc) 55%, transparent) 0 2px, transparent 2px 4px); }
+.dg .st i::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--a); background: var(--dc); }
+.dg.eq .st i::after { background: #38bdf8; }`,
+    tpl: (d, g) => shell(d, g, `<em class="ov">${g ? g.after : d.ov}</em>`) + (g ? `<div class="st">${g.stats.map((s) => `<div><span>${s.label}<em>${s.a}</em></span><i style="--b:${s.b}%;--a:${s.a}%"></i></div>`).join('')}</div>` : '') },
+
+  { id: 'D5', title: '종합 게이지', desc: '이름 아래 시즌 줄이 종합 게이지로 바뀜 — 남는 만큼 색 막대, 깎이는 구간은 깜빡이는 빗금 · 오른쪽 숫자는 새 수치', css: `
+.dg .gg { display: block; position: relative; height: 6px; margin-top: 4px; background: rgba(255,255,255,.1); border-radius: 3px; overflow: hidden; }
+.dg .gg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--b); background: repeating-linear-gradient(135deg, var(--dc) 0 3px, transparent 3px 6px); animation: ggBlink .8s ease-in-out infinite; }
+.dg .gg::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--a); background: linear-gradient(90deg, #38bdf8, color-mix(in srgb, var(--dc) 70%, #38bdf8)); transition: width .2s; }
+@keyframes ggBlink { 50% { opacity: .35; } }`,
+    tpl: (d, g) => shell(d, g, `<em class="ov">${g ? g.after : d.ov}</em>`, g ? `<span class="gg" style="--b:${g.before}%;--a:${g.after}%"></span>` : `<small class="t">${d.season}</small>`) },
+
+  { id: 'D6', title: '칩 경로에 숫자', desc: '판 위 칩이 “SS 78 ››› 2B 75” — 떠나는 칩엔 지금 수치, 놓을 자리 칩엔 새 수치(색) · 판 안 종합은 그대로 두어 비교가 쉬움', css: `
+.dg .route .a em, .dg .route .b em { font-style: normal; margin-left: 5px; padding-left: 5px; }
+.dg .route .a em { box-shadow: inset 1px 0 0 color-mix(in srgb, var(--n) 50%, transparent); color: #e5e7eb; }
+.dg .route .b { padding-right: 0; }
+.dg .route .b em { display: inline-block; padding: 0 6px; margin-left: 6px; color: var(--dc); background: #05080f; }`,
+    tpl: (d, g) => shell(d, g, `<em class="ov" style="color:#fff">${d.ov}</em>`, undefined, g ? { a: `<em>${g.before}</em>`, b: `<em>${g.after}</em>` } : {}) },
+
+  { id: 'D7', title: '색 온도', desc: '놓을 자리에 따라 카드 전체(판 · 밑줄 · 브래킷)가 초록(감소 없음) → 노랑 → 빨강으로 바뀌고, 시즌 줄이 “2루수에서 종합 −3”으로', css: `
+.dg.eq, .dg.upx { --tc: #34d399; } .dg.dn { --tc: #fbbf24; } .dg.dn2 { --tc: #f87171; }
+.dg.eq .pn, .dg.upx .pn, .dg.dn .pn, .dg.dn2 .pn { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 28%, rgba(15,23,42,.8)), rgba(15,23,42,.62)); box-shadow: inset 0 0 0 1px var(--tc); transition: background .15s, box-shadow .15s; }
+.dg.eq .pn::after, .dg.upx .pn::after, .dg.dn .pn::after, .dg.dn2 .pn::after { background: var(--tc); box-shadow: 0 0 10px var(--tc); }
+.dg.eq::after, .dg.upx::after, .dg.dn::after, .dg.dn2::after { --b: var(--tc); }
+.dg.eq .ov { color: #34d399; }
+.dg .fx { font-size: 11px; font-weight: 700; color: var(--tc, #cbd5e1); }`,
+    tpl: (d, g) => shell(d, g, `<em class="ov">${g ? g.after : d.ov}</em>`, g ? `<small class="t fx">${g.label}에서 ${g.dv ? `종합 ${sgn(g.dv)}` : '감소 없음'}</small>` : `<small class="t">${d.season}</small>`) },
+
+  { id: 'D8', title: '맞바꿈 양쪽 표시', desc: 'D1(78 → 75)에 더해, 사람이 있는 자리 위에서는 비워 둔 원래 자리(SS)에 맞바꿀 선수(김동주)가 미리 들어가 “77 → 71”로 바뀌는 모습이 보임 — 떠 있는 태그 상자 없음', css: `
+.dg .ovx { display: flex; align-items: baseline; gap: 3px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; white-space: nowrap; }
+.dg .ovx s { font-size: 16px; color: #94a3b8; text-decoration-thickness: 2px; }
+.dg .ovx i { font-style: normal; font-size: 13px; color: #7dd3fc; }
+.dg .ovx em { font-style: normal; font-size: 29px; color: var(--dc); }
+/* 원래 자리 미리보기: 끌고 있는 선수의 흐린 토큰을 감추고, 그 자리에 맞바꿀 선수가 들어온 토큰(하늘색 = 미리보기)을 그린다 */
+.lf-tok.mk-hide > .lf-in { opacity: 0 !important; }
+.pvw { position: absolute; inset: 0; z-index: 4; pointer-events: none; font-family: 'IBM Plex Sans KR', sans-serif; }
+.pvw .pv { position: relative; width: 214px; height: 72px; animation: pvIn .24s cubic-bezier(.3,1.4,.55,1) both; }
+@keyframes pvIn { from { opacity: 0; transform: translateY(-10px) scale(.94); } }
+.pvw .t { display: block; white-space: nowrap; overflow: hidden; }
+.pvw .chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: #05080f; background: var(--n); }
+.pvw .face { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); animation: pvFace .3s ease-out both; }
+@keyframes pvFace { from { transform: translateY(8px); opacity: 0; } }
+.pvw .pn { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: linear-gradient(90deg, rgba(56,189,248,.32), rgba(56,189,248,.1)); box-shadow: inset 0 0 0 1px #38bdf8, 0 0 18px -4px #38bdf8; }
+.pvw .pn::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.pvw .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.dg2 b { font-size: 15px; color: #fff; }
+.dg2 small { font-size: 11px; color: #e0f2fe; }
+.pvw .ovx { display: flex; align-items: baseline; gap: 3px; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; white-space: nowrap; }
+.pvw .ovx s { font-size: 16px; color: #94a3b8; text-decoration-thickness: 2px; }
+.pvw .ovx i { font-style: normal; font-size: 13px; color: #7dd3fc; }
+.pvw .ovx em { font-style: normal; font-size: 29px; color: #fff; }
+.pvw .upx em { color: #34d399; } .pvw .dn em { color: #fbbf24; } .pvw .dn2 em { color: #f87171; }`,
+    tpl: (d, g) => shell(d, g, g && g.dv !== 0 ? `<span class="ovx"><s>${g.before}</s><i>→</i><em>${g.after}</em></span>` : `<em class="ov">${g ? g.after : d.ov}</em>`),
+    other: (g) => (g?.other ? `<div class="pv" style="--n:${g.other.n}"><span class="chip">${FROM}</span><div class="face" style="${g.other.face}"></div><div class="pn"><span class="tx"><b class="t">${g.other.name}</b><small class="t">${g.other.season}</small></span>${g.other.dv
+      ? `<span class="ovx ${tone(g.other.dv)}"><s>${g.other.before}</s><i>→</i><em>${g.other.after}</em></span>`
+      : `<span class="ovx"><em>${g.other.after}</em></span>`}</div></div>` : '') },
+];
+
+function attach(ifr, v) {
+  const boot = () => {
+    const doc = ifr.contentDocument;
+    const src = doc?.querySelector(`.lf-tok[data-slot="${FROM}"]:not(.empty)`);
+    if (!src || !src.querySelector('.lf-bp')?.getAttribute('style')) { setTimeout(boot, 300); return; }
+    const css = BASE + v.css;
+    const idOf = (t) => { const s = t.querySelector('.lf-bp')?.getAttribute('style') || ''; return decodeURIComponent((s.match(/profiles\/([^"')]+)\.webp/) || [])[1] || ''); };
+    // 필드에 선 선수들로 엔트리를 다시 만든다(자리 포함)
+    const roster = [...doc.querySelectorAll('.lf-field .lf-tok:not(.empty)')].map((t) => ({ ...ALL_PLAYERS.find((p) => p.id === idOf(t)), slot: t.dataset.slot })).filter((p) => p.id);
+    const me = roster.find((p) => p.slot === FROM);
+    const now = effMap(roster);
+    const face = src.querySelector('.lf-bp').getAttribute('style').replace(/"/g, "'");
+    const d = { slot: FROM, name: me.name, season: `${me.year} ${me.team}`, ov: now.get(me.id).overall, face };
+    const dg = doc.createElement('div'); dg.className = 'dg'; dg.style.setProperty('--n', src.style.getPropertyValue('--n')); doc.body.appendChild(dg);
+    const dg2 = doc.createElement('div'); dg2.className = 'dg2'; doc.body.appendChild(dg2);
+    let pos = null; let lastKey = null; let prev = d.ov; let pvHtml = '';
+    const plan = (slotId) => {
+      const occ = roster.find((p) => p.slot === slotId);
+      const next = roster.map((p) => (p.id === me.id ? { ...p, slot: slotId } : occ && p.id === occ.id ? { ...p, slot: FROM } : p));
+      const after = effMap(next);
+      const a = after.get(me.id); const b = now.get(me.id);
+      const keys = Object.keys(a.stats);
+      return { slot: slotId, label: SLOTS.find((s) => s.id === slotId).label, swap: !!occ, before: b.overall, after: a.overall, dv: a.overall - b.overall,
+        stats: keys.map((k) => ({ label: STAT[k] || k, b: b.stats[k] ?? a.stats[k], a: a.stats[k] })),
+        other: occ ? { name: occ.name, season: `${occ.year} ${occ.team}`, before: now.get(occ.id).overall, after: after.get(occ.id).overall, dv: after.get(occ.id).overall - now.get(occ.id).overall } : null };
+    };
+    const place = () => {
+      if (!doc.getElementById('dd-style')) { const st = doc.createElement('style'); st.id = 'dd-style'; st.textContent = css; doc.body.appendChild(st); }
+      const k = doc.querySelector('.lf-field').getBoundingClientRect().width / 900;
+      dg.style.setProperty('--k', k);
+      if (!pos) { const r = doc.querySelector('.lf-tok[data-slot="2B"]').getBoundingClientRect(); pos = { x: r.left + r.width * .3, y: r.top + r.height * .5 }; }
+      doc.querySelector(`.lf-tok[data-slot="${FROM}"]`)?.classList.add('mk-lift');
+      dg.style.left = `${pos.x}px`; dg.style.top = `${pos.y}px`;
+      const el = doc.elementFromPoint(pos.x, pos.y)?.closest('.lf-field [data-slot]');
+      const tgt = el && el.dataset.slot !== FROM ? el : null;
+      doc.querySelectorAll('.mk-over').forEach((e) => { if (e !== tgt) e.classList.remove('mk-over'); });
+      tgt?.classList.add('mk-over');
+      const key = tgt ? tgt.dataset.slot : '';
+      if (key !== lastKey) {
+        lastKey = key;
+        const g = tgt ? { ...plan(key), prev } : null;
+        dg.className = `dg ${g ? tone(g.dv) : ''}`;
+        dg.innerHTML = v.tpl(d, g);
+        prev = g ? g.after : d.ov;
+        if (g?.other) { g.other.face = (tgt.querySelector('.lf-bp')?.getAttribute('style') || '').replace(/"/g, "'"); g.other.n = tgt.style.getPropertyValue('--n'); }
+        pvHtml = v.other ? v.other(g) : '';
+      }
+      // 맞바꿈이면 원래 자리 토큰 안에 미리보기를 넣는다(필드 좌표를 그대로 써서 자리와 정확히 겹침) · 흐린 원래 모습은 감춘다
+      const home = doc.querySelector(`.lf-tok[data-slot="${FROM}"]`);
+      if (home) {
+        let pvw = home.querySelector(':scope > .pvw');
+        if (!pvw) { pvw = doc.createElement('div'); pvw.className = 'pvw'; home.appendChild(pvw); }
+        if (pvw.dataset.html !== pvHtml) { pvw.dataset.html = pvHtml; pvw.innerHTML = pvHtml; }
+        home.classList.toggle('mk-hide', !!pvHtml);
+      }
+    };
+    doc.addEventListener('mousemove', (e) => { pos = { x: e.clientX, y: e.clientY }; place(); });
+    place(); setInterval(place, 250);
+    ifr.contentWindow.__dd = { plan };
+  };
+  boot();
+}
+
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title} · 필드 위에서 마우스를 움직여 보세요</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>끌기 카드 · 놓기 전 수치 변화 8안</b><span>유격수 이종범을 끄는 중 · 필드 위에서 마우스를 움직이면 커서 아래 자리에 놓았을 때의 종합이 카드에 표시(제자리 밖 감소 + 시너지, 게임 계산 그대로) · “크게 보기”는 실제 크기</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, VARS[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

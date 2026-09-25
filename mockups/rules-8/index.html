@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>드래프트 규칙 팝업 목업 8종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 30px 24px; padding: 20px; background: linear-gradient(180deg, rgba(3,5,10,.75), rgba(3,5,10,.92)), url(/ui/stadium.webp) center/cover fixed; }
+  .cell > b { display: block; margin: 0 2px 4px; font-size: 14px; color: #fff; }
+  .cell > b i { font-style: normal; color: #10b981; margin-right: 6px; font-family: 'Saira Condensed', sans-serif; }
+  .cell > span { display: block; margin: 0 2px 10px; min-height: 36px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+
+  /* ── 게임 팝업 판 (ui-cut · ui-frame · ui-glass2 흉내) ── */
+  .modal { --c: 22px; --a: #10b981; position: relative; display: flex; flex-direction: column; height: 640px; background: rgba(8,13,24,.96); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); box-shadow: 0 24px 60px -12px rgba(0,0,0,.8); }
+  .modal::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 5;
+    background: linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 60px 2px no-repeat, linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 34px no-repeat,
+      linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 60px 2px no-repeat, linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 34px no-repeat;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 28%, transparent); }
+  .mh { flex: none; display: flex; align-items: flex-start; justify-content: space-between; padding: 18px 22px 12px; }
+  .mh small { display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: #10b981; }
+  .mh small::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+  .mh h2 { margin: 4px 0 0; font-size: 22px; font-weight: 900; color: #fff; }
+  .mh .x { width: 32px; height: 32px; display: grid; place-items: center; color: #9ca3af; font-size: 18px; }
+  .nav { flex: none; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 20px 20px 22px; overscroll-behavior: contain; }
+  .body::-webkit-scrollbar { width: 3px; }
+  .body::-webkit-scrollbar-thumb { background: rgba(16,185,129,.45); border-radius: 99px; }
+  .lead { margin: 0 0 12px; font-size: 13px; line-height: 1.6; color: #9ca3af; }
+  .grp .hd { display: flex; align-items: center; gap: 10px; width: 100%; }
+  .grp .hd .t { font-size: 14px; font-weight: 700; color: #fff; }
+  .grp .hd .sm { font-size: 12px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .grp .chev { margin-left: auto; flex: none; width: 16px; height: 16px; color: #9ca3af; transition: transform .2s; }
+  .grp.open .chev { transform: rotate(180deg); }
+  .grp .bd { display: none; font-size: 13px; line-height: 1.7; color: #d1d5db; }
+  .grp.open .bd { display: block; }
+  .bd p { margin: 0 0 8px; }
+  .bd ul { margin: 0 0 8px; padding-left: 16px; }
+  .bd li { margin: 2px 0; }
+  .bd li::marker { color: #10b981; }
+  .bd b { color: #fff; }
+  .bd em { font-style: normal; color: #6ee7b7; font-weight: 600; }
+  .bd .tbl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 4px 0 8px; padding: 8px 10px; background: rgba(255,255,255,.035); }
+  .bd .tbl span:nth-child(odd) { font-family: 'Saira Condensed', sans-serif; font-weight: 700; color: #fff; white-space: nowrap; }
+  .bd .ex { display: block; margin: 6px 0 4px; padding: 6px 10px; font-size: 12px; color: #9ca3af; box-shadow: inset 2px 0 0 rgba(56,189,248,.6); background: rgba(56,189,248,.06); }
+  svg.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ════ R1 · 밑줄 탭 + 테두리 줄 아코디언 ════ */
+  .r1 .nav { display: flex; gap: 2px; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,.1); overflow-x: auto; }
+  .r1 .nav button { position: relative; padding: 10px 10px 11px; font-size: 13px; font-weight: 600; color: #9ca3af; white-space: nowrap; }
+  .r1 .nav button.on { color: #fff; }
+  .r1 .nav button.on::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.7); }
+  .r1 .grp { border: 1px solid rgba(255,255,255,.1); margin-bottom: 8px; }
+  .r1 .grp .hd { padding: 11px 12px; }
+  .r1 .grp.open { border-color: rgba(16,185,129,.45); }
+  .r1 .grp .bd { padding: 0 12px 12px; }
+
+  /* ════ R2 · 알약 세그먼트 + 왼쪽 선 카드 ════ */
+  .r2 .nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 20px; padding: 4px; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); border-radius: 99px; }
+  .r2 .nav button { flex: 1; padding: 6px 8px; font-size: 12px; font-weight: 700; color: #9ca3af; text-align: center; border-radius: 99px; white-space: nowrap; }
+  .r2 .nav button.on { color: #04150e; background: #10b981; }
+  .r2 .grp { margin-bottom: 8px; background: rgba(255,255,255,.035); box-shadow: inset 3px 0 0 rgba(148,163,184,.3); }
+  .r2 .grp.open { background: rgba(16,185,129,.06); box-shadow: inset 3px 0 0 #10b981; }
+  .r2 .grp .hd { flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; position: relative; }
+  .r2 .grp .hd .chev { position: absolute; right: 12px; top: 14px; }
+  .r2 .grp .bd { padding: 0 14px 12px; }
+
+  /* ════ R3 · HUD 사선 탭 + 번호 아코디언 ════ */
+  .r3 .nav { display: flex; gap: 0; padding: 0 22px; overflow-x: auto; }
+  .r3 .nav button { margin-right: -8px; padding: 7px 18px 7px 14px; font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .04em; color: #9ca3af; background: rgba(255,255,255,.05); clip-path: polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%); white-space: nowrap; }
+  .r3 .nav button.on { color: #04150e; background: #10b981; }
+  .r3 .body { border-top: 2px solid #10b981; margin-top: 0; }
+  .r3 .grp { border-bottom: 1px solid rgba(255,255,255,.08); }
+  .r3 .grp .hd { padding: 12px 2px; }
+  .r3 .grp .no { font-family: 'Saira Condensed', sans-serif; font-size: 18px; font-weight: 800; color: #374151; width: 26px; }
+  .r3 .grp.open .no { color: #10b981; }
+  .r3 .grp .bd { padding: 0 0 12px 36px; }
+
+  /* ════ R4 · 아이콘 탭 + 더하기/빼기 ════ */
+  .r4 .nav { display: grid; grid-template-columns: repeat(6, 1fr); padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .r4 .nav button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 2px 10px; font-size: 11px; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; }
+  .r4 .nav button svg.ic { width: 20px; height: 20px; }
+  .r4 .nav button.on { color: #6ee7b7; border-color: #10b981; }
+  .r4 .grp { border-bottom: 1px solid rgba(255,255,255,.07); }
+  .r4 .grp .hd { padding: 12px 0; }
+  .r4 .grp .chev { display: none; }
+  .r4 .grp .pm { margin-left: auto; width: 20px; height: 20px; display: grid; place-items: center; font-size: 16px; font-weight: 700; color: #10b981; box-shadow: inset 0 0 0 1px rgba(16,185,129,.5); }
+  .r4 .grp .bd { padding: 0 0 12px; }
+
+  /* ════ R5 · 가로 칩 + 유리 패널(닫혀도 요약 한 줄) ════ */
+  .r5 .nav { display: flex; gap: 6px; padding: 0 22px 2px; overflow-x: auto; }
+  .r5 .nav button { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; color: #cbd5e1; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); white-space: nowrap; }
+  .r5 .nav button em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 11px; color: #6b7280; }
+  .r5 .nav button.on { color: #fff; box-shadow: inset 0 0 0 1px #10b981; background: rgba(16,185,129,.12); }
+  .r5 .nav button.on em { color: #6ee7b7; }
+  .r5 .grp { margin-bottom: 10px; padding: 12px 14px; background: linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.015)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .r5 .grp.open { box-shadow: inset 0 0 0 1px rgba(16,185,129,.4); }
+  .r5 .grp .hd { flex-wrap: wrap; row-gap: 3px; }
+  .r5 .grp .hd .sm { flex-basis: 100%; order: 3; }
+  .r5 .grp .bd { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.1); }
+
+  /* ════ R6 · 단계 진행 네비 + 표 줄 ════ */
+  .r6 .nav { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); padding: 2px 22px 10px; }
+  .r6 .nav::before { content: ""; position: absolute; left: 44px; right: 44px; top: 13px; height: 1px; background: rgba(255,255,255,.12); }
+  .r6 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #6b7280; text-align: center; }
+  .r6 .nav button i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #9ca3af; background: #0b1220; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+  .r6 .nav button.on { color: #fff; }
+  .r6 .nav button.on i { color: #04150e; background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,.6); }
+  .r6 .body { border-top: 1px solid rgba(255,255,255,.08); }
+  .r6 .grp { display: grid; grid-template-columns: 118px 1fr; column-gap: 12px; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .r6 .grp .hd { grid-column: 1 / -1; display: grid; grid-template-columns: 118px 1fr 16px; column-gap: 12px; padding: 11px 0; }
+  .r6 .grp .hd .t { font-size: 13px; color: #6ee7b7; }
+  .r6 .grp .hd .sm { color: #d1d5db; }
+  .r6 .grp .bd { grid-column: 2; padding: 0 0 12px; }
+
+  /* ════ R7 · 큰 탭 카드 격자 + 미니멀 줄 ════ */
+  .r7 .nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 22px; }
+  .r7 .nav button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; font-size: 13px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); }
+  .r7 .nav button svg.ic { color: #6b7280; }
+  .r7 .nav button.on { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
+  .r7 .nav button.on svg.ic { color: #34d399; }
+  .r7 .grp .hd { padding: 10px 0; }
+  .r7 .grp .hd .t { font-weight: 600; }
+  .r7 .grp .hd::before { content: ""; width: 6px; height: 6px; background: #374151; transform: rotate(45deg); }
+  .r7 .grp.open .hd::before { background: #10b981; box-shadow: 0 0 8px #10b981; }
+  .r7 .grp .bd { padding: 0 0 12px 16px; margin-left: 2px; border-left: 1px solid rgba(16,185,129,.3); }
+
+  /* ════ R8 · 미끄러지는 표시줄 네비 + Q&A ════ */
+  .r8 .nav { position: relative; display: flex; margin: 0 22px; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .r8 .nav button { position: relative; z-index: 1; flex: 1; padding: 9px 4px; font-size: 12px; font-weight: 700; color: #9ca3af; text-align: center; white-space: nowrap; transition: color .2s; }
+  .r8 .nav button.on { color: #fff; }
+  .r8 .nav .ind { position: absolute; bottom: 0; height: 100%; background: rgba(16,185,129,.14); box-shadow: inset 0 -2px 0 #10b981; transition: left .25s cubic-bezier(.3,.7,.3,1), width .25s; }
+  .r8 .grp { margin-bottom: 6px; }
+  .r8 .grp .hd { padding: 10px 12px; background: rgba(255,255,255,.03); }
+  .r8 .grp .hd .q { font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-weight: 800; color: #10b981; }
+  .r8 .grp.open .hd { background: rgba(16,185,129,.08); }
+  .r8 .grp .bd { position: relative; padding: 10px 12px 10px 34px; background: rgba(255,255,255,.015); }
+  .r8 .grp .bd::before { content: "A"; position: absolute; left: 12px; top: 9px; font-family: 'Saira Condensed', sans-serif; font-size: 16px; font-weight: 800; color: #6b7280; }
+</style>
+</head>
+<body>
+<div class="top"><b>드래프트 규칙 팝업 목업 8종</b><span>위 탭으로 섹션 이동 · 섹션 안의 구역을 눌러 열고 닫기 · 내용은 8종 모두 같음</span></div>
+<div class="grid" id="grid"></div>
+<script>
+const I = {
+  entry: '<svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8"/></svg>',
+  draft: '<svg class="ic" viewBox="0 0 24 24"><rect x="4" y="5" width="7" height="10" rx="1"/><rect x="13" y="9" width="7" height="10" rx="1"/><path d="M7.5 18v2M16.5 5V3"/></svg>',
+  swap: '<svg class="ic" viewBox="0 0 24 24"><path d="M5 8h13l-3-3M19 16H6l3 3"/></svg>',
+  pos: '<svg class="ic" viewBox="0 0 24 24"><path d="M12 20 4 12l8-8 8 8z"/><circle cx="12" cy="12" r="1.6"/></svg>',
+  syn: '<svg class="ic" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  season: '<svg class="ic" viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7"/></svg>',
+};
+const CHEV = '<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6l4 4 4-4"/></svg>';
+
+// 공통 내용: 섹션 → 구역 { t 제목, s 한 줄 요약, q 질문형(R8), b 본문 }
+const SECTIONS = [
+  { id: 'entry', label: '엔트리', lead: '한 팀은 12명. 자리마다 한 명씩 채우고, 외국인과 같은 선수 중복에만 제한이 있어요.', groups: [
+    { t: '엔트리 구성', q: '몇 명을 어떻게 뽑나요?', s: '투수 3 + 야수 9 = 12명', b: `<div class="tbl"><span>투수 3</span><span>선발투수 · 중간계투 · 마무리 각 1명</span><span>내야 5</span><span>포수 · 1루수 · 2루수 · 3루수 · 유격수 각 1명</span><span>외야 3</span><span>외야수 1 · 2 · 3</span><span>지명타자 1</span><span>타자라면 누구나</span></div><p>자리가 다 차면 그 포지션 카드는 <b>“○○ 마감”</b>으로 잠겨요. 찬 포지션 선수를 데려오려면 <em>교체 영입</em>을 쓰세요.</p>` },
+    { t: '외국인 선수', q: '외국인은 몇 명까지 되나요?', s: '최대 3명', b: `<p>외국인은 <b>최대 3명</b>. 3명을 채우면 남은 외국인 카드는 <b>“외국인 한도”</b>로 잠겨요. 방출하면 다시 열려요.</p>` },
+    { t: '같은 선수(동일인)', q: '같은 선수를 두 번 뽑을 수 있나요?', s: '시즌이 달라도 한 번만', b: `<p>한 선수는 한 번만 뽑을 수 있어요. 다른 시즌 카드여도 같은 사람이면 <b>“동일인 영입됨”</b>으로 잠겨요.</p><span class="ex">예) 2006 류현진을 뽑으면 2010 류현진은 잠김</span>` },
+  ] },
+  { id: 'draft', label: '드래프트', lead: '12라운드 동안 라운드마다 한 명씩. 샐러리 캡 안에서 스타와 가성비 선수를 섞는 게 핵심이에요.', groups: [
+    { t: '라운드 진행', q: '라운드는 어떻게 진행되나요?', s: '12라운드 · 라운드마다 1명', b: `<ul><li>라운드마다 시리즈(구단 시즌 · 국가대표 · 레전드) 하나가 선반에 열려요.</li><li>한 명을 영입하면 다음 라운드로 넘어가요.</li><li>마음에 드는 선수가 없으면 <em>새로고침</em>(한 드래프트에 3회)으로 다른 시리즈를 열 수 있어요.</li></ul>` },
+    { t: '샐러리 캡', q: 'CP는 얼마나 쓸 수 있나요?', s: '모드에서 정한 CP 안에서만', b: `<p>모드 화면에서 <b>700 · 800 · 900 CP</b> 중 하나로 정해요. 영입가만큼 줄어들고, 남은 CP보다 비싼 카드는 <b>“CP 부족”</b>으로 잠겨요.</p><p>PICK에 선수를 올리면 위 샐러리 캡 바에 <em>깎일 만큼 노랗게</em> 미리 보여요.</p>` },
+    { t: '영입가', q: '영입가는 어떻게 정해지나요?', s: '종합 85 이상은 비싸고 71 이하는 쌈', b: `<div class="tbl"><span>72 ~ 84</span><span>종합과 같은 CP</span><span>85 이상</span><span>1점마다 +0.8 CP 더 비쌈</span><span>71 이하</span><span>1점마다 −0.4 CP 더 쌈</span></div><span class="ex">예) 종합 90 → 95 CP · 종합 65 → 62 CP</span>` },
+    { t: '드래프트가 끝날 때', q: '다 못 채우면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주로', b: `<p>12라운드를 다 쓰거나, 남은 CP로 더 뽑을 수 없으면 드래프트가 끝나요. 빈 자리는 <b>퓨처스 유망주(종합 55)</b>가 자동으로 채워요.</p>` },
+  ] },
+  { id: 'swap', label: '방출 · 교체', lead: '실수했거나 더 좋은 선수가 보이면 방출하거나 바로 교체할 수 있어요. 대신 손해가 있어요.', groups: [
+    { t: '방출', q: '방출하면 어떻게 되나요?', s: '영입가 절반 환불 · 재영입 불가', b: `<ul><li>내 라인업에서 선수를 누르고 <b>방출</b>을 두 번 눌러요.</li><li>영입가의 <em>절반</em>을 CP로 돌려받아요.</li><li>방출한 선수는 이번 드래프트에서 <b>다시 영입할 수 없어요</b>.</li><li>드래프트 중에만 가능하고, 라운드는 되돌아가지 않아요.</li></ul>` },
+    { t: '교체 영입', q: '찬 포지션 선수는 어떻게 데려오나요?', s: '고르면 바로 한 명과 맞바꿈', b: `<p>이미 찬 포지션의 선수를 고르면 버튼이 <b>“교체 영입 (+환불 CP)”</b>로 바뀌어요.</p><ul><li>내 라인업에서 <em>자리를 먼저 눌러 두면</em> 그 자리 선수와 바꿔요.</li><li>아니면 그 포지션에서 실전 종합이 가장 낮은 선수와 바꿔요.</li><li>나가는 선수는 방출과 같아요 (절반 환불 · 재영입 불가).</li></ul>` },
+  ] },
+  { id: 'pos', label: '포지션', lead: '선수는 원래 포지션에서 가장 강해요. 다른 자리에 세우면 종합이 떨어져요.', groups: [
+    { t: '제자리 밖 감소', q: '다른 포지션에 세우면 얼마나 약해지나요?', s: '−3 ~ −20', b: `<div class="tbl"><span>−3</span><span>비슷한 자리 — 2루↔유격 · 1루↔3루 · 선발↔불펜 · 지명↔1루</span><span>−6</span><span>같은 계열 — 내야끼리 · 외야끼리 등</span><span>−8</span><span>포수 자리가 끼는 이동</span><span>−20</span><span>투수 ↔ 야수</span></div>` },
+    { t: '지명타자', q: '지명타자에는 누구를 세우나요?', s: '야수는 감소 없음', b: `<p>야수라면 누구를 지명타자에 세워도 <em>감소가 없어요</em>. 수비가 약한 강타자를 두기 좋은 자리예요.</p>` },
+    { t: '자리 옮기기', q: '선수 자리는 어떻게 바꾸나요?', s: '끌어다 놓기', b: `<p>내 라인업에서 선수를 <b>끌어 다른 자리에 놓으면</b> 이동, 선수가 있는 자리에 놓으면 맞교환이에요. 필드 토큰에 원래 포지션과 감소량이 표시돼요.</p>` },
+  ] },
+  { id: 'syn', label: '시너지', lead: '실제로 함께 뛰었거나 이야기가 있는 선수 조합을 모으면 그 선수들이 강해져요.', groups: [
+    { t: '효과', q: '시너지를 완성하면 뭐가 좋아지나요?', s: '완성한 선수만 · 능력치마다 최대 +8', b: `<p>시너지를 만든 <b>그 선수들만</b> 능력치가 올라요. 한 선수가 여러 시너지를 받아도 능력치마다 <em>최대 +8</em>까지예요. 오른 선수는 필드에 초록 ▲로 보여요.</p>` },
+    { t: '종류', q: '어떤 시너지가 있나요?', s: '실화 조합 · 팀 구성 · 프랜차이즈', b: `<div class="tbl"><span>실화 조합</span><span>특정 선수들 — 예) 베이징 금메달 멤버, SK 왕조 마운드</span><span>팀 구성</span><span>조건 인원 — 예) 파워 80+ 타자, 외국인 선수</span><span>프랜차이즈</span><span>가장 많이 뽑은 구단 — 드래프트가 끝난 뒤 공개</span></div>` },
+    { t: '단계', q: '단계는 어떻게 올라가나요?', s: '인원이 늘수록 1 → 2 → 3단계', b: `<p>시너지마다 필요한 인원이 정해져 있고, 더 모으면 다음 단계로 올라 더 강해져요. 선반 카드 오른쪽 위 칸에서 <em>이 선수가 채울 칸</em>이 하늘색으로 깜빡여요.</p>` },
+    { t: '같은 선수 인정', q: '다른 시즌 카드도 인정되나요?', s: '시즌이 달라도 같은 선수면 OK', b: `<p>시너지는 사람 기준이라, 카드 시즌이 달라도 같은 선수면 채워져요.</p>` },
+  ] },
+  { id: 'season', label: '시즌', lead: '12명을 채우면 마지막으로 다듬고, 증강을 골라 AI 올스타와 겨뤄요.', groups: [
+    { t: '정비', q: '드래프트가 끝나면 무엇을 하나요?', s: '자리만 조정 · 방출 불가', b: `<p>정비 화면에서 자리를 옮겨 라인업을 다듬어요. 이때부터는 <b>방출할 수 없어요</b>.</p>` },
+    { t: '증강', q: '증강은 언제 고르나요?', s: '시즌 시작 때 모드 설정만큼', b: `<p>시즌을 시작하면 모드 설정(<b>없음 · 2개 · 3개</b>)만큼 증강을 하나씩 골라요. 증강은 경기 중 조건이 맞으면 발동해요.</p>` },
+    { t: '경기', q: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타', b: `<p>상대는 같은 모드 · 같은 규칙으로 드래프트한 AI 팀이에요. 모드 화면의 AI 난이도에 따라 강해져요.</p>` },
+  ] },
+];
+
+const V = [
+  ['r1', '밑줄 탭 + 테두리 줄', '가장 기본적인 설정 화면 스타일 · 탭 아래 초록 밑줄, 연 구역은 초록 테두리'],
+  ['r2', '알약 세그먼트 + 왼쪽 선 카드', '둥근 알약 속 초록 채움 탭 · 구역은 제목 아래 요약 한 줄이 있는 카드, 열면 왼쪽 선이 초록'],
+  ['r3', 'HUD 사선 탭 + 번호 목록', '게임 판 라벨과 같은 사선 탭 · 구역에 01, 02 번호 — 게임 UI와 가장 같은 결'],
+  ['r4', '아이콘 탭 + 더하기/빼기', '아이콘이 위, 이름이 아래인 여섯 칸 탭 · 구역은 오른쪽 +/− 로 여닫기'],
+  ['r5', '가로 칩 + 요약 패널', '구역 수가 붙은 가로 칩 · 닫혀 있어도 요약이 보이는 유리 패널 — 훑어보기에 좋음'],
+  ['r6', '단계 네비 + 표 줄', '1~6 원이 선으로 이어진 진행 표시 · 구역은 왼쪽 제목 · 오른쪽 요약의 표, 열면 설명이 오른쪽에'],
+  ['r7', '큰 탭 카드 + 미니멀 줄', '아이콘 달린 3×2 탭 카드 · 구역은 마름모 표시와 가는 세로선만 — 가장 여백이 많음'],
+  ['r8', '미끄러지는 탭 + Q&A', '고른 탭으로 초록 표시줄이 미끄러짐 · 구역을 질문(Q)과 답(A)으로 — 처음 하는 사람에게 가장 친절'],
+];
+
+function groupHtml(k, g, i) {
+  const head = {
+    r3: `<span class="no">${String(i + 1).padStart(2, '0')}</span><span class="t">${g.t}</span><span class="sm">${g.s}</span>${CHEV}`,
+    r4: `<span class="t">${g.t}</span><span class="sm">${g.s}</span><span class="pm">${i === 0 ? '−' : '+'}</span>`,
+    r6: `<span class="t">${g.t}</span><span class="sm">${g.s}</span>${CHEV}`,
+    r8: `<span class="q">Q</span><span class="t">${g.q}</span>${CHEV}`,
+  }[k] || `<span class="t">${g.t}</span><span class="sm">${g.s}</span>${CHEV}`;
+  return `<div class="grp ${i === 0 ? 'open' : ''}"><button class="hd">${head}</button><div class="bd">${g.b}</div></div>`;
+}
+function navHtml(k, cur) {
+  const btn = (s, j) => {
+    const on = s.id === cur ? 'on' : '';
+    if (k === 'r4' || k === 'r7') return `<button class="${on}" data-s="${s.id}">${I[s.id]}${s.label}</button>`;
+    if (k === 'r5') return `<button class="${on}" data-s="${s.id}">${s.label}<em>${s.groups.length}</em></button>`;
+    if (k === 'r6') return `<button class="${on}" data-s="${s.id}"><i>${j + 1}</i>${s.label}</button>`;
+    return `<button class="${on}" data-s="${s.id}">${s.label}</button>`;
+  };
+  return SECTIONS.map(btn).join('') + (k === 'r8' ? '<span class="ind"></span>' : '');
+}
+function render(modal, k, cur) {
+  const sec = SECTIONS.find((s) => s.id === cur);
+  modal.querySelector('.nav').innerHTML = navHtml(k, cur);
+  modal.querySelector('.body').innerHTML = `<p class="lead">${sec.lead}</p>` + sec.groups.map((g, i) => groupHtml(k, g, i)).join('');
+  modal.querySelector('.body').scrollTop = 0;
+  if (k === 'r8') { const on = modal.querySelector('.nav button.on'); const ind = modal.querySelector('.ind'); ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; }
+}
+document.getElementById('grid').innerHTML = V.map(([k, n, d], i) => `
+  <div class="cell"><b><i>${i + 1}</i>${n}</b><span>${d}</span>
+    <section class="modal ${k}" data-k="${k}"><header class="mh"><div><small>HOW TO DRAFT</small><h2>드래프트 규칙</h2></div><span class="x">✕</span></header>
+      <nav class="nav"></nav><div class="body"></div></section></div>`).join('');
+document.querySelectorAll('.modal').forEach((m) => render(m, m.dataset.k, 'entry'));
+const fixInd = () => document.querySelectorAll('.r8').forEach((m) => { const on = m.querySelector('.nav button.on'); const ind = m.querySelector('.ind'); ind.style.left = on.offsetLeft + 'px'; ind.style.width = on.offsetWidth + 'px'; });
+document.fonts.ready.then(fixInd); addEventListener('resize', fixInd);
+document.getElementById('grid').addEventListener('click', (e) => {
+  const m = e.target.closest('.modal'); if (!m) return;
+  const tab = e.target.closest('.nav [data-s]');
+  if (tab) { render(m, m.dataset.k, tab.dataset.s); return; }
+  const hd = e.target.closest('.grp .hd');
+  if (hd) { const g = hd.parentElement; g.classList.toggle('open'); const pm = g.querySelector('.pm'); if (pm) pm.textContent = g.classList.contains('open') ? '−' : '+'; }
+});
+</script>
+</body>
+</html>

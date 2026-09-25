@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>내 라인업 구장 디자인 8안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1480px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)의 내 라인업 구장 그림(FieldArt)만 안마다 바꿔 끼운다. 토큰 · 자리 좌표(900×580)는 그대로.
+   H1~H4 = Higgsfield 로 뽑은 그림 · C1~C4 = 직접 그린 SVG */
+const SRC = '/?demo=draft';
+const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
+const P = { home: [hx, hy], b1: [hx + s, hy - s], b2: [hx, hy - 2 * s], b3: [hx - s, hy - s], L: [hx - r, hy - r], Rr: [hx + r, hy - r], mound: [hx, hy - s] };
+const fair = `M${hx} ${hy} L${P.L} A${R} ${R} 0 0 1 ${P.Rr} Z`;
+const arc = (rad) => { const k = rad / Math.SQRT2; return `M${hx - k} ${hy - k} A${rad} ${rad} 0 0 1 ${hx + k} ${hy - k}`; };
+const diamond = `M${P.home} L${P.b1} L${P.b2} L${P.b3} Z`;
+const dirtOuter = `${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}`;
+const dirtInner = `${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}`;
+const baseSq = (x, y, sz, attrs) => `<rect x="${x - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}" transform="rotate(45 ${x} ${y})" ${attrs}/>`;
+const homePlate = (attrs) => `<path d="M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z" ${attrs}/>`;
+const svg = (body, defs = '') => `<svg width="900" height="580" viewBox="0 0 900 580"><defs>${defs}</defs>${body}</svg>`;
+
+/* C1 · HUD 와이어프레임 */
+const C1 = () => {
+  const ticks = Array.from({ length: 19 }, (_, i) => { const a = (-135 + i * 5) * Math.PI / 180; const x1 = hx + Math.cos(a) * 528, y1 = hy + Math.sin(a) * 528, x2 = hx + Math.cos(a) * (i % 3 ? 536 : 544), y2 = hy + Math.sin(a) * (i % 3 ? 536 : 544); return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
+  return svg(`
+    <path d="${fair}" fill="url(#c1g)"/><path d="${fair}" fill="url(#c1d)"/>
+    <g filter="url(#c1w)" fill="none">
+      <path d="M${P.home} L${P.L} M${P.home} L${P.Rr}" stroke="#6ee7b7" stroke-opacity=".75" stroke-width="1.6"/>
+      <path d="${arc(R)}" stroke="#34d399" stroke-opacity=".55" stroke-width="1.6"/>
+      <path d="${arc(500)}" stroke="#34d399" stroke-opacity=".22" stroke-width="1" stroke-dasharray="4 6"/>
+      <g stroke="#34d399" stroke-opacity=".45" stroke-width="1.2">${ticks}</g>
+      <path d="${diamond}" stroke="#6ee7b7" stroke-opacity=".85" stroke-width="1.6" fill="rgba(16,185,129,.07)"/>
+      <path d="${arc(200).replace(/M[^A]+/, `M${hx - 141} ${hy - 141 - 60}`)}" stroke="none"/>
+      <circle cx="${hx}" cy="${hy - s - 10}" r="190" stroke="#6ee7b7" stroke-opacity=".2" stroke-dasharray="3 5" clip-path="url(#c1c)"/>
+      <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="17" stroke="#6ee7b7" stroke-opacity=".7" stroke-width="1.4"/>
+      <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="2.5" fill="#6ee7b7"/>
+    </g>
+    <g filter="url(#c1w)" fill="#d1fae5">${baseSq(...P.b1, 11, '')}${baseSq(...P.b2, 11, '')}${baseSq(...P.b3, 11, '')}${homePlate('')}</g>`,
+  `<radialGradient id="c1g" cx="50%" cy="75%" r="75%"><stop offset="0" stop-color="#10b981" stop-opacity=".14"/><stop offset=".6" stop-color="#0e7490" stop-opacity=".06"/><stop offset="1" stop-color="#0e7490" stop-opacity="0"/></radialGradient>
+   <pattern id="c1d" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r=".9" fill="#6ee7b7" fill-opacity=".16"/></pattern>
+   <clipPath id="c1c"><path d="${fair}"/></clipPath>
+   <filter id="c1w" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+};
+
+/* C2 · 딥그린 야간 조명 */
+const C2 = () => svg(`
+  <path d="${fair}" fill="url(#c2g)"/><path d="${fair}" fill="url(#c2m)"/>
+  <path d="${arc(R - 6)}" fill="none" stroke="#2a2620" stroke-opacity=".9" stroke-width="16"/>
+  <path d="${arc(R + 3)}" fill="none" stroke="#10b981" stroke-opacity=".6" stroke-width="2" filter="url(#c2w)"/>
+  <polygon points="${dirtOuter}" fill="url(#c2d)"/>
+  <polygon points="${dirtInner}" fill="url(#c2g)"/><polygon points="${dirtInner}" fill="url(#c2m)"/>
+  <g filter="url(#c2w)"><path d="M${P.home} L${P.L} M${P.home} L${P.Rr}" stroke="#f0fdfa" stroke-opacity=".6" stroke-width="2.2"/></g>
+  <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="20" fill="url(#c2d)"/>
+  <g fill="#f8fafc" filter="url(#c2w)">${baseSq(...P.b1, 13, '')}${baseSq(...P.b2, 13, '')}${baseSq(...P.b3, 13, '')}${homePlate('')}</g>
+  <ellipse cx="170" cy="120" rx="260" ry="170" fill="url(#c2l)"/><ellipse cx="730" cy="120" rx="260" ry="170" fill="url(#c2l)"/>
+  <ellipse cx="450" cy="470" rx="300" ry="140" fill="url(#c2l)" opacity=".6"/>`,
+  `<radialGradient id="c2g" cx="50%" cy="80%" r="85%"><stop offset="0" stop-color="#14503d"/><stop offset=".55" stop-color="#0d3a30"/><stop offset="1" stop-color="#08221f"/></radialGradient>
+   <pattern id="c2m" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="30" height="60" fill="#fff" opacity=".035"/></pattern>
+   <radialGradient id="c2d" cx="50%" cy="60%" r="70%"><stop offset="0" stop-color="#5a4232"/><stop offset="1" stop-color="#33271e"/></radialGradient>
+   <radialGradient id="c2l"><stop offset="0" stop-color="#e0f2fe" stop-opacity=".1"/><stop offset="1" stop-color="#e0f2fe" stop-opacity="0"/></radialGradient>
+   <filter id="c2w" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+
+/* C3 · 전술 보드 */
+const C3 = () => svg(`
+  <g clip-path="url(#c3c)"><rect width="900" height="580" fill="rgba(56,189,248,.05)"/><rect width="900" height="580" fill="url(#c3p)"/></g>
+  <path d="${arc(260)}" fill="none" stroke="#94a3b8" stroke-opacity=".18" stroke-dasharray="2 6"/>
+  <path d="${arc(390)}" fill="none" stroke="#94a3b8" stroke-opacity=".18" stroke-dasharray="2 6"/>
+  <path d="${arc(R)}" fill="none" stroke="#cbd5e1" stroke-opacity=".45" stroke-width="1.5"/>
+  <path d="M${P.home} L${P.L} M${P.home} L${P.Rr}" stroke="#e2e8f0" stroke-opacity=".5" stroke-width="1.4" stroke-dasharray="8 6"/>
+  <path d="${diamond}" fill="rgba(16,185,129,.13)" stroke="#34d399" stroke-opacity=".6" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="18" fill="none" stroke="#34d399" stroke-opacity=".6" stroke-dasharray="3 4"/>
+  <g fill="none" stroke="#e2e8f0" stroke-opacity=".85" stroke-width="1.6">${baseSq(...P.b1, 12, '')}${baseSq(...P.b2, 12, '')}${baseSq(...P.b3, 12, '')}${homePlate('')}</g>
+  <g font-family="Saira Condensed" font-weight="700" font-size="13" fill="#94a3b8" fill-opacity=".6" text-anchor="middle">
+    <text x="${P.L[0] + 36}" y="${P.L[1] + 4}">98M</text><text x="${hx}" y="${hy - R - 8}">122M</text><text x="${P.Rr[0] - 36}" y="${P.Rr[1] + 4}">98M</text></g>`,
+  `<clipPath id="c3c"><path d="${fair}"/></clipPath>
+   <pattern id="c3p" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#94a3b8" stroke-opacity=".09"/></pattern>`);
+
+/* C4 · 네온 유리 */
+const C4 = () => svg(`
+  <path d="${fair}" fill="url(#c4g)"/>
+  <path d="${arc(R)}" fill="none" stroke="#34d399" stroke-opacity=".5" stroke-width="2.2" filter="url(#c4w)"/>
+  <path d="${arc(R - 16)}" fill="none" stroke="#34d399" stroke-opacity=".16" stroke-width="1"/>
+  <path d="M${P.home} L${P.L}" stroke="url(#c4la)" stroke-width="2.2" filter="url(#c4w)"/>
+  <path d="M${P.home} L${P.Rr}" stroke="url(#c4lb)" stroke-width="2.2" filter="url(#c4w)"/>
+  <path d="${diamond}" fill="url(#c4i)" stroke="#34d399" stroke-opacity=".9" stroke-width="2" filter="url(#c4w)"/>
+  <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="22" fill="rgba(52,211,153,.08)" stroke="#6ee7b7" stroke-opacity=".6" stroke-width="1.4"/>
+  <circle cx="${P.mound[0]}" cy="${P.mound[1]}" r="3" fill="#a7f3d0"/>
+  ${[P.b1, P.b2, P.b3, P.home].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="16" fill="url(#c4h)"/>`).join('')}
+  <g fill="#ecfdf5" filter="url(#c4w)">${baseSq(...P.b1, 11, '')}${baseSq(...P.b2, 11, '')}${baseSq(...P.b3, 11, '')}${homePlate('')}</g>`,
+  `<radialGradient id="c4g" cx="50%" cy="72%" r="78%"><stop offset="0" stop-color="#0f4a3c" stop-opacity=".85"/><stop offset=".55" stop-color="#0b2c33" stop-opacity=".65"/><stop offset="1" stop-color="#081624" stop-opacity=".35"/></radialGradient>
+   <radialGradient id="c4i" cx="50%" cy="60%" r="60%"><stop offset="0" stop-color="#34d399" stop-opacity=".2"/><stop offset="1" stop-color="#10b981" stop-opacity=".04"/></radialGradient>
+   <radialGradient id="c4h"><stop offset="0" stop-color="#34d399" stop-opacity=".45"/><stop offset="1" stop-color="#34d399" stop-opacity="0"/></radialGradient>
+   <linearGradient id="c4la" gradientUnits="userSpaceOnUse" x1="${hx}" y1="${hy}" x2="${P.L[0]}" y2="${P.L[1]}"><stop offset="0" stop-color="#f0fdfa" stop-opacity=".9"/><stop offset="1" stop-color="#34d399" stop-opacity=".15"/></linearGradient>
+   <linearGradient id="c4lb" gradientUnits="userSpaceOnUse" x1="${hx}" y1="${hy}" x2="${P.Rr[0]}" y2="${P.Rr[1]}"><stop offset="0" stop-color="#f0fdfa" stop-opacity=".9"/><stop offset="1" stop-color="#34d399" stop-opacity=".15"/></linearGradient>
+   <filter id="c4w" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+
+const img = (src) => `<img src="/mockups/field-8/${src}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'fx-miss',textContent:'그림 생성 중…'}))"/>`;
+const VARS = [
+  { id: 'H1', title: '일러스트 야간 구장', desc: 'Higgsfield · 위에서 내려다본 벡터 느낌 일러스트 — 짙은 남색 밤, 줄무늬 에메랄드 잔디, 차분한 흙, 빛나는 흰 파울 라인', html: img('h1.png') },
+  { id: 'H2', title: '홀로그램 와이어 구장', desc: 'Higgsfield · 남색 바탕 위 청록 · 초록 네온 선으로만 그린 SF 홀로그램 다이아몬드 — HUD 판과 가장 가까운 결', html: img('h2.png') },
+  { id: 'H3', title: '드론 항공 사진', desc: 'Higgsfield · 조명탑 아래 밤 경기장을 바로 위에서 찍은 사진 느낌 — 청록 톤으로 눌러 실제 구장감이 가장 강함', html: img('h3.png') },
+  { id: 'H4', title: '다크 글래스 디오라마', desc: 'Higgsfield · 어두운 유리 재질의 3D 미니어처 구장 — 은은하게 빛나는 에메랄드 잔디, 스튜디오 조명', html: img('h4.png') },
+  { id: 'C1', title: 'HUD 와이어프레임', desc: '직접 그림 · 잔디 없이 초록 선만 — 파울 라인 · 외야 호 · 눈금 · 점 격자 · 내야 다이아몬드 윤곽, 게임 판의 브래킷 · 선 문법과 한 벌', html: C1() },
+  { id: 'C2', title: '딥그린 야간 조명', desc: '직접 그림 · 지금 구장을 다듬은 안 — 잔디를 남색 섞인 딥그린으로 낮추고 사선 잔디결, 외야 펜스 위 초록 네온 선, 조명탑 빛 웅덩이', html: C2() },
+  { id: 'C3', title: '전술 보드', desc: '직접 그림 · 반투명 격자 보드 위에 점선 파울 라인 · 거리 호 · 98M / 122M 표기 — 감독 작전판 느낌, 토큰이 가장 또렷', html: C3() },
+  { id: 'C4', title: '네온 유리', desc: '직접 그림 · 가운데가 에메랄드로 빛나는 반투명 유리 구장 + 빛나는 내야 윤곽 · 베이스 빛무리 · 홈에서 퍼지는 파울 라인', html: C4() },
+];
+
+const FX_CSS = `
+.lf-field > svg.absolute { display: none !important; }
+.lf-field > .fx { position: absolute; left: 0; top: 0; width: 900px; height: 580px; pointer-events: none; }
+.lf-field > .fx img { width: 900px; height: 580px; object-fit: cover; display: block; -webkit-mask-image: radial-gradient(120% 110% at 50% 70%, #000 60%, transparent 100%); mask-image: radial-gradient(120% 110% at 50% 70%, #000 60%, transparent 100%); }
+.lf-field > .fx .fx-miss { display: grid; place-items: center; width: 900px; height: 580px; font-size: 22px; color: #6b7280; }
+`;
+function attach(ifr, v) {
+  const tick = () => {
+    const doc = ifr.contentDocument; const field = doc?.querySelector('.lf-field');
+    if (!field) return;
+    if (!doc.getElementById('fx-style')) { const st = doc.createElement('style'); st.id = 'fx-style'; st.textContent = FX_CSS; doc.body.appendChild(st); }
+    if (!field.querySelector(':scope > .fx')) { const fx = doc.createElement('div'); fx.className = 'fx'; fx.innerHTML = v.html; field.insertBefore(fx, field.children[1] || null); }
+  };
+  tick(); setInterval(tick, 400);
+}
+
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>내 라인업 구장 디자인 8안</b><span>실제 드래프트 화면에서 구장 그림만 교체 · H = Higgsfield 그림, C = 직접 그린 SVG · 토큰 · 자리는 그대로 · “크게 보기”는 실제 크기</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, VARS[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

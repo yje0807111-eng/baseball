@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>선반 카드 요청안 + 추천 4종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; white-space: nowrap; }
+  .top span { min-width: 0; }
+  .top .g { margin-left: auto; display: flex; gap: 4px; flex: none; }
+  .top .g button { padding: 5px 11px; font-weight: 700; white-space: nowrap; color: #d1d5db; box-shadow: inset 0 0 0 1px #374151; }
+  .top .g button.on { color: #04150e; background: #10b981; box-shadow: none; }
+  .wrap { display: flex; flex-direction: column; gap: 22px; padding: 16px 12px 60px; }
+  .vlab { display: flex; align-items: baseline; gap: 12px; margin: 0 4px 7px; }
+  .vlab b { font-size: 15px; color: #fff; white-space: nowrap; }
+  .vlab b i { font-style: normal; color: #10b981; margin-right: 6px; }
+  .vlab span { font-size: 12px; color: #9ca3af; }
+  .panel { padding: 10px 6px; background: linear-gradient(180deg, rgba(6,10,19,.8), rgba(6,10,19,.92)), url(/ui/stadium.webp) center 40%/cover; box-shadow: inset 0 0 0 1px rgba(16,185,129,.25); overflow: hidden; }
+  .shelf { display: grid; gap: 3px; grid-template-columns: repeat(17, minmax(0, 8rem)); justify-content: center; }
+  .x2 .shelf { grid-template-columns: repeat(8, minmax(0, 11rem)); }
+
+  /* ── 공통: 요청안 뼈대 ── */
+  .card { --g: #f3f4f6; position: relative; aspect-ratio: 2/3; width: 100%; background: #05080f; container-type: inline-size; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); overflow: hidden; }
+  .in { position: absolute; inset: 0; }
+  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 18%; }
+  .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
+  .fr { position: absolute; inset: 2.5cqw; border: 1px solid color-mix(in srgb, var(--n) 40%, transparent); pointer-events: none; }
+  /* 종합: 75 미만 흰색 · 75~89 초록 · 90+ 무지개 흐름 */
+  .card.t75 { --g: #34d399; }
+  .ov { position: absolute; left: 7cqw; top: 6cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: var(--g); text-shadow: 0 0 2px #000, 0 2px 8px #000; }
+  .card.t75 .ov { text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+  @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .card.t90 .ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 5px #000); animation: prism 3s linear infinite; }
+  /* 아래: 포지션(위) → 이름(맨 아래), 코스트는 오른쪽 아래 구석 CP/숫자 — 코스트 높이 ≈ 이름 줄 높이라 포지션 줄과 겹치지 않는다 */
+  .pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 30cqw; font-size: 10.5cqw; font-weight: 700; letter-spacing: .03em; line-height: 1; color: #cbd5e1; white-space: nowrap; overflow: hidden; }
+  .nm { position: absolute; left: 7cqw; right: 31cqw; bottom: 7cqw; font-size: 20.5cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 1px 4px #000; }
+  .cp { position: absolute; right: 8cqw; bottom: 8cqw; text-align: right; line-height: .9; }
+  .cp small { display: block; font-size: 7cqw; font-weight: 700; letter-spacing: .08em; color: #9ca3af; }
+  .cp b { display: block; font-size: 17cqw; font-weight: 800; letter-spacing: -.02em; color: var(--n); }
+  .card.c3 .cp b { font-size: 14.5cqw; } /* 세 자리 코스트(100+)는 이름 칸을 침범하지 않게 줄인다 */
+  /* 살 수 없는 카드: 카드 전체 무채색 · 알림도 무채색(흰 테두리) */
+  .card.lock .in { filter: grayscale(1) brightness(.55); }
+  .card.lock .ov { animation: none; }
+  .lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 0; font-size: 11cqw; font-weight: 800; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
+  .lk svg { width: 10cqw; height: 10cqw; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ════ 추천 1 · 구분선 + 네온 코스트 강조 ════
+     이름 위에 팀 색 가는 선 한 줄 → 포지션/이름 블록이 한 덩어리로 읽힘. 코스트 숫자는 더 크게 */
+  .r1 .pos { bottom: 34cqw; color: #9ca3af; }
+  .r1 .rule { position: absolute; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 20%, transparent)); }
+  .r1 .card:not(.c3) .cp b { font-size: 18cqw; }
+  .r1 .cp b { text-shadow: 0 0 8px color-mix(in srgb, var(--n) 55%, transparent); }
+
+  /* ════ 추천 2 · 포지션 약어 칩 + 영문 ════
+     한눈에 훑을 땐 SP·C 칩, 자세히 보면 영문 전체 */
+  .r2 .pos { display: flex; align-items: center; gap: 2.5cqw; bottom: 30cqw; }
+  .r2 .pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
+  .r2 .pos span { min-width: 0; overflow: hidden; font-size: 9cqw; color: #cbd5e1; }
+
+  /* ════ 추천 3 · 코스트를 컷 코너 판에 ════
+     카드 오른쪽 아래 사선 컷을 따라 네온 판을 깔고 그 위에 CP/숫자 → 코스트 자리가 확실 */
+  .r3 .cp { right: 0; bottom: 0; width: 30cqw; height: 30cqw; padding: 0 8cqw 7cqw 0; display: flex; flex-direction: column; justify-content: flex-end; background: var(--n); clip-path: polygon(38% 0,100% 0,100% 67%,67% 100%,0 100%,0 38%); }
+  .r3 .cp small { color: rgba(5,8,15,.75); }
+  .r3 .cp b { color: #05080f; font-size: 15cqw; }
+  .r3 .nm { right: 32cqw; }
+  .r3 .card.lock .cp { background: #9ca3af; }
+
+  /* ════ 추천 4 · 등급 윗줄 ════
+     카드 위 가장자리에 등급 색 띠(흰/초록/무지개) → 선반 전체를 멀리서 훑어도 강한 선수가 보임 */
+  /* 테두리 선(inset 2.5cqw) 위에 얹어 좌우를 테두리 안쪽에서 끊는다 — 왼쪽은 컷 코너가 끝나는 곳부터 */
+  .r4 .tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 1.2cqw; background: rgba(255,255,255,.55); }
+  .r4 .card.t75 .tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
+  .r4 .card.t90 .tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
+
+  /* ════ 조합안 · 추천1 구분선 + 추천2 약어 칩 + 추천4 등급 윗줄 ════ */
+  .mix .pos { bottom: 34cqw; }
+  .r4 .ov { top: 7.5cqw; }
+</style>
+</head>
+<body>
+<div class="top"><b>선반 카드 요청안 + 추천 4종</b><span>공통: 종합 흰색/초록/90+ 무지개 · 포지션(위)→이름(맨 아래) · 코스트 오른쪽 아래 구석 · 살 수 없으면 카드와 알림 모두 무채색</span>
+  <div class="g"><button data-s="1" class="on">실제 크기</button><button data-s="2">크게 보기 (8장)</button></div></div>
+<div class="wrap" id="wrap"></div>
+<script type="module">
+const M = await import('/src/KboAugmentDraft.jsx');
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const TEAM_NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff' };
+const ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
+const LOCK = { 2: '투수 마감', 7: 'CP 부족', 12: '외국인 한도' };
+const LOCK_ICON = '<svg viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>';
+const V = [
+  ['mix r1 r2 r4', '조합안 · 구분선 + 약어 칩 + 등급 윗줄', '추천1 팀 색 구분선 · 추천2 약어 칩(SP)+영문 전체 · 추천4 등급 윗줄(테두리 안쪽에서 끊고 더 얇게)'],
+  ['req', '요청안', '종합 흰색/초록/90+ 무지개 흐름 · 포지션 영문 → 그 아래 이름이 맨 아래 · 코스트는 오른쪽 아래 구석 CP/숫자 · 살 수 없으면 전부 무채색'],
+  ['r1', '추천 1 · 구분선 + 코스트 강조', '포지션과 이름 사이에 팀 색 가는 선을 넣어 아래 정보가 한 덩어리로 읽히게 · 코스트 숫자를 조금 더 크게, 은은한 번짐'],
+  ['r2', '추천 2 · 포지션 약어 칩 + 영문', '빠르게 훑을 땐 팀 색 칩(SP·C·SS), 자세히 볼 땐 옆의 영문 전체 — 17장 선반에서 포지션 찾기가 빨라짐'],
+  ['r3', '추천 3 · 코스트 컷 코너 판', '카드 오른쪽 아래 컷 모양을 따라 팀 색 판을 깔고 CP/숫자를 올림 — 코스트 위치가 가장 확실'],
+  ['r4', '추천 4 · 등급 윗줄', '카드 위 가장자리에 등급 색 띠(흰 · 초록 · 무지개) — 멀리서도 강한 선수가 먼저 보임'],
+];
+
+const seen = new Set();
+const uniq = (p) => (seen.has(p.name) ? false : (seen.add(p.name), true));
+const firstPerPos = (arr) => arr.filter((p, i) => arr.findIndex((q) => q.position === p.position) === i);
+const all = [...M.ALL_PLAYERS].sort((a, b) => b.overall - a.overall);
+const top = firstPerPos(all.filter((p) => p.overall >= 90).filter(uniq)).slice(0, 4);
+const mid = firstPerPos(all.filter((p) => p.overall >= 75 && p.overall < 90).filter(uniq)).slice(0, 7);
+const low = firstPerPos(all.filter((p) => p.overall < 75).filter(uniq)).slice(0, 6);
+const players = [...top, ...mid, ...low].sort((a, b) => ORDER.indexOf(a.position) - ORDER.indexOf(b.position) || b.overall - a.overall).slice(0, 17);
+
+let scale = 1;
+const tier = (ov) => (ov >= 90 ? 't90' : ov >= 75 ? 't75' : '');
+function card(p, i, key) {
+  const lock = LOCK[i];
+  const has = (k) => key.split(' ').includes(k);
+  const pos = has('r2') ? `<em class="disp">${p.position}</em><span>${POS_FULL[p.position]}</span>` : POS_FULL[p.position];
+  return `<div class="card ${tier(p.overall)} ${lock ? 'lock' : ''} ${p.cost >= 100 ? 'c3' : ''}" style="--n:${TEAM_NEON[p.team] || '#10b981'}"><div class="in">
+    <img src="/cards/${encodeURIComponent(p.id)}.webp" alt="" /><span class="sh"></span><span class="fr"></span>${has('r4') ? '<span class="tb"></span>' : ''}
+    <span class="ov disp">${p.overall}</span>
+    <span class="pos disp">${pos}</span>${has('r1') ? '<span class="rule"></span>' : ''}
+    <span class="nm">${p.name}</span>
+    <span class="cp"><small class="disp">CP</small><b class="disp">${p.cost}</b></span>
+  </div>${lock ? `<span class="lk">${LOCK_ICON}<span>${lock}</span></span>` : ''}</div>`;
+}
+function render() {
+  const list = scale === 2 ? players.slice(0, 8) : players;
+  document.body.classList.toggle('x2', scale === 2);
+  document.getElementById('wrap').innerHTML = V.map(([key, n, d], v) => `
+    <section class="${key}"><div class="vlab"><b><i class="disp">${key.startsWith('mix') ? '★' : key === 'req' ? '요청' : key.slice(1)}</i>${n}</b><span>${d}</span></div>
+    <div class="panel"><div class="shelf">${list.map((p, i) => card(p, i, key)).join('')}</div></div></section>`).join('');
+}
+document.querySelectorAll('.top [data-s]').forEach((b) => b.onclick = () => { scale = +b.dataset.s; document.querySelectorAll('.top [data-s]').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+render();
+</script>
+</body>
+</html>

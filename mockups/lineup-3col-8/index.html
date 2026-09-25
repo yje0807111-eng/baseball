@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>구장 왼쪽 · 시너지 · 라인업 명단 8안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1560px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1902 / 901; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1902px; height: 901px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)을 사용자 화면 크기(1902×901)로 띄워서, 내 라인업 판 안을
+   [구장(왼쪽 정렬 · 사진 왼쪽을 잘라냄)] [시너지] [라인업 명단] 으로 나눈다. 명단 줄을 누르면 필드에서 그 자리를 누른 것과 같다. */
+const SRC = '/?demo=draft';
+const WIDE = '/mockups/field-wide-16/wide.png';
+const REG = { s: 2.136, dx: 490, dy: -48 };            // 원본 사진이 와이드 사진 안에 들어간 배율 · 위치
+const IMG = { l: -201.6, t: 7.4, r: 1101.9, b: 560.4 }; // 와이드 사진이 필드 좌표(900×580)에서 차지하는 범위
+const TS = 0.8, HWU = 107 * TS;                          // 토큰 배율 · 필드 좌표에서 토큰 반폭
+const ORDER = ['SP', 'MR', 'CL', 'C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH'];
+const LABEL = { SP: '선발', MR: '중간계투', CL: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자' };
+const GROUPS = [['투수', ['SP', 'MR', 'CL']], ['내야', ['C', '1B', '2B', '3B', 'SS']], ['외야 · 지명', ['OF1', 'OF2', 'OF3', 'DH']]];
+
+const VARS = [
+  { id: 'P1', title: '한 판 3칸 · 줄 명단', desc: '판 안에서 구장을 왼쪽 끝에 붙이고(사진 왼쪽 관중석을 잘라냄) → 오른쪽으로 옅은 그늘 속 시너지 → 가는 구분선 뒤 명단(포지션 · 이름 · 시즌 · 종합). 사진은 시너지 뒤에서 어둠으로 녹아듦',
+    cfg: { mode: 'inside', list: 'rows', dock: 'thin', right: 'fade', ratio: .47, divider: true } },
+  { id: 'P2', title: '명단은 별도 판 · 얼굴 명단', desc: '명단을 PICK 처럼 오른쪽 끝의 별도 판(LINEUP)으로 떼어 내고, 라인업 판은 구장 + 시너지만 · 명단은 흉상 사진 + 이름 + 종합',
+    cfg: { mode: 'panel', panelW: 320, list: 'faces', dock: 'thin', right: 'fade' } },
+  { id: 'P3', title: '유리 카드 두 장 · 칩 명단', desc: '시너지와 명단을 흐리게 이어지는 경기장 사진 위에 뜬 유리 카드 두 장으로 · 명단은 2열 칩(얼굴 원 · 이름 · 종합)',
+    cfg: { mode: 'inside', list: 'chips', dock: 'glass', right: 'blur', ratio: .46, cards: true } },
+  { id: 'P4', title: '포지션 묶음 명단', desc: '명단을 투수 · 내야 · 외야·지명 세 묶음으로 나누고 묶음마다 평균 종합 · 시너지와 명단 사이는 초록 빛 구분선 · 오른쪽은 짙은 남색으로 정리',
+    cfg: { mode: 'inside', list: 'groups', dock: 'plain', right: 'navy', ratio: .45, divider: true, glowDivider: true } },
+  { id: 'P5', title: '표 명단 + 팀 평균', desc: '명단을 표(포지션 · 선수 · 시즌 · 종합)로, 아래에 팀 평균 · 투수 / 야수 평균 · 빈 자리 · 시너지 판은 옅은 그늘',
+    cfg: { mode: 'inside', list: 'table', dock: 'thin', right: 'fade', ratio: .45, divider: true } },
+  { id: 'P6', title: '별도 판 · 유리 시너지', desc: 'P2 처럼 명단은 별도 판, 시너지는 구장 오른쪽 경기장 사진 위 유리 카드 · 명단은 줄 명단(시즌 포함)',
+    cfg: { mode: 'panel', panelW: 320, list: 'rows', dock: 'glass', right: 'blur' } },
+  { id: 'P7', title: '별도 판 · 묶음 명단', desc: '명단은 별도 판에 포지션 묶음으로, 라인업 판은 구장 + 구분선만 있는 시너지 — 가장 정돈된 3열',
+    cfg: { mode: 'panel', panelW: 330, list: 'groups', dock: 'plain', right: 'navy', divider: true } },
+  { id: 'P8', title: 'HUD 3구역 라벨', desc: '한 판 안에서 시너지 · 명단 구역 위에 판 라벨과 같은 SYNERGY · LINEUP 라벨과 브래킷 · 명단은 얼굴 명단 — 한 판을 세 구역으로 나눈 느낌을 가장 분명하게',
+    cfg: { mode: 'inside', list: 'faces', dock: 'plain', right: 'navy', ratio: .46, divider: true, labels: true } },
+];
+
+const CSS = `
+.lf-field { transform: var(--mk-t) !important; }
+.lf-field > img:not(.mk-wide) { display: none !important; }
+.mk-wide { position: absolute; pointer-events: none; max-width: none !important; -webkit-mask-image: linear-gradient(90deg, #000 var(--fs, 90%), transparent var(--fe, 100%)); mask-image: linear-gradient(90deg, #000 var(--fs, 90%), transparent var(--fe, 100%)); }
+.syn-dock { left: var(--dl) !important; right: auto !important; width: var(--dw) !important; }
+.mk-thin .syn-dock { padding: 12px 16px 10px 22px !important; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)) !important; }
+.mk-glass .syn-dock, .mk-cards .mk-list.in { top: 12px !important; bottom: 12px !important; padding: 12px 14px 10px !important; background: rgba(6,10,19,.64) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); clip-path: polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); }
+.mk-plain .syn-dock { padding: 12px 16px 10px 18px !important; background: rgba(6,10,19,.55) !important; box-shadow: inset 1px 0 0 rgba(148,163,184,.18); }
+.mk-blurR { position: absolute; top: -30px; bottom: -30px; right: -30px; left: calc(var(--dl) - 80px); pointer-events: none; background: url(${WIDE}) 85% 50% / cover; filter: blur(18px) brightness(.42) saturate(1.1); }
+.mk-navyR { position: absolute; top: 0; bottom: 0; right: 0; left: calc(var(--dl) - 60px); pointer-events: none; background: linear-gradient(90deg, rgba(6,10,19,0), rgba(6,10,19,.9) 60px, #070c16 100%); }
+.mk-divider { position: absolute; z-index: 7; top: 14px; bottom: 14px; left: calc(var(--ll) - 1px); width: 1px; background: rgba(148,163,184,.22); pointer-events: none; }
+.mk-divider.glow { background: linear-gradient(180deg, transparent, #10b981 20%, #10b981 80%, transparent); box-shadow: 0 0 10px rgba(16,185,129,.7); }
+.mk-lab { position: absolute; z-index: 8; top: 6px; display: inline-flex; align-items: center; gap: 7px; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .32em; color: #10b981; pointer-events: none; }
+.mk-lab::before { content: ""; width: 12px; height: 9px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.mk-labels .syn-dock { padding-top: 26px !important; }
+.mk-labels .mk-list.in { padding-top: 28px; }
+.mk-bracket { position: absolute; z-index: 7; pointer-events: none; top: 4px; bottom: 4px; left: var(--bl); width: var(--bw); background: linear-gradient(#10b981, #10b981) 0 0 / 22px 1.5px no-repeat, linear-gradient(#10b981, #10b981) 0 0 / 1.5px 22px no-repeat, linear-gradient(#10b981, #10b981) 100% 100% / 22px 1.5px no-repeat, linear-gradient(#10b981, #10b981) 100% 100% / 1.5px 22px no-repeat; opacity: .7; }
+
+.mk-list { color: #e5e7eb; font-family: 'IBM Plex Sans KR', sans-serif; display: flex; flex-direction: column; min-height: 0; }
+.mk-list.in { position: absolute; z-index: 6; top: 0; bottom: 0; left: var(--ll); right: 0; padding: 12px 16px 12px 18px; }
+.mk-listpanel { display: flex; flex-direction: column; min-height: 0; }
+.mk-listpanel .mk-list { flex: 1; padding: 2px 4px 0; }
+.mkl-hd { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 8px; padding: 0 2px; }
+.mkl-hd b { font-size: 14px; font-weight: 700; color: #fff; }
+.mkl-hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 13px; color: #10b981; margin-left: 5px; }
+.mkl-hd span { font-size: 11.5px; color: #9ca3af; }
+.mkl-hd span em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 700; color: #fff; margin-left: 4px; }
+.mkl-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 3px; scrollbar-width: none; }
+.mkl-body::-webkit-scrollbar { display: none; }
+/* 줄은 판 높이에 맞춰 늘거나 줄어 12줄이 늘 딱 들어가게(스크롤 · 잘림 없음) */
+.mkl-body > .mkl-row { flex: 1 1 0; min-height: 22px; max-height: 46px; }
+.mkl-body > .mkl-grp, .mkl-body > .mkl-th { flex: none; }
+.mkl-row { display: grid; align-items: center; gap: 8px; padding: 1px 8px; cursor: pointer; background: rgba(255,255,255,.035); box-shadow: inset 2px 0 0 var(--n, #334155); transition: background .12s; }
+.mkl-row:hover { background: rgba(255,255,255,.08); }
+.mkl-row.on { background: rgba(56,189,248,.15); box-shadow: inset 2px 0 0 #38bdf8, inset 0 0 0 1px rgba(56,189,248,.5); }
+.mkl-row.e { box-shadow: inset 2px 0 0 #334155; }
+.mkl-row.e .nm { color: #6b7280; font-weight: 500; }
+.mkl-row .pc { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: var(--n, #94a3b8); }
+.mkl-row .tx { min-width: 0; line-height: 1.2; }
+.mkl-row .nm { display: block; font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mkl-row .ss { display: block; font-size: 10.5px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mkl-row .ov { font-family: 'Saira Condensed', sans-serif; font-size: 20px; font-weight: 700; text-align: right; color: var(--n, #fff); }
+.mkl-row .ov.up { color: #34d399; }
+.mkl-row .fc { width: 30px; height: 36px; background-color: #1b2537; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.mkl-row .fc.nof { background: linear-gradient(180deg, #2c3749, #222c3e); }
+.l-rows .mkl-row { grid-template-columns: 44px minmax(0,1fr) 30px; }
+.l-faces .mkl-row { grid-template-columns: 30px minmax(0,1fr) 30px; padding: 2px 8px 2px 6px; overflow: hidden; }
+.l-faces .mkl-row .fc { align-self: stretch; height: auto; min-height: 0; background-size: cover !important; background-position: 50% 12% !important; } /* 줄 높이에 맞춰 흉상 칸도 늘고 줄어듦 */
+.l-faces .mkl-row .nm .pc { margin-right: 5px; }
+.l-groups .mkl-grp { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 2px 2px; font-size: 11px; font-weight: 700; color: #6ee7b7; letter-spacing: .04em; }
+.l-groups .mkl-grp:first-child { margin-top: 0; }
+.l-groups .mkl-grp em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 14px; color: #cbd5e1; }
+.l-groups .mkl-row { grid-template-columns: 44px minmax(0,1fr) 30px; }
+.l-groups .mkl-row .ss { display: none; }
+.l-chips .mkl-body { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; align-content: start; }
+.l-chips .mkl-row { grid-template-columns: 28px minmax(0,1fr) auto; gap: 6px; padding: 5px 7px; box-shadow: inset 0 2px 0 var(--n, #334155); }
+.l-chips .mkl-row .fc { width: 28px; height: 28px; border-radius: 50%; -webkit-mask-image: none; mask-image: none; background-size: cover !important; box-shadow: 0 0 0 1.5px var(--n, #334155); }
+.l-chips .mkl-row .ov { font-size: 17px; }
+.l-chips .mkl-row .ss { display: none; }
+.l-chips .mkl-row .pc { display: block; font-size: 10.5px; }
+.l-table .mkl-th, .l-table .mkl-row { grid-template-columns: 52px minmax(0,1fr) 84px 30px; }
+.l-table .mkl-th { display: grid; gap: 8px; padding: 0 8px 4px; font-size: 10.5px; font-weight: 700; color: #6b7280; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 2px; }
+.l-table .mkl-row { background: transparent; box-shadow: none; border-bottom: 1px solid rgba(255,255,255,.05); }
+.l-table .mkl-row:nth-child(even) { background: rgba(255,255,255,.025); }
+.l-table .mkl-row .ss { display: none; }
+.l-table .mkl-row .sea { font-size: 11px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-table .mkl-row.on { background: rgba(56,189,248,.15); box-shadow: inset 0 0 0 1px rgba(56,189,248,.5); }
+.mkl-ft { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+.mkl-ft div { padding: 5px 6px; background: rgba(255,255,255,.04); text-align: center; }
+.mkl-ft small { display: block; font-size: 10px; color: #9ca3af; }
+.mkl-ft b { font-family: 'Saira Condensed', sans-serif; font-size: 17px; color: #fff; }
+`;
+
+const rowsOf = (doc) => [...doc.querySelectorAll('.lf-field .lf-tok')].map((t) => {
+  const ins = t.querySelectorAll('.lf-in'); const inner = ins[ins.length - 1];
+  const ovTxt = inner?.querySelector('.lf-ov')?.textContent || '';
+  return { slot: t.dataset.slot, empty: t.classList.contains('empty'), on: t.classList.contains('picked') || t.classList.contains('want'),
+    name: inner?.querySelector('.lf-bx b')?.textContent || '', season: inner?.querySelector('.lf-bx small')?.textContent || '',
+    ov: +(ovTxt.replace(/[^0-9]/g, '')) || 0, up: ovTxt.includes('▲'), n: t.classList.contains('empty') ? '' : t.style.getPropertyValue('--n'),
+    face: (inner?.querySelector('.lf-bp')?.getAttribute('style') || '').replace(/"/g, "'") };
+});
+const avg = (a) => (a.length ? (a.reduce((x, r) => x + r.ov, 0) / a.length).toFixed(1) : '-');
+const ovHtml = (r) => (r.empty ? '<b class="ov"></b>' : `<b class="ov ${r.up ? 'up' : ''}">${r.ov}</b>`);
+const rowAttr = (r) => `class="mkl-row ${r.empty ? 'e' : ''} ${r.on ? 'on' : ''}" data-slot="${r.slot}" style="--n:${r.n || '#334155'}"`;
+const LIST = {
+  rows: (R) => ORDER.map((k) => { const r = R.find((x) => x.slot === k); return `<div ${rowAttr(r)}><span class="pc">${LABEL[k]}</span><span class="tx"><span class="nm">${r.empty ? '빈 자리' : r.name}</span><span class="ss">${r.empty ? '' : r.season}</span></span>${ovHtml(r)}</div>`; }).join(''),
+  faces: (R) => ORDER.map((k) => { const r = R.find((x) => x.slot === k); return `<div ${rowAttr(r)}><span class="fc ${r.face ? '' : 'nof'}" style="${r.face}"></span><span class="tx"><span class="nm"><span class="pc">${k}</span>${r.empty ? '빈 자리' : r.name}</span><span class="ss">${r.empty ? LABEL[k] : `${LABEL[k]} · ${r.season}`}</span></span>${ovHtml(r)}</div>`; }).join(''),
+  chips: (R) => ORDER.map((k) => { const r = R.find((x) => x.slot === k); return `<div ${rowAttr(r)}><span class="fc ${r.face ? '' : 'nof'}" style="${r.face}"></span><span class="tx"><span class="pc">${LABEL[k]}</span><span class="nm">${r.empty ? '빈 자리' : r.name}</span></span>${ovHtml(r)}</div>`; }).join(''),
+  groups: (R) => GROUPS.map(([g, ks]) => { const rs = ks.map((k) => R.find((x) => x.slot === k)); return `<div class="mkl-grp">${g}<em>${avg(rs.filter((r) => !r.empty))}</em></div>` + rs.map((r) => `<div ${rowAttr(r)}><span class="pc">${LABEL[r.slot]}</span><span class="tx"><span class="nm">${r.empty ? '빈 자리' : r.name}</span></span>${ovHtml(r)}</div>`).join(''); }).join(''),
+  table: (R) => `<div class="mkl-th"><span>포지션</span><span>선수</span><span>시즌</span><span style="text-align:right">종합</span></div>` + ORDER.map((k) => { const r = R.find((x) => x.slot === k); return `<div ${rowAttr(r)}><span class="pc">${LABEL[k]}</span><span class="tx"><span class="nm">${r.empty ? '빈 자리' : r.name}</span></span><span class="sea">${r.empty ? '' : r.season}</span>${ovHtml(r)}</div>`; }).join(''),
+};
+function listHtml(c, R) {
+  const filled = R.filter((r) => !r.empty);
+  const head = `<div class="mkl-hd"><b>라인업<i>${filled.length}/12</i></b><span>팀 평균<em>${avg(filled)}</em></span></div>`;
+  let foot = '';
+  if (c.list === 'table') {
+    const pit = filled.filter((r) => ['SP', 'MR', 'CL'].includes(r.slot)), bat = filled.filter((r) => !['SP', 'MR', 'CL'].includes(r.slot));
+    foot = `<div class="mkl-ft"><div><small>팀</small><b>${avg(filled)}</b></div><div><small>투수</small><b>${avg(pit)}</b></div><div><small>야수</small><b>${avg(bat)}</b></div><div><small>빈 자리</small><b>${12 - filled.length}</b></div></div>`;
+  }
+  return `${head}<div class="mkl-body">${LIST[c.list](R)}</div>${foot}`;
+}
+
+function attach(ifr, v) {
+  const c = v.cfg;
+  let wideSize = null; { const im = new Image(); im.onload = () => { wideSize = { w: im.naturalWidth, h: im.naturalHeight }; }; im.src = WIDE; }
+  const tick = () => {
+    const doc = ifr.contentDocument; const field = doc?.querySelector('.lf-field');
+    if (!field || !wideSize) return;
+    const wrap = field.parentElement;
+    if (!doc.getElementById('mk-style')) { const st = doc.createElement('style'); st.id = 'mk-style'; st.textContent = CSS; doc.body.appendChild(st); }
+    // 명단을 별도 판으로: PICK · 라인업 판이 있는 줄에 세 번째 열을 더한다
+    let listBox;
+    if (c.mode === 'panel') {
+      const pickPanel = doc.querySelector('.pk-stage')?.closest('.bc-grp'); const grid = pickPanel?.parentElement;
+      if (!grid) return;
+      let p = grid.querySelector(':scope > .mk-listpanel');
+      if (!p) { p = doc.createElement('div'); p.className = `bc-grp mk-listpanel l-${c.list}`; p.innerHTML = '<span class="bc-label font-display">LINEUP</span><div class="mk-list"></div>'; grid.appendChild(p); }
+      grid.style.setProperty('grid-template-columns', `${Math.round(pickPanel.getBoundingClientRect().width)}px minmax(0,1fr) ${c.panelW}px`, 'important');
+      listBox = p.querySelector('.mk-list');
+    } else {
+      listBox = wrap.querySelector(':scope > .mk-list');
+      if (!listBox) { listBox = doc.createElement('div'); listBox.className = `mk-list in l-${c.list}`; wrap.appendChild(listBox); }
+    }
+    ['thin', 'glass', 'plain'].forEach((k) => wrap.classList.toggle(`mk-${k}`, c.dock === k));
+    wrap.classList.toggle('mk-cards', !!c.cards); wrap.classList.toggle('mk-labels', !!c.labels);
+    // 구장: 판 높이를 사진이 꽉 채우는 배율, 가장 왼쪽 토큰(지명타자)이 판 왼쪽 끝 가까이 오도록 왼쪽 정렬(사진 왼쪽 관중석은 판 밖으로 잘림)
+    const W = wrap.clientWidth, H = wrap.clientHeight;
+    const s = H / (IMG.b - IMG.t) * 1.003;
+    const ox = 14 - (140 - HWU) * s;
+    const oy = Math.min(Math.max((H - 580 * s) / 2, H - IMG.b * s), -IMG.t * s);
+    field.style.setProperty('--mk-t', `translate(${ox}px, ${oy}px) scale(${s})`);
+    const fieldR = ox + (760 + HWU) * s;
+    const dl = Math.round(fieldR + 16);
+    const rest = W - dl;
+    const dw = c.mode === 'panel' ? rest : Math.round(rest * c.ratio);
+    const ll = dl + dw;
+    wrap.style.setProperty('--dl', `${dl}px`); wrap.style.setProperty('--dw', `${c.cards ? dw - 12 : dw}px`); wrap.style.setProperty('--ll', `${c.cards ? ll + 2 : ll}px`);
+    if (c.cards) { listBox.style.right = '12px'; }
+    // 사진: 와이드 사진을 필드 좌표에 붙이고, 시너지 구역에 들어서면서 어둠으로 녹아들게
+    let img = field.querySelector('.mk-wide');
+    const fpw = 0.8789 / REG.s;
+    if (!img) {
+      img = doc.createElement('img'); img.className = 'mk-wide'; img.src = WIDE;
+      Object.assign(img.style, { left: `${-REG.dx * fpw}px`, top: `${(-REG.dy / REG.s) * 0.8789 - 12.4}px`, width: `${wideSize.w * fpw}px`, height: `${wideSize.h * fpw}px` });
+      field.insertBefore(img, field.firstChild);
+    }
+    const imgL = ox + IMG.l * s, imgWpx = (IMG.r - IMG.l) * s;
+    const fs = c.right === 'fade' ? (dl + 40 - imgL) / imgWpx : (dl - 40 - imgL) / imgWpx;
+    const fe = c.right === 'fade' ? (dl + dw * .8 - imgL) / imgWpx : (dl + 30 - imgL) / imgWpx;
+    img.style.setProperty('--fs', `${Math.min(fs, 1) * 100}%`); img.style.setProperty('--fe', `${Math.min(fe, 1) * 100}%`);
+    // 오른쪽 배경
+    if (c.right === 'blur' && !wrap.querySelector('.mk-blurR')) { const d = doc.createElement('div'); d.className = 'mk-blurR'; wrap.insertBefore(d, field); }
+    if (c.right === 'navy' && !wrap.querySelector('.mk-navyR')) { const d = doc.createElement('div'); d.className = 'mk-navyR'; wrap.insertBefore(d, field.nextSibling); }
+    if (c.divider && c.mode === 'inside' && !wrap.querySelector('.mk-divider')) { const d = doc.createElement('div'); d.className = `mk-divider ${c.glowDivider ? 'glow' : ''}`; wrap.appendChild(d); }
+    if (c.labels && !wrap.querySelector('.mk-lab')) {
+      wrap.insertAdjacentHTML('beforeend', '<span class="mk-lab" data-k="s">SYNERGY</span><span class="mk-lab" data-k="l">LINEUP</span><span class="mk-bracket" data-k="s"></span><span class="mk-bracket" data-k="l"></span>');
+    }
+    if (c.labels) {
+      wrap.querySelector('.mk-lab[data-k="s"]').style.left = `${dl + 18}px`; wrap.querySelector('.mk-lab[data-k="l"]').style.left = `${ll + 18}px`;
+      const bs = wrap.querySelector('.mk-bracket[data-k="s"]'); bs.style.setProperty('--bl', `${dl + 4}px`); bs.style.setProperty('--bw', `${dw - 8}px`);
+      const bl = wrap.querySelector('.mk-bracket[data-k="l"]'); bl.style.setProperty('--bl', `${ll + 4}px`); bl.style.setProperty('--bw', `${W - ll - 8}px`);
+    }
+    // 명단
+    const html = listHtml(c, rowsOf(doc));
+    if (listBox.dataset.h !== html) { listBox.dataset.h = html; listBox.innerHTML = html; }
+    if (!listBox.dataset.bound) {
+      listBox.dataset.bound = '1';
+      listBox.addEventListener('click', (e) => { const row = e.target.closest('[data-slot]'); if (row) doc.querySelector(`.lf-field .lf-tok[data-slot="${row.dataset.slot}"]`)?.dispatchEvent(new ifr.contentWindow.KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); });
+    }
+  };
+  tick(); setInterval(tick, 250);
+}
+
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>구장 왼쪽 · 시너지 · 라인업 명단 8안</b><span>실제 화면 크기(1902×901)로 띄운 드래프트 화면 · 명단 줄을 누르면 필드에서 그 자리를 누른 것과 같음 · “크게 보기”는 지금 창 크기로 다시 계산</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, VARS[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1902})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

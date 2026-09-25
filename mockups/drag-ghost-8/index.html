@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>끌기 카드 8안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1480px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)에서 유격수 이종범을 끌고 있는 모습을 흉내 낸다.
+   필드 위에서 마우스를 움직이면 끌기 카드가 커서에 딱 붙어 따라오고, 커서 아래 자리가 놓을 자리로 표시된다.
+   카드는 문서 맨 바깥(body)에 붙여 화면 기준으로 위치를 잡는다 — 지금 게임에서 카드가 오른쪽 아래로 밀리는 문제의 해결 방식과 같다. */
+const { ALL_PLAYERS, SLOTS, offPositionPenalty } = await import('/src/KboAugmentDraft.jsx');
+const SRC = '/?demo=draft';
+const FROM = 'SS';
+const ICON = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E\")";
+
+const COMMON = `
+.lf-drag { display: none !important; }
+.dg { position: fixed; z-index: 60; left: 0; top: 0; pointer-events: none; transform-origin: 0 0; font-family: 'IBM Plex Sans KR', sans-serif; }
+.dg .t { display: block; white-space: nowrap; }
+.dg .face { background-repeat: no-repeat; background-color: #1b2537; }
+.dg .ov { font-family: 'Saira Condensed', sans-serif; font-weight: 700; font-style: normal; line-height: 1; white-space: nowrap; }
+.dg .ov.up::before { content: "▲"; font-size: .45em; margin-right: 2px; vertical-align: .45em; }
+.dg .chip { font-family: 'Saira Condensed', sans-serif; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
+`;
+/* 9B 판을 지정 상태(팀 색 채움)로 옮겨 온 조각 — 여러 안이 같이 쓴다 */
+const TOKEN = `
+.dg .chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-size: 12px; color: #05080f; background: var(--n); }
+.dg .face { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background-color: transparent; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.dg .pn { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: linear-gradient(90deg, color-mix(in srgb, var(--n) 55%, #0b1220), color-mix(in srgb, var(--n) 22%, #0b1220)); box-shadow: inset 0 0 0 1px var(--n); }
+.dg .pn::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--n); box-shadow: 0 0 10px var(--n); }
+.dg .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.dg b { font-size: 15px; color: #fff; }
+.dg small { font-size: 11px; color: #fff; }
+.dg .ov { font-size: 29px; color: #fff; text-shadow: 0 0 12px var(--n); }
+`;
+const tokenHtml = (d) => `<span class="chip">${d.slot}</span><div class="face" style="${d.face}"></div><div class="pn"><span class="tx"><b class="t">${d.name}</b><small class="t">${d.season}</small></span><em class="ov ${d.up ? 'up' : ''}">${d.ov}</em></div>`;
+const toText = (g) => (!g ? '' : g.name ? `${g.label} ${g.name}와 맞바꿈` : `${g.label}로 이동`);
+const penText = (g) => (!g ? '' : g.pen ? `종합 −${g.pen}` : '감소 없음');
+
+const VARS = [
+  { id: 'G1', title: '토큰 그대로 들어 올림', desc: '지정 때와 같은 팀 색 판을 그대로 집어 든 모양 · 살짝 기울고(−3°) 10% 커지며 짙은 그림자 · 원래 자리는 흐린 회색으로 남음 · 커서는 흉상 가슴께', css: TOKEN + `
+.dg { width: 214px; height: 72px; --m: 1.1; transform: scale(calc(var(--k) * var(--m))) rotate(-3deg) translate(-30px, -44px); filter: drop-shadow(0 18px 20px rgba(0,0,0,.75)); }
+LIFT .lf-k { opacity: .28; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d) => tokenHtml(d) },
+
+  { id: 'G2', title: '원형 얼굴 캡슐', desc: '팀 색 링 원형 얼굴 + 팀 색 캡슐(이름 · 종합)만 작게 — 필드를 덜 가리고 놓을 자리가 잘 보임 · 커서는 얼굴 한가운데', css: `
+.dg { --m: 1.2; transform: scale(calc(var(--k) * var(--m))) translate(-28px, -28px); filter: drop-shadow(0 14px 16px rgba(0,0,0,.7)); }
+.dg .face { position: absolute; left: 0; top: 0; width: 56px; height: 56px; border-radius: 50%; background-size: cover !important; box-shadow: 0 0 0 2px var(--n), 0 0 18px var(--n); z-index: 2; }
+.dg .pill { position: absolute; left: 34px; top: 11px; height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 30px; border-radius: 99px; white-space: nowrap; background: linear-gradient(90deg, color-mix(in srgb, var(--n) 55%, #0b1220), color-mix(in srgb, var(--n) 22%, #0b1220)); box-shadow: inset 0 0 0 1px var(--n); }
+.dg b { font-size: 15px; color: #fff; }
+.dg .ov { font-size: 22px; color: #fff; text-shadow: 0 0 10px var(--n); }
+LIFT .lf-k { opacity: .3; }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d) => `<div class="face" style="${d.face}"></div><div class="pill"><b>${d.name}</b><em class="ov ${d.up ? 'up' : ''}">${d.ov}</em></div>` },
+
+  { id: 'G3', title: '세로 흉상 카드', desc: '작은 세로 카드(흉상 · 이름 · 시즌)로 바뀌어 손에 든 카드 느낌 · 윗줄 팀 색 · 포지션 칩과 종합은 위 모서리 · 커서는 카드 가운데', css: `
+.dg { --m: 1.15; transform: scale(calc(var(--k) * var(--m))) rotate(-4deg) translate(-40px, -54px); filter: drop-shadow(0 16px 18px rgba(0,0,0,.8)); }
+.dg .cd { position: absolute; left: 0; top: 0; width: 80px; height: 110px; background: linear-gradient(180deg, color-mix(in srgb, var(--n) 38%, #0d1422), #0a101c 72%); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: inset 0 2px 0 var(--n), inset 0 0 0 1px rgba(255,255,255,.14); }
+.dg .face { position: absolute; left: 8px; top: 8px; width: 64px; height: 62px; background-color: transparent; -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+.dg .chip { position: absolute; left: 5px; top: 6px; padding: 0 5px; font-size: 11px; color: #05080f; background: var(--n); }
+.dg .ov { position: absolute; right: 5px; top: 5px; font-size: 21px; color: #fff; text-shadow: 0 1px 3px #000, 0 0 10px var(--n); }
+.dg b { position: absolute; left: 0; right: 0; top: 71px; text-align: center; font-size: 14px; color: #fff; }
+.dg small { position: absolute; left: 0; right: 0; top: 90px; text-align: center; font-size: 10px; color: #cbd5e1; }
+LIFT .lf-k { opacity: .3; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d) => `<div class="cd"></div><div class="face" style="${d.face}"></div><span class="chip">${d.slot}</span><em class="ov ${d.up ? 'up' : ''}">${d.ov}</em><b class="t">${d.name}</b><small class="t">${d.season}</small>` },
+
+  { id: 'G4', title: 'HUD 조준 + 목적지 태그', desc: '반투명 판에 하늘색 브래킷이 붙어 “옮기는 중” · 아래 하늘색 태그에 “2루수로 이동 / 3루수 김동주와 맞바꿈” · 놓을 자리는 하늘색으로 차오름', css: TOKEN + `
+.dg { width: 214px; height: 72px; --m: 1.04; transform: scale(calc(var(--k) * var(--m))) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
+.dg .pn { background: rgba(15,23,42,.62); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.dg .pn::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.dg .ov { text-shadow: 0 0 10px rgba(56,189,248,.8); }
+.dg::after { content: ""; position: absolute; left: -7px; right: -7px; top: -5px; bottom: -3px; --b: #38bdf8;
+  background: linear-gradient(var(--b), var(--b)) 0 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 0 / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 2px 14px no-repeat,
+    linear-gradient(var(--b), var(--b)) 0 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 100% / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 2px 14px no-repeat; }
+.dg .to { position: absolute; left: 60px; top: 75px; padding: 1px 9px; font-size: 11.5px; font-weight: 700; color: #05080f; background: #38bdf8; white-space: nowrap; clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.dg .to:empty { display: none; }
+LIFT .lf-k { opacity: .3; }
+OVER .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.55); }`,
+    tpl: (d, g) => `${tokenHtml(d)}<span class="to">${g ? '→ ' + toText(g) : ''}</span>` },
+
+  { id: 'G5', title: '선수 카드 한 장', desc: '선반과 같은 카드 그림(2:3)이 한 장으로 집혀 올라옴 · 팀 색 테두리 · 위에 종합과 포지션, 아래 이름과 시즌 — “카드를 옮긴다”는 느낌이 가장 강함', css: `
+.dg { --m: 1.2; transform: scale(calc(var(--k) * var(--m))) rotate(-5deg) translate(-38px, -57px); filter: drop-shadow(0 18px 20px rgba(0,0,0,.8)); }
+.dg .cd { position: absolute; left: 0; top: 0; width: 76px; height: 114px; border-radius: 4px; overflow: hidden; background: #0a101c center 20% / cover no-repeat; box-shadow: inset 0 0 0 2px var(--n); }
+.dg .cd::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55), transparent 28%, transparent 48%, rgba(5,8,15,.96) 84%); box-shadow: inset 0 0 0 2px var(--n); }
+.dg .ov { position: absolute; left: 6px; top: 5px; z-index: 2; font-size: 23px; color: #fff; text-shadow: 0 2px 4px #000; }
+.dg .chip { position: absolute; right: 5px; top: 7px; z-index: 2; padding: 0 5px; font-size: 11px; color: #05080f; background: var(--n); }
+.dg b { position: absolute; left: 0; right: 0; bottom: 17px; z-index: 2; text-align: center; font-size: 13px; color: #fff; }
+.dg small { position: absolute; left: 0; right: 0; bottom: 5px; z-index: 2; text-align: center; font-size: 9.5px; color: #cbd5e1; }
+LIFT .lf-k { opacity: .3; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d) => `<div class="cd" style="background-image:url('cards/${encodeURIComponent(d.id)}.webp')"></div><em class="ov ${d.up ? 'up' : ''}">${d.ov}</em><span class="chip">${d.slot}</span><b class="t">${d.name}</b><small class="t">${d.season}</small>` },
+
+  { id: 'G6', title: '토큰 + 옮긴 결과 미리보기', desc: '팀 색 판 아래에 결과 한 줄 “2루수로 이동 · 종합 −3” (제자리 밖 감소는 노랑, 감소 없음은 초록) — 놓기 전에 손해를 바로 앎', css: TOKEN + `
+.dg { width: 214px; height: 72px; --m: 1.04; transform: scale(calc(var(--k) * var(--m))) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.75)); }
+.dg .res { position: absolute; left: 0; top: 74px; display: flex; align-items: center; gap: 6px; padding: 2px 9px; font-size: 11.5px; font-weight: 700; color: #e5e7eb; white-space: nowrap; background: rgba(5,8,15,.92); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); border-radius: 3px; }
+.dg .res:empty { display: none; }
+.dg .res i { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 13px; }
+.dg .res .bad { color: #fbbf24; }
+.dg .res .ok { color: #34d399; }
+LIFT .lf-k { opacity: .28; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d, g) => `${tokenHtml(d)}<span class="res">${g ? `${toText(g)} <i class="${g.pen ? 'bad' : 'ok'}">${penText(g)}</i>` : ''}</span>` },
+
+  { id: 'G7', title: '원형 흉상 커서', desc: '커서 자리에 팀 색 링 원형 흉상 하나 + 종합 배지 + 아래 이름표만 — 가장 작고 가벼움, 놓을 자리를 거의 가리지 않음', css: `
+.dg { width: 60px; --m: 1.25; transform: scale(calc(var(--k) * var(--m))) translate(-30px, -30px); filter: drop-shadow(0 12px 14px rgba(0,0,0,.7)); }
+.dg .face { position: absolute; left: 0; top: 0; width: 60px; height: 60px; border-radius: 50%; background-size: cover !important; box-shadow: 0 0 0 3px #05080f, 0 0 0 5px var(--n), 0 0 22px var(--n); }
+.dg .ov { position: absolute; left: 42px; top: -8px; min-width: 28px; height: 22px; padding: 0 5px; border-radius: 11px; display: grid; place-items: center; font-size: 16px; color: #05080f; background: var(--n); box-shadow: 0 0 0 2px #05080f; }
+.dg .ov.up::before { display: none; }
+.dg .tag { position: absolute; left: 30px; top: 68px; transform: translateX(-50%); padding: 1px 8px; font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 -2px 0 var(--n); }
+LIFT .lf-k { opacity: .35; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px var(--n), 0 0 18px color-mix(in srgb, var(--n) 60%, transparent); }
+OVER .lf-k { transform: translateY(-4px); transition: transform .15s; }`,
+    tpl: (d) => `<div class="face" style="${d.face}"></div><em class="ov">${d.ov}</em><span class="tag">${d.name}</span>` },
+
+  { id: 'G8', title: '스티커', desc: '흉상이 흰 테두리 + 팀 색 외곽의 둥근 스티커로 기울어 붙고, 아래 팀 색 테이프에 “SS 이종범 78” — 가볍고 경쾌한 안', css: `
+.dg { --m: 1.2; transform: scale(calc(var(--k) * var(--m))) translate(-32px, -36px); filter: drop-shadow(0 14px 16px rgba(0,0,0,.75)); }
+.dg .face { position: absolute; left: 0; top: 0; width: 64px; height: 72px; border-radius: 10px; background-size: cover !important; box-shadow: 0 0 0 3px #f8fafc, 0 0 0 5px var(--n); transform: rotate(-6deg); }
+.dg .tape { position: absolute; left: -10px; top: 62px; display: flex; align-items: center; gap: 6px; padding: 1px 9px; transform: rotate(3deg); white-space: nowrap; background: var(--n); box-shadow: 0 4px 10px rgba(0,0,0,.5); }
+.dg .tape .chip { font-size: 12px; color: #05080f; opacity: .7; }
+.dg .tape b { font-size: 13px; color: #05080f; }
+.dg .tape .ov { font-size: 16px; color: #05080f; }
+LIFT .lf-k { opacity: .3; filter: grayscale(1); }
+OVER .lf-bar { box-shadow: inset 0 0 0 2px #10b981, 0 0 18px rgba(16,185,129,.55); }`,
+    tpl: (d) => `<div class="face" style="${d.face}"></div><div class="tape"><span class="chip">${d.slot}</span><b>${d.name}</b><em class="ov">${d.ov}</em></div>` },
+];
+
+/* G4 변형: 아래 목적지 태그를 빼고, 판 위 포지션 칩이 “SS → 2B” 처럼 놓을 자리 칩으로 이어진다 (사람이 있으면 ⇄ 맞바꿈) */
+const G4BASE = TOKEN + `
+.dg { width: 214px; height: 72px; --m: 1.04; transform: scale(calc(var(--k) * var(--m))) translate(-30px, -44px); filter: drop-shadow(0 14px 18px rgba(0,0,0,.7)); }
+.dg .pn { background: rgba(15,23,42,.62); box-shadow: inset 0 0 0 1px rgba(56,189,248,.7); }
+.dg .pn::after { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.dg .ov { text-shadow: 0 0 10px rgba(56,189,248,.8); }
+.dg::after { content: ""; position: absolute; left: -7px; right: -7px; top: -5px; bottom: -3px; --b: #38bdf8;
+  background: linear-gradient(var(--b), var(--b)) 0 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 0 / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 0 / 2px 14px no-repeat,
+    linear-gradient(var(--b), var(--b)) 0 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 0 100% / 2px 14px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 14px 2px no-repeat, linear-gradient(var(--b), var(--b)) 100% 100% / 2px 14px no-repeat; }
+.dg .route { position: absolute; left: 58px; top: 0; z-index: 3; display: flex; align-items: center; gap: 4px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; white-space: nowrap; }
+.dg .route .a, .dg .route .b { padding: 0 7px; }
+LIFT .lf-k { opacity: .3; }
+OVER .lf-bar { background: linear-gradient(90deg, rgba(56,189,248,.38), rgba(56,189,248,.12)); box-shadow: inset 0 0 0 2px #38bdf8, 0 0 18px rgba(56,189,248,.55); }`;
+const g4Body = (d) => `<div class="face" style="${d.face}"></div><div class="pn"><span class="tx"><b class="t">${d.name}</b><small class="t">${d.season}</small></span><em class="ov ${d.up ? 'up' : ''}">${d.ov}</em></div>`;
+VARS.splice(VARS.findIndex((v) => v.id === 'G4') + 1, 0,
+  { id: 'G4A', title: 'G4 · 칩 → 칩', desc: '아래 태그 없음 · 판 위 팀 색 “SS” 칩 옆에 하늘색 화살표와 놓을 자리 칩 “2B”가 붙음(칩은 옆에서 미끄러져 나타남) · 사람이 있는 자리면 ⇄', css: G4BASE + `
+.dg .route .a { color: #05080f; background: var(--n); }
+.dg .route .arr { font-family: 'IBM Plex Sans KR', sans-serif; font-size: 13px; font-weight: 700; color: #38bdf8; text-shadow: 0 0 6px #38bdf8; }
+.dg .route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,.6); animation: g4a .18s ease-out both; }
+@keyframes g4a { from { transform: translateX(-8px); opacity: 0; } }`,
+    tpl: (d, g) => `<span class="route"><span class="a">${d.slot}</span>${g ? `<span class="arr">${g.name ? '⇄' : '→'}</span><span class="b">${g.slot}</span>` : ''}</span>${g4Body(d)}` },
+  { id: 'G4B', title: 'G4 · 떠나는 칩 ››› 새 칩', desc: '끄는 동안 원래 “SS” 칩은 테두리만 남아 떠나는 느낌 · 하늘색 셰브론 세 개가 차례로 흘러가고 · 놓을 자리 칩이 톡 튀어나옴 · 맞바꿈이면 셰브론이 양쪽으로', css: G4BASE + `
+.dg .route .a { color: var(--n); background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 60%, transparent); }
+.dg .route .fl { display: inline-flex; gap: 1px; }
+.dg .route .fl i { width: 6px; height: 10px; background: #38bdf8; opacity: .2; animation: g4f .9s linear infinite; }
+.dg .route .fl.go i { clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%); }
+.dg .route .fl.sw i:first-child { clip-path: polygon(100% 0, 55% 0, 0 50%, 55% 100%, 100% 100%, 45% 50%); }
+.dg .route .fl.sw i:last-child { clip-path: polygon(0 0, 45% 0, 100% 50%, 45% 100%, 0 100%, 55% 50%); }
+.dg .route .fl i:nth-child(2) { animation-delay: .15s; }
+.dg .route .fl i:nth-child(3) { animation-delay: .3s; }
+@keyframes g4f { 25% { opacity: 1; filter: drop-shadow(0 0 3px #38bdf8); } 55% { opacity: .2; } }
+.dg .route .b { color: #05080f; background: #38bdf8; box-shadow: 0 0 12px rgba(56,189,248,.65); animation: g4b .24s cubic-bezier(.3,1.6,.55,1) both; }
+@keyframes g4b { from { transform: scale(.5); opacity: 0; } }`,
+    tpl: (d, g) => `<span class="route">${g
+      ? `<span class="a">${d.slot}</span><span class="fl ${g.name ? 'sw' : 'go'}">${g.name ? '<i></i><i></i>' : '<i></i><i></i><i></i>'}</span><span class="b">${g.slot}</span>`
+      : `<span class="a" style="color:#05080f;background:var(--n);box-shadow:none">${d.slot}</span>`}</span>${g4Body(d)}` },
+);
+
+const LIFT = ':is(.lf-tok.lifted, .lf-tok.mk-lift)';
+const OVER = ':is(.lf-tok.over, .lf-tok.mk-over)';
+
+function attach(ifr, v) {
+  const boot = () => {
+    const doc = ifr.contentDocument;
+    const src = doc?.querySelector(`.lf-tok[data-slot="${FROM}"]:not(.empty)`);
+    if (!src || !src.querySelector('.lf-bp')?.getAttribute('style')) { setTimeout(boot, 300); return; }
+    const css = (COMMON + v.css).replaceAll('LIFT', LIFT).replaceAll('OVER', OVER);
+    const k0 = src.querySelectorAll('.lf-in'); const inner = k0[k0.length - 1];
+    const face = inner.querySelector('.lf-bp').getAttribute('style').replace(/"/g, "'");
+    const id = decodeURIComponent((face.match(/profiles\/([^']+)\.webp/) || [])[1] || '');
+    const player = ALL_PLAYERS.find((p) => p.id === id);
+    const ovTxt = inner.querySelector('.lf-ov')?.textContent || '';
+    const d = { id, slot: FROM, name: inner.querySelector('.lf-bx b').textContent, season: inner.querySelector('.lf-bx small').textContent, ov: ovTxt.replace('▲', '').trim(), up: ovTxt.includes('▲'), face };
+    const n = src.style.getPropertyValue('--n');
+    const dg = doc.createElement('div'); dg.className = 'dg'; dg.style.setProperty('--n', n); doc.body.appendChild(dg);
+    let pos = null; let lastKey = null;
+    const targetAt = (x, y) => {
+      const t = doc.elementFromPoint(x, y)?.closest('.lf-field [data-slot]');
+      if (!t || t.dataset.slot === FROM) return null;
+      const slot = SLOTS.find((s) => s.id === t.dataset.slot);
+      const ins = t.querySelectorAll('.lf-in'); const tin = ins[ins.length - 1];
+      return { slot: slot.id, label: slot.label, name: t.classList.contains('empty') ? '' : tin.querySelector('.lf-bx b').textContent, pen: player ? offPositionPenalty(player, slot.pos) : 0, el: t };
+    };
+    const place = () => {
+      if (!doc.getElementById('dg-style')) { const st = doc.createElement('style'); st.id = 'dg-style'; st.textContent = css; doc.body.appendChild(st); }
+      const field = doc.querySelector('.lf-field');
+      const k = field.getBoundingClientRect().width / 900;
+      dg.style.setProperty('--k', k);
+      if (!pos) { // 처음: 2루수 빈 자리 위를 끄는 중
+        const r = doc.querySelector('.lf-tok[data-slot="2B"]').getBoundingClientRect();
+        pos = { x: r.left + r.width * .3, y: r.top + r.height * .5 };
+      }
+      doc.querySelector(`.lf-tok[data-slot="${FROM}"]`)?.classList.add('mk-lift');
+      dg.style.left = `${pos.x}px`; dg.style.top = `${pos.y}px`;
+      const g = targetAt(pos.x, pos.y);
+      doc.querySelectorAll('.mk-over').forEach((e) => { if (e !== g?.el) e.classList.remove('mk-over'); });
+      g?.el.classList.add('mk-over');
+      const key = g ? `${g.slot}|${g.name}` : '';
+      if (key !== lastKey) { lastKey = key; dg.innerHTML = v.tpl(d, g); }
+    };
+    doc.addEventListener('mousemove', (e) => { pos = { x: e.clientX, y: e.clientY }; place(); });
+    place(); setInterval(place, 250);
+  };
+  boot();
+}
+
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title} · 필드 위에서 마우스를 움직여 보세요</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>끌기 카드 8안</b><span>유격수 이종범을 끌고 있는 모습 · 화면 위에서 마우스를 움직이면 카드가 커서에 붙어 따라오고 커서 아래 자리가 놓을 자리로 표시 · “크게 보기”는 실제 크기</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, VARS[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

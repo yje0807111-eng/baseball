@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>드래프트 17장 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  :root { --neon: #10b981; --bg: #05080f; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #05080f; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; overflow: hidden; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .app { height: 100dvh; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(5,8,15,.55), rgba(5,8,15,.92)), url(/ui/stadium.webp) center/cover; }
+
+  /* 헤더 (실제 CapDashboard 축약) */
+  header { flex: none; display: flex; align-items: center; gap: 32px; padding: 8px 16px; border-bottom: 1px solid rgba(16,185,129,.25); background: linear-gradient(180deg, rgba(5,8,15,.94), rgba(5,8,15,.74)); }
+  header .brand small { display: block; font-size: 10px; letter-spacing: .38em; color: #6b7280; font-weight: 600; }
+  header .brand b { font-size: 20px; font-weight: 900; color: #fff; }
+  header .round { display: flex; align-items: baseline; gap: 8px; }
+  header .round span { font-size: 12px; letter-spacing: .28em; color: #6b7280; font-weight: 600; }
+  header .round b { font-size: 2.6rem; line-height: 1; color: #fff; }
+  header .round i { font-style: normal; font-size: 18px; color: #6b7280; }
+  header .cap { flex: 1; }
+  header .cap .row { display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af; margin-bottom: 4px; }
+  header .cap .row b { font-size: 24px; color: #10b981; }
+  header .seg { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; }
+  header .seg i { height: 8px; background: #10b981; transform: skewX(-20deg); }
+  header .seg i.off { background: #1f2937; }
+  header .rules { padding: 6px 12px; font-size: 13px; font-weight: 600; box-shadow: inset 0 0 0 1px #4b5563; }
+
+  main { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; }
+
+  /* 중계 그래픽 묶음 */
+  .bc-grp { position: relative; border-top: 3px solid var(--a, #10b981); background: rgba(11,17,27,.92); padding: 26px 10px 10px; }
+  .bc-label { position: absolute; left: 0; top: -3px; padding: 3px 14px 3px 10px; background: var(--a, #10b981); color: #04150e; font-size: 11px; font-weight: 700; letter-spacing: .2em; clip-path: polygon(0 0,100% 0,88% 100%,0 100%); }
+
+  /* 선반 */
+  .shelf { display: grid; gap: var(--gap, 6px); grid-template-columns: repeat(var(--n), var(--card-w)); }
+  /* 17장 · 촘촘: 카드 사이 간격과 판·화면 좌우 여백을 줄여 그 폭까지 카드에 준다 */
+  .tight main { padding-left: 10px; padding-right: 10px; }
+  .tight .series { padding-left: 6px; padding-right: 6px; }
+  /* 촘촘: 열 폭을 판 안쪽 폭에 맞춰 나누고(상한은 --card-w) 가운데 정렬 — 좌우 여백이 늘 같다 */
+  .tight .shelf { grid-template-columns: repeat(var(--n), minmax(0, var(--card-w))); justify-content: center; }
+  .card { position: relative; aspect-ratio: 2/3; width: 100%; background: #05080f; container-type: inline-size; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); }
+  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 18%; }
+  .card .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 30%, rgba(5,8,15,0) 52%, rgba(5,8,15,.85) 80%, #05080f 100%); }
+  .card .frame { position: absolute; inset: 2.5cqw; border: 1px solid color-mix(in srgb, var(--acc) 40%, transparent); }
+  .card .ov { position: absolute; left: 8cqw; top: 6cqw; font-size: 26cqw; font-weight: 700; line-height: .85; color: var(--acc); text-shadow: 0 1px 3px #000; }
+  .card .pos { position: absolute; left: 8cqw; top: 31cqw; font-size: 8.5cqw; font-weight: 700; letter-spacing: .1em; color: #fff; text-shadow: 0 1px 3px #000; }
+  .card .nm { position: absolute; left: 8cqw; right: 8cqw; bottom: 19cqw; font-size: 14cqw; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px #000; line-height: 1; }
+  .card .ft { position: absolute; left: 8cqw; right: 8cqw; bottom: 6.5cqw; display: flex; justify-content: space-between; align-items: center; }
+  .card .ft span { font-size: 8cqw; font-weight: 700; color: rgba(255,255,255,.8); }
+  .card .ft b { font-size: 10cqw; line-height: 1; padding: 1.2cqw 3.4cqw; background: var(--acc); color: #05080f; }
+
+  /* 시리즈 머리 공통 오른쪽 */
+  .hd { display: flex; align-items: center; gap: 10px; padding: 0 4px; margin-bottom: 10px; min-height: 30px; }
+  .hd .right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
+  .chip { font-size: 12px; font-weight: 600; color: #cbd5e1; padding: 3px 9px; box-shadow: inset 0 0 0 1px rgba(16,185,129,.45); }
+  .cnt { font-size: 12px; color: #9ca3af; }
+  .btn { font-size: 12px; font-weight: 600; padding: 4px 10px; color: #e5e7eb; box-shadow: inset 0 0 0 1px #4b5563; }
+
+  /* 현재(기준) */
+  .t0 .kind { padding: 1px 8px; font-size: 11px; font-weight: 700; color: #05080f; background: var(--a); }
+  .t0 .yr { font-size: 18px; font-weight: 700; color: var(--a); }
+  .t0 h2 { margin: 0; font-size: 16px; font-weight: 900; color: #fff; }
+  .t0 .sub { font-size: 12px; color: #9ca3af; }
+
+  /* A · 큰 헤드라인: 연도 네온 + 굵은 팀명 + 부제 한 줄 */
+  .tA { margin-top: -4px; }
+  .tA .yr { font-size: 40px; font-weight: 800; line-height: .8; color: var(--a); text-shadow: 0 0 18px color-mix(in srgb, var(--a) 55%, transparent); }
+  .tA .stack { display: flex; flex-direction: column; gap: 3px; }
+  .tA .kind { font-size: 10px; font-weight: 700; letter-spacing: .24em; color: var(--a); }
+  .tA h2 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1; color: #fff; letter-spacing: -.01em; }
+  .tA .sub { align-self: flex-end; margin-bottom: 2px; font-size: 13px; color: #cbd5e1; padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--a) 60%, transparent); }
+
+  /* B · 중계 자막 띠: 네온 사선 띠 위에 팀명 */
+  .tB .band { display: flex; align-items: stretch; height: 36px; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--a) 35%, transparent)); }
+  .tB .yr { display: grid; place-items: center; padding: 0 14px 0 12px; font-size: 26px; font-weight: 800; color: #05080f; background: var(--a); clip-path: polygon(0 0,100% 0,88% 100%,0 100%); }
+  .tB .ttl { display: flex; align-items: center; gap: 10px; margin-left: -6px; padding: 0 22px 0 18px; background: linear-gradient(90deg, #0f1a2b, #16243a); clip-path: polygon(6% 0,100% 0,94% 100%,0 100%); box-shadow: inset 0 -2px 0 var(--a); }
+  .tB h2 { margin: 0; font-size: 22px; font-weight: 900; color: #fff; }
+  .tB .kind { font-size: 11px; font-weight: 700; color: var(--a); letter-spacing: .1em; }
+  .tB .sub { margin-left: 8px; font-size: 13px; color: #cbd5e1; }
+
+  /* C · 스코어보드: 연도 박스 + 큰 팀명 + 부제 아랫줄 */
+  .tC .yrbox { display: grid; place-items: center; min-width: 74px; height: 46px; box-shadow: inset 0 0 0 2px var(--a), 0 0 16px color-mix(in srgb, var(--a) 40%, transparent); background: color-mix(in srgb, var(--a) 12%, transparent); }
+  .tC .yrbox b { font-size: 30px; font-weight: 800; line-height: 1; color: #fff; }
+  .tC .stack { display: flex; flex-direction: column; gap: 4px; }
+  .tC h2 { margin: 0; font-size: 24px; font-weight: 900; line-height: 1; color: #fff; }
+  .tC .meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9ca3af; }
+  .tC .kind { padding: 1px 7px; font-size: 10px; font-weight: 700; color: #05080f; background: var(--a); }
+
+  /* D · 워터마크: 뒤에 큰 연도를 은은하게, 앞에 팀명 + 네온 밑줄 */
+  /* 워터마크는 흐름 안에 두고 오른쪽을 음수 여백으로 겹친다 — 연도가 없거나(레전드) 글자 수가 달라도 제목이 알맞게 따라붙는다 */
+  .tD .wm { flex: none; margin: -16px -30px -16px -2px; font-size: 64px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; }
+  .tD .ttl { position: relative; min-width: 0; display: flex; align-items: baseline; gap: 12px; }
+  .tD h2 { flex: none; margin: 0; font-size: 26px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; padding-bottom: 5px; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
+  .tD .kind { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
+  .tD .sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: #cbd5e1; }
+  /* 제목 D · 전체 시리즈 확인 화면 */
+  #gallery { position: fixed; inset: 0; z-index: 40; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 14px 10px 110px; background: #05080f; }
+  #gallery[hidden] { display: none; }
+  #gallery .gt { margin: 0; font-size: 12px; color: #9ca3af; }
+  #gallery .series { padding-left: 6px; padding-right: 6px; }
+
+  /* 하단: PICK + MY LINEUP */
+  .bottom { flex: 1; min-height: 0; display: grid; gap: 12px; grid-template-columns: clamp(15rem, 19vw, 21rem) minmax(0, 1fr); }
+  .pick .ph { position: absolute; inset: 26px 10px 10px; display: grid; place-items: center; border: 1px dashed #374151; color: #6b7280; font-size: 13px; text-align: center; padding: 16px; line-height: 1.6; }
+  .lineup { padding: 0; overflow: hidden; }
+  .lineup .field { position: absolute; inset: 0; background: radial-gradient(90% 80% at 40% 62%, transparent 30%, rgba(5,8,15,.85) 100%), url(/ui/field.webp) center/cover; opacity: .95; }
+  .lineup .dock { position: absolute; top: 0; right: 0; bottom: 0; width: 320px; padding: 14px 16px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); font-size: 13px; }
+  .lineup .dock p { margin: 0 0 10px; font-weight: 700; color: #fff; }
+  .lineup .dock div { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.07); color: #d1d5db; }
+  .lineup .sz { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: #9ca3af; background: rgba(5,8,15,.7); padding: 3px 8px; }
+
+  /* 목업 전환 도구 */
+  .tools { position: fixed; right: 14px; bottom: 14px; z-index: 50; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: rgba(5,8,15,.94); box-shadow: 0 0 0 1px #374151, 0 10px 30px rgba(0,0,0,.6); font-size: 12px; }
+  .tools .g { display: flex; align-items: center; gap: 4px; }
+  .tools .g > span { width: 44px; color: #9ca3af; }
+  .tools button { font: inherit; font-weight: 700; color: #d1d5db; background: #111827; border: 0; padding: 5px 9px; cursor: pointer; box-shadow: inset 0 0 0 1px #374151; }
+  .tools button.on { color: #04150e; background: #10b981; box-shadow: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><small class="disp">LEGEND DRAFT</small><b>레전드 드래프트</b></div>
+    <div class="round disp"><span>ROUND</span><b>04</b><i>/ 12</i></div>
+    <div class="cap"><div class="row"><span>샐러리 캡 잔여</span><span class="disp"><b>542</b> / 800 CP</span></div><div class="seg" id="seg"></div></div>
+    <div class="rules">? 드래프트 규칙</div>
+  </header>
+  <main>
+    <section class="bc-grp series" style="--a:#10b981">
+      <span class="bc-label disp">SERIES</span>
+      <div class="hd" id="hd"></div>
+      <div class="shelf" id="shelf"></div>
+    </section>
+    <div class="bottom">
+      <section class="bc-grp pick"><span class="bc-label disp">PICK</span><div class="ph">위 카드를 누르면 여기서 자세히 보고 영입합니다.<br />내 라인업 선수를 누르면 그 선수의 스탯을 봅니다.</div></section>
+      <section class="bc-grp lineup"><span class="bc-label disp" style="z-index:2">MY LINEUP</span><div class="field"></div>
+        <div class="dock"><p>시너지 <span class="disp" style="color:#9ca3af">1 On</span></p><div>SK 왕조 마운드</div><div>2016 두산 마운드</div><div>프리미어12 초대 우승</div><div>베이징 9전 전승</div></div>
+        <span class="sz" id="sz"></span>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="tools">
+  <div class="g"><span>카드</span><button data-n="18">18장 (현재)</button><button data-n="17">17장</button><button data-n="17t">17장 · 촘촘</button></div>
+  <div class="g"><span>제목</span><button data-t="0">현재</button><button data-t="A">A</button><button data-t="B">B</button><button data-t="C">C</button><button data-t="D">D</button></div>
+  <div class="g"><span></span><button id="gal">D · 전체 시리즈 제목 보기</button></div>
+</div>
+<div id="gallery" hidden></div>
+
+<script>
+const SERIES = { kind: 'team', kindLabel: '구단 시즌', year: 2016, title: '두산 베어스', subtitle: '통합우승 93승', a: '#10b981' };
+const ACC = '#5b8def';
+const state = { n: 17, tight: true, t: 'D' };
+document.getElementById('seg').innerHTML = Array.from({ length: 24 }, (_, i) => `<i class="${i < 16 ? '' : 'off'}"></i>`).join('');
+
+const ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
+let players = [];
+fetch('/src/data/series/2016-doosan.json').then((r) => r.json()).then((d) => {
+  players = d.players.map((p) => {
+    const v = Object.values(p.stats);
+    const ov = Math.round(v.reduce((a, b) => a + b, 0) / v.length);
+    return { ...p, ov, cost: Math.max(40, Math.round(ov * 1.05 - 8)) };
+  }).sort((a, b) => ORDER.indexOf(a.position) - ORDER.indexOf(b.position) || b.ov - a.ov);
+  render();
+});
+
+function head(t, s = SERIES) {
+  const right = `<div class="right"><span class="chip">가을의 왕조</span><span class="cnt disp">영입 가능 ${state.n} / ${state.n}명</span><span class="btn">다른 시리즈 ×3</span></div>`;
+  if (t === '0') return `<div class="hd t0"><span class="kind">${s.kindLabel}</span><span class="yr disp">${s.year}</span><h2>${s.title}</h2><span class="sub">${s.subtitle}</span>${right}</div>`;
+  if (t === 'A') return `<div class="hd tA"><span class="yr disp">${s.year}</span><div class="stack"><span class="kind">${s.kindLabel}</span><h2>${s.title}</h2></div><span class="sub">${s.subtitle}</span>${right}</div>`;
+  if (t === 'B') return `<div class="hd tB"><div class="band"><span class="yr disp">${s.year}</span><div class="ttl"><h2>${s.title}</h2><span class="kind">${s.kindLabel}</span></div></div><span class="sub">${s.subtitle}</span>${right}</div>`;
+  if (t === 'C') return `<div class="hd tC"><div class="yrbox"><b class="disp">${s.year}</b></div><div class="stack"><h2>${s.title}</h2><div class="meta"><span class="kind">${s.kindLabel}</span>${s.subtitle}</div></div>${right}</div>`;
+  return `<div class="hd tD"><span class="wm disp">${s.year ?? 'LEGEND'}</span><div class="ttl"><span class="kind">${s.kindLabel}</span><h2>${s.title}</h2><span class="sub">${s.subtitle}</span></div>${right}</div>`;
+}
+
+function render() {
+  const { n, t } = state;
+  // 실제 앱 공식: 18장 = min(clamp(4.2rem, 10.5vh, 6.4rem), (100vw-190px)/18)
+  // 17장 안: 한 장이 빠진 폭만큼 커지도록 높이 기준 상한을 올린다 (12.5vh, 7.6rem)
+  const tight = n === 17 && state.tight;
+  const w = n === 18 ? `min(clamp(4.2rem, 10.5vh, 6.4rem), calc((100vw - 190px) / 18))`
+    : tight ? `clamp(4.2rem, 13vh, 8rem)` // 간격 3px · 좌우 여백 축소, 폭은 그리드가 판 안쪽에 맞춰 나눈다
+      : `min(clamp(4.2rem, 12.5vh, 7.6rem), calc((100vw - 184px) / 17))`;
+  document.documentElement.style.setProperty('--card-w', w);
+  document.documentElement.style.setProperty('--gap', tight ? '3px' : '6px');
+  document.body.classList.toggle('tight', tight);
+  document.documentElement.style.setProperty('--n', n);
+  document.getElementById('hd').outerHTML = head(t).replace('class="hd', 'id="hd" class="hd');
+  document.getElementById('shelf').innerHTML = players.slice(0, n).map((p) => `
+    <div class="card" style="--acc:${ACC}">
+      <img src="/cards/${encodeURIComponent(p.personId ? `2016-doosan_${p.name}` : p.id)}.webp" alt="" />
+      <span class="shade"></span><span class="frame"></span>
+      <span class="ov disp">${p.ov}</span><span class="pos disp">${p.position}</span>
+      <span class="nm">${p.name}</span>
+      <span class="ft"><span class="disp">${p.isForeign ? '외인' : p.hand === 'L' ? '좌' : '우'}</span><b class="disp">${p.cost}</b></span>
+    </div>`).join('');
+  document.querySelectorAll('.tools [data-n]').forEach((b) => b.classList.toggle('on', b.dataset.n === (n === 18 ? '18' : tight ? '17t' : '17')));
+  document.querySelectorAll('.tools [data-t]').forEach((b) => b.classList.toggle('on', b.dataset.t === t));
+  requestAnimationFrame(() => {
+    const c = document.querySelector('.card');
+    const lu = document.querySelector('.lineup');
+    if (c) document.getElementById('sz').textContent = `카드 ${Math.round(c.getBoundingClientRect().width)}×${Math.round(c.getBoundingClientRect().height)}px · 라인업 높이 ${Math.round(lu.getBoundingClientRect().height)}px`;
+  });
+}
+document.querySelectorAll('.tools [data-n]').forEach((b) => b.onclick = () => { state.n = b.dataset.n === '18' ? 18 : 17; state.tight = b.dataset.n === '17t'; render(); });
+document.querySelectorAll('.tools [data-t]').forEach((b) => b.onclick = () => { state.t = b.dataset.t; render(); });
+addEventListener('resize', () => players.length && render());
+
+/* 제목 D 를 모든 시리즈(구단 · 국가대표 · 레전드)에 넣어 보기 */
+const KIND = { team: ['구단 시즌', '#10b981'], national: ['국가대표', '#60a5fa'], legend: ['레전드', '#fbbf24'] };
+const IDS = ['1993-haitai', '2006-hanwha', '2006-wbc', '2008-beijing', '2008-sk', '2009-kia', '2009-wbc', '2010-lotte', '2014-nexen', '2014-samsung', '2015-premier12', '2016-doosan', '2020-nc', '2023-lg', '2024-kia'];
+let galleryData = null;
+document.getElementById('gal').onclick = async () => {
+  const el = document.getElementById('gallery');
+  const btn = document.getElementById('gal');
+  if (!el.hidden) { el.hidden = true; btn.classList.remove('on'); return; }
+  if (!galleryData) {
+    const list = await Promise.all(IDS.map((id) => fetch(`/src/data/series/${id}.json`).then((r) => r.json())));
+    galleryData = [{ kind: 'legend', year: null, title: 'KBO 올타임 레전드', subtitle: '시대를 대표한 레전드 시즌' }, ...list];
+  }
+  el.innerHTML = `<p class="gt">제목 D · 시리즈 ${galleryData.length}개 — 실제 선반과 같은 폭</p>` + galleryData.map((d) => {
+    const [kindLabel, a] = KIND[d.kind] || KIND.team;
+    return `<section class="bc-grp series" style="--a:${a}"><span class="bc-label disp">SERIES</span>${head('D', { ...d, kindLabel })}</section>`;
+  }).join('');
+  el.hidden = false;
+  btn.classList.add('on');
+};
+</script>
+</body>
+</html>

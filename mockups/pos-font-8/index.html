@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>포지션 글씨체 8안 · 시너지 배지</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&family=Barlow+Condensed:wght@500;600&family=Roboto+Condensed:wght@500;600&family=Oswald:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=Rajdhani:wght@600;700&family=Archivo+Narrow:wght@500;600&family=Sofia+Sans+Condensed:wght@500;600&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; white-space: nowrap; }
+  .top .g { margin-left: auto; display: flex; gap: 4px; flex: none; }
+  .top .g button { padding: 5px 11px; font-weight: 700; white-space: nowrap; color: #d1d5db; box-shadow: inset 0 0 0 1px #374151; }
+  .top .g button.on { color: #04150e; background: #10b981; box-shadow: none; }
+  .wrap { display: flex; flex-direction: column; gap: 20px; padding: 16px 12px 60px; }
+  h3 { margin: 10px 4px 0; font-size: 17px; color: #fff; }
+  .vlab { display: flex; align-items: baseline; gap: 12px; margin: 0 4px 7px; }
+  .vlab b { font-size: 15px; color: #fff; white-space: nowrap; }
+  .vlab b i { font-style: normal; color: #10b981; margin-right: 6px; }
+  .vlab span { font-size: 12px; color: #9ca3af; }
+  .vlab .mn { margin-left: auto; flex: none; font-style: normal; font-size: 12px; font-weight: 700; color: #6ee7b7; }
+  .panel { padding: 10px 6px; background: linear-gradient(180deg, rgba(6,10,19,.8), rgba(6,10,19,.92)), url(/ui/stadium.webp) center 40%/cover; box-shadow: inset 0 0 0 1px rgba(16,185,129,.25); overflow: hidden; }
+  .shelf { display: grid; gap: 3px; grid-template-columns: repeat(17, minmax(0, 8rem)); justify-content: center; }
+  .x2 .shelf { grid-template-columns: repeat(8, minmax(0, 11rem)); }
+
+  /* ── 게임의 선반 카드 그대로 (윗줄 굵기만 2cqw 로 되돌림) ── */
+  .mc { position: relative; display: block; aspect-ratio: 2/3; width: 100%; background: #05080f; container-type: inline-size; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); overflow: hidden; }
+  .mc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 18%; }
+  .mc-in { position: absolute; inset: 0; }
+  .mc-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(5,8,15,.88) 70%, #05080f 100%); }
+  .mc-fr { position: absolute; inset: 2.5cqw; border: 1px solid color-mix(in srgb, var(--n) 40%, transparent); pointer-events: none; }
+  .mc-tb { position: absolute; left: 8cqw; right: 2.5cqw; top: 2.5cqw; height: 2cqw; background: rgba(255,255,255,.55); }
+  @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .mc.t75 .mc-tb { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,.7); }
+  .mc.t90 .mc-tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 5px rgba(125,211,252,.7); }
+  .mc-ov { position: absolute; left: 7cqw; top: 7.5cqw; font-size: 33cqw; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 8px #000; }
+  .mc.t75 .mc-ov { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 8px #000, 0 0 12px rgba(52,211,153,.4); }
+  .mc.t90 .mc-ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 5px #000); animation: prism 3s linear infinite; }
+  .mc-pos { position: absolute; left: 7cqw; right: 6cqw; bottom: 34cqw; display: flex; align-items: center; gap: 2.5cqw; line-height: 1; white-space: nowrap; overflow: hidden; }
+  .mc-pos em { flex: none; padding: 1cqw 2.2cqw; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 9.5cqw; font-weight: 800; color: #05080f; background: var(--n); }
+  .mc-pos span { min-width: 0; overflow: hidden; font-family: var(--pf); font-size: var(--ps); font-weight: var(--pw); letter-spacing: var(--pl); color: var(--pc, #cbd5e1); }
+  .mc-rule { position: absolute; left: 7cqw; right: 8cqw; bottom: 30.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 20%, transparent)); }
+  .mc-nm { position: absolute; left: 7cqw; right: 27cqw; bottom: 7cqw; font-size: 20.5cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 1px 4px #000; }
+  .mc.c3 .mc-nm { right: 31cqw; }
+  .mc-nm.l4 { font-size: 16.5cqw; } .mc-nm.l5 { font-size: 13cqw; }
+  .mc-cp { position: absolute; right: 8cqw; bottom: 8cqw; text-align: right; line-height: .9; }
+  .mc-cp small { display: block; font-size: 7cqw; font-weight: 700; letter-spacing: .08em; color: #9ca3af; }
+  .mc-cp b { display: block; font-size: 18cqw; font-weight: 800; letter-spacing: -.02em; color: var(--n); text-shadow: 0 0 8px color-mix(in srgb, var(--n) 55%, transparent); }
+  .mc.c3 .mc-cp b { font-size: 14.5cqw; }
+  .mc.lock .mc-in { filter: grayscale(1) brightness(.55); }
+  .mc.lock .mc-ov, .mc.lock .mc-tb { animation: none; }
+  .mc-lk { position: absolute; z-index: 6; left: 6cqw; right: 6cqw; top: 58cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3.5cqw 1cqw; font-size: 10.5cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 2px 10px rgba(0,0,0,.7); }
+  .ic { width: 10cqw; height: 10cqw; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ── 시너지 배지 (현재 · 새 안 6가지) — 진행 중인 시너지를 채우는 카드에만 ── */
+  .sy { position: absolute; z-index: 5; }
+  .s0 .sy { right: 6cqw; top: 6cqw; padding: 1cqw 2.5cqw; font-size: 7.5cqw; font-weight: 700; line-height: 1; color: #062a1f; background: #10b981; border-radius: 1.5cqw; }
+  /* S1 · 사선 탭: 윗줄 바로 아래 오른쪽에 걸린 컷 탭 */
+  .s1 .sy { right: 2.5cqw; top: 4.5cqw; display: flex; align-items: center; gap: 1.5cqw; padding: 1.8cqw 3cqw 1.8cqw 4.5cqw; font-size: 8.5cqw; font-weight: 800; line-height: 1; color: #04150e; background: #34d399; clip-path: polygon(3cqw 0,100% 0,100% 100%,0 100%); box-shadow: 0 0 8px rgba(52,211,153,.6); }
+  .s1 .sy .ic { width: 8cqw; height: 8cqw; stroke-width: 2.6; }
+  /* S2 · 유리 칩 + 연결 아이콘 */
+  .s2 .sy { right: 5cqw; top: 6.5cqw; display: flex; align-items: center; gap: 1.5cqw; padding: 1.5cqw 2.8cqw 1.5cqw 2.2cqw; font-size: 8.5cqw; font-weight: 700; line-height: 1; color: #a7f3d0; background: rgba(5,8,15,.72); box-shadow: inset 0 0 0 1px rgba(52,211,153,.75); backdrop-filter: blur(2px); }
+  .s2 .sy .ic { width: 8.5cqw; height: 8.5cqw; color: #34d399; }
+  /* S3 · 모서리 리본 */
+  .s3 .sy { right: -8cqw; top: 12cqw; width: 50cqw; padding: 1.6cqw 0; text-align: center; font-size: 6.4cqw; font-weight: 800; letter-spacing: .08em; line-height: 1; color: #04150e; background: linear-gradient(90deg, #6ee7b7, #10b981); transform: rotate(38deg); box-shadow: 0 2px 6px rgba(0,0,0,.5); }
+  /* S4 · 아이콘 원 + 은은한 맥박 */
+  @keyframes syPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); } 60% { box-shadow: 0 0 0 3cqw rgba(52,211,153,0); } }
+  .s4 .sy { right: 6cqw; top: 7cqw; display: grid; place-items: center; width: 17cqw; height: 17cqw; border-radius: 50%; color: #04150e; background: #34d399; animation: syPulse 1.8s ease-out infinite; }
+  .s4 .sy .ic { width: 11cqw; height: 11cqw; stroke-width: 2.6; }
+  /* S5 · 오른쪽 세로 띠 */
+  .s5 .sy { right: 2.5cqw; top: 8cqw; bottom: 46cqw; width: 8.5cqw; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #34d399, rgba(16,185,129,.35)); }
+  .s5 .sy span { writing-mode: vertical-rl; font-size: 6.8cqw; font-weight: 800; letter-spacing: .12em; color: #04150e; font-family: 'Saira Condensed', sans-serif; }
+  /* S6 · 윗줄에서 늘어진 꼬리표 */
+  .s6 .sy { right: 2.5cqw; top: 2.5cqw; padding: 3.5cqw 2.8cqw 2.2cqw; font-size: 8cqw; font-weight: 800; line-height: 1; color: #04150e; background: #34d399; clip-path: polygon(0 0,100% 0,100% 100%,50% 82%,0 100%); box-shadow: 0 0 8px rgba(52,211,153,.6); }
+  .s6 .mc.hint .mc-tb { right: 2.5cqw; }
+
+  /* ── 기본 “시너지” 배지를 조금씩만 바꾼 8안 (?syn8) ── */
+  .b0 .sy, .b1 .sy, .b2 .sy, .b3 .sy, .b4 .sy, .b5 .sy, .b6 .sy, .b7 .sy, .b8 .sy { right: 6cqw; top: 6cqw; display: inline-flex; align-items: center; padding: 1cqw 2.5cqw; font-size: 7.5cqw; font-weight: 700; line-height: 1; color: #062a1f; background: #10b981; border-radius: 1.5cqw; }
+  .b1 .sy { top: 6.5cqw; padding: 1.4cqw 3cqw; font-size: 8.5cqw; font-weight: 800; border-radius: .8cqw; }
+  .b2 .sy { box-shadow: inset 0 0 0 1px #a7f3d0; }
+  .b3 .sy { box-shadow: 0 0 6px rgba(16,185,129,.75), 0 1px 3px rgba(0,0,0,.6); }
+  .b4 .sy { padding: 1.2cqw 3cqw; font-size: 8cqw; border-radius: 0; clip-path: polygon(2cqw 0,100% 0,100% calc(100% - 2cqw),calc(100% - 2cqw) 100%,0 100%,0 2cqw); }
+  .b5 .sy { color: #6ee7b7; background: rgba(4,21,14,.84); box-shadow: inset 0 0 0 1px #10b981; }
+  .b6 .sy { padding: 1cqw 3.2cqw; font-size: 8cqw; font-weight: 800; border-radius: 99px; background: linear-gradient(180deg, #6ee7b7, #10b981); }
+  .b7 .sy { right: 4.5cqw; top: 6.5cqw; padding: 1.2cqw 2.8cqw; font-size: 8cqw; border-radius: 0; box-shadow: 0 1px 4px rgba(0,0,0,.55); }
+  .b8 .sy { gap: 1.5cqw; padding: 1.1cqw 2.6cqw 1.1cqw 2cqw; box-shadow: inset 0 0 0 .7cqw rgba(4,21,14,.28); }
+  /* 5번(어두운 바탕 + 초록 테두리)을 크기만 단계별로 키운 안 (?syn5) */
+  .b5a .sy, .b5b .sy, .b5c .sy { position: absolute; display: inline-flex; align-items: center; font-weight: 700; line-height: 1; letter-spacing: .02em; color: #6ee7b7; background: rgba(4,21,14,.84); box-shadow: inset 0 0 0 1px #10b981; }
+  .b5a .sy { right: 5.5cqw; top: 6cqw; padding: 1.7cqw 3.2cqw; font-size: 8.5cqw; border-radius: 1.8cqw; }
+  .b5b .sy { right: 5cqw; top: 6cqw; padding: 2.1cqw 3.6cqw; font-size: 9.5cqw; border-radius: 2cqw; }
+  .b5c .sy { right: 5cqw; top: 5.5cqw; padding: 2.4cqw 4cqw; font-size: 10.5cqw; border-radius: 2.2cqw; box-shadow: inset 0 0 0 1.2px #10b981; }
+  /* ════ 새 추천 8안 (?syn9) — 위치·모양 자유, 카드의 윗줄·칩·구분선·테두리 문법에 맞춤 ════ */
+  @keyframes qPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @keyframes qGlow { 0%, 100% { box-shadow: 0 0 0 1px #34d399, 0 0 4px rgba(52,211,153,.6); } 50% { box-shadow: 0 0 0 1px #34d399, 0 0 10px rgba(52,211,153,.95); } }
+  .q1 .sy, .q2 .sy, .q3 .sy, .q4 .sy, .q5 .sy, .q6 .sy, .q7 .sy, .q8 .sy { position: absolute; z-index: 5; line-height: 1; }
+  .sy .ic { width: 100%; height: 100%; }
+  /* Q1 · 구분선 점등: 팀 색 구분선이 초록으로 빛나고 오른쪽 끝에 맥박 치는 마디 */
+  /* 마디는 코스트(오른쪽)와 겹치지 않게 선의 왼쪽 끝에서 빛이 오른쪽으로 번진다 */
+  .q1 .mc.hint .mc-rule { height: 1.6cqw; bottom: 30.2cqw; left: 9cqw; right: 8cqw; background: linear-gradient(90deg, #34d399, rgba(52,211,153,.15)); box-shadow: 0 0 6px rgba(52,211,153,.8); }
+  .q1 .sy { left: 5cqw; bottom: 29.4cqw; width: 3.4cqw; height: 3.4cqw; background: #34d399; transform: rotate(45deg); box-shadow: 0 0 8px #34d399; animation: qPulse 1.6s ease-in-out infinite; }
+  /* Q2 · HUD 코너 브래킷: 오른쪽 위를 조준하듯 감싸는 초록 꺾쇠 + 연결 아이콘 */
+  .q2 .sy { right: 5cqw; top: 7cqw; width: 22cqw; height: 22cqw; box-shadow: inset -1.6cqw 1.6cqw 0 -.2cqw transparent; }
+  .q2 .sy::before, .q2 .sy::after { content: ""; position: absolute; width: 9cqw; height: 9cqw; border: 0 solid #34d399; filter: drop-shadow(0 0 3px rgba(52,211,153,.8)); }
+  .q2 .sy::before { right: 0; top: 0; border-top-width: 1.6cqw; border-right-width: 1.6cqw; }
+  .q2 .sy::after { left: 0; bottom: 0; border-bottom-width: 1.6cqw; border-left-width: 1.6cqw; }
+  .q2 .sy svg { position: absolute; left: 5cqw; top: 5cqw; width: 12cqw; height: 12cqw; color: #6ee7b7; filter: drop-shadow(0 1px 2px #000); }
+  /* Q3 · 테두리 점등: 카드 테두리 전체가 초록으로 켜지고 오른쪽 위 컷 상자에 아이콘 */
+  .q3 .mc.hint .mc-fr { border: 1.5px solid #34d399; box-shadow: inset 0 0 10px rgba(52,211,153,.45), 0 0 5px rgba(52,211,153,.5); }
+  .q3 .sy { right: 2.5cqw; top: 7cqw; display: grid; place-items: center; width: 14cqw; height: 13cqw; color: #04150e; background: #34d399; clip-path: polygon(3cqw 0,100% 0,100% 100%,0 100%,0 3cqw); }
+  .q3 .sy svg { width: 9cqw; height: 9cqw; stroke-width: 2.6; }
+  /* Q4 · 시너지 칸: 오른쪽 도크의 단계 칸을 그대로 축소 — 채워진 칸 둘 + 이 선수가 채울 칸이 깜빡 */
+  .q4 .sy { right: 5cqw; top: 7cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+  .q4 .sy svg { width: 8cqw; height: 8cqw; color: #6ee7b7; margin-right: .6cqw; }
+  .q4 .sy i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
+  .q4 .sy i.on { background: #e5e7eb; }
+  .q4 .sy i.nx { background: #38bdf8; animation: qPulse 1.2s ease-in-out infinite; }
+  /* Q5 · 윗줄 노치 탭: 등급 윗줄에서 아래로 튀어나온 사다리꼴 탭 */
+  .q5 .sy { right: 9cqw; top: 3.5cqw; display: grid; place-items: center; width: 22cqw; height: 10cqw; color: #04150e; background: #34d399; clip-path: polygon(0 0,100% 0,82% 100%,18% 100%); filter: drop-shadow(0 0 4px rgba(52,211,153,.7)); }
+  .q5 .sy svg { width: 7.5cqw; height: 7.5cqw; stroke-width: 2.8; }
+  /* Q6 · 줄무늬 코너: 오른쪽 위 삼각형에 초록 사선 줄무늬 + 아이콘 */
+  .q6 .sy { right: 0; top: 0; width: 34cqw; height: 34cqw; background: repeating-linear-gradient(135deg, rgba(52,211,153,.95) 0 2.2cqw, rgba(52,211,153,.28) 2.2cqw 4.4cqw); clip-path: polygon(0 0,100% 0,100% 100%); }
+  .q6 .sy svg { position: absolute; right: 3.5cqw; top: 5cqw; width: 11cqw; height: 11cqw; color: #04150e; stroke-width: 2.8; }
+  /* Q7 · 포지션 칩 빛 + 점: 선수 정보 덩어리(칩)에 초록 링이 숨쉬고 칩 모서리에 + 점 */
+  .q7 .mc.hint .mc-pos { overflow: visible; }
+  .q7 .mc.hint .mc-pos em { animation: qGlow 1.8s ease-in-out infinite; }
+  .q7 .sy { left: 3.5cqw; bottom: 42cqw; display: grid; place-items: center; width: 8cqw; height: 8cqw; border-radius: 50%; color: #04150e; background: #34d399; box-shadow: 0 0 6px #34d399; }
+  .q7 .sy svg { width: 6cqw; height: 6cqw; stroke-width: 3.4; }
+  /* Q8 · 바닥 초록 광원 + “+1” 칩: 카드 아래 그늘이 초록빛으로, 오른쪽 위에 +1 */
+  .q8 .mc.hint .mc-sh { background: linear-gradient(180deg, rgba(5,8,15,.62) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 44%, rgba(6,48,34,.88) 70%, #031a12 100%); }
+  .q8 .mc.hint .mc-fr { border-color: rgba(52,211,153,.55); }
+  .q8 .sy { right: 5cqw; top: 7cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 1.6cqw 2.6cqw 1.6cqw 2cqw; font-family: 'Saira Condensed', sans-serif; font-size: 10cqw; font-weight: 800; color: #04150e; background: #34d399; clip-path: polygon(2cqw 0,100% 0,100% calc(100% - 2cqw),calc(100% - 2cqw) 100%,0 100%,0 2cqw); }
+  .q8 .sy svg { width: 7.5cqw; height: 7.5cqw; stroke-width: 2.8; }
+  .b8 .sy::before { content: ""; width: 3cqw; height: 3cqw; border-radius: 50%; background: #04150e; box-shadow: 0 0 0 .7cqw rgba(255,255,255,.35); }
+</style>
+</head>
+<body>
+<div class="top"><b>포지션 글씨체 8안 · 시너지 배지 6안</b><span>게임 선반 카드와 같은 모양 · 윗줄 굵기 2cqw(이전 굵기)로 되돌림 · 2·6·10·15번째 카드는 시너지 표시, 4·12번째는 잠김</span>
+  <div class="g"><button data-s="1" class="on">실제 크기</button><button data-s="2">크게 보기 (8장)</button></div></div>
+<div class="wrap" id="wrap"></div>
+<script type="module">
+const M = await import('/src/KboAugmentDraft.jsx');
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const TEAM_NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff' };
+const ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
+const LOCK = { 3: '투수 마감', 11: 'CP 부족' };
+const HINT = new Set([1, 5, 9, 14]);
+const LOCK_IC = '<svg class="ic" viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>';
+const LINK_IC = '<svg class="ic" viewBox="0 0 20 20"><path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l1-1"/></svg>';
+const PLUS_IC = '<svg class="ic" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></svg>';
+
+// [이름, 설명, font-family, weight, letter-spacing, size, color]
+const FONTS = [
+  ['현재 · Saira Condensed 700', '지금 게임 — 굵어서 작은 크기에서 뭉침', "'Saira Condensed'", 700, '.03em', '9cqw', '#cbd5e1'],
+  ['Saira Condensed 500', '같은 글꼴을 가늘게 + 자간 넓힘 — 분위기는 그대로, 획이 트임', "'Saira Condensed'", 500, '.07em', '9.5cqw', '#e5e7eb'],
+  ['Barlow Condensed 500', '스포츠 방송 자막에 흔한 글꼴 — 글자 모양이 둥글고 또렷함', "'Barlow Condensed'", 500, '.05em', '9.8cqw', '#e5e7eb'],
+  ['Roboto Condensed 500', '안드로이드 기본 계열 — 작은 글자에서 가장 무난하게 읽힘', "'Roboto Condensed'", 500, '.02em', '8.8cqw', '#e5e7eb'],
+  ['Oswald 400', '키 큰 좁은 글꼴 — 가늘어도 획이 선명, 제목 느낌', "'Oswald'", 400, '.06em', '9.2cqw', '#e5e7eb'],
+  ['IBM Plex Sans Condensed 500', '한글 본문(IBM Plex Sans KR)과 같은 가족 — 화면 전체와 가장 잘 어울림', "'IBM Plex Sans Condensed'", 500, '.02em', '8.6cqw', '#e5e7eb'],
+  ['Rajdhani 600', '각진 테크 느낌 — 게임 HUD 분위기, 글자 폭이 넓어 짧게 보임', "'Rajdhani'", 600, '.05em', '10cqw', '#e5e7eb'],
+  ['Archivo Narrow 500', '신문·기록지 느낌의 좁은 산세리프 — 글자 사이가 고르고 차분함', "'Archivo Narrow'", 500, '.02em', '8.8cqw', '#e5e7eb'],
+  ['Sofia Sans Condensed 500', '현대적인 좁은 글꼴 — x높이가 커서 작은 크기에서도 큼직하게 보임', "'Sofia Sans Condensed'", 500, '.04em', '9.6cqw', '#e5e7eb'],
+];
+const SYN = [
+  ['현재', '지금 게임의 둥근 초록 “시너지” 배지'],
+  ['S1 · 사선 탭', '윗줄 바로 아래 오른쪽에 걸린 컷 탭 · 연결 아이콘 + 시너지'],
+  ['S2 · 유리 칩', '어두운 반투명 칩에 초록 테두리 · 연결 아이콘 — 카드 그림을 가장 덜 가림'],
+  ['S3 · 모서리 리본', '오른쪽 위 모서리를 사선으로 가로지르는 초록 리본 SYNERGY'],
+  ['S4 · 아이콘 원 + 맥박', '글자 없이 + 아이콘 원, 은은하게 퍼지는 맥박으로 눈길'],
+  ['S5 · 오른쪽 세로 띠', '카드 오른쪽 가장자리를 따라 내려오는 초록 띠에 세로 글씨 SYNERGY'],
+  ['S6 · 늘어진 꼬리표', '윗줄 오른쪽 끝에서 아래로 늘어진 책갈피 모양 “시너지”'],
+];
+const SYN9 = new URLSearchParams(location.search).has('syn9');
+const SYN5 = new URLSearchParams(location.search).has('syn5');
+const SYN8 = SYN9 || SYN5 || new URLSearchParams(location.search).has('syn8');
+const SYN9_LIST = [
+  ['q1', '구분선 점등', '포지션과 이름 사이 팀 색 구분선이 초록으로 빛나고 오른쪽 끝에 맥박 치는 마디 — 그림을 전혀 가리지 않음'],
+  ['q2', 'HUD 코너 브래킷', '오른쪽 위를 조준하듯 감싸는 초록 꺾쇠 두 개 + 연결 아이콘 — 카드의 HUD 느낌과 맞춤'],
+  ['q3', '테두리 점등', '카드 테두리 전체가 초록으로 켜지고 오른쪽 위 컷 상자에 연결 아이콘 — 멀리서도 가장 잘 보임'],
+  ['q4', '시너지 칸', '오른쪽 시너지 도크의 단계 칸을 축소해 옮김 — 흰 칸(채움) + 하늘 칸(이 선수가 채울 칸) 깜빡'],
+  ['q5', '윗줄 노치 탭', '등급 윗줄에서 아래로 튀어나온 초록 사다리꼴 탭 — 윗줄과 한 몸처럼'],
+  ['q6', '줄무늬 코너', '오른쪽 위 삼각형에 초록 사선 줄무늬 + 연결 아이콘 — 카드 컷 모서리와 대칭'],
+  ['q7', '포지션 칩 빛', '포지션 칩(SP)에 초록 링이 숨쉬고 칩 위에 + 점 — 선수 정보 덩어리에 붙음'],
+  ['q8', '초록 광원 + “+1”', '카드 아래 그늘이 초록빛으로 바뀌고 오른쪽 위에 컷 모양 “🔗 +1” 칩'],
+];
+const SYN5_LIST = [
+  ['b5', '5번 그대로', '글씨 7.5cqw · 안쪽 여백 1 / 2.5'],
+  ['b5a', '5번 · 조금 크게', '글씨 7.5→8.5cqw · 안쪽 여백 1.7 / 3.2 · 자간 조금'],
+  ['b5b', '5번 · 한 단계 더', '글씨 9.5cqw · 안쪽 여백 2.1 / 3.6'],
+  ['b5c', '5번 · 가장 크게', '글씨 10.5cqw · 안쪽 여백 2.4 / 4 · 테두리 조금 두껍게'],
+];
+const SYN8_LIST = [
+  ['b0', '현재', '둥근 초록 바탕 · 짙은 글씨 7.5'],
+  ['b1', '조금 크게 · 덜 둥글게', '글씨 7.5→8.5 · 굵게 · 여백 조금 넓게 · 모서리 반경 절반'],
+  ['b2', '밝은 안쪽 테두리', '그대로에 연한 민트색 1px 안쪽 테두리 — 카드 그림 위에서 윤곽이 또렷'],
+  ['b3', '은은한 발광', '그대로에 초록 번짐 + 아래 그림자 — 등급 윗줄의 빛과 같은 결'],
+  ['b4', '컷 코너', '둥근 모서리 대신 카드와 같은 사선 컷 모서리'],
+  ['b5', '어두운 바탕 + 초록 테두리', '바탕을 어둡게 뒤집고 초록 테두리·민트 글씨 — 그림을 덜 가림'],
+  ['b6', '그라데이션 알약', '위가 밝은 초록 그라데이션 · 완전한 알약 모양 · 글씨 조금 굵게'],
+  ['b7', '테두리선에 정렬 · 각진', '카드 테두리선 안쪽에 맞춰 붙이고 모서리를 각지게 · 아래 그림자'],
+  ['b8', '점 + 이중 테두리', '앞에 작은 점 · 안쪽에 옅은 어두운 테두리 한 겹'],
+];
+const Q_HTML = { q1: '', q2: LINK_IC, q3: LINK_IC, q4: `${LINK_IC}<i class="on"></i><i class="on"></i><i class="nx"></i>`, q5: LINK_IC, q6: LINK_IC, q7: PLUS_IC, q8: `${LINK_IC}+1` };
+const SY_HTML = ['시너지', `${LINK_IC}시너지`, `${LINK_IC}시너지`, 'SYNERGY', PLUS_IC, '<span>SYNERGY</span>', '시너지'];
+
+const seen = new Set();
+const uniq = (p) => (seen.has(p.name) ? false : (seen.add(p.name), true));
+const firstPerPos = (arr) => arr.filter((p, i) => arr.findIndex((q) => q.position === p.position) === i);
+const all = [...M.ALL_PLAYERS].sort((a, b) => b.overall - a.overall);
+const top = firstPerPos(all.filter((p) => p.overall >= 90).filter(uniq)).slice(0, 3);
+const mid = firstPerPos(all.filter((p) => p.overall >= 75 && p.overall < 90).filter(uniq)).slice(0, 8);
+const low = firstPerPos(all.filter((p) => p.overall < 75).filter(uniq)).slice(0, 6);
+const players = [...top, ...mid, ...low].sort((a, b) => ORDER.indexOf(a.position) - ORDER.indexOf(b.position) || b.overall - a.overall).slice(0, 17);
+
+let scale = 1;
+function card(p, i, synIdx) {
+  const tier = p.overall >= 90 ? 't90' : p.overall >= 75 ? 't75' : '';
+  const lock = LOCK[i];
+  const hint = synIdx != null && HINT.has(i) && !lock;
+  const nl = p.name.length >= 5 ? 'l5' : p.name.length >= 4 ? 'l4' : '';
+  return `<div class="mc ${tier} ${lock ? 'lock' : ''} ${hint ? 'hint' : ''} ${p.cost >= 100 ? 'c3' : ''}" style="--n:${TEAM_NEON[p.team] || '#10b981'}"><span class="mc-in">
+    <img src="/cards/${encodeURIComponent(p.id)}.webp" alt="" /><span class="mc-sh"></span><span class="mc-tb"></span>
+    <span class="mc-ov disp">${p.overall}</span>
+    <span class="mc-pos"><em>${p.position}</em><span>${POS_FULL[p.position]}</span></span><span class="mc-rule"></span>
+    <span class="mc-nm ${nl}">${p.name}</span><span class="mc-cp disp"><small>CP</small><b>${p.cost}</b></span>
+    ${hint ? `<span class="sy">${typeof synIdx === 'string' ? (Q_HTML[synIdx] ?? '시너지') : SY_HTML[synIdx]}</span>` : ''}
+  </span><span class="mc-fr"></span>${lock ? `<span class="mc-lk">${LOCK_IC}<span>${lock}</span></span>` : ''}</div>`;
+}
+function row(cls, label, desc, vars, synIdx) {
+  const list = scale === 2 ? players.slice(0, 8) : players;
+  return `<section class="${cls}" style="${vars}"><div class="vlab"><b>${label}</b><span>${desc}</span><em class="mn"></em></div>
+    <div class="panel"><div class="shelf">${list.map((p, i) => card(p, i, synIdx)).join('')}</div></div></section>`;
+}
+function render() {
+  document.body.classList.toggle('x2', scale === 2);
+  const fontVars = (f) => `--pf:${f[2]},sans-serif;--pw:${f[3]};--pl:${f[4]};--ps:${f[5]};--pc:${f[6]}`;
+  if (SYN8) {
+    document.querySelector('.top b').textContent = SYN9 ? '시너지 표시 · 새 추천 8안' : '시너지 배지 · 기본 스타일 미세 조정 8안';
+    document.getElementById('wrap').innerHTML = `<h3>시너지 배지 (포지션 글씨는 확정한 1번 Saira Condensed 500)</h3>` +
+      (SYN9 ? [['b0', '현재', '지금 게임의 둥근 초록 “시너지” 배지 (비교용)'], ...SYN9_LIST] : SYN5 ? SYN5_LIST : SYN8_LIST).map(([k, n, d]) => row(k, `<i class="disp">${k === 'b0' ? '기준' : k.slice(1)}</i>${n}`, d, fontVars(FONTS[1]), k)).join('');
+    fit();
+    return;
+  }
+  document.getElementById('wrap').innerHTML =
+    `<h3>① 포지션 영문 글씨체</h3>` +
+    FONTS.map((f, v) => row(`f${v}`, `<i class="disp">${v === 0 ? '기준' : v}</i>${f[0]}`, f[1], fontVars(f), null)).join('') +
+    `<h3>② 시너지 배지 (포지션 글씨는 2번 Barlow Condensed로)</h3>` +
+    SYN.map((s, v) => row(`s${v}`, `<i class="disp">${v === 0 ? '기준' : 'S' + v}</i>${s[0].replace(/^S\d · /, '')}`, s[1], fontVars(FONTS[2]), v)).join('');
+  fit();
+}
+/* 긴 포지션(STARTING PITCHER · DESIGNATED HITTER)은 칸에 맞게 글자를 줄인다 — 줄어든 가장 작은 크기를 제목 옆에 표시 */
+function fit() {
+  document.querySelectorAll('.mc-pos span').forEach((sp) => {
+    sp.style.fontSize = '';
+    if (sp.scrollWidth <= sp.clientWidth + 0.5) return;
+    const pxPerCqw = sp.closest('.mc').getBoundingClientRect().width / 100;
+    const cur = parseFloat(getComputedStyle(sp).fontSize) / pxPerCqw;
+    sp.style.fontSize = `${(cur * (sp.clientWidth / sp.scrollWidth) * 0.97).toFixed(2)}cqw`;
+  });
+  document.querySelectorAll('section').forEach((s) => {
+    const px = [...s.querySelectorAll('.mc-pos span')].map((sp) => parseFloat(getComputedStyle(sp).fontSize));
+    s.querySelector('.mn').textContent = `포지션 글자 ${Math.min(...px).toFixed(1)}~${Math.max(...px).toFixed(1)}px`;
+  });
+}
+addEventListener('resize', () => fit());
+document.querySelectorAll('.top [data-s]').forEach((b) => b.onclick = () => { scale = +b.dataset.s; document.querySelectorAll('.top [data-s]').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+await document.fonts.ready;
+render();
+</script>
+</body>
+</html>

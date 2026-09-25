@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>빈 PICK · 스켈레톤 + 희미한 배경 4종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fill, 300px); gap: 26px 22px; padding: 18px; background: linear-gradient(180deg, rgba(5,8,15,.55), rgba(5,8,15,.92)), url(/ui/stadium.webp) center 30%/cover; }
+  .cell { display: flex; flex-direction: column; gap: 8px; }
+  .cell > b { font-size: 14px; color: #fff; }
+  .cell > b i { font-style: normal; color: #10b981; margin-right: 6px; font-family: 'Saira Condensed', sans-serif; }
+  .cell > span { min-height: 54px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+
+  .grp { --c: 16px; --a: #10b981; position: relative; width: 300px; height: 540px; padding: 30px 10px 10px; background: rgba(6,10,19,.8); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); display: flex; flex-direction: column; gap: 8px; }
+  .grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+    background: linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+      linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent); }
+  .lab { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+  .lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+  .slot { position: relative; flex: 1; min-height: 0; display: grid; place-items: center; }
+  .ghostbtn { flex: none; height: 44px; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+
+  .card { position: relative; height: 100%; max-width: 100%; aspect-ratio: 2/3; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); overflow: hidden; background: linear-gradient(180deg, #0a1120, #070c16); container-type: inline-size; }
+  /* 배경 그림: 아주 희미하게 — 스켈레톤 블록이 늘 먼저 읽히도록 아래는 어둡게 가라앉힘 */
+  .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .fade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,12,22,.35) 0, rgba(7,12,22,0) 30%, rgba(7,12,22,.2) 55%, rgba(7,12,22,.92) 78%, #070c16 100%), linear-gradient(90deg, rgba(7,12,22,.6) 0, rgba(7,12,22,0) 55%); }
+  .sk { position: absolute; background: rgba(148,163,184,.09); }
+  .fr { position: absolute; inset: 1.6cqw; border: 1px solid rgba(148,163,184,.2); pointer-events: none; }
+
+  /* S1 · 차분한 홀로그램 타자(오른쪽, 실제 카드의 선수 그림 자리) */
+  .s1 .bg { object-position: 64% 40%; opacity: .2; filter: saturate(.6); }
+  /* S2 · 선 드로잉 청사진 타자 */
+  .s2 .bg { object-position: 60% 40%; opacity: .28; filter: saturate(.5) brightness(1.1); }
+  /* S3 · 빈 타석 스포트라이트(흑백) */
+  .s3 .bg { object-position: 50% 62%; opacity: .16; filter: grayscale(1) contrast(1.1); }
+  /* S4 · 카드 뒷면 무늬(흑백 질감) */
+  .s4 .bg { object-position: 50% 50%; opacity: .1; filter: grayscale(1) contrast(1.2); transform: scale(1.15); }
+  .s4 .fade { background: radial-gradient(70% 55% at 50% 45%, rgba(7,12,22,0), rgba(7,12,22,.7) 100%), linear-gradient(180deg, transparent 60%, rgba(7,12,22,.85) 85%); }
+</style>
+</head>
+<body>
+<div class="top"><b>빈 PICK · 스켈레톤 + 희미한 배경 4종</b><span>B2 스켈레톤 레이아웃 뒤에 아주 흐린 그림 한 장 · 설명 글·애니메이션 없음</span></div>
+<div class="row" id="row"></div>
+<template id="sk">
+  <span class="sk" style="left:6cqw;right:1.6cqw;top:1.6cqw;height:1.3cqw;background:rgba(148,163,184,.22)"></span>
+  <span class="sk" style="left:6cqw;top:7cqw;width:26cqw;height:19cqw"></span>
+  <span class="sk" style="left:6.5cqw;top:29cqw;width:34cqw;height:3.4cqw"></span>
+  <span class="sk" style="left:5cqw;top:36cqw;width:42cqw;height:44cqw;background:rgba(7,12,22,.45);box-shadow:inset 0 0 0 1px rgba(148,163,184,.1)"></span>
+  <span class="sk" style="left:9cqw;top:41cqw;width:20cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:47cqw;width:30cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:52cqw;width:18cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:58cqw;width:26cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:63cqw;width:22cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:69cqw;width:33cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:74cqw;width:16cqw;height:3cqw"></span>
+  <span class="sk" style="left:6cqw;bottom:43cqw;width:44cqw;height:3cqw"></span>
+  <span class="sk" style="left:6cqw;bottom:35.5cqw;width:8cqw;height:5cqw;background:rgba(16,185,129,.2)"></span><span class="sk" style="left:16cqw;bottom:36.2cqw;width:34cqw;height:3.4cqw"></span>
+  <span class="sk" style="left:6cqw;right:6cqw;bottom:32.5cqw;height:1px;background:rgba(16,185,129,.3)"></span>
+  <span class="sk" style="left:6cqw;bottom:8cqw;width:46cqw;height:12cqw"></span>
+  <span class="sk" style="right:6cqw;bottom:18cqw;width:8cqw;height:3cqw"></span><span class="sk" style="right:6cqw;bottom:8cqw;width:14cqw;height:9cqw;background:rgba(16,185,129,.16)"></span>
+  <span class="fr"></span>
+</template>
+<script>
+const V = [
+  ['s1', 'S1', '차분한 홀로그램 타자', 'H2 슬레이트 홀로그램을 20% 로 · 오른쪽(실제 카드에서 선수 그림이 오는 자리)에 흐리게 서 있음 — 선수를 고르면 그 자리에 진짜 선수가 채워지는 느낌', 'img/holo-muted.png'],
+  ['s2', 'S2', '선 드로잉 청사진 타자', 'H3 선 드로잉을 28% 로 — 가는 윤곽선이라 흐려도 형태가 살아 있고 스켈레톤의 “설계도” 느낌과 가장 잘 맞음', 'img/holo-line.png'],
+  ['s3', 'S3', '빈 타석 스포트라이트', '밤 구장 빈 타석 그림을 흑백 16% 로 — 조명 한 줄기만 은은하게 보이고 화면 배경 구장과 이어짐', 'img/spotlight.png'],
+  ['s4', 'S4', '카드 뒷면 무늬', '카드 뒷면의 다이아몬드·육각 무늬를 흑백 10% 질감으로 — 형태 없이 “카드 재질”만 느껴지는 가장 담백한 안', 'img/cardback.png'],
+];
+const sk = document.getElementById('sk').innerHTML;
+document.getElementById('row').innerHTML = V.map(([k, n, t, d, img]) => `
+  <div class="cell"><b><i>${n}</i>${t}</b><span>${d}</span>
+    <div class="grp ${k}"><span class="lab">PICK</span><div class="slot"><div class="card"><img class="bg" src="${img}" alt="" /><span class="fade"></span>${sk}</div></div><div class="ghostbtn"></div></div>
+  </div>`).join('');
+</script>
+</body>
+</html>
