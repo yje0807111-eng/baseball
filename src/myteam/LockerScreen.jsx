@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
+import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
@@ -101,7 +101,7 @@ const statTier = (v) => (v >= 100 ? 't90' : v >= 85 ? 't75' : '');
 const statBand = (v) => (v >= 100 ? 'b90' : v >= 90 ? 'b80' : v >= 80 ? 'b70' : v >= 70 ? 'b60' : 'b0');
 
 /** teamTint: 드래프트 선반 카드처럼 구단 색 — 줄 왼쪽 은은한 색 · 네온 줄 · 포지션 칩 · 선택 테두리 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false, price = null }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, bench, onBench, teamTint = false, stored = false, price = null, capQuiet = false }) {
   const n = tone(p.overall);
   const neon = teamNeon(p);
   const keys = KEYS[p.type] || KEYS.batter;
@@ -143,7 +143,8 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
           </span>
         );
       })}
-      <b className="text-right font-display text-lg text-amber-300">{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
+      {/* CP — 캡에 여유가 있을 때(90% 전)는 작게 · 흐리게: 초반엔 골드가 막는다 */}
+      <b className={`text-right font-display ${capQuiet ? 'text-[13px] text-gray-500' : 'text-lg text-amber-300'}`}>{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-[13px] text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
         : (() => {
@@ -399,6 +400,34 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
   );
 }
 
+/** 라커 규칙 — 골드와 CP 가 무엇을 막는지, 영입 · 방출 · 보관함 · 프리셋 · 시세 */
+const LOCKER_RULES = [
+  ['골드', '선수를 사는 값 · 영입가 · 시세 · 특가', GOLD],
+  ['CP', '한 팀에 담는 한도 · 엔트리 + 코치진', '#34d399'],
+  ['둘의 차례', '초반엔 골드 · 선수가 좋아지면 CP', '#e5e7eb'],
+  ['교체 영입', '엔트리가 꽉 차면 한 명 내보내며', '#e5e7eb'],
+  ['방출', '산 값의 절반 환급', '#fca5a5'],
+  ['보관함', '엔트리 밖 20명 · CP 에 안 셈', '#e5e7eb'],
+  ['프리셋', '엔트리 조합 저장 · 최대 3', '#e5e7eb'],
+  ['시세', '영입가 × 인기(수상) × 그날 흐름', '#e5e7eb'],
+  ['오늘의 특가', '매일 12명 · 30% 할인', '#fb923c'],
+];
+function LockerRules({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={onClose}>
+      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-4 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
+        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="라커 규칙">
+        <div>
+          <p className="mt-lab">도움말</p>
+          <h2 className="mt-1 text-3xl font-black text-white">라커 규칙</h2>
+        </div>
+        <div>{LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}</div>
+        <Btn pri onClick={onClose}>닫기</Btn>
+      </div>
+    </div>
+  );
+}
+
 const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9' };
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
@@ -537,6 +566,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
+  const [rulesOpen, setRulesOpen] = useState(false); // 라커 규칙 팝업
   const [dealOnly, setDealOnly] = useState(false); // 오늘의 특가만
   const deals = useMemo(() => dailyDeals(ALL, todayKey()), []); // 하루 한 번 바뀐다 (라커를 다시 열면 새 날짜)
   const today = useMemo(() => dayIndex(), []);
@@ -685,7 +715,10 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 `}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
-      <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack} />
+      <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack}
+        right={<button type="button" onClick={() => setRulesOpen(true)} aria-label="라커 규칙"
+          className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-[15px] font-black text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>?</button>} />
+      {rulesOpen && <LockerRules onClose={() => setRulesOpen(false)} />}
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
@@ -778,7 +811,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
               <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />            </div>
             <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
               {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)}
+                <PlayerRow key={p.id} p={p} on={sel?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
               ))}
               {results.length === 0 && <p className="text-sm text-gray-500">조건에 맞는 선수 없음</p>}

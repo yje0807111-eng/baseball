@@ -1,6 +1,6 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 드래프트 화면과 같은 문법(잘린 모서리 · 네온 테두리 · Saira 라벨) */
 import React, { useEffect, useState } from 'react';
-import { SQUAD_CAP } from './rules.js';
+import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 import { artId } from '../data/artAlias.js';
 
@@ -238,14 +238,14 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
       {steps}
       <div className="ml-auto flex items-center gap-6">
         {team && (
-          <div className="w-60">
-            <div className="flex justify-between font-display text-[11px] tracking-[0.2em] text-gray-500">
-              <span>SALARY CAP</span>
+          <div className="w-60" style={{ opacity: !over && cost < cap * CAP_LOUD ? 0.55 : 1 }}>
+            <div className="flex justify-between text-[11px] text-gray-500">
+              <span className="font-bold">샐러리 캡</span>
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}
               <b style={{ color: over ? '#f87171' : '#fff' }}>{(cap - cost).toLocaleString()} / {cap.toLocaleString()}</b>
             </div>
             <div className="mt-1 h-1.5 bg-white/10">
-              <i className="block h-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : '#10b981', boxShadow: `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
+              <i className="block h-full" style={{ width: `${Math.max(0, Math.min(100, ((cap - cost) / cap) * 100))}%`, background: over ? '#f87171' : cost < cap * CAP_LOUD ? '#6b7280' : '#10b981', boxShadow: cost < cap * CAP_LOUD && !over ? 'none' : `0 0 8px ${over ? '#f87171' : '#10b981'}` }} />
             </div>
           </div>
         )}

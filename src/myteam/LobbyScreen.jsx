@@ -229,6 +229,7 @@ function StarterNotice({ team, gold, onClose }) {
         <Stats items={[['선수', `${squad.length}명`], ['팀 종합', teamStats(squad).ovr || '-'], ['보유 골드', `${(gold || 0).toLocaleString()} G`]]} />
         <div>
           <KV sm k="더 좋은 선수" v="골드로 영입" color="#fde047" />
+          <KV sm k="CP" v="한 팀에 담는 한도" color="#34d399" />
           <KV sm k="경기 보상" v="승 300 · 무 180 · 패 120 G" />
           <KV sm k="방출" v="산 값의 절반 환급" />
         </div>

@@ -124,9 +124,13 @@ export function squadIssues(squad, staff = {}, cap = SQUAD_CAP, lim = BASE_LIMIT
   return out;
 }
 
+/** CP 를 눈에 띄게 보여 줄 문턱 — 캡을 이만큼 쓰기 전에는 흐리게(초반엔 골드가 막는다).
+    스타터가 캡의 약 81%(1,860~1,900)를 쓰므로 90% — 남은 캡이 230 남짓이 되면, 곧 스타 몇 명을 들이면 막히는 때부터 */
+export const CAP_LOUD = 0.9;
+
 /** 지금 엔트리가 쓰고 있는 캡 — 화면 어디서나 같은 숫자를 쓰도록 한곳에서 센다 */
 export function capUse(team = {}) {
   const cap = team.cap || SQUAD_CAP;
   const cost = squadCost(team.squad || [], team.staff);
-  return { cost, cap, left: cap - cost, over: Math.max(0, cost - cap), pct: Math.min(1.4, cost / cap) };
+  return { cost, cap, left: cap - cost, over: Math.max(0, cost - cap), pct: Math.min(1.4, cost / cap), quiet: cost < cap * CAP_LOUD };
 }
