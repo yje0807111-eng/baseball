@@ -10,12 +10,16 @@ export const UiStyle = () => (
     .mt-cut { --c:14px; border-radius:min(var(--c),22px); }
     :where(.mt-cut) { overflow:hidden; }
     /* 유리 판 — 위가 조금 밝은 반투명 · 윗선 빛 · 아래 그림자 */
-    .mt-glass { background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.62); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 30px 60px -30px rgba(0,0,0,.9); }
+    /* 판 — 보랏빛 짙은 남색 · 윗선 빛 · 아래 그림자 */
+    .mt-glass { background:linear-gradient(180deg,rgba(30,26,56,.74),rgba(10,9,22,.86)); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 30px 60px -30px rgba(0,0,0,.9); }
     @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
     .mt-frame { position:relative; }
     /* 판 테두리 — 옅은 흰 선에 판 색(--a)을 조금. 고른 판(hot)은 판 색 선 · 안쪽 빛 */
-    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 16%,rgba(255,255,255,.07)); }
+    /* 판 테두리 — 금빛 가는 선. 큰 판(유리 판)은 왼쪽 위 · 오른쪽 아래에 금빛 모서리 장식 */
+    .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 12%,rgba(245,210,122,.3)); }
+    .mt-frame.mt-glass::before { content:''; position:absolute; inset:7px; pointer-events:none; border-radius:max(0px,calc(min(var(--c),22px) - 7px)); border:2px solid #f5d27a; opacity:.85; filter:drop-shadow(0 0 5px rgba(245,210,122,.6));
+      -webkit-mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 1.5px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 22%, transparent); }
     .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:14px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
     .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
@@ -23,9 +27,22 @@ export const UiStyle = () => (
     .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
     /* 주 단추 — 판 색 그라데이션 · 윗선 빛 · 판 색 그림자 */
-    .mt-btn.pri { color:#03140c; font-weight:800; background:linear-gradient(180deg,color-mix(in srgb,var(--a,#10b981) 78%,#fff),color-mix(in srgb,var(--a,#10b981) 88%,#000)); box-shadow:0 8px 20px -6px color-mix(in srgb,var(--a,#10b981) 70%,transparent),inset 0 1px 0 rgba(255,255,255,.35); }
+    /* 주 단추 — 금빛(게임의 '누르는 곳'). 판 색(--a)은 상태 색으로만 쓴다 */
+    .mt-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }
     .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
     .mt-btn.lg { min-height:62px; border-radius:16px; font-size:18px; }
+    /* 게임 결 조각 — 장식 머리줄(양옆 금빛 선) · 레벨 보석 · 빛줄기 · 빛 알갱이 · 도장 */
+    .mt-hd { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:800; color:#f5d27a; }
+    .mt-hd::before, .mt-hd::after { content:''; height:1px; flex:1; background:linear-gradient(90deg,transparent,rgba(245,210,122,.6)); }
+    .mt-hd::after { background:linear-gradient(90deg,rgba(245,210,122,.6),transparent); }
+    .mt-gem { display:inline-block; width:12px; height:12px; flex:none; border-radius:3px; transform:rotate(45deg); background:linear-gradient(135deg,#ede9fe,#a78bfa 45%,#7c3aed); box-shadow:0 0 10px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
+    .mt-gem.off { background:linear-gradient(135deg,#374151,#1f2937); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+    @keyframes mtSpin { to { transform:rotate(360deg); } }
+    @keyframes mtDrift { to { transform:translateY(-18px); } }
+    .mt-rays { position:absolute; left:50%; top:40%; width:1700px; height:1700px; margin:-850px 0 0 -850px; border-radius:50%; pointer-events:none; background:repeating-conic-gradient(from 0deg,rgba(196,181,253,.06) 0 4deg,transparent 4deg 14deg); animation:mtSpin 90s linear infinite; -webkit-mask:radial-gradient(circle,#000 8%,transparent 60%); mask:radial-gradient(circle,#000 8%,transparent 60%); }
+    .mt-dust { position:absolute; inset:0; pointer-events:none; animation:mtDrift 14s ease-in-out infinite alternate; background-image:radial-gradient(1.5px 1.5px at 12% 20%,#fff8,transparent),radial-gradient(1px 1px at 30% 70%,#fff6,transparent),radial-gradient(1.5px 1.5px at 55% 30%,#c4b5fd99,transparent),radial-gradient(1px 1px at 72% 80%,#fff5,transparent),radial-gradient(2px 2px at 85% 45%,#c4b5fdaa,transparent),radial-gradient(1px 1px at 44% 88%,#fff6,transparent),radial-gradient(1.5px 1.5px at 92% 18%,#fff7,transparent),radial-gradient(1px 1px at 6% 60%,#c4b5fd88,transparent); }
+    @media (prefers-reduced-motion: reduce) { .mt-rays, .mt-dust { animation:none; } }
+    .mt-stamp { position:absolute; padding:3px 10px; border-radius:6px; border:2px solid #f87171; color:#f87171; font-weight:900; font-size:11px; letter-spacing:.1em; transform:rotate(-12deg); background:rgba(20,5,8,.72); pointer-events:none; }
     .mt-btn.sm { min-height:34px; padding:0 14px; border-radius:10px; font-size:14px; }
     .mt-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,.05); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 40%,transparent); }
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
@@ -176,16 +193,18 @@ export const Portrait = ({ player, w = 36, h = 46, color = '#334155', staff, rou
 );
 
 export const Bg = ({ img = 'ui/mt/mt-bg.webp', opacity = 0.9 }) => (
-  <div className="fixed inset-0 bg-[#05080f] bg-cover bg-center" style={{ backgroundImage: `url(${img})` }}>
-    <div className="absolute inset-0" style={{ background: `radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,${(1 - opacity * 0.6).toFixed(2)}), rgba(5,8,15,.95) 78%), repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px)` }} />
+  <div className="fixed inset-0 overflow-hidden bg-[#05080f] bg-cover bg-center" style={{ backgroundImage: `url(${img})` }}>
+    <div className="absolute inset-0" style={{ background: `radial-gradient(60% 50% at 50% 40%, rgba(124,58,237,.22), transparent 70%), radial-gradient(120% 90% at 50% 38%, rgba(7,9,19,${(1 - opacity * 0.6).toFixed(2)}), rgba(5,6,14,.95) 78%)` }} />
+    <div className="mt-rays" /><div className="mt-dust" />
   </div>
 );
 
 /** 유리 결 배경 — 오른쪽 위에 tint(고른 선수 구단 색) 빛, 왼쪽 아래 초록 빛, 옅은 입자 */
 const NOISE = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E\")";
 export const GlassBg = ({ tint = '#10b981' }) => (
-  <div className="fixed inset-0" style={{ background: `radial-gradient(900px 600px at 78% 18%,color-mix(in srgb,${tint} 30%,transparent),transparent 60%),radial-gradient(800px 700px at 10% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)` }}>
-    <div className="absolute inset-0 opacity-[0.16] mix-blend-overlay" style={{ backgroundImage: NOISE }} />
+  <div className="fixed inset-0 overflow-hidden" style={{ background: `radial-gradient(60% 50% at 50% 42%,rgba(124,58,237,.24),transparent 70%),radial-gradient(900px 600px at 80% 12%,color-mix(in srgb,${tint} 26%,transparent),transparent 60%),radial-gradient(800px 700px at 10% 100%,rgba(16,185,129,.12),transparent 60%),linear-gradient(180deg,#080a16,#04060c)` }}>
+    <div className="mt-rays" /><div className="mt-dust" />
+    <div className="absolute inset-0 opacity-[0.14] mix-blend-overlay" style={{ backgroundImage: NOISE }} />
   </div>
 );
 

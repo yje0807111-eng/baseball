@@ -1491,11 +1491,11 @@ export const KEYFRAMES = `
 /* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
    --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
 .ui-cut { --c: 14px; clip-path: inset(0 round min(var(--c), 22px)); }
-.ui-glass { background: linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.62); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+.ui-glass { background: linear-gradient(180deg,rgba(30,26,56,.74),rgba(10,9,22,.86)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
 .ui-glass2 { background: linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),rgba(9,14,26,.88); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
 /* 프레임: 얇은 외곽선 + 좌상·우하 굵은 브래킷 + 컷 대각선. 자식 위에 얹히는 가상 요소라 내용과 상관없이 붙는다 */
 .ui-frame { position: relative; }
-.ui-frame::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 16%, rgba(255,255,255,.07)); }
+.ui-frame::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 12%, rgba(245,210,122,.3)); }
 .ui-frame.hot::after { box-shadow: inset 0 0 0 1.5px var(--a, #10b981), inset 0 0 36px color-mix(in srgb, var(--a, #10b981) 24%, transparent); }
 .ui-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px !important; font-weight: 800; letter-spacing: .02em; color: var(--a, #10b981); }
 .ui-lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
@@ -1503,7 +1503,7 @@ export const KEYFRAMES = `
 .ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.12); }
 .ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
 .ui-btn:disabled { opacity: .4; cursor: not-allowed; }
-.ui-btn.pri { color: #03140c; background: linear-gradient(180deg, color-mix(in srgb, var(--a, #10b981) 78%, #fff), color-mix(in srgb, var(--a, #10b981) 88%, #000)); box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--a, #10b981) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+.ui-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }
 .ui-btn.pri:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
 .ui-btn.pri:focus-visible { box-shadow: inset 0 0 0 2px #05080f; }
 .ui-btn.sm { --c: 10px; min-height: 32px; padding: 0 12px; border-radius: 10px; font-size:14px; }
@@ -1514,11 +1514,13 @@ export const KEYFRAMES = `
 .ui-scan { background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
 /* 화면 배경: 단계마다 Higgsfield 구장 이미지 + 가장자리 암부 + 스캔라인 */
 .ui-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #05080f center / cover no-repeat; }
-.ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,.4), rgba(5,8,15,.93) 78%); }
+.ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 40%, rgba(124,58,237,.22), transparent 70%), radial-gradient(120% 90% at 50% 38%, rgba(7,9,19,.45), rgba(5,6,14,.94) 78%); }
 .ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%); }
 /* 중계 그래픽 묶음 → HUD 판: 컷 코너 유리 판 + 브래킷 프레임 + 왼쪽 위 라벨 */
-.bc-grp { --c: 22px; --a: #10b981; position: relative; padding: 34px 12px 12px; border-radius: 22px; background: linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); clip-path: inset(0 round 22px); }
-.bc-grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.06); }
+.bc-grp { --c: 22px; --a: #10b981; position: relative; padding: 34px 12px 12px; border-radius: 22px; background: linear-gradient(180deg,rgba(30,26,56,.74),rgba(10,9,22,.86)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); clip-path: inset(0 round 22px); }
+.bc-grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 1px rgba(245,210,122,.3); }
+/* 판 모서리 장식 — 왼쪽 위 · 오른쪽 아래 금빛 괄호(내 차례 빛은 ::before 가 쓰므로 이름표 뒤에 단다) */
+.bc-grp > .bc-label::after { content: ""; position: absolute; left: -13px; top: -3px; width: 24px; height: 24px; border: 2px solid #f5d27a; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; opacity: .85; filter: drop-shadow(0 0 5px rgba(245,210,122,.6)); pointer-events: none; }
 /* 라이브: 내 차례면 선반 판 위로 내 색 빛이 차오르고, 차례가 끝나면 같은 속도로 잦아든다 */
 /* 숨쉬는 빛은 그림자 세기로만 준다 — 투명도는 켜고 끄는 전환에만 쓰여야 뚝 끊기지 않는다 */
 @keyframes myTurnPulse {
@@ -1822,7 +1824,7 @@ export const KEYFRAMES = `
 @keyframes pkSkBreath { 0%, 100% { filter: brightness(1); } 30% { filter: brightness(2.1); } }
 @keyframes pkBtnBreath { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); } 30% { box-shadow: inset 0 0 0 1px rgba(110,231,183,.35); } }
 /* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
-.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: inset(0 round 10px); transition: filter .15s; }
+.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; padding: 0 12px; font-size:14px; font-weight: 800; color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); clip-path: inset(0 round 14px); transition: filter .15s; }
 .pk-go:hover:not(:disabled) { filter: brightness(1.1); }
 /* 내 라인업 선수 방출: 같은 버튼 틀을 붉은 테두리로, 한 번 누르면 붉게 채워져 확정 대기 */
 .pk-go.out { color: #fecaca; background: rgba(239,68,68,.14); box-shadow: inset 0 0 0 1.5px rgba(248,113,113,.7); }
