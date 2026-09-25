@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>타순 맞대기 8안</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:9px 18px 5px}
+  h1{font-family:'Saira Condensed';font-size:21px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:11.5px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px;padding:0 11px 11px;height:calc(911px - 40px)}
+  .cell{position:relative;overflow:hidden;background:#070b14;
+    clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tag{position:absolute;left:0;top:0;z-index:5;display:flex;align-items:center;gap:7px;padding:4px 11px 4px 8px;background:rgba(5,8,15,.9)}
+  .tag b{font-family:'Saira Condensed';font-size:15px;font-weight:900;color:#10b981}
+  .tag span{font-size:11.5px;font-weight:700}
+  .tag i{font-style:normal;font-size:10.5px;color:#8b95a6}
+  .scale{position:absolute;left:0;top:0;width:800px;height:470px;transform-origin:0 0;padding:26px 12px 12px}
+  .p{background:rgba(8,12,20,.66);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+  .lab{font-family:'Saira Condensed';font-size:11px;font-weight:800;letter-spacing:.22em}
+  .n{font-family:'Saira Condensed';font-weight:800;font-variant-numeric:tabular-nums}
+  .face{background:linear-gradient(160deg,#1b2740,#0d1626);flex:0 0 auto}
+</style></head><body>
+<header><h1>타순 맞대기</h1><p>같은 자리끼리 한 줄에 — 여덟 가지 변주</p></header>
+<div class="grid" id="g"></div>
+<script>
+const ME = '#34d399', OP = '#f87171', EVEN = '#94a3b8';
+const MY = [['테임즈',93],['김재환',94],['박병호',97],['강백호',98],['이대호',103],['심정수',95],['김태균',91],['김현수',89],['백인천',94]];
+const OPP = [['박재홍',96],['로하스',96],['테임즈',100],['구자욱',98],['강민호',98],['김태군',102],['김민재',92],['백승수',94],['박한이',83]];
+const MYP = [['SP','페디',104],['CL','윤석민',95]];
+const OPP_P = [['SP','안우진',99],['CL','선동열',98]];
+const win = (a, b) => (a > b ? ME : a < b ? OP : EVEN);
+const wide = (v) => Math.max(6, ((v - 82) / 24) * 100); // 82~106 을 0~100 으로
+const wins = MY.filter(([, v], i) => v > OPP[i][1]).length;
+const loses = MY.filter(([, v], i) => v < OPP[i][1]).length;
+const head = (t, s) => `<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:6px">
+  <p class="lab" style="color:${ME}">${t}</p><small style="font-size:11px;color:#7c8798">${s}</small>
+  <span style="margin-left:auto;display:flex;align-items:baseline;gap:5px">
+    <b class="n" style="font-size:16px;color:${ME}">${wins}</b><small style="font-size:10px;color:#64748b">:</small>
+    <b class="n" style="font-size:16px;color:${OP}">${loses}</b></span></div>`;
+const wrap = (inner, t = 'LINEUP', s = '타순 9') => `<div class="p" style="height:100%;padding:11px 13px;display:flex;flex-direction:column">${head(t, s)}
+  <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-height:0">${inner}</div></div>`;
+const facePic = (w, h) => `<i class="face" style="width:${w}px;height:${h}px"></i>`;
+
+/* ── 17. 기준 ── */
+const base = () => wrap(MY.map(([n, v], i) => { const [on, ov] = OPP[i];
+  return `<div style="display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:8px;padding:3px 8px;background:rgba(255,255,255,.03)">
+    <span style="display:flex;align-items:center;gap:6px">${facePic(20, 26)}
+      <b style="flex:1;font-size:12.5px">${n}</b><b class="n" style="font-size:14px;color:${win(v, ov)}">${v}</b></span>
+    <em class="n" style="font-style:normal;font-size:11px;color:#64748b;text-align:center">${i + 1}</em>
+    <span style="display:flex;align-items:center;gap:6px;flex-direction:row-reverse">${facePic(20, 26)}
+      <b style="flex:1;font-size:12.5px;text-align:right">${on}</b><b class="n" style="font-size:14px;color:${win(ov, v)}">${ov}</b></span>
+  </div>`; }).join(''));
+
+/* ── 18. 막대가 가운데에서 ── */
+const bars = () => wrap(MY.map(([n, v], i) => { const [on, ov] = OPP[i];
+  return `<div style="display:grid;grid-template-columns:1fr 26px 1fr;align-items:center;gap:7px;padding:2px 8px">
+    <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+      <b style="font-size:11.5px;color:#94a3b8">${n}</b>
+      <span style="width:150px;display:flex;justify-content:flex-end;height:15px;background:rgba(255,255,255,.06)">
+        <i style="display:block;width:${wide(v)}%;background:${win(v, ov)};display:flex;align-items:center;padding-left:5px">
+          <b class="n" style="font-size:11px;color:#05080f">${v}</b></i></span></span>
+    <em class="n" style="font-style:normal;font-size:11px;color:#475569;text-align:center">${i + 1}</em>
+    <span style="display:flex;align-items:center;gap:6px">
+      <span style="width:150px;height:15px;background:rgba(255,255,255,.06)">
+        <i style="display:block;width:${wide(ov)}%;background:${win(ov, v)};display:flex;align-items:center;justify-content:flex-end;padding-right:5px">
+          <b class="n" style="font-size:11px;color:#05080f">${ov}</b></i></span>
+      <b style="font-size:11.5px;color:#94a3b8">${on}</b></span>
+  </div>`; }).join(''));
+
+/* ── 19. 얼굴을 키운다 ── */
+const faces = () => wrap(MY.slice(0, 7).map(([n, v], i) => { const [on, ov] = OPP[i];
+  return `<div style="display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:8px">
+    <span style="display:flex;align-items:center;gap:8px;padding:2px 6px;background:linear-gradient(90deg,${ME}1c,transparent)">
+      ${facePic(30, 38)}<span style="min-width:0"><b style="display:block;font-size:13px">${n}</b>
+      <b class="n" style="font-size:15px;color:${win(v, ov)}">${v}</b></span></span>
+    <em class="n" style="font-style:normal;font-size:12px;color:#64748b;text-align:center">${i + 1}</em>
+    <span style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;padding:2px 6px;background:linear-gradient(270deg,${OP}1c,transparent)">
+      ${facePic(30, 38)}<span style="min-width:0;text-align:right"><b style="display:block;font-size:13px">${on}</b>
+      <b class="n" style="font-size:15px;color:${win(ov, v)}">${ov}</b></span></span>
+  </div>`; }).join(''));
+
+/* ── 20. 이긴 쪽이 차오른다 ── */
+const fill = () => wrap(MY.map(([n, v], i) => { const [on, ov] = OPP[i]; const c = win(v, ov);
+  return `<div style="display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:0;padding:3px 0">
+    <span style="display:flex;align-items:center;gap:6px;padding:4px 9px;background:${v >= ov ? `linear-gradient(90deg,transparent,${ME}33)` : 'rgba(255,255,255,.03)'};box-shadow:${v > ov ? `inset 0 -2px 0 ${ME}` : 'none'}">
+      ${facePic(20, 26)}<b style="flex:1;font-size:12.5px;color:${v >= ov ? '#fff' : '#94a3b8'}">${n}</b>
+      <b class="n" style="font-size:15px;color:${c}">${v}</b></span>
+    <em class="n" style="font-style:normal;font-size:11px;color:#475569;text-align:center">${i + 1}</em>
+    <span style="display:flex;align-items:center;gap:6px;flex-direction:row-reverse;padding:4px 9px;background:${ov >= v ? `linear-gradient(270deg,transparent,${OP}33)` : 'rgba(255,255,255,.03)'};box-shadow:${ov > v ? `inset 0 -2px 0 ${OP}` : 'none'}">
+      ${facePic(20, 26)}<b style="flex:1;font-size:12.5px;text-align:right;color:${ov >= v ? '#fff' : '#94a3b8'}">${on}</b>
+      <b class="n" style="font-size:15px;color:${win(ov, v)}">${ov}</b></span>
+  </div>`; }).join(''));
+
+/* ── 21. 가운데에 차이 ── */
+const gap = () => wrap(MY.map(([n, v], i) => { const [on, ov] = OPP[i]; const d = v - ov; const c = win(v, ov);
+  return `<div style="display:grid;grid-template-columns:1fr 54px 1fr;align-items:center;gap:8px;padding:3px 8px;background:rgba(255,255,255,.03)">
+    <span style="display:flex;align-items:center;gap:6px">${facePic(20, 26)}
+      <b style="flex:1;font-size:12.5px">${n}</b><b class="n" style="font-size:14px;color:#cbd5e1">${v}</b></span>
+    <b class="n" style="text-align:center;font-size:14px;color:${c};background:color-mix(in srgb,${c} 16%,transparent);padding:1px 0">${d > 0 ? '+' : ''}${d}</b>
+    <span style="display:flex;align-items:center;gap:6px;flex-direction:row-reverse">${facePic(20, 26)}
+      <b style="flex:1;font-size:12.5px;text-align:right">${on}</b><b class="n" style="font-size:14px;color:#cbd5e1">${ov}</b></span>
+  </div>`; }).join(''));
+
+/* ── 22. 카드 두 장이 마주 ── */
+const cards = () => wrap(MY.slice(0, 5).map(([n, v], i) => { const [on, ov] = OPP[i];
+  return `<div style="display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;gap:8px">
+    <div class="p" style="display:flex;align-items:center;gap:8px;padding:6px 9px;border-bottom:2px solid ${win(v, ov)}">
+      ${facePic(26, 34)}<b style="flex:1;font-size:13px">${n}</b><b class="n" style="font-size:18px;color:${win(v, ov)}">${v}</b></div>
+    <em class="n" style="font-style:normal;font-size:12px;color:#475569;display:grid;place-items:center">${i + 1}</em>
+    <div class="p" style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;padding:6px 9px;border-bottom:2px solid ${win(ov, v)}">
+      ${facePic(26, 34)}<b style="flex:1;font-size:13px;text-align:right">${on}</b><b class="n" style="font-size:18px;color:${win(ov, v)}">${ov}</b></div>
+  </div>`; }).join(''));
+
+/* ── 23. 표식으로 ── */
+const marks = () => wrap(MY.map(([n, v], i) => { const [on, ov] = OPP[i]; const c = win(v, ov);
+  const m = v > ov ? '◀' : v < ov ? '▶' : '·';
+  return `<div style="display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:8px;padding:3px 8px">
+    <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+      <b style="font-size:12.5px;color:${v >= ov ? '#fff' : '#64748b'}">${n}</b>
+      <b class="n" style="font-size:15px;width:30px;text-align:right;color:${v >= ov ? ME : '#475569'}">${v}</b></span>
+    <b style="text-align:center;font-size:12px;color:${c}">${m}</b>
+    <span style="display:flex;align-items:center;gap:6px">
+      <b class="n" style="font-size:15px;width:30px;color:${ov >= v ? OP : '#475569'}">${ov}</b>
+      <b style="font-size:12.5px;color:${ov >= v ? '#fff' : '#64748b'}">${on}</b></span>
+  </div>`; }).join(''));
+
+/* ── 24. 격차 큰 순서 ── */
+const sorted = () => {
+  const rows = MY.map(([n, v], i) => ({ n, v, on: OPP[i][0], ov: OPP[i][1], i: i + 1 }))
+    .sort((a, b) => Math.abs(b.v - b.ov) - Math.abs(a.v - a.ov));
+  return wrap(rows.map(({ n, v, on, ov, i }) => { const d = v - ov; const c = win(v, ov);
+    return `<div style="display:grid;grid-template-columns:22px 1fr 44px 1fr;align-items:center;gap:7px;padding:3px 8px;background:rgba(255,255,255,.03);box-shadow:inset 3px 0 0 ${c}">
+      <em class="n" style="font-style:normal;font-size:11px;color:#475569;text-align:center">${i}</em>
+      <span style="display:flex;align-items:center;gap:5px">${facePic(18, 24)}<b style="flex:1;font-size:12px">${n}</b>
+        <b class="n" style="font-size:13px;color:#cbd5e1">${v}</b></span>
+      <b class="n" style="text-align:center;font-size:14px;color:${c}">${d > 0 ? '+' : ''}${d}</b>
+      <span style="display:flex;align-items:center;gap:5px;flex-direction:row-reverse">${facePic(18, 24)}
+        <b style="flex:1;font-size:12px;text-align:right">${on}</b><b class="n" style="font-size:13px;color:#cbd5e1">${ov}</b></span>
+    </div>`; }).join(''), 'BIGGEST GAP', '격차 큰 순');
+};
+
+const LOOKS = [
+  ['기준 (16안의 2번)', '이름 · 종합 · 가운데 번호', base],
+  ['막대가 가운데에서', '길이로 한눈에 · 숫자는 막대 안', bars],
+  ['얼굴을 키운다', '누가 나오는지 얼굴로 먼저', faces],
+  ['이긴 쪽이 차오른다', '우세한 칸에 색이 번지고 밑줄', fill],
+  ['가운데에 차이', '번호 자리를 +7 · −5 가 대신한다', gap],
+  ['카드 두 장', '줄이 아니라 카드가 마주 선다', cards],
+  ['표식으로', '◀ ▶ 하나로 · 진 쪽은 옅게', marks],
+  ['격차 큰 순서', '어디서 갈리는지부터 보인다', sorted],
+];
+
+document.getElementById('g').innerHTML = LOOKS.map(([title, note, draw], n) => `
+  <div class="cell">
+    <div class="tag"><b>${n + 17}</b><span>${title}</span><i>${note}</i></div>
+    <div class="scale" id="s${n}">${draw()}</div>
+  </div>`).join('');
+requestAnimationFrame(() => {
+  document.querySelectorAll('.cell').forEach((c, i) => {
+    const s = document.getElementById('s' + i);
+    s.style.transform = `scale(${Math.min(c.clientWidth / 800, c.clientHeight / 470)})`;
+  });
+});
+</script></body></html>

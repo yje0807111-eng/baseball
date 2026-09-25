@@ -4554,22 +4554,33 @@ const teamOvr = (team) => Math.round(avg(team.roster.map((p) => p.overall)));
 const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.defense * 0.2;
 const winChance = (my, opp) => 1 / (1 + Math.exp(-(teamPower(my) - teamPower(opp)) / 3.2));
 
-function MatchRow({ player, label, mine }) {
+
+/** 같은 자리끼리 마주 세운 한 줄 */
+function DuelRow({ label, mine, opp }) {
+  const a = mine?.overall ?? 0, b = opp?.overall ?? 0;
+  const side = (p, v, other, c, right) => (
+    <span className={`flex items-center gap-2 px-2.5 py-1.5 ${right ? 'flex-row-reverse text-right' : ''}`}
+      style={{ background: v >= other ? `linear-gradient(${right ? 270 : 90}deg,transparent,${c}33)` : 'rgba(255,255,255,.035)',
+        boxShadow: v > other ? `inset 0 -2px 0 ${c}` : 'none' }}>
+      <Portrait player={p} className="h-8 w-6 shrink-0" />
+      <b className={`min-w-0 flex-1 truncate text-[13px] font-bold ${v >= other ? 'text-white' : 'text-gray-400'}`}>{p?.name}</b>
+      <b className="font-display text-[17px] font-bold tabular-nums" style={{ color: v > other ? c : v < other ? '#475569' : '#94a3b8' }}>{v}</b>
+    </span>
+  );
   return (
-    <div className={`ui-cut flex h-11 items-center gap-2.5 bg-white/[0.045] px-2 ${mine ? '' : 'flex-row-reverse text-right'}`} style={{ '--c': '6px' }}>
-      <span className="w-6 shrink-0 text-center font-display text-sm font-bold text-gray-500">{label}</span>
-      <Portrait player={player} className="h-9 w-7" />
-      <span className="min-w-0 flex-1 truncate text-sm font-bold text-white">{player.name} <small className="font-display text-[11px] font-semibold text-gray-500">{player.slot || player.position}</small></span>
-      <span className="font-display text-lg font-bold tabular-nums" style={{ color: player.isReplacement ? '#64748b' : neonOf(player) }}>{player.overall}</span>
+    <div className="grid items-stretch" style={{ gridTemplateColumns: 'minmax(0,1fr) 34px minmax(0,1fr)' }}>
+      {side(mine, a, b, '#10b981', false)}
+      <em className="grid place-items-center font-display text-[12px] font-bold not-italic text-gray-600">{label}</em>
+      {side(opp, b, a, '#f87171', true)}
     </div>
   );
 }
 
-function DuelCard({ player, label }) {
+function DuelCard({ player, label, tall = '19rem' }) {
   const bust = useBust(player, '260%');
   const acc = neonOf(player);
   return (
-    <div className="ui-cut ui-frame relative h-[19rem] w-[13rem] overflow-hidden bg-[#0b1220] bg-no-repeat" style={{ '--c': '20px', '--a': acc, ...bust }}>
+    <div className="ui-cut ui-frame relative w-[13rem] overflow-hidden bg-[#0b1220] bg-no-repeat" style={{ height: tall, '--c': '20px', '--a': acc, ...bust }}>
       <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#05080f] via-[#05080f]/90 to-transparent px-4 pb-3 pt-10 text-left">
         <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
         <p className="text-2xl font-black text-white">{player.name}</p>
@@ -4592,19 +4603,6 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
         <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{mine ? 'MY TEAM' : 'AI OPPONENT'} · 타선 {avg(team.batters)} · 마운드 {avg([team.sps[0], ...team.pen].filter(Boolean))}</small>
       </span>
       <b className="font-display text-4xl font-extrabold leading-none" style={{ color: acc, textShadow: `0 0 18px ${acc}88` }}>{teamOvr(team)}</b>
-    </div>
-  );
-  const lineup = (team, name, acc, mine) => (
-    <div className="flex min-h-0 flex-col" style={{ '--a': acc }}>
-      <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
-        <p className="ui-lab font-display" style={{ '--a': acc }}>{mine ? 'My Lineup' : 'AI Lineup'}</p>
-        <b className="text-lg font-black text-white">{name}</b>
-      </div>
-      <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-1">
-        {team.batters.map((b, i) => <MatchRow key={b.id} player={b} label={i + 1} mine />)}
-        <p className="ui-lab font-display mt-1.5" style={{ '--a': acc, fontSize: 10 }}>Mound</p>
-        {[team.sps[0], ...team.pen].filter(Boolean).map((x) => <MatchRow key={x.id} player={x} label={x.slot} mine />)}
-      </div>
     </div>
   );
   return (
@@ -4636,14 +4634,40 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
           <p className="ui-lab font-display">Play Ball</p>
           <p className="text-sm text-gray-400">선발 맞대결</p>
         </div>
-        <div className="grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
-          {lineup(my, '나의 드림팀', '#10b981', true)}
-          <div className="relative flex items-center gap-4 self-center">
-            <DuelCard player={my.sps[0]} label="My Starter" />
-            <span className="absolute left-1/2 top-[42%] z-10 -translate-x-1/2 -translate-y-1/2 font-display text-6xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
-            <DuelCard player={opp.sps[0]} label="AI Starter" />
+        <div className="mt-2 grid min-h-0 flex-1 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
+          {/* 선발 맞대결 */}
+          <div className="relative flex shrink-0 items-center justify-center gap-4">
+            <DuelCard player={my.sps[0]} label="My Starter" tall="11.5rem" />
+            <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
+            <DuelCard player={opp.sps[0]} label="AI Starter" tall="11.5rem" />
           </div>
-          {lineup(opp, 'AI 올스타', '#f87171', false)}
+          {/* 같은 자리끼리 맞대기 — 앞선 쪽에 색이 번진다 */}
+          {(() => {
+            const mound = (t) => [t.sps[0], ...t.pen].filter(Boolean);
+            const mine = mound(my), theirs = mound(opp);
+            const pairs = [
+              ...my.batters.map((p, i) => ({ key: `b${i}`, label: i + 1, mine: p, opp: opp.batters[i] })),
+              ...mine.map((p, i) => ({ key: `p${i}`, label: p.slot || p.position, mine: p, opp: theirs[i] })),
+            ].filter((x) => x.mine && x.opp);
+            const won = pairs.filter((x) => x.mine.overall > x.opp.overall).length;
+            const lost = pairs.filter((x) => x.mine.overall < x.opp.overall).length;
+            return (
+              <div className="flex min-h-0 flex-col">
+                <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
+                  <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>Head to Head</p>
+                  <span className="text-sm text-gray-400">자리마다 맞대기</span>
+                  <span className="ml-auto flex items-baseline gap-1.5">
+                    <b className="font-display text-xl font-extrabold text-[#10b981]">{won}</b>
+                    <small className="text-gray-600">:</small>
+                    <b className="font-display text-xl font-extrabold text-[#f87171]">{lost}</b>
+                  </span>
+                </div>
+                <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-[3px] overflow-y-auto pr-1">
+                  {pairs.map((x) => <DuelRow key={x.key} label={x.label} mine={x.mine} opp={x.opp} />)}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </section>
 
