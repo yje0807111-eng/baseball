@@ -1881,6 +1881,27 @@ export const KEYFRAMES = `
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
+/* 아래에서 솟아오르며 자리를 잡는다 */
+@keyframes augIn { from { opacity: 0; transform: translateY(54px) scale(.9); } to { opacity: 1; transform: none; } }
+/* 고른 카드 — 한 번 커졌다가 빛에 싸여 떠오른다 */
+@keyframes augTake { 0% { transform: translateY(-10px) scale(1.04); filter: brightness(1); }
+  30% { transform: translateY(-16px) scale(1.1); filter: brightness(1.55) saturate(1.2); }
+  100% { transform: translateY(-64px) scale(1.16); filter: brightness(2.2); opacity: 0; } }
+/* 고르지 않은 카드 — 물러나 사라진다 */
+@keyframes augDrop { to { opacity: 0; transform: translateY(26px) scale(.9); filter: brightness(.5); } }
+/* 고른 자리에서 퍼지는 고리 */
+@keyframes augRing { from { opacity: .9; transform: scale(.55); } to { opacity: 0; transform: scale(1.9); } }
+.aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .28s cubic-bezier(.2,.9,.3,1), opacity .28s, filter .28s; }
+/* 올려 둔 카드는 커지고, 나머지는 한 발 물러선다 */
+.aug-card.hot { transform: translateY(-14px) scale(1.045); z-index: 2; }
+.aug-card.cold { opacity: .58; filter: saturate(.55) brightness(.8); transform: scale(.97); }
+.aug-card.take { animation: augTake .52s cubic-bezier(.3,.7,.4,1) both; z-index: 3; }
+.aug-card.gone { animation: augDrop .4s ease-in both; }
+.aug-ring { position: absolute; inset: -6%; border-radius: 12px; pointer-events: none; z-index: 4;
+  box-shadow: 0 0 0 3px var(--a), 0 0 60px -6px var(--a); animation: augRing .55s ease-out both; }
+/* 올려 두면 그림이 천천히 밀려 들어온다 */
+.aug-card .aug-art { transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; }
+.aug-card.hot .aug-art { transform: scale(1.06); }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
 /* 넓은 화면: 시너지는 구장 바로 오른쪽(판 끝까지), 그늘은 옅게 해 사진이 뒤로 이어 보이게 */
@@ -3649,14 +3670,17 @@ const TierIcon = ({ tier }) => (
   </svg>
 );
 
-function ChoiceCard({ option: o, index, onChoose }) {
+function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   const art = useImage(`augments/${o.id}.webp`);
   const acc = TIER_NEON[o.tier];
   return (
-    <section style={{ '--a': acc, '--c': '22px', animationDelay: `${120 + index * 110}ms` }}
-      className="ui-choice ui-cut ui-frame group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left animate-[rise_.45s_ease-out_both] transition-transform duration-200 hover:-translate-y-2 focus-within:-translate-y-2">
+    <section style={{ '--a': acc, '--c': '22px', animationDelay: state ? '0ms' : `${120 + index * 110}ms` }}
+      onMouseEnter={() => onHot?.(index)} onMouseLeave={() => onHot?.(-1)}
+      onFocusCapture={() => onHot?.(index)} onBlurCapture={() => onHot?.(-1)}
+      className={`ui-choice ui-cut ui-frame aug-card group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left ${state}`}>
+      {state === 'take' && <span className="aug-ring" style={{ '--a': acc }} />}
       {art
-        ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] transition duration-300 group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
+        ? <img src={art} alt="" className="aug-art absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
         : <span className="absolute inset-0" style={{ background: `radial-gradient(80% 50% at 50% 30%, ${acc}40, transparent 70%)` }} />}
       <span className="absolute inset-0" style={{ background: `radial-gradient(80% 45% at 50% 28%, ${acc}33, transparent 70%), linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%)` }} />
       <span className="ui-scan absolute inset-0 opacity-70" />
@@ -3677,6 +3701,9 @@ function ChoiceCard({ option: o, index, onChoose }) {
 }
 
 function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null }) {
+  const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
+  const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
+  useEffect(() => { setHot(-1); setTook(-1); }, [choice]);
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3696,7 +3723,11 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
           {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-6">
-          {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
+          {choice.options.map((o, i) => (
+            <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
+              state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
+              onChoose={(pick) => { if (took >= 0) return; setTook(i); setTimeout(() => onChoose(pick), 460); }} />
+          ))}
         </div>
         {isAug && onReroll && rerolls > 0 && (
           <button type="button" onClick={onReroll} className="ui-btn ui-cut animate-[rise_.4s_ease-out_both]" style={{ '--c': '9px' }}>
