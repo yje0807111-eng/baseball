@@ -5,7 +5,7 @@ import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
-import { statColor, statPct } from './myteam/teamColor.js';
+import { statColor, statPct, teamNeon } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -4586,15 +4586,16 @@ function DuelRow({ label, mine, opp }) {
  * 사진은 세로라 넓은 카드를 꽉 채우면 얼굴만 커진다. 높이 기준으로 줄여 상반신을 담고,
  * 사진이 카드보다 좁아 드러나는 좌우 가장자리는 어둠으로 녹인다.
  */
-function StarterCard({ player, right, c }) {
+function StarterCard({ player, right, side }) {
   const profile = useProfile(player);
   const bust = useBust(player, '120%');
   const look = profile ? { ...bust, backgroundSize: 'auto 130%', backgroundPosition: '50% 10%' } : bust;
+  const c = teamNeon(player); // 배경은 그 선수의 구단 색 — 두산이면 파랑
   return (
     <div className="ui-cut relative min-w-0 flex-1 overflow-hidden" style={{ '--c': '14px',
       background: `linear-gradient(180deg, ${c}3d, rgba(7,11,20,.96) 66%)`,
-      boxShadow: `inset 0 0 0 1px ${c}55, inset 0 -3px 0 ${c}` }}>
-      {/* 인물 뒤에서 번지는 팀 색 */}
+      boxShadow: `inset 0 0 0 1px ${c}55, inset 0 -3px 0 ${side}` }}>
+      {/* 인물 뒤에서 번지는 구단 색 */}
       <span className="absolute inset-0" style={{ background: `radial-gradient(57% 52% at 50% 31%, ${c}5c, transparent 73%)` }} />
       <span className="absolute inset-0 bg-no-repeat" style={look} />
       <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.97) 4%, rgba(5,8,15,.05) 38%, rgba(5,8,15,.05) 62%, rgba(5,8,15,.97) 96%)' }} />
@@ -4602,7 +4603,7 @@ function StarterCard({ player, right, c }) {
       <b className="absolute top-2 font-display text-[30px] font-extrabold leading-none"
         style={{ [right ? 'right' : 'left']: 14, color: c, textShadow: `0 0 18px ${c}88` }}>{player.overall}</b>
       <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: c }}>{right ? 'AI Starter' : 'My Starter'}</p>
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: side }}>{right ? 'AI Starter' : 'My Starter'}</p>
         <p className="text-[25px] font-black leading-tight text-white">{player.name}</p>
         <p className="text-[11px] text-gray-400">{player.year} {player.team}</p>
         <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
@@ -4620,8 +4621,8 @@ function StarterDuel({ mine, opp, h = 200 }) {
   if (!mine || !opp) return null;
   return (
     <div className="relative flex shrink-0 gap-1.5" style={{ height: h }}>
-      <StarterCard player={mine} c="#10b981" />
-      <StarterCard player={opp} c="#f87171" right />
+      <StarterCard player={mine} side="#10b981" />
+      <StarterCard player={opp} side="#f87171" right />
       <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_28px_rgba(255,255,255,.55),0_4px_0_rgba(0,0,0,.6)]">VS</span>
     </div>
   );

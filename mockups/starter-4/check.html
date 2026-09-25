@@ -18,22 +18,22 @@
 <div id="out"></div>
 <script>
 const MEN = [
-  { id: '2002-doosan_레스', name: '레스', c: '#10b981', l: 'MY STARTER', y: '2002 두산', ovr: 104, k: [['구위',108],['제구',101],['체력',101]] },
-  { id: '2002-doosan_김동주', name: '김동주', c: '#f87171', l: 'AI STARTER', y: '2002 두산', ovr: 99, k: [['구위',105],['제구',99],['체력',105]] },
+  { id: '2002-doosan_레스', name: '레스', club: '#a5a3ff', side: '#10b981', l: 'MY STARTER', y: '2002 두산', ovr: 104, k: [['구위',108],['제구',101],['체력',101]] },
+  { id: '2002-doosan_김동주', name: '김동주', club: '#ff8a3d', side: '#f87171', l: 'AI STARTER', y: '1999 한화', ovr: 99, k: [['구위',105],['제구',99],['체력',105]] },
 ];
 const url = (id) => `../../public/profiles/${encodeURIComponent(id)}.webp`;
-const card = (m, right, tint) => `<div class="card" style="background:${tint.base(m.c)};box-shadow:inset 0 0 0 1px ${m.c}55, inset 0 -3px 0 ${m.c}">
-  <i class="l" style="background:${tint.glow(m.c)}"></i>
+const card = (m, right, tint) => `<div class="card" style="background:${tint.base(m.club)};box-shadow:inset 0 0 0 1px ${m.club}55, inset 0 -3px 0 ${m.side}">
+  <i class="l" style="background:${tint.glow(m.club)}"></i>
   <i class="l" style="background-image:url('${url(m.id)}');background-size:auto 130%;background-position:50% 10%;background-repeat:no-repeat"></i>
   <i class="l" style="background:linear-gradient(90deg,rgba(5,8,15,.97) 4%,rgba(5,8,15,.05) 38%,rgba(5,8,15,.05) 62%,rgba(5,8,15,.97) 96%)"></i>
-  <i class="l" style="background:${tint.foot(m.c)}"></i>
-  <b class="ovr" style="${right ? 'right' : 'left'}:14px;color:${m.c};text-shadow:0 0 18px ${m.c}88">${m.ovr}</b>
+  <i class="l" style="background:${tint.foot(m.club)}"></i>
+  <b class="ovr" style="${right ? 'right' : 'left'}:14px;color:${m.club};text-shadow:0 0 18px ${m.club}88">${m.ovr}</b>
   <span class="who" style="${right ? 'right:16px;text-align:right' : 'left:16px'}">
-    <em style="color:${m.c}">${m.l}</em><b>${m.name}</b><small>${m.y}</small>
+    <em style="color:${m.side}">${m.l}</em><b>${m.name}</b><small>${m.y}</small>
     <span class="k" style="${right ? 'justify-content:flex-end' : ''}">${m.k.map(([k, v]) => `<span>${k} <b style="font-size:12.5px;display:inline;color:#e6edf6">${v}</b></span>`).join('')}</span>
   </span></div>`;
 const CASES = [
-  ['지금 적용한 것 — 위에서 팀 색이 깔리고 인물 뒤에서 번진다', {
+  ['지금 적용한 것 — 배경은 구단 색(두산 파랑 · 한화 주황), 밑줄과 라벨은 우리 · 상대', {
     base: (c) => `linear-gradient(180deg,${c}2a,rgba(7,11,20,.97) 64%)`,
     glow: (c) => `radial-gradient(54% 48% at 50% 32%,${c}4d,transparent 72%)`,
     foot: (c) => `linear-gradient(0deg,rgba(5,8,15,.94),${c}14 54%,transparent)` }],
