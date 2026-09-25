@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>메인 화면 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --rk:#94a3b8;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#05080f;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .bgx{position:absolute;inset:0;background:radial-gradient(900px 600px at 80% 10%,rgba(99,102,241,.14),transparent 60%),radial-gradient(900px 700px at 10% 100%,rgba(16,185,129,.16),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .bgx::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.16;mix-blend-mode:overlay}
+  .shell{position:relative;height:100%;display:flex;flex-direction:column}
+  .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+  .pri{border-radius:18px;font-weight:800;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 18px 40px -12px rgba(16,185,129,.85),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .2s}
+  .pri:hover{transform:translateY(-2px)}
+  .photo{position:relative;overflow:hidden;border-radius:22px;background:#0b1220 center/cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 30px 60px -30px rgba(0,0,0,.9);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+  .photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.05),rgba(5,8,15,.35) 45%,rgba(5,8,15,.92))}
+  .photo>*{position:relative;z-index:1}
+  .photo:hover{transform:translateY(-3px)}
+  .mode{position:relative;overflow:hidden;border-radius:16px;background:#0b1220 center/cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.14);transition:transform .2s}
+  .mode::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.1),rgba(5,8,15,.9))}
+  .mode>*{position:relative;z-index:1}
+  .mode:hover{transform:translateY(-3px)}
+  .bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;border-radius:6px}
+  .face{border-radius:50%;background:#0b1220 url(/ui/mt/silhouette-player.webp) center 14%/cover;flex:none}
+  .emb{background:center/contain no-repeat;flex:none}
+  .nav button{display:flex;align-items:center;gap:14px;height:76px;padding:0 14px;border-radius:16px;transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.06)}
+  .nav .th{width:52px;height:52px;border-radius:14px;background:center/cover;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 10px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+  #tool span{color:#cbd5e1;margin-left:6px}#tool b{color:#fde047}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"><button data-v="1">1 지금 틀 정리</button><button data-v="2">2 플레이 크게</button><button data-v="3">3 왼쪽 메뉴</button><span id="meter"></span></div>
+
+<script>
+const MODES = [['일반 대결', '단판 · 토너먼트', '/ui/broadcast-field.webp', '#10b981'], ['랭크전', '정규시즌 · 등급', '/ui/stadium.webp', '#a78bfa'], ['드래프트', '특정 시즌 · 전체 믹스', '/modes/mix.webp', '#38e1ff'], ['특별 모드', '규칙이 다른 세 모드', '/modes/legend.webp', '#fbbf24']];
+const MENU = [['내 라커', '선수 영입 · 타순 · 코치', '/ui/mt/tile-locker.webp', '#34d399'], ['상점', '선수 능력치 · 캡 늘리기', '/ui/mt/tile-shop.webp', '#fde047'], ['증강', '나올 증강 고르고 강화하기', '/ui/mt/mt-boost.webp', '#c4b5fd'], ['기록', '경기 기록 · 도감 · 주간 과제', '/ui/mt/tile-record.webp', '#7dd3fc']];
+const WEEK = [['승리 5번', 0, 5], ['증강 10장 고르기', 3, 10], ['토너먼트 8강 이상', 0, 1]];
+const MVP = [['박진만', 1], ['김준환', 1]];
+let v = +(location.hash.slice(1) || 1);
+
+const topbar = () => `
+  <header class="row" style="height:72px;padding:0 28px;gap:16px">
+    <div class="col"><span class="t4 d">레전드 드래프트</span><b class="t2">메인</b></div>
+    <div class="grow"></div>
+    <div class="row glass" style="height:48px;padding:0 16px 0 8px;border-radius:14px;gap:12px"><span class="face" style="width:34px;height:34px"></span>
+      <div class="col"><b>123213 <span class="m" style="font-weight:500">감독</span></b><span class="t4 d">루키 III · 0 RP</span></div></div>
+    <div class="row glass" style="height:48px;padding:0 16px;border-radius:14px;gap:8px"><b class="n" style="color:var(--gold);font-size:var(--t2)">5,600</b><span class="t4 d">G</span></div>
+  </header>`;
+const modes = (h, cols = 4) => `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px">${MODES.map(([n, s, img, c]) => `
+  <button class="mode" style="height:${h}px;background-image:url(${img});box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -3px 0 ${c}">
+    <span class="col" style="position:absolute;left:14px;right:14px;bottom:12px"><b class="t2">${n}</b><span class="t4 m tr">${s}</span></span></button>`).join('')}</div>`;
+const rankCard = (compact = false) => `
+  <div class="row" style="gap:18px">
+    <span class="emb" style="width:${compact ? 84 : 110}px;height:${compact ? 84 : 110}px;background-image:url(/ui/rank/rookie.webp);filter:drop-shadow(0 0 14px rgba(148,163,184,.4))"></span>
+    <div class="col grow" style="gap:8px">
+      <span class="lab" style="--k:var(--rk)">내 등급</span>
+      <div class="row" style="align-items:baseline;gap:14px"><b class="t1">루키 III</b><b class="n" style="font-size:32px;color:var(--rk)">0</b><span class="n d" style="font-size:var(--t2)">/ 300 RP</span></div>
+      <div class="bar"><i style="width:4%;background:linear-gradient(90deg,rgba(148,163,184,.4),#94a3b8)"></i></div>
+      <span class="t4 m">퓨처스까지 <b class="n" style="font-size:var(--t3);color:var(--w)">300</b> RP</span>
+    </div>
+  </div>`;
+const weekCard = () => `
+  <div class="col" style="gap:10px">
+    <div class="row"><span class="lab" style="--k:var(--warn)">주간 과제</span><span class="grow"></span><span class="t4 d">보너스 <b style="color:var(--warn)">500 G</b></span></div>
+    ${WEEK.map(([k, n, g]) => `<div class="col" style="gap:5px"><div class="row"><span class="grow">${k}</span><b class="n m">${n}/${g}</b></div><div class="bar" style="height:4px"><i style="width:${(n / g) * 100}%;background:var(--warn)"></i></div></div>`).join('')}
+  </div>`;
+const mvpCard = () => `
+  <div class="col" style="gap:10px">
+    <span class="lab" style="--k:var(--gold)">경기 MVP</span>
+    ${MVP.map(([n, c], i) => `<div class="row" style="gap:12px"><b class="n" style="width:14px;color:${['#fbbf24', '#cbd5e1', '#d97706'][i]}">${i + 1}</b><span class="face" style="width:36px;height:36px"></span><b class="grow">${n}</b><span class="t4 m">MVP ${c}회</span></div>`).join('')}
+  </div>`;
+
+/* ── 1. 지금 틀 정리 — 큰 경기장 + 메뉴 넷, 아래 줄은 등급 · MVP · 주간 과제(팀 능력치는 라커에 있어 뺌) ── */
+function v1() {
+  return `<div class="bgx"></div><div class="shell">${topbar()}
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr 214px;gap:14px;padding:0 28px 24px;flex:1;min-height:0">
+      <section class="photo col" style="grid-column:1/span 2;grid-row:1/span 2;justify-content:flex-end;padding:26px;background-image:url(/ui/broadcast-field.webp)">
+        <div class="row" style="align-items:flex-end;margin-bottom:18px"><div class="col"><span class="lab">경기 모드</span><b style="font-size:48px;font-weight:800;line-height:1.1">오늘의 경기장</b></div><span class="grow"></span>
+          <button class="pri" style="height:74px;padding:0 54px;font-size:26px">플레이 ▶</button></div>
+        ${modes(110)}
+      </section>
+      ${MENU.map(([t, s, img, c]) => `<button class="photo col" style="justify-content:flex-end;padding:22px;background-image:url(${img})"><b class="t1">${t}</b><span style="color:${c}">${s}</span></button>`).join('')}
+      <section class="glass" style="grid-column:1/span 4;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px;padding:22px 28px;align-items:center">
+        ${rankCard()}
+        <div style="border-left:1px solid rgba(255,255,255,.08);padding-left:28px">${mvpCard()}</div>
+        <div style="border-left:1px solid rgba(255,255,255,.08);padding-left:28px">${weekCard()}</div>
+      </section>
+    </div></div>`;
+}
+
+/* ── 2. 플레이 크게 — 위는 넓은 경기장 한 판, 아래 줄은 메뉴 넷 · 등급과 과제 ── */
+function v2() {
+  return `<div class="bgx"></div><div class="shell">${topbar()}
+    <div class="col" style="gap:14px;padding:0 28px 24px;flex:1;min-height:0">
+      <section class="photo" style="flex:1;min-height:0;display:grid;grid-template-columns:1fr 860px;align-items:end;gap:30px;padding:30px;background-image:url(/ui/stadium.webp);background-position:center 40%">
+        <div class="col" style="gap:18px"><span class="lab">경기 모드</span><b style="font-size:60px;font-weight:800;line-height:1">오늘의 경기장</b>
+          <button class="pri" style="height:82px;width:340px;font-size:28px;text-align:center">플레이 ▶</button></div>
+        ${modes(150)}
+      </section>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr) 1.3fr 1fr;gap:14px;height:230px">
+        ${MENU.map(([t, s, img, c]) => `<button class="photo col" style="justify-content:flex-end;padding:18px;background-image:url(${img})"><b class="t2">${t}</b><span class="t4 tr" style="color:${c}">${s}</span></button>`).join('')}
+        <section class="glass" style="padding:20px 22px;display:flex;align-items:center">${rankCard(true)}</section>
+        <section class="glass" style="padding:20px 22px">${weekCard()}</section>
+      </div>
+    </div></div>`;
+}
+
+/* ── 3. 왼쪽 메뉴 — 게임 홈처럼 왼쪽에 메뉴, 가운데 경기장, 오른쪽에 내 등급 · MVP · 과제 ── */
+function v3() {
+  return `<div class="bgx"></div><div class="shell">${topbar()}
+    <div style="display:grid;grid-template-columns:300px 1fr 420px;gap:16px;padding:0 28px 24px;flex:1;min-height:0">
+      <nav class="glass col nav" style="padding:12px;gap:6px">
+        ${MENU.map(([t, s, img, c]) => `<button><span class="th" style="background-image:url(${img})"></span><span class="col" style="min-width:0"><b class="t2">${t}</b><span class="t4 tr" style="color:${c}">${s}</span></span></button>`).join('')}
+      </nav>
+      <section class="photo col" style="justify-content:flex-end;padding:28px;background-image:url(/ui/broadcast-field.webp)">
+        <span class="lab">경기 모드</span><b style="font-size:56px;font-weight:800;line-height:1.1;margin-bottom:20px">오늘의 경기장</b>
+        ${modes(128)}
+        <button class="pri" style="margin-top:16px;height:78px;font-size:28px;text-align:center">플레이 ▶</button>
+      </section>
+      <aside class="col" style="gap:16px;min-height:0">
+        <section class="glass" style="padding:22px">${rankCard(true)}</section>
+        <section class="glass" style="padding:20px 22px">${mvpCard()}</section>
+        <section class="glass" style="padding:20px 22px;flex:1">${weekCard()}</section>
+      </aside>
+    </div></div>`;
+}
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length, c: new Set(text.map((e) => getComputedStyle(e).color)).size };
+};
+function draw() {
+  document.getElementById('app').innerHTML = [0, v1, v2, v3][v]();
+  document.querySelectorAll('#tool [data-v]').forEach((b) => b.classList.toggle('on', +b.dataset.v === v));
+  const m = measure();
+  document.getElementById('meter').innerHTML = `글 <b>${m.t}</b>/65 · 단추 <b>${m.b}</b>/12 · 색 <b>${m.c}</b>/19 <span style="color:#6b7280">(지금 화면)</span>`;
+}
+document.addEventListener('click', (e) => { const t = e.target.closest('[data-v]'); if (!t) return; v = +t.dataset.v; location.hash = v; draw(); });
+addEventListener('keydown', (e) => { if ('123'.includes(e.key)) { v = +e.key; location.hash = v; draw(); } });
+draw();
+</script>
+</body></html>
