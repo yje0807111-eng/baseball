@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>증강 관리 · 선택 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --bad:#f87171; --au:#c4b5fd;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#05080f;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .bgx{position:absolute;inset:0;background:radial-gradient(900px 600px at 80% 10%,rgba(196,181,253,.16),transparent 60%),radial-gradient(900px 700px at 10% 100%,rgba(16,185,129,.14),transparent 60%),linear-gradient(160deg,#0a1222,#05080f 60%)}
+  .bgx::after{content:'';position:absolute;inset:0;background:var(--noise);opacity:.16;mix-blend-mode:overlay}
+  .shell{position:relative;height:100%;display:flex;flex-direction:column}
+  .glass{border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.55);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06),0 30px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(18px)}
+  .lab{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--k,var(--a))}
+  .lab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+  .pri{border-radius:16px;font-weight:800;color:#03140c;background:linear-gradient(180deg,#34d399,#0e9f6e);box-shadow:0 14px 30px -10px rgba(16,185,129,.8),inset 0 1px 0 rgba(255,255,255,.4);text-align:center}
+  .sec{border-radius:14px;font-weight:700;background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);text-align:center}
+  .tabs{display:flex;gap:4px;padding:5px;border-radius:14px;background:rgba(255,255,255,.05)}
+  .tabs button{height:38px;padding:0 18px;border-radius:10px;font-weight:700;color:var(--m);display:flex;align-items:center;gap:8px}
+  .tabs button.on{color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));box-shadow:0 6px 18px -6px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18)}
+  .chip{height:32px;padding:0 14px;border-radius:999px;font-weight:700;font-size:var(--t4);color:var(--m);background:rgba(255,255,255,.05)}
+  .chip.on{color:#fff;background:rgba(196,181,253,.18);box-shadow:inset 0 0 0 1px rgba(196,181,253,.6)}
+  .art{background:#0b1220 center 22%/cover no-repeat;flex:none}
+  .arow{display:grid;grid-template-columns:52px minmax(0,1fr);align-items:center;gap:14px;padding:8px 12px 8px 8px;border-radius:14px;cursor:pointer;transition:background .2s,box-shadow .2s}
+  .arow:hover{background:rgba(255,255,255,.045)}
+  .arow.on{background:linear-gradient(90deg,rgba(196,181,253,.16),rgba(196,181,253,.03));box-shadow:inset 0 0 0 1px rgba(196,181,253,.5),0 10px 30px -12px rgba(196,181,253,.5)}
+  .arow.ban{opacity:.45}
+  .pips{display:flex;gap:3px}.pips i{width:12px;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}.pips i.on{background:var(--au);box-shadow:0 0 6px var(--au)}
+  .gcard{position:relative;overflow:hidden;border-radius:16px;cursor:pointer;background:#0b1220 center 22%/cover;box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:transform .2s,box-shadow .2s}
+  .gcard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.1) 30%,rgba(5,8,15,.95))}
+  .gcard>*{position:absolute;z-index:1}
+  .gcard:hover{transform:translateY(-3px)}
+  .gcard.on{box-shadow:inset 0 0 0 2px var(--au),0 18px 34px -12px rgba(196,181,253,.7)}
+  .holo{position:relative;overflow:hidden;border-radius:20px;background:#0b1220 center 20%/cover;box-shadow:0 30px 50px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.14),0 0 60px -10px rgba(196,181,253,.55)}
+  .holo::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.3) 47%,rgba(196,181,253,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:screen}
+  .holo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(5,8,15,.95))}
+  .holo>*{position:absolute;z-index:2}
+  @keyframes sheen{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  .eff{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05)}
+  /* 선택 창 */
+  .veil{position:absolute;inset:0;background:url(/ui/field.webp) center/cover}
+  .veil::after{content:'';position:absolute;inset:0;background:radial-gradient(70% 60% at 50% 50%,rgba(5,8,15,.55),rgba(5,8,15,.92));backdrop-filter:blur(4px)}
+  .ccard{position:relative;overflow:hidden;border-radius:26px;cursor:pointer;background:#0b1220 center 18%/cover;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,filter .3s;
+    box-shadow:0 30px 60px -24px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.14)}
+  .ccard::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.28) 47%,rgba(196,181,253,.22) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sheen 5s ease-in-out infinite;mix-blend-mode:screen;opacity:0;transition:opacity .3s}
+  .ccard::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,8,15,.2) 0%,transparent 26%,rgba(5,8,15,.55) 50%,rgba(5,8,15,.97) 78%)}
+  .ccard>*{position:absolute;z-index:2}
+  .ccard:hover{transform:translateY(-14px) scale(1.02);box-shadow:0 40px 70px -24px rgba(0,0,0,.95),0 0 0 2px var(--au),0 0 80px -10px rgba(196,181,253,.7)}
+  .ccard:hover::before{opacity:1}
+  .cwrap:hover .ccard:not(:hover){filter:brightness(.6) saturate(.7)}
+  .num{font-family:'Saira Condensed';font-weight:800;color:var(--au)}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 9px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"></div>
+
+<script type="module">
+const D = await import('/src/KboAugmentDraft.jsx');
+const AUG = D.AUGMENTS.filter((a) => a.tier === 'silver');
+const descAt = D.augDescAt;
+let ACC = null;
+try { ACC = JSON.parse(localStorage.getItem('kbo.myteam.v1') || 'null'); } catch { ACC = null; }
+const A = ACC?.aug || { levels: {}, bans: { silver: [] }, favs: [], slots: { silver: 3 }, upgradeTickets: 0 };
+const TYPES = [['all', '전체'], ['fav', '즐겨찾기'], ['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
+const TYPE_KO = Object.fromEntries(TYPES);
+const lvOf = (a) => A.levels?.[a.id] || 0;
+const bans = A.bans?.silver || [];
+const favs = A.favs || [];
+const art = (a) => `url(/augments/${a.id}.webp)`;
+/* 효과 문장에서 숫자만 빛나게 */
+const hi = (s) => s.replace(/([+\-]?\d+(?:\.\d+)?%?p?)/g, '<b class="num">$1</b>');
+let v = location.hash.slice(1) || 'A1';
+let sel = AUG[0]?.id;
+let type = 'all';
+const CH = AUG.slice(4, 7);
+
+const topbar = (title, right = '') => `
+  <header class="row" style="height:72px;padding:0 28px;gap:16px">
+    <button class="sec" style="width:40px;height:40px;padding:0">←</button>
+    <div class="col"><span class="t4 d">메인</span><b class="t2">${title}</b></div>${right}
+    <div class="grow"></div>
+    <div class="row glass" style="height:44px;padding:0 16px;border-radius:14px;gap:10px"><span class="t4 m">강화권</span><b class="n" style="font-size:var(--t2);color:var(--warn)">${A.upgradeTickets || 0}</b></div>
+    <div class="row glass" style="height:44px;padding:0 16px;border-radius:14px;gap:10px"><span class="t4 m">제외 칸</span><b class="n" style="font-size:var(--t2);color:var(--bad)">${bans.length} / ${A.slots?.silver || 3}</b></div>
+  </header>`;
+const list = () => AUG.filter((a) => type === 'all' || (type === 'fav' ? favs.includes(a.id) : a.type === type));
+const pips = (lv) => `<span class="pips">${[1, 2, 3].map((k) => `<i class="${k <= lv ? 'on' : ''}"></i>`).join('')}</span>`;
+const row = (a) => `<div class="arow ${a.id === sel ? 'on' : ''} ${bans.includes(a.id) ? 'ban' : ''}" data-sel="${a.id}">
+  <span class="art" style="width:52px;height:52px;border-radius:12px;background-image:${art(a)}"></span>
+  <span class="col" style="min-width:0;gap:3px"><span class="row" style="gap:8px"><b class="tr">${a.name}</b>${lvOf(a) ? `<b class="n" style="color:var(--au)">+${lvOf(a)}</b>` : ''}${pips(lvOf(a))}${favs.includes(a.id) ? '<span style="color:var(--warn)">★</span>' : ''}</span>
+  <span class="t4 m tr">${descAt(a, lvOf(a))}</span></span></div>`;
+const detail = () => {
+  const a = AUG.find((x) => x.id === sel) || AUG[0];
+  const lv = lvOf(a);
+  const lines = descAt(a, lv).split(/\s·\s|,\s/);
+  return `<aside class="glass col" style="padding:20px;gap:14px;min-height:0">
+    <div class="row"><span class="lab" style="--k:var(--au)">고른 증강</span><span class="grow"></span><span class="t4 m">${TYPE_KO[a.type] || ''}</span></div>
+    <div class="holo" style="flex:1;min-height:0;background-image:${art(a)}">
+      <span class="col" style="left:18px;right:18px;bottom:16px;gap:6px"><b class="t1">${a.name} ${lv ? `<span class="n" style="color:var(--au)">+${lv}</span>` : ''}</b>${a.note ? `<span class="t4 m">${a.note}</span>` : ''}${pips(lv)}</span></div>
+    <div class="col" style="gap:6px">${lines.map((l) => `<div class="eff"><span class="m">${hi(l)}</span></div>`).join('')}</div>
+    <button class="pri" style="height:58px;font-size:var(--t2)">+${lv + 1} 강화 · 강화권 ${lv + 1}장</button>
+    <div class="row" style="gap:8px"><button class="sec grow" style="height:44px;color:#fda4af">${bans.includes(a.id) ? '제외 풀기' : '제외하기'}</button><button class="sec" style="height:44px;padding:0 18px;color:${favs.includes(a.id) ? 'var(--warn)' : 'var(--m)'}">${favs.includes(a.id) ? '★' : '☆'} 즐겨찾기</button></div>
+  </aside>`;
+};
+const typeChips = () => `<div class="row" style="gap:6px;flex-wrap:wrap">${TYPES.map(([k, n]) => `<button class="chip ${type === k ? 'on' : ''}" data-type="${k}">${n}</button>`).join('')}</div>`;
+
+const V = {
+  /* 관리 1 — 세 칸 정리: 왼쪽 메뉴는 없애고 강화권 · 제외 칸은 위 줄로, 줄마다 별 단추 대신 별 표시만 */
+  A1: ['관리 1 두 칸 목록', () => `<div class="bgx"></div><div class="shell">${topbar('증강')}
+    <div style="display:grid;grid-template-columns:1fr 440px;gap:16px;padding:0 28px 24px;flex:1;min-height:0">
+      <section class="glass col" style="padding:18px;gap:14px;min-height:0">${typeChips()}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;overflow:hidden;align-content:start">${list().slice(0, 20).map(row).join('')}</div></section>
+      ${detail()}
+    </div></div>`],
+  /* 관리 2 — 카드 격자: 그림 카드로 훑고 오른쪽에서 강화 · 제외 */
+  A2: ['관리 2 카드 격자', () => `<div class="bgx"></div><div class="shell">${topbar('증강')}
+    <div style="display:grid;grid-template-columns:1fr 440px;gap:16px;padding:0 28px 24px;flex:1;min-height:0">
+      <section class="glass col" style="padding:18px;gap:14px;min-height:0">${typeChips()}
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;overflow:hidden;align-content:start">${list().slice(0, 18).map((a) => `<div class="gcard ${a.id === sel ? 'on' : ''}" data-sel="${a.id}" style="height:200px;background-image:${art(a)};${bans.includes(a.id) ? 'filter:grayscale(1) brightness(.5)' : ''}">
+          ${lvOf(a) ? `<b class="n" style="left:10px;top:8px;color:var(--au);font-size:var(--t2)">+${lvOf(a)}</b>` : ''}${favs.includes(a.id) ? '<span style="right:10px;top:8px;color:var(--warn)">★</span>' : ''}
+          <span class="col" style="left:12px;right:12px;bottom:10px;gap:4px"><b class="tr">${a.name}</b>${pips(lvOf(a))}</span></div>`).join('')}</div></section>
+      ${detail()}
+    </div></div>`],
+  /* 관리 3 — 위 탭: 목록 · 강화 · 제외 칸을 탭으로 나누고 한 번에 한 가지 */
+  A3: ['관리 3 위 탭', () => `<div class="bgx"></div><div class="shell">${topbar('증강', `<div class="tabs" style="margin-left:18px"><button class="on">증강 목록</button><button>강화</button><button>제외 칸 <b class="n" style="color:var(--bad)">${bans.length}/${A.slots?.silver || 3}</b></button></div>`)}
+    <div style="display:grid;grid-template-columns:1fr 440px;gap:16px;padding:0 28px 24px;flex:1;min-height:0">
+      <section class="glass col" style="padding:18px;gap:14px;min-height:0">${typeChips()}
+        <div class="col" style="gap:4px;overflow:hidden">${list().slice(0, 10).map((a) => `<div class="arow ${a.id === sel ? 'on' : ''}" data-sel="${a.id}" style="grid-template-columns:56px minmax(0,1fr) 120px 60px">
+          <span class="art" style="width:56px;height:56px;border-radius:12px;background-image:${art(a)}"></span>
+          <span class="col" style="min-width:0;gap:3px"><b class="tr">${a.name}</b><span class="t4 m tr">${descAt(a, lvOf(a))}</span></span>
+          <span class="t4 m">${TYPE_KO[a.type] || ''}</span>${pips(lvOf(a))}</div>`).join('')}</div></section>
+      ${detail()}
+    </div></div>`],
+  /* 선택 1 — 유리 카드 셋: 카드를 누르면 고른다(단추 없음), 올리면 떠오르고 나머지는 어두워진다 */
+  C1: ['선택 1 유리 카드', () => `<div class="veil"></div><div class="shell" style="align-items:center;justify-content:center;gap:34px">
+    <div class="col" style="align-items:center;gap:8px"><span class="lab" style="--k:var(--au)">경기 증강</span><b style="font-size:40px;font-weight:800">7회 증강 고르기</b></div>
+    <div class="row cwrap" style="gap:28px">${CH.map((a) => `<div class="ccard" style="width:340px;height:500px;background-image:${art(a)}">
+      <span class="row" style="left:20px;right:20px;top:18px"><span class="chip" style="background:rgba(5,8,15,.6);color:var(--au)">${TYPE_KO[a.type] || '증강'}</span></span>
+      <span class="col" style="left:24px;right:24px;bottom:24px;gap:12px"><b style="font-size:30px;font-weight:800;line-height:1.15">${a.name}</b><span style="font-size:var(--t2);line-height:1.5;color:#e5e7eb">${hi(descAt(a))}</span>
+        <span class="t4 m">누르면 고르기</span></span></div>`).join('')}</div>
+    <button class="sec" style="height:48px;padding:0 24px">↺ 다시 굴리기 <span class="m">· 한 번 무료</span></button></div>`],
+  /* 선택 2 — 부채꼴: 손에 쥔 카드처럼 펼치고, 올린 카드가 앞으로 */
+  C2: ['선택 2 부채꼴', () => `<div class="veil"></div><div class="shell" style="align-items:center;justify-content:center;gap:40px">
+    <div class="col" style="align-items:center;gap:8px"><span class="lab" style="--k:var(--au)">경기 증강</span><b style="font-size:40px;font-weight:800">7회 증강 고르기</b></div>
+    <div style="position:relative;width:1000px;height:520px">${CH.map((a, i) => `<div class="ccard" style="position:absolute;left:${320 * i + 20}px;top:${i === 1 ? 0 : 30}px;width:320px;height:470px;transform:rotate(${(i - 1) * 7}deg);transform-origin:50% 120%;background-image:${art(a)};z-index:${i === 1 ? 2 : 1}">
+      <span class="col" style="left:22px;right:22px;bottom:22px;gap:10px"><span class="t4" style="color:var(--au)">${TYPE_KO[a.type] || ''}</span><b style="font-size:28px;font-weight:800;line-height:1.15">${a.name}</b><span style="line-height:1.5;color:#e5e7eb">${hi(descAt(a))}</span></span></div>`).join('')}</div></div>`],
+  /* 선택 3 — 가로 긴 카드: 효과 글을 읽기 쉽게, 숫자는 오른쪽 크게 */
+  C3: ['선택 3 가로 카드', () => `<div class="veil"></div><div class="shell" style="align-items:center;justify-content:center;gap:28px">
+    <div class="col" style="align-items:center;gap:8px"><span class="lab" style="--k:var(--au)">경기 증강</span><b style="font-size:40px;font-weight:800">7회 증강 고르기</b></div>
+    <div class="col cwrap" style="gap:16px;width:1100px">${CH.map((a) => { const num = (descAt(a).match(/[+\-]?\d+(?:\.\d+)?%?p?/g) || []).slice(-1)[0] || ''; return `<div class="ccard" style="position:relative;height:150px;background-image:none;background:linear-gradient(90deg,rgba(12,16,28,.92),rgba(12,16,28,.8))">
+      <span style="left:0;top:0;bottom:0;width:260px;background:${art(a)} center 25%/cover;-webkit-mask:linear-gradient(90deg,#000 60%,transparent);mask:linear-gradient(90deg,#000 60%,transparent)"></span>
+      <span class="col" style="left:260px;right:220px;top:0;bottom:0;justify-content:center;gap:8px"><span class="row" style="gap:10px"><b class="t1">${a.name}</b><span class="chip" style="height:26px;color:var(--au)">${TYPE_KO[a.type] || ''}</span></span><span style="font-size:var(--t2);color:#e5e7eb">${hi(descAt(a))}</span></span>
+      <b class="num" style="right:36px;top:50%;transform:translateY(-50%);font-size:64px;line-height:1">${num}</b></div>`; }).join('')}</div>
+    <button class="sec" style="height:48px;padding:0 24px">↺ 다시 굴리기 <span class="m">· 한 번 무료</span></button></div>`],
+};
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length };
+};
+function draw() {
+  document.getElementById('app').innerHTML = V[v][1]();
+  const m = measure();
+  document.getElementById('tool').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('') + `<span style="color:#cbd5e1;margin-left:6px">글 <b style="color:#fde047">${m.t}</b> · 단추 <b style="color:#fde047">${m.b}</b> <span style="color:#6b7280">(지금 관리 89 · 42)</span></span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-sel],[data-type]');
+  if (!t) return;
+  if (t.dataset.v) { v = t.dataset.v; location.hash = v; }
+  if (t.dataset.sel) sel = t.dataset.sel;
+  if (t.dataset.type) type = t.dataset.type;
+  draw();
+});
+draw();
+</script>
+</body></html>
