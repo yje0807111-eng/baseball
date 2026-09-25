@@ -4576,19 +4576,52 @@ function DuelRow({ label, mine, opp }) {
   );
 }
 
-function DuelCard({ player, label, tall = '19rem' }) {
-  const bust = useBust(player, '260%');
-  const acc = neonOf(player);
+/** 45도로 갈린 한쪽 — 판 모서리 컷과 같은 기울기라 화면 전체와 결이 맞는다 */
+function StarterHalf({ player, right, h }) {
+  const bust = useBust(player, '210%');
+  const g = h / 2; // 45도: 위 경계가 아래보다 높이만큼 오른쪽에 선다
+  const cut = right
+    ? `polygon(calc(50% + ${g}px) 0, 100% 0, 100% 100%, calc(50% - ${g}px) 100%)`
+    : `polygon(0 0, calc(50% + ${g}px) 0, calc(50% - ${g}px) 100%, 0 100%)`;
+  const c = neonOf(player);
   return (
-    <div className="ui-cut ui-frame relative w-[13rem] overflow-hidden bg-[#0b1220] bg-no-repeat" style={{ height: tall, '--c': '20px', '--a': acc, ...bust }}>
-      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#05080f] via-[#05080f]/90 to-transparent px-4 pb-3 pt-10 text-left">
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
-        <p className="text-2xl font-black text-white">{player.name}</p>
-        <p className="text-xs text-gray-300">{player.year} {player.team} · 구위 {player.stats.stuff} · 체력 {player.stats.stamina}</p>
-      </div>
+    <>
+      <span className="absolute inset-0 bg-no-repeat" style={{ ...bust, clipPath: cut }} />
+      <span className="absolute inset-0" style={{ clipPath: cut,
+        background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, rgba(5,8,15,.18) 52%, rgba(5,8,15,.9))` }} />
+    </>
+  );
+}
+
+/** 선발 맞대결 — 한 판을 비스듬히 갈라 둘이 마주 선다 */
+function StarterDuel({ mine, opp, h = 200 }) {
+  if (!mine || !opp) return null;
+  const g = h / 2;
+  const edge = `polygon(calc(50% + ${g}px) 0, calc(50% + ${g + 2}px) 0, calc(50% - ${g - 2}px) 100%, calc(50% - ${g}px) 100%)`;
+  const face = (p, right) => (
+    <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
+      <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: neonOf(p) }}>{right ? 'AI Starter' : 'My Starter'}</p>
+      <p className="text-[26px] font-black leading-tight text-white">{p.name}</p>
+      <p className="text-[11px] text-gray-400">{p.year} {p.team}</p>
+      <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
+        {[['구위', p.stats.stuff], ['제구', p.stats.control], ['체력', p.stats.stamina]].map(([k, v]) => (
+          <span key={k}>{k} <b className="font-display text-[12.5px] text-gray-100">{v}</b></span>
+        ))}
+      </p>
+    </div>
+  );
+  return (
+    <div className="ui-cut ui-frame relative shrink-0 overflow-hidden bg-[#0b1220]" style={{ height: h, '--c': '18px', '--a': '#10b981' }}>
+      <StarterHalf player={mine} h={h} />
+      <StarterHalf player={opp} h={h} right />
+      <span className="absolute inset-0" style={{ clipPath: edge, background: 'linear-gradient(180deg,transparent,rgba(255,255,255,.7),transparent)' }} />
+      {face(mine, false)}
+      {face(opp, true)}
+      <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_28px_rgba(255,255,255,.55),0_4px_0_rgba(0,0,0,.6)]">VS</span>
     </div>
   );
 }
+
 
 function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart, onBack, startLabel = '경기 시작 ▶', oppName = 'AI 올스타' }) {
   const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
@@ -4634,12 +4667,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
           <p className="ui-lab font-display">Play Ball</p>
         </div>
         <div className="mt-2 grid min-h-0 flex-1 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
-          {/* 선발 맞대결 */}
-          <div className="relative flex shrink-0 items-center justify-center gap-4">
-            <DuelCard player={my.sps[0]} label="My Starter" tall="11.5rem" />
-            <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
-            <DuelCard player={opp.sps[0]} label="AI Starter" tall="11.5rem" />
-          </div>
+          <StarterDuel mine={my.sps[0]} opp={opp.sps[0]} h={200} />
           {/* 같은 자리끼리 맞대기 — 앞선 쪽에 색이 번진다 */}
           {(() => {
             const mound = (t) => [t.sps[0], ...t.pen].filter(Boolean);
