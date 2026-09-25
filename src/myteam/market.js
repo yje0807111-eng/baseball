@@ -30,6 +30,51 @@ export function priceOf(p) {
   return Math.max(PRICE_MIN, round10(raw));
 }
 
+/*
+ * 시세 — 영입가(기준) × 인기 × 그날 흐름. 모두에게 같은 날 같은 값(날짜 씨앗).
+ *   인기: 카드 메모의 수상 이력 — MVP +15%, 골든글러브 · 타이틀(타격 · 홈런 · 다승 · 구원 · 신인왕 · 최다안타 …) +8%, 합쳐 최대 +20%.
+ *   흐름: 선수마다 주 단위로 천천히 오르내리는 ±10% — 이레마다 새 값을 뽑고 그 사이를 매끄럽게 잇는다(하루에 크게 튀지 않게).
+ *   '오늘 싸게 샀다'는 순간을 만들되, 방출 환급은 산 값의 절반이라 되팔기로는 이득이 나지 않는다.
+ */
+export const TREND_AMP = 0.1;
+export const TREND_DAYS = 7;
+const POP_RULES = [
+  [/MVP/, 0.15],
+  [/골든글러브|GG|타격왕|홈런왕|다승왕|구원왕|세이브왕|신인왕|최다안타|도루왕|탈삼진왕|관왕|트리플크라운/, 0.08],
+];
+export const POP_MAX = 0.2;
+/** 인기 배수 (1 ~ 1.2) */
+export function popularityOf(p) {
+  const note = p?.note || '';
+  return 1 + Math.min(POP_MAX, POP_RULES.reduce((n, [re, v]) => n + (re.test(note) ? v : 0), 0));
+}
+/** 날짜 → 날 번호(현지 자정 기준) */
+export const dayIndex = (d = new Date()) => Math.floor(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000);
+const hash01 = (key) => {
+  let h = 2166136261;
+  for (const ch of String(key)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); }
+  h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+};
+/** 흐름 배수 (0.9 ~ 1.1) — 이레마다 뽑은 두 값 사이를 코사인으로 잇는다 */
+export function trendOf(p, day = dayIndex()) {
+  const k = Math.floor(day / TREND_DAYS);
+  const t = (day % TREND_DAYS) / TREND_DAYS;
+  const a = hash01(`${p.id}|${k}`) * 2 - 1;
+  const b = hash01(`${p.id}|${k + 1}`) * 2 - 1;
+  const w = (1 - Math.cos(Math.PI * t)) / 2;
+  return 1 + TREND_AMP * (a + (b - a) * w);
+}
+/** 오늘 시세(골드) */
+export function marketPriceOf(p, day = dayIndex()) {
+  return Math.max(PRICE_MIN, round10(priceOf(p) * popularityOf(p) * trendOf(p, day)));
+}
+/** 시세 한 줄 — 기준(영입가 × 인기)과 견준 오늘 흐름 % · 어제와 견준 방향 */
+export function quoteOf(p, day = dayIndex()) {
+  const tr = trendOf(p, day);
+  return { price: marketPriceOf(p, day), pct: Math.round((tr - 1) * 100), up: tr >= trendOf(p, day - 1), pop: Math.round((popularityOf(p) - 1) * 100) };
+}
+
 /** 방출 환급 — 산 값(paid)의 절반, 10 G 단위 버림 */
 export const refundOf = (p) => Math.floor(((p?.paid || 0) * REFUND_RATE) / 10) * 10;
 
@@ -55,10 +100,10 @@ function seeded(key) {
     return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
-/** 특가 값 — 영입가의 70%, 10 G 단위 */
-export const dealPriceOf = (p) => Math.max(PRICE_MIN, round10(priceOf(p) * (1 - DEAL_OFF)));
+/** 특가 값 — 그날 시세의 70%, 10 G 단위 */
+export const dealPriceOf = (p, day = dayIndex()) => Math.max(PRICE_MIN, round10(marketPriceOf(p, day) * (1 - DEAL_OFF)));
 /** 오늘의 특가 명단 → Map(선수 id → 특가). pool 은 영입 풀(구단 시즌 선수) */
-export function dailyDeals(pool = [], key = todayKey()) {
+export function dailyDeals(pool = [], key = todayKey(), day = dayIndex()) {
   const rng = seeded(`deal-${key}`);
   const band = pool.filter((p) => p.overall >= DEAL_BAND[0] && p.overall <= DEAL_BAND[1]);
   const used = new Set();
@@ -71,7 +116,7 @@ export function dailyDeals(pool = [], key = todayKey()) {
       while (tries++ < 20) { const c = cands[Math.floor(rng() * cands.length)]; if (!used.has(c.personId)) { p = c; break; } }
       if (!p) continue;
       used.add(p.personId);
-      out.set(p.id, dealPriceOf(p));
+      out.set(p.id, dealPriceOf(p, day));
     }
   }
   return out;

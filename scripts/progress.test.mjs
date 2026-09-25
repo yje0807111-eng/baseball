@@ -38,7 +38,8 @@ describe('도감', () => {
   it('되팔기로는 이득이 나지 않는다 — 가장 싼 시리즈를 사서 되팔아도 보상보다 많이 든다', () => {
     const reward = DEX_STEPS.reduce((n, s) => n + s.gold, 0);
     const cheapest = SERIES.filter((s) => s.kind !== 'national')
-      .map((s) => s.players.reduce((n, p) => n + priceOf(p) - refundOf({ paid: priceOf(p) }), 0))
+      /* 가장 싸게 살 수 있는 값 — 시세 흐름 바닥(기준의 0.9배, 인기는 깎지 않는다) */
+      .map((s) => s.players.reduce((n, p) => { const low = Math.round((priceOf(p) * 0.9) / 10) * 10; return n + low - refundOf({ paid: low }); }, 0))
       .sort((a, b) => a - b)[0];
     expect(cheapest).toBeGreaterThan(reward);
   });

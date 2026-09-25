@@ -224,3 +224,38 @@ describe('오늘의 특가', async () => {
     expect(todayKey(new Date(2026, 8, 5, 23, 59))).toBe('2026-09-05');
   });
 });
+
+describe('선수 값 변동 — 인기 · 시세', async () => {
+  const { popularityOf, trendOf, marketPriceOf, quoteOf, dayIndex, TREND_AMP } = await import('../src/myteam/market.js');
+  const base = { id: 'x', personId: 'x', overall: 90, cost: 90, position: 'OF', type: 'batter', note: '' };
+  it('인기: MVP +15%, 타이틀 +8%, 합쳐 최대 +20%', () => {
+    expect(popularityOf(base)).toBe(1);
+    expect(popularityOf({ ...base, note: '시즌 MVP' })).toBeCloseTo(1.15);
+    expect(popularityOf({ ...base, note: '골든글러브' })).toBeCloseTo(1.08);
+    expect(popularityOf({ ...base, note: 'MVP · 홈런왕 · 골든글러브' })).toBeCloseTo(1.2);
+  });
+  it('시세 흐름은 ±10% 안, 같은 날은 같은 값, 하루에 크게 튀지 않는다', () => {
+    let prev = null;
+    for (let d = 20000; d < 20060; d += 1) {
+      const t = trendOf(base, d);
+      expect(t).toBeGreaterThanOrEqual(1 - TREND_AMP);
+      expect(t).toBeLessThanOrEqual(1 + TREND_AMP);
+      expect(trendOf(base, d)).toBe(t);
+      if (prev != null) expect(Math.abs(t - prev)).toBeLessThan(0.1);
+      prev = t;
+    }
+  });
+  it('선수마다 흐름이 다르다', () => {
+    const d = 20010;
+    const vals = new Set(Array.from({ length: 20 }, (_, i) => trendOf({ ...base, id: `p${i}` }, d).toFixed(3)));
+    expect(vals.size).toBeGreaterThan(10);
+  });
+  it('오늘 시세 = 기준 × 인기 × 흐름 (10 G 단위)', () => {
+    const d = dayIndex(new Date(2026, 8, 25));
+    const p = { ...base, note: 'MVP' };
+    expect(marketPriceOf(p, d)).toBe(Math.round((priceOf(p) * 1.15 * trendOf(p, d)) / 10) * 10);
+    const q = quoteOf(p, d);
+    expect(q.price).toBe(marketPriceOf(p, d));
+    expect(q.pop).toBe(15);
+  });
+});

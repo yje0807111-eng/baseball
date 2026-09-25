@@ -11,7 +11,7 @@ import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
-import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey } from './market.js';
+import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
@@ -146,9 +146,19 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, showNote = true, ben
       <b className="text-right font-display text-lg text-amber-300">{p.cost}<small className="ml-0.5 text-[10px] text-gray-500">CP</small></b>
       {stored /* 보관함 선수는 이미 가진 선수 — 영입가 대신 */
         ? <b className="text-right text-[13px] text-gray-400">{p.memento ? '기념 카드' : '보유'}</b>
-        : price != null && price < priceOf(p) /* 오늘의 특가: 원래 값은 작게 줄 긋고 */
-          ? <span className="text-right leading-tight"><small className="block font-display text-[11px] text-gray-500 line-through">{priceOf(p).toLocaleString()}</small><b className="font-display text-lg text-[#fb923c]">{price.toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b></span>
-          : <b className="text-right font-display text-lg" style={{ color: GOLD }}>{priceOf(p).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>}
+        : (() => {
+          /* 오늘 시세 — 특가면 시세를 줄 긋고, 아니면 기준과 견준 흐름 % */
+          const q = quoteOf(p);
+          const deal = price != null && price < q.price;
+          return (
+            <span className="text-right leading-tight">
+              {deal
+                ? <small className="block font-display text-[11px] text-gray-500 line-through">{q.price.toLocaleString()}</small>
+                : <small className="block font-display text-[11px]" style={{ color: q.pct > 0 ? '#f87171' : q.pct < 0 ? '#60a5fa' : '#6b7280' }}>{q.pct > 0 ? '▲ +' : q.pct < 0 ? '▼ ' : ''}{q.pct}%</small>}
+              <b className="font-display text-lg" style={{ color: deal ? '#fb923c' : GOLD }}>{(deal ? price : q.price).toLocaleString()}<small className="ml-0.5 text-[10px] text-gray-500">G</small></b>
+            </span>
+          );
+        })()}
       <Btn sm pri={on} a={teamTint ? '#10b981' : n} disabled={!!blocked} title={blocked || ''} onClick={(e) => { e.stopPropagation(); onAct(p); }}>{action}</Btn>
     </div>
   );
@@ -233,7 +243,7 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand}
     gold={gold} price={price} refund={refund} cands={cands} out={out} onOut={onOut} onSwap={onSwap}
-    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} />;
+    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} quote={owned || stored ? null : { ...quoteOf(p), base: priceOf(p) }} />;
 }
 
 /**
@@ -314,13 +324,21 @@ function CardWithRecord({ p, tr }) {
 }
 
 function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], out = null, onOut, onSwap,
-  stored = false, clubFull = false, onStore, onEnter }) {
+  stored = false, clubFull = false, onStore, onEnter, quote = null }) {
   const goldAfter = owned || stored ? gold + (stored ? 0 : refund) : gold + refund - price;
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
       <p className="mt-lab" style={{ '--a': n }}>{owned ? '내 선수 정보' : stored ? '보관함 선수' : '영입 후보 정보'}</p>
       {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
       <CardWithRecord p={p} tr={tr} />
+      {/* 영입 후보: 기준 영입가 · 인기 · 오늘 시세 */}
+      {quote && (
+        <div className="flex items-baseline justify-between text-[12px] text-gray-400">
+          <span>기준 <b className="font-display text-[14px] text-gray-200">{quote.base.toLocaleString()}</b></span>
+          <span>인기 <b className="font-display text-[14px]" style={{ color: quote.pop ? '#fbbf24' : '#9ca3af' }}>{quote.pop ? `+${quote.pop}%` : '—'}</b></span>
+          <span>시세 <b className="font-display text-[14px]" style={{ color: quote.pct > 0 ? '#f87171' : quote.pct < 0 ? '#60a5fa' : '#9ca3af' }}>{quote.pct > 0 ? '▲ +' : quote.pct < 0 ? '▼ ' : ''}{quote.pct}%</b></span>
+        </div>
+      )}
       {/* 교체 영입: 내보낼 선수 고르기 (같은 포지션 약한 순) */}
       {out && (
         <div>
@@ -521,7 +539,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
   const [dealOnly, setDealOnly] = useState(false); // 오늘의 특가만
   const deals = useMemo(() => dailyDeals(ALL, todayKey()), []); // 하루 한 번 바뀐다 (라커를 다시 열면 새 날짜)
-  const priceFor = (p) => deals.get(p.id) ?? priceOf(p);
+  const today = useMemo(() => dayIndex(), []);
+  const priceFor = (p) => deals.get(p.id) ?? marketPriceOf(p, today); // 특가가 아니면 오늘 시세
   const [outId, setOutId] = useState(null); // 교체 영입에서 내보낼 선수 (없으면 첫 후보)
   const [tab, setTab] = useState('scout');
   const [q, setQ] = useState('');
@@ -627,6 +646,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
       '스탯 낮은 순': (a, b) => a.overall - b.overall || a.cost - b.cost,
       'CP 높은 순': (a, b) => b.cost - a.cost || b.overall - a.overall,
       'CP 낮은 순': (a, b) => a.cost - b.cost || b.overall - a.overall,
+      '영입가 낮은 순': (a, b) => priceFor(a) - priceFor(b) || b.overall - a.overall,
+      '시세 내린 순': (a, b) => quoteOf(a, today).pct - quoteOf(b, today).pct || b.overall - a.overall,
     }[sort || SORT_DEFAULT];
     return list.sort(by);
   }, [q, year, club, pos, sort, squad, team.club, canOnly, dealOnly, gold, staff, cap, lim.size, lim.free, lim.foreign]);
@@ -745,7 +766,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 </button>
                 <span className="text-[13px] text-gray-400">정렬</span>
                 <div className="w-40">
-                  <Select value={sort} onChange={(v) => { setSort(v); setLimit(60); }} options={['스탯 낮은 순', 'CP 높은 순', 'CP 낮은 순']} all={SORT_DEFAULT} />
+                  <Select value={sort} onChange={(v) => { setSort(v); setLimit(60); }} options={['스탯 낮은 순', 'CP 높은 순', 'CP 낮은 순', '영입가 낮은 순', '시세 내린 순']} all={SORT_DEFAULT} />
                 </div>
               </div>
             ))}
