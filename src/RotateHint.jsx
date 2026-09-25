@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 
 const PORTRAIT = '(orientation: portrait) and (pointer: coarse)';
-const CUT = { clipPath: 'polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)' };
+const CUT = { clipPath: 'inset(0 round 14px)' };
 
 export default function RotateHint() {
   const [portrait, setPortrait] = useState(() => !!window.matchMedia?.(PORTRAIT).matches);

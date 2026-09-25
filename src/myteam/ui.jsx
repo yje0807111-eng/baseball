@@ -56,7 +56,7 @@ export const UiStyle = () => (
     .mt-scroll.gold::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(253,224,71,.6), rgba(202,138,4,.4)); }
     .mt-scroll.gold::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(253,224,71,.9), rgba(202,138,4,.6)); }
     /* 드래프트 화면 카드 문법 (상점 상품·선수 공용) */
-    .mt-pk { position:relative; container-type:inline-size; background:#05080f; clip-path:polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
+    .mt-pk { position:relative; container-type:inline-size; background:#05080f; clip-path:inset(0 round 6% / 4%); }
     .mt-pk .in { position:absolute; inset:0; overflow:hidden; }
     .mt-pk .art { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .5s; }
     .mt-pk:hover .art { transform:scale(1.04); }

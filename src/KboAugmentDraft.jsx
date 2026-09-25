@@ -1357,7 +1357,7 @@ export const KEYFRAMES = `
 .lf-bn-h small b { color: #cbd5e1; }
 .lf-bn-g { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .lf-bn + .lf-bn { margin-top: 8px; padding-top: 8px; }
-.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
+.lf-bc { --n: #344055; position: relative; display: grid; grid-template-columns: 22px auto minmax(0, 1fr) auto; align-items: center; gap: 7px; height: 32px; padding: 0 8px 0 5px; background: rgba(15,23,42,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); clip-path: inset(0 round 5px); touch-action: none; user-select: none; cursor: grab; outline: none; transition: background .12s, box-shadow .12s; }
 .lf-bc-bp, .lf-bc-ph { width: 22px; height: 26px; background-repeat: no-repeat; -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
 .lf-bc-ph { background: linear-gradient(180deg, #2c3749, #222c3e 70%); }
 .lf-bc-pos { font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .04em; color: var(--n); }
@@ -1418,7 +1418,7 @@ export const KEYFRAMES = `
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
 .rl-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } /* 탭 7개: 4 + 3 */
-.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size:14px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); transition: background .15s, color .15s; }
+.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size:14px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: inset(0 round 8px); transition: background .15s, color .15s; }
 .rl-tabs button:hover { color: #fff; background: rgba(255,255,255,.08); }
 .rl-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .rl-tabs svg { width: 18px; height: 18px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -1454,7 +1454,7 @@ export const KEYFRAMES = `
 .rl-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .rl-steps { display: grid; gap: 6px; margin: 4px 0 8px; counter-reset: rl; }
 .rl-steps > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; }
-.rl-steps > div::before { counter-increment: rl; content: counter(rl); display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rl-steps > div::before { counter-increment: rl; content: counter(rl); display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: inset(0 round 5px); }
 .rl-yn { display: grid; gap: 4px; margin: 4px 0 8px; }
 .rl-yn > div { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
 .rl-yn > div::before { font-weight: 800; text-align: center; }
@@ -1487,44 +1487,34 @@ export const KEYFRAMES = `
 .rl-syn em { flex: none; font-size:12px; }
 /* ───── 카드 문법 UI (선수 카드와 같은 언어): 컷 코너 · 네온 HUD 브래킷 · 짙은 네이비 유리 · 스캔라인 ─────
    --a 는 강조색(기본 초록, 구단·등급 색으로 바꿔 쓴다), --c 는 컷 크기 */
-.ui-cut { --c: 14px; clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
-.ui-glass { background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-.ui-glass2 { background: rgba(9,14,26,.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.ui-cut { --c: 14px; clip-path: inset(0 round min(var(--c), 22px)); }
+.ui-glass { background: linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)),rgba(6,10,19,.62); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
+.ui-glass2 { background: linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02)),rgba(9,14,26,.88); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); }
 /* 프레임: 얇은 외곽선 + 좌상·우하 굵은 브래킷 + 컷 대각선. 자식 위에 얹히는 가상 요소라 내용과 상관없이 붙는다 */
 .ui-frame { position: relative; }
-.ui-frame::after {
-  content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
-  background:
-    linear-gradient(135deg, transparent calc(50% - 1px), var(--a, #10b981) calc(50% - 1px), var(--a, #10b981) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
-    linear-gradient(135deg, transparent calc(50% - 1px), var(--a, #10b981) calc(50% - 1px), var(--a, #10b981) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
-    linear-gradient(var(--a, #10b981), var(--a, #10b981)) left var(--c) top 0 / 56px 2px no-repeat,
-    linear-gradient(var(--a, #10b981), var(--a, #10b981)) left 0 top var(--c) / 2px 30px no-repeat,
-    linear-gradient(var(--a, #10b981), var(--a, #10b981)) right var(--c) bottom 0 / 56px 2px no-repeat,
-    linear-gradient(var(--a, #10b981), var(--a, #10b981)) right 0 bottom var(--c) / 2px 30px no-repeat;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 32%, transparent);
-}
-.ui-frame.hot::after { box-shadow: inset 0 0 0 2px var(--a, #10b981), inset 0 0 36px color-mix(in srgb, var(--a, #10b981) 30%, transparent); }
+.ui-frame::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #10b981) 16%, rgba(255,255,255,.07)); }
+.ui-frame.hot::after { box-shadow: inset 0 0 0 1.5px var(--a, #10b981), inset 0 0 36px color-mix(in srgb, var(--a, #10b981) 24%, transparent); }
 .ui-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px !important; font-weight: 800; letter-spacing: .02em; color: var(--a, #10b981); }
-.ui-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
-.ui-btn { --c: 9px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; font-size:14px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); transition: background .15s, box-shadow .15s, filter .15s; }
-.ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
+.ui-lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.ui-btn { --c: 12px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 12px; font-size:14px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.07); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.06); transition: background .15s, box-shadow .15s, filter .15s, transform .15s; }
+.ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.12); }
 .ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
 .ui-btn:disabled { opacity: .4; cursor: not-allowed; }
-.ui-btn.pri { background: var(--a, #10b981); color: #05080f; box-shadow: none; }
-.ui-btn.pri:hover:not(:disabled) { background: var(--a, #10b981); filter: brightness(1.12); box-shadow: none; }
+.ui-btn.pri { color: #03140c; background: linear-gradient(180deg, color-mix(in srgb, var(--a, #10b981) 78%, #fff), color-mix(in srgb, var(--a, #10b981) 88%, #000)); box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--a, #10b981) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+.ui-btn.pri:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
 .ui-btn.pri:focus-visible { box-shadow: inset 0 0 0 2px #05080f; }
-.ui-btn.sm { --c: 7px; min-height: 32px; padding: 0 12px; font-size:14px; }
-.ui-chip { --c: 6px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; font-size:12px; font-weight: 600; color: #cbd5e1; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 45%, transparent); }
+.ui-btn.sm { --c: 10px; min-height: 32px; padding: 0 12px; border-radius: 10px; font-size:14px; }
+.ui-chip { --c: 999px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size:12px; font-weight: 600; color: #cbd5e1; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 40%, transparent); }
 .ui-seg { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; height: 10px; }
-.ui-seg i { background: rgba(255,255,255,.07); transform: skewX(-24deg); transition: background .4s, box-shadow .4s; }
+.ui-seg i { border-radius: 3px; background: rgba(255,255,255,.07); transition: background .4s, box-shadow .4s; }
 .ui-seg i.on { background: var(--a, #10b981); box-shadow: 0 0 8px var(--a, #10b981); }
 .ui-scan { background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
 /* 화면 배경: 단계마다 Higgsfield 구장 이미지 + 가장자리 암부 + 스캔라인 */
 .ui-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #05080f center / cover no-repeat; }
-.ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,.4), rgba(5,8,15,.93) 78%), repeating-linear-gradient(0deg, rgba(255,255,255,.022) 0 1px, transparent 1px 3px); }
-.ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%), repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px); }
+.ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 38%, rgba(5,8,15,.4), rgba(5,8,15,.93) 78%); }
+.ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%); }
 /* 중계 그래픽 묶음 → HUD 판: 컷 코너 유리 판 + 브래킷 프레임 + 왼쪽 위 라벨 */
-.bc-grp { --c: 16px; --a: #10b981; position: relative; padding: 30px 10px 10px; background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+.bc-grp { --c: 16px; --a: #10b981; position: relative; padding: 30px 10px 10px; background: rgba(6,10,19,.74); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); clip-path: inset(0 round min(var(--c), 22px)); }
 .bc-grp::after {
   content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
   background:
@@ -1552,40 +1542,40 @@ export const KEYFRAMES = `
 .bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
 @media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
 .bc-label { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: var(--a); }
-.bc-label::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.bc-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 /* 시리즈 머리: 뒤에 윤곽선 연도(흐름 안에 두고 오른쪽을 겹쳐 연도 유무·길이에 맞춰 제목이 따라붙음) · 위계 = 팀명 > 설명 태그 > 종류 */
 .ser-wm { flex: none; margin: 0 -30px -18px -2px; font-size: 60px; font-weight: 800; line-height: 1; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--a) 45%, transparent); pointer-events: none; user-select: none; }
 .ser-ttl { position: relative; min-width: 0; display: flex; align-items: center; gap: 12px; }
 .ser-kind { flex: none; font-size:12px; font-weight: 700; letter-spacing: .16em; color: var(--a); }
 .ser-name { flex: none; margin: 0; padding-bottom: 5px; font-size:28px; font-weight: 900; line-height: 1; white-space: nowrap; color: #fff; background: linear-gradient(90deg, var(--a), transparent) left bottom / 100% 3px no-repeat; }
-.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size:14px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.ser-sub { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 2px 14px 2px 9px; font-size:14px; font-weight: 600; line-height: 1.25; color: #e5e7eb; background: linear-gradient(90deg, color-mix(in srgb, var(--a) 16%, transparent), transparent 92%); box-shadow: inset 2px 0 0 var(--a); clip-path: inset(0 round 0 8px 8px 0); }
 /* 선반 보기 스위치: 켜면 영입 가능한 선수만 */
 .ser-sw { display: inline-flex; align-items: center; gap: 9px; font-size:14px; font-weight: 600; color: #cbd5e1; }
 /* 라이브 진행 배속 · 건너뛰기 */
 .dr-sp { display: inline-flex; gap: 2px; }
 .dr-sp button { padding: 2px 7px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; color: #9ca3af;
-  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
+  clip-path: inset(0 round 4px); background: rgba(255,255,255,.05); transition: color .15s, background .15s; }
 .dr-sp button:hover { color: #fff; }
 .dr-sp button.on { color: #05080f; background: #38e1ff; }
 /* 드래프트 권 — 상점에서 산 장수를 달고 판에서 쓴다 */
 .pk-was { margin-right: 4px; font-size: .62em; color: #64748b; text-decoration-thickness: 1px; }
 .dr-tk { display: inline-flex; gap: 3px; }
 .dr-tk button { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size:12px; font-weight: 700; color: #fcd34d;
-  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  clip-path: inset(0 round 4px);
   background: rgba(251,191,36,.12); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); transition: color .15s, background .15s, opacity .15s; }
 .dr-tk button:hover:not(:disabled) { color: #05080f; background: #fbbf24; }
 .dr-tk button:disabled { opacity: .32; cursor: default; }
 .dr-tk button.on { color: #05080f; background: #fbbf24; }
 .dr-tk em { font-family: 'Saira Condensed', sans-serif; font-style: normal; font-size:12px; }
 .dr-skip { display: grid; place-items: center; width: 26px; height: 21px; font-size:12px; line-height: 1; color: #cbd5e1;
-  clip-path: polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  clip-path: inset(0 round 4px);
   background: rgba(255,255,255,.1); transition: color .15s, background .15s; }
 .dr-skip:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.12); }
 .dr-skip:disabled { opacity: .35; cursor: default; }
 /* 라이브 드래프트 뽑는 순서 표 — 머리 줄 가운데 */
 /* 라이브: 한 판 두 층 */
 .dr-panel { display: grid; gap: 4px; margin-top: -26px; padding: 5px 12px;
-  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  clip-path: inset(0 round 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .dr-top { display: flex; align-items: center; gap: 12px; }
 .dr-top .dr-toggle { margin-left: auto; }
@@ -1596,7 +1586,7 @@ export const KEYFRAMES = `
 .dr-meta.inline .dr-ticks i { height: 10px; }
 .dr-meta.inline .dr-cap b { font-size:14px; }
 .dr-meta { position: absolute; left: 50%; top: 50%; z-index: 4; display: flex; align-items: center; gap: 14px; padding: 4px 12px; transform: translate(-50%, -50%);
-  clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  clip-path: inset(0 round 8px);
   background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
 .dr-round { display: flex; align-items: baseline; gap: 6px; }
 .dr-round small { font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif; font-size:12px; font-weight: 700; color: #6b7280; }
@@ -1698,7 +1688,7 @@ export const KEYFRAMES = `
 .mc-emb::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 2px var(--t), inset 0 0 26px -6px var(--t); }
 .mc-emb b { position: relative; padding-bottom: 9cqw; font-size: 17cqw; font-weight: 800; letter-spacing: -.02em; color: #fff; text-shadow: 0 2px 8px #000; }
 /* 나간 자리는 빈 칸으로 남아 선반이 흔들리지 않는다 */
-.mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
+.mc-slot { display: block; width: 100%; aspect-ratio: 2 / 3; clip-path: inset(0 round 7% / 4.7%); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
 /* 라이브: 내 차례에 고를 수 있는 카드는 테두리로만 알린다 (자리를 움직이면 선반 전체가 들썩인다) */
 .mc.hot { z-index: 2; }
 /* 라이브: 다른 구단이 데려간 카드 — 사진은 더 죽이고, 아래 이름 자리를 구단이 가져간다 */
@@ -1735,7 +1725,7 @@ export const KEYFRAMES = `
 @keyframes capBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 .ui-seg i.spend { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: capBlink 1.2s ease-in-out infinite; }
 /* PICK 카드 (PlayerCard) — 막대 그래프 판. 단위는 카드 폭 기준 cqw */
-.pk { container-type: inline-size; background: #05080f; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); }
+.pk { container-type: inline-size; background: #05080f; clip-path: inset(0 round 6% / 4%); }
 .pk-body, .pk-in { position: absolute; inset: 0; }
 .pk-in { overflow: hidden; }
 .pk-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; transition: transform .5s; }
@@ -1783,7 +1773,7 @@ export const KEYFRAMES = `
 .pk-cp { position: absolute; right: 6cqw; bottom: 7.5cqw; text-align: right; line-height: .9; }
 .pk-cp small { display: block; font-size: 3.8cqw; font-weight: 700; letter-spacing: .1em; color: #9ca3af; }
 .pk-cp b { display: block; font-size: 12cqw; font-weight: 800; color: var(--n); text-shadow: 0 0 10px color-mix(in srgb, var(--n) 55%, transparent); }
-.pk-slot { position: absolute; right: 6cqw; bottom: 9cqw; padding: 1.2cqw 2.6cqw; font-size: 4.4cqw; font-weight: 800; line-height: 1; color: #05080f; background: var(--n); clip-path: polygon(1.6cqw 0,100% 0,100% calc(100% - 1.6cqw),calc(100% - 1.6cqw) 100%,0 100%,0 1.6cqw); }
+.pk-slot { position: absolute; right: 6cqw; bottom: 9cqw; padding: 1.2cqw 2.6cqw; font-size: 4.4cqw; font-weight: 800; line-height: 1; color: #05080f; background: var(--n); clip-path: inset(0 round 1.6cqw); }
 .pk.lock .pk-in { filter: grayscale(1) brightness(.55); }
 .pk.lock .pk-ov, .pk.lock .pk-tb { animation: none; }
 .pk-lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 1cqw; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; white-space: nowrap; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
@@ -1805,10 +1795,10 @@ export const KEYFRAMES = `
 .pk-back.hidden { visibility: hidden; transform: rotateY(90deg); }
 .pk-back.return { animation: pkBackReturn .13s ease-in-out .13s both; }
 /* 빈 PICK 구역: 카드 모양 스켈레톤 + 버튼 자리 빈 틀 */
-.pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); animation: pkRing 4.5s linear infinite; }
-.pk-empty::before { content: ""; position: absolute; inset: 1.5px; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); background: linear-gradient(180deg, #0a1120, #070c16); } /* 카드 면: 둘레 1.5px 만 남겨 빛이 잘린 모서리까지 따라 돎 */
+.pk-empty { --n: #64748b; position: relative; container-type: inline-size; background: conic-gradient(from var(--pkr), transparent 0 75%, rgba(52,211,153,.9) 88%, transparent 100%); clip-path: inset(0 round 6% / 4%); animation: pkRing 4.5s linear infinite; }
+.pk-empty::before { content: ""; position: absolute; inset: 1.5px; clip-path: inset(0 round 6% / 4%); background: linear-gradient(180deg, #0a1120, #070c16); } /* 카드 면: 둘레 1.5px 만 남겨 빛이 잘린 모서리까지 따라 돎 */
 .pk-sk { position: absolute; background: rgba(148,163,184,.09); }
-.pk-ghostbtn { flex: none; height: 44px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); animation: pkBtnBreath 2.4s ease-in-out 1.6s infinite; }
+.pk-ghostbtn { flex: none; height: 44px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); clip-path: inset(0 round 10px); animation: pkBtnBreath 2.4s ease-in-out 1.6s infinite; }
 /* 빈 PICK 대기 움직임: 스켈레톤 블록이 위(종합)→아래(이름·CP) 차례로 밝아졌다 가라앉고(끝에 버튼 틀이 초록으로 살짝),
    카드 둘레를 초록 빛 한 점이 4.5초에 한 바퀴 돈다(.pk-empty 배경의 회전 빛 + 1.5px 안쪽 카드 면) — 카드 크기 · 2:3 비율은 그대로 */
 @property --pkr { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
@@ -1818,7 +1808,7 @@ export const KEYFRAMES = `
 @keyframes pkSkBreath { 0%, 100% { filter: brightness(1); } 30% { filter: brightness(2.1); } }
 @keyframes pkBtnBreath { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); } 30% { box-shadow: inset 0 0 0 1px rgba(110,231,183,.35); } }
 /* PICK 영입 버튼: 이름·코스트는 카드에 있으니 “+ 영입하기”만 */
-.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); transition: filter .15s; }
+.pk-go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; font-size:14px; font-weight: 800; color: #04150e; background: #10b981; clip-path: inset(0 round 10px); transition: filter .15s; }
 .pk-go:hover:not(:disabled) { filter: brightness(1.1); }
 /* 내 라인업 선수 방출: 같은 버튼 틀을 붉은 테두리로, 한 번 누르면 붉게 채워져 확정 대기 */
 .pk-go.out { color: #fecaca; background: rgba(239,68,68,.14); box-shadow: inset 0 0 0 1.5px rgba(248,113,113,.7); }
@@ -1893,7 +1883,7 @@ export const KEYFRAMES = `
 .mt-chips .up b { color: #34d399; }
 .mt-chips .dn b { color: #fb923c; }
 .mt-rec { display: flex; flex-direction: column; gap: 10px; }
-.mt-card { --c: 10px; --ac: #38bdf8; padding: 6px 8px 4px 11px; background: rgba(255,255,255,.028); box-shadow: inset 3px 0 0 var(--ac); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); }
+.mt-card { --c: 10px; --ac: #38bdf8; padding: 6px 8px 4px 11px; background: rgba(255,255,255,.028); box-shadow: inset 3px 0 0 var(--ac); clip-path: inset(0 round min(var(--c), 22px)); }
 .mt-card.bat { --ac: #34d399; }
 .mt-gh { display: flex; align-items: center; gap: 8px; height: 22px; padding: 0 2px; }
 .mt-gh::after { content: ""; flex: 1; height: 1px; background: rgba(148,163,184,.2); order: 2; }
@@ -1974,7 +1964,7 @@ export const KEYFRAMES = `
 .syn-dock.wide .sd { padding-top: 60px; } /* 넓은 구장 사진의 전광판 조명 아래부터 */
 .sd-hd { flex: none; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-left: 4px; }
 .sd-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 800; letter-spacing: .02em; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); }
-.sd-lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.sd-lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 .sd-hd em { padding: 0 6px; font-style: normal; font-size:12px; font-weight: 800; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
 .sd-hd button { margin-left: auto; padding: 2px 6px; font-size:12px; font-weight: 600; color: #10b981; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0,0,0,.95); border-radius: 3px; }
 .sd-hd button:hover { background: rgba(16,185,129,.12); }
@@ -2099,7 +2089,7 @@ export const KEYFRAMES = `
 .rd-ph { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px 10px; }
 .rd-ph h3 { margin: 4px 0 0; font-size:18px; font-weight: 900; line-height: 1; color: #fff; }
 .rd-ph em { display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 700; font-style: normal; letter-spacing: .32em; text-transform: uppercase; color: var(--a); }
-.rd-ph em::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+.rd-ph em::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 .rd-ph > div { display: flex; flex-direction: column-reverse; }
 .rd-ph .sum { margin-left: auto; text-align: right; line-height: 1.1; }
 .rd-ph .sum small { display: block; font-size:12px; color: #94a3b8; }
@@ -2176,7 +2166,7 @@ export const KEYFRAMES = `
 .rd-sc .ef { font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; color: var(--s); }
 .rd-sc small { display: block; font-size:12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rd-sc.lock { --s: #64748b; opacity: .78; }
-.rd-tag { padding: 3px 9px; font-size:12px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px); }
+.rd-tag { padding: 3px 9px; font-size:12px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); clip-path: inset(0 round 5px); }
 /* 추천 선수 (타순·수비 판 아래 띠) */
 .rd-cond { position: absolute; left: 6px; right: 6px; bottom: 34px; z-index: 3; display: flex; align-items: center; gap: 4px; height: 15px; padding: 0 4px; background: rgba(5,8,15,.82); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 55%, transparent); }
 .rd-cond .bar { flex: 1; height: 4px; background: rgba(255,255,255,.1); }
@@ -2284,7 +2274,7 @@ const TEAM_NEON = {
   NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff',
 };
 const neonOf = (p) => TEAM_NEON[p.team] || '#10b981';
-const cutCorners = (n) => `polygon(${n}px 0,100% 0,100% calc(100% - ${n}px),calc(100% - ${n}px) 100%,0 100%,0 ${n}px)`;
+const cutCorners = (n) => `inset(0 round ${n}px)`;
 const POS_EN = { SP: 'Starter', RP: 'Closer', C: 'Catcher', '1B': '1st Base', '2B': '2nd Base', '3B': '3rd Base', SS: 'Shortstop', OF: 'Outfield', DH: 'Designated' };
 const handLabel = (p) => (p.hand === 'S' ? '양타' : p.type === 'batter' ? `${p.hand === 'L' ? '좌' : '우'}타` : `${p.hand === 'L' ? '좌' : '우'}투`);
 
@@ -2602,7 +2592,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
   return (
     <button type="button" onClick={() => onPick(player)} onDoubleClick={() => onSign?.(player)} aria-pressed={selected}
       aria-label={`${player.year} ${player.team} ${player.name}, ${POS_LABEL[player.position]}, 영입가 ${player.cost} CP${locked ? `, ${reason}` : ''}`}
-      style={{ ...style, '--n': acc, ...(takenClub ? { '--t': takenClub.color } : {}), clipPath: 'polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)' }}
+      style={{ ...style, '--n': acc, ...(takenClub ? { '--t': takenClub.color } : {}), clipPath: 'inset(0 round 7% / 4.7%)' }}
       className={`mc ${tier} ${locked ? 'lock' : ''} ${takenClub ? 'taken' : ''} ${gone ? (keepAfterGone ? 'gone-keep' : 'gone') : ''} ${hot ? 'hot' : ''} ${player.cost >= 100 ? 'c3' : ''} ${leaving ? 'mc-leave' : ''} group relative block aspect-[2/3] w-full bg-[#05080f] text-left [container-type:inline-size] animate-[rise_.35s_ease-out_both] transition-transform duration-200 focus:outline-none focus-visible:-translate-y-1 ${selected ? '-translate-y-1' : 'hover:-translate-y-0.5'} ${focus === 'off' ? 'opacity-30' : ''}`}>
       <span className="mc-in">
         {art
@@ -3928,7 +3918,7 @@ function HighlightToast({ toast }) {
             style={{ '--c': '18px', backgroundImage: art ? `url(${art})` : undefined, backgroundPosition: '60% 18%' }} />
         )}
         <div className={`ui-glass2 relative flex-1 py-5 pr-8 ${hero ? 'pl-10 sm:-ml-4' : 'pl-8'}`}
-          style={{ clipPath: 'polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%)' }}>
+          style={{ clipPath: 'inset(0 round 18px)' }}>
           <p className="ui-lab font-display">증강 발동</p>
           <p className="mt-1 font-display text-5xl font-extrabold italic leading-none text-white" style={{ textShadow: `0 0 30px ${acc}`, textWrap: 'balance' }}>{augment.name}!</p>
           <p className="mt-2 text-t3 text-gray-100">{text}</p>

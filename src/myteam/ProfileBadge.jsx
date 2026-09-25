@@ -105,7 +105,7 @@ export default function ProfileBadge({ account, onSignOut }) {
           <b className="block whitespace-nowrap text-t3 font-extrabold text-white">{nick} <span className="font-semibold text-gray-300">감독</span></b>
           <span className="whitespace-nowrap font-display text-t4 font-bold text-gray-400">{r.tier.ko} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
         </span>
-        <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'polygon(8px 0,100% 0,100% 100%,0 100%,0 8px)' }}>
+        <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'inset(0 round 8px 0 0 0)' }}>
           <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
             style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
           <b className="font-display text-t2 font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
