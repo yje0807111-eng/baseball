@@ -45,7 +45,7 @@ function MatchDay({ onPlay }) {
       <div className="absolute inset-x-7 bottom-6">
         <div className="flex items-end justify-between gap-6">
           <div>
-            <p className="mt-lab" style={{ '--a': '#10b981' }}>Match Day</p>
+            <p className="mt-lab" style={{ '--a': '#10b981' }}>경기 모드</p>
             <b className="mt-1 block text-[52px] font-black leading-tight text-white">오늘의 경기장</b>
           </div>
           <button type="button" onClick={() => onPlay()} className="mt-btn pri" style={{ '--c': '14px', minHeight: 78, fontSize: 25, padding: '0 56px', boxShadow: '0 0 56px -10px rgba(16,185,129,.95)' }}>
@@ -99,7 +99,7 @@ function RankPanel({ account, team, onRecord }) {
         <div className="flex min-w-0 flex-col justify-center gap-2.5">
           <div className="flex items-end gap-5">
             <div>
-              <p className="mt-lab" style={{ '--a': c }}>Rank</p>
+              <p className="mt-lab" style={{ '--a': c }}>내 등급</p>
               <b className="text-[26px] font-black leading-tight text-white">{r.tier.ko} {r.div}</b>
             </div>
             <span className="font-display leading-none">
@@ -144,7 +144,7 @@ function RankPanel({ account, team, onRecord }) {
         {/* 팀 스탯 (오른쪽 아래) — 리그 평균이 가운데 세로선: 높으면 오른쪽 구단 색, 낮으면 왼쪽 붉게 */}
         <div className="flex h-full flex-col justify-center gap-2.5 border-l border-white/10 pl-5">
           <div className="flex items-baseline gap-2">
-            <p className="mt-lab" style={{ '--a': '#10b981' }}>Team</p>
+            <p className="mt-lab" style={{ '--a': '#10b981' }}>팀 능력치</p>
             <b className="ml-auto font-display text-3xl font-extrabold leading-none text-white">{st.ovr || '-'}</b><small className="text-xs text-gray-500">OVR</small>
           </div>
           <div className="flex flex-col gap-[9px]">
@@ -188,16 +188,16 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         {/* 경기 — 가장 큰 타일: 제목 · 플레이 버튼 + 모드 사진 카드 넷(누르면 그 모드 탭으로) */}
         <MatchDay onPlay={onPlay} />
 
-        <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="My Locker" title="내 라커"
+        <Tile img="ui/mt/tile-locker.webp" a="#34d399" label="선수단 관리" title="내 라커"
           desc="선수 영입 · 타순 · 코치" onClick={onLocker} />
 
-        <Tile img="ui/mt/tile-shop.webp" a="#fde047" label="Shop" title="상점"
+        <Tile img="ui/mt/tile-shop.webp" a="#fde047" label="아이템 구매" title="상점"
           desc="선수 능력치 · 캡 늘리기" onClick={onShop} />
 
-        <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" label="Augments" title="증강"
+        <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" label="증강 관리" title="증강"
           desc="나올 증강 고르고 강화하기" onClick={onAugments} />
 
-        <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="Record" title="기록"
+        <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" label="경기 기록" title="기록"
           desc="치른 경기 · 전적 · MVP" onClick={onRecord} />
 
         <RankPanel account={account} team={team} onRecord={onRecord} />

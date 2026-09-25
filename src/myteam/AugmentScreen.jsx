@@ -179,7 +179,7 @@ export default function AugmentScreen({ account, onBack }) {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/mt-boost.webp" opacity={0.6} />
-      <TopBar eyebrow="Augments" section="증강" account={account} onBack={onBack} />
+      <TopBar eyebrow="메인" section="증강" account={account} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
         {/* 사이드 네비 */}
@@ -188,8 +188,8 @@ export default function AugmentScreen({ account, onBack }) {
             const on = tab === it.key;
             return (
               <React.Fragment key={it.key}>
-                {k === 0 && <p className="mt-lab px-1 pt-1">Pool</p>}
-                {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>Upgrade</p>}
+                {k === 0 && <p className="mt-lab px-1 pt-1">증강 풀</p>}
+                {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>강화</p>}
                 <button type="button" onClick={() => { setTab(it.key); setSel(null); if (it.key !== 'upgrade') setUpTier(it.key); }}
                   className={`mt-nav sm ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
                   {/* 칸 그림: public/ui/aug/<키>.webp (scripts/aug-tier-art.mjs 로 만든다 — 등급 색 빛 · 같은 어두운 배경) */}
@@ -218,7 +218,7 @@ export default function AugmentScreen({ account, onBack }) {
         {/* 가운데: 종류별 묶음 + 제외 묶음 */}
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
           <div className="flex items-baseline gap-3">
-            <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? 'Upgrade' : `${T.en} Pool`}</p>
+            <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? '강화할 증강' : '증강 목록'}</p>
             {tab === 'upgrade' && AUG_TIERS.length > 1 && (
               <div className="ml-auto flex gap-1.5">
                 {AUG_TIERS.map((t) => (
@@ -244,7 +244,7 @@ export default function AugmentScreen({ account, onBack }) {
             ))}
             {tab !== 'upgrade' && bans.length > 0 && (
               <div>
-                <GroupHead label="Excluded · 제외됨" c={RED} />
+                <GroupHead label="제외한 증강" c={RED} />
                 <div className="grid grid-cols-2 gap-1.5">
                   {bans.map(byId).filter(Boolean).map((a) => (
                     <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} fav={favs.includes(a.id)} onFav={toggleFav}
@@ -266,7 +266,7 @@ export default function AugmentScreen({ account, onBack }) {
             return (
               <>
                 <div className="flex items-baseline justify-between gap-3">
-                  <p className="mt-lab" style={{ '--a': c }}>Pick</p>
+                  <p className="mt-lab" style={{ '--a': c }}>고른 증강</p>
                   <b className="font-display text-sm" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
                 </div>
                 <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]"
@@ -351,12 +351,12 @@ export default function AugmentScreen({ account, onBack }) {
             );
           })() : tab === 'upgrade' ? (
             <>
-              <p className="mt-lab" style={{ '--a': GREEN }}>Upgrade</p>
+              <p className="mt-lab" style={{ '--a': GREEN }}>강화 현황</p>
               <h2 className="-mt-2 text-3xl font-black text-white">증강 강화</h2>
             </>
           ) : (
             <>
-              <p className="mt-lab" style={{ '--a': RED }}>Excluded</p>
+              <p className="mt-lab" style={{ '--a': RED }}>제외 칸</p>
               <h2 className="-mt-2 text-3xl font-black text-white">증강 제외</h2>
               <p className="text-sm leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
               <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">

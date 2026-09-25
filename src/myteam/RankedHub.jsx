@@ -158,7 +158,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
         <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
           <section className="ui-cut ui-frame ui-glass px-5 pb-3 pt-4" style={{ '--c': '18px', '--a': RK }}>
             <div className="mb-1 flex items-baseline gap-3">
-              <p className="ui-lab font-display" style={{ '--a': RK }}>Standings</p>
+              <p className="ui-lab font-display" style={{ '--a': RK }}>순위표</p>
               <b className="text-lg text-white">정규 시즌 순위</b>
               <span className="ml-auto font-display text-sm text-gray-400">{Math.min(s.round, GAMES)} / {GAMES} 라운드</span>
             </div>
@@ -166,7 +166,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
           </section>
           <div className="grid min-h-0 gap-3" style={{ gridTemplateColumns: '0.9fr 1.1fr' }}>
             <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col px-5 py-4" style={{ '--c': '18px', '--a': RK }}>
-              <p className="ui-lab font-display" style={{ '--a': RK }}>{lastRound.length ? `Round ${s.games.length}` : 'Round'}</p>
+              <p className="ui-lab font-display" style={{ '--a': RK }}>{lastRound.length ? `${s.games.length}라운드 결과` : '라운드 결과'}</p>
               {lastRound.length ? (
                 <div className="mt-1 flex min-h-0 flex-1 flex-col justify-around">
                   {lastRound.map((g) => {
@@ -187,7 +187,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
               ) : <p className="mt-2 text-sm text-gray-500">개막 전</p>}
             </section>
             <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col px-5 py-4" style={{ '--c': '18px', '--a': '#fbbf24' }}>
-              <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>Postseason</p>
+              <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>가을야구</p>
               <PostLadder s={s} />
             </section>
           </div>
@@ -196,7 +196,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
         <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-3.5 p-6" style={{ '--c': '18px', '--a': oppTeam ? OPP : RK }}>
           {oppTeam ? (
             <>
-              <p className="ui-lab font-display" style={{ '--a': inPost ? '#fbbf24' : RK }}>{inPost ? stage.en : `Regular Season · Game ${s.round + 1}`}</p>
+              <p className="ui-lab font-display" style={{ '--a': inPost ? '#fbbf24' : RK }}>다음 경기</p>
               <h2 className="-mt-1 text-3xl font-black text-white">{inPost ? `${stage.ko} 상대 분석` : `정규 ${s.round + 1}차전 상대 분석`}</h2>
               <Versus mine={mine} opp={oppTeam} owner={opp.owner} />
               <Axes mine={mine} opp={oppTeam} />
@@ -211,7 +211,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
             </>
           ) : s.done ? (
             <>
-              <p className="ui-lab font-display" style={{ '--a': s.place === 1 ? '#fbbf24' : RK }}>Season {s.season} Result</p>
+              <p className="ui-lab font-display" style={{ '--a': s.place === 1 ? '#fbbf24' : RK }}>시즌 {s.season} 결과</p>
               <h2 className="-mt-1 text-6xl font-black" style={{ color: s.place === 1 ? '#fbbf24' : '#fff' }}>{reward.ko}</h2>
               <p className="text-base text-gray-300">정규 {myRow.rank}위 · {myRow.w}승 {myRow.l}패{myRow.d ? ` ${myRow.d}무` : ''}</p>
               <Faces roster={mine.roster} n={6} />

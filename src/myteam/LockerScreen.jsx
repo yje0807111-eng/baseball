@@ -167,7 +167,7 @@ function EmptyDetail() {
   const corner = Math.round(w * 0.07);
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={cut(20)} aria-label="고른 선수">
-      <p className="mt-lab" style={{ '--a': '#64748b' }}>Player</p>
+      <p className="mt-lab" style={{ '--a': '#64748b' }}>선수 정보</p>
       <div ref={box} className="flex min-h-0 flex-1 flex-col items-center">
         {/* 긴 카드 모양 스켈레톤: 둘레를 빛이 돌고(mt-skring) · 위는 드래프트 빈 PICK 카드 블록 · 아래 받침은 실적 칸 · 태그 자리 */}
         <div className="mt-skring" style={{ width: w, clipPath: `polygon(${corner}px 0,100% 0,100% calc(100% - ${corner}px),calc(100% - ${corner}px) 100%,0 100%,0 ${corner}px)` }}>
@@ -295,7 +295,7 @@ function CardWithRecord({ p, tr }) {
 function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-4" style={{ ...cut(20), '--a': n }}>
-      <p className="mt-lab" style={{ '--a': n }}>{owned ? 'My Player' : 'Scouting'}</p>
+      <p className="mt-lab" style={{ '--a': n }}>{owned ? '내 선수 정보' : '영입 후보 정보'}</p>
       {/* 드래프트 PICK 카드 그대로 + 바로 아래 같은 폭으로 붙은 실적 줄 — 남은 높이에 맞춰 2:3 */}
       <CardWithRecord p={p} tr={tr} />
       {/* 맨 아래: 캡 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
@@ -344,13 +344,12 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
     <>
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
         <div className="flex items-baseline gap-3">
-          <p className="mt-lab" style={{ '--a': '#fde047' }}>Items</p>
+          <p className="mt-lab" style={{ '--a': '#fde047' }}>보유 아이템</p>
         </div>
         {groups.length === 0 ? (
           /* 가진 아이템이 없을 때: 사진 한 장 · 보유 골드 · 상점 버튼 (C안) */
           <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover" style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(253,224,71,.12), rgba(5,8,15,.95) 60%), url(ui/mt/mt-pack.webp)', backgroundPosition: 'center 30%' }}>
             <div className="text-center">
-              <b className="font-display text-[13px] tracking-[0.3em] text-[#fde047]">SHOP</b>
               <b className="mb-1.5 mt-2 block text-[34px] font-black text-white">아이템 없음</b>
               <div className="mt-5 flex items-center justify-center gap-2.5">
                 <b className="font-display text-[30px] text-[#fde047]">{gold.toLocaleString()}</b><small className="text-[13px] text-gray-400">G 보유</small>
@@ -381,7 +380,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
       </section>
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
-        <p className="mt-lab" style={{ '--a': n }}>Use Item</p>
+        <p className="mt-lab" style={{ '--a': n }}>아이템 사용</p>
         {!it ? (() => {
           /* 아이템을 고르지 않았을 때: 우리 팀에서 가장 약한 곳과 그걸 올리는 훈련 (E안) */
           const { rows, weak, item: buy } = teamWeakness(squad);
@@ -400,7 +399,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
               {/* 추천 표(A안): 머리글 · 약한 곳(그 칸 색) · 추천 아이템 · 가격(금색) · 상점 버튼 */}
               {weak && buy && (
                 <div className="mt-cut mt-2 px-3.5 pb-3.5 pt-2.5" style={{ '--c': '12px', background: 'rgba(5,8,15,.5)', boxShadow: `inset 0 0 0 1px ${WEAK_COLOR[weak.k]}40` }}>
-                  <small className="mb-1 block font-display text-[11px] tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>RECOMMEND</small>
+                  <small className="mb-1 block font-display text-[11px] tracking-[0.2em]" style={{ color: WEAK_COLOR[weak.k] }}>추천</small>
                   {[['약한 곳', `${WEAK_KO[weak.k]} ${weak.v}`, WEAK_COLOR[weak.k]], ['추천 아이템', buy.name, '#fff'], ['가격', `${buy.price} G`, '#fde047']].map(([k, v, c], i) => (
                     <span key={k} className={`flex items-baseline justify-between py-[7px] text-[12.5px] text-gray-400 ${i < 2 ? 'border-b border-white/[0.07]' : ''}`}>
                       {k}<b className="text-[13.5px]" style={{ color: c }}>{v}</b>
@@ -580,12 +579,12 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         .st-v.t90 { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; -webkit-text-stroke: .6px rgba(0,0,0,.75); paint-order: stroke fill; animation: prism 3s linear infinite; }
 `}</style>
       <Bg img="ui/mt/tile-locker.webp" opacity={0.6} />
-      <TopBar eyebrow="My Locker" section="내 라커" team={team} account={account} onBack={onBack} />
+      <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); setItemTarget(null); }} compact>
+        <SideNav items={NAV} value={tab} onChange={(k) => { setTab(k); setSel(null); setItemTarget(null); }} label="라커 메뉴" compact>
           {(() => {
             // 인원/필수 — 필수 부족 빨강 · 필수만큼 초록 · 넘기면(자유 자리를 씀) 하늘 · 필수 0 인데 없으면 회색
             const pos = Object.fromEntries(POS_RULES.map((r) => [r.key, r]));
@@ -606,7 +605,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
             return (
               <>
                 <div className="flex items-center justify-between px-0.5 pb-2.5">
-                  <p className="mt-lab" style={{ fontSize: 10 }}>Squad</p>
+                  <p className="mt-lab" style={{ fontSize: 10 }}>엔트리 구성</p>
                   {frac(squad.length, lim.size, entryOk ? '#34d399' : squad.length > lim.size ? '#f87171' : '#e5e7eb')}
                 </div>
                 <div className="grid grid-cols-2 gap-x-2.5">
@@ -624,7 +623,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
 
         {tab === 'scout' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(20)}>
-            {head('Scout', null, undefined, (
+            {head('선수 영입', null, undefined, (
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-gray-400">정렬</span>
                 <div className="w-40">
@@ -661,7 +660,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
 
         {tab === 'staff' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-            {head('Staff', null, '#c4b5fd')}
+            {head('코치진 구성', null, '#c4b5fd')}
             <div className="mt-3 grid h-[232px] shrink-0 grid-cols-4 gap-3">
               {STAFF_SLOTS.map((s) => {
                 const cur = staff[s.key];
@@ -751,7 +750,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           };
           return (
             <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': VIO }}>
-              <p className="mt-lab" style={{ '--a': VIO }}>Staff Effect</p>
+              <p className="mt-lab" style={{ '--a': VIO }}>팀 보정</p>
               <h2 className="-mt-1 text-[26px] font-black text-white">코치진 효과</h2>
               {/* 기여도 막대: 전체 효과 중 선택한 코치 몫을 밝게 */}
               <div className="flex flex-col gap-2">

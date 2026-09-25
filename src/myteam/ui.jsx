@@ -12,7 +12,7 @@ export const UiStyle = () => (
     .mt-frame { position:relative; }
     .mt-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background: linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) left top/var(--c) var(--c) no-repeat, linear-gradient(135deg,transparent calc(50% - 1px),var(--a,#10b981) calc(50% - 1px),var(--a,#10b981) calc(50% + 1px),transparent calc(50% + 1px)) right bottom/var(--c) var(--c) no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left var(--c) top 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) left 0 top var(--c)/2px 30px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right var(--c) bottom 0/56px 2px no-repeat, linear-gradient(var(--a,#10b981),var(--a,#10b981)) right 0 bottom var(--c)/2px 30px no-repeat; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#10b981) 32%,transparent); }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 2px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 26%, transparent); }
-    .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'Saira Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:.32em; text-transform:uppercase; color:var(--a,#10b981); margin:0; }
+    .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:13px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
     .mt-lab::before { content:''; width:14px; height:10px; background:currentColor; clip-path:polygon(0 0,60% 0,100% 100%,40% 100%); }
     .mt-btn { --c:9px; display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; font-size:15px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22); clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); transition:background .15s, box-shadow .15s, filter .15s; }
     .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.42); }
@@ -219,7 +219,7 @@ const Cell = ({ children, bg, line = true, lc = 'rgba(16,185,129,.4)', grow, px 
  * 모든 화면이 함께 쓰는 상단 바 — 드래프트 모드 화면 헤더 문법
  *  [← · eyebrow/제목] [steps] ······ [샐러리 캡 게이지(team 을 줄 때만 — 내 라커)] [프로필 · 골드 — 누르면 이름 · 배너 · 로그아웃]
  */
-export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, account, onBack, right, steps, onSignOut }) => {
+export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트', team, account, onBack, right, steps, onSignOut }) => {
   const squad = team?.squad || [];
   const cap = team?.cap || SQUAD_CAP;
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
@@ -232,7 +232,7 @@ export const TopBar = ({ section = '메인', eyebrow = 'Legend Draft', team, acc
           className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
       )}
       <div className="leading-none">
-        <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">{eyebrow}</p>
+        <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">{eyebrow}</p>
         <h1 className="mt-1 text-xl font-black leading-none text-white">{section}</h1>
       </div>
       {steps}
@@ -281,7 +281,7 @@ export function FlipFaces({ value, keyOf, render, resetKey, className = '', styl
 }
 
 /** 사이드 네비 — 모드 탭을 세로로 세운 판. items: [{ key, label, sub, img }] */
-export const SideNav = ({ items, value, onChange, a = '#10b981', label = 'Menu', compact = false, children }) => (
+export const SideNav = ({ items, value, onChange, a = '#10b981', label = '메뉴', compact = false, children }) => (
   <nav className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', '--a': a }}>
     <p className="mt-lab px-1 pt-1" style={{ '--a': a }}>{label}</p>
     {items.map((it) => (

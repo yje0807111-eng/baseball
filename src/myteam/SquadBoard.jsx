@@ -566,7 +566,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>, document.body,
       )}
       <div className="flex items-baseline gap-3">
-        <p className="mt-lab">My Squad</p>
+        <p className="mt-lab">선수 배치</p>
         {fire && <span className="font-display text-[12px] tracking-[0.16em] text-red-400">선수를 누르면 바로 방출</span>}
         <div className="ml-auto flex gap-2">
           {onRelease && (

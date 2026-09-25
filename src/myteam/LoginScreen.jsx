@@ -22,7 +22,7 @@ export default function LoginScreen({ onDone }) {
 
       <div className="relative grid min-h-dvh items-center px-6">
         <div className="w-full max-w-[540px] pl-2 lg:pl-16">
-          <p className="mt-lab">Legend Draft</p>
+          <p className="mt-lab">레전드 드래프트</p>
           <h1 className="mt-2.5 text-[62px] font-extrabold leading-[1.02] text-white">내 팀을<br />만든다</h1>
           <p className="mt-4 max-w-[440px] text-base leading-[1.75] text-gray-400">
             1982년부터 오늘까지, 역대 KBO 선수로 26인 엔트리와 코치진 꾸리기<br />
@@ -30,7 +30,7 @@ export default function LoginScreen({ onDone }) {
           </p>
 
           <div className="mt-cut mt-frame mt-8 bg-[#060a13]/88 p-7 backdrop-blur-[10px]" style={{ '--c': '16px' }}>
-            <p className="mt-lab" style={{ '--a': '#34d399' }}>Manager</p>
+            <p className="mt-lab" style={{ '--a': '#34d399' }}>새로 시작</p>
             <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
               <input value={nick} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && go()}
                 placeholder="감독 이름" maxLength={12}

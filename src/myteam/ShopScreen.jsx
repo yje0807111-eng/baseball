@@ -162,12 +162,12 @@ export default function ShopScreen({ account, onChange, onBack }) {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/tile-shop.webp" opacity={0.6} />
-      <TopBar eyebrow="Shop" section="상점" account={{ ...account, gold }} onBack={onBack} />
+      <TopBar eyebrow="메인" section="상점" account={{ ...account, gold }} onBack={onBack} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
         style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="Category" compact>
+        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="상품 종류" compact>
           {/* 추천 상품: 우리 팀에서 가장 약한 묶음을 올려 주는 상품 한 장 */}
           {(() => {
             const { weak, item } = teamWeakness(squad);
@@ -189,7 +189,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">
-            <p className="mt-lab" style={{ '--a': '#fde047' }}>Shop</p>
+            <p className="mt-lab" style={{ '--a': '#fde047' }}>상품 목록</p>
           </div>
           <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-5 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
             {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
@@ -197,7 +197,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
         </section>
 
         <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
-          <p className="mt-lab" style={{ '--a': n }}>Pick</p>
+          <p className="mt-lab" style={{ '--a': n }}>고른 상품</p>
           {!picked ? <p className="text-sm text-gray-500">상품 고르기</p> : (
             <>
               {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
