@@ -115,10 +115,16 @@ export function stealOdds(g, from) {
   return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0) + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
 }
 
-/** 투수 체력: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
+/** 이 투수가 오늘 던질 수 있는 공 수 */
+const armLimit = (side) =>
+  Math.max(20, 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0));
+
+/** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
+export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
+
+/** 투수 피로: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
 function fatigue(side) {
-  const limit = 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0);
-  return clamp((side.pitches - limit) / 40, 0, 1);
+  return clamp((side.pitches - armLimit(side)) / 40, 0, 1);
 }
 
 function choosePitch(g, pitcher, order) {
@@ -230,8 +236,15 @@ export function pitch(g, orders = {}) {
       def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
     }
   }
+  /* 체력이 바닥난 투수는 타석이 바뀔 때 알아서 내려간다 — 어느 팀이든 */
+  let swapped = null;
+  if (!orders.changePitcher && !g.balls && !g.strikes && staminaOf(def) <= 0 && def.team.pitchers[def.pitcherIdx + 1]) {
+    const out = def.pitcher;
+    def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+    swapped = { out, in: def.pitcher };
+  }
   const pitcher = def.pitcher;
-  const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
+  const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, ...(swapped ? { swapped } : {}), before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
   let runs = 0;
 
   // 고의사구

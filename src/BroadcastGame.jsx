@@ -13,15 +13,17 @@ import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
 import { playsFor } from './engine/plays.js';
+import { FORM_OF } from './myteam/form.js';
 import {
-  createGame, pitch, stealOdds, pitchMix, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
-const shotsOf = (g) => atBatPitches(g.events).map((e) => {
+const shotOf = (e) => {
   const t = pitchTarget(e) || [0, 0];
   return { x: t[0] / ZONE.w, y: t[1] / ZONE.h, tone: CALL_TONE[e.call] || '#fff', ev: e };
-});
+};
+const shotsOf = (g) => atBatPitches(g.events).map(shotOf);
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
 /* 담아 둔 지시를 사람 말로 — 눌렀다는 것이 보이게 */
 const ORDER_KO = { steal: '도루', bunt: '번트', hitAndRun: '히트앤런', ibb: '고의사구', changePitcher: '투수 교체' };
@@ -39,6 +41,7 @@ const CLUTCH_CSS = `
   76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
   100% { opacity: 0; transform: translate(-50%,-50%) scale(1.06); letter-spacing: .2em; } }
 @keyframes halfWipe { 0% { transform: scaleX(0); opacity: .9; } 55% { transform: scaleX(1); opacity: .55; } 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 @keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
@@ -154,9 +157,12 @@ const COUNT_MS = 750; // 공 하나 사이 — 투구가 늘 같은 속도라 �
 const RESULT_MS = 2400; // 타석이 끝나는 공 — 여기에 시간을 몰아준다
 const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
-const WATCH_MARK = 0.12; // 이 무게부터는 공마다 본다 — 경기당 15 타석쯤
-const BRIEF_MS = 1250;   // 볼거리 있는 타석 — 타구만 한 번
-const FLASH_MS = 460;    // 그 밖 — 결과 한 줄
+const OURS = '#10b981';   // 우리 쪽 구역 테두리
+const THEIRS = '#f87171'; // 상대 쪽 구역 테두리
+const WATCH_MARK = 0.09; // 이 무게부터는 공마다 본다 — 경기당 22 타석쯤
+const BRIEF_MS = 1800;   // 볼거리 있는 타석 — 타구만 한 번
+const FLASH_MS = 620;    // 그 밖 — 결과 한 줄
+const RUSH_MS = 80;     // 접은 타석에서 공 하나가 지나가는 간격
 const WORTH = ['HR', '3B', '2B', 'DP', 'E']; // 접어도 타구는 보여 주는 결과
 const SKIP_MS = 8500; // SKIP 을 누른 뒤 경기가 끝나기까지 — 종료 자막까지 더해 10초 안쪽
 const MS_PER_OUT = 4500; // 1X 기준 아웃 하나에 드는 시간 — 남은 경기 길이를 어림잡는 데 쓴다
@@ -176,10 +182,28 @@ function skipSpeed(g, endAt) {
 
 /* ───────── 해설 문장 ───────── */
 const FIELD_KO = { P: '투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수' };
+/** 줄의 결 — 득점 · 장타 · 아웃 · 그 밖. 색과 굵기가 여기서 갈린다 */
+const KIND_TONE = { run: '#fde047', hit: '#34d399', out: '#94a3b8', note: '#60a5fa', plain: '#cbd5e1' };
+function kindOf(ev) {
+  if (!ev) return 'note';
+  if (ev.runs > 0 || ev.result === 'HR') return 'run';
+  if (['1B', '2B', '3B', 'BB', 'E'].includes(ev.result)) return 'hit';
+  if (['K', 'GO', 'FO', 'LO', 'DP', 'SF', 'SAC', 'BH'].includes(ev.result)) return 'out';
+  return 'plain';
+}
+let lineSeq = 0;
+/** 화면에 쌓을 한 줄 */
+const lineOf = (text, kind = 'plain', g = null) => ({
+  id: (lineSeq += 1), text, kind,
+  at: g ? `${g.inning}${g.top ? '초' : '말'}` : '',
+});
+const KEEP = 14; // 남겨 두는 줄 수
+
 function commentary(ev) {
   const b = ev.batter?.name || '타자';
   const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
   const out = [];
+  if (ev.swapped) out.push(`${ev.swapped.out.name} 체력 한계 — ${ev.swapped.in.name} 교체`);
   if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루 도루 ${ev.steal.ok ? '성공' : '실패'}`);
   if (!ev.result) {
     const call = { ball: '볼', called: '루킹 스트라이크', swinging: '헛스윙!', foul: '파울' }[ev.call];
@@ -382,14 +406,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const wpRef = useRef([0.5]);
   const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
+  const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
+  const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리
   const [digest, setDigest] = useState(true); // 요약 — 승부처가 아닌 타석은 접는다
   const digestRef = useRef(true);
   digestRef.current = digest;
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [count, setCount] = useState({ b: 0, s: 0, o: 0 }); // 볼·스트라이크·아웃 — 공이 꽂힐 때 오른다
-  const [lines, setLines] = useState(['플레이볼!']);
+  const [lines, setLines] = useState([lineOf('플레이볼!', 'note')]);
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [swap, setSwap] = useState(null); // 공수 교대 띠
+  const [rush, setRush] = useState(false); // 접은 타석을 흘려보내는 중
   const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
   const outsRef = useRef(0); // 아웃이 늘면 표시가 한 번 튄다
   const [play, setPlay] = useState(null); // 지금 화면에서 재생 중인 공 { ev, ms }
@@ -404,7 +431,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const handOver = () => {
     if (endedRef.current) return false;
     endedRef.current = true;
-    onFinish?.(buildResult(g, my));
+    onFinish?.(buildResult(g, my, { flow: wpRef.current, calls: callsRef.current, gain: gainRef.current }));
     return true;
   };
   /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
@@ -465,8 +492,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     aliveRef.current = true;
     (async () => {
       await sleep(600);
+      /* 한 이닝에 한 번만 묻는다 — 화면이 두 번 올라와도(개발 모드) 증강 판이 겹쳐 뜨지 않게 */
+      const askedAt = aug ? (aug.askedAt || (aug.askedAt = new Set())) : new Set();
       /* 플레이볼 직후 한 장 — 아래 이닝 넘김 판정은 1회를 잡지 못한다 */
-      if (!stop && aliveRef.current && midPickInnings.includes(1) && onMidPick) {
+      if (!stop && aliveRef.current && midPickInnings.includes(1) && onMidPick && !askedAt.has(1)) {
+        askedAt.add(1);
         const first = await onMidPick(1);
         if (first && aliveRef.current) {
           const nextMy = rebuildMy?.(first);
@@ -489,7 +519,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             pendingRef.current = { ...pendingRef.current, changePitcher: change };
             const next = typeof change === 'string' ? g.away.team.pitchers.find((p) => p.id === change) : g.away.team.pitchers[g.away.pitcherIdx + 1];
             const text = next && `${away.name} 투수 교체 — ${g.away.pitcher?.name} → ${next.name}`; // 교체 전에 글을 만들어 둔다
-            if (text) setLines((l) => [...l, text].slice(-4));
+            if (text) setLines((l) => [...l, lineOf(text, 'note', g)].slice(-KEEP));
           }
         }
         /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지 */
@@ -511,13 +541,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
-        if (fresh) wpAt.current = winProb(g);
-        const gave = asked || Object.keys(pendingRef.current).length > 0; // 이 타석에 지시를 냈다
+        if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top }; }
+        const ordered = Object.keys(pendingRef.current).length > 0;
+        const gave = asked || ordered; // 이 타석에 지시를 냈다
+        const gaveKo = ordered ? orderKo(pendingRef.current).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
+        const folded = []; // 접은 타석에서 지나간 공 — 빨리 흘려보낼 것들
         try {
-          if (fold) { do { ev = pitch(g, pendingRef.current); } while (ev && !ev.result && !g.final); }
+          if (fold) { do { ev = pitch(g, pendingRef.current); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, pendingRef.current);
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
@@ -528,11 +561,28 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           : ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
         const told = fold ? (worth ? beat * 0.5 : 0) : beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
-        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...commentary(ev)].slice(-4)); }, told);
+        const swaps = folded.slice(0, -1).filter((e) => e.swapped)
+          .map((e) => lineOf(`${e.swapped.out.name} 체력 한계 — ${e.swapped.in.name} 교체`, 'note', g));
+        const said = [...swaps, ...commentary(ev).map((t) => lineOf(t, kindOf(ev), g))];
+        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
         if (fold) {
-          /* 접은 타석은 존 판에 찍지 않는다 — 공을 보여 주지 않았으니 */
-          setZoneShots([]);
-          setPlay(worth ? { ev, ms: beat, bases: wasOn } : null);
+          /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다.
+             존 판과 볼카운트도 같이 달려야 공이 지나갔다는 것이 읽힌다 */
+          if (folded.length > 1) {
+            setRush(true);
+            const step = Math.max(35, RUSH_MS / curSpeed());
+            for (let i = 0; i < folded.length - 1; i += 1) {
+              if (stop || !aliveRef.current) break;
+              const e = folded[i];
+              setPlay({ ev: e, ms: step * 3, bases: wasOn });
+              setZoneShots(folded.slice(0, i + 1).map(shotOf));
+              setCount({ b: e.after.balls, s: e.after.strikes, o: e.after.outs });
+              await sleep(step);
+            }
+            setRush(false);
+          }
+          setPlay({ ev, ms: beat, bases: wasOn });
+          setZoneShots(shotsOf(g));
           setCount({ b: 0, s: 0, o: g.outs });
         } else {
           setPlay({ ev, ms: beat }); // 플레이 뷰가 이 공을 그 시간 동안 재생한다
@@ -541,8 +591,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           /* 볼카운트도 같은 때에 — 친 공은 처리가 끝난 뒤에 아웃이 오른다 */
           setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
             beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
-          /* 타석이 끝나면 다 보여 준 뒤에 지운다 */
-          if (ev.result) setTimeout(() => { if (aliveRef.current) setZoneShots([]); }, beat * 0.96);
+
         }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
@@ -551,6 +600,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           const wpNow = winProb(g);
           wpRef.current = [...wpRef.current, wpNow].slice(-200);
           if (gave) gainRef.current += wpNow - wpAt.current;
+          if (gaveKo) callsRef.current.push({ ...spotRef.current, ko: gaveKo, delta: wpNow - wpAt.current });
         }
         redraw();
         await sleep(beat);
@@ -561,7 +611,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           const scored = (half.top ? g.away.runs : g.home.runs) - before;
           const res = aug.afterHalf(g, scored, half.inning, half.top);
           if (res.texts.length) {
-            setLines((l) => [...l, ...res.texts.map((t) => `[증강: ${t.name}] ${t.text}`)].slice(-4));
+            setLines((l) => [...l, ...res.texts.map((t) => lineOf(`[증강: ${t.name}] ${t.text}`, 'note', g))].slice(-KEEP));
             const t = res.texts[res.texts.length - 1];
             setFlash({ text: t.name, key: Date.now() });
             setTimeout(() => setFlash(null), flashMs());
@@ -570,7 +620,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           }
           if (g.final) g.winner = g.home.runs > g.away.runs ? 'home' : g.away.runs > g.home.runs ? 'away' : 'draw';
           // 새 이닝이 시작될 때 그 경기에서만 쓰는 증강을 하나 더
-          if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick) {
+          if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick && !askedAt.has(g.inning)) {
+            askedAt.add(g.inning);
             const picked = await onMidPick(g.inning);
             if (picked && aliveRef.current) {
               const nextMy = rebuildMy?.(picked);
@@ -587,6 +638,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         if (!g.final && (g.top !== sideRef.current.top || g.inning !== sideRef.current.inning)) {
           sideRef.current = { inning: g.inning, top: g.top };
           setCount({ b: 0, s: 0, o: 0 });
+          setLines((l) => [...l, lineOf(`${g.inning}회${g.top ? '초' : '말'} — ${!g.top ? '우리 공격' : '우리 수비'} · ${g.away.runs} : ${g.home.runs}`, 'half', g)].slice(-KEEP));
           setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
           redraw();
           await sleep(1150 / curSpeed());
@@ -607,7 +659,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       }
       if (g.final && aliveRef.current) {
         redraw();
-        setLines((l) => [...l, `경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`].slice(-4));
+        setLines((l) => [...l, lineOf(`경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`, 'note')].slice(-KEEP));
         await sleep(quiet() ? 300 : 700);
         handOver();
       }
@@ -645,7 +697,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   };
 
 
-  const stamina = Math.max(0, Math.min(100, 100 - (def.pitches / (70 + (st(pitcher, 'stability', 75) - 70) * 1.2)) * 100));
+  const stamina = staminaOf(def);
   // 내 투수가 지쳤는가 — 불펜 쪽으로 눈이 가게 한다
   const mineOnMound = g.top;
   const worn = mineOnMound && stamina <= 55;
@@ -657,6 +709,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const justOut = count.o > outsRef.current ? count.o - 1 : -1;
   outsRef.current = count.o;
   const mineBat = !g.top; // 내가 치는 회
+  /* 구역 테두리는 팀 색이 아니라 우리 · 상대로 갈린다 — 회가 바뀌어도 헷갈리지 않게 */
+  const offSide = mineBat ? OURS : THEIRS; // 타순 판 = 지금 치는 팀
+  const defSide = mineBat ? THEIRS : OURS; // 투수 · 불펜 판 = 지금 막는 팀
   const pend = pendingRef.current; // 다음 공에 실릴 지시 — 누른 것이 보이게
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
@@ -773,12 +828,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 타석 — 얼굴에 파워 · 컨택 두 줄. 타자가 바뀌면 카드가 아래에서 올라온다 */}
             <section key={batter?.id} className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden"
-              style={{ '--c': '14px', '--a': battingColor, animation: 'batterIn .34s ease-out both' }}>
+              style={{ '--c': '14px', '--a': offSide, animation: 'batterIn .34s ease-out both' }}>
               <div className="relative shrink-0 bg-[#0b1220] bg-cover" style={{ height: 152, backgroundImage: faceArt(batter), backgroundPosition: '50% 16%' }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
                 <em className="absolute left-3 top-2 font-display text-[30px] font-extrabold leading-none not-italic"
                   style={{ color: battingColor, textShadow: `0 0 16px ${battingColor}88, 0 2px 4px #000` }}>{batter?.overall}</em>
-                <span className="absolute right-3 top-2.5 truncate text-[12px] font-bold" style={{ color: koDark(batterKo), textShadow: '0 1px 4px #000' }}>{batterKo}</span>
+                <span className="absolute right-3 top-2.5 flex items-center gap-1.5 text-[12px] font-bold" style={{ textShadow: '0 1px 4px #000' }}>
+                  {FORM_OF[batter?.form]?.swing ? (
+                    <b className="font-display" style={{ color: FORM_OF[batter.form].color }}>{FORM_OF[batter.form].mark} {FORM_OF[batter.form].ko}</b>
+                  ) : null}
+                  <span className="truncate" style={{ color: koDark(batterKo) }}>{batterKo}</span>
+                </span>
                 <b className="absolute bottom-1 left-3 right-3 truncate text-[22px] font-black text-white [text-shadow:0_2px_8px_#000]">{batter?.name}</b>
                 <span className="absolute bottom-1.5 right-3 text-[12px] font-semibold text-gray-300 [text-shadow:0_1px_4px_#000]">{batter?.position} · {batter?.hand}타</span>
               </div>
@@ -794,9 +854,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             </section>
 
             {/* 타순 — 지금 공격하는 팀만. 오늘 한 마디 · 종합 */}
-            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offFlag?.color || battingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': offFlag?.color || battingColor }}>타순</p>
+                <p className="mt-lab" style={{ '--a': offSide }}>타순</p>
                 <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(off.team.name, !g.top)} 공격</span>
               </div>
               <ul className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-2 pb-2">
@@ -839,20 +899,26 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
 
               {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
-              {lastShot && (
-                <div key={shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
-                  style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)', '--f': lastShot.tone, animation: 'mtZoneFlash .5s ease-out both' }}>
-                  <ZoneBox shots={shots} w={150} />
-                  {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
-                  <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
-                    <span><span className="mt-cut inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span></span>
-                    <b className="truncate text-[13px] font-bold text-white">{PITCH_KO[lastShot.ev.pitch?.type] || ''}</b>
-                    <em className="font-display text-[24px] font-extrabold leading-none not-italic" style={{ color: lastShot.tone }}>
-                      {lastShot.ev.pitch?.velo}<span className="ml-0.5 text-[11px] text-white/60">km</span>
-                    </em>
-                    <span className="text-[11px] font-semibold text-gray-400">{courseKo(lastShot.x, lastShot.y)}</span>
-                  </div>
+              {/* 존 판 — 늘 떠 있다. 새 공이 오면 갈릴 뿐, 꺼졌다 켜지지 않는다 */}
+              <div key={rush ? 'rush' : shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
+                style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)',
+                  '--f': lastShot?.tone || '#94a3b8', animation: lastShot && !rush ? 'mtZoneFlash .5s ease-out both' : 'none' }}>
+                <ZoneBox shots={shots} w={150} />
+                {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
+                <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
+                  <span>{lastShot && <span className="mt-cut inline-block px-1.5 py-0.5 text-[12px] font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>}</span>
+                  <b className="truncate text-[13px] font-bold text-white">{lastShot ? PITCH_KO[lastShot.ev.pitch?.type] || '' : ''}</b>
+                  <em className="font-display text-[24px] font-extrabold leading-none not-italic" style={{ color: lastShot?.tone || '#4b5563' }}>
+                    {lastShot?.ev.pitch?.velo ?? '--'}<span className="ml-0.5 text-[11px] text-white/60">km</span>
+                  </em>
+                  <span className="text-[11px] font-semibold text-gray-400">{lastShot ? courseKo(lastShot.x, lastShot.y) : '투구 대기'}</span>
                 </div>
+              </div>
+
+              {/* 접은 타석을 흘려보내는 중 — 넘어갔다는 것이 보이게 */}
+              {rush && (
+                <span className="mt-cut pointer-events-none absolute right-3 top-[50px] flex items-center gap-1.5 px-2.5 py-1 font-display text-[12px] font-extrabold text-[#05080f]"
+                  style={{ '--c': '4px', background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
               )}
 
               {/* 결과 자막 */}
@@ -997,9 +1063,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 </div>
               </div>
             </section>
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': pitchingColor }}>
+            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': defSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': pitchingColor }}>투수</p>
+                <p className="mt-lab" style={{ '--a': defSide }}>투수</p>
                 <span className="ml-auto truncate text-[12px] font-semibold text-gray-400">{shortTeam(def.team.name, g.top)} 수비</span>
               </div>
               <div className="px-3.5 pb-3">
@@ -1035,9 +1101,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             </section>
 
-            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>
+            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
               <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>불펜</p>
+                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>불펜</p>
                 {queued ? (
                   <span className="ml-auto truncate text-[12px] font-bold text-[#fde047]">교체 대기</span>
                 ) : worn ? (
@@ -1079,9 +1145,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <p className="mt-lab">해설</p>
                 <span className="ml-auto text-[15px]">🎙</span>
               </div>
-              <div className="min-h-0 flex-1 space-y-1.5 overflow-hidden px-3.5 pb-3">
-                {[...lines].reverse().map((t, i) => (
-                  <p key={`${i}${t}`} className={`m-0 leading-snug ${i === 0 ? 'text-[14px] font-bold text-white' : 'text-[12.5px] font-medium text-gray-400'}`}>{t}</p>
+              <div className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-3 pb-3">
+                {[...lines].reverse().map((l, i) => (
+                  l.kind === 'half' ? (
+                    <p key={l.id} className="m-0 mt-1 flex shrink-0 items-center gap-2 font-display text-[11px] font-bold tracking-[0.14em] text-gray-500">
+                      <i className="h-px flex-1 bg-white/10" />{l.text}<i className="h-px flex-1 bg-white/10" />
+                    </p>
+                  ) : (
+                    <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug"
+                      style={{ opacity: i < 3 ? 1 : 0.62 }}>
+                      {l.at && <em className="shrink-0 font-display text-[10.5px] font-bold not-italic text-gray-600">{l.at}</em>}
+                      <span className={i === 0 ? 'text-[13.5px] font-bold' : 'text-[12px] font-medium'}
+                        style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
+                    </p>
+                  )
                 ))}
               </div>
             </section>
@@ -1093,67 +1170,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 }
 
 /** 엔진 경기를 기존 결과 화면(ResultPanel)이 쓰는 모양으로 바꾼다 */
-/** 타점이 붙은 결과를 사람 말로 — "쓰리런 홈런" · "2타점 적시타" */
-function actText(ev) {
-  const r = ev.runs || 0;
-  if (ev.result === 'HR') return r >= 4 ? '만루 홈런' : r === 3 ? '쓰리런 홈런' : r === 2 ? '투런 홈런' : '솔로 홈런';
-  const label = RESULT_LABEL[ev.result] || ev.result;
-  return r > 0 ? `${r}타점 ${label}` : label;
-}
-
-/**
- * 한 반이닝을 정리 카드 한 칸으로 — 득점 · 주인공 · 사건 목록.
- * 점수가 났으면 가장 크게 기여한 타자가, 안 났으면 막아낸 투수가 주인공이다.
- * mine=true 면 우리 공격(말)이라 타자가 우리 편 · 투수가 상대 편이다.
- */
-function halfSummary(evs, top, mine) {
-  const list = evs.filter((e) => e.top === top);
-  const done = list.filter((e) => e.result);
-  const runs = list.reduce((s, e) => s + (e.runs || 0), 0);
-  const events = done.map((e) => ({
-    name: e.batter?.name || '타자',
-    text: actText(e),
-    rt: e.runs ? `+${e.runs}` : '',
-    hot: !!e.runs,
-  })).slice(-5);
-
-  let hero = null;
-  if (runs > 0) {
-    const PTS = { '1B': 2, '2B': 3, '3B': 4, HR: 6, BB: 1, IBB: 0, SF: 1, SAC: 1, BH: 2, E: 1 };
-    const credit = new Map();
-    for (const e of done) {
-      if (!e.batter) continue;
-      const pts = (PTS[e.result] || 0) + (e.runs || 0) * 3;
-      if (pts <= 0) continue;
-      const c = credit.get(e.batter.id) || { p: e.batter, pts: 0, best: null };
-      c.pts += pts;
-      if (!c.best || (e.runs || 0) >= (c.best.runs || 0)) c.best = e;
-      credit.set(e.batter.id, c);
-    }
-    const top1 = [...credit.values()].sort((a, b) => b.pts - a.pts)[0];
-    if (top1) {
-      hero = {
-        id: top1.p.id, name: top1.p.name, pos: `${top1.p.position} · ${top1.p.overall ?? ''}`.trim(),
-        act: actText(top1.best), side: mine ? 'my' : 'opp',
-        sub: `이 이닝 ${done.filter((e) => e.batter?.id === top1.p.id).length}타석`,
-      };
-    }
-  } else {
-    const pitcher = done.find((e) => e.pitcher)?.pitcher || list.find((e) => e.pitcher)?.pitcher;
-    const ks = done.filter((e) => e.result === 'K').length;
-    if (pitcher) {
-      hero = {
-        id: pitcher.id, name: pitcher.name, pos: `${pitcher.position} · ${pitcher.overall ?? ''}`.trim(),
-        act: done.length <= 3 ? '삼자범퇴' : '무실점',
-        sub: `${done.length}타자 · ${list.length}구${ks ? ` · 탈삼진 ${ks}` : ''}`,
-        side: mine ? 'opp' : 'my', // 우리 공격인데 무득점이면 상대 투수가 주인공
-      };
-    }
-  }
-  return { runs, batters: done.length, events, hero };
-}
-
-/** 이닝 하나(초·말)를 정리 화면에 넘길 모양으로 */
 /* ───────── 승부처: 멈추고 감독에게 묻는다 ───────── */
 /** 주자를 사람 말로 */
 const basesKo = (bases) => {
@@ -1181,24 +1197,15 @@ function askOf(g, home, away, left, resolve) {
     pitch: defenseOf(g).pitches ?? 0,
   };
 }
-export function buildInningRecap(g, evs, inning) {
-  return {
-    inning,
-    mine: halfSummary(evs, false, true), // 말 = 우리 공격
-    theirs: halfSummary(evs, true, false), // 초 = 상대 공격
-    board: {
-      home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
-      away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
-    },
-    score: { home: g.home.runs, away: g.away.runs },
-  };
-}
 
-export function buildResult(g, myTeam) {
+export function buildResult(g, myTeam, manager = null) {
   const board = {
     home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
     away: Array.from({ length: 9 }, (_, i) => g.away.line[i] ?? null),
   };
+  /* 감독이 한 일 — 승률이 그린 선과 내가 낸 지시 */
+  const flow = manager?.flow?.length ? [...manager.flow] : null;
+  const calls = manager?.calls?.length ? [...manager.calls].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)) : [];
   const credit = new Map();
   const add = (p, pts, key) => {
     if (!p) return;
@@ -1236,5 +1243,6 @@ export function buildResult(g, myTeam) {
     score: { my: g.home.runs, opp: g.away.runs },
     winner: g.winner === 'home' ? 'my' : g.winner === 'away' ? 'opp' : 'draw',
     logs, used: {}, mvpPlayer: mvp.player, mvp, credits: ranked,
+    flow, calls, gain: manager?.gain ?? 0,
   };
 }

@@ -5,7 +5,7 @@ import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
-import { statColor, statPct } from './myteam/teamColor.js';
+import { statColor, statPct, teamNeon } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -17,6 +17,8 @@ import { NO_CAP, isNoCap, specialAiRoster, rosterOrigin } from './draft/special.
 import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
+import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
+import { faceAt } from './data/cardFace.js';
 
 /* ════════════════════════════════════════════════════════════════════
    KBO 드래프트 & 증강 시뮬레이터 — 단일 파일 (코어 엔진 + 대시보드 UI)
@@ -32,7 +34,8 @@ export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루�
 const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
 const FREE_REROLL = 1; // 선택지마다 거저 다시 굴릴 수 있는 횟수
 /* 경기 중 증강은 두 번만 — 플레이볼 직후와 7회 시작 전. 자주 멈추면 경기 흐름이 끊긴다 */
-const MID_AUG_INNINGS = [1, 7];
+/* 경기 중 증강을 묻는 회 — 1회 몫은 정비를 마치며 이미 골랐으니 7회 한 번만 */
+const MID_AUG_INNINGS = [7];
 const SERIES_KIND_LABEL = { team: '구단 시즌', national: '국가대표', legend: '레전드' };
 const SERIES_NEON = { team: '#10b981', national: '#60a5fa', legend: '#fbbf24' };
 /** 단계별 화면 배경 (public/ui/*.webp, Higgsfield 생성) */
@@ -1758,6 +1761,30 @@ export const KEYFRAMES = `
 /* 증강 카드: 올리거나 포커스하면 테두리가 차오르고 선택 버튼이 등급 색으로 */
 .ui-choice:hover::after, .ui-choice:focus-within::after { box-shadow: inset 0 0 0 2px var(--a), inset 0 0 40px color-mix(in srgb, var(--a) 32%, transparent); }
 .ui-choice:hover .ui-btn, .ui-choice:focus-within .ui-btn { background: var(--a); color: #05080f; box-shadow: none; }
+/* 아래에서 솟아오르며 자리를 잡는다 */
+@keyframes augIn { from { opacity: 0; transform: translateY(54px) scale(.9); } to { opacity: 1; transform: none; } }
+/* 고른 카드 — 한 번 눌렸다가 빛을 머금고 천천히 떠오른다 */
+@keyframes augTake {
+  0% { transform: translateY(-20px) scale(1.085); filter: brightness(1); }
+  14% { transform: translateY(-12px) scale(1.03); filter: brightness(1.1); }
+  46% { transform: translateY(-30px) scale(1.14); filter: brightness(1.5) saturate(1.25); }
+  100% { transform: translateY(-78px) scale(1.2); filter: brightness(2.1) saturate(1.1); opacity: 0; } }
+/* 고르지 않은 카드 — 뒤로 가라앉는다 */
+@keyframes augDrop { 0% { opacity: .5; } 100% { opacity: 0; transform: translateY(34px) scale(.86); filter: brightness(.35) blur(2px); } }
+/* 고른 자리에서 두 겹으로 퍼지는 고리 */
+@keyframes augRing { 0% { opacity: 0; transform: scale(.7); } 18% { opacity: .95; } 100% { opacity: 0; transform: scale(2.1); } }
+.aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .3s cubic-bezier(.18,.9,.28,1), opacity .3s, filter .3s; }
+/* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
+.aug-card.hot { transform: translateY(-20px) scale(1.085); z-index: 2; }
+.aug-card.cold { opacity: .5; filter: saturate(.4) brightness(.68); transform: translateY(6px) scale(.94); }
+.aug-card.take { animation: augTake .74s cubic-bezier(.22,.66,.3,1) both; z-index: 3; }
+.aug-card.gone { animation: augDrop .5s cubic-bezier(.4,0,.7,.4) both; }
+.aug-ring { position: absolute; inset: -6%; border-radius: 14px; pointer-events: none; z-index: 4;
+  box-shadow: 0 0 0 3px var(--a), 0 0 70px -6px var(--a); animation: augRing .7s cubic-bezier(.2,.7,.3,1) both; }
+.aug-ring.late { animation-delay: .12s; box-shadow: 0 0 0 1px var(--a), 0 0 40px -10px var(--a); }
+/* 올려 두면 그림이 천천히 밀려 들어온다 */
+.aug-card .aug-art { transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; }
+.aug-card.hot .aug-art { transform: scale(1.06); }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 12px 14px 10px 52px; background: linear-gradient(90deg, rgba(5,8,15,0) 0, rgba(5,8,15,.82) 24%, rgba(5,8,15,.92) 100%); }
 /* 넓은 화면: 시너지는 구장 바로 오른쪽(판 끝까지), 그늘은 옅게 해 사진이 뒤로 이어 보이게 */
@@ -3515,14 +3542,17 @@ const TierIcon = ({ tier }) => (
   </svg>
 );
 
-function ChoiceCard({ option: o, index, onChoose }) {
+function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   const art = useImage(`augments/${o.id}.webp`);
   const acc = TIER_NEON[o.tier];
   return (
-    <section style={{ '--a': acc, '--c': '22px', animationDelay: `${120 + index * 110}ms` }}
-      className="ui-choice ui-cut ui-frame group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left animate-[rise_.45s_ease-out_both] transition-transform duration-200 hover:-translate-y-2 focus-within:-translate-y-2">
+    <section style={{ '--a': acc, '--c': '22px', animationDelay: state ? '0ms' : `${120 + index * 110}ms` }}
+      onMouseEnter={() => onHot?.(index)} onMouseLeave={() => onHot?.(-1)}
+      onFocusCapture={() => onHot?.(index)} onBlurCapture={() => onHot?.(-1)}
+      className={`ui-choice ui-cut ui-frame aug-card group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left ${state}`}>
+      {state === 'take' && <><span className="aug-ring" style={{ '--a': acc }} /><span className="aug-ring late" style={{ '--a': acc }} /></>}
       {art
-        ? <img src={art} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] transition duration-300 group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
+        ? <img src={art} alt="" className="aug-art absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
         : <span className="absolute inset-0" style={{ background: `radial-gradient(80% 50% at 50% 30%, ${acc}40, transparent 70%)` }} />}
       <span className="absolute inset-0" style={{ background: `radial-gradient(80% 45% at 50% 28%, ${acc}33, transparent 70%), linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%)` }} />
       <span className="ui-scan absolute inset-0 opacity-70" />
@@ -3544,6 +3574,9 @@ function ChoiceCard({ option: o, index, onChoose }) {
 
 function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null }) {
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
+  const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
+  const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
+  useEffect(() => { setHot(-1); setTook(-1); }, [choice]);
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3563,7 +3596,11 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
           {!isAug && <p className="mt-2 text-sm text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-6">
-          {choice.options.map((o, i) => <ChoiceCard key={o.id} option={o} index={i} onChoose={onChoose} />)}
+          {choice.options.map((o, i) => (
+            <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
+              state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
+              onChoose={(pick) => { if (took >= 0) return; setTook(i); setTimeout(() => onChoose(pick), 620); }} />
+          ))}
         </div>
         {isAug && onReroll && (free > 0 || rerolls > 0) && (
           <button type="button" onClick={onReroll} className="ui-btn ui-cut animate-[rise_.4s_ease-out_both]" style={{ '--c': '9px' }}>
@@ -4425,30 +4462,80 @@ const teamOvr = (team) => Math.round(avg(team.roster.map((p) => p.overall)));
 const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.defense * 0.2;
 const winChance = (my, opp) => 1 / (1 + Math.exp(-(teamPower(my) - teamPower(opp)) / 3.2));
 
-function MatchRow({ player, label, mine }) {
+
+/** 같은 자리끼리 마주 세운 한 줄 */
+function DuelRow({ label, mine, opp }) {
+  const a = mine?.overall ?? 0, b = opp?.overall ?? 0;
+  const side = (p, v, other, c, right) => (
+    <span className={`flex items-center gap-2 px-2.5 py-1.5 ${right ? 'flex-row-reverse text-right' : ''}`}
+      style={{ background: v >= other ? `linear-gradient(${right ? 270 : 90}deg,transparent,${c}33)` : 'rgba(255,255,255,.035)',
+        boxShadow: v > other ? `inset 0 -2px 0 ${c}` : 'none' }}>
+      <Portrait player={p} className="h-8 w-6 shrink-0" />
+      <b className={`min-w-0 flex-1 truncate text-[13px] font-bold ${v >= other ? 'text-white' : 'text-gray-400'}`}>{p?.name}</b>
+      <b className="font-display text-[17px] font-bold tabular-nums" style={{ color: v > other ? c : v < other ? '#475569' : '#94a3b8' }}>{v}</b>
+    </span>
+  );
   return (
-    <div className={`ui-cut flex h-11 items-center gap-2.5 bg-white/[0.045] px-2 ${mine ? '' : 'flex-row-reverse text-right'}`} style={{ '--c': '6px' }}>
-      <span className="w-6 shrink-0 text-center font-display text-sm font-bold text-gray-500">{label}</span>
-      <Portrait player={player} className="h-9 w-7" />
-      <span className="min-w-0 flex-1 truncate text-sm font-bold text-white">{player.name} <small className="font-display text-[11px] font-semibold text-gray-500">{player.slot || player.position}</small></span>
-      <span className="font-display text-lg font-bold tabular-nums" style={{ color: player.isReplacement ? '#64748b' : neonOf(player) }}>{player.overall}</span>
+    <div className="grid items-stretch" style={{ gridTemplateColumns: 'minmax(0,1fr) 34px minmax(0,1fr)' }}>
+      {side(mine, a, b, '#10b981', false)}
+      <em className="grid place-items-center font-display text-[12px] font-bold not-italic text-gray-600">{label}</em>
+      {side(opp, b, a, '#f87171', true)}
     </div>
   );
 }
 
-function DuelCard({ player, label }) {
-  const bust = useBust(player, '260%');
-  const acc = neonOf(player);
+/**
+ * 45도로 갈린 한쪽 — 판 모서리 컷과 같은 기울기라 화면 전체와 결이 맞는다.
+ * 조각을 제 크기(판의 절반 + 기울기만큼)로 세워 그 안에서 배경을 잡는다.
+ * 판 전체를 기준으로 잡으면 확대율이 얼굴을 지나쳐 엉뚱한 곳이 보인다.
+ */
+/**
+ * 선발 한 명 — 전신 카드 아트(600×900)를 카드에 꽉 채운다.
+ * 얼굴만 담긴 프로필 사진은 넓은 카드에서 얼굴이 커지고 좌우 경계가 드러난다.
+ * 카드 아트는 구장 배경까지 들어 있어 끊기는 자리가 없다.
+ */
+function StarterCard({ player, right, side }) {
+  const art = useArt(player);
+  const profile = useProfile(player);
+  const src = art || profile;
+  const look = src ? { backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: faceAt(player.id), backgroundRepeat: 'no-repeat' } : undefined;
+  const c = teamNeon(player); // 구단 색 — 두산이면 파랑
   return (
-    <div className="ui-cut ui-frame relative h-[19rem] w-[13rem] overflow-hidden bg-[#0b1220] bg-no-repeat" style={{ '--c': '20px', '--a': acc, ...bust }}>
-      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#05080f] via-[#05080f]/90 to-transparent px-4 pb-3 pt-10 text-left">
-        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
-        <p className="text-2xl font-black text-white">{player.name}</p>
-        <p className="text-xs text-gray-300">{player.year} {player.team} · 구위 {player.stats.stuff} · 체력 {player.stats.stamina}</p>
+    <div className="ui-cut relative min-w-0 flex-1 overflow-hidden" style={{ '--c': '14px',
+      background: `linear-gradient(180deg, ${c}3d, rgba(7,11,20,.96) 66%)`,
+      boxShadow: `inset 0 0 0 1px ${c}55, inset 0 -3px 0 ${side}` }}>
+      <span className="absolute inset-0" style={look} />
+      {/* 이름이 앉을 아래쪽과 바깥쪽에만 구단 색이 스민다 */}
+      <span className="absolute inset-0" style={{ background: `linear-gradient(0deg, rgba(5,8,15,.96) 4%, ${c}1c 46%, transparent 74%)` }} />
+      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, transparent 54%)` }} />
+      <b className="absolute top-2 font-display text-[30px] font-extrabold leading-none"
+        style={{ [right ? 'right' : 'left']: 14, color: c, textShadow: `0 0 18px ${c}88` }}>{player.overall}</b>
+      <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
+        <p className="font-display text-[11px] font-bold uppercase tracking-[0.24em]" style={{ color: side }}>{right ? 'AI Starter' : 'My Starter'}</p>
+        <p className="text-[25px] font-black leading-tight text-white">{player.name}</p>
+        <p className="text-[11px] text-gray-400">{player.year} {player.team}</p>
+        <p className={`mt-0.5 flex gap-2.5 text-[11px] text-gray-400 ${right ? 'justify-end' : ''}`}>
+          {[['구위', player.stats.stuff], ['제구', player.stats.control], ['체력', player.stats.stamina]].map(([k, v]) => (
+            <span key={k}>{k} <b className="font-display text-[12.5px] text-gray-100">{v}</b></span>
+          ))}
+        </p>
       </div>
     </div>
   );
 }
+
+/** 선발 맞대결 — 두 장이 폭을 절반씩 나눠 가진다 */
+function StarterDuel({ mine, opp, h = 260 }) {
+  if (!mine || !opp) return null;
+  return (
+    <div className="relative flex shrink-0 gap-1.5" style={{ height: h }}>
+      <StarterCard player={mine} side="#10b981" />
+      <StarterCard player={opp} side="#f87171" right />
+      <span className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 font-display text-5xl font-extrabold italic text-white [text-shadow:0_0_28px_rgba(255,255,255,.55),0_4px_0_rgba(0,0,0,.6)]">VS</span>
+    </div>
+  );
+}
+
 
 function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart, onBack, startLabel = '경기 시작 ▶', oppName = 'AI 올스타' }) {
   const my = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
@@ -4463,19 +4550,6 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
         <small className="font-display text-[11px] tracking-[0.12em] text-gray-400">{mine ? 'MY TEAM' : 'AI OPPONENT'} · 타선 {avg(team.batters)} · 마운드 {avg([team.sps[0], ...team.pen].filter(Boolean))}</small>
       </span>
       <b className="font-display text-4xl font-extrabold leading-none" style={{ color: acc, textShadow: `0 0 18px ${acc}88` }}>{teamOvr(team)}</b>
-    </div>
-  );
-  const lineup = (team, name, acc, mine) => (
-    <div className="flex min-h-0 flex-col" style={{ '--a': acc }}>
-      <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
-        <p className="ui-lab font-display" style={{ '--a': acc }}>{mine ? 'My Lineup' : 'AI Lineup'}</p>
-        <b className="text-lg font-black text-white">{name}</b>
-      </div>
-      <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-1">
-        {team.batters.map((b, i) => <MatchRow key={b.id} player={b} label={i + 1} mine />)}
-        <p className="ui-lab font-display mt-1.5" style={{ '--a': acc, fontSize: 10 }}>Mound</p>
-        {[team.sps[0], ...team.pen].filter(Boolean).map((x) => <MatchRow key={x.id} player={x} label={x.slot} mine />)}
-      </div>
     </div>
   );
   return (
@@ -4505,16 +4579,35 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
       <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col p-5" style={{ '--c': '20px' }}>
         <div className="flex items-baseline gap-3">
           <p className="ui-lab font-display">Play Ball</p>
-          <p className="text-sm text-gray-400">선발 맞대결</p>
         </div>
-        <div className="grid min-h-0 flex-1 gap-5" style={{ gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
-          {lineup(my, '나의 드림팀', '#10b981', true)}
-          <div className="relative flex items-center gap-4 self-center">
-            <DuelCard player={my.sps[0]} label="My Starter" />
-            <span className="absolute left-1/2 top-[42%] z-10 -translate-x-1/2 -translate-y-1/2 font-display text-6xl font-extrabold italic text-white [text-shadow:0_0_30px_rgba(255,255,255,.5),0_4px_0_rgba(0,0,0,.6)]">VS</span>
-            <DuelCard player={opp.sps[0]} label="AI Starter" />
-          </div>
-          {lineup(opp, 'AI 올스타', '#f87171', false)}
+        <div className="mt-2 grid min-h-0 flex-1 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
+          <StarterDuel mine={my.sps[0]} opp={opp.sps[0]} h={260} />
+          {/* 같은 자리끼리 맞대기 — 앞선 쪽에 색이 번진다 */}
+          {(() => {
+            const mound = (t) => [t.sps[0], ...t.pen].filter(Boolean);
+            const mine = mound(my), theirs = mound(opp);
+            const pairs = [
+              ...my.batters.map((p, i) => ({ key: `b${i}`, label: i + 1, mine: p, opp: opp.batters[i] })),
+              ...mine.map((p, i) => ({ key: `p${i}`, label: p.slot || p.position, mine: p, opp: theirs[i] })),
+            ].filter((x) => x.mine && x.opp);
+            const won = pairs.filter((x) => x.mine.overall > x.opp.overall).length;
+            const lost = pairs.filter((x) => x.mine.overall < x.opp.overall).length;
+            return (
+              <div className="flex min-h-0 flex-col">
+                <div className="mb-1.5 flex items-baseline gap-3 border-b border-white/10 pb-2">
+                  <p className="ui-lab font-display" style={{ '--a': '#10b981' }}>Head to Head</p>
+                  <span className="ml-auto flex items-baseline gap-1.5">
+                    <b className="font-display text-xl font-extrabold text-[#10b981]">{won}</b>
+                    <small className="text-gray-600">:</small>
+                    <b className="font-display text-xl font-extrabold text-[#f87171]">{lost}</b>
+                  </span>
+                </div>
+                <div className="syn-scroll flex min-h-0 flex-1 flex-col gap-[3px] overflow-y-auto pr-1">
+                  {pairs.map((x) => <DuelRow key={x.key} label={x.label} mine={x.mine} opp={x.opp} />)}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </section>
 
@@ -4536,13 +4629,8 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
             <i className="-skew-x-12 bg-red-400" style={{ flex: 100 - pct }} />
           </div>
         </div>
-        <div>
-          {[['선발', my.sps[0]?.name, opp.sps[0]?.name], ['타선 평균', avg(my.batters), avg(opp.batters)]].map(([k, m, o]) => (
-            <div key={k} className="flex items-center justify-between border-b border-white/10 py-2.5 text-sm text-gray-300">
-              <span>{k}</span><b className="font-display text-lg"><span className="text-[#10b981]">{m}</span> <span className="text-gray-600">·</span> <span className="text-red-400">{o}</span></b>
-            </div>
-          ))}
-        </div>
+        {/* 여섯 축 맞대기 — 토너먼트 · 랭크전과 같은 판 */}
+        <VsAxes mine={my} opp={opp} />
         <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-lg" onClick={onStart} autoFocus>{startLabel}</button>
       </aside>
     </section>
@@ -4587,6 +4675,58 @@ function BroadcastPlates({ log }) {
 /* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
 const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
 
+/** 경기 내내 승률이 그린 선 — 반 위는 우리 쪽, 아래는 상대 쪽 */
+function WinCurve({ flow, tone, h = 96 }) {
+  const w = 1000;
+  const xs = flow.length > 1 ? flow : [...flow, ...flow];
+  const step = w / (xs.length - 1);
+  const y = (v) => h - v * h;
+  const d = xs.map((v, i) => `${i ? 'L' : 'M'} ${(i * step).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const top = `${d} L ${w} 0 L 0 0 Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="block h-[96px] w-full">
+      <rect x="0" y="0" width={w} height={h} fill="rgba(255,255,255,.035)" />
+      <clipPath id="wc-up"><path d={top} /></clipPath>
+      <rect x="0" y="0" width={w} height={h} fill={tone} opacity=".16" clipPath="url(#wc-up)" />
+      <line x1="0" y1={h / 2} x2={w} y2={h / 2} stroke="rgba(255,255,255,.28)" strokeWidth="1" strokeDasharray="6 5" />
+      <path d={d} fill="none" stroke={tone} strokeWidth="2.6" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+/** 감독이 한 일 — 승률 곡선 · 내 지시의 몫 · 가장 크게 움직인 지시 */
+function ManagerBlock({ flow, calls, gain, tone }) {
+  const pct = Math.round(gain * 100);
+  const top3 = calls.slice(0, 3);
+  return (
+    <div className="grid gap-4 border-b border-white/10 pb-4 lg:col-span-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="min-w-0">
+        <p className="ui-lab font-display mb-1.5" style={{ '--a': tone }}>승부 흐름</p>
+        <WinCurve flow={flow} tone={tone} />
+        <p className="mt-1 flex justify-between font-display text-[11px] text-gray-500"><span>플레이볼</span><span>경기 끝</span></p>
+      </div>
+      <div className="flex min-w-0 flex-col gap-2">
+        <div className="ui-cut flex items-baseline gap-3 bg-white/[0.045] px-4 py-2.5" style={{ '--c': '10px' }}>
+          <span className="text-[12px] text-gray-400">내 지시</span>
+          <b className="font-display text-4xl font-extrabold leading-none" style={{ color: pct > 0 ? '#34d399' : pct < 0 ? '#f87171' : '#9ca3af' }}>
+            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-[13px] text-gray-500">%p</small>
+          </b>
+          <span className="ml-auto font-display text-[13px] text-gray-400">{calls.length}번</span>
+        </div>
+        {top3.length ? top3.map((c, i) => (
+          <div key={i} className="ui-cut grid grid-cols-[3.2rem_minmax(0,1fr)_2.8rem] items-center gap-2 bg-white/[0.035] px-3 py-1.5" style={{ '--c': '7px' }}>
+            <span className="font-display text-[12px] font-bold text-gray-400">{c.inning}회{c.top ? '초' : '말'}</span>
+            <span className="truncate text-[12.5px] text-gray-100">{c.ko}</span>
+            <b className="text-right font-display text-[14px] font-extrabold" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>
+              {c.delta > 0 ? '+' : ''}{Math.round(c.delta * 100)}
+            </b>
+          </div>
+        )) : <p className="px-1 text-[12.5px] text-gray-500">지시 없이 끝난 경기</p>}
+      </div>
+    </div>
+  );
+}
+
 function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, gauntlet = null }) {
   const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
   const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
@@ -4607,6 +4747,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
           <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
         </div>
       </div>
+      {result.flow && <ManagerBlock flow={result.flow} calls={result.calls || []} gain={result.gain || 0} tone={tone} />}
       <div className="relative">
         <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-lg font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
         <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
@@ -5425,7 +5566,7 @@ const DRAFT_SLOT = { LF: 'OF1', CF: 'OF2', RF: 'OF3' };
 /* 라커 판의 불펜 순서 = 마무리 → 셋업 → 중간 → 롱릴리프 */
 const PEN_ORDER = ['CL', 'SU', 'MR', 'LR'];
 
-export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트' }) {
+export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null, onMove, onOrder, onReplace, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트', startBlock = null }) {
   const init = useRef(roster);
   const now = useMemo(() => readyStats(roster, buff), [roster, buff]);
   const was = useMemo(() => readyStats(init.current, buff), [buff]);
@@ -5474,7 +5615,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
       onCommit={commit}
       onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}
       onReset={() => onReplace(init.current)}
-      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} />
+      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} startBlock={startBlock} />
   );
 }
 

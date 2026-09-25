@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>단판 맞대결 왼쪽·가운데 16안</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:8px 18px 4px}
+  h1{font-family:'Saira Condensed';font-size:20px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:11.5px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:7px;padding:0 10px 10px;height:calc(911px - 38px)}
+  .cell{position:relative;overflow:hidden;background:#070b14;
+    clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tag{position:absolute;left:0;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:3px 9px 3px 7px;background:rgba(5,8,15,.9)}
+  .tag b{font-family:'Saira Condensed';font-size:14px;font-weight:900;color:#10b981}
+  .tag span{font-size:10.5px;font-weight:700}
+  /* 실제 화면의 왼쪽+가운데(1100×480)를 칸에 맞춰 줄여 그린다 */
+  .scale{position:absolute;left:0;top:0;width:1100px;height:480px;transform-origin:0 0}
+  .p{background:rgba(8,12,20,.66);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+  .lab{font-family:'Saira Condensed';font-size:11px;font-weight:800;letter-spacing:.22em}
+  .n{font-family:'Saira Condensed';font-weight:800;font-variant-numeric:tabular-nums}
+  .row{display:flex;align-items:center;gap:6px;padding:3px 7px;background:rgba(255,255,255,.035)}
+  .face{width:20px;height:26px;background:#101828;background-size:cover;flex:0 0 auto}
+</style></head><body>
+<header><h1>단판 맞대결 — 왼쪽 · 가운데</h1><p>오른쪽 승률 판은 그대로 · 각 칸은 실제 1100×480 을 줄여 그린 것</p></header>
+<div class="grid" id="g"></div>
+<script>
+const ME = '#34d399', OP = '#f87171';
+const MY = [['테임즈',93],['김재환',94],['박병호',97],['강백호',98],['이대호',103],['심정수',95],['김태균',91],['김현수',89],['백인천',94]];
+const OPP = [['박재홍',96],['로하스',96],['테임즈',100],['구자욱',98],['강민호',98],['김태군',102],['김민재',92],['백승수',94],['박한이',83]];
+const MYP = [['SP','페디',104],['LR','오승환',106],['MR','구대성',107],['SU','정우람',102],['CL','윤석민',95]];
+const OPP_P = [['SP','안우진',99],['LR','오타니',105],['MR','진해수',99],['SU','조상우',100],['CL','선동열',98]];
+const tone = (v) => (v >= 100 ? '#fbbf24' : v >= 95 ? '#a78bfa' : v >= 90 ? '#60a5fa' : '#94a3b8');
+const win = (a, b) => (a > b ? ME : a < b ? OP : '#94a3b8');
+
+/* ── 조각들 ── */
+const teamHead = (name, ovr, c, sub) => `
+  <div class="p" style="padding:8px 10px;border-left:3px solid ${c}">
+    <p class="lab" style="color:${c}">${c === ME ? 'MY TEAM' : 'AI OPPONENT'}</p>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <b style="font-size:16px;font-weight:900;color:#fff">${name}</b>
+      <b class="n" style="margin-left:auto;font-size:28px;color:${c}">${ovr}</b>
+    </div>
+    <p style="font-size:10.5px;color:#7c8798">${sub}</p>
+  </div>`;
+const lineRow = (i, [n, v], c, right) => `
+  <div class="row" style="${right ? 'flex-direction:row-reverse;' : ''}box-shadow:inset ${right ? '-' : ''}2px 0 0 ${c}">
+    <em class="n" style="font-size:10.5px;color:#64748b;font-style:normal;width:10px;text-align:center">${i}</em>
+    <i class="face"></i>
+    <b style="flex:1;font-size:11.5px;color:#e6edf6;${right ? 'text-align:right' : ''}">${n}</b>
+    <b class="n" style="font-size:13px;color:${tone(v)}">${v}</b>
+  </div>`;
+const lineup = (list, c, right) => `<div style="display:flex;flex-direction:column;gap:2px">${list.map((p, i) => lineRow(i + 1, p, c, right)).join('')}</div>`;
+const mound = (list, c, right) => `<div style="display:flex;flex-direction:column;gap:2px">${list.map(([s, n, v]) => `
+  <div class="row" style="${right ? 'flex-direction:row-reverse;' : ''}box-shadow:inset ${right ? '-' : ''}2px 0 0 ${c}">
+    <em class="n" style="font-size:9.5px;color:${c};font-style:normal;width:16px;text-align:center">${s}</em>
+    <i class="face"></i><b style="flex:1;font-size:11.5px;${right ? 'text-align:right' : ''}">${n}</b>
+    <b class="n" style="font-size:13px;color:${tone(v)}">${v}</b></div>`).join('')}</div>`;
+const duel = (w = 168, h = 220) => `
+  <div style="display:flex;align-items:center;gap:8px;position:relative">
+    ${[['MY STARTER', '페디', '2023 NC · 구위 108', ME], ['AI STARTER', '안우진', '2022 키움 · 구위 105', OP]].map(([l, n, s, c]) => `
+      <div class="p" style="width:${w}px;height:${h}px;display:flex;flex-direction:column;justify-content:flex-end;padding:9px;
+        background:linear-gradient(180deg,rgba(11,18,32,.2),#070b14 78%),radial-gradient(60% 45% at 50% 28%,${c}33,transparent);border-bottom:3px solid ${c}">
+        <p class="lab" style="color:${c};font-size:9.5px">${l}</p>
+        <b style="font-size:19px;font-weight:900;color:#fff">${n}</b>
+        <small style="font-size:10px;color:#94a3b8">${s}</small>
+      </div>`).join('')}
+    <b class="n" style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:34px;font-style:italic;color:#fff;text-shadow:0 0 18px rgba(255,255,255,.5)">VS</b>
+  </div>`;
+/* 같은 자리끼리 마주보는 한 줄 */
+const faceRow = (i, a, b) => `
+  <div style="display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;gap:6px;padding:2px 6px;background:rgba(255,255,255,.03)">
+    <span style="display:flex;align-items:center;gap:5px"><i class="face"></i>
+      <b style="flex:1;font-size:11.5px;color:${a[1] >= b[1] ? '#fff' : '#94a3b8'}">${a[0]}</b>
+      <b class="n" style="font-size:13px;color:${win(a[1], b[1])}">${a[1]}</b></span>
+    <em class="n" style="font-size:10px;color:#64748b;font-style:normal;text-align:center">${i}</em>
+    <span style="display:flex;align-items:center;gap:5px;flex-direction:row-reverse"><i class="face"></i>
+      <b style="flex:1;font-size:11.5px;text-align:right;color:${b[1] > a[1] ? '#fff' : '#94a3b8'}">${b[0]}</b>
+      <b class="n" style="font-size:13px;color:${win(b[1], a[1])}">${b[1]}</b></span>
+  </div>`;
+const panel = (inner, pad = 10) => `<div class="p" style="height:100%;padding:${pad}px;display:flex;flex-direction:column;gap:6px">${inner}</div>`;
+const head = (t, s) => `<div style="display:flex;align-items:baseline;gap:7px"><p class="lab" style="color:${ME}">${t}</p><small style="font-size:10.5px;color:#7c8798">${s}</small></div>`;
+
+/* ── 열여섯 가지 ── */
+const LOOKS = [
+['지금', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}
+      <b class="n" style="text-align:center;font-size:13px;color:#64748b">VS</b>
+      ${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto;padding:7px;text-align:center;font-size:11px;background:rgba(255,255,255,.05)">라인업 다시 보기</div>`)}
+    ${panel(`${head('PLAY BALL', '선발 맞대결')}
+      <div style="display:grid;grid-template-columns:150px 1fr 150px;gap:8px;align-items:center;flex:1;min-height:0">
+        <div>${lineup(MY, ME)}<div style="height:5px"></div>${mound(MYP, ME)}</div>
+        ${duel(150, 190)}
+        <div>${lineup(OPP, OP, 1)}<div style="height:5px"></div>${mound(OPP_P, OP, 1)}</div>
+      </div>`)}
+  </div>`],
+
+['타순 맞대기', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    ${panel(`${head('LINEUP', '같은 타순끼리')}
+      <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">
+        ${MY.map((p, i) => faceRow(i + 1, p, OPP[i])).join('')}
+        <div style="height:4px"></div>
+        ${MYP.map((p, i) => faceRow(p[0], [p[1], p[2]], [OPP_P[i][1], OPP_P[i][2]])).join('')}
+      </div>`)}
+  </div>`],
+
+['선발 크게 · 타순 아래', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto;padding:7px;text-align:center;font-size:11px;background:rgba(255,255,255,.05)">라인업 다시 보기</div>`)}
+    ${panel(`<div style="display:grid;place-items:center">${duel(230, 210)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;min-height:0">
+        <div>${lineup(MY.slice(0, 5), ME)}</div><div>${lineup(OPP.slice(0, 5), OP, 1)}</div>
+      </div>`)}
+  </div>`],
+
+['왼쪽에 타순 · 가운데 맞대결', () => `
+  <div style="display:grid;grid-template-columns:330px 1fr;gap:8px;height:100%">
+    ${panel(`${head('LINEUP', '양 팀 타순')}
+      <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">${MY.map((p, i) => faceRow(i + 1, p, OPP[i])).join('')}</div>`)}
+    ${panel(`${head('PLAY BALL', '선발 맞대결')}
+      <div style="display:grid;place-items:center;flex:1">${duel(210, 250)}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div>${mound(MYP, ME)}</div><div>${mound(OPP_P, OP, 1)}</div>
+      </div>`)}
+  </div>`],
+
+['위에 팀 띠 · 아래 표', () => `
+  <div style="display:flex;flex-direction:column;gap:8px;height:100%">
+    <div class="p" style="display:grid;grid-template-columns:1fr 90px 1fr;align-items:center;gap:10px;padding:8px 14px">
+      <span><p class="lab" style="color:${ME}">MY TEAM</p><b style="font-size:18px;font-weight:900">나의 드림팀</b></span>
+      <b class="n" style="text-align:center;font-size:30px;color:#fff">99<small style="font-size:11px;color:#64748b"> vs </small>99</b>
+      <span style="text-align:right"><p class="lab" style="color:${OP}">AI OPPONENT</p><b style="font-size:18px;font-weight:900">AI 올스타</b></span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 330px 1fr;gap:8px;flex:1;min-height:0">
+      ${panel(lineup(MY, ME))}${panel(`<div style="display:grid;place-items:center;height:100%">${duel(150, 200)}</div>`)}${panel(lineup(OPP, OP, 1))}
+    </div>
+  </div>`],
+
+['카드 아홉 장씩', () => `
+  <div style="display:grid;grid-template-columns:260px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(112, 140)}</div>`)}
+    ${panel(`${head('LINEUP', '타순 9')}
+      ${[[MY, ME], [OPP, OP]].map(([L, c]) => `<div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;flex:1;min-height:0">
+        ${L.map(([n, v], i) => `<div class="p" style="display:flex;flex-direction:column;justify-content:flex-end;padding:5px;border-bottom:2px solid ${c};background:linear-gradient(180deg,rgba(11,18,32,.3),#070b14)">
+          <em class="n" style="font-size:9px;color:#64748b;font-style:normal">${i + 1}</em>
+          <b style="font-size:11px">${n}</b><b class="n" style="font-size:14px;color:${tone(v)}">${v}</b></div>`).join('')}
+      </div>`).join('')}`)}
+  </div>`],
+
+['구장 대형', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    ${panel(`${head('MY DEFENSE', '수비 대형')}
+      <div style="position:relative;flex:1;min-height:0;background:radial-gradient(70% 60% at 50% 75%,#12351f,#081018)">
+        ${[[50, 16], [18, 30], [82, 30], [36, 50], [64, 50], [18, 68], [82, 68], [50, 62], [50, 88]].map(([x, y], i) => `
+          <span style="position:absolute;left:${x}%;top:${y}%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:3px;padding:2px 5px;background:rgba(5,8,15,.8);box-shadow:inset 0 -2px 0 ${ME}">
+            <b style="font-size:10px">${MY[i][0]}</b><b class="n" style="font-size:11px;color:${tone(MY[i][1])}">${MY[i][1]}</b></span>`).join('')}
+      </div>`)}
+  </div>`],
+
+['왼쪽 없이 통짜', () => `
+  ${panel(`${head('PLAY BALL', '선발 맞대결 · 타순')}
+    <div style="display:grid;grid-template-columns:1fr 360px 1fr;gap:10px;align-items:center;flex:1;min-height:0">
+      <div>${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}<div style="height:6px"></div>${lineup(MY.slice(0, 6), ME)}</div>
+      ${duel(170, 230)}
+      <div>${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}<div style="height:6px"></div>${lineup(OPP.slice(0, 6), OP, 1)}</div>
+    </div>`)}`],
+
+['핵심 다섯만', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto;padding:7px;text-align:center;font-size:11px;background:rgba(255,255,255,.05)">라인업 다시 보기</div>`)}
+    ${panel(`${head('KEY MEN', '핵심 5')}
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex:1;min-height:0">
+        ${[...Array(5)].map((_, i) => `<div style="display:flex;flex-direction:column;gap:4px">
+          <div class="p" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:6px;border-bottom:2px solid ${ME};background:linear-gradient(180deg,rgba(52,211,153,.12),#070b14)">
+            <b style="font-size:12px">${MY[i][0]}</b><b class="n" style="font-size:17px;color:${win(MY[i][1], OPP[i][1])}">${MY[i][1]}</b></div>
+          <div class="p" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:6px;border-bottom:2px solid ${OP};background:linear-gradient(180deg,rgba(248,113,113,.12),#070b14)">
+            <b style="font-size:12px">${OPP[i][0]}</b><b class="n" style="font-size:17px;color:${win(OPP[i][1], MY[i][1])}">${OPP[i][1]}</b></div>
+        </div>`).join('')}
+      </div>`)}
+  </div>`],
+
+['마운드 먼저', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    ${panel(`${head('MOUND', '마운드 맞대기')}
+      <div style="display:flex;flex-direction:column;gap:3px">${MYP.map((p, i) => faceRow(p[0], [p[1], p[2]], [OPP_P[i][1], OPP_P[i][2]])).join('')}</div>
+      ${head('LINEUP', '타순 9')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;min-height:0">
+        <div>${lineup(MY.slice(0, 5), ME)}</div><div>${lineup(OPP.slice(0, 5), OP, 1)}</div>
+      </div>`)}
+  </div>`],
+
+['선발 배경 히어로', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto;padding:7px;text-align:center;font-size:11px;background:rgba(255,255,255,.05)">라인업 다시 보기</div>`)}
+    <div class="p" style="position:relative;overflow:hidden;padding:0">
+      <div style="height:54%;position:relative;background:linear-gradient(90deg,${ME}22,transparent 45%,transparent 55%,${OP}22),radial-gradient(60% 80% at 50% 30%,#16233a,#070b14)">
+        <b class="n" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:42px;font-style:italic;color:#fff">VS</b>
+        <div style="position:absolute;left:14px;bottom:10px"><p class="lab" style="color:${ME};font-size:9.5px">MY STARTER</p><b style="font-size:22px;font-weight:900">페디</b></div>
+        <div style="position:absolute;right:14px;bottom:10px;text-align:right"><p class="lab" style="color:${OP};font-size:9.5px">AI STARTER</p><b style="font-size:22px;font-weight:900">안우진</b></div>
+      </div>
+      <div style="padding:8px;display:flex;flex-direction:column;gap:2px">${MY.slice(0, 5).map((p, i) => faceRow(i + 1, p, OPP[i])).join('')}</div>
+    </div>
+  </div>`],
+
+['번호 가운데 표', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    ${panel(`${head('HEAD TO HEAD', '번호로 맞춘다')}
+      <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">
+        ${MY.map(([n, v], i) => { const [on, ov] = OPP[i];
+          return `<div style="display:grid;grid-template-columns:1fr 26px 1fr;align-items:center;gap:8px;padding:2px 8px">
+            <span style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+              <b style="font-size:12px">${n}</b><b class="n" style="font-size:15px;color:${win(v, ov)};width:28px;text-align:right">${v}</b></span>
+            <em class="n" style="font-style:normal;font-size:11px;color:#475569;text-align:center;background:rgba(255,255,255,.05)">${i + 1}</em>
+            <span style="display:flex;align-items:center;gap:6px">
+              <b class="n" style="font-size:15px;color:${win(ov, v)};width:28px">${ov}</b><b style="font-size:12px">${on}</b></span>
+          </div>`; }).join('')}
+      </div>`)}
+  </div>`],
+
+['막대로 견주기', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    ${panel(`${head('LINEUP', '길이가 곧 종합')}
+      <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-height:0">
+        ${MY.map(([n, v], i) => { const [on, ov] = OPP[i]; const w = (x) => ((x - 80) / 30) * 100;
+          return `<div style="display:grid;grid-template-columns:1fr 20px 1fr;align-items:center;gap:6px">
+            <span style="display:flex;align-items:center;gap:5px;justify-content:flex-end"><b style="font-size:10.5px;color:#94a3b8">${n}</b>
+              <i style="display:block;height:11px;width:${w(v)}px;background:${win(v, ov)}"></i></span>
+            <em class="n" style="font-style:normal;font-size:10px;color:#475569;text-align:center">${i + 1}</em>
+            <span style="display:flex;align-items:center;gap:5px"><i style="display:block;height:11px;width:${w(ov)}px;background:${win(ov, v)}"></i>
+              <b style="font-size:10.5px;color:#94a3b8">${on}</b></span>
+          </div>`; }).join('')}
+      </div>`)}
+  </div>`],
+
+['왼쪽 넓게 · 가운데 좁게', () => `
+  <div style="display:grid;grid-template-columns:420px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '팀 맞대기')}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${teamHead('나의 드림팀', 99, ME, '타선 95')}${teamHead('AI 올스타', 99, OP, '타선 95')}</div>
+      <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">${MY.map((p, i) => faceRow(i + 1, p, OPP[i])).join('')}</div>`)}
+    ${panel(`${head('PLAY BALL', '')}<div style="display:grid;place-items:center;flex:1">${duel(130, 180)}</div>
+      <div style="display:flex;flex-direction:column;gap:2px">${MYP.map((p, i) => faceRow(p[0], [p[1], p[2]], [OPP_P[i][1], OPP_P[i][2]])).join('')}</div>`)}
+  </div>`],
+
+['타순 · 마운드 두 칸', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      <div style="margin-top:auto">${duel(118, 148)}</div>`)}
+    <div style="display:grid;grid-template-rows:1fr auto;gap:8px">
+      ${panel(`${head('LINEUP', '타순 9')}<div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">${MY.map((p, i) => faceRow(i + 1, p, OPP[i])).join('')}</div>`)}
+      ${panel(`${head('MOUND', '마운드 5')}<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
+        ${MYP.map((p, i) => `<div class="p" style="padding:5px;text-align:center">
+          <em class="n" style="font-style:normal;font-size:9.5px;color:${ME}">${p[0]}</em>
+          <b style="display:block;font-size:11px">${p[1]}</b>
+          <b class="n" style="font-size:14px;color:${win(p[2], OPP_P[i][2])}">${p[2]}</b>
+          <small class="n" style="display:block;font-size:10px;color:${OP}">${OPP_P[i][2]}</small></div>`).join('')}
+      </div>`)}
+    </div>
+  </div>`],
+
+['미니멀', () => `
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:8px;height:100%">
+    ${panel(`${head('MATCH PREP', '')}
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px">
+        ${teamHead('나의 드림팀', 99, ME, '타선 95 · 마운드 103')}${teamHead('AI 올스타', 99, OP, '타선 95 · 마운드 100')}
+      </div>
+      <div style="padding:7px;text-align:center;font-size:11px;background:rgba(255,255,255,.05)">라인업 보기</div>`)}
+    ${panel(`<div style="display:grid;place-items:center;height:100%">${duel(250, 300)}</div>`)}
+  </div>`],
+];
+
+document.getElementById('g').innerHTML = LOOKS.map(([title, draw], n) => `
+  <div class="cell">
+    <div class="tag"><b>${n + 1}</b><span>${title}</span></div>
+    <div class="scale" id="s${n}">${draw()}</div>
+  </div>`).join('');
+/* 칸 크기에 맞춰 줄인다 */
+requestAnimationFrame(() => {
+  document.querySelectorAll('.cell').forEach((c, i) => {
+    const s = document.getElementById('s' + i);
+    s.style.transform = `scale(${Math.min(c.clientWidth / 1100, c.clientHeight / 480)})`;
+  });
+});
+</script></body></html>

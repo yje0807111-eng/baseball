@@ -13,6 +13,7 @@ import { posColor, statColor, teamNeon } from './teamColor.js';
 import { Btn } from './ui.jsx';
 import { offPositionPenalty } from '../KboAugmentDraft.jsx';
 import { seasonRecord, HAND_LABEL } from './traits.js';
+import { FORM_OF } from './form.js';
 
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const ROLE = { SP: '#60a5fa', CL: '#fbbf24', SU: '#fb923c', MR: '#f87171' };
@@ -25,11 +26,17 @@ const Lower = ({ p, c, ovr, sub }) => (
   <span className="flex items-center">
     <span className="block h-[52px] w-[44px] shrink-0 bg-[#0b1220] bg-cover" style={{ clipPath: SKEW(9), backgroundPosition: 'center 8%', backgroundImage: `url(profiles/${encodeURIComponent(p.id)}.webp), url(ui/mt/silhouette-player.webp)` }} />
     <span className="-ml-[5px] block">
-      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-[13px] font-extrabold text-white">{p.name}</b></span>
+      <span className="flex h-[28px] items-baseline gap-1.5 whitespace-nowrap bg-[rgba(6,10,19,.95)] pl-3 pr-3.5 pt-1" style={{ clipPath: SKEW(8) }}>{ovr}<b className="text-[13px] font-extrabold text-white">{p.name}</b><FormMark p={p} size={10} /></span>
       <span className="ml-2 block h-[20px] whitespace-nowrap pl-3 pr-3.5 pt-[2px] font-display text-[11px] font-extrabold text-[#05080f]" style={{ clipPath: SKEW(7), background: c }}>{sub}</span>
     </span>
   </span>
 );
+/** 오늘 몸 상태 표식 — 보통이면 띄우지 않는다 */
+const FormMark = ({ p, size = 11 }) => {
+  const f = FORM_OF[p?.form];
+  if (!f || !f.swing) return null;
+  return <small className="shrink-0 font-display font-extrabold leading-none" style={{ fontSize: size, color: f.color }} title={`오늘 ${f.ko}`}>{f.mark}</small>;
+};
 const byOvr = (a, b) => b.overall - a.overall;
 /** 줄은 늘 같은 DOM 순서(id 순)로 그린다 — 순서가 바뀌어도 노드가 옮겨지지 않아야 놓을 때 미끄러지는 움직임이 끊기지 않는다 */
 const stable = (list, key = (p) => p.id) => [...list].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
@@ -144,6 +151,7 @@ const NameBlock = ({ p, pos = p.position, size = 14 }) => {
     <span className="min-w-0 flex-1 leading-[1.25]">
       <span className="flex min-w-0 items-baseline gap-1.5">
         <b className="truncate font-extrabold text-white" style={{ fontSize: size }}>{p.name}</b>
+        <FormMark p={p} />
         <small className="shrink-0 font-display text-[10.5px] font-bold tracking-[0.1em]" style={{ color: teamNeon(p) }}>{pos}</small>
         <small className="shrink-0 text-[10.5px] font-semibold" style={{ color: h.color }}>{h.long}</small>
       </span>

@@ -9,6 +9,7 @@ import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, FINE, sideOpt, planOfSides, untouch, sideReasons, scoutTags } from './strategy.js';
 import { Btn, UiStyle } from './ui.jsx';
 import { posColor } from './teamColor.js';
+import { FORM_OF } from './form.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const A = { bat: '#34d399', def: '#60a5fa', pit: '#f87171', syn: '#fbbf24', main: '#10b981' };
@@ -158,7 +159,10 @@ function ScoutPanel({ opponent, sums, myOvr }) {
           <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 22%,rgba(5,8,15,.45) 62%,rgba(5,8,15,0))' }} />
           <span className="absolute inset-y-2.5 left-3 flex flex-col justify-center">
             <span className="font-display text-[10px] tracking-[0.22em]" style={{ color: A.pit }}>오늘 상대 선발</span>
-            <b className="text-[19px] font-black leading-tight text-white">{ace.name}</b>
+            <b className="flex items-baseline gap-1.5 text-[19px] font-black leading-tight text-white">
+              {ace.name}
+              {FORM_OF[ace.form]?.swing ? <em className="font-display text-[13px] font-extrabold not-italic" style={{ color: FORM_OF[ace.form].color }}>{FORM_OF[ace.form].mark} {FORM_OF[ace.form].ko}</em> : null}
+            </b>
             <span className="mt-0.5 flex items-baseline gap-1.5">
               <b className="font-display text-[21px]" style={{ color: c }}>{ace.overall}</b>
               <small className="text-[10.5px] text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</small>
@@ -204,6 +208,7 @@ function ScoutPanel({ opponent, sums, myOvr }) {
                 <b className="w-3 text-center font-display text-[11px] text-gray-500">{i + 1}</b>
                 <span className="shrink-0 px-[4px] font-display text-[10.5px] font-extrabold leading-[15px] text-[#05080f]" style={{ background: posColor(p) }}>{p.position}</span>
                 <b className="min-w-0 flex-1 truncate text-[12.5px] text-white">{p.name}</b>
+                {FORM_OF[p.form]?.swing ? <b className="shrink-0 font-display text-[10px] font-extrabold" style={{ color: FORM_OF[p.form].color }} title={`오늘 ${FORM_OF[p.form].ko}`}>{FORM_OF[p.form].mark}</b> : null}
                 {d && <span className="font-display text-[10px]" style={{ color: d.c }}>{d.t}</span>}
                 <b className="font-display text-[13px]" style={{ color: c }}>{p.overall}</b>
               </div>
@@ -315,7 +320,7 @@ function SideBlock({ sides, touched, onPick, onDial, opponent }) {
 }
 
 /* 전략실 판 — 수치 총합과 투수 휴식은 뺐다. 팀 종합 하나와 세 갈래, 그리고 경기 시작. */
-function WarRoom({ team, autoFilled, onStart, startLabel, children }) {
+function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock = null }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2.5 p-5" style={{ ...cut(20), '--a': A.main }}>
       <div className="flex shrink-0 items-baseline gap-2.5">
@@ -332,14 +337,18 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children }) {
       )}
       {children}
       <div className="mt-auto flex shrink-0 flex-col gap-2">
-        <Btn lg pri a={A.main} style={{ ...cut(12), minHeight: '3.4rem' }} onClick={onStart}>{startLabel}</Btn>
+        {startBlock && (
+          <p className="mt-cut px-3 py-2 text-center text-[12.5px] font-bold text-[#f87171]"
+            style={{ ...cut(8), background: 'rgba(248,113,113,.12)', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.45)' }}>{startBlock}</p>
+        )}
+        <Btn lg pri a={A.main} disabled={!!startBlock} style={{ ...cut(12), minHeight: '3.4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>
       </div>
     </aside>
   );
 }
 export default function ReadyLocker({
   team, squad, bench, sums, synergies = [], opponent = null, autoFilled = 0, teamInfo,
-  onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트',
+  onCommit, onAutoLineup, onReset, onStart, onRestart, startLabel = '시즌 시작 ▶', restartLabel = '다시 드래프트', startBlock = null,
 }) {
   const [sel, setSel] = useState(null);
   /* 전략실 — 세 갈래를 고르고, 손댄 눈금(touched)만 따로 기억한다 */
@@ -359,7 +368,7 @@ export default function ReadyLocker({
         onToggleBench={() => {}} fitSlots railW={264} footer={<SynergyDockMini synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart({ ...planOfSides(sides, touched), touched })} startLabel={startLabel}>
+        onStart={() => onStart({ ...planOfSides(sides, touched), touched })} startLabel={startLabel} startBlock={startBlock}>
         <SideBlock sides={sides} touched={touched} onPick={pickSide}
           onDial={(k, v) => setTouched((t) => ({ ...t, [k]: v }))} opponent={opponent} />
       </WarRoom>

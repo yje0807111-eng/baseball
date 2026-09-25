@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>선발 맞대결 4안</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:9px 18px 5px}
+  h1{font-family:'Saira Condensed';font-size:21px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:11.5px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:10px;padding:0 12px 12px;height:calc(911px - 40px)}
+  .cell{position:relative;display:flex;flex-direction:column;overflow:hidden;background:#070b14;
+    clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .tag{display:flex;align-items:center;gap:8px;padding:6px 13px 6px 9px;background:rgba(5,8,15,.6);flex:0 0 auto}
+  .tag b{font-family:'Saira Condensed';font-size:16px;font-weight:900;color:#10b981}
+  .tag span{font-size:12.5px;font-weight:700}
+  .tag i{font-style:normal;font-size:11px;color:#8b95a6;margin-left:auto}
+  .stage{flex:1;min-height:0;display:grid;place-items:center;padding:14px}
+  /* 실제 가운데 판 폭 — 이 안이 화면에 들어갈 몫 */
+  .area{width:740px}
+  .lab{font-family:'Saira Condensed';font-size:11px;font-weight:800;letter-spacing:.22em}
+  .n{font-family:'Saira Condensed';font-weight:800;font-variant-numeric:tabular-nums}
+  .cut{clip-path:polygon(16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%,0 16px)}
+  /* 얼굴 — 실제로는 선수 사진이 들어간다 */
+  .bust{background-image:radial-gradient(48% 42% at 50% 34%,#3c4a63,#1a2434 58%,#0c1320);background-size:cover;background-position:center 18%}
+  .under{position:absolute;inset:auto 0 0 0;padding:26px 16px 12px;background:linear-gradient(transparent,rgba(5,8,15,.92) 46%,#05080f)}
+  .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;font-family:'Saira Condensed';font-style:italic;font-weight:900;color:#fff;text-shadow:0 0 28px rgba(255,255,255,.55),0 4px 0 rgba(0,0,0,.6)}
+</style></head><body>
+<header><h1>선발 맞대결</h1><p>프로필이 칸을 꽉 채우는 두 카드 — 아래 맞대기 표는 그만큼 줄어든다</p></header>
+<div class="grid" id="g"></div>
+<script>
+const ME = '#10b981', OP = '#f87171';
+const A = { l: 'MY STARTER', n: '페디', s: '2023 NC', k: [['구위', 108], ['제구', 101], ['체력', 101]], c: ME, ovr: 104 };
+const B = { l: 'AI STARTER', n: '안우진', s: '2022 키움', k: [['구위', 105], ['제구', 99], ['체력', 105]], c: OP, ovr: 99 };
+const keys = (p, right) => `<span style="display:flex;gap:10px;${right ? 'justify-content:flex-end' : ''}">
+  ${p.k.map(([k, v]) => `<span style="font-size:11px;color:#94a3b8">${k} <b class="n" style="font-size:12.5px;color:#e6edf6">${v}</b></span>`).join('')}</span>`;
+
+/* ── 25. 반반 ── */
+const half = () => `<div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px;height:190px">
+  ${[A, B].map((p, i) => `<div class="cut bust" style="position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px ${p.c}55, inset 0 -3px 0 ${p.c}">
+      <i style="position:absolute;inset:0;background:linear-gradient(${i ? 270 : 90}deg,${p.c}22,transparent 60%)"></i>
+      <div class="under" style="${i ? 'text-align:right' : ''}">
+        <p class="lab" style="color:${p.c}">${p.l}</p>
+        <b style="font-size:26px;font-weight:900;color:#fff">${p.n}</b>
+        <span style="display:block;font-size:11px;color:#94a3b8;padding-bottom:3px">${p.s}</span>
+        ${keys(p, i)}
+      </div>
+      <b class="n" style="position:absolute;${i ? 'right' : 'left'}:14px;top:10px;font-size:30px;color:${p.c};text-shadow:0 0 16px ${p.c}88">${p.ovr}</b>
+    </div>`).join('')}
+  <b class="vs" style="font-size:44px">VS</b>
+</div>`;
+
+/* ── 26. 대각선 한 판 ── */
+const slant = () => `<div class="cut" style="position:relative;height:190px;overflow:hidden;background:#0b1220">
+  ${[A, B].map((p, i) => `<div class="bust" style="position:absolute;inset:0;
+      clip-path:${i ? 'polygon(56% 0,100% 0,100% 100%,44% 100%)' : 'polygon(0 0,56% 0,44% 100%,0 100%)'}">
+      <i style="position:absolute;inset:0;background:linear-gradient(${i ? 270 : 90}deg,${p.c}30,rgba(5,8,15,.2) 55%,rgba(5,8,15,.9))"></i>
+    </div>`).join('')}
+  <i style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,#fff,transparent);transform:translateX(-50%) skewX(-8deg);opacity:.5"></i>
+  <div style="position:absolute;left:16px;bottom:12px">
+    <p class="lab" style="color:${ME}">${A.l}</p><b style="font-size:26px;font-weight:900">${A.n}</b>
+    <span style="display:block;font-size:11px;color:#94a3b8">${A.s}</span>${keys(A)}
+  </div>
+  <div style="position:absolute;right:16px;bottom:12px;text-align:right">
+    <p class="lab" style="color:${OP}">${B.l}</p><b style="font-size:26px;font-weight:900">${B.n}</b>
+    <span style="display:block;font-size:11px;color:#94a3b8">${B.s}</span>${keys(B, 1)}
+  </div>
+  <b class="vs" style="font-size:40px">VS</b>
+</div>`;
+
+/* ── 27. 가운데로 겹친다 ── */
+const overlap = () => `<div style="position:relative;height:200px;display:flex;justify-content:center;align-items:center">
+  ${[A, B].map((p, i) => `<div class="cut bust" style="position:relative;width:330px;height:190px;overflow:hidden;
+      ${i ? 'margin-left:-26px;' : 'margin-right:-26px;'}z-index:${i ? 1 : 2};
+      box-shadow:inset 0 0 0 1px ${p.c}66, inset 0 -3px 0 ${p.c}, 0 10px 30px -10px #000">
+      <i style="position:absolute;inset:0;background:linear-gradient(${i ? 270 : 90}deg,${p.c}26,transparent 55%)"></i>
+      <div class="under" style="${i ? 'text-align:right;padding-left:44px' : 'padding-right:44px'}">
+        <p class="lab" style="color:${p.c}">${p.l}</p>
+        <b style="font-size:25px;font-weight:900">${p.n}</b>
+        <span style="display:block;font-size:11px;color:#94a3b8;padding-bottom:3px">${p.s}</span>${keys(p, i)}
+      </div>
+    </div>`).join('')}
+  <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;width:62px;height:62px;border-radius:50%;
+    background:#05080f;box-shadow:0 0 0 2px rgba(255,255,255,.3),0 0 26px rgba(0,0,0,.9);display:grid;place-items:center">
+    <b class="n" style="font-style:italic;font-size:26px;color:#fff">VS</b></span>
+</div>`;
+
+/* ── 28. 가로로 누운 두 장 ── */
+const lying = () => `<div style="display:flex;flex-direction:column;gap:6px;height:190px">
+  ${[A, B].map((p, i) => `<div class="cut" style="position:relative;flex:1;overflow:hidden;background:#0b1220;box-shadow:inset ${i ? '-' : ''}3px 0 0 ${p.c}">
+      <i class="bust" style="position:absolute;inset:0;${i ? 'left:auto;right:0;' : ''}width:44%;background-position:center 20%"></i>
+      <i style="position:absolute;inset:0;background:linear-gradient(${i ? 270 : 90}deg,transparent,#0b1220 46%)"></i>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;gap:14px;padding:0 18px;${i ? 'flex-direction:row-reverse;text-align:right' : ''}">
+        <span style="width:44%"></span>
+        <span style="flex:1;min-width:0">
+          <p class="lab" style="color:${p.c}">${p.l}</p>
+          <b style="font-size:24px;font-weight:900">${p.n}</b>
+          <span style="display:block;font-size:11px;color:#94a3b8;padding-bottom:3px">${p.s}</span>${keys(p, i)}
+        </span>
+        <b class="n" style="font-size:30px;color:${p.c}">${p.ovr}</b>
+      </div>
+    </div>`).join('')}
+  <b class="vs" style="font-size:30px;background:#05080f;padding:2px 10px;border-radius:2px">VS</b>
+</div>`;
+
+const LOOKS = [
+  ['반반', '두 장이 폭을 꼭 절반씩 · 얼굴이 칸을 채운다', half],
+  ['대각선 한 판', '판 하나를 비스듬히 갈라 둘이 맞선다', slant],
+  ['가운데로 겹친다', '두 장이 겹치고 그 자리에 VS 고리', overlap],
+  ['가로로 누운 두 장', '위아래로 나란히 · 얼굴은 바깥쪽', lying],
+];
+
+document.getElementById('g').innerHTML = LOOKS.map(([title, note, draw], n) => `
+  <div class="cell">
+    <div class="tag"><b>${n + 25}</b><span>${title}</span><i>${note}</i></div>
+    <div class="stage"><div class="area">${draw()}</div></div>
+  </div>`).join('');
+</script></body></html>

@@ -13,6 +13,7 @@ import { afterGame } from './myteam/fatigue.js';
 import { randomSeriesTeam } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
+import { oppSeed, applyFormTeam } from './myteam/form.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
 const KboAugmentDraft = lazy(() => import('./KboAugmentDraft.jsx'));
@@ -91,6 +92,8 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     else if (prep.kind === 'tourney') { const e = myOpponent(tournament); opp = e && teamOf(e, team); }
     else if (prep.kind === 'ranked') { const e = ranked.myOpponent(season); opp = e && teamOf(e, team); }
     if (!opp) return;
+    /* 상대도 오늘 몸 상태를 안고 나온다 — 정비 화면 스카우팅에서 본 그대로 */
+    opp = applyFormTeam(opp, oppSeed(opp.name, prep.sub || ''));
     saveTeam(team);
     refresh();
     setMatch({ my: matchTeamOf(team, ready, rest), opp, kind: prep.kind });

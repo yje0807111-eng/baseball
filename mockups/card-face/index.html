@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>카드 얼굴 자리 맞추기</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;padding:12px 14px 40px}
+  header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:10px 12px;margin:-12px -14px 12px;background:rgba(5,8,15,.96);box-shadow:0 1px 0 rgba(255,255,255,.1)}
+  h1{font-family:'Saira Condensed';font-size:19px;font-weight:900;letter-spacing:.04em}
+  .hint{font-size:11.5px;color:#7c8798}
+  input,select,button{font:inherit;background:rgba(255,255,255,.06);color:#e6edf6;border:1px solid rgba(255,255,255,.16);padding:5px 9px;border-radius:2px}
+  button{cursor:pointer;font-weight:700}
+  button.pri{background:#10b981;color:#05080f;border-color:#10b981}
+  .grid{display:grid;grid-template-columns:repeat(3,367px);gap:9px}
+  .cell{position:relative}
+  .card{position:relative;width:367px;height:260px;overflow:hidden;background:#0b1220;cursor:ns-resize;
+    clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+  .art{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat}
+  .mid{position:absolute;left:0;right:0;top:36%;height:1px;background:rgba(255,80,80,.6);pointer-events:none}
+  .foot{position:absolute;inset:auto 0 0 0;padding:20px 10px 7px;pointer-events:none;
+    background:linear-gradient(transparent,rgba(5,8,15,.92))}
+  .nm{font-size:13px;font-weight:800}
+  .val{position:absolute;right:8px;top:7px;font-family:'Saira Condensed';font-weight:800;font-size:14px;
+    background:rgba(5,8,15,.8);padding:1px 7px;color:#fbbf24}
+  .done .val{color:#34d399}
+  .bar{display:flex;align-items:center;gap:6px;padding:4px 0 0}
+  .bar input[type=range]{flex:1;padding:0}
+  #out{width:100%;height:120px;font-family:monospace;font-size:11px;white-space:pre;overflow:auto}
+</style></head><body>
+<header>
+  <h1>카드 얼굴 자리</h1>
+  <span class="hint">카드를 위아래로 끌거나 막대를 움직인다 · 붉은 선에 얼굴을 맞춘다</span>
+  <input id="q" placeholder="선수 · 시리즈 검색" style="width:200px">
+  <select id="only"><option value="all">전체</option><option value="todo">아직 안 맞춘 것</option><option value="done">맞춘 것</option></select>
+  <span id="cnt" class="hint"></span>
+  <button id="more">더 보기 30</button>
+  <button id="reset">이 판 되돌리기</button>
+  <button class="pri" id="dump">값 내보내기</button>
+</header>
+<div class="grid" id="g"></div>
+<textarea id="out" readonly placeholder="값 내보내기를 누르면 여기에 나온다 — 통째로 복사해 주면 코드에 넣는다"></textarea>
+<script>
+const KEY = 'cardFace.v1';
+const BASE = 0; // 기본 세로 %
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { saved = {}; }
+let ALL = [];
+let shown = 30;
+
+const q = document.getElementById('q');
+const only = document.getElementById('only');
+const grid = document.getElementById('g');
+const cnt = document.getElementById('cnt');
+
+const yOf = (id) => (saved[id] == null ? BASE : saved[id]);
+const label = (id) => id.replace(/^([^_]+)_/, '$1 · ');
+
+function list() {
+  const s = q.value.trim().toLowerCase();
+  const mode = only.value;
+  return ALL.filter((id) => {
+    if (s && !id.toLowerCase().includes(s)) return false;
+    if (mode === 'todo' && saved[id] != null) return false;
+    if (mode === 'done' && saved[id] == null) return false;
+    return true;
+  });
+}
+
+function draw() {
+  const rows = list();
+  cnt.textContent = `${rows.length}장 중 ${Math.min(shown, rows.length)}장 · 맞춘 것 ${Object.keys(saved).length}`;
+  grid.innerHTML = rows.slice(0, shown).map((id) => `
+    <div class="cell${saved[id] == null ? '' : ' done'}" data-id="${id}">
+      <div class="card">
+        <i class="art" style="background-image:url('../../public/cards/${encodeURIComponent(id)}.webp');background-position:50% ${yOf(id)}%"></i>
+        <i class="mid"></i>
+        <span class="val">${yOf(id)}%</span>
+        <span class="foot"><b class="nm">${label(id)}</b></span>
+      </div>
+      <div class="bar"><input type="range" min="-10" max="60" step="1" value="${yOf(id)}"><button class="clr">지움</button></div>
+    </div>`).join('');
+}
+
+/* 카드를 위아래로 끌면 값이 움직인다 */
+let drag = null;
+grid.addEventListener('pointerdown', (e) => {
+  const card = e.target.closest('.card');
+  if (!card) return;
+  const cell = card.closest('.cell');
+  drag = { id: cell.dataset.id, y: e.clientY, from: yOf(cell.dataset.id), cell };
+  card.setPointerCapture(e.pointerId);
+});
+grid.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const v = Math.max(-10, Math.min(60, Math.round(drag.from + (e.clientY - drag.y) * -0.12)));
+  set(drag.id, v, drag.cell);
+});
+grid.addEventListener('pointerup', () => { drag = null; save(); });
+grid.addEventListener('input', (e) => {
+  if (e.target.type !== 'range') return;
+  const cell = e.target.closest('.cell');
+  set(cell.dataset.id, +e.target.value, cell);
+  save();
+});
+grid.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('clr')) return;
+  const cell = e.target.closest('.cell');
+  delete saved[cell.dataset.id];
+  save(); draw();
+});
+
+function set(id, v, cell) {
+  saved[id] = v;
+  cell.classList.add('done');
+  cell.querySelector('.art').style.backgroundPosition = `50% ${v}%`;
+  cell.querySelector('.val').textContent = `${v}%`;
+  const r = cell.querySelector('input[type=range]');
+  if (+r.value !== v) r.value = v;
+}
+const save = () => localStorage.setItem(KEY, JSON.stringify(saved));
+
+document.getElementById('more').onclick = () => { shown += 30; draw(); };
+document.getElementById('reset').onclick = () => {
+  for (const id of list().slice(0, shown)) delete saved[id];
+  save(); draw();
+};
+document.getElementById('dump').onclick = () => {
+  const keys = Object.keys(saved).sort();
+  document.getElementById('out').value = keys.length
+    ? `{\n${keys.map((k) => `  ${JSON.stringify(k)}: ${saved[k]},`).join('\n')}\n}`
+    : '아직 맞춘 카드가 없다';
+};
+q.oninput = () => { shown = 30; draw(); };
+only.onchange = () => { shown = 30; draw(); };
+
+/* 자동으로 찾아 둔 값 위에서 시작한다 — 손으로 고친 것이 있으면 그쪽이 이긴다 */
+Promise.all([fetch('cards.json').then((r) => r.json()), fetch('auto.json').then((r) => r.json()).catch(() => ({}))])
+  .then(([ids, auto]) => { ALL = ids; saved = { ...auto, ...saved }; draw(); });
+</script></body></html>
