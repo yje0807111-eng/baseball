@@ -4582,24 +4582,24 @@ function DuelRow({ label, mine, opp }) {
  * 판 전체를 기준으로 잡으면 확대율이 얼굴을 지나쳐 엉뚱한 곳이 보인다.
  */
 /**
- * 선발 한 명 — 카드 하나를 제 색으로 채운다.
- * 사진은 세로라 넓은 카드를 꽉 채우면 얼굴만 커진다. 높이 기준으로 줄여 상반신을 담고,
- * 사진이 카드보다 좁아 드러나는 좌우 가장자리는 어둠으로 녹인다.
+ * 선발 한 명 — 전신 카드 아트(600×900)를 카드에 꽉 채운다.
+ * 얼굴만 담긴 프로필 사진은 넓은 카드에서 얼굴이 커지고 좌우 경계가 드러난다.
+ * 카드 아트는 구장 배경까지 들어 있어 끊기는 자리가 없다.
  */
 function StarterCard({ player, right, side }) {
+  const art = useArt(player);
   const profile = useProfile(player);
-  const bust = useBust(player, '120%');
-  const look = profile ? { ...bust, backgroundSize: 'auto 130%', backgroundPosition: '50% 10%' } : bust;
-  const c = teamNeon(player); // 배경은 그 선수의 구단 색 — 두산이면 파랑
+  const src = art || profile;
+  const look = src ? { backgroundImage: `url(${src})`, backgroundSize: 'cover', backgroundPosition: '50% 0%', backgroundRepeat: 'no-repeat' } : undefined;
+  const c = teamNeon(player); // 구단 색 — 두산이면 파랑
   return (
     <div className="ui-cut relative min-w-0 flex-1 overflow-hidden" style={{ '--c': '14px',
       background: `linear-gradient(180deg, ${c}3d, rgba(7,11,20,.96) 66%)`,
       boxShadow: `inset 0 0 0 1px ${c}55, inset 0 -3px 0 ${side}` }}>
-      {/* 인물 뒤에서 번지는 구단 색 */}
-      <span className="absolute inset-0" style={{ background: `radial-gradient(57% 52% at 50% 31%, ${c}5c, transparent 73%)` }} />
-      <span className="absolute inset-0 bg-no-repeat" style={look} />
-      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(5,8,15,.97) 4%, rgba(5,8,15,.05) 38%, rgba(5,8,15,.05) 62%, rgba(5,8,15,.97) 96%)' }} />
-      <span className="absolute inset-0" style={{ background: `linear-gradient(0deg, rgba(5,8,15,.93), ${c}1f 55%, transparent)` }} />
+      <span className="absolute inset-0" style={look} />
+      {/* 이름이 앉을 아래쪽과 바깥쪽에만 구단 색이 스민다 */}
+      <span className="absolute inset-0" style={{ background: `linear-gradient(0deg, rgba(5,8,15,.96) 4%, ${c}1c 46%, transparent 74%)` }} />
+      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, transparent 54%)` }} />
       <b className="absolute top-2 font-display text-[30px] font-extrabold leading-none"
         style={{ [right ? 'right' : 'left']: 14, color: c, textShadow: `0 0 18px ${c}88` }}>{player.overall}</b>
       <div className={`absolute bottom-3 ${right ? 'right-4 text-right' : 'left-4'}`}>
@@ -4617,7 +4617,7 @@ function StarterCard({ player, right, side }) {
 }
 
 /** 선발 맞대결 — 두 장이 폭을 절반씩 나눠 가진다 */
-function StarterDuel({ mine, opp, h = 200 }) {
+function StarterDuel({ mine, opp, h = 260 }) {
   if (!mine || !opp) return null;
   return (
     <div className="relative flex shrink-0 gap-1.5" style={{ height: h }}>
@@ -4673,7 +4673,7 @@ function MatchupScreen({ roster, oppRoster, buff, oppBuff = 0, augments, onStart
           <p className="ui-lab font-display">Play Ball</p>
         </div>
         <div className="mt-2 grid min-h-0 flex-1 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
-          <StarterDuel mine={my.sps[0]} opp={opp.sps[0]} h={200} />
+          <StarterDuel mine={my.sps[0]} opp={opp.sps[0]} h={260} />
           {/* 같은 자리끼리 맞대기 — 앞선 쪽에 색이 번진다 */}
           {(() => {
             const mound = (t) => [t.sps[0], ...t.pen].filter(Boolean);
