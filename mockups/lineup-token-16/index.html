@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>내 라인업 토큰 16종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 30px 22px; padding: 20px; }
+  .cell > b { display: block; margin: 0 2px 4px; font-size: 14px; color: #fff; }
+  .cell > b i { font-style: normal; color: #10b981; margin-right: 6px; font-family: 'Saira Condensed', sans-serif; }
+  .cell > span { display: block; margin: 0 2px 10px; min-height: 36px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+
+  /* 실제 게임의 구장 판 */
+  .field { position: relative; width: 100%; aspect-ratio: 900 / 580; overflow: hidden; background: #05080f; box-shadow: inset 0 0 0 1px rgba(16,185,129,.25); }
+  .field .bg { position: absolute; inset: 0; background: url(/ui/stadium.webp) center / cover; opacity: .35; }
+  .field .vig { position: absolute; inset: 0; background: radial-gradient(90% 80% at 45% 62%, transparent 30%, rgba(5,8,15,.85) 100%); }
+  .lf { position: absolute; left: 0; top: 0; width: 900px; height: 580px; transform-origin: 0 0; }
+  .lf svg.art { position: absolute; inset: 0; }
+  .tk { position: absolute; transform: translate(-50%, -50%); --n: #10b981; cursor: grab; }
+  .t { display: block; white-space: nowrap; overflow: hidden; }
+  .face { background-color: #141c2b; background-repeat: no-repeat; background-position: 50% 0, 50% 100%; background-size: cover, 100% 100%; }
+  .ov { font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; color: var(--n); font-style: normal; white-space: nowrap; }
+  .ov.up { color: #34d399; }
+  .ov.up::before { content: "▲"; font-size: .45em; margin-right: 2px; vertical-align: .45em; }
+  .dim { color: #9aa4b5; }
+  .pc { font-family: 'Saira Condensed', sans-serif; font-weight: 700; color: var(--n); letter-spacing: .02em; }
+
+  /* ── 1 · 넓힌 자막 바 ── */
+  .v1 .tk { width: 224px; height: 84px; }
+  .v1 .bp { position: absolute; left: 4px; bottom: 14px; width: 58px; height: 78px; z-index: 2; -webkit-mask-image: linear-gradient(#000 72%, transparent); mask-image: linear-gradient(#000 72%, transparent); }
+  .v1 .bar { position: absolute; left: 16px; right: 4px; bottom: 10px; height: 50px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 54px; background: linear-gradient(90deg, rgba(9,14,26,.95), rgba(16,24,40,.9)); box-shadow: inset 4px 0 0 var(--n), inset 0 0 0 1px color-mix(in srgb, var(--n) 28%, transparent), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); }
+  .v1 .bar > * { transform: skewX(10deg); }
+  .v1 .tx { flex: 1; min-width: 0; line-height: 1.2; }
+  .v1 small { font-size: 10.5px; color: #9aa4b5; }
+  .v1 b { font-size: 15px; color: #fff; }
+  .v1 .ov { font-size: 24px; }
+
+  /* ── 2 · 포지션 탭 + 두 줄 ── */
+  .v2 .tk { width: 206px; height: 80px; }
+  .v2 .bp { position: absolute; left: 2px; bottom: 8px; width: 56px; height: 76px; z-index: 2; -webkit-mask-image: linear-gradient(#000 75%, transparent); mask-image: linear-gradient(#000 75%, transparent); }
+  .v2 .tab { position: absolute; left: 62px; top: 2px; padding: 1px 8px 0 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: #05080f; background: var(--n); clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+  .v2 .bar { position: absolute; left: 10px; right: 0; bottom: 8px; height: 52px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 52px; background: linear-gradient(90deg, rgba(8,13,24,.96), rgba(15,22,36,.92)); box-shadow: inset 3px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%); }
+  .v2 .tx { flex: 1; min-width: 0; line-height: 1.2; }
+  .v2 b { font-size: 15px; color: #fff; }
+  .v2 small { font-size: 11.5px; font-weight: 600; color: color-mix(in srgb, var(--n) 55%, #fff); }
+  .v2 .ov { font-size: 24px; }
+
+  /* ── 3 · 시즌 리본 ── */
+  .v3 .tk { width: 200px; height: 86px; }
+  .v3 .bp { position: absolute; left: 2px; top: 0; width: 56px; height: 74px; z-index: 3; -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+  .v3 .bar { position: absolute; left: 14px; right: 2px; top: 20px; height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 50px; background: linear-gradient(90deg, rgba(9,14,26,.96), rgba(16,24,40,.92)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 30%, transparent), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-10deg); z-index: 2; }
+  .v3 .bar > * { transform: skewX(10deg); }
+  .v3 .bar b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+  .v3 .ov { font-size: 23px; }
+  .v3 .rib { position: absolute; left: 50px; right: 14px; top: 60px; height: 20px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 14px; font-size: 11px; font-weight: 700; color: #05080f; background: var(--n); transform: skewX(-10deg); z-index: 1; }
+  .v3 .rib > * { transform: skewX(10deg); }
+  .v3 .rib em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; opacity: .7; }
+
+  /* ── 4 · HUD 컷 코너 판 ── */
+  .v4 .tk { width: 222px; height: 66px; }
+  .v4 .pn { position: absolute; inset: 0; display: grid; grid-template-columns: 50px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 6px 10px 6px 6px; background: rgba(8,13,24,.93); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 38%, transparent), 0 6px 14px rgba(0,0,0,.5); }
+  .v4 .pn::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--n), var(--n)) 10px 0 / 26px 2px no-repeat, linear-gradient(var(--n), var(--n)) 0 10px / 2px 16px no-repeat, linear-gradient(135deg, transparent 6px, var(--n) 6px, var(--n) 8px, transparent 8px) 0 0 / 11px 11px no-repeat; }
+  .v4 .face { width: 50px; height: 54px; clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px); }
+  .v4 small { font-size: 11px; color: #9aa4b5; line-height: 1.3; }
+  .v4 small .pc { margin-right: 5px; font-size: 12.5px; }
+  .v4 b { font-size: 15px; color: #fff; line-height: 1.3; }
+  .v4 .ov { font-size: 24px; }
+
+  /* ── 5 · 세로 명패 ── */
+  .v5 .tk { width: 118px; height: 76px; }
+  .v5 .cd { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,22,38,.96), rgba(8,13,24,.96)); box-shadow: inset 0 2px 0 var(--n), inset 0 0 0 1px rgba(255,255,255,.08), 0 6px 14px rgba(0,0,0,.5); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+  .v5 .face { position: absolute; left: 50%; top: -14px; width: 40px; height: 40px; margin-left: -20px; border-radius: 50%; box-shadow: 0 0 0 2px var(--n), 0 0 12px -2px var(--n); z-index: 2; }
+  .v5 .pos { position: absolute; left: 7px; top: 6px; font-size: 12px; }
+  .v5 .ov { position: absolute; right: 7px; top: 5px; font-size: 19px; z-index: 3; }
+  .v5 .nm { position: absolute; left: 4px; right: 4px; top: 30px; text-align: center; font-size: 14px; font-weight: 700; color: #fff; }
+  .v5 .ss { position: absolute; left: 4px; right: 4px; top: 50px; text-align: center; font-size: 11px; color: #9aa4b5; }
+
+  /* ── 6 · 원형 얼굴 + 캡슐 ── */
+  .v6 .tk { width: 196px; height: 66px; }
+  .v6 .face { position: absolute; left: 0; top: 2px; width: 54px; height: 54px; border-radius: 50%; box-shadow: 0 0 0 2px var(--n), 0 0 14px -2px var(--n), 0 4px 10px rgba(0,0,0,.6); z-index: 2; }
+  .v6 .pill { position: absolute; left: 34px; right: 0; top: 8px; height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 28px; border-radius: 99px; background: rgba(9,14,26,.94); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 35%, transparent), 0 6px 14px rgba(0,0,0,.5); }
+  .v6 .pill b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+  .v6 .ov { font-size: 21px; }
+  .v6 .ss { position: absolute; left: 62px; right: 0; top: 45px; font-size: 11px; font-weight: 600; color: #d1d5db; text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+  .v6 .ss .pc { margin-right: 4px; font-size: 12px; }
+
+  /* ── 7 · 연도 워터마크 ── */
+  .v7 .tk { width: 226px; height: 80px; }
+  .v7 .bp { position: absolute; left: 2px; bottom: 8px; width: 56px; height: 76px; z-index: 3; -webkit-mask-image: linear-gradient(#000 75%, transparent); mask-image: linear-gradient(#000 75%, transparent); }
+  .v7 .bar { position: absolute; left: 10px; right: 0; bottom: 8px; height: 56px; overflow: hidden; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 52px; background: linear-gradient(90deg, rgba(8,13,24,.97), rgba(14,21,35,.94)); box-shadow: inset 3px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); }
+  .v7 .wm { position: absolute; right: 40px; top: -8px; font-family: 'Saira Condensed', sans-serif; font-size: 50px; font-weight: 800; line-height: 1; color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--n) 32%, transparent); pointer-events: none; }
+  .v7 .tx { position: relative; flex: 1; min-width: 0; line-height: 1.2; }
+  .v7 small { font-size: 11.5px; color: #cbd5e1; }
+  .v7 small em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: var(--n); margin-right: 3px; }
+  .v7 b { font-size: 15px; color: #fff; }
+  .v7 .ov { position: relative; font-size: 24px; }
+
+  /* ── 8 · 스코어보드 ── */
+  .v8 .tk { width: 172px; height: 78px; }
+  .v8 .bx { position: absolute; inset: 0; background: #070b12; box-shadow: inset 0 0 0 1px #243044, inset 0 3px 0 var(--n), 0 6px 14px rgba(0,0,0,.55); }
+  .v8 .hd { position: absolute; left: 0; right: 0; top: 3px; height: 20px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; background: #0f1724; border-bottom: 1px solid #243044; }
+  .v8 .hd span { font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #cbd5e1; }
+  .v8 .ov { font-size: 17px; color: #fde68a; text-shadow: 0 0 8px rgba(253,230,138,.6); }
+  .v8 .ov.up { color: #6ee7b7; text-shadow: 0 0 8px rgba(110,231,183,.6); }
+  .v8 .face { position: absolute; left: 6px; top: 27px; width: 38px; height: 46px; }
+  .v8 .nm { position: absolute; left: 52px; right: 6px; top: 29px; font-size: 15px; font-weight: 700; color: #fff; }
+  .v8 .ss { position: absolute; left: 52px; right: 6px; top: 52px; font-size: 11px; color: #9aa4b5; }
+
+  /* ── 9 · 글래스 + 네온 밑줄 ── */
+  .v9 .tk { width: 214px; height: 60px; }
+  .v9 .pn { position: absolute; inset: 0; display: grid; grid-template-columns: 46px minmax(0, 1fr) 38px; align-items: end; gap: 9px; padding: 0 8px 0 6px; border-radius: 4px; background: rgba(15,23,42,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 -2px 0 var(--n), 0 10px 22px -8px color-mix(in srgb, var(--n) 55%, transparent); }
+  .v9 .face { width: 46px; height: 64px; margin-top: -10px; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+  .v9 .tx { align-self: center; line-height: 1.25; }
+  .v9 b { font-size: 15px; color: #fff; }
+  .v9 small { font-size: 11px; color: #cbd5e1; }
+  .v9 small .pc { margin-right: 4px; font-size: 12px; }
+  .v9 .ov { align-self: center; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; box-shadow: inset 0 0 0 2px var(--n); background: rgba(5,8,15,.6); }
+  .v9 .ov.up { box-shadow: inset 0 0 0 2px #34d399; }
+  .v9 .ov.up::before { display: none; }
+
+  /* ── 10 · 선반 카드 문법 ── */
+  .v10 .tk { width: 212px; height: 60px; }
+  .v10 .cd { position: absolute; inset: 0; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 9px; padding: 4px 10px 4px 4px; background: linear-gradient(180deg, #0f1828, #0a101c); clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px); box-shadow: inset 0 2px 0 var(--n), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .v10 .face { width: 44px; height: 52px; }
+  .v10 .r1 { display: flex; align-items: center; gap: 5px; line-height: 1.3; }
+  .v10 .chip { flex: none; padding: 0 5px; font-family: 'Saira Condensed', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--n); background: color-mix(in srgb, var(--n) 16%, transparent); }
+  .v10 .r1 small { font-size: 11px; color: #9aa4b5; }
+  .v10 b { font-size: 15px; color: #fff; line-height: 1.3; }
+  .v10 .ov { font-size: 26px; color: #fff; }
+  .v10 .ov.t75 { color: #34d399; }
+  .v10 .ov.up::before { color: #34d399; }
+
+  /* ── 11 · 베이스 핀 + 말풍선 ── */
+  .v11 .tk { width: 200px; height: 76px; }
+  .v11 .cd { position: absolute; left: 0; right: 0; top: 0; height: 56px; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; background: rgba(8,13,24,.95); border-radius: 6px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 45%, transparent), 0 6px 14px rgba(0,0,0,.5); }
+  .v11 .cd::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px; margin-left: -6px; background: rgba(8,13,24,.95); transform: rotate(45deg); box-shadow: inset -1px -1px 0 color-mix(in srgb, var(--n) 45%, transparent); }
+  .v11 .face { width: 40px; height: 48px; border-radius: 4px; }
+  .v11 b { font-size: 14.5px; color: #fff; line-height: 1.3; }
+  .v11 small { font-size: 11px; color: #9aa4b5; line-height: 1.3; }
+  .v11 small .pc { margin-right: 4px; font-size: 12px; }
+  .v11 .ov { font-size: 22px; }
+  .v11 .pin { position: absolute; left: 50%; bottom: 0; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--n); box-shadow: 0 0 0 3px rgba(5,8,15,.8), 0 0 12px var(--n); }
+
+  /* ── 12 · 얼굴 없이 큰 글자 ── */
+  .v12 .tk { width: 176px; height: 54px; }
+  .v12 .hx { position: absolute; left: 0; top: 0; width: 48px; height: 54px; display: grid; place-items: center; background: var(--n); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); z-index: 2; }
+  .v12 .hx .ov { font-size: 23px; color: #05080f; }
+  .v12 .hx .ov.up::before { color: #05080f; }
+  .v12 .pn { position: absolute; left: 24px; right: 0; top: 6px; height: 42px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px 0 32px; background: rgba(9,14,26,.93); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); line-height: 1.2; }
+  .v12 b { font-size: 16px; color: #fff; }
+  .v12 small { font-size: 11px; color: #9aa4b5; }
+  .v12 small .pc { margin-right: 4px; font-size: 12px; }
+
+  /* ── 13 · 큰 흉상 + 로어서드 ── */
+  .v13 .tk { width: 160px; height: 86px; }
+  .v13 .face { position: absolute; left: 50%; top: 0; width: 62px; height: 64px; margin-left: -31px; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+  .v13 .cap { position: absolute; left: 0; right: 0; bottom: 16px; height: 28px; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 10px; background: linear-gradient(90deg, rgba(9,14,26,.96), rgba(16,24,40,.9)); box-shadow: inset 3px 0 0 var(--n), 0 6px 14px rgba(0,0,0,.5); }
+  .v13 .cap .pc { font-size: 12.5px; }
+  .v13 .cap b { flex: 1; min-width: 0; font-size: 14.5px; color: #fff; }
+  .v13 .ov { font-size: 20px; }
+  .v13 .ss { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); padding: 0 7px; font-size: 11px; line-height: 16px; color: #e5e7eb; background: rgba(5,8,15,.82); box-shadow: inset 0 -1px 0 var(--n); }
+
+  /* ── 14 · 팀 컬러 포지션 블록 ── */
+  .v14 .tk { width: 214px; height: 54px; }
+  .v14 .pn { position: absolute; inset: 0; display: grid; grid-template-columns: 34px 42px minmax(0, 1fr) auto; align-items: center; gap: 0; background: rgba(9,14,26,.94); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%); box-shadow: 0 6px 14px rgba(0,0,0,.5); }
+  .v14 .blk { align-self: stretch; display: grid; place-items: center; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 800; color: #05080f; background: var(--n); }
+  .v14 .face { width: 42px; height: 54px; }
+  .v14 .tx { padding: 0 6px 0 10px; line-height: 1.25; }
+  .v14 b { font-size: 15px; color: #fff; }
+  .v14 small { font-size: 11px; color: #9aa4b5; }
+  .v14 .ov { padding-right: 12px; font-size: 24px; }
+
+  /* ── 15 · 이름 바 + 시즌 칩 ── */
+  .v15 .tk { width: 184px; height: 76px; }
+  .v15 .bar { position: absolute; left: 0; right: 0; top: 4px; height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 50px; background: linear-gradient(90deg, rgba(9,14,26,.96), rgba(16,24,40,.92)); box-shadow: inset 3px 0 0 var(--n), inset 0 0 0 1px color-mix(in srgb, var(--n) 25%, transparent), 0 6px 14px rgba(0,0,0,.5); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%); }
+  .v15 .face { position: absolute; left: 5px; top: -4px; width: 40px; height: 52px; z-index: 2; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+  .v15 .bar b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+  .v15 .ov { font-size: 23px; }
+  .v15 .chip { position: absolute; left: 12px; top: 54px; display: inline-flex; align-items: center; gap: 5px; padding: 0 8px 0 6px; font-size: 11px; line-height: 19px; font-weight: 600; color: #e5e7eb; white-space: nowrap; background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 45%, transparent); }
+  .v15 .chip .pc { font-size: 12px; }
+  .v15 .chip i { width: 1px; height: 10px; background: rgba(255,255,255,.2); }
+
+  /* ── 16 · 미니멀 라인 ── */
+  .v16 .tk { width: 180px; height: 62px; }
+  .v16 .gl { position: absolute; left: 0; right: 0; top: 4px; bottom: 4px; background: linear-gradient(90deg, rgba(5,8,15,.85), rgba(5,8,15,.55) 70%, transparent); }
+  .v16 .ln { position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--n); box-shadow: 0 0 10px var(--n); }
+  .v16 .face { position: absolute; left: 9px; top: 0; width: 42px; height: 58px; -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+  .v16 .tx { position: absolute; left: 58px; right: 42px; top: 8px; line-height: 1.2; text-shadow: 0 1px 3px #000; }
+  .v16 .tx .pc { font-size: 11px; letter-spacing: .1em; }
+  .v16 b { font-size: 16px; font-weight: 800; color: #fff; }
+  .v16 small { font-size: 11px; color: #d1d5db; }
+  .v16 .ov { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 26px; text-shadow: 0 2px 6px #000; }
+</style>
+</head>
+<body>
+<div class="top"><b>내 라인업 토큰 16종</b><span>실제 정비 화면의 엔트리 · 시즌(연도 + 구단)이 끝까지 보이도록 · ▲ 초록 = 시너지 상승</span></div>
+<div class="grid" id="grid"></div>
+<script type="module">
+const { ALL_PLAYERS } = await import('/src/KboAugmentDraft.jsx');
+
+const TEAM_NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff' };
+const SLOT_XY = { OF1: [215, 150], OF2: [450, 70], OF3: [685, 150], SS: [300, 245], '2B': [600, 245], '3B': [150, 370], '1B': [730, 352], SP: [450, 360], C: [450, 520], DH: [110, 515], MR: [790, 448], CL: [790, 536] };
+// 정비 화면 스크린샷과 같은 엔트리 (▲ = 베이징 시너지)
+const LINEUP = [
+  ['SP', '송승준', 2010], ['MR', '심창민', 2014], ['CL', '봉중근', 2006, 1], ['C', '강민호', 2008, 1], ['1B', '강진성', 2020], ['2B', '한상훈', 2006],
+  ['3B', '김동주', 2008, 1], ['SS', '이종범', 1993], ['OF1', '이용규', 2008, 1], ['OF2', '이진영', 2009], ['OF3', '박해민', 2023], ['DH', '에반스', 2016],
+];
+const SIL = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='xMidYMax meet'%3E%3Ccircle cx='50' cy='40' r='18' fill='%2326324a'/%3E%3Cpath d='M12 104 C14 74 30 64 50 64 C70 64 86 74 88 104 Z' fill='%2326324a'/%3E%3C/svg%3E\")";
+const ROWS = LINEUP.map(([slot, name, year, up]) => {
+  const p = ALL_PLAYERS.find((x) => x.name === name && x.year === year) || ALL_PLAYERS.find((x) => x.name === name) || { id: 'x', name, year, team: '?', overall: 70 };
+  const ov = p.overall + (up ? 2 : 0);
+  return { slot, name: p.name, year: p.year, team: p.team, ov, up: !!up, n: TEAM_NEON[p.team] || '#10b981',
+    bg: `background-image:url('/profiles/${encodeURIComponent(p.id)}.webp'),${SIL}` };
+});
+
+const ovr = (r, extra = '') => `<em class="ov ${r.up ? 'up' : ''} ${extra}">${r.ov}</em>`;
+const face = (r, cls = 'face') => `<div class="${cls}" style="${r.bg}"></div>`;
+const faceB = (r, cls) => `<div class="face ${cls}" style="${r.bg}"></div>`;
+const V = [
+  ['넓힌 자막 바', '지금 디자인 그대로, 바 폭만 168 → 224 로 넓혀 “SP · 2010 롯데”가 끝까지 들어감 — 가장 적은 변화', (r) =>
+    `${faceB(r, 'bp')}<div class="bar"><span class="tx"><small class="t">${r.slot} · ${r.year} ${r.team}</small><b class="t">${r.name}</b></span>${ovr(r)}</div>`],
+  ['포지션 탭 + 두 줄', '포지션을 바 위 팀 색 탭으로 떼어 내고, 바 안은 이름(크게) · 시즌(팀 색 글자) 두 줄', (r) =>
+    `${faceB(r, 'bp')}<span class="tab">${r.slot}</span><div class="bar"><span class="tx"><b class="t">${r.name}</b><small class="t">${r.year} ${r.team}</small></span>${ovr(r)}</div>`],
+  ['시즌 리본', '사선 이름 바 아래로 팀 색 리본이 한 줄 더 — 중계 자막의 “소속” 띠 느낌', (r) =>
+    `${faceB(r, 'bp')}<div class="bar"><b class="t">${r.name}</b>${ovr(r)}</div><div class="rib"><em>${r.slot}</em><span>${r.year} ${r.team}</span></div>`],
+  ['HUD 컷 코너 판', '게임 판(PICK · 규칙 팝업)과 같은 잘린 모서리 + 초록 브래킷 대신 팀 색 브래킷', (r) =>
+    `<div class="pn">${face(r)}<span style="min-width:0"><small class="t"><span class="pc">${r.slot}</span>${r.year} ${r.team}</small><b class="t">${r.name}</b></span>${ovr(r)}</div>`],
+  ['세로 명패', '둥근 얼굴이 판 위로 올라온 작은 명패 — 이름 · 시즌 가운데 정렬, 포지션 · 종합은 위 모서리', (r) =>
+    `<div class="cd"></div>${face(r)}<span class="pos pc">${r.slot}</span>${ovr(r)}<span class="nm t">${r.name}</span><span class="ss t">${r.year} ${r.team}</span>`],
+  ['원형 얼굴 + 캡슐', '팀 색 테두리 원형 얼굴 + 둥근 이름 캡슐, 시즌은 캡슐 아래 그림자 글씨', (r) =>
+    `${face(r)}<div class="pill"><b class="t">${r.name}</b>${ovr(r)}</div><span class="ss t"><span class="pc">${r.slot}</span>${r.year} ${r.team}</span>`],
+  ['연도 워터마크', '바 오른쪽에 윤곽선 연도가 크게 비침(선반 시리즈 머리와 같은 문법) · 시즌 줄은 연도를 팀 색 숫자로', (r) =>
+    `${faceB(r, 'bp')}<div class="bar"><span class="wm">${r.year}</span><span class="tx"><b class="t">${r.name}</b><small class="t"><em>${r.year}</em>${r.team} · ${r.slot}</small></span>${ovr(r)}</div>`],
+  ['스코어보드', '위 칸에 포지션 · 전광판 숫자 종합, 아래에 얼굴 · 이름 · 시즌 — 네모반듯한 전광판 패널', (r) =>
+    `<div class="bx"></div><div class="hd"><span>${r.slot}</span>${ovr(r)}</div>${face(r)}<span class="nm t">${r.name}</span><span class="ss t">${r.year} ${r.team}</span>`],
+  ['글래스 + 네온 밑줄', '반투명 유리 판 뒤로 구장이 비치고, 아래 팀 색 네온 밑줄 · 종합은 링 안에', (r) =>
+    `<div class="pn">${face(r)}<span class="tx" style="min-width:0"><b class="t">${r.name}</b><small class="t"><span class="pc">${r.slot}</span>${r.year} ${r.team}</small></span>${ovr(r)}</div>`],
+  ['선반 카드 문법', '선반 카드처럼 위 가장자리 팀 색 줄 · 포지션 칩 · 75 이상 초록 종합 — 드래프트 화면과 한 벌', (r) =>
+    `<div class="cd">${face(r)}<span style="min-width:0"><span class="r1"><span class="chip">${r.slot}</span><small class="t">${r.year} ${r.team}</small></span><b class="t">${r.name}</b></span>${ovr(r, r.ov >= 75 ? 't75' : '')}</div>`],
+  ['베이스 핀 + 말풍선', '자리에 팀 색 핀을 꽂고 그 위로 말풍선 카드 — 선수가 서 있는 지점이 정확히 보임', (r) =>
+    `<div class="cd">${face(r)}<span style="min-width:0"><b class="t">${r.name}</b><small class="t"><span class="pc">${r.slot}</span>${r.year} ${r.team}</small></span>${ovr(r)}</div><span class="pin"></span>`],
+  ['얼굴 없이 큰 글자', '팀 색 육각형 안에 종합 · 옆에 큰 이름과 시즌 — 사진이 없어도 균일하고 가장 읽기 쉬움', (r) =>
+    `<div class="hx">${ovr(r)}</div><div class="pn"><b class="t">${r.name}</b><small class="t"><span class="pc">${r.slot}</span>${r.year} ${r.team}</small></div>`],
+  ['큰 흉상 + 로어서드', '흉상을 크게 세우고 가슴께에 이름 자막, 그 아래 시즌 태그 — 선수 사진이 주인공', (r) =>
+    `${face(r)}<div class="cap"><span class="pc">${r.slot}</span><b class="t">${r.name}</b>${ovr(r)}</div><span class="ss">${r.year} ${r.team}</span>`],
+  ['팀 컬러 포지션 블록', '왼쪽 팀 색 블록에 포지션 → 얼굴 → 이름 · 시즌 → 종합, 한 줄로 딱 떨어지는 명단형', (r) =>
+    `<div class="pn"><span class="blk">${r.slot}</span>${face(r)}<span class="tx" style="min-width:0"><b class="t">${r.name}</b><small class="t">${r.year} ${r.team}</small></span>${ovr(r)}</div>`],
+  ['이름 바 + 시즌 칩', '이름 바는 짧고 굵게, 시즌은 아래 따로 떨어진 작은 칩 — 칩 폭이 글자만큼 늘어나 절대 안 잘림', (r) =>
+    `<div class="bar"><b class="t">${r.name}</b>${ovr(r)}</div>${face(r)}<span class="chip"><span class="pc">${r.slot}</span><i></i>${r.year} ${r.team}</span>`],
+  ['미니멀 라인', '판 없이 팀 색 세로선 + 옅은 그늘, 그림자 글씨 — 구장이 가장 많이 보이는 가벼운 안', (r) =>
+    `<div class="gl"></div><div class="ln"></div>${face(r)}<span class="tx"><span class="pc t">${r.slot}</span><b class="t">${r.name}</b><small class="t">${r.year} ${r.team}</small></span>${ovr(r)}`],
+];
+
+const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
+const fair = `M${hx} ${hy} L${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r} Z`;
+const base = (x, y) => `<rect x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>`;
+const ART = `<svg class="art" width="900" height="580" viewBox="0 0 900 580"><defs>
+  <radialGradient id="g" cx="50%" cy="78%" r="80%"><stop offset="0" stop-color="#1d6b3c"/><stop offset=".55" stop-color="#135230"/><stop offset="1" stop-color="#0a2e1b"/></radialGradient>
+  <radialGradient id="d" cx="50%" cy="60%" r="70%"><stop offset="0" stop-color="#8a5a34"/><stop offset="1" stop-color="#5b3a22"/></radialGradient>
+  <pattern id="m" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="32" height="64" fill="#fff" opacity=".045"/></pattern>
+  <filter id="gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <path d="${fair}" fill="url(#g)"/><path d="${fair}" fill="url(#m)"/>
+  <path d="M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}" fill="none" stroke="#6b4a2f" stroke-opacity=".75" stroke-width="12"/>
+  <polygon points="${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}" fill="url(#d)" opacity=".9"/>
+  <polygon points="${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}" fill="url(#g)"/>
+  <polygon points="${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}" fill="url(#m)"/>
+  <g filter="url(#gl)"><path d="M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}" stroke="#e8f7ff" stroke-opacity=".75" stroke-width="2.4"/>
+  <path d="M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}" fill="none" stroke="#5eead4" stroke-opacity=".35" stroke-width="2"/></g>
+  <circle cx="${hx}" cy="${hy - s}" r="${s * 0.11}" fill="url(#d)"/>
+  <g fill="#fff" filter="url(#gl)">${base(hx + s, hy - s)}${base(hx, hy - 2 * s)}${base(hx - s, hy - s)}<path d="M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z"/></g></svg>`;
+
+const grid = document.getElementById('grid');
+grid.innerHTML = V.map(([name, desc, tok], i) => `
+  <div class="cell"><b><i>${i + 1}</i>${name}</b><span>${desc}</span>
+    <div class="field v${i + 1}"><div class="bg"></div><div class="vig"></div>
+      <div class="lf">${ART}${ROWS.map((row) => { const [x, y] = SLOT_XY[row.slot]; return `<div class="tk" style="left:${x}px;top:${y}px;--n:${row.n}">${tok(row)}</div>`; }).join('')}</div>
+    </div></div>`).join('');
+const fit = () => document.querySelectorAll('.field').forEach((f) => { f.querySelector('.lf').style.transform = `scale(${f.clientWidth / 900})`; });
+fit(); addEventListener('resize', fit);
+</script>
+</body>
+</html>

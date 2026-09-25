@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PICK 카드 리뉴얼 목업 8종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .disp { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; white-space: nowrap; }
+  .top .g { margin-left: auto; display: flex; gap: 4px; flex: none; }
+  .top .g button { padding: 5px 11px; font-weight: 700; white-space: nowrap; color: #d1d5db; box-shadow: inset 0 0 0 1px #374151; }
+  .top .g button.on { color: #04150e; background: #10b981; box-shadow: none; }
+  .wrap { display: flex; flex-direction: column; gap: 24px; padding: 16px 12px 60px; }
+  .vlab { display: flex; align-items: baseline; gap: 12px; margin: 0 4px 8px; }
+  .vlab b { font-size: 15px; color: #fff; white-space: nowrap; }
+  .vlab b i { font-style: normal; color: #10b981; margin-right: 6px; }
+  .vlab span { font-size: 12px; color: #9ca3af; }
+  .panel { display: flex; flex-wrap: wrap; gap: 14px; padding: 14px; background: linear-gradient(180deg, rgba(6,10,19,.8), rgba(6,10,19,.93)), url(/ui/stadium.webp) center 40%/cover; box-shadow: inset 0 0 0 1px rgba(16,185,129,.25); }
+  .cell { display: flex; flex-direction: column; gap: 6px; }
+  .cell small { font-size: 11px; color: #9ca3af; }
+
+  /* ── PICK 카드 공통 (선반 카드와 같은 문법) ── */
+  .pc { --w: 250px; position: relative; width: var(--w); aspect-ratio: 2/3; background: #05080f; container-type: inline-size; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); overflow: hidden; }
+  .sm .pc { --w: 200px; }
+  .in { position: absolute; inset: 0; }
+  .pc img.art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; }
+  .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 44%, rgba(5,8,15,.9) 70%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.5) 0, rgba(5,8,15,0) 50%); }
+  .fr { position: absolute; inset: 1.6cqw; border: 1px solid color-mix(in srgb, var(--n) 45%, transparent); pointer-events: none; }
+  .tb { position: absolute; left: 6cqw; right: 1.6cqw; top: 1.6cqw; height: 1.3cqw; background: rgba(255,255,255,.55); }
+  @keyframes prism { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  .t75 .tb { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.7); }
+  .t90 .tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; animation: prism 3s linear infinite; box-shadow: 0 0 6px rgba(125,211,252,.7); }
+  .ov { position: absolute; font-family: 'Saira Condensed', sans-serif; font-weight: 800; line-height: .85; color: #f3f4f6; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
+  .t75 .ov { color: #34d399; text-shadow: 0 0 2px #000, 0 2px 10px #000, 0 0 16px rgba(52,211,153,.45); }
+  .t90 .ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc) 0 50% / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); animation: prism 3s linear infinite; }
+  .meta { position: absolute; font-family: 'Saira Condensed', sans-serif; font-weight: 600; letter-spacing: .08em; color: rgba(255,255,255,.72); white-space: nowrap; text-shadow: 0 1px 4px #000; }
+  .stats { position: absolute; margin: 0; }
+  .st { display: flex; align-items: baseline; justify-content: space-between; gap: 2cqw; }
+  .st dt { font-weight: 600; color: #cbd5e1; white-space: nowrap; }
+  .st dd { margin: 0; font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; color: #f3f4f6; white-space: nowrap; }
+  .st dd.hi { color: var(--n); text-shadow: 0 0 8px color-mix(in srgb, var(--n) 50%, transparent); }
+  .st dd em { font-style: normal; margin-left: .8cqw; font-size: .62em; font-weight: 700; }
+  .st dd em.up { color: #34d399; } .st dd em.dn { color: #fbbf24; }
+  .st .bar { display: none; }
+  .radar { display: none; }
+  .syn { position: absolute; z-index: 5; display: flex; align-items: center; gap: .8cqw; padding: 1.4cqw 1.8cqw; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+  .syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; color: #6ee7b7; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .syn i { width: 2cqw; height: 3.6cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
+  .syn i.on { background: #e5e7eb; }
+  @keyframes pip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  .syn i.nx { background: #38bdf8; animation: pip 1.2s ease-in-out infinite; }
+  .syn b { margin-left: 1cqw; font-size: 3.6cqw; font-weight: 700; color: #a7f3d0; white-space: nowrap; }
+  .ochips { position: absolute; display: flex; flex-wrap: wrap; gap: 1.2cqw; }
+  .ochips span { padding: .8cqw 2cqw; font-size: 3.4cqw; font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
+  .ochips .sy { color: #a7f3d0; box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+  .ochips .off { color: #fde68a; box-shadow: inset 0 0 0 1px rgba(251,191,36,.55); }
+  .note { position: absolute; font-weight: 500; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 4px #000; }
+  .pos { position: absolute; display: flex; align-items: center; gap: 1.8cqw; line-height: 1; white-space: nowrap; }
+  .pos em { flex: none; padding: .8cqw 1.6cqw; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: #05080f; background: var(--n); }
+  .pos span { min-width: 0; overflow: hidden; font-family: 'Saira Condensed', sans-serif; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; }
+  .pos .tg { margin-left: auto; display: flex; gap: 1cqw; }
+  .pos .tg b { padding: .7cqw 1.6cqw; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.45); }
+  .rule { position: absolute; height: 1px; background: linear-gradient(90deg, var(--n), color-mix(in srgb, var(--n) 15%, transparent)); }
+  .nm { position: absolute; margin: 0; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.02em; text-shadow: 0 2px 8px #000; }
+  .cp { position: absolute; text-align: right; line-height: .9; }
+  .cp small { display: block; font-family: 'Saira Condensed', sans-serif; font-weight: 700; letter-spacing: .1em; color: #9ca3af; }
+  .cp b { display: block; font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: var(--n); text-shadow: 0 0 10px color-mix(in srgb, var(--n) 55%, transparent); }
+  .slot { position: absolute; padding: 1.2cqw 2.6cqw; font-weight: 800; line-height: 1; color: #05080f; background: var(--n); clip-path: polygon(1.6cqw 0,100% 0,100% calc(100% - 1.6cqw),calc(100% - 1.6cqw) 100%,0 100%,0 1.6cqw); }
+  .pc.lock .in { filter: grayscale(1) brightness(.55); }
+  .pc.lock .ov, .pc.lock .tb { animation: none; }
+  .lk { position: absolute; z-index: 6; left: 10cqw; right: 10cqw; top: 64cqw; display: flex; align-items: center; justify-content: center; gap: 2cqw; padding: 3cqw 0; font-size: 5.6cqw; font-weight: 800; line-height: 1; color: #f9fafb; background: rgba(5,8,15,.9); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 4px 16px rgba(0,0,0,.7); }
+  .lk svg { width: 5.5cqw; height: 5.5cqw; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+  /* ════ V1 · 선반 카드 확대형 ════ */
+  .v1 .ov { left: 6cqw; top: 6cqw; font-size: 24cqw; }
+  .v1 .meta { left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; }
+  .v1 .stats { left: 5cqw; top: 35cqw; width: 40cqw; padding: 1.8cqw 3cqw; background: rgba(5,8,15,.6); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 30%, transparent); }
+  .v1 .st { padding: .9cqw 0; } .v1 .st dt { font-size: 4.2cqw; } .v1 .st dd { font-size: 6.4cqw; }
+  .v1 .syn { right: 4cqw; top: 5cqw; }
+  .v1 .ochips { left: 6cqw; right: 6cqw; bottom: 50cqw; }
+  .v1 .note { left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; }
+  .v1 .pos { left: 6cqw; right: 6cqw; bottom: 35.5cqw; } .v1 .pos em { font-size: 4.4cqw; } .v1 .pos span { font-size: 4.6cqw; } .v1 .pos .tg b { font-size: 3.6cqw; }
+  .v1 .rule { left: 6cqw; right: 6cqw; bottom: 32.5cqw; }
+  .v1 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; }
+  .v1 .cp { right: 6cqw; bottom: 7.5cqw; } .v1 .cp small { font-size: 3.8cqw; } .v1 .cp b { font-size: 12cqw; }
+  .v1 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+
+  /* ════ V2 · 스탯 가로 띠 ════ */
+  .v2 .ov { left: 6cqw; top: 6cqw; font-size: 25cqw; }
+  .v2 .meta { left: 6.5cqw; top: 29cqw; font-size: 4.2cqw; }
+  .v2 .stats { left: 4cqw; right: 4cqw; bottom: 42cqw; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(5,8,15,.78); box-shadow: inset 0 1.2px 0 var(--n); }
+  .v2 .st { flex-direction: column-reverse; align-items: center; gap: 1cqw; padding: 2.4cqw 0 2cqw; }
+  .v2 .st + .st { box-shadow: inset 1px 0 0 rgba(255,255,255,.1); }
+  .v2 .st dt { font-size: 3.8cqw; } .v2 .st dd { font-size: 8cqw; }
+  .v2 .syn { right: 4cqw; top: 5cqw; }
+  .v2 .ochips { left: 5cqw; right: 5cqw; bottom: 70cqw; }
+  .v2 .note { left: 5cqw; right: 5cqw; bottom: 63.5cqw; font-size: 4cqw; }
+  .v2 .pos { left: 6cqw; right: 6cqw; bottom: 34cqw; } .v2 .pos em { font-size: 4.4cqw; } .v2 .pos span { font-size: 4.6cqw; } .v2 .pos .tg b { font-size: 3.6cqw; }
+  .v2 .rule { left: 6cqw; right: 6cqw; bottom: 31cqw; }
+  .v2 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; }
+  .v2 .cp { right: 6cqw; bottom: 7.5cqw; } .v2 .cp small { font-size: 3.8cqw; } .v2 .cp b { font-size: 12cqw; }
+  .v2 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+
+  /* ════ V3 · 막대 그래프 패널 ════ */
+  .v3 .ov { left: 6cqw; top: 6cqw; font-size: 24cqw; }
+  .v3 .meta { left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; }
+  .v3 .stats { left: 5cqw; top: 35cqw; width: 42cqw; padding: 2.4cqw 3cqw 1cqw; background: rgba(5,8,15,.66); backdrop-filter: blur(3px); }
+  .v3 .st { flex-wrap: wrap; padding-bottom: 1.6cqw; } .v3 .st dt { font-size: 4cqw; } .v3 .st dd { font-size: 6cqw; }
+  .v3 .st .bar { display: block; flex-basis: 100%; height: 1.2cqw; margin-top: .8cqw; background: rgba(255,255,255,.12); }
+  .v3 .st .bar i { display: block; height: 100%; background: var(--n); box-shadow: 0 0 4px color-mix(in srgb, var(--n) 60%, transparent); }
+  .v3 .syn { right: 4cqw; top: 5cqw; }
+  .v3 .ochips { left: 6cqw; right: 6cqw; bottom: 50cqw; }
+  .v3 .note { left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; }
+  .v3 .pos { left: 6cqw; right: 6cqw; bottom: 35.5cqw; } .v3 .pos em { font-size: 4.4cqw; } .v3 .pos span { font-size: 4.6cqw; } .v3 .pos .tg b { font-size: 3.6cqw; }
+  .v3 .rule { left: 6cqw; right: 6cqw; bottom: 32.5cqw; }
+  .v3 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; }
+  .v3 .cp { right: 6cqw; bottom: 7.5cqw; } .v3 .cp small { font-size: 3.8cqw; } .v3 .cp b { font-size: 12cqw; }
+  .v3 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+
+  /* ════ V4 · 오른쪽 스탯 기둥 ════ */
+  .v4 .sh { background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 46%, rgba(5,8,15,.9) 70%, #05080f 100%), linear-gradient(270deg, rgba(5,8,15,.8) 0, rgba(5,8,15,0) 34%); }
+  .v4 .ov { left: 6cqw; top: 6cqw; font-size: 25cqw; }
+  .v4 .meta { left: 6.5cqw; top: 29cqw; font-size: 4.2cqw; }
+  .v4 .stats { right: 5cqw; top: 8cqw; width: 20cqw; }
+  .v4 .st { flex-direction: column-reverse; align-items: flex-end; gap: .6cqw; padding: 2cqw 0; box-shadow: inset 0 -1px 0 rgba(255,255,255,.12); }
+  .v4 .st dt { font-size: 3.6cqw; letter-spacing: .05em; } .v4 .st dd { font-size: 9cqw; }
+  .v4 .syn { left: 6cqw; top: 36cqw; }
+  .v4 .ochips { left: 6cqw; right: 6cqw; bottom: 50cqw; }
+  .v4 .note { left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; }
+  .v4 .pos { left: 6cqw; right: 6cqw; bottom: 35.5cqw; } .v4 .pos em { font-size: 4.4cqw; } .v4 .pos span { font-size: 4.6cqw; } .v4 .pos .tg b { font-size: 3.6cqw; }
+  .v4 .rule { left: 6cqw; right: 6cqw; bottom: 32.5cqw; }
+  .v4 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; }
+  .v4 .cp { right: 6cqw; bottom: 7.5cqw; } .v4 .cp small { font-size: 3.8cqw; } .v4 .cp b { font-size: 12cqw; }
+  .v4 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+
+  /* ════ V5 · 마름모 레이더 ════ */
+  .v5 .ov { left: 6cqw; top: 6cqw; font-size: 24cqw; }
+  .v5 .meta { left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; }
+  .v5 .stats { display: none; }
+  .v5 .radar { display: block; position: absolute; left: 2cqw; top: 38cqw; width: 50cqw; height: 50cqw; overflow: visible; }
+  .v5 .radar text { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .v5 .syn { right: 4cqw; top: 5cqw; }
+  .v5 .ochips { left: 6cqw; right: 6cqw; bottom: 50cqw; }
+  .v5 .note { left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; }
+  .v5 .pos { left: 6cqw; right: 6cqw; bottom: 35.5cqw; } .v5 .pos em { font-size: 4.4cqw; } .v5 .pos span { font-size: 4.6cqw; } .v5 .pos .tg b { font-size: 3.6cqw; }
+  .v5 .rule { left: 6cqw; right: 6cqw; bottom: 32.5cqw; }
+  .v5 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; }
+  .v5 .cp { right: 6cqw; bottom: 7.5cqw; } .v5 .cp small { font-size: 3.8cqw; } .v5 .cp b { font-size: 12cqw; }
+  .v5 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+
+  /* ════ V6 · 중계 자막형 ════ */
+  .v6 .ov { left: 6cqw; top: 6cqw; font-size: 25cqw; }
+  .v6 .meta { left: 6.5cqw; top: 29cqw; font-size: 4.2cqw; }
+  .v6 .lt { position: absolute; left: 0; right: 0; bottom: 5cqw; height: 29cqw; background: linear-gradient(90deg, #0d1624 0, #111c2d 70%, rgba(17,28,45,.85) 100%); box-shadow: inset 1.6cqw 0 0 var(--n), inset 0 1px 0 rgba(255,255,255,.08); }
+  .v6 .stats { left: 5cqw; right: 5cqw; bottom: 37cqw; display: flex; gap: 1.2cqw; }
+  .v6 .st { flex: 1; justify-content: center; gap: 1.2cqw; padding: 1.4cqw 0; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .v6 .st dt { font-size: 3.4cqw; } .v6 .st dd { font-size: 5.6cqw; }
+  .v6 .syn { right: 4cqw; top: 5cqw; }
+  .v6 .ochips { left: 5cqw; right: 5cqw; bottom: 53cqw; }
+  .v6 .note { left: 5cqw; right: 5cqw; bottom: 46.5cqw; font-size: 4cqw; }
+  .v6 .pos { left: 7cqw; right: 6cqw; bottom: 25cqw; } .v6 .pos em { font-size: 4.2cqw; } .v6 .pos span { font-size: 4.4cqw; } .v6 .pos .tg b { font-size: 3.4cqw; }
+  .v6 .rule { display: none; }
+  .v6 .nm { left: 7cqw; right: 28cqw; bottom: 9cqw; font-size: 13cqw; }
+  .v6 .cp { right: 0; bottom: 5cqw; height: 29cqw; width: 24cqw; padding: 0 5cqw 4cqw 0; display: flex; flex-direction: column; justify-content: flex-end; background: var(--n); clip-path: polygon(30% 0,100% 0,100% 100%,0 100%); }
+  .v6 .cp small { font-size: 3.6cqw; color: rgba(5,8,15,.7); } .v6 .cp b { font-size: 11cqw; color: #05080f; text-shadow: none; }
+  .v6 .slot { right: 0; bottom: 5cqw; height: 29cqw; display: flex; align-items: flex-end; padding: 0 4cqw 5cqw 8cqw; font-size: 4.4cqw; clip-path: polygon(30% 0,100% 0,100% 100%,0 100%); }
+
+  /* ════ V7 · 위 그림 / 아래 정보판 ════ */
+  .v7 img.art { height: 64%; }
+  .v7 .sh { background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 26%, rgba(5,8,15,0) 48%, rgba(5,8,15,.95) 64%, #070b14 64.2%); }
+  .v7 .base { position: absolute; left: 0; right: 0; top: 64%; bottom: 0; background: #070b14; box-shadow: inset 0 1px 0 color-mix(in srgb, var(--n) 60%, transparent); }
+  .v7 .ov { left: 6cqw; top: 6cqw; font-size: 24cqw; }
+  .v7 .meta { left: 6.5cqw; top: 28cqw; font-size: 4.2cqw; }
+  .v7 .syn { right: 4cqw; top: 5cqw; }
+  .v7 .ochips { left: 5cqw; right: 5cqw; top: 84cqw; }
+  .v7 .note { left: 6cqw; right: 6cqw; top: 78cqw; font-size: 4cqw; }
+  .v7 .pos { left: 6cqw; right: 48cqw; top: 100cqw; } .v7 .pos em { font-size: 4.2cqw; } .v7 .pos span { font-size: 4cqw; } .v7 .pos .tg { display: none; }
+  .v7 .nm { left: 6cqw; right: 48cqw; top: 107cqw; font-size: 12.5cqw; }
+  .v7 .rule { left: 6cqw; right: 48cqw; top: 123cqw; }
+  .v7 .tg2 { position: absolute; left: 6cqw; top: 127cqw; display: flex; gap: 1cqw; }
+  .v7 .tg2 b { padding: .7cqw 1.6cqw; font-size: 3.4cqw; font-weight: 700; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.45); }
+  .v7 .stats { right: 6cqw; top: 99cqw; width: 38cqw; display: grid; grid-template-columns: 1fr 1fr; gap: 1.4cqw; }
+  .v7 .st { flex-direction: column-reverse; align-items: flex-start; gap: .8cqw; padding: 1.6cqw 2.2cqw; background: rgba(255,255,255,.05); }
+  .v7 .st dt { font-size: 3.4cqw; } .v7 .st dd { font-size: 7cqw; }
+  .v7 .cp { right: 6cqw; bottom: 5cqw; display: flex; align-items: baseline; gap: 1.2cqw; } .v7 .cp small { font-size: 3.6cqw; } .v7 .cp b { font-size: 8cqw; }
+  .v7 .slot { right: 6cqw; bottom: 5.5cqw; font-size: 4cqw; }
+
+  /* ════ V8 · 미니멀 텍스트 ════ */
+  .v8 .ov { left: 6cqw; top: 6cqw; font-size: 27cqw; }
+  .v8 .meta { left: 6.5cqw; top: 31cqw; font-size: 4.2cqw; }
+  .v8 .stats { left: 6cqw; top: 38cqw; display: grid; grid-template-columns: auto auto; column-gap: 4cqw; row-gap: 1.6cqw; }
+  .v8 .st { justify-content: flex-start; gap: 1.4cqw; } .v8 .st dt { font-size: 4cqw; color: #9ca3af; } .v8 .st dd { font-size: 6.4cqw; text-shadow: 0 1px 4px #000; }
+  .v8 .syn { right: 4cqw; top: 5cqw; }
+  .v8 .ochips { left: 6cqw; right: 6cqw; bottom: 50cqw; }
+  .v8 .note { left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; }
+  .v8 .pos { left: 6cqw; right: 6cqw; bottom: 35.5cqw; } .v8 .pos em { font-size: 4.4cqw; } .v8 .pos span { font-size: 4.6cqw; } .v8 .pos .tg b { font-size: 3.6cqw; }
+  .v8 .rule { left: 6cqw; right: 6cqw; bottom: 32.5cqw; }
+  .v8 .nm { left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 15cqw; }
+  .v8 .cp { right: 6cqw; bottom: 7.5cqw; } .v8 .cp small { font-size: 3.8cqw; } .v8 .cp b { font-size: 12cqw; }
+  .v8 .slot { right: 6cqw; bottom: 9cqw; font-size: 4.4cqw; }
+</style>
+</head>
+<body>
+<div class="top"><b>PICK 카드 리뉴얼 목업 8종</b><span>변형마다 같은 네 장: ① 90+ 국가대표 ② 외국인 + 시너지 칸 ③ 살 수 없음 ④ 내 라인업 선수(시너지 상승·제자리 밖·자리 이름) — 기존 카드 내용(종합·포지션·연도/구단/투타·능력치 4개·노트·이름·국대/외인·영입가·잠금·보유 표시) 모두 포함</span>
+  <div class="g"><button data-s="lg" class="on">크게 (250px)</button><button data-s="sm">작게 (200px)</button></div></div>
+<div class="wrap" id="wrap"></div>
+<script type="module">
+const M = await import('/src/KboAugmentDraft.jsx');
+const POS_FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const POS_LABEL = { SP: '선발투수', RP: '불펜투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
+const STAT = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', stability: '안정' };
+const TEAM_NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', KT: '#e5e7eb', LG: '#ff5c95', 현대: '#6f97ff' };
+const hand = (p) => (p.hand === 'S' ? '양타' : p.type === 'batter' ? `${p.hand === 'L' ? '좌' : '우'}타` : `${p.hand === 'L' ? '좌' : '우'}투`);
+const LINK = '<svg viewBox="0 0 20 20"><path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-1 1"/><path d="M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l1-1"/></svg>';
+const LOCK = '<svg viewBox="0 0 20 20"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/></svg>';
+
+// 네 장의 예시 선수 (실제 데이터)
+const all = M.ALL_PLAYERS;
+const byNote = (f) => all.filter(f).sort((a, b) => (b.note ? 1 : 0) - (a.note ? 1 : 0) || b.overall - a.overall)[0];
+const nat90 = byNote((p) => p.isNational && p.overall >= 90) || byNote((p) => p.overall >= 90);
+const foreign = byNote((p) => p.isForeign && p.overall >= 75 && p.overall < 90);
+const locked = byNote((p) => p.overall < 75 && p.type === 'pitcher');
+const ownedBase = byNote((p) => p.position === 'SS' && p.overall >= 75 && p.overall < 90);
+const keys = (p) => (p.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability']);
+const CARDS = [
+  { label: '① 90+ · 국가대표', p: nat90 },
+  { label: '② 외국인 · 시너지 칸', p: foreign, syn: { name: '용병 트리오', on: 1, nx: 1, total: 2 } },
+  { label: '③ 살 수 없음', p: locked, lock: '투수 마감' },
+  { label: '④ 내 라인업 (2루수로 기용)', p: ownedBase, owned: { slot: '2루수', off: '유격수', diff: { power: 2, contact: 2, speed: -3, defense: -3 }, ovDiff: -3, syns: ['베이징 9전 전승', '국민 테이블세터'] } },
+];
+
+function card(c, v) {
+  const p = c.p;
+  const tier = p.overall + (c.owned?.ovDiff || 0) >= 90 ? 't90' : p.overall + (c.owned?.ovDiff || 0) >= 75 ? 't75' : '';
+  const ks = keys(p);
+  const val = (k) => p.stats[k] + (c.owned?.diff?.[k] || 0);
+  const stats = ks.map((k) => {
+    const d = c.owned?.diff?.[k] || 0;
+    return `<div class="st"><dt>${STAT[k]}</dt><dd class="${val(k) >= 90 ? 'hi' : ''}">${val(k)}${d ? `<em class="${d > 0 ? 'up' : 'dn'}">${d > 0 ? '+' + d : '−' + -d}</em>` : ''}</dd><b class="bar"><i style="width:${val(k)}%"></i></b></div>`;
+  }).join('');
+  // 마름모 레이더 (위·오른쪽·아래·왼쪽)
+  const R = 17, cx = 25, cy = 25;
+  const pts = ks.map((k, i) => { const r = R * val(k) / 100; const a = -Math.PI / 2 + i * Math.PI / 2; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+  const lab = ks.map((k, i) => { const a = -Math.PI / 2 + i * Math.PI / 2; const x = cx + (R + 5.2) * Math.cos(a), y = cy + (R + 5.2) * Math.sin(a) + 1; const d = c.owned?.diff?.[k] || 0; return `<text x="${x}" y="${y - 1.6}" text-anchor="middle" font-size="2.6" fill="#9ca3af">${STAT[k]}</text><text x="${x}" y="${y + 2.4}" text-anchor="middle" font-size="4.2" font-weight="700" fill="${val(k) >= 90 ? 'var(--n)' : '#f3f4f6'}">${val(k)}${d ? `<tspan font-size="2.6" fill="${d > 0 ? '#34d399' : '#fbbf24'}">${d > 0 ? '+' + d : '−' + -d}</tspan>` : ''}</text>`; }).join('');
+  const radar = `<svg class="radar" viewBox="0 0 50 50">${[1, .66, .33].map((s) => `<polygon points="${[0, 1, 2, 3].map((i) => { const a = -Math.PI / 2 + i * Math.PI / 2; return `${cx + R * s * Math.cos(a)},${cy + R * s * Math.sin(a)}`; }).join(' ')}" fill="${s === 1 ? 'rgba(5,8,15,.55)' : 'none'}" stroke="rgba(255,255,255,.18)" stroke-width=".3"/>`).join('')}<polygon points="${pts.map((q) => q.join(',')).join(' ')}" fill="color-mix(in srgb, var(--n) 35%, transparent)" stroke="var(--n)" stroke-width=".6"/>${lab}</svg>`;
+  const tags = [p.isNational && '국대', p.isForeign && '외인'].filter(Boolean).map((t) => `<b>${t}</b>`).join('');
+  const syn = c.syn ? `<span class="syn">${LINK}${Array.from({ length: c.syn.total }, (_, i) => `<i class="${i < c.syn.on ? 'on' : i < c.syn.on + c.syn.nx ? 'nx' : ''}"></i>`).join('')}<b>${c.syn.name}</b></span>` : '';
+  const ochips = c.owned ? `<div class="ochips">${c.owned.syns.map((s) => `<span class="sy">▲ ${s}</span>`).join('')}<span class="off">원래 ${c.owned.off}</span></div>` : '';
+  const ov = p.overall + (c.owned?.ovDiff || 0);
+  const ovDiff = c.owned?.ovDiff ? `<em style="font-size:.32em;margin-left:1cqw;vertical-align:top;-webkit-text-fill-color:${c.owned.ovDiff > 0 ? '#34d399' : '#fbbf24'};color:${c.owned.ovDiff > 0 ? '#34d399' : '#fbbf24'}">${c.owned.ovDiff > 0 ? '+' : '−'}${Math.abs(c.owned.ovDiff)}</em>` : '';
+  const fs = p.position === 'DH' ? 'style="font-size:4cqw"' : p.position === 'SP' ? 'style="font-size:4.4cqw"' : '';
+  return `<div class="pc ${tier} ${c.lock ? 'lock' : ''}" style="--n:${TEAM_NEON[p.team] || '#10b981'}"><div class="in">
+    <img class="art" src="/cards/${encodeURIComponent(p.id)}.webp" alt="" /><span class="sh"></span>${v === 7 ? '<span class="base"></span>' : ''}${v === 6 ? '<span class="lt"></span>' : ''}<span class="tb"></span>
+    <span class="ov">${ov}${ovDiff}</span>
+    <span class="meta">${p.year} · ${p.team} · ${hand(p)}</span>
+    <dl class="stats">${stats}</dl>${radar}
+    ${syn}${ochips}
+    ${p.note ? `<span class="note">${p.note}</span>` : ''}
+    <span class="pos"><em>${c.owned ? c.owned.slot === '2루수' ? '2B' : p.position : p.position}</em><span ${fs}>${c.owned ? 'SECOND BASE' : POS_FULL[p.position]}</span>${v === 7 ? '' : `<span class="tg">${tags}</span>`}</span>
+    ${v === 7 ? `<span class="tg2">${tags}</span>` : ''}
+    <span class="rule"></span>
+    <h3 class="nm">${p.name}</h3>
+    ${c.owned ? `<span class="slot">${c.owned.slot}</span>` : `<span class="cp"><small>CP</small><b>${p.cost}</b></span>`}
+  </div><span class="fr"></span>${c.lock ? `<span class="lk">${LOCK}${c.lock}</span>` : ''}</div>`;
+}
+const V = [
+  ['선반 카드 확대형', '선반 카드 배치를 그대로 키움 · 왼쪽 위 종합 → 연도·구단·투타 → 능력치 판 · 아래는 노트 → 포지션 칩+영문(+국대/외인) → 구분선 → 이름 · CP/숫자'],
+  ['능력치 가로 띠', '능력치 4개를 포지션 줄 위 가로 띠로(숫자 크게, 이름 작게) — 그림 가운데가 가장 넓게 보임'],
+  ['막대 그래프 판', '왼쪽 유리 판에 능력치 숫자 + 팀 색 막대 — 강점·약점이 한눈에'],
+  ['오른쪽 능력치 기둥', '오른쪽 가장자리를 따라 능력치를 세로로 쌓음 · 시너지 칸은 왼쪽 메타 아래'],
+  ['마름모 레이더', '능력치 4개를 마름모 레이더로 — 투수·타자 유형이 모양으로 보임, 숫자는 꼭짓점에'],
+  ['중계 자막형', '아래를 중계 자막 판으로 묶고 오른쪽 끝에 사선 팀 색 코스트 · 능력치는 판 위 칩 네 개'],
+  ['위 그림 · 아래 정보판', '카드를 위(그림 64%) / 아래(정보판)로 나눈 트레이딩 카드형 · 능력치 2×2 · 글자가 그림에 겹치지 않아 가장 잘 읽힘'],
+  ['미니멀 텍스트', '판·막대 없이 글자만: 종합을 더 크게, 능력치는 두 줄 두 칸 “구위 88  제구 75”'],
+];
+let size = 'lg';
+function render() {
+  document.body.classList.toggle('sm', size === 'sm');
+  document.getElementById('wrap').innerHTML = V.map(([n, d], i) => `
+    <section class="v${i + 1}"><div class="vlab"><b><i class="disp">${i + 1}</i>${n}</b><span>${d}</span></div>
+    <div class="panel">${CARDS.map((c) => `<div class="cell"><small>${c.label} — ${c.p.name}</small>${card(c, i + 1)}</div>`).join('')}</div></section>`).join('');
+}
+document.querySelectorAll('.top [data-s]').forEach((b) => b.onclick = () => { size = b.dataset.s; document.querySelectorAll('.top [data-s]').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+render();
+window.__cards = CARDS.map((c) => `${c.p.name} ${c.p.position} ${c.p.overall} nat:${!!c.p.isNational} for:${!!c.p.isForeign} note:${c.p.note || ''}`);
+</script>
+</body>
+</html>

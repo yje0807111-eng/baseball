@@ -84,13 +84,28 @@ export const defenseOf = (g) => (g.top ? g.home : g.away);
 export const batterOf = (g) => { const o = offenseOf(g); return o.team.batters[o.idx % o.team.batters.length]; };
 export const pitcherOf = (g) => defenseOf(g).pitcher;
 
-/** 중요한 순간: 7회 이후 2점 차 이내에서 득점권 주자 또는 만루 · 9회 이후 동점/1점 차는 무조건 */
-export function isClutch(g) {
-  const diff = g.home.runs - g.away.runs;
-  const close = Math.abs(diff) <= 2;
-  const risp = g.bases[1] || g.bases[2];
-  return g.inning >= 7 && close && (risp || (g.inning >= 9 && Math.abs(diff) <= 1));
+/* 주자 · 아웃 → 이 타석이 점수로 이어질 무게 (실제 득점 기대값 표를 거칠게 따온 값) */
+const BASE_WEIGHT = {
+  '000': [0.30, 0.20, 0.12], '100': [0.52, 0.38, 0.22], '010': [0.66, 0.50, 0.30], '001': [0.78, 0.66, 0.40],
+  '110': [0.82, 0.62, 0.38], '101': [0.88, 0.72, 0.44], '011': [0.94, 0.80, 0.50], '111': [1.00, 0.88, 0.56],
+};
+/**
+ * 승부처 무게 0~1 — 늦은 이닝일수록 · 점수가 붙어 있을수록 · 주자가 쌓일수록 높다.
+ * 1회는 남은 기회가 여덟 번이라 만루여도 승부처가 아니다.
+ */
+export function leverage(g) {
+  const key = g.bases.map((b) => (b ? 1 : 0)).join('');
+  const base = (BASE_WEIGHT[key] || BASE_WEIGHT['000'])[Math.min(2, g.outs)];
+  const late = Math.min(1, (Math.min(g.inning, 9) - 1) / 8);
+  const inningW = 0.18 + 0.82 * late ** 1.6;
+  const closeW = Math.max(0.12, 1 - Math.abs(g.home.runs - g.away.runs) / 5);
+  return base * inningW * closeW;
 }
+/** 멈추고 물을 만한 자리 — 80경기를 돌려 경기당 두어 번 걸리게 맞춘 문턱 */
+export const CLUTCH_MARK = 0.15;
+/** 감독이 손댈 수 있는 횟수 — 승부처는 더 자주 오지만 이만큼만 쓴다 */
+export const CLUTCH_LIMIT = 3;
+export const isClutch = (g) => leverage(g) >= CLUTCH_MARK;
 
 /** 도루 성공 확률: 주자 스피드 vs 포수 수비 */
 export function stealOdds(g, from) {
@@ -110,20 +125,23 @@ function choosePitch(g, pitcher, order) {
   const r = g.rng();
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
+  /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
+  const picked = order?.pitchType ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
   const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
   if (order?.zone === 'chase') inZone = Math.min(inZone, 0.25);
-  if (typeof order?.zone === 'number') { inZone = clamp(inZone + 0.1, 0, 0.9); zone = order.zone; }
+  /* 코스를 찍으면 존 구석을 노린다 — 들어갈 확률은 조금 오르지만 맞히기는 어렵다 */
+  if (typeof order?.zone === 'number') { inZone = clamp(inZone + 0.06, 0, 0.9); zone = order.zone; }
   const isIn = g.rng() < inZone;
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
   const [lo, hi] = PITCHES[type].speed;
   /* 구위 60 이면 그 구종의 가장 느린 쪽, 105 면 가장 빠른 쪽 — 능력치 눈금(50~110)에 맞춘 폭 */
   const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
-  return { type, zone, inZone: isIn, velo, tired };
+  return { type, zone, inZone: isIn, velo, tired, picked, corner: typeof order?.zone === 'number' };
 }
 
 function advance(g, n, batter, extra = {}) {
@@ -239,8 +257,10 @@ export function pitch(g, orders = {}) {
 
   const contact = st(batter, 'contact') + tb(off, 'bat');
   const power = st(batter, 'power') + tb(off, 'bat');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
-  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.1 : -0.08) : 0;
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
+  /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
+  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
+  const cornerPen = p.corner ? 0.07 : 0; // 구석에 꽂힌 공은 맞히기 어렵다
 
   // 스윙 여부
   let swing;
@@ -252,7 +272,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus); }

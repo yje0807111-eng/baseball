@@ -1,0 +1,540 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>드래프트 묶음 레이아웃 16안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;700;800&display=swap">
+<style>
+/* 게임 화면과 같은 어두운 세계 하나로 고정 (라이트 테마 없음 — 의도) */
+:root{
+  --page:#0a0e15; --bg:#111827; --ink:#05080f; --line:#1f2937; --line2:#2b3647;
+  --mute:#8791a3; --dim:#5b6577; --text:#e8ecf2; --em:#10b981; --em2:#34d399; --sky:#38bdf8; --warn:#fbbf24; --hh:#ff8a3d;
+  --grass:#10231a; --dirt:#2a2119; --k:.62;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --disp:"Saira Condensed","IBM Plex Sans KR","Malgun Gothic",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+
+/* ───── 문서 껍데기 ───── */
+.doc{max-width:1500px;margin:0 auto;padding:40px 28px 80px}
+.intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;border-bottom:1px solid var(--line2);padding-bottom:24px}
+.intro small{font:600 12px var(--disp);letter-spacing:.32em;color:var(--dim);text-transform:uppercase}
+.intro h1{margin:6px 0 8px;font:800 44px/1 var(--disp);text-wrap:balance}
+.intro h1 span{color:var(--em)}
+.intro p{margin:0;max-width:72ch;color:var(--mute)}
+.jump{display:grid;grid-template-columns:repeat(4,auto);gap:6px;justify-content:end}
+.jump a{display:flex;gap:6px;align-items:baseline;padding:4px 9px;border:1px solid var(--line2);color:var(--text);text-decoration:none;font-size:12px;white-space:nowrap}
+.jump a b{font:700 14px var(--disp);color:var(--em)}
+.jump a:hover{border-color:var(--em)}
+.opt{padding-top:52px;scroll-margin-top:8px}
+.opt-h{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 18px;align-items:center;margin-bottom:12px}
+.opt-no{font:800 52px/.8 var(--disp);color:var(--em)}
+.opt-h h2{margin:0;font:700 22px/1.2 var(--sans)}
+.opt-h p{margin:2px 0 0;color:var(--mute)}
+.tags{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end;max-width:420px}
+.tags i{font-style:normal;font-size:11px;padding:1px 7px;border:1px solid var(--line2);color:var(--mute)}
+.stage{position:relative;width:100%;aspect-ratio:1440/900;overflow:hidden;border:1px solid var(--line2);background:var(--bg)}
+.screen{position:absolute;left:0;top:0;width:1440px;height:900px;transform:scale(var(--k));transform-origin:0 0;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+
+/* ───── 상단 대시보드 ───── */
+.hd{height:56px;flex:none;display:flex;align-items:center;gap:32px;padding:0 24px;border-bottom:1px solid var(--line)}
+.brand{line-height:1}
+.brand small{display:block;font:600 10px var(--disp);letter-spacing:.35em;color:var(--dim)}
+.brand b{display:block;margin-top:3px;font-size:15px}
+.rd{display:flex;align-items:baseline;gap:6px}
+.rd small{font:600 11px var(--disp);letter-spacing:.25em;color:var(--dim)}
+.rd b{font:700 30px/1 var(--disp)}
+.rd i{font:600 15px var(--disp);font-style:normal;color:var(--dim)}
+.cap{flex:1}
+.cap-t{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:600;color:#9ca3af}
+.cap-t b{font:700 19px var(--disp);color:var(--em)}
+.cap-t em{font:500 13px var(--disp);font-style:normal;color:var(--dim)}
+.bar{height:7px;margin-top:3px;background:#1f2937;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:64%;background:var(--em);border-radius:99px}
+.rules{display:flex;align-items:center;gap:7px;padding:6px 11px;border:1px solid #4b5563;background:#1f2937;border-radius:7px;font-size:13px;font-weight:700}
+.rules span{display:grid;place-items:center;width:18px;height:18px;border:1px solid #6b7280;border-radius:50%;font:700 11px/1 var(--disp)}
+
+/* ───── 몸통 · 묶음 공통 ───── */
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:14px 24px 16px}
+.bottom{flex:1;min-height:0;display:flex;gap:12px}
+.bottom.rev{flex-direction:row-reverse}
+.grp{position:relative;border:1px solid var(--line);background:rgba(31,41,55,.38);border-radius:10px;padding:8px}
+.gl{display:none;font:700 11px var(--disp);letter-spacing:.24em;color:var(--dim);text-transform:uppercase}
+
+/* 시리즈 묶음 */
+.sp-head{display:flex;align-items:center;gap:10px;padding:0 4px 8px}
+.kind{padding:0 6px;border:1px solid rgba(16,185,129,.5);background:rgba(16,185,129,.1);color:var(--em);font-size:11px;font-weight:700;border-radius:3px;line-height:18px}
+.yr{font:700 20px/1 var(--disp);color:var(--em)}
+.sp-head h3{margin:0;font-size:16px;font-weight:800;line-height:1}
+.sub{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.avail{margin-left:auto;font:500 12px var(--disp);color:var(--mute);white-space:nowrap}
+.avail b{font-size:15px;color:var(--text)}
+.reroll{padding:4px 10px;border:1px solid #4b5563;background:#1f2937;border-radius:6px;font-size:12px;font-weight:700;white-space:nowrap}
+.reroll em{font:600 13px var(--disp);font-style:normal;color:var(--mute);margin-left:3px}
+.cards{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:6px}
+.sp.side{display:flex;gap:12px;align-items:stretch}
+.sp.side .sp-head{flex:none;width:176px;flex-direction:column;align-items:flex-start;gap:6px;padding:4px 4px 4px 6px;border-right:1px solid var(--line)}
+.sp.side .sp-head .yr{font-size:34px}
+.sp.side .sp-head h3{font-size:19px}
+.sp.side .sp-head .sub{white-space:normal;line-height:1.35}
+.sp.side .sp-head .avail{margin:auto 0 0}
+.sp.side .cards{flex:1;min-width:0;align-content:center}
+.sp.sm .cards{grid-template-columns:repeat(14,76px);justify-content:start}
+.sp.sm .row{display:flex;gap:14px;align-items:stretch}
+.pickmini{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 14px;border-left:1px solid var(--line)}
+.pickmini small{font:600 11px var(--disp);letter-spacing:.2em;color:var(--dim)}
+.pickmini b{font-size:18px}
+.pickmini b em{font:700 22px var(--disp);font-style:normal;color:var(--hh);margin-right:6px}
+.pickmini span{font-size:12px;color:var(--mute)}
+
+/* 미니 카드 */
+.pc{--n:var(--hh);position:relative;display:block;width:100%;aspect-ratio:2/3;background:var(--ink);container-type:inline-size;overflow:hidden;
+  clip-path:polygon(10% 0,100% 0,100% 93.3%,90% 100%,0 100%,0 6.7%)}
+.pc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 18%}
+.pc::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(5,8,15,.55) 0,rgba(5,8,15,0) 30%,rgba(5,8,15,0) 52%,rgba(5,8,15,.86) 80%,#05080f 100%)}
+.pc::after{content:"";position:absolute;inset:2.5cqw;z-index:3;border:1px solid color-mix(in srgb,var(--n) 40%,transparent);clip-path:inherit}
+.pc>span{position:absolute;z-index:2}
+.pc .o{left:8cqw;top:6cqw;font:700 26cqw/.85 var(--disp);color:var(--n);text-shadow:0 1px 3px #000}
+.pc .p{left:8cqw;top:31cqw;font:700 8.5cqw/1 var(--disp);letter-spacing:.1em;color:#fff}
+.pc .nm{left:8cqw;right:8cqw;bottom:19cqw;font:700 14cqw/1 var(--sans);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px #000}
+.pc .f{left:8cqw;right:8cqw;bottom:6.5cqw;display:flex;justify-content:space-between;align-items:center}
+.pc .t{font:700 8cqw/1 var(--disp);color:rgba(255,255,255,.8)}
+.pc .c{padding:1.2cqw 3.4cqw;background:var(--n);color:var(--ink);font:700 10cqw/1 var(--disp)}
+.pc .hint{right:6cqw;top:6cqw;padding:1cqw 2.5cqw;background:var(--em);color:#062a1f;font:700 7.5cqw/1 var(--sans);border-radius:1px}
+.pc .lock{left:5cqw;right:5cqw;bottom:6cqw;padding:2cqw 0;text-align:center;background:rgba(5,8,15,.9);box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);font:600 8cqw/1 var(--sans);color:#e5e7eb}
+.pc.lk img{filter:grayscale(1);opacity:.38}
+.pc.lk .o,.pc.lk .nm{opacity:.5}
+.pc.sel{transform:translateY(-3px)}
+.pc.sel::after{inset:1.5cqw;border:2px solid var(--em)}
+
+/* 영입 묶음 */
+.pick{flex:none;display:flex;flex-direction:column;gap:8px}
+.pick.card{width:258px}
+.pick.compact{width:300px}
+.pf-card{flex:1;min-height:0;display:flex;justify-content:center}
+.bc{--n:var(--hh);position:relative;height:100%;aspect-ratio:2/3;max-width:100%;background:var(--ink);container-type:inline-size;overflow:hidden;
+  clip-path:polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%)}
+.bc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 20%}
+.bc::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(5,8,15,.5) 0,rgba(5,8,15,0) 28%,rgba(5,8,15,0) 50%,rgba(5,8,15,.84) 76%,#05080f 100%),linear-gradient(90deg,rgba(5,8,15,.55) 0,rgba(5,8,15,0) 48%)}
+.bc::after{content:"";position:absolute;inset:2cqw;z-index:3;border:1px solid color-mix(in srgb,var(--n) 45%,transparent);clip-path:inherit}
+.bc>div{position:absolute;z-index:2}
+.bc .tl{left:8cqw;top:8cqw;width:48%}
+.bc .o{font:700 22cqw/.85 var(--disp);color:var(--n)}
+.bc .pe{margin-top:1cqw;font:700 5.6cqw var(--disp);letter-spacing:.18em;text-transform:uppercase}
+.bc .mt{font:600 4.4cqw var(--disp);letter-spacing:.1em;color:rgba(255,255,255,.62);white-space:nowrap}
+.bc dl{margin:3cqw 0 0;padding:2.4cqw 3.4cqw;background:rgba(5,8,15,.6);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--n) 30%,transparent)}
+.bc dl div{display:flex;justify-content:space-between;align-items:baseline;padding:.6cqw 0}
+.bc dt{font-size:4.6cqw;font-weight:600;color:#d1d5db}
+.bc dd{margin:0;font:700 6.4cqw/1 var(--disp)}
+.bc dd.hi{color:var(--n)}
+.bc .bt{left:8cqw;right:8cqw;bottom:7cqw}
+.bc .nt{font-size:4.6cqw;color:#e5e7eb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bc h4{margin:0;font:700 13cqw/1 var(--sans);text-shadow:0 2px 6px #000}
+.bc .ln{height:1px;margin:3.5cqw 0 3cqw;background:linear-gradient(90deg,var(--n),transparent)}
+.bc .ft{display:flex;justify-content:space-between;align-items:center}
+.bc .ft i{font:700 4.6cqw var(--disp);font-style:normal;padding:.8cqw 2.4cqw;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--n) 50%,transparent)}
+.bc .ft b{padding:1.2cqw 3.4cqw;background:var(--n);color:var(--ink);font:700 7.4cqw/1 var(--disp)}
+.buy{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;height:42px;border:0;border-radius:7px;background:var(--em);color:#062a1f;font-weight:800;font-size:14px}
+.buy em{font:700 16px var(--disp);font-style:normal}
+.note{flex:none;font-size:11px;color:var(--mute);text-align:center}
+.pfc{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.pfc-top{display:grid;grid-template-columns:112px minmax(0,1fr);gap:12px}
+.pfc-ph{height:150px;border-radius:6px;background-color:var(--ink);background-size:250% auto;background-position:62% 12%;background-repeat:no-repeat;box-shadow:inset 0 0 0 1px rgba(255,138,61,.45)}
+.pfc-id .o{font:700 44px/.9 var(--disp);color:var(--hh)}
+.pfc-id h4{margin:4px 0 0;font-size:24px;line-height:1.1}
+.pfc-id small{display:block;margin-top:4px;font:600 12px var(--disp);letter-spacing:.1em;color:var(--mute)}
+.pfc-id p{margin:6px 0 0;font-size:12px;color:#cbd5e1}
+.bars{display:grid;gap:7px;padding:10px 12px;background:rgba(5,8,15,.45);border-radius:6px}
+.sb{display:grid;grid-template-columns:34px minmax(0,1fr) 26px;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+.sb span{height:6px;background:#1f2937;border-radius:99px;overflow:hidden}
+.sb span i{display:block;height:100%;background:#9ca3af;border-radius:99px}
+.sb span i.hi{background:var(--hh)}
+.sb b{font:700 15px var(--disp);color:var(--text);text-align:right}
+.sb b.hi{color:var(--hh)}
+.fitline{margin-top:auto;display:flex;justify-content:space-between;font-size:12px;color:var(--mute);padding:0 2px}
+.fitline b{color:var(--em)}
+
+/* 구장 + 시너지 묶음 */
+.map{flex:1;min-width:0;display:flex;gap:8px}
+.map.below{flex-direction:column}
+.map.left{flex-direction:row-reverse}
+.mapcol{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
+.maphead{flex:none;display:flex;align-items:center;gap:12px;padding:2px 6px 0}
+.maphead b{font-size:13px}
+.maphead span{font:500 12px var(--disp);color:var(--mute)}
+.maphead em{margin-left:auto;font:600 12px var(--disp);font-style:normal;color:var(--mute)}
+.fbox{position:relative;flex:1;min-height:0;border-radius:7px;background:#0b140f;overflow:hidden}
+.fin{position:absolute;left:0;top:0;width:900px;height:580px;transform-origin:0 0}
+.fin>svg{position:absolute;inset:0}
+.fhint{position:absolute;left:10px;top:8px;z-index:5;padding:1px 7px;background:rgba(5,8,15,.7);font-size:11px;color:#cbd5e1;border-radius:3px}
+
+/* 필드 토큰 (중계 자막 스타일) */
+.tk{position:absolute;width:168px;height:84px;transform:translate(-50%,-50%)}
+.tk .bp{position:absolute;left:2px;bottom:10px;width:62px;height:82px;z-index:2;background-size:260% auto;background-position:50% 14%;background-repeat:no-repeat;-webkit-mask-image:linear-gradient(#000 72%,transparent);mask-image:linear-gradient(#000 72%,transparent)}
+.tk .bp svg{position:absolute;inset:0;width:100%;height:100%;fill:#26324a}
+.tk .br{position:absolute;left:14px;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 10px 0 54px;background:linear-gradient(90deg,#0f1724,#1a2436);box-shadow:inset 4px 0 0 var(--n),0 6px 14px rgba(0,0,0,.5);transform:skewX(-10deg)}
+.tk .br>*{transform:skewX(10deg)}
+.tk .bx{min-width:0;flex:1;line-height:1.15}
+.tk small{display:block;font:600 10px var(--disp);letter-spacing:.05em;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk em{font:700 22px/1 var(--disp);font-style:normal;color:var(--n)}
+.tk.empty .br{background:rgba(12,18,28,.85);box-shadow:inset 4px 0 0 #3b4656}
+.tk.empty strong{color:var(--dim);font-weight:500}
+.tk.off small{color:var(--warn)}
+.tk.boost em{color:var(--em2)}
+.rot{position:absolute;left:450px;top:365px;width:196px;transform:translate(-50%,-50%);background:linear-gradient(180deg,#141d2b,#0b111b);box-shadow:0 8px 18px rgba(0,0,0,.5),inset 0 2px 0 #cbd5e1}
+.rot .rh{display:flex;justify-content:space-between;padding:6px 10px;font:700 12px var(--disp);letter-spacing:.14em;color:#cbd5e1;border-bottom:1px solid #243044}
+.rr{position:relative;display:grid;grid-template-columns:12px 34px minmax(0,1fr) auto;align-items:end;gap:8px;height:46px;padding:0 10px;border-bottom:1px solid #1a2333;box-shadow:inset 3px 0 0 var(--n)}
+.rr .rn{align-self:center;font:700 13px var(--disp);color:var(--mute)}
+.rr .rb{position:relative;display:block;width:34px;height:42px;overflow:hidden;background-size:260% auto;background-position:50% 14%;background-repeat:no-repeat}
+.rr .rb svg{position:absolute;inset:0;width:100%;height:100%;fill:#26324a}
+.rr b{align-self:center;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.rr b small{display:block;font:600 10px var(--disp)}
+.rr em{align-self:center;font:700 20px var(--disp);font-style:normal;color:var(--n)}
+.rr.empty b{color:var(--dim);font-weight:500}
+.rr.ghost{background:rgba(16,185,129,.12)}
+.rr.ghost small{color:var(--em)}
+.rr.off small{color:var(--warn)}
+
+/* 시너지 패널 */
+.syn{flex:none;min-height:0;display:flex;flex-direction:column;border-radius:7px;background:rgba(17,24,39,.72);padding:10px}
+.syn-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.syn-h b{font-size:13px}
+.syn-h b span{font:600 13px var(--disp);color:var(--mute);margin-left:4px}
+.syn-h a{font-size:12px;font-weight:700;color:var(--em)}
+.tabs{display:flex;gap:4px;margin-bottom:8px}
+.tabs i{flex:1;font-style:normal;text-align:center;padding:4px 0;font-size:12px;font-weight:700;border-radius:5px;color:var(--mute);background:rgba(255,255,255,.03)}
+.tabs i.on{color:var(--text);background:rgba(16,185,129,.14);box-shadow:inset 0 0 0 1px rgba(16,185,129,.4)}
+.syl{flex:1;min-height:0;list-style:none;margin:0;padding:0 6px 0 0;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.syl::-webkit-scrollbar{width:6px}
+.syl::-webkit-scrollbar-track{background:rgba(255,255,255,.035);border-radius:99px;margin:4px 0}
+.syl::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(52,211,153,.55),rgba(16,185,129,.35));border-radius:99px}
+.syl.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start}
+.syl.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+/* 2열 칸은 좁아서 칸 표시를 다음 줄로 내려 이름이 잘리지 않게 */
+.syl.grid2 .sy-t{flex-wrap:wrap;row-gap:3px}
+.syl.grid2 .pips{margin-left:0;flex-basis:100%}
+.sy{padding:7px 10px;border-radius:6px;border:1px solid #273142;background:#111827}
+.sy.on{border-color:rgba(16,185,129,.55);background:rgba(16,185,129,.09)}
+.sy-t{display:flex;align-items:center;gap:6px}
+.sy-t b{font-size:13.5px;white-space:nowrap}
+.sy.on .sy-t b{color:var(--em)}
+.kb{font-style:normal;font-size:10px;font-weight:700;padding:0 5px;border-radius:3px;line-height:16px;white-space:nowrap}
+.kb.st{background:rgba(251,191,36,.15);color:#fde68a}
+.kb.bu{background:rgba(255,255,255,.08);color:#cbd5e1}
+.lv{font:700 11px var(--disp);font-style:normal;color:var(--em);white-space:nowrap}
+.pips{margin-left:auto;display:flex;gap:3px;align-items:center}
+.pips i{width:12px;height:8px;border-radius:2px;background:#374151}
+.pips i.f{background:#d1d5db}
+.pips i.g{background:var(--em)}
+.pips i.p{background:var(--sky)}
+.xtra{font:700 11px var(--disp);padding:0 4px;border-radius:3px;background:rgba(56,189,248,.2);color:#7dd3fc}
+.sy-b{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-size:12px}
+.sy-b span{color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sy-b em{font-style:normal;font-weight:700;color:#d1d5db;white-space:nowrap}
+.sy.on .sy-b em{color:var(--em)}
+
+/* ───── 11 발전형: 구장이 묶음 전체의 배경, 시너지는 그 위에 얹힘 ───── */
+.map.overlay{display:block;overflow:hidden}
+.map.overlay .fbox{position:absolute;border-radius:0;background:radial-gradient(120% 95% at 32% 62%,#13291e 0,#0c1711 52%,#070c09 100%)}
+.ovhead{position:absolute;left:12px;top:10px;z-index:6;display:flex;align-items:baseline;gap:10px;padding:4px 12px 4px 10px;background:rgba(5,8,15,.72);border-left:3px solid var(--em)}
+.ovhead b{font-size:13px}
+.ovhead span{font:600 12px var(--disp);color:var(--mute)}
+.ovhead em{font:600 12px var(--disp);font-style:normal;color:var(--mute)}
+.syn.ov{position:absolute;z-index:6;top:10px;right:10px;bottom:10px}
+.syn.ov .sy{background:rgba(17,24,39,.5);border-color:rgba(255,255,255,.07)}
+.syn.ov .sy.on{background:rgba(16,185,129,.14);border-color:rgba(16,185,129,.5)}
+/* A 페이드: 오른쪽으로 갈수록 어두워지는 그라데이션 위에 목록 */
+.f-broadcast .syn.ov.ov-fade,.syn.ov.ov-fade{top:0;right:0;bottom:0;border:0;border-radius:0;padding:14px 14px 12px 48px;background:linear-gradient(90deg,rgba(5,8,15,0) 0,rgba(5,8,15,.72) 16%,rgba(5,8,15,.9) 100%)}
+/* B 글래스: 반투명 판, 뒤로 잔디가 비침 */
+.f-broadcast .syn.ov.ov-glass,.syn.ov.ov-glass{border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(8,13,20,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 18px 40px -20px #000,inset 0 1px 0 rgba(255,255,255,.06)}
+/* C 사선: 중계 자막처럼 왼쪽이 비스듬한 패널 */
+.f-broadcast .syn.ov.ov-slant,.syn.ov.ov-slant{top:0;right:0;bottom:0;border:0;border-radius:0;padding:14px 14px 12px 50px;background:linear-gradient(180deg,rgba(16,185,129,.9) 0 3px,rgba(7,12,19,.84) 3px);clip-path:polygon(40px 0,100% 0,100% 100%,0 100%)}
+.syn.ov.ov-slant .sy{background:rgba(255,255,255,.035)}
+/* D 도크: 오른쪽 끝에 붙은 그늘 위로 줄 목록만 */
+.f-broadcast .syn.ov.ov-dock,.syn.ov.ov-dock{top:0;right:0;bottom:0;border:0;border-radius:0;padding:14px 16px 12px 52px;background:linear-gradient(90deg,rgba(5,8,15,0) 0,rgba(5,8,15,.82) 24%,rgba(5,8,15,.9) 100%)}
+.syn.ov.ov-dock .syl{gap:0}
+.syn.ov.ov-dock .sy{background:none;border:0;border-bottom:1px solid rgba(255,255,255,.07);border-radius:0;padding:8px 2px}
+.syn.ov.ov-dock .sy.on{background:linear-gradient(90deg,rgba(16,185,129,.16),transparent);box-shadow:inset 2px 0 0 var(--em)}
+
+/* ───── 프레임 스타일 5종 ───── */
+/* 1) panels: 기본 묶음 박스 (위 공통) */
+/* 2) unified: 하나의 큰 판 + 구분선 */
+.f-unified .body{margin:12px 24px 14px;padding:0;gap:0;border:1px solid var(--line);border-radius:14px;background:rgba(17,24,39,.55);overflow:hidden}
+.f-unified .grp{border:0;border-radius:0;background:none;padding:10px}
+.f-unified .sp{border-bottom:1px solid var(--line)}
+.f-unified .bottom{gap:0}
+.f-unified .bottom>.grp+.grp{border-left:1px solid var(--line)}
+.f-unified .bottom.rev>.grp+.grp{border-left:0;border-right:1px solid var(--line)}
+/* 3) flat: 테두리 없이 머리 라벨과 머리카락 선 */
+.f-flat .grp{border:0;background:none;border-radius:0;padding:0}
+.f-flat .gl{display:block;margin-bottom:6px}
+.f-flat .sp{padding-bottom:12px;border-bottom:1px solid var(--line)}
+.f-flat .bottom{gap:22px}
+.f-flat .syn{background:none;border-left:1px solid var(--line);border-radius:0;padding:0 0 0 14px}
+.f-flat .map.below .syn{border-left:0;border-top:1px solid var(--line);padding:10px 0 0}
+.f-flat .map.left .syn{border-left:0;border-right:1px solid var(--line);padding:0 14px 0 0}
+/* 4) glass: 은은한 반투명 판 */
+.f-glass{background:radial-gradient(80% 60% at 20% 0,#16233a 0,#0d1320 60%,#0a0e15 100%)}
+.f-glass .hd{border-bottom-color:rgba(255,255,255,.06);background:rgba(10,14,21,.4)}
+.f-glass .grp{border:1px solid rgba(255,255,255,.07);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 18px 40px -24px rgba(0,0,0,.8);padding:10px}
+.f-glass .gl{display:block;margin:0 0 6px 4px}
+.f-glass .syn{background:rgba(255,255,255,.03);border-radius:12px}
+.f-glass .fbox{border-radius:12px}
+/* 5) broadcast: 중계 그래픽처럼 각진 판 + 윗줄 강조 */
+.f-broadcast .grp{border:0;border-top:3px solid var(--em);border-radius:0;background:#0b111b;padding:26px 10px 10px}
+.f-broadcast .gl{display:block;position:absolute;left:0;top:-3px;padding:3px 14px 3px 10px;background:var(--em);color:#04150e;letter-spacing:.2em;clip-path:polygon(0 0,100% 0,88% 100%,0 100%)}
+.f-broadcast .syn{border-radius:0;background:#0f1724;border-left:2px solid #243044}
+.f-broadcast .fbox,.f-broadcast .buy,.f-broadcast .reroll,.f-broadcast .rules{border-radius:0}
+.f-broadcast .buy{clip-path:polygon(0 0,100% 0,96% 100%,0 100%)}
+</style>
+
+<div class="doc">
+  <header class="intro">
+    <div>
+      <small>KBO Dream Draft · Grouped Layout</small>
+      <h1>드래프트 묶음 레이아웃 <span>16</span>안</h1>
+      <p>세 묶음(시리즈+선수 카드 · 프로필 카드+영입 · 내 구장+시너지)으로 정리한 16가지 버전. 시너지는 구장 묶음 안으로 넣고 폭을 넓혀 이름이 잘리지 않게, 위 시리즈 묶음은 세로를 줄였습니다. 예시 상태: 5라운드 · 2006 한화 · 류현진 선택 중 · 선동열·양의지·이승엽·박진만 영입. 화면 1440×900 기준. 맨 위 <b>11-A~D</b>는 11번(중계 그래픽)을 바탕으로 구장이 묶음 전체의 배경이 되고 시너지가 그 위에 얹힌 발전형입니다.</p>
+    </div>
+    <nav class="jump" id="jump" aria-label="안 바로가기"></nav>
+  </header>
+  <main id="opts"></main>
+</div>
+
+<script>
+const img = (id) => `/cards/${encodeURIComponent(id)}.webp`;
+const SIL = '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><circle cx="50" cy="40" r="18"/><path d="M12 104 C14 74 30 64 50 64 C70 64 86 74 88 104 Z"/></svg>';
+const HH = (n) => `2006-hanwha_${n}`;
+
+/* 2006 한화 시리즈 (게임 데이터 기준 능력치) */
+const CARDS = [
+  { n:'류현진', pos:'SP', h:'좌투', st:[91,80,93,92], o:89, note:'신인 투수 트리플크라운·MVP', hint:true },
+  { n:'문동환', pos:'SP', h:'우투', st:[62,64,90,85], o:72 },
+  { n:'정민철', pos:'SP', h:'우투', st:[59,73,74,75], o:69 },
+  { n:'구대성', pos:'RP', h:'좌투', st:[90,81,55,95], o:90, hint:true },
+  { n:'최영필', pos:'RP', h:'우투', st:[60,65,48,72], o:66 },
+  { n:'신경현', pos:'C', h:'우타', o:57, lock:'포수 마감' },
+  { n:'이도형', pos:'C', h:'우타', o:61, lock:'포수 마감' },
+  { n:'김태균', pos:'1B', h:'우타', o:65, lock:'1루수 마감' },
+  { n:'한상훈', pos:'2B', h:'우타', o:57 },
+  { n:'이범호', pos:'3B', h:'우타', o:67 },
+  { n:'김민재', pos:'SS', h:'우타', o:59, lock:'유격수 마감' },
+  { n:'데이비스', pos:'OF', h:'외인', o:71 },
+  { n:'고동진', pos:'OF', h:'우타', o:61 },
+];
+const PICK = CARDS[0];
+const PIT = ['구위','제구','체력','안정'];
+
+/* 시너지 예시 (게임 규칙대로 계산한 상태를 옮겨 적음) */
+const SYN = [
+  { n:'베이징 9전 전승', k:'st', lv:1, seg:2, fill:0, prev:1, cond:'베이징 금메달 멤버', eff:'능력치 +1', on:true },
+  { n:'홈런 군단', k:'bu', lv:0, seg:3, fill:2, prev:0, cond:'파워 80+ 타자', eff:'파워 +2' },
+  { n:'클린업 트리오', k:'st', lv:0, seg:2, fill:1, prev:0, cond:'이승엽·이대호·김동주 중 2명', eff:'파워 +5' },
+  { n:'삼성 왕조의 투타', k:'st', lv:0, seg:2, fill:1, prev:0, cond:'오승환 · 이승엽', eff:'안정 +3 · 파워 +4' },
+  { n:'해태 왕조의 원투', k:'st', lv:0, seg:2, fill:1, prev:0, cond:'선동열 · 이종범', eff:'능력치 +3' },
+  { n:'좌완 트로이카', k:'st', lv:0, seg:2, fill:0, prev:1, cond:'류현진·김광현·양현종 중 2명', eff:'투수 +4' },
+  { n:'체인지업 전수', k:'st', lv:0, seg:2, fill:0, prev:1, cond:'구대성 · 류현진', eff:'투수 +4' },
+  { n:'베이징 결승전', k:'st', lv:0, seg:2, fill:0, prev:1, cond:'류현진 · 정대현', eff:'투수 +4' },
+  { n:'프리미어12 초대 우승', k:'st', lv:0, seg:3, fill:1, prev:0, cond:'2015 대표팀 멤버', eff:'능력치 +1' },
+  { n:'프랜차이즈의 기억', k:'bu', lv:0, seg:4, fill:1, prev:0, cond:'같은 구단', eff:'수비·안정 +1' },
+];
+
+const header = () => `
+<header class="hd">
+  <div class="brand"><small>KBO ALL-TIME</small><b>드래프트 &amp; 증강</b></div>
+  <div class="rd"><small>ROUND</small><b>05</b><i>/ 11</i></div>
+  <div class="cap"><div class="cap-t"><span>샐러리 캡 잔여</span><span><b>513</b> <em>/ 800 CP</em></span></div><div class="bar"><i></i></div></div>
+  <div class="rules"><span>?</span>드래프트 규칙</div>
+</header>`;
+
+const miniCard = (c, i) => `
+<div class="pc ${c.lock ? 'lk' : ''} ${i === 0 ? 'sel' : ''}">
+  <img src="${img(HH(c.n))}" alt="">
+  <span class="o">${c.o}</span><span class="p">${c.pos}</span>
+  ${c.hint && !c.lock ? '<span class="hint">시너지</span>' : ''}
+  <span class="nm">${c.n}</span>
+  ${c.lock ? `<span class="lock">${c.lock}</span>` : `<span class="f"><span class="t">${c.h}</span><span class="c">${c.o}</span></span>`}
+</div>`;
+
+const seriesHead = () => `
+<div class="sp-head">
+  <span class="kind">구단 시즌</span><b class="yr">2006</b><h3>한화 이글스</h3>
+  <span class="sub">한국시리즈 준우승 · 류현진 트리플크라운</span>
+  <span class="avail">영입 가능 <b>9</b> / 13명</span>
+  <span class="reroll">다른 시리즈<em>×3</em></span>
+</div>`;
+
+const seriesPanel = (v) => {
+  const cards = `<div class="cards">${CARDS.map(miniCard).join('')}</div>`;
+  if (v.series === 'side') return `<section class="grp sp side"><span class="gl">Series</span>${seriesHead()}${cards}</section>`;
+  if (v.series === 'sm') return `<section class="grp sp sm"><span class="gl">Series</span>${seriesHead()}<div class="row">${cards}<div class="pickmini"><small>SELECTED</small><b><em>${PICK.o}</em>${PICK.n}</b><span>선발 · 좌투 · 영입가 ${PICK.o} CP · 2선발 자리</span></div></div></section>`;
+  return `<section class="grp sp"><span class="gl">Series</span>${seriesHead()}${cards}</section>`;
+};
+
+const bigCard = () => `
+<div class="bc"><img src="${img(HH(PICK.n))}" alt="">
+  <div class="tl"><div class="o">${PICK.o}</div><div class="pe">Starter</div><div class="mt">2006 · 한화 · 좌투</div>
+    <dl>${PIT.map((l, j) => `<div><dt>${l}</dt><dd class="${PICK.st[j] >= 90 ? 'hi' : ''}">${PICK.st[j]}</dd></div>`).join('')}</dl></div>
+  <div class="bt"><div class="nt">${PICK.note}</div><h4>${PICK.n}</h4><div class="ln"></div><div class="ft"><i>SP</i><b>${PICK.o} CP</b></div></div>
+</div>`;
+
+const pickPanel = (v) => {
+  if (v.profile === 'compact') return `
+<section class="grp pick compact"><span class="gl">Pick</span>
+  <div class="pfc">
+    <div class="pfc-top"><div class="pfc-ph" style="background-image:url(${img(HH(PICK.n))})"></div>
+      <div class="pfc-id"><div class="o">${PICK.o}</div><h4>${PICK.n}</h4><small>STARTER · 좌투 · 2006 한화</small><p>${PICK.note}</p></div></div>
+    <div class="bars">${PIT.map((l, j) => `<div class="sb">${l}<span><i class="${PICK.st[j] >= 90 ? 'hi' : ''}" style="width:${PICK.st[j]}%"></i></span><b class="${PICK.st[j] >= 90 ? 'hi' : ''}">${PICK.st[j]}</b></div>`).join('')}</div>
+    <div class="fitline"><span>들어갈 자리</span><b>2선발 · 빈 자리</b></div>
+  </div>
+  <button class="buy" type="button">${PICK.n} 영입 · <em>${PICK.o} CP</em></button>
+</section>`;
+  return `
+<section class="grp pick card"><span class="gl">Pick</span>
+  <div class="pf-card">${bigCard()}</div>
+  <button class="buy" type="button">${PICK.n} 영입 · <em>${PICK.o} CP</em></button>
+</section>`;
+};
+
+/* 구장 SVG (게임과 같은 설계 좌표 900×580) */
+const fieldSVG = () => {
+  const hx = 450, hy = 560, s = 180, R = 520, r = R / Math.SQRT2, q = s * 0.3;
+  const fair = `M${hx} ${hy} L${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r} Z`;
+  const base = (x, y) => `<rect x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>`;
+  return `<svg width="900" height="580" viewBox="0 0 900 580" aria-hidden="true">
+    <path d="${fair}" fill="var(--grass)"/>
+    <path d="M${hx - r} ${hy - r} A${R} ${R} 0 0 1 ${hx + r} ${hy - r}" fill="none" stroke="#2f4a3a" stroke-width="10"/>
+    <polygon points="${hx},${hy + q} ${hx + s + q},${hy - s} ${hx},${hy - 2 * s - q} ${hx - s - q},${hy - s}" fill="var(--dirt)" opacity=".85"/>
+    <polygon points="${hx},${hy - q} ${hx + s - q},${hy - s} ${hx},${hy - 2 * s + q} ${hx - s + q},${hy - s}" fill="var(--grass)"/>
+    <path d="M${hx} ${hy} L${hx - r} ${hy - r} M${hx} ${hy} L${hx + r} ${hy - r}" stroke="#ffffff38" stroke-width="2"/>
+    <circle cx="${hx}" cy="${hy - s}" r="${s * 0.11}" fill="var(--dirt)"/>
+    <g fill="#e5e7eb" opacity=".85">${base(hx + s, hy - s)}${base(hx, hy - 2 * s)}${base(hx - s, hy - s)}<path d="M${hx - 9} ${hy - 6} h18 v7 l-9 8 l-9 -8 Z"/></g>
+  </svg>`;
+};
+const token = (x, y, o) => `
+<div class="tk ${o.id ? '' : 'empty'} ${o.cls || ''}" style="left:${x}px;top:${y}px;--n:${o.color || '#344055'}">
+  <div class="bp" ${o.id ? `style="background-image:url(${img(o.id)})"` : ''}>${o.id ? '' : SIL}</div>
+  <div class="br"><div class="bx"><small>${o.sub}</small><strong>${o.name || '빈 자리'}</strong></div>${o.ov ? `<em>${o.ov}</em>` : ''}</div>
+</div>`;
+const field = () => `
+<div class="fin">${fieldSVG()}
+  <div class="rot"><div class="rh"><span>선발 로테이션</span><span>1/3</span></div>
+    <div class="rr off" style="--n:#ff5a67"><span class="rn">1</span><span class="rb" style="background-image:url(${img('1993-haitai_선동열')})"></span><b>선동열<small>원래 RP −3</small></b><em>92</em></div>
+    <div class="rr ghost" style="--n:#10b981"><span class="rn">2</span><span class="rb" style="background-image:url(${img(HH('류현진'))})"></span><b>류현진<small>영입 시</small></b><em>89</em></div>
+    <div class="rr empty" style="--n:#344055"><span class="rn">3</span><span class="rb">${SIL}</span><b>빈 자리</b></div>
+  </div>
+  ${token(790, 515, { sub: 'RP · 마무리' })}
+  ${token(450, 515, { id: '2020-nc_양의지', name: '양의지', sub: 'C · 2020 NC', ov: 84, color: '#6cc0ff' })}
+  ${token(750, 370, { id: '2008-beijing_이승엽', name: '이승엽', sub: '1B · 2008 대표', ov: '▲80', color: '#60a5fa', cls: 'boost' })}
+  ${token(615, 215, { sub: '2B · 2루수' })}
+  ${token(150, 370, { sub: '3B · 3루수' })}
+  ${token(285, 215, { id: '2008-beijing_박진만', name: '박진만', sub: 'SS · 2008 대표', ov: 70, color: '#60a5fa' })}
+  ${token(450, 90, { sub: 'OF · 외야수' })}
+  ${token(110, 515, { sub: 'DH · 지명타자' })}
+</div>`;
+
+const synRow = (s) => {
+  const pips = Array.from({ length: s.seg }, (_, i) => `<i class="${i < s.fill ? (s.on && s.fill === s.seg ? 'g' : 'f') : i < s.fill + s.prev ? 'p' : ''}"></i>`).join('');
+  return `<li class="sy ${s.on ? 'on' : ''}">
+    <div class="sy-t"><b>${s.n}</b><i class="kb ${s.k}">${s.k === 'st' ? '실화' : '팀 구성'}</i>${s.lv ? `<i class="lv">${s.lv}단계</i>` : ''}<span class="pips">${pips}</span></div>
+    <div class="sy-b"><span>${s.cond}</span><em>${s.eff}</em></div></li>`;
+};
+const synPanel = (v) => {
+  const listCls = v.syn === 'below' ? 'grid3' : v.synGrid2 ? 'grid2' : '';
+  const rows = v.tabs ? SYN.filter((s) => s.k === 'st') : SYN;
+  const w = (v.synW || 300) + ({ fade: 48, slant: 50, dock: 52 }[v.overlay] || 0);
+  return `<div class="syn ${v.overlay ? `ov ov-${v.overlay}` : ''}" style="${v.syn === 'below' ? 'height:150px' : `width:${w}px`}">
+    <div class="syn-h"><b>시너지<span>1 On</span></b><a>전체 보기</a></div>
+    ${v.tabs ? '<div class="tabs"><i class="on">실화 8</i><i>팀 구성 2</i></div>' : ''}
+    <ul class="syl ${listCls}">${rows.map(synRow).join('')}</ul></div>`;
+};
+/* 11 발전형: 구장이 묶음 전체를 채우고, 시너지 판은 그 위(오른쪽)에 얹는다. 구장 그림은 시너지에 가리지 않는 폭 안에서 가운데 정렬 */
+const overlayMap = (v) => {
+  const top = v.frame === 'broadcast' ? 26 : 8;
+  const reserve = (v.synW || 300) + ({ fade: 48, slant: 50, dock: 52 }[v.overlay] || 0) + (v.overlay === 'glass' ? 20 : 0);
+  return `
+<section class="grp map overlay"><span class="gl" style="position:absolute">My Lineup</span>
+  <div class="fbox" style="inset:${top}px 0 0 0" data-reserve="${reserve}">
+    <div class="ovhead"><b>내 라인업</b><span>4 / 11</span><em>잔여 513 CP · 영입 후 424 CP</em></div>
+    ${field()}
+    ${synPanel(v)}
+  </div>
+</section>`;
+};
+const mapPanel = (v) => v.overlay ? overlayMap(v) : `
+<section class="grp map ${v.syn}"><span class="gl" style="position:${v.frame === 'broadcast' ? 'absolute' : 'static'}">My Lineup</span>
+  <div class="mapcol">
+    ${v.mapHead ? '<div class="maphead"><b>내 라인업</b><span>4 / 11</span><em>잔여 513 CP · 영입 후 424 CP</em></div>' : ''}
+    <div class="fbox"><span class="fhint">선수를 끌어 자리를 바꿉니다</span>${field()}</div>
+  </div>
+  ${synPanel(v)}
+</section>`;
+
+/* 16안: 프레임 × 시리즈 머리 × 영입 묶음 × 시너지 위치 */
+const V = [
+  { no:'11-A', name:'11 · 페이드 오버레이', what:'구장이 판 전체 배경이 되고, 시너지는 오른쪽으로 갈수록 어두워지는 그늘 위에 얹힘.', frame:'broadcast', series:'row', profile:'card', syn:'right', overlay:'fade' },
+  { no:'11-B', name:'11 · 글래스 오버레이', what:'구장 위에 반투명 유리 판으로 시너지를 띄움. 뒤로 잔디가 비침.', frame:'broadcast', series:'row', profile:'card', syn:'right', overlay:'glass' },
+  { no:'11-C', name:'11 · 중계 사선 패널', what:'중계 자막처럼 왼쪽 모서리가 비스듬한 반투명 패널을 구장 위에 걸침.', frame:'broadcast', series:'row', profile:'card', syn:'right', overlay:'slant' },
+  { no:'11-D', name:'11 · 도크 리스트', what:'구장 오른쪽 끝의 그늘 위로 줄 목록만 올림. 가장 가볍게 겹침.', frame:'broadcast', series:'row', profile:'card', syn:'right', overlay:'dock', synW:290 },
+  { name:'기본 세 묶음', what:'가장 기본형. 위 시리즈 묶음, 아래 왼쪽 영입, 오른쪽 구장+시너지.', frame:'panels', series:'row', profile:'card', syn:'right' },
+  { name:'시너지 왼쪽', what:'시너지를 구장 왼쪽에 둬 영입 카드와 시너지를 한 시선에.', frame:'panels', series:'row', profile:'card', syn:'left' },
+  { name:'시너지 아래 띠', what:'구장 아래 3열 격자로 시너지를 펼쳐 이름이 넉넉.', frame:'panels', series:'row', profile:'card', syn:'below' },
+  { name:'영입 오른쪽', what:'구장을 왼쪽에 크게, 영입 카드를 오른쪽 끝으로.', frame:'panels', series:'row', profile:'card', syn:'right', rev:true },
+  { name:'한 판 통합', what:'세 묶음을 하나의 큰 판에 넣고 가는 구분선만.', frame:'unified', series:'row', profile:'card', syn:'right' },
+  { name:'통합 · 시리즈 옆머리', what:'시리즈 이름을 카드 왼쪽 세로 칸으로 옮겨 위 묶음을 더 낮게.', frame:'unified', series:'side', profile:'card', syn:'right' },
+  { name:'라벨 플랫', what:'박스 없이 작은 영문 라벨과 머리카락 선으로만 구분.', frame:'flat', series:'row', profile:'card', syn:'right' },
+  { name:'플랫 · 가로 프로필', what:'영입 묶음을 가로형 프로필(사진+능력치 막대)로 바꿔 정보 위주로.', frame:'flat', series:'side', profile:'compact', syn:'right' },
+  { name:'글래스', what:'은은한 반투명 판과 둥근 모서리로 부드럽게.', frame:'glass', series:'row', profile:'card', syn:'right' },
+  { name:'글래스 · 아래 시너지', what:'가로 프로필 + 구장 아래 시너지 띠. 구장이 가장 넓게.', frame:'glass', series:'row', profile:'compact', syn:'below' },
+  { name:'중계 그래픽', what:'각진 판과 초록 윗줄 라벨로 야구 중계 느낌.', frame:'broadcast', series:'row', profile:'card', syn:'right', mapHead:true },
+  { name:'중계 · 반전 배치', what:'중계 스타일에 영입 오른쪽, 시너지 왼쪽.', frame:'broadcast', series:'side', profile:'card', syn:'left', rev:true },
+  { name:'넓은 시너지', what:'가로 프로필로 폭을 아껴 시너지 칸을 360px까지 넓힘.', frame:'panels', series:'row', profile:'compact', syn:'right', synW:360 },
+  { name:'시너지 탭', what:'시너지를 실화 / 팀 구성 탭으로 나눠 목록을 짧게.', frame:'unified', series:'row', profile:'card', syn:'right', tabs:true, mapHead:true },
+  { name:'선택 요약 시리즈', what:'시리즈 묶음 오른쪽에 선택 요약을 붙이고 카드는 작게. 아래는 영입 오른쪽 + 시너지 띠.', frame:'flat', series:'sm', profile:'card', syn:'below', rev:true },
+  { name:'글래스 · 2열 시너지', what:'넓은 시너지 칸을 2열로 써서 한 화면에 더 많이.', frame:'glass', series:'side', profile:'compact', syn:'right', synW:420, synGrid2:true },
+];
+
+const tagText = (v) => [
+  { panels:'묶음 박스', unified:'한 판 통합', flat:'라벨 플랫', glass:'글래스', broadcast:'중계 그래픽' }[v.frame],
+  { row:'시리즈 한 줄 머리', side:'시리즈 옆머리', sm:'작은 카드+선택 요약' }[v.series],
+  v.profile === 'compact' ? '가로 프로필' : '세로 카드',
+  v.overlay ? `구장 위 시너지 · ${{ fade: '페이드', glass: '글래스', slant: '사선 패널', dock: '도크' }[v.overlay]}`
+    : { right:'시너지 오른쪽', left:'시너지 왼쪽', below:'시너지 아래' }[v.syn] + (v.synW ? ` ${v.synW}px` : '') + (v.tabs ? ' · 탭' : '') + (v.synGrid2 ? ' · 2열' : ''),
+];
+
+const render = (v) => `${header()}
+<div class="body">
+  ${seriesPanel(v)}
+  <div class="bottom ${v.rev ? 'rev' : ''}">${pickPanel(v)}${mapPanel(v)}</div>
+</div>`;
+
+const opts = document.getElementById('opts');
+const labelOf = (v) => v.no || String(V.filter((x) => !x.no).indexOf(v) + 1); // 기존 16안 번호는 그대로 유지
+document.getElementById('jump').innerHTML = V.map((v) => `<a href="#g${labelOf(v)}"><b>${labelOf(v)}</b>${v.name}</a>`).join('');
+opts.innerHTML = V.map((v) => `
+<section class="opt" id="g${labelOf(v)}">
+  <div class="opt-h"><span class="opt-no">${labelOf(v)}</span>
+    <div><h2>${v.name}</h2><p>${v.what}</p></div>
+    <div class="tags">${tagText(v).map((t) => `<i>${t}</i>`).join('')}</div>
+  </div>
+  <div class="stage"><div class="screen f-${v.frame}">${render(v)}</div></div>
+</section>`).join('');
+
+/* 구장을 칸에 맞춰 축소·가운데 정렬 (조상 transform 과 무관한 레이아웃 크기로 잰다) */
+const fitFields = () => document.querySelectorAll('.fbox').forEach((box) => {
+  const w = box.clientWidth - (+box.dataset.reserve || 0), h = box.clientHeight, fin = box.querySelector('.fin');
+  const k = Math.min(w / 900, h / 580);
+  fin.style.transform = `translate(${(w - 900 * k) / 2}px, ${(h - 580 * k) / 2}px) scale(${k})`;
+});
+fitFields();
+const fit = () => {
+  const st = document.querySelector('.stage');
+  if (st) document.documentElement.style.setProperty('--k', st.clientWidth / 1440);
+};
+fit();
+requestAnimationFrame(fitFields);
+new ResizeObserver(fit).observe(document.querySelector('.stage'));
+</script>

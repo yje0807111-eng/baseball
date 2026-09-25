@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>드래프트 화면 · 내 라인업 토큰 12종</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .top nav a:hover { color: #fff; background: rgba(16,185,129,.2); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1480px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)을 그대로 띄우고, 필드 토큰의 내용만 각 안의 모양으로 바꿔 끼운다.
+   선택 · 끌어다 놓기 · 미리보기(ghost) · 자리 거르기 같은 게임 동작은 원래 토큰 틀이 그대로 처리한다. */
+const SIL = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='xMidYMax meet'%3E%3Ccircle cx='50' cy='40' r='18' fill='%2326324a'/%3E%3Cpath d='M12 104 C14 74 30 64 50 64 C70 64 86 74 88 104 Z' fill='%2326324a'/%3E%3C/svg%3E\")";
+const COMMON = `
+.lf-tok .lf-in { display: none !important; }
+.mk { position: absolute; inset: 0; pointer-events: none; }
+.mk .t { display: block; white-space: nowrap; overflow: hidden; }
+.mk .face { background-color: #141c2b; background-repeat: no-repeat; }
+.mk .nof { background-image: ${SIL}; background-size: 100% 100%; background-position: 50% 100%; }
+.mk .ov { font-family: 'Saira Condensed', sans-serif; font-weight: 700; line-height: 1; color: var(--n); font-style: normal; white-space: nowrap; }
+.mk .ov.up { color: #34d399; }
+.mk .ov.up::before { content: "▲"; font-size: .45em; margin-right: 2px; vertical-align: .45em; }
+.mk .pc { font-family: 'Saira Condensed', sans-serif; font-weight: 700; color: var(--n); letter-spacing: .02em; }
+.mk .off { color: #fbbf24 !important; }
+.lf-tok.empty .mk b { color: #6b7280 !important; font-weight: 500; }
+.lf-tok.empty .mk .face { opacity: .55; }
+.lf-tok.ghost .mk { filter: grayscale(1) brightness(.8); }
+.mk::after { content: ""; position: absolute; inset: -5px; border: 2px solid transparent; pointer-events: none; transition: border-color .15s, box-shadow .15s; }
+.lf-tok.picked .mk::after, .lf-tok.over .mk::after { border-color: #10b981; box-shadow: 0 0 14px rgba(16,185,129,.45); }
+.lf-tok.want .mk::after, .lf-tok.focus .mk::after { border-color: #38bdf8; box-shadow: 0 0 14px rgba(56,189,248,.5); }
+.lf-tok.joined .mk { animation: mkIn .7s cubic-bezier(.3,.7,.3,1) both; }
+@keyframes mkIn { 0% { filter: grayscale(1) brightness(.7); transform: scale(.96); } 60% { filter: none; transform: scale(1.05); } 100% { transform: none; } }
+`;
+const face = (d, cls = '') => `<div class="face ${cls} ${d.face ? '' : 'nof'}" style="${d.face}"></div>`;
+const ov = (d) => (d.ov ? `<em class="ov ${d.up ? 'up' : ''}">${d.ov}</em>` : '');
+const ss = (d) => `<span class="${d.off ? 'off' : ''}">${d.season}</span>`;
+const BRACKET = 'background: linear-gradient(var(--n), var(--n)) 10px 0 / 26px 2px no-repeat, linear-gradient(var(--n), var(--n)) 0 10px / 2px 16px no-repeat, linear-gradient(135deg, transparent 6px, var(--n) 6px, var(--n) 8px, transparent 8px) 0 0 / 11px 11px no-repeat';
+
+const VARS = [
+  { id: '4', title: 'HUD 컷 코너 판', desc: '게임 판과 같은 잘린 모서리 + 팀 색 브래킷 · 얼굴은 판 안의 네모', css: `
+.lf-tok { width: 222px; height: 66px; }
+.mk .pn { position: absolute; inset: 0; display: grid; grid-template-columns: 50px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 6px 10px 6px 6px; background: rgba(8,13,24,.93); clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 38%, transparent); }
+.mk .pn::after { content: ""; position: absolute; inset: 0; ${BRACKET}; }
+.mk .face { width: 50px; height: 54px; clip-path: polygon(6px 0,100% 0,100% 100%,0 100%,0 6px); }
+.mk small { font-size: 11px; color: #9aa4b5; line-height: 1.3; }
+.mk small .pc { margin-right: 5px; font-size: 12.5px; }
+.mk b { font-size: 15px; color: #fff; line-height: 1.3; }
+.mk .ov { font-size: 24px; }`,
+    tpl: (d) => `<div class="pn">${face(d)}<span style="min-width:0"><small class="t"><span class="pc">${d.slot}</span>${ss(d)}</small><b class="t">${d.name}</b></span>${ov(d)}</div>` },
+  { id: '4B', title: 'HUD 컷 코너 판 · 흉상 돌출', desc: '같은 HUD 판에 흉상이 판 위로 솟고, 포지션은 오른쪽 위 팀 색 태그 · 브래킷은 두 모서리', css: `
+.lf-tok { width: 234px; height: 80px; }
+.mk .pn { position: absolute; left: 0; right: 0; bottom: 6px; height: 52px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 62px; background: linear-gradient(90deg, rgba(8,13,24,.96), rgba(12,19,32,.92)); clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 38%, transparent); }
+.mk .pn::after { content: ""; position: absolute; inset: 0; ${BRACKET}, linear-gradient(var(--n), var(--n)) right 10px bottom 0 / 26px 2px no-repeat, linear-gradient(var(--n), var(--n)) right 0 bottom 10px / 2px 16px no-repeat; }
+.mk .face { position: absolute; left: 6px; bottom: 6px; width: 54px; height: 74px; z-index: 2; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.mk .tag { position: absolute; right: 0; top: 7px; padding: 0 8px 0 10px; font-family: 'Saira Condensed', sans-serif; font-size: 12.5px; font-weight: 800; line-height: 17px; color: #05080f; background: var(--n); clip-path: polygon(6px 0,100% 0,100% 100%,0 100%); }
+.mk .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.mk b { font-size: 15px; color: #fff; }
+.mk small { font-size: 11px; color: #9aa4b5; }
+.mk .ov { font-size: 25px; }`,
+    tpl: (d) => `${face(d)}<span class="tag">${d.slot}</span><div class="pn"><span class="tx"><b class="t">${d.name}</b><small class="t">${ss(d)}</small></span>${ov(d)}</div>` },
+
+  { id: '6', title: '원형 얼굴 + 캡슐', desc: '팀 색 테두리 원형 얼굴 + 둥근 이름 캡슐, 시즌은 캡슐 아래 그림자 글씨', css: `
+.lf-tok { width: 206px; height: 66px; }
+.mk .face { position: absolute; left: 0; top: 2px; width: 54px; height: 54px; border-radius: 50%; box-shadow: 0 0 0 2px var(--n), 0 0 14px -2px var(--n), 0 4px 10px rgba(0,0,0,.6); z-index: 2; }
+.mk .pill { position: absolute; left: 34px; right: 0; top: 8px; height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 28px; border-radius: 99px; background: rgba(9,14,26,.94); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 35%, transparent), 0 6px 14px rgba(0,0,0,.5); }
+.mk .pill b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+.mk .ov { font-size: 21px; }
+.mk .ss { position: absolute; left: 62px; right: 0; top: 45px; font-size: 11px; font-weight: 600; color: #d1d5db; text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+.mk .ss .pc { margin-right: 4px; font-size: 12px; }`,
+    tpl: (d) => `${face(d)}<div class="pill"><b class="t">${d.name}</b>${ov(d)}</div><span class="ss t"><span class="pc">${d.slot}</span>${ss(d)}</span>` },
+  { id: '6B', title: '원형 얼굴 + 두 줄 캡슐', desc: '캡슐을 두 줄 높이로 키워 시즌까지 판 안에 · 포지션은 얼굴 아래 팀 색 알약', css: `
+.lf-tok { width: 208px; height: 62px; }
+.mk .face { position: absolute; left: 0; top: 2px; width: 54px; height: 54px; border-radius: 50%; box-shadow: 0 0 0 2px var(--n), 0 0 16px -3px var(--n), 0 4px 10px rgba(0,0,0,.6); z-index: 2; }
+.mk .pb { position: absolute; left: 50%; top: 47px; z-index: 3; transform: translateX(-50%); margin-left: -77px; padding: 0 6px; border-radius: 99px; font-family: 'Saira Condensed', sans-serif; font-size: 11.5px; font-weight: 800; line-height: 15px; color: #05080f; background: var(--n); box-shadow: 0 0 0 2px rgba(5,8,15,.9); }
+.mk .pill { position: absolute; left: 30px; right: 0; top: 5px; height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 34px; border-radius: 24px; background: linear-gradient(90deg, rgba(9,14,26,.97), rgba(15,23,38,.92)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 35%, transparent), 0 6px 14px rgba(0,0,0,.5); }
+.mk .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.mk b { font-size: 15px; color: #fff; }
+.mk small { font-size: 11px; color: #9aa4b5; }
+.mk .ov { font-size: 23px; }`,
+    tpl: (d) => `${face(d)}<span class="pb">${d.slot}</span><div class="pill"><span class="tx"><b class="t">${d.name}</b><small class="t">${ss(d)}</small></span>${ov(d)}</div>` },
+
+  { id: '9', title: '글래스 + 네온 밑줄', desc: '반투명 유리 판 뒤로 구장이 비치고, 아래 팀 색 네온 밑줄 · 종합은 링 안에', css: `
+.lf-tok { width: 214px; height: 60px; }
+.mk .pn { position: absolute; inset: 0; display: grid; grid-template-columns: 46px minmax(0,1fr) 38px; align-items: end; gap: 9px; padding: 0 8px 0 6px; border-radius: 4px; background: rgba(15,23,42,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 -2px 0 var(--n), 0 10px 22px -8px color-mix(in srgb, var(--n) 55%, transparent); }
+.mk .face { width: 46px; height: 64px; margin-top: -10px; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.mk .tx { align-self: center; min-width: 0; line-height: 1.25; }
+.mk b { font-size: 15px; color: #fff; }
+.mk small { font-size: 11px; color: #cbd5e1; }
+.mk small .pc { margin-right: 4px; font-size: 12px; }
+.mk .ov { align-self: center; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; box-shadow: inset 0 0 0 2px var(--n); background: rgba(5,8,15,.6); }
+.mk .ov.up { box-shadow: inset 0 0 0 2px #34d399; }
+.mk .ov.up::before { display: none; }`,
+    tpl: (d) => `<div class="pn">${face(d)}<span class="tx"><b class="t">${d.name}</b><small class="t"><span class="pc">${d.slot}</span>${ss(d)}</small></span>${ov(d) || '<span></span>'}</div>` },
+  { id: '9B', title: '글래스 + 큰 종합 · 포지션 칩', desc: '유리 판 위로 흉상이 솟고, 가운데가 밝은 네온 밑줄 · 종합은 링 없이 크게 빛나는 숫자 · 포지션은 판 위 작은 칩', css: `
+.lf-tok { width: 214px; height: 72px; }
+.mk .chip { position: absolute; left: 58px; top: 0; z-index: 3; padding: 0 7px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: .04em; line-height: 16px; color: var(--n); background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 55%, transparent); }
+.mk .pn { position: absolute; left: 0; right: 0; top: 15px; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 60px; border-radius: 4px; background: rgba(15,23,42,.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 12px 24px -10px color-mix(in srgb, var(--n) 60%, transparent); }
+.mk .pn::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--n) 30%, var(--n) 70%, transparent); box-shadow: 0 0 10px var(--n); }
+.mk .face { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+.mk .tx { flex: 1; min-width: 0; line-height: 1.25; }
+.mk b { font-size: 15px; color: #fff; }
+.mk small { font-size: 11px; color: #cbd5e1; }
+.mk .ov { font-size: 29px; text-shadow: 0 0 12px color-mix(in srgb, var(--n) 60%, transparent); }
+.mk .ov.up { text-shadow: 0 0 12px rgba(52,211,153,.6); }
+.mk .face { background-color: transparent; }
+/* 빈 자리: 위 포지션 칩 없음 · 흉상 네모 대신 판 안의 점선 원 하나 · 판은 더 옅게 */
+.lf-tok.empty .mk .pn { background: rgba(10,15,26,.5); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); }
+.lf-tok.empty .mk .pn::after { background: linear-gradient(90deg, transparent, rgba(148,163,184,.3) 30%, rgba(148,163,184,.3) 70%, transparent); box-shadow: none; }
+/* 빈 사진 칸: 선수 흉상과 같은 자리 · 같은 크기(50×68)의 네모. 불투명하게 칠해 뒤 판의 테두리를 가리고, 아래는 흉상처럼 판 속으로 흐려져 네모 두 개로 겹쳐 보이지 않게 */
+.mk .ph { position: absolute; left: 4px; bottom: 5px; width: 50px; height: 68px; z-index: 2; background: linear-gradient(180deg, #2c3749, #222c3e 70%); box-shadow: inset 0 1px 0 rgba(148,163,184,.3); -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent); }
+/* 빈 프로필 아이콘: 머리 · 어깨가 다 보이는 모양을 칸 한가운데(흐려지는 아래를 뺀 보이는 영역의 중앙)에 */
+.mk .ph::before { content: ""; position: absolute; left: 50%; top: 44%; width: 30px; height: 33px; transform: translate(-50%, -50%); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E") center / contain no-repeat; opacity: .42; }
+.lf-tok.empty .mk small { color: #6b7280; }
+.lf-tok.want.empty .mk .ph { box-shadow: inset 0 1px 0 #38bdf8; }
+.lf-tok.want.empty .mk .ph::before { opacity: .75; filter: sepia(1) hue-rotate(160deg) saturate(4); }`,
+    tpl: (d) => (d.empty
+      ? `<span class="ph"></span><div class="pn"><span class="tx"><b class="t">${d.name}</b><small class="t">${ss(d)}</small></span></div>`
+      : `<span class="chip">${d.slot}</span>${face(d)}<div class="pn"><span class="tx"><b class="t">${d.name}</b><small class="t">${ss(d)}</small></span>${ov(d)}</div>`) },
+
+  { id: '10', title: '선반 카드 문법', desc: '선반 카드처럼 위 가장자리 팀 색 줄 · 포지션 칩 · 75 이상 초록 종합 — 드래프트 화면과 한 벌', css: `
+.lf-tok { width: 212px; height: 60px; }
+.mk .cd { position: absolute; inset: 0; display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 4px 10px 4px 4px; background: linear-gradient(180deg, #0f1828, #0a101c); clip-path: polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px); box-shadow: inset 0 2px 0 var(--n), inset 0 0 0 1px rgba(255,255,255,.08); }
+.mk .face { width: 44px; height: 52px; }
+.mk .r1 { display: flex; align-items: center; gap: 5px; min-width: 0; line-height: 1.3; }
+.mk .chip { flex: none; padding: 0 5px; font-family: 'Saira Condensed', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--n); background: color-mix(in srgb, var(--n) 16%, transparent); }
+.mk .r1 small { font-size: 11px; color: #9aa4b5; }
+.mk b { font-size: 15px; color: #fff; line-height: 1.3; }
+.mk .ov { font-size: 26px; color: #fff; }
+.mk.g75 .ov, .mk.g90 .ov { color: #34d399; }`,
+    tpl: (d) => `<div class="cd">${face(d)}<span style="min-width:0"><span class="r1"><span class="chip">${d.slot}</span><small class="t">${ss(d)}</small></span><b class="t">${d.name}</b></span>${ov(d)}</div>` },
+  { id: '10B', title: '선반 카드 문법 · 등급 윗줄', desc: '윗줄 색이 종합 등급(75 미만 회색 · 75+ 초록 · 90+ 무지개) · 왼쪽 세로 초상 + 팀 색 선 · 포지션 칩은 팀 색으로 채움', css: `
+.lf-tok { width: 214px; height: 64px; }
+.mk .cd { position: absolute; inset: 0; display: grid; grid-template-columns: 46px minmax(0,1fr) auto; gap: 10px; padding-right: 10px; background: linear-gradient(180deg, #101a2b, #0a101c); clip-path: polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 6px 14px rgba(0,0,0,.5); }
+.mk .cd::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; z-index: 2; background: #64748b; }
+.mk.g75 .cd::before { background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.7); }
+.mk.g90 .cd::before { background: linear-gradient(90deg, #f87171, #fbbf24, #34d399, #60a5fa, #c084fc); }
+.mk .face { width: 46px; height: 64px; box-shadow: inset -2px 0 0 var(--n); }
+.mk .mid { align-self: center; min-width: 0; }
+.mk .r1 { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.35; }
+.mk .chip { flex: none; padding: 0 5px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; line-height: 15px; color: #05080f; background: var(--n); }
+.mk .r1 small { font-size: 11px; color: #9aa4b5; }
+.mk b { margin-top: 2px; font-size: 15.5px; color: #fff; line-height: 1.3; }
+.mk .ov { align-self: center; font-size: 28px; color: #e5e7eb; }
+.mk.g75 .ov { color: #34d399; }
+.mk.g90 .ov { background: linear-gradient(90deg, #f87171, #fbbf24, #34d399, #60a5fa, #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }`,
+    tpl: (d) => `<div class="cd">${face(d)}<span class="mid"><span class="r1"><span class="chip">${d.slot}</span><small class="t">${ss(d)}</small></span><b class="t">${d.name}</b></span>${ov(d)}</div>` },
+
+  { id: '15', title: '이름 바 + 시즌 칩', desc: '이름 바는 짧고 굵게, 시즌은 아래 따로 떨어진 작은 칩 — 칩 폭이 글자만큼 늘어나 절대 안 잘림', css: `
+.lf-tok { width: 184px; height: 76px; }
+.mk .bar { position: absolute; left: 0; right: 0; top: 4px; height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 50px; background: linear-gradient(90deg, rgba(9,14,26,.96), rgba(16,24,40,.92)); box-shadow: inset 3px 0 0 var(--n), inset 0 0 0 1px color-mix(in srgb, var(--n) 25%, transparent); clip-path: polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%); }
+.mk .face { position: absolute; left: 5px; top: -4px; width: 40px; height: 52px; z-index: 2; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.mk .bar b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+.mk .ov { font-size: 23px; }
+.mk .chip { position: absolute; left: 12px; top: 54px; display: inline-flex; align-items: center; gap: 5px; padding: 0 8px 0 6px; font-size: 11px; line-height: 19px; font-weight: 600; color: #e5e7eb; white-space: nowrap; background: rgba(5,8,15,.88); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 45%, transparent); }
+.mk .chip .pc { font-size: 12px; }
+.mk .chip i { width: 1px; height: 10px; background: rgba(255,255,255,.2); }`,
+    tpl: (d) => `<div class="bar"><b class="t">${d.name}</b>${ov(d)}</div>${face(d)}<span class="chip"><span class="pc">${d.slot}</span><i></i>${ss(d)}</span>` },
+  { id: '15B', title: '사선 이름 바 + 팀 색 시즌 칩', desc: '지금의 사선 자막 바를 살리고 포지션은 바 안 앞에 · 시즌은 바 아래 팀 색으로 채운 사선 칩(글자만큼 늘어남)', css: `
+.lf-tok { width: 196px; height: 74px; }
+.mk .bar { position: absolute; left: 0; right: 0; top: 4px; height: 44px; display: flex; align-items: center; gap: 7px; padding: 0 12px 0 50px; background: linear-gradient(90deg, rgba(9,14,26,.96), rgba(16,24,40,.92)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--n) 28%, transparent), 0 6px 14px rgba(0,0,0,.5); transform: skewX(-9deg); }
+.mk .bar > * { transform: skewX(9deg); }
+.mk .face { position: absolute; left: 6px; top: -6px; width: 42px; height: 54px; z-index: 2; -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+.mk .bar .pc { font-size: 13.5px; }
+.mk .bar b { flex: 1; min-width: 0; font-size: 15px; color: #fff; }
+.mk .ov { font-size: 23px; }
+.mk .chip { position: absolute; left: 34px; top: 51px; padding: 0 10px; font-size: 11px; line-height: 19px; font-weight: 700; color: #05080f; white-space: nowrap; background: var(--n); transform: skewX(-9deg); }
+.mk .chip > span { display: inline-block; transform: skewX(9deg); color: #05080f !important; }
+.mk .chip.offbg { background: #fbbf24; }
+.lf-tok.empty .mk .chip { background: #334155; }
+.lf-tok.empty .mk .chip > span { color: #cbd5e1 !important; }`,
+    tpl: (d) => `<div class="bar"><span class="pc">${d.slot}</span><b class="t">${d.name}</b>${ov(d)}</div>${face(d)}<span class="chip ${d.off ? 'offbg' : ''}"><span>${d.season}</span></span>` },
+
+  { id: '16', title: '미니멀 라인', desc: '판 없이 팀 색 세로선 + 옅은 그늘, 그림자 글씨 — 구장이 가장 많이 보이는 가벼운 안', css: `
+.lf-tok { width: 184px; height: 62px; }
+.mk .gl { position: absolute; left: 0; right: 0; top: 4px; bottom: 4px; background: linear-gradient(90deg, rgba(5,8,15,.85), rgba(5,8,15,.55) 70%, transparent); }
+.mk .ln { position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--n); box-shadow: 0 0 10px var(--n); }
+.mk .face { position: absolute; left: 9px; top: 0; width: 42px; height: 58px; -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+.mk .tx { position: absolute; left: 58px; right: 42px; top: 8px; line-height: 1.2; text-shadow: 0 1px 3px #000; }
+.mk .tx .pc { font-size: 11px; letter-spacing: .1em; }
+.mk b { font-size: 16px; font-weight: 800; color: #fff; }
+.mk small { font-size: 11px; color: #d1d5db; }
+.mk .ov { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 26px; text-shadow: 0 2px 6px #000; }`,
+    tpl: (d) => `<div class="gl"></div><div class="ln"></div>${face(d)}<span class="tx"><span class="pc t">${d.slot}</span><b class="t">${d.name}</b><small class="t">${ss(d)}</small></span>${ov(d)}` },
+  { id: '16B', title: '미니멀 · 원형 얼굴 + 밑줄 이름', desc: '판 없이 팀 색 링 원형 얼굴 · 이름 아래 팀 색 밑줄 · 둥근 그늘만 은은하게 — 가장 가볍고 둥근 안', css: `
+.lf-tok { width: 198px; height: 60px; }
+.mk::before { content: ""; position: absolute; left: -14px; right: -10px; top: -6px; bottom: -6px; background: radial-gradient(closest-side, rgba(5,8,15,.78), rgba(5,8,15,.4) 70%, transparent); }
+.mk .face { position: absolute; left: 0; top: 6px; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(5,8,15,.9), 0 0 0 4px var(--n), 0 0 16px -2px var(--n); }
+.mk .tx { position: absolute; left: 60px; right: 44px; top: 5px; line-height: 1.2; text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.8); }
+.mk b { display: inline-block; max-width: 100%; padding-bottom: 3px; font-size: 16px; font-weight: 800; color: #fff; box-shadow: 0 2px 0 var(--n); }
+.mk small { margin-top: 4px; font-size: 11px; color: #e5e7eb; }
+.mk small .pc { margin-right: 4px; font-size: 12px; }
+.mk .ov { position: absolute; right: 0; top: 50%; transform: translateY(-50%); font-size: 27px; text-shadow: 0 2px 6px #000; }`,
+    tpl: (d) => `${face(d)}<span class="tx"><b class="t">${d.name}</b><small class="t"><span class="pc">${d.slot}</span>${ss(d)}</small></span>${ov(d)}` },
+];
+
+/* 원래 토큰(리액트가 그림)에서 값을 읽어 .mk 를 다시 그린다. 값이 바뀐 토큰만 갱신 */
+function attach(ifr, v) {
+  const boot = () => {
+    const doc = ifr.contentDocument;
+    if (!doc || !doc.querySelector('.lf-tok')) { setTimeout(boot, 300); return; }
+    const css = (COMMON + v.css).replaceAll('.lf-tok {', 'html body .lf-tok {'); // 게임 <style>(body 안)보다 우선하도록
+    const sync = () => {
+      if (!doc.getElementById('mk-style')) { const st = doc.createElement('style'); st.id = 'mk-style'; st.textContent = css; doc.body.appendChild(st); }
+      doc.querySelectorAll('.lf-tok').forEach((t) => {
+      const ins = t.querySelectorAll('.lf-in'); const inner = ins[ins.length - 1]; if (!inner) return;
+      const sub = inner.querySelector('.lf-bx small')?.textContent || '';
+      const i = sub.indexOf(' · ');
+      const ovTxt = inner.querySelector('.lf-ov')?.textContent || '';
+      const d = { slot: i > 0 ? sub.slice(0, i) : sub, season: i > 0 ? sub.slice(i + 3) : '', name: inner.querySelector('.lf-bx b')?.textContent || '',
+        empty: t.classList.contains('empty'), off: !!inner.querySelector('.lf-off'), ov: ovTxt.replace('▲', '').trim(), up: ovTxt.includes('▲'), face: (inner.querySelector('.lf-bp')?.getAttribute('style') || '').replace(/"/g, "'") };
+      const n = +d.ov;
+      const cls = `mk ${n >= 90 ? 'g90' : n >= 75 ? 'g75' : ''}`;
+      const sig = JSON.stringify(d);
+      let mk = t.querySelector(':scope > .mk');
+      if (!mk) { mk = doc.createElement('div'); t.appendChild(mk); }
+      if (mk.dataset.sig !== sig) { mk.dataset.sig = sig; mk.className = cls; mk.innerHTML = v.tpl(d); }
+      });
+    };
+    sync(); setInterval(sync, 200);
+  };
+  boot();
+}
+
+const one = new URLSearchParams(location.search).get('v');
+const SRC = '/?demo=draft';
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>드래프트 화면 · 내 라인업 토큰 12종</b><span>실제 드래프트 화면(1440×900)을 줄여서 보여 줌 · 제목 옆 “크게 보기”는 실제 크기로 · 필드에서 누르기 · 끌기 · 선반 카드 고르기 모두 동작</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, k) => ifr.addEventListener('load', () => attach(ifr, VARS[k])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

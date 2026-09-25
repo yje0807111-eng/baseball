@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>내 라인업 여백 해결 16안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1480px; margin: 0 auto; }
+  .grpt { margin: 6px 2px -18px; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .2em; color: #10b981; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 실제 드래프트 화면(?demo=draft)에서 내 라인업 판의 배경 · 구장 배율 · 토큰 자리 · 시너지 도크만 안마다 바꾼다.
+   구장 좌표계(900×580)와 사진(1024×688)의 관계: 필드 x = 사진 x × 0.8789, 필드 y = 사진 y × 0.8789 − 12.4 */
+const SRC = '/?demo=draft';
+const WIDE = '/mockups/field-wide-16/wide.png';
+const SLOT_XY = { OF1: [220, 132], OF2: [450, 78], OF3: [680, 132], SS: [338, 228], '2B': [562, 228], '3B': [252, 306], '1B': [648, 306], SP: [450, 346], C: [450, 522], DH: [140, 470], MR: [760, 432], CL: [760, 512] };
+const ORDER = ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH', 'SP', 'MR', 'CL'];
+const LABEL = { C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자', SP: '선발', MR: '중간계투', CL: '마무리' };
+
+const VARS = [
+  { g: 'A · 사진을 가로로 넓히기 (Higgsfield 아웃페인팅 21:9)' },
+  { id: 'W1', title: '와이드 사진 · 지금 배치 그대로', desc: '사진 좌우를 관중석 · 조명탑으로 넓혀 판 전체를 채움 — 구장 크기 · 토큰 · 시너지 도크는 그대로, 양옆 검은 여백만 사라짐', cfg: { bg: 'wide', fit: 'room', dock: 'default' } },
+  { id: 'W2', title: '와이드 사진 · 유리 시너지 카드', desc: 'W1 + 시너지 도크를 오른쪽 관중석 위에 떠 있는 반투명 유리 카드로 — “구장 화면 안에 시너지가 들어간” 느낌', cfg: { bg: 'wide', fit: 'room', dock: 'glass', dw: 300 } },
+  { id: 'W3', title: '와이드 사진 · 구장 높이 꽉 채움', desc: '구장을 판 높이에 꽉 맞춰 크게(넘치는 가장자리 토큰은 안쪽으로 모음) · 시너지는 유리 카드로 관중석 위에', cfg: { bg: 'wide', fit: 'height', dock: 'glass', dw: 290 } },
+  { id: 'W4', title: '와이드 사진 · 구장 판 한가운데 + 짧은 시너지 카드', desc: '구장을 판 정가운데에 크게 · 시너지는 오른쪽 위 관중석(외야 펜스 바깥)에만 짧은 유리 카드로 — 아래쪽 불펜 토큰과 겹치지 않음, 좌우 대칭', cfg: { bg: 'wide', fit: 'full', dock: 'glass', dw: 240, dh: 300 } },
+  { id: 'W5', title: '와이드 사진 · 왼쪽 팀 요약', desc: '왼쪽 관중석 위에 유리 판으로 팀 종합 · 투수 / 야수 평균 · 켜진 시너지 · 남은 CP · 빈 자리 — 여백을 정보로 채우고 좌우 균형', cfg: { bg: 'wide', fit: 'room', dock: 'glass', dw: 280, side: 'summary' } },
+  { id: 'W6', title: '와이드 사진 · 왼쪽 라인업 명단', desc: '왼쪽 유리 판에 포지션 순서대로 12명 명단(이름 · 종합) — 필드에서 찾기 어려운 선수를 한눈에', cfg: { bg: 'wide', fit: 'room', dock: 'glass', dw: 280, side: 'order' } },
+  { id: 'W7', title: '와이드 사진 · 토큰 원래 크기', desc: 'W3 처럼 구장을 높이에 꽉 맞추고, 넓어진 만큼 토큰을 0.8 → 0.92배로 키움 · 가장자리 토큰은 관중석 쪽으로 넓게 펼침', cfg: { bg: 'wide', fit: 'height', dock: 'glass', dw: 290, tok: 0.92, spread: 1.18 } },
+  { g: 'B · 사진 안에서 해결 (지금 사진 그대로)' },
+  { id: 'Z1', title: '확대 · 관중석 잘라내기', desc: '사진을 15% 확대해 어두운 관중석을 판 밖으로 밀어내고 잔디가 판을 채움 · 잘린 가장자리 토큰(외야 · 지명 · 불펜)은 보이는 범위 안으로', cfg: { bg: 'orig', fit: 'zoom', zoom: 1.15, dock: 'default' } },
+  { id: 'Z2', title: '크게 확대 + 유리 시너지', desc: '28% 확대해 내야 · 외야 잔디 위주로 · 시너지는 유리 카드로 잔디 위에 — 토큰이 더 크고 가깝게 보임', cfg: { bg: 'orig', fit: 'zoom', zoom: 1.28, dock: 'glass', dw: 290 } },
+  { id: 'B1', title: '흐린 확장 배경', desc: '같은 사진을 판 전체에 크게 흐리고 어둡게 깔고, 가운데 선명한 구장이 이어짐 — 새 그림 없이 여백만 부드럽게', cfg: { bg: 'orig', fit: 'room', dock: 'default', blur: true } },
+  { id: 'B2', title: '조명 광선 + 관중석 무늬', desc: '양옆 여백에 위에서 내려오는 조명 빛줄기와 옅은 좌석 줄무늬 · 판 가장자리 초록 빛 — 그래픽으로 여백을 경기장처럼', cfg: { bg: 'orig', fit: 'room', dock: 'default', beams: true } },
+  { g: 'C · 시너지 도크 배치 바꾸기' },
+  { id: 'D1', title: '시너지 접이식 탭', desc: '시너지를 오른쪽 좁은 “SYNERGY” 탭으로 접어 두고 마우스를 올리면 펼침 — 구장이 판을 거의 다 씀 (와이드 사진)', cfg: { bg: 'wide', fit: 'room', dock: 'tab' } },
+  { id: 'D2', title: '시너지 왼쪽', desc: '시너지 유리 카드를 왼쪽 관중석(PICK 과 가까운 쪽)으로 옮기고 구장은 오른쪽 — 영입 후보와 시너지를 같은 시선에서', cfg: { bg: 'wide', fit: 'room', dock: 'left', dw: 290 } },
+  { id: 'D3', title: '시너지 얇게 + 투명 (판 꽉 채움)', desc: '시너지 폭을 320 → 250 으로 줄이고 배경 그늘을 옅게 · 와이드 사진이 판 위아래 · 좌우 끝까지 빈틈 없이 채우도록 구장 배율과 위치를 맞춤(잘린 가장자리 없음)', cfg: { bg: 'wide', fit: 'cover', dock: 'thin', dw: 250 } },
+  { g: 'D · 판 비율 바꾸기' },
+  { id: 'L1', title: 'PICK 열 넓히기', desc: '왼쪽 PICK 열을 넓혀 PICK 카드가 커지고 라인업 판은 좁아짐 — 구장 비율에 가까워져 여백 자체가 줄어듦 (지금 사진)', cfg: { bg: 'orig', fit: 'room', dock: 'default', pickWide: true } },
+  { id: 'L2', title: 'PICK 넓히기 + 와이드 사진 + 유리 시너지', desc: 'L1 에 와이드 사진과 유리 시너지 카드를 더한 조합 — 판 폭이 줄고 남은 가장자리도 사진으로', cfg: { bg: 'wide', fit: 'room', dock: 'glass', dw: 270, pickWide: true } },
+];
+
+const BASE = `
+.lf-field { transform: var(--mk-t) !important; }
+.lf-tok { transform: translate(-50%, -50%) scale(var(--mk-ts, .8)) !important; }
+.mk-wide { position: absolute; pointer-events: none; max-width: none !important; /* 게임의 기본 img { max-width: 100% } 에 줄어들지 않게 */ -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+.mk-hide-orig .lf-field > img:not(.mk-wide) { display: none !important; }
+.mk-cover .mk-wide { -webkit-mask-image: none; mask-image: none; } /* 판을 꽉 채울 때는 가장자리를 흐리지 않음 */
+.mk-blur { position: absolute; inset: -40px; pointer-events: none; background: url(ui/field-night.webp) center 40% / cover; filter: blur(22px) brightness(.5) saturate(1.1); }
+.mk-beams { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(28% 75% at 6% -8%, rgba(224,242,254,.16), transparent 70%), radial-gradient(28% 75% at 62% -8%, rgba(224,242,254,.14), transparent 70%),
+    linear-gradient(90deg, rgba(16,185,129,.1), transparent 14%, transparent 60%, rgba(16,185,129,.06) 72%, transparent 74%); }
+.mk-beams::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: repeating-linear-gradient(0deg, rgba(148,163,184,.07) 0 2px, transparent 2px 10px); -webkit-mask-image: linear-gradient(90deg, #000, transparent 22%, transparent 55%, #000 72%, transparent 76%), linear-gradient(transparent, #000); mask-image: linear-gradient(90deg, #000, transparent 22%, transparent 55%, #000 72%, transparent 76%); }
+.syn-dock.mk-glass { top: 12px !important; bottom: 12px !important; right: 12px !important; width: var(--mk-dw) !important; padding: 12px 14px 10px !important; background: rgba(6,10,19,.64) !important; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); clip-path: polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); }
+.syn-dock.mk-left { left: 12px !important; right: auto !important; }
+.syn-dock.mk-short { bottom: auto !important; height: var(--mk-dh) !important; }
+.syn-dock.mk-thin { width: var(--mk-dw) !important; padding-left: 22px !important; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.55) 22%, rgba(5,8,15,.7)) !important; }
+.syn-dock.mk-tab { width: 56px !important; padding: 14px 8px !important; overflow: hidden; background: rgba(6,10,19,.72) !important; box-shadow: inset 1px 0 0 rgba(16,185,129,.35); transition: width .2s; }
+.syn-dock.mk-tab > * { opacity: 0; transition: opacity .15s; }
+.syn-dock.mk-tab::before { content: "SYNERGY"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .32em; color: #34d399; white-space: nowrap; transition: opacity .15s; }
+.syn-dock.mk-tab:hover { width: 320px !important; padding: 12px 14px 10px !important; }
+.syn-dock.mk-tab:hover > * { opacity: 1; }
+.syn-dock.mk-tab:hover::before { opacity: 0; }
+.mk-side { position: absolute; z-index: 6; left: 12px; top: 12px; bottom: 12px; width: 226px; padding: 14px 14px 12px; overflow: hidden; color: #e5e7eb; font-size: 12px; background: rgba(6,10,19,.64); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(16,185,129,.28); clip-path: polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px); }
+.mk-side h4 { margin: 0 0 10px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .28em; color: #34d399; }
+.mk-side .big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.mk-side .big b { font-family: 'Saira Condensed', sans-serif; font-size: 46px; line-height: 1; color: #fff; text-shadow: 0 0 14px rgba(16,185,129,.5); }
+.mk-side .big span { font-size: 12px; color: #9ca3af; }
+.mk-side .rw { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-top: 1px solid rgba(255,255,255,.07); }
+.mk-side .rw span { color: #9ca3af; }
+.mk-side .rw b { font-family: 'Saira Condensed', sans-serif; font-size: 18px; color: #fff; }
+.mk-side .bar { height: 4px; margin-top: 4px; background: rgba(255,255,255,.08); }
+.mk-side .bar i { display: block; height: 100%; background: #10b981; }
+.mk-side ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.mk-side li { display: grid; grid-template-columns: 52px minmax(0,1fr) 26px; align-items: center; gap: 6px; padding: 3px 6px; background: rgba(255,255,255,.03); }
+.mk-side li em { font-style: normal; font-size: 11px; color: #6ee7b7; }
+.mk-side li span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; font-weight: 600; }
+.mk-side li b { font-family: 'Saira Condensed', sans-serif; font-size: 15px; text-align: right; color: #e5e7eb; }
+.mk-side li.e span { color: #6b7280; font-weight: 400; }
+.mk-pickwide { grid-template-columns: clamp(17rem, 25vw, 27rem) minmax(0, 1fr) !important; }
+`;
+
+function attach(ifr, v) {
+  const c = v.cfg;
+  let wide = null; // { w, h } 와이드 사진 크기
+  if (c.bg === 'wide') { const im = new Image(); im.onload = () => { wide = { w: im.naturalWidth, h: im.naturalHeight }; }; im.src = WIDE; }
+  const tick = () => {
+    const doc = ifr.contentDocument; const field = doc?.querySelector('.lf-field');
+    if (!field) return;
+    const wrap = field.parentElement; const dock = doc.querySelector('.syn-dock');
+    if (!doc.getElementById('mk-style')) { const st = doc.createElement('style'); st.id = 'mk-style'; st.textContent = BASE; doc.body.appendChild(st); }
+    if (c.pickWide) doc.querySelector('.pk-stage')?.closest('.bc-grp')?.parentElement.classList.add('mk-pickwide');
+    const W = wrap.clientWidth, H = wrap.clientHeight;
+    // 도크 모양
+    if (dock) {
+      dock.classList.toggle('mk-glass', c.dock === 'glass' || c.dock === 'left');
+      dock.classList.toggle('mk-left', c.dock === 'left');
+      dock.classList.toggle('mk-thin', c.dock === 'thin');
+      dock.classList.toggle('mk-tab', c.dock === 'tab');
+      dock.classList.toggle('mk-short', !!c.dh);
+      dock.style.setProperty('--mk-dw', `${c.dw || 320}px`);
+      if (c.dh) dock.style.setProperty('--mk-dh', `${c.dh}px`);
+    }
+    // 구장이 쓸 수 있는 가로 범위
+    const dw = c.dock === 'default' ? 320 : c.dock === 'tab' ? 56 : c.dock === 'thin' ? c.dw : (c.dw + 24);
+    let x0 = 0, x1 = W;
+    if (c.fit !== 'full') { if (c.dock === 'left') x0 = dw; else x1 = W - dw; }
+    if (c.side) x0 = 250;
+    const roomW = x1 - x0;
+    let s = Math.min(roomW / 900, H / 580);
+    if (c.fit === 'height') s = H / 580;
+    if (c.fit === 'zoom') s = Math.max(roomW / 900, H / 580) * c.zoom;
+    let ox = x0 + (roomW - 900 * s) / 2, oy = (H - 580 * s) / 2;
+    if (c.fit === 'cover') {
+      // 와이드 사진이 필드 좌표에서 차지하는 범위(왼 −201.6 · 위 7.4 · 오른 1101.9 · 아래 560.4)가 판 전체를 덮는 가장 작은 배율,
+      // 위치는 토큰을 방 가운데에 두되 사진 끝이 판 안으로 들어오지 않게 제한
+      const IMG = { l: -201.6, t: 7.4, r: 1101.9, b: 560.4 };
+      const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+      s = Math.max(H / (IMG.b - IMG.t), W / (IMG.r - IMG.l)) * 1.003;
+      ox = clamp(x0 + (roomW - 900 * s) / 2, W - IMG.r * s, -IMG.l * s);
+      oy = clamp((H - 580 * s) / 2, H - IMG.b * s, -IMG.t * s);
+    }
+    wrap.classList.toggle('mk-cover', c.fit === 'cover');
+    field.style.setProperty('--mk-t', `translate(${ox}px, ${oy}px) scale(${s})`);
+    const ts = c.tok || .8;
+    wrap.style.setProperty('--mk-ts', ts);
+    // 토큰 자리: 펼치기 → 보이는 범위(방 · 판 안) 밖으로 나가면 가운데 쪽으로 모으기
+    const tx1 = c.fit === 'full' && c.dock !== 'left' && !c.dh ? W - dw : x1; // 구장은 판 가운데여도 토큰은 시너지 카드 밑으로 들어가지 않게(짧은 카드면 판 끝까지)
+    const vx0 = (x0 - ox) / s, vx1 = (tx1 - ox) / s, vy0 = (0 - oy) / s, vy1 = (H - oy) / s;
+    const hw = 107 * ts + 6, hh = 36 * ts + 14;
+    const cx = 450, cy = 300;
+    let sx = c.spread || 1, sy = 1;
+    const maxDx = Math.max(...Object.values(SLOT_XY).map(([x]) => Math.abs(x - cx)));
+    const maxDyUp = Math.max(...Object.values(SLOT_XY).map(([, y]) => cy - y)), maxDyDn = Math.max(...Object.values(SLOT_XY).map(([, y]) => y - cy));
+    sx = Math.min(sx, (Math.min(cx - vx0, vx1 - cx) - hw) / maxDx);
+    sy = Math.min(1, (cy - vy0 - hh) / maxDyUp, (vy1 - cy - hh) / maxDyDn);
+    const pos = Object.entries(SLOT_XY).map(([k, [x, y]]) => `.lf-tok[data-slot="${k}"]{left:${(cx + (x - cx) * sx).toFixed(1)}px!important;top:${(cy + (y - cy) * sy).toFixed(1)}px!important}`).join('');
+    let ps = doc.getElementById('mk-pos'); if (!ps) { ps = doc.createElement('style'); ps.id = 'mk-pos'; doc.body.appendChild(ps); }
+    if (ps.textContent !== pos) ps.textContent = pos;
+    // 배경
+    wrap.classList.toggle('mk-hide-orig', c.bg === 'wide');
+    if (c.bg === 'wide' && wide && !field.querySelector('.mk-wide')) {
+      // 원본 사진은 와이드 사진 안에 2.136배로 (490, −48)px 에 들어가 있다(회색조 정합으로 찾은 값) → 와이드 1px = 0.8789 / 2.136 필드 단위
+      const REG = { s: 2.136, dx: 490, dy: -48 };
+      const fpw = 0.8789 / REG.s;
+      const img = doc.createElement('img'); img.className = 'mk-wide'; img.src = WIDE;
+      Object.assign(img.style, { left: `${-REG.dx * fpw}px`, top: `${(-REG.dy / REG.s) * 0.8789 - 12.4}px`, width: `${wide.w * fpw}px`, height: `${wide.h * fpw}px` });
+      field.insertBefore(img, field.firstChild);
+    }
+    if (c.blur && !wrap.querySelector('.mk-blur')) { const d = doc.createElement('div'); d.className = 'mk-blur'; wrap.insertBefore(d, field); }
+    if (c.beams && !wrap.querySelector('.mk-beams')) { const d = doc.createElement('div'); d.className = 'mk-beams'; wrap.insertBefore(d, field); }
+    // 왼쪽 판
+    if (c.side) {
+      let side = wrap.querySelector('.mk-side'); if (!side) { side = doc.createElement('div'); side.className = 'mk-side'; wrap.appendChild(side); }
+      const toks = [...doc.querySelectorAll('.lf-field .lf-tok')].map((t) => { const ins = t.querySelectorAll('.lf-in'); const inner = ins[ins.length - 1]; return { slot: t.dataset.slot, empty: t.classList.contains('empty'), name: inner?.querySelector('.lf-bx b')?.textContent || '', ov: +((inner?.querySelector('.lf-ov')?.textContent || '').replace(/[^0-9]/g, '')) || 0 }; });
+      const filled = toks.filter((t) => !t.empty);
+      const avg = (a) => (a.length ? Math.round(a.reduce((x, t) => x + t.ov, 0) / a.length * 10) / 10 : 0);
+      const pit = filled.filter((t) => ['SP', 'MR', 'CL'].includes(t.slot)), bat = filled.filter((t) => !['SP', 'MR', 'CL'].includes(t.slot));
+      const cp = (doc.body.innerText.match(/(\d+)\s*\/\s*\d+\s*CP/) || [])[1] || '-';
+      const syn = doc.querySelectorAll('.dock-row.on').length;
+      const html = c.side === 'summary'
+        ? `<h4>TEAM</h4><div class="big"><b>${avg(filled)}</b><span>팀 종합<br>${filled.length}/12명</span></div>
+           <div class="rw"><span>투수 평균</span><b>${avg(pit)}</b></div><div class="bar"><i style="width:${avg(pit)}%"></i></div>
+           <div class="rw"><span>야수 평균</span><b>${avg(bat)}</b></div><div class="bar"><i style="width:${avg(bat)}%"></i></div>
+           <div class="rw"><span>켜진 시너지</span><b>${syn}</b></div><div class="rw"><span>남은 CP</span><b>${cp}</b></div><div class="rw"><span>빈 자리</span><b>${12 - filled.length}</b></div>`
+        : `<h4>LINEUP</h4><ol>${ORDER.map((k) => { const t = toks.find((x) => x.slot === k); return `<li class="${t?.empty ? 'e' : ''}"><em>${LABEL[k]}</em><span>${t?.empty ? '빈 자리' : t?.name}</span><b>${t?.empty ? '' : t?.ov}</b></li>`; }).join('')}</ol>`;
+      if (side.dataset.h !== html) { side.dataset.h = html; side.innerHTML = html; }
+    }
+  };
+  tick(); setInterval(tick, 300);
+}
+
+const items = VARS.filter((v) => v.id);
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = items.find((x) => x.id === one) || items[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>내 라인업 여백 해결 16안</b><span>실제 드래프트 화면(1440×900) · A 사진 넓히기 · B 사진 안에서 · C 시너지 배치 · D 판 비율 · “크게 보기”는 실제 크기(창 크기에 맞춰 다시 계산)</span>
+      <nav>${items.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => (v.g ? `<div class="grpt">${v.g}</div>` : `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`)).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, items[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1440})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

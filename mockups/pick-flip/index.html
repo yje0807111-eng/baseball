@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PICK 카드 뒤집기 모션 · 카드 교체 포함</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&family=Saira+Condensed:wght@500;600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top .g { margin-left: auto; display: flex; gap: 6px; }
+  .ctl { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 11px; font-size: 12px; font-weight: 700; color: #e5e7eb; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); white-space: nowrap; }
+  .ctl:hover { box-shadow: inset 0 0 0 1px #10b981; color: #6ee7b7; }
+  .ctl.pri { color: #04150e; background: #10b981; box-shadow: none; }
+  .row { display: grid; grid-template-columns: repeat(auto-fill, 300px); gap: 28px 22px; padding: 18px; background: linear-gradient(180deg, rgba(5,8,15,.55), rgba(5,8,15,.92)), url(/ui/stadium.webp) center 30%/cover; }
+  .cell { display: flex; flex-direction: column; gap: 8px; }
+  .cell > b { font-size: 14px; color: #fff; }
+  .cell > b i { font-style: normal; color: #10b981; margin-right: 6px; font-family: 'Saira Condensed', sans-serif; }
+  .cell > span { min-height: 54px; font-size: 12px; line-height: 1.5; color: #9ca3af; }
+  .btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .shelf { display: flex; gap: 4px; }
+  .shelf button { flex: 1; height: 28px; font-size: 11px; font-weight: 700; color: #cbd5e1; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shelf button.on { color: #04150e; background: #10b981; box-shadow: none; }
+
+  .grp { --c: 16px; --a: #10b981; position: relative; width: 300px; height: 540px; padding: 30px 10px 10px; background: rgba(6,10,19,.8); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); display: flex; flex-direction: column; gap: 8px; }
+  .grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none;
+    background: linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) left top / var(--c) var(--c) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--a) calc(50% - 1px), var(--a) calc(50% + 1px), transparent calc(50% + 1px)) right bottom / var(--c) var(--c) no-repeat,
+      linear-gradient(var(--a), var(--a)) left var(--c) top 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) left 0 top var(--c) / 2px 30px no-repeat,
+      linear-gradient(var(--a), var(--a)) right var(--c) bottom 0 / 56px 2px no-repeat, linear-gradient(var(--a), var(--a)) right 0 bottom var(--c) / 2px 30px no-repeat;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 30%, transparent); }
+  .lab { position: absolute; z-index: 8; left: 20px; top: 8px; display: inline-flex; align-items: center; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .32em; color: var(--a); }
+  .lab::before { content: ""; width: 14px; height: 10px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); }
+  .stage { position: relative; flex: 1; min-height: 0; perspective: 1000px; }
+  .layer { position: absolute; left: 50%; top: 0; height: 100%; aspect-ratio: 2/3; max-width: 100%; transform: translateX(-50%); transform-style: preserve-3d; }
+  .foot { position: relative; flex: none; height: 44px; }
+  .ghost, .go { position: absolute; inset: 0; clip-path: polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px); }
+  .ghost { background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .go { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 800; color: #04150e; background: #10b981; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .has .go { opacity: 1; pointer-events: auto; }
+
+  .skl, .pk { position: absolute; inset: 0; container-type: inline-size; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); backface-visibility: hidden; }
+  .skl { background: linear-gradient(180deg, #0a1120, #070c16); }
+  .sk { position: absolute; background: rgba(148,163,184,.09); }
+  .fr { position: absolute; inset: 1.6cqw; border: 1px solid rgba(148,163,184,.2); pointer-events: none; }
+  .pk { background: #05080f; overflow: hidden; }
+  .pk img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 20%; }
+  .pk .sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,8,15,.55) 0, rgba(5,8,15,0) 24%, rgba(5,8,15,0) 44%, rgba(5,8,15,.9) 70%, #05080f 100%), linear-gradient(90deg, rgba(5,8,15,.5) 0, rgba(5,8,15,0) 50%); }
+  .pk .fr { border-color: color-mix(in srgb, var(--n) 45%, transparent); }
+  .pk .tb { position: absolute; left: 6cqw; right: 1.6cqw; top: 1.6cqw; height: 1.3cqw; background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,.7); }
+  .pk.t90 .tb { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc); }
+  .pk.w .tb { background: rgba(255,255,255,.55); box-shadow: none; }
+  .pk .ov { position: absolute; left: 6cqw; top: 6cqw; font-family: 'Saira Condensed', sans-serif; font-size: 24cqw; font-weight: 800; line-height: .85; color: #34d399; text-shadow: 0 0 2px #000, 0 2px 10px #000; }
+  .pk.w .ov { color: #f3f4f6; }
+  .pk.t90 .ov { background: linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 1px #000) drop-shadow(0 2px 6px #000); }
+  .pk .meta { position: absolute; left: 6.5cqw; top: 28cqw; font-family: 'Saira Condensed', sans-serif; font-size: 4.2cqw; font-weight: 600; letter-spacing: .08em; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .pk dl { position: absolute; left: 5cqw; top: 35cqw; width: 42cqw; margin: 0; padding: 2.4cqw 3cqw 1cqw; background: rgba(5,8,15,.66); }
+  .pk .st { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; padding-bottom: 1.6cqw; }
+  .pk dt { font-size: 4cqw; font-weight: 600; color: #cbd5e1; }
+  .pk dd { margin: 0; font-family: 'Saira Condensed', sans-serif; font-size: 6cqw; font-weight: 700; line-height: 1; }
+  .pk .bar { flex-basis: 100%; height: 1.2cqw; margin-top: .8cqw; background: rgba(255,255,255,.12); }
+  .pk .bar i { display: block; height: 100%; background: var(--n); }
+  .pk .note { position: absolute; left: 6cqw; right: 6cqw; bottom: 43cqw; font-size: 4cqw; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pk .pos { position: absolute; left: 6cqw; right: 6cqw; bottom: 35.5cqw; display: flex; align-items: center; gap: 1.8cqw; line-height: 1; white-space: nowrap; font-family: 'Saira Condensed', sans-serif; }
+  .pk .pos em { padding: .8cqw 1.6cqw; font-style: normal; font-size: 4.4cqw; font-weight: 800; color: #05080f; background: var(--n); }
+  .pk .pos span { font-size: 4.4cqw; font-weight: 500; letter-spacing: .07em; color: #e5e7eb; }
+  .pk .rule { position: absolute; left: 6cqw; right: 6cqw; bottom: 32.5cqw; height: 1px; background: linear-gradient(90deg, var(--n), transparent); }
+  .pk .nm { position: absolute; left: 6cqw; right: 25cqw; bottom: 7cqw; font-size: 14cqw; font-weight: 800; line-height: 1.05; color: #fff; white-space: nowrap; }
+  .pk .cp { position: absolute; right: 6cqw; bottom: 7.5cqw; text-align: right; line-height: .9; font-family: 'Saira Condensed', sans-serif; }
+  .pk .cp small { display: block; font-size: 3.8cqw; font-weight: 700; color: #9ca3af; }
+  .pk .cp b { display: block; font-size: 12cqw; font-weight: 800; color: var(--n); }
+
+  /* ════ 뒤집기: 반쪽 시간 --h (카드 → 옆면 → 뒷면(스켈레톤) 또는 그 반대) ════ */
+  @keyframes cardIn { 0%, 50% { transform: rotateY(-90deg) scale(var(--lift)); } 100% { transform: rotateY(0) scale(1); } }
+  @keyframes cardOut { 0% { transform: rotateY(0) scale(1); } 50%, 100% { transform: rotateY(90deg) scale(var(--lift)); } }
+  @keyframes backAway { from { transform: rotateY(0) scale(1); } to { transform: rotateY(-90deg) scale(var(--lift)); } }
+  @keyframes backReturn { from { transform: rotateY(90deg) scale(var(--lift)); } to { transform: rotateY(0) scale(1); } }
+  @keyframes sign { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate(18px, 14px) scale(.96); } }
+  .pk.in { animation: cardIn calc(var(--h) * 2) ease-in-out both; }
+  .pk.out { animation: cardOut calc(var(--h) * 2) ease-in-out both; }
+  .skl.away { animation: backAway var(--h) ease-in both; }
+  .skl.return { animation: backReturn var(--h) ease-out var(--h) both; }
+  .skl.hidden { transform: rotateY(-90deg); }
+  .pk.sign { animation: sign .35s ease-in both; }
+  /* 뒤집힐 때 옆면이 너무 납작해 보이지 않게 가장자리에 옅은 빛 */
+  .layer::after { content: ""; position: absolute; inset: 0; pointer-events: none; clip-path: polygon(7% 0,100% 0,100% 95.3%,93% 100%,0 100%,0 4.7%); box-shadow: inset 0 0 0 1px rgba(148,163,184,.08); }
+
+  .f1 { --h: .18s; --lift: 1; }
+  .f2 { --h: .12s; --lift: 1; }
+  .f3 { --h: .22s; --lift: 1.04; }
+  @media (prefers-reduced-motion: reduce) { .pk, .skl { animation-duration: .01ms !important; animation-delay: 0s !important; } }
+</style>
+</head>
+<body>
+<div class="top"><b>PICK 카드 뒤집기 · 카드 교체도 뒤집기</b><span>선택: 뒷면(스켈레톤) → 카드 · 해제: 카드 → 뒷면 · 다른 카드: 지금 카드가 돌아가며 바로 새 카드(한 박자) · 영입: 그대로 라인업 쪽으로 사라짐</span>
+  <div class="g"><button class="ctl pri" id="allIn">전체 선택</button><button class="ctl" id="allSwap">전체 다른 카드</button><button class="ctl" id="allOut">전체 해제</button></div></div>
+<div class="row" id="row"></div>
+<template id="skel">
+  <span class="sk" style="left:6cqw;right:1.6cqw;top:1.6cqw;height:1.3cqw;background:rgba(148,163,184,.22)"></span>
+  <span class="sk" style="left:6cqw;top:7cqw;width:26cqw;height:19cqw"></span>
+  <span class="sk" style="left:6.5cqw;top:29cqw;width:34cqw;height:3.4cqw"></span>
+  <span class="sk" style="left:5cqw;top:36cqw;width:42cqw;height:44cqw;background:rgba(148,163,184,.05);box-shadow:inset 0 0 0 1px rgba(148,163,184,.1)"></span>
+  <span class="sk" style="left:9cqw;top:41cqw;width:20cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:47cqw;width:30cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:52cqw;width:18cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:58cqw;width:26cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:63cqw;width:22cqw;height:3cqw"></span><span class="sk" style="left:9cqw;top:69cqw;width:33cqw;height:1.4cqw"></span>
+  <span class="sk" style="left:9cqw;top:74cqw;width:16cqw;height:3cqw"></span>
+  <span class="sk" style="left:6cqw;bottom:43cqw;width:44cqw;height:3cqw"></span>
+  <span class="sk" style="left:6cqw;bottom:35.5cqw;width:8cqw;height:5cqw;background:rgba(16,185,129,.2)"></span><span class="sk" style="left:16cqw;bottom:36.2cqw;width:34cqw;height:3.4cqw"></span>
+  <span class="sk" style="left:6cqw;right:6cqw;bottom:32.5cqw;height:1px;background:rgba(16,185,129,.3)"></span>
+  <span class="sk" style="left:6cqw;bottom:8cqw;width:46cqw;height:12cqw"></span>
+  <span class="sk" style="right:6cqw;bottom:18cqw;width:8cqw;height:3cqw"></span><span class="sk" style="right:6cqw;bottom:8cqw;width:14cqw;height:9cqw;background:rgba(16,185,129,.16)"></span>
+  <span class="fr"></span>
+</template>
+<script type="module">
+const M = await import('/src/KboAugmentDraft.jsx');
+const STAT = { power: '파워', contact: '컨택', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', stability: '안정' };
+const FULL = { SP: 'STARTING PITCHER', RP: 'RELIEF PITCHER', C: 'CATCHER', '1B': 'FIRST BASE', '2B': 'SECOND BASE', '3B': 'THIRD BASE', SS: 'SHORTSTOP', OF: 'OUTFIELDER', DH: 'DESIGNATED HITTER' };
+const NEON = { 한화: '#ff8a3d', 대한민국: '#60a5fa', SK: '#ff5a67', 롯데: '#7cb4ff', KIA: '#ff5a67', 해태: '#ff5a67', 두산: '#a5a3ff', OB: '#a5a3ff', NC: '#6cc0ff', 삼성: '#5aa2ff', 넥센: '#ff6b9a', 키움: '#ff6b9a', LG: '#ff5c95' };
+const hand = (p) => (p.type === 'batter' ? `${p.hand === 'L' ? '좌' : '우'}타` : `${p.hand === 'L' ? '좌' : '우'}투`);
+const pick = (f) => M.ALL_PLAYERS.filter(f).sort((a, b) => (b.note ? 1 : 0) - (a.note ? 1 : 0) || b.overall - a.overall)[0];
+const PLAYERS = [
+  pick((p) => p.isForeign && p.type === 'pitcher' && p.overall >= 80 && p.overall < 90),
+  pick((p) => p.type === 'batter' && p.overall >= 90),
+  pick((p) => p.type === 'batter' && p.overall < 75 && p.note),
+].filter(Boolean);
+const cardHtml = (p) => {
+  const ks = p.type === 'batter' ? ['power', 'contact', 'speed', 'defense'] : ['stuff', 'control', 'stamina', 'stability'];
+  const tier = p.overall >= 90 ? 't90' : p.overall >= 75 ? '' : 'w';
+  return `<div class="pk ${tier}" style="--n:${NEON[p.team] || '#10b981'}"><img src="/cards/${encodeURIComponent(p.id)}.webp" alt="" /><span class="sh"></span><span class="tb"></span>
+    <span class="ov">${p.overall}</span><span class="meta">${p.year} · ${p.team} · ${hand(p)}</span>
+    <dl>${ks.map((k) => `<div class="st"><dt>${STAT[k]}</dt><dd>${p.stats[k]}</dd><b class="bar"><i style="width:${p.stats[k]}%"></i></b></div>`).join('')}</dl>
+    ${p.note ? `<span class="note">${p.note}</span>` : ''}<span class="pos"><em>${p.position}</em><span>${FULL[p.position]}</span></span><span class="rule"></span>
+    <span class="nm">${p.name}</span><span class="cp"><small>CP</small><b>${p.cost}</b></span><span class="fr"></span></div>`;
+};
+const V = [
+  ['f1', '기본', '반쪽 0.18초 · 선택/해제/다른 카드 모두 한 번 뒤집기 0.36초'],
+  ['f2', '빠르게', '반쪽 0.12초 · 한 번 뒤집기 0.24초 — 연달아 여러 장을 볼 때 답답하지 않음'],
+  ['f3', '살짝 들어 올리며', '반쪽 0.22초 · 한 번 뒤집기 0.44초 · 옆면일 때 4% 커져 손으로 집어 뒤집는 느낌'],
+];
+document.getElementById('row').innerHTML = V.map(([k, n, d], i) => `
+  <div class="cell ${k}"><b><i>${i + 1}</i>${n}</b><span>${d}</span>
+    <div class="grp"><span class="lab">PICK</span>
+      <div class="stage"><div class="layer"><div class="skl">${document.getElementById('skel').innerHTML}</div></div></div>
+      <div class="foot"><span class="ghost"></span><button class="go">＋ 영입하기</button></div>
+    </div>
+    <div class="shelf">${PLAYERS.map((p, j) => `<button data-p="${j}">${p.name} ${p.overall}</button>`).join('')}</div>
+    <div class="btns"><button class="ctl" data-a="in">선택</button><button class="ctl" data-a="swap">다른 카드</button><button class="ctl" data-a="out">해제</button><button class="ctl" data-a="sign">영입</button></div>
+  </div>`).join('');
+
+const secs = (el, name) => parseFloat(getComputedStyle(el).getPropertyValue(name)) * 1000;
+class Panel {
+  constructor(cell) { this.cell = cell; this.layer = cell.querySelector('.layer'); this.grp = cell.querySelector('.grp'); this.skl = cell.querySelector('.skl'); this.card = null; this.cur = -1; this.busy = null; }
+  get h() { return secs(this.cell, '--h'); }
+  mark() { this.cell.querySelectorAll('.shelf button').forEach((b) => b.classList.toggle('on', +b.dataset.p === this.cur && !!this.card)); }
+  flipIn(i) {
+    const t = document.createElement('div'); t.innerHTML = cardHtml(PLAYERS[i]); const el = t.firstElementChild;
+    el.classList.add('in'); this.layer.appendChild(el);
+    this.skl.className = 'skl away';
+    this.card = el; this.cur = i; this.grp.classList.add('has'); this.mark();
+    clearTimeout(this.busy); this.busy = setTimeout(() => { this.skl.className = 'skl hidden'; }, this.h * 2);
+  }
+  flipOut(then) {
+    const c = this.card; if (!c) { then?.(); return; }
+    this.card = null; this.grp.classList.toggle('has', !!then); this.mark();
+    c.className = c.className.replace(/\bin\b/, '').trim() + ' out';
+    this.skl.className = 'skl return';
+    setTimeout(() => { c.remove(); this.skl.className = 'skl'; then?.(); }, this.h * 2);
+  }
+  enter(i = (this.cur + 1) % PLAYERS.length) { if (this.card) { this.swap(i); return; } this.flipIn(i); }
+  exit() { this.flipOut(); }
+  swap(i = (this.cur + 1) % PLAYERS.length) {
+    if (!this.card) { this.flipIn(i); return; }
+    if (i === this.cur) { this.flipOut(); return; } // 같은 카드를 다시 누르면 해제
+    // 한 박자 교체: 지금 카드가 앞 반쪽 동안 옆면까지 돌아가고, 뒤 반쪽 동안 새 카드가 옆면에서 돌아 나온다(뒷면을 거치지 않음)
+    const old = this.card;
+    old.className = old.className.replace(/\bin\b/, '').trim() + ' out';
+    setTimeout(() => old.remove(), this.h * 2);
+    const t = document.createElement('div'); t.innerHTML = cardHtml(PLAYERS[i]); const el = t.firstElementChild;
+    el.classList.add('in'); this.layer.appendChild(el);
+    this.card = el; this.cur = i; this.mark();
+  }
+  sign() {
+    const c = this.card; if (!c) return;
+    this.card = null; this.grp.classList.remove('has'); this.mark();
+    c.className = c.className.replace(/\bin\b/, '').trim() + ' sign';
+    this.skl.className = 'skl';
+    setTimeout(() => c.remove(), 380);
+  }
+}
+const panels = [...document.querySelectorAll('.cell')].map((c) => new Panel(c));
+document.getElementById('row').addEventListener('click', (e) => {
+  const p = panels.find((x) => x.cell.contains(e.target)); if (!p) return;
+  const sb = e.target.closest('[data-p]'); if (sb) { p.card ? p.swap(+sb.dataset.p) : p.flipIn(+sb.dataset.p); return; }
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  ({ in: () => p.enter(), out: () => p.exit(), swap: () => p.swap(), sign: () => p.sign() })[b.dataset.a]();
+});
+document.getElementById('allIn').onclick = () => panels.forEach((p) => { if (!p.card) p.flipIn((p.cur + 1) % PLAYERS.length); });
+document.getElementById('allOut').onclick = () => panels.forEach((p) => p.exit());
+document.getElementById('allSwap').onclick = () => panels.forEach((p) => p.swap());
+window.__panels = panels;
+</script>
+</body>
+</html>

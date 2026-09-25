@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MY TEAM 세로 채우기 4안</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 10px 16px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top a { padding: 2px 8px; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.06); }
+  .top a.on { color: #05080f; background: #10b981; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(860px, 1fr)); gap: 34px 26px; max-width: 1800px; margin: 0 auto; padding: 20px; }
+  .hd { margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; margin-right: 6px; color: #10b981; }
+  .hd p { margin: 3px 0 0; font-size: 12.5px; color: #9ca3af; }
+  .pair { display: flex; gap: 16px; }
+  .crop { position: relative; width: 400px; height: 650px; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .crop iframe { position: absolute; left: 0; top: 0; border: 0; visibility: hidden; }
+  .crop iframe.ready { visibility: visible; }
+</style>
+</head>
+<body>
+<div class="top"><b>MY TEAM 세로 채우기 4안</b><span>실제 게임 화면을 잘라 보여 줌 · 화면 높이</span><span id="hs"></span></div>
+<div class="grid" id="grid"></div>
+<script>
+/* 넓은 화면에서 판이 길어졌을 때 팀 분석 · 선수 기록이 빈틈 없이 차도록. 기본(M1)은 지금 게임에 들어간 방식이고 나머지는 그 위에 CSS · 요소를 얹는다. */
+const H = +(new URLSearchParams(location.search).get('h') || 1000);
+document.getElementById('hs').innerHTML = [901, 1000, 1080].map((h) => `<a href="?h=${h}" class="${h === H ? 'on' : ''}">1902×${h}</a>`).join(' ');
+
+const VARS = [
+  { id: 'M1', title: '줄 늘이기 · 레이더 키우기', desc: '기록표 줄이 카드 높이를 나눠 가지며 넓어짐(한 줄 26~42px), 레이더는 남는 높이만큼 커짐 — 요소는 그대로, 간격만 판에 맞춤', css: '' },
+  { id: 'M2', title: '팀 합계 줄 · 막대 칩', desc: '표 맨 아래에 팀 평균/합계 줄(평균 ERA · 승 · S/H · K / 평균 타율 · HR · 도루 · 타점)을 더해 채움, 팀 분석 차이 칩은 우리 팀 막대 + AI 평균 눈금이 들어간 높은 칩',
+    css: `
+      html body .mt-rec tfoot td { height: auto; padding-top: 0; font-weight: 700; color: #fff; box-shadow: inset 0 1px 0 rgba(148,163,184,.28) !important; }
+      html body .mt-rec tfoot td.lab { font-size: 11px; font-weight: 600; color: var(--ac); }
+      html body .mt-rec tfoot .st { font-size: 15px; }
+      html body .mt-chips span { flex-wrap: wrap; row-gap: 7px; padding: 9px 9px 10px; }
+      html body .mt-chips .cb { position: relative; flex-basis: 100%; height: 5px; background: rgba(255,255,255,.08); }
+      html body .mt-chips .cb b { position: absolute; left: 0; top: 0; bottom: 0; background: #34d399; }
+      html body .mt-chips .dn .cb b { background: #fb923c; }
+      html body .mt-chips .cb s { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: #f87171; }` },
+  { id: 'M3', title: '글자 · 사진 비례 확대', desc: '줄 늘이기에 더해 사진 28px · 이름 14px · 기록 17px · 종합 19px로 키우고, 팀 분석도 세 숫자 36px · 강점/약점 20px · 칩 높이를 늘려 판 크기에 어울리게',
+    css: `
+      html body .mt-face { width: 28px; height: 28px; }
+      html body .mt-rec .who b { font-size: 14px; }
+      html body .mt-rec .who small { font-size: 10.5px; }
+      html body .mt-rec .st { font-size: 17px; }
+      html body .mt-rec td.ov b { font-size: 19px; }
+      html body .mt-rec th { font-size: 11px; }
+      html body .mt-gh { height: 26px; }
+      html body .mt-gh .en { font-size: 15.5px; }
+      html body .mt-gh b { font-size: 13px; }
+      html body .mt-rec colgroup col:nth-child(2) { width: 36px !important; }
+      html body .mt-trio { padding-bottom: 12px; }
+      html body .mt-trio small { font-size: 12px; }
+      html body .mt-trio b { font-size: 36px; }
+      html body .mt-team { gap: 14px; }
+      html body .mt-style { font-size: 20px; }
+      html body .mt-chips { gap: 6px; }
+      html body .mt-chips span { padding: 10px 10px; font-size: 13px; }
+      html body .mt-chips b { font-size: 17px; }` },
+  { id: 'M4', title: '줄무늬 표 · 두 줄 칩', desc: '줄 늘이기 + 짝수 줄 옅은 줄무늬와 넉넉한 카드 머리로 표가 성기지 않게, 팀 분석 칩은 아랫줄에 “우리 69 · AI 61” 값을 더한 두 줄 칩',
+    css: `
+      html body .mt-rec { gap: 14px; }
+      html body .mt-rec tbody tr:nth-child(even) { background: rgba(255,255,255,.028); }
+      html body .mt-rec tbody tr.on { background: rgba(255,255,255,.07); }
+      html body .mt-gh { height: 30px; }
+      html body .mt-gh .en { font-size: 15px; }
+      html body .mt-chips span { flex-wrap: wrap; row-gap: 4px; padding: 9px 10px; }
+      html body .mt-chips .vs { flex-basis: 100%; font-family: 'Saira Condensed', sans-serif; font-size: 12.5px; font-weight: 600; color: #9ca3af; }
+      html body .mt-chips .vs em { font-style: normal; color: #f87171; }` },
+];
+
+const grid = document.getElementById('grid');
+grid.innerHTML = VARS.map((v) => `<section><div class="hd"><b><i>${v.id}</i>${v.title}</b><p>${v.desc}</p></div>
+  <div class="pair">${['team', 'rec'].map((t) => `<div class="crop"><iframe src="/?demo=draft" data-v="${v.id}" data-tab="${t}" style="width:1902px;height:${H}px"></iframe></div>`).join('')}</div></section>`).join('');
+
+const num = (s) => { const n = parseFloat(String(s).replace(/[^\d.]/g, '')); return Number.isNaN(n) ? null : n; };
+/** M2: 표 아래 팀 평균/합계 줄 */
+function addTotals(doc) {
+  doc.querySelectorAll('.mt-card').forEach((card) => {
+    const pitch = card.classList.contains('pitch');
+    const rows = [...card.querySelectorAll('tbody tr:not(.e)')];
+    const col = (i) => rows.map((r) => r.querySelectorAll('td')[3 + i]?.textContent.trim()).filter((t) => t && t !== '-');
+    const avg = (a, d) => (a.length ? (a.map(num).reduce((s, x) => s + x, 0) / a.length).toFixed(d) : '-');
+    const sum = (a) => (a.length ? a.map(num).reduce((s, x) => s + x, 0) : '-');
+    const vals = pitch ? [avg(col(0), 2), sum(col(1)), sum(col(2)), sum(col(3))] : [avg(col(0), 3).replace(/^0/, ''), sum(col(1)), sum(col(2)), sum(col(3))];
+    const html = `<tr><td class="l lab" colspan="3">${pitch ? '평균 · 합계' : '평균 · 합계'}</td>${vals.map((v) => `<td><span class="st font-display">${v}</span></td>`).join('')}<td></td></tr>`;
+    let tf = card.querySelector('tfoot');
+    if (!tf) { tf = doc.createElement('tfoot'); card.querySelector('table').appendChild(tf); }
+    if (tf.dataset.h !== html) { tf.innerHTML = html; tf.dataset.h = html; }
+    const n = card.querySelectorAll('tbody tr').length + 1;
+    if (card.style.getPropertyValue('--n') !== String(n)) card.style.setProperty('--n', n);
+  });
+}
+/** 레이더 꼭짓점 글자에서 우리 값 · AI 평균(= 우리 − 차이) 읽기 */
+function axisValues(doc) {
+  const out = {};
+  doc.querySelectorAll('.mt-rd g').forEach((g) => {
+    const [name, v] = g.querySelectorAll('text');
+    const d = v.querySelector('tspan')?.textContent || '0';
+    const my = num(v.firstChild?.textContent);
+    out[name.textContent] = { my, ai: my == null ? null : my - parseInt(d, 10) };
+  });
+  return out;
+}
+function decorateChips(doc, kind) {
+  const vals = axisValues(doc);
+  doc.querySelectorAll('.mt-chips span').forEach((chip) => {
+    const k = chip.textContent.replace(chip.querySelector('b')?.textContent || '', '').replace(/[▲▼\s]/g, '');
+    const v = vals[k]; if (!v || v.my == null) return;
+    if (kind === 'bar' && !chip.querySelector('.cb')) chip.insertAdjacentHTML('beforeend', `<i class="cb"><b style="width:${v.my}%"></b><s style="left:${v.ai}%"></s></i>`);
+    if (kind === 'vs' && !chip.querySelector('.vs')) chip.insertAdjacentHTML('beforeend', `<span class="vs">우리 ${Math.round(v.my)} · <em>AI ${Math.round(v.ai)}</em></span>`);
+  });
+}
+
+document.querySelectorAll('.crop iframe').forEach((ifr) => {
+  const v = VARS.find((x) => x.id === ifr.dataset.v);
+  ifr.addEventListener('load', () => {
+    const t = setInterval(() => {
+      const doc = ifr.contentDocument;
+      const panel = doc?.querySelector('.mt-panel');
+      if (!panel) return;
+      if (!doc.getElementById('mk')) {
+        const st = doc.createElement('style'); st.id = 'mk'; st.textContent = v.css; doc.body.appendChild(st);
+        if (ifr.dataset.tab === 'rec') panel.querySelectorAll('.mt-tabs button')[1].click();
+      }
+      if (v.id === 'M2') { if (ifr.dataset.tab === 'rec') addTotals(doc); else decorateChips(doc, 'bar'); }
+      if (v.id === 'M4' && ifr.dataset.tab === 'team') decorateChips(doc, 'vs');
+      const r = panel.closest('.bc-grp').getBoundingClientRect();
+      const crop = ifr.parentElement;
+      crop.style.width = `${Math.round(r.width)}px`; crop.style.height = `${Math.round(r.height)}px`;
+      ifr.style.left = `${-Math.round(r.left)}px`; ifr.style.top = `${-Math.round(r.top)}px`;
+      ifr.classList.add('ready');
+    }, 300);
+  });
+});
+</script>
+</body>
+</html>

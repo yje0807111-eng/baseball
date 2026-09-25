@@ -66,7 +66,7 @@ describe('주자 대본', () => {
   it('달리는 길은 사이의 루를 모두 밟는다', () => {
     expect(runPath(0, 2)).toHaveLength(3); // 1루 → 2루 → 3루
     expect(runPath(-1, 0)).toHaveLength(2); // 타석 → 1루
-    expect(runPath(0, 3)).toHaveLength(5); // 1루 → 2 → 3 → 홈 → 비켜서기
+    expect(runPath(0, 3)).toHaveLength(4); // 1루 → 2 → 3 → 홈 (홈을 밟으면 거기서 끝)
     expect(finite(runPath(2, 3).flat())).toBe(true);
   });
   it('길 위 어느 지점이든 좌표가 나온다', () => {
@@ -108,3 +108,25 @@ function engine(seed) {
     pitchers: roster.filter((p) => p.type === 'pitcher').slice(0, 6),
   };
 }
+
+describe('파울 타구', () => {
+  const foul = (velo, zone) => buildPlay(ev({
+    call: 'foul', pitch: { type: 'fast', zone, inZone: true, velo },
+    after: { outs: 1, balls: 0, strikes: 1, bases: [null, null, null] },
+  }));
+  it('옆으로 빠진 파울은 필드로 나가고, 뒤로 넘어간 파울은 존에 남는다', () => {
+    let cut = 0;
+    for (let v = 130; v < 155; v += 1) for (let z = 0; z < 9; z += 1) if (foul(v, z).cut) cut += 1;
+    expect(cut).toBeGreaterThan(40);   // 더러는 필드로
+    expect(cut).toBeLessThan(200);     // 더러는 존에 남는다
+  });
+  it('필드로 나간 파울은 파울 라인 바깥에 떨어진다', () => {
+    for (let v = 130; v < 155; v += 1) {
+      const b = foul(v, 4).beats.find((x) => x.kind === 'ball');
+      if (!b) continue;
+      expect(b.foul).toBe(true);
+      expect(Math.abs(b.to[0])).toBeGreaterThan(Math.abs(b.to[1])); // 라인 바깥 — 옆이 앞보다 멀다
+      expect(finite(b.to)).toBe(true);
+    }
+  });
+});

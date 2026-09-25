@@ -79,7 +79,7 @@ export function runnerMoves(ev) {
 }
 
 /** 루에서 루로 달리는 길 — 사이에 있는 루를 모두 밟는다. off 는 홈에 들어온 뒤 비켜설 자리 */
-export function runPath(from, to, off = 0, dash = 0) {
+export function runPath(from, to, dash = 0) {
   const pos = (i) => (i < 0 || i >= 3 ? HOME : BASE_POS[i]);
   if (to == null) {
     // 아웃 — 그래도 다음 루 쪽으로 dash 만큼 달리다 멈춘다
@@ -89,7 +89,6 @@ export function runPath(from, to, off = 0, dash = 0) {
   }
   const pts = [pos(from)];
   for (let i = from + 1; i <= to; i += 1) pts.push(i >= 3 ? HOME : BASE_POS[i]);
-  if (to === 3) pts.push(spot(-1, 0.05 + off)); // 홈을 밟고 3루 더그아웃 쪽으로
   return pts.length > 1 ? pts : [pos(from), pos(from)];
 }
 
@@ -101,6 +100,8 @@ export function runPath(from, to, off = 0, dash = 0) {
 const PITCH_WIND = 40;  // 와인드업
 const PITCH_FLY = 420;  // 공이 마운드에서 홈까지
 const CUT_AFTER = 90;   // 맞고 나서 타구가 시작되기까지
+/** 공이 홈에 닿는 때 (재생 시간 대비 0~1) — 존 판도 이때 찍혀야 구장과 맞는다 */
+export const pitchArrival = (ms) => Math.min(0.66, (PITCH_WIND + PITCH_FLY) / ms);
 
 /** 그 공이 존 뷰 어디에 꽂혔는지 — 지나간 공을 다시 찍을 때도 같은 자리가 나온다 */
 export function pitchTarget(ev) {
@@ -142,6 +143,17 @@ export function buildPlay(ev, beatMs = 1200) {
     });
   }
 
+  // 3-b. 파울 — 옆으로 크게 빠진 타구는 잠깐 필드로. 뒤로 넘어간 파울은 존 뷰에 남는다
+  if (ev.call === 'foul') {
+    const zx = (pitchTarget(ev) || [0, 0])[0];
+    const h = Math.round(Math.abs((p?.velo || 140) * 7 + (p?.zone ?? 4) * 13)) % 10;
+    if (h < 6) {
+      const dir = (zx > 0 ? -1 : 1) * (1.02 + (h % 3) * 0.06); // 파울 라인 바깥
+      beats.push({ kind: 'cut', t: CUT });
+      beats.push({ kind: 'ball', t0: CUT, t1: 0.9, from: HOME, to: spot(dir, 0.3 + (h % 4) * 0.1), loft: 22 + h * 2, foul: true });
+    }
+  }
+
   // 4. 인플레이 — 필드로 컷 전환
   if (ev.call === 'inplay' && ev.hit) {
     const { dir, dist, loft, by } = ev.hit;
@@ -159,15 +171,14 @@ export function buildPlay(ev, beatMs = 1200) {
     const scorers = moves.filter((m) => m.to === 3).length;
     let k = 0;
     for (const m of moves.sort((a, b) => b.from - a.from)) { // 앞선 주자부터
-      const off = m.to === 3 ? k * 0.06 : 0;
       beats.push({
         kind: 'run', t0: Math.min(0.9, CUT + 0.03 + k * 0.03), t1: Math.min(0.99, 0.84 + k * 0.045),
-        player: m.player, path: runPath(m.from, m.to, off, m.dash || 0), out: m.to == null, scored: m.to === 3, still: m.from === m.to && !m.dash,
+        player: m.player, path: runPath(m.from, m.to, m.dash || 0), out: m.to == null, scored: m.to === 3, still: m.from === m.to && !m.dash,
       });
       if (m.to === 3) k += 1; else k += 0.4;
     }
   }
-  return { beats, cut: ev.call === 'inplay' && ev.hit ? CUT : null, ev };
+  return { beats, cut: beats.find((b) => b.kind === 'cut')?.t ?? null, ev };
 }
 
 /* ───────── 대본 읽기 ───────── */

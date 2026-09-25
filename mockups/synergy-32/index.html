@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>시너지 도크 32안</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 16px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top .opt a { padding: 2px 8px; margin-left: 2px; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.06); }
+  .top .opt a.on { color: #05080f; background: #10b981; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 3px; }
+  .top nav a { padding: 1px 6px; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .grpt { grid-column: 1 / -1; margin: 10px 2px -6px; font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .2em; color: #10b981; }
+  .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cw), 1fr)); gap: 26px 18px; max-width: 1860px; margin: 0 auto; padding: 18px; }
+  .item .hd { display: flex; align-items: baseline; gap: 8px; margin: 0 2px 6px; }
+  .item .hd b { font-size: 14px; color: #fff; }
+  .item .hd b i { font-style: normal; margin-right: 5px; font-family: 'Saira Condensed', sans-serif; color: #10b981; }
+  .item .hd a { margin-left: auto; font-size: 11.5px; color: #6ee7b7; white-space: nowrap; }
+  .item p { margin: 0 2px 8px; font-size: 12px; color: #9ca3af; min-height: 32px; }
+  .cell { position: relative; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .cell > img { position: absolute; max-width: none; pointer-events: none; }
+  .cell > .dockbox { position: absolute; top: 0; bottom: 0; right: 0; display: flex; flex-direction: column; padding: 12px 16px 10px 22px; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)); }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+  .srcframe { position: fixed; left: -4000px; top: 0; width: 1902px; border: 0; visibility: hidden; }
+  @keyframes prism { to { background-position: 200% 50%; } }
+</style>
+</head>
+<body>
+<script type="module">
+/* 시너지 도크 전면 새 디자인 32안. 선수 구역을 0.9배로 줄이고 그만큼 시너지 도크를 왼쪽으로 넓힘.
+   목록 화면: 숨긴 게임 화면(/?demo=draft)에서 라인업을 읽어 도크 32개를 실제 크기로 그림(구장 사진 오른쪽 끝을 뒤에 깔고).
+   ?v=N: 실제 게임 화면의 도크를 그 안으로 바꿔 끼움 — 줄을 누르면 게임의 시너지 강조, 전체 보기는 게임 팝업. 판 안 설명 문구 없음. */
+const { ALL_PLAYERS, checkSynergies, playAt, freeSlot } = await import('/src/KboAugmentDraft.jsx');
+const QS = new URLSearchParams(location.search);
+const H = +(QS.get('h') || 1000);
+const CAND = QS.get('cand') || '';
+const F = 0.9; // 선수 구역 배율
+const TS = 0.8, HALF = 107 * TS, WA = { l: -201.6, t: 7.35, w: 1303.5, h: 553 };
+const HIDDEN = new Set(['franchise']);
+
+/* ───────── 데이터 ───────── */
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const findPlayer = (name, hint) => { const c = ALL_PLAYERS.filter((p) => p.name === name); return c.find((p) => hint.includes(String(p.year))) || c[0]; };
+function readGame(doc) {
+  const toks = [...doc.querySelectorAll('.lf-field .lf-tok')];
+  if (!toks.length) return null;
+  const roster = [], face = {};
+  let cand = null;
+  toks.forEach((t) => {
+    if (t.classList.contains('empty') && !t.classList.contains('ghost')) return;
+    const ins = t.querySelectorAll('.lf-in'); const inner = ins[ins.length - 1] || t;
+    const name = inner.querySelector('.lf-bx b')?.textContent, sub = inner.querySelector('.lf-bx small')?.textContent || '';
+    if (!name || name === '빈 자리') return;
+    const p = findPlayer(name, sub + (doc.querySelector('.pk-stage')?.innerText || ''));
+    if (!p) return;
+    face[p.name] = (inner.querySelector('.lf-bp')?.getAttribute('style') || '').replace(/"/g, "'").replace(/url\(('?)(?!\/|https?:|data:)/g, 'url($1/');
+    if (t.classList.contains('ghost')) cand = { ...p, slot: t.dataset.slot }; else roster.push({ ...p, slot: t.dataset.slot });
+  });
+  return { roster, face, cand };
+}
+const leftOf = (s) => (s.level < s.tiers.length ? Math.max(0, s.need - s.count) : 0);
+const fillOf = (s) => (s.level < s.tiers.length ? s.count / s.need : 1);
+const BONUS = { bat: '타격', pit: '투구', power: '파워', contact: '컨택', speed: '주루', defense: '수비', stability: '안정' };
+function model(g) {
+  const on = g.roster.map(playAt);
+  let cand = g.cand;
+  if (!cand && CAND) { const p = ALL_PLAYERS.find((x) => x.name === CAND && x.year === 2008) || ALL_PLAYERS.find((x) => x.name === CAND); if (p) cand = { ...p, slot: freeSlot(on, p.position)?.id }; }
+  const all = checkSynergies(on).filter((s) => !HIDDEN.has(s.id));
+  const after = cand ? new Map(checkSynergies([...on, playAt(cand)]).map((s) => [s.id, s])) : null;
+  const grows = (s) => { const a = after?.get(s.id); return !!a && (a.cur > s.cur || a.members.length > s.members.length); };
+  const list = [...all].filter((s) => s.cur > 0 || grows(s))
+    .sort((a, b) => b.active - a.active || leftOf(a) - leftOf(b) || fillOf(b) - fillOf(a) || b.level - a.level)
+    .map((s) => {
+      const stage = Math.min(s.level, s.tiers.length - 1);
+      const from = stage > 0 ? s.tiers[stage - 1].need : 0, to = s.tiers[stage].need;
+      const maxed = s.level === s.tiers.length;
+      const a = after?.get(s.id);
+      const gr = grows(s);
+      const mine = s.members.map((m) => m.name);
+      const miss = s.names ? s.names.filter((n) => !mine.includes(n) && !(gr && n === cand?.name)) : [];
+      return { id: s.id, name: s.name, kind: s.kind, level: s.level, tiers: s.tiers, cur: s.cur, from, to, maxed, active: s.active, next: gr ? Math.min(a.cur, to) : s.cur,
+        grows: gr, mine, cand: gr ? cand.name : null, miss, cond: s.cond, effect: s.active ? s.effect : null, nextEffect: s.tiers[s.level]?.effect || null, top: s.top,
+        left: maxed ? 0 : to - s.cur, bonusKeys: Object.keys(s.tiers[0].bonus || {}) };
+    });
+  const sum = {};
+  all.filter((s) => s.active).forEach((s) => Object.entries(s.bonus).forEach(([k, v]) => { sum[k] = (sum[k] || 0) + v; }));
+  return { list, on: list.filter((i) => i.active).length, sum, face: g.face, roster: g.roster, cand };
+}
+
+/* ───────── 공통 조각 ───────── */
+const lv = (i) => (i.level ? `<em class="lv">${i.tiers.length > 1 ? `${i.level}단계` : 'ON'}</em>` : '');
+const segs = (i) => Array.from({ length: i.to - i.from }, (_, k) => (k < i.cur - i.from ? (i.maxed ? 'm' : 'f') : k < i.next - i.from ? 'p' : ''));
+const pips = (i, cls = 'pips') => `<span class="${cls}">${segs(i).map((c) => `<i class="${c}"></i>`).join('')}</span>`;
+const cnt = (i) => `<span class="cnt">${i.cur}<small>/${i.to}</small>${i.grows && i.next > i.cur ? `<u>+${i.next - i.cur}</u>` : ''}</span>`;
+const mem = (i, max = 9) => [...i.mine.map((n) => `<span class="mm">${esc(n)}</span>`), ...(i.cand ? [`<span class="mc">${esc(i.cand)}</span>`] : []), ...i.miss.slice(0, Math.max(0, max - i.mine.length - (i.cand ? 1 : 0))).map((n) => `<span class="mx">${esc(n)}</span>`)].join('');
+const memOr = (i, max) => (i.mine.length || i.cand || i.miss.length ? mem(i, max) : `<span class="mx">${esc(i.cond)}</span>`);
+const eff = (i) => (i.effect ? `<span class="ef on">${esc(i.effect)}</span>` : i.nextEffect ? `<span class="ef">${esc(i.nextEffect)}</span>` : '');
+const pct = (i) => (i.to - i.from ? (i.cur - i.from) / (i.to - i.from) : 1);
+const pctN = (i) => (i.to - i.from ? (i.next - i.from) / (i.to - i.from) : 1);
+const ring = (i, size = 38) => `<span class="ring ${i.active ? 'on' : ''}" style="--p:${pct(i) * 100};--q:${pctN(i) * 100};--sz:${size}px"><b>${i.cur}<small>/${i.to}</small></b></span>`;
+const face = (d, n, cls = '') => `<i class="fc ${cls}" style="${d.face[n] || ''}" title="${esc(n)}"></i>`;
+const head = (d, extra = '') => `<div class="sh"><b>시너지</b><span class="onc">${d.on} On</span>${extra}<button type="button" data-all>전체 보기</button></div>`;
+const rowAttrs = (i, st) => `data-syn="${esc(i.name)}" class="${i.active ? 'on' : ''} ${st.focus === i.name ? 'fo' : ''} ${i.grows ? 'gr' : ''}"`;
+const scroll = (html) => `<div class="sc">${html}</div>`;
+const HEX = 'polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)';
+
+const V = [
+  { g: 'A · 목록형' },
+  { t: '슬림 목록', d: '이름 · 단계 · 칸, 아랫줄 선수 — 구분선만 두고 여백으로 나눔', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${lv(i)}${pips(i)}</span><span class="l2">${memOr(i, 5)}</span></button>`).join('')) },
+  { t: '두 줄 카드', d: '줄마다 어두운 카드, 오른쪽 위 효과 칩(켜지면 초록), 아래 칸 · 인원 · 선수', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${eff(i)}</span><span class="l2">${pips(i)}${cnt(i)}<span class="ms">${memOr(i, 3)}</span></span></button>`).join('')) },
+  { t: '진행 막대 · 단계 눈금', d: '최종 단계까지 한 줄 막대에 단계마다 눈금, 채운 만큼 초록 · 후보가 채울 만큼 하늘', r: (d, st) => head(d) + scroll(d.list.map((i) => { const top = i.tiers[i.tiers.length - 1].need;
+    return `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span><span class="bar"><i class="f" style="width:${(i.cur / top) * 100}%"></i><i class="p" style="left:${(i.cur / top) * 100}%;width:${((Math.max(i.next, i.cur) - i.cur) / top) * 100}%"></i>${i.tiers.map((t) => `<s style="left:${(t.need / top) * 100}%" class="${i.cur >= t.need ? 'ok' : ''}"></s>`).join('')}</span><span class="l2">${eff(i)}<span class="ms">${memOr(i, 3)}</span></span></button>`; }).join('')) },
+  { t: '단계 사다리', d: '단계마다 “3 능력치 +1” 칩이 차례로 켜짐, 다음 단계는 하늘 테두리', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span><span class="lad">${i.tiers.map((t, k) => `<span class="${k < i.level ? 'ok' : k === i.level ? 'nx' : ''}"><i>${t.need}</i>${esc(t.effect)}</span>`).join('')}</span><span class="l2">${memOr(i, 5)}</span></button>`).join('')) },
+  { t: '원형 게이지', d: '왼쪽 링에 채운 칸(초록) · 후보 몫(하늘), 오른쪽 이름 · 효과 · 선수', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}>${ring(i)}<span class="tx"><span class="l1"><b>${esc(i.name)}</b>${lv(i)}</span>${eff(i)}<span class="l2">${memOr(i, 4)}</span></span></button>`).join('')) },
+  { t: '큰 숫자', d: '왼쪽에 “2/3” 큰 숫자(완성은 초록), 오른쪽 이름 · 효과 · 선수', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="big">${i.cur}<small>/${i.to}</small>${i.grows && i.next > i.cur ? `<u>+${i.next - i.cur}</u>` : ''}</span><span class="tx"><b>${esc(i.name)}</b>${eff(i)}<span class="l2">${memOr(i, 4)}</span></span></button>`).join('')) },
+  { t: '사선 띠', d: '구장 토큰과 같은 사선 띠, 켜진 시너지는 초록 그라데이션 띠', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="in"><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span><span class="l2">${i.effect ? esc(i.effect) : memOr(i, 3)}</span></span></button>`).join('')) },
+  { t: '타임라인', d: '왼쪽 세로 선에 점(켜짐 초록 · 진행 빈 원), 오른쪽 이름 · 칸 · 선수', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="dot"></span><span class="tx"><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span><span class="l2">${i.effect ? `<span class="ef on">${esc(i.effect)}</span> ` : ''}${memOr(i, 4)}</span></span></button>`).join('')) },
+  { g: 'B · 묶음형' },
+  { t: '적용 · 진행 두 묶음', d: '위 “적용 중”, 아래 “진행 중” 두 묶음으로 나누고 묶음 머리에 개수', r: (d, st) => { const sec = (k, arr) => (arr.length ? `<div class="gt">${k}<span>${arr.length}</span></div>${arr.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${i.active ? `<span class="ef on">${esc(i.effect)}</span>` : pips(i)}</span><span class="l2">${memOr(i, 4)}</span></button>`).join('')}` : '');
+    return head(d) + scroll(sec('적용 중', d.list.filter((i) => i.active)) + sec('진행 중', d.list.filter((i) => !i.active))); } },
+  { t: '실화 조합 · 팀 구성', d: '실제 함께 뛴 조합과 팀 구성 조건을 두 묶음으로', r: (d, st) => { const sec = (k, arr) => (arr.length ? `<div class="gt">${k}<span>${arr.length}</span></div>${arr.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${lv(i)}${pips(i)}</span><span class="l2">${memOr(i, 4)}</span></button>`).join('')}` : '');
+    return head(d) + scroll(sec('실화 조합', d.list.filter((i) => i.kind === 'story')) + sec('팀 구성', d.list.filter((i) => i.kind !== 'story'))); } },
+  { t: '탭 [적용 · 진행]', d: '머리 아래 두 칸 탭, 누르면 목록이 바뀜', r: (d, st) => { const tab = st.tab || 'on'; const arr = d.list.filter((i) => (tab === 'on' ? i.active : !i.active));
+    return head(d) + `<div class="tabs"><button type="button" data-tab="on" class="${tab === 'on' ? 'on' : ''}">적용 ${d.on}</button><button type="button" data-tab="go" class="${tab === 'go' ? 'on' : ''}">진행 ${d.list.length - d.on}</button></div>` + scroll(arr.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span>${pips(i, 'pips wide')}<span class="l2">${eff(i)} ${memOr(i, 3)}</span></button>`).join('') || '<div class="none">-</div>'); } },
+  { t: '받는 쪽으로 묶기', d: '타자가 강해지는 · 투수가 강해지는 · 둘 다 — 효과 대상으로 묶음', r: (d, st) => { const who = (i) => { const k = i.bonusKeys; const b = k.some((x) => ['bat', 'power', 'contact', 'speed', 'defense'].includes(x)), p = k.some((x) => ['pit', 'stability'].includes(x)); return b && p ? '타자 · 투수' : p ? '투수' : '타자'; };
+    const groups = ['타자', '투수', '타자 · 투수'].map((k) => [k, d.list.filter((i) => who(i) === k)]).filter(([, a]) => a.length);
+    return head(d) + scroll(groups.map(([k, arr]) => `<div class="gt">${k}<span>${arr.length}</span></div>${arr.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${lv(i)}${pips(i)}</span><span class="l2">${eff(i)}</span></button>`).join('')}`).join('')); } },
+  { g: 'C · 격자형' },
+  { t: '2열 타일', d: '두 칸 격자 타일: 위 이름, 오른쪽 위 작은 링, 아래 효과 · 인원', r: (d, st) => head(d) + scroll(`<div class="gridx">${d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}>${ring(i, 30)}<b>${esc(i.name)}</b>${eff(i)}<span class="l2">${i.mine.length ? `${i.mine.length}명` : ''}${i.cand ? ' <span class="mc">+1</span>' : ''}</span></button>`).join('')}</div>`) },
+  { t: '육각 단계 배지', d: '왼쪽 육각 배지 안에 단계 숫자(켜짐 초록 · 0은 회색), 오른쪽 이름 · 칸 · 선수', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="hx" style="clip-path:${HEX}"><b>${i.level}</b></span><span class="tx"><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span><span class="l2">${eff(i)} ${memOr(i, 3)}</span></span></button>`).join('')) },
+  { t: '벌집', d: '육각 타일 벌집(이름 · 인원), 누른 시너지는 아래 상세 칸에 단계 · 선수', r: (d, st) => { const f = d.list.find((i) => i.name === st.focus) || d.list[0];
+    return head(d) + `<div class="hive">${d.list.map((i) => `<button type="button" ${rowAttrs(i, st)} style="clip-path:${HEX}"><b>${esc(i.name)}</b><span>${i.cur}/${i.to}</span></button>`).join('')}</div>` + (f ? `<div class="det"><div class="l1"><b>${esc(f.name)}</b>${lv(f)}${pips(f)}</div><div class="lad">${f.tiers.map((t, k) => `<span class="${k < f.level ? 'ok' : k === f.level ? 'nx' : ''}"><i>${t.need}</i>${esc(t.effect)}</span>`).join('')}</div><div class="l2">${memOr(f, 8)}</div></div>` : ''); } },
+  { t: '미니 카드 2열', d: '모서리 잘린 작은 카드 2열: 단계 칩 · 이름 · 칸 · 효과', r: (d, st) => head(d) + scroll(`<div class="gridx">${d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1">${i.level ? lv(i) : `<em class="lv off">${i.cur}/${i.to}</em>`}</span><b>${esc(i.name)}</b>${pips(i)}${eff(i)}</button>`).join('')}</div>`) },
+  { g: 'D · 선수 중심' },
+  { t: '얼굴 줄', d: '시너지마다 들어간 선수 얼굴, 후보는 하늘 고리, 남은 칸은 빈 원', r: (d, st) => head(d) + scroll(d.list.map((i) => { const empty = Math.max(0, i.to - i.cur - (i.next - i.cur));
+    return `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${lv(i)}${cnt(i)}</span><span class="faces">${i.mine.map((n) => face(d, n)).join('')}${i.cand ? face(d, i.cand, 'cd') : ''}${Array.from({ length: Math.min(empty, 5) }, () => '<i class="fc emp"></i>').join('')}${i.effect ? `<span class="ef on">${esc(i.effect)}</span>` : ''}</span></button>`; }).join('')) },
+  { t: '이어진 선수 칩', d: '선수 칩을 선으로 이어 붙이고, 아직 없는 선수는 점선 칩', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${eff(i)}</span><span class="chain">${i.mine.map((n) => `<span class="mm">${esc(n)}</span>`).join('')}${i.cand ? `<span class="mc">${esc(i.cand)}</span>` : ''}${i.miss.slice(0, 3).map((n) => `<span class="mx">${esc(n)}</span>`).join('')}${!i.miss.length && !i.cand && i.kind !== 'story' ? `<span class="mx">${esc(i.cond)}</span>` : ''}</span></button>`).join('')) },
+  { t: '빈 자리 소켓', d: '단계 칸을 네모 소켓으로: 채운 칸은 선수 이름 첫 글자, 후보는 하늘, 빈 소켓은 점선', r: (d, st) => head(d) + scroll(d.list.map((i) => { const names = [...i.mine.slice(Math.max(0, i.mine.length - (i.cur - i.from)))];
+    return `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${lv(i)}</span><span class="sock">${segs(i).map((c, k) => `<i class="${c}">${c === 'p' ? esc(i.cand?.[0] || '') : c ? esc(names[k]?.[0] || '') : ''}</i>`).join('')}${eff(i)}</span></button>`; }).join('')) },
+  { t: '선수 × 시너지 표', d: '위에 라인업 얼굴, 줄마다 속한 선수 자리에 점 — 누가 여러 시너지를 잇는지 한눈에', r: (d, st) => { const ppl = d.roster.map((p) => p.name).concat(d.cand && !d.roster.some((p) => p.name === d.cand.name) ? [d.cand.name] : []);
+    return head(d) + `<div class="mx-h">${ppl.map((n) => face(d, n, d.cand?.name === n ? 'cd' : '')).join('')}</div>` + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><b>${esc(i.name)}</b><span class="dots">${ppl.map((n) => `<i class="${i.mine.includes(n) ? 'y' : i.cand === n ? 'c' : ''}"></i>`).join('')}</span></button>`).join('')); } },
+  { g: 'E · 강조형' },
+  { t: '대표 시너지 크게', d: '맨 위 켜진 시너지 하나를 큰 카드로(효과 · 선수 · 다음 단계), 나머지는 한 줄', r: (d, st) => { const [h0, ...rest] = d.list; if (!h0) return head(d);
+    return head(d) + `<button type="button" ${rowAttrs(h0, st)} data-hero><span class="l1"><b>${esc(h0.name)}</b>${lv(h0)}</span><span class="hef">${esc(h0.effect || h0.nextEffect || '')}</span>${pips(h0, 'pips wide')}<span class="l2">${memOr(h0, 8)}</span></button>` + scroll(rest.map((i) => `<button type="button" ${rowAttrs(i, st)}><b>${esc(i.name)}</b>${cnt(i)}</button>`).join('')); } },
+  { t: '다음 목표', d: '완성까지 가장 가까운 시너지를 “1명” 큰 숫자와 필요한 선수로 맨 위에, 아래 목록', r: (d, st) => { const goal = [...d.list].filter((i) => !i.maxed).sort((a, b) => a.left - b.left)[0];
+    return head(d) + (goal ? `<button type="button" ${rowAttrs(goal, st)} data-goal><span class="gl"><b>${goal.left}</b><small>명</small></span><span class="tx"><b>${esc(goal.name)}</b><span class="ef on">${esc(goal.nextEffect || '')}</span><span class="l2">${goal.miss.length ? goal.miss.slice(0, 4).map((n) => `<span class="mx">${esc(n)}</span>`).join('') : `<span class="mx">${esc(goal.cond)}</span>`}</span></span></button>` : '') + scroll(d.list.filter((i) => i !== goal).map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span></button>`).join('')); } },
+  { t: '받는 효과 합계', d: '맨 위에 켜진 시너지로 받는 효과 합(파워 +5 · 타격 +1 …) 배지, 아래 목록', r: (d, st) => head(d) + `<div class="sum">${Object.entries(d.sum).map(([k, v]) => `<span><small>${BONUS[k] || k}</small><b>+${v}</b></span>`).join('') || '<span class="none">-</span>'}</div>` + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span><span class="l2">${eff(i)} ${memOr(i, 3)}</span></button>`).join('')) },
+  { t: '전광판', d: '짙은 전광판 칸에 노란 LED 이름 · 숫자, 켜진 줄은 초록 LED', r: (d, st) => head(d) + scroll(`<div class="led">${d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><b>${esc(i.name)}</b><span class="n">${i.cur}/${i.to}</span><span class="s">${i.level ? `LV${i.level}` : '--'}</span></button>`).join('')}</div>`) },
+  { g: 'F · 게임 HUD' },
+  { t: '퀘스트 목록', d: '시너지를 퀘스트처럼: 체크 상자(완성 ✓) · 목표 칸 막대 · 보상 효과', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="ck">${i.active ? '✓' : ''}</span><span class="tx"><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span><span class="qbar"><i style="width:${pct(i) * 100}%"></i><i class="p" style="width:${Math.max(0, pctN(i) - pct(i)) * 100}%"></i></span><span class="l2"><span class="rw">보상</span>${esc(i.effect || i.nextEffect || '')}</span></span></button>`).join('')) },
+  { t: '업적 방패', d: '단계에 따라 방패 색(없음 회색 · 1 브론즈 · 2 실버 · 3 골드), 이름 · 칸 · 효과', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><svg class="sd l${Math.min(i.level, 3)}" viewBox="0 0 24 28"><path d="M12 1 22 5v8c0 7-4.5 11.5-10 14C6.5 24.5 2 20 2 13V5z"/><text x="12" y="17" text-anchor="middle">${i.level || ''}</text></svg><span class="tx"><span class="l1"><b>${esc(i.name)}</b>${pips(i)}</span><span class="l2">${eff(i)}</span></span></button>`).join('')) },
+  { t: '스킬 트리 노드', d: '단계마다 원 노드를 선으로 잇고(채운 단계 초록 · 다음 단계 하늘 테두리), 노드 안에 필요 인원', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span><span class="tree">${i.tiers.map((t, k) => `<span class="${k < i.level ? 'ok' : k === i.level ? 'nx' : ''}"><i>${t.need}</i><small>${esc(t.effect)}</small></span>`).join('')}</span></button>`).join('')) },
+  { t: '배터리 칸', d: '최종 단계까지 배터리 칸, 단계 경계는 굵은 칸막이, 켜진 칸 초록 · 후보 칸 하늘', r: (d, st) => head(d) + scroll(d.list.map((i) => { const top = i.tiers[i.tiers.length - 1].need; const needs = new Set(i.tiers.map((t) => t.need));
+    return `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${eff(i)}</span><span class="bat">${Array.from({ length: top }, (_, k) => `<i class="${k < i.cur ? 'f' : k < Math.max(i.next, i.cur) ? 'p' : ''} ${needs.has(k + 1) ? 'cut' : ''}"></i>`).join('')}<em></em></span></button>`; }).join('')) },
+  { t: '네온 윤곽', d: '켜진 시너지는 초록 네온 윤곽과 빛나는 글자, 진행 중은 어두운 윤곽', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><b>${esc(i.name)}</b>${cnt(i)}</span><span class="l2">${i.effect ? esc(i.effect) : memOr(i, 3)}</span></button>`).join('')) },
+  { t: '글자만', d: '상자 · 선 없이 글자 크기와 색으로만: 큰 이름, 작은 “2 / 3 · 효과”', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><b>${esc(i.name)}</b><span class="l2"><span class="n">${i.cur} / ${i.to}</span>${i.effect ? ` · <span class="g">${esc(i.effect)}</span>` : i.nextEffect ? ` · ${esc(i.nextEffect)}` : ''}</span></button>`).join('')) },
+  { t: '접었다 펴기', d: '한 줄(이름 · 칸)로 접혀 있고, 누르면 그 줄만 펼쳐 단계 사다리와 선수 전원', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)}><span class="l1"><span class="chev">${st.focus === i.name ? '▾' : '▸'}</span><b>${esc(i.name)}</b>${pips(i)}</span>${st.focus === i.name ? `<span class="lad">${i.tiers.map((t, k) => `<span class="${k < i.level ? 'ok' : k === i.level ? 'nx' : ''}"><i>${t.need}</i>${esc(t.effect)}</span>`).join('')}</span><span class="l2">${memOr(i, 12)}</span>` : ''}</button>`).join('')) },
+  { t: '단계 등급 테두리', d: '카드 테두리 · 단계 글자를 등급 색으로(0 회색 · 1 브론즈 · 2 실버 · 3+ 골드)', r: (d, st) => head(d) + scroll(d.list.map((i) => `<button type="button" ${rowAttrs(i, st)} data-lv="${Math.min(i.level, 3)}"><span class="l1"><em class="lvt">${i.level ? `LV.${i.level}` : 'LV.0'}</em><b>${esc(i.name)}</b>${cnt(i)}</span><span class="l2">${eff(i)} ${memOr(i, 3)}</span></button>`).join('')) },
+];
+
+/* ───────── 공통 CSS + 안별 CSS ───────── */
+const BASE = `
+.sy { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; font-family: 'IBM Plex Sans KR', sans-serif; font-size: 12px; line-height: 1.3; color: #e5e7eb; }
+.sy * { box-sizing: border-box; }
+.sy button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: left; }
+.sy .sh { flex: none; display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+.sy .sh b { font-size: 14px; color: #fff; }
+.sy .sh .onc { font-family: 'Saira Condensed', sans-serif; font-size: 14px; font-weight: 700; color: #9ca3af; }
+.sy .sh [data-all] { margin-left: auto; padding: 2px 6px; font-size: 12px; font-weight: 600; color: #10b981; border-radius: 3px; }
+.sy .sh [data-all]:hover { background: rgba(16,185,129,.12); }
+.sy .sc { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; scrollbar-width: thin; scrollbar-color: rgba(52,211,153,.45) transparent; }
+.sy .sc > button, .sy .sc .gridx > button { display: block; width: 100%; }
+.sy b { font-weight: 700; }
+.sy .l1 { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.sy .l1 > b { font-size: 13.5px; color: #f3f4f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sy .on .l1 > b { color: #34d399; }
+.sy .l2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 3px; font-size: 11.5px; }
+.sy .lv { flex: none; padding: 0 5px; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 11.5px; font-weight: 700; line-height: 16px; color: #05080f; background: #10b981; border-radius: 2px; }
+.sy .lv.off { color: #9ca3af; background: rgba(148,163,184,.14); }
+.sy .pips { flex: none; margin-left: auto; display: flex; gap: 2px; }
+.sy .pips i { width: 11px; height: 7px; border-radius: 1.5px; background: #374151; }
+.sy .pips i.f { background: #d1d5db; } .sy .pips i.m { background: #10b981; } .sy .pips i.p { background: #38bdf8; animation: pk 1.4s ease-in-out infinite; }
+.sy .pips.wide { margin: 5px 0 0; } .sy .pips.wide i { flex: 1; height: 5px; }
+@keyframes pk { 50% { opacity: .45; } }
+.sy .cnt { flex: none; margin-left: auto; font-family: 'Saira Condensed', sans-serif; font-size: 15px; font-weight: 700; color: #fff; }
+.sy .cnt small { font-size: 11px; color: #6b7280; }
+.sy .cnt u, .sy .big u { text-decoration: none; margin-left: 3px; font-size: 12px; color: #38bdf8; }
+.sy .on .cnt { color: #34d399; }
+.sy .mm { color: #e5e7eb; } .sy .mc { font-weight: 600; color: #7dd3fc; } .sy .mx { color: #6b7280; }
+.sy .ef { flex: none; font-size: 11px; font-weight: 600; color: #9ca3af; white-space: nowrap; }
+.sy .ef.on { color: #34d399; }
+.sy .fo { box-shadow: inset 0 0 0 1px rgba(56,189,248,.6) !important; background-color: rgba(56,189,248,.07) !important; }
+.sy .ms { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.sy .ms > span + span { margin-left: 6px; }
+.sy .ring { --sz: 38px; flex: none; position: relative; width: var(--sz); height: var(--sz); display: grid; place-items: center; border-radius: 50%; background: conic-gradient(#d1d5db calc(var(--p) * 1%), #38bdf8 0 calc(var(--q) * 1%), #1f2937 0); }
+.sy .ring.on { background: conic-gradient(#10b981 calc(var(--p) * 1%), #38bdf8 0 calc(var(--q) * 1%), #1f2937 0); }
+.sy .ring::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #0a0f1a; }
+.sy .ring b { position: relative; font-family: 'Saira Condensed', sans-serif; font-size: 13px; color: #fff; }
+.sy .ring b small { font-size: 9.5px; color: #6b7280; }
+.sy .fc { flex: none; display: inline-block; width: 26px; height: 26px; border-radius: 50%; background-color: #1b2537; background-repeat: no-repeat; background-size: cover !important; background-position: 50% 6% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+.sy .fc.cd { box-shadow: 0 0 0 2px #38bdf8; }
+.sy .fc.emp { background: none !important; box-shadow: inset 0 0 0 1.5px rgba(148,163,184,.35); }
+.sy .lad { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.sy .lad > span { display: inline-flex; align-items: center; gap: 5px; padding: 1px 6px 1px 1px; font-size: 11px; line-height: 16px; color: #6b7280; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16); }
+.sy .lad i { min-width: 16px; padding: 0 3px; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; text-align: center; color: #9ca3af; background: rgba(148,163,184,.12); border-radius: 2px; }
+.sy .lad .ok { color: #a7f3d0; box-shadow: inset 0 0 0 1px rgba(16,185,129,.45); } .sy .lad .ok i { color: #05080f; background: #10b981; }
+.sy .lad .nx { color: #e5e7eb; box-shadow: inset 0 0 0 1px rgba(56,189,248,.55); } .sy .lad .nx i { color: #e0f2fe; background: rgba(56,189,248,.3); }
+.sy .gt { display: flex; align-items: center; gap: 8px; margin: 8px 0 3px; font-size: 11px; font-weight: 700; color: #6ee7b7; }
+.sy .gt:first-child { margin-top: 0; }
+.sy .gt span { font-family: 'Saira Condensed', sans-serif; color: #6b7280; }
+.sy .gt::after { content: ""; flex: 1; height: 1px; background: rgba(148,163,184,.18); }
+.sy .none { padding: 12px 4px; color: #4b5563; }
+`;
+const CSS = [
+  /* 1 */ `.v1 .sc > button { padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); } .v1 .sc > button:hover { background: rgba(255,255,255,.03); }`,
+  /* 2 */ `.v2 .sc > button { margin-bottom: 6px; padding: 9px 10px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); } .v2 .sc > button.on { background: linear-gradient(180deg, rgba(16,185,129,.12), rgba(16,185,129,.03)); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); } .v2 .l1 .ef { margin-left: auto; padding: 1px 6px; border-radius: 2px; background: rgba(148,163,184,.12); } .v2 .l1 .ef.on { color: #05080f; background: #34d399; } .v2 .l2 { flex-wrap: nowrap; align-items: center; margin-top: 7px; } .v2 .l2 .pips { margin: 0; } .v2 .l2 .cnt { margin: 0; font-size: 13px; } .v2 .l2 .ms { color: #9ca3af; }`,
+  /* 3 */ `.v3 .sc > button { padding: 9px 4px 10px; border-bottom: 1px solid rgba(255,255,255,.06); } .v3 .bar { position: relative; display: block; height: 6px; margin: 7px 0 5px; background: #1f2937; border-radius: 3px; } .v3 .bar i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; } .v3 .bar .f { background: #d1d5db; } .v3 .on .bar .f { background: linear-gradient(90deg, #059669, #34d399); } .v3 .bar .p { background: #38bdf8; } .v3 .bar s { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: #4b5563; } .v3 .bar s.ok { background: #a7f3d0; } .v3 .l2 { flex-wrap: nowrap; } .v3 .l2 .ms { color: #9ca3af; margin-left: auto; }`,
+  /* 4 */ `.v4 .sc > button { padding: 9px 4px 10px; border-bottom: 1px solid rgba(255,255,255,.06); }`,
+  /* 5 */ `.v5 .sc > button { display: flex !important; align-items: center; gap: 11px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,.06); } .v5 .tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; } .v5 .tx > .ef { font-size: 11px; }`,
+  /* 6 */ `.v6 .sc > button { display: flex !important; align-items: center; gap: 12px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,.06); } .v6 .big { flex: none; width: 62px; font-family: 'Saira Condensed', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; color: #fff; } .v6 .big small { font-size: 16px; color: #4b5563; } .v6 .on .big { color: #34d399; text-shadow: 0 0 14px rgba(52,211,153,.4); } .v6 .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; } .v6 .tx > b { font-size: 13.5px; color: #f3f4f6; } .v6 .on .tx > b { color: #fff; }`,
+  /* 7 */ `.v7 .sc { padding-left: 8px; } .v7 .sc > button { margin: 0 0 6px 0; transform: skewX(-10deg); background: rgba(15,23,42,.8); box-shadow: inset 0 0 0 1px rgba(148,163,184,.14); } .v7 .sc > button .in { display: block; padding: 7px 12px; transform: skewX(10deg); } .v7 .sc > button.on { background: linear-gradient(90deg, rgba(5,150,105,.55), rgba(16,185,129,.12)); box-shadow: inset 0 -2px 0 #34d399; } .v7 .on .l1 > b { color: #fff; } .v7 .on .l2 { color: #a7f3d0; font-weight: 600; }`,
+  /* 8 */ `.v8 .sc { position: relative; padding-left: 4px; } .v8 .sc::before { content: ""; position: absolute; left: 10px; top: 8px; bottom: 8px; width: 1px; background: rgba(148,163,184,.25); } .v8 .sc > button { display: flex !important; gap: 12px; padding: 7px 4px 8px 0; } .v8 .dot { flex: none; position: relative; z-index: 1; width: 13px; height: 13px; margin-top: 2px; border-radius: 50%; background: #0a0f1a; box-shadow: inset 0 0 0 2px #4b5563; } .v8 .on .dot { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.25); } .v8 .gr .dot { box-shadow: inset 0 0 0 2px #38bdf8; } .v8 .tx { min-width: 0; flex: 1; }`,
+  /* 9 */ `.v9 .sc > button { padding: 7px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.05); } .v9 .l1 .ef { margin-left: auto; }`,
+  /* 10 */ `.v10 .sc > button { padding: 7px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.05); }`,
+  /* 11 */ `.v11 .tabs { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px; margin-bottom: 6px; background: rgba(255,255,255,.04); } .v11 .tabs button { padding: 5px 0; text-align: center; font-size: 12px; font-weight: 600; color: #9ca3af; } .v11 .tabs button.on { color: #05080f; background: #10b981; } .v11 .sc > button { padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); }`,
+  /* 12 */ `.v12 .sc > button { padding: 7px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.05); }`,
+  /* 13 */ `.v13 .gridx { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .v13 .gridx > button { position: relative; min-height: 84px; padding: 9px 9px 8px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(148,163,184,.1); display: flex !important; flex-direction: column; gap: 4px; } .v13 .gridx > button.on { background: rgba(16,185,129,.1); box-shadow: inset 0 0 0 1px rgba(16,185,129,.4); } .v13 .gridx .ring { position: absolute; right: 7px; top: 7px; } .v13 .gridx > b { display: block; padding-right: 36px; font-size: 12.5px; line-height: 1.25; color: #f3f4f6; } .v13 .on > b { color: #34d399; } .v13 .gridx .l2 { margin-top: auto; color: #9ca3af; }`,
+  /* 14 */ `.v14 .sc > button { display: flex !important; align-items: center; gap: 11px; padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.06); } .v14 .hx { flex: none; width: 34px; height: 30px; display: grid; place-items: center; background: #1f2937; } .v14 .hx b { font-family: 'Saira Condensed', sans-serif; font-size: 16px; color: #6b7280; } .v14 .on .hx { background: linear-gradient(160deg, #34d399, #047857); } .v14 .on .hx b { color: #05080f; } .v14 .tx { min-width: 0; flex: 1; }`,
+  /* 15 */ `.v15 .hive { flex: none; display: flex; flex-wrap: wrap; gap: 4px 4px; padding: 2px 0 8px 0; } .v15 .hive > button { width: calc((100% - 8px) / 3); aspect-ratio: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 0 14px; text-align: center; background: #111827; } .v15 .hive > button:nth-child(6n+4) { margin-left: calc((100% - 8px) / 6); } .v15 .hive b { font-size: 11px; line-height: 1.2; color: #d1d5db; } .v15 .hive span { font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #6b7280; } .v15 .hive .on { background: linear-gradient(160deg, rgba(16,185,129,.55), rgba(4,120,87,.35)); } .v15 .hive .on b { color: #fff; } .v15 .hive .on span { color: #a7f3d0; } .v15 .hive .fo { background: rgba(56,189,248,.35) !important; } .v15 .det { flex: none; padding: 9px 10px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(148,163,184,.12); } .v15 .det .l1 > b { font-size: 14px; }`,
+  /* 16 */ `.v16 .gridx { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; } .v16 .gridx > button { --c: 9px; display: flex !important; flex-direction: column; gap: 5px; min-height: 92px; padding: 9px 10px; background: rgba(255,255,255,.045); clip-path: polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c)); } .v16 .gridx > button.on { background: linear-gradient(160deg, rgba(16,185,129,.22), rgba(16,185,129,.05)); } .v16 .gridx > b { font-size: 12.5px; line-height: 1.25; color: #f3f4f6; } .v16 .gridx .pips { margin: auto 0 0; } .v16 .gridx .ef { white-space: normal; }`,
+  /* 17 */ `.v17 .sc > button { padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); } .v17 .faces { display: flex; align-items: center; gap: 5px; margin-top: 7px; } .v17 .faces .ef { margin-left: auto; }`,
+  /* 18 */ `.v18 .sc > button { padding: 8px 4px 10px; border-bottom: 1px solid rgba(255,255,255,.06); } .v18 .l1 .ef { margin-left: auto; } .v18 .chain { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 0; margin-top: 7px; } .v18 .chain > span { position: relative; padding: 2px 8px; margin-right: 12px; font-size: 11.5px; border-radius: 10px; background: rgba(255,255,255,.07); } .v18 .chain > span:not(:last-child)::after { content: ""; position: absolute; left: 100%; top: 50%; width: 12px; height: 1px; background: rgba(148,163,184,.4); } .v18 .on .chain > .mm { background: rgba(16,185,129,.2); color: #d1fae5; } .v18 .chain > .mc { background: rgba(56,189,248,.18); } .v18 .chain > .mx { background: none; box-shadow: inset 0 0 0 1px rgba(148,163,184,.3); } .v18 .chain > .mx { box-shadow: inset 0 0 0 1px rgba(148,163,184,.3); outline: none; } `,
+  /* 19 */ `.v19 .sc > button { padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); } .v19 .sock { display: flex; align-items: center; gap: 4px; margin-top: 6px; } .v19 .sock i { width: 24px; height: 24px; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; color: #05080f; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.35); } .v19 .sock i:not(.f):not(.m):not(.p) { box-shadow: none; background: repeating-linear-gradient(135deg, rgba(148,163,184,.14) 0 3px, transparent 3px 6px); outline: 1px dashed rgba(148,163,184,.35); outline-offset: -1px; } .v19 .sock i.f { background: #d1d5db; } .v19 .sock i.m { background: #34d399; } .v19 .sock i.p { background: #38bdf8; } .v19 .sock .ef { margin-left: auto; }`,
+  /* 20 */ `.v20 .mx-h, .v20 .dots { display: grid; grid-template-columns: repeat(var(--nc), minmax(0,1fr)); align-items: center; justify-items: center; } .v20 .mx-h { flex: none; padding: 0 8px 8px 4px; box-shadow: inset 0 -1px 0 rgba(148,163,184,.18); margin-bottom: 2px; } .v20 .mx-h .fc { width: 24px; height: 24px; } .v20 .sc > button { padding: 6px 4px 7px; border-bottom: 1px solid rgba(255,255,255,.05); } .v20 .sc > button > b { display: block; font-size: 12px; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .v20 .on > b { color: #34d399; } .v20 .dots { margin-top: 5px; } .v20 .dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(148,163,184,.12); } .v20 .dots i.y { background: #d1d5db; } .v20 .on .dots i.y { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,.7); } .v20 .dots i.c { background: #38bdf8; }`,
+  /* 21 */ `.v21 [data-hero] { flex: none; display: block; width: 100%; margin-bottom: 8px; padding: 12px 12px 11px; background: linear-gradient(160deg, rgba(16,185,129,.22), rgba(16,185,129,.04)); box-shadow: inset 0 0 0 1px rgba(16,185,129,.4); } .v21 [data-hero] .l1 > b { font-size: 17px; } .v21 .hef { display: block; margin-top: 4px; font-size: 15px; font-weight: 700; color: #34d399; } .v21 .sc > button { display: flex !important; align-items: center; padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.05); } .v21 .sc > button > b { font-size: 12.5px; color: #e5e7eb; } .v21 .sc > button.on > b { color: #34d399; }`,
+  /* 22 */ `.v22 [data-goal] { flex: none; display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 8px; padding: 10px 12px; background: rgba(56,189,248,.08); box-shadow: inset 0 0 0 1px rgba(56,189,248,.4); } .v22 .gl { flex: none; font-family: 'Saira Condensed', sans-serif; line-height: 1; color: #7dd3fc; } .v22 .gl b { font-size: 40px; } .v22 .gl small { font-size: 14px; margin-left: 2px; } .v22 [data-goal] .tx { min-width: 0; display: flex; flex-direction: column; gap: 3px; } .v22 [data-goal] .tx > b { font-size: 14px; color: #fff; } .v22 .sc > button { padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.05); }`,
+  /* 23 */ `.v23 .sum { flex: none; display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; } .v23 .sum span { display: flex; align-items: baseline; gap: 5px; padding: 4px 9px; background: rgba(16,185,129,.12); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); } .v23 .sum small { font-size: 11px; color: #a7f3d0; } .v23 .sum b { font-family: 'Saira Condensed', sans-serif; font-size: 17px; color: #34d399; } .v23 .sc > button { padding: 7px 4px 8px; border-bottom: 1px solid rgba(255,255,255,.06); }`,
+  /* 24 */ `.v24 .led { padding: 5px; background: #04060a; box-shadow: 0 0 0 1px #1f2937; } .v24 .led > button { width: 100%; display: grid !important; grid-template-columns: minmax(0,1fr) 48px 38px; align-items: center; gap: 4px; margin-bottom: 3px; padding: 6px 8px; background: #0b0f16; box-shadow: inset 0 0 0 1px #161d29; font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; } .v24 .led b { font-size: 13px; color: #fde68a; text-shadow: 0 0 8px rgba(253,230,138,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .v24 .led .n { font-size: 17px; font-weight: 700; text-align: right; color: #fde68a; } .v24 .led .s { font-size: 12px; font-weight: 700; text-align: right; letter-spacing: .05em; color: #6b7280; } .v24 .led .on b, .v24 .led .on .n, .v24 .led .on .s { color: #86efac; text-shadow: 0 0 8px rgba(134,239,172,.6); }`,
+  /* 25 */ `.v25 .sc > button { display: flex !important; gap: 10px; padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); } .v25 .ck { flex: none; width: 18px; height: 18px; margin-top: 1px; display: grid; place-items: center; font-size: 12px; font-weight: 800; color: #05080f; border-radius: 3px; box-shadow: inset 0 0 0 1.5px #4b5563; } .v25 .on .ck { background: #10b981; box-shadow: none; } .v25 .tx { min-width: 0; flex: 1; } .v25 .qbar { display: flex; height: 4px; margin: 6px 0 5px; background: #1f2937; } .v25 .qbar i { display: block; height: 100%; background: #d1d5db; } .v25 .on .qbar i { background: #10b981; } .v25 .qbar i.p { background: #38bdf8; } .v25 .rw { margin-right: 2px; padding: 0 5px; font-size: 10px; font-weight: 700; line-height: 15px; color: #fbbf24; box-shadow: inset 0 0 0 1px rgba(251,191,36,.45); border-radius: 2px; } .v25 .l2 { color: #d1d5db; }`,
+  /* 26 */ `.v26 .sc > button { display: flex !important; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.06); } .v26 .sd { flex: none; width: 26px; height: 30px; } .v26 .sd path { fill: #1f2937; stroke: #374151; } .v26 .sd text { font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; fill: #05080f; } .v26 .sd.l1 path { fill: #b7793f; stroke: #e0a36b; } .v26 .sd.l2 path { fill: #94a3b8; stroke: #e2e8f0; } .v26 .sd.l3 path { fill: #eab308; stroke: #fde68a; } .v26 .tx { min-width: 0; flex: 1; }`,
+  /* 27 */ `.v27 .sc > button { padding: 8px 4px 10px; border-bottom: 1px solid rgba(255,255,255,.06); } .v27 .tree { display: flex; align-items: flex-start; margin-top: 8px; } .v27 .tree > span { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; } .v27 .tree > span:not(:last-child)::after { content: ""; position: absolute; top: 10px; left: calc(50% + 12px); right: calc(-50% + 12px); height: 2px; background: #1f2937; } .v27 .tree > span.ok:not(:last-child)::after { background: #10b981; } .v27 .tree i { width: 22px; height: 22px; display: grid; place-items: center; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 700; color: #6b7280; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #374151; } .v27 .tree .ok i { color: #05080f; background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.6); } .v27 .tree .nx i { color: #e0f2fe; box-shadow: inset 0 0 0 1.5px #38bdf8; } .v27 .tree small { font-size: 10px; line-height: 1.2; color: #6b7280; } .v27 .tree .ok small { color: #a7f3d0; }`,
+  /* 28 */ `.v28 .sc > button { padding: 8px 4px 9px; border-bottom: 1px solid rgba(255,255,255,.06); } .v28 .l1 .ef { margin-left: auto; } .v28 .bat { position: relative; display: flex; gap: 2px; margin-top: 7px; padding: 2px; margin-right: 6px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.3); border-radius: 2px; } .v28 .bat i { flex: 1; height: 9px; background: #1f2937; } .v28 .bat i.f { background: #d1d5db; } .v28 .on .bat i.f { background: #10b981; } .v28 .bat i.p { background: #38bdf8; } .v28 .bat i.cut:not(:last-of-type) { margin-right: 3px; box-shadow: 2px 0 0 #4b5563; } .v28 .bat em { position: absolute; right: -6px; top: 4px; width: 3px; height: 7px; background: rgba(148,163,184,.4); }`,
+  /* 29 */ `.v29 .sc > button { margin-bottom: 7px; padding: 8px 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(148,163,184,.18); } .v29 .sc > button.on { box-shadow: inset 0 0 0 1px #34d399, 0 0 12px rgba(52,211,153,.3), inset 0 0 12px rgba(52,211,153,.12); } .v29 .on .l1 > b { color: #6ee7b7; text-shadow: 0 0 8px rgba(110,231,183,.7); } .v29 .on .l2 { color: #a7f3d0; text-shadow: 0 0 6px rgba(52,211,153,.5); }`,
+  /* 30 */ `.v30 .sc > button { padding: 7px 2px 8px; } .v30 .sc > button > b { display: block; font-size: 15.5px; color: #e5e7eb; letter-spacing: -.01em; } .v30 .sc > button.on > b { color: #fff; } .v30 .l2 { margin-top: 1px; color: #6b7280; } .v30 .l2 .n { font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #9ca3af; } .v30 .on .l2 .n { color: #34d399; } .v30 .l2 .g { color: #34d399; font-weight: 600; }`,
+  /* 31 */ `.v31 .sc > button { padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.06); } .v31 .chev { width: 10px; font-size: 10px; color: #6b7280; } .v31 .fo { box-shadow: none !important; background: rgba(255,255,255,.04) !important; } .v31 .fo .lad, .v31 .fo .l2 { margin-left: 17px; }`,
+  /* 32 */ `.v32 .sc > button { --lc: #374151; margin-bottom: 6px; padding: 8px 10px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px var(--lc); } .v32 [data-lv="1"] { --lc: #b7793f; } .v32 [data-lv="2"] { --lc: #cbd5e1; } .v32 [data-lv="3"] { --lc: #eab308; background: rgba(234,179,8,.06); } .v32 .lvt { flex: none; font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 12px; font-weight: 800; color: var(--lc); } .v32 [data-lv="0"] .lvt { color: #6b7280; } .v32 .on .l1 > b { color: #fff; }`,
+];
+
+const items = V.filter((v) => v.t);
+const renderDock = (m, n, st) => { const v = items[n - 1]; return `<div class="sy v${n}" style="--nc:${m.roster.length + (m.cand && !m.roster.some((p) => p.name === m.cand.name) ? 1 : 0)}">${v.r(m, st)}</div>`; };
+
+/* 레이아웃: 선수 구역 0.9배 · 도크 왼쪽으로 */
+function layout(W, Hh) {
+  const kw = (Hh / WA.h) * 1.003, s = kw * F;
+  const x = 14 - (140 - HALF) * s;
+  const imgH = WA.h * s, imgTop = (Hh - imgH) / 2, y = imgTop - WA.t * s;
+  const dockL = Math.round(x + (760 + HALF) * s + 16);
+  const imgL = x + WA.l * s, imgW = WA.w * s;
+  const pc = (px) => Math.min(100, Math.max(0, ((px - imgL) / imgW) * 100));
+  return { s, x, y, dockL, imgL, imgTop, imgW, imgH, mask: `linear-gradient(90deg, #000 ${pc(dockL + 40)}%, transparent ${pc(dockL + (W - dockL) * 0.8)}%)` };
+}
+
+const one = QS.get('v');
+if (!one) {
+  const st = document.createElement('style'); st.textContent = BASE + CSS.join('\n'); document.head.appendChild(st);
+  const opt = (k, vals) => vals.map(([v, t]) => { const q = new URLSearchParams(location.search); if (v) q.set(k, v); else q.delete(k); return `<a href="?${q}" class="${(QS.get(k) || '') === v ? 'on' : ''}">${t}</a>`; }).join('');
+  document.body.insertAdjacentHTML('beforeend', `<div class="top"><b>시너지 도크 32안</b><span>선수 구역 0.9배 · 도크 왼쪽으로 넓힘 · 줄을 누르면 강조(목록에서는 표시만) · “게임에서 보기”는 실제 화면에 끼운 모습</span>
+    <span class="opt">화면 ${opt('h', [['', '1902×1000'], ['901', '1902×901'], ['1080', '1902×1080']])}</span>
+    <span class="opt">후보 미리보기 ${opt('cand', [['', '없음'], ['이대호', '이대호 2008'], ['류현진', '류현진 2008']])}</span>
+    <nav>${items.map((_, k) => `<a href="#s${k + 1}">${k + 1}</a>`).join('')}</nav></div>
+    <div class="gal" id="gal"></div><iframe class="srcframe" src="/?demo=draft" style="height:${H}px"></iframe>`);
+  const gal = document.getElementById('gal');
+  const src = document.querySelector('.srcframe');
+  const state = {};
+  let last = '', geo = null, mdl = null;
+  let n = 0;
+  gal.innerHTML = V.map((v) => (v.g ? `<div class="grpt">${v.g}</div>` : (() => { n += 1; return `<section class="item" id="s${n}"><div class="hd"><b><i>${n}</i>${v.t}</b><a href="./?v=${n}&h=${H}${CAND ? `&cand=${CAND}` : ''}" target="_blank">게임에서 보기 ↗</a></div><p>${v.d}</p><div class="cell" data-n="${n}"></div></section>`; })())).join('');
+  const draw = () => {
+    if (!geo || !mdl) return;
+    gal.style.setProperty('--cw', `${geo.cw}px`);
+    gal.querySelectorAll('.cell').forEach((cell) => {
+      const k = +cell.dataset.n; const s = state[k] || (state[k] = {});
+      cell.style.width = `${geo.cw}px`; cell.style.height = `${geo.h}px`;
+      cell.innerHTML = `<img src="/ui/field-wide.webp" style="left:${geo.imgL - geo.cut}px;top:${geo.imgTop}px;width:${geo.imgW}px;height:${geo.imgH}px;-webkit-mask-image:${geo.mask};mask-image:${geo.mask}"><div class="dockbox" style="width:${geo.dw}px">${renderDock(mdl, k, s)}</div>`;
+    });
+  };
+  gal.addEventListener('click', (e) => {
+    const cell = e.target.closest('.cell'); if (!cell) return;
+    const s = state[+cell.dataset.n] || (state[+cell.dataset.n] = {});
+    const t = e.target.closest('[data-syn],[data-tab]'); if (!t) return;
+    if (t.dataset.tab) s.tab = t.dataset.tab; else s.focus = s.focus === t.dataset.syn ? null : t.dataset.syn;
+    draw();
+  });
+  src.addEventListener('load', () => setInterval(() => {
+    const doc = src.contentDocument; const field = doc?.querySelector('.lf-field'); if (!field) return;
+    const g = readGame(doc); if (!g || !g.roster.length) return;
+    const wrap = field.parentElement; const W = wrap.clientWidth, Hh = wrap.clientHeight; if (!W || !Hh) return;
+    const key = JSON.stringify([g.roster.map((p) => p.id + p.slot), W, Hh]);
+    if (key === last) return;
+    last = key;
+    const L = layout(W, Hh);
+    const cut = L.dockL - 70;
+    geo = { cw: W - cut, h: Hh, dw: W - L.dockL, cut, imgL: L.imgL, imgTop: L.imgTop, imgW: L.imgW, imgH: L.imgH, mask: L.mask.replace(/(\d+(\.\d+)?)%/g, (m0, v) => `${((+v / 100) * L.imgW + L.imgL - L.imgL) / L.imgW * 100}%`) };
+    mdl = model(g);
+    draw();
+  }, 500));
+} else {
+  const nIdx = +one;
+  document.body.className = 'one';
+  document.title = `${nIdx} · ${items[nIdx - 1]?.t}`;
+  document.body.innerHTML = `<iframe src="/?demo=draft" title="드래프트 화면"></iframe><span class="badge">${nIdx} · ${items[nIdx - 1]?.t}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => {
+    const st = {};
+    const tick = () => {
+      const doc = ifr.contentDocument; const field = doc?.querySelector('.lf-field'); const dock = doc?.querySelector('.syn-dock');
+      if (!field || !dock) return;
+      if (!doc.getElementById('sy-style')) {
+        const s = doc.createElement('style'); s.id = 'sy-style';
+        s.textContent = BASE + CSS.join('\n') + `
+          html body .lf-field { transform: var(--sy-t) !important; }
+          html body .lf-field > img { -webkit-mask-image: var(--sy-mask) !important; mask-image: var(--sy-mask) !important; }
+          html body .syn-dock.wide { left: var(--sy-l) !important; width: var(--sy-w) !important; }
+          html body .syn-dock > section { display: none !important; }
+          @keyframes prism { to { background-position: 200% 50%; } }`;
+        doc.body.appendChild(s);
+      }
+      const wrap = field.parentElement; const W = wrap.clientWidth, Hh = wrap.clientHeight;
+      if (dock.classList.contains('wide')) {
+        const L = layout(W, Hh);
+        wrap.style.setProperty('--sy-t', `translate(${L.x}px, ${L.y}px) scale(${L.s})`);
+        wrap.style.setProperty('--sy-l', `${L.dockL}px`); wrap.style.setProperty('--sy-w', `${W - L.dockL}px`); wrap.style.setProperty('--sy-mask', L.mask);
+      }
+      const g = readGame(doc); if (!g) return;
+      const native = [...doc.querySelectorAll('.syn-dock .dock-row.open')].map((r) => r.querySelector('.text-sm')?.textContent);
+      st.focus = native[0] || null;
+      let root = dock.querySelector(':scope > .sy-host');
+      if (!root) {
+        root = doc.createElement('div'); root.className = 'sy-host'; root.style.cssText = 'display:flex;flex-direction:column;flex:1;min-height:0'; dock.appendChild(root);
+        root.addEventListener('click', (e) => {
+          const t = e.target.closest('[data-syn],[data-tab],[data-all]'); if (!t) return;
+          if (t.dataset.tab) { st.tab = t.dataset.tab; root.dataset.h = ''; tick(); return; }
+          if (t.hasAttribute('data-all')) { [...doc.querySelectorAll('.syn-dock button')].find((b) => b.textContent.trim() === '전체 보기')?.click(); return; }
+          [...doc.querySelectorAll('.syn-dock .dock-row')].find((r) => r.querySelector('.text-sm')?.textContent === t.dataset.syn)?.click();
+        });
+      }
+      const html = renderDock(model(g), nIdx, st);
+      if (root.dataset.h !== html) { const sc = root.querySelector('.sc')?.scrollTop || 0; root.innerHTML = html; root.dataset.h = html; const ns = root.querySelector('.sc'); if (ns) ns.scrollTop = sc; }
+    };
+    tick(); setInterval(tick, 300);
+  });
+}
+</script>
+</body>
+</html>

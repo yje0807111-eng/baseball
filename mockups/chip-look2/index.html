@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>구장 위 선수 칩 — 두 번째 다섯</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{width:1920px;height:911px;background:#05080f;color:#e6edf6;font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+  header{display:flex;align-items:baseline;gap:14px;padding:10px 20px 6px}
+  h1{font-family:'Saira Condensed';font-size:22px;font-weight:900;letter-spacing:.04em}
+  header p{font-size:12px;color:#7c8798}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:9px;padding:0 12px 12px;height:calc(911px - 46px)}
+  .cell{position:relative;overflow:hidden;background:#070b14;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .cell svg{display:block;width:100%;height:100%}
+  .tag{position:absolute;left:0;top:0;display:flex;align-items:center;gap:8px;padding:6px 14px 6px 10px;background:rgba(5,8,15,.82)}
+  .tag b{font-family:'Saira Condensed';font-size:19px;font-weight:900;color:#10b981}
+  .tag span{font-size:13px;font-weight:700}
+  .tag i{font-style:normal;font-size:12px;color:#8b95a6}
+  .empty{display:grid;place-items:center;color:#2b3444;font-family:'Saira Condensed';font-size:15px;font-weight:800;letter-spacing:.3em}
+</style></head><body>
+<header><h1>구장 위 선수 칩 — 두 번째 다섯</h1><p>9번은 2번 테두리에 7번 발밑 고리 · 10~13번은 새 방향</p></header>
+<div class="grid" id="g"></div>
+<script>
+const BG = '../../public/ui/field/park-16.webp';
+const FACE = (n) => '../../public/profiles/' + encodeURIComponent(n) + '.webp';
+const OFF = '#34d399', TEAM = '#38bdf8', ACT = '#ffffff';
+const U = 1.2; // 1600 폭 그림이 1920 화면에 그려질 때의 배율 — 게임에서 보이는 실제 크기
+const MEN = [
+  { x: 150, y: 110, k: 0.70 * U, pos: 'SS', name: '김재호', face: '2002-doosan_김동주', c: TEAM },
+  { x: 480, y: 110, k: 0.70 * U, pos: '2B', name: '오재원', face: '2002-doosan_김민호', c: TEAM },
+  { x: 315, y: 215, k: 0.72 * U, pos: 'P', name: '레스', face: '2002-doosan_레스', c: ACT, act: 1 },
+  { x: 240, y: 330, k: 0.99 * U, pos: '', name: '구자운', face: '2002-doosan_구자운', c: OFF },
+];
+const hue = (m) => (m.act ? ACT : m.c);
+const face = (m, r, cid, shape) => '' +
+  '<clipPath id="' + cid + '">' + (shape || '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '"/>') + '</clipPath>' +
+  '<image href="' + FACE(m.face) + '" x="' + (m.x - r) + '" y="' + (m.y - r * 1.05) + '" width="' + (r * 2) + '" height="' + (r * 2.6) + '"' +
+  ' preserveAspectRatio="xMidYMin slice" clip-path="url(#' + cid + ')" style="filter:brightness(1.22) saturate(1.08) contrast(1.05)"/>';
+const inkName = (m, r, k, c) => '<text x="' + m.x + '" y="' + (m.y + r + 30 * k) + '" text-anchor="middle" font-size="' + (30 * k) + '" font-weight="700" fill="' + c + '"' +
+  ' stroke="rgba(0,0,0,.9)" stroke-width="' + (9 * k) + '" paint-order="stroke">' + m.name + '</text>';
+
+const LOOKS = [
+  ['두 겹 테 + 발밑 고리', '2번과 7번을 겹친 것', (m, k, r, cid) => {
+    const c = hue(m);
+    return '<ellipse cx="' + m.x + '" cy="' + (m.y + r * 1.04) + '" rx="' + (r * 1.15) + '" ry="' + (r * 0.36) + '" fill="' + c + '" opacity=".16"/>' +
+      '<ellipse cx="' + m.x + '" cy="' + (m.y + r * 1.04) + '" rx="' + (r * 1.15) + '" ry="' + (r * 0.36) + '" fill="none" stroke="' + c + '" stroke-width="' + (4.5 * k) + '" opacity=".8"/>' +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + (r + 5 * k) + '" fill="#05080f" opacity=".9"/>' +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="#0b1220"/>' + face(m, r, cid) +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="none" stroke="' + c + '" stroke-width="' + (4.5 * k) + '"/>' +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + (r + 4 * k) + '" fill="none" stroke="rgba(5,8,15,.95)" stroke-width="' + (3 * k) + '"/>' +
+      inkName(m, r, k, c); }],
+
+  ['홈플레이트 방패', '야구의 오각형을 칩 모양으로', (m, k, r, cid) => {
+    const c = hue(m); const w = r * 1.02, h = r * 1.12;
+    const box = 'M ' + (m.x - w) + ' ' + (m.y - h) + ' H ' + (m.x + w) + ' V ' + (m.y + h * 0.28) + ' L ' + m.x + ' ' + (m.y + h * 1.12) + ' L ' + (m.x - w) + ' ' + (m.y + h * 0.28) + ' Z';
+    return '<ellipse cx="' + m.x + '" cy="' + (m.y + h * 1.22) + '" rx="' + (r * 0.7) + '" ry="' + (r * 0.2) + '" fill="rgba(0,0,0,.5)"/>' +
+      '<path d="' + box + '" fill="#05080f"/>' +
+      '<path d="' + box + '" fill="#0b1220" transform="translate(' + m.x + ' ' + m.y + ') scale(.9) translate(' + (-m.x) + ' ' + (-m.y) + ')"/>' +
+      face(m, r * 0.9, cid, '<path d="' + box + '" transform="translate(' + m.x + ' ' + m.y + ') scale(.9) translate(' + (-m.x) + ' ' + (-m.y) + ')"/>') +
+      '<path d="' + box + '" fill="none" stroke="' + c + '" stroke-width="' + (4 * k) + '"/>' +
+      '<text x="' + m.x + '" y="' + (m.y + h * 0.92) + '" text-anchor="middle" font-size="' + (19 * k) + '" font-weight="900" fill="' + c + '" font-family="Saira Condensed"' +
+      ' stroke="rgba(5,8,15,.95)" stroke-width="' + (5 * k) + '" paint-order="stroke">' + (m.pos || '打') + '</text>' +
+      inkName(m, h * 1.2, k, c); }],
+
+  ['유리판 언더바', '반투명 판에 얼굴 · 아래 팀 색 막대', (m, k, r, cid) => {
+    const c = hue(m); const w = r * 1.12, h = r * 1.04;
+    return '<ellipse cx="' + m.x + '" cy="' + (m.y + h * 1.32) + '" rx="' + (r * 0.8) + '" ry="' + (r * 0.2) + '" fill="rgba(0,0,0,.5)"/>' +
+      '<rect x="' + (m.x - w) + '" y="' + (m.y - h) + '" width="' + (w * 2) + '" height="' + (h * 2.18) + '" rx="' + (6 * k) + '" fill="rgba(11,18,32,.66)" stroke="rgba(255,255,255,.28)" stroke-width="' + (2 * k) + '"/>' +
+      face(m, r * 0.88, cid, '<rect x="' + (m.x - w * 0.86) + '" y="' + (m.y - h * 0.86) + '" width="' + (w * 1.72) + '" height="' + (h * 1.6) + '" rx="' + (4 * k) + '"/>') +
+      '<rect x="' + (m.x - w) + '" y="' + (m.y + h * 0.86) + '" width="' + (w * 2) + '" height="' + (h * 0.32) + '" rx="' + (3 * k) + '" fill="' + c + '"/>' +
+      '<text x="' + m.x + '" y="' + (m.y + h * 1.12) + '" text-anchor="middle" font-size="' + (17 * k) + '" font-weight="800" fill="#05080f" font-family="Saira Condensed">' + (m.pos || '打') + '</text>' +
+      inkName(m, h * 1.3, k, c); }],
+
+  ['빛무리', '테 없이 뒤에서 번지는 팀 색', (m, k, r, cid) => {
+    const c = hue(m); const gid = cid + 'g';
+    return '<defs><radialGradient id="' + gid + '"><stop offset=".45" stop-color="' + c + '" stop-opacity=".85"/><stop offset="1" stop-color="' + c + '" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + (r * 1.85) + '" fill="url(#' + gid + ')" opacity=".5"/>' +
+      '<ellipse cx="' + m.x + '" cy="' + (m.y + r * 0.98) + '" rx="' + (r * 0.8) + '" ry="' + (r * 0.24) + '" fill="rgba(0,0,0,.45)"/>' +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="#0b1220"/>' + face(m, r, cid) +
+      '<circle cx="' + m.x + '" cy="' + m.y + '" r="' + r + '" fill="none" stroke="rgba(5,8,15,.8)" stroke-width="' + (3 * k) + '"/>' +
+      inkName(m, r, k, '#e6edf6'); }],
+
+  ['이름 띠', '원 아래 걸친 띠에 이름 · 자리는 띠 왼쪽', (m, k, r, cid) => {
+    const c = hue(m); const bw = r * 1.5, bh = r * 0.46;
+    return '<ellipse cx="' + m.x + '" cy="' + (m.y + r * 1.12) + '" rx="' + (r * 0.8) + '" ry="' + (r * 0.22) + '" fill="rgba(0,0,0,.5)"/>' +
+      '<circle cx="' + m.x + '" cy="' + (m.y - bh * 0.3) + '" r="' + r + '" fill="#0b1220"/>' +
+      face({ x: m.x, y: m.y - bh * 0.3, face: m.face }, r, cid) +
+      '<circle cx="' + m.x + '" cy="' + (m.y - bh * 0.3) + '" r="' + r + '" fill="none" stroke="rgba(5,8,15,.9)" stroke-width="' + (4 * k) + '"/>' +
+      '<g><rect x="' + (m.x - bw) + '" y="' + (m.y + r * 0.42) + '" width="' + (bw * 2) + '" height="' + (bh * 1.5) + '" rx="' + (3 * k) + '" fill="rgba(5,8,15,.9)"/>' +
+      '<rect x="' + (m.x - bw) + '" y="' + (m.y + r * 0.42) + '" width="' + (bh * 1.5) + '" height="' + (bh * 1.5) + '" rx="' + (3 * k) + '" fill="' + c + '"/>' +
+      '<text x="' + (m.x - bw + bh * 0.75) + '" y="' + (m.y + r * 0.42 + bh * 1.08) + '" text-anchor="middle" font-size="' + (17 * k) + '" font-weight="900" fill="#05080f" font-family="Saira Condensed">' + (m.pos || '打') + '</text>' +
+      '<text x="' + (m.x + bh * 0.75) + '" y="' + (m.y + r * 0.42 + bh * 1.06) + '" text-anchor="middle" font-size="' + (21 * k) + '" font-weight="700" fill="#e6edf6">' + m.name + '</text></g>'; }],
+];
+
+let seq = 0;
+document.getElementById('g').innerHTML = LOOKS.map((look, n) => {
+  const draw = look[2];
+  const body = MEN.map((m) => '<g>' + draw(m, m.k, 38 * m.k, 'c' + (seq += 1)) + '</g>').join('');
+  return '<div class="cell"><svg viewBox="0 0 630 420">' +
+    '<image href="' + BG + '" x="-980" y="-760" width="2560" height="1432" preserveAspectRatio="none"/>' +
+    '<rect x="0" y="0" width="630" height="420" fill="rgba(5,8,15,.18)"/>' + body +
+    '</svg><div class="tag"><b>' + (n + 9) + '</b><span>' + look[0] + '</span><i>' + look[1] + '</i></div></div>';
+}).join('') + '<div class="cell empty">CHIP LOOK</div>';
+</script></body></html>

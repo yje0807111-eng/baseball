@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>라인업 명단 판 4안 · 포지션 앞</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=Saira+Condensed:wght@600;700;800&display=swap" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 14px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; font-size: 13px; color: #9ca3af; }
+  .top b { color: #fff; font-size: 15px; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .top nav a { padding: 2px 8px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 700; color: #cbd5e1; text-decoration: none; background: rgba(255,255,255,.05); }
+  .list { display: flex; flex-direction: column; gap: 34px; padding: 20px; max-width: 1560px; margin: 0 auto; }
+  .hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0 2px 8px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; color: #10b981; margin-right: 6px; }
+  .hd span { font-size: 12.5px; color: #9ca3af; }
+  .hd a { margin-left: auto; font-size: 12px; color: #6ee7b7; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1902 / 901; overflow: hidden; background: #05080f; box-shadow: 0 0 0 1px #1f2937; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 1902px; height: 901px; border: 0; transform-origin: 0 0; }
+  body.one { overflow: hidden; }
+  body.one iframe { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; }
+  body.one .badge { position: fixed; right: 10px; bottom: 10px; z-index: 5; padding: 4px 10px; font-size: 12px; color: #fff; background: rgba(5,8,15,.85); box-shadow: inset 0 0 0 1px #10b981; }
+</style>
+</head>
+<body>
+<script type="module">
+/* 명단은 오른쪽 별도 LINEUP 판(폭 400) · 시너지는 라인업 판 안 · 열 순서: 포지션 · [프로필] 선수 · 시즌 · 종합
+   투수 · 내야 · 외야·지명으로 묶고(Q3), 맨 아래 팀 · 투수 · 야수 평균 막대(Q4). 줄을 누르면 필드에서 그 자리를 누른 것과 같다. */
+const SRC = '/?demo=draft';
+const WIDE = '/mockups/field-wide-16/wide.png';
+const REG = { s: 2.136, dx: 490, dy: -48 };
+const IMG = { l: -201.6, t: 7.4, r: 1101.9, b: 560.4 };
+const TS = 0.8, HWU = 107 * TS;
+const PANEL_W = 400;
+const LABEL = { SP: '선발', MR: '중간계투', CL: '마무리', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF1: '좌익수', OF2: '중견수', OF3: '우익수', DH: '지명타자' };
+const GROUPS = [['투수', 'PITCHERS', ['SP', 'MR', 'CL']], ['내야', 'INFIELD', ['C', '1B', '2B', '3B', 'SS']], ['외야 · 지명', 'OUTFIELD · DH', ['OF1', 'OF2', 'OF3', 'DH']]];
+
+const VARS = [
+  { id: 'R1', title: '깔끔한 표', desc: '포지션 글자가 맨 앞 열 · 묶음 구분줄은 초록 옅은 띠와 묶음 평균 · 줄 사이 가는 선 · 아래 팀 / 투수 / 야수 평균 막대 세 줄', style: 'r1' },
+  { id: 'R2', title: '팀 색 포지션 칩', desc: '맨 앞 포지션을 팀 색 칩(SS)과 이름(유격수)으로 · 줄 왼쪽 끝 팀 색 선 · 종합도 팀 색 — 필드 토큰과 같은 색 규칙 · 아래 평균 막대', style: 'r2' },
+  { id: 'R3', title: 'HUD 카드 줄', desc: '줄마다 잘린 모서리 카드 · 묶음 이름은 판 라벨처럼 사선 표식 + 영문(PITCHERS) · 빈 자리는 빈 프로필 아이콘 · 아래 평균 막대는 HUD 판', style: 'r3' },
+  { id: 'R4', title: '묶음 상자', desc: '투수 · 내야 · 외야·지명을 각각 테두리 상자로 나누고 상자 머리에 묶음 평균과 작은 막대 · 맨 아래는 큰 팀 평균 숫자 + 투수 / 야수 막대', style: 'r4' },
+];
+
+const ICON = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Ccircle cx='20' cy='13' r='8.5' fill='%2394a3b8'/%3E%3Cpath d='M4 43C5 31 11.5 25.5 20 25.5S35 31 36 43z' fill='%2394a3b8'/%3E%3C/svg%3E\")";
+const CSS = `
+.lf-field { transform: var(--mk-t) !important; }
+.lf-field > img:not(.mk-wide) { display: none !important; }
+.mk-wide { position: absolute; pointer-events: none; max-width: none !important; -webkit-mask-image: linear-gradient(90deg, #000 var(--fs, 90%), transparent var(--fe, 100%)); mask-image: linear-gradient(90deg, #000 var(--fs, 90%), transparent var(--fe, 100%)); }
+.syn-dock { left: var(--dl) !important; right: auto !important; width: var(--dw) !important; padding: 12px 16px 10px 22px !important; background: linear-gradient(90deg, rgba(5,8,15,0), rgba(5,8,15,.5) 16%, rgba(5,8,15,.7)) !important; }
+
+.mk-listpanel { display: flex; flex-direction: column; min-height: 0; }
+.mk-list { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 2px 4px 0; color: #e5e7eb; font-family: 'IBM Plex Sans KR', sans-serif; }
+.mt-hd { flex: none; display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 7px; }
+.mt-hd b { font-size: 14px; font-weight: 700; color: #fff; }
+.mt-hd b i { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 13px; color: #10b981; margin-left: 5px; }
+.mt-hd span { font-size: 11.5px; color: #9ca3af; }
+.mt-hd span em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 700; color: #fff; margin-left: 4px; }
+.mt-th, .mt-row { display: grid; grid-template-columns: 56px 28px minmax(0,1fr) 84px 30px; align-items: center; column-gap: 8px; }
+.mt-th { flex: none; padding: 0 8px 5px; font-size: 10.5px; font-weight: 700; color: #6b7280; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 3px; }
+.mt-th .c-name { grid-column: 2 / 4; }
+.mt-th .c-ov { text-align: right; }
+.mt-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
+.mt-body .mt-row { flex: 1 1 0; min-height: 20px; max-height: 42px; }
+.mt-body .mt-grp { flex: none; }
+.mt-row { padding: 1px 8px; overflow: hidden; cursor: pointer; transition: background .12s; }
+.mt-row:hover { background: rgba(255,255,255,.07) !important; }
+.mt-row .pos { font-size: 12px; font-weight: 600; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mt-row .fc { align-self: stretch; width: 28px; background-color: #1b2537; background-repeat: no-repeat; background-size: cover !important; background-position: 50% 12% !important; -webkit-mask-image: linear-gradient(#000 78%, transparent); mask-image: linear-gradient(#000 78%, transparent); }
+.mt-row .fc.nof { background: ${ICON} 50% 60% / 62% auto no-repeat, linear-gradient(180deg, #2c3749, #222c3e); -webkit-mask-image: none; mask-image: none; opacity: .8; }
+.mt-row .nm { font-size: 13.5px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mt-row .sea { font-size: 11px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mt-row .ov { font-family: 'Saira Condensed', sans-serif; font-size: 20px; font-weight: 700; text-align: right; color: #fff; }
+.mt-row .ov.up { color: #34d399; }
+.mt-row.e .nm { color: #6b7280; font-weight: 500; }
+.mt-row.on { background: rgba(56,189,248,.15) !important; box-shadow: inset 0 0 0 1px rgba(56,189,248,.55); }
+.mt-grp { display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px; padding: 1px 8px; line-height: 18px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: #6ee7b7; }
+.mt-grp:first-child { margin-top: 0; }
+.mt-grp em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 14px; color: #e5e7eb; }
+/* 평균 막대: 팀 · 투수 · 야수를 한 줄에 세 칸으로(세로 공간을 적게 써서 12줄이 넉넉히 들어가게) */
+.mt-bars { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 7px; padding: 6px 10px 7px; background: rgba(255,255,255,.04); }
+.mt-bars .bi { display: grid; grid-template-columns: 1fr auto; align-items: baseline; row-gap: 3px; font-size: 11px; color: #9ca3af; }
+.mt-bars i { grid-column: 1 / -1; display: block; height: 5px; background: rgba(255,255,255,.08); }
+.mt-bars i b { display: block; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); }
+.mt-bars .bi:first-child i b { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.mt-bars em { font-style: normal; font-family: 'Saira Condensed', sans-serif; font-size: 15px; line-height: 1; color: #fff; text-align: right; }
+
+/* R1 · 깔끔한 표 */
+.r1 .mt-grp { background: linear-gradient(90deg, rgba(16,185,129,.14), transparent); box-shadow: inset 2px 0 0 #10b981; }
+.r1 .mt-row { border-bottom: 1px solid rgba(255,255,255,.05); }
+
+/* R2 · 팀 색 포지션 칩 */
+.r2 .mt-th, .r2 .mt-row { grid-template-columns: 76px 28px minmax(0,1fr) 80px 30px; }
+.r2 .mt-row { background: rgba(255,255,255,.035); box-shadow: inset 3px 0 0 var(--n, #334155); padding-left: 10px; }
+.r2 .mt-th { padding-left: 10px; }
+.r2 .mt-row.e { box-shadow: inset 3px 0 0 #334155; }
+.r2 .mt-row .pos { display: inline-flex; align-items: center; gap: 5px; }
+.r2 .mt-row .pos i { font-style: normal; flex: none; min-width: 24px; padding: 0 4px; text-align: center; font-family: 'Saira Condensed', sans-serif; font-size: 11px; font-weight: 800; line-height: 15px; color: #05080f; background: var(--n, #475569); }
+.r2 .mt-row.e .pos i { color: #cbd5e1; background: #334155; }
+.r2 .mt-row .ov { color: var(--n, #fff); }
+.r2 .mt-row .ov.up { color: #34d399; }
+.r2 .mt-grp { color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 3px; }
+
+/* R3 · HUD 카드 줄 */
+.r3 .mt-body { gap: 3px; }
+.r3 .mt-th, .r3 .mt-row { grid-template-columns: 56px 34px minmax(0,1fr) 80px 30px; }
+.r3 .mt-row { padding: 0 10px 0 8px; background: linear-gradient(90deg, rgba(15,23,42,.8), rgba(12,19,32,.6)); clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.r3 .mt-row .fc { width: 34px; }
+.r3 .mt-row.on { box-shadow: inset 0 0 0 1.5px #38bdf8; }
+.r3 .mt-grp { justify-content: flex-start; gap: 8px; font-family: 'Saira Condensed', sans-serif; font-size: 11.5px; letter-spacing: .24em; color: #10b981; padding-left: 2px; }
+.r3 .mt-grp::before { content: ""; width: 12px; height: 9px; background: currentColor; clip-path: polygon(0 0,60% 0,100% 100%,40% 100%); align-self: center; }
+.r3 .mt-grp em { margin-left: auto; letter-spacing: 0; }
+.r3 .mt-bars { clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px); box-shadow: inset 0 0 0 1px rgba(16,185,129,.2); }
+
+/* R4 · 묶음 상자 */
+.r4 .mt-body { gap: 6px; }
+.r4 .mt-box { flex: var(--k) 1 0; min-height: 0; display: flex; flex-direction: column; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16); background: rgba(255,255,255,.02); }
+.r4 .mt-box .mt-grp { flex: none; margin: 0; padding: 4px 8px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(148,163,184,.14); }
+.r4 .mt-box .mt-grp span { display: inline-flex; align-items: center; gap: 8px; }
+.r4 .mt-box .mt-grp i { display: inline-block; width: 56px; height: 4px; background: rgba(255,255,255,.08); }
+.r4 .mt-box .mt-grp i b { display: block; height: 100%; background: #10b981; }
+.r4 .mt-box .mt-row { flex: 1 1 0; min-height: 20px; max-height: 40px; }
+.r4 .mt-bars { grid-template-columns: auto 1fr 1fr; align-items: center; }
+.r4 .mt-bars .big { display: block; text-align: center; }
+.r4 .mt-bars .big small { display: block; font-size: 10px; color: #9ca3af; }
+.r4 .mt-bars .big b { font-family: 'Saira Condensed', sans-serif; font-size: 28px; line-height: 1; color: #fff; text-shadow: 0 0 12px rgba(16,185,129,.5); }
+`;
+
+const rowsOf = (doc) => [...doc.querySelectorAll('.lf-field .lf-tok')].map((t) => {
+  const ins = t.querySelectorAll('.lf-in'); const inner = ins[ins.length - 1];
+  const ovTxt = inner?.querySelector('.lf-ov')?.textContent || '';
+  return { slot: t.dataset.slot, empty: t.classList.contains('empty'), on: t.classList.contains('picked') || t.classList.contains('want'),
+    name: inner?.querySelector('.lf-bx b')?.textContent || '', season: inner?.querySelector('.lf-bx small')?.textContent || '',
+    ov: +(ovTxt.replace(/[^0-9]/g, '')) || 0, up: ovTxt.includes('▲'), n: t.classList.contains('empty') ? '' : t.style.getPropertyValue('--n'),
+    face: (inner?.querySelector('.lf-bp')?.getAttribute('style') || '').replace(/"/g, "'") };
+});
+const avg = (a) => (a.length ? (a.reduce((x, r) => x + r.ov, 0) / a.length).toFixed(1) : '-');
+const row = (r, style) => `<div class="mt-row ${r.empty ? 'e' : ''} ${r.on ? 'on' : ''}" data-slot="${r.slot}" style="--n:${r.n || '#475569'}">
+  <span class="pos">${style === 'r2' ? `<i>${r.slot.replace(/\d$/, '')}</i>` : ''}${LABEL[r.slot]}</span>
+  <span class="fc ${r.face ? '' : 'nof'}" style="${r.face}"></span>
+  <span class="nm">${r.empty ? '빈 자리' : r.name}</span>
+  <span class="sea">${r.empty ? '—' : r.season}</span>
+  <b class="ov ${r.up ? 'up' : ''}">${r.empty ? '' : r.ov}</b></div>`;
+const bar = (k, v) => `<div class="bi"><span>${k}</span><em>${v}</em><i><b style="width:${v === '-' ? 0 : v}%"></b></i></div>`;
+function listHtml(style, R) {
+  const filled = R.filter((r) => !r.empty);
+  const pit = filled.filter((r) => ['SP', 'MR', 'CL'].includes(r.slot)), bat = filled.filter((r) => !['SP', 'MR', 'CL'].includes(r.slot));
+  const by = (k) => R.find((x) => x.slot === k);
+  const head = `<div class="mt-hd"><b>라인업<i>${filled.length}/12</i></b><span>빈 자리<em>${12 - filled.length}</em></span></div>
+    <div class="mt-th"><span>포지션</span><span class="c-name">선수</span><span>시즌</span><span class="c-ov">종합</span></div>`;
+  let body;
+  if (style === 'r4') {
+    body = GROUPS.map(([g, en, ks]) => { const a = avg(ks.map(by).filter((r) => !r.empty)); return `<div class="mt-box" style="--k:${ks.length}"><div class="mt-grp">${g}<span><i><b style="width:${a === '-' ? 0 : a}%"></b></i><em>${a}</em></span></div>${ks.map((k) => row(by(k), style)).join('')}</div>`; }).join('');
+  } else {
+    body = GROUPS.map(([g, en, ks]) => `<div class="mt-grp">${style === 'r3' ? en : g}<em>${avg(ks.map(by).filter((r) => !r.empty))}</em></div>${ks.map((k) => row(by(k), style)).join('')}`).join('');
+  }
+  const foot = style === 'r4'
+    ? `<div class="mt-bars"><span class="big"><small>팀 평균</small><b>${avg(filled)}</b></span>${bar('투수', avg(pit))}${bar('야수', avg(bat))}</div>`
+    : `<div class="mt-bars">${bar('팀', avg(filled))}${bar('투수', avg(pit))}${bar('야수', avg(bat))}</div>`;
+  return `${head}<div class="mt-body">${body}</div>${foot}`;
+}
+
+function attach(ifr, v) {
+  let wideSize = null; { const im = new Image(); im.onload = () => { wideSize = { w: im.naturalWidth, h: im.naturalHeight }; }; im.src = WIDE; }
+  const tick = () => {
+    const doc = ifr.contentDocument; const field = doc?.querySelector('.lf-field');
+    if (!field || !wideSize) return;
+    const wrap = field.parentElement;
+    if (!doc.getElementById('mk-style')) { const st = doc.createElement('style'); st.id = 'mk-style'; st.textContent = CSS; doc.body.appendChild(st); }
+    const pickPanel = doc.querySelector('.pk-stage')?.closest('.bc-grp'); const grid = pickPanel?.parentElement;
+    if (!grid) return;
+    let p = grid.querySelector(':scope > .mk-listpanel');
+    if (!p) { p = doc.createElement('div'); p.className = `bc-grp mk-listpanel ${v.style}`; p.innerHTML = '<span class="bc-label font-display">LINEUP</span><div class="mk-list"></div>'; grid.appendChild(p); }
+    grid.style.setProperty('grid-template-columns', `${Math.round(pickPanel.getBoundingClientRect().width)}px minmax(0,1fr) ${PANEL_W}px`, 'important');
+    const listBox = p.querySelector('.mk-list');
+    const W = wrap.clientWidth, H = wrap.clientHeight;
+    const s = H / (IMG.b - IMG.t) * 1.003;
+    const ox = 14 - (140 - HWU) * s;
+    const oy = Math.min(Math.max((H - 580 * s) / 2, H - IMG.b * s), -IMG.t * s);
+    field.style.setProperty('--mk-t', `translate(${ox}px, ${oy}px) scale(${s})`);
+    const dl = Math.round(ox + (760 + HWU) * s + 16), dw = W - dl;
+    wrap.style.setProperty('--dl', `${dl}px`); wrap.style.setProperty('--dw', `${dw}px`);
+    let img = field.querySelector('.mk-wide');
+    const fpw = 0.8789 / REG.s;
+    if (!img) {
+      img = doc.createElement('img'); img.className = 'mk-wide'; img.src = WIDE;
+      Object.assign(img.style, { left: `${-REG.dx * fpw}px`, top: `${(-REG.dy / REG.s) * 0.8789 - 12.4}px`, width: `${wideSize.w * fpw}px`, height: `${wideSize.h * fpw}px` });
+      field.insertBefore(img, field.firstChild);
+    }
+    const imgL = ox + IMG.l * s, imgWpx = (IMG.r - IMG.l) * s;
+    img.style.setProperty('--fs', `${Math.min((dl + 40 - imgL) / imgWpx, 1) * 100}%`);
+    img.style.setProperty('--fe', `${Math.min((dl + dw * .8 - imgL) / imgWpx, 1) * 100}%`);
+    const html = listHtml(v.style, rowsOf(doc));
+    if (listBox.dataset.h !== html) { listBox.dataset.h = html; listBox.innerHTML = html; }
+    if (!listBox.dataset.bound) {
+      listBox.dataset.bound = '1';
+      listBox.addEventListener('click', (e) => { const r = e.target.closest('[data-slot]'); if (r) doc.querySelector(`.lf-field .lf-tok[data-slot="${r.dataset.slot}"]`)?.dispatchEvent(new ifr.contentWindow.KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); });
+    }
+  };
+  tick(); setInterval(tick, 250);
+}
+
+const one = new URLSearchParams(location.search).get('v');
+if (one) {
+  const v = VARS.find((x) => x.id === one) || VARS[0];
+  document.body.className = 'one';
+  document.title = `${v.id} · ${v.title}`;
+  document.body.innerHTML = `<iframe src="${SRC}" title="드래프트 화면"></iframe><span class="badge">${v.id} · ${v.title}</span>`;
+  const ifr = document.querySelector('iframe');
+  ifr.addEventListener('load', () => attach(ifr, v));
+} else {
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="top"><b>라인업 명단 판 4안 · 포지션 앞</b><span>1902×901 · 열 순서 포지션 · [프로필] 선수 · 시즌 · 종합 · 투수 / 내야 / 외야·지명 묶음 · 아래 평균 막대 · 줄을 누르면 필드 자리 선택</span>
+      <nav>${VARS.map((v) => `<a href="#v${v.id}">${v.id}</a>`).join('')}</nav></div>
+    <div class="list">${VARS.map((v) => `
+      <section id="v${v.id}"><div class="hd"><b><i>${v.id}</i>${v.title}</b><span>${v.desc}</span><a href="./?v=${v.id}" target="_blank">크게 보기 ↗</a></div>
+        <div class="frame"><iframe src="${SRC}" loading="lazy" title="${v.id} 드래프트 화면"></iframe></div></section>`).join('')}</div>`);
+  document.querySelectorAll('.frame iframe').forEach((ifr, i) => ifr.addEventListener('load', () => attach(ifr, VARS[i])));
+  const fit = () => document.querySelectorAll('.frame').forEach((f) => { f.querySelector('iframe').style.transform = `scale(${f.clientWidth / 1902})`; });
+  fit(); addEventListener('resize', fit);
+}
+</script>
+</body>
+</html>

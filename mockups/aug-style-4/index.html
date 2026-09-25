@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>증강 아트 4안</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700;800&family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #03060c; color: #e5e7eb; font-family: 'IBM Plex Sans KR', system-ui, sans-serif; }
+  .top { position: sticky; top: 0; z-index: 10; padding: 12px 18px; background: rgba(3,6,12,.95); border-bottom: 1px solid #1f2937; }
+  .top b { font-size: 16px; color: #fff; }
+  .top span { margin-left: 12px; font-size: 12.5px; color: #9ca3af; }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 22px 18px 60px; }
+  section { margin-bottom: 34px; }
+  .hd { margin: 0 2px 10px; }
+  .hd b { font-size: 15px; color: #fff; }
+  .hd b i { font-style: normal; margin-right: 8px; color: #10b981; }
+  .hd p { margin: 3px 0 0; font-size: 12.5px; color: #9ca3af; }
+  .row { display: flex; flex-wrap: wrap; gap: 18px; }
+  /* 실제 게임의 증강 카드 (ChoiceCard) 와 같은 치수 · 그라데이션 */
+  .card { position: relative; width: 320px; height: 480px; display: flex; flex-direction: column; overflow: hidden; background: #05080f; text-align: left;
+    clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 40%, transparent); }
+  .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; filter: brightness(.86) saturate(.9); }
+  .card .veil { position: absolute; inset: 0; background:
+    radial-gradient(80% 45% at 50% 28%, color-mix(in srgb, var(--a) 20%, transparent), transparent 70%),
+    linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%); }
+  .card .tier { position: absolute; left: 20px; top: 20px; padding: 2px 12px; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: .34em; color: #05080f; background: var(--a); }
+  .card .body { position: relative; margin-top: auto; padding: 0 24px 20px; }
+  .card h3 { margin: 0; font-size: 27px; font-weight: 900; line-height: 1.15; color: #fff; text-shadow: 0 0 24px color-mix(in srgb, var(--a) 55%, transparent), 0 2px 8px #000; }
+  .card p { margin: 8px 0 0; min-height: 44px; font-size: 13.5px; line-height: 1.6; color: #e5e7eb; text-shadow: 0 1px 4px #000; }
+  .card .cond { margin-top: 12px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--a) 33%, transparent); font-size: 12px; font-weight: 600; color: var(--a); }
+  .card .btn { margin-top: 12px; padding: 9px 0; text-align: center; font-size: 13.5px; font-weight: 700; color: #05080f; background: var(--a); }
+  .raw { display: flex; gap: 10px; margin-top: 10px; }
+  .raw img { width: 96px; height: 144px; object-fit: cover; box-shadow: 0 0 0 1px #1f2937; }
+</style>
+</head>
+<body>
+<div class="top"><b>증강 아트 4안</b><span>같은 증강 셋(거포 군단 · 철옹성 불펜 · 발야구)을 네 가지 그림체로 · 실제 증강 카드 치수 그대로</span></div>
+<div class="wrap" id="wrap"></div>
+<script>
+const AUG = [
+  { id: 'sluggerArmy', name: '거포 군단', tier: 'prismatic', a: '#e879f9', desc: '모든 타자 파워 +12% · 모든 능력치 +2', kind: '라인업 비례' },
+  { id: 'bullpenFortress', name: '철옹성 불펜', tier: 'prismatic', a: '#e879f9', desc: '선발은 6회까지만 · 중계 · 마무리 구위 · 제구 · 안정 +14', kind: '라인업 비례' },
+  { id: 'speedBall', name: '발야구', tier: 'silver', a: '#94a3b8', desc: '25% 확률로 이닝 1점 이상을 확정합니다. (경기당 2회)', kind: '조건 · 주루 85+ 타자 3명 이상' },
+];
+const TIER_EN = { prismatic: 'PRISM', gold: 'GOLD', silver: 'SILVER' };
+const STYLES = [
+  ['E', '기존 그대로 · 시네마틱 실사', '지금 게임에 들어간 그림체. 야간 구장 · 흙먼지 · 등급 색 안개 속 선수의 한 장면'],
+  ['F', '사물 클로즈업', '사람 대신 그 증강을 규정하는 사물(배트 · 미트 · 스파이크)을 크게. 실사지만 무엇인지 바로 읽힌다'],
+  ['G', '역광 실루엣', '등급 색 빛의 벽 앞에 선수 실루엣만. 사진이면서도 픽토그램처럼 단순하다'],
+  ['H', '중계 텔레스트레이션', '실사 위에 얇은 네온 선 도해(타구 궤적 · 방패 · 도루 경로)를 얹어 효과를 그림으로 설명'],
+  ['I', '스튜디오 정물', '검은 배경에 조명만 떨어지는 사물 정물. 가장 차분하고 고급스럽다'],
+  ['J', '매크로 질감', '가죽 · 나뭇결 · 흙 알갱이까지 초접사. 분위기는 최고지만 무엇인지 읽히는 정도는 약하다'],
+
+  ['A', '네온 라인', '단색 네온 선 하나로 그린 픽토그램. 가장 단순하고, 등급 색과 잘 붙는다'],
+  ['B', '입체 아이콘', '유리 · 매트 재질의 3D 오브젝트에 림라이트. 모바일 게임 보상 아이콘 느낌'],
+  ['C', '플랫 기하', '색 세 개로 자른 도형 일러스트. 스포츠 실크스크린 포스터 느낌'],
+  ['D', '금속 엠블럼', '육각 메달에 새긴 문양. 훈장 · 트로피 느낌으로 묵직하다'],
+];
+document.getElementById('wrap').innerHTML = STYLES.map(([k, t, d]) => `
+  <section>
+    <div class="hd"><b><i>${k}</i>${t}</b><p>${d}</p></div>
+    <div class="row">
+      ${AUG.map((o) => `
+        <div class="card" style="--a:${o.a}">
+          <img src="img/${k}-${o.id}.png" alt="" />
+          <span class="veil"></span>
+          <span class="tier">${TIER_EN[o.tier]}</span>
+          <div class="body">
+            <h3>${o.name}</h3>
+            <p>${o.desc}</p>
+            <div class="cond">${o.kind}</div>
+            <div class="btn">선택</div>
+          </div>
+        </div>`).join('')}
+      <div>
+        <div class="hd"><b>원본</b><p>자르기 전 그림</p></div>
+        <div class="raw">${AUG.map((o) => `<img src="img/${k}-${o.id}.png" alt="" />`).join('')}</div>
+      </div>
+    </div>
+  </section>`).join('');
+</script>
+</body>
+</html>
