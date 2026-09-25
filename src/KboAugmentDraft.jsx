@@ -5131,15 +5131,18 @@ function SettingRow({ label, options, labels, value, onChange, fixed = null }) {
 }
 
 function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView = null, onNormalView }) {
-  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · special(특별 모드)
+  // 사이드 네비: normal(일반 대결 · 랭크전) · mix · recent · year(연도별) · 특별 모드 하나씩
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
-  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · special)
-  const [view, setView] = useState(plays.length ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special'].includes(normalView)) ? normalView : plays[0].key) : (firstMode.group === 'basic' ? firstMode.id : firstMode.group));
+  const specialIds = DRAFT_MODES.filter((m) => m.group === 'special').map((m) => m.id);
+  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · 특별 모드 id)
+  const openAt = (v) => (v === 'special' ? specialIds[0] : v); // 예전에 묶어 두던 '특별 모드' 칸은 첫 특별 모드로
+  const [view, setView] = useState(plays.length
+    ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special', ...specialIds].includes(normalView)) ? openAt(normalView) : plays[0].key)
+    : (firstMode.group === 'year' ? 'year' : firstMode.id));
   const play = plays.find((x) => x.key === view) || null;
   const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
-  const [specialId, setSpecialId] = useState(firstMode.group === 'special' ? firstMode.id : 'legend');
-  const modeId = view === 'year' ? yearId : view === 'special' ? specialId : play ? null : view;
+  const modeId = view === 'year' ? yearId : play ? null : view;
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
@@ -5163,7 +5166,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
       { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
       { key: 'year', label: '연도별 시즌', sub: `${YEAR_MODES.length}개 시즌 · 한 해 고르기`, img: 'modes/recent.webp', neon: '#a3e635' },
     ] },
-    { group: 'Special', items: [{ key: 'special', label: '특별 모드', sub: `규칙이 다른 ${specials.length}개`, img: 'modes/legend.webp', neon: '#fbbf24' }] },
+    { group: 'Special', items: specials.map((m) => ({ key: m.id, label: m.name, sub: m.rules.join(' · '), img: `modes/${m.id}.webp`, neon: m.neon })) },
   ];
   const acc = play ? play.neon : mode.neon;
 
@@ -5207,38 +5210,18 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         {play ? play.main : (
           <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="relative z-10 flex flex-wrap items-baseline gap-3">
-              <p className="ui-lab font-display">{view === 'special' ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
-              {(view === 'special' || (mode.id === 'legend' && mode.series.length === 1)) && (
-                <p className="text-sm text-gray-400">
-                  {view === 'special' ? `규칙이 다른 모드 ${specials.length}개` : `레전드 ${mode.players.length}명 중 대표 선수`}
-                </p>
+              <p className="ui-lab font-display">{special ? 'Special Mode' : view === 'year' ? 'Season' : `${mode.en} Season`}</p>
+              {special && (
+                <span className="flex flex-wrap gap-1.5">
+                  {mode.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: mode.neon }}>{r}</span>)}
+                </span>
+              )}
+              {mode.id === 'legend' && mode.series.length === 1 && (
+                <p className="text-sm text-gray-400">{`레전드 ${mode.players.length}명 중 대표 선수`}</p>
               )}
             </div>
             {view === 'year' && <div className="relative z-10"><YearPicker yearId={yearId} onPick={setYearId} /></div>}
-            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : view === 'special' ? (
-              <div className="syn-scroll mt-3 grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
-                {specials.map((m) => {
-                  const on = specialId === m.id;
-                  return (
-                    <button key={m.id} type="button" onClick={() => setSpecialId(m.id)} aria-pressed={on}
-                      className={`ui-cut ${on ? 'ui-frame' : ''} relative aspect-square overflow-hidden bg-[#0b1220] bg-cover text-left transition hover:brightness-110`}
-                      style={{ '--c': '14px', '--a': m.neon, backgroundImage: `url(modes/${m.id}.webp)`, backgroundPosition: '60% 20%' }}>
-                      <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.3),rgba(5,8,15,.1) 35%,rgba(5,8,15,.95) 75%)' }} />
-                      <span className="absolute left-4 top-3 font-display text-sm font-extrabold tracking-[0.2em]" style={{ color: m.neon, textShadow: `0 0 12px ${m.neon}` }}>{m.tag}</span>
-                      <span className="absolute inset-x-4 bottom-3 block">
-                        <b className="block text-2xl font-black text-white">{m.name}</b>
-                        <span className="mt-2 flex flex-wrap gap-1.5">
-                          {m.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-[11px] font-bold text-[#05080f]" style={{ '--c': '4px', background: m.neon }}>{r}</span>)}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-                <div className="ui-cut grid aspect-square place-items-center bg-white/[0.03] text-sm text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.18)]" style={{ '--c': '14px' }}>+ 다음 시즌 공개</div>
-              </div>
-            ) : (
-              <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />
-            )}
+            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />}
           </section>
         )}
 
