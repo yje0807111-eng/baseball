@@ -5,7 +5,7 @@
  * 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { UiStyle, Portrait, StatCells } from './myteam/ui.jsx';
+import { UiStyle, Portrait, GlassBg } from './myteam/ui.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
@@ -310,25 +310,22 @@ const ZoneBox = ({ shots, w = 150 }) => {
   );
 };
 
-/** 승률 띠 — 구장 위에 걸린다. 왼쪽이 우리, 오른쪽이 상대 */
+/** 승률 알약 — 구장 위 가운데. 왼쪽이 우리(% · 움직임), 오른쪽이 상대 */
 const WinBar = ({ p, prev, mine, opp }) => {
   const pct = Math.round(p * 100);
   const move = Math.round((p - prev) * 100);
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[38px] items-stretch overflow-hidden"
-      style={{ background: 'rgba(5,8,15,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.12)' }}>
-      <i className="block h-full transition-[width] duration-500" style={{ width: `${pct}%`, background: `linear-gradient(90deg,${tint(mine, 22)},${tint(mine, 62)})` }} />
-      <i className="block h-full flex-1" style={{ background: `linear-gradient(90deg,${tint(opp, 52)},${tint(opp, 18)})` }} />
-      <span className="absolute inset-0 flex items-center gap-2.5 px-4">
-        <span className="font-display text-t4 font-bold tracking-[0.3em] text-white/70">WIN</span>
-        <b className="font-display text-t1 font-black leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{pct}%</b>
-        {move !== 0 && (
-          <b className="font-display text-t3 font-extrabold" style={{ color: move > 0 ? '#34d399' : '#f87171', textShadow: '0 1px 5px #000' }}>
-            {move > 0 ? '▲' : '▼'}{Math.abs(move)}
-          </b>
-        )}
-        <b className="ml-auto font-display text-t2 font-extrabold text-white/80" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{100 - pct}%</b>
+    <div className="mt-cut mt-glass pointer-events-none absolute left-1/2 top-4 flex w-[460px] -translate-x-1/2 items-center gap-3 px-4 py-2.5" style={{ '--c': '16px' }}>
+      <span className="text-t4 text-gray-300">우리</span>
+      <b className="font-display text-t2 font-black leading-none" style={{ color: mine }}>{pct}%</b>
+      {move !== 0 && (
+        <b className="font-display text-t3 font-extrabold" style={{ color: move > 0 ? '#34d399' : '#f87171' }}>{move > 0 ? '▲' : '▼'}{Math.abs(move)}</b>
+      )}
+      <span className="flex h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+        <i className="block h-full transition-[width] duration-500" style={{ width: `${pct}%`, background: mine }} />
+        <i className="block h-full flex-1" style={{ background: tint(opp, 70) }} />
       </span>
+      <b className="font-display text-t2 font-extrabold leading-none text-white/70">{100 - pct}%</b>
     </div>
   );
 };
@@ -622,7 +619,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         }
         if (ev.result && BIG.includes(ev.result)) {
-          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? 'HOME RUN!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
+          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? '홈런!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
         }
         if (ev.result) {
           const wpNow = winProb(g);
@@ -770,455 +767,327 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       onContextMenu={(e) => e.preventDefault()}>
       <UiStyle />
       <style>{CLUTCH_CSS}</style>
+      <GlassBg tint={cOpp} />
       {/* 승부처에는 화면 가장자리에 빛이 돌아 딴 데 보고 있어도 눈에 든다 */}
       {clutch && (
         <span aria-hidden="true" className="pointer-events-none fixed inset-0 z-40"
           style={{ boxShadow: `inset 0 0 0 3px ${clutchColor}, inset 0 0 90px -20px ${clutchColor}`, animation: "clutchEdge 1.5s ease-in-out infinite" }} />
       )}
 
-      <div className="grid h-full" style={{ gridTemplateRows: '63px 1fr' }}>
+      <div className="relative grid h-full" style={{ gridTemplateRows: '72px 1fr' }}>
         {/* 헤더 */}
-        <header className="relative flex items-center gap-6 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
-          <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" />
+        <header className="relative flex items-center gap-5 px-7">
           <button type="button" onClick={leave} aria-label="나가기"
-            className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
+            className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
           <div className="leading-none">
-            <p className="text-t4 font-bold tracking-[0.04em] text-gray-500">플레이</p>
+            <p className="text-t4 font-bold text-gray-500">플레이</p>
             <h1 className="mt-1 text-t2 font-black leading-none text-white">감독 모드</h1>
           </div>
-          <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-t4 font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
+          <span className="flex items-center gap-1.5 text-t4 font-bold text-red-400"><i className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_8px_#f87171]" />중계</span>
           {/* 이 경기에 걸린 증강 — 정비 끝 1장 · 7회 1장 */}
           {aug?.list?.length > 0 && (
             <span className="flex min-w-0 items-center gap-1.5">
               {aug.list.map((a) => (
-                <span key={a.id} title={a.desc} className="mt-cut max-w-[200px] truncate px-2 py-0.5 text-t4 font-bold"
-                  style={{ '--c': '4px', color: '#f0abfc', background: 'rgba(232,121,249,.12)', boxShadow: 'inset 0 0 0 1px rgba(232,121,249,.45)' }}>
+                <span key={a.id} title={a.desc} className="max-w-[200px] truncate rounded-full px-2.5 py-0.5 text-t4 font-bold"
+                  style={{ color: '#f0abfc', background: 'rgba(232,121,249,.12)', boxShadow: 'inset 0 0 0 1px rgba(232,121,249,.45)' }}>
                   {a.name}{a.lv ? ` +${a.lv}` : ''}
                 </span>
               ))}
             </span>
           )}
           {holding && (
-            <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-t3 font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
-              ▶▶ 빨리감기
-            </span>
+            <span className="ml-auto flex items-center gap-2 rounded-full bg-[#fde047] px-3 py-1 font-display text-t3 font-extrabold text-[#05080f]">▶▶ 빨리감기</span>
           )}
-          <div className={`mt-cut mt-glass flex gap-1 p-1 ${holding ? '' : 'ml-auto'}`} style={{ '--c': '8px' }}>
+          <div className={`mt-tabs ${holding ? '' : 'ml-auto'}`}>
             {MODES.map(([label, v]) => (
               <button key={label} type="button" onClick={() => pickSpeed(v)} aria-pressed={speed === v}
                 title={v === SKIP ? (speed === SKIP ? '한 번 더 누르면 원래 배속으로' : '남은 경기 10초 안에 몰아서 끝내기') : `${label} 속도 — 화면을 꾹 누르면 더 빨리감기`}
-                className={`mt-cut px-3.5 py-1 font-display text-t3 font-bold ${speed === v ? (v === SKIP ? 'bg-[#fde047] text-[#05080f]' : 'bg-[#10b981] text-[#05080f]') : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>{label}</button>
+                className={`mt-tab !h-8 !px-3.5 font-display ${speed === v ? 'on' : ''}`} style={speed === v && v === SKIP ? { color: '#fde047' } : null}>{label}</button>
             ))}
           </div>
           <button type="button" onClick={() => setDigest((v) => !v)} aria-pressed={digest}
             title={digest ? '승부처가 아닌 타석은 접어서 빠르게' : '모든 공을 하나하나 보여 준다'}
-            className={`mt-cut px-3.5 py-1 font-display text-t3 font-bold ${digest ? 'bg-[#38bdf8] text-[#05080f]' : 'mt-glass text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>요약</button>
-          <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm">{paused ? '계속 ▶' : '일시정지'}</button>
+            className="mt-btn sm" style={digest ? { color: '#38bdf8', boxShadow: 'inset 0 0 0 1px rgba(56,189,248,.6)' } : null}>요약</button>
+          <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm" style={paused ? { color: '#fbbf24' } : null}>{paused ? '계속 ▶' : '일시정지'}</button>
         </header>
 
-        <div className="grid min-h-0 gap-3 p-3" style={{ gridTemplateColumns: '300px 1fr 320px' }}>
-          {/* ── 왼쪽: 점수판과 타순 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto minmax(0,1fr)' }}>
-            {/* 중계 스코어보드 — 왼쪽에 회, 오른쪽에 구단 색 줄 둘(공격 중인 쪽에 AT BAT) */}
-            <div className="mt-cut flex shrink-0 overflow-hidden backdrop-blur-[3px]" style={{ '--c': '12px', background: 'rgba(8,12,20,.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.28)' }}>
-              <span className="flex shrink-0 flex-col items-center justify-center px-3.5 py-2.5" style={{ background: 'rgba(255,255,255,.07)' }}>
+        <div className="grid min-h-0 gap-4 px-6 pb-5" style={{ gridTemplateColumns: 'minmax(0,1fr) 440px' }}>
+          {/* ── 왼쪽: 큰 구장 — 점수판 · 승률 · 타석 · 존을 겹쳐 올린다 ── */}
+          <section className="mt-cut mt-frame relative min-h-0 bg-[#060c16]" style={{ '--c': '24px', '--a': '#10b981' }}>
+            <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
+              bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.5),transparent 22%,transparent 72%,rgba(5,8,15,.7))' }} />
+
+            {/* 승률 — 구장 위 가운데 */}
+            <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
+
+            {/* 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트 한 판 */}
+            <div className="mt-cut mt-glass pointer-events-none absolute left-4 top-4 flex items-center" style={{ '--c': '18px' }}>
+              <span className="flex shrink-0 flex-col items-center justify-center self-stretch px-4" style={{ background: 'rgba(255,255,255,.06)' }}>
                 {g.final ? (
-                  <b className="font-display text-t3 font-extrabold text-white">END</b>
+                  <b className="text-t3 font-extrabold text-white">경기 끝</b>
                 ) : (
                   <>
-                    <b className="font-display text-t1 font-extrabold leading-[0.8] text-white" style={{ textShadow: '0 1px 4px rgba(0,0,0,.75)' }}>{g.inning}</b>
-                    {/* 글자 ▲▼ 는 위아래 빈 곳이 넓어 숫자에 붙지 않는다 — 직접 그린다 */}
-                    <svg width="20" height="14" viewBox="0 0 20 14" className="mt-1" aria-hidden><path d={g.top ? 'M10 0 L20 14 L0 14 Z' : 'M0 0 L20 0 L10 14 Z'} fill="#f87171" /></svg>
+                    <b className="font-display text-t1 font-extrabold leading-[0.8] text-white">{g.inning}</b>
+                    <svg width="18" height="12" viewBox="0 0 20 14" className="mt-1.5" aria-hidden><path d={g.top ? 'M10 0 L20 14 L0 14 Z' : 'M0 0 L20 0 L10 14 Z'} fill="#f87171" /></svg>
                   </>
                 )}
               </span>
-              <div className="min-w-0 flex-1">
-              {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
-                const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
-                const c = flag?.color || color;
-                const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽 — 그 줄만 색이 진하다
-                return (
-                  <div key={t.name} className={`relative flex items-center gap-2.5 overflow-hidden px-3 ${i ? 'border-t border-white/10' : ''}`}
-                    style={{ height: 50, background: atBat ? `linear-gradient(90deg, ${c}e0, ${c}40 72%, transparent)` : `linear-gradient(90deg, ${c}4d, transparent 60%)` }}>
-                    {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.16, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                    <b className="relative truncate text-t2 font-extrabold text-white" style={{ textShadow: '0 1px 5px rgba(0,0,0,.6)', opacity: atBat ? 1 : 0.85 }}>{shortTeam(t.name, mine)}</b>
-                    {atBat && !g.final && <span className="relative font-display text-t4 font-extrabold tracking-[0.18em] text-white/80">AT BAT</span>}
-                    <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ textShadow: '0 1px 6px rgba(0,0,0,.6)', opacity: atBat ? 1 : 0.85 }}>{side.runs}</b>
-                  </div>
-                );
-              })}
-              </div>
-            </div>
-
-            {/* 타석 — 얼굴에 파워 · 컨택 두 줄. 타자가 바뀌면 카드가 아래에서 올라온다 */}
-            <section key={batter?.id} className="mt-cut mt-frame mt-glass flex shrink-0 flex-col overflow-hidden"
-              style={{ '--c': '14px', '--a': offSide, animation: 'batterIn .34s ease-out both' }}>
-              <div className="relative shrink-0 bg-[#0b1220] bg-cover" style={{ height: 152, backgroundImage: faceArt(batter), backgroundPosition: '50% 16%' }}>
-                <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.25),rgba(5,8,15,0) 40%,#05080f)' }} />
-                <em className="absolute left-3 top-2 font-display text-t1 font-extrabold leading-none not-italic"
-                  style={{ color: battingColor, textShadow: `0 0 16px ${battingColor}88, 0 2px 4px #000` }}>{batter?.overall}</em>
-                <span className="absolute right-3 top-2.5 flex items-center gap-1.5 text-t4 font-bold" style={{ textShadow: '0 1px 4px #000' }}>
-                  {FORM_OF[batter?.form]?.swing ? (
-                    <b className="font-display" style={{ color: FORM_OF[batter.form].color }}>{FORM_OF[batter.form].mark} {FORM_OF[batter.form].ko}</b>
-                  ) : null}
-                  <span className="truncate" style={{ color: koDark(batterKo) }}>{batterKo}</span>
-                </span>
-                <b className="absolute bottom-1 left-3 right-3 truncate text-t2 font-black text-white [text-shadow:0_2px_8px_#000]">{batter?.name}</b>
-                <span className="absolute bottom-1.5 right-3 text-t4 font-semibold text-gray-300 [text-shadow:0_1px_4px_#000]">{batter?.position} · {batter?.hand}타</span>
-              </div>
-              <div className="shrink-0 space-y-1 px-3.5 pb-3 pt-2.5">
-                {[['파워', st(batter, 'power')], ['컨택', st(batter, 'contact')], ['주력', st(batter, 'speed')], ['수비', st(batter, 'defense')]].map(([k, v]) => (
-                  <div key={k} className="flex items-center gap-2">
-                    <span className="w-[32px] shrink-0 text-t4 font-bold text-gray-200">{k}</span>
-                    <StatCells v={v} width={202} />
-                    <em className="ml-auto font-display text-t4 font-bold not-italic text-gray-300">{v}</em>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* 타순 — 지금 공격하는 팀만. 오늘 한 마디 · 종합 */}
-            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': offSide }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': offSide }}>타순</p>
-                <span className="ml-auto truncate text-t4 font-semibold text-gray-400">{shortTeam(off.team.name, !g.top)} 공격</span>
-              </div>
-              <ul className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-2 pb-2">
-                {off.team.batters.map((p, i) => {
-                  const at = i === off.idx % off.team.batters.length;
-                  const on = g.bases.findIndex((r) => r === p);
-                  const ko = todayKo(g, p);
-                  const c = offFlag?.color || battingColor;
+              <div className="w-[190px]">
+                {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
+                  const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
+                  const c = flag?.color || color;
+                  const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽 — 그 줄만 색이 진하다
                   return (
-                    <li key={p.id || p.name} className={`mt-row mt-cut team ${at ? 'on' : ''}`}
-                      style={{ flex: '1 1 0', gridTemplateColumns: '14px minmax(0,1fr) auto auto 30px', gap: 8, padding: '2px 9px', opacity: at || on >= 0 ? 1 : 0.62, '--c': '4px', '--a': c, '--t': c }}>
-                      <em className="text-right font-display text-t4 font-bold not-italic text-gray-500">{i + 1}</em>
-                      <b className="truncate text-t3 font-semibold text-gray-100">{p.name}</b>
-                      <span>{at ? <span className="mt-chip" style={{ '--a': c }}>타석</span>
-                        : on >= 0 ? <i className="inline-block" style={{ width: 8, height: 8, background: '#f97316', transform: 'rotate(45deg)', borderRadius: 2 }} title={`${on + 1}루`} /> : null}</span>
-                      <span className="truncate text-right text-t4 font-semibold" style={{ color: koDark(ko) }}>{ko}</span>
-                      <em className="text-right font-display text-t4 font-bold not-italic" style={{ color: statBandColor(p.overall) }}>{p.overall}</em>
-                    </li>
+                    <div key={t.name} className={`relative flex items-center gap-2.5 overflow-hidden px-3.5 ${i ? 'border-t border-white/10' : ''}`}
+                      style={{ height: 44, background: atBat ? `linear-gradient(90deg, ${c}b0, ${c}30 72%, transparent)` : `linear-gradient(90deg, ${c}40, transparent 60%)` }}>
+                      {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.14, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+                      <b className="relative truncate text-t3 font-extrabold text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{shortTeam(t.name, mine)}</b>
+                      <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{side.runs}</b>
+                    </div>
                   );
                 })}
-              </ul>
-            </section>
-          </div>
-
-          {/* ── 가운데: 구장과 작전 버튼 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: '1fr 54px 84px' }}>
-            <section className="mt-cut mt-frame relative min-h-0 overflow-hidden bg-[#060c16]" style={{ '--c': '16px', '--a': '#10b981' }}>
-              <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
-                bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
-
-              {/* 승률 — 구장 맨 위에 걸린다. 이 경기의 축 */}
-              <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
-
-              {/* 주루 · 볼카운트 — 승률 띠 아래 */}
-              <div className="pointer-events-none absolute left-3 top-[50px] flex items-center gap-3.5 px-3.5 py-3"
-                style={{ clipPath: 'polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)', background: 'rgba(8,12,20,.62)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.16)', backdropFilter: 'blur(3px)' }}>
-                <Diamond bases={g.bases} size={76} off="rgba(255,255,255,.45)" />
-                <span className="h-[62px] w-px bg-white/15" />
-                <Bso b={count.b} s={count.s} o={count.o} dot={15} font={15} gap={6} rowGap={5} off="rgba(255,255,255,.45)" lab="text-white/85" popOut={justOut} />
               </div>
+              <span className="flex items-center gap-3 px-4">
+                <Diamond bases={g.bases} size={60} off="rgba(255,255,255,.45)" />
+                <Bso b={count.b} s={count.s} o={count.o} dot={12} font={12} gap={5} rowGap={4} off="rgba(255,255,255,.4)" lab="text-white/70" popOut={justOut} />
+              </span>
+            </div>
 
-              {/* 존 — 이 공이 어디로 들어왔나. 구장 오른쪽 아래 */}
-              {/* 존 판 — 늘 떠 있다. 새 공이 오면 갈릴 뿐, 꺼졌다 켜지지 않는다 */}
-              <div key={rush ? 'rush' : shots.length} className="pointer-events-none absolute bottom-3 right-3 flex items-stretch gap-2.5 p-2.5"
-                style={{ clipPath: 'polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)', background: 'rgba(8,12,20,.62)', backdropFilter: 'blur(3px)',
-                  '--f': lastShot?.tone || '#94a3b8', animation: lastShot && !rush ? 'mtZoneFlash .5s ease-out both' : 'none' }}>
-                <ZoneBox shots={shots} w={150} />
-                {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
-                <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
-                  <span>{lastShot && <span className="mt-cut inline-block px-1.5 py-0.5 text-t4 font-extrabold text-[#05080f]" style={{ '--c': '4px', background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>}</span>
-                  <b className="truncate text-t3 font-bold text-white">{lastShot ? PITCH_KO[lastShot.ev.pitch?.type] || '' : ''}</b>
-                  <em className="font-display text-t1 font-extrabold leading-none not-italic" style={{ color: lastShot?.tone || '#4b5563' }}>
-                    {lastShot?.ev.pitch?.velo ?? '--'}<span className="ml-0.5 text-t4 text-white/60">km</span>
-                  </em>
-                  <span className="text-t4 font-semibold text-gray-400">{lastShot ? courseKo(lastShot.x, lastShot.y) : '투구 대기'}</span>
-                </div>
-              </div>
-
-              {/* 접은 타석을 흘려보내는 중 — 넘어갔다는 것이 보이게 */}
-              {rush && (
-                <span className="mt-cut pointer-events-none absolute right-3 top-[50px] flex items-center gap-1.5 px-2.5 py-1 font-display text-t4 font-extrabold text-[#05080f]"
-                  style={{ '--c': '4px', background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
-              )}
-
-              {/* 결과 자막 */}
-              {flash && (
-                <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
-              )}
-
-              {/* 공수 교대 — 띠가 한 번 쓸고 지나가며 이번 반 이닝의 주인을 알린다 */}
-              {swap && (
-                <div key={swap.key} className="pointer-events-none absolute inset-0 grid place-items-center">
-                  <i className="absolute inset-x-0 top-1/2 h-[118px] -translate-y-1/2 origin-left"
-                    style={{ background: `linear-gradient(90deg,${tint(swap.mine ? battingColor : pitchingColor, 62)},transparent)`,
-                      animation: 'halfWipe 1.1s cubic-bezier(.2,.8,.2,1) both' }} />
-                  <div className="absolute left-1/2 top-1/2 grid justify-items-center gap-1.5"
-                    style={{ animation: 'halfSwipe 1.15s ease-out both' }}>
-                    <span className="font-display text-t3 font-bold tracking-[0.34em]"
-                      style={{ color: swap.mine ? battingColor : pitchingColor }}>{swap.inning}회{swap.top ? '초' : '말'}</span>
-                    <b className="font-display text-[62px] font-black leading-none text-white [text-shadow:0_6px_30px_rgba(0,0,0,.85)]">
-                      {swap.mine ? '우리 공격' : '우리 수비'}
-                    </b>
-                  </div>
-                </div>
-              )}
-
-            </section>
-
-            {/* 승부처 — 경기를 멈추고 아래에서 지시를 받는다. 구장 · 점수 · 주자는 이미 위에 떠 있다 */}
-            {/* 작전 띠 — 치는 회인지 막는 회인지 색과 말로 알린다. 승부처에는 노랗게 물든다. 자리는 늘 같다 */}
+            {/* 타석 — 동그란 얼굴 · 이름 · 파워 · 컨택 · 종합, 다음 두 타자. 타자가 바뀌면 아래에서 올라온다 */}
             {(() => {
-              const bandColor = clutch ? clutchColor : mineBat ? battingColor : pitchingColor;
-              const queuedKo = orderKo(pend);
+              const n = off.team.batters.length;
+              const next = [1, 2].map((k) => off.team.batters[(off.idx + k) % n]).filter(Boolean);
+              const f = FORM_OF[batter?.form];
               return (
-                <div className="mt-cut flex items-center gap-4 px-5"
-                  style={{ '--c': '14px',
-                    background: `linear-gradient(90deg,${tint(bandColor, clutch ? 30 : 14)},rgba(6,10,19,.7))`,
-                    boxShadow: clutch ? `inset 0 0 0 2px ${clutchColor}, 0 0 44px -10px ${clutchColor}` : `inset 0 0 0 1px ${tint(bandColor, 40)}`,
-                    animation: clutch ? 'clutchPulse 1.5s ease-in-out infinite' : 'none',
-                    transition: 'background .25s, box-shadow .25s' }}>
-                  <p className="mt-lab shrink-0 text-t3" style={{ '--a': bandColor }}>
-                    {clutch ? (clutch.weDefend ? 'Crisis' : 'Chance') : mineBat ? 'Offense' : 'Defense'}
-                  </p>
-                  <b className="shrink-0 text-t3 font-extrabold" style={{ color: bandColor }}>{mineBat ? '우리 공격' : '우리 수비'}</b>
-                  <b className="shrink-0 text-t2 font-extrabold text-white">
-                    {clutch ? clutch.head : `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`}
-                  </b>
-                  {clutch && <small className="shrink-0 text-t3 font-semibold" style={{ color: clutchColor }}>{clutch.lead}</small>}
-                  {clutch && (
-                    <span className="mt-cut shrink-0 px-2.5 py-1 text-t4 font-bold" style={{ '--c': '4px', background: tint(clutchColor, 22), color: '#fff' }}>
-                      승률 <b className="font-display text-t3" style={{ color: clutchColor }}>{Math.round(clutch.wp * 100)}%</b>
+                <section key={batter?.id} className="mt-cut mt-glass absolute bottom-4 left-4 flex w-[440px] items-center gap-4 p-4"
+                  style={{ '--c': '20px', animation: 'batterIn .34s ease-out both' }}>
+                  <span className="block h-16 w-16 shrink-0 rounded-full bg-[#0b1220] bg-cover"
+                    style={{ backgroundImage: faceArt(batter), backgroundPosition: '50% 14%', boxShadow: `0 0 0 2px #05080f, 0 0 0 3.5px ${battingColor}` }} />
+                  <div className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2 text-t4 text-gray-400">
+                      타석 · {batter?.position} {batter?.hand}타
+                      {f?.swing ? <b className="font-display" style={{ color: f.color }}>{f.mark} {f.ko}</b> : null}
+                      <span className="truncate" style={{ color: koDark(batterKo) }}>{batterKo}</span>
                     </span>
-                  )}
-                  <small className="truncate text-t3 text-gray-300">
-                    {mineBat ? `${batter?.name} ${batter?.overall} 타석` : `${pitcher?.name} ${def.pitches}구`}
-                  </small>
-                  <span className="ml-auto flex shrink-0 items-center gap-3">
-                    {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
-                    {queuedKo.map((k) => (
-                      <span key={k} className="mt-cut px-2.5 py-1 text-t4 font-bold"
-                        style={{ '--c': '4px', background: tint(bandColor, 26), boxShadow: `inset 0 0 0 1px ${bandColor}`, color: '#fff' }}>{k} 지시</span>
-                    ))}
-                    {clutch && <span className="flex items-baseline gap-2">
-                      <small className="text-t4 text-gray-400">남은 지시</small>
-                      <b className="font-display text-t1 font-extrabold" style={{ color: clutchColor }}>{clutch.left}</b>
-                    </span>}
-                    {/* 작전을 고르다 멈추고 싶을 때 — 이 띠에서 바로 */}
-                    <button type="button" onClick={() => setPaused((v) => !v)} aria-label={paused ? '계속' : '일시정지'}
-                      className="mt-cut flex items-center gap-1.5 px-3 py-1.5 text-t4 font-bold hover:brightness-125"
-                      style={{ '--c': '5px', background: tint(paused ? '#fbbf24' : bandColor, 20),
-                        boxShadow: `inset 0 0 0 1px ${tint(paused ? '#fbbf24' : bandColor, 60)}`, color: paused ? '#fbbf24' : '#e8ecf2' }}>
-                      <b className="text-t3 leading-none">{paused ? '▶' : '⏸'}</b>{paused ? '계속' : '멈춤'}
-                    </button>
-                  </span>
-                </div>
+                    <b className="block truncate text-t2 font-black text-white">{batter?.name}</b>
+                    <span className="flex items-baseline gap-3 text-t4 text-gray-400">
+                      <span>파워 <b className="font-display text-t3 text-white">{st(batter, 'power')}</b></span>
+                      <span>컨택 <b className="font-display text-t3 text-white">{st(batter, 'contact')}</b></span>
+                      {!!next.length && <span className="truncate text-gray-500">다음 {next.map((p) => p.name).join(' · ')}</span>}
+                    </span>
+                  </div>
+                  <b className="font-display text-[40px] font-extrabold leading-none" style={{ color: battingColor }}>{batter?.overall}</b>
+                </section>
               );
             })()}
-            {/* 작전 버튼 — 승부처에는 이 줄이 답을 받는 자리가 된다 */}
-            <div className="flex items-stretch gap-2.5">
-              {/* 승부처 — 그 자리의 세 장. 고르면 승률이 어디로 갈지까지 적는다 */}
-              {PICKS && PICKS.map((c) => (
-                <button key={c.key} type="button" onClick={() => give(c.order)}
-                  className="mt-cut mt-frame mt-glass relative flex flex-1 flex-col items-center justify-center gap-0.5 text-t3 text-gray-100 hover:brightness-125"
-                  style={{ '--c': '11px', '--a': clutchColor, boxShadow: `0 0 22px -6px ${clutchColor}` }}>
-                  <span className="flex items-center gap-2">
-                    <b className="text-t2 leading-none">{c.icon}</b>
-                    <b className="text-t3 font-extrabold text-white">{c.title}</b>
-                    {c.move !== 0 && (
-                      <b className="font-display text-t3 font-extrabold" style={{ color: c.move > 0 ? '#34d399' : '#f87171' }}>
-                        {c.move > 0 ? '+' : ''}{c.move}
-                      </b>
-                    )}
-                  </span>
-                  <small className="text-t4 font-semibold text-gray-400">{c.note}</small>
-                </button>
-              ))}
-              {/* 평소에는 전술 — 갈래를 누르면 그 위로 고를 판이 올라온다 */}
-              {!PICKS && SIDES.map((sd) => {
-                const cur = sideOpt(sd.key, sides[sd.key]);
-                const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
-                const open = openSide === sd.key;
-                const locked = tacticsLeft <= 0 && g.events.length > 0; // 다 쓴 뒤에는 못 바꾼다
-                return (
-                  <div key={sd.key} className="relative min-w-0 flex-1">
-                    {open && (
-                      <>
-                        <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
-                        <div className="mt-cut mt-frame absolute bottom-full left-0 z-20 mb-2 w-[22rem] p-2.5"
-                          style={{ '--c': '14px', '--a': sd.color, background: 'rgba(6,10,19,.97)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
-                          <div className="flex items-baseline justify-between px-1 pb-2">
-                            <p className="mt-lab" style={{ '--a': sd.color }}>{sd.ko}</p>
-                            {g.events.length > 0 && <small className="text-t4 text-gray-400">공수 교대 때 적용 · 남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></small>}
-                          </div>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            {sd.opts.map((o) => {
-                              const on = (tacQ[sd.key] || sides[sd.key]) === o.id;
-                              return (
-                                <button key={o.id} type="button" disabled={locked} onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
-                                  className="mt-cut px-3 py-2 text-left transition-[background,box-shadow] disabled:opacity-40"
-                                  style={{ '--c': '6px',
-                                    background: on ? `color-mix(in srgb,${sd.color} 22%,transparent)` : 'rgba(255,255,255,.045)',
-                                    boxShadow: on ? `inset 0 0 0 1.5px ${sd.color}` : 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
-                                  <b className="block text-t3 font-extrabold" style={{ color: on ? sd.color : '#e6edf6' }}>{o.ko}</b>
-                                  <small className="text-t4 text-gray-400">{o.tip}</small>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
-                      className="mt-cut mt-frame mt-glass flex h-full w-full items-center gap-2.5 px-4 text-left hover:brightness-125"
-                      style={{ '--c': '11px', '--a': sd.color, ...(open ? { background: `color-mix(in srgb,${sd.color} 14%,transparent)` } : null) }}>
-                      <p className="mt-lab shrink-0" style={{ '--a': sd.color }}>{sd.ko}</p>
-                      <b className="min-w-0 flex-1 truncate text-t3 font-extrabold" style={{ color: sd.color }}>
-                        {cur?.ko}{want && <span className="text-white"> → {want.ko}</span>}
-                      </b>
-                      {want
-                        ? <small className="shrink-0 font-bold text-t4 text-amber-300">예약</small>
-                        : <small className="hidden shrink-0 text-t4 text-gray-400 xl:block">{cur?.tip}</small>}
-                      <b className="shrink-0 text-t4 text-gray-500" style={{ transform: open ? 'rotate(180deg)' : 'none' }}>▲</b>
-                    </button>
-                  </div>
-                );
-              })}
-              {clutch && (
-                <button type="button" onClick={() => clutch.resolve(null)}
-                  className="mt-cut mt-frame mt-glass flex w-[104px] shrink-0 flex-col items-center justify-center gap-0.5 text-t3 text-gray-300 hover:brightness-125"
-                  style={{ '--c': '11px', '--a': '#64748b' }}>
-                  <span className="flex items-center gap-2"><b className="text-t2 leading-none">⏭</b><b className="text-t3 font-extrabold text-white">맡긴다</b><b className="font-display text-t3 font-extrabold text-gray-500">0</b></span>
-                  <small className="text-t4 font-semibold text-gray-500">지시 없이</small>
-                </button>
-              )}
+
+            {/* 존 — 이 공이 어디로 들어왔나. 늘 떠 있고 새 공이 오면 갈린다 */}
+            <div key={rush ? 'rush' : shots.length} className="mt-cut mt-glass pointer-events-none absolute bottom-4 right-4 flex items-stretch gap-3 p-3"
+              style={{ '--c': '18px', '--f': lastShot?.tone || '#94a3b8', animation: lastShot && !rush ? 'mtZoneFlash .5s ease-out both' : 'none' }}>
+              <ZoneBox shots={shots} w={120} />
+              {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
+              <div className="flex w-[92px] shrink-0 flex-col justify-center gap-1 leading-tight">
+                <span>{lastShot && <span className="inline-block rounded-md px-1.5 py-0.5 text-t4 font-extrabold text-[#05080f]" style={{ background: lastShot.tone }}>{CALL_KO[lastShot.ev.call] || ''}</span>}</span>
+                <b className="truncate text-t3 font-bold text-white">{lastShot ? PITCH_KO[lastShot.ev.pitch?.type] || '' : ''}</b>
+                <em className="font-display text-t1 font-extrabold leading-none not-italic" style={{ color: lastShot?.tone || '#4b5563' }}>
+                  {lastShot?.ev.pitch?.velo ?? '--'}<span className="ml-0.5 text-t4 text-white/60">km</span>
+                </em>
+                <span className="text-t4 text-gray-400">{lastShot ? courseKo(lastShot.x, lastShot.y) : '투구 대기'}</span>
+              </div>
             </div>
-          </div>
 
-          {/* ── 오른쪽: 승부 흐름 · 지금 투수 · 내 불펜 · 해설 ── */}
-          <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto auto auto 1fr' }}>
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': cMy }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
+            {/* 접은 타석을 흘려보내는 중 — 넘어갔다는 것이 보이게 */}
+            {rush && (
+              <span className="pointer-events-none absolute right-4 top-4 flex items-center gap-1.5 rounded-full px-3 py-1 font-display text-t4 font-extrabold text-[#05080f]"
+                style={{ background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
+            )}
+
+            {/* 결과 자막 */}
+            {flash && (
+              <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
+            )}
+
+            {/* 공수 교대 — 띠가 한 번 쓸고 지나가며 이번 반 이닝의 주인을 알린다 */}
+            {swap && (
+              <div key={swap.key} className="pointer-events-none absolute inset-0 grid place-items-center">
+                <i className="absolute inset-x-0 top-1/2 h-[118px] -translate-y-1/2 origin-left"
+                  style={{ background: `linear-gradient(90deg,${tint(swap.mine ? battingColor : pitchingColor, 62)},transparent)`,
+                    animation: 'halfWipe 1.1s cubic-bezier(.2,.8,.2,1) both' }} />
+                <div className="absolute left-1/2 top-1/2 grid justify-items-center gap-1.5"
+                  style={{ animation: 'halfSwipe 1.15s ease-out both' }}>
+                  <span className="font-display text-t3 font-bold tracking-[0.34em]"
+                    style={{ color: swap.mine ? battingColor : pitchingColor }}>{swap.inning}회{swap.top ? '초' : '말'}</span>
+                  <b className="font-display text-[62px] font-black leading-none text-white [text-shadow:0_6px_30px_rgba(0,0,0,.85)]">
+                    {swap.mine ? '우리 공격' : '우리 수비'}
+                  </b>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* ── 오른쪽 한 줄기: 승부 흐름 · 작전(승부처) · 투수와 불펜 · 해설 ── */}
+          <div className="flex min-h-0 flex-col gap-4">
+            <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col gap-2 px-5 py-4" style={{ '--c': '22px', '--a': cMy }}>
+              <div className="flex items-center">
                 <p className="mt-lab" style={{ '--a': cMy }}>승부 흐름</p>
-                <b className="ml-auto font-display text-t1 font-black leading-none" style={{ color: cMy }}>{Math.round(wpShow * 100)}<small className="ml-0.5 text-t3 text-gray-400">%</small></b>
+                <b className="ml-auto font-display text-[40px] font-black leading-none" style={{ color: cMy }}>{Math.round(wpShow * 100)}<small className="ml-0.5 text-t3 text-gray-400">%</small></b>
               </div>
-              <div className="px-3.5 pb-3">
-                <WinLine log={wpLog} mine={cMy} />
-                <div className="mt-2 grid grid-cols-2 gap-1.5">
-                  <div className="mt-cut bg-white/[0.045] px-2 py-1.5" style={{ '--c': '6px' }}>
-                    <span className="block text-t4 font-semibold text-gray-400">내 지시</span>
-                    <b className="font-display text-t2 font-extrabold leading-tight" style={{ color: myGain > 0 ? '#34d399' : myGain < 0 ? '#f87171' : '#9ca3af' }}>
-                      {myGain > 0 ? '+' : ''}{myGain}<small className="ml-0.5 text-t4 text-gray-500">%p</small>
-                    </b>
-                  </div>
-                  <div className="mt-cut bg-white/[0.045] px-2 py-1.5" style={{ '--c': '6px' }}>
-                    <span className="block text-t4 font-semibold text-gray-400">남은 지시</span>
-                    <b className="font-display text-t2 font-extrabold leading-tight text-white">{clutchLeft.current}<small className="ml-0.5 text-t4 text-gray-500">번</small></b>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <section className="mt-cut mt-frame mt-glass flex flex-col" style={{ '--c': '14px', '--a': defSide }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': defSide }}>투수</p>
-                <span className="ml-auto truncate text-t4 font-semibold text-gray-400">{shortTeam(def.team.name, g.top)} 수비</span>
-              </div>
-              <div className="px-3.5 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <Portrait player={pitcher} w={44} h={56} color={pitchingColor} />
-                  <div className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1.5">
-                      <b className="truncate text-t2 font-extrabold text-white">{pitcher?.name}</b>
-                      {worn && <span className="mt-cut shrink-0 px-1.5 py-0.5 text-t4 font-extrabold text-[#05080f]"
-                        style={{ '--c': '4px', background: spent ? '#f87171' : '#fbbf24' }}>{spent ? '한계' : '지침'}</span>}
-                    </span>
-                    <span className="text-t4 font-semibold text-gray-400">{pitcher?.position} · {def.pitches}구</span>
-                  </div>
-                  <em className="font-display text-t1 font-extrabold not-italic" style={{ color: pitchingColor }}>{pitcher?.overall}</em>
-                </div>
-                <div className="mt-2.5">
-                  {[['체력', Math.round(stamina), 0, 100]].map(([k, v, lo, hi]) => (
-                    <div key={k} className="flex items-center gap-2">
-                      <span className="w-[32px] shrink-0 text-t4 font-bold text-gray-200">{k}</span>
-                      <StatCells v={v} lo={lo} hi={hi} width={190} cell={9} color={v <= 40 ? '#f87171' : null} />
-                      <em className="ml-auto font-display text-t3 font-bold not-italic text-gray-200">{v}</em>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-2.5 grid grid-cols-4 gap-1.5 text-center">
-                  {[[armLine.k, '탈삼진'], [armLine.h, '피안타'], [armLine.bb, '볼넷'], [armLine.r, '실점']].map(([v, k]) => (
-                    <div key={k} className="mt-cut bg-white/[0.045] py-1" style={{ '--c': '6px' }}>
-                      <b className="block font-display text-t2 font-extrabold leading-tight text-white">{v}</b>
-                      <span className="text-t4 font-semibold text-gray-300">{k}</span>
-                    </div>
-                  ))}
-                </div>
+              <WinLine log={wpLog} mine={cMy} w={398} h={60} />
+              <div className="flex justify-between text-t4 text-gray-400">
+                <span>내 지시 <b className="font-display text-t3" style={{ color: myGain > 0 ? '#34d399' : myGain < 0 ? '#f87171' : '#9ca3af' }}>{myGain > 0 ? '+' : ''}{myGain}%p</b></span>
+                <span>남은 개입 <b className="font-display text-t3 text-white">{clutchLeft.current}</b></span>
               </div>
             </section>
 
-            <section className={`mt-cut mt-frame mt-glass flex flex-col ${worn ? 'hot' : ''}`} style={{ '--c': '14px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>불펜</p>
-                {queued ? (
-                  <span className="ml-auto truncate text-t4 font-bold text-[#fde047]">교체 대기</span>
-                ) : worn ? (
-                  <span className="ml-auto truncate text-t4 font-bold" style={{ color: spent ? '#f87171' : '#fbbf24' }}>교체 때</span>
-                ) : (
-                  <span className="ml-auto truncate text-t4 font-semibold text-gray-400">{shortTeam(home.name, true)}</span>
-                )}
+            {/* 작전 — 평소에는 세 갈래, 승부처에는 그 자리의 세 장 */}
+            {(() => {
+              const bandColor = clutch ? clutchColor : cMy;
+              const queuedKo = orderKo(pend);
+              return (
+                <section className="mt-cut mt-frame mt-glass relative flex shrink-0 flex-col gap-2.5 p-5"
+                  style={{ '--c': '22px', '--a': bandColor, overflow: 'visible',
+                    ...(clutch ? { boxShadow: `inset 0 0 0 1.5px ${clutchColor}, 0 0 44px -10px ${clutchColor}`, animation: 'clutchPulse 1.5s ease-in-out infinite' } : null) }}>
+                  <div className="flex items-center gap-2.5">
+                    <p className="mt-lab shrink-0" style={{ '--a': bandColor }}>{clutch ? '승부처' : '작전'}</p>
+                    <b className="truncate text-t3 text-white">{clutch ? clutch.head : `${mineBat ? '우리 공격' : '우리 수비'} · ${g.inning}회${g.top ? '초' : '말'} ${g.outs}사`}</b>
+                    {clutch && <small className="shrink-0 text-t4" style={{ color: clutchColor }}>{clutch.lead}</small>}
+                    <span className="ml-auto shrink-0 text-t4 text-gray-400">
+                      {clutch ? <>남은 개입 <b className="font-display text-t3" style={{ color: clutchColor }}>{clutch.left}</b></>
+                        : g.events.length > 0 ? <>남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></> : null}
+                    </span>
+                  </div>
+                  {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
+                  {!!queuedKo.length && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {queuedKo.map((k) => <span key={k} className="mt-chip" style={{ '--a': bandColor, color: '#fff' }}>{k} 지시</span>)}
+                    </div>
+                  )}
+                  {/* 승부처 — 그 자리의 세 장. 고르면 승률이 어디로 갈지까지 적는다 */}
+                  {PICKS && PICKS.map((c, i) => (
+                    <button key={c.key} type="button" onClick={() => give(c.order)}
+                      className="mt-cut flex items-center gap-3 px-4 py-3 text-left transition hover:-translate-y-0.5 hover:brightness-110"
+                      style={{ '--c': '16px', animation: `batterIn .35s ${i * 0.06}s ease-out both`,
+                        background: `linear-gradient(180deg,${tint(clutchColor, 16)},${tint(clutchColor, 4)}),rgba(10,12,18,.7)`,
+                        boxShadow: `inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 1px ${tint(clutchColor, 45)}` }}>
+                      <b className="text-t2 leading-none">{c.icon}</b>
+                      <span className="min-w-0 flex-1">
+                        <b className="block text-t3 font-extrabold text-white">{c.title}</b>
+                        <small className="block truncate text-t4 text-gray-400">{c.note}</small>
+                      </span>
+                      {c.move !== 0 && (
+                        <b className="font-display text-t2 font-extrabold" style={{ color: c.move > 0 ? '#34d399' : '#f87171' }}>{c.move > 0 ? '+' : ''}{c.move}</b>
+                      )}
+                    </button>
+                  ))}
+                  {clutch && (
+                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡긴다</button>
+                  )}
+                  {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
+                  {!PICKS && SIDES.map((sd) => {
+                    const cur = sideOpt(sd.key, sides[sd.key]);
+                    const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
+                    const open = openSide === sd.key;
+                    const locked = tacticsLeft <= 0 && g.events.length > 0; // 다 쓴 뒤에는 못 바꾼다
+                    return (
+                      <div key={sd.key} className="relative">
+                        {open && (
+                          <>
+                            <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
+                            <div className="mt-cut mt-glass absolute right-full top-1/2 z-20 mr-3 w-[22rem] -translate-y-1/2 p-3"
+                              style={{ '--c': '18px', background: 'rgba(8,12,22,.96)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
+                              <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {sd.opts.map((o) => {
+                                  const on = (tacQ[sd.key] || sides[sd.key]) === o.id;
+                                  return (
+                                    <button key={o.id} type="button" disabled={locked} onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
+                                      className="mt-cut px-3 py-2 text-left transition-[background,box-shadow] disabled:opacity-40"
+                                      style={{ '--c': '10px',
+                                        background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.05)',
+                                        boxShadow: on ? 'inset 0 0 0 1.5px #10b981' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
+                                      <b className="block text-t3 font-extrabold" style={{ color: on ? '#fff' : '#e6edf6' }}>{o.ko}</b>
+                                      <small className="text-t4 text-gray-400">{o.tip}</small>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
+                          className="mt-cut flex h-11 w-full items-center gap-3 px-4 text-left transition hover:bg-white/[0.1]"
+                          style={{ '--c': '12px', background: open ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.08)' }}>
+                          <span className="w-12 shrink-0 text-t4 text-gray-400">{sd.ko}</span>
+                          <b className="min-w-0 flex-1 truncate text-t3 font-extrabold text-white">
+                            {cur?.ko}{want && <span style={{ color: '#fbbf24' }}> → {want.ko}</span>}
+                          </b>
+                          {want && <small className="shrink-0 text-t4 font-bold text-amber-300">예약</small>}
+                          <b className="shrink-0 text-t4 text-gray-500" style={{ transform: open ? 'rotate(90deg)' : 'none' }}>◀</b>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </section>
+              );
+            })()}
+
+            {/* 투수 · 불펜 — 지친 팔이면 노랗게 · 빨갛게 */}
+            <section className={`mt-cut mt-frame mt-glass flex shrink-0 flex-col gap-2.5 px-5 py-4 ${worn ? 'hot' : ''}`} style={{ '--c': '22px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
+              <div className="flex items-center gap-3">
+                <Portrait player={pitcher} w={44} h={44} round t={pitchingColor} />
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-t4 text-gray-400">{shortTeam(def.team.name, g.top)} 투수 · {def.pitches}구</span>
+                  <span className="flex items-center gap-1.5">
+                    <b className="truncate text-t3 font-extrabold text-white">{pitcher?.name}</b>
+                    {worn && <span className="shrink-0 rounded-md px-1.5 text-t4 font-extrabold text-[#05080f]" style={{ background: spent ? '#f87171' : '#fbbf24' }}>{spent ? '한계' : '지침'}</span>}
+                  </span>
+                </div>
+                <b className="font-display text-t1 font-extrabold" style={{ color: pitchingColor }}>{pitcher?.overall}</b>
               </div>
-              <ul className="space-y-1 px-2 pb-2">
-                {myPen.length === 0 && <li className="px-2 py-1.5 text-t4 text-gray-500">남은 투수 없음</li>}
-                {myPen.map((p) => {
+              <div className="flex items-center gap-2.5 text-t4 text-gray-400">
+                체력
+                <i className="block h-[5px] flex-1 overflow-hidden rounded-full bg-white/[0.08]"><b className="block h-full rounded-full transition-[width] duration-500" style={{ width: `${Math.round(stamina)}%`, background: staminaTone(Math.round(stamina)).bar }} /></i>
+                <b className="w-7 text-right font-display text-t3" style={{ color: staminaTone(Math.round(stamina)).ink }}>{Math.round(stamina)}</b>
+              </div>
+              <div className="flex items-center gap-2 border-t border-white/[0.07] pt-2.5">
+                <p className="mt-lab" style={{ '--a': worn ? (spent ? '#f87171' : '#fbbf24') : cMy }}>불펜</p>
+                <span className="ml-auto truncate text-t4 font-bold" style={{ color: queued ? '#fde047' : worn ? (spent ? '#f87171' : '#fbbf24') : '#6b7280' }}>
+                  {queued ? '교체 대기' : worn ? '교체 때' : canSwap ? '' : '내 수비 때 교체'}
+                </span>
+              </div>
+              <ul className="flex flex-col gap-1">
+                {myPen.length === 0 && <li className="px-1 py-1 text-t4 text-gray-500">남은 투수 없음</li>}
+                {myPen.slice(0, clutch ? 2 : 3).map((p) => {
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
                   const mine = queued === p.id; // 이 투수로 바꾸라고 일러 둔 참이다
                   return (
-                    <li key={p.id} className={`mt-row mt-cut ${mine ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '22px minmax(0,1fr) 96px auto', gap: 7, padding: '3px 8px', opacity: queued && !mine ? 0.5 : 1, '--c': '5px', '--a': mine ? '#fde047' : cMy }}>
-                      <Portrait player={p} w={22} h={28} color={cMy} />
-                      <span className="flex min-w-0 items-baseline gap-1.5">
-                        <b className="truncate text-t3 font-semibold text-gray-100">{p.name}</b>
-                        <em className="font-display text-t4 font-bold not-italic" style={{ color: statBandColor(p.overall) }}>{p.overall}</em>
-                      </span>
+                    <li key={p.id} className={`mt-row ${mine ? 'on' : ''}`}
+                      style={{ gridTemplateColumns: 'minmax(0,1fr) 28px 80px auto', gap: 10, padding: '3px 6px', opacity: queued && !mine ? 0.5 : 1 }}>
+                      <b className="truncate text-t3 font-semibold text-gray-100">{p.name}</b>
+                      <em className="font-display text-t3 font-bold not-italic text-white">{p.overall}</em>
                       <span className="flex items-center gap-1.5" title={`체력 ${cond}`}>
-                        <i className="block h-[6px] min-w-0 flex-1 bg-white/[0.08]"><b className="block h-full" style={{ width: `${cond}%`, background: tone.bar }} /></i>
-                        <em className="w-[18px] shrink-0 text-right font-display text-t4 font-bold not-italic" style={{ color: tone.ink }}>{cond}</em>
+                        <i className="block h-[5px] min-w-0 flex-1 overflow-hidden rounded-full bg-white/[0.08]"><b className="block h-full rounded-full" style={{ width: `${cond}%`, background: tone.bar }} /></i>
                       </span>
                       <button type="button" disabled={!canSwap || !!queued} onClick={() => give({ changePitcher: p.id })}
                         title={mine ? '다음 공에 올라간다' : queued ? '이미 교체를 일러 두었다' : canSwap ? `${p.name} 으로 바꾼다` : '내 수비 때만 바꾼다'}
-                        className={`mt-cut px-2 py-1 text-t4 font-bold ${mine ? 'bg-[#fde047] text-[#05080f]' : canSwap && !queued ? 'bg-[#10b981] text-[#05080f] hover:brightness-110' : 'bg-white/[0.07] text-gray-600'}`}
-                        style={{ '--c': '4px' }}>{mine ? '대기' : '교체'}</button>
+                        className={`mt-btn sm !min-h-[28px] !px-3 !text-t4 ${mine || (canSwap && !queued) ? 'pri' : ''}`}
+                        style={mine ? { '--a': '#fde047' } : null}>{mine ? '대기' : '교체'}</button>
                     </li>
                   );
                 })}
               </ul>
             </section>
 
-            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col" style={{ '--c': '14px', '--a': '#10b981' }}>
-              <div className="flex shrink-0 items-center gap-2 px-3.5 pb-1 pt-2.5">
-                <p className="mt-lab">해설</p>
-                <span className="ml-auto text-t3">🎙</span>
-              </div>
-              <div className="flex min-h-0 flex-1 flex-col gap-[3px] overflow-hidden px-3 pb-3">
-                {[...lines].reverse().map((l, i) => (
-                  l.kind === 'half' ? (
-                    <p key={l.id} className="m-0 mt-1 flex shrink-0 items-center gap-2 font-display text-t4 font-bold tracking-[0.14em] text-gray-500">
-                      <i className="h-px flex-1 bg-white/10" />{l.text}<i className="h-px flex-1 bg-white/10" />
-                    </p>
-                  ) : (
-                    <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug"
-                      style={{ opacity: i < 3 ? 1 : 0.62 }}>
-                      {l.at && <em className="shrink-0 font-display text-t4 font-bold not-italic text-gray-600">{l.at}</em>}
-                      <span className={i === 0 ? 'text-t3 font-bold' : 'text-t4 font-medium'}
-                        style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
-                    </p>
-                  )
-                ))}
-              </div>
+            {/* 해설 — 가장 새 줄이 위, 아래로 흐려진다 */}
+            <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden px-5 py-4" style={{ '--c': '22px' }}>
+              {[...lines].reverse().filter((l) => l.kind !== 'half').slice(0, 4).map((l, i) => (
+                <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug" style={{ opacity: 1 - i * 0.22 }}>
+                  {l.at && <em className="shrink-0 font-display text-t4 font-bold not-italic text-gray-500">{l.at}</em>}
+                  <span className={`truncate ${i === 0 ? 'text-t3 font-bold' : 'text-t4'}`} style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
+                </p>
+              ))}
             </section>
           </div>
         </div>

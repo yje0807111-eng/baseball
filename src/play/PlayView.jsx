@@ -330,7 +330,7 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
       ))}
       {ball?.gone && t > ball.t1 - 0.16 && (
         <text x={ART.w / 2} y="250" textAnchor="middle" fontSize={92 * u} fontWeight="900" fill="#fde047"
-          stroke="rgba(0,0,0,.9)" strokeWidth={20 * u} paintOrder="stroke">GONE!</text>
+          stroke="rgba(0,0,0,.9)" strokeWidth={20 * u} paintOrder="stroke">담장 밖!</text>
       )}
     </>
   );
