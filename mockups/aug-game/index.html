@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>증강 게임 화면 비교</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t1:28px; --t2:18px; --t3:14px; --t4:12px;
+    --w:#fff; --m:#9ca3af; --d:#6b7280;
+    --a:#10b981; --a2:#34d399; --gold:#fde047; --warn:#fbbf24; --bad:#f87171;
+    --au:#c4b5fd; --au2:#a78bfa; --au3:#7c3aed; --gl:#f5d27a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1920px;height:911px;background:#04060c;color:var(--w);font:500 var(--t3) 'IBM Plex Sans KR',sans-serif;overflow:hidden}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+  .n{font-family:'Saira Condensed',sans-serif;font-weight:800}
+  .row{display:flex;align-items:center;gap:10px}.col{display:flex;flex-direction:column}.grow{flex:1;min-width:0}
+  .tr{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .t4{font-size:var(--t4)}.t2{font-size:var(--t2);font-weight:700}.t1{font-size:var(--t1);font-weight:700}
+  .m{color:var(--m)}.d{color:var(--d)}
+  #app{position:relative;width:1920px;height:911px;overflow:hidden}
+  .abs{position:absolute}
+  /* ── 배경 층: 보라 성운 · 빛줄기 · 먼지 ── */
+  .sky{position:absolute;inset:0;background:
+    radial-gradient(60% 50% at 50% 40%,rgba(124,58,237,.28),transparent 70%),
+    radial-gradient(40% 40% at 15% 90%,rgba(16,185,129,.12),transparent 70%),
+    radial-gradient(35% 35% at 88% 12%,rgba(196,181,253,.16),transparent 70%),
+    linear-gradient(180deg,#070913,#04060c)}
+  .rays{position:absolute;left:50%;top:38%;width:1600px;height:1600px;margin:-800px 0 0 -800px;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg,rgba(196,181,253,.07) 0 4deg,transparent 4deg 14deg);animation:spin 80s linear infinite;
+    -webkit-mask:radial-gradient(circle,#000 10%,transparent 60%);mask:radial-gradient(circle,#000 10%,transparent 60%)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .dust{position:absolute;inset:0;background-image:radial-gradient(1.5px 1.5px at 12% 20%,#fff8,transparent),radial-gradient(1px 1px at 30% 70%,#fff6,transparent),radial-gradient(1.5px 1.5px at 55% 30%,#c4b5fd99,transparent),radial-gradient(1px 1px at 72% 80%,#fff5,transparent),radial-gradient(2px 2px at 85% 45%,#c4b5fdaa,transparent),radial-gradient(1px 1px at 44% 88%,#fff6,transparent),radial-gradient(1.5px 1.5px at 92% 18%,#fff7,transparent),radial-gradient(1px 1px at 6% 60%,#c4b5fd88,transparent);
+    animation:drift 14s ease-in-out infinite alternate}
+  @keyframes drift{to{transform:translateY(-18px)}}
+  /* ── 장식 테: 금빛 이중선 · 모서리 장식 ── */
+  .orn{position:relative;border-radius:18px;background:linear-gradient(180deg,rgba(24,20,44,.86),rgba(10,9,22,.92));
+    box-shadow:inset 0 0 0 1px rgba(245,210,122,.35),inset 0 0 0 4px rgba(10,9,22,.9),inset 0 0 0 5px rgba(196,181,253,.22),0 30px 60px -24px rgba(0,0,0,.9)}
+  .orn::before,.orn::after{content:'';position:absolute;width:26px;height:26px;border:2px solid var(--gl);pointer-events:none;filter:drop-shadow(0 0 6px rgba(245,210,122,.6))}
+  .orn::before{left:8px;top:8px;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+  .orn::after{right:8px;bottom:8px;border-left:0;border-top:0;border-radius:0 0 10px 0}
+  .hd{display:flex;align-items:center;gap:14px;font-weight:800;letter-spacing:.02em}
+  .hd::before,.hd::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(245,210,122,.6))}
+  .hd::after{background:linear-gradient(90deg,rgba(245,210,122,.6),transparent)}
+  .gem{width:16px;height:16px;transform:rotate(45deg);border-radius:3px;background:linear-gradient(135deg,#ede9fe,var(--au2) 45%,var(--au3));box-shadow:0 0 12px var(--au2),inset 0 0 0 1px rgba(255,255,255,.5);flex:none}
+  .gem.off{background:linear-gradient(135deg,#374151,#1f2937);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+  .gem.sm{width:10px;height:10px;border-radius:2px}
+  .hex{clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);background:#0b1220 center/cover}
+  .hexf{position:relative;display:grid;place-items:center;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);background:linear-gradient(135deg,var(--gl),#8a6a25 40%,var(--au2) 70%,#f5d27a)}
+  .hexf>.hex{position:absolute;inset:3px}
+  .pill{height:34px;padding:0 14px;border-radius:999px;font-size:var(--t4);font-weight:700;color:var(--m);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);display:inline-flex;align-items:center;gap:6px}
+  .pill.on{color:#fff;background:linear-gradient(180deg,rgba(196,181,253,.3),rgba(124,58,237,.2));box-shadow:inset 0 0 0 1px rgba(196,181,253,.7),0 0 18px -4px var(--au2)}
+  .cta{position:relative;border-radius:14px;font-weight:800;color:#1a1408;text-align:center;background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a);box-shadow:0 12px 30px -8px rgba(227,178,74,.7),inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 0 rgba(0,0,0,.25)}
+  .cta2{border-radius:14px;font-weight:800;text-align:center;color:#fff;background:linear-gradient(180deg,rgba(196,181,253,.28),rgba(124,58,237,.3));box-shadow:inset 0 0 0 1px rgba(196,181,253,.6),0 10px 26px -10px var(--au2)}
+  .ghost{border-radius:12px;font-weight:700;text-align:center;color:var(--m);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+  .num{font-family:'Saira Condensed';font-weight:800;color:#e9d5ff;text-shadow:0 0 12px rgba(167,139,250,.7)}
+  .shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.32) 47%,rgba(196,181,253,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat;animation:sh 4.5s ease-in-out infinite;mix-blend-mode:screen}
+  @keyframes sh{0%{background-position:-160% 0}100%{background-position:260% 0}}
+  .stamp{position:absolute;padding:4px 12px;border-radius:6px;border:2px solid var(--bad);color:var(--bad);font-weight:900;transform:rotate(-12deg);background:rgba(20,5,8,.7);letter-spacing:.1em}
+  /* 도감 칸 */
+  .slot{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 4px;border-radius:14px;cursor:pointer;transition:background .2s,transform .2s}
+  .slot:hover{background:rgba(196,181,253,.08);transform:translateY(-2px)}
+  .slot.on{background:radial-gradient(60% 60% at 50% 35%,rgba(167,139,250,.28),transparent 70%)}
+  .slot.on .hexf{filter:drop-shadow(0 0 14px var(--au2))}
+  .slot.ban .hexf{filter:grayscale(1) brightness(.45)}
+  /* 선택 카드 */
+  .pick{position:relative;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .3s}
+  .pick:hover{transform:translateY(-18px) scale(1.03)}
+  .picks:hover .pick:not(:hover){filter:brightness(.55) saturate(.6)}
+  .pk{position:relative;overflow:hidden;border-radius:22px;background:#0b0a18}
+  .pk .art{position:absolute;left:0;right:0;top:0;height:58%;background:center 20%/cover;-webkit-mask:linear-gradient(#000 70%,transparent);mask:linear-gradient(#000 70%,transparent)}
+  .burst{position:absolute;left:50%;top:30%;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:repeating-conic-gradient(rgba(245,210,122,.18) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(circle,#000 5%,transparent 62%);mask:radial-gradient(circle,#000 5%,transparent 62%);animation:spin 30s linear infinite;opacity:0;transition:opacity .4s}
+  .pick:hover .burst{opacity:1}
+  .tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:var(--t4);font-weight:800}
+  #tool{position:fixed;left:12px;bottom:10px;z-index:9;display:flex;gap:6px;align-items:center;padding:6px 8px;background:rgba(0,0,0,.85);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);font:600 12px 'IBM Plex Sans KR'}
+  #tool button{padding:4px 9px;background:rgba(255,255,255,.08);color:#cbd5e1}#tool button.on{background:#fde047;color:#111}
+</style></head>
+<body>
+<main id="app"></main>
+<div id="tool"></div>
+
+<script type="module">
+const D = await import('/src/KboAugmentDraft.jsx');
+const AUG = D.AUGMENTS.filter((a) => a.tier === 'silver');
+const descAt = D.augDescAt;
+const LV_MAX = 5;
+let ACC = null;
+try { ACC = JSON.parse(localStorage.getItem('kbo.myteam.v1') || 'null'); } catch { ACC = null; }
+const A = ACC?.aug || { levels: {}, bans: { silver: [] }, favs: [], slots: { silver: 3 }, upgradeTickets: 0 };
+/* 목업에서 모습이 드러나게 — 레벨 · 제외 · 즐겨찾기 몇 개를 채워 둔다(실제 계정이 비어 있으면) */
+const LV = { ...A.levels }; if (!Object.keys(LV).length) AUG.slice(0, 9).forEach((a, i) => { LV[a.id] = [3, 1, 2, 5, 1, 0, 2, 4, 1][i]; });
+const BANS = (A.bans?.silver || []).length ? A.bans.silver : AUG.slice(12, 14).map((a) => a.id);
+const FAVS = (A.favs || []).length ? A.favs : AUG.slice(0, 3).map((a) => a.id);
+const TICKETS = A.upgradeTickets || 6;
+const SLOTS = A.slots?.silver || 3;
+const TYPES = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
+const TYPE_KO = Object.fromEntries(TYPES);
+const lv = (a) => LV[a.id] || 0;
+const art = (a) => `url(/augments/${a.id}.webp)`;
+const hi = (s) => s.replace(/([+\-]?\d+(?:\.\d+)?%?p?)/g, '<b class="num">$1</b>');
+const gems = (n, max = LV_MAX, sm = false) => `<span class="row" style="gap:${sm ? 5 : 8}px">${Array.from({ length: max }, (_, i) => `<i class="gem ${sm ? 'sm' : ''} ${i < n ? '' : 'off'}"></i>`).join('')}</span>`;
+let v = location.hash.slice(1) || 'M1';
+let sel = AUG[0].id;
+let type = 'all';
+const CH = [AUG[4], AUG[7], AUG[20]].filter(Boolean);
+const OWNED = [AUG[0], AUG[7], AUG[15], AUG[22]].filter(Boolean); // 이번 경기에 이미 낀 증강(선택 3)
+
+const bg = () => '<div class="sky"></div><div class="rays"></div><div class="dust"></div>';
+const topbar = (title, sub) => `
+  <header class="row" style="position:relative;height:76px;padding:0 30px;gap:16px">
+    <button class="ghost" style="width:42px;height:42px">←</button>
+    <div class="col"><span class="t4" style="color:var(--gl)">${sub}</span><b style="font-size:24px;font-weight:800">${title}</b></div>
+    <div class="grow"></div>
+    <div class="row orn" style="height:48px;padding:0 18px;gap:12px;border-radius:14px"><span style="width:30px;height:30px;border-radius:8px;background:url(/ui/shop/au-upgrade.webp) center/cover"></span><span class="t4 m">강화권</span><b class="n" style="font-size:22px;color:var(--gl)">${TICKETS}</b></div>
+    <div class="row orn" style="height:48px;padding:0 18px;gap:12px;border-radius:14px"><span class="t4 m">제외 칸</span>${Array.from({ length: SLOTS }, (_, i) => `<i style="width:14px;height:14px;border-radius:4px;${i < BANS.length ? 'background:var(--bad);box-shadow:0 0 8px var(--bad)' : 'box-shadow:inset 0 0 0 1.5px rgba(248,113,113,.5)'}"></i>`).join('')}</div>
+  </header>`;
+const filterRow = () => `<div class="row" style="gap:6px;flex-wrap:wrap">${[['all', '전체'], ['fav', '★ 즐겨찾기'], ...TYPES].map(([k, n]) => `<button class="pill ${type === k ? 'on' : ''}" data-type="${k}">${n}</button>`).join('')}</div>`;
+const list = () => AUG.filter((a) => type === 'all' || (type === 'fav' ? FAVS.includes(a.id) : a.type === type));
+const cur = () => AUG.find((a) => a.id === sel) || AUG[0];
+/* 레벨별 효과 사다리 — 지금 · 다음 칸이 빛난다 */
+const ladder = (a) => `<div class="col" style="gap:5px">${Array.from({ length: LV_MAX + 1 }, (_, k) => {
+  const now = k === lv(a); const next = k === lv(a) + 1;
+  return `<div class="row" style="gap:12px;padding:7px 12px;border-radius:10px;${now ? 'background:linear-gradient(90deg,rgba(167,139,250,.28),rgba(167,139,250,.05));box-shadow:inset 0 0 0 1px rgba(196,181,253,.55)' : next ? 'background:rgba(245,210,122,.08);box-shadow:inset 0 0 0 1px rgba(245,210,122,.35)' : ''};opacity:${k < lv(a) ? .45 : 1}">
+    <b class="n" style="width:34px;color:${now ? '#e9d5ff' : next ? 'var(--gl)' : 'var(--d)'}">${k ? '+' + k : '기본'}</b><span class="grow tr" style="font-size:var(--t4);color:${now || next ? '#e5e7eb' : 'var(--m)'}">${hi(descAt(a, k))}</span>
+    ${now ? '<span class="tag" style="background:rgba(167,139,250,.25);color:#e9d5ff">지금</span>' : next ? '<span class="tag" style="background:rgba(245,210,122,.18);color:var(--gl)">다음</span>' : ''}</div>`;
+}).join('')}</div>`;
+
+const V = {
+  /* ─ 관리 1 · 도감 — 왼쪽은 크게 세운 진열장(그림 · 레벨 보석 · 레벨별 효과 사다리 · 강화), 오른쪽은 육각 도감 ─ */
+  M1: ['관리 1 도감', () => { const a = cur(); return `${bg()}<div style="position:relative;height:100%;display:flex;flex-direction:column">${topbar('증강 도감', '증강 관리')}
+    <div style="display:grid;grid-template-columns:600px 1fr;gap:22px;padding:4px 30px 26px;flex:1;min-height:0">
+      <section class="orn col" style="padding:26px;gap:16px;min-height:0">
+        <div class="row" style="gap:20px">
+          <div class="hexf" style="width:170px;height:150px;flex:none;filter:drop-shadow(0 0 22px rgba(167,139,250,.7))"><div class="hex" style="background-image:${art(a)}"></div><div class="shine" style="clip-path:inherit"></div></div>
+          <div class="col grow" style="gap:10px">
+            <span class="tag" style="align-self:flex-start;background:rgba(196,181,253,.14);color:var(--au)">${TYPE_KO[a.type] || '증강'}</span>
+            <b style="font-size:34px;font-weight:900;line-height:1.1">${a.name}</b>
+            ${gems(lv(a))}
+            <span class="t4 m">${a.note || ''}</span>
+          </div>
+        </div>
+        <div class="hd t4" style="color:var(--gl)">레벨별 효과</div>
+        ${ladder(a)}
+        <div class="grow"></div>
+        <button class="cta" style="height:62px;font-size:20px">+${lv(a) + 1} 강화 <span style="opacity:.7;font-size:var(--t3)">· 강화권 ${lv(a) + 1}장</span></button>
+        <div class="row" style="gap:10px"><button class="ghost grow" style="height:46px;color:#fda4af">${BANS.includes(a.id) ? '제외 풀기' : '이 증강 제외'}</button><button class="ghost" style="height:46px;padding:0 22px;color:${FAVS.includes(a.id) ? 'var(--gl)' : 'var(--m)'}">${FAVS.includes(a.id) ? '★' : '☆'} 즐겨찾기</button></div>
+      </section>
+      <section class="orn col" style="padding:24px 26px;gap:16px;min-height:0">
+        <div class="row"><b style="font-size:22px;font-weight:800">증강 ${AUG.length}</b><span class="t4 m" style="margin-left:8px">강화 ${Object.values(LV).filter(Boolean).length} · 최대 ${Object.values(LV).filter((x) => x >= LV_MAX).length}</span><span class="grow"></span>${filterRow()}</div>
+        <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px 6px;overflow:hidden;align-content:start">${list().slice(0, 36).map((x) => `
+          <div class="slot ${x.id === sel ? 'on' : ''} ${BANS.includes(x.id) ? 'ban' : ''}" data-sel="${x.id}">
+            <div class="hexf" style="width:84px;height:74px"><div class="hex" style="background-image:${art(x)}"></div></div>
+            ${FAVS.includes(x.id) ? '<span class="abs" style="right:14px;top:6px;color:var(--gl);text-shadow:0 0 8px var(--gl)">★</span>' : ''}
+            ${BANS.includes(x.id) ? '<span class="stamp" style="top:30px;font-size:11px">제외</span>' : ''}
+            <b class="tr" style="max-width:100%;font-size:var(--t4)">${x.name}</b>${gems(lv(x), LV_MAX, true)}</div>`).join('')}</div>
+      </section>
+    </div></div>`; }],
+
+  /* ─ 관리 2 · 덱 빌더 — 가운데 그림 카드 묶음, 오른쪽은 덱 목록처럼 즐겨찾기 · 제외 칸 띠, 아래는 종류 분포 ─ */
+  M2: ['관리 2 덱 빌더', () => `${bg()}<div style="position:relative;height:100%;display:flex;flex-direction:column">${topbar('증강 풀', '증강 관리')}
+    <div style="display:grid;grid-template-columns:1fr 420px;gap:22px;padding:4px 30px 26px;flex:1;min-height:0">
+      <section class="orn col" style="padding:22px 24px;gap:14px;min-height:0">
+        <div class="row">${filterRow()}</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:14px;overflow:hidden;align-content:start;padding-top:4px">${list().slice(0, 14).map((x) => `
+          <div class="pick" data-sel="${x.id}" style="height:282px"><div class="pk" style="height:100%;box-shadow:0 0 0 ${x.id === sel ? 2 : 1}px ${x.id === sel ? 'var(--au)' : 'rgba(245,210,122,.35)'},0 20px 40px -18px #000${x.id === sel ? ',0 0 40px -6px var(--au2)' : ''};${BANS.includes(x.id) ? 'filter:grayscale(1) brightness(.5)' : ''}">
+            <div class="art" style="background-image:${art(x)}"></div><div class="shine"></div>
+            <div class="abs row" style="left:0;right:0;top:10px;justify-content:center">${gems(lv(x), LV_MAX, true)}</div>
+            <div class="abs col" style="left:12px;right:12px;bottom:12px;gap:6px"><span class="tag" style="align-self:flex-start;height:20px;background:rgba(196,181,253,.14);color:var(--au)">${TYPE_KO[x.type] || ''}</span><b style="font-size:16px;line-height:1.2">${x.name}</b><span class="tr" style="font-size:var(--t4);color:var(--m)">${hi(descAt(x, lv(x)))}</span></div>
+            ${BANS.includes(x.id) ? '<span class="stamp" style="left:30px;top:90px">제외</span>' : ''}${FAVS.includes(x.id) ? '<span class="abs" style="right:12px;top:8px;color:var(--gl)">★</span>' : ''}</div></div>`).join('')}</div>
+      </section>
+      <aside class="col" style="gap:16px;min-height:0">
+        <section class="orn col" style="padding:20px;gap:8px"><div class="hd t4" style="color:var(--gl)">즐겨찾기 · 두 배로 나옴</div>
+          ${AUG.filter((x) => FAVS.includes(x.id)).map((x) => `<div class="row" style="height:46px;border-radius:10px;overflow:hidden;background:linear-gradient(90deg,rgba(10,9,22,.95) 40%,rgba(10,9,22,.3)),${art(x)} right center/60% auto no-repeat;padding:0 12px;gap:10px;box-shadow:inset 3px 0 0 var(--gl)"><b class="grow tr">${x.name}</b>${gems(lv(x), LV_MAX, true)}</div>`).join('')}</section>
+        <section class="orn col" style="padding:20px;gap:8px"><div class="hd t4" style="color:#fca5a5">제외 칸 · 나오지 않음</div>
+          ${Array.from({ length: SLOTS }, (_, i) => { const x = AUG.find((y) => y.id === BANS[i]); return x ? `<div class="row" style="height:46px;border-radius:10px;background:linear-gradient(90deg,rgba(40,10,14,.9) 40%,rgba(40,10,14,.3)),${art(x)} right center/60% auto no-repeat;padding:0 12px;gap:10px;box-shadow:inset 3px 0 0 var(--bad)"><b class="grow tr" style="text-decoration:line-through;color:#fca5a5">${x.name}</b><span class="t4 m">풀기</span></div>` : '<div class="row" style="height:46px;border-radius:10px;padding:0 12px;box-shadow:inset 0 0 0 1px rgba(248,113,113,.3);color:var(--d)">빈 칸</div>'; }).join('')}</section>
+        <section class="orn col" style="padding:20px;gap:10px;flex:1"><div class="hd t4" style="color:var(--gl)">종류 분포</div>
+          ${TYPES.map(([k, n]) => { const c = AUG.filter((x) => x.type === k).length; return `<div class="row" style="gap:10px"><span class="t4 m" style="width:64px">${n}</span><div class="grow" style="height:8px;border-radius:8px;background:rgba(255,255,255,.06);overflow:hidden"><i style="display:block;height:100%;width:${(c / 30) * 100}%;border-radius:8px;background:linear-gradient(90deg,var(--au3),var(--au))"></i></div><b class="n" style="width:22px;text-align:right">${c}</b></div>`; }).join('')}</section>
+      </aside>
+    </div></div>`],
+
+  /* ─ 관리 3 · 강화 무대 — 가운데 받침대 위 증강 카드, 왼쪽 레벨 사다리, 오른쪽 재료, 아래 증강 띠 ─ */
+  M3: ['관리 3 강화 무대', () => { const a = cur(); return `${bg()}<div style="position:relative;height:100%;display:flex;flex-direction:column">${topbar('증강 강화', '증강 관리')}
+    <div style="position:relative;display:grid;grid-template-columns:430px 1fr 400px;gap:20px;padding:0 30px;flex:1;min-height:0">
+      <section class="orn col" style="padding:22px;gap:12px;align-self:start"><div class="hd t4" style="color:var(--gl)">레벨별 효과</div>${ladder(a)}</section>
+      <div class="col" style="align-items:center;justify-content:center;position:relative">
+        <div class="abs" style="bottom:36px;width:420px;height:90px;border-radius:50%;background:radial-gradient(closest-side,rgba(167,139,250,.55),transparent);filter:blur(4px)"></div>
+        <div class="abs" style="bottom:48px;width:360px;height:60px;border-radius:50%;box-shadow:0 0 0 2px rgba(245,210,122,.6),0 0 30px rgba(245,210,122,.4),inset 0 0 30px rgba(167,139,250,.6)"></div>
+        <div class="pk" style="width:320px;height:440px;transform:translateY(-30px);box-shadow:0 0 0 2px rgba(245,210,122,.7),0 40px 60px -20px #000,0 0 90px -10px var(--au2);animation:drift 3.5s ease-in-out infinite alternate">
+          <div class="art" style="height:64%;background-image:${art(a)}"></div><div class="shine"></div>
+          <div class="abs row" style="left:0;right:0;top:14px;justify-content:center">${gems(lv(a))}</div>
+          <div class="abs col" style="left:20px;right:20px;bottom:20px;gap:8px;align-items:center;text-align:center"><span class="tag" style="background:rgba(196,181,253,.14);color:var(--au)">${TYPE_KO[a.type] || ''}</span><b style="font-size:28px;font-weight:900">${a.name}</b><span style="color:#e5e7eb">${hi(descAt(a, lv(a)))}</span></div>
+        </div>
+      </div>
+      <section class="orn col" style="padding:22px;gap:14px;align-self:start">
+        <div class="hd t4" style="color:var(--gl)">강화 재료</div>
+        <div class="row" style="gap:14px"><span style="width:64px;height:64px;border-radius:14px;background:url(/ui/shop/au-upgrade.webp) center/cover;box-shadow:0 0 0 1px rgba(245,210,122,.5),0 0 20px -4px var(--gl)"></span><div class="col grow"><b>강화권</b><span class="t4 m">레벨마다 필요 수 +1</span></div><b class="n" style="font-size:30px"><span style="color:var(--gl)">${lv(a) + 1}</span><span class="d" style="font-size:18px"> / ${TICKETS}</span></b></div>
+        <div class="row" style="justify-content:space-between;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04)"><span class="m">지금</span><b class="n" style="font-size:22px">+${lv(a)}</b><span class="d">→</span><span class="m">강화 뒤</span><b class="n" style="font-size:22px;color:var(--gl)">+${lv(a) + 1}</b></div>
+        <button class="cta" style="height:64px;font-size:20px">강화하기</button>
+      </section>
+    </div>
+    <div class="row" style="position:relative;gap:10px;padding:0 30px 22px;overflow:hidden">${AUG.slice(0, 16).map((x) => `<div class="slot ${x.id === sel ? 'on' : ''}" data-sel="${x.id}" style="padding:6px 2px;flex:none;width:98px"><div class="hexf" style="width:78px;height:68px"><div class="hex" style="background-image:${art(x)}"></div></div>${gems(lv(x), LV_MAX, true)}</div>`).join('')}</div>
+    </div>`; }],
+
+  /* ─ 선택 1 · 세 갈래 — 금테 카드 셋, 위에 등급 보석 · 올리면 뒤에서 빛줄기가 돈다 ─ */
+  S1: ['선택 1 금테 카드', () => `<div class="abs" style="inset:0;background:url(/ui/field.webp) center/cover;filter:blur(3px) brightness(.35)"></div>${bg()}
+    <div class="col" style="position:relative;height:100%;align-items:center;justify-content:center;gap:30px">
+      <div class="col" style="align-items:center;gap:10px"><div class="hd" style="width:520px;color:var(--gl);font-size:var(--t3)">7회 · 경기 증강</div><b style="font-size:46px;font-weight:900;text-shadow:0 0 30px rgba(167,139,250,.6)">증강 고르기</b></div>
+      <div class="row picks" style="gap:34px">${CH.map((a) => `<div class="pick" style="width:340px;height:520px"><div class="burst"></div>
+        <div class="pk orn" style="position:absolute;inset:0;border-radius:24px">
+          <div class="art" style="background-image:${art(a)}"></div><div class="shine"></div>
+          <div class="abs col" style="left:0;right:0;top:-2px;align-items:center"><div class="hexf" style="width:62px;height:54px;background:linear-gradient(135deg,#fbe7a8,#b7832a)"><i class="gem" style="width:22px;height:22px"></i></div></div>
+          <div class="abs col" style="left:26px;right:26px;bottom:26px;gap:12px;align-items:center;text-align:center">
+            <span class="tag" style="background:rgba(196,181,253,.14);color:var(--au)">${TYPE_KO[a.type] || ''}</span>
+            <b style="font-size:30px;font-weight:900;line-height:1.1">${a.name}</b>
+            <div class="hd" style="width:100%;height:8px"></div>
+            <span style="font-size:var(--t2);line-height:1.5;color:#e5e7eb;min-height:54px">${hi(descAt(a))}</span>
+            <span class="t4" style="color:var(--gl)">눌러서 고르기</span></div>
+        </div></div>`).join('')}</div>
+      <button class="cta2" style="height:52px;padding:0 30px">↺ 다시 굴리기 <span style="opacity:.7">· 한 번 무료</span></button>
+    </div>`],
+
+  /* ─ 선택 2 · 보상 상자 — 카드가 공중에 떠 있고, 올리면 입체로 기울며 빛 알갱이 ─ */
+  S2: ['선택 2 떠 있는 카드', () => `<div class="abs" style="inset:0;background:url(/ui/stadium.webp) center/cover;filter:blur(4px) brightness(.3)"></div>${bg()}
+    <div class="col" style="position:relative;height:100%;align-items:center;justify-content:center;gap:26px">
+      <b style="font-size:44px;font-weight:900;letter-spacing:-.01em">증강 하나 고르기</b>
+      <div class="row picks" style="gap:60px;perspective:1200px">${CH.map((a, i) => `<div class="pick" style="width:320px;height:480px;animation:drift ${3 + i * .4}s ease-in-out infinite alternate">
+        <div class="pk" style="position:absolute;inset:0;border-radius:28px;transform:rotateY(${(i - 1) * -10}deg);box-shadow:0 0 0 1px rgba(255,255,255,.2),0 50px 80px -30px #000,0 0 70px -20px var(--au2)">
+          <div class="abs" style="inset:0;background:${art(a)} center 22%/cover"></div>
+          <div class="abs" style="inset:0;background:linear-gradient(180deg,rgba(11,10,24,0) 30%,rgba(11,10,24,.8) 55%,#0b0a18 80%)"></div><div class="shine"></div>
+          <div class="abs col" style="left:24px;right:24px;bottom:24px;gap:10px"><span class="row" style="gap:8px">${gems(0, 3, true)}<span class="t4" style="color:var(--au)">${TYPE_KO[a.type] || ''}</span></span>
+            <b style="font-size:28px;font-weight:900">${a.name}</b><span style="line-height:1.5;color:#e5e7eb">${hi(descAt(a))}</span></div>
+        </div></div>`).join('')}</div>
+      <div class="row" style="gap:12px"><button class="cta2" style="height:48px;padding:0 26px">↺ 다시 굴리기 · 무료</button></div>
+    </div>`],
+
+  /* ─ 선택 3 · 내 빌드 옆에서 — 왼쪽에 이번 경기 낀 증강, 오른쪽 후보는 새것인지 · 겹치는지 표시 ─ */
+  S3: ['선택 3 내 빌드', () => `<div class="abs" style="inset:0;background:url(/ui/field.webp) center/cover;filter:blur(3px) brightness(.32)"></div>${bg()}
+    <div style="position:relative;height:100%;display:grid;grid-template-columns:380px 1fr;gap:40px;padding:50px 60px">
+      <section class="orn col" style="padding:24px;gap:12px;align-self:center">
+        <div class="hd t4" style="color:var(--gl)">내 증강 · ${OWNED.length}</div>
+        ${OWNED.map((a) => `<div class="row" style="gap:14px;padding:8px;border-radius:12px;background:rgba(255,255,255,.03)"><div class="hexf" style="width:58px;height:50px;flex:none"><div class="hex" style="background-image:${art(a)}"></div></div><div class="col grow" style="min-width:0"><b class="tr">${a.name}</b><span class="t4 m tr">${descAt(a, lv(a))}</span></div>${gems(lv(a), LV_MAX, true)}</div>`).join('')}
+        <div class="hd t4" style="color:var(--gl);margin-top:6px">시너지</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><span class="tag" style="background:rgba(52,211,153,.14);color:#6ee7b7">키우기 3</span><span class="tag" style="background:rgba(255,255,255,.06);color:var(--m)">경기 중 1</span></div>
+      </section>
+      <div class="col" style="justify-content:center;gap:26px">
+        <div class="col" style="gap:8px"><div class="hd" style="width:520px;color:var(--gl);font-size:var(--t3)">7회 · 경기 증강</div><b style="font-size:42px;font-weight:900">빌드에 하나 더</b></div>
+        <div class="row picks" style="gap:26px">${CH.map((a, i) => { const owned = OWNED.some((o) => o.id === a.id); const same = OWNED.filter((o) => o.type === a.type).length; return `<div class="pick" style="width:360px;height:460px"><div class="burst"></div>
+          <div class="pk orn" style="position:absolute;inset:0;border-radius:24px">
+            <div class="art" style="background-image:${art(a)}"></div><div class="shine"></div>
+            <div class="abs row" style="left:18px;right:18px;top:16px"><span class="tag" style="${owned ? 'background:rgba(245,210,122,.2);color:var(--gl)' : 'background:rgba(52,211,153,.18);color:#6ee7b7'}">${owned ? `+${lv(a) + 1} 레벨 업` : '새 증강'}</span><span class="grow"></span>${same ? `<span class="tag" style="background:rgba(196,181,253,.16);color:var(--au)">${TYPE_KO[a.type]} ${same + 1}</span>` : ''}</div>
+            <div class="abs col" style="left:24px;right:24px;bottom:24px;gap:10px"><b style="font-size:28px;font-weight:900">${a.name}</b><span style="line-height:1.5;color:#e5e7eb">${hi(descAt(a))}</span></div>
+          </div></div>`; }).join('')}</div>
+        <button class="cta2" style="align-self:flex-start;height:50px;padding:0 28px">↺ 다시 굴리기 <span style="opacity:.7">· 한 번 무료</span></button>
+      </div>
+    </div>`],
+};
+
+const measure = () => {
+  const els = [...document.querySelectorAll('#app *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width && r.height && r.bottom > 0 && r.top < innerHeight; });
+  const text = els.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+  return { t: text.length, b: els.filter((e) => e.tagName === 'BUTTON').length };
+};
+function draw() {
+  document.getElementById('app').innerHTML = V[v][1]();
+  const m = measure();
+  document.getElementById('tool').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('') + `<span style="color:#cbd5e1;margin-left:6px">글 <b style="color:#fde047">${m.t}</b> · 단추 <b style="color:#fde047">${m.b}</b></span>`;
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-v],[data-sel],[data-type]');
+  if (!t) return;
+  if (t.dataset.v) { v = t.dataset.v; location.hash = v; }
+  if (t.dataset.sel) sel = t.dataset.sel;
+  if (t.dataset.type) type = t.dataset.type;
+  draw();
+});
+draw();
+</script>
+</body></html>
