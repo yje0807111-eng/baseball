@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket } from './myteam/store.js';
+import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount } from './myteam/store.js';
+import { CLUB_MAX } from './myteam/rules.js';
+import { roundsOf } from './myteam/rewards.js';
+import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, asClubPlayer } from './draft/memento.js';
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
@@ -3639,6 +3642,36 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   );
 }
 
+/** 드래프트 기념 카드 — 판에서 뽑은 선수 가운데 한 명을 내 팀 보관함으로 (draft/memento.js) */
+function MementoOverlay({ memento, onTake, onSkip }) {
+  const [took, setTook] = useState(null);
+  useEffect(() => { setTook(null); }, [memento]);
+  if (!memento) return null;
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label="드래프트 기념 카드">
+      <div className="ui-bg" style={{ backgroundImage: 'url(ui/field.webp)' }} />
+      <div className="fixed inset-0 bg-[#03050a]/75 backdrop-blur-[3px]" />
+      <div className="relative flex min-h-full flex-col items-center justify-center gap-7 px-4 py-10">
+        <div className="text-center animate-[rise_.4s_ease-out_both]">
+          <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>드래프트 기념 카드 · {memento.why}</p>
+          <h2 className="mt-2 text-4xl font-black text-white">한 명 데려오기</h2>
+          {memento.full && <p className="mt-2 text-sm font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
+        </div>
+        <div className="flex flex-wrap justify-center gap-5">
+          {memento.options.map((p, i) => (
+            <div key={p.id} className="flex w-[216px] flex-col gap-2 animate-[rise_.45s_ease-out_both]" style={{ animationDelay: `${i * 70}ms`, opacity: took && took !== p.id ? 0.35 : 1, transition: 'opacity .3s' }}>
+              <div className="aspect-[2/3] w-full"><PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none' }} /></div>
+              <button type="button" className="ui-btn ui-cut pri" disabled={memento.full || !!took} style={{ '--c': '9px' }}
+                onClick={() => { setTook(p.id); setTimeout(() => onTake(p), 380); }}>데려오기</button>
+            </div>
+          ))}
+        </div>
+        <button type="button" className="ui-btn ui-cut" style={{ '--c': '9px' }} disabled={!!took} onClick={onSkip}>받지 않기</button>
+      </div>
+    </div>
+  );
+}
+
 /** 증강 · 돌발 이벤트 고르기 창. eyebrow · heading 은 경기 전 증강처럼 '시즌'이 아닌 곳에서 바꿔 쓴다 */
 export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null, eyebrow = '시즌 증강', heading = '시즌 증강 고르기' }) {
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
@@ -5332,6 +5365,18 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
   const [liveTeams, setLiveTeams] = useState(null); // 중계 화면에 넘길 두 팀
   const planRef = useRef(null); // 정비 전략실에서 고른 계획 — 경기의 첫 전술
+  /* 드래프트 기념 카드 — 한 판에 한 번 (draft/memento.js) */
+  const [memento, setMemento] = useState(null);
+  const mementoDone = useRef(false);
+  const openMemento = (rule) => {
+    if (!rule || mementoDone.current) return;
+    const me = loadAccount();
+    if (!me) return;
+    mementoDone.current = true;
+    const options = mementoOptions(roster, rule, (p) => ownsInAccount(asClubPlayer(p)));
+    if (!options.length) return;
+    setMemento({ ...rule, options, full: (me.team?.club || []).length >= CLUB_MAX });
+  };
   const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
@@ -5641,7 +5686,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const finishLive = (res) => {
     setLiveTeams(null);
     if (gaunt && !gaunt.done) { // 도장깨기: 이기면 다음 단, 지면 같은 단을 다시
-      setGaunt((g) => Gaunt.settle(g, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp }));
+      const ng = Gaunt.settle(gaunt, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp });
+      setGaunt(ng);
+      if (ng.done) openMemento(GAUNTLET_MEMENTO); // 탑 완주
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
       setResult(res);
       setLogs(res.logs);
@@ -5651,7 +5698,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }
     if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
       setTourEntry(null);
-      setDtour(advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments)));
+      const nt = advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments));
+      setDtour(nt);
+      if (nt.done) openMemento(tourneyMemento(nt.place, roundsOf(nt.size).length)); // 토너먼트가 끝났다
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
       setPhase('bracket');
       return;
@@ -5661,6 +5710,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setBoard(res.board);
     setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
     setPhase('result');
+    if (res.winner === 'my') openMemento(SINGLE_MEMENTO); // 단판: 판의 첫 승리
   };
 
   const newDraft = () => {
@@ -5673,6 +5723,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const m = DRAFT_MODES.find((x) => x.id === id);
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
+    mementoDone.current = false; setMemento(null);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
     const me = loadAccount();
@@ -6132,6 +6183,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
+      <MementoOverlay memento={memento} onTake={(p) => { addToClub(asClubPlayer(p)); setMemento(null); }} onSkip={() => setMemento(null)} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
           midPickInnings={match.aug ? MID_AUG_INNINGS : []}

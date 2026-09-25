@@ -289,7 +289,8 @@ export function releasePlayer(team, id) {
  * 보관함(team.club) — 엔트리 밖에 둔 보유 선수. 엔트리와 보관함을 합쳐 같은 사람은 한 번만.
  * 오가기는 공짜(이미 가진 선수라서), 방출은 산 값의 절반(기념 카드는 산 값 0).
  */
-const ownsPerson = (team, p) => [...(team.squad || []), ...(team.club || [])].some((x) => x.personId === p.personId);
+const who = (p) => p.personId || p.name; // 기본 선수(드래프트 내장)에는 personId 가 없다
+const ownsPerson = (team, p) => [...(team.squad || []), ...(team.club || [])].some((x) => who(x) === who(p));
 
 /** 엔트리 → 보관함 */
 export function storePlayer(team, id) {
