@@ -4583,9 +4583,12 @@ function DuelRow({ label, mine, opp }) {
  */
 function StarterHalf({ player, right, h }) {
   const profile = useProfile(player);
-  /* 프로필은 위 기준으로 붙어 머리 위가 먼저 온다 — 얼굴이 창 가운데 오도록 조금 내린다 */
-  const bust = useBust(player, '150%');
-  const look = profile ? { ...bust, backgroundPosition: '50% 22%' } : bust;
+  /* 프로필은 세로 사진이라 넓은 창을 꽉 채우면 얼굴만 커진다 —
+     높이 기준으로 줄여 상반신을 담고, 둘이 가운데를 보고 서도록 안쪽에 세운다 */
+  const bust = useBust(player, '120%');
+  const look = profile
+    ? { ...bust, backgroundSize: 'auto 130%', backgroundPosition: right ? '40% 10%' : '60% 10%' }
+    : bust;
   const g = h / 2; // 45도: 위 경계가 아래보다 높이만큼 오른쪽에 선다
   const box = { top: 0, bottom: 0, width: `calc(50% + ${g}px)`, ...(right ? { right: 0 } : { left: 0 }) };
   const cut = right
