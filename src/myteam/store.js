@@ -5,6 +5,7 @@
 import { SQUAD_CAP } from './rules.js';
 import { STAFF } from './staff.js';
 import { finishOf, PLACE_REWARD } from './rewards.js';
+import { refundOf } from './market.js';
 
 const KEY = 'kbo.myteam.v1';
 
@@ -207,6 +208,58 @@ export function saveTeam(team) {
   if (!a) return null;
   /* capBase 를 같이 적어 둬야 다음에 열 때 캡을 또 옮기지 않는다 */
   const next = { ...a, team: { ...team, capBase: SQUAD_CAP, updatedAt: new Date().toISOString() } };
+  write(next);
+  return next;
+}
+
+/*
+ * 영입 시장 — 골드와 엔트리를 한 번에 쓴다(둘 중 하나만 저장되는 일이 없게).
+ * 산 값은 선수에 paid 로 적어 둔다: 방출하면 그 절반을 돌려준다(market.js). 스타터 · 무상 채우기 선수는 paid 0.
+ */
+const stamp = (team) => ({ ...team, capBase: SQUAD_CAP, updatedAt: new Date().toISOString() });
+
+/** 선수 영입 — 골드가 모자라면 null */
+export function recruitPlayer(team, player, price) {
+  const a = read();
+  if (!a) return null;
+  const gold = goldOf(a);
+  if (!(price >= 0) || price > gold) return null;
+  const next = { ...a, gold: gold - price, team: stamp({ ...team, squad: [...(team.squad || []), { ...player, paid: price }] }) };
+  write(next);
+  return next;
+}
+
+/** 방출 — 엔트리 · 벤치에서 빼고 산 값의 절반을 돌려준다 */
+export function releasePlayer(team, id) {
+  const a = read();
+  const p = (team.squad || []).find((x) => x.id === id);
+  if (!a || !p) return null;
+  const next = {
+    ...a,
+    gold: goldOf(a) + refundOf(p),
+    team: stamp({ ...team, squad: team.squad.filter((x) => x.id !== id), bench: (team.bench || []).filter((b) => b !== id) }),
+  };
+  write(next);
+  return next;
+}
+
+/** 스타터를 받아야 하는 계정인가 — 한 번도 받은 적 없고 라커가 비어 있을 때만 */
+export const needsStarter = (account) => !!account && !account.team?.starterGiven && !(account.team?.squad || []).length;
+
+/** 스타터 지급(한 번만) — 메인에 안내 창을 한 번 띄우도록 notice 를 남긴다 */
+export function grantStarter(squad) {
+  const a = read();
+  if (!a || !needsStarter(a)) return null;
+  const next = { ...a, notice: 'starter', team: stamp({ ...emptyTeam(), ...(a.team || {}), squad, starterGiven: true }) };
+  write(next);
+  return next;
+}
+
+/** 안내 창을 닫았다 */
+export function dismissNotice() {
+  const a = read();
+  if (!a?.notice) return null;
+  const { notice, ...next } = a;
   write(next);
   return next;
 }

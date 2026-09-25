@@ -6,6 +6,8 @@
  * (레전드 드래프트 판의 20인 · 외국인 3명은 그 판 규칙이라 여기와 무관하다)
  */
 
+import { priceOf } from './market.js';
+
 export const SQUAD_SIZE = 26; // 출전 가능 인원
 export const FOREIGN_MAX = 3; // 외국인 선수 한도
 export const SQUAD_CAP = 2330; // 샐러리 캡(CP) — 26명 × 약 78 + 코치진
@@ -64,8 +66,8 @@ export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
-/** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다 */
-export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS) {
+/** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다. gold 를 넘기면 영입가(골드)도 본다 */
+export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null) {
   if (squad.some((p) => p.id === player.id)) return '이미 영입한 선수';
   if (squad.some((p) => p.personId === player.personId)) return '같은 선수의 다른 시즌은 함께 넣을 수 없음';
   if (squad.length >= lim.size) return `엔트리 ${lim.size}명이 모두 찼음`;
@@ -75,6 +77,8 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE
   if (rule && countBy(squad, rule.key) >= rule.min && freeUsed(squad) >= lim.free) return `자유 자리 없음 (${lim.free}/${lim.free})`;
   const left = cap - squadCost(squad, staff);
   if (player.cost > left) return `CP 부족 (남은 ${left})`;
+  const price = priceOf(player);
+  if (gold != null && price > gold) return `골드 부족 (${(price - gold).toLocaleString()} G 모자람)`;
   return null;
 }
 
