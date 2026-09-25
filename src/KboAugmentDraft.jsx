@@ -4598,7 +4598,11 @@ function StarterHalf({ player, right, h }) {
   return (
     <span className="absolute overflow-hidden" style={{ ...box, clipPath: cut }}>
       <span className="absolute inset-0 bg-no-repeat" style={look} />
-      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, rgba(5,8,15,.18) 52%, rgba(5,8,15,.92))` }} />
+      {/* 사진이 조각보다 좁아 가장자리가 드러난다 — 양옆에서 어둠이 스며 경계를 지운다 */}
+      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, rgba(5,8,15,.98) 8%, rgba(5,8,15,.08) 46%, rgba(5,8,15,.08) 64%, rgba(5,8,15,.98) 99%)` }} />
+      <span className="absolute inset-0" style={{ background: `linear-gradient(${right ? 270 : 90}deg, ${c}2e, transparent 58%)` }} />
+      {/* 아래는 이름이 앉을 자리 */}
+      <span className="absolute inset-0" style={{ background: 'linear-gradient(0deg, rgba(5,8,15,.92), rgba(5,8,15,.1) 52%, transparent)' }} />
     </span>
   );
 }
