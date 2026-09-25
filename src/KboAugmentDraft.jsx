@@ -33,7 +33,7 @@ export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
-const FREE_REROLL = 1; // 선택지마다 거저 다시 굴릴 수 있는 횟수
+export const FREE_REROLL = 1; // 선택지마다 거저 다시 굴릴 수 있는 횟수
 /* 경기 중 증강은 두 번만 — 플레이볼 직후와 7회 시작 전. 자주 멈추면 경기 흐름이 끊긴다 */
 /* 경기 중 증강을 묻는 회 — 1회 몫은 정비를 마치며 이미 골랐으니 7회 한 번만 */
 const MID_AUG_INNINGS = [7];
@@ -923,6 +923,8 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
   });
 
   return {
+    /** 지금 걸려 있는 증강 (중계 화면 머리에 보여 준다) */
+    get list() { return list; },
     /** 경기 중에 증강을 더 골랐을 때 */
     update(nextList, nextMy) { list = nextList; if (nextMy) mine = nextMy; },
     /** 반 이닝 시작: 이번 반 이닝에 걸릴 보정을 깐다 */
@@ -3640,7 +3642,8 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   );
 }
 
-function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null }) {
+/** 증강 · 돌발 이벤트 고르기 창. eyebrow · heading 은 경기 전 증강처럼 '시즌'이 아닌 곳에서 바꿔 쓴다 */
+export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null, eyebrow = '시즌 증강', heading = '시즌 증강 고르기' }) {
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
@@ -3655,9 +3658,9 @@ function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENT
       <div className="fixed inset-0 bg-[#03050a]/70 backdrop-blur-[3px]" />
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-4 py-10">
         <div className="text-center animate-[rise_.4s_ease-out_both]">
-          <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? '시즌 증강' : '돌발 상황'}</p>
+          <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? eyebrow : '돌발 상황'}</p>
           <h2 className="mt-2 text-4xl font-black text-white">
-            {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : '시즌 증강 고르기') : '시즌 돌발 이벤트'}
+            {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : heading) : '시즌 돌발 이벤트'}
             {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
             {tier && <span className="ml-3 font-display font-extrabold" style={{ color: TIER_NEON[tier] }}>{TIER_EN[tier]}</span>}
           </h2>

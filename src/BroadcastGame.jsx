@@ -753,10 +753,21 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={leave} aria-label="나가기"
             className="mt-cut grid h-9 w-9 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>
           <div className="leading-none">
-            <p className="font-display text-[10px] font-semibold uppercase tracking-[0.38em] text-gray-500">Manager Mode</p>
+            <p className="text-[11px] font-bold tracking-[0.04em] text-gray-500">플레이</p>
             <h1 className="mt-1 text-xl font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="mt-cut bg-red-500 px-2 py-0.5 font-display text-xs font-bold tracking-[0.2em] text-[#05080f]" style={{ '--c': '4px' }}><i className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#05080f] align-middle" />LIVE</span>
+          {/* 이 경기에 걸린 증강 — 정비 끝 1장 · 7회 1장 */}
+          {aug?.list?.length > 0 && (
+            <span className="flex min-w-0 items-center gap-1.5">
+              {aug.list.map((a) => (
+                <span key={a.id} title={a.desc} className="mt-cut max-w-[200px] truncate px-2 py-0.5 text-[12px] font-bold"
+                  style={{ '--c': '4px', color: '#f0abfc', background: 'rgba(232,121,249,.12)', boxShadow: 'inset 0 0 0 1px rgba(232,121,249,.45)' }}>
+                  {a.name}{a.lv ? ` +${a.lv}` : ''}
+                </span>
+              ))}
+            </span>
+          )}
           {holding && (
             <span className="mt-cut ml-auto flex items-center gap-2 bg-[#fde047] px-3 py-1 font-display text-sm font-extrabold text-[#05080f]" style={{ '--c': '5px' }}>
               ▶▶ 빨리감기
