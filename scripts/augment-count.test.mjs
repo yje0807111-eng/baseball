@@ -8,5 +8,5 @@ test('증강은 한 등급으로 모여 있고, id 는 겹치지 않는다', () 
   expect(new Set(ids).size).toBe(ids.length);
   expect(Object.keys(byTier)).toEqual(['silver']); // 등급을 하나로 합쳤다
   expect(byTier.silver).toBe(AUGMENTS.length);
-  expect(AUGMENTS.length).toBe(50); // 90 개에서 50 개로 추렸다
+  expect(AUGMENTS.length).toBe(31); // 눈금을 능력치 하나로 맞춰 새로 짰다
 });

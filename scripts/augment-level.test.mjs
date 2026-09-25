@@ -28,17 +28,17 @@ test('레벨 배수는 한 칸에 20%, +5 면 두 배', () => {
 
 test('능력치형: 올려 준 폭이 레벨만큼 커진다', () => {
   const r = roster();
-  const plain = buildTeam('나', r, 0, [byId('muscle')]);           // 타자 파워 +8
+  const plain = buildTeam('나', r, 0, [byId('muscle')]);           // 타자 파워 +10
   const lv5 = buildTeam('나', r, 0, withAugLevels([byId('muscle')], { muscle: 5 }));
   const bat = plain.roster.find(isBat);
   const base = r.find((p) => p.id === bat.id).stats.power;
-  expect(statOf(plain, bat.id, 'power') - base).toBe(8);
-  expect(statOf(lv5, bat.id, 'power') - base).toBe(16);
+  expect(statOf(plain, bat.id, 'power') - base).toBe(10);
+  expect(statOf(lv5, bat.id, 'power') - base).toBe(20);
 });
 
 test('대가는 커지지 않는다 — 깎이는 쪽은 레벨과 무관', () => {
   const r = roster();
-  const a = byId('toContact');                                     // 파워형 타자 파워 −2, 컨택 +20
+  const a = byId('toContact');                                     // 타자 컨택 +22 · 파워 −8
   const plain = buildTeam('나', r, 0, [a]);
   const lv5 = buildTeam('나', r, 0, withAugLevels([a], { toContact: 5 }));
   /* 99 에 막히지 않은, 가장 크게 오른 타자로 본다 */
@@ -51,21 +51,21 @@ test('대가는 커지지 않는다 — 깎이는 쪽은 레벨과 무관', () =
 });
 
 test('발동형: 레벨마다 확률 +5%p, +3 부터 경기당 한도가 는다', () => {
-  const a = { ...byId('cleanupBomb') };                             // 75% · 경기당 1회
-  expect(augChance({ ...a, lv: 0 })).toBeCloseTo(0.75);
-  expect(augChance({ ...a, lv: 4 })).toBeCloseTo(0.95);
-  expect(augChance({ ...a, lv: 5 })).toBe(1);                       // 1 을 넘지 않는다
+  const a = { ...byId('bigHit') };                                  // 40% · 경기당 2회
+  expect(augChance({ ...a, lv: 0 })).toBeCloseTo(0.4);
+  expect(augChance({ ...a, lv: 4 })).toBeCloseTo(0.6);
+  expect(augChance({ ...a, lv: 5 })).toBeCloseTo(0.65);
   expect(augMax({ ...a, lv: 2 })).toBe(a.max);
   expect(augMax({ ...a, lv: 3 })).toBe(a.max + 1);
   expect(augMax({ ...a, lv: 5 })).toBe(a.max + 2);
 });
 
 test('효과 문구도 레벨을 따라간다 — 이득만, 조건 수치는 그대로', () => {
-  expect(augDescAt(byId('muscle'), 0)).toBe('타자 파워 +8');
-  expect(augDescAt(byId('muscle'), 5)).toBe('타자 파워 +16');
-  expect(augDescAt(byId('toContact'), 5)).toBe('파워형 타자 파워 −2, 컨택 +40');
-  const hell = byId('hell');                                       // '즉시 역전 · 1점 차 앞섬 (경기당 3회)'
-  expect(augDescAt(hell, 3)).toContain('경기당 4회');
+  expect(augDescAt(byId('muscle'), 0)).toBe('타자 파워 +10');
+  expect(augDescAt(byId('muscle'), 5)).toBe('타자 파워 +20');
+  expect(augDescAt(byId('toContact'), 5)).toBe('타자 컨택 +44 · 파워 −8');
+  const big = byId('bigHit');                                      // '40%로 그 이닝 2점 (경기당 2회)'
+  expect(augDescAt(big, 3)).toContain('경기당 3회');
 });
 
 test('강화 레벨을 붙여도 증강 원본은 그대로다', () => {

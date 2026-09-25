@@ -96,8 +96,6 @@ test('팀 보너스형 증강: bonus · 가중치 · 수비 계수가 엔진 edg
   expect(engineTeam(plain).buff).toBe(3);
   const probe = { id: 'p', passive: true, team: (t) => { t.bonus.bat += 5; t.bonus.pit += 2; } };
   expect(buildTeam('나', roster, 3, [probe]).edge).toEqual({ bat: 5, pit: 2 });
-  const flyball = buildTeam('나', roster, 0, [AUGMENTS.find((a) => a.id === 'flyballRevolution')]);
-  expect(Math.abs(flyball.edge.bat - (flyball.offense - flyball.bonus.bat - (() => { const b = flyball.batters; return b.reduce((s, p) => s + p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2, 0) / b.length; })()))).toBeLessThan(0.1);
 });
 
 test('엔진 edge: 타격 보너스를 주면 득점이 오른다', async () => {
