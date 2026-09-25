@@ -8,6 +8,7 @@ import { finishOf, PLACE_REWARD } from './rewards.js';
 import { refundOf } from './market.js';
 import { claimableSteps } from './dex.js';
 import { weekOf, missionState, WEEK_BONUS } from './missions.js';
+import { presetCount, snapshot, applyPreset } from './presets.js';
 
 const KEY = 'kbo.myteam.v1';
 
@@ -336,6 +337,27 @@ export function addToClub(player) {
   write(next);
   return next;
 }
+/* ───── 엔트리 프리셋 (presets.js) ───── */
+/** 지금 엔트리를 i 번 칸에 저장 */
+export function savePreset(team, i) {
+  const a = read();
+  if (!a || i < 0 || i >= presetCount(team)) return null;
+  const presets = [...(team.presets || [])];
+  presets[i] = snapshot(team, `프리셋 ${i + 1}`);
+  const next = { ...a, team: stamp({ ...team, presets, presetOn: i }) };
+  write(next);
+  return next;
+}
+/** i 번 칸을 엔트리로 — 안 되면 null */
+export function loadPreset(team, i) {
+  const a = read();
+  const t = a && applyPreset(team, team.presets?.[i]);
+  if (!t) return null;
+  const next = { ...a, team: stamp({ ...t, presetOn: i }) };
+  write(next);
+  return next;
+}
+
 /** 이 사람을 이미 가졌나 (엔트리 · 보관함) */
 export const ownsInAccount = (player) => { const t = read()?.team; return !!t && ownsPerson(t, player); };
 

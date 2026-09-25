@@ -9,7 +9,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
-import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek } from './store.js';
+import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
+import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey } from './market.js';
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
@@ -700,6 +701,29 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                   <span>자유 자리 {frac(used, lim.free, used > lim.free ? '#f87171' : used === lim.free ? '#34d399' : '#e5e7eb')}</span>
                   <span>외국인 {frac(fc, lim.foreign, fc > lim.foreign ? '#f87171' : '#e5e7eb')}</span>
                 </div>
+                {/* 엔트리 프리셋 — 저장 · 불러오기 (칸은 상점) */}
+                <p className="mt-lab px-0.5 pb-1.5 pt-4" style={{ fontSize: 10 }}>프리셋</p>
+                {Array.from({ length: PRESET_BASE + PRESET_EXTRA_MAX }, (_, i) => {
+                  const open = i < presetCount(team);
+                  const ps = team.presets?.[i];
+                  const why = open && ps ? presetIssue(team, ps) : null;
+                  const on = team.presetOn === i && !!ps;
+                  const ovr = ps ? Math.round(ps.ids.map((id) => [...squad, ...(team.club || [])].find((x) => x.id === id)).filter(Boolean).reduce((n, x, _, l) => n + x.overall / l.length, 0)) : 0;
+                  return (
+                    <div key={i} className="mb-1 flex items-center gap-1.5 px-0.5" style={{ opacity: open ? 1 : 0.4 }}>
+                      <span className="min-w-0 flex-1">
+                        <b className="block truncate text-[12.5px]" style={{ color: on ? '#34d399' : '#e5e7eb' }}>{ps?.name || `프리셋 ${i + 1}`}{on ? ' ●' : ''}</b>
+                        <small className="block truncate text-[10.5px]" style={{ color: why && ps ? '#fca5a5' : '#6b7280' }}>
+                          {!open ? '상점에서 열기' : !ps ? '비어 있음' : why || `${ps.ids.length}명 · 종합 ${ovr || '-'}`}
+                        </small>
+                      </span>
+                      <button type="button" disabled={!open} onClick={() => settle(savePreset(team, i))}
+                        className="mt-cut px-2 py-1 text-[11px] font-bold text-gray-300 hover:text-white disabled:pointer-events-none" style={{ ...cut(4), background: 'rgba(255,255,255,.06)' }}>저장</button>
+                      <button type="button" disabled={!open || !ps || !!why} onClick={() => { const next = loadPreset(team, i); if (next) { settle(next); setSel(null); } }}
+                        className="mt-cut px-2 py-1 text-[11px] font-bold text-[#05080f] disabled:opacity-30" style={{ ...cut(4), background: '#34d399' }}>불러오기</button>
+                    </div>
+                  );
+                })}
               </>
             );
           })()}

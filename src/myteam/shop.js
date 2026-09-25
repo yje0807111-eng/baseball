@@ -9,6 +9,7 @@
  */
 import { overallOf } from '../data/ratings.js';
 import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX } from './rules.js';
+import { PRESET_EXTRA_MAX } from './presets.js';
 
 export const CATEGORIES = [
   { key: 'all', label: '전체' },
@@ -40,6 +41,7 @@ export const SHOP_ITEMS = [
   // 운영
   item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
   item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
+  item('op-preset', 'ops', '프리셋 칸 +1', '엔트리 조합 저장 칸 +1 · 영구 (최대 2번)', 600, { expand: 'preset', img: 'mt-pack' }),
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
@@ -136,9 +138,9 @@ export const clearFatigue = (team) => ({ ...team, pitchFatigue: {} });
 export const tiredCount = (team) => Object.values(team?.pitchFatigue || {}).filter((f) => (f?.rest || 0) > 0).length;
 
 /* ───── 팀 틀 확장: 엔트리 한 자리 · 외국인 한 명 (영구, 횟수 제한) ───── */
-export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign' };
-export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX };
-export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도' };
+export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign', preset: 'presetSlots' };
+export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX, preset: PRESET_EXTRA_MAX };
+export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도', preset: '프리셋 칸' };
 /** 몇 번 더 살 수 있나 */
 export const expandLeft = (team, kind) => Math.max(0, EXPAND_MAX[kind] - (team?.[EXPAND_KEY[kind]] || 0));
 /** 한 번 넓힌 팀 — 한도를 넘으면 그대로 */
