@@ -6,18 +6,41 @@
  *    해태→KIA, SK→SSG …)은 옷도 바뀌었으니 서로 빌리지 않는다. 국가대표 · 레전드 시리즈도 빼 둔다.
  *  - 그 구단에서 이어서 뛴 시즌끼리만 — 다음 시즌이 2 년 넘게 벌어지면 끊는다.
  *  - 아래 UNIFORM_BREAKS 에 적은 해에 옷이 바뀌었으면 그 해를 넘어 빌리지 않는다.
- *  - 가장 가까운 시즌의 그림을 쓴다(같으면 앞 시즌). MAX_REACH 시즌보다 멀면 빌리지 않는다.
+ *  - 가장 가까운 시즌의 그림을 쓴다(같으면 앞 시즌). 옷이 바뀐 해를 모르는 구단은 MAX_REACH 시즌까지만.
  *
  * 옷이 바뀐 해를 알게 되면 UNIFORM_BREAKS 에 적고 다시 돌린다:  node scripts/art-alias.mjs
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 
-/** 구단 → 새 유니폼을 입기 시작한 해. 이 해를 사이에 두고는 그림을 빌리지 않는다 */
+/**
+ * 구단 → 새 홈 유니폼을 입기 시작한 해. 이 해를 사이에 두고는 그림을 빌리지 않는다.
+ * 출처: 나무위키 각 구단 '/유니폼' 문서 (2026-09 확인). 홈 유니폼 기준, 원정 · 이벤트는 뺐다.
+ * 등번호 광택 같은 눈에 안 띄는 변경은 넣지 않았고, 모자 · 가슴 마크처럼 카드에 보이는 변경은 넣었다.
+ */
 const UNIFORM_BREAKS = {
-  // samsung: [2016],
+  samsung: [1983, 1984, 1989, 1995, 2008, 2016, 2024],
+  lotte: [1993, 2003, 2018, 2023],
+  mbc: [1983, 1984, 1986],
+  lg: [1994, 2002, 2006, 2008, 2017],
+  binggrae: [1986],
+  hanwha: [1999, 2003, 2007, 2015, 2025],
+  ob: [1983],
+  doosan: [2002, 2010, 2025],
+  haitai: [1986, 1996],
+  kia: [2010, 2012, 2017, 2021, 2023],
+  sk: [2002, 2006, 2015, 2019],
+  ssg: [2022, 2023, 2024],
+  nc: [2012, 2016, 2019, 2022, 2025],
+  kt: [2017, 2020, 2021, 2024],
+  heroes: [2009],
+  nexen: [2012, 2013, 2016, 2018],
+  kiwoom: [2025],
+  ssangbangwool: [1996],
 };
 const MAX_GAP = 2; // 이어서 뛴 것으로 보는 시즌 사이 간격
-const MAX_REACH = 3; // 그림을 빌려 올 수 있는 가장 먼 시즌 — 옷이 바뀐 해를 모르는 동안은 짧게 잡는다
+/* 옷이 바뀐 해를 조사하지 못한 구단(현대 · 태평양 · 삼미 · 청보)은 멀리 빌리지 않는다 */
+const MAX_REACH = 3;
+const reachOf = (club) => (UNIFORM_BREAKS[club] ? Infinity : MAX_REACH);
 
 const safeId = (s) => s.replace(/[^\p{L}\p{N}-]/gu, '');
 const has = (id) => existsSync(`public/cards/${id}.webp`) && existsSync(`public/profiles/${id}.webp`);
@@ -53,7 +76,7 @@ for (const seasons of tenure.values()) {
     for (const x of run) {
       if (has(x.id)) continue;
       const src = [...drawn].sort((a, b) => Math.abs(a.year - x.year) - Math.abs(b.year - x.year) || a.year - b.year)[0];
-      if (Math.abs(src.year - x.year) > MAX_REACH) continue;
+      if (Math.abs(src.year - x.year) > reachOf(x.club)) continue;
       alias[x.id] = src.id;
       const d = Math.abs(src.year - x.year);
       gaps[d] = (gaps[d] || 0) + 1;
