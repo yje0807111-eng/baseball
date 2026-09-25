@@ -1850,12 +1850,46 @@ export const KEYFRAMES = `
 /* 고른 자리에서 두 겹으로 퍼지는 고리 */
 @keyframes augRing { 0% { opacity: 0; transform: scale(.7); } 18% { opacity: .95; } 100% { opacity: 0; transform: scale(2.1); } }
 .aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .3s cubic-bezier(.18,.9,.28,1), opacity .3s, filter .3s; }
+/* 금테 증강 카드 */
+.aug-gold .aug-face { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; background: linear-gradient(180deg, #1a1633, #0b0a18 60%);
+  box-shadow: inset 0 0 0 1px rgba(245,210,122,.45), inset 0 0 0 5px rgba(11,10,24,.9), inset 0 0 0 6px rgba(196,181,253,.22), 0 36px 60px -24px rgba(0,0,0,.95); transition: box-shadow .3s; }
+.aug-gold .aug-face::before, .aug-gold .aug-face::after { content: ""; position: absolute; z-index: 5; width: 28px; height: 28px; border: 2px solid #f5d27a; pointer-events: none; filter: drop-shadow(0 0 6px rgba(245,210,122,.7)); }
+.aug-gold .aug-face::before { left: 10px; top: 10px; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; }
+.aug-gold .aug-face::after { right: 10px; bottom: 10px; border-left: 0; border-top: 0; border-radius: 0 0 12px 0; }
+.aug-gold.hot .aug-face, .aug-gold:focus-visible .aug-face { box-shadow: inset 0 0 0 2px #f5d27a, inset 0 0 0 5px rgba(11,10,24,.9), inset 0 0 0 6px rgba(196,181,253,.4), 0 40px 70px -24px rgba(0,0,0,.95), 0 0 80px -10px rgba(167,139,250,.75); }
+.aug-gold .aug-art { -webkit-mask: linear-gradient(#000 62%, transparent); mask: linear-gradient(#000 62%, transparent); }
+.aug-gold .aug-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,10,24,.35) 0, transparent 22%, transparent 42%, rgba(11,10,24,.85) 62%, #0b0a18 82%); }
+.aug-gold .aug-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity .3s; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 47%, rgba(196,181,253,.24) 52%, transparent 64%) 0 0 / 220% 100% no-repeat; animation: augSheen 4.5s ease-in-out infinite; }
+.aug-gold.hot .aug-shine { opacity: 1; }
+@keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
+.aug-gold .aug-top { position: absolute; z-index: 6; left: 50%; top: -1px; width: 64px; height: 54px; margin-left: -32px; display: grid; place-items: center; clip-path: polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%); background: linear-gradient(135deg, #fbe7a8, #b7832a); }
+.aug-gold .aug-body { position: absolute; z-index: 4; left: 26px; right: 26px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.aug-gold .aug-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #c4b5fd; background: rgba(196,181,253,.14); }
+.aug-gold .aug-name { font-size: 30px; font-weight: 900; line-height: 1.1; color: #fff; text-shadow: 0 0 24px rgba(167,139,250,.55), 0 2px 8px #000; text-wrap: balance; }
+.aug-gold .aug-rule { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6), transparent); }
+.aug-gold .aug-desc { min-height: 54px; font-size: 18px; line-height: 1.5; color: #e5e7eb; }
+.aug-gold .aug-hint { font-size: 12px; font-weight: 700; color: #f5d27a; }
+.aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
+.aug-num { font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: #e9d5ff; text-shadow: 0 0 12px rgba(167,139,250,.75); }
+.aug-gold .aug-burst { position: absolute; left: 50%; top: 32%; width: 560px; height: 560px; margin: -280px 0 0 -280px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: repeating-conic-gradient(rgba(245,210,122,.2) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, #000 5%, transparent 62%); mask: radial-gradient(circle, #000 5%, transparent 62%); animation: augSpin 30s linear infinite; }
+.aug-gold.hot .aug-burst { opacity: 1; }
+@keyframes augSpin { to { transform: rotate(360deg); } }
+.aug-sky { position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 45%, rgba(124,58,237,.3), transparent 70%); }
+.aug-rays { position: absolute; left: 50%; top: 45%; width: 1700px; height: 1700px; margin: -850px 0 0 -850px; border-radius: 50%; background: repeating-conic-gradient(rgba(196,181,253,.07) 0 4deg, transparent 4deg 14deg); animation: augSpin 90s linear infinite; -webkit-mask: radial-gradient(circle, #000 8%, transparent 60%); mask: radial-gradient(circle, #000 8%, transparent 60%); }
+.aug-dust { position: absolute; inset: 0; background-image: radial-gradient(1.5px 1.5px at 12% 20%, #fff8, transparent), radial-gradient(1px 1px at 30% 70%, #fff6, transparent), radial-gradient(1.5px 1.5px at 55% 30%, #c4b5fd99, transparent), radial-gradient(2px 2px at 85% 45%, #c4b5fdaa, transparent), radial-gradient(1px 1px at 44% 88%, #fff6, transparent), radial-gradient(1.5px 1.5px at 92% 18%, #fff7, transparent); }
+@media (prefers-reduced-motion: reduce) { .aug-rays, .aug-gold .aug-burst, .aug-gold .aug-shine { animation: none; } }
+.aug-hd { display: flex; align-items: center; gap: 14px; width: 520px; font-size: 14px; font-weight: 800; color: #f5d27a; }
+.aug-hd::before, .aug-hd::after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6)); }
+.aug-hd::after { background: linear-gradient(90deg, rgba(245,210,122,.6), transparent); }
+.aug-reroll { height: 50px; padding: 0 28px; border-radius: 14px; font-weight: 800; color: #fff; background: linear-gradient(180deg, rgba(196,181,253,.28), rgba(124,58,237,.3)); box-shadow: inset 0 0 0 1px rgba(196,181,253,.6), 0 10px 26px -10px #a78bfa; }
+.aug-reroll:hover { filter: brightness(1.15); }
 /* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
 .aug-card.hot { transform: translateY(-20px) scale(1.085); z-index: 2; }
 .aug-card.cold { opacity: .5; filter: saturate(.4) brightness(.68); transform: translateY(6px) scale(.94); }
 .aug-card.take { animation: augTake .74s cubic-bezier(.22,.66,.3,1) both; z-index: 3; }
 .aug-card.gone { animation: augDrop .5s cubic-bezier(.4,0,.7,.4) both; }
-.aug-ring { position: absolute; inset: -6%; border-radius: 14px; pointer-events: none; z-index: 4;
+.aug-ring { position: absolute; inset: -6%; border-radius: 30px; pointer-events: none; z-index: 4;
   box-shadow: 0 0 0 3px var(--a), 0 0 70px -6px var(--a); animation: augRing .7s cubic-bezier(.2,.7,.3,1) both; }
 .aug-ring.late { animation-delay: .12s; box-shadow: 0 0 0 1px var(--a), 0 0 40px -10px var(--a); }
 /* 올려 두면 그림이 천천히 밀려 들어온다 */
@@ -3690,33 +3724,35 @@ const TierIcon = ({ tier }) => (
   </svg>
 );
 
+/** 효과 글 속 숫자만 빛나게 */
+const LitNums = ({ text }) => <>{String(text).split(/([+\-−]?\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className="aug-num">{t}</b> : t))}</>;
+
 function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   const art = useImage(`augments/${o.id}.webp`);
-  const acc = TIER_NEON[o.tier];
   return (
-    <section style={{ '--a': acc, '--c': '22px', animationDelay: state ? '0ms' : `${120 + index * 110}ms` }}
+    <button type="button" onClick={() => onChoose(o)} aria-label={`${o.name} 고르기`}
+      style={{ '--a': '#a78bfa', animationDelay: state ? '0ms' : `${120 + index * 110}ms` }}
       onMouseEnter={() => onHot?.(index)} onMouseLeave={() => onHot?.(-1)}
-      onFocusCapture={() => onHot?.(index)} onBlurCapture={() => onHot?.(-1)}
-      className={`ui-choice ui-cut ui-frame aug-card group relative flex h-[30rem] w-[20rem] flex-col overflow-hidden bg-[#05080f] text-left ${state}`}>
-      {state === 'take' && <><span className="aug-ring" style={{ '--a': acc }} /><span className="aug-ring late" style={{ '--a': acc }} /></>}
-      {art
-        ? <img src={art} alt="" className="aug-art absolute inset-0 h-full w-full object-cover object-[50%_18%] brightness-[.78] saturate-[.8] group-hover:brightness-100 group-hover:saturate-100 group-focus-within:brightness-100 group-focus-within:saturate-100" />
-        : <span className="absolute inset-0" style={{ background: `radial-gradient(80% 50% at 50% 30%, ${acc}40, transparent 70%)` }} />}
-      <span className="absolute inset-0" style={{ background: `radial-gradient(80% 45% at 50% 28%, ${acc}33, transparent 70%), linear-gradient(180deg, rgba(5,8,15,.72) 0%, rgba(5,8,15,0) 20%, rgba(5,8,15,0) 36%, rgba(5,8,15,.9) 58%, #05080f 100%)` }} />
-      <span className="ui-scan absolute inset-0 opacity-70" />
-      <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between">
-        <span className="ui-cut px-3 py-0.5 font-display text-t3 font-extrabold tracking-[0.34em] text-[#05080f]" style={{ '--c': '6px', background: acc }}>{TIER_EN[o.tier]}</span>
-        <span className="grid h-12 w-[42px] place-items-center" style={{ color: acc, background: `color-mix(in srgb, ${acc} 22%, rgba(5,8,15,.75))`, clipPath: 'polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)' }}><TierIcon tier={o.tier} /></span>
-      </div>
-      <div className="relative z-10 mt-auto px-6 pb-5">
-        <h3 className="text-[1.7rem] font-black leading-tight text-white" style={{ textShadow: `0 0 24px ${acc}88, 0 2px 8px #000`, textWrap: 'balance' }}>
-          {o.name}{o.lv ? <b className="ml-1.5 font-display" style={{ color: acc }}>+{o.lv}</b> : null}
-        </h3>
-        <p className="mt-2 min-h-[2.75rem] text-t3 leading-relaxed text-gray-200 [text-shadow:0_1px_4px_#000]">{augDescAt(o)}</p>
-        <p className="mt-3 border-t pt-2.5 text-t4 font-semibold" style={{ borderColor: `${acc}55`, color: acc }}>{o.cond ? `조건 · ${o.cond}` : AUG_TYPE[o.type] || ''}</p>
-        <button type="button" onClick={() => onChoose(o)} className="ui-btn ui-cut mt-3 w-full">선택</button>
-      </div>
-    </section>
+      onFocus={() => onHot?.(index)} onBlur={() => onHot?.(-1)}
+      className={`aug-card aug-gold group relative block h-[32rem] w-[21rem] text-left focus:outline-none ${state}`}>
+      {state === 'take' && <><span className="aug-ring" /><span className="aug-ring late" /></>}
+      <span className="aug-burst" aria-hidden="true" />
+      <span className="aug-face">
+        {art
+          ? <img src={art} alt="" className="aug-art absolute inset-x-0 top-0 h-[60%] w-full object-cover object-[50%_18%]" />
+          : <span className="absolute inset-x-0 top-0 h-[60%]" style={{ background: 'radial-gradient(80% 60% at 50% 40%, rgba(167,139,250,.35), transparent 70%)' }} />}
+        <span className="aug-veil" />
+        <span className="aug-shine" />
+        <span className="aug-top" aria-hidden="true"><i className="aug-gem" /></span>
+        <span className="aug-body">
+          <span className="aug-tag">{o.lv ? `+${o.lv} 레벨` : AUG_TYPE[o.type] || '증강'}</span>
+          <b className="aug-name">{o.name}{o.lv ? <em className="ml-1.5 font-display not-italic text-[#e9d5ff]">+{o.lv}</em> : null}</b>
+          <span className="aug-rule" />
+          <span className="aug-desc"><LitNums text={augDescAt(o)} /></span>
+          <span className="aug-hint">{o.cond ? `조건 · ${o.cond}` : '눌러서 고르기'}</span>
+        </span>
+      </span>
+    </button>
   );
 }
 
@@ -3764,16 +3800,19 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
       <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
       <div className="fixed inset-0 bg-[#03050a]/70 backdrop-blur-[3px]" />
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <span className="aug-sky" /><span className="aug-rays" /><span className="aug-dust" />
+      </div>
       <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-4 py-10">
-        <div className="text-center animate-[rise_.4s_ease-out_both]">
-          <p className="ui-lab font-display" style={{ '--a': '#e879f9' }}>{isAug ? eyebrow : '돌발 상황'}</p>
-          <h2 className="mt-2 text-4xl font-black text-white">
+        <div className="flex flex-col items-center text-center animate-[rise_.4s_ease-out_both]">
+          <p className="aug-hd">{isAug ? eyebrow : '돌발 상황'}</p>
+          <h2 className="mt-2 text-[44px] font-black text-white [text-shadow:0_0_30px_rgba(167,139,250,.6)]">
             {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : heading) : '시즌 돌발 이벤트'}
-            {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-fuchsia-400">{nth} / {total}</span>}
+            {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-[#e9d5ff]">{nth} / {total}</span>}
           </h2>
           {!isAug && <p className="mt-2 text-t3 text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-9">
           {choice.options.map((o, i) => (
             <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
               state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
@@ -3781,9 +3820,9 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           ))}
         </div>
         {isAug && onReroll && (free > 0 || rerolls > 0) && (
-          <button type="button" onClick={onReroll} className="ui-btn ui-cut animate-[rise_.4s_ease-out_both]" style={{ '--c': '9px' }}>
+          <button type="button" onClick={onReroll} className="aug-reroll animate-[rise_.4s_ease-out_both]">
             ↺ 다시 굴리기
-            <em className="ml-1.5 font-display not-italic text-fuchsia-300">
+            <em className="ml-1.5 not-italic opacity-75">
               {free > 0 ? '· 이번 한 번은 거저' : `· 리롤권 ${rerolls}장`}
             </em>
           </button>

@@ -1,137 +1,64 @@
 /*
- * 증강 — 내 증강 풀 관리 (W1·W2·W3·W7·W8)
- *  사이드: 증강 풀(제외 칸 눈금) + 강화 + 제거권·강화권
- *  가운데: 종류별 묶음 · 두 줄 줄 · 제외한 증강은 맨 아래 묶음
- *  오른쪽: 고른 증강이 있으면 PICK 카드, 없으면 제외 칸 목록(+ 칸 열기, 최대 8)
+ * 증강 도감 — 내 증강 풀 관리 (게임 결: 금테 진열장 · 육각 도감)
+ *  왼쪽: 고른 증강 진열장 — 육각 그림 · 레벨 보석 · 레벨별 효과(지금 · 다음 칸) · 강화 · 제외 · 즐겨찾기
+ *  오른쪽: 육각 도감 — 종류 · 즐겨찾기 · 제외 거르기, 제외 도장 · 즐겨찾기 별 · 레벨 보석
+ *  위 줄: 강화권 · 제외 칸
  */
 import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
-import { loadAccount, saveAug, AUG_TIERS, AUG_SLOT_MAX, AUG_LEVEL_MAX } from './store.js';
-import { UiStyle, Bg, TopBar } from './ui.jsx';
+import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
+import { UiStyle, GlassBg, TopBar } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
-/* 증강 등급은 하나로 합쳤다 — 어느 이름으로 물어도 같은 것이 나온다 */
-const AUG_LOOK = { c: '#cbd5e1', en: 'AUGMENT', ko: '증강' };
-const TIER = new Proxy({}, { get: () => AUG_LOOK });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
 const TYPE_KO = Object.fromEntries(TYPE_ORDER);
 const RED = '#f87171';
-const GREEN = '#34d399';
 
-/** 효과 문장에서 맨 뒤 수치 한 개를 떼어 [앞 글, 수치] 로 — 수치가 둘 이상이면 떼지 않는다 */
-function splitEffect(desc = '') {
-  const nums = desc.match(/[+−-]\d+(?:\.\d+)?/g) || [];
-  const m = desc.match(/^(.*?)\s*([+−-]\d+(?:\.\d+)?)$/);
-  return nums.length === 1 && m ? [m[1], m[2]] : [desc, null];
-}
-
-/** 효과 문장 → 칸 여럿. ', ' 와 ' · ' 에서 끊되 괄호 안은 그대로 두고, 칸마다 끝 수치를 뗀다 */
-function effectRows(desc = '') {
-  const open = (t) => (t.match(/\(/g) || []).length > (t.match(/\)/g) || []).length;
-  const parts = [];
-  desc.split(/,\s*|\s+·\s+/).forEach((t) => {
-    const last = parts.length - 1;
-    if (last >= 0 && open(parts[last])) parts[last] = `${parts[last]}, ${t}`;
-    else parts.push(t);
-  });
-  return parts.map(splitEffect);
-}
-
-/** '+35' 같은 표기를 수로 (−는 유니코드 빼기표도 받는다) */
-const numOf = (t) => Number(String(t).replace('−', '-'));
-const signed = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Number.isInteger(v) ? v : Math.round(v * 100) / 100)}`;
-/** 강화 전 수치와 늘어난 몫 — 늘지 않았으면 null */
-function gainOf(now, was) {
-  if (!now || !was || now === was) return null;
-  const a = numOf(now); const b = numOf(was);
-  if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
-  return `${was} ${signed(Math.round((a - b) * 100) / 100)}`;
-}
-
-const Pips = ({ lv, c }) => (
-  <span className="flex gap-[3px]">
-    {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => (
-      <i key={i} className="block h-1.5 w-3 -skew-x-[24deg]" style={{ background: i < lv ? c : 'rgba(255,255,255,.1)' }} />
-    ))}
+/** 육각 틀 — 금 · 보라 테 안에 증강 그림 */
+const HEX_CSS = `
+  .ag-hexf { position:relative; flex:none; display:grid; place-items:center; clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%); background:linear-gradient(135deg,#f5d27a,#8a6a25 40%,#a78bfa 70%,#f5d27a); }
+  .ag-hexf > i { position:absolute; inset:3px; clip-path:inherit; background:#0b1220 center 22%/cover no-repeat; }
+  .ag-slot { position:relative; display:flex; flex-direction:column; align-items:center; gap:7px; padding:10px 4px 9px; border-radius:14px; cursor:pointer; transition:background .2s, transform .2s; }
+  .ag-slot:hover { background:rgba(196,181,253,.08); transform:translateY(-2px); }
+  .ag-slot.on { background:radial-gradient(60% 60% at 50% 35%,rgba(167,139,250,.3),transparent 72%); }
+  .ag-slot.on .ag-hexf { filter:drop-shadow(0 0 14px #a78bfa); }
+  .ag-slot.ban .ag-hexf { filter:grayscale(1) brightness(.45); }
+  .ag-pill { height:32px; padding:0 13px; border-radius:999px; font-size:12px; font-weight:700; color:#9ca3af; background:rgba(255,255,255,.05); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
+  .ag-pill.on { color:#fff; background:linear-gradient(180deg,rgba(196,181,253,.3),rgba(124,58,237,.2)); box-shadow:inset 0 0 0 1px rgba(196,181,253,.7),0 0 18px -4px #a78bfa; }
+  .ag-num { font-family:'Saira Condensed',sans-serif; font-weight:800; color:#e9d5ff; text-shadow:0 0 12px rgba(167,139,250,.7); }
+  .ag-shine { position:absolute; inset:0; pointer-events:none; clip-path:inherit; background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.32) 47%,rgba(196,181,253,.25) 52%,transparent 64%) 0 0/220% 100% no-repeat; animation:mtSheen 4.5s ease-in-out infinite; mix-blend-mode:screen; }
+`;
+const art = (a) => `url(augments/${a.id}.webp)`;
+/** 효과 글 속 숫자만 빛나게 */
+const Lit = ({ text }) => (
+  <>{String(text).split(/([+\-−]?\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className="ag-num">{t}</b> : t))}</>
+);
+const Gems = ({ lv, sm = false }) => (
+  <span className={`flex ${sm ? 'gap-[5px]' : 'gap-2'}`}>
+    {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => <i key={i} className={`mt-gem ${i < lv ? '' : 'off'}`} style={sm ? { width: 8, height: 8, borderRadius: 2 } : undefined} />)}
   </span>
 );
-
-/** 강화권 — 상점에서 파는 그 물건 그대로 (제거권은 없앴다 — 제외 칸은 처음부터 최대) */
-const TICKETS = [
-  { key: 'upgradeTickets', ko: '강화권', tip: '증강 레벨을 하나 올린다', img: 'ui/shop/au-upgrade.webp', c: '#fbbf24' },
-];
-
-const GroupHead = ({ label, c }) => (
-  <div className="flex items-center gap-3 pb-1.5 pt-3">
-    <p className="mt-lab" style={{ '--a': c, fontSize: 12 }}>{label}</p>
-    <span className="h-px flex-1" style={{ background: c === RED ? 'rgba(248,113,113,.3)' : 'rgba(255,255,255,.1)' }} />
-  </div>
-);
-
-/** 두 줄 줄: 글자 아이콘 · 이름 + 레벨 · 효과 · 끝 버튼 */
-function Row({ a, lv, banned, on, upgrade, onPick, onAct, fav = false, onFav = null }) {
-  const c = TIER[a.tier].c;
-  const tone = banned ? '#6b7280' : c;
-  /* 제외 · 풀기 · 강화는 오른쪽 PICK 카드에서 한다 — 줄의 단추는 그 카드를 여는 것까지 */
-  const btn = !upgrade ? null
-    : lv >= AUG_LEVEL_MAX
-      ? <span className="mt-cut grid h-9 place-items-center bg-white/[0.06] text-t4 font-bold text-gray-500" style={cut(6)}>최대</span>
-      : <button type="button" onClick={(e) => { e.stopPropagation(); onPick(a); }} className="mt-cut h-9 text-t4 font-bold text-[#34d399] shadow-[inset_0_0_0_1px_rgba(52,211,153,.5)] hover:bg-emerald-400/10" style={cut(6)}>강화</button>;
-  return (
-    <div role="button" tabIndex={0} onClick={() => onPick(a)} onKeyDown={(e) => e.key === 'Enter' && onPick(a)}
-      className={`mt-cut ${on ? 'mt-frame' : ''} grid shrink-0 cursor-pointer items-center gap-4 px-4 py-2.5 transition hover:brightness-125`}
-      style={{ ...cut(10), '--a': c, gridTemplateColumns: upgrade ? '48px minmax(0,1fr) 92px' : '48px minmax(0,1fr)',
-        background: on ? `linear-gradient(90deg,${c}2e,rgba(6,10,19,.6))` : banned ? 'rgba(248,113,113,.07)' : 'rgba(255,255,255,.035)' }}>
-      {/* 칸 그림: public/augments/<id>.webp (scripts/augment-art.mjs 로 만든다) */}
-      <span className="mt-cut h-12 bg-[#0b1220] bg-cover" style={{ ...cut(8), backgroundImage: `url(augments/${a.id}.webp)`, backgroundPosition: 'center 22%', boxShadow: `inset 0 0 0 1px ${tone}59`, filter: banned ? 'grayscale(1) brightness(.6)' : undefined }} />
-      <div className="min-w-0">
-        <div className="flex items-center gap-3">
-          <b className={`truncate text-t3 font-black ${banned ? 'text-gray-500 line-through' : 'text-white'}`}>{a.name}</b>
-          {lv > 0 && <span className="font-display text-t3" style={{ color: tone }}>+{lv}</span>}
-          <Pips lv={lv} c={banned ? '#4b5563' : c} />
-          {onFav && (
-            <button type="button" title={fav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={fav}
-              onClick={(e) => { e.stopPropagation(); onFav(a); }}
-              className="ml-auto shrink-0 px-1 text-t3 leading-none transition-[color,transform] duration-150 hover:scale-110"
-              style={{ color: fav ? '#fbbf24' : 'rgba(148,163,184,.45)', textShadow: fav ? '0 0 10px rgba(251,191,36,.55)' : 'none' }}>
-              {fav ? '★' : '☆'}
-            </button>
-          )}
-        </div>
-        <p className={`mt-0.5 truncate text-t3 ${banned ? 'text-gray-600' : 'text-gray-300'}`}>{augDescAt(a, lv)}</p>
-      </div>
-      {btn}
-    </div>
-  );
-}
+const FILTERS = [['all', '전체'], ['fav', '★ 즐겨찾기'], ...TYPE_ORDER, ['ban', '제외']];
 
 export default function AugmentScreen({ account, onBack }) {
   const [aug, setAug] = useState(() => loadAccount()?.aug || account.aug);
-  const [tab, setTab] = useState('silver'); // silver | gold | prismatic | upgrade
-  const [upTier, setUpTier] = useState('silver');
-  const [sel, setSel] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [selId, setSelId] = useState(null);
   const [msg, setMsg] = useState('');
-
-  const tier = tab === 'upgrade' ? upTier : tab;
-  const T = TIER[tier];
+  const tier = AUG_TIERS[0];
   const pool = useMemo(() => AUGMENTS.filter((a) => a.tier === tier), [tier]);
   const bans = aug.bans[tier] || [];
   const slots = aug.slots[tier];
+  const favs = aug.favs || [];
   const levelOf = (a) => aug.levels[a.id] || 0;
-  const byId = (id) => AUGMENTS.find((a) => a.id === id);
 
   const commit = (next, text) => { setAug(next); saveAug(next); if (text) { setMsg(text); setTimeout(() => setMsg(''), 2400); } };
-  /* 즐겨찾기 — 줄 오른쪽 별을 눌러 담아 둔다 (계정에 저장된다) */
-  const favs = aug.favs || [];
-  const toggleFav = (a) => {
-    const next = favs.includes(a.id) ? favs.filter((x) => x !== a.id) : [...favs, a.id];
-    commit({ ...aug, favs: next });
-  };
+  const toggleFav = (a) => commit({ ...aug, favs: favs.includes(a.id) ? favs.filter((x) => x !== a.id) : [...favs, a.id] });
   const toggleBan = (a) => {
-    const t = a.tier; const cur = aug.bans[t] || [];
-    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [t]: cur.filter((x) => x !== a.id) } }); return; }
-    if (cur.length >= aug.slots[t]) { setMsg(`제외 칸 최대 ${aug.slots[t]}칸`); return; }
-    commit({ ...aug, bans: { ...aug.bans, [t]: [...cur, a.id] } });
+    const cur = aug.bans[a.tier] || [];
+    if (cur.includes(a.id)) { commit({ ...aug, bans: { ...aug.bans, [a.tier]: cur.filter((x) => x !== a.id) } }); return; }
+    if (cur.length >= aug.slots[a.tier]) { setMsg(`제외 칸 최대 ${aug.slots[a.tier]}칸`); return; }
+    commit({ ...aug, bans: { ...aug.bans, [a.tier]: [...cur, a.id] } });
   };
   const upgrade = (a) => {
     const lv = levelOf(a); const need = lv + 1;
@@ -140,215 +67,112 @@ export default function AugmentScreen({ account, onBack }) {
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
   };
 
-  const shown = (a) => tab === 'upgrade' || !bans.includes(a.id);
-  const groups = TYPE_ORDER.map(([type, label]) => [label, pool.filter((a) => a.type === type && shown(a) && !favs.includes(a.id))])
-    .filter(([, list]) => list.length);
-  const others = pool.filter((a) => !TYPE_KO[a.type] && shown(a) && !favs.includes(a.id));
-  if (others.length) groups.push(['기타', others]);
-  const favList = pool.filter((a) => favs.includes(a.id) && shown(a));
-  if (favList.length) groups.unshift(['즐겨찾기', favList]);
-  const picked = sel && sel.tier === tier ? sel : null;
-  const pickBanned = picked && bans.includes(picked.id);
-
-  const NAV = [
-    ...AUG_TIERS.map((t) => ({ key: t, label: '증강', c: TIER[t].c, t })),
-    { key: 'upgrade', label: '강화', c: GREEN },
-  ];
+  const list = pool.filter((a) => (filter === 'all' ? true : filter === 'fav' ? favs.includes(a.id) : filter === 'ban' ? bans.includes(a.id) : a.type === filter));
+  const picked = pool.find((a) => a.id === selId) || list[0] || pool[0];
+  const lv = picked ? levelOf(picked) : 0;
+  const isBan = picked && bans.includes(picked.id);
+  const isFav = picked && favs.includes(picked.id);
+  const upCount = pool.filter((a) => levelOf(a) > 0).length;
+  const maxCount = pool.filter((a) => levelOf(a) >= AUG_LEVEL_MAX).length;
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
-      <Bg img="ui/mt/mt-boost.webp" opacity={0.6} />
-      <TopBar eyebrow="메인" section="증강" account={account} onBack={onBack} />
+      <style>{HEX_CSS}</style>
+      <GlassBg tint="#a78bfa" />
+      <TopBar eyebrow="메인" section="증강 도감" account={account} onBack={onBack}
+        right={(
+          <>
+            <span className="mt-cut mt-glass flex h-11 items-center gap-2.5 px-4" style={cut(14)}>
+              <i className="block h-7 w-7 rounded-lg bg-cover bg-center" style={{ backgroundImage: 'url(ui/shop/au-upgrade.webp)' }} />
+              <small className="text-t4 text-gray-400">강화권</small>
+              <b className="font-display text-t2 text-[#f5d27a]">{aug.upgradeTickets}</b>
+            </span>
+            <span className="mt-cut mt-glass flex h-11 items-center gap-2 px-4" style={cut(14)} title="제외한 증강은 경기에 나오지 않음">
+              <small className="mr-1 text-t4 text-gray-400">제외 칸</small>
+              {Array.from({ length: slots }, (_, i) => (
+                <i key={i} className="block h-3.5 w-3.5 rounded" style={i < bans.length ? { background: RED, boxShadow: `0 0 8px ${RED}` } : { boxShadow: 'inset 0 0 0 1.5px rgba(248,113,113,.5)' }} />
+              ))}
+            </span>
+          </>
+        )} />
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4" style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
-        {/* 사이드 네비 */}
-        <nav className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-3" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
-          {NAV.map((it, k) => {
-            const on = tab === it.key;
-            return (
-              <React.Fragment key={it.key}>
-                {k === 0 && <p className="mt-lab px-1 pt-1">증강 풀</p>}
-                {it.key === 'upgrade' && <p className="mt-lab px-1 pt-2" style={{ '--a': GREEN }}>강화</p>}
-                <button type="button" onClick={() => { setTab(it.key); setSel(null); if (it.key !== 'upgrade') setUpTier(it.key); }}
-                  className={`mt-nav sm ${on ? 'on' : ''}`} style={{ '--a': it.c }}>
-                  {/* 칸 그림: public/ui/aug/<키>.webp (scripts/aug-tier-art.mjs 로 만든다 — 등급 색 빛 · 같은 어두운 배경) */}
-                  <span className="mt-cut h-[2.75rem] w-10 shrink-0 bg-cover bg-center" style={{ ...cut(8), backgroundImage: `url(ui/aug/${it.key}.webp)`, boxShadow: `inset 0 0 0 1px ${it.c}66`, filter: on ? undefined : 'saturate(.8) brightness(.8)' }} />
-                  <span className="min-w-0 flex-1">
-                    <b className={`block truncate text-t3 font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-                  </span>
+      <div className="relative grid min-h-0 flex-1 gap-5 px-7 pb-6 pt-1" style={{ gridTemplateColumns: '580px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
+        {/* 왼쪽 — 진열장: 육각 그림 · 이름 · 레벨 보석 · 레벨별 효과(지금 · 다음) · 강화 */}
+        {picked && (
+          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={cut(22)}>
+            <div key={picked.id} className="flex items-center gap-5" style={{ animation: 'mtStaffIn .35s cubic-bezier(.2,.8,.2,1) both' }}>
+              <span className="ag-hexf h-[138px] w-[156px]" style={{ filter: isBan ? 'grayscale(1) brightness(.5)' : 'drop-shadow(0 0 22px rgba(167,139,250,.7))' }}>
+                <i style={{ backgroundImage: art(picked) }} /><span className="ag-shine" />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <span className="self-start rounded-full bg-[#c4b5fd]/15 px-2.5 py-0.5 text-t4 font-bold text-[#c4b5fd]">{TYPE_KO[picked.type] || '증강'}</span>
+                <b className={`text-[32px] font-black leading-tight ${isBan ? 'text-gray-500 line-through' : 'text-white'}`}>{picked.name}</b>
+                <Gems lv={lv} />
+                {picked.note && <small className="text-t4 text-gray-400">{picked.note}</small>}
+              </div>
+            </div>
+            <p className="mt-hd">레벨별 효과</p>
+            <div className="mt-scroll flex min-h-0 flex-col gap-1 overflow-y-auto pr-1">
+              {Array.from({ length: AUG_LEVEL_MAX + 1 }, (_, k) => {
+                const now = k === lv; const next = k === lv + 1;
+                return (
+                  <div key={k} className="flex items-center gap-3 rounded-[10px] px-3 py-2"
+                    style={{ opacity: k < lv ? 0.45 : 1, ...(now ? { background: 'linear-gradient(90deg,rgba(167,139,250,.28),rgba(167,139,250,.05))', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.55)' } : next ? { background: 'rgba(245,210,122,.08)', boxShadow: 'inset 0 0 0 1px rgba(245,210,122,.35)' } : null) }}>
+                    <b className="w-9 font-display text-t3" style={{ color: now ? '#e9d5ff' : next ? '#f5d27a' : '#6b7280' }}>{k ? `+${k}` : '기본'}</b>
+                    <span className="min-w-0 flex-1 truncate text-t4" style={{ color: now || next ? '#e5e7eb' : '#9ca3af' }}><Lit text={augDescAt(picked, k)} /></span>
+                    {now && <span className="rounded-full bg-[#a78bfa]/25 px-2 py-0.5 text-t4 font-bold text-[#e9d5ff]">지금</span>}
+                    {next && <span className="rounded-full bg-[#f5d27a]/15 px-2 py-0.5 text-t4 font-bold text-[#f5d27a]">다음</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-auto flex flex-col gap-2.5">
+              {msg && <p className="text-center text-t3 text-amber-200">{msg}</p>}
+              <button type="button" className="mt-btn pri lg w-full" disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+                {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : <>+{lv + 1} 강화 <span className="text-t3 opacity-70">· 강화권 {lv + 1}장</span></>}
+              </button>
+              <div className="flex gap-2">
+                <button type="button" className="mt-btn min-w-0 flex-1" style={{ color: isBan ? '#e8ecf2' : '#fda4af' }}
+                  disabled={!isBan && bans.length >= slots} onClick={() => toggleBan(picked)}>
+                  {isBan ? '제외 풀기 ↺' : bans.length >= slots ? `제외 칸 가득 · ${slots}칸` : '이 증강 제외'}
                 </button>
-              </React.Fragment>
-            );
-          })}
-          <div className="mt-auto grid gap-1.5">
-            {TICKETS.map((t) => (
-              <div key={t.key} className="mt-cut flex h-[62px] items-center gap-[11px] bg-white/[0.04] pr-3" style={cut(8)}>
-                <span className="h-[50px] w-11 shrink-0 bg-cover" style={{ ...cut(7), backgroundImage: `url(${t.img})`, backgroundPosition: 'center 30%', boxShadow: `inset 0 0 0 1px ${t.c}59` }} />
-                <span className="grid min-w-0 flex-1 gap-px">
-                  <b className="text-t3 text-[#e8ecf2]">{t.ko}</b>
-                  <small className="whitespace-nowrap text-t4 text-gray-500">{t.tip}</small>
-                </span>
-                <b className="font-display text-t1" style={{ color: t.c }}>{aug[t.key]}</b>
+                <button type="button" className="mt-btn shrink-0 px-5" aria-pressed={isFav} onClick={() => toggleFav(picked)}
+                  style={{ color: isFav ? '#f5d27a' : '#94a3b8', boxShadow: isFav ? 'inset 0 0 0 1px rgba(245,210,122,.55)' : undefined }}>
+                  {isFav ? '★' : '☆'} 즐겨찾기
+                </button>
               </div>
-            ))}
-          </div>
-        </nav>
+            </div>
+          </section>
+        )}
 
-        {/* 가운데: 종류별 묶음 + 제외 묶음 */}
-        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': tab === 'upgrade' ? GREEN : T.c }}>
-          <div className="flex items-baseline gap-3">
-            <p className="mt-lab" style={{ '--a': tab === 'upgrade' ? GREEN : T.c }}>{tab === 'upgrade' ? '강화할 증강' : '증강 목록'}</p>
-            {tab === 'upgrade' && AUG_TIERS.length > 1 && (
-              <div className="ml-auto flex gap-1.5">
-                {AUG_TIERS.map((t) => (
-                  <button key={t} type="button" onClick={() => { setUpTier(t); setSel(null); }}
-                    className={`mt-cut px-3 py-1 font-display text-t3 font-bold ${upTier === t ? 'text-[#05080f]' : 'bg-white/[0.06] text-gray-400 hover:text-white'}`}
-                    style={{ ...cut(5), background: upTier === t ? GREEN : undefined }}>{TIER[t].ko}</button>
-                ))}
-              </div>
-            )}
+        {/* 오른쪽 — 도감: 육각 아이콘 · 이름 · 레벨 보석, 제외 도장 · 즐겨찾기 별 */}
+        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={cut(22)}>
+          <div className="flex items-center gap-3">
+            <b className="text-t2 font-black text-white">증강 {pool.length}</b>
+            <small className="text-t4 text-gray-400">강화 {upCount} · 최대 {maxCount}</small>
+            <div className="ml-auto flex flex-wrap justify-end gap-1.5">
+              {FILTERS.map(([k, n]) => (
+                <button key={k} type="button" className={`ag-pill ${filter === k ? 'on' : ''}`} aria-pressed={filter === k} onClick={() => setFilter(k)}>{n}</button>
+              ))}
+            </div>
           </div>
-          <div className="mt-scroll mt-1 flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
-            {groups.map(([label, list]) => (
-              <div key={label}>
-                <GroupHead label={label} c={label === '즐겨찾기' ? '#fbbf24' : tab === 'upgrade' ? GREEN : T.c} />
-                <div className="grid grid-cols-2 gap-1.5">
-                  {list.map((a) => (
-                    <Row key={a.id} a={a} lv={levelOf(a)} banned={bans.includes(a.id) && tab !== 'upgrade'} on={picked?.id === a.id} upgrade={tab === 'upgrade'}
-                      fav={favs.includes(a.id)} onFav={toggleFav}
-                      onPick={(x) => setSel((s) => (tab === 'upgrade' ? x : s?.id === x.id ? null : x))} onAct={tab === 'upgrade' ? upgrade : toggleBan} />
-                  ))}
-                </div>
-              </div>
-            ))}
-            {tab !== 'upgrade' && bans.length > 0 && (
-              <div>
-                <GroupHead label="제외한 증강" c={RED} />
-                <div className="grid grid-cols-2 gap-1.5">
-                  {bans.map(byId).filter(Boolean).map((a) => (
-                    <Row key={a.id} a={a} lv={levelOf(a)} banned on={picked?.id === a.id} fav={favs.includes(a.id)} onFav={toggleFav}
-                      onPick={(x) => setSel((s) => (s?.id === x.id ? null : x))} onAct={toggleBan} />
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="mt-scroll grid min-h-0 flex-1 content-start gap-x-1.5 gap-y-1 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(112px,1fr))' }}>
+            {list.map((a) => {
+              const b = bans.includes(a.id);
+              return (
+                <button key={a.id} type="button" className={`ag-slot ${picked?.id === a.id ? 'on' : ''} ${b ? 'ban' : ''}`} onClick={() => setSelId(a.id)} aria-pressed={picked?.id === a.id}>
+                  <span className="ag-hexf h-[76px] w-[86px]"><i style={{ backgroundImage: art(a) }} /></span>
+                  {favs.includes(a.id) && <span className="absolute right-4 top-2 text-[#f5d27a] [text-shadow:0_0_8px_#f5d27a]">★</span>}
+                  {b && <span className="mt-stamp" style={{ top: 34 }}>제외</span>}
+                  <b className="max-w-full truncate text-t4 text-white">{a.name}</b>
+                  <Gems lv={levelOf(a)} sm />
+                </button>
+              );
+            })}
+            {list.length === 0 && <p className="col-span-full py-10 text-center text-t3 text-gray-500">{filter === 'fav' ? '즐겨찾기한 증강 없음' : filter === 'ban' ? '제외한 증강 없음' : '증강 없음'}</p>}
           </div>
         </section>
-
-        {/* 오른쪽: PICK 카드 / 제외 칸 목록 */}
-        <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': picked ? T.c : tab === 'upgrade' ? GREEN : RED }}>
-          {picked ? (() => {
-            const lv = levelOf(picked); const c = T.c;
-            const full = bans.length >= slots;
-            const pickFav = favs.includes(picked.id);
-            return (
-              <>
-                <div className="flex items-baseline justify-between gap-3">
-                  <p className="mt-lab" style={{ '--a': c }}>고른 증강</p>
-                  <b className="font-display text-t3" style={{ color: full ? RED : '#7c8797' }}>{bans.length} / {slots}</b>
-                </div>
-                <div key={picked.id} className="mt-staff-in mt-cut mt-frame relative min-h-0 flex-1 overflow-hidden bg-[#070b14]"
-                  style={{ ...cut(18), '--a': c, filter: pickBanned ? 'saturate(.12) brightness(.66)' : 'none', transition: 'filter .38s ease' }}>
-                  {/* 증강 그림(public/augments/<id>.webp)이 카드를 꽉 채운다 */}
-                  <span className="absolute inset-0 bg-cover bg-top" style={{ backgroundImage: `url(augments/${picked.id}.webp)` }} />
-                  <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]" style={{ background: 'linear-gradient(transparent,#070b14 92%)' }} />
-                  <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px]" style={{ background: c, boxShadow: `0 0 14px ${c}` }} />
-                  <div className="absolute inset-x-4 top-4 flex items-center gap-2">
-                    <span className="mt-cut px-2 font-display text-t4 font-extrabold text-[#05080f]" style={{ ...cut(4), background: c }}>{T.ko}</span>
-                    <span className="text-t4 text-gray-300">{TYPE_KO[picked.type] || picked.type}</span>
-                    <span aria-hidden={!pickBanned} className="mt-cut ml-auto bg-[#f87171] px-2 font-display text-t4 font-extrabold text-[#05080f]"
-                      style={{ ...cut(4), opacity: pickBanned ? 1 : 0, transform: pickBanned ? 'none' : 'translateY(-4px)', transition: 'opacity .3s ease, transform .3s ease' }}>제외됨</span>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
-                    <b className="block text-t1 font-black leading-tight text-white">{picked.name} {lv > 0 && <span className="font-display" style={{ color: c }}>+{lv}</span>}</b>
-                    {picked.note && <p className="mt-1.5 text-t3 leading-snug text-gray-400">{picked.note}</p>}
-                    <div className="mt-2.5 grid gap-[5px]">
-                      {(() => { const base = effectRows(picked.desc); return effectRows(augDescAt(picked, lv)).map(([head, num], i) => {
-                        const gain = gainOf(num, base[i]?.[1]);
-                        return (
-                          <span key={i} className="mt-cut flex items-center justify-between gap-2.5 px-3 py-[7px]"
-                            style={{ ...cut(6), background: 'rgba(255,255,255,.06)', boxShadow: `inset 2px 0 0 ${c}` }}>
-                            <small className="min-w-0 text-t3 leading-snug text-gray-300">{head}</small>
-                            {num && (
-                              <span className="flex shrink-0 items-baseline gap-2">
-                                {gain && <small className="font-display text-t4 text-gray-500">{gain}</small>}
-                                <b className="font-display text-t2 leading-none" style={{ color: c }}>{num}</b>
-                              </span>
-                            )}
-                          </span>
-                        );
-                      }); })()}
-                    </div>
-                    <span className="mt-3 flex items-center gap-2.5">
-                      <small className="font-display text-t4 font-bold tracking-[0.2em] text-gray-500">LEVEL</small>
-                      <Pips lv={lv} c={c} />
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-auto flex flex-col gap-2">
-                  {tab === 'upgrade' ? (
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN, flexDirection: 'column', gap: 1, lineHeight: 1.15 }}
-                      disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
-                      {lv >= AUG_LEVEL_MAX ? <span>최대 레벨 +{AUG_LEVEL_MAX}</span> : (
-                        <>
-                          <span>+{lv + 1} 강화하기</span>
-                          <small className="text-t4 font-bold opacity-[0.72]">강화권 {lv + 1}장 소모 · 보유 {aug.upgradeTickets}장</small>
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <button type="button" className="mt-btn pri lg w-full" style={{ '--a': GREEN }} disabled={lv >= AUG_LEVEL_MAX}
-                      onClick={() => { setUpTier(picked.tier); setTab('upgrade'); }}>
-                      {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : '강화하기 ▶'}
-                    </button>
-                  )}
-                  {tab !== 'upgrade' && (
-                  <div className="flex gap-2">
-                    <button type="button" className="mt-btn min-w-0 flex-1 px-3 text-t3"
-                      style={{ color: pickBanned ? '#e8ecf2' : '#fda4af', boxShadow: pickBanned ? undefined : 'inset 0 0 0 1px rgba(248,113,113,.4)' }}
-                      disabled={!pickBanned && full} onClick={() => toggleBan(picked)}>
-                      {pickBanned ? '제외 풀기 ↺' : full ? `칸 가득 · 최대 ${slots}칸` : '이 증강 제외하기 ✕'}
-                    </button>
-                    <button type="button" onClick={() => toggleFav(picked)} title={pickFav ? '즐겨찾기 해제' : '즐겨찾기'} aria-pressed={pickFav}
-                      className="mt-btn shrink-0 gap-1.5 px-4 text-t3"
-                      style={{ color: pickFav ? '#fbbf24' : '#94a3b8', boxShadow: pickFav ? 'inset 0 0 0 1px rgba(251,191,36,.5)' : undefined }}>
-                      <span className="text-t3 leading-none">{pickFav ? '★' : '☆'}</span>즐겨찾기
-                    </button>
-                  </div>
-                  )}
-                </div>
-              </>
-            );
-          })() : tab === 'upgrade' ? (
-            <>
-              <p className="mt-lab" style={{ '--a': GREEN }}>강화 현황</p>
-              <h2 className="-mt-2 text-t1 font-black text-white">증강 강화</h2>
-            </>
-          ) : (
-            <>
-              <p className="mt-lab" style={{ '--a': RED }}>제외 칸</p>
-              <h2 className="-mt-2 text-t1 font-black text-white">증강 제외</h2>
-              <p className="text-t3 leading-relaxed text-gray-300">제외된 증강은 경기에 나오지 않음</p>
-              <div className="mt-scroll flex min-h-0 flex-col gap-1.5 overflow-y-auto pr-1">
-                {bans.map(byId).filter(Boolean).map((a, k) => (
-                  <div key={a.id} className="mt-cut flex items-center gap-3 bg-[#f87171]/10 px-3 py-2" style={cut(6)}>
-                    <span className="w-4 font-display text-t4 text-gray-500">{k + 1}</span>
-                    <span className="font-display text-t2 font-extrabold" style={{ color: T.c }}>{a.name[0]}</span>
-                    <span className="min-w-0 flex-1"><b className="block truncate text-t3 text-white">{a.name}</b><small className="block truncate text-t4 text-gray-500">{a.desc}</small></span>
-                    <button type="button" onClick={() => toggleBan(a)} className="text-t4 text-[#f87171] hover:text-white" aria-label={`${a.name} 제외 풀기`}>↺</button>
-                  </div>
-                ))}
-                {Array.from({ length: Math.max(0, slots - bans.length) }, (_, k) => (
-                  <div key={`e${k}`} className="mt-cut flex items-center gap-3 px-3 py-2 text-t3 text-gray-500 shadow-[inset_0_0_0_1px_rgba(148,163,184,.2)]" style={cut(6)}>
-                    <span className="w-4 font-display text-t4">{bans.length + k + 1}</span>빈 제외 칸
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-          {msg && <p className="text-center text-t3 text-amber-200">{msg}</p>}
-        </aside>
       </div>
     </div>
   );
