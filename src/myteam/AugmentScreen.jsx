@@ -8,6 +8,7 @@ import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
+import { useListIntro } from '../ui/motion.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
@@ -44,6 +45,7 @@ const TYPES = [['all', '전체'], ...TYPE_ORDER];
 export default function AugmentScreen({ account, onBack }) {
   const [aug, setAug] = useState(() => loadAccount()?.aug || account.aug);
   const [view, setView] = useState('all'); // all | fav | ban
+  const listFx = useListIntro(view); // 보기를 바꾸면 증강 칸이 차례로
   const [type, setType] = useState('all');
   const [selId, setSelId] = useState(null);
   const [msg, setMsg] = useState('');
@@ -167,7 +169,7 @@ export default function AugmentScreen({ account, onBack }) {
               ))}
             </div>
           </div>
-          <div className="mt-scroll grid min-h-0 flex-1 content-start gap-x-1.5 gap-y-1 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(112px,1fr))' }}>
+          <div className={`mt-scroll grid min-h-0 flex-1 content-start gap-x-1.5 gap-y-1 overflow-y-auto pr-2 ${listFx}`} style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(112px,1fr))' }}>
             {list.map((a) => {
               const b = bans.includes(a.id);
               return (

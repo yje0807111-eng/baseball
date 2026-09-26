@@ -5,7 +5,7 @@ import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard,
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait } from './ui.jsx';
-import { flyGhost } from '../ui/motion.jsx';
+import { flyGhost, useListIntro } from '../ui/motion.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
@@ -88,6 +88,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
 
   const squad = team.squad || [];
+  const listFx = useListIntro(cat); // 분류를 바꾸면 상품 카드가 차례로
   const items = useMemo(() => SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat), [cat]);
   const recs = useMemo(() => (picked ? recommendTargets(team, picked) : []), [picked, team]);
   const owned = (it) => (team.items || []).filter((x) => x.itemId === it.id).length;
@@ -178,7 +179,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': '#fde047' }}>상품 목록</p>
           </div>
-          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-6 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
+          <div className={`mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-6 content-start gap-3 overflow-y-auto pr-2 ${listFx}`} style={{ gridAutoRows: '18.75rem' }}>
             {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>

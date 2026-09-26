@@ -16,7 +16,7 @@ import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeIte
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
-import { Count, Burst, flyGhost } from '../ui/motion.jsx';
+import { Count, Burst, flyGhost, useListIntro } from '../ui/motion.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -359,6 +359,7 @@ const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staf
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
 
 function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse, fx = null }) {
+  const listFx = useListIntro('items');
   const inv = team.items || [];
   const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
   const g = groups.find((x) => x.it.id === itemId) || groups[0];
@@ -390,7 +391,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             </div>
           </div>
         ) : (
-        <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
+        <div className={`mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2 ${listFx}`} style={{ gridAutoRows: '12.5rem' }}>
           {groups.map(({ it: x, keys }) => {
             const c = ITEM_COLOR[x.cat] || '#fde047';
             const on = it?.id === x.id;
@@ -636,6 +637,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const dealBump = (p, next) => { if (next && deals.has(p.id)) bumpWeek('deal'); return next; }; // 주간 과제: 특가 영입
   /* 막 영입한 선수(상세 판 도장) · 막 쓴 아이템 결과 — 잠깐 보였다 사라진다 */
   const [fresh, setFresh] = useState(null);
+  const listFx = useListIntro(tab); // 탭을 바꾸면 목록 줄이 차례로
   const [itemFx, setItemFx] = useState(null);
   useEffect(() => { if (!fresh) return undefined; const t = setTimeout(() => setFresh(null), 1800); return () => clearTimeout(t); }, [fresh]);
   useEffect(() => { if (!itemFx) return undefined; const t = setTimeout(() => setItemFx(null), 2600); return () => clearTimeout(t); }, [itemFx]);
@@ -789,7 +791,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 {(year || club || pos) && <button type="button" onClick={() => { setYear(''); setClub(''); setPos(''); }} className="justify-self-start px-2 text-t3 text-gray-400 hover:text-white">초기화</button>}
               </div>
             )}
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
+            <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {results.map((p) => (
                 <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
@@ -817,7 +819,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         {tab === 'club' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             {head('보관함', `${clubList.length} / ${CLUB_MAX}`)}
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
+            <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
                 const full = squad.length >= lim.size;
                 const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);

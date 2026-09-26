@@ -186,5 +186,21 @@ export function useGrow(key, value) {
   return v;
 }
 
+/**
+ * 목록이 새로 뜰 때만 — key(탭 · 분류)가 바뀐 그 순간부터 0.7초 동안 'fx-list' 를 준다.
+ * 그 사이 처음 12칸이 30ms 간격으로 올라오고, 뒤에 검색 · 정렬로 새로 끼는 줄은 움직이지 않는다(글자 칠 때마다 출렁이지 않게).
+ * 같은 그림 안에서 바로 켜야(렌더 중 상태 갱신) 한 번 보였다 사라지는 깜빡임이 없다.
+ */
+export function useListIntro(key, ms = 700) {
+  const [state, setState] = useState({ key, on: !reducedMotion() });
+  if (state.key !== key) setState({ key, on: !reducedMotion() });
+  useEffect(() => {
+    if (!state.on) return undefined;
+    const t = setTimeout(() => setState((s) => ({ ...s, on: false })), ms);
+    return () => clearTimeout(t);
+  }, [state.key, state.on, ms]);
+  return state.on ? 'fx-list' : '';
+}
+
 /** 차례로 올라오기 — 목록 · 카드 줄이 처음 뜰 때만. i 번째는 45ms 씩 늦게 */
 export const rise = (i = 0) => ({ className: 'fx-rise', style: { '--i': i } });

@@ -14,6 +14,7 @@ import { FORM_OF } from './form.js';
 import { DexView, WeekView } from './ProgressPanels.jsx';
 import { loadAccount } from './store.js';
 import { missionState } from './missions.js';
+import { useListIntro } from '../ui/motion.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const MODES = [
@@ -300,6 +301,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
   const history = account.history || [];
   const [mode, setMode] = useState(initialMode);
   const [sel, setSel] = useState(history[0] || null);
+  const listFx = useListIntro(mode); // 탭을 바꾸면 경기 줄이 차례로
   const [open, setOpen] = useState(null); // 펼친 경기의 at
 
   const list = useMemo(() => (mode === 'all' ? history : history.filter((h) => modeKey(h) === mode)), [history, mode]);
@@ -360,7 +362,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
               })}
             </span>
           </div>
-          <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
+          <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2 ${listFx}`}>
             {list.map((h) => <GameRow key={h.at + h.opp} h={h} on={sel?.at === h.at} open={open === h.at} onPick={setSel}
               onOpen={(x) => { setSel(x); setOpen((v) => (v === x.at ? null : x.at)); }} />)}
             {list.length === 0 && <p className="text-t3 text-gray-400">치른 경기 없음</p>}
