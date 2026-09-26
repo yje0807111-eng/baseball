@@ -22,13 +22,13 @@ const STAGE = { dy: -54 };
    아직 눈으로 맞추지 못한 어림값이다 — play-lab 의 '다이아몬드 자'로 확인해야 한다 */
 const STEEP = marksFrom({ homeY: 790, sideY: 565, secondY: 395, halfW: 340 });
 
-/* 새 부감 구장(park-16.webp) — 사진에서 잰 베이스 자리. 홈 800,776 · 1루 1245,502 · 2루 800,383 · 3루 352,502 */
+/* 부감 구장(park-16.webp · 해 질 녘 사진을 같은 구도의 야간으로 다시 뽑음) — 사진에서 잰 베이스 자리. 홈 800,776 · 1루 1245,502 · 2루 800,383 · 3루 352,502 */
 const PARK = marksFrom({ homeY: 776, sideY: 502, secondY: 383, halfW: 445 });
 /* 구장은 제 칸 안에 있다 — 사진이 칸을 꽉 덮는다 */
 const PARK_STAGE = { dy: 0, zoom: 1 };
 
 export const FIELD_BGS = [
-  { id: 'park-night', stage: PARK_STAGE, name: '0 · 야간 도심 부감 ★새', src: 'ui/field/park-16.webp', marks: PARK },
+  { id: 'park-night', stage: PARK_STAGE, name: '0 · 야간 도심 부감', src: 'ui/field/park-16.webp', marks: PARK },
   { id: 'field-n1', stage: STAGE, name: '1 · 정통 부감 ★', src: 'ui/field-n1.webp', remoteSrc: `${CDN}hf_20260917_094834_f5f3c9f0-281f-4d2f-8c76-0446e9dd982b.png`, marks: STEEP },
   { id: 'field-b', stage: STAGE, name: '이전 B · 높은 전술 부감', src: 'ui/field-b.webp', remoteSrc: gen1('28964324-b915-40a2-a7d8-f48073e82778'), marks: STEEP },
   { id: 'field-now', stage: STAGE, name: '지금 배경', src: 'ui/broadcast-field.webp', marks: MEASURED },
