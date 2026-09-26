@@ -1008,7 +1008,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     </button>
                   ))}
                   {clutch && (
-                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡긴다</button>
+                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡기기</button>
                   )}
                   {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
                   {!PICKS && SIDES.map((sd) => {
