@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 import { artId } from '../data/artAlias.js';
+import { navTo } from '../ui/motion.jsx';
 
 export const UiStyle = () => (
   <style>{`
@@ -145,7 +146,8 @@ export const UiStyle = () => (
     .mt-tab.on .n { color:#fbe7a8; }
     .mt-tab .bd { margin-left:7px; display:grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:12px; font-weight:900; color:#1c1203; background:linear-gradient(180deg,#fde68a,#f5b93a); box-shadow:0 0 10px rgba(245,185,58,.55); }
     .mt-tab.on { color:#fff; text-shadow:0 0 18px rgba(245,210,122,.35); background:radial-gradient(70% 90% at 50% 100%,rgba(245,210,122,.16),transparent 70%); }
-    .mt-tab.on::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
+    .mt-tab-ink { view-transition-name: mt-tab-ink; }
+    .mt-tab-ink { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
     /* 알약 고르기(배속 등) — 작은 알약 틀 */
     .mt-seg { display:flex; gap:4px; padding:4px; border-radius:12px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
     .mt-segb { height:32px; padding:0 14px; border-radius:8px; font-size:14px; font-weight:700; color:#9ca3af; }
@@ -314,7 +316,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (
-    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7">
+    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7" style={{ viewTransitionName: 'mt-topbar' }}>
       {onBack && (
         <button type="button" onClick={onBack} aria-label="메인으로"
           className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
@@ -374,17 +376,26 @@ export function FlipFaces({ value, keyOf, render, resetKey, className = '', styl
  * 위 탭 — 라커 · 상점 · 기록이 같이 쓰는 화면 안 메뉴(상단 바 steps 자리). 금빛 밑줄이 고른 탭.
  * items: [{ key, label, n?(옆 작은 숫자), badge?(금빛 알림 숫자) }]
  */
-export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => (
-  <nav className="mt-tabs ml-2" aria-label={label}>
-    {items.map((it) => (
-      <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => onChange(it.key)}>
-        {it.label}
-        {it.n != null && <small className="n">{it.n}</small>}
-        {!!it.badge && <b className="bd">{it.badge}</b>}
-      </button>
-    ))}
-  </nav>
-);
+/** 위 탭 — 누르면 본문이 누른 쪽으로 밀리며 바뀌고, 금빛 밑줄은 옛 탭에서 새 탭으로 미끄러진다(TFT · FC 온라인 탭) */
+export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
+  const cur = items.findIndex((it) => it.key === value);
+  const pick = (it, i) => {
+    if (it.key === value) return;
+    navTo(() => onChange(it.key), i > cur ? 'tab-r' : 'tab-l');
+  };
+  return (
+    <nav className="mt-tabs ml-2" aria-label={label}>
+      {items.map((it, i) => (
+        <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
+          {it.label}
+          {it.n != null && <small className="n">{it.n}</small>}
+          {!!it.badge && <b className="bd">{it.badge}</b>}
+          {value === it.key && <i className="mt-tab-ink" aria-hidden="true" />}
+        </button>
+      ))}
+    </nav>
+  );
+};
 
 /** 큰 사진 머리 (오른쪽 상세 패널 위) — 시리즈 카드 문법 */
 export const Hero = ({ img, ovr, name, color = '#10b981', h = 176, pos = '60% 18%' }) => (

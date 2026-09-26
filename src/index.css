@@ -17,3 +17,60 @@ body { overscroll-behavior: none; }
   .fit-zoom .lg\:h-dvh { height: var(--fit-h); }
   .fit-zoom .lg\:min-h-0 { min-height: 0; }
 }
+
+/* ───────────── 모션 공통 값 (ui/motion.jsx) ─────────────
+   들어오는 것: 빠르게 출발 → 부드럽게 멈춤 / 나가는 것: 천천히 출발 → 빨리 사라짐 */
+:root { --fx-out: cubic-bezier(.2, .8, .2, 1); --fx-in: cubic-bezier(.4, 0, 1, 1); }
+
+/* 화면 이동 — 같은 축(앞뒤)으로만: 들어가면 새 화면이 살짝 작게서 커지며, 돌아오면 반대 */
+::view-transition-old(root) { animation: fx-vt-out .16s var(--fx-in) both; }
+::view-transition-new(root) { animation: fx-vt-in .28s var(--fx-out) both; }
+:root[data-nav="back"]::view-transition-old(root) { animation-name: fx-vt-out-back; }
+:root[data-nav="back"]::view-transition-new(root) { animation-name: fx-vt-in-back; }
+/* 옆 탭 — 위 바는 그대로 두고 본문만 옆으로 조금 밀린다 */
+:root[data-nav="tab-r"]::view-transition-old(root) { animation: fx-tab-out-l .12s var(--fx-in) both; }
+:root[data-nav="tab-r"]::view-transition-new(root) { animation: fx-tab-in-r .18s var(--fx-out) both; }
+:root[data-nav="tab-l"]::view-transition-old(root) { animation: fx-tab-out-r .12s var(--fx-in) both; }
+:root[data-nav="tab-l"]::view-transition-new(root) { animation: fx-tab-in-l .18s var(--fx-out) both; }
+/* 위 바 · 탭 밑줄은 따로 — 바는 제자리, 밑줄은 옛 탭에서 새 탭으로 미끄러진다 */
+::view-transition-group(mt-topbar) { animation-duration: .18s; }
+::view-transition-group(mt-tab-ink) { animation-duration: .24s; animation-timing-function: var(--fx-out); }
+::view-transition-old(mt-tab-ink), ::view-transition-new(mt-tab-ink) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(mt-tab-ink) { opacity: 0; }
+
+@keyframes fx-vt-out { to { opacity: 0; transform: scale(1.015); } }
+@keyframes fx-vt-in { from { opacity: 0; transform: scale(.975); } }
+@keyframes fx-vt-out-back { to { opacity: 0; transform: scale(.985); } }
+@keyframes fx-vt-in-back { from { opacity: 0; transform: scale(1.02); } }
+@keyframes fx-tab-out-l { to { opacity: 0; transform: translateX(-18px); } }
+@keyframes fx-tab-out-r { to { opacity: 0; transform: translateX(18px); } }
+@keyframes fx-tab-in-r { from { opacity: 0; transform: translateX(22px); } }
+@keyframes fx-tab-in-l { from { opacity: 0; transform: translateX(-22px); } }
+
+/* 숫자 세기 끝 — 한 번 톡 */
+.fx-pop { animation: fx-pop .24s var(--fx-out); }
+@keyframes fx-pop { 40% { transform: scale(1.14); } }
+
+/* 카드 뒤집기 — 뒷면 → 살짝 들리며 앞면(끝에서 조금 넘었다 돌아옴) */
+.fx-flip-wrap { perspective: 1200px; }
+.fx-flip { position: relative; height: 100%; transform-style: preserve-3d; animation: fx-flip .56s var(--fx-out) var(--d, 0ms) both; }
+.fx-face { height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fx-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+.fx-back-plain { height: 100%; border-radius: 12px; background: linear-gradient(160deg, #1b2336, #0b1020); box-shadow: inset 0 0 0 1px rgba(245, 210, 122, .35); }
+@keyframes fx-flip {
+  0% { transform: rotateY(180deg) scale(.94); }
+  55% { transform: rotateY(-8deg) scale(1.04); }
+  100% { transform: rotateY(0) scale(1); }
+}
+
+/* 차례로 올라오기 — 처음 뜰 때만 */
+.fx-rise { animation: fx-rise .32s var(--fx-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* 누름 — 게임 단추처럼 눌리는 순간 살짝 들어간다 */
+.mt-btn:active:not(:disabled), .ui-btn:active:not(:disabled), .mt-tab:active { transform: scale(.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .fx-pop, .fx-flip, .fx-rise { animation: none !important; }
+}
