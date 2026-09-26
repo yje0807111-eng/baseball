@@ -1,10 +1,11 @@
 /* 상점 — 라커와 같은 문법: 위 탭 분류 / 가운데 상품 카드 / 오른쪽 고른 상품. 처음엔 우리 팀 약점을 채우는 추천 상품을 골라 둔다 */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait } from './ui.jsx';
+import { flyGhost } from '../ui/motion.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
@@ -91,11 +92,17 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const recs = useMemo(() => (picked ? recommendTargets(team, picked) : []), [picked, team]);
   const owned = (it) => (team.items || []).filter((x) => x.itemId === it.id).length;
 
+  const [bought, setBought] = useState(0); // 산 횟수 — 보유 수가 바뀔 때마다 톡
   const push = (nextTeam, nextGold) => {
+    /* 산 순간: 상품 사진이 '보유' 칸으로 날아가 들어간다(골드 차감은 위 바 칩이 세어 보여 준다) */
+    flyGhost(heroRef.current, () => ownRef.current, { dur: 560, lift: 30 });
+    setBought((n) => n + 1);
     setTeam(nextTeam); setGold(nextGold);
     saveTeam(nextTeam); addGold(nextGold - gold);
     onChange?.({ team: nextTeam, gold: nextGold });
   };
+  const heroRef = useRef(null); // 오른쪽 판 상품 사진
+  const ownRef = useRef(null); // 오른쪽 판 '보유' 값
   const buy = (it) => {
     const picked = itemById(it?.id); // 눌린 상품 하나만 처리 (상품이 아닌 게 넘어오면 아무 일도 없다)
     if (!picked || !Number.isFinite(gold) || picked.price > gold) return;
@@ -185,7 +192,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 const e = itemEffect(picked);
                 const on = e.amount == null ? 5 : Math.max(1, Math.round((e.amount / e.max) * 5));
                 return (
-                  <div className="mt-cut relative h-[190px] shrink-0 bg-cover" style={{ '--c': '12px', backgroundImage: `url(${itemArt(picked)})`, backgroundPosition: 'center 28%' }}>
+                  <div ref={heroRef} className="mt-cut relative h-[190px] shrink-0 bg-cover" style={{ '--c': '12px', backgroundImage: `url(${itemArt(picked)})`, backgroundPosition: 'center 28%' }}>
                     <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.25), rgba(5,8,15,.92))' }} />
                     <span className="absolute left-3.5 top-2.5 font-display text-t3 tracking-[0.16em]" style={{ color: n }}>{catLabel[picked.cat]} │ <span className="text-gray-300">{catSub[picked.cat]}</span></span>
                     <span className="absolute inset-x-3.5 bottom-3">
@@ -245,7 +252,7 @@ export default function ShopScreen({ account, onChange, onBack }) {
               )}
 
               <div className={`flex items-baseline justify-between text-t4 text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
-                <span>보유 <b className="text-white">{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
+                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
                 <span>남는 골드 <b className="font-display text-t3" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
               <div>

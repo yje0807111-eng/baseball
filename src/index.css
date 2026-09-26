@@ -121,3 +121,12 @@ body { overscroll-behavior: none; }
 /* 대진표: 이긴 팀이 다음 칸으로 나아감 · 진 칸은 흐려짐 */
 @keyframes tbAdv { from { opacity: 0; transform: translateX(-42px); } }
 @keyframes tbDim { from { opacity: 1; } to { opacity: .38; } }
+
+/* 골드가 바뀐 만큼 — 칩 아래에서 떠올랐다 사라진다 */
+.gold-float { position: absolute; right: 10px; top: calc(100% + 2px); z-index: 30; pointer-events: none; white-space: nowrap;
+  font-family: 'Saira Condensed', sans-serif; font-size: 18px; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,.8);
+  animation: gold-float 1.1s var(--fx-out) both; }
+.gold-float.down { color: #fca5a5; }
+.gold-float.up { color: #fde047; }
+@keyframes gold-float { 0% { opacity: 0; transform: translateY(-10px) scale(.9); } 18% { opacity: 1; transform: translateY(0) scale(1.08); } 70% { opacity: 1; transform: translateY(4px) scale(1); } 100% { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) { .gold-float { animation-duration: .01s; } }
