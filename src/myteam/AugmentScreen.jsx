@@ -7,7 +7,7 @@
 import React, { useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
-import { UiStyle, GlassBg, TopBar } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
@@ -38,11 +38,13 @@ const Gems = ({ lv, sm = false }) => (
     {Array.from({ length: AUG_LEVEL_MAX }, (_, i) => <i key={i} className={`mt-gem ${i < lv ? '' : 'off'}`} style={sm ? { width: 8, height: 8, borderRadius: 2 } : undefined} />)}
   </span>
 );
-const FILTERS = [['all', '전체'], ['fav', '★ 즐겨찾기'], ...TYPE_ORDER, ['ban', '제외']];
+/* 위 탭 = 보는 범위(라커 · 상점 · 기록과 같은 자리), 판 안 알약 = 증강 종류 */
+const TYPES = [['all', '전체'], ...TYPE_ORDER];
 
 export default function AugmentScreen({ account, onBack }) {
   const [aug, setAug] = useState(() => loadAccount()?.aug || account.aug);
-  const [filter, setFilter] = useState('all');
+  const [view, setView] = useState('all'); // all | fav | ban
+  const [type, setType] = useState('all');
   const [selId, setSelId] = useState(null);
   const [msg, setMsg] = useState('');
   const tier = AUG_TIERS[0];
@@ -67,7 +69,7 @@ export default function AugmentScreen({ account, onBack }) {
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
   };
 
-  const list = pool.filter((a) => (filter === 'all' ? true : filter === 'fav' ? favs.includes(a.id) : filter === 'ban' ? bans.includes(a.id) : a.type === filter));
+  const list = pool.filter((a) => (view === 'fav' ? favs.includes(a.id) : view === 'ban' ? bans.includes(a.id) : true) && (type === 'all' || a.type === type));
   const picked = pool.find((a) => a.id === selId) || list[0] || pool[0];
   const lv = picked ? levelOf(picked) : 0;
   const isBan = picked && bans.includes(picked.id);
@@ -81,6 +83,8 @@ export default function AugmentScreen({ account, onBack }) {
       <style>{HEX_CSS}</style>
       <GlassBg tint="#a78bfa" />
       <TopBar eyebrow="메인" section="증강 도감" account={account} onBack={onBack}
+        steps={<TopTabs label="증강 보기" value={view} onChange={setView}
+          items={[{ key: 'all', label: '전체', n: pool.length }, { key: 'fav', label: '즐겨찾기', n: favs.length }, { key: 'ban', label: '제외', n: `${bans.length}/${slots}` }]} />}
         right={(
           <>
             <span className="mt-cut mt-glass flex h-11 items-center gap-2.5 px-4" style={cut(14)}>
@@ -149,11 +153,11 @@ export default function AugmentScreen({ account, onBack }) {
         {/* 왼쪽 — 도감: 육각 아이콘 · 이름 · 레벨 보석, 제외 도장 · 즐겨찾기 별 */}
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={cut(22)}>
           <div className="flex items-center gap-3">
-            <b className="text-t2 font-black text-white">증강 {pool.length}</b>
+            <b className="text-t2 font-black text-white">증강 {list.length}</b>
             <small className="text-t4 text-gray-400">강화 {upCount} · 최대 {maxCount}</small>
             <div className="ml-auto flex flex-wrap justify-end gap-1.5">
-              {FILTERS.map(([k, n]) => (
-                <button key={k} type="button" className={`ag-pill ${filter === k ? 'on' : ''}`} aria-pressed={filter === k} onClick={() => setFilter(k)}>{n}</button>
+              {TYPES.map(([k, n]) => (
+                <button key={k} type="button" className={`ag-pill ${type === k ? 'on' : ''}`} aria-pressed={type === k} onClick={() => setType(k)}>{n}</button>
               ))}
             </div>
           </div>
@@ -170,7 +174,7 @@ export default function AugmentScreen({ account, onBack }) {
                 </button>
               );
             })}
-            {list.length === 0 && <p className="col-span-full py-10 text-center text-t3 text-gray-400">{filter === 'fav' ? '즐겨찾기한 증강 없음' : filter === 'ban' ? '제외한 증강 없음' : '증강 없음'}</p>}
+            {list.length === 0 && <p className="col-span-full py-10 text-center text-t3 text-gray-400">{view === 'fav' ? '즐겨찾기한 증강 없음' : view === 'ban' ? '제외한 증강 없음' : '증강 없음'}</p>}
           </div>
         </section>
       </div>
