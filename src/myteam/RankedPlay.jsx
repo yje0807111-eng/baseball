@@ -1,5 +1,8 @@
 /* 플레이 화면의 랭크전 — 가운데: 시즌 순위표(없으면 시즌 방식 소개) · 오른쪽: 내 등급과 다음 경기 */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { online } from '../net/supabase.js';
+import { defenseSince } from '../net/pvp.js';
+import { defenseSeenAt, markDefenseSeen } from './store.js';
 import { squadIssues, SQUAD_CAP, limitsOf } from './rules.js';
 import CapBar from './CapBar.jsx';
 import { UiStyle, KV, Stats, teamStats } from './ui.jsx';
@@ -51,6 +54,40 @@ function Intro() {
 }
 
 const RESULT = { my: ['승', '#34d399'], opp: ['패', '#f87171'], draw: ['무', '#94a3b8'] };
+
+/*
+ * 방어 — 내가 없는 사이 다른 감독이 내 방어 팀과 치른 랭크전(지난번 본 뒤로).
+ * 한 번 보여 주면 본 것으로 적고, 이번 접속 동안은 같은 결과를 계속 보여 준다.
+ */
+let shownDefense = null;
+function DefenseBox() {
+  const [res, setRes] = useState(shownDefense);
+  useEffect(() => {
+    if (!online || shownDefense) return undefined;
+    let alive = true;
+    const at = new Date().toISOString();
+    defenseSince(defenseSeenAt()).then((r) => {
+      if (!alive || !r) return;
+      shownDefense = r;
+      setRes(r);
+      if (r.games.length) markDefenseSeen(at);
+    });
+    return () => { alive = false; };
+  }, []);
+  if (!online || !res) return null;
+  return (
+    <div>
+      <div className="flex items-baseline gap-2">
+        <p className="ui-lab font-display" style={{ '--a': RK }}>자리 비운 사이 방어</p>
+        {!!res.games.length && <span className="ml-auto font-display text-t4 text-gray-400">{res.w}승 {res.d}무 {res.l}패</span>}
+      </div>
+      {res.games.length ? res.games.slice(0, 3).map((g, i) => {
+        const [ko, c] = g.def > g.att ? RESULT.my : g.def < g.att ? RESULT.opp : RESULT.draw;
+        return <KV key={i} k={`vs ${g.nick}`} v={`${ko} ${g.def}:${g.att}`} color={c} sm />;
+      }) : <p className="mt-1 text-t3 text-gray-400">새 방어 경기 없음</p>}
+    </div>
+  );
+}
 const avgOf = (xs, g) => (xs.length ? Math.round(xs.reduce((n, p) => n + g(p), 0) / xs.length) : 0);
 /** 내 팀 전력 네 부문 — 타선 · 수비 · 선발 · 불펜 */
 function teamParts(squad) {
@@ -136,9 +173,10 @@ export function rankedPanels({ account, onOpen, onLocker }) {
         <div>
           <KV k="진행" v={state} color={RK} />
           {row && <KV k="시즌 성적" v={`${row.w}승 ${row.l}패 ${row.d}무`} />}
-          {opp && <KV k="다음 상대" v={opp.name} />}
+          {opp && <KV k="다음 상대" v={opp.ghost ? `${opp.name} · ${opp.owner}` : opp.name} />}
         </div>
       )}
+      <DefenseBox />
 
       {/* 최근 랭크전 흐름 — 성적은 제목 옆에 붙여 한 줄로 */}
       <div className="flex items-baseline gap-2">

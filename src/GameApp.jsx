@@ -11,8 +11,9 @@ import { rankedPanels } from './myteam/RankedPlay.jsx';
 import { prepOf, matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
 import { randomSeriesTeam } from './myteam/aiTeam.js';
-import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf } from './myteam/tournament.js';
+import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf, hashKey, newKey } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
+import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
 import { MATCH_AUG_INNINGS, envOf, augOptions, augsForHistory } from './myteam/matchAug.js';
@@ -73,16 +74,27 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     refresh();
   };
 
-  /* 랭크전: 시즌이 없으면 새로 열고 시즌 화면으로 */
-  const openRanked = () => {
-    if (!season) saveRanked(ranked.makeSeason({ season: 1, myName: account.team?.name }));
+  /*
+   * 랭크전: 시즌이 없으면 새로 열고 시즌 화면으로.
+   * 새 시즌은 내 방어 팀을 올리고 RP 가까운 다른 감독 팀을 받아 상대로 앉힌다(서버가 없으면 모두 AI — 기다리지 않는다)
+   */
+  const opening = useRef(false);
+  const makeRankedSeason = async (n) => {
+    if (opening.current) return;
+    opening.current = true;
+    const rp = account.rank?.rp || 0;
+    uploadDefense(account.team, rp).catch(() => {});
+    const ghosts = await findGhosts(rp);
+    saveRanked(ranked.makeSeason({ season: n, myName: account.team?.name, ghosts }));
+    opening.current = false;
     refresh();
+  };
+  const openRanked = async () => {
+    if (!season) await makeRankedSeason(1);
+    else refresh();
     setView('ranked');
   };
-  const newSeason = () => {
-    saveRanked(ranked.makeSeason({ season: (season?.season || 0) + 1, myName: account.team?.name }));
-    refresh();
-  };
+  const newSeason = () => makeRankedSeason((season?.season || 0) + 1);
   const openRankedPrep = () => {
     const pm = ranked.postMatch(season);
     const label = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
@@ -107,21 +119,26 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     let opp = null;
     if (prep.kind === 'duel') opp = randomSeriesTeam();
     else if (prep.kind === 'tourney') { const e = myOpponent(tournament); opp = e && teamOf(e, team); }
-    else if (prep.kind === 'ranked') { const e = ranked.myOpponent(season); opp = e && teamOf(e, team); }
+    let ghost = null; // 상대가 다른 감독 팀이면 { uid, teamId } — 끝나고 대전 기록으로
+    if (prep.kind === 'ranked') { const e = ranked.myOpponent(season); opp = e && teamOf(e, team); ghost = (e?.ghost && opp?.ghost) ? e.ghost : null; }
     if (!opp) return;
     /* 상대도 오늘 몸 상태를 안고 나온다 — 정비 화면 스카우팅에서 본 그대로 */
     opp = applyFormTeam(opp, oppSeed(opp.name, prep.sub || ''));
     saveTeam(team);
     refresh();
+    /* 랭크전은 방금 정비한 배치를 내 방어 팀으로 올린다 — 다른 감독이 만날 내 팀 */
+    if (prep.kind === 'ranked') uploadDefense(team, account.rank?.rp || 0).catch(() => {});
     /* 정비를 마치며 증강 1장 — 고르면 그 증강을 얹은 팀으로 경기에 들어간다 */
     const record = team.record || { w: 0, l: 0, d: 0 };
     const env = envOf(opp, record);
     const makeMy = (augs) => matchTeamOf(team, ready, rest, augs, env);
+    /* 내 경기 시드 — 판마다 새로 뽑아 대전 기록에 남긴다(같은 라운드를 다시 해도 흐름을 미리 알 수 없게) */
+    const seed = hashKey(newKey());
     const go = (owned) => {
       ownedRef.current = owned;
       const my = makeMy(owned);
       setAugPick(null);
-      setMatch({ my, opp, kind: prep.kind, makeMy, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
+      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
       setView('play');
     };
     const options = augOptions([]);
@@ -185,6 +202,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       const round = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
       saveRanked(ranked.play(season, res.score, account.team));
       addHistory({ ...base, mode: 'ranked', round });
+      if (match.ghost) recordBattle({ ghost: match.ghost, seed: match.seed, myRuns: res.score.my, oppRuns: res.score.opp });
       refresh();
       setView('ranked');
       return;
@@ -220,7 +238,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
-    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} onFinish={finishMatch}
+    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} onFinish={finishMatch}
       aug={match.aug} rebuildMy={match.makeMy} midPickInnings={match.aug ? MATCH_AUG_INNINGS : []} onMidPick={midPick}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }

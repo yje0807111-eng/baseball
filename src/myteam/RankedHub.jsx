@@ -39,6 +39,7 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
               <td className={`${cell} max-w-0 pl-2 text-left`}>
                 <span className="flex items-center gap-2">
                   <b className={`truncate text-t3 font-bold ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
+                  {r.team.ghost && <span className="shrink-0 rounded bg-sky-400/15 px-1.5 text-t4 font-bold text-sky-300" title="다른 감독 팀">{r.team.owner}</span>}
                   {move !== 0 && <em className="shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
                 </span>
               </td>

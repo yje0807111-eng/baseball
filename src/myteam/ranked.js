@@ -1,6 +1,6 @@
 /*
  * 랭크전 — 가을야구처럼 치르는 공식 시즌.
- *  정규 시즌: 나 + AI 9팀 = 10팀 리그, 모든 팀이 서로 한 번씩(9경기). 내 경기는 직접, 나머지는 엔진으로 계산.
+ *  정규 시즌: 나 + 상대 9팀 = 10팀 리그(다른 감독이 올린 방어 팀 사진이 먼저, 모자라면 AI 시리즈 팀), 모든 팀이 서로 한 번씩(9경기). 내 경기는 직접, 나머지는 엔진으로 계산.
  *  포스트시즌: 상위 5팀. 와일드카드(4 vs 5) → 준플레이오프(vs 3) → 플레이오프(vs 2) → 한국시리즈(vs 1), 모두 단판.
  *  비기면 순위가 높은 팀이 올라간다. 최종 순위로 랭크 승점(RP)과 골드를 받는다.
  */
@@ -38,12 +38,23 @@ function roundRobin(n) {
   return rounds;
 }
 
-/** 새 시즌: AI 9팀은 서로 다른 시리즈, 내 자리 · 일정 순서는 무작위 */
-export function makeSeason({ season = 1, myName = '나의 드림팀', key = newKey() } = {}) {
+/**
+ * 새 시즌: 상대 9팀 — ghosts(다른 감독 팀 사진 { uid, teamId, nick, snap }, 검사를 마친 것)가 먼저, 남는 자리는 서로 다른 AI 시리즈.
+ * 사진은 시즌에 그대로 담는다 — 상대가 나중에 팀을 바꿔도 이번 시즌 상대는 그대로. 내 자리 · 일정 순서는 무작위
+ */
+export function makeSeason({ season = 1, myName = '나의 드림팀', key = newKey(), ghosts = [] } = {}) {
   const rng = seeded(hashKey(`ranked:${key}`));
   const pool = [...AI_SERIES];
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  const teams = pool.slice(0, GAMES).map((s, i) => ({ id: `rk-${i}`, seriesId: s.id, name: seriesName(s), owner: ownerOf(rng), seed: hashKey(`ranked:${key}:team:${i}`) }));
+  const seen = new Set();
+  const people = ghosts.filter((g) => g?.snap && g.uid && !seen.has(g.uid) && seen.add(g.uid)).slice(0, GAMES);
+  const teams = [
+    // 못 쓰게 된 사진이면(데이터가 바뀌어 검사 탈락) 경기 때 seriesId 의 AI 팀이 대신 나온다
+    ...people.map((g, i) => ({ id: `gh-${i}`, ghost: { uid: g.uid, teamId: g.teamId ?? null }, snap: g.snap, seriesId: pool[GAMES + i]?.id,
+      name: g.snap.name, owner: g.nick || '감독', seed: hashKey(`ranked:${key}:ghost:${i}`) })),
+    ...pool.slice(0, GAMES - people.length).map((s, i) => ({ id: `rk-${i}`, seriesId: s.id, name: seriesName(s), owner: ownerOf(rng), seed: hashKey(`ranked:${key}:team:${i}`) })),
+  ];
+  for (let i = teams.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [teams[i], teams[j]] = [teams[j], teams[i]]; }
   teams.splice(Math.floor(rng() * LEAGUE_SIZE), 0, { id: 'me', name: myName, owner: '나', me: true });
   const schedule = roundRobin(LEAGUE_SIZE);
   for (let i = schedule.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [schedule[i], schedule[j]] = [schedule[j], schedule[i]]; }

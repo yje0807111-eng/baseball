@@ -9,19 +9,16 @@ import { buildMyTeam, teamRating } from './match.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { engineTeam } from '../BroadcastGame.jsx';
 import { simulateGame } from '../engine/pitchSim.js';
+import { ghostMatchTeam } from './ghost.js';
 import { roundsOf, finishOf } from './rewards.js';
 
 export { roundsOf, finishOf };
 
 export const SIZES = [16, 32];
 
-const hash = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
-export const seeded = (seed) => () => { // mulberry32
-  seed = (seed + 0x6d2b79f5) | 0;
-  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-};
+import { hashKey as hash, seeded } from '../engine/rng.js';
+
+export { seeded };
 export const newKey = () => `${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
 export const hashKey = hash;
 
@@ -71,6 +68,11 @@ const cache = new Map();
 export function teamOf(entry, myTeam) {
   if (entry.me) return myTeam?.squad ? { ...buildMyTeam(myTeam), name: myTeam.name || entry.name } : myTeam;
   if (entry.team) return entry.team;
+  // 다른 감독 팀(방어 팀 사진) — 시즌에 담아 둔 사진을 경기 팀으로. 못 쓰게 된 사진이면 같은 자리 AI 시리즈 팀
+  if (entry.snap && !cache.has(entry.id + entry.seed)) {
+    const t = ghostMatchTeam(entry.snap);
+    if (t) cache.set(entry.id + entry.seed, { ...t, name: entry.name, owner: entry.owner });
+  }
   if (!cache.has(entry.id + entry.seed)) {
     const series = AI_SERIES.find((x) => x.id === entry.seriesId) || AI_SERIES[entry.seed % AI_SERIES.length];
     cache.set(entry.id + entry.seed, { ...seriesTeam(series, seeded(entry.seed)), name: entry.name, owner: entry.owner });

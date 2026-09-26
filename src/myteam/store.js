@@ -548,6 +548,12 @@ export function saveProfile({ nick, banner }) {
   write(next);
   return next;
 }
+/** 랭크전 방어 결과를 마지막으로 본 때(ISO) — 그 뒤 경기만 '자리 비운 사이' 로 보여 준다 */
+export const defenseSeenAt = () => read()?.pvp?.seenAt || null;
+export function markDefenseSeen(at = new Date().toISOString()) {
+  const a = read();
+  if (a) write({ ...a, pvp: { ...(a.pvp || {}), seenAt: at } });
+}
 /** 대진표 내 팀 칸 배너 key (없으면 null) */
 export const myBanner = () => read()?.profile?.banner ?? null;
 

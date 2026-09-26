@@ -16,6 +16,7 @@ import { playsFor } from './engine/plays.js';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
+import { seeded } from './engine/rng.js';
 import { artId } from './data/artAlias.js';
 import {
   createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
@@ -376,11 +377,12 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
 /* ───────── 본체 ───────── */
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
-  if (!gameRef.current) gameRef.current = createGame({ home, away });
+  // 시드를 주면 같은 시드 · 같은 지시에서 같은 경기 — 대전 기록 · 검증의 바탕
+  if (!gameRef.current) gameRef.current = createGame({ home, away, rng: seed != null ? seeded(seed) : Math.random });
   const g = gameRef.current;
 
   const [, force] = useState(0);
@@ -574,7 +576,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         const folded = []; // 접은 타석에서 지나간 공 — 빨리 흘려보낼 것들
         try {
           /* 전술 성향은 늘 깔리고, 내가 낸 지시가 그 위에 얹힌다 */
-          const tac = () => ({ ...tacticOrders(fineRef.current, !g.top), ...pendingRef.current });
+          const tac = () => ({ ...tacticOrders(fineRef.current, !g.top, g.rng), ...pendingRef.current });
           if (fold) { do { ev = pitch(g, tac()); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, tac());
         } catch (err) { console.error('pitch 실패', err); break; }
