@@ -3,7 +3,7 @@
  * 여기서 바꾼 배치는 라커에 바로 저장된다(라커 · 정비가 같은 배치). 드래프트 정비(20자리)와는 따로 돈다.
  */
 import React, { useMemo, useState } from 'react';
-import { KEYFRAMES, readyStats } from '../KboAugmentDraft.jsx';
+import { KEYFRAMES, readyStats, oppTeamFor, winPct } from '../KboAugmentDraft.jsx';
 import ReadyLocker from './ReadyLocker.jsx';
 import { readyRoster, todaySquad } from './prep.js';
 import { loadAccount, saveTeam } from './store.js';
@@ -57,6 +57,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
     saveTeam(t); // 라커 배치에 바로
     onSaved?.(); // 앱이 들고 있는 계정도 새로 — 정비에서 돌아가 라커를 열면 바꾼 배치 그대로
   };
+  const win = useMemo(() => (opp ? winPct(stats.t, oppTeamFor(opp, 0)) : null), [opp, stats]);
   const on = ready.filter((p) => !String(p.slot).startsWith('BN'));
   const teamInfo = {
     ovr: on.length ? Math.round(on.reduce((n, p) => n + p.overall, 0) / on.length) : 0,
@@ -77,7 +78,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       </header>
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
-          <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp}
+          <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
             sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum }} synergies={stats.t.synergies} teamInfo={teamInfo}
             onCommit={commit}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : block ? `조건 불충족 · ${block}` : null}

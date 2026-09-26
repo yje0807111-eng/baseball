@@ -92,7 +92,7 @@ function Versus({ sums, opponent, c }) {
 }
 
 /** 왼쪽 — 오늘 상대: 선발 · 경계 타자 · 전력 비교. 타순은 단추로 */
-function ScoutPanel({ opponent, sums, onLineup }) {
+function ScoutPanel({ opponent, sums, win = null, onLineup }) {
   const ros = opponent.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall);
@@ -137,6 +137,19 @@ function ScoutPanel({ opponent, sums, onLineup }) {
       </div>
       <Rule />
       {sums && <Versus sums={sums} opponent={opponent} c={c} />}
+      {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
+      {win != null && (
+        <div className="flex shrink-0 flex-col gap-1.5">
+          <div className="flex items-baseline justify-between">
+            <Sub>예상 승률</Sub>
+            <span className="font-display text-t2 font-extrabold"><span style={{ color: '#34d399' }}>{win}%</span> <span className="text-gray-500">:</span> <span style={{ color: c }}>{100 - win}%</span></span>
+          </div>
+          <span className="flex h-2 overflow-hidden rounded-full">
+            <i className="block h-full" style={{ width: `${win}%`, background: '#34d399' }} />
+            <i className="block h-full flex-1" style={{ background: c }} />
+          </span>
+        </div>
+      )}
       <span className="flex-1" />
       <Btn onClick={onLineup}>상대 타순 보기</Btn>
     </aside>
@@ -332,6 +345,7 @@ export default function ReadyLocker({
   onCommit, onStart, startLabel = '시즌 시작 ▶', startBlock = null,
   cards = null, // 준비 카드 [{ id, name, effect, n }] — 내 팀 경기에서만 넘긴다
   full = false, // 내 팀 경기: 라커 배치 그대로(로테이션 5 · 불펜 8 · 벤치) — 드래프트는 20자리 판(fitSlots)
+  win = null, // 예상 승률(%) — 상대가 있을 때
 }) {
   const [sel, setSel] = useState(null);
   /* 작전 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
@@ -344,7 +358,7 @@ export default function ReadyLocker({
     <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 420px', gridTemplateRows: 'minmax(0,1fr)' }}>
       {/* 라커 문법(잘린 모서리 · 네온 테두리 · 라벨) — 드래프트 화면에는 이 CSS 가 없어서 여기서 함께 올린다 */}
       <UiStyle />
-      {opponent ? <ScoutPanel opponent={opponent} sums={sums} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
+      {opponent ? <ScoutPanel opponent={opponent} sums={sums} win={win} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
       {foeOpen && opponent && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
