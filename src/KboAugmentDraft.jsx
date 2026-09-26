@@ -4759,7 +4759,6 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const tickets = ticketsOf(mode);
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
   const special = mode.group === 'special';
-  useEffect(() => { setLive(mode.group !== 'special'); setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
   const NAV = [
     ...(plays.length ? [{ group: '플레이', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
