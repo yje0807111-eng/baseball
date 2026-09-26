@@ -1,6 +1,6 @@
 /* 메인 — 세 칸: 왼쪽 내 팀 에이스(반짝이 카드 · 팀 요약 · 등급) · 가운데 오늘의 경기장(플레이 · 모드 넷) · 오른쪽 메뉴 넷 · 주간 과제 */
 import React, { useEffect, useRef, useState } from 'react';
-import { UiStyle, GlassBg, TopBar, KV, Btn, Portrait, Stats, teamStats } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, KV, Btn, Portrait, Stats, teamStats, Pop } from './ui.jsx';
 import { rankOf } from './rank.js';
 import { teamNeon } from './teamColor.js';
 import { teamFlag } from './teamArt.js';
@@ -209,13 +209,9 @@ function StarterNotice({ team, gold, onClose }) {
   const squad = team.squad || [];
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 4);
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
-      <div className="mt-cut mt-frame mt-glass flex w-[640px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="스타터 스쿼드">
-        <div>
-          <p className="mt-lab">스타터 스쿼드</p>
-          <h2 className="mt-1 text-t1 font-black text-white">선수 {squad.length}명 지급</h2>
-        </div>
+    <Pop eyebrow="스타터 스쿼드" title={`선수 ${squad.length}명 지급`} width={640} onClose={() => onClose(false)}
+      actions={<><Btn onClick={() => onClose(false)}>닫기</Btn><Btn pri className="min-w-[200px]" onClick={() => onClose(true)}>내 라커로 ▶</Btn></>}>
+      <div className="flex flex-col gap-5">
         <div className="grid grid-cols-4 gap-2">
           {top.map((p) => (
             <div key={p.id} className="mt-cut flex items-center gap-2 bg-white/[0.045] p-2" style={{ '--c': '8px' }}>
@@ -234,31 +230,19 @@ function StarterNotice({ team, gold, onClose }) {
           <KV sm k="경기 보상" v="승 300 · 무 180 · 패 120 G" />
           <KV sm k="방출" v="산 값의 절반 환급" />
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          <Btn pri onClick={() => onClose(true)}>내 라커로 ▶</Btn>
-          <Btn onClick={() => onClose(false)}>닫기</Btn>
-        </div>
       </div>
-    </div>
+    </Pop>
   );
 }
 
 /** 상점 정리 환급 — 없어진 권 · 부스트를 산 값만큼 돌려받은 내역 (한 번) */
 function RefundNotice({ refund, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
-      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#fde047' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상점 정리 환급">
-        <div>
-          <p className="mt-lab">상점 정리</p>
-          <h2 className="mt-1 text-t1 font-black text-white">환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></h2>
-        </div>
-        <div>
-          {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
-        </div>
-        <Btn pri a="#fde047" onClick={() => onClose(false)}>확인</Btn>
-      </div>
-    </div>
+    <Pop eyebrow="상점 정리" a="#fde047" label="상점 정리 환급" onClose={() => onClose(false)}
+      title={<>환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></>}
+      actions={<Btn pri a="#fde047" className="min-w-[200px]" onClick={() => onClose(false)}>받기</Btn>}>
+      {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
+    </Pop>
   );
 }
 

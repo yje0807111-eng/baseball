@@ -15,7 +15,7 @@ import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quo
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
-import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -338,17 +338,9 @@ const LOCKER_RULES = [
 ];
 function LockerRules({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={onClose}>
-      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-4 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="라커 규칙">
-        <div>
-          <p className="mt-lab">도움말</p>
-          <h2 className="mt-1 text-t1 font-black text-white">라커 규칙</h2>
-        </div>
-        <div>{LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}</div>
-        <Btn pri onClick={onClose}>닫기</Btn>
-      </div>
-    </div>
+    <Pop eyebrow="도움말" title="라커 규칙" onClose={onClose}>
+      {LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}
+    </Pop>
   );
 }
 

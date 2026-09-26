@@ -22,6 +22,10 @@ export const UiStyle = () => (
       -webkit-mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 1.5px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 22%, transparent); }
     .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:14px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
+    @keyframes mt-dim { from { opacity:0 } to { opacity:1 } }
+    @keyframes mt-pop { from { opacity:0; transform:translateY(18px) scale(.97) } to { opacity:1; transform:none } }
+    .mt-pop-bg { animation: mt-dim .15s ease-out both; }
+    .mt-pop { animation: mt-pop .22s ease-out both; }
     .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
     .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
     .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); }
@@ -160,6 +164,39 @@ export const Panel = ({ label, a = '#10b981', c = 14, hot, glass = true, classNa
 export const Btn = ({ pri, lg, sm, a = '#10b981', className = '', style, ...rest }) => (
   <button type="button" className={`mt-btn ${pri ? 'pri' : ''} ${lg ? 'lg' : ''} ${sm ? 'sm' : ''} ${className}`} style={{ '--a': a, ...style }} {...rest} />
 );
+
+/**
+ * 팝업 틀 — 드래프트 창(Modal)과 같은 모양: 어둡게 · 흐리게 깐 배경, 위 제목 줄(분류 · 제목 · 닫기),
+ * 본문 스크롤, 아래 단추 줄(오른쪽 끝이 주 단추). Esc · 바깥 누르기로 닫기
+ */
+export function Pop({ eyebrow, title, sub, a = '#10b981', width = 560, onClose, actions, label, children }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <div className="mt-pop-bg fixed inset-0 z-50 grid place-items-center bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px]" onClick={onClose} role="presentation">
+      <section role="dialog" aria-modal="true" aria-label={label || (typeof title === 'string' ? title : eyebrow)} onClick={(e) => e.stopPropagation()}
+        className="mt-pop mt-cut mt-frame mt-glass flex max-h-[88vh] w-full flex-col shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '18px', '--a': a, maxWidth: width }}>
+        <header className="flex items-start gap-4 border-b border-white/10 px-7 pb-4 pt-6">
+          <div className="min-w-0 flex-1">
+            {eyebrow && <p className="mt-lab">{eyebrow}</p>}
+            <h2 className="mt-1 text-t1 font-black text-white">{title}</h2>
+            {sub && <p className="mt-1 text-t3 text-gray-400">{sub}</p>}
+          </div>
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="닫기" className="-mr-2 grid h-9 w-9 place-items-center text-gray-400 hover:text-white">
+              <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+          )}
+        </header>
+        <div className="mt-scroll min-h-0 flex-1 overflow-y-auto px-7 py-5">{children}</div>
+        {actions && <footer className="flex items-center justify-end gap-2 border-t border-white/10 px-7 py-4">{actions}</footer>}
+      </section>
+    </div>
+  );
+}
 
 export const Chip = ({ a = '#94a3b8', children }) => <span className="mt-chip" style={{ '--a': a }}>{children}</span>;
 

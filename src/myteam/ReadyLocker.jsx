@@ -8,7 +8,7 @@ import React, { useRef, useState } from 'react';
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
-import { Btn, UiStyle } from './ui.jsx';
+import { Btn, UiStyle, Pop } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
 
@@ -162,14 +162,7 @@ function FoeLineup({ opponent, onClose }) {
   const danger = dangerOf(bats);
   const c = opponent.color || '#60a5fa';
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={onClose}>
-      <div className="mt-cut mt-frame mt-glass flex w-[520px] flex-col gap-4 p-7" style={{ ...cut(18), '--a': c }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상대 타순">
-        <div>
-          <p className="mt-lab" style={{ '--a': c }}>상대 타순</p>
-          <h2 className="mt-1 text-t1 font-black text-white">{opponent.name}</h2>
-          <p className="mt-1 text-t3 text-gray-400">{scoutTags(opponent).map((t) => t.label).join(' · ')}</p>
-        </div>
+    <Pop eyebrow="상대 타순" title={opponent.name} sub={scoutTags(opponent).map((t) => t.label).join(' · ')} a={c} width={520} onClose={onClose}>
         <div className="flex flex-col gap-1">
           {lineupOf(opponent).map((p, i) => {
             const d = danger.get(p.id);
@@ -187,9 +180,7 @@ function FoeLineup({ opponent, onClose }) {
             );
           })}
         </div>
-        <Btn pri onClick={onClose}>닫기</Btn>
-      </div>
-    </div>
+    </Pop>
   );
 }
 
