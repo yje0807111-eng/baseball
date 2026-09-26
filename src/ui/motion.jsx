@@ -48,14 +48,16 @@ export function navTo(update, kind = 'fwd', ready = null) {
  */
 export function Count({ value, from, dur = 700, delay = 0, format = (n) => n.toLocaleString(), className = '', style }) {
   const start = from ?? value;
-  const [n, setN] = useState(start);
+  const [n, setShown] = useState(start);
   const [pop, setPop] = useState(0);
-  const prev = useRef(start);
+  /* 지금 보이는 값에서 센다 — 중간에 끊기거나(개발 모드 이중 실행 · 값이 또 바뀜) 다시 돌아도 끝 값으로 건너뛰지 않게 */
+  const shown = useRef(start);
+  const setN = (v) => { shown.current = v; setShown(v); };
   useEffect(() => {
-    const a = prev.current;
+    const a = shown.current;
     const b = value;
-    prev.current = b;
-    if (a === b || !dur || reducedMotion()) { setN(b); return undefined; }
+    if (a === b) return undefined;
+    if (!dur || reducedMotion()) { setN(b); return undefined; }
     let raf = 0;
     let t0 = 0;
     const tick = (t) => {
