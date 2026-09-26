@@ -3,6 +3,7 @@
  * 경기가 끝나면 여기로 돌아와 다른 팀들의 성적과 순위 변화를 본다.
  */
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import BgmButton from '../audio/BgmButton.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { teamOf } from './tournament.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLACE_REWARD } from './ranked.js';
@@ -208,6 +209,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
+        <BgmButton cut="ui-cut" edge="8px" align="left" />
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
           <b className="text-t2 font-extrabold text-white">랭크전 시즌 {s.season} · {s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}</b>

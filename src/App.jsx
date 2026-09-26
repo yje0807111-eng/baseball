@@ -10,6 +10,7 @@ import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from 
 import { online } from './net/supabase.js';
 import { resume, logOut } from './net/account.js';
 import { startSync } from './net/sync.js';
+import { setScene } from './audio/bgm.js';
 import { navTo } from './ui/motion.jsx';
 
 /* 화면 깊이 — 더 깊이 가면 '들어감', 얕아지면 '돌아옴' 모션. 결과 화면에서 나갈 때는 다음으로 넘어가는 것이라 '들어감' */
@@ -20,6 +21,9 @@ import { GameApp, preloadView } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
+
+/* 배경음악 묶음 — 경기만 경기 곡, 나머지는 메뉴 곡. 드래프트(modes)는 그 안의 단계가 정한다 */
+const SCENE_OF = { play: 'game', modes: null };
 
 export default function App() {
   /* 서버 키가 있으면 남은 로그인부터 확인하고(boot) 그 계정 저장을 받아 연다 — 이 브라우저 사본이 다른 계정 것일 수 있다 */
@@ -66,6 +70,9 @@ export default function App() {
     });
     return () => { alive = false; };
   }, [starterDue, account?.nick]);
+
+  /* 로그인 화면부터 메뉴 곡 — 계정이 없으면 화면이 무엇이든 로그인 화면이다 */
+  useEffect(() => { const sc = !account ? 'menu' : view in SCENE_OF ? SCENE_OF[view] : 'menu'; if (sc) setScene(sc); }, [view, !!account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (boot) return <Loading />;
   /* 로그인 → 로비: 로그인 판이 앞으로 물러나며 로비가 들어온다(로비는 첫 등장 연출로 이어짐) · 로그아웃은 반대 */
