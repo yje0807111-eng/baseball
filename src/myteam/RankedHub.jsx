@@ -10,6 +10,7 @@ import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLAC
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { rankOf } from './rank.js';
 import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
+import { play } from '../audio/sfx.js';
 
 /**
  * 등급 오름 — 시즌 보상을 받아 등급이 바뀌는 순간(가장 드문 순간이라 가장 크게, 롤 · 클래시 로얄 승급처럼)
@@ -79,10 +80,14 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
       tr.style.position = 'relative';
       tr.style.zIndex = idx === me ? '2' : '1';
     });
-    const t = setTimeout(() => moved.forEach((tr) => {
-      tr.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
-      tr.style.transform = '';
-    }), MOVE_WAIT);
+    const mine = prevRanks.get(me) != null && prevRanks.get(me) !== now.get(me) ? now.get(me) - prevRanks.get(me) : 0; // 내 순위가 움직였으면 ▲▼ 소리
+    const t = setTimeout(() => {
+      if (mine) play(mine < 0 ? 'rankUp' : 'rankDown');
+      moved.forEach((tr) => {
+        tr.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
+        tr.style.transform = '';
+      });
+    }, MOVE_WAIT);
     return () => clearTimeout(t);
   }, [rows.map((r) => r.idx).join()]); // 순위가 바뀔 때만 — 같은 순위로 다시 그려지는 것은 무시 // eslint-disable-line react-hooks/exhaustive-deps
   const cell = big ? 'py-[7px]' : 'py-1';
@@ -322,7 +327,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
               </div>
               <div className="ui-cut flex items-center gap-3 bg-white/[0.05] px-4 py-2.5" style={{ '--c': '10px' }}>
                 <span key={`${rank.tier.key}${rank.div}`} className={`font-display text-t3 font-bold ${rpFrom != null && rankOf(rpFrom).div !== rank.div ? 'fx-bump' : ''}`} style={{ color: rank.tier.c, '--d': '900ms' }}>{rank.tier.ko} {rank.div}</span>
-                <b className="ml-auto font-display text-t2 text-white"><Count value={rp} from={rpFrom ?? rp} delay={200} dur={900} /> RP</b>
+                <b className="ml-auto font-display text-t2 text-white"><Count sfx value={rp} from={rpFrom ?? rp} delay={200} dur={900} /> RP</b>
               </div>
               {s.claimed && (() => {
                 const got = s.reward || { rp: reward.rp, gold: reward.gold };

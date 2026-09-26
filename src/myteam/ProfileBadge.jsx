@@ -1,6 +1,6 @@
 /*
  * 상단 바 오른쪽 프로필 — 등급 엠블럼 · 이름 · 등급/RP + 맞물린 골드 칩.
- * 누르면 프로필 창: 이름 변경 · 대진표 내 팀 칸 배너 고르기 · 배경음악 · 로그아웃.
+ * 누르면 프로필 창: 이름 변경 · 대진표 내 팀 칸 배너 고르기 · 소리(배경음악 · 효과음) · 로그아웃.
  * 이름 · 배너는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
  */
 import React, { useState, useEffect, useRef } from 'react';
@@ -12,22 +12,34 @@ import { BANNERS, flagByKey } from './teamArt.js';
 import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 import { getSettings, onSettings, setSettings } from '../audio/bgm.js';
+import { play } from '../audio/sfx.js';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
 
-/** 배경음악 — 크기 · 음소거. 다른 칸과 달리 저장을 누르지 않아도 바로 바뀐다 */
+/** 소리 — 배경음악 · 효과음 크기와 음소거. 다른 칸과 달리 저장을 누르지 않아도 바로 바뀐다 */
 function MusicRow() {
   const [s, setS] = useState(getSettings);
   useEffect(() => onSettings(setS), []);
-  const off = s.muted || s.vol === 0;
+  const row = (key, label, onSet) => {
+    const v = s[key] ?? 0;
+    return (
+      <div className="flex items-center gap-4">
+        <span className="w-16 shrink-0 text-t3 font-bold text-gray-300">{label}</span>
+        <input type="range" min="0" max="100" value={Math.round(v * 100)} aria-label={`${label} 크기`}
+          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false })} onPointerUp={onSet} className="min-w-0 flex-1 accent-emerald-400" />
+        <b className="w-10 text-right font-display text-t2 text-white">{s.muted || v === 0 ? '끔' : Math.round(v * 100)}</b>
+      </div>
+    );
+  };
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">배경음악</span>
-      <div className="mt-cut flex h-12 items-center gap-4 bg-white/[0.06] px-4" style={{ '--c': '8px' }}>
-        <input type="range" min="0" max="100" value={Math.round(s.vol * 100)} aria-label="배경음악 크기"
-          onChange={(e) => setSettings({ vol: Number(e.target.value) / 100, muted: false })} className="min-w-0 flex-1 accent-emerald-400" />
-        <b className="w-10 text-right font-display text-t2 text-white">{off ? '끔' : Math.round(s.vol * 100)}</b>
+      <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">소리</span>
+      <div className="mt-cut flex items-center gap-4 bg-white/[0.06] px-4 py-2.5" style={{ '--c': '8px' }}>
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          {row('vol', '배경음악')}
+          {row('sfx', '효과음', () => play('goldIn'))}
+        </div>
         <button type="button" onClick={() => setSettings({ muted: !s.muted })} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '소리 켜기' : '음소거 · M'}</button>
       </div>
     </div>
@@ -160,7 +172,7 @@ export default function ProfileBadge({ account, onSignOut }) {
   useEffect(() => {
     const d = gold - prevGold.current;
     prevGold.current = gold;
-    if (d) setDelta({ d, k: `${Date.now()}` });
+    if (d) { setDelta({ d, k: `${Date.now()}` }); play(d > 0 ? 'goldIn' : 'goldOut'); }
   }, [gold]);
   return (
     <span className="relative inline-flex">

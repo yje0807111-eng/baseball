@@ -4,6 +4,8 @@
    · 좋은 일은 오르는 음, 나쁜 일은 내리는 음
    레시피(RECIPES)는 순간마다 하나 — 게임에서는 play('tab') 처럼 부른다. */
 
+import { getSettings, onSettings } from './bgm.js';
+
 const A4 = 440;
 /** D장조 5음 — 반음 수(D=0) */
 const PENTA = [0, 2, 4, 7, 9];
@@ -15,7 +17,9 @@ export function note(n, octave = 4) {
 }
 
 let ctx = null; let bus = null; let noiseBuf = null;
-let level = 0.6; let muted = false;
+/* 크기 · 음소거는 배경음악과 같은 설정(프로필 창 · M 키) */
+let level = getSettings().sfx ?? 0.6; let muted = getSettings().muted;
+onSettings((st) => { level = st.sfx ?? 0.6; muted = st.muted; });
 
 export function sfxContext() {
   if (ctx) return ctx;
@@ -102,10 +106,10 @@ export const RECIPES = {
     noise(t, { f: 3200, q: 3, d: 0.02, g: 0.05 + k * 0.01, dest: o });
   } },
   /* 카드 날아가기 — 휙(잡음이 쓸려 올라감) 뒤 착지 쿵 */
-  fly: { len: 0.45, fn(t, o, { tone, noise }) {
-    noise(t, { f: 700, f2: 3200, q: 1.2, a: 0.1, d: 0.14, g: 0.1, dest: o });
-    tone(t + 0.26, { f: 190, f2: 90, d: 0.08, g: 0.3, dest: o });
-    noise(t + 0.26, { type: 'lowpass', f: 1500, d: 0.03, g: 0.1, dest: o });
+  fly: { len: 0.7, fn(t, o, { tone, noise, land = 0.26 }) { // land: 도착하는 때(초)
+    noise(t, { f: 700, f2: 3200, q: 1.2, a: Math.min(0.2, land * 0.4), d: Math.max(0.14, land * 0.5), g: 0.1, dest: o });
+    tone(t + land, { f: 190, f2: 90, d: 0.08, g: 0.3, dest: o });
+    noise(t + land, { type: 'lowpass', f: 1500, d: 0.03, g: 0.1, dest: o });
   } },
   /* 카드 뒤집기 — 카드 튕김 두 번(종이 결 잡음) + 맑은 음 하나 */
   flip: { vary: true, len: 0.5, fn(t, o, { noise, bell, note, jitter }) {
@@ -162,8 +166,13 @@ export async function measure(name, opts = {}) {
 }
 
 /** 효과음 내기 — name: RECIPES 의 이름, opts.gain 으로 이번만 크기 조절 */
+const lastAt = new Map();
 export function play(name, opts = {}) {
   const r = RECIPES[name]; if (!r || muted || level <= 0) return;
+  if (typeof document !== 'undefined' && document.hidden) return;
+  /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
+  const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < 40) return; lastAt.set(name, now);
+  if (import.meta.env?.DEV) (window.__sfx ||= []).push(name); // 개발 모드 확인용 — 무엇이 울렸나
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();
   const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary ? 1 - Math.random() * 0.15 : 1);
@@ -171,4 +180,17 @@ export function play(name, opts = {}) {
   const t = ctx.currentTime + 0.005;
   r.fn(t, out, { tone, bell, noise, note, jitter: r.vary ? jitter : (f) => f, ...opts });
   setTimeout(() => out.disconnect(), (r.len ?? 1.5) * 1000 + 200);
+}
+
+/* 단추 누름 — 모든 단추 · 탭에 한 곳에서. 주 단추(.pri)는 두께 있는 'press', 나머지는 'tab'.
+   data-sfx="이름" 으로 바꾸고, data-sfx="none" 이면 소리 없음(제 순간 소리를 따로 내는 단추) */
+if (typeof window !== 'undefined') {
+  window.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const el = e.target.closest?.('button, [role="tab"], [role="button"], a[href]');
+    if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+    const set = el.closest('[data-sfx]')?.dataset.sfx;
+    if (set === 'none') return;
+    play(set || (el.classList.contains('pri') ? 'press' : 'tab'));
+  }, true);
 }

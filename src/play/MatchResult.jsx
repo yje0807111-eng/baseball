@@ -136,7 +136,7 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
         <div className="flex items-center gap-6">
           <span className="text-right"><b className="block max-w-[16rem] truncate text-t2 font-black text-white">{myName}</b><small className="text-t4 text-gray-400">우리</small></span>
           <b className="font-display text-[64px] font-extrabold leading-none tabular-nums text-white">
-            <Count value={score.my} from={0} delay={INTRO.score} dur={dur ?? 650} style={{ color: winner === 'my' ? WIN : '#fff' }} />
+            <Count sfx value={score.my} from={0} delay={INTRO.score} dur={dur ?? 650} style={{ color: winner === 'my' ? WIN : '#fff' }} />
             <span className="mx-3 text-gray-500">:</span>
             <Count value={score.opp} from={0} delay={INTRO.score} dur={dur ?? 650} style={{ color: winner === 'opp' ? LOSE : '#fff' }} />
           </b>

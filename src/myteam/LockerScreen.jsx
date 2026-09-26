@@ -16,7 +16,7 @@ import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeIte
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
-import { Count, Burst, flyGhost, useListIntro } from '../ui/motion.jsx';
+import { Count, Burst, flyGhost, useListIntro, SfxAt } from '../ui/motion.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -247,6 +247,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
           <span className="lk-ring pointer-events-none absolute inset-0" aria-hidden="true" />
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
             <b className="fx-stamp -rotate-12 rounded-md px-4 py-1 font-display text-t1 font-extrabold" style={{ '--d': '120ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 28px rgba(245,210,122,.8)' }}>영입</b>
+            <SfxAt name="stamp" delay={120} />
             <Burst n={18} spread={130} delay={260} />
           </span>
         </div>
@@ -421,7 +422,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <span className="text-t4 text-gray-300">{fx.label}</span>
             {fx.to != null ? (
               <span className="ml-auto flex items-baseline gap-1.5 font-display">
-                <Count value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
+                <Count sfx value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
                 <b className="fx-bump text-t3 text-[#34d399]" style={{ '--d': '940ms' }}>▲{fx.to - fx.from}</b>
               </span>
             ) : <b className="fx-bump ml-auto text-t3 text-[#34d399]" style={{ '--d': '420ms' }}>사용 완료</b>}

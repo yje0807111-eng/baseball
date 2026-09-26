@@ -12,10 +12,11 @@ const SCENE_FADE = 1.2; // 화면 묶음이 바뀔 때
 const SONG_FADE = 3; // 메뉴 곡끼리 넘어갈 때
 const KEY = 'kbo.bgm';
 
-const load = () => { try { return { vol: 0.5, muted: false, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { vol: 0.5, muted: false }; } };
+const DEFAULTS = { vol: 0.5, sfx: 0.6, muted: false }; // sfx: 효과음 크기(sfx.js) · 음소거는 둘 다
+const load = () => { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } };
 const save = (s) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* 못 쓰면 이번 방문만 */ } };
 
-let settings = typeof window === 'undefined' ? { vol: 0.5, muted: false } : load();
+let settings = typeof window === 'undefined' ? { ...DEFAULTS } : load();
 let ctx = null; let master = null; let menuBus = null; let loopBus = null;
 let scene = null; let wanted = null;
 let loopBuffer = null; let loopNode = null; let loopLoading = null;
