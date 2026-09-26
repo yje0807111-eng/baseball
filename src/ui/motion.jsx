@@ -107,13 +107,16 @@ export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, dela
  * 날아가기 — 누른 카드의 사본이 살짝 떠올랐다가(호) 도착 자리로 작아지며 들어간다(TFT 상점 → 벤치, FC 온라인 영입).
  * 도착 자리는 화면이 바뀐 뒤에 생기므로 findTarget 은 두 프레임 뒤에 찾는다. 원본 화면은 건드리지 않는다.
  */
-export function flyGhost(fromEl, findTarget, { dur = 420, lift = 46 } = {}) {
+export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46 } = {}) {
   if (!fromEl || reducedMotion() || typeof document === 'undefined') return;
   const a = fromEl.getBoundingClientRect();
   if (!a.width) return;
   const ghost = fromEl.cloneNode(true);
   ghost.removeAttribute('id');
   ghost.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
+  /* 원본에 걸린 등장 · 사라짐 모션(투명에서 시작하는 rise 등)이 사본에서 다시 돌면 안 보인다 — 사본 안은 모두 끈 채 또렷하게 출발 */
+  [ghost, ...ghost.querySelectorAll('*')].forEach((e) => { e.style.animation = 'none'; e.style.transition = 'none'; });
+  ghost.querySelectorAll('.gone, .gone-keep, .mc-leave, .taken').forEach((e) => e.classList.remove('gone', 'gone-keep', 'mc-leave', 'taken'));
   Object.assign(ghost.style, { position: 'fixed', left: `${a.left}px`, top: `${a.top}px`, width: `${a.width}px`, height: `${a.height}px`, margin: '0', zIndex: '80', pointerEvents: 'none', animation: 'none', transformOrigin: '0 0', willChange: 'transform, opacity' });
   document.body.appendChild(ghost);
   const drop = setTimeout(() => ghost.remove(), dur + 800); // 창이 가려져 프레임이 멈춰도 사본은 반드시 치운다
@@ -126,9 +129,10 @@ export function flyGhost(fromEl, findTarget, { dur = 420, lift = 46 } = {}) {
     const dy = b.top + b.height / 2 - (a.top + (a.height * s) / 2);
     const mid = (1 + s) / 2;
     const anim = ghost.animate([
-      { transform: 'translate(0,0) scale(1)', opacity: 1 },
-      { transform: `translate(${dx * 0.45}px, ${dy * 0.45 - lift}px) scale(${mid})`, opacity: 1, offset: 0.45 },
-      { transform: `translate(${dx}px, ${dy}px) scale(${s})`, opacity: 0 },
+      { transform: 'translate(0,0) scale(1)', opacity: 1, filter: 'brightness(1)' },
+      { transform: 'translate(0,-10px) scale(1.06)', opacity: 1, filter: 'brightness(1.25)', offset: 0.15 }, // 먼저 살짝 들어 올림
+      { transform: `translate(${dx * 0.45}px, ${dy * 0.45 - lift}px) scale(${mid})`, opacity: 1, filter: 'brightness(1.1)', offset: 0.45 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${s})`, opacity: 0, filter: 'brightness(1)' },
     ], { duration: dur, easing: 'cubic-bezier(.3,.7,.2,1)' });
     anim.onfinish = () => { clearTimeout(drop); ghost.remove(); };
     anim.oncancel = () => ghost.remove();
