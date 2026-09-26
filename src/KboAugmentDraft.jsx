@@ -1421,34 +1421,32 @@ export const KEYFRAMES = `
 .pop-scroll::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,.8); }
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
-.rl-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; } /* 탭 7개: 4 + 3 */
-.rl-tabs button { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; font-size:14px; font-weight: 700; color: #cbd5e1; white-space: nowrap; background: rgba(255,255,255,.04); clip-path: inset(0 round 8px); transition: background .15s, color .15s; }
-.rl-tabs button:hover { color: #fff; background: rgba(255,255,255,.08); }
-.rl-tabs button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
-.rl-tabs svg { width: 18px; height: 18px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.rl-tabs button.on { color: #fff; background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(16,185,129,.08)); box-shadow: inset 0 -2px 0 #10b981; }
-.rl-tabs button.on svg { stroke: #34d399; }
-@media (max-width: 420px) { .rl-tabs { gap: 5px; } .rl-tabs button { gap: 5px; padding: 8px 7px; font-size:12px; } .rl-tabs svg { width: 16px; height: 16px; } }
-.rl-lead { margin: 0 0 12px; padding: 10px 12px; font-size:14px; line-height: 1.65; color: #e5e7eb; background: rgba(16,185,129,.07); box-shadow: inset 2px 0 0 #10b981; }
+.rl-wrap { display: grid; grid-template-columns: 236px minmax(0, 1fr); height: min(660px, 74vh); border-top: 1px solid rgba(255,255,255,.08); }
+.rl-nav { display: flex; flex-direction: column; gap: 4px; padding: 14px 12px; overflow-y: auto; background: rgba(0,0,0,.22); border-right: 1px solid rgba(255,255,255,.06); }
+.rl-nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; text-align: left; border-radius: 10px; color: #cbd5e1; transition: background .15s, color .15s; }
+.rl-nav button:hover { color: #fff; background: rgba(255,255,255,.05); }
+.rl-nav button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
+.rl-nav svg { width: 20px; height: 20px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.rl-nav span { display: grid; min-width: 0; }
+.rl-nav b { font-size: 14px; font-weight: 700; }
+.rl-nav small { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rl-nav button.on { color: #fff; background: linear-gradient(90deg, rgba(245,210,122,.16), rgba(245,210,122,.03)); box-shadow: inset 3px 0 0 #f5d27a; }
+.rl-nav button.on svg { stroke: #f5d27a; }
+.rl-nav button.on small { color: #d6c08a; }
+.rl-page { min-width: 0; overflow-y: auto; padding: 18px 22px 22px; animation: fade .18s ease-out both; }
+.rl-lead { margin: 0 0 14px; padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.65; color: #e5e7eb; background: rgba(245,210,122,.07); box-shadow: inset 3px 0 0 #f5d27a; }
 .rl-lead b, .rl-bd b { color: #fff; font-weight: 700; }
-.rl-grp + .rl-grp { border-top: 1px solid rgba(255,255,255,.06); }
-.rl-hd { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 11px 0; text-align: left; }
-.rl-hd::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 8px; background: #374151; transform: rotate(45deg); transition: background .2s; }
-.rl-hd:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
-.rl-grp.open .rl-hd::before { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.rl-tx { flex: 1; min-width: 0; }
-.rl-t { display: block; font-size:14px; font-weight: 700; color: #fff; }
-.rl-sm { display: block; margin-top: 1px; font-size:12px; color: #9ca3af; }
-.rl-grp.open .rl-sm { color: #6ee7b7; }
-.rl-chev { flex: none; width: 16px; height: 16px; margin-top: 3px; fill: none; stroke: #6b7280; stroke-width: 1.8; transition: transform .2s; }
-.rl-grp.open .rl-chev { transform: rotate(180deg); stroke: #10b981; }
-.rl-bd { margin: 0 0 14px 3px; padding: 2px 0 2px 15px; border-left: 1px solid rgba(16,185,129,.3); font-size:14px; line-height: 1.7; color: #d1d5db; animation: fade .18s ease-out both; }
+.rl-cards { columns: 2 320px; column-gap: 14px; }
+.rl-card { break-inside: avoid; margin: 0 0 14px; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+.rl-t { font-size: 14px; font-weight: 700; color: #fff; }
+.rl-sm { margin: 2px 0 10px; font-size: 12px; color: #d6c08a; }
+.rl-bd { font-size: 14px; line-height: 1.7; color: #d1d5db; }
 .rl-bd p { margin: 0 0 8px; }
 .rl-bd > :last-child { margin-bottom: 0; }
 .rl-bd em { font-style: normal; font-weight: 600; color: #6ee7b7; }
 .rl-tag { display: inline-block; padding: 0 6px; font-size:12px; font-weight: 600; line-height: 1.6; color: #fcd34d; background: rgba(251,191,36,.1); box-shadow: inset 0 0 0 1px rgba(251,191,36,.3); }
 .rl-chip { display: inline-block; padding: 1px 8px; font-size:12px; font-weight: 600; line-height: 1.6; color: #e5e7eb; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
-.rl-chip.g { color: #bbf7d0; background: rgba(16,185,129,.12); box-shadow: inset 0 0 0 1px rgba(16,185,129,.35); }
+.rl-chip.g { color: #f5d27a; background: rgba(245,210,122,.1); box-shadow: inset 0 0 0 1px rgba(245,210,122,.35); }
 .rl-tip { display: flex; gap: 8px; margin: 10px 0 2px; padding: 7px 10px; font-size:12px; line-height: 1.6; color: #bae6fd; background: rgba(56,189,248,.07); }
 .rl-tip::before { content: "팁"; flex: none; padding-top: 1px; font-family: 'Saira Condensed', sans-serif; font-size:12px; font-weight: 800; letter-spacing: .06em; color: #38bdf8; }
 .rl-slots { display: grid; gap: 6px; margin: 4px 0 10px; }
@@ -3607,7 +3605,7 @@ export function SynergyTip({ s, after, candidate, top = 0, up = false, left = 0 
 }
 
 /* ───── 가운데 팝업 카드 (배경 어둡게 · 바깥 클릭/Esc 로 닫기) ───── */
-function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
+function Modal({ title, eyebrow, onClose, bar, bodyKey, wide, children }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
@@ -3616,7 +3614,7 @@ function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
       <section role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
-        className="ui-cut ui-frame ui-glass2 w-full max-w-lg animate-[rise_.25s_ease-out_both] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '22px' }}>
+        className={`ui-cut ui-frame ui-glass2 w-full ${wide ? 'max-w-[1160px]' : 'max-w-lg'} animate-[rise_.25s_ease-out_both] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]`} style={{ '--c': '22px' }}>
         <header className={`flex items-start justify-between gap-4 px-6 pt-5 ${bar ? 'pb-3' : 'border-b border-white/10 pb-4'}`}>
           <div>
             {eyebrow && <p className="ui-lab font-display">{eyebrow}</p>}
@@ -3629,7 +3627,7 @@ function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
         </header>
         {bar}
         {/* bodyKey 가 바뀌면(규칙 탭 전환) 스크롤을 맨 위로 */}
-        <div key={bodyKey} className="pop-scroll max-h-[70vh] overflow-y-auto py-4 pl-6 pr-5">{children}</div>
+        {wide ? children : <div key={bodyKey} className="pop-scroll max-h-[70vh] overflow-y-auto py-4 pl-6 pr-5">{children}</div>}
       </section>
     </div>
   );
@@ -3638,35 +3636,31 @@ function Modal({ title, eyebrow, onClose, bar, bodyKey, children }) {
 /* 드래프트 규칙 팝업: 위 큰 탭 카드(3×2)로 섹션을 고르고, 섹션 안 구역은 눌러 열고 닫는다 (섹션을 열면 첫 구역만 펼침) */
 function RulesModal({ onClose }) {
   const [tab, setTab] = useState(RULE_TABS[0].id);
-  const [open, setOpen] = useState(() => new Set([`${RULE_TABS[0].id}:0`]));
-  const sec = RULE_TABS.find((s) => s.id === tab);
-  const pickTab = (id) => { setTab(id); setOpen(new Set([`${id}:0`])); };
-  const toggle = (key) => setOpen((o) => { const n = new Set(o); if (n.has(key)) n.delete(key); else n.add(key); return n; });
-  const bar = (
-    <nav className="rl-tabs border-b border-white/10 px-4 pb-3 sm:px-6" role="tablist" aria-label="규칙 섹션">
-      {RULE_TABS.map((s) => (
-        <button key={s.id} type="button" role="tab" aria-selected={s.id === tab} className={s.id === tab ? 'on' : ''} onClick={() => pickTab(s.id)}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">{s.icon}</svg>{s.label}
-        </button>
-      ))}
-    </nav>
-  );
+  const sec = RULE_TABS.find((x) => x.id === tab);
   return (
-    <Modal eyebrow="도움말" title="드래프트 규칙" onClose={onClose} bar={bar} bodyKey={tab}>
-      <p className="rl-lead">{sec.lead}</p>
-      {sec.groups.map((g, i) => {
-        const key = `${tab}:${i}`;
-        const on = open.has(key);
-        return (
-          <div key={key} className={`rl-grp${on ? ' open' : ''}`}>
-            <button type="button" className="rl-hd" aria-expanded={on} onClick={() => toggle(key)}>
-              <span className="rl-tx"><span className="rl-t">{g.t}</span><span className="rl-sm">{g.s}</span></span>
-              <svg className="rl-chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+    <Modal eyebrow="도움말" title="드래프트 규칙" onClose={onClose} wide>
+      <div className="rl-wrap">
+        <nav className="rl-nav" role="tablist" aria-label="규칙 목차" aria-orientation="vertical">
+          {RULE_TABS.map((x) => (
+            <button key={x.id} type="button" role="tab" aria-selected={x.id === tab} className={x.id === tab ? 'on' : ''} onClick={() => setTab(x.id)}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">{x.icon}</svg>
+              <span><b>{x.label}</b><small>{x.groups.map((g) => g.t.split(' · ')[0]).slice(0, 3).join(' · ')}</small></span>
             </button>
-            {on && <div className="rl-bd">{g.b}</div>}
+          ))}
+        </nav>
+        <div key={tab} className="rl-page pop-scroll" role="tabpanel">
+          <p className="rl-lead">{sec.lead}</p>
+          <div className="rl-cards">
+            {sec.groups.map((g) => (
+              <article key={g.t} className="rl-card">
+                <h3 className="rl-t">{g.t}</h3>
+                <p className="rl-sm">{g.s}</p>
+                <div className="rl-bd">{g.b}</div>
+              </article>
+            ))}
           </div>
-        );
-      })}
+        </div>
+      </div>
     </Modal>
   );
 }
@@ -4473,12 +4467,25 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
 /* 드래프트 규칙: 탭(섹션) → 구역 { t 질문, s 한 줄 답, b 펼친 내용 }. 문장은 합니다체 */
 const RL_REFUND_EX = { cost: 95 };
+/* 규칙 창에 쓰는 값 — 같이 뽑기(draft/live.js) · 증강 종류 한 줄 */
+const CLUB_COUNT_RULE = Live.CLUB_COUNT;
+const BOARD_SIZE_RULE = Live.BOARD_SIZE;
+const PICK_SECONDS_RULE = Live.PICK_SECONDS;
+const AUG_TYPE_RULE = {
+  build: '대가 없이 능력치를 조금 · 늘 적용',
+  defense: '수비 자리의 수비를 크게',
+  extreme: '한쪽을 크게 키우고 다른 쪽을 깎기',
+  balance: '팀에서 가장 처진 곳 메우기',
+  fire: '정해진 이닝부터 경기 중에만',
+  situ: '점수 상황이 맞을 때만',
+};
+
 const RULE_TABS = [
   { id: 'entry', label: '엔트리',
     icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
     lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 꾸리는 한 팀 · 필드 14자리는 포지션마다, 예비 {BENCH_SIZE}자리는 포지션 상관없음</>,
     groups: [
-      { t: '어떤 자리를 채우나요?', s: `투수 5 · 야수 9 · 예비 ${BENCH_SIZE}, 모두 ${ROSTER_SIZE}자리`, b: <>
+      { t: '채우는 자리', s: `투수 5 · 야수 9 · 예비 ${BENCH_SIZE}, 모두 ${ROSTER_SIZE}자리`, b: <>
         <div className="rl-slots">
           <div><span>투수<i>5</i></span><span className="rl-chips"><span className="rl-chip">선발투수</span><span className="rl-chip">롱릴리프</span><span className="rl-chip">중간계투</span><span className="rl-chip">셋업맨</span><span className="rl-chip">마무리</span></span></div>
           <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루수</span><span className="rl-chip">2루수</span><span className="rl-chip">3루수</span><span className="rl-chip">유격수</span></span></div>
@@ -4488,11 +4495,11 @@ const RULE_TABS = [
         </div>
         <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시</p>
       </> },
-      { t: '외국인 선수는 몇 명까지 되나요?', s: `최대 ${FOREIGN_LIMIT}명`, b: <>
+      { t: '외국인 선수', s: `최대 ${FOREIGN_LIMIT}명`, b: <>
         <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠김</p>
         <p>한 명을 방출하면 다시 뽑기 가능</p>
       </> },
-      { t: '같은 선수를 또 뽑을 수 있나요?', s: '시즌이 달라도 한 사람은 한 번만', b: <>
+      { t: '같은 선수 중복', s: '시즌이 달라도 한 사람은 한 번만', b: <>
         <div className="rl-yn">
           <div className="y"><span><b>2006 류현진</b> 영입</span></div>
           <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠김</span></div>
@@ -4503,7 +4510,15 @@ const RULE_TABS = [
     icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
     lead: <><b>{ROSTER_SIZE}라운드</b> · 라운드마다 한 명씩 영입 · 정해진 CP 안에서 스타와 가성비 섞기</>,
     groups: [
-      { t: '한 라운드는 어떻게 진행되나요?', s: '시리즈 열기 · 고르기 · 영입', b: <>
+      { t: '같이 뽑기 · 베이직 모드', s: `${CLUB_COUNT_RULE}구단이 순번대로 같은 보드에서`, b: <>
+        <div className="rl-steps">
+          <div><span>라운드마다 보드 하나 — 한 시리즈에서 <b>{BOARD_SIZE_RULE}명</b></span></div>
+          <div><span>추첨한 순번대로 한 명씩 · 내 차례에 <b>{PICK_SECONDS_RULE}초</b> 안에 고르지 않으면 자동 지명</span></div>
+          <div><span>다른 구단이 먼저 데려간 선수는 그 구단 이름이 붙고 사라짐</span></div>
+        </div>
+        <div className="rl-tip"><span>진행 배속 ×1 · ×2 · ×4 · ⏭ 로 내 차례까지 건너뛰기</span></div>
+      </> },
+      { t: '혼자 뽑기 · 한 라운드', s: '시리즈 열기 · 고르기 · 영입', b: <>
         <div className="rl-steps">
           <div><span>시리즈 하나 열림 — 구단의 한 시즌 · 국가대표 · 레전드 중 하나</span></div>
           <div><span>선수 카드를 누르면 <b>고른 선수</b> 칸에 올라 능력치와 영입가 확인</span></div>
@@ -4511,12 +4526,18 @@ const RULE_TABS = [
         </div>
         <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈 · 드래프트마다 {START_REROLLS}번</span></div>
       </> },
-      { t: 'CP는 얼마나 쓸 수 있나요?', s: '모드 화면에서 정한 샐러리 캡만큼', b: <>
-        <p>샐러리 캡은 <span className="rl-chip">700</span> <span className="rl-chip g">800</span> <span className="rl-chip">900</span> CP 중 하나</p>
+      { t: '드래프트 권', s: '상점에서 사 두고 드래프트에서 쓰기', b: <>
+        <div className="rl-kind">
+          <div><span className="rl-chip g">스카우트 리포트</span><span>혼자 뽑기 새로고침 +3회</span></div>
+          <div><span className="rl-chip g">시리즈 지정권</span><span>같이 뽑기에서 다음 보드에 열 시리즈 고르기</span></div>
+        </div>
+      </> },
+      { t: '샐러리 캡', s: '모드 화면에서 정한 만큼', b: <>
+        <p>베이직 모드는 <span className="rl-chip">{SALARY_CAP - 100}</span> <span className="rl-chip g">{SALARY_CAP}</span> <span className="rl-chip">{SALARY_CAP + 100}</span> CP 중 하나 · 특별 모드는 <b>캡 없음</b></p>
         <p>영입할 때마다 영입가만큼 줄고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠김</p>
         <div className="rl-tip"><span>선수를 고르면 위쪽 캡 막대에 쓰일 CP 미리 표시</span></div>
       </> },
-      { t: '영입가는 어떻게 정해지나요?', s: '종합이 높을수록 점수보다 비쌈', b: <>
+      { t: '영입가', s: '종합이 높을수록 점수보다 비쌈', b: <>
         <div className="rl-tbl">
           <span className="h">종합</span><span className="h">영입가</span><span className="h">차이</span>
           {[95, 90, 80, 65].map((o) => {
@@ -4531,7 +4552,7 @@ const RULE_TABS = [
         </div>
         <p><b>72~84</b>는 종합과 같은 값 · <b>85 이상</b>은 비싸고 <b>71 이하</b>는 쌈</p>
       </> },
-      { t: '다 채우지 못하면 어떻게 되나요?', s: '빈 자리는 퓨처스 유망주(종합 70)', b: <>
+      { t: '다 못 채우면', s: '빈 자리는 퓨처스 유망주(종합 70)', b: <>
         <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없을 때</b> 종료</p>
         <p>이때 비어 있는 자리는 모두 종합 70의 퓨처스 유망주</p>
         <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리는 유망주</span></div>
@@ -4541,14 +4562,14 @@ const RULE_TABS = [
     icon: <path d="M5 8h13l-3-3M19 16H6l3 3" />,
     lead: <>뽑은 선수 내보내기 · 찬 자리에 더 좋은 선수 바로 들이기 · 대신 <b>손해</b> 있음</>,
     groups: [
-      { t: '방출은 어떻게 하나요?', s: '라인업에서 선수 누르고 방출 두 번', b: <>
+      { t: '방출하기', s: '라인업에서 선수 누르고 방출 두 번', b: <>
         <div className="rl-steps">
           <div><span>라인업에서 내보낼 선수 누르기</span></div>
           <div><span><b>방출</b>을 누르면 <b>한 번 더 누르면 방출</b>로 바뀜</span></div>
           <div><span>한 번 더 누르면 방출</span></div>
         </div>
       </> },
-      { t: '방출하면 무엇이 달라지나요?', s: '영입가 절반 환급 · 되돌리기 없음', b: <>
+      { t: '방출하면', s: '영입가 절반 환급 · 되돌리기 없음', b: <>
         <div className="rl-yn">
           <div className="y"><span>영입가의 <b>절반</b>을 CP로 환급 ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
           <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입 불가</b></span></div>
@@ -4556,7 +4577,7 @@ const RULE_TABS = [
           <div className="n"><span>드래프트가 끝난 뒤(정비 화면)에는 방출 불가</span></div>
         </div>
       </> },
-      { t: '찬 자리에 선수를 데려오려면?', s: '교체 영입으로 한 번에 맞바꾸기', b: <>
+      { t: '교체 영입', s: '교체 영입으로 한 번에 맞바꾸기', b: <>
         <p>이미 찬 포지션의 선수를 고르면 단추가 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>으로 바뀜</p>
         <div className="rl-steps">
           <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 교체</span></div>
@@ -4569,7 +4590,7 @@ const RULE_TABS = [
     icon: <><path d="M12 20 4 12l8-8 8 8z" /><circle cx="12" cy="12" r="1.6" /></>,
     lead: <>선수는 <b>원래 포지션</b>에서 가장 잘함 · 다른 자리에 세우면 종합 하락</>,
     groups: [
-      { t: '다른 자리에 세우면 얼마나 약해지나요?', s: '원래 자리와 멀수록 큰 하락', b: <>
+      { t: '다른 자리에 세우면', s: '원래 자리와 멀수록 큰 하락', b: <>
         <div className="rl-ladder">
           {[
             ['0', 2, '#34d399', '제자리 · 야수가 지명타자일 때'],
@@ -4583,10 +4604,10 @@ const RULE_TABS = [
         </div>
         <p>라인업 선수를 누르면 선 자리에서 달라진 능력치 확인</p>
       </> },
-      { t: '지명타자에는 누구를 세우나요?', s: '야수 누구나 · 능력치 감소 없음', b: <>
+      { t: '지명타자', s: '야수 누구나 · 능력치 감소 없음', b: <>
         <p>수비가 약하고 방망이가 좋은 선수를 두는 자리</p>
       </> },
-      { t: '선수 자리는 어떻게 바꾸나요?', s: '선수를 끌어 다른 자리에 놓기', b: <>
+      { t: '자리 바꾸기', s: '선수를 끌어 다른 자리에 놓기', b: <>
         <div className="rl-yn">
           <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b></span></div>
           <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b></span></div>
@@ -4598,7 +4619,7 @@ const RULE_TABS = [
     icon: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
     lead: <>실제로 함께 뛰었던 선수나 조건이 맞는 선수를 모으면 <b>그 선수들 강화</b></>,
     groups: [
-      { t: '시너지를 만들면 무엇이 좋아지나요?', s: '시너지에 속한 선수만 능력치 상승', b: <>
+      { t: '시너지 효과', s: '시너지에 속한 선수만 능력치 상승', b: <>
         <p>팀 전체가 아니라 <b>조건을 채운 선수들만</b> 능력치 상승</p>
         <p>여러 시너지가 겹쳐도 한 능력치는 <em>최대 +{SYNERGY_STAT_CAP}</em>까지만</p>
       </> },
@@ -4612,7 +4633,7 @@ const RULE_TABS = [
         <div className="rl-tiers"><span><b>3명</b>파워 +2</span><span><b>4명</b>파워 +4</span><span><b>6명</b>파워 +7</span></div>
         <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸 표시</span></div>
       </> },
-      { t: '아이콘 테두리 색은 무엇인가요?', s: '단계가 오를수록 바뀌는 색', b: <>
+      { t: '아이콘 테두리 색', s: '단계가 오를수록 바뀌는 색', b: <>
         <div className="rl-tiers"><span><b>회색</b>아직 없음</span><span><b>브론즈</b>1단계</span><span><b>실버</b>2단계</span><span><b>골드</b>최종 단계</span><span><b>프리즘</b>3단계 이상 시너지의 최종</span></div>
         <p>이름 아래 <b>3 › 5 › 7</b>은 단계마다 필요한 인원 · 오른쪽 숫자는 지금 인원 / 다음 단계 인원</p>
         <p>시너지에 마우스를 올리면 조건 · 단계별 효과 · 해당 선수가 나오고, 누르면 구장에서 그 선수들 표시</p>
@@ -4622,50 +4643,63 @@ const RULE_TABS = [
         <p>드래프트 중에는 숨김 · <b>드래프트가 끝나면 공개</b> · 인원이 같은 구단이 여럿이면 모두 적용</p>
       </> },
     ] },
-  { id: 'season', label: '시즌',
+  { id: 'season', label: '경기 · 보상',
     icon: <><path d="M7 4h10v3a5 5 0 0 1-10 0z" /><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7" /></>,
-    lead: <>{ROSTER_SIZE}명을 모두 채우면 라인업 다듬기 · 증강 고르기 · <b>AI 올스타</b>와 경기</>,
+    lead: <>{ROSTER_SIZE}명을 채우면 <b>정비 → 증강 → 경기</b> · 베이직은 구단 정복, 특별은 단판 · 토너먼트</>,
     groups: [
-      { t: '드래프트가 끝나면 무엇을 하나요?', s: '정비 화면에서 자리 다듬기', b: <>
+      { t: '구단 정복 · 베이직 모드', s: '같이 뽑은 일곱 구단을 약한 순서로', b: <>
+        <div className="rl-steps">
+          <div><span>원정길 왼쪽(약함)부터 한 구단씩 · 이기면 그 자리를 빼앗고 한 칸 오른쪽으로</span></div>
+          <div><span>지면 자리 그대로 · 같은 구단에 <b>다시 도전</b></span></div>
+          <div><span>일곱 구단을 모두 넘으면 <b>정복 완료</b></span></div>
+        </div>
+        <div className="rl-kind">
+          <div><span className="rl-chip g">{GAUNTLET_MID_AT}구단 통과</span><span>기념 카드 {GAUNTLET_MID_MEMENTO.n}장 중 1장(간판 셋 제외)</span></div>
+          <div><span className="rl-chip g">정복 완료</span><span>기념 카드 {GAUNTLET_MEMENTO.n}장 중 1장</span></div>
+        </div>
+      </> },
+      { t: '단판 · 토너먼트 · 특별 모드', s: '같은 규칙으로 드래프트한 AI 팀과', b: <>
+        <p><b>단판</b> — 경기마다 새 상대 또는 같은 상대와 재경기 · 첫 승리에 기념 카드 {SINGLE_MEMENTO.n}장 중 1장</p>
+        <p><b>16강 · 32강</b> — 대진표 · 지면 탈락 · 순위에 따라 기념 카드 2~5장 중 1장</p>
+      </> },
+      { t: 'AI 난이도', s: '상대 구단의 급과 경기 보정', b: <>
+        <div className="rl-tbl">
+          <span className="h">난이도</span><span className="h">일곱 구단</span><span className="h">경기 보정</span>
+          <span>쉬움</span><span>탄탄 1 · 평범 2 · 약체 4</span><span className="dn">타격 · 투구 −{AI_BUFF.hard}</span>
+          <span>보통</span><span>강호 1 · 탄탄 2 · 평범 2 · 약체 2</span><span>없음</span>
+          <span>강함</span><span>강호 2 · 탄탄 3 · 평범 2</span><span className="up">타격 · 투구 +{AI_BUFF.hard}</span>
+        </div>
+        <p>보정은 정비 화면 예상 승률 · 구단 정복 비교 막대에도 들어간 값</p>
+      </> },
+      { t: '증강', s: `시즌 시작 ${SEASON_AUGMENTS}장 · 경기 중 ${MID_AUG_INNINGS.join(' · ')}회 1장`, b: <>
+        <p>매번 <b>3장 중 1장</b> · 다시 굴리기 1번 무료 · 그다음은 리롤권</p>
+        <p>경기 중 증강은 <b>그 경기에서만</b></p>
+        <div className="rl-kind">
+          {Object.entries(AUG_TYPE).map(([k, v]) => <div key={k}><span className="rl-chip g">{v}</span><span>{AUG_TYPE_RULE[k]}</span></div>)}
+        </div>
+        <p>카드의 색 칩은 도움 되는 영역 — {Object.values(AUG_AREA).map(([n, c]) => <span key={n} className="rl-chip" style={{ color: c }}>{n}</span>)}</p>
+      </> },
+      { t: '정비', s: '타순 · 자리 · 작전 · 준비 카드', b: <>
         <div className="rl-yn">
-          <div className="y"><span>선수를 끌어 자리 옮기기</span></div>
+          <div className="y"><span>선수를 끌어 자리 · 타순 옮기기 · 작전 고르기</span></div>
           <div className="n"><span>방출과 영입 불가</span></div>
         </div>
-      </> },
-      { t: '증강은 언제 고르나요?', s: '시즌 시작 때 모드가 정한 개수만큼', b: <>
-        <p>증강 개수는 <span className="rl-chip">없음</span> <span className="rl-chip g">2개</span> <span className="rl-chip">3개</span> 중 하나</p>
-        <p>매번 <b>3장 중 1장</b> · 3장은 <span className="rl-chip">실버</span> <span className="rl-chip g">골드</span> <span className="rl-chip">프리즘</span> 중 한 등급</p>
-        <p>경기 중에는 <b>플레이볼 직후</b>와 <b>7회 시작</b>에 그 경기에서만 쓰는 증강 하나씩 더</p>
-      </> },
-      { t: '증강은 어떤 종류가 있나요?', s: '같은 증강도 선수 구성에 따라 효과가 크게 다름', b: <>
-        <div className="rl-kind">
-          <div><span className="rl-chip g">라인업 비례</span><span>조건에 맞는 선수가 많을수록 강함 · 맞는 선수가 없으면 효과도 적음</span></div>
-          <div><span className="rl-chip g">약점 완화</span><span>팀의 가장 약한 곳 보강 · 한쪽으로 치우친 팀일수록 큰 효과</span></div>
-          <div><span className="rl-chip g">몰빵</span><span>강한 쪽을 더 키우는 대신 대가 · 극단적인 팀에서 가장 큰 효과</span></div>
-          <div><span className="rl-chip g">경기 운영</span><span>투수 교체 · 승부처 개입 · 위기 탈출처럼 흐름을 바꾸는 쪽</span></div>
-          <div><span className="rl-chip g">운</span><span>경기마다 크게 갈리는 결과</span></div>
-        </div>
-        <p>조건이 적힌 증강은 조건이 맞을 때 확률로 발동 · 나머지는 고른 순간부터 계속 적용</p>
-      </> },
-      { t: '상대는 누구인가요?', s: '같은 규칙으로 드래프트한 AI 올스타', b: <>
-        <p>AI 난이도 <span className="rl-chip">쉬움</span> <span className="rl-chip g">보통</span> <span className="rl-chip">강함</span>에 따라 달라지는 상대 능력치</p>
-        <p>경기 결과는 전적에 쌓임 · 같은 상대와 다시 겨루기 가능</p>
       </> },
     ] },
   { id: 'team', label: '내 팀',
     icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
     lead: <>드래프트 화면 오른쪽 <b>내 팀</b> 판 — 지금 라인업의 전력과 선수들의 실제 시즌 기록</>,
     groups: [
-      { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
+      { t: '팀 분석 숫자', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
         <p>선수를 세운 자리와 시너지가 반영된 종합의 평균 · 빈 자리는 빼고 계산</p>
         <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지</p>
         <p>타자 넷은 야수 평균 능력치 · 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력</p>
       </> },
-      { t: '초록 면과 붉은 점선은 무엇인가요?', s: '초록 면은 우리 팀 · 붉은 점선은 AI 평균', b: <>
+      { t: '초록 면 · 붉은 점선', s: '초록 면은 우리 팀 · 붉은 점선은 AI 평균', b: <>
         <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균</p>
         <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼 · 아래 칩은 차이가 큰 순서</p>
       </> },
-      { t: '홈런 타선 · 불안한 뒷문은 무엇인가요?', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력', b: <>
+      { t: '팀 색깔 이름표', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력', b: <>
         <div className="rl-tbl">
           <span className="h">능력</span><span className="h">가장 앞설 때</span><span className="h">가장 밀릴 때</span>
           {TEAM_AXES.map(([k]) => (
@@ -4673,7 +4707,7 @@ const RULE_TABS = [
           ))}
         </div>
       </> },
-      { t: '선수 기록은 어떻게 보나요?', s: '투수와 타자의 실제 시즌 기록을 따로', b: <>
+      { t: '선수 기록', s: '투수와 타자의 실제 시즌 기록을 따로', b: <>
         <p>투수는 <b>ERA · 승 · 세이브(S) 또는 홀드(H) · 삼진</b>, 타자는 <b>타율 · 홈런 · 도루 · 타점</b></p>
         <p>초록 기록은 그 열에서 <b>우리 팀 1등</b> · ERA는 가장 낮은 값이 초록</p>
         <p>레전드 카드처럼 시즌 기록 자료가 없는 선수는 <b>-</b>로 표시</p>
