@@ -21,6 +21,7 @@ let seen = null;
 const MOVE_WAIT = 300; // 화면이 뜬 뒤 옛 모습을 잠깐 보여 주고 움직인다(ms)
 import { GAUNTLET_MEMENTO, GAUNTLET_MID_AT, GAUNTLET_MID_MEMENTO } from './memento.js';
 import { artId } from '../data/artAlias.js';
+import BgmButton from '../audio/BgmButton.jsx';
 
 const GOLD = '#f5d27a';
 const WIN = '#34d399', LOSE = '#f87171';
@@ -284,7 +285,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
     <div className="fx-fade fixed inset-0 z-30 flex flex-col">
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/gauntlet.webp)' }} aria-hidden="true" />
       {/* 머리 줄 — 정비로 · 이름 · 진행도 · 내 전적 */}
-      <div className="relative flex h-16 shrink-0 items-center gap-4 px-8" style={{ background: 'rgba(6,10,19,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
+      <div className="relative flex h-[4.75rem] shrink-0 items-center gap-4 px-7" style={{ background: 'rgba(6,10,19,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
         <button type="button" className="ui-btn ui-cut px-3.5 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
         <b className="text-t1 font-black text-white">구단 정복</b>
         <span className="flex items-baseline gap-1.5 border-l border-white/15 pl-4">
@@ -296,10 +297,11 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
           <b className="text-t3 text-[#e8ecf2]">{me.name}</b>
           <b className="font-display text-t2 text-[#e8ecf2]"><span style={{ color: WIN }}>{rec.w}승</span> <span style={{ color: LOSE }}>{rec.l}패</span></b>
         </span>
+        <BgmButton />
       </div>
 
       {/* 원정길 — 왼쪽 약함 → 오른쪽 강함 · 끝은 정복 보상 */}
-      <div className="relative shrink-0 px-12 pb-3 pt-5">
+      <div className="relative shrink-0 px-12 pb-3 pt-2">
         <div ref={roadRef} className="relative flex items-start justify-between">
           {/* 길: 회색 바탕 위로 금빛이 내 칸까지 */}
           <span className="absolute left-[5.25rem] right-[5.25rem] top-[3.4rem] h-1 rounded-full bg-white/10" aria-hidden="true">

@@ -5,6 +5,7 @@
  * 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import BgmButton from './audio/BgmButton.jsx';
 import { UiStyle, Portrait, GlassBg, Pop } from './myteam/ui.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
@@ -836,6 +837,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             title={digest ? '승부처가 아닌 타석은 접어서 빠르게' : '모든 공을 하나하나 보여 준다'}
             className="mt-btn sm" style={digest ? { color: '#38bdf8', boxShadow: 'inset 0 0 0 1px rgba(56,189,248,.6)' } : null}>요약</button>
           <button type="button" onClick={() => setPaused((p) => !p)} className="mt-btn sm" style={paused ? { color: '#fbbf24' } : null}>{paused ? '계속 ▶' : '일시정지'}</button>
+          <BgmButton className="mt-1" /> {/* 이 바는 72px — 다른 화면과 같은 높이(위 18px)에 맞춤 */}
         </header>
 
         <div className="grid min-h-0 gap-4 px-6 pb-5" style={{ gridTemplateColumns: 'minmax(0,1fr) 440px' }}>

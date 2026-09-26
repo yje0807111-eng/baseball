@@ -212,9 +212,8 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
       <style>{KEYFRAMES + RK_CSS}</style>
       {tierUp && <TierUp from={tierUp.from} to={tierUp.to} onClose={() => setTierUp(null)} />}
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
-      <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
+      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b px-7" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
-        <BgmButton cut="ui-cut" edge="8px" align="left" />
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
           <b className="text-t2 font-extrabold text-white">랭크전 시즌 {s.season} · {s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}</b>
@@ -244,6 +243,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
             );
           })}
         </div>
+        <BgmButton />
       </header>
 
       <main className="relative z-10 grid min-h-0 flex-1 gap-3 p-3" style={{ gridTemplateColumns: 'minmax(0,1fr) 560px' }}>
@@ -297,14 +297,17 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
             <>
               <p className="ui-lab font-display" style={{ '--a': inPost ? '#fbbf24' : RK }}>다음 경기</p>
               <h2 className="-mt-1 text-t1 font-black text-white">{inPost ? `${stage.ko} 상대 분석` : `정규 ${s.round + 1}차전 상대 분석`}</h2>
-              <Versus mine={mine} opp={oppTeam} owner={opp.owner} />
-              <Axes mine={mine} opp={oppTeam} />
-              <div>
-                <Row k="시즌 성적"><b className="text-right text-white">{!s.games.length ? '개막전' : <>나 {myRow.rank}위 {myRow.w}승 {myRow.l}패{myRow.d ? ` ${myRow.d}무` : ''} · 상대 {oppRow.rank}위 {oppRow.w}승 {oppRow.l}패{oppRow.d ? ` ${oppRow.d}무` : ''}</>}</b></Row>
-                <Row k="경계 선수"><b className="truncate text-right" style={{ color: OPP }}>{keyPlayers.map((p) => `${p.name} ${p.position} ${p.overall}`).join(' · ')}</b></Row>
-                {inPost && <Row k="비기면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
+              {/* 분석 칸이 판보다 길면 판 안에서 스크롤 — 시작 단추는 늘 온전히 보이게 */}
+              <div className="pop-scroll -mr-3 flex min-h-0 flex-1 flex-col gap-3.5 overflow-y-auto pr-3">
+                <Versus mine={mine} opp={oppTeam} owner={opp.owner} />
+                <Axes mine={mine} opp={oppTeam} />
+                <div>
+                  <Row k="시즌 성적"><b className="text-right text-white">{!s.games.length ? '개막전' : <>나 {myRow.rank}위 {myRow.w}승 {myRow.l}패{myRow.d ? ` ${myRow.d}무` : ''} · 상대 {oppRow.rank}위 {oppRow.w}승 {oppRow.l}패{oppRow.d ? ` ${oppRow.d}무` : ''}</>}</b></Row>
+                  <Row k="경계 선수"><b className="truncate text-right" style={{ color: OPP }}>{keyPlayers.map((p) => `${p.name} ${p.position} ${p.overall}`).join(' · ')}</b></Row>
+                  {inPost && <Row k="비기면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
+                </div>
               </div>
-              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
+              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
                 {inPost ? `${stage.ko} 시작 ▶` : `정규 ${s.round + 1}차전 시작 ▶`}
               </button>
             </>

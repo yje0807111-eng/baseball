@@ -2405,9 +2405,10 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
   return (
     <header className="sticky top-0 z-30 shrink-0 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.74))] backdrop-blur">
       <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#f5d27a] to-transparent" aria-hidden="true" />
-      <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2.5' : 'max-w-7xl py-3'}`}>
+      {/* 배경음악 — 모든 화면과 같은 자리(위 바 오른쪽 28px · 위 18px). 이 바는 단계에 따라 가운데 정렬이라 바 기준으로 고정 */}
+      <BgmButton className="!absolute right-7 top-[18px] z-10" />
+      <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2.5 pr-20' : 'max-w-7xl py-3'}`}>
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
-        <BgmButton cut="ui-cut" size="h-9 w-9" edge="7px" align="left" />
         {series ? (() => {
           /* 드래프트 중: 지금 열린 시리즈를 시즌 표로 — 어느 구단 · 어느 해인지 한눈에 */
           const flag = teamFlag(series.title || '');
@@ -4428,15 +4429,15 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
   return (
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
-      <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6" style={{ viewTransitionName: 'mode-head' }}>
+      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-8 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-7" style={{ viewTransitionName: 'mode-head' }}>
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#f5d27a] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
-        <BgmButton cut="ui-cut" size="h-9 w-9" edge="7px" align="left" />
         <div className="leading-none">
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">메인</p>
           <h1 className="mt-1 text-t2 font-black leading-none text-white">플레이</h1>
         </div>
         {record && <p className="ml-auto text-t3 text-gray-400">최근 기록 <b className="font-display text-t2 text-white">{record}</b></p>}
+        <BgmButton className={record ? '' : 'ml-auto'} />
       </header>
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>

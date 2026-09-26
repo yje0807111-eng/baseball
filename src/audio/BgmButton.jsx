@@ -1,5 +1,5 @@
-/* 배경음악 단추 — 위쪽 바에 놓인다. 누르면 아래로 크기 조절 · 음소거 판이 열린다
-   cut: 깎은 모서리 조각 — 메인 계열 위쪽 바는 mt-cut, 드래프트 위쪽 바는 ui-cut */
+/* 배경음악 단추 — 모든 화면 위쪽 바의 오른쪽 끝에 같은 모양(40px · 모서리 12px)으로 놓인다.
+   누르면 아래로 크기 조절 · 음소거 판이 열린다(오른쪽 정렬). 화면마다 모양을 바꾸지 않는다 */
 import { useEffect, useRef, useState } from 'react';
 import { getSettings, onSettings, setSettings } from './bgm.js';
 
@@ -12,7 +12,7 @@ function Speaker({ off }) {
   );
 }
 
-export default function BgmButton({ cut = 'mt-cut', size = 'h-10 w-10', edge = '12px', align = 'right' }) {
+export default function BgmButton({ className = '' }) {
   const [s, setS] = useState(getSettings);
   const [open, setOpen] = useState(false);
   const box = useRef(null);
@@ -25,13 +25,14 @@ export default function BgmButton({ cut = 'mt-cut', size = 'h-10 w-10', edge = '
   }, [open]);
   const off = s.muted || s.vol === 0;
   return (
-    <div ref={box} className="relative shrink-0">
+    <div ref={box} className={`relative shrink-0 ${className}`}>
       <button type="button" onClick={() => setOpen((v) => !v)} aria-label="배경음악" aria-expanded={open} title="배경음악 (M)"
-        className={`${cut} grid ${size} place-items-center bg-white/[0.07] text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12] ${off ? 'text-gray-500' : ''}`} style={{ '--c': edge }}>
+        className={`grid h-10 w-10 place-items-center bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,.1),inset_0_0_0_1px_rgba(255,255,255,.08)] transition hover:bg-white/[0.12] ${off ? 'text-gray-500' : 'text-gray-200'}`}
+        style={{ clipPath: 'inset(0 round 12px)' }}>
         <Speaker off={off} />
       </button>
       {open && (
-        <div className={`absolute top-full z-50 mt-2 w-56 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.92),rgba(8,12,22,.96))] px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,.5),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md ${align === 'right' ? 'right-0' : 'left-0'}`}>
+        <div className={`absolute top-full z-50 mt-2 w-56 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.92),rgba(8,12,22,.96))] px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,.5),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md right-0`}>
           <div className="flex items-center justify-between text-t4 text-gray-300">
             <b className="font-bold">배경음악</b>
             <span className="font-display text-t3 text-white">{off ? '끔' : Math.round(s.vol * 100)}</span>
