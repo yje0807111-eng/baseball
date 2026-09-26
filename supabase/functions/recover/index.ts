@@ -63,14 +63,18 @@ Deno.serve(async (req) => {
 
   const id = String(body.id ?? '').trim().toLowerCase();
   if (!ID_RE.test(id)) return json({ error: 'bad_id' }, 400);
-  const { data: prof } = await admin.from('profiles').select('id').eq('login_id', id).maybeSingle();
+  const { data: prof, error: pErr } = await admin.from('profiles').select('id').eq('login_id', id).maybeSingle();
+  if (pErr) console.error('profiles lookup', pErr.message);
 
   if (body.action === 'start') {
     const email = String(body.email ?? '').trim().toLowerCase();
     // 아이디가 없거나 이메일이 다르면 똑같이 ok — 어느 아이디에 어떤 이메일이 있는지 알려 주지 않는다
-    if (!prof) return json({ ok: true });
-    const { data: rec } = await admin.from('recovery').select('email').eq('user_id', prof.id).maybeSingle();
-    if (!rec || rec.email.toLowerCase() !== email) return json({ ok: true });
+    // 까닭은 서버 기록에만(아이디 · 이메일은 남기지 않는다)
+    if (!prof) { console.log('start: no_profile'); return json({ ok: true }); }
+    const { data: rec, error: rErr } = await admin.from('recovery').select('email').eq('user_id', prof.id).maybeSingle();
+    if (rErr) console.error('recovery lookup', rErr.message);
+    if (!rec) { console.log('start: no_recovery'); return json({ ok: true }); }
+    if (rec.email.toLowerCase() !== email) { console.log('start: email_mismatch'); return json({ ok: true }); }
 
     const now = Date.now();
     const today = new Date(now).toISOString().slice(0, 10);
@@ -86,6 +90,7 @@ Deno.serve(async (req) => {
     });
     if (error) { console.error(error); return json({ error: 'server' }, 500); }
     if (!(await sendMail(rec.email, code, id))) return json({ error: 'mail' }, 502);
+    console.log('start: sent');
     return json({ ok: true });
   }
 
