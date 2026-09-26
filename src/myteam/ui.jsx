@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
+import BgmButton from '../audio/BgmButton.jsx';
 import { artId } from '../data/artAlias.js';
 import { navTo, useExitGhost } from '../ui/motion.jsx';
 
@@ -344,6 +345,8 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
         )}
         {account && <ProfileBadge account={account} onSignOut={onSignOut} />}
         {right}
+        {/* 배경음악 — 메인 계열 모든 화면 위 바 오른쪽 끝(드래프트 · 랭크전 화면과 같은 단추) */}
+        <BgmButton size="h-12 w-12" edge="12px" align="right" />
       </div>
     </header>
   );

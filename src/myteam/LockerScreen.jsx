@@ -16,7 +16,41 @@ import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeIte
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
-import { Count, Burst, flyGhost, useListIntro, SfxAt } from '../ui/motion.jsx';
+import { Count, Burst, flyGhost, useListIntro, navTo, SfxAt } from '../ui/motion.jsx';
+
+/**
+ * 빈 보관함 — 아이템 탭 빈 화면(사진 한 장 · 제목 · 단추)과 같은 모양.
+ * 채울 자리 20칸을 옅게 보여 주고(카드 앨범처럼), 보관함이 채워지는 두 길로 바로 잇는다: 내 선수 '보관' · 드래프트 기념 카드
+ */
+function ClubEmpty({ max, onSquad, onDraft }) {
+  return (
+    <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover"
+      style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(52,211,153,.12), rgba(5,8,15,.95) 62%), url(ui/mt/tile-locker.webp)', backgroundPosition: 'center 35%' }}>
+      <div className="fx-rise flex flex-col items-center rounded-[28px] px-10 py-7 text-center" style={{ background: 'radial-gradient(closest-side, rgba(5,8,15,.82), rgba(5,8,15,.55) 70%, transparent)' }}>
+        {/* 밝은 유니폼 위에서도 글자가 읽히게 뒤에 옅은 어둠 */}
+        <b className="text-t1 font-black text-white [text-shadow:0_2px_12px_rgba(0,0,0,.9)]">보관함 비어 있음</b>
+        <span className="mt-3 flex items-baseline gap-2">
+          <b className="font-display text-t1 text-[#34d399]">0</b><small className="text-t3 text-gray-400">/ {max}명</small>
+        </span>
+        <span className="mt-4 grid grid-cols-10 gap-1.5" aria-hidden="true">
+          {Array.from({ length: max }, (_, i) => (
+            <i key={i} className="block h-8 w-6 rounded-[5px]" style={{ background: 'rgba(52,211,153,.05)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.32)' }} />
+          ))}
+        </span>
+        <span className={`mt-6 grid w-[520px] gap-3 ${onDraft ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <Btn lg style={cut(12)} onClick={onSquad}>
+            <span className="flex flex-col items-center leading-tight">내 선수에서 보관<small className="text-t4 opacity-75">엔트리에서 빼 두기</small></span>
+          </Btn>
+          {onDraft && (
+            <Btn pri lg style={cut(12)} onClick={onDraft}>
+              <span className="flex flex-col items-center leading-tight">드래프트 기념 카드 ▶<small className="text-t4 opacity-75">드래프트 보상</small></span>
+            </Btn>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+}
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -582,7 +616,7 @@ function PresetBar({ team, squad, onSave, onLoad }) {
   );
 }
 
-export default function LockerScreen({ account, onSave, onBack, onShop }) {
+export default function LockerScreen({ account, onSave, onBack, onShop, onDraft = null, initialTab = null }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
@@ -592,7 +626,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const today = useMemo(() => dayIndex(), []);
   const priceFor = (p) => deals.get(p.id) ?? marketPriceOf(p, today); // 특가가 아니면 오늘 시세
   const [outId, setOutId] = useState(null); // 교체 영입에서 내보낼 선수 (없으면 첫 후보)
-  const [tab, setTab] = useState('scout');
+  const [tab, setTab] = useState(initialTab || 'scout'); // 상점에서 오면 산 것을 쓰는 탭으로
   const [q, setQ] = useState('');
   const [year, setYear] = useState('');
   const [club, setClub] = useState('');
@@ -820,6 +854,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         {tab === 'club' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             {head('보관함', `${clubList.length} / ${CLUB_MAX}`)}
+            {clubList.length === 0 ? (
+              <ClubEmpty max={CLUB_MAX} onSquad={() => navTo(() => setTab('squad'), 'tab-l')} onDraft={onDraft} />
+            ) : (
             <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
                 const full = squad.length >= lim.size;
@@ -829,8 +866,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
                 );
               })}
-              {clubList.length === 0 && <p className="text-t3 text-gray-400">보관한 선수 없음</p>}
             </div>
+            )}
           </section>
         )}
 
@@ -1011,7 +1048,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           );
         })()
           : (
-          <DetailPanel fresh={fresh?.id === shown?.id ? fresh.k : null} p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
+          <DetailPanel fresh={fresh && shown && fresh.id === shown.id ? fresh.k : null} p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
             itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />

@@ -41,6 +41,9 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const season = account?.ranked || null;
   const refresh = () => setAccount(reload());
   const toModes = (tab) => { setPlayTab(tab); setView('modes'); };
+  /* 내 라커 열기 — 상점에서 오면 산 것을 쓰는 탭(아이템 · 감독·코치)으로 */
+  const lockerTab = useRef(null);
+  const openLocker = (tab = null) => { lockerTab.current = tab; setView('locker'); };
 
   /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
   const openDuel = () => {
@@ -271,15 +274,15 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(
       <KboAugmentDraft onExit={() => { setPlayTab(null); setView('lobby'); }} normalView={playTab} onNormalView={setPlayTab}
         normal={[
-          normalPanels({ account, format, onFormat: setFormat, cup, onCup: setCup, onPlay: openDuel, onTourney: openTourney, onLocker: () => setView('locker') }),
-          rankedPanels({ account, onOpen: openRanked, onLocker: () => setView('locker') }),
+          normalPanels({ account, format, onFormat: setFormat, cup, onCup: setCup, onPlay: openDuel, onTourney: openTourney, onLocker: () => openLocker() }),
+          rankedPanels({ account, onOpen: openRanked, onLocker: () => openLocker() }),
         ]} />,
     );
   }
   if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
-  if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
+  if (view === 'locker') return screen(<LockerScreen account={account} initialTab={lockerTab.current} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} onDraft={() => toModes('mix')} />);
   if (view === 'record') return screen(<RecordScreen account={account} initialMode={recordTab} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
-  if (view === 'shop') return screen(<ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
+  if (view === 'shop') return screen(<ShopScreen account={account} onLocker={openLocker} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
   if (view === 'bracket' && tournament) {
     return screen(<TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
       onRestart={() => openTourney(tournament.size, true)} />);
