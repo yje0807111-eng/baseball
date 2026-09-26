@@ -195,7 +195,7 @@ const Handle = () => <span className="cursor-grab select-none text-t3 tracking-[
  * 칸 목록: 줄은 DOM 순서를 바꾸지 않고 제 칸 번호(pos)만큼 아래로 옮겨 놓는다(transform).
  * 칸 높이는 판 높이를 줄 수로 나눈 값(최대 maxH). 순서가 바뀌면 목표 위치만 바뀌어 CSS 가 부드럽게 옮긴다.
  */
-function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, children, heads = [] }) {
+function Slots({ count, slots = count, maxH, minH = 24, gap = 4, axis = 'y', style, children, heads = [] }) {
   const ref = useRef(null);
   const [h, setH] = useState(0);
   useLayoutEffect(() => {
@@ -209,16 +209,21 @@ function Slots({ count, slots = count, maxH, gap = 4, axis = 'y', style, childre
   }, []);
   /* 머리글도 자리를 차지한다 — 그만큼 빼고 줄 높이를 잡는다 */
   const headH = 20;
-  const rowH = slots ? Math.max(24, Math.min(maxH, (h - gap * (slots - 1) - headH * heads.length) / slots)) : 0;
+  /* minH: 두 줄(이름 · 기록)이 잘리지 않는 높이 — 모자라면 줄이지 않고 판 안에서 스크롤 */
+  const rowH = slots ? Math.max(minH, Math.min(maxH, (h - gap * (slots - 1) - headH * heads.length) / slots)) : 0;
   const pitch = rowH + gap;
   /* i 번째 줄의 자리: 앞에 놓인 머리글 수만큼 아래로 */
   const topOf = (i) => i * pitch + headH * heads.filter((x) => x.at <= i).length;
+  const total = axis === 'y' ? topOf(Math.max(count, slots)) - gap : 0;
+  const over = axis === 'y' && h > 0 && total > h + 1;
   return (
-    <div ref={ref} className="relative min-h-0" style={style} data-pitch={pitch} data-count={count} data-axis={axis}>
-      {h > 0 && heads.map((x) => (
-        <div key={x.at} className="absolute inset-x-0" style={{ top: topOf(x.at) - headH, height: headH }}>{x.node}</div>
-      ))}
-      {h > 0 && children(rowH, pitch, topOf)}
+    <div ref={ref} className={`relative min-h-0 ${over ? 'mt-scroll slim overflow-y-auto overflow-x-hidden pr-1' : ''}`} style={style} data-pitch={pitch} data-count={count} data-axis={axis}>
+      <div className="relative" style={over ? { height: total } : { height: '100%' }} data-pitch={pitch} data-count={count} data-axis={axis}>
+        {h > 0 && heads.map((x) => (
+          <div key={x.at} className="absolute inset-x-0" style={{ top: topOf(x.at) - headH, height: headH }}>{x.node}</div>
+        ))}
+        {h > 0 && children(rowH, pitch, topOf)}
+      </div>
     </div>
   );
 }
@@ -620,7 +625,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
           <div className="flex min-h-0 flex-col">
             {/* 선발 · 마무리 · 불펜을 한 판에 — 머리글만 사이에 끼우고 줄은 하나의 칸 번호를 쓴다(타순 줄과 같은 방식).
                 야수를 끄는 동안에는 놓을 수 없는 구역이라 판 전체를 회색으로 내린다 */}
-            <Slots count={pitchRows.length} slots={fitSlots ? pitchRows.length : PLAY_LIMIT.SP + PLAY_LIMIT.RP} maxH={48}
+            <Slots count={pitchRows.length} slots={fitSlots ? pitchRows.length : PLAY_LIMIT.SP + PLAY_LIMIT.RP} maxH={48} minH={42}
               heads={pitchHeads}
               style={{
                 ...(fitSlots ? { flex: `0 0 ${pitchRows.length * 46 + 20 * pitchHeads.length}px` } : { flex: 1 }),
