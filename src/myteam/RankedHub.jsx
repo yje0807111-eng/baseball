@@ -18,10 +18,11 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
   const rows = standings(s);
   const me = meOf(s);
   const cell = big ? 'py-[7px]' : 'py-1';
+  /* 큰 판: 숫자 칸을 넓혀 이름과 숫자 사이 빈 곳을 줄이고, 줄마다 옅은 띠로 눈이 가로로 따라가게(KBO 순위표 방식) */
+  const w = big ? [60, 72, 64, 64, 64, 88, 80, 72, 72, 124] : [52, 52, 44, 44, 44, 64, 60, 0, 0, 96];
   return (
-    <table className="w-full table-fixed border-collapse text-right tabular-nums text-t3">
-      {/* 팀 이름 칸이 넓고 숫자 칸은 좁게 — 이름이 잘리지 않게 */}
-      <colgroup><col style={{ width: 52 }} /><col /><col style={{ width: 52 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 64 }} /><col style={{ width: 60 }} />{big && <><col style={{ width: 52 }} /><col style={{ width: 52 }} /></>}<col style={{ width: 96 }} /></colgroup>
+    <table className={`w-full table-fixed border-collapse text-right tabular-nums ${big ? 'text-t2' : 'text-t3'}`}>
+      <colgroup><col style={{ width: w[0] }} /><col />{w.slice(1, 7).map((x, i) => <col key={i} style={{ width: x }} />)}{big && <><col style={{ width: w[7] }} /><col style={{ width: w[8] }} /></>}<col style={{ width: w[9] }} /></colgroup>
       <thead>
         <tr className="text-t4 font-bold text-gray-400">
           <th className="w-10 text-center">순위</th><th className="pl-2 text-left">팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th>
@@ -29,16 +30,16 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
         </tr>
       </thead>
       <tbody>
-        {rows.map((r) => {
+        {rows.map((r, ri) => {
           const mine = r.idx === me;
           const move = lastMoves?.get(r.idx) || 0;
           return (
             <tr key={r.idx} className={`${cell} ${r.rank === POST_TEAMS ? 'border-b-2 border-dashed border-amber-300/50' : 'border-b border-white/[0.06]'}`}
-              style={{ background: mine ? 'rgba(52,211,153,.12)' : undefined }}>
+              style={{ background: mine ? 'rgba(52,211,153,.12)' : big && ri % 2 ? 'rgba(255,255,255,.035)' : undefined }}>
               <td className={`${cell} text-center font-display text-t2 font-extrabold`} style={{ color: r.rank <= POST_TEAMS ? '#fbbf24' : '#64748b' }}>{r.rank}</td>
               <td className={`${cell} max-w-0 pl-2 text-left`}>
                 <span className="flex items-center gap-2">
-                  <b className={`truncate text-t3 font-bold ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
+                  <b className={`truncate font-bold ${big ? 'text-t2' : 'text-t3'} ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
                   {/* 다른 감독 팀 — 감독 이름. 구단 이름을 짓지 않아 감독 이름과 같으면 '감독' 만 */}
                   {r.team.ghost && <span className="shrink-0 rounded bg-sky-400/15 px-1.5 text-t4 font-bold text-sky-300" title="다른 감독 팀">{r.team.name === r.team.owner ? '감독' : r.team.owner}</span>}
                   {move !== 0 && <em className="shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
