@@ -10,11 +10,15 @@ import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from 
 import { online } from './net/supabase.js';
 import { resume, logOut } from './net/account.js';
 import { startSync } from './net/sync.js';
+import { setScene } from './audio/bgm.js';
 
 const GameApp = lazy(() => import('./GameApp.jsx'));
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
+
+/* 배경음악 묶음 — 드래프트(modes)는 그 안의 단계가 정한다 */
+const SCENE_OF = { prep: 'prep', bracket: 'prep', play: 'game', modes: null };
 
 export default function App() {
   /* 서버 키가 있으면 남은 로그인부터 확인하고(boot) 그 계정 저장을 받아 연다 — 이 브라우저 사본이 다른 계정 것일 수 있다 */
@@ -45,6 +49,8 @@ export default function App() {
     });
     return () => { alive = false; };
   }, [starterDue, account?.nick]);
+
+  useEffect(() => { const sc = view in SCENE_OF ? SCENE_OF[view] : 'menu'; if (account && sc) setScene(sc); }, [view, !!account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (boot) return <Loading />;
   if (!account) return <LoginScreen onDone={(a) => { if (online) enter(a); else setAccount(a); setView('lobby'); }} />;

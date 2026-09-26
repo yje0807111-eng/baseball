@@ -18,6 +18,8 @@ import * as Live from './draft/live.js';
 import * as Gaunt from './draft/gauntlet.js';
 import { NO_CAP, isNoCap, specialAiRoster, rosterOrigin } from './draft/special.js';
 import GauntletScreen from './draft/GauntletScreen.jsx';
+import { setScene } from './audio/bgm.js';
+import BgmButton from './audio/BgmButton.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
@@ -2375,6 +2377,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
       <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2.5' : 'max-w-7xl py-3'}`}>
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
+        <BgmButton cut="ui-cut" size="h-9 w-9" edge="7px" align="left" />
         {series ? (() => {
           /* 드래프트 중: 지금 열린 시리즈를 시즌 표로 — 어느 구단 · 어느 해인지 한눈에 */
           const flag = teamFlag(series.title || '');
@@ -4615,6 +4618,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#10b981]/25 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#10b981] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
+        <BgmButton cut="ui-cut" size="h-9 w-9" edge="7px" align="left" />
         <div className="leading-none">
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">메인</p>
           <h1 className="mt-1 text-t2 font-black leading-none text-white">플레이</h1>
@@ -5053,6 +5057,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   useWarmArt();
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | sim | result | bracket | gauntlet
+  /* 배경음악: 모드 고르기 · 결과는 메뉴 곡, 뽑고 정비하는 동안은 준비 곡, 경기는 준비 곡을 작게 */
+  useEffect(() => { setScene(phase === 'sim' || phase === 'live' ? 'game' : phase === 'mode' || phase === 'result' ? 'menu' : 'prep'); }, [phase]);
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
   const [match, setMatch] = useState({ cap: SALARY_CAP, ai: 'normal', aug: SEASON_AUGMENTS }); // 모드 화면 설정
   const mode = DRAFT_MODES.find((m) => m.id === modeId);
