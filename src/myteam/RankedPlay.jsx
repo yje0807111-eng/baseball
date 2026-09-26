@@ -173,7 +173,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
         <div>
           <KV k="진행" v={state} color={RK} />
           {row && <KV k="시즌 성적" v={`${row.w}승 ${row.l}패 ${row.d}무`} />}
-          {opp && <KV k="다음 상대" v={opp.ghost ? `${opp.name} · ${opp.owner}` : opp.name} />}
+          {opp && <KV k="다음 상대" v={opp.ghost && !String(opp.name).includes(opp.owner) ? `${opp.name} · ${opp.owner}` : opp.name} />}
         </div>
       )}
       <DefenseBox />

@@ -190,6 +190,27 @@ export function withShopCleanup(a) {
   return next;
 }
 
+/* 구단 이름 — 따로 짓기 전에는 감독 이름으로. 옛 기본값 '나의 드림팀' 은 읽을 때 바꿔 준다 */
+const OLD_TEAM_NAME = '나의 드림팀';
+export const autoTeamName = (nick) => `${String(nick || '감독').trim()} 드림팀`;
+const isAutoName = (name, nick) => !name || name === OLD_TEAM_NAME || name === autoTeamName(nick);
+/** 저장된 시즌 · 대진표에 박힌 옛 이름도 함께 — 내 칸은 내 구단 이름, 다른 감독 칸은 그 감독 이름으로 */
+const renameEntries = (list = [], mine) => list.map((t) => {
+  if (t?.me && t.name !== mine) return { ...t, name: mine };
+  if (t?.ghost && t.name === OLD_TEAM_NAME) return { ...t, name: autoTeamName(t.owner) };
+  return t;
+});
+function withNames(a) {
+  if (!a?.nick) return a;
+  const name = isAutoName(a.team?.name, a.nick) ? autoTeamName(a.nick) : a.team.name;
+  return {
+    ...a,
+    team: { ...(a.team || {}), name },
+    ...(a.ranked?.teams ? { ranked: { ...a.ranked, teams: renameEntries(a.ranked.teams, name) } } : {}),
+    ...(a.tournament?.entrants ? { tournament: { ...a.tournament, entrants: renameEntries(a.tournament.entrants, name) } } : {}),
+  };
+}
+
 const emptyAccount = (nick) => ({
   nick,
   shopV: SHOP_VERSION,
@@ -222,12 +243,12 @@ export function replaceSave(data) {
 
 /** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
 export function peekAccount() {
-  const a = grantPending(read());
+  const a = withNames(grantPending(read()));
   return a?.nick ? { ...emptyAccount(a.nick), ...a, team: withTeam(a.team), aug: withAug(a) } : null;
 }
 
 export function loadAccount() {
-  const a = grantPending(read());
+  const a = withNames(grantPending(read()));
   if (!a?.nick || a.signedOut) return null;
   return { ...emptyAccount(a.nick), ...a, gold: goldOf(a), draft: { ...(a.draft || {}) }, augShop: { ...(a.augShop || {}) }, team: withTeam(a.team), aug: withAug(a) };
 }
@@ -544,7 +565,10 @@ export function claimRanked() {
 export function saveProfile({ nick, banner }) {
   const a = read();
   if (!a) return null;
-  const next = { ...a, nick: (nick ?? a.nick).trim() || a.nick, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner } };
+  const nk = (nick ?? a.nick).trim() || a.nick;
+  // 구단 이름을 따로 짓지 않았으면 감독 이름을 따라간다
+  const team = a.team && isAutoName(a.team.name, a.nick) ? { ...a.team, name: autoTeamName(nk) } : a.team;
+  const next = { ...a, nick: nk, team, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner } };
   write(next);
   return next;
 }

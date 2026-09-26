@@ -29,7 +29,7 @@ export function snapshotOf(team = {}) {
     .map(([slot, s]) => [slot, { id: s.id, ...(s.level > 1 ? { level: s.level } : {}), ...(s.contracted ? { contracted: true } : {}) }]));
   return {
     v: GHOST_V,
-    name: team.name || '나의 드림팀',
+    name: team.name || '감독 팀',
     cap: team.cap || SQUAD_CAP,
     ...(team.extraSlots ? { extraSlots: team.extraSlots } : {}),
     ...(team.extraForeign ? { extraForeign: team.extraForeign } : {}),
