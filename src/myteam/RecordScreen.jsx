@@ -14,6 +14,7 @@ import { FORM_OF } from './form.js';
 import { DexView, WeekView } from './ProgressPanels.jsx';
 import { loadAccount } from './store.js';
 import { missionState } from './missions.js';
+import { useListIntro } from '../ui/motion.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const MODES = [
@@ -246,7 +247,7 @@ function GameDetail({ h }) {
   );
 }
 
-/** 경기 한 줄 — 날짜 · 모드 · 상대 · 점수 · 결과 · MVP · 펼치기 */
+/** 경기 한 줄 — 결과 · 점수 · 상대(왼쪽에 모아 한눈에) / 모드 · 날짜 · MVP · 펼치기 */
 function GameRow({ h, on, open, onPick, onOpen }) {
   const [, c] = resultOf(h);
   return (
@@ -268,17 +269,19 @@ function GameLine({ h, on, onPick }) {
   const [ko, c] = resultOf(h);
   return (
     <button type="button" onClick={() => onPick(h)} className={`mt-row mt-cut min-w-0 ${on ? 'on' : ''}`}
-      style={{ flex: '1 1 0%', gridTemplateColumns: '104px 88px minmax(0,1.6fr) 120px 40px 152px', '--a': c }}>
-      <span className="font-display text-t3 text-gray-400">{fmtDate(h.at)}</span>
-      <span className="mt-cut px-2 py-0.5 text-center text-t4 font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
+      style={{ flex: '1 1 0%', gridTemplateColumns: '44px 112px minmax(0,1fr) 88px 104px 152px', '--a': c }}>
+      <b className="mt-cut grid h-9 place-items-center font-display text-t2 font-extrabold text-[#05080f]" style={{ ...cut(5), background: c }}>{ko}</b>
+      <b className="flex h-9 items-center justify-center rounded-md bg-black/35 font-display text-t1 font-extrabold tabular-nums shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
+        <span className={h.myRuns >= h.oppRuns ? 'text-white' : 'text-gray-500'}>{h.myRuns}</span>
+        <span className="px-1.5 text-t3 text-gray-500">:</span>
+        <span className={h.oppRuns >= h.myRuns ? 'text-white' : 'text-gray-500'}>{h.oppRuns}</span>
+      </b>
       <span className="min-w-0">
-        <b className="block truncate text-t2 font-black text-white">{h.opp}</b>
+        <b className="block truncate text-t2 font-black text-white"><small className="mr-1.5 text-t4 font-bold text-gray-400">vs</small>{h.opp}</b>
         <small className="block truncate text-t4 text-gray-400">{h.round || '단판 승부'}</small>
       </span>
-      <b className="text-center font-display text-t1 font-extrabold tabular-nums text-white">
-        {h.myRuns} <span className="text-gray-500">:</span> {h.oppRuns}
-      </b>
-      <b className="text-center font-display text-t2 font-extrabold" style={{ color: c }}>{ko}</b>
+      <span className="mt-cut px-2 py-0.5 text-center text-t4 font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
+      <span className="text-center font-display text-t3 text-gray-400">{fmtDate(h.at)}</span>
       <span className="flex min-w-0 items-center gap-2">
         {h.mvp ? (
           <>
@@ -298,6 +301,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
   const history = account.history || [];
   const [mode, setMode] = useState(initialMode);
   const [sel, setSel] = useState(history[0] || null);
+  const listFx = useListIntro(mode); // 탭을 바꾸면 경기 줄이 차례로
   const [open, setOpen] = useState(null); // 펼친 경기의 at
 
   const list = useMemo(() => (mode === 'all' ? history : history.filter((h) => modeKey(h) === mode)), [history, mode]);
@@ -358,7 +362,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
               })}
             </span>
           </div>
-          <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
+          <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2 ${listFx}`}>
             {list.map((h) => <GameRow key={h.at + h.opp} h={h} on={sel?.at === h.at} open={open === h.at} onPick={setSel}
               onOpen={(x) => { setSel(x); setOpen((v) => (v === x.at ? null : x.at)); }} />)}
             {list.length === 0 && <p className="text-t3 text-gray-400">치른 경기 없음</p>}

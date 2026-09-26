@@ -15,7 +15,8 @@ import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quo
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
-import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
+import { Count, Burst, flyGhost, useListIntro } from '../ui/motion.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -164,7 +165,7 @@ function EmptyDetail() {
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold = 0, priceFor = priceOf, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0 }) {
+function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold = 0, priceFor = priceOf, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0, fresh = null }) {
   if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const stored = !owned && club.some((x) => x.id === p.id); // 보관함 선수 — 엔트리로 들이는 데 골드가 들지 않는다
@@ -193,7 +194,7 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand}
     gold={gold} price={price} refund={refund} cands={cands} out={out} onOut={onOut} onSwap={onSwap}
-    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} />;
+    stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} fresh={fresh} />;
 }
 
 /** 반짝이 카드 — 선수 카드 그림 · 이름 · 은빛 종합. 빛줄기가 지나가고 마우스를 따라 기울어진다 */
@@ -235,12 +236,21 @@ function HoloCard({ p }) {
 }
 
 function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], out = null, onOut, onSwap,
-  stored = false, clubFull = false, onStore, onEnter }) {
+  stored = false, clubFull = false, onStore, onEnter, fresh = null }) {
   const goldAfter = owned || stored ? gold + (stored ? 0 : refund) : gold + refund - price;
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3.5 p-5" style={cut(22)}>
       <p className="mt-lab">{owned ? '내 선수 정보' : stored ? '보관함 선수' : '영입 후보 정보'}</p>
-      <HoloCard p={p} />
+      {fresh ? (
+        <div key={fresh} className="relative">
+          <HoloCard p={p} />
+          <span className="lk-ring pointer-events-none absolute inset-0" aria-hidden="true" />
+          <span className="pointer-events-none absolute inset-0 grid place-items-center">
+            <b className="fx-stamp -rotate-12 rounded-md px-4 py-1 font-display text-t1 font-extrabold" style={{ '--d': '120ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 28px rgba(245,210,122,.8)' }}>영입</b>
+            <Burst n={18} spread={130} delay={260} />
+          </span>
+        </div>
+      ) : <HoloCard p={p} />}
       {/* 능력 넷 — 2×2 칸 · 숫자 · 가는 막대 */}
       <div className="grid shrink-0 grid-cols-2 gap-2">
         {keys.map(([label, k]) => {
@@ -338,17 +348,9 @@ const LOCKER_RULES = [
 ];
 function LockerRules({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={onClose}>
-      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-4 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="라커 규칙">
-        <div>
-          <p className="mt-lab">도움말</p>
-          <h2 className="mt-1 text-t1 font-black text-white">라커 규칙</h2>
-        </div>
-        <div>{LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}</div>
-        <Btn pri onClick={onClose}>닫기</Btn>
-      </div>
-    </div>
+    <Pop eyebrow="도움말" title="라커 규칙" onClose={onClose}>
+      {LOCKER_RULES.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}
+    </Pop>
   );
 }
 
@@ -356,7 +358,8 @@ const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staf
 
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
 
-function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse }) {
+function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse, fx = null }) {
+  const listFx = useListIntro('items');
   const inv = team.items || [];
   const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
   const g = groups.find((x) => x.it.id === itemId) || groups[0];
@@ -388,12 +391,12 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             </div>
           </div>
         ) : (
-        <div className="mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '12.5rem' }}>
+        <div className={`mt-scroll mt-3 grid min-h-0 flex-1 grid-cols-4 content-start gap-3 overflow-y-auto pr-2 ${listFx}`} style={{ gridAutoRows: '12.5rem' }}>
           {groups.map(({ it: x, keys }) => {
             const c = ITEM_COLOR[x.cat] || '#fde047';
             const on = it?.id === x.id;
             return (
-              <button key={x.id} type="button" onClick={() => onPick(x.id)}
+              <button key={x.id} type="button" data-item={x.id} onClick={() => onPick(x.id)}
                 className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
                 style={{ '--c': '12px', '--a': c, backgroundImage: `url(${itemArt(x)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${c}59` }}>
                 <span className="absolute inset-0" style={{ background: 'linear-gradient(rgba(5,8,15,.5),rgba(5,8,15,0) 30%,rgba(5,8,15,.92) 68%,#05080f)' }} />
@@ -411,6 +414,19 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
         <p className="mt-lab" style={{ '--a': n }}>아이템 사용</p>
+        {/* 방금 쓴 결과(마지막 한 개를 써서 목록이 비어도 보이게 맨 위에) — 대상 이름 · 능력치가 세어 오르고 +값이 톡 */}
+        {fx && (
+          <div key={fx.k} data-item-fx="" className="fx-rise mt-cut flex items-baseline gap-2 px-3 py-2" style={{ ...cut(8), background: 'rgba(52,211,153,.1)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.45)' }}>
+            <b className="min-w-0 truncate text-t3 text-white">{fx.name}</b>
+            <span className="text-t4 text-gray-300">{fx.label}</span>
+            {fx.to != null ? (
+              <span className="ml-auto flex items-baseline gap-1.5 font-display">
+                <Count value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
+                <b className="fx-bump text-t3 text-[#34d399]" style={{ '--d': '940ms' }}>▲{fx.to - fx.from}</b>
+              </span>
+            ) : <b className="fx-bump ml-auto text-t3 text-[#34d399]" style={{ '--d': '420ms' }}>사용 완료</b>}
+          </div>
+        )}
         {!it ? (() => {
           /* 아이템을 고르지 않았을 때: 우리 팀에서 가장 약한 곳과 그걸 올리는 훈련 (E안) */
           const { rows, weak, item: buy } = teamWeakness(squad);
@@ -453,7 +469,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 const rec = recIds.has(t.id);
                 const cur = !t.position && staffNow[slotOf(t)]?.id === t.id;
                 return (
-                  <button key={t.id} type="button" onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''}`}
+                  <button key={t.id} type="button" data-target={t.id} onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''} ${fx?.id === t.id ? 'lk-hit' : ''}`}
                     style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
                     <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
                     <b className="font-display text-t1 font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
@@ -619,7 +635,13 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
   const clubList = team.club || [];
   const inClub = (p) => clubList.some((x) => x.id === p.id);
   const dealBump = (p, next) => { if (next && deals.has(p.id)) bumpWeek('deal'); return next; }; // 주간 과제: 특가 영입
-  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p))) settle(dealBump(p, recruitPlayer(team, p, priceFor(p)))); };
+  /* 막 영입한 선수(상세 판 도장) · 막 쓴 아이템 결과 — 잠깐 보였다 사라진다 */
+  const [fresh, setFresh] = useState(null);
+  const listFx = useListIntro(tab); // 탭을 바꾸면 목록 줄이 차례로
+  const [itemFx, setItemFx] = useState(null);
+  useEffect(() => { if (!fresh) return undefined; const t = setTimeout(() => setFresh(null), 1800); return () => clearTimeout(t); }, [fresh]);
+  useEffect(() => { if (!itemFx) return undefined; const t = setTimeout(() => setItemFx(null), 2600); return () => clearTimeout(t); }, [itemFx]);
+  const add = (p) => { if (!addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, recruitPlayer(team, p, priceFor(p)))); setFresh({ id: p.id, k: `${Date.now()}` }); } };
   const release = (p) => { settle(inClub(p) ? releaseFromClub(team, p.id) : releasePlayer(team, p.id)); setSel(null); };
   /* 보관함: 엔트리에서 빼 두기 · 엔트리로 들이기(꽉 찼으면 out 과 자리 바꿈 — out 은 보관함으로) */
   const store = (p) => { settle(storePlayer(team, p.id)); setSel(null); };
@@ -627,7 +649,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
     const why = out ? swapBlockReason(p, out, squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
     if (!why) { settle(enterFromClub(team, p.id, out?.id || null)); setOutId(null); setSel(null); }
   };
-  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, swapPlayer(team, p, priceFor(p), out.id))); setOutId(null); } };
+  const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, swapPlayer(team, p, priceFor(p), out.id))); setOutId(null); setFresh({ id: p.id, k: `${Date.now()}` }); } };
   /* 목록 한 줄의 막는 이유 — 꽉 찼으면 첫 교체 후보로 따진다 */
   const full = squad.length >= lim.size;
   const rowBlock = (p) => (full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
@@ -769,7 +791,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
                 {(year || club || pos) && <button type="button" onClick={() => { setYear(''); setClub(''); setPos(''); }} className="justify-self-start px-2 text-t3 text-gray-400 hover:text-white">초기화</button>}
               </div>
             )}
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
+            <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {results.map((p) => (
                 <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                   onPick={setSel} onAct={full ? setSel : add} />
@@ -797,7 +819,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
         {tab === 'club' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             {head('보관함', `${clubList.length} / ${CLUB_MAX}`)}
-            <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2">
+            <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
                 const full = squad.length >= lim.size;
                 const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
@@ -884,7 +906,16 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
 
         {tab === 'items' && (
           <ItemsTab team={team} gold={gold} onShop={onShop} itemId={itemId} target={itemTarget} onPick={(id) => { const it = SHOP_ITEMS.find((x) => x.id === id); setItemId(id); setItemTarget((t) => (t && it && fitsItem(it, t) ? t : null)); }} onTarget={setItemTarget}
-            onUse={(key, t, slot) => { commit(consumeItem(team, key, t, slot)); setItemTarget(null); }} />
+            fx={itemFx}
+            onUse={(key, t, slot) => {
+              /* 고른 아이템 카드가 대상 줄로 날아가 들어가고, 결과 줄에 능력치가 세어 오른다 */
+              const it = SHOP_ITEMS.find((x) => x.id === (team.items || []).find((y) => y.key === key)?.itemId);
+              flyGhost(document.querySelector(`[data-item="${it?.id}"]`), () => document.querySelector(`[data-target="${CSS.escape(String(t.id))}"]`) || document.querySelector('[data-item-fx]'), { dur: 520, lift: 36 });
+              const from = it?.stat ? t.stats?.[it.stat] ?? null : null;
+              setItemFx({ k: `${Date.now()}`, id: t.id, name: t.name, label: it?.stat ? STAT_KO[it.stat] || it.stat : it?.name || '아이템', from, to: from != null ? Math.min(110, from + it.amount) : null });
+              commit(consumeItem(team, key, t, slot));
+              setItemTarget(null);
+            }} />
         )}
 
         {tab === 'items' ? null : tab === 'staff' ? (() => {
@@ -979,7 +1010,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
           );
         })()
           : (
-          <DetailPanel p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
+          <DetailPanel fresh={fresh?.id === shown?.id ? fresh.k : null} p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
             itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
             onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />

@@ -2,47 +2,115 @@
  * 랭크전 시즌 화면 (전체 화면) — 왼쪽: 10팀 순위표 · 최근 라운드 결과 · 포스트시즌 사다리 / 오른쪽: 다음 내 경기 분석 또는 시즌 결과.
  * 경기가 끝나면 여기로 돌아와 다른 팀들의 성적과 순위 변화를 본다.
  */
-import React, { useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import BgmButton from '../audio/BgmButton.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { teamOf } from './tournament.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLACE_REWARD } from './ranked.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { rankOf } from './rank.js';
+import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
+
+/**
+ * 등급 오름 — 시즌 보상을 받아 등급이 바뀌는 순간(가장 드문 순간이라 가장 크게, 롤 · 클래시 로얄 승급처럼)
+ *  0.0 어두워짐 · 옛 배지 → 0.35 옛 배지가 작아지며 사라짐 → 0.5 새 배지가 크게 찍힘 · 빛줄기 · 빛 가루
+ *  0.8 '등급 상승' · 새 등급 이름 → 1.2 확인 단추. 아무 데나 누르면 닫힘(0.6초 뒤부터)
+ */
+function TierUp({ from, to, onClose }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 600); return () => clearTimeout(t); }, []);
+  return (
+    <div className="fx-fade fixed inset-0 z-[70] grid place-items-center bg-[#03050a]/85 backdrop-blur-[4px]" role="dialog" aria-modal="true" aria-label="등급 상승"
+      onClick={() => ready && onClose()}>
+      <div className="relative flex flex-col items-center gap-4 text-center">
+        <span className="relative grid h-[220px] w-[220px] place-items-center">
+          <span className="rk-rays absolute inset-[-60px] rounded-full" style={{ '--t': to.tier.c }} aria-hidden="true" />
+          <img src={`ui/rank/${from.tier.key}.webp`} alt="" className="rk-old absolute h-[150px] w-[150px] object-contain" />
+          <img src={`ui/rank/${to.tier.key}.webp`} alt={`${to.tier.ko} 엠블럼`} className="fx-stamp relative h-[190px] w-[190px] object-contain"
+            style={{ '--d': '500ms', filter: `drop-shadow(0 0 28px ${to.tier.c})` }} />
+          <Burst n={30} spread={200} colors={[to.tier.c, '#fff', '#f5d27a']} delay={620} />
+        </span>
+        <p className="fx-rise ui-lab font-display" style={{ '--a': to.tier.c, animationDelay: '800ms' }}>등급 상승</p>
+        <b className="fx-rise -mt-2 text-[56px] font-black leading-none" style={{ color: to.tier.c, animationDelay: '880ms', textShadow: `0 0 30px ${to.tier.c}88` }}>{to.tier.ko} {to.div}</b>
+        <span className="fx-rise text-t3 text-gray-300" style={{ animationDelay: '960ms' }}>{from.tier.ko} {from.div} → {to.tier.ko} {to.div}</span>
+        <button type="button" className="fx-fade ui-btn ui-cut pri mt-2 min-w-[220px] text-t2" style={{ '--d': '1200ms' }} onClick={onClose}>확인</button>
+      </div>
+    </div>
+  );
+}
+const RK_CSS = `
+.rk-rays { background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--t) 38%, transparent) 0 8deg, transparent 8deg 22deg);
+  -webkit-mask: radial-gradient(closest-side, #000 30%, transparent 100%); mask: radial-gradient(closest-side, #000 30%, transparent 100%);
+  animation: rk-rays-in .6s var(--fx-out) .5s both, rk-spin 14s linear .5s infinite; }
+@keyframes rk-rays-in { from { opacity: 0; transform: scale(.6); } }
+@keyframes rk-spin { to { rotate: 1turn; } }
+.rk-old { animation: rk-old .45s var(--fx-in) .15s both; }
+@keyframes rk-old { to { opacity: 0; transform: scale(.55); filter: brightness(2); } }
+@media (prefers-reduced-motion: reduce) { .rk-rays, .rk-old { animation: none; } .rk-old { opacity: 0; } }
+`;
 
 export const RK = '#a78bfa'; // 랭크전 강조색
 const fmtPct = (r) => (r.w + r.l ? (r.w / (r.w + r.l)).toFixed(3).replace(/^0/, '') : '-');
 const fmtGb = (gb) => (gb === 0 ? '-' : gb.toFixed(1));
 
 /** 순위표 */
+/* 순위표를 마지막으로 본 순위(시즌별) — 결과 화면을 거쳐 다시 열려도 바뀐 줄이 움직이게 */
+let seenRanks = null;
+const MOVE_WAIT = 320;
+
 export function StandingsTable({ s, big = false, lastMoves = null }) {
   const rows = standings(s);
   const me = meOf(s);
+  const bodyRef = useRef(null);
+  /* 지난번 본 순위 — 화면이 뜰 때 한 번만 잡는다(개발 모드에서 효과가 두 번 돌아도 같은 값) */
+  const [prevRanks] = useState(() => (big && seenRanks && seenRanks.key === `${s.key}` ? seenRanks.ranks : null));
+  useLayoutEffect(() => {
+    if (!big) return undefined;
+    const now = new Map(rows.map((r) => [r.idx, r.rank]));
+    seenRanks = { key: `${s.key}`, ranks: now };
+    const trs = [...(bodyRef.current?.querySelectorAll('tr[data-idx]') || [])];
+    trs.forEach((tr) => { tr.style.transition = 'none'; tr.style.transform = ''; }); // 앞 실행에서 걸어 둔 자리는 먼저 지운다
+    if (!prevRanks || trs.length < 2 || reducedMotion()) return undefined;
+    const pitch = trs[1].getBoundingClientRect().top - trs[0].getBoundingClientRect().top;
+    const moved = trs.filter((tr) => { const was = prevRanks.get(Number(tr.dataset.idx)); return was != null && was !== now.get(Number(tr.dataset.idx)); });
+    moved.forEach((tr) => {
+      const idx = Number(tr.dataset.idx);
+      tr.style.transform = `translateY(${(prevRanks.get(idx) - now.get(idx)) * pitch}px)`;
+      tr.style.position = 'relative';
+      tr.style.zIndex = idx === me ? '2' : '1';
+    });
+    const t = setTimeout(() => moved.forEach((tr) => {
+      tr.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
+      tr.style.transform = '';
+    }), MOVE_WAIT);
+    return () => clearTimeout(t);
+  }, [rows.map((r) => r.idx).join()]); // 순위가 바뀔 때만 — 같은 순위로 다시 그려지는 것은 무시 // eslint-disable-line react-hooks/exhaustive-deps
   const cell = big ? 'py-[7px]' : 'py-1';
+  /* 큰 판: 숫자 칸을 넓혀 이름과 숫자 사이 빈 곳을 줄이고, 줄마다 옅은 띠로 눈이 가로로 따라가게(KBO 순위표 방식) */
+  const w = big ? [60, 72, 64, 64, 64, 88, 80, 72, 72, 124] : [52, 52, 44, 44, 44, 64, 60, 0, 0, 96];
   return (
-    <table className="w-full table-fixed border-collapse text-right tabular-nums text-t3">
-      {/* 팀 이름 칸이 넓고 숫자 칸은 좁게 — 이름이 잘리지 않게 */}
-      <colgroup><col style={{ width: 52 }} /><col /><col style={{ width: 52 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 44 }} /><col style={{ width: 64 }} /><col style={{ width: 60 }} />{big && <><col style={{ width: 52 }} /><col style={{ width: 52 }} /></>}<col style={{ width: 96 }} /></colgroup>
+    <table className={`w-full table-fixed border-collapse text-right tabular-nums ${big ? 'text-t2' : 'text-t3'}`}>
+      <colgroup><col style={{ width: w[0] }} /><col />{w.slice(1, 7).map((x, i) => <col key={i} style={{ width: x }} />)}{big && <><col style={{ width: w[7] }} /><col style={{ width: w[8] }} /></>}<col style={{ width: w[9] }} /></colgroup>
       <thead>
         <tr className="text-t4 font-bold text-gray-400">
           <th className="w-10 text-center">순위</th><th className="pl-2 text-left">팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>게임차</th>
           {big && <><th>득점</th><th>실점</th></>}<th className="pr-3">최근</th>
         </tr>
       </thead>
-      <tbody>
-        {rows.map((r) => {
+      <tbody ref={bodyRef}>
+        {rows.map((r, ri) => {
           const mine = r.idx === me;
           const move = lastMoves?.get(r.idx) || 0;
           return (
-            <tr key={r.idx} className={`${cell} ${r.rank === POST_TEAMS ? 'border-b-2 border-dashed border-amber-300/50' : 'border-b border-white/[0.06]'}`}
-              style={{ background: mine ? 'rgba(52,211,153,.12)' : undefined }}>
+            <tr key={r.idx} data-idx={r.idx} className={`${cell} ${r.rank === POST_TEAMS ? 'border-b-2 border-dashed border-amber-300/50' : 'border-b border-white/[0.06]'}`}
+              style={{ background: mine ? 'rgba(52,211,153,.12)' : big && ri % 2 ? 'rgba(255,255,255,.035)' : undefined }}>
               <td className={`${cell} text-center font-display text-t2 font-extrabold`} style={{ color: r.rank <= POST_TEAMS ? '#fbbf24' : '#64748b' }}>{r.rank}</td>
               <td className={`${cell} max-w-0 pl-2 text-left`}>
                 <span className="flex items-center gap-2">
-                  <b className={`truncate text-t3 font-bold ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
+                  <b className={`truncate font-bold ${big ? 'text-t2' : 'text-t3'} ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
                   {/* 다른 감독 팀 — 감독 이름. 구단 이름을 짓지 않아 감독 이름과 같으면 '감독' 만 */}
                   {r.team.ghost && <span className="shrink-0 rounded bg-sky-400/15 px-1.5 text-t4 font-bold text-sky-300" title="다른 감독 팀">{r.team.name === r.team.owner ? '감독' : r.team.owner}</span>}
-                  {move !== 0 && <em className="shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
+                  {move !== 0 && <em className="fx-bump shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP, '--d': '900ms' }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
                 </span>
               </td>
               <td className={cell}>{r.g}</td><td className={`${cell} text-white`}>{r.w}</td><td className={cell}>{r.l}</td><td className={cell}>{r.d}</td>
@@ -118,12 +186,26 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
   const pm = postMatch(s);
   const stage = pm ? STAGES[pm.stage] : null;
   const reward = s.done ? PLACE_REWARD[s.place - 1] : null;
-  const rank = rankOf(account.rank?.rp || 0);
+  const rp = account.rank?.rp || 0;
+  const rank = rankOf(rp);
+  /* 보상을 받아 RP 가 바뀌면 — RP 는 세어 오르고, 등급(루키 → 퓨처스 …)이 바뀌면 등급 오름 연출 */
+  const prevRp = useRef(rp);
+  const [rpFrom, setRpFrom] = useState(null);
+  const [tierUp, setTierUp] = useState(null);
+  useEffect(() => {
+    const a = prevRp.current;
+    prevRp.current = rp;
+    if (a === rp) return;
+    setRpFrom(a);
+    const A = rankOf(a);
+    if (rank.index > A.index) setTierUp({ from: A, to: rank });
+  }, [rp]); // eslint-disable-line react-hooks/exhaustive-deps
   const keyPlayers = oppTeam ? keyPlayersOf(oppTeam.roster) : [];
 
   return (
     <div className="min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
-      <style>{KEYFRAMES}</style>
+      <style>{KEYFRAMES + RK_CSS}</style>
+      {tierUp && <TierUp from={tierUp.from} to={tierUp.to} onClose={() => setTierUp(null)} />}
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
@@ -176,15 +258,22 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 <div className="mt-1 flex min-h-0 flex-1 flex-col justify-around">
                   {lastRound.map((g) => {
                     const mineG = g.a === me || g.b === me;
-                    const side = (idx, score, other) => (
-                      <span className={`flex min-w-0 flex-1 items-baseline gap-2 ${idx === g.b ? 'flex-row-reverse text-right' : ''}`} style={{ opacity: score < other ? 0.55 : 1 }}>
-                        <b className={`min-w-0 truncate text-t3 ${idx === me ? 'text-[#34d399]' : 'text-white'}`}>{s.teams[idx].name}</b>
-                        <b className="font-display text-t2 text-white">{score}</b>
-                      </span>
+                    /* 전광판 한 줄 — 이름은 양 끝, 점수는 가운데 칸에 따로. 이긴 쪽 이름 · 점수만 밝게 */
+                    const name = (idx, score, other) => (
+                      <b className={`min-w-0 truncate text-t3 ${idx === g.b ? 'text-right' : ''}`}
+                        style={{ color: idx === me ? '#34d399' : score > other ? '#fff' : '#8b93a3', fontWeight: score > other ? 800 : 600 }}>{s.teams[idx].name}</b>
+                    );
+                    const run = (score, other) => (
+                      <b className="w-7 text-center font-display text-t2 tabular-nums" style={{ color: score > other ? '#fff' : '#6b7280' }}>{score}</b>
                     );
                     return (
-                      <div key={`${g.a}-${g.b}`} className="ui-cut flex items-center gap-3 px-3 py-1.5" style={{ '--c': '7px', background: mineG ? 'rgba(52,211,153,.1)' : 'rgba(255,255,255,.03)' }}>
-                        {side(g.a, g.as, g.bs)}<span className="font-display text-t4 text-gray-400">:</span>{side(g.b, g.bs, g.as)}
+                      <div key={`${g.a}-${g.b}`} className="ui-cut grid items-center gap-3 px-3 py-1.5"
+                        style={{ '--c': '7px', gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)', background: mineG ? 'rgba(52,211,153,.1)' : 'rgba(255,255,255,.03)', boxShadow: mineG ? 'inset 3px 0 0 #34d399' : undefined }}>
+                        {name(g.a, g.as, g.bs)}
+                        <span className="flex h-8 items-center rounded-md bg-black/40 px-1.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
+                          {run(g.as, g.bs)}<i className="px-0.5 font-display text-t4 not-italic text-gray-500">:</i>{run(g.bs, g.as)}
+                        </span>
+                        {name(g.b, g.bs, g.as)}
                       </div>
                     );
                   })}
@@ -232,8 +321,8 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 })}
               </div>
               <div className="ui-cut flex items-center gap-3 bg-white/[0.05] px-4 py-2.5" style={{ '--c': '10px' }}>
-                <span className="font-display text-t3 font-bold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</span>
-                <b className="ml-auto font-display text-t2 text-white">{account.rank?.rp || 0} RP</b>
+                <span key={`${rank.tier.key}${rank.div}`} className={`font-display text-t3 font-bold ${rpFrom != null && rankOf(rpFrom).div !== rank.div ? 'fx-bump' : ''}`} style={{ color: rank.tier.c, '--d': '900ms' }}>{rank.tier.ko} {rank.div}</span>
+                <b className="ml-auto font-display text-t2 text-white"><Count value={rp} from={rpFrom ?? rp} delay={200} dur={900} /> RP</b>
               </div>
               {s.claimed && (() => {
                 const got = s.reward || { rp: reward.rp, gold: reward.gold };

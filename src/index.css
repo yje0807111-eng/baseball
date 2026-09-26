@@ -17,3 +17,152 @@ body { overscroll-behavior: none; }
   .fit-zoom .lg\:h-dvh { height: var(--fit-h); }
   .fit-zoom .lg\:min-h-0 { min-height: 0; }
 }
+
+/* ───────────── 모션 공통 값 (ui/motion.jsx) ─────────────
+   들어오는 것: 빠르게 출발 → 부드럽게 멈춤 / 나가는 것: 천천히 출발 → 빨리 사라짐 */
+:root { --fx-out: cubic-bezier(.2, .8, .2, 1); --fx-in: cubic-bezier(.4, 0, 1, 1); }
+
+/* 화면 이동 — 같은 축(앞뒤)으로만: 들어가면 새 화면이 살짝 작게서 커지며, 돌아오면 반대 */
+::view-transition-old(root) { animation: fx-vt-out .16s var(--fx-in) both; }
+::view-transition-new(root) { animation: fx-vt-in .28s var(--fx-out) both; }
+:root[data-nav="back"]::view-transition-old(root) { animation-name: fx-vt-out-back; }
+:root[data-nav="back"]::view-transition-new(root) { animation-name: fx-vt-in-back; }
+/* 옆 탭 — 위 바는 그대로 두고 본문만 옆으로 조금 밀린다 */
+:root[data-nav="tab-r"]::view-transition-old(root) { animation: fx-tab-out-l .12s var(--fx-in) both; }
+:root[data-nav="tab-r"]::view-transition-new(root) { animation: fx-tab-in-r .18s var(--fx-out) both; }
+:root[data-nav="tab-l"]::view-transition-old(root) { animation: fx-tab-out-r .12s var(--fx-in) both; }
+:root[data-nav="tab-l"]::view-transition-new(root) { animation: fx-tab-in-l .18s var(--fx-out) both; }
+/* 위 바 · 탭 밑줄은 따로 — 바는 제자리, 밑줄은 옛 탭에서 새 탭으로 미끄러진다 */
+::view-transition-group(mt-topbar) { animation-duration: .18s; }
+::view-transition-group(mt-tab-ink) { animation-duration: .24s; animation-timing-function: var(--fx-out); }
+::view-transition-old(mt-tab-ink), ::view-transition-new(mt-tab-ink) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(mt-tab-ink) { opacity: 0; }
+
+@keyframes fx-vt-out { to { opacity: 0; transform: scale(1.015); } }
+@keyframes fx-vt-in { from { opacity: 0; transform: scale(.975); } }
+@keyframes fx-vt-out-back { to { opacity: 0; transform: scale(.985); } }
+@keyframes fx-vt-in-back { from { opacity: 0; transform: scale(1.02); } }
+@keyframes fx-tab-out-l { to { opacity: 0; transform: translateX(-18px); } }
+@keyframes fx-tab-out-r { to { opacity: 0; transform: translateX(18px); } }
+@keyframes fx-tab-in-r { from { opacity: 0; transform: translateX(22px); } }
+@keyframes fx-tab-in-l { from { opacity: 0; transform: translateX(-22px); } }
+
+/* 숫자 세기 끝 — 한 번 톡 */
+.fx-pop { animation: fx-pop .24s var(--fx-out); }
+@keyframes fx-pop { 40% { transform: scale(1.14); } }
+
+/* 카드 뒤집기 — 뒷면 → 살짝 들리며 앞면(끝에서 조금 넘었다 돌아옴) */
+.fx-flip-wrap { perspective: 1200px; }
+.fx-flip { position: relative; height: 100%; transform-style: preserve-3d; animation: fx-flip .56s var(--fx-out) var(--d, 0ms) both; }
+.fx-face { height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fx-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+.fx-back-plain { height: 100%; border-radius: 12px; background: linear-gradient(160deg, #1b2336, #0b1020); box-shadow: inset 0 0 0 1px rgba(245, 210, 122, .35); }
+@keyframes fx-flip {
+  0% { transform: rotateY(180deg) scale(.94); }
+  55% { transform: rotateY(-8deg) scale(1.04); }
+  100% { transform: rotateY(0) scale(1); }
+}
+
+/* 차례로 올라오기 — 처음 뜰 때만 */
+.fx-rise { animation: fx-rise .32s var(--fx-out) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* 누름 — 게임 단추처럼 눌리는 순간 살짝 들어간다 */
+.mt-btn:active:not(:disabled), .ui-btn:active:not(:disabled), .mt-tab:active { transform: scale(.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .fx-pop, .fx-flip, .fx-rise { animation: none !important; }
+}
+
+/* 주 단추(금빛) 마우스 올림 — 밝아지며 살짝 뜨고, 빛 한 줄이 왼쪽에서 오른쪽으로 지나간다(게임 단추 광택).
+   전에는 일반 단추 hover 규칙이 금빛 바탕을 덮어 검게 보였다 */
+.mt-btn.pri, .ui-btn.pri { position: relative; overflow: hidden; }
+.mt-btn.pri::after, .ui-btn.pri::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .5) 48%, transparent 66%);
+  transform: translateX(-130%);
+}
+.mt-btn.pri:hover:not(:disabled)::after, .ui-btn.pri:hover:not(:disabled)::after { transform: translateX(130%); transition: transform .7s var(--fx-out); }
+.mt-btn.pri:hover:not(:disabled), .ui-btn.pri:hover:not(:disabled) {
+  box-shadow: 0 14px 30px -8px rgba(227, 178, 74, .8), inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -2px 0 rgba(0, 0, 0, .2);
+}
+@media (prefers-reduced-motion: reduce) { .mt-btn.pri::after, .ui-btn.pri::after { display: none; } }
+
+/* 빛 가루 (motion.jsx Burst) */
+.fx-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 5; }
+.fx-burst > i { position: absolute; left: 0; top: 0; width: var(--s); height: var(--s); margin: calc(var(--s) / -2); border-radius: 50%; opacity: 0;
+  box-shadow: 0 0 10px currentColor; animation: fx-burst .9s cubic-bezier(.15, .7, .3, 1) var(--d, 0ms) both; }
+@keyframes fx-burst { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 70% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.2); } }
+
+/* 결과 도장 — 크게 찍혔다가 자리 잡음(승리) · 위에서 무겁게 내려앉음(패배) · 조용히(무승부) */
+.fx-stamp { animation: fx-stamp .46s cubic-bezier(.2, .9, .25, 1.15) var(--d, 0ms) both; }
+@keyframes fx-stamp { 0% { opacity: 0; transform: scale(1.9); filter: blur(6px); } 60% { opacity: 1; transform: scale(.94); filter: blur(0); } 100% { transform: scale(1); } }
+.fx-drop { animation: fx-drop .6s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-drop { from { opacity: 0; transform: translateY(-22px); } }
+.fx-fade { animation: fx-fade .3s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-fade { from { opacity: 0; } }
+/* 왼쪽에서 오른쪽으로 그려짐(승률 흐름 선) */
+.fx-wipe { animation: fx-wipe .9s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* 화살표 톡 (순위 ▲) */
+.fx-bump { display: inline-block; animation: fx-bump .5s cubic-bezier(.2, .9, .25, 1.4) var(--d, 0ms) both; }
+@keyframes fx-bump { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 100% { opacity: 1; transform: none; } }
+/* 주 단추가 처음 나올 때 광택 한 번 — 누를 곳 알리기 */
+.fx-sheen-once::after { animation: fx-sheen .8s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-sheen { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+/* 건너뛰기 — 결과 연출 중 누르면 모두 끝 상태로 */
+.fx-skip, .fx-skip * { animation-delay: 0s !important; animation-duration: .01s !important; }
+@media (prefers-reduced-motion: reduce) {
+  .fx-burst, .fx-sheen-once::after { display: none; }
+  .fx-stamp, .fx-drop, .fx-fade, .fx-wipe, .fx-bump { animation: none !important; }
+}
+
+/* 대진표: 이긴 팀이 다음 칸으로 나아감 · 진 칸은 흐려짐 */
+@keyframes tbAdv { from { opacity: 0; transform: translateX(-42px); } }
+@keyframes tbDim { from { opacity: 1; } to { opacity: .38; } }
+
+/* 골드가 바뀐 만큼 — 칩 아래에서 떠올랐다 사라진다 */
+.gold-float { position: absolute; right: 10px; top: calc(100% + 2px); z-index: 30; pointer-events: none; white-space: nowrap;
+  font-family: 'Saira Condensed', sans-serif; font-size: 18px; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,.8);
+  animation: gold-float 1.1s var(--fx-out) both; }
+.gold-float.down { color: #fca5a5; }
+.gold-float.up { color: #fde047; }
+@keyframes gold-float { 0% { opacity: 0; transform: translateY(-10px) scale(.9); } 18% { opacity: 1; transform: translateY(0) scale(1.08); } 70% { opacity: 1; transform: translateY(4px) scale(1); } 100% { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) { .gold-float { animation-duration: .01s; } }
+
+/* 라커: 막 영입한 카드 — 금빛 테두리가 번졌다 사라짐 · 아이템을 받은 줄 — 한 번 환해짐 */
+.lk-ring { border-radius: 14px; animation: lk-ring 1.1s var(--fx-out) both; }
+@keyframes lk-ring { 0% { box-shadow: 0 0 0 0 rgba(245,210,122,.9), inset 0 0 0 2px rgba(245,210,122,.9); } 100% { box-shadow: 0 0 0 18px rgba(245,210,122,0), inset 0 0 0 2px rgba(245,210,122,0); } }
+.lk-hit { animation: lk-hit .9s var(--fx-out) .45s both; }
+@keyframes lk-hit { 0% { box-shadow: inset 0 0 0 2px #34d399, 0 0 22px -4px #34d399; } 100% { box-shadow: none; } }
+@media (prefers-reduced-motion: reduce) { .lk-ring, .lk-hit { animation: none; } }
+
+/* 로비 첫 등장 — 왼쪽 판 · 가운데 판 · 오른쪽 칸 넷 · 주간 과제가 60ms 간격으로 */
+.lb-intro > * { animation: fx-rise .45s var(--fx-out) both; }
+.lb-intro > :nth-child(2) { animation-delay: 70ms; }
+.lb-intro > :nth-child(3) { animation: none; }
+.lb-intro > :nth-child(3) > * { animation: fx-rise .42s var(--fx-out) both; }
+.lb-intro > :nth-child(3) > :nth-child(1) { animation-delay: 150ms; }
+.lb-intro > :nth-child(3) > :nth-child(2) { animation-delay: 210ms; }
+.lb-intro > :nth-child(3) > :nth-child(3) { animation-delay: 270ms; }
+.lb-intro > :nth-child(3) > :nth-child(4) { animation-delay: 330ms; }
+.lb-intro > :nth-child(3) > :nth-child(5) { animation-delay: 390ms; }
+@media (prefers-reduced-motion: reduce) { .lb-intro > *, .lb-intro > * > * { animation: none !important; } }
+
+/* 목록이 새로 뜰 때 — 처음 12칸만 30ms 간격(useListIntro) */
+.fx-list > * { animation: fx-rise .3s var(--fx-out) both; }
+.fx-list > :nth-child(n+13) { animation: none; }
+.fx-list > :nth-child(1) { animation-delay: 80ms; }
+.fx-list > :nth-child(2) { animation-delay: 110ms; }
+.fx-list > :nth-child(3) { animation-delay: 140ms; }
+.fx-list > :nth-child(4) { animation-delay: 170ms; }
+.fx-list > :nth-child(5) { animation-delay: 200ms; }
+.fx-list > :nth-child(6) { animation-delay: 230ms; }
+.fx-list > :nth-child(7) { animation-delay: 260ms; }
+.fx-list > :nth-child(8) { animation-delay: 290ms; }
+.fx-list > :nth-child(9) { animation-delay: 320ms; }
+.fx-list > :nth-child(10) { animation-delay: 350ms; }
+.fx-list > :nth-child(11) { animation-delay: 380ms; }
+.fx-list > :nth-child(12) { animation-delay: 410ms; }
+@media (prefers-reduced-motion: reduce) { .fx-list > * { animation: none !important; } }

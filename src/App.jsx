@@ -3,7 +3,7 @@
  * 로비까지는 가볍게 뜨도록, 시즌 로스터·경기 엔진이 딸린 화면들은 GameApp 으로 떼어
  * 로비에서 어딘가로 들어갈 때 받아 온다.
  */
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
 import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from './myteam/store.js';
@@ -11,8 +11,13 @@ import { online } from './net/supabase.js';
 import { resume, logOut } from './net/account.js';
 import { startSync } from './net/sync.js';
 import { setScene } from './audio/bgm.js';
+import { navTo } from './ui/motion.jsx';
 
-const GameApp = lazy(() => import('./GameApp.jsx'));
+/* 화면 깊이 — 더 깊이 가면 '들어감', 얕아지면 '돌아옴' 모션. 결과 화면에서 나갈 때는 다음으로 넘어가는 것이라 '들어감' */
+const DEPTH = { lobby: 0, modes: 1, locker: 1, shop: 1, record: 1, augments: 1, bracket: 2, ranked: 2, prep: 3, play: 4, result: 5 };
+const dirOf = (from, to) => (from === 'result' || (DEPTH[to] ?? 1) >= (DEPTH[from] ?? 1) ? 'fwd' : 'back');
+
+import { GameApp, preloadView } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
@@ -32,7 +37,23 @@ export default function App() {
     if (!online) return;
     resume().then((uid) => uid && enter(uid)).catch(() => {}).finally(() => setBoot(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const [view, setView] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
+  const [view, setViewNow] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
+  /* 화면 바꾸기는 모두 모션을 거친다(ui/motion.jsx navTo) */
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const setView = (next) => {
+    const from = viewRef.current;
+    if (next === from) return;
+    viewRef.current = next;
+    navTo(() => setViewNow(next), dirOf(from, next), preloadView(next));
+  };
+  /* 로비가 뜨고 나면 자주 가는 화면을 미리 받아 둔다 — 첫 이동에서 빈 화면이 끼지 않게 */
+  useEffect(() => {
+    if (!account) return undefined;
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 600));
+    const id = idle(() => { ['modes', 'locker', 'shop', 'record', 'augments'].forEach((v) => preloadView(v).catch(() => {})); });
+    return () => (window.cancelIdleCallback || clearTimeout)(id);
+  }, [!!account]); // eslint-disable-line react-hooks/exhaustive-deps
   const [playTab, setPlayTab] = useState(null); // 경기를 마치고 돌아올 플레이 탭
   const [recordTab, setRecordTab] = useState('all'); // 기록 화면을 열 칸 (메인 주간 과제에서 오면 'week')
 

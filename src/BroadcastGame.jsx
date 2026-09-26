@@ -5,7 +5,7 @@
  * 승부처에는 멈추고 지시를 받는다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { UiStyle, Portrait, GlassBg } from './myteam/ui.jsx';
+import { UiStyle, Portrait, GlassBg, Pop } from './myteam/ui.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
@@ -798,14 +798,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           <button type="button" onClick={leave} aria-label="나가기"
             className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
           {leaving && (
-            <div className="mt-cut mt-frame mt-glass absolute left-7 top-full z-40 mt-2 flex w-[360px] flex-col gap-3 p-4" style={{ '--c': '12px' }} role="dialog" aria-label="나가기">
-              <b className="text-t2 font-extrabold text-white">남은 경기 자동 진행</b>
-              <span className="text-t3 text-gray-300">지금 점수에서 끝까지 · 결과 확정</span>
-              <span className="flex gap-2">
-                <button type="button" className="mt-btn pri flex-1" onClick={() => { setLeaving(false); autoFinish(); }}>자동으로 끝내기</button>
-                <button type="button" className="mt-btn flex-1" onClick={() => setLeaving(false)}>계속하기</button>
-              </span>
-            </div>
+            <Pop eyebrow="나가기" title="남은 경기 자동 진행" a="#fbbf24" width={460} onClose={() => setLeaving(false)}
+              actions={<>
+                <button type="button" className="mt-btn" onClick={() => setLeaving(false)}>계속 보기</button>
+                <button type="button" className="mt-btn pri min-w-[180px]" style={{ '--a': '#fbbf24' }} onClick={() => { setLeaving(false); autoFinish(); }}>자동으로 끝내기</button>
+              </>}>
+              <p className="text-t3 text-gray-300">지금 점수에서 끝까지 · 결과 확정</p>
+            </Pop>
           )}
           <div className="leading-none">
             <p className="text-t4 font-bold text-gray-400">플레이</p>
@@ -1009,7 +1008,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                     </button>
                   ))}
                   {clutch && (
-                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡긴다</button>
+                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡기기</button>
                   )}
                   {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
                   {!PICKS && SIDES.map((sd) => {

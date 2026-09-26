@@ -75,7 +75,7 @@ function Hex({ rows, r = 64, pad = 22 }) {
       <polygon points={poly('b')} fill={`${OPP}3a`} stroke={OPP} strokeWidth="2.4" />
       <polygon points={poly('a')} fill={`${ME}3a`} stroke={ME} strokeWidth="2.4" />
       {rows.map((x, i) => { const [lx, ly] = at(i, r + pad * 0.62);
-        return <text key={x.k} x={lx.toFixed(0)} y={(ly + 4).toFixed(0)} textAnchor="middle" fontSize="11" fontWeight="700" fill="#cbd5e1">{x.k}</text>; })}
+        return <text key={x.k} x={lx.toFixed(0)} y={(ly + 4).toFixed(0)} textAnchor="middle" fontSize="12" fontWeight="700" fill="#cbd5e1">{x.k}</text>; })}
     </svg>
   );
 }
@@ -87,7 +87,7 @@ export function Axes({ mine, opp }) {
   return (
     <div className="ui-cut shrink-0 bg-white/[0.04] px-4 py-3" style={{ '--c': '10px' }}>
       <div className="flex justify-between pb-1 font-display text-t4 font-bold tracking-[0.2em]">
-        <span style={{ color: ME }}>MY TEAM</span><span style={{ color: OPP }}>OPPONENT</span>
+        <span style={{ color: ME }}>우리 팀</span><span style={{ color: OPP }}>상대</span>
       </div>
       <div className="grid place-items-center"><Hex rows={rows} /></div>
       <div className="mt-1 grid items-center gap-x-2.5 gap-y-1 text-t4" style={{ gridTemplateColumns: '40px 1fr 38px' }}>

@@ -1,8 +1,9 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 유리 · 깊이 결(둥근 유리 판 · 윗선 빛 · 그림자 · Saira 숫자) */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 import { artId } from '../data/artAlias.js';
+import { navTo, useExitGhost } from '../ui/motion.jsx';
 
 export const UiStyle = () => (
   <style>{`
@@ -22,9 +23,13 @@ export const UiStyle = () => (
       -webkit-mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; mask:linear-gradient(#000,#000) left top/30px 30px no-repeat,linear-gradient(#000,#000) right bottom/30px 30px no-repeat; }
     .mt-frame.hot::after { box-shadow:inset 0 0 0 1.5px var(--a,#10b981), inset 0 0 36px color-mix(in srgb, var(--a,#10b981) 22%, transparent); }
     .mt-lab { display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Sans KR','Malgun Gothic',sans-serif; font-size:14px !important; font-weight:800; letter-spacing:.02em; color:var(--a,#10b981); margin:0; }
+    @keyframes mt-dim { from { opacity:0 } to { opacity:1 } }
+    @keyframes mt-pop { from { opacity:0; transform:translateY(18px) scale(.97) } to { opacity:1; transform:none } }
+    .mt-pop-bg { animation: mt-dim .15s ease-out both; }
+    .mt-pop { animation: mt-pop .22s ease-out both; }
     .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
     .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
-    .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); }
+    .mt-btn:not(.pri):hover:not(:disabled) { color:#fff; background:rgba(245,210,122,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
     /* 주 단추 — 판 색 그라데이션 · 윗선 빛 · 판 색 그림자 */
     /* 주 단추 — 금빛(게임의 '누르는 곳'). 판 색(--a)은 상태 색으로만 쓴다 */
@@ -137,11 +142,12 @@ export const UiStyle = () => (
     .mt-tabs { display:flex; align-items:stretch; gap:2px; height:100%; }
     .mt-tab { position:relative; display:flex; align-items:center; padding:0 22px; font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
     .mt-tab:hover { color:#e5e7eb; }
-    .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:15px; font-weight:700; color:#6b7280; }
+    .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:14px; font-weight:700; color:#6b7280; }
     .mt-tab.on .n { color:#fbe7a8; }
     .mt-tab .bd { margin-left:7px; display:grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:12px; font-weight:900; color:#1c1203; background:linear-gradient(180deg,#fde68a,#f5b93a); box-shadow:0 0 10px rgba(245,185,58,.55); }
     .mt-tab.on { color:#fff; text-shadow:0 0 18px rgba(245,210,122,.35); background:radial-gradient(70% 90% at 50% 100%,rgba(245,210,122,.16),transparent 70%); }
-    .mt-tab.on::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
+    .mt-tab-ink { view-transition-name: mt-tab-ink; }
+    .mt-tab-ink { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
     /* 알약 고르기(배속 등) — 작은 알약 틀 */
     .mt-seg { display:flex; gap:4px; padding:4px; border-radius:12px; background:rgba(255,255,255,.05); box-shadow:inset 0 1px 0 rgba(255,255,255,.08); }
     .mt-segb { height:32px; padding:0 14px; border-radius:8px; font-size:14px; font-weight:700; color:#9ca3af; }
@@ -160,6 +166,41 @@ export const Panel = ({ label, a = '#10b981', c = 14, hot, glass = true, classNa
 export const Btn = ({ pri, lg, sm, a = '#10b981', className = '', style, ...rest }) => (
   <button type="button" className={`mt-btn ${pri ? 'pri' : ''} ${lg ? 'lg' : ''} ${sm ? 'sm' : ''} ${className}`} style={{ '--a': a, ...style }} {...rest} />
 );
+
+/**
+ * 팝업 틀 — 드래프트 창(Modal)과 같은 모양: 어둡게 · 흐리게 깐 배경, 위 제목 줄(분류 · 제목 · 닫기),
+ * 본문 스크롤, 아래 단추 줄(오른쪽 끝이 주 단추). Esc · 바깥 누르기로 닫기
+ */
+export function Pop({ eyebrow, title, sub, a = '#10b981', width = 560, onClose, actions, label, children }) {
+  const rootRef = useRef(null);
+  useExitGhost(rootRef);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <div ref={rootRef} className="mt-pop-bg fixed inset-0 z-50 grid place-items-center bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px]" onClick={onClose} role="presentation">
+      <section role="dialog" aria-modal="true" aria-label={label || (typeof title === 'string' ? title : eyebrow)} onClick={(e) => e.stopPropagation()}
+        className="mt-pop mt-cut mt-frame mt-glass flex max-h-[88vh] w-full flex-col shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '18px', '--a': a, maxWidth: width }}>
+        <header className="flex items-start gap-4 border-b border-white/10 px-7 pb-4 pt-6">
+          <div className="min-w-0 flex-1">
+            {eyebrow && <p className="mt-lab">{eyebrow}</p>}
+            <h2 className="mt-1 text-t1 font-black text-white">{title}</h2>
+            {sub && <p className="mt-1 text-t3 text-gray-400">{sub}</p>}
+          </div>
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="닫기" className="-mr-2 grid h-9 w-9 place-items-center text-gray-400 hover:text-white">
+              <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+          )}
+        </header>
+        <div className="mt-scroll min-h-0 flex-1 overflow-y-auto px-7 py-5">{children}</div>
+        {actions && <footer className="flex items-center justify-end gap-2 border-t border-white/10 px-7 py-4">{actions}</footer>}
+      </section>
+    </div>
+  );
+}
 
 export const Chip = ({ a = '#94a3b8', children }) => <span className="mt-chip" style={{ '--a': a }}>{children}</span>;
 
@@ -277,7 +318,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (
-    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7">
+    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7" style={{ viewTransitionName: 'mt-topbar' }}>
       {onBack && (
         <button type="button" onClick={onBack} aria-label="메인으로"
           className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
@@ -337,17 +378,26 @@ export function FlipFaces({ value, keyOf, render, resetKey, className = '', styl
  * 위 탭 — 라커 · 상점 · 기록이 같이 쓰는 화면 안 메뉴(상단 바 steps 자리). 금빛 밑줄이 고른 탭.
  * items: [{ key, label, n?(옆 작은 숫자), badge?(금빛 알림 숫자) }]
  */
-export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => (
-  <nav className="mt-tabs ml-2" aria-label={label}>
-    {items.map((it) => (
-      <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => onChange(it.key)}>
-        {it.label}
-        {it.n != null && <small className="n">{it.n}</small>}
-        {!!it.badge && <b className="bd">{it.badge}</b>}
-      </button>
-    ))}
-  </nav>
-);
+/** 위 탭 — 누르면 본문이 누른 쪽으로 밀리며 바뀌고, 금빛 밑줄은 옛 탭에서 새 탭으로 미끄러진다(TFT · FC 온라인 탭) */
+export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
+  const cur = items.findIndex((it) => it.key === value);
+  const pick = (it, i) => {
+    if (it.key === value) return;
+    navTo(() => onChange(it.key), i > cur ? 'tab-r' : 'tab-l');
+  };
+  return (
+    <nav className="mt-tabs ml-2" aria-label={label}>
+      {items.map((it, i) => (
+        <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
+          {it.label}
+          {it.n != null && <small className="n">{it.n}</small>}
+          {!!it.badge && <b className="bd">{it.badge}</b>}
+          {value === it.key && <i className="mt-tab-ink" aria-hidden="true" />}
+        </button>
+      ))}
+    </nav>
+  );
+};
 
 /** 큰 사진 머리 (오른쪽 상세 패널 위) — 시리즈 카드 문법 */
 export const Hero = ({ img, ovr, name, color = '#10b981', h = 176, pos = '60% 18%' }) => (

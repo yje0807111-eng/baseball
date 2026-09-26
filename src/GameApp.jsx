@@ -3,7 +3,7 @@
  * 시즌 로스터 412개와 경기 엔진이 여기에 딸려 있어, 로그인·로비와 떼어 두었다.
  * 상태 중 account · view · playTab 은 App 이 들고 있고 나머지는 여기서 갖는다.
  */
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
@@ -19,17 +19,11 @@ import { gameDetail } from './myteam/gameDetail.js';
 import { MATCH_AUG_INNINGS, envOf, augOptions, augsForHistory } from './myteam/matchAug.js';
 import { ChoiceOverlay, KEYFRAMES, FREE_REROLL, makeAugmentRuntime } from './KboAugmentDraft.jsx';
 import { cupOf, cupIssue } from './myteam/cups.js';
+import MatchResult from './play/MatchResult.jsx';
+import { missionState } from './myteam/missions.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
-const KboAugmentDraft = lazy(() => import('./KboAugmentDraft.jsx'));
-const LockerScreen = lazy(() => import('./myteam/LockerScreen.jsx'));
-const ShopScreen = lazy(() => import('./myteam/ShopScreen.jsx'));
-const RecordScreen = lazy(() => import('./myteam/RecordScreen.jsx'));
-const AugmentScreen = lazy(() => import('./myteam/AugmentScreen.jsx'));
-const BroadcastGame = lazy(() => import('./BroadcastGame.jsx'));
-const TournamentBracket = lazy(() => import('./myteam/TournamentBracket.jsx'));
-const RankedHub = lazy(() => import('./myteam/RankedHub.jsx'));
-const PrepScreen = lazy(() => import('./myteam/PrepScreen.jsx'));
+import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, BroadcastGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
@@ -37,6 +31,7 @@ const screen = (node) => <Suspense fallback={<Loading />}>{node}</Suspense>;
 
 export default function GameApp({ account, setAccount, view, setView, playTab, setPlayTab, recordTab = 'all' }) {
   const [match, setMatch] = useState(null); // 경기 중인 두 팀 { my, opp, kind: 'duel' | 'tourney' | 'ranked' }
+  const [after, setAfter] = useState(null); // 경기 결과 화면 { res, my, opp, context, tally, next, nextLabel }
   const [prep, setPrep] = useState(null); // 경기 전 정비 { kind, sub, title, startLabel, back }
   const [cup, setCup] = useState('open'); // 새 토너먼트에 걸 조건 (cups.js)
   const [augPick, setAugPick] = useState(null); // 증강 고르기 창 { options, free, inning, onPick }
@@ -187,6 +182,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
 
   /* 경기가 끝나면 전적·부스트 수명·투수 피로를 정리하고 각 모드 화면으로 */
   const finishMatch = (res) => {
+    const weekBefore = missionState(account.week);
     const played = reload()?.team || account.team; // 정비 화면에서 저장한 배치까지 포함
     const pitcherIds = (played.squad || []).filter((p) => p.type === 'pitcher').map((p) => p.id);
     saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
@@ -203,6 +199,17 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const detail = gameDetail({ ...res, augs }, match.my, match.opp, used);
     const base = { my: account.team.name, opp: match.opp.name, myRuns: res.score.my, oppRuns: res.score.opp, winner: res.winner, mvp, detail, ...(augs.length ? { augs } : {}) };
     setMatch(null);
+    /* 결과 화면으로 — 무엇이 바뀌었나(보상 · 순위 · 과제)를 모드마다 채우고, '계속'을 누르면 원래 가던 화면으로 */
+    const show = (context, tally, next, nextLabel) => {
+      const now = reload();
+      const weekAfter = missionState(now?.week);
+      const was = new Map(weekBefore.map((y) => [y.m.id, y.n]));
+      const quests = weekAfter.filter((x) => x.n > (was.get(x.m.id) ?? 0))
+        .map((x) => ({ k: `주간 과제 · ${x.m.ko}`, v: x.done ? '완료' : `${x.n} / ${x.m.goal}`, c: x.done ? '#f5d27a' : undefined }));
+      refresh();
+      setAfter({ res, my: account.team.name, opp: match.opp.name, context, tally: [...tally, ...quests], next, nextLabel });
+      setView('result');
+    };
     if (match.kind === 'tourney') {
       // 토너먼트 경기는 경기마다 골드 대신, 끝난 뒤 성적 보상을 한 번에 받는다
       const round = roundsOf(tournament.size)[tournament.round]?.ko;
@@ -210,26 +217,56 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       saveTournament(nt);
       if (nt.done && nt.place >= roundsOf(nt.size).length - 3) bumpWeek('tour8'); // 주간 과제: 8강 이상에서 끝
       addHistory({ ...base, mode: 'tournament', round });
-      refresh();
-      setView('bracket');
+      const alive = !nt.done || nt.place === roundsOf(nt.size).length;
+      const nextRound = roundsOf(nt.size)[nt.round]?.ko;
+      show(`토너먼트 · ${round}`, [
+        { k: '토너먼트', v: nt.done ? (alive ? '우승' : `${round} 탈락`) : `${nextRound} 진출`, c: nt.done && !alive ? '#f87171' : '#34d399' },
+        ...(nt.done ? [{ k: '성적 보상', v: '대진표에서 받기', c: '#f5d27a' }] : []),
+      ], () => setView('bracket'), '대진표로 ▶');
       return;
     }
     if (match.kind === 'ranked') {
       const pm = ranked.postMatch(season);
       const round = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
-      saveRanked(ranked.play({ ...season, live: null }, res.score, account.team));
+      const before = season;
+      const ns = ranked.play({ ...season, live: null }, res.score, account.team);
+      saveRanked(ns);
       addHistory({ ...base, mode: 'ranked', round });
       if (match.ghost) recordBattle({ ghost: match.ghost, seed: match.seed, myRuns: res.score.my, oppRuns: res.score.opp });
-      refresh();
-      setView('ranked');
+      const rankOf = (s0) => ranked.standings(s0).find((x) => x.idx === ranked.meOf(s0));
+      const a = rankOf(before), b = rankOf(ns);
+      const move = a && b ? a.rank - b.rank : 0;
+      show(`랭크전 · ${round}`, [
+        ...(ns.done ? [{ k: '시즌 최종', v: ranked.PLACE_REWARD[ns.place - 1]?.ko || '-', c: '#f5d27a' }, { k: '시즌 보상', v: '순위표에서 받기', c: '#f5d27a' }]
+          : ns.post ? [{ k: '가을야구', v: ranked.postMatch(ns) ? ranked.STAGES[ranked.postMatch(ns).stage].ko : '진행 중', c: '#34d399' }]
+            : [{ k: '순위', v: `${b?.rank ?? '-'}위${move > 0 ? ` ▲${move}` : move < 0 ? ` ▼${-move}` : ''}`, c: move > 0 ? '#34d399' : move < 0 ? '#f87171' : undefined }]),
+        ...(b ? [{ k: '시즌 성적', v: `${b.w}승 ${b.l}패${b.d ? ` ${b.d}무` : ''}` }] : []),
+      ], () => setView('ranked'), '순위표로 ▶');
       return;
     }
     addHistory(base);
-    addGold(res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120);
-    refresh();
-    toModes('duel');
+    const gold = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
+    addGold(gold);
+    const rec = reload()?.team?.record || { w: 0, l: 0, d: 0 };
+    show('일반 대결 · 단판', [
+      { k: '골드', v: `+${gold} G`, c: '#f5d27a' },
+      { k: '통산 전적', v: `${rec.w}승 ${rec.l}패${rec.d ? ` ${rec.d}무` : ''}` },
+    ], () => toModes('duel'), '계속 ▶');
   };
 
+  if (view === 'result' && after) {
+    const go = () => { const next = after.next; setAfter(null); next(); };
+    return screen(
+      <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-100">
+        <style>{KEYFRAMES}</style>
+        <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
+        <div className="relative flex min-h-0 flex-1 flex-col px-7 py-6">
+          <MatchResult result={after.res} myName={after.my} oppName={after.opp} context={after.context} tally={after.tally}
+            actions={[{ label: after.nextLabel, onClick: go, pri: true }]} />
+        </div>
+      </div>,
+    );
+  }
   if (view === 'modes') {
     return screen(
       <KboAugmentDraft onExit={() => { setPlayTab(null); setView('lobby'); }} normalView={playTab} onNormalView={setPlayTab}

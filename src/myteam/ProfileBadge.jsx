@@ -3,7 +3,8 @@
  * 누르면 프로필 창: 이름 변경 · 대진표 내 팀 칸 배너 고르기 · 배경음악 · 로그아웃.
  * 이름 · 배너는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Count, useExitGhost } from '../ui/motion.jsx';
 import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
 import { loadAccount, saveProfile, TEAM_NAME_MAX } from './store.js';
@@ -45,6 +46,8 @@ function SlotPreview({ name, banner }) {
 }
 
 function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved, onSignOut }) {
+  const rootRef = useRef(null);
+  useExitGhost(rootRef);
   const [nick, setNick] = useState(nick0 || '');
   const [banner, setBanner] = useState(banner0 ?? null);
   const [club, setClub] = useState(teamName || '');
@@ -75,10 +78,10 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     onClose();
   };
   return createPortal(
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-[#02040a]/80 backdrop-blur-sm" onClick={onClose} role="presentation">
+    <div ref={rootRef} className="mt-pop-bg fixed inset-0 z-[80] grid place-items-center bg-[#03050a]/70 backdrop-blur-[5px]" onClick={onClose} role="presentation">
       <div className="mt-cut mt-frame mt-glass flex w-[760px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
         <div className="flex items-baseline gap-3">
-          <p className="mt-lab">프로필</p>
+          <p className="mt-lab">감독</p>
           <b className="text-t1 font-black text-white">프로필</b>
           <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-t2 text-gray-400 hover:text-white" aria-label="닫기">×</button>
         </div>
@@ -151,8 +154,16 @@ export default function ProfileBadge({ account, onSignOut }) {
   const banner = live?.profile?.banner ?? null;
   const r = rankOf(account?.rank?.rp || 0);
   const flag = flagByKey(banner);
+  const gold = account?.gold ?? 0;
+  const prevGold = useRef(gold);
+  const [delta, setDelta] = useState(null); // { d, k } — 방금 바뀐 골드
+  useEffect(() => {
+    const d = gold - prevGold.current;
+    prevGold.current = gold;
+    if (d) setDelta({ d, k: `${Date.now()}` });
+  }, [gold]);
   return (
-    <>
+    <span className="relative inline-flex">
       {/* 1안 한 장 배너: 배너가 상자 전체에 깔리고 왼쪽 어둠 → 오른쪽 구단 색. 골드는 배너 위 유리 칩 */}
       <button type="button" onClick={() => setOpen(true)} aria-label="프로필"
         className="mt-cut relative flex h-[54px] items-center gap-3 overflow-hidden pl-1.5 pr-2 text-left transition hover:brightness-125"
@@ -172,14 +183,19 @@ export default function ProfileBadge({ account, onSignOut }) {
           <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
             style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
           <b className="font-display text-t2 font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-            {(account?.gold ?? 0).toLocaleString()}
+            <Count value={gold} dur={600} />
           </b>
         </span>
       </button>
+      {delta && (
+        <b key={delta.k} className={`gold-float ${delta.d > 0 ? 'up' : 'down'}`} onAnimationEnd={() => setDelta(null)} aria-hidden="true">
+          {delta.d > 0 ? '+' : '−'}{Math.abs(delta.d).toLocaleString()} G
+        </b>
+      )}
       {open && (
         <ProfileModal nick={nick} banner={banner} teamName={live?.team?.name || live?.nick || ''}
           onClose={() => setOpen(false)} onSaved={() => bump((n) => n + 1)} onSignOut={onSignOut} />
       )}
-    </>
+    </span>
   );
 }

@@ -87,7 +87,7 @@ function pickBot(target, names, rng) {
  *  2) 남는 자리 — 내 등급(rp) 전력 구간에 맞춘 감독 봇 · AI 시리즈 팀을 반씩(봇이 한 자리 더)
  * 내 자리 · 일정 순서는 무작위
  */
-export function makeSeason({ season = 1, myName = '나의 드림팀', key = newKey(), ghosts = [], rp = 0 } = {}) {
+export function makeSeason({ season = 1, myName = '내 팀', key = newKey(), ghosts = [], rp = 0 } = {}) {
   const rng = seeded(hashKey(`ranked:${key}`));
   const center = TIER_POWER[rankOf(rp).index] ?? TIER_POWER[0];
   const seen = new Set();

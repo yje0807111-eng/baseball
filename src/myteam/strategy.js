@@ -86,17 +86,17 @@ export function recommend(opponent) {
 export const SIDES = [
   { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'take'],
     opts: [
-      { id: 'big', ko: '빅볼', tip: '한 방을 노린다', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
-      { id: 'contact', ko: '컨택', tip: '맞혀 나간다', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통' } },
+      { id: 'big', ko: '빅볼', tip: '한 방 노리기', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
+      { id: 'contact', ko: '컨택', tip: '맞혀 나가기', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통' } },
       { id: 'speed', ko: '발야구', tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
-      { id: 'onbase', ko: '출루', tip: '공을 많이 본다', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
+      { id: 'onbase', ko: '출루', tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
     ] },
   { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
-      { id: 'long', ko: '선발 완주', tip: '끝까지 맡긴다', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
+      { id: 'long', ko: '선발 완주', tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
       { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
       { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
-      { id: 'save', ko: '아끼기', tip: '뒤를 남긴다', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
+      { id: 'save', ko: '아끼기', tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
     ] },
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [

@@ -68,11 +68,11 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
     <div className="min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
       <style>{KEYFRAMES}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/ready.webp)' }} aria-hidden="true" />
-      <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b border-[#10b981]/25 px-6" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
+      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b border-[#f5d27a]/20 px-7" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label={`${backLabel} 돌아가기`}>←</button>
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">{sub}</p>
-          <b className="text-t2 font-extrabold text-white">{title}</b>
+          <b className="text-t1 font-black text-white">{title}</b>
         </div>
         <CapBar team={team} sm className="ml-auto w-[248px]" />
       </header>

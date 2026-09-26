@@ -7,10 +7,18 @@
  * 아래 판 배치는 목업 넷(mockups/conquest-4) 중 4안.
  * 배치를 고른 까닭(2026-09-26): 옛 탑은 여덟 칸마다 수치 다섯을 반복해 숫자 40개가 한꺼번에 보였고, 다음 상대 · 진행도 · 보상이 묻혔다.
  */
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FIELD_SLOTS, PITCH_SLOTS, fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
 import { GRADES, emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
+import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
+
+/*
+ * 원정길을 마지막으로 본 모습 — 결과 화면을 거쳐 다시 열려도 '지난 자리 → 새 자리'로 움직이게 기억해 둔다.
+ * run: 이 판의 구단 묶음 · seats: 칸별 가로 위치 · at: 내 자리 · fill: 금빛 선 · cleared: 통과한 구단 · done
+ */
+let seen = null;
+const MOVE_WAIT = 300; // 화면이 뜬 뒤 옛 모습을 잠깐 보여 주고 움직인다(ms)
 import { GAUNTLET_MEMENTO, GAUNTLET_MID_AT, GAUNTLET_MID_MEMENTO } from './memento.js';
 import { artId } from '../data/artAlias.js';
 
@@ -51,16 +59,25 @@ const Cup = ({ size = 30, lit = false }) => (
 );
 
 /** 원정길 한 칸 — 구단 하나(내 칸 포함) */
-function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick, mid = false }) {
+function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick, mid = false, first = false, fresh = false }) {
   const size = now ? 84 : mine ? 76 : 64;
   const tag = mine ? ['나', r.color] : cleared ? ['통과', WIN] : now ? ['다음', GOLD] : null;
   const last = res.filter((x) => x.win).slice(-1)[0];
   const losses = res.filter((x) => !x.win).length;
   return (
     <button type="button" data-rung={r.club} onClick={onPick} aria-pressed={sel}
-      className="relative z-[1] flex w-[10.5rem] flex-col items-center gap-1.5 pt-1 transition-[transform,opacity] duration-200 hover:-translate-y-0.5">
-      <span className="grid h-[92px] place-items-center">
+      className={`relative z-[1] flex w-[10.5rem] flex-col items-center gap-1.5 pt-1 transition-[transform,opacity] duration-200 hover:-translate-y-0.5 ${first ? 'fx-rise' : ''}`}
+      style={first ? { animationDelay: `${i * 60}ms` } : undefined}>
+      <span className="relative grid h-[92px] place-items-center">
         <Emb src={emblem} size={size} dim={cleared && !sel} ring={now ? GOLD : mine ? r.color : sel ? '#e8ecf2' : null} />
+        {/* 막 이긴 구단 — 칸이 자리를 바꾼 뒤 금빛 '통과' 도장이 찍힌다 */}
+        {fresh && (
+          <span className="pointer-events-none absolute inset-0 grid place-items-center">
+            <b className="fx-stamp grid h-[62px] w-[62px] -rotate-12 place-items-center rounded-full font-display text-t2 font-extrabold"
+              style={{ '--d': `${MOVE_WAIT + 650}ms`, color: GOLD, background: 'rgba(12,10,4,.62)', boxShadow: `0 0 0 3px ${GOLD}, 0 0 24px -2px ${GOLD}` }}>통과</b>
+            <Burst n={14} spread={70} size={5} delay={MOVE_WAIT + 780} />
+          </span>
+        )}
       </span>
       <b className="max-w-full truncate text-t3 font-black" style={{ color: mine ? r.color : cleared ? '#9aa6b5' : '#e8ecf2' }}>{r.short}</b>
       <span className="flex items-center gap-1.5">
@@ -220,37 +237,58 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
   const stops = gaunt.tower.length + 1;
   const fill = gaunt.done ? 100 : (at / (stops - 1)) * 100;
 
+  /* 지난번 본 원정길(같은 판) — 없으면 처음: 칸들이 왼쪽부터 차례로 올라온다 */
+  const runId = gaunt.tower.map((r) => r.club).sort().join('|');
+  const [memo] = useState(() => (seen && seen.run === runId && !reducedMotion() ? seen : null));
+  const first = !memo;
+  const clearedNow = gaunt.tower.filter((_, i) => isCleared(gaunt, i)).map((r) => r.club);
+  const [fresh] = useState(() => new Set(memo ? clearedNow.filter((c) => !memo.cleared.includes(c)) : []));
+  const doneNow = !!memo && !memo.done && gaunt.done;
+  const [lineFill, setLineFill] = useState(memo ? memo.fill : fill);
+  useEffect(() => {
+    if (lineFill === fill) return undefined;
+    const t = setTimeout(() => setLineFill(fill), memo && lineFill === memo.fill ? MOVE_WAIT : 0);
+    return () => clearTimeout(t);
+  }, [fill]); // eslint-disable-line react-hooks/exhaustive-deps
+
   /* 자리가 바뀌면 칸이 좌우로 미끄러져 오간다 — 새 자리에 그린 뒤 옛 자리에서 출발시킨다(FLIP) */
   const roadRef = useRef(null);
-  const seatRef = useRef(new Map());
+  const seatRef = useRef(memo ? memo.seats : new Map());
+  const mounted = useRef(false);
   useLayoutEffect(() => {
     const prev = seatRef.current;
+    const wait = mounted.current ? 0 : MOVE_WAIT; // 다시 열린 화면: 옛 자리를 잠깐 보여 준 뒤 출발
+    mounted.current = true;
     const now = new Map();
     roadRef.current?.querySelectorAll('[data-rung]').forEach((el) => {
       const id = el.dataset.rung;
-      const left = el.getBoundingClientRect().left;
+      /* 움직이는 중인 칸은 그 움직임을 빼고 잰다 — 화면이 뜬 직후 한 번 더 그려져도 방향이 뒤집히지 않게 */
+      const tf = getComputedStyle(el).transform;
+      const left = el.getBoundingClientRect().left - (tf && tf !== 'none' ? new DOMMatrixReadOnly(tf).m41 : 0);
       now.set(id, left);
       const was = prev.get(id);
       if (was == null || Math.abs(was - left) < 1) return;
       el.style.transition = 'none';
       el.style.transform = `translateX(${was - left}px)`;
-      requestAnimationFrame(() => {
-        el.style.transition = 'transform .55s cubic-bezier(.2,.7,.3,1)';
+      const go = () => {
+        el.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
         el.style.transform = '';
-      });
+      };
+      if (wait) setTimeout(go, wait); else requestAnimationFrame(go);
     });
     seatRef.current = now;
-  }, [gaunt]);
+    seen = { run: runId, seats: now, at, fill, cleared: clearedNow, done: gaunt.done };
+  }, [gaunt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col">
+    <div className="fx-fade fixed inset-0 z-30 flex flex-col">
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/gauntlet.webp)' }} aria-hidden="true" />
       {/* 머리 줄 — 정비로 · 이름 · 진행도 · 내 전적 */}
       <div className="relative flex h-16 shrink-0 items-center gap-4 px-8" style={{ background: 'rgba(6,10,19,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
         <button type="button" className="ui-btn ui-cut px-3.5 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
         <b className="text-t1 font-black text-white">구단 정복</b>
         <span className="flex items-baseline gap-1.5 border-l border-white/15 pl-4">
-          <b className="font-display text-t1 font-extrabold" style={{ color: GOLD }}>{gaunt.done ? rivals : at}</b>
+          <b className="font-display text-t1 font-extrabold" style={{ color: GOLD }}><Count value={gaunt.done ? rivals : at} from={memo ? (memo.done ? rivals : memo.at) : undefined} delay={MOVE_WAIT + 400} dur={400} /></b>
           <small className="font-display text-t3 text-[#8b97a6]">/ {rivals} 구단</small>
         </span>
         <span className="ml-auto flex items-center gap-3">
@@ -265,21 +303,24 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
         <div ref={roadRef} className="relative flex items-start justify-between">
           {/* 길: 회색 바탕 위로 금빛이 내 칸까지 */}
           <span className="absolute left-[5.25rem] right-[5.25rem] top-[3.4rem] h-1 rounded-full bg-white/10" aria-hidden="true">
-            <i className="block h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: `${fill}%`, background: `linear-gradient(90deg,#b7832a,${GOLD})`, boxShadow: `0 0 12px ${GOLD}` }} />
+            <i className="block h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: `${lineFill}%`, background: `linear-gradient(90deg,#b7832a,${GOLD})`, boxShadow: `0 0 12px ${GOLD}` }} />
           </span>
           {gaunt.tower.map((r0, i) => {
             const r = shown(r0);
             return (
               <Stop key={r.club} r={r} i={i} mine={!!r.me} now={cur?.club === r.club} cleared={isCleared(gaunt, i)} sel={sel?.club === r.club}
                 res={resOf(r.club)} emblem={r.me ? myEmb : r.key ? emblemOf(r.key) : bannerEmblem(null)} mid={i === GAUNTLET_MID_AT}
+                first={first} fresh={fresh.has(r.club)}
                 onPick={() => setSelClub(r.club === selClub ? null : r.club)} />
             );
           })}
           {/* 정복 보상 */}
-          <span className="relative z-[1] flex w-[10.5rem] flex-col items-center gap-1.5 pt-1">
-            <span className="grid h-[92px] place-items-center">
-              <span className="grid h-[72px] w-[72px] place-items-center rounded-full"
-                style={gaunt.done ? { background: `linear-gradient(180deg,#fde68a,#d69e2e)`, boxShadow: `0 0 30px ${GOLD}` } : { background: 'rgba(245,210,122,.08)', boxShadow: `inset 0 0 0 2px ${GOLD}66` }}>
+          <span className={`relative z-[1] flex w-[10.5rem] flex-col items-center gap-1.5 pt-1 ${first ? 'fx-rise' : ''}`} style={first ? { animationDelay: `${gaunt.tower.length * 60}ms` } : undefined}>
+            <span className="relative grid h-[92px] place-items-center">
+              {/* 정복 완료 순간 — 금빛 선이 끝까지 닿은 뒤 컵이 찍히고 빛 가루 */}
+              {doneNow && <Burst n={26} spread={120} delay={MOVE_WAIT + 900} />}
+              <span className={`grid h-[72px] w-[72px] place-items-center rounded-full ${doneNow ? 'fx-stamp' : ''}`}
+                style={{ ...(gaunt.done ? { background: `linear-gradient(180deg,#fde68a,#d69e2e)`, boxShadow: `0 0 30px ${GOLD}` } : { background: 'rgba(245,210,122,.08)', boxShadow: `inset 0 0 0 2px ${GOLD}66` }), '--d': `${MOVE_WAIT + 750}ms` }}>
                 <Cup size={34} lit={gaunt.done} />
               </span>
             </span>

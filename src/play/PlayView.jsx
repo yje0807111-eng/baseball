@@ -127,8 +127,9 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
   const who = player && player.id != null ? player.id : null;
   const tag = name || (player && player.name) || null;
   const foot = at[1] + r * 1.04;                                   // 고리가 깔리는 발밑
-  const plate = Math.max(96, 32 + (tag ? tag.length : 0) * 29) * k; // 이름 판은 이름만큼만
-  const plateH = 38 * k;
+  /* 이름 판은 이름만큼만 — 가장 먼 외야수도 화면에서 12px 이상이 되도록(1920×911 에서 잰 값: 28 → 11px) */
+  const plate = Math.max(106, 34 + (tag ? tag.length : 0) * 33) * k;
+  const plateH = 43 * k;
   const plateY = at[1] + r + 12 * k;
   return (
     <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}${puff ? ' pv-puff' : ''}${form ? ' pv-form' : ''}`} opacity={dim ? 0.82 : 1}>
@@ -153,7 +154,7 @@ const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, 
           <rect x={at[0] - plate / 2} y={plateY} width={4 * k} height={plateH} fill={color} />
           {/* 위아래 여백을 같게 — 판 한가운데에 글자를 앉힌다 */}
           <text x={at[0] + 2 * k} y={plateY + plateH / 2} textAnchor="middle" dominantBaseline="central"
-            fontSize={28 * k} fontWeight="700" fill="#e6edf6">{tag}</text>
+            fontSize={32 * k} fontWeight="700" fill="#e6edf6">{tag}</text>
         </g>
       )}
     </g>

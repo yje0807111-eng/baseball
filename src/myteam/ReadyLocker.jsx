@@ -4,11 +4,35 @@
  *  · 오른쪽: 작전(세 갈래 · 준비 카드 · 경기 시작)
  * 자리·타순 바꾸기는 SquadBoard 가 하고, 이 판은 바뀐 결과(order)를 그대로 위로 올린다.
  */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Count } from '../ui/motion.jsx';
+
+/** 예상 승률 막대 — 50:50 에서 출발해 제 값으로(0.7초), 값이 바뀌면 그 값으로 미끄러진다 */
+function WinBar({ win, c }) {
+  const [shown, setShown] = useState(50);
+  useEffect(() => { const id = setTimeout(() => setShown(win), 60); return () => clearTimeout(id); }, [win]); // 한 번 그린 뒤 제 값으로 — 전환이 보이게
+  return (
+    <>
+      <div className="flex items-baseline justify-between">
+        <Sub>예상 승률</Sub>
+        <span className="font-display text-t2 font-extrabold">
+          <Count value={win} from={50} dur={700} style={{ color: '#34d399' }} format={(n) => `${n}%`} /> <span className="text-gray-500">:</span>{' '}
+          <Count value={100 - win} from={50} dur={700} style={{ color: c }} format={(n) => `${n}%`} />
+        </span>
+      </div>
+      <span className="relative flex h-2 overflow-hidden rounded-full">
+        <i className="block h-full transition-[width] duration-700" style={{ width: `${shown}%`, background: '#34d399', transitionTimingFunction: 'var(--fx-out)' }} />
+        <i className="block h-full flex-1" style={{ background: c }} />
+        {/* 가운데 50% 눈금 — 어느 쪽으로 기울었는지 */}
+        <b className="absolute inset-y-0 left-1/2 w-px bg-[#05080f]/70" aria-hidden="true" />
+      </span>
+    </>
+  );
+}
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
-import { Btn, UiStyle } from './ui.jsx';
+import { Btn, UiStyle, Pop } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
 
@@ -140,14 +164,7 @@ function ScoutPanel({ opponent, sums, win = null, onLineup }) {
       {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
       {win != null && (
         <div className="flex shrink-0 flex-col gap-1.5">
-          <div className="flex items-baseline justify-between">
-            <Sub>예상 승률</Sub>
-            <span className="font-display text-t2 font-extrabold"><span style={{ color: '#34d399' }}>{win}%</span> <span className="text-gray-500">:</span> <span style={{ color: c }}>{100 - win}%</span></span>
-          </div>
-          <span className="flex h-2 overflow-hidden rounded-full">
-            <i className="block h-full" style={{ width: `${win}%`, background: '#34d399' }} />
-            <i className="block h-full flex-1" style={{ background: c }} />
-          </span>
+          <WinBar win={win} c={c} />
         </div>
       )}
       <span className="flex-1" />
@@ -162,14 +179,7 @@ function FoeLineup({ opponent, onClose }) {
   const danger = dangerOf(bats);
   const c = opponent.color || '#60a5fa';
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={onClose}>
-      <div className="mt-cut mt-frame mt-glass flex w-[520px] flex-col gap-4 p-7" style={{ ...cut(18), '--a': c }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상대 타순">
-        <div>
-          <p className="mt-lab" style={{ '--a': c }}>상대 타순</p>
-          <h2 className="mt-1 text-t1 font-black text-white">{opponent.name}</h2>
-          <p className="mt-1 text-t3 text-gray-400">{scoutTags(opponent).map((t) => t.label).join(' · ')}</p>
-        </div>
+    <Pop eyebrow="상대 타순" title={opponent.name} sub={scoutTags(opponent).map((t) => t.label).join(' · ')} a={c} width={520} onClose={onClose}>
         <div className="flex flex-col gap-1">
           {lineupOf(opponent).map((p, i) => {
             const d = danger.get(p.id);
@@ -187,9 +197,7 @@ function FoeLineup({ opponent, onClose }) {
             );
           })}
         </div>
-        <Btn pri onClick={onClose}>닫기</Btn>
-      </div>
-    </div>
+    </Pop>
   );
 }
 

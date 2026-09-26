@@ -58,7 +58,7 @@ export function buildMyTeam(team) {
   const play = playingIds(boosted, team.bench || []);
   // 벤치 선수는 slot 'BN' — 경기 엔진이 투수진에서 뺀다
   const roster = boosted.map((p) => (play.has(p.id) ? p : { ...p, slot: 'BN' }));
-  return { name: team.name || '나의 드림팀', roster, batters: lineupOf(roster, team.bench || []) };
+  return { name: team.name || '내 팀', roster, batters: lineupOf(roster, team.bench || []) };
 }
 
 /** 내 팀과 비슷한 CP로 AI 팀을 만든다 */

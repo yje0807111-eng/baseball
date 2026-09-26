@@ -9,6 +9,7 @@ import { Btn, KV, Portrait, Stats } from './ui.jsx';
 import { DEX_STEPS, seriesProgress, claimableSteps } from './dex.js';
 import { missionState, weekKey, WEEK_BONUS, WEEK_COUNT } from './missions.js';
 import { claimDex, claimMission, claimWeekBonus } from './store.js';
+import { GrowBar, Burst } from '../ui/motion.jsx';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const DEX = '#a3e635';
@@ -114,8 +115,9 @@ export function WeekView({ account, onAccount }) {
   end.setDate(end.getDate() + 6); // 이번 주 일요일
   const next = new Date(`${key}T00:00:00`);
   next.setDate(next.getDate() + 7); // 다음 주 월요일 — 새 과제
-  const take = (id) => { const next = claimMission(id); if (next) onAccount(next); };
-  const bonus = () => { const next = claimWeekBonus(); if (next) onAccount(next); };
+  const [took, setTook] = useState(null); // 방금 받은 과제(도장) · 'bonus'
+  const take = (id) => { const next = claimMission(id); if (next) { onAccount(next); setTook(id); } };
+  const bonus = () => { const next = claimWeekBonus(); if (next) { onAccount(next); setTook('bonus'); } };
   const doneN = list.filter((x) => x.done).length;
 
   return (
@@ -127,7 +129,7 @@ export function WeekView({ account, onAccount }) {
         </div>
         <div className="mt-4 grid gap-3" style={{ gridTemplateRows: `repeat(${WEEK_COUNT}, auto)` }}>
           {list.map(({ m, n, done, claimed }) => (
-            <div key={m.id} className="mt-cut grid items-center gap-5 p-5" style={{ ...cut(12), gridTemplateColumns: 'minmax(0,1fr) 260px 170px',
+            <div key={m.id} className="mt-cut relative grid items-center gap-5 p-5" style={{ ...cut(12), gridTemplateColumns: 'minmax(0,1fr) 260px 170px',
               background: done ? 'linear-gradient(90deg,rgba(251,191,36,.14),rgba(255,255,255,.03))' : 'rgba(255,255,255,.04)', boxShadow: done && !claimed ? `inset 0 0 0 1px ${WEEK}` : undefined }}>
               <span className="min-w-0">
                 <b className="block truncate text-t2 font-black text-white">{m.ko}</b>
@@ -135,9 +137,17 @@ export function WeekView({ account, onAccount }) {
               </span>
               <span>
                 <span className="flex justify-between text-t4 text-gray-400"><span>진행</span><b className="font-display text-t3 text-white">{n} / {m.goal}</b></span>
-                <span className="relative mt-1.5 block h-2 bg-white/[0.07]"><i className="absolute inset-y-0 left-0" style={{ width: `${(n / m.goal) * 100}%`, background: WEEK }} /></span>
+                <span className="relative mt-1.5 block h-2 bg-white/[0.07]"><GrowBar k={`week:${m.id}`} pct={(n / m.goal) * 100} className="absolute inset-y-0 left-0" style={{ background: WEEK }} /></span>
               </span>
-              <Btn pri={done && !claimed} a={WEEK} disabled={!done || claimed} onClick={() => take(m.id)}>{claimed ? '받음 ✓' : done ? '받기' : '진행 중'}</Btn>
+              <span className="relative grid">
+                <Btn pri={done && !claimed} a={WEEK} disabled={!done || claimed} onClick={() => take(m.id)}>{claimed ? '받음 ✓' : done ? '받기' : '진행 중'}</Btn>
+                {took === m.id && (
+                  <span className="pointer-events-none absolute inset-0 grid place-items-center">
+                    <b className="fx-stamp -rotate-6 rounded-md px-3 py-0.5 font-display text-t2 font-extrabold" style={{ '--d': '40ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 24px rgba(245,210,122,.7)' }}>+{m.gold} G</b>
+                    <Burst n={14} spread={90} size={5} delay={160} />
+                  </span>
+                )}
+              </span>
             </div>
           ))}
         </div>
@@ -145,7 +155,10 @@ export function WeekView({ account, onAccount }) {
 
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': WEEK }}>
         <p className="mt-lab" style={{ '--a': WEEK }}>주간 보너스</p>
-        <h2 className="-mt-2 text-t1 font-black text-white">{WEEK_BONUS} G</h2>
+        <h2 className="relative -mt-2 text-t1 font-black text-white">
+          <span key={took === 'bonus' ? 'b' : 'n'} className={`inline-block ${took === 'bonus' ? 'fx-stamp' : ''}`}>{WEEK_BONUS} G</span>
+          {took === 'bonus' && <Burst n={22} spread={140} delay={200} />}
+        </h2>
         <Stats items={[['끝낸 과제', `${doneN}/${WEEK_COUNT}`], ['받은 과제', `${list.filter((x) => x.claimed).length}/${WEEK_COUNT}`]]} />
         <div>
           <KV k="새 과제" v={`${next.getMonth() + 1}월 ${next.getDate()}일`} />

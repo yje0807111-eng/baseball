@@ -1,6 +1,6 @@
 /* 메인 — 세 칸: 왼쪽 내 팀 에이스(반짝이 카드 · 팀 요약 · 등급) · 가운데 오늘의 경기장(플레이 · 모드 넷) · 오른쪽 메뉴 넷 · 주간 과제 */
 import React, { useEffect, useRef, useState } from 'react';
-import { UiStyle, GlassBg, TopBar, KV, Btn, Portrait, Stats, teamStats } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, KV, Btn, Portrait, Stats, teamStats, Pop } from './ui.jsx';
 import { rankOf } from './rank.js';
 import { teamNeon } from './teamColor.js';
 import { teamFlag } from './teamArt.js';
@@ -8,6 +8,11 @@ import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, WEEK_BONUS, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
+import { GrowBar } from '../ui/motion.jsx';
+
+/* 로비 첫 등장(앱을 연 뒤 한 번) — 왼쪽 판 → 가운데 → 오른쪽 칸들이 차례로 올라온다. 다시 돌아올 때는 화면 이동 모션만 */
+let lobbyIntroDone = false;
+
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
 /* 리그 평균은 미리 세어 둔 값을 읽는다 — 로비를 열자고 시즌 로스터 412개를 받지 않도록.
@@ -94,7 +99,7 @@ function WeekCard({ account, onOpen }) {
             <span className="min-w-0 flex-1 truncate" style={{ color: claimed ? '#6b7280' : '#e5e7eb' }}>{m.ko}</span>
             <b className="shrink-0 font-display text-t3" style={{ color: claimed ? '#6b7280' : done ? A : '#9ca3af' }}>{claimed ? '✓' : done ? '받기' : `${n}/${m.goal}`}</b>
           </span>
-          <span className="relative mt-1.5 block h-1 overflow-hidden rounded-full bg-white/[0.08]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${(n / m.goal) * 100}%`, background: claimed ? '#4b5563' : A }} /></span>
+          <span className="relative mt-1.5 block h-1 overflow-hidden rounded-full bg-white/[0.08]"><GrowBar k={`week:${m.id}`} pct={(n / m.goal) * 100} className="absolute inset-y-0 left-0 rounded-full" style={{ background: claimed ? '#4b5563' : A }} /></span>
         </div>
       ))}
     </button>
@@ -197,7 +202,7 @@ function AcePanel({ account, team, onLocker }) {
             <b className="ml-auto font-display text-t2" style={{ color: r.tier.c }}>{rp.toLocaleString()}</b>
             {r.next && <small className="font-display text-t4 text-gray-400">/ {r.next.min.toLocaleString()} RP</small>}
           </div>
-          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><i className="block h-full rounded-full" style={{ width: `${Math.max(2, tierPct)}%`, background: `linear-gradient(90deg, ${r.tier.c}66, ${r.tier.c})`, boxShadow: `0 0 10px ${r.tier.c}` }} /></span>
+          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><GrowBar k="rank" pct={Math.max(2, tierPct)} className="block h-full rounded-full" style={{ background: `linear-gradient(90deg, ${r.tier.c}66, ${r.tier.c})`, boxShadow: `0 0 10px ${r.tier.c}` }} /></span>
           {r.next && <small className="mt-1.5 block text-t4 text-gray-400">{r.next.ko}까지 <b className="font-display text-t3 text-white">{(r.next.min - rp).toLocaleString()}</b> RP</small>}
         </div>
       </div>
@@ -209,13 +214,9 @@ function StarterNotice({ team, gold, onClose }) {
   const squad = team.squad || [];
   const top = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 4);
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
-      <div className="mt-cut mt-frame mt-glass flex w-[640px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="스타터 스쿼드">
-        <div>
-          <p className="mt-lab">스타터 스쿼드</p>
-          <h2 className="mt-1 text-t1 font-black text-white">선수 {squad.length}명 지급</h2>
-        </div>
+    <Pop eyebrow="스타터 스쿼드" title={`선수 ${squad.length}명 지급`} width={640} onClose={() => onClose(false)}
+      actions={<><Btn onClick={() => onClose(false)}>닫기</Btn><Btn pri className="min-w-[200px]" onClick={() => onClose(true)}>내 라커로 ▶</Btn></>}>
+      <div className="flex flex-col gap-5">
         <div className="grid grid-cols-4 gap-2">
           {top.map((p) => (
             <div key={p.id} className="mt-cut flex items-center gap-2 bg-white/[0.045] p-2" style={{ '--c': '8px' }}>
@@ -234,36 +235,26 @@ function StarterNotice({ team, gold, onClose }) {
           <KV sm k="경기 보상" v="승 300 · 무 180 · 패 120 G" />
           <KV sm k="방출" v="산 값의 절반 환급" />
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          <Btn pri onClick={() => onClose(true)}>내 라커로 ▶</Btn>
-          <Btn onClick={() => onClose(false)}>닫기</Btn>
-        </div>
       </div>
-    </div>
+    </Pop>
   );
 }
 
 /** 상점 정리 환급 — 없어진 권 · 부스트를 산 값만큼 돌려받은 내역 (한 번) */
 function RefundNotice({ refund, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/65" onClick={() => onClose(false)}>
-      <div className="mt-cut mt-frame mt-glass flex w-[560px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#fde047' }}
-        onClick={(e) => e.stopPropagation()} role="dialog" aria-label="상점 정리 환급">
-        <div>
-          <p className="mt-lab">상점 정리</p>
-          <h2 className="mt-1 text-t1 font-black text-white">환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></h2>
-        </div>
-        <div>
-          {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
-        </div>
-        <Btn pri a="#fde047" onClick={() => onClose(false)}>확인</Btn>
-      </div>
-    </div>
+    <Pop eyebrow="상점 정리" a="#fde047" label="상점 정리 환급" onClose={() => onClose(false)}
+      title={<>환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></>}
+      actions={<Btn pri a="#fde047" className="min-w-[200px]" onClick={() => onClose(false)}>받기</Btn>}>
+      {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
+    </Pop>
   );
 }
 
 export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onWeek, onSignOut, onNotice }) {
   const team = account.team;
+  const [intro] = useState(() => !lobbyIntroDone);
+  useEffect(() => { lobbyIntroDone = true; }, []);
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -271,7 +262,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
       <GlassBg tint="#6366f1" />
       <TopBar section="메인" account={account} onSignOut={onSignOut} />
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-7 pb-6 pt-1"
+      <div className={`relative grid min-h-0 flex-1 gap-4 px-7 pb-6 pt-1 ${intro ? 'lb-intro' : ''}`}
         style={{ gridTemplateColumns: '380px minmax(0,1fr) 360px', gridTemplateRows: 'minmax(0,1fr)' }}>
         <AcePanel account={account} team={team} onLocker={onLocker} />
 
@@ -281,7 +272,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <div className="flex min-h-0 flex-col gap-3">
           <Tile img="ui/mt/tile-locker.webp" a="#34d399" title="내 라커" desc="선수 영입 · 타순 · 코치" onClick={onLocker} style={{ flex: 1 }} />
           <Tile img="ui/mt/tile-shop.webp" a="#fde047" title="상점" desc="선수 능력치 · 캡 늘리기" onClick={onShop} style={{ flex: 1 }} />
-          <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-aug.webp" a="#c4b5fd" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
           <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" title="기록" desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} style={{ flex: 1 }} />
           <WeekCard account={account} onOpen={onWeek || onRecord} />
         </div>

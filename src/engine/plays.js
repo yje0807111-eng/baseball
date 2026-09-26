@@ -38,9 +38,9 @@ export function playsFor(g, { mine, tired = 0 } = {}) {
     /* ── 우리 공격 ── */
     if (on3 && outs < 2) {
       const ok = wpAt(g, { bases: put(g.bases, [on1 ? 0 : -1].filter((i) => i >= 0)), outs: outs + 1, add: 1 });
-      card('squeeze', '🎯', '스퀴즈', '3루 주자를 밀어 넣는다', { bunt: true }, mix(0.62, ok, wpAt(g, { outs: outs + 1 })));
-      card('deep', '💪', '강공', '큰 것 한 방을 노린다', {}, now);
-      card('guessF', '🔥', '직구 노림', '맞히면 주자가 돈다', { guess: 'fast' }, now);
+      card('squeeze', '🎯', '스퀴즈', '3루 주자 밀어 넣기', { bunt: true }, mix(0.62, ok, wpAt(g, { outs: outs + 1 })));
+      card('deep', '💪', '강공', '큰 것 한 방 노리기', {}, now);
+      card('guessF', '🔥', '직구 노림', '맞히면 주자 스타트', { guess: 'fast' }, now);
     } else if (on1 && !on2 && outs < 2) {
       const sp = stealOdds(g, 0);
       card('steal', '🏃', '도루', `성공 ${Math.round(sp * 100)}% · 득점권으로`, { steal: 0 },
@@ -50,39 +50,39 @@ export function playsFor(g, { mine, tired = 0 } = {}) {
       card('bunt', '🥎', '번트', '하나 죽고 득점권으로', { bunt: true },
         mix(0.74, wpAt(g, { bases: put(g.bases, [1]), outs: outs + 1 }), wpAt(g, { outs: outs + 1 })));
     } else if ((on1 || on2) && outs < 2) {
-      card('bunt', '🥎', '번트', '주자를 한 루씩 민다', { bunt: true },
+      card('bunt', '🥎', '번트', '주자 한 루씩 진루', { bunt: true },
         mix(0.72, wpAt(g, { bases: put(g.bases, [on1 ? 1 : 2, on2 ? 2 : -1].filter((i) => i >= 0)), outs: outs + 1 }), wpAt(g, { outs: outs + 1 })));
-      card('deep', '💪', '강공', '터지면 한 번에 뒤집는다', {}, now);
-      card('guessS', '🌀', '변화구 노림', '떨어지는 공을 기다린다', { guess: 'slider' }, now);
+      card('deep', '💪', '강공', '한 방에 뒤집기', {}, now);
+      card('guessS', '🌀', '변화구 노림', '떨어지는 공 기다리기', { guess: 'slider' }, now);
     } else {
-      card('guessF', '🔥', '직구 노림', '빠른 공 하나만 본다', { guess: 'fast' }, now);
-      card('guessS', '🌀', '변화구 노림', '변화구 하나만 본다', { guess: 'slider' }, now);
+      card('guessF', '🔥', '직구 노림', '빠른 공 하나만 노림', { guess: 'fast' }, now);
+      card('guessS', '🌀', '변화구 노림', '변화구 하나만 노림', { guess: 'slider' }, now);
       if (on1 && !on2) {
         const sp = stealOdds(g, 0);
         card('steal', '🏃', '도루', `성공 ${Math.round(sp * 100)}%`, { steal: 0 },
           mix(sp, wpAt(g, { bases: put(g.bases, [1]) }), wpAt(g, { bases: [null, null, null], outs: outs + 1 })));
-      } else card('deep', '💪', '강공', '맡기고 지켜본다', {}, now);
+      } else card('deep', '💪', '강공', '타자에게 맡기기', {}, now);
     }
   } else {
     /* ── 우리 수비 ── */
     const base1Free = !on1 && (on2 || on3);
     if (base1Free && outs < 2) {
-      card('ibb', '🚶', '고의사구', '1루 채우고 병살을 노린다', { ibb: true },
+      card('ibb', '🚶', '고의사구', '1루 채우고 병살 노리기', { ibb: true },
         wpAt(g, { bases: put(g.bases, [0, on2 ? 1 : -1, on3 ? 2 : -1].filter((i) => i >= 0)) }));
-      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊는다', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
-      card('chase', '🧊', '유인구', '볼넷을 각오하고 피한다', { zone: 'chase' }, now);
+      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊기', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
+      card('chase', '🧊', '유인구', '볼넷 각오 · 피해 가기', { zone: 'chase' }, now);
     } else if (tired > 0.5) {
-      card('swap', '🔁', '투수 교체', '지친 팔을 내린다', { changePitcher: true }, Math.min(0.99, now + 0.04));
-      card('hold', '🧊', '유인구로 버틴다', '한 타자만 더', { zone: 'chase' }, now - 0.01);
-      card('duel', '🎯', '몸쪽 승부', '정면으로 간다', { zone: 0 }, mix(0.3, wpAt(g, { outs: outs + 1 }), now - 0.03));
+      card('swap', '🔁', '투수 교체', '지친 투수 내리기', { changePitcher: true }, Math.min(0.99, now + 0.04));
+      card('hold', '🧊', '유인구로 버티기', '한 타자만 더', { zone: 'chase' }, now - 0.01);
+      card('duel', '🎯', '몸쪽 승부', '정면 승부', { zone: 0 }, mix(0.3, wpAt(g, { outs: outs + 1 }), now - 0.03));
     } else if (on2 || on3) {
-      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊는다', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
-      card('chase', '🧊', '유인구', '한 점을 아낀다', { zone: 'chase' }, now);
-      card('fast', '🔥', '직구 승부', '힘으로 맞선다', { pitchType: 'fast' }, mix(0.3, wpAt(g, { outs: outs + 1 }), now));
+      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊기', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
+      card('chase', '🧊', '유인구', '한 점 아끼기', { zone: 'chase' }, now);
+      card('fast', '🔥', '직구 승부', '힘으로 맞서기', { pitchType: 'fast' }, mix(0.3, wpAt(g, { outs: outs + 1 }), now));
     } else {
-      card('fast', '🔥', '직구 승부', '힘으로 맞선다', { pitchType: 'fast' }, mix(0.3, wpAt(g, { outs: outs + 1 }), now));
-      card('slider', '🌀', '변화구 승부', '방망이를 헛돌린다', { pitchType: 'slider' }, mix(0.32, wpAt(g, { outs: outs + 1 }), now));
-      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊는다', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
+      card('fast', '🔥', '직구 승부', '힘으로 맞서기', { pitchType: 'fast' }, mix(0.3, wpAt(g, { outs: outs + 1 }), now));
+      card('slider', '🌀', '변화구 승부', '헛스윙 유도', { pitchType: 'slider' }, mix(0.32, wpAt(g, { outs: outs + 1 }), now));
+      card('duel', '🎯', '몸쪽 승부', '삼진으로 끊기', { zone: 0 }, mix(0.34, wpAt(g, { outs: outs + 1 }), now));
     }
   }
   return out.slice(0, 3).map((c) => ({ ...c, move: Math.round((c.wp - now) * 100) }));
