@@ -8,7 +8,7 @@ import { signIn, peekAccount } from './store.js';
 import { SQUAD_CAP } from './rules.js';
 import { UiStyle, Btn, Chip } from './ui.jsx';
 import { online } from '../net/supabase.js';
-import { logIn, signUp, legacySave, recoverStart, recoverFinish, checkId, checkPw, checkNick, checkEmail, NICK_MAX, PW_MIN } from '../net/account.js';
+import { logIn, signUp, legacySave, lastLoginId, recoverStart, recoverFinish, checkId, checkPw, checkNick, checkEmail, NICK_MAX, PW_MIN } from '../net/account.js';
 
 const INPUT = 'mt-cut mt-frame w-full bg-white/[0.06] px-4 py-3 text-t2 text-white outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_2px_#10b981]';
 
@@ -89,7 +89,7 @@ function FindForm({ id, setId, onBack }) {
 function AccountPanel({ onDone }) {
   const legacy = legacySave();
   const [tab, setTab] = useState(legacy ? 'join' : 'login'); // login | join | find
-  const [id, setId] = useState('');
+  const [id, setId] = useState(() => (legacy ? '' : lastLoginId()));
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   const [nick, setNick] = useState(legacy?.nick?.slice(0, NICK_MAX) || '');

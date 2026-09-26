@@ -50,6 +50,15 @@ export function errText(e) {
   return '다시 시도';
 }
 
+/* 이 기기에서 마지막으로 들어온 아이디 — 로그아웃 뒤 로그인 칸에 미리 채운다(비밀번호는 남기지 않는다) */
+const LAST_ID = 'kbo.lastId';
+export function lastLoginId() {
+  try { return localStorage.getItem(LAST_ID) || ''; } catch { return ''; }
+}
+function rememberId(id) {
+  try { localStorage.setItem(LAST_ID, String(id).trim().toLowerCase()); } catch { /* noop */ }
+}
+
 const timeout = (p, ms = 8000) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), ms))]);
 
 /* 덮어쓰기 전에 이 브라우저의 다른 저장을 한 벌 남긴다(옛 감독 이름 저장 · 다른 계정) */
@@ -94,6 +103,7 @@ export async function signUp({ id, pw, nick, email = '', adopt = false }) {
   if (error) throw new Error(errText(error));
   if (!data.session) throw new Error('가입 확인 메일 켜짐 · 서버 설정');
   const uid = data.user.id;
+  rememberId(lid);
   const old = adopt ? readSave() : null;
   if (old) {
     replaceSave({ ...old, nick: nk, signedOut: false });
@@ -113,6 +123,7 @@ export async function logIn({ id, pw }) {
   const sb = await client();
   const { data, error } = await timeout(sb.auth.signInWithPassword({ email: idToEmail(id), password: pw }));
   if (error) throw new Error(errText(error));
+  rememberId(id);
   try {
     await settle(sb, data.user.id);
   } catch (e) {
