@@ -15,7 +15,7 @@ const ovrStyle = (v) => (v >= 100
   : { color: v >= 85 ? '#34d399' : '#f3f4f6' });
 const catColor = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staff: '#c4b5fd', aug: '#e879f9', draft: '#fbbf24' };
 const catLabel = { training: '훈련', boost: '준비 카드', ops: '운영', staff: '감독', aug: '증강', draft: '드래프트' };
-const catSub = { training: '영구 상승', boost: '경기 전 한 장', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
+const catSub = { training: '영구 상승', boost: '경기 전 한 장', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '드래프트용' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
 function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
