@@ -19,7 +19,7 @@ export function tourneyMemento(place, rounds) {
   return { n: 2, cut: MEMENTO_TOP_CUT, why: '토너먼트' };
 }
 export const SINGLE_MEMENTO = { n: 3, cut: MEMENTO_TOP_CUT, why: '첫 승리' };
-export const GAUNTLET_MEMENTO = { n: 5, cut: 0, why: '탑 완주' };
+export const GAUNTLET_MEMENTO = { n: 5, cut: 0, why: '구단 정복' };
 
 /** 기념 카드 후보 n장 — roster 는 드래프트 판의 내 선수들 */
 export function mementoOptions(roster = [], { n = 3, cut = 0 } = {}, owns = () => false, rng = Math.random) {

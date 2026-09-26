@@ -1,5 +1,5 @@
 /*
- * 도장깨기 — 라이브 드래프트가 끝나면 여덟 구단이 한 탑에 쌓인다.
+ * 구단 정복 — 라이브 드래프트가 끝나면 여덟 구단이 한 탑에 쌓인다.
  * 내 자리는 맨 아래(0번), 위로 갈수록 센 구단이다. 바로 윗 칸과 붙어 이기면 그 자리를 빼앗고
  * 진 구단이 내 아래로 내려온다. 지면 자리는 그대로, 같은 상대를 다시 친다.
  * 화면과 떼어 놓은 순수 상태다 (React 도 타이머도 모른다).
@@ -35,7 +35,7 @@ export function teamStats(roster) {
 /** 이 구단의 간판 — 종합이 가장 높은 선수 */
 export const starOf = (roster) => (roster || []).reduce((m, p) => (!m || p.overall > m.overall ? p : m), null);
 
-/** 라이브 판 → 도장깨기 탑. 맨 아래가 나, 위로 갈수록 센 구단 (잣대는 화면에 보이는 전력 그대로) */
+/** 라이브 판 → 구단 정복 탑. 맨 아래가 나, 위로 갈수록 센 구단 (잣대는 화면에 보이는 전력 그대로) */
 export function makeGauntlet(live) {
   const mine = Live.myIndex(live);
   const one = (club) => {
