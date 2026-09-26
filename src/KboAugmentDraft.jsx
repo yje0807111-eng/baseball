@@ -1865,10 +1865,13 @@ export const KEYFRAMES = `
 @keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
 .aug-gold .aug-top { position: absolute; z-index: 6; left: 50%; top: -1px; width: 64px; height: 54px; margin-left: -32px; display: grid; place-items: center; clip-path: polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%); background: linear-gradient(135deg, #fbe7a8, #b7832a); }
 .aug-gold .aug-body { position: absolute; z-index: 4; left: 26px; right: 26px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.aug-gold .aug-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.aug-gold .aug-area { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--k); background: color-mix(in srgb, var(--k) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 45%, transparent); }
+.aug-gold .aug-note { font-size: 14px; line-height: 1.45; color: #9ca3af; text-wrap: balance; }
 .aug-gold .aug-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #c4b5fd; background: rgba(196,181,253,.14); }
 .aug-gold .aug-name { font-size: 30px; font-weight: 900; line-height: 1.1; color: #fff; text-shadow: 0 0 24px rgba(167,139,250,.55), 0 2px 8px #000; text-wrap: balance; }
 .aug-gold .aug-rule { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6), transparent); }
-.aug-gold .aug-desc { min-height: 54px; font-size: 18px; line-height: 1.5; color: #e5e7eb; }
+.aug-gold .aug-desc { font-size: 18px; line-height: 1.5; color: #e5e7eb; }
 .aug-gold .aug-hint { font-size: 12px; font-weight: 700; color: #f5d27a; }
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
 .aug-num { font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: #e9d5ff; text-shadow: 0 0 12px rgba(167,139,250,.75); }
@@ -2252,6 +2255,21 @@ const AUG_NEON = '#cbd5e1';
 const TIER_NEON = new Proxy({}, { get: () => AUG_NEON });
 const TIER_EN = new Proxy({}, { get: () => '증강' });
 const AUG_TYPE = { build: '키우기', defense: '수비', extreme: '맞바꾸기', balance: '약점 보강', fire: '경기 중', situ: '상황' };
+/** 증강이 도움 되는 영역 — 색은 작전 판(타격 · 마운드 · 수비)과 같은 뜻 */
+export const AUG_AREA = { bat: ['타격', '#34d399'], run: ['주루', '#fbbf24'], pit: ['투구', '#f87171'], def: ['수비', '#60a5fa'], all: ['팀 전체', '#c4b5fd'] };
+/** 효과 글에서 영역을 읽는다 — 능력치 이름 · 대상(타자 · 투수 · 불펜 · 수비) 기준. 특정 선수 묶음(외국인 · 레전드 · 88+ · 가장 낮은)은 팀 전체 */
+export function augAreas(a) {
+  const d = a?.desc || '';
+  const out = new Set();
+  /* 오르는 쪽(+)만 본다 — '파워 −8' 처럼 깎이는 능력치는 영역이 아니다. '수비 투구 +' 는 수비 반 이닝의 투구라 투구 */
+  if (/외국인|레전드 카드|88\+|가장 낮은/.test(d)) out.add('all');
+  if (/(파워|컨택) \+|안타 확률 \+|타자[^·]*능력치 \+/.test(d)) out.add('bat');
+  if (/주루 \+/.test(d)) out.add('run');
+  if (/(구위|제구|안정|투구|체력) \+|투수[^·]*능력치 \+|불펜[^·]*능력치 \+/.test(d)) out.add('pit');
+  if (/수비 \+/.test(d)) out.add('def');
+  if (!out.size) out.add('all');
+  return [...out];
+}
 
 /** 증강 테두리 — 등급이 하나라 모두 같은 테를 두른다 */
 function TierFrame({ className = '', innerClassName = '', style, children }) {
@@ -3746,11 +3764,16 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
         <span className="aug-shine" />
         <span className="aug-top" aria-hidden="true"><i className="aug-gem" /></span>
         <span className="aug-body">
-          <span className="aug-tag">{o.lv ? `+${o.lv} 레벨` : AUG_TYPE[o.type] || '증강'}</span>
+          {/* 종류(또는 강화 레벨) · 도움 되는 영역 */}
+          <span className="aug-tags">
+            <span className="aug-tag">{o.lv ? `+${o.lv} 레벨` : AUG_TYPE[o.type] || '증강'}</span>
+            {augAreas(o).map((k) => <span key={k} className="aug-area" style={{ '--k': AUG_AREA[k][1] }}>{AUG_AREA[k][0]}</span>)}
+          </span>
           <b className="aug-name">{o.name}{o.lv ? <em className="ml-1.5 font-display not-italic text-[#e9d5ff]">+{o.lv}</em> : null}</b>
           <span className="aug-rule" />
           <span className="aug-desc"><LitNums text={augDescAt(o)} /></span>
-          <span className="aug-hint">{o.cond ? `조건 · ${o.cond}` : '눌러서 고르기'}</span>
+          {o.note && <span className="aug-note">{o.note}</span>}
+          {o.cond && <span className="aug-hint">조건 · {o.cond}</span>}
         </span>
       </span>
     </button>

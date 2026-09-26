@@ -5,7 +5,7 @@
  *  위 줄: 강화권 · 제외 칸
  */
 import React, { useMemo, useState } from 'react';
-import { AUGMENTS, augDescAt } from '../KboAugmentDraft.jsx';
+import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
 
@@ -110,10 +110,16 @@ export default function AugmentScreen({ account, onBack }) {
                 <i style={{ backgroundImage: art(picked) }} /><span className="ag-shine" />
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-2">
-                <span className="self-start rounded-full bg-[#c4b5fd]/15 px-2.5 py-0.5 text-t4 font-bold text-[#c4b5fd]">{TYPE_KO[picked.type] || '증강'}</span>
+                {/* 종류 · 도움 되는 영역 — 경기 증강 카드와 같은 칩 */}
+                <span className="flex flex-wrap gap-1.5">
+                  <span className="rounded-full bg-[#c4b5fd]/15 px-2.5 py-0.5 text-t4 font-bold text-[#c4b5fd]">{TYPE_KO[picked.type] || '증강'}</span>
+                  {augAreas(picked).map((k) => (
+                    <span key={k} className="rounded-full px-2.5 py-0.5 text-t4 font-bold" style={{ color: AUG_AREA[k][1], background: `${AUG_AREA[k][1]}22`, boxShadow: `inset 0 0 0 1px ${AUG_AREA[k][1]}66` }}>{AUG_AREA[k][0]}</span>
+                  ))}
+                </span>
                 <b className={`text-[32px] font-black leading-tight ${isBan ? 'text-gray-400 line-through' : 'text-white'}`}>{picked.name}</b>
                 <Gems lv={lv} />
-                {picked.note && <small className="text-t4 text-gray-400">{picked.note}</small>}
+                {picked.note && <small className="text-t3 text-gray-300">{picked.note}</small>}
               </div>
             </div>
             <p className="mt-hd">레벨별 효과</p>
