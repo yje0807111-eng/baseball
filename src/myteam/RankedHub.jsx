@@ -174,15 +174,22 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 <div className="mt-1 flex min-h-0 flex-1 flex-col justify-around">
                   {lastRound.map((g) => {
                     const mineG = g.a === me || g.b === me;
-                    const side = (idx, score, other) => (
-                      <span className={`flex min-w-0 flex-1 items-baseline gap-2 ${idx === g.b ? 'flex-row-reverse text-right' : ''}`} style={{ opacity: score < other ? 0.55 : 1 }}>
-                        <b className={`min-w-0 truncate text-t3 ${idx === me ? 'text-[#34d399]' : 'text-white'}`}>{s.teams[idx].name}</b>
-                        <b className="font-display text-t2 text-white">{score}</b>
-                      </span>
+                    /* 전광판 한 줄 — 이름은 양 끝, 점수는 가운데 칸에 따로. 이긴 쪽 이름 · 점수만 밝게 */
+                    const name = (idx, score, other) => (
+                      <b className={`min-w-0 truncate text-t3 ${idx === g.b ? 'text-right' : ''}`}
+                        style={{ color: idx === me ? '#34d399' : score > other ? '#fff' : '#8b93a3', fontWeight: score > other ? 800 : 600 }}>{s.teams[idx].name}</b>
+                    );
+                    const run = (score, other) => (
+                      <b className="w-7 text-center font-display text-t2 tabular-nums" style={{ color: score > other ? '#fff' : '#6b7280' }}>{score}</b>
                     );
                     return (
-                      <div key={`${g.a}-${g.b}`} className="ui-cut flex items-center gap-3 px-3 py-1.5" style={{ '--c': '7px', background: mineG ? 'rgba(52,211,153,.1)' : 'rgba(255,255,255,.03)' }}>
-                        {side(g.a, g.as, g.bs)}<span className="font-display text-t4 text-gray-400">:</span>{side(g.b, g.bs, g.as)}
+                      <div key={`${g.a}-${g.b}`} className="ui-cut grid items-center gap-3 px-3 py-1.5"
+                        style={{ '--c': '7px', gridTemplateColumns: 'minmax(0,1fr) auto minmax(0,1fr)', background: mineG ? 'rgba(52,211,153,.1)' : 'rgba(255,255,255,.03)', boxShadow: mineG ? 'inset 3px 0 0 #34d399' : undefined }}>
+                        {name(g.a, g.as, g.bs)}
+                        <span className="flex h-8 items-center rounded-md bg-black/40 px-1.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]">
+                          {run(g.as, g.bs)}<i className="px-0.5 font-display text-t4 not-italic text-gray-500">:</i>{run(g.bs, g.as)}
+                        </span>
+                        {name(g.b, g.bs, g.as)}
                       </div>
                     );
                   })}
