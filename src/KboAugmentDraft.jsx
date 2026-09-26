@@ -24,7 +24,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
-import { Flip, flyGhost, useExitGhost } from './ui/motion.jsx';
+import { Flip, flyGhost, useExitGhost, navTo } from './ui/motion.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -4427,7 +4427,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
   return (
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
-      <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6">
+      <header className="relative z-10 flex h-16 shrink-0 items-center gap-8 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-6" style={{ viewTransitionName: 'mode-head' }}>
         <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#f5d27a] to-transparent" aria-hidden="true" />
         {onExit && <button type="button" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         <BgmButton cut="ui-cut" size="h-9 w-9" edge="7px" align="left" />
@@ -4440,18 +4440,24 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>
         {/* 사이드 네비 */}
-        <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px' }} aria-label="플레이 모드">
+        <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', viewTransitionName: 'mode-nav' }} aria-label="플레이 모드">
           {NAV.map((g) => (
             <React.Fragment key={g.group}>
               <p className="ui-lab font-display px-1 pt-1" style={{ '--a': g.items[0].neon }}>{g.group}</p>
               {g.items.map((it) => {
                 const on = view === it.key;
                 return (
-                  <button key={it.key} type="button" onClick={() => { setView(it.key); onNormalView?.(it.key); }} aria-pressed={on}
+                  <button key={it.key} type="button" aria-pressed={on}
+                    onClick={() => {
+                      if (on) return;
+                      const order = NAV.flatMap((x) => x.items.map((y) => y.key));
+                      navTo(() => { setView(it.key); onNormalView?.(it.key); }, order.indexOf(it.key) > order.indexOf(view) ? 'tab-r' : 'tab-l');
+                    }}
                     className={`ui-cut relative flex h-[4.4rem] shrink-0 items-center gap-3 overflow-hidden px-3.5 text-left transition ${on ? '' : 'bg-white/[0.03] hover:brightness-125'}`}
-                    style={{ '--c': '10px', background: on ? `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))` : undefined }}>
-                    <span className="ui-cut h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
-                    <span className="min-w-0">
+                    style={{ '--c': '10px' }}>
+                    {on && <i className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(90deg, ${it.neon}38, rgba(6,10,19,.92))`, viewTransitionName: 'mode-ink' }} aria-hidden="true" />}
+                    <span className="ui-cut relative h-[3.2rem] w-11 shrink-0 bg-cover bg-center" style={{ '--c': '8px', backgroundImage: `url(${it.img})`, filter: on ? undefined : 'saturate(.7) brightness(.75)' }} />
+                    <span className="relative min-w-0">
                       <b className={`block truncate text-t2 font-black ${on ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
                       <small className="font-display text-t4 tracking-[0.12em] text-gray-400">{it.sub}</small>
                     </span>

@@ -166,3 +166,9 @@ body { overscroll-behavior: none; }
 .fx-list > :nth-child(11) { animation-delay: 380ms; }
 .fx-list > :nth-child(12) { animation-delay: 410ms; }
 @media (prefers-reduced-motion: reduce) { .fx-list > * { animation: none !important; } }
+
+/* 모드 고르기: 머리 줄 · 사이드 네비는 제자리, 켜진 칸 배경만 옛 칸 → 새 칸으로 */
+::view-transition-group(mode-head), ::view-transition-group(mode-nav) { animation-duration: .18s; }
+::view-transition-group(mode-ink) { animation-duration: .24s; animation-timing-function: var(--fx-out); }
+::view-transition-old(mode-ink) { animation: none; opacity: 0; }
+::view-transition-new(mode-ink) { animation: none; }
