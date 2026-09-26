@@ -133,18 +133,13 @@ export const UiStyle = () => (
     .mt-sb > b { display:block; height:100%; }
     .mt-grp { display:flex; align-items:center; gap:10px; margin:14px 0 8px; font-size:12px; font-weight:700; color:#9ca3af; }
     .mt-grp::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
-    .mt-nav { position:relative; display:flex; height:4.4rem; flex:none; align-items:center; gap:12px; overflow:hidden; padding:0 14px; border-radius:14px; text-align:left; background:rgba(255,255,255,.03); transition:filter .15s, background .2s; }
-    .mt-nav:hover { filter:brightness(1.25); }
-    .mt-nav .th { width:44px; height:3.2rem; flex:none; border-radius:10px; background-size:cover; background-position:center; filter:saturate(.7) brightness(.75); }
-    .mt-nav.on { background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04)); box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 20px -8px rgba(0,0,0,.8); }
-    .mt-nav.on .th { filter:none; }
-    .mt-nav.sm { height:66px; gap:14px; }
-    .mt-nav.sm .th { width:46px; height:48px; }
-    .mt-nav.on::after { content:''; position:absolute; left:6px; top:30%; bottom:30%; width:3px; border-radius:3px; background:var(--a); box-shadow:0 0 10px var(--a); }
     /* 위 탭 — 알약 틀 안에 고른 탭만 떠오른다 */
     .mt-tabs { display:flex; align-items:stretch; gap:2px; height:100%; }
     .mt-tab { position:relative; display:flex; align-items:center; padding:0 22px; font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
     .mt-tab:hover { color:#e5e7eb; }
+    .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:15px; font-weight:700; color:#6b7280; }
+    .mt-tab.on .n { color:#fbe7a8; }
+    .mt-tab .bd { margin-left:7px; display:grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:12px; font-weight:900; color:#1c1203; background:linear-gradient(180deg,#fde68a,#f5b93a); box-shadow:0 0 10px rgba(245,185,58,.55); }
     .mt-tab.on { color:#fff; text-shadow:0 0 18px rgba(245,210,122,.35); background:radial-gradient(70% 90% at 50% 100%,rgba(245,210,122,.16),transparent 70%); }
     .mt-tab.on::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:linear-gradient(90deg,#b7832a,#fbe7a8,#b7832a); box-shadow:0 0 12px rgba(245,210,122,.8); }
     /* 알약 고르기(배속 등) — 작은 알약 틀 */
@@ -338,19 +333,19 @@ export function FlipFaces({ value, keyOf, render, resetKey, className = '', styl
 }
 
 /** 사이드 네비 — 모드 탭을 세로로 세운 판. items: [{ key, label, sub, img }] */
-export const SideNav = ({ items, value, onChange, a = '#10b981', label = '메뉴', compact = false, children }) => (
-  <nav className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', '--a': a }}>
-    <p className="mt-lab px-1 pt-1" style={{ '--a': a }}>{label}</p>
+/**
+ * 위 탭 — 라커 · 상점 · 기록이 같이 쓰는 화면 안 메뉴(상단 바 steps 자리). 금빛 밑줄이 고른 탭.
+ * items: [{ key, label, n?(옆 작은 숫자), badge?(금빛 알림 숫자) }]
+ */
+export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => (
+  <nav className="mt-tabs ml-2" aria-label={label}>
     {items.map((it) => (
-      <button key={it.key} type="button" onClick={() => onChange(it.key)} className={`mt-nav ${compact ? 'sm' : ''} ${value === it.key ? 'on' : ''}`} style={{ '--a': a }}>
-        <span className="th" style={{ backgroundImage: `url(${it.img})` }} />
-        <span className="min-w-0">
-          <b className={`block truncate text-t2 font-black ${value === it.key ? 'text-white' : 'text-gray-300'}`}>{it.label}</b>
-          {it.sub && <small className="font-display text-t4 tracking-[0.12em] text-gray-400">{it.sub}</small>}
-        </span>
+      <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => onChange(it.key)}>
+        {it.label}
+        {it.n != null && <small className="n">{it.n}</small>}
+        {!!it.badge && <b className="bd">{it.badge}</b>}
       </button>
     ))}
-    <div className="mt-scroll mt-auto min-h-0 overflow-y-auto">{children}</div>
   </nav>
 );
 

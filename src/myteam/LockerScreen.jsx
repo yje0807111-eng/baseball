@@ -15,7 +15,7 @@ import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quo
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
-import { UiStyle, GlassBg, TopBar, Btn, Portrait, Hero, KV, FlipFaces } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces } from './ui.jsx';
 import SquadBoard from './SquadBoard.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { playerTraits, HAND_LABEL } from './traits.js';
@@ -723,12 +723,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop }) {
       <GlassBg tint={sel ? teamNeon(sel) : '#10b981'} />
       <TopBar eyebrow="메인" section="내 라커" team={team} account={account} onBack={onBack}
         steps={(
-          <nav className="mt-tabs ml-2" aria-label="라커 메뉴">
-            {NAV.map((it) => (
-              <button key={it.key} type="button" className={`mt-tab ${tab === it.key ? 'on' : ''}`} aria-pressed={tab === it.key}
-                onClick={() => { setTab(it.key); setSel(null); setItemTarget(null); }}>{it.label}</button>
-            ))}
-          </nav>
+          <TopTabs items={NAV} value={tab} label="라커 메뉴" onChange={(k) => { setTab(k); setSel(null); setItemTarget(null); }} />
         )}
         right={(
           <>

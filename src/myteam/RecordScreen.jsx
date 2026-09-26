@@ -1,12 +1,12 @@
 /*
- * 기록 — 치른 경기 목록 (최근 50경기). 라커·상점과 같은 문법: 왼쪽 사이드 분류 / 가운데 경기 줄 / 오른쪽 상세
- *  분류: 전체 · 단판 · 토너먼트 · 랭크
- *  사이드 아래: 전적 · 승률 · 최근 10경기 흐름 · 경기 MVP TOP 3
+ * 기록 — 치른 경기 목록 (최근 50경기). 라커 · 상점과 같은 문법: 위 탭 분류 / 가운데 경기 줄 / 오른쪽 상세
+ *  탭: 전체 · 단판 · 토너먼트 · 랭크(옆 숫자 = 경기 수) · 도감 · 주간 과제(받을 보상이 있으면 금빛 숫자)
+ *  목록 위 한 줄: 통산 전적 · 승률 · 연승 · 최근 10경기 흐름 / 오른쪽 아래: 경기 MVP TOP 3
  *  줄 오른쪽 ▾: 그 경기 상세(gameDetail.js 가 남긴 것) — 라인 스코어 / 시너지 · 작전 · 아이템 칩 / 박스 스코어 | 승률 흐름 · 지시 · 득점
  */
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { rankSummary } from './rank.js';
-import { UiStyle, Bg, TopBar, SideNav, Hero, KV, Stats, Portrait } from './ui.jsx';
+import { UiStyle, Bg, TopBar, TopTabs, Hero, KV, Stats, Portrait } from './ui.jsx';
 import { artId } from '../data/artAlias.js';
 import { SynIcon } from './ReadyLocker.jsx';
 import { SIDES } from './strategy.js';
@@ -316,9 +316,9 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
   const n = MODES.find((m) => m.key === mode)?.c || '#7dd3fc';
   const weekLeft = missionState(account.week).filter((x) => x.done && !x.claimed).length;
   const NAV = [
-    ...MODES.map((m) => ({ key: m.key, label: m.label, sub: `${counts[m.key]}경기`, img: 'ui/mt/tile-record.webp' })),
-    { key: 'dex', label: '도감', sub: `${(account.dex || []).length}명`, img: 'ui/mt/tile-record.webp' },
-    { key: 'week', label: '주간 과제', sub: weekLeft ? `받을 보상 ${weekLeft}` : '이번 주', img: 'ui/mt/tile-record.webp' },
+    ...MODES.map((m) => ({ key: m.key, label: m.label, n: counts[m.key] })),
+    { key: 'dex', label: '도감', n: (account.dex || []).length },
+    { key: 'week', label: '주간 과제', badge: weekLeft },
   ];
 
   return (
@@ -326,37 +326,12 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
       <UiStyle />
       <style>{STYLE}</style>
       <Bg img="ui/mt/tile-record.webp" opacity={0.55} />
-      <TopBar eyebrow="메인" section="기록" team={account.team} account={account} onBack={onBack} />
+      <TopBar eyebrow="메인" section="기록" team={account.team} account={account} onBack={onBack}
+        steps={<TopTabs items={NAV} value={mode} label="기록 메뉴" onChange={(k) => { setMode(k); setSel((k === 'all' ? history : history.filter((h) => modeKey(h) === k))[0] || null); setOpen(null); }} />} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
-        style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+        style={{ gridTemplateColumns: 'minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={mode} onChange={(k) => { setMode(k); setSel(null); setOpen(null); }} a="#7dd3fc" label="기록 메뉴" compact>
-          <div className="mt-cut bg-white/[0.045] p-3" style={cut(8)}>
-            <p className="flex items-baseline justify-between text-t4 text-gray-400">통산 전적<b className="font-display text-t3 text-gray-300">{history.length}경기</b></p>
-            <b className="font-display text-t1 text-white">{all.w}승 {all.d}무 {all.l}패</b>
-            <p className="mt-1 text-t4 text-gray-400">승률 {rate == null ? '—' : `${rate}%`}{sum.streak > 1 ? ` · ${sum.streak}연승 중` : ''}</p>
-          </div>
-          <p className="mt-lab px-1 pb-2 pt-3" style={{ fontSize: 12, '--a': '#7dd3fc' }}>최근 10경기</p>
-          <div className="flex flex-wrap gap-1 px-1">
-            {sum.form.length === 0 && <small className="text-t4 text-gray-400">경기 없음</small>}
-            {sum.form.map((f, i) => {
-              const c = f === 'W' ? '#34d399' : f === 'L' ? '#f87171' : '#94a3b8';
-              return <b key={`${f}${i}`} className="mt-cut grid h-6 w-6 place-items-center font-display text-t4 font-extrabold"
-                style={{ ...cut(4), color: c, boxShadow: `inset 0 0 0 1px ${c}66` }}>{f}</b>;
-            })}
-          </div>
-          <p className="mt-lab px-1 pb-2 pt-4" style={{ fontSize: 12, '--a': '#fbbf24' }}>MVP 순위</p>
-          {sum.mvps.length === 0 && <small className="px-1 text-t4 text-gray-400">MVP 기록 없음</small>}
-          {sum.mvps.map((m, i) => (
-            <div key={m.id} className="flex items-center gap-2 border-b border-white/10 px-1 py-1.5">
-              <b className="w-3 font-display text-t3 text-gray-400">{i + 1}</b>
-              <Portrait player={m} w={26} h={32} color="#fbbf24" />
-              <b className="min-w-0 flex-1 truncate text-t3 text-white">{m.name}</b>
-              <b className="font-display text-t3 text-amber-300">{m.n}회</b>
-            </div>
-          ))}
-        </SideNav>
 
         {mode === 'dex' ? <DexView account={account} onAccount={takeAccount} />
           : mode === 'week' ? <WeekView account={account} onAccount={takeAccount} />
@@ -367,16 +342,32 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
             <p className="mt-lab" style={{ '--a': n }}>치른 경기</p>
             <p className="ml-auto text-t3 text-gray-400">평균 득점 <b className="font-display text-t3 text-white">{avg(runs)}</b> · 실점 <b className="font-display text-t3 text-white">{avg(given)}</b></p>
           </div>
+          {/* 통산 요약 한 줄 — 옛 왼쪽 칸에 있던 것 */}
+          <div className="mt-cut mt-3 flex items-center gap-5 bg-white/[0.045] px-4 py-2.5" style={cut(10)}>
+            <span className="text-t4 font-bold text-gray-400">통산</span>
+            <b className="font-display text-t2 text-white">{all.w}승 {all.d}무 {all.l}패</b>
+            <span className="text-t3 text-gray-400">승률 <b className="font-display text-t3 text-white">{rate == null ? '—' : `${rate}%`}</b></span>
+            {sum.streak > 1 && <span className="text-t3 font-bold text-emerald-300">{sum.streak}연승</span>}
+            <span className="ml-auto flex items-center gap-2">
+              <span className="text-t4 font-bold text-gray-400">최근 10경기</span>
+              {sum.form.length === 0 && <small className="text-t4 text-gray-400">경기 없음</small>}
+              {sum.form.map((f, i) => {
+                const c = f === 'W' ? '#34d399' : f === 'L' ? '#f87171' : '#94a3b8';
+                return <b key={`${f}${i}`} className="mt-cut grid h-6 w-6 place-items-center font-display text-t4 font-extrabold"
+                  style={{ ...cut(4), color: c, boxShadow: `inset 0 0 0 1px ${c}66` }}>{f === 'W' ? '승' : f === 'L' ? '패' : '무'}</b>;
+              })}
+            </span>
+          </div>
           <div className="mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto pr-2">
             {list.map((h) => <GameRow key={h.at + h.opp} h={h} on={sel?.at === h.at} open={open === h.at} onPick={setSel}
               onOpen={(x) => { setSel(x); setOpen((v) => (v === x.at ? null : x.at)); }} />)}
-            {list.length === 0 && <p className="text-t3 text-gray-400">치른 경기 없음 · 플레이에서 치르면 여기에 쌓인다</p>}
+            {list.length === 0 && <p className="text-t3 text-gray-400">치른 경기 없음</p>}
           </div>
         </section>
 
         <aside className="mt-cut mt-frame mt-glass mt-scroll flex min-h-0 flex-col gap-4 overflow-y-auto p-6" style={{ ...cut(20), '--a': sel ? resultOf(sel)[1] : n }}>
           <p className="mt-lab" style={{ '--a': sel ? resultOf(sel)[1] : n }}>경기 요약</p>
-          {!sel ? <p className="text-t3 text-gray-400">목록에서 경기 고르기</p> : (() => {
+          {!sel ? <p className="text-t3 text-gray-400">{list.length ? '목록에서 경기 고르기' : '치른 경기 없음'}</p> : (() => {
             const [ko, c] = resultOf(sel);
             const m = modeOf(sel);
             return (
@@ -385,7 +376,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
                   name={sel.opp} color={c} h={150} pos="60% 12%" />
                 <div className="flex items-end justify-between">
                   <span>
-                    <small className="block text-t4 text-gray-400">{sel.my}</small>
+                    <small className="block text-t4 text-gray-400">{sel.my === '나의 드림팀' ? account.team?.name || sel.my : sel.my}</small>
                     <b className="font-display text-4xl font-extrabold text-white">{sel.myRuns}</b>
                   </span>
                   <b className="font-display text-t1 font-extrabold" style={{ color: c }}>{ko}</b>
@@ -403,6 +394,19 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
               </>
             );
           })()}
+          {/* MVP 순위 — 옛 왼쪽 칸에 있던 것, 경기 요약 아래로 */}
+          <div className="mt-auto">
+            <p className="mt-lab pb-2" style={{ '--a': '#fbbf24' }}>MVP 순위</p>
+            {sum.mvps.length === 0 && <small className="text-t4 text-gray-400">MVP 기록 없음</small>}
+            {sum.mvps.map((m, i) => (
+              <div key={m.id} className="flex items-center gap-2 border-b border-white/10 py-1.5">
+                <b className="w-3 font-display text-t3 text-gray-400">{i + 1}</b>
+                <Portrait player={m} w={26} h={32} color="#fbbf24" />
+                <b className="min-w-0 flex-1 truncate text-t3 text-white">{m.name}</b>
+                <b className="font-display text-t3 text-amber-300">{m.n}회</b>
+              </div>
+            ))}
+          </div>
         </aside>
         </>
           )}

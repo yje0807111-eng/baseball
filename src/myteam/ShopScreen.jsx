@@ -1,10 +1,10 @@
-/* 상점 — 모드 화면 문법: 왼쪽 사이드 분류 / 가운데 상품 카드 / 오른쪽 PICK */
+/* 상점 — 라커와 같은 문법: 위 탭 분류 / 가운데 상품 카드 / 오른쪽 고른 상품. 처음엔 우리 팀 약점을 채우는 추천 상품을 골라 둔다 */
 import React, { useMemo, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
-import { UiStyle, Bg, TopBar, Btn, SideNav, Portrait } from './ui.jsx';
+import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait } from './ui.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
@@ -18,14 +18,15 @@ const catLabel = { training: '훈련', boost: '준비 카드', ops: '운영', st
 const catSub = { training: '영구 상승', boost: '경기 전 한 장', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '판에서 쓴다' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
-function ItemCard({ it, on, onClick, cap = SQUAD_CAP }) {
+function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
       className={`mt-cut ${on ? 'mt-frame' : ''} relative h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-110`}
       style={{ '--c': '12px', '--a': n, backgroundImage: `url(${itemArt(it)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
-      {/* 분류 · 꼬리표를 왼쪽 위 한 줄로 (오른쪽 위는 비운다) */}
+      {/* 분류 · 꼬리표를 왼쪽 위 한 줄로 · 오른쪽 위는 추천 상품 표시만 */}
+      {rec && <b className="absolute right-2.5 top-2 rounded-md px-2 py-0.5 text-t4 font-black text-[#1c1203]" style={{ background: 'linear-gradient(180deg,#fde68a,#f5b93a)', boxShadow: '0 0 12px rgba(245,185,58,.6)' }}>추천</b>}
       <span className="absolute left-3 top-2 inline-flex items-center gap-1.5">
         <b className="font-display text-t3 font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</b>
         <i className="h-3 w-px" style={{ background: `${n}88` }} />
@@ -79,7 +80,9 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const [gold, setGold] = useState(Number.isFinite(account.gold) ? account.gold : 0);
   const [team, setTeam] = useState(account.team);
   const [cat, setCat] = useState('all');
-  const [picked, setPicked] = useState(SHOP_ITEMS[0]);
+  /* 추천 상품 — 우리 팀에서 가장 약한 묶음을 올려 주는 상품. 처음 고른 상품으로 둔다 */
+  const [rec] = useState(() => teamWeakness(account.team?.squad || []).item || null);
+  const [picked, setPicked] = useState(() => rec || SHOP_ITEMS[0]);
   const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
   const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
 
@@ -151,51 +154,30 @@ export default function ShopScreen({ account, onChange, onBack }) {
   const ready = picked && picked.price <= gold && !soldOut;
   const n = picked ? catColor[picked.cat] : '#34d399';
 
-  const NAV = CATEGORIES.map((c) => ({
-    key: c.key, label: c.label,
-    img: `ui/nav/shop-${c.key}.webp`,
-  }));
+  const NAV = CATEGORIES.map((c) => ({ key: c.key, label: c.label }));
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <Bg img="ui/mt/tile-shop.webp" opacity={0.6} />
-      <TopBar eyebrow="메인" section="상점" account={{ ...account, gold }} onBack={onBack} />
+      <TopBar eyebrow="메인" section="상점" account={{ ...account, gold }} onBack={onBack}
+        steps={<TopTabs items={NAV} value={cat} onChange={setCat} label="상품 종류" />} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"
-        style={{ gridTemplateColumns: '17rem minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+        style={{ gridTemplateColumns: 'minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
-        <SideNav items={NAV} value={cat} onChange={(k) => { setCat(k); }} a="#fde047" label="상품 종류" compact>
-          {/* 추천 상품: 우리 팀에서 가장 약한 묶음을 올려 주는 상품 한 장 */}
-          {(() => {
-            const { weak, item } = teamWeakness(squad);
-            if (!item) return null;
-            const c = catColor[item.cat];
-            return (
-              <div className="mt-cut relative h-[200px] bg-cover" style={{ ...cut(10), backgroundImage: `url(${itemArt(item)})`, backgroundPosition: 'center 25%', boxShadow: `inset 0 0 0 1px ${c}66` }}>
-                <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.3), #05080f 82%)' }} />
-                <span className="absolute left-2.5 top-2 font-display text-t4 tracking-[0.2em] text-[#fde047]">추천 상품</span>
-                <span className="absolute inset-x-2.5 bottom-2.5">
-                  <b className="block truncate text-t3 font-black text-white">{item.name}</b>
-                  <small className="mb-1.5 block truncate text-t4" style={{ color: c }}>{STAT_KO[item.stat] || item.name} +{item.amount}</small>
-                  <Btn pri a="#fde047" className="w-full" style={cut(8)} disabled={item.price > gold} onClick={() => { setPicked(item); buy(item); }}>{item.price.toLocaleString()} G 구매하기</Btn>
-                </span>
-              </div>
-            );
-          })()}
-        </SideNav>
 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': '#fde047' }}>상품 목록</p>
           </div>
-          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-5 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
-            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
+          <div className="mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-6 content-start gap-3 overflow-y-auto pr-2" style={{ gridAutoRows: '18.75rem' }}>
+            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
 
         <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': n }}>
-          <p className="mt-lab" style={{ '--a': n }}>고른 상품</p>
+          <p className="mt-lab" style={{ '--a': n }}>{picked && picked.id === rec?.id ? '추천 상품' : '고른 상품'}</p>
           {!picked ? <p className="text-t3 text-gray-400">상품 고르기</p> : (
             <>
               {/* 사진 안에 분류 │ 꼬리표 · 이름 · 오르는 값 · 게이지를 얹는다 (설명 문장 대신) */}
