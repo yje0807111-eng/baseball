@@ -2,7 +2,9 @@
  * 구단 정복 화면 (전체 화면) — 라이브 드래프트를 마친 판에서 나머지 일곱 구단을 약한 순서로 하나씩 꺾는다.
  *  위: 원정길 — 왼쪽(약함)부터 오른쪽(강함)으로 여덟 구단 + 끝의 정복 보상. 금빛 선이 내 자리까지 차오른다.
  *      이기면 그 칸을 빼앗아 한 칸 오른쪽으로, 진 구단은 내 왼쪽으로 내려온다(칸이 좌우로 미끄러진다).
- *  아래 왼쪽: 다음 상대와 수치 비교 · 정비하기 / 아래 오른쪽: 고른 구단의 수비 배치 · 투수진 · 벤치(원정길에서 누르면 바뀐다)
+ *  아래 왼쪽: 고른 구단 전력 — 넓은 구장 위 수비 아홉 · 좁은 투수진 · 벤치(원정길에서 누르면 바뀐다)
+ *  아래 오른쪽: 다음 상대와 수치 비교 · 상대 핵심 셋(간판 · 에이스 · 중심 타자) · 정비하기 — 결정 단추는 다른 화면처럼 오른쪽 아래
+ * 아래 판 배치는 목업 넷(mockups/conquest-4) 중 4안.
  * 배치를 고른 까닭(2026-09-26): 옛 탑은 여덟 칸마다 수치 다섯을 반복해 숫자 40개가 한꺼번에 보였고, 다음 상대 · 진행도 · 보상이 묻혔다.
  */
 import React, { useLayoutEffect, useRef, useState } from 'react';
@@ -22,8 +24,18 @@ const show = (k, v) => (k === 'str' ? Number(v).toFixed(1) : v);
 const pct = (v) => Math.max(6, Math.min(100, ((v - 62) / 28) * 100));
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const face = (p) => `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)`;
-/* 구장 위 자리 (%) — 라커(SquadBoard)와 같은 좌표 */
-const XY = { OF2: [50, 12], OF1: [17, 25], OF3: [83, 25], SS: [34, 46], '2B': [66, 46], '3B': [16, 65], '1B': [84, 65], C: [50, 87], DH: [88, 87] };
+/* 구장 위 자리 (%) — 넓은 구장 그림(field-wide, 2.36:1)을 약 1.9:1 칸에 덮었을 때 */
+const XY = { OF2: [50, 16], OF1: [27, 28], OF3: [73, 28], SS: [42, 46], '2B': [58, 46], '3B': [34, 60], '1B': [66, 60], C: [50, 85], DH: [66, 85] };
+const BENCH_SHOW = 4;
+/** 오늘 경기에 나서는 선수(벤치 뺀) 중 가장 센 셋 — 간판 · 에이스(투수) · 중심 타자, 한 선수는 한 번만 */
+function keysOf(roster) {
+  const on = fillRoster(roster || []).filter((p) => p.slot && !p.slot.startsWith('BN') && !p.isReplacement);
+  const best = (list) => list.reduce((m, p) => (!m || p.overall > m.overall ? p : m), null);
+  const star = best(on);
+  const ace = best(on.filter((p) => p.type === 'pitcher' && p !== star));
+  const bat = best(on.filter((p) => p.type === 'batter' && p !== star));
+  return [['간판', star, '#fde047'], ['에이스', ace, '#f87171'], ['중심 타자', bat, '#7dd3fc']].filter(([, p]) => p);
+}
 /* 야수 자리 — KboAugmentDraft 와 서로 불러오는 사이라 모듈을 읽는 때가 아니라 그릴 때 센다 */
 const batSlots = () => FIELD_SLOTS.filter((s) => !PITCH_SLOTS.includes(s.id)).map((s) => s.id);
 
@@ -64,62 +76,57 @@ function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick }) {
   );
 }
 
-/** 고른 구단의 전력 판 — 구장 위 수비 아홉 · 투수진 · 벤치 */
+/** 고른 구단의 전력 판 — 넓은 구장 위 수비 아홉 · 좁은 투수진 · 벤치 */
 function Scout({ r, label }) {
   const full = fillRoster(r.roster || []);
   const by = {};
   full.forEach((p) => { if (p.slot) by[p.slot] = p; });
-  const arms = PITCH_SLOTS.map((id) => ({ ...by[id], slot: id, label: FIELD_SLOTS.find((s) => s.id === id)?.label })).filter((p) => p.id);
+  const arms = PITCH_SLOTS.map((id) => ({ ...by[id], slot: id, label: FIELD_SLOTS.find((x) => x.id === id)?.label })).filter((p) => p.id);
   const bench = full.filter((p) => p.slot && p.slot.startsWith('BN'));
   return (
     <section className="ui-cut ui-frame ui-glass flex min-h-0 min-w-0 flex-col gap-3 p-5" style={{ '--c': '20px', '--a': r.color }}>
       <div className="flex items-baseline gap-3">
         <p className="ui-lab font-display" style={{ '--a': r.color }}>{label}</p>
         <b className="text-t2 font-black text-white">{r.name}</b>
-        {r.star && <span className="ml-auto text-t3 text-[#9aa6b5]">간판 <b className="text-[#e8ecf2]">{r.star.name}</b> <b className="font-display" style={{ color: tone(r.star.overall) }}>{r.star.overall}</b></span>}
       </div>
       <div className="flex min-h-0 flex-1 gap-4">
-        {/* 구장 위 수비 배치 */}
-        <div className="ui-cut relative h-full w-[29rem] shrink-0 overflow-hidden bg-cover" style={{ '--c': '12px', backgroundImage: 'url(ui/field.webp)', backgroundPosition: 'center 40%' }}>
-          <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,9,15,.3),rgba(5,9,15,.62))' }} />
+        {/* 구장 위 수비 배치 — 판의 대부분 */}
+        <div className="ui-cut relative h-full w-[63rem] max-w-[74%] shrink-0 overflow-hidden bg-cover bg-center" style={{ '--c': '12px', backgroundImage: 'url(ui/field-wide.webp)' }}>
+          <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,9,15,.25),rgba(5,9,15,.55))' }} />
           {batSlots().map((slot) => {
             const p = by[slot];
             const at = XY[slot];
             if (!p || !at) return null;
             return (
               <span key={slot} className="absolute flex items-center gap-1.5" style={{ left: `${at[0]}%`, top: `${at[1]}%`, transform: 'translate(-50%,-50%)' }}>
-                <span className="h-10 w-10 shrink-0 rounded-full bg-[#0b1220] bg-cover" style={{ backgroundPosition: 'center 8%', backgroundImage: face(p), boxShadow: `0 0 0 2px ${r.color}` }} />
+                <span className="h-11 w-11 shrink-0 rounded-full bg-[#0b1220] bg-cover" style={{ backgroundPosition: 'center 8%', backgroundImage: face(p), boxShadow: `0 0 0 2px ${r.color}` }} />
                 <span className="grid rounded-md px-2 py-0.5 leading-tight" style={{ background: 'rgba(6,10,19,.9)' }}>
-                  <b className="whitespace-nowrap text-t4 text-white">{p.name}</b>
-                  <b className="whitespace-nowrap font-display text-t4" style={{ color: tone(p.overall) }}>{POS_LABEL[p.position] || p.position} {p.overall}</b>
+                  <b className="whitespace-nowrap text-t3 text-white">{p.name}</b>
+                  <b className="whitespace-nowrap font-display text-t3" style={{ color: tone(p.overall) }}>{POS_LABEL[p.position] || p.position} {p.overall}</b>
                 </span>
               </span>
             );
           })}
         </div>
-        {/* 투수진과 벤치 */}
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
+        {/* 투수진 · 벤치 — 이름과 종합만 짧게 */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="ui-lab font-display" style={{ '--a': '#f87171' }}>투수진</p>
-          <div className="grid gap-1.5">
-            {arms.map((p) => (
-              <span key={p.slot} className="ui-cut flex h-[3.1rem] items-center gap-3 px-3" style={{ '--c': '8px', background: 'rgba(255,255,255,.045)' }}>
-                <span className="h-9 w-9 shrink-0 rounded-full bg-[#0b1220] bg-cover" style={{ backgroundImage: face(p), backgroundPosition: 'center 6%' }} />
-                <small className="w-16 shrink-0 text-t4 text-[#8b97a6]">{p.label}</small>
-                <b className="min-w-0 flex-1 truncate text-t3 text-[#e8ecf2]">{p.name}</b>
-                <b className="font-display text-t2" style={{ color: tone(p.overall) }}>{p.overall}</b>
-              </span>
-            ))}
-          </div>
+          {arms.map((p) => (
+            <span key={p.slot} className="ui-cut flex h-[2.6rem] items-center gap-2 px-3" style={{ '--c': '8px', background: 'rgba(255,255,255,.045)' }}>
+              <small className="shrink-0 text-t4 text-[#8b97a6]">{p.label}</small>
+              <b className="min-w-0 flex-1 truncate text-t3 text-[#e8ecf2]">{p.name}</b>
+              <b className="font-display text-t2" style={{ color: tone(p.overall) }}>{p.overall}</b>
+            </span>
+          ))}
           <p className="ui-lab mt-2 font-display" style={{ '--a': '#94a3b8' }}>벤치</p>
-          <div className="flex flex-wrap gap-1.5">
-            {bench.length ? bench.map((p) => (
-              <span key={p.slot} className="ui-cut flex items-center gap-2 px-2.5 py-1" style={{ '--c': '6px', background: 'rgba(255,255,255,.05)' }}>
-                <small className="text-t4 text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
-                <b className="text-t3 text-[#e8ecf2]">{p.name}</b>
-                <b className="font-display text-t3" style={{ color: tone(p.overall) }}>{p.overall}</b>
-              </span>
-            )) : <small className="text-t4 text-[#6b7787]">예비 선수 없음</small>}
-          </div>
+          {bench.length ? bench.slice(0, BENCH_SHOW).map((p) => (
+            <span key={p.slot} className="ui-cut flex h-[2.15rem] items-center gap-2 px-3" style={{ '--c': '7px', background: 'rgba(255,255,255,.035)' }}>
+              <small className="shrink-0 text-t4 text-[#8b97a6]">{POS_LABEL[p.position] || p.position}</small>
+              <b className="min-w-0 flex-1 truncate text-t3 text-[#e8ecf2]">{p.name}</b>
+              <b className="font-display text-t3" style={{ color: tone(p.overall) }}>{p.overall}</b>
+            </span>
+          )) : <small className="text-t4 text-[#6b7787]">예비 선수 없음</small>}
+          {bench.length > BENCH_SHOW && <small className="px-1 text-t4 text-[#6b7787]">외 {bench.length - BENCH_SHOW}명</small>}
         </div>
       </div>
     </section>
@@ -132,14 +139,14 @@ function Versus({ me, myEmb, cur, res, onPlay }) {
   const verdict = d >= 1.5 ? ['우세', WIN] : d <= -1.5 ? ['열세', LOSE] : ['접전', GOLD];
   const losses = res.filter((x) => !x.win).length;
   return (
-    <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6" style={{ '--c': '20px', '--a': GOLD }}>
+    <section className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-3 p-6" style={{ '--c': '20px', '--a': GOLD }}>
       <div className="flex items-baseline gap-3">
         <p className="ui-lab font-display" style={{ '--a': GOLD }}>다음 상대</p>
         {losses > 0 && <small className="ml-auto text-t4 font-bold text-[#fca5a5]">{losses}패 · 재도전</small>}
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
         <span className="grid justify-items-center gap-2">
-          <Emb src={myEmb} size={96} ring={me.color || '#e879f9'} />
+          <Emb src={myEmb} size={76} ring={me.color || '#e879f9'} />
           <b className="max-w-full truncate text-t2 font-black text-white">{me.short || me.name}</b>
         </span>
         <span className="grid justify-items-center gap-1">
@@ -149,7 +156,7 @@ function Versus({ me, myEmb, cur, res, onPlay }) {
           </b>
         </span>
         <span className="grid justify-items-center gap-2">
-          <Emb src={cur.key ? emblemOf(cur.key) : bannerEmblem(null)} size={96} ring={cur.color} />
+          <Emb src={cur.key ? emblemOf(cur.key) : bannerEmblem(null)} size={76} ring={cur.color} />
           <b className="max-w-full truncate text-t2 font-black text-white">{cur.short}</b>
         </span>
       </div>
@@ -176,7 +183,21 @@ function Versus({ me, myEmb, cur, res, onPlay }) {
           );
         })}
       </div>
-      <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[4rem] w-full text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비하기 ▶</button>
+      {/* 상대 핵심 셋 — 오늘 나서는 선수 중에서 */}
+      <div className="grid gap-1.5">
+        <p className="ui-lab font-display" style={{ '--a': cur.color }}>상대 핵심</p>
+        {keysOf(cur.roster).map(([ko, p, c]) => (
+          <span key={ko} className="ui-cut grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-1.5" style={{ '--c': '10px', background: 'rgba(255,255,255,.045)' }}>
+            <span className="h-[2.4rem] w-[2.4rem] rounded-full bg-[#0b1220] bg-cover" style={{ backgroundImage: face(p), backgroundPosition: 'center 8%', boxShadow: `0 0 0 2px ${c}` }} />
+            <span className="grid min-w-0 leading-tight">
+              <small className="text-t4 font-extrabold" style={{ color: c }}>{ko}</small>
+              <b className="truncate text-t3 text-[#e8ecf2]">{p.name} <small className="text-t4 font-medium text-[#6b7787]">{POS_LABEL[p.position] || p.position}</small></b>
+            </span>
+            <b className="font-display text-t1" style={{ color: tone(p.overall) }}>{p.overall}</b>
+          </span>
+        ))}
+      </div>
+      <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[4rem] w-full shrink-0 text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비하기 ▶</button>
     </section>
   );
 }
@@ -264,8 +285,9 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
         </div>
       </div>
 
-      {/* 매치업 — 왼쪽 다음 상대 비교 · 오른쪽 고른 구단 전력 */}
-      <div className="relative grid min-h-0 flex-1 gap-5 px-12 pb-6 pt-2" style={{ gridTemplateColumns: '34rem minmax(0,1fr)' }}>
+      {/* 매치업 — 왼쪽 고른 구단 전력 · 오른쪽 다음 상대 비교와 정비하기 */}
+      <div className="relative grid min-h-0 flex-1 gap-5 px-12 pb-6 pt-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 27.5rem', gridTemplateRows: 'minmax(0,1fr)' }}>
+        {sel && <Scout r={shown(sel)} label={sel.me ? '내 구단' : sel.club === cur?.club ? '다음 상대 전력' : isCleared(gaunt, gaunt.tower.indexOf(sel)) ? '통과한 구단' : '남은 구단'} />}
         {cur ? (
           <Versus me={me} myEmb={myEmb} cur={cur} res={resOf(cur.club)} onPlay={onPlay} />
         ) : (
@@ -276,7 +298,6 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
             <button type="button" className="ui-btn ui-cut pri mt-2 min-h-[3.4rem] px-12 text-t2" style={{ '--c': '10px' }} onClick={onExit}>모드 고르기</button>
           </section>
         )}
-        {sel && <Scout r={shown(sel)} label={sel.me ? '내 구단' : sel.club === cur?.club ? '다음 상대 전력' : isCleared(gaunt, gaunt.tower.indexOf(sel)) ? '통과한 구단' : '남은 구단'} />}
       </div>
     </div>
   );
