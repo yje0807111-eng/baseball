@@ -12,6 +12,8 @@ import { GrowBar } from '../ui/motion.jsx';
 
 /* 로비 첫 등장(앱을 연 뒤 한 번) — 왼쪽 판 → 가운데 → 오른쪽 칸들이 차례로 올라온다. 다시 돌아올 때는 화면 이동 모션만 */
 let lobbyIntroDone = false;
+/** 로그인하면 첫 등장 연출을 다시 */
+export const replayLobbyIntro = () => { lobbyIntroDone = false; };
 
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */

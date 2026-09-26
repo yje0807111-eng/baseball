@@ -5,7 +5,7 @@
  */
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import LoginScreen from './myteam/LoginScreen.jsx';
-import LobbyScreen from './myteam/LobbyScreen.jsx';
+import LobbyScreen, { replayLobbyIntro } from './myteam/LobbyScreen.jsx';
 import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from './myteam/store.js';
 import { online } from './net/supabase.js';
 import { resume, logOut } from './net/account.js';
@@ -68,7 +68,8 @@ export default function App() {
   }, [starterDue, account?.nick]);
 
   if (boot) return <Loading />;
-  if (!account) return <LoginScreen onDone={(a) => { if (online) enter(a); else setAccount(a); setView('lobby'); }} />;
+  /* 로그인 → 로비: 로그인 판이 앞으로 물러나며 로비가 들어온다(로비는 첫 등장 연출로 이어짐) · 로그아웃은 반대 */
+  if (!account) return <LoginScreen onDone={(a) => navTo(() => { replayLobbyIntro(); if (online) enter(a); else setAccount(a); viewRef.current = 'lobby'; setViewNow('lobby'); }, 'fwd')} />;
   if (view !== 'lobby') {
     return (
       <Suspense fallback={<Loading />}>
@@ -81,6 +82,6 @@ export default function App() {
       onLocker={() => setView('locker')} onPlay={(tab) => { setPlayTab(tab || null); setView('modes'); }} onShop={() => setView('shop')}
       onAugments={() => setView('augments')} onRecord={() => { setRecordTab('all'); setView('record'); }} onWeek={() => { setRecordTab('week'); setView('record'); }}
       onNotice={(go) => { dismissNotice(); setAccount(loadAccount()); if (go) setView('locker'); }}
-      onSignOut={() => { if (online) logOut().finally(() => setAccount(null)); else { signOut(); setAccount(null); } }} />
+      onSignOut={() => { if (online) logOut().finally(() => navTo(() => setAccount(null), 'back')); else { signOut(); navTo(() => setAccount(null), 'back'); } }} />
   );
 }
