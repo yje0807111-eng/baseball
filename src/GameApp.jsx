@@ -85,7 +85,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const rp = account.rank?.rp || 0;
     uploadDefense(account.team, rp).catch(() => {});
     const ghosts = await findGhosts(rp);
-    saveRanked(ranked.makeSeason({ season: n, myName: account.team?.name, ghosts }));
+    saveRanked(ranked.makeSeason({ season: n, myName: account.team?.name, ghosts, rp }));
     opening.current = false;
     refresh();
   };

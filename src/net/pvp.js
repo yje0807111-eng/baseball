@@ -8,7 +8,7 @@ import { snapshotOf, reviveTeam } from '../myteam/ghost.js';
 
 const MODE = 'ranked';
 const FRESH_DAYS = 14; // 이만큼 안에 올린 팀만 상대로
-const WINDOWS = [300, 1000, null]; // RP 차이 — 모자라면 넓힌다(null = 제한 없음)
+const WINDOWS = [150, 300]; // RP 차이 — 반 등급 안에서 먼저, 모자라면 한 등급까지. 그 밖은 봇 · AI 로 채운다
 
 const timeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), ms))]);
 const me = () => syncState()?.uid || null;
@@ -43,7 +43,7 @@ export async function findGhosts(rp = 0, n = 9) {
     for (const w of WINDOWS) {
       let q = sb.from('teams').select('id, user_id, rating, payload, profiles(nick)')
         .eq('mode', MODE).neq('user_id', me()).gte('updated_at', since).limit(60);
-      if (w != null) q = q.gte('rating', rp - w).lte('rating', rp + w);
+      q = q.gte('rating', rp - w).lte('rating', rp + w);
       const { data, error } = await timeout(q, 5000);
       if (error) break;
       for (const row of data || []) {

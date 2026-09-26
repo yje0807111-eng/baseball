@@ -1,11 +1,14 @@
 /*
  * 랭크전 — 가을야구처럼 치르는 공식 시즌.
- *  정규 시즌: 나 + 상대 9팀 = 10팀 리그(다른 감독이 올린 방어 팀 사진이 먼저, 모자라면 AI 시리즈 팀), 모든 팀이 서로 한 번씩(9경기). 내 경기는 직접, 나머지는 엔진으로 계산.
+ *  정규 시즌: 나 + 상대 9팀 = 10팀 리그. 상대는 내 등급에 맞춘다 — 비슷한 등급 감독 팀(방어 팀 사진)이 먼저,
+ *  남는 자리는 등급 전력 구간(TIER_POWER)에 맞춘 감독 봇 · AI 시리즈 팀을 반씩., 모든 팀이 서로 한 번씩(9경기). 내 경기는 직접, 나머지는 엔진으로 계산.
  *  포스트시즌: 상위 5팀. 와일드카드(4 vs 5) → 준플레이오프(vs 3) → 플레이오프(vs 2) → 한국시리즈(vs 1), 모두 단판.
  *  비기면 순위가 높은 팀이 올라간다. 최종 순위로 랭크 승점(RP)과 골드를 받는다.
  */
-import { teamOf, seeded, hashKey, newKey, ownerOf, decide, simulate } from './tournament.js';
-import { AI_SERIES, seriesName } from './aiTeam.js';
+import { teamOf, seeded, hashKey, newKey, ownerOf, decide, simulate, playStrength } from './tournament.js';
+import { AI_SERIES, seriesName, seriesTeam } from './aiTeam.js';
+import { botTeam, botName } from './bots.js';
+import { rankOf } from './rank.js';
 import { PLACE_REWARD } from './rewards.js';
 
 export { PLACE_REWARD };
@@ -39,26 +42,77 @@ function roundRobin(n) {
 }
 
 /**
- * 새 시즌: 상대 9팀 — ghosts(다른 감독 팀 사진 { uid, teamId, nick, snap }, 검사를 마친 것)가 먼저, 남는 자리는 서로 다른 AI 시리즈.
- * 사진은 시즌에 그대로 담는다 — 상대가 나중에 팀을 바꿔도 이번 시즌 상대는 그대로. 내 자리 · 일정 순서는 무작위
+ * 등급별 상대 전력 가운데값(playStrength) — 루키 · 퓨처스 · 1군 · 올스타 · MVP · 명예의 전당.
+ * 잰 값(2026-09-26): 스타터 26인 ≈ 75 · 시리즈 팀 가운데 79(국가대표 84.5 · 레전드 94.5) · 캡을 채운 팀 ≈ 84.
+ * 루키는 스타터 팀과 비슷하게, 한 등급마다 2.5씩.
  */
-export function makeSeason({ season = 1, myName = '나의 드림팀', key = newKey(), ghosts = [] } = {}) {
+export const TIER_POWER = [74.5, 77, 79.5, 82, 84.5, 87];
+/** 상대 아홉의 전력 폭 — 가운데값에서 이만큼씩 흩는다(순위표가 한 줄로 몰리지 않게) */
+const SPREAD = [-3, -2, -1, -0.5, 0, 0.5, 1, 2, 3];
+/** 봇 전력은 캡으로 맞춘다 — 잰 값(cap → 가운데 전력): 1650 → 70 · 1800 → 76 · 1950 → 78 · 2100 → 82 · 2400 → 83 · 2550 → 85.5 */
+const CAP_FOR = [[71, 1650], [76.5, 1800], [79, 1950], [82.5, 2100], [84, 2400], [Infinity, 2550]];
+
+let seriesPower = null;
+/** 시리즈 팀 전력 — 처음 한 번만 잰다 */
+function seriesPowerList() {
+  seriesPower ||= AI_SERIES.map((x) => ({ s: x, v: playStrength(seriesTeam(x, seeded(1))) }));
+  return seriesPower;
+}
+/** 목표 전력에 가장 가까운 시리즈 팀(쓴 것 빼고) — 가까운 몇 개 중에서 무작위 */
+function pickSeries(target, used, rng) {
+  const near = seriesPowerList().filter((x) => !used.has(x.s.id)).sort((a, b) => Math.abs(a.v - target) - Math.abs(b.v - target)).slice(0, 4);
+  const hit = near[Math.floor(rng() * near.length)];
+  if (hit) used.add(hit.s.id);
+  return hit?.s || null;
+}
+/** 목표 전력에 맞는 봇 { cap, seed } — 캡 셋 × 씨 넷을 재 보고 가장 가까운 것(이름이 겹치지 않게) */
+function pickBot(target, names, rng) {
+  const guess = CAP_FOR.find(([t]) => target <= t)[1];
+  let best = null;
+  for (const cap of [guess - 150, guess, guess + 150]) {
+    for (let k = 0; k < 4; k++) {
+      const seed = Math.floor(rng() * 2 ** 31);
+      if (names.has(botName(seed))) continue;
+      const d = Math.abs(playStrength(botTeam({ cap, seed })) - target);
+      if (!best || d < best.d) best = { cap, seed, d };
+    }
+  }
+  if (best) names.add(botName(best.seed));
+  return best && { cap: best.cap, seed: best.seed };
+}
+
+/**
+ * 새 시즌: 상대 9팀.
+ *  1) ghosts — 비슷한 등급 감독 팀 사진 { uid, teamId, nick, snap }(검사를 마친 것). 시즌에 그대로 담는다 — 상대가 나중에 팀을 바꿔도 이번 시즌 상대는 그대로
+ *  2) 남는 자리 — 내 등급(rp) 전력 구간에 맞춘 감독 봇 · AI 시리즈 팀을 반씩(봇이 한 자리 더)
+ * 내 자리 · 일정 순서는 무작위
+ */
+export function makeSeason({ season = 1, myName = '나의 드림팀', key = newKey(), ghosts = [], rp = 0 } = {}) {
   const rng = seeded(hashKey(`ranked:${key}`));
-  const pool = [...AI_SERIES];
-  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const center = TIER_POWER[rankOf(rp).index] ?? TIER_POWER[0];
   const seen = new Set();
   const people = ghosts.filter((g) => g?.snap && g.uid && !seen.has(g.uid) && seen.add(g.uid)).slice(0, GAMES);
+  const need = GAMES - people.length;
+  const offsets = [...SPREAD];
+  for (let i = offsets.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [offsets[i], offsets[j]] = [offsets[j], offsets[i]]; }
+  const targets = offsets.slice(0, need).map((o) => center + o);
+  const nBots = Math.ceil(need / 2);
+  const usedSeries = new Set();
+  const names = new Set([myName]);
+  const bots = targets.slice(0, nBots).map((t) => pickBot(t, names, rng)).filter(Boolean);
+  const series = targets.slice(bots.length).map((t) => pickSeries(t, usedSeries, rng)).filter(Boolean);
   const teams = [
-    // 못 쓰게 된 사진이면(데이터가 바뀌어 검사 탈락) 경기 때 seriesId 의 AI 팀이 대신 나온다
-    ...people.map((g, i) => ({ id: `gh-${i}`, ghost: { uid: g.uid, teamId: g.teamId ?? null }, snap: g.snap, seriesId: pool[GAMES + i]?.id,
+    // 못 쓰게 된 사진이면(데이터가 바뀌어 검사 탈락) 경기 때 seriesId 의 AI 팀(등급 구간 가운데)이 대신 나온다
+    ...people.map((g, i) => ({ id: `gh-${i}`, ghost: { uid: g.uid, teamId: g.teamId ?? null }, snap: g.snap, seriesId: pickSeries(center, usedSeries, rng)?.id,
       name: g.snap.name, owner: g.nick || '감독', seed: hashKey(`ranked:${key}:ghost:${i}`) })),
-    ...pool.slice(0, GAMES - people.length).map((s, i) => ({ id: `rk-${i}`, seriesId: s.id, name: seriesName(s), owner: ownerOf(rng), seed: hashKey(`ranked:${key}:team:${i}`) })),
+    ...bots.map((b, i) => ({ id: `bt-${i}`, bot: b, name: botName(b.seed), owner: ownerOf(rng), seed: hashKey(`ranked:${key}:bot:${i}`) })),
+    ...series.map((x, i) => ({ id: `rk-${i}`, seriesId: x.id, name: seriesName(x), owner: ownerOf(rng), seed: hashKey(`ranked:${key}:team:${i}`) })),
   ];
   for (let i = teams.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [teams[i], teams[j]] = [teams[j], teams[i]]; }
   teams.splice(Math.floor(rng() * LEAGUE_SIZE), 0, { id: 'me', name: myName, owner: '나', me: true });
   const schedule = roundRobin(LEAGUE_SIZE);
   for (let i = schedule.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [schedule[i], schedule[j]] = [schedule[j], schedule[i]]; }
-  return { key, season, teams, schedule, games: [], round: 0, post: null, done: false, place: null, claimed: false };
+  return { key, season, tier: rankOf(rp).index, teams, schedule, games: [], round: 0, post: null, done: false, place: null, claimed: false };
 }
 
 export const meOf = (s) => s.teams.findIndex((t) => t.me);

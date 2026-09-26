@@ -10,6 +10,7 @@ import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
 import { engineTeam } from '../BroadcastGame.jsx';
 import { simulateGame } from '../engine/pitchSim.js';
 import { ghostMatchTeam } from './ghost.js';
+import { botTeam } from './bots.js';
 import { roundsOf, finishOf } from './rewards.js';
 
 export { roundsOf, finishOf };
@@ -73,6 +74,8 @@ export function teamOf(entry, myTeam) {
     const t = ghostMatchTeam(entry.snap);
     if (t) cache.set(entry.id + entry.seed, { ...t, name: entry.name, owner: entry.owner });
   }
+  // 감독 봇 — 시즌에 담아 둔 { cap, seed } 로 같은 팀을 다시 만든다
+  if (entry.bot && !cache.has(entry.id + entry.seed)) cache.set(entry.id + entry.seed, { ...botTeam(entry.bot), name: entry.name, owner: entry.owner });
   if (!cache.has(entry.id + entry.seed)) {
     const series = AI_SERIES.find((x) => x.id === entry.seriesId) || AI_SERIES[entry.seed % AI_SERIES.length];
     cache.set(entry.id + entry.seed, { ...seriesTeam(series, seeded(entry.seed)), name: entry.name, owner: entry.owner });

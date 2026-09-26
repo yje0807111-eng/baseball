@@ -4,9 +4,9 @@ import { seeded, hashKey } from '../src/engine/rng.js';
 import { starterSquad } from '../src/myteam/starter.js';
 import { SQUAD_CAP } from '../src/myteam/rules.js';
 import { snapshotOf, reviveTeam, ghostMatchTeam, GHOST_CAP_MAX } from '../src/myteam/ghost.js';
-import { teamOf, simulate } from '../src/myteam/tournament.js';
+import { teamOf, simulate, playStrength } from '../src/myteam/tournament.js';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { makeSeason, myOpponent, play, meOf, GAMES } from '../src/myteam/ranked.js';
+import { makeSeason, myOpponent, play, meOf, GAMES, TIER_POWER } from '../src/myteam/ranked.js';
 import { autoSlots } from '../src/myteam/prep.js';
 
 const squad = starterSquad('대전 시험');
@@ -99,5 +99,37 @@ describe('랭크전에 다른 감독 팀', () => {
     const plain = makeSeason({ key: 'pvp2' });
     expect(plain.teams.filter((t) => t.ghost)).toHaveLength(0);
     expect(plain.teams).toHaveLength(10);
+  });
+});
+
+describe('등급별 상대', () => {
+  const powers = (s) => s.teams.filter((t) => !t.me).map((t) => playStrength(teamOf(t)));
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  it('루키 — 스타터 팀 언저리, 레전드 같은 센 팀은 없다', () => {
+    const s = makeSeason({ key: 'tier-rookie', rp: 0 });
+    const v = powers(s);
+    expect(Math.abs(mean(v) - TIER_POWER[0])).toBeLessThan(1.5);
+    expect(Math.max(...v)).toBeLessThan(TIER_POWER[0] + 5);
+    expect(Math.min(...v)).toBeGreaterThan(TIER_POWER[0] - 5);
+  });
+  it('등급이 오를수록 상대도 세진다', () => {
+    const m = [0, 600, 1200, 1500].map((rp, i) => mean(powers(makeSeason({ key: `tier-${i}`, rp }))));
+    for (let i = 1; i < m.length; i++) expect(m[i]).toBeGreaterThan(m[i - 1]);
+    expect(m[3]).toBeGreaterThan(TIER_POWER[5] - 2);
+  });
+  it('봇 · AI 시리즈 반씩, 이름은 모두 다르다 · 같은 시즌 키면 같은 상대', () => {
+    const s = makeSeason({ key: 'tier-mix', rp: 900 });
+    expect(s.teams.filter((t) => t.bot)).toHaveLength(5);
+    expect(s.teams.filter((t) => t.seriesId && !t.ghost)).toHaveLength(4);
+    expect(new Set(s.teams.map((t) => t.name)).size).toBe(10);
+    expect(makeSeason({ key: 'tier-mix', rp: 900 }).teams.map((t) => t.name)).toEqual(s.teams.map((t) => t.name));
+    expect(s.tier).toBe(3);
+  });
+  it('감독 팀이 있으면 그만큼 봇 · AI 가 준다', () => {
+    const snap = snapshotOf(team);
+    const s = makeSeason({ key: 'tier-ppl', rp: 300, ghosts: [1, 2, 3].map((i) => ({ uid: `u${i}`, teamId: i, nick: `감독${i}`, snap: { ...snap, name: `팀${i}` } })) });
+    expect(s.teams.filter((t) => t.ghost)).toHaveLength(3);
+    expect(s.teams.filter((t) => t.bot)).toHaveLength(3);
+    expect(s.teams.filter((t) => t.seriesId && !t.ghost)).toHaveLength(3);
   });
 });
