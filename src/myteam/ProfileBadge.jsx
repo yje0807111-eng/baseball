@@ -182,8 +182,9 @@ export default function ProfileBadge({ account, onSignOut }) {
         <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'inset(0 round 8px 0 0 0)' }}>
           <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
             style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
-          <b className="font-display text-t2 font-extrabold leading-none" style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-            <Count value={gold} dur={600} />
+          <b className="font-display text-t2 font-extrabold leading-none">
+            {/* 금빛 글자는 숫자 칸 자신에 — 세기 끝의 '톡'(크기 변화) 동안에도 글자가 사라지지 않게 */}
+            <Count value={gold} dur={600} style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }} />
           </b>
         </span>
       </button>
