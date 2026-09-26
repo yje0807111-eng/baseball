@@ -5057,8 +5057,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   useWarmArt();
   // 드래프트 상태
   const [phase, setPhase] = useState('mode'); // mode | draft | ready | sim | result | bracket | gauntlet
-  /* 배경음악: 모드 고르기 · 결과는 메뉴 곡, 뽑고 정비하는 동안은 준비 곡, 경기는 준비 곡을 작게 */
-  useEffect(() => { setScene(phase === 'sim' || phase === 'live' ? 'game' : phase === 'mode' || phase === 'result' ? 'menu' : 'prep'); }, [phase]);
+  /* 배경음악: 경기 중계는 경기 곡, 나머지(모드 고르기 · 드래프트 · 정비 · 결과)는 메뉴 곡 */
+  useEffect(() => { setScene(phase === 'sim' || phase === 'live' ? 'game' : 'menu'); }, [phase]);
   const [modeId, setModeId] = useState('champ'); // 고른 드래프트 모드
   const [match, setMatch] = useState({ cap: SALARY_CAP, ai: 'normal', aug: SEASON_AUGMENTS }); // 모드 화면 설정
   const mode = DRAFT_MODES.find((m) => m.id === modeId);

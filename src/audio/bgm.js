@@ -1,14 +1,13 @@
 /* 배경음악 — 화면 묶음(scene)마다 곡을 바꿔 튼다.
-   · menu : 메뉴 곡 넷을 섞어 돌려 튼다. 곡이 끝나기 3초 전부터 다음 곡과 겹쳐 넘긴다
-   · prep : 준비 곡 한 바퀴(55초)를 끊김 없이 돈다
-   · game : 준비 곡을 이어서 60% 크기로 — 드래프트 → 정비 → 경기가 한 곡으로 이어진다
+   · menu : 로그인 · 로비 · 드래프트 · 정비까지. 메뉴 곡 셋을 섞어 돌려 틀고, 곡이 끝나기 3초 전부터 다음 곡과 겹쳐 넘긴다
+   · game : 경기. 가장 신나는 곡(128 BPM)의 47초 구간을 끊김 없이 돈다
    브라우저는 사람이 한 번 누르기 전에는 소리를 막아서, 첫 누름 때 오디오를 연다.
    크기 · 음소거는 이 기기에 기억한다 (localStorage — 못 쓰면 기본값). */
 
-const MENU = ['menu-1', 'menu-2', 'menu-3', 'menu-4'].map((n) => `audio/bgm/${n}.mp3`);
-/* 준비 곡 파일은 [한 바퀴][처음 2초] — 압축의 앞뒤 여백이 반복 구간에 닿지 않게 1초 ~ 1초+한 바퀴 사이를 돈다 */
-const LOOP = { src: 'audio/bgm/prep-loop.mp3', start: 1, length: 2425500 / 44100 };
-const LEVEL = { menu: { menu: 1, loop: 0 }, prep: { menu: 0, loop: 1 }, game: { menu: 0, loop: 0.6 } };
+const MENU = ['menu-1', 'menu-2', 'menu-3'].map((n) => `audio/bgm/${n}.mp3`);
+/* 경기 곡 파일은 [한 바퀴][처음 2초] — 압축의 앞뒤 여백이 반복 구간에 닿지 않게 1초 ~ 1초+한 바퀴 사이를 돈다 */
+const LOOP = { src: 'audio/bgm/game-loop.mp3', start: 1, length: 2072700 / 44100 };
+const LEVEL = { menu: { menu: 1, loop: 0 }, game: { menu: 0, loop: 0.9 } };
 const SCENE_FADE = 1.2; // 화면 묶음이 바뀔 때
 const SONG_FADE = 3; // 메뉴 곡끼리 넘어갈 때
 const KEY = 'kbo.bgm';
@@ -117,8 +116,8 @@ if (typeof window !== 'undefined') {
   });
 }
 
-/** 화면 묶음을 알린다 — 'menu' | 'prep' | 'game' */
-export function setScene(next) { wanted = next; apply(next); }
+/** 화면 묶음을 알린다 — 'menu' | 'game' (예전 이름 'prep' 은 메뉴로) */
+export function setScene(next) { const s = next === 'game' ? 'game' : 'menu'; wanted = s; apply(s); }
 export function getSettings() { return settings; }
 export function setSettings(patch) {
   settings = { ...settings, ...patch };
