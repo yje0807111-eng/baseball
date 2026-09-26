@@ -331,6 +331,7 @@ export default function ReadyLocker({
   team, squad, bench, sums, synergies = [], opponent = null, autoFilled = 0, teamInfo,
   onCommit, onStart, startLabel = '시즌 시작 ▶', startBlock = null,
   cards = null, // 준비 카드 [{ id, name, effect, n }] — 내 팀 경기에서만 넘긴다
+  full = false, // 내 팀 경기: 라커 배치 그대로(로테이션 5 · 불펜 8 · 벤치) — 드래프트는 20자리 판(fitSlots)
 }) {
   const [sel, setSel] = useState(null);
   /* 작전 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
@@ -347,7 +348,7 @@ export default function ReadyLocker({
       {foeOpen && opponent && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
-        onToggleBench={() => {}} fitSlots compact railW={264} footer={<SynergyRow synergies={synergies} />} />
+        onToggleBench={() => {}} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
         onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock}>

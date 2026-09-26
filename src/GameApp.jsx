@@ -8,7 +8,7 @@ import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myt
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
-import { prepOf, matchTeamOf } from './myteam/prep.js';
+import { matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
 import { randomSeriesTeam } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf, hashKey, newKey } from './myteam/tournament.js';
@@ -124,7 +124,8 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   /* 정비 화면에서 시작: 바꾼 자리·타순을 저장하고, 정비 결과 그대로 상대와 경기 */
   const startFromPrep = (ready0, rest, plan, cardId = null) => {
     /* 전략실에서 고른 작전은 팀에 남겨 다음 경기에도 그대로 이어 쓴다 */
-    let team = { ...account.team, prep: prepOf(ready0), ...(plan ? { plan } : {}) };
+    /* 배치는 정비 화면이 라커 배치(team.order)에 바로 저장한다 — 여기서는 작전만 */
+    let team = { ...(reload()?.team || account.team), ...(plan ? { plan } : {}) };
     /* 준비 카드: 한 장 쓰고 이 경기 로스터에만 얹는다 */
     const card = cardId ? itemById(cardId) : null;
     const spent = card ? spendCard(team, card.id) : null;
@@ -250,7 +251,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(<RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />);
   }
   if (view === 'prep' && prep) {
-    return screen(<>{augOverlay}<PrepScreen team={account.team} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
+    return screen(<>{augOverlay}<PrepScreen team={account.team} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {

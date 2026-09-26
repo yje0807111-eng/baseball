@@ -234,8 +234,8 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
   const [rail, setRail] = useState(!compact); // 투수진 · 벤치 칸 (경기 준비에서는 단추로 연다)
   const pickOrFire = (p) => (fire ? onRelease?.(p) : onSelect(p));
   const auto = squadOrder(squad, bench, team.order);
-  /* 정비 화면은 투수 자리가 다섯뿐이라(선발 1 · 불펜 4) 판이 정해 준 자리를 그대로 쓴다.
-     라커는 선발 5 · 불펜 8 자리라 지금 뛰는 투수를 모두 펼친다 */
+  /* 드래프트 정비는 투수 자리가 다섯뿐이라(선발 1 · 불펜 4) 판이 정해 준 자리를 그대로 쓴다.
+     라커 · 내 팀 정비는 선발 5 · 불펜 8 자리라 지금 뛰는 투수를 모두 펼친다 */
   const order = fitSlots && team.order?.rotation && team.order?.bullpen
     ? { ...auto, rotation: team.order.rotation, bullpen: team.order.bullpen }
     : auto;

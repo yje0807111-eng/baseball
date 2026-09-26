@@ -1,8 +1,12 @@
-/* 경기 전 정비 (내 팀) — 드래프트와 같은 정비 화면(ReadyScreen)에 내 팀 20자리를 올려 타순 · 수비 · 투수를 맞춘 뒤 경기로 */
+/*
+ * 경기 전 정비 (내 팀) — 라커 배치 한 벌(team.order)을 그대로 펼친다: 타순 9 · 선발 로테이션 5 · 불펜 8 · 벤치.
+ * 여기서 바꾼 배치는 라커에 바로 저장된다(라커 · 정비가 같은 배치). 드래프트 정비(20자리)와는 따로 돈다.
+ */
 import React, { useMemo, useState } from 'react';
-import { KEYFRAMES, ReadyScreen } from '../KboAugmentDraft.jsx';
-import { readyRoster } from './prep.js';
-import { loadAccount } from './store.js';
+import { KEYFRAMES, readyStats } from '../KboAugmentDraft.jsx';
+import ReadyLocker from './ReadyLocker.jsx';
+import { readyRoster, todaySquad } from './prep.js';
+import { loadAccount, saveTeam } from './store.js';
 import { myOpponent as tourOpponent, teamOf } from './tournament.js';
 import { myOpponent as rankedOpponent } from './ranked.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
@@ -38,14 +42,26 @@ function opponentOf(sub, myTeam) {
 }
 
 
-export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null }) {
+export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null, onSaved = null }) {
   const opp = useMemo(() => opponent || opponentOf(sub || '', team), [opponent, sub, team]);
   /* 오늘 몸 상태 — 상대와 내 엔트리로 씨를 심어, 같은 경기에서는 다시 굴러가지 않는다 */
   const seed = useMemo(() => formSeed(opp?.name || '', sub || '', String((team.roster || []).length)), [opp, sub, team]);
-  const init = useMemo(() => readyRoster(team, seed), [team, seed]);
-  const [ready, setReady] = useState(init.ready);
-  const onMove = (from, to) => setReady((r) => r.map((p) => (p.slot === from ? { ...p, slot: to } : p.slot === to ? { ...p, slot: from } : p)));
-  const onOrder = (ids) => setReady((r) => r.map((p) => (ids.includes(p.id) ? { ...p, batOrder: ids.indexOf(p.id) } : p)));
+  /* 배치만 바뀌는 내 팀 — 능력치(컨디션 · 코치 · 피로)는 화면에만 얹고, 저장은 배치(order) · 벤치만 */
+  const [mine, setMine] = useState(team);
+  const shown = useMemo(() => todaySquad(mine, seed), [mine, seed]);
+  const { ready } = useMemo(() => readyRoster(mine, seed), [mine, seed]);
+  const stats = useMemo(() => readyStats(ready, 0), [ready]);
+  const commit = (next) => {
+    const t = { ...mine, order: next.order || mine.order, bench: next.bench || mine.bench || [] };
+    setMine(t);
+    saveTeam(t); // 라커 배치에 바로
+    onSaved?.(); // 앱이 들고 있는 계정도 새로 — 정비에서 돌아가 라커를 열면 바꾼 배치 그대로
+  };
+  const on = ready.filter((p) => !String(p.slot).startsWith('BN'));
+  const teamInfo = {
+    ovr: on.length ? Math.round(on.reduce((n, p) => n + p.overall, 0) / on.length) : 0,
+    count: shown.length, cap: shown.length, foreign: shown.filter((p) => p.isForeign).length,
+  };
 
   return (
     <div className="min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
@@ -61,10 +77,12 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       </header>
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
-          <ReadyScreen roster={ready} opponent={opp} onMove={onMove} onOrder={onOrder} onReplace={setReady}
+          <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp}
+            sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum }} synergies={stats.t.synergies} teamInfo={teamInfo}
+            onCommit={commit}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : block ? `조건 불충족 · ${block}` : null}
             cards={CARD_ITEMS.map((it) => ({ id: it.id, name: it.name, effect: `${TEAM_BOOST_KO[it.teamBoost]} ${STAT_KO[it.stat]} +${it.amount}`, n: cardCount(team, it.id) }))}
-            onStart={(plan, card) => onStart(ready, init.rest, plan, card)} onRestart={onBack} startLabel={startLabel} restartLabel={backLabel} />
+            onStart={(plan, card) => onStart(ready, [], plan, card)} startLabel={startLabel} />
         </div>
       </main>
     </div>

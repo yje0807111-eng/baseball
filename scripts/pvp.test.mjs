@@ -9,10 +9,10 @@ import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
 import { makeSeason, myOpponent, play, meOf, GAMES, TIER_POWER, autoScore } from '../src/myteam/ranked.js';
 import { createGame, pitch, playOut } from '../src/engine/pitchSim.js';
 import { engineTeam } from '../src/BroadcastGame.jsx';
-import { autoSlots } from '../src/myteam/prep.js';
+import { squadOrder } from '../src/myteam/SquadBoard.jsx';
 
 const squad = starterSquad('대전 시험');
-const team = { name: '시험 팀', squad, staff: {}, cap: SQUAD_CAP, prep: { slots: autoSlots(squad), order: [] } };
+const team = { name: '시험 팀', squad, staff: {}, cap: SQUAD_CAP, order: squadOrder(squad, [], {}) };
 const aiTeam = () => seriesTeam(AI_SERIES[3], seeded(7));
 
 describe('시드', () => {

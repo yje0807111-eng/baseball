@@ -5081,7 +5081,7 @@ const lineupOf = (roster) => withSlots(roster).map((p, i) => ({ p, i })).filter(
   .sort((a, b) => (a.p.batOrder ?? 99 + a.i) - (b.p.batOrder ?? 99 + b.i)).map(({ p }) => p);
 
 /** 정비 화면 지표: 경기 계산(buildTeam)과 같은 값 + 합계 · 타순 가중 */
-function readyStats(roster, buff) {
+export function readyStats(roster, buff) {
   const t = buildTeam('나의 드림팀', roster, buff);
   const b = t.batters;
   const w = b.map((_, i) => RD_ORDER_W[i] ?? 0.9);

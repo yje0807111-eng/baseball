@@ -35,7 +35,9 @@ export function snapshotOf(team = {}) {
     ...(team.extraForeign ? { extraForeign: team.extraForeign } : {}),
     players: squad.map((p) => ({ id: p.id, ...(p.trained?.length ? { trained: p.trained.map(({ stat, amount }) => ({ stat, amount })) } : {}) })),
     staff,
-    ...(team.prep ? { prep: team.prep } : {}),
+    // 라커 배치 한 벌(타순 · 로테이션 · 불펜) · 벤치 — 받는 쪽이 같은 배치로 경기 명단을 만든다
+    ...(team.order ? { order: team.order } : {}),
+    ...(team.bench?.length ? { bench: team.bench } : {}),
     ...(team.plan ? { plan: team.plan } : {}),
     ovr: teamRating(squad),
   };
@@ -71,13 +73,13 @@ export function reviveTeam(snap) {
   const team = {
     name: String(snap.name || '감독 팀').slice(0, 24), squad, staff, cap,
     extraSlots: snap.extraSlots || 0, extraForeign: snap.extraForeign || 0,
-    ...(snap.prep ? { prep: snap.prep } : {}), ...(snap.plan ? { plan: snap.plan } : {}),
+    ...(snap.order ? { order: snap.order } : {}), ...(Array.isArray(snap.bench) ? { bench: snap.bench } : {}), ...(snap.plan ? { plan: snap.plan } : {}),
   };
   if (squadIssues(squad, staff, cap, limitsOf(team)).length) return null;
   return team;
 }
 
-/** 사진 → 경기 팀. 정비 배치 · 시너지까지 올린 사람이 본 그대로, 컨디션은 보통(경기 때 AI 상대처럼 따로 얹는다) */
+/** 사진 → 경기 팀. 라커 배치 · 시너지까지 올린 사람이 짠 그대로, 컨디션은 보통(경기 때 AI 상대처럼 따로 얹는다) */
 export function ghostMatchTeam(snap) {
   const team = reviveTeam(snap);
   if (!team) return null;
