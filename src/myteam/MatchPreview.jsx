@@ -75,7 +75,7 @@ function Hex({ rows, r = 64, pad = 22 }) {
       <polygon points={poly('b')} fill={`${OPP}3a`} stroke={OPP} strokeWidth="2.4" />
       <polygon points={poly('a')} fill={`${ME}3a`} stroke={ME} strokeWidth="2.4" />
       {rows.map((x, i) => { const [lx, ly] = at(i, r + pad * 0.62);
-        return <text key={x.k} x={lx.toFixed(0)} y={(ly + 4).toFixed(0)} textAnchor="middle" fontSize="11" fontWeight="700" fill="#cbd5e1">{x.k}</text>; })}
+        return <text key={x.k} x={lx.toFixed(0)} y={(ly + 4).toFixed(0)} textAnchor="middle" fontSize="12" fontWeight="700" fill="#cbd5e1">{x.k}</text>; })}
     </svg>
   );
 }

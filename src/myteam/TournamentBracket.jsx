@@ -15,8 +15,8 @@ const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
 
 const A = '#fbbf24';
 const GEO = {
-  16: { ROW: 44, SLOT_W: 250, SLOT_H: 30, COL: 300, font: 15 },
-  32: { ROW: 23.4, SLOT_W: 204, SLOT_H: 20, COL: 236, font: 12.5 },
+  16: { ROW: 44, SLOT_W: 250, SLOT_H: 30, COL: 300, font: 14 },
+  32: { ROW: 23.4, SLOT_W: 204, SLOT_H: 20, COL: 236, font: 12 },
   64: { ROW: 23.4, SLOT_W: 176, SLOT_H: 20, COL: 200, font: 12 },
 };
 const TOP = 18, LEFT = 22;
