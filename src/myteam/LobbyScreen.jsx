@@ -8,6 +8,16 @@ import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, WEEK_BONUS, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
+import { useGrow } from '../ui/motion.jsx';
+
+/* 로비 첫 등장(앱을 연 뒤 한 번) — 왼쪽 판 → 가운데 → 오른쪽 칸들이 차례로 올라온다. 다시 돌아올 때는 화면 이동 모션만 */
+let lobbyIntroDone = false;
+
+/** 차오르는 막대 — 지난번 본 값에서 새 값으로(0.7초) */
+function GrowBar({ k, pct, className = '', style }) {
+  const w = useGrow(k, pct);
+  return <i className={className} style={{ ...style, width: `${w}%`, transition: 'width .7s var(--fx-out)' }} />;
+}
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
 /* 리그 평균은 미리 세어 둔 값을 읽는다 — 로비를 열자고 시즌 로스터 412개를 받지 않도록.
@@ -94,7 +104,7 @@ function WeekCard({ account, onOpen }) {
             <span className="min-w-0 flex-1 truncate" style={{ color: claimed ? '#6b7280' : '#e5e7eb' }}>{m.ko}</span>
             <b className="shrink-0 font-display text-t3" style={{ color: claimed ? '#6b7280' : done ? A : '#9ca3af' }}>{claimed ? '✓' : done ? '받기' : `${n}/${m.goal}`}</b>
           </span>
-          <span className="relative mt-1.5 block h-1 overflow-hidden rounded-full bg-white/[0.08]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${(n / m.goal) * 100}%`, background: claimed ? '#4b5563' : A }} /></span>
+          <span className="relative mt-1.5 block h-1 overflow-hidden rounded-full bg-white/[0.08]"><GrowBar k={`week:${m.id}`} pct={(n / m.goal) * 100} className="absolute inset-y-0 left-0 rounded-full" style={{ background: claimed ? '#4b5563' : A }} /></span>
         </div>
       ))}
     </button>
@@ -197,7 +207,7 @@ function AcePanel({ account, team, onLocker }) {
             <b className="ml-auto font-display text-t2" style={{ color: r.tier.c }}>{rp.toLocaleString()}</b>
             {r.next && <small className="font-display text-t4 text-gray-400">/ {r.next.min.toLocaleString()} RP</small>}
           </div>
-          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><i className="block h-full rounded-full" style={{ width: `${Math.max(2, tierPct)}%`, background: `linear-gradient(90deg, ${r.tier.c}66, ${r.tier.c})`, boxShadow: `0 0 10px ${r.tier.c}` }} /></span>
+          <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.08]"><GrowBar k="rank" pct={Math.max(2, tierPct)} className="block h-full rounded-full" style={{ background: `linear-gradient(90deg, ${r.tier.c}66, ${r.tier.c})`, boxShadow: `0 0 10px ${r.tier.c}` }} /></span>
           {r.next && <small className="mt-1.5 block text-t4 text-gray-400">{r.next.ko}까지 <b className="font-display text-t3 text-white">{(r.next.min - rp).toLocaleString()}</b> RP</small>}
         </div>
       </div>
@@ -248,6 +258,8 @@ function RefundNotice({ refund, onClose }) {
 
 export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugments, onRecord, onWeek, onSignOut, onNotice }) {
   const team = account.team;
+  const [intro] = useState(() => !lobbyIntroDone);
+  useEffect(() => { lobbyIntroDone = true; }, []);
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
@@ -255,7 +267,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
       <GlassBg tint="#6366f1" />
       <TopBar section="메인" account={account} onSignOut={onSignOut} />
 
-      <div className="relative grid min-h-0 flex-1 gap-4 px-7 pb-6 pt-1"
+      <div className={`relative grid min-h-0 flex-1 gap-4 px-7 pb-6 pt-1 ${intro ? 'lb-intro' : ''}`}
         style={{ gridTemplateColumns: '380px minmax(0,1fr) 360px', gridTemplateRows: 'minmax(0,1fr)' }}>
         <AcePanel account={account} team={team} onLocker={onLocker} />
 

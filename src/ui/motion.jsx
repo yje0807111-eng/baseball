@@ -169,5 +169,22 @@ export function useExitGhost(ref) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
+/**
+ * 차오르는 막대 값 — 마지막으로 보여 준 값(같은 key)에서 새 값으로. 처음이면 0 에서.
+ * 경기를 마치고 로비로 돌아오면 주간 과제 · 랭크 막대가 '얼마나 늘었는지' 보이게(화면이 새로 열려도 기억).
+ * 막대 쪽에 transition(width) 을 걸어 쓴다.
+ */
+const grown = new Map();
+export function useGrow(key, value) {
+  const [v, setV] = useState(() => (reducedMotion() ? value : grown.get(key) ?? 0));
+  useEffect(() => {
+    grown.set(key, value);
+    if (v === value) return undefined;
+    const t = setTimeout(() => setV(value), 180);
+    return () => clearTimeout(t);
+  }, [key, value]); // eslint-disable-line react-hooks/exhaustive-deps
+  return v;
+}
+
 /** 차례로 올라오기 — 목록 · 카드 줄이 처음 뜰 때만. i 번째는 45ms 씩 늦게 */
 export const rise = (i = 0) => ({ className: 'fx-rise', style: { '--i': i } });
