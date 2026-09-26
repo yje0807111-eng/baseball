@@ -615,7 +615,7 @@ function PresetBar({ team, squad, onSave, onLoad }) {
   );
 }
 
-export default function LockerScreen({ account, onSave, onBack, onShop, onDraft = null }) {
+export default function LockerScreen({ account, onSave, onBack, onShop, onDraft = null, initialTab = null }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
@@ -625,7 +625,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
   const today = useMemo(() => dayIndex(), []);
   const priceFor = (p) => deals.get(p.id) ?? marketPriceOf(p, today); // 특가가 아니면 오늘 시세
   const [outId, setOutId] = useState(null); // 교체 영입에서 내보낼 선수 (없으면 첫 후보)
-  const [tab, setTab] = useState('scout');
+  const [tab, setTab] = useState(initialTab || 'scout'); // 상점에서 오면 산 것을 쓰는 탭으로
   const [q, setQ] = useState('');
   const [year, setYear] = useState('');
   const [club, setClub] = useState('');

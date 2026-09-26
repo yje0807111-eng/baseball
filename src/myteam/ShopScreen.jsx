@@ -77,7 +77,7 @@ function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
   );
 }
 
-export default function ShopScreen({ account, onChange, onBack }) {
+export default function ShopScreen({ account, onChange, onBack, onLocker = null }) {
   const [gold, setGold] = useState(Number.isFinite(account.gold) ? account.gold : 0);
   const [team, setTeam] = useState(account.team);
   const [cat, setCat] = useState('all');
@@ -256,7 +256,17 @@ export default function ShopScreen({ account, onChange, onBack }) {
                 <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
                 <span>남는 골드 <b className="font-display text-t3" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
-              <div>
+              {/* 구매 옆 내 라커 — 고른 상품을 쓰는 탭으로 바로(훈련 · 부스트 → 아이템, 코치 강화권 → 감독·코치). 가진 게 있으면 '쓰기' */}
+              <div className={`grid gap-2 ${onLocker ? 'grid-cols-[9.5rem_minmax(0,1fr)]' : ''}`}>
+                {onLocker && (() => {
+                  const tab = isStorable(picked) ? 'items' : picked.staffTicket ? 'staff' : null;
+                  const have = tab === 'items' ? owned(picked) > 0 : tab === 'staff' ? (team.staffTickets || 0) > 0 : false;
+                  return (
+                    <Btn lg style={cut(12)} onClick={() => onLocker(tab)}>
+                      <span className="flex flex-col items-center leading-tight">{have ? '라커에서 쓰기' : '내 라커'} ›<small className="text-t4 opacity-75">{tab === 'items' ? '아이템' : tab === 'staff' ? '감독·코치' : '영입 · 선수'}</small></span>
+                    </Btn>
+                  );
+                })()}
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
                   {soldOut ? '더 살 수 없음' : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
