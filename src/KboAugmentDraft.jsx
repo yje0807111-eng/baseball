@@ -21,6 +21,7 @@ import GauntletScreen from './draft/GauntletScreen.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
+import MatchResult from './play/MatchResult.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -4035,124 +4036,7 @@ function WinCurve({ flow, tone, h = 96 }) {
 }
 
 /** 감독이 한 일 — 승률 곡선 · 내 지시의 몫 · 가장 크게 움직인 지시 */
-function ManagerBlock({ flow, calls, gain, tone }) {
-  const pct = Math.round(gain * 100);
-  const top3 = calls.slice(0, 3);
-  return (
-    <div className="grid gap-4 border-b border-white/10 pb-4 lg:col-span-3 lg:grid-cols-[minmax(0,1fr)_17rem]">
-      <div className="min-w-0">
-        <p className="ui-lab font-display mb-1.5" style={{ '--a': tone }}>승부 흐름</p>
-        <WinCurve flow={flow} tone={tone} />
-        <p className="mt-1 flex justify-between font-display text-t4 text-gray-400"><span>플레이볼</span><span>경기 끝</span></p>
-      </div>
-      <div className="flex min-w-0 flex-col gap-2">
-        <div className="ui-cut flex items-baseline gap-3 bg-white/[0.045] px-4 py-2.5" style={{ '--c': '10px' }}>
-          <span className="text-t4 text-gray-400">내 지시</span>
-          <b className="font-display text-4xl font-extrabold leading-none" style={{ color: pct > 0 ? '#34d399' : pct < 0 ? '#f87171' : '#9ca3af' }}>
-            {pct > 0 ? '+' : ''}{pct}<small className="ml-0.5 text-t3 text-gray-400">%p</small>
-          </b>
-          <span className="ml-auto font-display text-t3 text-gray-400">{calls.length}번</span>
-        </div>
-        {top3.length ? top3.map((c, i) => (
-          <div key={i} className="ui-cut grid grid-cols-[3.2rem_minmax(0,1fr)_2.8rem] items-center gap-2 bg-white/[0.035] px-3 py-1.5" style={{ '--c': '7px' }}>
-            <span className="font-display text-t4 font-bold text-gray-400">{c.inning}회{c.top ? '초' : '말'}</span>
-            <span className="truncate text-t4 text-gray-100">{c.ko}</span>
-            <b className="text-right font-display text-t3 font-extrabold" style={{ color: c.delta > 0 ? '#34d399' : '#f87171' }}>
-              {c.delta > 0 ? '+' : ''}{Math.round(c.delta * 100)}
-            </b>
-          </div>
-        )) : <p className="px-1 text-t4 text-gray-400">지시 없이 끝난 경기</p>}
-      </div>
-    </div>
-  );
-}
 
-/** 선수 평점 — 경기 기여 점수를 등급으로 */
-const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
-
-function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, onLog = null, myName = '내 팀', oppName = '상대', gauntlet = null }) {
-  const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
-  const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
-  const moments = logs.filter((l) => l.kind === 'augment' || (l.kind === 'score' && l.runs >= 2)).slice(-3);
-  const lines = mvp.type === 'pitcher'
-    ? [['무실점 이닝', stat.zero], ['증강 발동', stat.fires], ['종합', mvp.overall]]
-    : [['득점 이닝', stat.runs], ['증강 발동', stat.fires], ['종합', mvp.overall]];
-  return (
-    <section className="ui-cut ui-frame ui-glass2 grid gap-4 p-5 animate-[rise_.35s_ease-out_both] lg:grid-cols-[16rem_minmax(0,1fr)_19rem]" style={{ '--c': '26px', '--a': tone }}>
-      <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
-        <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? '승리' : winner === 'opp' ? '패배' : '무승부'}</p>
-        <div>
-          <p className="mb-1 text-t4 text-gray-400">{myName} vs {oppName}</p>
-          <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-500">:</span>{score.opp}</p>
-        </div>
-        <div className="ml-auto text-right">
-          <p className="text-t4 font-bold text-gray-400">시즌 전적</p>
-          <p className="font-display text-4xl font-extrabold leading-none tabular-nums text-white">{record.w}승 {record.l}패{record.d ? ` ${record.d}무` : ''}</p>
-        </div>
-      </div>
-      {result.flow && <ManagerBlock flow={result.flow} calls={result.calls || []} gain={result.gain || 0} tone={tone} />}
-      <div className="relative">
-        <span className="ui-cut absolute -left-2 top-4 z-20 bg-amber-400 px-4 py-1 font-display text-t2 font-extrabold tracking-[0.24em] text-[#05080f]" style={{ '--c': '8px' }}>MVP</span>
-        <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
-      </div>
-      <div className="flex min-w-0 flex-col gap-3">
-        <p className="ui-lab font-display">MVP · {mvp.name}</p>
-        <dl className="ui-cut grid grid-cols-3 bg-white/[0.045]" style={{ '--c': '10px' }}>
-          {lines.map(([k, v], i) => (
-            <div key={k} className={`px-4 py-2.5 ${i ? 'border-l border-white/10' : ''}`}>
-              <dt className="text-t4 text-gray-400">{k}</dt>
-              <dd className="font-display text-t1 font-bold tabular-nums" style={{ color: neonOf(mvp) }}>{v}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="ui-lab font-display mt-2">결정적 순간</p>
-        {moments.length ? moments.map((l) => {
-          const c = l.kind === 'augment' ? TIER_NEON[l.tier] : '#10b981';
-          return (
-            <div key={l.id} className="ui-cut grid grid-cols-[3.5rem_1fr] items-center gap-3 bg-white/[0.045] px-3 py-2" style={{ '--c': '8px', boxShadow: `inset 3px 0 0 ${c}` }}>
-              <span className="font-display text-t3 font-bold" style={{ color: c }}>{l.inning}회{l.isTop ? '초' : '말'}</span>
-              <span className="text-t3 text-gray-100">{l.text}</span>
-            </div>
-          );
-        }) : <p className="text-t3 text-gray-400">큰 장면 없이 끝난 경기</p>}
-      </div>
-      <div className="flex flex-col gap-1">
-        <p className="ui-lab font-display">선수 평점</p>
-        {credits.slice(0, 7).map((c) => (
-          <div key={c.player.id} className="grid grid-cols-[2rem_minmax(0,1fr)_2.75rem] items-center gap-2.5 py-1">
-            <Portrait player={c.player} className="h-10 w-8" />
-            <span className="min-w-0">
-              <b className="block truncate text-t3 text-white">{c.player.name}</b>
-              <small className="block truncate text-t4 text-gray-400">{c.player.slot || c.player.position} · {c.player.year} {c.player.team}</small>
-            </span>
-            <span className="text-center font-display text-t1 font-extrabold" style={{ color: neonOf(c.player) }}>{gradeOf(c.pts)}</span>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-3">
-        {onLog && <button type="button" className="ui-btn ui-cut mr-auto" onClick={onLog}>라인 스코어 · 문자 중계</button>}
-        <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
-        {gauntlet ? (
-          <>
-            <span className="font-display text-t3 text-gray-400">{gauntlet.label}</span>
-            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>{gauntlet.cta} ▶</button>
-          </>
-        ) : (
-          <>
-            <button type="button" className="ui-btn ui-cut" onClick={onNewOpp}>새 AI 상대와 경기</button>
-            <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>같은 상대와 재경기 ▶</button>
-          </>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   메인 컴포넌트 — 상태 관리 · 드래프트 핸들러 · 시뮬레이션 연결
-   ════════════════════════════════════════════════════════════════════ */
-
-/* ───── 첫 화면: 드래프트 모드 선택 (모드 탭 · 모드 안 시리즈 미리보기 · 경기 설정) ───── */
 /** 모드에서 열리는 시리즈를 대표 선수 카드로. 레전드 모드는 시리즈가 하나라 대표 선수들을, 최근 시즌은 준비 중인 시즌까지 */
 function ticketsOf(mode) {
   // 레전드가 한 묶음뿐일 때는 대표 선수로 티켓을 만든다 (구단별 레전드 시리즈가 생기면 시리즈 티켓)
@@ -5984,13 +5868,23 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
           {(phase === 'sim' || phase === 'result') && (
             <>
               {result && (
-                <ResultPanel result={result} record={record} logs={logs}
-                  gauntlet={gaunt ? {
-                    label: gaunt.done ? '구단 정복 완료' : `${Gaunt.myPos(gaunt)} / ${gaunt.tower.length - 1} 구단 · 다음 ${Gaunt.currentRung(gaunt).name}`,
-                    cta: gaunt.done ? '구단 정복' : result.winner === 'my' ? '다음 구단' : '다시 도전',
-                  } : null}
-                  myName={myClub} oppName={oppLabel} onLog={() => setLogOpen(true)}
-                  onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
+                <MatchResult result={result} myName={myClub} oppName={oppLabel} onLog={() => setLogOpen(true)}
+                  context={`드래프트 · ${mode.name}`}
+                  tally={gaunt ? [
+                    { k: '구단 정복', v: gaunt.done ? '완료' : `${Gaunt.myPos(gaunt)} / ${gaunt.tower.length - 1} 구단`, c: '#f5d27a' },
+                    ...(!gaunt.done && Gaunt.currentRung(gaunt) ? [{ k: '다음 상대', v: Gaunt.currentRung(gaunt).short || Gaunt.currentRung(gaunt).name }] : []),
+                    { k: '이 판 전적', v: `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''}` },
+                  ] : [
+                    { k: '이 판 전적', v: `${record.w}승 ${record.l}패${record.d ? ` ${record.d}무` : ''}` },
+                  ]}
+                  actions={gaunt ? [
+                    { label: '새 드래프트', onClick: newDraft },
+                    { label: `${gaunt.done ? '구단 정복' : result.winner === 'my' ? '다음 구단' : '다시 도전'} ▶`, onClick: () => prepareMatch(true), pri: true },
+                  ] : [
+                    { label: '새 드래프트', onClick: newDraft },
+                    { label: '새 상대와 경기', onClick: () => prepareMatch(false) },
+                    { label: '같은 상대와 재경기 ▶', onClick: () => prepareMatch(true), pri: true },
+                  ]} />
               )}
 
               {/* 라인 스코어 · 문자 중계 — 결과 판 아래로 길게 늘이지 않고(한 화면) 창으로 */}
