@@ -5,7 +5,7 @@
  * 비밀번호 찾기 = 복구 이메일(선택 등록) + 서버 함수 recover 가 보내는 6자리 인증번호.
  */
 import { client } from './supabase.js';
-import { readSave, replaceSave, signIn as startLocal } from '../myteam/store.js';
+import { readSave, replaceSave, signIn as startLocal, saveProfile } from '../myteam/store.js';
 import { pull, push, setSync, syncState, stopSync } from './sync.js';
 
 export const ID_RE = /^[a-z0-9_]{4,16}$/;
@@ -89,7 +89,7 @@ function freshStart(uid, nick) {
 }
 
 /** 가입 — 겹침 확인 → 계정 만들기(감독 줄은 서버 트리거가 만든다) → 저장 시작. 돌려주는 값 = uid */
-export async function signUp({ id, pw, nick, email = '', adopt = false }) {
+export async function signUp({ id, pw, nick, club = '', email = '', adopt = false }) {
   const bad = checkId(id) || checkPw(pw) || checkNick(nick) || checkEmail(email);
   if (bad) throw new Error(bad);
   const sb = await client();
@@ -111,6 +111,7 @@ export async function signUp({ id, pw, nick, email = '', adopt = false }) {
   } else {
     freshStart(uid, nk);
   }
+  saveProfile({ nick: nk, teamName: club.trim() || undefined }); // 구단 이름(비우면 감독 이름)
   await push().catch(() => {}); // 못 올려도 동기화가 다시 시도한다
   if (email.trim()) await setRecoveryEmail(email).catch(() => {}); // 못 넣으면 프로필에서 다시
   return uid;

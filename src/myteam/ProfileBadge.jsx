@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
-import { loadAccount, saveProfile } from './store.js';
+import { loadAccount, saveProfile, TEAM_NAME_MAX } from './store.js';
 import { BANNERS, flagByKey } from './teamArt.js';
 import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
@@ -28,6 +28,7 @@ function SlotPreview({ name, banner }) {
 function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved, onSignOut }) {
   const [nick, setNick] = useState(nick0 || '');
   const [banner, setBanner] = useState(banner0 ?? null);
+  const [club, setClub] = useState(teamName || '');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [mail0, setMail0] = useState(null); // 서버에 있는 복구 이메일(불러오기 전 null)
@@ -36,7 +37,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     if (!online) return;
     myRecoveryEmail().then((m) => { setMail0(m || ''); setMail(m || ''); }).catch(() => setMail0(''));
   }, []);
-  const valid = nick.trim().length >= (online ? NICK_MIN : 1);
+  const valid = nick.trim().length >= (online ? NICK_MIN : 1) && club.trim().length >= 1;
   const save = async () => {
     if (!valid || busy) return;
     const nk = nick.trim();
@@ -50,7 +51,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
       setBusy(true);
       try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setBusy(false); return; }
     }
-    saveProfile({ nick: nk, banner });
+    saveProfile({ nick: nk, banner, teamName: club.trim() !== teamName ? club.trim() : undefined });
     onSaved();
     onClose();
   };
@@ -63,14 +64,24 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
           <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-t2 text-gray-400 hover:text-white" aria-label="닫기">×</button>
         </div>
 
-        <label className="flex flex-col gap-2">
-          <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">이름</span>
-          <span className="flex items-center gap-3">
-            <input value={nick} maxLength={NICK_MAX} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
-              className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-            <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
-          </span>
-        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <label className="flex flex-col gap-2">
+            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">감독 이름</span>
+            <span className="flex items-center gap-3">
+              <input value={nick} maxLength={NICK_MAX} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
+                className="mt-cut h-12 min-w-0 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
+              <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
+            </span>
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">구단 이름</span>
+            <span className="flex items-center gap-3">
+              <input value={club} maxLength={TEAM_NAME_MAX} onChange={(e) => { setClub(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
+                className="mt-cut h-12 min-w-0 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
+              <span className="font-display text-t3 text-gray-400">{club.length}/{TEAM_NAME_MAX}</span>
+            </span>
+          </label>
+        </div>
 
         {online && (
           <label className="flex flex-col gap-2">
@@ -84,7 +95,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
 
         <div className="flex flex-col gap-2">
           <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">배너</span>
-          <SlotPreview name={teamName} banner={banner} />
+          <SlotPreview name={club.trim() || teamName} banner={banner} />
           <div className="mt-1 grid grid-cols-4 gap-2">
             {[{ key: null, label: '없음' }, ...BANNERS].map((b) => {
               const on = banner === b.key;
@@ -145,7 +156,7 @@ export default function ProfileBadge({ account, onSignOut }) {
         </span>
       </button>
       {open && (
-        <ProfileModal nick={nick} banner={banner} teamName={live?.team?.name || '나의 드림팀'}
+        <ProfileModal nick={nick} banner={banner} teamName={live?.team?.name || live?.nick || ''}
           onClose={() => setOpen(false)} onSaved={() => bump((n) => n + 1)} onSignOut={onSignOut} />
       )}
     </>

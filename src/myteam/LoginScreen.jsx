@@ -4,7 +4,7 @@
  * 가입할 때 이 브라우저에 옛 저장(감독 이름만으로 만든 것)이 있으면 그 기록으로 시작할 수 있다.
  */
 import React, { useState } from 'react';
-import { signIn, peekAccount } from './store.js';
+import { signIn, peekAccount, TEAM_NAME_MAX } from './store.js';
 import { SQUAD_CAP } from './rules.js';
 import { UiStyle, Btn, Chip } from './ui.jsx';
 import { online } from '../net/supabase.js';
@@ -94,6 +94,7 @@ function AccountPanel({ onDone }) {
   const [pw2, setPw2] = useState('');
   const [nick, setNick] = useState(legacy?.nick?.slice(0, NICK_MAX) || '');
   const [email, setEmail] = useState('');
+  const [club, setClub] = useState(legacy?.team && legacy.team !== '나의 드림팀' ? legacy.team.slice(0, TEAM_NAME_MAX) : '');
   const [adopt, setAdopt] = useState(!!legacy);
   const [err, setErr] = useState('');
   const [note, setNote] = useState('');
@@ -110,7 +111,7 @@ function AccountPanel({ onDone }) {
     setBusy(true);
     setErr('');
     try {
-      const uid = join ? await signUp({ id, pw, nick, email, adopt: adopt && !!legacy }) : await logIn({ id, pw });
+      const uid = join ? await signUp({ id, pw, nick, club, email, adopt: adopt && !!legacy }) : await logIn({ id, pw });
       onDone(uid);
     } catch (x) {
       setErr(x.message || '다시 시도');
@@ -129,16 +130,19 @@ function AccountPanel({ onDone }) {
       </div>
       {tab === 'find' ? <FindForm id={id} setId={setId} onBack={(msg) => pick('login', msg)} /> : (
         <form className="flex flex-col gap-3 px-7 py-6" onSubmit={submit} onChange={() => { setErr(''); setNote(''); }}>
-          <Field label="아이디" value={id} onChange={(e) => setId(e.target.value.toLowerCase())} maxLength={16}
-            autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="영문 · 숫자 · _ 4~16자" />
           {join ? (
             <>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="아이디" value={id} onChange={(e) => setId(e.target.value.toLowerCase())} maxLength={16}
+                  autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="영문 · 숫자 · _ 4~16자" />
+                <Field label="감독 이름" value={nick} onChange={(e) => setNick(e.target.value)} maxLength={NICK_MAX} placeholder={`2~${NICK_MAX}자`} />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="비밀번호" type="password" value={pw} onChange={(e) => setPw(e.target.value)} maxLength={72} autoComplete="new-password" placeholder={`${PW_MIN}자 이상`} />
                 <Field label="비밀번호 확인" type="password" value={pw2} onChange={(e) => setPw2(e.target.value)} maxLength={72} autoComplete="new-password" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="감독 이름" value={nick} onChange={(e) => setNick(e.target.value)} maxLength={NICK_MAX} placeholder={`2~${NICK_MAX}자`} />
+                <Field label="구단 이름 · 선택" value={club} onChange={(e) => setClub(e.target.value)} maxLength={TEAM_NAME_MAX} placeholder="비우면 감독 이름" />
                 <Field label="복구 이메일 · 선택" type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={254} autoComplete="email" placeholder="비밀번호 찾기용" />
               </div>
               {legacy && (
@@ -153,7 +157,11 @@ function AccountPanel({ onDone }) {
               )}
             </>
           ) : (
-            <Field label="비밀번호" type="password" value={pw} onChange={(e) => setPw(e.target.value)} maxLength={72} autoComplete="current-password" />
+            <>
+              <Field label="아이디" value={id} onChange={(e) => setId(e.target.value.toLowerCase())} maxLength={16}
+                autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="영문 · 숫자 · _ 4~16자" />
+              <Field label="비밀번호" type="password" value={pw} onChange={(e) => setPw(e.target.value)} maxLength={72} autoComplete="current-password" />
+            </>
           )}
           <div className="mt-1 flex items-center gap-4">
             <Btn pri type="submit" disabled={busy} style={{ '--c': '10px', padding: '0 34px', minHeight: 50 }}>

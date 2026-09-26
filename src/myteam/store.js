@@ -190,14 +190,15 @@ export function withShopCleanup(a) {
   return next;
 }
 
-/* 구단 이름 — 따로 짓기 전에는 감독 이름으로. 옛 기본값 '나의 드림팀' 은 읽을 때 바꿔 준다 */
+/* 구단 이름 — 프로필 · 가입에서 따로 짓는다. 짓기 전에는 감독 이름 그대로. 옛 기본값 '나의 드림팀' · '○○ 드림팀' 은 읽을 때 바꿔 준다 */
 const OLD_TEAM_NAME = '나의 드림팀';
-export const autoTeamName = (nick) => `${String(nick || '감독').trim()} 드림팀`;
-const isAutoName = (name, nick) => !name || name === OLD_TEAM_NAME || name === autoTeamName(nick);
+export const TEAM_NAME_MAX = 12;
+export const autoTeamName = (nick) => String(nick || '감독').trim();
+const isAutoName = (name, nick) => !name || name === OLD_TEAM_NAME || name === autoTeamName(nick) || name === `${autoTeamName(nick)} 드림팀`;
 /** 저장된 시즌 · 대진표에 박힌 옛 이름도 함께 — 내 칸은 내 구단 이름, 다른 감독 칸은 그 감독 이름으로 */
 const renameEntries = (list = [], mine) => list.map((t) => {
   if (t?.me && t.name !== mine) return { ...t, name: mine };
-  if (t?.ghost && t.name === OLD_TEAM_NAME) return { ...t, name: autoTeamName(t.owner) };
+  if (t?.ghost && (t.name === OLD_TEAM_NAME || t.name === `${t.owner} 드림팀`)) return { ...t, name: autoTeamName(t.owner) };
   return t;
 });
 function withNames(a) {
@@ -562,12 +563,15 @@ export function claimRanked() {
  * 프로필: 이름(nick) · 대진표 내 팀 칸 배너(profile.banner = 깃발 key, 없으면 null).
  * 이름을 바꾸면 다음 로그인도 새 이름으로 한다 (계정은 이 기기에 하나)
  */
-export function saveProfile({ nick, banner }) {
+export function saveProfile({ nick, banner, teamName }) {
   const a = read();
   if (!a) return null;
   const nk = (nick ?? a.nick).trim() || a.nick;
-  // 구단 이름을 따로 짓지 않았으면 감독 이름을 따라간다
-  const team = a.team && isAutoName(a.team.name, a.nick) ? { ...a.team, name: autoTeamName(nk) } : a.team;
+  // 구단 이름: 새로 지었으면 그 이름, 따로 짓지 않았으면 감독 이름을 따라간다
+  const tn = String(teamName ?? '').trim().slice(0, TEAM_NAME_MAX);
+  const team = !a.team ? a.team
+    : tn ? { ...a.team, name: tn }
+      : isAutoName(a.team.name, a.nick) ? { ...a.team, name: autoTeamName(nk) } : a.team;
   const next = { ...a, nick: nk, team, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner } };
   write(next);
   return next;
