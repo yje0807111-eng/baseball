@@ -5403,7 +5403,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 경기 전 매치업 화면: 상대를 정해(재경기면 그대로) 두 팀을 비교한 뒤 경기 시작 */
   const prepareMatch = (rematch = false, g = gaunt) => {
     runIdRef.current += 1;
-    if (g && !g.done) { // 구단 정복: 탑으로 (지금 칠 단을 고르고 시작한다)
+    if (g) { // 구단 정복: 원정길로 (끝났으면 정복 완료 판 — 다른 상대와의 경기로 새지 않게)
       setChoice(null);
       setToast(null);
       setPhase('gauntlet');
