@@ -277,7 +277,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     );
   }
   if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
-  if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
+  if (view === 'locker') return screen(<LockerScreen account={account} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} onDraft={() => toModes('mix')} />);
   if (view === 'record') return screen(<RecordScreen account={account} initialMode={recordTab} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
   if (view === 'shop') return screen(<ShopScreen account={account} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
   if (view === 'bracket' && tournament) {
