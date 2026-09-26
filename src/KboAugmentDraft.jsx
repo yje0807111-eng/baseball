@@ -4,7 +4,7 @@ import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
 import { CLUB_MAX } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
-import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, asClubPlayer } from './draft/memento.js';
+import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNTLET_MID_MEMENTO, GAUNTLET_MID_AT, asClubPlayer } from './draft/memento.js';
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
@@ -4753,7 +4753,6 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
-  const [live, setLive] = useState(mode.group !== 'special'); // 특별 모드는 혼자 자유 영입, 그 밖은 여덟 구단이 같이 뽑는다
   const aug = SEASON_AUGMENTS; // 시즌 증강은 늘 있다
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32강
   useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -4835,14 +4834,15 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <p className="text-t3 leading-relaxed text-gray-300">{mode.desc}</p>
             {/* 어느 모드든 같은 줄 — 고를 수 없는 값은 줄을 빼지 않고 오른쪽에 그대로 적는다 */}
             <div>
-              <SettingRow label="드래프트 방식" options={[false, true]} labels={{ false: '혼자 뽑기', true: '같이 뽑기' }} value={live} onChange={setLive}
-                fixed={special ? '자유 영입' : null} />
+              {/* 베이직은 여덟 구단이 같이 뽑고 구단 정복으로, 특별은 혼자 자유 영입 뒤 단판 · 토너먼트 */}
+              <SettingRow label="드래프트 방식" fixed={special ? '자유 영입' : '같이 뽑기'} />
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
                 fixed={special ? '없음' : null} />
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
-              <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat} />
+              <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat}
+                fixed={special ? null : '구단 정복'} />
             </div>
-            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format, live: special ? false : live })}>
+            <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format: special ? format : 'single', live: !special })}>
               드래프트 시작 ▶
             </button>
           </aside>
@@ -5502,12 +5502,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const planRef = useRef(null); // 정비 전략실에서 고른 계획 — 경기의 첫 전술
   /* 드래프트 기념 카드 — 한 판에 한 번 (draft/memento.js) */
   const [memento, setMemento] = useState(null);
-  const mementoDone = useRef(false);
+  const mementoDone = useRef(new Set()); // 이 판에서 이미 준 기념 카드(이유별) — 구단 정복은 중간 · 완주 둘
   const openMemento = (rule) => {
-    if (!rule || mementoDone.current) return;
+    if (!rule || mementoDone.current.has(rule.why)) return;
     const me = loadAccount();
     if (!me) return;
-    mementoDone.current = true;
+    mementoDone.current.add(rule.why);
     const options = mementoOptions(roster, rule, (p) => ownsInAccount(asClubPlayer(p)));
     if (!options.length) return;
     setMemento({ ...rule, options, full: (me.team?.club || []).length >= CLUB_MAX });
@@ -5829,6 +5829,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       const ng = Gaunt.settle(gaunt, { win: res.winner === 'my', my: res.score?.my, opp: res.score?.opp });
       setGaunt(ng);
       if (ng.done) openMemento(GAUNTLET_MEMENTO); // 구단 정복 완료
+      else if (Gaunt.myPos(ng) >= GAUNTLET_MID_AT) openMemento(GAUNTLET_MID_MEMENTO); // 중간 보상 — 한 번만
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
       setResult(res);
       setLogs(res.logs);
@@ -5863,7 +5864,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const m = DRAFT_MODES.find((x) => x.id === id);
     runIdRef.current += 1;
     setModeId(id); setMatch(cfg);
-    mementoDone.current = false; setMemento(null);
+    mementoDone.current = new Set(); setMemento(null);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
     const me = loadAccount();
@@ -5877,6 +5878,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       myShort: me?.nick,
       myColor: flagByKey(banner)?.color || '#e879f9',
       myEmblem: Live.bannerEmblem(banner),
+      ai: cfg.ai,
     }) : null;
     setLive(liveNow); setClock(Live.PICK_SECONDS);
     const first = liveNow ? Live.currentSeries(liveNow) : rollSeries([], cfg.cap, null, [], m.series);
@@ -5983,7 +5985,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
           me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', color: live ? live.clubs[Live.myIndex(live)].color : null, emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
-          onBack={() => setPhase('ready')} onExit={newDraft}
+          onBack={() => setPhase('ready')} onExit={newDraft} oppBuff={AI_BUFF[match.ai] || 0}
           onPlay={() => setPhase('ready')} />
       )}
       {phase === 'bracket' && dtour && (

@@ -62,8 +62,15 @@ export const GRADES = {
   plain: { ko: '평범', reserve: 63, plan: 26, spread: 7 },
   weak:  { ko: '약체', reserve: 72, plan: 32, spread: 11 },  // 플랜만 고집하다 돈을 남긴다
 };
-/** 상대 일곱 구단에 돌릴 급 — 강호 하나 · 탄탄 둘 · 평범 둘 · 약체 둘 */
-const GRADE_ORDER = ['ace', 'solid', 'solid', 'plain', 'plain', 'weak', 'weak'];
+/**
+ * 상대 일곱 구단에 돌릴 급 — 드래프트 설정의 AI 난이도로 고른다.
+ *  쉬움: 탄탄 하나 · 평범 둘 · 약체 넷 / 보통: 강호 하나 · 탄탄 둘 · 평범 둘 · 약체 둘 / 강함: 강호 둘 · 탄탄 셋 · 평범 둘
+ */
+export const GRADE_ORDERS = {
+  easy: ['solid', 'plain', 'plain', 'weak', 'weak', 'weak', 'weak'],
+  normal: ['ace', 'solid', 'solid', 'plain', 'plain', 'weak', 'weak'],
+  hard: ['ace', 'ace', 'solid', 'solid', 'solid', 'plain', 'plain'],
+};
 export const gradeOf = (club) => GRADES[club?.grade] || GRADES.plain;
 
 /** 이 구단이 이번 차례에 노리는 자리 — 플랜에서 아직 못 채운 자리를 앞에서부터 찾는다 */
@@ -119,11 +126,12 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, rng = Math.random } = {}) {
+export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, ai = 'normal', rng = Math.random } = {}) {
+  const grades = GRADE_ORDERS[ai] || GRADE_ORDERS.normal;
   // 상대 구단은 실제 구단 중에서 판마다 새로 뽑는다 — 그해 선수가 모자라면 수를 줄인다
   const count = clubCount || clubsFor(series);
   const rivals = shuffle(CLUB_POOL, rng).slice(0, count - 1)
-    .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i], grade: GRADE_ORDER[i] }));
+    .map((b, i) => ({ name: b.label, short: b.label.split(' ')[0], key: b.key, color: b.color, emblem: emblemOf(b.key), trait: TRAIT_ORDER[i], grade: grades[i] }));
   const clubs = [
     // 내 구단의 짧은 이름은 내 닉네임 (카드에 들어가야 하므로 네 글자까지)
     { name: myName, short: (myShort || myName).slice(0, 4), trait: 'me', color: myColor, emblem: myEmblem, me: true },

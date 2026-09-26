@@ -171,3 +171,22 @@ test('캡을 다 쓰면 남은 라운드를 한 번에 넘긴다', async () => {
   const full = { ...s, clubs: s.clubs.map((c, i) => (i === me ? { ...c, roster: Array.from({ length: ROSTER_SIZE }, () => ({})) } : c)) };
   expect(cannotPickMore(full)).toBe(true);
 });
+
+test('AI 난이도 — 쉬움 · 보통 · 강함 순서로 상대 일곱 구단이 세진다(구단 정복 탑 평균 전력)', async () => {
+  const { makeGauntlet } = await import('../src/draft/gauntlet.js');
+  const mean = (ai) => {
+    let sum = 0, n = 0;
+    for (let k = 1; k <= 4; k++) {
+      const rng = seeded(100 + k);
+      let s = createLive({ rng, ai });
+      let guard = 0;
+      while (!isDone(s) && guard++ < CLUB_COUNT * ROSTER_SIZE + 10) s = pick(s, autoPick(s, currentClub(s), rng), { auto: true });
+      const g = makeGauntlet(s);
+      g.tower.filter((x) => !x.me).forEach((x) => { sum += x.str; n += 1; });
+    }
+    return sum / n;
+  };
+  const easy = mean('easy'), normal = mean('normal'), hard = mean('hard');
+  expect(easy).toBeLessThan(normal);
+  expect(normal).toBeLessThan(hard);
+});

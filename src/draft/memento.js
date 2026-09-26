@@ -20,6 +20,9 @@ export function tourneyMemento(place, rounds) {
 }
 export const SINGLE_MEMENTO = { n: 3, cut: MEMENTO_TOP_CUT, why: '첫 승리' };
 export const GAUNTLET_MEMENTO = { n: 5, cut: 0, why: '구단 정복' };
+/** 구단 정복 중간 보상 — 이만큼 넘으면 한 번(끝까지 못 가도 빈손이 아니게). 간판 선수는 빼고 3장 중 1장 */
+export const GAUNTLET_MID_AT = 4;
+export const GAUNTLET_MID_MEMENTO = { n: 3, cut: MEMENTO_TOP_CUT, why: `${GAUNTLET_MID_AT}구단 통과` };
 
 /** 기념 카드 후보 n장 — roster 는 드래프트 판의 내 선수들 */
 export function mementoOptions(roster = [], { n = 3, cut = 0 } = {}, owns = () => false, rng = Math.random) {

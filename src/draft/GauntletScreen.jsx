@@ -11,7 +11,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { FIELD_SLOTS, PITCH_SLOTS, fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
 import { GRADES, emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
-import { GAUNTLET_MEMENTO } from './memento.js';
+import { GAUNTLET_MEMENTO, GAUNTLET_MID_AT, GAUNTLET_MID_MEMENTO } from './memento.js';
 import { artId } from '../data/artAlias.js';
 
 const GOLD = '#f5d27a';
@@ -51,7 +51,7 @@ const Cup = ({ size = 30, lit = false }) => (
 );
 
 /** 원정길 한 칸 — 구단 하나(내 칸 포함) */
-function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick }) {
+function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick, mid = false }) {
   const size = now ? 84 : mine ? 76 : 64;
   const tag = mine ? ['나', r.color] : cleared ? ['통과', WIN] : now ? ['다음', GOLD] : null;
   const last = res.filter((x) => x.win).slice(-1)[0];
@@ -67,9 +67,9 @@ function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick }) {
         <b className="font-display text-t3 font-bold" style={{ color: now ? GOLD : '#93a0af' }}>{show('str', r.str)}</b>
         {tag && <b className="rounded px-1.5 text-t4 font-extrabold" style={{ color: tag[1], background: `${tag[1]}22`, boxShadow: `inset 0 0 0 1px ${tag[1]}66` }}>{tag[0]}</b>}
       </span>
-      {/* 통과한 칸은 이긴 점수, 지금 칸은 진 횟수 */}
-      <small className="h-4 font-display text-t4 text-[#7c8797]">
-        {cleared && last ? `${last.my ?? '-'}:${last.opp ?? '-'}` : now && losses ? `${losses}패 · 재도전` : ''}
+      {/* 통과한 칸은 이긴 점수, 지금 칸은 진 횟수, 중간 보상 칸은 보상 — 한 줄에 하나만(원정길 높이가 늘지 않게) */}
+      <small className="h-4 whitespace-nowrap font-display text-t4" style={{ color: !cleared && !(now && losses) && mid && !mine ? GOLD : '#7c8797' }}>
+        {cleared && last ? `${last.my ?? '-'}:${last.opp ?? '-'}` : now && losses ? `${losses}패 · 재도전` : mid && !mine ? `보상 · 카드 ${GAUNTLET_MID_MEMENTO.n}장 중 1장` : ''}
       </small>
       {sel && !mine && <i className="absolute -bottom-2 h-[3px] w-10 rounded-full" style={{ background: GOLD, boxShadow: `0 0 10px ${GOLD}` }} />}
     </button>
@@ -134,8 +134,11 @@ function Scout({ r, label }) {
 }
 
 /** 다음 상대와 수치 비교 — 가운데에서 양쪽으로 뻗는 막대, 큰 쪽만 밝게 */
-function Versus({ me, myEmb, cur, res, onPlay }) {
-  const d = Math.round((me.stats.str - cur.str) * 10) / 10;
+function Versus({ me, myEmb, cur: cur0, res, onPlay, buff = 0 }) {
+  /* AI 난이도 보정 — 경기에서 상대 타격 · 마운드에 더해지는 만큼 비교에도 */
+  const cur = buff ? { ...cur0, bat: cur0.bat + buff, pit: cur0.pit + buff } : cur0;
+  /* 판정은 막대 셋(타격 · 마운드 · 수비) 차이의 평균 — 보이는 막대와 같은 잣대 */
+  const d = Math.round(((me.stats.bat - cur.bat) + (me.stats.pit - cur.pit) + (me.stats.def - cur.def)) / 3 * 10) / 10;
   const verdict = d >= 1.5 ? ['우세', WIN] : d <= -1.5 ? ['열세', LOSE] : ['접전', GOLD];
   const losses = res.filter((x) => !x.win).length;
   return (
@@ -163,6 +166,7 @@ function Versus({ me, myEmb, cur, res, onPlay }) {
       <div className="flex justify-center gap-2">
         {cur.grade && <b className="rounded px-2 text-t4 font-bold" style={{ color: GRADE_COLOR[cur.grade], boxShadow: `inset 0 0 0 1px ${GRADE_COLOR[cur.grade]}88` }}>{GRADES[cur.grade]?.ko}</b>}
         {TRAIT_KO[cur.trait] && <b className="rounded px-2 text-t4 font-bold text-[#cbd5e1]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.2)' }}>{TRAIT_KO[cur.trait]}</b>}
+        {buff !== 0 && <b className="rounded px-2 text-t4 font-bold" style={{ color: buff > 0 ? LOSE : WIN, boxShadow: `inset 0 0 0 1px ${buff > 0 ? LOSE : WIN}88` }}>{buff > 0 ? '강함' : '쉬움'} 보정 {buff > 0 ? '+' : ''}{buff}</b>}
       </div>
       <div className="grid gap-2">
         {KEYS.map(([k, ko]) => {
@@ -202,7 +206,7 @@ function Versus({ me, myEmb, cur, res, onPlay }) {
   );
 }
 
-export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onBack }) {
+export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onBack, oppBuff = 0 }) {
   const cur = currentRung(gaunt);
   const rec = record(gaunt);
   const at = myPos(gaunt);
@@ -267,7 +271,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
             const r = shown(r0);
             return (
               <Stop key={r.club} r={r} i={i} mine={!!r.me} now={cur?.club === r.club} cleared={isCleared(gaunt, i)} sel={sel?.club === r.club}
-                res={resOf(r.club)} emblem={r.me ? myEmb : r.key ? emblemOf(r.key) : bannerEmblem(null)}
+                res={resOf(r.club)} emblem={r.me ? myEmb : r.key ? emblemOf(r.key) : bannerEmblem(null)} mid={i === GAUNTLET_MID_AT}
                 onPick={() => setSelClub(r.club === selClub ? null : r.club)} />
             );
           })}
@@ -289,7 +293,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
       <div className="relative grid min-h-0 flex-1 gap-5 px-12 pb-6 pt-2" style={{ gridTemplateColumns: 'minmax(0,1fr) 27.5rem', gridTemplateRows: 'minmax(0,1fr)' }}>
         {sel && <Scout r={shown(sel)} label={sel.me ? '내 구단' : sel.club === cur?.club ? '다음 상대 전력' : isCleared(gaunt, gaunt.tower.indexOf(sel)) ? '통과한 구단' : '남은 구단'} />}
         {cur ? (
-          <Versus me={me} myEmb={myEmb} cur={cur} res={resOf(cur.club)} onPlay={onPlay} />
+          <Versus me={me} myEmb={myEmb} cur={cur} res={resOf(cur.club)} onPlay={onPlay} buff={oppBuff} />
         ) : (
           <section className="ui-cut ui-frame ui-glass flex flex-col items-center justify-center gap-4 p-6 text-center" style={{ '--c': '20px', '--a': GOLD }}>
             <span className="grid h-24 w-24 place-items-center rounded-full" style={{ background: 'linear-gradient(180deg,#fde68a,#d69e2e)', boxShadow: `0 0 40px ${GOLD}` }}><Cup size={48} lit /></span>
