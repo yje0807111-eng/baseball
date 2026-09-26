@@ -13,6 +13,7 @@
     "data:index": "node scripts/build-data-index.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

@@ -1,3 +1,7 @@
 node_modules
 dist
 art-src
+
+# 서버 주소 · 키
+.env.local
+.env*.local

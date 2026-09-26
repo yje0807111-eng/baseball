@@ -11,13 +11,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         /*
-         * 파일을 셋으로 나눠 싣는다 — 한 덩어리면 첫 화면이 뜨기까지 전부 받아야 한다.
+         * 파일을 나눠 싣는다 — 한 덩어리면 첫 화면이 뜨기까지 전부 받아야 한다.
          *  series  시즌 로스터 412개. 가장 무겁지만 좀처럼 바뀌지 않아 캐시가 오래 간다
          *  vendor  react 등 라이브러리. 거의 바뀌지 않는다
+         *  net     Supabase. 온라인 기능을 처음 쓸 때만 받는다
          *  나머지  게임 코드. 자주 바뀌므로 따로 두어야 앞의 둘을 다시 받지 않는다
          */
         manualChunks(id) {
           if (id.includes('/src/data/series/')) return 'series';
+          if (id.includes('/node_modules/@supabase/')) return 'net'; // 서버 연결 — 쓸 때만 받는다
           if (id.includes('/node_modules/')) return 'vendor';
           return null;
         },
