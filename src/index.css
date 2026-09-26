@@ -88,3 +88,32 @@ body { overscroll-behavior: none; }
   box-shadow: 0 14px 30px -8px rgba(227, 178, 74, .8), inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -2px 0 rgba(0, 0, 0, .2);
 }
 @media (prefers-reduced-motion: reduce) { .mt-btn.pri::after, .ui-btn.pri::after { display: none; } }
+
+/* 빛 가루 (motion.jsx Burst) */
+.fx-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 5; }
+.fx-burst > i { position: absolute; left: 0; top: 0; width: var(--s); height: var(--s); margin: calc(var(--s) / -2); border-radius: 50%; opacity: 0;
+  box-shadow: 0 0 10px currentColor; animation: fx-burst .9s cubic-bezier(.15, .7, .3, 1) var(--d, 0ms) both; }
+@keyframes fx-burst { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 70% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(.2); } }
+
+/* 결과 도장 — 크게 찍혔다가 자리 잡음(승리) · 위에서 무겁게 내려앉음(패배) · 조용히(무승부) */
+.fx-stamp { animation: fx-stamp .46s cubic-bezier(.2, .9, .25, 1.15) var(--d, 0ms) both; }
+@keyframes fx-stamp { 0% { opacity: 0; transform: scale(1.9); filter: blur(6px); } 60% { opacity: 1; transform: scale(.94); filter: blur(0); } 100% { transform: scale(1); } }
+.fx-drop { animation: fx-drop .6s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-drop { from { opacity: 0; transform: translateY(-22px); } }
+.fx-fade { animation: fx-fade .3s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-fade { from { opacity: 0; } }
+/* 왼쪽에서 오른쪽으로 그려짐(승률 흐름 선) */
+.fx-wipe { animation: fx-wipe .9s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+/* 화살표 톡 (순위 ▲) */
+.fx-bump { display: inline-block; animation: fx-bump .5s cubic-bezier(.2, .9, .25, 1.4) var(--d, 0ms) both; }
+@keyframes fx-bump { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 100% { opacity: 1; transform: none; } }
+/* 주 단추가 처음 나올 때 광택 한 번 — 누를 곳 알리기 */
+.fx-sheen-once::after { animation: fx-sheen .8s var(--fx-out) var(--d, 0ms) both; }
+@keyframes fx-sheen { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
+/* 건너뛰기 — 결과 연출 중 누르면 모두 끝 상태로 */
+.fx-skip, .fx-skip * { animation-delay: 0s !important; animation-duration: .01s !important; }
+@media (prefers-reduced-motion: reduce) {
+  .fx-burst, .fx-sheen-once::after { display: none; }
+  .fx-stamp, .fx-drop, .fx-fade, .fx-wipe, .fx-bump { animation: none !important; }
+}

@@ -8,9 +8,35 @@
  *  4) 누가 잘했나 — MVP 카드와 그 경기 기록 한 줄 · 선수 평점
  *  5) 다음 행동 — 오른쪽 아래 주 단추 하나, 나머지는 보조
  * 한 화면(1920×911)에 다 들어가게 — 설명 문장 없이 숫자와 짧은 이름표만.
+ *
+ * 등장 순서(INTRO, ms) — 눈이 가는 순서대로 한 번에 하나씩, 전체 1.9초 · 누르면 바로 끝 상태
+ *  0.20 결과 도장(승리: 크게 찍힘 + 빛 가루 · 패배: 무겁게 내려앉음 · 무승부: 조용히)
+ *  0.35 점수 0 → 최종(끝에서 톡)          0.50 라인 스코어 두 줄
+ *  0.60 승률 흐름 선이 왼쪽 → 오른쪽        0.65 MVP 카드 뒤집힘
+ *  0.90 보상 · 진행 줄 차례로(골드 세기 · 순위 화살표 톡) · 결정적 장면 · 평점
+ *  1.35 단추 줄 · 주 단추 광택 한 번          1.90 끝 → onIntroEnd(기념 카드 창 등 다음 연출)
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PlayerCard } from '../KboAugmentDraft.jsx';
+import { Count, Flip, Burst, reducedMotion } from '../ui/motion.jsx';
+
+const INTRO = { word: 200, score: 350, line: 500, flow: 600, mvp: 650, list: 900, step: 90, actions: 1350, end: 1900 };
+const at = (ms) => ({ '--d': `${ms}ms`, animationDelay: `${ms}ms` });
+
+/** 보상 값 — 앞 숫자는 세어 올라가고(+300 G · 12승), ▲▼ 는 톡 튄다. 숫자가 없으면 그대로 */
+function TallyValue({ v, delay }) {
+  const m = String(v).match(/^([^\d−-]*)([+−-]?)([\d,]+)(.*)$/);
+  if (!m) return v;
+  const [, pre, sign, num, rest] = m;
+  const n = Number(num.replace(/,/g, ''));
+  const arrow = rest.match(/^(.*?)([▲▼]\d+)(.*)$/);
+  return (
+    <>
+      {pre}{sign}<Count value={n} from={0} delay={delay} dur={500} />
+      {arrow ? <>{arrow[1]}<span className="fx-bump" style={at(delay + 520)}>{arrow[2]}</span>{arrow[3]}</> : rest}
+    </>
+  );
+}
 
 const WIN = '#34d399', LOSE = '#f87171', DRAW = '#cbd5e1', GOLD = '#f5d27a';
 /** 선수 평점 — 경기 기여 점수를 등급으로 */
@@ -73,7 +99,15 @@ const Lab = ({ c = GOLD, children, right = null }) => (
  * actions  [{ label, onClick, pri? }] — pri 하나가 오른쪽 아래 주 단추
  * onLog  문자 중계 창 열기(있으면)
  */
-export default function MatchResult({ result, myName = '내 팀', oppName = '상대', context = '', tally = [], actions = [], onLog = null }) {
+export default function MatchResult({ result, myName = '내 팀', oppName = '상대', context = '', tally = [], actions = [], onLog = null, onIntroEnd = null }) {
+  /* 등장 연출 — 끝나거나(1.9초) 화면을 누르면 끝 상태로 두고 다음 연출(기념 카드 등)에 알린다 */
+  const [skip, setSkip] = useState(() => reducedMotion());
+  useEffect(() => {
+    if (skip) { onIntroEnd?.(); return undefined; }
+    const t = setTimeout(() => { setSkip(true); }, INTRO.end);
+    return () => clearTimeout(t);
+  }, [skip]); // eslint-disable-line react-hooks/exhaustive-deps
+  const dur = skip ? 0 : undefined; // 숫자 세기: 건너뛰면 바로 끝 값
   const { winner, score, board, hits = { my: 0, opp: 0 }, flow, logs = [], credits = [] } = result;
   const [ko, tone] = winner === 'my' ? ['승리', WIN] : winner === 'opp' ? ['패배', LOSE] : ['무승부', DRAW];
   const mvp = result.mvpPlayer;
@@ -84,18 +118,27 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
   const pri = actions.find((a) => a.pri);
   const rest = actions.filter((a) => !a.pri);
   return (
-    <section className="ui-cut ui-frame ui-glass2 grid min-h-0 flex-1 gap-4 p-6 animate-[rise_.35s_ease-out_both]"
-      style={{ '--c': '24px', '--a': tone, gridTemplateRows: 'auto minmax(0,1fr) auto' }}>
+    <section className={`ui-cut ui-frame ui-glass2 fx-fade relative isolate grid min-h-0 flex-1 gap-4 p-6 ${skip ? 'fx-skip' : ''}`}
+      style={{ '--c': '24px', '--a': tone, gridTemplateRows: 'auto minmax(0,1fr) auto' }}
+      onPointerDown={() => { if (!skip) setSkip(true); }}>
+      {/* 패배: 판 바탕만 조금 어둡게(글자 아래 층) */}
+      {winner === 'opp' && <span className="fx-fade pointer-events-none absolute inset-0 -z-[1] bg-[#03050a]/40" style={at(INTRO.word)} aria-hidden="true" />}
       {/* 1) 결과 한 줄 */}
       <div className="grid items-center gap-6 border-b border-white/10 pb-4" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
         <div className="flex items-end gap-4">
-          <b className="font-display text-[84px] font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 36px ${tone}88` }}>{ko}</b>
-          {context && <span className="pb-1 text-t3 font-bold text-gray-300">{context}</span>}
+          <b className={`relative font-display text-[84px] font-extrabold italic leading-[.8] ${winner === 'my' ? 'fx-stamp' : winner === 'opp' ? 'fx-drop' : 'fx-fade'}`}
+            style={{ color: tone, textShadow: `0 0 36px ${tone}88`, ...at(INTRO.word) }}>
+            {ko}
+            {winner === 'my' && !skip && <Burst colors={[GOLD, WIN, '#fff']} spread={170} delay={INTRO.word + 220} />}
+          </b>
+          {context && <span className="fx-fade pb-1 text-t3 font-bold text-gray-300" style={at(INTRO.word + 150)}>{context}</span>}
         </div>
         <div className="flex items-center gap-6">
           <span className="text-right"><b className="block max-w-[16rem] truncate text-t2 font-black text-white">{myName}</b><small className="text-t4 text-gray-400">우리</small></span>
           <b className="font-display text-[64px] font-extrabold leading-none tabular-nums text-white">
-            <span style={{ color: winner === 'my' ? WIN : '#fff' }}>{score.my}</span><span className="mx-3 text-gray-500">:</span><span style={{ color: winner === 'opp' ? LOSE : '#fff' }}>{score.opp}</span>
+            <Count value={score.my} from={0} delay={INTRO.score} dur={dur ?? 650} style={{ color: winner === 'my' ? WIN : '#fff' }} />
+            <span className="mx-3 text-gray-500">:</span>
+            <Count value={score.opp} from={0} delay={INTRO.score} dur={dur ?? 650} style={{ color: winner === 'opp' ? LOSE : '#fff' }} />
           </b>
           <span><b className="block max-w-[16rem] truncate text-t2 font-black text-white">{oppName}</b><small className="text-t4 text-gray-400">상대</small></span>
         </div>
@@ -109,11 +152,11 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
           <Lab c="#fbbf24">경기 MVP</Lab>
           {mvp && (
             <>
-              <div className="relative mx-auto aspect-[2/3] w-[15rem] shrink-0">
+              <Flip delay={INTRO.mvp} className="relative mx-auto aspect-[2/3] w-[15rem] shrink-0">
                 <PlayerCard player={mvp} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
-              </div>
-              <b className="text-center text-t2 font-black text-white">{mvp.name}</b>
-              <span className="text-center font-display text-t3 font-bold text-amber-200">{gameLine(result, mvp) || '—'}</span>
+              </Flip>
+              <b className="fx-rise text-center text-t2 font-black text-white" style={at(INTRO.mvp + 380)}>{mvp.name}</b>
+              <span className="fx-rise text-center font-display text-t3 font-bold text-amber-200" style={at(INTRO.mvp + 440)}>{gameLine(result, mvp) || '—'}</span>
             </>
           )}
         </div>
@@ -130,8 +173,8 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
               </tr>
             </thead>
             <tbody className="font-display text-t2 font-bold">
-              {[['opp', oppName, board?.away, score.opp, hits.opp, LOSE], ['my', myName, board?.home, score.my, hits.my, WIN]].map(([k, nm, line, r, h, c]) => (
-                <tr key={k} className="border-t border-white/10">
+              {[['opp', oppName, board?.away, score.opp, hits.opp, LOSE], ['my', myName, board?.home, score.my, hits.my, WIN]].map(([k, nm, line, r, h, c], ri) => (
+                <tr key={k} className="fx-rise border-t border-white/10" style={at(INTRO.line + ri * 70)}>
                   <td className="truncate py-2 text-left font-sans text-t3 font-bold" style={{ color: k === 'my' ? c : '#e5e7eb' }}>{nm}</td>
                   {cols.map((i) => {
                     const v = line?.[i];
@@ -146,13 +189,13 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
           {flow?.length > 1 && (
             <div className="flex flex-col gap-1.5">
               <Lab c="#7dd3fc" right={`마지막 승률 ${Math.round((flow[flow.length - 1] || 0) * 100)}%`}>승률 흐름</Lab>
-              <Flow flow={flow} />
+              <div className="fx-wipe" style={at(INTRO.flow)}><Flow flow={flow} /></div>
             </div>
           )}
           <div className="flex min-h-0 flex-col gap-1.5">
             <Lab c="#fb923c">결정적 장면</Lab>
-            {moments.length ? moments.map((m) => (
-              <div key={m.id} className="ui-cut grid items-center gap-3 px-3 py-2" style={{ '--c': '8px', gridTemplateColumns: '4.5rem minmax(0,1fr) auto', background: 'rgba(255,255,255,.045)', boxShadow: `inset 3px 0 0 ${m.isTop ? LOSE : WIN}` }}>
+            {moments.length ? moments.map((m, mi) => (
+              <div key={m.id} className="fx-rise ui-cut grid items-center gap-3 px-3 py-2" style={{ '--c': '8px', gridTemplateColumns: '4.5rem minmax(0,1fr) auto', background: 'rgba(255,255,255,.045)', boxShadow: `inset 3px 0 0 ${m.isTop ? LOSE : WIN}`, ...at(INTRO.list + 200 + mi * INTRO.step) }}>
                 <span className="font-display text-t3 font-bold text-gray-300">{m.inning}회{m.isTop ? '초' : '말'}</span>
                 <b className="truncate text-t3 text-white">{m.text}</b>
                 <b className="font-display text-t2" style={{ color: m.isTop ? LOSE : WIN }}>+{m.runs}점</b>
@@ -166,20 +209,20 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
           {tally.length > 0 && (
             <div className="flex flex-col gap-1.5">
               <Lab>보상 · 진행</Lab>
-              {tally.map((t) => (
-                <div key={t.k} className="flex items-baseline justify-between gap-3 border-b border-white/10 py-2">
+              {tally.map((t, ti) => (
+                <div key={t.k} className="fx-rise flex items-baseline justify-between gap-3 border-b border-white/10 py-2" style={at(INTRO.list + ti * INTRO.step)}>
                   <span className="min-w-0 truncate text-t3 text-gray-300">{t.k}</span>
-                  <b className="shrink-0 font-display text-t2" style={{ color: t.c || '#fff' }}>{t.v}</b>
+                  <b className="shrink-0 font-display text-t2" style={{ color: t.c || '#fff' }}>{skip ? t.v : <TallyValue v={t.v} delay={INTRO.list + ti * INTRO.step + 120} />}</b>
                 </div>
               ))}
             </div>
           )}
           <div className="flex min-h-0 flex-col gap-1.5">
             <Lab c="#a78bfa">선수 평점</Lab>
-            {rated.map((c) => {
+            {rated.map((c, ci) => {
               const g = gradeOf(c.pts);
               return (
-                <div key={c.player.id} className="grid items-center gap-3 py-1" style={{ gridTemplateColumns: '2.6rem minmax(0,1fr)' }}>
+                <div key={c.player.id} className="fx-rise grid items-center gap-3 py-1" style={{ gridTemplateColumns: '2.6rem minmax(0,1fr)', ...at(INTRO.list + (tally.length + ci) * INTRO.step) }}>
                   <b className="ui-cut grid h-9 place-items-center font-display text-t2 font-extrabold" style={{ '--c': '6px', color: GRADE_C[g], background: `${GRADE_C[g]}1f`, boxShadow: `inset 0 0 0 1px ${GRADE_C[g]}66` }}>{g}</b>
                   <span className="min-w-0 leading-tight">
                     <b className="block truncate text-t3 text-white">{c.player.name}</b>
@@ -193,9 +236,9 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
       </div>
 
       {/* 5) 다음 행동 */}
-      <div className="flex items-center gap-2 border-t border-white/10 pt-4">
+      <div className="fx-fade flex items-center gap-2 border-t border-white/10 pt-4" style={at(INTRO.actions)}>
         {rest.map((a) => <button key={a.label} type="button" className="ui-btn ui-cut" onClick={a.onClick}>{a.label}</button>)}
-        {pri && <button type="button" className="ui-btn ui-cut pri ml-auto min-h-[3.2rem] px-10 text-t2" onClick={pri.onClick}>{pri.label}</button>}
+        {pri && <button type="button" className="fx-sheen-once ui-btn ui-cut pri ml-auto min-h-[3.2rem] px-10 text-t2" style={at(INTRO.actions + 200)} onClick={pri.onClick}>{pri.label}</button>}
       </div>
     </section>
   );

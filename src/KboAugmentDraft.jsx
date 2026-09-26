@@ -22,6 +22,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
+import { Flip } from './ui/motion.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -3793,26 +3794,36 @@ function MementoOverlay({ memento, onTake, onSkip }) {
   const [took, setTook] = useState(null);
   useEffect(() => { setTook(null); }, [memento]);
   if (!memento) return null;
+  const FLIP0 = 260, FLIP_STEP = 140; // 첫 장 뒤집힘 · 다음 장 간격(ms)
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label="드래프트 기념 카드">
+    <div className="fx-fade fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label="드래프트 기념 카드">
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/field.webp)' }} />
       <div className="fixed inset-0 bg-[#03050a]/75 backdrop-blur-[3px]" />
       <div className="relative flex min-h-full flex-col items-center justify-center gap-7 px-4 py-10">
-        <div className="text-center animate-[rise_.4s_ease-out_both]">
+        <div className="fx-rise text-center">
           <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>드래프트 기념 카드 · {memento.why}</p>
           <h2 className="mt-2 text-4xl font-black text-white">한 명 데려오기</h2>
           {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-5">
-          {memento.options.map((p, i) => (
-            <div key={p.id} className="flex w-[216px] flex-col gap-2 animate-[rise_.45s_ease-out_both]" style={{ animationDelay: `${i * 70}ms`, opacity: took && took !== p.id ? 0.35 : 1, transition: 'opacity .3s' }}>
-              <div className="aspect-[2/3] w-full"><PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none' }} /></div>
-              <button type="button" className="ui-btn ui-cut pri" disabled={memento.full || !!took} style={{ '--c': '9px' }}
-                onClick={() => { setTook(p.id); setTimeout(() => onTake(p), 380); }}>데려오기</button>
-            </div>
-          ))}
+          {memento.options.map((p, i) => {
+            const mine = took === p.id;
+            const other = took && !mine;
+            return (
+              <div key={p.id} className="flex w-[216px] flex-col gap-2"
+                style={{ opacity: other ? 0.3 : 1, transform: mine ? 'translateY(-14px) scale(1.07)' : other ? 'translateY(10px) scale(.95)' : 'none', transition: 'opacity .35s var(--fx-out), transform .45s var(--fx-out)', zIndex: mine ? 2 : 1 }}>
+                <Flip delay={FLIP0 + i * FLIP_STEP} className="aspect-[2/3] w-full">
+                  <div className="h-full w-full" style={{ borderRadius: 14, boxShadow: mine ? '0 0 0 2px #f5d27a, 0 0 46px -4px #f5d27a' : 'none', transition: 'box-shadow .35s' }}>
+                    <PlayerCard player={p} reason={null} onSelect={() => {}} style={{ animation: 'none' }} />
+                  </div>
+                </Flip>
+                <button type="button" className="fx-fade ui-btn ui-cut pri" disabled={memento.full || !!took} style={{ '--c': '9px', '--d': `${FLIP0 + i * FLIP_STEP + 380}ms` }}
+                  onClick={() => { setTook(p.id); setTimeout(() => onTake(p), 620); }}>{mine ? '데려옴' : '데려오기'}</button>
+              </div>
+            );
+          })}
         </div>
-        <button type="button" className="ui-btn ui-cut" style={{ '--c': '9px' }} disabled={!!took} onClick={onSkip}>받지 않기</button>
+        <button type="button" className="fx-fade ui-btn ui-cut" style={{ '--c': '9px', '--d': `${FLIP0 + memento.options.length * FLIP_STEP + 300}ms` }} disabled={!!took} onClick={onSkip}>받지 않기</button>
       </div>
     </div>
   );
@@ -5111,6 +5122,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const planRef = useRef(null); // 정비 전략실에서 고른 계획 — 경기의 첫 전술
   /* 드래프트 기념 카드 — 한 판에 한 번 (draft/memento.js) */
   const [memento, setMemento] = useState(null);
+  const [introFor, setIntroFor] = useState(null); // 등장 연출을 마친 결과 — 기념 카드 창은 그 뒤에 연다
   const mementoDone = useRef(new Set()); // 이 판에서 이미 준 기념 카드(이유별) — 구단 정복은 중간 · 완주 둘
   const openMemento = (rule) => {
     if (!rule || mementoDone.current.has(rule.why)) return;
@@ -5856,7 +5868,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
           {(phase === 'sim' || phase === 'result') && (
             <>
               {result && (
-                <MatchResult result={result} myName={myClub} oppName={oppLabel} onLog={() => setLogOpen(true)}
+                <MatchResult result={result} myName={myClub} oppName={oppLabel} onLog={() => setLogOpen(true)} onIntroEnd={() => setIntroFor(result)}
                   context={`드래프트 · ${mode.name}`}
                   tally={gaunt ? [
                     { k: '구단 정복', v: gaunt.done ? '완료' : `${Gaunt.myPos(gaunt)} / ${gaunt.tower.length - 1} 구단`, c: '#f5d27a' },
@@ -5910,7 +5922,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
-      <MementoOverlay memento={memento} onTake={(p) => { if (addToClub(asClubPlayer(p))) bumpWeek('memento'); setMemento(null); }} onSkip={() => setMemento(null)} />
+      <MementoOverlay memento={phase === 'result' && result && introFor !== result ? null : memento} onTake={(p) => { if (addToClub(asClubPlayer(p))) bumpWeek('memento'); setMemento(null); }} onSkip={() => setMemento(null)} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
           midPickInnings={match.aug ? MID_AUG_INNINGS : []}

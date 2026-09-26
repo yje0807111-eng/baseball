@@ -2,12 +2,51 @@
  * 랭크전 시즌 화면 (전체 화면) — 왼쪽: 10팀 순위표 · 최근 라운드 결과 · 포스트시즌 사다리 / 오른쪽: 다음 내 경기 분석 또는 시즌 결과.
  * 경기가 끝나면 여기로 돌아와 다른 팀들의 성적과 순위 변화를 본다.
  */
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { teamOf } from './tournament.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLACE_REWARD } from './ranked.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { rankOf } from './rank.js';
+import { Count, Burst } from '../ui/motion.jsx';
+
+/**
+ * 등급 오름 — 시즌 보상을 받아 등급이 바뀌는 순간(가장 드문 순간이라 가장 크게, 롤 · 클래시 로얄 승급처럼)
+ *  0.0 어두워짐 · 옛 배지 → 0.35 옛 배지가 작아지며 사라짐 → 0.5 새 배지가 크게 찍힘 · 빛줄기 · 빛 가루
+ *  0.8 '등급 상승' · 새 등급 이름 → 1.2 확인 단추. 아무 데나 누르면 닫힘(0.6초 뒤부터)
+ */
+function TierUp({ from, to, onClose }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setReady(true), 600); return () => clearTimeout(t); }, []);
+  return (
+    <div className="fx-fade fixed inset-0 z-[70] grid place-items-center bg-[#03050a]/85 backdrop-blur-[4px]" role="dialog" aria-modal="true" aria-label="등급 상승"
+      onClick={() => ready && onClose()}>
+      <div className="relative flex flex-col items-center gap-4 text-center">
+        <span className="relative grid h-[220px] w-[220px] place-items-center">
+          <span className="rk-rays absolute inset-[-60px] rounded-full" style={{ '--t': to.tier.c }} aria-hidden="true" />
+          <img src={`ui/rank/${from.tier.key}.webp`} alt="" className="rk-old absolute h-[150px] w-[150px] object-contain" />
+          <img src={`ui/rank/${to.tier.key}.webp`} alt={`${to.tier.ko} 엠블럼`} className="fx-stamp relative h-[190px] w-[190px] object-contain"
+            style={{ '--d': '500ms', filter: `drop-shadow(0 0 28px ${to.tier.c})` }} />
+          <Burst n={30} spread={200} colors={[to.tier.c, '#fff', '#f5d27a']} delay={620} />
+        </span>
+        <p className="fx-rise ui-lab font-display" style={{ '--a': to.tier.c, animationDelay: '800ms' }}>등급 상승</p>
+        <b className="fx-rise -mt-2 text-[56px] font-black leading-none" style={{ color: to.tier.c, animationDelay: '880ms', textShadow: `0 0 30px ${to.tier.c}88` }}>{to.tier.ko} {to.div}</b>
+        <span className="fx-rise text-t3 text-gray-300" style={{ animationDelay: '960ms' }}>{from.tier.ko} {from.div} → {to.tier.ko} {to.div}</span>
+        <button type="button" className="fx-fade ui-btn ui-cut pri mt-2 min-w-[220px] text-t2" style={{ '--d': '1200ms' }} onClick={onClose}>확인</button>
+      </div>
+    </div>
+  );
+}
+const RK_CSS = `
+.rk-rays { background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--t) 38%, transparent) 0 8deg, transparent 8deg 22deg);
+  -webkit-mask: radial-gradient(closest-side, #000 30%, transparent 100%); mask: radial-gradient(closest-side, #000 30%, transparent 100%);
+  animation: rk-rays-in .6s var(--fx-out) .5s both, rk-spin 14s linear .5s infinite; }
+@keyframes rk-rays-in { from { opacity: 0; transform: scale(.6); } }
+@keyframes rk-spin { to { rotate: 1turn; } }
+.rk-old { animation: rk-old .45s var(--fx-in) .15s both; }
+@keyframes rk-old { to { opacity: 0; transform: scale(.55); filter: brightness(2); } }
+@media (prefers-reduced-motion: reduce) { .rk-rays, .rk-old { animation: none; } .rk-old { opacity: 0; } }
+`;
 
 export const RK = '#a78bfa'; // 랭크전 강조색
 const fmtPct = (r) => (r.w + r.l ? (r.w / (r.w + r.l)).toFixed(3).replace(/^0/, '') : '-');
@@ -118,12 +157,26 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
   const pm = postMatch(s);
   const stage = pm ? STAGES[pm.stage] : null;
   const reward = s.done ? PLACE_REWARD[s.place - 1] : null;
-  const rank = rankOf(account.rank?.rp || 0);
+  const rp = account.rank?.rp || 0;
+  const rank = rankOf(rp);
+  /* 보상을 받아 RP 가 바뀌면 — RP 는 세어 오르고, 등급(루키 → 퓨처스 …)이 바뀌면 등급 오름 연출 */
+  const prevRp = useRef(rp);
+  const [rpFrom, setRpFrom] = useState(null);
+  const [tierUp, setTierUp] = useState(null);
+  useEffect(() => {
+    const a = prevRp.current;
+    prevRp.current = rp;
+    if (a === rp) return;
+    setRpFrom(a);
+    const A = rankOf(a);
+    if (rank.index > A.index) setTierUp({ from: A, to: rank });
+  }, [rp]); // eslint-disable-line react-hooks/exhaustive-deps
   const keyPlayers = oppTeam ? keyPlayersOf(oppTeam.roster) : [];
 
   return (
     <div className="min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
-      <style>{KEYFRAMES}</style>
+      <style>{KEYFRAMES + RK_CSS}</style>
+      {tierUp && <TierUp from={tierUp.from} to={tierUp.to} onClose={() => setTierUp(null)} />}
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b px-6" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
         <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
@@ -238,8 +291,8 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 })}
               </div>
               <div className="ui-cut flex items-center gap-3 bg-white/[0.05] px-4 py-2.5" style={{ '--c': '10px' }}>
-                <span className="font-display text-t3 font-bold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</span>
-                <b className="ml-auto font-display text-t2 text-white">{account.rank?.rp || 0} RP</b>
+                <span key={`${rank.tier.key}${rank.div}`} className={`font-display text-t3 font-bold ${rpFrom != null && rankOf(rpFrom).div !== rank.div ? 'fx-bump' : ''}`} style={{ color: rank.tier.c, '--d': '900ms' }}>{rank.tier.ko} {rank.div}</span>
+                <b className="ml-auto font-display text-t2 text-white"><Count value={rp} from={rpFrom ?? rp} delay={200} dur={900} /> RP</b>
               </div>
               {s.claimed && (() => {
                 const got = s.reward || { rp: reward.rp, gold: reward.gold };

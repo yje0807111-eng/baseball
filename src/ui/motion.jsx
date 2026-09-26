@@ -46,7 +46,7 @@ export function navTo(update, kind = 'fwd', ready = null) {
  * 숫자 세기 — 값이 바뀌면 이전 값에서 새 값까지 세어 가고, 다 세면 한 번 톡 튄다(클래시 로얄 보상 방식).
  * from 을 주면 처음 뜰 때 그 값에서 센다. format 으로 1,234 · +300 G 같은 모양.
  */
-export function Count({ value, from, dur = 700, format = (n) => n.toLocaleString(), className = '', style }) {
+export function Count({ value, from, dur = 700, delay = 0, format = (n) => n.toLocaleString(), className = '', style }) {
   const start = from ?? value;
   const [n, setN] = useState(start);
   const [pop, setPop] = useState(0);
@@ -55,19 +55,20 @@ export function Count({ value, from, dur = 700, format = (n) => n.toLocaleString
     const a = prev.current;
     const b = value;
     prev.current = b;
-    if (a === b || reducedMotion()) { setN(b); return undefined; }
+    if (a === b || !dur || reducedMotion()) { setN(b); return undefined; }
     let raf = 0;
-    const t0 = performance.now();
+    let t0 = 0;
     const tick = (t) => {
+      if (!t0) t0 = t;
       const p = Math.min(1, (t - t0) / dur);
       const e = 1 - (1 - p) ** 3; // 빠르게 세다가 끝에서 느려진다
       setN(Math.round(a + (b - a) * e));
       if (p < 1) raf = requestAnimationFrame(tick);
       else setPop((x) => x + 1);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [value, dur]);
+    const wait = setTimeout(() => { raf = requestAnimationFrame(tick); }, delay);
+    return () => { clearTimeout(wait); cancelAnimationFrame(raf); };
+  }, [value, dur, delay]);
   return <span key={pop} className={`inline-block tabular-nums ${pop ? 'fx-pop' : ''} ${className}`} style={style}>{format(n)}</span>;
 }
 
@@ -83,6 +84,22 @@ export function Flip({ back = null, delay = 0, className = '', style, children }
         <div className="fx-face fx-back" aria-hidden="true">{back || <div className="fx-back-plain" />}</div>
       </div>
     </div>
+  );
+}
+
+/**
+ * 빛 가루 — 한 점에서 사방으로 한 번 터진다(승리 · 등급 오름 · 정복). 부모 가운데 기준, 누름을 막지 않는다.
+ * 무작위 대신 번호로 각도 · 거리를 정해 매번 같은 모양(깜빡이는 느낌 없이)
+ */
+export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, delay = 0, size = 7 }) {
+  return (
+    <span className="fx-burst" aria-hidden="true" style={{ '--d': `${delay}ms` }}>
+      {Array.from({ length: n }, (_, i) => {
+        const a = (i / n) * Math.PI * 2 + (i % 3) * 0.21;
+        const dist = spread * (0.55 + ((i * 37) % 45) / 100);
+        return <i key={i} style={{ '--x': `${Math.cos(a) * dist}px`, '--y': `${Math.sin(a) * dist * 0.7}px`, '--s': `${size * (0.6 + (i % 4) * 0.2)}px`, background: colors[i % colors.length], color: colors[i % colors.length] }} />;
+      })}
+    </span>
   );
 }
 
