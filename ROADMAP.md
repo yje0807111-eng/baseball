@@ -379,9 +379,9 @@ OOTP 는 제한을 건 대회로 같은 수집에서 새 판을 만든다.
 - [x] `@supabase/supabase-js` · `src/net/supabase.js`(client · ensureSession · ping) · 오프라인 테스트
 - [x] `supabase/migrations/0001_async_pvp.sql` · `.env.example` · `.gitignore` 에 `.env.local`
 - [x] Supabase 프로젝트 `baseball`(esgtgwvfwrhecnfrxjuc · 시드니) · 스키마 0001 · 0002 적용 · 익명 로그인 켬 · `.env.local` 에 주소 · publishable 키
-- [ ] 서버 표 0003(profiles 아이디 · 감독 이름, saves, account_free, 가입 트리거)
-- [ ] 가입 · 로그인 화면 · 자동 로그인 · 로그아웃
-- [ ] 저장 동기화(받기 · 3초 모아 올리기 · rev 충돌 · 오프라인)
+- [x] 서버 표 0003(profiles 아이디 · 감독 이름, saves, account_free, 가입 트리거)
+- [x] 가입 · 로그인 화면 · 자동 로그인 · 로그아웃 · 감독 이름 바꾸기(서버 겹침 확인)
+- [x] 저장 동기화(받기 · 3초 모아 올리기 · rev 충돌 · 오프라인) — 실제 가입으로 확인 남음
 - [ ] 경기 엔진 시드 고정(같은 시드 = 같은 경기)
 - [ ] 팀 스냅숏 형식(payload v1) · 올리기 · 받아 오기
 - [ ] 랭크전 상대를 저장된 팀으로 · 방어 기록

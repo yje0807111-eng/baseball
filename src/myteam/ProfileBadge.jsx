@@ -8,6 +8,8 @@ import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
 import { loadAccount, saveProfile } from './store.js';
 import { BANNERS, flagByKey } from './teamArt.js';
+import { online } from '../net/supabase.js';
+import { renameNick, NICK_MIN } from '../net/account.js';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -26,10 +28,17 @@ function SlotPreview({ name, banner }) {
 function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved, onSignOut }) {
   const [nick, setNick] = useState(nick0 || '');
   const [banner, setBanner] = useState(banner0 ?? null);
-  const valid = nick.trim().length > 0;
-  const save = () => {
-    if (!valid) return;
-    saveProfile({ nick: nick.trim(), banner });
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const valid = nick.trim().length >= (online ? NICK_MIN : 1);
+  const save = async () => {
+    if (!valid || busy) return;
+    const nk = nick.trim();
+    if (online && nk !== nick0) { // 서버 감독 이름부터 — 겹치면 여기서 멈춘다
+      setBusy(true);
+      try { await renameNick(nk); } catch (e) { setErr(e.message); setBusy(false); return; }
+    }
+    saveProfile({ nick: nk, banner });
     onSaved();
     onClose();
   };
@@ -45,10 +54,11 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
         <label className="flex flex-col gap-2">
           <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">이름</span>
           <span className="flex items-center gap-3">
-            <input value={nick} maxLength={NICK_MAX} onChange={(e) => setNick(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && save()}
+            <input value={nick} maxLength={NICK_MAX} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
               className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
             <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
           </span>
+          {err && <span className="text-t3 font-bold text-red-400" role="alert">{err}</span>}
         </label>
 
         <div className="flex flex-col gap-2">
@@ -72,7 +82,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
         <div className="flex items-center gap-3 pt-1">
           {onSignOut && <button type="button" onClick={onSignOut} className="mt-btn" style={{ color: '#fca5a5' }}>로그아웃</button>}
           <button type="button" onClick={onClose} className="mt-btn ml-auto">취소</button>
-          <button type="button" onClick={save} disabled={!valid} className="mt-btn pri" style={{ padding: '0 34px' }}>저장</button>
+          <button type="button" onClick={save} disabled={!valid || busy} className="mt-btn pri" style={{ padding: '0 34px' }}>저장</button>
         </div>
       </div>
     </div>,

@@ -7,6 +7,9 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import LoginScreen from './myteam/LoginScreen.jsx';
 import LobbyScreen from './myteam/LobbyScreen.jsx';
 import { loadAccount, signOut, needsStarter, grantStarter, dismissNotice } from './myteam/store.js';
+import { online } from './net/supabase.js';
+import { resume, logOut } from './net/account.js';
+import { startSync } from './net/sync.js';
 
 const GameApp = lazy(() => import('./GameApp.jsx'));
 
@@ -14,7 +17,17 @@ const GameApp = lazy(() => import('./GameApp.jsx'));
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
 
 export default function App() {
-  const [account, setAccount] = useState(() => loadAccount());
+  /* 서버 키가 있으면 남은 로그인부터 확인하고(boot) 그 계정 저장을 받아 연다 — 이 브라우저 사본이 다른 계정 것일 수 있다 */
+  const [account, setAccount] = useState(() => (online ? null : loadAccount()));
+  const [boot, setBoot] = useState(online);
+  const enter = (uid) => {
+    startSync(uid, () => setAccount(loadAccount())); // 다른 기기 저장을 받아 깔면 화면도 다시 읽는다
+    setAccount(loadAccount());
+  };
+  useEffect(() => {
+    if (!online) return;
+    resume().then((uid) => uid && enter(uid)).catch(() => {}).finally(() => setBoot(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [view, setView] = useState(() => (import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') ? 'modes' : 'lobby'));
   const [playTab, setPlayTab] = useState(null); // 경기를 마치고 돌아올 플레이 탭
   const [recordTab, setRecordTab] = useState('all'); // 기록 화면을 열 칸 (메인 주간 과제에서 오면 'week')
@@ -33,7 +46,8 @@ export default function App() {
     return () => { alive = false; };
   }, [starterDue, account?.nick]);
 
-  if (!account) return <LoginScreen onDone={(a) => { setAccount(a); setView('lobby'); }} />;
+  if (boot) return <Loading />;
+  if (!account) return <LoginScreen onDone={(a) => { if (online) enter(a); else setAccount(a); setView('lobby'); }} />;
   if (view !== 'lobby') {
     return (
       <Suspense fallback={<Loading />}>
@@ -46,6 +60,6 @@ export default function App() {
       onLocker={() => setView('locker')} onPlay={(tab) => { setPlayTab(tab || null); setView('modes'); }} onShop={() => setView('shop')}
       onAugments={() => setView('augments')} onRecord={() => { setRecordTab('all'); setView('record'); }} onWeek={() => { setRecordTab('week'); setView('record'); }}
       onNotice={(go) => { dismissNotice(); setAccount(loadAccount()); if (go) setView('locker'); }}
-      onSignOut={() => { signOut(); setAccount(null); }} />
+      onSignOut={() => { if (online) logOut().finally(() => setAccount(null)); else { signOut(); setAccount(null); } }} />
   );
 }

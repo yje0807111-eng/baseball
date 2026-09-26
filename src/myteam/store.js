@@ -1,6 +1,6 @@
 /*
- * 내 팀 저장소 — 지금은 브라우저(localStorage). 나중에 로그인 서버가 생기면
- * loadAccount/saveAccount 안쪽만 바꿔 끼우면 된다 (화면은 이 파일만 본다).
+ * 내 팀 저장소 — 브라우저(localStorage)가 작업 사본. 서버 키가 있으면 net/sync.js 가
+ * 바뀔 때마다 Supabase 로 올리고, 로그인할 때 받아 온다 (화면은 이 파일만 본다).
  */
 import { SQUAD_CAP, CLUB_MAX } from './rules.js';
 import { STAFF } from './staff.js';
@@ -206,8 +206,18 @@ const emptyAccount = (nick) => ({
 function read() {
   try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; }
 }
+/* 저장이 바뀔 때마다 알린다 — 서버 동기화(net/sync.js)가 듣는다 */
+const saveListeners = new Set();
+export function onSave(fn) { saveListeners.add(fn); return () => saveListeners.delete(fn); }
 function write(data) {
   try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* 사파리 프라이빗 등 */ }
+  for (const fn of saveListeners) fn();
+}
+/** 저장 원본 그대로(서버로 올릴 때) */
+export const readSave = () => read();
+/** 서버에서 받은 저장으로 갈아 끼운다 — 알리지 않는다(받은 걸 다시 올리지 않게). null 이면 지운다 */
+export function replaceSave(data) {
+  try { if (data) localStorage.setItem(KEY, JSON.stringify(data)); else localStorage.removeItem(KEY); } catch { /* noop */ }
 }
 
 /** 로그아웃 상태라도 저장된 계정을 들여다본다 (로그인 화면의 '이어서 하기') */
