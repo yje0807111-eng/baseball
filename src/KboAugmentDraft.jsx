@@ -1725,7 +1725,8 @@ export const KEYFRAMES = `
 .mc-lk span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 시너지 칸 (선반 카드 오른쪽 위) */
 @keyframes mcPip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-.mc-syn { position: absolute; z-index: 5; right: 5cqw; top: 26cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; border-radius: 999px; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.4); }
+/* 선반 카드: 얼굴을 가리지 않게 오른쪽 아래 — CP 줄 오른쪽 */
+.mc-syn { position: absolute; z-index: 5; right: 5cqw; bottom: 8cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; border-radius: 999px; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.4); }
 .mc-syn svg { width: 8cqw; height: 8cqw; margin-right: .6cqw; color: #6ee7b7; }
 .mc-syn i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
 .mc-syn i.on { background: #e5e7eb; }
@@ -1768,7 +1769,7 @@ export const KEYFRAMES = `
 /* 능력치 막대: 내 라커와 같은 규칙 — 낮으면 푸른 회색 → 높을수록 카드(구단) 색, 빛 번짐 없음 */
 .pk-bar { display: block; flex-basis: 100%; height: 1.4cqw; margin-top: .8cqw; border-radius: 1cqw; overflow: hidden; background: rgba(255,255,255,.08); }
 .pk-bar b { display: block; height: 100%; }
-.pk .mc-syn { right: 4cqw; top: 5cqw; gap: .8cqw; padding: 1.4cqw 1.8cqw; }
+.pk .mc-syn { right: 4cqw; top: 5cqw; bottom: auto; gap: .8cqw; padding: 1.4cqw 1.8cqw; }
 .pk .mc-syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; }
 .pk .mc-syn i { width: 2cqw; height: 3.6cqw; }
 .pk .mc-syn em { font-size: max(12px, 3.6cqw); }
@@ -2607,7 +2608,7 @@ const POS_FS = { SP: 9.3, DH: 8.4 };
 const POS_SHORT = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF: '외야', DH: '지명' };
 
 /**
- * 선반 카드 오른쪽 위 시너지 칸: 목록(도크)의 단계 칸을 축소한 것.
+ * 선반 카드 오른쪽 아래 시너지 칸(얼굴을 가리지 않게 CP 줄 오른쪽): 목록(도크)의 단계 칸을 축소한 것.
  * 흰 칸 = 이미 채움(최종 단계면 초록), 하늘 칸 = 이 선수가 들어오면 채울 칸(깜빡), 최종 단계를 넘어 추가 혜택이면 +N
  */
 function SynergyPips({ s, after, named = false }) {
