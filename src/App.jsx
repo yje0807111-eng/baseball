@@ -50,7 +50,8 @@ export default function App() {
     return () => { alive = false; };
   }, [starterDue, account?.nick]);
 
-  useEffect(() => { const sc = view in SCENE_OF ? SCENE_OF[view] : 'menu'; if (account && sc) setScene(sc); }, [view, !!account]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* 로그인 화면부터 메뉴 곡 — 계정이 없으면 화면이 무엇이든 로그인 화면이다 */
+  useEffect(() => { const sc = !account ? 'menu' : view in SCENE_OF ? SCENE_OF[view] : 'menu'; if (sc) setScene(sc); }, [view, !!account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (boot) return <Loading />;
   if (!account) return <LoginScreen onDone={(a) => { if (online) enter(a); else setAccount(a); setView('lobby'); }} />;

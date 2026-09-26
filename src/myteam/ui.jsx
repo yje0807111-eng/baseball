@@ -1,6 +1,5 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 유리 · 깊이 결(둥근 유리 판 · 윗선 빛 · 그림자 · Saira 숫자) */
 import React, { useEffect, useState } from 'react';
-import BgmButton from '../audio/BgmButton.jsx';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 import { artId } from '../data/artAlias.js';
@@ -302,7 +301,6 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
             </div>
           </div>
         )}
-        <BgmButton />
         {account && <ProfileBadge account={account} onSignOut={onSignOut} />}
         {right}
       </div>
