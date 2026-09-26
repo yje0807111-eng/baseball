@@ -137,7 +137,7 @@ export const UiStyle = () => (
     .mt-tabs { display:flex; align-items:stretch; gap:2px; height:100%; }
     .mt-tab { position:relative; display:flex; align-items:center; padding:0 22px; font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
     .mt-tab:hover { color:#e5e7eb; }
-    .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:15px; font-weight:700; color:#6b7280; }
+    .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:14px; font-weight:700; color:#6b7280; }
     .mt-tab.on .n { color:#fbe7a8; }
     .mt-tab .bd { margin-left:7px; display:grid; place-items:center; min-width:20px; height:20px; padding:0 5px; border-radius:10px; font-size:12px; font-weight:900; color:#1c1203; background:linear-gradient(180deg,#fde68a,#f5b93a); box-shadow:0 0 10px rgba(245,185,58,.55); }
     .mt-tab.on { color:#fff; text-shadow:0 0 18px rgba(245,210,122,.35); background:radial-gradient(70% 90% at 50% 100%,rgba(245,210,122,.16),transparent 70%); }

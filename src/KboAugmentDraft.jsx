@@ -3861,98 +3861,6 @@ function landingOf(play) {
     default: return null;
   }
 }
-
-function FieldView({ play, myName }) {
-  const land = play ? landingOf(play) : null;
-  const fielders = fieldersOf(play?.defense);
-  const offColor = play?.isTop ? '#f87171' : '#10b981';
-  const runners = play ? play.bases.map((p, i) => (p ? { p, i } : null)).filter(Boolean) : [];
-  const good = play && !['K', 'GO', 'FO'].includes(play.kind);
-  return (
-    <section className="ui-cut ui-frame ui-glass2 relative overflow-hidden p-2" style={{ '--c': '14px' }}>
-      <div className="flex flex-col items-center gap-3 md:flex-row md:items-stretch">
-        <svg viewBox="-10 -20 420 410" className="w-full max-w-[34rem] shrink-0">
-          <defs>
-            <radialGradient id="fvGrass" cx="50%" cy="85%" r="90%"><stop offset="0" stopColor="#15803d" /><stop offset="1" stopColor="#052e16" /></radialGradient>
-          </defs>
-          {/* 외야 · 파울 라인 · 담장 */}
-          <path d="M200 372 L-2 170 A 290 290 0 0 1 402 170 Z" fill="url(#fvGrass)" />
-          {Array.from({ length: 7 }, (_, i) => <path key={i} d={`M200 372 L${-2 + i * 67} 60`} stroke="rgba(255,255,255,.035)" strokeWidth="26" />)}
-          <path d="M-2 170 A 290 290 0 0 1 402 170" fill="none" stroke="#fde047" strokeOpacity=".55" strokeWidth="3" />
-          <path d="M200 372 L-2 170 M200 372 L402 170" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
-          {/* 내야 흙 · 잔디 · 마운드 */}
-          <path d="M200 372 L296 276 A 130 130 0 0 0 104 276 Z" fill="#92400e" fillOpacity=".75" />
-          <path d="M200 334 L262 272 L200 210 L138 272 Z" fill="#166534" />
-          <circle cx="200" cy="266" r="12" fill="#92400e" />
-          {BASE_SPOT.map(([x, y], i) => <rect key={i} x={x - 5} y={y - 5} width="10" height="10" fill={play?.bases[i] ? offColor : '#fff'} transform={`rotate(45 ${x} ${y})`} />)}
-
-          {/* 수비수: 타구 쪽 수비수는 공을 쫓아 달려간다 */}
-          {fielders.map(({ spot, p }) => {
-            const [x, y] = FIELD_SPOT[spot];
-            const chase = land && land.chaser === spot;
-            const [tx, ty] = chase ? [x + (land.at[0] - x) * 0.8, y + (land.at[1] - y) * 0.8] : [x, y];
-            return (
-              <g key={spot} style={{ transform: `translate(${tx}px, ${ty}px)`, transition: 'transform .7s cubic-bezier(.3,.7,.3,1)' }}>
-                <circle r="7" fill={play?.isTop ? '#10b981' : '#f87171'} stroke="#05080f" strokeWidth="2" />
-                <text y="19" textAnchor="middle" fontSize="10" fontWeight="700" fill="#fff" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(p) || spot}</text>
-              </g>
-            );
-          })}
-
-          {/* 주자: 선수별로 이어서 움직인다 (득점한 주자는 홈으로 들어가 사라진다) */}
-          {runners.map(({ p, i }) => (
-            <g key={p.id} style={{ transform: `translate(${BASE_SPOT[i][0]}px, ${BASE_SPOT[i][1] - 12}px)`, transition: 'transform .9s ease-in-out' }}>
-              <circle r="7" fill={offColor} stroke="#fff" strokeWidth="2" />
-              <text y="-11" textAnchor="middle" fontSize="10" fontWeight="800" fill="#fff" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(p)}</text>
-            </g>
-          ))}
-          {play && (
-            <g key={`bat${play.key}`}>
-              <circle cx="186" cy="352" r="7" fill={offColor} stroke="#fde047" strokeWidth="2" opacity={play.kind === 'K' ? 1 : 0.35} />
-              <text x="186" y="336" textAnchor="middle" fontSize="11" fontWeight="800" fill="#fde047" style={{ paintOrder: 'stroke', stroke: '#05080f', strokeWidth: 3 }}>{shortName(play.batter)}</text>
-            </g>
-          )}
-
-          {/* 공: 투수 → 홈 → 타구 */}
-          {play && (
-            <g key={`ball${play.key}`}>
-              <circle r="4" fill="#fff" style={{ filter: 'drop-shadow(0 0 4px #fff)' }}>
-                <animateMotion dur=".35s" fill="freeze" path="M200 262 L200 350" />
-              </circle>
-              {land && play.kind !== 'K' && (
-                <circle r="4.5" fill="#fff" opacity="0" style={{ filter: 'drop-shadow(0 0 6px #fde047)' }}>
-                  <set attributeName="opacity" to="1" begin=".35s" fill="freeze" />
-                  <animateMotion begin=".35s" dur={play.kind === 'HR' ? '1.1s' : '.7s'} fill="freeze"
-                    path={`M200 350 Q ${(200 + land.at[0]) / 2} ${play.kind === 'GO' ? (350 + land.at[1]) / 2 : Math.min(land.at[1], 350) - (play.kind === 'HR' ? 160 : 90)} ${land.at[0]} ${land.at[1]}`} />
-                </circle>
-              )}
-            </g>
-          )}
-        </svg>
-
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 px-3 pb-3 md:py-4">
-          {!play ? <p className="text-t3 text-gray-400">플레이볼을 기다리는 중…</p> : (
-            <>
-              <p className="font-display text-t4 tracking-[0.3em] text-gray-400">{play.inning}회{play.isTop ? '초' : '말'} · {play.isTop ? 'AI 올스타' : myName} 공격</p>
-              <div className="flex items-center gap-2 font-display text-t3 text-gray-300">
-                OUT {[0, 1, 2].map((i) => <span key={i} className={`h-3.5 w-3.5 rounded-full ${i < play.outs ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : 'bg-white/15'}`} />)}
-              </div>
-              <div key={play.key} className="animate-[rise_.35s_ease-out_both]">
-                <p className="text-t2 font-bold text-white">{play.batter?.name}</p>
-                <p className="font-display text-4xl font-extrabold" style={{ color: play.kind === 'HR' ? '#fde047' : good ? offColor : '#9ca3af', textShadow: play.kind === 'HR' ? '0 0 24px rgba(253,224,71,.7)' : undefined }}>
-                  {PLAY_LABEL[play.kind]}{play.scored.length ? <span className="ml-2 text-t1 text-white">+{play.scored.length}</span> : null}
-                </p>
-                {play.scored.length > 0 && <p className="mt-1 text-t3 text-gray-300">홈인 · {play.scored.map((p) => p.name).join(', ')}</p>}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ───── 전광판 ───── */
 function Scoreboard({ board, half, myName, oppName }) {
   const total = (arr) => arr.reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
   const rows = [
@@ -4084,44 +3992,6 @@ export function oppTeamFor(opp, buff = 0) {
 /** 예상 승률(%) — 내 팀 · 상대 모두 buildTeam 모양 */
 export const winPct = (my, opp) => Math.round(winChance(my, opp) * 100);
 
-
-function Plate({ player, label }) {
-  const bust = useBust(player, '300%');
-  if (!player) return <div />;
-  const acc = player.isReplacement ? '#64748b' : neonOf(player);
-  const keys = player.type === 'batter' ? ['power', 'contact', 'speed'] : ['stuff', 'control', 'stamina'];
-  return (
-    <div className="ui-cut ui-glass2 flex gap-3 p-2.5 animate-[fade_.25s_ease-out_both]" style={{ '--c': '14px' }}>
-      <span className="ui-cut ui-frame relative block h-[5.5rem] w-[4.5rem] shrink-0 bg-[#0b1220] bg-no-repeat" style={{ '--c': '10px', '--a': acc, ...bust }} />
-      <div className="min-w-0 flex-1">
-        <p className="font-display text-t4 font-bold uppercase tracking-[0.24em]" style={{ color: acc }}>{label}</p>
-        <p className="truncate text-t2 font-black leading-tight text-white">{player.name}</p>
-        <p className="truncate text-t4 text-gray-400">{player.year} {player.team} · {POS_LABEL[player.position]}</p>
-        <div className="mt-1.5 flex flex-wrap gap-1">
-          {keys.map((k) => (
-            <span key={k} className="ui-cut bg-white/[0.05] px-2 py-0.5 text-t4 text-gray-400" style={{ '--c': '4px' }}>{STAT_LABELS[k]} <b className="font-display text-t3 text-white">{player.stats[k]}</b></span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BroadcastPlates({ log }) {
-  if (!log) return null;
-  const mineAtBat = !log.isTop; // 사용자 팀은 홈(말 공격)
-  const batter = log.hero?.type === 'batter' ? log.hero : null;
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Plate key={`b-${batter?.id || 'none'}`} player={batter} label={`타석 · ${mineAtBat ? '내 팀' : 'AI 올스타'}`} />
-      <Plate key={`p-${log.pitcher?.id || 'none'}`} player={log.pitcher} label={`투구 · ${mineAtBat ? 'AI 올스타' : '내 팀'}`} />
-    </div>
-  );
-}
-
-/* ───── 경기 결과: WIN/LOSE · MVP 카드 · 결정적 순간 · 선수 평점 ───── */
-const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
-
 /** 경기 내내 승률이 그린 선 — 반 위는 우리 쪽, 아래는 상대 쪽 */
 function WinCurve({ flow, tone, h = 96 }) {
   const w = 1000;
@@ -4174,7 +4044,10 @@ function ManagerBlock({ flow, calls, gain, tone }) {
   );
 }
 
-function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, gauntlet = null }) {
+/** 선수 평점 — 경기 기여 점수를 등급으로 */
+const gradeOf = (pts) => (pts >= 12 ? 'A+' : pts >= 8 ? 'A' : pts >= 5 ? 'B+' : pts >= 2.5 ? 'B' : pts >= 0 ? 'C' : 'D');
+
+function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, onLog = null, myName = '내 팀', oppName = '상대', gauntlet = null }) {
   const { winner, score, mvpPlayer: mvp, mvp: stat, credits = [] } = result;
   const tone = winner === 'my' ? '#10b981' : winner === 'opp' ? '#f87171' : '#cbd5e1';
   const moments = logs.filter((l) => l.kind === 'augment' || (l.kind === 'score' && l.runs >= 2)).slice(-3);
@@ -4182,11 +4055,11 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
     ? [['무실점 이닝', stat.zero], ['증강 발동', stat.fires], ['종합', mvp.overall]]
     : [['득점 이닝', stat.runs], ['증강 발동', stat.fires], ['종합', mvp.overall]];
   return (
-    <section className="ui-cut ui-frame ui-glass2 grid gap-6 p-6 animate-[rise_.35s_ease-out_both] lg:grid-cols-[16rem_minmax(0,1fr)_19rem]" style={{ '--c': '26px', '--a': tone }}>
+    <section className="ui-cut ui-frame ui-glass2 grid gap-4 p-5 animate-[rise_.35s_ease-out_both] lg:grid-cols-[16rem_minmax(0,1fr)_19rem]" style={{ '--c': '26px', '--a': tone }}>
       <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
         <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? '승리' : winner === 'opp' ? '패배' : '무승부'}</p>
         <div>
-          <p className="mb-1 text-t4 text-gray-400">내 팀 vs AI 올스타</p>
+          <p className="mb-1 text-t4 text-gray-400">{myName} vs {oppName}</p>
           <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-500">:</span>{score.opp}</p>
         </div>
         <div className="ml-auto text-right">
@@ -4234,10 +4107,11 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
         ))}
       </div>
       <div className="flex flex-wrap items-center justify-end gap-2 lg:col-span-3">
+        {onLog && <button type="button" className="ui-btn ui-cut mr-auto" onClick={onLog}>라인 스코어 · 문자 중계</button>}
         <button type="button" className="ui-btn ui-cut" onClick={onNewDraft}>새 드래프트</button>
         {gauntlet ? (
           <>
-            <span className="mr-auto font-display text-t3 text-gray-400">{gauntlet.label}</span>
+            <span className="font-display text-t3 text-gray-400">{gauntlet.label}</span>
             <button type="button" className="ui-btn ui-cut pri" onClick={onRematch}>{gauntlet.cta} ▶</button>
           </>
         ) : (
@@ -4264,7 +4138,7 @@ function ticketsOf(mode) {
       .map((p) => ({ key: p.id, year: p.year, title: p.name, sub: `${p.team} · ${POS_LABEL[p.position]} · 종합 ${p.overall}`, star: p }));
   }
   const list = mode.series.map((s) => ({
-    key: s.id, year: s.year || 'ALL', title: s.title, kind: s.kind, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
+    key: s.id, year: s.year || '역대', title: s.title, kind: s.kind, sub: `${s.subtitle || SERIES_KIND_LABEL[s.kind]} · ${s.players.length}명`,
     star: [...s.players].sort((a, b) => b.overall - a.overall)[0], champ: !!s.champion,
   }));
   return [...list, ...(mode.planned || []).map((t) => ({ key: t, year: t.slice(0, 4), title: t.slice(5), sub: '데이터 조사 후 공개', locked: true }))];
@@ -5188,6 +5062,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [board, setBoard] = useState(emptyBoard);
   const [half, setHalf] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [logOpen, setLogOpen] = useState(false); // 결과 화면의 라인 스코어 · 문자 중계 창
+  const [oppLabel, setOppLabel] = useState('상대'); // 이번 경기 상대 이름 — 결과 판 · 라인 스코어에
   const [toast, setToast] = useState(null);
   const [paused, setPaused] = useState(false);
   const [result, setResult] = useState(null);
@@ -5642,6 +5518,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setOpponent(oppRoster);
     const opp = entry ? entry.team
       : buildTeam(isNoCap(match.cap) ? `${rosterOrigin(oppRoster)} 연합` : 'AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
+    setOppLabel(opp.name || '상대');
+    setLogOpen(false);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
     const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides } } : {});
@@ -5735,7 +5613,6 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   /* 지금 이 선수를 데려오는 값 — 협상 대리인을 켜 두었으면 깎인 값 */
   const costNow = (p) => (live ? Live.costOf(live, p, liveMine) : p.cost);
 
-  const fireCount = (a) => logs.filter((l) => l.kind === 'augment' && l.text.startsWith(`[증강 발동: ${a.name}!]`)).length;
   const btnGhost = 'ui-btn ui-cut';
   const btnPrimary = `${btnGhost} pri`;
   const pickedReason = picked ? lockOf(picked) : null;
@@ -6089,57 +5966,19 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     label: gaunt.done ? '구단 정복 완료' : `${Gaunt.myPos(gaunt)} / ${gaunt.tower.length - 1} 구단 · 다음 ${Gaunt.currentRung(gaunt).name}`,
                     cta: gaunt.done ? '구단 정복' : result.winner === 'my' ? '다음 구단' : '다시 도전',
                   } : null}
+                  myName={myClub} oppName={oppLabel} onLog={() => setLogOpen(true)}
                   onRematch={() => prepareMatch(true)} onNewOpp={() => prepareMatch(false)} onNewDraft={newDraft} />
               )}
 
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="ui-lab font-display" style={{ '--a': phase === 'sim' ? '#f87171' : '#10b981' }}>{phase === 'sim' ? '경기 중' : '경기 끝'}</p>
-                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-400">vs</span> {myClub}</h2>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-display text-t2 tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
-                  {phase === 'sim' && (
-                    <div className="ui-cut ui-glass2 flex gap-1 p-1" style={{ '--c': '8px' }} role="group" aria-label="중계 배속">
-                      {[1, 2, 4].map((s) => (
-                        <button key={s} type="button" onClick={() => setSpeed(s)} aria-pressed={speed === s}
-                          className={`ui-cut px-3.5 py-1 font-display text-t3 font-bold ${speed === s ? 'bg-[#10b981] text-[#05080f]' : 'text-gray-400 hover:text-white'}`} style={{ '--c': '5px' }}>
-                          ×{s}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <Scoreboard board={board} half={half} myName={myClub} oppName="AI 올스타" />
-              {phase === 'sim' && <FieldView play={play} myName={myClub} />}
-              {phase === 'sim' && <BroadcastPlates log={[...logs].reverse().find((l) => l.pitcher)} />}
-
-              <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
-                <LiveLog logs={logs} paused={paused} />
-                <section className="ui-cut ui-frame ui-glass p-3" style={{ '--c': '12px' }}>
-                  <PanelTitle>증강 리스너</PanelTitle>
-                  {augments.length === 0 ? <p className="text-t4 text-gray-400">보유 증강 없음</p> : (
-                    <ul className="flex flex-col gap-1.5">
-                      {augments.map((a) => {
-                        const n = fireCount(a);
-                        return (
-                          <li key={a.id} className={`rounded-md border px-2.5 py-2 ${n ? TIER[a.tier].chip : 'border-gray-700 bg-[#111827]'}`}>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-t3 font-bold">{a.name}</span>
-                              {!a.passive && <span className="font-display text-t3 tabular-nums">{n}/{augMax(a)}</span>}
-                            </div>
-                            <p className="mt-0.5 text-t4 text-gray-400">{augDescAt(a)}</p>
-                            {a.cond && <p className="text-t4 text-gray-400">조건 · {a.cond}</p>}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </section>
-              </div>
-
+              {/* 라인 스코어 · 문자 중계 — 결과 판 아래로 길게 늘이지 않고(한 화면) 창으로 */}
+              {logOpen && (
+                <Modal eyebrow="경기 끝" title={`${myClub} vs ${oppLabel}`} onClose={() => setLogOpen(false)}>
+                  <div className="flex flex-col gap-4">
+                    <Scoreboard board={board} half={half} myName={myClub} oppName={oppLabel} />
+                    <LiveLog logs={logs} paused={false} />
+                  </div>
+                </Modal>
+              )}
             </>
           )}
         </div>
@@ -6153,7 +5992,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             {seriesChoices.map((x) => (
               <button key={x.id} type="button" onClick={() => useSeriesTicket(x)}
                 className="ui-cut flex items-center gap-3 bg-white/[0.05] px-3 py-2.5 text-left transition hover:bg-white/[0.1]" style={{ '--c': '8px' }}>
-                <span className="font-display text-t3 text-[#fbbf24]">{x.year ?? 'LEG'}</span>
+                <span className="font-display text-t3 text-[#fbbf24]">{x.year ?? '레전드'}</span>
                 <span className="min-w-0">
                   <b className="block truncate text-t3 text-white">{x.title}</b>
                   <small className="block truncate text-t4 text-gray-400">{SERIES_KIND_LABEL[x.kind]} · {x.players.length}명</small>
