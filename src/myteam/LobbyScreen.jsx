@@ -8,16 +8,11 @@ import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, WEEK_BONUS, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
-import { useGrow } from '../ui/motion.jsx';
+import { GrowBar } from '../ui/motion.jsx';
 
 /* 로비 첫 등장(앱을 연 뒤 한 번) — 왼쪽 판 → 가운데 → 오른쪽 칸들이 차례로 올라온다. 다시 돌아올 때는 화면 이동 모션만 */
 let lobbyIntroDone = false;
 
-/** 차오르는 막대 — 지난번 본 값에서 새 값으로(0.7초) */
-function GrowBar({ k, pct, className = '', style }) {
-  const w = useGrow(k, pct);
-  return <i className={className} style={{ ...style, width: `${w}%`, transition: 'width .7s var(--fx-out)' }} />;
-}
 
 /** 리그 평균: 적으로 나오는 시리즈 팀(구단 시즌 · 국가대표 · 레전드) 전체의 팀 수치 평균 — 한 번만 계산 */
 /* 리그 평균은 미리 세어 둔 값을 읽는다 — 로비를 열자고 시즌 로스터 412개를 받지 않도록.

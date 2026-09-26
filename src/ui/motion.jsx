@@ -202,5 +202,11 @@ export function useListIntro(key, ms = 700) {
   return state.on ? 'fx-list' : '';
 }
 
+/** 차오르는 막대 — useGrow 를 쓴 <i>. 같은 key 는 화면이 달라도(로비 · 기록) 같은 기억을 쓴다 */
+export function GrowBar({ k, pct, className = '', style }) {
+  const w = useGrow(k, pct);
+  return <i className={className} style={{ ...style, width: `${w}%`, transition: 'width .7s var(--fx-out)' }} />;
+}
+
 /** 차례로 올라오기 — 목록 · 카드 줄이 처음 뜰 때만. i 번째는 45ms 씩 늦게 */
 export const rise = (i = 0) => ({ className: 'fx-rise', style: { '--i': i } });
