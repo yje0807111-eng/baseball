@@ -50,7 +50,7 @@ export function readyRoster(team, formSeed = 0) {
 
 /** 경기용 팀: 엔트리 전원을 드래프트 규칙(buildTeam)으로 — BN 자리는 경기에 안 나선다 */
 export function matchTeamOf(team, ready, rest = [], augs = [], env = {}) {
-  const t = buildTeam(team.name || '나의 드림팀', ready, 0, augs, env); // 증강은 그 경기에서만 (matchAug.js)
-  return { name: team.name || '나의 드림팀', roster: [...t.roster, ...rest.map((p) => ({ ...p, slot: 'BN' }))], batters: t.batters, synergies: t.synergies,
+  const t = buildTeam(team.name || '내 팀', ready, 0, augs, env); // 증강은 그 경기에서만 (matchAug.js)
+  return { name: team.name || '내 팀', roster: [...t.roster, ...rest.map((p) => ({ ...p, slot: 'BN' }))], batters: t.batters, synergies: t.synergies,
     ...(team.plan?.sides ? { plan: { sides: team.plan.sides } } : {}) };
 }

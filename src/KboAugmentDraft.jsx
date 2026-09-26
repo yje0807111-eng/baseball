@@ -2453,7 +2453,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
 
         <div className="flex items-center gap-3">
           {foreign > 0 && (
-            <span title={foreign >= FOREIGN_LIMIT ? '외국인 한도에 도달해 외국인 후보는 잠깁니다' : `외국인 선수는 최대 ${FOREIGN_LIMIT}명`}
+            <span title={foreign >= FOREIGN_LIMIT ? '외국인 한도 · 외국인 후보 잠김' : `외국인 선수는 최대 ${FOREIGN_LIMIT}명`}
               className="ui-chip ui-cut font-display text-t3 font-bold tabular-nums" style={{ '--a': foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#94a3b8' }}>
               <span className="font-sans text-t4 font-semibold text-gray-400">외국인</span>
               <span style={{ color: foreign >= FOREIGN_LIMIT ? '#fbbf24' : '#fff' }}>{foreign}/{FOREIGN_LIMIT}</span>
@@ -4113,8 +4113,8 @@ function BroadcastPlates({ log }) {
   const batter = log.hero?.type === 'batter' ? log.hero : null;
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <Plate key={`b-${batter?.id || 'none'}`} player={batter} label={`At Bat · ${mineAtBat ? '나의 드림팀' : 'AI 올스타'}`} />
-      <Plate key={`p-${log.pitcher?.id || 'none'}`} player={log.pitcher} label={`Pitching · ${mineAtBat ? 'AI 올스타' : '나의 드림팀'}`} />
+      <Plate key={`b-${batter?.id || 'none'}`} player={batter} label={`타석 · ${mineAtBat ? '내 팀' : 'AI 올스타'}`} />
+      <Plate key={`p-${log.pitcher?.id || 'none'}`} player={log.pitcher} label={`투구 · ${mineAtBat ? 'AI 올스타' : '내 팀'}`} />
     </div>
   );
 }
@@ -4186,7 +4186,7 @@ function ResultPanel({ result, record, logs, onRematch, onNewOpp, onNewDraft, ga
       <div className="flex flex-wrap items-end gap-6 border-b border-white/10 pb-4 lg:col-span-3">
         <p className="font-display text-8xl font-extrabold italic leading-[.8]" style={{ color: tone, textShadow: `0 0 40px ${tone}99` }}>{winner === 'my' ? '승리' : winner === 'opp' ? '패배' : '무승부'}</p>
         <div>
-          <p className="mb-1 text-t4 text-gray-400">나의 드림팀 vs AI 올스타</p>
+          <p className="mb-1 text-t4 text-gray-400">내 팀 vs AI 올스타</p>
           <p className="font-display text-6xl font-extrabold leading-[.9] tabular-nums text-white">{score.my}<span className="mx-3 text-gray-500">:</span>{score.opp}</p>
         </div>
         <div className="ml-auto text-right">
@@ -4733,7 +4733,7 @@ const RULE_TABS = [
       { t: 'CP는 얼마나 쓸 수 있나요?', s: '모드 화면에서 정한 샐러리 캡만큼', b: <>
         <p>샐러리 캡은 <span className="rl-chip">700</span> <span className="rl-chip g">800</span> <span className="rl-chip">900</span> CP 중 하나</p>
         <p>영입할 때마다 영입가만큼 줄고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠김</p>
-        <div className="rl-tip"><span>PICK에 선수를 올리면 위쪽 캡 막대에 쓰일 CP 미리 표시</span></div>
+        <div className="rl-tip"><span>선수를 고르면 위쪽 캡 막대에 쓰일 CP 미리 표시</span></div>
       </> },
       { t: '영입가는 어떻게 정해지나요?', s: '종합이 높을수록 점수보다 비쌈', b: <>
         <div className="rl-tbl">
@@ -4776,7 +4776,7 @@ const RULE_TABS = [
         </div>
       </> },
       { t: '찬 자리에 선수를 데려오려면?', s: '교체 영입으로 한 번에 맞바꾸기', b: <>
-        <p>이미 찬 포지션의 선수를 PICK에 올리면 버튼이 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>처럼 바뀝니다.</p>
+        <p>이미 찬 포지션의 선수를 고르면 단추가 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>으로 바뀜</p>
         <div className="rl-steps">
           <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 교체</span></div>
           <div><span>누르지 않았다면 그 포지션에서 <b>가장 약한 선수</b>와 교체</span></div>
@@ -4873,7 +4873,7 @@ const RULE_TABS = [
     ] },
   { id: 'team', label: '내 팀',
     icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
-    lead: <>드래프트 화면 오른쪽 <b>MY TEAM</b> 판 — 지금 라인업의 전력과 선수들의 실제 시즌 기록</>,
+    lead: <>드래프트 화면 오른쪽 <b>내 팀</b> 판 — 지금 라인업의 전력과 선수들의 실제 시즌 기록</>,
     groups: [
       { t: '팀 분석의 숫자는 무엇인가요?', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
         <p>선수를 세운 자리와 시너지가 반영된 종합의 평균 · 빈 자리는 빼고 계산</p>
@@ -4921,7 +4921,7 @@ const lineupOf = (roster) => withSlots(roster).map((p, i) => ({ p, i })).filter(
 
 /** 정비 화면 지표: 경기 계산(buildTeam)과 같은 값 + 합계 · 타순 가중 */
 export function readyStats(roster, buff) {
-  const t = buildTeam('나의 드림팀', roster, buff);
+  const t = buildTeam('내 팀', roster, buff);
   const b = t.batters;
   const w = b.map((_, i) => RD_ORDER_W[i] ?? 0.9);
   const pitchers = [t.sps[0], ...t.pen].filter(Boolean);
@@ -4996,7 +4996,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
     rotation: slotted.filter((p) => p.slot === 'SP').map((p) => p.id),
     bullpen: PEN_ORDER.map((sl) => slotted.find((p) => p.slot === sl)).filter(Boolean).map((p) => p.id),
   };
-  const team = { name: '나의 드림팀', squad: roster, bench: benchIds, order, pitchFatigue: {} };
+  const team = { name: '내 팀', squad: roster, bench: benchIds, order, pitchFatigue: {} };
 
   /** 라커 판이 바꾼 순서를 드래프트 자리(slot) · 타순(batOrder)으로 되돌려 저장한다 */
   const commit = (next) => {
@@ -5350,7 +5350,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (!options.length) return;
     setMemento({ ...rule, options, full: (me.team?.club || []).length >= CLUB_MAX });
   };
-  const myTeam = useMemo(() => buildTeam('나의 드림팀', fillRoster(roster), buff), [roster, buff]);
+  /* 드래프트 판의 내 팀 이름 = 내 구단 이름(프로필에서 지은 것 · 없으면 감독 이름) */
+  const myClub = useMemo(() => { const a = loadAccount(); return a?.team?.name || a?.nick || '내 팀'; }, []);
+  const myTeam = useMemo(() => buildTeam(myClub, fillRoster(roster), buff), [roster, buff, myClub]);
 
   /* 드래프트 핸들러: 판정 레이어 → 영입 → 다음 라운드 / 증강 / 이벤트 */
   const handleSelectPlayer = useCallback((player) => {
@@ -5576,10 +5578,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       const name = `${owner} 드림팀`;
       others.push({ id: `dr-${others.length}`, name, roster, team: buildTeam(name, fillRoster(roster), AI_BUFF[match.ai]) });
     }
-    const mine = { me: true, team: buildTeam('나의 드림팀', fillRoster(myRoster), buff, augments) };
+    const mine = { me: true, team: buildTeam(myClub, fillRoster(myRoster), buff, augments) };
     const order = seedByStrength([...others, mine], (e) => playStrength(e.team) + (e.team.buff || 0));
     const meAt = order.indexOf(mine);
-    return makeTournament({ size, myName: '나의 드림팀', others: order.filter((e) => e !== mine), meAt });
+    return makeTournament({ size, myName: myClub, others: order.filter((e) => e !== mine), meAt });
   };
 
   /* 구단 정복: 지금 칠 칸(내 바로 윗 칸)의 구단과 경기를 연다 */
@@ -5642,7 +5644,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       : buildTeam(isNoCap(match.cap) ? `${rosterOrigin(oppRoster)} 연합` : 'AI 올스타', fillRoster(oppRoster), AI_BUFF[match.ai]);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
-    const makeMy = (augs) => Object.assign(buildTeam('나의 드림팀', fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides } } : {});
+    const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides } } : {});
     const liveMy = makeMy(owned);
     setLiveTeams({ my: liveMy, opp, makeMy, augments: owned, aug: makeAugmentRuntime({ augments: owned, my: liveMy, opp, record }) });
     runIdRef.current += 1;
@@ -5677,7 +5679,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }
     if (tourMode && dtour && !dtour.done) { // 토너먼트: 결과를 넣고 대진표로
       setTourEntry(null);
-      const nt = advanceTourney(dtour, res.score, buildTeam('나의 드림팀', fillRoster(roster), buff, augments));
+      const nt = advanceTourney(dtour, res.score, buildTeam(myClub, fillRoster(roster), buff, augments));
       setDtour(nt);
       if (nt.done) openMemento(tourneyMemento(nt.place, roundsOf(nt.size).length)); // 토너먼트가 끝났다
       setRecord((r) => ({ w: r.w + (res.winner === 'my'), l: r.l + (res.winner === 'opp'), d: r.d + (res.winner === 'draw') }));
@@ -5712,7 +5714,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
       cap: cfg.cap, series: m.series,
-      myName: me?.team?.name || me?.nick || '나의 드림팀',
+      myName: me?.team?.name || me?.nick || myClub,
       myShort: me?.nick,
       myColor: flagByKey(banner)?.color || '#e879f9',
       myEmblem: Live.bannerEmblem(banner),
@@ -5816,19 +5818,19 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             style={{ '--c': '12px', background: 'rgba(8,12,20,.94)', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.5), 0 18px 40px rgba(0,0,0,.6)' }}>
             <b className="font-display text-t2 tracking-[0.12em] text-[#fbbf24]">샐러리 캡 소진</b>
             <span className="h-4 w-px bg-white/20" />
-            <b className="text-t3 text-[#e8ecf2]">남은 라운드를 건너뜁니다</b>
+            <b className="text-t3 text-[#e8ecf2]">남은 라운드 건너뜀</b>
           </div>
         </div>
       )}
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
-          me={{ name: live ? live.clubs[Live.myIndex(live)].name : '나의 드림팀', short: live ? live.clubs[Live.myIndex(live)].short : '나', color: live ? live.clubs[Live.myIndex(live)].color : null, emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
+          me={{ name: live ? live.clubs[Live.myIndex(live)].name : myClub, short: live ? live.clubs[Live.myIndex(live)].short : '나', color: live ? live.clubs[Live.myIndex(live)].color : null, emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
           onBack={() => setPhase('ready')} onExit={newDraft} oppBuff={AI_BUFF[match.ai] || 0}
           onPlay={() => setPhase('ready')} />
       )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
-          <TournamentBracket t={dtour} myTeam={buildTeam('나의 드림팀', fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false} playLabel="정비하기 ▶"
+          <TournamentBracket t={dtour} myTeam={buildTeam(myClub, fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false} playLabel="정비하기 ▶"
             onBack={() => setPhase('ready')}
             onPlay={() => { const e = tourneyOpponent(dtour); setTourEntry(e); setOpponent(e?.roster || null); setPhase('ready'); }}
             onRestart={() => setDtour(makeDraftTournament())} />
@@ -5850,8 +5852,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             <section className="flex flex-col gap-3 lg:min-h-0 lg:flex-1" style={{ '--card-w': 'clamp(4.2rem, 13vh, 8rem)' }}>
               {!canPickAny && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-yellow-400/40 bg-yellow-400/10 px-4 py-3">
-                  <p className="text-t3 text-yellow-100">영입 가능한 선수가 남아 있지 않습니다. 빈 자리는 퓨처스 유망주(종합 70)로 채워집니다.</p>
-                  <button type="button" className={btnPrimary} onClick={() => finishDraft(roster)}>이대로 정비하러 가기</button>
+                  <p className="text-t3 text-yellow-100">영입 가능한 선수 없음 · 빈 자리는 퓨처스 유망주(종합 70)</p>
+                  <button type="button" className={btnPrimary} onClick={() => finishDraft(roster)}>이대로 정비 ▶</button>
                 </div>
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
@@ -6093,7 +6095,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="ui-lab font-display" style={{ '--a': phase === 'sim' ? '#f87171' : '#10b981' }}>{phase === 'sim' ? '경기 중' : '경기 끝'}</p>
-                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-400">vs</span> 나의 드림팀</h2>
+                  <h2 className="mt-1 text-t1 font-black text-white">AI 올스타 <span className="font-display text-gray-400">vs</span> {myClub}</h2>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="font-display text-t2 tabular-nums text-gray-300">{record.w}승 {record.l}패 {record.d}무</span>
@@ -6110,8 +6112,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                 </div>
               </div>
 
-              <Scoreboard board={board} half={half} myName="나의 드림팀" oppName="AI 올스타" />
-              {phase === 'sim' && <FieldView play={play} myName="나의 드림팀" />}
+              <Scoreboard board={board} half={half} myName={myClub} oppName="AI 올스타" />
+              {phase === 'sim' && <FieldView play={play} myName={myClub} />}
               {phase === 'sim' && <BroadcastPlates log={[...logs].reverse().find((l) => l.pitcher)} />}
 
               <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">

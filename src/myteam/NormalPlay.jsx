@@ -128,7 +128,7 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
         <div className="absolute bottom-6 left-7">
           <p className="ui-lab font-display">다음 경기</p>
-          <p className="mt-1 text-5xl font-black text-white">{team.name || '나의 드림팀'} <span className="font-display text-gray-400">vs</span> {oppName || '무작위 팀'}</p>
+          <p className="mt-1 text-5xl font-black text-white">{team.name || '내 팀'} <span className="font-display text-gray-400">vs</span> {oppName || '무작위 팀'}</p>
           <p className="mt-2 font-display text-t2" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
@@ -258,7 +258,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
 
   const main = single
     ? <SingleHero team={team} squad={squad} ready={ready} issues={issues} onLocker={onLocker} oppName={duel?.name} />
-    : <TourneyHero key={format} size={format} t={t} cup={cup} name={team.name || '나의 드림팀'} squad={squad} />;
+    : <TourneyHero key={format} size={format} t={t} cup={cup} name={team.name || '내 팀'} squad={squad} />;
 
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
@@ -309,7 +309,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
             </>
           )}
           {cupWhy && <p className="text-t3 text-amber-300">· 조건 불충족 — {cupWhy}</p>}
-          {other && <p className="text-t3 text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라집니다</p>}
+          {other && <p className="text-t3 text-amber-300">진행 중인 {other.size}강은 새로 시작하면 사라짐</p>}
         </>
       )}
       {!ready && (

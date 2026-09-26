@@ -44,7 +44,7 @@ export function entrantsFor(key, n) {
 }
 
 /** 새 대진: size 강 · 내 자리는 무작위(meAt 으로 정할 수 있다). others 를 주면(드래프트 모드) 그 팀들로 채운다 */
-export function makeTournament({ size = 32, myName = '나의 드림팀', key = newKey(), others = null, meAt = null, cup = 'open' } = {}) {
+export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), others = null, meAt = null, cup = 'open' } = {}) {
   const list = others || entrantsFor(key, size - 1);
   const rng = seeded(hash(`tourney:${key}:me`));
   const at = meAt ?? Math.floor(rng() * size);

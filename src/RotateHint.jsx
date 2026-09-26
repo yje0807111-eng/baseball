@@ -28,8 +28,7 @@ export default function RotateHint() {
           <path d="M14 22a18 18 0 0 0 4 20" strokeLinecap="round" />
           <path d="M12 14v8h8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <b className="mt-5 font-display text-t4 tracking-[0.35em] text-emerald-400">ROTATE</b>
-        <p className="mt-1.5 text-t2 font-bold text-white">가로로 돌리기</p>
+                <p className="mt-1.5 text-t2 font-bold text-white">가로로 돌리기</p>
         <p className="mt-2 text-t3 leading-relaxed text-gray-400">
           라커 · 드래프트 · 경기 화면 모두 가로 기준 · 눕히면 화면 크기에 맞춰 표시
         </p>

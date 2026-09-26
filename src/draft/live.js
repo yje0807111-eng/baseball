@@ -126,7 +126,7 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '나의 드림팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, ai = 'normal', rng = Math.random } = {}) {
+export function createLive({ myName = '내 팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, ai = 'normal', rng = Math.random } = {}) {
   const grades = GRADE_ORDERS[ai] || GRADE_ORDERS.normal;
   // 상대 구단은 실제 구단 중에서 판마다 새로 뽑는다 — 그해 선수가 모자라면 수를 줄인다
   const count = clubCount || clubsFor(series);
