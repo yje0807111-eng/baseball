@@ -3851,7 +3851,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
-  useEffect(() => { setHot(-1); setTook(-1); }, [choice]);
+  useEffect(() => { setHot(-1); setTook(-1); if (choice) play('augReveal', { n: choice.options.length }); }, [choice]); // 새로 뜰 때 · 다시 굴렸을 때
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3872,15 +3872,15 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           </h2>
           {!isAug && <p className="mt-2 text-t3 text-gray-400">구단 운영 방향 고르기 · 되돌리기 없음</p>}
         </div>
-        <div className="flex flex-wrap justify-center gap-9">
+        <div className="flex flex-wrap justify-center gap-9" data-sfx="none">
           {choice.options.map((o, i) => (
             <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
               state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
-              onChoose={(pick) => { if (took >= 0) return; setTook(i); setTimeout(() => onChoose(pick), 620); }} />
+              onChoose={(pick) => { if (took >= 0) return; setTook(i); play('augPick'); setTimeout(() => onChoose(pick), 620); }} />
           ))}
         </div>
         {isAug && onReroll && (free > 0 || rerolls > 0) && (
-          <button type="button" onClick={onReroll} className="aug-reroll animate-[rise_.4s_ease-out_both]">
+          <button type="button" onClick={onReroll} data-sfx="augReroll" className="aug-reroll animate-[rise_.4s_ease-out_both]">
             ↺ 다시 굴리기
             <em className="ml-1.5 not-italic opacity-75">
               {free > 0 ? '· 이번 한 번 무료' : `· 리롤권 ${rerolls}장`}

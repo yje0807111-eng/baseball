@@ -9,6 +9,7 @@ import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx'
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
 import { useListIntro } from '../ui/motion.jsx';
+import { play } from '../audio/sfx.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
@@ -69,6 +70,7 @@ export default function AugmentScreen({ account, onBack }) {
     if (lv >= AUG_LEVEL_MAX) return;
     if (aug.upgradeTickets < need) { setMsg(`강화권 ${need - aug.upgradeTickets}장 부족`); return; }
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
+    play('augUpgrade', { lv: need });
   };
 
   const list = pool.filter((a) => (view === 'fav' ? favs.includes(a.id) : view === 'ban' ? bans.includes(a.id) : true) && (type === 'all' || a.type === type));
@@ -141,7 +143,7 @@ export default function AugmentScreen({ account, onBack }) {
             </div>
             <div className="mt-auto flex flex-col gap-2.5">
               {msg && <p className="text-center text-t3 text-amber-200">{msg}</p>}
-              <button type="button" className="mt-btn pri lg w-full" disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+              <button type="button" className="mt-btn pri lg w-full" data-sfx="none" disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
                 {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : <>+{lv + 1} 강화 <span className="text-t3 opacity-70">· 강화권 {lv + 1}장</span></>}
               </button>
               <div className="flex gap-2">

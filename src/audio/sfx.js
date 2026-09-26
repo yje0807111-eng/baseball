@@ -37,12 +37,12 @@ export function sfxContext() {
 }
 export function setSfxLevel(v, m = muted) { level = v; muted = m; }
 
-/* ── 조각 ─────────────────────────────────────────── */
+/* ── 조각 ─ (크기 노드는 만들 때 0 으로 — 기본값 1 이 시작 직전 한 순간 새어 틱 소리가 났다) ─────────────────────────────────────────── */
 /** 음 하나: 파형 · 주파수(끝 주파수로 미끄러짐) · 올라감/내려옴 · 크기 */
 function tone(t, { type = 'sine', f, f2 = f, a = 0.002, d = 0.12, g = 0.3, dest }) {
   const o = ctx.createOscillator(); o.type = type;
   o.frequency.setValueAtTime(f, t); if (f2 !== f) o.frequency.exponentialRampToValueAtTime(f2, t + a + d);
-  const e = ctx.createGain(); e.gain.setValueAtTime(0.0001, t);
+  const e = ctx.createGain(); e.gain.value = 0; e.gain.setValueAtTime(0.0001, t);
   e.gain.exponentialRampToValueAtTime(g, t + a); e.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
   o.connect(e).connect(dest); o.start(t); o.stop(t + a + d + 0.02);
 }
@@ -52,7 +52,7 @@ function bell(t, { f, ratio = 3.5, idx = 2.5, d = 0.6, g = 0.25, dest }) {
   const m = ctx.createOscillator(); m.frequency.value = f * ratio;
   const mg = ctx.createGain(); mg.gain.setValueAtTime(f * idx, t); mg.gain.exponentialRampToValueAtTime(f * 0.05, t + d);
   m.connect(mg).connect(c.frequency);
-  const e = ctx.createGain(); e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.003); e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  const e = ctx.createGain(); e.gain.value = 0; e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.003); e.gain.exponentialRampToValueAtTime(0.0001, t + d);
   c.connect(e).connect(dest); c.start(t); m.start(t); c.stop(t + d + 0.02); m.stop(t + d + 0.02);
 }
 /** 걸러 낸 잡음: 필터 종류 · 중심 주파수(끝으로 미끄러짐) · Q · 올라감/내려옴 */
@@ -60,7 +60,7 @@ function noise(t, { type = 'bandpass', f = 2000, f2 = f, q = 1, a = 0.005, d = 0
   const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
   const fl = ctx.createBiquadFilter(); fl.type = type; fl.Q.value = q;
   fl.frequency.setValueAtTime(f, t); if (f2 !== f) fl.frequency.exponentialRampToValueAtTime(f2, t + a + d);
-  const e = ctx.createGain(); e.gain.setValueAtTime(0.0001, t);
+  const e = ctx.createGain(); e.gain.value = 0; e.gain.setValueAtTime(0.0001, t);
   e.gain.exponentialRampToValueAtTime(g, t + a); e.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
   s.connect(fl).connect(e).connect(dest); s.start(t, Math.random() * 0.5); s.stop(t + a + d + 0.02);
 }
@@ -77,9 +77,9 @@ export const RECIPES = {
   } },
   /* 주 단추 — 톡 + 아래 옥타브 두께 */
   press: { vary: true, len: 0.15, fn(t, o, { tone, note, jitter }) {
-    tone(t, { type: 'triangle', f: jitter(note(0, 5), 15), d: 0.09, g: 0.2, dest: o });
-    tone(t, { f: note(0, 6), d: 0.06, g: 0.08, dest: o });
-    tone(t, { f: 170, f2: 85, d: 0.06, g: 0.22, dest: o });
+    tone(t, { type: 'triangle', f: jitter(note(0, 5), 15), d: 0.09, g: 0.14, dest: o });
+    tone(t, { f: note(0, 6), d: 0.06, g: 0.06, dest: o });
+    tone(t, { f: 170, f2: 85, d: 0.06, g: 0.15, dest: o });
   } },
   /* 화면 들어감 — 잡음이 위로 쓸려 올라감 / 돌아옴 — 아래로 */
   navIn: { len: 0.3, fn(t, o, { noise }) { noise(t, { f: 450, f2: 2600, q: 0.9, a: 0.07, d: 0.15, g: 0.24, dest: o }); } },
@@ -149,6 +149,35 @@ export const RECIPES = {
   turn: { len: 0.7, fn(t, o, { bell, note }) {
     bell(t, { f: note(3, 5), ratio: 2, idx: 1.5, d: 0.45, g: 0.2, dest: o });
     bell(t + 0.11, { f: note(0, 6), ratio: 2, idx: 1.5, d: 0.55, g: 0.2, dest: o });
+  } },
+
+  /* ── 증강 ── */
+  /* 증강 고르기 창이 뜸 — 반짝이가 차오르고 카드가 놓이는 박자(120ms + 110ms 씩)에 맞춰 종이 한 음씩 오름. n: 카드 수 */
+  augReveal: { len: 1.4, fn(t, o, { bell, noise, tone, note, n = 3 }) {
+    noise(t, { type: 'highpass', f: 1800, f2: 7500, a: 0.3, d: 0.45, g: 0.045, dest: o });
+    tone(t, { type: 'triangle', f: note(0, 3), f2: note(0, 4), a: 0.25, d: 0.3, g: 0.08, dest: o });
+    for (let i = 0; i < n; i++) bell(t + 0.12 + i * 0.11, { f: note(i * 2, 5), ratio: 3.01, idx: 0.9, d: 0.55, g: 0.1, dest: o });
+  } },
+  /* 증강 고름 — 한 옥타브 치켜 오르며 D · A 화음 종 + 아래 쿵 + 반짝이. 고르기 창에서 가장 큰 소리 */
+  augPick: { len: 1.1, fn(t, o, { bell, noise, tone, note }) {
+    tone(t, { f: 130, f2: 60, d: 0.12, g: 0.3, dest: o });
+    tone(t, { type: 'triangle', f: note(0, 5), f2: note(0, 6), a: 0.005, d: 0.1, g: 0.12, dest: o });
+    bell(t + 0.06, { f: note(0, 6), ratio: 2.01, idx: 1.4, d: 0.8, g: 0.14, dest: o });
+    bell(t + 0.06, { f: note(3, 6), ratio: 3.01, idx: 1, d: 0.7, g: 0.1, dest: o });
+    noise(t + 0.08, { type: 'highpass', f: 6500, a: 0.02, d: 0.4, g: 0.04, dest: o });
+  } },
+  /* 다시 굴리기 — 카드가 섞이는 파닥임 셋 + 짧게 치켜 오름 (새 카드가 뜨는 소리는 augReveal) */
+  augReroll: { len: 0.4, fn(t, o, { noise, tone, note }) {
+    for (let i = 0; i < 3; i++) noise(t + i * 0.055, { f: 1400 + i * 700, f2: 3200 + i * 700, q: 1.4, d: 0.045, g: 0.15, dest: o });
+    tone(t + 0.1, { type: 'triangle', f: note(3, 5), f2: note(0, 6), d: 0.09, g: 0.08, dest: o });
+  } },
+  /* 증강 강화 — 강화할 레벨(lv)만큼 종이 5음으로 한 칸씩 오르고 끝 음에 반짝이. 높은 레벨일수록 길고 높게 */
+  augUpgrade: { len: 1.6, fn(t, o, { bell, noise, tone, note, lv = 1 }) {
+    tone(t, { f: 150, f2: 70, d: 0.1, g: 0.18, dest: o });
+    const k = 2 + lv; const step = 0.07;
+    for (let i = 0; i < k; i++) bell(t + i * step, { f: note(i, 5), ratio: 3.01, idx: 1.1, d: i === k - 1 ? 0.9 : 0.3, g: i === k - 1 ? 0.15 : 0.1, dest: o });
+    bell(t + (k - 1) * step, { f: note(k - 1 + 5, 5), ratio: 2.01, idx: 0.8, d: 0.9, g: 0.075, dest: o }); // 끝 음 옥타브 위를 겹쳐 밝게
+    noise(t + (k - 1) * step, { type: 'highpass', f: 7000, a: 0.03, d: 0.5, g: 0.045, dest: o });
   } },
 };
 
