@@ -347,9 +347,10 @@ OOTP 는 제한을 건 대회로 같은 수집에서 새 판을 만든다.
 ### 한 일
 - [x] `@supabase/supabase-js` · `src/net/supabase.js`(client · ensureSession · ping) · 오프라인 테스트
 - [x] `supabase/migrations/0001_async_pvp.sql` · `.env.example` · `.gitignore` 에 `.env.local`
-- [ ] Supabase 프로젝트 만들기 · 스키마 적용 · `.env.local` 에 주소 · 공개 키
+- [x] Supabase 프로젝트 `baseball`(esgtgwvfwrhecnfrxjuc · 시드니) · 스키마 0001 · 0002 적용 · 익명 로그인 켬 · `.env.local` 에 주소 · publishable 키
 - [ ] 경기 엔진 시드 고정(같은 시드 = 같은 경기)
 - [ ] 팀 스냅숏 형식(payload v1) · 올리기 · 받아 오기
 - [ ] 랭크전 상대를 저장된 팀으로 · 방어 기록
 
 ### 작업 기록
+- 2026-09-26 연결 확인: 로그인 전 401 · 익명 로그인 · 감독 이름 저장 · 팀 읽기 · 자기 팀 덮어쓰기 성공, 남의 이름으로 팀 · 대전 기록 쓰기는 RLS 로 막힘. 보안 경고 0. 앱 안 ping 성공
