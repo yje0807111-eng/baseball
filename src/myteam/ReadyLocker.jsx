@@ -4,7 +4,31 @@
  *  · 오른쪽: 작전(세 갈래 · 준비 카드 · 경기 시작)
  * 자리·타순 바꾸기는 SquadBoard 가 하고, 이 판은 바뀐 결과(order)를 그대로 위로 올린다.
  */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Count } from '../ui/motion.jsx';
+
+/** 예상 승률 막대 — 50:50 에서 출발해 제 값으로(0.7초), 값이 바뀌면 그 값으로 미끄러진다 */
+function WinBar({ win, c }) {
+  const [shown, setShown] = useState(50);
+  useEffect(() => { const id = setTimeout(() => setShown(win), 60); return () => clearTimeout(id); }, [win]); // 한 번 그린 뒤 제 값으로 — 전환이 보이게
+  return (
+    <>
+      <div className="flex items-baseline justify-between">
+        <Sub>예상 승률</Sub>
+        <span className="font-display text-t2 font-extrabold">
+          <Count value={win} from={50} dur={700} style={{ color: '#34d399' }} format={(n) => `${n}%`} /> <span className="text-gray-500">:</span>{' '}
+          <Count value={100 - win} from={50} dur={700} style={{ color: c }} format={(n) => `${n}%`} />
+        </span>
+      </div>
+      <span className="relative flex h-2 overflow-hidden rounded-full">
+        <i className="block h-full transition-[width] duration-700" style={{ width: `${shown}%`, background: '#34d399', transitionTimingFunction: 'var(--fx-out)' }} />
+        <i className="block h-full flex-1" style={{ background: c }} />
+        {/* 가운데 50% 눈금 — 어느 쪽으로 기울었는지 */}
+        <b className="absolute inset-y-0 left-1/2 w-px bg-[#05080f]/70" aria-hidden="true" />
+      </span>
+    </>
+  );
+}
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
@@ -140,14 +164,7 @@ function ScoutPanel({ opponent, sums, win = null, onLineup }) {
       {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
       {win != null && (
         <div className="flex shrink-0 flex-col gap-1.5">
-          <div className="flex items-baseline justify-between">
-            <Sub>예상 승률</Sub>
-            <span className="font-display text-t2 font-extrabold"><span style={{ color: '#34d399' }}>{win}%</span> <span className="text-gray-500">:</span> <span style={{ color: c }}>{100 - win}%</span></span>
-          </div>
-          <span className="flex h-2 overflow-hidden rounded-full">
-            <i className="block h-full" style={{ width: `${win}%`, background: '#34d399' }} />
-            <i className="block h-full flex-1" style={{ background: c }} />
-          </span>
+          <WinBar win={win} c={c} />
         </div>
       )}
       <span className="flex-1" />

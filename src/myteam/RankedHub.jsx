@@ -2,13 +2,13 @@
  * 랭크전 시즌 화면 (전체 화면) — 왼쪽: 10팀 순위표 · 최근 라운드 결과 · 포스트시즌 사다리 / 오른쪽: 다음 내 경기 분석 또는 시즌 결과.
  * 경기가 끝나면 여기로 돌아와 다른 팀들의 성적과 순위 변화를 본다.
  */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { teamOf } from './tournament.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLACE_REWARD } from './ranked.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { rankOf } from './rank.js';
-import { Count, Burst } from '../ui/motion.jsx';
+import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
 
 /**
  * 등급 오름 — 시즌 보상을 받아 등급이 바뀌는 순간(가장 드문 순간이라 가장 크게, 롤 · 클래시 로얄 승급처럼)
@@ -53,9 +53,37 @@ const fmtPct = (r) => (r.w + r.l ? (r.w / (r.w + r.l)).toFixed(3).replace(/^0/, 
 const fmtGb = (gb) => (gb === 0 ? '-' : gb.toFixed(1));
 
 /** 순위표 */
+/* 순위표를 마지막으로 본 순위(시즌별) — 결과 화면을 거쳐 다시 열려도 바뀐 줄이 움직이게 */
+let seenRanks = null;
+const MOVE_WAIT = 320;
+
 export function StandingsTable({ s, big = false, lastMoves = null }) {
   const rows = standings(s);
   const me = meOf(s);
+  const bodyRef = useRef(null);
+  /* 지난번 본 순위 — 화면이 뜰 때 한 번만 잡는다(개발 모드에서 효과가 두 번 돌아도 같은 값) */
+  const [prevRanks] = useState(() => (big && seenRanks && seenRanks.key === `${s.key}` ? seenRanks.ranks : null));
+  useLayoutEffect(() => {
+    if (!big) return undefined;
+    const now = new Map(rows.map((r) => [r.idx, r.rank]));
+    seenRanks = { key: `${s.key}`, ranks: now };
+    const trs = [...(bodyRef.current?.querySelectorAll('tr[data-idx]') || [])];
+    trs.forEach((tr) => { tr.style.transition = 'none'; tr.style.transform = ''; }); // 앞 실행에서 걸어 둔 자리는 먼저 지운다
+    if (!prevRanks || trs.length < 2 || reducedMotion()) return undefined;
+    const pitch = trs[1].getBoundingClientRect().top - trs[0].getBoundingClientRect().top;
+    const moved = trs.filter((tr) => { const was = prevRanks.get(Number(tr.dataset.idx)); return was != null && was !== now.get(Number(tr.dataset.idx)); });
+    moved.forEach((tr) => {
+      const idx = Number(tr.dataset.idx);
+      tr.style.transform = `translateY(${(prevRanks.get(idx) - now.get(idx)) * pitch}px)`;
+      tr.style.position = 'relative';
+      tr.style.zIndex = idx === me ? '2' : '1';
+    });
+    const t = setTimeout(() => moved.forEach((tr) => {
+      tr.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
+      tr.style.transform = '';
+    }), MOVE_WAIT);
+    return () => clearTimeout(t);
+  }, [rows.map((r) => r.idx).join()]); // 순위가 바뀔 때만 — 같은 순위로 다시 그려지는 것은 무시 // eslint-disable-line react-hooks/exhaustive-deps
   const cell = big ? 'py-[7px]' : 'py-1';
   /* 큰 판: 숫자 칸을 넓혀 이름과 숫자 사이 빈 곳을 줄이고, 줄마다 옅은 띠로 눈이 가로로 따라가게(KBO 순위표 방식) */
   const w = big ? [60, 72, 64, 64, 64, 88, 80, 72, 72, 124] : [52, 52, 44, 44, 44, 64, 60, 0, 0, 96];
@@ -68,12 +96,12 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
           {big && <><th>득점</th><th>실점</th></>}<th className="pr-3">최근</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody ref={bodyRef}>
         {rows.map((r, ri) => {
           const mine = r.idx === me;
           const move = lastMoves?.get(r.idx) || 0;
           return (
-            <tr key={r.idx} className={`${cell} ${r.rank === POST_TEAMS ? 'border-b-2 border-dashed border-amber-300/50' : 'border-b border-white/[0.06]'}`}
+            <tr key={r.idx} data-idx={r.idx} className={`${cell} ${r.rank === POST_TEAMS ? 'border-b-2 border-dashed border-amber-300/50' : 'border-b border-white/[0.06]'}`}
               style={{ background: mine ? 'rgba(52,211,153,.12)' : big && ri % 2 ? 'rgba(255,255,255,.035)' : undefined }}>
               <td className={`${cell} text-center font-display text-t2 font-extrabold`} style={{ color: r.rank <= POST_TEAMS ? '#fbbf24' : '#64748b' }}>{r.rank}</td>
               <td className={`${cell} max-w-0 pl-2 text-left`}>
@@ -81,7 +109,7 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
                   <b className={`truncate font-bold ${big ? 'text-t2' : 'text-t3'} ${mine ? 'text-[#34d399]' : 'text-white'}`}>{r.team.name}</b>
                   {/* 다른 감독 팀 — 감독 이름. 구단 이름을 짓지 않아 감독 이름과 같으면 '감독' 만 */}
                   {r.team.ghost && <span className="shrink-0 rounded bg-sky-400/15 px-1.5 text-t4 font-bold text-sky-300" title="다른 감독 팀">{r.team.name === r.team.owner ? '감독' : r.team.owner}</span>}
-                  {move !== 0 && <em className="shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
+                  {move !== 0 && <em className="fx-bump shrink-0 font-display text-t4 not-italic" style={{ color: move > 0 ? ME : OPP, '--d': '900ms' }}>{move > 0 ? `▲${move}` : `▼${-move}`}</em>}
                 </span>
               </td>
               <td className={cell}>{r.g}</td><td className={`${cell} text-white`}>{r.w}</td><td className={cell}>{r.l}</td><td className={cell}>{r.d}</td>

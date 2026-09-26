@@ -22,7 +22,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
-import { Flip } from './ui/motion.jsx';
+import { Flip, flyGhost } from './ui/motion.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -1634,6 +1634,12 @@ export const KEYFRAMES = `
 .dr-pc.past { background: color-mix(in srgb, var(--t) 18%, transparent); }
 .dr-pc.past > i { opacity: .1; }
 .dr-pc.now { z-index: 2; background: var(--t); box-shadow: 0 0 18px -5px var(--t); }
+/* 내 차례가 온 순간 — 칩이 한 번 커지며 환해졌다 돌아온다 */
+.dr-pc.now.me { animation: drMe .7s var(--fx-out) both; }
+@keyframes drMe { 35% { transform: scale(1.22); filter: brightness(1.7); } } /* 칩은 모양대로 잘려 있어 빛 테두리 대신 밝기로 */
+.dr-clock.low { color: #f87171; animation: drTick .35s var(--fx-out); }
+@keyframes drTick { 40% { transform: scale(1.3); } }
+@media (prefers-reduced-motion: reduce) { .dr-pc.now.me, .dr-clock.low { animation: none; } }
 .dr-pc.now > i { opacity: .16; } /* 지금 차례 칩: 엠블럼 무늬가 글자를 가리지 않게 옅게 */
 .dr-pc.now > b { font-size:12px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
 .ser-sw .tr { position: relative; width: 34px; height: 18px; border-radius: 9px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .2s, box-shadow .2s; }
@@ -2700,6 +2706,9 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
 
 /* 라이브 드래프트 · 뽑는 순서 표: 이번 바퀴의 자리 순서대로 구단 조각이 맞물린다 */
 function TurnOrder({ live, clock, hold = false }) {
+  const me = Live.myIndex(live);
+  const mineNow = Live.currentClub(live) === me && !hold;
+  const low = mineNow && clock <= 5;
   // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다).
   // 다만 바퀴가 넘어갔으면 기다리지 않는다 — 보드가 바뀌는 순간 새 순서를 보여 줘야 한다
   const sameLap = Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
@@ -2713,14 +2722,16 @@ function TurnOrder({ live, clock, hold = false }) {
       {seq.map((c, k) => {
         const now = k === at;
         const past = k < at;
+        const isMe = live.clubs[Live.myIndex(live)] === c;
         return (
-          <span key={k} className={`dr-pc ${now ? 'now' : past ? 'past' : ''}`} style={{ '--t': c.color }}>
+          <span key={k} className={`dr-pc ${now ? 'now' : past ? 'past' : ''} ${now && isMe ? 'me' : ''}`} style={{ '--t': c.color }}>
             {c.emblem && <i style={{ backgroundImage: `url(${c.emblem})` }} aria-hidden="true" />}
             <b>{c.short}</b>
           </span>
         );
       })}
-      <b className="dr-clock" style={{ '--t': live.clubs[Live.currentClub(live)].color }}>{clock}s</b>
+      {/* 남은 5초: 붉게 · 초마다 한 번 톡(깜빡이지 않음) */}
+      <b key={low ? clock : 'n'} className={`dr-clock ${low ? 'low' : ''}`} style={{ '--t': live.clubs[Live.currentClub(live)].color }}>{clock}s</b>
     </div>
   );
 }
@@ -3866,7 +3877,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           <button type="button" onClick={onReroll} className="aug-reroll animate-[rise_.4s_ease-out_both]">
             ↺ 다시 굴리기
             <em className="ml-1.5 not-italic opacity-75">
-              {free > 0 ? '· 이번 한 번은 거저' : `· 리롤권 ${rerolls}장`}
+              {free > 0 ? '· 이번 한 번 무료' : `· 리롤권 ${rerolls}장`}
             </em>
           </button>
         )}
@@ -5149,6 +5160,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     }
     setPicked(null);
     setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
+    /* 고른 카드가 구장의 제 자리로 날아가 '합류(회색 → 색 채움)'로 이어진다 */
+    flyGhost(document.querySelector(`[data-card="${CSS.escape(String(player.id))}"]`), () => document.querySelector('.lf-tok.joined, .lf-bc.joined'));
     if (live) { // 라이브: 내 지명도 판에 넣고 차례를 넘긴다 (다음 보드·라운드는 판이 정한다)
       const next = Live.pick(live, player);
       if (next === live) return;

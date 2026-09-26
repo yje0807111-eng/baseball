@@ -3,7 +3,7 @@
  * 처음 입장하면 팀 이름이 칸마다 차례로 채워진다. 경기를 마치면 여기로 돌아와 다른 라인에서 올라온 상대를 확인한다.
  * 일반 대결(내 라커 팀)과 드래프트 모드(그 판의 드래프트 팀)가 함께 쓴다.
  */
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { roundsOf, finishOf, myOpponent, meIndex, teamOf } from './tournament.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
@@ -21,7 +21,11 @@ const GEO = {
 };
 const TOP = 18, LEFT = 22;
 
-function Tree({ t, oppIdx, reveal }) {
+/* 대진표를 마지막으로 본 라운드 수(대회별) — 결과 화면을 거쳐 다시 열려도 '막 채워진 칸'만 움직이게 */
+const seenRounds = new Map();
+const ADV_WAIT = 0.32; // 화면이 뜬 뒤 옛 모습을 잠깐 보여 주고 나아간다(초)
+
+function Tree({ t, oppIdx, reveal, fresh = null }) {
   const size = t.size || 32;
   const { ROW, SLOT_W, SLOT_H, COL, font } = GEO[size] || GEO[32];
   const rounds = roundsOf(size).length;
@@ -47,7 +51,10 @@ function Tree({ t, oppIdx, reveal }) {
             style={{ '--c': '5px', left: x, top: yc - SLOT_H / 2, width: SLOT_W, height: SLOT_H,
               background: mine ? 'rgba(52,211,153,.16)' : opp ? 'rgba(248,113,113,.14)' : 'rgba(255,255,255,.045)',
               boxShadow: `inset 0 0 0 1px ${mine ? ME : opp ? OPP : flag ? `${flag.color}4d` : 'rgba(255,255,255,.08)'}`,
-              opacity: won === false ? 0.38 : 1, animation: reveal && c === 0 ? `tbIn .38s ${k * (1.1 / size)}s both` : undefined }}>
+              opacity: won === false ? 0.38 : 1,
+              animation: reveal && c === 0 ? `tbIn .38s ${k * (1.1 / size)}s both`
+                : fresh != null && c === fresh ? `tbAdv .5s var(--fx-out) ${ADV_WAIT + (mine ? 0.25 : k * (0.4 / n))}s both`
+                  : fresh != null && c === fresh - 1 && won === false ? `tbDim .5s ease ${ADV_WAIT + 0.35}s both` : undefined }}>
             {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
             <span className={`relative min-w-0 flex-1 truncate ${mine ? 'font-black' : 'font-semibold'}`} style={{ fontSize: font, color: mine ? ME : opp ? '#fecaca' : '#e5e7eb', textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{t.entrants[i].name}</span>
             {score != null && <b className="relative font-display text-t3 text-white">{score}</b>}
@@ -91,6 +98,9 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
   const mine = useMemo(() => teamOf(t.entrants[me], myTeam), [t, me, myTeam]);
   const oppTeam = useMemo(() => (opp ? teamOf(opp, myTeam) : null), [opp, myTeam]);
   const reveal = t.round === 0 && t.results.length === 0;
+  const tKey = t.key || t.entrants.map((e) => e.name).join('|');
+  const [fresh] = useState(() => { const was = seenRounds.get(tKey); return was != null && t.results.length > was ? t.results.length : null; });
+  useEffect(() => { seenRounds.set(tKey, t.results.length); }, [tKey, t.results.length]);
   const past = t.results.length;
   // 상대가 올라온 길: 지난 라운드마다 상대가 이긴 경기
   const road = oppIdx == null ? [] : t.results.map((rs, r) => {
@@ -144,7 +154,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
             {ROUNDS.map((r) => <p key={r.key} className="ui-lab font-display" style={{ '--a': A, width: 60 }}>{r.ko}</p>)}
           </div>
           <div ref={scroller} className="syn-scroll min-h-0 flex-1 overflow-auto">
-            <Tree t={t} oppIdx={oppIdx} reveal={reveal} />
+            <Tree t={t} oppIdx={oppIdx} reveal={reveal} fresh={fresh} />
           </div>
         </section>
 

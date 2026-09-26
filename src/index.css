@@ -117,3 +117,7 @@ body { overscroll-behavior: none; }
   .fx-burst, .fx-sheen-once::after { display: none; }
   .fx-stamp, .fx-drop, .fx-fade, .fx-wipe, .fx-bump { animation: none !important; }
 }
+
+/* 대진표: 이긴 팀이 다음 칸으로 나아감 · 진 칸은 흐려짐 */
+@keyframes tbAdv { from { opacity: 0; transform: translateX(-42px); } }
+@keyframes tbDim { from { opacity: 1; } to { opacity: .38; } }
