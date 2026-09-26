@@ -19,7 +19,7 @@ import { tacticOrders } from './engine/tactics.js';
 import { seeded } from './engine/rng.js';
 import { artId } from './data/artAlias.js';
 import {
-  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, playOut, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
@@ -377,7 +377,7 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
 /* ───────── 본체 ───────── */
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -459,8 +459,24 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     onFinish?.(buildResult(g, my, { flow: wpRef.current, flowAt: wpAtRef.current, calls: callsRef.current, gain: gainRef.current, sides: sidesRef.current }));
     return true;
   };
-  /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게) */
-  const leave = () => { if (!(g.final && handOver())) onExit?.(); };
+  /*
+   * 남은 경기를 자동으로 끝까지 — 전술판 기울기 · AI 투수 교체만으로 한 번에 계산하고 결과를 넘긴다.
+   * 랭크전은 도중에 나가도 결과가 남는다(지는 경기를 버리고 다시 하지 못하게)
+   */
+  const autoFinish = () => {
+    aliveRef.current = false; // 중계 루프를 세운다
+    if (clutchRef.current) { const done = clutchRef.current; clutchRef.current = null; setClutch(null); done({}); }
+    playOut(g, () => tacticOrders(fineRef.current, !g.top, g.rng));
+    redraw();
+    handOver();
+  };
+  const [leaving, setLeaving] = useState(false); // 자동 진행 확인 중
+  /* 나가기: 경기가 이미 끝났으면 결과를 넘기고 나간다 (이닝 정리 화면을 안 거쳐도 전적이 남게). 자동 진행 모드는 한 번 묻는다 */
+  const leave = () => {
+    if (g.final) { if (!handOver()) onExit?.(); return; }
+    if (autoOnExit) { setLeaving(true); return; }
+    onExit?.();
+  };
   const skipEndRef = useRef(0); // SKIP 을 누른 시각 + SKIP_MS — 이 시각에 맞춰 배속을 잡는다
   const beforeSkipRef = useRef(PLAY); // SKIP 을 누르기 전 배속 — 한 번 더 누르면 여기로 돌아온다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
@@ -781,6 +797,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         <header className="relative flex items-center gap-5 px-7">
           <button type="button" onClick={leave} aria-label="나가기"
             className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
+          {leaving && (
+            <div className="mt-cut mt-frame mt-glass absolute left-7 top-full z-40 mt-2 flex w-[360px] flex-col gap-3 p-4" style={{ '--c': '12px' }} role="dialog" aria-label="나가기">
+              <b className="text-t2 font-extrabold text-white">남은 경기 자동 진행</b>
+              <span className="text-t3 text-gray-300">지금 점수에서 끝까지 · 결과 확정</span>
+              <span className="flex gap-2">
+                <button type="button" className="mt-btn pri flex-1" onClick={() => { setLeaving(false); autoFinish(); }}>자동으로 끝내기</button>
+                <button type="button" className="mt-btn flex-1" onClick={() => setLeaving(false)}>계속하기</button>
+              </span>
+            </div>
+          )}
           <div className="leading-none">
             <p className="text-t4 font-bold text-gray-400">플레이</p>
             <h1 className="mt-1 text-t2 font-black leading-none text-white">감독 모드</h1>

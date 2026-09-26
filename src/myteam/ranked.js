@@ -210,4 +210,16 @@ export function play(s, myScore, myTeam) {
   return runPost({ ...s, post }, myTeam);
 }
 
+/**
+ * 끊긴 내 경기 — 경기 도중 창을 닫았거나 새로고침한 판을 엔진으로 끝까지 계산한다(시즌에 남긴 live.seed 로).
+ * 내 팀은 자동 배치(정비 · 증강 없이). → { score: { my, opp }, opp(참가 팀), seed }
+ */
+export function autoScore(s, myTeam) {
+  const opp = myOpponent(s);
+  if (!opp) return null;
+  const seed = s.live?.seed ?? hashKey(`ranked:${s.key}:auto:${s.round}:${s.post?.stage ?? ''}`);
+  const { as, bs } = simulate(teamOf(s.teams[meOf(s)], myTeam), teamOf(opp, myTeam), seeded(seed));
+  return { score: { my: as, opp: bs }, opp, seed };
+}
+
 export { decide };

@@ -6,7 +6,9 @@ import { SQUAD_CAP } from '../src/myteam/rules.js';
 import { snapshotOf, reviveTeam, ghostMatchTeam, GHOST_CAP_MAX } from '../src/myteam/ghost.js';
 import { teamOf, simulate, playStrength } from '../src/myteam/tournament.js';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { makeSeason, myOpponent, play, meOf, GAMES, TIER_POWER } from '../src/myteam/ranked.js';
+import { makeSeason, myOpponent, play, meOf, GAMES, TIER_POWER, autoScore } from '../src/myteam/ranked.js';
+import { createGame, pitch, playOut } from '../src/engine/pitchSim.js';
+import { engineTeam } from '../src/BroadcastGame.jsx';
 import { autoSlots } from '../src/myteam/prep.js';
 
 const squad = starterSquad('대전 시험');
@@ -131,5 +133,28 @@ describe('등급별 상대', () => {
     expect(s.teams.filter((t) => t.ghost)).toHaveLength(3);
     expect(s.teams.filter((t) => t.bot)).toHaveLength(3);
     expect(s.teams.filter((t) => t.seriesId && !t.ghost)).toHaveLength(3);
+  });
+});
+
+describe('도중에 나간 랭크전', () => {
+  it('지금 상태에서 끝까지 — 이미 난 점수는 그대로 두고 경기를 끝낸다', () => {
+    const g = createGame({ home: engineTeam(aiTeam()), away: engineTeam(seriesTeam(AI_SERIES[9], seeded(9))), rng: seeded(5) });
+    for (let i = 0; i < 120 && !g.final; i++) pitch(g, {});
+    const mid = { home: g.home.runs, away: g.away.runs, inning: g.inning };
+    playOut(g);
+    expect(g.final).toBe(true);
+    expect(g.home.runs).toBeGreaterThanOrEqual(mid.home);
+    expect(g.away.runs).toBeGreaterThanOrEqual(mid.away);
+    expect(g.inning).toBeGreaterThanOrEqual(Math.min(9, mid.inning));
+    expect(['home', 'away', 'draw']).toContain(g.winner);
+  });
+  it('끊긴 경기는 시즌에 남긴 시드로 — 몇 번을 계산해도 같은 결과, 시즌은 다음 라운드로', () => {
+    const s = { ...makeSeason({ key: 'auto1', rp: 0 }), live: { seed: 4242 } };
+    const a = autoScore(s, team);
+    expect(autoScore(s, team)).toEqual(a);
+    expect(a.opp).toBe(myOpponent(s));
+    const next = play({ ...s, live: null }, a.score, team);
+    expect(next.round).toBe(1);
+    expect(next.live).toBeNull();
   });
 });

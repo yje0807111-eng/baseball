@@ -496,14 +496,18 @@ function nextArm(side) {
   return pick ? pick.id : true;
 }
 
-export function simulateGame(opts, orderFn = () => ({})) {
-  const g = createGame(opts);
+/** 지금 상태에서 끝까지 — 양 팀 모두 AI 투수 교체 · orderFn(g) 지시. 도중에 나간 경기를 마무리할 때도 쓴다 */
+export function playOut(g, orderFn = () => ({})) {
   let guard = 0;
-  while (!g.final && guard++ < 1200) {
+  while (!g.final && guard++ < 1500) {
     const def = defenseOf(g);
     // 자동 투수 교체: AI 감독 판단(팀 usage)
     const change = aiPitchingChange(g, def);
     pitch(g, { ...(change ? { changePitcher: change } : {}), ...orderFn(g) });
   }
   return g;
+}
+
+export function simulateGame(opts, orderFn = () => ({})) {
+  return playOut(createGame(opts), orderFn);
 }

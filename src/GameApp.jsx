@@ -3,7 +3,7 @@
  * 시즌 로스터 412개와 경기 엔진이 여기에 딸려 있어, 로그인·로비와 떼어 두었다.
  * 상태 중 account · view · playTab 은 App 이 들고 있고 나머지는 여기서 갖는다.
  */
-import React, { useState, useRef, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
@@ -95,6 +95,20 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     setView('ranked');
   };
   const newSeason = () => makeRankedSeason((season?.season || 0) + 1);
+  /* 끊긴 랭크전 — 경기 도중 창을 닫았다 돌아오면 그 판은 엔진이 끝까지 계산해 결과를 확정한다 */
+  useEffect(() => {
+    if (!season?.live || match || season.done) return;
+    const auto = ranked.autoScore(season, account.team);
+    if (!auto) { saveRanked({ ...season, live: null }); refresh(); return; }
+    const pm = ranked.postMatch(season);
+    const round = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
+    const { my, opp } = auto.score;
+    const winner = my > opp ? 'my' : my < opp ? 'opp' : 'draw';
+    saveRanked(ranked.play({ ...season, live: null }, auto.score, account.team));
+    addHistory({ my: account.team.name, opp: auto.opp.name, myRuns: my, oppRuns: opp, winner, mode: 'ranked', round, auto: true });
+    if (auto.opp.ghost) recordBattle({ ghost: auto.opp.ghost, seed: auto.seed, myRuns: my, oppRuns: opp });
+    refresh();
+  }, [season?.live, match]); // eslint-disable-line react-hooks/exhaustive-deps
   const openRankedPrep = () => {
     const pm = ranked.postMatch(season);
     const label = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
@@ -138,6 +152,8 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       ownedRef.current = owned;
       const my = makeMy(owned);
       setAugPick(null);
+      /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
+      if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
       setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
       setView('play');
     };
@@ -200,7 +216,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     if (match.kind === 'ranked') {
       const pm = ranked.postMatch(season);
       const round = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
-      saveRanked(ranked.play(season, res.score, account.team));
+      saveRanked(ranked.play({ ...season, live: null }, res.score, account.team));
       addHistory({ ...base, mode: 'ranked', round });
       if (match.ghost) recordBattle({ ghost: match.ghost, seed: match.seed, myRuns: res.score.my, oppRuns: res.score.opp });
       refresh();
@@ -238,7 +254,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
-    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} onFinish={finishMatch}
+    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
       aug={match.aug} rebuildMy={match.makeMy} midPickInnings={match.aug ? MATCH_AUG_INNINGS : []} onMidPick={midPick}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }
