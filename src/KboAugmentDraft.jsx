@@ -1421,24 +1421,29 @@ export const KEYFRAMES = `
 .pop-scroll::-webkit-scrollbar-thumb:hover { background: rgba(52,211,153,.8); }
 @supports not selector(::-webkit-scrollbar) { .pop-scroll { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,.45) transparent; } }
 /* 드래프트 규칙 팝업: 큰 탭 카드 3×2 · 질문형 구역(제목 아래 한 줄 답) · 열면 초록 마름모와 세로선 */
-.rl-wrap { display: grid; grid-template-columns: 236px minmax(0, 1fr); height: min(660px, 74vh); border-top: 1px solid rgba(255,255,255,.08); }
+.rl-wrap { display: grid; grid-template-columns: 236px minmax(0, 1fr); height: min(520px, 74vh); border-top: 1px solid rgba(255,255,255,.08); }
 .rl-nav { display: flex; flex-direction: column; gap: 4px; padding: 14px 12px; overflow-y: auto; background: rgba(0,0,0,.22); border-right: 1px solid rgba(255,255,255,.06); }
 .rl-nav button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; text-align: left; border-radius: 10px; color: #cbd5e1; transition: background .15s, color .15s; }
 .rl-nav button:hover { color: #fff; background: rgba(255,255,255,.05); }
 .rl-nav button:focus-visible { outline: 2px solid #38bdf8; outline-offset: -2px; }
 .rl-nav svg { width: 20px; height: 20px; flex: none; fill: none; stroke: #6b7280; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.rl-nav span { display: grid; min-width: 0; }
 .rl-nav b { font-size: 14px; font-weight: 700; }
-.rl-nav small { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rl-nav button.on { color: #fff; background: linear-gradient(90deg, rgba(245,210,122,.16), rgba(245,210,122,.03)); box-shadow: inset 3px 0 0 #f5d27a; }
 .rl-nav button.on svg { stroke: #f5d27a; }
-.rl-nav button.on small { color: #d6c08a; }
 .rl-page { min-width: 0; overflow-y: auto; padding: 18px 22px 22px; animation: fade .18s ease-out both; }
+.rl-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 14px; }
+.rl-facts > div { display: grid; justify-items: center; gap: 2px; padding: 12px 8px 10px; border-radius: 12px; background: linear-gradient(180deg, rgba(245,210,122,.1), rgba(245,210,122,.02)); box-shadow: inset 0 0 0 1px rgba(245,210,122,.22); }
+.rl-facts b { font-family: 'Saira Condensed', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; color: #f5d27a; }
+.rl-facts span { font-size: 12px; font-weight: 700; color: #cbd5e1; }
+.rl-flow { display: flex; gap: 22px; margin: 0 0 14px; padding: 0; list-style: none; }
+.rl-flow li { position: relative; flex: 1; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 700; color: #fff; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.rl-flow li + li::before { content: "›"; position: absolute; left: -16px; top: 50%; transform: translateY(-52%); font-size: 20px; color: #f5d27a; }
+.rl-flow i { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; font-family: 'Saira Condensed', sans-serif; font-size: 13px; font-style: normal; color: #05080f; background: #f5d27a; }
 .rl-lead { margin: 0 0 14px; padding: 12px 14px; border-radius: 10px; font-size: 14px; line-height: 1.65; color: #e5e7eb; background: rgba(245,210,122,.07); box-shadow: inset 3px 0 0 #f5d27a; }
 .rl-lead b, .rl-bd b { color: #fff; font-weight: 700; }
 .rl-cards { columns: 2 320px; column-gap: 14px; }
 .rl-card { break-inside: avoid; margin: 0 0 14px; padding: 14px 16px; border-radius: 12px; background: rgba(255,255,255,.035); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
-.rl-t { font-size: 14px; font-weight: 700; color: #fff; }
+.rl-t { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: #f5d27a; }
 .rl-sm { margin: 2px 0 10px; font-size: 12px; color: #d6c08a; }
 .rl-bd { font-size: 14px; line-height: 1.7; color: #d1d5db; }
 .rl-bd p { margin: 0 0 8px; }
@@ -3644,17 +3649,25 @@ function RulesModal({ onClose }) {
           {RULE_TABS.map((x) => (
             <button key={x.id} type="button" role="tab" aria-selected={x.id === tab} className={x.id === tab ? 'on' : ''} onClick={() => setTab(x.id)}>
               <svg viewBox="0 0 24 24" aria-hidden="true">{x.icon}</svg>
-              <span><b>{x.label}</b><small>{x.groups.map((g) => g.t.split(' · ')[0]).slice(0, 3).join(' · ')}</small></span>
+              <b>{x.label}</b>
             </button>
           ))}
         </nav>
         <div key={tab} className="rl-page pop-scroll" role="tabpanel">
-          <p className="rl-lead">{sec.lead}</p>
+          {sec.facts && (
+            <div className="rl-facts">
+              {sec.facts.map(([n, k]) => <div key={k}><b>{n}</b><span>{k}</span></div>)}
+            </div>
+          )}
+          {sec.flow && (
+            <ol className="rl-flow">
+              {sec.flow.map((x, i) => <li key={x}><i>{i + 1}</i>{x}</li>)}
+            </ol>
+          )}
           <div className="rl-cards">
             {sec.groups.map((g) => (
               <article key={g.t} className="rl-card">
                 <h3 className="rl-t">{g.t}</h3>
-                <p className="rl-sm">{g.s}</p>
                 <div className="rl-bd">{g.b}</div>
               </article>
             ))}
@@ -4465,253 +4478,194 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   );
 }
 
-/* 드래프트 규칙: 탭(섹션) → 구역 { t 질문, s 한 줄 답, b 펼친 내용 }. 문장은 합니다체 */
+/* 드래프트 규칙 — 탭마다 숫자 칩(facts) · 흐름(flow) · 카드(groups: 제목 t · 그림 b) */
 const RL_REFUND_EX = { cost: 95 };
-/* 규칙 창에 쓰는 값 — 같이 뽑기(draft/live.js) · 증강 종류 한 줄 */
-const CLUB_COUNT_RULE = Live.CLUB_COUNT;
-const BOARD_SIZE_RULE = Live.BOARD_SIZE;
-const PICK_SECONDS_RULE = Live.PICK_SECONDS;
 const AUG_TYPE_RULE = {
-  build: '대가 없이 능력치를 조금 · 늘 적용',
-  defense: '수비 자리의 수비를 크게',
-  extreme: '한쪽을 크게 키우고 다른 쪽을 깎기',
-  balance: '팀에서 가장 처진 곳 메우기',
-  fire: '정해진 이닝부터 경기 중에만',
-  situ: '점수 상황이 맞을 때만',
+  build: '늘 조금',
+  defense: '수비 크게',
+  extreme: '하나 키우고 하나 깎기',
+  balance: '약한 곳 메우기',
+  fire: '정해진 이닝부터',
+  situ: '점수 상황 맞을 때',
 };
 
+/*
+ * 규칙 창 — 다른 게임 도움말을 견줘 줄인 틀
+ *  facts : 큰 숫자 칩 3~4개(마블 스냅 "6턴 · 3지역"처럼 먼저 숫자)
+ *  flow  : 순서가 있는 규칙은 화살표 세 칸(TFT · 전장 튜토리얼처럼 한 칸에 한 마디)
+ *  groups: 카드 2~4장 — 제목 + 그림(표 · 사다리 · 칩) 위주, 글은 한 줄
+ */
 const RULE_TABS = [
   { id: 'entry', label: '엔트리',
     icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
-    lead: <>선수 <b>{ROSTER_SIZE}명</b>으로 꾸리는 한 팀 · 필드 14자리는 포지션마다, 예비 {BENCH_SIZE}자리는 포지션 상관없음</>,
+    facts: [[ROSTER_SIZE, '선수'], [14, '필드 자리'], [BENCH_SIZE, '예비'], [FOREIGN_LIMIT, '외국인 최대']],
     groups: [
-      { t: '채우는 자리', s: `투수 5 · 야수 9 · 예비 ${BENCH_SIZE}, 모두 ${ROSTER_SIZE}자리`, b: <>
+      { t: '자리', b: <>
         <div className="rl-slots">
-          <div><span>투수<i>5</i></span><span className="rl-chips"><span className="rl-chip">선발투수</span><span className="rl-chip">롱릴리프</span><span className="rl-chip">중간계투</span><span className="rl-chip">셋업맨</span><span className="rl-chip">마무리</span></span></div>
-          <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루수</span><span className="rl-chip">2루수</span><span className="rl-chip">3루수</span><span className="rl-chip">유격수</span></span></div>
-          <div><span>외야<i>3</i></span><span className="rl-chips"><span className="rl-chip">외야수</span><span className="rl-chip">외야수</span><span className="rl-chip">외야수</span></span></div>
-          <div><span>지명<i>1</i></span><span className="rl-chips"><span className="rl-chip g">지명타자 · 야수 누구나</span></span></div>
-          <div><span>예비<i>{BENCH_SIZE}</i></span><span className="rl-chips"><span className="rl-chip g">포지션 상관없음 · 경기에는 나서지 않고 시너지에만 보탬</span></span></div>
+          <div><span>투수<i>5</i></span><span className="rl-chips"><span className="rl-chip">선발</span><span className="rl-chip">롱릴리프</span><span className="rl-chip">중간</span><span className="rl-chip">셋업</span><span className="rl-chip">마무리</span></span></div>
+          <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루</span><span className="rl-chip">2루</span><span className="rl-chip">3루</span><span className="rl-chip">유격</span></span></div>
+          <div><span>외야<i>3</i></span><span className="rl-chips"><span className="rl-chip">외야 ×3</span></span></div>
+          <div><span>지명<i>1</i></span><span className="rl-chips"><span className="rl-chip g">야수 누구나</span></span></div>
+          <div><span>예비<i>{BENCH_SIZE}</i></span><span className="rl-chips"><span className="rl-chip g">포지션 상관없음 · 시너지만</span></span></div>
         </div>
-        <p>자리가 모두 찬 포지션의 카드에는 <span className="rl-tag">유격수 마감</span>처럼 표시</p>
       </> },
-      { t: '외국인 선수', s: `최대 ${FOREIGN_LIMIT}명`, b: <>
-        <p>외국인 선수가 {FOREIGN_LIMIT}명이 되면 남은 외국인 카드는 <span className="rl-tag">외국인 한도 {FOREIGN_LIMIT}/{FOREIGN_LIMIT}</span>으로 잠김</p>
-        <p>한 명을 방출하면 다시 뽑기 가능</p>
-      </> },
-      { t: '같은 선수 중복', s: '시즌이 달라도 한 사람은 한 번만', b: <>
+      { t: '한 사람은 한 번', b: <>
         <div className="rl-yn">
           <div className="y"><span><b>2006 류현진</b> 영입</span></div>
-          <div className="n"><span><b>2010 류현진</b>은 <span className="rl-tag">동일인 영입됨</span>으로 잠김</span></div>
+          <div className="n"><span><b>2010 류현진</b> 잠김</span></div>
         </div>
       </> },
     ] },
   { id: 'draft', label: '드래프트',
     icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
-    lead: <><b>{ROSTER_SIZE}라운드</b> · 라운드마다 한 명씩 영입 · 정해진 CP 안에서 스타와 가성비 섞기</>,
+    facts: [[ROSTER_SIZE, '라운드'], [SALARY_CAP, 'CP 캡 ±100'], [Live.BOARD_SIZE, '보드 선수'], [`${Live.PICK_SECONDS}초`, '내 차례']],
+    flow: ['보드 한 시리즈', '순번대로 1명씩', '먼저 뽑으면 끝'],
     groups: [
-      { t: '같이 뽑기 · 베이직 모드', s: `${CLUB_COUNT_RULE}구단이 순번대로 같은 보드에서`, b: <>
-        <div className="rl-steps">
-          <div><span>라운드마다 보드 하나 — 한 시리즈에서 <b>{BOARD_SIZE_RULE}명</b></span></div>
-          <div><span>추첨한 순번대로 한 명씩 · 내 차례에 <b>{PICK_SECONDS_RULE}초</b> 안에 고르지 않으면 자동 지명</span></div>
-          <div><span>다른 구단이 먼저 데려간 선수는 그 구단 이름이 붙고 사라짐</span></div>
-        </div>
-        <div className="rl-tip"><span>진행 배속 ×1 · ×2 · ×4 · ⏭ 로 내 차례까지 건너뛰기</span></div>
-      </> },
-      { t: '혼자 뽑기 · 한 라운드', s: '시리즈 열기 · 고르기 · 영입', b: <>
-        <div className="rl-steps">
-          <div><span>시리즈 하나 열림 — 구단의 한 시즌 · 국가대표 · 레전드 중 하나</span></div>
-          <div><span>선수 카드를 누르면 <b>고른 선수</b> 칸에 올라 능력치와 영입가 확인</span></div>
-          <div><span><b>영입</b>을 누르면 라인업에 들어가고 다음 라운드로</span></div>
-        </div>
-        <div className="rl-tip"><span>마음에 드는 선수가 없으면 <b>새로고침</b>으로 다른 시리즈 · 드래프트마다 {START_REROLLS}번</span></div>
-      </> },
-      { t: '드래프트 권', s: '상점에서 사 두고 드래프트에서 쓰기', b: <>
-        <div className="rl-kind">
-          <div><span className="rl-chip g">스카우트 리포트</span><span>혼자 뽑기 새로고침 +3회</span></div>
-          <div><span className="rl-chip g">시리즈 지정권</span><span>같이 뽑기에서 다음 보드에 열 시리즈 고르기</span></div>
-        </div>
-      </> },
-      { t: '샐러리 캡', s: '모드 화면에서 정한 만큼', b: <>
-        <p>베이직 모드는 <span className="rl-chip">{SALARY_CAP - 100}</span> <span className="rl-chip g">{SALARY_CAP}</span> <span className="rl-chip">{SALARY_CAP + 100}</span> CP 중 하나 · 특별 모드는 <b>캡 없음</b></p>
-        <p>영입할 때마다 영입가만큼 줄고, 남은 CP보다 비싼 선수는 <span className="rl-tag">CP 부족</span>으로 잠김</p>
-        <div className="rl-tip"><span>선수를 고르면 위쪽 캡 막대에 쓰일 CP 미리 표시</span></div>
-      </> },
-      { t: '영입가', s: '종합이 높을수록 점수보다 비쌈', b: <>
+      { t: '영입가', b: <>
         <div className="rl-tbl">
-          <span className="h">종합</span><span className="h">영입가</span><span className="h">차이</span>
+          <span className="h">종합</span><span className="h">영입가</span><span className="h" />
           {[95, 90, 80, 65].map((o) => {
             const d = costOf(o) - o;
             return (
               <React.Fragment key={o}>
                 <span className="n">{o}</span><span className="n">{costOf(o)}</span>
-                <span className={d > 0 ? 'up' : d < 0 ? 'dn' : ''}>{d > 0 ? `${d} CP 비쌈` : d < 0 ? `${-d} CP 쌈` : '점수와 같음'}</span>
+                <span className={d > 0 ? 'up' : d < 0 ? 'dn' : ''}>{d > 0 ? `+${d}` : d < 0 ? `−${-d}` : '='}</span>
               </React.Fragment>
             );
           })}
         </div>
-        <p><b>72~84</b>는 종합과 같은 값 · <b>85 이상</b>은 비싸고 <b>71 이하</b>는 쌈</p>
       </> },
-      { t: '다 못 채우면', s: '빈 자리는 퓨처스 유망주(종합 70)', b: <>
-        <p>드래프트는 <b>{ROSTER_SIZE}라운드가 끝나거나</b>, <b>남은 CP로 뽑을 선수가 없을 때</b> 종료</p>
-        <p>이때 비어 있는 자리는 모두 종합 70의 퓨처스 유망주</p>
-        <div className="rl-tip"><span>초반에 CP를 너무 많이 쓰면 마지막 자리는 유망주</span></div>
+      { t: '드래프트 권', b: <>
+        <div className="rl-kind">
+          <div><span className="rl-chip g">스카우트 리포트</span><span>새로고침 +3</span></div>
+          <div><span className="rl-chip g">시리즈 지정권</span><span>다음 보드 고르기</span></div>
+        </div>
+      </> },
+      { t: '특별 모드 · 혼자 뽑기', b: <>
+        <p>캡 없음 · 시리즈 새로고침 {START_REROLLS}번</p>
+      </> },
+      { t: '못 채운 자리', b: <>
+        <p>종합 70 퓨처스 유망주</p>
       </> },
     ] },
   { id: 'swap', label: '방출 · 교체',
     icon: <path d="M5 8h13l-3-3M19 16H6l3 3" />,
-    lead: <>뽑은 선수 내보내기 · 찬 자리에 더 좋은 선수 바로 들이기 · 대신 <b>손해</b> 있음</>,
+    facts: [['½', 'CP 환급'], ['1', '라운드 소모']],
     groups: [
-      { t: '방출하기', s: '라인업에서 선수 누르고 방출 두 번', b: <>
-        <div className="rl-steps">
-          <div><span>라인업에서 내보낼 선수 누르기</span></div>
-          <div><span><b>방출</b>을 누르면 <b>한 번 더 누르면 방출</b>로 바뀜</span></div>
-          <div><span>한 번 더 누르면 방출</span></div>
-        </div>
-      </> },
-      { t: '방출하면', s: '영입가 절반 환급 · 되돌리기 없음', b: <>
+      { t: '방출', b: <>
         <div className="rl-yn">
-          <div className="y"><span>영입가의 <b>절반</b>을 CP로 환급 ({RL_REFUND_EX.cost} CP 선수 → {releaseRefund(RL_REFUND_EX)} CP)</span></div>
-          <div className="n"><span>방출한 선수는 이번 드래프트에서 <b>다시 영입 불가</b></span></div>
-          <div className="n"><span>이미 쓴 라운드는 <b>돌아오지 않음</b></span></div>
-          <div className="n"><span>드래프트가 끝난 뒤(정비 화면)에는 방출 불가</span></div>
+          <div className="y"><span>{RL_REFUND_EX.cost} CP 선수 → <b>{releaseRefund(RL_REFUND_EX)} CP</b> 환급</span></div>
+          <div className="n"><span>다시 영입 · 되돌리기 없음</span></div>
+          <div className="n"><span>정비 화면에서는 불가</span></div>
         </div>
       </> },
-      { t: '교체 영입', s: '교체 영입으로 한 번에 맞바꾸기', b: <>
-        <p>이미 찬 포지션의 선수를 고르면 단추가 <span className="rl-tag">교체 영입 (+{releaseRefund(RL_REFUND_EX)} CP 환불)</span>으로 바뀜</p>
-        <div className="rl-steps">
-          <div><span>내 라인업에서 <b>자리를 먼저 눌러 두면</b> 그 자리 선수와 교체</span></div>
-          <div><span>누르지 않았다면 그 포지션에서 <b>가장 약한 선수</b>와 교체</span></div>
+      { t: '교체 영입', b: <>
+        <div className="rl-yn">
+          <div className="y"><span>찬 포지션 선수 고르면 맞바꾸기</span></div>
+          <div className="y"><span>자리를 먼저 누르면 그 선수와 · 아니면 가장 약한 선수와</span></div>
         </div>
-        <p>나가는 선수는 방출과 같은 처리 · 교체 영입도 한 라운드</p>
       </> },
     ] },
   { id: 'pos', label: '포지션',
     icon: <><path d="M12 20 4 12l8-8 8 8z" /><circle cx="12" cy="12" r="1.6" /></>,
-    lead: <>선수는 <b>원래 포지션</b>에서 가장 잘함 · 다른 자리에 세우면 종합 하락</>,
     groups: [
-      { t: '다른 자리에 세우면', s: '원래 자리와 멀수록 큰 하락', b: <>
+      { t: '다른 자리에 세우면', b: <>
         <div className="rl-ladder">
           {[
-            ['0', 2, '#34d399', '제자리 · 야수가 지명타자일 때'],
-            ['−3', 15, '#a3e635', '비슷한 자리 — 2루↔유격, 1루↔3루, 선발↔불펜, 1루↔지명'],
-            ['−6', 30, '#fbbf24', '그 밖의 같은 계열 — 내야↔외야 등'],
-            ['−8', 40, '#fb923c', '포수 자리로 가거나 포수가 다른 자리로'],
-            ['−20', 100, '#f87171', '투수 ↔ 야수'],
+            ['0', 2, '#34d399', '제자리 · 지명타자'],
+            ['−3', 15, '#a3e635', '2루↔유격 · 1루↔3루 · 선발↔불펜'],
+            ['−6', 30, '#fbbf24', '내야↔외야'],
+            ['−8', 40, '#fb923c', '포수 자리 드나들기'],
+            ['−20', 100, '#f87171', '투수↔야수'],
           ].map(([v, w, k, txt]) => (
             <div key={v}><b style={{ color: k }}>{v}</b><i style={{ '--w': `${w}%`, '--k': k }} /><span>{txt}</span></div>
           ))}
         </div>
-        <p>라인업 선수를 누르면 선 자리에서 달라진 능력치 확인</p>
       </> },
-      { t: '지명타자', s: '야수 누구나 · 능력치 감소 없음', b: <>
-        <p>수비가 약하고 방망이가 좋은 선수를 두는 자리</p>
-      </> },
-      { t: '자리 바꾸기', s: '선수를 끌어 다른 자리에 놓기', b: <>
+      { t: '자리 바꾸기', b: <>
         <div className="rl-yn">
-          <div className="y"><span>빈 자리에 놓으면 그 자리로 <b>이동</b></span></div>
-          <div className="y"><span>선수가 있는 자리에 놓으면 두 선수가 <b>맞교환</b></span></div>
+          <div className="y"><span>빈 자리에 끌어 놓기 → <b>이동</b></span></div>
+          <div className="y"><span>선수 위에 끌어 놓기 → <b>맞교환</b></span></div>
         </div>
-        <div className="rl-tip"><span>라인업 자리를 누르면 선반에 그 포지션 선수만</span></div>
       </> },
     ] },
   { id: 'syn', label: '시너지',
     icon: <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>,
-    lead: <>실제로 함께 뛰었던 선수나 조건이 맞는 선수를 모으면 <b>그 선수들 강화</b></>,
+    facts: [[`+${SYNERGY_STAT_CAP}`, '한 능력치 최대']],
     groups: [
-      { t: '시너지 효과', s: '시너지에 속한 선수만 능력치 상승', b: <>
-        <p>팀 전체가 아니라 <b>조건을 채운 선수들만</b> 능력치 상승</p>
-        <p>여러 시너지가 겹쳐도 한 능력치는 <em>최대 +{SYNERGY_STAT_CAP}</em>까지만</p>
-      </> },
-      { t: '실화 조합', s: '실제로 함께한 선수 모으기', b: <>
-        <div className="rl-syn"><span><b>클린업 트리오</b><small>이승엽 · 이대호 · 김동주 중 2명</small></span><em>파워 +5</em></div>
+      { t: '실화 조합', b: <>
+        <div className="rl-syn"><span><b>클린업 트리오</b><small>이승엽 · 이대호 · 김동주 중 2</small></span><em>파워 +5</em></div>
         <div className="rl-syn"><span><b>SK 왕조 배터리</b><small>김광현 · 박경완</small></span><em>안정 · 수비 +4</em></div>
-        <p>카드 시즌이 달라도 같은 사람이면 인정</p>
       </> },
-      { t: '팀 구성', s: '조건에 맞는 선수가 많을수록 단계 상승', b: <>
-        <p><b>홈런 군단</b> — 파워 80 이상 타자</p>
+      { t: '팀 구성 · 홈런 군단', b: <>
         <div className="rl-tiers"><span><b>3명</b>파워 +2</span><span><b>4명</b>파워 +4</span><span><b>6명</b>파워 +7</span></div>
-        <div className="rl-tip"><span>선반 카드의 시너지 칸에 그 선수를 뽑으면 채워질 칸 표시</span></div>
       </> },
-      { t: '아이콘 테두리 색', s: '단계가 오를수록 바뀌는 색', b: <>
-        <div className="rl-tiers"><span><b>회색</b>아직 없음</span><span><b>브론즈</b>1단계</span><span><b>실버</b>2단계</span><span><b>골드</b>최종 단계</span><span><b>프리즘</b>3단계 이상 시너지의 최종</span></div>
-        <p>이름 아래 <b>3 › 5 › 7</b>은 단계마다 필요한 인원 · 오른쪽 숫자는 지금 인원 / 다음 단계 인원</p>
-        <p>시너지에 마우스를 올리면 조건 · 단계별 효과 · 해당 선수가 나오고, 누르면 구장에서 그 선수들 표시</p>
+      { t: '테두리 색', b: <>
+        <div className="rl-tiers"><span><b>회색</b>없음</span><span><b>브론즈</b>1단계</span><span><b>실버</b>2단계</span><span><b>골드</b>최종</span><span><b>프리즘</b>3단계+ 최종</span></div>
       </> },
-      { t: '프랜차이즈의 기억', s: '가장 많이 뽑은 구단의 선수 강화', b: <>
-        <div className="rl-tiers"><span><b>3명</b>능력치 +1</span><span><b>5명</b>+2 · 수비·안정 +2</span><span><b>7명</b>+4 · 수비·안정 +3</span></div>
-        <p>드래프트 중에는 숨김 · <b>드래프트가 끝나면 공개</b> · 인원이 같은 구단이 여럿이면 모두 적용</p>
+      { t: '프랜차이즈의 기억', b: <>
+        <div className="rl-tiers"><span><b>3명</b>+1</span><span><b>5명</b>+2</span><span><b>7명</b>+4</span></div>
+        <p>가장 많이 뽑은 구단 · 드래프트 뒤 공개</p>
       </> },
     ] },
   { id: 'season', label: '경기 · 보상',
     icon: <><path d="M7 4h10v3a5 5 0 0 1-10 0z" /><path d="M7 5H4v1.5A3 3 0 0 0 7 9.5M17 5h3v1.5a3 3 0 0 1-3 3M12 12v4M8.5 20h7" /></>,
-    lead: <>{ROSTER_SIZE}명을 채우면 <b>정비 → 증강 → 경기</b> · 베이직은 구단 정복, 특별은 단판 · 토너먼트</>,
+    flow: ['정비', `증강 ${SEASON_AUGMENTS}장`, `경기 · ${MID_AUG_INNINGS.join(' · ')}회 증강`],
     groups: [
-      { t: '구단 정복 · 베이직 모드', s: '같이 뽑은 일곱 구단을 약한 순서로', b: <>
-        <div className="rl-steps">
-          <div><span>원정길 왼쪽(약함)부터 한 구단씩 · 이기면 그 자리를 빼앗고 한 칸 오른쪽으로</span></div>
-          <div><span>지면 자리 그대로 · 같은 구단에 <b>다시 도전</b></span></div>
-          <div><span>일곱 구단을 모두 넘으면 <b>정복 완료</b></span></div>
+      { t: '구단 정복 · 베이직', b: <>
+        <div className="rl-yn">
+          <div className="y"><span>약한 구단부터 7곳 · 이기면 한 칸 앞으로</span></div>
+          <div className="n"><span>지면 같은 구단 재도전</span></div>
         </div>
         <div className="rl-kind">
-          <div><span className="rl-chip g">{GAUNTLET_MID_AT}구단 통과</span><span>기념 카드 {GAUNTLET_MID_MEMENTO.n}장 중 1장(간판 셋 제외)</span></div>
-          <div><span className="rl-chip g">정복 완료</span><span>기념 카드 {GAUNTLET_MEMENTO.n}장 중 1장</span></div>
+          <div><span className="rl-chip g">{GAUNTLET_MID_AT}구단 통과</span><span>기념 카드 {GAUNTLET_MID_MEMENTO.n}장 중 1</span></div>
+          <div><span className="rl-chip g">정복 완료</span><span>기념 카드 {GAUNTLET_MEMENTO.n}장 중 1</span></div>
         </div>
       </> },
-      { t: '단판 · 토너먼트 · 특별 모드', s: '같은 규칙으로 드래프트한 AI 팀과', b: <>
-        <p><b>단판</b> — 경기마다 새 상대 또는 같은 상대와 재경기 · 첫 승리에 기념 카드 {SINGLE_MEMENTO.n}장 중 1장</p>
-        <p><b>16강 · 32강</b> — 대진표 · 지면 탈락 · 순위에 따라 기념 카드 2~5장 중 1장</p>
-      </> },
-      { t: 'AI 난이도', s: '상대 구단의 급과 경기 보정', b: <>
+      { t: 'AI 난이도', b: <>
         <div className="rl-tbl">
-          <span className="h">난이도</span><span className="h">일곱 구단</span><span className="h">경기 보정</span>
-          <span>쉬움</span><span>탄탄 1 · 평범 2 · 약체 4</span><span className="dn">타격 · 투구 −{AI_BUFF.hard}</span>
-          <span>보통</span><span>강호 1 · 탄탄 2 · 평범 2 · 약체 2</span><span>없음</span>
-          <span>강함</span><span>강호 2 · 탄탄 3 · 평범 2</span><span className="up">타격 · 투구 +{AI_BUFF.hard}</span>
+          <span className="h">난이도</span><span className="h">일곱 구단</span><span className="h">보정</span>
+          <span>쉬움</span><span>탄탄 1 · 평범 2 · 약체 4</span><span className="dn">−{AI_BUFF.hard}</span>
+          <span>보통</span><span>강호 1 · 탄탄 2 · 평범 2 · 약체 2</span><span>0</span>
+          <span>강함</span><span>강호 2 · 탄탄 3 · 평범 2</span><span className="up">+{AI_BUFF.hard}</span>
         </div>
-        <p>보정은 정비 화면 예상 승률 · 구단 정복 비교 막대에도 들어간 값</p>
       </> },
-      { t: '증강', s: `시즌 시작 ${SEASON_AUGMENTS}장 · 경기 중 ${MID_AUG_INNINGS.join(' · ')}회 1장`, b: <>
-        <p>매번 <b>3장 중 1장</b> · 다시 굴리기 1번 무료 · 그다음은 리롤권</p>
-        <p>경기 중 증강은 <b>그 경기에서만</b></p>
+      { t: '증강 · 3장 중 1', b: <>
         <div className="rl-kind">
           {Object.entries(AUG_TYPE).map(([k, v]) => <div key={k}><span className="rl-chip g">{v}</span><span>{AUG_TYPE_RULE[k]}</span></div>)}
         </div>
-        <p>카드의 색 칩은 도움 되는 영역 — {Object.values(AUG_AREA).map(([n, c]) => <span key={n} className="rl-chip" style={{ color: c }}>{n}</span>)}</p>
       </> },
-      { t: '정비', s: '타순 · 자리 · 작전 · 준비 카드', b: <>
-        <div className="rl-yn">
-          <div className="y"><span>선수를 끌어 자리 · 타순 옮기기 · 작전 고르기</span></div>
-          <div className="n"><span>방출과 영입 불가</span></div>
+      { t: '특별 모드', b: <>
+        <div className="rl-kind">
+          <div><span className="rl-chip g">단판</span><span>첫 승리 기념 카드 {SINGLE_MEMENTO.n}장 중 1</span></div>
+          <div><span className="rl-chip g">16강 · 32강</span><span>순위별 기념 카드 2~5장 중 1</span></div>
         </div>
       </> },
     ] },
   { id: 'team', label: '내 팀',
     icon: <><path d="M12 3.5 19.5 8v8L12 20.5 4.5 16V8z" /><path d="M12 8.5 15.5 10.5v3L12 15.5 8.5 13.5v-3z" /></>,
-    lead: <>드래프트 화면 오른쪽 <b>내 팀</b> 판 — 지금 라인업의 전력과 선수들의 실제 시즌 기록</>,
     groups: [
-      { t: '팀 분석 숫자', s: '팀 종합 · 투수 · 야수는 라인업 평균 종합', b: <>
-        <p>선수를 세운 자리와 시너지가 반영된 종합의 평균 · 빈 자리는 빼고 계산</p>
-        <p>육각형은 <span className="rl-chip">파워</span> <span className="rl-chip">컨택</span> <span className="rl-chip">주루</span> <span className="rl-chip">수비</span> <span className="rl-chip">선발</span> <span className="rl-chip">불펜</span> 여섯 가지</p>
-        <p>타자 넷은 야수 평균 능력치 · 선발과 불펜은 구위 · 제구 · 안정으로 매긴 투수력</p>
+      { t: '육각형', b: <>
+        <div className="rl-kind">
+          <div><span className="rl-chip g">초록 면</span><span>우리 팀</span></div>
+          <div><span className="rl-chip">붉은 점선</span><span>같은 캡 AI 평균</span></div>
+          <div><span className="rl-chip">+9</span><span>AI 평균과 차이</span></div>
+        </div>
       </> },
-      { t: '초록 면 · 붉은 점선', s: '초록 면은 우리 팀 · 붉은 점선은 AI 평균', b: <>
-        <p>AI 평균은 <b>같은 모드 · 같은 샐러리 캡</b>으로 AI가 드래프트한 팀들의 평균</p>
-        <p>꼭짓점 숫자 옆의 <em>+9</em>와 같은 값은 AI 평균보다 높거나 낮은 만큼 · 아래 칩은 차이가 큰 순서</p>
-      </> },
-      { t: '팀 색깔 이름표', s: 'AI 평균보다 가장 앞서는 능력과 가장 밀리는 능력', b: <>
+      { t: '팀 색깔', b: <>
         <div className="rl-tbl">
-          <span className="h">능력</span><span className="h">가장 앞설 때</span><span className="h">가장 밀릴 때</span>
+          <span className="h">능력</span><span className="h">앞설 때</span><span className="h">밀릴 때</span>
           {TEAM_AXES.map(([k]) => (
             <React.Fragment key={k}><span>{k}</span><span className="up">{STYLE_STRONG[k]}</span><span className="dn">{STYLE_WEAK[k]}</span></React.Fragment>
           ))}
         </div>
       </> },
-      { t: '선수 기록', s: '투수와 타자의 실제 시즌 기록을 따로', b: <>
-        <p>투수는 <b>ERA · 승 · 세이브(S) 또는 홀드(H) · 삼진</b>, 타자는 <b>타율 · 홈런 · 도루 · 타점</b></p>
-        <p>초록 기록은 그 열에서 <b>우리 팀 1등</b> · ERA는 가장 낮은 값이 초록</p>
-        <p>레전드 카드처럼 시즌 기록 자료가 없는 선수는 <b>-</b>로 표시</p>
-        <div className="rl-tip"><span>기록 줄을 누르면 라인업에서 그 자리를 누른 것과 같음</span></div>
+      { t: '선수 기록', b: <>
+        <div className="rl-kind">
+          <div><span className="rl-chip">투수</span><span>ERA · 승 · S/H · 삼진</span></div>
+          <div><span className="rl-chip">타자</span><span>타율 · 홈런 · 도루 · 타점</span></div>
+          <div><span className="rl-chip g">초록</span><span>팀 1등</span></div>
+        </div>
       </> },
     ] },
 ];
