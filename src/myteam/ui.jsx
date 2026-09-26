@@ -29,7 +29,7 @@ export const UiStyle = () => (
     .mt-pop { animation: mt-pop .22s ease-out both; }
     .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
     .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
-    .mt-btn:hover:not(:disabled) { background:rgba(255,255,255,.12); }
+    .mt-btn:not(.pri):hover:not(:disabled) { color:#fff; background:rgba(245,210,122,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
     /* 주 단추 — 판 색 그라데이션 · 윗선 빛 · 판 색 그림자 */
     /* 주 단추 — 금빛(게임의 '누르는 곳'). 판 색(--a)은 상태 색으로만 쓴다 */

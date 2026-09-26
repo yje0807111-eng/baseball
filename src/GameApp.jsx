@@ -3,7 +3,7 @@
  * 시즌 로스터 412개와 경기 엔진이 여기에 딸려 있어, 로그인·로비와 떼어 두었다.
  * 상태 중 account · view · playTab 은 App 이 들고 있고 나머지는 여기서 갖는다.
  */
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
 import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
@@ -23,15 +23,7 @@ import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
-const KboAugmentDraft = lazy(() => import('./KboAugmentDraft.jsx'));
-const LockerScreen = lazy(() => import('./myteam/LockerScreen.jsx'));
-const ShopScreen = lazy(() => import('./myteam/ShopScreen.jsx'));
-const RecordScreen = lazy(() => import('./myteam/RecordScreen.jsx'));
-const AugmentScreen = lazy(() => import('./myteam/AugmentScreen.jsx'));
-const BroadcastGame = lazy(() => import('./BroadcastGame.jsx'));
-const TournamentBracket = lazy(() => import('./myteam/TournamentBracket.jsx'));
-const RankedHub = lazy(() => import('./myteam/RankedHub.jsx'));
-const PrepScreen = lazy(() => import('./myteam/PrepScreen.jsx'));
+import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, BroadcastGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;

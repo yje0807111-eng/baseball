@@ -19,7 +19,15 @@ export const reducedMotion = () => typeof window !== 'undefined' && !!window.mat
  * kind: 'fwd'(깊이 들어감) · 'back'(돌아옴) · 'tab-r' · 'tab-l'(옆 탭으로)
  * 지원하지 않는 브라우저 · 애니메이션 줄이기면 그냥 바꾼다.
  */
-export function navTo(update, kind = 'fwd') {
+export function navTo(update, kind = 'fwd', ready = null) {
+  /* 갈 화면을 아직 받는 중이면 옛 화면을 그대로 두고 기다렸다가 넘어간다(검은 판 없이). 너무 오래면 2.5초에 그냥 넘어감 */
+  if (ready) {
+    let done = false;
+    const go = () => { if (!done) { done = true; navTo(update, kind); } };
+    ready.then(go, go);
+    setTimeout(go, 2500);
+    return;
+  }
   if (typeof document === 'undefined' || !document.startViewTransition || document.visibilityState !== 'visible' || reducedMotion()) { update(); return; }
   const root = document.documentElement;
   root.dataset.nav = kind;

@@ -1504,7 +1504,7 @@ export const KEYFRAMES = `
 .ui-lab { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px !important; font-weight: 800; letter-spacing: .02em; color: var(--a, #10b981); }
 .ui-lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 .ui-btn { --c: 12px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 0 20px; border-radius: 12px; font-size:14px; font-weight: 700; color: #e8ecf2; white-space: nowrap; background: rgba(255,255,255,.07); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.06); transition: background .15s, box-shadow .15s, filter .15s, transform .15s; }
-.ui-btn:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+.ui-btn:not(.pri):hover:not(:disabled) { color: #fff; background: rgba(245,210,122,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); } /* 금빛 테두리 · 옅은 금빛 바탕 (주 단추는 따로) */
 .ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
 .ui-btn:disabled { opacity: .4; cursor: not-allowed; }
 .ui-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }

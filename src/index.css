@@ -74,3 +74,17 @@ body { overscroll-behavior: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
   .fx-pop, .fx-flip, .fx-rise { animation: none !important; }
 }
+
+/* 주 단추(금빛) 마우스 올림 — 밝아지며 살짝 뜨고, 빛 한 줄이 왼쪽에서 오른쪽으로 지나간다(게임 단추 광택).
+   전에는 일반 단추 hover 규칙이 금빛 바탕을 덮어 검게 보였다 */
+.mt-btn.pri, .ui-btn.pri { position: relative; overflow: hidden; }
+.mt-btn.pri::after, .ui-btn.pri::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .5) 48%, transparent 66%);
+  transform: translateX(-130%);
+}
+.mt-btn.pri:hover:not(:disabled)::after, .ui-btn.pri:hover:not(:disabled)::after { transform: translateX(130%); transition: transform .7s var(--fx-out); }
+.mt-btn.pri:hover:not(:disabled), .ui-btn.pri:hover:not(:disabled) {
+  box-shadow: 0 14px 30px -8px rgba(227, 178, 74, .8), inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -2px 0 rgba(0, 0, 0, .2);
+}
+@media (prefers-reduced-motion: reduce) { .mt-btn.pri::after, .ui-btn.pri::after { display: none; } }
