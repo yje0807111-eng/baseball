@@ -54,3 +54,8 @@ create policy "teams own delete" on public.teams for delete to authenticated usi
 create policy "battles mine" on public.battles for select to authenticated
   using (attacker = (select auth.uid()) or defender = (select auth.uid()));
 create policy "battles attack" on public.battles for insert to authenticated with check (attacker = (select auth.uid()));
+
+-- 표를 Data API 에 자동으로 열지 않는 프로젝트라 필요한 권한만 직접 준다(익명 anon 역할엔 주지 않는다)
+grant select, insert, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.teams to authenticated;
+grant select, insert on public.battles to authenticated;
