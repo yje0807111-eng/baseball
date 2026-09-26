@@ -4,7 +4,7 @@
  * 이름 · 배너는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Count } from '../ui/motion.jsx';
+import { Count, useExitGhost } from '../ui/motion.jsx';
 import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
 import { loadAccount, saveProfile, TEAM_NAME_MAX } from './store.js';
@@ -27,6 +27,8 @@ function SlotPreview({ name, banner }) {
 }
 
 function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved, onSignOut }) {
+  const rootRef = useRef(null);
+  useExitGhost(rootRef);
   const [nick, setNick] = useState(nick0 || '');
   const [banner, setBanner] = useState(banner0 ?? null);
   const [club, setClub] = useState(teamName || '');
@@ -57,7 +59,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     onClose();
   };
   return createPortal(
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-[#03050a]/70 backdrop-blur-[5px]" onClick={onClose} role="presentation">
+    <div ref={rootRef} className="mt-pop-bg fixed inset-0 z-[80] grid place-items-center bg-[#03050a]/70 backdrop-blur-[5px]" onClick={onClose} role="presentation">
       <div className="mt-cut mt-frame mt-glass flex w-[760px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
         <div className="flex items-baseline gap-3">
           <p className="mt-lab">감독</p>

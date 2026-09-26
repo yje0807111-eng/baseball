@@ -1,9 +1,9 @@
 /* 내 팀 화면들이 함께 쓰는 조각 — 유리 · 깊이 결(둥근 유리 판 · 윗선 빛 · 그림자 · Saira 숫자) */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SQUAD_CAP, CAP_LOUD } from './rules.js';
 import ProfileBadge from './ProfileBadge.jsx';
 import { artId } from '../data/artAlias.js';
-import { navTo } from '../ui/motion.jsx';
+import { navTo, useExitGhost } from '../ui/motion.jsx';
 
 export const UiStyle = () => (
   <style>{`
@@ -172,13 +172,15 @@ export const Btn = ({ pri, lg, sm, a = '#10b981', className = '', style, ...rest
  * 본문 스크롤, 아래 단추 줄(오른쪽 끝이 주 단추). Esc · 바깥 누르기로 닫기
  */
 export function Pop({ eyebrow, title, sub, a = '#10b981', width = 560, onClose, actions, label, children }) {
+  const rootRef = useRef(null);
+  useExitGhost(rootRef);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
   return (
-    <div className="mt-pop-bg fixed inset-0 z-50 grid place-items-center bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px]" onClick={onClose} role="presentation">
+    <div ref={rootRef} className="mt-pop-bg fixed inset-0 z-50 grid place-items-center bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px]" onClick={onClose} role="presentation">
       <section role="dialog" aria-modal="true" aria-label={label || (typeof title === 'string' ? title : eyebrow)} onClick={(e) => e.stopPropagation()}
         className="mt-pop mt-cut mt-frame mt-glass flex max-h-[88vh] w-full flex-col shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]" style={{ '--c': '18px', '--a': a, maxWidth: width }}>
         <header className="flex items-start gap-4 border-b border-white/10 px-7 pb-4 pt-6">

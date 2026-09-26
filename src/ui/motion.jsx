@@ -9,7 +9,7 @@
  *  - 운영체제 '애니메이션 줄이기'면 모두 끈다
  * 값(길이 · 곡선)은 index.css 의 --fx-* 와 ::view-transition 규칙에 있다.
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 export const reducedMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -139,6 +139,34 @@ export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46 } = {}) {
     anim.onfinish = () => { clearTimeout(drop); ghost.remove(); };
     anim.oncancel = () => ghost.remove();
   }));
+}
+
+/**
+ * 닫힘 — 팝업이 사라질 때 0.16초 동안 흐려지며 살짝 작아진다(열림 모션과 짝).
+ * 팝업은 부르는 쪽 상태로 바로 사라지므로(닫기 · 받기 · 바깥 누르기 등 길이 여럿), 사라지는 순간의 모습을 사본으로 떠서
+ * 그 사본을 흐리게 한다 — 어느 단추로 닫든 똑같이. 개발 모드 이중 실행(가짜 사라짐)에는 원본이 남아 있으니 건너뛴다.
+ */
+export function useExitGhost(ref) {
+  useLayoutEffect(() => {
+    const node = ref.current;
+    return () => {
+      if (!node || reducedMotion() || typeof document === 'undefined' || document.visibilityState !== 'visible') return;
+      const r = node.getBoundingClientRect();
+      if (!r.width) return;
+      const ghost = node.cloneNode(true);
+      queueMicrotask(() => {
+        if (node.isConnected) return; // 진짜로 사라진 게 아니다
+        [ghost, ...ghost.querySelectorAll('*')].forEach((e) => { e.style.animation = 'none'; e.style.transition = 'none'; });
+        Object.assign(ghost.style, { position: 'fixed', left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, margin: '0', pointerEvents: 'none', zIndex: '90' });
+        document.body.appendChild(ghost);
+        const panel = ghost.querySelector('[role="dialog"]') || ghost;
+        if (panel !== ghost) panel.animate([{ transform: 'none' }, { transform: 'translateY(6px) scale(.97)' }], { duration: 160, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+        const a = ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+        const drop = setTimeout(() => ghost.remove(), 600);
+        a.onfinish = () => { clearTimeout(drop); ghost.remove(); };
+      });
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /** 차례로 올라오기 — 목록 · 카드 줄이 처음 뜰 때만. i 번째는 45ms 씩 늦게 */

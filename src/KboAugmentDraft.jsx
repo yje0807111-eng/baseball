@@ -22,7 +22,7 @@ import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
-import { Flip, flyGhost } from './ui/motion.jsx';
+import { Flip, flyGhost, useExitGhost } from './ui/motion.jsx';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -3623,13 +3623,15 @@ export function SynergyTip({ s, after, candidate, top = 0, up = false, left = 0 
 
 /* ───── 가운데 팝업 카드 (배경 어둡게 · 바깥 클릭/Esc 로 닫기) ───── */
 function Modal({ title, eyebrow, onClose, bar, bodyKey, wide, children }) {
+  const rootRef = useRef(null);
+  useExitGhost(rootRef);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
+    <div ref={rootRef} className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#03050a]/70 px-4 py-10 backdrop-blur-[5px] animate-[fade_.15s_ease-out_both]" onClick={onClose} role="presentation">
       <section role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
         className={`ui-cut ui-frame ui-glass2 w-full ${wide ? 'max-w-[1160px]' : 'max-w-lg'} animate-[rise_.25s_ease-out_both] shadow-[0_24px_60px_-12px_rgba(0,0,0,.8)]`} style={{ '--c': '22px' }}>
         <header className={`flex items-start justify-between gap-4 px-6 pt-5 ${bar ? 'pb-3' : 'border-b border-white/10 pb-4'}`}>
