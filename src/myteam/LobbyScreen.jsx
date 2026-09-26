@@ -265,7 +265,7 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <div className="flex min-h-0 flex-col gap-3">
           <Tile img="ui/mt/tile-locker.webp" a="#34d399" title="내 라커" desc="선수 영입 · 타순 · 코치" onClick={onLocker} style={{ flex: 1 }} />
           <Tile img="ui/mt/tile-shop.webp" a="#fde047" title="상점" desc="선수 능력치 · 캡 늘리기" onClick={onShop} style={{ flex: 1 }} />
-          <Tile img="ui/mt/mt-boost.webp" a="#c4b5fd" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-aug.webp" a="#c4b5fd" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
           <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" title="기록" desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} style={{ flex: 1 }} />
           <WeekCard account={account} onOpen={onWeek || onRecord} />
         </div>
