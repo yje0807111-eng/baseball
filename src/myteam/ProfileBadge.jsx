@@ -3,13 +3,13 @@
  * 누르면 프로필 창: 이름 변경 · 대진표 내 팀 칸 배너 고르기 · 로그아웃.
  * 이름 · 배너는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
 import { loadAccount, saveProfile } from './store.js';
 import { BANNERS, flagByKey } from './teamArt.js';
 import { online } from '../net/supabase.js';
-import { renameNick, NICK_MIN } from '../net/account.js';
+import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -30,6 +30,12 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
   const [banner, setBanner] = useState(banner0 ?? null);
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
+  const [mail0, setMail0] = useState(null); // 서버에 있는 복구 이메일(불러오기 전 null)
+  const [mail, setMail] = useState('');
+  useEffect(() => {
+    if (!online) return;
+    myRecoveryEmail().then((m) => { setMail0(m || ''); setMail(m || ''); }).catch(() => setMail0(''));
+  }, []);
   const valid = nick.trim().length >= (online ? NICK_MIN : 1);
   const save = async () => {
     if (!valid || busy) return;
@@ -37,6 +43,12 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     if (online && nk !== nick0) { // 서버 감독 이름부터 — 겹치면 여기서 멈춘다
       setBusy(true);
       try { await renameNick(nk); } catch (e) { setErr(e.message); setBusy(false); return; }
+    }
+    if (online && mail0 !== null && mail.trim().toLowerCase() !== mail0) {
+      const bad = checkEmail(mail);
+      if (bad) { setErr(bad); return; }
+      setBusy(true);
+      try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setBusy(false); return; }
     }
     saveProfile({ nick: nk, banner });
     onSaved();
@@ -58,8 +70,17 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
               className="mt-cut h-12 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
             <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
           </span>
-          {err && <span className="text-t3 font-bold text-red-400" role="alert">{err}</span>}
         </label>
+
+        {online && (
+          <label className="flex flex-col gap-2">
+            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">복구 이메일 · 선택</span>
+            <input type="email" value={mail} maxLength={254} disabled={mail0 === null} placeholder={mail0 === null ? '불러오는 중' : '비밀번호 찾기용'}
+              onChange={(e) => { setMail(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()} autoComplete="email"
+              className="mt-cut h-12 bg-white/[0.06] px-4 text-t2 text-white outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
+          </label>
+        )}
+        {err && <span className="-mt-2 text-t3 font-bold text-red-400" role="alert">{err}</span>}
 
         <div className="flex flex-col gap-2">
           <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">배너</span>

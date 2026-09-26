@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { checkId, checkPw, checkNick, idToEmail, errText } from '../src/net/account.js';
+import { checkId, checkPw, checkNick, checkEmail, idToEmail, errText } from '../src/net/account.js';
 import { payload } from '../src/net/sync.js';
 
 describe('가입 입력 검사', () => {
@@ -21,6 +21,13 @@ describe('가입 입력 검사', () => {
     expect(checkNick('김')).toMatch(/2~12/);
     expect(checkNick(' 김감독 ')).toBe(null);
     expect(checkNick('가'.repeat(13))).toMatch(/2~12/);
+  });
+  it('복구 이메일 — 비우면 통과(선택), 넣으면 형식 확인', () => {
+    expect(checkEmail('')).toBe(null);
+    expect(checkEmail('  ')).toBe(null);
+    expect(checkEmail('fan@kbo.kr')).toBe(null);
+    expect(checkEmail('fan@kbo')).toMatch(/형식/);
+    expect(checkEmail('fan kbo@x.kr')).toMatch(/형식/);
   });
   it('아이디 → 속 주소(소문자 · 앞뒤 빈칸 없음)', () => {
     expect(idToEmail(' KBO_Fan ')).toBe('kbo_fan@id.kbodream.app');
