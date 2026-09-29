@@ -10,6 +10,7 @@ import { UiStyle, Portrait, GlassBg, Pop } from './myteam/ui.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
+import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
@@ -382,7 +383,7 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
 let fxSeq = 0;
 const nextFx = () => ++fxSeq;
 
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false, intro = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -393,6 +394,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [, force] = useState(0);
   const redraw = () => force((v) => v + 1);
   const [speed, setSpeed] = useState(1);
+  /* 경기 인트로(MatchIntro) — 경기 화면 위로 두 구단 현수막 → 끝나 갈 때(onHandoff) 경기 루프가 이어져 1회 증강 판을 띄운다 */
+  const [introOn, setIntroOn] = useState(!!intro);
+  const introDone = useRef(!intro);
+  const introWait = useRef(null);
+  const introTeam = (t, mine) => {
+    const f = (mine ? flagByKey(myBanner()) : teamFlag(t.name)) || null;
+    const key = f?.key || 'dream';
+    const all = [...(t.batters || []), t.pitchers?.[0]].filter(Boolean);
+    return { name: t.name, color: f?.color || (mine ? '#10b981' : '#94a3b8'), emblem: `ui/clubs/${key}.webp`, bg: f ? `ui/teams/bg-${key}.webp` : null,
+      ovr: all.length ? Math.round(all.reduce((n, p) => n + (p.overall || 0), 0) / all.length) : '-', starter: t.pitchers?.[0]?.name || null };
+  };
   const [paused, setPaused] = useState(false);
   /* 승률 — 타석마다 한 점씩 찍어 흐름을 만든다. 내 지시가 얼마나 밀어 올렸는지도 센다 */
   const wpRef = useRef([0.5]);
@@ -537,7 +549,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     let stop = false;
     aliveRef.current = true;
     (async () => {
-      await sleep(600);
+      /* 인트로가 있으면 현수막이 올라가기 시작할 때까지 기다린다(없으면 예전처럼 0.6초) */
+      if (!introDone.current) await new Promise((res) => { introWait.current = res; });
+      else await sleep(600);
       /* 한 이닝에 한 번만 묻는다 — 화면이 두 번 올라와도(개발 모드) 증강 판이 겹쳐 뜨지 않게 */
       const askedAt = aug ? (aug.askedAt || (aug.askedAt = new Set())) : new Set();
       /* 플레이볼 직후 한 장 — 아래 이닝 넘김 판정은 1회를 잡지 못한다 */
@@ -791,6 +805,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       <UiStyle />
       <style>{CLUTCH_CSS}</style>
       <GlassBg tint={cOpp} />
+      {introOn && (
+        <MatchIntro away={introTeam(away, false)} home={introTeam(home, true)} tag={intro?.tag}
+          onHandoff={() => { introDone.current = true; introWait.current?.(); }} onDone={() => setIntroOn(false)} />
+      )}
       {/* 승부처에는 화면 가장자리에 빛이 돌아 딴 데 보고 있어도 눈에 든다 */}
       {clutch && (
         <span aria-hidden="true" className="pointer-events-none fixed inset-0 z-40"
