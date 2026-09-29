@@ -201,7 +201,7 @@ export function play(name, opts = {}) {
   if (typeof document !== 'undefined' && document.hidden) return;
   /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
   const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < 40) return; lastAt.set(name, now);
-  if (import.meta.env?.DEV) (window.__sfx ||= []).push(name); // 개발 모드 확인용 — 무엇이 울렸나
+  if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(now)]); // 개발 모드 확인용 — 무엇이 울렸나
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();
   const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary ? 1 - Math.random() * 0.15 : 1);

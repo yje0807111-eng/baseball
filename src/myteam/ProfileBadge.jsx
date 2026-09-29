@@ -12,7 +12,7 @@ import { BANNERS, flagByKey } from './teamArt.js';
 import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 import { getSettings, onSettings, setSettings } from '../audio/bgm.js';
-import { play } from '../audio/sfx.js';
+import { play as playSfx } from '../audio/sfx.js';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -38,7 +38,7 @@ function MusicRow() {
       <div className="mt-cut flex items-center gap-4 bg-white/[0.06] px-4 py-2.5" style={{ '--c': '8px' }}>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           {row('vol', '배경음악')}
-          {row('sfx', '효과음', () => play('goldIn'))}
+          {row('sfx', '효과음', () => playSfx('goldIn'))}
         </div>
         <button type="button" onClick={() => setSettings({ muted: !s.muted })} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '소리 켜기' : '음소거 · M'}</button>
       </div>
@@ -172,7 +172,7 @@ export default function ProfileBadge({ account, onSignOut }) {
   useEffect(() => {
     const d = gold - prevGold.current;
     prevGold.current = gold;
-    if (d) { setDelta({ d, k: `${Date.now()}` }); play(d > 0 ? 'goldIn' : 'goldOut'); }
+    if (d) { setDelta({ d, k: `${Date.now()}` }); playSfx(d > 0 ? 'goldIn' : 'goldOut'); }
   }, [gold]);
   return (
     <span className="relative inline-flex">

@@ -9,7 +9,7 @@ import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx'
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
 import { useListIntro } from '../ui/motion.jsx';
-import { play } from '../audio/sfx.js';
+import { play as playSfx } from '../audio/sfx.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
@@ -70,7 +70,7 @@ export default function AugmentScreen({ account, onBack }) {
     if (lv >= AUG_LEVEL_MAX) return;
     if (aug.upgradeTickets < need) { setMsg(`강화권 ${need - aug.upgradeTickets}장 부족`); return; }
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
-    play('augUpgrade', { lv: need });
+    playSfx('augUpgrade', { lv: need });
   };
 
   const list = pool.filter((a) => (view === 'fav' ? favs.includes(a.id) : view === 'ban' ? bans.includes(a.id) : true) && (type === 'all' || a.type === type));

@@ -10,7 +10,7 @@ import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLAC
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { rankOf } from './rank.js';
 import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
-import { play } from '../audio/sfx.js';
+import { play as playSfx } from '../audio/sfx.js';
 
 /**
  * 등급 오름 — 시즌 보상을 받아 등급이 바뀌는 순간(가장 드문 순간이라 가장 크게, 롤 · 클래시 로얄 승급처럼)
@@ -82,7 +82,7 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
     });
     const mine = prevRanks.get(me) != null && prevRanks.get(me) !== now.get(me) ? now.get(me) - prevRanks.get(me) : 0; // 내 순위가 움직였으면 ▲▼ 소리
     const t = setTimeout(() => {
-      if (mine) play(mine < 0 ? 'rankUp' : 'rankDown');
+      if (mine) playSfx(mine < 0 ? 'rankUp' : 'rankDown');
       moved.forEach((tr) => {
         tr.style.transition = 'transform .6s cubic-bezier(.2,.7,.3,1)';
         tr.style.transform = '';

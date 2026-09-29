@@ -1,7 +1,8 @@
-/* 배경음악 단추 — 모든 화면 위쪽 바의 오른쪽 끝에 같은 모양(40px · 모서리 12px)으로 놓인다.
-   누르면 아래로 크기 조절 · 음소거 판이 열린다(오른쪽 정렬). 화면마다 모양을 바꾸지 않는다 */
+/* 소리 단추 — 모든 화면 위쪽 바의 오른쪽 끝에 같은 모양(40px · 모서리 12px)으로 놓인다.
+   누르면 아래로 배경음악 · 효과음 크기 · 음소거 판이 열린다(오른쪽 정렬, 프로필 창 소리 칸과 같은 설정). 화면마다 모양을 바꾸지 않는다 */
 import { useEffect, useRef, useState } from 'react';
 import { getSettings, onSettings, setSettings } from './bgm.js';
+import { play as playSfx } from './sfx.js';
 
 function Speaker({ off }) {
   return (
@@ -23,23 +24,32 @@ export default function BgmButton({ className = '' }) {
     window.addEventListener('pointerdown', close);
     return () => window.removeEventListener('pointerdown', close);
   }, [open]);
-  const off = s.muted || s.vol === 0;
+  const off = s.muted || (s.vol === 0 && !s.sfx);
+  const row = (key, label, onUp) => {
+    const v = s[key] ?? 0;
+    return (
+      <>
+        <div className="mt-2 flex items-center justify-between text-t4 text-gray-300 first:mt-0">
+          <b className="font-bold">{label}</b>
+          <span className="font-display text-t3 text-white">{s.muted || v === 0 ? '끔' : Math.round(v * 100)}</span>
+        </div>
+        <input type="range" min="0" max="100" value={Math.round(v * 100)} aria-label={`${label} 크기`}
+          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false })} onPointerUp={onUp}
+          className="mt-1 w-full accent-emerald-400" />
+      </>
+    );
+  };
   return (
     <div ref={box} className={`relative shrink-0 ${className}`}>
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="배경음악" aria-expanded={open} title="배경음악 (M)"
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="소리" aria-expanded={open} title="소리 (M)"
         className={`grid h-10 w-10 place-items-center bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,.1),inset_0_0_0_1px_rgba(255,255,255,.08)] transition hover:bg-white/[0.12] ${off ? 'text-gray-500' : 'text-gray-200'}`}
         style={{ clipPath: 'inset(0 round 12px)' }}>
         <Speaker off={off} />
       </button>
       {open && (
         <div className={`absolute top-full z-50 mt-2 w-56 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.92),rgba(8,12,22,.96))] px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,.5),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md right-0`}>
-          <div className="flex items-center justify-between text-t4 text-gray-300">
-            <b className="font-bold">배경음악</b>
-            <span className="font-display text-t3 text-white">{off ? '끔' : Math.round(s.vol * 100)}</span>
-          </div>
-          <input type="range" min="0" max="100" value={Math.round(s.vol * 100)} aria-label="배경음악 크기"
-            onChange={(e) => setSettings({ vol: Number(e.target.value) / 100, muted: false })}
-            className="mt-2 w-full accent-emerald-400" />
+          {row('vol', '배경음악')}
+          {row('sfx', '효과음', () => playSfx('goldIn'))}
           <button type="button" onClick={() => setSettings({ muted: !s.muted })}
             className="mt-2 w-full rounded-lg border border-white/15 py-1.5 text-t4 font-bold text-gray-200 hover:bg-white/10">
             {s.muted ? '소리 켜기' : '음소거 · M'}

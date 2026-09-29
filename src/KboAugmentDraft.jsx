@@ -25,7 +25,7 @@ import { setMods, addRuns } from './engine/pitchSim.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
 import { Flip, flyGhost, useExitGhost, navTo } from './ui/motion.jsx';
-import { play } from './audio/sfx.js';
+import { play as playSfx } from './audio/sfx.js';
 import { faceAt } from './data/cardFace.js';
 import { artId } from './data/artAlias.js';
 import { recordCells, playerTraits } from './myteam/traits.js';
@@ -3852,7 +3852,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
-  useEffect(() => { setHot(-1); setTook(-1); if (choice) play('augReveal', { n: choice.options.length }); }, [choice]); // 새로 뜰 때 · 다시 굴렸을 때
+  useEffect(() => { setHot(-1); setTook(-1); if (choice) playSfx('augReveal', { n: choice.options.length }); }, [choice]); // 새로 뜰 때 · 다시 굴렸을 때
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
@@ -3877,7 +3877,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           {choice.options.map((o, i) => (
             <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
               state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
-              onChoose={(pick) => { if (took >= 0) return; setTook(i); play('augPick'); setTimeout(() => onChoose(pick), 620); }} />
+              onChoose={(pick) => { if (took >= 0) return; setTook(i); playSfx('augPick'); setTimeout(() => onChoose(pick), 620); }} />
           ))}
         </div>
         {isAug && onReroll && (free > 0 || rerolls > 0) && (
@@ -4892,8 +4892,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
   /* 효과음: 내 차례 칩이 켜지는 순간 알림 종, 남은 5초부터 초마다 틱(남을수록 높게) */
   const turnBell = !!live && phase === 'draft' && myTurnLit && !Live.isDone(live);
-  useEffect(() => { if (turnBell) play('turn'); }, [turnBell]);
-  useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) play('tick', { sec: clock }); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (turnBell) playSfx('turn'); }, [turnBell]);
+  useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) playSfx('tick', { sec: clock }); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */

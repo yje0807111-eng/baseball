@@ -11,7 +11,7 @@
  */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { play } from '../audio/sfx.js';
+import { play as playSfx } from '../audio/sfx.js';
 
 export const reducedMotion = () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -21,7 +21,7 @@ export const reducedMotion = () => typeof window !== 'undefined' && !!window.mat
  * 지원하지 않는 브라우저 · 애니메이션 줄이기면 그냥 바꾼다.
  */
 export function navTo(update, kind = 'fwd', ready = null) {
-  if (!ready && (kind === 'fwd' || kind === 'back')) play(kind === 'fwd' ? 'navIn' : 'navBack'); // 옆 탭은 단추 소리로 충분
+  if (!ready && (kind === 'fwd' || kind === 'back')) playSfx(kind === 'fwd' ? 'navIn' : 'navBack'); // 옆 탭은 단추 소리로 충분
   /* 갈 화면을 아직 받는 중이면 옛 화면을 그대로 두고 기다렸다가 넘어간다(검은 판 없이). 너무 오래면 2.5초에 그냥 넘어감 */
   if (ready) {
     let done = false;
@@ -68,10 +68,10 @@ export function Count({ value, from, dur = 700, delay = 0, format = (n) => n.toL
       const p = Math.min(1, (t - t0) / dur);
       const e = 1 - (1 - p) ** 3; // 빠르게 세다가 끝에서 느려진다
       const v = Math.round(a + (b - a) * e);
-      if (sfx && p < 1 && v !== shown.current && t - beep >= 45) { beep = t; play('countTick', { step: Math.min(step++, 9) }); }
+      if (sfx && p < 1 && v !== shown.current && t - beep >= 45) { beep = t; playSfx('countTick', { step: Math.min(step++, 9) }); }
       setN(v);
       if (p < 1) raf = requestAnimationFrame(tick);
-      else { setPop((x) => x + 1); if (sfx) play('countPop'); }
+      else { setPop((x) => x + 1); if (sfx) playSfx('countPop'); }
     };
     const wait = setTimeout(() => { raf = requestAnimationFrame(tick); }, delay);
     return () => { clearTimeout(wait); cancelAnimationFrame(raf); };
@@ -84,7 +84,7 @@ export function Count({ value, from, dur = 700, delay = 0, format = (n) => n.toL
  * delay(ms) 로 여러 장을 차례로. back 을 안 주면 어두운 판.
  */
 export function Flip({ back = null, delay = 0, className = '', style, children }) {
-  useEffect(() => { const t = setTimeout(() => play('flip'), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const t = setTimeout(() => playSfx('flip'), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className={`fx-flip-wrap ${className}`} style={style}>
       <div className="fx-flip" style={{ '--d': `${delay}ms` }}>
@@ -100,7 +100,7 @@ export function Flip({ back = null, delay = 0, className = '', style, children }
  * 무작위 대신 번호로 각도 · 거리를 정해 매번 같은 모양(깜빡이는 느낌 없이)
  */
 export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, delay = 0, size = 7 }) {
-  useEffect(() => { const t = setTimeout(() => play('reward'), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const t = setTimeout(() => playSfx('reward'), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <span className="fx-burst" aria-hidden="true" style={{ '--d': `${delay}ms` }}>
       {Array.from({ length: n }, (_, i) => {
@@ -117,7 +117,7 @@ export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, dela
  * 도착 자리는 화면이 바뀐 뒤에 생기므로 findTarget 은 두 프레임 뒤에 찾는다. 원본 화면은 건드리지 않는다.
  */
 export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46 } = {}) {
-  if (fromEl) play('fly', { land: dur / 1000 });
+  if (fromEl) playSfx('fly', { land: dur / 1000 });
   if (!fromEl || reducedMotion() || typeof document === 'undefined') return;
   const a = fromEl.getBoundingClientRect();
   if (!a.width) return;
@@ -157,10 +157,10 @@ export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46 } = {}) {
 export function useExitGhost(ref) {
   useLayoutEffect(() => {
     const node = ref.current;
-    play('popOpen'); // 열림 · 닫힘 소리도 여기서 — 팝업마다 따로 달지 않게
+    playSfx('popOpen'); // 열림 · 닫힘 소리도 여기서 — 팝업마다 따로 달지 않게
     return () => {
       if (!node || typeof document === 'undefined') return;
-      queueMicrotask(() => { if (!node.isConnected) play('popClose'); });
+      queueMicrotask(() => { if (!node.isConnected) playSfx('popClose'); });
       if (reducedMotion() || document.visibilityState !== 'visible') return;
       const r = node.getBoundingClientRect();
       if (!r.width) return;
@@ -221,7 +221,7 @@ export function GrowBar({ k, pct, className = '', style }) {
 
 /** 효과음 한 번 — 뜬 뒤 delay(ms) 에. 모션과 박자를 맞출 때(도장 등) */
 export function SfxAt({ name, delay = 0 }) {
-  useEffect(() => { const t = setTimeout(() => play(name), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { const t = setTimeout(() => playSfx(name), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
