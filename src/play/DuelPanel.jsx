@@ -10,7 +10,7 @@
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
 import React, { useEffect, useState } from 'react';
-import { pitchMix, stealOdds, PITCHES, offenseOf } from '../engine/pitchSim.js';
+import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 
@@ -105,22 +105,47 @@ const CSS = `
 `;
 
 /*
- * 맞붙는 선수 한 줄 — 편은 색으로 못 박는다(중계와 같게): 상대 = 빨강 · 우리 = 초록.
- * 상대 줄은 그 구단 깃발을 배너로 깔아 어느 팀인지 한눈에(중계 점수판 줄과 같은 결).
+ * 맞붙는 선수 한 줄 — 편은 색으로 못 박는다(중계와 같게): 상대 = 빨강 · 우리 = 초록. 두 줄 모두 구단 배너를 깐다.
+ * 고르는 데 쓰는 것만: 투수는 구위 · 제구 · 체력(지치면 공이 몰린다), 타자는 컨택 · 파워 · 오늘 성적.
  */
 const OPP = '#f87171', OURS = '#34d399';
 const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
-function Who({ p, isP, mine, team }) {
+/** 오늘 이 타자 — 타수 · 안타(볼넷 · 희생은 타수에서 뺀다) */
+function todayOf(g, b) {
+  let ab = 0, h = 0, bb = 0;
+  for (const ev of g.events) {
+    if (ev.batter !== b || ev.top !== g.top || !ev.result) continue;
+    if (['BB', 'IBB'].includes(ev.result)) bb += 1;
+    else if (!['SAC', 'SF', 'SB', 'CS'].includes(ev.result)) { ab += 1; if (['1B', '2B', '3B', 'HR', 'BH'].includes(ev.result)) h += 1; }
+  }
+  if (!ab && !bb) return '첫 타석';
+  return `${ab}타수 ${h}안타${bb ? ` · 볼넷 ${bb}` : ''}`;
+}
+/** 체력 색 — 넉넉하면 초록, 바닥이면 빨강 */
+const staminaC = (v) => (v > 60 ? OURS : v > 35 ? '#fbbf24' : OPP);
+function Who({ p, isP, mine, team, g, side }) {
   const c = mine ? OURS : OPP;
+  const stam = isP ? Math.round(staminaOf(side)) : 0;
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 16,
-      background: `linear-gradient(90deg, ${c}40, ${c}0f 72%)`, boxShadow: `inset 5px 0 0 ${c}, inset 0 0 0 1px ${c}55` }}>
-      {!mine && team?.flag && <i aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${team.flag.src})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.34, WebkitMaskImage: SB_MASK, maskImage: SB_MASK, pointerEvents: 'none' }} />}
-      <div style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', flex: 'none', backgroundImage: face(p), backgroundSize: 'cover', backgroundPosition: '50% 12%', backgroundColor: '#0b1220', boxShadow: `0 0 0 3px ${c}` }} />
-      <div style={{ position: 'relative', display: 'grid', gap: 2, minWidth: 0 }}>
-        <span className="lbl" style={{ color: c }}>{mine ? '우리' : '상대'} {isP ? '투수' : '타자'}{!mine && team?.short ? <b style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 6, color: '#fff', background: `${OPP}cc` }}>{team.short}</b> : null}</span>
-        <b style={{ fontSize: 26, lineHeight: 1.1, whiteSpace: 'nowrap' }}>{p?.name} <span className="disp" style={{ fontSize: 22, color: MUTE }}>{p?.overall}</span></b>
-        <span style={{ fontSize: 16, color: '#cbd5e1' }}>{isP ? `구위 ${st(p, 'stuff')} · 제구 ${st(p, 'control')}` : `컨택 ${st(p, 'contact')} · 파워 ${st(p, 'power')}`}</span>
+    <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, padding: '9px 14px', borderRadius: 14,
+      background: `linear-gradient(90deg, ${c}40, ${c}0f 72%)`, boxShadow: `inset 4px 0 0 ${c}, inset 0 0 0 1px ${c}55` }}>
+      {team?.flag && <i aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${team.flag.src})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.32, WebkitMaskImage: SB_MASK, maskImage: SB_MASK, pointerEvents: 'none' }} />}
+      <div style={{ position: 'relative', width: 48, height: 48, borderRadius: '50%', flex: 'none', backgroundImage: face(p), backgroundSize: 'cover', backgroundPosition: '50% 12%', backgroundColor: '#0b1220', boxShadow: `0 0 0 2.5px ${c}` }} />
+      <div style={{ position: 'relative', display: 'grid', gap: 3, minWidth: 0, flex: 1 }}>
+        <span style={{ display: 'flex', alignItems: 'baseline', gap: 8, whiteSpace: 'nowrap' }}>
+          <b style={{ fontSize: 15, color: c }}>{mine ? '우리' : '상대'} {isP ? '투수' : '타자'}</b>
+          {!mine && team?.short && <b style={{ fontSize: 14, padding: '0 7px', borderRadius: 6, color: '#fff', background: `${OPP}cc` }}>{team.short}</b>}
+          <b style={{ fontSize: 21, lineHeight: 1.1 }}>{p?.name}</b><b className="disp" style={{ fontSize: 19, color: MUTE }}>{p?.overall}</b>
+        </span>
+        {isP ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, color: '#cbd5e1', whiteSpace: 'nowrap' }}>
+            구위 {st(p, 'stuff')} · 제구 {st(p, 'control')}
+            <i style={{ flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: 'rgba(255,255,255,.12)', overflow: 'hidden' }}><b style={{ display: 'block', width: `${stam}%`, height: '100%', background: staminaC(stam) }} /></i>
+            <b className="disp" style={{ fontSize: 16, color: staminaC(stam) }}>{side.pitches}구</b>
+          </span>
+        ) : (
+          <span style={{ fontSize: 15, color: '#cbd5e1', whiteSpace: 'nowrap' }}>컨택 {st(p, 'contact')} · 파워 {st(p, 'power')} · <b style={{ color: '#fff' }}>오늘 {todayOf(g, p)}</b></span>
+        )}
       </div>
     </div>
   );
@@ -227,11 +252,11 @@ const CALL_KO = { ball: ['볼', BLUE], called: ['스트라이크', '#fde047'], s
 
 /**
  * props
- *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · opp: 상대 구단 { short, flag }
+ *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · opp · me: 두 구단 { short, flag }
  *  waiting: 고를 차례인가 · tell: 단서 한 줄(없으면 null) · shots: 이 타석 공 [{ x, y, ev }]
  *  reveal: 방금 공 { ev, guess } · onGo(orders) · onHand() 맡기기
  */
-export default function DuelPanel({ g, side, board, opp, waiting, tell, shots, reveal, onGo, onHand }) {
+export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shots, reveal, onGo, onHand }) {
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
@@ -314,9 +339,9 @@ export default function DuelPanel({ g, side, board, opp, waiting, tell, shots, r
         ))}
       </div>
       {/* 맞붙는 두 선수 — 상대가 위 */}
-      <div className="pn" style={{ position: 'absolute', left: 32, bottom: 32, width: 400, padding: 10, display: 'grid', gap: 8 }}>
-        {off ? <><Who p={pitcher} isP team={opp} /><Who p={batter} mine /></>
-          : <><Who p={batter} team={opp} /><Who p={pitcher} isP mine /></>}
+      <div className="pn" style={{ position: 'absolute', left: 32, bottom: 32, width: 400, padding: 8, display: 'grid', gap: 6, borderRadius: 18 }}>
+        {off ? <><Who p={pitcher} isP team={opp} g={g} side={g.away} /><Who p={batter} mine team={me} g={g} /></>
+          : <><Who p={batter} team={opp} g={g} /><Who p={pitcher} isP mine team={me} g={g} side={g.home} /></>}
       </div>
 
       {/* 존 + 단서 */}

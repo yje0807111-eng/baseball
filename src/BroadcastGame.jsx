@@ -880,7 +880,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       {duel && (
         <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} />} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
           shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
-          opp={{ short: shortTeam(away.name), flag: teamFlag(away.name) }}
+          opp={{ short: shortTeam(away.name), flag: teamFlag(away.name) }} me={{ flag: flagByKey(myBanner()) }}
           onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}
           onHand={() => { const done = duelWait.current; if (done) { duelWait.current = null; done(null); } }} />
       )}
