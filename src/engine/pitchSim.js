@@ -18,6 +18,7 @@
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
  *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
+ *     target: { x, y } (수싸움 자유 조준 — 존 반폭 · 반높이 = 1, x 음수 = 몸쪽 · y 음수 = 높게. 제구만큼 흩어져 떨어진 자리가 곧 코스),
  *     noPick: true (pitchType · zone 이 AI 가 미리 뽑은 공일 때 — 구종 · 코스를 찍은 보정을 붙이지 않는다),
  *     exact: true (수싸움에서 칸을 직접 찍었다 — 존에 들어갈 확률 +0.12, 전술의 +0.06 대신),
  *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다), guard: -1|1 (제자리 · 붙어 선다),
@@ -139,6 +140,42 @@ export function stealOdds(g, from) {
     - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
 }
 
+/*
+ * 자유 조준의 흩어짐(표준편차, 존 반폭 = 1) — 제구가 좋을수록 · 덜 지쳤을수록 좁다. 제구 90 ≈ 0.19, 80 ≈ 0.29, 70 ≈ 0.39
+ */
+export const aimSpread = (control, tired = 0) => clamp(0.27 + (82 - control) * 0.01 + tired * 0.15, 0.14, 0.5);
+/** 떨어진 자리의 맞히기 어려움 — 존 경계에 붙을수록(구석) 어렵고, 한가운데로 몰리면 크게 쉽다(실투) */
+const cornerAt = (edge) => (edge > 0.72 ? 0.07 : edge > 0.4 ? 0 : -0.11);
+/*
+ * 타자 강한 코스 — 선수 id 로 정해진다(몸쪽 · 바깥 · 높은 공 · 낮은 공 · 고르게). 수싸움 자유 조준 공에만 먹는다
+ * (자동 경기 균형은 그대로): 강한 줄 +0.07 · 반대 줄 −0.03
+ */
+const HOT_KEYS = ['in', 'out', 'high', 'low', 'even'];
+export function batterHot(b) { let h = 7; for (const ch of String(b?.id || '')) h = (h * 33 + ch.charCodeAt(0)) >>> 0; return HOT_KEYS[h % 5]; }
+export function hotAdjOf(b, zone) {
+  if (zone == null) return 0;
+  const k = batterHot(b), r = Math.floor(zone / 3), c = zone % 3;
+  const [hot, cold] = { in: [c === 0, c === 2], out: [c === 2, c === 0], high: [r === 0, r === 2], low: [r === 2, r === 0], even: [false, false] }[k];
+  return hot ? 0.07 : cold ? -0.03 : 0;
+}
+/**
+ * 이 칸 한가운데로 던지면 이번 공이 안타가 될 어림 확률(타자가 노리지 않을 때) — 수비 보조의 칸별 위험도.
+ * pitch() 의 스윙 · 맞힘 · 파울 · 안타 식을 그대로 줄여 쓴다(조준 공 기준점 +0.06 · 한가운데 실투 · 강한 코스까지).
+ */
+export function hitChanceAt(g, zone) {
+  const def = defenseOf(g), off = offenseOf(g), b = batterOf(g), p = def.pitcher;
+  const contact = st(b, 'contact') + tb(off, 'bat'), power = st(b, 'power') + tb(off, 'bat');
+  const stuff = st(p, 'stuff', 80) - fatigue(def) * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
+  const r = Math.floor(zone / 3), c = zone % 3;
+  const corner = cornerAt(Math.max(Math.abs(c - 1), Math.abs(r - 1)) * (2 / 3)), hot = hotAdjOf(b, zone);
+  const defAvg = def.team.batters.reduce((n, x) => n + st(x, 'defense'), 0) / def.team.batters.length;
+  const swing = clamp(0.66 + g.strikes * 0.08, 0, 0.92);
+  const touch = clamp(0.82 + 0.06 + (contact - 75) * 0.006 - (stuff - 78) * 0.007 - corner + hot + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+  const meat = Math.max(Math.abs(c - 1), Math.abs(r - 1)) === 0 ? 0.06 : 0;
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 + hot * 0.5 + meat + 0.06 + 0.02 + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  return swing * touch * 0.58 * hit;
+}
+
 /** 이 투수가 오늘 던질 수 있는 공 수 */
 const armLimit = (side) =>
   Math.max(20, 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0));
@@ -159,6 +196,22 @@ function choosePitch(g, pitcher, order) {
   const picked = order?.pitchType && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
   const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
+  /*
+   * 자유 조준(수싸움 수비) — 조준점 둘레로 제구만큼 흩어진다. 떨어진 자리로 존 안팎 · 칸 · 맞히기 어려움 · 뺀 방향이 정해진다.
+   * 흩어짐은 두 방향 정규분포(g.rng 두 번). 예전 길(칸 찍기 · 자동)은 난수를 쓰는 순서까지 그대로다.
+   */
+  if (order?.target) {
+    const sd = aimSpread(control, tired);
+    const u1 = Math.max(1e-9, g.rng()), u2 = g.rng(), rad = Math.sqrt(-2 * Math.log(u1)) * sd;
+    const ax = order.target.x + rad * Math.cos(2 * Math.PI * u2), ay = order.target.y + rad * Math.sin(2 * Math.PI * u2);
+    const isIn = Math.abs(ax) <= 1 && Math.abs(ay) <= 1;
+    const cell = (v) => (v < -1 / 3 ? 0 : v > 1 / 3 ? 2 : 1);
+    const edge = Math.max(Math.abs(ax), Math.abs(ay));
+    const band = isIn ? null : Math.abs(ax) - 1 > Math.abs(ay) - 1 ? (ax < 0 ? 'in' : 'out') : (ay < 0 ? 'hi' : 'lo');
+    const [lo0, hi0] = PITCHES[type].speed;
+    const velo0 = Math.round(lo0 + (hi0 - lo0) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
+    return { type, zone: isIn ? cell(ay) * 3 + cell(ax) : null, inZone: isIn, velo: velo0, tired, picked, corner: isIn ? cornerAt(edge) : 0, xy: [ax, ay], edge, ...(band ? { band } : {}) };
+  }
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
   let inZone = clamp(0.41 + (control - 75) * 0.006 + g.balls * 0.05 - g.strikes * 0.03, 0.28, 0.72);
   let zone;
@@ -304,7 +357,13 @@ export function pitch(g, orders = {}) {
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
   const readX = orders.readBonus ? 1.5 : 1; // 보조(추천 · 퍼센트) 없이 읽은 사람 — 맞혔을 때만 더
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 * readX : -0.1) : 0;
-  const cornerPen = p.corner || 0; // 구석에 꽂힌 공은 맞히기 어렵다
+  /* 구석에 꽂힌 공은 맞히기 어렵다 — 보조 없이 조준한 수비는 그 이득 ×1.5(readBonus) */
+  const cornerPen = (p.corner || 0) * (orders.readBonus && orders.target && p.corner > 0 ? 1.5 : 1);
+  /* 자유 조준 공: 타자 강한 코스 · 존 경계 바로 밖은 잘 속고 멀리 뺀 공은 잘 안 속는다 */
+  const hot = p.xy && p.inZone ? hotAdjOf(batter, p.zone) : 0;
+  const chaseAdj = p.xy && !p.inZone ? (p.edge < 1.22 ? 0.08 : p.edge > 1.55 ? -0.12 : 0) : 0;
+  const meat = p.xy && p.inZone && p.edge <= 0.4 ? 0.06 : 0; // 한가운데 몰린 공 — 타구 질까지
+  const seen = p.xy && p.inZone ? 0.06 : 0; // 존에 들어온 조준 공은 타자도 보고 친다(자동 경기의 존 안 공과 맞춘 기준점)
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
   const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
@@ -314,16 +373,16 @@ export function pitch(g, orders = {}) {
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
   else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.13 : 0), 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.09 : 0), 0.06, 0.55);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.09 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
-    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
+    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
   }
 
   if (ev.call !== 'inplay') {

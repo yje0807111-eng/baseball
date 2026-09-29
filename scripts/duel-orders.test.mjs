@@ -145,3 +145,28 @@ test('읽기 보너스(readBonus) — 맞힌 예측 · 노림만 더 이득, 틀
   const wrong = (rb) => rate({ pitchType: 'fast', zone: 4, noPick: true, guess: 'change', aim: 8, ...(rb ? { readBonus: true } : {}) }, HIT);
   expect(wrong(true)).toBe(wrong(false));
 });
+
+test('자유 조준 — 제구만큼 흩어지고, 한가운데는 위험 · 구석은 안전(칸별 피안타 어림)', async () => {
+  const { aimSpread, hitChanceAt, hotAdjOf, batterHot } = await import('../src/engine/pitchSim.js');
+  expect(aimSpread(90)).toBeLessThan(aimSpread(70));
+  expect(aimSpread(80, 1)).toBeGreaterThan(aimSpread(80, 0));
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(21) });
+  const L = Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z));
+  expect(L[4]).toBe(Math.max(...L));
+  /* 조준점 둘레로 떨어지고, 떨어진 자리가 곧 코스 */
+  let n = 0, near = 0;
+  for (let i = 0; i < 300; i += 1) {
+    const ev = pitch(g, { target: { x: 0.8, y: 0.8 } });
+    if (!ev?.pitch) continue;
+    n += 1;
+    const [x, y] = ev.pitch.xy;
+    if (Math.hypot(x - 0.8, y - 0.8) < 0.6) near += 1;
+    if (ev.pitch.inZone) expect(ev.pitch.zone).toBe((y < -1 / 3 ? 0 : y > 1 / 3 ? 2 : 1) * 3 + (x < -1 / 3 ? 0 : x > 1 / 3 ? 2 : 1));
+    else expect(['hi', 'lo', 'in', 'out']).toContain(ev.pitch.band);
+  }
+  expect(near / n).toBeGreaterThan(0.7);
+  const b = { id: 'x1' };
+  const k = batterHot(b);
+  const hotZone = { in: 3, out: 5, high: 1, low: 7, even: 4 }[k];
+  expect(hotAdjOf(b, hotZone)).toBe(k === 'even' ? 0 : 0.07);
+});

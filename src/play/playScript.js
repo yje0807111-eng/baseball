@@ -107,6 +107,8 @@ export const pitchArrival = (ms) => Math.min(0.66, (PITCH_WIND + PITCH_FLY) / ms
 export function pitchTarget(ev) {
   const p = ev?.pitch;
   if (!p) return null;
+  /* 자유 조준 공은 떨어진 자리 그대로(존 반폭 = 1) */
+  if (p.xy) return [p.xy[0] * ZONE.w, p.xy[1] * ZONE.h];
   if (p.inZone && p.zone != null) return zoneCell(p.zone);
   /* 수싸움에서 뺀 방향을 골랐으면 그쪽 바깥에 — 몸쪽(in)이 왼쪽(−), 높게(hi)가 위(−) */
   const side = (k) => (noise(ev, k) - 0.5) * 1.2;
