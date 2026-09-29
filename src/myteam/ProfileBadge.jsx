@@ -13,7 +13,7 @@ import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 import { getSettings, onSettings, setSettings } from '../audio/bgm.js';
 import { play as playSfx } from '../audio/sfx.js';
-import { ChannelMute, OFF_KEY, channelOn, toggleChannel } from '../audio/BgmButton.jsx';
+import { ChannelMute, OFF_KEY, channelOn, toggleChannel, VolRange } from '../audio/BgmButton.jsx';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -28,8 +28,8 @@ function MusicRow() {
     return (
       <div className="flex items-center gap-4">
         <span className="w-16 shrink-0 text-t3 font-bold text-gray-300">{label}</span>
-        <input type="range" min="0" max="100" value={Math.round(v * 100)} aria-label={`${label} 크기`}
-          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} onPointerUp={onSet} className="min-w-0 flex-1 accent-emerald-400" />
+        <VolRange k={key} value={Math.round(v * 100)} on={on} label={label} onUp={onSet}
+          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} />
         <b className="w-10 text-right font-display text-t2" style={{ color: on ? '#fff' : '#f87171' }}>{on ? Math.round(v * 100) : '끔'}</b>
         <ChannelMute on={channelOn(s, key)} label={label} onToggle={() => toggleChannel(s, key)} />
       </div>

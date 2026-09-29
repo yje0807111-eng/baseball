@@ -13,6 +13,19 @@ export function Speaker({ off }) {
   );
 }
 
+/** 채널 표시 — 배경음악은 보라 음표, 효과음은 금빛 반짝임(설정 창의 아이콘 칸) */
+export const CHANNEL = {
+  vol: { label: '배경음악', c: '#a78bfa', icon: <path d="M9 17.5V6l10-2v11.5M9 17.5a2.5 2.5 0 1 1-2.5-2.5A2.5 2.5 0 0 1 9 17.5zm10-2a2.5 2.5 0 1 1-2.5-2.5 2.5 2.5 0 0 1 2.5 2.5z" /> },
+  sfx: { label: '효과음', c: '#fbbf24', icon: <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9zM18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" /> },
+};
+/** 크기 막대 — 채운 만큼 채널 색, 흰 손잡이(index.css .snd-range). 끈 채널은 회색 */
+export function VolRange({ k, value, on, label, onChange, onUp, className = '' }) {
+  return (
+    <input type="range" min="0" max="100" value={value} aria-label={`${label} 크기`} onChange={onChange} onPointerUp={onUp}
+      className={`snd-range min-w-0 flex-1 ${className}`} style={{ '--p': `${value}%`, '--c': on ? CHANNEL[k].c : '#4b5563' }} />
+  );
+}
+
 /** 채널 하나 끄기 · 켜기 — 크기 막대 오른쪽. 끈 채널은 붉은 스피커, 켜진 채널은 흰 스피커 */
 export function ChannelMute({ on, label, onToggle, size = 30 }) {
   return (
@@ -51,22 +64,27 @@ export default function BgmButton({ className = '' }) {
   }, [open]);
   const chOn = (key) => !s.muted && !s[OFF_KEY[key]] && (s[key] ?? 0) > 0; // 이 채널이 지금 들리나
   const off = !chOn('vol') && !chOn('sfx');
-  const row = (key, label, onUp) => {
-    const v = s[key] ?? 0;
+  /* 채널 칸 — 위: 색 아이콘 · 이름 · 값 / 아래: 크기 막대 · 끄기 단추. 끈 채널은 아이콘 · 막대가 회색 */
+  const row = (key, onUp) => {
+    const v = Math.round((s[key] ?? 0) * 100);
+    const { label, c, icon } = CHANNEL[key];
+    const on = chOn(key);
     return (
-      <>
-        <div className="mt-2.5 flex items-center justify-between text-t4 text-gray-300 first:mt-0">
-          <b className="font-bold">{label}</b>
-          <span className="font-display text-t3" style={{ color: chOn(key) ? '#fff' : '#f87171' }}>{chOn(key) ? Math.round(v * 100) : '끔'}</span>
+      <div className="rounded-xl bg-white/[0.045] px-3 pb-3 pt-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,.06)]">
+        <div className="flex items-center gap-2.5">
+          <span className="grid h-7 w-7 place-items-center rounded-lg transition" style={{ color: on ? c : '#6b7280', background: on ? `${c}22` : 'rgba(255,255,255,.05)', boxShadow: on ? `inset 0 0 0 1px ${c}55` : 'none' }}>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill={key === 'sfx' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" aria-hidden="true">{icon}</svg>
+          </span>
+          <b className="text-t3 font-bold text-gray-100">{label}</b>
+          <span className="ml-auto font-display text-t2 tabular-nums" style={{ color: on ? '#fff' : '#f87171' }}>{on ? v : '끔'}</span>
         </div>
-        <div className="mt-1 flex items-center gap-2.5">
+        <div className="mt-2.5 flex items-center gap-2.5">
           {/* 막대를 움직이면 그 채널을 다시 켠다 */}
-          <input type="range" min="0" max="100" value={Math.round(v * 100)} aria-label={`${label} 크기`}
-            onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} onPointerUp={onUp}
-            className="min-w-0 flex-1 accent-emerald-400" />
-          <ChannelMute on={channelOn(s, key)} label={label} onToggle={() => toggleChannel(s, key)} />
+          <VolRange k={key} value={v} on={on} label={label} onUp={onUp}
+            onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} />
+          <ChannelMute on={channelOn(s, key)} label={label} onToggle={() => toggleChannel(s, key)} size={28} />
         </div>
-      </>
+      </div>
     );
   };
   return (
@@ -77,12 +95,18 @@ export default function BgmButton({ className = '' }) {
         <Speaker off={off} />
       </button>
       {open && (
-        <div className={`absolute top-full z-50 mt-2 w-64 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.92),rgba(8,12,22,.96))] px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,.5),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md right-0`}>
-          {row('vol', '배경음악')}
-          {row('sfx', '효과음', () => playSfx('goldIn'))}
-          <button type="button" onClick={() => setSettings({ muted: !s.muted })}
-            className="mt-3 w-full rounded-lg border border-white/15 py-1.5 text-t4 font-bold text-gray-200 hover:bg-white/10">
-            {s.muted ? '전체 소리 켜기' : '전체 음소거 · M'}
+        /* 유리 판 — 위 바 단추 아래 오른쪽 정렬, 0.18초 살짝 내려오며(자주 여는 것이라 짧게) */
+        <div className="snd-in absolute right-0 top-full z-50 mt-2 flex w-72 flex-col gap-2 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.94),rgba(8,12,22,.97))] p-3 shadow-[0_16px_40px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md">
+          <div className="flex items-center px-1 pb-0.5">
+            <b className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">소리</b>
+          </div>
+          {row('vol')}
+          {row('sfx', () => playSfx('goldIn'))}
+          <button type="button" onClick={() => setSettings({ muted: !s.muted })} aria-pressed={s.muted}
+            className={`flex items-center justify-center gap-2 rounded-xl py-2 text-t3 font-bold transition ${s.muted ? 'bg-red-500/15 text-[#fca5a5] shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)] hover:bg-red-500/25' : 'bg-white/[0.06] text-gray-200 hover:bg-white/[0.11]'}`}>
+            <Speaker off={!s.muted} />
+            {s.muted ? '전체 소리 켜기' : '전체 음소거'}
+            <kbd className="rounded-md bg-white/10 px-1.5 font-display text-t4 text-gray-300">M</kbd>
           </button>
         </div>
       )}
