@@ -68,6 +68,15 @@ export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
+/** 엔트리가 꽉 찼을 때 보관함으로 영입할 수 있나 — 안 되면 이유. 보관함은 CP · 포지션 · 외국인 한도를 따지지 않는다 */
+export function clubAddReason(player, squad, club, gold = null, price = null) {
+  if ([...squad, ...club].some((p) => p.personId === player.personId)) return '이미 가진 선수';
+  if (club.length >= CLUB_MAX) return `보관함 ${CLUB_MAX}칸이 모두 찼음`;
+  const cost = price ?? priceOf(player);
+  if (gold != null && cost > gold) return `골드 부족 (${(cost - gold).toLocaleString()} G 모자람)`;
+  return null;
+}
+
 /** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다. gold 를 넘기면 값(price, 없으면 영입가)도 본다 */
 export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
   if (squad.some((p) => p.id === player.id)) return '이미 영입한 선수';

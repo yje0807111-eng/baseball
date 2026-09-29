@@ -285,12 +285,14 @@ const stamp = (team) => ({ ...team, capBase: SQUAD_CAP, updatedAt: new Date().to
 const withDex = (a, players = []) => ({ ...a, dex: [...new Set([...(a.dex || []), ...players.map((p) => p.id)])] });
 
 /** 선수 영입 — 골드가 모자라면 null */
-export function recruitPlayer(team, player, price) {
+export function recruitPlayer(team, player, price, to = 'squad') {
   const a = read();
   if (!a) return null;
   const gold = goldOf(a);
   if (!(price >= 0) || price > gold) return null;
-  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, squad: [...(team.squad || []), { ...player, paid: price }] }) }, [player]);
+  if (to === 'club' && (team.club || []).length >= CLUB_MAX) return null; // 엔트리가 꽉 차면 보관함으로 산다
+  const key = to === 'club' ? 'club' : 'squad';
+  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, [key]: [...(team[key] || []), { ...player, paid: price }] }) }, [player]);
   write(next);
   return next;
 }
