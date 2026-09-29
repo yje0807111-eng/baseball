@@ -275,15 +275,19 @@ export function duelAi(g, side, seq = []) {
   const guess = rng() < 0.55 ? draw(w, rng()) : null;
   return { orders: guess ? { guess } : {}, guess };
 }
+/** 켜고 끄는 작은 스위치 모양(보조 · 집중 투구) */
+const Switch = ({ on, c = 'rgba(255,255,255,.55)' }) => (
+  <i style={{ position: 'relative', flex: 'none', width: 30, height: 16, borderRadius: 999, background: on ? c : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
+    <i style={{ position: 'absolute', top: 2, left: on ? 16 : 2, width: 12, height: 12, borderRadius: '50%', background: on ? '#0b1220' : MUTE, transition: 'left .15s' }} />
+  </i>
+);
 /** 보조 스위치 — 켜고 끄기 + 읽기 보너스 상태 한 줄(공격 · 수비 판 머리) */
 function AssistSwitch({ assist, bonus, onAssist }) {
   return (
     <button type="button" onClick={onAssist} title={bonus ? '보조를 켜면 이 경기 읽기 보너스가 사라짐' : undefined}
       style={{ all: 'unset', cursor: 'pointer', display: 'grid', justifyItems: 'end', gap: 2 }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, fontWeight: 800, color: assist ? '#e2e8f0' : MUTE }}>
-        보조<i style={{ position: 'relative', width: 30, height: 16, borderRadius: 999, background: assist ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
-          <i style={{ position: 'absolute', top: 2, left: assist ? 16 : 2, width: 12, height: 12, borderRadius: '50%', background: assist ? '#0b1220' : MUTE, transition: 'left .15s' }} />
-        </i>
+        보조<Switch on={assist} />
       </span>
       <span style={{ fontSize: 12, fontWeight: 800, color: bonus ? GOLD : '#64748b' }}>{bonus ? '읽기 보너스' : assist ? '' : '이 경기 보너스 없음'}</span>
     </button>
@@ -588,10 +592,11 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
             </button>
           ))}
           {/* 집중 투구 — 흩어짐 ↓ · 체력 3배(한 공 1 + FOCUS_COST 구) */}
-          <button type="button" className={`opt ${focus ? 'on' : ''}`} onClick={() => setFocus((v) => !v)} style={{ marginTop: 6 }}>
-            <i style={{ width: 16, height: 16, borderRadius: '50%', flex: 'none', boxShadow: `inset 0 0 0 2px ${GOLD}`, background: focus ? GOLD : 'transparent' }} />
-            <b style={{ fontSize: 19, flex: 1 }}>집중 투구</b>
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#cbd5e1' }}>제구 ↑ · 체력 {1 + FOCUS_COST}배</span>
+          <button type="button" onClick={() => setFocus((v) => !v)} aria-pressed={focus}
+            style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, height: 40, padding: '0 6px', marginTop: 4, borderRadius: 10 }}>
+            <b style={{ fontSize: 16, color: focus ? GOLD : '#e2e8f0' }}>집중 투구</b>
+            <span style={{ fontSize: 14, fontWeight: 700, color: MUTE, flex: 1 }}>제구 ↑ · 체력 {1 + FOCUS_COST}배</span>
+            <Switch on={focus} c={GOLD} />
           </button>
         </> : <>
           {/* 탭 줄 오른쪽 — 보조 켜고 끄기 · 읽기 보너스 상태 */}
