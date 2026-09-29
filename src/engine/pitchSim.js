@@ -340,6 +340,19 @@ function nextBatter(g) {
  * 그 구종을 노리고 있었으면 타이밍이 맞아 사라진다(계열만 맞으면 0.6배 남음).
  * 아무렇게나 던지는 자동 경기의 평균 손해는 맞히기 기준점(+0.044)에 되돌려 둬, 리그 전체 타격은 그대로 · 차이는 고른 순서에서만 난다.
  */
+/*
+ * 투수 성향(선수 id 로 고정 — 같은 투수는 늘 같은 버릇, 수싸움 스카우팅 넷째 칸):
+ *  완급 많음 — 완급 나는 공을 크게 더 고르고(× 2.6) 먹히면 더 세다(완급 × 1.35).
+ *  직구 고집 — 직구를 더(+0.35) · 완급은 덜 고름(× 0.2) · 직구는 묵직(헛스윙 +0.04) 대신 변화구는 덜 날카로움(−0.03).
+ *  보통 — 그대로.
+ */
+const STYLES = [
+  { k: 'tempo', ko: '완급 많음', selTempo: 2.6, selFast: 0, tempoX: 1.35, fastWhiff: 0, offWhiff: 0 },
+  { k: 'power', ko: '직구 고집', selTempo: 0.2, selFast: 0.35, tempoX: 1, fastWhiff: 0.04, offWhiff: -0.03 },
+  { k: 'even', ko: '', selTempo: 1, selFast: 0, tempoX: 1, fastWhiff: 0, offWhiff: 0 },
+];
+export const styleOf = (p) => { let h = 7; for (const ch of String(p?.id || '')) h = (h * 131 + ch.charCodeAt(0)) >>> 0; return STYLES[h % 3]; };
+
 export const TEMPO_MAX = 0.12;
 const TEMPO_PAD = 0.022; // 인플레이 타구 질 되돌림(자동 경기 평균 빗맞음 몫)
 export function tempoOf(prev, velo, guessHit = 0) {
@@ -422,7 +435,7 @@ export function pitch(g, orders = {}) {
   const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
-  const tempo = tempoOf(g.lastVelo, p.velo, guessHit);
+  const sty = styleOf(pitcher), tempo = tempoOf(g.lastVelo, p.velo, guessHit) * sty.tempoX;
   g.lastVelo = p.velo;
   if (tempo) ev.tempo = tempo;
 
@@ -436,7 +449,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff - (p.type === 'fast' ? sty.fastWhiff : sty.offWhiff) + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42 + tempo * 2)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2 - tempo * 2 + TEMPO_PAD); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)

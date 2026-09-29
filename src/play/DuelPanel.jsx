@@ -10,7 +10,7 @@
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST, TEMPO_MAX, tempoOf } from '../engine/pitchSim.js';
+import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST, TEMPO_MAX, tempoOf, styleOf } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 import { reducedMotion } from '../ui/motion.jsx';
@@ -253,17 +253,12 @@ const ROW_BY = { fast: [0.45, 0.35, 0.2], sinker: [0.2, 0.4, 0.4], cutter: [0.35
 const COL_BIAS = [[0.46, 0.3, 0.24], [0.24, 0.3, 0.46], [0.34, 0.33, 0.33]];
 const colBias = (p) => { let h = 0; for (const ch of String(p?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COL_BIAS[h % 3]; };
 /*
- * 투수 성향(선수 id 로 고정 — 같은 투수는 늘 같은 버릇, 스카우팅 한 줄로 보인다):
- *  완급형 — 앞 공과 구속 차이 나는 공을 크게 더(× 1.8) · 직구 고집 — 직구 +0.2, 완급은 덜(× 0.4) · 보통 — × 1
- */
-const STYLES = [{ k: 'tempo', ko: '완급 많음', tempo: 1.8, fast: 0 }, { k: 'power', ko: '직구 고집', tempo: 0.4, fast: 0.2 }, { k: 'even', ko: '', tempo: 1, fast: 0 }];
-export const styleOf = (p) => { let h = 7; for (const ch of String(p?.id || '')) h = (h * 131 + ch.charCodeAt(0)) >>> 0; return STYLES[h % 3]; };
-/*
  * 상대 투수가 이번에 던질 공 비율 — 실제 경기 배합 버릇을 따른다(MLB 카운트 · 순서 연구):
  *  초구(0-0)엔 직구를 더(+0.15, 초구 스트라이크) · 몰리면 직구 계열 · 2스트라이크엔 직구 계열 아닌 공 ·
  *  방금 공에 헛스윙이 나오면 같은 공을 한 번 더(+0.3) · 직구 아닌 같은 공은 세 번 연달아 잘 안 던짐(× 0.5) ·
  *  완급 — 앞 공과 구속 차이 큰 공을 더(최대 +0.35 × 투수 성향).
  */
+export { styleOf } from '../engine/pitchSim.js';
 export function pitchWeights(g) {
   const p = g.away.pitcher, w = { ...pitchMix(p) }, ks = Object.keys(w), sty = styleOf(p);
   const last = g.lastVelo != null ? g.events?.[g.events.length - 1] : null, prev = g.events?.[g.events.length - 2];
@@ -272,10 +267,10 @@ export function pitchWeights(g) {
     if (!g.balls && !g.strikes && t === 'fast') w[t] += 0.15;
     if (g.balls - g.strikes >= 2 || g.balls === 3) { if (PITCHES[t].fam === 'F') w[t] += t === 'fast' ? 0.3 : 0.12; }
     else if (g.strikes === 2 && PITCHES[t].fam !== 'F') w[t] += 0.25 / Math.max(1, ks.filter((k) => PITCHES[k].fam !== 'F').length);
-    if (t === 'fast') w[t] += sty.fast;
+    if (t === 'fast') w[t] += sty.selFast;
     if (last?.call === 'swinging' && t === lastT) w[t] += 0.3;
     if (twice && t === lastT) w[t] *= 0.5;
-    w[t] += (tempoOf(g.lastVelo, veloOfP(p, t)) / TEMPO_MAX) * 0.35 * sty.tempo;
+    w[t] += (tempoOf(g.lastVelo, veloOfP(p, t)) / TEMPO_MAX) * 0.35 * sty.selTempo;
   }
   const tot = Object.values(w).reduce((a, b) => a + b, 0);
   return Object.fromEntries(ks.map((k) => [k, w[k] / tot]));
