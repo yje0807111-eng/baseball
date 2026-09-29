@@ -544,6 +544,8 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
               <span className="ml-auto flex items-baseline gap-1.5 font-display">
                 <Count sfx value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
                 <b className="fx-bump text-t3 text-[#34d399]" style={{ '--d': '940ms' }}>▲{fx.to - fx.from}</b>
+                {/* 강화 성공 — 증강 강화 성공과 같은 소리(작은 보상). 숫자 세기가 끝나 ▲ 가 톡 튀는 때 */}
+                {fx.lv != null && <SfxAt name="augUpgrade" delay={960} />}
               </span>
             ) : <b className="fx-bump ml-auto text-t3 text-[#34d399]" style={{ '--d': '420ms' }}>사용 완료</b>}
           </div>
