@@ -225,3 +225,16 @@ test('수비 추천 구종 — 첫 공은 가장 덜 노리는 공, 빠른 공 �
   const pk = recDefOf(g, ['fast'], veloOfP(g.home.pitcher, 'fast')).pk;
   expect(veloOfP(g.home.pitcher, 'fast') - veloOfP(g.home.pitcher, pk)).toBeGreaterThanOrEqual(18);   // 완급이 절반 넘게 나는 공
 });
+
+test('상대 투수 완급 — 빠른 공 뒤엔 느린 공 비율이 늘고, 추천 예측도 따라감', async () => {
+  const { pitchWeights, recOf, veloOfP } = await import('../src/play/DuelPanel.jsx');
+  const { createGame } = await import('../src/engine/pitchSim.js');
+  const { seeded } = await import('../src/engine/rng.js');
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(9) }), p = g.away.pitcher;
+  const slowShare = (w) => Object.entries(w).filter(([t]) => veloOfP(p, t) <= veloOfP(p, 'fast') - 18).reduce((a, [, v]) => a + v, 0);
+  const before = slowShare(pitchWeights(g));
+  g.lastVelo = veloOfP(p, 'fast');
+  const after = slowShare(pitchWeights(g));
+  expect(after).toBeGreaterThan(before + 0.05);
+  expect(recOf(g).guess).not.toBe('fast');
+});

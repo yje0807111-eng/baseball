@@ -252,12 +252,14 @@ const draw = (w, r) => { const tot = Object.values(w).reduce((a, b) => a + b, 0)
 const ROW_BY = { fast: [0.45, 0.35, 0.2], sinker: [0.2, 0.4, 0.4], cutter: [0.35, 0.4, 0.25], slider: [0.15, 0.3, 0.55], curve: [0.1, 0.3, 0.6], change: [0.12, 0.33, 0.55], fork: [0.05, 0.25, 0.7] };
 const COL_BIAS = [[0.46, 0.3, 0.24], [0.24, 0.3, 0.46], [0.34, 0.33, 0.33]];
 const colBias = (p) => { let h = 0; for (const ch of String(p?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COL_BIAS[h % 3]; };
-function pitchWeights(g) {
+export function pitchWeights(g) {
   const w = { ...pitchMix(g.away.pitcher) }, ks = Object.keys(w);
   /* 몰리면 직구 계열(직구가 가장), 2스트라이크엔 직구 계열이 아닌 공으로 나눠 */
   for (const t of ks) {
     if (g.balls - g.strikes >= 2 || g.balls === 3) { if (PITCHES[t].fam === 'F') w[t] += t === 'fast' ? 0.3 : 0.12; }
     else if (g.strikes === 2 && PITCHES[t].fam !== 'F') w[t] += 0.25 / Math.max(1, ks.filter((k) => PITCHES[k].fam !== 'F').length);
+    /* 완급 — 이 타석 앞 공과 구속 차이가 큰 공을 더(차이가 가장 클 때 +0.35). 빠른 공 뒤엔 느린 공이 늘고, 느린 공 뒤엔 빠른 공이 조금 는다 */
+    w[t] += (tempoOf(g.lastVelo, veloOfP(g.away.pitcher, t)) / TEMPO_MAX) * 0.35;
   }
   const tot = Object.values(w).reduce((a, b) => a + b, 0);
   return Object.fromEntries(ks.map((k) => [k, w[k] / tot]));
@@ -509,7 +511,8 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
  * 추천 — 야구 정석으로 한 작전 + 구종 예측(따르지 않아도 된다). 공격 판에서 점선 테두리 + 추천 딱지로(고른 금색 · 공수 색과 안 겹치게 흰색).
  *  작전: 후반 한 점 승부에 3루 주자 → 스퀴즈 · 무사 1루 → 희생번트 / 발 빠른 1루 주자(성공 70%+) → 도루 /
  *        2스트라이크 → 밀어치기 · 3볼 0스트라이크 → 기다리기 · 그 밖 → 강공
- *  구종: 몰린 카운트 → 직구 · 2스트라이크 → 예측 안 함 · 그 밖 → 상대 주무기
+ *  구종: 2스트라이크 → 예측 안 함 · 그 밖 → 상대 투수가 이번에 가장 던질 법한 공(AI 가 뽑는 비율 그대로 —
+ *        몰린 카운트면 직구, 보통은 주무기, 빠른 공 뒤엔 완급 나는 느린 공)
  */
 export function recOf(g) {
   const [b1, b2, b3] = g.bases, o = g.outs, lead = g.home.runs - g.away.runs, late = g.inning >= 7;
@@ -519,8 +522,7 @@ export function recOf(g) {
   else if (stealFrom(g) === 0 && g.strikes < 2 && stealOdds(g, 0) >= 0.7) play = 'steal';
   else if (g.strikes === 2) play = 'contact';
   else if (g.balls === 3 && g.strikes === 0) play = 'wait';
-  const main = Object.entries(pitchMix(g.away.pitcher)).sort((a, b) => b[1] - a[1])[0][0];
-  const guess = g.strikes === 2 ? null : g.balls - g.strikes >= 2 || g.balls === 3 ? 'fast' : main;
+  const guess = g.strikes === 2 ? null : Object.entries(pitchWeights(g)).sort((a, b) => b[1] - a[1])[0][0];
   return { play, guess };
 }
 /*
