@@ -3851,7 +3851,7 @@ function MementoOverlay({ memento, onTake, onSkip }) {
 }
 
 /** 증강 · 돌발 이벤트 고르기 창. eyebrow · heading 은 경기 전 증강처럼 '시즌'이 아닌 곳에서 바꿔 쓴다 */
-export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null, eyebrow = '시즌 증강', heading = '시즌 증강 고르기' }) {
+export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null, heading = '시즌 증강 고르기', backdrop = 'art' }) {
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
@@ -3867,14 +3867,22 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
   /* 증강 등급은 하나로 합쳤다 — 제목 뒤에 등급 이름을 붙이지 않는다 ("… 고르기 증강"으로 겹쳐 읽혔다) */
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label={isAug ? '증강 선택' : '시즌 돌발 이벤트'}>
-      <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
-      <div className="fixed inset-0 bg-[#03050a]/70 backdrop-blur-[3px]" />
-      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <span className="aug-sky" /><span className="aug-rays" /><span className="aug-dust" />
-      </div>
-      <div className="relative flex min-h-full flex-col items-center justify-center gap-8 px-4 py-10">
+      {backdrop === 'blur' ? (
+        /* 경기 중 증강 — 뒤 경기 화면을 흐리게만(무엇 위에서 고르는지 보이게), 가운데를 조금 밝게 */
+        <div className="fixed inset-0 backdrop-blur-[10px] fx-fade" style={{ background: 'radial-gradient(70% 60% at 50% 42%, rgba(3,5,10,.38), rgba(3,5,10,.72))' }} />
+      ) : (
+        <>
+          <div className="ui-bg" style={{ backgroundImage: `url(ui/${isAug ? 'field' : 'tunnel'}.webp)` }} />
+          <div className="fixed inset-0 bg-[#03050a]/70 backdrop-blur-[3px]" />
+          <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+            <span className="aug-sky" /><span className="aug-rays" /><span className="aug-dust" />
+          </div>
+        </>
+      )}
+      {/* 제목은 한 줄(작은 머리글 '○○ 증강'과 제목 '○○ 증강 고르기'가 겹쳐 읽혔다) · 카드는 화면 위쪽으로 */}
+      <div className="relative flex min-h-full flex-col items-center justify-start gap-7 px-4 pb-10 pt-14">
         <div className="flex flex-col items-center text-center animate-[rise_.4s_ease-out_both]">
-          <p className="aug-hd">{isAug ? eyebrow : '돌발 상황'}</p>
+          {!isAug && <p className="aug-hd">돌발 상황</p>}
           <h2 className="mt-2 text-[44px] font-black text-white [text-shadow:0_0_30px_rgba(167,139,250,.6)]">
             {isAug ? (choice.inning ? `${choice.inning}회 증강 고르기` : heading) : '시즌 돌발 이벤트'}
             {isAug && !choice.inning && picksLeft > 0 && total > 1 && <span className="ml-3 font-display font-extrabold text-[#e9d5ff]">{nth} / {total}</span>}
