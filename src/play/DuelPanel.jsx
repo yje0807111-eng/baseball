@@ -148,6 +148,8 @@ function Who({ p, isP, mine, team, g, side }) {
           <b style={{ fontSize: 15, color: c }}>{mine ? '우리' : '상대'} {isP ? '투수' : '타자'}</b>
           {!mine && team?.short && <b style={{ fontSize: 14, padding: '0 7px', borderRadius: 6, color: '#fff', background: `${OPP}cc` }}>{team.short}</b>}
           <b style={{ fontSize: 21, lineHeight: 1.1 }}>{p?.name}</b><b className="disp" style={{ fontSize: 19, color: MUTE }}>{p?.overall}</b>
+          {/* 우리 투수 성향 — 상대 투수 성향은 스카우팅 줄에(같은 말 두 번 안 쓰게) */}
+          {isP && mine && styleOf(p).ko && <b style={{ alignSelf: 'center', fontSize: 13, padding: '1px 7px', borderRadius: 6, color: '#e2e8f0', background: 'rgba(255,255,255,.14)' }}>{styleOf(p).ko}</b>}
         </span>
         {isP ? (
           <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 15, color: '#cbd5e1', whiteSpace: 'nowrap' }}>
