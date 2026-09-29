@@ -14,6 +14,8 @@ import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf } from '../engine/pi
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 
+/** 공격 · 수비 색 — 우리(초록) · 상대(빨강)와 겹치지 않게 */
+const SIDE_C = { off: '#fb923c', def: '#38bdf8' };
 const GOLD = '#fbbf24', BLUE = '#60a5fa', RED = '#f87171', WIN = '#34d399', MUTE = '#94a3b8';
 export const DUEL_PITCH = { fast: { ko: '직구', c: '#f87171' }, slider: { ko: '슬라이더', c: '#a78bfa' }, change: { ko: '체인지업', c: '#34d399' } };
 const CHASE = { hi: '높은 볼', lo: '낮은 볼', in: '몸쪽 볼', out: '바깥 볼' };
@@ -322,12 +324,19 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
 
       {/* 점수판 — 중계 화면과 같은 판(볼카운트는 빼고 가운데에 크게) */}
       <div style={{ position: 'absolute', left: 32, top: 28 }}>{board}</div>
-      {/* 목표 한 줄 */}
-      <div className="pn" style={{ position: 'absolute', left: '50%', top: 28, transform: 'translateX(-50%)', padding: '12px 26px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 16, whiteSpace: 'nowrap', boxShadow: `inset 0 0 0 1.5px ${GOLD}` }}>
-        <b className="disp" style={{ fontSize: 18, color: GOLD, letterSpacing: '.18em' }}>{off ? '우리 공격' : '우리 수비'}</b><b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
+      {/*
+        공격 · 수비 + 목표 한 줄 — 아이콘 · 이름 · 색 세 겹으로 갈린다(더 쇼의 방망이 · 글러브 표시처럼).
+        공격 = 주황 방망이, 수비 = 하늘 글러브. 우리 · 상대의 초록 · 빨강과 겹치지 않는 색으로.
+      */}
+      <div className="pn" style={{ position: 'absolute', left: '50%', top: 20, transform: 'translateX(-50%)', padding: '6px 28px 6px 6px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 14, whiteSpace: 'nowrap',
+        background: `linear-gradient(90deg, ${SIDE_C[side]}47, rgba(7,10,18,.84) 58%)`, boxShadow: `inset 0 0 0 2px ${SIDE_C[side]}, 0 0 30px -8px ${SIDE_C[side]}` }}>
+        <img src={`ui/nav/duel-${side}.webp`} alt="" style={{ width: 54, height: 54, borderRadius: '50%', display: 'block' }} />
+        <b style={{ fontSize: 26, fontWeight: 900, color: SIDE_C[side] }}>{off ? '공격' : '수비'}</b>
+        <i style={{ width: 1, height: 26, background: 'rgba(255,255,255,.22)' }} />
+        <b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
       </div>
       {/* 주자 · 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 주자판은 세 루가 그려진 폭에 딱 맞춘 viewBox(위아래 · 양옆 여백을 판 안쪽 여백과 같게). 모양 · 색은 중계 점수판과 같게(주자 주황 · B 초록 · S 노랑 · O 빨강) */}
-      <div className="pn" style={{ position: 'absolute', left: '50%', top: 92, transform: 'translateX(-50%)', padding: '8px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 26 }}>
+      <div className="pn" style={{ position: 'absolute', left: '50%', top: 98, transform: 'translateX(-50%)', padding: '8px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 26 }}>
         <svg viewBox="7.6 12.6 84.8 60.8" style={{ width: 84, height: 60, display: 'block', overflow: 'visible' }} aria-label="주자">
           {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
             <rect key={`${i}${!!g.bases[i]}`} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
@@ -353,7 +362,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
       </div>
 
       {/* 존 + 단서 */}
-      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 178, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
+      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 186, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} grid={2} chase={false} sel={aim} marks={marks} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
         {/* 이 타석 투구 순서 — 존의 번호 점과 같은 번호 · 같은 색 */}
