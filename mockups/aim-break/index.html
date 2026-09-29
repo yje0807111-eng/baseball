@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>조준 꺾임 목업</title>
+<!--
+  수비 조준판 꺾임 표시 목업 — A(조준점 옆 짧은 꺾임) + C(구종 버튼 꺾임 아이콘)
+  A: 과녁 T, 꺾임 B(구종별), 겨냥점 A = T − B(꺾이지 않았으면 갈 자리 — 고리).
+     공 길 = 겨냥 고리에서 과녁까지 한 번 휘는 곡선 — 꺾임만으로 모양이 정해져 과녁을 판 어디에 둬도 같다(위에 두면 굳는 문제 해결).
+  C: 같은 식을 d = 위쪽, 작은 크기로 — 버튼에서 이미 모양이 보인다.
+  1920 × 911 · 게임과 같은 자리(조준판 760,351 · 판 right 32 bottom 32 400 × 520)
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/duel-def.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: absolute; inset: 0; background: rgba(5, 8, 15, .42); }
+  .tabs { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 14px; background: rgba(8, 12, 22, .78); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 16px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  #pad { position: absolute; left: 760px; top: 351px; overflow: visible; touch-action: none; cursor: crosshair; }
+  .pn { position: absolute; right: 32px; bottom: 32px; width: 400px; height: 520px; padding: 18px; display: flex; flex-direction: column; gap: 8px; border-radius: 22px; background: rgba(10,14,24,.8); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .lbl { font-size: 15px; font-weight: 800; color: #94a3b8; }
+  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 14px; border-radius: 14px; }
+  .opt:hover { background: rgba(255,255,255,.08); }
+  .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px #fbbf24; }
+  .opt .n { font-size: 17px; font-weight: 800; color: #94a3b8; width: 10px; }
+  .opt .nm { font-size: 20px; font-weight: 800; }
+  .opt .mx { font-size: 15px; color: #cbd5e1; margin-left: auto; }
+  .opt .v { font-size: 20px; font-weight: 800; width: 38px; text-align: right; }
+  .go { all: unset; margin-top: auto; height: 56px; border-radius: 14px; display: grid; place-items: center; background: #fbbf24; color: #0b1220; font-weight: 900; font-size: 20px; }
+  #grid { position: absolute; inset: 90px 40px 30px; display: none; grid-template-columns: 120px repeat(7, 1fr); gap: 6px 10px; align-items: center; background: rgba(5,8,15,.82); border-radius: 22px; padding: 18px 24px; }
+  #grid .h { text-align: center; font-size: 18px; font-weight: 800; }
+  #grid .r { font-size: 16px; font-weight: 800; color: #cbd5e1; }
+  .note { position: absolute; left: 40px; top: 96px; width: 560px; font-size: 16px; line-height: 1.6; color: #cbd5e1; background: rgba(8,12,22,.72); padding: 14px 18px; border-radius: 14px; }
+  .note b { color: #fbbf24; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="tabs" id="tabs"></div>
+<div class="note" id="note"></div>
+<svg id="pad" width="400" height="430" viewBox="0 0 400 430"></svg>
+<div class="pn" id="pn">
+  <div style="display:flex;justify-content:space-between;align-items:center;min-height:36px"><span class="lbl">구종</span></div>
+  <div id="list" style="display:flex;flex-direction:column;gap:6px"></div>
+  <button class="go">던지기 ▶</button>
+</div>
+<div id="grid"></div>
+<script>
+const PITCH = {
+  fast: { ko: '직구', c: '#f87171', b: [0, -0.15], mix: 38, v: 148 },
+  slider: { ko: '슬라이더', c: '#a78bfa', b: [0.45, 0.15], mix: 22, v: 134 },
+  change: { ko: '체인지업', c: '#34d399', b: [-0.2, 0.35], mix: 14, v: 128 },
+  curve: { ko: '커브', c: '#60a5fa', b: [0.2, 0.8], mix: 11, v: 117 },
+  cutter: { ko: '커터', c: '#f472b6', b: [0.22, 0.05], mix: 9, v: 141 },
+  sinker: { ko: '투심', c: '#fb923c', b: [-0.3, 0.25], mix: 6, v: 144 },
+  fork: { ko: '포크', c: '#2dd4bf', b: [0, 0.55], mix: 0, v: 132 },
+};
+const REP = ['fast', 'slider', 'change', 'curve', 'cutter', 'sinker'];
+const px = (v) => 50 + ((v + 1) / 2) * 300;
+const HAND = [px(0.35), px(1.43)], K = 150;   // 꺾임 1 = 150px(존 반폭)
+const VARS = [
+  ['v1', '1 · 겨냥 고리 + 꺾임', '<b>겨냥 고리</b>(점선) = 꺾이지 않았으면 갈 자리. 거기서 <b>꺾여 과녁으로</b> 들어가는 짧은 길. 판 어디에 둬도 같은 모양.'],
+  ['v2', '2 · + 손에서 옅은 선', '1번에 <b>투수 손 → 겨냥 고리</b> 옅은 선을 더함. 손에서 나오는 느낌은 살리고 모양은 과녁 옆에서 읽음.'],
+  ['v3', '3 · 공 잔상', '길 대신 <b>작아지는 공 잔상</b> 셋 — 공이 멀어지며 꺾이는 느낌. 선보다 가볍게.'],
+  ['grid', '한눈에 · 7구종 × 3자리', '구종마다 <b>높게 바깥 · 한가운데 · 낮게 몸쪽</b>에 둘 때 — 위에 둬도 모양이 그대로인지.'],
+];
+let variant = location.hash.slice(1) || 'v1', pk = 'slider', T = [0.5, -0.55];
+
+/*
+ * 공 길 — 겨냥 고리 A(= 과녁 − 꺾임)에서 과녁 T 까지 한 번 휘는 곡선.
+ * 조절점 = A 에서 꺾임의 15% 나아가고 꺾임에 직각으로 40% 비켜 — 곧게 오다 끝에서 휘어 들어가는 갈고리 모양.
+ * 과녁 자리와 상관없이 꺾임 B 만으로 모양이 정해진다.
+ */
+function arcPts(B, A) {
+  const C = [A[0] + B[0] * 0.15 + B[1] * 0.4, A[1] + B[1] * 0.15 - B[0] * 0.4];
+  return Array.from({ length: 21 }, (_, i) => { const s = i / 20, u = 1 - s; return [u * u * A[0] + 2 * u * s * C[0] + s * s * (A[0] + B[0]), u * u * A[1] + 2 * u * s * C[1] + s * s * (A[1] + B[1])]; });
+}
+function pathOf(t, T, k = K) {
+  const Tp = [px(T[0]), px(T[1])], B = PITCH[t].b.map((v) => v * k), A = [Tp[0] - B[0], Tp[1] - B[1]];
+  return { P: arcPts(B, A), A, A0: A, Tp };
+}
+/* 가늘어지는 띠(멀어지는 공 — 시작 굵게 · 끝 가늘게) */
+function ribbon(P, w0, w1) {
+  const side = (sg) => P.map(([x, y], i) => {
+    const [ax, ay] = P[Math.max(0, i - 1)], [bx, by] = P[Math.min(P.length - 1, i + 1)], n = Math.hypot(bx - ax, by - ay) || 1, w = (w0 + (w1 - w0) * i / (P.length - 1)) / 2;
+    return `${(x - sg * w * (by - ay) / n).toFixed(1)} ${(y + sg * w * (bx - ax) / n).toFixed(1)}`;
+  });
+  return `M${side(1).join(' L')} L${side(-1).reverse().join(' L')} Z`;
+}
+const line = (P) => 'M' + P.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L');
+let gid = 0;
+function breakSvg(t, T, v, big = true) {
+  const { P, A, A0, Tp } = pathOf(t, T), c = PITCH[t].c, id = 'g' + gid++;
+  let s = `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${A0[0]}" y1="${A0[1]}" x2="${Tp[0]}" y2="${Tp[1]}"><stop offset="0" stop-color="${c}" stop-opacity=".25"/><stop offset="1" stop-color="${c}" stop-opacity=".95"/></linearGradient></defs>`;
+  if (v === 'v2') s += `<circle cx="${HAND[0]}" cy="${HAND[1]}" r="14" fill="${c}" fill-opacity=".16" stroke="${c}" stroke-opacity=".4"/><path d="M${HAND[0]} ${HAND[1]} L${A0[0]} ${A0[1]}" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-dasharray="3 6" fill="none"/>`;
+  s += `<circle cx="${A[0]}" cy="${A[1]}" r="11" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="1.8" stroke-dasharray="4 3"/>`;
+  if (v === 'v3') {
+    s += `<path d="${line(P)}" stroke="${c}" stroke-opacity=".4" stroke-width="1.5" fill="none"/>`;
+    [[0, 11], [7, 9.5], [13, 8]].forEach(([i, r], n) => { s += `<circle cx="${P[i][0]}" cy="${P[i][1]}" r="${r}" fill="${c}" fill-opacity="${0.22 + n * 0.14}" stroke="${c}" stroke-opacity=".6"/>`; });
+  } else {
+    s += `<path d="${ribbon(P, 10, 4)}" fill="url(#${id})"/>`;
+    if (big) s += `<path d="${line(P)}" stroke="rgba(255,255,255,.6)" stroke-width="2" fill="none" pathLength="1" stroke-dasharray=".03 .06" style="animation:flow 1.4s linear infinite"/>`;
+  }
+  s += `<circle cx="${Tp[0]}" cy="${Tp[1]}" r="12" fill="#f8fafc" stroke="#fbbf24" stroke-width="3"/><path d="M${Tp[0] - 5} ${Tp[1] - 8} q4 8 0 16 M${Tp[0] + 5} ${Tp[1] - 8} q-4 8 0 16" fill="none" stroke="#dc2626" stroke-width="1.6"/>`;
+  return s;
+}
+const ZNAME = ['몸쪽 높게', '높게', '바깥 높게', '몸쪽', '한가운데', '바깥', '몸쪽 낮게', '낮게', '바깥 낮게'];
+function zoneSvg(labels = true) {
+  let s = `<rect x="1" y="1" width="398" height="398" rx="18" fill="rgba(8,12,22,.4)" stroke="rgba(255,255,255,.16)" stroke-dasharray="7 7"/>
+  <rect x="50" y="50" width="300" height="300" rx="10" fill="rgba(8,12,22,.35)"/>`;
+  for (let i = 1; i < 3; i++) s += `<line x1="${50 + i * 100}" y1="50" x2="${50 + i * 100}" y2="350" stroke="rgba(255,255,255,.1)"/><line x1="50" y1="${50 + i * 100}" x2="350" y2="${50 + i * 100}" stroke="rgba(255,255,255,.1)"/>`;
+  if (labels) ZNAME.forEach((n, z) => { s += `<text x="${100 + (z % 3) * 100}" y="${106 + Math.floor(z / 3) * 100}" text-anchor="middle" font-size="14" font-weight="800" fill="rgba(226,232,240,.6)">${n}</text>`; });
+  s += `<rect x="50" y="50" width="300" height="300" rx="10" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3"/>`;
+  if (labels) s += `<text x="50" y="422" font-size="15" font-weight="700" fill="#94a3b8">◀ 몸쪽</text><text x="350" y="422" text-anchor="end" font-size="15" font-weight="700" fill="#94a3b8">바깥 ▶</text>`;
+  return s;
+}
+/* C — 구종 버튼 꺾임 아이콘(아래에서 올라와 꺾임, 28 × 28) */
+function iconSvg(t) {
+  /* 길이 8 + 꺾임 × 16px — 직구도 짧은 선으로 보이고 커브는 길다 */
+  const m = Math.hypot(...PITCH[t].b), B = PITCH[t].b.map((v) => (v * (8 + 16 * m)) / m), P = arcPts(B, [0, 0]);
+  const xs = P.map((p) => p[0]), ys = P.map((p) => p[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const Q = P.map(([x, y]) => [x - cx + 15, y - cy + 15]), e = Q.at(-1), c = PITCH[t].c;
+  return `<svg width="30" height="30" viewBox="0 0 30 30" style="flex:none;overflow:visible;filter:drop-shadow(0 0 6px ${c}88)"><circle cx="${Q[0][0]}" cy="${Q[0][1]}" r="3" fill="none" stroke="${c}" stroke-opacity=".6" stroke-width="1.3"/><path d="${line(Q)}" stroke="${c}" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="${e[0]}" cy="${e[1]}" r="4.2" fill="${c}"/></svg>`;
+}
+
+function render() {
+  document.getElementById('tabs').innerHTML = VARS.map(([k, n]) => `<button class="${variant === k ? 'on' : ''}" data-v="${k}">${n}</button>`).join('');
+  document.getElementById('note').innerHTML = VARS.find((v) => v[0] === variant)[2]; document.getElementById('note').style.display = variant === 'grid' ? 'none' : '';
+  const grid = variant === 'grid';
+  for (const id of ['pad', 'pn']) document.getElementById(id).style.display = grid ? 'none' : '';
+  const g = document.getElementById('grid'); g.style.display = grid ? 'grid' : 'none';
+  if (grid) {
+    const TS = [['높게 바깥', [0.6, -0.7]], ['한가운데', [0, 0]], ['낮게 몸쪽', [-0.6, 0.7]]];
+    g.innerHTML = '<div></div>' + Object.keys(PITCH).map((t) => `<div class="h" style="display:flex;gap:8px;justify-content:center;align-items:center">${iconSvg(t)}${PITCH[t].ko}</div>`).join('')
+      + TS.map(([n, T]) => `<div class="r">${n}</div>` + Object.keys(PITCH).map((t) => `<svg viewBox="0 0 400 400" style="width:100%;overflow:visible">${zoneSvg(false)}${breakSvg(t, T, 'v1', false)}</svg>`).join('')).join('');
+    return;
+  }
+  document.getElementById('pad').innerHTML = zoneSvg() + breakSvg(pk, T, variant);
+  document.getElementById('list').innerHTML = REP.map((t, i) => `<button class="opt ${pk === t ? 'on' : ''}" data-p="${t}"><span class="n">${i + 1}</span>${iconSvg(t)}<span class="nm">${PITCH[t].ko}</span><span class="mx" style="${i ? '' : 'color:#fbbf24;font-weight:800'}">${i ? `비중 ${PITCH[t].mix}%` : '주무기'}</span><span class="v">${PITCH[t].v}</span></button>`).join('');
+}
+document.addEventListener('click', (e) => {
+  const v = e.target.closest('[data-v]'); if (v) { variant = v.dataset.v; render(); }
+  const p = e.target.closest('[data-p]'); if (p) { pk = p.dataset.p; render(); }
+});
+const pad = document.getElementById('pad'); let drag = false;
+const at = (e) => { const r = pad.getBoundingClientRect(), cl = (v) => Math.max(-1.3, Math.min(1.3, v)); T = [cl(((e.clientX - r.left - 50) / 300) * 2 - 1), cl(((e.clientY - r.top - 50) / 300) * 2 - 1)]; render(); };
+pad.addEventListener('pointerdown', (e) => { drag = true; pad.setPointerCapture(e.pointerId); at(e); });
+pad.addEventListener('pointermove', (e) => drag && at(e));
+pad.addEventListener('pointerup', () => { drag = false; });
+addEventListener('keydown', (e) => { const i = +e.key - 1; if (REP[i]) { pk = REP[i]; render(); } });
+document.head.insertAdjacentHTML('beforeend', '<style>@keyframes flow{from{stroke-dashoffset:.09}to{stroke-dashoffset:0}}</style>');
+render();
+</script>
+</body>
+</html>
