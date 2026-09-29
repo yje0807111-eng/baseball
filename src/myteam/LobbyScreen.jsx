@@ -8,7 +8,8 @@ import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, BONUS_KO, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
-import { GrowBar } from '../ui/motion.jsx';
+import { GrowBar, reducedMotion } from '../ui/motion.jsx';
+import { play as playSfx } from '../audio/sfx.js';
 
 /* 로비 첫 등장(앱을 연 뒤 한 번) — 왼쪽 판 → 가운데 → 오른쪽 칸들이 차례로 올라온다. 다시 돌아올 때는 화면 이동 모션만 */
 let lobbyIntroDone = false;
@@ -257,6 +258,8 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
   const team = account.team;
   const [intro] = useState(() => !lobbyIntroDone);
   useEffect(() => { lobbyIntroDone = true; }, []);
+  /* 첫 등장 소리 — 판들이 올라오는 동안 책장 스르륵 한 번(옅게). 애니메이션 줄이기면 판이 안 움직이니 소리도 없음 */
+  useEffect(() => { if (intro && !reducedMotion()) playSfx('lobbyIn'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
