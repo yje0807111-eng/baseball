@@ -12,9 +12,13 @@
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change',
- *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다) }
+ *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다),
+ *     aim: 'ih'|'oh'|'il'|'ol' (노림 코스 — 몸쪽·바깥 × 높게·낮게 네 칸), approach: 'power'|'contact' (강공 · 밀어치기),
+ *     drag: true (bunt 와 함께 — 기습번트) }
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
+ *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
+ *     noPick: true (pitchType 이 AI 가 미리 뽑은 공일 때 — 구종을 찍은 힘 보정을 붙이지 않는다),
  *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다), guard: -1|1 (제자리 · 붙어 선다),
  *     hookAt: 0~20 (이 체력 아래면 투수를 내린다) }
  */
@@ -110,6 +114,9 @@ export const CLUTCH_MARK = 0.15;
 export const CLUTCH_LIMIT = 3;
 export const isClutch = (g) => leverage(g) >= CLUTCH_MARK;
 
+/** 노림 코스 네 칸에 이 칸이 드나 — 칸 i: 열 i%3(0 몸쪽) · 행 ⌊i/3⌋(0 높게). 가운데 줄 · 칸은 두 쪽에 다 걸친다 */
+export const inAim = (zone, aim) => zone != null && !!aim && (aim[1] === 'h' ? zone < 6 : zone >= 3) && (aim[0] === 'i' ? zone % 3 <= 1 : zone % 3 >= 1);
+
 /** 도루 성공 확률: 주자 스피드 vs 포수 수비 */
 export function stealOdds(g, from) {
   const runner = g.bases[from];
@@ -136,7 +143,7 @@ function choosePitch(g, pitcher, order) {
   const mix = pitchMix(pitcher);
   const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
   /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
-  const picked = order?.pitchType ? (mix[type] ?? 0.2) - 0.33 : 0;
+  const picked = order?.pitchType && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
   const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
   // 존 안으로 들어갈 확률: 제구 + 볼카운트(볼이 많으면 존으로)
@@ -151,7 +158,9 @@ function choosePitch(g, pitcher, order) {
   const [lo, hi] = PITCHES[type].speed;
   /* 구위 60 이면 그 구종의 가장 느린 쪽, 105 면 가장 빠른 쪽 — 능력치 눈금(50~110)에 맞춘 폭 */
   const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
-  return { type, zone, inZone: isIn, velo, tired, picked, corner: typeof order?.zone === 'number' };
+  /* 찍은 칸의 맞히기 어려움 — 구석이 가장, 변 가운데는 조금, 한가운데는 오히려 쉽다(음수) */
+  const corner = typeof order?.zone === 'number' ? (order.zone === 4 ? -0.05 : order.zone % 2 === 0 ? 0.07 : 0.04) : 0;
+  return { type, zone, inZone: isIn, velo, tired, picked, corner, ...(!isIn && order?.zone === 'chase' && order.band ? { band: order.band } : {}) };
 }
 
 function advance(g, n, batter, extra = {}) {
@@ -280,7 +289,10 @@ export function pitch(g, orders = {}) {
   const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
-  const cornerPen = p.corner ? 0.07 : 0; // 구석에 꽂힌 공은 맞히기 어렵다
+  const cornerPen = p.corner || 0; // 구석에 꽂힌 공은 맞히기 어렵다
+  /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
+  const aimBonus = orders.aim && p.inZone ? (inAim(p.zone, orders.aim) ? 0.08 : -0.05) : 0;
+  const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
 
   // 스윙 여부
   let swing;
@@ -292,10 +304,10 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
-    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus); }
+    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus); }
   }
 
   if (ev.call !== 'inplay') {
@@ -320,7 +332,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   if (orders.bunt) {
     const r = g.rng();
     if (r < 0.08) { ev.result = 'FO'; g.outs += 1; ev.text = '번트가 떠 버렸다'; return 0; }
-    if (r < 0.08 + clamp(0.06 + (speed - 70) * 0.01, 0.02, 0.3)) { ev.result = 'BH'; runs += score(g, advance(g, 1, batter, { scoreFrom2: 0 })); off.hits += 1; return runs; }
+    if (r < 0.08 + clamp(0.06 + (speed - 70) * 0.01 + (orders.drag ? 0.12 : 0), 0.02, 0.42)) { ev.result = 'BH'; runs += score(g, advance(g, 1, batter, { scoreFrom2: 0 })); off.hits += 1; return runs; }
     ev.result = 'SAC'; g.outs += 1;
     if (g.outs < 3) runs += score(g, advance(g, 1, null, { scoreFrom2: 0 }));
     return runs;
@@ -333,10 +345,10 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.022 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.022 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (orders.approach === 'power' ? -0.02 : orders.approach === 'contact' ? 0.015 : 0) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) + (orders.approach === 'power' ? 0.035 : orders.approach === 'contact' ? -0.02 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
     const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.07, 0.08, 0.35);
     const r = g.rng();
@@ -355,7 +367,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
   if (r < fly + 0.12) { ev.result = 'LO'; g.outs += 1; return 0; }
   ev.result = 'GO'; g.outs += 1;
-  if (g.bases[0] && g.outs < 3 && !orders.hitAndRun && g.rng() < clamp(0.5 - (speed - 70) * 0.01 - (orders.dash || 0) * 0.1, 0.2, 0.7)) {
+  if (g.bases[0] && g.outs < 3 && !orders.hitAndRun && g.rng() < clamp(0.5 - (speed - 70) * 0.01 - (orders.dash || 0) * 0.1 - (orders.approach === 'contact' ? 0.12 : 0), orders.approach === 'contact' ? 0.08 : 0.2, 0.7)) {
     ev.result = 'DP'; g.outs += 1; g.bases[0] = null;
   }
   if (g.outs < 3) {

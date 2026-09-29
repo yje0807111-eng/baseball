@@ -108,6 +108,10 @@ export function pitchTarget(ev) {
   const p = ev?.pitch;
   if (!p) return null;
   if (p.inZone && p.zone != null) return zoneCell(p.zone);
+  /* 수싸움에서 뺀 방향을 골랐으면 그쪽 바깥에 — 몸쪽(in)이 왼쪽(−), 높게(hi)가 위(−) */
+  const side = (k) => (noise(ev, k) - 0.5) * 1.2;
+  if (p.band === 'hi' || p.band === 'lo') return [side('x') * ZONE.w, (p.band === 'hi' ? -1 : 1) * (ZONE.h + 0.08 + noise(ev, 'y2') * 0.2)];
+  if (p.band === 'in' || p.band === 'out') return [(p.band === 'in' ? -1 : 1) * (ZONE.w + 0.08 + noise(ev, 'x2') * 0.2), side('y') * ZONE.h];
   return [
     (noise(ev, 'x') < 0.5 ? -1 : 1) * (ZONE.w + 0.06 + noise(ev, 'x2') * 0.22),
     (noise(ev, 'y') - 0.5) * 2 * (ZONE.h + 0.08),
