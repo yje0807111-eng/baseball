@@ -14,7 +14,7 @@ import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
-import { playsFor } from './engine/plays.js';
+import DuelPanel, { duelAi } from './play/DuelPanel.jsx';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
@@ -51,8 +51,6 @@ const CLUTCH_CSS = `
 @keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
-@keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
-@keyframes clutchEdge { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
 `;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
@@ -481,7 +479,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
    */
   const autoFinish = () => {
     aliveRef.current = false; // 중계 루프를 세운다
-    if (clutchRef.current) { const done = clutchRef.current; clutchRef.current = null; setClutch(null); done({}); }
+    if (duelWait.current) { const done = duelWait.current; duelWait.current = null; done(null); }
+    duelRef.current = null; setDuel(null);
     playOut(g, () => tacticOrders(fineRef.current, !g.top, g.rng));
     redraw();
     handOver();
@@ -497,9 +496,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const beforeSkipRef = useRef(PLAY); // SKIP 을 누르기 전 배속 — 한 번 더 누르면 여기로 돌아온다
   const holdRef = useRef(false); // 꾹 누르고 있는 중
   const [holding, setHolding] = useState(false);
-  const [clutch, setClutch] = useState(null); // 승부처 — 경기를 멈추고 아래 작전 줄에서 지시를 받는다
-  const clutchColor = '#fbbf24';
-  const clutchRef = useRef(null);
+  /*
+   * 승부처 — 그 타석을 공마다 직접 고른다(수싸움 판 play/DuelPanel · 목업 duel-look 1안).
+   * 한 반이닝에 한 번 · 경기당 CLUTCH_LIMIT 번. 판은 고르기만, 공은 이 루프가 엔진 pitch() 로 던진다.
+   */
+  const [duel, setDuel] = useState(null); // 판에 보일 것 { side, start, waiting, tell, reveal }
+  const duelRef = useRef(null); // 수싸움 중인 타석 { side, idx, inning, top, start }
+  const duelWait = useRef(null); // 판이 고르기를 기다리는 약속 — 고르면 지시, 맡기면 null
   const clutchLeft = useRef(CLUTCH_LIMIT); // 이 경기에 남은 개입 횟수
   const lastAskHalf = useRef(''); // 한 반이닝에 한 번만 묻는다
   const curSpeed = () => {
@@ -528,7 +531,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   };
   useEffect(() => {
     const off = () => hold(false);
-    const down = (e) => { if (e.code === 'Space' && !e.repeat && !clutchRef.current) { e.preventDefault(); hold(true); } };
+    const down = (e) => { if (e.code === 'Space' && !e.repeat && !duelRef.current) { e.preventDefault(); hold(true); } };
     const up = (e) => { if (e.code === 'Space') { e.preventDefault(); hold(false); } };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
@@ -569,7 +572,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       let evAt = 0; // 이 이닝이 시작된 시점의 events 인덱스
       aug?.beforeHalf(g);
       while (!g.final && !stop && aliveRef.current) {
-        while ((pausedRef.current || clutchRef.current) && !stop) await sleep(100);
+        while (pausedRef.current && !stop) await sleep(100);
         if (stop || g.final) break;
         // 적 수비(내 공격) 중이면 AI 감독이 투수를 바꾼다
         if (!g.top) {
@@ -586,36 +589,54 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         let asked = false; // 물어본 타석은 접지 않고 공마다 본다
         if (!quiet() && clutchLeft.current > 0 && lastAskHalf.current !== halfKey
             && g.balls === 0 && g.strikes === 0 && isClutch(g)) {
-          asked = true;
           lastAskHalf.current = halfKey;
           clutchLeft.current -= 1;
-          const picked = await new Promise((resolve) => {
-            clutchRef.current = resolve;
-            setClutch(askOf(g, home, away, clutchLeft.current, resolve));
+          duelRef.current = { side: g.top ? 'def' : 'off', idx: offenseOf(g).idx, inning: g.inning, top: g.top, start: g.events.length };
+        }
+        /* 수싸움 중이면 공마다 판에서 고른다 — 상대 몫(투수의 공 · 타자의 노림)을 먼저 정해 단서를 건다 */
+        const D = duelRef.current;
+        let duelAiNow = null;
+        if (D) {
+          asked = true;
+          duelAiNow = duelAi(g, D.side, g.events.slice(D.start).filter((e) => e.pitch).map((e) => e.pitch.type));
+          const choice = await new Promise((resolve) => {
+            duelWait.current = resolve;
+            setDuel((d) => ({ ...(d || {}), side: D.side, start: D.start, waiting: true, tell: duelAiNow.tell }));
           });
-          clutchRef.current = null;
-          setClutch(null);
-          if (picked) pendingRef.current = { ...pendingRef.current, ...picked };
+          duelWait.current = null;
           if (stop || !aliveRef.current) break;
+          if (!choice) { duelRef.current = null; setDuel(null); duelAiNow = null; } // 맡기기 — 남은 공은 자동
+          else pendingRef.current = { ...choice, ...duelAiNow.orders };
         }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
         if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top }; }
         const ordered = Object.keys(pendingRef.current).length > 0;
         const gave = asked || ordered; // 이 타석에 지시를 냈다
-        const gaveKo = ordered ? orderKo(pendingRef.current).join(' · ') : null;
+        const gaveKo = duelRef.current ? '수싸움' : ordered ? orderKo(pendingRef.current).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
         const folded = []; // 접은 타석에서 지나간 공 — 빨리 흘려보낼 것들
         try {
           /* 전술 성향은 늘 깔리고, 내가 낸 지시가 그 위에 얹힌다 */
-          const tac = () => ({ ...tacticOrders(fineRef.current, !g.top, g.rng), ...pendingRef.current });
+          const tac = () => {
+            const t = tacticOrders(fineRef.current, !g.top, g.rng);
+            /* 수싸움 공은 고른 것만 — 전술 성향 중 수비 자리(주자 묶기 · 수비 위치 · 교체 문턱)만 남긴다 */
+            if (duelRef.current) return { hold: t.hold, guard: t.guard, hookAt: t.hookAt, ...pendingRef.current };
+            return { ...t, ...pendingRef.current };
+          };
           if (fold) { do { ev = pitch(g, tac()); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, tac());
         } catch (err) { console.error('pitch 실패', err); break; }
-        pendingRef.current = pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
+        pendingRef.current = duelRef.current ? {} : pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
+        /* 수싸움 — 타석이 끝나면 판을 걷어 중계가 결과를 보여 주게, 아니면 방금 공을 판에 알린다 */
+        if (duelRef.current) {
+          const D2 = duelRef.current;
+          if (ev.result || g.final || g.inning !== D2.inning || g.top !== D2.top || offenseOf(g).idx !== D2.idx) { duelRef.current = null; setDuel(null); }
+          else setDuel((d) => ({ ...d, waiting: false, reveal: { ev, guess: D2.side === 'def' ? (duelAiNow?.guess ?? null) : undefined, k: nextFx() } }));
+        }
         /* 접은 타석: 볼거리가 있으면 타구만, 아니면 결과 한 줄 */
         const worth = fold && (WORTH.includes(ev.result) || ev.runs > 0);
         const beat = (fold ? (worth ? BRIEF_MS : FLASH_MS)
@@ -754,8 +775,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
   const give = (o) => {
     pendingRef.current = { ...pendingRef.current, ...o };
-    /* 승부처에서 고른 것이면 그걸로 답하고 경기를 다시 굴린다 */
-    if (clutchRef.current) { const done = clutchRef.current; clutchRef.current = null; setClutch(null); done(o); return; }
     redraw();
   };
 
@@ -779,8 +798,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const on1 = !!g.bases[0]; const on2 = !!g.bases[1];
   /* 한 점이면 되는 자리인가 — 번트 · 도루는 여기서만 값이 선다 (여러 점을 노릴 땐 점수를 깎는다) */
   const onePoint = g.inning >= 7 && Math.abs(g.home.runs - g.away.runs) <= 1;
-  /* 승부처에는 그 자리에서만 말이 되는 세 장으로 갈아 끼운다 */
-  const PICKS = clutch ? playsFor(g, { mine: mineBat, tired: 1 - stamina / 100 }) : null;
   const batter = batterOf(g);
   const batterKo = todayKo(g, batter);
   const armLine = pitcherLine(g, pitcher); // 지금 투수의 오늘 기록
@@ -796,7 +813,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200"
       style={{ touchAction: 'none' }}
-      onPointerDown={(e) => { if (!e.target.closest('button') && !clutch) hold(true); }}
+      onPointerDown={(e) => { if (!e.target.closest('button') && !duel) hold(true); }}
       onPointerUp={() => hold(false)}
       onPointerCancel={() => hold(false)}
       onPointerLeave={() => hold(false)}
@@ -808,10 +825,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         <MatchIntro away={introTeam(away, false)} home={introTeam(home, true)} tag={intro?.tag}
           onHandoff={() => { introDone.current = true; introWait.current?.(); }} onDone={() => setIntroOn(false)} />
       )}
-      {/* 승부처에는 화면 가장자리에 빛이 돌아 딴 데 보고 있어도 눈에 든다 */}
-      {clutch && (
-        <span aria-hidden="true" className="pointer-events-none fixed inset-0 z-40"
-          style={{ boxShadow: `inset 0 0 0 3px ${clutchColor}, inset 0 0 90px -20px ${clutchColor}`, animation: "clutchEdge 1.5s ease-in-out infinite" }} />
+      {/* 승부처 — 수싸움 판이 중계 위를 덮는다. 타석이 끝나면 걷혀 중계가 결과를 보여 준다 */}
+      {duel && (
+        <DuelPanel g={g} side={duel.side} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
+          shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
+          teams={{ away: { short: shortTeam(away.name), color: teamFlag(away.name)?.color || cOpp }, home: { short: shortTeam(home.name, true), color: flagByKey(myBanner())?.color || cMy } }}
+          onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}
+          onHand={() => { const done = duelWait.current; if (done) { duelWait.current = null; done(null); } }} />
       )}
 
       <div className="relative grid h-full" style={{ gridTemplateRows: '72px 1fr' }}>
@@ -992,19 +1012,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 작전 — 평소에는 세 갈래, 승부처에는 그 자리의 세 장 */}
             {(() => {
-              const bandColor = clutch ? clutchColor : cMy;
+              const bandColor = cMy;
               const queuedKo = orderKo(pend);
               return (
                 <section className="mt-cut mt-frame mt-glass relative flex shrink-0 flex-col gap-2.5 p-5"
-                  style={{ '--c': '22px', '--a': bandColor, overflow: 'visible',
-                    ...(clutch ? { boxShadow: `inset 0 0 0 1.5px ${clutchColor}, 0 0 44px -10px ${clutchColor}`, animation: 'clutchPulse 1.5s ease-in-out infinite' } : null) }}>
+                  style={{ '--c': '22px', '--a': bandColor, overflow: 'visible' }}>
                   <div className="flex items-center gap-2.5">
-                    <p className="mt-lab shrink-0" style={{ '--a': bandColor }}>{clutch ? '승부처' : '작전'}</p>
-                    <b className="truncate text-t3 text-white">{clutch ? clutch.head : `${mineBat ? '우리 공격' : '우리 수비'} · ${g.inning}회${g.top ? '초' : '말'} ${g.outs}사`}</b>
-                    {clutch && <small className="shrink-0 text-t4" style={{ color: clutchColor }}>{clutch.lead}</small>}
+                    <p className="mt-lab shrink-0" style={{ '--a': bandColor }}>작전</p>
+                    <b className="truncate text-t3 text-white">{`${mineBat ? '우리 공격' : '우리 수비'} · ${g.inning}회${g.top ? '초' : '말'} ${g.outs}사`}</b>
                     <span className="ml-auto shrink-0 text-t4 text-gray-400">
-                      {clutch ? <>남은 개입 <b className="font-display text-t3" style={{ color: clutchColor }}>{clutch.left}</b></>
-                        : g.events.length > 0 ? <>남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></> : null}
+                      {g.events.length > 0 ? <>남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></> : null}
                     </span>
                   </div>
                   {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
@@ -1013,28 +1030,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       {queuedKo.map((k) => <span key={k} className="mt-chip" style={{ '--a': bandColor, color: '#fff' }}>{k} 지시</span>)}
                     </div>
                   )}
-                  {/* 승부처 — 그 자리의 세 장. 고르면 승률이 어디로 갈지까지 적는다 */}
-                  {PICKS && PICKS.map((c, i) => (
-                    <button key={c.key} type="button" onClick={() => give(c.order)}
-                      className="mt-cut flex items-center gap-3 px-4 py-3 text-left transition hover:-translate-y-0.5 hover:brightness-110"
-                      style={{ '--c': '16px', animation: `batterIn .35s ${i * 0.06}s ease-out both`,
-                        background: `linear-gradient(180deg,${tint(clutchColor, 16)},${tint(clutchColor, 4)}),rgba(10,12,18,.7)`,
-                        boxShadow: `inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 1px ${tint(clutchColor, 45)}` }}>
-                      <b className="text-t2 leading-none">{c.icon}</b>
-                      <span className="min-w-0 flex-1">
-                        <b className="block text-t3 font-extrabold text-white">{c.title}</b>
-                        <small className="block truncate text-t4 text-gray-400">{c.note}</small>
-                      </span>
-                      {c.move !== 0 && (
-                        <b className="font-display text-t2 font-extrabold" style={{ color: c.move > 0 ? '#34d399' : '#f87171' }}>{c.move > 0 ? '+' : ''}{c.move}</b>
-                      )}
-                    </button>
-                  ))}
-                  {clutch && (
-                    <button type="button" onClick={() => clutch.resolve(null)} className="mt-btn sm self-stretch">⏭ 맡기기</button>
-                  )}
                   {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
-                  {!PICKS && SIDES.map((sd) => {
+                  {SIDES.map((sd) => {
                     const cur = sideOpt(sd.key, sides[sd.key]);
                     const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
                     const open = openSide === sd.key;
@@ -1108,7 +1105,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
               <ul className="flex flex-col gap-1">
                 {myPen.length === 0 && <li className="px-1 py-1 text-t4 text-gray-400">남은 투수 없음</li>}
-                {myPen.slice(0, clutch ? 2 : 3).map((p) => {
+                {myPen.slice(0, 3).map((p) => {
                   const cond = p.condition == null ? 100 : p.condition; // 쉬고 난 몸 상태
                   const tone = staminaTone(cond);
                   const mine = queued === p.id; // 이 투수로 바꾸라고 일러 둔 참이다
@@ -1147,34 +1144,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 }
 
 /** 엔진 경기를 기존 결과 화면(ResultPanel)이 쓰는 모양으로 바꾼다 */
-/* ───────── 승부처: 멈추고 감독에게 묻는다 ───────── */
-/** 주자를 사람 말로 */
-const basesKo = (bases) => {
-  const on = bases.map((b, i) => (b ? ['1루', '2루', '3루'][i] : null)).filter(Boolean);
-  if (!on.length) return '주자 없음';
-  if (on.length === 3) return '만루';
-  return on.join(' · ');
-};
-/** 멈춘 자리의 상황을 한 벌로 묶는다 */
-function askOf(g, home, away, left, resolve) {
-  const myRuns = g.home.runs;
-  const oppRuns = g.away.runs;
-  const diff = myRuns - oppRuns;
-  return {
-    resolve,
-    left,
-    weDefend: g.top,
-    head: `${g.inning}회${g.top ? '초' : '말'} ${g.outs}사 ${basesKo(g.bases)}`,
-    score: `${oppRuns} : ${myRuns}`,
-    lead: diff > 0 ? `${diff}점 앞선다` : diff < 0 ? `${-diff}점 뒤진다` : '동점이다',
-    batter: batterOf(g),
-    pitcher: pitcherOf(g),
-    weight: leverage(g),
-    wp: winProb(g),
-    pitch: defenseOf(g).pitches ?? 0,
-  };
-}
-
 export function buildResult(g, myTeam, manager = null) {
   const board = {
     home: Array.from({ length: 9 }, (_, i) => g.home.line[i] ?? null),
