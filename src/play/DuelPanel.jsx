@@ -465,7 +465,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const [focus, setFocus] = useState(false); // 집중 투구 — 켜 두면 공마다 체력을 더 쓰고 흩어짐이 좁다 // 수비 조준 자리 { x, y } — 던진 뒤에도 남겨 조금씩 옮기게
   const [cat, setCat] = useState('hit');
   const [play, setPlay] = useState('power');
-  const [guess, setGuess] = useState(null);
+  const [guess, setGuess] = useState(null); // 구종 예측 — 늘 '예측 안 함'에서 시작, 공마다 다시 고른다
   const [aim, setAim] = useState(null);
   const [showRev, setShowRev] = useState(null);
   /* 결과 알림 — 1초 머물고 걷힌다(누르면 바로) */
@@ -492,6 +492,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
     if (off) {
       const base = typeof cur.order === 'function' ? cur.order(g) : cur.order;
       onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}), ...(bonus ? { readBonus: true } : {}) });
+      setGuess(null);
     } else {
       onGo({ pitchType: pk, target, ...(focus ? { focus: true } : {}), ...(bonus ? { readBonus: true } : {}) });
     }
@@ -649,7 +650,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           {/* 구종 예측 — 늘 자리를 잡아 둔다(타격이 아니면 흐리게) · 탭을 바꿔도 판 높이가 그대로 */}
           <span className="lbl" style={{ marginTop: 2, opacity: hitting ? 1 : 0.35 }}>구종 예측</span>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${aimT.length > 4 ? 3 : 4}, 1fr)`, gap: 6 }}>
-            {aimT.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''} ${rec.guess === k ? 'rec' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: k ? 16 : 15, fontWeight: 800 }}>{ko}</button>)}
+            {aimT.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''} ${rec.guess === k ? 'rec' : ''}`} onClick={() => setGuess(guess === k ? null : k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: k ? 16 : 15, fontWeight: 800 }}>{ko}</button>)}
           </div>
         </>}
         <div style={{ height: 1, flex: 'none', background: 'rgba(255,255,255,.1)', margin: 'auto 0 3px' }} />
