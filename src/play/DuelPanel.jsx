@@ -332,8 +332,8 @@ function Trails({ marks, toPx, half, id }) {
  * 휨: 옆 = 0.8(중력) + 세로 꺾임 × 5 · 위 = 가로 꺾임 × 8(과장). 끝 = 과녁이라 과녁을 옮기면 끝이 따라간다.
  * 고른 구종은 빛 선 + 공이 1.4초마다 날아감(애니메이션 줄이기면 멈춤), 다른 구종은 옅은 선(어디서 갈라지나).
  */
-const trackOf = (t, axis, end, rel, amp = 1) => {
-  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = (axis ? 0.8 + b[1] * 5 : b[0] * 8) * amp;
+const trackOf = (t, axis, end, rel) => {
+  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = axis ? 0.8 + b[1] * 5 : b[0] * 8;
   return Array.from({ length: 41 }, (_, i) => { const s = i / 40; return [s, rel + (end - rel) * s - bend * (s - s ** p)]; });
 };
 function TrajView({ axis, map, rep, pk, end, rel, id }) {
@@ -356,14 +356,21 @@ function TrajView({ axis, map, rep, pk, end, rel, id }) {
   );
 }
 /*
- * 구종 버튼 그림 — 궤적 카드 '옆' 그림을 작게(56 × 26, 손 왼쪽 → 포수 오른쪽). 목록과 카드가 같은 모양으로 이어진다(mockups/pitch-mark 6).
- * 작은 그림이라 휨을 2.5배로 — 커브 · 체인지업처럼 떨어지는 공이 또렷이 갈린다. 고른 줄은 금색.
+ * 구종 버튼 그림 — 조준판 같은 3 × 3 작은 칸, 가운데에서 휘는 쪽 칸까지 선(mockups/pitch-mark4 C).
+ * 파워프로처럼 구종마다 방향 하나 · 크기 두 단계로 정해 둔다 — 크게 휘면 선이 굵고 칸이 더 밝다.
+ * 커터(→ 조금) · 슬라이더(→ 크게) · 투심(←)처럼 옆 그림으로 안 갈리던 공도 갈린다. 고른 줄은 금색.
  */
-function SideMini({ t, on }) {
-  const P = trackOf(t, 1, 0.4, -1.2, 2.5).map(([a, v]) => [2 + a * 50, 10 + v * 5]), e = P[P.length - 1], c = on ? GOLD : '#cbd5e1';
+const MARK = { fast: [0, -1, 1], cutter: [1, 0, 1], slider: [1, 0, 2], curve: [1, 1, 2], change: [-1, 1, 1], sinker: [-1, 0, 1], fork: [0, 1, 2] };
+function BreakMark({ t, on }) {
+  const [dx, dy, lv] = MARK[t] || [0, 0, 1], c = on ? '251,191,36' : '226,232,240', k = 11.4, m = 18, ex = m + dx * k, ey = m + dy * k;
   return (
-    <svg width="56" height="26" viewBox="0 0 56 26" style={{ flex: 'none', overflow: 'visible' }}>
-      <path d={lineOf(P)} stroke={c} strokeOpacity={on ? 1 : 0.75} strokeWidth="2.4" strokeLinecap="round" fill="none" /><circle cx={e[0]} cy={e[1]} r="3.4" fill={on ? GOLD : '#e2e8f0'} />
+    <svg width="36" height="36" viewBox="0 0 36 36" style={{ flex: 'none' }}>
+      {Array.from({ length: 9 }, (_, i) => {
+        const x = (i % 3) - 1, y = Math.floor(i / 3) - 1, hit = x === dx && y === dy;
+        return <rect key={i} x={1 + (x + 1) * k} y={1 + (y + 1) * k} width={k - 1.2} height={k - 1.2} rx="2.5" fill={`rgba(${c},${hit ? (lv > 1 ? 0.5 : 0.28) : 0.13})`} />;
+      })}
+      <path d={`M${m} ${m} L${ex} ${ey}`} stroke={`rgb(${c})`} strokeWidth={lv > 1 ? 3 : 1.8} strokeLinecap="round" />
+      <circle cx={m} cy={m} r="2" fill={`rgba(${c},.8)`} /><circle cx={ex} cy={ey} r={lv > 1 ? 3.6 : 2.8} fill={`rgb(${c})`} />
     </svg>
   );
 }
@@ -715,7 +722,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           {myRep.map((t, i) => [t, DUEL_PITCH[t]]).map(([t, p], i) => (
             <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''} ${recD.pk === t ? 'rec' : ''}`} onClick={() => setPk(t)} style={{ minHeight: myRep.length > 5 ? 40 : myRep.length > 3 ? 46 : 52 }}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
-              <SideMini t={t} on={pk === t} />
+              <BreakMark t={t} on={pk === t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
               <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>

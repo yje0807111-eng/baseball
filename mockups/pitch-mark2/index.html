@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>구종 표시 목업 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<!--
+  구종 그림 — 커터 · 슬라이더 · 투심까지 갈리게 + 그림이 칸 밖으로 안 나오게(모두 칸 안 28px 높이)
+  A 무브먼트 점 — Baseball Savant 무브먼트 차트를 작게: 십자 가운데 = 안 휜 공, 점 = 휜 자리(포수 시점, 오른쪽 = 바깥 · 아래 = 떨어짐)
+  B 포수 시점 곡선 — 가운데 위에서 출발해 휜 자리까지 한 번 휘는 선
+  C 옆 궤적 + 좌우 꺾쇠 — 옆 그림(떨어짐, 칸 안으로 줄임) 옆에 › 바깥 · ‹ 몸쪽, 개수 = 크기
+  꺾임 값은 게임(BREAK)과 같다. 3번(커브) 선택 · 6번 추천
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/duel-def.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: fixed; inset: 0; background: rgba(5, 8, 15, .6); }
+  .grid { position: relative; display: grid; grid-template-columns: repeat(4, 420px); gap: 36px; justify-content: center; padding: 60px 0; }
+  .cell h3 { margin: 0 0 10px 6px; font-size: 19px; font-weight: 800; color: #fbbf24; }
+  .cell h3 small { color: #94a3b8; font-weight: 700; margin-left: 8px; font-size: 14px; }
+  .pn { width: 420px; padding: 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(20,26,40,.84), rgba(8,12,22,.8)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.09); display: grid; gap: 6px; }
+  .opt { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 14px; border-radius: 13px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; }
+  .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px #fbbf24; }
+  .opt.rec { outline: 1.5px dashed rgba(255,255,255,.5); outline-offset: -4px; }
+  .n { font: 800 17px 'Saira Condensed'; color: #94a3b8; width: 10px; }
+  .nm { font-size: 20px; font-weight: 800; }
+  .v { font: 800 20px 'Saira Condensed'; margin-left: auto; width: 40px; text-align: right; }
+  .rtag { font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,.14); color: #e2e8f0; }
+  .note { position: relative; width: 1780px; margin: 0 auto; font-size: 16px; line-height: 1.7; color: #cbd5e1; }
+  .note b { color: #fbbf24; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="grid" id="grid"></div>
+<div class="note">
+  <b>A</b> 한 칸 안에서 방향 · 크기가 다 보임(커터 = 오른쪽 조금 · 슬라이더 = 오른쪽 크게 · 투심 = 왼쪽 아래 · 포크 = 곧장 아래) &nbsp;·&nbsp;
+  <b>B</b> A 와 같은 정보를 휘는 선으로 &nbsp;·&nbsp; <b>C</b> 지금 선을 살리고 좌우만 꺾쇠로 더함 &nbsp;·&nbsp; <b>D</b> 띠로 커터 · 투심(직구 계열)과 슬라이더가 갈리고, 커터 ↔ 투심은 공 기울기로만
+</div>
+<script>
+const BREAK = { fast: [0, -0.15], sinker: [-0.3, 0.25], cutter: [0.22, 0.05], slider: [0.45, 0.15], curve: [0.2, 0.8], change: [-0.2, 0.35], fork: [0, 0.55] };
+const P = [['fast', '직구', 142], ['change', '체인지업', 121], ['curve', '커브', 112], ['sinker', '투심', 138], ['slider', '슬라이더', 127], ['cutter', '커터', 135], ['fork', '포크', 126]];
+const line = (Q) => 'M' + Q.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L');
+const col = (on) => (on ? '#fbbf24' : '#cbd5e1');
+/* 크기 — 제곱근으로 눌러 작은 꺾임(커터)도 보이게, 방향은 그대로 */
+const vec = (t, R) => { const b = BREAK[t], m = Math.hypot(...b) || 1, r = R * (0.28 + 0.72 * Math.sqrt(m / 0.8)); return [(b[0] / m) * r, (b[1] / m) * r]; };
+
+/* A · 무브먼트 점 */
+function A(t, on) {
+  const [dx, dy] = vec(t, 11), c = col(on);
+  return `<svg width="36" height="36" viewBox="0 0 30 30" style="flex:none"><rect x="1" y="1" width="28" height="28" rx="7" fill="rgba(255,255,255,.05)"/><path d="M15 4 V26 M4 15 H26" stroke="rgba(255,255,255,.14)" stroke-width="1"/><circle cx="15" cy="15" r="2" fill="none" stroke="rgba(255,255,255,.4)"/><path d="M15 15 L${15 + dx} ${15 + dy}" stroke="${c}" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/><circle cx="${15 + dx}" cy="${15 + dy}" r="3.6" fill="${c}"/></svg>`;
+}
+/* B · 포수 시점 곡선 — 칸 가운데 위(과녁 쪽에서 본 안 휜 자리)에서 휜 자리로 */
+function Bc(t, on) {
+  const [dx, dy] = vec(t, 12), c = col(on), s = [15 - dx / 2, 15 - dy / 2], e = [15 + dx / 2, 15 + dy / 2];
+  const C = [s[0] + dx * 0.15 + dy * 0.45, s[1] + dy * 0.15 - dx * 0.45];
+  const Q = Array.from({ length: 13 }, (_, i) => { const k = i / 12, u = 1 - k; return [u * u * s[0] + 2 * u * k * C[0] + k * k * e[0], u * u * s[1] + 2 * u * k * C[1] + k * k * e[1]]; });
+  return `<svg width="36" height="36" viewBox="0 0 30 30" style="flex:none"><rect x="1" y="1" width="28" height="28" rx="7" fill="rgba(255,255,255,.05)"/><circle cx="${s[0]}" cy="${s[1]}" r="1.8" fill="rgba(255,255,255,.45)"/><path d="${line(Q)}" stroke="${c}" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="${e[0]}" cy="${e[1]}" r="3.4" fill="${c}"/></svg>`;
+}
+/* C · 옆 궤적(칸 안) + 좌우 꺾쇠 */
+function Cs(t, on) {
+  const b = BREAK[t], p = t === 'fork' ? 3 : 2, bend = (0.8 + b[1] * 5) * 2, c = col(on);
+  const Q = Array.from({ length: 31 }, (_, i) => { const s = i / 30; return [2 + s * 40, 17 + (-1.2 + 1.6 * s - bend * (s - s ** p)) * 4]; });
+  const n = Math.abs(b[0]) < 0.1 ? 0 : Math.abs(b[0]) < 0.28 ? 1 : 2, ch = b[0] > 0 ? '›' : '‹';
+  return `<span style="display:flex;align-items:center;gap:4px;flex:none;width:66px"><svg width="46" height="28" viewBox="0 0 46 28" style="flex:none"><path d="${line(Q)}" stroke="${c}" stroke-opacity="${on ? 1 : .75}" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="${Q[30][0]}" cy="${Q[30][1]}" r="3.2" fill="${c}"/></svg><b style="font-size:17px;color:${c};letter-spacing:-2px;width:16px">${ch.repeat(n)}</b></span>`;
+}
+/* D · 계열 띠 + 공 회전(이전 5 + 8) — 띠 = 직구 계열 · 휘는 공 · 떨어지는 공, 공 = 실밥 기울기 + 도는 방향 */
+const FAM = { fast: '#f87171', sinker: '#f87171', cutter: '#f87171', slider: '#a78bfa', curve: '#a78bfa', change: '#2dd4bf', fork: '#2dd4bf' };
+const SPIN = { fast: [0, 300, 60], slider: [60, 20, 140], change: [-30, 280, 20], curve: [0, 120, 240], cutter: [30, 0, 110], sinker: [-45, 250, 10], fork: [0, 160, 200] };
+function Ds(t, on) {
+  const [rot, a0, a1] = SPIN[t], R = 14.5, pt = (a) => [16 + R * Math.sin(a * Math.PI / 180), 16 - R * Math.cos(a * Math.PI / 180)];
+  const [x0, y0] = pt(a0), [x1, y1] = pt(a1), k = (a1 + 90) * Math.PI / 180, tip = (da) => `${(x1 - 5 * Math.sin(k + da)).toFixed(1)} ${(y1 + 5 * Math.cos(k + da)).toFixed(1)}`, sw = ((a1 - a0 + 360) % 360) > 180 ? 1 : 0, c = col(on);
+  return `<span style="display:flex;align-items:center;gap:10px;flex:none"><i style="width:4px;height:28px;border-radius:2px;background:${FAM[t]}"></i><svg width="34" height="34" viewBox="0 0 32 32" style="flex:none;overflow:visible"><g transform="rotate(${rot} 16 16)"><circle cx="16" cy="16" r="10" fill="#f8fafc"/><path d="M11 8.5 q3 7.5 0 15 M21 8.5 q-3 7.5 0 15" stroke="#dc2626" stroke-width="1.4" fill="none"/></g><path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 ${sw} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" stroke="${c}" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M${tip(-0.6)} L${x1.toFixed(1)} ${y1.toFixed(1)} L${tip(0.6)}" stroke="${c}" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+}const OPTS = [['A · 무브먼트 점', '포수 시점 휜 자리', A], ['B · 포수 시점 곡선', '휜 방향으로 한 번 휨', Bc], ['C · 옆 궤적 + 꺾쇠', '› 바깥 · ‹ 몸쪽', Cs], ['D · 계열 띠 + 공 회전', '이전 5 + 8', Ds]];
+document.getElementById('grid').innerHTML = OPTS.map(([t, sub, f]) => `<div class="cell"><h3>${t}<small>${sub}</small></h3><div class="pn">${P.map(([k, ko, v], i) => `<div class="opt ${i === 2 ? 'on' : ''} ${i === 5 ? 'rec' : ''}"><span class="n">${i + 1}</span>${f(k, i === 2)}<span class="nm">${ko}</span>${i === 5 ? '<span class="rtag">추천</span>' : ''}<span class="v">${v}</span></div>`).join('')}</div></div>`).join('');
+</script>
+</body>
+</html>

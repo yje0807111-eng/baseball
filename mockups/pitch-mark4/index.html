@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>구종 표시 목업 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<!--
+  '휘는 쪽 칸'(목업 3의 3번) 더 보기 쉽게 — 모두 40px, 조준판과 같은 네모 칸
+  기존 3 × 3 — 휘는 쪽 칸만 밝음(크기 = 밝기)
+  A 3 × 3 + 공 — 가운데 빈 고리 = 안 휜 자리, 공 = 휜 자리(조금 휘면 칸 안쪽, 크게 휘면 칸 가운데)
+  B 5 × 5 — 한 칸 = 조금, 두 칸 = 크게(커터 → 한 칸 · 슬라이더 → 두 칸)
+  C 3 × 3 + 선 — 가운데에서 휘는 쪽 칸까지 선, 크게 휘면 굵고 칸이 더 밝게
+  방향 · 크기: 직구 ↑ 1 · 커터 → 1 · 슬라이더 → 2 · 커브 ↘ 2 · 체인지업 ↙ 1 · 투심 ← 1 · 포크 ↓ 2
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/duel-def.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: fixed; inset: 0; background: rgba(5, 8, 15, .6); }
+  .grid { position: relative; display: grid; grid-template-columns: repeat(4, 420px); gap: 36px; justify-content: center; padding: 56px 0 0; }
+  .cell h3 { margin: 0 0 10px 6px; font-size: 19px; font-weight: 800; color: #fbbf24; }
+  .cell h3 small { color: #94a3b8; font-weight: 700; margin-left: 8px; font-size: 14px; }
+  .pn { width: 420px; padding: 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(20,26,40,.84), rgba(8,12,22,.8)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.09); display: grid; gap: 6px; }
+  .opt { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 14px; border-radius: 13px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; }
+  .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px #fbbf24; }
+  .opt.rec { outline: 1.5px dashed rgba(255,255,255,.5); outline-offset: -4px; }
+  .n { font: 800 17px 'Saira Condensed'; color: #94a3b8; width: 10px; }
+  .nm { font-size: 20px; font-weight: 800; }
+  .v { font: 800 20px 'Saira Condensed'; margin-left: auto; width: 40px; text-align: right; }
+  .rtag { font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: rgba(255,255,255,.14); color: #e2e8f0; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="grid" id="grid"></div>
+<script>
+/* 방향(8방향 칸 [x, y], 가운데 = 0) · 크기 1(조금) / 2(크게) */
+const DIR = { fast: [[0, -1], 1], cutter: [[1, 0], 1], slider: [[1, 0], 2], curve: [[1, 1], 2], change: [[-1, 1], 1], sinker: [[-1, 0], 1], fork: [[0, 1], 2] };
+const P = [['fast', '직구', 142], ['change', '체인지업', 121], ['curve', '커브', 112], ['sinker', '투심', 138], ['slider', '슬라이더', 127], ['cutter', '커터', 135], ['fork', '포크', 126]];
+const rgb = (on) => (on ? '251,191,36' : '226,232,240');
+const S = 40;
+
+/* 기존 3 × 3 */
+function base(t, on) {
+  const [[dx, dy], lv] = DIR[t], c = rgb(on), k = 12.6;
+  let s = '';
+  for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) { const hit = x === dx && y === dy; s += `<rect x="${1 + (x + 1) * k}" y="${1 + (y + 1) * k}" width="${k - 1.2}" height="${k - 1.2}" rx="2.5" fill="rgba(${c},${hit ? (lv > 1 ? .95 : .55) : x || y ? .13 : .22})"/>`; }
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="flex:none">${s}</svg>`;
+}
+/* A · 3 × 3 + 공 */
+function withBall(t, on) {
+  const [[dx, dy], lv] = DIR[t], c = rgb(on), k = 12.6, m = S / 2, n = Math.hypot(dx, dy) || 1;
+  let s = '';
+  for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) { const hit = x === dx && y === dy; s += `<rect x="${1 + (x + 1) * k}" y="${1 + (y + 1) * k}" width="${k - 1.2}" height="${k - 1.2}" rx="2.5" fill="rgba(${c},${hit ? .26 : .13})"/>`; }
+  const r = lv > 1 ? k : k * 0.62, bx = m + (dx / n) * r * (dx && dy ? 1.41 : 1), by = m + (dy / n) * r * (dx && dy ? 1.41 : 1);
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="flex:none"><defs></defs>${s}<circle cx="${m}" cy="${m}" r="3.2" fill="none" stroke="rgba(${c},.6)" stroke-width="1.3"/><circle cx="${bx}" cy="${by}" r="5" fill="${on ? '#fbbf24' : '#f8fafc'}"/><path d="M${bx - 2} ${by - 3.3} q1.4 3.3 0 6.6 M${bx + 2} ${by - 3.3} q-1.4 3.3 0 6.6" stroke="#dc2626" stroke-width=".9" fill="none"/></svg>`;
+}
+/* B · 5 × 5 */
+function five(t, on) {
+  const [[dx, dy], lv] = DIR[t], c = rgb(on), k = 7.7;
+  let s = '';
+  for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++) {
+    const on1 = x === dx && y === dy, on2 = lv > 1 && x === dx * 2 && y === dy * 2, mid = !x && !y;
+    s += `<rect x="${1 + (x + 2) * k}" y="${1 + (y + 2) * k}" width="${k - 1}" height="${k - 1}" rx="1.6" fill="rgba(${c},${on2 ? .95 : on1 ? (lv > 1 ? .45 : .95) : mid ? .35 : .13})"/>`;
+  }
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="flex:none">${s}</svg>`;
+}
+/* C · 3 × 3 + 선 */
+function withLine(t, on) {
+  const [[dx, dy], lv] = DIR[t], c = rgb(on), k = 12.6, m = S / 2, ex = m + dx * k, ey = m + dy * k;
+  let s = '';
+  for (let y = -1; y <= 1; y++) for (let x = -1; x <= 1; x++) { const hit = x === dx && y === dy; s += `<rect x="${1 + (x + 1) * k}" y="${1 + (y + 1) * k}" width="${k - 1.2}" height="${k - 1.2}" rx="2.5" fill="rgba(${c},${hit ? (lv > 1 ? .5 : .28) : .13})"/>`; }
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" style="flex:none">${s}<path d="M${m} ${m} L${ex} ${ey}" stroke="rgba(${c},1)" stroke-width="${lv > 1 ? 3 : 1.8}" stroke-linecap="round"/><circle cx="${m}" cy="${m}" r="2" fill="rgba(${c},.8)"/><circle cx="${ex}" cy="${ey}" r="${lv > 1 ? 3.6 : 2.8}" fill="rgba(${c},1)"/></svg>`;
+}
+const OPTS = [['기존 3 × 3', '휘는 쪽 칸만 밝게', base], ['A · 3 × 3 + 공', '고리 = 출발 · 공 = 휜 자리', withBall], ['B · 5 × 5', '한 칸 조금 · 두 칸 크게', five], ['C · 3 × 3 + 선', '가운데 → 휘는 쪽', withLine]];
+document.getElementById('grid').innerHTML = OPTS.map(([t, sub, f]) => `<div class="cell"><h3>${t}<small>${sub}</small></h3><div class="pn">${P.map(([k, ko, v], i) => `<div class="opt ${i === 2 ? 'on' : ''} ${i === 5 ? 'rec' : ''}"><span class="n">${i + 1}</span>${f(k, i === 2)}<span class="nm">${ko}</span>${i === 5 ? '<span class="rtag">추천</span>' : ''}<span class="v">${v}</span></div>`).join('')}</div></div>`).join('');
+</script>
+</body>
+</html>
