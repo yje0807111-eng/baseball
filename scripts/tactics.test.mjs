@@ -73,12 +73,15 @@ describe('전술 눈금', () => {
     const swaps = (sides) => {
       let n = 0;
       const fine = fineOf(sides);
-      for (let s = 0; s < 6; s += 1) {
-        const g = createGame({ home: team('H'), away: team('A') });
+      /* 씨앗을 고정해 두 눈금이 같은 경기들을 치르게 한다 — Math.random 이면 표본 6경기에서 가끔 뒤집혀 테스트가 흔들렸다 */
+      for (let s = 0; s < 12; s += 1) {
+        let seed = s + 1;
+        const rng = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+        const g = createGame({ home: team('H'), away: team('A'), rng });
         let k = 0;
         while (!g.final && k < 4000) {
           k += 1;
-          const e = pitch(g, tacticOrders(fine, !g.top));
+          const e = pitch(g, tacticOrders(fine, !g.top, rng));
           if (!e) break;
           if (e.swapped && e.top) n += 1; // 내 수비(초)에서 바뀐 것만
         }
