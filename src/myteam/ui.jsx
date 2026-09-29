@@ -392,7 +392,7 @@ export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
   return (
     <nav className="mt-tabs ml-2" aria-label={label}>
       {items.map((it, i) => (
-        <button key={it.key} type="button" data-sfx={value === it.key ? 'none' : 'nav'} className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
+        <button key={it.key} type="button" data-sfx={value === it.key ? 'none' : 'navTab'} className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
           {it.label}
           {it.n != null && <small className="n">{it.n}</small>}
           {!!it.badge && <b className="bd">{it.badge}</b>}

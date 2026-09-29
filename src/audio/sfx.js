@@ -100,6 +100,8 @@ export const RECIPES = {
      깊은 걸쇠 딸깍(ESM Lock & Mechanism) + 광택지 책장 넘김(Cinematic Sound Design Paper Foley)을 겹쳐 음 2칸 내림, 0.5초.
      단추에서 먼저 울리면(pointerdown) 뒤따르는 화면 전환(navTo · opts.auto)은 0.5초 안이면 다시 내지 않는다 */
   nav: { file: 'audio/sfx/nav.mp3', gain: 0.42, vary: 0.02, covers: ['tab'], len: 0.6 },
+  /* 네비 바 이동 — 위 탭 · 플레이 왼쪽 네비. ① 화면 이동의 앞 0.22초만(걸쇠 딸깍 + 책장 앞머리) — 같은 가족의 짧은 판 */
+  navTab: { file: 'audio/sfx/nav-tab.mp3', gain: 0.4, vary: 0.02, covers: ['tab'], len: 0.3 },
   /* ③ 확정 — 구매 · 영입 · 강화 · 저장 · 받기(주 단추 .pri)와 플레이 구역 오른쪽 아래 시작 단추. ② 딸깍 + 옛 시계 째깍(344 Audio Antique Clocks), 음 3칸 올려 밝게 0.14초.
      뒤따르는 화면 전환 소리(①)는 잠깐 막는다 — 누른 소리 하나만 */
   press: { file: 'audio/sfx/press.mp3', gain: 0.38, vary: 0.03, covers: ['tab', 'nav'], len: 0.2 },

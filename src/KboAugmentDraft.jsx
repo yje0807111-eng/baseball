@@ -4465,7 +4465,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               {g.items.map((it) => {
                 const on = view === it.key;
                 return (
-                  <button key={it.key} type="button" aria-pressed={on} data-sfx={on ? 'none' : 'nav'}
+                  <button key={it.key} type="button" aria-pressed={on} data-sfx={on ? 'none' : 'navTab'}
                     onClick={() => {
                       if (on) return;
                       const order = NAV.flatMap((x) => x.items.map((y) => y.key));
