@@ -42,7 +42,7 @@ export const SHOP_ITEMS = [
   // 운영
   item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
   item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
-  item('op-club', 'ops', '보관함 확장', '보관함 +10칸 · 영구 (최대 2번)', 700, { expand: 'club', img: 'mt-pack', art: 'op-bench' /* ponytail: 전용 그림 전까지 벤치 확장 그림 — scripts/shop-art.mjs 에 프롬프트 있음 */ }),
+  item('op-club', 'ops', '보관함 확장', '보관함 +10칸 · 영구 (최대 2번)', 700, { expand: 'club', img: 'mt-pack' }),
   item('op-preset', 'ops', '프리셋 칸 +1', '엔트리 조합 저장 칸 +1 · 영구 (최대 2번)', 600, { expand: 'preset', img: 'mt-pack' }),
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구 (합계 최대 +200)', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구 (합계 최대 +200)', 1800, { cap: 100, img: 'mt-pack' }),
