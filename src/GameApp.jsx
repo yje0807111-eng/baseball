@@ -180,7 +180,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     <>
       <style>{KEYFRAMES}</style>
       <ChoiceOverlay choice={{ kind: 'augment', ...augPick }} onChoose={(a) => augPick.onPick(a)} total={1} picksLeft={1}
-        rerolls={augShopTickets().reroll || 0} onReroll={rerollAug} eyebrow="경기 증강" heading="경기 증강 고르기" />
+        rerolls={augShopTickets().reroll || 0} onReroll={rerollAug} heading="경기 증강 고르기" backdrop="blur" />
     </>
   );
 
