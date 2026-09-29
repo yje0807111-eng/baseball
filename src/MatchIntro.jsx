@@ -85,8 +85,8 @@ export default function MatchIntro({ away, home, tag, onHandoff, onDone }) {
       <Team t={home} home />
       <b className="mi-vs">VS</b>
       {tag && <div className="mi-tag"><span>{tag}</span></div>}
-      {/* 소리: 이름 다가옴(원정 0초 · 홈 0.11초, 홈은 조금 작게) · VS 쾅(0.3초). 경기 시작 단추가 이미 화면 이동 소리를 냈으니 여기서 또 내지 않는다 */}
-      {!calm && <><SfxAt name="introIn" delay={0} /><SfxAt name="introIn2" delay={110} /><SfxAt name="introVs" delay={300} /></>}
+      {/* 소리: 한 벌(이름 다가옴 · VS 쾅 · 먼 관중)이 화면 박자에 맞춰 들어 있다. 경기 시작 단추가 이미 화면 이동 소리를 냈으니 여기서 또 내지 않는다 */}
+      {!calm && <SfxAt name="introFull" delay={0} />}
     </div>
   );
 }
