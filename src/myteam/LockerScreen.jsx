@@ -475,7 +475,7 @@ const ITEM_COLOR = { training: '#7dd3fc', boost: '#34d399', ops: '#f87171', staf
 /** 아이템 탭 — 가운데 보유 아이템 카드 · 오른쪽 대상 고르기(추천 대상은 위에 ★) + 사용 */
 
 function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, onUse, fx = null }) {
-  const listFx = useListIntro('items');
+  const listFx = useListIntro('items', 700, { sfx: false }); // 아이템 탭은 탭을 바꿔야 그려져서 — 소리는 라커에 들어갈 때 한 번만
   const inv = team.items || [];
   const groups = SHOP_ITEMS.map((it) => ({ it, keys: inv.filter((x) => x.itemId === it.id).map((x) => x.key) })).filter((g) => g.keys.length);
   const g = groups.find((x) => x.it.id === itemId) || groups[0];

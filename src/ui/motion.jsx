@@ -203,9 +203,15 @@ export function useGrow(key, value) {
  * 그 사이 처음 12칸이 30ms 간격으로 올라오고, 뒤에 검색 · 정렬로 새로 끼는 줄은 움직이지 않는다(글자 칠 때마다 출렁이지 않게).
  * 같은 그림 안에서 바로 켜야(렌더 중 상태 갱신) 한 번 보였다 사라지는 깜빡임이 없다.
  */
-export function useListIntro(key, ms = 700) {
+export function useListIntro(key, ms = 700, { sfx = true } = {}) {
   const [state, setState] = useState({ key, on: !reducedMotion() });
   if (state.key !== key) setState({ key, on: !reducedMotion() });
+  /* 화면에 들어갈 때만(처음 그려질 때) — 줄이 자리 잡는 박자(0.08 + 0.03i + 0.1초)에 타자기 톡을 두 줄마다, 점점 작게.
+     위 탭 · 분류를 바꿀 때는 ① 화면 이동 소리가 이미 나서 울리지 않는다 */
+  useEffect(() => {
+    if (!sfx || reducedMotion()) return;
+    playSfx('type', { seq: Array.from({ length: 6 }, (_, k) => ({ at: 0.18 + 0.06 * k, g: 10 ** ((-1.6 * k) / 20) })) });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!state.on) return undefined;
     const t = setTimeout(() => setState((s) => ({ ...s, on: false })), ms);

@@ -132,6 +132,8 @@ export const RECIPES = {
   rewardS: { file: 'audio/sfx/reward-s.mp3', gain: 0.34, len: 0.7 },
   /* 대진표 칸 톡 — 카지노 딜링 한 장 앞머리(344 Audio Casino Cards) 45ms. 칸이 밀려 들어오는 박자대로 seq 로 이어 '파라락' 한 줄기(TournamentBracket) */
   deal: { file: 'audio/sfx/deal.mp3', gain: 0.34, vary: 0.03, len: 0.1 },
+  /* 목록 첫 등장 — 타자기 캐리지 톡(344 Audio Antique Typewriter) 45ms 를 줄 박자대로 6번(두 줄마다) — 명단이 찍히듯. ① 화면 이동과 같이 나니 옅게 */
+  type: { file: 'audio/sfx/type.mp3', gain: 0.22, vary: 0.04, len: 0.1 },
   /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 카드 뒤집어 던짐(ESM Board Game) 한 장, 음 2칸 내림 0.19초.
      1초에 최대 4번 나서 다른 소리보다 작게 */
   draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },
