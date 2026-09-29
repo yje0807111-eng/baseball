@@ -104,12 +104,21 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .dl, .dl * { animation: none !important; } }
 `;
 
-function Who({ p, isP, mine, color }) {
+/*
+ * 맞붙는 선수 한 줄 — 편은 색으로 못 박는다(중계와 같게): 상대 = 빨강 · 우리 = 초록.
+ * 상대 줄은 그 구단 깃발을 배너로 깔아 어느 팀인지 한눈에(중계 점수판 줄과 같은 결).
+ */
+const OPP = '#f87171', OURS = '#34d399';
+const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
+function Who({ p, isP, mine, team }) {
+  const c = mine ? OURS : OPP;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', flex: 'none', backgroundImage: face(p), backgroundSize: 'cover', backgroundPosition: '50% 12%', backgroundColor: '#0b1220', boxShadow: `0 0 0 3px ${color}` }} />
-      <div style={{ display: 'grid', gap: 2, minWidth: 0 }}>
-        <span className="lbl" style={{ color }}>{mine ? '우리' : '상대'} {isP ? '투수' : '타자'}</span>
+    <div style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 16,
+      background: `linear-gradient(90deg, ${c}40, ${c}0f 72%)`, boxShadow: `inset 5px 0 0 ${c}, inset 0 0 0 1px ${c}55` }}>
+      {!mine && team?.flag && <i aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${team.flag.src})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.34, WebkitMaskImage: SB_MASK, maskImage: SB_MASK, pointerEvents: 'none' }} />}
+      <div style={{ position: 'relative', width: 64, height: 64, borderRadius: '50%', flex: 'none', backgroundImage: face(p), backgroundSize: 'cover', backgroundPosition: '50% 12%', backgroundColor: '#0b1220', boxShadow: `0 0 0 3px ${c}` }} />
+      <div style={{ position: 'relative', display: 'grid', gap: 2, minWidth: 0 }}>
+        <span className="lbl" style={{ color: c }}>{mine ? '우리' : '상대'} {isP ? '투수' : '타자'}{!mine && team?.short ? <b style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 6, color: '#fff', background: `${OPP}cc` }}>{team.short}</b> : null}</span>
         <b style={{ fontSize: 26, lineHeight: 1.1, whiteSpace: 'nowrap' }}>{p?.name} <span className="disp" style={{ fontSize: 22, color: MUTE }}>{p?.overall}</span></b>
         <span style={{ fontSize: 16, color: '#cbd5e1' }}>{isP ? `구위 ${st(p, 'stuff')} · 제구 ${st(p, 'control')}` : `컨택 ${st(p, 'contact')} · 파워 ${st(p, 'power')}`}</span>
       </div>
@@ -218,11 +227,11 @@ const CALL_KO = { ball: ['볼', BLUE], called: ['스트라이크', '#fde047'], s
 
 /**
  * props
- *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · teams { away: { color }, home: { color } }
+ *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · opp: 상대 구단 { short, flag }
  *  waiting: 고를 차례인가 · tell: 단서 한 줄(없으면 null) · shots: 이 타석 공 [{ x, y, ev }]
  *  reveal: 방금 공 { ev, guess } · onGo(orders) · onHand() 맡기기
  */
-export default function DuelPanel({ g, side, board, teams, waiting, tell, shots, reveal, onGo, onHand }) {
+export default function DuelPanel({ g, side, board, opp, waiting, tell, shots, reveal, onGo, onHand }) {
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
@@ -272,7 +281,6 @@ export default function DuelPanel({ g, side, board, teams, waiting, tell, shots,
     return () => window.removeEventListener('keydown', key);
   });
 
-  const mine = teams.home; // 우리 = 홈
   const marks = shots.map((s) => ({ x: s.x, y: s.y, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   const pickKo = off
     ? `${cur.ko}${hitting ? ` · ${AIM_T.find((a) => a[0] === guess)[1]}${aim ? ` · ${QUAD[aim]}` : ''}` : ''}`
@@ -306,9 +314,9 @@ export default function DuelPanel({ g, side, board, teams, waiting, tell, shots,
         ))}
       </div>
       {/* 맞붙는 두 선수 — 상대가 위 */}
-      <div className="pn" style={{ position: 'absolute', left: 32, bottom: 32, padding: 20, display: 'grid', gap: 14 }}>
-        {off ? <><Who p={pitcher} isP color={teams.away.color} /><Who p={batter} mine color={mine.color} /></>
-          : <><Who p={batter} color={teams.away.color} /><Who p={pitcher} isP mine color={mine.color} /></>}
+      <div className="pn" style={{ position: 'absolute', left: 32, bottom: 32, width: 400, padding: 10, display: 'grid', gap: 8 }}>
+        {off ? <><Who p={pitcher} isP team={opp} /><Who p={batter} mine /></>
+          : <><Who p={batter} team={opp} /><Who p={pitcher} isP mine /></>}
       </div>
 
       {/* 존 + 단서 */}
