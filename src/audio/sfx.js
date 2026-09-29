@@ -155,19 +155,10 @@ export const RECIPES = {
     tone(t, { type: 'triangle', f: note(3, 5), d: 0.06, g: 0.09, dest: o });
     tone(t + 0.055, { type: 'triangle', f: note(1, 5), d: 0.09, g: 0.09, dest: o });
   } },
-  /* 순위 오름 — 한 옥타브 미끄러져 오르고 끝에 맑은 음 / 내림 — 짧게 내려감(과장 없이) */
-  rankUp: { len: 0.45, fn(t, o, { tone, bell, note }) {
-    tone(t, { type: 'triangle', f: note(0, 5), f2: note(0, 6), a: 0.01, d: 0.16, g: 0.12, dest: o });
-    bell(t + 0.15, { f: note(3, 6), ratio: 3, idx: 1, d: 0.25, g: 0.08, dest: o });
-  } },
-  rankDown: { len: 0.3, fn(t, o, { tone, note }) {
-    tone(t, { type: 'triangle', f: note(3, 5), f2: note(3, 4), a: 0.01, d: 0.18, g: 0.09, dest: o });
-  } },
-  /* 내 차례 — 알림 종 두 번(A → D). 다른 UI 소리보다 조금 크게 */
-  turn: { len: 0.7, fn(t, o, { bell, note }) {
-    bell(t, { f: note(3, 5), ratio: 2, idx: 1.5, d: 0.45, g: 0.2, dest: o });
-    bell(t + 0.11, { f: note(0, 6), ratio: 2, idx: 1.5, d: 0.55, g: 0.2, dest: o });
-  } },
+  /* 순위 — 랭크전 순위표에서 내 줄이 0.6초 미끄러져 새 자리에 닿음(0.55초에 착지). 카드 밀기 → 카드 탁(⑤ 지명과 한 가족),
+     내려감은 같은 짝을 음 3칸 내려 나무 톡으로. 같은 화면의 RP 세기(계수기 톡 → ③ 확정, 1.1초)와 재료 · 때가 겹치지 않게 */
+  rankUp: { file: 'audio/sfx/rank-up.mp3', gain: 0.34, len: 0.8 },
+  rankDown: { file: 'audio/sfx/rank-down.mp3', gain: 0.3, len: 0.9 },
 
   enter: { alias: 'nav' }, section: { alias: 'nav' }, // 예전 이름 — ① 화면 이동 소리로
 
