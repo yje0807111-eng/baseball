@@ -57,7 +57,13 @@ import { playerTraits, HAND_LABEL } from './traits.js';
 import { artId } from '../data/artAlias.js';
 
 // 영입 풀은 구단 시즌 기록만 (국가대표 대회 버전은 뺀다)
-const ALL = SERIES.filter((s) => s.kind !== 'national').flatMap((s) => s.players);
+/* 같은 선수 · 같은 시즌이 구단 시즌과 레전드 묶음(2000년대 · 에이스 · MVP …)에 겹쳐 들어 있다 — 능력치가 같아 시장엔 한 장만.
+   그림이 붙은 구단 시즌 쪽을 남긴다(레전드 묶음 id 에는 그림이 없다). sort 는 안정 정렬이라 나머지 순서는 그대로 */
+const ALL = [...SERIES.filter((s) => s.kind !== 'national')
+  .sort((a, b) => (a.kind === 'team' ? 0 : 1) - (b.kind === 'team' ? 0 : 1))
+  .flatMap((s) => s.players)
+  .reduce((m, p) => (m.has(`${p.personId}|${p.year}`) ? m : m.set(`${p.personId}|${p.year}`, p)), new Map())
+  .values()];
 const YEARS = [...new Set(ALL.map((p) => p.year))].sort((a, b) => b - a);
 const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
@@ -131,18 +137,24 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 — 동그란 얼굴(구단 색 테) · 은빛 종합 · 이름 · 능력 넷 · CP · 값(특가면 표시) · 단추. 고르면 초록으로 떠오른다 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stored = false, price = null, capQuiet = false }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stored = false, price = null, capQuiet = false, more = null, className = '', style = null }) {
   const keys = KEYS[p.type] || KEYS.batter;
   const q = stored ? null : quoteOf(p);
   const deal = q && price != null && price < q.price;
   return (
-    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row h-[72px] cursor-pointer ${on ? 'on' : ''}`} style={{ gridTemplateColumns: ROW_COLS, gap: 14, padding: '0 14px 0 8px' }}>
+    <div role="button" onClick={() => onPick(p)} onPointerEnter={() => preloadCard(p)} className={`mt-row h-[72px] cursor-pointer ${on ? 'on' : ''} ${className}`} style={{ gridTemplateColumns: ROW_COLS, gap: 14, padding: '0 14px 0 8px', ...style }}>
       <Portrait player={p} w={52} h={52} round t={teamNeon(p)} />
       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{p.overall}</b>
       <span className="min-w-0">
         <b className="block truncate text-t2 font-black text-white">
           {p.name}
           {p.isForeign && <em className="ml-2 align-middle text-t4 not-italic" style={{ color: WARN }}>외국인</em>}
+          {more && (
+            <em className="ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold not-italic"
+              style={{ color: more.deal ? WARN : '#a7f3d0', background: more.deal ? 'rgba(251,191,36,.14)' : 'rgba(52,211,153,.12)' }}>
+              다른 시즌 {more.n}{more.deal ? ' · 특가' : ''} {more.open ? '▴' : '▾'}
+            </em>
+          )}
           {onBench && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
               className={`ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`}>
@@ -740,11 +752,20 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
       '영입가 낮은 순': (a, b) => priceFor(a) - priceFor(b) || b.overall - a.overall,
       '시세 내린 순': (a, b) => quoteOf(a, today).pct - quoteOf(b, today).pct || b.overall - a.overall,
     }[sort || SORT_DEFAULT];
-    return list.sort(by);
+    /* 같은 사람의 다른 시즌 · 구단은 한 줄로 묶는다(FC 온라인 선수 검색: 이름 한 줄 → 누르면 시즌 목록).
+       대표 = 기본 정렬이면 가장 비싼 카드, 정렬을 고르면 그 정렬의 첫 카드 — 고른 정렬이 대표 줄에서 깨지지 않게.
+       나머지는 연도순으로 대표 줄 아래에 펼친다 */
+    const groups = new Map();
+    for (const p of list) { const k = p.personId || p.name; groups.set(k, [...(groups.get(k) || []), p]); }
+    return [...groups.values()].map((vs) => {
+      const rep = sort ? [...vs].sort(by)[0] : vs.reduce((a, b) => (priceFor(b) > priceFor(a) ? b : a));
+      return { rep, rest: vs.filter((v) => v !== rep).sort((a, b) => a.year - b.year) };
+    }).sort((a, b) => by(a.rep, b.rep));
   }, [q, year, club, pos, sort, squad, team.club, canOnly, dealOnly, gold, staff, cap, lim.size, lim.free, lim.foreign]);
   const results = matched.slice(0, limit);
+  const [openP, setOpenP] = useState(null); // 다른 시즌을 펼친 사람
   /* 오른쪽 상세에 보일 선수 — 고른 선수, 없으면 지금 탭 목록의 첫 선수 */
-  const shown = sel || (tab === 'scout' ? results[0] : tab === 'club' ? (team.club || [])[0] : tab === 'squad' ? [...squad].sort((x, y) => y.overall - x.overall)[0] : null) || null;
+  const shown = sel || (tab === 'scout' ? results[0]?.rep : tab === 'club' ? (team.club || [])[0] : tab === 'squad' ? [...squad].sort((x, y) => y.overall - x.overall)[0] : null) || null;
 
   const NAV = [
     { key: 'scout', label: '영입', img: 'ui/nav/locker-scout.webp' },
@@ -827,10 +848,17 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
               </div>
             )}
             <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
-              {results.map((p) => (
-                <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
-                  onPick={setSel} onAct={full ? setSel : add} />
-              ))}
+              {results.map(({ rep, rest }) => {
+                const k = rep.personId || rep.name;
+                const open = openP === k;
+                const row = (p, i = null) => (
+                  <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
+                    more={i == null && rest.length ? { n: rest.length, open, deal: rest.some((v) => deals.has(v.id)) } : null}
+                    className={i == null ? '' : 'fx-rise'} style={i == null ? null : { '--i': i, marginLeft: 28, boxShadow: 'inset 3px 0 0 rgba(52,211,153,.45)' }}
+                    onPick={i == null && rest.length ? (p2) => { setSel(p2); setOpenP(open ? null : k); } : setSel} onAct={full ? setSel : add} />
+                );
+                return [row(rep), ...(open ? rest.map((p, i) => row(p, i)) : [])];
+              })}
               {results.length === 0 && <p className="text-t3 text-gray-400">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
                 <button type="button" onClick={() => setLimit((n) => n + 60)} className="mt-btn sm mx-auto my-2">
