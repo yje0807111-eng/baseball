@@ -186,8 +186,11 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
       <rect x={m - 3} y={m - 3} width={B + 6} height={B + 6} rx="14" fill="rgba(8,12,22,.45)" />
       {cells.map((z) => (
         <g key={z.id} onClick={() => onPick?.(z.id)}>
-          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? `rgba(251,146,60,${(0.06 + pct[z.id] * 2.2).toFixed(2)})` : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
-          {pct && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="#fff" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>}
+          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? `rgba(251,146,60,${(0.03 + pct[z.id] * 1.1).toFixed(2)})` : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
+          {pct && <>
+            <text x={z.x + z.w / 2} y={z.y + z.h / 2 - 2} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>
+            <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 18} textAnchor="middle" fontSize="15" fontWeight="700" fill="#fdba74" opacity="0.8" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>
+          </>}
           {grid === 2 && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{QUAD[z.id]}</text>}
         </g>
       ))}
