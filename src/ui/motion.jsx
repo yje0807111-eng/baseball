@@ -116,8 +116,8 @@ export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, dela
  * 날아가기 — 누른 카드의 사본이 살짝 떠올랐다가(호) 도착 자리로 작아지며 들어간다(TFT 상점 → 벤치, FC 온라인 영입).
  * 도착 자리는 화면이 바뀐 뒤에 생기므로 findTarget 은 두 프레임 뒤에 찾는다. 원본 화면은 건드리지 않는다.
  */
-export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46 } = {}) {
-  if (fromEl) playSfx('fly', { land: dur / 1000 });
+export function flyGhost(fromEl, findTarget, { dur = 520, lift = 46, sfx = 'fly' } = {}) {
+  if (fromEl && sfx) playSfx(sfx, { land: dur / 1000 }); // sfx: 다른 소리로 · null 이면 소리 없음(부르는 쪽이 따로 낸다)
   if (!fromEl || reducedMotion() || typeof document === 'undefined') return;
   const a = fromEl.getBoundingClientRect();
   if (!a.width) return;

@@ -4890,9 +4890,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
      선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
   const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
-  /* 효과음: 내 차례 칩이 켜지는 순간 알림 종, 남은 5초부터 초마다 틱(남을수록 높게) */
-  const turnBell = !!live && phase === 'draft' && myTurnLit && !Live.isDone(live);
-  useEffect(() => { if (turnBell) playSfx('turn'); }, [turnBell]);
+  /* 효과음: 남은 5초부터 초마다 틱(남을수록 높게). 내 차례 알림 종은 뺐다 — 지명 소리가 차례를 알려 준다 */
   useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) playSfx('tick', { sec: clock }); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
@@ -5181,7 +5179,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setPicked(null);
     setFocusSynergy(null); // 다음 라운드로 넘어가면 시너지 강조는 풀고 다시 고르게 한다
     /* 고른 카드가 구장의 제 자리로 날아가 '합류(회색 → 색 채움)'로 이어진다 */
-    flyGhost(document.querySelector(`[data-card="${CSS.escape(String(player.id))}"]`), () => document.querySelector('.lf-tok.joined, .lf-bc.joined'));
+    /* 라이브는 지명 소리를 판(아래 picks 효과)이 낸다 — 내 것 · AI 것 같은 소리. 혼자 드래프트는 여기서 */
+    flyGhost(document.querySelector(`[data-card="${CSS.escape(String(player.id))}"]`), () => document.querySelector('.lf-tok.joined, .lf-bc.joined'), { sfx: live ? null : 'draftPick' });
     if (live) { // 라이브: 내 지명도 판에 넣고 차례를 넘긴다 (다음 보드·라운드는 판이 정한다)
       const next = Live.pick(live, player);
       if (next === live) return;
@@ -5251,6 +5250,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (!last) return;
     const id = last.player.id;
     setGone((g) => new Set(g).add(id));
+    playSfx('draftPick'); // 누가 뽑든(나 · AI · 시간 넘김 자동) 같은 지명 소리 — 여러 장을 한 번에 넘겨도 한 번
     goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 1020 / liveSpeed));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로

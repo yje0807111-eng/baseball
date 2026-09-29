@@ -129,6 +129,8 @@ export const RECIPES = {
     tone(t + land, { f: 190, f2: 90, d: 0.08, g: 0.3, dest: o });
     noise(t + land, { type: 'lowpass', f: 1500, d: 0.03, g: 0.1, dest: o });
   } },
+  /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 고르는 중이라 지금은 카드 날아가기 소리를 빌려 쓴다 */
+  draftPick: { alias: 'fly' },
   /* 카드 뒤집기 — 카드 튕김 두 번(종이 결 잡음) + 맑은 음 하나 */
   flip: { vary: true, len: 0.5, fn(t, o, { noise, bell, note, jitter }) {
     noise(t, { type: 'highpass', f: 2800, d: 0.035, g: 0.13, dest: o });
@@ -220,12 +222,12 @@ const lastAt = new Map(); const hushUntil = new Map();
 export function play(name, opts = {}) {
   if (RECIPES[name]?.alias) name = RECIPES[name].alias;
   const r = RECIPES[name]; if (!r || muted || level <= 0) return;
+  if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(performance.now()), document.hidden ? '가림' : '']); // 개발 모드 확인용 — 무엇을 불렀나(창이 가려져 안 난 것은 '가림')
   if (typeof document !== 'undefined' && document.hidden) return;
   /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
   const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < (opts.auto ? 500 : 40)) return; lastAt.set(name, now);
   if ((hushUntil.get(name) ?? 0) > now) return; // 더 큰 소리가 이 소리를 대신했다(covers)
   r.covers?.forEach((c) => hushUntil.set(c, now + 450)); // 눌림 → 화면 전환까지 겹치는 기본 소리를 잠깐 막는다
-  if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(now)]); // 개발 모드 확인용 — 무엇이 울렸나
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();
   const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary && !r.file ? 1 - Math.random() * 0.15 : 1);
