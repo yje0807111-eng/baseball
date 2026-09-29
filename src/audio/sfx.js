@@ -174,25 +174,12 @@ export const RECIPES = {
   enter: { alias: 'nav' }, section: { alias: 'nav' }, // 예전 이름 — ① 화면 이동 소리로
 
   /* ── 증강 ── */
-  /* 증강 고르기 창이 뜸 — 반짝이가 차오르고 카드가 놓이는 박자(120ms + 110ms 씩)에 맞춰 종이 한 음씩 오름. n: 카드 수 */
-  augReveal: { len: 1.4, fn(t, o, { bell, noise, tone, note, n = 3 }) {
-    noise(t, { type: 'highpass', f: 1800, f2: 7500, a: 0.3, d: 0.45, g: 0.045, dest: o });
-    tone(t, { type: 'triangle', f: note(0, 3), f2: note(0, 4), a: 0.25, d: 0.3, g: 0.08, dest: o });
-    for (let i = 0; i < n; i++) bell(t + 0.12 + i * 0.11, { f: note(i * 2, 5), ratio: 3.01, idx: 0.9, d: 0.55, g: 0.1, dest: o });
-  } },
-  /* 증강 고름 — 한 옥타브 치켜 오르며 D · A 화음 종 + 아래 쿵 + 반짝이. 고르기 창에서 가장 큰 소리 */
-  augPick: { len: 1.1, fn(t, o, { bell, noise, tone, note }) {
-    tone(t, { f: 130, f2: 60, d: 0.12, g: 0.3, dest: o });
-    tone(t, { type: 'triangle', f: note(0, 5), f2: note(0, 6), a: 0.005, d: 0.1, g: 0.12, dest: o });
-    bell(t + 0.06, { f: note(0, 6), ratio: 2.01, idx: 1.4, d: 0.8, g: 0.14, dest: o });
-    bell(t + 0.06, { f: note(3, 6), ratio: 3.01, idx: 1, d: 0.7, g: 0.1, dest: o });
-    noise(t + 0.08, { type: 'highpass', f: 6500, a: 0.02, d: 0.4, g: 0.04, dest: o });
-  } },
-  /* 다시 굴리기 — 카드가 섞이는 파닥임 셋 + 짧게 치켜 오름 (새 카드가 뜨는 소리는 augReveal) */
-  augReroll: { len: 0.4, fn(t, o, { noise, tone, note }) {
-    for (let i = 0; i < 3; i++) noise(t + i * 0.055, { f: 1400 + i * 700, f2: 3200 + i * 700, q: 1.4, d: 0.045, g: 0.15, dest: o });
-    tone(t + 0.1, { type: 'triangle', f: note(3, 5), f2: note(0, 6), d: 0.09, g: 0.08, dest: o });
-  } },
+  /* ⑨ 증강 창 뜸 · 다시 굴리기 — 같은 소리: 카드 여러 장 집기(344 Audio Casino Cards) 0.22초.
+     다시 굴리기 단추는 소리 없이(data-sfx="none") 새 카드가 뜰 때 한 번만 — 누름과 뜸이 0.1초 넘게 벌어져 두 번 나지 않게 */
+  augReveal: { file: 'audio/sfx/aug-cards.mp3', gain: 0.36, vary: 0.03, len: 0.3 },
+  augReroll: { alias: 'augReveal' },
+  /* ⑨ 증강 고름 — 큰 보상(성공 스팅어) 앞 1초. 이 창에서 가장 큰 소리 */
+  augPick: { file: 'audio/sfx/aug-pick.mp3', gain: 0.4, len: 1.1, covers: ['nav'], coverMs: 1100 }, // 고른 뒤 0.62초에 경기로 넘어가도 화면 이동 소리는 겹치지 않게
   /* 증강 강화 — 강화할 레벨(lv)만큼 종이 5음으로 한 칸씩 오르고 끝 음에 반짝이. 높은 레벨일수록 길고 높게 */
   augUpgrade: { len: 1.6, fn(t, o, { bell, noise, tone, note, lv = 1 }) {
     tone(t, { f: 150, f2: 70, d: 0.1, g: 0.18, dest: o });
@@ -222,12 +209,12 @@ const lastAt = new Map(); const hushUntil = new Map();
 export function play(name, opts = {}) {
   if (RECIPES[name]?.alias) name = RECIPES[name].alias;
   const r = RECIPES[name]; if (!r || muted || level <= 0) return;
-  if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(performance.now()), document.hidden ? '가림' : '']); // 개발 모드 확인용 — 무엇을 불렀나(창이 가려져 안 난 것은 '가림')
-  if (typeof document !== 'undefined' && document.hidden) return;
   /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
   const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < (opts.auto ? 500 : 40)) return; lastAt.set(name, now);
   if ((hushUntil.get(name) ?? 0) > now) return; // 더 큰 소리가 이 소리를 대신했다(covers)
-  r.covers?.forEach((c) => hushUntil.set(c, now + 450)); // 눌림 → 화면 전환까지 겹치는 기본 소리를 잠깐 막는다
+  r.covers?.forEach((c) => hushUntil.set(c, now + (r.coverMs ?? 450))); // 눌림 → 화면 전환까지 겹치는 기본 소리를 잠깐 막는다
+  if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(performance.now()), document.hidden ? '가림' : '']); // 개발 모드 확인용 — 실제로 낼 소리(창이 가려져 안 난 것은 '가림')
+  if (typeof document !== 'undefined' && document.hidden) return;
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();
   const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary && !r.file ? 1 - Math.random() * 0.15 : 1);

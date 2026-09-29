@@ -3881,7 +3881,7 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
           ))}
         </div>
         {isAug && onReroll && (free > 0 || rerolls > 0) && (
-          <button type="button" onClick={onReroll} data-sfx="augReroll" className="aug-reroll animate-[rise_.4s_ease-out_both]">
+          <button type="button" onClick={onReroll} data-sfx="none" className="aug-reroll animate-[rise_.4s_ease-out_both]">
             ↺ 다시 굴리기
             <em className="ml-1.5 not-italic opacity-75">
               {free > 0 ? '· 이번 한 번 무료' : `· 리롤권 ${rerolls}장`}
