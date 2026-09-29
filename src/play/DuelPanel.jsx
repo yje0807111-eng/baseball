@@ -734,9 +734,10 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               <BreakMark t={t} on={pk === t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
               {/* 구속 정도 — 숫자 대신 막대(105 ~ 155km 눈금, 모든 투수 같은 자로). 숫자는 궤적 카드 머리 · 결과에.
-                  이 타석에 앞 공이 있으면 그 구속에 흰 눈금 — 막대 끝이 눈금에서 멀수록 완급(차이 8km 넘으면) */}
+                  이 타석에 앞 공이 있으면 그 구속에 흰 눈금 — 막대 끝이 눈금에서 멀수록 완급(차이 8km 넘으면).
+                  완급이 절반 넘게 나는 공(결과에 '완급 조절'이 뜨는 만큼)은 막대를 하늘색으로 */}
               <i aria-label={`${veloOf(t)}km`} style={{ position: 'relative', flex: 'none', width: 52, height: 6, borderRadius: 3, background: 'rgba(255,255,255,.1)' }}>
-                <i style={{ display: 'block', height: '100%', borderRadius: 3, width: `${veloPct(veloOf(t))}%`, background: pk === t ? GOLD : '#cbd5e1' }} />
+                <i style={{ display: 'block', height: '100%', borderRadius: 3, width: `${veloPct(veloOf(t))}%`, background: pk === t ? GOLD : tempoOf(prevVelo, veloOf(t)) >= TEMPO_MAX / 2 ? '#7dd3fc' : '#cbd5e1' }} />
                 {prevVelo != null && <i style={{ position: 'absolute', top: -4, left: `calc(${veloPct(prevVelo)}% - 1px)`, width: 2, height: 14, borderRadius: 1, background: '#fff', boxShadow: '0 0 4px rgba(0,0,0,.8)' }} />}
               </i>
             </button>
