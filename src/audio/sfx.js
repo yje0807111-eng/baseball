@@ -49,12 +49,15 @@ function loadFiles() {
   }
 }
 /** 파일 소리 한 번 — 부를 때마다 빠르기를 살짝 흔들어(vary) 같은 소리가 기계처럼 반복되지 않게 */
-function sample(t, out, r) {
+function sample(t, out, r, seq = [{ at: 0, g: 1 }]) {
   const buf = buffers.get(r.file); if (!buf) return;
-  const s = ctx.createBufferSource(); s.buffer = buf;
-  if (r.vary) s.playbackRate.value = 1 + (Math.random() * 2 - 1) * r.vary;
-  const g = ctx.createGain(); g.gain.value = r.gain ?? 1;
-  s.connect(g).connect(out); s.start(t);
+  /* seq: 같은 소리를 여러 번(at 초 뒤 · 크기 g) — 대진표 칸처럼 박자에 맞춘 한 줄기 */
+  for (const { at = 0, g: sg = 1 } of seq) {
+    const s = ctx.createBufferSource(); s.buffer = buf;
+    if (r.vary) s.playbackRate.value = 1 + (Math.random() * 2 - 1) * r.vary;
+    const g = ctx.createGain(); g.gain.value = (r.gain ?? 1) * sg;
+    s.connect(g).connect(out); s.start(t + at);
+  }
 }
 export function setSfxLevel(v, m = muted) { level = v; muted = m; }
 
@@ -127,6 +130,8 @@ export const RECIPES = {
   } },
   /* ⑥ 작은 보상 — 영입 · 주간 과제 받기 · 한 구단 이김. 성공 스팅어 앞부분(ESM Anime Game Power Up) 0.65초 */
   rewardS: { file: 'audio/sfx/reward-s.mp3', gain: 0.34, len: 0.7 },
+  /* 대진표 칸 톡 — 카지노 딜링 한 장 앞머리(344 Audio Casino Cards) 45ms. 칸이 밀려 들어오는 박자대로 seq 로 이어 '파라락' 한 줄기(TournamentBracket) */
+  deal: { file: 'audio/sfx/deal.mp3', gain: 0.34, vary: 0.03, len: 0.1 },
   /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 카드 뒤집어 던짐(ESM Board Game) 한 장, 음 2칸 내림 0.19초.
      1초에 최대 4번 나서 다른 소리보다 작게 */
   draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },
@@ -196,9 +201,10 @@ export function play(name, opts = {}) {
   const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary && !r.file ? 1 - Math.random() * 0.15 : 1);
   out.connect(bus);
   const t = ctx.currentTime + 0.005;
-  if (r.file) sample(t, out, r);
+  if (r.file) sample(t, out, r, opts.seq);
   else r.fn(t, out, { tone, bell, noise, note, jitter: r.vary ? jitter : (f) => f, ...opts });
-  setTimeout(() => out.disconnect(), (r.len ?? 1.5) * 1000 + 200);
+  const tail = opts.seq ? Math.max(...opts.seq.map((q) => q.at || 0)) : 0;
+  setTimeout(() => out.disconnect(), ((r.len ?? 1.5) + tail) * 1000 + 200);
 }
 
 /* 단추 누름 — 모든 단추 · 탭에 한 곳에서. 주 단추(.pri)는 두께 있는 'press', 나머지는 'tab'.

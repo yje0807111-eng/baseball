@@ -5,6 +5,8 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import BgmButton from '../audio/BgmButton.jsx';
+import { play as playSfx } from '../audio/sfx.js';
+import { reducedMotion } from '../ui/motion.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { roundsOf, finishOf, myOpponent, meIndex, teamOf } from './tournament.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
@@ -102,6 +104,17 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
   const tKey = t.key || t.entrants.map((e) => e.name).join('|');
   const [fresh] = useState(() => { const was = seenRounds.get(tKey); return was != null && t.results.length > was ? t.results.length : null; });
   useEffect(() => { seenRounds.set(tKey, t.results.length); }, [tKey, t.results.length]);
+  /* 효과음 — 칸이 밀려 들어오는 박자대로 카드 딜링 톡을 이은 한 줄기(점점 작게, 끝이 −6.75dB).
+     첫 입장: 첫 라운드 칸(k × 1.1/크기 초, 64강처럼 촘촘하면 24번으로 솎음) · 경기 뒤: 막 채워진 라운드 칸(0.32초 기다린 뒤 0.4초 동안, 조금 작게)
+     톡은 칸이 자리 잡는 때(모션 시작 + 0.12초)에. 애니메이션 줄이기면 칸도 안 움직이니 소리도 없음 */
+  useEffect(() => {
+    if (reducedMotion()) return;
+    const SLIDE = 0.12; const fade = (i, m) => 10 ** ((-0.45 * i * (16 / m)) / 20);
+    let seq = null;
+    if (reveal) { const m = Math.min(size, 24); seq = Array.from({ length: m }, (_, i) => ({ at: (i * 1.1) / m + SLIDE, g: fade(i, m) })); }
+    else if (fresh != null) { const n = size >> fresh; const m = Math.min(n, 16); seq = Array.from({ length: m }, (_, i) => ({ at: ADV_WAIT + (i * 0.4) / m + SLIDE, g: 0.7 * fade(i, m) })); }
+    if (seq) playSfx('deal', { seq });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const past = t.results.length;
   // 상대가 올라온 길: 지난 라운드마다 상대가 이긴 경기
   const road = oppIdx == null ? [] : t.results.map((rs, r) => {
