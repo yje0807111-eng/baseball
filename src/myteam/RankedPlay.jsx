@@ -155,7 +155,9 @@ export function rankedPanels({ account, onOpen, onLocker }) {
   );
 
   const aside = (
-    <aside className="ui-cut ui-frame ui-glass flex flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
+    <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': RK }}>
+      {/* 내용이 판보다 길면 판 안에서 스크롤 — 아래 단추는 늘 보이게 */}
+      <div className="pop-scroll -mr-3 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-3">
       <p className="ui-lab font-display" style={{ '--a': RK }}>랭크 현황</p>
       <h2 className="-mt-2 text-t1 font-black text-white">랭크전</h2>
       <div className="ui-cut bg-white/[0.05] px-4 py-3" style={{ '--c': '10px' }}>
@@ -217,7 +219,8 @@ export function rankedPanels({ account, onOpen, onLocker }) {
         </ul>
       )}
       <CapBar team={team} sm />
-      <div className="mt-auto">
+      </div>
+      <div className="shrink-0">
         {ready || s
           ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onOpen}>
             {!s ? '시즌 1 시작 ▶' : s.done ? '시즌 결과 · 새 시즌 ▶' : '순위표 · 다음 경기 ▶'}
