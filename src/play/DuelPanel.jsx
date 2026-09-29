@@ -326,16 +326,16 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
       <div className="pn" style={{ position: 'absolute', left: '50%', top: 28, transform: 'translateX(-50%)', padding: '12px 26px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 16, whiteSpace: 'nowrap', boxShadow: `inset 0 0 0 1.5px ${GOLD}` }}>
         <b className="disp" style={{ fontSize: 18, color: GOLD, letterSpacing: '.18em' }}>{off ? '우리 공격' : '우리 수비'}</b><b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
       </div>
-      {/* 주자 · 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 모양 · 색은 중계 점수판과 같게(주자 주황 · B 초록 · S 노랑 · O 빨강) */}
-      <div className="pn" style={{ position: 'absolute', left: '50%', top: 92, transform: 'translateX(-50%)', padding: '6px 28px 6px 18px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 30 }}>
-        <svg viewBox="0 0 100 100" style={{ width: 66, height: 66 }} aria-label="주자">
+      {/* 주자 · 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 주자판은 세 루가 그려진 폭에 딱 맞춘 viewBox(위아래 · 양옆 여백을 판 안쪽 여백과 같게). 모양 · 색은 중계 점수판과 같게(주자 주황 · B 초록 · S 노랑 · O 빨강) */}
+      <div className="pn" style={{ position: 'absolute', left: '50%', top: 92, transform: 'translateX(-50%)', padding: '8px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 26 }}>
+        <svg viewBox="7.6 12.6 84.8 60.8" style={{ width: 84, height: 60, display: 'block', overflow: 'visible' }} aria-label="주자">
           {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
             <rect key={`${i}${!!g.bases[i]}`} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
               fill={g.bases[i] ? '#f97316' : 'transparent'} stroke={g.bases[i] ? 'none' : 'rgba(255,255,255,.5)'} strokeWidth={g.bases[i] ? 0 : 2.4}
               style={g.bases[i] ? { filter: 'drop-shadow(0 0 6px #f97316)' } : null} />
           ))}
         </svg>
-        <i style={{ width: 1, alignSelf: 'stretch', margin: '8px 0', background: 'rgba(255,255,255,.14)' }} />
+        <i style={{ width: 1, height: 40, background: 'rgba(255,255,255,.16)' }} />
         {[['B', g.balls, 3, '#22c55e'], ['S', g.strikes, 2, '#facc15'], ['O', g.outs, 2, '#ef4444']].map(([l, n, m, c]) => (
           <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <b className="disp" style={{ fontSize: 26, color: c, width: 18 }}>{l}</b>
