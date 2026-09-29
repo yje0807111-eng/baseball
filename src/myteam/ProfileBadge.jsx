@@ -13,6 +13,7 @@ import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 import { getSettings, onSettings, setSettings } from '../audio/bgm.js';
 import { play as playSfx } from '../audio/sfx.js';
+import { ChannelMute, OFF_KEY, channelOn, toggleChannel, VolRange } from '../audio/BgmButton.jsx';
 
 const NICK_MAX = 12;
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -23,12 +24,14 @@ function MusicRow() {
   useEffect(() => onSettings(setS), []);
   const row = (key, label, onSet) => {
     const v = s[key] ?? 0;
+    const on = !s.muted && !s[OFF_KEY[key]] && v > 0; // 이 채널이 지금 들리나
     return (
       <div className="flex items-center gap-4">
         <span className="w-16 shrink-0 text-t3 font-bold text-gray-300">{label}</span>
-        <input type="range" min="0" max="100" value={Math.round(v * 100)} aria-label={`${label} 크기`}
-          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false })} onPointerUp={onSet} className="min-w-0 flex-1 accent-emerald-400" />
-        <b className="w-10 text-right font-display text-t2 text-white">{s.muted || v === 0 ? '끔' : Math.round(v * 100)}</b>
+        <VolRange k={key} value={Math.round(v * 100)} on={on} label={label} onUp={onSet}
+          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} />
+        <b className="w-10 text-right font-display text-t2" style={{ color: on ? '#fff' : '#f87171' }}>{on ? Math.round(v * 100) : '끔'}</b>
+        <ChannelMute on={channelOn(s, key)} label={label} onToggle={() => toggleChannel(s, key)} />
       </div>
     );
   };
@@ -40,7 +43,7 @@ function MusicRow() {
           {row('vol', '배경음악')}
           {row('sfx', '효과음', () => playSfx('goldIn'))}
         </div>
-        <button type="button" onClick={() => setSettings({ muted: !s.muted })} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '소리 켜기' : '음소거 · M'}</button>
+        <button type="button" onClick={() => setSettings({ muted: !s.muted })} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '전체 소리 켜기' : '전체 음소거 · M'}</button>
       </div>
     </div>
   );
@@ -71,6 +74,12 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     if (!online) return;
     myRecoveryEmail().then((m) => { setMail0(m || ''); setMail(m || ''); }).catch(() => setMail0(''));
   }, []);
+  /* Esc 로 닫기 — 다른 팝업(Pop)과 같게. 서버에 저장하는 중엔 닫지 않는다 */
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !busy) onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [busy, onClose]);
   const valid = nick.trim().length >= (online ? NICK_MIN : 1) && club.trim().length >= 1;
   const save = async () => {
     if (!valid || busy) return;
@@ -81,7 +90,7 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     }
     if (online && mail0 !== null && mail.trim().toLowerCase() !== mail0) {
       const bad = checkEmail(mail);
-      if (bad) { setErr(bad); return; }
+      if (bad) { setErr(bad); setBusy(false); return; } // 이름을 먼저 바꾼 뒤라 busy 가 켜져 있을 수 있다 — 저장 단추가 잠기지 않게
       setBusy(true);
       try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setBusy(false); return; }
     }

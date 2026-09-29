@@ -47,7 +47,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
 
   /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
   const openDuel = () => {
-    setPrep({ kind: 'duel', sub: '단판 승부', title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
+    setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: '단판 승부', title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
     setView('prep');
   };
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
@@ -62,7 +62,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const openTourneyPrep = () => {
     const r = roundsOf(tournament.size)[tournament.round];
     const c = cupOf(tournament.cup);
-    setPrep({ kind: 'tourney', sub: `토너먼트 · ${r.ko}${c.id !== 'open' ? ` · ${c.ko}` : ''}`, title: `${r.ko} 경기 전 정비`, startLabel: `${r.ko} 경기 시작 ▶`, back: () => setView('bracket'),
+    setPrep({ kind: 'tourney', tag: `토너먼트 · ${r.ko}`, sub: `토너먼트 · ${r.ko}${c.id !== 'open' ? ` · ${c.ko}` : ''}`, title: `${r.ko} 경기 전 정비`, startLabel: `${r.ko} 경기 시작 ▶`, back: () => setView('bracket'),
       block: cupIssue(tournament.cup, account.team) });
     setView('prep');
   };
@@ -110,7 +110,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const openRankedPrep = () => {
     const pm = ranked.postMatch(season);
     const label = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
-    setPrep({ kind: 'ranked', sub: `랭크전 · 시즌 ${season.season}`, title: `${label} 경기 전 정비`, startLabel: `${label} 시작 ▶`, back: () => setView('ranked') });
+    setPrep({ kind: 'ranked', tag: `랭크전 · ${label}`, sub: `랭크전 · 시즌 ${season.season}`, title: `${label} 경기 전 정비`, startLabel: `${label} 시작 ▶`, back: () => setView('ranked') });
     setView('prep');
   };
   const claimSeason = () => {
@@ -153,12 +153,12 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       setAugPick(null);
       /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
       if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
-      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }) });
+      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }),
+        openPick: augOptions([]).length > 0, tag: prep.tag || null });
       setView('play');
     };
-    const options = augOptions([]);
-    if (!options.length) { go([]); return; }
-    setAugPick({ options, free: FREE_REROLL, onPick: (a) => go([a]) });
+    /* 경기 화면이 먼저 뜨고 그 위로 인트로 → 인트로가 끝나 갈 때 경기 증강(1회 · midPick) — 예전엔 정비 화면 위에서 먼저 물었다 */
+    go([]);
   };
 
   /* 증강 다시 굴리기 — 거저 한 번, 그다음은 리롤권 */
@@ -172,7 +172,8 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const options = augOptions(ownedRef.current);
     if (!options.length) return null;
     return new Promise((resolve) => {
-      setAugPick({ inning, options, free: FREE_REROLL, onPick: (a) => { const owned = [...ownedRef.current, a]; ownedRef.current = owned; setAugPick(null); resolve(owned); } });
+      /* 1회(경기 시작) 판은 몇 회라고 쓰지 않는다 — '경기 증강 고르기' */
+      setAugPick({ inning: inning > 1 ? inning : null, options, free: FREE_REROLL, onPick: (a) => { const owned = [...ownedRef.current, a]; ownedRef.current = owned; setAugPick(null); resolve(owned); } });
     });
   };
   const augOverlay = augPick && (
@@ -296,7 +297,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   }
   if (view === 'play' && match) {
     return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
-      aug={match.aug} rebuildMy={match.makeMy} midPickInnings={match.aug ? MATCH_AUG_INNINGS : []} onMidPick={midPick}
+      aug={match.aug} rebuildMy={match.makeMy} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }
   /* 갈 곳이 없으면(대진표·시즌이 없는데 그 화면을 불렀다면) 로비로 */

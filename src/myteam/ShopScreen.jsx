@@ -1,14 +1,18 @@
 /* 상점 — 라커와 같은 문법: 위 탭 분류 / 가운데 상품 카드 / 오른쪽 고른 상품. 처음엔 우리 팀 약점을 채우는 추천 상품을 골라 둔다 */
 import React, { useMemo, useRef, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
+import { capExtra, capLeft, CAP_EXTRA_MAX, shopDeals, shopDealsBought, shopPriceOf, SHOP_DEAL_OFF } from './shop.js';
+import { todayKey } from './market.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
-import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
-import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait } from './ui.jsx';
+import { saveTeam, addGold, saveAug, loadAccount, markShopDeal, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
+import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait, Pop, KV } from './ui.jsx';
 import { flyGhost, useListIntro } from '../ui/motion.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
+/* 큰 구매는 한 번 더 묻는다(FC 온라인 · 클래시 로얄) — 영구 확장 · 묶음처럼 1,000 G 이상. 자주 사는 훈련 · 권은 바로 */
+const CONFIRM_AT = 1000;
 /* 종합 등급 색 — 드래프트 카드와 같은 규칙 (100 이상 무지개 · 85 이상 초록) */
 const PRISM = 'linear-gradient(90deg, #f0abfc, #7dd3fc, #6ee7b7, #fde68a, #f0abfc)';
 const ovrStyle = (v) => (v >= 100
@@ -19,7 +23,7 @@ const catLabel = { training: '훈련', boost: '준비 카드', ops: '운영', st
 const catSub = { training: '영구 상승', boost: '경기 전 한 장', ops: '팀 단위', staff: 'CP 면제', aug: '풀 관리', draft: '드래프트용' };
 
 /** 상품 카드 — 세로로 긴 카드: 분류 사진(분류 색으로 통일) · 분류 색 테두리 · 오른쪽 위 배지 · 아래 이름 · 가격 */
-function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
+function ItemCard({ it, on, rec = false, deal = null, onClick, cap = SQUAD_CAP }) {
   const n = catColor[it.cat];
   return (
     <button type="button" onClick={onClick}
@@ -27,7 +31,12 @@ function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
       style={{ '--c': '12px', '--a': n, backgroundImage: `url(${itemArt(it)})`, boxShadow: on ? undefined : `inset 0 0 0 1px ${n}59` }}>
       <span className="absolute inset-0" style={{ background: `linear-gradient(rgba(5,8,15,.45), color-mix(in srgb, ${n} 10%, transparent) 34%, rgba(5,8,15,.9) 70%, #05080f 92%)` }} />
       {/* 분류 · 꼬리표를 왼쪽 위 한 줄로 · 오른쪽 위는 추천 상품 표시만 */}
-      {rec && <b className="absolute right-2.5 top-2 rounded-md px-2 py-0.5 text-t4 font-black text-[#1c1203]" style={{ background: 'linear-gradient(180deg,#fde68a,#f5b93a)', boxShadow: '0 0 12px rgba(245,185,58,.6)' }}>추천</b>}
+      {deal ? (
+        /* 오늘의 상품 — 추천보다 앞에(같은 자리). 오늘 산 뒤엔 '오늘 구매' */
+        <b className="absolute right-2.5 top-2 rounded-md px-2 py-0.5 text-t4 font-black" style={deal.used ? { color: '#9ca3af', background: 'rgba(255,255,255,.1)' } : { color: '#1c1203', background: 'linear-gradient(180deg,#fdba74,#f97316)', boxShadow: '0 0 12px rgba(249,115,22,.6)' }}>
+          {deal.used ? '오늘 구매' : `오늘 −${Math.round(SHOP_DEAL_OFF * 100)}%`}
+        </b>
+      ) : rec && <b className="absolute right-2.5 top-2 rounded-md px-2 py-0.5 text-t4 font-black text-[#1c1203]" style={{ background: 'linear-gradient(180deg,#fde68a,#f5b93a)', boxShadow: '0 0 12px rgba(245,185,58,.6)' }}>추천</b>}
       <span className="absolute left-3 top-2 inline-flex items-center gap-1.5">
         <b className="font-display text-t3 font-extrabold tracking-[0.14em]" style={{ color: n, textShadow: `0 0 14px ${n}88,0 2px 4px #000` }}>{catLabel[it.cat]}</b>
         <i className="h-3 w-px" style={{ background: `${n}88` }} />
@@ -67,7 +76,10 @@ function ItemCard({ it, on, rec = false, onClick, cap = SQUAD_CAP }) {
               {mid}
               <span className="flex items-baseline justify-between">
                 <b className="text-t4 text-gray-200">{e.label}{e.amount != null && it.stat && <span className="ml-1 font-display text-t3" style={{ color: n }}>+{e.amount}</span>}{it.cap && <span className="ml-1 font-display text-t3" style={{ color: n }}>+{it.cap}</span>}</b>
-                <b className="font-display text-t3 text-amber-300">{it.price.toLocaleString()} G</b>
+                <b className="font-display text-t3 text-amber-300">
+                  {deal && !deal.used && <s className="mr-1 text-t4 text-gray-400">{it.price.toLocaleString()}</s>}
+                  {(deal && !deal.used ? deal.price : it.price).toLocaleString()} G
+                </b>
               </span>
             </>
           );
@@ -86,10 +98,20 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
   const [picked, setPicked] = useState(() => rec || SHOP_ITEMS[0]);
   const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
   const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
+  const [confirm, setConfirm] = useState(null); // 확인을 묻는 상품
+  /* 오늘의 상품 — 화면을 연 날 기준(자정을 넘겨도 연 동안은 그날 값) */
+  const [day] = useState(todayKey);
+  const deals = useMemo(() => shopDeals(day), [day]);
+  const [daily, setDaily] = useState(() => loadAccount()?.shopDaily || null);
+  const priceOf = (it) => shopPriceOf(it, daily, day);
+  const dealOf = (it) => (deals.includes(it.id) ? { used: shopDealsBought(daily, day).includes(it.id), price: priceOf(it) } : null);
 
   const squad = team.squad || [];
   const listFx = useListIntro(cat); // 분류를 바꾸면 상품 카드가 차례로
-  const items = useMemo(() => SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat), [cat]);
+  const items = useMemo(() => {
+    const list = SHOP_ITEMS.filter((it) => cat === 'all' || it.cat === cat);
+    return cat === 'all' ? [...deals.map((id) => list.find((it) => it.id === id)).filter(Boolean), ...list.filter((it) => !deals.includes(it.id))] : list;
+  }, [cat, deals]);
   const recs = useMemo(() => (picked ? recommendTargets(team, picked) : []), [picked, team]);
   const owned = (it) => (team.items || []).filter((x) => x.itemId === it.id).length;
 
@@ -100,13 +122,19 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
     setBought((n) => n + 1);
     setTeam(nextTeam); setGold(nextGold);
     saveTeam(nextTeam); addGold(nextGold - gold);
+    if (dealRef.current) { setDaily(markShopDeal(dealRef.current, day)?.shopDaily || daily); dealRef.current = null; } // 특가는 하루 한 번
     onChange?.({ team: nextTeam, gold: nextGold });
   };
   const heroRef = useRef(null); // 오른쪽 판 상품 사진
+  const dealRef = useRef(null); // 이번 구매가 오늘의 상품 특가였나(상품 id)
   const ownRef = useRef(null); // 오른쪽 판 '보유' 값
   const buy = (it) => {
-    const picked = itemById(it?.id); // 눌린 상품 하나만 처리 (상품이 아닌 게 넘어오면 아무 일도 없다)
-    if (!picked || !Number.isFinite(gold) || picked.price > gold) return;
+    const base = itemById(it?.id); // 눌린 상품 하나만 처리 (상품이 아닌 게 넘어오면 아무 일도 없다)
+    if (!base) return;
+    const price = priceOf(base);
+    if (!Number.isFinite(gold) || price > gold) return;
+    dealRef.current = price < base.price ? base.id : null; // 특가로 사면 실제로 산 뒤(push) 오늘 산 목록에
+    const picked = { ...base, price }; // 아래 분기는 picked.price 를 치른다
     if (isStorable(picked)) {
       push(addToInventory(team, picked), gold - picked.price);
       return;
@@ -154,12 +182,13 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
       push(team, gold - picked.price);
       return;
     }
-    if (picked.cap) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
+    if (picked.cap && picked.cap <= capLeft(team)) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
   };
 
   // 살 수 없는 상품은 버튼에서 막는다 (구매 뒤 알림 문구는 두지 않는다)
-  const soldOut = picked?.expand ? expandLeft(team, picked.expand) < 1 : false;
-  const ready = picked && picked.price <= gold && !soldOut;
+  const soldOut = picked?.expand ? expandLeft(team, picked.expand) < 1 : picked?.cap ? picked.cap > capLeft(team) : false;
+  const cost = picked ? priceOf(picked) : 0; // 지금 치를 값(오늘의 상품이면 특가)
+  const ready = picked && cost <= gold && !soldOut;
   const n = picked ? catColor[picked.cat] : '#34d399';
 
   const NAV = CATEGORIES.map((c) => ({ key: c.key, label: c.label }));
@@ -178,9 +207,10 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
           <div className="flex items-baseline gap-3">
             <p className="mt-lab" style={{ '--a': '#fde047' }}>상품 목록</p>
+            <p className="ml-auto text-t3 text-gray-400">오늘의 상품 <b className="font-display text-t3" style={{ color: '#fb923c' }}>{deals.length - shopDealsBought(daily, day).filter((id) => deals.includes(id)).length} / {deals.length}</b></p>
           </div>
           <div className={`mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-6 content-start gap-3 overflow-y-auto pr-2 ${listFx}`} style={{ gridAutoRows: '18.75rem' }}>
-            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
+            {items.map((it) => <ItemCard key={it.id} it={it} deal={dealOf(it)} cap={team.cap || SQUAD_CAP} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
 
@@ -253,8 +283,8 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
               )}
 
               <div className={`flex items-baseline justify-between text-t4 text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
-                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
-                <span>남는 골드 <b className="font-display text-t3" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
+                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : picked.cap ? `+${capExtra(team)} / +${CAP_EXTRA_MAX}` : '-'}</b></span>
+                <span>남는 골드 <b className="font-display text-t3" style={{ color: cost > gold ? '#f87171' : '#fde047' }}>{(gold - cost).toLocaleString()} G</b></span>
               </div>
               {/* 구매 옆 내 라커 — 고른 상품을 쓰는 탭으로 바로(훈련 · 부스트 → 아이템, 코치 강화권 → 감독·코치). 가진 게 있으면 '쓰기' */}
               <div className={`grid gap-2 ${onLocker ? 'grid-cols-[9.5rem_minmax(0,1fr)]' : ''}`}>
@@ -267,14 +297,27 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
                     </Btn>
                   );
                 })()}
-                <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
-                  {soldOut ? '더 살 수 없음' : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
+                <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => (cost >= CONFIRM_AT ? setConfirm(picked) : buy(picked))}>
+                  {soldOut ? (picked.cap && capLeft(team) > 0 ? `남은 한도 +${capLeft(team)}` : '더 살 수 없음') : cost > gold ? '골드 부족' : `${cost.toLocaleString()} G 구매 ▶`}
                 </Btn>
               </div>
             </>
           )}
         </aside>
       </div>
+      {/* 구매 확인 — 유리 판(backdrop-filter) 밖, 화면 맨 위 층에 */}
+      {confirm && (
+        <Pop eyebrow="구매 확인" title={confirm.name} sub={confirm.desc} a="#fde047" width={460} onClose={() => setConfirm(null)}
+          actions={(
+            <>
+              <Btn onClick={() => setConfirm(null)}>취소</Btn>
+              <Btn pri a="#fde047" disabled={priceOf(confirm) > gold} onClick={() => { const it = confirm; setConfirm(null); buy(it); }}>{priceOf(confirm).toLocaleString()} G 구매 ▶</Btn>
+            </>
+          )}>
+          <KV k="가격" v={`${priceOf(confirm).toLocaleString()} G`} color="#fde047" />
+          <KV k="남는 골드" v={`${(gold - priceOf(confirm)).toLocaleString()} G`} />
+        </Pop>
+      )}
     </div>
   );
 }

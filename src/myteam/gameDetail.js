@@ -52,7 +52,7 @@ export function gameDetail(res, my, opp, boosts = []) {
   }));
   const arms = Object.entries(box.arm).sort((a, b) => a[1].at - b[1].at).map(([id, s]) => {
     const p = byId.get(id);
-    return { id, name: p?.name || id, ovr: p?.overall ?? null, form: p?.form || null, sp: id === res.starterId, pc: res.pitchCounts?.[id] || 0, bf: s.bf, h: s.h, k: s.k, r: s.r };
+    return { id, name: p?.name || id, ovr: p?.overall ?? null, form: p?.form || null, sp: id === res.starterId, pc: res.pitchCounts?.[id] || 0, bf: s.bf, h: s.h, k: s.k, r: s.r, ...(Number.isFinite(s.o) ? { o: s.o, bb: s.bb } : {}) };
   });
   return {
     v: 1,

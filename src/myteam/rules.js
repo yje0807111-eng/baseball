@@ -12,7 +12,11 @@ export const SQUAD_SIZE = 26; // 출전 가능 인원
 export const FOREIGN_MAX = 3; // 외국인 선수 한도
 export const SQUAD_CAP = 2330; // 샐러리 캡(CP) — 26명 × 약 78 + 코치진
 /** 보관함 — 엔트리 밖에 두는 보유 선수(CP 에 셈하지 않는다). 드래프트 기념 카드 · 잠시 빼 둔 선수 */
-export const CLUB_MAX = 20;
+export const CLUB_MAX = 20; // 보관함 기본 칸
+/* 보관함 확장 — 상점에서 +10칸씩 두 번(최대 40칸). 컴프야처럼 늘릴 수는 있지만 끝이 있어 '남길지 · 방출할지' 고르는 이유가 남는다 */
+export const CLUB_STEP = 10;
+export const EXTRA_CLUB_MAX = 2;
+export const clubMax = (team) => CLUB_MAX + CLUB_STEP * Math.min(EXTRA_CLUB_MAX, Math.max(0, team?.extraClub || 0));
 
 /** 포지션 구성: 최소~최대. 합이 26이 되도록 뽑는다 */
 export const POS_RULES = [
@@ -68,6 +72,15 @@ export const squadCost = (squad, staff = {}) =>
   squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(staff).reduce((s, x) => s + (x?.cost || 0), 0);
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
+/** 엔트리가 꽉 찼을 때 보관함으로 영입할 수 있나 — 안 되면 이유. 보관함은 CP · 포지션 · 외국인 한도를 따지지 않는다 */
+export function clubAddReason(player, squad, club, gold = null, price = null, max = CLUB_MAX) {
+  if ([...squad, ...club].some((p) => p.personId === player.personId)) return '이미 가진 선수';
+  if (club.length >= max) return `보관함 ${max}칸이 모두 찼음`;
+  const cost = price ?? priceOf(player);
+  if (gold != null && cost > gold) return `골드 부족 (${(cost - gold).toLocaleString()} G 모자람)`;
+  return null;
+}
+
 /** 이 선수를 지금 영입할 수 있나? 안 되면 이유를 돌려준다. gold 를 넘기면 값(price, 없으면 영입가)도 본다 */
 export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
   if (squad.some((p) => p.id === player.id)) return '이미 영입한 선수';
@@ -86,13 +99,18 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE
 
 /**
  * 교체 영입 — 엔트리가 꽉 찼을 때 한 명을 내보내며 들인다(스타터로 시작하면 늘 꽉 차 있다).
- * 내보낼 후보: 같은 포지션에서 약한 순 → 같은 유형(타자 · 투수)에서 약한 순.
+ * 내보낼 후보: 같은 포지션에서 약한 순 → 같은 유형(타자 · 투수)에서 약한 순 → 나머지 약한 순(엔트리 전원).
  */
 export function swapCandidates(player, squad) {
   const weak = (a, b) => a.overall - b.overall;
   const same = squad.filter((p) => p.position === player.position).sort(weak);
   const kind = squad.filter((p) => p.position !== player.position && p.type === player.type).sort(weak);
-  return [...same, ...kind];
+  const rest = squad.filter((p) => p.type !== player.type).sort(weak);
+  return [...same, ...kind, ...rest];
+}
+/** 막히지 않는 첫 후보(추천 1순위) — 없으면 null. 영입 목록의 '교체' 단추와 오른쪽 기본 선택이 같은 답을 쓴다 */
+export function swapPick(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
+  return swapCandidates(player, squad).find((x) => !swapBlockReason(player, x, squad, staff, cap, lim, gold, price)) || null;
 }
 /** out 을 내보내고 player 를 들일 수 있나 — 안 되면 이유. 내보내는 선수의 환급도 골드에 셈한다 */
 export function swapBlockReason(player, out, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {

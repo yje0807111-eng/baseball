@@ -5,7 +5,7 @@ import { rankOf } from './rank.js';
 import { teamNeon } from './teamColor.js';
 import { teamFlag } from './teamArt.js';
 import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
-import { missionState, WEEK_BONUS, weekKey } from './missions.js';
+import { missionState, BONUS_KO, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { artId } from '../data/artAlias.js';
 import { GrowBar } from '../ui/motion.jsx';
@@ -92,7 +92,7 @@ function WeekCard({ account, onOpen }) {
       <div className="flex items-baseline gap-2">
         <p className="mt-lab" style={{ '--a': A }}>주간 과제</p>
         <small className="ml-auto text-t4 font-bold" style={{ color: ready ? A : '#6b7280' }}>
-          {ready ? `받을 보상 ${ready}` : bonusTaken ? '보너스 받음 ✓' : <>보너스 <b style={{ color: A }}>{WEEK_BONUS} G</b></>}
+          {ready ? `받을 보상 ${ready}` : bonusTaken ? '보너스 받음 ✓' : <>보너스 <b style={{ color: A }}>{BONUS_KO}</b></>}
         </small>
       </div>
       {list.map(({ m, n, done, claimed }) => (

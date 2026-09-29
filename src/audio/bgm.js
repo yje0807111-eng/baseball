@@ -12,7 +12,7 @@ const SCENE_FADE = 1.2; // 화면 묶음이 바뀔 때
 const SONG_FADE = 3; // 메뉴 곡끼리 넘어갈 때
 const KEY = 'kbo.bgm';
 
-const DEFAULTS = { vol: 0.5, sfx: 0.6, muted: false }; // sfx: 효과음 크기(sfx.js) · 음소거는 둘 다
+const DEFAULTS = { vol: 0.5, sfx: 0.6, muted: false, bgmOff: false, sfxOff: false }; // sfx: 효과음 크기(sfx.js) · muted 는 둘 다(M 키), bgmOff · sfxOff 는 하나씩
 const load = () => { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return { ...DEFAULTS }; } };
 const save = (s) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* 못 쓰면 이번 방문만 */ } };
 
@@ -25,7 +25,7 @@ const listeners = new Set();
 
 const now = () => ctx.currentTime;
 function ramp(param, to, sec) { param.cancelScheduledValues(now()); param.setValueAtTime(param.value, now()); param.linearRampToValueAtTime(to, now() + sec); }
-const masterLevel = () => (settings.muted ? 0 : settings.vol);
+const masterLevel = () => (settings.muted || settings.bgmOff ? 0 : settings.vol);
 
 /** 섞은 순서로 다음 메뉴 곡 — 방금 튼 곡은 바로 다시 나오지 않게 */
 function nextSong() {

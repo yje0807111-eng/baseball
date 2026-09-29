@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { priceOf, refundOf, isFreeFill, FREE_FILL_MAX, PRICE_MIN } from '../src/myteam/market.js';
-import { addBlockReason, swapCandidates, swapBlockReason, SQUAD_CAP, BASE_LIMITS } from '../src/myteam/rules.js';
+import { addBlockReason, swapCandidates, swapBlockReason, clubAddReason, CLUB_MAX, SQUAD_CAP, BASE_LIMITS } from '../src/myteam/rules.js';
 import { starterSquad } from '../src/myteam/starter.js';
 
 /* 저장소는 localStorage 를 쓴다 — 테스트에서는 메모리 판으로 */
@@ -122,6 +122,16 @@ describe('교체 영입 (꽉 찬 엔트리)', () => {
     expect(next.team.squad).toHaveLength(26);
     expect(next.team.squad.some((p) => p.id === out.id)).toBe(false);
     expect(next.team.squad.find((p) => p.id === 'star').paid).toBe(1200);
+  });
+  it('꽉 차면 보관함으로 산다 — 엔트리 · 캡은 그대로, 보관함도 차면 막힌다', () => {
+    expect(clubAddReason(star('OF'), squad, [], 5000, 1200)).toBeNull();
+    expect(clubAddReason(star('OF'), squad, [], 1000, 1200)).toMatch('골드 부족');
+    expect(clubAddReason(star('OF'), squad, Array.from({ length: CLUB_MAX }, (_, i) => ({ id: `c${i}`, personId: `c${i}` })), 5000, 1200)).toMatch('보관함');
+    const team = { ...store.loadAccount().team, squad };
+    const next = store.recruitPlayer(team, star('OF'), 1200, 'club');
+    expect(next.gold).toBe(store.START_GOLD - 1200);
+    expect(next.team.squad).toHaveLength(squad.length);
+    expect(next.team.club.map((p) => p.id)).toEqual(['star']);
   });
 });
 

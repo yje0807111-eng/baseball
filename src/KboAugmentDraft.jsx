@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
-import { CLUB_MAX } from './myteam/rules.js';
+import { clubMax } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
 import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNTLET_MID_MEMENTO, GAUNTLET_MID_AT, asClubPlayer } from './draft/memento.js';
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
@@ -1877,7 +1877,8 @@ export const KEYFRAMES = `
 .aug-gold .aug-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity .3s; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 47%, rgba(196,181,253,.24) 52%, transparent 64%) 0 0 / 220% 100% no-repeat; animation: augSheen 4.5s ease-in-out infinite; }
 .aug-gold.hot .aug-shine { opacity: 1; }
 @keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
-.aug-gold .aug-top { position: absolute; z-index: 6; left: 50%; top: -1px; width: 64px; height: 54px; margin-left: -32px; display: grid; place-items: center; clip-path: polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%); background: linear-gradient(135deg, #fbe7a8, #b7832a); }
+.aug-gold .aug-rule { position: relative; }
+.aug-gold .aug-rule > .aug-gem { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 2px; box-shadow: 0 0 10px #a78bfa, 0 0 0 3px #0b0a18, inset 0 0 0 1px rgba(255,255,255,.5); }
 .aug-gold .aug-body { position: absolute; z-index: 4; left: 26px; right: 26px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .aug-gold .aug-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
 .aug-gold .aug-area { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--k); background: color-mix(in srgb, var(--k) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 45%, transparent); }
@@ -3791,7 +3792,6 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
           : <span className="absolute inset-x-0 top-0 h-[60%]" style={{ background: 'radial-gradient(80% 60% at 50% 40%, rgba(167,139,250,.35), transparent 70%)' }} />}
         <span className="aug-veil" />
         <span className="aug-shine" />
-        <span className="aug-top" aria-hidden="true"><i className="aug-gem" /></span>
         <span className="aug-body">
           {/* 종류(또는 강화 레벨) · 도움 되는 영역 */}
           <span className="aug-tags">
@@ -3799,7 +3799,8 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
             {augAreas(o).map((k) => <span key={k} className="aug-area" style={{ '--k': AUG_AREA[k][1] }}>{AUG_AREA[k][0]}</span>)}
           </span>
           <b className="aug-name">{o.name}{o.lv ? <em className="ml-1.5 font-display not-italic text-[#e9d5ff]">+{o.lv}</em> : null}</b>
-          <span className="aug-rule" />
+          {/* 보석은 그림을 가리지 않게 금빛 줄 가운데에 — 위 가운데 육각 배지는 인물 얼굴을 덮었고, 등급이 하나라 알려 주는 것도 없었다 */}
+          <span className="aug-rule"><i className="aug-gem" /></span>
           <span className="aug-desc"><LitNums text={augDescAt(o)} /></span>
           {o.note && <span className="aug-note">{o.note}</span>}
           {o.cond && <span className="aug-hint">조건 · {o.cond}</span>}
@@ -3823,7 +3824,7 @@ function MementoOverlay({ memento, onTake, onSkip }) {
         <div className="fx-rise text-center">
           <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>드래프트 기념 카드 · {memento.why}</p>
           <h2 className="mt-2 text-4xl font-black text-white">한 명 데려오기</h2>
-          {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
+          {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({memento.max}명)</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-5">
           {memento.options.map((p, i) => {
@@ -5167,7 +5168,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     mementoDone.current.add(rule.why);
     const options = mementoOptions(roster, rule, (p) => ownsInAccount(asClubPlayer(p)));
     if (!options.length) return;
-    setMemento({ ...rule, options, full: (me.team?.club || []).length >= CLUB_MAX });
+    setMemento({ ...rule, options, full: (me.team?.club || []).length >= clubMax(me.team), max: clubMax(me.team) });
   };
   /* 드래프트 판의 내 팀 이름 = 내 구단 이름(프로필에서 지은 것 · 없으면 감독 이름) */
   const myClub = useMemo(() => { const a = loadAccount(); return a?.team?.name || a?.nick || '내 팀'; }, []);

@@ -1,6 +1,6 @@
 /*
  * 기록 — 치른 경기 목록 (최근 50경기). 라커 · 상점과 같은 문법: 위 탭 분류 / 가운데 경기 줄 / 오른쪽 상세
- *  탭: 전체 · 단판 · 토너먼트 · 랭크(옆 숫자 = 경기 수) · 도감 · 주간 과제(받을 보상이 있으면 금빛 숫자)
+ *  탭: 전체 · 단판 · 토너먼트 · 랭크(옆 숫자 = 경기 수) · 선수 기록 · 도감 · 주간 과제(받을 보상이 있으면 금빛 숫자)
  *  목록 위 한 줄: 통산 전적 · 승률 · 연승 · 최근 10경기 흐름 / 오른쪽 아래: 경기 MVP TOP 3
  *  줄 오른쪽 ▾: 그 경기 상세(gameDetail.js 가 남긴 것) — 라인 스코어 / 시너지 · 작전 · 아이템 칩 / 박스 스코어 | 승률 흐름 · 지시 · 득점
  */
@@ -11,7 +11,7 @@ import { artId } from '../data/artAlias.js';
 import { SynIcon } from './ReadyLocker.jsx';
 import { SIDES } from './strategy.js';
 import { FORM_OF } from './form.js';
-import { DexView, WeekView } from './ProgressPanels.jsx';
+import { DexView, WeekView, PlayersView } from './ProgressPanels.jsx';
 import { loadAccount } from './store.js';
 import { missionState } from './missions.js';
 import { useListIntro } from '../ui/motion.jsx';
@@ -321,6 +321,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
   const weekLeft = missionState(account.week).filter((x) => x.done && !x.claimed).length;
   const NAV = [
     ...MODES.map((m) => ({ key: m.key, label: m.label, n: counts[m.key] })),
+    { key: 'players', label: '선수 기록' },
     { key: 'dex', label: '도감', n: (account.dex || []).length },
     { key: 'week', label: '주간 과제', badge: weekLeft },
   ];
@@ -337,7 +338,8 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
         style={{ gridTemplateColumns: 'minmax(0,1fr) 24rem', gridTemplateRows: 'minmax(0,1fr)' }}>
 
 
-        {mode === 'dex' ? <DexView account={account} onAccount={takeAccount} />
+        {mode === 'players' ? <PlayersView account={account} />
+          : mode === 'dex' ? <DexView account={account} onAccount={takeAccount} />
           : mode === 'week' ? <WeekView account={account} onAccount={takeAccount} />
           : (
         <>

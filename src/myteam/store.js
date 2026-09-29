@@ -2,12 +2,13 @@
  * 내 팀 저장소 — 브라우저(localStorage)가 작업 사본. 서버 키가 있으면 net/sync.js 가
  * 바뀔 때마다 Supabase 로 올리고, 로그인할 때 받아 온다 (화면은 이 파일만 본다).
  */
-import { SQUAD_CAP, CLUB_MAX } from './rules.js';
+import { SQUAD_CAP, clubMax } from './rules.js';
 import { STAFF } from './staff.js';
 import { finishOf, PLACE_REWARD } from './rewards.js';
 import { refundOf } from './market.js';
 import { claimableSteps } from './dex.js';
-import { weekOf, missionState, WEEK_BONUS } from './missions.js';
+import { careerAdd, careerOf } from './career.js';
+import { weekOf, missionState, WEEK_BONUS, WEEK_BONUS_TICKET } from './missions.js';
 import { presetCount, snapshot, applyPreset } from './presets.js';
 
 const KEY = 'kbo.myteam.v1';
@@ -285,12 +286,14 @@ const stamp = (team) => ({ ...team, capBase: SQUAD_CAP, updatedAt: new Date().to
 const withDex = (a, players = []) => ({ ...a, dex: [...new Set([...(a.dex || []), ...players.map((p) => p.id)])] });
 
 /** 선수 영입 — 골드가 모자라면 null */
-export function recruitPlayer(team, player, price) {
+export function recruitPlayer(team, player, price, to = 'squad') {
   const a = read();
   if (!a) return null;
   const gold = goldOf(a);
   if (!(price >= 0) || price > gold) return null;
-  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, squad: [...(team.squad || []), { ...player, paid: price }] }) }, [player]);
+  if (to === 'club' && (team.club || []).length >= clubMax(team)) return null; // 엔트리가 꽉 차면 보관함으로 산다
+  const key = to === 'club' ? 'club' : 'squad';
+  const next = withDex({ ...a, gold: gold - price, team: stamp({ ...team, [key]: [...(team[key] || []), { ...player, paid: price }] }) }, [player]);
   write(next);
   return next;
 }
@@ -333,7 +336,7 @@ const ownsPerson = (team, p) => [...(team.squad || []), ...(team.club || [])].so
 export function storePlayer(team, id) {
   const a = read();
   const p = (team.squad || []).find((x) => x.id === id);
-  if (!a || !p || (team.club || []).length >= CLUB_MAX) return null;
+  if (!a || !p || (team.club || []).length >= clubMax(team)) return null;
   const next = { ...a, team: stamp({ ...team, squad: team.squad.filter((x) => x.id !== id), bench: (team.bench || []).filter((b) => b !== id), club: [...(team.club || []), p] }) };
   write(next);
   return next;
@@ -364,7 +367,7 @@ export function releaseFromClub(team, id) {
 export function addToClub(player) {
   const a = read();
   const team = a?.team;
-  if (!team || (team.club || []).length >= CLUB_MAX || ownsPerson(team, player)) return null;
+  if (!team || (team.club || []).length >= clubMax(team) || ownsPerson(team, player)) return null;
   const next = withDex({ ...a, team: stamp({ ...team, club: [...(team.club || []), { ...player, paid: 0, memento: true }] }) }, [player]);
   write(next);
   return next;
@@ -434,6 +437,8 @@ export function bumpWeek(ev, n = 1) {
   write(next);
   return next;
 }
+/** 증강 강화권 n 장을 더한 계정 */
+const withTickets = (a, n = 0) => (n > 0 ? { ...a, aug: { ...withAug(a), upgradeTickets: (withAug(a).upgradeTickets || 0) + n } } : a);
 /** 과제 하나 보상 */
 export function claimMission(id) {
   const a = read();
@@ -441,7 +446,7 @@ export function claimMission(id) {
   const s = missionState(a.week).find((x) => x.m.id === id);
   if (!s || !s.done || s.claimed) return null;
   const w = weekOf(a.week);
-  const next = { ...a, gold: goldOf(a) + s.m.gold, week: { ...w, claimed: [...w.claimed, id] } };
+  const next = withTickets({ ...a, gold: goldOf(a) + (s.m.gold || 0), week: { ...w, claimed: [...w.claimed, id] } }, s.m.ticket);
   write(next);
   return next;
 }
@@ -451,7 +456,7 @@ export function claimWeekBonus() {
   if (!a) return null;
   const w = weekOf(a.week);
   if (w.bonus || !missionState(a.week).every((x) => x.claimed)) return null;
-  const next = { ...a, gold: goldOf(a) + WEEK_BONUS, week: { ...w, bonus: true } };
+  const next = withTickets({ ...a, gold: goldOf(a) + WEEK_BONUS, week: { ...w, bonus: true } }, WEEK_BONUS_TICKET);
   write(next);
   return next;
 }
@@ -487,7 +492,9 @@ export function addHistory(entry) {
   // 랭크 승점은 랭크전 시즌이 끝날 때만 오르내린다 (claimRanked)
   // 단판이 끝나면 다음 상대를 다시 뽑는다
   const nextDuel = entry.mode ? a.nextDuel : null;
-  const next = { ...a, nextDuel, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
+  /* 통산(선수 기록 · 증강 승률)은 50경기를 넘어서도 남게 따로 더한다 — 없던 저장본은 남은 경기 기록으로 먼저 채운 뒤 */
+  const career = careerAdd(careerOf(a), entry);
+  const next = { ...a, nextDuel, career, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
   write(next);
   return next;
 }
@@ -586,6 +593,16 @@ export function markDefenseSeen(at = new Date().toISOString()) {
 export const myBanner = () => read()?.profile?.banner ?? null;
 
 /** 골드 증감 (상점·경기 보상) */
+/** 오늘의 상품을 샀다 — 날이 바뀌었으면 새 목록으로 */
+export function markShopDeal(id, day) {
+  const a = read();
+  if (!a) return null;
+  const bought = a.shopDaily?.day === day ? a.shopDaily.bought || [] : [];
+  const next = { ...a, shopDaily: { day, bought: [...bought, id] } };
+  write(next);
+  return next;
+}
+
 export function addGold(delta) {
   const a = read();
   if (!a) return null;

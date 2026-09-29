@@ -98,6 +98,20 @@ body { overscroll-behavior: none; }
 /* 결과 도장 — 크게 찍혔다가 자리 잡음(승리) · 위에서 무겁게 내려앉음(패배) · 조용히(무승부) */
 .fx-stamp { animation: fx-stamp .46s cubic-bezier(.2, .9, .25, 1.15) var(--d, 0ms) both; }
 @keyframes fx-stamp { 0% { opacity: 0; transform: scale(1.9); filter: blur(6px); } 60% { opacity: 1; transform: scale(.94); filter: blur(0); } 100% { transform: scale(1); } }
+/* 소리 판 — 크기 막대(채운 만큼 채널 색 --c, 채운 비율 --p) · 판 등장 */
+.snd-range { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; cursor: pointer; outline: none;
+  background: linear-gradient(90deg, var(--c) var(--p), rgba(255,255,255,.12) var(--p)); }
+.snd-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent), 0 2px 6px rgba(0,0,0,.5); transition: transform .12s; }
+.snd-range::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 45%, transparent), 0 2px 6px rgba(0,0,0,.5); }
+.snd-range::-moz-range-track { background: transparent; }
+.snd-range:hover::-webkit-slider-thumb, .snd-range:active::-webkit-slider-thumb { transform: scale(1.15); }
+.snd-range:focus-visible { box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+@keyframes snd-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+.snd-in { animation: snd-in .18s var(--fx-out) both; transform-origin: top right; }
+@media (prefers-reduced-motion: reduce) { .snd-in { animation: none; } }
+
 .fx-drop { animation: fx-drop .6s var(--fx-out) var(--d, 0ms) both; }
 @keyframes fx-drop { from { opacity: 0; transform: translateY(-22px); } }
 .fx-fade { animation: fx-fade .3s var(--fx-out) var(--d, 0ms) both; }

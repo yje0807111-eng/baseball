@@ -4,7 +4,7 @@
  * 칸: 기본 1 + 상점 '프리셋 칸'으로 2번까지(최대 3). 불러오기는 공짜 — 보유 선수(엔트리 + 보관함) 안에서만 바꾼다.
  * 불러오면 프리셋 선수가 엔트리로, 나머지 보유 선수는 보관함으로 간다. 그사이 방출한 선수가 있으면 불러오지 않는다.
  */
-import { CLUB_MAX } from './rules.js';
+import { clubMax } from './rules.js';
 
 export const PRESET_BASE = 1;
 export const PRESET_EXTRA_MAX = 2;
@@ -28,7 +28,7 @@ export function presetIssue(team, preset) {
   const owned = new Map([...(team.squad || []), ...(team.club || [])].map((p) => [p.id, p]));
   const missing = preset.ids.filter((id) => !owned.has(id)).length;
   if (missing) return `방출한 선수 ${missing}명`;
-  if (owned.size - preset.ids.length > CLUB_MAX) return `보관함 자리 부족 (${CLUB_MAX}명)`;
+  if (owned.size - preset.ids.length > clubMax(team)) return `보관함 자리 부족 (${clubMax(team)}명)`;
   return null;
 }
 

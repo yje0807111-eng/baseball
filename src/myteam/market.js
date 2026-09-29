@@ -89,7 +89,7 @@ export const DEAL_BAND = [82, 100];
 const DEAL_PLAN = [['SP', 2], ['RP', 2], ['C', 1], ['1B', 1], ['2B', 1], ['3B', 1], ['SS', 1], ['OF', 3]];
 /** 오늘 날짜 열쇠 YYYY-MM-DD (현지 시각) */
 export const todayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-function seeded(key) {
+export function seeded(key) {
   let h = 2166136261;
   for (const ch of String(key)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); }
   let t = h >>> 0;
