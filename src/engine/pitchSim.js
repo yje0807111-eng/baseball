@@ -11,12 +11,12 @@
  *   usage.fatigueGrace: 투수가 지치기 시작하는 투구 수 여유 (증강 투수 운용)
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
- *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change',
+ *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: PITCHES 의 키(직구 · 투심 · 커터 · 슬라이더 · 커브 · 체인지업 · 포크),
  *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다),
  *     aim: 0~8 (노림 한 칸 — 맞으면 크게 · 옆 칸이면 조금) | 'ih'|'oh'|'il'|'ol' (네 칸 묶음), approach: 'power'|'contact' (강공 · 밀어치기),
  *     drag: true (bunt 와 함께 — 기습번트), readBonus: true (보조 없이 읽었다 — 구종 예측 · 코스 노림이 맞았을 때 이득 ×1.5, 틀린 손해는 그대로) }
  * orders (수비 측 지시):
- *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
+ *   { ibb: true, pitchType: PITCHES 의 키(투수가 안 던지는 공이면 같은 계열로 — fitType), zone: 0~8 | 'chase', changePitcher: true,
  *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
  *     focus: true (target 과 함께 — 집중 투구: 흩어짐 ×FOCUS_SPREAD, 체력은 그 공 1구 + FOCUS_COST 구),
  *     target: { x, y } (수싸움 자유 조준 — 존 반폭 · 반높이 = 1, x 음수 = 몸쪽 · y 음수 = 높게. 제구만큼 흩어져 떨어진 자리가 곧 코스),
@@ -26,10 +26,18 @@
  *     hookAt: 0~20 (이 체력 아래면 투수를 내린다) }
  */
 
+/*
+ * 구종 — fam: 계열(F 직구 · B 휘는 공 · O 떨어지는 공, 구종 예측이 계열만 맞아도 조금 이득),
+ * whiff: 맞히기 어려움(+ 헛스윙), gb: 땅볼 쪽으로 기울기. 직구가 기준(0) — 투수 한 명의 배합 평균이 0 언저리가 되게 작게.
+ */
 export const PITCHES = {
-  fast: { name: '직구', speed: [138, 156] },
-  slider: { name: '슬라이더', speed: [124, 138] },
-  change: { name: '체인지업', speed: [118, 132] },
+  fast: { name: '직구', speed: [138, 156], fam: 'F', whiff: -0.01, gb: 0 },
+  sinker: { name: '투심', speed: [134, 150], fam: 'F', whiff: -0.01, gb: 0.08 },
+  cutter: { name: '커터', speed: [132, 147], fam: 'F', whiff: 0.01, gb: 0.03 },
+  slider: { name: '슬라이더', speed: [124, 138], fam: 'B', whiff: 0.02, gb: 0 },
+  curve: { name: '커브', speed: [108, 124], fam: 'B', whiff: 0.015, gb: 0.02 },
+  change: { name: '체인지업', speed: [118, 132], fam: 'O', whiff: 0.015, gb: 0.04 },
+  fork: { name: '포크', speed: [122, 136], fam: 'O', whiff: 0.03, gb: 0.06 },
 };
 export const RESULT_LABEL = {
   K: '삼진', BB: '볼넷', IBB: '고의사구', '1B': '안타', '2B': '2루타', '3B': '3루타', HR: '홈런',
@@ -41,9 +49,29 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const tb = (side, kind) => (side?.team?.buff || 0) + (side?.team?.edge?.[kind] || 0); // 팀 보정 + 증강 팀 보너스
 
+/*
+ * 투수의 구종 — 직구 + 유형별 변화구 2~4개(선수 id 로 정해져 같은 투수는 늘 같은 레퍼토리).
+ *  힘으로 누르는 투수(구위 ≥ 제구 + 5): 슬라이더 · 포크 · 커터 · 커브 / 맞혀 잡는 투수(제구 ≥ 구위 + 5): 체인지업 · 커브 · 투심 · 슬라이더 /
+ *  고른 투수: 슬라이더 · 체인지업 · 커브 · 커터. 안정성 80 이상이면 하나 더.
+ */
+export function repertoireOf(pitcher) {
+  const s = st(pitcher, 'stuff', 80), c = st(pitcher, 'control', 75);
+  const pool = s >= c + 5 ? ['slider', 'fork', 'cutter', 'curve'] : c >= s + 5 ? ['change', 'curve', 'sinker', 'slider'] : ['slider', 'change', 'curve', 'cutter'];
+  let h = 11; for (const ch of String(pitcher?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const n = Math.min(4, 2 + (h % 2) + (st(pitcher, 'stability', 75) >= 80 ? 1 : 0));
+  return ['fast', ...pool.slice(0, n)];
+}
+/** 구종 배합 — 직구 비중은 구위로(예전과 같은 식), 나머지는 레퍼토리 앞쪽일수록 많이 */
 export function pitchMix(pitcher) {
   const fast = clamp(0.4 + (st(pitcher, 'stuff', 80) - 80) * 0.015, 0.3, 0.65);
-  return { fast, slider: (1 - fast) * 0.6, change: (1 - fast) * 0.4 };
+  const rest = repertoireOf(pitcher).slice(1), w = [0.45, 0.3, 0.15, 0.1].slice(0, rest.length), tot = w.reduce((a, b) => a + b, 0);
+  return Object.fromEntries([['fast', fast], ...rest.map((t, i) => [t, ((1 - fast) * w[i]) / tot])]);
+}
+/** 이 투수가 안 던지는 구종을 찍으면 같은 계열(없으면 주무기 변화구)로 — 전술 '변화구 승부' 같은 옛 지시가 그대로 먹게 */
+export function fitType(pitcher, t) {
+  const rep = repertoireOf(pitcher);
+  if (rep.includes(t)) return t;
+  return rep.find((x) => PITCHES[x].fam === PITCHES[t]?.fam) || rep[1] || 'fast';
 }
 
 /** 증강 보정: 공격 쪽 hit(안타 확률 +) · hitMul(×) · hr(홈런 확률 +) · steal(도루 +), 수비 쪽 pitch(구위 · 제구 점수 +) */
@@ -197,7 +225,10 @@ function fatigue(side) {
 function choosePitch(g, pitcher, order) {
   const r = g.rng();
   const mix = pitchMix(pitcher);
-  const type = order?.pitchType || (r < mix.fast ? 'fast' : r < mix.fast + mix.slider ? 'slider' : 'change');
+  /* 난수 하나로 배합에서 한 구종(예전과 같은 횟수) */
+  let acc = 0, drawn = 'fast';
+  for (const [t, v] of Object.entries(mix)) { acc += v; if (r < acc) { drawn = t; break; } drawn = t; }
+  const type = order?.pitchType ? fitType(pitcher, order.pitchType) : drawn;
   /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
   const picked = order?.pitchType && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
@@ -362,7 +393,9 @@ export function pitch(g, orders = {}) {
   const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
   const readX = orders.readBonus ? 1.5 : 1; // 보조(추천 · 퍼센트) 없이 읽은 사람 — 맞혔을 때만 더
-  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 * readX : -0.1) : 0;
+  /* 구종 예측 — 딱 맞으면 크게, 계열(직구 · 휘는 공 · 떨어지는 공)만 맞으면 조금 */
+  const guessHit = !orders.guess ? 0 : orders.guess === p.type ? 1 : PITCHES[orders.guess]?.fam === PITCHES[p.type].fam ? 0.4 : 0;
+  const guessBonus = orders.guess ? (guessHit ? 0.14 * guessHit * readX : -0.1) : 0;
   /* 구석에 꽂힌 공은 맞히기 어렵다 — 보조 없이 조준한 수비는 그 이득 ×1.5(readBonus) */
   const cornerPen = (p.corner || 0) * (orders.readBonus && orders.target && p.corner > 0 ? 1.5 : 1);
   /* 자유 조준 공: 타자 강한 코스 · 존 경계 바로 밖은 잘 속고 멀리 뺀 공은 잘 안 속는다 */
@@ -385,7 +418,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
@@ -440,7 +473,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
 
   // 아웃
   const r = g.rng();
-  const fly = clamp(0.38 + (power - 70) * 0.008, 0.2, 0.65);
+  const fly = clamp(0.38 + (power - 70) * 0.008 - PITCHES[p.type].gb, 0.2, 0.65); // 투심 · 포크는 땅볼 쪽
   if (r < fly) {
     ev.result = 'FO'; g.outs += 1;
     if (g.bases[2] && g.outs < 3 && g.rng() < 0.62) { ev.result = 'SF'; const runner = g.bases[2]; g.bases[2] = null; runs += score(g, [runner]); }

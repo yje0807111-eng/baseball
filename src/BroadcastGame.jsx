@@ -33,11 +33,11 @@ const shotsOf = (g) => atBatPitches(g.events).map(shotOf);
 const tint = (c, p) => `color-mix(in srgb,${c} ${p}%,transparent)`;
 /* 담아 둔 지시를 사람 말로 — 눌렀다는 것이 보이게 */
 const ORDER_KO = { steal: '도루', bunt: '번트', hitAndRun: '히트앤런', ibb: '고의사구', changePitcher: '투수 교체' };
-const PITCH_NAME = { fast: '직구', slider: '변화구', change: '변화구' };
+const PITCH_NAME = (t) => (PITCHES[t]?.fam === 'F' ? '직구' : '변화구');
 const orderKo = (o = {}) => Object.entries(o).map(([k, v]) => {
   if (k === 'zone') return v === 'chase' ? '유인구' : '코스 승부';
-  if (k === 'guess') return `${PITCH_NAME[v] || ''} 노림`;
-  if (k === 'pitchType') return `${PITCH_NAME[v] || ''} 승부`;
+  if (k === 'guess') return `${PITCH_NAME(v)} 노림`;
+  if (k === 'pitchType') return `${PITCH_NAME(v)} 승부`;
   return ORDER_KO[k];
 }).filter(Boolean);
 /* 승부처에 화면을 한 번 붙잡는 빛 */
@@ -256,7 +256,7 @@ function atBatPitches(events) {
   return out;
 }
 
-const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
+const PITCH_KO = Object.fromEntries(Object.entries(PITCHES).map(([k, v]) => [k, v.name]));
 const CALL_KO = { ball: '볼', called: '스트라이크', swinging: '헛스윙', foul: '파울', inplay: '인플레이', ibb: '고의사구' };
 const CALL_TONE = { ball: '#34d399', called: '#fde047', swinging: '#fde047', foul: '#94a3b8', inplay: '#fff', ibb: '#34d399' };
 /** 코스 한 마디 — 존 반폭·반높이를 1 로 잰 자리에서 */

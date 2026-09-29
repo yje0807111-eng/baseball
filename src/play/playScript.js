@@ -100,6 +100,8 @@ export function runPath(from, to, dash = 0) {
 const PITCH_WIND = 40;  // 와인드업
 const PITCH_FLY = 420;  // 공이 마운드에서 홈까지
 const CUT_AFTER = 90;   // 맞고 나서 타구가 시작되기까지
+/** 구종별 휘는 방향 [가로, 세로] — 존 반폭 = 1. 구장 재생과 수싸움 꼬리(DuelPanel)가 같이 쓴다 */
+export const PITCH_BEND = { fast: [0, -0.04], sinker: [-0.14, 0.14], cutter: [0.12, 0.03], slider: [-0.24, 0.06], curve: [0.05, 0.3], change: [0.06, 0.2], fork: [0, 0.28] };
 /** 공이 홈에 닿는 때 (재생 시간 대비 0~1) — 존 판도 이때 찍혀야 구장과 맞는다 */
 export const pitchArrival = (ms) => Math.min(0.66, (PITCH_WIND + PITCH_FLY) / ms);
 
@@ -132,7 +134,7 @@ export function buildPlay(ev, beatMs = 1200) {
 
   // 1. 투구 — 마운드에서 존으로. 변화구는 늦게 휜다
   if (p) {
-    const bend = { fast: [0, -0.04], slider: [-0.24, 0.06], change: [0.06, 0.2] }[p.type] || [0, 0];
+    const bend = PITCH_BEND[p.type] || [0, 0];
     beats.push({ kind: 'pitch', t0: P0, t1: P1, from: [0.06, -0.45], to: pitchTarget(ev), bend, type: p.type, velo: p.velo, inZone: p.inZone });
   }
   // 2. 스윙 / 판정
