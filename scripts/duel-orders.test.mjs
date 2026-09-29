@@ -125,3 +125,13 @@ test('노림 한 칸 — 그 칸 크게 · 옆 칸 조금 · 나머지 손해, �
   const behind = locOf({ balls: 3, strikes: 0, away: { pitcher: P } });
   expect(behind[0] + behind[1] + behind[2]).toBeGreaterThan(L[0] + L[1] + L[2]);
 });
+
+test('추천 — 후반 한 점 승부 3루 주자면 스퀴즈 · 2스트라이크면 밀어치기와 예측 안 함 · 몰리면 직구', async () => {
+  const { recOf } = await import('../src/play/DuelPanel.jsx');
+  const R = { id: 'r', stats: { speed: 60 } };
+  const at = (o) => ({ inning: 8, outs: 1, balls: 0, strikes: 0, bases: [null, null, null], home: { runs: 2, pitcher: {} }, away: { runs: 2, pitcher: { stats: { stuff: 80 } }, team: { batters: [] } }, ...o });
+  expect(recOf(at({ bases: [null, null, R] })).play).toBe('squeeze');
+  expect(recOf(at({ strikes: 2 }))).toEqual({ play: 'contact', guess: null });
+  expect(recOf(at({ balls: 3, strikes: 1 })).guess).toBe('fast');
+  expect(recOf(at({ inning: 2 })).play).toBe('power');
+});

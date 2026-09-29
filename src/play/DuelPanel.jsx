@@ -58,7 +58,7 @@ export const DUEL_PLAYS = {
   ],
 };
 const CATS = [['hit', '타격'], ['bunt', '번트'], ['run', '주루']];
-const AIM_T = [['fast', '직구'], ['slider', '슬라이더'], ['change', '체인지업'], [null, '안 노림']];
+const AIM_T = [['fast', '직구'], ['slider', '슬라이더'], ['change', '체인지업'], [null, '예측 안 함']];
 const okOf = (p, g) => !p.ok || !!p.ok(g);
 const playOf = (k) => Object.values(DUEL_PLAYS).flat().find((p) => p.k === k);
 const catOf = (k) => CATS.find(([c]) => DUEL_PLAYS[c].some((p) => p.k === k))[0];
@@ -93,6 +93,8 @@ const CSS = `
 .dl .opt:hover { background: rgba(255,255,255,.1); }
 .dl .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px ${GOLD}; }
 .dl .opt:disabled { opacity: .32; cursor: default; }
+.dl .opt.rec:not(.on):not(:disabled) { outline: 1.5px dashed rgba(255,255,255,.5); outline-offset: -4px; background: rgba(255,255,255,.08); }
+.dl .rtag { font-size: 12px; font-weight: 800; color: #05080f; background: #e2e8f0; border-radius: 6px; padding: 1px 6px; letter-spacing: .02em; }
 .dl .lbl { font-size: 16px; font-weight: 700; color: ${MUTE}; letter-spacing: .06em; }
 .dl .go { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 18px; font-weight: 900; color: #1c1203;
   background: linear-gradient(180deg,#fde68a,#f59e0b); box-shadow: 0 12px 34px -10px rgba(245,158,11,.85); }
@@ -271,6 +273,24 @@ export function duelAi(g, side, seq = []) {
   return { orders: guess ? { guess } : {}, guess };
 }
 /*
+ * 추천 — 야구 정석으로 한 작전 + 구종 예측(따르지 않아도 된다). 공격 판에서 점선 테두리 + 추천 딱지로(고른 금색 · 공수 색과 안 겹치게 흰색).
+ *  작전: 후반 한 점 승부에 3루 주자 → 스퀴즈 · 무사 1루 → 희생번트 / 발 빠른 1루 주자(성공 70%+) → 도루 /
+ *        2스트라이크 → 밀어치기 · 3볼 0스트라이크 → 기다리기 · 그 밖 → 강공
+ *  구종: 몰린 카운트 → 직구 · 2스트라이크 → 예측 안 함 · 그 밖 → 상대 주무기
+ */
+export function recOf(g) {
+  const [b1, b2, b3] = g.bases, o = g.outs, lead = g.home.runs - g.away.runs, late = g.inning >= 7;
+  let play = 'power';
+  if (b3 && o < 2 && late && lead <= 0 && lead >= -1) play = 'squeeze';
+  else if (b1 && !b2 && !b3 && o === 0 && late && Math.abs(lead) <= 1) play = 'sac';
+  else if (stealFrom(g) === 0 && g.strikes < 2 && stealOdds(g, 0) >= 0.7) play = 'steal';
+  else if (g.strikes === 2) play = 'contact';
+  else if (g.balls === 3 && g.strikes === 0) play = 'wait';
+  const main = Object.entries(pitchMix(g.away.pitcher)).sort((a, b) => b[1] - a[1])[0][0];
+  const guess = g.strikes === 2 ? null : g.balls - g.strikes >= 2 || g.balls === 3 ? 'fast' : main;
+  return { play, guess };
+}
+/*
  * 스카우팅 — 상대 투수(공격) · 상대 타자(수비)를 두 마디 꼬리표로(주무기 슬라이더 · 직구 높음 · 볼넷 적음).
  * 문장으로 풀지 않는다 — 볼카운트 성향처럼 나머지는 보면서 읽어 내게. 모두 AI 가 실제로 그렇게 움직이는 것만.
  */
@@ -333,6 +353,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const stuff = st(pitcher, 'stuff', 79);
   const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
   const hitting = off && cat === 'hit' && play !== 'wait';
+  const rec = off ? recOf(g) : {};
   const canGo = waiting && (off ? okOf(cur, g) : zone != null);
   const go = () => {
     if (!canGo) return;
@@ -464,21 +485,23 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
         </> : <>
           <div style={{ display: 'inline-flex', gap: 4, padding: 5, borderRadius: 16, background: 'rgba(255,255,255,.06)', justifySelf: 'start' }}>
             {CATS.map(([k, ko]) => (
-              <button key={k} type="button" className={`tab ${cat === k ? 'on' : ''}`} disabled={!DUEL_PLAYS[k].some((p) => okOf(p, g))}
-                onClick={() => { setCat(k); setPlay((DUEL_PLAYS[k].find((p) => okOf(p, g)) || DUEL_PLAYS[k][0]).k); }}>{ko}</button>
+              <button key={k} type="button" className={`tab ${cat === k ? 'on' : ''}`} disabled={!DUEL_PLAYS[k].some((p) => okOf(p, g))} style={{ position: 'relative' }}
+                onClick={() => { setCat(k); setPlay((DUEL_PLAYS[k].find((p) => okOf(p, g)) || DUEL_PLAYS[k][0]).k); }}>
+                {ko}{catOf(rec.play) === k && <i style={{ position: 'absolute', right: 6, top: 6, width: 7, height: 7, borderRadius: '50%', background: '#e2e8f0' }} />}
+              </button>
             ))}
           </div>
           {DUEL_PLAYS[cat].map((p, i) => (
-            <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>
+            <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''} ${rec.play === p.k ? 'rec' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
-              <b style={{ fontSize: 20, flex: 1 }}>{p.ko}</b>
+              <b style={{ fontSize: 20 }}>{p.ko}</b>{rec.play === p.k && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
               <span style={{ fontSize: 15, fontWeight: 700, color: '#cbd5e1' }}>{p.k === 'steal' ? (okOf(p, g) ? `성공 ${Math.round(stealOdds(g, stealFrom(g)) * 100)}%` : '') : p.sub}</span>
             </button>
           ))}
-          {/* 노림 — 늘 자리를 잡아 둔다(타격이 아니면 흐리게) · 탭을 바꿔도 판 높이가 그대로 */}
-          <span className="lbl" style={{ marginTop: 2, opacity: hitting ? 1 : 0.35 }}>노림</span>
+          {/* 구종 예측 — 늘 자리를 잡아 둔다(타격이 아니면 흐리게) · 탭을 바꿔도 판 높이가 그대로 */}
+          <span className="lbl" style={{ marginTop: 2, opacity: hitting ? 1 : 0.35 }}>구종 예측</span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-            {AIM_T.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: 16, fontWeight: 800 }}>{ko}</button>)}
+            {AIM_T.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''} ${rec.guess === k ? 'rec' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: k ? 16 : 15, fontWeight: 800 }}>{ko}</button>)}
           </div>
         </>}
         <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '3px 0' }} />
