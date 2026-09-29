@@ -130,12 +130,8 @@ export const RECIPES = {
   /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 카드 뒤집어 던짐(ESM Board Game) 한 장, 음 2칸 내림 0.19초.
      1초에 최대 4번 나서 다른 소리보다 작게 */
   draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },
-  /* 카드 뒤집기 — 카드 튕김 두 번(종이 결 잡음) + 맑은 음 하나 */
-  flip: { vary: true, len: 0.5, fn(t, o, { noise, bell, note, jitter }) {
-    noise(t, { type: 'highpass', f: 2800, d: 0.035, g: 0.13, dest: o });
-    noise(t + 0.05, { type: 'bandpass', f: 1800, q: 0.7, d: 0.05, g: 0.1, dest: o });
-    bell(t + 0.08, { f: jitter(note(2, 5), 10), ratio: 2, idx: 0.8, d: 0.35, g: 0.1, dest: o });
-  } },
+  /* 카드 뒤집기 — 경기 결과 MVP 카드 · 드래프트 기념 카드(여러 장 0.14초 간격). 쓸림(인포그래픽 휙, 음 2칸 올림) + 카드 탁(⑤ 와 같은 재료) 0.27초 */
+  flip: { file: 'audio/sfx/flip.mp3', gain: 0.32, vary: 0.03, len: 0.35 },
   /* 영입 도장 — 낮은 쿵 + 눌리는 잡음 + 끝 딸깍 */
   stamp: { len: 0.35, fn(t, o, { tone, noise }) {
     tone(t, { f: 150, f2: 55, d: 0.14, g: 0.36, dest: o });
