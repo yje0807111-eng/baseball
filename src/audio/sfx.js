@@ -18,8 +18,8 @@ export function note(n, octave = 4) {
 
 let ctx = null; let bus = null; let noiseBuf = null;
 /* 크기 · 음소거는 배경음악과 같은 설정(프로필 창 · M 키) */
-let level = getSettings().sfx ?? 0.6; let muted = getSettings().muted;
-onSettings((st) => { level = st.sfx ?? 0.6; muted = st.muted; });
+let level = getSettings().sfx ?? 0.6; let muted = getSettings().muted || getSettings().sfxOff;
+onSettings((st) => { level = st.sfx ?? 0.6; muted = st.muted || st.sfxOff; }); // 전체 음소거 · 효과음만 끄기 둘 다
 
 export function sfxContext() {
   if (ctx) return ctx;
