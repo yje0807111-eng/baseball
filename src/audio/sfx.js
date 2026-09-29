@@ -152,22 +152,21 @@ export const RECIPES = {
   } },
 
   /* ── 화면 이동 ── */
-  /* 큰 구역 들어가기(메인의 내 라커 · 상점 · 증강 · 기록) — 유리 판이 밀려 들어오는 쓸림 + 아래 두께 + A → D 로 오르는 맑은 두 음.
+  /* 큰 구역 들어가기(메인의 내 라커 · 상점 · 증강 · 기록) — 누르는 톡보다 단단한 '확정 톡'(게임 UI 에서 고르는 순간을 무겁게 하는 층) +
+     낮은 몸통 + 종이가 두세 번 파닥이며 넘어가 내려앉는 소리. 밝은 종은 쓰지 않는다.
      눌림 톡 · 화면 들어감 쓸림을 대신한다(covers) */
-  enter: { len: 0.7, covers: ['tab', 'navIn'], fn(t, o, { tone, bell, noise, note }) {
-    noise(t, { f: 520, f2: 2800, q: 0.8, a: 0.06, d: 0.18, g: 0.26, dest: o });
-    tone(t, { f: 120, f2: 70, d: 0.09, g: 0.16, dest: o });
-    tone(t, { type: 'triangle', f: note(0, 5), d: 0.07, g: 0.08, dest: o });
-    bell(t + 0.05, { f: note(3, 5), ratio: 2.01, idx: 0.9, d: 0.45, g: 0.13, dest: o });
-    bell(t + 0.1, { f: note(0, 6), ratio: 2.01, idx: 0.7, d: 0.5, g: 0.11, dest: o });
+  enter: { len: 0.45, covers: ['tab', 'navIn'], fn(t, o, { tone, noise, note }) {
+    noise(t, { f: 1300, q: 2, d: 0.028, g: 0.2, dest: o });                         // 확정 톡(가운데 음역)
+    tone(t, { f: 175, f2: 68, d: 0.13, g: 0.22, dest: o });                            // 낮은 몸통
+    tone(t, { type: 'triangle', f: note(0, 3), d: 0.16, g: 0.07, dest: o });          // D3 — 곡 조성에 붙는 바닥
+    [0.03, 0.068, 0.1].forEach((dt, i) => noise(t + dt, { f: 2300 - i * 450, q: 1.1, a: 0.008, d: 0.035, g: 0.1 - i * 0.02, dest: o })); // 종이 파닥임
+    noise(t + 0.13, { type: 'lowpass', f: 700, a: 0.01, d: 0.09, g: 0.12, dest: o }); // 내려앉음
   } },
-  /* 화면 안 위 탭(라커 · 상점 · 증강 · 기록 메뉴) — 옆으로 밀리는 짧은 쓸림 + 한 칸 미끄러지는 음. dir: 오른쪽 탭 1(오름) · 왼쪽 -1(내림) */
-  section: { vary: true, len: 0.25, covers: ['tab'], fn(t, o, { tone, noise, note, jitter, dir = 1 }) {
-    const [a, b] = dir > 0 ? [1800, 4200] : [4200, 1800];
-    noise(t, { f: a, f2: b, q: 1.2, a: 0.02, d: 0.09, g: 0.16, dest: o });
-    const [f1, f2] = dir > 0 ? [note(2, 5), note(3, 5)] : [note(3, 5), note(2, 5)];
-    tone(t, { type: 'triangle', f: jitter(f1, 10), f2: jitter(f2, 10), a: 0.003, d: 0.075, g: 0.16, dest: o });
-    tone(t + 0.01, { f: note(0, 6), d: 0.03, g: 0.06, dest: o });
+  /* 화면 안 위 탭(라커 · 상점 · 증강 · 기록 메뉴) — 짧은 쓸림 + 기본 톡과 같은 결의 음 하나. 방향과 상관없이 같은 소리 */
+  section: { vary: true, len: 0.2, covers: ['tab'], fn(t, o, { tone, noise, note, jitter }) {
+    noise(t, { f: 2600, q: 1.2, a: 0.015, d: 0.08, g: 0.15, dest: o });
+    tone(t, { type: 'triangle', f: jitter(note(3, 5), 15), f2: jitter(note(3, 5), 15) * 0.94, a: 0.003, d: 0.07, g: 0.12, dest: o });
+    tone(t, { f: 150, f2: 90, d: 0.05, g: 0.06, dest: o });
   } },
 
   /* ── 증강 ── */

@@ -387,7 +387,7 @@ export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
   const cur = items.findIndex((it) => it.key === value);
   const pick = (it, i) => {
     if (it.key === value) return;
-    playSfx('section', { dir: i > cur ? 1 : -1 }); // 본문이 통째로 바뀌는 탭 — 기본 톡 대신 옆으로 밀리는 소리
+    playSfx('section'); // 본문이 통째로 바뀌는 탭 — 기본 톡 대신 밀리는 소리(방향과 상관없이 같게)
     navTo(() => onChange(it.key), i > cur ? 'tab-r' : 'tab-l');
   };
   return (
