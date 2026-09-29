@@ -1,6 +1,7 @@
 /* 소리 단추 — 모든 화면 위쪽 바의 오른쪽 끝에 같은 모양(40px · 모서리 12px)으로 놓인다.
    누르면 아래로 배경음악 · 효과음 크기 · 음소거 판이 열린다(오른쪽 정렬, 프로필 창 소리 칸과 같은 설정). 화면마다 모양을 바꾸지 않는다 */
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getSettings, onSettings, setSettings } from './bgm.js';
 import { play as playSfx } from './sfx.js';
 
@@ -55,12 +56,23 @@ export default function BgmButton({ className = '' }) {
   const [s, setS] = useState(getSettings);
   const [open, setOpen] = useState(false);
   const box = useRef(null);
+  const panel = useRef(null);
+  /* 판은 body 맨 위 층(포털)에 단추 바로 아래로 — 위 바 안에 두면 뒤따르는 유리 판(backdrop-filter · 쌓임 맥락)이 판을 덮었다(토너먼트 대진표) */
+  const [at, setAt] = useState(null);
+  const toggle = () => {
+    if (open) { setOpen(false); return; }
+    const b = box.current?.getBoundingClientRect();
+    if (b) setAt({ top: b.bottom + 8, right: Math.max(8, window.innerWidth - b.right) });
+    setOpen(true);
+  };
   useEffect(() => onSettings(setS), []);
   useEffect(() => {
     if (!open) return undefined;
-    const close = (e) => { if (!box.current?.contains(e.target)) setOpen(false); };
+    const close = (e) => { if (!box.current?.contains(e.target) && !panel.current?.contains(e.target)) setOpen(false); };
+    const shut = () => setOpen(false); // 창 크기가 바뀌면 자리가 어긋나니 닫는다
     window.addEventListener('pointerdown', close);
-    return () => window.removeEventListener('pointerdown', close);
+    window.addEventListener('resize', shut);
+    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('resize', shut); };
   }, [open]);
   const chOn = (key) => !s.muted && !s[OFF_KEY[key]] && (s[key] ?? 0) > 0; // 이 채널이 지금 들리나
   const off = !chOn('vol') && !chOn('sfx');
@@ -89,14 +101,14 @@ export default function BgmButton({ className = '' }) {
   };
   return (
     <div ref={box} className={`relative shrink-0 ${className}`}>
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="소리" aria-expanded={open} title="소리 (M)"
+      <button type="button" onClick={toggle} aria-label="소리" aria-expanded={open} title="소리 (M)"
         className={`grid h-10 w-10 place-items-center bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,.1),inset_0_0_0_1px_rgba(255,255,255,.08)] transition hover:bg-white/[0.12] ${off ? 'text-gray-500' : 'text-gray-200'}`}
         style={{ clipPath: 'inset(0 round 12px)' }}>
         <Speaker off={off} />
       </button>
-      {open && (
-        /* 유리 판 — 위 바 단추 아래 오른쪽 정렬, 0.18초 살짝 내려오며(자주 여는 것이라 짧게) */
-        <div className="snd-in absolute right-0 top-full z-50 mt-2 flex w-72 flex-col gap-2 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.94),rgba(8,12,22,.97))] p-3 shadow-[0_16px_40px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md">
+      {open && at && createPortal(
+        /* 유리 판 — 단추 아래 오른쪽 정렬, 0.18초 살짝 내려오며(자주 여는 것이라 짧게) */
+        <div ref={panel} style={{ top: at.top, right: at.right }} className="snd-in fixed z-[85] flex w-72 flex-col gap-2 rounded-2xl border border-white/15 bg-[linear-gradient(180deg,rgba(30,38,58,.94),rgba(8,12,22,.97))] p-3 shadow-[0_16px_40px_rgba(0,0,0,.55),inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-md">
           <div className="flex items-center px-1 pb-0.5">
             <b className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">소리</b>
           </div>
@@ -108,7 +120,8 @@ export default function BgmButton({ className = '' }) {
             {s.muted ? '전체 소리 켜기' : '전체 음소거'}
             <kbd className="rounded-md bg-white/10 px-1.5 font-display text-t4 text-gray-300">M</kbd>
           </button>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
