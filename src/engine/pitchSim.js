@@ -14,7 +14,7 @@
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change',
  *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다),
  *     aim: 0~8 (노림 한 칸 — 맞으면 크게 · 옆 칸이면 조금) | 'ih'|'oh'|'il'|'ol' (네 칸 묶음), approach: 'power'|'contact' (강공 · 밀어치기),
- *     drag: true (bunt 와 함께 — 기습번트) }
+ *     drag: true (bunt 와 함께 — 기습번트), readBonus: true (보조 없이 읽었다 — 구종 예측 · 코스 노림이 맞았을 때 이득 ×1.5, 틀린 손해는 그대로) }
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
  *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
@@ -302,10 +302,12 @@ export function pitch(g, orders = {}) {
   const power = st(batter, 'power') + tb(off, 'bat');
   const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
-  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
+  const readX = orders.readBonus ? 1.5 : 1; // 보조(추천 · 퍼센트) 없이 읽은 사람 — 맞혔을 때만 더
+  const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 * readX : -0.1) : 0;
   const cornerPen = p.corner || 0; // 구석에 꽂힌 공은 맞히기 어렵다
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
-  const aimBonus = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
+  const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
+  const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
 
   // 스윙 여부

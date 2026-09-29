@@ -135,3 +135,13 @@ test('추천 — 후반 한 점 승부 3루 주자면 스퀴즈 · 2스트라이
   expect(recOf(at({ balls: 3, strikes: 1 })).guess).toBe('fast');
   expect(recOf(at({ inning: 2 })).play).toBe('power');
 });
+
+test('읽기 보너스(readBonus) — 맞힌 예측 · 노림만 더 이득, 틀린 손해는 그대로', () => {
+  const HIT = ['1B', '2B', '3B', 'HR'];
+  /* 늘 몸쪽 높게 직구 — 그 칸 노림이 늘 맞는다(예측까지 겹치면 확률 상한에 걸려 차이가 묻힌다) */
+  const right = (rb) => rate({ pitchType: 'fast', zone: 0, noPick: true, aim: 0, ...(rb ? { readBonus: true } : {}) }, HIT);
+  expect(right(true)).toBeGreaterThan(right(false) + 0.02);
+  /* 늘 틀리면 보너스가 있어도 같다(같은 시드) */
+  const wrong = (rb) => rate({ pitchType: 'fast', zone: 4, noPick: true, guess: 'change', aim: 8, ...(rb ? { readBonus: true } : {}) }, HIT);
+  expect(wrong(true)).toBe(wrong(false));
+});

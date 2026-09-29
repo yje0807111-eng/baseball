@@ -14,7 +14,7 @@ import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb } from './engine/winProb.js';
-import DuelPanel, { duelAi } from './play/DuelPanel.jsx';
+import DuelPanel, { duelAi, readAssist, saveAssist } from './play/DuelPanel.jsx';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
@@ -545,6 +545,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [duel, setDuel] = useState(null); // 판에 보일 것 { side, start, waiting, reveal }
   const duelRef = useRef(null); // 수싸움 중인 타석 { side, idx, inning, top, start }
   const duelWait = useRef(null); // 판이 고르기를 기다리는 약속 — 고르면 지시, 맡기면 null
+  /* 수싸움 보조(퍼센트 · 추천) — 경기 시작 때 켜져 있었거나 도중에 한 번이라도 켜면 이 경기는 읽기 보너스 없음 */
+  const [assist, setAssist] = useState(readAssist);
+  const assistUsed = useRef(assist);
+  const toggleAssist = () => { const on = !assist; setAssist(on); saveAssist(on); if (on) assistUsed.current = true; };
   const clutchLeft = useRef(CLUTCH_LIMIT); // 자동 승부처 남은 횟수
   const duelLeft = useRef(DUEL_LIMIT); // 수싸움 남은 횟수(자동 + 직접)
   const [wantDuel, setWantDuel] = useState(false); // '직접 승부'를 눌렀다 — 다음 공부터 판을 연다
@@ -884,7 +888,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
           opp={{ short: shortTeam(away.name), flag: teamFlag(away.name) }} me={{ flag: flagByKey(myBanner()) }}
           onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}
-          onHand={() => { const done = duelWait.current; if (done) { duelWait.current = null; done(null); } }} />
+          onHand={() => { const done = duelWait.current; if (done) { duelWait.current = null; done(null); } }}
+          assist={assist} bonus={!assistUsed.current} onAssist={toggleAssist} />
       )}
 
       <div className="relative grid h-full" style={{ gridTemplateRows: '72px 1fr' }}>

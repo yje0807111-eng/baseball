@@ -174,7 +174,7 @@ const heatFill = (pct, i) => {
   const c = a.map((v, k) => Math.round(v + (b[k] - v) * u));
   return `rgba(${c.join(',')},${(t ** 1.2 * 0.46).toFixed(2)})`;
 };
-function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null }) {
+function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null, labels = false }) {
   const B = size, m = chase ? Math.round(B * 0.2) : 0, gap = 8, W = B + m * 2, cell = B / grid;
   const cells = [];
   for (let r = 0; r < grid; r += 1) for (let c = 0; c < grid; c += 1) {
@@ -200,6 +200,7 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
       {cells.map((z) => (
         <g key={z.id} onClick={() => onPick?.(z.id)}>
           <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? heatFill(pct, z.id) : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
+          {labels && !pct && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 6} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>}
           {pct && <>
             <text x={z.x + z.w / 2} y={z.y + z.h / 2 - 2} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>
             <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 18} textAnchor="middle" fontSize="15" fontWeight="700" fill="#fdba74" opacity="0.8" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>
@@ -326,7 +327,15 @@ const CALL_KO = { ball: ['볼', BLUE], called: ['스트라이크', '#fde047'], s
  *  waiting: 고를 차례인가 · shots: 이 타석 공 [{ x, y, ev }]
  *  reveal: 방금 공 { ev, guess } · onGo(orders) · onHand() 맡기기
  */
-export default function DuelPanel({ g, side, board, opp, me, waiting, shots, reveal, onGo, onHand }) {
+/*
+ * 보조 — 공격 존 퍼센트 · 추천. 끄고 경기를 끝까지 가면 '읽기 보너스'(맞힌 구종 예측 · 코스 노림 이득 ×1.5).
+ * 한 경기에서 한 번이라도 켜면 그 경기는 보너스 없음(타석마다 켰다 껐다 못 하게). 켜고 끈 것은 다음 경기에도 이어진다.
+ */
+const ASSIST_KEY = 'kbo.duelAssist';
+export const readAssist = () => { try { return localStorage.getItem(ASSIST_KEY) !== 'off'; } catch { return true; } };
+export const saveAssist = (on) => { try { localStorage.setItem(ASSIST_KEY, on ? 'on' : 'off'); } catch { /* 저장 못 해도 이번 경기는 그대로 */ } };
+
+export default function DuelPanel({ g, side, board, opp, me, waiting, shots, reveal, onGo, onHand, assist = true, bonus = false, onAssist }) {
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
@@ -353,13 +362,13 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const stuff = st(pitcher, 'stuff', 79);
   const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
   const hitting = off && cat === 'hit' && play !== 'wait';
-  const rec = off ? recOf(g) : {};
+  const rec = off && assist ? recOf(g) : {};
   const canGo = waiting && (off ? okOf(cur, g) : zone != null);
   const go = () => {
     if (!canGo) return;
     if (off) {
       const base = typeof cur.order === 'function' ? cur.order(g) : cur.order;
-      onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}) });
+      onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}), ...(bonus ? { readBonus: true } : {}) });
     } else {
       onGo({ pitchType: pk, ...(typeof zone === 'number' ? { zone, exact: true } : { zone: 'chase', band: zone }) });
       setZone(null);
@@ -432,7 +441,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 186, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
-        {off ? <Zone size={300} chase={false} sel={aim} marks={marks} pct={locOf(g)} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
+        {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
@@ -483,13 +492,25 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
             </button>
           ))}
         </> : <>
-          <div style={{ display: 'inline-flex', gap: 4, padding: 5, borderRadius: 16, background: 'rgba(255,255,255,.06)', justifySelf: 'start' }}>
+          {/* 탭 줄 오른쪽 — 보조 켜고 끄기 · 읽기 보너스 상태 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'inline-flex', gap: 4, padding: 5, borderRadius: 16, background: 'rgba(255,255,255,.06)' }}>
             {CATS.map(([k, ko]) => (
               <button key={k} type="button" className={`tab ${cat === k ? 'on' : ''}`} disabled={!DUEL_PLAYS[k].some((p) => okOf(p, g))} style={{ position: 'relative' }}
                 onClick={() => { setCat(k); setPlay((DUEL_PLAYS[k].find((p) => okOf(p, g)) || DUEL_PLAYS[k][0]).k); }}>
-                {ko}{catOf(rec.play) === k && <i aria-label="추천" style={{ position: 'absolute', left: '50%', bottom: 3, transform: 'translateX(-50%)', width: 16, height: 2, borderRadius: 2, background: cat === k ? 'rgba(28,18,3,.45)' : 'rgba(255,255,255,.45)' }} />}
+                {ko}{rec.play && catOf(rec.play) === k && <i aria-label="추천" style={{ position: 'absolute', left: '50%', bottom: 3, transform: 'translateX(-50%)', width: 16, height: 2, borderRadius: 2, background: cat === k ? 'rgba(28,18,3,.45)' : 'rgba(255,255,255,.45)' }} />}
               </button>
             ))}
+          </div>
+          <button type="button" onClick={onAssist} title={bonus ? '보조를 켜면 이 경기 읽기 보너스가 사라짐' : undefined}
+            style={{ all: 'unset', cursor: 'pointer', display: 'grid', justifyItems: 'end', gap: 2 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, fontWeight: 800, color: assist ? '#e2e8f0' : MUTE }}>
+              보조<i style={{ position: 'relative', width: 30, height: 16, borderRadius: 999, background: assist ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
+                <i style={{ position: 'absolute', top: 2, left: assist ? 16 : 2, width: 12, height: 12, borderRadius: '50%', background: assist ? '#0b1220' : MUTE, transition: 'left .15s' }} />
+              </i>
+            </span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: bonus ? GOLD : '#64748b' }}>{bonus ? '읽기 보너스' : assist ? '' : '이 경기 보너스 없음'}</span>
+          </button>
           </div>
           {DUEL_PLAYS[cat].map((p, i) => (
             <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''} ${rec.play === p.k ? 'rec' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>
