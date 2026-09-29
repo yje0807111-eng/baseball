@@ -7,7 +7,7 @@ export const MISSIONS = [
   { id: 'win5', ko: '승리 5번', ev: 'win', goal: 5, gold: 400 },
   { id: 'games8', ko: '경기 8번', ev: 'game', goal: 8, gold: 300 },
   { id: 'gain10', ko: '내 지시로 승률 +10%p 경기', ev: 'gain10', goal: 1, gold: 400 },
-  { id: 'aug10', ko: '증강 10장 고르기', ev: 'aug', goal: 10, gold: 300 },
+  { id: 'aug10', ko: '증강 10장 고르기', ev: 'aug', goal: 10, gold: 0, ticket: 1 }, // 증강 과제는 증강 강화권으로
   { id: 'cup', ko: '조건부 대회 열기', ev: 'cup', goal: 1, gold: 500 },
   { id: 'tour8', ko: '토너먼트 8강 이상', ev: 'tour8', goal: 1, gold: 500 },
   { id: 'memento', ko: '드래프트 기념 카드 받기', ev: 'memento', goal: 1, gold: 500 },
@@ -15,6 +15,14 @@ export const MISSIONS = [
 ];
 export const WEEK_COUNT = 3;
 export const WEEK_BONUS = 500;
+/*
+ * 증강 강화권 — 상점(600 G)밖에 얻을 곳이 없어 한 증강을 +5 로 올리려면(15장) 골드만 9,000 G 가 들었다.
+ * 컴프야 · 하스스톤처럼 주간 보상으로도 준다: 보너스에 1장(매주), 증강 과제에 1장(그 과제가 나온 주)
+ */
+export const WEEK_BONUS_TICKET = 1;
+/** 보상 글 — '400 G' · '강화권 1장' · '500 G · 강화권 1장' */
+export const rewardKo = ({ gold = 0, ticket = 0 }) => [gold ? `${gold.toLocaleString()} G` : '', ticket ? `강화권 ${ticket}장` : ''].filter(Boolean).join(' · ');
+export const BONUS_KO = rewardKo({ gold: WEEK_BONUS, ticket: WEEK_BONUS_TICKET });
 
 /** 주 열쇠 — 그 주 월요일 날짜 (현지 시각) */
 export function weekKey(d = new Date()) {

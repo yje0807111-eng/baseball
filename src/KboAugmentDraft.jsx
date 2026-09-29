@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
 import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
-import { CLUB_MAX } from './myteam/rules.js';
+import { clubMax } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
 import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNTLET_MID_MEMENTO, GAUNTLET_MID_AT, asClubPlayer } from './draft/memento.js';
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
@@ -3821,7 +3821,7 @@ function MementoOverlay({ memento, onTake, onSkip }) {
         <div className="fx-rise text-center">
           <p className="ui-lab font-display" style={{ '--a': '#fbbf24' }}>드래프트 기념 카드 · {memento.why}</p>
           <h2 className="mt-2 text-4xl font-black text-white">한 명 데려오기</h2>
-          {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({CLUB_MAX}명)</p>}
+          {memento.full && <p className="mt-2 text-t3 font-bold text-[#f87171]">보관함 가득 ({memento.max}명)</p>}
         </div>
         <div className="flex flex-wrap justify-center gap-5">
           {memento.options.map((p, i) => {
@@ -5162,7 +5162,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     mementoDone.current.add(rule.why);
     const options = mementoOptions(roster, rule, (p) => ownsInAccount(asClubPlayer(p)));
     if (!options.length) return;
-    setMemento({ ...rule, options, full: (me.team?.club || []).length >= CLUB_MAX });
+    setMemento({ ...rule, options, full: (me.team?.club || []).length >= clubMax(me.team), max: clubMax(me.team) });
   };
   /* 드래프트 판의 내 팀 이름 = 내 구단 이름(프로필에서 지은 것 · 없으면 감독 이름) */
   const myClub = useMemo(() => { const a = loadAccount(); return a?.team?.name || a?.nick || '내 팀'; }, []);

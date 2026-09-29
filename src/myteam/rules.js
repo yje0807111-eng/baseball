@@ -12,7 +12,11 @@ export const SQUAD_SIZE = 26; // 출전 가능 인원
 export const FOREIGN_MAX = 3; // 외국인 선수 한도
 export const SQUAD_CAP = 2330; // 샐러리 캡(CP) — 26명 × 약 78 + 코치진
 /** 보관함 — 엔트리 밖에 두는 보유 선수(CP 에 셈하지 않는다). 드래프트 기념 카드 · 잠시 빼 둔 선수 */
-export const CLUB_MAX = 20;
+export const CLUB_MAX = 20; // 보관함 기본 칸
+/* 보관함 확장 — 상점에서 +10칸씩 두 번(최대 40칸). 컴프야처럼 늘릴 수는 있지만 끝이 있어 '남길지 · 방출할지' 고르는 이유가 남는다 */
+export const CLUB_STEP = 10;
+export const EXTRA_CLUB_MAX = 2;
+export const clubMax = (team) => CLUB_MAX + CLUB_STEP * Math.min(EXTRA_CLUB_MAX, Math.max(0, team?.extraClub || 0));
 
 /** 포지션 구성: 최소~최대. 합이 26이 되도록 뽑는다 */
 export const POS_RULES = [
@@ -69,9 +73,9 @@ export const squadCost = (squad, staff = {}) =>
 export const foreignCount = (squad) => squad.filter((p) => p.isForeign).length;
 
 /** 엔트리가 꽉 찼을 때 보관함으로 영입할 수 있나 — 안 되면 이유. 보관함은 CP · 포지션 · 외국인 한도를 따지지 않는다 */
-export function clubAddReason(player, squad, club, gold = null, price = null) {
+export function clubAddReason(player, squad, club, gold = null, price = null, max = CLUB_MAX) {
   if ([...squad, ...club].some((p) => p.personId === player.personId)) return '이미 가진 선수';
-  if (club.length >= CLUB_MAX) return `보관함 ${CLUB_MAX}칸이 모두 찼음`;
+  if (club.length >= max) return `보관함 ${max}칸이 모두 찼음`;
   const cost = price ?? priceOf(player);
   if (gold != null && cost > gold) return `골드 부족 (${(cost - gold).toLocaleString()} G 모자람)`;
   return null;

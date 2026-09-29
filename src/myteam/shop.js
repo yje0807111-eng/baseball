@@ -8,7 +8,8 @@
  *  감독 계약: 감독을 CP 없이 선임
  */
 import { overallOf } from '../data/ratings.js';
-import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX, SQUAD_CAP } from './rules.js';
+import { seeded, todayKey } from './market.js';
+import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX, EXTRA_CLUB_MAX, SQUAD_CAP } from './rules.js';
 import { PRESET_EXTRA_MAX } from './presets.js';
 
 export const CATEGORIES = [
@@ -41,6 +42,7 @@ export const SHOP_ITEMS = [
   // 운영
   item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
   item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
+  item('op-club', 'ops', '보관함 확장', '보관함 +10칸 · 영구 (최대 2번)', 700, { expand: 'club', img: 'mt-pack', art: 'op-bench' /* ponytail: 전용 그림 전까지 벤치 확장 그림 — scripts/shop-art.mjs 에 프롬프트 있음 */ }),
   item('op-preset', 'ops', '프리셋 칸 +1', '엔트리 조합 저장 칸 +1 · 영구 (최대 2번)', 600, { expand: 'preset', img: 'mt-pack' }),
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구 (합계 최대 +200)', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구 (합계 최대 +200)', 1800, { cap: 100, img: 'mt-pack' }),
@@ -54,8 +56,36 @@ export const SHOP_ITEMS = [
   item('st-upgrade', 'staff', '코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
 ];
 
+/*
+ * 오늘의 상품 — 날짜(현지 자정)를 씨앗으로 매일 셋을 25% 싸게, 상품마다 하루 한 번(클래시 로얄 일일 특가).
+ * 모두에게 같은 날 같은 셋. 첫 칸은 늘 훈련(자주 사는 것), 나머지 둘은 다른 분류에서.
+ * 영구 확장 · 캡 · 묶음은 빼 둔다 — 한도가 있는 상품을 할인으로 서두르게 하지 않는다
+ */
+export const SHOP_DEAL_N = 3;
+export const SHOP_DEAL_OFF = 0.25;
+const dealable = (it) => !it.expand && !it.cap && !it.bulk;
+export function shopDeals(key = todayKey()) {
+  const rng = seeded(`shop-${key}`);
+  const pick = (list) => list[Math.floor(rng() * list.length)];
+  const pool = SHOP_ITEMS.filter(dealable);
+  const first = pick(pool.filter((it) => it.cat === 'training'));
+  const out = [first];
+  const rest = pool.filter((it) => it.cat !== 'training');
+  while (out.length < SHOP_DEAL_N && rest.length) {
+    const it = pick(rest);
+    rest.splice(rest.indexOf(it), 1);
+    if (!out.some((x) => x.cat === it.cat) || rest.length < SHOP_DEAL_N) out.push(it); // 분류가 겹치지 않게(모자라면 허용)
+  }
+  return out.map((it) => it.id);
+}
+export const shopDealPrice = (it) => Math.round((it.price * (1 - SHOP_DEAL_OFF)) / 10) * 10;
+/** 오늘 이 계정이 산 특가 id — 날이 바뀌면 빈 목록 */
+export const shopDealsBought = (daily, key = todayKey()) => (daily?.day === key ? daily.bought || [] : []);
+/** 지금 치를 값 — 오늘의 상품이고 오늘 아직 안 샀으면 특가 */
+export const shopPriceOf = (it, daily, key = todayKey()) => (shopDeals(key).includes(it.id) && !shopDealsBought(daily, key).includes(it.id) ? shopDealPrice(it) : it.price);
+
 /** 상품 그림 (public/ui/shop/<상품 id>.webp — scripts/shop-art.mjs 로 만든다. 장면은 상품마다, 빛 색은 분류마다) */
-export const itemArt = (it) => `ui/shop/${it.id}.webp`;
+export const itemArt = (it) => `ui/shop/${it.art || it.id}.webp`; // art: 그림이 나오기 전 임시로 빌려 쓰는 상품 그림
 
 /* ───── 드래프트 권: 사 두면 계정에 쌓이고, 드래프트 판에서 한 장씩 쓴다 ───── */
 export const DRAFT_TICKETS = ['reroll', 'series'];
@@ -139,9 +169,9 @@ export const clearFatigue = (team) => ({ ...team, pitchFatigue: {} });
 export const tiredCount = (team) => Object.values(team?.pitchFatigue || {}).filter((f) => (f?.rest || 0) > 0).length;
 
 /* ───── 팀 틀 확장: 엔트리 한 자리 · 외국인 한 명 (영구, 횟수 제한) ───── */
-export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign', preset: 'presetSlots' };
-export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX, preset: PRESET_EXTRA_MAX };
-export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도', preset: '프리셋 칸' };
+export const EXPAND_KEY = { slot: 'extraSlots', foreign: 'extraForeign', preset: 'presetSlots', club: 'extraClub' };
+export const EXPAND_MAX = { slot: EXTRA_SLOT_MAX, foreign: EXTRA_FOREIGN_MAX, preset: PRESET_EXTRA_MAX, club: EXTRA_CLUB_MAX };
+export const EXPAND_KO = { slot: '엔트리 자리', foreign: '외국인 한도', preset: '프리셋 칸', club: '보관함 칸' };
 /** 몇 번 더 살 수 있나 */
 export const expandLeft = (team, kind) => Math.max(0, EXPAND_MAX[kind] - (team?.[EXPAND_KEY[kind]] || 0));
 /** 한 번 넓힌 팀 — 한도를 넘으면 그대로 */

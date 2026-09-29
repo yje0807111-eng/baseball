@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
+import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
@@ -216,7 +216,7 @@ function EmptyDetail() {
 }
 
 /** 오른쪽 상세 — 모드 설명 패널 문법: 큰 사진 · 수치 칸 · 막대 · 키-값 · 아래 큰 버튼 */
-function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold = 0, priceFor = priceOf, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0, fresh = null }) {
+function DetailPanel({ p, squad, club = [], clubCap = CLUB_MAX, staff, cap, lim = BASE_LIMITS, gold = 0, priceFor = priceOf, outId = null, onOut, onAdd, onSwap, onRelease, onStore, onEnter, playing, onUpgrade, itemsFit = 0, fresh = null }) {
   if (!p) return <EmptyDetail />;
   const owned = squad.some((x) => x.id === p.id);
   const stored = !owned && club.some((x) => x.id === p.id); // 보관함 선수 — 엔트리로 들이는 데 골드가 들지 않는다
@@ -226,14 +226,14 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   const price = stored ? 0 : priceFor(p); // 오늘의 특가면 그 값
   /* 엔트리가 꽉 찼으면 한 명을 내보내며 들인다 — 엔트리 전원이 후보(같은 포지션 → 같은 투타 → 나머지, 약한 순).
      오른쪽엔 막히지 않는 앞 셋만 추천으로, 전원은 '더보기' 팝업에서. 기본 선택 = 막히지 않는 첫 후보 */
-  const toClub = !owned && !stored && squad.length >= lim.size && club.length < CLUB_MAX;
+  const toClub = !owned && !stored && squad.length >= lim.size && club.length < clubCap;
   const swap = !owned && !toClub && squad.length >= lim.size;
   const pool = swap ? swapCandidates(p, squad).map((x) => ({ x, why: swapBlockReason(p, x, squad, staff, cap, lim, pay, price) })) : [];
   const out = swap ? (pool.find((o) => o.x.id === outId) || pool.find((o) => !o.why) || pool[0])?.x || null : null;
   const ok = pool.filter((o) => !o.why).map((o) => o.x);
   const cands = [...new Set([out, ...(ok.length ? ok : pool.map((o) => o.x))].filter(Boolean))].slice(0, 3); // 팝업에서 고른 선수는 맨 앞에
   const after = owned ? cost - p.cost : cost + p.cost - (out?.cost || 0);
-  const blocked = owned ? null : toClub ? clubAddReason(p, squad, club, pay, price) : swap ? swapBlockReason(p, out, squad, staff, cap, lim, pay, price) : addBlockReason(p, squad, staff, cap, lim, pay, price);
+  const blocked = owned ? null : toClub ? clubAddReason(p, squad, club, pay, price, clubCap) : swap ? swapBlockReason(p, out, squad, staff, cap, lim, pay, price) : addBlockReason(p, squad, staff, cap, lim, pay, price);
   const mine = owned ? squad.find((x) => x.id === p.id) : stored ? club.find((x) => x.id === p.id) : null;
   /* 환급: 엔트리 · 보관함 선수는 그 선수 몫, 영입 교체면 내보내는 선수 몫(보관함으로 들이는 교체는 나가는 선수가 보관함으로 가니 없음) */
   const refund = mine ? refundOf(mine) : out && !stored ? refundOf(out) : 0;
@@ -249,7 +249,7 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand}
     gold={gold} price={price} refund={refund} cands={cands} pool={pool} out={out} onOut={onOut} onSwap={onSwap}
-    stored={stored} clubFull={club.length >= CLUB_MAX} clubN={club.length} toClub={toClub} onStore={onStore} onEnter={onEnter} fresh={fresh} />;
+    stored={stored} clubFull={club.length >= clubCap} clubN={club.length} clubCap={clubCap} toClub={toClub} onStore={onStore} onEnter={onEnter} fresh={fresh} />;
 }
 
 /** 반짝이 카드 — 선수 카드 그림 · 이름 · 은빛 종합. 빛줄기가 지나가고 마우스를 따라 기울어진다 */
@@ -339,7 +339,7 @@ function OutPicker({ p, pool, out, stored, onPick, onClose }) {
 }
 
 function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], pool = [], out = null, onOut, onSwap,
-  stored = false, clubFull = false, clubN = 0, toClub = false, onStore, onEnter, fresh = null }) {
+  stored = false, clubFull = false, clubN = 0, clubCap = CLUB_MAX, toClub = false, onStore, onEnter, fresh = null }) {
   const [outAll, setOutAll] = useState(false); // 내보낼 선수 전원 팝업
   const goldAfter = owned || stored ? gold + (stored ? 0 : refund) : gold + refund - price;
   return (
@@ -409,7 +409,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
         {!owned && !stored && <KV sm k="영입가" v={`${price.toLocaleString()} G`} color={GOLD} />}
         <KV sm k="남는 골드" v={goldAfter.toLocaleString()} color={goldAfter < 0 ? '#f87171' : '#fff'} />
         {toClub /* 보관함으로 사면 엔트리 · 캡은 그대로 — 보관함 칸만 */
-          ? <KV sm k="보관함" v={`${clubN} → ${clubN + 1} / ${CLUB_MAX}`} />
+          ? <KV sm k="보관함" v={`${clubN} → ${clubN + 1} / ${clubCap}`} />
           : (
             <>
               <KV sm k="남는 캡" v={(cap - after).toLocaleString()} color={after > cap ? '#f87171' : '#fff'} />
@@ -458,7 +458,7 @@ const LOCKER_RULES = [
   ['둘의 차례', '초반엔 골드 · 선수가 좋아지면 CP', '#e5e7eb'],
   ['꽉 찬 엔트리', '보관함으로 영입 · 보관함도 차면 교체 영입', '#e5e7eb'],
   ['방출', '산 값의 절반 환급', '#fca5a5'],
-  ['보관함', '엔트리 밖 20명 · CP 에 안 셈', '#e5e7eb'],
+  ['보관함', '엔트리 밖 20명 · 확장 최대 40명 · CP 에 안 셈', '#e5e7eb'],
   ['프리셋', '엔트리 조합 저장 · 최대 3', '#e5e7eb'],
   ['시세', '영입가 × 인기(수상) × 그날 흐름', '#e5e7eb'],
   ['오늘의 특가', '매일 12명 · 30% 할인', '#fb923c'],
@@ -778,7 +778,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
   /* 영입 — 엔트리가 꽉 찼으면 보관함으로 산다(FC 온라인: 산 선수는 보유 선수로 → 스쿼드엔 따로 넣기). 보관함도 차면 교체 영입만 */
   const toClub = squad.length >= lim.size;
   const add = (p) => {
-    const why = toClub ? clubAddReason(p, squad, clubList, gold, priceFor(p)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p));
+    const why = toClub ? clubAddReason(p, squad, clubList, gold, priceFor(p), clubMax(team)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p));
     if (!why) { settle(dealBump(p, recruitPlayer(team, p, priceFor(p), toClub ? 'club' : 'squad'))); setFresh({ id: p.id, k: `${Date.now()}` }); }
   };
   const release = (p) => { settle(inClub(p) ? releaseFromClub(team, p.id) : releasePlayer(team, p.id)); setSel(null); };
@@ -791,9 +791,10 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
   const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, swapPlayer(team, p, priceFor(p), out.id))); setOutId(null); setFresh({ id: p.id, k: `${Date.now()}` }); } };
   /* 목록 한 줄의 막는 이유 — 꽉 찼으면 첫 교체 후보로 따진다 */
   const full = squad.length >= lim.size;
-  const clubFullNow = clubList.length >= CLUB_MAX;
+  const clubCap = clubMax(team); // 상점 보관함 확장으로 20 → 40
+  const clubFullNow = clubList.length >= clubCap;
   const swapOnly = full && clubFullNow; // 엔트리 · 보관함 둘 다 차면 목록 단추는 '교체'(오른쪽에서 내보낼 선수 고르기)
-  const rowBlock = (p) => (full && !clubFullNow ? clubAddReason(p, squad, clubList, gold, priceFor(p)) : full ? (swapPick(p, squad, staff, cap, lim, gold, priceFor(p)) ? null : swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p))) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
+  const rowBlock = (p) => (full && !clubFullNow ? clubAddReason(p, squad, clubList, gold, priceFor(p), clubCap) : full ? (swapPick(p, squad, staff, cap, lim, gold, priceFor(p)) ? null : swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p))) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
   useEffect(() => { setOutId(null); }, [sel?.id]);
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
   /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
@@ -977,9 +978,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
 
         {tab === 'club' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
-            {head('보관함', `${clubList.length} / ${CLUB_MAX}`)}
+            {head('보관함', `${clubList.length} / ${clubCap}`)}
             {clubList.length === 0 ? (
-              <ClubEmpty max={CLUB_MAX} onSquad={() => navTo(() => setTab('squad'), 'tab-l')} onDraft={onDraft} />
+              <ClubEmpty max={clubCap} onSquad={() => navTo(() => setTab('squad'), 'tab-l')} onDraft={onDraft} />
             ) : (
             <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
@@ -1177,7 +1178,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
           );
         })()
           : (
-          <DetailPanel fresh={fresh && shown && fresh.id === shown.id ? fresh.k : null} p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
+          <DetailPanel fresh={fresh && shown && fresh.id === shown.id ? fresh.k : null} p={shown} squad={squad} club={clubList} clubCap={clubCap} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
             itemsFit={fitTraining(shown).length /* 고르지 않고 기본으로 떠 있는 선수도 — sel 이 아니라 보이는 선수 기준 */}
             onUpgrade={(x) => { setItemTarget(x); setItemId(fitTraining(x)[0]?.id || null); setTab('items'); }} />

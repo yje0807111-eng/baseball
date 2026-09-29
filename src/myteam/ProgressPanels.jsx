@@ -7,7 +7,7 @@ import { SERIES } from '../data/seriesPlayers.js';
 import { seriesName } from './aiTeam.js';
 import { Btn, KV, Portrait, Stats } from './ui.jsx';
 import { DEX_STEPS, seriesProgress, claimableSteps } from './dex.js';
-import { missionState, weekKey, WEEK_BONUS, WEEK_COUNT } from './missions.js';
+import { missionState, weekKey, WEEK_COUNT, rewardKo, BONUS_KO } from './missions.js';
 import { claimDex, claimMission, claimWeekBonus } from './store.js';
 import { GrowBar, Burst } from '../ui/motion.jsx';
 
@@ -133,7 +133,7 @@ export function WeekView({ account, onAccount }) {
               background: done ? 'linear-gradient(90deg,rgba(251,191,36,.14),rgba(255,255,255,.03))' : 'rgba(255,255,255,.04)', boxShadow: done && !claimed ? `inset 0 0 0 1px ${WEEK}` : undefined }}>
               <span className="min-w-0">
                 <b className="block truncate text-t2 font-black text-white">{m.ko}</b>
-                <small className="font-display text-t3 text-amber-300">{m.gold} G</small>
+                <small className="font-display text-t3 text-amber-300">{rewardKo(m)}</small>
               </span>
               <span>
                 <span className="flex justify-between text-t4 text-gray-400"><span>진행</span><b className="font-display text-t3 text-white">{n} / {m.goal}</b></span>
@@ -143,7 +143,7 @@ export function WeekView({ account, onAccount }) {
                 <Btn pri={done && !claimed} a={WEEK} disabled={!done || claimed} onClick={() => take(m.id)}>{claimed ? '받음 ✓' : done ? '받기' : '진행 중'}</Btn>
                 {took === m.id && (
                   <span className="pointer-events-none absolute inset-0 grid place-items-center">
-                    <b className="fx-stamp -rotate-6 rounded-md px-3 py-0.5 font-display text-t2 font-extrabold" style={{ '--d': '40ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 24px rgba(245,210,122,.7)' }}>+{m.gold} G</b>
+                    <b className="fx-stamp -rotate-6 rounded-md px-3 py-0.5 font-display text-t2 font-extrabold" style={{ '--d': '40ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 24px rgba(245,210,122,.7)' }}>+{rewardKo(m)}</b>
                     <Burst n={14} spread={90} size={5} delay={160} />
                   </span>
                 )}
@@ -156,16 +156,16 @@ export function WeekView({ account, onAccount }) {
       <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-6" style={{ ...cut(20), '--a': WEEK }}>
         <p className="mt-lab" style={{ '--a': WEEK }}>주간 보너스</p>
         <h2 className="relative -mt-2 text-t1 font-black text-white">
-          <span key={took === 'bonus' ? 'b' : 'n'} className={`inline-block ${took === 'bonus' ? 'fx-stamp' : ''}`}>{WEEK_BONUS} G</span>
+          <span key={took === 'bonus' ? 'b' : 'n'} className={`inline-block ${took === 'bonus' ? 'fx-stamp' : ''}`}>{BONUS_KO}</span>
           {took === 'bonus' && <Burst n={22} spread={140} delay={200} />}
         </h2>
         <Stats items={[['끝낸 과제', `${doneN}/${WEEK_COUNT}`], ['받은 과제', `${list.filter((x) => x.claimed).length}/${WEEK_COUNT}`]]} />
         <div>
           <KV k="새 과제" v={`${next.getMonth() + 1}월 ${next.getDate()}일`} />
-          <KV k="과제 보상 합" v={`${list.reduce((s, x) => s + x.m.gold, 0).toLocaleString()} G`} color={WEEK} />
+          <KV k="과제 보상 합" v={rewardKo({ gold: list.reduce((s, x) => s + (x.m.gold || 0), 0), ticket: list.reduce((s, x) => s + (x.m.ticket || 0), 0) })} color={WEEK} />
         </div>
         <Btn pri={allTaken && !bonusTaken} a={WEEK} className="mt-auto w-full" disabled={!allTaken || bonusTaken} onClick={bonus}>
-          {bonusTaken ? '보너스 받음 ✓' : allTaken ? `보너스 받기 · ${WEEK_BONUS} G` : `과제 ${WEEK_COUNT}개를 받으면 열림`}
+          {bonusTaken ? '보너스 받음 ✓' : allTaken ? `보너스 받기 · ${BONUS_KO}` : `과제 ${WEEK_COUNT}개를 받으면 열림`}
         </Btn>
       </aside>
     </>
