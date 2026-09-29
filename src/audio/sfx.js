@@ -111,12 +111,10 @@ export const RECIPES = {
     tone(t, { type: 'triangle', f: note(0, 6), d: 0.05, g: 0.08, dest: o });
     tone(t + 0.04, { type: 'triangle', f: note(3, 5), d: 0.07, g: 0.08, dest: o });
   } },
-  /* 숫자 세기 — 틱마다 5음을 한 칸씩 오름(step), 다 세면 pop */
-  countTick: { len: 0.06, fn(t, o, { tone, note, step = 0 }) { tone(t, { type: 'square', f: note(step, 5), d: 0.025, g: 0.055, dest: o }); } },
-  countPop: { len: 0.4, fn(t, o, { tone, bell, note }) {
-    tone(t, { f: note(3, 5), f2: note(0, 7), d: 0.08, g: 0.14, dest: o });
-    bell(t + 0.05, { f: note(0, 6), ratio: 4, idx: 1.2, d: 0.3, g: 0.14, dest: o });
-  } },
+  /* 숫자 세기 — 경기 결과 내 점수 · 아이템 사용 능력치 · 랭크 RP. 세는 동안 계수기 기계 톡(ESM HD Lock & Mechanism) 60ms 를 같은 음으로,
+     다 세면 ③ 확정(딸깍 + 째깍)으로 걸림. 틱은 45ms 에 한 번까지라 작게 */
+  countTick: { file: 'audio/sfx/count-tick.mp3', gain: 0.22, vary: 0.02, len: 0.08 },
+  countPop: { alias: 'press' },
   /* 초읽기 — 남은 초(sec 5 → 1)가 줄수록 높고 크게. 1초는 한 칸 더 */
   tick: { len: 0.1, fn(t, o, { tone, noise, note, sec = 5 }) {
     const k = 5 - sec;
