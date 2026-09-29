@@ -10,7 +10,7 @@
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot } from '../engine/pitchSim.js';
+import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 
@@ -314,7 +314,7 @@ const locKo = (t) => (Math.abs(t.x) <= 1 && Math.abs(t.y) <= 1 ? zoneKo(cellOf(t
  * 금색 원 = 이 투수가 흩어지는 범위(반쯤 이 안에 떨어진다 — 제구 · 피로로 커진다). 보조면 칸별 피안타 색 · 추천 자리(점선 원).
  */
 const PAD_B = 300, PAD_M = 50, PAD_W = PAD_B + PAD_M * 2, PAD_LIM = 1 + PAD_M / (PAD_B / 2) - 0.03;
-function AimPad({ g, target, setTarget, marks, danger, recAt, enabled }) {
+function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false }) {
   const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B;
   const drag = useRef(false); // 누른 채 끄는 중 — 같은 틱의 이동도 바로 따라가게(상태 대신 ref)
   const at = (e) => {
@@ -322,7 +322,7 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled }) {
     const clampL = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v));
     setTarget({ x: clampL((((e.clientX - r.left) * k - PAD_M) / PAD_B) * 2 - 1), y: clampL((((e.clientY - r.top) * k - PAD_M) / PAD_B) * 2 - 1) });
   };
-  const sd = aimSpreadOf(g), cell = PAD_B / 3;
+  const sd = aimSpreadOf(g) * (focus ? FOCUS_SPREAD : 1), cell = PAD_B / 3;
   return (
     <svg width={PAD_W} height={PAD_W + 30} viewBox={`0 0 ${PAD_W} ${PAD_W + 30}`} style={{ overflow: 'visible', touchAction: 'none', cursor: enabled ? 'crosshair' : 'default' }}
       onPointerDown={enabled ? (e) => { e.currentTarget.setPointerCapture?.(e.pointerId); drag.current = true; at(e); } : undefined}
@@ -432,7 +432,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
   const [pk, setPk] = useState('fast');
-  const [target, setTarget] = useState(null); // 수비 조준 자리 { x, y } — 던진 뒤에도 남겨 조금씩 옮기게
+  const [target, setTarget] = useState(null);
+  const [focus, setFocus] = useState(false); // 집중 투구 — 켜 두면 공마다 체력을 더 쓰고 흩어짐이 좁다 // 수비 조준 자리 { x, y } — 던진 뒤에도 남겨 조금씩 옮기게
   const [cat, setCat] = useState('hit');
   const [play, setPlay] = useState('power');
   const [guess, setGuess] = useState(null);
@@ -463,7 +464,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       const base = typeof cur.order === 'function' ? cur.order(g) : cur.order;
       onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}), ...(bonus ? { readBonus: true } : {}) });
     } else {
-      onGo({ pitchType: pk, target, ...(bonus ? { readBonus: true } : {}) });
+      onGo({ pitchType: pk, target, ...(focus ? { focus: true } : {}), ...(bonus ? { readBonus: true } : {}) });
     }
   };
   useEffect(() => {
@@ -484,7 +485,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const marks = shots.map((s) => ({ x: s.x, y: s.y, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   const pickKo = off
     ? `${cur.ko}${hitting ? ` · ${AIM_T.find((a) => a[0] === guess)[1]}${aim != null ? ` · ${zoneKo(aim)}` : ''}` : ''}`
-    : `${DUEL_PITCH[pk].ko} · ${target ? locKo(target) : '코스 고르기'}`;
+    : `${DUEL_PITCH[pk].ko} · ${target ? locKo(target) : '코스 고르기'}${focus ? ' · 집중' : ''}`;
   const R = showRev;
   const rp = R?.ev?.pitch;
   const [callKo, callC] = R ? (CALL_KO[R.ev.call] || [R.ev.call === 'inplay' ? '인플레이' : '', '#fff']) : [];
@@ -537,7 +538,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} />}
+          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
@@ -586,6 +587,12 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>
           ))}
+          {/* 집중 투구 — 흩어짐 ↓ · 체력 3배(한 공 1 + FOCUS_COST 구) */}
+          <button type="button" className={`opt ${focus ? 'on' : ''}`} onClick={() => setFocus((v) => !v)} style={{ marginTop: 6 }}>
+            <i style={{ width: 16, height: 16, borderRadius: '50%', flex: 'none', boxShadow: `inset 0 0 0 2px ${GOLD}`, background: focus ? GOLD : 'transparent' }} />
+            <b style={{ fontSize: 19, flex: 1 }}>집중 투구</b>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#cbd5e1' }}>제구 ↑ · 체력 {1 + FOCUS_COST}배</span>
+          </button>
         </> : <>
           {/* 탭 줄 오른쪽 — 보조 켜고 끄기 · 읽기 보너스 상태 */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

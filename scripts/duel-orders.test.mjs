@@ -170,3 +170,16 @@ test('자유 조준 — 제구만큼 흩어지고, 한가운데는 위험 · 구
   const hotZone = { in: 3, out: 5, high: 1, low: 7, even: 4 }[k];
   expect(hotAdjOf(b, hotZone)).toBe(k === 'even' ? 0 : 0.07);
 });
+
+test('집중 투구 — 흩어짐이 좁고 체력을 3구만큼 쓴다(많이 쓰면 지쳐 다시 넓어지니 앞 20구만)', () => {
+  const spread = (focus) => {
+    const g = createGame({ home: team('H'), away: team('A'), rng: seeded(31) });
+    let d = 0, n = 0;
+    for (let i = 0; i < 20; i += 1) { const ev = pitch(g, { target: { x: 0, y: 0 }, ...(focus ? { focus: true } : {}) }); if (ev?.pitch?.xy) { d += Math.hypot(...ev.pitch.xy); n += 1; } }
+    return d / n;
+  };
+  expect(spread(true)).toBeLessThan(spread(false) * 0.75);
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(32) });
+  pitch(g, { target: { x: 0.5, y: 0.5 }, focus: true });
+  expect(g.home.pitches).toBe(3);
+});

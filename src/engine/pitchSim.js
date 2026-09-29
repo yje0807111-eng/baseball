@@ -18,6 +18,7 @@
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
  *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
+ *     focus: true (target 과 함께 — 집중 투구: 흩어짐 ×FOCUS_SPREAD, 체력은 그 공 1구 + FOCUS_COST 구),
  *     target: { x, y } (수싸움 자유 조준 — 존 반폭 · 반높이 = 1, x 음수 = 몸쪽 · y 음수 = 높게. 제구만큼 흩어져 떨어진 자리가 곧 코스),
  *     noPick: true (pitchType · zone 이 AI 가 미리 뽑은 공일 때 — 구종 · 코스를 찍은 보정을 붙이지 않는다),
  *     exact: true (수싸움에서 칸을 직접 찍었다 — 존에 들어갈 확률 +0.12, 전술의 +0.06 대신),
@@ -144,6 +145,9 @@ export function stealOdds(g, from) {
  * 자유 조준의 흩어짐(표준편차, 존 반폭 = 1) — 제구가 좋을수록 · 덜 지쳤을수록 좁다. 제구 90 ≈ 0.19, 80 ≈ 0.29, 70 ≈ 0.39
  */
 export const aimSpread = (control, tired = 0) => clamp(0.27 + (82 - control) * 0.01 + tired * 0.15, 0.14, 0.5);
+/** 집중 투구 — 흩어짐을 이만큼으로 줄이는 대신 체력을 더 쓴다(한 공이 1 + FOCUS_COST 구) */
+export const FOCUS_SPREAD = 0.62;
+export const FOCUS_COST = 2;
 /** 지금 마운드 투수의 흩어짐 — choosePitch 와 같은 제구(피로 · 증강 · 팀 보정 포함). 수싸움 조준판이 그린다 */
 export const aimSpreadOf = (g) => { const def = defenseOf(g), tired = fatigue(def); return aimSpread(st(def.pitcher, 'control', 75) - tired * 12 + (def.mod?.pitch || 0) + tb(def, 'pit'), tired); };
 /** 떨어진 자리의 맞히기 어려움 — 존 경계에 붙을수록(구석) 어렵고, 한가운데로 몰리면 크게 쉽다(실투) */
@@ -203,7 +207,7 @@ function choosePitch(g, pitcher, order) {
    * 흩어짐은 두 방향 정규분포(g.rng 두 번). 예전 길(칸 찍기 · 자동)은 난수를 쓰는 순서까지 그대로다.
    */
   if (order?.target) {
-    const sd = aimSpread(control, tired);
+    const sd = aimSpread(control, tired) * (order.focus ? FOCUS_SPREAD : 1);
     const u1 = Math.max(1e-9, g.rng()), u2 = g.rng(), rad = Math.sqrt(-2 * Math.log(u1)) * sd;
     const ax = order.target.x + rad * Math.cos(2 * Math.PI * u2), ay = order.target.y + rad * Math.sin(2 * Math.PI * u2);
     const isIn = Math.abs(ax) <= 1 && Math.abs(ay) <= 1;
@@ -350,7 +354,7 @@ export function pitch(g, orders = {}) {
   }
 
   const p = choosePitch(g, pitcher, orders);
-  def.pitches += 1;
+  def.pitches += 1 + (orders.focus && orders.target ? FOCUS_COST : 0); // 집중 투구는 체력을 더 쓴다
   Object.assign(ev, { pitch: p });
 
   const contact = st(batter, 'contact') + tb(off, 'bat');
