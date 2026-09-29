@@ -3773,11 +3773,13 @@ const TierIcon = ({ tier }) => (
 /** 효과 글 속 숫자만 빛나게 */
 const LitNums = ({ text }) => <>{String(text).split(/([+\-−]?\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className="aug-num">{t}</b> : t))}</>;
 
+/** 증강 카드가 올라오기 시작하는 때(ms) — 셋 모두 같이 */
+const REVEAL_MS = 120;
 function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   const art = useImage(`augments/${o.id}.webp`);
   return (
     <button type="button" onClick={() => onChoose(o)} aria-label={`${o.name} 고르기`}
-      style={{ '--a': '#a78bfa', animationDelay: state ? '0ms' : `${120 + index * 110}ms` }}
+      style={{ '--a': '#a78bfa', animationDelay: state ? '0ms' : `${REVEAL_MS}ms` }} // 셋이 한 번에 — 카드 소리(한 번)와 같은 박자
       onMouseEnter={() => onHot?.(index)} onMouseLeave={() => onHot?.(-1)}
       onFocus={() => onHot?.(index)} onBlur={() => onHot?.(-1)}
       className={`aug-card aug-gold group relative block h-[32rem] w-[21rem] text-left focus:outline-none ${state}`}>
@@ -3852,7 +3854,12 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
   const free = choice?.free || 0; // 거저 주는 다시 굴리기
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
-  useEffect(() => { setHot(-1); setTook(-1); if (choice) playSfx('augReveal', { n: choice.options.length }); }, [choice]); // 새로 뜰 때 · 다시 굴렸을 때
+  useEffect(() => { // 새로 뜰 때 · 다시 굴렸을 때 — 카드 셋이 올라오는 순간(REVEAL_MS)에 카드 소리 한 번
+    setHot(-1); setTook(-1);
+    if (!choice) return undefined;
+    const t = setTimeout(() => playSfx('augReveal'), REVEAL_MS);
+    return () => clearTimeout(t);
+  }, [choice]);
   if (!choice) return null;
   const isAug = choice.kind === 'augment';
   const nth = total - picksLeft + 1;
