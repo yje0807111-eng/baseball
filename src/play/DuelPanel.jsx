@@ -213,41 +213,50 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [] }) {
 }
 
 /*
- * 상대가 이번 공에 할 것을 미리 정한다 — 단서가 그걸 가리키게(엔진 g.rng 로, 시드 경기에서도 같은 흐름).
- *  공격(상대 투수): 그 투수의 구종 비율로 한 공 + 자리(직구는 높게 · 변화구는 낮게 쪽) → pitchType · zone(noPick — 찍은 보정 없음).
- *   단서 60%(반은 구종 · 반은 미트 자리) · 맞을 확률 70%.
- *  수비(상대 타자): 55% 로 노리고, 우리 투수가 자주 · 방금 던진 공을 더 노린다 → guess. 단서 75% · 70%.
- *   같은 구종을 거듭 던지면 읽힌다 — 한 가지만 반복하면 진다.
+ * 상대가 이번 공에 할 것을 미리 정한다(엔진 g.rng 로, 시드 경기에서도 같은 흐름). 공마다 맞히는 단서는 없다 —
+ * 대신 이 성향을 스카우팅(scoutOf)으로 보여 준다. 보여 주는 말은 모두 여기서 실제로 그렇게 움직인다.
+ *  공격(상대 투수): 구종 비율 + 볼카운트(몰리면 직구 · 2스트라이크엔 변화구) → 자리(직구 높게 · 변화구 낮게 쪽)
+ *   → pitchType · zone(noPick — 찍은 보정 없음).
+ *  수비(상대 타자): 55% 로 노리고, 우리 투수의 주무기 · 방금 던진 공을 더 노린다(같은 공 두 번이면 크게) → guess.
  */
-const PITCH_TELL = { fast: '투수가 세트에서 빠르게 끊어 감 · 직구 느낌', slider: '투수가 공을 깊숙이 쥠 · 슬라이더 느낌', change: '투수 팔이 느슨하게 돎 · 체인지업 느낌' };
-const SWING_TELL = { fast: '타자가 앞쪽으로 붙어 섬 · 직구 노림', slider: '타자가 뒤로 물러섬 · 슬라이더 노림', change: '타자 발이 늦게 나옴 · 체인지업 노림', none: '타자가 방망이를 짧게 쥠 · 맞히기' };
 const draw = (w, r) => { const tot = Object.values(w).reduce((a, b) => a + b, 0); let acc = 0; for (const [k, v] of Object.entries(w)) { acc += v / tot; if (r < acc) return k; } return Object.keys(w).pop(); };
 export function duelAi(g, side, seq = []) {
   const rng = g.rng;
   const mix = pitchMix((g.top ? g.home : g.away).pitcher);
-  const types = Object.keys(DUEL_PITCH);
-  const other = (k) => types.filter((x) => x !== k)[Math.floor(rng() * 2)];
   if (side === 'off') {
-    const t = draw(mix, rng());
-    const w = t === 'fast' ? [0.45, 0.35] : [0.15, 0.3], x = rng();
-    const zone = (x < w[0] ? 0 : x < w[0] + w[1] ? 1 : 2) * 3 + Math.floor(rng() * 3);
-    let tell = null;
-    if (rng() < 0.6) {
-      if (rng() < 0.5) tell = PITCH_TELL[rng() < 0.7 ? t : other(t)];
-      else { const z = rng() < 0.7 ? zone : Math.floor(rng() * 9); tell = `포수 미트가 ${zoneKo(z)}`; }
-    }
-    return { orders: { pitchType: t, zone, noPick: true }, tell };
+    const w = { ...mix };
+    if (g.balls - g.strikes >= 2 || g.balls === 3) w.fast += 0.3;
+    else if (g.strikes === 2) { w.slider += 0.15; w.change += 0.1; }
+    const t = draw(w, rng());
+    const rw = t === 'fast' ? [0.45, 0.35] : [0.15, 0.3], x = rng();
+    const zone = (x < rw[0] ? 0 : x < rw[0] + rw[1] ? 1 : 2) * 3 + Math.floor(rng() * 3);
+    return { orders: { pitchType: t, zone, noPick: true } };
   }
   const w = { ...mix }, n = seq.length;
   if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
   else if (n >= 1) w[seq[n - 1]] += 0.15;
   const guess = rng() < 0.55 ? draw(w, rng()) : null;
-  let tell = null;
-  if (rng() < 0.75) {
-    const said = rng() < 0.7 ? guess : [...types, null].filter((x) => x !== guess)[Math.floor(rng() * 3)];
-    tell = SWING_TELL[said || 'none'];
+  return { orders: guess ? { guess } : {}, guess };
+}
+/** 스카우팅 — 상대 투수(공격) · 상대 타자(수비)에 대해 사실인 것만 두세 칸 */
+export function scoutOf(g, side) {
+  const mainOf = (p) => Object.entries(pitchMix(p)).sort((a, b) => b[1] - a[1])[0];
+  if (side === 'off') {
+    const p = g.away.pitcher, [main, share] = mainOf(p), stam = staminaOf(g.away), ctl = st(p, 'control');
+    const out = [`주무기 ${DUEL_PITCH[main].ko} ${Math.round(share * 100)}%`, '몰리면 직구 · 2스트라이크엔 변화구', '직구 높게 · 변화구 낮게'];
+    if (stam < 35) out.push('지침 · 공이 몰림');
+    else if (ctl >= 88) out.push('제구 정확 · 볼넷 적음');
+    else if (ctl <= 72) out.push('제구 불안 · 볼 많음');
+    return out;
   }
-  return { orders: guess ? { guess } : {}, tell, guess };
+  const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
+  const pw = st(b, 'power'), ct = st(b, 'contact'), [mine] = mainOf(g.home.pitcher);
+  const out = [];
+  if (pw >= 88) out.push(`장타력 ${pw} · 한가운데 금물`);
+  if (ct >= 88) out.push(`컨택 ${ct} · 유인구에 강함`);
+  else if (ct <= 72) out.push('유인구에 약함');
+  out.push(`우리 주무기(${DUEL_PITCH[mine].ko}) 노림 많음`, '같은 공 연속이면 노림');
+  return out;
 }
 
 /** 존 밖으로 빠진 공 — 그림 자리에서 어느 쪽인지 */
@@ -260,10 +269,10 @@ const CALL_KO = { ball: ['볼', BLUE], called: ['스트라이크', '#fde047'], s
 /**
  * props
  *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · opp · me: 두 구단 { short, flag }
- *  waiting: 고를 차례인가 · tell: 단서 한 줄(없으면 null) · shots: 이 타석 공 [{ x, y, ev }]
+ *  waiting: 고를 차례인가 · shots: 이 타석 공 [{ x, y, ev }]
  *  reveal: 방금 공 { ev, guess } · onGo(orders) · onHand() 맡기기
  */
-export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shots, reveal, onGo, onHand }) {
+export default function DuelPanel({ g, side, board, opp, me, waiting, shots, reveal, onGo, onHand }) {
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
@@ -385,8 +394,10 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
             })}
           </div>
         )}
-        <div className="pn" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderRadius: 999, fontSize: 19, fontWeight: 700 }}>
-          🔎 {tell || <span style={{ color: MUTE, fontWeight: 600 }}>단서 없음</span>}
+        {/* 스카우팅 — 상대 투수 · 타자 성향(공마다 맞히는 단서 대신) */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, maxWidth: 640 }}>
+          <b className="pn" style={{ padding: '6px 14px', borderRadius: 999, fontSize: 15, color: SIDE_C[side] }}>🔎 {off ? '상대 투수' : '상대 타자'}</b>
+          {scoutOf(g, side).map((t) => <span key={t} className="pn" style={{ padding: '6px 14px', borderRadius: 999, fontSize: 16, fontWeight: 700, whiteSpace: 'nowrap' }}>{t}</span>)}
         </div>
       </div>
 

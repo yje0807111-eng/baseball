@@ -542,7 +542,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
    * 승부처 — 그 타석을 공마다 직접 고른다(수싸움 판 play/DuelPanel · 목업 duel-look 1안).
    * 한 반이닝에 한 번 · 경기당 CLUTCH_LIMIT 번. 판은 고르기만, 공은 이 루프가 엔진 pitch() 로 던진다.
    */
-  const [duel, setDuel] = useState(null); // 판에 보일 것 { side, start, waiting, tell, reveal }
+  const [duel, setDuel] = useState(null); // 판에 보일 것 { side, start, waiting, reveal }
   const duelRef = useRef(null); // 수싸움 중인 타석 { side, idx, inning, top, start }
   const duelWait = useRef(null); // 판이 고르기를 기다리는 약속 — 고르면 지시, 맡기면 null
   const clutchLeft = useRef(CLUTCH_LIMIT); // 자동 승부처 남은 횟수
@@ -646,7 +646,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         }
         /* 직접 승부 — 누른 뒤 첫 공부터(타석 중간이어도) */
         if (!duelRef.current && wantDuelRef.current && duelLeft.current > 0 && !g.final) openDuel();
-        /* 수싸움 중이면 공마다 판에서 고른다 — 상대 몫(투수의 공 · 타자의 노림)을 먼저 정해 단서를 건다 */
+        /* 수싸움 중이면 공마다 판에서 고른다 — 상대 몫(투수의 공 · 타자의 노림)을 먼저 정해 둔다 */
         const D = duelRef.current;
         let duelAiNow = null;
         if (D) {
@@ -654,7 +654,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           duelAiNow = duelAi(g, D.side, g.events.slice(D.start).filter((e) => e.pitch).map((e) => e.pitch.type));
           const choice = await new Promise((resolve) => {
             duelWait.current = resolve;
-            setDuel((d) => ({ ...(d || {}), side: D.side, start: D.start, waiting: true, tell: duelAiNow.tell }));
+            setDuel((d) => ({ ...(d || {}), side: D.side, start: D.start, waiting: true }));
           });
           duelWait.current = null;
           if (stop || !aliveRef.current) break;
@@ -880,7 +880,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       )}
       {/* 승부처 — 수싸움 판이 중계 위를 덮는다. 타석이 끝나면 걷혀 중계가 결과를 보여 준다 */}
       {duel && (
-        <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} bases={false} />} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
+        <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} bases={false} />} waiting={!!duel.waiting} reveal={duel.reveal}
           shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
           opp={{ short: shortTeam(away.name), flag: teamFlag(away.name) }} me={{ flag: flagByKey(myBanner()) }}
           onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}
