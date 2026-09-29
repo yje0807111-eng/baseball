@@ -109,3 +109,19 @@ test('스카우팅은 두 마디 꼬리표 — 한 칸 8자 안쪽, 네 칸까�
   for (const t of [...off, ...def]) expect(t.length).toBeLessThanOrEqual(8);
   expect(off.length).toBeLessThanOrEqual(4);
 });
+
+test('노림 한 칸 — 그 칸 크게 · 옆 칸 조금 · 나머지 손해, 공격 존 퍼센트는 합 100%', async () => {
+  const { aimBonusOf } = await import('../src/engine/pitchSim.js');
+  expect(aimBonusOf(4, 4)).toBeCloseTo(0.2);
+  expect(aimBonusOf(1, 4)).toBeCloseTo(0.05);
+  expect(aimBonusOf(0, 8)).toBeCloseTo(-0.06);
+  expect(aimBonusOf(null, 4)).toBe(0);
+  expect(aimBonusOf(0, 'ih')).toBeCloseTo(0.1);
+  const { locOf } = await import('../src/play/DuelPanel.jsx');
+  const P = { id: 'p1', stats: { stuff: 80, control: 78 } };
+  const L = locOf({ balls: 0, strikes: 0, away: { pitcher: P } });
+  expect(L.reduce((a, b) => a + b, 0)).toBeCloseTo(1);
+  /* 볼카운트가 몰리면 직구(높게)가 늘어 위 줄이 두꺼워진다 */
+  const behind = locOf({ balls: 3, strikes: 0, away: { pitcher: P } });
+  expect(behind[0] + behind[1] + behind[2]).toBeGreaterThan(L[0] + L[1] + L[2]);
+});

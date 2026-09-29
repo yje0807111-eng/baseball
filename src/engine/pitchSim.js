@@ -13,7 +13,7 @@
  * orders (공격 측 지시, 없으면 자동):
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: 'fast'|'slider'|'change',
  *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다),
- *     aim: 'ih'|'oh'|'il'|'ol' (노림 코스 — 몸쪽·바깥 × 높게·낮게 네 칸), approach: 'power'|'contact' (강공 · 밀어치기),
+ *     aim: 0~8 (노림 한 칸 — 맞으면 크게 · 옆 칸이면 조금) | 'ih'|'oh'|'il'|'ol' (네 칸 묶음), approach: 'power'|'contact' (강공 · 밀어치기),
  *     drag: true (bunt 와 함께 — 기습번트) }
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
@@ -116,6 +116,18 @@ export const CLUTCH_LIMIT = 3;
 export const isClutch = (g) => leverage(g) >= CLUTCH_MARK;
 
 /** 노림 코스 네 칸에 이 칸이 드나 — 칸 i: 열 i%3(0 몸쪽) · 행 ⌊i/3⌋(0 높게). 가운데 줄 · 칸은 두 쪽에 다 걸친다 */
+/**
+ * 노림 코스 보정 — 한 칸(0~8)을 찍으면 그 칸 +0.20 · 옆 칸(상하좌우) +0.05 · 나머지 −0.06,
+ * 네 칸 묶음이면 안 +0.10 · 밖 −0.06. 존 밖 공이나 노림이 없으면 0
+ */
+export function aimBonusOf(zone, aim) {
+  if (zone == null || aim == null) return 0;
+  if (typeof aim === 'number') {
+    if (zone === aim) return 0.2;
+    return Math.abs(Math.floor(zone / 3) - Math.floor(aim / 3)) + Math.abs((zone % 3) - (aim % 3)) === 1 ? 0.05 : -0.06;
+  }
+  return inAim(zone, aim) ? 0.1 : -0.06;
+}
 export const inAim = (zone, aim) => zone != null && !!aim && (aim[1] === 'h' ? zone < 6 : zone >= 3) && (aim[0] === 'i' ? zone % 3 <= 1 : zone % 3 >= 1);
 
 /** 도루 성공 확률: 주자 스피드 vs 포수 수비 */
@@ -293,7 +305,7 @@ export function pitch(g, orders = {}) {
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
   const cornerPen = p.corner || 0; // 구석에 꽂힌 공은 맞히기 어렵다
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
-  const aimBonus = orders.aim && p.inZone ? (inAim(p.zone, orders.aim) ? 0.1 : -0.06) : 0;
+  const aimBonus = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
 
   // 스윙 여부

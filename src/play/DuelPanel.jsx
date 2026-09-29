@@ -161,7 +161,7 @@ function Who({ p, isP, mine, team, g, side }) {
  * 존 — grid 3: 칸 0~8(수비 코스) + 바깥 네 띠 · grid 2: 4칸 노림(공격). 몸쪽이 왼쪽(중계 존 판과 같게).
  * marks: 이 타석 공 { x, y (존 반폭 · 반높이 = 1), c }
  */
-function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [] }) {
+function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null }) {
   const B = size, m = chase ? Math.round(B * 0.2) : 0, gap = 8, W = B + m * 2, cell = B / grid;
   const cells = [];
   for (let r = 0; r < grid; r += 1) for (let c = 0; c < grid; c += 1) {
@@ -186,7 +186,8 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [] }) {
       <rect x={m - 3} y={m - 3} width={B + 6} height={B + 6} rx="14" fill="rgba(8,12,22,.45)" />
       {cells.map((z) => (
         <g key={z.id} onClick={() => onPick?.(z.id)}>
-          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.2)" />
+          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? `rgba(251,146,60,${(0.06 + pct[z.id] * 2.2).toFixed(2)})` : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
+          {pct && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="#fff" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>}
           {grid === 2 && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{QUAD[z.id]}</text>}
         </g>
       ))}
@@ -194,7 +195,7 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [] }) {
       {selBox && (
         <g style={{ pointerEvents: 'none' }}>
           <rect x={selBox.x + 3} y={selBox.y + 3} width={selBox.w - 6} height={selBox.h - 6} rx="11" fill="rgba(251,191,36,.22)" stroke={GOLD} strokeWidth="4" />
-          {!QUAD[sel] && <><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r={Math.min(selBox.w, selBox.h) * 0.34} fill="none" stroke={GOLD} strokeWidth="3" /><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r="6" fill={GOLD} /></>}
+          {!QUAD[sel] && !pct && <><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r={Math.min(selBox.w, selBox.h) * 0.34} fill="none" stroke={GOLD} strokeWidth="3" /><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r="6" fill={GOLD} /></>}
         </g>
       )}
       {marks.map((p, i) => {
@@ -220,17 +221,34 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [] }) {
  *  수비(상대 타자): 55% 로 노리고, 우리 투수의 주무기 · 방금 던진 공을 더 노린다(같은 공 두 번이면 크게) → guess.
  */
 const draw = (w, r) => { const tot = Object.values(w).reduce((a, b) => a + b, 0); let acc = 0; for (const [k, v] of Object.entries(w)) { acc += v / tot; if (r < acc) return k; } return Object.keys(w).pop(); };
+/*
+ * 상대 투수가 이번 공을 어디로 — 구종 비율(볼카운트 반영) × 구종별 높이(직구 높게 · 변화구 낮게) × 투수 코스 성향.
+ * 코스 성향은 선수 id 로 정해진다(몸쪽 선호 · 바깥 선호 · 고르게) — 같은 투수는 늘 같은 버릇.
+ * 공격 존의 칸별 퍼센트(locOf)와 AI 가 실제로 뽑는 자리(duelAi)가 같은 식을 쓴다.
+ */
+const ROW_BY = { fast: [0.45, 0.35, 0.2], slider: [0.15, 0.3, 0.55], change: [0.15, 0.3, 0.55] };
+const COL_BIAS = [[0.46, 0.3, 0.24], [0.24, 0.3, 0.46], [0.34, 0.33, 0.33]];
+const colBias = (p) => { let h = 0; for (const ch of String(p?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COL_BIAS[h % 3]; };
+function pitchWeights(g) {
+  const w = { ...pitchMix(g.away.pitcher) };
+  if (g.balls - g.strikes >= 2 || g.balls === 3) w.fast += 0.3;
+  else if (g.strikes === 2) { w.slider += 0.15; w.change += 0.1; }
+  const tot = w.fast + w.slider + w.change;
+  return { fast: w.fast / tot, slider: w.slider / tot, change: w.change / tot };
+}
+/** 9칸(0~8) 확률 — 합이 1 */
+export function locOf(g) {
+  const w = pitchWeights(g), col = colBias(g.away.pitcher);
+  return Array.from({ length: 9 }, (_, z) => Object.keys(w).reduce((n, t) => n + w[t] * ROW_BY[t][Math.floor(z / 3)] * col[z % 3], 0));
+}
 export function duelAi(g, side, seq = []) {
   const rng = g.rng;
   const mix = pitchMix((g.top ? g.home : g.away).pitcher);
   if (side === 'off') {
-    const w = { ...mix };
-    if (g.balls - g.strikes >= 2 || g.balls === 3) w.fast += 0.3;
-    else if (g.strikes === 2) { w.slider += 0.15; w.change += 0.1; }
-    const t = draw(w, rng());
-    const rw = t === 'fast' ? [0.45, 0.35] : [0.15, 0.3], x = rng();
-    const zone = (x < rw[0] ? 0 : x < rw[0] + rw[1] ? 1 : 2) * 3 + Math.floor(rng() * 3);
-    return { orders: { pitchType: t, zone, noPick: true } };
+    const t = draw(pitchWeights(g), rng());
+    const row = Number(draw({ 0: ROW_BY[t][0], 1: ROW_BY[t][1], 2: ROW_BY[t][2] }, rng()));
+    const col = Number(draw({ 0: colBias(g.away.pitcher)[0], 1: colBias(g.away.pitcher)[1], 2: colBias(g.away.pitcher)[2] }, rng()));
+    return { orders: { pitchType: t, zone: row * 3 + col, noPick: true } };
   }
   const w = { ...mix }, n = seq.length;
   if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
@@ -306,7 +324,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
     if (!canGo) return;
     if (off) {
       const base = typeof cur.order === 'function' ? cur.order(g) : cur.order;
-      onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim ? { aim } : {}) });
+      onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}) });
     } else {
       onGo({ pitchType: pk, ...(typeof zone === 'number' ? { zone, exact: true } : { zone: 'chase', band: zone }) });
       setZone(null);
@@ -326,7 +344,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
   const marks = shots.map((s) => ({ x: s.x, y: s.y, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   const pickKo = off
-    ? `${cur.ko}${hitting ? ` · ${AIM_T.find((a) => a[0] === guess)[1]}${aim ? ` · ${QUAD[aim]}` : ''}` : ''}`
+    ? `${cur.ko}${hitting ? ` · ${AIM_T.find((a) => a[0] === guess)[1]}${aim != null ? ` · ${zoneKo(aim)}` : ''}` : ''}`
     : `${DUEL_PITCH[pk].ko} · ${zone != null ? zoneKo(zone) : '코스 고르기'}`;
   const R = showRev;
   const rp = R?.ev?.pitch;
@@ -379,7 +397,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 186, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
-        {off ? <Zone size={300} grid={2} chase={false} sel={aim} marks={marks} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
+        {off ? <Zone size={300} chase={false} sel={aim} marks={marks} pct={locOf(g)} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
