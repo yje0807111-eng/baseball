@@ -3,12 +3,13 @@
  * 순서 · 시간(스트리트 파이터 · 철권 · MLB 더 쇼 · KBO 중계 조사):
  *   0      가림막 흐려짐 · 왼쪽(원정) 현수막 떨어짐(0.55초, 끝에 살짝 튐)   0.09  오른쪽(홈) 현수막
  *   0.26   가운데 VS 톡(0.38초) · 쿵 소리                                 0.55~  현수막이 천처럼 흔들림(좌우 기울기 · 옷감 주름)
- *   1.75   현수막 올라감 · VS 흐려짐(0.3초)                              1.9    onHandoff — 증강 판이 들어오기 시작(검은 틈 없게)
- *   2.1    onDone — 인트로를 걷는다
+ *   1.75   현수막 올라감 · VS 흐려짐(0.3초) — 2.05 에 다 사라짐
+ *   3.05   경기 화면을 1초 보여 준 뒤 onHandoff(증강 판) · onDone — 바로 이어지면 너무 급했다
+ *          그 1초 동안은 보이지 않는 칸만 남아 누르면 곧바로 증강으로 넘어간다
  * 누르면 곧바로 넘어간다. '애니메이션 줄이기'면 떨어짐 · 흔들림 없이 1.2초 보여 주고 넘어간다.
  * 한 팀에 보여 주는 것은 둘(종합 · 선발) — 읽을 수 있는 만큼만.
  */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SfxAt, reducedMotion } from './ui/motion.jsx';
 
 const CSS = `
@@ -73,13 +74,17 @@ export default function MatchIntro({ away, home, tag, onHandoff, onDone }) {
   const cb = useRef({ onHandoff, onDone });
   cb.current = { onHandoff, onDone };
   const handoff = () => { if (!fired.current) { fired.current = true; cb.current.onHandoff?.(); } };
+  /* 현수막이 다 사라지는 때 · 그 뒤 1초 쉬고 증강 */
+  const [gone, setGone] = useState(false);
   useEffect(() => {
-    const a = setTimeout(handoff, calm ? 1200 : 1900);
-    const b = setTimeout(() => cb.current.onDone?.(), calm ? 1350 : 2100);
+    const out = calm ? 1200 : 2050;
+    const a = setTimeout(() => setGone(true), out);
+    const b = setTimeout(() => { handoff(); cb.current.onDone?.(); }, out + 1000);
     return () => { clearTimeout(a); clearTimeout(b); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   /* 누르면 곧바로 — 증강 판을 띄우고 인트로를 걷는다 */
   const skip = () => { handoff(); cb.current.onDone?.(); };
+  if (gone) return <div className="mi" onClick={skip} role="presentation" style={{ background: 'transparent' }} />;
   return (
     <div className={`mi ${calm ? 'calm' : ''}`} onClick={skip} role="presentation" aria-label="경기 소개">
       <style>{CSS}</style>
