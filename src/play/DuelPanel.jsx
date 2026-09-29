@@ -174,8 +174,10 @@ const heatFill = (pct, i) => {
   const c = a.map((v, k) => Math.round(v + (b[k] - v) * u));
   return `rgba(${c.join(',')},${(t ** 1.2 * 0.46).toFixed(2)})`;
 };
+/** 유인구 띠 두께 — 수비 존의 9칸 판이 공격 존과 같은 자리에 오도록, 바깥에 이만큼만 붙는다 */
+const CHASE_W = 50;
 function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null, labels = false }) {
-  const B = size, m = chase ? Math.round(B * 0.2) : 0, gap = 8, W = B + m * 2, cell = B / grid;
+  const B = size, m = chase ? CHASE_W : 0, gap = 8, W = B + m * 2, cell = B / grid;
   const cells = [];
   for (let r = 0; r < grid; r += 1) for (let c = 0; c < grid; c += 1) {
     cells.push({ id: grid === 3 ? r * 3 + c : `${c ? 'o' : 'i'}${r ? 'l' : 'h'}`, x: m + c * cell, y: m + r * cell, w: cell, h: cell });
@@ -440,9 +442,9 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       </div>
 
       {/* 존 + 단서 */}
-      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 186, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
+      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
+          : <Zone size={300} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
