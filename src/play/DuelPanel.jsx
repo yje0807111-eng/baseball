@@ -724,7 +724,10 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <BreakMark t={t} on={pk === t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
-              <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
+              {/* 구속 정도 — 숫자 대신 막대(105 ~ 155km 눈금, 모든 투수 같은 자로). 숫자는 궤적 카드 머리 · 결과에 */}
+              <i aria-label={`${veloOf(t)}km`} style={{ flex: 'none', width: 52, height: 6, borderRadius: 3, background: 'rgba(255,255,255,.1)', overflow: 'hidden' }}>
+                <i style={{ display: 'block', height: '100%', borderRadius: 3, width: `${Math.round(Math.max(0.08, Math.min(1, (veloOf(t) - 105) / 50)) * 100)}%`, background: pk === t ? GOLD : '#cbd5e1' }} />
+              </i>
             </button>
           ))}
           {/* 집중 투구 — 흩어짐 ↓ · 체력 3배(한 공 1 + FOCUS_COST 구) */}
