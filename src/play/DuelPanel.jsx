@@ -10,7 +10,7 @@
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST } from '../engine/pitchSim.js';
+import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST, TEMPO_MAX } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 import { reducedMotion } from '../ui/motion.jsx';
@@ -588,6 +588,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
   const mix = pitchMix(pitcher);
   const stuff = st(pitcher, 'stuff', 79);
+  const veloPct = (v) => Math.round(Math.max(0.08, Math.min(1, (v - 105) / 50)) * 100);
+  const prevVelo = shots.length ? shots[shots.length - 1].ev.pitch?.velo ?? null : null; // 이 타석 앞 공(수싸움 판은 타석이 끝나면 닫힌다)
   const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
   const hitting = off && cat === 'hit' && play !== 'wait';
   const rec = off && assist ? recOf(g) : {};
@@ -724,9 +726,11 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <BreakMark t={t} on={pk === t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
-              {/* 구속 정도 — 숫자 대신 막대(105 ~ 155km 눈금, 모든 투수 같은 자로). 숫자는 궤적 카드 머리 · 결과에 */}
-              <i aria-label={`${veloOf(t)}km`} style={{ flex: 'none', width: 52, height: 6, borderRadius: 3, background: 'rgba(255,255,255,.1)', overflow: 'hidden' }}>
-                <i style={{ display: 'block', height: '100%', borderRadius: 3, width: `${Math.round(Math.max(0.08, Math.min(1, (veloOf(t) - 105) / 50)) * 100)}%`, background: pk === t ? GOLD : '#cbd5e1' }} />
+              {/* 구속 정도 — 숫자 대신 막대(105 ~ 155km 눈금, 모든 투수 같은 자로). 숫자는 궤적 카드 머리 · 결과에.
+                  이 타석에 앞 공이 있으면 그 구속에 흰 눈금 — 막대 끝이 눈금에서 멀수록 완급(차이 8km 넘으면) */}
+              <i aria-label={`${veloOf(t)}km`} style={{ position: 'relative', flex: 'none', width: 52, height: 6, borderRadius: 3, background: 'rgba(255,255,255,.1)' }}>
+                <i style={{ display: 'block', height: '100%', borderRadius: 3, width: `${veloPct(veloOf(t))}%`, background: pk === t ? GOLD : '#cbd5e1' }} />
+                {prevVelo != null && <i style={{ position: 'absolute', top: -4, left: `calc(${veloPct(prevVelo)}% - 1px)`, width: 2, height: 14, borderRadius: 1, background: '#fff', boxShadow: '0 0 4px rgba(0,0,0,.8)' }} />}
               </i>
             </button>
           ))}
@@ -781,6 +785,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               {R.guess !== undefined && <span style={{ color: MUTE }}> — 타자 {R.guess ? `${DUEL_PITCH[R.guess].ko} 노림` : '노림 없음'}</span>}
             </div>
             <b style={{ display: 'block', fontSize: 72, fontWeight: 900, lineHeight: 1.15, color: callC, textShadow: '0 6px 30px rgba(0,0,0,.7)' }}>{callKo}</b>
+            {/* 완급 조절이 먹힌 공(효과 절반 이상) — 앞 공과의 구속 차이 */}
+            {R.ev.tempo >= TEMPO_MAX / 2 && shots.length > 1 && <div style={{ fontSize: 20, fontWeight: 800, color: GOLD }}>완급 조절 · <span className="disp">{Math.abs((shots[shots.length - 2].ev.pitch?.velo ?? rp.velo) - rp.velo)}km</span> 차</div>}
             {R.ev.steal && <div style={{ fontSize: 24, fontWeight: 800, color: R.ev.steal.ok ? WIN : RED }}>{R.ev.steal.runner?.name} 도루 {R.ev.steal.ok ? '성공' : '실패'}</div>}
           </div>
         </div>

@@ -200,3 +200,17 @@ test('구종 — 투수마다 직구 + 변화구 3~5개, 배합 합 1, 안 던�
   const t = fitType(power, 'sinker');
   expect(PITCHES[t].fam).toBe('F');
 });
+
+test('완급 조절 — 앞 공과 구속 차이가 크면 손해, 빠른 뒤 느린 공이 더, 노리면 사라짐, 타석이 바뀌면 초기화', async () => {
+  const { tempoOf, TEMPO_MAX, createGame, pitch } = await import('../src/engine/pitchSim.js');
+  expect(tempoOf(null, 120)).toBe(0);
+  expect(tempoOf(148, 143)).toBe(0);                       // 8km 안 — 없음
+  expect(tempoOf(150, 118)).toBeCloseTo(TEMPO_MAX);         // 28km 넘게 느린 공 — 가장 큼
+  expect(tempoOf(118, 150)).toBeCloseTo(TEMPO_MAX * 0.6);   // 느린 뒤 빠른 공 — 0.6배
+  expect(tempoOf(150, 118, 1)).toBe(0);                     // 그 구종을 노렸으면 없음
+  const { seeded } = await import('../src/engine/rng.js');
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(3) });
+  let ev;
+  do { ev = pitch(g, { pitchType: 'fast', target: { x: 1.4, y: 1.4 } }); } while (!ev.result);   // 볼넷까지
+  expect(g.lastVelo).toBe(null);
+});

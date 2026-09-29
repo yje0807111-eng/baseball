@@ -302,7 +302,7 @@ function endHalfIfNeeded(g) {
   if (g.outs < 3) return;
   const off = offenseOf(g);
   off.line[g.inning - 1] = off.line[g.inning - 1] ?? 0;
-  g.outs = 0; g.balls = 0; g.strikes = 0; g.bases = [null, null, null];
+  g.outs = 0; g.balls = 0; g.strikes = 0; g.bases = [null, null, null]; g.lastVelo = null;
   if (g.top) {
     // 9회초 이후 홈팀이 이기고 있으면 말 공격 없이 종료
     if (g.inning >= 9 && g.home.runs > g.away.runs) { g.home.line[g.inning - 1] = 'X'; return finish(g); }
@@ -330,7 +330,20 @@ function score(g, runners) {
 
 function nextBatter(g) {
   offenseOf(g).idx += 1;
-  g.balls = 0; g.strikes = 0;
+  g.balls = 0; g.strikes = 0; g.lastVelo = null; // 완급은 한 타석 안에서만
+}
+
+/*
+ * 완급 조절 — 같은 타석에서 앞 공과 구속 차이가 크면 타자가 타이밍을 놓친다(헛스윙 ↑).
+ * 차이 8km 까지는 없음, 28km 에서 가장 큼(0.07). 빠른 공 뒤 느린 공이 가장 잘 먹히고, 느린 공 뒤 빠른 공은 0.6배.
+ * 그 구종을 노리고 있었으면 타이밍이 맞아 사라진다(계열만 맞으면 0.6배 남음).
+ * 아무렇게나 던지는 자동 경기의 평균 손해(≈ 0.008)는 맞히기 기준점에 되돌려 둬, 리그 전체 타격은 그대로 · 차이는 고른 순서에서만 난다.
+ */
+export const TEMPO_MAX = 0.07;
+export function tempoOf(prev, velo, guessHit = 0) {
+  if (prev == null || velo == null) return 0;
+  const dv = prev - velo, k = Math.max(0, Math.min(1, (Math.abs(dv) - 8) / 20));
+  return +(TEMPO_MAX * k * (dv > 0 ? 1 : 0.6) * (1 - guessHit)).toFixed(4);
 }
 
 /** 공 하나. 결과 이벤트를 돌려주고 g 를 갱신한다 */
@@ -407,6 +420,9 @@ export function pitch(g, orders = {}) {
   const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
+  const tempo = tempoOf(g.lastVelo, p.velo, guessHit);
+  g.lastVelo = p.velo;
+  if (tempo) ev.tempo = tempo;
 
   // 스윙 여부
   let swing;
@@ -418,7 +434,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.828 : 0.568) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
