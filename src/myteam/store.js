@@ -7,6 +7,7 @@ import { STAFF } from './staff.js';
 import { finishOf, PLACE_REWARD } from './rewards.js';
 import { refundOf } from './market.js';
 import { claimableSteps } from './dex.js';
+import { careerAdd, careerOf } from './career.js';
 import { weekOf, missionState, WEEK_BONUS, WEEK_BONUS_TICKET } from './missions.js';
 import { presetCount, snapshot, applyPreset } from './presets.js';
 
@@ -491,7 +492,9 @@ export function addHistory(entry) {
   // 랭크 승점은 랭크전 시즌이 끝날 때만 오르내린다 (claimRanked)
   // 단판이 끝나면 다음 상대를 다시 뽑는다
   const nextDuel = entry.mode ? a.nextDuel : null;
-  const next = { ...a, nextDuel, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
+  /* 통산(선수 기록 · 증강 승률)은 50경기를 넘어서도 남게 따로 더한다 — 없던 저장본은 남은 경기 기록으로 먼저 채운 뒤 */
+  const career = careerAdd(careerOf(a), entry);
+  const next = { ...a, nextDuel, career, team: { ...a.team, record }, history: [{ at: new Date().toISOString(), ...entry }, ...(a.history || [])].slice(0, 50) };
   write(next);
   return next;
 }

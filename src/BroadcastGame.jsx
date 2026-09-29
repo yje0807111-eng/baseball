@@ -1198,7 +1198,11 @@ export function buildResult(g, myTeam, manager = null) {
   const bat = {};
   const arm = {};
   const hits = { my: 0, opp: 0 };
+  /* 투수가 잡은 아웃 — 통산 이닝 · 평균실점에 쓴다(병살 2, 도루 저지도 그 투수의 아웃) */
+  const OUTS = { K: 1, GO: 1, FO: 1, LO: 1, SF: 1, SAC: 1, DP: 2, CS: 1 };
+  const armOf = (id) => arm[id] || (arm[id] = { at: Object.keys(arm).length, bf: 0, h: 0, k: 0, r: 0, o: 0, bb: 0 });
   for (const ev of g.events) {
+    if (ev.result === 'CS' && ev.top && ev.pitcher && myPitcherIds.has(ev.pitcher.id)) armOf(ev.pitcher.id).o += 1;
     if (!ev.result || ev.result === 'SB' || ev.result === 'CS') continue;
     const hit = ['1B', '2B', '3B', 'HR', 'BH'].includes(ev.result);
     if (hit) hits[ev.top ? 'opp' : 'my'] += 1;
@@ -1212,8 +1216,10 @@ export function buildResult(g, myTeam, manager = null) {
       if (ev.result !== 'E') b.rbi += ev.runs || 0;
     }
     if (ev.top && ev.pitcher && myPitcherIds.has(ev.pitcher.id)) {
-      const p = arm[ev.pitcher.id] || (arm[ev.pitcher.id] = { at: Object.keys(arm).length, bf: 0, h: 0, k: 0, r: 0 });
+      const p = armOf(ev.pitcher.id);
       p.bf += 1;
+      p.o += OUTS[ev.result] || 0;
+      if (ev.result === 'BB' || ev.result === 'IBB') p.bb += 1;
       if (hit) p.h += 1;
       if (ev.result === 'K') p.k += 1;
       p.r += ev.runs || 0;

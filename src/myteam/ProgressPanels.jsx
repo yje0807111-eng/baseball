@@ -1,5 +1,5 @@
 /*
- * 기록 화면의 두 칸 — 선수 도감(dex.js) · 주간 과제(missions.js).
+ * 기록 화면의 세 칸 — 선수 기록(career.js) · 선수 도감(dex.js) · 주간 과제(missions.js).
  * 기록 화면의 가운데 · 오른쪽 자리를 그대로 쓴다(왼쪽 사이드는 기록 화면 것).
  */
 import React, { useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import { DEX_STEPS, seriesProgress, claimableSteps } from './dex.js';
 import { missionState, weekKey, WEEK_COUNT, rewardKo, BONUS_KO } from './missions.js';
 import { claimDex, claimMission, claimWeekBonus } from './store.js';
 import { GrowBar, Burst } from '../ui/motion.jsx';
+import { careerOf, avgOf, raOf, ipOf, fmtAvg, fmtRa, QUAL_AB, QUAL_OUTS } from './career.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const DEX = '#a3e635';
@@ -167,6 +168,108 @@ export function WeekView({ account, onAccount }) {
         <Btn pri={allTaken && !bonusTaken} a={WEEK} className="mt-auto w-full" disabled={!allTaken || bonusTaken} onClick={bonus}>
           {bonusTaken ? '보너스 받음 ✓' : allTaken ? `보너스 받기 · ${BONUS_KO}` : `과제 ${WEEK_COUNT}개를 받으면 열림`}
         </Btn>
+      </aside>
+    </>
+  );
+}
+
+/*
+ * 선수 기록 — 통산(career.js)을 타자 · 투수 표로. 머리글을 누르면 그 칸으로 정렬(컴프야 · FC 온라인 데이터센터의 선수 기록).
+ * 타율 · 평균실점은 규정(타수 · 아웃)에 못 미치면 흐리게 · 정렬에서 뒤로 — 몇 타석으로 1위가 되지 않게.
+ * 오른쪽은 부문 1위. 지금 팀(엔트리 · 보관함)에 없는 선수는 줄을 흐리게.
+ */
+const PL = '#38bdf8';
+const BAT_COLS = [['g', '경기'], ['ab', '타수'], ['h', '안타'], ['hr', '홈런'], ['rbi', '타점'], ['bb', '볼넷'], ['k', '삼진'], ['avg', '타율']];
+const ARM_COLS = [['g', '경기'], ['o', '이닝'], ['bf', '타자'], ['h', '피안타'], ['k', '삼진'], ['bb', '볼넷'], ['r', '실점'], ['ra', '평균실점']];
+export function PlayersView({ account }) {
+  const career = useMemo(() => careerOf(account), [account]);
+  const [side, setSide] = useState('bat');
+  const [sort, setSort] = useState({ bat: 'avg', arm: 'ra' });
+  const mine = useMemo(() => new Set([...(account.team?.squad || []), ...(account.team?.club || [])].map((p) => p.id)), [account]);
+  const qAb = QUAL_AB(career.games);
+  const qO = QUAL_OUTS(career.games);
+  const bat = Object.entries(career.bat).map(([id, s]) => ({ id, ...s, avg: avgOf(s), q: s.ab >= qAb }));
+  const arm = Object.entries(career.arm).map(([id, s]) => ({ id, ...s, ra: raOf(s), q: s.o >= qO }));
+  const key = sort[side];
+  /* 비율 칸(타율 · 평균실점)은 규정을 채운 선수가 먼저, 평균실점은 낮을수록 위 */
+  const by = (a, b) => {
+    if (key === 'avg' || key === 'ra') {
+      if (a.q !== b.q) return a.q ? -1 : 1;
+      const x = a[key] ?? (key === 'ra' ? Infinity : -1);
+      const y = b[key] ?? (key === 'ra' ? Infinity : -1);
+      return key === 'ra' ? x - y : y - x;
+    }
+    return (b[key] || 0) - (a[key] || 0);
+  };
+  const rows = (side === 'bat' ? bat : arm).sort(by);
+  const cols = side === 'bat' ? BAT_COLS : ARM_COLS;
+  const grid = `28px 32px minmax(0,1fr) repeat(${cols.length - 1},64px) 84px`;
+  const cell = (r, k) => {
+    if (k === 'avg') return <b className="text-right font-display text-t2" style={{ color: r.q ? '#fff' : '#6b7280' }}>{fmtAvg(r.avg)}</b>;
+    if (k === 'ra') return <b className="text-right font-display text-t2" style={{ color: r.q ? '#fff' : '#6b7280' }}>{fmtRa(r.ra)}</b>;
+    if (k === 'o') return <span className="text-center font-display text-t2 text-gray-200">{r.o ? ipOf(r.o) : '—'}</span>;
+    return <span className="text-center font-display text-t2" style={{ color: r[k] ? '#e5e7eb' : '#4b5563' }}>{r[k] || 0}</span>;
+  };
+  /* 부문 1위 — 비율은 규정 채운 선수 중에서 */
+  const top = (list, k, { low = false, need = false } = {}) => {
+    const pool = list.filter((r) => (need ? r.q : true) && r[k] != null && (low || r[k] > 0));
+    return [...pool].sort((a, b) => (low ? a[k] - b[k] : b[k] - a[k]))[0] || null;
+  };
+  const leaders = [
+    ['타율', top(bat, 'avg', { need: true }), (r) => fmtAvg(r.avg)],
+    ['홈런', top(bat, 'hr'), (r) => r.hr],
+    ['타점', top(bat, 'rbi'), (r) => r.rbi],
+    ['탈삼진', top(arm, 'k'), (r) => r.k],
+    ['평균실점', top(arm, 'ra', { low: true, need: true }), (r) => fmtRa(r.ra)],
+    ['이닝', top(arm, 'o'), (r) => ipOf(r.o)],
+  ];
+  return (
+    <>
+      <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': PL }}>
+        <div className="flex items-center gap-3">
+          <p className="mt-lab" style={{ '--a': PL }}>선수 기록</p>
+          <span className="flex gap-1.5">
+            {[['bat', `타자 ${bat.length}`], ['arm', `투수 ${arm.length}`]].map(([k, label]) => (
+              <button key={k} type="button" aria-pressed={side === k} onClick={() => setSide(k)} className="mt-cut h-8 px-3.5 text-t3 font-bold"
+                style={{ ...cut(8), color: side === k ? '#04121c' : '#9ca3af', background: side === k ? PL : 'rgba(255,255,255,.05)' }}>{label}</button>
+            ))}
+          </span>
+          <p className="ml-auto text-t3 text-gray-400">통산 <b className="font-display text-t3 text-white">{career.games}</b>경기 · 규정 {side === 'bat' ? `${qAb}타수` : `${ipOf(qO)}이닝`}</p>
+        </div>
+        <div className="mt-3 grid items-end gap-2 border-b border-white/10 pb-1.5 text-t4 text-gray-400" style={{ gridTemplateColumns: grid }}>
+          <span /><span /><span>선수</span>
+          {cols.map(([k, label]) => (
+            <button key={k} type="button" onClick={() => setSort((s) => ({ ...s, [side]: k }))} aria-pressed={key === k}
+              className={`${k === 'avg' || k === 'ra' ? 'text-right' : 'text-center'} font-bold hover:text-white`} style={{ color: key === k ? PL : undefined }}>
+              {label}{key === k ? (k === 'ra' ? ' ▲' : ' ▼') : ''}
+            </button>
+          ))}
+        </div>
+        <div className="mt-scroll flex min-h-0 flex-1 flex-col overflow-y-auto pr-2">
+          {rows.length === 0 && <p className="py-10 text-center text-t3 text-gray-400">{career.games ? '상세 기록이 남은 경기 없음' : '치른 경기 없음'}</p>}
+          {rows.map((r, i) => (
+            <div key={r.id} className="grid items-center gap-2 border-b border-white/[0.06] py-1.5" style={{ gridTemplateColumns: grid, opacity: mine.has(r.id) ? 1 : 0.5 }}
+              title={mine.has(r.id) ? '' : '지금 팀에 없는 선수'}>
+              <b className="font-display text-t3 text-gray-400">{i + 1}</b>
+              <Portrait player={r} w={30} h={36} color={PL} />
+              <b className="min-w-0 truncate text-t3 text-white">{r.name}</b>
+              {cols.map(([k]) => <React.Fragment key={k}>{cell(r, k)}</React.Fragment>)}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-6" style={{ ...cut(20), '--a': PL }}>
+        <p className="mt-lab" style={{ '--a': PL }}>부문 1위</p>
+        {leaders.map(([label, r, v]) => (
+          <div key={label} className="grid items-center gap-3 border-b border-white/10 pb-2.5" style={{ gridTemplateColumns: '64px 34px minmax(0,1fr) auto' }}>
+            <span className="text-t4 font-bold text-gray-400">{label}</span>
+            {r ? <Portrait player={r} w={34} h={42} color={PL} /> : <span />}
+            <b className="min-w-0 truncate text-t3 text-white">{r ? r.name : '—'}</b>
+            <b className="font-display text-t1" style={{ color: r ? PL : '#4b5563' }}>{r ? v(r) : '—'}</b>
+          </div>
+        ))}
+        <Stats items={[['통산', `${career.games}경기`], ['승', career.wins], ['승률', career.games ? `${Math.round((career.wins / career.games) * 100)}%` : '—']]} />
       </aside>
     </>
   );

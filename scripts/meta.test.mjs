@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { shopDeals, shopDealPrice, shopPriceOf, shopDealsBought, SHOP_DEAL_N, SHOP_ITEMS, itemById, expandTeam, expandLeft } from '../src/myteam/shop.js';
 import { clubMax, clubAddReason, CLUB_MAX, CLUB_STEP, EXTRA_CLUB_MAX } from '../src/myteam/rules.js';
+import { careerAdd, careerFrom, emptyCareer, avgOf, raOf, ipOf } from '../src/myteam/career.js';
 import { MISSIONS, WEEK_BONUS, WEEK_BONUS_TICKET, rewardKo, weekKey, missionState } from '../src/myteam/missions.js';
 
 /* 저장소는 localStorage 를 쓴다 — 테스트에서는 메모리 판으로 */
@@ -73,5 +74,26 @@ describe('주간 과제 강화권', () => {
     const b = store.claimWeekBonus();
     expect(b.aug.upgradeTickets).toBe(t0 + want + WEEK_BONUS_TICKET);
     expect(b.gold).toBe(a.gold + WEEK_BONUS);
+  });
+});
+
+describe('통산 기록', () => {
+  const g = (winner, o) => ({ winner, augs: [{ id: 'a1' }], detail: { lineup: [{ id: 'b', name: '타자', ab: 4, h: 2, hr: 1, rbi: 2, bb: 0, k: 1 }], arms: [{ id: 'p', name: '투수', bf: 20, h: 5, k: 4, r: 2, ...(o != null ? { o, bb: 1 } : {}) }] } });
+  it('경기마다 더하고 비율을 낸다', () => {
+    const c = [g('my', 18), g('opp', 15)].reduce(careerAdd, emptyCareer());
+    expect(c.games).toBe(2); expect(c.wins).toBe(1);
+    expect(avgOf(c.bat.b)).toBe(0.5);
+    expect(c.arm.p.o).toBe(33); expect(ipOf(c.arm.p.o)).toBe('11');
+    expect(raOf(c.arm.p)).toBeCloseTo((4 * 27) / 33);
+    expect(c.aug.a1).toEqual({ n: 2, w: 1 });
+  });
+  it('아웃이 없는 옛 경기는 평균실점에서 뺀다 · 상세 없는 경기는 승패만', () => {
+    const c = [g('my'), g('my', 27), { winner: 'opp' }].reduce(careerAdd, emptyCareer());
+    expect(c.arm.p.r).toBe(4); expect(c.arm.p.ro).toBe(2);
+    expect(raOf(c.arm.p)).toBe(2);
+    expect(c.games).toBe(3); expect(c.bat.b.g).toBe(2);
+  });
+  it('경기 기록(최신이 앞)으로 채우기', () => {
+    expect(careerFrom([g('opp', 27), g('my', 27)]).wins).toBe(1);
   });
 });

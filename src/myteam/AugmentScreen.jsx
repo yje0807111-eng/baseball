@@ -10,6 +10,7 @@ import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
 import { useListIntro } from '../ui/motion.jsx';
 import { play as playSfx } from '../audio/sfx.js';
+import { careerOf } from './career.js';
 
 const cut = (n) => ({ '--c': `${n}px` });
 const TYPE_ORDER = [['build', '키우기'], ['defense', '수비'], ['extreme', '맞바꾸기'], ['balance', '약점 보강'], ['fire', '경기 중'], ['situ', '상황']];
@@ -50,6 +51,9 @@ export default function AugmentScreen({ account, onBack }) {
   const [type, setType] = useState('all');
   const [selId, setSelId] = useState(null);
   const [msg, setMsg] = useState('');
+  /* 내 경기에서 고른 횟수 · 승률(TFT 증강 통계처럼) — 강화 · 제외를 고르는 근거. 5경기 미만은 승률을 흐리게 */
+  const [career] = useState(() => careerOf(loadAccount() || account));
+  const baseRate = career.games ? career.wins / career.games : null;
   const tier = AUG_TIERS[0];
   const pool = useMemo(() => AUGMENTS.filter((a) => a.tier === tier), [tier]);
   const bans = aug.bans[tier] || [];
@@ -125,6 +129,17 @@ export default function AugmentScreen({ account, onBack }) {
                 </span>
                 <b className={`text-[32px] font-black leading-tight ${isBan ? 'text-gray-400 line-through' : 'text-white'}`}>{picked.name}</b>
                 <Gems lv={lv} />
+                {(() => {
+                  const st = career.aug[picked.id];
+                  if (!st?.n) return <small className="text-t3 text-gray-400">쓴 경기 없음</small>;
+                  const rate = st.w / st.n;
+                  const few = st.n < 5;
+                  const c = few || baseRate == null ? '#9ca3af' : rate >= baseRate + 0.05 ? '#34d399' : rate <= baseRate - 0.05 ? '#f87171' : '#e5e7eb';
+                  return (
+                    <small className="text-t3 text-gray-400">쓴 경기 <b className="font-display text-t2 text-white">{st.n}</b> · 승률 <b className="font-display text-t2" style={{ color: c }}>{Math.round(rate * 100)}%</b>
+                      {baseRate != null && <span className="ml-1.5 text-t4 text-gray-500">평소 {Math.round(baseRate * 100)}%</span>}</small>
+                  );
+                })()}
                 {picked.note && <small className="text-t3 text-gray-300">{picked.note}</small>}
               </div>
             </div>
