@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
+import { reducedMotion } from '../ui/motion.jsx';
 
 /** 공격 · 수비 색 — 우리(초록) · 상대(빨강)와 겹치지 않게 */
 const SIDE_C = { off: '#fb923c', def: '#38bdf8' };
@@ -110,7 +111,6 @@ const CSS = `
 .dl .tab:disabled { opacity: .3; cursor: default; }
 @keyframes dlIn { from { opacity: 0; } }
 @keyframes dlPop { 0% { transform: scale(.7); opacity: 0; } 70% { transform: scale(1.04); opacity: 1; } 100% { transform: scale(1); } }
-@keyframes dlFlow { from { stroke-dashoffset: 0.07; } to { stroke-dashoffset: 0; } }
 @keyframes dlTrail { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes dlPing { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .dl, .dl * { animation: none !important; } }
@@ -336,6 +336,69 @@ function Trails({ marks, toPx, half, id }) {
     );
   });
 }
+/*
+ * 궤적 카드 — 조준판 왼쪽 유리 카드에 옆(높이) · 위(좌우)에서 본 공 길(방송 · Baseball Savant 방식, mockups/pitch-path2 A).
+ * 정면 판에선 공이 화면 안쪽으로 날아가 꺾임이 묻히지만, 옆 · 위에선 긴 축이 거리라 꺾임이 또렷하다.
+ * 값(s) = 손 + (끝 − 손)·s − 휨·(s − s^p), s 0(손) → 1(포수), p = 2(포크 3 — 끝에서 뚝).
+ * 휨: 옆 = 0.8(중력) + 세로 꺾임 × 5 · 위 = 가로 꺾임 × 8(과장). 끝 = 과녁이라 과녁을 옮기면 끝이 따라간다.
+ * 고른 구종은 빛 선 + 공이 1.4초마다 날아감(애니메이션 줄이기면 멈춤), 다른 구종은 옅은 선(어디서 갈라지나).
+ */
+const trackOf = (t, axis, end, rel) => {
+  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = axis ? 0.8 + b[1] * 5 : b[0] * 8;
+  return Array.from({ length: 41 }, (_, i) => { const s = i / 40; return [s, rel + (end - rel) * s - bend * (s - s ** p)]; });
+};
+function TrajView({ axis, map, rep, pk, end, rel, id }) {
+  const P = trackOf(pk, axis, end, rel).map(([a, v]) => map(a, v)), c = DUEL_PITCH[pk]?.c || '#fff', e = P[P.length - 1];
+  return (
+    <>
+      {rep.filter((t) => t !== pk).map((t) => <path key={t} d={lineOf(trackOf(t, axis, end, rel).map(([a, v]) => map(a, v)))} stroke="rgba(203,213,225,.16)" strokeWidth="1.6" fill="none" />)}
+      <defs><linearGradient id={`${id}g`} gradientUnits="userSpaceOnUse" x1={P[0][0]} y1={P[0][1]} x2={e[0]} y2={e[1]}><stop offset="0" stopColor={c} stopOpacity=".15" /><stop offset=".55" stopColor={c} stopOpacity=".75" /><stop offset="1" stopColor={c} /></linearGradient></defs>
+      <path d={lineOf(P)} stroke={c} strokeOpacity=".22" strokeWidth="12" strokeLinecap="round" fill="none" style={{ filter: 'blur(5px)' }} />
+      <path id={id} d={lineOf(P)} stroke={`url(#${id}g)`} strokeWidth="4" strokeLinecap="round" fill="none" />
+      <circle cx={P[0][0]} cy={P[0][1]} r="4" fill="rgba(255,255,255,.55)" />
+      <circle cx={e[0]} cy={e[1]} r="6.5" fill="#f8fafc" stroke={c} strokeWidth="2.5" />
+      {!reducedMotion() && (
+        <circle r="5" fill="#fff" style={{ filter: `drop-shadow(0 0 6px ${c})` }}>
+          <animateMotion dur="1.4s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.62;1" calcMode="linear"><mpath href={`#${id}`} /></animateMotion>
+          <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.6;0.66;1" dur="1.4s" repeatCount="indefinite" />
+        </circle>
+      )}
+    </>
+  );
+}
+function TrajCard({ rep, pk, target, hand, velo }) {
+  const W = 378, H = 118, x0 = 22, x1 = W - 30, L = hand === 'L' ? -1 : 1;
+  const cl = (v) => Math.max(-1.45, Math.min(1.45, v)), tx = cl(target?.x ?? 0), ty = cl(target?.y ?? 0);
+  const sideY = (v) => 66 + v * 24, topY = (v) => 58 + v * 28, xs = (s) => x0 + (x1 - x0) * s;
+  const band = (y0, y1) => <rect x={x1 - 4} y={y0} width="8" height={y1 - y0} rx="3" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.45)" strokeWidth="1.2" />;
+  const cap = { fontSize: 12, fontWeight: 800, letterSpacing: '.08em', fill: '#64748b' };
+  return (
+    <div className="pn" style={{ width: 414, boxSizing: 'border-box', padding: '16px 18px 14px', borderRadius: 22, pointerEvents: 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: '.08em', color: MUTE }}>궤적</span><i style={{ flex: 1 }} />
+        <b style={{ fontSize: 17 }}>{DUEL_PITCH[pk]?.ko}</b><b className="disp" style={{ fontSize: 19, color: '#cbd5e1' }}>{velo}</b>
+      </div>
+      <svg width={W} height={H * 2 + 44} viewBox={`0 0 ${W} ${H * 2 + 44}`} style={{ display: 'block', marginTop: 10, overflow: 'visible' }}>
+        <text x="0" y="14" style={cap}>옆</text>
+        <g transform="translate(0,16)">
+          <line x1={x0} y1={sideY(2.2)} x2={x1 + 20} y2={sideY(2.2)} stroke="rgba(255,255,255,.1)" />
+          <path d={`M${x0 - 14} ${sideY(2.2)} q14 -16 28 0`} fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)" />
+          {band(sideY(-1), sideY(1))}
+          <TrajView axis={1} map={(a, v) => [xs(a), sideY(v)]} rep={rep} pk={pk} end={ty} rel={-2} id="tjS" />
+        </g>
+        <line x1="0" y1={H + 24} x2={W} y2={H + 24} stroke="rgba(255,255,255,.06)" />
+        <text x="0" y={H + 46} style={cap}>위</text>
+        <text x={W} y={H + 46} textAnchor="end" style={{ ...cap, letterSpacing: 0 }}>▲ 몸쪽</text>
+        <text x={W} y={H * 2 + 44} textAnchor="end" style={{ ...cap, letterSpacing: 0 }}>▼ 바깥</text>
+        <g transform={`translate(0,${H + 40})`}>
+          <path d={`M${x1 + 10} ${topY(0) - 30} h8 l6 30 l-6 30 h-8 z`} fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.35)" />
+          {band(topY(-1), topY(1))}
+          <TrajView axis={0} map={(a, v) => [xs(a), topY(v)]} rep={rep} pk={pk} end={tx} rel={0.6 * L} id="tjT" />
+        </g>
+      </svg>
+    </div>
+  );
+}
 /** 켜고 끄는 작은 스위치 모양(보조 · 집중 투구) */
 const Switch = ({ on, c = 'rgba(255,255,255,.55)' }) => (
   <i style={{ position: 'relative', flex: 'none', width: 30, height: 16, borderRadius: 999, background: on ? c : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
@@ -379,7 +442,7 @@ const locKo = (t) => (Math.abs(t.x) <= 1 && Math.abs(t.y) <= 1 ? zoneKo(cellOf(t
  * 금색 원 = 이 투수가 흩어지는 범위(반쯤 이 안에 떨어진다 — 제구 · 피로로 커진다). 보조면 칸별 피안타 색 · 추천 자리(점선 원).
  */
 const PAD_B = 300, PAD_M = 50, PAD_W = PAD_B + PAD_M * 2, PAD_LIM = 1 + PAD_M / (PAD_B / 2) - 0.03;
-function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false, pk = 'fast' }) {
+function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false }) {
   const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B;
   const drag = useRef(false); // 누른 채 끄는 중 — 같은 틱의 이동도 바로 따라가게(상태 대신 ref)
   const at = (e) => {
@@ -411,7 +474,6 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
       {[1, 2].map((i) => <g key={i} stroke="rgba(255,255,255,.1)" style={{ pointerEvents: 'none' }}><line x1={PAD_M + cell * i} y1={PAD_M} x2={PAD_M + cell * i} y2={PAD_M + PAD_B} /><line x1={PAD_M} y1={PAD_M + cell * i} x2={PAD_M + PAD_B} y2={PAD_M + cell * i} /></g>)}
       <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" style={{ pointerEvents: 'none' }} />
       {recAt && <circle cx={px(recAt.x)} cy={px(recAt.y)} r="20" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeDasharray="4 4" style={{ pointerEvents: 'none' }} />}
-      <Trails marks={marks} toPx={px} half={PAD_B / 2} id="tp" />
       {marks.map((p, i) => {
         const x = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.x))), y = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.y)));
         return <g key={i} style={{ pointerEvents: 'none' }}><circle cx={x} cy={y} r="14" fill={p.c} stroke="#05080f" strokeWidth="3" opacity="0.8" /><text x={x} y={y + 5} textAnchor="middle" fontSize="15" fontWeight="900" fill="#05080f">{i + 1}</text></g>;
@@ -423,17 +485,6 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
           <path d={`M${px(target.x) - 5} ${px(target.y) - 8} q4 8 0 16 M${px(target.x) + 5} ${px(target.y) - 8} q-4 8 0 16`} fill="none" stroke="#dc2626" strokeWidth="1.6" />
         </g>
       )}
-      {/* 예상 경로 — 고른 구종의 꺾임 곡선(꺾이지 않았으면 갈 자리 → 과녁, 구종을 바꾸면 바로 바뀐다). 공 위에 겹쳐 그려 끝이 공에 닿아 보이게, 점선이 과녁 쪽으로 흐른다 */}
-      {target && (() => {
-        const a = arcOf(px, PAD_B / 2, pk, target.x, target.y), c = DUEL_PITCH[pk]?.c || '#fff';
-        return (
-          <g style={{ pointerEvents: 'none' }}>
-            <defs><linearGradient id="aimPath" gradientUnits="userSpaceOnUse" x1={a.sx} y1={a.sy} x2={a.ex} y2={a.ey}><stop offset="0" stopColor={c} stopOpacity=".25" /><stop offset="1" stopColor={c} stopOpacity=".95" /></linearGradient></defs>
-            <path d={a.rib} fill="url(#aimPath)" />
-            <path d={a.d} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="2" strokeLinecap="round" pathLength="1" strokeDasharray="0.02 0.05" style={{ animation: 'dlFlow 1.6s linear infinite' }} />
-          </g>
-        );
-      })()}
       <text x={PAD_M} y={PAD_W + 22} fontSize="15" fontWeight="700" fill={MUTE}>◀ 몸쪽</text>
       <text x={PAD_M + PAD_B} y={PAD_W + 22} textAnchor="end" fontSize="15" fontWeight="700" fill={MUTE}>바깥 ▶</text>
     </svg>
@@ -528,7 +579,6 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   useEffect(() => { if (!okOf(cur, g)) { setCat('hit'); setPlay('power'); } });
 
   const mix = pitchMix(pitcher);
-  const main = Object.entries(mix).sort((a, b) => b[1] - a[1])[0][0];
   const stuff = st(pitcher, 'stuff', 79);
   const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
   const hitting = off && cat === 'hit' && play !== 'wait';
@@ -554,7 +604,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       const i = Number(e.key) - 1;
       if (!(i >= 0)) return;
       if (off) { const p = DUEL_PLAYS[cat][i]; if (p && okOf(p, g)) setPlay(p.k); }
-      else { const t = repertoireOf(pitcher)[i]; if (t) setPk(t); }
+      else { const t = myRep[i]; if (t) setPk(t); }
     };
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
@@ -562,7 +612,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
   const marks = shots.map((s) => ({ x: s.x, y: s.y, t: s.ev.pitch?.type, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   /* 구종 — 우리 투수(수비)의 레퍼토리 · 상대 투수(공격)의 구종 예측 버튼 */
-  const myRep = repertoireOf(pitcher);
+  const myRep = repertoireOf(pitcher).sort((a, b) => mix[b] - mix[a]); // 많이 던지는 순 — 1번이 가장 많이
   const aimT = [[null, '예측 안 함'], ...repertoireOf(g.away.pitcher).map((t) => [t, DUEL_PITCH[t].ko])];
   const pickKo = off
     ? `${cur.ko}${hitting ? ` · ${(aimT.find((a) => a[0] === guess) || aimT[0])[1]}${aim != null ? ` · ${zoneKo(aim)}` : ''}` : ''}`
@@ -619,7 +669,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} pk={pk} />}
+          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
@@ -655,6 +705,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
         </div>
       </div>
 
+      {!off && <div style={{ position: 'absolute', right: 'calc(50% + 220px)', top: `calc(44% - ${CHASE_W}px)` }}><TrajCard rep={myRep} pk={pk} target={target} hand={pitcher.hand} velo={veloOf(pk)} /></div>}
+
       {/* 고르는 판 — 공격 · 수비 같은 자리 · 같은 크기(400 × 520, 구종이 다섯 개여도 들어가게). 고르기는 위에서, 결정 줄은 늘 맨 아래 */}
       <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, height: 520, boxSizing: 'border-box', padding: 18, display: 'flex', flexDirection: 'column', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
         {!off ? <>
@@ -664,7 +716,6 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <PitchIcon t={t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
-              <span style={{ fontSize: 15, color: t === main ? GOLD : '#cbd5e1', fontWeight: t === main ? 800 : 500 }}>{t === main ? '주무기' : `비중 ${Math.round(mix[t] * 100)}%`}</span>
               <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>
           ))}

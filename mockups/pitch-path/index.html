@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>공 길 목업</title>
+<!--
+  수비 조준 — 공 길 보여 주기 새 방식 목업(1920 × 911, 게임과 같은 자리: 조준판 760,351 · 고르는 판 right 32 bottom 32)
+  ① 긴 고정 꼬리 — 과녁으로 늘 같은 방향 · 같은 길이(150px)로 들어오는 꼬리, 꺾임 크게. 판 어디에 둬도 같은 모양.
+  ② 옆 · 위 궤적 — 방송 · Baseball Savant 처럼 옆(높이)과 위(좌우)에서 본 길을 따로. 긴 축이 거리라 꺾임이 또렷하다.
+     다른 구종은 옅은 선으로 같이(같은 과녁으로 가면 어디서 갈라지나 — 터널).
+  ③ 옆 · 위 궤적을 조준판에 붙인 새 판 — 조준판 오른쪽 · 아래에 두 띠.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/duel-def.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: absolute; inset: 0; background: rgba(5, 8, 15, .42); }
+  .tabs { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 14px; background: rgba(8, 12, 22, .78); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 16px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  svg.pad { position: absolute; overflow: visible; touch-action: none; cursor: crosshair; }
+  .pn { position: absolute; right: 32px; bottom: 32px; width: 400px; height: 520px; padding: 18px; display: flex; flex-direction: column; gap: 6px; border-radius: 22px; background: rgba(10,14,24,.8); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .card { position: absolute; border-radius: 22px; background: rgba(10,14,24,.72); backdrop-filter: blur(14px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); padding: 14px 16px; }
+  .lbl { font-size: 15px; font-weight: 800; color: #94a3b8; }
+  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 14px; border-radius: 14px; }
+  .opt:hover { background: rgba(255,255,255,.08); }
+  .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px #fbbf24; }
+  .opt .n { font-size: 17px; font-weight: 800; color: #94a3b8; width: 10px; }
+  .opt .nm { font-size: 20px; font-weight: 800; }
+  .opt .mx { font-size: 15px; color: #cbd5e1; margin-left: auto; }
+  .opt .v { font-size: 20px; font-weight: 800; width: 38px; text-align: right; }
+  .go { all: unset; margin-top: auto; height: 56px; border-radius: 14px; display: grid; place-items: center; background: #fbbf24; color: #0b1220; font-weight: 900; font-size: 20px; }
+  .note { position: absolute; left: 40px; top: 96px; width: 600px; font-size: 16px; line-height: 1.6; color: #cbd5e1; background: rgba(8,12,22,.72); padding: 14px 18px; border-radius: 14px; }
+  .note b { color: #fbbf24; }
+  @keyframes flow { from { stroke-dashoffset: .09; } to { stroke-dashoffset: 0; } }
+</style>
+<body>
+<div class="shade"></div>
+<div class="tabs" id="tabs"></div>
+<div class="note" id="note"></div>
+<div id="stage"></div>
+<div class="pn">
+  <div style="display:flex;justify-content:space-between;align-items:center;min-height:36px"><span class="lbl">구종</span></div>
+  <div id="list" style="display:flex;flex-direction:column;gap:6px"></div>
+  <button class="go">던지기 ▶</button>
+</div>
+<script>
+const PITCH = {
+  fast: { ko: '직구', c: '#f87171', b: [0, -0.15], mix: 38, v: 148 },
+  slider: { ko: '슬라이더', c: '#a78bfa', b: [0.45, 0.15], mix: 22, v: 134 },
+  change: { ko: '체인지업', c: '#34d399', b: [-0.2, 0.35], mix: 14, v: 128 },
+  curve: { ko: '커브', c: '#60a5fa', b: [0.2, 0.8], mix: 11, v: 117 },
+  fork: { ko: '포크', c: '#2dd4bf', b: [0, 0.55], mix: 9, v: 132, late: true },
+  sinker: { ko: '투심', c: '#fb923c', b: [-0.3, 0.25], mix: 6, v: 144 },
+};
+const REP = Object.keys(PITCH);
+const VARS = [
+  ['v1', '① 긴 고정 꼬리', '과녁으로 <b>늘 같은 방향 · 같은 길이</b>로 들어오는 긴 꼬리. 꺾임을 크게 — 판 어디에 둬도 같은 모양.'],
+  ['v2', '② 옆 · 위 궤적', '조준판은 <b>도착 자리</b>만. 왼쪽 카드에 <b>옆(높이) · 위(좌우)에서 본 길</b> — 방송 · Baseball Savant 방식. 옅은 선 = 같은 과녁으로 가는 다른 구종.'],
+  ['v3', '③ 궤적 붙인 새 판', '조준판에 <b>위 궤적은 아래 띠, 옆 궤적은 오른쪽 띠</b>로 붙임 — 과녁을 옮기면 두 띠의 끝이 같이 따라감.'],
+];
+let variant = location.hash.slice(1) || 'v1', pk = 'slider', T = [0.5, -0.55];
+const line = (P) => 'M' + P.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L');
+function ribbon(P, w0, w1) {
+  const side = (sg) => P.map(([x, y], i) => {
+    const [ax, ay] = P[Math.max(0, i - 1)], [bx, by] = P[Math.min(P.length - 1, i + 1)], n = Math.hypot(bx - ax, by - ay) || 1, w = (w0 + (w1 - w0) * i / (P.length - 1)) / 2;
+    return `${(x - sg * w * (by - ay) / n).toFixed(1)} ${(y + sg * w * (bx - ax) / n).toFixed(1)}`;
+  });
+  return `M${side(1).join(' L')} L${side(-1).reverse().join(' L')} Z`;
+}
+const ball = (x, y, r = 12) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#f8fafc" stroke="#fbbf24" stroke-width="3"/><path d="M${x - r * .42} ${y - r * .67} q${r * .33} ${r * .67} 0 ${r * 1.33} M${x + r * .42} ${y - r * .67} q-${r * .33} ${r * .67} 0 ${r * 1.33}" fill="none" stroke="#dc2626" stroke-width="1.6"/>`;
+let gid = 0;
+const grad = (c, a, b, o0 = .2, o1 = .95) => { const id = 'g' + gid++; return [id, `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"><stop offset="0" stop-color="${c}" stop-opacity="${o0}"/><stop offset="1" stop-color="${c}" stop-opacity="${o1}"/></linearGradient></defs>`]; };
+
+/* 조준판(400 × 430, 존 50~350) */
+const px = (v, o = 50, w = 300) => o + ((v + 1) / 2) * w;
+const ZN = ['몸쪽 높게', '높게', '바깥 높게', '몸쪽', '한가운데', '바깥', '몸쪽 낮게', '낮게', '바깥 낮게'];
+function zone(o = 50, w = 300, full = 400) {
+  const c = w / 3;
+  let s = `<rect x="1" y="1" width="${full - 2}" height="${full - 2}" rx="18" fill="rgba(8,12,22,.4)" stroke="rgba(255,255,255,.16)" stroke-dasharray="7 7"/><rect x="${o}" y="${o}" width="${w}" height="${w}" rx="10" fill="rgba(8,12,22,.35)"/>`;
+  for (let i = 1; i < 3; i++) s += `<line x1="${o + i * c}" y1="${o}" x2="${o + i * c}" y2="${o + w}" stroke="rgba(255,255,255,.1)"/><line x1="${o}" y1="${o + i * c}" x2="${o + w}" y2="${o + i * c}" stroke="rgba(255,255,255,.1)"/>`;
+  ZN.forEach((n, z) => { s += `<text x="${o + c / 2 + (z % 3) * c}" y="${o + c / 2 + 6 + Math.floor(z / 3) * c}" text-anchor="middle" font-size="14" font-weight="800" fill="rgba(226,232,240,.55)">${n}</text>`; });
+  return s + `<rect x="${o}" y="${o}" width="${w}" height="${w}" rx="10" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="3"/>`;
+}
+
+/* ① 긴 고정 꼬리 — S(s) = A0 + d·L·s + B·s², d = 오른쪽 아래에서 위로(오른손 투수 팔 쪽), L = 150 */
+function longTail(t, T) {
+  const Tp = [px(T[0]), px(T[1])], B = PITCH[t].b.map((v) => v * 195), n = Math.hypot(-0.3, -1), d = [-0.3 / n, -1 / n], L = 150;
+  const A0 = [Tp[0] - B[0] - d[0] * L, Tp[1] - B[1] - d[1] * L];
+  const P = Array.from({ length: 31 }, (_, i) => { const s = i / 30, q = PITCH[t].late ? s ** 3 : s * s; return [A0[0] + d[0] * L * s + B[0] * q, A0[1] + d[1] * L * s + B[1] * q]; });
+  const [id, def] = grad(PITCH[t].c, P[0], Tp, 0, .95);
+  return def + ball(...Tp) + `<path d="${ribbon(P, 12, 4)}" fill="url(#${id})"/><path d="${line(P)}" stroke="rgba(255,255,255,.6)" stroke-width="2" fill="none" pathLength="1" stroke-dasharray=".03 .06" style="animation:flow 1.4s linear infinite"/>`;
+}
+
+/*
+ * ② · ③ 옆 · 위에서 본 길 — 투수(왼쪽) → 포수(오른쪽). 한 축 = 거리라 꺾임이 옆으로 또렷하다.
+ * 옆: 높이 v(s) = 손 + (과녁 − 손)·s − 휨·(s − s^p). 휨 = 0.8(중력) + 세로 꺾임 × 5(꺾임은 과장 — Savant 궤적처럼) — 직구는 거의 곧게, 커브는 크게 솟았다 떨어짐, 포크는 끝에서(p = 3).
+ * 위: 좌우 h(s) = 손 + (과녁 − 손)·s − 가로 꺾임 × 8 · (s − s^p) — 슬라이더는 몸쪽으로 가다 바깥으로 휘어 들어감.
+ */
+function sideView(W, H, zoneOf, relV, axis, T) {
+  const x0 = 26, x1 = W - 26, pos = (s, v) => [x0 + (x1 - x0) * s, zoneOf(v)];
+  const path = (t) => {
+    const p = PITCH[t].late ? 3 : 2, bend = axis ? 0.8 + PITCH[t].b[1] * 5 : PITCH[t].b[0] * 8, tgt = axis ? T[1] : T[0];
+    return Array.from({ length: 31 }, (_, i) => { const s = i / 30; return pos(s, relV + (tgt - relV) * s - bend * (s - s ** p)); });
+  };
+  const z0 = zoneOf(-1), z1 = zoneOf(1);
+  let s = `<rect x="0" y="0" width="${W}" height="${H}" rx="14" fill="rgba(255,255,255,.03)"/>
+    <line x1="${x0}" y1="${H - 12}" x2="${x1}" y2="${H - 12}" stroke="rgba(255,255,255,.08)"/>
+    <rect x="${x1 - 5}" y="${z0}" width="10" height="${z1 - z0}" rx="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>
+    <circle cx="${x0}" cy="${zoneOf(relV)}" r="6" fill="rgba(255,255,255,.3)"/>`;
+  for (const t of REP) if (t !== pk) s += `<path d="${line(path(t))}" stroke="rgba(203,213,225,.22)" stroke-width="2" fill="none"/>`;
+  const P = path(pk), [id, def] = grad(PITCH[pk].c, P[0], P.at(-1), .35, 1);
+  s += def + `<path d="${line(P)}" stroke="url(#${id})" stroke-width="5" stroke-linecap="round" fill="none"/>` + ball(...P.at(-1), 8);
+  return s;
+}
+const sideCard = (W, H, T, labels = true) => {
+  const z = (o) => (v) => o + v * 24;   // 1 = 24px
+  return `<svg width="${W}" height="${H * 2 + 40}" viewBox="0 0 ${W} ${H * 2 + 40}" style="overflow:visible">
+    <text x="4" y="16" font-size="15" font-weight="800" fill="#94a3b8">옆</text>${labels ? `<text x="${W - 4}" y="16" text-anchor="end" font-size="13" font-weight="700" fill="#64748b">투수 → 포수</text>` : ''}
+    <g transform="translate(0,24)">${sideView(W, H, z(H / 2 + 8), -2.2, 1, T)}</g>
+    <text x="4" y="${H + 50}" font-size="15" font-weight="800" fill="#94a3b8">위</text>
+    <g transform="translate(0,${H + 58})">${sideView(W, H - 18, z((H - 18) / 2), 0.9, 0, T)}</g>
+    <text x="${W - 4}" y="${H + 50}" text-anchor="end" font-size="13" font-weight="700" fill="#64748b">▲ 몸쪽 · ▼ 바깥</text>
+  </svg>`;
+};
+
+function render() {
+  gid = 0;
+  document.getElementById('tabs').innerHTML = VARS.map(([k, n]) => `<button class="${variant === k ? 'on' : ''}" data-v="${k}">${n}</button>`).join('');
+  document.getElementById('note').innerHTML = VARS.find((v) => v[0] === variant)[2];
+  const st = document.getElementById('stage');
+  if (variant === 'v1') st.innerHTML = `<svg class="pad" style="left:760px;top:351px" width="400" height="430" viewBox="0 0 400 430">${zone()}${longTail(pk, T)}</svg>`;
+  if (variant === 'v2') st.innerHTML = `<svg class="pad" style="left:760px;top:351px" width="400" height="430" viewBox="0 0 400 430">${zone()}${ball(px(T[0]), px(T[1]))}</svg>
+    <div class="card" style="left:300px;top:351px;width:430px">${sideCard(398, 150, T)}</div>`;
+  if (variant === 'v3') {
+    /* 새 판: 조준판 340(존 260) + 오른쪽 옆 띠 · 아래 위 띠 */
+    const o = 40, w = 260, full = 340, L = 640, Tp = [px(T[0], o, w), px(T[1], o, w)];
+    const vz = (v) => o + ((v + 1) / 2) * w;          // 존 세로와 같은 높이
+    const side = (() => { const x0 = full + 14, x1 = full + 250, P = []; rel = -1.0;
+      const pth = (t) => { const pp = PITCH[t].late ? 3 : 2, bd = 0.5 + PITCH[t].b[1] * 1.6; return Array.from({ length: 31 }, (_, i) => { const s = i / 30; return [x1 - (x1 - x0) * s, vz(rel + (T[1] - rel) * s - bd * (s - s ** pp))]; }); };
+      let s = `<rect x="${x0 - 6}" y="${o - 80}" width="${x1 - x0 + 12}" height="${w + 110}" rx="14" fill="rgba(255,255,255,.035)"/><text x="${x1}" y="${o - 88}" text-anchor="end" font-size="14" font-weight="800" fill="#94a3b8">옆 · 투수 ▶</text>`;
+      for (const t of REP) if (t !== pk) s += `<path d="${line(pth(t))}" stroke="rgba(203,213,225,.2)" stroke-width="2" fill="none"/>`;
+      const Q = pth(pk), [id, def] = grad(PITCH[pk].c, Q[0], Q.at(-1), .3, 1);
+      return s + def + `<path d="${line(Q)}" stroke="url(#${id})" stroke-width="5" stroke-linecap="round" fill="none"/>` + ball(...Q.at(-1), 7) + `<line x1="${x0}" y1="${Q.at(-1)[1]}" x2="${full - 4}" y2="${Tp[1]}" stroke="rgba(251,191,36,.35)" stroke-dasharray="3 4"/>`; })();
+    const top = (() => { const y0 = full + 14, y1 = full + 190, rel = 0.9;
+      const pth = (t) => { const pp = PITCH[t].late ? 3 : 2, bd = PITCH[t].b[0] * 1.6; return Array.from({ length: 31 }, (_, i) => { const s = i / 30; return [px(rel + (T[0] - rel) * s - bd * (s - s ** pp), o, w), y1 - (y1 - y0) * s]; }); };
+      let s = `<rect x="${o - 30}" y="${y0 - 6}" width="${w + 60}" height="${y1 - y0 + 12}" rx="14" fill="rgba(255,255,255,.035)"/><text x="${o - 22}" y="${y1 - 8}" font-size="14" font-weight="800" fill="#94a3b8">위 · 투수 ▲</text>`;
+      for (const t of REP) if (t !== pk) s += `<path d="${line(pth(t))}" stroke="rgba(203,213,225,.2)" stroke-width="2" fill="none"/>`;
+      const Q = pth(pk), [id, def] = grad(PITCH[pk].c, Q[0], Q.at(-1), .3, 1);
+      return s + def + `<path d="${line(Q)}" stroke="url(#${id})" stroke-width="5" stroke-linecap="round" fill="none"/>` + ball(...Q.at(-1), 7) + `<line x1="${Q.at(-1)[0]}" y1="${y0}" x2="${Tp[0]}" y2="${full - 4}" stroke="rgba(251,191,36,.35)" stroke-dasharray="3 4"/>`; })();
+    st.innerHTML = `<svg class="pad" data-o="${o}" data-w="${w}" style="left:700px;top:300px" width="${L}" height="560" viewBox="0 0 ${L} 560">${zone(o, w, full)}${ball(...Tp)}${side}${top}</svg>`;
+  }
+  document.getElementById('list').innerHTML = REP.map((t, i) => `<button class="opt ${pk === t ? 'on' : ''}" data-p="${t}"><span class="n">${i + 1}</span><i style="width:14px;height:14px;border-radius:50%;background:${PITCH[t].c};box-shadow:0 0 10px ${PITCH[t].c}"></i><span class="nm">${PITCH[t].ko}</span><span class="mx" style="${i ? '' : 'color:#fbbf24;font-weight:800'}">${i ? `비중 ${PITCH[t].mix}%` : '주무기'}</span><span class="v">${PITCH[t].v}</span></button>`).join('');
+}
+document.addEventListener('click', (e) => {
+  const v = e.target.closest('[data-v]'); if (v) { variant = v.dataset.v; location.hash = variant; render(); }
+  const p = e.target.closest('[data-p]'); if (p) { pk = p.dataset.p; render(); }
+});
+let drag = false;
+const at = (e) => { const pad = document.querySelector('svg.pad'), r = pad.getBoundingClientRect(), o = +(pad.dataset.o || 50), w = +(pad.dataset.w || 300), cl = (v) => Math.max(-1.3, Math.min(1.3, v)); T = [cl(((e.clientX - r.left - o) / w) * 2 - 1), cl(((e.clientY - r.top - o) / w) * 2 - 1)]; render(); };
+document.addEventListener('pointerdown', (e) => { if (e.target.closest('svg.pad')) { drag = true; at(e); } });
+document.addEventListener('pointermove', (e) => drag && at(e));
+document.addEventListener('pointerup', () => { drag = false; });
+addEventListener('keydown', (e) => { const i = +e.key - 1; if (REP[i]) { pk = REP[i]; render(); } });
+render();
+</script>
+</body>
+</html>
