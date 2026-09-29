@@ -378,6 +378,10 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
 );
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
 /* ───────── 본체 ───────── */
+/* 연출 조각 열쇠 — 같은 틱에 결과 글씨와 공수 교대가 함께 뜨면 Date.now() 가 같아 형제 열쇠가 겹쳤다(React "same key" 경고). 같은 자리의 형제(투구 카드 · 결과 글씨 · 공수 교대)는 열쇠 앞에 이름을 붙여 서로 겹치지 않게 */
+let fxSeq = 0;
+const nextFx = () => ++fxSeq;
+
 export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
@@ -638,7 +642,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         }
         if (ev.result && BIG.includes(ev.result)) {
-          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? '홈런!' : RESULT_LABEL[ev.result], key: Date.now() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
+          setTimeout(() => { if (aliveRef.current) { setFlash({ text: ev.result === 'HR' ? '홈런!' : RESULT_LABEL[ev.result], key: nextFx() }); setTimeout(() => setFlash(null), flashMs()); } }, told);
         }
         if (ev.result) {
           const wpNow = winProb(g);
@@ -658,7 +662,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (res.texts.length) {
             setLines((l) => [...l, ...res.texts.map((t) => lineOf(`[증강: ${t.name}] ${t.text}`, 'note', g))].slice(-KEEP));
             const t = res.texts[res.texts.length - 1];
-            setFlash({ text: t.name, key: Date.now() });
+            setFlash({ text: t.name, key: nextFx() });
             setTimeout(() => setFlash(null), flashMs());
             redraw();
             await sleep(900 / curSpeed());
@@ -685,7 +689,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           applyQueued();
           setCount({ b: 0, s: 0, o: 0 });
           setLines((l) => [...l, lineOf(`${g.inning}회${g.top ? '초' : '말'} — ${!g.top ? '우리 공격' : '우리 수비'} · ${g.away.runs} : ${g.home.runs}`, 'half', g)].slice(-KEEP));
-          setSwap({ key: Date.now(), mine: !g.top, inning: g.inning, top: g.top });
+          setSwap({ key: nextFx(), mine: !g.top, inning: g.inning, top: g.top });
           redraw();
           await sleep(1150 / curSpeed());
           if (aliveRef.current) setSwap(null);
@@ -697,7 +701,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           evAt = g.events.length;
           inningNo = g.inning;
           if (!quiet() && !g.final) {
-            setFlash({ text: `${shown}회 종료 · ${g.away.runs} : ${g.home.runs}`, key: Date.now() });
+            setFlash({ text: `${shown}회 종료 · ${g.away.runs} : ${g.home.runs}`, key: nextFx() });
             setTimeout(() => setFlash(null), flashMs());
             await sleep(900 / curSpeed());
           }
@@ -912,7 +916,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             })()}
 
             {/* 존 — 이 공이 어디로 들어왔나. 늘 떠 있고 새 공이 오면 갈린다 */}
-            <div key={rush ? 'rush' : shots.length} className="mt-cut mt-glass pointer-events-none absolute bottom-4 right-4 flex items-stretch gap-3 p-3"
+            <div key={rush ? 'rush' : `shots-${shots.length}`} className="mt-cut mt-glass pointer-events-none absolute bottom-4 right-4 flex items-stretch gap-3 p-3"
               style={{ '--c': '18px', '--f': lastShot?.tone || '#94a3b8', animation: lastShot && !rush ? 'mtZoneFlash .5s ease-out both' : 'none' }}>
               <ZoneBox shots={shots} w={120} />
               {/* 글자 칸은 폭을 못 박는다 — '볼' 이든 '인플레이' 든 판이 흔들리지 않게 */}
@@ -934,12 +938,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
             {/* 결과 자막 */}
             {flash && (
-              <div key={flash.key} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
+              <div key={`flash-${flash.key}`} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
             )}
 
             {/* 공수 교대 — 띠가 한 번 쓸고 지나가며 이번 반 이닝의 주인을 알린다 */}
             {swap && (
-              <div key={swap.key} className="pointer-events-none absolute inset-0 grid place-items-center">
+              <div key={`swap-${swap.key}`} className="pointer-events-none absolute inset-0 grid place-items-center">
                 <i className="absolute inset-x-0 top-1/2 h-[118px] -translate-y-1/2 origin-left"
                   style={{ background: `linear-gradient(90deg,${tint(swap.mine ? battingColor : pitchingColor, 62)},transparent)`,
                     animation: 'halfWipe 1.1s cubic-bezier(.2,.8,.2,1) both' }} />
