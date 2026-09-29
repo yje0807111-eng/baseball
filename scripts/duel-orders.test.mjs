@@ -216,15 +216,13 @@ test('완급 조절 — 앞 공과 구속 차이가 크면 손해, 빠른 뒤 �
   expect(g.lastVelo).toBe(null);
 });
 
-test('수비 추천 구종 — 첫 공은 가장 노릴 공을 피하고, 빠른 공 뒤엔 직구를 또 권하지 않음', async () => {
+test('수비 추천 구종 — 첫 공은 다음 완급을 준비하는 직구 계열, 빠른 공 뒤엔 직구를 또 권하지 않음', async () => {
   const { recDefOf, veloOfP } = await import('../src/play/DuelPanel.jsx');
   const { createGame, pitchMix } = await import('../src/engine/pitchSim.js');
   const { seeded } = await import('../src/engine/rng.js');
   const g = createGame({ home: team('H'), away: team('A'), rng: seeded(5) });
-  const mix = pitchMix(g.home.pitcher), least = Object.entries(mix).sort((a, b) => a[1] - b[1])[0][0];
-  const { batterRead } = await import('../src/play/DuelPanel.jsx');
-  const most = Object.entries(batterRead(g, []).w).sort((a, b) => b[1] - a[1])[0][0];
-  expect(recDefOf(g, []).pk).not.toBe(most);   // 첫 공은 가장 노릴 공을 피함
+  const { PITCHES } = await import('../src/engine/pitchSim.js');
+  expect(PITCHES[recDefOf(g, []).pk].fam).toBe('F');   // 첫 공은 빠른 공 — 다음 공에 완급을 줄 여지(한 수 앞)
   const pk = recDefOf(g, ['fast'], veloOfP(g.home.pitcher, 'fast')).pk;
   expect(pk).not.toBe('fast');   // 빠른 공 뒤엔 직구를 또 권하지 않음
 });
