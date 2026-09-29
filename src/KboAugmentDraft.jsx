@@ -4898,8 +4898,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
      선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
   const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
-  /* 효과음: 남은 5초부터 초마다 틱(남을수록 높게). 내 차례 알림 종은 뺐다 — 지명 소리가 차례를 알려 준다 */
-  useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) playSfx('tick', { sec: clock }); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* 효과음: 남은 5초부터 초마다 째깍(같은 크기), 마지막 1초는 확정 소리. 내 차례 알림 종은 뺐다 — 지명 소리가 차례를 알려 준다 */
+  useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) playSfx(clock === 1 ? 'tickLast' : 'tick'); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
   const lockOf = (p) => (live ? Live.lockReason(live, p, liveMine) : getLockReason(p, roster, cp, released));
   /** 다음 시리즈: 모드 안에서 영입 가능한 시리즈를 먼저, 모드 안에 더는 없으면(방출·교체로 늘어난 기회 등) 전체 시리즈에서 — 이미 나온 팀도 다시 나올 수 있다 */

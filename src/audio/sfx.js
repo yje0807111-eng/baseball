@@ -115,12 +115,10 @@ export const RECIPES = {
      다 세면 ③ 확정(딸깍 + 째깍)으로 걸림. 틱은 45ms 에 한 번까지라 작게 */
   countTick: { file: 'audio/sfx/count-tick.mp3', gain: 0.22, vary: 0.02, len: 0.08 },
   countPop: { alias: 'press' },
-  /* 초읽기 — 남은 초(sec 5 → 1)가 줄수록 높고 크게. 1초는 한 칸 더 */
-  tick: { len: 0.1, fn(t, o, { tone, noise, note, sec = 5 }) {
-    const k = 5 - sec;
-    tone(t, { f: note(k, 5), d: 0.05, g: 0.1 + k * 0.03, dest: o });
-    noise(t, { f: 3200, q: 3, d: 0.02, g: 0.05 + k * 0.01, dest: o });
-  } },
+  /* 남은 5초 — 드래프트 내 차례 마지막 5초, 1초마다. 5~2초는 옛 괘종시계 째깍(344 Audio Antique Clocks) 같은 크기로,
+     마지막 1초는 ③ 확정(딸깍 + 째깍)으로 걸림 — 곧바로 자동 지명 */
+  tick: { file: 'audio/sfx/clock.mp3', gain: 0.32, len: 0.2 },
+  tickLast: { alias: 'press' },
   /* 카드 날아가기 — 휙(잡음이 쓸려 올라감) 뒤 착지 쿵 */
   fly: { len: 0.7, fn(t, o, { tone, noise, land = 0.26 }) { // land: 도착하는 때(초)
     noise(t, { f: 700, f2: 3200, q: 1.2, a: Math.min(0.2, land * 0.4), d: Math.max(0.14, land * 0.5), g: 0.1, dest: o });
