@@ -86,13 +86,18 @@ export function addBlockReason(player, squad, staff, cap = SQUAD_CAP, lim = BASE
 
 /**
  * 교체 영입 — 엔트리가 꽉 찼을 때 한 명을 내보내며 들인다(스타터로 시작하면 늘 꽉 차 있다).
- * 내보낼 후보: 같은 포지션에서 약한 순 → 같은 유형(타자 · 투수)에서 약한 순.
+ * 내보낼 후보: 같은 포지션에서 약한 순 → 같은 유형(타자 · 투수)에서 약한 순 → 나머지 약한 순(엔트리 전원).
  */
 export function swapCandidates(player, squad) {
   const weak = (a, b) => a.overall - b.overall;
   const same = squad.filter((p) => p.position === player.position).sort(weak);
   const kind = squad.filter((p) => p.position !== player.position && p.type === player.type).sort(weak);
-  return [...same, ...kind];
+  const rest = squad.filter((p) => p.type !== player.type).sort(weak);
+  return [...same, ...kind, ...rest];
+}
+/** 막히지 않는 첫 후보(추천 1순위) — 없으면 null. 영입 목록의 '교체' 단추와 오른쪽 기본 선택이 같은 답을 쓴다 */
+export function swapPick(player, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {
+  return swapCandidates(player, squad).find((x) => !swapBlockReason(player, x, squad, staff, cap, lim, gold, price)) || null;
 }
 /** out 을 내보내고 player 를 들일 수 있나 — 안 되면 이유. 내보내는 선수의 환급도 골드에 셈한다 */
 export function swapBlockReason(player, out, squad, staff, cap = SQUAD_CAP, lim = BASE_LIMITS, gold = null, price = null) {

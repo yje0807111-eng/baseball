@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
-import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
+import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
 import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
@@ -15,6 +15,7 @@ import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quo
 import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
+import { createPortal } from 'react-dom';
 import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
 import { Count, Burst, flyGhost, useListIntro, navTo, SfxAt } from '../ui/motion.jsx';
 
@@ -217,13 +218,16 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   const stored = !owned && club.some((x) => x.id === p.id); // 보관함 선수 — 엔트리로 들이는 데 골드가 들지 않는다
   const n = tone(p.overall);
   const cost = squadCost(squad, staff);
-  /* 엔트리가 꽉 찼으면 한 명을 내보내며 들인다 — 후보는 같은 포지션 약한 순 */
-  const swap = !owned && squad.length >= lim.size;
-  const cands = swap ? swapCandidates(p, squad).slice(0, 6) : [];
-  const out = swap ? cands.find((x) => x.id === outId) || cands[0] || null : null;
-  const after = owned ? cost - p.cost : cost + p.cost - (out?.cost || 0);
   const pay = stored ? null : gold; // 보관함 선수는 골드를 따지지 않는다
   const price = stored ? 0 : priceFor(p); // 오늘의 특가면 그 값
+  /* 엔트리가 꽉 찼으면 한 명을 내보내며 들인다 — 엔트리 전원이 후보(같은 포지션 → 같은 투타 → 나머지, 약한 순).
+     오른쪽엔 막히지 않는 앞 셋만 추천으로, 전원은 '더보기' 팝업에서. 기본 선택 = 막히지 않는 첫 후보 */
+  const swap = !owned && squad.length >= lim.size;
+  const pool = swap ? swapCandidates(p, squad).map((x) => ({ x, why: swapBlockReason(p, x, squad, staff, cap, lim, pay, price) })) : [];
+  const out = swap ? (pool.find((o) => o.x.id === outId) || pool.find((o) => !o.why) || pool[0])?.x || null : null;
+  const ok = pool.filter((o) => !o.why).map((o) => o.x);
+  const cands = [...new Set([out, ...(ok.length ? ok : pool.map((o) => o.x))].filter(Boolean))].slice(0, 3); // 팝업에서 고른 선수는 맨 앞에
+  const after = owned ? cost - p.cost : cost + p.cost - (out?.cost || 0);
   const blocked = owned ? null : swap ? swapBlockReason(p, out, squad, staff, cap, lim, pay, price) : addBlockReason(p, squad, staff, cap, lim, pay, price);
   const mine = owned ? squad.find((x) => x.id === p.id) : stored ? club.find((x) => x.id === p.id) : null;
   /* 환급: 엔트리 · 보관함 선수는 그 선수 몫, 영입 교체면 내보내는 선수 몫(보관함으로 들이는 교체는 나가는 선수가 보관함으로 가니 없음) */
@@ -239,7 +243,7 @@ function DetailPanel({ p, squad, club = [], staff, cap, lim = BASE_LIMITS, gold 
   const hand = HAND_LABEL(p);
   return <DetailBody p={p} squad={squad} staff={staff} cap={cap} onAdd={onAdd} onRelease={onRelease} playing={playing} onUpgrade={onUpgrade} itemsFit={itemsFit}
     owned={owned} n={n} after={after} blocked={blocked} now={now} next={next} keys={keys} tr={tr} hand={hand}
-    gold={gold} price={price} refund={refund} cands={cands} out={out} onOut={onOut} onSwap={onSwap}
+    gold={gold} price={price} refund={refund} cands={cands} pool={pool} out={out} onOut={onOut} onSwap={onSwap}
     stored={stored} clubFull={club.length >= CLUB_MAX} onStore={onStore} onEnter={onEnter} fresh={fresh} />;
 }
 
@@ -281,8 +285,57 @@ function HoloCard({ p }) {
   );
 }
 
-function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], out = null, onOut, onSwap,
+/**
+ * 내보낼 선수 전원 — 같은 포지션 · 같은 투타 · 그 밖 세 묶음, 묶음마다 약한 순.
+ * 막히는 선수(필수 포지션 최소 · 캡 · 골드 등)는 이유를 달고 흐리게. 고르면 닫히고 오른쪽 추천 맨 앞에 선다
+ */
+function OutPicker({ p, pool, out, stored, onPick, onClose }) {
+  const kind = p.type === 'pitcher' ? '투수' : '타자';
+  const groups = [
+    ['같은 포지션', pool.filter((o) => o.x.position === p.position)],
+    [`다른 ${kind}`, pool.filter((o) => o.x.position !== p.position && o.x.type === p.type)],
+    [p.type === 'pitcher' ? '타자' : '투수', pool.filter((o) => o.x.type !== p.type)],
+  ].filter(([, g]) => g.length);
+  /* 포털로 — 오른쪽 유리 판(backdrop-filter)이 fixed 의 기준이 되어 판 안에 갇히지 않게 */
+  return createPortal(
+    <Pop eyebrow="교체 영입" title="내보낼 선수" sub={`${POS_FULL[p.position]} · ${p.year} ${p.name}`} a="#f87171" width={880} onClose={onClose}>
+      <div className="flex flex-col gap-4">
+        {groups.map(([label, g]) => (
+          <div key={label}>
+            <p className="pb-1.5 text-t4 font-bold text-gray-400">{label} <span className="font-display text-gray-500">{g.length}</span></p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {g.map(({ x, why }) => {
+                const on = x.id === out?.id;
+                const back = stored ? 0 : refundOf(x);
+                return (
+                  <button key={x.id} type="button" disabled={!!why} onClick={() => onPick(x.id)} aria-pressed={on} title={why || ''}
+                    className="mt-cut grid items-center gap-3 px-2.5 py-2 text-left transition enabled:hover:bg-white/[0.09] disabled:cursor-not-allowed"
+                    style={{ ...cut(10), gridTemplateColumns: '40px 34px minmax(0,1fr) auto', opacity: why ? 0.45 : 1, background: on ? 'rgba(248,113,113,.16)' : 'rgba(255,255,255,.04)', boxShadow: on ? 'inset 0 0 0 1px rgba(248,113,113,.7)' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
+                    <Portrait player={x} w={40} h={40} round t={teamNeon(x)} />
+                    <b className="mt-ovr text-center font-display text-t2 font-extrabold leading-none">{x.overall}</b>
+                    <span className="min-w-0">
+                      <b className="block truncate text-t3" style={{ color: on ? '#fecaca' : '#fff' }}>{x.name}</b>
+                      <small className="block truncate text-t4 text-gray-400">{POS_FULL[x.position]} · {x.year} {x.team}</small>
+                    </span>
+                    <span className="flex flex-col items-end leading-tight">
+                      <b className="font-display text-t4 text-amber-300">{x.cost} CP</b>
+                      <small className="text-t4" style={{ color: why ? '#fca5a5' : '#9ca3af' }}>{why || (back ? `+${back.toLocaleString()} G` : '환급 없음')}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Pop>,
+    document.body,
+  );
+}
+
+function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0, owned, n, after, blocked, now, next, keys, tr, hand, gold = 0, price = 0, refund = 0, cands = [], pool = [], out = null, onOut, onSwap,
   stored = false, clubFull = false, onStore, onEnter, fresh = null }) {
+  const [outAll, setOutAll] = useState(false); // 내보낼 선수 전원 팝업
   const goldAfter = owned || stored ? gold + (stored ? 0 : refund) : gold + refund - price;
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3.5 p-5" style={cut(22)}>
@@ -320,10 +373,15 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
           ))}
         </div>
       )}
-      {/* 교체 영입: 내보낼 선수 고르기 (같은 포지션 약한 순) */}
+      {/* 교체 영입: 내보낼 선수 — 추천 셋 · 전원은 더보기 팝업 */}
       {out && (
         <div>
-          <p className="pb-1 text-t4 text-gray-400">내보낼 선수</p>
+          <p className="flex items-baseline pb-1 text-t4 text-gray-400">
+            내보낼 선수 · 추천
+            {pool.length > cands.length && (
+              <button type="button" onClick={() => setOutAll(true)} className="ml-auto font-bold text-gray-300 hover:text-white">더보기 {pool.length} ›</button>
+            )}
+          </p>
           <div className="grid grid-cols-3 gap-1">
             {cands.map((x) => {
               const on = x.id === out.id;
@@ -340,6 +398,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
           </div>
         </div>
       )}
+      {outAll && <OutPicker p={p} pool={pool} out={out} stored={stored} onPick={(id) => { onOut?.(id); setOutAll(false); }} onClose={() => setOutAll(false)} />}
       {/* 맨 아래: 남는 캡 · 남는 골드 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
       <div className="shrink-0">
         {!owned && !stored && <KV sm k="영입가" v={`${price.toLocaleString()} G`} color={GOLD} />}
@@ -699,7 +758,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
   const swap = (p, out) => { if (!swapBlockReason(p, out, squad, staff, cap, lim, gold, priceFor(p))) { settle(dealBump(p, swapPlayer(team, p, priceFor(p), out.id))); setOutId(null); setFresh({ id: p.id, k: `${Date.now()}` }); } };
   /* 목록 한 줄의 막는 이유 — 꽉 찼으면 첫 교체 후보로 따진다 */
   const full = squad.length >= lim.size;
-  const rowBlock = (p) => (full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p)) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
+  const rowBlock = (p) => (full ? (swapPick(p, squad, staff, cap, lim, gold, priceFor(p)) ? null : swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p))) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
   useEffect(() => { setOutId(null); }, [sel?.id]);
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
   /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
@@ -888,7 +947,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
             <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
                 const full = squad.length >= lim.size;
-                const why = full ? swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null) : addBlockReason(p, squad, staff, cap, lim, null);
+                const why = full ? (swapPick(p, squad, staff, cap, lim) ? null : swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, null)) : addBlockReason(p, squad, staff, cap, lim, null);
                 return (
                   <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={full ? '교체' : '넣기'} blocked={why} showNote={false} teamTint stored
                     onPick={setSel} onAct={full ? setSel : (x) => enter(x, null)} />
