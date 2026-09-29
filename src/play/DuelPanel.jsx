@@ -309,17 +309,6 @@ const arcOf = (toPx, half, t, x, y) => {
   });
   return { sx: P[0][0], sy: P[0][1], ex, ey, d: lineOf(P), rib: `M${side(1).join(' L')} L${side(-1).reverse().join(' L')} Z` };
 };
-/** 구종 버튼 꺾임 그림(30 × 30) — 판과 같은 곡선, 길이 8 + 꺾임 × 16px(직구도 짧은 선으로 보이게) */
-function PitchIcon({ t }) {
-  const b = BREAK[t] || [0, -0.15], m = Math.hypot(...b), P = breakPts(b.map((v) => (v * (8 + 16 * m)) / m), [0, 0]), c = DUEL_PITCH[t]?.c || '#fff';
-  const xs = P.map((p) => p[0]), ys = P.map((p) => p[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2 - 15, cy = (Math.min(...ys) + Math.max(...ys)) / 2 - 15;
-  const Q = P.map(([x, y]) => [x - cx, y - cy]), e = Q[20];
-  return (
-    <svg width="30" height="30" viewBox="0 0 30 30" style={{ flex: 'none', overflow: 'visible', filter: `drop-shadow(0 0 6px ${c}88)` }}>
-      <path d={lineOf(Q)} stroke={c} strokeWidth="3" strokeLinecap="round" fill="none" /><circle cx={e[0]} cy={e[1]} r="4.2" fill={c} />
-    </svg>
-  );
-}
 /* 공 꼬리 — 던진 공마다 꺾임 곡선(떨어진 자리로), 시작 옅게 → 끝 진하게. 방금 공만 0.35초에 그려지고(자주 보는 것 — 짧게) 지난 공은 흐리게 */
 function Trails({ marks, toPx, half, id }) {
   return marks.map((p, i) => {
@@ -343,8 +332,8 @@ function Trails({ marks, toPx, half, id }) {
  * 휨: 옆 = 0.8(중력) + 세로 꺾임 × 5 · 위 = 가로 꺾임 × 8(과장). 끝 = 과녁이라 과녁을 옮기면 끝이 따라간다.
  * 고른 구종은 빛 선 + 공이 1.4초마다 날아감(애니메이션 줄이기면 멈춤), 다른 구종은 옅은 선(어디서 갈라지나).
  */
-const trackOf = (t, axis, end, rel) => {
-  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = axis ? 0.8 + b[1] * 5 : b[0] * 8;
+const trackOf = (t, axis, end, rel, amp = 1) => {
+  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = (axis ? 0.8 + b[1] * 5 : b[0] * 8) * amp;
   return Array.from({ length: 41 }, (_, i) => { const s = i / 40; return [s, rel + (end - rel) * s - bend * (s - s ** p)]; });
 };
 function TrajView({ axis, map, rep, pk, end, rel, id }) {
@@ -364,6 +353,18 @@ function TrajView({ axis, map, rep, pk, end, rel, id }) {
         </circle>
       )}
     </>
+  );
+}
+/*
+ * 구종 버튼 그림 — 궤적 카드 '옆' 그림을 작게(56 × 26, 손 왼쪽 → 포수 오른쪽). 목록과 카드가 같은 모양으로 이어진다(mockups/pitch-mark 6).
+ * 작은 그림이라 휨을 2.5배로 — 커브 · 체인지업처럼 떨어지는 공이 또렷이 갈린다. 고른 줄은 금색.
+ */
+function SideMini({ t, on }) {
+  const P = trackOf(t, 1, 0.4, -1.2, 2.5).map(([a, v]) => [2 + a * 50, 10 + v * 5]), e = P[P.length - 1], c = on ? GOLD : '#cbd5e1';
+  return (
+    <svg width="56" height="26" viewBox="0 0 56 26" style={{ flex: 'none', overflow: 'visible' }}>
+      <path d={lineOf(P)} stroke={c} strokeOpacity={on ? 1 : 0.75} strokeWidth="2.4" strokeLinecap="round" fill="none" /><circle cx={e[0]} cy={e[1]} r="3.4" fill={on ? GOLD : '#e2e8f0'} />
+    </svg>
   );
 }
 function TrajCard({ rep, pk, target, hand, velo }) {
@@ -714,7 +715,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           {myRep.map((t, i) => [t, DUEL_PITCH[t]]).map(([t, p], i) => (
             <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''} ${recD.pk === t ? 'rec' : ''}`} onClick={() => setPk(t)} style={{ minHeight: myRep.length > 5 ? 40 : myRep.length > 3 ? 46 : 52 }}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
-              <PitchIcon t={t} />
+              <SideMini t={t} on={pk === t} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
               <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>
