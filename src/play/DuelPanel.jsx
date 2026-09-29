@@ -3,14 +3,14 @@
  *
  * 조사(MLB 더 쇼 · 9이닝스 · 매든 · 레트로 볼)로 정한 배치:
  *  - 경기 화면이 주인공 — 중계 시점 사진 위에 점수는 왼쪽 위, 고르는 판은 오른쪽 아래 하나, 존은 가운데.
- *  - 수비: 구종 → 코스(3 × 3 칸 + 바깥 네 띠 = 유인구) → 던지기 (더 쇼 클래식 투구의 세 박자)
+ *  - 수비: 구종 → 조준(공을 끌어 놓기 · 제구만큼 흩어짐, 존 밖 = 유인구) → 던지기 (더 쇼 클래식 투구의 세 박자)
  *  - 공격: 작전(타격 · 번트 · 주루 탭 — 매든의 분류 → 카드) → 노림(구종 · 4칸 코스 — 9이닝스 노림 존) → 이 작전으로
  *  - 글자 16px 이상 · 선택지 22px 이상 · 버튼 높이 64px 이상 · 강조색은 금색 하나.
  * 판은 고르기만 한다 — 공을 던지는 것은 중계 루프(BroadcastGame)가 엔진 pitch() 로 하고, 결과(reveal)를 돌려준다.
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
-import React, { useEffect, useState } from 'react';
-import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf } from '../engine/pitchSim.js';
+import React, { useEffect, useRef, useState } from 'react';
+import { pitchMix, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 
@@ -275,6 +275,94 @@ export function duelAi(g, side, seq = []) {
   const guess = rng() < 0.55 ? draw(w, rng()) : null;
   return { orders: guess ? { guess } : {}, guess };
 }
+/** 보조 스위치 — 켜고 끄기 + 읽기 보너스 상태 한 줄(공격 · 수비 판 머리) */
+function AssistSwitch({ assist, bonus, onAssist }) {
+  return (
+    <button type="button" onClick={onAssist} title={bonus ? '보조를 켜면 이 경기 읽기 보너스가 사라짐' : undefined}
+      style={{ all: 'unset', cursor: 'pointer', display: 'grid', justifyItems: 'end', gap: 2 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, fontWeight: 800, color: assist ? '#e2e8f0' : MUTE }}>
+        보조<i style={{ position: 'relative', width: 30, height: 16, borderRadius: 999, background: assist ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
+          <i style={{ position: 'absolute', top: 2, left: assist ? 16 : 2, width: 12, height: 12, borderRadius: '50%', background: assist ? '#0b1220' : MUTE, transition: 'left .15s' }} />
+        </i>
+      </span>
+      <span style={{ fontSize: 12, fontWeight: 800, color: bonus ? GOLD : '#64748b' }}>{bonus ? '읽기 보너스' : assist ? '' : '이 경기 보너스 없음'}</span>
+    </button>
+  );
+}
+
+/*
+ * 수비 추천 — 타자가 덜 노리는 구종(우리 주무기 · 방금 공을 노리는 AI 와 거꾸로) +
+ * 자리: 2스트라이크면 타자 강한 코스 반대쪽 경계 밖(유인), 3볼이면 안전하게 안쪽, 그 밖엔 피안타가 가장 낮은 칸의 구석 쪽
+ */
+export function recDefOf(g, seq = []) {
+  const w = { ...pitchMix(g.home.pitcher) }, n = seq.length;
+  if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
+  else if (n) w[seq[n - 1]] += 0.15;
+  const pk = Object.entries(w).sort((a, b) => a[1] - b[1])[0][0];
+  const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
+  if (g.strikes === 2 && g.balls < 3) return { pk, target: { high: { x: 0.3, y: 1.15 }, low: { x: 0.3, y: -1.15 }, in: { x: 1.15, y: 0.4 }, out: { x: -1.15, y: 0.4 }, even: { x: 0.6, y: 1.15 } }[batterHot(b)] };
+  const L = Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)), z = L.indexOf(Math.min(...L)), k = g.balls === 3 ? 0.5 : 0.72;
+  return { pk, target: z === 4 ? { x: 0.3, y: 0.5 } : { x: ((z % 3) - 1) * k, y: (Math.floor(z / 3) - 1) * k } };
+}
+/** 조준 자리를 사람 말로 — 존 안이면 칸 이름, 밖이면 뺀 방향 */
+const cellOf = (v) => (v < -1 / 3 ? 0 : v > 1 / 3 ? 2 : 1);
+const locKo = (t) => (Math.abs(t.x) <= 1 && Math.abs(t.y) <= 1 ? zoneKo(cellOf(t.y) * 3 + cellOf(t.x))
+  : CHASE[Math.abs(t.x) - 1 > Math.abs(t.y) - 1 ? (t.x < 0 ? 'in' : 'out') : (t.y < 0 ? 'hi' : 'lo')]);
+
+/*
+ * 수비 조준판 — 칸 없이 공을 끌어다 놓는다(누르기 · 끌기 · 방향키 0.05). 존 반폭 = 1, 바깥 띠까지 ±1.33.
+ * 금색 원 = 이 투수가 흩어지는 범위(반쯤 이 안에 떨어진다 — 제구 · 피로로 커진다). 보조면 칸별 피안타 색 · 추천 자리(점선 원).
+ */
+const PAD_B = 300, PAD_M = 50, PAD_W = PAD_B + PAD_M * 2, PAD_LIM = 1 + PAD_M / (PAD_B / 2) - 0.03;
+function AimPad({ g, target, setTarget, marks, danger, recAt, enabled }) {
+  const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B;
+  const drag = useRef(false); // 누른 채 끄는 중 — 같은 틱의 이동도 바로 따라가게(상태 대신 ref)
+  const at = (e) => {
+    const r = e.currentTarget.getBoundingClientRect(), k = PAD_W / r.width;
+    const clampL = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v));
+    setTarget({ x: clampL((((e.clientX - r.left) * k - PAD_M) / PAD_B) * 2 - 1), y: clampL((((e.clientY - r.top) * k - PAD_M) / PAD_B) * 2 - 1) });
+  };
+  const sd = aimSpreadOf(g), cell = PAD_B / 3;
+  return (
+    <svg width={PAD_W} height={PAD_W + 30} viewBox={`0 0 ${PAD_W} ${PAD_W + 30}`} style={{ overflow: 'visible', touchAction: 'none', cursor: enabled ? 'crosshair' : 'default' }}
+      onPointerDown={enabled ? (e) => { e.currentTarget.setPointerCapture?.(e.pointerId); drag.current = true; at(e); } : undefined}
+      onPointerMove={enabled ? (e) => { if (drag.current) at(e); } : undefined}
+      onPointerUp={() => { drag.current = false; }} onPointerCancel={() => { drag.current = false; }}>
+      <rect x="1" y="1" width={PAD_W - 2} height={PAD_W - 2} rx="18" fill="rgba(8,12,22,.4)" stroke="rgba(255,255,255,.16)" strokeDasharray="7 7" />
+      {[['hi', PAD_W / 2, PAD_M / 2 + 5], ['lo', PAD_W / 2, PAD_W - PAD_M / 2 + 5]].map(([k, x, y]) => <text key={k} x={x} y={y} textAnchor="middle" fontSize="14" fontWeight="700" fill="rgba(203,213,225,.55)" style={{ pointerEvents: 'none' }}>{CHASE[k]}</text>)}
+      {[['in', PAD_M / 2], ['out', PAD_W - PAD_M / 2]].map(([k, x]) => <text key={k} x={x} y={PAD_W / 2 - 4} textAnchor="middle" fontSize="14" fontWeight="700" fill="rgba(203,213,225,.55)" style={{ pointerEvents: 'none' }}>
+        {CHASE[k].split(' ').map((t, n) => <tspan key={n} x={x} dy={n ? 17 : 0}>{t}</tspan>)}</text>)}
+      <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="rgba(8,12,22,.35)" />
+      {Array.from({ length: 9 }, (_, z) => {
+        const x = PAD_M + (z % 3) * cell, y = PAD_M + Math.floor(z / 3) * cell;
+        return (
+          <g key={z} style={{ pointerEvents: 'none' }}>
+            {danger && <rect x={x + 2} y={y + 2} width={cell - 4} height={cell - 4} rx="8" fill={heatFill(danger, z)} />}
+            <text x={x + cell / 2} y={y + cell / 2 + (danger ? -2 : 6)} textAnchor="middle" fontSize="14" fontWeight="800" fill="rgba(226,232,240,.75)">{zoneKo(z)}</text>
+            {danger && <text x={x + cell / 2} y={y + cell / 2 + 17} textAnchor="middle" fontSize="14" fontWeight="700" fill="#fca5a5" opacity="0.85" style={{ fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(danger[z] * 100)}%</text>}
+          </g>
+        );
+      })}
+      {[1, 2].map((i) => <g key={i} stroke="rgba(255,255,255,.1)" style={{ pointerEvents: 'none' }}><line x1={PAD_M + cell * i} y1={PAD_M} x2={PAD_M + cell * i} y2={PAD_M + PAD_B} /><line x1={PAD_M} y1={PAD_M + cell * i} x2={PAD_M + PAD_B} y2={PAD_M + cell * i} /></g>)}
+      <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" style={{ pointerEvents: 'none' }} />
+      {recAt && <circle cx={px(recAt.x)} cy={px(recAt.y)} r="20" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeDasharray="4 4" style={{ pointerEvents: 'none' }} />}
+      {marks.map((p, i) => {
+        const x = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.x))), y = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.y)));
+        return <g key={i} style={{ pointerEvents: 'none' }}><circle cx={x} cy={y} r="14" fill={p.c} stroke="#05080f" strokeWidth="3" opacity="0.8" /><text x={x} y={y + 5} textAnchor="middle" fontSize="15" fontWeight="900" fill="#05080f">{i + 1}</text></g>;
+      })}
+      {target && (
+        <g style={{ pointerEvents: 'none' }}>
+          <circle cx={px(target.x)} cy={px(target.y)} r={sd * 1.18 * (PAD_B / 2)} fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.6)" strokeWidth="1.5" />
+          <circle cx={px(target.x)} cy={px(target.y)} r="12" fill="#f8fafc" stroke={GOLD} strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.6))' }} />
+          <path d={`M${px(target.x) - 5} ${px(target.y) - 8} q4 8 0 16 M${px(target.x) + 5} ${px(target.y) - 8} q-4 8 0 16`} fill="none" stroke="#dc2626" strokeWidth="1.6" />
+        </g>
+      )}
+      <text x={PAD_M} y={PAD_W + 22} fontSize="15" fontWeight="700" fill={MUTE}>◀ 몸쪽</text>
+      <text x={PAD_M + PAD_B} y={PAD_W + 22} textAnchor="end" fontSize="15" fontWeight="700" fill={MUTE}>바깥 ▶</text>
+    </svg>
+  );
+}
+
 /*
  * 추천 — 야구 정석으로 한 작전 + 구종 예측(따르지 않아도 된다). 공격 판에서 점선 테두리 + 추천 딱지로(고른 금색 · 공수 색과 안 겹치게 흰색).
  *  작전: 후반 한 점 승부에 3루 주자 → 스퀴즈 · 무사 1루 → 희생번트 / 발 빠른 1루 주자(성공 70%+) → 도루 /
@@ -310,6 +398,8 @@ export function scoutOf(g, side) {
   const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
   const pw = st(b, 'power'), ct = st(b, 'contact');
   const out = [pw >= 88 ? '장타자' : ct >= 88 ? '교타자' : '평범한 타자'];
+  const hotKo = { in: '몸쪽 강함', out: '바깥 강함', high: '높은 공 강함', low: '낮은 공 강함' }[batterHot(b)];
+  if (hotKo) out.push(hotKo);
   if (ct >= 88) out.push('선구안 좋음');
   else if (ct <= 72) out.push('유인구 약함');
   out.push(`${DUEL_PITCH[mainOf(g.home.pitcher)].ko} 노림`);
@@ -342,7 +432,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
   const [pk, setPk] = useState('fast');
-  const [zone, setZone] = useState(null);
+  const [target, setTarget] = useState(null); // 수비 조준 자리 { x, y } — 던진 뒤에도 남겨 조금씩 옮기게
   const [cat, setCat] = useState('hit');
   const [play, setPlay] = useState('power');
   const [guess, setGuess] = useState(null);
@@ -365,20 +455,23 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
   const hitting = off && cat === 'hit' && play !== 'wait';
   const rec = off && assist ? recOf(g) : {};
-  const canGo = waiting && (off ? okOf(cur, g) : zone != null);
+  const recD = !off && assist ? recDefOf(g, shots.map((x) => x.ev.pitch?.type)) : {};
+  const canGo = waiting && (off ? okOf(cur, g) : target != null);
   const go = () => {
     if (!canGo) return;
     if (off) {
       const base = typeof cur.order === 'function' ? cur.order(g) : cur.order;
       onGo({ ...base, ...(hitting && guess ? { guess } : {}), ...(hitting && aim != null ? { aim } : {}), ...(bonus ? { readBonus: true } : {}) });
     } else {
-      onGo({ pitchType: pk, ...(typeof zone === 'number' ? { zone, exact: true } : { zone: 'chase', band: zone }) });
-      setZone(null);
+      onGo({ pitchType: pk, target, ...(bonus ? { readBonus: true } : {}) });
     }
   };
   useEffect(() => {
     const key = (e) => {
       if (e.key === 'Enter') { e.preventDefault(); go(); return; }
+      /* 수비 조준 미세 조정 — 방향키 한 번에 0.05 */
+      const d = { ArrowLeft: [-0.05, 0], ArrowRight: [0.05, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] }[e.key];
+      if (d && !off && waiting) { e.preventDefault(); setTarget((t) => { const b = t || { x: 0, y: 0 }; const c = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v)); return { x: c(b.x + d[0]), y: c(b.y + d[1]) }; }); return; }
       const i = Number(e.key) - 1;
       if (!(i >= 0)) return;
       if (off) { const p = DUEL_PLAYS[cat][i]; if (p && okOf(p, g)) setPlay(p.k); }
@@ -391,7 +484,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const marks = shots.map((s) => ({ x: s.x, y: s.y, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   const pickKo = off
     ? `${cur.ko}${hitting ? ` · ${AIM_T.find((a) => a[0] === guess)[1]}${aim != null ? ` · ${zoneKo(aim)}` : ''}` : ''}`
-    : `${DUEL_PITCH[pk].ko} · ${zone != null ? zoneKo(zone) : '코스 고르기'}`;
+    : `${DUEL_PITCH[pk].ko} · ${target ? locKo(target) : '코스 고르기'}`;
   const R = showRev;
   const rp = R?.ev?.pitch;
   const [callKo, callC] = R ? (CALL_KO[R.ev.call] || [R.ev.call === 'inplay' ? '인플레이' : '', '#fff']) : [];
@@ -444,7 +537,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <Zone size={300} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
+          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
@@ -483,12 +576,12 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       {/* 고르는 판 — 공격 · 수비 같은 자리 · 같은 크기(400 × 470). 고르기는 위에서, 결정 줄은 늘 맨 아래 */}
       <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, height: 470, boxSizing: 'border-box', padding: 18, display: 'flex', flexDirection: 'column', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
         {!off ? <>
-          <span className="lbl">구종</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}><span className="lbl">구종</span><AssistSwitch assist={assist} bonus={bonus} onAssist={onAssist} /></div>
           {Object.entries(DUEL_PITCH).map(([t, p], i) => (
-            <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''}`} onClick={() => setPk(t)}>
+            <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''} ${recD.pk === t ? 'rec' : ''}`} onClick={() => setPk(t)}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <i style={{ width: 16, height: 16, borderRadius: '50%', background: p.c, flex: 'none', boxShadow: `0 0 12px ${p.c}` }} />
-              <b style={{ fontSize: 20, flex: 1 }}>{p.ko}</b>
+              <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
               <span style={{ fontSize: 15, color: t === main ? GOLD : '#cbd5e1', fontWeight: t === main ? 800 : 500 }}>{t === main ? '주무기' : `비중 ${Math.round(mix[t] * 100)}%`}</span>
               <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>
@@ -504,15 +597,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
               </button>
             ))}
           </div>
-          <button type="button" onClick={onAssist} title={bonus ? '보조를 켜면 이 경기 읽기 보너스가 사라짐' : undefined}
-            style={{ all: 'unset', cursor: 'pointer', display: 'grid', justifyItems: 'end', gap: 2 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, fontWeight: 800, color: assist ? '#e2e8f0' : MUTE }}>
-              보조<i style={{ position: 'relative', width: 30, height: 16, borderRadius: 999, background: assist ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
-                <i style={{ position: 'absolute', top: 2, left: assist ? 16 : 2, width: 12, height: 12, borderRadius: '50%', background: assist ? '#0b1220' : MUTE, transition: 'left .15s' }} />
-              </i>
-            </span>
-            <span style={{ fontSize: 12, fontWeight: 800, color: bonus ? GOLD : '#64748b' }}>{bonus ? '읽기 보너스' : assist ? '' : '이 경기 보너스 없음'}</span>
-          </button>
+          <AssistSwitch assist={assist} bonus={bonus} onAssist={onAssist} />
           </div>
           {DUEL_PLAYS[cat].map((p, i) => (
             <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''} ${rec.play === p.k ? 'rec' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>

@@ -144,6 +144,8 @@ export function stealOdds(g, from) {
  * 자유 조준의 흩어짐(표준편차, 존 반폭 = 1) — 제구가 좋을수록 · 덜 지쳤을수록 좁다. 제구 90 ≈ 0.19, 80 ≈ 0.29, 70 ≈ 0.39
  */
 export const aimSpread = (control, tired = 0) => clamp(0.27 + (82 - control) * 0.01 + tired * 0.15, 0.14, 0.5);
+/** 지금 마운드 투수의 흩어짐 — choosePitch 와 같은 제구(피로 · 증강 · 팀 보정 포함). 수싸움 조준판이 그린다 */
+export const aimSpreadOf = (g) => { const def = defenseOf(g), tired = fatigue(def); return aimSpread(st(def.pitcher, 'control', 75) - tired * 12 + (def.mod?.pitch || 0) + tb(def, 'pit'), tired); };
 /** 떨어진 자리의 맞히기 어려움 — 존 경계에 붙을수록(구석) 어렵고, 한가운데로 몰리면 크게 쉽다(실투) */
 const cornerAt = (edge) => (edge > 0.72 ? 0.07 : edge > 0.4 ? 0 : -0.11);
 /*
