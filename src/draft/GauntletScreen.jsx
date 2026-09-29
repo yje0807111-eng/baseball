@@ -76,7 +76,7 @@ function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick, mid = false,
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
             <b className="fx-stamp grid h-[62px] w-[62px] -rotate-12 place-items-center rounded-full font-display text-t2 font-extrabold"
               style={{ '--d': `${MOVE_WAIT + 650}ms`, color: GOLD, background: 'rgba(12,10,4,.62)', boxShadow: `0 0 0 3px ${GOLD}, 0 0 24px -2px ${GOLD}` }}>통과</b>
-            <Burst n={14} spread={70} size={5} delay={MOVE_WAIT + 780} />
+            <Burst n={14} spread={70} size={5} delay={MOVE_WAIT + 780} sfx="rewardS" />
           </span>
         )}
       </span>

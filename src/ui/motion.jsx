@@ -99,8 +99,9 @@ export function Flip({ back = null, delay = 0, className = '', style, children }
  * 빛 가루 — 한 점에서 사방으로 한 번 터진다(승리 · 등급 오름 · 정복). 부모 가운데 기준, 누름을 막지 않는다.
  * 무작위 대신 번호로 각도 · 거리를 정해 매번 같은 모양(깜빡이는 느낌 없이)
  */
-export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, delay = 0, size = 7 }) {
-  useEffect(() => { const t = setTimeout(() => playSfx('reward'), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+export function Burst({ n = 22, colors = ['#f5d27a', '#fff'], spread = 150, delay = 0, size = 7, sfx = 'reward' }) {
+  /* sfx: 'reward'(큰 보상 — 승리 · 등급 오름 · 정복) · 'rewardS'(작은 보상 — 영입 · 과제 받기 · 한 구단 이김) */
+  useEffect(() => { const t = setTimeout(() => playSfx(sfx), delay); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <span className="fx-burst" aria-hidden="true" style={{ '--d': `${delay}ms` }}>
       {Array.from({ length: n }, (_, i) => {

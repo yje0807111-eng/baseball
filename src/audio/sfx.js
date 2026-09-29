@@ -129,6 +129,8 @@ export const RECIPES = {
     tone(t + land, { f: 190, f2: 90, d: 0.08, g: 0.3, dest: o });
     noise(t + land, { type: 'lowpass', f: 1500, d: 0.03, g: 0.1, dest: o });
   } },
+  /* ⑥ 작은 보상 — 영입 · 주간 과제 받기 · 한 구단 이김. 성공 스팅어 앞부분(ESM Anime Game Power Up) 0.65초 */
+  rewardS: { file: 'audio/sfx/reward-s.mp3', gain: 0.34, len: 0.7 },
   /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 카드 뒤집어 던짐(ESM Board Game) 한 장, 음 2칸 내림 0.19초.
      1초에 최대 4번 나서 다른 소리보다 작게 */
   draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },

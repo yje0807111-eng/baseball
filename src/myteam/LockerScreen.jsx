@@ -16,7 +16,7 @@ import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeIte
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
-import { Count, Burst, flyGhost, useListIntro, navTo, SfxAt } from '../ui/motion.jsx';
+import { Count, Burst, flyGhost, useListIntro, navTo } from '../ui/motion.jsx';
 
 /**
  * 빈 보관함 — 아이템 탭 빈 화면(사진 한 장 · 제목 · 단추)과 같은 모양.
@@ -281,8 +281,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
           <span className="lk-ring pointer-events-none absolute inset-0" aria-hidden="true" />
           <span className="pointer-events-none absolute inset-0 grid place-items-center">
             <b className="fx-stamp -rotate-12 rounded-md px-4 py-1 font-display text-t1 font-extrabold" style={{ '--d': '120ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 28px rgba(245,210,122,.8)' }}>영입</b>
-            <SfxAt name="stamp" delay={120} />
-            <Burst n={18} spread={130} delay={260} />
+            <Burst n={18} spread={130} delay={260} sfx="rewardS" />
           </span>
         </div>
       ) : <HoloCard p={p} />}

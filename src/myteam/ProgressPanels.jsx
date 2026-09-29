@@ -144,7 +144,7 @@ export function WeekView({ account, onAccount }) {
                 {took === m.id && (
                   <span className="pointer-events-none absolute inset-0 grid place-items-center">
                     <b className="fx-stamp -rotate-6 rounded-md px-3 py-0.5 font-display text-t2 font-extrabold" style={{ '--d': '40ms', color: '#1c1203', background: 'linear-gradient(180deg,#fde68a,#e3b24a)', boxShadow: '0 0 24px rgba(245,210,122,.7)' }}>+{m.gold} G</b>
-                    <Burst n={14} spread={90} size={5} delay={160} />
+                    <Burst n={14} spread={90} size={5} delay={160} sfx="rewardS" />
                   </span>
                 )}
               </span>
@@ -157,7 +157,7 @@ export function WeekView({ account, onAccount }) {
         <p className="mt-lab" style={{ '--a': WEEK }}>주간 보너스</p>
         <h2 className="relative -mt-2 text-t1 font-black text-white">
           <span key={took === 'bonus' ? 'b' : 'n'} className={`inline-block ${took === 'bonus' ? 'fx-stamp' : ''}`}>{WEEK_BONUS} G</span>
-          {took === 'bonus' && <Burst n={22} spread={140} delay={200} />}
+          {took === 'bonus' && <Burst n={22} spread={140} delay={200} sfx="rewardS" />}
         </h2>
         <Stats items={[['끝낸 과제', `${doneN}/${WEEK_COUNT}`], ['받은 과제', `${list.filter((x) => x.claimed).length}/${WEEK_COUNT}`]]} />
         <div>
