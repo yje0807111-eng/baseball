@@ -42,6 +42,7 @@ const orderKo = (o = {}) => Object.entries(o).map(([k, v]) => {
 }).filter(Boolean);
 /* 승부처에 화면을 한 번 붙잡는 빛 */
 const CLUTCH_CSS = `
+@keyframes clutchPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.14); } }
 @keyframes halfSwipe { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.86); letter-spacing: .4em; }
   18% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
   76% { opacity: 1; transform: translate(-50%,-50%) scale(1); letter-spacing: .12em; }
@@ -164,6 +165,8 @@ const BIG_MS = 3200; // 홈런 · 병살 · 삼진처럼 큰 결과
 const BIG = ['HR', '3B', '2B', 'K', 'DP']; // 시간을 더 주는 결과
 const OURS = '#10b981';   // 우리 쪽 구역 테두리
 const THEIRS = '#f87171'; // 상대 쪽 구역 테두리
+/** 수싸움은 경기당 이만큼 — 자동 승부처(CLUTCH_LIMIT 번까지)와 '직접 승부'가 함께 쓴다 */
+const DUEL_LIMIT = 6;
 const WATCH_MARK = 0.09; // 이 무게부터는 공마다 본다 — 경기당 22 타석쯤
 const BRIEF_MS = 1800;   // 볼거리 있는 타석 — 타구만 한 번
 const FLASH_MS = 620;    // 그 밖 — 결과 한 줄
@@ -375,6 +378,43 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
       ...(i === popOut ? { animation: 'outPop .5s ease-out', boxShadow: '0 0 14px #ef4444' } : null) }} />)}<span />
   </div>
 );
+/** 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트(count 가 없으면 뺀다 — 수싸움 판은 볼카운트를 따로 크게 둔다) */
+export function Scoreboard({ g, home, away, count = null, justOut = -1, className = '' }) {
+  const cMy = '#34d399', cOpp = '#f87171';
+  return (
+    <div className={`mt-cut mt-glass pointer-events-none flex items-center ${className}`} style={{ '--c': '18px' }}>
+      <span className="flex shrink-0 flex-col items-center justify-center self-stretch px-4" style={{ background: 'rgba(255,255,255,.06)' }}>
+        {g.final ? (
+          <b className="text-t3 font-extrabold text-white">경기 끝</b>
+        ) : (
+          <>
+            <b className="font-display text-t1 font-extrabold leading-[0.8] text-white">{g.inning}</b>
+            <svg width="18" height="12" viewBox="0 0 20 14" className="mt-1.5" aria-hidden><path d={g.top ? 'M10 0 L20 14 L0 14 Z' : 'M0 0 L20 0 L10 14 Z'} fill="#f87171" /></svg>
+          </>
+        )}
+      </span>
+      <div className="w-[190px]">
+        {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
+          const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
+          const c = flag?.color || color;
+          const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽 — 그 줄만 색이 진하다
+          return (
+            <div key={t.name} className={`relative flex items-center gap-2.5 overflow-hidden px-3.5 ${i ? 'border-t border-white/10' : ''}`}
+              style={{ height: 44, background: atBat ? `linear-gradient(90deg, ${c}b0, ${c}30 72%, transparent)` : `linear-gradient(90deg, ${c}40, transparent 60%)` }}>
+              {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.14, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
+              <b className="relative truncate text-t3 font-extrabold text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{shortTeam(t.name, mine)}</b>
+              <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{side.runs}</b>
+            </div>
+          );
+        })}
+      </div>
+      <span className="flex items-center gap-3 px-4">
+        <Diamond bases={g.bases} size={60} off="rgba(255,255,255,.45)" />
+        {count && <Bso b={count.b} s={count.s} o={count.o} dot={12} font={12} gap={5} rowGap={4} off="rgba(255,255,255,.4)" lab="text-white/70" popOut={justOut} />}
+      </span>
+    </div>
+  );
+}
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
 /* ───────── 본체 ───────── */
 /* 연출 조각 열쇠 — 같은 틱에 결과 글씨와 공수 교대가 함께 뜨면 Date.now() 가 같아 형제 열쇠가 겹쳤다(React "same key" 경고). 같은 자리의 형제(투구 카드 · 결과 글씨 · 공수 교대)는 열쇠 앞에 이름을 붙여 서로 겹치지 않게 */
@@ -503,7 +543,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [duel, setDuel] = useState(null); // 판에 보일 것 { side, start, waiting, tell, reveal }
   const duelRef = useRef(null); // 수싸움 중인 타석 { side, idx, inning, top, start }
   const duelWait = useRef(null); // 판이 고르기를 기다리는 약속 — 고르면 지시, 맡기면 null
-  const clutchLeft = useRef(CLUTCH_LIMIT); // 이 경기에 남은 개입 횟수
+  const clutchLeft = useRef(CLUTCH_LIMIT); // 자동 승부처 남은 횟수
+  const duelLeft = useRef(DUEL_LIMIT); // 수싸움 남은 횟수(자동 + 직접)
+  const [wantDuel, setWantDuel] = useState(false); // '직접 승부'를 눌렀다 — 다음 공부터 판을 연다
+  const wantDuelRef = useRef(false);
+  wantDuelRef.current = wantDuel;
   const lastAskHalf = useRef(''); // 한 반이닝에 한 번만 묻는다
   const curSpeed = () => {
     if (speedRef.current === SKIP) return skipSpeed(g, skipEndRef.current);
@@ -587,12 +631,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지 */
         const halfKey = `${g.inning}${g.top ? 'T' : 'B'}`;
         let asked = false; // 물어본 타석은 접지 않고 공마다 본다
-        if (!quiet() && clutchLeft.current > 0 && lastAskHalf.current !== halfKey
+        const openDuel = () => {
+          duelLeft.current -= 1;
+          duelRef.current = { side: g.top ? 'def' : 'off', idx: offenseOf(g).idx, inning: g.inning, top: g.top, start: g.events.length };
+          if (wantDuelRef.current) { wantDuelRef.current = false; setWantDuel(false); }
+        };
+        if (!duelRef.current && !quiet() && clutchLeft.current > 0 && duelLeft.current > 0 && lastAskHalf.current !== halfKey
             && g.balls === 0 && g.strikes === 0 && isClutch(g)) {
           lastAskHalf.current = halfKey;
           clutchLeft.current -= 1;
-          duelRef.current = { side: g.top ? 'def' : 'off', idx: offenseOf(g).idx, inning: g.inning, top: g.top, start: g.events.length };
+          openDuel();
         }
+        /* 직접 승부 — 누른 뒤 첫 공부터(타석 중간이어도) */
+        if (!duelRef.current && wantDuelRef.current && duelLeft.current > 0 && !g.final) openDuel();
         /* 수싸움 중이면 공마다 판에서 고른다 — 상대 몫(투수의 공 · 타자의 노림)을 먼저 정해 단서를 건다 */
         const D = duelRef.current;
         let duelAiNow = null;
@@ -827,9 +878,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       )}
       {/* 승부처 — 수싸움 판이 중계 위를 덮는다. 타석이 끝나면 걷혀 중계가 결과를 보여 준다 */}
       {duel && (
-        <DuelPanel g={g} side={duel.side} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
+        <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} />} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
           shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
-          teams={{ away: { short: shortTeam(away.name), color: teamFlag(away.name)?.color || cOpp }, home: { short: shortTeam(home.name, true), color: flagByKey(myBanner())?.color || cMy } }}
+          teams={{ away: { color: teamFlag(away.name)?.color || cOpp }, home: { color: flagByKey(myBanner())?.color || cMy } }}
           onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}
           onHand={() => { const done = duelWait.current; if (done) { duelWait.current = null; done(null); } }} />
       )}
@@ -892,37 +943,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
 
             {/* 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트 한 판 */}
-            <div className="mt-cut mt-glass pointer-events-none absolute left-4 top-4 flex items-center" style={{ '--c': '18px' }}>
-              <span className="flex shrink-0 flex-col items-center justify-center self-stretch px-4" style={{ background: 'rgba(255,255,255,.06)' }}>
-                {g.final ? (
-                  <b className="text-t3 font-extrabold text-white">경기 끝</b>
-                ) : (
-                  <>
-                    <b className="font-display text-t1 font-extrabold leading-[0.8] text-white">{g.inning}</b>
-                    <svg width="18" height="12" viewBox="0 0 20 14" className="mt-1.5" aria-hidden><path d={g.top ? 'M10 0 L20 14 L0 14 Z' : 'M0 0 L20 0 L10 14 Z'} fill="#f87171" /></svg>
-                  </>
-                )}
-              </span>
-              <div className="w-[190px]">
-                {[[away, g.away, cOpp, false], [home, g.home, cMy, true]].map(([t, side, color, mine], i) => {
-                  const flag = mine ? flagByKey(myBanner()) : teamFlag(t.name);
-                  const c = flag?.color || color;
-                  const atBat = g.top ? !mine : mine; // 지금 치고 있는 쪽 — 그 줄만 색이 진하다
-                  return (
-                    <div key={t.name} className={`relative flex items-center gap-2.5 overflow-hidden px-3.5 ${i ? 'border-t border-white/10' : ''}`}
-                      style={{ height: 44, background: atBat ? `linear-gradient(90deg, ${c}b0, ${c}30 72%, transparent)` : `linear-gradient(90deg, ${c}40, transparent 60%)` }}>
-                      {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.14, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
-                      <b className="relative truncate text-t3 font-extrabold text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{shortTeam(t.name, mine)}</b>
-                      <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{side.runs}</b>
-                    </div>
-                  );
-                })}
-              </div>
-              <span className="flex items-center gap-3 px-4">
-                <Diamond bases={g.bases} size={60} off="rgba(255,255,255,.45)" />
-                <Bso b={count.b} s={count.s} o={count.o} dot={12} font={12} gap={5} rowGap={4} off="rgba(255,255,255,.4)" lab="text-white/70" popOut={justOut} />
-              </span>
-            </div>
+            <Scoreboard g={g} home={home} away={away} count={count} justOut={justOut} className="absolute left-4 top-4" />
 
             {/* 타석 — 동그란 얼굴 · 이름 · 파워 · 컨택 · 종합, 다음 두 타자. 타자가 바뀌면 아래에서 올라온다 */}
             {(() => {
@@ -1006,7 +1027,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <WinLine log={wpLog} mine={cMy} w={398} h={60} />
               <div className="flex justify-between text-t4 text-gray-400">
                 <span>내 지시 <b className="font-display text-t3" style={{ color: myGain > 0 ? '#34d399' : myGain < 0 ? '#f87171' : '#9ca3af' }}>{myGain > 0 ? '+' : ''}{myGain}%p</b></span>
-                <span>남은 개입 <b className="font-display text-t3 text-white">{clutchLeft.current}</b></span>
+                <span>남은 수싸움 <b className="font-display text-t3 text-white">{duelLeft.current}</b></span>
               </div>
             </section>
 
@@ -1075,6 +1096,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                       </div>
                     );
                   })}
+                  <button type="button" disabled={g.final || !!duel || duelLeft.current <= 0}
+                    onClick={() => { const on = !wantDuel; wantDuelRef.current = on; setWantDuel(on); if (on && quiet()) pickSpeed(PLAY); }}
+                    className="mt-btn pri self-stretch disabled:opacity-40" style={{ '--a': '#fbbf24', ...(wantDuel ? { animation: 'clutchPulse 1.2s ease-in-out infinite' } : null) }}>
+                    {wantDuel ? '⚔ 다음 공부터 수싸움 · 취소' : <>⚔ 직접 승부 <small className="ml-1 font-display opacity-70">{duelLeft.current}</small></>}
+                  </button>
                 </section>
               );
             })()}

@@ -81,7 +81,7 @@ const CSS = `
 .dl { position: fixed; inset: 0; z-index: 45; color: #fff; font-family: 'IBM Plex Sans KR', sans-serif; }
 .dl .disp { font-family: 'Saira Condensed','IBM Plex Sans KR',sans-serif; }
 .dl .pn { background: rgba(7,10,18,.8); backdrop-filter: blur(14px); border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 24px 60px rgba(0,0,0,.5); }
-.dl .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 0 20px; border-radius: 16px; color: #fff;
+.dl .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 16px; border-radius: 14px; color: #fff;
   background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); transition: background .15s, box-shadow .15s; }
 .dl .opt:hover { background: rgba(255,255,255,.1); }
 .dl .opt.on { background: rgba(251,191,36,.16); box-shadow: inset 0 0 0 2.5px ${GOLD}; }
@@ -95,7 +95,7 @@ const CSS = `
 .dl .sub:disabled { opacity: .35; cursor: default; }
 .dl .zc { cursor: pointer; transition: fill .15s; }
 .dl .zc:hover { fill: rgba(255,255,255,.16); }
-.dl .tab { all: unset; cursor: pointer; padding: 9px 20px; border-radius: 12px; font-size: 19px; font-weight: 800; color: ${MUTE}; }
+.dl .tab { all: unset; cursor: pointer; padding: 7px 16px; border-radius: 10px; font-size: 17px; font-weight: 800; color: ${MUTE}; }
 .dl .tab.on { color: #1c1203; background: ${GOLD}; }
 .dl .tab:disabled { opacity: .3; cursor: default; }
 @keyframes dlIn { from { opacity: 0; } }
@@ -104,11 +104,6 @@ const CSS = `
 @media (prefers-reduced-motion: reduce) { .dl, .dl * { animation: none !important; } }
 `;
 
-const Dots = ({ n, m, c }) => <span style={{ display: 'inline-flex', gap: 5 }}>{Array.from({ length: m }, (_, i) => <i key={i} style={{ width: 13, height: 13, borderRadius: '50%', background: i < n ? c : 'rgba(255,255,255,.16)' }} />)}</span>;
-const Bases = ({ b }) => (
-  <svg width={60} height={46} viewBox="0 0 60 46">{[[30, 8], [49, 25], [11, 25]].map(([x, y], i) => (
-    <rect key={i} x={x - 8} y={y - 8} width="16" height="16" transform={`rotate(45 ${x} ${y})`} fill={b[[1, 0, 2][i]] ? GOLD : 'rgba(255,255,255,.18)'} />))}</svg>
-);
 function Who({ p, isP, mine, color }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -223,11 +218,11 @@ const CALL_KO = { ball: ['볼', BLUE], called: ['스트라이크', '#fde047'], s
 
 /**
  * props
- *  g · side('off' | 'def') · teams { away: { short, color }, home: { short, color } }
+ *  g · side('off' | 'def') · board: 점수판(중계와 같은 조각) · teams { away: { color }, home: { color } }
  *  waiting: 고를 차례인가 · tell: 단서 한 줄(없으면 null) · shots: 이 타석 공 [{ x, y, ev }]
  *  reveal: 방금 공 { ev, guess } · onGo(orders) · onHand() 맡기기
  */
-export default function DuelPanel({ g, side, teams, waiting, tell, shots, reveal, onGo, onHand }) {
+export default function DuelPanel({ g, side, board, teams, waiting, tell, shots, reveal, onGo, onHand }) {
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
@@ -292,26 +287,23 @@ export default function DuelPanel({ g, side, teams, waiting, tell, shots, reveal
       <div style={{ position: 'absolute', inset: 0, background: `url(${off ? 'ui/duel-off.webp' : 'ui/duel-def.webp'}) center ${off ? '100%' : '50%'}/cover, #05080f` }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(3,5,10,.72), transparent 28%, transparent 64%, rgba(3,5,10,.86))' }} />
 
-      {/* 점수 — 두 팀 · 회 · 주자 · 볼카운트 */}
-      <div className="pn" style={{ position: 'absolute', left: 32, top: 28, display: 'flex', alignItems: 'stretch', borderRadius: 16, overflow: 'hidden' }}>
-        <div style={{ display: 'grid' }}>
-          {[[teams.away, g.away.runs], [teams.home, g.home.runs]].map(([t, r], i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 16px', borderLeft: `6px solid ${t.color}` }}>
-              <b style={{ fontSize: 22, minWidth: 52 }}>{t.short}</b><b className="disp" style={{ fontSize: 32, lineHeight: 1, marginLeft: 'auto' }}>{r}</b>
-            </div>
-          ))}
-        </div>
-        <div style={{ display: 'grid', placeItems: 'center', padding: '0 14px', borderLeft: '1px solid rgba(255,255,255,.1)' }}><b className="disp" style={{ fontSize: 26 }}>{g.top ? '▲' : '▼'} {g.inning}</b></div>
-        <div style={{ display: 'grid', placeItems: 'center', padding: '0 12px', borderLeft: '1px solid rgba(255,255,255,.1)' }}><Bases b={g.bases} /></div>
-        <div style={{ display: 'grid', alignContent: 'center', gap: 6, padding: '0 16px', borderLeft: '1px solid rgba(255,255,255,.1)' }}>
-          {[['B', g.balls, 3, BLUE], ['S', g.strikes, 2, GOLD], ['O', g.outs, 2, RED]].map(([l, n, m, c]) => (
-            <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 8 }}><b className="disp" style={{ width: 14, fontSize: 18, color: MUTE }}>{l}</b><Dots n={n} m={m} c={c} /></span>
-          ))}
-        </div>
-      </div>
+      {/* 점수판 — 중계 화면과 같은 판(볼카운트는 빼고 가운데에 크게) */}
+      <div style={{ position: 'absolute', left: 32, top: 28 }}>{board}</div>
       {/* 목표 한 줄 */}
       <div className="pn" style={{ position: 'absolute', left: '50%', top: 28, transform: 'translateX(-50%)', padding: '12px 26px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 16, whiteSpace: 'nowrap', boxShadow: `inset 0 0 0 1.5px ${GOLD}` }}>
         <b className="disp" style={{ fontSize: 18, color: GOLD, letterSpacing: '.18em' }}>{off ? '우리 공격' : '우리 수비'}</b><b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
+      </div>
+      {/* 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 색은 중계 볼카운트와 같게 */}
+      <div className="pn" style={{ position: 'absolute', left: '50%', top: 98, transform: 'translateX(-50%)', padding: '12px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 30 }}>
+        {[['B', g.balls, 3, '#22c55e'], ['S', g.strikes, 2, '#facc15'], ['O', g.outs, 2, '#ef4444']].map(([l, n, m, c]) => (
+          <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <b className="disp" style={{ fontSize: 26, color: c, width: 18 }}>{l}</b>
+            {Array.from({ length: m }, (_, i) => (
+              <i key={`${l}${i}${i < n}`} style={{ width: 24, height: 24, borderRadius: '50%', boxSizing: 'border-box', background: i < n ? c : 'transparent', border: i < n ? 'none' : '2px solid rgba(255,255,255,.35)',
+                boxShadow: i < n ? `0 0 14px ${c}` : 'none', animation: i < n ? 'dlPing .3s both' : undefined }} />
+            ))}
+          </span>
+        ))}
       </div>
       {/* 맞붙는 두 선수 — 상대가 위 */}
       <div className="pn" style={{ position: 'absolute', left: 32, bottom: 32, padding: 20, display: 'grid', gap: 14 }}>
@@ -320,7 +312,7 @@ export default function DuelPanel({ g, side, teams, waiting, tell, shots, reveal
       </div>
 
       {/* 존 + 단서 */}
-      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 110, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
+      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 176, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} grid={2} chase={false} sel={aim} marks={marks} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
         <div className="pn" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderRadius: 999, fontSize: 19, fontWeight: 700 }}>
@@ -329,16 +321,16 @@ export default function DuelPanel({ g, side, teams, waiting, tell, shots, reveal
       </div>
 
       {/* 고르는 판 */}
-      <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 460, padding: 22, display: 'grid', gap: 10, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
+      <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, padding: 18, display: 'grid', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
         {!off ? <>
           <span className="lbl">구종</span>
           {Object.entries(DUEL_PITCH).map(([t, p], i) => (
             <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''}`} onClick={() => setPk(t)}>
-              <b className="disp" style={{ fontSize: 20, color: MUTE, width: 12 }}>{i + 1}</b>
+              <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <i style={{ width: 16, height: 16, borderRadius: '50%', background: p.c, flex: 'none', boxShadow: `0 0 12px ${p.c}` }} />
-              <b style={{ fontSize: 24, flex: 1 }}>{p.ko}</b>
-              <span style={{ fontSize: 16, color: t === main ? GOLD : '#cbd5e1', fontWeight: t === main ? 800 : 500 }}>{t === main ? '주무기' : `비중 ${Math.round(mix[t] * 100)}%`}</span>
-              <b className="disp" style={{ fontSize: 23, width: 44, textAlign: 'right' }}>{veloOf(t)}</b>
+              <b style={{ fontSize: 20, flex: 1 }}>{p.ko}</b>
+              <span style={{ fontSize: 15, color: t === main ? GOLD : '#cbd5e1', fontWeight: t === main ? 800 : 500 }}>{t === main ? '주무기' : `비중 ${Math.round(mix[t] * 100)}%`}</span>
+              <b className="disp" style={{ fontSize: 20, width: 38, textAlign: 'right' }}>{veloOf(t)}</b>
             </button>
           ))}
         </> : <>
@@ -350,25 +342,25 @@ export default function DuelPanel({ g, side, teams, waiting, tell, shots, reveal
           </div>
           {DUEL_PLAYS[cat].map((p, i) => (
             <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>
-              <b className="disp" style={{ fontSize: 20, color: MUTE, width: 12 }}>{i + 1}</b>
-              <span style={{ fontSize: 24, width: 30, textAlign: 'center' }}>{p.ico}</span>
-              <b style={{ fontSize: 24, flex: 1 }}>{p.ko}</b>
-              <span style={{ fontSize: 16, color: '#cbd5e1' }}>{p.k === 'steal' ? (okOf(p, g) ? `성공 ${Math.round(stealOdds(g, stealFrom(g)) * 100)}%` : '') : p.sub}</span>
+              <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
+              <span style={{ fontSize: 19, width: 24, textAlign: 'center' }}>{p.ico}</span>
+              <b style={{ fontSize: 20, flex: 1 }}>{p.ko}</b>
+              <span style={{ fontSize: 15, color: '#cbd5e1' }}>{p.k === 'steal' ? (okOf(p, g) ? `성공 ${Math.round(stealOdds(g, stealFrom(g)) * 100)}%` : '') : p.sub}</span>
             </button>
           ))}
           {hitting && <>
-            <span className="lbl" style={{ marginTop: 4 }}>노림</span>
+            <span className="lbl" style={{ marginTop: 2 }}>노림</span>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {AIM_T.map(([k, ko]) => <button key={ko} type="button" className={`opt ${guess === k ? 'on' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 54, padding: 0, justifyContent: 'center', fontSize: 18, fontWeight: 800 }}>{ko}</button>)}
+              {AIM_T.map(([k, ko]) => <button key={ko} type="button" className={`opt ${guess === k ? 'on' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: 16, fontWeight: 800 }}>{ko}</button>)}
             </div>
           </>}
         </>}
         <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '3px 0' }} />
-        <div style={{ fontSize: 21, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><span className="lbl" style={{ marginRight: 12 }}>선택</span><span style={{ color: canGo || off ? '#fff' : MUTE }}>{pickKo}</span></div>
-        <div style={{ display: 'grid', gridTemplateColumns: off ? '1fr 104px' : '1fr 104px 104px', gap: 8 }}>
-          <button type="button" className="go" disabled={!canGo} onClick={go} style={{ height: 76, fontSize: 25 }}>{off ? '이 작전으로' : '던지기'} ▶</button>
-          {!off && <button type="button" className="sub" disabled={!waiting} onClick={() => onGo({ ibb: true })} style={{ height: 76 }}>고의사구</button>}
-          <button type="button" className="sub" disabled={!waiting} onClick={onHand} style={{ height: 76 }}>맡기기</button>
+        <div style={{ fontSize: 18, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><span className="lbl" style={{ marginRight: 12 }}>선택</span><span style={{ color: canGo || off ? '#fff' : MUTE }}>{pickKo}</span></div>
+        <div style={{ display: 'grid', gridTemplateColumns: off ? '1fr 88px' : '1fr 88px 88px', gap: 6 }}>
+          <button type="button" className="go" disabled={!canGo} onClick={go} style={{ height: 60, fontSize: 21 }}>{off ? '이 작전으로' : '던지기'} ▶</button>
+          {!off && <button type="button" className="sub" disabled={!waiting} onClick={() => onGo({ ibb: true })} style={{ height: 60, fontSize: 15 }}>고의사구</button>}
+          <button type="button" className="sub" disabled={!waiting} onClick={onHand} style={{ height: 60, fontSize: 15 }}>맡기기</button>
         </div>
       </div>
 
