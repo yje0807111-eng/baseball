@@ -136,33 +136,55 @@ export function StandingsTable({ s, big = false, lastMoves = null }) {
   );
 }
 
-/** 포스트시즌 사다리: 5위 → 4위 → 3위 → 2위 → 1위 */
+/**
+ * 포스트시즌 사다리: 5위 → 4위 → 3위 → 2위 → 1위 (KBO 계단식)
+ * 내 경기가 아닌 단계는 한꺼번에 계산돼 있어서, 처음 볼 때만 와일드카드부터 한 단계씩 결과를 올린다:
+ * 그 단계 점수가 세어지고 진 팀이 흐려진 뒤, 이긴 팀이 다음 단계 칸으로 밀려 들어온다(0.95초 간격). 누르면 끝 상태로.
+ * 본 단계 수는 이 기기에 시즌마다 기억(kbo.postSeen.<시즌 키>) — 다시 열어도 다시 돌지 않게
+ */
 function PostLadder({ s }) {
   const seeds = s.post?.seeds || []; // 정규 시즌이 끝나야 시드가 정해진다
   const me = meOf(s);
-  const now = postMatch(s);
+  const results = s.post?.results || [];
+  const total = results.length;
+  const seenKey = `kbo.postSeen.${s.key}`;
+  const [from] = useState(() => {
+    if (reducedMotion()) return total;
+    try { const v = localStorage.getItem(seenKey); return v == null ? 0 : Math.min(total, Number(v) || 0); } catch { return total; }
+  });
+  const [shown, setShown] = useState(from);
+  useEffect(() => {
+    try { localStorage.setItem(seenKey, String(total)); } catch { /* 못 쓰면 다음에 다시 돈다 */ }
+    if (shown >= total) return undefined;
+    const t = setTimeout(() => setShown((n) => n + 1), shown === from ? 500 : 950);
+    return () => clearTimeout(t);
+  }, [shown, total]); // eslint-disable-line react-hooks/exhaustive-deps
+  const revealing = shown < total;
+  const just = shown - 1 >= from ? shown - 1 : -1; // 방금 올린 단계(없으면 -1)
+  const now = revealing ? null : postMatch(s);
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-4 items-end gap-2">
+    <div className="grid min-h-0 flex-1 cursor-default grid-cols-4 items-end gap-2" onClick={() => revealing && setShown(total)}>
       {STAGES.map((st, i) => {
-        const res = s.post?.results[i];
+        const res = i < shown ? results[i] : null;
         const hi = seeds[st.hi - 1];
-        const lo = res ? res.lo : i === 0 ? seeds[4] : s.post?.results[i - 1]?.winner;
-        const live = now?.stage === i;
+        const lo = res ? res.lo : i === 0 ? seeds[4] : i - 1 < shown ? results[i - 1]?.winner : null;
+        const live = (revealing && i === shown) || now?.stage === i;
         const name = (idx, seedNo) => (idx == null ? <span className="text-gray-400">{seedNo ? '-' : '승자'}</span>
           : <span className={idx === me ? 'text-[#34d399]' : 'text-white'}>{s.teams[idx].name}</span>);
-        const line = (idx, score, seedNo) => (
-          <div className="flex items-baseline gap-2" style={{ opacity: res && res.winner !== idx ? 0.45 : 1 }}>
+        const line = (idx, score, seedNo, enter = false) => (
+          <div key={enter ? `in${idx}` : 'l'} className="flex items-baseline gap-2"
+            style={{ opacity: res && res.winner !== idx ? 0.45 : 1, transition: 'opacity .4s .45s', animation: enter ? 'tbAdv .5s var(--fx-out) .45s both' : undefined }}>
             <em className="w-7 shrink-0 font-display text-t4 not-italic text-amber-300">{seedNo ? `${seedNo}위` : ''}</em>
             <b className="min-w-0 flex-1 truncate text-t3">{name(idx, seedNo)}</b>
-            {score != null && <b className="font-display text-t3 text-white">{score}</b>}
+            {score != null && <b className="font-display text-t3 text-white">{i === just ? <Count value={score} from={0} dur={450} /> : score}</b>}
           </div>
         );
         return (
           <div key={st.key} className="ui-cut flex flex-col gap-1 p-3"
-            style={{ '--c': '10px', minHeight: `${52 + i * 16}%`, background: `linear-gradient(180deg, rgba(251,191,36,${0.05 + i * 0.05}), rgba(5,8,15,.5))`, boxShadow: live ? 'inset 0 0 0 2px #fbbf24' : 'inset 0 2px 0 rgba(251,191,36,.35)' }}>
+            style={{ '--c': '10px', minHeight: `${52 + i * 16}%`, background: `linear-gradient(180deg, rgba(251,191,36,${0.05 + i * 0.05}), rgba(5,8,15,.5))`, boxShadow: live ? 'inset 0 0 0 2px #fbbf24' : 'inset 0 2px 0 rgba(251,191,36,.35)', transition: 'box-shadow .3s' }}>
             <b className="mb-auto text-t2 font-black text-white">{st.ko}{i === 3 ? ' 🏆' : ''}</b>
             {line(hi, res?.hs, st.hi)}
-            {line(lo, res?.ls, i === 0 ? 5 : null)}
+            {line(lo, res?.ls, i === 0 ? 5 : null, i > 0 && i - 1 === just)}
           </div>
         );
       })}
