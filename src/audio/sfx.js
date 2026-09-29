@@ -132,12 +132,11 @@ export const RECIPES = {
   draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },
   /* 카드 뒤집기 — 경기 결과 MVP 카드 · 드래프트 기념 카드(여러 장 0.14초 간격). 쓸림(인포그래픽 휙, 음 2칸 올림) + 카드 탁(⑤ 와 같은 재료) 0.27초 */
   flip: { file: 'audio/sfx/flip.mp3', gain: 0.32, vary: 0.03, len: 0.35 },
-  /* 영입 도장 — 낮은 쿵 + 눌리는 잡음 + 끝 딸깍 */
-  stamp: { len: 0.35, fn(t, o, { tone, noise }) {
-    tone(t, { f: 150, f2: 55, d: 0.14, g: 0.36, dest: o });
-    noise(t, { type: 'lowpass', f: 900, d: 0.09, g: 0.2, dest: o });
-    noise(t + 0.004, { f: 2600, q: 2, d: 0.02, g: 0.12, dest: o });
-  } },
+  /* 경기 인트로 — 두 구단 이름이 다가올 때(0초 · 0.11초) 파편 휙 거꾸로(Cinematic Sound Design Woosh Debris) 0.33초,
+     VS 가 들어올 때(0.3초) 무거운 휘두름 → 쿵(David Dumais Melee Weapons) — 쿵이 0.16초에 있어 VS 가 자리 잡는 때와 맞음 */
+  introIn: { file: 'audio/sfx/intro-in.mp3', gain: 0.34, len: 0.4 },
+  introIn2: { file: 'audio/sfx/intro-in.mp3', gain: 0.24, vary: 0.04, len: 0.4 }, // 홈 이름 — 같은 휙을 조금 작게(같은 이름이면 40ms 막힘에 걸리지 않게 따로)
+  introVs: { file: 'audio/sfx/intro-vs.mp3', gain: 0.42, len: 1 },
   /* ⑥ 큰 보상 — 경기 승리 · 랭크 등급 오름 · 구단 정복 완료. 성공 스팅어 전체(ESM Anime Game Power Up) 1.5초 — 작은 보상은 같은 소리의 앞부분 */
   reward: { file: 'audio/sfx/reward.mp3', gain: 0.4, len: 1.6 },
   /* 골드 들어옴 — 동전 두 번(B → E, 금속 결) / 나감 — 내려가는 두 음, 더 작고 짧게 */
