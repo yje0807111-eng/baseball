@@ -92,17 +92,14 @@ const jitter = (base, cents) => base * 2 ** (((Math.random() * 2 - 1) * cents) /
 /* 음 이름 — 5음 순번: 0 D · 1 E · 2 F# · 3 A · 4 B */
 export const RECIPES = {
   /* ② 기본 누름 — 화면 안 단추 · 요소. 아날로그 UI 단추 딸깍(ESM Board Game · GDC 2026 묶음) 64ms. 가장 자주 나서 가장 작게 */
-  tab: { file: 'audio/sfx/tap.mp3', gain: 0.32, vary: 0.04, len: 0.1 },
+  tab: { file: 'audio/sfx/tap.mp3', gain: 0.4, vary: 0.04, len: 0.1 },
   /* ① 화면 이동 — 메인 구역 · 플레이 · 왼쪽 네비 · 경기 시작 · 위 네비 · 뒤로 가기가 모두 이 소리 하나.
      깊은 걸쇠 딸깍(ESM Lock & Mechanism) + 광택지 책장 넘김(Cinematic Sound Design Paper Foley)을 겹쳐 음 2칸 내림, 0.5초.
      단추에서 먼저 울리면(pointerdown) 뒤따르는 화면 전환(navTo · opts.auto)은 0.5초 안이면 다시 내지 않는다 */
-  nav: { file: 'audio/sfx/nav.mp3', gain: 0.42, vary: 0.02, covers: ['tab', 'press'], len: 0.6 },
-  /* 주 단추 — 톡 + 아래 옥타브 두께 */
-  press: { vary: true, len: 0.15, fn(t, o, { tone, note, jitter }) {
-    tone(t, { type: 'triangle', f: jitter(note(0, 5), 15), d: 0.09, g: 0.14, dest: o });
-    tone(t, { f: note(0, 6), d: 0.06, g: 0.06, dest: o });
-    tone(t, { f: 170, f2: 85, d: 0.06, g: 0.15, dest: o });
-  } },
+  nav: { file: 'audio/sfx/nav.mp3', gain: 0.42, vary: 0.02, covers: ['tab'], len: 0.6 },
+  /* ③ 확정 — 구매 · 영입 · 강화 · 저장 · 받기(주 단추 .pri)와 플레이 구역 오른쪽 아래 시작 단추. ② 딸깍 + 옛 시계 째깍(344 Audio Antique Clocks), 음 3칸 올려 밝게 0.14초.
+     뒤따르는 화면 전환 소리(①)는 잠깐 막는다 — 누른 소리 하나만 */
+  press: { file: 'audio/sfx/press.mp3', gain: 0.38, vary: 0.03, covers: ['tab', 'nav'], len: 0.2 },
   /* 화면 들어감 — 잡음이 위로 쓸려 올라감 / 돌아옴 — 아래로 */
   navIn: { alias: 'nav' }, navBack: { alias: 'nav' }, // 화면 들어감 · 돌아옴도 ① 화면 이동 소리
   /* 팝업 열림 — 두 음이 오름(A → D) / 닫힘 — 내림, 더 작게 */

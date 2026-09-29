@@ -4504,7 +4504,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat}
                 fixed={special ? null : '구단 정복'} />
             </div>
-            <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format: special ? format : 'single', live: !special })}>
+            <button type="button" data-sfx="press" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" onClick={() => onStart(mode.id, { cap: special ? NO_CAP : cap, ai, aug, format: special ? format : 'single', live: !special })}>
               드래프트 시작 ▶
             </button>
           </aside>
