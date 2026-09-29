@@ -334,12 +334,14 @@ function nextBatter(g) {
 }
 
 /*
- * 완급 조절 — 같은 타석에서 앞 공과 구속 차이가 크면 타자가 타이밍을 놓친다(헛스윙 ↑).
- * 차이 8km 까지는 없음, 28km 에서 가장 큼(0.07). 빠른 공 뒤 느린 공이 가장 잘 먹히고, 느린 공 뒤 빠른 공은 0.6배.
+ * 완급 조절 — 같은 타석에서 앞 공과 구속 차이가 크면 타자가 타이밍을 놓친다.
+ *   헛스윙 ↑(맞히기 − 완급) · 맞혀도 파울 ↑(+ 완급 × 2) · 인플레이면 빗맞음(안타 − 완급 × 1 · 홈런 − 완급 × 0.5).
+ * 차이 8km 까지는 없음, 28km 에서 가장 큼(0.12). 빠른 공 뒤 느린 공이 가장 잘 먹히고, 느린 공 뒤 빠른 공은 0.6배.
  * 그 구종을 노리고 있었으면 타이밍이 맞아 사라진다(계열만 맞으면 0.6배 남음).
- * 아무렇게나 던지는 자동 경기의 평균 손해(≈ 0.008)는 맞히기 기준점에 되돌려 둬, 리그 전체 타격은 그대로 · 차이는 고른 순서에서만 난다.
+ * 아무렇게나 던지는 자동 경기의 평균 손해는 맞히기 기준점(+0.044)에 되돌려 둬, 리그 전체 타격은 그대로 · 차이는 고른 순서에서만 난다.
  */
-export const TEMPO_MAX = 0.07;
+export const TEMPO_MAX = 0.12;
+const TEMPO_PAD = 0.022; // 인플레이 타구 질 되돌림(자동 경기 평균 빗맞음 몫)
 export function tempoOf(prev, velo, guessHit = 0) {
   if (prev == null || velo == null) return 0;
   const dv = prev - velo, k = Math.max(0, Math.min(1, (Math.abs(dv) - 8) / 20));
@@ -434,10 +436,10 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.828 : 0.568) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
-    else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
-    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
+    else if (g.rng() < (orders.bunt ? 0.3 : 0.42 + tempo * 2)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
+    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2 - tempo * 2 + TEMPO_PAD); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
   }
 
   if (ev.call !== 'inplay') {
@@ -478,7 +480,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.022 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (orders.approach === 'power' ? -0.02 : orders.approach === 'contact' ? 0.015 : 0) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) + (orders.approach === 'power' ? 0.035 : orders.approach === 'contact' ? -0.02 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + (orders.approach === 'power' ? 0.035 : orders.approach === 'contact' ? -0.02 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
     const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.07, 0.08, 0.35);
     const r = g.rng();

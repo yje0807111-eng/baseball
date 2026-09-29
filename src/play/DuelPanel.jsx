@@ -269,6 +269,8 @@ export function locOf(g) {
   const w = pitchWeights(g), col = colBias(g.away.pitcher);
   return Array.from({ length: 9 }, (_, z) => Object.keys(w).reduce((n, t) => n + w[t] * ROW_BY[t][Math.floor(z / 3)] * col[z % 3], 0));
 }
+/* AI 타자가 완급을 읽는 세기 — 1.0 이면 번갈아 던지기 .319 · 직구만 .360 · 추천대로 .334(8천 타석). 0.5 → 1.5 로 올려도 차이는 조금씩만 준다 */
+const AI_TEMPO_READ = 1.0;
 export function duelAi(g, side, seq = []) {
   const rng = g.rng;
   const mix = pitchMix((g.top ? g.home : g.away).pitcher);
@@ -281,6 +283,9 @@ export function duelAi(g, side, seq = []) {
   const w = { ...mix }, n = seq.length;
   if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
   else if (n >= 1) w[seq[n - 1]] += 0.15;
+  /* 완급도 읽는다 — 빠른 공 뒤엔 느린 공을 노리는 쪽으로(번갈아 던지기만으로 이기지 않게) */
+  const me = (g.top ? g.home : g.away).pitcher;
+  for (const t of Object.keys(w)) w[t] += (tempoOf(g.lastVelo, veloOfP(me, t)) / TEMPO_MAX) * AI_TEMPO_READ;
   const guess = rng() < 0.55 ? draw(w, rng()) : null;
   return { orders: guess ? { guess } : {}, guess };
 }
