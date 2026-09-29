@@ -605,7 +605,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                       </b>
                       <span className="block truncate text-t4 text-gray-400">
                         {t.position ? `${t.position} · ${t.year} ${t.team}` : `${t.role === 'manager' ? '감독' : '코치'} · ${t.note}`}
-                        {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
+                        {it.stat && t.stats && !max ? ` · ${t.stats[it.stat] ?? '-'} →${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
                       </span>
                     </span>
                     {train && (
@@ -771,6 +771,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
   const [fresh, setFresh] = useState(null);
   const listFx = useListIntro(tab); // 탭을 바꾸면 목록 줄이 차례로
   const [itemFx, setItemFx] = useState(null);
+  /* 이 선수에게 쓸 수 있는 보유 훈련 아이템(종류별 하나씩 아닌 장 수 그대로) — 상세 강화 단추 · 아이템 탭 첫 선택 */
+  const fitTraining = (p) => (!p ? [] : (team.items || []).map((x) => SHOP_ITEMS.find((i) => i.id === x.itemId)).filter((it) => it?.cat === 'training' && fitsItem(it, p)));
   useEffect(() => { if (!fresh) return undefined; const t = setTimeout(() => setFresh(null), 1800); return () => clearTimeout(t); }, [fresh]);
   useEffect(() => { if (!itemFx) return undefined; const t = setTimeout(() => setItemFx(null), 2600); return () => clearTimeout(t); }, [itemFx]);
   /* 영입 — 엔트리가 꽉 찼으면 보관함으로 산다(FC 온라인: 산 선수는 보유 선수로 → 스쿼드엔 따로 넣기). 보관함도 차면 교체 영입만 */
@@ -880,6 +882,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <style>{`${KEYFRAMES}
+        /* 다른 시즌 줄 — 들여쓰지 않고 왼쪽 줄 · 옅은 바탕(들여쓰면 능력치 칸이 대표 줄과 어긋난다). 고르면 .on 이 이긴다 */
+        .mt-row.lk-sub:not(.on) { background: rgba(52,211,153,.045); box-shadow: inset 3px 0 0 rgba(52,211,153,.55); }
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
         .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
@@ -946,7 +950,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
                 const row = (p, i = null) => (
                   <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={swapOnly ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                     more={i == null && rest.length ? { n: rest.length, open, deal: rest.some((v) => deals.has(v.id)) } : null}
-                    className={i == null ? '' : 'fx-rise'} style={i == null ? null : { '--i': i, marginLeft: 28, boxShadow: 'inset 3px 0 0 rgba(52,211,153,.45)' }}
+                    className={i == null ? '' : 'fx-rise lk-sub'} style={i == null ? null : { '--i': i }}
                     onPick={i == null && rest.length ? (p2) => { setSel(p2); setOpenP(open ? null : k); } : setSel} onAct={swapOnly ? setSel : add} />
                 );
                 return [row(rep), ...(open ? rest.map((p, i) => row(p, i)) : [])];
@@ -1175,8 +1179,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
           : (
           <DetailPanel fresh={fresh && shown && fresh.id === shown.id ? fresh.k : null} p={shown} squad={squad} club={clubList} staff={staff} cap={cap} lim={lim} gold={gold} priceFor={priceFor} outId={outId} onOut={setOutId} onSwap={swap} onAdd={add} onRelease={release}
             onStore={store} onEnter={enter} playing={playing}
-            itemsFit={!sel ? 0 : (team.items || []).filter((x) => { const it = SHOP_ITEMS.find((i) => i.id === x.itemId); return it?.stat && fitsItem(it, sel); }).length}
-            onUpgrade={(x) => { setItemTarget(x); setItemId(null); setTab('items'); }} />
+            itemsFit={fitTraining(shown).length /* 고르지 않고 기본으로 떠 있는 선수도 — sel 이 아니라 보이는 선수 기준 */}
+            onUpgrade={(x) => { setItemTarget(x); setItemId(fitTraining(x)[0]?.id || null); setTab('items'); }} />
         )}
       </div>
     </div>

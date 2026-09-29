@@ -4,7 +4,7 @@
  *  오른쪽: 육각 도감 — 종류 · 즐겨찾기 · 제외 거르기, 제외 도장 · 즐겨찾기 별 · 레벨 보석
  *  위 줄: 강화권 · 제외 칸
  */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx';
 import { loadAccount, saveAug, AUG_TIERS, AUG_LEVEL_MAX } from './store.js';
 import { UiStyle, GlassBg, TopBar, TopTabs } from './ui.jsx';
@@ -57,7 +57,9 @@ export default function AugmentScreen({ account, onBack }) {
   const favs = aug.favs || [];
   const levelOf = (a) => aug.levels[a.id] || 0;
 
-  const commit = (next, text) => { setAug(next); saveAug(next); if (text) { setMsg(text); setTimeout(() => setMsg(''), 2400); } };
+  /* 안내 문구는 2.4초 뒤 사라진다 — 새 문구가 오면 시간을 다시 재고, 화면을 나가면 타이머를 치운다 */
+  useEffect(() => { if (!msg) return undefined; const t = setTimeout(() => setMsg(''), 2400); return () => clearTimeout(t); }, [msg]);
+  const commit = (next, text) => { setAug(next); saveAug(next); if (text) setMsg(text); };
   const toggleFav = (a) => commit({ ...aug, favs: favs.includes(a.id) ? favs.filter((x) => x !== a.id) : [...favs, a.id] });
   const toggleBan = (a) => {
     const cur = aug.bans[a.tier] || [];
