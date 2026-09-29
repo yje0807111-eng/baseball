@@ -238,24 +238,26 @@ export function duelAi(g, side, seq = []) {
   const guess = rng() < 0.55 ? draw(w, rng()) : null;
   return { orders: guess ? { guess } : {}, guess };
 }
-/** 스카우팅 — 상대 투수(공격) · 상대 타자(수비)에 대해 사실인 것만 두세 칸 */
+/*
+ * 스카우팅 — 상대 투수(공격) · 상대 타자(수비)를 두 마디 꼬리표로(주무기 슬라이더 · 직구 높음 · 볼넷 적음).
+ * 문장으로 풀지 않는다 — 볼카운트 성향처럼 나머지는 보면서 읽어 내게. 모두 AI 가 실제로 그렇게 움직이는 것만.
+ */
 export function scoutOf(g, side) {
-  const mainOf = (p) => Object.entries(pitchMix(p)).sort((a, b) => b[1] - a[1])[0];
+  const mainOf = (p) => Object.entries(pitchMix(p)).sort((a, b) => b[1] - a[1])[0][0];
   if (side === 'off') {
-    const p = g.away.pitcher, [main, share] = mainOf(p), stam = staminaOf(g.away), ctl = st(p, 'control');
-    const out = [`주무기 ${DUEL_PITCH[main].ko} ${Math.round(share * 100)}%`, '몰리면 직구 · 2스트라이크엔 변화구', '직구 높게 · 변화구 낮게'];
-    if (stam < 35) out.push('지침 · 공이 몰림');
-    else if (ctl >= 88) out.push('제구 정확 · 볼넷 적음');
-    else if (ctl <= 72) out.push('제구 불안 · 볼 많음');
+    const p = g.away.pitcher, ctl = st(p, 'control');
+    const out = [`주무기 ${DUEL_PITCH[mainOf(p)].ko}`, '직구 높음', '변화구 낮음'];
+    if (staminaOf(g.away) < 35) out.push('지침');
+    else if (ctl >= 88) out.push('볼넷 적음');
+    else if (ctl <= 72) out.push('볼 많음');
     return out;
   }
   const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
-  const pw = st(b, 'power'), ct = st(b, 'contact'), [mine] = mainOf(g.home.pitcher);
-  const out = [];
-  if (pw >= 88) out.push(`장타력 ${pw} · 한가운데 금물`);
-  if (ct >= 88) out.push(`컨택 ${ct} · 유인구에 강함`);
-  else if (ct <= 72) out.push('유인구에 약함');
-  out.push(`우리 주무기(${DUEL_PITCH[mine].ko}) 노림 많음`, '같은 공 연속이면 노림');
+  const pw = st(b, 'power'), ct = st(b, 'contact');
+  const out = [pw >= 88 ? '장타자' : ct >= 88 ? '교타자' : '평범한 타자'];
+  if (ct >= 88) out.push('선구안 좋음');
+  else if (ct <= 72) out.push('유인구 약함');
+  out.push(`${DUEL_PITCH[mainOf(g.home.pitcher)].ko} 노림`);
   return out;
 }
 
@@ -383,7 +385,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
         */}
-        <div className="pn" style={{ display: 'grid', gridTemplateColumns: '84px 1fr', columnGap: 14, rowGap: 10, padding: '12px 20px', borderRadius: 16, width: 640, boxSizing: 'border-box', alignItems: 'start' }}>
+        <div className="pn" style={{ display: 'grid', gridTemplateColumns: '84px 1fr', columnGap: 14, rowGap: 10, padding: '12px 20px', borderRadius: 16, minWidth: 420, maxWidth: 640, boxSizing: 'border-box', alignItems: 'start' }}>
           {shots.length > 0 && <>
             <span style={{ fontSize: 13, fontWeight: 800, color: MUTE, letterSpacing: '.08em', lineHeight: '22px' }}>투구</span>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 8px', fontSize: 15, fontWeight: 700 }}>
@@ -404,7 +406,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
             <i style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,.07)' }} />
           </>}
           <span style={{ fontSize: 13, fontWeight: 800, color: SIDE_C[side], letterSpacing: '.08em', lineHeight: '22px' }}>{off ? '상대 투수' : '상대 타자'}</span>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 20px', fontSize: 15, fontWeight: 600, color: '#e2e8f0' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 22px', fontSize: 17, fontWeight: 800, color: '#fff' }}>
             {scoutOf(g, side).map((t) => (
               <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, lineHeight: '22px', whiteSpace: 'nowrap' }}>
                 <i style={{ width: 5, height: 5, borderRadius: '50%', flex: 'none', background: SIDE_C[side] }} />{t}

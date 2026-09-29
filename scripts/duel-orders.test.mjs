@@ -96,3 +96,16 @@ test('수싸움 상황 한 줄 — 급한 것부터(끝내기 · 만루 · 득�
   expect(situationOf(at({ bases: [R, null, null], outs: 1 }), 'def')).toBe('병살 찬스');
   expect(situationOf(at({ outs: 2 }), 'def')).toBe('이닝 마무리');
 });
+
+test('스카우팅은 두 마디 꼬리표 — 한 칸 8자 안쪽, 네 칸까지', async () => {
+  const { scoutOf } = await import('../src/play/DuelPanel.jsx');
+  const P = (s) => ({ stats: { stuff: 80, control: 78, stability: 75, ...s } });
+  const B = (s) => ({ stats: { contact: 78, power: 78, ...s } });
+  const side = (pitcher, batters = [B({})]) => ({ pitcher, pitches: 0, pitcherIdx: 0, idx: 0, team: { usage: {}, batters } });
+  const off = scoutOf({ top: false, away: side(P({ control: 92 })), home: side(P({})) }, 'off');
+  expect(off).toContain('볼넷 적음');
+  const def = scoutOf({ top: true, away: side(P({}), [B({ power: 95, contact: 70 })]), home: side(P({})) }, 'def');
+  expect(def).toEqual(expect.arrayContaining(['장타자', '유인구 약함']));
+  for (const t of [...off, ...def]) expect(t.length).toBeLessThanOrEqual(8);
+  expect(off.length).toBeLessThanOrEqual(4);
+});
