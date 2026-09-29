@@ -151,6 +151,25 @@ export const RECIPES = {
     bell(t + 0.11, { f: note(0, 6), ratio: 2, idx: 1.5, d: 0.55, g: 0.2, dest: o });
   } },
 
+  /* ── 화면 이동 ── */
+  /* 큰 구역 들어가기(메인의 내 라커 · 상점 · 증강 · 기록) — 유리 판이 밀려 들어오는 쓸림 + 아래 두께 + A → D 로 오르는 맑은 두 음.
+     눌림 톡 · 화면 들어감 쓸림을 대신한다(covers) */
+  enter: { len: 0.7, covers: ['tab', 'navIn'], fn(t, o, { tone, bell, noise, note }) {
+    noise(t, { f: 520, f2: 2800, q: 0.8, a: 0.06, d: 0.18, g: 0.26, dest: o });
+    tone(t, { f: 120, f2: 70, d: 0.09, g: 0.16, dest: o });
+    tone(t, { type: 'triangle', f: note(0, 5), d: 0.07, g: 0.08, dest: o });
+    bell(t + 0.05, { f: note(3, 5), ratio: 2.01, idx: 0.9, d: 0.45, g: 0.13, dest: o });
+    bell(t + 0.1, { f: note(0, 6), ratio: 2.01, idx: 0.7, d: 0.5, g: 0.11, dest: o });
+  } },
+  /* 화면 안 위 탭(라커 · 상점 · 증강 · 기록 메뉴) — 옆으로 밀리는 짧은 쓸림 + 한 칸 미끄러지는 음. dir: 오른쪽 탭 1(오름) · 왼쪽 -1(내림) */
+  section: { vary: true, len: 0.25, covers: ['tab'], fn(t, o, { tone, noise, note, jitter, dir = 1 }) {
+    const [a, b] = dir > 0 ? [1800, 4200] : [4200, 1800];
+    noise(t, { f: a, f2: b, q: 1.2, a: 0.02, d: 0.09, g: 0.16, dest: o });
+    const [f1, f2] = dir > 0 ? [note(2, 5), note(3, 5)] : [note(3, 5), note(2, 5)];
+    tone(t, { type: 'triangle', f: jitter(f1, 10), f2: jitter(f2, 10), a: 0.003, d: 0.075, g: 0.16, dest: o });
+    tone(t + 0.01, { f: note(0, 6), d: 0.03, g: 0.06, dest: o });
+  } },
+
   /* ── 증강 ── */
   /* 증강 고르기 창이 뜸 — 반짝이가 차오르고 카드가 놓이는 박자(120ms + 110ms 씩)에 맞춰 종이 한 음씩 오름. n: 카드 수 */
   augReveal: { len: 1.4, fn(t, o, { bell, noise, tone, note, n = 3 }) {
@@ -195,12 +214,14 @@ export async function measure(name, opts = {}) {
 }
 
 /** 효과음 내기 — name: RECIPES 의 이름, opts.gain 으로 이번만 크기 조절 */
-const lastAt = new Map();
+const lastAt = new Map(); const hushUntil = new Map();
 export function play(name, opts = {}) {
   const r = RECIPES[name]; if (!r || muted || level <= 0) return;
   if (typeof document !== 'undefined' && document.hidden) return;
   /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
   const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < 40) return; lastAt.set(name, now);
+  if ((hushUntil.get(name) ?? 0) > now) return; // 더 큰 소리가 이 소리를 대신했다(covers)
+  r.covers?.forEach((c) => hushUntil.set(c, now + 450)); // 눌림 → 화면 전환까지 겹치는 기본 소리를 잠깐 막는다
   if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(now)]); // 개발 모드 확인용 — 무엇이 울렸나
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();

@@ -5,6 +5,7 @@ import ProfileBadge from './ProfileBadge.jsx';
 import BgmButton from '../audio/BgmButton.jsx';
 import { artId } from '../data/artAlias.js';
 import { navTo, useExitGhost } from '../ui/motion.jsx';
+import { play as playSfx } from '../audio/sfx.js';
 
 export const UiStyle = () => (
   <style>{`
@@ -386,12 +387,13 @@ export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
   const cur = items.findIndex((it) => it.key === value);
   const pick = (it, i) => {
     if (it.key === value) return;
+    playSfx('section', { dir: i > cur ? 1 : -1 }); // 본문이 통째로 바뀌는 탭 — 기본 톡 대신 옆으로 밀리는 소리
     navTo(() => onChange(it.key), i > cur ? 'tab-r' : 'tab-l');
   };
   return (
     <nav className="mt-tabs ml-2" aria-label={label}>
       {items.map((it, i) => (
-        <button key={it.key} type="button" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
+        <button key={it.key} type="button" data-sfx="none" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
           {it.label}
           {it.n != null && <small className="n">{it.n}</small>}
           {!!it.badge && <b className="bd">{it.badge}</b>}
