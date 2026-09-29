@@ -12,7 +12,7 @@ import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX 
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
-import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
+import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeItem, trainLevel, trainRate, trainHit, TRAIN_MAX, STAT_KO, teamWeakness, WEAK_KO, WEAK_COLOR } from './shop.js';
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { createPortal } from 'react-dom';
@@ -150,6 +150,7 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
         <b className="block truncate text-t2 font-black text-white">
           {p.name}
           {p.isForeign && <em className="ml-2 align-middle text-t4 not-italic" style={{ color: WARN }}>외국인</em>}
+          {trainLevel(p) > 0 && <em className="ml-2 align-middle font-display text-t3 not-italic text-amber-300">+{trainLevel(p)}</em>}
           {more && (
             <em className="ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold not-italic"
               style={{ color: more.deal ? WARN : '#a7f3d0', background: more.deal ? 'rgba(251,191,36,.14)' : 'rgba(52,211,153,.12)' }}>
@@ -195,6 +196,9 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
     </div>
   );
 }
+
+/** 강화 확률 색 — 높으면 초록, 낮을수록 노랑 → 주황 */
+const rateColor = (r) => (r >= 90 ? '#34d399' : r >= 70 ? '#fde047' : '#fb923c');
 
 /** 선수를 고르기 전 오른쪽 상세 — 고른 뒤와 같은 자리에 숨 쉬는 블록 */
 function EmptyDetail() {
@@ -419,8 +423,8 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
             /* 코치진 강화 단추와 같은 모양: 강화 · 보관 · 방출 · 아래 작은 글씨에 쓸 수 있는 아이템 수 */
             <div className={`grid gap-2 ${onUpgrade ? 'grid-cols-[1.3fr_1fr_1fr]' : 'grid-cols-2'}`}>
               {onUpgrade && (
-                <Btn lg a={n} pri={itemsFit > 0} disabled={!itemsFit} style={cut(12)} onClick={() => onUpgrade(p)}>
-                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{itemsFit ? `아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
+                <Btn lg a={n} pri={itemsFit > 0 && trainLevel(p) < TRAIN_MAX} disabled={!itemsFit || trainLevel(p) >= TRAIN_MAX} style={cut(12)} onClick={() => onUpgrade(p)}>
+                  <span className="flex flex-col items-center leading-tight">{trainLevel(p) >= TRAIN_MAX ? `강화 +${TRAIN_MAX}` : `+${trainLevel(p) + 1} 강화 ▲`}<small className="text-t4 opacity-75">{trainLevel(p) >= TRAIN_MAX ? '최대' : itemsFit ? `${trainRate(p)}% · 아이템 ${itemsFit}개` : '아이템 없음'}</small></span>
                 </Btn>
               )}
               <Btn lg disabled={clubFull || !onStore} style={cut(12)} onClick={() => onStore?.(p)}>
@@ -486,6 +490,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
     : squad.filter((p) => fitsItem(it, p)).sort((a, b) => (recIds.has(b.id) - recIds.has(a.id)) || b.overall - a.overall);
   const slotOf = (t) => (t.role === 'manager' ? 'manager' : STAFF_SLOTS.find((x) => x.role === t.role)?.key);
   const after = it?.stat && target?.stats ? Math.min(110, (target.stats[it.stat] ?? 78) + it.amount) : null;
+  const train = it?.cat === 'training';
   return (
     <>
       <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#fde047' }}>
@@ -529,10 +534,14 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
         <p className="mt-lab" style={{ '--a': n }}>아이템 사용</p>
         {/* 방금 쓴 결과(마지막 한 개를 써서 목록이 비어도 보이게 맨 위에) — 대상 이름 · 능력치가 세어 오르고 +값이 톡 */}
         {fx && (
-          <div key={fx.k} data-item-fx="" className="fx-rise mt-cut flex items-baseline gap-2 px-3 py-2" style={{ ...cut(8), background: 'rgba(52,211,153,.1)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.45)' }}>
+          <div key={fx.k} data-item-fx="" className="fx-rise mt-cut flex items-baseline gap-2 px-3 py-2"
+            style={{ ...cut(8), background: fx.fail ? 'rgba(248,113,113,.1)' : 'rgba(52,211,153,.1)', boxShadow: fx.fail ? 'inset 0 0 0 1px rgba(248,113,113,.5)' : 'inset 0 0 0 1px rgba(52,211,153,.45)' }}>
             <b className="min-w-0 truncate text-t3 text-white">{fx.name}</b>
-            <span className="text-t4 text-gray-300">{fx.label}</span>
-            {fx.to != null ? (
+            <span className="text-t4 text-gray-300">{fx.lv != null ? `+${fx.lv} 강화 · ${fx.label}` : fx.label}</span>
+            {fx.fail ? (
+              /* 실패 — 카드가 날아가 닿는 때(0.42초)에 붉은 글씨 · 낮은 소리. 단계 · 능력치는 그대로 */
+              <b className="fx-bump ml-auto text-t3 text-[#f87171]" style={{ '--d': '420ms' }}>강화 실패<SfxAt name="rankDown" delay={420} /></b>
+            ) : fx.to != null ? (
               <span className="ml-auto flex items-baseline gap-1.5 font-display">
                 <Count sfx value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
                 <b className="fx-bump text-t3 text-[#34d399]" style={{ '--d': '940ms' }}>▲{fx.to - fx.from}</b>
@@ -581,9 +590,11 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                 const on = target?.id === t.id;
                 const rec = recIds.has(t.id);
                 const cur = !t.position && staffNow[slotOf(t)]?.id === t.id;
+                const lv = train ? trainLevel(t) : 0;
+                const max = train && lv >= TRAIN_MAX;
                 return (
-                  <button key={t.id} type="button" data-target={t.id} onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''} ${fx?.id === t.id ? 'lk-hit' : ''}`}
-                    style={{ gridTemplateColumns: '40px 38px minmax(0,1fr)', '--a': n }}>
+                  <button key={t.id} type="button" data-target={t.id} disabled={max} onClick={() => onTarget(t)} className={`mt-row mt-cut ${on ? 'on' : ''} ${fx?.id === t.id ? 'lk-hit' : ''}`}
+                    style={{ gridTemplateColumns: train ? '40px 38px minmax(0,1fr) auto' : '40px 38px minmax(0,1fr)', '--a': n, opacity: max ? 0.45 : 1 }}>
                     <Portrait player={t} staff={!t.position} w={38} h={46} color={n} />
                     <b className="font-display text-t1 font-extrabold" style={{ color: n }}>{t.overall ?? '—'}</b>
                     <span className="min-w-0">
@@ -597,16 +608,24 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
                         {it.stat && t.stats ? ` · ${t.stats[it.stat] ?? '-'} → ${Math.min(110, (t.stats[it.stat] ?? 78) + it.amount)}` : ''}
                       </span>
                     </span>
+                    {train && (
+                      /* 강화 단계 · 다음 성공 확률 — 오른쪽 끝 */
+                      <span className="flex flex-col items-end leading-tight">
+                        <b className="font-display text-t3 text-amber-300">+{lv}</b>
+                        <small className="font-display text-t4" style={{ color: max ? '#6b7280' : rateColor(trainRate(t)) }}>{max ? '최대' : `${trainRate(t)}%`}</small>
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
             <div>
               {target && after != null && <KV k={`${target.name} ${STAT_KO[it.stat] || it.stat}`} v={`${target.stats[it.stat] ?? "-"} → ${after}`} color="#34d399" />}
+              {target && train && <KV k={`강화 +${trainLevel(target)} → +${trainLevel(target) + 1}`} v={`성공 ${trainRate(target)}%`} color={rateColor(trainRate(target))} />}
               <KV k="남는 수량" v={`${g.keys.length} → ${g.keys.length - 1}`} color="#fde047" />
             </div>
-            <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!target} onClick={() => onUse(g.keys[0], target, slotOf(target))}>
-              {target ? `${target.name}에게 사용 ▶` : '대상 고르기'}
+            <Btn pri lg a={n} className="w-full" style={cut(12)} disabled={!target || (train && trainLevel(target) >= TRAIN_MAX)} onClick={() => onUse(g.keys[0], target, slotOf(target))}>
+              {target ? `${target.name}에게 ${train ? '강화' : '사용'} ▶` : '대상 고르기'}
             </Btn>
           </>
         )}
@@ -1051,8 +1070,13 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
               const it = SHOP_ITEMS.find((x) => x.id === (team.items || []).find((y) => y.key === key)?.itemId);
               flyGhost(document.querySelector(`[data-item="${it?.id}"]`), () => document.querySelector(`[data-target="${CSS.escape(String(t.id))}"]`) || document.querySelector('[data-item-fx]'), { dur: 520, lift: 36 });
               const from = it?.stat ? t.stats?.[it.stat] ?? null : null;
-              setItemFx({ k: `${Date.now()}`, id: t.id, name: t.name, label: it?.stat ? STAT_KO[it.stat] || it.stat : it?.name || '아이템', from, to: from != null ? Math.min(110, from + it.amount) : null });
-              commit(consumeItem(team, key, t, slot));
+              /* 굴림은 여기서 한 번 — 결과 줄과 저장이 같은 값을 쓴다 */
+              const roll = Math.random();
+              const train = it?.cat === 'training';
+              const fail = train && !trainHit(t, roll);
+              setItemFx({ k: `${Date.now()}`, id: t.id, name: t.name, label: it?.stat ? STAT_KO[it.stat] || it.stat : it?.name || '아이템', from, to: from != null ? Math.min(110, from + it.amount) : null,
+                fail, lv: train ? trainLevel(t) + (fail ? 0 : 1) : null });
+              commit(consumeItem(team, key, t, slot, roll));
               setItemTarget(null);
             }} />
         )}

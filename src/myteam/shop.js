@@ -8,7 +8,7 @@
  *  감독 계약: 감독을 CP 없이 선임
  */
 import { overallOf } from '../data/ratings.js';
-import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX } from './rules.js';
+import { EXTRA_SLOT_MAX, EXTRA_FOREIGN_MAX, SQUAD_CAP } from './rules.js';
 import { PRESET_EXTRA_MAX } from './presets.js';
 
 export const CATEGORIES = [
@@ -42,8 +42,8 @@ export const SHOP_ITEMS = [
   item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
   item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
   item('op-preset', 'ops', '프리셋 칸 +1', '엔트리 조합 저장 칸 +1 · 영구 (최대 2번)', 600, { expand: 'preset', img: 'mt-pack' }),
-  item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구', 800, { cap: 40, img: 'mt-pack' }),
-  item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구', 1800, { cap: 100, img: 'mt-pack' }),
+  item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구 (합계 최대 +200)', 800, { cap: 40, img: 'mt-pack' }),
+  item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구 (합계 최대 +200)', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
   item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
   // 증강 (풀 관리)
@@ -154,6 +154,26 @@ export function expandTeam(team, kind) {
 export const needsPlayer = (it) => !!it.target;
 export const needsStaff = (it) => !!it.staffRole;
 
+/*
+ * CP 확장 한도 — 캡은 팀 빌딩의 중심 제약이라 골드로 끝없이 늘리지 않는다(FC 온라인 급여 상한 고정).
+ * 기본 캡에서 합계 +200 까지. 이미 넘게 산 저장본은 그대로 두고 더 사지만 못 한다
+ */
+export const CAP_EXTRA_MAX = 200;
+export const capExtra = (team) => Math.max(0, (team?.cap || SQUAD_CAP) - SQUAD_CAP);
+export const capLeft = (team) => Math.max(0, CAP_EXTRA_MAX - capExtra(team));
+
+/*
+ * 훈련 강화 — 선수마다 +1 ~ +5 단계. 높은 단계일수록 어렵다(FC 온라인 강화 +1 100% → +5 26% 보다 완만하게).
+ * 성공하면 능력치가 오르고 단계가 하나 오른다. 실패하면 아이템만 사라지고 단계 · 능력치는 그대로(떨어지지 않음).
+ * 단계 = 성공한 훈련 수(trained). 캡을 피해 싼 선수를 끝없이 키우는 길을 막는다
+ */
+export const TRAIN_MAX = 5;
+export const TRAIN_RATE = [100, 90, 75, 60, 45]; // 다음 단계(+1 … +5)로 오를 확률 %
+export const trainLevel = (p) => Math.min(TRAIN_MAX, (p?.trained || []).length);
+export const trainRate = (p) => TRAIN_RATE[trainLevel(p)] ?? 0; // 최대면 0
+/** roll(0~1)로 성공인가 — 부르는 쪽이 굴린 값을 넘겨 결과를 화면에도 같은 값으로 쓴다 */
+export const trainHit = (p, roll) => trainLevel(p) < TRAIN_MAX && roll * 100 < trainRate(p);
+
 /** 훈련·부스트를 선수에게 적용한 새 팀을 돌려준다 */
 export function applyToPlayer(team, it, player) {
   if (it.cat === 'training') {
@@ -205,17 +225,19 @@ export const fitsItem = (it, p) => (!it || !p ? false : it.target === 'pitcher' 
 /** 추천 대상 — 효과가 맞는 쪽(타자/투수)에서 종합이 가장 많이 오르는 순 */
 export function recommendTargets(team, it, n = 5) {
   if (!needsPlayer(it)) return [];
-  return (team.squad || []).filter((p) => fitsItem(it, p))
+  return (team.squad || []).filter((p) => fitsItem(it, p) && (it.cat !== 'training' || trainLevel(p) < TRAIN_MAX))
     .map((p) => ({ p, gain: overallOf(p.position, { ...p.stats, [it.stat]: Math.min(110, (p.stats?.[it.stat] ?? 78) + it.amount) }) - p.overall }))
     .sort((a, b) => b.gain - a.gain || b.p.overall - a.p.overall).slice(0, n).map((x) => x.p);
 }
 
-/** 사용: 보관함에서 한 장 빼고 대상에게 적용한 새 팀 */
-export function consumeItem(team, key, target, staffSlot) {
+/** 사용: 보관함에서 한 장 빼고 대상에게 적용한 새 팀. 훈련은 roll 로 성공을 가린다(실패면 한 장만 빠진다) */
+export function consumeItem(team, key, target, staffSlot, roll = Math.random()) {
   const entry = (team.items || []).find((x) => x.key === key);
   const it = entry && itemById(entry.itemId);
   if (!it || !target || (needsPlayer(it) && !fitsItem(it, target))) return team;
+  if (it.cat === 'training' && trainLevel(target) >= TRAIN_MAX) return team;
   const rest = { ...team, items: team.items.filter((x) => x.key !== key) };
+  if (it.cat === 'training' && !trainHit(target, roll)) return rest;
   if (needsStaff(it)) return { ...rest, staff: { ...(rest.staff || {}), [staffSlot]: { ...target, cost: 0, contracted: true } } };
   return applyToPlayer(rest, it, target);
 }

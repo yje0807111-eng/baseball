@@ -1,6 +1,7 @@
 /* 상점 — 라커와 같은 문법: 위 탭 분류 / 가운데 상품 카드 / 오른쪽 고른 상품. 처음엔 우리 팀 약점을 채우는 추천 상품을 골라 둔다 */
 import React, { useMemo, useRef, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
+import { capExtra, capLeft, CAP_EXTRA_MAX } from './shop.js';
 import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
 import { saveTeam, addGold, saveAug, loadAccount, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
@@ -154,11 +155,11 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
       push(team, gold - picked.price);
       return;
     }
-    if (picked.cap) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
+    if (picked.cap && picked.cap <= capLeft(team)) push({ ...team, cap: (team.cap || SQUAD_CAP) + picked.cap }, gold - picked.price);
   };
 
   // 살 수 없는 상품은 버튼에서 막는다 (구매 뒤 알림 문구는 두지 않는다)
-  const soldOut = picked?.expand ? expandLeft(team, picked.expand) < 1 : false;
+  const soldOut = picked?.expand ? expandLeft(team, picked.expand) < 1 : picked?.cap ? picked.cap > capLeft(team) : false;
   const ready = picked && picked.price <= gold && !soldOut;
   const n = picked ? catColor[picked.cat] : '#34d399';
 
@@ -180,7 +181,7 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
             <p className="mt-lab" style={{ '--a': '#fde047' }}>상품 목록</p>
           </div>
           <div className={`mt-scroll gold mt-3 grid min-h-0 flex-1 grid-cols-6 content-start gap-3 overflow-y-auto pr-2 ${listFx}`} style={{ gridAutoRows: '18.75rem' }}>
-            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || 2000} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
+            {items.map((it) => <ItemCard key={it.id} it={it} cap={team.cap || SQUAD_CAP} rec={rec?.id === it.id} on={picked?.id === it.id} onClick={() => { setPicked(it); }} />)}
           </div>
         </section>
 
@@ -253,7 +254,7 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
               )}
 
               <div className={`flex items-baseline justify-between text-t4 text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
-                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : '-'}</b></span>
+                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : picked.cap ? `+${capExtra(team)} / +${CAP_EXTRA_MAX}` : '-'}</b></span>
                 <span>남는 골드 <b className="font-display text-t3" style={{ color: picked.price > gold ? '#f87171' : '#fde047' }}>{(gold - picked.price).toLocaleString()} G</b></span>
               </div>
               {/* 구매 옆 내 라커 — 고른 상품을 쓰는 탭으로 바로(훈련 · 부스트 → 아이템, 코치 강화권 → 감독·코치). 가진 게 있으면 '쓰기' */}
@@ -268,7 +269,7 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
                   );
                 })()}
                 <Btn pri lg a="#fde047" className="w-full" style={cut(12)} disabled={!ready} onClick={() => buy(picked)}>
-                  {soldOut ? '더 살 수 없음' : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
+                  {soldOut ? (picked.cap && capLeft(team) > 0 ? `남은 한도 +${capLeft(team)}` : '더 살 수 없음') : picked.price > gold ? '골드 부족' : `${picked.price.toLocaleString()} G 구매 ▶`}
                 </Btn>
               </div>
             </>
