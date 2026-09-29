@@ -66,3 +66,17 @@ test('AI 가 미리 뽑은 공(noPick)은 구종을 찍은 힘 보정이 없다'
   expect(pitch(g, { pitchType: 'change', noPick: true }).pitch.picked).toBe(0);
   expect(pitch(g, { pitchType: 'change' }).pitch.picked).not.toBe(0);
 });
+
+test('칸을 직접 찍으면(exact) 존에 더 자주 · AI 가 뽑은 자리(noPick)는 보정 없이 자리만', () => {
+  const inRate = (o) => {
+    const g = createGame({ home: team('H'), away: team('A'), rng: seeded(11) });
+    let n = 0, k = 0;
+    for (let i = 0; i < 400; i += 1) { const ev = pitch(g, o); if (!ev) break; if (ev.pitch) { n += 1; if (ev.pitch.inZone) k += 1; } }
+    return k / n;
+  };
+  expect(inRate({ zone: 2, exact: true })).toBeGreaterThan(inRate({ zone: 2 }) + 0.03);
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(5) });
+  const ev = pitch(g, { pitchType: 'fast', zone: 0, noPick: true });
+  expect(ev.pitch.corner).toBe(0);
+  expect(ev.pitch.inZone ? ev.pitch.zone : 0).toBe(0);
+});

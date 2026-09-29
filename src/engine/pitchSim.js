@@ -18,7 +18,8 @@
  * orders (수비 측 지시):
  *   { ibb: true, pitchType: 'fast'|'slider'|'change', zone: 0~8 | 'chase', changePitcher: true,
  *     band: 'hi'|'lo'|'in'|'out' (zone 'chase' 와 함께 — 어느 쪽으로 빼나, 그림에만 쓰인다),
- *     noPick: true (pitchType 이 AI 가 미리 뽑은 공일 때 — 구종을 찍은 힘 보정을 붙이지 않는다),
+ *     noPick: true (pitchType · zone 이 AI 가 미리 뽑은 공일 때 — 구종 · 코스를 찍은 보정을 붙이지 않는다),
+ *     exact: true (수싸움에서 칸을 직접 찍었다 — 존에 들어갈 확률 +0.12, 전술의 +0.06 대신),
  *     hold: -1|1 (주자를 느슨하게 · 바짝 묶는다), guard: -1|1 (제자리 · 붙어 선다),
  *     hookAt: 0~20 (이 체력 아래면 투수를 내린다) }
  */
@@ -151,7 +152,8 @@ function choosePitch(g, pitcher, order) {
   let zone;
   if (order?.zone === 'chase') inZone = Math.min(inZone, 0.25);
   /* 코스를 찍으면 존 구석을 노린다 — 들어갈 확률은 조금 오르지만 맞히기는 어렵다 */
-  if (typeof order?.zone === 'number') { inZone = clamp(inZone + 0.06, 0, 0.9); zone = order.zone; }
+  /* exact: 수싸움에서 칸을 직접 찍었다 — 더 자주 그리로 간다. noPick: AI 가 미리 뽑은 자리 — 보정 없이 자리만 */
+  if (typeof order?.zone === 'number') { if (!order.noPick) inZone = clamp(inZone + (order.exact ? 0.12 : 0.06), 0, 0.9); zone = order.zone; }
   const isIn = g.rng() < inZone;
   if (!isIn) zone = null;
   else if (zone == null) zone = Math.floor(g.rng() * 9);
@@ -159,7 +161,7 @@ function choosePitch(g, pitcher, order) {
   /* 구위 60 이면 그 구종의 가장 느린 쪽, 105 면 가장 빠른 쪽 — 능력치 눈금(50~110)에 맞춘 폭 */
   const velo = Math.round(lo + (hi - lo) * clamp((st(pitcher, 'stuff', 79) - 60 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit')) / 45, 0, 1) - tired * 4 + (g.rng() - 0.5) * 3);
   /* 찍은 칸의 맞히기 어려움 — 구석이 가장, 변 가운데는 조금, 한가운데는 오히려 쉽다(음수) */
-  const corner = typeof order?.zone === 'number' ? (order.zone === 4 ? -0.05 : order.zone % 2 === 0 ? 0.07 : 0.04) : 0;
+  const corner = typeof order?.zone === 'number' && !order.noPick ? (order.zone === 4 ? -0.05 : order.zone % 2 === 0 ? 0.07 : 0.04) : 0;
   return { type, zone, inZone: isIn, velo, tired, picked, corner, ...(!isIn && order?.zone === 'chase' && order.band ? { band: order.band } : {}) };
 }
 
@@ -291,7 +293,7 @@ export function pitch(g, orders = {}) {
   const guessBonus = orders.guess ? (orders.guess === p.type ? 0.14 : -0.1) : 0;
   const cornerPen = p.corner || 0; // 구석에 꽂힌 공은 맞히기 어렵다
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
-  const aimBonus = orders.aim && p.inZone ? (inAim(p.zone, orders.aim) ? 0.08 : -0.05) : 0;
+  const aimBonus = orders.aim && p.inZone ? (inAim(p.zone, orders.aim) ? 0.1 : -0.06) : 0;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
 
   // 스윙 여부
@@ -307,7 +309,7 @@ export function pitch(g, orders = {}) {
     const hitProb = clamp((p.inZone ? 0.82 : 0.56) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit - cornerPen + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
-    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus); }
+    else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
   }
 
   if (ev.call !== 'inplay') {
