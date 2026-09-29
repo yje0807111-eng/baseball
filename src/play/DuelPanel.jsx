@@ -14,6 +14,7 @@ import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSp
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 import { reducedMotion } from '../ui/motion.jsx';
+import { Pop, KV } from '../myteam/ui.jsx';
 
 /** 공격 · 수비 색 — 우리(초록) · 상대(빨강)와 겹치지 않게 */
 const SIDE_C = { off: '#fb923c', def: '#38bdf8' };
@@ -437,6 +438,49 @@ function TrajCard({ rep, pk, target, hand, velo }) {
     </div>
   );
 }
+/*
+ * 수싸움 규칙 — 라커 규칙과 같은 틀(Pop + KV 한 줄). 판 · 표 안에 설명을 넣지 않고 여기로 모은다.
+ * 완급 조절 수치는 엔진(tempoOf)과 같게: 8km 넘게 차이부터 · 28km 에서 가장 큼 · 느린 뒤 빠른 공 0.6배 · 노림에 걸리면 없음.
+ */
+const DUEL_RULES = [
+  ['승부', [
+    ['수싸움', '승부처 · 직접 승부 한 타석', '#e5e7eb'],
+    ['구종 예측', '딱 맞음 크게 · 계열만 맞음 조금 · 빗나감 손해', '#e5e7eb'],
+    ['노림 칸', '맞으면 타구 질까지 · 틀리면 조금 헛돎', '#e5e7eb'],
+    ['조준', '끌어서 과녁 · 금색 원 = 흩어지는 범위', '#e5e7eb'],
+    ['집중 투구', `흩어짐 ↓ · 체력 ${1 + FOCUS_COST}배`, GOLD],
+  ]],
+  ['완급 조절', [
+    ['완급 조절', '앞 공과 구속 차이 · 헛스윙 · 파울 · 빗맞음 ↑', '#7dd3fc'],
+    ['효과 시작', '8km 넘게 차이', '#e5e7eb'],
+    ['가장 큼', '28km 넘게 차이', '#e5e7eb'],
+    ['빠른 공 → 느린 공', '가장 잘 먹힘', '#e5e7eb'],
+    ['느린 공 → 빠른 공', '0.6배', '#e5e7eb'],
+    ['그 구종 노림', '효과 없음 · 계열만 맞으면 0.6배', '#e5e7eb'],
+    ['한 타석 안', '타석이 바뀌면 처음부터', '#e5e7eb'],
+    ['구속 막대', '흰 선 = 앞 공 · 하늘색 = 완급 큼', '#7dd3fc'],
+  ]],
+  ['투수 성향', [
+    ['완급 많음', '완급 공 자주 · 먹히면 더 셈', '#e5e7eb'],
+    ['직구 고집', '직구 자주 · 직구 묵직 · 변화구 무딤', '#e5e7eb'],
+  ]],
+  ['보조', [
+    ['보조', '추천 · 퍼센트', '#e5e7eb'],
+    ['읽기 보너스', '경기 내내 보조 끔 · 맞힌 노림 × 1.5', GOLD],
+  ]],
+];
+function DuelRules({ onClose }) {
+  return (
+    <Pop eyebrow="도움말" title="수싸움 규칙" onClose={onClose}>
+      {DUEL_RULES.map(([h, rows], i) => (
+        <React.Fragment key={h}>
+          <p className="mt-lab" style={{ marginTop: i ? 18 : 0 }}>{h}</p>
+          {rows.map(([k, v, c]) => <KV key={k} sm k={k} v={v} color={c} />)}
+        </React.Fragment>
+      ))}
+    </Pop>
+  );
+}
 /** 켜고 끄는 작은 스위치 모양(보조 · 집중 투구) */
 const Switch = ({ on, c = 'rgba(255,255,255,.55)' }) => (
   <i style={{ position: 'relative', flex: 'none', width: 30, height: 16, borderRadius: 999, background: on ? c : 'rgba(255,255,255,.14)', transition: 'background .15s' }}>
@@ -625,6 +669,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const [guess, setGuess] = useState(null); // 구종 예측 — 늘 '예측 안 함'에서 시작, 공마다 다시 고른다
   const [aim, setAim] = useState(null);
   const [showRev, setShowRev] = useState(null);
+  const [rules, setRules] = useState(false); // 규칙 팝업 — 열려 있는 동안 판 단축키(Enter · 숫자 · 방향키)는 쉰다
   /* 결과 알림 — 1초 머물고 걷힌다(누르면 바로) */
   useEffect(() => {
     if (!reveal) return undefined;
@@ -656,6 +701,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   };
   useEffect(() => {
     const key = (e) => {
+      if (rules) return;
       if (e.key === 'Enter') { e.preventDefault(); go(); return; }
       /* 수비 조준 미세 조정 — 방향키 한 번에 0.05 */
       const d = { ArrowLeft: [-0.05, 0], ArrowRight: [0.05, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] }[e.key];
@@ -688,6 +734,10 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
       {/* 점수판 — 중계 화면과 같은 판(볼카운트는 빼고 가운데에 크게) */}
       <div style={{ position: 'absolute', left: 32, top: 28 }}>{board}</div>
+      <button type="button" onClick={() => setRules(true)} aria-label="수싸움 규칙"
+        className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t3 font-black text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]"
+        style={{ position: 'absolute', right: 32, top: 28, '--c': '12px' }}>?</button>
+      {rules && <DuelRules onClose={() => setRules(false)} />}
       {/*
         공격 · 수비 + 목표 한 줄 — 아이콘 · 이름 · 색 세 겹으로 갈린다(더 쇼의 방망이 · 글러브 표시처럼).
         공격 = 주황 방망이, 수비 = 하늘 글러브. 우리 · 상대의 초록 · 빨강과 겹치지 않는 색으로.
