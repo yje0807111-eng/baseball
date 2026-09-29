@@ -252,14 +252,30 @@ const draw = (w, r) => { const tot = Object.values(w).reduce((a, b) => a + b, 0)
 const ROW_BY = { fast: [0.45, 0.35, 0.2], sinker: [0.2, 0.4, 0.4], cutter: [0.35, 0.4, 0.25], slider: [0.15, 0.3, 0.55], curve: [0.1, 0.3, 0.6], change: [0.12, 0.33, 0.55], fork: [0.05, 0.25, 0.7] };
 const COL_BIAS = [[0.46, 0.3, 0.24], [0.24, 0.3, 0.46], [0.34, 0.33, 0.33]];
 const colBias = (p) => { let h = 0; for (const ch of String(p?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COL_BIAS[h % 3]; };
+/*
+ * 투수 성향(선수 id 로 고정 — 같은 투수는 늘 같은 버릇, 스카우팅 한 줄로 보인다):
+ *  완급형 — 앞 공과 구속 차이 나는 공을 크게 더(× 1.8) · 직구 고집 — 직구 +0.2, 완급은 덜(× 0.4) · 보통 — × 1
+ */
+const STYLES = [{ k: 'tempo', ko: '완급 많음', tempo: 1.8, fast: 0 }, { k: 'power', ko: '직구 고집', tempo: 0.4, fast: 0.2 }, { k: 'even', ko: '', tempo: 1, fast: 0 }];
+export const styleOf = (p) => { let h = 7; for (const ch of String(p?.id || '')) h = (h * 131 + ch.charCodeAt(0)) >>> 0; return STYLES[h % 3]; };
+/*
+ * 상대 투수가 이번에 던질 공 비율 — 실제 경기 배합 버릇을 따른다(MLB 카운트 · 순서 연구):
+ *  초구(0-0)엔 직구를 더(+0.15, 초구 스트라이크) · 몰리면 직구 계열 · 2스트라이크엔 직구 계열 아닌 공 ·
+ *  방금 공에 헛스윙이 나오면 같은 공을 한 번 더(+0.3) · 직구 아닌 같은 공은 세 번 연달아 잘 안 던짐(× 0.5) ·
+ *  완급 — 앞 공과 구속 차이 큰 공을 더(최대 +0.35 × 투수 성향).
+ */
 export function pitchWeights(g) {
-  const w = { ...pitchMix(g.away.pitcher) }, ks = Object.keys(w);
-  /* 몰리면 직구 계열(직구가 가장), 2스트라이크엔 직구 계열이 아닌 공으로 나눠 */
+  const p = g.away.pitcher, w = { ...pitchMix(p) }, ks = Object.keys(w), sty = styleOf(p);
+  const last = g.lastVelo != null ? g.events?.[g.events.length - 1] : null, prev = g.events?.[g.events.length - 2];
+  const lastT = last?.pitch?.type, twice = lastT && lastT !== 'fast' && prev?.pitch?.type === lastT && prev?.batter === last?.batter;
   for (const t of ks) {
+    if (!g.balls && !g.strikes && t === 'fast') w[t] += 0.15;
     if (g.balls - g.strikes >= 2 || g.balls === 3) { if (PITCHES[t].fam === 'F') w[t] += t === 'fast' ? 0.3 : 0.12; }
     else if (g.strikes === 2 && PITCHES[t].fam !== 'F') w[t] += 0.25 / Math.max(1, ks.filter((k) => PITCHES[k].fam !== 'F').length);
-    /* 완급 — 이 타석 앞 공과 구속 차이가 큰 공을 더(차이가 가장 클 때 +0.35). 빠른 공 뒤엔 느린 공이 늘고, 느린 공 뒤엔 빠른 공이 조금 는다 */
-    w[t] += (tempoOf(g.lastVelo, veloOfP(g.away.pitcher, t)) / TEMPO_MAX) * 0.35;
+    if (t === 'fast') w[t] += sty.fast;
+    if (last?.call === 'swinging' && t === lastT) w[t] += 0.3;
+    if (twice && t === lastT) w[t] *= 0.5;
+    w[t] += (tempoOf(g.lastVelo, veloOfP(p, t)) / TEMPO_MAX) * 0.35 * sty.tempo;
   }
   const tot = Object.values(w).reduce((a, b) => a + b, 0);
   return Object.fromEntries(ks.map((k) => [k, w[k] / tot]));
@@ -269,24 +285,34 @@ export function locOf(g) {
   const w = pitchWeights(g), col = colBias(g.away.pitcher);
   return Array.from({ length: 9 }, (_, z) => Object.keys(w).reduce((n, t) => n + w[t] * ROW_BY[t][Math.floor(z / 3)] * col[z % 3], 0));
 }
-/* AI 타자가 완급을 읽는 세기 — 1.0 이면 번갈아 던지기 .319 · 직구만 .360 · 추천대로 .334(8천 타석). 0.5 → 1.5 로 올려도 차이는 조금씩만 준다 */
+/*
+ * 상대 타자가 이번 공에 무엇을 노리나(수비 AI · 수비 추천이 같은 식) — 실제 타자처럼 카운트따라:
+ *  2스트라이크 — 대응 위주라 덜 노림(35%) · 타자 유리(2-0 · 3-1 · 3-0 · 2-1) — 직구를 노리고 들어감(75%, 직구 +0.5) · 그 밖 55%.
+ *  무엇을: 우리 투수 배합 + 방금 공(두 번 연달아면 더) + 완급(빠른 공 뒤엔 느린 공, AI_TEMPO_READ).
+ */
 const AI_TEMPO_READ = 1.0;
+const AI_PATTERN = 0.35; // 가-나-가 흐름 읽기(0.7 로 올려도 번갈아 던지기 .239 → .241 — 타석이 짧아 크게 안 먹힘)
+export function batterRead(g, seq = []) {
+  const me = (g.top ? g.home : g.away).pitcher, w = { ...pitchMix(me) }, n = seq.length;
+  if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
+  else if (n >= 1 && w[seq[n - 1]] != null) w[seq[n - 1]] += 0.15;
+  if (n >= 2 && seq[n - 1] !== seq[n - 2] && w[seq[n - 2]] != null) w[seq[n - 2]] += AI_PATTERN; // 가-나-가 — 번갈아 오는 흐름도 읽는다
+  const hitters = g.strikes < 2 && g.balls - g.strikes >= 1 && g.balls >= 2;
+  if (hitters) w.fast += 0.5;
+  for (const t of Object.keys(w)) w[t] += (tempoOf(g.lastVelo, veloOfP(me, t)) / TEMPO_MAX) * AI_TEMPO_READ;
+  const tot = Object.values(w).reduce((a, b) => a + b, 0);
+  return { rate: g.strikes === 2 ? 0.35 : hitters ? 0.75 : 0.55, w: Object.fromEntries(Object.keys(w).map((k) => [k, w[k] / tot])) };
+}
 export function duelAi(g, side, seq = []) {
   const rng = g.rng;
-  const mix = pitchMix((g.top ? g.home : g.away).pitcher);
   if (side === 'off') {
     const t = draw(pitchWeights(g), rng());
     const row = Number(draw({ 0: ROW_BY[t][0], 1: ROW_BY[t][1], 2: ROW_BY[t][2] }, rng()));
     const col = Number(draw({ 0: colBias(g.away.pitcher)[0], 1: colBias(g.away.pitcher)[1], 2: colBias(g.away.pitcher)[2] }, rng()));
     return { orders: { pitchType: t, zone: row * 3 + col, noPick: true } };
   }
-  const w = { ...mix }, n = seq.length;
-  if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
-  else if (n >= 1) w[seq[n - 1]] += 0.15;
-  /* 완급도 읽는다 — 빠른 공 뒤엔 느린 공을 노리는 쪽으로(번갈아 던지기만으로 이기지 않게) */
-  const me = (g.top ? g.home : g.away).pitcher;
-  for (const t of Object.keys(w)) w[t] += (tempoOf(g.lastVelo, veloOfP(me, t)) / TEMPO_MAX) * AI_TEMPO_READ;
-  const guess = rng() < 0.55 ? draw(w, rng()) : null;
+  const { rate, w } = batterRead(g, seq);
+  const guess = rng() < rate ? draw(w, rng()) : null;
   return { orders: guess ? { guess } : {}, guess };
 }
 /*
@@ -436,17 +462,29 @@ function AssistSwitch({ assist, bonus, onAssist }) {
 /** 구종의 예상 구속 — 구위 60 이면 가장 느린 쪽, 105 면 가장 빠른 쪽(엔진과 같은 식, 흔들림 · 피로 빼고) */
 export const veloOfP = (pitcher, t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (st(pitcher, 'stuff', 79) - 60) / 45))); };
 /*
- * 수비 추천 — 구종: 완급 이득 × 안 읽힐 확률 − 읽혔을 때 손해를 가장 크게.
- *   읽힐 확률 = AI 타자가 노리는 55% × 그 구종 몫(우리 배합 + 방금 공 · 두 번 연속이면 더), 읽히면 타자 +0.14(구종 예측 딱 맞음).
- *   앞 공이 없으면(첫 공) 완급 이득이 0 이라 예전처럼 가장 덜 노리는 구종.
+ * 수비 추천 — 구종: 상대 타자가 노리는 것(batterRead, AI 와 같은 식)을 모두 따져 우리 쪽 기대 이득이 가장 큰 공.
+ *   안 노림 → 완급 그대로 · 딱 맞게 노림 → 타자 +0.14 · 완급 없음 · 계열만 맞음 → 타자 +0.056 · 완급 0.6배 ·
+ *   빗나가게 노림 → 타자 −0.1 · 완급 그대로. 앞 공이 없으면(첫 공) 가장 덜 노릴 공.
  * 자리: 2스트라이크면 타자 강한 코스 반대쪽 경계 밖(유인), 3볼이면 안전하게 안쪽, 그 밖엔 피안타가 가장 낮은 칸의 구석 쪽
  */
+/*
+ * 추천 무게 — 완급은 헛스윙에 파울 · 빗맞음까지 먹혀 ×2.2, 노림 이득은 타구 질까지 ×1.5, 다음 공 준비(한 수 앞) ×0.6.
+ * 추천대로(구종 + 자리) .238 · 번갈아(+ 추천 자리) .239 · 직구만(+ 추천 자리) .277 — 단순한 번갈아 던지기보다 약하지 않게 맞춘 값
+ */
+const REC_TEMPO_W = 2.2, REC_GUESS_W = 1.5, REC_LOOK = 0.6;
 export function recDefOf(g, seq = [], prevVelo = null) {
-  const w = { ...pitchMix(g.home.pitcher) }, n = seq.length;
-  if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
-  else if (n) w[seq[n - 1]] += 0.15;
-  const tot = Object.values(w).reduce((a, b) => a + b, 0);
-  const score = (t) => { const pg = 0.55 * (w[t] / tot); return tempoOf(prevVelo, veloOfP(g.home.pitcher, t)) * (1 - pg) - 0.14 * pg; };
+  const me = (g.top ? g.home : g.away).pitcher, { rate, w } = batterRead(g, seq);
+  const score = (t) => {
+    const v = veloOfP(me, t);
+    let sc = (1 - rate) * tempoOf(prevVelo, v) * REC_TEMPO_W;
+    for (const [gt, pw] of Object.entries(w)) {
+      const hit = gt === t ? 1 : PITCHES[gt].fam === PITCHES[t].fam ? 0.4 : 0;
+      sc += rate * pw * (tempoOf(prevVelo, v, hit) * REC_TEMPO_W - (hit ? 0.14 * hit : -0.1) * REC_GUESS_W);
+    }
+    /* 다음 공 준비 — 이 공이 빠를수록 다음에 완급 줄 여지가 크다(한 수 앞) */
+    sc += REC_LOOK * Math.max(0, ...Object.keys(w).map((t2) => tempoOf(v, veloOfP(me, t2)))) * REC_TEMPO_W;
+    return sc;
+  };
   const pk = Object.keys(w).sort((a, b) => score(b) - score(a))[0];
   const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
   if (g.strikes === 2 && g.balls < 3) return { pk, target: { high: { x: 0.3, y: 1.15 }, low: { x: 0.3, y: -1.15 }, in: { x: 1.15, y: 0.4 }, out: { x: -1.15, y: 0.4 }, even: { x: 0.6, y: 1.15 } }[batterHot(b)] };
@@ -539,7 +577,9 @@ export function scoutOf(g, side) {
   if (side === 'off') {
     const p = g.away.pitcher, ctl = st(p, 'control');
     const out = [`주무기 ${DUEL_PITCH[mainOf(p)].ko}`, '직구 높음', '변화구 낮음'];
+    /* 네 칸까지 — 넷째 칸은 지침 > 투수 성향 > 제구 순 */
     if (staminaOf(g.away) < 35) out.push('지침');
+    else if (styleOf(p).ko) out.push(styleOf(p).ko);
     else if (ctl >= 88) out.push('볼넷 적음');
     else if (ctl <= 72) out.push('볼 많음');
     return out;
