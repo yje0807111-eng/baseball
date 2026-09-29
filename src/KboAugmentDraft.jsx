@@ -5250,7 +5250,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     if (!last) return;
     const id = last.player.id;
     setGone((g) => new Set(g).add(id));
-    playSfx('draftPick'); // 누가 뽑든(나 · AI · 시간 넘김 자동) 같은 지명 소리 — 여러 장을 한 번에 넘겨도 한 번
+    /* 누가 뽑든(나 · AI · 시간 넘김 자동) 같은 지명 소리 — 다른 구단 지명은 한결 작게. 여러 장을 한 번에 넘겨도 한 번 */
+    playSfx('draftPick', { gain: last.club === Live.myIndex(live) ? 1 : 0.5 });
     goneTimers.current.push(setTimeout(() => setGone((g) => { const n = new Set(g); n.delete(id); return n; }), 1020 / liveSpeed));
   }, [live?.picks.length]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { // 판이 끝나면 지금까지처럼 정비 화면으로
