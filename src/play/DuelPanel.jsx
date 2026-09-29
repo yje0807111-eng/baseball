@@ -161,8 +161,17 @@ function Who({ p, isP, mine, team, g, side }) {
  * 존 — grid 3: 칸 0~8(수비 코스) + 바깥 네 띠 · grid 2: 4칸 노림(공격). 몸쪽이 왼쪽(중계 존 판과 같게).
  * marks: 이 타석 공 { x, y (존 반폭 · 반높이 = 1), c }
  */
-/** 칸 색 진하기 — 이 존에서 가장 적은 칸은 거의 없고(0) 가장 많은 칸이 가장 진하게(0.42), 사이는 비례 */
-const heatA = (pct, i) => { const lo = Math.min(...pct), hi = Math.max(...pct); return (hi > lo ? ((pct[i] - lo) / (hi - lo)) ** 1.3 * 0.42 : 0.1).toFixed(2); };
+/*
+ * 칸 색 — 중계 핫 · 콜드 존처럼. 이 존에서 가장 적은 칸은 색 없음, 올라갈수록 노랑 → 주황 → 빨강으로 바뀌며 진해진다.
+ * 기준은 그 존의 가장 낮은 칸 · 가장 높은 칸(공마다 볼카운트가 바뀌면 다시 잡는다)
+ */
+const HEAT = [[250, 204, 21], [249, 115, 22], [239, 68, 68]];
+const heatFill = (pct, i) => {
+  const lo = Math.min(...pct), hi = Math.max(...pct), t = hi > lo ? (pct[i] - lo) / (hi - lo) : 0.5;
+  const [a, b, u] = t < 0.55 ? [HEAT[0], HEAT[1], t / 0.55] : [HEAT[1], HEAT[2], (t - 0.55) / 0.45];
+  const c = a.map((v, k) => Math.round(v + (b[k] - v) * u));
+  return `rgba(${c.join(',')},${(t ** 1.2 * 0.46).toFixed(2)})`;
+};
 function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null }) {
   const B = size, m = chase ? Math.round(B * 0.2) : 0, gap = 8, W = B + m * 2, cell = B / grid;
   const cells = [];
@@ -188,7 +197,7 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
       <rect x={m - 3} y={m - 3} width={B + 6} height={B + 6} rx="14" fill="rgba(8,12,22,.45)" />
       {cells.map((z) => (
         <g key={z.id} onClick={() => onPick?.(z.id)}>
-          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? `rgba(251,146,60,${heatA(pct, z.id)})` : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
+          <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? heatFill(pct, z.id) : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
           {pct && <>
             <text x={z.x + z.w / 2} y={z.y + z.h / 2 - 2} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>
             <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 18} textAnchor="middle" fontSize="15" fontWeight="700" fill="#fdba74" opacity="0.8" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>
