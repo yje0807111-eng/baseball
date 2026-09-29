@@ -129,8 +129,9 @@ export const RECIPES = {
     tone(t + land, { f: 190, f2: 90, d: 0.08, g: 0.3, dest: o });
     noise(t + land, { type: 'lowpass', f: 1500, d: 0.03, g: 0.1, dest: o });
   } },
-  /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 고르는 중이라 지금은 카드 날아가기 소리를 빌려 쓴다 */
-  draftPick: { alias: 'fly' },
+  /* ⑤ 드래프트 지명 — 내가 · AI 가 뽑을 때 같은 소리. 카드 뒤집어 던짐(ESM Board Game) 한 장, 음 2칸 내림 0.19초.
+     1초에 최대 4번 나서 다른 소리보다 작게 */
+  draftPick: { file: 'audio/sfx/card.mp3', gain: 0.26, vary: 0.04, len: 0.25 },
   /* 카드 뒤집기 — 카드 튕김 두 번(종이 결 잡음) + 맑은 음 하나 */
   flip: { vary: true, len: 0.5, fn(t, o, { noise, bell, note, jitter }) {
     noise(t, { type: 'highpass', f: 2800, d: 0.035, g: 0.13, dest: o });
