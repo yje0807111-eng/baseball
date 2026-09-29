@@ -220,7 +220,7 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
           {!QUAD[sel] && !pct && <><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r={Math.min(selBox.w, selBox.h) * 0.34} fill="none" stroke={GOLD} strokeWidth="3" /><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r="6" fill={GOLD} /></>}
         </g>
       )}
-      <Trails marks={marks} toPx={(v) => m + ((v + 1) / 2) * B} bendPx={B * 0.9} id="tz" />
+      <Trails marks={marks} toPx={(v) => m + ((v + 1) / 2) * B} id="tz" near={false} />
       {marks.map((p, i) => {
         const x = m + ((Math.max(-1.45, Math.min(1.45, p.x)) + 1) / 2) * B, y = m + ((Math.max(-1.45, Math.min(1.45, p.y)) + 1) / 2) * B, last = i === marks.length - 1;
         return (
@@ -283,30 +283,50 @@ export function duelAi(g, side, seq = []) {
   return { orders: guess ? { guess } : {}, guess };
 }
 /*
- * 공 꼬리 — 던진 공마다 마운드 쪽(존 위 가운데)에서 떨어진 자리까지 은은한 곡선. 구종마다 꺾이는 방향(BREAK)대로 휘고,
- * 끝으로 갈수록 진해진다. 방금 공만 0.35초에 그려지고(자주 보는 것 — 짧게) 지난 공은 흐리게.
- */
-/*
  * 구종별 꺾임 [가로, 세로] — 존 반폭 = 1, 오른손 투수 · 오른손 타자 기준(가로 + = 바깥 · 세로 + = 아래).
- * 공은 꺾이는 반대쪽에서 들어와 끝에서 꺾여 들어간다: 곡선의 조절점 = 가운데 − 꺾임 × 폭.
+ * 공은 꺾이는 반대쪽에서 들어와 끝에서 꺾여 들어간다(arcOf 에서 가로 × 1.3 · 세로 × 2.2 = 끝에서의 꺾임, 세로는 손이 판 아래라 올라오는 길에 묻혀 크게).
  * 직구는 거의 곧게(살짝 떠오름) · 투심은 몸쪽 아래로 · 커터는 바깥으로 짧게 · 슬라이더는 바깥으로 크게 ·
  * 커브는 크게 떨어지고 · 체인지업은 몸쪽 아래로 · 포크는 곧게 들어오다 뚝 떨어진다.
  */
-const BREAK = { fast: [0, -0.1], sinker: [-0.3, 0.25], cutter: [0.22, 0.05], slider: [0.45, 0.15], curve: [0.2, 0.6], change: [-0.2, 0.35], fork: [0, 0.55] };
-const arcOf = (toPx, bendPx, t, x, y) => {
-  const sx = toPx(0.05), sy = toPx(-1.75), ex = toPx(Math.max(-1.45, Math.min(1.45, x))), ey = toPx(Math.max(-1.45, Math.min(1.45, y)));
-  const b = BREAK[t] || [0, 0];
-  return { sx, sy, ex, ey, d: `M${sx} ${sy} Q${(sx + ex) / 2 - b[0] * bendPx} ${(sy + ey) / 2 - b[1] * bendPx} ${ex} ${ey}` };
+const BREAK = { fast: [0, -0.1], sinker: [-0.3, 0.25], cutter: [0.22, 0.05], slider: [0.45, 0.15], curve: [0.2, 0.8], change: [-0.2, 0.35], fork: [0, 0.55] };
+/*
+ * 공 길 — 원근으로 그린다(MLB The Show 투구 궤적처럼 카메라에 가까운 쪽이 굵다).
+ *  수비 판 = 투수 뒤에서 보는 판: 투수 손(판 아래 · 가까움 · 굵게, 오른손이면 조금 오른쪽)에서 나와 멀어지며 가늘어지고 끝에서 꺾여 조준점으로.
+ *  공격 판 = 타석에서 보는 판: 멀리 투수 손(존 위 가운데 · 가늘게)에서 다가오며 굵어진다.
+ * 깊이 t(손 0 → 홈 1)로 풀어 투영: 홈 배율 1 · 손 배율 k0(가까우면 4, 멀면 0.25).
+ * 공 자리 = 손 + (끝 − 꺾임 − 손)·t + 꺾임·t² — 꺾임이 뒤쪽에 몰려 끝에서 꺾여 들어간다.
+ */
+const arcOf = (toPx, t, x, y, near = true, hand = 'R') => {
+  const k0 = near ? 4 : 0.25, L = hand === 'L' ? -1 : 1;
+  const hx = (near ? 0.35 : -0.25) * L, hy = near ? 1.43 : -1.7;          // 손이 보이는 자리 — 수비는 판 아래 '몸쪽 · 바깥' 글자 사이(카메라 바로 앞 투수 손, 아래 단서 줄과 안 겹치게), 공격은 존 위 멀리
+  const cl = (v) => Math.max(-1.45, Math.min(1.45, v)), ex = cl(x), ey = cl(y);
+  const b = (BREAK[t] || [0, 0]).map((v, i) => v * (i ? 2.2 : 1.3)), wH = near ? 3.5 : 6;  // 꺾임(존 반폭 단위) · 홈에서의 굵기(px)
+  const P = [];
+  for (let i = 0; i <= 24; i++) {
+    const u = i / 24, k = 1 / (1 / k0 + (1 - 1 / k0) * u);
+    const wx = hx / k0 + (ex - b[0] - hx / k0) * u + b[0] * u * u, wy = hy / k0 + (ey - b[1] - hy / k0) * u + b[1] * u * u;
+    P.push([toPx(wx * k), toPx(wy * k), (wH * k) / 2]);
+  }
+  const side = (sg) => P.map(([px, py, w], i) => {
+    const [ax, ay] = P[Math.max(0, i - 1)], [bx, by] = P[Math.min(24, i + 1)], n = Math.hypot(bx - ax, by - ay) || 1;
+    return `${(px - (sg * w * (by - ay)) / n).toFixed(1)} ${(py + (sg * w * (bx - ax)) / n).toFixed(1)}`;
+  });
+  return { sx: P[0][0], sy: P[0][1], sw: P[0][2], ex: P[24][0], ey: P[24][1],
+    d: `M${P.map(([a, c]) => `${a.toFixed(1)} ${c.toFixed(1)}`).join(' L')}`,
+    rib: `M${side(1).join(' L')} L${side(-1).reverse().join(' L')} Z` };
 };
-function Trails({ marks, toPx, bendPx, id }) {
+/* 공 꼬리 — 던진 공마다 공 길 리본, 가까운 쪽 옅게 → 먼 쪽 진하게. 방금 공만 0.35초에 그려지고(자주 보는 것 — 짧게) 지난 공은 흐리게 */
+function Trails({ marks, toPx, id, near }) {
   return marks.map((p, i) => {
-    const { sx, sy, ex, ey, d } = arcOf(toPx, bendPx, p.t, p.x, p.y);
+    const a = arcOf(toPx, p.t, p.x, p.y, near, p.h);
     const last = i === marks.length - 1, gid = `${id}${i}`;
     return (
       <g key={i} style={{ pointerEvents: 'none' }} opacity={last ? 1 : 0.4}>
-        <defs><linearGradient id={gid} gradientUnits="userSpaceOnUse" x1={sx} y1={sy} x2={ex} y2={ey}><stop offset="0" stopColor={p.c} stopOpacity="0" /><stop offset="1" stopColor={p.c} stopOpacity=".6" /></linearGradient></defs>
-        <path d={d} fill="none" stroke={`url(#${gid})`} strokeWidth="5" strokeLinecap="round" pathLength="1" strokeDasharray="1"
-          style={last ? { animation: 'dlTrail .35s ease-out both' } : undefined} />
+        <defs>
+          <linearGradient id={gid} gradientUnits="userSpaceOnUse" x1={a.sx} y1={a.sy} x2={a.ex} y2={a.ey}><stop offset="0" stopColor={p.c} stopOpacity={near ? '.12' : '0'} /><stop offset="1" stopColor={p.c} stopOpacity=".6" /></linearGradient>
+          {last && <mask id={`${gid}m`}><path d={a.d} fill="none" stroke="#fff" strokeWidth="40" pathLength="1" strokeDasharray="1" style={{ animation: 'dlTrail .35s ease-out both' }} /></mask>}
+        </defs>
+        <path d={a.rib} fill={`url(#${gid})`} mask={last ? `url(#${gid}m)` : undefined} />
       </g>
     );
   });
@@ -354,7 +374,7 @@ const locKo = (t) => (Math.abs(t.x) <= 1 && Math.abs(t.y) <= 1 ? zoneKo(cellOf(t
  * 금색 원 = 이 투수가 흩어지는 범위(반쯤 이 안에 떨어진다 — 제구 · 피로로 커진다). 보조면 칸별 피안타 색 · 추천 자리(점선 원).
  */
 const PAD_B = 300, PAD_M = 50, PAD_W = PAD_B + PAD_M * 2, PAD_LIM = 1 + PAD_M / (PAD_B / 2) - 0.03;
-function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false, pk = 'fast' }) {
+function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false, pk = 'fast', hand = 'R' }) {
   const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B;
   const drag = useRef(false); // 누른 채 끄는 중 — 같은 틱의 이동도 바로 따라가게(상태 대신 ref)
   const at = (e) => {
@@ -386,18 +406,19 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
       {[1, 2].map((i) => <g key={i} stroke="rgba(255,255,255,.1)" style={{ pointerEvents: 'none' }}><line x1={PAD_M + cell * i} y1={PAD_M} x2={PAD_M + cell * i} y2={PAD_M + PAD_B} /><line x1={PAD_M} y1={PAD_M + cell * i} x2={PAD_M + PAD_B} y2={PAD_M + cell * i} /></g>)}
       <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" style={{ pointerEvents: 'none' }} />
       {recAt && <circle cx={px(recAt.x)} cy={px(recAt.y)} r="20" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeDasharray="4 4" style={{ pointerEvents: 'none' }} />}
-      <Trails marks={marks} toPx={px} bendPx={PAD_B * 0.9} id="tp" />
+      <Trails marks={marks} toPx={px} id="tp" near />
       {marks.map((p, i) => {
         const x = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.x))), y = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.y)));
         return <g key={i} style={{ pointerEvents: 'none' }}><circle cx={x} cy={y} r="14" fill={p.c} stroke="#05080f" strokeWidth="3" opacity="0.8" /><text x={x} y={y + 5} textAnchor="middle" fontSize="15" fontWeight="900" fill="#05080f">{i + 1}</text></g>;
       })}
-      {/* 예상 경로 — 고른 구종대로 마운드 쪽에서 조준점까지 휘어 들어오는 길(구종을 바꾸면 바로 바뀐다), 옅은 점선이 공 쪽으로 흐른다 */}
+      {/* 예상 경로 — 고른 구종대로 투수 손에서 나와 멀어지며 가늘어지고 끝에서 꺾여 조준점으로(구종을 바꾸면 바로 바뀐다). 손 자리에 옅은 공, 점선이 조준점 쪽으로 흐른다 */}
       {target && (() => {
-        const a = arcOf(px, PAD_B * 0.9, pk, target.x, target.y), c = DUEL_PITCH[pk]?.c || '#fff';
+        const a = arcOf(px, pk, target.x, target.y, true, hand), c = DUEL_PITCH[pk]?.c || '#fff';
         return (
           <g style={{ pointerEvents: 'none' }}>
-            <defs><linearGradient id="aimPath" gradientUnits="userSpaceOnUse" x1={a.sx} y1={a.sy} x2={a.ex} y2={a.ey}><stop offset="0" stopColor={c} stopOpacity="0" /><stop offset="1" stopColor={c} stopOpacity=".75" /></linearGradient></defs>
-            <path d={a.d} fill="none" stroke="url(#aimPath)" strokeWidth="7" strokeLinecap="round" />
+            <defs><linearGradient id="aimPath" gradientUnits="userSpaceOnUse" x1={a.sx} y1={a.sy} x2={a.ex} y2={a.ey}><stop offset="0" stopColor={c} stopOpacity=".3" /><stop offset="1" stopColor={c} stopOpacity=".85" /></linearGradient></defs>
+            <circle cx={a.sx} cy={a.sy} r={a.sw + 8} fill={c} fillOpacity=".18" stroke={c} strokeOpacity=".45" strokeWidth="1.5" />
+            <path d={a.rib} fill="url(#aimPath)" />
             <path d={a.d} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="2" strokeLinecap="round" pathLength="1" strokeDasharray="0.02 0.05" style={{ animation: 'dlFlow 1.6s linear infinite' }} />
           </g>
         );
@@ -535,7 +556,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
     return () => window.removeEventListener('keydown', key);
   });
 
-  const marks = shots.map((s) => ({ x: s.x, y: s.y, t: s.ev.pitch?.type, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
+  const marks = shots.map((s) => ({ x: s.x, y: s.y, t: s.ev.pitch?.type, h: pitcher.hand, c: DUEL_PITCH[s.ev.pitch?.type]?.c || '#fff' }));
   /* 구종 — 우리 투수(수비)의 레퍼토리 · 상대 투수(공격)의 구종 예측 버튼 */
   const myRep = repertoireOf(pitcher);
   const aimT = [[null, '예측 안 함'], ...repertoireOf(g.away.pitcher).map((t) => [t, DUEL_PITCH[t].ko])];
@@ -594,7 +615,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} pk={pk} />}
+          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} pk={pk} hand={pitcher.hand} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
