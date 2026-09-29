@@ -10,7 +10,7 @@
  * 결과 알림은 0.3초 안에 떠서 1초 머문다(자주 보는 것 — 짧게). 아무 데나 누르면 바로 걷힌다.
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST, TEMPO_MAX } from '../engine/pitchSim.js';
+import { pitchMix, repertoireOf, stealOdds, PITCHES, offenseOf, staminaOf, aimSpreadOf, hitChanceAt, batterHot, FOCUS_SPREAD, FOCUS_COST, TEMPO_MAX, tempoOf } from '../engine/pitchSim.js';
 import { artId } from '../data/artAlias.js';
 import { pitchTarget, ZONE } from './playScript.js';
 import { reducedMotion } from '../ui/motion.jsx';
@@ -426,15 +426,21 @@ function AssistSwitch({ assist, bonus, onAssist }) {
   );
 }
 
+/** 구종의 예상 구속 — 구위 60 이면 가장 느린 쪽, 105 면 가장 빠른 쪽(엔진과 같은 식, 흔들림 · 피로 빼고) */
+export const veloOfP = (pitcher, t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (st(pitcher, 'stuff', 79) - 60) / 45))); };
 /*
- * 수비 추천 — 타자가 덜 노리는 구종(우리 주무기 · 방금 공을 노리는 AI 와 거꾸로) +
+ * 수비 추천 — 구종: 완급 이득 × 안 읽힐 확률 − 읽혔을 때 손해를 가장 크게.
+ *   읽힐 확률 = AI 타자가 노리는 55% × 그 구종 몫(우리 배합 + 방금 공 · 두 번 연속이면 더), 읽히면 타자 +0.14(구종 예측 딱 맞음).
+ *   앞 공이 없으면(첫 공) 완급 이득이 0 이라 예전처럼 가장 덜 노리는 구종.
  * 자리: 2스트라이크면 타자 강한 코스 반대쪽 경계 밖(유인), 3볼이면 안전하게 안쪽, 그 밖엔 피안타가 가장 낮은 칸의 구석 쪽
  */
-export function recDefOf(g, seq = []) {
+export function recDefOf(g, seq = [], prevVelo = null) {
   const w = { ...pitchMix(g.home.pitcher) }, n = seq.length;
   if (n >= 2 && seq[n - 1] === seq[n - 2]) w[seq[n - 1]] += 0.4;
   else if (n) w[seq[n - 1]] += 0.15;
-  const pk = Object.entries(w).sort((a, b) => a[1] - b[1])[0][0];
+  const tot = Object.values(w).reduce((a, b) => a + b, 0);
+  const score = (t) => { const pg = 0.55 * (w[t] / tot); return tempoOf(prevVelo, veloOfP(g.home.pitcher, t)) * (1 - pg) - 0.14 * pg; };
+  const pk = Object.keys(w).sort((a, b) => score(b) - score(a))[0];
   const o = offenseOf(g), b = o.team.batters[o.idx % o.team.batters.length];
   if (g.strikes === 2 && g.balls < 3) return { pk, target: { high: { x: 0.3, y: 1.15 }, low: { x: 0.3, y: -1.15 }, in: { x: 1.15, y: 0.4 }, out: { x: -1.15, y: 0.4 }, even: { x: 0.6, y: 1.15 } }[batterHot(b)] };
   const L = Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)), z = L.indexOf(Math.min(...L)), k = g.balls === 3 ? 0.5 : 0.72;
@@ -587,13 +593,12 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   useEffect(() => { if (!okOf(cur, g)) { setCat('hit'); setPlay('power'); } });
 
   const mix = pitchMix(pitcher);
-  const stuff = st(pitcher, 'stuff', 79);
   const veloPct = (v) => Math.round(Math.max(0.08, Math.min(1, (v - 105) / 50)) * 100);
   const prevVelo = shots.length ? shots[shots.length - 1].ev.pitch?.velo ?? null : null; // 이 타석 앞 공(수싸움 판은 타석이 끝나면 닫힌다)
-  const veloOf = (t) => { const [lo, hi] = PITCHES[t].speed; return Math.round(lo + (hi - lo) * Math.max(0, Math.min(1, (stuff - 60) / 45))); };
+  const veloOf = (t) => veloOfP(pitcher, t);
   const hitting = off && cat === 'hit' && play !== 'wait';
   const rec = off && assist ? recOf(g) : {};
-  const recD = !off && assist ? recDefOf(g, shots.map((x) => x.ev.pitch?.type)) : {};
+  const recD = !off && assist ? recDefOf(g, shots.map((x) => x.ev.pitch?.type), prevVelo) : {};
   const canGo = waiting && (off ? okOf(cur, g) : target != null);
   const go = () => {
     if (!canGo) return;
