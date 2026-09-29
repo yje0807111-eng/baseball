@@ -42,19 +42,19 @@ const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const stealFrom = (g) => (g.bases[0] && !g.bases[1] ? 0 : g.bases[1] && !g.bases[2] ? 1 : null);
 export const DUEL_PLAYS = {
   hit: [
-    { k: 'power', ico: '💥', ko: '강공', sub: '장타 노림', order: { approach: 'power' } },
-    { k: 'contact', ico: '↗', ko: '밀어치기', sub: '삼진 · 병살 줄이기', order: { approach: 'contact' } },
-    { k: 'wait', ico: '👁', ko: '기다리기', sub: '볼 고르기', order: { patience: 1 } },
+    { k: 'power', ko: '강공', sub: '장타 ↑ · 헛스윙 ↑', order: { approach: 'power' } },
+    { k: 'contact', ko: '밀어치기', sub: '삼진 ↓ · 병살 ↓', order: { approach: 'contact' } },
+    { k: 'wait', ko: '기다리기', sub: '볼넷 ↑ · 스윙 ↓', order: { patience: 1 } },
   ],
   bunt: [
-    { k: 'sac', ico: '⬇', ko: '희생번트', sub: '주자 한 칸씩', order: { bunt: true }, ok: (g) => (g.bases[0] || g.bases[1]) && !g.bases[2] && g.outs < 2 },
-    { k: 'squeeze', ico: '🏠', ko: '스퀴즈', sub: '3루 주자 홈으로', order: { bunt: true }, ok: (g) => g.bases[2] && g.outs < 2 },
-    { k: 'drag', ico: '⚡', ko: '기습번트', sub: '타자도 1루로', order: { bunt: true, drag: true } },
+    { k: 'sac', ko: '희생번트', sub: '주자 진루 · 타자 아웃', order: { bunt: true }, ok: (g) => (g.bases[0] || g.bases[1]) && !g.bases[2] && g.outs < 2 },
+    { k: 'squeeze', ko: '스퀴즈', sub: '3루 주자 득점', order: { bunt: true }, ok: (g) => g.bases[2] && g.outs < 2 },
+    { k: 'drag', ko: '기습번트', sub: '타자 출루 노림', order: { bunt: true, drag: true } },
   ],
   run: [
-    { k: 'steal', ico: '🏃', ko: '도루', order: (g) => ({ steal: stealFrom(g) }), ok: (g) => stealFrom(g) != null },
-    { k: 'hnr', ico: '🔁', ko: '히트앤런', sub: '주자 출발 · 무조건 스윙', order: { hitAndRun: true }, ok: (g) => g.bases[0] && g.outs < 2 },
-    { k: 'dash', ico: '⏩', ko: '적극 주루', sub: '한 루 더 · 병살 줄이기', order: { dash: 1 }, ok: (g) => g.bases.some(Boolean) },
+    { k: 'steal', ko: '도루', order: (g) => ({ steal: stealFrom(g) }), ok: (g) => stealFrom(g) != null },
+    { k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 병살 ↓', order: { hitAndRun: true }, ok: (g) => g.bases[0] && g.outs < 2 },
+    { k: 'dash', ko: '적극 주루', sub: '한 루 더 · 병살 ↓', order: { dash: 1 }, ok: (g) => g.bases.some(Boolean) },
   ],
 };
 const CATS = [['hit', '타격'], ['bunt', '번트'], ['run', '주루']];
@@ -439,17 +439,15 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           {DUEL_PLAYS[cat].map((p, i) => (
             <button key={p.k} type="button" className={`opt ${play === p.k ? 'on' : ''}`} disabled={!okOf(p, g)} onClick={() => setPlay(p.k)}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
-              <span style={{ fontSize: 19, width: 24, textAlign: 'center' }}>{p.ico}</span>
               <b style={{ fontSize: 20, flex: 1 }}>{p.ko}</b>
-              <span style={{ fontSize: 15, color: '#cbd5e1' }}>{p.k === 'steal' ? (okOf(p, g) ? `성공 ${Math.round(stealOdds(g, stealFrom(g)) * 100)}%` : '') : p.sub}</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#cbd5e1' }}>{p.k === 'steal' ? (okOf(p, g) ? `성공 ${Math.round(stealOdds(g, stealFrom(g)) * 100)}%` : '') : p.sub}</span>
             </button>
           ))}
-          {hitting && <>
-            <span className="lbl" style={{ marginTop: 2 }}>노림</span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-              {AIM_T.map(([k, ko]) => <button key={ko} type="button" className={`opt ${guess === k ? 'on' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: 16, fontWeight: 800 }}>{ko}</button>)}
-            </div>
-          </>}
+          {/* 노림 — 늘 자리를 잡아 둔다(타격이 아니면 흐리게) · 탭을 바꿔도 판 높이가 그대로 */}
+          <span className="lbl" style={{ marginTop: 2, opacity: hitting ? 1 : 0.35 }}>노림</span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            {AIM_T.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: 16, fontWeight: 800 }}>{ko}</button>)}
+          </div>
         </>}
         <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '3px 0' }} />
         <div style={{ fontSize: 18, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><span className="lbl" style={{ marginRight: 12 }}>선택</span><span style={{ color: canGo || off ? '#fff' : MUTE }}>{pickKo}</span></div>
