@@ -487,7 +487,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
             {CATS.map(([k, ko]) => (
               <button key={k} type="button" className={`tab ${cat === k ? 'on' : ''}`} disabled={!DUEL_PLAYS[k].some((p) => okOf(p, g))} style={{ position: 'relative' }}
                 onClick={() => { setCat(k); setPlay((DUEL_PLAYS[k].find((p) => okOf(p, g)) || DUEL_PLAYS[k][0]).k); }}>
-                {ko}{catOf(rec.play) === k && <i style={{ position: 'absolute', right: 6, top: 6, width: 7, height: 7, borderRadius: '50%', background: '#e2e8f0' }} />}
+                {ko}{catOf(rec.play) === k && <i aria-label="추천" style={{ position: 'absolute', left: '50%', bottom: 3, transform: 'translateX(-50%)', width: 16, height: 2, borderRadius: 2, background: cat === k ? 'rgba(28,18,3,.45)' : 'rgba(255,255,255,.45)' }} />}
               </button>
             ))}
           </div>
