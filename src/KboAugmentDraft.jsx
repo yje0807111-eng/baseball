@@ -4906,6 +4906,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
      선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
   const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
+  /* 효과음: 선반에 새 보드가 깔릴 때(드래프트 시작 · 라운드 · 새로고침 · 시리즈 지정권) — 카드가 0.025초 간격으로 올라오는 동안
+     딜링 톡 8번(0.05초 간격, 점점 작게 · 대진표와 같은 소리). 카드가 자리 잡는 때(+0.12초)부터 */
+  useEffect(() => {
+    if (phase !== 'draft' || !series) return;
+    playSfx('deal', { seq: Array.from({ length: 8 }, (_, i) => ({ at: 0.12 + i * 0.05, g: 0.85 * 10 ** ((-0.45 * i) / 20) })) });
+  }, [series?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   /* 효과음: 남은 5초부터 초마다 째깍(같은 크기), 마지막 1초는 확정 소리. 내 차례 알림 종은 뺐다 — 지명 소리가 차례를 알려 준다 */
   useEffect(() => { if (live && phase === 'draft' && myTurn && clock >= 1 && clock <= 5) playSfx(clock === 1 ? 'tickLast' : 'tick'); }, [clock]); // eslint-disable-line react-hooks/exhaustive-deps
   /** 이 선수를 지금 지명할 수 없는 이유 — 라이브면 다른 구단이 데려간 것과 막판 자리 강제까지 본다 */
