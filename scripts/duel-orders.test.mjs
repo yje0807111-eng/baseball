@@ -184,14 +184,14 @@ test('집중 투구 — 흩어짐이 좁고 체력을 3구만큼 쓴다(많이 �
   expect(g.home.pitches).toBe(3);
 });
 
-test('구종 — 투수마다 직구 + 변화구 2~4개, 배합 합 1, 안 던지는 공을 찍으면 같은 계열로', async () => {
+test('구종 — 투수마다 직구 + 변화구 3~5개, 배합 합 1, 안 던지는 공을 찍으면 같은 계열로', async () => {
   const { repertoireOf, pitchMix, fitType, PITCHES } = await import('../src/engine/pitchSim.js');
   const power = man('pw', { stuff: 95, control: 80 }), fin = man('fn', { stuff: 78, control: 92 });
   for (const p of [power, fin, man('ev')]) {
     const r = repertoireOf(p);
     expect(r[0]).toBe('fast');
-    expect(r.length).toBeGreaterThanOrEqual(3);
-    expect(r.length).toBeLessThanOrEqual(5);
+    expect(r.length).toBeGreaterThanOrEqual(4);
+    expect(r.length).toBeLessThanOrEqual(6);
     expect(Object.values(pitchMix(p)).reduce((a, b) => a + b, 0)).toBeCloseTo(1);
     for (const t of r) expect(PITCHES[t]).toBeTruthy();
   }

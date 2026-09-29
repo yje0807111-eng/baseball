@@ -50,21 +50,21 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const tb = (side, kind) => (side?.team?.buff || 0) + (side?.team?.edge?.[kind] || 0); // 팀 보정 + 증강 팀 보너스
 
 /*
- * 투수의 구종 — 직구 + 유형별 변화구 2~4개(선수 id 로 정해져 같은 투수는 늘 같은 레퍼토리).
- *  힘으로 누르는 투수(구위 ≥ 제구 + 5): 슬라이더 · 포크 · 커터 · 커브 / 맞혀 잡는 투수(제구 ≥ 구위 + 5): 체인지업 · 커브 · 투심 · 슬라이더 /
- *  고른 투수: 슬라이더 · 체인지업 · 커브 · 커터. 안정성 80 이상이면 하나 더.
+ * 투수의 구종 — 직구 + 유형별 변화구 3~5개(선수 id 로 정해져 같은 투수는 늘 같은 레퍼토리).
+ *  힘으로 누르는 투수(구위 ≥ 제구 + 5): 슬라이더 · 포크 · 커터 · 커브 · 체인지업 / 맞혀 잡는 투수(제구 ≥ 구위 + 5): 체인지업 · 커브 · 투심 · 슬라이더 · 커터 /
+ *  고른 투수: 슬라이더 · 체인지업 · 커브 · 커터 · 투심. 안정성 80 이상이면 하나 더.
  */
 export function repertoireOf(pitcher) {
   const s = st(pitcher, 'stuff', 80), c = st(pitcher, 'control', 75);
-  const pool = s >= c + 5 ? ['slider', 'fork', 'cutter', 'curve'] : c >= s + 5 ? ['change', 'curve', 'sinker', 'slider'] : ['slider', 'change', 'curve', 'cutter'];
+  const pool = s >= c + 5 ? ['slider', 'fork', 'cutter', 'curve', 'change'] : c >= s + 5 ? ['change', 'curve', 'sinker', 'slider', 'cutter'] : ['slider', 'change', 'curve', 'cutter', 'sinker'];
   let h = 11; for (const ch of String(pitcher?.id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  const n = Math.min(4, 2 + (h % 2) + (st(pitcher, 'stability', 75) >= 80 ? 1 : 0));
+  const n = Math.min(5, 3 + (h % 2) + (st(pitcher, 'stability', 75) >= 80 ? 1 : 0));
   return ['fast', ...pool.slice(0, n)];
 }
 /** 구종 배합 — 직구 비중은 구위로(예전과 같은 식), 나머지는 레퍼토리 앞쪽일수록 많이 */
 export function pitchMix(pitcher) {
   const fast = clamp(0.4 + (st(pitcher, 'stuff', 80) - 80) * 0.015, 0.3, 0.65);
-  const rest = repertoireOf(pitcher).slice(1), w = [0.45, 0.3, 0.15, 0.1].slice(0, rest.length), tot = w.reduce((a, b) => a + b, 0);
+  const rest = repertoireOf(pitcher).slice(1), w = [0.4, 0.26, 0.16, 0.1, 0.08].slice(0, rest.length), tot = w.reduce((a, b) => a + b, 0);
   return Object.fromEntries([['fast', fast], ...rest.map((t, i) => [t, ((1 - fast) * w[i]) / tot])]);
 }
 /** 이 투수가 안 던지는 구종을 찍으면 같은 계열(없으면 주무기 변화구)로 — 전술 '변화구 승부' 같은 옛 지시가 그대로 먹게 */

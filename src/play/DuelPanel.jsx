@@ -656,7 +656,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
         {!off ? <>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}><span className="lbl">구종</span><AssistSwitch assist={assist} bonus={bonus} onAssist={onAssist} /></div>
           {myRep.map((t, i) => [t, DUEL_PITCH[t]]).map(([t, p], i) => (
-            <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''} ${recD.pk === t ? 'rec' : ''}`} onClick={() => setPk(t)} style={{ minHeight: myRep.length > 3 ? 46 : 52 }}>
+            <button key={t} type="button" className={`opt ${pk === t ? 'on' : ''} ${recD.pk === t ? 'rec' : ''}`} onClick={() => setPk(t)} style={{ minHeight: myRep.length > 5 ? 40 : myRep.length > 3 ? 46 : 52 }}>
               <b className="disp" style={{ fontSize: 17, color: MUTE, width: 10 }}>{i + 1}</b>
               <i style={{ width: 16, height: 16, borderRadius: '50%', background: p.c, flex: 'none', boxShadow: `0 0 12px ${p.c}` }} />
               <b style={{ fontSize: 20 }}>{p.ko}</b>{recD.pk === t && <span className="rtag">추천</span>}<i style={{ flex: 1 }} />
@@ -693,7 +693,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
           ))}
           {/* 구종 예측 — 늘 자리를 잡아 둔다(타격이 아니면 흐리게) · 탭을 바꿔도 판 높이가 그대로 */}
           <span className="lbl" style={{ marginTop: 2, opacity: hitting ? 1 : 0.35 }}>구종 예측</span>
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${aimT.length > 4 ? 3 : 4}, 1fr)`, gap: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${aimT.length === 5 || aimT.length === 6 ? 3 : 4}, 1fr)`, gap: 6 }}>
             {aimT.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''} ${rec.guess === k ? 'rec' : ''}`} onClick={() => setGuess(guess === k ? null : k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: k ? 16 : 15, fontWeight: 800 }}>{ko}</button>)}
           </div>
         </>}
