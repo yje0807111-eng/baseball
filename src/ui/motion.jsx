@@ -21,7 +21,7 @@ export const reducedMotion = () => typeof window !== 'undefined' && !!window.mat
  * 지원하지 않는 브라우저 · 애니메이션 줄이기면 그냥 바꾼다.
  */
 export function navTo(update, kind = 'fwd', ready = null) {
-  if (!ready && (kind === 'fwd' || kind === 'back')) playSfx(kind === 'fwd' ? 'navIn' : 'navBack'); // 옆 탭은 단추 소리로 충분
+  if (!ready && (kind === 'fwd' || kind === 'back')) playSfx('nav', { auto: true }); // ① 화면 이동 — 단추가 방금 냈으면 건너뜀. 옆 탭은 단추 쪽(data-sfx)에서
   /* 갈 화면을 아직 받는 중이면 옛 화면을 그대로 두고 기다렸다가 넘어간다(검은 판 없이). 너무 오래면 2.5초에 그냥 넘어감 */
   if (ready) {
     let done = false;

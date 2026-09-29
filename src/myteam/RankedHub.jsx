@@ -235,7 +235,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
       {tierUp && <TierUp from={tierUp.from} to={tierUp.to} onClose={() => setTierUp(null)} />}
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b px-7" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
+        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
           <b className="text-t2 font-extrabold text-white">랭크전 시즌 {s.season} · {s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}</b>
@@ -329,7 +329,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                   {inPost && <Row k="비기면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
                 </div>
               </div>
-              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
+              <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
                 {inPost ? `${stage.ko} 시작 ▶` : `정규 ${s.round + 1}차전 시작 ▶`}
               </button>
             </>
@@ -364,7 +364,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 );
               })()}
               {s.claimed
-                ? <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onNewSeason}>시즌 {s.season + 1} 시작 ▶</button>
+                ? <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onNewSeason}>시즌 {s.season + 1} 시작 ▶</button>
                 : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onClaim}>보상 받기 · {reward.rp >= 0 ? '+' : ''}{reward.rp} RP · {reward.gold} G</button>}
             </>
           ) : null}

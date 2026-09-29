@@ -238,7 +238,7 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
       {/* 5) 다음 행동 */}
       <div className="fx-fade flex items-center gap-2 border-t border-white/10 pt-4" style={at(INTRO.actions)}>
         {rest.map((a) => <button key={a.label} type="button" className="ui-btn ui-cut" onClick={a.onClick}>{a.label}</button>)}
-        {pri && <button type="button" className="fx-sheen-once ui-btn ui-cut pri ml-auto min-h-[3.2rem] px-10 text-t2" style={at(INTRO.actions + 200)} onClick={pri.onClick}>{pri.label}</button>}
+        {pri && <button type="button" data-sfx="nav" className="fx-sheen-once ui-btn ui-cut pri ml-auto min-h-[3.2rem] px-10 text-t2" style={at(INTRO.actions + 200)} onClick={pri.onClick}>{pri.label}</button>}
       </div>
     </section>
   );

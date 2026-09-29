@@ -286,7 +286,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/gauntlet.webp)' }} aria-hidden="true" />
       {/* 머리 줄 — 정비로 · 이름 · 진행도 · 내 전적 */}
       <div className="relative flex h-[4.75rem] shrink-0 items-center gap-4 px-7" style={{ background: 'rgba(6,10,19,.72)', boxShadow: 'inset 0 -1px 0 rgba(255,255,255,.08)' }}>
-        <button type="button" className="ui-btn ui-cut px-3.5 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
+        <button type="button" data-sfx="nav" className="ui-btn ui-cut px-3.5 py-1.5 text-t3" style={{ '--c': '6px' }} onClick={onBack}>← 정비</button>
         <b className="text-t1 font-black text-white">구단 정복</b>
         <span className="flex items-baseline gap-1.5 border-l border-white/15 pl-4">
           <b className="font-display text-t1 font-extrabold" style={{ color: GOLD }}><Count value={gaunt.done ? rivals : at} from={memo ? (memo.done ? rivals : memo.at) : undefined} delay={MOVE_WAIT + 400} dur={400} /></b>
@@ -342,7 +342,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
             <span className="grid h-24 w-24 place-items-center rounded-full" style={{ background: 'linear-gradient(180deg,#fde68a,#d69e2e)', boxShadow: `0 0 40px ${GOLD}` }}><Cup size={48} lit /></span>
             <b className="text-t1 font-black" style={{ color: GOLD }}>정복 완료</b>
             <b className="font-display text-t2 text-[#e8ecf2]">{rec.w}승 {rec.l}패</b>
-            <button type="button" className="ui-btn ui-cut pri mt-2 min-h-[3.4rem] px-12 text-t2" style={{ '--c': '10px' }} onClick={onExit}>모드 고르기</button>
+            <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-2 min-h-[3.4rem] px-12 text-t2" style={{ '--c': '10px' }} onClick={onExit}>모드 고르기</button>
           </section>
         )}
       </div>

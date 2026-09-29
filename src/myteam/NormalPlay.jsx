@@ -319,16 +319,16 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
       )}
       <CapBar team={team} sm />
       <div className="mt-auto flex flex-col gap-2">
-        {!ready ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>
-          : single ? <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>경기 시작 ▶</button>
+        {!ready ? <button type="button" data-sfx="nav" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>
+          : single ? <button type="button" data-sfx="nav" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>경기 시작 ▶</button>
             : t ? (
               <>
-                <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, false)}>
+                <button type="button" data-sfx="nav" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, false)}>
                   {t.done ? '결과 · 보상 받기 ▶' : `${rounds[t.round].ko} 대진표로 ▶`}
                 </button>
                 {!t.done && <button type="button" className="ui-btn ui-cut w-full py-2 text-t3" onClick={() => onTourney(format, true)}>새 대진으로 다시 시작</button>}
               </>
-            ) : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, true)}>{format}강 시작 ▶</button>}
+            ) : <button type="button" data-sfx="nav" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, true)}>{format}강 시작 ▶</button>}
       </div>
     </aside>
   );

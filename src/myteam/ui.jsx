@@ -322,7 +322,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   return (
     <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7" style={{ viewTransitionName: 'mt-topbar' }}>
       {onBack && (
-        <button type="button" onClick={onBack} aria-label="메인으로"
+        <button type="button" data-sfx="nav" onClick={onBack} aria-label="메인으로"
           className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
       <div className="shrink-0 leading-none">
@@ -387,13 +387,12 @@ export const TopTabs = ({ items, value, onChange, label = '메뉴' }) => {
   const cur = items.findIndex((it) => it.key === value);
   const pick = (it, i) => {
     if (it.key === value) return;
-    playSfx('section'); // 본문이 통째로 바뀌는 탭 — 기본 톡 대신 밀리는 소리(방향과 상관없이 같게)
     navTo(() => onChange(it.key), i > cur ? 'tab-r' : 'tab-l');
   };
   return (
     <nav className="mt-tabs ml-2" aria-label={label}>
       {items.map((it, i) => (
-        <button key={it.key} type="button" data-sfx="none" className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
+        <button key={it.key} type="button" data-sfx={value === it.key ? 'none' : 'nav'} className={`mt-tab ${value === it.key ? 'on' : ''}`} aria-pressed={value === it.key} onClick={() => pick(it, i)}>
           {it.label}
           {it.n != null && <small className="n">{it.n}</small>}
           {!!it.badge && <b className="bd">{it.badge}</b>}

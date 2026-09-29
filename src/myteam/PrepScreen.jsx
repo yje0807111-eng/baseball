@@ -70,7 +70,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       <style>{KEYFRAMES}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/ready.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b border-[#f5d27a]/20 px-7" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label={`${backLabel} 돌아가기`}>←</button>
+        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label={`${backLabel} 돌아가기`}>←</button>
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">{sub}</p>
           <b className="text-t1 font-black text-white">{title}</b>

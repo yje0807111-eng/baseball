@@ -59,13 +59,13 @@ function MatchDay({ onPlay }) {
             <p className="mt-lab">경기 모드</p>
             <b className="mt-1 block text-[52px] font-black leading-tight text-white">오늘의 경기장</b>
           </div>
-          <button type="button" onClick={() => onPlay()} className="mt-btn pri" style={{ minHeight: 78, fontSize: 26, padding: '0 50px', borderRadius: 18 }}>
+          <button type="button" data-sfx="nav" onClick={() => onPlay()} className="mt-btn pri" style={{ minHeight: 78, fontSize: 26, padding: '0 50px', borderRadius: 18 }}>
             플레이 ▶
           </button>
         </div>
         <div className="mt-5 grid grid-cols-4 gap-2.5">
           {modes.map((m) => (
-            <button key={m.tab} type="button" onClick={() => onPlay(m.tab)}
+            <button key={m.tab} type="button" data-sfx="nav" onClick={() => onPlay(m.tab)}
               className="mt-cut relative h-[120px] overflow-hidden bg-cover bg-center text-left transition hover:-translate-y-0.5 hover:brightness-110"
               style={{ '--c': '16px', backgroundImage: `url(${m.img})`, boxShadow: `inset 0 1px 0 rgba(255,255,255,.14), inset 0 -3px 0 ${m.c}` }}>
               <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,15,.1), rgba(5,8,15,.9))' }} />
@@ -272,10 +272,10 @@ export default function LobbyScreen({ account, onLocker, onPlay, onShop, onAugme
         <MatchDay onPlay={onPlay} />
 
         <div className="flex min-h-0 flex-col gap-3">
-          <Tile img="ui/mt/tile-locker.webp" a="#34d399" sfx="enter" title="내 라커" desc="선수 영입 · 타순 · 코치" onClick={onLocker} style={{ flex: 1 }} />
-          <Tile img="ui/mt/tile-shop.webp" a="#fde047" sfx="enter" title="상점" desc="선수 능력치 · 캡 늘리기" onClick={onShop} style={{ flex: 1 }} />
-          <Tile img="ui/mt/tile-aug.webp" a="#c4b5fd" sfx="enter" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
-          <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" sfx="enter" title="기록" desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-locker.webp" a="#34d399" sfx="nav" title="내 라커" desc="선수 영입 · 타순 · 코치" onClick={onLocker} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-shop.webp" a="#fde047" sfx="nav" title="상점" desc="선수 능력치 · 캡 늘리기" onClick={onShop} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-aug.webp" a="#c4b5fd" sfx="nav" title="증강" desc="나올 증강 고르고 강화하기" onClick={onAugments} style={{ flex: 1 }} />
+          <Tile img="ui/mt/tile-record.webp" a="#7dd3fc" sfx="nav" title="기록" desc="경기 기록 · 도감 · 주간 과제" onClick={onRecord} style={{ flex: 1 }} />
           <WeekCard account={account} onOpen={onWeek || onRecord} />
         </div>
       </div>

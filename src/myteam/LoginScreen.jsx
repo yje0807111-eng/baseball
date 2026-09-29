@@ -193,7 +193,7 @@ function LocalPanel({ onDone }) {
       <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
         <input value={nick} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && go()}
           placeholder="감독 이름" maxLength={12} className={INPUT} style={{ '--c': '10px' }} />
-        <Btn pri onClick={() => go()} style={{ '--c': '10px', padding: '0 34px' }}>시작하기</Btn>
+        <Btn pri data-sfx="nav" onClick={() => go()} style={{ '--c': '10px', padding: '0 34px' }}>시작하기</Btn>
       </div>
       {err && <p className="mt-2 text-t3 text-red-400">{err}</p>}
     </div>

@@ -342,7 +342,7 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
           <p className="mt-cut px-3 py-2 text-center text-t3 font-bold text-[#f87171]"
             style={{ ...cut(8), background: 'rgba(248,113,113,.12)', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.45)' }}>{startBlock}</p>
         )}
-        <Btn lg pri a={US} disabled={!!startBlock} style={{ ...cut(12), minHeight: '4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>
+        <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), minHeight: '4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>
       </div>
     </aside>
   );

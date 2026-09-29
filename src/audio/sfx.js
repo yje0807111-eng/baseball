@@ -33,7 +33,28 @@ export function sfxContext() {
   bus._out = out;
   const n = ctx.sampleRate; noiseBuf = ctx.createBuffer(1, n, n);
   const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+  loadFiles();
   return ctx;
+}
+
+/* 녹음 소리(파일) — 라이브러리 원본을 다듬어 public/audio/sfx 에 둔 것. 처음 소리를 낼 때 한꺼번에 받아 풀어 둔다 */
+const buffers = new Map();
+let filesAsked = false;
+function loadFiles() {
+  if (filesAsked || !ctx) return; filesAsked = true;
+  if (import.meta.env?.DEV) window.__sfxBufs = buffers; // 개발 모드 확인용
+  for (const r of Object.values(RECIPES)) if (r.file && !buffers.has(r.file)) {
+    buffers.set(r.file, null);
+    fetch(r.file).then((x) => x.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((b) => buffers.set(r.file, b)).catch(() => {});
+  }
+}
+/** 파일 소리 한 번 — 부를 때마다 빠르기를 살짝 흔들어(vary) 같은 소리가 기계처럼 반복되지 않게 */
+function sample(t, out, r) {
+  const buf = buffers.get(r.file); if (!buf) return;
+  const s = ctx.createBufferSource(); s.buffer = buf;
+  if (r.vary) s.playbackRate.value = 1 + (Math.random() * 2 - 1) * r.vary;
+  const g = ctx.createGain(); g.gain.value = r.gain ?? 1;
+  s.connect(g).connect(out); s.start(t);
 }
 export function setSfxLevel(v, m = muted) { level = v; muted = m; }
 
@@ -70,11 +91,12 @@ const jitter = (base, cents) => base * 2 ** (((Math.random() * 2 - 1) * cents) /
 
 /* 음 이름 — 5음 순번: 0 D · 1 E · 2 F# · 3 A · 4 B */
 export const RECIPES = {
-  /* 탭 전환 · 보조 단추 — 나무 조각을 톡: 짧은 사인 + 아주 짧은 고음 잡음. 가장 자주 나서 가장 작게 */
-  tab: { vary: true, len: 0.1, fn(t, o, { tone, noise, note, jitter }) {
-    tone(t, { f: jitter(note(3, 5), 25), f2: jitter(note(3, 5), 25) * 0.9, d: 0.055, g: 0.16, dest: o });
-    noise(t, { type: 'highpass', f: 5000, d: 0.012, g: 0.04, dest: o });
-  } },
+  /* ② 기본 누름 — 화면 안 단추 · 요소. 아날로그 UI 단추 딸깍(ESM Board Game · GDC 2026 묶음) 64ms. 가장 자주 나서 가장 작게 */
+  tab: { file: 'audio/sfx/tap.mp3', gain: 0.32, vary: 0.04, len: 0.1 },
+  /* ① 화면 이동 — 메인 구역 · 플레이 · 왼쪽 네비 · 경기 시작 · 위 네비 · 뒤로 가기가 모두 이 소리 하나.
+     깊은 걸쇠 딸깍(ESM Lock & Mechanism) + 광택지 책장 넘김(Cinematic Sound Design Paper Foley)을 겹쳐 음 2칸 내림, 0.5초.
+     단추에서 먼저 울리면(pointerdown) 뒤따르는 화면 전환(navTo · opts.auto)은 0.5초 안이면 다시 내지 않는다 */
+  nav: { file: 'audio/sfx/nav.mp3', gain: 0.42, vary: 0.02, covers: ['tab', 'press'], len: 0.6 },
   /* 주 단추 — 톡 + 아래 옥타브 두께 */
   press: { vary: true, len: 0.15, fn(t, o, { tone, note, jitter }) {
     tone(t, { type: 'triangle', f: jitter(note(0, 5), 15), d: 0.09, g: 0.14, dest: o });
@@ -82,8 +104,7 @@ export const RECIPES = {
     tone(t, { f: 170, f2: 85, d: 0.06, g: 0.15, dest: o });
   } },
   /* 화면 들어감 — 잡음이 위로 쓸려 올라감 / 돌아옴 — 아래로 */
-  navIn: { len: 0.3, fn(t, o, { noise }) { noise(t, { f: 450, f2: 2600, q: 0.9, a: 0.07, d: 0.15, g: 0.24, dest: o }); } },
-  navBack: { len: 0.3, fn(t, o, { noise }) { noise(t, { f: 2400, f2: 420, q: 0.9, a: 0.05, d: 0.15, g: 0.2, dest: o }); } },
+  navIn: { alias: 'nav' }, navBack: { alias: 'nav' }, // 화면 들어감 · 돌아옴도 ① 화면 이동 소리
   /* 팝업 열림 — 두 음이 오름(A → D) / 닫힘 — 내림, 더 작게 */
   popOpen: { len: 0.2, fn(t, o, { tone, note }) {
     tone(t, { type: 'triangle', f: note(3, 5), d: 0.07, g: 0.12, dest: o });
@@ -151,23 +172,7 @@ export const RECIPES = {
     bell(t + 0.11, { f: note(0, 6), ratio: 2, idx: 1.5, d: 0.55, g: 0.2, dest: o });
   } },
 
-  /* ── 화면 이동 ── */
-  /* 큰 구역 들어가기(메인의 내 라커 · 상점 · 증강 · 기록) — 누르는 톡보다 단단한 '확정 톡'(게임 UI 에서 고르는 순간을 무겁게 하는 층) +
-     낮은 몸통 + 종이가 두세 번 파닥이며 넘어가 내려앉는 소리. 밝은 종은 쓰지 않는다.
-     눌림 톡 · 화면 들어감 쓸림을 대신한다(covers) */
-  enter: { len: 0.45, covers: ['tab', 'navIn'], fn(t, o, { tone, noise, note }) {
-    noise(t, { f: 1300, q: 2, d: 0.028, g: 0.2, dest: o });                         // 확정 톡(가운데 음역)
-    tone(t, { f: 175, f2: 68, d: 0.13, g: 0.22, dest: o });                            // 낮은 몸통
-    tone(t, { type: 'triangle', f: note(0, 3), d: 0.16, g: 0.07, dest: o });          // D3 — 곡 조성에 붙는 바닥
-    [0.03, 0.068, 0.1].forEach((dt, i) => noise(t + dt, { f: 2300 - i * 450, q: 1.1, a: 0.008, d: 0.035, g: 0.1 - i * 0.02, dest: o })); // 종이 파닥임
-    noise(t + 0.13, { type: 'lowpass', f: 700, a: 0.01, d: 0.09, g: 0.12, dest: o }); // 내려앉음
-  } },
-  /* 화면 안 위 탭(라커 · 상점 · 증강 · 기록 메뉴) — 짧은 쓸림 + 기본 톡과 같은 결의 음 하나. 방향과 상관없이 같은 소리 */
-  section: { vary: true, len: 0.2, covers: ['tab'], fn(t, o, { tone, noise, note, jitter }) {
-    noise(t, { f: 2600, q: 1.2, a: 0.015, d: 0.08, g: 0.15, dest: o });
-    tone(t, { type: 'triangle', f: jitter(note(3, 5), 15), f2: jitter(note(3, 5), 15) * 0.94, a: 0.003, d: 0.07, g: 0.12, dest: o });
-    tone(t, { f: 150, f2: 90, d: 0.05, g: 0.06, dest: o });
-  } },
+  enter: { alias: 'nav' }, section: { alias: 'nav' }, // 예전 이름 — ① 화면 이동 소리로
 
   /* ── 증강 ── */
   /* 증강 고르기 창이 뜸 — 반짝이가 차오르고 카드가 놓이는 박자(120ms + 110ms 씩)에 맞춰 종이 한 음씩 오름. n: 카드 수 */
@@ -202,7 +207,8 @@ export const RECIPES = {
 /** 확인용 — 소리 하나를 소리 없이 그려 최고 · 평균 크기(dB)를 잰다 */
 export async function measure(name, opts = {}) {
   if (!sfxContext()) return null;
-  const r = RECIPES[name]; const live = ctx; const sr = live.sampleRate;
+  const r = RECIPES[RECIPES[name]?.alias || name]; if (!r || r.file) return null; // 파일 소리는 재지 않는다
+  const live = ctx; const sr = live.sampleRate;
   const off = new OfflineAudioContext(1, Math.ceil(((r.len ?? 1.5) + 0.3) * sr), sr);
   ctx = off; const out = off.createGain(); out.gain.value = 1; out.connect(off.destination);
   try { r.fn(0.01, out, { tone, bell, noise, note, jitter: (f) => f, ...opts }); } finally { ctx = live; }
@@ -215,25 +221,29 @@ export async function measure(name, opts = {}) {
 /** 효과음 내기 — name: RECIPES 의 이름, opts.gain 으로 이번만 크기 조절 */
 const lastAt = new Map(); const hushUntil = new Map();
 export function play(name, opts = {}) {
+  if (RECIPES[name]?.alias) name = RECIPES[name].alias;
   const r = RECIPES[name]; if (!r || muted || level <= 0) return;
   if (typeof document !== 'undefined' && document.hidden) return;
   /* 같은 소리가 40ms 안에 또 오면 한 번만(개발 모드 이중 실행 · 같은 화면에 같은 조각이 둘) */
-  const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < 40) return; lastAt.set(name, now);
+  const now = performance.now(); if (now - (lastAt.get(name) ?? -1e9) < (opts.auto ? 500 : 40)) return; lastAt.set(name, now);
   if ((hushUntil.get(name) ?? 0) > now) return; // 더 큰 소리가 이 소리를 대신했다(covers)
   r.covers?.forEach((c) => hushUntil.set(c, now + 450)); // 눌림 → 화면 전환까지 겹치는 기본 소리를 잠깐 막는다
   if (import.meta.env?.DEV) (window.__sfx ||= []).push([name, Math.round(now)]); // 개발 모드 확인용 — 무엇이 울렸나
   if (!sfxContext()) return;
   if (ctx.state === 'suspended') ctx.resume();
-  const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary ? 1 - Math.random() * 0.15 : 1);
+  const out = ctx.createGain(); out.gain.value = level * (opts.gain ?? 1) * (r.vary && !r.file ? 1 - Math.random() * 0.15 : 1);
   out.connect(bus);
   const t = ctx.currentTime + 0.005;
-  r.fn(t, out, { tone, bell, noise, note, jitter: r.vary ? jitter : (f) => f, ...opts });
+  if (r.file) sample(t, out, r);
+  else r.fn(t, out, { tone, bell, noise, note, jitter: r.vary ? jitter : (f) => f, ...opts });
   setTimeout(() => out.disconnect(), (r.len ?? 1.5) * 1000 + 200);
 }
 
 /* 단추 누름 — 모든 단추 · 탭에 한 곳에서. 주 단추(.pri)는 두께 있는 'press', 나머지는 'tab'.
    data-sfx="이름" 으로 바꾸고, data-sfx="none" 이면 소리 없음(제 순간 소리를 따로 내는 단추) */
 if (typeof window !== 'undefined') {
+  /* 녹음 소리는 받아 풀 시간이 필요하다 — 첫 누름이 빈소리가 되지 않게 미리 연다(소리는 누른 뒤에야 난다) */
+  setTimeout(sfxContext, 0);
   window.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     const el = e.target.closest?.('button, [role="tab"], [role="button"], a[href]');

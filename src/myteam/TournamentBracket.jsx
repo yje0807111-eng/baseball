@@ -129,7 +129,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
         @keyframes tbIn { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }`}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
       <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b px-7" style={{ borderColor: 'rgba(251,191,36,.25)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
+        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
         <div>
           <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
           <b className="text-t2 font-extrabold text-white">{title || `${size}강 토너먼트`} · {t.done ? finish.ko : ROUNDS[t.round].ko}</b>
