@@ -478,8 +478,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
         </div>
       </div>
 
-      {/* 고르는 판 */}
-      <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, padding: 18, display: 'grid', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
+      {/* 고르는 판 — 공격 · 수비 같은 자리 · 같은 크기(400 × 470). 고르기는 위에서, 결정 줄은 늘 맨 아래 */}
+      <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, height: 470, boxSizing: 'border-box', padding: 18, display: 'flex', flexDirection: 'column', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>
         {!off ? <>
           <span className="lbl">구종</span>
           {Object.entries(DUEL_PITCH).map(([t, p], i) => (
@@ -525,7 +525,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
             {AIM_T.map(([k, ko]) => <button key={ko} type="button" disabled={!hitting} className={`opt ${hitting && guess === k ? 'on' : ''} ${rec.guess === k ? 'rec' : ''}`} onClick={() => setGuess(k)} style={{ minHeight: 44, padding: 0, justifyContent: 'center', fontSize: k ? 16 : 15, fontWeight: 800 }}>{ko}</button>)}
           </div>
         </>}
-        <div style={{ height: 1, background: 'rgba(255,255,255,.1)', margin: '3px 0' }} />
+        <div style={{ height: 1, flex: 'none', background: 'rgba(255,255,255,.1)', margin: 'auto 0 3px' }} />
         <div style={{ fontSize: 18, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><span className="lbl" style={{ marginRight: 12 }}>선택</span><span style={{ color: canGo || off ? '#fff' : MUTE }}>{pickKo}</span></div>
         <div style={{ display: 'grid', gridTemplateColumns: off ? '1fr 88px' : '1fr 88px 88px', gap: 6 }}>
           <button type="button" className="go" disabled={!canGo} onClick={go} style={{ height: 60, fontSize: 21 }}>{off ? '이 작전으로' : '던지기'} ▶</button>
