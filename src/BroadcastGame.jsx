@@ -400,9 +400,8 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const introWait = useRef(null);
   const introTeam = (t, mine) => {
     const f = (mine ? flagByKey(myBanner()) : teamFlag(t.name)) || null;
-    const key = f?.key || 'dream';
     const all = [...(t.batters || []), t.pitchers?.[0]].filter(Boolean);
-    return { name: t.name, color: f?.color || (mine ? '#10b981' : '#94a3b8'), emblem: `ui/clubs/${key}.webp`, bg: f ? `ui/teams/bg-${key}.webp` : null,
+    return { name: t.name, color: f?.color || (mine ? '#10b981' : '#94a3b8'),
       ovr: all.length ? Math.round(all.reduce((n, p) => n + (p.overall || 0), 0) / all.length) : '-', starter: t.pitchers?.[0]?.name || null };
   };
   const [paused, setPaused] = useState(false);
