@@ -164,7 +164,7 @@ export const RECIPES = {
   /* ⑨ 증강 고름 — 큰 보상(성공 스팅어) 앞 1초. 이 창에서 가장 큰 소리 */
   augPick: { file: 'audio/sfx/aug-pick.mp3', gain: 0.4, len: 1.1, covers: ['nav'], coverMs: 1100 }, // 고른 뒤 0.62초에 경기로 넘어가도 화면 이동 소리는 겹치지 않게
   /* 강화 — 단추 누름은 ③ 확정(주 단추), 성공은 ⑥ 작은 보상, 실패는 작은 보상을 음 7칸 내려 어둡게(성공음의 그림자) 0.8초.
-     지금 증강 강화는 실패가 없어 upFail 은 아직 부르는 곳이 없다 */
+     실패는 라커 아이템 사용의 강화 실패에서(카드가 닿는 0.42초) */
   augUpgrade: { alias: 'rewardS' },
   upFail: { file: 'audio/sfx/up-fail.mp3', gain: 0.36, len: 0.9 },
 };

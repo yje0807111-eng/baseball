@@ -539,7 +539,7 @@ function ItemsTab({ team, gold = 0, onShop, itemId, target, onPick, onTarget, on
             <span className="text-t4 text-gray-300">{fx.lv != null ? `+${fx.lv} 강화 · ${fx.label}` : fx.label}</span>
             {fx.fail ? (
               /* 실패 — 카드가 날아가 닿는 때(0.42초)에 붉은 글씨 · 낮은 소리. 단계 · 능력치는 그대로 */
-              <b className="fx-bump ml-auto text-t3 text-[#f87171]" style={{ '--d': '420ms' }}>강화 실패<SfxAt name="rankDown" delay={420} /></b>
+              <b className="fx-bump ml-auto text-t3 text-[#f87171]" style={{ '--d': '420ms' }}>강화 실패<SfxAt name="upFail" delay={420} /></b>
             ) : fx.to != null ? (
               <span className="ml-auto flex items-baseline gap-1.5 font-display">
                 <Count sfx value={fx.to} from={fx.from} delay={420} dur={520} className="text-t2 font-extrabold text-white" />
