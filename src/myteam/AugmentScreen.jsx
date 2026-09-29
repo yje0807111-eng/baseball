@@ -70,7 +70,7 @@ export default function AugmentScreen({ account, onBack }) {
     if (lv >= AUG_LEVEL_MAX) return;
     if (aug.upgradeTickets < need) { setMsg(`강화권 ${need - aug.upgradeTickets}장 부족`); return; }
     commit({ ...aug, upgradeTickets: aug.upgradeTickets - need, levels: { ...aug.levels, [a.id]: need } }, `${a.name} +${need}`);
-    playSfx('augUpgrade', { lv: need });
+    setTimeout(() => playSfx('augUpgrade'), 120); // 누름(③ 확정)이 먼저 들리고 성공(작은 보상)이 이어지게
   };
 
   const list = pool.filter((a) => (view === 'fav' ? favs.includes(a.id) : view === 'ban' ? bans.includes(a.id) : true) && (type === 'all' || a.type === type));
@@ -143,7 +143,7 @@ export default function AugmentScreen({ account, onBack }) {
             </div>
             <div className="mt-auto flex flex-col gap-2.5">
               {msg && <p className="text-center text-t3 text-amber-200">{msg}</p>}
-              <button type="button" className="mt-btn pri lg w-full" data-sfx="none" disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
+              <button type="button" className="mt-btn pri lg w-full" disabled={lv >= AUG_LEVEL_MAX || aug.upgradeTickets < lv + 1} onClick={() => upgrade(picked)}>
                 {lv >= AUG_LEVEL_MAX ? `최대 레벨 +${AUG_LEVEL_MAX}` : <>+{lv + 1} 강화 <span className="text-t3 opacity-70">· 강화권 {lv + 1}장</span></>}
               </button>
               <div className="flex gap-2">

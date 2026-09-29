@@ -180,14 +180,10 @@ export const RECIPES = {
   augReroll: { alias: 'augReveal' },
   /* ⑨ 증강 고름 — 큰 보상(성공 스팅어) 앞 1초. 이 창에서 가장 큰 소리 */
   augPick: { file: 'audio/sfx/aug-pick.mp3', gain: 0.4, len: 1.1, covers: ['nav'], coverMs: 1100 }, // 고른 뒤 0.62초에 경기로 넘어가도 화면 이동 소리는 겹치지 않게
-  /* 증강 강화 — 강화할 레벨(lv)만큼 종이 5음으로 한 칸씩 오르고 끝 음에 반짝이. 높은 레벨일수록 길고 높게 */
-  augUpgrade: { len: 1.6, fn(t, o, { bell, noise, tone, note, lv = 1 }) {
-    tone(t, { f: 150, f2: 70, d: 0.1, g: 0.18, dest: o });
-    const k = 2 + lv; const step = 0.07;
-    for (let i = 0; i < k; i++) bell(t + i * step, { f: note(i, 5), ratio: 3.01, idx: 1.1, d: i === k - 1 ? 0.9 : 0.3, g: i === k - 1 ? 0.15 : 0.1, dest: o });
-    bell(t + (k - 1) * step, { f: note(k - 1 + 5, 5), ratio: 2.01, idx: 0.8, d: 0.9, g: 0.075, dest: o }); // 끝 음 옥타브 위를 겹쳐 밝게
-    noise(t + (k - 1) * step, { type: 'highpass', f: 7000, a: 0.03, d: 0.5, g: 0.045, dest: o });
-  } },
+  /* 강화 — 단추 누름은 ③ 확정(주 단추), 성공은 ⑥ 작은 보상, 실패는 작은 보상을 음 7칸 내려 어둡게(성공음의 그림자) 0.8초.
+     지금 증강 강화는 실패가 없어 upFail 은 아직 부르는 곳이 없다 */
+  augUpgrade: { alias: 'rewardS' },
+  upFail: { file: 'audio/sfx/up-fail.mp3', gain: 0.36, len: 0.9 },
 };
 
 /** 확인용 — 소리 하나를 소리 없이 그려 최고 · 평균 크기(dB)를 잰다 */
