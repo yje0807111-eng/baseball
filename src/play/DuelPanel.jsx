@@ -379,25 +379,38 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 186, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} grid={2} chase={false} sel={aim} marks={marks} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
-        {/* 이 타석 투구 순서 — 존의 번호 점과 같은 번호 · 같은 색 */}
-        {shots.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 6, maxWidth: 560 }}>
-            {shots.map((x, i) => {
-              const t = DUEL_PITCH[x.ev.pitch?.type];
-              const [ko, c] = CALL_KO[x.ev.call] || ['', '#fff'];
-              return (
-                <span key={i} className="pn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '4px 12px 4px 5px', borderRadius: 999, fontSize: 15, fontWeight: 700, whiteSpace: 'nowrap' }}>
-                  <b style={{ width: 22, height: 22, borderRadius: '50%', display: 'grid', placeItems: 'center', background: t?.c || '#fff', color: '#05080f', fontSize: 13 }}>{i + 1}</b>
-                  {t?.ko}<span style={{ color: c }}>{ko}</span>
-                </span>
-              );
-            })}
+        {/*
+          투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
+          투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
+        */}
+        <div className="pn" style={{ display: 'grid', gridTemplateColumns: '84px 1fr', columnGap: 14, rowGap: 10, padding: '12px 20px', borderRadius: 16, width: 640, boxSizing: 'border-box', alignItems: 'start' }}>
+          {shots.length > 0 && <>
+            <span style={{ fontSize: 13, fontWeight: 800, color: MUTE, letterSpacing: '.08em', lineHeight: '22px' }}>투구</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 8px', fontSize: 15, fontWeight: 700 }}>
+              {shots.map((x, i) => {
+                const t = DUEL_PITCH[x.ev.pitch?.type];
+                const [ko, c] = CALL_KO[x.ev.call] || ['', '#fff'];
+                return (
+                  <React.Fragment key={i}>
+                    {i > 0 && <span style={{ color: '#475569' }}>›</span>}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+                      <b style={{ width: 18, height: 18, borderRadius: '50%', display: 'grid', placeItems: 'center', background: t?.c || '#fff', color: '#05080f', fontSize: 11 }}>{i + 1}</b>
+                      {t?.ko}<span style={{ color: c }}>{ko}</span>
+                    </span>
+                  </React.Fragment>
+                );
+              })}
+            </div>
+            <i style={{ gridColumn: '1 / -1', height: 1, background: 'rgba(255,255,255,.07)' }} />
+          </>}
+          <span style={{ fontSize: 13, fontWeight: 800, color: SIDE_C[side], letterSpacing: '.08em', lineHeight: '22px' }}>{off ? '상대 투수' : '상대 타자'}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 20px', fontSize: 15, fontWeight: 600, color: '#e2e8f0' }}>
+            {scoutOf(g, side).map((t) => (
+              <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, lineHeight: '22px', whiteSpace: 'nowrap' }}>
+                <i style={{ width: 5, height: 5, borderRadius: '50%', flex: 'none', background: SIDE_C[side] }} />{t}
+              </span>
+            ))}
           </div>
-        )}
-        {/* 스카우팅 — 상대 투수 · 타자 성향(공마다 맞히는 단서 대신) */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 6, maxWidth: 640 }}>
-          <b className="pn" style={{ padding: '6px 14px', borderRadius: 999, fontSize: 15, color: SIDE_C[side] }}>🔎 {off ? '상대 투수' : '상대 타자'}</b>
-          {scoutOf(g, side).map((t) => <span key={t} className="pn" style={{ padding: '6px 14px', borderRadius: 999, fontSize: 16, fontWeight: 700, whiteSpace: 'nowrap' }}>{t}</span>)}
         </div>
       </div>
 
