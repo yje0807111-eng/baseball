@@ -378,8 +378,8 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
       ...(i === popOut ? { animation: 'outPop .5s ease-out', boxShadow: '0 0 14px #ef4444' } : null) }} />)}<span />
   </div>
 );
-/** 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트(count 가 없으면 뺀다 — 수싸움 판은 볼카운트를 따로 크게 둔다) */
-export function Scoreboard({ g, home, away, count = null, justOut = -1, className = '' }) {
+/** 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트(count 가 없거나 bases 가 false 면 뺀다 — 수싸움 판은 주자 · 볼카운트를 가운데에 크게 둔다) */
+export function Scoreboard({ g, home, away, count = null, bases = true, justOut = -1, className = '' }) {
   const cMy = '#34d399', cOpp = '#f87171';
   return (
     <div className={`mt-cut mt-glass pointer-events-none flex items-center ${className}`} style={{ '--c': '18px' }}>
@@ -408,10 +408,12 @@ export function Scoreboard({ g, home, away, count = null, justOut = -1, classNam
           );
         })}
       </div>
-      <span className="flex items-center gap-3 px-4">
-        <Diamond bases={g.bases} size={60} off="rgba(255,255,255,.45)" />
-        {count && <Bso b={count.b} s={count.s} o={count.o} dot={12} font={12} gap={5} rowGap={4} off="rgba(255,255,255,.4)" lab="text-white/70" popOut={justOut} />}
-      </span>
+      {(bases || count) && (
+        <span className="flex items-center gap-3 px-4">
+          {bases && <Diamond bases={g.bases} size={60} off="rgba(255,255,255,.45)" />}
+          {count && <Bso b={count.b} s={count.s} o={count.o} dot={12} font={12} gap={5} rowGap={4} off="rgba(255,255,255,.4)" lab="text-white/70" popOut={justOut} />}
+        </span>
+      )}
     </div>
   );
 }
@@ -878,7 +880,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       )}
       {/* 승부처 — 수싸움 판이 중계 위를 덮는다. 타석이 끝나면 걷혀 중계가 결과를 보여 준다 */}
       {duel && (
-        <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} />} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
+        <DuelPanel g={g} side={duel.side} board={<Scoreboard g={g} home={home} away={away} bases={false} />} waiting={!!duel.waiting} tell={duel.tell} reveal={duel.reveal}
           shots={g.events.slice(duel.start).filter((e) => e.pitch).map(shotOf)}
           opp={{ short: shortTeam(away.name), flag: teamFlag(away.name) }} me={{ flag: flagByKey(myBanner()) }}
           onGo={(o) => { const done = duelWait.current; if (done) { duelWait.current = null; done(o); } }}

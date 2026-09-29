@@ -326,8 +326,16 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
       <div className="pn" style={{ position: 'absolute', left: '50%', top: 28, transform: 'translateX(-50%)', padding: '12px 26px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 16, whiteSpace: 'nowrap', boxShadow: `inset 0 0 0 1.5px ${GOLD}` }}>
         <b className="disp" style={{ fontSize: 18, color: GOLD, letterSpacing: '.18em' }}>{off ? '우리 공격' : '우리 수비'}</b><b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
       </div>
-      {/* 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 색은 중계 볼카운트와 같게 */}
-      <div className="pn" style={{ position: 'absolute', left: '50%', top: 98, transform: 'translateX(-50%)', padding: '12px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 30 }}>
+      {/* 주자 · 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 모양 · 색은 중계 점수판과 같게(주자 주황 · B 초록 · S 노랑 · O 빨강) */}
+      <div className="pn" style={{ position: 'absolute', left: '50%', top: 92, transform: 'translateX(-50%)', padding: '6px 28px 6px 18px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 30 }}>
+        <svg viewBox="0 0 100 100" style={{ width: 66, height: 66 }} aria-label="주자">
+          {[[74, 55], [50, 31], [26, 55]].map(([x, y], i) => (
+            <rect key={`${i}${!!g.bases[i]}`} x={x - 13} y={y - 13} width="26" height="26" rx="3" transform={`rotate(45 ${x} ${y})`}
+              fill={g.bases[i] ? '#f97316' : 'transparent'} stroke={g.bases[i] ? 'none' : 'rgba(255,255,255,.5)'} strokeWidth={g.bases[i] ? 0 : 2.4}
+              style={g.bases[i] ? { filter: 'drop-shadow(0 0 6px #f97316)' } : null} />
+          ))}
+        </svg>
+        <i style={{ width: 1, alignSelf: 'stretch', margin: '8px 0', background: 'rgba(255,255,255,.14)' }} />
         {[['B', g.balls, 3, '#22c55e'], ['S', g.strikes, 2, '#facc15'], ['O', g.outs, 2, '#ef4444']].map(([l, n, m, c]) => (
           <span key={l} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <b className="disp" style={{ fontSize: 26, color: c, width: 18 }}>{l}</b>
@@ -345,9 +353,24 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
       </div>
 
       {/* 존 + 단서 */}
-      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 176, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
+      <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : 178, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
         {off ? <Zone size={300} grid={2} chase={false} sel={aim} marks={marks} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
           : <Zone size={360} sel={zone} marks={marks} onPick={waiting ? setZone : undefined} />}
+        {/* 이 타석 투구 순서 — 존의 번호 점과 같은 번호 · 같은 색 */}
+        {shots.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 6, maxWidth: 560 }}>
+            {shots.map((x, i) => {
+              const t = DUEL_PITCH[x.ev.pitch?.type];
+              const [ko, c] = CALL_KO[x.ev.call] || ['', '#fff'];
+              return (
+                <span key={i} className="pn" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '4px 12px 4px 5px', borderRadius: 999, fontSize: 15, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  <b style={{ width: 22, height: 22, borderRadius: '50%', display: 'grid', placeItems: 'center', background: t?.c || '#fff', color: '#05080f', fontSize: 13 }}>{i + 1}</b>
+                  {t?.ko}<span style={{ color: c }}>{ko}</span>
+                </span>
+              );
+            })}
+          </div>
+        )}
         <div className="pn" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderRadius: 999, fontSize: 19, fontWeight: 700 }}>
           🔎 {tell || <span style={{ color: MUTE, fontWeight: 600 }}>단서 없음</span>}
         </div>
