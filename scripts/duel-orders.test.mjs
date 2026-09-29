@@ -80,3 +80,19 @@ test('칸을 직접 찍으면(exact) 존에 더 자주 · AI 가 뽑은 자리(n
   expect(ev.pitch.corner).toBe(0);
   expect(ev.pitch.inZone ? ev.pitch.zone : 0).toBe(0);
 });
+
+test('수싸움 상황 한 줄 — 급한 것부터(끝내기 · 만루 · 득점권 · 아웃)', async () => {
+  const { situationOf } = await import('../src/play/DuelPanel.jsx');
+  const R = {};
+  const at = (o) => ({ inning: 5, outs: 0, bases: [null, null, null], home: { runs: 2 }, away: { runs: 2 }, ...o });
+  expect(situationOf(at({ inning: 9, bases: [null, R, null] }), 'off')).toBe('끝내기 찬스');
+  expect(situationOf(at({ bases: [R, R, R] }), 'off')).toBe('만루 찬스');
+  expect(situationOf(at({ bases: [null, null, R], home: { runs: 1 } }), 'off')).toBe('동점 찬스');
+  expect(situationOf(at({ bases: [R, null, null] }), 'off')).toBe('진루 찬스');
+  expect(situationOf(at({}), 'off')).toBe('선두 타자 출루');
+  expect(situationOf(at({ bases: [R, R, R] }), 'def')).toBe('만루 위기');
+  expect(situationOf(at({ bases: [null, R, null], home: { runs: 3 } }), 'def')).toBe('동점 위기');
+  expect(situationOf(at({ inning: 9, outs: 1, home: { runs: 4 } }), 'def')).toBe('승리까지 아웃 2개');
+  expect(situationOf(at({ bases: [R, null, null], outs: 1 }), 'def')).toBe('병살 찬스');
+  expect(situationOf(at({ outs: 2 }), 'def')).toBe('이닝 마무리');
+});

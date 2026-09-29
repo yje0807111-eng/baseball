@@ -63,20 +63,25 @@ const okOf = (p, g) => !p.ok || !!p.ok(g);
 const playOf = (k) => Object.values(DUEL_PLAYS).flat().find((p) => p.k === k);
 const catOf = (k) => CATS.find(([c]) => DUEL_PLAYS[c].some((p) => p.k === k))[0];
 
-/** 이 타석의 목표 한 줄 — 같은 선택이라도 노릴 것이 바뀐다(우리 = 홈) */
-function goalOf(g, side) {
-  const lead = g.home.runs - g.away.runs, [b1, b2, b3] = g.bases, o = g.outs;
+/*
+ * 지금 상황 한 줄 — 중계 자막처럼 두세 마디(만루 위기 · 득점 찬스 · 승리까지 아웃 2개). 우리 = 홈.
+ * 위에서부터 먼저 걸리는 것 하나만: 가장 급한 것(끝내기 · 만루)이 먼저, 그다음 점수에 닿는 주자, 없으면 아웃 · 선두 타자.
+ */
+export function situationOf(g, side) {
+  const lead = g.home.runs - g.away.runs, [b1, b2, b3] = g.bases, o = g.outs, risp = !!(b2 || b3);
   if (side === 'off') {
-    if (g.inning >= 9 && lead <= 0 && (b2 || b3)) return lead === 0 ? '안타면 끝내기' : '장타면 동점';
-    if (b3 && o < 2) return '외야 뜬공이면 1점';
-    if (b1 && !b2 && o < 2) return '병살 조심 · 띄우거나 장타';
-    if (b2 || b3) return lead < 0 ? `안타면 추격 · ${-lead}점 차` : '적시타로 달아나기';
-    return '출루 먼저';
+    if (g.inning >= 9 && lead === 0 && (risp || (b1 && b2 && b3))) return '끝내기 찬스';
+    if (b1 && b2 && b3) return '만루 찬스';
+    if (risp) return lead === -1 ? '동점 찬스' : lead === 0 ? '역전 찬스' : lead < 0 ? '추격 찬스' : '추가점 찬스';
+    if (b1) return '진루 찬스';
+    return o === 0 ? '선두 타자 출루' : '출루 먼저';
   }
-  if (b3 && o < 2) return '삼진이면 실점 없음';
-  if (b1 && o < 2) return '땅볼이면 병살';
-  if (lead > 0 && lead <= 2) return `${lead}점 앞섬 · 장타만 막기`;
-  return '이 타자만 막으면 이닝 끝';
+  if (b1 && b2 && b3) return '만루 위기';
+  if (risp) return lead === 1 ? '동점 위기' : lead === 0 ? '실점 위기' : lead < 0 ? '추가 실점 위기' : '실점 위기';
+  if (g.inning >= 9 && lead > 0) return `승리까지 아웃 ${3 - o}개`;
+  if (b1 && o < 2) return '병살 찬스';
+  if (o === 2) return '이닝 마무리';
+  return o === 0 ? '선두 타자 막기' : '타자 잡기';
 }
 
 const CSS = `
@@ -333,7 +338,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, tell, shot
         <img src={`ui/nav/duel-${side}.webp`} alt="" style={{ width: 54, height: 54, borderRadius: '50%', display: 'block' }} />
         <b style={{ fontSize: 26, fontWeight: 900, color: SIDE_C[side] }}>{off ? '공격' : '수비'}</b>
         <i style={{ width: 1, height: 26, background: 'rgba(255,255,255,.22)' }} />
-        <b style={{ fontSize: 21 }}>{goalOf(g, side)}</b>
+        <b style={{ fontSize: 21 }}>{situationOf(g, side)}</b>
       </div>
       {/* 주자 · 볼카운트 — 존 바로 위, 가장 먼저 눈이 가는 자리. 주자판은 세 루가 그려진 폭에 딱 맞춘 viewBox(위아래 · 양옆 여백을 판 안쪽 여백과 같게). 모양 · 색은 중계 점수판과 같게(주자 주황 · B 초록 · S 노랑 · O 빨강) */}
       <div className="pn" style={{ position: 'absolute', left: '50%', top: 98, transform: 'translateX(-50%)', padding: '8px 28px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 26 }}>
