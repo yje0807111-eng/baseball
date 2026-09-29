@@ -146,11 +146,8 @@ export const RECIPES = {
     noise(t, { type: 'lowpass', f: 900, d: 0.09, g: 0.2, dest: o });
     noise(t + 0.004, { f: 2600, q: 2, d: 0.02, g: 0.12, dest: o });
   } },
-  /* 보상 빛 가루 — 종소리 아르페지오 D F# A D + 고음 반짝이 잡음. 드문 순간이라 가장 크게 */
-  reward: { len: 1.2, fn(t, o, { bell, noise, note }) {
-    [note(0, 6), note(2, 6), note(3, 6), note(0, 7)].forEach((f, i) => bell(t + i * 0.065, { f, ratio: 3.01, idx: 1.6, d: 0.7, g: 0.16, dest: o }));
-    noise(t + 0.1, { type: 'highpass', f: 7000, a: 0.08, d: 0.5, g: 0.035, dest: o });
-  } },
+  /* ⑥ 큰 보상 — 경기 승리 · 랭크 등급 오름 · 구단 정복 완료. 성공 스팅어 전체(ESM Anime Game Power Up) 1.5초 — 작은 보상은 같은 소리의 앞부분 */
+  reward: { file: 'audio/sfx/reward.mp3', gain: 0.4, len: 1.6 },
   /* 골드 들어옴 — 동전 두 번(B → E, 금속 결) / 나감 — 내려가는 두 음, 더 작고 짧게 */
   goldIn: { vary: true, len: 0.4, fn(t, o, { bell, note, jitter }) {
     bell(t, { f: jitter(note(4, 6), 10), ratio: 5.4, idx: 1, d: 0.22, g: 0.12, dest: o });
