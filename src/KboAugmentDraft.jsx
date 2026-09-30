@@ -1899,14 +1899,11 @@ export const KEYFRAMES = `
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
 .aug-num { font: inherit; color: #86efac; } /* 글과 똑같은 글자 — 색만 */
 .aug-num.neg { color: #fca5a5; }
-.aug-gold .aug-burst { position: absolute; left: 50%; top: 32%; width: 560px; height: 560px; margin: -280px 0 0 -280px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .4s;
-  background: repeating-conic-gradient(rgba(245,210,122,.2) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, #000 5%, transparent 62%); mask: radial-gradient(circle, #000 5%, transparent 62%); animation: augSpin 30s linear infinite; }
-.aug-gold.hot .aug-burst { opacity: 1; }
 @keyframes augSpin { to { transform: rotate(360deg); } }
 .aug-sky { position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 45%, rgba(124,58,237,.3), transparent 70%); }
 .aug-rays { position: absolute; left: 50%; top: 45%; width: 1700px; height: 1700px; margin: -850px 0 0 -850px; border-radius: 50%; background: repeating-conic-gradient(rgba(196,181,253,.07) 0 4deg, transparent 4deg 14deg); animation: augSpin 90s linear infinite; -webkit-mask: radial-gradient(circle, #000 8%, transparent 60%); mask: radial-gradient(circle, #000 8%, transparent 60%); }
 .aug-dust { position: absolute; inset: 0; background-image: radial-gradient(1.5px 1.5px at 12% 20%, #fff8, transparent), radial-gradient(1px 1px at 30% 70%, #fff6, transparent), radial-gradient(1.5px 1.5px at 55% 30%, #c4b5fd99, transparent), radial-gradient(2px 2px at 85% 45%, #c4b5fdaa, transparent), radial-gradient(1px 1px at 44% 88%, #fff6, transparent), radial-gradient(1.5px 1.5px at 92% 18%, #fff7, transparent); }
-@media (prefers-reduced-motion: reduce) { .aug-rays, .aug-gold .aug-burst, .aug-gold .aug-shine { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .aug-rays, .aug-gold .aug-shine { animation: none; } }
 .aug-hd { display: flex; align-items: center; gap: 14px; width: 520px; font-size: 14px; font-weight: 800; color: #f5d27a; }
 .aug-hd::before, .aug-hd::after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6)); }
 .aug-hd::after { background: linear-gradient(90deg, rgba(245,210,122,.6), transparent); }
@@ -3825,7 +3822,6 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
       onFocus={() => onHot?.(index)} onBlur={() => onHot?.(-1)}
       className={`aug-card aug-gold group relative block h-[32rem] w-[21rem] text-left focus:outline-none ${state}`}>
       {state === 'take' && <><span className="aug-ring" /><span className="aug-ring late" /></>}
-      <span className="aug-burst" aria-hidden="true" />
       <span className="aug-face">
         <span className="aug-inner">
           <span className="aug-window">
