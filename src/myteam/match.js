@@ -25,7 +25,10 @@ export function lineupOf(roster, bench = []) {
   return out.sort((a, b) => (b.stats.speed + b.stats.contact) - (a.stats.speed + a.stats.contact)).slice(0, 9);
 }
 
-/** 코치진 효과를 선수 능력치에 얹는다 */
+/**
+ * 코치진 효과를 선수 능력치에 얹는다. 체력은 투수 체력 능력치에 그대로 — 엔진은 체력 1 = 1구 더(pitchSim armLimit).
+ * 도루는 선수가 아니라 팀 보정이라 여기서 얹지 않는다 — prep.js matchTeamOf 가 edge.steal 로 넘긴다
+ */
 export function applyStaff(roster, staff) {
   const e = staffEffect(staff);
   if (!e.bat && !e.field && !e.pitch && !e.stamina) return roster;
@@ -34,7 +37,7 @@ export function applyStaff(roster, staff) {
     if (p.type === 'pitcher') {
       s.stuff = (s.stuff ?? 78) + e.pitch;
       s.control = (s.control ?? 78) + e.pitch;
-      s.stability = (s.stability ?? 78) + Math.round(e.stamina / 3);
+      s.stamina = (s.stamina ?? 80) + e.stamina;
     } else {
       s.contact = (s.contact ?? 78) + e.bat;
       s.power = (s.power ?? 78) + e.bat;

@@ -183,7 +183,7 @@ export function stealOdds(g, from) {
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
   return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0)
-    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
+    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0) + (offenseOf(g).team?.edge?.steal || 0), 0.08, 0.95); // edge.steal = 코치진 도루
 }
 
 /*

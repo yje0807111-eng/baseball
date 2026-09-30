@@ -4166,7 +4166,7 @@ export function applyAugsTo(team, augs = [], env = {}) {
   return {
     ...team, roster,
     ...(team.batters ? { batters: team.batters.map((p) => byId.get(p.id) || p) } : {}),
-    edge: { bat: (next.edge?.bat || 0) - (base.edge?.bat || 0), pit: (next.edge?.pit || 0) - (base.edge?.pit || 0) },
+    edge: { bat: (next.edge?.bat || 0) - (base.edge?.bat || 0), pit: (next.edge?.pit || 0) - (base.edge?.pit || 0), ...(team.edge?.steal ? { steal: team.edge.steal } : {}) }, // 코치진 도루는 그대로
     usage: { ...(team.usage || {}), ...usage },
   };
 }
