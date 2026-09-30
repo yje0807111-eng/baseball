@@ -703,6 +703,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = duelRef.current ? {} : pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
+        /*
+         * 이 타석에 난 점수 — 엔진은 이미 더했지만 전광판은 주자가 홈을 밟을 때까지 붙잡는다.
+         * 여기서(다시 그리기 전에) 바로 붙잡아야 한다 — 접은 타석은 아래 빨리감기 동안 몇 번 그려져,
+         * 늦게 붙잡으면 숫자가 먼저 올랐다가 내려갔다가 다시 올랐다(2026-09-30).
+         */
+        const scoredNow = (fold ? folded : [ev]).reduce((n, e) => n + (e.runs || 0), 0);
+        const scoreSide = ev.top ? 'away' : 'home';
+        if (scoredNow > 0) setScoreHold((h) => ({ ...h, [scoreSide]: h[scoreSide] + scoredNow }));
         /* 수싸움 — 타석이 끝나면 판을 걷어 중계가 결과를 보여 주게, 아니면 방금 공을 판에 알린다 */
         if (duelRef.current) {
           const D2 = duelRef.current;
@@ -746,11 +754,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
 
         }
-        if (ev.runs > 0 && !quiet() && curSpeed() < 3 && !reducedMotion()) {
-          const side = ev.top ? 'away' : 'home';
-          setScoreHold((h) => ({ ...h, [side]: h[side] + ev.runs }));
-          /* 친 공이면 주자가 홈을 밟는 때(결과가 드러난 뒤 한 박자의 0.2)에 — 전엔 타구가 날아가는 중에 먼저 떴다 */
-          setTimeout(() => { if (aliveRef.current) scoreFly(side, ev.runs, ev.top ? '#f87171' : '#34d399'); }, told + (ev.call === 'inplay' ? beat * 0.2 : 0));
+        if (scoredNow > 0) {
+          /* 친 공이면 주자가 홈을 밟는 때(결과가 드러난 뒤 한 박자의 0.2) — 연출이 있으면 +N 이 날아가 닿을 때 숫자를 풀고,
+             없으면(스킵 · 3배속 이상 · 줄이기) 그 때에 바로 푼다 */
+          const home = told + (ev.call === 'inplay' ? beat * 0.2 : 0);
+          const fx = !quiet() && curSpeed() < 3 && !reducedMotion();
+          setTimeout(() => {
+            if (!aliveRef.current) return;
+            if (fx) scoreFly(scoreSide, scoredNow, ev.top ? '#f87171' : '#34d399');
+            else setScoreHold((h) => ({ ...h, [scoreSide]: Math.max(0, h[scoreSide] - scoredNow) }));
+          }, home);
         }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => {
