@@ -309,7 +309,7 @@ function SideBlock({ sides, onPick, opponent }) {
                   title={why.length ? why.map((w) => w.label).join(' · ') : o.tip}
                   className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(pick), color: pick ? '#fff' : '#9ca3af' }}>
                   {o.ko}
-                  <FxChips fx={o.fx} dim={!pick} />
+                  <FxChips fx={o.fx} main={o.main} on={pick} />
                   {!!why.length && <b className="absolute right-1.5 top-0.5 text-t4" style={{ color: WARN }}>★</b>}
                 </button>
               );

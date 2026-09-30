@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>작전 판 정리 목업</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<!--
+  작전 판 글 줄이기 6가지 — 위: 정비 구역 작전 판(420px) · 아래: 경기 안 작전 고르기 판(공격, 352px)
+  1 대표 효과 하나   2 고른 것만 칩   3 칩 없이 한 줄 글   4 이름만 + 아래 한 줄   5 한 줄 목록   6 대표 효과 + 고르면 대가
+  대표 효과는 작전마다 가장 크게 움직인 것 하나(tacsim2 측정)
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .tabs { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.95); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 8px 18px; border-radius: 9px; font-weight: 800; font-size: 15px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .grid { display: grid; grid-template-columns: repeat(3, 440px); gap: 70px; justify-content: center; padding: 60px 0 0; }
+  .cap { margin: 0 0 8px 4px; font-size: 17px; font-weight: 800; color: #fbbf24; } .cap small { color: #94a3b8; font-weight: 700; font-size: 13px; margin-left: 6px; }
+  .pn { width: 420px; padding: 12px 16px 14px; border-radius: 18px; background: linear-gradient(170deg, rgba(24,26,44,.95), rgba(10,12,22,.95)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .sec + .sec { margin-top: 10px; } .sec > p { margin: 0 0 6px; font-size: 13px; font-weight: 800; color: #cbd5e1; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .o { border-radius: 10px; background: rgba(255,255,255,.045); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); min-height: 40px; padding: 6px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+  .o.on { background: rgba(16,185,129,.16); box-shadow: inset 0 0 0 2px #10b981; }
+  .o b { font-size: 15px; font-weight: 800; color: #d1d5db; } .o.on b { color: #fff; }
+  .chip { font-size: 11.5px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
+  .up { color: #86efac; background: rgba(34,197,94,.14); } .dn { color: #fca5a5; background: rgba(239,68,68,.14); }
+  .t { font-size: 12px; font-weight: 700; color: #94a3b8; } .t .u { color: #86efac; } .t .d { color: #fca5a5; }
+  .line { margin-top: 5px; padding: 5px 10px; border-radius: 8px; background: rgba(16,185,129,.07); font-size: 12.5px; font-weight: 700; color: #cbd5e1; display: flex; gap: 10px; }
+  .line .u { color: #86efac; } .line .d { color: #fca5a5; }
+  .row { display: grid; grid-template-columns: 96px 1fr; align-items: center; padding: 6px 10px; border-radius: 9px; background: rgba(255,255,255,.035); margin-bottom: 3px; }
+  .row.on { background: rgba(16,185,129,.16); box-shadow: inset 0 0 0 2px #10b981; } .row b { font-size: 14.5px; }
+  .game { margin-top: 18px; width: 352px; padding: 10px 12px; border-radius: 16px; background: rgba(8,12,22,.96); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .game .hd { font-size: 13px; font-weight: 800; color: #34d399; margin: 0 0 6px 2px; }
+  .game .o { align-items: flex-start; } .note { text-align: center; color: #64748b; font-size: 13px; margin-top: 16px; }
+</style>
+<body>
+<div class="tabs" id="tabs"></div>
+<div class="grid" id="grid"></div>
+<script>
+/* 작전 — 이름 · 대표 효과 하나(key: 가장 크게 움직인 것) · 얻음 · 대가 */
+const S = [
+  ['공격', [['강공', '장타 ↑', ['장타 ↑'], []], ['짧게 치기', '삼진 ↓', ['삼진 ↓', '병살 ↓'], []], ['기동력', '진루 ↑', ['진루 ↑', '병살 ↓'], []], ['기다리기', '볼넷 ↑', ['볼넷 ↑'], ['삼진 ↑', '장타 ↓']]]],
+  ['마운드', [['선발 길게', '교체 ↓', ['불펜 휴식'], []], ['빠른 계투', '지친 투수 ↓', ['지친 투수 ↓'], ['불펜 소모 ↑']], ['불펜 총력전', '볼넷 ↓', ['볼넷 ↓'], ['불펜 소모 ↑']], ['불펜 아끼기', '불펜 휴식', ['불펜 휴식'], ['볼넷 ↑']]]],
+  ['수비', [['정상 수비', '', [], []], ['외야 후진', '장타 ↓', ['장타 ↓'], ['단타 ↑']], ['전진 수비', '땅볼 아웃 ↑', ['땅볼 아웃 ↑'], ['장타 ↑']], ['주자 견제', '도루 ↓', ['도루 ↓', '진루 ↓'], ['피안타 ↑']]]],
+];
+const chips = (up, dn) => `<span style="display:flex;gap:3px;flex-wrap:wrap;justify-content:inherit">${up.map((x) => `<i class="chip up" style="font-style:normal">${x}</i>`).join('')}${dn.map((x) => `<i class="chip dn" style="font-style:normal">${x}</i>`).join('')}</span>`;
+const text = (up, dn) => `<span class="t">${[...up.map((x) => `<span class="u">${x}</span>`), ...dn.map((x) => `<span class="d">${x}</span>`)].join(' · ') || '제자리'}</span>`;
+const cards = `<div class="sec"><p>준비 카드</p><div class="g2" style="grid-template-columns:repeat(3,1fr)">${['타선 미팅', '마운드 미팅', '불펜 데이'].map((n) => `<div class="o" style="opacity:.4"><b style="font-size:12.5px">${n} 0</b></div>`).join('')}</div></div>`;
+/* 칸 하나 — f(o, on) 가 칸 안 두 번째 줄 */
+const grid2 = (os, f) => `<div class="g2">${os.map((o, i) => `<div class="o ${i ? '' : 'on'}"><b>${o[0]}</b>${f(o, !i)}</div>`).join('')}</div>`;
+const V = [
+  ['대표 효과 하나', '칩 하나 · 대가는 규칙 팝업에', { cell: (o) => (o[1] ? `<i class="chip up" style="font-style:normal">${o[1]}</i>` : '<span class="t">제자리</span>') }],
+  ['고른 것만 칩', '안 고른 칸은 이름만', { cell: (o, on) => (on ? (o[2].length || o[3].length ? chips(o[2], o[3]) : '<span class="t">제자리</span>') : '') }],
+  ['칩 없이 한 줄 글', '배경 없는 작은 글 · 색만', { cell: (o) => text(o[2], o[3]) }],
+  ['이름만 + 아래 한 줄', '고른 것의 얻음 · 대가', { cell: () => '', after: (os) => { const o = os[0]; return `<div class="line">${o[2].length || o[3].length ? `${o[2].length ? `<span>얻음 <span class="u">${o[2].join(' · ')}</span></span>` : ''}${o[3].length ? `<span>대가 <span class="d">${o[3].join(' · ')}</span></span>` : ''}` : '제자리'}</div>`; } }],
+  ['한 줄 목록', '이름 왼쪽 · 효과 오른쪽', { list: true }],
+  ['대표 효과 + 고르면 대가', '평소 하나 · 고른 칸만 전부', { cell: (o, on) => (on ? (o[2].length || o[3].length ? chips(o[2], o[3]) : '<span class="t">제자리</span>') : o[1] ? `<span class="t"><span class="u">${o[1]}</span></span>` : '<span class="t">제자리</span>') }],
+];
+function prep(v) {
+  return `<div class="pn">${S.map(([t, os]) => `<div class="sec"><p>${t}</p>${v.list ? os.map((o, i) => `<div class="row ${i ? '' : 'on'}"><b>${o[0]}</b>${text(o[2], o[3])}</div>`).join('') : grid2(os, v.cell) + (v.after ? v.after(os) : '')}</div>`).join('')}${cards}</div>`;
+}
+function game(v) {
+  const os = S[0][1];
+  const body = v.list ? os.map((o, i) => `<div class="row ${i ? '' : 'on'}"><b>${o[0]}</b>${text(o[2], o[3])}</div>`).join('')
+    : `<div class="g2">${os.map((o, i) => `<div class="o ${i ? '' : 'on'}"><b>${o[0]}</b>${v.cell(o, !i)}</div>`).join('')}</div>${v.after ? v.after(os) : ''}`;
+  return `<div class="game"><p class="hd">● 공격</p>${body}</div>`;
+}
+let page = +(location.hash.slice(1) || 0);
+function render() {
+  document.getElementById('tabs').innerHTML = ['1 ~ 3', '4 ~ 6'].map((n, i) => `<button class="${page === i ? 'on' : ''}" data-p="${i}">${n}</button>`).join('');
+  document.getElementById('grid').innerHTML = V.slice(page * 3, page * 3 + 3).map(([t, sub, v], k) => `<div><p class="cap">${page * 3 + k + 1} · ${t}<small>${sub}</small></p>${prep(v)}${game(v)}</div>`).join('');
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (b) { page = +b.dataset.p; location.hash = page; render(); } });
+render();
+</script>
+</body>
+</html>

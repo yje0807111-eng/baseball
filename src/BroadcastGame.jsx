@@ -1082,7 +1082,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                                         background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.05)',
                                         boxShadow: on ? 'inset 0 0 0 1.5px #10b981' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
                                       <b className="block text-t3 font-extrabold" style={{ color: on ? '#fff' : '#e6edf6' }}>{o.ko}</b>
-                                      <span className="mt-1 flex"><FxChips fx={o.fx} dim={!on} left /></span>
+                                      <span className="mt-1 flex"><FxChips fx={o.fx} main={o.main} on={on} left /></span>
                                     </button>
                                   );
                                 })}

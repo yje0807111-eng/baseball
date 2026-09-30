@@ -419,14 +419,20 @@ export const KV = ({ k, v, color = '#fff', sm = false }) => (
   </div>
 );
 
-/** 작전 효과 칩 — 초록 = 얻음 · 빨강 = 대가(strategy.js SIDES 의 fx). 없으면 '제자리' 한 마디 */
-export const FxChips = ({ fx, dim = false, left = false }) => (
-  <span className={`flex flex-wrap gap-1 ${left ? 'justify-start' : 'justify-center'}`} style={{ opacity: dim ? 0.8 : 1 }}>
-    {!fx?.up?.length && !fx?.dn?.length && <small className="text-[11.5px] font-bold text-gray-400">제자리</small>}
-    {fx?.up?.map((t) => <i key={t} className="rounded-[5px] px-1.5 text-[11.5px] font-extrabold not-italic" style={{ color: '#86efac', background: 'rgba(34,197,94,.14)' }}>{t}</i>)}
-    {fx?.dn?.map((t) => <i key={t} className="rounded-[5px] px-1.5 text-[11.5px] font-extrabold not-italic" style={{ color: '#fca5a5', background: 'rgba(239,68,68,.14)' }}>{t}</i>)}
-  </span>
-);
+/**
+ * 작전 효과(mockups/tactic-clean 6) — 안 고른 칸은 대표 효과 한 마디(초록 글 · 배경 없음), 고른 칸만 칩 전부(초록 얻음 · 빨강 대가).
+ * 효과가 없으면 '제자리'
+ */
+const chip = (t, up) => <i key={t} className="rounded-[5px] px-1.5 text-[11.5px] font-extrabold not-italic" style={up ? { color: '#86efac', background: 'rgba(34,197,94,.14)' } : { color: '#fca5a5', background: 'rgba(239,68,68,.14)' }}>{t}</i>;
+export const FxChips = ({ fx, main = '', on = false, left = false }) => {
+  const none = !fx?.up?.length && !fx?.dn?.length;
+  if (none || !on) return <small className={`text-[12px] font-bold ${left ? '' : 'text-center'}`} style={{ color: main && !none ? '#86efac' : '#9ca3af' }}>{none ? '제자리' : main}</small>;
+  return (
+    <span className={`flex flex-wrap gap-1 ${left ? 'justify-start' : 'justify-center'}`}>
+      {fx.up.map((t) => chip(t, true))}{fx.dn.map((t) => chip(t, false))}
+    </span>
+  );
+};
 
 /** 작은 수치 칸 묶음 (모드 설명 패널의 시리즈·선수·난이도) */
 export const Stats = ({ items }) => (
