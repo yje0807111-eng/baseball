@@ -490,5 +490,268 @@
     ],
     "note": "SK 왕조 수비코치",
     "source": "SK 수비·주루코치 2007~2009(2007·2008 KS 우승)·2011·2016, 한화 수비코치 2012 — 위키백과"
+  },
+  {
+    "id": "pc-choiilun",
+    "name": "최일언",
+    "role": "pitching",
+    "era": "1993-2020",
+    "rules": [
+      {
+        "who": "pitcher",
+        "stat": "stuff",
+        "v": 4
+      },
+      {
+        "who": "SP",
+        "stat": "control",
+        "v": 3
+      }
+    ],
+    "note": "NC 초대 투수코치 · 변화구",
+    "source": "두산 · 한화 · SK · NC · LG 투수코치, 두산 · SK 우승 시기 — 나무위키"
+  },
+  {
+    "id": "pc-chamyungseok",
+    "name": "차명석",
+    "role": "pitching",
+    "era": "2004-2015",
+    "rules": [
+      {
+        "who": "RP",
+        "stat": "stuff",
+        "v": 6
+      },
+      {
+        "who": "RP",
+        "stat": "control",
+        "v": 4
+      }
+    ],
+    "note": "LG 투수코치 · 뒤에 단장",
+    "source": "LG 투수코치 2004~2015(여러 번), 2019~ 단장 — 나무위키"
+  },
+  {
+    "id": "pc-jowoongcheon",
+    "name": "조웅천",
+    "role": "pitching",
+    "era": "2011-2023",
+    "rules": [
+      {
+        "who": "RP",
+        "stat": "stuff",
+        "v": 7
+      },
+      {
+        "who": "RP",
+        "stat": "stamina",
+        "v": 12
+      }
+    ],
+    "note": "SSG 투수코치 2022 우승",
+    "source": "SK · 두산 · 롯데 · SSG 투수코치, SSG 1군 2022 우승 — 나무위키"
+  },
+  {
+    "id": "pc-leedaejin",
+    "name": "이대진",
+    "role": "pitching",
+    "era": "2013-2019",
+    "rules": [
+      {
+        "who": "foreign",
+        "stat": "stuff",
+        "v": 10
+      },
+      {
+        "who": "foreign",
+        "stat": "control",
+        "v": 8
+      },
+      {
+        "who": "pitcher",
+        "stat": "stuff",
+        "v": 2
+      }
+    ],
+    "note": "KIA 1군 투수코치 · 외국인 소통",
+    "source": "한화 2013 · KIA 2014~2019 투수코치, 영어로 외국인 투수 직접 지도 — 나무위키"
+  },
+  {
+    "id": "pc-songjinwoo",
+    "name": "송진우",
+    "role": "pitching",
+    "era": "2011-2020",
+    "rules": [
+      {
+        "who": "pitcher",
+        "stat": "control",
+        "v": 5
+      },
+      {
+        "who": "SP",
+        "stat": "stuff",
+        "v": 3
+      },
+      {
+        "who": "SP",
+        "stat": "stamina",
+        "v": 12
+      }
+    ],
+    "note": "통산 210승 · 한화 투수코치",
+    "source": "한화 투수코치 2011~2014 · 2018~2020, 국가대표 투수코치 — 나무위키 · OSEN"
+  },
+  {
+    "id": "pc-gadeukyeom",
+    "name": "가득염",
+    "role": "pitching",
+    "era": "2011-2020",
+    "rules": [
+      {
+        "who": "RP",
+        "stat": "control",
+        "v": 8
+      },
+      {
+        "who": "RP",
+        "stat": "stuff",
+        "v": 3
+      }
+    ],
+    "note": "불펜코치 · 좌완 원포인트",
+    "source": "롯데 · 두산 · kt · LG 불펜코치 — 나무위키"
+  },
+  {
+    "id": "pc-jeongmintae",
+    "name": "정민태",
+    "role": "pitching",
+    "era": "2009-2025",
+    "rules": [
+      {
+        "who": "cheap",
+        "stat": "stuff",
+        "v": 8
+      },
+      {
+        "who": "cheap",
+        "stat": "control",
+        "v": 6
+      }
+    ],
+    "note": "투수 육성 · 넥센 · 한화 코치",
+    "source": "넥센 · 롯데 · 한화 · 삼성 투수코치 — 나무위키"
+  },
+  {
+    "id": "pc-baeyoungsoo",
+    "name": "배영수",
+    "role": "pitching",
+    "era": "2020-",
+    "rules": [
+      {
+        "who": "RP",
+        "stat": "stuff",
+        "v": 5
+      },
+      {
+        "who": "RP",
+        "stat": "stamina",
+        "v": 15
+      },
+      {
+        "who": "pitcher",
+        "stat": "control",
+        "v": 2
+      }
+    ],
+    "note": "WBC 불펜코치 · 재활 · 육성",
+    "source": "두산 · 롯데 · SSG 투수코치, 2023 WBC 불펜코치 — 나무위키"
+  },
+  {
+    "id": "pc-joinsung",
+    "name": "조인성",
+    "role": "pitching",
+    "era": "2018-",
+    "rules": [
+      {
+        "who": "C",
+        "stat": "defense",
+        "v": 18
+      },
+      {
+        "who": "pitcher",
+        "stat": "control",
+        "v": 4
+      }
+    ],
+    "note": "배터리코치 · 앉아쏴",
+    "source": "두산 · LG 배터리코치, 두산 2019 우승 — 나무위키"
+  },
+  {
+    "id": "bc-jangwonjin",
+    "name": "장원진",
+    "role": "batting",
+    "era": "2012-2016",
+    "rules": [
+      {
+        "who": "batter",
+        "stat": "contact",
+        "v": 2
+      },
+      {
+        "who": "L",
+        "stat": "contact",
+        "v": 3
+      }
+    ],
+    "note": "두산 1군 타격코치 5년",
+    "source": "두산 1군 타격코치 2012~2016, 2015 · 2016 우승 시기 — 나무위키"
+  },
+  {
+    "id": "bc-kimjaegeol",
+    "name": "김재걸",
+    "role": "batting",
+    "era": "2010-2020",
+    "rules": [
+      {
+        "who": "batter",
+        "stat": "speed",
+        "v": 10
+      },
+      {
+        "who": "batter",
+        "stat": "contact",
+        "v": 1
+      },
+      {
+        "team": "steal",
+        "v": 0.05
+      }
+    ],
+    "note": "작전 · 주루 전문",
+    "source": "삼성 작전코치 2010~2018 · LG 2019~2020, 삼성 우승 시기 — 나무위키"
+  },
+  {
+    "id": "bc-leejongbeom",
+    "name": "이종범",
+    "role": "batting",
+    "era": "2013-2023",
+    "rules": [
+      {
+        "who": "batter",
+        "stat": "speed",
+        "v": 14
+      },
+      {
+        "who": "batter",
+        "stat": "contact",
+        "v": 1
+      },
+      {
+        "team": "steal",
+        "v": 0.06
+      }
+    ],
+    "note": "주루 · 국가대표 주루코치",
+    "source": "한화 · LG 주루 · 작전코치, 국가대표 주루코치 2017~2018 — 나무위키"
   }
 ]

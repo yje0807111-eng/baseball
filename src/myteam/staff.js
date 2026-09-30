@@ -53,6 +53,7 @@ export const STYLES = {
   trust: { ko: '믿음의 야구', rules: [{ team: 'calm', v: 0.5 }, r('batter', 'contact', 2)] }, // 나쁜 날 흔들림 절반 · 대신 좋은 날도 ¾ (form.js)
   develop: { ko: '육성', rules: [r('cheap', 'contact', 7), r('cheap', 'power', 4), r('cheap', 'stuff', 6), r('cheap', 'control', 6), r('foreign', 'contact', -3), r('foreign', 'stuff', -3)] },
   foreign: { ko: '외국인 활용', rules: [r('foreign', 'contact', 12), r('foreign', 'power', 12), r('foreign', 'stuff', 12), r('foreign', 'control', 12)] },
+  data: { ko: '데이터 야구', rules: [r('batter', 'contact', 2), r('batter', 'defense', 3), r('pitcher', 'stuff', 2), r('pitcher', 'control', 2)] }, // 고르게 조금 · 대가 없음
   run: { ko: '뛰는 야구', rules: [r('batter', 'speed', 16), r('batter', 'contact', 3), { team: 'steal', v: 0.08 }, r('batter', 'power', -3)] },
 };
 const GRADE = [1, 1, 1.15, 1.3];

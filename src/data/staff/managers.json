@@ -283,5 +283,243 @@
     ],
     "note": "베이징 올림픽 금메달",
     "source": "두산 2004~11·NC 2011~18·한화 2024~ 감독, KS 준우승 5회(2005·07·08·16·25), 2008 베이징 올림픽 금 — namu 감독/목록, ko.wikipedia 한국시리즈"
+  },
+  {
+    "id": "mg-royster",
+    "name": "제리 로이스터",
+    "role": "manager",
+    "era": "2008-2010",
+    "style": "attack",
+    "grade": 1,
+    "clubs": [
+      "lotte"
+    ],
+    "note": "KBO 첫 외국인 감독 · 3년 연속 PS",
+    "source": "롯데 2008~2010 감독, 3년 연속 포스트시즌 · 노 피어 — 위키백과 · 경향"
+  },
+  {
+    "id": "mg-kimsijin",
+    "name": "김시진",
+    "role": "manager",
+    "era": "2007-2014",
+    "style": "starter",
+    "grade": 1,
+    "clubs": [
+      "hyundai",
+      "kiwoom",
+      "lotte"
+    ],
+    "note": "현대 · 넥센 · 롯데 감독 · 투수 조련",
+    "source": "현대 2007 · 넥센 2009~2012 · 롯데 2013~2014 감독 — 위키백과 · 경향"
+  },
+  {
+    "id": "mg-leemansu",
+    "name": "이만수",
+    "role": "manager",
+    "era": "2011-2014",
+    "style": "develop",
+    "grade": 1,
+    "clubs": [
+      "sk"
+    ],
+    "note": "대행으로 2011 KS 준우승",
+    "source": "SK 2011(대행)~2014 감독, 2011 · 2012 KS 준우승, 윤희상 · 박희수 성장 — 경향 · 위키백과"
+  },
+  {
+    "id": "mg-kimjinuk",
+    "name": "김진욱",
+    "role": "manager",
+    "era": "2012-2018",
+    "style": "trust",
+    "grade": 1,
+    "clubs": [
+      "doosan",
+      "kt"
+    ],
+    "note": "2013 KS 준우승 · 소통 야구",
+    "source": "두산 2012~2013 · kt 2017~2018 감독, 2013 KS 3승 4패 — 위키백과 · 데일리안"
+  },
+  {
+    "id": "mg-jangjeongseok",
+    "name": "장정석",
+    "role": "manager",
+    "era": "2017-2019",
+    "style": "bullpen",
+    "grade": 1,
+    "clubs": [
+      "kiwoom"
+    ],
+    "note": "2019 KS 준우승",
+    "source": "넥센 · 키움 2017~2019 감독, 2019 KS 준우승 — 위키백과 · 경향"
+  },
+  {
+    "id": "mg-hongwongi",
+    "name": "홍원기",
+    "role": "manager",
+    "era": "2021-2025",
+    "style": "develop",
+    "grade": 1,
+    "clubs": [
+      "kiwoom"
+    ],
+    "note": "2022 KS 준우승",
+    "source": "키움 2021~2025 감독(수석코치에서 승격), 2022 KS 준우승 — 아주경제 · 경향"
+  },
+  {
+    "id": "mg-leeseungyeop",
+    "name": "이승엽",
+    "role": "manager",
+    "era": "2023-2025",
+    "style": "attack",
+    "grade": 1,
+    "clubs": [
+      "doosan"
+    ],
+    "note": "국민타자 · 두산 11대 감독",
+    "source": "두산 2023~2025.6 감독 — 위키백과"
+  },
+  {
+    "id": "mg-heosamyeong",
+    "name": "허삼영",
+    "role": "manager",
+    "era": "2020-2022",
+    "style": "data",
+    "grade": 1,
+    "clubs": [
+      "samsung"
+    ],
+    "note": "전력분석원 출신 · 2021 PS",
+    "source": "삼성 2020~2022 감독, 프런트 전력분석 23년, 2021 6년 만의 PS — 위키백과"
+  },
+  {
+    "id": "mg-kanginkwon",
+    "name": "강인권",
+    "role": "manager",
+    "era": "2022-2024",
+    "style": "defense",
+    "grade": 1,
+    "clubs": [
+      "nc"
+    ],
+    "note": "배터리 코치 출신 · 2023 PO",
+    "source": "NC 2022(대행)~2024 감독, 2023 플레이오프 — 위키백과"
+  },
+  {
+    "id": "mg-mattwilliams",
+    "name": "맷 윌리엄스",
+    "role": "manager",
+    "era": "2020-2021",
+    "style": "data",
+    "grade": 1,
+    "clubs": [
+      "kia"
+    ],
+    "note": "KIA 첫 외국인 감독",
+    "source": "KIA 2020~2021 감독 — 위키백과"
+  },
+  {
+    "id": "mg-carlossubero",
+    "name": "카를로스 수베로",
+    "role": "manager",
+    "era": "2021-2023",
+    "style": "defense",
+    "grade": 1,
+    "clubs": [
+      "hanwha"
+    ],
+    "note": "한화 첫 외국인 감독 · 시프트",
+    "source": "한화 2021~2023.5 감독, 리빌딩 · 수비 시프트 — 위키백과 · 경향"
+  },
+  {
+    "id": "mg-larrysutton",
+    "name": "래리 서튼",
+    "role": "manager",
+    "era": "2021-2023",
+    "style": "develop",
+    "grade": 1,
+    "clubs": [
+      "lotte"
+    ],
+    "note": "2군 감독에서 1군 승격",
+    "source": "롯데 2021.5~2023.8 감독, 2군 감독 출신 — 경향 · 위키백과 · 일간스포츠"
+  },
+  {
+    "id": "mg-wooyongdeuk",
+    "name": "우용득",
+    "role": "manager",
+    "era": "1993-2002",
+    "style": "attack",
+    "grade": 1,
+    "clubs": [
+      "samsung",
+      "lotte"
+    ],
+    "note": "1993 정규 2위 · 세대교체",
+    "source": "삼성 1993~1995 · 롯데 2001(대행)~2002 감독 — 위키백과 · 매일신문"
+  },
+  {
+    "id": "mg-ryujihyun",
+    "name": "류지현",
+    "role": "manager",
+    "era": "2021-2022",
+    "style": "defense",
+    "grade": 1,
+    "clubs": [
+      "lg"
+    ],
+    "note": "LG 출신 첫 감독 · 2년 연속 PS",
+    "source": "LG 2021~2022 감독, 2년 연속 포스트시즌 — 위키백과"
+  },
+  {
+    "id": "mg-leesungyong",
+    "name": "이숭용",
+    "role": "manager",
+    "era": "2024-",
+    "style": "develop",
+    "grade": 1,
+    "clubs": [
+      "sk"
+    ],
+    "note": "kt 단장 · 육성총괄 출신",
+    "source": "SSG 2024~ 감독, kt 타격코치 · 단장 · 육성총괄 — 위키백과"
+  },
+  {
+    "id": "mg-kimhansu",
+    "name": "김한수",
+    "role": "manager",
+    "era": "2017-2019",
+    "style": "attack",
+    "grade": 1,
+    "clubs": [
+      "samsung"
+    ],
+    "note": "삼성 타격코치에서 감독",
+    "source": "삼성 2017~2019 감독, 타격코치 2010~2016 — 위키백과"
+  },
+  {
+    "id": "mg-yangseungho",
+    "name": "양승호",
+    "role": "manager",
+    "era": "2011-2012",
+    "style": "bullpen",
+    "grade": 1,
+    "clubs": [
+      "lotte"
+    ],
+    "note": "2011 · 2012 연속 PS",
+    "source": "롯데 2011~2012 감독, FA 불펜 강화 · 작전야구 — 경향 · 데일리안"
+  },
+  {
+    "id": "mg-chowonwoo",
+    "name": "조원우",
+    "role": "manager",
+    "era": "2016-2017",
+    "style": "data",
+    "grade": 1,
+    "clubs": [
+      "lotte"
+    ],
+    "note": "2017 정규 3위 · 80승",
+    "source": "롯데 2016~2017 감독, 2017 80승 3위 — 경향"
   }
 ]
