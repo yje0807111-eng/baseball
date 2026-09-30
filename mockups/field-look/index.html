@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>구장 칩 · 빠른 투구 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  구장 화면 두 가지.
+  1) 선수 칩 — 지금은 수비 9 + 타자 + 주자가 모두 같은 크기 · 같은 이름표. 1루수가 베이스 위에 서 있어 1루 주자와 겹치고,
+     포수와 타자가 홈에서 겹친다. 11명 넘는 이름표로 어수선하다.
+     비슷한 게임: MLB 9이닝스 · 컴투스 프로야구 — 수비는 작게/흐리게, 공격(타자 · 주자)은 크게 · 이름.
+     OOTP · 방송 그래픽 — 수비는 포지션 점, 주자는 베이스 위 표시.
+  2) 요약 · 스킵의 투구 — 접은 타석의 공을 0.08초마다 새로 던져, 공이 마운드를 떠나자마자 끊기고 다시 뜬다.
+     원칙: 끝까지 못 그릴 움직임은 시작하지 않는다.
+  배경: 실제 경기 화면에서 칩만 뺀 캡처. 장면: 1회말 우리 공격 · 무사 1 · 2루.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .ov { position: absolute; inset: 0; pointer-events: none; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .bar { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .bar button { all: unset; cursor: pointer; padding: 7px 11px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .bar button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .bar i { width: 1px; background: rgba(255,255,255,.15); margin: 4px; }
+  /* 칩 */
+  .c { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+  .c .face { border-radius: 50%; background: radial-gradient(circle at 50% 35%, #2b3b55, #0b1220 70%); box-shadow: 0 0 0 2px #05080f, 0 0 0 calc(2px + var(--w, 3px)) var(--k); position: relative; }
+  .c .face::after { content: ""; position: absolute; inset: 22% 26% 30%; border-radius: 50% 50% 40% 40%; background: rgba(148,163,184,.35); }
+  .c .tag { margin-top: 5px; padding: 2px 7px 2px 9px; font-size: 12px; font-weight: 700; background: rgba(5,8,15,.86); box-shadow: inset 3px 0 0 var(--k); white-space: nowrap; }
+  .c .pos { position: absolute; font-family: 'Saira Condensed', sans-serif; font-weight: 800; }
+  .foot { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; border: 2px solid var(--k); background: color-mix(in srgb, var(--k) 22%, transparent); }
+  .dot { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; border-radius: 50%; font-family: 'Saira Condensed', sans-serif; font-weight: 800; }
+  .base { position: absolute; transform: translate(-50%, -140%); padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 800; background: var(--k); color: #05080f; }
+  /* 공 */
+  .ball { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #fde047; }
+  .zone { position: absolute; left: 1214px; top: 770px; width: 66px; height: 66px; }
+  .zdot { position: absolute; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: #fde047; box-shadow: 0 0 6px #fde047; animation: zIn .12s ease-out both; }
+  @keyframes zIn { from { transform: scale(2); opacity: 0; } to { transform: none; opacity: 1; } }
+  .tracer { position: absolute; left: 0; top: 0; width: 1920px; height: 911px; }
+  .tracer line { stroke: #fde047; stroke-linecap: round; stroke-width: 4; filter: drop-shadow(0 0 6px #fde047); animation: tr .22s ease-out both; }
+  @keyframes tr { from { opacity: 1; stroke-dashoffset: 0; } to { opacity: 0; } }
+  .ff { position: absolute; right: 500px; top: 88px; padding: 6px 14px; border-radius: 999px; background: #38bdf8; color: #05080f; font-weight: 800; font-size: 14px; }
+</style>
+<body>
+<img class="shot" src="field.jpg">
+<div class="ov" id="ov"></div>
+<div class="cap" id="cap"></div>
+<div class="bar" id="bar"></div>
+<script>
+  const OUR = '#34d399', THEIR = '#f87171';
+  /* 실제 칩 자리(1920×911) — 수비 9 · 베이스 · 홈 */
+  const F = { P: [732, 539, '윤성환'], C: [732, 821, '현재윤'], '1B': [1162, 496, '채태인'], '2B': [921, 417, '신명철'], '3B': [302, 496, '박석민'], SS: [543, 417, '박진만'], LF: [300, 322, '강봉규'], CF: [732, 301, '박한이'], RF: [1162, 322, '최형우'] };
+  const BASE = { 1: [1140, 530], 2: [735, 430], 3: [318, 532], H: [735, 792] };
+  const R = { 1: '유한준', 2: '이종욱' };
+  const BATTER = [760, 790, '서용빈'];
+  const chip = (x, y, d, k, name, { w = 3, dim = 1, tagOff = false } = {}) =>
+    `<div class="c" style="left:${x}px;top:${y + (tagOff ? 0 : 10)}px;--k:${k};--w:${w}px;opacity:${dim}"><div class="face" style="width:${d}px;height:${d}px"></div>${name && !tagOff ? `<span class="tag">${name}</span>` : ''}</div>`;
+  const foot = (x, y, d, k) => `<div class="foot" style="left:${x}px;top:${y + d * 0.55}px;width:${d * 1.6}px;height:${d * 0.5}px;--k:${k}"></div>`;
+
+  const CHIPS = {
+    now: ['칩 · 지금', '모두 같은 크기 · 같은 이름표 — 1루수가 베이스 위(주자와 겹침) · 포수 · 타자 겹침', () =>
+      Object.values(F).map(([x, y, n]) => foot(x, y, 30, THEIR) + chip(x, y, 30, THEIR, n)).join('')
+      + chip(BASE[1][0], BASE[1][1] + 6, 30, OUR, R[1]) + chip(BASE[2][0], BASE[2][1] + 4, 30, OUR, R[2]) + chip(732, 800, 42, OUR, BATTER[2])],
+    a: ['칩 A · 공격만 크게', '수비는 작게(70%) · 이름표 없이 흐리게, 공격(타자 · 주자)만 크게 + 이름 — 지금 누가 치고 누가 나가 있는지가 먼저 보임', () =>
+      Object.values(F).map(([x, y]) => chip(x, y, 22, THEIR, '', { w: 2, dim: 0.75, tagOff: true })).join('')
+      + foot(BASE[1][0], BASE[1][1], 34, OUR) + chip(BASE[1][0], BASE[1][1] - 6, 34, OUR, R[1]) + foot(BASE[2][0], BASE[2][1], 34, OUR) + chip(BASE[2][0], BASE[2][1] - 6, 34, OUR, R[2])
+      + foot(BATTER[0], BATTER[1], 44, OUR) + chip(BATTER[0], BATTER[1] - 10, 44, OUR, BATTER[2])],
+    b: ['칩 B · 자리 정리', '1루수 · 3루수는 베이스 뒤로, 주자는 베이스 위 + 루 표시, 포수는 홈 뒤 · 타자는 타석 옆 — 겹침 없음 · 이름표는 그대로', () =>
+      Object.entries(F).map(([pos, [x, y, n]]) => { const dx = pos === '1B' ? 34 : pos === '3B' ? -34 : 0, dy = pos === '1B' || pos === '3B' ? -40 : pos === 'C' ? 26 : 0; return foot(x + dx, y + dy, 26, THEIR) + chip(x + dx, y + dy, 26, THEIR, n); }).join('')
+      + `<span class="base" style="left:${BASE[1][0]}px;top:${BASE[1][1] - 8}px;--k:${OUR}">1루</span>` + chip(BASE[1][0], BASE[1][1] + 8, 32, OUR, R[1])
+      + `<span class="base" style="left:${BASE[2][0]}px;top:${BASE[2][1] - 8}px;--k:${OUR}">2루</span>` + chip(BASE[2][0], BASE[2][1] + 8, 32, OUR, R[2])
+      + chip(BATTER[0] + 50, BATTER[1] - 10, 42, OUR, BATTER[2])],
+    c: ['칩 C · 수비는 포지션 점', '수비는 얼굴 대신 작은 포지션 점(SS · 2B …) — 방송 그래픽처럼 · 공격만 얼굴 칩 + 이름 · 가장 깔끔', () =>
+      Object.entries(F).map(([pos, [x, y]]) => `<div class="dot" style="left:${x}px;top:${y}px;width:30px;height:30px;font-size:13px;background:rgba(7,10,18,.8);box-shadow:inset 0 0 0 2px ${THEIR}">${pos}</div>`).join('')
+      + foot(BASE[1][0], BASE[1][1], 34, OUR) + chip(BASE[1][0], BASE[1][1] - 6, 34, OUR, R[1]) + foot(BASE[2][0], BASE[2][1], 34, OUR) + chip(BASE[2][0], BASE[2][1] - 6, 34, OUR, R[2])
+      + foot(BATTER[0], BATTER[1], 44, OUR) + chip(BATTER[0], BATTER[1] - 10, 44, OUR, BATTER[2])],
+    d: ['칩 D · A + B', '공격만 크게(A) + 겹치지 않는 자리(B) + 투수 · 포수만 이름(배터리) — 섞은 안', () =>
+      Object.entries(F).map(([pos, [x, y, n]]) => { const dx = pos === '1B' ? 34 : pos === '3B' ? -34 : 0, dy = pos === '1B' || pos === '3B' ? -40 : pos === 'C' ? 26 : 0; const bat = pos === 'P' || pos === 'C'; return chip(x + dx, y + dy, bat ? 28 : 22, THEIR, bat ? n : '', { w: 2, dim: bat ? 0.95 : 0.75, tagOff: !bat }); }).join('')
+      + `<span class="base" style="left:${BASE[1][0]}px;top:${BASE[1][1] - 8}px;--k:${OUR}">1루</span>` + chip(BASE[1][0], BASE[1][1] + 8, 34, OUR, R[1])
+      + `<span class="base" style="left:${BASE[2][0]}px;top:${BASE[2][1] - 8}px;--k:${OUR}">2루</span>` + chip(BASE[2][0], BASE[2][1] + 8, 34, OUR, R[2])
+      + foot(BATTER[0] + 50, BATTER[1], 44, OUR) + chip(BATTER[0] + 50, BATTER[1] - 10, 44, OUR, BATTER[2])],
+  };
+
+  /* 빠른 모드 투구 — 공 네 개가 한 타석(접은 타석)으로 흘러간다고 두고 되풀이 */
+  const M = [732, 530], H = [735, 770];
+  const PITCH = {
+    pnow: ['공 · 지금', '0.08초마다 새 공 — 마운드를 막 떠난 공이 끊기고 다시 뜬다'],
+    pa: ['공 A · 안 던짐', '빨리감기 중엔 공을 그리지 않고 오른쪽 아래 존 판에 점만 차례로(0.08초) + 볼카운트 — 마지막 결과 공만 던짐'],
+    pb: ['공 B · 잔상 선', '공 대신 마운드 → 홈 빛줄기가 번쩍 사라짐(0.22초) — 끊기지 않고 "공이 지나갔다"가 읽힘'],
+    pc: ['공 C · 짧아도 끝까지', '빨리감기 공 넷은 건너뛰고, 결과 공 하나만 짧게(0.35초) 끝까지 날아감 — 멈칫 없이'],
+  };
+  let timer = null, v = 'now';
+  const ov = document.getElementById('ov');
+  const stopAnim = () => { clearInterval(timer); timer = null; };
+  const drawChips = (k) => { ov.innerHTML = CHIPS[k][2](); };
+  const pitchLoop = (k) => {
+    drawChips('d');
+    const layer = document.createElement('div'); ov.appendChild(layer);
+    const zone = document.createElement('div'); zone.className = 'zone'; ov.appendChild(zone);
+    let i = 0;
+    const ZP = [[20, 30], [44, 20], [30, 48], [52, 40], [34, 34]];
+    const tick = () => {
+      const n = i % 6; i += 1;
+      if (n === 0) { layer.innerHTML = '<span class="ff">▶▶ 요약</span>'; zone.innerHTML = ''; }
+      if (k === 'pnow' && n < 5) {
+        /* 0.08초마다 새 공 — 12% 만 날아가다 끊김 */
+        layer.innerHTML = '<span class="ff">▶▶ 요약</span>' + `<div class="ball" style="left:${M[0] + (H[0] - M[0]) * 0.12}px;top:${M[1] + (H[1] - M[1]) * 0.12}px"></div>`;
+      }
+      if (k === 'pa' && n < 5) { zone.insertAdjacentHTML('beforeend', `<i class="zdot" style="left:${ZP[n][0]}px;top:${ZP[n][1]}px"></i>`); }
+      if (k === 'pb' && n < 5) { layer.innerHTML = `<span class="ff">▶▶ 요약</span><svg class="tracer" viewBox="0 0 1920 911"><line x1="${M[0]}" y1="${M[1]}" x2="${H[0] + (n - 2) * 6}" y2="${H[1] - 10}" /></svg>`; }
+      if (k === 'pc' && n === 5) {
+        const b = document.createElement('div'); b.className = 'ball'; layer.appendChild(b);
+        b.animate([{ left: M[0] + 'px', top: M[1] + 'px' }, { left: H[0] + 'px', top: H[1] + 'px' }], { duration: 350, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+      }
+      if (n === 5 && k !== 'pc') layer.innerHTML = '';
+    };
+    tick(); timer = setInterval(tick, k === 'pc' ? 420 : 160);
+  };
+  const render = () => {
+    stopAnim();
+    ov.innerHTML = '';
+    if (CHIPS[v]) drawChips(v); else pitchLoop(v);
+    const all = { ...CHIPS, ...PITCH };
+    document.getElementById('cap').textContent = `${all[v][0]} — ${all[v][1]}`;
+    document.getElementById('bar').innerHTML = Object.entries(CHIPS).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('') + '<i></i>'
+      + Object.entries(PITCH).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('');
+    location.hash = v;
+  };
+  document.getElementById('bar').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { v = b.dataset.v; render(); } });
+  if (location.hash.slice(1)) v = location.hash.slice(1);
+  render();
+</script>
+</body>
+</html>
