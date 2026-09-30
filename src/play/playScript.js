@@ -17,10 +17,10 @@ export const spot = (dir, dist) => [dist * Math.sin(dir * 45 * D2R), dist * Math
 export const BASE_POS = [spot(1, 0.225), spot(0, 0.318), spot(-1, 0.225), [0, 0]]; // 1루 · 2루 · 3루 · 홈
 export const HOME = [0, 0];
 export const MOUND = [0, 0.151];
-/** 수비 위치 — 기본 자리 */
+/** 수비 위치 — 기본 자리. 1 · 3루수는 베이스 뒤 · 파울선 쪽(베이스 위 주자와 겹치지 않게 — mockups/field-look D) */
 export const FIELDERS = {
-  P: MOUND, C: [0, -0.035],
-  '1B': [0.185, 0.2], '2B': [0.105, 0.33], SS: [-0.105, 0.33], '3B': [-0.185, 0.2],
+  P: MOUND, C: [0, -0.018], // 포수 — 홈 바로 뒤(더 내리면 화면 아래로 빠진다)
+  '1B': [0.21, 0.25], '2B': [0.105, 0.33], SS: [-0.105, 0.33], '3B': [-0.21, 0.25],
   LF: [-0.37, 0.64], CF: [0, 0.76], RF: [0.37, 0.64],
 };
 export { fenceAt } from '../engine/pitchSim.js'; // 담장은 엔진과 같은 값을 쓴다
@@ -122,8 +122,12 @@ export function pitchTarget(ev) {
   ];
 }
 
+/** 이보다 짧게 배정된 공은 움직임을 그리지 않는다 — 끝까지 못 그릴 투구 · 타구는 시작도 않는다(스킵 · 몰아치기) */
+export const MIN_PLAY_MS = 300;
+
 export function buildPlay(ev, beatMs = 1200) {
   if (!ev) return null;
+  if (beatMs < MIN_PLAY_MS) return { beats: [], cut: null, ev };
   const beats = [];
   const p = ev.pitch;
   const swung = ['swinging', 'foul', 'inplay'].includes(ev.call);

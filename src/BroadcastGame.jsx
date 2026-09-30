@@ -12,6 +12,7 @@ import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
+import { MIN_PLAY_MS } from './play/playScript.js';
 import { reducedMotion } from './ui/motion.jsx';
 import { augWho } from './KboAugmentDraft.jsx'; // 증강 판 — 대상 · 효과 한 줄(서로 부르는 모듈이지만 그릴 때만 쓴다)
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
@@ -732,17 +733,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (folded.length > 1) {
             setRush(true);
             const step = Math.max(35, RUSH_MS / curSpeed());
+            /* 공은 던지지 않는다 — 0.08초마다 새 공을 던지면 마운드를 막 떠난 공이 끊겼다(mockups/field-look 공 A).
+               구장은 타석 전 그대로 두고, 존 판 점과 볼카운트만 넘긴다 */
+            setPlay({ ev: null, ms: step, bases: wasOn });
             for (let i = 0; i < folded.length - 1; i += 1) {
               if (stop || !aliveRef.current) break;
               const e = folded[i];
-              setPlay({ ev: e, ms: step * 3, bases: wasOn });
               setZoneShots(folded.slice(0, i + 1).map(shotOf));
               setCount({ b: e.after.balls, s: e.after.strikes, o: e.after.outs });
               await sleep(step);
             }
             setRush(false);
           }
-          setPlay({ ev, ms: beat, bases: wasOn });
+          /* 결과 공 하나만 — 끝까지 그릴 시간이 없으면(MIN_PLAY_MS 아래) 움직임 없이 결과 자리(주자)로 바로 */
+          setPlay({ ev, ms: beat, bases: beat < MIN_PLAY_MS ? null : wasOn });
           setZoneShots(shotsOf(g));
           setCount({ b: 0, s: 0, o: g.outs });
         } else {

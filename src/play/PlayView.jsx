@@ -8,7 +8,7 @@
  * 좌표계는 배경 아트 픽셀(1600×895) 하나로 통일했다 — 사진과 오버레이가 어긋날 일이 없다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { buildPlay, along, phase, ease } from './playScript.js';
+import { buildPlay, along, phase, ease, FIELDERS as SPOTS } from './playScript.js';
 import { makeMapper, ART } from './fieldMap.js';
 import { DEFAULT_BG } from './backgrounds.js';
 import { artId } from '../data/artAlias.js';
@@ -16,14 +16,10 @@ import { artId } from '../data/artAlias.js';
 const PITCH_KO = { fast: '직구', slider: '슬라이더', change: '체인지업' };
 const FIELDERS = ['P', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF'];
 const EMPTY_DEF = {};
-/** 야수 기본 자리 (필드 좌표) */
-const BOX = { R: [-0.013, 0.004], L: [0.013, 0.004] }; // 타석 — 홈플레이트 양옆
+/** 타석 — 홈플레이트 양옆. 포수(홈 뒤)와 겹치지 않게 조금 옆으로. 야수 자리는 대본(playScript FIELDERS)과 한 벌 */
+const BOX = { R: [-0.019, 0.004], L: [0.019, 0.004] };
 const HOME_G = [0, 0];
 const MOUND = [0, 0.151];
-const SPOTS = {
-  P: [0, 0.151], C: [0, -0.014], '1B': [0.185, 0.2], '2B': [0.105, 0.33], SS: [-0.105, 0.33],
-  '3B': [-0.185, 0.2], LF: [-0.37, 0.64], CF: [0, 0.76], RF: [0.37, 0.64],
-};
 
 /* ───────── 시계: 공 하나에 배정된 시간을 0~1 로 ───────── */
 function useClock(key, durMs, paused) {
@@ -121,18 +117,25 @@ export const CHIP_CSS = `
 .pv-puff { animation: chipPuff .46s ease-in both; }
 .pv-form { animation: chipForm .5s cubic-bezier(.2,.9,.3,1) both; }
 `;
-const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, leave, puff, form }) => {
-  const k = (0.55 + 0.45 * s) * u; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
+/* z: 크기 배수(수비는 작게) · noTag: 이름판 없이 · badge: 칩 위 작은 표(주자의 '1루') */
+const Chip = ({ at, s = 1, u = 1, color, label, name, player, dim, ring, enter, leave, puff, form, z = 1, noTag = false, badge = null }) => {
+  const k = (0.55 + 0.45 * s) * u * z; // 원근은 주되 멀다고 점이 되지는 않게 · u 는 화면 확대 보정
   const r = 38 * k;
   const who = player && player.id != null ? player.id : null;
-  const tag = name || (player && player.name) || null;
+  const tag = noTag ? null : name || (player && player.name) || null;
   const foot = at[1] + r * 1.04;                                   // 고리가 깔리는 발밑
   /* 이름 판은 이름만큼만 — 가장 먼 외야수도 화면에서 12px 이상이 되도록(1920×911 에서 잰 값: 28 → 11px) */
   const plate = Math.max(106, 34 + (tag ? tag.length : 0) * 33) * k;
   const plateH = 43 * k;
   const plateY = at[1] + r + 12 * k;
   return (
-    <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}${puff ? ' pv-puff' : ''}${form ? ' pv-form' : ''}`} opacity={dim ? 0.82 : 1}>
+    <g className={`pv-chip${enter ? ' pv-in' : ''}${leave ? ' pv-out' : ''}${puff ? ' pv-puff' : ''}${form ? ' pv-form' : ''}`} opacity={dim === true ? 0.82 : dim || 1}>
+      {badge && (
+        <g>
+          <rect x={at[0] - 40 * k / z} y={at[1] - r - 46 * k / z} width={80 * k / z} height={38 * k / z} rx={7 * k / z} fill={color} />
+          <text x={at[0]} y={at[1] - r - 27 * k / z} textAnchor="middle" dominantBaseline="central" fontSize={28 * k / z} fontWeight="800" fill="#05080f">{badge}</text>
+        </g>
+      )}
       {ring && <circle cx={at[0]} cy={at[1]} r={r * 1.62} fill="none" stroke={color} strokeWidth={6 * k} opacity="0.75" />}
       {/* 발밑 고리 두 겹 — 가는 바깥 테가 자리를 잡고 진한 안쪽이 땅에 붙인다 */}
       <ellipse cx={at[0]} cy={foot} rx={r * 1.38} ry={r * 0.42} fill="none" stroke={color} strokeWidth={2 * k} opacity="0.5" />
@@ -266,7 +269,7 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
 
       {/* 막 물러난 수비 — 연기처럼 흩어진다. 자리가 그대로면 그냥 서 있는다 */}
       {gone && FIELDERS.filter((pos) => (gone[pos]?.id ?? '') !== (defense[pos]?.id ?? '')).map((pos) => (
-        <Chip key={`gone-${pos}`} at={at(SPOTS[pos])} s={scaleAt(SPOTS[pos])} u={u} color={defColor} label={pos} player={gone[pos]} puff />
+        <Chip key={`gone-${pos}`} at={at(SPOTS[pos])} s={scaleAt(SPOTS[pos])} u={u} color={defColor} label={pos} player={gone[pos]} puff z={0.72} noTag />
       ))}
       {FIELDERS.map((pos) => {
         const acting = fielder?.pos === pos;
@@ -279,7 +282,10 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
           const back = t > fielder.t1 ? ease(phase(t, fielder.t1 + 0.08, 0.99)) : 0;
           p = back > 0 ? [to[0] + (home[0] - to[0]) * back, to[1] + (home[1] - to[1]) * back] : to;
         }
-        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting} dim={!acting && !!play}
+        /* 수비는 작고 흐리게 · 이름은 배터리(투수 · 포수)와 공을 잡으러 가는 야수만 — 공격이 먼저 보이게 */
+        const battery = pos === 'P' || pos === 'C';
+        return <Chip key={pos} at={at(p)} s={scaleAt(p)} u={u} color={acting ? '#fff' : defColor} label={pos} player={defense[pos]} ring={acting}
+          z={acting ? 1 : battery ? 0.85 : 0.72} noTag={!acting && !battery} dim={acting ? 1 : 0.78}
           form={fresh && (gone?.[pos]?.id ?? '') !== (defense[pos]?.id ?? '')} />;
       })}
 
@@ -288,7 +294,7 @@ function FieldView({ play, t, u, bases, offColor, defColor, bg, defense = {}, ba
       {!runs.length && bases.map((r, i) => (
         r && !(steal && steal.player && steal.player.id === r.id)
           /* 베이스에 선 주자는 이미 달려와 선 사람이다 — 다음 공마다 다시 솟아오르지 않는다 */
-          ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} /> : null))}
+          ? <Chip key={`b${i}:${r.id}`} at={baseAt(i)} s={scaleAt(SPOTS.P)} u={u} color={offColor} player={r} badge={`${i + 1}루`} /> : null))}
       {runs.map((b, i) => {
         /* 진행도는 k 로 — 바깥 u 는 화면 확대 보정값이라 덮으면 칩이 0 에서 커진다 */
         const k = ease(phase(t, b.t0, b.t1));
