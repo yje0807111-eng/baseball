@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>빈 자리 채우기 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Saira+Condensed:wght@600;700;800&display=swap">
+<!--
+  한 판 점검(ROADMAP 10단계 4)에서 본 빈 자리 셋 — 증강 카드 아래 · 결과 화면 아래 · 플레이 오른쪽 판.
+  증강 카드는 게임 컴포넌트 그대로(aug-card-live ?v=), 결과 · 플레이는 실제 화면 캡처 위에 바꿀 칸만 얹었다.
+  비슷한 게임:
+   · LoL 아레나 · TFT 증강 — 카드 높이가 글에 맞춰 짧다. 그림이 위 절반, 글이 아래 절반을 채운다.
+   · FC 온라인 경기 결과 · MLB 더 쇼 요약 — 아래쪽에 '내가 한 것'(교체 · 전술 효과) 줄. MLB 9이닝스 결과 — MVP 타석 기록 칩.
+   · FC 온라인 경기 대기 · 클래시 로얄 전투 전 — 상대 핵심 카드(에이스)와 최근 전적 칩을 한 판에.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .view { position: absolute; inset: 0; display: none; }
+  .view.on { display: block; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  iframe.shot { border: 0; }
+  .tabs { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .tabs button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .tabs i { width: 1px; background: rgba(255,255,255,.15); margin: 4px 4px; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; }
+  .abs { position: absolute; }
+  .lab { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+  .lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .row { display: grid; align-items: center; gap: 12px; height: 42px; padding: 0 12px; background: rgba(255,255,255,.045); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  .g { color: #34d399; } .r { color: #f87171; } .y { color: #fbbf24; } .b { color: #60a5fa; } .m { color: #9ca3af; }
+  .chip { display: inline-grid; place-items: center; height: 30px; padding: 0 8px; border-radius: 7px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .bar { height: 6px; background: rgba(255,255,255,.07); position: relative; }
+  .bar i { position: absolute; inset: 0 auto 0 0; }
+</style>
+<body>
+<div class="cap" id="cap"></div>
+
+<!-- ───── 증강 카드 ───── -->
+<div class="view" data-k="aug-now" data-cap="증강 · 지금 — 카드 아래 1/3 이 빔"><iframe class="shot" src="/mockups/aug-card-live/index.html?ids=aceKiller,holdLead,catcherLead"></iframe></div>
+<div class="view" data-k="aug-short" data-cap="증강 A · 카드 높이를 글에 맞춰 짧게(512 → 432)"><iframe class="shot" src="/mockups/aug-card-live/index.html?ids=aceKiller,holdLead,catcherLead&v=short"></iframe></div>
+<div class="view" data-k="aug-art" data-cap="증강 B · 그림 창을 키워 채움(204 → 284)"><iframe class="shot" src="/mockups/aug-card-live/index.html?ids=aceKiller,holdLead,catcherLead&v=art"></iframe></div>
+<div class="view" data-k="aug-mid" data-cap="증강 C · 크기 그대로, 글을 남은 칸 가운데로"><iframe class="shot" src="/mockups/aug-card-live/index.html?ids=aceKiller,holdLead,catcherLead&v=mid"></iframe></div>
+
+<!-- ───── 결과 화면 ───── -->
+<div class="view" data-k="res-now" data-cap="결과 · 지금 — 아래 150px 이 빔"><img class="shot" src="result.jpg"></div>
+<div class="view" data-k="res-calls" data-cap="결과 A · 가운데 아래에 '내 지시'(승부처에서 고른 것 · 결과 · 승률 변화)">
+  <img class="shot" src="result.jpg">
+  <div class="abs" style="left:344px;top:660px;width:1136px;display:flex;flex-direction:column;gap:6px">
+    <p class="lab y" style="margin:0 0 4px">내 지시</p>
+    <div class="row" style="grid-template-columns:4.5rem 9rem minmax(0,1fr) 6rem 5rem;box-shadow:inset 3px 0 0 #fbbf24">
+      <span style="font-size:14px;font-weight:700;color:#d1d5db">5회초</span><b style="font-size:15px">병살 찬스</b><span style="font-size:15px;color:#cbd5e1">직구 · 바깥 낮게</span><b style="font-size:15px">병살타</b><b class="d g" style="font-size:20px;text-align:right">+9%</b>
+    </div>
+    <div class="row" style="grid-template-columns:4.5rem 9rem minmax(0,1fr) 6rem 5rem;box-shadow:inset 3px 0 0 #fbbf24">
+      <span style="font-size:14px;font-weight:700;color:#d1d5db">6회초</span><b style="font-size:15px">선두 타자 막기</b><span style="font-size:15px;color:#cbd5e1">직구 · 바깥 낮게</span><b style="font-size:15px">삼진</b><b class="d g" style="font-size:20px;text-align:right">+4%</b>
+    </div>
+  </div>
+</div>
+<div class="view" data-k="res-more" data-cap="결과 B · 있는 목록을 늘림 — MVP 타석 칩 · 결정적 장면 5 · 평점 7">
+  <img class="shot" src="result.jpg">
+  <div class="abs" style="left:40px;top:636px;width:280px;display:flex;flex-wrap:nowrap;gap:5px;justify-content:center">
+    <span class="chip">땅볼</span><span class="chip">삼진</span><span class="chip">뜬공</span><span class="chip g">홈런</span><span class="chip">땅볼</span>
+  </div>
+  <div class="abs" style="left:344px;top:647px;width:1136px;display:flex;flex-direction:column;gap:6px">
+    <div class="row" style="grid-template-columns:4.5rem minmax(0,1fr) auto;box-shadow:inset 3px 0 0 #34d399"><span style="font-size:14px;font-weight:700;color:#d1d5db">5회말</span><b style="font-size:15px">김충민 희생플라이</b><b class="d g" style="font-size:20px">+1점</b></div>
+    <div class="row" style="grid-template-columns:4.5rem minmax(0,1fr) auto;box-shadow:inset 3px 0 0 #f87171"><span style="font-size:14px;font-weight:700;color:#d1d5db">1회초</span><b style="font-size:15px">김재박 2루타</b><b class="d r" style="font-size:20px">+1점</b></div>
+  </div>
+  <div class="abs" style="left:1500px;top:612px;width:368px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:grid;grid-template-columns:2.6rem 1fr;gap:12px;align-items:center"><b class="d" style="display:grid;place-items:center;height:36px;font-size:18px;color:#60a5fa;background:#60a5fa1f;box-shadow:inset 0 0 0 1px #60a5fa66">B</b><span><b style="display:block;font-size:15px">안경현</b><small class="m" style="font-size:13px">4타수 1안타 1볼넷</small></span></div>
+    <div style="display:grid;grid-template-columns:2.6rem 1fr;gap:12px;align-items:center"><b class="d" style="display:grid;place-items:center;height:36px;font-size:18px;color:#60a5fa;background:#60a5fa1f;box-shadow:inset 0 0 0 1px #60a5fa66">B</b><span><b style="display:block;font-size:15px">이재만</b><small class="m" style="font-size:13px">9타자 2삼진 무실점</small></span></div>
+  </div>
+</div>
+<div class="view" data-k="res-both" data-cap="결과 C · A + MVP 타석 칩(가운데는 내 지시, 옆 칸은 그대로)">
+  <img class="shot" src="result.jpg">
+  <div class="abs" style="left:40px;top:636px;width:280px;display:flex;flex-wrap:nowrap;gap:5px;justify-content:center">
+    <span class="chip">땅볼</span><span class="chip">삼진</span><span class="chip">뜬공</span><span class="chip g">홈런</span><span class="chip">땅볼</span>
+  </div>
+  <div class="abs" style="left:344px;top:660px;width:1136px;display:flex;flex-direction:column;gap:6px">
+    <p class="lab y" style="margin:0 0 4px">내 지시</p>
+    <div class="row" style="grid-template-columns:4.5rem 9rem minmax(0,1fr) 6rem 5rem;box-shadow:inset 3px 0 0 #fbbf24">
+      <span style="font-size:14px;font-weight:700;color:#d1d5db">5회초</span><b style="font-size:15px">병살 찬스</b><span style="font-size:15px;color:#cbd5e1">직구 · 바깥 낮게</span><b style="font-size:15px">병살타</b><b class="d g" style="font-size:20px;text-align:right">+9%</b>
+    </div>
+    <div class="row" style="grid-template-columns:4.5rem 9rem minmax(0,1fr) 6rem 5rem;box-shadow:inset 3px 0 0 #fbbf24">
+      <span style="font-size:14px;font-weight:700;color:#d1d5db">6회초</span><b style="font-size:15px">선두 타자 막기</b><span style="font-size:15px;color:#cbd5e1">직구 · 바깥 낮게</span><b style="font-size:15px">삼진</b><b class="d g" style="font-size:20px;text-align:right">+4%</b>
+    </div>
+  </div>
+</div>
+
+<!-- ───── 플레이 화면 오른쪽 판 (가림: y 430~805 · 같은 판 색) ───── -->
+<div class="view" data-k="play-now" data-cap="플레이 · 지금 — 오른쪽 판 아래 절반이 빔 · CP 막대가 가운데와 겹침"><img class="shot" src="play.jpg"></div>
+<div class="view" data-k="play-ace" data-cap="플레이 A · 상대 선발 카드(능력치 넷) + 최근 5경기 칩 · 겹친 CP 막대 뺌">
+  <img class="shot" src="play.jpg">
+  <div class="abs" style="left:1520px;top:432px;width:365px;height:374px;background:#0e0d1d"></div>
+  <div class="abs" style="left:1536px;top:440px;width:336px;display:flex;flex-direction:column;gap:14px">
+    <p class="lab g" style="margin:0">상대 선발</p>
+    <div style="display:flex;gap:14px;align-items:center">
+      <div style="width:84px;height:112px;border-radius:10px;background:linear-gradient(160deg,#1f2a44,#0b1020);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);display:grid;place-items:end center;padding-bottom:6px"><span class="d" style="font-size:13px;color:#94a3b8">SP</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between"><b style="font-size:20px">김용수</b><b class="d r" style="font-size:28px">85</b></div>
+        <div style="display:grid;grid-template-columns:2.4rem 1fr 2rem;gap:8px;align-items:center;font-size:13px"><span class="m">구위</span><span class="bar"><i style="width:70%;background:#f87171"></i></span><b class="d" style="font-size:15px">88</b></div>
+        <div style="display:grid;grid-template-columns:2.4rem 1fr 2rem;gap:8px;align-items:center;font-size:13px"><span class="m">제구</span><span class="bar"><i style="width:62%;background:#34d399"></i></span><b class="d" style="font-size:15px">84</b></div>
+        <div style="display:grid;grid-template-columns:2.4rem 1fr 2rem;gap:8px;align-items:center;font-size:13px"><span class="m">체력</span><span class="bar"><i style="width:48%;background:#fbbf24"></i></span><b class="d" style="font-size:15px">79</b></div>
+        <div style="display:grid;grid-template-columns:2.4rem 1fr 2rem;gap:8px;align-items:center;font-size:13px"><span class="m">안정</span><span class="bar"><i style="width:75%;background:#60a5fa"></i></span><b class="d" style="font-size:15px">90</b></div>
+      </div>
+    </div>
+    <p class="lab g" style="margin:8px 0 0">최근 경기</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+      <span class="chip d g" style="font-size:16px">승</span><span class="chip d r" style="font-size:16px">패</span><span class="chip d g" style="font-size:16px">승</span><span class="chip m">-</span><span class="chip m">-</span>
+    </div>
+  </div>
+</div>
+<div class="view" data-k="play-order" data-cap="플레이 B · 상대 타순 1~9(경계 타자 표시) · 겹친 CP 막대 뺌">
+  <img class="shot" src="play.jpg">
+  <div class="abs" style="left:1520px;top:488px;width:365px;height:318px;background:#0e0d1d"></div>
+  <div class="abs" style="left:1536px;top:494px;width:336px;display:flex;flex-direction:column;gap:3px">
+    <p class="lab g" style="margin:0 0 6px">상대 타순</p>
+    <div id="order"></div>
+  </div>
+</div>
+<div class="view" data-k="play-reward" data-cap="플레이 C · 이 경기 보상 + 최근 5경기 칩 · 겹친 CP 막대 뺌">
+  <img class="shot" src="play.jpg">
+  <div class="abs" style="left:1520px;top:488px;width:365px;height:318px;background:#0e0d1d"></div>
+  <div class="abs" style="left:1536px;top:494px;width:336px;display:flex;flex-direction:column;gap:10px">
+    <p class="lab g" style="margin:0">최근 경기</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+      <span class="chip d g" style="font-size:16px">승</span><span class="chip d r" style="font-size:16px">패</span><span class="chip d g" style="font-size:16px">승</span><span class="chip m">-</span><span class="chip m">-</span>
+    </div>
+    <p class="lab y" style="margin:12px 0 0">경기 보상</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div style="padding:10px 0;text-align:center;background:rgba(52,211,153,.08);box-shadow:inset 0 0 0 1px rgba(52,211,153,.3);border-radius:8px"><span class="g" style="font-size:13px;font-weight:700">승</span><b class="d y" style="display:block;font-size:22px">300 G</b></div>
+      <div style="padding:10px 0;text-align:center;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);border-radius:8px"><span class="m" style="font-size:13px;font-weight:700">무</span><b class="d y" style="display:block;font-size:22px">180 G</b></div>
+      <div style="padding:10px 0;text-align:center;background:rgba(248,113,113,.06);box-shadow:inset 0 0 0 1px rgba(248,113,113,.25);border-radius:8px"><span class="r" style="font-size:13px;font-weight:700">패</span><b class="d y" style="display:block;font-size:22px">120 G</b></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)"><span style="font-size:14px;color:#cbd5e1">주간 과제 · 승리 5번</span><b class="d" style="font-size:18px">1 / 5</b></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<script>
+  /* 상대 타순 — 1989 MBC 청룡(목업 값) */
+  const ORDER = [['김재박', 'SS', 88, '주루'], ['윤덕규', 'LF', 80], ['서효인', '1B', 76, '장타'], ['김상호', 'RF', 74, '장타'], ['민경삼', '2B', 75], ['차동열', 'DH', 73], ['김동재', '3B', 72], ['김기범', 'CF', 71], ['김충민', 'C', 70]];
+  document.getElementById('order').innerHTML = ORDER.map(([n, p, o, w], i) => `<div style="display:grid;grid-template-columns:1.4rem 1fr auto 2.4rem 2.2rem;gap:8px;align-items:center;height:28px;font-size:14px"><b class="d m" style="font-size:16px">${i + 1}</b><b>${n}</b><span style="font-size:12px;font-weight:700;color:#f59e0b">${w || ''}</span><span class="d m" style="font-size:14px">${p}</span><b class="d" style="font-size:17px;text-align:right">${o}</b></div>`).join('');
+  const views = [...document.querySelectorAll('.view')];
+  const GROUP = { aug: '증강', res: '결과', play: '플레이' };
+  const tabs = document.getElementById('tabs');
+  let last = '';
+  views.forEach((v) => {
+    const g = v.dataset.k.split('-')[0];
+    if (last && g !== last) tabs.insertAdjacentHTML('beforeend', '<i></i>');
+    last = g;
+    const name = v.dataset.cap.split(' — ')[0].split(' · ')[0];
+    tabs.insertAdjacentHTML('beforeend', `<button data-k="${v.dataset.k}">${name}</button>`);
+  });
+  const show = (k) => {
+    views.forEach((v) => v.classList.toggle('on', v.dataset.k === k));
+    tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.k === k));
+    document.getElementById('cap').textContent = views.find((v) => v.dataset.k === k)?.dataset.cap || '';
+    location.hash = k;
+  };
+  tabs.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.k); });
+  show(location.hash.slice(1) || 'aug-now');
+</script>
+</body>
+</html>
