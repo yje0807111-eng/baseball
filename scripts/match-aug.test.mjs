@@ -18,6 +18,12 @@ const { createGame, pitch } = await import('../src/engine/pitchSim.js');
 describe('내 팀 경기의 증강', () => {
   beforeEach(() => { mem.clear(); store.signIn('증강감독'); });
 
+  it('상대에게 93+ 투수가 없으면 에이스 킬러는 후보에 없다', () => {
+    const env = { oppTopArm: 88 };
+    for (let i = 0; i < 60; i += 1) expect(augOptions([], env).some((o) => o.id === 'aceKiller')).toBe(false);
+    const seen = Array.from({ length: 200 }, () => augOptions([], { oppTopArm: 95 })).some((o) => o.some((x) => x.id === 'aceKiller'));
+    expect(seen).toBe(true);
+  });
   it('7회에 한 장 더', () => {
     expect(MATCH_AUG_INNINGS).toEqual([7]);
   });

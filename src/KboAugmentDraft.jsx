@@ -817,7 +817,9 @@ const PASSIVE_AUGMENTS = [
     half: (c) => (c.inning < 9 || c.score.my !== c.score.opp ? null : myOff(c) ? { add: 0.8 } : { pitch: 16 }) },
   { id: 'aceKiller', name: '에이스 킬러', tier: 'silver', type: 'situ', desc: '상대 마운드가 종합 93+ 면 안타 확률 +6%',
     note: '상대 에이스를 만나도 밀리지 않음',
-    half: (c) => (myOff(c) && (c.oppPitcher?.overall || 0) >= 93 ? { add: 0.3 } : null) },
+    half: (c) => (myOff(c) && (c.oppPitcher?.overall || 0) >= 93 ? { add: 0.3 } : null),
+    /* 상대를 아는 경기(내 팀 경기)에서는 93+ 투수가 없으면 후보에 올리지 않는다 — 켜질 일이 없는 카드 */
+    can: (e) => e.oppTopArm == null || e.oppTopArm >= 93 },
   { id: 'setupCrew', name: '필승조', tier: 'silver', type: 'situ', desc: '불펜이 던지는 이닝 수비 투구 +12',
     note: '불펜이 던지는 이닝이 단단해짐',
     half: (c) => (oppOff(c) && c.myPitcher?.position === 'RP' ? { pitch: 12 } : null) },
@@ -834,11 +836,12 @@ export const FAV_WEIGHT = 2;
  * 증강 후보: 아직 안 가진 증강 가운데 최대 3개. 등급이 하나라 판을 따로 열지 않는다.
  * 내 증강 풀에서 제외한 증강은 나오지 않고, 즐겨찾기한 증강은 두 배 잘 나온다(무게를 준 비복원 추출).
  * 지명권 · 우대권은 없앴다 — 원하는 증강은 즐겨찾기 하나로 모은다.
+ * env(상대를 아는 경기 — matchAug.envOf)를 주면 그 경기에서 켜질 수 없는 증강(can)은 뺀다.
  */
-export function rollAugmentOptions(owned = [], rng = Math.random, { favs = null } = {}) {
+export function rollAugmentOptions(owned = [], rng = Math.random, { favs = null, env = null } = {}) {
   const banned = bannedAugIds();
   const mine = favs || favAugIds();
-  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id) && !banned.has(a.id));
+  const left = AUGMENTS.filter((a) => !owned.some((x) => x.id === a.id) && !banned.has(a.id) && (!env || !a.can || a.can(env)));
   /* Efraimidis–Spirakis: 열쇠 = 난수^(1/무게) 가 큰 순서 — 무게 2 면 두 배 잘 뽑힌다 */
   const keyed = left.map((a) => ({ a, key: rng() ** (1 / (mine.has(a.id) ? FAV_WEIGHT : 1)) }));
   keyed.sort((x, y) => y.key - x.key);
@@ -846,8 +849,8 @@ export function rollAugmentOptions(owned = [], rng = Math.random, { favs = null 
 }
 
 /** 카드 한 장만 다시 굴린다 — 가진 증강 · 판에 있던 세 장(방금 뺀 것 포함)과 겹치지 않게(TFT 처럼 카드마다 따로) */
-export function rerollAugmentAt(options, i, owned = [], rng = Math.random) {
-  const next = rollAugmentOptions([...owned, ...options], rng)[0];
+export function rerollAugmentAt(options, i, owned = [], rng = Math.random, env = null) {
+  const next = rollAugmentOptions([...owned, ...options], rng, { env })[0];
   return next ? options.map((o, k) => (k === i ? next : o)) : options;
 }
 

@@ -36,6 +36,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const [cup, setCup] = useState('open'); // 새 토너먼트에 걸 조건 (cups.js)
   const [augPick, setAugPick] = useState(null); // 증강 고르기 창 { options, free, inning, onPick }
   const ownedRef = useRef([]); // 이번 경기에서 고른 증강 (정비 끝 1장 + 7회 1장)
+  const envRef = useRef(null); // 이번 상대(matchAug.envOf) — 켜질 수 없는 증강을 후보에서 뺀다
   const [format, setFormat] = useState(() => (account?.tournament?.size && !account.tournament.claimed ? account.tournament.size : 'single')); // 일반 대결 형식
   const tournament = account?.tournament?.size ? account.tournament : null;
   const season = account?.ranked || null;
@@ -144,6 +145,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     /* 정비를 마치며 증강 1장 — 고르면 그 증강을 얹은 팀으로 경기에 들어간다 */
     const record = team.record || { w: 0, l: 0, d: 0 };
     const env = envOf(opp, record);
+    envRef.current = env;
     const makeMy = (augs) => matchTeamOf(team, ready, rest, augs, env);
     /* 내 경기 시드 — 판마다 새로 뽑아 대전 기록에 남긴다(같은 라운드를 다시 해도 흐름을 미리 알 수 없게) */
     const seed = hashKey(newKey());
@@ -154,7 +156,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
       if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
       setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }),
-        openPick: augOptions([]).length > 0, tag: prep.tag || null });
+        openPick: augOptions([], env).length > 0, tag: prep.tag || null });
       setView('play');
     };
     /* 경기 화면이 먼저 뜨고 그 위로 인트로 → 인트로가 끝나 갈 때 경기 증강(1회 · midPick) — 예전엔 정비 화면 위에서 먼저 물었다 */
@@ -165,11 +167,11 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   /* 다시 굴리기 — 카드마다 한 번씩 */
   const rerollAug = (i) => {
     if (!augPick || augPick.used?.[i]) return;
-    setAugPick({ ...augPick, options: rerollAugmentAt(augPick.options, i, ownedRef.current), used: Object.assign([...(augPick.used || [])], { [i]: true }) });
+    setAugPick({ ...augPick, options: rerollAugmentAt(augPick.options, i, ownedRef.current, Math.random, envRef.current), used: Object.assign([...(augPick.used || [])], { [i]: true }) });
   };
   /* 7회 증강: 중계 화면이 기다린다 — 고르면 지금까지 고른 증강 전부를 넘긴다 */
   const midPick = (inning) => {
-    const options = augOptions(ownedRef.current);
+    const options = augOptions(ownedRef.current, envRef.current);
     if (!options.length) return null;
     return new Promise((resolve) => {
       /* 1회(경기 시작) 판은 몇 회라고 쓰지 않는다 — '경기 증강 고르기' */

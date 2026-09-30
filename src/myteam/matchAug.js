@@ -22,12 +22,13 @@ export function envOf(opp, record = { w: 0, l: 0, d: 0 }) {
     oppAvg: avg(roster.map((p) => p.overall)),
     oppOffense: avg(batters.map((p) => p.stats.contact * 0.4 + p.stats.power * 0.4 + p.stats.speed * 0.2)),
     oppPitch: avg(arms.map((p) => p.stats.stuff * 0.4 + p.stats.control * 0.3 + p.stats.stability * 0.3)),
+    oppTopArm: arms.length ? Math.max(...arms.map((p) => p.overall)) : 0, // 상대 가장 센 투수 — 에이스 킬러(93+)가 켜질 수 있나
     record,
   };
 }
 
-/** 증강 후보 3장 */
-export const augOptions = (owned = []) => rollAugmentOptions(owned);
+/** 증강 후보 3장 — 이 경기에서 켜질 수 없는 증강은 빼고(env) */
+export const augOptions = (owned = [], env = null) => rollAugmentOptions(owned, Math.random, { env });
 
 /** 기록실에 남길 증강 — 이름만 짧게 */
 export const augsForHistory = (owned = []) => owned.map((a) => ({ id: a.id, name: a.name, tier: a.tier }));
