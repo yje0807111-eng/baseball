@@ -50,6 +50,20 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const tb = (side, kind) => (side?.team?.buff || 0) + (side?.team?.edge?.[kind] || 0); // 팀 보정 + 증강 팀 보너스
 
 /*
+ * 좌우 상성(플래툰) — 타자와 투수 손이 다르면 타자가 유리, 같으면 불리. 맞힘 · 힘에 같은 값을 더한다.
+ * 근거: The Book(MLB 2002~) — 좌타 wOBA 반대 손 +25 · 우타 +14(좌타 쪽이 더 크다). 폭 = 반대 손 − 같은 손(능력치 점),
+ * 반씩 나눠 ± — 리그 섞임(우투 77% · 우타 67%)에서 평균이 거의 0 이 되게. 스위치 타자는 늘 반대 손으로 선다.
+ * 값은 엔진 시뮬(AI 팀끼리 1500경기)로 더한 폭을 쟀다 — 좌타 +.024 · 우타 +.014 wOBA, 경기당 득점 6.43 → 6.51
+ */
+export const PLATOON = { L: 3, R: 1.6 };
+export function platoonOf(b, p) {
+  const bh = b?.hand, ph = p?.hand;
+  if (!ph || !PLATOON[bh] && bh !== 'S') return 0;
+  if (bh === 'S') return PLATOON[ph === 'L' ? 'R' : 'L'] / 2;
+  return (bh === ph ? -1 : 1) * PLATOON[bh] / 2;
+}
+
+/*
  * 투수의 구종 — 직구 + 유형별 변화구 3~5개(선수 id 로 정해져 같은 투수는 늘 같은 레퍼토리).
  *  힘으로 누르는 투수(구위 ≥ 제구 + 5): 슬라이더 · 포크 · 커터 · 커브 · 체인지업 / 맞혀 잡는 투수(제구 ≥ 구위 + 5): 체인지업 · 커브 · 투심 · 슬라이더 · 커터 /
  *  고른 투수: 슬라이더 · 체인지업 · 커브 · 커터 · 투심. 안정성 80 이상이면 하나 더.
@@ -215,7 +229,8 @@ export function hotAdjOf(b, zone) {
  */
 export function hitChanceAt(g, zone) {
   const def = defenseOf(g), off = offenseOf(g), b = batterOf(g), p = def.pitcher;
-  const contact = st(b, 'contact') + tb(off, 'bat'), power = st(b, 'power') + tb(off, 'bat');
+  const pl = platoonOf(b, p);
+  const contact = st(b, 'contact') + tb(off, 'bat') + pl, power = st(b, 'power') + tb(off, 'bat') + pl;
   const stuff = st(p, 'stuff', 80) - fatigue(def) * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const r = Math.floor(zone / 3), c = zone % 3;
   const corner = cornerAt(Math.max(Math.abs(c - 1), Math.abs(r - 1)) * (2 / 3)), hot = hotAdjOf(b, zone);
@@ -442,8 +457,9 @@ export function pitch(g, orders = {}) {
   def.pitches += 1 + (orders.focus && orders.target ? FOCUS_COST : 0); // 집중 투구는 체력을 더 쓴다
   Object.assign(ev, { pitch: p });
 
-  const contact = st(batter, 'contact') + tb(off, 'bat');
-  const power = st(batter, 'power') + tb(off, 'bat');
+  const pl = platoonOf(batter, pitcher);
+  const contact = st(batter, 'contact') + tb(off, 'bat') + pl;
+  const power = st(batter, 'power') + tb(off, 'bat') + pl;
   const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
   const readX = orders.readBonus ? 1.5 : 1; // 보조(추천 · 퍼센트) 없이 읽은 사람 — 맞혔을 때만 더
@@ -493,8 +509,9 @@ export function pitch(g, orders = {}) {
 function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const def = defenseOf(g);
   const off = offenseOf(g);
-  const contact = st(batter, 'contact') + tb(off, 'bat');
-  const power = st(batter, 'power') + tb(off, 'bat');
+  const pl = platoonOf(batter, pitcher);
+  const contact = st(batter, 'contact') + tb(off, 'bat') + pl;
+  const power = st(batter, 'power') + tb(off, 'bat') + pl;
   const speed = st(batter, 'speed');
   const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
   const defAvg = def.team.batters.reduce((s, x) => s + st(x, 'defense'), 0) / def.team.batters.length;
