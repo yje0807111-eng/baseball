@@ -17,7 +17,7 @@ const OUT_W = 800, OUT_H = 600;
 // 얼굴 중심과 폭 (결과 픽셀). 원본 인물 자리·크기에 가깝게 잡아 확대·축소 폭을 줄인다
 const TARGET = { cx: 0.59 * OUT_W, cy: 0.42 * OUT_H, w: 0.17 * OUT_W };
 const BG = { r: 5, g: 8, b: 15 };
-const FIX = {};
+const FIX = { 'mg-royster': { cx: 692, cy: 240, w: 165 } }; // 피부색으로 얼굴을 못 잡는 그림
 // 옮기면서 비는 가장자리와 원본 경계가 드러나지 않게 가장자리를 배경색으로 덮는다
 const VIGNETTE = Buffer.from(`<svg width="${OUT_W}" height="${OUT_H}"><defs>
 <radialGradient id="v" cx="59%" cy="45%" r="75%"><stop offset="60%" stop-color="#05080f" stop-opacity="0"/><stop offset="100%" stop-color="#05080f" stop-opacity="1"/></radialGradient>
