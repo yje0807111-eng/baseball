@@ -422,6 +422,24 @@ function callCards(g) {
   ].filter(Boolean).slice(0, 3);
 }
 
+/**
+ * 이닝별 안타 · 점수 — 오른쪽 아래 '이닝 흐름'(mockups/side-info2 6안). 9회 넘는 연장은 9번째 칸에 모은다.
+ * 점수는 날아오는 +N 이 닿을 때까지 전광판과 같이 붙잡는다(hold) — 표가 전광판보다 먼저 오르지 않게
+ */
+const HIT_RESULTS = new Set(['1B', '2B', '3B', 'HR']);
+function inningFlow(g, hold = {}) {
+  const hits = { home: Array(9).fill(0), away: Array(9).fill(0) };
+  for (const e of g.events) if (HIT_RESULTS.has(e.result)) hits[e.top ? 'away' : 'home'][Math.min(8, e.inning - 1)] += 1;
+  const runs = (side) => {
+    const line = g[side].line || [];
+    const out = Array.from({ length: 9 }, (_, i) => (i < 8 ? line[i] ?? null : line.slice(8).some((v) => v != null) ? line.slice(8).reduce((n, v) => n + (v || 0), 0) : null));
+    const last = out.map((v, i) => (v != null ? i : -1)).filter((i) => i >= 0).pop();
+    if (last != null && hold[side]) out[last] = Math.max(0, out[last] - hold[side]);
+    return out;
+  };
+  return { hits, runs: { home: runs('home'), away: runs('away') } };
+}
+
 /* ───────── 본체 ───────── */
 /* 연출 조각 열쇠 — 같은 틱에 결과 글씨와 공수 교대가 함께 뜨면 Date.now() 가 같아 형제 열쇠가 겹쳤다(React "same key" 경고). 같은 자리의 형제(투구 카드 · 결과 글씨 · 공수 교대)는 열쇠 앞에 이름을 붙여 서로 겹치지 않게 */
 let fxSeq = 0;
@@ -1217,20 +1235,57 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </ul>
             </section>
 
-            {/* 증강 — 우리 · 상대가 이 경기에 건 증강(정비 끝 1장 · 7회 1장). 해설 칸 자리 — 한 줄씩, 효과는 이름에 올리면 */}
-            {aug && (
-              <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col justify-center gap-1.5 overflow-hidden px-5 py-3" style={{ '--c': '22px' }}>
-                {[['우리', aug.list, cMy], ['상대', aug.oppList || [], THEIRS]].map(([ko, arr, c]) => (
-                  <div key={ko} className="flex min-w-0 items-baseline gap-3">
-                    <span className="w-8 shrink-0 text-t4 font-bold" style={{ color: c }}>{ko}</span>
-                    <span className="min-w-0 flex-1 truncate text-t3 font-bold" style={{ color: arr.length ? '#fff' : '#6b7280' }}
-                      title={arr.map((a) => `${a.name} — ${augWho(a).rest}`).join('\n')}>
-                      {arr.length ? arr.map((a) => `${a.name}${a.lv ? ` +${a.lv}` : ''}`).join(' · ') : '-'}
+            {/* 이닝 흐름(위 상대 · 아래 우리 거울 막대 — 막대 = 안타 · 숫자 = 점수, 지금 이닝은 금색 테두리) + 증강(우리 · 상대 · 7회 빈 칸) */}
+            {(() => {
+              const fl = inningFlow(g, scoreHold);
+              const now = Math.min(8, g.inning - 1);
+              const bar = (side, i, up) => {
+                const h = fl.hits[side][i], r = fl.runs[side][i], k = side === 'away' ? THEIRS : cMy;
+                if (r == null) return <span />;
+                const num = <b className="font-display text-t3 leading-none" style={{ color: r ? k : '#475569' }}>{r || ''}</b>;
+                const stick = <i className="block w-3.5 shrink-0" style={{ height: h ? h * 15 : r ? 3 : 0, borderRadius: up ? '3px 3px 0 0' : '0 0 3px 3px', background: r ? k : `${k}55` }} />;
+                return <span className={`flex flex-col items-center gap-0.5 ${up ? 'justify-end' : 'justify-start'}`}>{up ? <>{num}{stick}</> : <>{stick}{num}</>}</span>;
+              };
+              const augRow = (ko, arr, k) => (
+                <div key={ko} className="flex min-w-0 items-center gap-2.5">
+                  <b className="w-7 shrink-0 text-t4" style={{ color: k }}>{ko}</b>
+                  {arr.map((a2) => (
+                    <span key={a2.id} className="flex min-w-0 items-center gap-2" title={augWho(a2).rest}>
+                      <i className="block h-9 w-9 shrink-0 rounded-[9px] bg-cover" style={{ backgroundImage: `url(augments/${a2.id}.webp)`, backgroundPosition: '50% 20%', boxShadow: `0 0 0 1.5px ${k}` }} />
+                      <b className="truncate text-t4 text-white">{a2.name}{a2.lv ? <span className="ml-0.5 text-amber-300">+{a2.lv}</span> : null}</b>
                     </span>
+                  ))}
+                  {!arr.length && <span className="text-t4 text-gray-500">-</span>}
+                  {arr.length < 2 && g.inning < 7 && <i className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-[9px] text-[11px] font-bold not-italic text-gray-500" style={{ border: '1.5px dashed rgba(255,255,255,.2)' }}>7회</i>}
+                </div>
+              );
+              return (
+                <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden px-5 py-4" style={{ '--c': '22px' }}>
+                  <div className="flex items-center">
+                    <p className="mt-lab" style={{ '--a': '#60a5fa' }}>이닝 흐름</p>
+                    <span className="ml-auto text-t4 text-gray-400">막대 = 안타 · 숫자 = 점수</span>
                   </div>
-                ))}
-              </section>
-            )}
+                  <div className="grid min-h-0 flex-1 gap-x-1.5" style={{ gridTemplateColumns: '3.8rem repeat(9,1fr)', gridTemplateRows: '1fr auto 1fr' }}>
+                    <b className="self-center truncate text-t4" style={{ color: THEIRS }}>{shortTeam(away.name)}</b>
+                    {Array.from({ length: 9 }, (_, i) => <span key={`a${i}`} className="flex flex-col justify-end">{bar('away', i, true)}</span>)}
+                    <span />
+                    {Array.from({ length: 9 }, (_, i) => (
+                      <span key={`n${i}`} className="text-center font-display text-t4 leading-[16px]"
+                        style={{ color: i === now ? '#f5d27a' : '#475569', borderTop: '1px solid rgba(255,255,255,.08)', borderBottom: '1px solid rgba(255,255,255,.08)', ...(i === now ? { boxShadow: 'inset 0 0 0 1.5px #f5d27a', borderRadius: 4 } : null) }}>{i + 1}</span>
+                    ))}
+                    <b className="self-center truncate text-t4" style={{ color: cMy }}>{shortTeam(home.name, true)}</b>
+                    {Array.from({ length: 9 }, (_, i) => <span key={`h${i}`} className="flex flex-col justify-start">{bar('home', i, false)}</span>)}
+                  </div>
+                  {aug && (
+                    <>
+                      <span className="block h-px shrink-0 bg-white/[0.07]" />
+                      {augRow('우리', aug.list, cMy)}
+                      {augRow('상대', aug.oppList || [], THEIRS)}
+                    </>
+                  )}
+                </section>
+              );
+            })()}
           </div>
         </div>
       </div>
