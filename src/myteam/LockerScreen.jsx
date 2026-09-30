@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { staffByRole, staffRules, staffReserve, styleOf, clubBond, ruleText, ruleValue, ruleCat, levelMul, CLUB_KO, CLUB_NEED, STAFF_LEVEL_MAX } from './staff.js';
+import { staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -62,13 +62,11 @@ const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
-/* 코치진 효과 갈래(staff.js ruleCat) — 이름 · 색. 효과 한 줄 "타자 컨택 +6 · 투수 제구 −3" 은 숫자만 갈래 색(대가는 빨강) */
-const EFF_LABEL = { bat: '타격', field: '수비', pitch: '투수', run: '주루', ops: '운영' };
-const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24' };
+/* 코치진 효과 갈래(staff.js ruleCat) — 이름 · 색. 효과 한 줄 "타자 컨택 +6" 은 숫자만 갈래 색 */
+const EFF_LABEL = { bat: '타격', field: '수비', pitch: '투수', run: '주루', ops: '운영', all: '전체' };
+const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24', all: '#c4b5fd' };
 const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
-const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: x.v < 0 ? '#f87171' : EFF_COLOR[ruleCat(x)], ...ruleText(x) }));
-/** 감독 구단 궁합 한 줄 — 'KIA · 삼성 4/6' */
-const bondText = (m, squad) => (m?.clubs?.length ? `${m.clubs.map((c) => CLUB_KO[c]).join(' · ')} ${Math.min(clubBond(m, squad).n, CLUB_NEED)}/${CLUB_NEED}` : '');
+const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], ...ruleText(x) }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
 const GOLD = '#fde047';
@@ -873,7 +871,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
   ];
   /* 코치진 효과를 갈래별 승률(%p)로 — 오른쪽 판 막대 */
   const catSum = (list) => list.reduce((o, x) => ({ ...o, [ruleCat(x)]: (o[ruleCat(x)] || 0) + ruleValue(x) }), {});
-  const eff = catSum(Object.values(staff).flatMap((m) => staffRules(m, squad)));
+  const eff = catSum(Object.values(staff).flatMap((m) => staffRules(m)));
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
@@ -1027,7 +1025,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                           <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-400'}`}>{m?.name || '비어 있음'}</b>
                           {m ? (
                             <span className="block truncate text-t4 font-semibold text-slate-300">
-                              {styleOf(m) ? <b className="text-[#c4b5fd]">{styleOf(m).ko}</b> : effTags(staffRules(m, squad)).map((e, i) => (
+                              {styleOf(m) ? <b className="text-[#c4b5fd]">{styleOf(m).ko}</b> : effTags(staffRules(m)).map((e, i) => (
                                 <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                               ))}
                             </span>
@@ -1054,7 +1052,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                     </span>
                     <small className="truncate text-t4 text-gray-400">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</small>
                     <span className="line-clamp-2 text-t4 font-semibold leading-snug text-slate-300">
-                      {effTags(staffRules(m, squad)).map((e, i) => (
+                      {effTags(staffRules(m)).map((e, i) => (
                         <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[6px] text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                       ))}
                     </span>
@@ -1094,7 +1092,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
           const VIO = '#c4b5fd';
           const slotInfo = STAFF_SLOTS.find((x) => x.key === staffSlot);
           const cur = staff[staffSlot];
-          const mine = cur ? catSum(staffRules(cur, squad)) : staffSlot ? {} : eff;
+          const mine = cur ? catSum(staffRules(cur)) : staffSlot ? {} : eff;
           const lv = cur?.level || 1;
           const tickets = team.staffTickets || 0;
           const shown = Object.entries(eff).filter(([, v]) => Math.abs(v) >= 0.05);
@@ -1157,11 +1155,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                         <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
                         <span className="text-t4 text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
                         <span className="mt-0.5 text-t4 leading-snug text-gray-300">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</span>
-                        {m.clubs?.length > 0 && (
-                          <span className="text-t4 font-bold" style={{ color: clubBond(m, squad).on ? '#34d399' : '#6b7280' }}>구단 궁합 {bondText(m, squad)}{clubBond(m, squad).on ? ' · ×1.5' : ''}</span>
-                        )}
                         <div className="mt-auto flex flex-col gap-0.5">
-                          {effTags(staffRules(m, squad)).map((e) => (
+                          {effTags(staffRules(m)).map((e) => (
                             <span key={e.k} className="flex items-baseline gap-1.5 text-t3 text-gray-300">
                               {e.label}<b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b>
                             </span>

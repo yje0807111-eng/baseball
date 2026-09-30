@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { applyStaff } from '../src/myteam/match.js';
-import { staffRules, staffTeam, staffValue, clubBond, STAFF, CP_PER_PCT } from '../src/myteam/staff.js';
+import { staffRules, staffTeam, staffValue, STAFF, CP_PER_PCT } from '../src/myteam/staff.js';
 import { afterGame } from '../src/myteam/fatigue.js';
 import { withForm, FORM_OF } from '../src/myteam/form.js';
 import { createGame, stealOdds } from '../src/engine/pitchSim.js';
@@ -20,14 +20,17 @@ describe('코치진 규칙 → 선수 능력치', () => {
     expect(p.stats.stamina).toBe(98);
     expect(p.stats.stability).toBe(78);
   });
-  it('감독 대가(−)는 강화 · 궁합으로 커지지 않고, + 만 ×1.2(Lv.2) · ×1.5(궁합)', () => {
-    const mgr = { role: 'manager', style: 'attack', grade: 1, clubs: ['kia'], level: 2 };
-    const squad = Array.from({ length: 6 }, (_, i) => P(`b${i}`, 'batter'));
-    expect(clubBond(mgr, squad).on).toBe(true);
-    const rules = staffRules(mgr, squad);
-    expect(rules.find((x) => x.stat === 'contact').v).toBe(Math.round(6 * 1.2 * 1.5));
-    expect(rules.find((x) => x.stat === 'control').v).toBe(-3);
-    expect(clubBond(mgr, squad.slice(0, 5)).on).toBe(false);
+  it('감독은 색깔 한 줄 — 급 · 강화가 크기만 키운다', () => {
+    const mgr = { role: 'manager', style: 'attack', grade: 3, level: 2 };
+    expect(staffRules(mgr)).toEqual([{ who: 'batter', stat: 'contact', v: Math.round(6 * 1.3 * 1.2) }]);
+  });
+  it("'능력'은 타자 컨택 · 파워 / 투수 구위 · 제구에", () => {
+    const [b, p] = applyStaff([P('b', 'batter', { cost: 70 }), P('p', 'pitcher', { cost: 70 })], { manager: { role: 'manager', style: 'develop', grade: 1 } });
+    expect([b.stats.contact, b.stats.power, b.stats.speed]).toEqual([86, 86, 80]);
+    expect([p.stats.stuff, p.stats.control, p.stats.stamina]).toEqual([86, 84, 90]);
+  });
+  it('모든 사람이 효과 한 줄', () => {
+    for (const s of STAFF) expect(staffRules(s).length).toBe(1);
   });
 });
 
@@ -42,10 +45,10 @@ describe('코치진 팀 운영', () => {
     expect(afterGame({}, ['p'], { p: 95 }, 'p', 1).p.rest).toBe(3);
     expect(afterGame({}, ['r'], { r: 10 }, null, 1).r.rest).toBe(0);
   });
-  it('믿음의 야구 — 나쁜 날 흔들림 절반 · 좋은 날은 ¾', () => {
+  it('믿음의 야구 — 나쁜 날 흔들림만 절반', () => {
     const b = P('b', 'batter');
     expect(withForm(b, FORM_OF.cold, 0.5).stats.contact).toBe(80 + Math.round(-7 * 0.5));
-    expect(withForm(b, FORM_OF.hot, 0.5).stats.contact).toBe(80 + Math.round(7 * 0.75));
+    expect(withForm(b, FORM_OF.hot, 0.5).stats.contact).toBe(87);
   });
 });
 

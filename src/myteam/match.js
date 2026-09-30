@@ -27,12 +27,12 @@ export function lineupOf(roster, bench = []) {
 
 /**
  * 코치진 효과를 선수 능력치에 얹는다 — 조건(좌타 · 선발 · 싼 선수 …)이 맞는 선수에게만(staff.js staffBoostFor).
- * 감독 구단 궁합은 이 로스터(엔트리 전원)로 센다. 팀 운영(도루 · 휴식 · 흔들림)은 여기서 얹지 않는다 — prep.js · fatigue.js
+ * 팀 운영(도루 · 휴식 · 흔들림)은 여기서 얹지 않는다 — prep.js · fatigue.js
  */
 export function applyStaff(roster, staff) {
   if (!staff || !Object.values(staff).some(Boolean)) return roster;
   return roster.map((p) => {
-    const add = staffBoostFor(p, staff, roster);
+    const add = staffBoostFor(p, staff);
     const keys = Object.keys(add);
     if (!keys.length) return p;
     const s = { ...p.stats };

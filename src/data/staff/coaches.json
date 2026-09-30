@@ -8,17 +8,7 @@
       {
         "who": "SP",
         "stat": "stuff",
-        "v": 6
-      },
-      {
-        "who": "SP",
-        "stat": "control",
-        "v": 4
-      },
-      {
-        "who": "SP",
-        "stat": "stamina",
-        "v": 12
+        "v": 8
       }
     ],
     "note": "롯데 수석·두산 우승 투수코치",
@@ -32,13 +22,8 @@
     "rules": [
       {
         "who": "pitcher",
-        "stat": "stuff",
-        "v": 3
-      },
-      {
-        "who": "pitcher",
         "stat": "control",
-        "v": 4
+        "v": 8
       }
     ],
     "note": "SK 2018 우승 투수코치",
@@ -54,11 +39,6 @@
         "who": "batter",
         "stat": "contact",
         "v": 5
-      },
-      {
-        "who": "batter",
-        "stat": "defense",
-        "v": 3
       }
     ],
     "note": "SK·SSG 우승 타격코치",
@@ -73,17 +53,7 @@
       {
         "who": "pitcher",
         "stat": "stuff",
-        "v": 3
-      },
-      {
-        "who": "SP",
-        "stat": "stamina",
-        "v": 13
-      },
-      {
-        "who": "batter",
-        "stat": "defense",
-        "v": 2
+        "v": 4
       }
     ],
     "note": "KIA 2017 우승 수석코치",
@@ -98,12 +68,7 @@
       {
         "who": "IF",
         "stat": "defense",
-        "v": 10
-      },
-      {
-        "who": "batter",
-        "stat": "contact",
-        "v": 2
+        "v": 12
       }
     ],
     "note": "두산 2019 우승 수석코치",
@@ -116,19 +81,9 @@
     "era": "2022-2024",
     "rules": [
       {
-        "who": "C",
-        "stat": "defense",
-        "v": 16
-      },
-      {
         "who": "pitcher",
         "stat": "control",
-        "v": 4
-      },
-      {
-        "who": "pitcher",
-        "stat": "stuff",
-        "v": 2
+        "v": 7
       }
     ],
     "note": "KIA 2024 우승 수석코치",
@@ -144,15 +99,6 @@
         "who": "IF",
         "stat": "defense",
         "v": 12
-      },
-      {
-        "who": "batter",
-        "stat": "speed",
-        "v": 6
-      },
-      {
-        "team": "steal",
-        "v": 0.03
       }
     ],
     "note": "SSG 2022 우승 수석코치",
@@ -168,15 +114,6 @@
         "who": "batter",
         "stat": "contact",
         "v": 3
-      },
-      {
-        "who": "batter",
-        "stat": "speed",
-        "v": 6
-      },
-      {
-        "team": "steal",
-        "v": 0.02
       }
     ],
     "note": "KIA 2009 우승 수석코치",
@@ -191,7 +128,7 @@
       {
         "who": "batter",
         "stat": "contact",
-        "v": 6
+        "v": 5
       }
     ],
     "note": "현대 왕조 타격코치",
@@ -206,16 +143,7 @@
       {
         "who": "batter",
         "stat": "speed",
-        "v": 12
-      },
-      {
-        "who": "batter",
-        "stat": "contact",
-        "v": 1
-      },
-      {
-        "team": "steal",
-        "v": 0.04
+        "v": 14
       }
     ],
     "note": "WBC·프리미어12 타격코치",
@@ -230,12 +158,7 @@
       {
         "who": "slugger",
         "stat": "power",
-        "v": 13
-      },
-      {
-        "who": "batter",
-        "stat": "contact",
-        "v": 2
+        "v": 14
       }
     ],
     "note": "삼성 우승 3회 타격코치",
@@ -250,12 +173,7 @@
       {
         "who": "L",
         "stat": "contact",
-        "v": 8
-      },
-      {
-        "who": "L",
-        "stat": "power",
-        "v": 5
+        "v": 10
       }
     ],
     "note": "롯데 팀 타율 1위 타격코치",
@@ -271,11 +189,6 @@
         "who": "batter",
         "stat": "contact",
         "v": 3
-      },
-      {
-        "who": "batter",
-        "stat": "speed",
-        "v": 6
       }
     ],
     "note": "두산 2015·2016 우승 타격코치",
@@ -290,12 +203,7 @@
       {
         "who": "slugger",
         "stat": "power",
-        "v": 10
-      },
-      {
-        "who": "batter",
-        "stat": "power",
-        "v": 2
+        "v": 12
       }
     ],
     "note": "한화·롯데 타격코치",
@@ -311,11 +219,6 @@
         "who": "hitter",
         "stat": "contact",
         "v": 10
-      },
-      {
-        "who": "batter",
-        "stat": "speed",
-        "v": 5
       }
     ],
     "note": "두산·NC 타격코치",
@@ -330,7 +233,7 @@
       {
         "who": "L",
         "stat": "contact",
-        "v": 10
+        "v": 9
       }
     ],
     "note": "LG 타격코치",
@@ -344,13 +247,8 @@
     "rules": [
       {
         "who": "pitcher",
-        "stat": "control",
-        "v": 5
-      },
-      {
-        "who": "pitcher",
         "stat": "stuff",
-        "v": 2
+        "v": 4
       }
     ],
     "note": "롯데·LG·한화 투수코치",
@@ -365,12 +263,7 @@
       {
         "who": "SP",
         "stat": "stuff",
-        "v": 5
-      },
-      {
-        "who": "SP",
-        "stat": "control",
-        "v": 6
+        "v": 8
       }
     ],
     "note": "한화 투수코치 5년",
@@ -385,12 +278,7 @@
       {
         "who": "SP",
         "stat": "stuff",
-        "v": 6
-      },
-      {
-        "who": "SP",
-        "stat": "control",
-        "v": 5
+        "v": 9
       }
     ],
     "note": "삼성 2011·2012 우승 투수코치",
@@ -405,12 +293,7 @@
       {
         "who": "RP",
         "stat": "stuff",
-        "v": 8
-      },
-      {
-        "who": "RP",
-        "stat": "stamina",
-        "v": 16
+        "v": 10
       }
     ],
     "note": "현대 우승 투수코치",
@@ -423,19 +306,9 @@
     "era": "2005-2015",
     "rules": [
       {
-        "who": "SP",
-        "stat": "stamina",
-        "v": 15
-      },
-      {
         "who": "RP",
         "stat": "stuff",
-        "v": 6
-      },
-      {
-        "who": "RP",
-        "stat": "control",
-        "v": 5
+        "v": 8
       }
     ],
     "note": "두산 투수코치 10년",
@@ -465,7 +338,7 @@
       {
         "who": "OF",
         "stat": "defense",
-        "v": 13
+        "v": 14
       }
     ],
     "note": "KIA 2017 우승 수비코치",
@@ -480,12 +353,7 @@
       {
         "who": "IF",
         "stat": "defense",
-        "v": 11
-      },
-      {
-        "who": "OF",
-        "stat": "defense",
-        "v": 5
+        "v": 14
       }
     ],
     "note": "SK 왕조 수비코치",
@@ -501,11 +369,6 @@
         "who": "pitcher",
         "stat": "stuff",
         "v": 4
-      },
-      {
-        "who": "SP",
-        "stat": "control",
-        "v": 3
       }
     ],
     "note": "NC 초대 투수코치 · 변화구",
@@ -520,12 +383,7 @@
       {
         "who": "RP",
         "stat": "stuff",
-        "v": 6
-      },
-      {
-        "who": "RP",
-        "stat": "control",
-        "v": 4
+        "v": 9
       }
     ],
     "note": "LG 투수코치 · 뒤에 단장",
@@ -540,12 +398,7 @@
       {
         "who": "RP",
         "stat": "stuff",
-        "v": 7
-      },
-      {
-        "who": "RP",
-        "stat": "stamina",
-        "v": 12
+        "v": 10
       }
     ],
     "note": "SSG 투수코치 2022 우승",
@@ -558,19 +411,9 @@
     "era": "2013-2019",
     "rules": [
       {
-        "who": "foreign",
-        "stat": "stuff",
-        "v": 10
-      },
-      {
-        "who": "foreign",
-        "stat": "control",
-        "v": 8
-      },
-      {
         "who": "pitcher",
         "stat": "stuff",
-        "v": 2
+        "v": 3
       }
     ],
     "note": "KIA 1군 투수코치 · 외국인 소통",
@@ -585,17 +428,7 @@
       {
         "who": "pitcher",
         "stat": "control",
-        "v": 5
-      },
-      {
-        "who": "SP",
-        "stat": "stuff",
-        "v": 3
-      },
-      {
-        "who": "SP",
-        "stat": "stamina",
-        "v": 12
+        "v": 8
       }
     ],
     "note": "통산 210승 · 한화 투수코치",
@@ -609,13 +442,8 @@
     "rules": [
       {
         "who": "RP",
-        "stat": "control",
-        "v": 8
-      },
-      {
-        "who": "RP",
         "stat": "stuff",
-        "v": 3
+        "v": 7
       }
     ],
     "note": "불펜코치 · 좌완 원포인트",
@@ -630,12 +458,7 @@
       {
         "who": "cheap",
         "stat": "stuff",
-        "v": 8
-      },
-      {
-        "who": "cheap",
-        "stat": "control",
-        "v": 6
+        "v": 10
       }
     ],
     "note": "투수 육성 · 넥센 · 한화 코치",
@@ -650,17 +473,7 @@
       {
         "who": "RP",
         "stat": "stuff",
-        "v": 5
-      },
-      {
-        "who": "RP",
-        "stat": "stamina",
-        "v": 15
-      },
-      {
-        "who": "pitcher",
-        "stat": "control",
-        "v": 2
+        "v": 8
       }
     ],
     "note": "WBC 불펜코치 · 재활 · 육성",
@@ -673,14 +486,9 @@
     "era": "2018-",
     "rules": [
       {
-        "who": "C",
-        "stat": "defense",
-        "v": 18
-      },
-      {
         "who": "pitcher",
         "stat": "control",
-        "v": 4
+        "v": 7
       }
     ],
     "note": "배터리코치 · 앉아쏴",
@@ -694,11 +502,6 @@
     "rules": [
       {
         "who": "batter",
-        "stat": "contact",
-        "v": 2
-      },
-      {
-        "who": "L",
         "stat": "contact",
         "v": 3
       }
@@ -715,16 +518,7 @@
       {
         "who": "batter",
         "stat": "speed",
-        "v": 10
-      },
-      {
-        "who": "batter",
-        "stat": "contact",
-        "v": 1
-      },
-      {
-        "team": "steal",
-        "v": 0.05
+        "v": 12
       }
     ],
     "note": "작전 · 주루 전문",
@@ -739,16 +533,7 @@
       {
         "who": "batter",
         "stat": "speed",
-        "v": 14
-      },
-      {
-        "who": "batter",
-        "stat": "contact",
-        "v": 1
-      },
-      {
-        "team": "steal",
-        "v": 0.06
+        "v": 16
       }
     ],
     "note": "주루 · 국가대표 주루코치",
