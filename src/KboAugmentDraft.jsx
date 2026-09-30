@@ -8,7 +8,7 @@ import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNT
 import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
-import { statColor, statPct, teamNeon } from './myteam/teamColor.js';
+import { STAT_COLOR_KO, statColor, statPct, teamNeon } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
 import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
@@ -3787,7 +3787,9 @@ const TierIcon = ({ tier }) => (
 );
 
 /** 효과 글 속 숫자만 빛나게 */
-const LitNums = ({ text }) => <>{String(text).split(/([+\-−]\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className={`aug-num ${/^[-−]/.test(t) ? 'neg' : ''}`}>{t}</b> : t))}</>;
+/* 숫자 색 = 바로 앞 능력치의 색(STAT_COLOR_KO — 파워 · 구위 빨강, 컨택 · 제구 초록, 주루 · 체력 노랑, 수비 · 안정 파랑). 영역 이름(타격 · 투구 …)이면 그 영역 색, 둘 다 없으면 + 는 카드 영역 색 · − 는 빨강 */
+const augNumColor = (w) => STAT_COLOR_KO[w] ?? Object.values(AUG_AREA).find(([ko]) => ko === w)?.[1];
+const LitNums = ({ text, tone }) => { const p = String(text).split(/([+\-−]\d+(?:\.\d+)?%?p?)/g); return <>{p.map((t, i) => (i % 2 ? <b key={i} className={`aug-num ${/^[-−]/.test(t) ? 'neg' : ''}`} style={{ color: augNumColor(p[i - 1].match(/(\S+)\s*$/)?.[1]) ?? (/^[-−]/.test(t) ? undefined : tone) }}>{t}</b> : t))}</>; };
 /** 이 증강을 받는 선수 — 효과 글 맨 앞 대상(타자 · 투수 · 내야수 …). 없거나 여럿이면 영역 이름(타격 · 투구 · 수비 · 팀 전체). 숫자는 부호 붙은 것(+ · −)만 색 */
 const AUG_WHO = ['타자', '투수', '내야수', '외야수', '포수', '불펜 투수', '선발 투수'];
 function augWho(o) {
@@ -3839,7 +3841,7 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
               <>
                 <span className="aug-band" style={{ '--k': w.color }}>{w.who}</span>
                 {/* 첫 줄 수치(숫자만 색 — 오름 초록 · 깎임 빨강) · 둘째 줄 설명 */}
-                <span className="aug-desc"><span><LitNums text={w.rest} /></span>{o.note && <span>{o.note}</span>}</span>
+                <span className="aug-desc"><span><LitNums text={w.rest} tone={w.color} /></span>{o.note && <span>{o.note}</span>}</span>
               </>
             );
           })()}
