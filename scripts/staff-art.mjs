@@ -30,17 +30,29 @@ const HOME = {
   'bc-parkchulwoo': ['두산', 2016], 'bc-jangjonghun': ['한화', 2008], 'bc-kimkwanglim': ['두산', 2007], 'bc-leebyungkyu': ['LG', 2019],
   'pc-yangsanghun': ['롯데', 1999], 'pc-jeongminchul': ['한화', 2012], 'pc-ochiaieiji': ['삼성', 2011], 'pc-jeongmyungwon': ['현대', 2004],
   'pc-kwonmyungchul': ['두산', 2015], 'pc-parkjinman': ['삼성', 2018], 'pc-kimminho': ['KIA', 2017], 'pc-fukuharamineo': ['SK', 2008],
+  // 2026-09-30 더한 30명
+  'mg-royster': ['롯데', 2008], 'mg-kimsijin': ['넥센', 2012], 'mg-leemansu': ['SK', 2012], 'mg-kimjinuk': ['두산', 2013],
+  'mg-jangjeongseok': ['키움', 2019], 'mg-hongwongi': ['키움', 2022], 'mg-leeseungyeop': ['두산', 2023], 'mg-heosamyeong': ['삼성', 2021],
+  'mg-kanginkwon': ['NC', 2023], 'mg-mattwilliams': ['KIA', 2020], 'mg-carlossubero': ['한화', 2021], 'mg-larrysutton': ['롯데', 2022],
+  'mg-wooyongdeuk': ['삼성', 1993], 'mg-ryujihyun': ['LG', 2022], 'mg-leesungyong': ['SSG', 2024], 'mg-kimhansu': ['삼성', 2018],
+  'mg-yangseungho': ['롯데', 2011], 'mg-chowonwoo': ['롯데', 2017],
+  'pc-choiilun': ['LG', 2019], 'pc-chamyungseok': ['LG', 2013], 'pc-jowoongcheon': ['SSG', 2022], 'pc-leedaejin': ['KIA', 2017],
+  'pc-songjinwoo': ['한화', 2018], 'pc-gadeukyeom': ['롯데', 2012], 'pc-jeongmintae': ['한화', 2018], 'pc-baeyoungsoo': ['두산', 2021],
+  'pc-joinsung': ['두산', 2019], 'bc-jangwonjin': ['두산', 2016], 'bc-kimjaegeol': ['삼성', 2014], 'bc-leejongbeom': ['LG', 2023],
 };
-const ORIGIN = { 'mg-treyhillman': 'American', 'pc-ochiaieiji': 'Japanese', 'pc-fukuharamineo': 'Japanese' };
-const FIELD_COACH = new Set(['pc-parkjinman', 'pc-kimminho', 'pc-fukuharamineo']);
+const ORIGIN = { 'mg-treyhillman': 'American', 'pc-ochiaieiji': 'Japanese', 'pc-fukuharamineo': 'Japanese',
+  'mg-royster': 'African-American', 'mg-mattwilliams': 'American', 'mg-carlossubero': 'Venezuelan', 'mg-larrysutton': 'American' };
+const FIELD_COACH = new Set(['pc-parkjinman', 'pc-kimminho', 'pc-fukuharamineo', 'pc-joinsung']);
 const TEAM = {
   KIA: ['KIA Tigers', 'crimson red'], 해태: ['Haitai Tigers', 'crimson red'], 삼성: ['Samsung Lions', 'electric blue'],
   LG: ['LG Twins', 'hot pink'], 두산: ['Doosan Bears', 'violet blue'], OB: ['OB Bears', 'violet blue'],
   SK: ['SK Wyverns', 'crimson red'], SSG: ['SSG Landers', 'crimson red'], 롯데: ['Lotte Giants', 'light blue'],
   한화: ['Hanwha Eagles', 'bright orange'], 현대: ['Hyundai Unicorns', 'teal'], NC: ['NC Dinos', 'sky blue'], KT: ['KT Wiz', 'scarlet red'],
+  키움: ['Kiwoom Heroes', 'burgundy'], 넥센: ['Nexen Heroes', 'burgundy'],
 };
 const ROLE = { manager: 'manager', head: 'head coach', batting: 'hitting coach', pitching: 'pitching coach' };
-const EN_NAME = { 'mg-treyhillman': 'Trey Hillman', 'pc-ochiaieiji': 'Eiji Ochiai', 'pc-fukuharamineo': 'Mineo Fukuhara' };
+const EN_NAME = { 'mg-treyhillman': 'Trey Hillman', 'pc-ochiaieiji': 'Eiji Ochiai', 'pc-fukuharamineo': 'Mineo Fukuhara',
+  'mg-royster': 'Jerry Royster', 'mg-mattwilliams': 'Matt Williams', 'mg-carlossubero': 'Carlos Subero', 'mg-larrysutton': 'Larry Sutton' };
 const POSES = {
   manager: [
     ['arms firmly crossed over the chest, shoulders squared, chin slightly raised, steady intimidating gaze straight at the camera', 'crossed arms fully visible'],
@@ -83,7 +95,7 @@ if (mode === 'plan') {
       : `wearing the ${year} ${teamName} home uniform jersey and cap (coaching staff wear the same uniform as players)`;
     return {
       id: s.id, name: s.name, ref: refKey ? uniJobs[refKey] : null, refKey: refKey || null,
-      prompt: `Profile portrait for a baseball card game roster screen, semi-realistic digital painting, crisp detail. Subject: ${ORIGIN[s.id] || 'Korean'} professional baseball ${role} ${s.name}, a man ${age}, ${year} ${teamName} coaching staff, ${wear}. Pose: static, facing the camera straight on, calm confident authoritative expression, mouth closed. Tight head-and-shoulders framing, 3:4 vertical: the head is large, top of the cap about 5% below the top edge, chin at about 58% of the height, face horizontally centered, only the top of the shoulders and collar visible at the bottom. Background: flat deep navy (#0b1220) with a soft subtle ${neon} glow behind the head; no stadium, no props, no text except uniform lettering.`,
+      prompt: `Profile portrait for a baseball card game roster screen, semi-realistic digital painting, crisp detail. Subject: ${ORIGIN[s.id] || 'Korean'} professional baseball ${role} ${EN_NAME[s.id] || s.name}, a man ${age}, ${year} ${teamName} coaching staff, ${wear}. Pose: static, facing the camera straight on, calm confident authoritative expression, mouth closed. Tight head-and-shoulders framing, 3:4 vertical: the head is large, top of the cap about 5% below the top edge, chin at about 58% of the height, face horizontally centered, only the top of the shoulders and collar visible at the bottom. Background: flat deep navy (#0b1220) with a soft subtle ${neon} glow behind the head; no stadium, no props, no text except uniform lettering.`,
     };
   });
   writeFileSync(planFile, JSON.stringify(plan, null, 1));

@@ -17,17 +17,17 @@ export const WHO = {
   all: { ko: '선수', f: () => true, share: 1 },
   batter: { ko: '타자', f: (p) => p.type === 'batter', share: 1 },
   pitcher: { ko: '투수', f: (p) => p.type === 'pitcher', share: 1 },
-  SP: { ko: '선발', f: (p) => p.position === 'SP', share: 0.6 }, // 선발이 맡는 이닝 몫
-  RP: { ko: '불펜', f: (p) => p.position === 'RP', share: 0.4 },
+  SP: { ko: '선발', f: (p) => p.position === 'SP', share: 0.5 }, // 선발 · 불펜 몫은 실제 경기 흐름 시뮬로 맞춤(scripts/staff-balance.mjs)
+  RP: { ko: '불펜', f: (p) => p.position === 'RP', share: 0.65 },
   C: { ko: '포수', f: (p) => p.position === 'C', share: 1 / 9 },
   IF: { ko: '내야수', f: (p) => IF.includes(p.position), share: 4 / 9 },
   OF: { ko: '외야수', f: (p) => p.position === 'OF', share: 3 / 9 },
-  L: { ko: '좌타자', f: (p) => p.type === 'batter' && p.hand === 'L', share: 0.32 },
+  L: { ko: '좌타자', f: (p) => p.type === 'batter' && p.hand === 'L', share: 0.42 },
   R: { ko: '우타자', f: (p) => p.type === 'batter' && p.hand === 'R', share: 0.67 },
-  slugger: { ko: '장타자', f: (p) => p.type === 'batter' && (p.stats?.power ?? 0) >= 90, share: 0.3 },
-  hitter: { ko: '교타자', f: (p) => p.type === 'batter' && (p.stats?.contact ?? 0) >= 90, share: 0.3 },
-  foreign: { ko: '외국인', f: (p) => !!p.isForeign, share: 0.12 },
-  cheap: { ko: '싼 선수', f: (p) => (p.cost || 0) <= 80, share: 0.35 },
+  slugger: { ko: '장타자', f: (p) => p.type === 'batter' && (p.stats?.power ?? 0) >= 90, share: 0.45 },
+  hitter: { ko: '교타자', f: (p) => p.type === 'batter' && (p.stats?.contact ?? 0) >= 90, share: 0.45 },
+  foreign: { ko: '외국인', f: (p) => !!p.isForeign, share: 0.06 },
+  cheap: { ko: '싼 선수', f: (p) => (p.cost || 0) <= 80, share: 0.35 }, // ponytail: 처음 받는 엔트리(종합 70대)엔 많고 다 키운 팀(90 CP 안팎)엔 거의 없음 — 몫은 그 사이 어림
 };
 /* ability = 그 선수의 주 능력 전부(타자 컨택 · 파워 / 투수 구위 · 제구) — 화면엔 '능력' 한 칸 */
 export const STAT_KO = { contact: '컨택', power: '파워', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', ability: '능력' };
@@ -40,13 +40,17 @@ const ABILITY = { batter: ['contact', 'power'], pitcher: ['stuff', 'control'] };
  *   체력 +10 → +0.3 · 도루 +5%p → +0.1 · 선수 전원 +1 → +6.5
  * ponytail: rest · calm 은 한 경기 시뮬로 못 재서 어림값 — 연속 경기(시즌) 시뮬이 생기면 다시 잰다
  */
-const STAT_W = { contact: 2.1, power: 1.2, speed: 0.32, defense: 0.85, stuff: 1.2, control: 0.55, stamina: 0.02 };
+const STAT_W = { contact: 2.1, power: 1.2, speed: 0.25, defense: 1.0, stuff: 1.2, control: 0.55, stamina: 0.02 };
 const BAT_WHO = new Set(['batter', 'C', 'IF', 'OF', 'L', 'R', 'slugger', 'hitter']);
 const ARM_WHO = new Set(['pitcher', 'SP', 'RP']);
 const abilityW = (who) => (BAT_WHO.has(who) ? STAT_W.contact + STAT_W.power : ARM_WHO.has(who) ? STAT_W.stuff + STAT_W.control
   : STAT_W.contact + STAT_W.power + STAT_W.stuff + STAT_W.control);
 const TEAM_W = { steal: 5, rest: 2, calm: 9 }; // steal 0.01 당 0.05 · rest 1경기 · calm 0.5(나쁜 날 절반) ≈ 전원 +0.7
-export const CP_PER_PCT = 4;
+/*
+ * 1%p = 몇 CP — 실제 경기 흐름(readyRoster → matchTeamOf)으로 CP 대비 종합을 알뜰히 채운 팀끼리 2,000경기(2026-09-30):
+ * 선수 CP −50 → −8.9%p · −100 → −14.5%p  ⇒ 1 CP ≈ 0.15%p
+ */
+export const CP_PER_PCT = 6.5;
 
 /* 감독 야구 색깔 — 급 1 기준 한 줄. 급 2 ×1.15 · 급 3 ×1.3 */
 const r = (who, stat, v) => ({ who, stat, v });
