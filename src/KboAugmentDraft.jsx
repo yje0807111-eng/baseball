@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
+import { AUG_LEVEL_MAX, bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
 import { clubMax } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
 import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNTLET_MID_MEMENTO, GAUNTLET_MID_AT, asClubPlayer } from './draft/memento.js';
@@ -1892,7 +1892,13 @@ export const KEYFRAMES = `
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
 .aug-gold .aug-desc { margin-top: 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; font-weight: 500; line-height: 1.55; letter-spacing: -.01em; color: #cbd5e1; word-break: keep-all; text-wrap: pretty; }
-.aug-gold .aug-hint { margin-top: auto; font-size: 12px; font-weight: 700; color: #f5d27a; }
+/* 맨 아래 — 조건 · 강화(보석 다섯 칸 = 증강 화면 강화와 같은 모양) */
+.aug-gold .aug-foot { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.aug-gold .aug-lv { display: inline-flex; align-items: center; gap: 10px; height: 28px; padding: 0 14px; border-radius: 999px; font-size: 12.5px; font-weight: 800; color: #e9d5ff;
+  background: rgba(167,139,250,.12); box-shadow: inset 0 0 0 1px rgba(196,181,253,.32); }
+.aug-gold .aug-lv .aug-gem { width: 9px; height: 9px; border-radius: 2px; box-shadow: 0 0 6px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
+.aug-gold .aug-lv .aug-gem.off { background: linear-gradient(135deg, #374151, #1f2937); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+.aug-gold .aug-hint { font-size: 12px; font-weight: 700; color: #f5d27a; }
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
 .aug-num { font: inherit; color: #86efac; } /* 글과 똑같은 글자 — 색만 */
 .aug-num.neg { color: #fca5a5; }
@@ -3811,7 +3817,7 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
               : <span className="block h-full w-full" style={{ background: 'radial-gradient(80% 70% at 50% 45%, rgba(167,139,250,.4), transparent 70%)' }} />}
             <span className="aug-shine" />
           </span>
-          <b className="aug-name">{o.name}{o.lv ? <em className="ml-1.5 font-display not-italic text-[#e9d5ff]">+{o.lv}</em> : null}</b>
+          <b className="aug-name">{o.name}</b>
           {(() => {
             const w = augWho(o);
             return (
@@ -3822,7 +3828,17 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
               </>
             );
           })()}
-          {o.cond && <span className="aug-hint">조건 · {o.cond}</span>}
+          {(o.cond || o.lv > 0) && (
+            <span className="aug-foot">
+              {o.cond && <span className="aug-hint">조건 · {o.cond}</span>}
+              {o.lv > 0 && (
+                <span className="aug-lv" aria-label={`강화 +${o.lv}`}>
+                  <span className="flex gap-[7px]">{Array.from({ length: AUG_LEVEL_MAX }, (_, k) => <i key={k} className={`aug-gem ${k < o.lv ? '' : 'off'}`} />)}</span>
+                  강화 +{o.lv}
+                </span>
+              )}
+            </span>
+          )}
         </span>
       </span>
     </button>
