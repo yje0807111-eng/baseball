@@ -227,9 +227,13 @@ export function hitChanceAt(g, zone) {
   return swing * touch * 0.58 * hit;
 }
 
-/** 이 투수가 오늘 던질 수 있는 공 수 */
+/**
+ * 이 투수가 오늘 던질 수 있는 공 수 — 체력(stamina) 능력치로. 선발 체력 90(가운데) = 95구, 1 오를 때마다 1구.
+ * 구원으로 나오면 45구를 뺀다 — 불펜 체력 62~72 → 22~32구, 선발 출신 롱맨(90) → 50구.
+ * 전엔 안정(stability)으로 셌다 — 체력 능력치 · '불펜 데이'(체력 +20) · 전력투구(체력 −18)가 경기에 닿지 않았다(2026-09-30)
+ */
 const armLimit = (side) =>
-  Math.max(20, 70 + (st(side.pitcher, 'stability', 75) - 70) * 1.2 - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0));
+  Math.max(20, 95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0));
 
 /** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
