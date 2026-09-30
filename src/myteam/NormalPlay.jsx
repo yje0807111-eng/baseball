@@ -9,6 +9,7 @@ import { applyFormTeam, oppSeed } from './form.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
 import { artId } from '../data/artAlias.js';
 import { CUPS, cupOf, cupMult, cupIssue } from './cups.js';
+import { statOf, statPct } from './teamColor.js';
 
 
 
@@ -21,7 +22,32 @@ export const FORMAT_LABEL = { single: '단판', 16: '16강', 32: '32강', 64: '6
 /** 승패 칸 — 형식 고르개와 같은 생김새 */
 const RESULT = { my: ['승', G], opp: ['패', '#f87171'], draw: ['무', '#94a3b8'] };
 
-/** 오늘 상대 — 라벨 · 이름 · 네 부문 칸 · 상대 선발 줄 */
+const PIT_KEYS = [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']];
+/** 상대 선발 — 이름 · 종합 · 능력치 넷(라커와 같은 막대 · 색). 오른쪽 판 아래 빈 칸(mockups/empty-fill 플레이 A) */
+function StarterCard({ p }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="ui-lab font-display" style={{ '--a': G }}>상대 선발</p>
+      <div className="flex items-baseline justify-between">
+        <b className="truncate text-t2 font-black text-white">{p.name}</b>
+        <b className="font-display text-t1" style={{ color: '#f87171' }}>{p.overall}</b>
+      </div>
+      {PIT_KEYS.map(([ko, k]) => {
+        const v = p.stats?.[k] ?? 0;
+        const c = statOf(k, v);
+        return (
+          <div key={k} className="grid items-center gap-2.5" style={{ gridTemplateColumns: '2.6rem minmax(0,1fr) 2.2rem' }}>
+            <span className="text-t4 text-gray-400">{ko}</span>
+            <span className="relative block h-1.5 bg-white/[0.07]"><b className="absolute inset-y-0 left-0 block" style={{ width: `${statPct(v)}%`, background: c.bar }} /></span>
+            <b className="text-right font-display text-t3" style={{ color: c.num }}>{v}</b>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** 오늘 상대 — 라벨 · 이름 · 네 부문 칸 · 상대 선발 카드 */
 function OppPreview({ opp }) {
   return (
     <>
@@ -31,11 +57,7 @@ function OppPreview({ opp }) {
         <b className="font-display text-t1" style={{ color: G }}>{opp.ovr}</b>
       </div>
       <Stats items={opp.parts} />
-      {opp.starter && (
-        <div>
-          <KV k="상대 선발" v={`${opp.starter.name} ${opp.starter.overall}`} color="#f87171" />
-        </div>
-      )}
+      {opp.starter && <StarterCard p={opp.starter} />}
     </>
   );
 }
@@ -55,7 +77,7 @@ function RecentGames({ games }) {
         })}
       </div>
       <div>
-        {games.map((g, i) => (
+        {games.slice(0, 3).map((g, i) => (
           <KV key={i} k={g.opp} v={`${g.myRuns} : ${g.oppRuns}`} color={(RESULT[g.winner] || RESULT.draw)[1]} />
         ))}
       </div>
@@ -320,7 +342,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
           {issues.slice(0, 4).map((x) => <li key={x} className="text-t3 text-amber-300">· {x}</li>)}
         </ul>
       )}
-      <CapBar team={team} sm />
+      {!single && <CapBar team={team} sm />}
       <div className="mt-auto flex flex-col gap-2">
         {!ready ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>
           : single ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>경기 시작 ▶</button>
