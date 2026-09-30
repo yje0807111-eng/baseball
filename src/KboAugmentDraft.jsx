@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
-import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, augShopTickets, spendAugTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
+import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
 import { clubMax } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
 import { mementoOptions, tourneyMemento, SINGLE_MEMENTO, GAUNTLET_MEMENTO, GAUNTLET_MID_MEMENTO, GAUNTLET_MID_AT, asClubPlayer } from './draft/memento.js';
-import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP, withAugTickets } from './myteam/shop.js';
+import { withDraftTickets, DRAFT_TICKET_KO, DRAFT_TICKET_TIP } from './myteam/shop.js';
 import { BANNERS, flagByKey, teamFlag } from './myteam/teamArt.js';
 import { statOf } from './myteam/teamColor.js';
 import { statColor, statPct, teamNeon } from './myteam/teamColor.js';
@@ -42,7 +42,6 @@ export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리
 export const POS_ORDER = ['SP', 'RP', 'C', '1B', '2B', '3B', 'SS', 'OF', 'DH'];
 export const POS_LABEL = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const SEASON_AUGMENTS = 1; // 엔트리를 모두 채운 뒤 시즌 개막 때 고르는 증강 수
-export const FREE_REROLL = 1; // 선택지마다 거저 다시 굴릴 수 있는 횟수
 /* 경기 중 증강은 두 번만 — 플레이볼 직후와 7회 시작 전. 자주 멈추면 경기 흐름이 끊긴다 */
 /* 경기 중 증강을 묻는 회 — 1회 몫은 정비를 마치며 이미 골랐으니 7회 한 번만 */
 const MID_AUG_INNINGS = [7];
@@ -3883,8 +3882,8 @@ function MementoOverlay({ memento, onTake, onSkip }) {
 }
 
 /** 증강 · 돌발 이벤트 고르기 창. eyebrow · heading 은 경기 전 증강처럼 '시즌'이 아닌 곳에서 바꿔 쓴다 */
-export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, rerolls = 0, onReroll = null, heading = '시즌 증강 고르기', backdrop = 'art' }) {
-  const free = choice?.free || 0; // 거저 주는 다시 굴리기
+export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_AUGMENTS, onReroll = null, heading = '시즌 증강 고르기', backdrop = 'art' }) {
+  const used = choice?.used || []; // 다시 굴린 자리 — 카드마다 한 번
   const [hot, setHot] = useState(-1); // 지금 올려 둔 카드
   const [took, setTook] = useState(-1); // 고른 카드 — 결이 끝난 뒤에 넘긴다
   useEffect(() => { // 새로 뜰 때 · 다시 굴렸을 때 — 카드 셋이 올라오는 순간(REVEAL_MS)에 카드 소리 한 번
@@ -3923,14 +3922,14 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
         </div>
         <div className="flex flex-wrap justify-center gap-9" data-sfx="none">
           {choice.options.map((o, i) => (
-            /* 카드 + 그 카드만 다시 굴리는 아이콘 단추(고른 뒤 · 굴릴 것이 없으면 흐리게). 남은 횟수는 단추에 올리면 */
+            /* 카드 + 그 카드만 다시 굴리는 아이콘 단추 — 자리마다 한 번(굴린 자리 · 고른 뒤엔 흐리게) */
             <div key={o.id} className="flex flex-col items-center gap-4">
               <ChoiceCard option={o} index={i} onHot={took < 0 ? setHot : null}
                 state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
                 onChoose={(pick) => { if (took >= 0) return; setTook(i); playSfx('augPick'); setTimeout(() => onChoose(pick), 620); }} />
               {isAug && onReroll && (
-                <button type="button" onClick={() => onReroll(i)} disabled={took >= 0 || !(free > 0 || rerolls > 0)} data-sfx="none"
-                  aria-label={`${o.name} 다시 굴리기`} title={free > 0 ? `다시 굴리기 · 무료 ${free}번` : rerolls > 0 ? `다시 굴리기 · 리롤권 ${rerolls}장` : '다시 굴릴 것 없음'}
+                <button type="button" onClick={() => onReroll(i)} disabled={took >= 0 || !!used[i]} data-sfx="none"
+                  aria-label={`${o.name} 다시 굴리기`} title={used[i] ? '이 자리는 다시 굴림' : '다시 굴리기 · 카드마다 한 번'}
                   className="aug-reroll-one animate-[rise_.4s_ease-out_both]" style={{ transition: took >= 0 ? 'opacity .2s' : undefined, opacity: took >= 0 ? 0 : undefined }}>
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20 12a8 8 0 1 1-2.34-5.66" /><path d="M20 4v5h-5" />
@@ -4922,7 +4921,6 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
   const [seriesPick, setSeriesPick] = useState(false); // 시리즈 지정권 고르개가 열렸는지
   /* 상점에서 산 증강 권 — 리롤은 선택 창에서, 우대는 판이 열릴 때 한 번 */
-  const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
   const [buff, setBuff] = useState(0);
   const [augments, setAugments] = useState([]);
   const [series, setSeries] = useState(null); // 모드를 고르고 드래프트를 시작할 때 첫 시리즈가 열린다
@@ -5100,7 +5098,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       setMatch((m) => ({ ...m, aug: 0, format: size }));
       setPhase('ready');
     }
-    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: rollAugmentOptions(), free: FREE_REROLL }); }
+    if (demo === 'augment') { setPhase('sim'); setAugPicksLeft(SEASON_AUGMENTS); setChoice({ kind: 'augment', options: rollAugmentOptions() }); }
     if (demo === 'memento') { setPhase('mode'); setMemento({ ...GAUNTLET_MEMENTO, options: aiDraft().filter((p) => p.overall >= 85).slice(0, 5), full: false }); } // 기념 카드 창만 바로
   }, []);
 
@@ -5191,17 +5189,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const augmentOptions = (owned) => {
     return rollAugmentOptions(owned);
   };
-  /* 다시 굴리기 — 카드 한 장씩. 거저 주는 횟수를 먼저 쓰고, 떨어지면 리롤권을 한 장 쓴다 */
+  /* 다시 굴리기 — 카드마다 한 번씩(TFT 처럼). 굴린 자리는 used 에 적어 둔다 */
   const rerollAugments = (i) => {
-    if (!choice || choice.kind !== 'augment') return;
-    const roll = (c) => ({ ...c, options: rerollAugmentAt(c.options, i, augments) });
-    if ((choice.free || 0) > 0) {
-      setChoice((c) => (c && c.kind === 'augment' ? { ...roll(c), free: (c.free || 0) - 1 } : c));
-      return;
-    }
-    if (!spendAugTicket('reroll')) return;
-    setAugTickets(withAugTickets(augShopTickets()));
-    setChoice((c) => (c && c.kind === 'augment' ? roll(c) : c));
+    setChoice((c) => (c && c.kind === 'augment' && !c.used?.[i]
+      ? { ...c, options: rerollAugmentAt(c.options, i, augments), used: Object.assign([...(c.used || [])], { [i]: true }) } : c));
   };
   const midPickRef = useRef(null); // 경기 중 증강 선택을 기다리는 resolve
   const [play, setPlay] = useState(null); // 그라운드 중계의 지금 타석
@@ -5337,7 +5328,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       const left = augPicksLeft - 1;
       setAugments(owned);
       setAugPicksLeft(left);
-      setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned), free: FREE_REROLL } : null);
+      setChoice(left > 0 ? { kind: 'augment', options: augmentOptions(owned) } : null);
       if (left <= 0) {                                   // 마지막 증강을 고르면 경기로
         if (gaunt && !gaunt.done) gauntletGo(owned);
         else if (!live && opponent) startGame(true, owned.slice(0, match.aug), tourEntry);
@@ -5586,7 +5577,6 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     /* 라이브: 8구단이 같은 보드를 나눠 갖는 판을 열고 첫 보드를 선반에 올린다 */
     const me = loadAccount();
     const banner = myBanner(); // 프로필에서 고른 배너 구단 — 내가 지명한 카드에 그 구단 그림이 뜬다
-    setAugTickets(withAugTickets(augShopTickets()));
     setTickets(withDraftTickets(draftTickets()));
     setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
@@ -6013,7 +6003,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
       {modal === 'rules' && <RulesModal onClose={() => setModal(null)} />}
       {modal === 'synergy' && <SynergySheetModal roster={roster} candidate={previewTarget} focusId={focusSynergy} draft={phase === 'draft'} onClose={() => setModal(null)} onFocus={(id) => { setPicked(null); setFocusSynergy(id); setModal(null); }} />}
-      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} rerolls={augTickets.reroll} onReroll={rerollAugments} />
+      <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} onReroll={rerollAugments} />
       <MementoOverlay memento={phase === 'result' && result && introFor !== result ? null : memento} onTake={(p) => { if (addToClub(asClubPlayer(p))) bumpWeek('memento'); setMemento(null); }} onSkip={() => setMemento(null)} />
       {phase === 'live' && liveTeams && (
         <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}

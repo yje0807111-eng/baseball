@@ -5,7 +5,7 @@
  */
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { tickBoosts, itemById, spendCard, applyCard, TEAM_BOOST_KO } from './myteam/shop.js';
-import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, augShopTickets, spendAugTicket, bumpWeek } from './myteam/store.js';
+import { addHistory, addGold, saveTeam, saveTournament, claimTournament, saveRanked, claimRanked, loadAccount as reload, bumpWeek } from './myteam/store.js';
 import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
 import { matchTeamOf } from './myteam/prep.js';
@@ -17,7 +17,7 @@ import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
 import { MATCH_AUG_INNINGS, envOf, augOptions, augsForHistory } from './myteam/matchAug.js';
-import { ChoiceOverlay, KEYFRAMES, FREE_REROLL, makeAugmentRuntime, rerollAugmentAt } from './KboAugmentDraft.jsx';
+import { ChoiceOverlay, KEYFRAMES, makeAugmentRuntime, rerollAugmentAt } from './KboAugmentDraft.jsx';
 import { cupOf, cupIssue } from './myteam/cups.js';
 import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
@@ -162,11 +162,10 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
 
   /* 증강 다시 굴리기 — 거저 한 번, 그다음은 리롤권 */
-  /* 다시 굴리기 — 카드 한 장씩(무료 횟수 먼저, 다음은 리롤권 한 장) */
+  /* 다시 굴리기 — 카드마다 한 번씩 */
   const rerollAug = (i) => {
-    if (!augPick) return;
-    if ((augPick.free || 0) <= 0 && !spendAugTicket('reroll')) return;
-    setAugPick({ ...augPick, free: Math.max(0, (augPick.free || 0) - 1), options: rerollAugmentAt(augPick.options, i, ownedRef.current) });
+    if (!augPick || augPick.used?.[i]) return;
+    setAugPick({ ...augPick, options: rerollAugmentAt(augPick.options, i, ownedRef.current), used: Object.assign([...(augPick.used || [])], { [i]: true }) });
   };
   /* 7회 증강: 중계 화면이 기다린다 — 고르면 지금까지 고른 증강 전부를 넘긴다 */
   const midPick = (inning) => {
@@ -174,14 +173,14 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     if (!options.length) return null;
     return new Promise((resolve) => {
       /* 1회(경기 시작) 판은 몇 회라고 쓰지 않는다 — '경기 증강 고르기' */
-      setAugPick({ inning: inning > 1 ? inning : null, options, free: FREE_REROLL, onPick: (a) => { const owned = [...ownedRef.current, a]; ownedRef.current = owned; setAugPick(null); resolve(owned); } });
+      setAugPick({ inning: inning > 1 ? inning : null, options, onPick: (a) => { const owned = [...ownedRef.current, a]; ownedRef.current = owned; setAugPick(null); resolve(owned); } });
     });
   };
   const augOverlay = augPick && (
     <>
       <style>{KEYFRAMES}</style>
       <ChoiceOverlay choice={{ kind: 'augment', ...augPick }} onChoose={(a) => augPick.onPick(a)} total={1} picksLeft={1}
-        rerolls={augShopTickets().reroll || 0} onReroll={rerollAug} heading="경기 증강 고르기" backdrop="blur" />
+        onReroll={rerollAug} heading="경기 증강 고르기" backdrop="blur" />
     </>
   );
 

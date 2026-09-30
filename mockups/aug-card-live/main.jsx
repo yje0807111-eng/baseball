@@ -11,6 +11,6 @@ const options = ids.map((id) => AUGMENTS.find((a) => a.id === id)).filter(Boolea
 createRoot(document.getElementById('root')).render(
   <>
     <style>{KEYFRAMES}</style>
-    <ChoiceOverlay choice={{ kind: 'augment', options, free: 1 }} onChoose={() => {}} total={1} picksLeft={1} rerolls={2} onReroll={() => {}} />
+    <ChoiceOverlay choice={{ kind: 'augment', options, used: [false, true, false] }} onChoose={() => {}} total={1} picksLeft={1} onReroll={() => {}} />
   </>,
 );
