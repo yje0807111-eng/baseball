@@ -8,12 +8,17 @@
       {
         "who": "SP",
         "stat": "stuff",
-        "v": 5
+        "v": 6
+      },
+      {
+        "who": "SP",
+        "stat": "control",
+        "v": 4
       },
       {
         "who": "SP",
         "stat": "stamina",
-        "v": 16
+        "v": 12
       }
     ],
     "note": "롯데 수석·두산 우승 투수코치",
@@ -27,8 +32,13 @@
     "rules": [
       {
         "who": "pitcher",
+        "stat": "stuff",
+        "v": 3
+      },
+      {
+        "who": "pitcher",
         "stat": "control",
-        "v": 5
+        "v": 4
       }
     ],
     "note": "SK 2018 우승 투수코치",
@@ -113,6 +123,11 @@
       {
         "who": "pitcher",
         "stat": "control",
+        "v": 4
+      },
+      {
+        "who": "pitcher",
+        "stat": "stuff",
         "v": 2
       }
     ],
@@ -128,7 +143,12 @@
       {
         "who": "IF",
         "stat": "defense",
-        "v": 8
+        "v": 12
+      },
+      {
+        "who": "batter",
+        "stat": "speed",
+        "v": 6
       },
       {
         "team": "steal",
@@ -186,11 +206,16 @@
       {
         "who": "batter",
         "stat": "speed",
-        "v": 10
+        "v": 12
+      },
+      {
+        "who": "batter",
+        "stat": "contact",
+        "v": 1
       },
       {
         "team": "steal",
-        "v": 0.02
+        "v": 0.04
       }
     ],
     "note": "WBC·프리미어12 타격코치",
@@ -339,6 +364,11 @@
     "rules": [
       {
         "who": "SP",
+        "stat": "stuff",
+        "v": 5
+      },
+      {
+        "who": "SP",
         "stat": "control",
         "v": 6
       }
@@ -395,12 +425,17 @@
       {
         "who": "SP",
         "stat": "stamina",
-        "v": 19
+        "v": 15
+      },
+      {
+        "who": "RP",
+        "stat": "stuff",
+        "v": 6
       },
       {
         "who": "RP",
         "stat": "control",
-        "v": 3
+        "v": 5
       }
     ],
     "note": "두산 투수코치 10년",
