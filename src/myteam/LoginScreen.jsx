@@ -8,7 +8,7 @@ import { signIn, peekAccount, TEAM_NAME_MAX } from './store.js';
 import { UiStyle } from './ui.jsx';
 import BgmButton from '../audio/BgmButton.jsx';
 import { online } from '../net/supabase.js';
-import { logIn, signUp, legacySave, lastLoginId, recoverStart, recoverFinish, checkId, checkPw, checkNick, checkEmail, NICK_MAX, PW_MIN } from '../net/account.js';
+import { logIn, signUp, loginFree, legacySave, lastLoginId, recoverStart, recoverFinish, checkId, checkPw, checkNick, checkEmail, NICK_MAX, PW_MIN } from '../net/account.js';
 
 /*
  * 판 — Battle.net 결(mockups/login-panel P6): 아이콘 입력 · 큰 금빛 단추 · 아래 테두리 단추로 가입.
@@ -195,7 +195,10 @@ function AccountPanel({ onDone }) {
     if (busy) return;
     if (join && step === 1) {
       const bad1 = checkId(id) || checkPw(pw) || (pw !== pw2 ? '비밀번호 불일치' : null);
-      if (bad1) setErr(bad1); else setStep(2);
+      if (bad1) { setErr(bad1); return; }
+      setBusy(true); // 아이디 겹침은 여기서 — 2단계까지 채운 뒤에 되돌아오지 않게
+      try { await loginFree(id); setStep(2); } catch (x) { setErr(x.message || '다시 시도'); }
+      setBusy(false);
       return;
     }
     const bad = join

@@ -36,14 +36,18 @@ export function checkNick(nick) {
   return n >= NICK_MIN && n <= NICK_MAX ? null : `감독 이름 ${NICK_MIN}~${NICK_MAX}자`;
 }
 
+/** 겹친 이름 — 바꿔 넣으라는 한 마디 */
+export const TAKEN = { login: '이미 있는 아이디 · 다른 아이디 입력', nick: '이미 있는 감독 이름 · 다른 이름 입력', club: '이미 있는 구단 이름 · 다른 이름 입력' };
+
 /** 서버 오류 → 화면 문구 */
 export function errText(e) {
   const m = String(e?.message || e || '');
-  if (/already registered|already exists/i.test(m)) return '이미 있는 아이디';
+  if (/already registered|already exists/i.test(m)) return TAKEN.login;
   if (/invalid login credentials/i.test(m)) return '아이디 · 비밀번호 확인';
   if (/password should be at least/i.test(m)) return `비밀번호 ${PW_MIN}자 이상`;
   if (/weak password|pwned|leaked/i.test(m)) return '더 어려운 비밀번호';
-  if (/23505|duplicate key|database error saving new user/i.test(m)) return '이미 있는 감독 이름';
+  if (/profiles_club_uq/i.test(m)) return TAKEN.club;
+  if (/23505|duplicate key|database error saving new user/i.test(m)) return TAKEN.nick;
   if (/signups? (are|is) (not allowed|disabled)/i.test(m)) return '가입 막힘 · 서버 설정';
   if (/rate limit|too many/i.test(m)) return '잠시 뒤 다시';
   if (/failed to fetch|network|timeout/i.test(m)) return '서버 연결 실패';
@@ -88,6 +92,31 @@ function freshStart(uid, nick) {
   startLocal(nick);
 }
 
+/** 아이디 겹침 확인(가입 1단계 '다음') — 겹치면 던진다 */
+export async function loginFree(id) {
+  const sb = await client();
+  const free = await timeout(sb.rpc('account_free', { p_login: id.trim().toLowerCase(), p_nick: '' }));
+  if (free.error) throw new Error(errText(free.error));
+  if (!free.data.login) throw new Error(TAKEN.login);
+}
+
+/**
+ * 감독 이름 · 구단 이름 겹침 확인 — 남의 감독 이름 · 구단 이름 둘 다와 견준다(따라가는 구단 이름 = 감독 이름).
+ * 로그인했으면 나는 뺀다. 비운 칸은 통과. 겹치면 던진다
+ * ponytail: 확인 → 저장 사이에 누가 같은 이름을 쓰면 통과할 수 있다 — 같은 칸끼리는 서버 고유 색인이 막고, 칸을 건너 겹치는 것만 드물게 남음
+ */
+export async function namesFree({ nick, club } = {}) {
+  const sb = await client();
+  if (!sb) return;
+  const r = await timeout(sb.rpc('names_free', { p_nick: nick?.trim() || null, p_club: club?.trim() || null }));
+  if (r.error) {
+    if (r.error.code === 'PGRST202') return; // 서버에 0008 이 아직 없음 — 예전처럼 감독 이름 겹침만(가입 트리거 · 고유 색인)
+    throw new Error(errText(r.error));
+  }
+  if (!r.data.nick) throw new Error(TAKEN.nick);
+  if (!r.data.club) throw new Error(TAKEN.club);
+}
+
 /** 가입 — 겹침 확인 → 계정 만들기(감독 줄은 서버 트리거가 만든다) → 저장 시작. 돌려주는 값 = uid */
 export async function signUp({ id, pw, nick, club = '', email = '', adopt = false }) {
   const bad = checkId(id) || checkPw(pw) || checkNick(nick) || checkEmail(email);
@@ -97,9 +126,11 @@ export async function signUp({ id, pw, nick, club = '', email = '', adopt = fals
   const nk = nick.trim();
   const free = await timeout(sb.rpc('account_free', { p_login: lid, p_nick: nk }));
   if (free.error) throw new Error(errText(free.error));
-  if (!free.data.login) throw new Error('이미 있는 아이디');
-  if (!free.data.nick) throw new Error('이미 있는 감독 이름');
-  const { data, error } = await timeout(sb.auth.signUp({ email: idToEmail(lid), password: pw, options: { data: { login_id: lid, nick: nk } } }));
+  if (!free.data.login) throw new Error(TAKEN.login);
+  if (!free.data.nick) throw new Error(TAKEN.nick);
+  const cl = club.trim() && club.trim() !== nk ? club.trim() : ''; // 감독 이름과 같으면 따라가는 이름
+  await namesFree({ nick: nk, club: cl });
+  const { data, error } = await timeout(sb.auth.signUp({ email: idToEmail(lid), password: pw, options: { data: { login_id: lid, nick: nk, club: cl || null } } }));
   if (error) throw new Error(errText(error));
   if (!data.session) throw new Error('가입 확인 메일 켜짐 · 서버 설정');
   const uid = data.user.id;
@@ -171,14 +202,25 @@ export async function logOut() {
   await sb?.auth.signOut().catch(() => {});
 }
 
-/** 감독 이름 바꾸기 — 서버 먼저(겹침 확인). 저장 쪽은 부르는 곳이 바꾼다 */
-export async function renameNick(nick) {
-  const bad = checkNick(nick);
+/**
+ * 감독 이름 · 구단 이름 바꾸기 — 서버 먼저(겹침 확인). 저장 쪽은 부르는 곳이 바꾼다.
+ * club: 따로 지은 구단 이름 · '' 면 감독 이름을 따라감(서버엔 null) · undefined 면 그대로
+ */
+export async function renameProfile({ nick, club }) {
+  const bad = nick !== undefined ? checkNick(nick) : null;
   if (bad) throw new Error(bad);
   const sb = await client();
   const uid = syncState()?.uid;
   if (!sb || !uid) return;
-  const { error } = await timeout(sb.from('profiles').update({ nick: nick.trim() }).eq('id', uid));
+  await namesFree({ nick, club });
+  const row = {};
+  if (nick !== undefined) row.nick = nick.trim();
+  if (club !== undefined) row.club = club.trim() || null;
+  let { error } = await timeout(sb.from('profiles').update(row).eq('id', uid));
+  if (error && 'club' in row && /club/i.test(error.message || '') && !/profiles_club_uq/i.test(error.message || '')) { // 서버에 0008 이 아직 없음 — 감독 이름만
+    delete row.club;
+    ({ error } = Object.keys(row).length ? await timeout(sb.from('profiles').update(row).eq('id', uid)) : { error: null });
+  }
   if (error) throw new Error(errText(error));
 }
 

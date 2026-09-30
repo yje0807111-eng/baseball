@@ -13,7 +13,7 @@ import { BANNERS, flagByKey } from './teamArt.js';
 import { artId } from '../data/artAlias.js';
 import { useAce } from './useAce.js';
 import { online } from '../net/supabase.js';
-import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
+import { renameProfile, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
 import { play as playSfx } from '../audio/sfx.js';
 
 const NICK_MAX = 12;
@@ -122,9 +122,13 @@ function ProfileModal({ account, nick: nick0, banner: banner0, ace: ace0, teamNa
   const save = async () => {
     if (!valid || busy) return;
     const nk = nick.trim();
-    if (online && nk !== nick0) { // 서버 감독 이름부터 — 겹치면 여기서 멈춘다
+    const cl = club.trim();
+    const clubChanged = cl !== teamName;
+    if (online && (nk !== nick0 || clubChanged)) { // 서버 이름부터 — 남의 감독 이름 · 구단 이름과 겹치면 여기서 멈춘다
       setBusy(true);
-      try { await renameNick(nk); } catch (e) { setErr(e.message); setTab('acct'); setBusy(false); return; }
+      try {
+        await renameProfile({ nick: nk !== nick0 ? nk : undefined, club: clubChanged ? (cl === nk ? '' : cl) : undefined }); // 감독 이름과 같으면 따라가는 이름
+      } catch (e) { setErr(e.message); setTab('acct'); setBusy(false); return; }
     }
     if (online && mail0 !== null && mail.trim().toLowerCase() !== mail0) {
       const bad = checkEmail(mail);
@@ -132,7 +136,7 @@ function ProfileModal({ account, nick: nick0, banner: banner0, ace: ace0, teamNa
       setBusy(true);
       try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setTab('acct'); setBusy(false); return; }
     }
-    saveProfile({ nick: nk, banner, ace: aceId !== ace0?.id ? aceId : undefined, teamName: club.trim() !== teamName ? club.trim() : undefined });
+    saveProfile({ nick: nk, banner, ace: aceId !== ace0?.id ? aceId : undefined, teamName: clubChanged ? cl : undefined });
     onSaved();
     onClose();
   };
