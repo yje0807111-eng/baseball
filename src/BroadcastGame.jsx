@@ -21,7 +21,7 @@ import { tacticOrders } from './engine/tactics.js';
 import { seeded } from './engine/rng.js';
 import { artId } from './data/artAlias.js';
 import {
-  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, playOut, DEFAULT_USAGE, dirName, isClutch, leverage, CLUTCH_LIMIT } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, playOut, DEFAULT_USAGE, dirName, shouldAsk, leverage } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
@@ -549,7 +549,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   const [assist, setAssist] = useState(readAssist);
   const assistUsed = useRef(assist);
   const toggleAssist = () => { const on = !assist; setAssist(on); saveAssist(on); if (on) assistUsed.current = true; };
-  const clutchLeft = useRef(CLUTCH_LIMIT); // 자동 승부처 남은 횟수
+  const clutchAsked = useRef([]); // 자동 승부처로 멈춘 자리 [{ top, inning }] — 한도 · 공수 · 막판 몫은 shouldAsk 가 본다
   const duelLeft = useRef(DUEL_LIMIT); // 수싸움 남은 횟수(자동 + 직접)
   const [wantDuel, setWantDuel] = useState(false); // '직접 승부'를 눌렀다 — 다음 공부터 판을 연다
   const wantDuelRef = useRef(false);
@@ -634,7 +634,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             if (text) setLines((l) => [...l, lineOf(text, 'note', g)].slice(-KEEP));
           }
         }
-        /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지 */
+        /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지(공수 한쪽 2번 · 6회까지 1번) */
         const halfKey = `${g.inning}${g.top ? 'T' : 'B'}`;
         let asked = false; // 물어본 타석은 접지 않고 공마다 본다
         const openDuel = () => {
@@ -642,10 +642,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           duelRef.current = { side: g.top ? 'def' : 'off', idx: offenseOf(g).idx, inning: g.inning, top: g.top, start: g.events.length };
           if (wantDuelRef.current) { wantDuelRef.current = false; setWantDuel(false); }
         };
-        if (!duelRef.current && !quiet() && clutchLeft.current > 0 && duelLeft.current > 0 && lastAskHalf.current !== halfKey
-            && g.balls === 0 && g.strikes === 0 && isClutch(g)) {
+        if (!duelRef.current && !quiet() && duelLeft.current > 0 && lastAskHalf.current !== halfKey
+            && g.balls === 0 && g.strikes === 0 && shouldAsk(g, clutchAsked.current)) {
           lastAskHalf.current = halfKey;
-          clutchLeft.current -= 1;
+          clutchAsked.current = [...clutchAsked.current, { top: g.top, inning: g.inning }];
           openDuel();
         }
         /* 직접 승부 — 누른 뒤 첫 공부터(타석 중간이어도) */
