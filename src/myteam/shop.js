@@ -47,11 +47,11 @@ export const SHOP_ITEMS = [
   item('op-cap40', 'ops', 'CP 확장 +40', '샐러리 캡 한도 +40 · 영구 (합계 최대 +200)', 800, { cap: 40, img: 'mt-pack' }),
   item('op-cap100', 'ops', 'CP 확장 +100', '샐러리 캡 한도 +100 · 영구 (합계 최대 +200)', 1800, { cap: 100, img: 'mt-pack' }),
   // 감독 계약 (CP 없이 선임)
-  item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
+  item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 1400, { staffRole: 'manager', img: 'mt-card' }),
   // 증강 (풀 관리)
   item('au-upgrade3', 'aug', '증강 강화권 3장 묶음', '강화권 3장 · 낱장보다 할인', 1600, { augTicket: 'upgradeTickets', bulk: 3, img: 'mt-boost' }),
   item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
-  item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 340, { staffRole: 'coach', img: 'mt-card' }),
+  item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 800, { staffRole: 'coach', img: 'mt-card' }),
   item('st-upgrade', 'staff', '코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
 ];
 

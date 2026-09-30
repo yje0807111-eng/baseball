@@ -8,7 +8,7 @@
  */
 import { withBoosts } from './shop.js';
 import { applyStaff } from './match.js';
-import { staffEffect } from './staff.js';
+import { staffTeam } from './staff.js';
 import { applyFatigue, pickStarter } from './fatigue.js';
 import { applyForm } from './form.js';
 import { squadOrder } from './SquadBoard.jsx';
@@ -21,7 +21,7 @@ export const penRole = (i) => (i === 0 ? 'CL' : i <= 2 ? 'SU' : 'MR');
 
 /** 오늘 몸 상태까지 얹은 26명 — 보정 · 코치 · 피로를 다 거친 수치 위에서 흔들린다 */
 export function todaySquad(team, formSeed = 0) {
-  return applyForm(applyFatigue(applyStaff(withBoosts(team), team.staff), team.pitchFatigue || {}), formSeed);
+  return applyForm(applyFatigue(applyStaff(withBoosts(team), team.staff), team.pitchFatigue || {}), formSeed, staffTeam(team.staff, team.squad).calm);
 }
 
 /**
@@ -53,6 +53,6 @@ export function readyRoster(team, formSeed = 0) {
 export function matchTeamOf(team, ready, rest = [], augs = [], env = {}) {
   const t = buildTeam(team.name || '내 팀', ready, 0, augs, env); // 증강은 그 경기에서만 (matchAug.js)
   return { name: team.name || '내 팀', roster: [...t.roster, ...rest.map((p) => ({ ...p, slot: 'BN' }))], batters: t.batters, synergies: t.synergies,
-    edge: { ...t.edge, steal: staffEffect(team.staff).steal }, usage: t.usage, // 팀 보정형 증강 · 코치진 도루(성공 확률 +) — 엔진(engineTeam)이 읽는다
+    edge: { ...t.edge, steal: staffTeam(team.staff, team.squad).steal }, usage: t.usage, // 팀 보정형 증강 · 코치진 도루(성공 확률 +) — 엔진(engineTeam)이 읽는다
     ...(team.plan?.sides ? { plan: { sides: team.plan.sides } } : {}) };
 }

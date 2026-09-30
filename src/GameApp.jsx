@@ -10,6 +10,7 @@ import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
 import { matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
+import { staffTeam } from './myteam/staff.js';
 import { randomSeriesTeam, DUEL_SUB } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf, hashKey, newKey } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
@@ -202,7 +203,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const weekBefore = missionState(account.week);
     const played = reload()?.team || account.team; // 정비 화면에서 저장한 배치까지 포함
     const pitcherIds = (played.squad || []).filter((p) => p.type === 'pitcher').map((p) => p.id);
-    saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId) });
+    saveTeam({ ...tickBoosts(played), pitchFatigue: afterGame(played.pitchFatigue, pitcherIds, res.pitchCounts || {}, res.starterId, staffTeam(played.staff, played.squad).rest) });
     const mvp = res.mvpPlayer ? { id: res.mvpPlayer.id, name: res.mvpPlayer.name } : null;
     /* 주간 과제: 경기 · 승리 · 내 지시 +10%p · 고른 증강 */
     bumpWeek('game');

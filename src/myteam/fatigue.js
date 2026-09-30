@@ -41,13 +41,14 @@ export function pickStarter(candidates, fatigue = {}) {
  * @param pitcherIds  내 팀 투수 전원 id
  * @param counts  이번 경기 투구 수 { [id]: 투구 수 }
  * @param starterId  이번 경기 선발 id
+ * @param restLess  감독 '투수 관리'(staff.js staffTeam().rest) — 휴식 경기 수를 이만큼 덜
  */
-export function afterGame(fatigue = {}, pitcherIds = [], counts = {}, starterId = null) {
+export function afterGame(fatigue = {}, pitcherIds = [], counts = {}, starterId = null, restLess = 0) {
   const next = {};
   for (const id of pitcherIds) {
     const cur = fatigue[id] || { rest: 0, streak: 0 };
     const n = counts[id] || 0;
-    if (n > 0) next[id] = { rest: restAfter(id === starterId ? 'starter' : 'reliever', n, cur.streak), streak: cur.streak + 1 };
+    if (n > 0) next[id] = { rest: Math.max(0, restAfter(id === starterId ? 'starter' : 'reliever', n, cur.streak) - restLess), streak: cur.streak + 1 };
     else if (cur.rest > 1) next[id] = { rest: cur.rest - 1, streak: 0 };
     // 휴식이 끝나고 연투도 아닌 투수는 기록하지 않는다
   }

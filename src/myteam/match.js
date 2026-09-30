@@ -2,7 +2,7 @@
 import { SERIES } from '../data/seriesPlayers.js';
 import { POS_RULES, GROUP_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP, PLAY_LIMIT } from './rules.js';
 import { withBoosts } from './shop.js';
-import { staffEffect } from './staff.js';
+import { staffBoostFor } from './staff.js';
 import { applyFatigue } from './fatigue.js';
 
 const ALL = SERIES.flatMap((s) => s.players);
@@ -26,23 +26,17 @@ export function lineupOf(roster, bench = []) {
 }
 
 /**
- * 코치진 효과를 선수 능력치에 얹는다. 체력은 투수 체력 능력치에 그대로 — 엔진은 체력 1 = 1구 더(pitchSim armLimit).
- * 도루는 선수가 아니라 팀 보정이라 여기서 얹지 않는다 — prep.js matchTeamOf 가 edge.steal 로 넘긴다
+ * 코치진 효과를 선수 능력치에 얹는다 — 조건(좌타 · 선발 · 싼 선수 …)이 맞는 선수에게만(staff.js staffBoostFor).
+ * 감독 구단 궁합은 이 로스터(엔트리 전원)로 센다. 팀 운영(도루 · 휴식 · 흔들림)은 여기서 얹지 않는다 — prep.js · fatigue.js
  */
 export function applyStaff(roster, staff) {
-  const e = staffEffect(staff);
-  if (!e.bat && !e.field && !e.pitch && !e.stamina) return roster;
+  if (!staff || !Object.values(staff).some(Boolean)) return roster;
   return roster.map((p) => {
+    const add = staffBoostFor(p, staff, roster);
+    const keys = Object.keys(add);
+    if (!keys.length) return p;
     const s = { ...p.stats };
-    if (p.type === 'pitcher') {
-      s.stuff = (s.stuff ?? 78) + e.pitch;
-      s.control = (s.control ?? 78) + e.pitch;
-      s.stamina = (s.stamina ?? 80) + e.stamina;
-    } else {
-      s.contact = (s.contact ?? 78) + e.bat;
-      s.power = (s.power ?? 78) + e.bat;
-      s.defense = (s.defense ?? 78) + e.field;
-    }
+    for (const k of keys) if (s[k] != null) s[k] = Math.max(40, Math.min(120, s[k] + add[k]));
     return { ...p, stats: s };
   });
 }

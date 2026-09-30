@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { staffByRole, staffEffect, staffEffectOf, staffReserve, STAFF_LEVEL_MAX } from './staff.js';
+import { staffByRole, staffRules, staffReserve, styleOf, clubBond, ruleText, ruleValue, ruleCat, levelMul, CLUB_KO, CLUB_NEED, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -62,11 +62,13 @@ const TEAMS = [...new Set(ALL.map((p) => p.team))].sort();
 const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
-const EFF_LABEL = { bat: '타격', field: '수비', pitch: '구위', stamina: '체력', steal: '도루', clutch: '승부처' };
-/* 코치 효과: 한 줄 문장 "타격 +2 · 승부처 +1" — 숫자만 효과 색 · 굵게 */
-const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', stamina: '#fbbf24', steal: '#fb923c', clutch: '#e879f9' };
+/* 코치진 효과 갈래(staff.js ruleCat) — 이름 · 색. 효과 한 줄 "타자 컨택 +6 · 투수 제구 −3" 은 숫자만 갈래 색(대가는 빨강) */
+const EFF_LABEL = { bat: '타격', field: '수비', pitch: '투수', run: '주루', ops: '운영' };
+const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24' };
 const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
-const effTags = (e) => Object.entries(e).map(([k, v]) => ({ k, c: EFF_COLOR[k], label: EFF_LABEL[k], n: `+${k === 'steal' ? `${Math.round(v * 100)}%p` : v}` }));
+const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: x.v < 0 ? '#f87171' : EFF_COLOR[ruleCat(x)], ...ruleText(x) }));
+/** 감독 구단 궁합 한 줄 — 'KIA · 삼성 4/6' */
+const bondText = (m, squad) => (m?.clubs?.length ? `${m.clubs.map((c) => CLUB_KO[c]).join(' · ')} ${Math.min(clubBond(m, squad).n, CLUB_NEED)}/${CLUB_NEED}` : '');
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
 const GOLD = '#fde047';
@@ -790,6 +792,13 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
   const rowBlock = (p) => (full && !clubFullNow ? clubAddReason(p, squad, clubList, gold, priceFor(p), clubCap) : full ? (swapPick(p, squad, staff, cap, lim, gold, priceFor(p)) ? null : swapBlockReason(p, swapCandidates(p, squad)[0], squad, staff, cap, lim, gold, priceFor(p))) : addBlockReason(p, squad, staff, cap, lim, gold, priceFor(p)));
   useEffect(() => { setOutId(null); }, [sel?.id]);
   const setStaff = (slot, person) => commit({ ...team, staff: { ...staff, [slot]: person } });
+  /* 교체 · 해임 — 강화한 레벨 · 계약서가 있으면 사라진다고 먼저 묻는다 */
+  const [staffAsk, setStaffAsk] = useState(null); // { slot, person }
+  const askStaff = (slot, person) => {
+    const cur = staff[slot];
+    if (cur && ((cur.level || 1) > 1 || cur.contracted)) setStaffAsk({ slot, person });
+    else setStaff(slot, person);
+  };
   /* 이 사람을 앉히면 캡을 넘는가 — 넘으면 버튼을 잠그고 얼마가 모자란지 알린다 */
   const staffOver = (slot, person) => {
     if (!person) return 0;
@@ -862,7 +871,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
     { key: 'staff', label: '감독·코치', img: 'ui/nav/locker-staff.webp' },
     { key: 'items', label: '아이템', img: 'ui/nav/locker-items.webp' },
   ];
-  const eff = staffEffect(staff);
+  /* 코치진 효과를 갈래별 승률(%p)로 — 오른쪽 판 막대 */
+  const catSum = (list) => list.reduce((o, x) => ({ ...o, [ruleCat(x)]: (o[ruleCat(x)] || 0) + ruleValue(x) }), {});
+  const eff = catSum(Object.values(staff).flatMap((m) => staffRules(m, squad)));
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
@@ -1016,7 +1027,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                           <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-400'}`}>{m?.name || '비어 있음'}</b>
                           {m ? (
                             <span className="block truncate text-t4 font-semibold text-slate-300">
-                              {effTags(staffEffectOf(m)).map((e, i) => (
+                              {styleOf(m) ? <b className="text-[#c4b5fd]">{styleOf(m).ko}</b> : effTags(staffRules(m, squad)).map((e, i) => (
                                 <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                               ))}
                             </span>
@@ -1041,16 +1052,16 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                       <small className="block font-display text-t4 font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
                       <b className="text-t2 font-black text-white">{m.name}</b><small className="ml-2 text-t4 text-gray-400">{m.era}</small>
                     </span>
-                    <small className="truncate text-t4 text-gray-400">{m.note}</small>
-                    <span className="text-t3 font-semibold text-slate-300">
-                      {effTags(m.effect).map((e, i) => (
-                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[7px] text-slate-500">·</span>}{e.label} <b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b></span>
+                    <small className="truncate text-t4 text-gray-400">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</small>
+                    <span className="line-clamp-2 text-t4 font-semibold leading-snug text-slate-300">
+                      {effTags(staffRules(m, squad)).map((e, i) => (
+                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[6px] text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
                       ))}
                     </span>
                   </span>
                   <span className="absolute right-3 top-3 flex items-center gap-2">
                     <b className="font-display text-t2 text-amber-300">{m.cost}<small className="ml-0.5 text-t4 text-gray-400">CP</small></b>
-                    <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => setStaff(listSlot, m)}>
+                    <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => askStaff(listSlot, m)}>
                       {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
                     </Btn>
                   </span>
@@ -1083,11 +1094,11 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
           const VIO = '#c4b5fd';
           const slotInfo = STAFF_SLOTS.find((x) => x.key === staffSlot);
           const cur = staff[staffSlot];
-          const mine = cur ? staffEffectOf(cur) : staffSlot ? {} : eff;
+          const mine = cur ? catSum(staffRules(cur, squad)) : staffSlot ? {} : eff;
           const lv = cur?.level || 1;
           const tickets = team.staffTickets || 0;
-          const shown = Object.entries(eff).filter(([, v]) => v);
-          const size = (k, v) => (k === 'steal' ? v * 100 : v);
+          const shown = Object.entries(eff).filter(([, v]) => Math.abs(v) >= 0.05);
+          const size = (k, v) => Math.abs(v); // 막대 = 그 갈래가 올리는 승률(%p)
           const maxV = Math.max(1, ...shown.map(([k, v]) => size(k, v)));
           const upgrade = () => {
             if (!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX) return;
@@ -1106,7 +1117,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                       <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: statColor((size(k, v) / maxV) * 100, EFF_COLOR[k]).bar, opacity: 0.45 }} />
                       <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: statColor((size(k, mine[k] || 0) / maxV) * 100, EFF_COLOR[k]).bar }} />
                     </span>
-                    <b className="text-right font-display text-t3 text-white">+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
+                    <b className="text-right font-display text-t3" style={{ color: v < 0 ? '#f87171' : '#fff' }}>{v < 0 ? '−' : '+'}{Math.abs(v).toFixed(1)}</b>
                   </div>
                 ))}
                 {!shown.length && <span className="text-t3 text-gray-500">-</span>}
@@ -1145,14 +1156,17 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                         <span className="font-display text-t4 tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
                         <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
                         <span className="text-t4 text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
-                        <span className="mt-0.5 text-t4 leading-snug text-gray-300">{m.note}</span>
+                        <span className="mt-0.5 text-t4 leading-snug text-gray-300">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</span>
+                        {m.clubs?.length > 0 && (
+                          <span className="text-t4 font-bold" style={{ color: clubBond(m, squad).on ? '#34d399' : '#6b7280' }}>구단 궁합 {bondText(m, squad)}{clubBond(m, squad).on ? ' · ×1.5' : ''}</span>
+                        )}
                         <div className="mt-auto flex flex-col gap-0.5">
-                          {Object.entries(staffEffectOf(m)).map(([k, v]) => (
-                            <span key={k} className="flex items-baseline gap-1.5 text-t3 text-gray-300">
-                              {EFF_LABEL[k]}<b className="font-display text-t2" style={{ color: VIO }}>+{k === 'steal' ? `${Math.round(v * 100)}%p` : v}</b>
-                              {mLv > 1 && <small className="font-display text-t4 text-emerald-300">▲{k === 'steal' ? `${mLv - 1}%p` : mLv - 1}</small>}
+                          {effTags(staffRules(m, squad)).map((e) => (
+                            <span key={e.k} className="flex items-baseline gap-1.5 text-t3 text-gray-300">
+                              {e.label}<b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b>
                             </span>
                           ))}
+                          {mLv > 1 && <small className="font-display text-t4 text-emerald-300">Lv.{mLv} ×{levelMul(m).toFixed(1)}</small>}
                         </div>
                       </div>
                       <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-t3 text-amber-300">Lv.{mLv}</b>
@@ -1165,7 +1179,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                 <Btn lg a={VIO} pri={!!cur && tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
                   <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
                 </Btn>
-                <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && setStaff(staffSlot, null)}>해임</Btn>
+                <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && askStaff(staffSlot, null)}>해임</Btn>
               </div>}
             </aside>
           );
@@ -1177,6 +1191,18 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
             onUpgrade={(x) => { setItemTarget(x); setItemId(fitTraining(x)[0]?.id || null); setTab('items'); }} />
         )}
       </div>
+      {staffAsk && (() => {
+        const was = staff[staffAsk.slot];
+        const lost = [(was?.level || 1) > 1 && `Lv.${was.level}`, was?.contracted && '계약서'].filter(Boolean).join(' · ');
+        const close = () => setStaffAsk(null);
+        return createPortal(
+          <Pop eyebrow="감독·코치" title={staffAsk.person ? `${was?.name} → ${staffAsk.person.name}` : `${was?.name} 해임`} sub={`${lost} 사라짐`} a="#f87171" width={480} onClose={close}
+            actions={<><Btn onClick={close}>취소</Btn><Btn pri a="#f87171" onClick={() => { setStaff(staffAsk.slot, staffAsk.person); close(); }}>{staffAsk.person ? '교체' : '해임'}</Btn></>}>
+            <p className="text-t3 text-gray-300">강화 레벨 · 계약서는 다음 사람에게 넘어가지 않음</p>
+          </Pop>,
+          document.body,
+        );
+      })()}
     </div>
   );
 }

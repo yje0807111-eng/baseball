@@ -36,21 +36,24 @@ function roll(r) {
   return FORM_OF.flat;
 }
 
-/** 선수에게 오늘 몸 상태를 얹는다 — 능력치와 종합이 함께 움직인다 */
-export function withForm(player, f) {
+/**
+ * 선수에게 오늘 몸 상태를 얹는다 — 능력치와 종합이 함께 움직인다.
+ * calm: 감독 '믿음의 야구'(staff.js) — 나쁜 날 흔들림 × (1 − calm), 대신 좋은 날도 × (1 − calm / 2)
+ */
+export function withForm(player, f, calm = 0) {
   if (!f || !f.swing) return { ...player, form: f?.key || 'flat' };
   const keys = player.type === 'pitcher' ? ARM : HIT;
-  const cut = Math.round(f.swing * SWING);
+  const cut = Math.round(f.swing * SWING * (f.swing < 0 ? 1 - calm : 1 - calm / 2));
   const stats = { ...player.stats };
   for (const k of keys) if (stats[k] != null) stats[k] = Math.max(40, Math.min(120, stats[k] + cut));
   return { ...player, stats, overall: overallOf(player.position, stats), form: f.key };
 }
 
 /** 로스터 전체에 오늘 몸 상태를 — 같은 씨앗이면 늘 같은 결과 */
-export function applyForm(roster = [], seed = 0) {
+export function applyForm(roster = [], seed = 0, calm = 0) {
   if (!seed) return roster.map((p) => ({ ...p, form: 'flat' }));
   const r = rng(seed);
-  return roster.map((p) => withForm(p, roll(r)));
+  return roster.map((p) => withForm(p, roll(r), calm));
 }
 
 /** 상대 팀 씨앗 — 정비 화면과 경기가 같은 값을 쓰도록 이름과 모드만으로 심는다 */
