@@ -52,6 +52,8 @@ const CLUTCH_CSS = `
 @keyframes callIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { [style*="callIn"] { animation: none !important; } }
+@keyframes callCard { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes callTime { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @keyframes scorePop { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--k); text-shadow: 0 0 12px var(--k); } 100% { transform: scale(1); } }
 @keyframes scoreRing { from { transform: scale(.4); opacity: .95; } to { transform: scale(5); opacity: 0; } }
 @keyframes scoreGlow { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
@@ -387,6 +389,39 @@ function CallBanner({ text, sub, tone, big = false }) {
   );
 }
 
+/*
+ * 3초 작전 카드(mockups/quick-call A · 야구9단식 개입) — 평소 타석에서 경기가 3초 기다리며 작전을 묻는다.
+ * 안 누르면 정비 작전 그대로. 승부처는 따로(멈추고 수싸움).
+ * 뜨는 때: 주자 있음 + 무게 CALL_MARK↑ + 반 이닝에 한 번 — 300경기 시뮬로 경기당 약 8~10번(주자만 보면 39.6번이라 너무 잦다).
+ * 카드의 order(g) 는 그 타석의 공마다 불린다 — 엔진 지시는 공 하나짜리라 타석 내내 이어 준다.
+ */
+const CALL_MARK = 0.08;
+const CALL_MS = 3000;
+const pickOf = (g, xs) => xs[Math.floor(g.rng() * xs.length)];
+function callCards(g) {
+  const [b1, b2, b3] = g.bases, o = g.outs;
+  if (!g.top) {
+    /* 우리 공격 */
+    return [
+      b3 && o < 2 && { k: 'squeeze', ko: '스퀴즈', sub: '3루 주자 득점 노림', order: () => ({ bunt: true }) },
+      (b1 || b2) && !b3 && o < 2 && { k: 'sac', ko: '희생번트', sub: '주자 한 루씩 · 타자 아웃', order: () => ({ bunt: true }) },
+      b1 && o < 2 && { k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 병살 ↓', order: () => ({ hitAndRun: true }) },
+      ((b1 && !b2) || (b2 && !b3)) && { k: 'steal', ko: '도루', sub: '한 루 더 · 잡히면 아웃', order: (gg) => (gg.balls + gg.strikes === 0 ? { steal: gg.bases[0] && !gg.bases[1] ? 0 : 1 } : {}) },
+      { k: 'contact', ko: '밀어치기', sub: '삼진 ↓ · 병살 ↓', order: () => ({ approach: 'contact' }) },
+      { k: 'power', ko: '강공', sub: '장타 ↑ · 헛스윙 ↑', order: () => ({ approach: 'power' }) },
+    ].filter(Boolean).slice(0, 3);
+  }
+  /* 우리 수비 */
+  const tired = staminaOf(g.home) < 45 && g.home.team.pitchers[g.home.pitcherIdx + 1];
+  return [
+    tired && { k: 'change', ko: '투수 교체', sub: `불펜 ${g.home.team.pitchers[g.home.pitcherIdx + 1]?.name || ''}`, order: (gg) => (gg.balls + gg.strikes === 0 ? { changePitcher: true } : {}) },
+    (b2 || b3) && !b1 && { k: 'ibb', ko: '고의사구', sub: '1루 채우고 다음 타자', order: (gg) => (gg.balls + gg.strikes === 0 ? { ibb: true } : {}) },
+    { k: 'chase', ko: '유인구', sub: '장타 ↓ · 볼넷 ↑', order: (gg) => (gg.rng() < 0.45 ? { zone: 'chase' } : {}) },
+    { k: 'attack', ko: '정면 승부', sub: '볼넷 ↓ · 몰린 공 ↑', order: (gg) => (gg.rng() < 0.5 ? { zone: pickOf(gg, [4, 1, 3, 5, 7]) } : {}) },
+    b3 && o < 2 && { k: 'infield', ko: '전진 수비', sub: '3루 주자 묶기 · 안타 ↑', order: () => ({ guard: 1 }) },
+  ].filter(Boolean).slice(0, 3);
+}
+
 /* ───────── 본체 ───────── */
 /* 연출 조각 열쇠 — 같은 틱에 결과 글씨와 공수 교대가 함께 뜨면 Date.now() 가 같아 형제 열쇠가 겹쳤다(React "same key" 경고). 같은 자리의 형제(투구 카드 · 결과 글씨 · 공수 교대)는 열쇠 앞에 이름을 붙여 서로 겹치지 않게 */
 let fxSeq = 0;
@@ -485,6 +520,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
    */
   const [flash, setFlash] = useState(null);
   const [swap, setSwap] = useState(null); // 공수 교대 — 위쪽 가운데 알약
+  const [call, setCall] = useState(null); // 3초 작전 카드 { key, side, head, who, cards }
+  const callWait = useRef(null);
+  const callRef = useRef(null); // 이 타석에 고른 카드(공마다 order 를 부른다) — 타석이 끝나면 비운다
+  const callHalf = useRef(''); // 반 이닝에 한 번
   /*
    * 득점 연출(mockups/score-cue2 2안) — 홈에 빛 웅덩이 + 고리 → '+N' 이 0.3초 머물다 0.55초 동안 휘어 날아가
    * 전광판 그 팀 숫자 칸에 꽂힌다(0.85초) → 숫자가 그때 바뀌며 튄다. 구장 테두리는 안쪽으로 옅게 한 번(받침).
@@ -679,14 +718,33 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (!choice) { duelRef.current = null; setDuel(null); duelAiNow = null; } // 맡기기 — 남은 공은 자동
           else { pendingRef.current = { ...choice, ...duelAiNow.orders }; D.pick = orderKo(choice).join(' · '); } // 공격 수싸움에서 고른 작전 — 결과 화면 '내 지시'
         }
+        /* 3초 작전 카드 — 승부처가 아닌 타석, 주자 있고 무게가 있을 때 반 이닝에 한 번 */
+        if (!duelRef.current && !quiet() && g.balls === 0 && g.strikes === 0 && !g.final && callHalf.current !== halfKey && lastAskHalf.current !== halfKey
+            && g.bases.some(Boolean) && leverage(g) >= CALL_MARK) {
+          callHalf.current = halfKey;
+          const off = offenseOf(g), bat = batterOf(g), pit = pitcherOf(g);
+          const planKo = g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('def', sides.def)?.ko] : [sideOpt('off', sides.off)?.ko];
+          const cards = [{ k: 'plan', ko: '정비 작전', sub: planKo.filter(Boolean).join(' · '), plan: true, order: () => ({}) }, ...callCards(g)];
+          const picked = await new Promise((resolve) => {
+            callWait.current = resolve;
+            setCall({ key: nextFx(), side: g.top ? 'def' : 'off', cards,
+              head: `${g.top ? '우리 수비' : '우리 공격'} · ${g.inning}회${g.top ? '초' : '말'} ${situationOf(g, g.top ? 'def' : 'off')}`,
+              who: g.top ? `상대 타자 ${bat?.name || ''} ${bat?.overall || ''} · 우리 투수 ${pit?.name || ''}` : `타자 ${bat?.name || ''} ${bat?.overall || ''} · 상대 투수 ${pit?.name || ''}(체력 ${Math.round(staminaOf(g.away))})` });
+            setTimeout(() => resolve(null), CALL_MS);
+          });
+          callWait.current = null;
+          setCall(null);
+          if (stop || !aliveRef.current) break;
+          if (picked && !picked.plan) { callRef.current = { ...picked, idx: off.idx }; asked = true; }
+        }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
         if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top, sit: situationOf(g, g.top ? 'def' : 'off') }; }
         /* 내가 낸 지시만 — 내 공격 때 들어온 투수 교체는 상대 AI 몫이라 빼고 센다(전엔 '내 지시' · 승률 기여에 섞였다) */
         const myOrders = Object.fromEntries(Object.entries(pendingRef.current).filter(([k]) => g.top || k !== 'changePitcher'));
         const ordered = Object.keys(myOrders).length > 0;
-        const gave = asked || ordered; // 이 타석에 지시를 냈다
-        const gaveKo = duelRef.current ? '수싸움' : ordered ? orderKo(myOrders).join(' · ') : null;
+        const gave = asked || ordered || !!callRef.current; // 이 타석에 지시를 냈다
+        const gaveKo = duelRef.current ? '수싸움' : callRef.current ? callRef.current.ko : ordered ? orderKo(myOrders).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
@@ -697,13 +755,14 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             const t = tacticOrders(fineRef.current, !g.top, g.rng);
             /* 수싸움 공은 고른 것만 — 전술 성향 중 수비 자리(주자 묶기 · 수비 위치 · 교체 문턱)만 남긴다 */
             if (duelRef.current) return { hold: t.hold, guard: t.guard, hookAt: t.hookAt, ...pendingRef.current };
-            return { ...t, ...pendingRef.current };
+            return { ...t, ...(callRef.current ? callRef.current.order(g) : {}), ...pendingRef.current };
           };
           if (fold) { do { ev = pitch(g, tac()); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, tac());
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = duelRef.current ? {} : pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
+        if (ev.result && callRef.current) callRef.current = null; // 고른 작전은 이 타석까지
         /*
          * 이 타석에 난 점수 — 엔진은 이미 더했지만 전광판은 주자가 홈을 밟을 때까지 붙잡는다.
          * 여기서(다시 그리기 전에) 바로 붙잡아야 한다 — 접은 타석은 아래 빨리감기 동안 몇 번 그려져,
@@ -1038,6 +1097,32 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 style={{ background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
             )}
 
+            {/* 3초 작전 카드 — 구장 아래 가운데 · 기본 카드(정비 작전)는 테두리 · 막대가 다 줄면 그대로 */}
+            {call && (() => {
+              const k = call.side === 'off' ? cMy : '#f5d27a';
+              return (
+                <div key={`call-${call.key}`} className="absolute bottom-[140px] left-1/2 z-10 flex w-[760px] -translate-x-1/2 flex-col gap-2.5 rounded-[18px] px-4 py-3.5"
+                  style={{ background: 'rgba(7,10,18,.9)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12), 0 18px 40px rgba(0,0,0,.55)', animation: 'callCard .18s ease-out both' }}>
+                  <div className="flex min-w-0 items-baseline gap-3">
+                    <b className="shrink-0 text-t3" style={{ color: k }}>{call.head}</b>
+                    <span className="truncate text-t4 font-semibold text-gray-300">{call.who}</span>
+                  </div>
+                  <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${call.cards.length},1fr)` }}>
+                    {call.cards.map((c) => (
+                      <button key={c.k} type="button" onClick={() => callWait.current?.(c)} className="relative flex flex-col gap-1 rounded-[14px] px-3.5 py-3 text-left transition hover:brightness-125"
+                        style={{ background: c.plan ? `color-mix(in srgb, ${k} 12%, transparent)` : 'rgba(255,255,255,.05)', boxShadow: c.plan ? `inset 0 0 0 2px ${k}` : 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+                        <b className="text-t2 text-white">{c.ko}</b>
+                        <span className="truncate text-t4 font-semibold text-gray-400">{c.sub || '그대로'}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <span className="block h-[5px] overflow-hidden rounded-full bg-white/10">
+                    <i className="block h-full origin-left" style={{ background: k, animation: `callTime ${CALL_MS}ms linear both` }} />
+                  </span>
+                </div>
+              );
+            })()}
+
             {/* 득점 — 홈 빛 · 고리 · 날아가는 +N · 테두리 옅은 빛 */}
             {scoreFx.map((x) => (
               <div key={`score-${x.id}`} className="pointer-events-none absolute inset-0" style={{ '--k': x.tone }}>
@@ -1083,80 +1168,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <span>남은 수싸움 <b className="font-display text-t3 text-white">{duelLeft.current}</b></span>
               </div>
             </section>
-
-            {/* 작전 — 평소에는 세 갈래, 승부처에는 그 자리의 세 장 */}
-            {(() => {
-              const bandColor = cMy;
-              const queuedKo = orderKo(pend);
-              return (
-                <section className="mt-cut mt-frame mt-glass relative flex shrink-0 flex-col gap-2.5 p-5"
-                  style={{ '--c': '22px', '--a': bandColor, overflow: 'visible' }}>
-                  <div className="flex items-center gap-2.5">
-                    <p className="mt-lab shrink-0" style={{ '--a': bandColor }}>작전</p>
-                    <b className="truncate text-t3 text-white">{`${mineBat ? '우리 공격' : '우리 수비'} · ${g.inning}회${g.top ? '초' : '말'} ${g.outs}사`}</b>
-                    <span className="ml-auto shrink-0 text-t4 text-gray-400">
-                      {g.events.length > 0 ? <>남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></> : null}
-                    </span>
-                  </div>
-                  {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
-                  {!!queuedKo.length && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {queuedKo.map((k) => <span key={k} className="mt-chip" style={{ '--a': bandColor, color: '#fff' }}>{k} 지시</span>)}
-                    </div>
-                  )}
-                  {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
-                  {SIDES.map((sd) => {
-                    const cur = sideOpt(sd.key, sides[sd.key]);
-                    const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
-                    const open = openSide === sd.key;
-                    const locked = tacticsLeft <= 0 && g.events.length > 0; // 다 쓴 뒤에는 못 바꾼다
-                    return (
-                      <div key={sd.key} className="relative">
-                        {open && (
-                          <>
-                            <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
-                            <div className="mt-cut mt-glass absolute right-full top-1/2 z-20 mr-3 w-[22rem] -translate-y-1/2 p-3"
-                              style={{ '--c': '18px', background: 'rgba(8,12,22,.96)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
-                              <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
-                              <div className="grid grid-cols-2 gap-1.5">
-                                {sd.opts.map((o) => {
-                                  const on = (tacQ[sd.key] || sides[sd.key]) === o.id;
-                                  return (
-                                    <button key={o.id} type="button" disabled={locked} onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
-                                      className="mt-cut px-3 py-2 text-left transition-[background,box-shadow] disabled:opacity-40"
-                                      style={{ '--c': '10px',
-                                        background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.05)',
-                                        boxShadow: on ? 'inset 0 0 0 1.5px #10b981' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
-                                      <b className="block text-t3 font-extrabold" style={{ color: on ? '#fff' : '#e6edf6' }}>{o.ko}</b>
-                                      <span className="mt-1 flex"><FxChips fx={o.fx} main={o.main} on={on} left /></span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
-                          className="mt-cut flex h-11 w-full items-center gap-3 px-4 text-left transition hover:bg-white/[0.1]"
-                          style={{ '--c': '12px', background: open ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.08)' }}>
-                          <span className="w-14 shrink-0 text-t3 text-gray-300">{sd.ko}</span>
-                          <b className="min-w-0 flex-1 truncate text-t2 font-extrabold text-white">
-                            {cur?.ko}{want && <span style={{ color: '#fbbf24' }}> → {want.ko}</span>}
-                          </b>
-                          {want && <small className="shrink-0 text-t4 font-bold text-amber-300">예약</small>}
-                          <b className="shrink-0 text-t4 text-gray-400" style={{ transform: open ? 'rotate(90deg)' : 'none' }}>◀</b>
-                        </button>
-                      </div>
-                    );
-                  })}
-                  <button type="button" disabled={g.final || !!duel || duelLeft.current <= 0}
-                    onClick={() => { const on = !wantDuel; wantDuelRef.current = on; setWantDuel(on); if (on && quiet()) pickSpeed(PLAY); }}
-                    className="mt-btn pri self-stretch disabled:opacity-40" style={{ '--a': '#fbbf24', ...(wantDuel ? { animation: 'clutchPulse 1.2s ease-in-out infinite' } : null) }}>
-                    {wantDuel ? '⚔ 다음 공부터 수싸움 · 취소' : <>⚔ 직접 승부 <small className="ml-1 font-display opacity-70">{duelLeft.current}</small></>}
-                  </button>
-                </section>
-              );
-            })()}
 
             {/* 투수 · 불펜 — 지친 팔이면 노랗게 · 빨갛게 */}
             <section className={`mt-cut mt-frame mt-glass flex shrink-0 flex-col gap-2.5 px-5 py-4 ${worn ? 'hot' : ''}`} style={{ '--c': '22px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
