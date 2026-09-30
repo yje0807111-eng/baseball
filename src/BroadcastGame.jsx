@@ -57,11 +57,12 @@ const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 /* 스코어보드 — 중계 자막처럼 짧게 부르고, 팀 줄에는 대진표와 같은 깃발을 깐다 */
 export const SB_MASK = 'linear-gradient(90deg,transparent 8%,#000 88%)';
 const SB_SHORT = { kia: 'KIA', doosan: '두산', samsung: '삼성', hanwha: '한화', lg: 'LG', lotte: '롯데', nc: 'NC', kt: 'KT', hyundai: '현대', sk: 'SSG', kiwoom: '키움', korea: '한국', legend: '레전드' };
-/** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 구단 약칭 */
+/** 내 팀은 앞의 '나의'를 떼고 네 글자까지, 상대는 그 시절 구단 이름(1989 MBC 청룡 → MBC · 2010 SK → SK). 대표 · 레전드만 약칭 */
 export function shortTeam(name = '', mine = false) {
   if (mine) return name.replace(/^나의\s*/, '').slice(0, 4);
   const f = teamFlag(name);
-  return (f && SB_SHORT[f.key]) || name.replace(/^\d{4}\s*/, '').split(' ')[0];
+  if (f && (f.key === 'korea' || f.key === 'legend')) return SB_SHORT[f.key];
+  return name.replace(/^\d{4}\s*/, '').split(' ')[0] || (f && SB_SHORT[f.key]) || name;
 }
 
 /** 타순 줄의 오늘 성적 — 중계 자막처럼 한 마디로 (홈런 · 2루타 · 2안타 · 볼넷 · 삼진 · 무안타) */
