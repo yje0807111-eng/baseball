@@ -208,11 +208,8 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
       {cells.map((z) => (
         <g key={z.id} onClick={() => onPick?.(z.id)}>
           <rect className={pick} x={z.x + 4} y={z.y + 4} width={z.w - 8} height={z.h - 8} rx="10" fill={pct ? heatFill(pct, z.id) : 'rgba(255,255,255,.06)'} stroke="rgba(255,255,255,.2)" />
-          {labels && !pct && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 6} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>}
-          {pct && <>
-            <text x={z.x + z.w / 2} y={z.y + z.h / 2 - 2} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>
-            <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 18} textAnchor="middle" fontSize="15" fontWeight="700" fill="#fdba74" opacity="0.8" style={{ pointerEvents: 'none', fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(pct[z.id] * 100)}%</text>
-          </>}
+          {/* 위험도는 색으로만 — % 숫자는 15~20% 로 고르게 붙어 읽을 거리가 못 됐다(2026-09-30) */}
+          {(labels || pct) && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 6} textAnchor="middle" fontSize="15" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{zoneKo(z.id)}</text>}
           {grid === 2 && <text x={z.x + z.w / 2} y={z.y + z.h / 2 + 8} textAnchor="middle" fontSize="22" fontWeight="800" fill="#e2e8f0" style={{ pointerEvents: 'none' }}>{QUAD[z.id]}</text>}
         </g>
       ))}
@@ -566,8 +563,7 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
         return (
           <g key={z} style={{ pointerEvents: 'none' }}>
             {danger && <rect x={x + 2} y={y + 2} width={cell - 4} height={cell - 4} rx="8" fill={heatFill(danger, z)} />}
-            <text x={x + cell / 2} y={y + cell / 2 + (danger ? -2 : 6)} textAnchor="middle" fontSize="14" fontWeight="800" fill="rgba(226,232,240,.75)">{zoneKo(z)}</text>
-            {danger && <text x={x + cell / 2} y={y + cell / 2 + 17} textAnchor="middle" fontSize="14" fontWeight="700" fill="#fca5a5" opacity="0.85" style={{ fontFamily: "'Saira Condensed', sans-serif" }}>{Math.round(danger[z] * 100)}%</text>}
+            <text x={x + cell / 2} y={y + cell / 2 + 6} textAnchor="middle" fontSize="14" fontWeight="800" fill="rgba(226,232,240,.75)">{zoneKo(z)}</text>
           </g>
         );
       })}
