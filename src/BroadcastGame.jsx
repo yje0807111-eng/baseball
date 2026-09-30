@@ -47,10 +47,9 @@ const CLUTCH_CSS = `
 @keyframes sidePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
-@keyframes callIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-@keyframes callBig { from { opacity: 0; transform: translate(-50%,-60%) scale(1.5); } to { opacity: 1; transform: translate(-50%,-60%) scale(1); } }
+@keyframes callIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { [style*="callIn"], [style*="callBig"] { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { [style*="callIn"] { animation: none !important; } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 `;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -366,6 +365,20 @@ export function Scoreboard({ g, home, away, count = null, bases = true, justOut 
   );
 }
 /** 능력치 줄 — 내 라커와 같은 규칙: 6px 막대 · 낮으면 푸른 회색 → 높을수록 구단 색, 빛 번짐 없음 */
+/** 결과 띠 — 팀 색 바탕에 검은 글씨, 14° 기울어 왼쪽에서 들어온다(0.2초). 홈런은 크고 낮게 */
+function CallBanner({ text, sub, tone, big = false }) {
+  return (
+    <div className="pointer-events-none absolute" style={{ left: -40, top: big ? 260 : 170, padding: big ? '22px 110px 22px 120px' : '12px 70px 12px 80px', transform: 'skewX(-14deg)',
+      background: `linear-gradient(90deg,${tone},color-mix(in srgb,${tone} 55%,transparent))`, boxShadow: '0 14px 30px rgba(0,0,0,.45)', animation: 'callIn .2s cubic-bezier(.2,.9,.3,1) both' }}>
+      <div className="flex items-baseline gap-[18px]" style={{ transform: 'skewX(14deg)' }}>
+        <b className="font-bold leading-none text-[#05080f]" style={{ fontSize: big ? 92 : 50 }}>{text}</b>
+        {sub && <span className="text-[18px] font-bold" style={{ color: 'rgba(5,8,15,.8)' }}>{sub}</span>}
+      </div>
+      <i className="absolute inset-y-0 ml-2.5 w-[18px] opacity-70" style={{ left: '100%', background: tone }} />
+    </div>
+  );
+}
+
 /* ───────── 본체 ───────── */
 /* 연출 조각 열쇠 — 같은 틱에 결과 글씨와 공수 교대가 함께 뜨면 Date.now() 가 같아 형제 열쇠가 겹쳤다(React "same key" 경고). 같은 자리의 형제(투구 카드 · 결과 글씨 · 공수 교대)는 열쇠 앞에 이름을 붙여 서로 겹치지 않게 */
 let fxSeq = 0;
@@ -457,10 +470,10 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
     setTimeout(() => { if (aliveRef.current) setToasts((t) => t.filter((x) => x.id !== id)); }, Math.max(1200, 2600 / curSpeed()));
   };
   /*
-   * 결과 표시(mockups/center-call C) — 구장 가운데는 비워 둔다.
-   *  call: 삼진 · 병살타 · 장타 — 타석 카드 바로 위 알약(자주 나오니 작게) · 우리에게 좋으면 초록, 나쁘면 빨강
-   *  big: 홈런 — 가운데 큰 도장(드문 순간만 크게) · top: 이닝 종료 — 위쪽 가운데 알약
-   * 들어옴 0.18초, 머무는 시간은 flashMs(1.4초 · 몰아칠 땐 0.3초)
+   * 결과 표시(mockups/center-call D) — MLB 더 쇼처럼 구장 위쪽 왼편에서 기운 띠가 들어온다. 내야는 비워 둔다.
+   *  call: 삼진 · 병살타 · 장타 — 우리에게 좋으면 초록, 나쁘면 빨강 · 누가 무엇으로
+   *  big: 홈런 — 같은 띠를 크고 낮게(드문 순간만 크게) · top: 이닝 종료 — 금색 띠
+   * 들어옴 0.2초, 머무는 시간은 flashMs(1.4초 · 몰아칠 땐 0.3초)
    */
   const [flash, setFlash] = useState(null);
   const [swap, setSwap] = useState(null); // 공수 교대 — 위쪽 가운데 알약
@@ -982,32 +995,11 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </div>
             )}
 
-            {/* 결과 표시 — call: 타석 카드 위 · big: 가운데 도장 · top: 위쪽 가운데 */}
-            {flash && (flash.kind === 'big' ? (
-              <div key={`flash-${flash.key}`} className="pointer-events-none absolute left-1/2 top-1/2 flex flex-col items-center gap-1 rounded-[26px] px-16 pb-5 pt-6"
-                style={{ transform: 'translate(-50%,-60%)', background: 'rgba(7,10,18,.82)', backdropFilter: 'blur(10px)', boxShadow: `inset 0 0 0 3px ${flash.tone}, 0 20px 60px rgba(0,0,0,.6), 0 0 90px -10px ${flash.tone}`, animation: 'callBig .28s cubic-bezier(.2,1.5,.4,1) both' }}>
-                <b className="text-[76px] font-bold leading-none" style={{ color: flash.tone }}>{flash.text}</b>
-                <span className="text-t3 font-semibold text-gray-300">{flash.sub}</span>
-              </div>
-            ) : (
-              <div key={`flash-${flash.key}`} className={`pointer-events-none absolute flex items-baseline gap-3 rounded-[14px] px-5 py-2.5 ${flash.kind === 'top' ? 'left-1/2 top-24 -translate-x-1/2' : 'bottom-[124px] left-4'}`}
-                style={{ background: `linear-gradient(90deg,color-mix(in srgb,${flash.tone} 30%,rgba(7,10,18,.9)),rgba(7,10,18,.9))`, boxShadow: `inset 3px 0 0 ${flash.tone}, 0 10px 26px rgba(0,0,0,.5)`, animation: 'callIn .18s ease-out both' }}>
-                <b className="text-[30px] font-bold leading-none" style={{ color: flash.tone }}>{flash.text}</b>
-                {flash.sub && <span className="text-t3 font-semibold text-gray-200">{flash.sub}</span>}
-              </div>
-            ))}
+            {/* 결과 표시 — 기운 띠(홈런만 크게) */}
+            {flash && <CallBanner key={`flash-${flash.key}`} text={flash.text} sub={flash.sub} tone={flash.tone} big={flash.kind === 'big'} />}
 
-            {/* 공수 교대 — 위쪽 가운데 알약(우리 공격 = 우리 색 · 우리 수비 = 금색) */}
-            {swap && (() => {
-              const tone = swap.mine ? cMy : '#f5d27a';
-              return (
-                <div key={`swap-${swap.key}`} className="pointer-events-none absolute left-1/2 top-24 flex -translate-x-1/2 items-baseline gap-3 rounded-[14px] px-5 py-2.5"
-                  style={{ background: `linear-gradient(90deg,color-mix(in srgb,${tone} 30%,rgba(7,10,18,.9)),rgba(7,10,18,.9))`, boxShadow: `inset 3px 0 0 ${tone}, 0 10px 26px rgba(0,0,0,.5)`, animation: 'callIn .18s ease-out both' }}>
-                  <b className="text-[30px] font-bold leading-none" style={{ color: tone }}>{swap.mine ? '우리 공격' : '우리 수비'}</b>
-                  <span className="text-t3 font-semibold text-gray-200">{swap.inning}회{swap.top ? '초' : '말'}</span>
-                </div>
-              );
-            })()}
+            {/* 공수 교대 — 같은 띠(우리 공격 = 우리 색 · 우리 수비 = 금색) */}
+            {swap && <CallBanner key={`swap-${swap.key}`} text={swap.mine ? '우리 공격' : '우리 수비'} sub={`${swap.inning}회${swap.top ? '초' : '말'}`} tone={swap.mine ? cMy : '#f5d27a'} />}
           </section>
 
           {/* ── 오른쪽 한 줄기: 승부 흐름 · 작전(승부처) · 투수와 불펜 · 해설 ── */}
