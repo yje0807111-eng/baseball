@@ -85,10 +85,11 @@ export function recommend(opponent) {
  */
 /*
  * 이름은 중계에서 쓰는 말(강공 · 짧게 치기 · 빠른 계투 · 외야 후진 …), fx 는 칩 — up 초록(얻음) · dn 빨강(대가).
- * 칩은 한 경기 끝까지 1,500판 시뮬(tacsim)에서 기준 대비 실제로 움직인 것만:
- *  강공 장타 .082 → .085 · 짧게 치기 삼진 18.8 → 17.8% · 기동력 득점 +0.17 · 기다리기 볼넷 11 → 16.7% · 삼진 18.8 → 23% · 장타 .082 → .072 ·
- *  선발 길게 투수 3.5명 · 빠른 계투 4.7명 · 불펜 아끼기 상대 볼넷 9.9 → 16.9% · 외야 후진 상대 장타 .081 → .069 · 출루 .343 → .360 ·
- *  전진 수비 상대 출루 .343 → .326 · 장타 .081 → .089. 주자 견제는 상대가 뛸 때만(도루 성공률)
+ * 칩은 경기 화면과 같은 흐름(상대 AI 투수 교체) 3,000판 시뮬(tacsim2)에서 기준 대비 실제로 움직인 것만.
+ * 균형 — 같은 갈래끼리 득 · 실점 차이가 비슷하게: 공격 득점 +0.20 ~ +0.33 · 마운드 실점 −0.03 ~ +0.06 · 수비 실점 −0.03 ~ 0.
+ *  기다리기 볼넷 10.8 → 16.6% · 삼진 19.5 → 23.8% · 장타 .082 → .072 / 선발 길게 투수 3.9 → 3.5명 · 빠른 계투 4.6명 ·
+ *  불펜 총력전 상대 볼넷 11 → 10.1% · 불펜 아끼기 11 → 11.7% / 외야 후진 상대 장타 .083 → .056 · 출루 .358 → .367 ·
+ *  전진 수비 출루 .348 · 장타 .108 / 주자 견제 도루 성공률 ↓ · 득점권 쇄도 ↓ · 주자 있을 때 맞히기 +0.012
  */
 export const SIDES = [
   { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'take'],
@@ -100,9 +101,9 @@ export const SIDES = [
     ] },
   { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
-      { id: 'long', ko: '선발 길게', fx: { up: ['불펜 휴식'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
+      { id: 'long', ko: '선발 길게', fx: { up: ['불펜 휴식'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '보통', mix: '보통' } },
       { id: 'quick', ko: '빠른 계투', fx: { up: ['지친 투수 ↓'], dn: ['불펜 소모 ↑'] }, tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
-      { id: 'allin', ko: '불펜 총력전', fx: { up: ['정면 승부'], dn: ['불펜 소모 ↑'] }, tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
+      { id: 'allin', ko: '불펜 총력전', fx: { up: ['볼넷 ↓'], dn: ['불펜 소모 ↑'] }, tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
       { id: 'save', ko: '불펜 아끼기', fx: { up: ['불펜 휴식'], dn: ['볼넷 ↑'] }, tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
     ] },
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
@@ -110,7 +111,7 @@ export const SIDES = [
       { id: 'std', ko: '정상 수비', fx: { up: [], dn: [] }, tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
       { id: 'deep', ko: '외야 후진', fx: { up: ['장타 ↓'], dn: ['단타 ↑'] }, tip: '장타 방지', base: { run: '신중' }, fine: { guard: '깊게', hold: '느슨' } },
       { id: 'in', ko: '전진 수비', fx: { up: ['땅볼 아웃 ↑'], dn: ['장타 ↑'] }, tip: '홈 승부', base: { run: '보통' }, fine: { guard: '전진', hold: '보통' } },
-      { id: 'tight', ko: '주자 견제', fx: { up: ['도루 ↓'], dn: [] }, tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
+      { id: 'tight', ko: '주자 견제', fx: { up: ['도루 ↓', '진루 ↓'], dn: ['피안타 ↑'] }, tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
     ] },
 ];
 export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };

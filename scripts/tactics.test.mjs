@@ -56,10 +56,10 @@ describe('전술 눈금', () => {
   it('총력전은 정면으로 붙고, 아끼기는 피한다', () => {
     const allin = many(fineOf({ mound: 'allin' }), false);
     const save = many(fineOf({ mound: 'save' }), false);
-    expect(rate(allin, (o) => o.zone === 0)).toBeGreaterThan(0.2);
+    expect(rate(allin, (o) => typeof o.zone === 'number')).toBeGreaterThan(0.1);   // 정면 — 존 안(변 · 한가운데)으로 15%
     expect(rate(allin, (o) => o.zone === 'chase')).toBe(0);
-    expect(rate(save, (o) => o.zone === 'chase')).toBeGreaterThan(0.2);
-    expect(rate(save, (o) => o.zone === 0)).toBe(0);
+    expect(rate(save, (o) => o.zone === 'chase')).toBeGreaterThan(0.02);   // 유인구 5% — 볼넷이 너무 늘지 않게
+    expect(rate(save, (o) => typeof o.zone === 'number')).toBe(0);
   });
   it('주자 묶기와 수비 위치가 실린다', () => {
     expect(tacticOrders(fineOf({ def: 'tight' }), false).hold).toBe(1);

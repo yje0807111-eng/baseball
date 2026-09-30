@@ -217,9 +217,13 @@ const armLimit = (side) =>
 /** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
 
-/** 투수 피로: 안정성이 높을수록 오래 버틴다. 넘으면 구위·제구가 떨어진다 */
+/*
+ * 투수 피로: 안정성이 높을수록 오래 버틴다. 남은 체력이 35% 아래로 내려가면 조금씩(체력 0 에서 0.3),
+ * 넘으면 더 빨리 구위 · 제구가 떨어진다 — 선발을 끝까지 끌고 가는 데도 값이 있게(작전 '선발 길게' vs '빠른 계투')
+ */
 function fatigue(side) {
-  return clamp((side.pitches - armLimit(side)) / 40, 0, 1);
+  const lim = armLimit(side), left = 1 - side.pitches / lim;
+  return clamp((side.pitches - lim) / 40 + (left < 0.35 ? ((0.35 - Math.max(0, left)) / 0.35) * 0.3 : 0), 0, 1);
 }
 
 function choosePitch(g, pitcher, order) {
@@ -361,6 +365,7 @@ export function tempoOf(prev, velo, guessHit = 0) {
   return +(TEMPO_MAX * k * (dv > 0 ? 1 : 0.6) * (1 - guessHit)).toFixed(4);
 }
 
+const HOLD_COST = 0.012; // 작전 '주자 견제' 의 대가
 /** 공 하나. 결과 이벤트를 돌려주고 g 를 갱신한다 */
 export function pitch(g, orders = {}) {
   if (g.final) return null;
@@ -436,6 +441,7 @@ export function pitch(g, orders = {}) {
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
   const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
   const sty = styleOf(pitcher), tempo = tempoOf(g.lastVelo, p.velo, guessHit) * sty.tempoX;
+  const holdCost = g.hold > 0 && (g.bases[0] || g.bases[1]) ? HOLD_COST * g.hold : 0; // 주자 견제에 신경 쓰면 타자 승부가 조금 흐트러진다
   g.lastVelo = p.velo;
   if (tempo) ev.tempo = tempo;
 
@@ -449,7 +455,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo - PITCHES[p.type].whiff - (p.type === 'fast' ? sty.fastWhiff : sty.offWhiff) + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo + holdCost - PITCHES[p.type].whiff - (p.type === 'fast' ? sty.fastWhiff : sty.offWhiff) + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42 + tempo * 2)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2 - tempo * 2 + TEMPO_PAD); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
@@ -490,16 +496,16 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.022 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (orders.approach === 'power' ? -0.02 : orders.approach === 'contact' ? 0.015 : 0) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (orders.approach === 'power' ? -0.02 : orders.approach === 'contact' ? 0.015 : 0) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
     const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + (orders.approach === 'power' ? 0.035 : orders.approach === 'contact' ? -0.02 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
-    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.07, 0.08, 0.35);
+    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.12, 0.06, 0.38);
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;
-    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, scoreFrom2: 0.55 + (speed - 70) * 0.01 + (orders.dash || 0) * 0.12 }));
+    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, scoreFrom2: 0.55 + (speed - 70) * 0.01 + (orders.dash || 0) * 0.12 - (g.hold || 0) * 0.1 }));
   }
 
   // 아웃

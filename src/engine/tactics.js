@@ -41,8 +41,8 @@ export function tacticOrders(fine = {}, mineBat = true, rng = Math.random) {
   } else {
     /* 마운드 — 승부를 어떻게 걸 것인가 */
     const duel = levelOf(fine, 'duel');
-    if (duel > 0 && rng() < 0.34) out.zone = 0;            // 정면 · 몸쪽으로 붙인다
-    else if (duel < 0 && rng() < 0.34) out.zone = 'chase'; // 회피 · 유인구로 뺀다
+    if (duel > 0 && rng() < 0.15) out.zone = [4, 4, 1, 3, 5, 7][Math.floor(rng() * 6)]; // 정면 · 존 안으로 붙인다(변 · 한가운데 — 볼넷 ↓ 대신 몰린 공도)
+    else if (duel < 0 && rng() < 0.05) out.zone = 'chase'; // 유인구로 뺀다 — 장타 ↓ 대신 볼넷 ↑
     const mix = levelOf(fine, 'mix');
     if (mix !== 0 && rng() < 0.3) out.pitchType = mix > 0 ? 'slider' : 'fast';
     /* 수비 — 주자를 얼마나 묶고, 어디에 서나 */
