@@ -7,7 +7,7 @@ import { teamFlag } from './teamArt.js';
 import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, BONUS_KO, weekKey } from './missions.js';
 import LEAGUE from '../data/leagueAverage.json';
-import { artId } from '../data/artAlias.js';
+import { useAce } from './useAce.js';
 import { GrowBar, reducedMotion } from '../ui/motion.jsx';
 import { play as playSfx } from '../audio/sfx.js';
 
@@ -107,27 +107,6 @@ function WeekCard({ account, onOpen }) {
       ))}
     </button>
   );
-}
-
-/** 에이스 고르기 — 카드 그림이 있는 선수 가운데 종합이 가장 높은 선수(그림이 없으면 다음 선수) */
-function useAce(squad) {
-  const [ace, setAce] = useState(null);
-  useEffect(() => {
-    let live = true;
-    const sorted = [...squad].sort((a, b) => b.overall - a.overall).slice(0, 12);
-    const tryOne = (i) => {
-      if (!live) return;
-      if (i >= sorted.length) { setAce(sorted[0] ? { p: sorted[0], art: null } : null); return; }
-      const src = `cards/${encodeURIComponent(artId(sorted[i].id))}.webp`;
-      const im = new Image();
-      im.onload = () => { if (live) setAce({ p: sorted[i], art: src }); };
-      im.onerror = () => tryOne(i + 1);
-      im.src = src;
-    };
-    tryOne(0);
-    return () => { live = false; };
-  }, [squad.map((p) => p.id).join()]);
-  return ace;
 }
 
 const POS_KO = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };

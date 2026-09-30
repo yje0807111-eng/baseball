@@ -1,7 +1,8 @@
 /*
- * 상단 바 오른쪽 프로필 — 등급 엠블럼 · 이름 · 등급/RP + 맞물린 골드 칩.
- * 누르면 프로필 창: 이름 변경 · 대진표 내 팀 칸 배너 고르기 · 소리(배경음악 · 효과음) · 로그아웃.
- * 이름 · 배너는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
+ * 상단 바 오른쪽 프로필 — 대표 선수 얼굴(등급 색 테두리 · 등급 엠블럼) · 이름 · 등급/RP, 그 옆에 떨어진 골드 칩.
+ * 누르면 프로필 창(mockups/profile A1): 위 감독 명함(가입 2단계와 같은 결 · 배너가 배경) · 전적 네 칸 ·
+ * 아래 탭 꾸미기(배너 · 대표 선수) / 계정(이름 · 구단 · 복구 이메일). 소리는 위 소리 단추로만.
+ * 이름 · 배너 · 대표 선수는 저장소에서 바로 읽는다(어느 화면의 상단 바든 바꾼 즉시 같은 값).
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { Count, useExitGhost } from '../ui/motion.jsx';
@@ -9,62 +10,99 @@ import { createPortal } from 'react-dom';
 import { rankOf } from './rank.js';
 import { loadAccount, saveProfile, TEAM_NAME_MAX } from './store.js';
 import { BANNERS, flagByKey } from './teamArt.js';
+import { artId } from '../data/artAlias.js';
+import { useAce } from './useAce.js';
 import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
-import { getSettings, onSettings, setSettings, toggleMuteAll } from '../audio/bgm.js';
 import { play as playSfx } from '../audio/sfx.js';
-import { ChannelMute, OFF_KEY, channelOn, toggleChannel, VolRange } from '../audio/BgmButton.jsx';
 
 const NICK_MAX = 12;
-const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
+const SAIRA = { fontFamily: "'Saira Condensed',sans-serif" };
+const INPUT = 'mt-cut h-12 min-w-0 flex-1 bg-black/35 px-4 text-t2 font-bold text-white outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_2px_#f5d27a]';
+const CSS = `
+  .pf-lic::before { content:''; position:absolute; inset:-40%; z-index:2; pointer-events:none; background:linear-gradient(115deg,transparent 44%,rgba(255,255,255,.12) 50%,transparent 56%); animation:pfSheen 5s ease-in-out infinite; }
+  .pf-lic::after { content:'LEGEND'; position:absolute; right:-10px; bottom:-30px; font:italic 800 150px/1 'Saira Condensed',sans-serif; color:rgba(245,210,122,.06); pointer-events:none; }
+  @keyframes pfSheen { 0%,60% { transform:translateX(-50%); } 90%,100% { transform:translateX(50%); } }
+  @media (prefers-reduced-motion: reduce) { .pf-lic::before { animation:none; } }
+`;
 
-/** 소리 — 배경음악 · 효과음 크기와 음소거. 다른 칸과 달리 저장을 누르지 않아도 바로 바뀐다 */
-function MusicRow() {
-  const [s, setS] = useState(getSettings);
-  useEffect(() => onSettings(setS), []);
-  const row = (key, label, onSet) => {
-    const v = s[key] ?? 0;
-    const on = !s.muted && !s[OFF_KEY[key]] && v > 0; // 이 채널이 지금 들리나
-    return (
-      <div className="flex items-center gap-4">
-        <span className="w-16 shrink-0 text-t3 font-bold text-gray-300">{label}</span>
-        <VolRange k={key} value={Math.round(v * 100)} on={on} label={label} onUp={onSet}
-          onChange={(e) => setSettings({ [key]: Number(e.target.value) / 100, muted: false, [OFF_KEY[key]]: false })} />
-        <b className="w-10 text-right font-display text-t2" style={{ color: on ? '#fff' : '#f87171' }}>{on ? Math.round(v * 100) : '끔'}</b>
-        <ChannelMute on={channelOn(s, key)} label={label} onToggle={() => toggleChannel(s, key)} />
-      </div>
-    );
-  };
+/** 대표 선수 얼굴 — 초상 → 실루엣 */
+const face = (p) => (p ? `url(profiles/${encodeURIComponent(artId(p.id))}.webp), url(ui/mt/silhouette-player.webp)` : 'url(ui/mt/silhouette-coach.webp)');
+/** 대표 선수 후보 — 종합 높은 순 8명. 고른 선수가 엔트리에 없으면(방출 등) 메인 에이스 → 맨 앞 */
+const acesOf = (squad = []) => [...squad].sort((a, b) => (b.overall || 0) - (a.overall || 0)).slice(0, 8);
+const aceOf = (squad, id, auto) => squad?.find((p) => p.id === id) || auto || acesOf(squad)[0] || null;
+
+/** 얼굴 동그라미 — 등급 색 테두리 + 오른쪽 아래 등급 엠블럼 */
+function Face({ p, tier, size = 44 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">소리</span>
-      <div className="mt-cut flex items-center gap-4 bg-white/[0.06] px-4 py-2.5" style={{ '--c': '8px' }}>
-        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          {row('vol', '배경음악')}
-          {row('sfx', '효과음', () => playSfx('goldIn'))}
-        </div>
-        <button type="button" onClick={toggleMuteAll} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '전체 소리 켜기' : '전체 음소거 · M'}</button>
-      </div>
-    </div>
+    <span className="relative shrink-0 rounded-full bg-cover" style={{ width: size, height: size, backgroundImage: face(p), backgroundPosition: 'center 18%', boxShadow: `0 0 0 2px #0a101c,0 0 0 4px ${tier.c},0 0 14px ${tier.c}80` }}>
+      <img src={`ui/rank/${tier.key}.webp`} alt="" className="absolute -bottom-1.5 -right-2 h-6 w-6 object-contain" style={{ filter: 'drop-shadow(0 1px 3px #000)' }} />
+    </span>
   );
 }
 
-/** 대진표 팀 칸 미리보기 */
-function SlotPreview({ name, banner }) {
+/** 감독 명함 — 배너가 배경 · 대표 선수 · 이름 · 구단 · 등급과 다음 등급까지 */
+function License({ nick, club, ace, banner, rp, since }) {
+  const r = rankOf(rp);
   const flag = flagByKey(banner);
+  const pct = r.next ? ((rp - r.tier.min) / (r.next.min - r.tier.min)) * 100 : 100;
   return (
-    <div className="mt-cut relative flex h-12 items-center overflow-hidden px-4" style={{ '--c': '7px', background: 'rgba(52,211,153,.16)', boxShadow: 'inset 0 0 0 1.5px #34d399' }}>
-      {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.62, WebkitMaskImage: FLAG_MASK, maskImage: FLAG_MASK }} />}
-      <b className="relative truncate text-t2 font-black text-[#34d399]" style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{name}</b>
+    <div className="pf-lic relative h-[250px] overflow-hidden rounded-[20px]" style={{ background: 'linear-gradient(120deg,#221a3a,#0b0f1c 70%)', boxShadow: 'inset 0 0 0 1px rgba(245,210,122,.45),0 20px 50px rgba(0,0,0,.45)' }}>
+      {flag && <i className="absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.55, WebkitMaskImage: 'linear-gradient(90deg,transparent 15%,#000 75%)', maskImage: 'linear-gradient(90deg,transparent 15%,#000 75%)' }} />}
+      <div className="absolute inset-8 z-[1] flex items-center gap-[26px]">
+        <div className="h-[180px] w-[150px] shrink-0 rounded-2xl bg-cover" style={{ backgroundImage: face(ace), backgroundPosition: 'center 18%', boxShadow: `0 0 0 2px #0b0f1c,0 0 0 4px ${r.tier.c},0 0 24px ${r.tier.c}59` }} />
+        <div className="min-w-0">
+          <p className="text-[12px] font-extrabold tracking-[.32em] text-[#f5d27a]" style={SAIRA}>MANAGER LICENSE</p>
+          <b className="mb-0.5 mt-2 block truncate text-[40px] font-bold leading-[1.15] text-white">{nick}</b>
+          <p className="truncate text-t2 text-gray-300">{club}{ace ? ` · 대표 선수 ${ace.name}` : ''}</p>
+          <div className="mt-3.5 flex items-center gap-2.5">
+            <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="h-16 w-16 object-contain" style={{ filter: 'drop-shadow(0 4px 10px rgba(0,0,0,.6))' }} />
+            <div className="w-[240px]">
+              <b className="block text-[20px] font-bold" style={{ color: r.tier.c }}>{r.tier.ko} {r.div}</b>
+              <small className="text-[15px] font-bold tracking-[.04em] text-gray-400" style={SAIRA}>{rp.toLocaleString()} RP{r.next ? ` · ${r.next.ko}까지 ${r.toNext}` : ''}</small>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10">
+                <i className="block h-full rounded-full" style={{ width: `${pct}%`, background: `linear-gradient(90deg,${r.tier.c},#fde68a)`, boxShadow: `0 0 8px ${r.tier.c}99` }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {since && <span className="absolute right-[26px] top-5 z-[1] text-[14px] font-bold tracking-[.12em] text-gray-500" style={SAIRA}>SINCE {since}</span>}
     </div>
   );
 }
 
-function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved, onSignOut }) {
+/** 전적 네 칸 — 경기 승패 · 승률 · 최고 등급 · 랭크전 시즌 최고 순위 */
+function Stats({ account }) {
+  const rec = account?.team?.record || { w: 0, l: 0 };
+  const n = rec.w + rec.l;
+  const best = rankOf(account?.rank?.best || account?.rank?.rp || 0);
+  const places = (account?.rank?.seasons || []).map((s) => s.place).filter(Boolean);
+  const cell = (label, v, color) => (
+    <div className="rounded-[14px] bg-black/30 px-3.5 py-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
+      <small className="block text-t4 font-bold text-gray-400">{label}</small>
+      <b className="text-[26px] font-extrabold leading-tight" style={{ ...SAIRA, color: color || '#fff' }}>{v}</b>
+    </div>
+  );
+  const em = (t) => <em className="ml-0.5 text-[15px] not-italic text-gray-400">{t}</em>;
+  return (
+    <div className="grid grid-cols-4 gap-2.5">
+      {cell('전적', <>{rec.w}{em('승')} {rec.l}{em('패')}</>)}
+      {cell('승률', n ? <>{((rec.w / n) * 100).toFixed(1)}{em('%')}</> : '—')}
+      {cell('최고 등급', `${best.tier.ko} ${best.div}`, best.tier.c)}
+      {cell('랭크전 최고 순위', places.length ? <>{Math.min(...places)}{em('위')}</> : '—')}
+    </div>
+  );
+}
+
+function ProfileModal({ account, nick: nick0, banner: banner0, ace: ace0, teamName, onClose, onSaved, onSignOut }) {
   const rootRef = useRef(null);
   useExitGhost(rootRef);
+  const squad = account?.team?.squad || [];
+  const [tab, setTab] = useState('deco'); // deco | acct
   const [nick, setNick] = useState(nick0 || '');
   const [banner, setBanner] = useState(banner0 ?? null);
+  const [aceId, setAceId] = useState(ace0?.id ?? null);
   const [club, setClub] = useState(teamName || '');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -86,79 +124,99 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
     const nk = nick.trim();
     if (online && nk !== nick0) { // 서버 감독 이름부터 — 겹치면 여기서 멈춘다
       setBusy(true);
-      try { await renameNick(nk); } catch (e) { setErr(e.message); setBusy(false); return; }
+      try { await renameNick(nk); } catch (e) { setErr(e.message); setTab('acct'); setBusy(false); return; }
     }
     if (online && mail0 !== null && mail.trim().toLowerCase() !== mail0) {
       const bad = checkEmail(mail);
-      if (bad) { setErr(bad); setBusy(false); return; } // 이름을 먼저 바꾼 뒤라 busy 가 켜져 있을 수 있다 — 저장 단추가 잠기지 않게
+      if (bad) { setErr(bad); setTab('acct'); setBusy(false); return; } // 이름을 먼저 바꾼 뒤라 busy 가 켜져 있을 수 있다 — 저장 단추가 잠기지 않게
       setBusy(true);
-      try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setBusy(false); return; }
+      try { await setRecoveryEmail(mail); } catch (e) { setErr(e.message); setTab('acct'); setBusy(false); return; }
     }
-    saveProfile({ nick: nk, banner, teamName: club.trim() !== teamName ? club.trim() : undefined });
+    saveProfile({ nick: nk, banner, ace: aceId !== ace0?.id ? aceId : undefined, teamName: club.trim() !== teamName ? club.trim() : undefined });
     onSaved();
     onClose();
   };
+  const onEnter = (e) => e.key === 'Enter' && save();
+  const since = account?.createdAt ? new Date(account.createdAt).toLocaleDateString('sv').replace(/-/g, '.') : '';
+  const lab = (t) => <p className="mb-2.5 font-display text-t4 font-bold tracking-[0.24em] text-gray-400">{t}</p>;
   return createPortal(
     <div ref={rootRef} className="mt-pop-bg fixed inset-0 z-[80] grid place-items-center bg-[#03050a]/70 backdrop-blur-[5px]" onClick={onClose} role="presentation">
-      <div className="mt-cut mt-frame mt-glass flex w-[760px] flex-col gap-5 p-7" style={{ '--c': '18px', '--a': '#10b981' }} onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
-        <div className="flex items-baseline gap-3">
-          <p className="mt-lab">감독</p>
-          <b className="text-t1 font-black text-white">프로필</b>
-          <button type="button" onClick={onClose} className="ml-auto grid h-9 w-9 place-items-center text-t2 text-gray-400 hover:text-white" aria-label="닫기">×</button>
+      <style>{CSS}</style>
+      <div className="mt-glass relative flex w-[980px] flex-col rounded-[24px] px-[30px] pb-6 pt-[26px] shadow-[inset_0_0_0_1px_rgba(255,255,255,.12),0_40px_90px_rgba(0,0,0,.6)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="프로필">
+        <button type="button" onClick={onClose} className="absolute right-[18px] top-4 z-[5] grid h-9 w-9 place-items-center rounded-[10px] bg-black/30 text-t2 text-gray-400 hover:text-white" aria-label="닫기">×</button>
+        <License nick={nick.trim() || nick0} club={club.trim() || teamName} ace={aceOf(squad, aceId, ace0)} banner={banner} rp={account?.rank?.rp || 0} since={since} />
+        <div className="mb-5 mt-4"><Stats account={account} /></div>
+
+        <div className="h-12 border-b border-white/10">
+          <nav className="mt-tabs" aria-label="프로필">
+            <button type="button" data-sfx="navTab" className={`mt-tab ${tab === 'deco' ? 'on' : ''}`} aria-pressed={tab === 'deco'} onClick={() => setTab('deco')}>꾸미기</button>
+            <button type="button" data-sfx="navTab" className={`mt-tab ${tab === 'acct' ? 'on' : ''}`} aria-pressed={tab === 'acct'} onClick={() => setTab('acct')}>계정</button>
+          </nav>
+        </div>
+        <div className="min-h-[246px] py-5">
+          {tab === 'deco' ? (
+            <>
+              {lab('배너')}
+              <div className="grid grid-cols-7 gap-2">
+                {[{ key: null, label: '없음' }, ...BANNERS].map((b) => {
+                  const on = banner === b.key;
+                  return (
+                    <button key={b.key || 'none'} type="button" onClick={() => setBanner(b.key)} aria-pressed={on} aria-label={b.label}
+                      className="relative h-14 overflow-hidden rounded-xl bg-[#0b1220] bg-cover bg-center text-left transition hover:brightness-125"
+                      style={{ backgroundImage: b.src ? `url(${b.src})` : undefined, boxShadow: on ? 'inset 0 0 0 2px #f5d27a,0 0 14px rgba(245,210,122,.35)' : 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+                      <span className="absolute bottom-1 left-2 text-[11.5px] font-bold text-white" style={{ textShadow: '0 1px 4px #000' }}>{b.label.replace(/ .*/, '')}</span>
+                      {on && <i className="absolute right-1.5 top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-[#f5d27a] text-[11px] font-black not-italic text-[#1c1203]">✓</i>}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-[18px]">{lab('대표 선수')}</div>
+              {squad.length ? (
+                <div className="flex gap-2.5">
+                  {acesOf(squad).map((p) => {
+                    const on = aceOf(squad, aceId, ace0)?.id === p.id;
+                    return (
+                      <button key={p.id} type="button" onClick={() => setAceId(p.id)} aria-pressed={on} aria-label={p.name}
+                        className="relative h-[104px] w-[78px] overflow-hidden rounded-xl bg-[#0b1220] bg-cover transition hover:brightness-125"
+                        style={{ backgroundImage: face(p), backgroundPosition: 'center 18%', boxShadow: on ? 'inset 0 0 0 2px #f5d27a,0 0 14px rgba(245,210,122,.35)' : 'inset 0 0 0 1px rgba(255,255,255,.14)' }}>
+                        <span className="absolute inset-x-0 bottom-0 truncate px-1.5 pb-1 pt-4 text-[12.5px] font-bold text-white" style={{ background: 'linear-gradient(transparent,rgba(0,0,0,.85))' }}>{p.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : <p className="text-t3 text-gray-500">엔트리 선수 없음</p>}
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-3.5">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-t4 font-bold text-gray-400">감독 이름</span>
+                <span className="flex items-center gap-3">
+                  <input value={nick} maxLength={NICK_MAX} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={onEnter} className={INPUT} style={{ '--c': '8px' }} />
+                  <span className="font-display text-t3 text-gray-500">{nick.length}/{NICK_MAX}</span>
+                </span>
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-t4 font-bold text-gray-400">구단 이름</span>
+                <span className="flex items-center gap-3">
+                  <input value={club} maxLength={TEAM_NAME_MAX} onChange={(e) => { setClub(e.target.value); setErr(''); }} onKeyDown={onEnter} className={INPUT} style={{ '--c': '8px' }} />
+                  <span className="font-display text-t3 text-gray-500">{club.length}/{TEAM_NAME_MAX}</span>
+                </span>
+              </label>
+              {online && (
+                <label className="col-span-2 flex flex-col gap-1.5">
+                  <span className="text-t4 font-bold text-gray-400">복구 이메일 · 선택</span>
+                  <input type="email" value={mail} maxLength={254} disabled={mail0 === null} placeholder={mail0 === null ? '불러오는 중' : '비밀번호 찾기용'}
+                    onChange={(e) => { setMail(e.target.value); setErr(''); }} onKeyDown={onEnter} autoComplete="email" className={INPUT} style={{ '--c': '8px' }} />
+                </label>
+              )}
+            </div>
+          )}
+          {err && <p className="mt-3 text-t3 font-bold text-red-400" role="alert">{err}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <label className="flex flex-col gap-2">
-            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">감독 이름</span>
-            <span className="flex items-center gap-3">
-              <input value={nick} maxLength={NICK_MAX} onChange={(e) => { setNick(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
-                className="mt-cut h-12 min-w-0 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-              <span className="font-display text-t3 text-gray-400">{nick.length}/{NICK_MAX}</span>
-            </span>
-          </label>
-          <label className="flex flex-col gap-2">
-            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">구단 이름</span>
-            <span className="flex items-center gap-3">
-              <input value={club} maxLength={TEAM_NAME_MAX} onChange={(e) => { setClub(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()}
-                className="mt-cut h-12 min-w-0 flex-1 bg-white/[0.06] px-4 text-t2 font-bold text-white outline-none focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-              <span className="font-display text-t3 text-gray-400">{club.length}/{TEAM_NAME_MAX}</span>
-            </span>
-          </label>
-        </div>
-
-        {online && (
-          <label className="flex flex-col gap-2">
-            <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">복구 이메일 · 선택</span>
-            <input type="email" value={mail} maxLength={254} disabled={mail0 === null} placeholder={mail0 === null ? '불러오는 중' : '비밀번호 찾기용'}
-              onChange={(e) => { setMail(e.target.value); setErr(''); }} onKeyDown={(e) => e.key === 'Enter' && save()} autoComplete="email"
-              className="mt-cut h-12 bg-white/[0.06] px-4 text-t2 text-white outline-none placeholder:text-gray-500 focus:shadow-[inset_0_0_0_1.5px_#10b981]" style={{ '--c': '8px' }} />
-          </label>
-        )}
-        {err && <span className="-mt-2 text-t3 font-bold text-red-400" role="alert">{err}</span>}
-
-        <div className="flex flex-col gap-2">
-          <span className="font-display text-t4 font-bold tracking-[0.24em] text-gray-400">배너</span>
-          <SlotPreview name={club.trim() || teamName} banner={banner} />
-          <div className="mt-1 grid grid-cols-4 gap-2">
-            {[{ key: null, label: '없음' }, ...BANNERS].map((b) => {
-              const on = banner === b.key;
-              return (
-                <button key={b.key || 'none'} type="button" onClick={() => setBanner(b.key)} aria-pressed={on}
-                  className="mt-cut relative h-14 overflow-hidden text-left transition hover:brightness-125"
-                  style={{ '--c': '6px', background: '#0b1220', boxShadow: on ? 'inset 0 0 0 2px #10b981' : `inset 0 0 0 1px ${b.color ? `${b.color}55` : 'rgba(255,255,255,.12)'}` }}>
-                  {b.src && <i className="absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${b.src})`, opacity: 0.8, WebkitMaskImage: 'linear-gradient(90deg,transparent 5%,#000 60%)', maskImage: 'linear-gradient(90deg,transparent 5%,#000 60%)' }} />}
-                  <b className={`relative block px-3 text-t3 ${on ? 'text-[#34d399]' : 'text-white'}`} style={{ textShadow: '0 1px 6px rgba(0,0,0,.9)' }}>{b.label}</b>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <MusicRow />
-
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex items-center gap-3">
           {onSignOut && <button type="button" onClick={onSignOut} className="mt-btn" style={{ color: '#fca5a5' }}>로그아웃</button>}
-          <button type="button" onClick={onClose} className="mt-btn ml-auto">취소</button>
+          <button type="button" onClick={onClose} className="mt-btn ml-auto">닫기</button>
           <button type="button" onClick={save} disabled={!valid || busy} className="mt-btn pri" style={{ padding: '0 34px' }}>저장</button>
         </div>
       </div>
@@ -170,10 +228,13 @@ function ProfileModal({ nick: nick0, banner: banner0, teamName, onClose, onSaved
 export default function ProfileBadge({ account, onSignOut }) {
   const [open, setOpen] = useState(false);
   const [, bump] = useState(0);
-  const live = loadAccount() || account; // 이름 · 배너는 저장소 기준
+  const live = loadAccount() || account; // 이름 · 배너 · 대표 선수는 저장소 기준
   const nick = live?.nick || account?.nick || '감독';
   const banner = live?.profile?.banner ?? null;
-  const r = rankOf(account?.rank?.rp || 0);
+  const auto = useAce(live?.team?.squad || [])?.p;
+  const ace = aceOf(live?.team?.squad, live?.profile?.ace, auto);
+  const rp = account?.rank?.rp || 0;
+  const r = rankOf(rp);
   const flag = flagByKey(banner);
   const gold = account?.gold ?? 0;
   const prevGold = useRef(gold);
@@ -184,38 +245,39 @@ export default function ProfileBadge({ account, onSignOut }) {
     if (d) { setDelta({ d, k: `${Date.now()}` }); playSfx(d > 0 ? 'goldIn' : 'goldOut'); }
   }, [gold]);
   return (
-    <span className="relative inline-flex">
-      {/* 1안 한 장 배너: 배너가 상자 전체에 깔리고 왼쪽 어둠 → 오른쪽 구단 색. 골드는 배너 위 유리 칩 */}
+    <span className="flex items-center gap-3">
+      {/* 배지 — 배너가 상자 전체에 깔리고 왼쪽 어둠 → 오른쪽 구단 색 */}
       <button type="button" onClick={() => setOpen(true)} aria-label="프로필"
-        className="mt-cut relative flex h-[54px] items-center gap-3 overflow-hidden pl-1.5 pr-2 text-left transition hover:brightness-125"
-        style={{ '--c': '10px', background: '#0a101c', boxShadow: `inset 0 0 0 1px ${flag ? `${flag.color}55` : 'rgba(148,163,184,.25)'}` }}>
+        className="relative flex h-[54px] items-center gap-3 overflow-hidden rounded-2xl pl-[7px] pr-[18px] text-left transition hover:brightness-125"
+        style={{ background: '#0a101c', boxShadow: `inset 0 0 0 1px ${flag ? `${flag.color}55` : `${r.tier.c}40`}` }}>
         {flag && (
           <>
-            <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.75 }} />
-            <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 8%,rgba(5,8,15,.72) 40%,rgba(5,8,15,.25) 100%)' }} />
+            <i className="pointer-events-none absolute inset-0 bg-cover bg-right" style={{ backgroundImage: `url(${flag.src})`, opacity: 0.7 }} />
+            <i className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f 10%,rgba(5,8,15,.7) 45%,rgba(5,8,15,.2) 100%)' }} />
           </>
         )}
-        <img src={`ui/rank/${r.tier.key}.webp`} alt="" className="relative -my-1 h-[60px] w-[60px] object-contain" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,.7))' }} />
-        <span className="relative mr-3.5 leading-tight" style={{ textShadow: '0 1px 8px rgba(0,0,0,.85)' }}>
-          <b className="block whitespace-nowrap text-t3 font-extrabold text-white">{nick} <span className="font-semibold text-gray-300">감독</span></b>
-          <span className="whitespace-nowrap font-display text-t4 font-bold text-gray-400">{r.tier.ko} {r.div} · {(account?.rank?.rp || 0).toLocaleString()} RP</span>
-        </span>
-        <span className="relative flex h-[38px] items-center gap-2 px-3" style={{ background: 'rgba(5,8,15,.55)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', clipPath: 'inset(0 round 8px 0 0 0)' }}>
-          <span className="grid h-[22px] w-[22px] place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
-            style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
-          <b className="font-display text-t2 font-extrabold leading-none">
-            {/* 금빛 글자는 숫자 칸 자신에 — 세기 끝의 '톡'(크기 변화) 동안에도 글자가 사라지지 않게 */}
-            <Count value={gold} dur={600} style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }} />
-          </b>
+        <Face p={ace} tier={r.tier} />
+        <span className="relative leading-tight" style={{ textShadow: '0 1px 8px rgba(0,0,0,.85)' }}>
+          <b className="block whitespace-nowrap text-t3 font-bold text-white">{nick}</b>
+          <span className="whitespace-nowrap font-display text-t4 font-bold tracking-[.04em]" style={{ color: r.tier.c }}>{r.tier.ko} {r.div} · {rp.toLocaleString()} RP</span>
         </span>
       </button>
-      {delta && (
-        <b key={delta.k} className={`gold-float ${delta.d > 0 ? 'up' : 'down'}`} onAnimationEnd={() => setDelta(null)} aria-hidden="true">
-          {delta.d > 0 ? '+' : '−'}{Math.abs(delta.d).toLocaleString()} G
+      {/* 골드 — 배지와 떼어 둔 칩 */}
+      <span className="relative flex h-11 items-center gap-2 rounded-[14px] bg-[#0a0e1a]/80 pl-2.5 pr-4 shadow-[inset_0_0_0_1px_rgba(251,191,36,.3)]">
+        <span className="grid h-6 w-6 place-items-center rounded-full font-display text-t4 font-extrabold text-[#7c2d12]"
+          style={{ background: 'radial-gradient(circle at 35% 30%,#fff7c2,#fbbf24 45%,#b45309 100%)', boxShadow: '0 0 10px rgba(251,191,36,.55), inset 0 0 0 1.5px rgba(120,53,15,.55)' }}>G</span>
+        <b className="font-display text-t2 font-extrabold leading-none">
+          {/* 금빛 글자는 숫자 칸 자신에 — 세기 끝의 '톡'(크기 변화) 동안에도 글자가 사라지지 않게 */}
+          <Count value={gold} dur={600} style={{ background: 'linear-gradient(180deg,#fff3c4,#fbbf24 60%,#d97706)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }} />
         </b>
-      )}
+        {delta && (
+          <b key={delta.k} className={`gold-float ${delta.d > 0 ? 'up' : 'down'}`} onAnimationEnd={() => setDelta(null)} aria-hidden="true">
+            {delta.d > 0 ? '+' : '−'}{Math.abs(delta.d).toLocaleString()} G
+          </b>
+        )}
+      </span>
       {open && (
-        <ProfileModal nick={nick} banner={banner} teamName={live?.team?.name || live?.nick || ''}
+        <ProfileModal account={live} nick={nick} banner={banner} ace={ace} teamName={live?.team?.name || live?.nick || ''}
           onClose={() => setOpen(false)} onSaved={() => bump((n) => n + 1)} onSignOut={onSignOut} />
       )}
     </span>

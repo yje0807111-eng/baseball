@@ -549,7 +549,7 @@ export function claimRanked() {
  * 프로필: 이름(nick) · 대진표 내 팀 칸 배너(profile.banner = 깃발 key, 없으면 null).
  * 이름을 바꾸면 다음 로그인도 새 이름으로 한다 (계정은 이 기기에 하나)
  */
-export function saveProfile({ nick, banner, teamName }) {
+export function saveProfile({ nick, banner, teamName, ace }) {
   const a = read();
   if (!a) return null;
   const nk = (nick ?? a.nick).trim() || a.nick;
@@ -558,7 +558,7 @@ export function saveProfile({ nick, banner, teamName }) {
   const team = !a.team ? a.team
     : tn ? { ...a.team, name: tn }
       : isAutoName(a.team.name, a.nick) ? { ...a.team, name: autoTeamName(nk) } : a.team;
-  const next = { ...a, nick: nk, team, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner } };
+  const next = { ...a, nick: nk, team, profile: { ...(a.profile || {}), banner: banner === undefined ? a.profile?.banner ?? null : banner, ace: ace === undefined ? a.profile?.ace ?? null : ace } };
   write(next);
   return next;
 }
