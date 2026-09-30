@@ -4,7 +4,8 @@ import { SQUAD_SIZE, SQUAD_CAP, squadCost, squadIssues, foreignCount, limitsOf }
 import CapBar from './CapBar.jsx';
 import { UiStyle, Btn, KV, Stats, teamStats } from './ui.jsx';
 import { roundsOf, finishOf, meIndex } from './tournament.js';
-import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
+import { AI_SERIES, duelSeriesTeam, seriesName, DUEL_SUB } from './aiTeam.js';
+import { applyFormTeam, oppSeed } from './form.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
 import { artId } from '../data/artAlias.js';
 import { CUPS, cupOf, cupMult, cupIssue } from './cups.js';
@@ -84,13 +85,15 @@ function nextDuel() {
   const pinned = AI_SERIES.find((x) => x.id === peekNextDuel()); // 저장된 값을 바로 읽는다 (화면 상태는 늦게 따라오므로)
   const series = pinned || AI_SERIES[Math.floor(Math.random() * AI_SERIES.length)];
   if (!pinned) saveNextDuel(series.id);
-  const t = seriesTeam(series, () => 0.4);
+  const t = duelSeriesTeam(series);
   const bats = t.roster.filter((p) => p.type === 'batter');
   const pits = [...t.roster.filter((p) => p.type === 'pitcher')].sort((x, y) => y.overall - x.overall);
+  /* 상대 선발 — 정비 · 경기와 같은 투수 · 같은 몸 상태(전엔 가장 센 투수를 보여 줘 정비와 달랐다) */
+  const { starter } = applyFormTeam({ name: t.name, roster: t.roster, starter: t.roster.find((p) => p.id === t.pitchOrder[0]) }, oppSeed(t.name, DUEL_SUB));
   return {
     name: seriesName(series),
     emblem: emblemOf(series.title || ''),
-    starter: pits[0],
+    starter,
     ovr: avgOf(t.roster, (p) => p.overall),
     parts: [['타선', avgOf(bats, (p) => p.overall)], ['수비', avgOf(bats, (p) => p.stats.defense)],
       ['선발', avgOf(pits.filter((p) => p.position === 'SP'), (p) => p.overall)], ['불펜', avgOf(pits.filter((p) => p.position === 'RP'), (p) => p.overall)]],

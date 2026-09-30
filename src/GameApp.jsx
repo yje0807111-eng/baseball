@@ -10,7 +10,7 @@ import { normalPanels } from './myteam/NormalPlay.jsx';
 import { rankedPanels } from './myteam/RankedPlay.jsx';
 import { matchTeamOf } from './myteam/prep.js';
 import { afterGame } from './myteam/fatigue.js';
-import { randomSeriesTeam } from './myteam/aiTeam.js';
+import { randomSeriesTeam, DUEL_SUB } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf, hashKey, newKey } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
 import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
@@ -47,7 +47,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
 
   /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
   const openDuel = () => {
-    setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: '단판 승부', title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
+    setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: DUEL_SUB, title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
     setView('prep');
   };
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
