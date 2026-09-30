@@ -65,19 +65,6 @@ export const SynIcon = ({ s, w = 38 }) => {
 const Rule = () => <span className="block h-px shrink-0 bg-white/[0.08]" />;
 const Sub = ({ children }) => <span className="text-t3 font-bold text-gray-300">{children}</span>;
 
-/** 상대 전력 합계 — 타순 9명 · 수비 8자리 · 투수 8명 */
-const foeSums = (opponent) => {
-  const ros = opponent?.roster || [];
-  if (!ros.length) return null;
-  const bats = ros.filter((p) => p.type === 'batter');
-  const line = (opponent.batters || [...bats].sort((a, b) => b.overall - a.overall)).slice(0, 9);
-  const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall).slice(0, 8);
-  return {
-    bat: Math.round(line.reduce((s, p) => s + p.overall, 0)),
-    def: Math.round(line.filter((p) => p.position !== 'DH').reduce((s, p) => s + p.stats.defense, 0)),
-    pit: Math.round(pits.reduce((s, p) => s + p.overall, 0)),
-  };
-};
 /** 경계 타자 — 장타 둘 · 주루 하나 */
 const dangerOf = (bats) => {
   const d = new Map();
@@ -90,9 +77,9 @@ const lineupOf = (opponent) => {
   return (opponent.batters || [...bats].sort((a, b) => b.overall - a.overall)).slice(0, 9);
 };
 
-/** 전력 비교 — 우리 · 막대 · 상대. 앞선 쪽만 제 색 */
-function Versus({ sums, opponent, c }) {
-  const foe = foeSums(opponent);
+/** 전력 비교 — 우리 · 막대 · 상대. 앞선 쪽만 제 색. 두 쪽 합계는 부르는 쪽이 같은 셈(sumsOf)으로 넘긴다 */
+function Versus({ sums, c }) {
+  const foe = sums.foe;
   if (!foe) return null;
   const rows = [['타자', sums.bat, foe.bat], ['수비', sums.def, foe.def], ['투수', sums.pit, foe.pit]];
   return (
@@ -160,7 +147,7 @@ function ScoutPanel({ opponent, sums, win = null, onLineup }) {
         ))}
       </div>
       <Rule />
-      {sums && <Versus sums={sums} opponent={opponent} c={c} />}
+      {sums && <Versus sums={sums} c={c} />}
       {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
       {win != null && (
         <div className="flex shrink-0 flex-col gap-1.5">

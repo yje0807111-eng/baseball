@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { winProb, winPct, runExp } from '../src/engine/winProb.js';
+import { winProb, winPct, runExp, simWinProb, withPrior } from '../src/engine/winProb.js';
 import { createGame, pitch } from '../src/engine/pitchSim.js';
 
 const P = (i, t) => ({
@@ -63,5 +63,21 @@ describe('승률', () => {
     expect(Number.isInteger(v)).toBe(true);
     expect(v).toBeGreaterThanOrEqual(0);
     expect(v).toBeLessThanOrEqual(100);
+  });
+});
+
+describe('경기 전 전력', () => {
+  it('실제 엔진으로 센 승률 — 같은 두 팀이면 같은 값', () => {
+    const p = simWinProb(team('H'), team('A'), 60);
+    expect(p).toBeGreaterThan(0.2);
+    expect(p).toBeLessThan(0.8);
+    expect(simWinProb(team('H'), team('A'), 60)).toBe(p);
+  });
+  it('1회초엔 전력 그대로, 끝나 갈수록 지금 자리로', () => {
+    const start = at(1, true, 0, [0, 0, 0], 0, 0);
+    expect(withPrior(winProb(start), start, 0.3)).toBeCloseTo(0.3, 2);
+    const late = at(9, true, 2, [0, 0, 0], 3, 1);
+    expect(Math.abs(withPrior(winProb(late), late, 0.3) - winProb(late))).toBeLessThan(0.03);
+    expect(withPrior(0.6, { ...late, final: true }, 0.3)).toBe(0.6);
   });
 });

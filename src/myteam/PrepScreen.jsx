@@ -3,13 +3,13 @@
  * 여기서 바꾼 배치는 라커에 바로 저장된다(라커 · 정비가 같은 배치). 드래프트 정비(20자리)와는 따로 돈다.
  */
 import React, { useMemo, useState } from 'react';
-import { KEYFRAMES, readyStats, oppTeamFor, winPct } from '../KboAugmentDraft.jsx';
+import { KEYFRAMES, readyStats, oppTeamFor, useSimWin, sumsOf } from '../KboAugmentDraft.jsx';
 import ReadyLocker from './ReadyLocker.jsx';
-import { readyRoster, todaySquad } from './prep.js';
+import { readyRoster, todaySquad, matchTeamOf } from './prep.js';
 import { loadAccount, saveTeam } from './store.js';
 import { myOpponent as tourOpponent, teamOf } from './tournament.js';
 import { myOpponent as rankedOpponent } from './ranked.js';
-import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
+import { AI_SERIES, duelSeriesTeam } from './aiTeam.js';
 import { peekNextDuel } from './store.js';
 import { formSeed, oppSeed, applyFormTeam } from './form.js';
 import CapBar from './CapBar.jsx';
@@ -31,14 +31,14 @@ function opponentOf(sub, myTeam) {
     t = e ? teamOf(e, myTeam) : null;
   } else {
     const series = AI_SERIES.find((x) => x.id === peekNextDuel());
-    t = series ? { ...seriesTeam(series, () => 0.4), name: seriesName(series) } : null;
+    t = series ? duelSeriesTeam(series) : null;
   }
   if (!t?.roster?.length) return null;
   const byId = new Map(t.roster.map((p) => [p.id, p]));
   const starter = (t.pitchOrder || []).map((id) => byId.get(id)).find(Boolean)
     || [...t.roster].filter((p) => p.type === 'pitcher').sort((x, y) => y.overall - x.overall)[0];
   /* 상대도 오늘 몸 상태를 안고 나온다 — 경기에서 쓰는 씨앗과 같다 */
-  const w = applyFormTeam({ name: t.name, roster: t.roster, batters: t.batters, starter }, oppSeed(t.name, sub));
+  const w = applyFormTeam({ ...t, starter }, oppSeed(t.name, sub)); // 등판 순서(pitchOrder) · 운영(usage)까지 — 예상 승률을 경기와 같은 팀으로 센다
   return { ...w, emblem: emblemOf(t.name), color: '#a78bfa' };
 }
 
@@ -58,7 +58,10 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
     saveTeam(t); // 라커 배치에 바로
     onSaved?.(); // 앱이 들고 있는 계정도 새로 — 정비에서 돌아가 라커를 열면 바꾼 배치 그대로
   };
-  const win = useMemo(() => (opp ? winPct(stats.t, oppTeamFor(opp, 0)) : null), [opp, stats]);
+  /* 예상 승률 — 경기에 나설 두 팀 그대로 엔진으로(내 팀 = 경기용 matchTeamOf, 상대 = 경기와 같은 시리즈 팀 · 몸 상태) */
+  const myMatch = useMemo(() => matchTeamOf(mine, ready, []), [mine, ready]);
+  const win = useSimWin(myMatch, opp);
+  const oppT = useMemo(() => (opp ? oppTeamFor(opp, 0) : null), [opp]);
   const on = ready.filter((p) => !String(p.slot).startsWith('BN'));
   const teamInfo = {
     ovr: on.length ? Math.round(on.reduce((n, p) => n + p.overall, 0) / on.length) : 0,
@@ -81,7 +84,7 @@ export default function PrepScreen({ team, title, sub, startLabel, onStart, onBa
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
-            sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum }} synergies={stats.t.synergies} teamInfo={teamInfo}
+            sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum, foe: oppT && sumsOf(oppT) }} synergies={stats.t.synergies} teamInfo={teamInfo}
             onCommit={commit}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : block ? `조건 불충족 · ${block}` : null}
             cards={CARD_ITEMS.map((it) => ({ id: it.id, name: it.name, effect: `${TEAM_BOOST_KO[it.teamBoost]} ${STAT_KO[it.stat]} +${it.amount}`, n: cardCount(team, it.id) }))}

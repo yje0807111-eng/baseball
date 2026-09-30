@@ -13,7 +13,7 @@ import { myBanner } from './myteam/store.js';
 import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
-import { winProb } from './engine/winProb.js';
+import { winProb as stateWin, simWinProb, withPrior } from './engine/winProb.js';
 import DuelPanel, { duelAi, readAssist, saveAssist } from './play/DuelPanel.jsx';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
@@ -445,10 +445,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       ovr: all.length ? Math.round(all.reduce((n, p) => n + (p.overall || 0), 0) / all.length) : '-', starter: t.pitchers?.[0]?.name || null };
   };
   const [paused, setPaused] = useState(false);
+  /* 경기 전 전력 — 실제 엔진으로 300판(정비 화면 예상 승률과 같은 셈 · 같은 시드 — 차이는 고른 증강 몫). 승률은 여기서 출발해 경기가 흐를수록 지금 자리로 넘어간다 */
+  const prior = useMemo(() => simWinProb(home, away), [home, away]);
+  const winProb = (gg) => withPrior(stateWin(gg), gg, prior);
   /* 승률 — 타석마다 한 점씩 찍어 흐름을 만든다. 내 지시가 얼마나 밀어 올렸는지도 센다 */
-  const wpRef = useRef([0.5]);
+  const wpRef = useRef([prior]);
   const wpAtRef = useRef([{ i: 1, t: true, r: 0 }]); // 승률 점마다 몇 회 · 초말 · 그 타석 득점
-  const wpAt = useRef(0.5); // 이번 타석이 시작될 때의 승률
+  const wpAt = useRef(prior); // 이번 타석이 시작될 때의 승률
   const gainRef = useRef(0); // 내 지시가 만든 승률 변화의 합
   const callsRef = useRef([]); // 내가 낸 지시 하나하나 — 어디서 얼마나 움직였나
   const spotRef = useRef({ inning: 1, top: true }); // 이번 타석이 선 자리

@@ -6,7 +6,12 @@
  *   2. 남은 이닝 수로 앞으로 벌어질 점수의 흔들림(표준편차)을 잡아
  *   3. 둘을 정규분포에 넣는다.
  * scripts/win-prob.test.mjs 가 실제 시뮬 결과와 견줘 어긋나지 않는지 지킨다.
+ *
+ * 경기 전 전력(simWinProb)은 실제 엔진으로 끝까지 돌려 센다 — 능력치 합으로 짐작하던 식은
+ * 1,000판 넘게 견줘 보니 11%라 한 상대에게 실제로 27%를 이기는 등 한참 어긋났다(2026-09-30).
  */
+import { createGame, playOut } from './pitchSim.js';
+import { seeded } from './rng.js';
 
 /** 주자 · 아웃별 그 반 이닝 기대 득점 — 키는 1·2·3루 순서 */
 const RUN_EXP = {
@@ -79,3 +84,31 @@ export function winProb(g) {
 
 /** 백분율 정수로 */
 export const winPct = (g) => Math.round(winProb(g) * 100);
+
+/**
+ * 경기 전 홈 승률 0~1 — 두 엔진 팀으로 n 판을 자동 운영(playOut)으로 끝까지. 시드가 고정이라 같은 두 팀이면 같은 값.
+ * 한 판 0.8ms 안팎 — 300판이면 0.25초
+ */
+export function simWinProb(home, away, n = 300) {
+  let w = 0;
+  for (let i = 0; i < n; i += 1) {
+    const g = playOut(createGame({ home, away, rng: seeded(i + 1) }));
+    w += g.winner === 'home' ? 1 : g.winner === 'away' ? 0 : 0.5;
+  }
+  return w / n;
+}
+
+const logit = (p) => Math.log(p / (1 - p));
+const START = { inning: 1, top: true, outs: 0, bases: [null, null, null], home: { runs: 0 }, away: { runs: 0 }, final: false };
+/**
+ * 지금 자리의 승률에 경기 전 전력(prior)을 얹는다 — 1회초 첫 타석엔 전력 그대로,
+ * 남은 아웃이 줄수록 지금 자리 쪽으로 넘어가 경기가 끝나면 자리만 남는다(로짓에서 전력 몫 × 남은 비율)
+ */
+export function withPrior(p, g, prior) {
+  if (prior == null || g.final) return p;
+  const done = (Math.min(g.inning, 10) - 1) * 6 + (g.top ? 0 : 3) + Math.min(3, g.outs);
+  const rem = Math.max(0, 1 - done / 54);
+  const pr = Math.min(0.98, Math.max(0.02, prior));
+  const x = logit(Math.min(0.99, Math.max(0.01, p))) + (logit(pr) - logit(winProb(START))) * rem;
+  return Math.min(0.99, Math.max(0.01, 1 / (1 + Math.exp(-x))));
+}

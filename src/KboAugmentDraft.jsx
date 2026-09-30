@@ -22,6 +22,7 @@ import { setScene } from './audio/bgm.js';
 import BgmButton from './audio/BgmButton.jsx';
 import { seriesName } from './myteam/aiTeam.js';
 import { setMods, addRuns } from './engine/pitchSim.js';
+import { simWinProb } from './engine/winProb.js';
 import { Axes as VsAxes } from './myteam/MatchPreview.jsx';
 import MatchResult from './play/MatchResult.jsx';
 import { Flip, flyGhost, useExitGhost, navTo } from './ui/motion.jsx';
@@ -4103,7 +4104,6 @@ function Portrait({ player, className = 'h-10 w-8' }) {
 /* ───── 경기 전 매치업: 두 팀 타순 · 선발 맞대결 · 예상 승리 확률 ───── */
 const teamOvr = (team) => Math.round(avg(team.roster.map((p) => p.overall)));
 const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.defense * 0.2;
-const winChance = (my, opp) => 1 / (1 + Math.exp(-(teamPower(my) - teamPower(opp)) / 3.2));
 /**
  * 정비 화면의 상대(스카우팅 모양 { name, roster, batters?, starter? }) → 승률 계산용 팀.
  * 드래프트 로스터(자리 있음)는 그대로, 시리즈 · 감독 팀처럼 큰 로스터는 타순 9 · 선발 · 불펜 넷만 추려 자리를 앉힌다
@@ -4116,8 +4116,30 @@ export function oppTeamFor(opp, buff = 0) {
   const pick = drafted ? ros : withSlots([...bats.slice(0, 9), ...(opp?.starter ? [{ ...opp.starter, slot: 'SP' }] : []), ...arms.slice(0, 4)]);
   return buildTeam(opp?.name || '상대', pick, buff);
 }
-/** 예상 승률(%) — 내 팀 · 상대 모두 buildTeam 모양 */
-export const winPct = (my, opp) => Math.round(winChance(my, opp) * 100);
+/**
+ * 예상 승률(%) — 내 팀 · 상대(buildTeam 모양)를 실제 엔진으로 300판(engine/winProb simWinProb).
+ * 배치를 바꾸면 그리기가 끝난 뒤 다시 센다(0.25초 남짓) — 그 사이엔 앞 값을 둔다
+ */
+export function useSimWin(my, opp) {
+  const [win, setWin] = useState(null);
+  useEffect(() => {
+    if (!my || !opp) { setWin(null); return undefined; }
+    const id = setTimeout(() => setWin(Math.round(simWinProb(engineTeam(my), engineTeam(opp)) * 100)), 0);
+    return () => clearTimeout(id);
+  }, [my, opp]);
+  return win;
+}
+/** 전력 비교 합계 — 타순 9 · 수비 8자리 · 투수(선발 + 불펜 상위 4). 우리 · 상대 같은 셈(전엔 상대만 투수 8명을 더했다) */
+export function sumsOf(t) {
+  const b = t.batters;
+  const sp = t.sps[0];
+  const pen = t.roster.filter((p) => p.type === 'pitcher' && p !== sp && !String(p.slot || '').startsWith('BN')).sort((x, y) => y.overall - x.overall).slice(0, 4);
+  return {
+    bat: Math.round(b.reduce((n, p) => n + p.overall, 0)),
+    def: Math.round(b.filter((p) => p.position !== 'DH').reduce((n, p) => n + p.stats.defense, 0)),
+    pit: Math.round([sp, ...pen].filter(Boolean).reduce((n, p) => n + p.overall, 0)),
+  };
+}
 
 /** 경기 내내 승률이 그린 선 — 반 위는 우리 쪽, 아래는 상대 쪽 */
 function WinCurve({ flow, tone, h = 96 }) {
@@ -4796,15 +4818,13 @@ export function readyStats(roster, buff) {
   const t = buildTeam('내 팀', roster, buff);
   const b = t.batters;
   const w = b.map((_, i) => RD_ORDER_W[i] ?? 0.9);
-  const pitchers = [t.sps[0], ...t.pen].filter(Boolean);
+  const sum = sumsOf(t);
   return {
     t, off: t.offense, def: t.defense, R: t.rightRatio, power: teamPower(t),
     flow: b.reduce((s, p, i) => s + rdBat(p) * w[i], 0) / (w.reduce((x, y) => x + y, 0) || 1),
     ace: t.sps[0] ? t.pitchValue(t.sps[0]) : 0,
     bull: avg(t.pen.map(t.pitchValue)),
-    batSum: Math.round(b.reduce((s, p) => s + p.overall, 0)),
-    defSum: Math.round(b.filter((p) => p.position !== 'DH').reduce((s, p) => s + p.stats.defense, 0)),
-    pitSum: Math.round(pitchers.reduce((s, p) => s + p.overall, 0)),
+    batSum: sum.bat, defSum: sum.def, pitSum: sum.pit,
   };
 }
 
@@ -4895,12 +4915,14 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
     foreign: roster.filter((p) => p.isForeign).length,
   };
   const d = (a, b) => Math.round(a - b);
+  const oppT = useMemo(() => (opponent ? oppTeamFor(opponent, oppBuff) : null), [opponent, oppBuff]);
+  const win = useSimWin(now.t, oppT);
 
   return (
     <ReadyLocker
       team={team} squad={roster} bench={benchIds} synergies={now.t.synergies} opponent={opponent} autoFilled={autoFilled}
-      win={opponent ? winPct(now.t, oppTeamFor(opponent, oppBuff)) : null}
-      sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum }}
+      win={win}
+      sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum, foe: oppT && sumsOf(oppT) }}
       teamInfo={teamInfo}
       onCommit={commit}
       onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}
