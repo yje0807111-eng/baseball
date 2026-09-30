@@ -12,6 +12,7 @@ import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
+import { reducedMotion } from './ui/motion.jsx';
 import { augWho } from './KboAugmentDraft.jsx'; // 증강 판 — 대상 · 효과 한 줄(서로 부르는 모듈이지만 그릴 때만 쓴다)
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb as stateWin, simWinProb, withPrior } from './engine/winProb.js';
@@ -50,6 +51,11 @@ const CLUTCH_CSS = `
 @keyframes callIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { [style*="callIn"] { animation: none !important; } }
+@keyframes scorePop { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--k); text-shadow: 0 0 12px var(--k); } 100% { transform: scale(1); } }
+@keyframes scoreRing { from { transform: scale(.4); opacity: .95; } to { transform: scale(5); opacity: 0; } }
+@keyframes scoreGlow { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes scoreEdge { 0% { box-shadow: inset 0 0 0 0 transparent; } 30% { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--k) 70%, transparent), inset 0 0 70px 0 color-mix(in srgb, var(--k) 22%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+@keyframes scoreFly { 0% { offset-distance: 0%; opacity: 0; transform: scale(.6); } 16% { offset-distance: 0%; opacity: 1; transform: scale(1.1); } 32% { offset-distance: 0%; opacity: 1; transform: scale(1); } 90% { offset-distance: 100%; opacity: 1; transform: scale(.6); } 100% { offset-distance: 100%; opacity: 0; transform: scale(.5); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 `;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -326,7 +332,7 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
   </div>
 );
 /** 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트(count 가 없거나 bases 가 false 면 뺀다 — 수싸움 판은 주자 · 볼카운트를 가운데에 크게 둔다) */
-export function Scoreboard({ g, home, away, count = null, bases = true, justOut = -1, className = '' }) {
+export function Scoreboard({ g, home, away, count = null, bases = true, justOut = -1, className = '', hold = null, pop = null }) {
   const cMy = '#34d399', cOpp = '#f87171';
   return (
     <div className={`mt-cut mt-glass pointer-events-none flex items-center ${className}`} style={{ '--c': '18px' }}>
@@ -350,7 +356,8 @@ export function Scoreboard({ g, home, away, count = null, bases = true, justOut 
               style={{ height: 44, background: atBat ? `linear-gradient(90deg, ${c}b0, ${c}30 72%, transparent)` : `linear-gradient(90deg, ${c}40, transparent 60%)` }}>
               {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.14, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
               <b className="relative truncate text-t3 font-extrabold text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{shortTeam(t.name, mine)}</b>
-              <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{side.runs}</b>
+              <b key={pop?.[mine ? 'home' : 'away'] || 'n'} data-score={mine ? 'home' : 'away'} className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white"
+                style={{ opacity: atBat ? 1 : 0.8, '--k': c, ...(pop?.[mine ? 'home' : 'away'] ? { animation: 'scorePop .42s cubic-bezier(.2,1.6,.4,1) both' } : null) }}>{side.runs - (hold?.[mine ? 'home' : 'away'] || 0)}</b>
             </div>
           );
         })}
@@ -477,6 +484,32 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
    */
   const [flash, setFlash] = useState(null);
   const [swap, setSwap] = useState(null); // 공수 교대 — 위쪽 가운데 알약
+  /*
+   * 득점 연출(mockups/score-cue2 2안) — 홈에 빛 웅덩이 + 고리 → '+N' 이 0.3초 머물다 0.55초 동안 휘어 날아가
+   * 전광판 그 팀 숫자 칸에 꽂힌다(0.85초) → 숫자가 그때 바뀌며 튄다. 구장 테두리는 안쪽으로 옅게 한 번(받침).
+   * 우리 득점 초록 · 상대 빨강. 스킵 · 3배속 이상 · '애니메이션 줄이기'면 연출 없이 숫자만.
+   */
+  const fieldRef = useRef(null);
+  const [scoreFx, setScoreFx] = useState([]);
+  const [scoreHold, setScoreHold] = useState({ home: 0, away: 0 }); // 날아오는 중인 점수 — 전광판이 잠깐 빼고 보여 준다
+  const [pop, setPop] = useState({ home: null, away: null });
+  const SCORE_LAND = 850;
+  const scoreFly = (side, runs, tone) => {
+    const box = fieldRef.current?.getBoundingClientRect();
+    const numEl = fieldRef.current?.querySelector(`[data-score="${side}"]`);
+    if (!box || !numEl) { setScoreHold((h) => ({ ...h, [side]: Math.max(0, h[side] - runs) })); return; }
+    const n = numEl.getBoundingClientRect();
+    const from = [box.width * 0.5, box.height * 0.878]; // 홈 플레이트(구장 그림 기준)
+    const to = [n.left - box.left + n.width / 2, n.top - box.top + n.height / 2];
+    const id = nextFx();
+    setScoreFx((l) => [...l, { id, runs, tone, from, to }]);
+    setTimeout(() => {
+      if (!aliveRef.current) return;
+      setScoreHold((h) => ({ ...h, [side]: Math.max(0, h[side] - runs) }));
+      setPop((p) => ({ ...p, [side]: id }));
+    }, SCORE_LAND);
+    setTimeout(() => { if (aliveRef.current) setScoreFx((l) => l.filter((x) => x.id !== id)); }, 1100);
+  };
   const [rush, setRush] = useState(false); // 접은 타석을 흘려보내는 중
   const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
   const outsRef = useRef(0); // 아웃이 늘면 표시가 한 번 튄다
@@ -713,6 +746,12 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
 
         }
+        if (ev.runs > 0 && !quiet() && curSpeed() < 3 && !reducedMotion()) {
+          const side = ev.top ? 'away' : 'home';
+          setScoreHold((h) => ({ ...h, [side]: h[side] + ev.runs }));
+          /* 친 공이면 주자가 홈을 밟는 때(결과가 드러난 뒤 한 박자의 0.2)에 — 전엔 타구가 날아가는 중에 먼저 떴다 */
+          setTimeout(() => { if (aliveRef.current) scoreFly(side, ev.runs, ev.top ? '#f87171' : '#34d399'); }, told + (ev.call === 'inplay' ? beat * 0.2 : 0));
+        }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => {
             if (!aliveRef.current) return;
@@ -922,7 +961,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         <div className="grid min-h-0 gap-4 px-6 pb-5" style={{ gridTemplateColumns: 'minmax(0,1fr) 440px' }}>
           {/* ── 왼쪽: 큰 구장 — 점수판 · 승률 · 타석 · 존을 겹쳐 올린다 ── */}
-          <section className="mt-cut mt-frame relative min-h-0 bg-[#060c16]" style={{ '--c': '24px', '--a': '#10b981' }}>
+          <section ref={fieldRef} className="mt-cut mt-frame relative min-h-0 bg-[#060c16]" style={{ '--c': '24px', '--a': '#10b981' }}>
             <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
               bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
             <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.5),transparent 22%,transparent 72%,rgba(5,8,15,.7))' }} />
@@ -931,7 +970,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
 
             {/* 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트 한 판 */}
-            <Scoreboard g={g} home={home} away={away} count={count} justOut={justOut} className="absolute left-4 top-4" />
+            <Scoreboard g={g} home={home} away={away} count={count} justOut={justOut} hold={scoreHold} pop={pop} className="absolute left-4 top-4" />
 
             {/* 타석 — 동그란 얼굴 · 이름 · 파워 · 컨택 · 종합, 다음 두 타자. 타자가 바뀌면 아래에서 올라온다 */}
             {(() => {
@@ -981,6 +1020,18 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               <span className="pointer-events-none absolute right-4 top-4 flex items-center gap-1.5 rounded-full px-3 py-1 font-display text-t4 font-extrabold text-[#05080f]"
                 style={{ background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
             )}
+
+            {/* 득점 — 홈 빛 · 고리 · 날아가는 +N · 테두리 옅은 빛 */}
+            {scoreFx.map((x) => (
+              <div key={`score-${x.id}`} className="pointer-events-none absolute inset-0" style={{ '--k': x.tone }}>
+                <i className="absolute inset-0 rounded-[24px]" style={{ animation: 'scoreEdge .8s ease-out both' }} />
+                <i className="absolute block rounded-full" style={{ left: x.from[0] - 110, top: x.from[1] - 60, width: 220, height: 120, background: `radial-gradient(closest-side, color-mix(in srgb, ${x.tone} 55%, transparent), transparent)`, animation: 'scoreGlow .7s ease-out both' }} />
+                <i className="absolute block rounded-full" style={{ left: x.from[0] - 18, top: x.from[1] - 18, width: 36, height: 36, boxShadow: `0 0 0 2px ${x.tone}`, animation: 'scoreRing .6s cubic-bezier(.2,.7,.3,1) both' }} />
+                <b className="absolute left-0 top-0 font-display text-[52px] font-extrabold leading-none"
+                  style={{ color: x.tone, offsetPath: `path('M ${x.from[0]} ${x.from[1] - 50} C ${x.from[0] - 30} ${x.from[1] - 270}, ${x.to[0] + 160} ${x.to[1] + 100}, ${x.to[0]} ${x.to[1]}')`, offsetRotate: '0deg',
+                    textShadow: `0 0 14px color-mix(in srgb, ${x.tone} 70%, transparent), 0 3px 8px #000`, animation: 'scoreFly .95s cubic-bezier(.45,0,.35,1) both' }}>+{x.runs}</b>
+              </div>
+            ))}
 
             {/* 알림 — 투수 교체 · 증강 발동 */}
             {toasts.length > 0 && (
