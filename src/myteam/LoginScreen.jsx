@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { signIn, peekAccount, TEAM_NAME_MAX } from './store.js';
 import { SQUAD_CAP } from './rules.js';
 import { UiStyle, Btn, Chip } from './ui.jsx';
+import BgmButton from '../audio/BgmButton.jsx';
 import { online } from '../net/supabase.js';
 import { logIn, signUp, legacySave, lastLoginId, recoverStart, recoverFinish, checkId, checkPw, checkNick, checkEmail, NICK_MAX, PW_MIN } from '../net/account.js';
 
@@ -207,6 +208,8 @@ export default function LoginScreen({ onDone }) {
       <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(ui/mt/mt-tunnel.webp)' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(3,5,10,.96) 0,rgba(3,5,10,.78) 34%,rgba(3,5,10,.15) 62%,rgba(3,5,10,.6) 100%)' }} />
       <div className="mt-scan absolute inset-0 opacity-60" />
+      {/* 소리 — 다른 화면과 같은 자리 · 같은 단추(오른쪽 28px · 위 18px) */}
+      <BgmButton className="!absolute right-7 top-[18px] z-10" />
 
       <div className="relative grid min-h-dvh items-center px-6 py-4">
         <div className="w-full max-w-[540px] pl-2 lg:pl-16">
