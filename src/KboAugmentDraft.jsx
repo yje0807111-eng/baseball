@@ -1884,14 +1884,14 @@ export const KEYFRAMES = `
 .aug-gold.hot .aug-face, .aug-gold:focus-visible .aug-face { box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 40px 70px -24px rgba(0,0,0,.95), 0 0 70px -8px rgba(167,139,250,.8); filter: brightness(1.12); }
 .aug-gold .aug-inner { position: relative; display: flex; height: 100%; flex-direction: column; align-items: center; gap: 12px; padding: 14px 16px 16px; border-radius: 16px; text-align: center;
   background: radial-gradient(120% 60% at 50% 0%, #1d2440, #0b0f1c 70%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 0 0 2px rgba(255,255,255,.08); }
-.aug-gold .aug-window { position: relative; width: 100%; height: 204px; flex: none; overflow: hidden; border-radius: 12px; background: #0b0f1c;
+.aug-gold .aug-window { position: relative; width: 100%; height: 264px; flex: none; overflow: hidden; border-radius: 12px; background: #0b0f1c;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 0 3px rgba(0,0,0,.45); }
 .aug-gold .aug-window::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 -30px 40px -20px rgba(11,15,28,.9), inset 0 0 20px rgba(0,0,0,.5); }
 .aug-gold .aug-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity .3s; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 47%, rgba(196,181,253,.24) 52%, transparent 64%) 0 0 / 220% 100% no-repeat; animation: augSheen 4.5s ease-in-out infinite; }
 .aug-gold.hot .aug-shine { opacity: 1; }
 @keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
 .aug-gold .aug-name { font-size: 28px; font-weight: 900; line-height: 1.12; color: #fff; text-shadow: 0 2px 8px #000; text-wrap: balance; }
-.aug-gold .aug-band { align-self: stretch; margin: 0 -16px; height: 25px; display: grid; place-items: center; font-size: 12.5px; font-weight: 900; letter-spacing: .08em; color: var(--k);
+.aug-gold .aug-band { align-self: stretch; flex: none; margin: 0 -16px; height: 25px; display: grid; place-items: center; font-size: 12.5px; font-weight: 900; letter-spacing: .08em; color: var(--k);
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
 .aug-gold .aug-desc { margin-top: 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; font-weight: 500; line-height: 1.55; letter-spacing: -.01em; color: #cbd5e1; word-break: keep-all; text-wrap: pretty; }
@@ -3802,19 +3802,19 @@ function augWho(o) {
 
 /** 증강 카드가 올라오기 시작하는 때(ms) — 셋 모두 같이 */
 const REVEAL_MS = 120;
-/* 증강 그림 창(290×204)에 보일 세로 자리(object-position y%) — 그림(720×1072)마다 얼굴 · 머리가 잘리지 않게 하나씩 맞춘 값 */
+/* 증강 그림 창(290×264 — 카드 아래가 비어 204 에서 키웠다. 긴 설명 세 줄 + 별 다섯이 들어가는 만큼, mockups/empty-fill B)에 보일 세로 자리(object-position y%) — 그림(720×1072)마다 얼굴 · 머리가 잘리지 않게 하나씩 맞춘 값 */
 const AUG_ART_Y = {
-  ace:9, aceDay:15, aceFirst:6, aceKiller:6, allInSkew:9, allOrNothing:11, allOutPitch:11, austerity:15, autumnDNA:6, balanceTrain:19, bargain:9,
-  bigGame:17, bloop:27, bottomUp:19, bullpenBoost:17, bullpenFortress:11, bullpenGame:15, bullpenInsure:4, camp:15, cannon:23, captain:23,
-  catcherLead:30, centerLine:23, cleanupBomb:27, cleanupCore:6, cleanupUp:9, closer:13, closerFocus:2, clutchGod:19, clutchMaster:11,
-  contactRevolution:0, ctrlTrain:15, daesseuyo:28, defenseRevolution:8, doubleSwitch:17, dramaComeback:11, dynasty:19, emergency:6, extraGame:6,
-  extraRun:27, extremeLeft:15, eyeTrain:0, firstBlood:23, flyballRevolution:23, focusLine:15, fullSwing:23, fund:19, gamble:19, glassCannon:4,
-  gloveTrain:11, greenLight:15, grind:11, hell:19, hitStreak:19, holdLead:6, hometownFans:8, infieldWall:23, ironDefense:23, ironMan:8, lateBlast:9,
-  leftLine:9, lefty:6, legendAura:11, legendsWeight:15, luckySeven:23, mentalCoach:9, mercAll:9, mercContract:13, mirrorMatch:11, muscle:6, natPride:0,
-  oneMan:13, oneWell:9, outfieldWall:15, perfectPace:8, posFree:9, pressure:27, rally:9, regress:9, revive:8, rightLine:9, rightLock:13, rookie:23,
-  rookieHunger:6, scout:9, scoutReport:15, setterUp:9, setupCrew:9, shutoutCounter:19, sluggerArmy:15, smallBall:19, southpaws:15, speedBall:9,
-  speedGap:4, speedRevolution:19, sprintTrain:0, staminaTrain:0, starterFocus:9, stuffTrain:13, synBoom:11, synCopy:23, tempo:13, tieBreak:8,
-  tightPitching:0, toContact:9, toPower:17, trainerOn:6, underdog:15, veteran:6, walkoffInstinct:19, weakFix:15, winStreak:23, workhorse:4
+  ace:12, aceDay:20, aceFirst:8, aceKiller:8, allInSkew:12, allOrNothing:15, allOutPitch:15, austerity:20, autumnDNA:8, balanceTrain:26, bargain:12,
+  bigGame:23, bloop:37, bottomUp:26, bullpenBoost:23, bullpenFortress:15, bullpenGame:20, bullpenInsure:5, camp:20, cannon:31, captain:31,
+  catcherLead:41, centerLine:31, cleanupBomb:37, cleanupCore:8, cleanupUp:12, closer:18, closerFocus:3, clutchGod:26, clutchMaster:15,
+  contactRevolution:0, ctrlTrain:20, daesseuyo:38, defenseRevolution:11, doubleSwitch:23, dramaComeback:15, dynasty:26, emergency:8, extraGame:8,
+  extraRun:37, extremeLeft:20, eyeTrain:0, firstBlood:31, flyballRevolution:31, focusLine:20, fullSwing:31, fund:26, gamble:26, glassCannon:5,
+  gloveTrain:15, greenLight:20, grind:15, hell:26, hitStreak:26, holdLead:8, hometownFans:11, infieldWall:31, ironDefense:31, ironMan:11, lateBlast:12,
+  leftLine:12, lefty:8, legendAura:15, legendsWeight:20, luckySeven:31, mentalCoach:12, mercAll:12, mercContract:18, mirrorMatch:15, muscle:8, natPride:0,
+  oneMan:18, oneWell:12, outfieldWall:20, perfectPace:11, posFree:12, pressure:37, rally:12, regress:12, revive:11, rightLine:12, rightLock:18, rookie:31,
+  rookieHunger:8, scout:12, scoutReport:20, setterUp:12, setupCrew:12, shutoutCounter:26, sluggerArmy:20, smallBall:26, southpaws:20, speedBall:12,
+  speedGap:5, speedRevolution:26, sprintTrain:0, staminaTrain:0, starterFocus:12, stuffTrain:18, synBoom:15, synCopy:31, tempo:18, tieBreak:11,
+  tightPitching:0, toContact:12, toPower:23, trainerOn:8, underdog:20, veteran:8, walkoffInstinct:26, weakFix:20, winStreak:31, workhorse:5
 };
 
 function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
