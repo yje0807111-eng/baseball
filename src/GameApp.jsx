@@ -17,7 +17,7 @@ import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
 import { MATCH_AUG_INNINGS, envOf, augOptions, augsForHistory } from './myteam/matchAug.js';
-import { ChoiceOverlay, KEYFRAMES, FREE_REROLL, makeAugmentRuntime } from './KboAugmentDraft.jsx';
+import { ChoiceOverlay, KEYFRAMES, FREE_REROLL, makeAugmentRuntime, rerollAugmentAt } from './KboAugmentDraft.jsx';
 import { cupOf, cupIssue } from './myteam/cups.js';
 import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
@@ -162,10 +162,11 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   };
 
   /* 증강 다시 굴리기 — 거저 한 번, 그다음은 리롤권 */
-  const rerollAug = () => {
+  /* 다시 굴리기 — 카드 한 장씩(무료 횟수 먼저, 다음은 리롤권 한 장) */
+  const rerollAug = (i) => {
     if (!augPick) return;
     if ((augPick.free || 0) <= 0 && !spendAugTicket('reroll')) return;
-    setAugPick({ ...augPick, free: Math.max(0, (augPick.free || 0) - 1), options: augOptions(ownedRef.current) });
+    setAugPick({ ...augPick, free: Math.max(0, (augPick.free || 0) - 1), options: rerollAugmentAt(augPick.options, i, ownedRef.current) });
   };
   /* 7회 증강: 중계 화면이 기다린다 — 고르면 지금까지 고른 증강 전부를 넘긴다 */
   const midPick = (inning) => {

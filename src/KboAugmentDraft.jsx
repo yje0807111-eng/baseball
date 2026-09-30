@@ -845,6 +845,12 @@ export function rollAugmentOptions(owned = [], rng = Math.random, { favs = null 
   return withAugLevels(keyed.slice(0, 3).map((x) => x.a));
 }
 
+/** 카드 한 장만 다시 굴린다 — 가진 증강 · 판에 있던 세 장(방금 뺀 것 포함)과 겹치지 않게(TFT 처럼 카드마다 따로) */
+export function rerollAugmentAt(options, i, owned = [], rng = Math.random) {
+  const next = rollAugmentOptions([...owned, ...options], rng)[0];
+  return next ? options.map((o, k) => (k === i ? next : o)) : options;
+}
+
 export const EVENTS = [
   { id: 'fund', name: '긴급 트레이드 자금', tier: 'silver', cond: '구단주 특별 지원', desc: '샐러리 캡 +60 CP', apply: (s) => ({ ...s, cp: s.cp + 60 }) },
   { id: 'scout', name: '스카우트 특명', tier: 'silver', cond: '전국 스카우트망 가동', desc: '상점 새로고침 +3회', apply: (s) => ({ ...s, rerolls: s.rerolls + 3 }) },
@@ -1901,8 +1907,11 @@ export const KEYFRAMES = `
 .aug-hd { display: flex; align-items: center; gap: 14px; width: 520px; font-size: 14px; font-weight: 800; color: #f5d27a; }
 .aug-hd::before, .aug-hd::after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6)); }
 .aug-hd::after { background: linear-gradient(90deg, rgba(245,210,122,.6), transparent); }
-.aug-reroll { height: 50px; padding: 0 28px; border-radius: 14px; font-weight: 800; color: #fff; background: linear-gradient(180deg, rgba(196,181,253,.28), rgba(124,58,237,.3)); box-shadow: inset 0 0 0 1px rgba(196,181,253,.6), 0 10px 26px -10px #a78bfa; }
-.aug-reroll:hover { filter: brightness(1.15); }
+.aug-reroll-one { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #ede9fe; background: linear-gradient(180deg, rgba(196,181,253,.24), rgba(124,58,237,.28)); box-shadow: inset 0 0 0 1px rgba(196,181,253,.55), 0 8px 20px -10px #a78bfa; transition: filter .15s; }
+.aug-reroll-one svg { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+.aug-reroll-one:hover:not(:disabled) { filter: brightness(1.2); }
+.aug-reroll-one:hover:not(:disabled) svg { transform: rotate(-60deg); }
+.aug-reroll-one:disabled { opacity: .3; cursor: default; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); background: rgba(255,255,255,.05); }
 /* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
 .aug-card.hot { transform: translateY(-20px) scale(1.085); z-index: 2; }
 .aug-card.cold { opacity: .5; filter: saturate(.4) brightness(.68); transform: translateY(6px) scale(.94); }
@@ -3891,19 +3900,23 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
         </div>
         <div className="flex flex-wrap justify-center gap-9" data-sfx="none">
           {choice.options.map((o, i) => (
-            <ChoiceCard key={o.id} option={o} index={i} onHot={took < 0 ? setHot : null}
-              state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
-              onChoose={(pick) => { if (took >= 0) return; setTook(i); playSfx('augPick'); setTimeout(() => onChoose(pick), 620); }} />
+            /* 카드 + 그 카드만 다시 굴리는 아이콘 단추(고른 뒤 · 굴릴 것이 없으면 흐리게). 남은 횟수는 단추에 올리면 */
+            <div key={o.id} className="flex flex-col items-center gap-4">
+              <ChoiceCard option={o} index={i} onHot={took < 0 ? setHot : null}
+                state={took >= 0 ? (took === i ? 'take' : 'gone') : hot === i ? 'hot' : hot >= 0 ? 'cold' : ''}
+                onChoose={(pick) => { if (took >= 0) return; setTook(i); playSfx('augPick'); setTimeout(() => onChoose(pick), 620); }} />
+              {isAug && onReroll && (
+                <button type="button" onClick={() => onReroll(i)} disabled={took >= 0 || !(free > 0 || rerolls > 0)} data-sfx="none"
+                  aria-label={`${o.name} 다시 굴리기`} title={free > 0 ? `다시 굴리기 · 무료 ${free}번` : rerolls > 0 ? `다시 굴리기 · 리롤권 ${rerolls}장` : '다시 굴릴 것 없음'}
+                  className="aug-reroll-one animate-[rise_.4s_ease-out_both]" style={{ transition: took >= 0 ? 'opacity .2s' : undefined, opacity: took >= 0 ? 0 : undefined }}>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20 12a8 8 0 1 1-2.34-5.66" /><path d="M20 4v5h-5" />
+                  </svg>
+                </button>
+              )}
+            </div>
           ))}
         </div>
-        {isAug && onReroll && (free > 0 || rerolls > 0) && (
-          <button type="button" onClick={onReroll} data-sfx="none" className="aug-reroll animate-[rise_.4s_ease-out_both]">
-            ↺ 다시 굴리기
-            <em className="ml-1.5 not-italic opacity-75">
-              {free > 0 ? '· 이번 한 번 무료' : `· 리롤권 ${rerolls}장`}
-            </em>
-          </button>
-        )}
       </div>
     </div>
   );
@@ -5155,10 +5168,10 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const augmentOptions = (owned) => {
     return rollAugmentOptions(owned);
   };
-  /* 다시 굴리기 — 거저 주는 한 번을 먼저 쓰고, 떨어지면 리롤권을 쓴다 */
-  const rerollAugments = () => {
+  /* 다시 굴리기 — 카드 한 장씩. 거저 주는 횟수를 먼저 쓰고, 떨어지면 리롤권을 한 장 쓴다 */
+  const rerollAugments = (i) => {
     if (!choice || choice.kind !== 'augment') return;
-    const roll = (c) => ({ ...c, options: rollAugmentOptions(augments) });
+    const roll = (c) => ({ ...c, options: rerollAugmentAt(c.options, i, augments) });
     if ((choice.free || 0) > 0) {
       setChoice((c) => (c && c.kind === 'augment' ? { ...roll(c), free: (c.free || 0) - 1 } : c));
       return;
