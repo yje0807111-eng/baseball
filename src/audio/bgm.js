@@ -108,7 +108,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
     const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-    if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M' || e.key === 'ㅡ') setSettings({ muted: !settings.muted });
+    if (e.code === 'KeyM' || e.key === 'm' || e.key === 'M' || e.key === 'ㅡ') toggleMuteAll();
   });
   /* 탭을 벗어나면 멈추고, 돌아오면 이어 튼다 */
   document.addEventListener('visibilitychange', () => {
@@ -125,6 +125,14 @@ export function setSettings(patch) {
   save(settings);
   if (master) ramp(master.gain, masterLevel(), 0.15);
   listeners.forEach((f) => f(settings));
+}
+/**
+ * 전체 음소거 켜기 · 끄기(M 키 · 소리 판 · 프로필 창 모두 이것). 풀 때는 채널별로 꺼 둔 것(배경음악 · 효과음)도 함께 켠다 —
+ * '전체 소리 켜기' 를 눌렀는데 배경음악만 계속 꺼져 있지 않게. 크기가 0 이던 채널은 50 으로(풀었는데 안 들리지 않게)
+ */
+export function toggleMuteAll() {
+  if (!settings.muted) { setSettings({ muted: true }); return; }
+  setSettings({ muted: false, bgmOff: false, sfxOff: false, ...(settings.vol > 0 ? {} : { vol: 0.5 }), ...(settings.sfx > 0 ? {} : { sfx: 0.5 }) });
 }
 export function onSettings(f) { listeners.add(f); return () => listeners.delete(f); }
 /** 지금 무엇이 나오는지 — 확인용 */

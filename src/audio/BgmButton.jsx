@@ -2,7 +2,7 @@
    누르면 아래로 배경음악 · 효과음 크기 · 음소거 판이 열린다(오른쪽 정렬, 프로필 창 소리 칸과 같은 설정). 화면마다 모양을 바꾸지 않는다 */
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getSettings, onSettings, setSettings } from './bgm.js';
+import { getSettings, onSettings, setSettings, toggleMuteAll } from './bgm.js';
 import { play as playSfx } from './sfx.js';
 
 export function Speaker({ off }) {
@@ -114,7 +114,7 @@ export default function BgmButton({ className = '' }) {
           </div>
           {row('vol')}
           {row('sfx', () => playSfx('goldIn'))}
-          <button type="button" onClick={() => setSettings({ muted: !s.muted })} aria-pressed={s.muted}
+          <button type="button" onClick={toggleMuteAll} aria-pressed={s.muted}
             className={`flex items-center justify-center gap-2 rounded-xl py-2 text-t3 font-bold transition ${s.muted ? 'bg-red-500/15 text-[#fca5a5] shadow-[inset_0_0_0_1px_rgba(248,113,113,.45)] hover:bg-red-500/25' : 'bg-white/[0.06] text-gray-200 hover:bg-white/[0.11]'}`}>
             <Speaker off={!s.muted} />
             {s.muted ? '전체 소리 켜기' : '전체 음소거'}

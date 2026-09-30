@@ -11,7 +11,7 @@ import { loadAccount, saveProfile, TEAM_NAME_MAX } from './store.js';
 import { BANNERS, flagByKey } from './teamArt.js';
 import { online } from '../net/supabase.js';
 import { renameNick, myRecoveryEmail, setRecoveryEmail, checkEmail, NICK_MIN } from '../net/account.js';
-import { getSettings, onSettings, setSettings } from '../audio/bgm.js';
+import { getSettings, onSettings, setSettings, toggleMuteAll } from '../audio/bgm.js';
 import { play as playSfx } from '../audio/sfx.js';
 import { ChannelMute, OFF_KEY, channelOn, toggleChannel, VolRange } from '../audio/BgmButton.jsx';
 
@@ -43,7 +43,7 @@ function MusicRow() {
           {row('vol', '배경음악')}
           {row('sfx', '효과음', () => playSfx('goldIn'))}
         </div>
-        <button type="button" onClick={() => setSettings({ muted: !s.muted })} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '전체 소리 켜기' : '전체 음소거 · M'}</button>
+        <button type="button" onClick={toggleMuteAll} className="mt-btn" aria-pressed={s.muted}>{s.muted ? '전체 소리 켜기' : '전체 음소거 · M'}</button>
       </div>
     </div>
   );
