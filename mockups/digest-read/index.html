@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>요약 모드 흐름 읽기 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  요약(접기) 모드에서 경기 흐름이 안 읽힌다 — 볼거리 없는 타석은 0.6초 결과 한 컷 + 공 하나 0.08초로 흘러가고,
+  그 결과를 글로 남기던 해설 칸을 뺐다. 반 이닝 3아웃이 3초 안에 지나가면 무엇이 있었는지 남는 것이 없다.
+  비슷한 게임:
+   · OOTP · 야구 매니저류 — 빠르게 돌려도 옆에 타석 기록 줄이 쌓여 뒤에 읽는다(속도는 그대로, 읽기는 나중에)
+   · MLB 9이닝스 빠른 진행 — 타석마다 짧은 결과 글이 한 번씩 뜬다
+   · 중계 방송 — 반 이닝이 끝나면 '1회초 1안타 0점' 요약 자막
+  사람이 이름 + 결과(열 글자 안팎)를 읽는 데 0.6~0.8초 — 한 컷 0.6초는 겨우 보이지만 흐름으로 이어지지 않는다.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .field { position: absolute; left: 24px; top: 72px; width: 1416px; height: 818px; overflow: hidden; border-radius: 24px; }
+  .bar { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .bar button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .bar button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .view { display: none; } .view.on { display: block; }
+  .glass { background: rgba(7,10,18,.84); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 12px 30px rgba(0,0,0,.45); border-radius: 14px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .g { color: #34d399; } .r { color: #f87171; } .m { color: #94a3b8; }
+  /* A 반 이닝 기록 — 타석 카드 위로 쌓인다 */
+  .log { position: absolute; left: 16px; bottom: 124px; width: 440px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .log .hd { display: flex; align-items: baseline; justify-content: space-between; font-size: 14px; font-weight: 700; color: #cbd5e1; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .log .row { display: grid; grid-template-columns: 8px 1.4rem 5.2rem 1fr auto; align-items: center; gap: 10px; font-size: 15px; }
+  .log .row.new { animation: rowIn .2s ease-out both; background: rgba(255,255,255,.05); border-radius: 8px; margin: 0 -8px; padding: 3px 8px; }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  /* B 타석마다 작은 띠 — D안 띠의 작은 판 */
+  .mini { position: absolute; left: -30px; top: 170px; padding: 8px 46px 8px 56px; transform: skewX(-14deg); background: linear-gradient(90deg, var(--k), color-mix(in srgb, var(--k) 50%, transparent)); }
+  .mini > div { transform: skewX(14deg); display: flex; align-items: baseline; gap: 12px; }
+  .mini b { font-size: 30px; line-height: 1; color: #05080f; } .mini span { font-size: 15px; font-weight: 700; color: rgba(5,8,15,.8); }
+  /* C 반 이닝 요약 — 끝날 때만 한 장 */
+  .sum { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); padding: 16px 26px; display: flex; flex-direction: column; gap: 10px; min-width: 520px; }
+  .sum .hd { display: flex; align-items: baseline; gap: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 5px 10px; border-radius: 8px; font-size: 14px; font-weight: 700; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+</style>
+<body>
+<img class="shot" src="../center-call/field.jpg">
+<div class="field">
+  <!-- A -->
+  <div class="view" data-k="a" data-cap="A · 반 이닝 기록 — 타석 카드 위로 이번 반 이닝 타석이 한 줄씩 쌓임(새 줄만 0.2초) · 속도는 그대로, 읽기는 아무 때나 · 반 이닝이 끝나면 비움">
+    <div class="log glass">
+      <div class="hd"><span>1회말 · 우리 공격</span><span class="d" style="font-size:16px">1안타 <b class="g">1점</b></span></div>
+      <div class="row"><i class="dot" style="background:#f87171"></i><span class="d m">1</span><b>이종욱</b><span>유격수 땅볼</span><span class="m d">1아웃</span></div>
+      <div class="row"><i class="dot" style="background:#34d399"></i><span class="d m">2</span><b>유한준</b><span>좌중간 2루타</span><span></span></div>
+      <div class="row"><i class="dot" style="background:#f87171"></i><span class="d m">3</span><b>손시헌</b><span>삼진</span><span class="m d">2아웃</span></div>
+      <div class="row new"><i class="dot" style="background:#34d399"></i><span class="d m">4</span><b>서용빈</b><span>우전 안타</span><b class="g d" style="font-size:16px">+1점</b></div>
+    </div>
+  </div>
+  <!-- B -->
+  <div class="view" data-k="b" data-cap="B · 타석마다 작은 띠 — 접은 타석도 결과를 작은 사선 띠로 한 번씩(0.8초, 큰 결과 띠의 작은 판) · 흐름은 지나가며 읽음">
+    <div class="mini" style="--k:#34d399"><div><b>안타</b><span>서용빈 · 우전 · 1점</span></div></div>
+  </div>
+  <!-- C -->
+  <div class="view" data-k="c" data-cap="C · 반 이닝 요약 — 타석 중엔 그대로 빠르게, 반 이닝이 끝날 때 한 장으로(1.6초, 누르면 넘김) · 공수 교대 띠 자리">
+    <div class="sum glass">
+      <div class="hd"><b style="font-size:24px">1회말 종료</b><span class="d" style="font-size:20px">1안타 <b class="g">1점</b></span><span class="m" style="margin-left:auto;font-size:14px">SK 1 : 1 점검감독</span></div>
+      <div class="chips">
+        <span class="chip"><span class="r">●</span> 이종욱 땅볼</span><span class="chip"><span class="g">●</span> 유한준 2루타</span><span class="chip"><span class="r">●</span> 손시헌 삼진</span><span class="chip"><span class="g">●</span> 서용빈 안타 +1</span><span class="chip"><span class="r">●</span> 김응국 뜬공</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cap" id="cap"></div>
+<div class="bar" id="bar"></div>
+<script>
+  const views = [...document.querySelectorAll('.view')];
+  const bar = document.getElementById('bar');
+  bar.innerHTML = views.map((v) => `<button data-k="${v.dataset.k}">${v.dataset.cap.split(' — ')[0]}</button>`).join('');
+  const show = (k) => { views.forEach((v) => v.classList.toggle('on', v.dataset.k === k)); bar.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.k === k)); document.getElementById('cap').textContent = views.find((v) => v.dataset.k === k).dataset.cap; location.hash = k; };
+  bar.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(b.dataset.k); });
+  show(location.hash.slice(1) || 'a');
+</script>
+</body>
+</html>
