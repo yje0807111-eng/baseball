@@ -20,10 +20,11 @@ import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, 
 import { Count, Burst, flyGhost, useListIntro, navTo } from '../ui/motion.jsx';
 
 /**
- * 빈 보관함 — 아이템 탭 빈 화면(사진 한 장 · 제목 · 단추)과 같은 모양.
- * 채울 자리 20칸을 옅게 보여 주고(카드 앨범처럼), 보관함이 채워지는 두 길로 바로 잇는다: 내 선수 '보관' · 드래프트 기념 카드
+ * 빈 보관함 — 아이템 탭 빈 화면(사진 한 장 · 제목 · 단추 하나 '상점 가기')과 같은 모양.
+ * 채울 자리 20칸을 옅게 보여 주고(카드 앨범처럼), 단추는 영입 하나 — 엔트리가 꽉 찬 뒤 산 선수가 보관함으로 온다.
+ * (내 선수 '보관' · 드래프트 기념 카드도 보관함으로 오지만, 빈 화면에서 고를 일은 아니라 단추로 두지 않음)
  */
-function ClubEmpty({ max, onSquad, onDraft }) {
+function ClubEmpty({ max, onScout }) {
   return (
     <div className="mt-cut mt-3 grid min-h-0 flex-1 place-items-center bg-cover"
       style={{ '--c': '16px', backgroundImage: 'linear-gradient(180deg, rgba(52,211,153,.12), rgba(5,8,15,.95) 62%), url(ui/mt/tile-locker.webp)', backgroundPosition: 'center 35%' }}>
@@ -38,16 +39,7 @@ function ClubEmpty({ max, onSquad, onDraft }) {
             <i key={i} className="block h-8 w-6 rounded-[5px]" style={{ background: 'rgba(52,211,153,.05)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.32)' }} />
           ))}
         </span>
-        <span className={`mt-6 grid w-[520px] gap-3 ${onDraft ? 'grid-cols-2' : 'grid-cols-1'}`}>
-          <Btn lg style={cut(12)} onClick={onSquad}>
-            <span className="flex flex-col items-center leading-tight">내 선수에서 보관<small className="text-t4 opacity-75">엔트리에서 빼 두기</small></span>
-          </Btn>
-          {onDraft && (
-            <Btn pri lg style={cut(12)} onClick={onDraft}>
-              <span className="flex flex-col items-center leading-tight">드래프트 기념 카드 ▶<small className="text-t4 opacity-75">드래프트 보상</small></span>
-            </Btn>
-          )}
-        </span>
+        <Btn pri lg data-sfx="navTab" className="mx-auto mt-6 w-[260px]" style={cut(12)} onClick={onScout}>영입 가기 ▶</Btn>
       </div>
     </div>
   );
@@ -714,7 +706,7 @@ function PresetBar({ team, squad, onSave, onLoad }) {
   );
 }
 
-export default function LockerScreen({ account, onSave, onBack, onShop, onDraft = null, initialTab = null }) {
+export default function LockerScreen({ account, onSave, onBack, onShop, initialTab = null }) {
   const [team, setTeam] = useState(account.team);
   const [gold, setGold] = useState(account.gold || 0);
   const [canOnly, setCanOnly] = useState(false); // 지금 영입할 수 있는 선수만
@@ -981,7 +973,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
             {head('보관함', `${clubList.length} / ${clubCap}`)}
             {clubList.length === 0 ? (
-              <ClubEmpty max={clubCap} onSquad={() => navTo(() => setTab('squad'), 'tab-l')} onDraft={onDraft} />
+              <ClubEmpty max={clubCap} onScout={() => navTo(() => setTab('scout'), 'tab-l')} />
             ) : (
             <div className={`mt-scroll mt-3 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
               {clubList.map((p) => {
