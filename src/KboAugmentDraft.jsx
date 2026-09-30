@@ -925,31 +925,51 @@ export function augDescAt(a, lv = a?.lv || 0) {
 export const augChance = (a) => Math.min(1, (a.chance ?? 0) + (a.lv || 0) * 0.05);
 export const augMax = (a) => (a.max ?? 1) + ((a.lv || 0) >= 5 ? 2 : (a.lv || 0) >= 3 ? 1 : 0);
 
-export function makeAugmentRuntime({ augments = [], my, opp, record }) {
+/**
+ * 경기 중 증강 — 우리(홈) 증강과 상대(원정, AI) 증강을 함께 돌린다.
+ * 상대 증강은 문맥을 뒤집어(상대 = my · 원정 공격 = myOff · 점수 · 투수 맞바꿈) 우리 증강과 같은 함수로 계산한다.
+ * 한 반 이닝의 보정은 두 쪽을 더해 한 번에 깐다 — 공격 쪽 add · mul 은 치는 팀에, pitch 는 막는 팀에.
+ */
+export function makeAugmentRuntime({ augments = [], my, opp, record, oppAugments = [] }) {
   let list = augments;
   let mine = my;
+  let theirs = oppAugments;
+  let foe = opp;
   const state = {};
+  const foeState = {};
   const stFor = (a) => (state[a.id] ||= {});
+  const foeStFor = (a) => (foeState[a.id] ||= {});
   const passive = () => list.filter((a) => a.passive);
+  const foePassive = () => theirs.filter((a) => a.passive);
   const ctxOf = (g, inning = g.inning, isTop = g.top) => ({
-    inning, isTop, my: mine, opp, rng: g.rng,
+    inning, isTop, my: mine, opp: foe, rng: g.rng,
     score: { my: g.home.runs, opp: g.away.runs },
     myPitcher: g.home.pitcher, oppPitcher: g.away.pitcher,
   });
+  /** 상대 쪽에서 본 문맥 — 원정이 '우리' */
+  const foeCtxOf = (g, inning = g.inning, isTop = g.top) => ({
+    inning, isTop: !isTop, my: foe, opp: mine, rng: g.rng,
+    score: { my: g.away.runs, opp: g.home.runs },
+    myPitcher: g.away.pitcher, oppPitcher: g.home.pitcher,
+  });
+  const sides = (g, inning, isTop) => [[passive(), stFor, ctxOf(g, inning, isTop), true], [foePassive(), foeStFor, foeCtxOf(g, inning, isTop), false]];
 
   return {
-    /** 지금 걸려 있는 증강 (중계 화면 머리에 보여 준다) */
+    /** 지금 걸려 있는 우리 증강 · 상대 증강 (중계 화면 증강 판) */
     get list() { return list; },
+    get oppList() { return theirs; },
     /** 경기 중에 증강을 더 골랐을 때 */
     update(nextList, nextMy) { list = nextList; if (nextMy) mine = nextMy; },
+    updateOpp(nextList, nextOpp) { theirs = nextList; if (nextOpp) foe = nextOpp; },
     /** 반 이닝 시작: 이번 반 이닝에 걸릴 보정을 깐다 */
     beforeHalf(g) {
-      const c = ctxOf(g);
       let add = 0; let mul = 1; let pitchAdd = 0;
-      for (const a of passive()) {
-        const r = scaleHalf(a.half?.(c, stFor(a)), augScale(a.lv));
-        if (!r) continue;
-        add += r.add || 0; mul *= r.mul ?? 1; pitchAdd += r.pitch || 0;
+      for (const [arr, stOf, c] of sides(g)) {
+        for (const a of arr) {
+          const r = scaleHalf(a.half?.(c, stOf(a)), augScale(a.lv));
+          if (!r) continue;
+          add += r.add || 0; mul *= r.mul ?? 1; pitchAdd += r.pitch || 0;
+        }
       }
       const off = { hit: add * HIT_PER_RUN, hitMul: 1 + (mul - 1) * 0.5, hr: Math.max(0, add) * 0.05, steal: Math.max(0, add) * 0.1 };
       const def = { pitch: pitchAdd };
@@ -957,18 +977,19 @@ export function makeAugmentRuntime({ augments = [], my, opp, record }) {
     },
     /** 반 이닝 끝: 이닝 점수 보정 + 쌓이는 값. { runs, texts } 를 돌려준다 */
     afterHalf(g, runs, inning, isTop) {
-      const c = ctxOf(g, inning, isTop);
       const texts = [];
       let out = runs;
-      for (const a of passive()) {
-        if (!a.runs) continue;
-        const r = a.runs(c, out, stFor(a));
-        const next = Math.max(0, Math.min(9, scaleRuns(out, typeof r === 'number' ? r : r.runs, augScale(a.lv))));
-        if (typeof r === 'object' && r.text && next !== out) texts.push({ name: a.name, tier: a.tier, text: r.text });
-        out = next;
+      for (const [arr, stOf, c, ours] of sides(g, inning, isTop)) {
+        for (const a of arr) {
+          if (!a.runs) continue;
+          const r = a.runs(c, out, stOf(a));
+          const next = Math.max(0, Math.min(9, scaleRuns(out, typeof r === 'number' ? r : r.runs, augScale(a.lv))));
+          if (typeof r === 'object' && r.text && next !== out) texts.push({ name: a.name, tier: a.tier, text: r.text, mine: ours });
+          out = next;
+        }
       }
       const delta = addRuns(g, out - runs, inning, isTop ? 'away' : 'home');
-      for (const a of passive()) a.after?.(c, out, stFor(a));
+      for (const [arr, stOf, c] of sides(g, inning, isTop)) for (const a of arr) a.after?.(c, out, stOf(a));
       return { runs: runs + delta, texts };
     },
   };
@@ -3793,7 +3814,7 @@ const augNumColor = (w) => STAT_COLOR_KO[w] ?? Object.values(AUG_AREA).find(([ko
 const LitNums = ({ text, tone }) => { const p = String(text).split(/([+\-−]\d+(?:\.\d+)?%?p?)/g); return <>{p.map((t, i) => (i % 2 ? <b key={i} className={`aug-num ${/^[-−]/.test(t) ? 'neg' : ''}`} style={{ color: augNumColor(p[i - 1].match(/(\S+)\s*$/)?.[1]) ?? (/^[-−]/.test(t) ? undefined : tone) }}>{t}</b> : t))}</>; };
 /** 이 증강을 받는 선수 — 효과 글 맨 앞 대상(타자 · 투수 · 내야수 …). 없거나 여럿이면 영역 이름(타격 · 투구 · 수비 · 팀 전체). 숫자는 부호 붙은 것(+ · −)만 색 */
 const AUG_WHO = ['타자', '투수', '내야수', '외야수', '포수', '불펜 투수', '선발 투수'];
-function augWho(o) {
+export function augWho(o) {
   const d = augDescAt(o), w = AUG_WHO.find((x) => d.startsWith(`${x} `) && !d.startsWith(`${x} ·`)); // '포수 · 2루수 · …' 처럼 여럿이면 영역 이름으로
   const k = augAreas(o)[0] || 'all';
   const rest = (w ? d.slice(w.length + 1) : d).replace(/(포수|[123]루수|유격수|내야수|외야수|타자|투수) · /g, '$1, '); // 선수 나열은 쉼표로 — 포수, 2루수, 유격수 …
@@ -4111,13 +4132,43 @@ const teamPower = (t) => t.offense * 0.45 + t.pitchValue(t.sps[0]) * 0.35 + t.de
  * 정비 화면의 상대(스카우팅 모양 { name, roster, batters?, starter? }) → 승률 계산용 팀.
  * 드래프트 로스터(자리 있음)는 그대로, 시리즈 · 감독 팀처럼 큰 로스터는 타순 9 · 선발 · 불펜 넷만 추려 자리를 앉힌다
  */
-export function oppTeamFor(opp, buff = 0) {
+export function oppTeamFor(opp, buff = 0, augs = [], env = {}) {
   const ros = opp?.roster || [];
   const drafted = ros.length <= ROSTER_SIZE && ros.every((p) => p.slot);
   const arms = ros.filter((p) => p.type === 'pitcher' && p.id !== opp?.starter?.id).sort((a, b) => b.overall - a.overall);
   const bats = opp?.batters?.length ? opp.batters : ros.filter((p) => p.type === 'batter').sort((a, b) => b.overall - a.overall);
   const pick = drafted ? ros : withSlots([...bats.slice(0, 9), ...(opp?.starter ? [{ ...opp.starter, slot: 'SP' }] : []), ...arms.slice(0, 4)]);
-  return buildTeam(opp?.name || '상대', pick, buff);
+  return buildTeam(opp?.name || '상대', pick, buff, augs, env);
+}
+
+/**
+ * 상대(시리즈 팀 · 감독 팀 모양)에 증강을 얹는다 — 같은 자리(oppTeamFor)로 증강 없는 팀과 있는 팀을 만들어
+ * 그 차이(선수 능력치 · 공격/투구 보정 edge · 투수 운용 usage)만 옮긴다. 상대의 선발 · 등판 순서 · 운용 성향은 그대로.
+ */
+export function applyAugsTo(team, augs = [], env = {}) {
+  if (!augs.length || !team?.roster?.length) return team;
+  const starter = team.roster.find((p) => p.id === team.pitchOrder?.[0]) || team.starter;
+  const shape = { name: team.name, roster: team.roster, batters: team.batters, starter };
+  const base = oppTeamFor(shape, 0);
+  const next = oppTeamFor(shape, 0, augs, env);
+  const was = new Map(base.roster.map((p) => [p.id, p]));
+  const delta = new Map();
+  for (const p of next.roster) {
+    const b = was.get(p.id);
+    if (!b) continue;
+    const d = Object.fromEntries(Object.keys(p.stats).map((k) => [k, p.stats[k] - (b.stats[k] ?? p.stats[k])]).filter(([, v]) => v));
+    if (Object.keys(d).length) delta.set(p.id, d);
+  }
+  const bump = (p) => { const d = delta.get(p.id); return d ? { ...p, stats: Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v + (d[k] || 0)])) } : p; };
+  const roster = team.roster.map(bump);
+  const byId = new Map(roster.map((p) => [p.id, p]));
+  const usage = Object.fromEntries(Object.entries(next.usage || {}).filter(([k, v]) => base.usage?.[k] !== v));
+  return {
+    ...team, roster,
+    ...(team.batters ? { batters: team.batters.map((p) => byId.get(p.id) || p) } : {}),
+    edge: { bat: (next.edge?.bat || 0) - (base.edge?.bat || 0), pit: (next.edge?.pit || 0) - (base.edge?.pit || 0) },
+    usage: { ...(team.usage || {}), ...usage },
+  };
 }
 /**
  * 예상 승률(%) — 내 팀 · 상대(buildTeam 모양)를 실제 엔진으로 300판(engine/winProb simWinProb).

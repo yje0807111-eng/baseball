@@ -16,8 +16,8 @@ import * as ranked from './myteam/ranked.js';
 import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
-import { MATCH_AUG_INNINGS, envOf, augOptions, augsForHistory } from './myteam/matchAug.js';
-import { ChoiceOverlay, KEYFRAMES, makeAugmentRuntime, rerollAugmentAt } from './KboAugmentDraft.jsx';
+import { MATCH_AUG_INNINGS, envOf, augOptions, aiAugPick, augsForHistory } from './myteam/matchAug.js';
+import { ChoiceOverlay, KEYFRAMES, makeAugmentRuntime, rerollAugmentAt, applyAugsTo } from './KboAugmentDraft.jsx';
 import { cupOf, cupIssue } from './myteam/cups.js';
 import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
@@ -147,6 +147,17 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     const env = envOf(opp, record);
     envRef.current = env;
     const makeMy = (augs) => matchTeamOf(team, ready, rest, augs, env);
+    /* AI 상대의 증강 — 경기 시작에 한 장(여기서), 7회에 한 장(rebuildOpp). 상대 쪽에서 본 '상대'는 나 */
+    const envMe = envOf(makeMy([]), { w: 0, l: 0, d: 0 });
+    const oppBase = opp;
+    let oppOwned = [aiAugPick([], envMe)].filter(Boolean);
+    opp = applyAugsTo(oppBase, oppOwned, envMe);
+    const rebuildOpp = () => {
+      const extra = aiAugPick(oppOwned, envMe);
+      if (!extra) return null;
+      oppOwned = [...oppOwned, extra];
+      return { list: oppOwned, team: applyAugsTo(oppBase, oppOwned, envMe) };
+    };
     /* 내 경기 시드 — 판마다 새로 뽑아 대전 기록에 남긴다(같은 라운드를 다시 해도 흐름을 미리 알 수 없게) */
     const seed = hashKey(newKey());
     const go = (owned) => {
@@ -155,7 +166,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       setAugPick(null);
       /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
       if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
-      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record }),
+      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record, oppAugments: oppOwned }), rebuildOpp,
         openPick: augOptions([], env).length > 0, tag: prep.tag || null });
       setView('play');
     };
@@ -299,7 +310,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   }
   if (view === 'play' && match) {
     return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
-      aug={match.aug} rebuildMy={match.makeMy} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
+      aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }
   /* 갈 곳이 없으면(대진표·시즌이 없는데 그 화면을 불렀다면) 로비로 */
