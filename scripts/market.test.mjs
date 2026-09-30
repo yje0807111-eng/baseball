@@ -145,12 +145,12 @@ describe('상점 정리 환급 (옛 저장본)', () => {
       team: { name: 't', squad: [], items: [{ key: 'a', itemId: 'bo-focus' }, { key: 'b', itemId: 'bo-focus' }, { key: 'c', itemId: 'tr-power' }] },
     };
     const next = store.withShopCleanup(old);
-    // 900 + 500×2 + 700 + 540×2 + 400×3 + 90×2 = 5060
-    expect(next.gold).toBe(1000 + 5060);
-    expect(next.refund.gold).toBe(5060);
+    // 900 + 500×2 + 700 + 540×2 + 260(증강 리롤권) + 400×3 + 90×2 = 5320
+    expect(next.gold).toBe(1000 + 5320);
+    expect(next.refund.gold).toBe(5320);
     expect(next.notice).toBe('refund');
     expect(next.draft).toEqual({ reroll: 2, series: 1 });
-    expect(next.augShop).toEqual({ reroll: 1 });
+    expect(next.augShop).toEqual({});
     expect(next.aug.removeTickets).toBeUndefined();
     expect(next.aug.upgradeTickets).toBe(4);
     expect(next.team.items.map((x) => x.itemId)).toEqual(['tr-power']);

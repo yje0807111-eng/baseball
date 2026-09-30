@@ -1910,11 +1910,14 @@ export const KEYFRAMES = `
 .aug-hd { display: flex; align-items: center; gap: 14px; width: 520px; font-size: 14px; font-weight: 800; color: #f5d27a; }
 .aug-hd::before, .aug-hd::after { content: ""; height: 1px; flex: 1; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6)); }
 .aug-hd::after { background: linear-gradient(90deg, rgba(245,210,122,.6), transparent); }
-.aug-reroll-one { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #ede9fe; background: linear-gradient(180deg, rgba(196,181,253,.24), rgba(124,58,237,.28)); box-shadow: inset 0 0 0 1px rgba(196,181,253,.55), 0 8px 20px -10px #a78bfa; transition: filter .15s; }
+/* 다시 굴리기 — 카드 테와 같은 은빛 테(4px)의 알약 · 어두운 속 · 아이콘 하나(mockups/aug-reroll-btn B). 굴린 자리는 테가 어둡게 */
+.aug-reroll-one { width: 132px; height: 44px; padding: 4px; border-radius: 999px; background: linear-gradient(155deg, #f1f5f9, #9ca3af 22%, #4b5563 46%, #cbd5e1 70%, #6b7280 88%, #e5e7eb); box-shadow: 0 8px 20px -8px #000; transition: filter .15s; }
+.aug-reroll-one > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 999px; color: #f8fafc; background: linear-gradient(180deg, #1d2440, #0b0f1c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08); }
 .aug-reroll-one svg { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
-.aug-reroll-one:hover:not(:disabled) { filter: brightness(1.2); }
+.aug-reroll-one:hover:not(:disabled) { filter: brightness(1.15); }
 .aug-reroll-one:hover:not(:disabled) svg { transform: rotate(-60deg); }
-.aug-reroll-one:disabled { opacity: .3; cursor: default; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); background: rgba(255,255,255,.05); }
+.aug-reroll-one:disabled { cursor: default; background: linear-gradient(155deg, #6b7280, #374151 40%, #4b5563 70%, #374151); }
+.aug-reroll-one:disabled > span { color: #6b7280; background: #111827; }
 /* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
 .aug-card.hot { transform: translateY(-20px) scale(1.085); z-index: 2; }
 .aug-card.cold { opacity: .5; filter: saturate(.4) brightness(.68); transform: translateY(6px) scale(.94); }
@@ -3931,9 +3934,9 @@ export function ChoiceOverlay({ choice, onChoose, picksLeft = 0, total = SEASON_
                 <button type="button" onClick={() => onReroll(i)} disabled={took >= 0 || !!used[i]} data-sfx="none"
                   aria-label={`${o.name} 다시 굴리기`} title={used[i] ? '이 자리는 다시 굴림' : '다시 굴리기 · 카드마다 한 번'}
                   className="aug-reroll-one animate-[rise_.4s_ease-out_both]" style={{ transition: took >= 0 ? 'opacity .2s' : undefined, opacity: took >= 0 ? 0 : undefined }}>
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <span><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M20 12a8 8 0 1 1-2.34-5.66" /><path d="M20 4v5h-5" />
-                  </svg>
+                  </svg></span>
                 </button>
               )}
             </div>

@@ -117,28 +117,6 @@ export function spendDraftTicket(key) {
   return true;
 }
 
-/** 증강 권 { reroll } — 읽기 · 쓰기 */
-export function augShopTickets() {
-  const a = read();
-  if (!a?.nick || a.signedOut) return {};
-  return { ...(a.augShop || {}) };
-}
-export function saveAugShopTickets(next) {
-  const a = read();
-  if (!a) return null;
-  const out = { ...a, augShop: { ...next } };
-  write(out);
-  return out;
-}
-/** 증강 권 한 장 쓰기 — 없으면 false */
-export function spendAugTicket(key) {
-  const a = read();
-  const have = a?.augShop?.[key] || 0;
-  if (!a || have < 1) return false;
-  write({ ...a, augShop: { ...a.augShop, [key]: have - 1 } });
-  return true;
-}
-
 /** 강화한 증강 레벨 { id: 레벨 } (로그인 안 했으면 빈 객체) */
 export function augLevels() {
   const a = read();
@@ -159,12 +137,13 @@ const goldOf = (a) => (Number.isFinite(a?.gold) ? a.gold : START_GOLD);
 /*
  * 상점 정리(2026-09, 로드맵 4단계): 없어진 권 · 부스트를 가진 옛 저장본은 산 값만큼 골드로 한 번 돌려준다(shopV).
  * 우선 지명권 · 보호 지명서 · 협상 대리인 · 증강 지명권 · 즐겨찾기 우대권 · 증강 제거권, 라커에 담아 둔 선수 부스트 셋.
+ * 3(2026-10): 증강 리롤권 — 증강 다시 굴리기가 카드마다 한 번씩 거저가 되어 쓸 곳이 없어졌다.
  * 이미 선수에게 건 부스트(team.boosts)는 남은 경기 수만큼 그대로 먹는다.
  */
-export const SHOP_VERSION = 2;
+export const SHOP_VERSION = 3;
 const RETIRED = [
   ['draft', 'first', '우선 지명권', 900], ['draft', 'protect', '보호 지명서', 500], ['draft', 'agent', '협상 대리인', 420],
-  ['augShop', 'pledge', '증강 지명권', 700], ['augShop', 'favor', '즐겨찾기 우대권', 540],
+  ['augShop', 'pledge', '증강 지명권', 700], ['augShop', 'favor', '즐겨찾기 우대권', 540], ['augShop', 'reroll', '증강 리롤권', 260],
   ['aug', 'removeTickets', '증강 제거권', 400],
 ];
 const RETIRED_ITEMS = { 'bo-stamina': ['에너지 드링크', 120], 'bo-focus': ['집중력 강화', 90], 'bo-power': ['파워 스윙', 110] };

@@ -2,7 +2,7 @@
    지명권 · 즐겨찾기 우대권은 없앴고, 즐겨찾기한 증강은 권 없이 두 배 잘 나온다. */
 import { test, expect } from 'vitest';
 import { AUGMENTS, rollAugmentOptions, FAV_WEIGHT } from '../src/KboAugmentDraft.jsx';
-import { SHOP_ITEMS, AUG_SHOP_TICKETS, AUG_TICKET_KO, withAugTickets, addAugTicket } from '../src/myteam/shop.js';
+import { SHOP_ITEMS } from '../src/myteam/shop.js';
 
 const seeded = (seed) => () => {
   seed = (seed + 0x6d2b79f5) | 0;
@@ -13,21 +13,13 @@ const seeded = (seed) => () => {
 
 test('상점 증강 칸은 리롤권 · 강화권 낱장 · 강화권 묶음 셋', () => {
   const shop = SHOP_ITEMS.filter((i) => i.cat === 'aug');
-  expect(shop.map((i) => i.id).sort()).toEqual(['au-reroll', 'au-upgrade', 'au-upgrade3']);
-  expect(AUG_SHOP_TICKETS).toEqual(['reroll']);
-  AUG_SHOP_TICKETS.forEach((k) => expect(AUG_TICKET_KO[k]).toBeTruthy());
+  expect(shop.map((i) => i.id).sort()).toEqual(['au-upgrade', 'au-upgrade3']);   // 리롤권은 뺐다(다시 굴리기는 카드마다 한 번 거저)
   const bulk = shop.find((i) => i.bulk);
   expect(bulk.augTicket).toBe('upgradeTickets');
   expect(bulk.bulk).toBe(3);
   expect(bulk.price).toBeLessThan(shop.find((i) => i.id === 'au-upgrade').price * 3); // 낱장 셋보다 싸다
 });
 
-test('보관: 사면 쌓인다', () => {
-  let t = withAugTickets();
-  expect(t.reroll).toBe(0);
-  t = addAugTicket(addAugTicket(t, 'reroll'), 'reroll');
-  expect(t.reroll).toBe(2);
-});
 
 test('후보는 셋, 겹치지 않고, 가진 증강은 빠진다', () => {
   const owned = [AUGMENTS[0]];

@@ -3,9 +3,9 @@ import React, { useMemo, useRef, useState } from 'react';
 import { SQUAD_CAP } from './rules.js';
 import { capExtra, capLeft, CAP_EXTRA_MAX, shopDeals, shopDealsBought, shopPriceOf, SHOP_DEAL_OFF } from './shop.js';
 import { todayKey } from './market.js';
-import { withDraftTickets, withAugTickets, addAugTicket, AUG_TICKET_KO, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
+import { withDraftTickets, addCard, cardCount, clearFatigue, expandTeam, expandLeft, EXPAND_MAX } from './shop.js';
 import { CATEGORIES, SHOP_ITEMS, itemArt, itemById, itemEffect, isStorable, addToInventory, addDraftTicket, recommendTargets, teamWeakness, STAT_KO } from './shop.js';
-import { saveTeam, addGold, saveAug, loadAccount, markShopDeal, draftTickets, saveDraftTickets, augShopTickets, saveAugShopTickets } from './store.js';
+import { saveTeam, addGold, saveAug, loadAccount, markShopDeal, draftTickets, saveDraftTickets } from './store.js';
 import { UiStyle, Bg, TopBar, Btn, TopTabs, Portrait, Pop, KV } from './ui.jsx';
 import { flyGhost, useListIntro } from '../ui/motion.jsx';
 import { POS_COLOR, statBarStyle, statNumStyle } from './teamColor.js';
@@ -97,7 +97,6 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
   const [rec] = useState(() => teamWeakness(account.team?.squad || []).item || null);
   const [picked, setPicked] = useState(() => rec || SHOP_ITEMS[0]);
   const [tickets, setTickets] = useState(() => withDraftTickets(draftTickets()));
-  const [augTickets, setAugTickets] = useState(() => withAugTickets(augShopTickets()));
   const [confirm, setConfirm] = useState(null); // 확인을 묻는 상품
   /* 오늘의 상품 — 화면을 연 날 기준(자정을 넘겨도 연 동안은 그날 값) */
   const [day] = useState(todayKey);
@@ -164,13 +163,6 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
     }
     if (picked.medic) {
       push(clearFatigue(team), gold - picked.price);
-      return;
-    }
-    if (picked.augShop) {
-      const next = addAugTicket(augTickets, picked.augShop);
-      saveAugShopTickets(next);
-      setAugTickets(next);
-      push(team, gold - picked.price);
       return;
     }
     if (picked.augTicket) {
@@ -283,7 +275,7 @@ export default function ShopScreen({ account, onChange, onBack, onLocker = null 
               )}
 
               <div className={`flex items-baseline justify-between text-t4 text-gray-400 ${picked.target ? '' : 'mt-auto'}`}>
-                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.augShop ? `${augTickets[picked.augShop] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : picked.cap ? `+${capExtra(team)} / +${CAP_EXTRA_MAX}` : '-'}</b></span>
+                <span>보유 <b ref={ownRef} key={bought} className={`inline-block text-white ${bought ? 'fx-bump' : ''}`} style={{ '--d': '480ms' }}>{isStorable(picked) ? `${owned(picked)}개` : picked.card ? `${cardCount(team, picked.id)}장` : picked.draftTicket ? `${tickets[picked.draftTicket] || 0}장` : picked.expand ? `${EXPAND_MAX[picked.expand] - expandLeft(team, picked.expand)} / ${EXPAND_MAX[picked.expand]}회` : picked.augTicket ? `${loadAccount()?.aug?.[picked.augTicket] || 0}장` : picked.cap ? `+${capExtra(team)} / +${CAP_EXTRA_MAX}` : '-'}</b></span>
                 <span>남는 골드 <b className="font-display text-t3" style={{ color: cost > gold ? '#f87171' : '#fde047' }}>{(gold - cost).toLocaleString()} G</b></span>
               </div>
               {/* 구매 옆 내 라커 — 고른 상품을 쓰는 탭으로 바로(훈련 · 부스트 → 아이템, 코치 강화권 → 감독·코치). 가진 게 있으면 '쓰기' */}

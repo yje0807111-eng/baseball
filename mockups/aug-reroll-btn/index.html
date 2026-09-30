@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>증강 다시 굴리기 단추 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<!--
+  다시 굴리기 단추 4안 — 증강 카드(두꺼운 은빛 테 · 어두운 판)에 맞춰. 카드마다 한 번: 가운데 카드는 이미 굴린 자리
+  카드 모양은 게임(KboAugmentDraft .aug-gold)과 같은 값을 옮겨 왔다
+  A 은빛 테 동그라미 · B 은빛 테 알약 · C 카드에 붙은 탭 · D 육각 보석
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/field.webp) center/cover; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .shade { position: fixed; inset: 0; background: radial-gradient(60% 50% at 50% 45%, rgba(76,29,149,.35), rgba(3,5,10,.9) 75%); }
+  .tabs { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.95); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 8px 18px; border-radius: 9px; font-weight: 800; font-size: 15px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .wrap { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 64px 40px 0; }
+  .cap { margin: 0 0 12px 8px; font-size: 18px; font-weight: 800; color: #fbbf24; } .cap small { font-size: 13px; color: #94a3b8; margin-left: 8px; }
+  .row { display: flex; gap: 22px; justify-content: center; zoom: .74; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  /* 카드 — 게임과 같은 값 */
+  .card { position: relative; width: 336px; height: 512px; }
+  .face { position: absolute; inset: 0; border-radius: 22px; padding: 7px; background: linear-gradient(155deg, #f1f5f9, #9ca3af 22%, #4b5563 46%, #cbd5e1 70%, #6b7280 88%, #e5e7eb); box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 36px 60px -24px rgba(0,0,0,.95); }
+  .inner { display: flex; height: 100%; flex-direction: column; align-items: center; gap: 12px; padding: 14px 16px 16px; border-radius: 16px; text-align: center; background: radial-gradient(120% 60% at 50% 0%, #1d2440, #0b0f1c 70%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 0 0 2px rgba(255,255,255,.08); }
+  .win { width: 100%; height: 204px; flex: none; border-radius: 12px; background-size: cover; background-position: 50% 22%; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 0 3px rgba(0,0,0,.45); }
+  .name { font-size: 28px; font-weight: 900; }
+  .band { align-self: stretch; margin: 0 -16px; height: 25px; display: grid; place-items: center; font-size: 12.5px; font-weight: 900; letter-spacing: .08em; color: var(--k); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
+  .desc { margin-top: 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; font-weight: 500; line-height: 1.55; color: #cbd5e1; }
+  .g { color: #86efac; } .r { color: #fca5a5; }
+  .metal { background: linear-gradient(155deg, #f1f5f9, #9ca3af 22%, #4b5563 46%, #cbd5e1 70%, #6b7280 88%, #e5e7eb); }
+  .metal.off { background: linear-gradient(155deg, #6b7280, #374151 40%, #4b5563 70%, #374151); }
+  .ico { width: 22px; height: 22px; }
+  /* A 동그라미 */
+  .a { width: 54px; height: 54px; border-radius: 50%; padding: 4px; box-shadow: 0 8px 20px -8px #000; }
+  .a > span { width: 100%; height: 100%; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, #1d2440, #0b0f1c 75%); color: #f8fafc; box-shadow: inset 0 0 0 1px rgba(0,0,0,.7); }
+  /* B 알약 */
+  .b { width: 132px; height: 44px; border-radius: 999px; padding: 4px; box-shadow: 0 8px 20px -8px #000; }
+  .b > span { width: 100%; height: 100%; border-radius: 999px; display: grid; place-items: center; background: linear-gradient(180deg, #1d2440, #0b0f1c); color: #f8fafc; box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08); }
+  /* C 카드에 붙은 탭 — 카드 아래 테가 이어져 내려온 모양 */
+  .c { margin-top: -18px; width: 104px; height: 44px; padding: 0 5px 5px; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%); border-radius: 0 0 14px 14px; }
+  .c > span { width: 100%; height: 100%; display: grid; place-items: center; padding-top: 4px; background: linear-gradient(180deg, #0b0f1c, #1d2440); color: #f8fafc; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%); border-radius: 0 0 11px 11px; }
+  /* D 육각 보석 */
+  .d { width: 58px; height: 64px; padding: 4px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); filter: drop-shadow(0 8px 12px #000); }
+  .d > span { width: 100%; height: 100%; display: grid; place-items: center; background: radial-gradient(circle at 50% 30%, #2a2f55, #0b0f1c 75%); color: #f8fafc; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .used > span { color: #6b7280; background: #111827; }
+  .lbl { font-size: 12px; color: #94a3b8; margin-top: -8px; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="tabs" id="tabs"></div>
+<div class="wrap" id="wrap"></div>
+<script>
+const C = [
+  { id: 'muscle', name: '근력 운동', who: '타자', k: '#34d399', l1: '파워 <span class="g">+10</span>', l2: '타구가 더 멀리 뻗어 장타가 늘어남' },
+  { id: 'allOutPitch', name: '전력투구', who: '투수', k: '#f87171', l1: '구위 <span class="g">+22</span> · 체력 <span class="r">−18</span>', l2: '공이 세지는 대신 투수가 빨리 지침' },
+  { id: 'infieldWall', name: '내야 철벽', who: '내야수', k: '#60a5fa', l1: '수비 <span class="g">+28</span>', l2: '내야를 빠져나가는 안타가 줄어듦' },
+];
+const icon = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>';
+const card = (c) => `<div class="card"><div class="face"><div class="inner"><div class="win" style="background-image:url(/augments/${c.id}.webp)"></div><b class="name">${c.name}</b><span class="band" style="--k:${c.k}">${c.who}</span><span class="desc"><span>${c.l1}</span><span>${c.l2}</span></span></div></div></div>`;
+const V = [
+  ['A · 은빛 테 동그라미', '카드 테와 같은 금속 고리 · 어두운 속', 'a'],
+  ['B · 은빛 테 알약', '넓어 누르기 쉬움 · 카드 폭의 2/5', 'b'],
+  ['C · 카드에 붙은 탭', '카드 테가 아래로 이어진 손잡이', 'c'],
+  ['D · 육각 보석', '롤 증강 창의 작은 육각 단추처럼', 'd'],
+];
+const btn = (k, used) => `<div class="metal ${used ? 'off used' : ''} ${k}"><span>${icon}</span></div>`;
+let page = +(location.hash.slice(1) || 0);
+function render() {
+  document.getElementById('tabs').innerHTML = ['A · B', 'C · D'].map((n, i) => `<button class="${page === i ? 'on' : ''}" data-p="${i}">${n}</button>`).join('');
+  document.getElementById('wrap').innerHTML = V.slice(page * 2, page * 2 + 2).map(([t, sub, k]) => `<div><p class="cap">${t}<small>${sub}</small></p><div class="row">${C.map((c, i) => `<div class="col" style="${k === 'c' ? 'gap:0' : ''}">${card(c)}${btn(k, i === 1)}${i === 1 ? '<span class="lbl" style="' + (k === 'c' ? 'margin-top:8px' : '') + '">굴린 자리</span>' : ''}</div>`).join('')}</div></div>`).join('');
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (b) { page = +b.dataset.p; location.hash = page; render(); } });
+render();
+</script>
+</body>
+</html>

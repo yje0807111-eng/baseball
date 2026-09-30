@@ -49,7 +49,6 @@ export const SHOP_ITEMS = [
   // 감독 계약 (CP 없이 선임)
   item('st-manager', 'staff', '감독 계약서', '감독 1명을 CP 없이 선임', 520, { staffRole: 'manager', img: 'mt-card' }),
   // 증강 (풀 관리)
-  item('au-reroll', 'aug', '증강 리롤권', '경기 중 증강 선택지 다시 굴리기', 260, { augShop: 'reroll', img: 'mt-pack' }),
   item('au-upgrade3', 'aug', '증강 강화권 3장 묶음', '강화권 3장 · 낱장보다 할인', 1600, { augTicket: 'upgradeTickets', bulk: 3, img: 'mt-boost' }),
   item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
   item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 340, { staffRole: 'coach', img: 'mt-card' }),
@@ -91,13 +90,6 @@ export const itemArt = (it) => `ui/shop/${it.art || it.id}.webp`; // art: 그림
 export const DRAFT_TICKETS = ['reroll', 'series'];
 export const DRAFT_TICKET_KO = { reroll: '스카우트 리포트', series: '시리즈 지정권' };
 export const DRAFT_TICKET_TIP = { reroll: '새로고침 +3회', series: '다음 보드 고르기' };
-/* ───── 증강 권: 경기에서 쓰는 리롤 ───── */
-export const AUG_SHOP_TICKETS = ['reroll'];
-export const AUG_TICKET_KO = { reroll: '증강 리롤권' };
-export const emptyAugTickets = () => Object.fromEntries(AUG_SHOP_TICKETS.map((k) => [k, 0]));
-export const withAugTickets = (t) => ({ ...emptyAugTickets(), ...(t || {}) });
-export const addAugTicket = (t, key, n = 1) => { const d = withAugTickets(t); return { ...d, [key]: Math.max(0, d[key] + n) }; };
-
 export const emptyDraftTickets = () => Object.fromEntries(DRAFT_TICKETS.map((k) => [k, 0]));
 /** 계정에 저장된 권 수 (없는 칸은 0) */
 export const withDraftTickets = (t) => ({ ...emptyDraftTickets(), ...(t || {}) });
@@ -114,7 +106,6 @@ export function itemEffect(it) {
   if (it.augTicket) return { label: '증강 강화', amount: it.bulk || 1, max: it.bulk || 1 };
   /* 권: 이름은 카드 제목에 이미 있으니 아래 줄은 하는 일 */
   if (it.draftTicket) return { label: { reroll: '새로고침 +3', series: '다음 보드 고르기' }[it.draftTicket] || '드래프트', amount: null, max: 1 };
-  if (it.augShop) return { label: { reroll: '증강 다시 굴리기' }[it.augShop] || '증강', amount: null, max: 1 };
   if (it.teamBoost) return { label: TEAM_BOOST_KO[it.teamBoost] || '팀', amount: it.amount, max: 20 };
   if (it.medic) return { label: '피로 회복', amount: null, max: 1 };
   if (it.expand) return { label: EXPAND_KO[it.expand] || '확장', amount: 1, max: 1 };
