@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import BgmButton from './audio/BgmButton.jsx';
-import { UiStyle, Portrait, GlassBg, Pop } from './myteam/ui.jsx';
+import { UiStyle, Portrait, GlassBg, Pop, FxChips } from './myteam/ui.jsx';
 import { teamFlag, flagByKey } from './myteam/teamArt.js';
 import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
@@ -1082,7 +1082,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                                         background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.05)',
                                         boxShadow: on ? 'inset 0 0 0 1.5px #10b981' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
                                       <b className="block text-t3 font-extrabold" style={{ color: on ? '#fff' : '#e6edf6' }}>{o.ko}</b>
-                                      <small className="text-t4 text-gray-400">{o.tip}</small>
+                                      <span className="mt-1 flex"><FxChips fx={o.fx} dim={!on} left /></span>
                                     </button>
                                   );
                                 })}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>작전 이름 목업</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<!--
+  작전 판(정비 구역 전략실 · 경기 안 작전) — 이름 + 짧은 설명 8가지. 판 하나 = 게임 판 폭(420px)
+  이름 세 벌: 지금(빅볼 · 선발 완주 …) / 쉬운 말(장타 노리기 · 선발 믿기 …) / 야구 말(강공 · 완투 …)
+  설명은 strategy.js 의 갈래 값(스윙 · 주루 · 교체 · 승부 · 배합 · 수비 위치 · 견제)을 한 마디로. 명사로 끝, 꾸밈말 없음
+  탭: 1 ~ 4 / 5 ~ 8
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f url(/ui/duel-def.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: fixed; inset: 0; background: rgba(5, 8, 15, .78); }
+  .tabs { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; border-radius: 12px; background: rgba(8,12,22,.85); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 8px 18px; border-radius: 9px; font-weight: 800; font-size: 15px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .grid { position: relative; display: grid; grid-template-columns: repeat(4, 420px); gap: 28px; justify-content: center; padding: 64px 0 0; }
+  .cap { margin: 0 0 8px 4px; font-size: 17px; font-weight: 800; color: #fbbf24; }
+  .cap small { color: #94a3b8; font-weight: 700; font-size: 13px; margin-left: 6px; }
+  .pn { width: 420px; padding: 14px 16px 16px; border-radius: 20px; background: linear-gradient(170deg, rgba(24,26,44,.92), rgba(10,12,22,.92)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .hd b { color: #34d399; font-size: 15px; } .hd b::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #34d399; margin-right: 8px; vertical-align: middle; }
+  .hd span { font-size: 14px; color: #cbd5e1; font-weight: 700; } .hd span i { font: 800 22px 'Saira Condensed'; color: #34d399; font-style: normal; margin-left: 6px; }
+  .sec { margin-top: 10px; }
+  .sec > p { margin: 0 0 6px; font-size: 13px; font-weight: 800; color: #cbd5e1; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .o { border-radius: 11px; background: rgba(255,255,255,.045); box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); padding: 7px 10px; min-height: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+  .o.on { background: rgba(16,185,129,.16); box-shadow: inset 0 0 0 2px #10b981; }
+  .o b { font-size: 15px; font-weight: 800; color: #e5e7eb; } .o.on b { color: #fff; }
+  .o s { text-decoration: none; font-size: 12px; font-weight: 600; color: #94a3b8; margin-top: 2px; } .o.on s { color: #a7f3d0; }
+  .chips { display: flex; gap: 4px; justify-content: center; margin-top: 3px; flex-wrap: wrap; }
+  .chips i { font-style: normal; font-size: 11.5px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
+  .up { color: #86efac; background: rgba(34,197,94,.14); } .dn { color: #fca5a5; background: rgba(239,68,68,.14); }
+  .row { display: grid; grid-template-columns: 108px 1fr; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.035); margin-bottom: 4px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+  .row.on { background: rgba(16,185,129,.16); box-shadow: inset 0 0 0 2px #10b981; }
+  .row b { font-size: 15px; font-weight: 800; } .row s { text-decoration: none; font-size: 12.5px; color: #94a3b8; font-weight: 600; } .row.on s { color: #a7f3d0; }
+  .sel { margin-top: 6px; font-size: 13px; color: #a7f3d0; font-weight: 700; padding: 6px 10px; border-radius: 9px; background: rgba(16,185,129,.08); }
+  .ic { width: 22px; height: 22px; margin-bottom: 2px; color: #94a3b8; } .o.on .ic { color: #34d399; }
+  .note { position: relative; text-align: center; margin-top: 14px; font-size: 14px; color: #94a3b8; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="tabs" id="tabs"></div>
+<div class="grid" id="grid"></div>
+<div class="note" id="note"></div>
+<script>
+/* 작전 — 지금 이름 · 쉬운 말 · 야구 말 · 설명 · 효과(▲▼) · 언제 · 아이콘 */
+const S = [
+  ['공격', [
+    { now: '빅볼', easy: '장타 노리기', pro: '강공', d: '크게 휘두르기', up: ['장타 ↑'], dn: ['삼진 ↑'], when: '상대 수비 탄탄할 때', ic: 'M5 19L19 5M14 5h5v5' },
+    { now: '컨택', easy: '맞히기', pro: '컨택', d: '짧게 맞히기', up: ['출루 ↑'], dn: ['장타 ↓'], when: '불펜 얇은 상대', ic: 'M4 12h16M12 4v16' },
+    { now: '발야구', easy: '뛰는 야구', pro: '기동력', d: '한 베이스 더 · 도루', up: ['진루 ↑'], dn: ['주루사 ↑'], when: '포수 어깨 약할 때', ic: 'M5 18l4-6 4 3 6-9' },
+    { now: '출루', easy: '볼 고르기', pro: '선구', d: '공 많이 보기', up: ['볼넷 ↑', '투구 수 ↑'], dn: ['삼진 ↑'], when: '선발 이닝 짧은 상대', ic: 'M3 12c3-5 15-5 18 0-3 5-15 5-18 0zM12 12h.01' },
+  ]],
+  ['마운드', [
+    { now: '선발 완주', easy: '선발 믿기', pro: '완투', d: '교체 늦게 · 정면 승부', up: ['불펜 휴식'], dn: ['후반 실점 ↑'], when: '상대 한 방 없을 때', ic: 'M12 3v18M7 8h10' },
+    { now: '빠른 교체', easy: '위기면 교체', pro: '빠른 계투', d: '위기에 바로 교체', up: ['위기 실점 ↓'], dn: ['불펜 지침'], when: '발 빠른 타선', ic: 'M4 12h12M12 6l6 6-6 6' },
+    { now: '총력전', easy: '불펜 총동원', pro: '불펜 총력', d: '빠른 교체 · 공격 배합', up: ['삼진 ↑'], dn: ['불펜 지침'], when: '장타 위험 상대', ic: 'M12 3l2.5 6 6.5.5-5 4.3 1.6 6.2L12 16.8 6.4 20l1.6-6.2-5-4.3 6.5-.5z' },
+    { now: '아끼기', easy: '불펜 아끼기', pro: '불펜 휴식', d: '교체 늦게 · 피하는 승부', up: ['다음 경기'], dn: ['볼넷 ↑'], when: '연전 앞두고', ic: 'M6 4h12v16l-6-4-6 4z' },
+  ]],
+  ['수비', [
+    { now: '정석', easy: '기본 수비', pro: '정위치', d: '제자리', up: [], dn: [], when: '평소', ic: 'M12 4l8 8-8 8-8-8z' },
+    { now: '외야 깊게', easy: '외야 뒤로', pro: '장타 수비', d: '장타 막기', up: ['장타 ↓'], dn: ['짧은 안타 ↑'], when: '장타 위험 상대', ic: 'M12 20V6M7 11l5-5 5 5' },
+    { now: '내야 전진', easy: '내야 앞으로', pro: '전진 수비', d: '홈 승부', up: ['땅볼 아웃 ↑'], dn: ['빠진 타구 멀리'], when: '3루 주자 막을 때', ic: 'M12 4v14M7 13l5 5 5-5' },
+    { now: '주자 묶기', easy: '도루 막기', pro: '견제 강화', d: '견제 · 도루 저지', up: ['도루 ↓'], dn: [], when: '발 빠른 타선', ic: 'M8 11V7a4 4 0 0 1 8 0v4M6 11h12v9H6z' },
+  ]],
+];
+const SEL = [0, 0, 0];
+const head = `<div class="hd"><b>작전</b><span>팀 종합<i>82</i></span></div>`;
+const cards = `<div class="sec"><p>준비 카드</p><div class="g2" style="grid-template-columns:repeat(3,1fr)">${['타선 미팅', '마운드 미팅', '불펜 데이'].map((n) => `<div class="o" style="opacity:.45"><b style="font-size:13px">${n} 0</b></div>`).join('')}</div></div>`;
+const ico = (d) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const chips = (o) => `<span class="chips">${o.up.map((x) => `<i class="up">${x}</i>`).join('')}${o.dn.map((x) => `<i class="dn">${x}</i>`).join('')}</span>`;
+const grid2 = (f) => S.map(([t, os], si) => `<div class="sec"><p>${t}</p><div class="g2">${os.map((o, i) => `<div class="o ${SEL[si] === i ? 'on' : ''}">${f(o)}</div>`).join('')}</div></div>`).join('');
+
+const V = [
+  ['지금 이름 + 설명', '이름 그대로 · 아래 한 줄', () => grid2((o) => `<b>${o.now}</b><s>${o.d}</s>`)],
+  ['쉬운 이름 + 설명', '장타 노리기 · 선발 믿기 …', () => grid2((o) => `<b>${o.easy}</b><s>${o.d}</s>`)],
+  ['쉬운 이름 + 효과', '초록 좋아짐 · 빨강 대가', () => grid2((o) => `<b>${o.easy}</b>${o.up.length || o.dn.length ? chips(o) : '<s>그대로</s>'}`)],
+  ['한 줄 목록', '이름 왼쪽 · 설명 오른쪽', () => S.map(([t, os], si) => `<div class="sec"><p>${t}</p>${os.map((o, i) => `<div class="row ${SEL[si] === i ? 'on' : ''}"><b>${o.easy}</b><s>${o.d}</s></div>`).join('')}</div>`).join('')],
+  ['아이콘 + 이름 + 설명', '그림으로 먼저', () => grid2((o) => `${ico(o.ic)}<b>${o.easy}</b><s>${o.d}</s>`)],
+  ['고른 것만 설명', '칸은 이름만 · 아래 한 줄', () => S.map(([t, os], si) => `<div class="sec"><p>${t}</p><div class="g2">${os.map((o, i) => `<div class="o ${SEL[si] === i ? 'on' : ''}"><b>${o.easy}</b></div>`).join('')}</div><div class="sel">${os[SEL[si]].easy} · ${os[SEL[si]].d}</div></div>`).join('')],
+  ['언제 쓰나', '설명 대신 쓸 때', () => grid2((o) => `<b>${o.easy}</b><s>${o.when}</s>`)],
+  ['야구 말 + 효과', '강공 · 완투 · 정위치 …', () => grid2((o) => `<b>${o.pro}</b>${o.up.length || o.dn.length ? chips(o) : '<s>제자리</s>'}`)],
+];
+let page = 0;
+function render() {
+  document.getElementById('tabs').innerHTML = ['1 ~ 4', '5 ~ 8'].map((n, i) => `<button class="${page === i ? 'on' : ''}" data-p="${i}">${n}</button>`).join('');
+  document.getElementById('grid').innerHTML = V.slice(page * 4, page * 4 + 4).map(([t, sub, f], k) => `<div><p class="cap">${page * 4 + k + 1} · ${t}<small>${sub}</small></p><div class="pn">${head}${f()}${cards}</div></div>`).join('');
+  document.getElementById('note').textContent = '초록 칸 = 고른 작전(각 갈래 첫 번째)';
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (b) { page = +b.dataset.p; location.hash = page; render(); } });
+page = +(location.hash.slice(1) || 0);
+render();
+</script>
+</body>
+</html>

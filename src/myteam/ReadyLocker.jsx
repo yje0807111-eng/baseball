@@ -32,7 +32,7 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
-import { Btn, UiStyle, Pop } from './ui.jsx';
+import { Btn, UiStyle, Pop, FxChips } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
 
@@ -307,8 +307,9 @@ function SideBlock({ sides, onPick, opponent }) {
               return (
                 <button key={o.id} type="button" onClick={() => onPick(g.key, o.id)} aria-pressed={pick}
                   title={why.length ? why.map((w) => w.label).join(' · ') : o.tip}
-                  className="mt-cut relative h-11 text-t3 font-bold" style={{ ...pickStyle(pick), color: pick ? '#fff' : '#9ca3af' }}>
+                  className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(pick), color: pick ? '#fff' : '#9ca3af' }}>
                   {o.ko}
+                  <FxChips fx={o.fx} dim={!pick} />
                   {!!why.length && <b className="absolute right-1.5 top-0.5 text-t4" style={{ color: WARN }}>★</b>}
                 </button>
               );

@@ -83,27 +83,34 @@ export function recommend(opponent) {
  * 공격 · 마운드 · 수비에서 하나씩 고르면 큰 틀이 잡히고, 갈래마다 눈금 몇 개로 세부를 손본다.
  * 갈래를 고르면 그 갈래의 눈금이 기본값으로 잡히고, 손댄 눈금은 그대로 남는다.
  */
+/*
+ * 이름은 중계에서 쓰는 말(강공 · 짧게 치기 · 빠른 계투 · 외야 후진 …), fx 는 칩 — up 초록(얻음) · dn 빨강(대가).
+ * 칩은 한 경기 끝까지 1,500판 시뮬(tacsim)에서 기준 대비 실제로 움직인 것만:
+ *  강공 장타 .082 → .085 · 짧게 치기 삼진 18.8 → 17.8% · 기동력 득점 +0.17 · 기다리기 볼넷 11 → 16.7% · 삼진 18.8 → 23% · 장타 .082 → .072 ·
+ *  선발 길게 투수 3.5명 · 빠른 계투 4.7명 · 불펜 아끼기 상대 볼넷 9.9 → 16.9% · 외야 후진 상대 장타 .081 → .069 · 출루 .343 → .360 ·
+ *  전진 수비 상대 출루 .343 → .326 · 장타 .081 → .089. 주자 견제는 상대가 뛸 때만(도루 성공률)
+ */
 export const SIDES = [
   { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'take'],
     opts: [
-      { id: 'big', ko: '빅볼', tip: '한 방 노리기', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
-      { id: 'contact', ko: '컨택', tip: '맞혀 나가기', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통' } },
-      { id: 'speed', ko: '발야구', tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
-      { id: 'onbase', ko: '출루', tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
+      { id: 'big', ko: '강공', fx: { up: ['장타 ↑'], dn: [] }, tip: '한 방 노리기', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
+      { id: 'contact', ko: '짧게 치기', fx: { up: ['삼진 ↓', '병살 ↓'], dn: [] }, tip: '맞혀 나가기', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통', appr: 'contact' } },
+      { id: 'speed', ko: '기동력', fx: { up: ['진루 ↑', '병살 ↓'], dn: [] }, tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
+      { id: 'onbase', ko: '기다리기', fx: { up: ['볼넷 ↑'], dn: ['삼진 ↑', '장타 ↓'] }, tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
     ] },
   { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
     opts: [
-      { id: 'long', ko: '선발 완주', tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
-      { id: 'quick', ko: '빠른 교체', tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
-      { id: 'allin', ko: '총력전', tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
-      { id: 'save', ko: '아끼기', tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
+      { id: 'long', ko: '선발 길게', fx: { up: ['불펜 휴식'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '정면', mix: '보통' } },
+      { id: 'quick', ko: '빠른 계투', fx: { up: ['지친 투수 ↓'], dn: ['불펜 소모 ↑'] }, tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
+      { id: 'allin', ko: '불펜 총력전', fx: { up: ['정면 승부'], dn: ['불펜 소모 ↑'] }, tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
+      { id: 'save', ko: '불펜 아끼기', fx: { up: ['불펜 휴식'], dn: ['볼넷 ↑'] }, tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
     ] },
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [
-      { id: 'std', ko: '정석', tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
-      { id: 'deep', ko: '외야 깊게', tip: '장타 방지', base: { run: '신중' }, fine: { guard: '깊게', hold: '느슨' } },
-      { id: 'in', ko: '내야 전진', tip: '홈 승부', base: { run: '보통' }, fine: { guard: '전진', hold: '보통' } },
-      { id: 'tight', ko: '주자 묶기', tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
+      { id: 'std', ko: '정상 수비', fx: { up: [], dn: [] }, tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
+      { id: 'deep', ko: '외야 후진', fx: { up: ['장타 ↓'], dn: ['단타 ↑'] }, tip: '장타 방지', base: { run: '신중' }, fine: { guard: '깊게', hold: '느슨' } },
+      { id: 'in', ko: '전진 수비', fx: { up: ['땅볼 아웃 ↑'], dn: ['장타 ↑'] }, tip: '홈 승부', base: { run: '보통' }, fine: { guard: '전진', hold: '보통' } },
+      { id: 'tight', ko: '주자 견제', fx: { up: ['도루 ↓'], dn: [] }, tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
     ] },
 ];
 export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };

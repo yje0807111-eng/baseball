@@ -35,6 +35,7 @@ export function tacticOrders(fine = {}, mineBat = true, rng = Math.random) {
     const swing = levelOf(fine, 'swing');
     if (swing > 0 && rng() < 0.3) out.guess = rng() < 0.55 ? 'fast' : 'slider';
     if (swing < 0) out.patience = 1; // 스윙을 아낀다
+    if (fine.appr && rng() < 0.3) out.approach = fine.appr; // 짧게 맞히기(contact) — 삼진 ↓ · 장타 ↓
     const take = levelOf(fine, 'take');
     if (take !== 0) out.dash = take; // 주루를 더 · 덜 본다
   } else {
