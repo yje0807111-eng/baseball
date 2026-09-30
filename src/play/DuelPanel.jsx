@@ -174,6 +174,18 @@ function Who({ p, isP, mine, team, g, side }) {
  * 기준은 그 존의 가장 낮은 칸 · 가장 높은 칸(공마다 볼카운트가 바뀌면 다시 잡는다)
  */
 const HEAT = [[250, 204, 21], [249, 115, 22], [239, 68, 68]];
+/**
+ * '위험' 표시할 칸(수비 판 — 맞을 확률) — 가장 높은 칸이 평균보다 12% 이상 높을 때만(평균 17.5% 면 19.6% 이상).
+ * 공격 판의 색은 상대가 던질 곳이라 '위험'이 아니다 — 거기엔 붙이지 않는다.
+ * 칸끼리 1~2% 차이뿐인 판에 붙이면 아무 데나 던져도 되는 자리를 위험하다고 부풀린다
+ */
+const DANGER_OVER = 1.12;
+const dangerTop = (pct) => {
+  if (!pct?.length) return -1;
+  const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
+  const top = pct.indexOf(Math.max(...pct));
+  return pct[top] >= mean * DANGER_OVER ? top : -1;
+};
 const heatFill = (pct, i) => {
   const lo = Math.min(...pct), hi = Math.max(...pct), t = hi > lo ? (pct[i] - lo) / (hi - lo) : 0.5;
   const [a, b, u] = t < 0.55 ? [HEAT[0], HEAT[1], t / 0.55] : [HEAT[1], HEAT[2], (t - 0.55) / 0.45];
@@ -563,7 +575,8 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
         return (
           <g key={z} style={{ pointerEvents: 'none' }}>
             {danger && <rect x={x + 2} y={y + 2} width={cell - 4} height={cell - 4} rx="8" fill={heatFill(danger, z)} />}
-            <text x={x + cell / 2} y={y + cell / 2 + 6} textAnchor="middle" fontSize="14" fontWeight="800" fill="rgba(226,232,240,.75)">{zoneKo(z)}</text>
+            <text x={x + cell / 2} y={y + cell / 2 + (danger && dangerTop(danger) === z ? -3 : 6)} textAnchor="middle" fontSize="14" fontWeight="800" fill="rgba(226,232,240,.75)">{zoneKo(z)}</text>
+            {danger && dangerTop(danger) === z && <text x={x + cell / 2} y={y + cell / 2 + 15} textAnchor="middle" fontSize="12" fontWeight="800" fill="#fecaca">위험</text>}
           </g>
         );
       })}
