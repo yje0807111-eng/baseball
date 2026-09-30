@@ -1891,10 +1891,10 @@ export const KEYFRAMES = `
 .aug-gold .aug-band { align-self: stretch; margin: 0 -16px; height: 30px; display: grid; place-items: center; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--k);
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
-.aug-gold .aug-desc { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1.6; color: #d1d5db; word-break: keep-all; text-wrap: pretty; }
-.aug-gold .aug-hint { font-size: 12px; font-weight: 700; color: #f5d27a; }
+.aug-gold .aug-desc { margin-top: 4px; font-size: 15.5px; font-weight: 500; line-height: 1.65; letter-spacing: -.01em; color: #cbd5e1; word-break: keep-all; text-wrap: pretty; }
+.aug-gold .aug-hint { margin-top: auto; font-size: 12px; font-weight: 700; color: #f5d27a; }
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
-.aug-num { font-family: 'Saira Condensed', sans-serif; font-weight: 800; font-size: 1.12em; color: #86efac; }
+.aug-num { font-weight: 800; color: #86efac; } /* 글과 같은 글꼴 · 같은 크기 — 색과 굵기로만 */
 .aug-num.neg { color: #fca5a5; }
 .aug-gold .aug-burst { position: absolute; left: 50%; top: 32%; width: 560px; height: 560px; margin: -280px 0 0 -280px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .4s;
   background: repeating-conic-gradient(rgba(245,210,122,.2) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, #000 5%, transparent 62%); mask: radial-gradient(circle, #000 5%, transparent 62%); animation: augSpin 30s linear infinite; }
