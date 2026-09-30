@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>하이라이트 진행 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  요약 모드를 '타석'이 아니라 '반 이닝 · 주요 장면' 단위로(FM 주요 장면 · OOTP 빠른 진행).
+  400경기 시뮬(scripts 임시, 스타터 vs AI):
+   · 조용한 반 이닝(무득점 · 득점권 없음 · 장타 없음 · 승부처 없음) 45% = 경기당 8.1 → 타석을 안 보여 주고 한 장(1.2초)
+   · 볼거리 반 이닝 경기당 9.9 → 주요 타석(점수 · 장타 · 새 득점권 + 찬스가 꺼지는 마지막 아웃)만 보통 속도(2.5초), 나머지는 건너뜀
+     주요 타석 경기당 약 21 · 반 이닝 끝 요약 한 장(1.6초, 누르면 넘김)
+   · 한 경기 약 80초 + 승부처(멈춰서 고르는 시간)
+  이 목업의 '재생'은 그 시간 그대로 1 · 2회를 흘려 본다.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .field { position: absolute; left: 24px; top: 72px; width: 1416px; height: 818px; overflow: hidden; border-radius: 24px; }
+  .glass { background: rgba(7,10,18,.86); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 14px 34px rgba(0,0,0,.5); border-radius: 16px; }
+  .g { color: #34d399; } .r { color: #f87171; } .m { color: #94a3b8; } .y { color: #f5d27a; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .bar { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .bar button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .bar button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .bar .play { background: #fbbf24; color: #1a1205; }
+  /* 조용한 반 이닝 한 장 — 위쪽 가운데 */
+  .quiet { position: absolute; left: 50%; top: 110px; transform: translateX(-50%); padding: 16px 26px; display: flex; flex-direction: column; gap: 10px; min-width: 560px; animation: in .2s ease-out both; }
+  .quiet .hd { display: flex; align-items: baseline; gap: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 5px 10px; border-radius: 8px; font-size: 14px; font-weight: 700; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .chip.key { background: rgba(52,211,153,.14); box-shadow: inset 0 0 0 1px rgba(52,211,153,.5); }
+  .chip.keyr { background: rgba(248,113,113,.14); box-shadow: inset 0 0 0 1px rgba(248,113,113,.5); }
+  @keyframes in { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  /* 주요 타석 — D안 결과 띠 + 상황 한 줄 */
+  .band { position: absolute; left: -40px; top: 170px; padding: 12px 70px 12px 80px; transform: skewX(-14deg); background: linear-gradient(90deg, var(--k), color-mix(in srgb, var(--k) 55%, transparent)); box-shadow: 0 14px 30px rgba(0,0,0,.45); animation: bIn .2s cubic-bezier(.2,.9,.3,1) both; }
+  .band > div { transform: skewX(14deg); display: flex; align-items: baseline; gap: 18px; }
+  .band b { font-size: 50px; line-height: 1; color: #05080f; } .band span { font-size: 18px; font-weight: 700; color: rgba(5,8,15,.8); }
+  @keyframes bIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
+  .sit { position: absolute; left: 24px; top: 262px; padding: 8px 16px; font-size: 15px; font-weight: 700; animation: in2 .2s ease-out both; }
+  @keyframes in2 { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  /* 건너뜀 표시 */
+  .skip { position: absolute; right: 18px; top: 18px; padding: 6px 14px; border-radius: 999px; background: #38bdf8; color: #05080f; font-weight: 800; font-size: 14px; }
+  /* 반 이닝 요약 */
+  .sum { position: absolute; left: 50%; top: 110px; transform: translateX(-50%); padding: 18px 26px; display: flex; flex-direction: column; gap: 12px; min-width: 620px; animation: in .2s ease-out both; }
+  .line { display: grid; grid-template-columns: 6rem repeat(9, 1fr) 2.4rem; gap: 4px; font-size: 15px; text-align: center; }
+  .line span { padding: 3px 0; border-radius: 4px; }
+  .line .now { background: rgba(245,210,122,.2); color: #f5d27a; font-weight: 800; }
+  .tl { position: fixed; left: 440px; right: 520px; bottom: 18px; z-index: 50; display: flex; gap: 3px; align-items: flex-end; }
+  .tl i { display: block; height: 10px; border-radius: 3px; background: rgba(255,255,255,.12); }
+  .tl i.on { background: #fbbf24; }
+</style>
+<body>
+<img class="shot" src="../center-call/field.jpg">
+<div class="field" id="stage"></div>
+<div class="cap" id="cap"></div>
+<div class="bar" id="bar"></div>
+<div class="tl" id="tl"></div>
+<script>
+  /* 장면 — ms 는 그 장면이 머무는 시간(목업 재생도 그대로) */
+  const QUIET = (half, team, chips) => `<div class="quiet glass"><div class="hd"><b style="font-size:24px">${half}</b><span class="m" style="font-size:16px">${team}</span><b class="y" style="margin-left:auto;font-size:18px">삼자범퇴</b></div><div class="chips">${chips.map((c) => `<span class="chip">${c}</span>`).join('')}</div></div>`;
+  const KEY = (k, word, sub, sit, skipped) => `${skipped ? `<span class="skip">▶▶ ${skipped}타석</span>` : ''}<div class="band" style="--k:${k}"><div><b>${word}</b><span>${sub}</span></div></div><div class="sit glass">${sit}</div>`;
+  const SUM = (half, stat, chips, line) => `<div class="sum glass"><div style="display:flex;align-items:baseline;gap:14px"><b style="font-size:24px">${half} 종료</b><span class="d" style="font-size:20px">${stat}</span></div><div class="chips">${chips}</div>${line}</div>`;
+  const LINE = (a, h, now) => `<div class="line"><span class="m" style="text-align:left">SK</span>${a.map((v, i) => `<span class="${now === `a${i}` ? 'now' : ''}">${v ?? ''}</span>`).join('')}<b>${a.reduce((s, v) => s + (v || 0), 0)}</b><span class="g" style="text-align:left">점검감독</span>${h.map((v, i) => `<span class="${now === `h${i}` ? 'now' : ''}">${v ?? ''}</span>`).join('')}<b>${h.reduce((s, v) => s + (v || 0), 0)}</b></div>`;
+  const E = Array(9).fill(null);
+  const SCENES = [
+    { k: 'q1', cap: '조용한 반 이닝 — 타석은 안 보여 주고 한 장(1.2초)', ms: 1200, html: QUIET('1회초', 'SK 공격', ['이진영 삼진', '최정 유격수 땅볼', '박재홍 뜬공']) },
+    { k: 'k1', cap: '볼거리 반 이닝 — 주요 타석만 보통 속도(2.5초) · 띠 + 상황 한 줄', ms: 2500, html: KEY('#34d399', '2루타', '유한준 · 좌중간', '1회말 · 1사 2루 · 0 : 0') },
+    { k: 'k2', cap: '사이 타석은 건너뜀(오른쪽 위 ▶▶) · 다음 주요 타석', ms: 2500, html: KEY('#34d399', '안타', '서용빈 · 우전 · 1점', '1회말 · 2사 1루 · 1 : 0 점검감독', 1) },
+    { k: 'k3', cap: '찬스가 꺼지는 마지막 아웃도 주요 장면', ms: 2500, html: KEY('#f87171', '뜬공', '김응국 · 중견수 · 이닝 끝', '1회말 · 3아웃 · 주자 1루 잔루') },
+    { k: 's1', cap: '반 이닝 요약 — 이번 반 이닝 전부 · 전광판 칸이 채워짐(1.6초, 누르면 넘김)', ms: 1600,
+      html: SUM('1회말', '<b class="g">2안타 1점</b>', ['이종욱 땅볼', '<b class="g">유한준 2루타</b>', '손시헌 삼진', '<b class="g">서용빈 안타 +1</b>', '김응국 뜬공'].map((c) => `<span class="chip ${c.includes('<b') ? 'key' : ''}">${c}</span>`).join(''), LINE([0, ...E.slice(1)], [1, ...E.slice(1)], 'h0')) },
+    { k: 'q2', cap: '조용한 반 이닝 — 2회초', ms: 1200, html: QUIET('2회초', 'SK 공격', ['정근우 삼진', '나주환 땅볼', '김강민 볼넷', '최정 병살타']) },
+    { k: 'q3', cap: '조용한 반 이닝 — 2회말', ms: 1200, html: QUIET('2회말', '우리 공격', ['김충민 뜬공', '강석천 삼진', '윤동균 땅볼']) },
+  ];
+  const stage = document.getElementById('stage');
+  const tl = document.getElementById('tl');
+  tl.innerHTML = SCENES.map((s) => `<i style="flex:${s.ms}"></i>`).join('');
+  let at = 0, timer = null;
+  const show = (i) => {
+    at = i;
+    stage.innerHTML = '';
+    requestAnimationFrame(() => { stage.innerHTML = SCENES[i].html; });
+    document.getElementById('cap').textContent = `${i + 1}/${SCENES.length} · ${SCENES[i].cap}`;
+    [...tl.children].forEach((el, k) => el.classList.toggle('on', k <= i));
+    document.querySelectorAll('#bar [data-i]').forEach((b) => b.classList.toggle('on', +b.dataset.i === i));
+    location.hash = SCENES[i].k;
+  };
+  const play = () => { clearTimeout(timer); let i = 0; const step = () => { show(i); if (i < SCENES.length - 1) timer = setTimeout(() => { i += 1; step(); }, SCENES[i].ms); }; step(); };
+  document.getElementById('bar').innerHTML = `<button class="play" id="play">재생 ▶ (1 · 2회, 약 13초)</button>` + SCENES.map((s, i) => `<button data-i="${i}">${i + 1}</button>`).join('');
+  document.getElementById('bar').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; if (b.id === 'play') play(); else { clearTimeout(timer); show(+b.dataset.i); } });
+  const h = SCENES.findIndex((s) => s.k === location.hash.slice(1));
+  show(h >= 0 ? h : 0);
+</script>
+</body>
+</html>
