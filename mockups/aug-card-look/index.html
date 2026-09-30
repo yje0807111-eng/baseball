@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>증강 카드 목업</title>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<!--
+  증강 카드 속 8안 — 카드 크기는 게임과 같은 336 × 512(화면에선 0.8배), 같은 세 장(키우기 · 맞바꾸기 · 수비)으로 비교
+  참고: 하데스 은혜(효과 숫자 강조) · TFT 증강(등급 · 테두리) · 브로테이토 아이템(스탯 줄 초록 · 빨강) · 슬레이 더 스파이어(종류 띠) ·
+        FC 온라인 선수 카드(왼쪽 위 큰 숫자) · 뱀파이어 서바이버즈(아이콘 중심) · 마블 스냅(모서리 정보)
+  색은 작전 판과 같은 뜻: 타격 초록 · 투구 빨강 · 수비 파랑 · 주루 노랑 · 팀 전체 보라
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #06050d url(/ui/field.webp) center/cover; font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; color: #fff; }
+  .shade { position: fixed; inset: 0; background: rgba(3,5,10,.8); }
+  .tabs { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.95); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); z-index: 5; }
+  .tabs button { all: unset; cursor: pointer; padding: 8px 16px; border-radius: 9px; font-weight: 800; font-size: 15px; color: #94a3b8; }
+  .tabs button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .wrap { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 62px 40px 0; }
+  .cap { margin: 0 0 10px 6px; font-size: 18px; font-weight: 800; color: #fbbf24; } .cap small { font-size: 13px; color: #94a3b8; font-weight: 700; margin-left: 8px; }
+  .row { display: flex; gap: 18px; justify-content: center; }
+  .card { position: relative; width: 336px; height: 512px; zoom: .82; border-radius: 22px; overflow: hidden; background: linear-gradient(180deg, #1a1633, #0b0a18 60%); box-shadow: inset 0 0 0 1px rgba(196,181,253,.35), 0 30px 60px -24px #000; font-family: inherit; }
+  .art { position: absolute; inset: 0 0 auto; height: 60%; background-size: cover; background-position: 50% 18%; }
+  .veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,10,24,.3), transparent 25%, transparent 40%, rgba(11,10,24,.9) 60%, #0b0a18 78%); }
+  .body { position: absolute; left: 22px; right: 22px; bottom: 22px; display: flex; flex-direction: column; align-items: center; gap: 9px; text-align: center; }
+  .name { font-size: 28px; font-weight: 900; line-height: 1.1; text-shadow: 0 2px 10px #000; }
+  .note { font-size: 13.5px; color: #9ca3af; line-height: 1.45; }
+  .disp { font-family: 'Saira Condensed', sans-serif; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+  .g { color: #86efac; } .r { color: #fca5a5; }
+</style>
+<body>
+<div class="shade"></div>
+<div class="tabs" id="tabs"></div>
+<div class="wrap" id="wrap"></div>
+<script>
+const AREA = { bat: ['타격', '#34d399'], pit: ['투구', '#f87171'], def: ['수비', '#60a5fa'], run: ['주루', '#fbbf24'], all: ['팀 전체', '#c4b5fd'] };
+const TYPE_C = { 키우기: '#a78bfa', 맞바꾸기: '#fb923c', 수비: '#60a5fa' };
+const C = [
+  { id: 'muscle', name: '근력 운동', type: '키우기', area: 'bat', who: '타자', gain: [['파워', 10]], cost: [], note: '타구가 더 멀리 뻗어 장타가 늘어남' },
+  { id: 'allOutPitch', name: '전력투구', type: '맞바꾸기', area: 'pit', who: '투수', gain: [['구위', 22]], cost: [['체력', 18]], note: '공이 세지는 대신 투수가 빨리 지침' },
+  { id: 'infieldWall', name: '내야 철벽', type: '수비', area: 'def', who: '내야수', gain: [['수비', 28]], cost: [], note: '내야를 빠져나가는 안타가 줄어듦' },
+];
+/* 영역 아이콘 — 방망이 · 공 · 글러브 */
+const ICON = {
+  bat: '<path d="M5 19l9.5-9.5M13 6.5c1.5-1.5 4-2 5.5-.5s1 4-.5 5.5l-3.5 3.5-5-5z" /><circle cx="4.5" cy="19.5" r="1.3"/>',
+  pit: '<circle cx="12" cy="12" r="8"/><path d="M8.2 5.8c1.8 3.9 1.8 8.5 0 12.4M15.8 5.8c-1.8 3.9-1.8 8.5 0 12.4"/>',
+  def: '<path d="M7 20c-2-2-3-5-3-8V7a2 2 0 0 1 4 0v4V5a2 2 0 0 1 4 0v6V6a2 2 0 0 1 4 0v6l1.5-2a2 2 0 0 1 3 2.5L16 18c-1 1.5-2.5 2-4 2z"/>',
+};
+const ico = (a, s = 22, c = 'currentColor', w = 1.9) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${ICON[a]}</svg>`;
+const art = (c) => `<div class="art" style="background-image:url(/augments/${c.id}.webp)"></div><div class="veil"></div>`;
+const ac = (c) => AREA[c.area][1];
+
+const V = [
+  ['효과 숫자 크게', '하데스 은혜 — 숫자가 먼저', (c) => `${art(c)}<div class="body">
+      <span class="pill" style="color:${ac(c)};background:${ac(c)}22">${ico(c.area, 14, ac(c), 2.2)}${c.who}</span>
+      <b class="name">${c.name}</b>
+      <div style="display:flex;gap:18px;align-items:flex-end">${c.gain.map(([k, v]) => `<span style="display:grid"><b class="disp g" style="font-size:52px;line-height:.9">+${v}</b><small style="font-size:13px;font-weight:800;color:#cbd5e1">${k}</small></span>`).join('')}${c.cost.map(([k, v]) => `<span style="display:grid"><b class="disp r" style="font-size:34px;line-height:.9">−${v}</b><small style="font-size:12px;font-weight:800;color:#94a3b8">${k}</small></span>`).join('')}</div>
+      <span class="note">${c.note}</span></div>`],
+  ['영역 색 테두리', 'TFT · 카드 게임 틀 — 색으로 먼저', (c) => `${art(c)}<div style="position:absolute;inset:0;border-radius:22px;box-shadow:inset 0 0 0 3px ${ac(c)},inset 0 0 40px -10px ${ac(c)}"></div>
+      <span style="position:absolute;left:14px;top:14px;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#0b0a18cc;box-shadow:inset 0 0 0 2px ${ac(c)};color:${ac(c)}">${ico(c.area, 26)}</span>
+      <div class="body"><b class="name">${c.name}</b><span style="font-size:18px;font-weight:700;color:#e5e7eb">${c.who} ${c.gain.map(([k, v]) => `${k} <b class="g">+${v}</b>`).join('')}${c.cost.map(([k, v]) => ` · ${k} <b class="r">−${v}</b>`).join('')}</span><span class="note">${c.note}</span></div>`],
+  ['스탯 줄', '브로테이토 아이템 — 줄마다 초록 · 빨강', (c) => `${art(c)}<div class="body" style="align-items:stretch;text-align:left">
+      <b class="name" style="text-align:center">${c.name}</b>
+      <span style="text-align:center;font-size:12px;font-weight:800;color:#94a3b8">${c.who}</span>
+      ${[...c.gain.map(([k, v]) => [k, `+${v}`, 'g', v]), ...c.cost.map(([k, v]) => [k, `−${v}`, 'r', v])].map(([k, t, cl, v]) => `<div style="display:grid;grid-template-columns:70px 1fr 44px;align-items:center;gap:10px;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.05)"><b style="font-size:15px">${k}</b><i style="height:6px;border-radius:3px;background:rgba(255,255,255,.08);position:relative"><i style="position:absolute;inset:0 auto 0 0;width:${Math.min(100, v * 3)}%;border-radius:3px;background:${cl === 'g' ? '#34d399' : '#f87171'}"></i></i><b class="disp ${cl}" style="font-size:20px;text-align:right">${t}</b></div>`).join('')}
+      <span class="note" style="text-align:center">${c.note}</span></div>`],
+  ['종류 띠', '슬레이 더 스파이어 — 가운데 띠로 종류', (c) => `${art(c)}<div style="position:absolute;left:-8px;right:-8px;top:54%;height:34px;display:grid;place-items:center;background:linear-gradient(90deg,transparent,${TYPE_C[c.type]}cc 15%,${TYPE_C[c.type]}cc 85%,transparent);font-size:14px;font-weight:900;letter-spacing:.2em;color:#0b0a18">${c.type}</div>
+      <div class="body" style="gap:8px"><b class="name">${c.name}</b><span style="font-size:18px;font-weight:700;color:#e5e7eb">${c.who} ${c.gain.map(([k, v]) => `${k} <b class="g">+${v}</b>`).join('')}${c.cost.map(([k, v]) => ` · ${k} <b class="r">−${v}</b>`).join('')}</span><span class="note">${c.note}</span></div>`],
+  ['왼쪽 위 큰 숫자', 'FC 온라인 선수 카드 — 숫자 · 영역이 모서리에', (c) => `<div class="art" style="height:74%"></div><div class="art" style="height:74%;background-image:url(/augments/${c.id}.webp)"></div><div class="veil" style="background:linear-gradient(180deg,rgba(11,10,24,.7),transparent 30%,transparent 55%,#0b0a18 80%)"></div>
+      <div style="position:absolute;left:18px;top:14px;display:grid;justify-items:center;gap:2px"><b class="disp" style="font-size:54px;line-height:.9;color:#fff;text-shadow:0 2px 12px #000">+${c.gain[0][1]}</b><b style="font-size:14px;color:${ac(c)}">${c.gain[0][0]}</b><span style="margin-top:6px;color:${ac(c)}">${ico(c.area, 24)}</span></div>
+      <div class="body" style="gap:8px"><b class="name">${c.name}</b><span style="display:flex;gap:6px">${c.cost.length ? c.cost.map(([k, v]) => `<span class="pill" style="color:#fca5a5;background:rgba(239,68,68,.14)">${k} −${v}</span>`).join('') : `<span class="pill" style="color:#86efac;background:rgba(34,197,94,.12)">대가 없음</span>`}<span class="pill" style="color:#cbd5e1;background:rgba(255,255,255,.08)">${c.who}</span></span></div>`],
+  ['아이콘 중심', '뱀파이어 서바이버즈 · TFT 아이콘 — 그림 대신 큰 문장', (c) => `<div class="art" style="height:52%;opacity:.35;filter:blur(1px)"></div><div class="art" style="height:52%;opacity:.35;background-image:url(/augments/${c.id}.webp)"></div><div class="veil"></div>
+      <span style="position:absolute;left:50%;top:26%;transform:translate(-50%,-50%);width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,${ac(c)}55,#0b0a18 70%);box-shadow:inset 0 0 0 3px ${ac(c)},0 0 40px -6px ${ac(c)};color:#fff">${ico(c.area, 58, '#fff', 1.6)}</span>
+      <div class="body"><span class="pill" style="color:${ac(c)};background:${ac(c)}1f">${AREA[c.area][0]} · ${c.type}</span><b class="name">${c.name}</b><span style="font-size:18px;font-weight:700;color:#e5e7eb">${c.who} ${c.gain.map(([k, v]) => `${k} <b class="g">+${v}</b>`).join('')}${c.cost.map(([k, v]) => ` · ${k} <b class="r">−${v}</b>`).join('')}</span></div>`],
+  ['얻음 · 대가 두 칸', '맞바꾸기가 한눈에 — 아래 두 칸', (c) => `${art(c)}<div class="body" style="gap:10px"><b class="name">${c.name}</b>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%">
+        <div style="padding:8px;border-radius:12px;background:rgba(34,197,94,.1);box-shadow:inset 0 0 0 1px rgba(34,197,94,.35)"><small style="font-size:11px;font-weight:800;color:#86efac">얻음</small><div style="font-size:16px;font-weight:800">${c.gain.map(([k, v]) => `${k} <span class="disp g" style="font-size:22px">+${v}</span>`).join('<br>')}</div></div>
+        <div style="padding:8px;border-radius:12px;${c.cost.length ? 'background:rgba(239,68,68,.1);box-shadow:inset 0 0 0 1px rgba(239,68,68,.35)' : 'background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)'}"><small style="font-size:11px;font-weight:800;color:${c.cost.length ? '#fca5a5' : '#6b7280'}">대가</small><div style="font-size:16px;font-weight:800;color:${c.cost.length ? '#fff' : '#6b7280'}">${c.cost.length ? c.cost.map(([k, v]) => `${k} <span class="disp r" style="font-size:22px">−${v}</span>`).join('<br>') : '없음'}</div></div>
+      </div><span class="note">${c.who} · ${c.note}</span></div>`],
+  ['모서리 정보', '마블 스냅 — 네 모서리에 영역 · 종류 · 대상', (c) => `<div class="art" style="height:100%"></div><div class="art" style="height:100%;background-image:url(/augments/${c.id}.webp)"></div><div class="veil" style="background:linear-gradient(180deg,rgba(11,10,24,.55),transparent 22%,transparent 48%,rgba(11,10,24,.92) 66%,#0b0a18 84%)"></div>
+      <span style="position:absolute;left:14px;top:14px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:${ac(c)};color:#0b0a18">${ico(c.area, 26, '#0b0a18', 2.2)}</span>
+      <span style="position:absolute;right:14px;top:18px;font-size:13px;font-weight:900;padding:4px 10px;border-radius:8px;background:${TYPE_C[c.type]}33;color:${TYPE_C[c.type]}">${c.type}</span>
+      <div class="body" style="gap:6px"><b class="name">${c.name}</b><b class="disp" style="font-size:40px;line-height:1">${c.gain.map(([k, v]) => `<span class="g">+${v}</span>`).join('')}${c.cost.map(([k, v]) => ` <span class="r" style="font-size:28px">−${v}</span>`).join('')}</b><span style="font-size:14px;font-weight:700;color:#cbd5e1">${c.who} ${c.gain.map(([k]) => k).join('')}${c.cost.map(([k]) => ` · ${k}`).join('')}</span></div>`],
+];
+let page = +(location.hash.slice(1) || 0);
+function render() {
+  document.getElementById('tabs').innerHTML = ['1 · 2', '3 · 4', '5 · 6', '7 · 8'].map((n, i) => `<button class="${page === i ? 'on' : ''}" data-p="${i}">${n}</button>`).join('');
+  document.getElementById('wrap').innerHTML = V.slice(page * 2, page * 2 + 2).map(([t, sub, f], k) => `<div><p class="cap">${page * 2 + k + 1} · ${t}<small>${sub}</small></p><div class="row">${C.map((c) => `<div class="card">${f(c)}</div>`).join('')}</div></div>`).join('');
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-p]'); if (b) { page = +b.dataset.p; location.hash = page; render(); } });
+render();
+</script>
+</body>
+</html>

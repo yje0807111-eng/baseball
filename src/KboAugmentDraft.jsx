@@ -1871,31 +1871,31 @@ export const KEYFRAMES = `
 /* 고른 자리에서 두 겹으로 퍼지는 고리 */
 @keyframes augRing { 0% { opacity: 0; transform: scale(.7); } 18% { opacity: .95; } 100% { opacity: 0; transform: scale(2.1); } }
 .aug-card { animation: augIn .5s cubic-bezier(.2,.9,.3,1) both; transition: transform .3s cubic-bezier(.18,.9,.28,1), opacity .3s, filter .3s; }
-/* 금테 증강 카드 */
-.aug-gold .aug-face { position: absolute; inset: 0; overflow: hidden; border-radius: 24px; background: linear-gradient(180deg, #1a1633, #0b0a18 60%);
-  box-shadow: inset 0 0 0 1px rgba(245,210,122,.45), inset 0 0 0 5px rgba(11,10,24,.9), inset 0 0 0 6px rgba(196,181,253,.22), 0 36px 60px -24px rgba(0,0,0,.95); transition: box-shadow .3s; }
-.aug-gold .aug-face::before, .aug-gold .aug-face::after { content: ""; position: absolute; z-index: 5; width: 28px; height: 28px; border: 2px solid #f5d27a; pointer-events: none; filter: drop-shadow(0 0 6px rgba(245,210,122,.7)); }
-.aug-gold .aug-face::before { left: 10px; top: 10px; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; }
-.aug-gold .aug-face::after { right: 10px; bottom: 10px; border-left: 0; border-top: 0; border-radius: 0 0 12px 0; }
-.aug-gold.hot .aug-face, .aug-gold:focus-visible .aug-face { box-shadow: inset 0 0 0 2px #f5d27a, inset 0 0 0 5px rgba(11,10,24,.9), inset 0 0 0 6px rgba(196,181,253,.4), 0 40px 70px -24px rgba(0,0,0,.95), 0 0 80px -10px rgba(167,139,250,.75); }
-.aug-gold .aug-art { -webkit-mask: linear-gradient(#000 62%, transparent); mask: linear-gradient(#000 62%, transparent); }
-.aug-gold .aug-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,10,24,.35) 0, transparent 22%, transparent 42%, rgba(11,10,24,.85) 62%, #0b0a18 82%); }
+/*
+ * 증강 카드 — 롤(TFT) 증강처럼. 두꺼운 은빛 테(7px) 안에 어두운 판, 위쪽 좁은 그림 창(판의 약 2/5),
+ * 제목 · 어느 선수에게(타자 · 투수 · 내야수 …) 띠 · 수치가 색으로 섞인 한 문장(+ 초록 · − 빨강) · 조건.
+ */
+.aug-gold .aug-face { position: absolute; inset: 0; overflow: hidden; border-radius: 22px; padding: 7px;
+  background: linear-gradient(155deg, #f1f5f9, #9ca3af 22%, #4b5563 46%, #cbd5e1 70%, #6b7280 88%, #e5e7eb);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 36px 60px -24px rgba(0,0,0,.95); transition: box-shadow .3s, filter .3s; }
+.aug-gold.hot .aug-face, .aug-gold:focus-visible .aug-face { box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 40px 70px -24px rgba(0,0,0,.95), 0 0 70px -8px rgba(167,139,250,.8); filter: brightness(1.12); }
+.aug-gold .aug-inner { position: relative; display: flex; height: 100%; flex-direction: column; align-items: center; gap: 12px; padding: 14px 16px 16px; border-radius: 16px; text-align: center;
+  background: radial-gradient(120% 60% at 50% 0%, #1d2440, #0b0f1c 70%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 0 0 2px rgba(255,255,255,.08); }
+.aug-gold .aug-window { position: relative; width: 100%; height: 204px; flex: none; overflow: hidden; border-radius: 12px; background: #0b0f1c;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 0 3px rgba(0,0,0,.45); }
+.aug-gold .aug-window::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 -30px 40px -20px rgba(11,15,28,.9), inset 0 0 20px rgba(0,0,0,.5); }
 .aug-gold .aug-shine { position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0; transition: opacity .3s; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.3) 47%, rgba(196,181,253,.24) 52%, transparent 64%) 0 0 / 220% 100% no-repeat; animation: augSheen 4.5s ease-in-out infinite; }
 .aug-gold.hot .aug-shine { opacity: 1; }
 @keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
-.aug-gold .aug-rule { position: relative; }
-.aug-gold .aug-rule > .aug-gem { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 2px; box-shadow: 0 0 10px #a78bfa, 0 0 0 3px #0b0a18, inset 0 0 0 1px rgba(255,255,255,.5); }
-.aug-gold .aug-body { position: absolute; z-index: 4; left: 26px; right: 26px; bottom: 26px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
-.aug-gold .aug-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.aug-gold .aug-area { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--k); background: color-mix(in srgb, var(--k) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k) 45%, transparent); }
-.aug-gold .aug-note { font-size: 14px; line-height: 1.45; color: #9ca3af; text-wrap: balance; }
-.aug-gold .aug-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #c4b5fd; background: rgba(196,181,253,.14); }
-.aug-gold .aug-name { font-size: 30px; font-weight: 900; line-height: 1.1; color: #fff; text-shadow: 0 0 24px rgba(167,139,250,.55), 0 2px 8px #000; text-wrap: balance; }
-.aug-gold .aug-rule { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(245,210,122,.6), transparent); }
-.aug-gold .aug-desc { font-size: 18px; line-height: 1.5; color: #e5e7eb; }
+.aug-gold .aug-name { font-size: 28px; font-weight: 900; line-height: 1.12; color: #fff; text-shadow: 0 2px 8px #000; text-wrap: balance; }
+.aug-gold .aug-band { align-self: stretch; margin: 0 -16px; height: 30px; display: grid; place-items: center; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--k);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
+.aug-gold .aug-desc { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1.6; color: #d1d5db; word-break: keep-all; text-wrap: pretty; }
 .aug-gold .aug-hint { font-size: 12px; font-weight: 700; color: #f5d27a; }
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
-.aug-num { font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: #e9d5ff; text-shadow: 0 0 12px rgba(167,139,250,.75); }
+.aug-num { font-family: 'Saira Condensed', sans-serif; font-weight: 800; font-size: 1.12em; color: #86efac; }
+.aug-num.neg { color: #fca5a5; }
 .aug-gold .aug-burst { position: absolute; left: 50%; top: 32%; width: 560px; height: 560px; margin: -280px 0 0 -280px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .4s;
   background: repeating-conic-gradient(rgba(245,210,122,.2) 0 6deg, transparent 6deg 18deg); -webkit-mask: radial-gradient(circle, #000 5%, transparent 62%); mask: radial-gradient(circle, #000 5%, transparent 62%); animation: augSpin 30s linear infinite; }
 .aug-gold.hot .aug-burst { opacity: 1; }
@@ -3781,7 +3781,14 @@ const TierIcon = ({ tier }) => (
 );
 
 /** 효과 글 속 숫자만 빛나게 */
-const LitNums = ({ text }) => <>{String(text).split(/([+\-−]?\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className="aug-num">{t}</b> : t))}</>;
+const LitNums = ({ text }) => <>{String(text).split(/([+\-−]\d+(?:\.\d+)?%?p?)/g).map((t, i) => (i % 2 ? <b key={i} className={`aug-num ${/^[-−]/.test(t) ? 'neg' : ''}`}>{t}</b> : t))}</>;
+/** 이 증강을 받는 선수 — 효과 글 맨 앞 대상(타자 · 투수 · 내야수 …). 없거나 여럿이면 영역 이름(타격 · 투구 · 수비 · 팀 전체). 숫자는 부호 붙은 것(+ · −)만 색 */
+const AUG_WHO = ['타자', '투수', '내야수', '외야수', '포수', '불펜 투수', '선발 투수'];
+function augWho(o) {
+  const d = augDescAt(o), w = AUG_WHO.find((x) => d.startsWith(`${x} `) && !d.startsWith(`${x} ·`)); // '포수 · 2루수 · …' 처럼 여럿이면 영역 이름으로
+  const k = augAreas(o)[0] || 'all';
+  return { who: w || AUG_AREA[k][0], color: AUG_AREA[k][1], rest: w ? d.slice(w.length + 1) : d };
+}
 
 /** 증강 카드가 올라오기 시작하는 때(ms) — 셋 모두 같이 */
 const REVEAL_MS = 120;
@@ -3796,22 +3803,24 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
       {state === 'take' && <><span className="aug-ring" /><span className="aug-ring late" /></>}
       <span className="aug-burst" aria-hidden="true" />
       <span className="aug-face">
-        {art
-          ? <img src={art} alt="" className="aug-art absolute inset-x-0 top-0 h-[60%] w-full object-cover object-[50%_18%]" />
-          : <span className="absolute inset-x-0 top-0 h-[60%]" style={{ background: 'radial-gradient(80% 60% at 50% 40%, rgba(167,139,250,.35), transparent 70%)' }} />}
-        <span className="aug-veil" />
-        <span className="aug-shine" />
-        <span className="aug-body">
-          {/* 종류(또는 강화 레벨) · 도움 되는 영역 */}
-          <span className="aug-tags">
-            <span className="aug-tag">{o.lv ? `+${o.lv} 레벨` : AUG_TYPE[o.type] || '증강'}</span>
-            {augAreas(o).map((k) => <span key={k} className="aug-area" style={{ '--k': AUG_AREA[k][1] }}>{AUG_AREA[k][0]}</span>)}
+        <span className="aug-inner">
+          <span className="aug-window">
+            {art
+              ? <img src={art} alt="" className="aug-art h-full w-full object-cover object-[50%_22%]" />
+              : <span className="block h-full w-full" style={{ background: 'radial-gradient(80% 70% at 50% 45%, rgba(167,139,250,.4), transparent 70%)' }} />}
+            <span className="aug-shine" />
           </span>
           <b className="aug-name">{o.name}{o.lv ? <em className="ml-1.5 font-display not-italic text-[#e9d5ff]">+{o.lv}</em> : null}</b>
-          {/* 보석은 그림을 가리지 않게 금빛 줄 가운데에 — 위 가운데 육각 배지는 인물 얼굴을 덮었고, 등급이 하나라 알려 주는 것도 없었다 */}
-          <span className="aug-rule"><i className="aug-gem" /></span>
-          <span className="aug-desc"><LitNums text={augDescAt(o)} /></span>
-          {o.note && <span className="aug-note">{o.note}</span>}
+          {(() => {
+            const w = augWho(o);
+            return (
+              <>
+                <span className="aug-band" style={{ '--k': w.color }}>{w.who}</span>
+                {/* 수치와 설명을 한 문장으로 — 숫자만 색(오름 초록 · 깎임 빨강) */}
+                <span className="aug-desc"><span><LitNums text={w.rest} />{o.note ? <>, {o.note}</> : null}</span></span>
+              </>
+            );
+          })()}
           {o.cond && <span className="aug-hint">조건 · {o.cond}</span>}
         </span>
       </span>
