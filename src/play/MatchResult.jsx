@@ -19,6 +19,7 @@
 import React, { useEffect, useState } from 'react';
 import { PlayerCard } from '../KboAugmentDraft.jsx';
 import { Count, Flip, Burst, reducedMotion } from '../ui/motion.jsx';
+import { RESULT_LABEL } from '../engine/pitchSim.js';
 
 const INTRO = { word: 200, score: 350, line: 500, flow: 600, mvp: 650, list: 900, step: 90, actions: 1350, end: 1900 };
 const at = (ms) => ({ '--d': `${ms}ms`, animationDelay: `${ms}ms` });
@@ -63,6 +64,12 @@ export function gameLine(result, p) {
 function keyMoments(logs = []) {
   return logs.filter((l) => l.runs > 0).sort((a, b) => b.runs - a.runs || b.inning - a.inning).slice(0, 3);
 }
+
+/** 내 지시 — 승률을 크게 움직인 둘을 경기 순서로(승부처 수싸움 · 낸 작전). 결정적 장면 셋 아래 두 줄까지 한 화면에 */
+const myCalls = (calls = []) => calls.slice(0, 2).sort((a, b) => a.inning - b.inning || (a.top ? 0 : 1) - (b.top ? 0 : 1));
+const HIT = new Set(['1B', '2B', '3B', 'HR']);
+/** MVP 타석 — 그 타자의 이 경기 타석 결과를 차례로(칩) */
+const mvpBats = (logs = [], mvp) => (mvp?.type === 'batter' ? logs.filter((l) => !l.isTop && l.hero?.id === mvp.id && l.res && l.res !== 'SB' && l.res !== 'CS') : []);
 
 /** 승률 흐름 — 가운데 선 위는 우리 쪽, 아래는 상대 쪽 */
 function Flow({ flow }) {
@@ -114,6 +121,8 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
   const innings = Math.max(9, board?.home?.length || 0, board?.away?.length || 0);
   const cols = Array.from({ length: innings }, (_, i) => i);
   const moments = keyMoments(logs);
+  const calls = myCalls(result.calls);
+  const bats = mvpBats(logs, mvp);
   const rated = credits.filter((c) => c.player).slice(0, 5);
   const pri = actions.find((a) => a.pri);
   const rest = actions.filter((a) => !a.pri);
@@ -157,6 +166,13 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
               </Flip>
               <b className="fx-rise text-center text-t2 font-black text-white" style={at(INTRO.mvp + 380)}>{mvp.name}</b>
               <span className="fx-rise text-center font-display text-t3 font-bold text-amber-200" style={at(INTRO.mvp + 440)}>{gameLine(result, mvp) || '—'}</span>
+              {bats.length > 0 && (
+                <div className="fx-rise flex flex-wrap justify-center gap-1.5" style={at(INTRO.mvp + 500)}>
+                  {bats.map((l) => (
+                    <span key={l.id} className="ui-cut px-2 py-1 text-t4 font-bold" style={{ '--c': '5px', color: HIT.has(l.res) ? WIN : '#cbd5e1', background: HIT.has(l.res) ? `${WIN}1a` : 'rgba(255,255,255,.06)' }}>{RESULT_LABEL[l.res] || l.res}</span>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -202,6 +218,23 @@ export default function MatchResult({ result, myName = '내 팀', oppName = '상
               </div>
             )) : <p className="text-t3 text-gray-400">큰 장면 없이 끝난 경기</p>}
           </div>
+          {calls.length > 0 && (
+            <div className="mt-1 flex min-h-0 flex-col gap-1.5">
+              <Lab c={GOLD}>내 지시</Lab>
+              {calls.map((c, ci) => {
+                const d = Math.round(c.delta * 100);
+                return (
+                  <div key={ci} className="fx-rise ui-cut grid items-center gap-3 px-3 py-2" style={{ '--c': '8px', gridTemplateColumns: '4.5rem 9rem minmax(0,1fr) 6rem 4rem', background: 'rgba(255,255,255,.045)', boxShadow: `inset 3px 0 0 ${GOLD}`, ...at(INTRO.list + 420 + ci * INTRO.step) }}>
+                    <span className="font-display text-t3 font-bold text-gray-300">{c.inning}회{c.top ? '초' : '말'}</span>
+                    <b className="truncate text-t3 text-white">{c.sit || '작전'}</b>
+                    <span className="truncate text-t3 text-gray-300">{c.ko}</span>
+                    <b className="truncate text-t3 text-white">{c.res}</b>
+                    <b className="text-right font-display text-t2" style={{ color: d > 0 ? WIN : d < 0 ? LOSE : '#9ca3af' }}>{d > 0 ? '+' : ''}{d}%</b>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 보상 · 진행 / 선수 평점 */}

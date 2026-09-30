@@ -14,7 +14,7 @@ import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb as stateWin, simWinProb, withPrior } from './engine/winProb.js';
-import DuelPanel, { duelAi, readAssist, saveAssist } from './play/DuelPanel.jsx';
+import DuelPanel, { duelAi, readAssist, saveAssist, situationOf, zoneKo } from './play/DuelPanel.jsx';
 import { FORM_OF } from './myteam/form.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideOpt } from './myteam/strategy.js';
 import { tacticOrders } from './engine/tactics.js';
@@ -667,14 +667,16 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           duelWait.current = null;
           if (stop || !aliveRef.current) break;
           if (!choice) { duelRef.current = null; setDuel(null); duelAiNow = null; } // 맡기기 — 남은 공은 자동
-          else pendingRef.current = { ...choice, ...duelAiNow.orders };
+          else { pendingRef.current = { ...choice, ...duelAiNow.orders }; D.pick = orderKo(choice).join(' · '); } // 공격 수싸움에서 고른 작전 — 결과 화면 '내 지시'
         }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
-        if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top }; }
-        const ordered = Object.keys(pendingRef.current).length > 0;
+        if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top, sit: situationOf(g, g.top ? 'def' : 'off') }; }
+        /* 내가 낸 지시만 — 내 공격 때 들어온 투수 교체는 상대 AI 몫이라 빼고 센다(전엔 '내 지시' · 승률 기여에 섞였다) */
+        const myOrders = Object.fromEntries(Object.entries(pendingRef.current).filter(([k]) => g.top || k !== 'changePitcher'));
+        const ordered = Object.keys(myOrders).length > 0;
         const gave = asked || ordered; // 이 타석에 지시를 냈다
-        const gaveKo = duelRef.current ? '수싸움' : ordered ? orderKo(pendingRef.current).join(' · ') : null;
+        const gaveKo = duelRef.current ? '수싸움' : ordered ? orderKo(myOrders).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
@@ -744,7 +746,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           wpRef.current = [...wpRef.current, wpNow].slice(-200);
           wpAtRef.current = [...wpAtRef.current, { i: ev.inning, t: !!ev.top, r: ev.runs || 0 }].slice(-200);
           if (gave) gainRef.current += wpNow - wpAt.current;
-          if (gaveKo) callsRef.current.push({ ...spotRef.current, ko: gaveKo, delta: wpNow - wpAt.current });
+          if (gaveKo) {
+            /* 고른 것 — 수비 수싸움은 마지막 공(구종 · 코스), 공격 수싸움은 고른 작전, 그 밖은 낸 지시 */
+            /* 타석이 끝나면 수싸움 판(duelRef)은 이미 닫혀 있다 — 이 공을 던질 때 잡아 둔 D 로 본다 */
+            const pick = gaveKo !== '수싸움' ? gaveKo
+              : ev.top && ev.pitch ? `${PITCHES[ev.pitch.type].name} · ${zoneKo(ev.pitch.zone)}` : (D?.pick || '수싸움');
+            callsRef.current.push({ ...spotRef.current, ko: pick, res: RESULT_LABEL[ev.result] || '', delta: wpNow - wpAt.current });
+          }
         }
         redraw();
         await sleep(beat);
@@ -1211,7 +1219,7 @@ export function buildResult(g, myTeam, manager = null) {
     }
     logs.push({
       id: logs.length, kind: ev.runs ? 'score' : 'normal', inning: ev.inning, isTop: ev.top, runs: ev.runs,
-      text: `${ev.batter?.name} ${RESULT_LABEL[ev.result] || ''}`, hero: ev.batter, pitcher: ev.pitcher,
+      text: `${ev.batter?.name} ${RESULT_LABEL[ev.result] || ''}`, res: ev.result, hero: ev.batter, pitcher: ev.pitcher,
     });
   }
   const ranked = [...credit.values()].sort((a, b) => b.pts - a.pts);

@@ -69,7 +69,7 @@ export function gameDetail(res, my, opp, boosts = []) {
     flow: thinFlow(res.flow),
     ...flowMarks(res.flow, res.flowAt),
     gain: res.gain || 0,
-    calls: (res.calls || []).slice(0, 3).map((c) => ({ inning: c.inning, top: !!c.top, ko: c.ko, delta: Math.round(c.delta * 100) / 100 })),
+    calls: (res.calls || []).slice(0, 3).map((c) => ({ inning: c.inning, top: !!c.top, ko: c.ko, sit: c.sit || '', res: c.res || '', delta: Math.round(c.delta * 100) / 100 })),
     plays: (res.logs || []).filter((l) => l.kind === 'score').slice(0, 10).map((l) => ({ inning: l.inning, top: !!l.isTop, text: l.text, runs: l.runs })),
   };
 }
