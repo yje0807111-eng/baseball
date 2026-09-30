@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>오른쪽 정보 판 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  작전 판을 뺀 오른쪽 아래(440×378) — 증강 판을 다듬고 경기 정보를 함께.
+  후보: 증강(우리 · 상대, 7회 빈 칸) · 다음 타자 셋(강점) · 오늘 성적 · 양 팀 불펜 · 컨디션 · 지금 대결 · 이닝 기록
+  비슷한 게임: LoL 경기 중 룬 · 아이템 칸(작은 그림 칸 + 빈 칸) · FC 온라인 경기 중 통계 탭 · MLB 더 쇼 '다음 타자' 띠 · 중계 방송 맞대결 그래픽
+  장면: 1회초 우리 수비 · 현대 공격(무사 1 · 2루 흐름). 값은 목업.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .cover { position: absolute; left: 1450px; top: 506px; width: 452px; height: 392px; background: #05060b; }
+  .pn { position: absolute; left: 1456px; top: 512px; width: 440px; height: 378px; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; overflow: hidden;
+    background: linear-gradient(180deg, #17152d, #0f0e22); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 14px 30px rgba(0,0,0,.4); }
+  .lab { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; color: var(--k, #34d399); }
+  .lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .lab .r { margin-left: auto; font-size: 12px; color: #94a3b8; font-weight: 600; }
+  .g { color: #34d399; } .rd { color: #f87171; } .m { color: #94a3b8; } .y { color: #f5d27a; } .b { color: #60a5fa; }
+  .aug { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .art { flex: none; border-radius: 10px; background-size: cover; background-position: 50% 20%; box-shadow: 0 0 0 1.5px var(--k), 0 4px 10px rgba(0,0,0,.5); }
+  .empty { flex: none; border-radius: 10px; border: 1.5px dashed rgba(255,255,255,.2); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: #64748b; }
+  .band { font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 4px; color: var(--c); background: color-mix(in srgb, var(--c) 18%, transparent); }
+  .row { display: grid; align-items: center; gap: 10px; }
+  .face { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #2b3b55, #0b1220 70%); box-shadow: 0 0 0 2px var(--k); }
+  .tag { font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 4px; }
+  .bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.08); position: relative; overflow: hidden; }
+  .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 999px; }
+  .tabs { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(255,255,255,.05); }
+  .tabs span { flex: 1; text-align: center; padding: 5px 0; border-radius: 8px; font-size: 13px; font-weight: 700; color: #94a3b8; }
+  .tabs span.on { background: rgba(52,211,153,.16); color: #34d399; box-shadow: inset 0 0 0 1px rgba(52,211,153,.5); }
+  .sep { height: 1px; background: rgba(255,255,255,.07); flex: none; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .nav { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .nav button { all: unset; cursor: pointer; padding: 7px 11px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .nav button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+</style>
+<body>
+<img class="shot" src="field.jpg">
+<div class="cover"></div>
+<div class="pn" id="pn"></div>
+<div class="cap" id="cap"></div>
+<div class="nav" id="nav"></div>
+<script>
+  const A = { my: [{ id: 'starterFocus', name: '선발 집중', area: '투구', c: '#f87171', eff: '1~4회 수비 투구 +10' }], opp: [{ id: 'ctrlTrain', name: '제구 훈련', area: '투구', c: '#f87171', eff: '투수 제구 +10' }] };
+  const art = (a, s) => `<i class="art" style="width:${s}px;height:${s}px;--k:${a.c};background-image:url(/augments/${a.id}.webp)"></i>`;
+  const empty = (s, t = '7회') => `<i class="empty" style="width:${s}px;height:${s}px">${t}</i>`;
+  const augRow = (side, s = 44, detail = true) => { const list = A[side]; const k = side === 'my' ? '#34d399' : '#f87171';
+    return `<div class="aug"><b style="width:30px;font-size:13px;color:${k}">${side === 'my' ? '우리' : '상대'}</b>${list.map((a) => `${art(a, s)}${detail ? `<span style="display:flex;flex-direction:column;gap:3px;min-width:0"><b style="font-size:15px">${a.name}</b><span class="m" style="font-size:12px">${a.eff}</span></span>` : ''}`).join('')}<span style="margin-left:auto">${empty(s)}</span></div>`; };
+  const NEXT = [['1', '이숭용', 'OF', 82, '컨택', '#34d399'], ['2', '박진만', 'SS', 85, '수비', '#60a5fa'], ['3', '심정수', 'DH', 88, '장타', '#f87171']];
+  const nextRows = (compact) => NEXT.map(([n, nm, pos, o, t, c], i) => `<div class="row" style="grid-template-columns:30px 30px 1fr auto 28px"><b class="d m" style="font-size:15px">${i ? '다음' : '지금'}</b><i class="face" style="--k:#f87171"></i><span style="display:flex;flex-direction:column"><b style="font-size:14px">${nm}</b>${compact ? '' : `<span class="m" style="font-size:11px">${pos} · 오늘 ${['1타수 1안타', '첫 타석', '1타수 0안타'][i]}</span>`}</span><span class="tag" style="color:${c};background:${c}22">${t}</span><b class="d" style="font-size:17px;text-align:right">${o}</b></div>`).join('');
+  const V = {
+    1: ['1 · 증강 칸 + 다음 타자', '증강은 그림 칸(우리 · 상대 한 줄씩, 7회 빈 칸) + 다음 타자 셋(강점 표) — 가장 균형', () =>
+      `<p class="lab">증강</p>${augRow('my', 38)}${augRow('opp', 38)}<div class="sep"></div><p class="lab" style="--k:#f87171">상대 타순<span class="r">1회초 · 무사 1 · 2루</span></p>${nextRows(true)}`],
+    2: ['2 · 큰 증강 카드 + 오늘 성적', '증강을 그림 배경 카드로 크게(우리 · 상대 나란히) + 아래 양 팀 오늘 성적', () =>
+      `<p class="lab">증강</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${['my', 'opp'].map((s) => { const a = A[s][0]; const k = s === 'my' ? '#34d399' : '#f87171';
+        return `<div style="position:relative;height:118px;border-radius:14px;overflow:hidden;background:url(/augments/${a.id}.webp) 50% 22%/cover;box-shadow:0 0 0 1.5px ${k}"><i style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(5,8,15,.92))"></i><span style="position:absolute;left:10px;top:8px;font-size:12px;font-weight:800;color:${k}">${s === 'my' ? '우리' : '상대'}</span><b style="position:absolute;left:10px;bottom:24px;font-size:16px">${a.name}</b><span style="position:absolute;left:10px;bottom:7px;font-size:11px;color:#cbd5e1">${a.eff}</span><span style="position:absolute;right:8px;top:8px;font-size:11px;font-weight:800;color:#64748b">7회 +1</span></div>`; }).join('')}</div>
+      <div class="sep"></div><p class="lab" style="--k:#60a5fa">오늘 성적</p>
+      <div style="display:grid;grid-template-columns:1fr repeat(4,48px);gap:6px 8px;font-size:13px;align-items:center"><span></span>${['안타', '볼넷', '삼진', '잔루'].map((h) => `<span class="m" style="text-align:center;font-size:12px">${h}</span>`).join('')}
+      <b class="g">우리</b>${[3, 1, 2, 2].map((v) => `<b class="d" style="text-align:center;font-size:18px">${v}</b>`).join('')}<b class="rd">현대</b>${[5, 2, 1, 3].map((v) => `<b class="d" style="text-align:center;font-size:18px">${v}</b>`).join('')}</div>`],
+    3: ['3 · 탭', '[증강 · 상대 타순 · 불펜 · 성적] 탭으로 한 판에 넷 — 정보는 많지만 누를 곳이 생김', () =>
+      `<div class="tabs"><span class="on">증강</span><span>상대 타순</span><span>불펜</span><span>성적</span></div>
+      ${['my', 'opp'].map((s) => A[s].map((a) => `<div class="aug">${art(a, 58)}<span style="display:flex;flex-direction:column;gap:4px"><span style="display:flex;gap:6px;align-items:center"><span class="band" style="--c:${a.c}">${a.area}</span><span style="font-size:12px;font-weight:700;color:${s === 'my' ? '#34d399' : '#f87171'}">${s === 'my' ? '우리' : '상대'}</span></span><b style="font-size:16px">${a.name}</b><span class="m" style="font-size:12px">${a.eff}</span></span></div>`).join('') + `<div class="aug">${empty(58)}<span class="m" style="font-size:13px">${s === 'my' ? '우리' : '상대'} 7회 증강</span></div>`).join('')}`],
+    4: ['4 · 둥근 증강 표 + 다음 타자', '증강을 LoL 룬처럼 둥근 표로 작게(한 줄에 우리 · 상대) · 남는 자리를 다음 타자에 — 타자 정보가 주인공', () =>
+      `<div style="display:flex;align-items:center;gap:10px"><p class="lab" style="margin:0">증강</p>${['my', 'opp'].map((s) => A[s].map((a) => `<i class="art" style="width:38px;height:38px;border-radius:50%;--k:${s === 'my' ? '#34d399' : '#f87171'};background-image:url(/augments/${a.id}.webp)" title="${a.name}"></i>`).join('') + `<i class="empty" style="width:38px;height:38px;border-radius:50%">7</i>`).join('<i style="width:1px;height:28px;background:rgba(255,255,255,.12)"></i>')}</div>
+      <div class="sep"></div><p class="lab" style="--k:#f87171">상대 타순<span class="r">지금 · 다음 둘</span></p>${nextRows(false)}
+      <div style="margin-top:auto;display:flex;gap:6px;flex-wrap:wrap">${['주자 1 · 2루', '무사', '도루 많은 타자 2번'].map((t) => `<span class="tag" style="font-size:12px;color:#cbd5e1;background:rgba(255,255,255,.06)">${t}</span>`).join('')}</div>`],
+    5: ['5 · 증강 + 양 팀 불펜', '증강 두 줄 + 양 팀 남은 불펜(종합 · 체력 막대) — 교체 싸움이 보임', () =>
+      `<p class="lab">증강</p>${augRow('my', 40)}${augRow('opp', 40)}<div class="sep"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${[['우리 불펜', '#34d399', [['유동훈', 80, 100], ['조상우', 79, 100], ['이영하', 77, 100]]], ['현대 불펜', '#f87171', [['조용준', 88, 100], ['신철인', 82, 60], ['이상열', 78, 100]]]].map(([t, k, ps]) => `<div style="display:flex;flex-direction:column;gap:8px"><p class="lab" style="--k:${k};margin:0">${t}</p>${ps.map(([n, o, st]) => `<div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${n}</b><b class="d" style="font-size:15px">${o}</b></div><span class="bar"><i style="width:${st}%;background:${st < 70 ? '#fbbf24' : k}"></i></span></div>`).join('')}</div>`).join('')}</div>`],
+    6: ['6 · 증강 + 컨디션', '증강 두 줄 + 우리 타순 아홉의 오늘 컨디션(▲▲ ▲ ▼) — 대타 · 작전 고를 때 근거', () =>
+      `<p class="lab">증강</p>${augRow('my', 40)}${augRow('opp', 40)}<div class="sep"></div><p class="lab">우리 타순 컨디션</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">${[['박진만', '▲'], ['송지만', '▲▲'], ['채종국', ''], ['전준호', '▼'], ['브룸바', '▲'], ['심정수', ''], ['이숭용', '▼'], ['김동수', ''], ['정성훈', '▲']].map(([n, c], i) => `<span style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.04);font-size:13px"><b class="d m">${i + 1}</b><b style="flex:1">${n}</b><b style="font-size:12px;color:${c.startsWith('▲') ? '#34d399' : c ? '#f87171' : '#64748b'}">${c || '—'}</b></span>`).join('')}</div>`],
+    7: ['7 · 지금 대결 + 증강', '위는 지금 타자 vs 투수 맞대결(오늘 기록 · 상성) — 중계 맞대결 그래픽 · 아래 증강 한 줄씩', () =>
+      `<p class="lab" style="--k:#f5d27a">지금 대결</p>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><i class="face" style="--k:#f87171;width:54px;height:54px"></i><b style="font-size:15px">이숭용</b><span class="m" style="font-size:12px">오늘 1타수 1안타</span></div><b class="d m" style="font-size:22px">VS</b><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><i class="face" style="--k:#34d399;width:54px;height:54px"></i><b style="font-size:15px">윤성환</b><span class="m" style="font-size:12px">9구 · 체력 91</span></div></div>
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;font-size:13px;align-items:center"><span class="m">컨택</span><span class="bar"><i style="width:72%;background:#f87171"></i></span><b class="d">86</b><span class="m">제구</span><span class="bar"><i style="width:80%;background:#34d399"></i></span><b class="d">90</b></div>
+      <div class="sep"></div>${augRow('my', 36, false)}${augRow('opp', 36, false)}`],
+    8: ['8 · 이닝 기록 + 증강', '위는 이닝별 안타 · 득점 막대(우리 · 상대) — 경기 흐름을 한눈에 · 아래 증강', () =>
+      `<p class="lab" style="--k:#60a5fa">이닝 흐름<span class="r">안타 · 점수</span></p>
+      <div style="display:grid;grid-template-columns:36px repeat(9,1fr);gap:4px;align-items:end;height:110px">${['현대', '우리'].map((t, r) => `<b style="font-size:12px;color:${r ? '#34d399' : '#f87171'};align-self:center">${t}</b>` + [[2, 1], [0, 0], [3, 2], [1, 0], null, null, null, null, null].map((v, i) => { const h = r ? [[1, 0], [2, 1], [0, 0], [1, 0], null][i] : v; return h ? `<span style="display:flex;flex-direction:column;align-items:center;gap:2px"><i style="width:14px;height:${6 + h[0] * 9}px;border-radius:3px;background:${r ? '#34d399' : '#f87171'}66"></i><b class="d" style="font-size:12px;color:${h[1] ? '#fff' : '#475569'}">${h[1]}</b></span>` : `<span class="d" style="text-align:center;font-size:12px;color:#334155">${i + 1}</span>`; }).join('')).join('')}</div>
+      <div class="sep"></div><p class="lab">증강</p>${augRow('my', 40)}${augRow('opp', 40)}`],
+  };
+  let v = '1';
+  const render = () => {
+    document.getElementById('pn').innerHTML = V[v][2]();
+    document.getElementById('cap').textContent = `${V[v][0]} — ${V[v][1]}`;
+    document.getElementById('nav').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('');
+    location.hash = v;
+  };
+  document.getElementById('nav').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { v = b.dataset.v; render(); } });
+  if (V[location.hash.slice(1)]) v = location.hash.slice(1);
+  render();
+</script>
+</body>
+</html>
