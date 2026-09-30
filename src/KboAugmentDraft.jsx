@@ -1888,10 +1888,10 @@ export const KEYFRAMES = `
 .aug-gold.hot .aug-shine { opacity: 1; }
 @keyframes augSheen { 0% { background-position: -160% 0; } 100% { background-position: 260% 0; } }
 .aug-gold .aug-name { font-size: 28px; font-weight: 900; line-height: 1.12; color: #fff; text-shadow: 0 2px 8px #000; text-wrap: balance; }
-.aug-gold .aug-band { align-self: stretch; margin: 0 -16px; height: 30px; display: grid; place-items: center; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--k);
+.aug-gold .aug-band { align-self: stretch; margin: 0 -16px; height: 25px; display: grid; place-items: center; font-size: 12.5px; font-weight: 900; letter-spacing: .08em; color: var(--k);
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--k) 26%, transparent) 20%, color-mix(in srgb, var(--k) 26%, transparent) 80%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--k) 45%, transparent), inset 0 -1px 0 color-mix(in srgb, var(--k) 45%, transparent); }
-.aug-gold .aug-desc { margin-top: 14px; font-size: 15.5px; font-weight: 500; line-height: 1.65; letter-spacing: -.01em; color: #cbd5e1; word-break: keep-all; text-wrap: pretty; }
+.aug-gold .aug-desc { margin-top: 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14.5px; font-weight: 500; line-height: 1.55; letter-spacing: -.01em; color: #cbd5e1; word-break: keep-all; text-wrap: pretty; }
 .aug-gold .aug-hint { margin-top: auto; font-size: 12px; font-weight: 700; color: #f5d27a; }
 .aug-gem { display: block; width: 20px; height: 20px; border-radius: 4px; transform: rotate(45deg); background: linear-gradient(135deg, #ede9fe, #a78bfa 45%, #7c3aed); box-shadow: 0 0 12px #a78bfa, inset 0 0 0 1px rgba(255,255,255,.5); }
 .aug-num { font: inherit; color: #86efac; } /* 글과 똑같은 글자 — 색만 */
@@ -3817,8 +3817,8 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
             return (
               <>
                 <span className="aug-band" style={{ '--k': w.color }}>{w.who}</span>
-                {/* 수치와 설명을 한 문장으로 — 숫자만 색(오름 초록 · 깎임 빨강) */}
-                <span className="aug-desc"><span><LitNums text={w.rest} />{o.note ? <>, {o.note}</> : null}</span></span>
+                {/* 첫 줄 수치(숫자만 색 — 오름 초록 · 깎임 빨강) · 둘째 줄 설명 */}
+                <span className="aug-desc"><span><LitNums text={w.rest} /></span>{o.note && <span>{o.note}</span>}</span>
               </>
             );
           })()}
