@@ -1915,7 +1915,7 @@ export const KEYFRAMES = `
 .aug-reroll-one > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 999px; color: #f8fafc; background: linear-gradient(180deg, #1d2440, #0b0f1c); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08); }
 .aug-reroll-one svg { transition: transform .25s cubic-bezier(.2,.8,.2,1); }
 .aug-reroll-one:hover:not(:disabled) { filter: brightness(1.15); }
-.aug-reroll-one:hover:not(:disabled) svg { transform: rotate(-60deg); }
+.aug-reroll-one:hover:not(:disabled) svg { transform: rotate(60deg); }
 .aug-reroll-one:disabled { cursor: default; background: linear-gradient(155deg, #6b7280, #374151 40%, #4b5563 70%, #374151); }
 .aug-reroll-one:disabled > span { color: #6b7280; background: #111827; }
 /* 올려 둔 카드는 눈에 띄게 커지고, 나머지는 뒤로 물러선다 */
@@ -1927,7 +1927,7 @@ export const KEYFRAMES = `
   box-shadow: 0 0 0 3px var(--a), 0 0 70px -6px var(--a); animation: augRing .7s cubic-bezier(.2,.7,.3,1) both; }
 .aug-ring.late { animation-delay: .12s; box-shadow: 0 0 0 1px var(--a), 0 0 40px -10px var(--a); }
 /* 올려 두면 그림이 천천히 밀려 들어온다 */
-.aug-card .aug-art { transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; }
+.aug-card .aug-art { transform-origin: 50% 0; transition: transform .6s cubic-bezier(.2,.9,.3,1), filter .3s; } /* 올리면 커질 때도 위(머리)는 그대로 */
 .aug-card.hot .aug-art { transform: scale(1.06); }
 /* 구장 위 시너지 도크: 오른쪽 그늘 위에 줄 목록 */
 .syn-dock { position: absolute; z-index: 6; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; padding: 24px 26px 22px 30px; }
@@ -3799,6 +3799,21 @@ function augWho(o) {
 
 /** 증강 카드가 올라오기 시작하는 때(ms) — 셋 모두 같이 */
 const REVEAL_MS = 120;
+/* 증강 그림 창(290×204)에 보일 세로 자리(object-position y%) — 그림(720×1072)마다 얼굴 · 머리가 잘리지 않게 하나씩 맞춘 값 */
+const AUG_ART_Y = {
+  ace:9, aceDay:15, aceFirst:6, aceKiller:6, allInSkew:9, allOrNothing:11, allOutPitch:11, austerity:15, autumnDNA:6, balanceTrain:19, bargain:9,
+  bigGame:17, bloop:27, bottomUp:19, bullpenBoost:17, bullpenFortress:11, bullpenGame:15, bullpenInsure:4, camp:15, cannon:23, captain:23,
+  catcherLead:30, centerLine:23, cleanupBomb:27, cleanupCore:6, cleanupUp:9, closer:13, closerFocus:2, clutchGod:19, clutchMaster:11,
+  contactRevolution:0, ctrlTrain:15, daesseuyo:28, defenseRevolution:8, doubleSwitch:17, dramaComeback:11, dynasty:19, emergency:6, extraGame:6,
+  extraRun:27, extremeLeft:15, eyeTrain:0, firstBlood:23, flyballRevolution:23, focusLine:15, fullSwing:23, fund:19, gamble:19, glassCannon:4,
+  gloveTrain:11, greenLight:15, grind:11, hell:19, hitStreak:19, holdLead:6, hometownFans:8, infieldWall:23, ironDefense:23, ironMan:8, lateBlast:9,
+  leftLine:9, lefty:6, legendAura:11, legendsWeight:15, luckySeven:23, mentalCoach:9, mercAll:9, mercContract:13, mirrorMatch:11, muscle:6, natPride:0,
+  oneMan:13, oneWell:9, outfieldWall:15, perfectPace:8, posFree:9, pressure:27, rally:9, regress:9, revive:8, rightLine:9, rightLock:13, rookie:23,
+  rookieHunger:6, scout:9, scoutReport:15, setterUp:9, setupCrew:9, shutoutCounter:19, sluggerArmy:15, smallBall:19, southpaws:15, speedBall:9,
+  speedGap:4, speedRevolution:19, sprintTrain:0, staminaTrain:0, starterFocus:9, stuffTrain:13, synBoom:11, synCopy:23, tempo:13, tieBreak:8,
+  tightPitching:0, toContact:9, toPower:17, trainerOn:6, underdog:15, veteran:6, walkoffInstinct:19, weakFix:15, winStreak:23, workhorse:4
+};
+
 function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
   const art = useImage(`augments/${o.id}.webp`);
   return (
@@ -3813,7 +3828,7 @@ function ChoiceCard({ option: o, index, onChoose, state = '', onHot }) {
         <span className="aug-inner">
           <span className="aug-window">
             {art
-              ? <img src={art} alt="" className="aug-art h-full w-full object-cover object-[50%_22%]" />
+              ? <img src={art} alt="" className="aug-art h-full w-full object-cover" style={{ objectPosition: `50% ${AUG_ART_Y[o.id] ?? 10}%` }} />
               : <span className="block h-full w-full" style={{ background: 'radial-gradient(80% 70% at 50% 45%, rgba(167,139,250,.4), transparent 70%)' }} />}
             <span className="aug-shine" />
           </span>
