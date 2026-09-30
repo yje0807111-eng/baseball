@@ -12,6 +12,7 @@ import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
+import { augWho } from './KboAugmentDraft.jsx'; // 증강 판 — 대상 · 효과 한 줄(서로 부르는 모듈이지만 그릴 때만 쓴다)
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb as stateWin, simWinProb, withPrior } from './engine/winProb.js';
 import DuelPanel, { duelAi, readAssist, saveAssist, situationOf, zoneKo } from './play/DuelPanel.jsx';
@@ -21,7 +22,7 @@ import { tacticOrders } from './engine/tactics.js';
 import { seeded } from './engine/rng.js';
 import { artId } from './data/artAlias.js';
 import {
-  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, playOut, DEFAULT_USAGE, dirName, shouldAsk, leverage } from './engine/pitchSim.js';
+  createGame, pitch, stealOdds, pitchMix, staminaOf, batterOf, pitcherOf, offenseOf, defenseOf, RESULT_LABEL, PITCHES, replaceTeam, aiPitchingChange, playOut, DEFAULT_USAGE, shouldAsk, leverage } from './engine/pitchSim.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** 이 타석에 지나간 공 — 존 반폭 · 반높이를 1 로 잰 자리 */
@@ -51,6 +52,7 @@ const CLUTCH_CSS = `
 @keyframes sidePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes rushBlink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 @keyframes outPop { 0% { transform: scale(1); } 32% { transform: scale(1.5); } 100% { transform: scale(1); } }
+@keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 `;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -189,60 +191,7 @@ function skipSpeed(g, endAt) {
   return Math.min(400, Math.max(3.5, (outsLeft * MS_PER_OUT) / left));
 }
 
-/* ───────── 해설 문장 ───────── */
-const FIELD_KO = { P: '투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수' };
-/** 줄의 결 — 득점 · 장타 · 아웃 · 그 밖. 색과 굵기가 여기서 갈린다 */
-const KIND_TONE = { run: '#fde047', hit: '#34d399', out: '#94a3b8', note: '#60a5fa', plain: '#cbd5e1' };
-function kindOf(ev) {
-  if (!ev) return 'note';
-  if (ev.runs > 0 || ev.result === 'HR') return 'run';
-  if (['1B', '2B', '3B', 'BB', 'E'].includes(ev.result)) return 'hit';
-  if (['K', 'GO', 'FO', 'LO', 'DP', 'SF', 'SAC', 'BH'].includes(ev.result)) return 'out';
-  return 'plain';
-}
-let lineSeq = 0;
-/** 화면에 쌓을 한 줄 */
-const lineOf = (text, kind = 'plain', g = null) => ({
-  id: (lineSeq += 1), text, kind,
-  at: g ? `${g.inning}${g.top ? '초' : '말'}` : '',
-});
-const KEEP = 14; // 남겨 두는 줄 수
 export const TACTIC_CHANGES = 3; // 경기 중 전술을 바꿀 수 있는 횟수 (공수 교대 때 먹는다)
-
-function commentary(ev) {
-  const b = ev.batter?.name || '타자';
-  const p = ev.pitch ? `${PITCHES[ev.pitch.type].name} ${ev.pitch.velo}km` : '';
-  const out = [];
-  if (ev.swapped) out.push(`${ev.swapped.out.name} 체력 한계 — ${ev.swapped.in.name} 교체`);
-  if (ev.steal) out.push(`${ev.steal.runner.name}, ${ev.steal.from + 2}루 도루 ${ev.steal.ok ? '성공' : '실패'}`);
-  if (!ev.result) {
-    const call = { ball: '볼', called: '루킹 스트라이크', swinging: '헛스윙!', foul: '파울' }[ev.call];
-    if (call) out.push(`${p} — ${call}. ${ev.after.balls}볼 ${ev.after.strikes}스트라이크`);
-    return out;
-  }
-  const r = ev.result;
-  // 실제 타구가 간 곳을 그대로 부른다 (ev.hit)
-  const dir = ev.hit ? dirName(ev.hit.dir) : null;
-  const by = ev.hit?.by ? FIELD_KO[ev.hit.by] : null;
-  if (r === 'HR') out.push(`${b}, ${dir ? `${dir} ` : ''}담장 밖으로 · ${ev.runs}점 홈런`);
-  else if (r === '3B') out.push(`${b}, ${dir ? `${dir} ` : ''}가르는 3루타`);
-  else if (r === '2B') out.push(`${b}, ${dir ? `${dir} ` : ''}2루타${ev.runs ? ` · ${ev.runs}명 득점` : ''}`);
-  else if (r === '1B') out.push(`${b}, ${by ? `${by} 앞 ` : '깨끗한 '}안타${ev.runs ? ` · ${ev.runs}점` : ''}`);
-  else if (r === 'BB') out.push(`${b}, 볼넷${ev.runs ? ' · 밀어내기 득점' : ''}`);
-  else if (r === 'IBB') out.push(`${b}, 고의사구 · 1루 채움`);
-  else if (r === 'K') out.push(`${p} — ${b} 삼진`);
-  else if (r === 'DP') out.push(`${b}, 병살타 · 이닝 종료`);
-  else if (r === 'SF') out.push(`${b}, 희생플라이 · 3루 주자 득점`);
-  else if (r === 'SAC') out.push(`${b}, 희생번트 · 주자 진루`);
-  else if (r === 'BH') out.push(`${b}, 기습 번트 안타!`);
-  else if (r === 'E') out.push(`${b}, 평범한 타구 · 수비 실책으로 출루`);
-  else if (r === 'CS') out.push('도루 실패 · 이닝 종료');
-  else if (r === 'GO') out.push(`${b}, ${by ? `${by} 앞 ` : ''}땅볼 아웃`);
-  else if (r === 'FO') out.push(`${b}, ${by ? `${by} ` : ''}뜬공 아웃`);
-  else if (r === 'LO') out.push(`${b}, ${by ? `${by} 정면 ` : ''}직선타 아웃`);
-  else out.push(`${b}, ${RESULT_LABEL[r]}`);
-  return out;
-}
 
 /* ───────── 작은 부품 ───────── */
 
@@ -424,7 +373,7 @@ export function Scoreboard({ g, home, away, count = null, bases = true, justOut 
 let fxSeq = 0;
 const nextFx = () => ++fxSeq;
 
-export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false, intro = null }) {
+export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, rebuildOpp = null, midPickInnings = [], onMidPick = null, bg = undefined, seed = null, autoOnExit = false, intro = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -498,7 +447,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
   digestRef.current = digest;
   const [zoneShots, setZoneShots] = useState([]); // 존 판에 찍힌 공 — 구장에 공이 닿을 때 함께 찍힌다
   const [count, setCount] = useState({ b: 0, s: 0, o: 0 }); // 볼·스트라이크·아웃 — 공이 꽂힐 때 오른다
-  const [lines, setLines] = useState([lineOf('플레이볼!', 'note')]);
+  /*
+   * 알림 — 경기 중 드문 일(투수 교체 · 증강 발동)만 구장 오른쪽 위에 잠깐(2.6초 ÷ 배속, 1.2초 아래로는 안 줄인다).
+   * 타석 결과는 구장 연출 · 볼카운트 · 주자판이 이미 보여 줘 글로 겹쳐 적지 않는다(해설 칸을 뺀 까닭).
+   * 셋까지 쌓고 새것이 위. 들어올 때 0.2초 미끄러짐, '애니메이션 줄이기'면 그냥 나타난다
+   */
+  const [toasts, setToasts] = useState([]);
+  const toast = (label, text, tone) => {
+    const id = nextFx();
+    setToasts((t) => [{ id, label, text, tone }, ...t].slice(0, 3));
+    setTimeout(() => { if (aliveRef.current) setToasts((t) => t.filter((x) => x.id !== id)); }, Math.max(1200, 2600 / curSpeed()));
+  };
   const [flash, setFlash] = useState(null); // 큰 결과 자막
   const [swap, setSwap] = useState(null); // 공수 교대 띠
   const [rush, setRush] = useState(false); // 접은 타석을 흘려보내는 중
@@ -635,7 +594,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             pendingRef.current = { ...pendingRef.current, changePitcher: change };
             const next = typeof change === 'string' ? g.away.team.pitchers.find((p) => p.id === change) : g.away.team.pitchers[g.away.pitcherIdx + 1];
             const text = next && `${away.name} 투수 교체 — ${g.away.pitcher?.name} → ${next.name}`; // 교체 전에 글을 만들어 둔다
-            if (text) setLines((l) => [...l, lineOf(text, 'note', g)].slice(-KEEP));
+            if (text) toast('투수 교체', text.replace(/^.*투수 교체 — /, `${shortTeam(away.name)} · `), THEIRS);
           }
         }
         /* 승부처에서만 멈춘다 — 한 반이닝에 한 번, 경기당 CLUTCH_LIMIT 번까지(공수 한쪽 2번 · 6회까지 1번) */
@@ -706,10 +665,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           : ev.result ? (BIG.includes(ev.result) ? BIG_MS : RESULT_MS) : COUNT_MS) / curSpeed();
         /* 결과가 드러나는 때 — 친 공은 타구가 지나간 뒤, 그 밖에는 공이 미트에 꽂힐 때 */
         const told = fold ? (worth ? beat * 0.5 : 0) : beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat) + 0.03);
-        const swaps = folded.slice(0, -1).filter((e) => e.swapped)
-          .map((e) => lineOf(`${e.swapped.out.name} 체력 한계 — ${e.swapped.in.name} 교체`, 'note', g));
-        const said = [...swaps, ...commentary(ev).map((t) => lineOf(t, kindOf(ev), g))];
-        setTimeout(() => { if (aliveRef.current) setLines((l) => [...l, ...said].slice(-KEEP)); }, told);
+        /* 체력 한계 교체(어느 팀이든) — 알림으로 */
+        const swaps = [...folded.slice(0, -1), ev].filter((e) => e.swapped);
+        if (swaps.length) setTimeout(() => { if (aliveRef.current) swaps.forEach((e) => toast('투수 교체', `${e.swapped.out.name} → ${e.swapped.in.name}`, e.top ? OURS : THEIRS)); }, told);
         if (fold) {
           /* 결과까지 가는 공들은 빨리감기처럼 흘려보낸다 — 그냥 건너뛰면 넘어간 줄 모른다.
              존 판과 볼카운트도 같이 달려야 공이 지나갔다는 것이 읽힌다 */
@@ -762,14 +720,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           const before = half.top ? half.away : half.home;
           const scored = (half.top ? g.away.runs : g.home.runs) - before;
           const res = aug.afterHalf(g, scored, half.inning, half.top);
-          if (res.texts.length) {
-            setLines((l) => [...l, ...res.texts.map((t) => lineOf(`[증강: ${t.name}] ${t.text}`, 'note', g))].slice(-KEEP));
-            const t = res.texts[res.texts.length - 1];
-            setFlash({ text: t.name, key: nextFx() });
-            setTimeout(() => setFlash(null), flashMs());
-            redraw();
-            await sleep(900 / curSpeed());
-          }
+          /* 증강 발동 — 알림으로(전엔 구장 가운데 큰 자막 + 0.9초 멈춤) */
+          res.texts.forEach((t) => toast(`증강 · ${t.name}`, t.text, t.mine ? OURS : THEIRS));
+          if (res.texts.length) redraw();
           if (g.final) g.winner = g.home.runs > g.away.runs ? 'home' : g.away.runs > g.home.runs ? 'away' : 'draw';
           // 새 이닝이 시작될 때 그 경기에서만 쓰는 증강을 하나 더
           if (!g.final && g.top && g.inning !== half.inning && midPickInnings.includes(g.inning) && onMidPick && !askedAt.has(g.inning)) {
@@ -779,6 +732,9 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               const nextMy = rebuildMy?.(picked);
               if (nextMy) replaceTeam(g.home, engineTeam(nextMy));
               aug.update(picked, nextMy);
+              /* 상대(AI)도 같은 때 한 장 더 */
+              const o = rebuildOpp?.();
+              if (o) { replaceTeam(g.away, engineTeam(o.team)); aug.updateOpp(o.list, o.team); toast('상대 증강', o.list[o.list.length - 1].name, THEIRS); }
               redraw();
             }
           }
@@ -791,7 +747,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           sideRef.current = { inning: g.inning, top: g.top };
           applyQueued();
           setCount({ b: 0, s: 0, o: 0 });
-          setLines((l) => [...l, lineOf(`${g.inning}회${g.top ? '초' : '말'} — ${!g.top ? '우리 공격' : '우리 수비'} · ${g.away.runs} : ${g.home.runs}`, 'half', g)].slice(-KEEP));
           setSwap({ key: nextFx(), mine: !g.top, inning: g.inning, top: g.top });
           redraw();
           await sleep(1150 / curSpeed());
@@ -812,7 +767,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
       }
       if (g.final && aliveRef.current) {
         redraw();
-        setLines((l) => [...l, lineOf(`경기 종료 — ${home.name} ${g.home.runs} : ${g.away.runs} ${away.name}`, 'note')].slice(-KEEP));
         await sleep(quiet() ? 300 : 700);
         handOver();
       }
@@ -923,17 +877,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <h1 className="mt-1 text-t2 font-black leading-none text-white">감독 모드</h1>
           </div>
           <span className="flex items-center gap-1.5 text-t4 font-bold text-red-400"><i className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_8px_#f87171]" />중계</span>
-          {/* 이 경기에 걸린 증강 — 정비 끝 1장 · 7회 1장 */}
-          {aug?.list?.length > 0 && (
-            <span className="flex min-w-0 items-center gap-1.5">
-              {aug.list.map((a) => (
-                <span key={a.id} title={a.desc} className="max-w-[200px] truncate rounded-full px-2.5 py-0.5 text-t4 font-bold"
-                  style={{ color: '#f0abfc', background: 'rgba(232,121,249,.12)', boxShadow: 'inset 0 0 0 1px rgba(232,121,249,.45)' }}>
-                  {a.name}{a.lv ? ` +${a.lv}` : ''}
-                </span>
-              ))}
-            </span>
-          )}
           {holding && (
             <span className="ml-auto flex items-center gap-2 rounded-full bg-[#fde047] px-3 py-1 font-display text-t3 font-extrabold text-[#05080f]">▶▶ 빨리감기</span>
           )}
@@ -1013,6 +956,19 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 style={{ background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
             )}
 
+            {/* 알림 — 투수 교체 · 증강 발동 */}
+            {toasts.length > 0 && (
+              <div className="pointer-events-none absolute right-4 top-14 flex max-w-[360px] flex-col items-end gap-2">
+                {toasts.map((t) => (
+                  <div key={t.id} className="mt-cut mt-glass flex min-w-[220px] max-w-full flex-col gap-0.5 px-4 py-2.5 motion-safe:animate-[toastIn_.2s_ease-out_both]"
+                    style={{ '--c': '10px', boxShadow: `inset 3px 0 0 ${t.tone}` }}>
+                    <span className="text-t4 font-bold" style={{ color: t.tone }}>{t.label}</span>
+                    <b className="truncate text-t3 text-white">{t.text}</b>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* 결과 자막 */}
             {flash && (
               <div key={`flash-${flash.key}`} className="pointer-events-none absolute left-1/2 top-[38%] -translate-x-1/2 animate-[rise_.4s_ease-out_both] font-display text-[70px] font-black text-yellow-300 [text-shadow:0_0_40px_rgba(253,224,71,.8)]">{flash.text}</div>
@@ -1037,13 +993,13 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           </section>
 
           {/* ── 오른쪽 한 줄기: 승부 흐름 · 작전(승부처) · 투수와 불펜 · 해설 ── */}
-          <div className="flex min-h-0 flex-col gap-4">
+          <div className="flex min-h-0 flex-col gap-3">
             <section className="mt-cut mt-frame mt-glass flex shrink-0 flex-col gap-2 px-5 py-4" style={{ '--c': '22px', '--a': cMy }}>
               <div className="flex items-center">
                 <p className="mt-lab" style={{ '--a': cMy }}>승부 흐름</p>
                 <b className="ml-auto font-display text-[40px] font-black leading-none" style={{ color: cMy }}>{Math.round(wpShow * 100)}<small className="ml-0.5 text-t3 text-gray-400">%</small></b>
               </div>
-              <WinLine log={wpLog} mine={cMy} w={398} h={60} />
+              <WinLine log={wpLog} mine={cMy} w={398} h={36} />
               <div className="flex justify-between text-t4 text-gray-400">
                 <span>내 지시 <b className="font-display text-t3" style={{ color: myGain > 0 ? '#34d399' : myGain < 0 ? '#f87171' : '#9ca3af' }}>{myGain > 0 ? '+' : ''}{myGain}%p</b></span>
                 <span>남은 수싸움 <b className="font-display text-t3 text-white">{duelLeft.current}</b></span>
@@ -1172,15 +1128,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </ul>
             </section>
 
-            {/* 해설 — 가장 새 줄이 위, 아래로 흐려진다 */}
-            <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden px-5 py-4" style={{ '--c': '22px' }}>
-              {[...lines].reverse().filter((l) => l.kind !== 'half').slice(0, 4).map((l, i) => (
-                <p key={l.id} className="m-0 flex min-w-0 shrink-0 items-baseline gap-2 leading-snug" style={{ opacity: 1 - i * 0.22 }}>
-                  {l.at && <em className="shrink-0 font-display text-t4 font-bold not-italic text-gray-400">{l.at}</em>}
-                  <span className={`truncate ${i === 0 ? 'text-t3 font-bold' : 'text-t4'}`} style={{ color: i === 0 ? '#fff' : KIND_TONE[l.kind] || '#cbd5e1' }}>{l.text}</span>
-                </p>
-              ))}
-            </section>
+            {/* 증강 — 우리 · 상대가 이 경기에 건 증강(정비 끝 1장 · 7회 1장). 해설 칸 자리 — 한 줄씩, 효과는 이름에 올리면 */}
+            {aug && (
+              <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col justify-center gap-1.5 overflow-hidden px-5 py-3" style={{ '--c': '22px' }}>
+                {[['우리', aug.list, cMy], ['상대', aug.oppList || [], THEIRS]].map(([ko, arr, c]) => (
+                  <div key={ko} className="flex min-w-0 items-baseline gap-3">
+                    <span className="w-8 shrink-0 text-t4 font-bold" style={{ color: c }}>{ko}</span>
+                    <span className="min-w-0 flex-1 truncate text-t3 font-bold" style={{ color: arr.length ? '#fff' : '#6b7280' }}
+                      title={arr.map((a) => `${a.name} — ${augWho(a).rest}`).join('\n')}>
+                      {arr.length ? arr.map((a) => `${a.name}${a.lv ? ` +${a.lv}` : ''}`).join(' · ') : '-'}
+                    </span>
+                  </div>
+                ))}
+              </section>
+            )}
           </div>
         </div>
       </div>
