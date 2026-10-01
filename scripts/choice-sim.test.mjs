@@ -73,7 +73,7 @@ test.skipIf(!process.env.SG)('choice sim', () => {
       const best = Math.max(...vals), worst = Math.min(...vals);
       const b = batterOf(s.g), run1 = s.g.bases[0], stl = opts.find(([k]) => k === '도루') ? stealOdds(s.g, s.g.bases[0] && !s.g.bases[1] ? 0 : 1) : null;
       rows.push({ game: gi, inn: s.g.inning, top: s.top, outs: s.g.outs, bases: s.g.bases.map((x) => (x ? 1 : 0)).join(''), diff: s.g.home.runs - s.g.away.runs, lev: +s.lev.toFixed(3),
-        batter: `${b.name}(${b.hand}) 컨${b.stats?.contact} 파${b.stats?.power}`, stam: Math.round(staminaOf(defenseOf(s.g))), stl: stl && +stl.toFixed(2),
+        batter: `${b.name}(${b.hand}) 컨${b.stats?.contact} 파${b.stats?.power}`, ct: b.stats?.contact, pe: +(((b.stats?.power ?? 70) - (defenseOf(s.g).pitcher.stats?.stuff ?? 80)) / 10).toFixed(2), stam: Math.round(staminaOf(defenseOf(s.g))), stl: stl && +stl.toFixed(2),
         opts: Object.fromEntries(opts.map(([k], i) => [k, +(vals[i] * 100).toFixed(1)])), best: opts[vals.indexOf(best)][0], gain: +((best - def) * 100).toFixed(1), spread: +((best - worst) * 100).toFixed(1) });
     }
   }

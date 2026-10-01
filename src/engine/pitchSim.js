@@ -254,12 +254,25 @@ const armLimit = (side) =>
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
 
 /*
- * 투수 피로: 안정성이 높을수록 오래 버틴다. 남은 체력이 35% 아래로 내려가면 조금씩(체력 0 에서 0.3),
- * 넘으면 더 빨리 구위 · 제구가 떨어진다 — 선발을 끝까지 끌고 가는 데도 값이 있게(작전 '선발 길게' vs '빠른 계투')
+ * 타격 접근법(강공 · 밀어치기) — 선수 · 상대를 탄다(전엔 고정값이라 밀어치기는 손해인 적이 없고 강공은 이득인 적이 없었다,
+ * choice-sim 600결정 2026-10-01).
+ *  강공: 파워가 상대 구위를 넘을수록 홈런 ↑, 못 미치면 헛스윙만 ↑ (pe = (파워 − 구위)/10, −1.5~1.5)
+ *  밀어치기: 맞힘이 좋을수록 덜 헛돈다. 대가 = 홈런 · 2루타 ↓ (병살 ↓ 는 그대로)
  */
+export function approachOf(approach, contact, power, stuff) {
+  if (approach === 'power') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.06 + 0.035 * pe, hit: -0.02, hr: Math.max(-0.02, 0.025 + 0.045 * pe), dbl: 0.03 }; }
+  if (approach === 'contact') { const ce = clamp((contact - 75) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.045, dbl: -0.09 }; }
+  return { whiff: 0, hit: 0, hr: 0, dbl: 0 };
+}
+
+/*
+ * 투수 피로: 남은 체력이 FATIGUE_AT 아래로 내려가면 구위 · 제구가 떨어진다(체력 0 에서 FATIGUE_MAX), 한도를 넘으면 더 빨리.
+ * 전엔 35% · 0.3 이라 체력 30 투수의 구위가 0.4 깎일 뿐이어서(지금 50% · 1 → 체력 30 에 구위 −4 · 제구 −4.8), 지친 투수를 바꾸는 쪽이 오히려 손해였다(choice-sim 2026-10-01)
+ */
+const FATIGUE_AT = 0.5, FATIGUE_MAX = 1;
 function fatigue(side) {
   const lim = armLimit(side), left = 1 - side.pitches / lim;
-  return clamp((side.pitches - lim) / 40 + (left < 0.35 ? ((0.35 - Math.max(0, left)) / 0.35) * 0.3 : 0), 0, 1);
+  return clamp((side.pitches - lim) / 40 + (left < FATIGUE_AT ? ((FATIGUE_AT - Math.max(0, left)) / FATIGUE_AT) * FATIGUE_MAX : 0), 0, 1);
 }
 
 function choosePitch(g, pitcher, order) {
@@ -476,7 +489,7 @@ export function pitch(g, orders = {}) {
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
   const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
-  const apprHit = orders.approach === 'power' ? -0.04 : orders.approach === 'contact' ? 0.05 : 0;
+  const apprHit = approachOf(orders.approach, contact, power, stuff).whiff;
   const sty = styleOf(pitcher), tempo = tempoOf(g.lastVelo, p.velo, guessHit) * sty.tempoX;
   const holdCost = g.hold > 0 && (g.bases[0] || g.bases[1]) ? HOLD_COST * g.hold : 0; // 주자 견제에 신경 쓰면 타자 승부가 조금 흐트러진다
   g.lastVelo = p.velo;
@@ -534,12 +547,13 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + (orders.approach === 'power' ? -0.02 : orders.approach === 'contact' ? 0.015 : 0) + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const appr = approachOf(orders.approach, contact, power, stuff);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + (orders.approach === 'power' ? 0.035 : orders.approach === 'contact' ? -0.02 : 0) + (off.mod?.hr || 0), 0.01, 0.5);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
-    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.12, 0.06, 0.38);
+    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.12 + appr.dbl, 0.06, 0.38);
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;
