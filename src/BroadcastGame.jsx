@@ -398,15 +398,21 @@ function CallBanner({ text, sub, tone, big = false }) {
 const CALL_MARK = 0.08;
 const CALL_MS = 3000;
 const pickOf = (g, xs) => xs[Math.floor(g.rng() * xs.length)];
-function callCards(g) {
+/*
+ * 한 번 하고 끝나는 작전(번트 · 스퀴즈 · 히트앤런 · 도루 · 고의사구 · 교체) — 카드는 새 볼카운트에서만 뜨니 첫 공에만 걸고,
+ * 그 뒤는 정비 작전으로. 전엔 번트 · 히트앤런이 타석 내내 다시 걸렸다 — 1루 주자 무사 3000타석 시뮬에서 히트앤런은
+ * 볼넷 0 · 병살 0(주자가 공마다 뛰어서) · 안타 37.7%(안 걸면 30.4%)로 지나치게 셌고, 번트는 볼에도 대 볼넷이 0 이었다(2026-10-01)
+ */
+const first = (o) => (gg) => (gg.balls + gg.strikes === 0 ? (typeof o === 'function' ? o(gg) : o) : {});
+export function callCards(g) {
   const [b1, b2, b3] = g.bases, o = g.outs;
   if (!g.top) {
     /* 우리 공격 */
     return [
-      b3 && o < 2 && { k: 'squeeze', ko: '스퀴즈', sub: '3루 주자 득점 노림', order: () => ({ bunt: true }) },
-      (b1 || b2) && !b3 && o < 2 && { k: 'sac', ko: '희생번트', sub: '주자 한 루씩 · 타자 아웃', order: () => ({ bunt: true }) },
-      b1 && o < 2 && { k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 병살 ↓', order: () => ({ hitAndRun: true }) },
-      ((b1 && !b2) || (b2 && !b3)) && { k: 'steal', ko: '도루', sub: '한 루 더 · 잡히면 아웃', order: (gg) => (gg.balls + gg.strikes === 0 ? { steal: gg.bases[0] && !gg.bases[1] ? 0 : 1 } : {}) },
+      b3 && o < 2 && { k: 'squeeze', ko: '스퀴즈', sub: '3루 주자 득점 노림', order: first({ bunt: true }) },
+      (b1 || b2) && !b3 && o < 2 && { k: 'sac', ko: '희생번트', sub: '주자 한 루씩 · 타자 아웃', order: first({ bunt: true }) },
+      b1 && o < 2 && { k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 병살 ↓', order: first({ hitAndRun: true }) },
+      ((b1 && !b2) || (b2 && !b3)) && { k: 'steal', ko: '도루', sub: '한 루 더 · 잡히면 아웃', order: first((gg) => ({ steal: gg.bases[0] && !gg.bases[1] ? 0 : 1 })) },
       { k: 'contact', ko: '밀어치기', sub: '삼진 ↓ · 병살 ↓', order: () => ({ approach: 'contact' }) },
       { k: 'power', ko: '강공', sub: '장타 ↑ · 헛스윙 ↑', order: () => ({ approach: 'power' }) },
     ].filter(Boolean).slice(0, 3);
@@ -414,8 +420,8 @@ function callCards(g) {
   /* 우리 수비 */
   const tired = staminaOf(g.home) < 45 && g.home.team.pitchers[g.home.pitcherIdx + 1];
   return [
-    tired && { k: 'change', ko: '투수 교체', sub: `불펜 ${g.home.team.pitchers[g.home.pitcherIdx + 1]?.name || ''}`, order: (gg) => (gg.balls + gg.strikes === 0 ? { changePitcher: true } : {}) },
-    (b2 || b3) && !b1 && { k: 'ibb', ko: '고의사구', sub: '1루 채우고 다음 타자', order: (gg) => (gg.balls + gg.strikes === 0 ? { ibb: true } : {}) },
+    tired && { k: 'change', ko: '투수 교체', sub: `불펜 ${g.home.team.pitchers[g.home.pitcherIdx + 1]?.name || ''}`, order: first({ changePitcher: true }) },
+    (b2 || b3) && !b1 && { k: 'ibb', ko: '고의사구', sub: '1루 채우고 다음 타자', order: first({ ibb: true }) },
     { k: 'chase', ko: '유인구', sub: '장타 ↓ · 볼넷 ↑', order: (gg) => (gg.rng() < 0.45 ? { zone: 'chase' } : {}) },
     { k: 'attack', ko: '정면 승부', sub: '볼넷 ↓ · 몰린 공 ↑', order: (gg) => (gg.rng() < 0.5 ? { zone: pickOf(gg, [4, 1, 3, 5, 7]) } : {}) },
     b3 && o < 2 && { k: 'infield', ko: '전진 수비', sub: '3루 주자 묶기 · 안타 ↑', order: () => ({ guard: 1 }) },
