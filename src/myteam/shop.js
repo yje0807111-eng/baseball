@@ -17,7 +17,7 @@ export const CATEGORIES = [
   { key: 'training', label: '훈련' },
   { key: 'boost', label: '준비 카드' },
   { key: 'ops', label: '운영' },
-  { key: 'staff', label: '감독' },
+  { key: 'staff', label: '감독·코치' },
   { key: 'aug', label: '증강' },
   { key: 'draft', label: '드래프트' },
 ];
@@ -52,7 +52,7 @@ export const SHOP_ITEMS = [
   item('au-upgrade3', 'aug', '증강 강화권 3장 묶음', '강화권 3장 · 낱장보다 할인', 1600, { augTicket: 'upgradeTickets', bulk: 3, img: 'mt-boost' }),
   item('au-upgrade', 'aug', '증강 강화권', '증강 강화에 쓰는 권 1장', 600, { augTicket: 'upgradeTickets', img: 'mt-boost' }),
   item('st-coach', 'staff', '코치 계약서', '코치 1명을 CP 없이 선임', 800, { staffRole: 'coach', img: 'mt-card' }),
-  item('st-upgrade', 'staff', '코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
+  item('st-upgrade', 'staff', '감독·코치 강화권', '감독 · 코치 1명 레벨 +1 (내 라커에서 사용 · 최대 Lv.5)', 450, { staffTicket: true, img: 'mt-boost' }),
 ];
 
 /*

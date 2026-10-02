@@ -143,7 +143,7 @@ function Scout({ r, label }) {
               <b className="min-w-0 flex-1 truncate text-t3 text-[#e8ecf2]">{p.name}</b>
               <b className="font-display text-t3" style={{ color: tone(p.overall) }}>{p.overall}</b>
             </span>
-          )) : <small className="text-t4 text-[#6b7787]">예비 선수 없음</small>}
+          )) : <small className="text-t4 text-[#6b7787]">벤치 선수 없음</small>}
           {bench.length > BENCH_SHOW && <small className="px-1 text-t4 text-[#6b7787]">외 {bench.length - BENCH_SHOW}명</small>}
         </div>
       </div>
@@ -207,7 +207,7 @@ function Versus({ me, myEmb, cur: cur0, res, onPlay, buff = 0 }) {
       </div>
       {/* 상대 핵심 셋 — 오늘 나서는 선수 중에서 */}
       <div className="grid gap-1.5">
-        <p className="ui-lab font-display" style={{ '--a': cur.color }}>상대 핵심</p>
+        <p className="ui-lab font-display" style={{ '--a': cur.color }}>경계 선수</p>
         {keysOf(cur.roster).map(([ko, p, c]) => (
           <span key={ko} className="ui-cut grid grid-cols-[2.4rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-1.5" style={{ '--c': '10px', background: 'rgba(255,255,255,.045)' }}>
             <span className="h-[2.4rem] w-[2.4rem] rounded-full bg-[#0b1220] bg-cover" style={{ backgroundImage: face(p), backgroundPosition: 'center 8%', boxShadow: `0 0 0 2px ${c}` }} />

@@ -458,7 +458,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
 /** 라커 규칙 — 골드와 CP 가 무엇을 막는지, 영입 · 방출 · 보관함 · 프리셋 · 시세 */
 const LOCKER_RULES = [
   ['골드', '선수를 사는 값 · 영입가 · 시세 · 특가', GOLD],
-  ['CP', '한 팀에 담는 한도 · 엔트리 + 코치진', '#34d399'],
+  ['CP', '한 팀에 담는 한도 · 엔트리 + 감독·코치', '#34d399'],
   ['둘의 차례', '초반엔 골드 · 선수가 좋아지면 CP', '#e5e7eb'],
   ['꽉 찬 엔트리', '보관함으로 영입 · 보관함도 차면 교체 영입', '#e5e7eb'],
   ['방출', '산 값의 절반 환급', '#fca5a5'],
@@ -973,7 +973,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
               <div className="mt-2 grid items-center gap-2" style={{ gridTemplateColumns: 'repeat(3,180px) auto' }}>
                 <Select value={year} onChange={(v) => { setYear(v); setLimit(60); }} options={YEARS} all="연도 전체" />
                 <Select value={club} onChange={(v) => { setClub(v); setLimit(60); }} options={TEAMS} all="구단 전체" />
-                <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션" />
+                <Select value={pos} onChange={(v) => { setPos(v); setLimit(60); }} options={POS_RULES.map((r) => r.key)} all="포지션 전체" />
                 {(year || club || pos) && <button type="button" onClick={() => { setYear(''); setClub(''); setPos(''); }} className="justify-self-start px-2 text-t3 text-gray-400 hover:text-white">초기화</button>}
               </div>
             )}

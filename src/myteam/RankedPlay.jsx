@@ -32,7 +32,7 @@ function Intro() {
           ))}
         </div>
         <div className="grid grid-cols-3 gap-3">
-          {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판 승부`], ['3', '랭크 승점', '최종 순위로 RP가 오르내림']].map(([n, t, d]) => (
+          {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판`], ['3', '랭크 승점', '최종 순위로 RP가 오르내림']].map(([n, t, d]) => (
             <div key={n} className="ui-cut px-4 py-3" style={{ '--c': '10px', background: 'rgba(255,255,255,.05)' }}>
               <span className="ui-chip font-display" style={{ '--a': RK }}>{n}</span>
               <b className="mt-2 block text-t2 font-black text-white">{t}</b>
@@ -79,7 +79,7 @@ function DefenseBox() {
     <div>
       <div className="flex items-baseline gap-2">
         <p className="ui-lab font-display" style={{ '--a': RK }}>자리 비운 사이 방어</p>
-        {!!res.games.length && <span className="ml-auto font-display text-t4 text-gray-400">{res.w}승 {res.d}무 {res.l}패</span>}
+        {!!res.games.length && <span className="ml-auto font-display text-t4 text-gray-400">{res.w}승 {res.l}패{res.d ? ` ${res.d}무` : ''}</span>}
       </div>
       {res.games.length ? res.games.slice(0, 3).map((g, i) => {
         const [ko, c] = g.def > g.att ? RESULT.my : g.def < g.att ? RESULT.opp : RESULT.draw;
@@ -183,7 +183,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       {/* 최근 랭크전 흐름 — 성적은 제목 옆에 붙여 한 줄로 */}
       <div className="flex items-baseline gap-2">
         <p className="ui-lab font-display" style={{ '--a': RK }}>최근 {form.length || 10}경기</p>
-        {!!form.length && <span className="ml-auto font-display text-t4 text-gray-400">{fw}승 {fd}무 {fl}패</span>}
+        {!!form.length && <span className="ml-auto font-display text-t4 text-gray-400">{fw}승 {fl}패{fd ? ` ${fd}무` : ''}</span>}
       </div>
       <FormRow games={form} />
       {!!form.length && <Stats items={[['승률', `${Math.round((fw / form.length) * 100)}%`], ['연승', streak]]} />}

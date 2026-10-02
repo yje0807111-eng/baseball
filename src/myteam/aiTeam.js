@@ -45,7 +45,7 @@ export function seriesTeam(series, rng = Math.random) {
  */
 export const duelSeriesTeam = (series) => seriesTeam(series, seeded(hashKey(`duel:${series.id}`)));
 /** 단판에서 적을 오늘 몸 상태의 씨앗(sub) — 경기(GameApp)와 정비(PrepScreen)의 sub 와 같다 */
-export const DUEL_SUB = '단판 승부';
+export const DUEL_SUB = '단판';
 
 /** 무작위 시리즈 팀 (일반 대결 상대) — 화면에서 미리 정해 둔 상대가 있으면 그 팀 */
 export function randomSeriesTeam(rng = Math.random) {

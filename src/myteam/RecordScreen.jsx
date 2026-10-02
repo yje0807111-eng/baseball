@@ -21,7 +21,7 @@ const MODES = [
   { key: 'all', label: '전체', ko: '전체', c: '#7dd3fc' },
   { key: 'duel', label: '단판', ko: '단판', c: '#34d399' },
   { key: 'tournament', label: '토너먼트', ko: '토너먼트', c: '#fbbf24' },
-  { key: 'ranked', label: '랭크', ko: '랭크', c: '#f472b6' },
+  { key: 'ranked', label: '랭크전', ko: '랭크전', c: '#f472b6' },
 ];
 const modeKey = (h) => h.mode || 'duel';
 const modeOf = (h) => MODES.find((m) => m.key === modeKey(h)) || MODES[1];
@@ -278,7 +278,7 @@ function GameLine({ h, on, onPick }) {
       </b>
       <span className="min-w-0">
         <b className="block truncate text-t2 font-black text-white"><small className="mr-1.5 text-t4 font-bold text-gray-400">vs</small>{h.opp}</b>
-        <small className="block truncate text-t4 text-gray-400">{h.round || '단판 승부'}</small>
+        <small className="block truncate text-t4 text-gray-400">{h.round || '단판'}</small>
       </span>
       <span className="mt-cut px-2 py-0.5 text-center text-t4 font-bold" style={{ ...cut(4), color: m.c, boxShadow: `inset 0 0 0 1px ${m.c}66` }}>{m.ko}</span>
       <span className="text-center font-display text-t3 text-gray-400">{fmtDate(h.at)}</span>
@@ -351,7 +351,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
           {/* 통산 요약 한 줄 — 옛 왼쪽 칸에 있던 것 */}
           <div className="mt-cut mt-3 flex items-center gap-5 bg-white/[0.045] px-4 py-2.5" style={cut(10)}>
             <span className="text-t4 font-bold text-gray-400">통산</span>
-            <b className="font-display text-t2 text-white">{all.w}승 {all.d}무 {all.l}패</b>
+            <b className="font-display text-t2 text-white">{all.w}승 {all.l}패{all.d ? ` ${all.d}무` : ''}</b>
             <span className="text-t3 text-gray-400">승률 <b className="font-display text-t3 text-white">{rate == null ? '—' : `${rate}%`}</b></span>
             {sum.streak > 1 && <span className="text-t3 font-bold text-emerald-300">{sum.streak}연승</span>}
             <span className="ml-auto flex items-center gap-2">

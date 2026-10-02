@@ -170,9 +170,9 @@ export const personKey = (p) => p.personId || p.name;
 /* 자리 20개 = 필드 14(투수 5 · 야수 9) + 예비 6. 투수는 역할(선발·롱릴리프·중간계투·셋업맨·마무리)로 나뉘고,
    pos 는 제자리로 받는 원래 포지션(불펜 넷은 RP, 외야 셋은 OF). 예비는 pos 가 없어 어느 포지션이든 받는다 */
 export const FIELD_SLOTS = [
-  { id: 'SP', pos: 'SP', label: '선발투수' },
+  { id: 'SP', pos: 'SP', label: '선발 투수' },
   { id: 'LR', pos: 'RP', label: '롱릴리프' },
-  { id: 'MR', pos: 'RP', label: '중간계투' },
+  { id: 'MR', pos: 'RP', label: '중간 계투' },
   { id: 'SU', pos: 'RP', label: '셋업맨' },
   { id: 'CL', pos: 'RP', label: '마무리' },
   { id: 'C', pos: 'C', label: '포수' },
@@ -185,7 +185,7 @@ export const FIELD_SLOTS = [
   { id: 'OF3', pos: 'OF', label: '외야수3' },
   { id: 'DH', pos: 'DH', label: '지명타자' },
 ];
-export const BENCH_SLOTS = Array.from({ length: BENCH_SIZE }, (_, i) => ({ id: `BN${i + 1}`, pos: null, bench: true, label: `예비${i + 1}` }));
+export const BENCH_SLOTS = Array.from({ length: BENCH_SIZE }, (_, i) => ({ id: `BN${i + 1}`, pos: null, bench: true, label: `벤치${i + 1}` }));
 export const SLOTS = [...FIELD_SLOTS, ...BENCH_SLOTS];
 export const ROSTER_SIZE = SLOTS.length; // 20
 export const PITCH_SLOTS = ['SP', 'LR', 'MR', 'SU', 'CL']; // 투수 자리
@@ -238,7 +238,7 @@ export function playAt(p) {
   return { ...p, position: pos, type: pitchSlot ? 'pitcher' : 'batter', naturalPosition: p.position, stats: Object.fromEntries(keys.map((k) => [k, overall])), overall };
 }
 
-/** 방출 환불액: 영입가의 절반 */
+/** 방출 환급액: 영입가의 절반 */
 export const releaseRefund = (p) => Math.floor(p.cost / 2);
 
 /* ───────────── 3. 유틸 ───────────── */
@@ -1629,7 +1629,7 @@ export const KEYFRAMES = `
 .dr-top { display: flex; align-items: center; gap: 12px; }
 .dr-top .dr-toggle { margin-left: auto; }
 .dr-bar { display: flex; align-items: center; gap: 10px; }
-/* 가운데: 라운드와 샐러리 캡 잔여 */
+/* 가운데: 라운드와 남은 캡 */
 .dr-meta.inline { position: static; transform: none; padding: 0; gap: 10px; background: none; box-shadow: none; }
 .dr-meta.inline .dr-round b { font-size:18px; }
 .dr-meta.inline .dr-ticks i { height: 10px; }
@@ -2503,7 +2503,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
         )}
         {!slim && !isNoCap(cap) && <div className="min-w-[220px] flex-1">
           <div className="mb-1 flex items-baseline justify-between">
-            <span className="text-t4 font-semibold text-gray-400">샐러리 캡 잔여</span>
+            <span className="text-t4 font-semibold text-gray-400">남은 캡</span>
             <span className="font-display tabular-nums">
               {preview ? (
                 <>
@@ -2517,7 +2517,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
               <span className="text-t3 text-gray-400"> / {cap} CP</span>
             </span>
           </div>
-          <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
+          <div className="ui-seg" style={{ '--a': tone }} role="meter" aria-label="남은 캡" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
             {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
           </div>
         </div>}
@@ -2711,7 +2711,7 @@ function SynergyPips({ s, after, named = false }) {
 /* 선반 포지션 탭 — 묶음별 포지션 */
 const GROUP_POS = { 투수: ['SP', 'RP'], 포수: ['C'], 내야: ['1B', '2B', '3B', 'SS'], 외야: ['OF', 'DH'] };
 
-/* 선반 머리 가운데: 라운드와 샐러리 캡 잔여 (칸 스물넷) */
+/* 선반 머리 가운데: 라운드와 남은 캡 (칸 스물넷) */
 function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
   const preview = capAfter != null && capAfter !== cp;
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -2736,7 +2736,7 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
         </span>
       ) : (
         <span className="dr-cap" style={{ '--a': tone }}>
-          <span className="dr-ticks" role="meter" aria-label="샐러리 캡 잔여" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
+          <span className="dr-ticks" role="meter" aria-label="남은 캡" aria-valuemin={0} aria-valuemax={cap} aria-valuenow={cp}>
             {Array.from({ length: 24 }, (_, i) => <i key={i} className={i < lit ? 'on' : i < now ? 'spend' : ''} />)}
           </span>
           <b>{preview ? capAfter : cp}</b>
@@ -3168,7 +3168,7 @@ function LineupField({ roster, candidate, candidateReason, onMove, onInspect, on
             </div>
           </div>
           <div className="lf-bn">
-            <div className="lf-bn-h"><span>예비</span><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
+            <div className="lf-bn-h"><span>벤치</span><small><b>{BENCH_SLOTS.filter((b) => at(b.id)).length}</b>/{BENCH_SIZE}</small></div>
             <div className="lf-bn-g">
               {BENCH_SLOTS.map((b) => <BenchSlot key={b.id} slot={b} player={playerOf(b)} kind={kindOf(b)} flags={flagsOf(b)} bind={bind(b.id)}
                 boosted={kindOf(b) === 'ghost' ? boostedPreview : boosted} />)}
@@ -3259,8 +3259,8 @@ const REC_COLS = {
 };
 /* 예비 자리는 투수·타자가 섞여 서므로 타자 열을 쓰고, 투수가 선 줄은 기록을 비운다 */
 REC_COLS.bench = REC_COLS.bat;
-const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '예비', BENCH_SLOTS.map((b) => b.id)]];
-const REC_SLOT = { SP: '선발', MR: '중계', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
+const REC_GROUPS = [['pitch', 'PITCHERS', '투수', PITCH_SLOTS], ['bat', 'BATTERS', '타자', ['C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'DH']], ['bench', 'BENCH', '벤치', BENCH_SLOTS.map((b) => b.id)]];
+const REC_SLOT = { SP: '선발', MR: '중간', CL: '마무리', C: '포수', '1B': '1루', '2B': '2루', '3B': '3루', SS: '유격', OF1: '좌익', OF2: '중견', OF3: '우익', DH: '지명' };
 
 function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
   const [tab, setTab] = useState('team');
@@ -4310,7 +4310,7 @@ function BasicHero({ mode, tickets, acc }) {
         <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
           <div className="flex items-end gap-4">
             <div className="min-w-0 flex-1">
-              <b className="text-t3 font-extrabold" style={{ color: acc }}>{mode.group === 'special' ? '특별 모드' : '베이직 모드'}</b>
+              <b className="text-t3 font-extrabold" style={{ color: acc }}>{mode.group === 'special' ? '특별 모드' : '드래프트'}</b>
               <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
               <span className="mt-2 block text-t3 text-gray-300">{mode.series.length} 시리즈 · {mode.players.length}명</span>
             </div>
@@ -4560,8 +4560,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const special = mode.group === 'special';
   const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
   const NAV = [
-    ...(plays.length ? [{ group: '플레이', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
-    { group: '베이직 모드', items: [
+    ...(plays.length ? [{ group: '내 팀', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
+    { group: '드래프트', items: [
       { key: 'mix', label: '전체 믹스', sub: `${DRAFT_MODES.find((m) => m.id === 'mix').series.length} 시리즈 · 무작위`, img: 'modes/mix.webp', neon: '#10b981' },
       { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
       { key: 'year', label: '연도별 시즌', sub: `${YEAR_MODES.length}개 시즌 · 한 해 고르기`, img: 'modes/recent.webp', neon: '#a3e635' },
@@ -4643,7 +4643,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               <SettingRow label="드래프트 방식" fixed={special ? '자유 영입' : '같이 뽑기'} />
               <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
                 fixed={special ? '없음' : null} />
-              <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '강함' }} value={ai} onChange={setAi} />
+              <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '어려움' }} value={ai} onChange={setAi} />
               <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat}
                 fixed={special ? null : '구단 정복'} />
             </div>
@@ -4677,7 +4677,7 @@ const AUG_TYPE_RULE = {
 const RULE_TABS = [
   { id: 'entry', label: '엔트리',
     icon: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5" /><circle cx="17" cy="9" r="2.3" /><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8" /></>,
-    facts: [[ROSTER_SIZE, '선수'], [14, '필드 자리'], [BENCH_SIZE, '예비'], [FOREIGN_LIMIT, '외국인 최대']],
+    facts: [[ROSTER_SIZE, '선수'], [14, '필드 자리'], [BENCH_SIZE, '벤치'], [FOREIGN_LIMIT, '외국인 최대']],
     groups: [
       { t: '자리', b: <>
         <div className="rl-slots">
@@ -4685,7 +4685,7 @@ const RULE_TABS = [
           <div><span>내야<i>5</i></span><span className="rl-chips"><span className="rl-chip">포수</span><span className="rl-chip">1루</span><span className="rl-chip">2루</span><span className="rl-chip">3루</span><span className="rl-chip">유격</span></span></div>
           <div><span>외야<i>3</i></span><span className="rl-chips"><span className="rl-chip">외야 ×3</span></span></div>
           <div><span>지명<i>1</i></span><span className="rl-chips"><span className="rl-chip g">야수 누구나</span></span></div>
-          <div><span>예비<i>{BENCH_SIZE}</i></span><span className="rl-chips"><span className="rl-chip g">포지션 상관없음 · 시너지만</span></span></div>
+          <div><span>벤치<i>{BENCH_SIZE}</i></span><span className="rl-chips"><span className="rl-chip g">포지션 상관없음 · 시너지만</span></span></div>
         </div>
       </> },
       { t: '한 사람은 한 번', b: <>
@@ -5720,7 +5720,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   };
   const previewTarget = picked && !pickedReason ? picked : null;
 
-  /* 방출: 영입가 절반 환불 · 동일인 재영입 금지 · 드래프트 중에만 */
+  /* 방출: 영입가 절반 환급 · 동일인 재영입 금지 · 드래프트 중에만 */
   const releaseFrom = (base, slot) => {
     const placed = withSlots(base);
     const out = placed.find((p) => p.slot === slot);
@@ -5980,8 +5980,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       {swapPlan ? (
                         <>
                           <button type="button" className="pk-go" disabled={!!swapPlan.reason} onClick={handleSwapIn}
-                            title={swapPlan.reason ? undefined : `${swapPlan.out.name}(${playAt(swapPlan.out).overall}) 방출 · 영입가 절반 환불 · 다시 영입 불가`}>
-                            <PickIcon kind={swapPlan.reason ? 'lock' : 'swap'} /><span>{swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : `교체 영입 (+${swapPlan.refund} CP 환불)`}</span>
+                            title={swapPlan.reason ? undefined : `${swapPlan.out.name}(${playAt(swapPlan.out).overall}) 방출 · 영입가 절반 환급 · 다시 영입 불가`}>
+                            <PickIcon kind={swapPlan.reason ? 'lock' : 'swap'} /><span>{swapPlan.reason ? `교체 불가 · ${swapPlan.reason}` : `교체 영입 (+${swapPlan.refund} CP 환급)`}</span>
                           </button>
                         </>
                       ) : (
@@ -5994,9 +5994,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     // 내 라인업 선수: 교체 영입 버튼과 같은 자리 · 같은 모양의 방출 버튼 (두 번 눌러 확정)
                     <button type="button" className={`pk-go out ${confirmOut ? 'confirm' : ''}`}
                       onClick={() => { if (!confirmOut) { setConfirmOut(true); return; } setConfirmOut(false); handleRelease(inspected.player.slot); }}
-                      title={`${inspected.player.name} 방출 · 영입가 절반 환불 · 다시 영입 불가`}>
+                      title={`${inspected.player.name} 방출 · 영입가 절반 환급 · 다시 영입 불가`}>
                       <PickIcon kind="out" />
-                      <span>{confirmOut ? `한 번 더 누르면 방출 (+${releaseRefund(inspected.player)} CP)` : `방출 (+${releaseRefund(inspected.player)} CP 환불)`}</span>
+                      <span>{confirmOut ? `한 번 더 누르면 방출 (+${releaseRefund(inspected.player)} CP)` : `방출 (+${releaseRefund(inspected.player)} CP 환급)`}</span>
                     </button>
                   ) : (
                     <>

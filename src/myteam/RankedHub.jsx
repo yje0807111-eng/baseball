@@ -326,7 +326,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 <div>
                   <Row k="시즌 성적"><b className="text-right text-white">{!s.games.length ? '개막전' : <>나 {myRow.rank}위 {myRow.w}승 {myRow.l}패{myRow.d ? ` ${myRow.d}무` : ''} · 상대 {oppRow.rank}위 {oppRow.w}승 {oppRow.l}패{oppRow.d ? ` ${oppRow.d}무` : ''}</>}</b></Row>
                   <Row k="경계 선수"><b className="truncate text-right" style={{ color: OPP }}>{keyPlayers.map((p) => `${p.name} ${p.position} ${p.overall}`).join(' · ')}</b></Row>
-                  {inPost && <Row k="비기면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
+                  {inPost && <Row k="동점이면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
                 </div>
               </div>
               <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
