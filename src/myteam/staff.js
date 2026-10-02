@@ -55,16 +55,16 @@ export const CP_PER_PCT = 6.5;
 /* 감독 야구 색깔 — 급 1 기준 한 줄. 급 2 ×1.15 · 급 3 ×1.3 */
 const r = (who, stat, v) => ({ who, stat, v });
 export const STYLES = {
-  attack: { ko: '공격 야구', rule: r('batter', 'contact', 6) },
-  defense: { ko: '지키는 야구', rule: r('batter', 'defense', 12) },
-  starter: { ko: '선발 야구', rule: r('SP', 'ability', 8) },
-  bullpen: { ko: '벌떼 불펜', rule: r('RP', 'ability', 12) },
-  care: { ko: '투수 관리', rule: { team: 'rest', v: 1 } },
-  trust: { ko: '믿음의 야구', rule: { team: 'calm', v: 0.5 } },
-  develop: { ko: '육성', rule: r('cheap', 'ability', 6) },
-  foreign: { ko: '외국인 활용', rule: r('foreign', 'ability', 14) },
-  data: { ko: '데이터 야구', rule: r('all', 'ability', 2) },
-  run: { ko: '뛰는 야구', rule: r('batter', 'speed', 16) },
+  attack: { ko: '빅볼', rule: r('batter', 'ability', 4) }, // 컨택 · 파워 둘 다 — 빅볼(장타 · 득점력)에 맞게
+  defense: { ko: '수비 야구', rule: r('batter', 'defense', 12) },
+  starter: { ko: '선발 로테이션', rule: r('SP', 'ability', 8) },
+  bullpen: { ko: '불펜 야구', rule: r('RP', 'ability', 12) },
+  care: { ko: '투구 수 관리', rule: { team: 'rest', v: 1 } },
+  trust: { ko: '컨디션 관리', rule: { team: 'calm', v: 0.5 } },
+  develop: { ko: '유망주 육성', rule: r('cheap', 'ability', 6) },
+  foreign: { ko: '외인 활용', rule: r('foreign', 'ability', 14) },
+  data: { ko: '세이버메트릭스', rule: r('all', 'ability', 2) },
+  run: { ko: '발야구', rule: r('batter', 'speed', 16) },
 };
 const GRADE = [1, 1, 1.15, 1.3];
 

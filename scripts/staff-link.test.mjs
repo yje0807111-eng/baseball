@@ -22,7 +22,7 @@ describe('코치진 규칙 → 선수 능력치', () => {
   });
   it('감독은 색깔 한 줄 — 급 · 강화가 크기만 키운다', () => {
     const mgr = { role: 'manager', style: 'attack', grade: 3, level: 2 };
-    expect(staffRules(mgr)).toEqual([{ who: 'batter', stat: 'contact', v: Math.round(6 * 1.3 * 1.2) }]);
+    expect(staffRules(mgr)).toEqual([{ who: 'batter', stat: 'ability', v: Math.round(4 * 1.3 * 1.2) }]);
   });
   it("'능력'은 타자 컨택 · 파워 / 투수 구위 · 제구에", () => {
     const rich = Array.from({ length: 10 }, (_, i) => P(`r${i}`, 'batter', { cost: 95 }));
