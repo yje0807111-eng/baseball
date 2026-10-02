@@ -66,6 +66,8 @@ const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 
 const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24', all: '#c4b5fd' };
 /** 레벨 1~5 효과 글자 ['+5', '+6', …] — 강화 표시(지금 → 다음 · 최대) */
 const lvTexts = (m) => Array.from({ length: STAFF_LEVEL_MAX }, (_, i) => ruleText(staffRules({ ...m, level: i + 1 })[0] || {}).n);
+/* 코치진 띠 자리 이름(영문 — 방송 그래픽 결) */
+const SLOT_EN = { manager: 'MANAGER', head: 'HEAD COACH', batting: 'BATTING', pitching: 'PITCHING' };
 /* 배너 색(staff.js bannerOf key — 감독 색깔 키) */
 const STYLE_COLOR = { attack: '#f87171', defense: '#60a5fa', starter: '#f472b6', bullpen: '#a78bfa', care: '#fbbf24', trust: '#34d399', develop: '#a3e635', foreign: '#22d3ee', run: '#fb923c', data: '#94a3b8' };
 /** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 반쯤 차게, 얼굴이 가운데 오게 */
@@ -1017,22 +1019,33 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
           const maxV = Math.max(...cands.map((m) => ruleValue(staffRules(m)[0] || {})), 0.01);
           return (
             <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-              <div className="grid shrink-0 grid-cols-4 gap-2.5">
+              {/* 지금 코치진 띠(mockups/staff-slots S1) — 자리 카드 사진이 판을 채우고 왼쪽 어둠 위에 자리 · 이름 · 효과. 고른 자리는 배너 색 테두리 · 빛, 빈 자리는 실루엣 + 선임 */}
+              <div className="grid shrink-0 grid-cols-4 gap-3">
                 {STAFF_SLOTS.map((x) => {
                   const m = staff[x.key];
                   const on = listSlot === x.key;
                   const e = m ? effTags(staffRules(m))[0] : null;
+                  const c = m ? STYLE_COLOR[bannerOf(m)?.key] || '#c4b5fd' : '#c4b5fd';
                   return (
-                    <button key={x.key} type="button" onClick={() => { setStaffSlot(x.key); setStaffSel(null); }} aria-pressed={on}
-                      className="mt-cut flex h-[78px] items-center gap-3 px-3 text-left transition hover:brightness-125"
-                      style={{ ...cut(14), background: on ? 'rgba(196,181,253,.12)' : 'rgba(255,255,255,.04)', boxShadow: `inset 0 0 0 ${on ? 1.5 : 1}px ${on ? '#c4b5fd' : 'rgba(196,181,253,.25)'}` }}>
-                      <StaffFace m={m} size={50} />
-                      <span className="min-w-0">
-                        <small className="block font-display text-t4 font-bold tracking-[0.12em] text-[#c4b5fd]">{x.label}</small>
-                        <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '비어 있음'}</b>
-                        <span className="block truncate text-t4 text-gray-400">{e ? <>{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></> : '-'}</span>
+                    <button key={x.key} type="button" onClick={() => { setStaffSlot(x.key); setStaffSel(null); }} aria-pressed={on} aria-label={`${x.label} ${m ? m.name : '비어 있음'}`}
+                      className="relative h-[150px] overflow-hidden rounded-[18px] bg-[#0b1220] bg-no-repeat text-left transition hover:brightness-110"
+                      style={{
+                        /* 자리 카드(800×600)를 높이 176%로 — 얼굴(가로 59%)이 판 오른쪽 2/3 쯤 · 세로 40% 에 오게 오른쪽 기준으로 붙임 */
+                        backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp)` : 'url(ui/mt/silhouette-coach.webp)',
+                        backgroundSize: m ? 'auto 176%' : 'cover', backgroundPosition: m ? 'right -48px top -51px' : 'center 20%',
+                        boxShadow: on ? `inset 0 0 0 2px ${c}, 0 0 28px -6px ${c}` : 'inset 0 0 0 1px rgba(255,255,255,.1)',
+                      }}>
+                      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,rgba(7,10,20,.96) 30%,rgba(7,10,20,.4) 70%,transparent)' }} />
+                      <span className="absolute inset-y-4 left-[18px] flex flex-col justify-between">
+                        <small className="font-display text-t4 font-extrabold tracking-[0.2em] text-[#c4b5fd]">{SLOT_EN[x.key]}</small>
+                        <span>
+                          <b className={`block whitespace-nowrap text-[20px] font-black leading-tight ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '비어 있음'}</b>
+                          {m
+                            ? <span className="whitespace-nowrap text-t4 text-gray-300">{e.label}<b className="ml-1 font-display text-t2" style={{ color: e.c }}>{e.n}</b></span>
+                            : <span className="text-t4 font-bold text-amber-300">+ 선임</span>}
+                        </span>
                       </span>
-                      {m && <b className="ml-auto self-start pt-2 font-display text-t4 text-amber-300">Lv.{m.level || 1}</b>}
+                      {m && <b className="absolute right-3.5 top-3.5 font-display text-t4 text-amber-300">Lv.{m.level || 1}</b>}
                     </button>
                   );
                 })}
