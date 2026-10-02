@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { STAFF, staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
+import { STAFF, staffByRole, staffRules, staffReserve, staffTargets, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -1047,7 +1047,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                   const e = effTags([x])[0];
                   return (
                     <div key={m.id} role="button" onClick={() => setStaffSel(m.id)} className={`mt-row h-[68px] cursor-pointer ${staffShown?.id === m.id ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
+                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 104px 104px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
                       <StaffFace m={m} size={50} />
                       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{m.cost}</b>
                       <span className="min-w-0">
@@ -1061,6 +1061,15 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                       <span className="flex min-w-0 flex-col gap-1 rounded-xl bg-white/[0.04] px-3 py-1.5">
                         <span className="flex items-baseline gap-2"><span className="shrink-0 text-t4 font-bold text-gray-300">{e.label}</span><span className="min-w-0 flex-1 truncate text-t4 text-gray-500">{e.desc}</span><b className="shrink-0 font-display text-t2 leading-none" style={{ color: e.c }}>{e.n}</b></span>
                         <i className="relative block h-1 overflow-hidden rounded-full bg-white/[0.08]"><b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${Math.min(100, (ruleValue(x) / maxV) * 100)}%`, background: e.c }} /></i>
+                      </span>
+                      {/* 내 엔트리에서 효과를 받는 선수 수 · 다섯 번 강화했을 때 */}
+                      <span className="flex flex-col gap-0.5 rounded-xl bg-white/[0.04] px-3 py-1.5">
+                        <span className="text-t4 text-gray-400">대상</span>
+                        <b className="font-display text-t2 leading-none text-white">{staffTargets(m, squad)}<small className="ml-0.5 text-t4 text-gray-400">명</small></b>
+                      </span>
+                      <span className="flex flex-col gap-0.5 rounded-xl bg-white/[0.04] px-3 py-1.5">
+                        <span className="text-t4 text-gray-400">Lv.{STAFF_LEVEL_MAX}</span>
+                        <b className="font-display text-t2 leading-none" style={{ color: e.c }}>{effTags(staffRules({ ...m, level: STAFF_LEVEL_MAX }))[0].n}</b>
                       </span>
                       <span className="justify-self-center rounded-full bg-amber-400/10 px-2.5 py-1 font-display text-t3 font-bold text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]">{m.cost} CP</span>
                       <Btn pri={staffShown?.id === m.id && !mine && !over} disabled={mine || over > 0} onClick={(ev) => { ev.stopPropagation(); askStaff(listSlot, m); }} style={{ minHeight: 42, padding: '0 14px' }}>
@@ -1127,6 +1136,8 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
               </span>
               <div className="flex flex-col gap-1.5">
                 <KV k="경력" v={m.note} />
+                <KV k="대상" v={`내 엔트리 ${staffTargets(m, squad)}명`} />
+                <KV k={`Lv.${STAFF_LEVEL_MAX} 효과`} v={effTags(staffRules({ ...m, level: STAFF_LEVEL_MAX }))[0].n} color={e.c} />
                 <KV k="CP" v={isCur || !cur ? `${m.cost}` : `${m.cost} (${m.cost - cur.cost > 0 ? '+' : ''}${m.cost - cur.cost})`} color="#fcd34d" />
                 <KV k="남는 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
                 {isCur && <KV k="계약" v={m.contracted ? '계약서' : 'CP'} />}

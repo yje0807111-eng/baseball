@@ -145,6 +145,15 @@ export function staffBoostFor(p, staff = {}) {
   return out;
 }
 
+/** 이 사람 효과가 닿는 내 엔트리 선수 수 — 휴식은 투수 · 흔들림은 엔트리 전원 · 도루는 타자 */
+export function staffTargets(s, squad = []) {
+  const x = staffRules(s)[0];
+  if (!x) return 0;
+  if (x.team) return squad.filter((p) => (x.team === 'rest' ? p.type === 'pitcher' : x.team === 'steal' ? p.type === 'batter' : true)).length;
+  if (x.who === 'cheap') return Math.min(CHEAP_N, squad.length);
+  return squad.filter((p) => WHO[x.who]?.f(p)).length;
+}
+
 /* 효과 설명 한 줄 — 어떤 능력이 오르는지(화면에서 효과 이름 오른쪽) */
 const STAT_DESC = { contact: '안타 확률', power: '장타 · 홈런', speed: '주루 · 도루', defense: '타구 처리', stuff: '헛스윙 · 피안타 억제', control: '볼넷 억제', stamina: '던질 수 있는 공 수' };
 const WHO_DESC = { slugger: '파워 90↑ 타자', hitter: '컨택 90↑ 타자' }; // 이름만으로 기준을 모르는 조건만 — 좌타자 · 외국인 · CP 낮은 10명은 이름이 곧 기준

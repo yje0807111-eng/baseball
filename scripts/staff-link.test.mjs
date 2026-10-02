@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { applyStaff } from '../src/myteam/match.js';
-import { staffRules, staffTeam, staffValue, STAFF, CP_PER_PCT } from '../src/myteam/staff.js';
+import { staffRules, staffTeam, staffValue, staffTargets, STAFF, CP_PER_PCT } from '../src/myteam/staff.js';
 import { afterGame } from '../src/myteam/fatigue.js';
 import { withForm, FORM_OF } from '../src/myteam/form.js';
 import { createGame, stealOdds } from '../src/engine/pitchSim.js';
@@ -30,6 +30,12 @@ describe('코치진 규칙 → 선수 능력치', () => {
     expect(top.stats.contact).toBe(80); // CP 높은 쪽은 'CP 낮은 10명' 밖
     expect([b.stats.contact, b.stats.power, b.stats.speed]).toEqual([86, 86, 80]);
     expect([p.stats.stuff, p.stats.control, p.stats.stamina]).toEqual([86, 84, 90]);
+  });
+  it('대상 수 — 조건 맞는 엔트리 선수 · CP 낮은 10명은 10명 · 휴식은 투수', () => {
+    const sq = [P('l1', 'batter', { hand: 'L' }), P('l2', 'batter', { hand: 'L' }), P('r', 'batter'), P('p', 'pitcher')];
+    expect(staffTargets(coach([{ who: 'L', stat: 'contact', v: 5 }]), sq)).toBe(2);
+    expect(staffTargets({ role: 'manager', style: 'develop', grade: 1 }, Array.from({ length: 26 }, (_, i) => P(`x${i}`, 'batter')))).toBe(10);
+    expect(staffTargets({ role: 'manager', style: 'care', grade: 1 }, sq)).toBe(1);
   });
   it('모든 사람이 효과 한 줄', () => {
     for (const s of STAFF) expect(staffRules(s).length).toBe(1);
