@@ -280,7 +280,7 @@ export function hitChanceAt(g, zone) {
  * 전엔 안정(stability)으로 셌다 — 체력 능력치 · '불펜 데이'(체력 +20) · 전력투구(체력 −18)가 경기에 닿지 않았다(2026-09-30)
  */
 const armLimit = (side) =>
-  Math.max(20, Math.round((95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0)) * (side.wxArm ?? 1)));
+  Math.max(20, (95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0)) * (side.wxArm ?? 1));
 
 /** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
