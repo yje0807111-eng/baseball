@@ -1,9 +1,10 @@
 /* 선택 경기 — 멈추는 자리 수(한 경기 약 10번 · 7회 이후 몫) · 카드 · 타석 계획 */
 import { test, expect } from 'vitest';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { createGame, pitch, aiPitchingChange, defenseOf, weatherOf } from '../src/engine/pitchSim.js';
 import { seeded } from '../src/myteam/tournament.js';
+import { winProb } from '../src/engine/winProb.js';
 import { wantsChoice, choiceCards, planOrder, CHOICES, CHOICE_LATE } from '../src/play/choice.js';
 
 const games = (n, fn) => {
@@ -14,24 +15,27 @@ const games = (n, fn) => {
   }
 };
 
-test('한 경기 결정 — 평균 9~10.5번 · 넘지 않음 · 7회 이후 몫', () => {
-  const counts = [], late = [];
+test('한 경기 결정 — 팽팽한 경기는 9~10번 · 넘지 않음 · 7회 이후 몫 · 기운 경기는 줄고 기운 뒤엔 안 묻는다', () => {
+  const counts = [], late = [], close = [], decidedAsk = [];
   games(80, (g) => {
     const asked = [];
     let guard = 0;
     while (!g.final && guard++ < 1500) {
-      if (wantsChoice(g, asked)) asked.push({ inning: g.inning, top: g.top });
+      if (wantsChoice(g, asked)) { asked.push({ inning: g.inning, top: g.top }); const wp = winProb(g); if (wp < 0.06 || wp > 0.94) decidedAsk.push(wp); }
       const ch = aiPitchingChange(g, defenseOf(g));
       pitch(g, ch ? { changePitcher: ch } : {});
     }
     counts.push(asked.length); late.push(asked.filter((a) => a.inning >= 7).length);
+    if (Math.abs(g.home.runs - g.away.runs) <= 2) close.push(asked.length);
   });
   const mean = counts.reduce((a, b) => a + b, 0) / counts.length;
-  console.log('결정 수', { mean, min: Math.min(...counts), max: Math.max(...counts), late: late.reduce((a, b) => a + b, 0) / late.length });
-  expect(mean).toBeGreaterThan(8.5);
-  expect(mean).toBeLessThanOrEqual(10.5);
+  const closeMean = close.reduce((a, b) => a + b, 0) / close.length;
+  console.log('결정 수', { mean, closeMean, min: Math.min(...counts), max: Math.max(...counts), late: late.reduce((a, b) => a + b, 0) / late.length });
+  expect(closeMean).toBeGreaterThan(8.5);
+  expect(mean).toBeLessThan(closeMean);
+  expect(decidedAsk).toEqual([]);
   expect(Math.max(...counts)).toBeLessThanOrEqual(CHOICES);
-  expect(late.reduce((a, b) => a + b, 0) / late.length).toBeGreaterThanOrEqual(CHOICE_LATE - 0.5);
+  expect(late.reduce((a, b) => a + b, 0) / late.length).toBeGreaterThanOrEqual(CHOICE_LATE - 1.5);
 });
 
 test('카드 — 정비 작전이 맨 앞 · 넷까지 · 숫자 · 대가', () => {
@@ -65,3 +69,20 @@ test('타석 계획 — 공격 노림은 유리한 카운트에만 · 2S 는 맞
   expect(arm({ balls: 0, strikes: 0, rng: () => 0.9 })).toEqual({});
   expect(arm({ balls: 0, strikes: 0, rng: () => 0.1 })).toEqual({ pitchType: 'slider' });
 });
+
+test('불펜 카드의 대가 — 어제 던진 투수(연투)는 내일 컨디션 70', () => {
+  let seen = 0;
+  games(30, (g) => {
+    let guard = 0;
+    while (!g.final && guard++ < 400 && !seen) {
+      if (g.top && !g.balls && !g.strikes && g.inning >= 6) {
+        const pen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1);
+        const fatigue = Object.fromEntries(pen.map((p) => [p.id, { rest: 0, streak: 1 }]));
+        const cards = choiceCards(g, { fatigue }).filter((c) => c.k.startsWith('pen-'));
+        if (cards.length) { seen += 1; for (const c of cards) expect(c.cost).toContain('내일 컨디션 70'); expect(choiceCards(g, {}).find((c) => c.k.startsWith('pen-')).cost).toContain('내일 컨디션 85'); }
+      }
+      pitch(g, {});
+    }
+  });
+  expect(seen).toBeGreaterThan(0);
+}, 60000);

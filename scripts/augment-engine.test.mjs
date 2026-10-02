@@ -6,7 +6,7 @@ import {
   DRAFT_MODES, POS_ORDER, SLOT_LIMITS, AUGMENTS, ENGINE_EDGE,
   aiDraft, fillRoster, buildTeam, teamEnv, getLockReason,
 } from '../src/KboAugmentDraft.jsx';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { simulateGame } from '../src/engine/pitchSim.js';
 
 const N = Number(process.env.N || 400);

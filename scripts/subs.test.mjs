@@ -47,3 +47,16 @@ test('불펜 대가 — 한 이닝이면 다음 경기 85, 연투면 70', async 
   expect(penCostOf('x', { x: { rest: 0, streak: 1 } })).toBe(70);
   expect(penCostOf('x', {}, 5)).toBe(100);
 });
+
+test('경기 중 팀 바꾸기(증강) — 불러 둔 불펜 · 대타는 그대로, 능력치만 새것', async () => {
+  const { replaceTeam } = await import('../src/engine/pitchSim.js');
+  const t = () => ({ ...team('H'), pitchers: Array.from({ length: 5 }, (_, i) => man(`HP${i}`)) });
+  const g = createGame({ home: t(), away: team('A'), rng: seeded(5) });
+  pitch(g, { changePitcher: 'HP3', call: true });
+  expect(g.home.pitcher.id).toBe('HP3');
+  const buffed = t(); buffed.pitchers = buffed.pitchers.map((p) => ({ ...p, stats: { ...p.stats, stuff: 99 } }));
+  replaceTeam(g.home, buffed);
+  expect(g.home.pitcher.id).toBe('HP3');
+  expect(g.home.pitcher.stats.stuff).toBe(99);
+  expect(g.home.team.pitchers.slice(g.home.pitcherIdx + 1).map((p) => p.id)).not.toContain('HP3');
+});

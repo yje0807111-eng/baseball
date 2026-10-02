@@ -4,7 +4,7 @@ import { squadIssues, squadCost, SQUAD_CAP, foreignCount } from '../src/myteam/r
 import { isLegend } from '../src/myteam/market.js';
 import { readyRoster, matchTeamOf } from '../src/myteam/prep.js';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { createGame, pitch } from '../src/engine/pitchSim.js';
 
 describe('스타터 스쿼드', () => {

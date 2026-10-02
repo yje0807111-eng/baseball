@@ -7,7 +7,7 @@ import { SQUAD_CAP } from '../src/myteam/rules.js';
 import { seeded } from '../src/engine/rng.js';
 import { simulateGame } from '../src/engine/pitchSim.js';
 import { readyRoster, matchTeamOf } from '../src/myteam/prep.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 
 const N = Number(process.argv[2] || 1500);
 let w = 0, d = 0, rpShare = 0, pitches = 0;

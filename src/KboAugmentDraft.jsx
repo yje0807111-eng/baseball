@@ -11,7 +11,8 @@ import { statOf } from './myteam/teamColor.js';
 import { STAT_COLOR_KO, statColor, statPct, teamNeon } from './myteam/teamColor.js';
 import { createPortal } from 'react-dom';
 import { SERIES, overallOf, costOf } from './data/seriesPlayers.js';
-import BroadcastGame, { engineTeam } from './BroadcastGame.jsx';
+import ChoiceGame from './play/ChoiceGame.jsx';
+import { engineTeam } from './play/matchKit.jsx';
 import TournamentBracket from './myteam/TournamentBracket.jsx';
 import { makeTournament, myOpponent as tourneyOpponent, advance as advanceTourney, ownerOf, seedByStrength, playStrength } from './myteam/tournament.js';
 import * as Live from './draft/live.js';
@@ -6096,7 +6097,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       <ChoiceOverlay choice={choice} onChoose={handleChoose} picksLeft={augPicksLeft} total={match.aug} onReroll={rerollAugments} />
       <MementoOverlay memento={phase === 'result' && result && introFor !== result ? null : memento} onTake={(p) => { if (addToClub(asClubPlayer(p))) bumpWeek('memento'); setMemento(null); }} onSkip={() => setMemento(null)} />
       {phase === 'live' && liveTeams && (
-        <BroadcastGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
+        <ChoiceGame my={liveTeams.my} opp={liveTeams.opp} aug={liveTeams.aug} rebuildMy={liveTeams.makeMy}
           midPickInnings={match.aug ? MID_AUG_INNINGS : []}
           onMidPick={(inning) => {
             const options = rollAugmentOptions(augments);

@@ -8,7 +8,7 @@ import { teamOf, simulate, playStrength } from '../src/myteam/tournament.js';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
 import { makeSeason, myOpponent, play, meOf, GAMES, TIER_POWER, autoScore } from '../src/myteam/ranked.js';
 import { createGame, pitch, playOut } from '../src/engine/pitchSim.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { squadOrder } from '../src/myteam/SquadBoard.jsx';
 
 const squad = starterSquad('대전 시험');

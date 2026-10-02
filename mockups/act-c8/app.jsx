@@ -10,7 +10,7 @@ import { teamFlag } from '/src/myteam/teamArt.js';
 import { statBandColor } from '/src/myteam/teamColor.js';
 import PlayView from '/src/play/PlayView.jsx';
 import { FIELD_BGS } from '/src/play/backgrounds.js';
-import { Diamond, Bso, shortTeam, SB_MASK } from '/src/BroadcastGame.jsx';
+import { Diamond, Bso, shortTeam, SB_MASK } from '/src/play/matchKit.jsx';
 
 /* ── 데이터 ──────────────────────────────────────────────────── */
 const pick = (id) => SERIES.find((s) => s.id === id) || SERIES[0];

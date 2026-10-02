@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createGame, pitch } from '../src/engine/pitchSim.js';
-import { buildResult } from '../src/BroadcastGame.jsx';
+import { buildResult } from '../src/play/matchKit.jsx';
 import { gameDetail, thinFlow, flowMarks } from '../src/myteam/gameDetail.js';
 
 const P = (i, t, n) => ({

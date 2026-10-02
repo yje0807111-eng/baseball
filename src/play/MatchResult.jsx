@@ -100,7 +100,7 @@ const Lab = ({ c = GOLD, children, right = null }) => (
 );
 
 /**
- * result  BroadcastGame buildResult 값
+ * result  matchKit buildResult 값
  * myName · oppName  두 팀 이름 · context  어떤 경기였나(모드 · 라운드)
  * tally  [{ k, v, c? }] — 받은 보상 · 전적 · 순위 · 과제 진행
  * actions  [{ label, onClick, pri? }] — pri 하나가 오른쪽 아래 주 단추

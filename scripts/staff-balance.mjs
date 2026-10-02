@@ -13,7 +13,7 @@ import { SERIES } from '../src/data/seriesPlayers.js';
 import { seeded } from '../src/engine/rng.js';
 import { simulateGame } from '../src/engine/pitchSim.js';
 import { readyRoster, matchTeamOf } from '../src/myteam/prep.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 
 const N = Number(process.argv[2] || 2000);
 const only = process.argv[3];

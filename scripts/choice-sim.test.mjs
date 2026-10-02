@@ -6,7 +6,7 @@
 import { test } from 'vitest';
 import { writeFileSync } from 'fs';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { createGame, weatherOf, pitch, leverage, aiPitchingChange, defenseOf, offenseOf, stealOdds, staminaOf, batterOf, platoonOf } from '../src/engine/pitchSim.js';
 import { winProb } from '../src/engine/winProb.js';
 import { seeded } from '../src/myteam/tournament.js';

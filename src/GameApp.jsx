@@ -25,7 +25,7 @@ import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
-import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, BroadcastGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
+import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, ChoiceGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
@@ -174,7 +174,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       setAugPick(null);
       /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
       if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
-      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record, oppAugments: oppOwned }), rebuildOpp,
+      setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, fatigue: team.pitchFatigue || {}, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record, oppAugments: oppOwned }), rebuildOpp,
         openPick: augOptions([], env).length > 0, tag: prep.tag || null });
       setView('play');
     };
@@ -317,7 +317,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
-    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
+    return screen(<>{augOverlay}<ChoiceGame my={match.my} opp={match.opp} seed={match.seed} fatigue={match.fatigue} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
       aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }

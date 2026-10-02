@@ -12,7 +12,7 @@ const { AUGMENTS, makeAugmentRuntime, applyAugsTo } = await import('../src/KboAu
 const { starterSquad } = await import('../src/myteam/starter.js');
 const { readyRoster, matchTeamOf } = await import('../src/myteam/prep.js');
 const { AI_SERIES, seriesTeam } = await import('../src/myteam/aiTeam.js');
-const { engineTeam } = await import('../src/BroadcastGame.jsx');
+const { engineTeam } = await import('../src/play/matchKit.jsx');
 const { createGame, pitch } = await import('../src/engine/pitchSim.js');
 
 describe('내 팀 경기의 증강', () => {
