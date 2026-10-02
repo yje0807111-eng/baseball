@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
+import { STAFF, staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -16,7 +16,7 @@ import { SHOP_ITEMS, itemArt, needsStaff, fitsItem, recommendTargets, consumeIte
 import { playingIds } from './match.js';
 import { posColor, statColor, statOf, statPct, teamNeon } from './teamColor.js';
 import { createPortal } from 'react-dom';
-import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, FlipFaces, Pop } from './ui.jsx';
+import { UiStyle, GlassBg, TopBar, TopTabs, Btn, Portrait, Hero, KV, Pop } from './ui.jsx';
 import { Count, Burst, flyGhost, useListIntro, navTo } from '../ui/motion.jsx';
 
 /**
@@ -63,9 +63,18 @@ const cut = (n) => ({ '--c': `${n}px` });
 const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd3fc' : '#94a3b8');
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 /* 코치진 효과 갈래(staff.js ruleCat) — 이름 · 색. 효과 한 줄 "타자 컨택 +6" 은 숫자만 갈래 색 */
-const EFF_LABEL = { bat: '타격', field: '수비', pitch: '투수', run: '주루', ops: '운영', all: '전체' };
 const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24', all: '#c4b5fd' };
-const ROLE_EN = { manager: '감독', head: '수석 코치', batting: '타격 코치', pitching: '투수 코치' };
+/* 감독 색깔 표 색(staff.js STYLES) */
+const STYLE_COLOR = { attack: '#f87171', defense: '#60a5fa', starter: '#f472b6', bullpen: '#a78bfa', care: '#fbbf24', trust: '#34d399', develop: '#a3e635', foreign: '#22d3ee', run: '#fb923c', data: '#94a3b8' };
+/** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 60% 차게 */
+function StaffFace({ m, size = 50 }) {
+  const w = size * 3.5;
+  return (
+    <span className="block shrink-0 rounded-full bg-[#0b1220] bg-no-repeat" style={{ width: size, height: size, boxShadow: `0 0 0 2px #0b1220, 0 0 0 3px ${m ? STYLE_COLOR[m.style] || '#c4b5fd' : 'rgba(196,181,253,.3)'}`,
+      backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp)` : 'url(ui/mt/silhouette-coach.webp)', backgroundSize: m ? `${w}px auto` : 'cover',
+      backgroundPosition: m ? `${size / 2 - 0.59 * w}px ${size / 2 - 0.42 * w * 0.75}px` : 'center', opacity: m ? 1 : 0.4 }} />
+  );
+}
 const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], ...ruleText(x) }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
@@ -723,7 +732,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
   const [pos, setPos] = useState('');
   const [filterOpen, setFilterOpen] = useState(false); // 연도 · 구단 · 포지션 칸
   const [sel, setSel] = useState(null);
-  const [staffSlot, setStaffSlot] = useState(null); // null = 지정 해제(오른쪽에 코치진 한 줄 프로필)
+  const [staffSlot, setStaffSlot] = useState(null); // 고른 자리(null = 빈 자리 먼저, 없으면 감독)
+  const [staffSel, setStaffSel] = useState(null); // 오른쪽 상세에 띄운 후보 id(null = 그 자리에 앉은 사람 · 없으면 첫 후보)
+  const [staffSort, setStaffSort] = useState('');
   const [itemId, setItemId] = useState(null);
   const [itemTarget, setItemTarget] = useState(null);
 
@@ -869,10 +880,9 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
     { key: 'staff', label: '감독·코치', img: 'ui/nav/locker-staff.webp' },
     { key: 'items', label: '아이템', img: 'ui/nav/locker-items.webp' },
   ];
-  /* 코치진 효과를 갈래별 승률(%p)로 — 오른쪽 판 막대 */
-  const catSum = (list) => list.reduce((o, x) => ({ ...o, [ruleCat(x)]: (o[ruleCat(x)] || 0) + ruleValue(x) }), {});
-  const eff = catSum(Object.values(staff).flatMap((m) => staffRules(m)));
   const listSlot = staffSlot || STAFF_SLOTS.find((x) => !staff[x.key])?.key || 'manager';
+  const staffShown = STAFF.find((m) => m.id === staffSel && m.role === STAFF_SLOTS.find((x) => x.key === listSlot)?.role)
+    || staff[listSlot] || staffByRole(STAFF_SLOTS.find((x) => x.key === listSlot)?.role).sort((x, y) => y.cost - x.cost)[0] || null;
   const head = (label, sub, a, extra) => (
     <div className="flex items-baseline gap-3">
       <p className="mt-lab" style={{ '--a': a }}>{label}</p>
@@ -998,76 +1008,71 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
           </section>
         )}
 
-        {tab === 'staff' && (
-          <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
-            {head('코치진 구성', null, '#c4b5fd')}
-            <div className="mt-3 grid h-[232px] shrink-0 grid-cols-4 gap-3">
-              {STAFF_SLOTS.map((s) => {
-                const cur = staff[s.key];
-                const on = staffSlot === s.key;
-                return (
-                  <button key={s.key} type="button" onClick={() => setStaffSlot(on ? null : s.key)} aria-pressed={on}
-                    aria-label={cur ? `${s.label} ${cur.name}` : `${s.label} 비어 있음`} className="group relative h-full text-left">
-                    <FlipFaces value={cur} keyOf={(m) => m?.id || 'empty'} className="h-full" render={(m) => (
-                      /* 드래프트 PICK 카드 테두리(.mt-frame: 잘린 모서리에 딱 맞는 대각선 + 네온 괄호) — 고른 자리는 밝게(hot), 나머지는 옅게.
-                         빈 자리는 코치 실루엣 그대로 */
-                      <span className={`mt-cut mt-frame ${on ? 'hot' : ''} relative block h-full w-full overflow-hidden bg-[#0b1220] bg-cover bg-top`}
-                        style={{ ...cut(16), '--a': on ? '#c4b5fd' : 'rgba(196,181,253,.55)', backgroundImage: 'url(ui/mt/silhouette-coach.webp)' }}>
-                        {m && (
-                          /* 사진 800×600 을 높이 256(폭 341)으로 — 인물(가로 59%)을 카드 가운데 두고도 양옆이 비지 않는 크기. 사진 칸은 카드 아래 끝에서 멈춰 그라데이션 밖으로 삐져나오지 않게 */
-                          <span className="absolute bottom-0 left-1/2 top-[-6px] w-[341px] bg-no-repeat transition-transform duration-300 group-hover:scale-105"
-                            style={{ transform: 'translateX(-59%)', backgroundSize: 'auto 256px', backgroundPosition: 'center top', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(profiles/${encodeURIComponent(artId(m.id))}.webp), url(ui/mt/silhouette-coach.webp)` }} />
-                        )}
-                        <span className="absolute inset-x-0 top-0 -bottom-0.5" style={{ background: `linear-gradient(rgba(5,8,15,.35),rgba(5,8,15,${m ? 0 : 0.6}) 30%,rgba(5,8,15,.9) 72%,#05080f 94%)` }} />
-                        <span className="absolute left-3.5 top-2.5 font-display text-t2 font-extrabold leading-none text-[#c4b5fd]" style={{ textShadow: '0 0 12px #c4b5fd88' }}>{s.label}</span>
-                        {m && <b className="absolute right-3.5 top-3 font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
-                        <span className="absolute inset-x-3.5 bottom-3">
-                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-400'}`}>{m?.name || '비어 있음'}</b>
-                          {m ? (
-                            <span className="block truncate text-t4 font-semibold text-slate-300">
-                              {styleOf(m) ? <b className="text-[#c4b5fd]">{styleOf(m).ko}</b> : effTags(staffRules(m)).map((e, i) => (
-                                <span key={e.k}>{i > 0 && <span className="mx-1.5 text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
-                              ))}
-                            </span>
-                          ) : <span className="block text-t4 text-gray-500">-</span>}
-                        </span>
+        {tab === 'staff' && (() => {
+          /* 영입 탭 문법(mockups/staff-tab V2) — 위 지금 코치진 띠(누르면 그 자리 후보) · 아래 후보 행: 사진 · CP · 이름 + 색깔(오른쪽) / 시대 · 경력 한 줄 · 효과 칸 · CP · 단추 */
+          const role = STAFF_SLOTS.find((x) => x.key === listSlot)?.role;
+          const cands = staffByRole(role).sort((x, y) => (staffSort === 'CP 낮은 순' ? x.cost - y.cost : y.cost - x.cost));
+          const maxV = Math.max(...cands.map((m) => ruleValue(staffRules(m)[0] || {})), 0.01);
+          return (
+            <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={{ ...cut(20), '--a': '#c4b5fd' }}>
+              <div className="grid shrink-0 grid-cols-4 gap-2.5">
+                {STAFF_SLOTS.map((x) => {
+                  const m = staff[x.key];
+                  const on = listSlot === x.key;
+                  const e = m ? effTags(staffRules(m))[0] : null;
+                  return (
+                    <button key={x.key} type="button" onClick={() => { setStaffSlot(x.key); setStaffSel(null); }} aria-pressed={on}
+                      className="mt-cut flex h-[78px] items-center gap-3 px-3 text-left transition hover:brightness-125"
+                      style={{ ...cut(14), background: on ? 'rgba(196,181,253,.12)' : 'rgba(255,255,255,.04)', boxShadow: `inset 0 0 0 ${on ? 1.5 : 1}px ${on ? '#c4b5fd' : 'rgba(196,181,253,.25)'}` }}>
+                      <StaffFace m={m} size={50} />
+                      <span className="min-w-0">
+                        <small className="block font-display text-t4 font-bold tracking-[0.12em] text-[#c4b5fd]">{x.label}</small>
+                        <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '비어 있음'}</b>
+                        <span className="block truncate text-t4 text-gray-400">{e ? <>{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></> : '-'}</span>
                       </span>
-                    )} />
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-hd !text-t3 pb-1 pt-4">{STAFF_SLOTS.find((s) => s.key === listSlot)?.label} 후보</p>
-            {/* 후보 명함: 두 열 · 왼쪽 큰 사진(인물이 가운데 오게) · 오른쪽 직함 · 이름 · 시대 · 경력 · 효과 태그 · 가격 · 선임 */}
-            <div className="mt-scroll grid min-h-0 flex-1 content-start gap-3 overflow-y-auto pr-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
-              {staffByRole(STAFF_SLOTS.find((s) => s.key === listSlot)?.role).filter((m) => staff[listSlot]?.id !== m.id).map((m) => (
-                <div key={m.id} className="mt-cut relative grid h-[120px] bg-[#131c2e]" style={{ ...cut(12), gridTemplateColumns: '120px minmax(0,1fr)', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.45)' }}>
-                  {/* 사진 800×600 을 높이 180 으로 · 인물(가로 59%)이 칸 가운데 오게 가로 -82px */}
-                  <span className="bg-no-repeat" style={{ backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundSize: 'auto 180px, auto 100%', backgroundPosition: '-82px -12px, center',
-                    maskImage: 'linear-gradient(90deg,#000 72%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 72%,transparent)' }} />
-                  <span className="flex min-w-0 flex-col gap-1.5 py-3 pl-1 pr-3.5">
-                    <span className="min-w-0 pr-[130px]">
-                      <small className="block font-display text-t4 font-bold leading-tight tracking-[0.16em] text-[#c4b5fd]">{ROLE_EN[m.role]}</small>
-                      <b className="text-t2 font-black text-white">{m.name}</b><small className="ml-2 text-t4 text-gray-400">{m.era}</small>
-                    </span>
-                    <small className="truncate text-t4 text-gray-400">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</small>
-                    <span className="line-clamp-2 text-t4 font-semibold leading-snug text-slate-300">
-                      {effTags(staffRules(m)).map((e, i) => (
-                        <span key={e.k} className="whitespace-nowrap">{i > 0 && <span className="mx-[6px] text-slate-500">·</span>}{e.label} <b className="font-display text-t3" style={{ color: e.c }}>{e.n}</b></span>
-                      ))}
-                    </span>
-                  </span>
-                  <span className="absolute right-3 top-3 flex items-center gap-2">
-                    <b className="font-display text-t2 text-amber-300">{m.cost}<small className="ml-0.5 text-t4 text-gray-400">CP</small></b>
-                    <Btn sm a="#c4b5fd" disabled={staffOver(listSlot, m) > 0} onClick={() => askStaff(listSlot, m)}>
-                      {staffOver(listSlot, m) > 0 ? `CP ${staffOver(listSlot, m)} 부족` : staff[listSlot] ? '교체' : '선임'}
-                    </Btn>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                      {m && <b className="ml-auto self-start pt-2 font-display text-t4 text-amber-300">Lv.{m.level || 1}</b>}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                {head(`${STAFF_SLOTS.find((x) => x.key === listSlot)?.label} 후보`, `${cands.length}명`, '#c4b5fd')}
+                <div className="ml-auto w-40"><Select value={staffSort} onChange={setStaffSort} options={['CP 낮은 순']} all="CP 높은 순" /></div>
+              </div>
+              <div className={`mt-scroll mt-2 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-2 ${listFx}`}>
+                {cands.map((m) => {
+                  const mine = staff[listSlot]?.id === m.id;
+                  const over = staffOver(listSlot, m);
+                  const x = staffRules(m)[0];
+                  const e = effTags([x])[0];
+                  return (
+                    <div key={m.id} role="button" onClick={() => setStaffSel(m.id)} className={`mt-row h-[68px] cursor-pointer ${staffShown?.id === m.id ? 'on' : ''}`}
+                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 190px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
+                      <StaffFace m={m} size={50} />
+                      <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{m.cost}</b>
+                      <span className="min-w-0">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <b className="truncate text-t2 font-black text-white">{m.name}</b>
+                          {styleOf(m) && <em className="shrink-0 rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[m.style], background: `${STYLE_COLOR[m.style]}22` }}>{styleOf(m).ko}</em>}
+                          {mine && <em className="shrink-0 rounded-full bg-emerald-400/15 px-2 py-px text-t4 font-bold not-italic text-emerald-300">선임 중</em>}
+                        </span>
+                        <small className="mt-0.5 block truncate text-t4 text-gray-400">{m.era} · {m.note}</small>
+                      </span>
+                      <span className="flex min-w-0 flex-col gap-1 rounded-xl bg-white/[0.04] px-3 py-1.5">
+                        <span className="flex items-baseline justify-between gap-2"><span className="truncate text-t4 text-gray-400">{e.label}</span><b className="font-display text-t2 leading-none" style={{ color: e.c }}>{e.n}</b></span>
+                        <i className="relative block h-1 overflow-hidden rounded-full bg-white/[0.08]"><b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${Math.min(100, (ruleValue(x) / maxV) * 100)}%`, background: e.c }} /></i>
+                      </span>
+                      <span className="justify-self-center rounded-full bg-amber-400/10 px-2.5 py-1 font-display text-t3 font-bold text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]">{m.cost} CP</span>
+                      <Btn pri={staffShown?.id === m.id && !mine && !over} disabled={mine || over > 0} onClick={(ev) => { ev.stopPropagation(); askStaff(listSlot, m); }} style={{ minHeight: 42, padding: '0 14px' }}>
+                        {mine ? '선임 중' : over > 0 ? `CP ${over} 부족` : staff[listSlot] ? '교체' : '선임'}
+                      </Btn>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()}
 
         {tab === 'items' && (
           <ItemsTab team={team} gold={gold} onShop={onShop} itemId={itemId} target={itemTarget} onPick={(id) => { const it = SHOP_ITEMS.find((x) => x.id === id); setItemId(id); setItemTarget((t) => (t && it && fitsItem(it, t) ? t : null)); }} onTarget={setItemTarget}
@@ -1089,93 +1094,55 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
         )}
 
         {tab === 'items' ? null : tab === 'staff' ? (() => {
+          /* 오른쪽 상세 — 영입 DetailPanel 문법: 큰 카드 · 효과 칸 · 키-값 · 아래 단추. 고른 후보가 없으면 그 자리에 앉은 사람 */
           const VIO = '#c4b5fd';
-          const slotInfo = STAFF_SLOTS.find((x) => x.key === staffSlot);
-          const cur = staff[staffSlot];
-          const mine = cur ? catSum(staffRules(cur)) : staffSlot ? {} : eff;
+          const slotLabel = STAFF_SLOTS.find((x) => x.key === listSlot)?.label;
+          const cur = staff[listSlot];
+          const m = staffShown;
+          if (!m) return <EmptyDetail />;
+          const isCur = cur?.id === m.id;
           const lv = cur?.level || 1;
           const tickets = team.staffTickets || 0;
-          const shown = Object.entries(eff).filter(([, v]) => Math.abs(v) >= 0.05);
-          const size = (k, v) => Math.abs(v); // 막대 = 그 갈래가 올리는 승률(%p)
-          const maxV = Math.max(1, ...shown.map(([k, v]) => size(k, v)));
+          const e = effTags(staffRules(m))[0];
+          const over = staffOver(listSlot, m);
+          const left = cap - squadCost(squad, isCur ? staff : { ...staff, [listSlot]: m });
           const upgrade = () => {
             if (!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX) return;
-            commit({ ...team, staffTickets: tickets - 1, staff: { ...staff, [staffSlot]: { ...cur, level: lv + 1 } } });
+            commit({ ...team, staffTickets: tickets - 1, staff: { ...staff, [listSlot]: { ...cur, level: lv + 1 } } });
           };
           return (
-            <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3 p-5" style={{ ...cut(20), '--a': VIO }}>
-              <p className="mt-lab" style={{ '--a': VIO }}>팀 보정</p>
-              <h2 className="-mt-1 text-t1 font-black text-white">코치진 효과</h2>
-              {/* 기여도 막대: 전체 효과 중 선택한 코치 몫을 밝게 */}
-              <div className="flex flex-col gap-2">
-                {shown.map(([k, v]) => (
-                  <div key={k} className="grid items-center gap-2.5 text-t3 text-gray-300" style={{ gridTemplateColumns: '50px 1fr 50px' }}>
-                    <span>{EFF_LABEL[k]}</span>
-                    <span className="relative block h-[5px] bg-white/[0.08]">
-                      <i className="absolute inset-y-0 left-0 block" style={{ width: `${(size(k, v) / maxV) * 100}%`, background: statColor((size(k, v) / maxV) * 100, EFF_COLOR[k]).bar, opacity: 0.45 }} />
-                      <i className="absolute inset-y-0 left-0 block transition-[width] duration-300" style={{ width: `${(size(k, mine[k] || 0) / maxV) * 100}%`, background: statColor((size(k, mine[k] || 0) / maxV) * 100, EFF_COLOR[k]).bar }} />
-                    </span>
-                    <b className="text-right font-display text-t3" style={{ color: v < 0 ? '#f87171' : '#fff' }}>{v < 0 ? '−' : '+'}{Math.abs(v).toFixed(1)}</b>
-                  </div>
-                ))}
-                {!shown.length && <span className="text-t3 text-gray-500">-</span>}
+            <aside key={m.id} className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(22), '--a': VIO }}>
+              <p className="mt-lab" style={{ '--a': VIO }}>{slotLabel} {isCur ? '' : '후보 '}정보</p>
+              <div className="mt-holo min-h-0 flex-1 animate-[rise_.35s_ease-out_both]" style={{ '--t': STYLE_COLOR[m.style] || VIO, backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundPosition: '60% 30%' }}>
+                <span className="bottom-3.5 left-4 flex flex-col">
+                  <small className="text-t4 text-gray-300">{slotLabel} · {m.era}</small>
+                  <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
+                  {styleOf(m) && <em className="mt-1 self-start rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[m.style], background: `${STYLE_COLOR[m.style]}2a` }}>{styleOf(m).ko}</em>}
+                </span>
+                <b className="mt-ovr bottom-1.5 right-4 font-display text-[52px] font-extrabold leading-none">{m.cost}<small className="ml-1 text-t3">CP</small></b>
               </div>
-              <div className="h-px shrink-0" style={{ background: `linear-gradient(90deg,${VIO}80,transparent)` }} />
-
-              {/* 명함: 오른쪽 절반은 사진, 왼쪽에 자리 · 이름 · 시대 · 경력 · 효과 수치 */}
-              {!staffSlot ? (
-                <div className="flex flex-col gap-2">
-                  {STAFF_SLOTS.map((x) => {
-                    const m = staff[x.key];
-                    return (
-                      <button key={x.key} type="button" onClick={() => setStaffSlot(x.key)}
-                        className="mt-cut grid items-center gap-3 p-2 text-left hover:brightness-125" style={{ ...cut(10), gridTemplateColumns: '56px minmax(0,1fr) auto', background: 'rgba(255,255,255,.04)' }}>
-                        <span className="mt-cut block h-[66px] bg-[#0b1220] bg-cover" style={{ ...cut(7), backgroundPosition: '60% 25%', backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` : 'url(ui/mt/silhouette-coach.webp)', opacity: m ? 1 : 0.35 }} />
-                        <span className="min-w-0">
-                          <span className="block font-display text-t4 tracking-[0.2em]" style={{ color: VIO }}>{x.label}</span>
-                          <b className={`block truncate text-t2 font-black ${m ? 'text-white' : 'text-gray-500'}`}>{m ? m.name : '비어 있음'}</b>
-                          {m && <span className="block truncate text-t4 text-gray-400">{m.era} · {m.contracted ? '계약서' : `${m.cost} CP`}</span>}
-                        </span>
-                        {m && <b className="self-start font-display text-t3 text-amber-300">Lv.{m.level || 1}</b>}
-                      </button>
-                    );
-                  })}
+              <span className="flex flex-col gap-1.5 rounded-xl bg-white/[0.04] px-4 py-3">
+                <span className="flex items-baseline justify-between"><span className="text-t3 text-gray-300">{e.label}</span><b className="font-display text-t1 leading-none" style={{ color: e.c }}>{e.n}</b></span>
+                {isCur && lv > 1 && <small className="font-display text-t4 text-emerald-300">Lv.{lv} ×{levelMul(m).toFixed(1)}</small>}
+              </span>
+              <div className="flex flex-col gap-1.5">
+                <KV k="경력" v={m.note} />
+                <KV k="CP" v={isCur || !cur ? `${m.cost}` : `${m.cost} (${m.cost - cur.cost > 0 ? '+' : ''}${m.cost - cur.cost})`} color="#fcd34d" />
+                <KV k="남는 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
+                {isCur && <KV k="계약" v={m.contracted ? '계약서' : 'CP'} />}
+              </div>
+              {isCur ? (
+                <div className="grid grid-cols-[1.4fr_1fr] gap-2">
+                  <Btn lg a={VIO} pri={tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
+                    <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
+                  </Btn>
+                  <Btn lg className="text-[#ff5a67]" style={cut(12)} onClick={() => askStaff(listSlot, null)}>해임</Btn>
                 </div>
               ) : (
-                (() => {
-                  const m = cur;
-                  if (!m) return <div className="mt-cut grid h-[230px] shrink-0 place-items-center text-t3 text-gray-500" style={{ ...cut(14), background: 'rgba(255,255,255,.03)' }}>{slotInfo?.label} -</div>;
-                  const mLv = m.level || 1;
-                  return (
-                    <div className="mt-cut relative h-[230px] shrink-0 overflow-hidden" style={{ ...cut(14), background: '#140f24', boxShadow: 'inset 0 0 0 1px rgba(196,181,253,.35)' }}>
-                      <span className="absolute inset-y-0 right-0 w-[62%] bg-cover" style={{ backgroundPosition: '60% 20%', backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)` }} />
-                      <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#140f24 40%,rgba(20,15,36,.85) 52%,rgba(20,15,36,0) 74%)' }} />
-                      <div className="absolute inset-y-3.5 left-4 flex w-[60%] flex-col gap-0.5">
-                        <span className="font-display text-t4 tracking-[0.24em]" style={{ color: VIO }}>{slotInfo?.label}</span>
-                        <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
-                        <span className="text-t4 text-gray-400">{m.era}{m.contracted ? ' · 계약서' : ` · ${m.cost} CP`}</span>
-                        <span className="mt-0.5 text-t4 leading-snug text-gray-300">{styleOf(m) ? <b className="mr-1.5 text-[#c4b5fd]">{styleOf(m).ko}</b> : null}{m.note}</span>
-                        <div className="mt-auto flex flex-col gap-0.5">
-                          {effTags(staffRules(m)).map((e) => (
-                            <span key={e.k} className="flex items-baseline gap-1.5 text-t3 text-gray-300">
-                              {e.label}<b className="font-display text-t2" style={{ color: e.c }}>{e.n}</b>
-                            </span>
-                          ))}
-                          {mLv > 1 && <small className="font-display text-t4 text-emerald-300">Lv.{mLv} ×{levelMul(m).toFixed(1)}</small>}
-                        </div>
-                      </div>
-                      <b className="absolute right-3 top-3 bg-[#05080f]/70 px-2 font-display text-t3 text-amber-300">Lv.{mLv}</b>
-                    </div>
-                  );
-                })()
-              )}
-
-              {staffSlot && <div className="mt-auto grid grid-cols-[1.4fr_1fr] gap-2">
-                <Btn lg a={VIO} pri={!!cur && tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={!cur || tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
-                  <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
+                <Btn pri lg disabled={over > 0} style={cut(16)} onClick={() => askStaff(listSlot, m)}>
+                  {over > 0 ? `CP ${over} 부족` : cur ? `${cur.name} → ${m.name} 교체` : `${slotLabel} 선임`}
                 </Btn>
-                <Btn lg className="text-[#ff5a67]" style={cut(12)} disabled={!cur} onClick={() => cur && askStaff(staffSlot, null)}>해임</Btn>
-              </div>}
+              )}
             </aside>
           );
         })()
