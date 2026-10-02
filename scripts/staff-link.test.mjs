@@ -25,7 +25,9 @@ describe('코치진 규칙 → 선수 능력치', () => {
     expect(staffRules(mgr)).toEqual([{ who: 'batter', stat: 'contact', v: Math.round(6 * 1.3 * 1.2) }]);
   });
   it("'능력'은 타자 컨택 · 파워 / 투수 구위 · 제구에", () => {
-    const [b, p] = applyStaff([P('b', 'batter', { cost: 70 }), P('p', 'pitcher', { cost: 70 })], { manager: { role: 'manager', style: 'develop', grade: 1 } });
+    const rich = Array.from({ length: 10 }, (_, i) => P(`r${i}`, 'batter', { cost: 95 }));
+    const [b, p, top] = applyStaff([P('b', 'batter', { cost: 70 }), P('p', 'pitcher', { cost: 70 }), P('t', 'batter', { cost: 99 }), ...rich], { manager: { role: 'manager', style: 'develop', grade: 1 } });
+    expect(top.stats.contact).toBe(80); // CP 높은 쪽은 'CP 낮은 10명' 밖
     expect([b.stats.contact, b.stats.power, b.stats.speed]).toEqual([86, 86, 80]);
     expect([p.stats.stuff, p.stats.control, p.stats.stamina]).toEqual([86, 84, 90]);
   });

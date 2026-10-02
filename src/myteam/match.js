@@ -2,7 +2,7 @@
 import { SERIES } from '../data/seriesPlayers.js';
 import { POS_RULES, GROUP_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP, PLAY_LIMIT } from './rules.js';
 import { withBoosts } from './shop.js';
-import { staffBoostFor } from './staff.js';
+import { staffBoostFor, CHEAP_N } from './staff.js';
 import { applyFatigue } from './fatigue.js';
 
 const ALL = SERIES.flatMap((s) => s.players);
@@ -31,8 +31,9 @@ export function lineupOf(roster, bench = []) {
  */
 export function applyStaff(roster, staff) {
   if (!staff || !Object.values(staff).some(Boolean)) return roster;
+  const cheap = new Set([...roster].sort((a, b) => (a.cost || 0) - (b.cost || 0)).slice(0, CHEAP_N).map((p) => p.id)); // 'CP 낮은 10명'
   return roster.map((p) => {
-    const add = staffBoostFor(p, staff);
+    const add = staffBoostFor(cheap.has(p.id) ? { ...p, cheap10: true } : p, staff);
     const keys = Object.keys(add);
     if (!keys.length) return p;
     const s = { ...p.stats };

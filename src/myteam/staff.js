@@ -27,7 +27,7 @@ export const WHO = {
   slugger: { ko: '장타자', f: (p) => p.type === 'batter' && (p.stats?.power ?? 0) >= 90, share: 0.45 },
   hitter: { ko: '교타자', f: (p) => p.type === 'batter' && (p.stats?.contact ?? 0) >= 90, share: 0.45 },
   foreign: { ko: '외국인', f: (p) => !!p.isForeign, share: 0.06 },
-  cheap: { ko: '싼 선수', f: (p) => (p.cost || 0) <= 80, share: 0.35 }, // ponytail: 처음 받는 엔트리(종합 70대)엔 많고 다 키운 팀(90 CP 안팎)엔 거의 없음 — 몫은 그 사이 어림
+  cheap: { ko: 'CP 낮은 10명', f: (p) => !!p.cheap10, share: 0.3 }, // 엔트리에서 CP 가 가장 낮은 10명(match.js applyStaff 가 표시) — 처음 받은 엔트리든 다 키운 팀이든 늘 10명
 };
 /* ability = 그 선수의 주 능력 전부(타자 컨택 · 파워 / 투수 구위 · 제구) — 화면엔 '능력' 한 칸 */
 export const STAT_KO = { contact: '컨택', power: '파워', speed: '주루', defense: '수비', stuff: '구위', control: '제구', stamina: '체력', ability: '능력' };
@@ -96,15 +96,18 @@ export const STAFF = [...managers, ...coaches].map(({ source, ...s }) => ({ ...s
 export const staffByRole = (role) => STAFF.filter((s) => s.role === role);
 export const styleOf = (s) => (s?.role === 'manager' ? STYLES[s.style] || null : null);
 
+export const CHEAP_N = 10;
+
 /**
- * 아직 비어 있는 코치 자리를 채우는 데 드는 CP — 가장 비싼 후보 기준.
+ * 아직 비어 있는 코치 자리를 채우는 데 드는 CP — 가운데 값 후보 기준.
  * 선수로 캡을 다 써 버리면 감독·코치를 못 앉히니 자동 채우기가 이만큼 남겨 둔다.
+ * 가장 비싼 후보(명장 100 CP 넘음)로 잡으면 코치진을 안 쓰는 사람도 선수 자리가 300 CP 가까이 줄어 가운데 값으로.
  */
 export function staffReserve(staff = {}) {
   return ['manager', 'head', 'batting', 'pitching'].reduce((total, slot) => {
     if (staff[slot]) return total;
-    const cands = staffByRole(slot);
-    return total + (cands.length ? Math.max(...cands.map((s) => s.cost || 0)) : 0);
+    const costs = staffByRole(slot).map((s) => s.cost || 0).sort((a, b) => a - b);
+    return total + (costs.length ? costs[Math.floor(costs.length / 2)] : 0);
   }, 0);
 }
 
