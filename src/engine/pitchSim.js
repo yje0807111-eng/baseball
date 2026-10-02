@@ -191,28 +191,6 @@ export function leverage(g) {
   const closeW = Math.max(0.12, 1 - Math.abs(g.home.runs - g.away.runs) / 5);
   return base * inningW * closeW;
 }
-/** 멈추고 물을 만한 자리 — 80경기를 돌려 경기당 두어 번 걸리게 맞춘 문턱 */
-export const CLUTCH_MARK = 0.15;
-/** 감독이 손댈 수 있는 횟수 — 승부처는 더 자주 오지만 이만큼만 쓴다 */
-export const CLUTCH_LIMIT = 3;
-export const isClutch = (g) => leverage(g) >= CLUTCH_MARK;
-/**
- * 이 타석에서 멈출까 — 문턱에 세 가지를 더한다(2026-09-30, 400경기 시뮬).
- *  · 빈 베이스는 9회 이후 1점 차 이내만 — 주자 없는 선두 타자가 멈춘 자리의 41%였다(6회 동점이면 문턱을 넘었다)
- *  · 한쪽(공격 · 수비)은 CLUTCH_SIDE 번까지 — 셋을 한쪽이 다 가져가지 않게
- *  · 6회까지는 CLUTCH_EARLY 번까지 — 막판 몫을 남긴다. 7회 이후에 한 번이라도 묻는 경기 54% → 75%
- * asked = 이미 멈춘 자리 [{ top, inning }]
- */
-export const CLUTCH_SIDE = 2;
-export const CLUTCH_EARLY = 1;
-export const CLUTCH_LATE = 7;
-export function shouldAsk(g, asked = []) {
-  if (asked.length >= CLUTCH_LIMIT) return false;
-  if (!g.bases.some(Boolean) && !(g.inning >= 9 && Math.abs(g.home.runs - g.away.runs) <= 1)) return false;
-  if (asked.filter((a) => a.top === g.top).length >= CLUTCH_SIDE) return false;
-  if (g.inning < CLUTCH_LATE && asked.filter((a) => a.inning < CLUTCH_LATE).length >= CLUTCH_EARLY) return false;
-  return isClutch(g);
-}
 
 /** 노림 코스 네 칸에 이 칸이 드나 — 칸 i: 열 i%3(0 몸쪽) · 행 ⌊i/3⌋(0 높게). 가운데 줄 · 칸은 두 쪽에 다 걸친다 */
 /**

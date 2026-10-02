@@ -89,7 +89,7 @@ test('증강 90종 모두 엔진 훅에서 터지지 않는다', () => {
 });
 
 test('팀 보너스형 증강: bonus · 가중치 · 수비 계수가 엔진 edge 로 넘어가고 난이도 buff 는 빼고 센다', async () => {
-  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const { engineTeam } = await import('../src/play/matchKit.jsx');
   const roster = fillRoster(aiDraft({ players: POOL, rng: mulberry32(21) }));
   const plain = buildTeam('AI', roster, 3);
   expect(plain.edge).toEqual({ bat: 0, pit: 0 });
@@ -99,7 +99,7 @@ test('팀 보너스형 증강: bonus · 가중치 · 수비 계수가 엔진 edg
 });
 
 test('엔진 edge: 타격 보너스를 주면 득점이 오른다', async () => {
-  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const { engineTeam } = await import('../src/play/matchKit.jsx');
   const { simulateGame } = await import('../src/engine/pitchSim.js');
   const runs = (bat) => {
     let total = 0;
@@ -114,7 +114,7 @@ test('엔진 edge: 타격 보너스를 주면 득점이 오른다', async () => 
 });
 
 test('투수 운용 증강이 엔진 AI 감독 usage 로 옮겨진다', async () => {
-  const { engineUsage } = await import('../src/BroadcastGame.jsx');
+  const { engineUsage } = await import('../src/play/matchKit.jsx');
   expect(engineUsage({ aceMax: 4 }).starterPitches).toBe(60);
   expect(engineUsage({ completeGame: true }).starterPitches).toBeGreaterThanOrEqual(135);
   expect(engineUsage({ extraInnings: 1 }).starterPitches).toBe(110);

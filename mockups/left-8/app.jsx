@@ -9,7 +9,7 @@ import { SERIES } from '/src/data/seriesPlayers.js';
 import { teamFlag } from '/src/myteam/teamArt.js';
 import PlayView from '/src/play/PlayView.jsx';
 import { FIELD_BGS } from '/src/play/backgrounds.js';
-import { Diamond, Bso, shortTeam, SB_MASK } from '/src/BroadcastGame.jsx';
+import { Diamond, Bso, shortTeam, SB_MASK } from '/src/play/matchKit.jsx';
 
 /* 판 — ui.jsx 의 Panel 에 라벨 여백과 세로 칸만 얹는다 */
 const Panel = ({ label, a = '#10b981', c = 14, glass, className = '', style, children }) => (

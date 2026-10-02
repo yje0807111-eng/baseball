@@ -1,7 +1,7 @@
 /* 선택 경기 — 멈추는 자리 수(한 경기 약 10번 · 7회 이후 몫) · 카드 · 타석 계획 */
 import { test, expect } from 'vitest';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { createGame, pitch, aiPitchingChange, defenseOf, weatherOf } from '../src/engine/pitchSim.js';
 import { seeded } from '../src/myteam/tournament.js';
 import { winProb } from '../src/engine/winProb.js';

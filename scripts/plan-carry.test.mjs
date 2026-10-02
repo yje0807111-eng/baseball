@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { starterSquad } from '../src/myteam/starter.js';
 import { readyRoster, matchTeamOf } from '../src/myteam/prep.js';
-import { TACTIC_CHANGES } from '../src/BroadcastGame.jsx';
+import { TACTIC_CHANGES } from '../src/play/matchKit.jsx';
 
 describe('정비 계획을 경기 팀에 싣는다', () => {
   const team = { name: 't', squad: starterSquad('t'), staff: {}, cap: 2330, plan: { sides: { off: 'onbase', mound: 'quick', def: 'tight' } } };

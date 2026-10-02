@@ -97,7 +97,7 @@ test('구단 멤버 안에서 드래프트한 팀도 캡을 넘지 않는다', a
 
 test('팀 보정(buff)이 경기 엔진에 들어간다: +6 팀이 같은 팀을 더 많이 이긴다', async () => {
   const { aiDraft, fillRoster, buildTeam } = await import('../src/KboAugmentDraft.jsx');
-  const { engineTeam } = await import('../src/BroadcastGame.jsx');
+  const { engineTeam } = await import('../src/play/matchKit.jsx');
   const { simulateGame } = await import('../src/engine/pitchSim.js');
   const roster = fillRoster(aiDraft());
   let w = 0, l = 0;

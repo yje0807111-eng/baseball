@@ -1,5 +1,5 @@
 /*
- * 선택 경기 화면(mockups/choice-game 3안 '대결 무대') — 옛 중계(BroadcastGame)와 같은 자리 · 같은 props · 같은 결과(buildResult).
+ * 선택 경기 화면(mockups/choice-game 3안 '대결 무대') — 경기 화면(일반 · 랭크 · 토너먼트 · 드래프트). 결과는 matchKit buildResult.
  * 흐름: 진행(이닝 점수판 + 지나간 일 한 줄씩, 타석마다 PA_MS) → 결정(두 선수 카드가 마주 보고 아래 2×2 카드, 15초)
  *   → 구종 · 코스가 필요한 작전이면 그 자리에서 펼침(+10초) → 그 타석을 계획대로 한 번에 → 결과 카드(RESULT_MS, 누르면 넘김) → 다시 진행.
  * 시간이 다 되면 정비 작전. 창이 가려지면 시간도 멈춘다. 판단(멈출 자리 · 카드 · 타석 계획)은 play/choice.js.
@@ -17,7 +17,7 @@ import { DEFAULT_SIDES, planOfSides, sideOpt } from '../myteam/strategy.js';
 import {
   createGame, pitch, weatherOf, batterOf, pitcherOf, offenseOf, defenseOf, staminaOf, replaceTeam, aiPitchingChange, playOut, RESULT_LABEL, PITCHES, hitChanceAt, penCallsLeft, PEN_CALLS,
 } from '../engine/pitchSim.js';
-import { engineTeam, buildResult, Scoreboard, shortTeam } from '../BroadcastGame.jsx';
+import { engineTeam, buildResult, Scoreboard, shortTeam } from './matchKit.jsx';
 import { situationOf, zoneKo, locOf, batSide } from './DuelPanel.jsx';
 import { wantsChoice, choiceCards, planOrder, pitchesFor, CHOICES, CHOICE_MS, DETAIL_MS } from './choice.js';
 

@@ -7,7 +7,7 @@
  */
 import { buildMyTeam, teamRating } from './match.js';
 import { AI_SERIES, seriesTeam, seriesName } from './aiTeam.js';
-import { engineTeam } from '../BroadcastGame.jsx';
+import { engineTeam } from '../play/matchKit.jsx';
 import { simulateGame } from '../engine/pitchSim.js';
 import { ghostMatchTeam } from './ghost.js';
 import { botTeam } from './bots.js';

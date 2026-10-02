@@ -1,7 +1,7 @@
 /* 적 AI: 시리즈 멤버 그대로 팀 구성 · 조사값(usage)에 따른 투수 교체 */
 import { test, expect } from 'vitest';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { createGame, simulateGame, aiPitchingChange } from '../src/engine/pitchSim.js';
 import { seeded } from '../src/myteam/tournament.js';
 

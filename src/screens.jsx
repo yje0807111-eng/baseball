@@ -29,7 +29,6 @@ export const LockerScreen = lazyNow(() => import('./myteam/LockerScreen.jsx'));
 export const ShopScreen = lazyNow(() => import('./myteam/ShopScreen.jsx'));
 export const RecordScreen = lazyNow(() => import('./myteam/RecordScreen.jsx'));
 export const AugmentScreen = lazyNow(() => import('./myteam/AugmentScreen.jsx'));
-export const BroadcastGame = lazyNow(() => import('./BroadcastGame.jsx'));
 export const ChoiceGame = lazyNow(() => import('./play/ChoiceGame.jsx')); // 선택 경기(ROADMAP 11) — 경기 화면은 이것
 export const TournamentBracket = lazyNow(() => import('./myteam/TournamentBracket.jsx'));
 export const RankedHub = lazyNow(() => import('./myteam/RankedHub.jsx'));

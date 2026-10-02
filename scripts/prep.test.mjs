@@ -3,7 +3,7 @@ import { test, expect } from 'vitest';
 import { readyRoster, matchTeamOf, penRole } from '../src/myteam/prep.js';
 import { squadOrder } from '../src/myteam/SquadBoard.jsx';
 import { buildAiTeam } from '../src/myteam/match.js';
-import { engineTeam } from '../src/BroadcastGame.jsx';
+import { engineTeam } from '../src/play/matchKit.jsx';
 import { seeded } from '../src/myteam/tournament.js';
 
 const squad = buildAiTeam(2000, seeded(20260917)).roster;
