@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { STAFF, staffByRole, staffRules, staffReserve, staffTargets, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, STAFF_LEVEL_MAX } from './staff.js';
+import { STAFF, staffByRole, staffRules, staffReserve, staffTargets, bannerOf, ruleText, ruleDesc, ruleValue, ruleCat, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -66,13 +66,13 @@ const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 
 const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24', all: '#c4b5fd' };
 /** 레벨 1~5 효과 글자 ['+5', '+6', …] — 강화 표시(지금 → 다음 · 최대) */
 const lvTexts = (m) => Array.from({ length: STAFF_LEVEL_MAX }, (_, i) => ruleText(staffRules({ ...m, level: i + 1 })[0] || {}).n);
-/* 감독 색깔 표 색(staff.js STYLES) */
+/* 배너 색(staff.js bannerOf key — 감독 색깔 키) */
 const STYLE_COLOR = { attack: '#f87171', defense: '#60a5fa', starter: '#f472b6', bullpen: '#a78bfa', care: '#fbbf24', trust: '#34d399', develop: '#a3e635', foreign: '#22d3ee', run: '#fb923c', data: '#94a3b8' };
 /** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 60% 차게 */
 function StaffFace({ m, size = 50 }) {
   const w = size * 3.5;
   return (
-    <span className="block shrink-0 rounded-full bg-[#0b1220] bg-no-repeat" style={{ width: size, height: size, boxShadow: `0 0 0 2px #0b1220, 0 0 0 3px ${m ? STYLE_COLOR[m.style] || '#c4b5fd' : 'rgba(196,181,253,.3)'}`,
+    <span className="block shrink-0 rounded-full bg-[#0b1220] bg-no-repeat" style={{ width: size, height: size, boxShadow: `0 0 0 2px #0b1220, 0 0 0 3px ${m ? STYLE_COLOR[bannerOf(m)?.key] || '#c4b5fd' : 'rgba(196,181,253,.3)'}`,
       backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp)` : 'url(ui/mt/silhouette-coach.webp)', backgroundSize: m ? `${w}px auto` : 'cover',
       backgroundPosition: m ? `${size / 2 - 0.59 * w}px ${size / 2 - 0.42 * w * 0.75}px` : 'center', opacity: m ? 1 : 0.4 }} />
   );
@@ -1055,7 +1055,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                       <span className="min-w-0">
                         <span className="flex min-w-0 items-center gap-2">
                           <b className="truncate text-t2 font-black text-white">{m.name}</b>
-                          {styleOf(m) && <em className="shrink-0 rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[m.style], background: `${STYLE_COLOR[m.style]}22` }}>{styleOf(m).ko}</em>}
+                          {bannerOf(m) && <em className="shrink-0 rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[bannerOf(m).key], background: `${STYLE_COLOR[bannerOf(m).key]}22` }}>{bannerOf(m).ko}</em>}
                           {mine && <em className="shrink-0 rounded-full bg-emerald-400/15 px-2 py-px text-t4 font-bold not-italic text-emerald-300">선임 중</em>}
                         </span>
                         <small className="mt-0.5 block truncate text-t4 text-gray-400">{m.era} · {m.note}</small>
@@ -1120,11 +1120,11 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
           return (
             <aside key={m.id} className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(22), '--a': VIO }}>
               <p className="mt-lab" style={{ '--a': VIO }}>{slotLabel} {isCur ? '' : '후보 '}정보</p>
-              <div className="mt-holo min-h-0 flex-1 animate-[rise_.35s_ease-out_both]" style={{ '--t': STYLE_COLOR[m.style] || VIO, backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundPosition: '60% 30%' }}>
+              <div className="mt-holo min-h-0 flex-1 animate-[rise_.35s_ease-out_both]" style={{ '--t': STYLE_COLOR[bannerOf(m)?.key] || VIO, backgroundImage: `url(staff/${encodeURIComponent(m.id)}.webp), url(ui/mt/silhouette-coach.webp)`, backgroundPosition: '60% 30%' }}>
                 <span className="bottom-3.5 left-4 flex flex-col">
                   <small className="text-t4 text-gray-300">{slotLabel} · {m.era}</small>
                   <b className="text-t1 font-black leading-tight text-white">{m.name}</b>
-                  {styleOf(m) && <em className="mt-1 self-start rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[m.style], background: `${STYLE_COLOR[m.style]}2a` }}>{styleOf(m).ko}</em>}
+                  {bannerOf(m) && <em className="mt-1 self-start rounded-full px-2 py-px text-t4 font-bold not-italic" style={{ color: STYLE_COLOR[bannerOf(m).key], background: `${STYLE_COLOR[bannerOf(m).key]}2a` }}>{bannerOf(m).ko}</em>}
                 </span>
                 <b className="mt-ovr bottom-1.5 right-4 font-display text-[52px] font-extrabold leading-none">{m.cost}<small className="ml-1 text-t3">CP</small></b>
               </div>

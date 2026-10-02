@@ -96,6 +96,26 @@ export const STAFF = [...managers, ...coaches].map(({ source, ...s }) => ({ ...s
 export const staffByRole = (role) => STAFF.filter((s) => s.role === role);
 export const styleOf = (s) => (s?.role === 'manager' ? STYLES[s.style] || null : null);
 
+/**
+ * 이름 옆 배너 { ko, key } — 감독은 색깔 이름, 코치는 효과 한 줄에서(좌타 강화 · 내야 수비 · 불펜 강화 …).
+ * key 는 화면 색(감독 색깔과 같은 표) — 같은 갈래면 감독 · 코치가 같은 색
+ */
+export function bannerOf(s) {
+  if (!s) return null;
+  if (s.role === 'manager') return STYLES[s.style] ? { ko: STYLES[s.style].ko, key: s.style } : null;
+  const x = (s.rules || [])[0];
+  if (!x) return null;
+  if (x.team) return { ko: { steal: '도루 강화', rest: '체력 관리', calm: '컨디션 관리' }[x.team], key: { steal: 'run', rest: 'care', calm: 'trust' }[x.team] };
+  if (x.who === 'cheap') return { ko: '유망주 육성', key: 'develop' };
+  if (x.who === 'foreign') return { ko: '외국인 강화', key: 'foreign' };
+  if (x.stat === 'speed') return { ko: '주루 강화', key: 'run' };
+  if (x.stat === 'defense') return { ko: { IF: '내야 수비', OF: '외야 수비', C: '포수 수비' }[x.who] || '수비 강화', key: 'defense' };
+  if (x.who === 'SP') return { ko: '선발 강화', key: 'starter' };
+  if (x.who === 'RP') return { ko: '불펜 강화', key: 'bullpen' };
+  if (ARM_WHO.has(x.who)) return { ko: x.stat === 'control' ? '제구 강화' : '구위 강화', key: 'starter' };
+  return { ko: { L: '좌타 강화', R: '우타 강화', slugger: '장타 강화', hitter: '교타 강화' }[x.who] || (x.stat === 'power' ? '장타 강화' : '타격 강화'), key: 'attack' };
+}
+
 export const CHEAP_N = 10;
 
 /**
