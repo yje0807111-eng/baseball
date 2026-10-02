@@ -122,9 +122,15 @@ export function addRuns(g, n, inning = g.inning, sideKey = null) {
 }
 
 /** 경기 중 증강으로 팀 능력치가 바뀌면 갈아 끼운다 (타순 자리 · 지금 던지는 투수는 그대로) */
+/*
+ * 경기 중 팀을 새 능력치로 바꾼다(증강을 고른 뒤). 순서 · 교체는 경기에서 일어난 그대로 두고 선수 값만 새것으로 —
+ * 전엔 새 팀을 통째로 끼워 불러 둔 불펜 순서 · 대타가 경기 전으로 돌아가고, 지금 투수가 슬쩍 바뀌었다(2026-10-02)
+ */
 export function replaceTeam(side, team) {
-  side.team = team;
-  side.pitcher = team.pitchers[side.pitcherIdx] || team.pitchers[0] || side.pitcher;
+  const byId = new Map([...(team.batters || []), ...(team.bench || []), ...(team.pitchers || [])].map((p) => [p.id, p]));
+  const keep = (list = []) => list.map((p) => byId.get(p.id) || p);
+  side.team = { ...team, batters: keep(side.team.batters), pitchers: keep(side.team.pitchers), bench: keep(side.team.bench) };
+  side.pitcher = side.team.pitchers[side.pitcherIdx] || side.team.pitchers[0] || side.pitcher;
 }
 
 /*

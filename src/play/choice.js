@@ -17,6 +17,8 @@ export const CHOICE_MARK = 0.09; // 승부처 무게 문턱(일정에 따라 0.5
 
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const pct = (x) => `${Math.round(x * 100)}%`;
+/** 'a → b' 칩 — 같으면 빼고(보여 줄 차이가 없다) */
+const delta = (ko, a, b, tone) => (Math.round(a * 100) === Math.round(b * 100) ? [] : [[`${ko} ${pct(a)} → ${pct(b)}`, tone]]);
 const handKo = (h) => (h === 'L' ? '좌' : h === 'S' ? '양' : '우');
 
 /**
@@ -111,12 +113,12 @@ export function choiceCards(g, ctx = {}) {
     }
     if (b1 && outs < 2) {
       const o = oddsOf(g, with_(first({ hitAndRun: true })));
-      sit.push({ k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 스윙', order: with_(first({ hitAndRun: true })), odds: ['병살', pct(o.dp)], chips: [[`병살 ${pct(baseOdds.dp)} → ${pct(o.dp)}`, 'good']], cost: '헛스윙 시 주자 위험' });
+      sit.push({ k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 스윙', order: with_(first({ hitAndRun: true })), odds: ['병살', pct(o.dp)], chips: delta('병살', baseOdds.dp, o.dp, 'good'), cost: '헛스윙 시 주자 위험' });
     }
     const pe = st(bat, 'power') - st(pit, 'stuff', 80), ce = st(bat, 'contact') - 80, cl = st(pit, 'control', 75) - 80, tired = staminaOf(def) < 40;
     const appr = [
       { score: pe + (WX_HR[g.wx?.key] || 0) * 6, mk: () => { const o = oddsOf(g, with_({ approach: 'sellout' })); return { k: 'sellout', ko: '노림수', sub: '한 방', order: with_({ approach: 'sellout' }), odds: ['홈런', pct(o.hr)], chips: [[`파워 ${st(bat, 'power')}`, pe >= 0 ? 'good' : 'bad'], [`구위 ${st(pit, 'stuff', 80)}`, pe >= 0 ? 'good' : 'bad'], ...(WX_HR[g.wx?.key] ? wxChip(g, WX_HR[g.wx.key] > 0) : [])], cost: `삼진 ${pct(o.k)}`, detail: 'bat' }; } },
-      { score: ce, mk: () => { const o = oddsOf(g, with_({ approach: 'contact' })); return { k: 'contact', ko: '밀어치기', sub: '맞히기', order: with_({ approach: 'contact' }), odds: ['안타', pct(o.hit)], chips: [[`컨택 ${st(bat, 'contact')}`, ce >= 0 ? 'good' : 'bad'], [`삼진 ${pct(baseOdds.k)} → ${pct(o.k)}`, 'info']], cost: '장타 ↓', detail: 'bat' }; } },
+      { score: ce, mk: () => { const o = oddsOf(g, with_({ approach: 'contact' })); return { k: 'contact', ko: '밀어치기', sub: '맞히기', order: with_({ approach: 'contact' }), odds: ['안타', pct(o.hit)], chips: [[`컨택 ${st(bat, 'contact')}`, ce >= 0 ? 'good' : 'bad'], ...delta('삼진', baseOdds.k, o.k, 'info')], cost: '장타 ↓', detail: 'bat' }; } },
       { score: -cl + (tired ? 10 : 0), mk: () => { const o = oddsOf(g, with_({ patience: true })); return { k: 'wait', ko: '기다리기', sub: '공 고르기', order: with_({ patience: true }), odds: ['볼넷', pct(o.bb)], chips: [[`제구 ${st(pit, 'control', 75)}`, cl <= 0 ? 'good' : 'bad'], ...(tired ? [[`투수 체력 ${Math.round(staminaOf(def))}`, 'good']] : [])], cost: '루킹 삼진 ↑' }; } },
     ].sort((a, b) => b.score - a.score);
     const picks = sit.slice(0, 2);
@@ -144,13 +146,13 @@ export function choiceCards(g, ctx = {}) {
   }
   if (b3 && outs < 2) {
     const o = oddsOf(g, with_({ guard: 1 }));
-    sit.push({ k: 'infield', ko: '전진 수비', sub: '3루 주자 묶기', order: with_({ guard: 1 }), odds: ['실점', pct(o.run)], chips: [[`실점 ${pct(baseOdds.run)} → ${pct(o.run)}`, 'good']], cost: '빠진 타구 멀리' });
+    sit.push({ k: 'infield', ko: '전진 수비', sub: '3루 주자 묶기', order: with_({ guard: 1 }), odds: ['실점', pct(o.run)], chips: [[`3루 주자 주력 ${st(b3, 'speed')}`, 'info'], ...delta('실점', baseOdds.run, o.run, 'good')], cost: '빠진 타구 멀리' });
   }
   const ct = st(bat, 'contact'), po = st(bat, 'power');
   const zoneOrder = (gg) => (gg.rng() < 0.5 ? { zone: [4, 1, 3, 5, 7][Math.floor(gg.rng() * 5)] } : {});
   const chaseOrder = (gg) => (gg.rng() < 0.45 ? { zone: 'chase' } : {});
   const appr = [
-    { score: 80 - ct, mk: () => { const o = oddsOf(g, with_(chaseOrder)); return { k: 'chase', ko: '유인구', sub: '빼는 공', order: with_(chaseOrder), odds: ['볼넷', pct(o.bb)], chips: [[`컨택 ${ct}`, ct < 80 ? 'good' : 'bad'], [`피안타 ${pct(baseOdds.hit)} → ${pct(o.hit)}`, 'info']], cost: '볼넷 ↑', detail: 'arm' }; } },
+    { score: 80 - ct, mk: () => { const o = oddsOf(g, with_(chaseOrder)); return { k: 'chase', ko: '유인구', sub: '빼는 공', order: with_(chaseOrder), odds: ['볼넷', pct(o.bb)], chips: [[`컨택 ${ct}`, ct < 80 ? 'good' : 'bad'], ...delta('피안타', baseOdds.hit, o.hit, 'info')], cost: '볼넷 ↑', detail: 'arm' }; } },
     { score: 85 - po, mk: () => { const o = oddsOf(g, with_(zoneOrder)); return { k: 'attack', ko: '정면 승부', sub: '존 안으로', order: with_(zoneOrder), odds: ['볼넷', pct(o.bb)], chips: [[`파워 ${po}`, po < 85 ? 'good' : 'bad'], [`제구 ${st(pit, 'control', 75)}`, st(pit, 'control', 75) >= 80 ? 'good' : 'bad']], cost: `피안타 ${pct(o.hit)}`, detail: 'arm' }; } },
   ].sort((a, b) => b.score - a.score);
   const picks = sit.slice(0, 2);

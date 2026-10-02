@@ -24,7 +24,7 @@ import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
 
 /* 화면마다 또 나눠 싣는다 — 드래프트 판과 경기 중계가 특히 무겁다 */
-import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, BroadcastGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
+import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen, ChoiceGame, TournamentBracket, RankedHub, PrepScreen } from './screens.jsx';
 
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
@@ -310,7 +310,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
-    return screen(<>{augOverlay}<BroadcastGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
+    return screen(<>{augOverlay}<ChoiceGame my={match.my} opp={match.opp} seed={match.seed} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
       aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }

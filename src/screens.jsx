@@ -30,6 +30,7 @@ export const ShopScreen = lazyNow(() => import('./myteam/ShopScreen.jsx'));
 export const RecordScreen = lazyNow(() => import('./myteam/RecordScreen.jsx'));
 export const AugmentScreen = lazyNow(() => import('./myteam/AugmentScreen.jsx'));
 export const BroadcastGame = lazyNow(() => import('./BroadcastGame.jsx'));
+export const ChoiceGame = lazyNow(() => import('./play/ChoiceGame.jsx')); // 선택 경기(ROADMAP 11) — 경기 화면은 이것
 export const TournamentBracket = lazyNow(() => import('./myteam/TournamentBracket.jsx'));
 export const RankedHub = lazyNow(() => import('./myteam/RankedHub.jsx'));
 export const PrepScreen = lazyNow(() => import('./myteam/PrepScreen.jsx'));
@@ -37,7 +38,7 @@ export const PrepScreen = lazyNow(() => import('./myteam/PrepScreen.jsx'));
 /* 화면 이름 → 그 화면을 그리는 데 필요한 조각 */
 const NEEDS = {
   modes: [KboAugmentDraft], locker: [LockerScreen], shop: [ShopScreen], record: [RecordScreen], augments: [AugmentScreen],
-  bracket: [TournamentBracket], ranked: [RankedHub], prep: [PrepScreen], play: [BroadcastGame], result: [],
+  bracket: [TournamentBracket], ranked: [RankedHub], prep: [PrepScreen], play: [ChoiceGame], result: [],
 };
 
 /** 갈 화면을 받아 둔다 — 이미 받았으면 바로 끝나는 약속 */
