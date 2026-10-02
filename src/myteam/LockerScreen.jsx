@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { STAFF, staffByRole, staffRules, staffReserve, staffTargets, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
+import { STAFF, staffByRole, staffRules, staffReserve, staffTargets, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -64,6 +64,8 @@ const tone = (o) => (o >= 92 ? '#fde047' : o >= 85 ? '#34d399' : o >= 78 ? '#7dd
 const KEYS = { pitcher: [['구위', 'stuff'], ['제구', 'control'], ['체력', 'stamina'], ['안정', 'stability']], batter: [['파워', 'power'], ['컨택', 'contact'], ['주루', 'speed'], ['수비', 'defense']] };
 /* 코치진 효과 갈래(staff.js ruleCat) — 이름 · 색. 효과 한 줄 "타자 컨택 +6" 은 숫자만 갈래 색 */
 const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#fb923c', ops: '#fbbf24', all: '#c4b5fd' };
+/** 레벨 1~5 효과 글자 ['+5', '+6', …] — 강화 표시(지금 → 다음 · 최대) */
+const lvTexts = (m) => Array.from({ length: STAFF_LEVEL_MAX }, (_, i) => ruleText(staffRules({ ...m, level: i + 1 })[0] || {}).n);
 /* 감독 색깔 표 색(staff.js STYLES) */
 const STYLE_COLOR = { attack: '#f87171', defense: '#60a5fa', starter: '#f472b6', bullpen: '#a78bfa', care: '#fbbf24', trust: '#34d399', develop: '#a3e635', foreign: '#22d3ee', run: '#fb923c', data: '#94a3b8' };
 /** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 60% 차게 */
@@ -1047,7 +1049,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                   const e = effTags([x])[0];
                   return (
                     <div key={m.id} role="button" onClick={() => setStaffSel(m.id)} className={`mt-row h-[68px] cursor-pointer ${staffShown?.id === m.id ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 104px 104px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
+                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 96px 168px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
                       <StaffFace m={m} size={50} />
                       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{m.cost}</b>
                       <span className="min-w-0">
@@ -1067,10 +1069,20 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                         <span className="text-t4 text-gray-400">대상</span>
                         <b className="font-display text-t2 leading-none text-white">{staffTargets(m, squad)}<small className="ml-0.5 text-t4 text-gray-400">명</small></b>
                       </span>
-                      <span className="flex flex-col gap-0.5 rounded-xl bg-white/[0.04] px-3 py-1.5">
-                        <span className="text-t4 text-gray-400">Lv.{STAFF_LEVEL_MAX}</span>
-                        <b className="font-display text-t2 leading-none" style={{ color: e.c }}>{effTags(staffRules({ ...m, level: STAFF_LEVEL_MAX }))[0].n}</b>
-                      </span>
+                      {(() => {
+                        /* 강화 — 지금 레벨 효과 → 최대 레벨 효과(앉은 사람은 그 레벨부터, 후보는 Lv.1 부터) */
+                        const t = lvTexts(m);
+                        const now = mine ? staff[listSlot].level || 1 : 1;
+                        const grows = t[STAFF_LEVEL_MAX - 1] !== t[0];
+                        return (
+                          <span className="flex flex-col gap-0.5 rounded-xl bg-white/[0.04] px-3 py-1.5">
+                            <span className="text-t4 text-gray-400">{grows ? `강화 Lv.${now} → ${STAFF_LEVEL_MAX}` : '강화'}</span>
+                            {grows
+                              ? <b className="font-display text-t2 leading-none text-white">{t[now - 1]}<span className="mx-1.5 text-gray-500">→</span><span style={{ color: e.c }}>{t[STAFF_LEVEL_MAX - 1]}</span></b>
+                              : <b className="text-t4 leading-[18px] text-gray-500">효과 그대로</b>}
+                          </span>
+                        );
+                      })()}
                       <span className="justify-self-center rounded-full bg-amber-400/10 px-2.5 py-1 font-display text-t3 font-bold text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]">{m.cost} CP</span>
                       <Btn pri={staffShown?.id === m.id && !mine && !over} disabled={mine || over > 0} onClick={(ev) => { ev.stopPropagation(); askStaff(listSlot, m); }} style={{ minHeight: 42, padding: '0 14px' }}>
                         {mine ? '선임 중' : over > 0 ? `CP ${over} 부족` : staff[listSlot] ? '교체' : '선임'}
@@ -1132,12 +1144,26 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
               </div>
               <span className="flex flex-col gap-1.5 rounded-xl bg-white/[0.04] px-4 py-3">
                 <span className="flex items-baseline gap-3"><span className="shrink-0 text-t3 font-bold text-gray-200">{e.label}</span><span className="min-w-0 flex-1 truncate text-t3 text-gray-400">{e.desc}</span><b className="shrink-0 font-display text-t1 leading-none" style={{ color: e.c }}>{e.n}</b></span>
-                {isCur && lv > 1 && <small className="font-display text-t4 text-emerald-300">Lv.{lv} ×{levelMul(m).toFixed(1)}</small>}
               </span>
+              {/* 강화 사다리 — 레벨마다 효과, 지금 레벨은 금테 · 지난 레벨은 채움(후보는 선임하면 Lv.1) */}
+              {lvTexts(m)[0] !== lvTexts(m)[STAFF_LEVEL_MAX - 1] && (
+                <div className="grid grid-cols-5 gap-1.5">
+                  {lvTexts(m).map((t, i) => {
+                    const at = (isCur ? lv : 1) === i + 1;
+                    const done = (isCur ? lv : 1) > i + 1;
+                    return (
+                      <span key={i} className="flex flex-col items-center rounded-lg py-1.5"
+                        style={{ background: at ? 'rgba(245,210,122,.12)' : done ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.025)', boxShadow: at ? 'inset 0 0 0 1.5px #f5d27a' : 'none' }}>
+                        <small className={`font-display text-t4 ${at ? 'text-amber-200' : 'text-gray-500'}`}>Lv.{i + 1}</small>
+                        <b className="font-display text-t2 leading-tight" style={{ color: at || done ? e.c : '#6b7280' }}>{t}</b>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               <div className="flex flex-col gap-1.5">
                 <KV k="경력" v={m.note} />
                 <KV k="대상" v={`내 엔트리 ${staffTargets(m, squad)}명`} />
-                <KV k={`Lv.${STAFF_LEVEL_MAX} 효과`} v={effTags(staffRules({ ...m, level: STAFF_LEVEL_MAX }))[0].n} color={e.c} />
                 <KV k="CP" v={isCur || !cur ? `${m.cost}` : `${m.cost} (${m.cost - cur.cost > 0 ? '+' : ''}${m.cost - cur.cost})`} color="#fcd34d" />
                 <KV k="남는 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
                 {isCur && <KV k="계약" v={m.contracted ? '계약서' : 'CP'} />}
@@ -1145,7 +1171,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
               {isCur ? (
                 <div className="grid grid-cols-[1.4fr_1fr] gap-2">
                   <Btn lg a={VIO} pri={tickets > 0 && lv < STAFF_LEVEL_MAX} disabled={tickets <= 0 || lv >= STAFF_LEVEL_MAX} style={cut(12)} onClick={upgrade}>
-                    <span className="flex flex-col items-center leading-tight">강화 ▲<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? 'MAX' : `강화권 ${tickets}장`}</small></span>
+                    <span className="flex flex-col items-center leading-tight">{lv >= STAFF_LEVEL_MAX ? '최대 강화' : `Lv.${lv + 1} 강화 ▲`}<small className="text-t4 opacity-75">{lv >= STAFF_LEVEL_MAX ? `Lv.${STAFF_LEVEL_MAX} ${lvTexts(m)[STAFF_LEVEL_MAX - 1]}` : `${lvTexts(m)[lv - 1]} → ${lvTexts(m)[lv]} · 강화권 ${tickets}장`}</small></span>
                   </Btn>
                   <Btn lg className="text-[#ff5a67]" style={cut(12)} onClick={() => askStaff(listSlot, null)}>해임</Btn>
                 </div>
