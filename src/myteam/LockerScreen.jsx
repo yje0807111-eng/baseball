@@ -68,13 +68,13 @@ const EFF_COLOR = { bat: '#34d399', field: '#60a5fa', pitch: '#f87171', run: '#f
 const lvTexts = (m) => Array.from({ length: STAFF_LEVEL_MAX }, (_, i) => ruleText(staffRules({ ...m, level: i + 1 })[0] || {}).n);
 /* 배너 색(staff.js bannerOf key — 감독 색깔 키) */
 const STYLE_COLOR = { attack: '#f87171', defense: '#60a5fa', starter: '#f472b6', bullpen: '#a78bfa', care: '#fbbf24', trust: '#34d399', develop: '#a3e635', foreign: '#22d3ee', run: '#fb923c', data: '#94a3b8' };
-/** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 60% 차게 */
+/** 감독 · 코치 동그라미 사진 — 자리 카드(800×600, 얼굴 가로 59% · 세로 42% · 폭 17%)를 얼굴이 동그라미 반쯤 차게, 얼굴이 가운데 오게 */
 function StaffFace({ m, size = 50 }) {
-  const w = size * 3.5;
+  const w = size * 2.8;
   return (
     <span className="block shrink-0 rounded-full bg-[#0b1220] bg-no-repeat" style={{ width: size, height: size, boxShadow: `0 0 0 2px #0b1220, 0 0 0 3px ${m ? STYLE_COLOR[bannerOf(m)?.key] || '#c4b5fd' : 'rgba(196,181,253,.3)'}`,
       backgroundImage: m ? `url(staff/${encodeURIComponent(m.id)}.webp)` : 'url(ui/mt/silhouette-coach.webp)', backgroundSize: m ? `${w}px auto` : 'cover',
-      backgroundPosition: m ? `${size / 2 - 0.59 * w}px ${size / 2 - 0.42 * w * 0.75}px` : 'center', opacity: m ? 1 : 0.4 }} />
+      backgroundPosition: m ? `${size / 2 - 0.59 * w}px ${size * 0.56 - 0.42 * w * 0.75}px` : 'center', opacity: m ? 1 : 0.4 }} />
   );
 }
 const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], desc: ruleDesc(x), ...ruleText(x) }));
