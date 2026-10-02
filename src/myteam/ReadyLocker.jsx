@@ -278,7 +278,7 @@ function CardBlock({ cards, value, onPick }) {
   );
 }
 
-/** 작전 — 공격 · 마운드 · 수비에서 하나씩. ★ 는 오늘 상대에 맞는 갈래(이유는 마우스를 올리면).
+/** 작전 — 공격 · 마운드 · 수비에서 하나씩. '추천' 은 오늘 상대에 맞는 갈래(이유는 마우스를 올리면).
  *  경기 중에는 공수 교대 때만, 경기당 몇 번만 바꿀 수 있으니 여기서 고르는 것이 기본 계획이다 */
 function SideBlock({ sides, onPick, opponent }) {
   const reasons = sideReasons(opponent);
@@ -297,7 +297,7 @@ function SideBlock({ sides, onPick, opponent }) {
                   className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(pick), color: pick ? '#fff' : '#9ca3af' }}>
                   {o.ko}
                   <FxChips fx={o.fx} main={o.main} on={pick} />
-                  {!!why.length && <b className="absolute right-1.5 top-0.5 text-t4" style={{ color: WARN }}>★</b>}
+                  {!!why.length && <b className="absolute right-1 top-1 rounded px-1 text-[11px] leading-[15px]" style={{ color: WARN, boxShadow: `inset 0 0 0 1px ${WARN}88` }}>추천</b>}
                 </button>
               );
             })}
@@ -309,7 +309,7 @@ function SideBlock({ sides, onPick, opponent }) {
 }
 
 /** 오른쪽 — 작전: 팀 종합 · 세 갈래 · 준비 카드 · 경기 시작 */
-function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock = null }) {
+function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock = null, onFix = null }) {
   return (
     <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-5 p-5" style={{ ...cut(20), '--a': US }}>
       <div className="flex shrink-0 items-baseline gap-2.5">
@@ -321,7 +321,7 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
       </div>
       {!!autoFilled && (
         <div className="flex shrink-0 items-baseline justify-between text-t3">
-          <span className="text-gray-400">퓨처스 유망주</span><b className="font-display text-t2" style={{ color: WARN }}>{autoFilled}명</b>
+          <span className="text-gray-400">2군 대체</span><b className="font-display text-t2" style={{ color: WARN }}>{autoFilled}명</b>
         </div>
       )}
       {children}
@@ -330,7 +330,10 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
           <p className="mt-cut px-3 py-2 text-center text-t3 font-bold text-[#f87171]"
             style={{ ...cut(8), background: 'rgba(248,113,113,.12)', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.45)' }}>{startBlock}</p>
         )}
-        <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), minHeight: '4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>
+        {/* 막혔을 때 고칠 곳이 있으면(내 팀 정비 → 라커) 시작 단추 자리에 그리로 가는 단추 — 막힌 단추만 두면 뒤로 두세 번 */}
+        {startBlock && onFix
+          ? <Btn lg pri data-sfx="nav" a="#f87171" style={{ ...cut(12), minHeight: '4rem' }} onClick={onFix}>라커에서 정리 ▶</Btn>
+          : <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), minHeight: '4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>}
       </div>
     </aside>
   );
@@ -338,7 +341,7 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
 
 export default function ReadyLocker({
   team, squad, bench, sums, synergies = [], opponent = null, autoFilled = 0, teamInfo,
-  onCommit, onStart, startLabel = '시즌 시작 ▶', startBlock = null,
+  onCommit, onStart, startLabel = '시즌 시작 ▶', startBlock = null, onFix = null,
   cards = null, // 준비 카드 [{ id, name, effect, n }] — 내 팀 경기에서만 넘긴다
   full = false, // 내 팀 경기: 라커 배치 그대로(로테이션 5 · 불펜 8 · 벤치) — 드래프트는 20자리 판(fitSlots)
   win = null, // 예상 승률(%) — 상대가 있을 때
@@ -358,10 +361,10 @@ export default function ReadyLocker({
       {foeOpen && opponent && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
-        onToggleBench={() => {}} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />
+        fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock}>
+        onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock} onFix={onFix}>
         <SideBlock sides={sides} onPick={pickSide} opponent={opponent} />
         {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
       </WarRoom>

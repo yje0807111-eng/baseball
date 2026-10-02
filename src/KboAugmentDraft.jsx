@@ -711,7 +711,7 @@ const PASSIVE_AUGMENTS = [
   { id: 'staminaTrain', name: '체력 훈련', tier: 'silver', type: 'build', desc: '6회부터 수비 투구 +10',
     note: '후반에도 투수 공이 살아 있음',
     half: (c) => (oppOff(c) && c.inning >= 6 ? { pitch: 10 } : null) },
-  { id: 'mentalCoach', name: '멘탈 코치', tier: 'silver', type: 'build', desc: '투수 안정 +12',
+  { id: 'mentalCoach', name: '평정심', tier: 'silver', type: 'build', desc: '투수 안정 +12',
     note: '한 번 맞아도 무너지지 않는 마운드',
     roster: (r) => bump(r, isPit, { stability: 12 }) },
 
@@ -3657,7 +3657,7 @@ export function SynergyTip({ s, after, candidate, top = 0, up = false, left = 0 
   return (
     <div ref={ref} className={`sd-tip sy${synTier(s)} ${up ? 'up' : ''}`} style={up ? { left: x } : { top: y }} role="tooltip">
       <div className="sd-th"><SynIcon id={s.id} /><b>{s.name}</b></div>
-      <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 함께 모이면 이 선수들의 능력치 상승' : '라인업에 많을수록 이 선수들이 강해집니다.'}</p>
+      <p><b>{s.cond}</b><br />{s.kind === 'story' ? '한 라인업에 모이면 능력치 상승' : '라인업에 많을수록 능력치 상승'}</p>
       <ul>{s.tiers.map((t, k) => <li key={t.need} className={k < s.level ? 'ok' : k === s.level ? 'nx' : ''}><span className="font-display">({t.need})</span>{t.effect}</li>)}</ul>
       <div className="sd-pfs">{synPeople(s, after, candidate).slice(0, 12).map((p) => <SynFace key={p.key} p={p} />)}</div>
     </div>
@@ -4716,7 +4716,7 @@ const RULE_TABS = [
       </> },
       { t: '드래프트 권', b: <>
         <div className="rl-kind">
-          <div><span className="rl-chip g">스카우트 리포트</span><span>새로고침 +3</span></div>
+          <div><span className="rl-chip g">새로고침권</span><span>새로고침 +3</span></div>
           <div><span className="rl-chip g">시리즈 지정권</span><span>다음 보드 고르기</span></div>
         </div>
       </> },
@@ -4979,9 +4979,7 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
       sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum, foe: oppT && sumsOf(oppT) }}
       teamInfo={teamInfo}
       onCommit={commit}
-      onAutoLineup={() => commit({ order: autoArrange(roster, benchIds, {}) })}
-      onReset={() => onReplace(init.current)}
-      onStart={onStart} onRestart={onRestart} startLabel={startLabel} restartLabel={restartLabel} startBlock={startBlock} cards={cards} />
+      onStart={onStart} startLabel={startLabel} startBlock={startBlock} cards={cards} />
   );
 }
 
@@ -5861,8 +5859,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                     </button>
                     {tickets.reroll > 0 && (
                       <span className="dr-tk">
-                        <button type="button" onClick={useReport} title="스카우트 리포트 — 새로고침 +3회">
-                          리포트 <em>· {tickets.reroll}장</em>
+                        <button type="button" onClick={useReport} title="새로고침권 — 새로고침 +3회">
+                          새로고침권 <em>· {tickets.reroll}장</em>
                         </button>
                       </span>
                     )}

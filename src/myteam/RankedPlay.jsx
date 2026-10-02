@@ -32,7 +32,7 @@ function Intro() {
           ))}
         </div>
         <div className="grid grid-cols-3 gap-3">
-          {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판`], ['3', '랭크 승점', '최종 순위로 RP가 오르내림']].map(([n, t, d]) => (
+          {[['1', '정규 시즌', `${LEAGUE_SIZE}팀과 ${GAMES}경기`], ['2', '가을야구', `상위 ${POST_TEAMS}팀 단판`], ['3', 'RP', '최종 순위로 오르내림']].map(([n, t, d]) => (
             <div key={n} className="ui-cut px-4 py-3" style={{ '--c': '10px', background: 'rgba(255,255,255,.05)' }}>
               <span className="ui-chip font-display" style={{ '--a': RK }}>{n}</span>
               <b className="mt-2 block text-t2 font-black text-white">{t}</b>
@@ -144,7 +144,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       <div className="relative flex min-h-0 flex-1 flex-col">
         <p className="ui-lab font-display" style={{ '--a': RK }}>{s ? `시즌 ${s.season}` : '새 시즌'}</p>
         <h1 className="mt-2 text-6xl font-black text-white">랭크전</h1>
-        <p className="mt-3 text-t2 text-gray-300">정규 시즌 · 가을야구 성적으로 랭크 승점</p>
+        <p className="mt-3 text-t2 text-gray-300">정규 시즌 · 가을야구 · RP</p>
         {s ? (
           <div className="ui-cut mt-auto bg-[#05080f]/60 px-4 py-3" style={{ '--c': '12px' }}>
             <StandingsTable s={s} />
@@ -159,7 +159,7 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       {/* 내용이 판보다 길면 판 안에서 스크롤 — 아래 단추는 늘 보이게 */}
       <div className="pop-scroll -mr-3 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-3">
       <p className="ui-lab font-display" style={{ '--a': RK }}>랭크 현황</p>
-      <h2 className="-mt-2 text-t1 font-black text-white">랭크전</h2>
+      <h2 className="-mt-2 text-t1 font-black text-white">내 등급</h2>
       <div className="ui-cut bg-white/[0.05] px-4 py-3" style={{ '--c': '10px' }}>
         <div className="flex items-baseline gap-2">
           <b className="font-display text-t1 font-extrabold" style={{ color: rank.tier.c }}>{rank.tier.ko} {rank.div}</b>

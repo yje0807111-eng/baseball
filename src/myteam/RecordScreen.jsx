@@ -322,7 +322,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
   const NAV = [
     ...MODES.map((m) => ({ key: m.key, label: m.label, n: counts[m.key] })),
     { key: 'players', label: '선수 기록' },
-    { key: 'dex', label: '도감', n: (account.dex || []).length },
+    { key: 'dex', label: '시리즈 도감', n: (account.dex || []).length },
     { key: 'week', label: '주간 과제', badge: weekLeft },
   ];
 
@@ -331,7 +331,7 @@ export default function RecordScreen({ account: first, initialMode = 'all', onBa
       <UiStyle />
       <style>{STYLE}</style>
       <Bg img="ui/mt/tile-record.webp" opacity={0.55} />
-      <TopBar eyebrow="메인" section="기록" team={account.team} account={account} onBack={onBack}
+      <TopBar eyebrow="메인" section="기록" account={account} onBack={onBack}
         steps={<TopTabs items={NAV} value={mode} label="기록 메뉴" onChange={(k) => { setMode(k); setSel((k === 'all' ? history : history.filter((h) => modeKey(h) === k))[0] || null); setOpen(null); }} />} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4"

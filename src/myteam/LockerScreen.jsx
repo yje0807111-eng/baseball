@@ -31,10 +31,8 @@ function ClubEmpty({ max, onScout }) {
       <div className="fx-rise flex flex-col items-center rounded-[28px] px-10 py-7 text-center" style={{ background: 'radial-gradient(closest-side, rgba(5,8,15,.82), rgba(5,8,15,.55) 70%, transparent)' }}>
         {/* 밝은 유니폼 위에서도 글자가 읽히게 뒤에 옅은 어둠 */}
         <b className="text-t1 font-black text-white [text-shadow:0_2px_12px_rgba(0,0,0,.9)]">보관함 비어 있음</b>
-        <span className="mt-3 flex items-baseline gap-2">
-          <b className="font-display text-t1 text-[#34d399]">0</b><small className="text-t3 text-gray-400">/ {max}명</small>
-        </span>
-        <span className="mt-4 grid grid-cols-10 gap-1.5" aria-hidden="true">
+        {/* 0 / 20 은 판 머리에 있어 여기선 빈 칸 스물로만 */}
+        <span className="mt-5 grid grid-cols-10 gap-1.5" aria-hidden="true">
           {Array.from({ length: max }, (_, i) => (
             <i key={i} className="block h-8 w-6 rounded-[5px]" style={{ background: 'rgba(52,211,153,.05)', boxShadow: 'inset 0 0 0 1px rgba(52,211,153,.32)' }} />
           ))}
@@ -143,7 +141,7 @@ function Select({ value, onChange, options, all }) {
 }
 
 /** 선수 한 줄 — 동그란 얼굴(구단 색 테) · 은빛 종합 · 이름 · 능력 넷 · CP · 값(특가면 표시) · 단추. 고르면 초록으로 떠오른다 */
-function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stored = false, price = null, capQuiet = false, more = null, className = '', style = null }) {
+function PlayerRow({ p, on, action, blocked, onPick, onAct, stored = false, price = null, capQuiet = false, more = null, className = '', style = null }) {
   const keys = KEYS[p.type] || KEYS.batter;
   const q = stored ? null : quoteOf(p);
   const deal = q && price != null && price < q.price;
@@ -161,12 +159,6 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, bench, onBench, stor
               style={{ color: more.deal ? WARN : '#a7f3d0', background: more.deal ? 'rgba(251,191,36,.14)' : 'rgba(52,211,153,.12)' }}>
               다른 시즌 {more.n}{more.deal ? ' · 특가' : ''} {more.open ? '▴' : '▾'}
             </em>
-          )}
-          {onBench && (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onBench(p); }} title={bench ? '눌러서 출전 선수로' : '눌러서 벤치로'}
-              className={`ml-2 rounded-full px-2 py-px align-middle text-t4 font-bold ${bench ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/35'}`}>
-              {bench ? '벤치 ↑' : '출전 ●'}
-            </button>
           )}
         </b>
         <small className="mt-0.5 block truncate text-t4 text-gray-400">{POS_FULL[p.position]} · {p.year} {p.team}</small>
@@ -750,24 +742,6 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
   const issues = squadIssues(squad, staff, cap, lim);
   const bench = team.bench || [];
   const playing = useMemo(() => playingIds(squad, bench), [squad, bench]);
-  /** 출전 ↔ 벤치 바꾸기. 출전으로 올리면 같은 묶음에서 가장 약한 출전 선수를 대신 벤치로 */
-  const toggleBench = (p) => {
-    const set = new Set(bench);
-    if (playing.has(p.id)) {
-      set.add(p.id);
-    } else {
-      set.delete(p.id);
-      // 타순은 포지션별로 뽑으므로 같은 포지션의 가장 약한 출전 선수와 먼저 바꾸고, 그래도 안 뜨면 타자 전체에서
-      const groups = p.type === 'batter' ? [(x) => x.position === p.position, (x) => x.type === 'batter'] : [(x) => x.position === p.position];
-      for (const same of groups) {
-        const now = playingIds(squad, [...set]);
-        if (now.has(p.id)) break;
-        const weakest = squad.filter((x) => same(x) && x.id !== p.id && now.has(x.id)).sort((a, b) => a.overall - b.overall)[0];
-        if (weakest) set.add(weakest.id);
-      }
-    }
-    commit({ ...team, bench: [...set].filter((id) => squad.some((x) => x.id === id)) });
-  };
 
   const commit = (next) => { setTeam(next); saveTeam(next); onSave?.(next); };
   /* 영입 · 방출은 골드와 엔트리를 한 번에 저장한다 (store.recruitPlayer · releasePlayer) */
@@ -1012,7 +986,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
             <PresetBar team={team} squad={squad} onSave={(i) => settle(savePreset(team, i))}
               onLoad={(i) => { const next = loadPreset(team, i); if (next) { settle(next); setSel(null); } }} />
             <SquadBoard team={team} squad={squad} bench={bench}
-              sel={sel} onSelect={setSel} onCommit={commit} onToggleBench={toggleBench} onRelease={release}
+              sel={sel} onSelect={setSel} onCommit={commit} onRelease={release}
               onAutoFill={autoFill} autoDisabled={squad.length >= lim.size} />
           </div>
         )}
@@ -1190,7 +1164,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                 <KV k="대상" v={`내 엔트리 ${staffTargets(m, squad)}명`} />
                 <KV k="CP" v={isCur || !cur ? `${m.cost}` : `${m.cost} (${m.cost - cur.cost > 0 ? '+' : ''}${m.cost - cur.cost})`} color="#fcd34d" />
                 <KV k="남은 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
-                {isCur && <KV k="계약" v={m.contracted ? '계약서' : 'CP'} />}
+                {isCur && <KV k="선임" v={m.contracted ? '계약서' : 'CP'} />}
               </div>
               {isCur ? (
                 <div className="grid grid-cols-[1.4fr_1fr] gap-2">
@@ -1221,7 +1195,6 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
         return createPortal(
           <Pop eyebrow="감독·코치" title={staffAsk.person ? `${was?.name} → ${staffAsk.person.name}` : `${was?.name} 해임`} sub={`${lost} 사라짐`} a="#f87171" width={480} onClose={close}
             actions={<><Btn onClick={close}>취소</Btn><Btn pri a="#f87171" onClick={() => { setStaff(staffAsk.slot, staffAsk.person); close(); }}>{staffAsk.person ? '교체' : '해임'}</Btn></>}>
-            <p className="text-t3 text-gray-300">강화 레벨 · 계약서는 다음 사람에게 넘어가지 않음</p>
           </Pop>,
           document.body,
         );

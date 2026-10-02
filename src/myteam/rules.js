@@ -58,7 +58,7 @@ export const PLAY_LIMIT = { SP: 5, RP: 8, batters: 9 };
  * 팀 한도 — 상점에서 산 확장(team.extraSlots · team.extraForeign)을 얹은 값.
  * 늘어난 엔트리 한 자리는 그대로 자유 자리 한 칸이 된다(포지션 필수는 그대로).
  */
-export const EXTRA_SLOT_MAX = 2;      // 벤치 확장은 두 번까지
+export const EXTRA_SLOT_MAX = 2;      // 엔트리 확장은 두 번까지
 export const EXTRA_FOREIGN_MAX = 1;   // 외국인 쿼터는 한 번까지
 export function limitsOf(team = {}) {
   const slots = Math.min(EXTRA_SLOT_MAX, Math.max(0, team.extraSlots || 0));

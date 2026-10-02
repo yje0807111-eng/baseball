@@ -166,7 +166,7 @@ export function WeekView({ account, onAccount }) {
           <KV k="과제 보상 합" v={rewardKo({ gold: list.reduce((s, x) => s + (x.m.gold || 0), 0), ticket: list.reduce((s, x) => s + (x.m.ticket || 0), 0) })} color={WEEK} />
         </div>
         <Btn pri={allTaken && !bonusTaken} a={WEEK} className="mt-auto w-full" disabled={!allTaken || bonusTaken} onClick={bonus}>
-          {bonusTaken ? '보너스 받음 ✓' : allTaken ? `보너스 받기 · ${BONUS_KO}` : `과제 ${WEEK_COUNT}개를 받으면 열림`}
+          {bonusTaken ? '보너스 받음 ✓' : allTaken ? `보너스 받기 · ${BONUS_KO}` : `잠김 · 과제 ${WEEK_COUNT}개 받기`}
         </Btn>
       </aside>
     </>

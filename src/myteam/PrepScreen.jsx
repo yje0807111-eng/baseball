@@ -43,7 +43,7 @@ function opponentOf(kind, sub, myTeam) {
 }
 
 
-export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null, onSaved = null }) {
+export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null, onSaved = null, onLocker = null }) {
   const opp = useMemo(() => opponent || opponentOf(kind, sub || '', team), [opponent, kind, sub, team]);
   /* 오늘 몸 상태 — 상대와 내 엔트리로 씨를 심어, 같은 경기에서는 다시 굴러가지 않는다 */
   const seed = useMemo(() => formSeed(opp?.name || '', sub || '', String((team.roster || []).length)), [opp, sub, team]);
@@ -86,7 +86,7 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
           <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
             sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum, foe: oppT && sumsOf(oppT) }} synergies={stats.t.synergies} teamInfo={teamInfo}
             onCommit={commit}
-            startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과 — 라커에서 정리` : block ? `조건 불충족 · ${block}` : null}
+            startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과` : block ? `조건 불충족 · ${block}` : null} onFix={onLocker}
             cards={CARD_ITEMS.map((it) => ({ id: it.id, name: it.name, effect: `${TEAM_BOOST_KO[it.teamBoost]} ${STAT_KO[it.stat]} +${it.amount}`, n: cardCount(team, it.id) }))}
             onStart={(plan, card) => onStart(ready, [], plan, card)} startLabel={startLabel} />
         </div>

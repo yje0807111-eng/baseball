@@ -233,7 +233,7 @@ function Slots({ count, slots = count, maxH, minH = 24, gap = 4, axis = 'y', sty
  * footer: 벤치 아래 남는 자리에 끼워 넣을 것 (시너지 등)
  * compact: 경기 준비 — 투수진 · 벤치 칸은 단추로 열고(처음엔 닫힘), 타순 칸 · 구장 카드의 기록을 빼고, footer 는 타순 아래
  */
-export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onToggleBench, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 360, compact = false }) {
+export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit, onRelease, onAutoFill, autoDisabled, fitSlots = false, footer = null, railW = 360, compact = false }) {
   /* 방출 모드: 켜 두면 선수를 누르는 순간 바로 내보낸다(되돌리기 없음). 자리 바꾸기(끌기)는 그대로 */
   const [fire, setFire] = useState(false);
   const [rail, setRail] = useState(!compact); // 투수진 · 벤치 칸 (경기 준비에서는 단추로 연다)
@@ -590,7 +590,7 @@ export default function SquadBoard({ team, squad, bench, sel, onSelect, onCommit
         </div>
       </div>
 
-      {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-400">영입한 선수 없음 · 왼쪽 영입에서 찾기</p> : (
+      {squad.length === 0 ? <p className="mt-4 text-t3 text-gray-400">영입한 선수 없음 · 영입 탭에서 찾기</p> : (
         <div className="mt-3 grid min-h-0 flex-1 gap-3.5" style={{ gridTemplateColumns: rail ? `minmax(0,1fr) ${railW}px` : 'minmax(0,1fr)' }}>
           {/* 왼쪽: 구장(수비 자리) + 아래 타순 띠 */}
           <div className="flex min-h-0 flex-col gap-2.5">

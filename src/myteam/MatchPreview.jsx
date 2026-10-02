@@ -46,7 +46,8 @@ export function Versus({ mine, opp, owner, className = 'h-56' }) {
       <div className="absolute right-5 top-4 text-right">
         <p className="ui-lab font-display justify-end" style={{ '--a': OPP }}>상대 팀</p>
         <b className="block text-t1 font-black text-white">{opp.name}</b>
-        <span className="text-t3 text-gray-400">{owner ? `${owner} · ` : ''}<b className="font-display text-t2 text-white">{teamRating(opp.roster)}</b></span>
+        {/* 우리 쪽과 같은 '팀 종합' 표기 — 다른 감독 팀이면 감독 이름을 앞에 */}
+        <span className="text-t3 text-gray-400">{owner ? `${owner} · ` : ''}팀 종합 <b className="font-display text-t2 text-white">{teamRating(opp.roster)}</b></span>
         <div className="mt-2"><Faces roster={opp.roster} align="right" /></div>
       </div>
     </div>

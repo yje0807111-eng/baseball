@@ -29,6 +29,9 @@ export function finishOf(size = 32, cup = null) {
 }
 
 /** 최종 순위(1~10)별 보상 */
+/** 내 팀 경기 한 판 골드(단판 · 토너먼트 · 랭크전) — 경기 뒤 지급(GameApp)과 첫 안내(로비)가 같이 읽는다 */
+export const MATCH_GOLD = { win: 300, draw: 180, loss: 120 };
+
 export const PLACE_REWARD = [
   { ko: '통합 우승', rp: 60, gold: 1500 },
   { ko: '준우승', rp: 45, gold: 1000 },

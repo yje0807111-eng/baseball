@@ -6,6 +6,7 @@ import { teamNeon } from './teamColor.js';
 import { teamFlag } from './teamArt.js';
 import { SQUAD_CAP, squadCost, limitsOf } from './rules.js';
 import { missionState, BONUS_KO, weekKey } from './missions.js';
+import { MATCH_GOLD } from './rewards.js';
 import LEAGUE from '../data/leagueAverage.json';
 import { useAce } from './useAce.js';
 import { GrowBar, reducedMotion } from '../ui/motion.jsx';
@@ -214,7 +215,7 @@ function StarterNotice({ team, gold, onClose }) {
         <div>
           <KV sm k="더 좋은 선수" v="골드로 영입" color="#fde047" />
           <KV sm k="CP" v="한 팀에 담는 한도" color="#34d399" />
-          <KV sm k="경기 보상" v="승 300 · 무 180 · 패 120 G" />
+          <KV sm k="경기 보상" v={`승 ${MATCH_GOLD.win} · 패 ${MATCH_GOLD.loss} · 무 ${MATCH_GOLD.draw} G`} />
           <KV sm k="방출" v="산 값의 절반 환급" />
         </div>
       </div>
@@ -227,7 +228,7 @@ function RefundNotice({ refund, onClose }) {
   return (
     <Pop eyebrow="상점 정리" a="#fde047" label="상점 정리 환급" onClose={() => onClose(false)}
       title={<>환급 <span className="font-display text-[#fde047]">{refund.gold.toLocaleString()} G</span></>}
-      actions={<Btn pri a="#fde047" className="min-w-[200px]" onClick={() => onClose(false)}>받기</Btn>}>
+      actions={<Btn pri a="#fde047" className="min-w-[200px]" onClick={() => onClose(false)}>확인</Btn>}>
       {refund.lines.map((l) => <KV key={l.name} sm k={`${l.name} · ${l.n}장`} v={`${l.gold.toLocaleString()} G`} color="#fde047" />)}
     </Pop>
   );

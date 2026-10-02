@@ -16,7 +16,7 @@ export const CATEGORIES = [
   { key: 'all', label: '전체' },
   { key: 'training', label: '훈련' },
   { key: 'boost', label: '준비 카드' },
-  { key: 'ops', label: '운영' },
+  { key: 'ops', label: '구단 관리' },
   { key: 'staff', label: '감독·코치' },
   { key: 'aug', label: '증강' },
   { key: 'draft', label: '드래프트' },
@@ -26,21 +26,21 @@ const item = (id, cat, name, desc, price, opt) => ({ id, cat, name, desc, price,
 
 export const SHOP_ITEMS = [
   // 드래프트 (판을 흔드는 권 — 계정에 쌓아 두고 그 판에서 쓴다)
-  item('dr-reroll', 'draft', '스카우트 리포트', '드래프트 새로고침 +3회', 220, { draftTicket: 'reroll', img: 'mt-pack' }),
+  item('dr-reroll', 'draft', '새로고침권', '드래프트 새로고침 +3회', 220, { draftTicket: 'reroll', img: 'mt-pack' }),
   item('dr-series', 'draft', '시리즈 지정권', '다음 보드에 열릴 시리즈 고르기', 480, { draftTicket: 'series', img: 'mt-pack' }),
   // 훈련 (영구)
-  item('tr-contact', 'training', '타격 특훈', '타자 1명 컨택 +3 · 영구', 300, { target: 'batter', stat: 'contact', amount: 3, img: 'mt-boost' }),
+  item('tr-contact', 'training', '컨택 훈련', '타자 1명 컨택 +3 · 영구', 300, { target: 'batter', stat: 'contact', amount: 3, img: 'mt-boost' }),
   item('tr-power', 'training', '파워 훈련', '타자 1명 파워 +3 · 영구', 320, { target: 'batter', stat: 'power', amount: 3, img: 'mt-boost' }),
   item('tr-speed', 'training', '주루 훈련', '타자 1명 주루 +4 · 영구', 240, { target: 'batter', stat: 'speed', amount: 4, img: 'mt-boost' }),
-  item('tr-control', 'training', '제구 교정', '투수 1명 제구 +3 · 영구', 300, { target: 'pitcher', stat: 'control', amount: 3, img: 'mt-boost' }),
-  item('tr-stuff', 'training', '구위 강화', '투수 1명 구위 +3 · 영구', 340, { target: 'pitcher', stat: 'stuff', amount: 3, img: 'mt-boost' }),
+  item('tr-control', 'training', '제구 훈련', '투수 1명 제구 +3 · 영구', 300, { target: 'pitcher', stat: 'control', amount: 3, img: 'mt-boost' }),
+  item('tr-stuff', 'training', '구위 훈련', '투수 1명 구위 +3 · 영구', 340, { target: 'pitcher', stat: 'stuff', amount: 3, img: 'mt-boost' }),
   // 준비 카드 (경기 전 정비에서 한 장 · 그 경기만)
   item('bo-meeting', 'boost', '타선 미팅', '타자 전원 컨택 +3 · 경기 전 한 장', 380, { card: true, teamBoost: 'batter', stat: 'contact', amount: 3, img: 'mt-boost' }),
   item('bo-mound', 'boost', '마운드 미팅', '투수 전원 제구 +3 · 경기 전 한 장', 400, { card: true, teamBoost: 'pitcher', stat: 'control', amount: 3, img: 'mt-boost' }),
   item('bo-bullpen', 'boost', '불펜 데이', '불펜 투수 전원 체력 +20 · 경기 전 한 장', 320, { card: true, teamBoost: 'rp', stat: 'stamina', amount: 20, img: 'mt-boost' }),
   item('bo-medic', 'ops', '재활 트레이너', '투수진 피로 모두 회복', 350, { medic: true, img: 'mt-boost' }),
-  // 운영
-  item('op-bench', 'ops', '벤치 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
+  // 구단 관리
+  item('op-bench', 'ops', '엔트리 확장', '엔트리 자리 +1 · 영구 (최대 2번)', 1200, { expand: 'slot', img: 'mt-pack' }),
   item('op-foreign', 'ops', '외국인 쿼터 +1', '외국인 한도 3 → 4명 · 영구 (한 번만)', 1600, { expand: 'foreign', img: 'mt-pack' }),
   item('op-club', 'ops', '보관함 확장', '보관함 +10칸 · 영구 (최대 2번)', 700, { expand: 'club', img: 'mt-pack' }),
   item('op-preset', 'ops', '프리셋 칸 +1', '엔트리 조합 저장 칸 +1 · 영구 (최대 2번)', 600, { expand: 'preset', img: 'mt-pack' }),
@@ -88,7 +88,7 @@ export const itemArt = (it) => `ui/shop/${it.art || it.id}.webp`; // art: 그림
 
 /* ───── 드래프트 권: 사 두면 계정에 쌓이고, 드래프트 판에서 한 장씩 쓴다 ───── */
 export const DRAFT_TICKETS = ['reroll', 'series'];
-export const DRAFT_TICKET_KO = { reroll: '스카우트 리포트', series: '시리즈 지정권' };
+export const DRAFT_TICKET_KO = { reroll: '새로고침권', series: '시리즈 지정권' };
 export const DRAFT_TICKET_TIP = { reroll: '새로고침 +3회', series: '다음 보드 고르기' };
 export const emptyDraftTickets = () => Object.fromEntries(DRAFT_TICKETS.map((k) => [k, 0]));
 /** 계정에 저장된 권 수 (없는 칸은 0) */

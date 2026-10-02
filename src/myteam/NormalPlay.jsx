@@ -199,11 +199,11 @@ export function TourneyHero({ size, t, name, squad, cup = 'open' }) {
       <span className="absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/tour/tunnel.webp)', backgroundPosition: 'center 45%' }} />
       <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.55),rgba(5,8,15,.15) 45%,#05080f)' }} />
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <p className="ui-lab font-display" style={{ '--a': A }}>{size}강 토너먼트</p>
+        {/* 제목 하나(가운데 큰 글자) — 위 라벨 · 오른쪽 판에 같은 말을 또 적지 않는다 */}
         <div className="mt-auto text-center">
           <p className="font-display text-t4 font-bold tracking-[0.4em]" style={{ color: A }}>우승까지</p>
           <h1 className="mt-2 text-6xl font-black leading-none text-white">{size}강 토너먼트</h1>
-          <p className="mt-3 text-t2 text-gray-300">{n}번 이기면 우승. 한 번 지면 끝.</p>
+          <p className="mt-3 text-t2 text-gray-300">{n}승 우승 · 1패 탈락</p>
           <div className="mt-5 flex items-center justify-center gap-2">
             {rounds.map((r, k) => {
               const done = now > k;
@@ -288,7 +288,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
       ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
-      <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? '단판' : `${format}강 토너먼트`}</p>
+      <p className="ui-lab font-display" style={{ '--a': acc }}>내 팀</p>
       <h2 className="-mt-2 text-t1 font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
@@ -300,14 +300,13 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
         </>
       ) : (
         <>
-          {/* 시작 전에는 우승 상금을 아래 큰 칸으로 보여 주므로 여기선 뺀다 */}
-          <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['우승', `${fin[rounds.length].gold} G`]]
+          {/* 우승 상금은 왼쪽 큰 판에 있어 여기선 뺀다 */}
+          <Stats items={t ? [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['승리', `${wins} / ${rounds.length}`]]
             : [['참가', `${format}팀`], ['경기', `최대 ${rounds.length}`], ['동점이면', '종합순']]} />
           {t ? (
             <div>
               <KV k="진행" v={t.done ? fin[t.place].ko : rounds[t.round].ko} color={A} />
               {cupId !== 'open' && <KV k="대회 조건" v={`${cupOf(cupId).ko} · ×${cupMult(cupId)}`} color={A} />}
-              <KV k="승리" v={`${wins} / ${rounds.length}`} />
               <KV k="팀 종합" v={st.ovr || '-'} />
               <KV k="동점이면" v="팀 종합 높은 쪽" />
             </div>
@@ -315,10 +314,6 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
             <>
               <p className="ui-lab font-display" style={{ '--a': A }}>대회 조건</p>
               <CupPicker value={cup} onChange={onCup} />
-              <div className="ui-cut shrink-0 px-4 py-3" style={{ '--c': '10px', background: `linear-gradient(90deg,${A}1f,rgba(255,255,255,.03))` }}>
-                <p className="text-t4 text-gray-400">우승 상금</p>
-                <b className="font-display text-t1" style={{ color: A }}>{fin[rounds.length].gold} G</b>
-              </div>
               <p className="ui-lab font-display" style={{ '--a': A }}>라운드 보상</p>
               {/* 라운드가 다섯 이상이면(32 · 64강) 줄을 촘촘하게 해 스크롤 없이 담는다 */}
               <div className="min-h-0 flex-1">

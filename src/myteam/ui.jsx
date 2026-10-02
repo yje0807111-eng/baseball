@@ -197,7 +197,8 @@ export function Pop({ eyebrow, title, sub, a = '#10b981', width = 560, onClose, 
             </button>
           )}
         </header>
-        <div className="mt-scroll min-h-0 flex-1 overflow-y-auto px-7 py-5">{children}</div>
+        {/* 내용 없는 확인 팝업(제목 · 한 줄 · 단추)은 본문 칸 없이 */}
+        {children != null && children !== false && <div className="mt-scroll min-h-0 flex-1 overflow-y-auto px-7 py-5">{children}</div>}
         {actions && <footer className="flex items-center justify-end gap-2 border-t border-white/10 px-7 py-4">{actions}</footer>}
       </section>
     </div>

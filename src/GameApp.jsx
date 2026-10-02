@@ -14,6 +14,7 @@ import { staffTeam } from './myteam/staff.js';
 import { randomSeriesTeam, DUEL_SUB } from './myteam/aiTeam.js';
 import { makeTournament, myOpponent, teamOf, advance, roundsOf, finishOf, hashKey, newKey } from './myteam/tournament.js';
 import * as ranked from './myteam/ranked.js';
+import { MATCH_GOLD } from './myteam/rewards.js';
 import { findGhosts, uploadDefense, recordBattle } from './net/pvp.js';
 import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
@@ -29,6 +30,11 @@ import { KboAugmentDraft, LockerScreen, ShopScreen, RecordScreen, AugmentScreen,
 /** 화면이 오는 동안 잠깐 놓이는 자리 — 배경색만 같게 둔다 */
 const Loading = () => <div className="min-h-screen" style={{ background: '#05080f' }} />;
 const screen = (node) => <Suspense fallback={<Loading />}>{node}</Suspense>;
+/* 갈 곳이 없는 화면 — 잠깐(상태가 막 바뀌는 한 프레임) 기다렸다가도 그대로면 로비로. 곧바로 보내면 대진표 · 시즌을 막 만드는 중에 튕긴다 */
+function ToLobby({ go }) {
+  useEffect(() => { const t = setTimeout(go, 800); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Loading />;
+}
 
 export default function GameApp({ account, setAccount, view, setView, playTab, setPlayTab, recordTab = 'all' }) {
   const [match, setMatch] = useState(null); // 경기 중인 두 팀 { my, opp, kind: 'duel' | 'tourney' | 'ranked' }
@@ -264,7 +270,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       return;
     }
     addHistory(base);
-    const gold = res.winner === 'my' ? 300 : res.winner === 'draw' ? 180 : 120;
+    const gold = res.winner === 'my' ? MATCH_GOLD.win : res.winner === 'draw' ? MATCH_GOLD.draw : MATCH_GOLD.loss;
     addGold(gold);
     const rec = reload()?.team?.record || { w: 0, l: 0, d: 0 };
     show('일반 대결 · 단판', [
@@ -307,7 +313,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(<RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />);
   }
   if (view === 'prep' && prep) {
-    return screen(<>{augOverlay}<PrepScreen team={account.team} kind={prep.kind} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
+    return screen(<>{augOverlay}<PrepScreen team={account.team} kind={prep.kind} onLocker={() => openLocker()} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
@@ -316,5 +322,5 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
   }
   /* 갈 곳이 없으면(대진표·시즌이 없는데 그 화면을 불렀다면) 로비로 */
-  return <Loading />;
+  return <ToLobby go={() => setView('lobby')} />;
 }

@@ -104,7 +104,7 @@ export const SIDES = [
       { id: 'long', ko: '선발 길게', main: '교체 ↓', fx: { up: ['교체 ↓'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '보통', mix: '보통' } },
       { id: 'quick', ko: '빠른 계투', main: '지친 투수 ↓', fx: { up: ['지친 투수 ↓'], dn: ['불펜 소모 ↑'] }, tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
       { id: 'allin', ko: '불펜 총력전', main: '볼넷 ↓', fx: { up: ['볼넷 ↓'], dn: ['불펜 소모 ↑'] }, tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
-      { id: 'save', ko: '불펜 아끼기', main: '불펜 휴식', fx: { up: ['불펜 휴식'], dn: ['볼넷 ↑'] }, tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
+      { id: 'save', ko: '불펜 아끼기', main: '불펜 소모 ↓', fx: { up: ['불펜 소모 ↓'], dn: ['볼넷 ↑'] }, tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
     ] },
   { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [

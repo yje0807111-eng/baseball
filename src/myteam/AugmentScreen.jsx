@@ -2,7 +2,7 @@
  * 증강 도감 — 내 증강 풀 관리 (게임 결: 금테 진열장 · 육각 도감)
  *  왼쪽: 고른 증강 진열장 — 육각 그림 · 레벨 보석 · 레벨별 효과(지금 · 다음 칸) · 강화 · 제외 · 즐겨찾기
  *  오른쪽: 육각 도감 — 종류 · 즐겨찾기 · 제외 거르기, 제외 도장 · 즐겨찾기 별 · 레벨 보석
- *  위 줄: 강화권 · 제외 칸
+ *  위 줄: 강화권 (제외 칸 수는 '제외' 탭 숫자로)
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { AUGMENTS, augDescAt, augAreas, AUG_AREA } from '../KboAugmentDraft.jsx';
@@ -102,12 +102,6 @@ export default function AugmentScreen({ account, onBack }) {
               <small className="text-t4 text-gray-400">강화권</small>
               <b className="font-display text-t2 text-[#f5d27a]">{aug.upgradeTickets}</b>
             </span>
-            <span className="mt-cut mt-glass flex h-11 items-center gap-2 px-4" style={cut(14)} title="제외한 증강은 경기에 나오지 않음">
-              <small className="mr-1 text-t4 text-gray-400">제외 칸</small>
-              {Array.from({ length: slots }, (_, i) => (
-                <i key={i} className="block h-3.5 w-3.5 rounded" style={i < bans.length ? { background: RED, boxShadow: `0 0 8px ${RED}` } : { boxShadow: 'inset 0 0 0 1.5px rgba(248,113,113,.5)' }} />
-              ))}
-            </span>
           </>
         )} />
 
@@ -166,7 +160,7 @@ export default function AugmentScreen({ account, onBack }) {
               <div className="flex gap-2">
                 <button type="button" className="mt-btn min-w-0 flex-1" style={{ color: isBan ? '#e8ecf2' : '#fda4af' }}
                   disabled={!isBan && bans.length >= slots} onClick={() => toggleBan(picked)}>
-                  {isBan ? '제외 풀기 ↺' : bans.length >= slots ? `제외 칸 가득 · ${slots}칸` : '이 증강 제외'}
+                  {isBan ? '제외 풀기 ↺' : bans.length >= slots ? '제외 칸 가득' : '이 증강 제외'}
                 </button>
                 <button type="button" className="mt-btn shrink-0 px-5" aria-pressed={isFav} onClick={() => toggleFav(picked)}
                   style={{ color: isFav ? '#f5d27a' : '#94a3b8', boxShadow: isFav ? 'inset 0 0 0 1px rgba(245,210,122,.55)' : undefined }}>
