@@ -261,6 +261,8 @@ export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) *
  */
 export function approachOf(approach, contact, power, stuff) {
   if (approach === 'power') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.06 + 0.035 * pe, hit: -0.02, hr: Math.max(-0.02, 0.025 + 0.045 * pe), dbl: 0.03 }; }
+  /* 노림수: 한 방만 노린다 — 헛스윙 크게 ↑ · 홈런 ↑(파워가 구위를 넘을수록 더). 뒤질 때 값어치, 앞설 때 손해 */
+  if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.08 + 0.02 * pe, hit: -0.03, hr: Math.max(0.03, 0.09 + 0.03 * pe), dbl: 0.04 }; }
   if (approach === 'contact') { const ce = clamp((contact - 75) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.045, dbl: -0.09 }; }
   return { whiff: 0, hit: 0, hr: 0, dbl: 0 };
 }
@@ -420,7 +422,6 @@ export function pitch(g, orders = {}) {
   if (g.final) return null;
   const off = offenseOf(g);
   const def = defenseOf(g);
-  const batter = batterOf(g);
   if (orders.changePitcher) {
     // id 를 주면 그 투수를 다음 순번으로 당겨 온다 (이미 던진 투수 · 지금 투수는 고를 수 없다)
     if (typeof orders.changePitcher === 'string') {
@@ -442,10 +443,24 @@ export function pitch(g, orders = {}) {
     def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
     swapped = { out, in: def.pitcher };
   }
+  /*
+   * 대타 · 대주자 — 벤치(team.bench)에서 데려와 그 타순 자리를 영영 넘겨받는다(빠진 선수는 다시 못 나온다).
+   * 대타는 새 타석에서만. 대주자는 그 루의 주자를 바꾸고, 그 주자의 타순 자리도 넘겨받는다.
+   */
+  const bench = off.team.bench || [];
+  if (orders.pinchHit && !g.balls && !g.strikes) {
+    const at = bench.findIndex((p) => p.id === orders.pinchHit);
+    if (at >= 0) { const [sub] = bench.splice(at, 1); off.team.batters[off.idx % off.team.batters.length] = sub; }
+  }
+  if (orders.pinchRun) {
+    const { base, id } = orders.pinchRun, runner = g.bases[base], at = bench.findIndex((p) => p.id === id);
+    const slot = runner ? off.team.batters.findIndex((p) => p.id === runner.id) : -1;
+    if (at >= 0 && slot >= 0) { const [sub] = bench.splice(at, 1); off.team.batters[slot] = sub; g.bases[base] = sub; }
+  }
   /* 수비가 정한 값 — 주자 묶기는 도루 성공률이, 수비 위치는 타구 처리가 본다 */
   g.hold = orders.hold || 0;
   g.guard = orders.guard || 0;
-  const pitcher = def.pitcher;
+  const pitcher = def.pitcher, batter = batterOf(g);
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, ...(swapped ? { swapped } : {}), before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
   let runs = 0;
 
