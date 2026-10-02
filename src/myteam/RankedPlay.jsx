@@ -222,10 +222,10 @@ export function rankedPanels({ account, onOpen, onLocker }) {
       </div>
       <div className="shrink-0">
         {ready || s
-          ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onOpen}>
+          ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri lg w-full text-t2" style={{ '--a': RK }} onClick={onOpen}>
             {!s ? '시즌 1 시작 ▶' : s.done ? '시즌 결과 · 새 시즌 ▶' : '순위표 · 다음 경기 ▶'}
           </button>
-          : <button type="button" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>}
+          : <button type="button" className="ui-btn ui-cut pri lg w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>}
       </div>
     </aside>
   );

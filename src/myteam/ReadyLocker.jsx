@@ -332,8 +332,8 @@ function WarRoom({ team, autoFilled, onStart, startLabel, children, startBlock =
         )}
         {/* 막혔을 때 고칠 곳이 있으면(내 팀 정비 → 라커) 시작 단추 자리에 그리로 가는 단추 — 막힌 단추만 두면 뒤로 두세 번 */}
         {startBlock && onFix
-          ? <Btn lg pri data-sfx="nav" a="#f87171" style={{ ...cut(12), minHeight: '4rem' }} onClick={onFix}>라커에서 정리 ▶</Btn>
-          : <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), minHeight: '4rem', ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>}
+          ? <Btn lg pri data-sfx="nav" a="#f87171" style={cut(12)} onClick={onFix}>라커에서 정리 ▶</Btn>
+          : <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={onStart}>{startLabel}</Btn>}
       </div>
     </aside>
   );

@@ -3,7 +3,8 @@
  * 경기가 끝나면 여기로 돌아와 다른 팀들의 성적과 순위 변화를 본다.
  */
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import BgmButton from '../audio/BgmButton.jsx';
+import { TopBar } from './ui.jsx';
+import { loadAccount } from './store.js';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { teamOf } from './tournament.js';
 import { standings, myOpponent, meOf, postMatch, GAMES, POST_TEAMS, STAGES, PLACE_REWARD } from './ranked.js';
@@ -234,39 +235,35 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
       <style>{KEYFRAMES + RK_CSS}</style>
       {tierUp && <TierUp from={tierUp.from} to={tierUp.to} onClose={() => setTierUp(null)} />}
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
-      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b px-7" style={{ borderColor: 'rgba(167,139,250,.3)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
-        <div>
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
-          <b className="text-t2 font-extrabold text-white">랭크전 시즌 {s.season} · {s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}</b>
-        </div>
-        <div className="ml-auto flex items-center gap-1.5">
-          {Array.from({ length: GAMES }, (_, i) => {
-            const g = s.games[i]?.find((x) => x.a === me || x.b === me);
-            const res = g ? ((g.a === me ? g.as - g.bs : g.bs - g.as) > 0 ? 'W' : (g.a === me ? g.as - g.bs : g.bs - g.as) < 0 ? 'L' : 'D') : null;
-            const cur = !inPost && !s.done && i === s.round;
-            return (
-              <span key={i} className="ui-cut grid h-8 w-8 place-items-center font-display text-t3 font-bold"
-                style={{ '--c': '5px', color: cur ? '#05080f' : res === 'W' ? ME : res === 'L' ? OPP : '#64748b', background: cur ? RK : 'rgba(255,255,255,.05)' }}>
-                {res || i + 1}
-              </span>
-            );
-          })}
-          <span className="mx-2 h-6 w-px bg-white/15" />
-          {STAGES.map((st, i) => {
-            const res = s.post?.results[i];
-            const cur = pm?.stage === i;
-            const meIn = res && (res.hi === me || res.lo === me);
-            return (
-              <span key={st.key} className="ui-cut px-2.5 py-1.5 font-display text-t3 font-bold"
-                style={{ '--c': '6px', color: cur ? '#05080f' : meIn ? (res.winner === me ? ME : OPP) : res ? '#94a3b8' : '#475569', background: cur ? '#fbbf24' : 'rgba(255,255,255,.05)' }}>
-                {st.ko}
-              </span>
-            );
-          })}
-        </div>
-        <BgmButton />
-      </header>
+      {/* 머리줄은 메인 계열과 같은 TopBar — 프로필 · 골드 · 음악이 모든 화면 같은 자리, 진행(경기 점 · 라운드)은 가운데 칸 */}
+      <TopBar eyebrow="플레이" section={`랭크전 시즌 ${s.season} · ${s.done ? reward.ko : inPost ? stage.ko : `정규 ${s.round + 1}차전`}`} account={loadAccount()} onBack={onBack}
+        steps={(
+          <div className="flex items-center items-center gap-1.5">
+            {Array.from({ length: GAMES }, (_, i) => {
+              const g = s.games[i]?.find((x) => x.a === me || x.b === me);
+              const res = g ? ((g.a === me ? g.as - g.bs : g.bs - g.as) > 0 ? 'W' : (g.a === me ? g.as - g.bs : g.bs - g.as) < 0 ? 'L' : 'D') : null;
+              const cur = !inPost && !s.done && i === s.round;
+              return (
+                <span key={i} className="ui-cut grid h-8 w-8 place-items-center font-display text-t3 font-bold"
+                  style={{ '--c': '5px', color: cur ? '#05080f' : res === 'W' ? ME : res === 'L' ? OPP : '#64748b', background: cur ? RK : 'rgba(255,255,255,.05)' }}>
+                  {res || i + 1}
+                </span>
+              );
+            })}
+            <span className="mx-2 h-6 w-px bg-white/15" />
+            {STAGES.map((st, i) => {
+              const res = s.post?.results[i];
+              const cur = pm?.stage === i;
+              const meIn = res && (res.hi === me || res.lo === me);
+              return (
+                <span key={st.key} className="ui-cut px-2.5 py-1.5 font-display text-t3 font-bold"
+                  style={{ '--c': '6px', color: cur ? '#05080f' : meIn ? (res.winner === me ? ME : OPP) : res ? '#94a3b8' : '#475569', background: cur ? '#fbbf24' : 'rgba(255,255,255,.05)' }}>
+                  {st.ko}
+                </span>
+              );
+            })}
+          </div>
+        )} />
 
       <main className="relative z-10 grid min-h-0 flex-1 gap-3 p-3" style={{ gridTemplateColumns: 'minmax(0,1fr) 560px' }}>
         <div className="grid min-h-0 gap-3" style={{ gridTemplateRows: 'auto minmax(0,1fr)' }}>
@@ -329,7 +326,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                   {inPost && <Row k="동점이면"><b className="text-right text-white">{s.teams[pm.hi].name} 진출</b></Row>}
                 </div>
               </div>
-              <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
+              <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto lg w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
                 {inPost ? `${stage.ko} 정비 ▶` : `정규 ${s.round + 1}차전 정비 ▶`}
               </button>
             </>
@@ -364,8 +361,8 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 );
               })()}
               {s.claimed
-                ? <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onNewSeason}>시즌 {s.season + 1} 시작 ▶</button>
-                : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': RK }} onClick={onClaim}>보상 받기 · {reward.rp >= 0 ? '+' : ''}{reward.rp} RP · {reward.gold} G</button>}
+                ? <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto lg w-full text-t2" style={{ '--a': RK }} onClick={onNewSeason}>시즌 {s.season + 1} 시작 ▶</button>
+                : <button type="button" className="ui-btn ui-cut pri mt-auto lg w-full text-t2" style={{ '--a': RK }} onClick={onClaim}>보상 받기 · {reward.rp >= 0 ? '+' : ''}{reward.rp} RP · {reward.gold} G</button>}
             </>
           ) : null}
         </aside>

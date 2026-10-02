@@ -7,15 +7,14 @@ import { KEYFRAMES, readyStats, oppTeamFor, useSimWin, sumsOf } from '../KboAugm
 import ReadyLocker from './ReadyLocker.jsx';
 import { readyRoster, todaySquad, matchTeamOf } from './prep.js';
 import { loadAccount, saveTeam } from './store.js';
+import { TopBar } from './ui.jsx';
 import { myOpponent as tourOpponent, teamOf } from './tournament.js';
 import { myOpponent as rankedOpponent } from './ranked.js';
 import { AI_SERIES, duelSeriesTeam } from './aiTeam.js';
 import { peekNextDuel } from './store.js';
 import { formSeed, oppSeed, applyFormTeam } from './form.js';
-import CapBar from './CapBar.jsx';
 import { capUse } from './rules.js';
 import { CARD_ITEMS, TEAM_BOOST_KO, STAT_KO, cardCount } from './shop.js';
-import BgmButton from '../audio/BgmButton.jsx';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -72,15 +71,8 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
     <div className="min-h-screen bg-[#05080f] font-sans text-gray-100 antialiased lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
       <style>{KEYFRAMES}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/ready.webp)' }} aria-hidden="true" />
-      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b border-[#f5d27a]/20 px-7" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label={`${backLabel} 돌아가기`}>←</button>
-        <div>
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">{sub}</p>
-          <b className="text-t1 font-black text-white">{title}</b>
-        </div>
-        <CapBar team={team} sm className="ml-auto w-[248px]" />
-        <BgmButton />
-      </header>
+      {/* 머리줄은 메인 계열과 같은 TopBar — 위 작은 글자는 돌아갈 곳(플레이 · 순위표 · 대진표), 남은 캡은 라커와 같은 칸 */}
+      <TopBar eyebrow={backLabel.replace(/로$/, '')} section={title} team={team} account={loadAccount()} onBack={onBack} />
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
           <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}

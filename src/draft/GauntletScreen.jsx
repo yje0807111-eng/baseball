@@ -219,7 +219,7 @@ function Versus({ me, myEmb, cur: cur0, res, onPlay, buff = 0 }) {
           </span>
         ))}
       </div>
-      <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[4rem] w-full shrink-0 text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비 ▶</button>
+      <button type="button" className="ui-btn ui-cut pri mt-auto lg w-full shrink-0 text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비 ▶</button>
     </section>
   );
 }
@@ -342,7 +342,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
             <span className="grid h-24 w-24 place-items-center rounded-full" style={{ background: 'linear-gradient(180deg,#fde68a,#d69e2e)', boxShadow: `0 0 40px ${GOLD}` }}><Cup size={48} lit /></span>
             <b className="text-t1 font-black" style={{ color: GOLD }}>정복 완료</b>
             <b className="font-display text-t2 text-[#e8ecf2]">{rec.w}승 {rec.l}패</b>
-            <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-2 min-h-[3.4rem] px-12 text-t2" style={{ '--c': '10px' }} onClick={onExit}>모드 고르기</button>
+            <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-2 lg px-12 text-t2" style={{ '--c': '10px' }} onClick={onExit}>모드 고르기</button>
           </section>
         )}
       </div>

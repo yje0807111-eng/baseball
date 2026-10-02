@@ -4,14 +4,14 @@
  * 일반 대결(내 라커 팀)과 드래프트 모드(그 판의 드래프트 팀)가 함께 쓴다.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import BgmButton from '../audio/BgmButton.jsx';
+import { TopBar } from './ui.jsx';
 import { play as playSfx } from '../audio/sfx.js';
 import { reducedMotion } from '../ui/motion.jsx';
 import { KEYFRAMES } from '../KboAugmentDraft.jsx';
 import { roundsOf, finishOf, myOpponent, meIndex, teamOf } from './tournament.js';
 import { Faces, Versus, Axes, Row, keyPlayersOf, ME, OPP } from './MatchPreview.jsx';
 import { teamFlag, flagByKey } from './teamArt.js';
-import { myBanner } from './store.js';
+import { myBanner, loadAccount } from './store.js';
 
 /* 팀 칸 배경: 구단 색 깃발이 오른쪽에서 왼쪽으로 스러진다 */
 const FLAG_MASK = 'linear-gradient(90deg,transparent 18%,#000 78%)';
@@ -141,27 +141,23 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
       <style>{`${KEYFRAMES}
         @keyframes tbIn { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }`}</style>
       <div className="ui-bg" style={{ backgroundImage: 'url(ui/stadium.webp)' }} aria-hidden="true" />
-      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 border-b px-7" style={{ borderColor: 'rgba(251,191,36,.25)', background: 'linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))' }}>
-        <button type="button" data-sfx="nav" onClick={onBack} className="ui-cut grid h-10 w-10 place-items-center bg-white/[0.06] text-t2" style={{ '--c': '8px' }} aria-label="플레이로 돌아가기">←</button>
-        <div>
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">플레이</p>
-          <b className="text-t2 font-extrabold text-white">{title || `${size}강 토너먼트`} · {t.done ? finish.ko : ROUNDS[t.round].ko}</b>
-        </div>
-        <div className="ml-auto flex gap-1.5">
-          {ROUNDS.map((r, i) => {
-            const out = t.done && t.place === i;
-            const cur = !t.done && t.round === i;
-            const done = i < past && !out;
-            return (
-              <span key={r.key} className="ui-cut px-3 py-1.5 font-display text-t3 font-bold"
-                style={{ '--c': '7px', color: cur ? '#05080f' : out ? OPP : done ? ME : '#475569', background: cur ? A : 'rgba(255,255,255,.05)', boxShadow: cur ? 'none' : `inset 0 0 0 1px ${out ? OPP : done ? 'rgba(52,211,153,.5)' : 'rgba(255,255,255,.1)'}` }}>
-                {done ? '✓ ' : ''}{r.ko}
-              </span>
-            );
-          })}
-        </div>
-        <BgmButton />
-      </header>
+      {/* 머리줄은 메인 계열과 같은 TopBar — 프로필 · 골드 · 음악이 모든 화면 같은 자리, 진행(경기 점 · 라운드)은 가운데 칸 */}
+      <TopBar eyebrow="플레이" section={`${title || `${size}강 토너먼트`} · ${t.done ? finish.ko : ROUNDS[t.round].ko}`} account={loadAccount()} onBack={onBack}
+        steps={(
+          <div className="flex items-center gap-1.5">
+            {ROUNDS.map((r, i) => {
+              const out = t.done && t.place === i;
+              const cur = !t.done && t.round === i;
+              const done = i < past && !out;
+              return (
+                <span key={r.key} className="ui-cut px-3 py-1.5 font-display text-t3 font-bold"
+                  style={{ '--c': '7px', color: cur ? '#05080f' : out ? OPP : done ? ME : '#475569', background: cur ? A : 'rgba(255,255,255,.05)', boxShadow: cur ? 'none' : `inset 0 0 0 1px ${out ? OPP : done ? 'rgba(52,211,153,.5)' : 'rgba(255,255,255,.1)'}` }}>
+                  {done ? '✓ ' : ''}{r.ko}
+                </span>
+              );
+            })}
+          </div>
+        )} />
 
       <main className="relative z-10 grid min-h-0 flex-1 gap-3 p-3" style={{ gridTemplateColumns: 'minmax(0,1fr) 560px' }}>
         <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden" style={{ '--c': '18px', '--a': A }}>
@@ -188,7 +184,7 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
                   <Row k="이기면"><b className="font-display text-t2 text-white">{t.round === ROUNDS.length - 1 ? '우승' : `${ROUNDS[t.round + 1].ko} 진출`}{rewards ? ` · ${FINISH[t.round + 1].gold} G 확보` : ''}</b></Row>
                 </div>
               </div>
-              <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} {playLabel}</button>
+              <button type="button" className="ui-btn ui-cut pri mt-auto lg w-full shrink-0 text-t2" style={{ '--a': A }} onClick={onPlay}>{ROUNDS[t.round].ko} {playLabel}</button>
             </>
           ) : (
             <>
@@ -216,8 +212,8 @@ export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, on
                 </div>
               )}
               {t.claimed || !onClaim || !rewards
-                ? onRestart && <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={onRestart}>새 {size}강 시작 ▶</button>
-                : <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={onClaim}>보상 받기 · {finish.gold} G</button>}
+                ? onRestart && <button type="button" className="ui-btn ui-cut pri mt-auto lg w-full text-t2" style={{ '--a': A }} onClick={onRestart}>새 {size}강 시작 ▶</button>
+                : <button type="button" className="ui-btn ui-cut pri mt-auto lg w-full text-t2" style={{ '--a': A }} onClick={onClaim}>보상 받기 · {finish.gold} G</button>}
             </>
           )}
         </aside>

@@ -30,14 +30,14 @@ export const UiStyle = () => (
     .mt-pop-bg { animation: mt-dim .15s ease-out both; }
     .mt-pop { animation: mt-pop .22s ease-out both; }
     .mt-lab::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor; }
-    .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:46px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
+    .mt-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:0 22px; border-radius:12px; font-size:14px; font-weight:700; color:#e8ecf2; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(255,255,255,.06); transition:background .15s, box-shadow .15s, filter .15s, transform .15s; }
     .mt-btn:not(.pri):hover:not(:disabled) { color:#fff; background:rgba(245,210,122,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
-    /* 주 단추 — 판 색 그라데이션 · 윗선 빛 · 판 색 그림자 */
+    /* 단추 세 단계(Apple HIG 44pt · M3 48dp 이상) — 큰 64(화면당 하나) · 보통 48 · 작은 40. ui-btn(KboAugmentDraft KEYFRAMES)과 같은 값 */
     /* 주 단추 — 금빛(게임의 '누르는 곳'). 판 색(--a)은 상태 색으로만 쓴다 */
     .mt-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }
     .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
-    .mt-btn.lg { min-height:62px; border-radius:16px; font-size:18px; }
+    .mt-btn.lg { min-height:64px; border-radius:16px; font-size:18px; }
     /* 게임 결 조각 — 장식 머리줄(양옆 금빛 선) · 레벨 보석 · 빛줄기 · 빛 알갱이 · 도장 */
     .mt-hd { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:800; color:#f5d27a; }
     .mt-hd::before, .mt-hd::after { content:''; height:1px; flex:1; background:linear-gradient(90deg,transparent,rgba(245,210,122,.6)); }
@@ -50,7 +50,7 @@ export const UiStyle = () => (
     .mt-dust { position:absolute; inset:0; pointer-events:none; animation:mtDrift 14s ease-in-out infinite alternate; background-image:radial-gradient(1.5px 1.5px at 12% 20%,#fff8,transparent),radial-gradient(1px 1px at 30% 70%,#fff6,transparent),radial-gradient(1.5px 1.5px at 55% 30%,#c4b5fd99,transparent),radial-gradient(1px 1px at 72% 80%,#fff5,transparent),radial-gradient(2px 2px at 85% 45%,#c4b5fdaa,transparent),radial-gradient(1px 1px at 44% 88%,#fff6,transparent),radial-gradient(1.5px 1.5px at 92% 18%,#fff7,transparent),radial-gradient(1px 1px at 6% 60%,#c4b5fd88,transparent); }
     @media (prefers-reduced-motion: reduce) { .mt-rays, .mt-dust { animation:none; } }
     .mt-stamp { position:absolute; padding:3px 10px; border-radius:6px; border:2px solid #f87171; color:#f87171; font-weight:900; font-size:11px; letter-spacing:.1em; transform:rotate(-12deg); background:rgba(20,5,8,.72); pointer-events:none; }
-    .mt-btn.sm { min-height:34px; padding:0 14px; border-radius:10px; font-size:14px; }
+    .mt-btn.sm { min-height:40px; padding:0 14px; border-radius:10px; font-size:14px; }
     .mt-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; color:#cbd5e1; background:rgba(255,255,255,.05); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a,#94a3b8) 40%,transparent); }
     .mt-scan { background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px); }
     .mt-bar { height:6px; background:rgba(255,255,255,.08); } .mt-bar > i { display:block; height:100%; }
@@ -322,9 +322,11 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const over = cost > cap;
   return (
     <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7" style={{ viewTransitionName: 'mt-topbar' }}>
+      {/* 랭크전 · 대진표 · 정비처럼 라커 CSS 를 안 올린 화면에서도 같은 모양 — 같은 style 이 두 번 있어도 그대로 */}
+      <UiStyle />
       {onBack && (
-        <button type="button" data-sfx="nav" onClick={onBack} aria-label="메인으로"
-          className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
+        <button type="button" data-sfx="nav" onClick={onBack} aria-label={`${eyebrow}로`}
+          className="mt-cut grid h-11 w-11 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
       <div className="shrink-0 leading-none">
         <p className="text-t4 font-bold text-gray-400">{eyebrow}</p>
