@@ -884,8 +884,24 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <style>{`${KEYFRAMES}
-        /* 다른 시즌 줄 — 들여쓰지 않고 왼쪽 줄 · 옅은 바탕(들여쓰면 능력치 칸이 대표 줄과 어긋난다). 고르면 .on 이 이긴다 */
-        .mt-row.lk-sub:not(.on) { background: rgba(52,211,153,.045); box-shadow: inset 3px 0 0 rgba(52,211,153,.55); }
+        /*
+         * 같은 사람의 다른 시즌(mockups/season-group 1 + 8) — 전엔 펼친 줄이 왼쪽 초록 선 · 옅은 바탕뿐이라 다른 선수 줄과 갈리지 않았다.
+         * 닫힘(.lk-stack): 줄 뒤로 카드 모서리 두 장이 아래로 비어져 나온다 — 줄 바탕을 채워 뒷장이 비치지 않게.
+         * 펼침(.lk-group): 구단 색(--t) 테두리 판 하나 + 같은 뒷장. 시즌 줄은 들여쓰지 않는다(능력치 칸이 대표 줄과 맞게)
+         */
+        .lk-stack, .lk-group { position: relative; isolation: isolate; flex: none; }
+        .lk-stack { margin-bottom: 10px; }
+        .lk-group { display: flex; flex-direction: column; gap: 4px; padding: 6px; margin: 2px 0 14px; border-radius: 18px;
+          background: linear-gradient(180deg, color-mix(in srgb, var(--t) 12%, #0a0f1a), #0a0f1a 70%);
+          box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--t) 55%, transparent), 0 18px 40px -18px color-mix(in srgb, var(--t) 60%, transparent); }
+        .lk-stack::before, .lk-stack::after, .lk-group::before, .lk-group::after { content: ''; position: absolute; z-index: -1; pointer-events: none; border-radius: 14px; }
+        .lk-stack::before { inset: 20px 28px -10px 28px; background: #0c111b; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+        .lk-stack::after { inset: 10px 14px -5px 14px; background: #10161f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.11); }
+        .lk-group::before { inset: 24px 24px -14px 24px; border-radius: 18px; background: #0b1019; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 22%, transparent); }
+        .lk-group::after { inset: 12px 12px -7px 12px; border-radius: 18px; background: #0d131d; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 35%, transparent); }
+        .lk-stack > .mt-row { background-color: #0d121e; }
+        .lk-stack > .mt-row:not(.on):hover { background-color: #161c2a; }
+        .lk-div { display: block; height: 1px; margin: 0 12px; background: rgba(255,255,255,.1); }
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
         .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
@@ -952,10 +968,18 @@ export default function LockerScreen({ account, onSave, onBack, onShop, onDraft 
                 const row = (p, i = null) => (
                   <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={swapOnly ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                     more={i == null && rest.length ? { n: rest.length, open, deal: rest.some((v) => deals.has(v.id)) } : null}
-                    className={i == null ? '' : 'fx-rise lk-sub'} style={i == null ? null : { '--i': i }}
+                    className={i == null ? '' : 'fx-rise'} style={i == null ? null : { '--i': i }}
                     onPick={i == null && rest.length ? (p2) => { setSel(p2); setOpenP(open ? null : k); } : setSel} onAct={swapOnly ? setSel : add} />
                 );
-                return [row(rep), ...(open ? rest.map((p, i) => row(p, i)) : [])];
+                if (!rest.length) return row(rep);
+                /* 다른 시즌이 있는 사람 — 닫히면 뒤에 카드 모서리 두 장(여러 장), 펼치면 구단 색 테두리 판 하나로 묶는다(mockups/season-group 1 + 8) */
+                return (
+                  <div key={k} className={open ? 'lk-group' : 'lk-stack'} style={{ '--t': teamNeon(rep) }}>
+                    {row(rep)}
+                    {open && <i className="lk-div" />}
+                    {open && rest.map((p, i) => row(p, i))}
+                  </div>
+                );
               })}
               {results.length === 0 && <p className="text-t3 text-gray-400">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (
