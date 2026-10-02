@@ -2,8 +2,8 @@
 import { SERIES } from '../data/seriesPlayers.js';
 import { POS_RULES, GROUP_RULES, SQUAD_SIZE, FOREIGN_MAX, SQUAD_CAP, PLAY_LIMIT } from './rules.js';
 import { withBoosts } from './shop.js';
-import { staffBoostFor, CHEAP_N } from './staff.js';
-import { applyFatigue } from './fatigue.js';
+import { staffBoostFor, staffTeam, CHEAP_N } from './staff.js';
+import { applyFatigue, pickStarter } from './fatigue.js';
 
 const ALL = SERIES.flatMap((s) => s.players);
 const LINEUP_POS = ['C', '1B', '2B', '3B', 'SS', 'OF', 'OF', 'OF', 'DH'];
@@ -42,6 +42,9 @@ export function applyStaff(roster, staff) {
   });
 }
 
+/** 불펜 순서 → 역할: 0 마무리 · 1~2 셋업 · 나머지 중계 (라커 불펜 칸과 같은 뜻) */
+export const penRole = (i) => (i === 0 ? 'CL' : i <= 2 ? 'SU' : 'MR');
+
 /** 출전 선수 id: 선발 5 · 불펜 8 · 타순 9명. 감독이 벤치로 뺀 선수(bench)는 자리가 남을 때만 채운다 */
 export function playingIds(roster, bench = []) {
   const benched = new Set(bench);
@@ -50,13 +53,22 @@ export function playingIds(roster, bench = []) {
   return new Set([...top('SP', PLAY_LIMIT.SP), ...top('RP', PLAY_LIMIT.RP), ...lineupOf(roster, bench)].map((p) => p.id));
 }
 
+/**
+ * 정비 화면을 거치지 않는 경기 팀(봇 · 랭크전 자동 진행 · 토너먼트 다른 경기의 내 팀) — 실제 경기 흐름(prep.js readyRoster)과 같은 자리로:
+ * 오늘 선발 1(휴식 끝난 첫 투수) · 불펜 8(마무리 · 셋업 둘 · 중계, 종합 높은 순) · 쉬는 선발은 BN.
+ * 전엔 선발 다섯이 다 나서 선발이 지치면 쉬는 선발이 불펜보다 먼저 올라왔다(봇 투구 중 불펜 몫 1%)
+ */
 export function buildMyTeam(team) {
   // 피로가 남은 투수는 구위·제구가 깎이고 종합도 내려가 선발 순서에서 밀린다
   const boosted = applyFatigue(applyStaff(withBoosts(team), team.staff), team.pitchFatigue);
   const play = playingIds(boosted, team.bench || []);
-  // 벤치 선수는 slot 'BN' — 경기 엔진이 투수진에서 뺀다
-  const roster = boosted.map((p) => (play.has(p.id) ? p : { ...p, slot: 'BN' }));
-  return { name: team.name || '내 팀', roster, batters: lineupOf(roster, team.bench || []) };
+  const byOvr = (pos) => boosted.filter((p) => p.position === pos && play.has(p.id)).sort((a, b) => b.overall - a.overall);
+  const starter = pickStarter(byOvr('SP'), team.pitchFatigue || {});
+  const pen = new Map(byOvr('RP').map((p, i) => [p.id, penRole(i)]));
+  // 벤치 · 쉬는 선발은 slot 'BN' — 경기 엔진이 투수진에서 뺀다
+  const roster = boosted.map((p) => (p.id === starter?.id ? { ...p, slot: 'SP' } : pen.has(p.id) ? { ...p, slot: pen.get(p.id) }
+    : play.has(p.id) && p.type === 'batter' ? p : { ...p, slot: 'BN' }));
+  return { name: team.name || '내 팀', roster, batters: lineupOf(roster, team.bench || []), edge: { steal: staffTeam(team.staff, team.squad).steal } };
 }
 
 /** 내 팀과 비슷한 CP로 AI 팀을 만든다 */

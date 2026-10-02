@@ -7,7 +7,7 @@
  * 경기 팀은 드래프트와 같은 buildTeam 으로 만든다 — 선 자리 감소 · 시너지까지 정비 화면 수치 그대로 경기에 들어간다.
  */
 import { withBoosts } from './shop.js';
-import { applyStaff } from './match.js';
+import { applyStaff, penRole } from './match.js';
 import { staffTeam } from './staff.js';
 import { applyFatigue, pickStarter } from './fatigue.js';
 import { applyForm } from './form.js';
@@ -16,8 +16,7 @@ import { buildTeam } from '../KboAugmentDraft.jsx';
 
 /* 라커 자리(LF · CF · RF) → 경기 팀 자리(buildTeam 이 읽는 OF1~3) */
 const GAME_SLOT = { LF: 'OF1', CF: 'OF2', RF: 'OF3' };
-/** 불펜 순서 → 역할: 0 마무리 · 1~2 셋업 · 나머지 중계 (라커 불펜 칸과 같은 뜻) */
-export const penRole = (i) => (i === 0 ? 'CL' : i <= 2 ? 'SU' : 'MR');
+export { penRole }; // 불펜 순서 → 역할(match.js)
 
 /** 오늘 몸 상태까지 얹은 26명 — 보정 · 코치 · 피로를 다 거친 수치 위에서 흔들린다 */
 export function todaySquad(team, formSeed = 0) {
