@@ -408,7 +408,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
         </div>
       )}
       {outAll && <OutPicker p={p} pool={pool} out={out} stored={stored} onPick={(id) => { onOut?.(id); setOutAll(false); }} onClose={() => setOutAll(false)} />}
-      {/* 맨 아래: 남는 캡 · 남는 골드 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
+      {/* 맨 아래: 남은 캡 · 남는 골드 · 팀 종합 을 버튼 바로 위에 붙이고, 영입할 수 없는 이유는 버튼 글자로 */}
       <div className="shrink-0">
         {!owned && !stored && <KV sm k="영입가" v={`${price.toLocaleString()} G`} color={GOLD} />}
         <KV sm k="남는 골드" v={goldAfter.toLocaleString()} color={goldAfter < 0 ? '#f87171' : '#fff'} />
@@ -416,7 +416,7 @@ function DetailBody({ p, cap, onAdd, onRelease, playing, onUpgrade, itemsFit = 0
           ? <KV sm k="보관함" v={`${clubN} → ${clubN + 1} / ${clubCap}`} />
           : (
             <>
-              <KV sm k="남는 캡" v={(cap - after).toLocaleString()} color={after > cap ? '#f87171' : '#fff'} />
+              <KV sm k="남은 캡" v={(cap - after).toLocaleString()} color={after > cap ? '#f87171' : '#fff'} />
               <KV sm k="팀 종합" v={`${now || '-'} → ${next || '-'}`} color={next >= now ? '#34d399' : '#f87171'} />
             </>
           )}
@@ -1189,7 +1189,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                 <KV k="경력" v={m.note} />
                 <KV k="대상" v={`내 엔트리 ${staffTargets(m, squad)}명`} />
                 <KV k="CP" v={isCur || !cur ? `${m.cost}` : `${m.cost} (${m.cost - cur.cost > 0 ? '+' : ''}${m.cost - cur.cost})`} color="#fcd34d" />
-                <KV k="남는 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
+                <KV k="남은 캡" v={left.toLocaleString()} color={left < 0 ? '#f87171' : undefined} />
                 {isCur && <KV k="계약" v={m.contracted ? '계약서' : 'CP'} />}
               </div>
               {isCur ? (

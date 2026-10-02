@@ -314,7 +314,7 @@ export default function LoginScreen({ onDone }) {
 
       <div className="relative flex min-h-dvh items-center justify-center gap-[120px] px-6 py-4">
         <div className="w-[560px] shrink-0">
-          <p className="mt-lab" style={{ '--a': '#f5d27a', letterSpacing: '.42em', fontFamily: "'Saira Condensed',sans-serif" }}>KBO DREAM DRAFT</p>
+          <p className="mt-lab" style={{ '--a': '#f5d27a', letterSpacing: '.42em', fontFamily: "'Saira Condensed',sans-serif" }}>KBO</p>
           <h1 className="mt-2.5 text-white" style={{ font: "italic 800 132px/.86 'Saira Condensed',sans-serif", textShadow: '0 6px 40px rgba(0,0,0,.6)' }}>
             LEGEND
             <b className="block" style={{ background: 'linear-gradient(180deg,#fff3c4,#f5d27a 45%,#c8942f)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', filter: 'drop-shadow(0 0 22px rgba(245,210,122,.35))' }}>DRAFT</b>
