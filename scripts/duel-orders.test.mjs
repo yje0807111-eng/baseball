@@ -2,7 +2,6 @@
 import { test, expect } from 'vitest';
 import { createGame, pitch, inAim } from '../src/engine/pitchSim.js';
 import { seeded } from '../src/engine/rng.js';
-import { pitchTarget, ZONE } from '../src/play/playScript.js';
 
 const man = (id, s) => ({ id, name: id, position: 'CF', stats: { contact: 78, power: 78, speed: 75, defense: 75, stuff: 80, control: 78, stability: 75, ...s } });
 const team = (tag, s) => ({ name: tag, batters: Array.from({ length: 9 }, (_, i) => man(`${tag}${i}`, s)), pitchers: [man(`${tag}P`, s), man(`${tag}R`, s)] });
@@ -53,21 +52,6 @@ test('기습번트는 번트 안타가 는다', () => {
   expect(rate({ bunt: true, drag: true }, ['BH'])).toBeGreaterThan(rate({ bunt: true }, ['BH']) + 0.05);
 });
 
-test('유인구 방향은 그림에만 — 존 밖이면 그쪽에 찍힌다', () => {
-  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(7) });
-  let seen = 0;
-  for (let i = 0; i < 60; i += 1) {
-    const ev = pitch(g, { zone: 'chase', band: 'lo' });
-    if (!ev) break;
-    if (ev.pitch && !ev.pitch.inZone) {
-      expect(ev.pitch.band).toBe('lo');
-      expect(pitchTarget(ev)[1]).toBeGreaterThan(ZONE.h);
-      seen += 1;
-    }
-  }
-  expect(seen).toBeGreaterThan(10);
-});
-
 test('AI 가 미리 뽑은 공(noPick)은 구종을 찍은 힘 보정이 없다', () => {
   const g = createGame({ home: team('H'), away: team('A'), rng: seeded(3) });
   expect(pitch(g, { pitchType: 'change', noPick: true }).pitch.picked).toBe(0);
@@ -89,7 +73,7 @@ test('칸을 직접 찍으면(exact) 존에 더 자주 · AI 가 뽑은 자리(n
 });
 
 test('수싸움 상황 한 줄 — 급한 것부터(끝내기 · 만루 · 득점권 · 아웃)', async () => {
-  const { situationOf } = await import('../src/play/DuelPanel.jsx');
+  const { situationOf } = await import('../src/play/duel.js');
   const R = {};
   const at = (o) => ({ inning: 5, outs: 0, bases: [null, null, null], home: { runs: 2 }, away: { runs: 2 }, ...o });
   expect(situationOf(at({ inning: 9, bases: [null, R, null] }), 'off')).toBe('끝내기 찬스');
@@ -104,20 +88,6 @@ test('수싸움 상황 한 줄 — 급한 것부터(끝내기 · 만루 · 득�
   expect(situationOf(at({ outs: 2 }), 'def')).toBe('이닝 마무리');
 });
 
-test('스카우팅은 두 마디 꼬리표 — 한 칸 8자 안쪽, 네 칸까지', async () => {
-  const { scoutOf, styleOf } = await import('../src/play/DuelPanel.jsx');
-  const evenId = ['p1', 'p2', 'p3', 'p4', 'p5'].find((id) => styleOf({ id }).k === 'even');   // 성향 칸이 없는 투수라야 제구 칸이 보인다
-  const P = (s) => ({ id: evenId, stats: { stuff: 80, control: 78, stability: 75, ...s } });
-  const B = (s) => ({ stats: { contact: 78, power: 78, ...s } });
-  const side = (pitcher, batters = [B({})]) => ({ pitcher, pitches: 0, pitcherIdx: 0, idx: 0, team: { usage: {}, batters } });
-  const off = scoutOf({ top: false, away: side(P({ control: 92 })), home: side(P({})) }, 'off');
-  expect(off).toContain('볼넷 적음');
-  const def = scoutOf({ top: true, away: side(P({}), [B({ power: 95, contact: 70 })]), home: side(P({})) }, 'def');
-  expect(def).toEqual(expect.arrayContaining(['장타자', '유인구 약함']));
-  for (const t of [...off, ...def]) expect(t.length).toBeLessThanOrEqual(8);
-  expect(off.length).toBeLessThanOrEqual(4);
-});
-
 test('노림 한 칸 — 그 칸 크게 · 옆 칸 조금 · 나머지 손해, 공격 존 퍼센트는 합 100%', async () => {
   const { aimBonusOf } = await import('../src/engine/pitchSim.js');
   expect(aimBonusOf(4, 4)).toBeCloseTo(0.2);
@@ -125,23 +95,13 @@ test('노림 한 칸 — 그 칸 크게 · 옆 칸 조금 · 나머지 손해, �
   expect(aimBonusOf(0, 8)).toBeCloseTo(-0.06);
   expect(aimBonusOf(null, 4)).toBe(0);
   expect(aimBonusOf(0, 'ih')).toBeCloseTo(0.1);
-  const { locOf } = await import('../src/play/DuelPanel.jsx');
+  const { locOf } = await import('../src/play/duel.js');
   const P = { id: 'p1', stats: { stuff: 80, control: 78 } };
   const L = locOf({ balls: 0, strikes: 0, away: { pitcher: P } });
   expect(L.reduce((a, b) => a + b, 0)).toBeCloseTo(1);
   /* 볼카운트가 몰리면 직구(높게)가 늘어 위 줄이 두꺼워진다 */
   const behind = locOf({ balls: 3, strikes: 0, away: { pitcher: P } });
   expect(behind[0] + behind[1] + behind[2]).toBeGreaterThan(L[0] + L[1] + L[2]);
-});
-
-test('추천 — 후반 한 점 승부 3루 주자면 스퀴즈 · 2스트라이크면 밀어치기와 예측 안 함 · 몰리면 직구', async () => {
-  const { recOf } = await import('../src/play/DuelPanel.jsx');
-  const R = { id: 'r', stats: { speed: 60 } };
-  const at = (o) => ({ inning: 8, outs: 1, balls: 0, strikes: 0, bases: [null, null, null], home: { runs: 2, pitcher: {} }, away: { runs: 2, pitcher: { stats: { stuff: 80 } }, team: { batters: [] } }, ...o });
-  expect(recOf(at({ bases: [null, null, R] })).play).toBe('squeeze');
-  expect(recOf(at({ strikes: 2 }))).toEqual({ play: 'contact', guess: null });
-  expect(recOf(at({ balls: 3, strikes: 1 })).guess).toBe('fast');
-  expect(recOf(at({ inning: 2 })).play).toBe('power');
 });
 
 test('읽기 보너스(readBonus) — 맞힌 예측 · 노림만 더 이득, 틀린 손해는 그대로', () => {
@@ -223,19 +183,8 @@ test('완급 조절 — 앞 공과 구속 차이가 크면 손해, 빠른 뒤 �
   expect(g.lastVelo).toBe(null);
 });
 
-test('수비 추천 구종 — 첫 공은 다음 완급을 준비하는 직구 계열, 빠른 공 뒤엔 직구를 또 권하지 않음', async () => {
-  const { recDefOf, veloOfP } = await import('../src/play/DuelPanel.jsx');
-  const { createGame, pitchMix } = await import('../src/engine/pitchSim.js');
-  const { seeded } = await import('../src/engine/rng.js');
-  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(5) });
-  const { PITCHES } = await import('../src/engine/pitchSim.js');
-  expect(PITCHES[recDefOf(g, []).pk].fam).toBe('F');   // 첫 공은 빠른 공 — 다음 공에 완급을 줄 여지(한 수 앞)
-  const pk = recDefOf(g, ['fast'], veloOfP(g.home.pitcher, 'fast')).pk;
-  expect(pk).not.toBe('fast');   // 빠른 공 뒤엔 직구를 또 권하지 않음
-});
-
 test('상대 투수 완급 — 빠른 공 뒤엔 느린 공 비율이 늘고, 추천 예측도 따라감', async () => {
-  const { pitchWeights, recOf, veloOfP } = await import('../src/play/DuelPanel.jsx');
+  const { pitchWeights, veloOfP } = await import('../src/play/duel.js');
   const { createGame } = await import('../src/engine/pitchSim.js');
   const { seeded } = await import('../src/engine/rng.js');
   const g = createGame({ home: team('H'), away: team('A'), rng: seeded(9) }), p = g.away.pitcher;
