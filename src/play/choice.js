@@ -7,12 +7,14 @@ import {
   leverage, offenseOf, defenseOf, batterOf, stealOdds, staminaOf, platoonOf, penCallsLeft, pitch, repertoireOf, pitchMix, PITCHES,
 } from '../engine/pitchSim.js';
 import { seeded } from '../engine/rng.js';
+import { winProb } from '../engine/winProb.js';
 import { penCostOf } from '../myteam/fatigue.js';
 
 export const CHOICES = 10; // 한 경기 결정 수(목표)
 export const CHOICE_LATE = 3; // 7회 이후 몫 — 6회까지는 CHOICES − CHOICE_LATE 번까지
 export const CHOICE_MS = 15000; // 작전 고르기
 export const DETAIL_MS = 10000; // 구종 · 코스(펼침)
+export const DECIDED = 0.06; // 승률이 이 밖(6% 아래 · 94% 위)이면 기운 경기 — 묻지 않는다
 export const CHOICE_MARK = 0.09; // 승부처 무게 문턱(일정에 따라 0.5 ~ 1.6배, 두 반 이닝 넘게 뒤처지면 문턱 없이)
 
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -30,6 +32,9 @@ export function wantsChoice(g, asked = []) {
   if (g.final || g.balls || g.strikes || asked.length >= CHOICES) return false;
   if (asked.some((a) => a.inning === g.inning && a.top === g.top)) return false;
   if (g.inning <= 6 && asked.length >= CHOICES - CHOICE_LATE) return false;
+  /* 기운 경기 — 승률 6% 아래 · 94% 위면 고를 것이 승패를 바꾸지 못한다. 10번을 채우려 묻지 않는다(2026-10-02) */
+  const wp = winProb(g);
+  if (wp < DECIDED || wp > 1 - DECIDED) return false;
   const half = (g.inning - 1) * 2 + (g.top ? 0 : 1);
   const ahead = asked.length - (CHOICES * half) / 18;
   /* 크게 벌어진 경기는 무게가 낮아 멈출 자리가 없다 — 일정보다 2번 넘게 뒤처지면 문턱 없이(한 경기 10번 약속) */

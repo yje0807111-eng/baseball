@@ -131,7 +131,7 @@ function Detail({ g, card, pick, setPick, onGo, timer }) {
   );
 }
 
-export default function ChoiceGame({ my, opp, onFinish, onExit, aug = null, rebuildMy = null, rebuildOpp = null, midPickInnings = [], onMidPick = null, seed = null, autoOnExit = false, intro = null }) {
+export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, aug = null, rebuildMy = null, rebuildOpp = null, midPickInnings = [], onMidPick = null, seed = null, autoOnExit = false, intro = null }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -251,7 +251,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, aug = null, rebu
         if (fresh && wantsChoice(g, stops)) {
           stops.push({ inning: g.inning, top: g.top });
           setAsked(stops.length);
-          const cs = choiceCards(g, { plan: tac, planKo: (g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('def', sides.def)?.ko] : [sideOpt('off', sides.off)?.ko]).filter(Boolean).join(' · '), fatigue: my?.pitchFatigue });
+          const cs = choiceCards(g, { plan: tac, planKo: (g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('def', sides.def)?.ko] : [sideOpt('off', sides.off)?.ko]).filter(Boolean).join(' · '), fatigue });
           setCards(cs); setPicked(null); setPhase('choice'); redraw();
           const got = await new Promise((res) => { waitRef.current = res; });
           if (!alive()) return;
