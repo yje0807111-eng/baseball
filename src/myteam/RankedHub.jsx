@@ -330,7 +330,7 @@ export default function RankedHub({ s, account, onBack, onPlay, onClaim, onNewSe
                 </div>
               </div>
               <button type="button" data-sfx="nav" className="ui-btn ui-cut pri mt-auto min-h-[3.5rem] w-full shrink-0 text-t2" style={{ '--a': inPost ? '#fbbf24' : RK }} onClick={onPlay}>
-                {inPost ? `${stage.ko} 시작 ▶` : `정규 ${s.round + 1}차전 시작 ▶`}
+                {inPost ? `${stage.ko} 정비 ▶` : `정규 ${s.round + 1}차전 정비 ▶`}
               </button>
             </>
           ) : s.done ? (

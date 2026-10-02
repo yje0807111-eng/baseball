@@ -340,7 +340,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
       {!single && <CapBar team={team} sm />}
       <div className="mt-auto flex flex-col gap-2">
         {!ready ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onLocker}>라커에서 채우기 ›</button>
-          : single ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>경기 시작 ▶</button>
+          : single ? <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" onClick={onPlay}>정비 ▶</button>
             : t ? (
               <>
                 <button type="button" data-sfx="press" className="ui-btn ui-cut pri min-h-[3.5rem] w-full text-t2" style={{ '--a': A }} onClick={() => onTourney(format, false)}>

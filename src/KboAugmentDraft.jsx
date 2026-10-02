@@ -5787,7 +5787,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
       {phase === 'bracket' && dtour && (
         <div className="fixed inset-0 z-30">
-          <TournamentBracket t={dtour} myTeam={buildTeam(myClub, fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false} playLabel="정비하기 ▶"
+          <TournamentBracket t={dtour} myTeam={buildTeam(myClub, fillRoster(roster), buff, augments)} title={`${mode.name} 토너먼트`} rewards={false}
             onBack={() => setPhase('ready')}
             onPlay={() => { const e = tourneyOpponent(dtour); setTourEntry(e); setOpponent(e?.roster || null); setPhase('ready'); }}
             onRestart={() => setDtour(makeDraftTournament())} />

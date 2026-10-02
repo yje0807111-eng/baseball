@@ -71,7 +71,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const openTourneyPrep = () => {
     const r = roundsOf(tournament.size)[tournament.round];
     const c = cupOf(tournament.cup);
-    setPrep({ kind: 'tourney', tag: `토너먼트 · ${r.ko}`, sub: `토너먼트 · ${r.ko}${c.id !== 'open' ? ` · ${c.ko}` : ''}`, title: `${r.ko} 경기 전 정비`, startLabel: `${r.ko} 경기 시작 ▶`, back: () => setView('bracket'),
+    setPrep({ kind: 'tourney', tag: `토너먼트 · ${r.ko}`, sub: `토너먼트 · ${r.ko}${c.id !== 'open' ? ` · ${c.ko}` : ''}`, title: `${r.ko} 경기 전 정비`, startLabel: '경기 시작 ▶', back: () => setView('bracket'),
       block: cupIssue(tournament.cup, account.team) });
     setView('prep');
   };
@@ -119,7 +119,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const openRankedPrep = () => {
     const pm = ranked.postMatch(season);
     const label = pm ? ranked.STAGES[pm.stage].ko : `정규 ${season.round + 1}차전`;
-    setPrep({ kind: 'ranked', tag: `랭크전 · ${label}`, sub: `랭크전 · 시즌 ${season.season}`, title: `${label} 경기 전 정비`, startLabel: `${label} 시작 ▶`, back: () => setView('ranked') });
+    setPrep({ kind: 'ranked', tag: `랭크전 · ${label}`, sub: `랭크전 · 시즌 ${season.season}`, title: `${label} 경기 전 정비`, startLabel: '경기 시작 ▶', back: () => setView('ranked') });
     setView('prep');
   };
   const claimSeason = () => {

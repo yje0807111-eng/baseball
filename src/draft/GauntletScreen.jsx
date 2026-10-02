@@ -219,7 +219,7 @@ function Versus({ me, myEmb, cur: cur0, res, onPlay, buff = 0 }) {
           </span>
         ))}
       </div>
-      <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[4rem] w-full shrink-0 text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비하기 ▶</button>
+      <button type="button" className="ui-btn ui-cut pri mt-auto min-h-[4rem] w-full shrink-0 text-t2 font-black" style={{ '--c': '12px' }} onClick={onPlay}>정비 ▶</button>
     </section>
   );
 }
