@@ -19,14 +19,14 @@ import BgmButton from '../audio/BgmButton.jsx';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
-function opponentOf(sub, myTeam) {
+function opponentOf(kind, sub, myTeam) {
   const a = loadAccount();
   if (!a) return null;
   let t = null;
-  if (/^RANKED/.test(sub)) {
+  if (kind === 'ranked') {
     const e = a.ranked ? rankedOpponent(a.ranked) : null;
     t = e ? teamOf(e, myTeam) : null;
-  } else if (/^TOURNAMENT/.test(sub)) {
+  } else if (kind === 'tourney') {
     const e = a.tournament ? tourOpponent(a.tournament) : null;
     t = e ? teamOf(e, myTeam) : null;
   } else {
@@ -43,8 +43,8 @@ function opponentOf(sub, myTeam) {
 }
 
 
-export default function PrepScreen({ team, title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null, onSaved = null }) {
-  const opp = useMemo(() => opponent || opponentOf(sub || '', team), [opponent, sub, team]);
+export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel, onStart, onBack, backLabel = '대진표로', opponent = null, block = null, onSaved = null }) {
+  const opp = useMemo(() => opponent || opponentOf(kind, sub || '', team), [opponent, kind, sub, team]);
   /* 오늘 몸 상태 — 상대와 내 엔트리로 씨를 심어, 같은 경기에서는 다시 굴러가지 않는다 */
   const seed = useMemo(() => formSeed(opp?.name || '', sub || '', String((team.roster || []).length)), [opp, sub, team]);
   /* 배치만 바뀌는 내 팀 — 능력치(컨디션 · 코치 · 피로)는 화면에만 얹고, 저장은 배치(order) · 벤치만 */

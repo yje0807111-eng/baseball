@@ -45,11 +45,12 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const toModes = (tab) => { setPlayTab(tab); setView('modes'); };
   /* 내 라커 열기 — 상점에서 오면 산 것을 쓰는 탭(아이템 · 감독·코치)으로 */
   const lockerTab = useRef(null);
-  const openLocker = (tab = null) => { lockerTab.current = tab; setView('locker'); };
+  const shopFrom = useRef(null); // 상점 ← 는 온 곳으로 — 라커 아이템 탭에서 왔으면 그 탭으로
+  const openLocker = (tab = null) => { lockerTab.current = tab; shopFrom.current = null; setView('locker'); };
 
   /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
   const openDuel = () => {
-    setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: DUEL_SUB, title: '단판 경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
+    setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: DUEL_SUB, title: '경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
     setView('prep');
   };
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
@@ -295,9 +296,9 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     );
   }
   if (view === 'augments') return screen(<AugmentScreen account={account} onBack={() => { refresh(); setView('lobby'); }} />);
-  if (view === 'locker') return screen(<LockerScreen account={account} initialTab={lockerTab.current} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => setView('shop')} />);
+  if (view === 'locker') return screen(<LockerScreen account={account} initialTab={lockerTab.current} onSave={(team, gold) => setAccount((a) => ({ ...a, team, ...(gold != null ? { gold } : {}) }))} onBack={() => setView('lobby')} onShop={() => { shopFrom.current = 'locker'; setView('shop'); }} />);
   if (view === 'record') return screen(<RecordScreen account={account} initialMode={recordTab} onBack={() => setView('lobby')} onAccount={() => refresh()} />);
-  if (view === 'shop') return screen(<ShopScreen account={account} onLocker={openLocker} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => setView('lobby')} />);
+  if (view === 'shop') return screen(<ShopScreen account={account} onLocker={openLocker} onChange={({ team, gold }) => setAccount((a) => ({ ...a, team, gold }))} onBack={() => (shopFrom.current === 'locker' ? openLocker('items') : setView('lobby'))} />);
   if (view === 'bracket' && tournament) {
     return screen(<TournamentBracket t={tournament} myTeam={account.team} onBack={() => toModes('duel')} onPlay={openTourneyPrep} onClaim={claimTourney}
       onRestart={() => openTourney(tournament.size, true)} />);
@@ -306,7 +307,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(<RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />);
   }
   if (view === 'prep' && prep) {
-    return screen(<>{augOverlay}<PrepScreen team={account.team} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
+    return screen(<>{augOverlay}<PrepScreen team={account.team} kind={prep.kind} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {

@@ -161,8 +161,8 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
         </div>
       </div>
       <div className="flex items-baseline gap-3 pt-4">
-        <p className="ui-lab font-display">주전 선수</p>
-        <p className="text-t3 text-gray-400">{squad.length} / {SQUAD_SIZE} · 종합 상위 8명</p>
+        <p className="ui-lab font-display">엔트리</p>
+        <p className="text-t3 text-gray-400">{squad.length} / {limitsOf(team).size} · 종합 상위 8명</p>
         <Btn sm className="ml-auto" onClick={onLocker}>내 라커 ›</Btn>
       </div>
       <div className="mt-2 grid h-40 shrink-0 grid-cols-8 gap-2">
@@ -288,14 +288,14 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
   const aside = (
     <aside className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-4 p-6 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px', '--a': acc,
       ...(single || t ? null : { backgroundImage: 'linear-gradient(180deg,rgba(6,10,19,.88),rgba(6,10,19,.97)), url(ui/tour/panel-trophy.webp)', backgroundSize: 'cover', backgroundPosition: 'right center' }) }}>
-      <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? '단판 승부' : `${format}강 토너먼트`}</p>
+      <p className="ui-lab font-display" style={{ '--a': acc }}>{single ? '단판' : `${format}강 토너먼트`}</p>
       <h2 className="-mt-2 text-t1 font-black text-white">일반 대결</h2>
       <FormatPicker value={format} onChange={onFormat} />
       {single ? (
         <>
-          <p className="ui-lab font-display" style={{ '--a': G }}>오늘의 상대</p>
+          <p className="ui-lab font-display" style={{ '--a': G }}>오늘 상대</p>
           <OppPreview opp={duel} />
-          <p className="ui-lab font-display" style={{ '--a': G }}>최근 경기 {recent.length ? `· ${recCount.my}승 ${recCount.draw}무 ${recCount.opp}패` : ''}</p>
+          <p className="ui-lab font-display" style={{ '--a': G }}>최근 경기 {recent.length ? `· ${recCount.my}승 ${recCount.opp}패${recCount.draw ? ` ${recCount.draw}무` : ''}` : ''}</p>
           <RecentGames games={recent} />
         </>
       ) : (
@@ -329,7 +329,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
               </div>
               <p className="ui-lab font-display" style={{ '--a': G }}>우리 팀</p>
               <div className="shrink-0">
-                <Stats items={[['팀 종합', st.ovr || '-'], ['엔트리', squad.length], ['외국인', `${foreignCount(squad)}/3`]]} />
+                <Stats items={[['팀 종합', st.ovr || '-'], ['엔트리', squad.length], ['외국인', `${foreignCount(squad)}/${limitsOf(team).foreign}`]]} />
               </div>
             </>
           )}
@@ -358,5 +358,5 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
     </aside>
   );
 
-  return { key: 'duel', label: '일반 대결', sub: single ? '단판 · 16 · 32강' : `${format}강 토너먼트${t ? ` · ${t.done ? '결과' : `${t.round + 1}/${rounds.length}`}` : ''}`, img: 'ui/broadcast-field.webp', neon: G, main, aside };
+  return { key: 'duel', label: '일반 대결', sub: single ? '단판 · 토너먼트' : `${format}강 토너먼트${t ? ` · ${t.done ? '결과' : `${t.round + 1}/${rounds.length}`}` : ''}`, img: 'ui/broadcast-field.webp', neon: G, main, aside };
 }
