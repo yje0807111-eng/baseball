@@ -160,7 +160,10 @@ export function engineTeam(team) {
     pitchers = [ace, ...pen.sort((a, b) => pv(b) - pv(a))];
     closerId = null;
   }
-  return { name: team.name, batters, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage, closerId, buff: team.buff || 0, edge: team.edge || null };
+  /* 벤치 타자 — 대타 · 대주자로 나온다(엔진이 꺼내 쓰며 줄인다) */
+  const inLineup = new Set(batters.map((p) => p.id));
+  const bench = roster.filter((p) => p.type === 'batter' && !inLineup.has(p.id) && !p.isReplacement);
+  return { name: team.name, batters, bench, pitchers: pitchers.length ? pitchers : batters.slice(0, 1), catcher: roster.find((p) => p.position === 'C'), usage, closerId, buff: team.buff || 0, edge: team.edge || null };
 }
 
 /* 속도는 셋뿐이다 — 보통 · 자동(안 묻고 끝까지) · 스킵. 그 위에 "꾹 누르는 동안만" 빨리감기가 얹힌다 */

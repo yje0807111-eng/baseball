@@ -899,8 +899,25 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[#05080f] text-gray-200">
       <UiStyle />
       <style>{`${KEYFRAMES}
-        /* 다른 시즌 줄 — 들여쓰지 않고 왼쪽 줄 · 옅은 바탕(들여쓰면 능력치 칸이 대표 줄과 어긋난다). 고르면 .on 이 이긴다 */
-        .mt-row.lk-sub:not(.on) { background: rgba(52,211,153,.045); box-shadow: inset 3px 0 0 rgba(52,211,153,.55); }
+        /*
+         * 같은 사람의 다른 시즌(mockups/season-group 1 + 8) — 전엔 펼친 줄이 왼쪽 초록 선 · 옅은 바탕뿐이라 다른 선수 줄과 갈리지 않았다.
+         * 닫힘(.lk-stack): 줄 뒤로 카드 모서리 두 장이 아래로 비어져 나온다 — 줄 바탕을 채워 뒷장이 비치지 않게.
+         * 펼침(.lk-group): 구단 색(--t) 옅은 판 하나 + 가는 테두리. 뒷장 · 바깥 빛은 두지 않는다 — 펼친 판 안에 뒷장 테두리가 세로줄로 비치고
+         * 대표 줄의 초록 테두리와 겹쳐 지저분했다(2026-10-02). 고른 대표 줄은 판 테두리가 대신하니 제 테두리를 뺀다.
+         * 판에 안쪽 여백을 두지 않는다 — 두면 펼치는 순간 대표 줄이 좁아지고 아래로 밀려 화면이 튀었다. 시즌 줄은 들여쓰지 않는다(능력치 칸이 대표 줄과 맞게)
+         */
+        .lk-stack, .lk-group { position: relative; flex: none; }
+        .lk-stack { isolation: isolate; margin-bottom: 10px; }
+        .lk-stack::before, .lk-stack::after { content: ''; position: absolute; z-index: -1; pointer-events: none; border-radius: 14px; }
+        .lk-stack::before { inset: 20px 28px -10px 28px; background: #0c111b; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+        .lk-stack::after { inset: 10px 14px -5px 14px; background: #10161f; box-shadow: inset 0 0 0 1px rgba(255,255,255,.11); }
+        .lk-stack > .mt-row { background-color: #0d121e; }
+        .lk-stack > .mt-row:not(.on):hover { background-color: #161c2a; }
+        .lk-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; border-radius: 14px;
+          background: linear-gradient(180deg, color-mix(in srgb, var(--t) 9%, transparent), color-mix(in srgb, var(--t) 2%, transparent));
+          box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 40%, transparent); }
+        .lk-group > .mt-row:first-child.on { box-shadow: none; }
+        .lk-div { display: block; height: 1px; margin: 0 16px; background: color-mix(in srgb, var(--t) 28%, transparent); }
         .pk-long .pk { clip-path: none !important; }
         .pk-long .pk-fr { display: none; }
         .st-n.b0 { color: #f87171; } .st-n.b60 { color: #fb923c; } .st-n.b70 { color: #fde047; } .st-n.b80 { color: #34d399; }
@@ -967,10 +984,18 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                 const row = (p, i = null) => (
                   <PlayerRow key={p.id} p={p} on={shown?.id === p.id} action={swapOnly ? '교체' : '영입'} blocked={rowBlock(p)} showNote={false} teamTint price={priceFor(p)} capQuiet={cost < cap * CAP_LOUD}
                     more={i == null && rest.length ? { n: rest.length, open, deal: rest.some((v) => deals.has(v.id)) } : null}
-                    className={i == null ? '' : 'fx-rise lk-sub'} style={i == null ? null : { '--i': i }}
+                    className={i == null ? '' : 'fx-rise'} style={i == null ? null : { '--i': i }}
                     onPick={i == null && rest.length ? (p2) => { setSel(p2); setOpenP(open ? null : k); } : setSel} onAct={swapOnly ? setSel : add} />
                 );
-                return [row(rep), ...(open ? rest.map((p, i) => row(p, i)) : [])];
+                if (!rest.length) return row(rep);
+                /* 다른 시즌이 있는 사람 — 닫히면 뒤에 카드 모서리 두 장(여러 장), 펼치면 구단 색 테두리 판 하나로 묶는다(mockups/season-group 1 + 8) */
+                return (
+                  <div key={k} className={open ? 'lk-group' : 'lk-stack'} style={{ '--t': teamNeon(rep) }}>
+                    {row(rep)}
+                    {open && <i className="lk-div" />}
+                    {open && rest.map((p, i) => row(p, i))}
+                  </div>
+                );
               })}
               {results.length === 0 && <p className="text-t3 text-gray-400">조건에 맞는 선수 없음</p>}
               {matched.length > results.length && (

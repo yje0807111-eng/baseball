@@ -6,16 +6,23 @@
  */
 import { overallOf } from '../data/ratings.js';
 
-/** 휴식 경기 수: 선발 80구↑ 4 · 60~79 3 · 40~59 2 · 그 미만 1 / 불펜 30구↑ 2 · 15~29 1 · 그 미만 0. 연투면 +1 */
+/**
+ * 휴식 경기 수: 선발 80구↑ 4 · 60~79 3 · 40~59 2 · 그 미만 1 / 불펜 25구↑ 2 · 10~24 1 · 그 미만 0. 연투면 +1.
+ * 불펜은 전엔 30 · 15 였다 — 마무리를 한 이닝(15구 안팎) 써도 다음 경기에 아무 대가가 없어, 센 불펜을 아무 때나 당겨 쓰는 게
+ * 늘 정답이었다(choice-sim 불펜 최선 72%, 2026-10-02). 이제 한 이닝이면 다음 경기 컨디션 85 · 연투면 70
+ */
 export function restAfter(role, pitches, streak = 0) {
   const base = role === 'starter'
     ? (pitches >= 80 ? 4 : pitches >= 60 ? 3 : pitches >= 40 ? 2 : 1)
-    : (pitches >= 30 ? 2 : pitches >= 15 ? 1 : 0);
+    : (pitches >= 25 ? 2 : pitches >= 10 ? 1 : 0);
   return base + (streak > 0 ? 1 : 0);
 }
 
 /** 컨디션(%): 휴식 0 → 100 · 1 → 85 · 2 → 70 · 3 이상 → 55 */
 export const conditionOf = (rest = 0) => (rest <= 0 ? 100 : rest === 1 ? 85 : rest === 2 ? 70 : 55);
+
+/** 불펜을 지금 부르면 다음 경기 컨디션(선택 카드의 대가) — 한 이닝(15구) 기준, 오늘 이미 나왔거나 어제도 던졌으면 연투 */
+export const penCostOf = (id, fatigue = {}, pitches = 15) => conditionOf(restAfter('reliever', pitches, fatigue[id]?.streak || 0));
 
 /** 피로를 능력치에 얹는다: 구위 · 제구 −(100 − 컨디션) × 0.2, 종합도 다시 계산 */
 export function withFatigue(player, fatigue = {}) {
