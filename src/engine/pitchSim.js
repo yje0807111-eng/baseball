@@ -127,10 +127,35 @@ export function replaceTeam(side, team) {
   side.pitcher = team.pitchers[side.pitcherIdx] || team.pitchers[0] || side.pitcher;
 }
 
-export function createGame({ home, away, rng = Math.random, maxInnings = 12 }) {
+/*
+ * 날씨 — 경기 전에 정해지고 경기 내내 같다. 보이는 것만이 아니라 선택의 답을 바꾼다(정답 없는 선택의 재료).
+ * 근거: Alan Nathan(물리) — 기온 10°F(약 5.5°C)마다 비거리 약 3ft, 1°F 에 홈런 확률 0.6~1% · 외야로 부는 바람은 뜬공을 멀리, 안으로 부는 바람은 묶는다.
+ *  비는 공이 미끄러워 제구 ↓ · 실책 ↑ · 주루 · 번트는 수비가 흔들려 ↑(OOTP · Retro Bowl 처럼 경기 값에 닿는 날씨).
+ * 값: hr = 홈런 배수 · ctl = 제구 더하기 · err = 실책 더하기 · steal = 도루 성공 더하기 · arm = 투구 수 한도 배수 · bunt = 번트 안타 더하기.
+ * 홈런 배수의 가중 평균 ≈ 1.005 — 리그 득점은 거의 그대로, 경기마다 결이 갈린다
+ */
+export const WEATHER = {
+  clear: { ko: '맑음', w: 40 },
+  hot: { ko: '무더위', w: 15, hr: 1.1, arm: 0.88 },
+  cold: { ko: '쌀쌀함', w: 10, hr: 0.88, ctl: -2 },
+  windOut: { ko: '바람 · 외야로', w: 12, hr: 1.18 },
+  windIn: { ko: '바람 · 안으로', w: 12, hr: 0.84 },
+  rain: { ko: '약한 비', w: 11, ctl: -3, err: 0.012, steal: 0.05, bunt: 0.06 },
+};
+export function weatherOf(rng = Math.random) {
+  const total = Object.values(WEATHER).reduce((n, x) => n + x.w, 0);
+  let r = rng() * total;
+  for (const [k, x] of Object.entries(WEATHER)) { r -= x.w; if (r < 0) return k; }
+  return 'clear';
+}
+
+export function createGame({ home, away, rng = Math.random, maxInnings = 12, weather = 'clear' }) {
+  const wx = { key: weather, hr: 1, ctl: 0, err: 0, steal: 0, arm: 1, bunt: 0, ...(WEATHER[weather] || WEATHER.clear) };
+  const sides = [newSide(home), newSide(away)];
+  for (const sd of sides) sd.wxArm = wx.arm;
   return {
-    rng, maxInnings,
-    home: newSide(home), away: newSide(away),
+    rng, maxInnings, wx,
+    home: sides[0], away: sides[1],
     inning: 1, top: true, outs: 0, balls: 0, strikes: 0,
     bases: [null, null, null],
     final: false, winner: null,
@@ -204,7 +229,7 @@ export function stealOdds(g, from) {
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
   return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0)
-    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0), 0.08, 0.95);
+    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0) + (g.wx?.steal || 0), 0.08, 0.95);
 }
 
 /*
@@ -215,7 +240,7 @@ export const aimSpread = (control, tired = 0) => clamp(0.27 + (82 - control) * 0
 export const FOCUS_SPREAD = 0.62;
 export const FOCUS_COST = 2;
 /** 지금 마운드 투수의 흩어짐 — choosePitch 와 같은 제구(피로 · 증강 · 팀 보정 포함). 수싸움 조준판이 그린다 */
-export const aimSpreadOf = (g) => { const def = defenseOf(g), tired = fatigue(def); return aimSpread(st(def.pitcher, 'control', 75) - tired * 12 + (def.mod?.pitch || 0) + tb(def, 'pit'), tired); };
+export const aimSpreadOf = (g) => { const def = defenseOf(g), tired = fatigue(def); return aimSpread(st(def.pitcher, 'control', 75) - tired * 12 + (def.mod?.pitch || 0) + tb(def, 'pit') + (g.wx?.ctl || 0), tired); };
 /** 떨어진 자리의 맞히기 어려움 — 존 경계에 붙을수록(구석) 어렵고, 한가운데로 몰리면 크게 쉽다(실투) */
 const cornerAt = (edge) => (edge > 0.72 ? 0.07 : edge > 0.4 ? 0 : -0.11);
 /*
@@ -255,7 +280,7 @@ export function hitChanceAt(g, zone) {
  * 전엔 안정(stability)으로 셌다 — 체력 능력치 · '불펜 데이'(체력 +20) · 전력투구(체력 −18)가 경기에 닿지 않았다(2026-09-30)
  */
 const armLimit = (side) =>
-  Math.max(20, 95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0));
+  Math.max(20, Math.round((95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0)) * (side.wxArm ?? 1)));
 
 /** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);
@@ -294,7 +319,7 @@ function choosePitch(g, pitcher, order) {
   /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
   const picked = order?.pitchType && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
-  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit');
+  const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit') + (g.wx?.ctl || 0);
   /*
    * 자유 조준(수싸움 수비) — 조준점 둘레로 제구만큼 흩어진다. 떨어진 자리로 존 안팎 · 칸 · 맞히기 어려움 · 뺀 방향이 정해진다.
    * 흩어짐은 두 방향 정규분포(g.rng 두 번). 예전 길(칸 찍기 · 자동)은 난수를 쓰는 순서까지 그대로다.
@@ -560,14 +585,14 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   if (orders.bunt) {
     const r = g.rng();
     if (r < 0.08) { ev.result = 'FO'; g.outs += 1; ev.text = '번트가 떠 버렸다'; return 0; }
-    if (r < 0.08 + clamp(0.06 + (speed - 70) * 0.01 + (orders.drag ? 0.12 : 0), 0.02, 0.42)) { ev.result = 'BH'; runs += score(g, advance(g, 1, batter, { scoreFrom2: 0 })); off.hits += 1; return runs; }
+    if (r < 0.08 + clamp(0.06 + (speed - 70) * 0.01 + (orders.drag ? 0.12 : 0) + (g.wx?.bunt || 0), 0.02, 0.42)) { ev.result = 'BH'; runs += score(g, advance(g, 1, batter, { scoreFrom2: 0 })); off.hits += 1; return runs; }
     ev.result = 'SAC'; g.outs += 1;
     if (g.outs < 3) runs += score(g, advance(g, 1, null, { scoreFrom2: 0 }));
     return runs;
   }
 
   // 실책
-  if (g.rng() < clamp(0.018 - (defAvg - 75) * 0.001, 0.004, 0.04)) {
+  if (g.rng() < clamp(0.018 - (defAvg - 75) * 0.001 + (g.wx?.err || 0), 0.004, 0.06)) {
     ev.result = 'E'; def.errors += 1;
     return score(g, advance(g, 1, batter, { scoreFrom2: 0.7 }));
   }
@@ -577,7 +602,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1);
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
     const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.12 + appr.dbl, 0.06, 0.38);
     const r = g.rng();

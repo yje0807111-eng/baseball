@@ -7,7 +7,7 @@ import { test } from 'vitest';
 import { writeFileSync } from 'fs';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
 import { engineTeam } from '../src/BroadcastGame.jsx';
-import { createGame, pitch, leverage, aiPitchingChange, defenseOf, offenseOf, stealOdds, staminaOf, batterOf, platoonOf } from '../src/engine/pitchSim.js';
+import { createGame, weatherOf, pitch, leverage, aiPitchingChange, defenseOf, offenseOf, stealOdds, staminaOf, batterOf, platoonOf } from '../src/engine/pitchSim.js';
 import { winProb } from '../src/engine/winProb.js';
 import { seeded } from '../src/myteam/tournament.js';
 
@@ -68,7 +68,7 @@ test.skipIf(!process.env.SG)('choice sim', () => {
   const rows = [];
   for (let gi = 0; gi < GAMES; gi += 1) {
     const r = seeded(gi + 77);
-    const g = createGame({ home: engineTeam(seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r)), away: engineTeam(seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r)), rng: seeded(gi + 5000) });
+    const g = createGame({ home: engineTeam(seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r)), away: engineTeam(seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r)), rng: seeded(gi + 5000), weather: process.env.WX || weatherOf(r) });
     const spots = [];
     let guard = 0;
     while (!g.final && guard++ < 1500) {
@@ -87,7 +87,7 @@ test.skipIf(!process.env.SG)('choice sim', () => {
       const def = vals[0];
       const best = Math.max(...vals), worst = Math.min(...vals);
       const b = batterOf(s.g), run1 = s.g.bases[0], stl = opts.find(([k]) => k === '도루') ? stealOdds(s.g, s.g.bases[0] && !s.g.bases[1] ? 0 : 1) : null;
-      rows.push({ game: gi, inn: s.g.inning, top: s.top, outs: s.g.outs, bases: s.g.bases.map((x) => (x ? 1 : 0)).join(''), diff: s.g.home.runs - s.g.away.runs, lev: +s.lev.toFixed(3),
+      rows.push({ game: gi, wx: g.wx.key, inn: s.g.inning, top: s.top, outs: s.g.outs, bases: s.g.bases.map((x) => (x ? 1 : 0)).join(''), diff: s.g.home.runs - s.g.away.runs, lev: +s.lev.toFixed(3),
         batter: `${b.name}(${b.hand}) 컨${b.stats?.contact} 파${b.stats?.power}`, ct: b.stats?.contact, pe: +(((b.stats?.power ?? 70) - (defenseOf(s.g).pitcher.stats?.stuff ?? 80)) / 10).toFixed(2), stam: Math.round(staminaOf(defenseOf(s.g))), stl: stl && +stl.toFixed(2),
         opts: Object.fromEntries(opts.map(([k], i) => [k, +(vals[i] * 100).toFixed(1)])), info: Object.fromEntries(opts.filter((x) => x[2]).map(([k, , m]) => [k, m])), best: opts[vals.indexOf(best)][0], gain: +((best - def) * 100).toFixed(1), spread: +((best - worst) * 100).toFixed(1) });
     }
