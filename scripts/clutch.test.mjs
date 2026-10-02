@@ -101,4 +101,4 @@ test('경기당 멈추는 횟수가 한 줌이다', () => {
   expect(all.filter((s) => s === 0).length).toBeLessThan(N / 2);
   /* 막판(7회 이후)에 한 번이라도 묻는 경기가 대부분 — 시뮬 400경기 75% */
   expect(games.filter((a) => a.some((x) => x.inning >= 7)).length).toBeGreaterThan(N * 0.6);
-});
+}, 30000); // 30경기 시뮬 — 전체 테스트가 몰릴 때 기본 5초를 넘겨 가끔 깨졌다
