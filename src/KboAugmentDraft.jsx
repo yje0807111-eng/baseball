@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallback } from 'react';
 import ReadyLocker from './myteam/ReadyLocker.jsx';
 import { autoArrange } from './myteam/SquadBoard.jsx';
+import { TopBar } from './myteam/ui.jsx';
 import { bannedAugIds, augLevels, favAugIds, loadAccount, myBanner, draftTickets, spendDraftTicket, addToClub, ownsInAccount, bumpWeek } from './myteam/store.js';
 import { clubMax } from './myteam/rules.js';
 import { roundsOf } from './myteam/rewards.js';
@@ -2448,7 +2449,7 @@ function CapDashboard({ round, cp, cap = SALARY_CAP, roster, phase, onOpenRules,
       {/* 배경음악 — 모든 화면과 같은 자리(위 바 오른쪽 28px · 위 18px). 이 바는 단계에 따라 가운데 정렬이라 바 기준으로 고정 */}
       <BgmButton className="!absolute right-7 top-[18px] z-10" />
       <div className={`mx-auto flex flex-wrap items-center gap-x-8 gap-y-3 px-4 ${wide ? 'max-w-[1920px] py-2.5 pr-20' : 'max-w-7xl py-3'}`}>
-        {onExit && <button type="button" data-sfx="nav" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
+        {onExit && <button type="button" data-sfx="nav" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-11 w-11 shrink-0 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
         {series ? (() => {
           /* 드래프트 중: 지금 열린 시리즈를 시즌 표로 — 어느 구단 · 어느 해인지 한눈에 */
           const flag = teamFlag(series.title || '');
@@ -4574,16 +4575,9 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
   return (
     <div className="relative flex min-h-screen flex-col lg:h-dvh lg:min-h-0">
-      <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-8 border-b border-[#f5d27a]/20 bg-[linear-gradient(180deg,rgba(5,8,15,.94),rgba(5,8,15,.6))] px-7" style={{ viewTransitionName: 'mode-head' }}>
-        <span className="pointer-events-none absolute -bottom-px left-0 h-0.5 w-64 bg-gradient-to-r from-[#f5d27a] to-transparent" aria-hidden="true" />
-        {onExit && <button type="button" data-sfx="nav" onClick={onExit} aria-label="메인으로" className="ui-cut grid h-9 w-9 shrink-0 -mr-4 place-items-center bg-white/[0.06] text-gray-200 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18)] hover:bg-white/10" style={{ '--c': '7px' }}>←</button>}
-        <div className="leading-none">
-          <p className="text-t4 font-bold tracking-[0.04em] text-gray-400">메인</p>
-          <h1 className="mt-1 text-t2 font-black leading-none text-white">플레이</h1>
-        </div>
-        {record && <p className="ml-auto text-t3 text-gray-400">최근 기록 <b className="font-display text-t2 text-white">{record}</b></p>}
-        <BgmButton className={record ? '' : 'ml-auto'} />
-      </header>
+      {/* 머리줄은 메인 계열과 같은 TopBar — 메인에서 들어와도 프로필 · 골드 · 음악이 같은 자리(mt-topbar 로 이어짐) */}
+      <TopBar eyebrow="메인" section="플레이" account={loadAccount()} onBack={onExit}
+        right={record && <p className="text-t3 text-gray-400">최근 기록 <b className="font-display text-t2 text-white">{record}</b></p>} />
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>
         {/* 사이드 네비 */}
