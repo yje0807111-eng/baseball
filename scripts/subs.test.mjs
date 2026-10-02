@@ -29,3 +29,21 @@ test('볼카운트 중간의 대타는 받지 않는다', () => {
   expect(g.away.team.bench.length).toBe(2);
   expect(batterOf(g).id).not.toBe('APH');
 });
+
+test('감독이 부르는 불펜은 한 경기 PEN_CALLS 번까지 — 자동 교체는 안 센다', async () => {
+  const { PEN_CALLS, penCallsLeft } = await import('../src/engine/pitchSim.js');
+  const t = () => ({ ...team('H'), pitchers: Array.from({ length: 6 }, (_, i) => man(`HP${i}`)) });
+  const g = createGame({ home: t(), away: team('A'), rng: seeded(4) });
+  for (let i = 0; i < PEN_CALLS + 1; i += 1) { g.balls = 0; g.strikes = 0; pitch(g, { changePitcher: true, call: true }); }
+  expect(g.home.pitcherIdx).toBe(PEN_CALLS);
+  expect(penCallsLeft(g.home)).toBe(0);
+  g.balls = 0; g.strikes = 0; pitch(g, { changePitcher: true });
+  expect(g.home.pitcherIdx).toBe(PEN_CALLS + 1);
+});
+
+test('불펜 대가 — 한 이닝이면 다음 경기 85, 연투면 70', async () => {
+  const { penCostOf } = await import('../src/myteam/fatigue.js');
+  expect(penCostOf('x')).toBe(85);
+  expect(penCostOf('x', { x: { rest: 0, streak: 1 } })).toBe(70);
+  expect(penCostOf('x', {}, 5)).toBe(100);
+});

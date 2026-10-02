@@ -41,7 +41,7 @@ function options(g) {
   const pen = (g.inning < 6 && staminaOf(def) >= 50) ? [] : def.team.pitchers.slice(def.pitcherIdx + 1).map((p) => [p, armVal(p, bat)]).sort((a, b) => b[1] - a[1]).slice(0, 2);
   return [
     ['정비', () => ({})],
-    ...pen.map(([p, v], i) => [`불펜${i + 1}`, first({ changePitcher: p.id }), { name: p.name, gap: +(v - armVal(def.pitcher, bat)).toFixed(1) }]),
+    ...pen.map(([p, v], i) => [`불펜${i + 1}`, first({ changePitcher: p.id, call: true }), { name: p.name, gap: +(v - armVal(def.pitcher, bat)).toFixed(1) }]),
     (b2 || b3) && !b1 && ['고의사구', first({ ibb: true })],
     ['유인구', (gg) => (gg.rng() < 0.45 ? { zone: 'chase' } : {})],
     ['정면 승부', (gg) => (gg.rng() < 0.5 ? { zone: pickOf(gg, [4, 1, 3, 5, 7]) } : {})],

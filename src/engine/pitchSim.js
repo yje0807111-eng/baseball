@@ -92,8 +92,15 @@ export function fitType(pitcher, t) {
 export const noMod = () => ({ hit: 0, hitMul: 1, hr: 0, steal: 0, pitch: 0 });
 
 function newSide(team) {
-  return { team, idx: 0, pitcher: team.pitchers[0], pitcherIdx: 0, pitches: 0, runs: 0, hits: 0, errors: 0, line: [], mod: noMod() };
+  return { team, idx: 0, pitcher: team.pitchers[0], pitcherIdx: 0, pitches: 0, runs: 0, hits: 0, errors: 0, line: [], mod: noMod(), penCalls: 0 };
 }
+
+/*
+ * 감독이 직접 부르는 불펜은 한 경기 PEN_CALLS 번까지(orders.call 과 함께 온 changePitcher 만 센다 — 체력 바닥 자동 교체 · AI 교체는 안 셈).
+ * 센 불펜을 지금 부르는 게 늘 정답이던 것(choice-sim 72%)을 '언제 쓸까'로 — 단판에도 대가가 있게. 연속 경기의 대가는 다음 경기 피로(penCostOf)
+ */
+export const PEN_CALLS = 2; // 불펜이 최선인 결정이 경기당 3.3번 — 2번이면 '언제 쓸까'가 늘 걸린다(한 경기 다 최선 26.3 → 19.7%p, 3번이면 22.4)
+export const penCallsLeft = (side) => PEN_CALLS - (side.penCalls || 0);
 
 /** 반 이닝마다 보정을 새로 깐다 (증강 어댑터가 부른다) */
 export function setMods(g, { home = noMod(), away = noMod() } = {}) {
@@ -262,7 +269,7 @@ export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) *
 export function approachOf(approach, contact, power, stuff) {
   if (approach === 'power') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.06 + 0.035 * pe, hit: -0.02, hr: Math.max(-0.02, 0.025 + 0.045 * pe), dbl: 0.03 }; }
   /* 노림수: 한 방만 노린다 — 헛스윙 크게 ↑ · 홈런 ↑(파워가 구위를 넘을수록 더). 뒤질 때 값어치, 앞설 때 손해 */
-  if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.08 + 0.02 * pe, hit: -0.03, hr: Math.max(0.03, 0.09 + 0.03 * pe), dbl: 0.04 }; }
+  if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.05 + 0.02 * pe, hit: -0.03, hr: Math.max(0.04, 0.1 + 0.03 * pe), dbl: 0.04 }; }
   if (approach === 'contact') { const ce = clamp((contact - 75) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.045, dbl: -0.09 }; }
   return { whiff: 0, hit: 0, hr: 0, dbl: 0 };
 }
@@ -422,6 +429,10 @@ export function pitch(g, orders = {}) {
   if (g.final) return null;
   const off = offenseOf(g);
   const def = defenseOf(g);
+  if (orders.changePitcher && orders.call) {
+    if (penCallsLeft(def) <= 0) orders = { ...orders, changePitcher: null };
+    else if (def.team.pitchers[def.pitcherIdx + 1]) def.penCalls += 1;
+  }
   if (orders.changePitcher) {
     // id 를 주면 그 투수를 다음 순번으로 당겨 온다 (이미 던진 투수 · 지금 투수는 고를 수 없다)
     if (typeof orders.changePitcher === 'string') {
