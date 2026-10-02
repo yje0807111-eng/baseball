@@ -583,4 +583,4 @@ OOTP 는 제한을 건 대회로 같은 수집에서 새 판을 만든다.
 - 마무리(2026-10-02): 기운 경기(상태 승률 6% 아래 · 94% 위)는 묻지 않는다 → 80경기 평균 7.7번 · 2점 차 이내로 끝난 경기 9.7번 · 기운 뒤 물은 적 0. 불펜 카드 대가에 내 팀 피로(team.pitchFatigue)를 넘김(연투면 70).
   시간 끝 확인: 작전 15.2 · 15.4초 → 정비 작전으로 그 타석 · 펼침 약 10초 → 찍어 둔 구종 그대로(정면 승부 · 직구).
 - **옛 중계 지움**(2026-10-02): BroadcastGame · PlayView · fieldMap · backgrounds · play-lab · 옛 승부처(shouldAsk) · 3초 작전 카드. 다른 곳이 쓰던 조각(engineTeam · buildResult · Scoreboard · shortTeam …)은 `play/matchKit.jsx` 로. 드래프트 모드 경기도 선택 경기로.
-  남긴 것: 수싸움 판(DuelPanel) — 이름 붙은 조각(situationOf · zoneKo · locOf · batSide …)을 선택 경기가 쓴다. 판 자체(기본 내보내기)는 지금 쓰는 곳이 없다.
+  수싸움 판(DuelPanel) · 연출 대본(playScript) · 안 쓰는 그림 8장(옛 중계 · 승부처 · 더그아웃 · 분필 · 수싸움 배경 3, 약 550KB)도 지움. 선택 경기가 쓰는 조각(situationOf · zoneKo · batSide · locOf · pitchWeights · veloOfP)은 `play/duel.js` 로.

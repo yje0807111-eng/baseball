@@ -18,7 +18,7 @@ import {
   createGame, pitch, weatherOf, batterOf, pitcherOf, offenseOf, defenseOf, staminaOf, replaceTeam, aiPitchingChange, playOut, RESULT_LABEL, PITCHES, hitChanceAt, penCallsLeft, PEN_CALLS,
 } from '../engine/pitchSim.js';
 import { engineTeam, buildResult, Scoreboard, shortTeam } from './matchKit.jsx';
-import { situationOf, zoneKo, locOf, batSide } from './DuelPanel.jsx';
+import { situationOf, zoneKo, locOf, batSide } from './duel.js';
 import { wantsChoice, choiceCards, planOrder, pitchesFor, CHOICES, CHOICE_MS, DETAIL_MS } from './choice.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -92,7 +92,7 @@ function Detail({ g, card, pick, setPick, onGo, timer }) {
   const bat = card.detail === 'bat', list = pitchesFor(g);
   const heat = bat ? locOf(g) : Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z));
   const lo = Math.min(...heat), hi = Math.max(...heat);
-  /* 몸쪽이 타자 쪽 — 공격 판(포수 뒤)은 좌타면 오른쪽, 수비 판(중견수 쪽)은 우타면 오른쪽(DuelPanel 과 같은 규칙) */
+  /* 몸쪽이 타자 쪽 — 공격 판(포수 뒤)은 좌타면 오른쪽, 수비 판(중견수 쪽)은 우타면 오른쪽(duel.js batSide) */
   const right = batSide(batterOf(g), pitcherOf(g)) === 'R';
   const flip = bat ? !right : right;
   const cells = [0, 1, 2].flatMap((r) => [0, 1, 2].map((c) => r * 3 + (flip ? 2 - c : c)));
