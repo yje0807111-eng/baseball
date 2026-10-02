@@ -1049,7 +1049,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                   const e = effTags([x])[0];
                   return (
                     <div key={m.id} role="button" onClick={() => setStaffSel(m.id)} className={`mt-row h-[68px] cursor-pointer ${staffShown?.id === m.id ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 96px 168px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
+                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 400px 96px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
                       <StaffFace m={m} size={50} />
                       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{m.cost}</b>
                       <span className="min-w-0">
@@ -1069,20 +1069,6 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                         <span className="text-t4 text-gray-400">대상</span>
                         <b className="font-display text-t2 leading-none text-white">{staffTargets(m, squad)}<small className="ml-0.5 text-t4 text-gray-400">명</small></b>
                       </span>
-                      {(() => {
-                        /* 강화 — 지금 레벨 효과 → 최대 레벨 효과(앉은 사람은 그 레벨부터, 후보는 Lv.1 부터) */
-                        const t = lvTexts(m);
-                        const now = mine ? staff[listSlot].level || 1 : 1;
-                        const grows = t[STAFF_LEVEL_MAX - 1] !== t[0];
-                        return (
-                          <span className="flex flex-col gap-0.5 rounded-xl bg-white/[0.04] px-3 py-1.5">
-                            <span className="text-t4 text-gray-400">{grows ? `강화 Lv.${now} → ${STAFF_LEVEL_MAX}` : '강화'}</span>
-                            {grows
-                              ? <b className="font-display text-t2 leading-none text-white">{t[now - 1]}<span className="mx-1.5 text-gray-500">→</span><span style={{ color: e.c }}>{t[STAFF_LEVEL_MAX - 1]}</span></b>
-                              : <b className="text-t4 leading-[18px] text-gray-500">효과 그대로</b>}
-                          </span>
-                        );
-                      })()}
                       <span className="justify-self-center rounded-full bg-amber-400/10 px-2.5 py-1 font-display text-t3 font-bold text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]">{m.cost} CP</span>
                       <Btn pri={staffShown?.id === m.id && !mine && !over} disabled={mine || over > 0} onClick={(ev) => { ev.stopPropagation(); askStaff(listSlot, m); }} style={{ minHeight: 42, padding: '0 14px' }}>
                         {mine ? '선임 중' : over > 0 ? `CP ${over} 부족` : staff[listSlot] ? '교체' : '선임'}
@@ -1145,12 +1131,12 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
               <span className="flex flex-col gap-1.5 rounded-xl bg-white/[0.04] px-4 py-3">
                 <span className="flex items-baseline gap-3"><span className="shrink-0 text-t3 font-bold text-gray-200">{e.label}</span><span className="min-w-0 flex-1 truncate text-t3 text-gray-400">{e.desc}</span><b className="shrink-0 font-display text-t1 leading-none" style={{ color: e.c }}>{e.n}</b></span>
               </span>
-              {/* 강화 사다리 — 레벨마다 효과, 지금 레벨은 금테 · 지난 레벨은 채움(후보는 선임하면 Lv.1) */}
-              {lvTexts(m)[0] !== lvTexts(m)[STAFF_LEVEL_MAX - 1] && (
+              {/* 강화 사다리 — 앉은 사람만(강화는 선임한 뒤 일). 레벨마다 효과, 지금 레벨은 금테 · 지난 레벨은 채움 */}
+              {isCur && lvTexts(m)[0] !== lvTexts(m)[STAFF_LEVEL_MAX - 1] && (
                 <div className="grid grid-cols-5 gap-1.5">
                   {lvTexts(m).map((t, i) => {
-                    const at = (isCur ? lv : 1) === i + 1;
-                    const done = (isCur ? lv : 1) > i + 1;
+                    const at = lv === i + 1;
+                    const done = lv > i + 1;
                     return (
                       <span key={i} className="flex flex-col items-center rounded-lg py-1.5"
                         style={{ background: at ? 'rgba(245,210,122,.12)' : done ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.025)', boxShadow: at ? 'inset 0 0 0 1.5px #f5d27a' : 'none' }}>
