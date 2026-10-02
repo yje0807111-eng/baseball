@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>이닝 흐름 판 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  오른쪽 아래 판(440×378) — side-info 8안(이닝 흐름 + 증강)을 여덟 갈래로.
+  경기 흐름을 한눈에: 이닝마다 안타 · 점수 · 결과 — 중계 라인 스코어 · 야구 기록지 · 득점 타임라인 · 누적 점수 그래프.
+  장면: 5회초 진행 중(현대 공격). 값은 목업. 증강은 아래(우리 · 상대 한 줄씩 · 7회 빈 칸).
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .cover { position: absolute; left: 1450px; top: 506px; width: 452px; height: 392px; background: #05060b; }
+  .pn { position: absolute; left: 1456px; top: 512px; width: 440px; height: 378px; border-radius: 22px; padding: 16px 18px; display: flex; flex-direction: column; gap: 11px; overflow: hidden;
+    background: linear-gradient(180deg, #17152d, #0f0e22); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 14px 30px rgba(0,0,0,.4); }
+  .lab { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; color: var(--k, #60a5fa); margin: 0; }
+  .lab::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .lab .r { margin-left: auto; font-size: 12px; color: #94a3b8; font-weight: 600; }
+  .g { color: #34d399; } .rd { color: #f87171; } .m { color: #94a3b8; } .y { color: #f5d27a; }
+  .aug { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .art { flex: none; border-radius: 9px; background-size: cover; background-position: 50% 20%; box-shadow: 0 0 0 1.5px var(--k), 0 4px 10px rgba(0,0,0,.5); }
+  .empty { flex: none; border-radius: 9px; border: 1.5px dashed rgba(255,255,255,.2); display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #64748b; }
+  .sep { height: 1px; background: rgba(255,255,255,.07); flex: none; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .nav { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .nav button { all: unset; cursor: pointer; padding: 7px 11px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .nav button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .now { box-shadow: inset 0 0 0 1.5px #f5d27a; border-radius: 6px; }
+</style>
+<body>
+<img class="shot" src="../side-info/field.jpg">
+<div class="cover"></div>
+<div class="pn" id="pn"></div>
+<div class="cap" id="cap"></div>
+<div class="nav" id="nav"></div>
+<script>
+  const OPP = '#f87171', OUR = '#34d399';
+  /* 이닝 기록 — [안타, 점수, 결과] · 5회초 진행 중(현대 1안타 0점까지) */
+  const AW = [[2, 1, '2안타 1점'], [0, 0, '삼자범퇴'], [3, 2, '홈런 2점'], [1, 0, '1안타'], [1, 0, '진행 중']];
+  const HM = [[1, 0, '1안타'], [2, 1, '2루타 1점'], [0, 0, '삼자범퇴'], [1, 0, '볼넷 · 1안타']];
+  const NOW = 4; // 5회
+  const sum = (a, k) => a.reduce((n, x) => n + x[k], 0);
+  const A = { my: { id: 'starterFocus', name: '선발 집중', eff: '1~4회 수비 투구 +10' }, opp: { id: 'ctrlTrain', name: '제구 훈련', eff: '투수 제구 +10' } };
+  const augs = (s = 34, detail = true) => ['my', 'opp'].map((side) => { const a = A[side]; const k = side === 'my' ? OUR : OPP;
+    return `<div class="aug"><b style="width:28px;font-size:12px;color:${k}">${side === 'my' ? '우리' : '상대'}</b><i class="art" style="width:${s}px;height:${s}px;--k:${k};background-image:url(/augments/${a.id}.webp)"></i>${detail ? `<span style="display:flex;flex-direction:column;gap:1px;min-width:0"><b style="font-size:14px">${a.name}</b><span class="m" style="font-size:11px">${a.eff}</span></span>` : `<b style="font-size:14px">${a.name}</b>`}<span style="margin-left:auto">${`<i class="empty" style="width:${s}px;height:${s}px">7회</i>`}</span></div>`; }).join('');
+  const augLine = () => `<div style="display:flex;align-items:center;gap:8px;margin-top:auto">${['my', 'opp'].map((side) => { const a = A[side]; const k = side === 'my' ? OUR : OPP; return `<i class="art" style="width:30px;height:30px;--k:${k};background-image:url(/augments/${a.id}.webp)" title="${a.name}"></i><b style="font-size:13px;color:${k}">${a.name}</b><i class="empty" style="width:30px;height:30px">7</i>`; }).join('<i style="width:1px;height:22px;background:rgba(255,255,255,.12);margin:0 4px"></i>')}</div>`;
+  const cols = 'grid-template-columns:40px repeat(9,1fr) 26px 26px';
+  const V = {
+    1: ['1 · 라인 스코어 판', '중계 라인 스코어 그대로 — 이닝 점수 · R · H, 지금 이닝은 금색 테두리 · 아래 증강', () =>
+      `<p class="lab">이닝 흐름<span class="r">5회초</span></p>
+      <div style="display:grid;${cols};gap:3px;font-size:13px;text-align:center;align-items:center">
+        <span></span>${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => `<span class="m d" style="font-size:12px">${i}</span>`).join('')}<b class="m" style="font-size:11px">R</b><b class="m" style="font-size:11px">H</b>
+        ${[['현대', AW, OPP], ['우리', HM, OUR]].map(([t, L, k]) => `<b style="text-align:left;font-size:12px;color:${k}">${t}</b>` + Array.from({ length: 9 }, (_, i) => { const x = L[i]; return `<span class="d ${t === '현대' && i === NOW ? 'now' : ''}" style="padding:3px 0;font-size:16px;color:${x ? (x[1] ? '#fff' : '#64748b') : '#334155'}">${x ? x[1] : ''}</span>`; }).join('') + `<b class="d" style="font-size:17px">${sum(L, 1)}</b><b class="d m" style="font-size:15px">${sum(L, 0)}</b>`).join('')}
+      </div><div class="sep"></div><p class="lab" style="--k:${OUR}">증강</p>${augs()}`],
+    2: ['2 · 안타 막대 + 점수 숫자', '지금 8안 다듬기 — 이닝마다 안타만큼 막대, 점수 난 이닝은 숫자를 팀 색으로 · 지금 이닝 표시', () =>
+      `<p class="lab">이닝 흐름<span class="r">막대 = 안타 · 숫자 = 점수</span></p>
+      <div style="display:grid;grid-template-columns:36px repeat(9,1fr);gap:4px;align-items:end">${[['현대', AW, OPP], ['우리', HM, OUR]].map(([t, L, k]) => `<b style="font-size:12px;color:${k};align-self:center">${t}</b>` + Array.from({ length: 9 }, (_, i) => { const x = L[i]; return `<span class="${t === '현대' && i === NOW ? 'now' : ''}" style="display:flex;flex-direction:column;align-items:center;gap:3px;height:52px;justify-content:flex-end;padding-bottom:2px">${x ? `<i style="width:12px;height:${4 + x[0] * 9}px;border-radius:3px;background:${k}${x[1] ? '' : '55'}"></i><b class="d" style="font-size:13px;color:${x[1] ? k : '#475569'}">${x[1]}</b>` : `<b class="d" style="font-size:12px;color:#334155">${i + 1}</b>`}</span>`; }).join('')).join('')}</div>
+      <div class="sep"></div><p class="lab" style="--k:${OUR}">증강</p>${augs()}`],
+    3: ['3 · 반 이닝 결과 칩', '이닝마다 결과 한 마디 칩(삼자범퇴 · 2안타 1점 · 홈런 2점) — 요약 모드의 흐름을 글로 · 아래 증강 한 줄', () =>
+      `<p class="lab">이닝 흐름</p>
+      <div style="display:grid;grid-template-columns:30px 1fr 1fr;gap:5px 8px;font-size:12px;align-items:center"><span></span><b class="rd" style="font-size:12px">현대</b><b class="g" style="font-size:12px">우리</b>
+      ${[0, 1, 2, 3, 4].map((i) => `<b class="d m" style="font-size:14px">${i + 1}회</b>` + [[AW, OPP], [HM, OUR]].map(([L, k]) => { const x = L[i]; return x ? `<span class="${i === NOW && L === AW ? 'now' : ''}" style="padding:4px 8px;border-radius:6px;font-weight:700;background:${x[1] ? k + '26' : 'rgba(255,255,255,.04)'};color:${x[1] ? k : '#94a3b8'}">${x[2]}</span>` : '<span></span>'; }).join('')).join('')}
+      </div>${augLine()}`],
+    4: ['4 · 점수 계단 그래프', '양 팀 누적 점수가 이닝마다 계단처럼 오른다 — 누가 언제 따라붙었는지 · 아래 증강', () => {
+      const W = 404, H = 120, x = (i) => 10 + (i / 9) * (W - 20), y = (v) => H - 14 - v * 22;
+      const path = (L) => { let v = 0; let d = `M ${x(0)} ${y(0)}`; L.forEach((r, i) => { d += ` L ${x(i + 1) - 1} ${y(v)}`; v += r[1]; d += ` L ${x(i + 1)} ${y(v)}`; }); return d; };
+      return `<p class="lab">점수 흐름<span class="r">현대 3 : 1 우리</span></p>
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${[0, 1, 2, 3, 4].map((v) => `<line x1="10" x2="${W - 10}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,.06)"/>`).join('')}
+        ${Array.from({ length: 9 }, (_, i) => `<text x="${(x(i) + x(i + 1)) / 2}" y="${H - 1}" text-anchor="middle" fill="${i === NOW ? '#f5d27a' : '#475569'}" font-size="11" font-family="Saira Condensed">${i + 1}</text>`).join('')}
+        <path d="${path(AW)}" fill="none" stroke="${OPP}" stroke-width="3" stroke-linejoin="round"/><path d="${path(HM)}" fill="none" stroke="${OUR}" stroke-width="3" stroke-linejoin="round"/></svg>
+      <div class="sep"></div>${augs(32)}`; }],
+    5: ['5 · 득점 타임라인', '점수가 난 장면만 시간 순으로 한 줄씩(3회초 심정수 2점 홈런) — 결정적 장면을 경기 중에 · 아래 증강', () =>
+      `<p class="lab">득점<span class="r">현대 3 : 1 우리</span></p>
+      ${[['1회초', '송지만 적시타', 1, OPP], ['2회말', '유한준 2루타', 1, OUR], ['3회초', '심정수 홈런', 2, OPP]].map(([w, t, r, k]) => `<div style="display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.04);box-shadow:inset 3px 0 0 ${k}"><b class="d m" style="font-size:14px">${w}</b><b style="font-size:14px">${t}</b><b class="d" style="font-size:17px;color:${k}">+${r}</b></div>`).join('')}
+      <div class="sep"></div>${augs(32)}`],
+    6: ['6 · 위아래 거울 막대', '가운데 선 위는 현대, 아래는 우리 — 이닝마다 안타 막대가 위아래로, 점수 난 이닝은 진하게 · 한눈에 누가 몰아쳤나', () =>
+      `<p class="lab">이닝 흐름<span class="r">위 현대 · 아래 우리</span></p>
+      <div style="position:relative;display:grid;grid-template-columns:repeat(9,1fr);gap:6px;height:122px">${Array.from({ length: 9 }, (_, i) => { const a = AW[i], h = HM[i];
+        return `<span class="${i === NOW ? 'now' : ''}" style="position:relative;display:flex;flex-direction:column;align-items:center">
+          <span style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px">${a ? `<b class="d" style="font-size:12px;color:${a[1] ? OPP : '#475569'}">${a[1] || ''}</b><i style="width:14px;height:${a[0] * 12}px;border-radius:3px 3px 0 0;background:${OPP}${a[1] ? '' : '55'}"></i>` : ''}</span>
+          <span class="d" style="font-size:11px;color:${i === NOW ? '#f5d27a' : '#475569'};line-height:14px">${i + 1}</span>
+          <span style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">${h ? `<i style="width:14px;height:${h[0] * 12}px;border-radius:0 0 3px 3px;background:${OUR}${h[1] ? '' : '55'}"></i><b class="d" style="font-size:12px;color:${h[1] ? OUR : '#475569'}">${h[1] || ''}</b>` : ''}</span></span>`; }).join('')}</div>
+      <div class="sep"></div>${augs(32)}`],
+    7: ['7 · 기록지 칸', '야구 기록지처럼 이닝마다 네모 칸 — 안타 수만큼 점, 점수는 가운데 숫자, 삼자범퇴는 빈 칸 · 증강은 판 맨 위 작은 줄', () =>
+      `${augLine().replace('margin-top:auto', 'margin-top:0')}<div class="sep"></div><p class="lab">이닝 흐름</p>
+      <div style="display:grid;grid-template-columns:36px repeat(9,1fr);gap:4px;align-items:center">${[['현대', AW, OPP], ['우리', HM, OUR]].map(([t, L, k]) => `<b style="font-size:12px;color:${k}">${t}</b>` + Array.from({ length: 9 }, (_, i) => { const x = L[i];
+        return `<span style="position:relative;aspect-ratio:1;border-radius:6px;background:${x && x[1] ? k + '30' : 'rgba(255,255,255,.04)'};box-shadow:inset 0 0 0 1px ${t === '현대' && i === NOW ? '#f5d27a' : 'rgba(255,255,255,.08)'};display:grid;place-items:center">${x ? `<b class="d" style="font-size:15px;color:${x[1] ? '#fff' : 'transparent'}">${x[1]}</b><span style="position:absolute;left:4px;bottom:3px;display:flex;gap:2px">${('<i style="width:4px;height:4px;border-radius:50%;background:' + k + '"></i>').repeat(x[0])}</span>` : `<span class="d" style="font-size:11px;color:#334155">${i + 1}</span>`}</span>`; }).join('')).join('')}</div>
+      <div style="display:flex;gap:14px;font-size:12px;margin-top:auto"><span class="m">점 = 안타</span><span class="m">숫자 = 점수</span><span class="y">테두리 = 지금</span></div>`],
+    8: ['8 · 이닝 흐름 + 승부처 표시', '2안 막대 위에 승부처 · 작전 카드를 낸 이닝에 작은 표(⚔ · ●) — 내가 개입한 자리와 결과가 한 판에', () =>
+      `<p class="lab">이닝 흐름<span class="r">⚔ 승부처 · ● 작전</span></p>
+      <div style="display:grid;grid-template-columns:36px repeat(9,1fr);gap:4px;align-items:end">${[['현대', AW, OPP, { 2: '⚔', 4: '●' }], ['우리', HM, OUR, { 1: '●' }]].map(([t, L, k, mark]) => `<b style="font-size:12px;color:${k};align-self:center">${t}</b>` + Array.from({ length: 9 }, (_, i) => { const x = L[i]; return `<span class="${t === '현대' && i === NOW ? 'now' : ''}" style="display:flex;flex-direction:column;align-items:center;gap:3px;height:60px;justify-content:flex-end;padding-bottom:2px">${mark[i] ? `<b style="font-size:11px;color:#f5d27a">${mark[i]}</b>` : ''}${x ? `<i style="width:12px;height:${4 + x[0] * 8}px;border-radius:3px;background:${k}${x[1] ? '' : '55'}"></i><b class="d" style="font-size:13px;color:${x[1] ? k : '#475569'}">${x[1]}</b>` : `<b class="d" style="font-size:12px;color:#334155">${i + 1}</b>`}</span>`; }).join('')).join('')}</div>
+      <div class="sep"></div>${augs(32)}`],
+  };
+  let v = '1';
+  const render = () => {
+    document.getElementById('pn').innerHTML = V[v][2]();
+    document.getElementById('cap').textContent = `${V[v][0]} — ${V[v][1]}`;
+    document.getElementById('nav').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('');
+    location.hash = v;
+  };
+  document.getElementById('nav').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { v = b.dataset.v; render(); } });
+  if (V[location.hash.slice(1)]) v = location.hash.slice(1);
+  render();
+</script>
+</body>
+</html>

@@ -166,7 +166,7 @@ function Who({ p, isP, mine, team, g, side }) {
   );
 }
 /*
- * 존 — grid 3: 칸 0~8(수비 코스) + 바깥 네 띠 · grid 2: 4칸 노림(공격). 몸쪽이 왼쪽(중계 존 판과 같게).
+ * 존 — grid 3: 칸 0~8(수비 코스) + 바깥 네 띠 · grid 2: 4칸 노림(공격). 몸쪽은 타자 쪽(flip 이면 오른쪽).
  * marks: 이 타석 공 { x, y (존 반폭 · 반높이 = 1), c }
  */
 /*
@@ -174,6 +174,15 @@ function Who({ p, isP, mine, team, g, side }) {
  * 기준은 그 존의 가장 낮은 칸 · 가장 높은 칸(공마다 볼카운트가 바뀌면 다시 잡는다)
  */
 const HEAT = [[250, 204, 21], [249, 115, 22], [239, 68, 68]];
+/*
+ * 좌우 — 엔진은 타자 기준(x − = 몸쪽 · 칸 열 0 = 몸쪽)이고, 화면은 보는 자리에 따라 몸쪽이 타자 쪽으로 간다.
+ * 공격 판 = 포수 뒤(우타는 왼쪽에 선다), 수비 판 = 중견수 쪽 중계 카메라(우타는 오른쪽에 선다).
+ * 그래서 몸쪽이 오른쪽에 오는 때 = 공격의 좌타 · 수비의 우타(flip). 스위치 타자는 투수 반대 손으로 선다.
+ * 공이 휘는 쪽(타자 기준)은 투수 손 × 타자 손 — 우투 슬라이더는 우타 바깥 · 좌타 몸쪽으로.
+ */
+const handSign = (h) => (h === 'L' ? -1 : 1);
+export const batSide = (b, p) => (b?.hand === 'S' ? (p?.hand === 'L' ? 'R' : 'L') : b?.hand === 'L' ? 'L' : 'R');
+const INOUT = (flip) => (flip ? ['◀ 바깥', '몸쪽 ▶'] : ['◀ 몸쪽', '바깥 ▶']);
 /**
  * '위험' 표시할 칸(수비 판 — 맞을 확률) — 가장 높은 칸이 평균보다 12% 이상 높을 때만(평균 17.5% 면 19.6% 이상).
  * 공격 판의 색은 상대가 던질 곳이라 '위험'이 아니다 — 거기엔 붙이지 않는다.
@@ -194,19 +203,21 @@ const heatFill = (pct, i) => {
 };
 /** 유인구 띠 두께 — 수비 존의 9칸 판이 공격 존과 같은 자리에 오도록, 바깥에 이만큼만 붙는다 */
 const CHASE_W = 50;
-function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null, labels = false }) {
+function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = null, labels = false, flip = false, bk = 1 }) {
   const B = size, m = chase ? CHASE_W : 0, gap = 8, W = B + m * 2, cell = B / grid;
   const cells = [];
   for (let r = 0; r < grid; r += 1) for (let c = 0; c < grid; c += 1) {
-    cells.push({ id: grid === 3 ? r * 3 + c : `${c ? 'o' : 'i'}${r ? 'l' : 'h'}`, x: m + c * cell, y: m + r * cell, w: cell, h: cell });
+    const cc = flip ? grid - 1 - c : c; // 화면 열 → 타자 기준 열
+    cells.push({ id: grid === 3 ? r * 3 + cc : `${cc ? 'o' : 'i'}${r ? 'l' : 'h'}`, x: m + c * cell, y: m + r * cell, w: cell, h: cell });
   }
   const bars = chase ? [
     { id: 'hi', x: m, y: 0, w: B, h: m - gap }, { id: 'lo', x: m, y: m + B + gap, w: B, h: m - gap },
-    { id: 'in', x: 0, y: m, w: m - gap, h: B }, { id: 'out', x: m + B + gap, y: m, w: m - gap, h: B },
+    { id: flip ? 'out' : 'in', x: 0, y: m, w: m - gap, h: B }, { id: flip ? 'in' : 'out', x: m + B + gap, y: m, w: m - gap, h: B },
   ] : [];
   const selBox = [...cells, ...bars].find((z) => z.id === sel);
   const H = W + 34;
   const pick = onPick ? 'zc' : undefined;
+  const mk = flip ? marks.map((p) => ({ ...p, x: -p.x })) : marks;
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
       {bars.map((z) => (
@@ -232,8 +243,8 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
           {!QUAD[sel] && !pct && <><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r={Math.min(selBox.w, selBox.h) * 0.34} fill="none" stroke={GOLD} strokeWidth="3" /><circle cx={selBox.x + selBox.w / 2} cy={selBox.y + selBox.h / 2} r="6" fill={GOLD} /></>}
         </g>
       )}
-      <Trails marks={marks} toPx={(v) => m + ((v + 1) / 2) * B} half={B / 2} id="tz" />
-      {marks.map((p, i) => {
+      <Trails marks={mk} toPx={(v) => m + ((v + 1) / 2) * B} half={B / 2} id="tz" bk={bk} />
+      {mk.map((p, i) => {
         const x = m + ((Math.max(-1.45, Math.min(1.45, p.x)) + 1) / 2) * B, y = m + ((Math.max(-1.45, Math.min(1.45, p.y)) + 1) / 2) * B, last = i === marks.length - 1;
         return (
           <g key={i} style={{ pointerEvents: 'none', animation: last ? 'dlPing .3s both' : undefined, transformOrigin: `${x}px ${y}px` }}>
@@ -242,8 +253,8 @@ function Zone({ size, grid = 3, chase = true, sel, onPick, marks = [], pct = nul
           </g>
         );
       })}
-      <text x={m} y={W + 26} fontSize="17" fontWeight="700" fill={MUTE}>◀ 몸쪽</text>
-      <text x={m + B} y={W + 26} textAnchor="end" fontSize="17" fontWeight="700" fill={MUTE}>바깥 ▶</text>
+      <text x={m} y={W + 26} fontSize="17" fontWeight="700" fill={MUTE}>{INOUT(flip)[0]}</text>
+      <text x={m + B} y={W + 26} textAnchor="end" fontSize="17" fontWeight="700" fill={MUTE}>{INOUT(flip)[1]}</text>
     </svg>
   );
 }
@@ -340,9 +351,9 @@ const breakPts = (B, A) => {
 };
 const lineOf = (P) => `M${P.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')}`;
 /** toPx: 존 좌표 → 판 px, half: 존 반폭(px) */
-const arcOf = (toPx, half, t, x, y) => {
+const arcOf = (toPx, half, t, x, y, bk = 1) => {
   const cl = (v) => Math.max(-1.45, Math.min(1.45, v)), ex = toPx(cl(x)), ey = toPx(cl(y));
-  const B = (BREAK[t] || [0, 0]).map((v) => v * half), P = breakPts(B, [ex - B[0], ey - B[1]]);
+  const B = (BREAK[t] || [0, 0]).map((v, i) => v * half * (i ? 1 : bk)), P = breakPts(B, [ex - B[0], ey - B[1]]);
   const side = (sg) => P.map(([px, py], i) => {
     const [ax, ay] = P[Math.max(0, i - 1)], [bx, by] = P[Math.min(20, i + 1)], n = Math.hypot(bx - ax, by - ay) || 1, w = (10 - 6 * i / 20) / 2;
     return `${(px - (sg * w * (by - ay)) / n).toFixed(1)} ${(py + (sg * w * (bx - ax)) / n).toFixed(1)}`;
@@ -350,9 +361,9 @@ const arcOf = (toPx, half, t, x, y) => {
   return { sx: P[0][0], sy: P[0][1], ex, ey, d: lineOf(P), rib: `M${side(1).join(' L')} L${side(-1).reverse().join(' L')} Z` };
 };
 /* 공 꼬리 — 던진 공마다 꺾임 곡선(떨어진 자리로), 시작 옅게 → 끝 진하게. 방금 공만 0.35초에 그려지고(자주 보는 것 — 짧게) 지난 공은 흐리게 */
-function Trails({ marks, toPx, half, id }) {
+function Trails({ marks, toPx, half, id, bk = 1 }) {
   return marks.map((p, i) => {
-    const a = arcOf(toPx, half, p.t, p.x, p.y);
+    const a = arcOf(toPx, half, p.t, p.x, p.y, bk);
     const last = i === marks.length - 1, gid = `${id}${i}`;
     return (
       <g key={i} style={{ pointerEvents: 'none' }} opacity={last ? 1 : 0.4}>
@@ -372,15 +383,15 @@ function Trails({ marks, toPx, half, id }) {
  * 휨: 옆 = 0.8(중력) + 세로 꺾임 × 5 · 위 = 가로 꺾임 × 8(과장). 끝 = 과녁이라 과녁을 옮기면 끝이 따라간다.
  * 고른 구종은 빛 선 + 공이 1.4초마다 날아감(애니메이션 줄이기면 멈춤), 다른 구종은 옅은 선(어디서 갈라지나).
  */
-const trackOf = (t, axis, end, rel) => {
-  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = axis ? 0.8 + b[1] * 5 : b[0] * 8;
+const trackOf = (t, axis, end, rel, k = 1) => {
+  const p = t === 'fork' ? 3 : 2, b = BREAK[t] || [0, 0], bend = axis ? 0.8 + b[1] * 5 : b[0] * 8 * k;
   return Array.from({ length: 41 }, (_, i) => { const s = i / 40; return [s, rel + (end - rel) * s - bend * (s - s ** p)]; });
 };
-function TrajView({ axis, map, rep, pk, end, rel, id }) {
-  const P = trackOf(pk, axis, end, rel).map(([a, v]) => map(a, v)), c = DUEL_PITCH[pk]?.c || '#fff', e = P[P.length - 1];
+function TrajView({ axis, map, rep, pk, end, rel, id, k = 1 }) {
+  const P = trackOf(pk, axis, end, rel, k).map(([a, v]) => map(a, v)), c = DUEL_PITCH[pk]?.c || '#fff', e = P[P.length - 1];
   return (
     <>
-      {rep.filter((t) => t !== pk).map((t) => <path key={t} d={lineOf(trackOf(t, axis, end, rel).map(([a, v]) => map(a, v)))} stroke="rgba(203,213,225,.16)" strokeWidth="1.6" fill="none" />)}
+      {rep.filter((t) => t !== pk).map((t) => <path key={t} d={lineOf(trackOf(t, axis, end, rel, k).map(([a, v]) => map(a, v)))} stroke="rgba(203,213,225,.16)" strokeWidth="1.6" fill="none" />)}
       <defs><linearGradient id={`${id}g`} gradientUnits="userSpaceOnUse" x1={P[0][0]} y1={P[0][1]} x2={e[0]} y2={e[1]}><stop offset="0" stopColor={c} stopOpacity=".15" /><stop offset=".55" stopColor={c} stopOpacity=".75" /><stop offset="1" stopColor={c} /></linearGradient></defs>
       <path d={lineOf(P)} stroke={c} strokeOpacity=".22" strokeWidth="12" strokeLinecap="round" fill="none" style={{ filter: 'blur(5px)' }} />
       <path id={id} d={lineOf(P)} stroke={`url(#${id}g)`} strokeWidth="4" strokeLinecap="round" fill="none" />
@@ -414,8 +425,9 @@ function BreakMark({ t, on }) {
     </svg>
   );
 }
-function TrajCard({ rep, pk, target, hand, velo }) {
-  const W = 378, H = 118, x0 = 22, x1 = W - 30, L = hand === 'L' ? -1 : 1;
+/* 위에서 본 길은 타자 기준(▲ 몸쪽) — 손은 타자 쪽에서 나오고(우투 · 우타면 몸쪽) 휨은 투수 손 × 타자 손(k) */
+function TrajCard({ rep, pk, target, hand, bat, velo }) {
+  const W = 378, H = 118, x0 = 22, x1 = W - 30, k = handSign(hand) * handSign(bat);
   const cl = (v) => Math.max(-1.45, Math.min(1.45, v)), tx = cl(target?.x ?? 0), ty = cl(target?.y ?? 0);
   const sideY = (v) => 66 + v * 24, topY = (v) => 58 + v * 28, xs = (s) => x0 + (x1 - x0) * s;
   const band = (y0, y1) => <rect x={x1 - 4} y={y0} width="8" height={y1 - y0} rx="3" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.45)" strokeWidth="1.2" />;
@@ -441,7 +453,7 @@ function TrajCard({ rep, pk, target, hand, velo }) {
         <g transform={`translate(0,${H + 40})`}>
           <path d={`M${x1 + 10} ${topY(0) - 30} h8 l6 30 l-6 30 h-8 z`} fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.35)" />
           {band(topY(-1), topY(1))}
-          <TrajView axis={0} map={(a, v) => [xs(a), topY(v)]} rep={rep} pk={pk} end={tx} rel={0.6 * L} id="tjT" />
+          <TrajView axis={0} map={(a, v) => [xs(a), topY(v)]} rep={rep} pk={pk} end={tx} rel={-0.6 * k} id="tjT" k={k} />
         </g>
       </svg>
     </div>
@@ -551,13 +563,13 @@ const locKo = (t) => (Math.abs(t.x) <= 1 && Math.abs(t.y) <= 1 ? zoneKo(cellOf(t
  * 금색 원 = 이 투수가 흩어지는 범위(반쯤 이 안에 떨어진다 — 제구 · 피로로 커진다). 보조면 칸별 피안타 색 · 추천 자리(점선 원).
  */
 const PAD_B = 300, PAD_M = 50, PAD_W = PAD_B + PAD_M * 2, PAD_LIM = 1 + PAD_M / (PAD_B / 2) - 0.03;
-function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false }) {
-  const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B;
+function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = false, flip = false }) {
+  const px = (v) => PAD_M + ((v + 1) / 2) * PAD_B, fx = (v) => (flip ? -v : v), pxX = (v) => px(fx(v));
   const drag = useRef(false); // 누른 채 끄는 중 — 같은 틱의 이동도 바로 따라가게(상태 대신 ref)
   const at = (e) => {
     const r = e.currentTarget.getBoundingClientRect(), k = PAD_W / r.width;
     const clampL = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v));
-    setTarget({ x: clampL((((e.clientX - r.left) * k - PAD_M) / PAD_B) * 2 - 1), y: clampL((((e.clientY - r.top) * k - PAD_M) / PAD_B) * 2 - 1) });
+    setTarget({ x: fx(clampL((((e.clientX - r.left) * k - PAD_M) / PAD_B) * 2 - 1)), y: clampL((((e.clientY - r.top) * k - PAD_M) / PAD_B) * 2 - 1) });
   };
   const sd = aimSpreadOf(g) * (focus ? FOCUS_SPREAD : 1), cell = PAD_B / 3;
   return (
@@ -567,11 +579,11 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
       onPointerUp={() => { drag.current = false; }} onPointerCancel={() => { drag.current = false; }}>
       <rect x="1" y="1" width={PAD_W - 2} height={PAD_W - 2} rx="18" fill="rgba(8,12,22,.4)" stroke="rgba(255,255,255,.16)" strokeDasharray="7 7" />
       {[['hi', PAD_W / 2, PAD_M / 2 + 5], ['lo', PAD_W / 2, PAD_W - PAD_M / 2 + 5]].map(([k, x, y]) => <text key={k} x={x} y={y} textAnchor="middle" fontSize="14" fontWeight="700" fill="rgba(203,213,225,.55)" style={{ pointerEvents: 'none' }}>{CHASE[k]}</text>)}
-      {[['in', PAD_M / 2], ['out', PAD_W - PAD_M / 2]].map(([k, x]) => <text key={k} x={x} y={PAD_W / 2 - 4} textAnchor="middle" fontSize="14" fontWeight="700" fill="rgba(203,213,225,.55)" style={{ pointerEvents: 'none' }}>
+      {[[flip ? 'out' : 'in', PAD_M / 2], [flip ? 'in' : 'out', PAD_W - PAD_M / 2]].map(([k, x]) => <text key={k} x={x} y={PAD_W / 2 - 4} textAnchor="middle" fontSize="14" fontWeight="700" fill="rgba(203,213,225,.55)" style={{ pointerEvents: 'none' }}>
         {CHASE[k].split(' ').map((t, n) => <tspan key={n} x={x} dy={n ? 17 : 0}>{t}</tspan>)}</text>)}
       <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="rgba(8,12,22,.35)" />
       {Array.from({ length: 9 }, (_, z) => {
-        const x = PAD_M + (z % 3) * cell, y = PAD_M + Math.floor(z / 3) * cell;
+        const x = PAD_M + (flip ? 2 - (z % 3) : z % 3) * cell, y = PAD_M + Math.floor(z / 3) * cell;
         return (
           <g key={z} style={{ pointerEvents: 'none' }}>
             {danger && <rect x={x + 2} y={y + 2} width={cell - 4} height={cell - 4} rx="8" fill={heatFill(danger, z)} />}
@@ -582,20 +594,20 @@ function AimPad({ g, target, setTarget, marks, danger, recAt, enabled, focus = f
       })}
       {[1, 2].map((i) => <g key={i} stroke="rgba(255,255,255,.1)" style={{ pointerEvents: 'none' }}><line x1={PAD_M + cell * i} y1={PAD_M} x2={PAD_M + cell * i} y2={PAD_M + PAD_B} /><line x1={PAD_M} y1={PAD_M + cell * i} x2={PAD_M + PAD_B} y2={PAD_M + cell * i} /></g>)}
       <rect x={PAD_M} y={PAD_M} width={PAD_B} height={PAD_B} rx="10" fill="none" stroke="rgba(255,255,255,.7)" strokeWidth="3" style={{ pointerEvents: 'none' }} />
-      {recAt && <circle cx={px(recAt.x)} cy={px(recAt.y)} r="20" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeDasharray="4 4" style={{ pointerEvents: 'none' }} />}
+      {recAt && <circle cx={pxX(recAt.x)} cy={px(recAt.y)} r="20" fill="none" stroke="rgba(255,255,255,.6)" strokeWidth="1.5" strokeDasharray="4 4" style={{ pointerEvents: 'none' }} />}
       {marks.map((p, i) => {
-        const x = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.x))), y = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.y)));
+        const x = pxX(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.x))), y = px(Math.max(-PAD_LIM, Math.min(PAD_LIM, p.y)));
         return <g key={i} style={{ pointerEvents: 'none' }}><circle cx={x} cy={y} r="14" fill={p.c} stroke="#05080f" strokeWidth="3" opacity="0.8" /><text x={x} y={y + 5} textAnchor="middle" fontSize="15" fontWeight="900" fill="#05080f">{i + 1}</text></g>;
       })}
       {target && (
         <g style={{ pointerEvents: 'none' }}>
-          <circle cx={px(target.x)} cy={px(target.y)} r={sd * 1.18 * (PAD_B / 2)} fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.6)" strokeWidth="1.5" />
-          <circle cx={px(target.x)} cy={px(target.y)} r="12" fill="#f8fafc" stroke={GOLD} strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.6))' }} />
-          <path d={`M${px(target.x) - 5} ${px(target.y) - 8} q4 8 0 16 M${px(target.x) + 5} ${px(target.y) - 8} q-4 8 0 16`} fill="none" stroke="#dc2626" strokeWidth="1.6" />
+          <circle cx={pxX(target.x)} cy={px(target.y)} r={sd * 1.18 * (PAD_B / 2)} fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.6)" strokeWidth="1.5" />
+          <circle cx={pxX(target.x)} cy={px(target.y)} r="12" fill="#f8fafc" stroke={GOLD} strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.6))' }} />
+          <path d={`M${pxX(target.x) - 5} ${px(target.y) - 8} q4 8 0 16 M${pxX(target.x) + 5} ${px(target.y) - 8} q-4 8 0 16`} fill="none" stroke="#dc2626" strokeWidth="1.6" />
         </g>
       )}
-      <text x={PAD_M} y={PAD_W + 22} fontSize="15" fontWeight="700" fill={MUTE}>◀ 몸쪽</text>
-      <text x={PAD_M + PAD_B} y={PAD_W + 22} textAnchor="end" fontSize="15" fontWeight="700" fill={MUTE}>바깥 ▶</text>
+      <text x={PAD_M} y={PAD_W + 22} fontSize="15" fontWeight="700" fill={MUTE}>{INOUT(flip)[0]}</text>
+      <text x={PAD_M + PAD_B} y={PAD_W + 22} textAnchor="end" fontSize="15" fontWeight="700" fill={MUTE}>{INOUT(flip)[1]}</text>
     </svg>
   );
 }
@@ -670,6 +682,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   const off = side === 'off';
   const pitcher = (g.top ? g.home : g.away).pitcher;
   const batter = offenseOf(g).team.batters[offenseOf(g).idx % offenseOf(g).team.batters.length];
+  const bS = handSign(batSide(batter, pitcher)), flip = off ? bS < 0 : bS > 0;
   const [pk, setPk] = useState('fast');
   const [target, setTarget] = useState(null);
   const [focus, setFocus] = useState(false); // 집중 투구 — 켜 두면 공마다 체력을 더 쓰고 흩어짐이 좁다 // 수비 조준 자리 { x, y } — 던진 뒤에도 남겨 조금씩 옮기게
@@ -714,7 +727,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
       if (e.key === 'Enter') { e.preventDefault(); go(); return; }
       /* 수비 조준 미세 조정 — 방향키 한 번에 0.05 */
       const d = { ArrowLeft: [-0.05, 0], ArrowRight: [0.05, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] }[e.key];
-      if (d && !off && waiting) { e.preventDefault(); setTarget((t) => { const b = t || { x: 0, y: 0 }; const c = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v)); return { x: c(b.x + d[0]), y: c(b.y + d[1]) }; }); return; }
+      if (d && !off && waiting) { e.preventDefault(); setTarget((t) => { const b = t || { x: 0, y: 0 }; const c = (v) => Math.max(-PAD_LIM, Math.min(PAD_LIM, v)); return { x: c(b.x + d[0] * (flip ? -1 : 1)), y: c(b.y + d[1]) }; }); return; }
       const i = Number(e.key) - 1;
       if (!(i >= 0)) return;
       if (off) { const p = DUEL_PLAYS[cat][i]; if (p && okOf(p, g)) setPlay(p.k); }
@@ -737,8 +750,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
   return (
     <div className="dl" style={{ animation: 'dlIn .25s both' }} onPointerDown={() => showRev && setShowRev(null)}>
       <style>{CSS}</style>
-      {/* 배경 — 수비 = 중견수 쪽 중계 카메라, 공격 = 포수 뒤 */}
-      <div style={{ position: 'absolute', inset: 0, background: `url(${off ? 'ui/duel-off.webp' : 'ui/duel-def.webp'}) center ${off ? '100%' : '50%'}/cover, #05080f` }} />
+      {/* 배경 — 수비 = 중견수 쪽 중계 카메라(그림 타자는 왼쪽 = 좌타 — 우타면 좌우 뒤집고 등번호만 바로 쓴 -r), 공격 = 포수 뒤 */}
+      <div style={{ position: 'absolute', inset: 0, background: `url(${off ? 'ui/duel-off.webp' : flip ? 'ui/duel-def-r.webp' : 'ui/duel-def.webp'}) center ${off ? '100%' : '50%'}/cover, #05080f` }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(3,5,10,.72), transparent 28%, transparent 64%, rgba(3,5,10,.86))' }} />
 
       {/* 점수판 — 중계 화면과 같은 판(볼카운트는 빼고 가운데에 크게) */}
@@ -786,8 +799,8 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
 
       {/* 존 + 단서 */}
       <div style={{ position: 'absolute', left: '50%', top: off ? '44%' : `calc(44% - ${CHASE_W}px)`, transform: 'translateX(-50%)', display: 'grid', justifyItems: 'center', gap: 12 }}>
-        {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
-          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} />}
+        {off ? <Zone size={300} chase={false} sel={aim} marks={marks} labels flip={flip} bk={handSign(pitcher.hand)} pct={assist ? locOf(g) : null} onPick={hitting ? (z) => setAim(aim === z ? null : z) : undefined} />
+          : <AimPad g={g} target={target} setTarget={setTarget} marks={marks} enabled={waiting} danger={assist ? Array.from({ length: 9 }, (_, z) => hitChanceAt(g, z)) : null} recAt={recD.target} focus={focus} flip={flip} />}
         {/*
           투구 순서 + 스카우팅 — 알약 여러 개 대신 판 하나에 두 줄. 왼쪽 이름표 칸을 맞추고,
           투구는 › 로 이어 한 줄, 스카우팅은 점 달린 짧은 줄을 이어 붙인다(줄이 바뀌어도 왼쪽 끝이 맞게).
@@ -823,7 +836,7 @@ export default function DuelPanel({ g, side, board, opp, me, waiting, shots, rev
         </div>
       </div>
 
-      {!off && <div style={{ position: 'absolute', right: 'calc(50% + 220px)', top: `calc(44% - ${CHASE_W}px)` }}><TrajCard rep={myRep} pk={pk} target={target} hand={pitcher.hand} velo={veloOf(pk)} /></div>}
+      {!off && <div style={{ position: 'absolute', right: 'calc(50% + 220px)', top: `calc(44% - ${CHASE_W}px)` }}><TrajCard rep={myRep} pk={pk} target={target} hand={pitcher.hand} bat={batSide(batter, pitcher)} velo={veloOf(pk)} /></div>}
 
       {/* 고르는 판 — 공격 · 수비 같은 자리 · 같은 크기(400 × 520, 구종이 다섯 개여도 들어가게). 고르기는 위에서, 결정 줄은 늘 맨 아래 */}
       <div className="pn" style={{ position: 'absolute', right: 32, bottom: 32, width: 400, height: 520, boxSizing: 'border-box', padding: 18, display: 'flex', flexDirection: 'column', gap: 8, opacity: waiting ? 1 : 0.6, transition: 'opacity .2s' }}>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>득점 표시 목업</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  득점이 눈에 안 띈다 — 지금은 왼쪽 위 전광판 숫자만 바뀐다(홈에 들어온 주자의 금색 테두리는 그대로 둔다).
+  비슷한 게임:
+   · FC 온라인 · FIFA — 골이면 점수판이 커지며 팀 색으로 번쩍, 숫자가 넘어간다
+   · MLB 더 쇼 — 'RUN SCORES' 띠 + 점수판 숫자 강조
+   · 중계 방송 — 점수 칸이 팀 색으로 깜빡 · '+1'
+   · TFT · 클래시 로얄 — 숫자가 날아가 목표 칸에 꽂힌다(어디가 바뀌었는지 눈이 따라간다)
+  장면: 1회말 우리 공격, 서용빈 안타로 1점 → SK 1 : 1 점검감독. '다시 ▶'로 반복. 득점은 경기당 10점 안팎 — 너무 크면 피곤하다.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .d { font-family: 'Saira Condensed', 'IBM Plex Sans KR', sans-serif; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .ov { position: absolute; inset: 0; pointer-events: none; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .bar { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; pointer-events: auto; }
+  .bar button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .bar button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .bar .rp { background: #fbbf24; color: #1a1205; }
+  :root { --g: #34d399; }
+  /* 전광판 우리 점수 칸 — 캡처의 '0' 위에 덮고 숫자를 다시 그린다 */
+  .num { position: absolute; left: 236px; top: 134px; width: 48px; height: 40px; display: grid; place-items: center; background: linear-gradient(90deg, #162f33, #100f1f);
+    font-family: 'Saira Condensed', sans-serif; font-size: 30px; font-weight: 800; }
+  .num.pop { animation: pop .45s cubic-bezier(.2,1.6,.4,1) both; animation-delay: var(--at, 0s); }
+  @keyframes pop { 0% { transform: scale(1); color: #fff; } 40% { transform: scale(1.7); color: var(--g); text-shadow: 0 0 18px var(--g); } 100% { transform: scale(1); color: #fff; } }
+  .sb { position: absolute; left: 40px; top: 88px; width: 408px; height: 88px; border-radius: 16px; }
+  /* A */
+  .sb.a { animation: sbA .9s ease-out both; }
+  @keyframes sbA { 0% { box-shadow: 0 0 0 0 transparent; } 25% { box-shadow: 0 0 0 3px var(--g), 0 0 40px 6px color-mix(in srgb, var(--g) 60%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .row { position: absolute; left: 90px; top: 132px; width: 190px; height: 44px; border-radius: 0 0 8px 0; background: linear-gradient(90deg, color-mix(in srgb, var(--g) 70%, transparent), transparent); mix-blend-mode: screen; opacity: 0; animation: rowA 1s ease-out both; }
+  @keyframes rowA { 20% { opacity: .9; } 100% { opacity: 0; } }
+  /* B +1 날아가기 */
+  .fly { position: absolute; left: 700px; top: 740px; font-family: 'Saira Condensed', sans-serif; font-size: 56px; font-weight: 800; color: var(--g); text-shadow: 0 0 20px var(--g), 0 4px 10px #000; animation: fly .75s cubic-bezier(.5,0,.3,1) both; }
+  @keyframes fly { 0% { transform: translate(0, 0) scale(.6); opacity: 0; } 15% { transform: translate(0, -40px) scale(1.2); opacity: 1; } 100% { transform: translate(-450px, -600px) scale(.5); opacity: .2; } }
+  /* C 득점 띠 */
+  .band { position: absolute; left: -16px; top: 242px; padding: 12px 70px 12px 80px; transform: skewX(-14deg); background: linear-gradient(90deg, var(--g), color-mix(in srgb, var(--g) 55%, transparent)); box-shadow: 0 14px 30px rgba(0,0,0,.45); animation: bIn .2s cubic-bezier(.2,.9,.3,1) both; }
+  .band > div { transform: skewX(14deg); display: flex; align-items: baseline; gap: 18px; }
+  .band b { font-size: 50px; line-height: 1; color: #05080f; } .band span { font-size: 22px; font-weight: 800; color: rgba(5,8,15,.85); }
+  @keyframes bIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
+  /* D 테두리 빛 */
+  .edge { position: absolute; left: 24px; top: 72px; width: 1416px; height: 818px; border-radius: 24px; animation: edge .9s ease-out both; }
+  @keyframes edge { 0% { box-shadow: inset 0 0 0 0 transparent; } 30% { box-shadow: inset 0 0 0 4px var(--g), inset 0 0 120px 10px color-mix(in srgb, var(--g) 45%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+  /* E 가운데 큰 점수 */
+  .big { position: absolute; left: 732px; top: 360px; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 22px; padding: 18px 36px; border-radius: 22px; background: rgba(7,10,18,.86); backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--g) 70%, transparent), 0 20px 50px rgba(0,0,0,.6); animation: bigE 1.4s ease-in-out both; }
+  .big b { font-family: 'Saira Condensed', sans-serif; font-size: 72px; font-weight: 800; line-height: 1; }
+  .big span { font-size: 20px; font-weight: 700; color: #cbd5e1; }
+  @keyframes bigE { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.8); } 14% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 72% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-1100%, -900%) scale(.2); } }
+  /* F 홈 빛 + 숫자 */
+  .ring { position: absolute; left: 732px; top: 790px; width: 40px; height: 40px; margin: -20px; border-radius: 50%; box-shadow: 0 0 0 4px var(--g); animation: ring .8s ease-out both; }
+  .ring.r2 { animation-delay: .12s; }
+  @keyframes ring { from { transform: scale(.3); opacity: 1; } to { transform: scale(7); opacity: 0; } }
+  .plus { position: absolute; left: 732px; top: 700px; transform: translateX(-50%); font-family: 'Saira Condensed', sans-serif; font-size: 80px; font-weight: 800; color: var(--g); text-shadow: 0 0 26px var(--g), 0 6px 14px #000; animation: plus 1.1s ease-out both; }
+  @keyframes plus { 0% { opacity: 0; transform: translate(-50%, 30px) scale(.6); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); } 70% { opacity: 1; transform: translate(-50%, -20px) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50px); } }
+  /* G 승률 막대 연동 */
+  .wp { position: absolute; left: 500px; top: 88px; width: 462px; height: 52px; border-radius: 999px; animation: wpG 1s ease-out both; }
+  @keyframes wpG { 25% { box-shadow: 0 0 0 3px var(--g), 0 0 30px color-mix(in srgb, var(--g) 60%, transparent); } 100% { box-shadow: none; } }
+  .wptag { position: absolute; left: 732px; top: 148px; transform: translateX(-50%); padding: 6px 16px; border-radius: 999px; background: var(--g); color: #05080f; font-weight: 800; font-size: 18px; animation: tagIn .25s ease-out both, tagOut .3s ease-in 1.1s forwards; }
+  @keyframes tagIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes tagOut { to { opacity: 0; } }
+  /* H 홈인 주자 */
+  .home { position: absolute; left: 732px; top: 150px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 10px 22px 10px 12px; border-radius: 999px; background: rgba(7,10,18,.88);
+    box-shadow: inset 0 0 0 2px var(--g), 0 12px 30px rgba(0,0,0,.5); animation: tagIn .22s ease-out both; }
+  .home i { width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #2b3b55, #0b1220); box-shadow: 0 0 0 3px #f5d27a; }
+  .home b { font-size: 22px; } .home .d { font-size: 30px; color: var(--g); }
+</style>
+<body>
+<img class="shot" src="../center-call/field.jpg">
+<div class="ov" id="ov"></div>
+<div class="cap" id="cap"></div>
+<div class="bar" id="bar"></div>
+<script>
+  const NUM = (at = 0) => `<div class="num pop" style="--at:${at}s">1</div>`;
+  const V = {
+    a: ['A · 전광판 번쩍', '전광판이 팀 색으로 빛나고 우리 줄이 물들며 숫자가 튀어 오름(0.9초) · 눈은 왼쪽 위로', () => `<div class="sb a"></div><div class="row"></div>${NUM(0.1)}`],
+    b: ['B · +1 날아가기', '홈에서 +1 이 떠올라 전광판 숫자 칸으로 날아가 꽂힘(0.75초) → 숫자 튐 · 어디가 바뀌었는지 눈이 따라감', () => `<div class="fly">+1</div>${NUM(0.7)}`],
+    c: ['C · 득점 띠', '결과 띠(D안)와 같은 모양으로 한 줄 아래 "득점 1 : 1" · 결과 띠와 짝', () => `<div class="band"><div><b>득점</b><span>점검감독 1 : 1 SK</span></div></div>${NUM(0.15)}`],
+    d: ['D · 테두리 빛', '구장 테두리가 팀 색으로 한 번 번짐(0.9초) · 가리는 것 없음', () => `<div class="edge"></div>${NUM(0.2)}`],
+    e: ['E · 가운데 큰 점수', 'FC 온라인 골처럼 점수판이 가운데 크게 떴다가 왼쪽 위로 빨려 들어감(1.4초)', () => `<div class="big"><span>SK</span><b>1</b><b style="color:#475569">:</b><b style="color:var(--g)">1</b><span>점검감독</span></div>${NUM(1.2)}`],
+    f: ['F · 홈 빛 + 숫자', '홈 플레이트에서 빛 고리 두 겹 + 큰 +1(1.1초) · 금색 테두리 주자와 한 자리', () => `<div class="ring"></div><div class="ring r2"></div><div class="plus">+1</div>${NUM(0.5)}`],
+    g: ['G · 승률 막대 연동', '승률 막대가 빛나고 아래에 "득점 ▲14%" 꼬리표(1.4초) · 점수가 흐름에 준 무게까지', () => `<div class="wp"></div><div class="wptag">득점 · 승률 ▲14%</div>${NUM(0.1)}`],
+    h: ['H · 홈인 주자', '위쪽 가운데에 홈을 밟은 주자 얼굴 · 이름 · +1(1.2초) · 누가 들어왔는지', () => `<div class="home"><i></i><b>서용빈</b><span style="color:#cbd5e1;font-weight:600">홈인</span><span class="d">+1</span></div>${NUM(0.15)}`],
+  };
+  let v = 'a';
+  const render = () => {
+    const ov = document.getElementById('ov');
+    ov.innerHTML = '';
+    requestAnimationFrame(() => { ov.innerHTML = V[v][2](); });
+    document.getElementById('cap').textContent = `${V[v][0]} — ${V[v][1]}`;
+    document.getElementById('bar').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('') + '<button class="rp" data-r="1">다시 ▶</button>';
+    location.hash = v;
+  };
+  document.getElementById('bar').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.v) v = b.dataset.v; render(); });
+  if (V[location.hash.slice(1)]) v = location.hash.slice(1);
+  render();
+</script>
+</body>
+</html>

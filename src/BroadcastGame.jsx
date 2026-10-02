@@ -12,6 +12,8 @@ import { statBandColor } from './myteam/teamColor.js';
 import { myBanner } from './myteam/store.js';
 import MatchIntro from './MatchIntro.jsx';
 import PlayView from './play/PlayView.jsx';
+import { MIN_PLAY_MS } from './play/playScript.js';
+import { reducedMotion } from './ui/motion.jsx';
 import { augWho } from './KboAugmentDraft.jsx'; // 증강 판 — 대상 · 효과 한 줄(서로 부르는 모듈이지만 그릴 때만 쓴다)
 import { pitchTarget, ZONE, pitchArrival } from './play/playScript.js';
 import { winProb as stateWin, simWinProb, withPrior } from './engine/winProb.js';
@@ -50,6 +52,13 @@ const CLUTCH_CSS = `
 @keyframes callIn { from { transform: skewX(-14deg) translateX(-110%); } to { transform: skewX(-14deg); } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { [style*="callIn"] { animation: none !important; } }
+@keyframes callCard { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes callTime { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes scorePop { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--k); text-shadow: 0 0 12px var(--k); } 100% { transform: scale(1); } }
+@keyframes scoreRing { from { transform: scale(.4); opacity: .95; } to { transform: scale(5); opacity: 0; } }
+@keyframes scoreGlow { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes scoreEdge { 0% { box-shadow: inset 0 0 0 0 transparent; } 30% { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--k) 70%, transparent), inset 0 0 70px 0 color-mix(in srgb, var(--k) 22%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+@keyframes scoreFly { 0% { offset-distance: 0%; opacity: 0; transform: scale(.6); } 16% { offset-distance: 0%; opacity: 1; transform: scale(1.1); } 32% { offset-distance: 0%; opacity: 1; transform: scale(1); } 90% { offset-distance: 100%; opacity: 1; transform: scale(.6); } 100% { offset-distance: 100%; opacity: 0; transform: scale(.5); } }
 @keyframes batterIn { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 `;
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
@@ -326,7 +335,7 @@ export const Bso = ({ b, s, o, label = true, dot = 11, off = 'rgba(255,255,255,.
   </div>
 );
 /** 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트(count 가 없거나 bases 가 false 면 뺀다 — 수싸움 판은 주자 · 볼카운트를 가운데에 크게 둔다) */
-export function Scoreboard({ g, home, away, count = null, bases = true, justOut = -1, className = '' }) {
+export function Scoreboard({ g, home, away, count = null, bases = true, justOut = -1, className = '', hold = null, pop = null }) {
   const cMy = '#34d399', cOpp = '#f87171';
   return (
     <div className={`mt-cut mt-glass pointer-events-none flex items-center ${className}`} style={{ '--c': '18px' }}>
@@ -350,7 +359,8 @@ export function Scoreboard({ g, home, away, count = null, bases = true, justOut 
               style={{ height: 44, background: atBat ? `linear-gradient(90deg, ${c}b0, ${c}30 72%, transparent)` : `linear-gradient(90deg, ${c}40, transparent 60%)` }}>
               {flag && <i className="pointer-events-none absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${flag.src})`, opacity: atBat ? 0.3 : 0.14, WebkitMaskImage: SB_MASK, maskImage: SB_MASK }} />}
               <b className="relative truncate text-t3 font-extrabold text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{shortTeam(t.name, mine)}</b>
-              <b className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white" style={{ opacity: atBat ? 1 : 0.8 }}>{side.runs}</b>
+              <b key={pop?.[mine ? 'home' : 'away'] || 'n'} data-score={mine ? 'home' : 'away'} className="relative ml-auto font-display text-t1 font-extrabold leading-none text-white"
+                style={{ opacity: atBat ? 1 : 0.8, '--k': c, ...(pop?.[mine ? 'home' : 'away'] ? { animation: 'scorePop .42s cubic-bezier(.2,1.6,.4,1) both' } : null) }}>{side.runs - (hold?.[mine ? 'home' : 'away'] || 0)}</b>
             </div>
           );
         })}
@@ -377,6 +387,63 @@ function CallBanner({ text, sub, tone, big = false }) {
       <i className="absolute inset-y-0 ml-2.5 w-[18px] opacity-70" style={{ left: '100%', background: tone }} />
     </div>
   );
+}
+
+/*
+ * 3초 작전 카드(mockups/quick-call A · 야구9단식 개입) — 평소 타석에서 경기가 3초 기다리며 작전을 묻는다.
+ * 안 누르면 정비 작전 그대로. 승부처는 따로(멈추고 수싸움).
+ * 뜨는 때: 주자 있음 + 무게 CALL_MARK↑ + 반 이닝에 한 번 — 300경기 시뮬로 경기당 약 8~10번(주자만 보면 39.6번이라 너무 잦다).
+ * 카드의 order(g) 는 그 타석의 공마다 불린다 — 엔진 지시는 공 하나짜리라 타석 내내 이어 준다.
+ */
+const CALL_MARK = 0.08;
+const CALL_MS = 3000;
+const pickOf = (g, xs) => xs[Math.floor(g.rng() * xs.length)];
+/*
+ * 한 번 하고 끝나는 작전(번트 · 스퀴즈 · 히트앤런 · 도루 · 고의사구 · 교체) — 카드는 새 볼카운트에서만 뜨니 첫 공에만 걸고,
+ * 그 뒤는 정비 작전으로. 전엔 번트 · 히트앤런이 타석 내내 다시 걸렸다 — 1루 주자 무사 3000타석 시뮬에서 히트앤런은
+ * 볼넷 0 · 병살 0(주자가 공마다 뛰어서) · 안타 37.7%(안 걸면 30.4%)로 지나치게 셌고, 번트는 볼에도 대 볼넷이 0 이었다(2026-10-01)
+ */
+const first = (o) => (gg) => (gg.balls + gg.strikes === 0 ? (typeof o === 'function' ? o(gg) : o) : {});
+export function callCards(g) {
+  const [b1, b2, b3] = g.bases, o = g.outs;
+  if (!g.top) {
+    /* 우리 공격 */
+    return [
+      b3 && o < 2 && { k: 'squeeze', ko: '스퀴즈', sub: '3루 주자 득점 노림', order: first({ bunt: true }) },
+      (b1 || b2) && !b3 && o < 2 && { k: 'sac', ko: '희생번트', sub: '주자 한 루씩 · 타자 아웃', order: first({ bunt: true }) },
+      b1 && o < 2 && { k: 'hnr', ko: '히트앤런', sub: '주자 출발 · 병살 ↓', order: first({ hitAndRun: true }) },
+      ((b1 && !b2) || (b2 && !b3)) && { k: 'steal', ko: '도루', sub: '한 루 더 · 잡히면 아웃', order: first((gg) => ({ steal: gg.bases[0] && !gg.bases[1] ? 0 : 1 })) },
+      { k: 'contact', ko: '밀어치기', sub: '삼진 ↓ · 병살 ↓', order: () => ({ approach: 'contact' }) },
+      { k: 'power', ko: '강공', sub: '장타 ↑ · 헛스윙 ↑', order: () => ({ approach: 'power' }) },
+    ].filter(Boolean).slice(0, 3);
+  }
+  /* 우리 수비 */
+  const tired = staminaOf(g.home) < 45 && g.home.team.pitchers[g.home.pitcherIdx + 1];
+  return [
+    tired && { k: 'change', ko: '투수 교체', sub: `불펜 ${g.home.team.pitchers[g.home.pitcherIdx + 1]?.name || ''}`, order: first({ changePitcher: true }) },
+    (b2 || b3) && !b1 && { k: 'ibb', ko: '고의사구', sub: '1루 채우고 다음 타자', order: first({ ibb: true }) },
+    { k: 'chase', ko: '유인구', sub: '장타 ↓ · 볼넷 ↑', order: (gg) => (gg.rng() < 0.45 ? { zone: 'chase' } : {}) },
+    { k: 'attack', ko: '정면 승부', sub: '볼넷 ↓ · 몰린 공 ↑', order: (gg) => (gg.rng() < 0.5 ? { zone: pickOf(gg, [4, 1, 3, 5, 7]) } : {}) },
+    b3 && o < 2 && { k: 'infield', ko: '전진 수비', sub: '3루 주자 묶기 · 안타 ↑', order: () => ({ guard: 1 }) },
+  ].filter(Boolean).slice(0, 3);
+}
+
+/**
+ * 이닝별 안타 · 점수 — 오른쪽 아래 '이닝 흐름'(mockups/side-info2 6안). 9회 넘는 연장은 9번째 칸에 모은다.
+ * 점수는 날아오는 +N 이 닿을 때까지 전광판과 같이 붙잡는다(hold) — 표가 전광판보다 먼저 오르지 않게
+ */
+const HIT_RESULTS = new Set(['1B', '2B', '3B', 'HR']);
+function inningFlow(g, hold = {}) {
+  const hits = { home: Array(9).fill(0), away: Array(9).fill(0) };
+  for (const e of g.events) if (HIT_RESULTS.has(e.result)) hits[e.top ? 'away' : 'home'][Math.min(8, e.inning - 1)] += 1;
+  const runs = (side) => {
+    const line = g[side].line || [];
+    const out = Array.from({ length: 9 }, (_, i) => (i < 8 ? line[i] ?? null : line.slice(8).some((v) => v != null) ? line.slice(8).reduce((n, v) => n + (v || 0), 0) : null));
+    const last = out.map((v, i) => (v != null ? i : -1)).filter((i) => i >= 0).pop();
+    if (last != null && hold[side]) out[last] = Math.max(0, out[last] - hold[side]);
+    return out;
+  };
+  return { hits, runs: { home: runs('home'), away: runs('away') } };
 }
 
 /* ───────── 본체 ───────── */
@@ -477,6 +544,36 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
    */
   const [flash, setFlash] = useState(null);
   const [swap, setSwap] = useState(null); // 공수 교대 — 위쪽 가운데 알약
+  const [call, setCall] = useState(null); // 3초 작전 카드 { key, side, head, who, cards }
+  const callWait = useRef(null);
+  const callRef = useRef(null); // 이 타석에 고른 카드(공마다 order 를 부른다) — 타석이 끝나면 비운다
+  const callHalf = useRef(''); // 반 이닝에 한 번
+  /*
+   * 득점 연출(mockups/score-cue2 2안) — 홈에 빛 웅덩이 + 고리 → '+N' 이 0.3초 머물다 0.55초 동안 휘어 날아가
+   * 전광판 그 팀 숫자 칸에 꽂힌다(0.85초) → 숫자가 그때 바뀌며 튄다. 구장 테두리는 안쪽으로 옅게 한 번(받침).
+   * 우리 득점 초록 · 상대 빨강. 스킵 · 3배속 이상 · '애니메이션 줄이기'면 연출 없이 숫자만.
+   */
+  const fieldRef = useRef(null);
+  const [scoreFx, setScoreFx] = useState([]);
+  const [scoreHold, setScoreHold] = useState({ home: 0, away: 0 }); // 날아오는 중인 점수 — 전광판이 잠깐 빼고 보여 준다
+  const [pop, setPop] = useState({ home: null, away: null });
+  const SCORE_LAND = 850;
+  const scoreFly = (side, runs, tone) => {
+    const box = fieldRef.current?.getBoundingClientRect();
+    const numEl = fieldRef.current?.querySelector(`[data-score="${side}"]`);
+    if (!box || !numEl) { setScoreHold((h) => ({ ...h, [side]: Math.max(0, h[side] - runs) })); return; }
+    const n = numEl.getBoundingClientRect();
+    const from = [box.width * 0.5, box.height * 0.878]; // 홈 플레이트(구장 그림 기준)
+    const to = [n.left - box.left + n.width / 2, n.top - box.top + n.height / 2];
+    const id = nextFx();
+    setScoreFx((l) => [...l, { id, runs, tone, from, to }]);
+    setTimeout(() => {
+      if (!aliveRef.current) return;
+      setScoreHold((h) => ({ ...h, [side]: Math.max(0, h[side] - runs) }));
+      setPop((p) => ({ ...p, [side]: id }));
+    }, SCORE_LAND);
+    setTimeout(() => { if (aliveRef.current) setScoreFx((l) => l.filter((x) => x.id !== id)); }, 1100);
+  };
   const [rush, setRush] = useState(false); // 접은 타석을 흘려보내는 중
   const sideRef = useRef({ inning: 1, top: true }); // 지금 반 이닝 — 바뀌면 교대를 알린다
   const outsRef = useRef(0); // 아웃이 늘면 표시가 한 번 튄다
@@ -645,14 +742,33 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (!choice) { duelRef.current = null; setDuel(null); duelAiNow = null; } // 맡기기 — 남은 공은 자동
           else { pendingRef.current = { ...choice, ...duelAiNow.orders }; D.pick = orderKo(choice).join(' · '); } // 공격 수싸움에서 고른 작전 — 결과 화면 '내 지시'
         }
+        /* 3초 작전 카드 — 승부처가 아닌 타석, 주자 있고 무게가 있을 때 반 이닝에 한 번 */
+        if (!duelRef.current && !quiet() && g.balls === 0 && g.strikes === 0 && !g.final && callHalf.current !== halfKey && lastAskHalf.current !== halfKey
+            && g.bases.some(Boolean) && leverage(g) >= CALL_MARK) {
+          callHalf.current = halfKey;
+          const off = offenseOf(g), bat = batterOf(g), pit = pitcherOf(g);
+          const planKo = g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('def', sides.def)?.ko] : [sideOpt('off', sides.off)?.ko];
+          const cards = [{ k: 'plan', ko: '정비 작전', sub: planKo.filter(Boolean).join(' · '), plan: true, order: () => ({}) }, ...callCards(g)];
+          const picked = await new Promise((resolve) => {
+            callWait.current = resolve;
+            setCall({ key: nextFx(), side: g.top ? 'def' : 'off', cards,
+              head: `${g.top ? '우리 수비' : '우리 공격'} · ${g.inning}회${g.top ? '초' : '말'} ${situationOf(g, g.top ? 'def' : 'off')}`,
+              who: g.top ? `상대 타자 ${bat?.name || ''} ${bat?.overall || ''} · 우리 투수 ${pit?.name || ''}` : `타자 ${bat?.name || ''} ${bat?.overall || ''} · 상대 투수 ${pit?.name || ''}(체력 ${Math.round(staminaOf(g.away))})` });
+            setTimeout(() => resolve(null), CALL_MS);
+          });
+          callWait.current = null;
+          setCall(null);
+          if (stop || !aliveRef.current) break;
+          if (picked && !picked.plan) { callRef.current = { ...picked, idx: off.idx }; asked = true; }
+        }
         /* 승부처가 아닌 타석은 통째로 돌려 한 컷으로 접는다 — 볼 값어치가 있을 때만 공마다 본다 */
         const fresh = g.balls === 0 && g.strikes === 0;
         if (fresh) { wpAt.current = winProb(g); spotRef.current = { inning: g.inning, top: g.top, sit: situationOf(g, g.top ? 'def' : 'off') }; }
         /* 내가 낸 지시만 — 내 공격 때 들어온 투수 교체는 상대 AI 몫이라 빼고 센다(전엔 '내 지시' · 승률 기여에 섞였다) */
         const myOrders = Object.fromEntries(Object.entries(pendingRef.current).filter(([k]) => g.top || k !== 'changePitcher'));
         const ordered = Object.keys(myOrders).length > 0;
-        const gave = asked || ordered; // 이 타석에 지시를 냈다
-        const gaveKo = duelRef.current ? '수싸움' : ordered ? orderKo(myOrders).join(' · ') : null;
+        const gave = asked || ordered || !!callRef.current; // 이 타석에 지시를 냈다
+        const gaveKo = duelRef.current ? '수싸움' : callRef.current ? callRef.current.ko : ordered ? orderKo(myOrders).join(' · ') : null;
         const fold = digestRef.current && fresh && !asked && leverage(g) < WATCH_MARK;
         const wasOn = fold ? [...g.bases] : null; // 접은 타석의 타구는 타석 전 주자 위로 그린다
         let ev;
@@ -663,13 +779,22 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             const t = tacticOrders(fineRef.current, !g.top, g.rng);
             /* 수싸움 공은 고른 것만 — 전술 성향 중 수비 자리(주자 묶기 · 수비 위치 · 교체 문턱)만 남긴다 */
             if (duelRef.current) return { hold: t.hold, guard: t.guard, hookAt: t.hookAt, ...pendingRef.current };
-            return { ...t, ...pendingRef.current };
+            return { ...t, ...(callRef.current ? callRef.current.order(g) : {}), ...pendingRef.current };
           };
           if (fold) { do { ev = pitch(g, tac()); if (ev) folded.push(ev); } while (ev && !ev.result && !g.final); }
           else ev = pitch(g, tac());
         } catch (err) { console.error('pitch 실패', err); break; }
         pendingRef.current = duelRef.current ? {} : pendingRef.current.guess ? { guess: pendingRef.current.guess } : {};
         if (!ev) break;
+        if (ev.result && callRef.current) callRef.current = null; // 고른 작전은 이 타석까지
+        /*
+         * 이 타석에 난 점수 — 엔진은 이미 더했지만 전광판은 주자가 홈을 밟을 때까지 붙잡는다.
+         * 여기서(다시 그리기 전에) 바로 붙잡아야 한다 — 접은 타석은 아래 빨리감기 동안 몇 번 그려져,
+         * 늦게 붙잡으면 숫자가 먼저 올랐다가 내려갔다가 다시 올랐다(2026-09-30).
+         */
+        const scoredNow = (fold ? folded : [ev]).reduce((n, e) => n + (e.runs || 0), 0);
+        const scoreSide = ev.top ? 'away' : 'home';
+        if (scoredNow > 0) setScoreHold((h) => ({ ...h, [scoreSide]: h[scoreSide] + scoredNow }));
         /* 수싸움 — 타석이 끝나면 판을 걷어 중계가 결과를 보여 주게, 아니면 방금 공을 판에 알린다 */
         if (duelRef.current) {
           const D2 = duelRef.current;
@@ -691,17 +816,20 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           if (folded.length > 1) {
             setRush(true);
             const step = Math.max(35, RUSH_MS / curSpeed());
+            /* 공은 던지지 않는다 — 0.08초마다 새 공을 던지면 마운드를 막 떠난 공이 끊겼다(mockups/field-look 공 A).
+               구장은 타석 전 그대로 두고, 존 판 점과 볼카운트만 넘긴다 */
+            setPlay({ ev: null, ms: step, bases: wasOn });
             for (let i = 0; i < folded.length - 1; i += 1) {
               if (stop || !aliveRef.current) break;
               const e = folded[i];
-              setPlay({ ev: e, ms: step * 3, bases: wasOn });
               setZoneShots(folded.slice(0, i + 1).map(shotOf));
               setCount({ b: e.after.balls, s: e.after.strikes, o: e.after.outs });
               await sleep(step);
             }
             setRush(false);
           }
-          setPlay({ ev, ms: beat, bases: wasOn });
+          /* 결과 공 하나만 — 끝까지 그릴 시간이 없으면(MIN_PLAY_MS 아래) 움직임 없이 결과 자리(주자)로 바로 */
+          setPlay({ ev, ms: beat, bases: beat < MIN_PLAY_MS ? null : wasOn });
           setZoneShots(shotsOf(g));
           setCount({ b: 0, s: 0, o: g.outs });
         } else {
@@ -712,6 +840,17 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
           setTimeout(() => { if (aliveRef.current) setCount({ b: g.balls, s: g.strikes, o: g.outs }); },
             beat * (ev.call === 'inplay' ? 0.72 : pitchArrival(beat)));
 
+        }
+        if (scoredNow > 0) {
+          /* 친 공이면 주자가 홈을 밟는 때(결과가 드러난 뒤 한 박자의 0.2) — 연출이 있으면 +N 이 날아가 닿을 때 숫자를 풀고,
+             없으면(스킵 · 3배속 이상 · 줄이기) 그 때에 바로 푼다 */
+          const home = told + (ev.call === 'inplay' ? beat * 0.2 : 0);
+          const fx = !quiet() && curSpeed() < 3 && !reducedMotion();
+          setTimeout(() => {
+            if (!aliveRef.current) return;
+            if (fx) scoreFly(scoreSide, scoredNow, ev.top ? '#f87171' : '#34d399');
+            else setScoreHold((h) => ({ ...h, [scoreSide]: Math.max(0, h[scoreSide] - scoredNow) }));
+          }, home);
         }
         if (ev.result && BIG.includes(ev.result)) {
           setTimeout(() => {
@@ -922,7 +1061,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
 
         <div className="grid min-h-0 gap-4 px-6 pb-5" style={{ gridTemplateColumns: 'minmax(0,1fr) 440px' }}>
           {/* ── 왼쪽: 큰 구장 — 점수판 · 승률 · 타석 · 존을 겹쳐 올린다 ── */}
-          <section className="mt-cut mt-frame relative min-h-0 bg-[#060c16]" style={{ '--c': '24px', '--a': '#10b981' }}>
+          <section ref={fieldRef} className="mt-cut mt-frame relative min-h-0 bg-[#060c16]" style={{ '--c': '24px', '--a': '#10b981' }}>
             <PlayView event={play?.ev || null} beatMs={play?.ms || 1200} bg={bg}
               bases={play?.bases || g.bases} offColor={battingColor} defColor={pitchingColor} defense={fielders} batter={batter} />
             <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: 'linear-gradient(180deg,rgba(5,8,15,.5),transparent 22%,transparent 72%,rgba(5,8,15,.7))' }} />
@@ -931,7 +1070,7 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
             <WinBar p={wpShow} prev={wpWas} mine={cMy} opp={cOpp} />
 
             {/* 점수판 — 회 · 두 팀 점수 · 주자 · 볼카운트 한 판 */}
-            <Scoreboard g={g} home={home} away={away} count={count} justOut={justOut} className="absolute left-4 top-4" />
+            <Scoreboard g={g} home={home} away={away} count={count} justOut={justOut} hold={scoreHold} pop={pop} className="absolute left-4 top-4" />
 
             {/* 타석 — 동그란 얼굴 · 이름 · 파워 · 컨택 · 종합, 다음 두 타자. 타자가 바뀌면 아래에서 올라온다 */}
             {(() => {
@@ -982,6 +1121,44 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 style={{ background: '#38bdf8', animation: 'rushBlink .5s ease-in-out infinite' }}>▶▶ 요약</span>
             )}
 
+            {/* 3초 작전 카드 — 구장 아래 가운데 · 기본 카드(정비 작전)는 테두리 · 막대가 다 줄면 그대로 */}
+            {call && (() => {
+              const k = call.side === 'off' ? cMy : '#f5d27a';
+              return (
+                <div key={`call-${call.key}`} className="absolute bottom-[140px] left-1/2 z-10 flex w-[760px] -translate-x-1/2 flex-col gap-2.5 rounded-[18px] px-4 py-3.5"
+                  style={{ background: 'rgba(7,10,18,.9)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12), 0 18px 40px rgba(0,0,0,.55)', animation: 'callCard .18s ease-out both' }}>
+                  <div className="flex min-w-0 items-baseline gap-3">
+                    <b className="shrink-0 text-t3" style={{ color: k }}>{call.head}</b>
+                    <span className="truncate text-t4 font-semibold text-gray-300">{call.who}</span>
+                  </div>
+                  <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${call.cards.length},1fr)` }}>
+                    {call.cards.map((c) => (
+                      <button key={c.k} type="button" onClick={() => callWait.current?.(c)} className="relative flex flex-col gap-1 rounded-[14px] px-3.5 py-3 text-left transition hover:brightness-125"
+                        style={{ background: c.plan ? `color-mix(in srgb, ${k} 12%, transparent)` : 'rgba(255,255,255,.05)', boxShadow: c.plan ? `inset 0 0 0 2px ${k}` : 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>
+                        <b className="text-t2 text-white">{c.ko}</b>
+                        <span className="truncate text-t4 font-semibold text-gray-400">{c.sub || '그대로'}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <span className="block h-[5px] overflow-hidden rounded-full bg-white/10">
+                    <i className="block h-full origin-left" style={{ background: k, animation: `callTime ${CALL_MS}ms linear both` }} />
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* 득점 — 홈 빛 · 고리 · 날아가는 +N · 테두리 옅은 빛 */}
+            {scoreFx.map((x) => (
+              <div key={`score-${x.id}`} className="pointer-events-none absolute inset-0" style={{ '--k': x.tone }}>
+                <i className="absolute inset-0 rounded-[24px]" style={{ animation: 'scoreEdge .8s ease-out both' }} />
+                <i className="absolute block rounded-full" style={{ left: x.from[0] - 110, top: x.from[1] - 60, width: 220, height: 120, background: `radial-gradient(closest-side, color-mix(in srgb, ${x.tone} 55%, transparent), transparent)`, animation: 'scoreGlow .7s ease-out both' }} />
+                <i className="absolute block rounded-full" style={{ left: x.from[0] - 18, top: x.from[1] - 18, width: 36, height: 36, boxShadow: `0 0 0 2px ${x.tone}`, animation: 'scoreRing .6s cubic-bezier(.2,.7,.3,1) both' }} />
+                <b className="absolute left-0 top-0 font-display text-[52px] font-extrabold leading-none"
+                  style={{ color: x.tone, offsetPath: `path('M ${x.from[0]} ${x.from[1] - 50} C ${x.from[0] - 30} ${x.from[1] - 270}, ${x.to[0] + 160} ${x.to[1] + 100}, ${x.to[0]} ${x.to[1]}')`, offsetRotate: '0deg',
+                    textShadow: `0 0 14px color-mix(in srgb, ${x.tone} 70%, transparent), 0 3px 8px #000`, animation: 'scoreFly .95s cubic-bezier(.45,0,.35,1) both' }}>+{x.runs}</b>
+              </div>
+            ))}
+
             {/* 알림 — 투수 교체 · 증강 발동 */}
             {toasts.length > 0 && (
               <div className="pointer-events-none absolute right-4 top-14 flex max-w-[360px] flex-col items-end gap-2">
@@ -1015,80 +1192,6 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
                 <span>남은 수싸움 <b className="font-display text-t3 text-white">{duelLeft.current}</b></span>
               </div>
             </section>
-
-            {/* 작전 — 평소에는 세 갈래, 승부처에는 그 자리의 세 장 */}
-            {(() => {
-              const bandColor = cMy;
-              const queuedKo = orderKo(pend);
-              return (
-                <section className="mt-cut mt-frame mt-glass relative flex shrink-0 flex-col gap-2.5 p-5"
-                  style={{ '--c': '22px', '--a': bandColor, overflow: 'visible' }}>
-                  <div className="flex items-center gap-2.5">
-                    <p className="mt-lab shrink-0" style={{ '--a': bandColor }}>작전</p>
-                    <b className="truncate text-t3 text-white">{`${mineBat ? '우리 공격' : '우리 수비'} · ${g.inning}회${g.top ? '초' : '말'} ${g.outs}사`}</b>
-                    <span className="ml-auto shrink-0 text-t4 text-gray-400">
-                      {g.events.length > 0 ? <>남은 변경 <b className="font-display text-t3" style={{ color: tacticsLeft ? '#fff' : '#f87171' }}>{tacticsLeft}</b></> : null}
-                    </span>
-                  </div>
-                  {/* 담아 둔 지시 — 눌렀다는 것이 여기에도 남는다 */}
-                  {!!queuedKo.length && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {queuedKo.map((k) => <span key={k} className="mt-chip" style={{ '--a': bandColor, color: '#fff' }}>{k} 지시</span>)}
-                    </div>
-                  )}
-                  {/* 평소에는 전술 — 갈래를 누르면 왼쪽으로 고를 판이 열린다 */}
-                  {SIDES.map((sd) => {
-                    const cur = sideOpt(sd.key, sides[sd.key]);
-                    const want = tacQ[sd.key] ? sideOpt(sd.key, tacQ[sd.key]) : null; // 다음 공수 교대에 먹을 것
-                    const open = openSide === sd.key;
-                    const locked = tacticsLeft <= 0 && g.events.length > 0; // 다 쓴 뒤에는 못 바꾼다
-                    return (
-                      <div key={sd.key} className="relative">
-                        {open && (
-                          <>
-                            <span className="fixed inset-0 z-10" onClick={() => setOpenSide(null)} aria-hidden="true" />
-                            <div className="mt-cut mt-glass absolute right-full top-1/2 z-20 mr-3 w-[22rem] -translate-y-1/2 p-3"
-                              style={{ '--c': '18px', background: 'rgba(8,12,22,.96)', animation: 'sidePop .22s cubic-bezier(.2,.9,.3,1) both' }}>
-                              <p className="mt-lab px-1 pb-2" style={{ '--a': sd.color }}>{sd.ko}</p>
-                              <div className="grid grid-cols-2 gap-1.5">
-                                {sd.opts.map((o) => {
-                                  const on = (tacQ[sd.key] || sides[sd.key]) === o.id;
-                                  return (
-                                    <button key={o.id} type="button" disabled={locked} onClick={() => { pickSide(sd.key, o.id); setOpenSide(null); }}
-                                      className="mt-cut px-3 py-2 text-left transition-[background,box-shadow] disabled:opacity-40"
-                                      style={{ '--c': '10px',
-                                        background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.05)',
-                                        boxShadow: on ? 'inset 0 0 0 1.5px #10b981' : 'inset 0 1px 0 rgba(255,255,255,.06)' }}>
-                                      <b className="block text-t3 font-extrabold" style={{ color: on ? '#fff' : '#e6edf6' }}>{o.ko}</b>
-                                      <span className="mt-1 flex"><FxChips fx={o.fx} main={o.main} on={on} left /></span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        <button type="button" onClick={() => setOpenSide(open ? null : sd.key)} aria-expanded={open}
-                          className="mt-cut flex h-11 w-full items-center gap-3 px-4 text-left transition hover:bg-white/[0.1]"
-                          style={{ '--c': '12px', background: open ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,.08)' }}>
-                          <span className="w-14 shrink-0 text-t3 text-gray-300">{sd.ko}</span>
-                          <b className="min-w-0 flex-1 truncate text-t2 font-extrabold text-white">
-                            {cur?.ko}{want && <span style={{ color: '#fbbf24' }}> → {want.ko}</span>}
-                          </b>
-                          {want && <small className="shrink-0 text-t4 font-bold text-amber-300">예약</small>}
-                          <b className="shrink-0 text-t4 text-gray-400" style={{ transform: open ? 'rotate(90deg)' : 'none' }}>◀</b>
-                        </button>
-                      </div>
-                    );
-                  })}
-                  <button type="button" disabled={g.final || !!duel || duelLeft.current <= 0}
-                    onClick={() => { const on = !wantDuel; wantDuelRef.current = on; setWantDuel(on); if (on && quiet()) pickSpeed(PLAY); }}
-                    className="mt-btn pri self-stretch disabled:opacity-40" style={{ '--a': '#fbbf24', ...(wantDuel ? { animation: 'clutchPulse 1.2s ease-in-out infinite' } : null) }}>
-                    {wantDuel ? '⚔ 다음 공부터 수싸움 · 취소' : <>⚔ 직접 승부 <small className="ml-1 font-display opacity-70">{duelLeft.current}</small></>}
-                  </button>
-                </section>
-              );
-            })()}
 
             {/* 투수 · 불펜 — 지친 팔이면 노랗게 · 빨갛게 */}
             <section className={`mt-cut mt-frame mt-glass flex shrink-0 flex-col gap-2.5 px-5 py-4 ${worn ? 'hot' : ''}`} style={{ '--c': '22px', '--a': worn ? (spent ? '#f87171' : '#fbbf24') : defSide }}>
@@ -1138,20 +1241,57 @@ export default function BroadcastGame({ my, opp, onFinish, onExit, aug = null, r
               </ul>
             </section>
 
-            {/* 증강 — 우리 · 상대가 이 경기에 건 증강(정비 끝 1장 · 7회 1장). 해설 칸 자리 — 한 줄씩, 효과는 이름에 올리면 */}
-            {aug && (
-              <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col justify-center gap-1.5 overflow-hidden px-5 py-3" style={{ '--c': '22px' }}>
-                {[['우리', aug.list, cMy], ['상대', aug.oppList || [], THEIRS]].map(([ko, arr, c]) => (
-                  <div key={ko} className="flex min-w-0 items-baseline gap-3">
-                    <span className="w-8 shrink-0 text-t4 font-bold" style={{ color: c }}>{ko}</span>
-                    <span className="min-w-0 flex-1 truncate text-t3 font-bold" style={{ color: arr.length ? '#fff' : '#6b7280' }}
-                      title={arr.map((a) => `${a.name} — ${augWho(a).rest}`).join('\n')}>
-                      {arr.length ? arr.map((a) => `${a.name}${a.lv ? ` +${a.lv}` : ''}`).join(' · ') : '-'}
+            {/* 이닝 흐름(위 상대 · 아래 우리 거울 막대 — 막대 = 안타 · 숫자 = 점수, 지금 이닝은 금색 테두리) + 증강(우리 · 상대 · 7회 빈 칸) */}
+            {(() => {
+              const fl = inningFlow(g, scoreHold);
+              const now = Math.min(8, g.inning - 1);
+              const bar = (side, i, up) => {
+                const h = fl.hits[side][i], r = fl.runs[side][i], k = side === 'away' ? THEIRS : cMy;
+                if (r == null) return <span />;
+                const num = <b className="font-display text-t3 leading-none" style={{ color: r ? k : '#475569' }}>{r || ''}</b>;
+                const stick = <i className="block w-3.5 shrink-0" style={{ height: h ? h * 15 : r ? 3 : 0, borderRadius: up ? '3px 3px 0 0' : '0 0 3px 3px', background: r ? k : `${k}55` }} />;
+                return <span className={`flex flex-col items-center gap-0.5 ${up ? 'justify-end' : 'justify-start'}`}>{up ? <>{num}{stick}</> : <>{stick}{num}</>}</span>;
+              };
+              const augRow = (ko, arr, k) => (
+                <div key={ko} className="flex min-w-0 items-center gap-2.5">
+                  <b className="w-7 shrink-0 text-t4" style={{ color: k }}>{ko}</b>
+                  {arr.map((a2) => (
+                    <span key={a2.id} className="flex min-w-0 items-center gap-2" title={augWho(a2).rest}>
+                      <i className="block h-9 w-9 shrink-0 rounded-[9px] bg-cover" style={{ backgroundImage: `url(augments/${a2.id}.webp)`, backgroundPosition: '50% 20%', boxShadow: `0 0 0 1.5px ${k}` }} />
+                      <b className="truncate text-t4 text-white">{a2.name}{a2.lv ? <span className="ml-0.5 text-amber-300">+{a2.lv}</span> : null}</b>
                     </span>
+                  ))}
+                  {!arr.length && <span className="text-t4 text-gray-500">-</span>}
+                  {arr.length < 2 && g.inning < 7 && <i className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-[9px] text-[11px] font-bold not-italic text-gray-500" style={{ border: '1.5px dashed rgba(255,255,255,.2)' }}>7회</i>}
+                </div>
+              );
+              return (
+                <section className="mt-cut mt-glass flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden px-5 py-4" style={{ '--c': '22px' }}>
+                  <div className="flex items-center">
+                    <p className="mt-lab" style={{ '--a': '#60a5fa' }}>이닝 흐름</p>
+                    <span className="ml-auto text-t4 text-gray-400">막대 = 안타 · 숫자 = 점수</span>
                   </div>
-                ))}
-              </section>
-            )}
+                  <div className="grid min-h-0 flex-1 gap-x-1.5" style={{ gridTemplateColumns: '3.8rem repeat(9,1fr)', gridTemplateRows: '1fr auto 1fr' }}>
+                    <b className="self-center truncate text-t4" style={{ color: THEIRS }}>{shortTeam(away.name)}</b>
+                    {Array.from({ length: 9 }, (_, i) => <span key={`a${i}`} className="flex flex-col justify-end">{bar('away', i, true)}</span>)}
+                    <span />
+                    {Array.from({ length: 9 }, (_, i) => (
+                      <span key={`n${i}`} className="text-center font-display text-t4 leading-[16px]"
+                        style={{ color: i === now ? '#f5d27a' : '#475569', borderTop: '1px solid rgba(255,255,255,.08)', borderBottom: '1px solid rgba(255,255,255,.08)', ...(i === now ? { boxShadow: 'inset 0 0 0 1.5px #f5d27a', borderRadius: 4 } : null) }}>{i + 1}</span>
+                    ))}
+                    <b className="self-center truncate text-t4" style={{ color: cMy }}>{shortTeam(home.name, true)}</b>
+                    {Array.from({ length: 9 }, (_, i) => <span key={`h${i}`} className="flex flex-col justify-start">{bar('home', i, false)}</span>)}
+                  </div>
+                  {aug && (
+                    <>
+                      <span className="block h-px shrink-0 bg-white/[0.07]" />
+                      {augRow('우리', aug.list, cMy)}
+                      {augRow('상대', aug.oppList || [], THEIRS)}
+                    </>
+                  )}
+                </section>
+              );
+            })()}
           </div>
         </div>
       </div>

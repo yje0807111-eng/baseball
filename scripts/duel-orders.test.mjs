@@ -5,18 +5,18 @@ import { seeded } from '../src/engine/rng.js';
 import { pitchTarget, ZONE } from '../src/play/playScript.js';
 
 const man = (id, s) => ({ id, name: id, position: 'CF', stats: { contact: 78, power: 78, speed: 75, defense: 75, stuff: 80, control: 78, stability: 75, ...s } });
-const team = (tag) => ({ name: tag, batters: Array.from({ length: 9 }, (_, i) => man(`${tag}${i}`)), pitchers: [man(`${tag}P`), man(`${tag}R`)] });
+const team = (tag, s) => ({ name: tag, batters: Array.from({ length: 9 }, (_, i) => man(`${tag}${i}`, s)), pitchers: [man(`${tag}P`, s), man(`${tag}R`, s)] });
 
-/** 한 타석을 같은 지시로 끝까지 — 결과 코드 */
-function atBat(orders, seed) {
-  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(seed) });
+/** 한 타석을 같은 지시로 끝까지 — 결과 코드. s: 양 팀 능력치 덮어쓰기(타자 · 투수 같이) */
+function atBat(orders, seed, s) {
+  const g = createGame({ home: team('H', s), away: team('A', s), rng: seeded(seed) });
   let ev;
   do { ev = pitch(g, orders); } while (ev && !ev.result);
   return ev.result;
 }
-const rate = (orders, keys, n = 3000) => {
+const rate = (orders, keys, n = 3000, s) => {
   let k = 0;
-  for (let i = 0; i < n; i += 1) if (keys.includes(atBat(orders, i + 1))) k += 1;
+  for (let i = 0; i < n; i += 1) if (keys.includes(atBat(orders, i + 1, s))) k += 1;
   return k / n;
 };
 
@@ -29,9 +29,16 @@ test('노림 코스 네 칸 — 가운데 줄 · 칸은 두 쪽에 걸친다', (
   expect(inAim(null, 'ih')).toBe(false);
 });
 
-test('강공은 홈런이 늘고 · 밀어치기는 삼진이 준다', () => {
-  expect(rate({ approach: 'power' }, ['HR'])).toBeGreaterThan(rate({}, ['HR']));
+/* 강공은 파워가 구위를 넘을 때만 홈런 ↑, 못 미치면 삼진만 ↑ · 밀어치기는 삼진 ↓ 대신 장타 ↓ (approachOf) */
+test('강공은 파워 > 구위면 홈런이 늘고, 파워 < 구위면 삼진만 는다', () => {
+  const big = { power: 95, stuff: 72 }, weak = { power: 65, stuff: 92 };
+  expect(rate({ approach: 'power' }, ['HR'], 3000, big)).toBeGreaterThan(rate({}, ['HR'], 3000, big) + 0.01);
+  expect(rate({ approach: 'power' }, ['K'], 3000, weak)).toBeGreaterThan(rate({}, ['K'], 3000, weak));
+});
+
+test('밀어치기는 삼진이 주는 대신 장타가 준다', () => {
   expect(rate({ approach: 'contact' }, ['K'])).toBeLessThan(rate({}, ['K']));
+  expect(rate({ approach: 'contact' }, ['2B', 'HR'])).toBeLessThan(rate({}, ['2B', 'HR']));
 });
 
 test('노림 코스가 맞는 공만 오면 안타가 늘고, 늘 틀리면 준다', () => {

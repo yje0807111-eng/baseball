@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>득점 표시 목업 2</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@500;600;700&family=Saira+Condensed:wght@700;800&display=swap">
+<!--
+  득점 — B(+1 이 전광판으로) + D(테두리 빛) + F(홈 빛)를 한 흐름으로. 과하지 않게 서로 받쳐 주도록:
+   · '+1' 은 하나 — 홈에서 생겨(F) 전광판 숫자 칸으로 날아가 꽂힌다(B). 둘을 따로 띄우지 않는다
+   · 테두리 빛(D)은 주인공이 아니라 받침 — 얇고 짧게, 눈을 홈 → 전광판으로 끌어 주는 쪽으로
+   · 순서: 0 홈 빛 → 0.15 '+1' → 0.35~0.85 날아감 → 0.85 전광판 숫자 튐 · 전체 1초 안(득점은 경기당 10점 안팎)
+  장면: 1회말 서용빈 안타로 1점 → SK 1 : 1 점검감독. '다시 ▶'로 반복.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1920px; height: 911px; overflow: hidden; background: #05080f; font-family: 'IBM Plex Sans KR', sans-serif; color: #fff; }
+  .shot { position: absolute; inset: 0; width: 1920px; height: 911px; }
+  .ov { position: absolute; inset: 0; pointer-events: none; }
+  .cap { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 50; padding: 6px 14px; border-radius: 10px; background: rgba(251,191,36,.95); color: #1a1205; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .bar { position: fixed; left: 12px; bottom: 12px; z-index: 50; display: flex; gap: 4px; padding: 5px; border-radius: 12px; background: rgba(20,24,38,.96); box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 10px 30px #000; }
+  .bar button { all: unset; cursor: pointer; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; color: #94a3b8; }
+  .bar button.on { background: rgba(251,191,36,.16); color: #fbbf24; box-shadow: inset 0 0 0 2px #fbbf24; }
+  .bar .rp { background: #fbbf24; color: #1a1205; }
+  :root { --g: #34d399; }
+  .sd { font-family: 'Saira Condensed', sans-serif; font-weight: 800; }
+  /* 전광판 우리 점수 칸(캡처의 0 위를 덮는다) */
+  .num { position: absolute; left: 236px; top: 134px; width: 48px; height: 40px; display: grid; place-items: center; background: linear-gradient(90deg, #162f33, #100f1f); font-family: 'Saira Condensed', sans-serif; font-size: 30px; font-weight: 800; }
+  .num.pop { animation: pop .42s cubic-bezier(.2,1.6,.4,1) both; animation-delay: var(--at, .85s); }
+  /* 숫자는 +1 이 닿는 때(0.85초)에 0 → 1 */
+  .num.pop::after { content: '0'; animation: flip 0s linear .85s forwards; }
+  @keyframes flip { to { content: '1'; } }
+  @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.45); color: var(--g); text-shadow: 0 0 12px var(--g); } 100% { transform: scale(1); color: #fff; } }
+  .row { position: absolute; left: 90px; top: 132px; width: 196px; height: 44px; background: linear-gradient(90deg, color-mix(in srgb, var(--g) 55%, transparent), transparent 85%); mix-blend-mode: screen; opacity: 0; animation: row .7s ease-out .85s both; }
+  @keyframes row { 25% { opacity: .75; } 100% { opacity: 0; } }
+  /* 홈 빛 고리 */
+  .ring { position: absolute; left: 732px; top: 792px; width: 36px; height: 36px; margin: -18px; border-radius: 50%; box-shadow: 0 0 0 2px var(--g); animation: ring .6s cubic-bezier(.2,.7,.3,1) both; }
+  @keyframes ring { from { transform: scale(.4); opacity: .95; } to { transform: scale(5); opacity: 0; } }
+  .glow { position: absolute; left: 732px; top: 792px; width: 220px; height: 120px; margin: -60px -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--g) 55%, transparent), transparent); animation: glow .7s ease-out both; }
+  @keyframes glow { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
+  /* +1 — 홈에서 떠서 전광판으로(offset-path 로 휘어 날아간다) */
+  .plus { position: absolute; left: 0; top: 0; offset-path: path('M 732 740 C 700 520, 420 250, 262 156'); offset-rotate: 0deg; font-family: 'Saira Condensed', sans-serif; font-weight: 800; color: var(--g); animation: fly .95s cubic-bezier(.45,0,.35,1) both; /* 홈에서 0.3초 머물고 0.55초 동안 날아 0.85초에 닿는다 — 날아가는 동안은 또렷하게 */ }
+  @keyframes fly { 0% { offset-distance: 0%; opacity: 0; transform: scale(.6); } 16% { offset-distance: 0%; opacity: 1; transform: scale(1.1); } 32% { offset-distance: 0%; opacity: 1; transform: scale(1); } 90% { offset-distance: 100%; opacity: 1; transform: scale(.6); } 100% { offset-distance: 100%; opacity: 0; transform: scale(.5); } }
+  /* 테두리 빛들 */
+  .edge { position: absolute; left: 24px; top: 72px; width: 1416px; height: 818px; border-radius: 24px; }
+  .edge.thin { animation: thin .7s ease-out both; }
+  @keyframes thin { 0% { box-shadow: inset 0 0 0 0 transparent; } 30% { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--g) 80%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+  .edge.soft { animation: soft .8s ease-out both; }
+  @keyframes soft { 0% { box-shadow: inset 0 0 0 0 transparent; } 30% { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--g) 70%, transparent), inset 0 0 70px 0 color-mix(in srgb, var(--g) 22%, transparent); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+  .corner { position: absolute; left: 24px; top: 72px; width: 1416px; height: 818px; border-radius: 24px; background: radial-gradient(60% 60% at 0% 0%, color-mix(in srgb, var(--g) 22%, transparent), transparent 70%); opacity: 0; animation: corner .8s ease-out .5s both; }
+  @keyframes corner { 30% { opacity: 1; } 100% { opacity: 0; } }
+  .trail { position: absolute; left: 0; top: 0; width: 1920px; height: 911px; }
+  .trail path { fill: none; stroke: var(--g); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 90 2000; stroke-dashoffset: 90; opacity: .8; animation: trail .55s cubic-bezier(.45,0,.35,1) .3s both; filter: drop-shadow(0 0 6px var(--g)); }
+  @keyframes trail { from { stroke-dashoffset: 90; opacity: .9; } to { stroke-dashoffset: -930; opacity: 0; } }
+  .sweep path { fill: none; stroke: var(--g); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 220 4000; stroke-dashoffset: 220; animation: sweep .8s cubic-bezier(.4,0,.2,1) .05s both; filter: drop-shadow(0 0 8px var(--g)); }
+  @keyframes sweep { 0% { stroke-dashoffset: 220; opacity: 0; } 10% { opacity: 1; } 100% { stroke-dashoffset: -1730; opacity: .2; } }
+</style>
+<body>
+<img class="shot" src="../center-call/field.jpg">
+<div class="ov" id="ov"></div>
+<div class="cap" id="cap"></div>
+<div class="bar" id="bar"></div>
+<script>
+  const PLUS = (size, extra = '') => `<div class="plus" style="font-size:${size}px;${extra}">+1</div>`;
+  const TAIL = `<div class="row"></div><div class="num pop"></div>`;
+  /* 홈(732,890 · 구장 아래 가운데)에서 왼쪽 아래 → 왼쪽 → 위 왼쪽(전광판)으로 테두리를 따라가는 길 */
+  const SWEEP = `<svg class="trail sweep" viewBox="0 0 1920 911"><path d="M 732 889 L 48 889 Q 25 889 25 866 L 25 96 Q 25 73 48 73 L 250 73" /></svg>`;
+  const TRAIL = `<svg class="trail" viewBox="0 0 1920 911"><path d="M 732 740 C 700 520, 420 250, 262 156" /></svg>`;
+  const V = {
+    1: ['1 · 깔끔', '얇은 고리 하나 · 작은 +1(글로우 없음) · 테두리는 2px 선이 한 번 — 가장 조용함', () => `<div class="edge thin"></div><div class="ring"></div>${PLUS(40, 'text-shadow:0 3px 8px #000')}${TAIL}`],
+    2: ['2 · 은은한 빛', '홈에 부드러운 빛 웅덩이 + 고리 · +1 에 옅은 빛 · 테두리는 안쪽으로 번지는 옅은 빛', () => `<div class="edge soft"></div><div class="glow"></div><div class="ring"></div>${PLUS(52, 'text-shadow:0 0 14px color-mix(in srgb,var(--g) 70%,transparent),0 3px 8px #000')}${TAIL}`],
+    3: ['3 · 꼬리 + 모서리', '+1 이 빛 꼬리를 끌며 날아가고, 테두리 대신 전광판 쪽 모서리만 은은하게 — 눈이 도착점으로', () => `<div class="corner"></div><div class="ring"></div>${TRAIL}${PLUS(48, 'text-shadow:0 0 10px var(--g),0 3px 8px #000')}${TAIL}`],
+    4: ['4 · 테두리 따라 흐르는 빛', '홈에서 테두리를 따라 전광판까지 빛 한 줄기가 흐름 + 홈에서 떠오른 작은 +1 · 테두리가 길 안내', () => `${SWEEP}<div class="ring"></div>${PLUS(44, 'text-shadow:0 0 8px color-mix(in srgb,var(--g) 60%,transparent),0 3px 8px #000')}${TAIL}`],
+  };
+  let v = '1';
+  const render = () => {
+    const ov = document.getElementById('ov');
+    ov.innerHTML = '';
+    requestAnimationFrame(() => { ov.innerHTML = V[v][2](); });
+    document.getElementById('cap').textContent = `${V[v][0]} — ${V[v][1]}`;
+    document.getElementById('bar').innerHTML = Object.entries(V).map(([k, [n]]) => `<button data-v="${k}" class="${k === v ? 'on' : ''}">${n}</button>`).join('') + '<button class="rp" data-r="1">다시 ▶</button>';
+    location.hash = v;
+  };
+  document.getElementById('bar').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.v) v = b.dataset.v; render(); });
+  if (V[location.hash.slice(1)]) v = location.hash.slice(1);
+  render();
+</script>
+</body>
+</html>
