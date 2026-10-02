@@ -145,6 +145,17 @@ export function staffBoostFor(p, staff = {}) {
   return out;
 }
 
+/* 효과 설명 한 줄 — 어떤 능력이 오르는지(화면에서 효과 이름 오른쪽) */
+const STAT_DESC = { contact: '안타 확률', power: '장타 · 홈런', speed: '주루 · 도루', defense: '타구 처리', stuff: '헛스윙 · 피안타 억제', control: '볼넷 억제', stamina: '던질 수 있는 공 수' };
+const WHO_DESC = { slugger: '파워 90↑ 타자', hitter: '컨택 90↑ 타자' }; // 이름만으로 기준을 모르는 조건만 — 좌타자 · 외국인 · CP 낮은 10명은 이름이 곧 기준
+const TEAM_DESC = { steal: '도루 성공 확률', rest: '등판 뒤 쉬는 경기 수', calm: '컨디션 나쁜 날 하락 폭' };
+export function ruleDesc(x) {
+  if (x.team) return TEAM_DESC[x.team] || '';
+  const what = x.stat !== 'ability' ? STAT_DESC[x.stat]
+    : BAT_WHO.has(x.who) ? '컨택 · 파워' : ARM_WHO.has(x.who) ? '구위 · 제구' : '컨택 · 파워 · 구위 · 제구';
+  return [WHO_DESC[x.who], what].filter(Boolean).join(' · ');
+}
+
 /** 화면용 한 줄 — '타자 컨택 +6' · '투수 휴식 −1경기' · '도루 성공 +8%p' */
 export function ruleText(x) {
   if (x.team === 'steal') return { label: TEAM_KO.steal, n: `+${Math.round(x.v * 100)}%p` };

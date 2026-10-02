@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SERIES } from '../data/seriesPlayers.js';
 import { SQUAD_CAP, CAP_LOUD, BASE_LIMITS, POS_RULES, STAFF_SLOTS, squadCost, foreignCount, freeUsed, addBlockReason, swapCandidates, swapPick, swapBlockReason, clubAddReason, clubMax, squadIssues, limitsOf, CLUB_MAX } from './rules.js';
-import { STAFF, staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
+import { STAFF, staffByRole, staffRules, staffReserve, styleOf, ruleText, ruleDesc, ruleValue, ruleCat, levelMul, STAFF_LEVEL_MAX } from './staff.js';
 import { saveTeam, recruitPlayer, releasePlayer, swapPlayer, storePlayer, enterFromClub, releaseFromClub, bumpWeek, savePreset, loadPreset } from './store.js';
 import { presetCount, presetIssue, PRESET_BASE, PRESET_EXTRA_MAX } from './presets.js';
 import { priceOf, refundOf, isFreeFill, dailyDeals, todayKey, marketPriceOf, quoteOf, dayIndex } from './market.js';
@@ -75,7 +75,7 @@ function StaffFace({ m, size = 50 }) {
       backgroundPosition: m ? `${size / 2 - 0.59 * w}px ${size / 2 - 0.42 * w * 0.75}px` : 'center', opacity: m ? 1 : 0.4 }} />
   );
 }
-const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], ...ruleText(x) }));
+const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], desc: ruleDesc(x), ...ruleText(x) }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
 const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
 const GOLD = '#fde047';
@@ -1047,7 +1047,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                   const e = effTags([x])[0];
                   return (
                     <div key={m.id} role="button" onClick={() => setStaffSel(m.id)} className={`mt-row h-[68px] cursor-pointer ${staffShown?.id === m.id ? 'on' : ''}`}
-                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 190px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
+                      style={{ gridTemplateColumns: '54px 56px minmax(0,1fr) 340px 78px 104px', gap: 14, padding: '0 14px 0 8px' }}>
                       <StaffFace m={m} size={50} />
                       <b className="mt-ovr text-center font-display text-t1 font-extrabold leading-none">{m.cost}</b>
                       <span className="min-w-0">
@@ -1059,7 +1059,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                         <small className="mt-0.5 block truncate text-t4 text-gray-400">{m.era} · {m.note}</small>
                       </span>
                       <span className="flex min-w-0 flex-col gap-1 rounded-xl bg-white/[0.04] px-3 py-1.5">
-                        <span className="flex items-baseline justify-between gap-2"><span className="truncate text-t4 text-gray-400">{e.label}</span><b className="font-display text-t2 leading-none" style={{ color: e.c }}>{e.n}</b></span>
+                        <span className="flex items-baseline gap-2"><span className="shrink-0 text-t4 font-bold text-gray-300">{e.label}</span><span className="min-w-0 flex-1 truncate text-t4 text-gray-500">{e.desc}</span><b className="shrink-0 font-display text-t2 leading-none" style={{ color: e.c }}>{e.n}</b></span>
                         <i className="relative block h-1 overflow-hidden rounded-full bg-white/[0.08]"><b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${Math.min(100, (ruleValue(x) / maxV) * 100)}%`, background: e.c }} /></i>
                       </span>
                       <span className="justify-self-center rounded-full bg-amber-400/10 px-2.5 py-1 font-display text-t3 font-bold text-amber-300 shadow-[inset_0_0_0_1px_rgba(251,191,36,.35)]">{m.cost} CP</span>
@@ -1122,7 +1122,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
                 <b className="mt-ovr bottom-1.5 right-4 font-display text-[52px] font-extrabold leading-none">{m.cost}<small className="ml-1 text-t3">CP</small></b>
               </div>
               <span className="flex flex-col gap-1.5 rounded-xl bg-white/[0.04] px-4 py-3">
-                <span className="flex items-baseline justify-between"><span className="text-t3 text-gray-300">{e.label}</span><b className="font-display text-t1 leading-none" style={{ color: e.c }}>{e.n}</b></span>
+                <span className="flex items-baseline gap-3"><span className="shrink-0 text-t3 font-bold text-gray-200">{e.label}</span><span className="min-w-0 flex-1 truncate text-t3 text-gray-400">{e.desc}</span><b className="shrink-0 font-display text-t1 leading-none" style={{ color: e.c }}>{e.n}</b></span>
                 {isCur && lv > 1 && <small className="font-display text-t4 text-emerald-300">Lv.{lv} ×{levelMul(m).toFixed(1)}</small>}
               </span>
               <div className="flex flex-col gap-1.5">
