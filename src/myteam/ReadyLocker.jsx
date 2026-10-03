@@ -195,7 +195,7 @@ function FoeLineup({ opponent, onClose }) {
 }
 
 /** 시너지 한 줄 — 아이콘 · 받은 보너스 합계. 아이콘에 마우스를 올리면 자세히 */
-function SynergyRow({ synergies = [] }) {
+function SynergyRow({ synergies = [], compact = false }) { // compact — 정비 미리보기 띠 안(합계는 조각 풍선에서)
   const rootRef = useRef(null);
   const [hover, setHover] = useState(null); // { id, left } — 마우스를 올린 조각
   const on = synergies.filter((s) => s.active);
@@ -213,17 +213,17 @@ function SynergyRow({ synergies = [] }) {
     setHover({ id, left: r.left - b.left + r.width / 2 - 131 });
   };
   return (
-    <div ref={rootRef} className="relative flex items-center gap-3 pt-2" onMouseLeave={() => setHover(null)}>
+    <div ref={rootRef} className={`relative flex shrink-0 items-center gap-3 ${compact ? "" : "pt-2"}`} onMouseLeave={() => setHover(null)}>
       <b className="shrink-0 text-t4 text-gray-400">시너지 {on.length}</b>
       <div className="flex gap-2">
         {shown.map((s) => (
           <span key={s.id} className="cursor-default" style={{ opacity: s.active ? 1 : 0.45 }} onMouseEnter={(e) => show(s.id, e.currentTarget)}>
-            <SynIcon s={s} w={36} />
+            <SynIcon s={s} w={compact ? 30 : 36} />
           </span>
         ))}
       </div>
-      <span className="flex-1" />
-      {totals.map(([k, v]) => (
+      {!compact && <span className="flex-1" />}
+      {!compact && totals.map(([k, v]) => (
         <span key={k} className="text-t4 text-gray-400">{BONUS_KO[k] || k} <b className="font-display text-t3" style={{ color: US }}>+{v}</b></span>
       ))}
       {hv && <SynergyTip s={hv} up left={hover.left} />}
@@ -451,7 +451,7 @@ function SitBlock({ conds, setConds, an }) {
  * 미리보기 띠 — 가운데 · 오른쪽을 한 판으로 합쳐(2026-10-03) 판 아래 한 줄에: 선발 이닝 · 고른 설계 · 준비 카드 · 다음.
  * 예상 승률은 판 머리(단계 줄 오른쪽)에. 600판이 다 쌓이기 전엔 흐리게(busy)
  */
-function PreviewBar({ pv, busy, items, cards, foot }) {
+function PreviewBar({ pv, busy, items, cards, foot, extra = null }) {
   const Item = ({ k, v, c = '#fff' }) => <span className="flex shrink-0 flex-col gap-0.5"><span className="text-t4 text-gray-400">{k}</span><b className="max-w-[15rem] truncate text-t3" style={{ color: c }}>{v}</b></span>;
   return (
     <div className="flex shrink-0 items-center gap-6 border-t border-white/[0.08] pt-4">
@@ -461,6 +461,7 @@ function PreviewBar({ pv, busy, items, cards, foot }) {
       </div>
       <i className="block h-8 w-px shrink-0 bg-white/10" />
       {items.map(([k, v, c]) => <Item key={k} k={k} v={v} c={c} />)}
+      {extra && <><i className="block h-8 w-px shrink-0 bg-white/10" />{extra}</>}
       <span className="min-w-0 flex-1" />
       {cards && <div className="w-[24rem] shrink-0">{cards}</div>}
       <div className="w-[20rem] shrink-0">{foot}</div>
@@ -567,7 +568,7 @@ export default function ReadyLocker({
           </div>
           {step === 1 && (classic
             ? <div className="flex min-h-0 flex-1 flex-col gap-2"><span><Btn sm onClick={() => setClassic(false)}>← 구장</Btn></span><SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} /></div>
-            : <LineupField team={team} squad={squad} bench={bench} onCommit={onCommit} starter={engine.home.pitchers[0]} onPitchers={() => setClassic(true)} footer={<SynergyRow synergies={synergies} />} />)}
+            : <LineupField team={team} squad={squad} bench={bench} onCommit={onCommit} starter={engine.home.pitchers[0]} onPitchers={() => setClassic(true)} />)}
           {step === 2 && (
             <div className="flex min-h-0 flex-col gap-5 overflow-y-auto pr-1">
               <div className="transition-opacity" style={{ opacity: busy ? 0.5 : 1 }}><MirrorLanes pv={pv} late={late} augInn={augInn} pens={pens} /></div>
@@ -579,7 +580,7 @@ export default function ReadyLocker({
           )}
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
           {step !== 1 && <span className="min-h-0 flex-1" />}
-          <PreviewBar pv={pv} busy={busy} foot={foot}
+          <PreviewBar pv={pv} busy={busy} foot={foot} extra={step === 1 && !classic ? <SynergyRow synergies={synergies} compact /> : null}
             items={[['증강', `${augInn}회`, '#a78bfa'], ['필승조', late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ')], ['상황 대응', conds.length]]}
             cards={cards && <CardBlock cards={cards} value={card} onPick={setCard} />} />
         </section>
