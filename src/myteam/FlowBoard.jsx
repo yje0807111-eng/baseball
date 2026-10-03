@@ -5,6 +5,9 @@
  *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 노란 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
  *  마운드 한 줄: 선발(손잡이까지) → 계투(+ 로 늘림, 기본 1명) → 마무리(9회). 칸을 누르면 아래에 불펜 줄이 열려 고름
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
+ *   계투 사이 경계는 끌어서 회 단위로 옮김(rel.ends). 마무리는 9회 고정
+ *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
+ *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 마운드 · 공격 두 줄이 같은 손잡이)
  *  공격: 회마다 칸 — 누르면 보통 → 강공 → 짧게 → 기다리기 돌림, 구간 사이 손잡이를 끌면 구간이 늘고 줄음
  *  증강: 노란 핀을 끌거나 칸을 눌러 3~8회
  *  어림 이닝(손잡이 자리): 투구 수 ÷ 16.5 · 타자 수 ÷ 4.3(미리보기 평균 — 85구 ≈ 5.2회) · 이닝은 그대로
@@ -37,20 +40,23 @@ const pct = (inn) => `${(inn / 9) * 100}%`;
  */
 export function moundPlan(rel, exit) {
   const F = Math.floor(exit) + 1;
-  if (F > 9) return { F, room: 0, mid: [], spans: [], pens: {} };
+  if (F > 9) return { F, room: 0, cap: 0, minFirst: 9, mid: [], spans: [], pens: {} };
+  // 첫 계투는 선발이 거의 다 던진 회만 맡지 않게 — 선발 어림 + 0.5회 넘는 회까지(칸이 손톱만 해지지 않게)
+  const minFirst = Math.min(8, Math.max(F, Math.ceil(exit + 0.5)));
   const room = 9 - F;
-  const mid = (rel.mid || []).slice(0, room);
+  const mid = (rel.mid || []).slice(0, 9 - minFirst);
   const pens = {}, spans = [];
-  let at = F;
+  let at = F, even = F - 1;
   mid.forEach((id, k) => {
-    const n = Math.floor(room / mid.length) + (k < room % mid.length ? 1 : 0);
-    for (let i = 0; i < n; i += 1) pens[at + i] = id;
-    spans.push({ slot: k, id, a: at, b: at + n - 1 }); at += n;
+    even += Math.floor(room / mid.length) + (k < room % mid.length ? 1 : 0);
+    const end = k === mid.length - 1 ? 8 : Math.max(k ? at : minFirst, Math.min(8 - (mid.length - 1 - k), rel.ends?.[k] ?? even));
+    for (let i = at; i <= end; i += 1) pens[i] = id;
+    spans.push({ slot: k, id, a: at, b: end }); at = end + 1;
   });
   if (rel.close) { pens[9] = rel.close; spans.push({ slot: 'close', id: rel.close, a: 9, b: 9 }); }
   const first = spans[0]?.id;
   if (first) for (let i = 1; i < F; i += 1) pens[i] = first;
-  return { F, room, mid, spans, pens };
+  return { F, room, cap: 9 - minFirst, minFirst, mid, spans, pens };
 }
 /* 계투 · 마무리 고르기 — 이미 다른 자리에 있는 투수면 서로 바꿈 */
 export function pickRel(rel, slot, id) {
@@ -59,7 +65,7 @@ export function pickRel(rel, slot, id) {
   const j = mid.indexOf(id);
   if (j >= 0) mid[j] = cur; else if (close === id) close = cur;
   if (slot === 'close') close = id; else mid[slot] = id;
-  return { mid: mid.filter(Boolean), close };
+  return { ...rel, mid: mid.filter(Boolean), close };
 }
 export const segsOf =(atk) => atk.reduce((acc, v, i) => { const last = acc[acc.length - 1]; if (last && last.v === v) last.b = i + 1; else acc.push({ a: i + 1, b: i + 1, v }); return acc; }, []);
 
@@ -74,6 +80,15 @@ function Lane({ label, sub, h, children, glass, low }) {
         {children}
       </span>
     </div>
+  );
+}
+/* 경계 손잡이 — 틈 가운데 가는 선 + 알약. 끄는 동안 초록 */
+function Grip({ x, on, onPointerDown, label }) {
+  return (
+    <span onPointerDown={onPointerDown} role="separator" aria-label={label} className="group absolute z-10 flex w-4 -translate-x-1/2 cursor-ew-resize items-center justify-center" style={{ left: x, top: 4, bottom: 4 }}>
+      <i className="absolute inset-y-1 w-px transition-colors" style={{ background: on ? US : 'rgba(255,255,255,.10)' }} />
+      <i className={`relative block h-5 w-[4px] rounded-full transition-colors ${on ? '' : 'bg-white/30 group-hover:bg-white/70'}`} style={on ? { background: US, boxShadow: `0 0 8px ${US}88` } : null} />
+    </span>
   );
 }
 const Seg = ({ opts, on, onPick }) => (
@@ -100,7 +115,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
   /* ── 끌기: 레인 너비로 회를 잰다 ── */
   const innAt = (clientX) => { const r = laneRef.current?.getBoundingClientRect(); if (!r) return 0; return Math.max(0, Math.min(9, ((clientX - r.left) / r.width) * 9)); };
   const latest = useRef({});
-  latest.current = { limit, L, atk, setAtk, setLimit, setAugInn };
+  latest.current = { limit, L, atk, setAtk, setLimit, setAugInn, rel, setRel, mp };
   const start = (e, d) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); dragRef.current = d; setDrag(d); };
   useEffect(() => {
     const onMove = (e) => {
@@ -113,6 +128,10 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
       } else if (d.kind === 'seg') { // 구간 사이 — 왼쪽 구간 끝 회를 옮긴다(이웃 구간 안에서)
         const b = Math.max(d.min, Math.min(d.max, Math.round(x)));
         if (b !== d.b) { const next = [...S.atk]; for (let i = d.min; i <= d.max + 1; i += 1) next[i - 1] = i <= b ? d.lv : d.rv; d.b = b; S.setAtk(next); }
+      } else if (d.kind === 'mid') { // 계투 경계 — 회 끝에 딱, 앞뒤 계투가 한 회는 남게
+        const b = Math.max(d.min, Math.min(d.max, Math.round(x)));
+        const ends = S.mp.spans.filter((z) => typeof z.slot === 'number').map((z) => z.b);
+        if (ends[d.k] !== b) { ends[d.k] = b; S.setRel({ ...S.rel, ends }); }
       } else if (d.kind === 'aug') {
         const v = Math.max(3, Math.min(8, Math.floor(x) + 1));
         S.setAugInn(v);
@@ -124,7 +143,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
   }, []);
   /* + 계투 — 안 쓴 투수 중 가장 센 투수를 보이는 계투 맨 뒤(마무리 앞)에 */
-  const addMid = () => { const used = new Set([...rel.mid, rel.close]); const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0]; if (p) setRel({ ...rel, mid: [...mp.mid, p.id, ...rel.mid.slice(mp.mid.length)] }); };
+  const addMid = () => { const used = new Set([...rel.mid, rel.close]); const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0]; if (p) setRel({ ...rel, mid: [...mp.mid, p.id, ...rel.mid.slice(mp.mid.length)], ends: [] }); };
   const cycle = (i) => { const next = [...atk]; next[i - 1] = ATK_CYCLE[(ATK_CYCLE.indexOf(atk[i - 1]) + 1) % ATK_CYCLE.length]; setAtk(next); };
   const step = (dir) => setLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) });
   const setMode = (mode) => setLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) });
@@ -158,21 +177,25 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         </Lane>
         <i className="block h-px shrink-0 bg-white/[0.07]" />
         <Lane label="우리 마운드" h={72} glass low={low}
-          sub={<button type="button" onClick={addMid} disabled={mp.mid.length >= mp.room} className="rounded-md px-2 py-0.5 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>+ 계투</button>}>
+          sub={<button type="button" onClick={addMid} disabled={mp.mid.length >= mp.cap} className="rounded-md px-2 py-0.5 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>+ 계투</button>}>
           <span ref={laneRef} className="absolute inset-0" />
           <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 8px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
             {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
           </span>
           {mp.spans.map((x, k) => {
-            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1;
+            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1, l = k === 0 ? 12 : 5;
             return (
               <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
-                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + 10px)`, width: `calc(${pct(x.b - a)} - 13px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
                 {p && <Portrait player={p} w={24} h={30} color="#334155" />}
                 <span className="flex min-w-0 flex-col items-start leading-tight"><span className="truncate text-[11px]" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>
               </button>
             );
           })}
+          {mp.spans.slice(0, -1).map((x, k) => typeof mp.spans[k + 1].slot === 'number' && (
+            <Grip key={`g${k}`} x={pct(x.b)} on={drag?.kind === 'mid' && drag.k === k} label={`계투 ${k + 1} · ${k + 2} 경계`}
+              onPointerDown={(e) => start(e, { kind: 'mid', k, min: k ? x.a : mp.minFirst, max: mp.spans[k + 1].b - 1 })} />
+          ))}
           <span className="absolute z-10 flex -translate-x-1/2 flex-col items-center" style={{ left: pct(exit), top: -8, bottom: -8, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
             <b className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4" style={{ right: 'calc(100% + 6px)', background: GOLD, color: '#1c1203' }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}</b>
             <span onPointerDown={(e) => start(e, { kind: 'sp' })} role="slider" aria-label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
@@ -191,7 +214,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
                 </button>
               );
             })}
-            {pick !== 'close' && rel.mid.length > 1 && <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick) }); setPick(null); }} className="ml-auto rounded-md px-2 py-1 text-t4" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>}
+            {pick !== 'close' && rel.mid.length > 1 && <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick), ends: [] }); setPick(null); }} className="ml-auto rounded-md px-2 py-1 text-t4" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>}
           </div>
         )}
         <Lane label="공격" sub="눌러 바꾸고 끝을 끌기" h={56} glass low={low}>
@@ -205,8 +228,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
                 <b className="text-t4" style={{ color: s.v === 'base' ? W2 : W1 }}>{ATK_KO[s.v]}</b>
               </span>
               {k < segs.length - 1 && (
-                <span onPointerDown={(e) => start(e, { kind: 'seg', min: s.a, max: segs[k + 1].b - 1, b: s.b, lv: s.v, rv: segs[k + 1].v })}
-                  className="absolute z-10 w-2 -translate-x-1/2 cursor-ew-resize rounded-full bg-white/40 hover:bg-white/70" style={{ left: pct(s.b), top: 12, bottom: 12 }} />
+                <Grip x={pct(s.b)} on={drag?.kind === 'seg' && drag.k === k} label={`${s.b}회 공격 경계`}
+                  onPointerDown={(e) => start(e, { kind: 'seg', k, min: s.a, max: segs[k + 1].b - 1, b: s.b, lv: s.v, rv: segs[k + 1].v })} />
               )}
             </React.Fragment>
           ))}
