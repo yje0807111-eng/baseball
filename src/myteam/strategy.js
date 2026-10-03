@@ -113,9 +113,9 @@ export const SIDES = [
   { key: 'mix', en: 'Mix', ko: '볼 배합', color: '#a78bfa', dials: [],
     opts: [
       { id: 'mix', ko: '섞기', main: '투수 배합대로', fx: { up: [], dn: [] }, tip: '투수 배합대로', base: {}, fine: {} },
-      { id: 'F', ko: '직구 위주', main: '직구 ↑', fx: { up: ['직구 ↑'], dn: [] }, tip: '직구 약한 타선', base: {}, fine: { mixFam: 'F' } },
-      { id: 'B', ko: '휘는 공 위주', main: '휘는 공 ↑', fx: { up: ['휘는 공 ↑'], dn: [] }, tip: '휘는 공 약한 타선', base: {}, fine: { mixFam: 'B' } },
-      { id: 'O', ko: '떨어지는 공 위주', main: '떨어지는 공 ↑', fx: { up: ['떨어지는 공 ↑'], dn: [] }, tip: '떨어지는 공 약한 타선', base: {}, fine: { mixFam: 'O' } },
+      { id: 'F', ko: '직구', main: '직구 ↑', fx: { up: ['직구 ↑'], dn: [] }, tip: '직구 약한 타선', base: {}, fine: { mixFam: 'F' } },
+      { id: 'B', ko: '휘는 공', main: '휘는 공 ↑', fx: { up: ['휘는 공 ↑'], dn: [] }, tip: '휘는 공 약한 타선', base: {}, fine: { mixFam: 'B' } },
+      { id: 'O', ko: '떨어지는 공', main: '떨어지는 공 ↑', fx: { up: ['떨어지는 공 ↑'], dn: [] }, tip: '떨어지는 공 약한 타선', base: {}, fine: { mixFam: 'O' } },
     ] },
   /* 수비 갈래는 정비에서 뺐다(plan-sim: 승률 변화가 잡음 ±1 안) — 값은 늘 정상 수비 */
   { key: 'def', hidden: true, en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],

@@ -2,9 +2,11 @@
  * 경기 준비 화면 — 세 칸, 칸마다 판단에 필요한 것만.
  *  왼쪽: 오늘 상대(선발 · 경계 타자 · 전력 비교, 타순은 단추로) · 가운데: 라인업(구장 + 타순 + 시너지, 투수진 · 벤치는 단추로)
  *  · 오른쪽: 작전(세 갈래 · 준비 카드 · 경기 시작)
+ * 내 팀 경기(engine 을 넘길 때)는 설계 판(ROADMAP 12 · mockups/plan-prep 1안 + 3안 흐름 줄): 왼쪽에 상대 선발 구종 · 타선 구종 약점 · 우리 선발과 불펜 차이,
+ * 오른쪽에 공격 · 선발 운용 · 볼 배합(칸마다 승률 변화 · 추천) · 조건 지시 2칸 · 경기 흐름 줄(선발이 내려가는 이닝 · 7~9회 불펜). 예상 승률은 고른 설계로 굴린 값
  * 자리·타순 바꾸기는 SquadBoard 가 하고, 이 판은 바뀐 결과(order)를 그대로 위로 올린다.
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Count } from '../ui/motion.jsx';
 
 /** 예상 승률 막대 — 50:50 에서 출발해 제 값으로(0.7초), 값이 바뀌면 그 값으로 미끄러진다 */
@@ -32,6 +34,9 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
+import { CONDITIONS, COND_MAX } from '../engine/tactics.js';
+import { pitchMix, repertoireOf, PITCHES } from '../engine/pitchSim.js';
+import { planRun, planSummary, planAnalysis, planDeltas } from './planSim.js';
 import { Btn, UiStyle, Pop, FxChips } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
@@ -103,7 +108,48 @@ function Versus({ sums, c }) {
 }
 
 /** 왼쪽 — 오늘 상대: 선발 · 경계 타자 · 전력 비교. 타순은 단추로 */
-function ScoutPanel({ opponent, sums, win = null, onLineup }) {
+/* 설계 분석 조각 — 상대 선발 구종 막대 · 타선 구종 약점 · 우리 선발과 가장 센 불펜 */
+const FAMS = [['F', '직구'], ['B', '휘는 공'], ['O', '떨어지는 공']];
+const PITCH_C = ['#f87171', '#a78bfa', '#2dd4bf', '#60a5fa', '#fbbf24'];
+function MixBar({ p }) {
+  const mix = pitchMix(p), rep = repertoireOf(p);
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="flex h-2 overflow-hidden rounded-full">{rep.map((t, i) => <i key={t} className="block h-full" style={{ width: `${(mix[t] || 0) * 100}%`, background: PITCH_C[i % 5] }} />)}</span>
+      <span className="flex flex-wrap gap-x-3 text-t4 text-gray-400">{rep.map((t, i) => <span key={t}><i className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: PITCH_C[i % 5] }} />{PITCHES[t].name} {Math.round((mix[t] || 0) * 100)}%</span>)}</span>
+    </div>
+  );
+}
+function WeakBars({ an, c }) {
+  return (
+    <div className="flex shrink-0 flex-col gap-2.5">
+      <Sub>타선 구종 약점</Sub>
+      {FAMS.map(([k, ko]) => (
+        <div key={k} className="grid items-center gap-3" style={{ gridTemplateColumns: '7.5rem 1fr 1.5rem' }}>
+          <span className="whitespace-nowrap text-t3 text-gray-300">{ko} 약함</span>
+          <span className="relative h-1.5 rounded-full bg-white/[0.07]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${(an.weak[k] / 9) * 100}%`, background: c }} /></span>
+          <b className="text-right font-display text-t2 text-white">{an.weak[k]}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+function MoundGap({ an }) {
+  const g = an.gap, tone = g >= 0 ? US : '#f87171';
+  return (
+    <div className="flex shrink-0 flex-col gap-2">
+      <Sub>우리 마운드</Sub>
+      <div className="flex items-center gap-2 text-t3">
+        <span className="min-w-0 truncate"><span className="text-gray-400">선발 </span><b className="text-white">{an.sp?.name}</b></span>
+        <span className="text-gray-500">·</span>
+        <span className="min-w-0 truncate"><span className="text-gray-400">불펜 최고 </span><b className="text-white">{an.best?.name || '-'}</b></span>
+        <b className="ml-auto font-display text-t1 leading-none" style={{ color: tone }}>{g >= 0 ? '+' : ''}{g}</b>
+      </div>
+    </div>
+  );
+}
+
+function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = false }) {
   const ros = opponent.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall);
@@ -133,9 +179,11 @@ function ScoutPanel({ opponent, sums, win = null, onLineup }) {
             <b className="font-display text-t2" style={{ color: c }}>{ace.overall}</b>
           </div>
           <span className="text-t4 text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</span>
+          {an && <MixBar p={ace} />}
         </div>
       )}
       <Rule />
+      {an ? <><WeakBars an={an} c={c} /><Rule /><MoundGap an={an} /></> : <>
       <div className="flex shrink-0 flex-col gap-2.5">
         <Sub>경계 타자</Sub>
         {watch.map((p) => (
@@ -148,9 +196,10 @@ function ScoutPanel({ opponent, sums, win = null, onLineup }) {
       </div>
       <Rule />
       {sums && <Versus sums={sums} c={c} />}
+      </>}
       {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
       {win != null && (
-        <div className="flex shrink-0 flex-col gap-1.5">
+        <div className="flex shrink-0 flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
           <WinBar win={win} c={c} />
         </div>
       )}
@@ -280,23 +329,27 @@ function CardBlock({ cards, value, onPick }) {
 
 /** 작전 — 공격 · 마운드 · 수비에서 하나씩. '추천' 은 오늘 상대에 맞는 갈래(이유는 마우스를 올리면).
  *  경기 중에는 공수 교대 때만, 경기당 몇 번만 바꿀 수 있으니 여기서 고르는 것이 기본 계획이다 */
-function SideBlock({ sides, onPick, opponent }) {
+const pct = (d) => `${d > 0 ? '+' : ''}${d.toFixed(1)}%`;
+function SideBlock({ sides, onPick, opponent, deltas = null }) {
   const reasons = sideReasons(opponent);
+  /* 승률 변화가 있는 갈래(선발 운용 · 볼 배합)는 가장 오르는 칸에 추천 — 0.5%p 넘게 오를 때만 */
+  const best = (key) => { const d = deltas?.[key]; if (!d) return null; const [id, v] = Object.entries(d).sort((a, b) => b[1] - a[1])[0]; return v > 0.5 ? id : null; };
   return (
     <div className="flex shrink-0 flex-col gap-5">
       {SIDES.filter((g) => !g.hidden).map((g) => (
         <div key={g.key} className="flex flex-col gap-2">
           <Sub>{g.ko}</Sub>
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${deltas ? g.opts.length : 2},minmax(0,1fr))` }}>
             {g.opts.map((o) => {
               const pick = sides[g.key] === o.id;
-              const why = reasons[o.id] || [];
+              const d = deltas?.[g.key]?.[o.id];
+              const why = deltas?.[g.key] ? (best(g.key) === o.id ? [{ label: '승률 오름' }] : []) : reasons[o.id] || [];
               return (
                 <button key={o.id} type="button" onClick={() => onPick(g.key, o.id)} aria-pressed={pick}
                   title={why.length ? why.map((w) => w.label).join(' · ') : o.tip}
                   className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(pick), color: pick ? '#fff' : '#9ca3af' }}>
                   {o.ko}
-                  <FxChips fx={o.fx} main={o.main} on={pick} />
+                  {d != null ? <b className="font-display text-t4" style={{ color: Math.abs(d) < 0.5 ? '#6b7280' : d > 0 ? '#34d399' : '#f87171' }}>{Math.abs(d) < 0.05 ? '±0' : pct(d)}</b> : <FxChips fx={o.fx} main={o.main} on={pick} />}
                   {!!why.length && <b className="absolute right-1 top-1 rounded px-1 text-[11px] leading-[15px]" style={{ color: WARN, boxShadow: `inset 0 0 0 1px ${WARN}88` }}>추천</b>}
                 </button>
               );
@@ -304,6 +357,44 @@ function SideBlock({ sides, onPick, opponent }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** 조건 지시 — 두 칸까지. 그 상황이 오면 경기가 알아서(tactics condOrders) */
+function CondBlock({ conds, onToggle, deltas = null }) {
+  return (
+    <div className="flex shrink-0 flex-col gap-2">
+      <div className="flex items-baseline justify-between"><Sub>조건 지시</Sub><span className="font-display text-t3 text-gray-400">{conds.length} / {COND_MAX}</span></div>
+      <div className="grid grid-cols-2 gap-1">
+        {CONDITIONS.map((c) => {
+          const on = conds.includes(c.id), full = !on && conds.length >= COND_MAX, d = deltas?.cond?.[c.id];
+          return (
+            <button key={c.id} type="button" disabled={full} onClick={() => onToggle(c.id)} aria-pressed={on}
+              className="mt-cut flex min-h-[3.25rem] flex-col justify-center gap-0.5 px-2.5 py-1.5 text-left disabled:opacity-35" style={pickStyle(on)}>
+              <span className="flex items-baseline gap-1.5"><b className="truncate text-t4" style={{ color: on ? '#fff' : '#9ca3af' }}>{c.ko}</b>{d != null && Math.abs(d) >= 0.5 && <b className="ml-auto shrink-0 font-display text-t4" style={{ color: d > 0 ? '#34d399' : '#f87171' }}>{pct(d)}</b>}</span>
+              <b className="text-t4" style={{ color: on ? '#7dd3fc' : '#6b7280' }}>→ {c.act}</b>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** 경기 흐름 줄 — 고른 설계로 굴린 값: 선발이 내려가는 이닝까지 초록 막대 · 7 · 8 · 9회에 가장 자주 던진 불펜 · 조건 지시가 걸리는 구간 */
+function FlowStrip({ pv, conds }) {
+  if (!pv) return <div className="h-[4.5rem] shrink-0 animate-pulse rounded-lg bg-white/[0.04]" />;
+  const x = (inn) => `${(Math.min(9, Math.max(0, inn)) / 9) * 100}%`;
+  return (
+    <div className="flex shrink-0 flex-col gap-1.5">
+      <div className="flex items-baseline justify-between"><Sub>경기 흐름</Sub><span className="text-t4 text-gray-400">선발 {pv.exitInn.toFixed(1)}회까지</span></div>
+      <div className="grid text-center font-display text-t4 text-gray-500" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>{Array.from({ length: 9 }, (_, i) => <span key={i}>{i + 1}</span>)}</div>
+      <div className="relative h-5 rounded bg-white/[0.04]">
+        <i className="absolute inset-y-0 left-0 rounded" style={{ width: x(pv.exitInn), background: 'linear-gradient(90deg,rgba(52,211,153,.5),rgba(52,211,153,.2))' }} />
+        {pv.pen.map((nm, i) => nm && <b key={i} className="absolute inset-y-0 flex items-center justify-center truncate px-0.5 text-[11px] text-white" style={{ left: x(6 + i), width: x(1) }}>{nm}</b>)}
+      </div>
+      {conds.includes('close') && <div className="relative h-1.5"><i className="absolute inset-y-0 rounded-full" style={{ left: x(6), right: 0, background: '#38bdf8' }} /></div>}
     </div>
   );
 }
@@ -345,27 +436,53 @@ export default function ReadyLocker({
   cards = null, // 준비 카드 [{ id, name, effect, n }] — 내 팀 경기에서만 넘긴다
   full = false, // 내 팀 경기: 라커 배치 그대로(로테이션 5 · 불펜 8 · 벤치) — 드래프트는 20자리 판(fitSlots)
   win = null, // 예상 승률(%) — 상대가 있을 때
+  engine = null, // { home, away } 엔진용 두 팀 — 넘기면 설계 판(분석 · 승률 변화 · 조건 지시 · 흐름 줄)
 }) {
   const [sel, setSel] = useState(null);
   /* 작전 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
   const [sides, setSides] = useState(team.plan?.sides || DEFAULT_SIDES);
   const pickSide = (key, id) => setSides((v) => ({ ...v, [key]: id }));
   const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
+  const [conds, setConds] = useState(team.plan?.conds || []);
+  const toggleCond = (id) => setConds((v) => (v.includes(id) ? v.filter((x) => x !== id) : v.length >= COND_MAX ? v : [...v, id]));
+  const an = useMemo(() => (engine ? planAnalysis(engine.home, engine.away) : null), [engine]);
+  const deltas = useMemo(() => (an ? planDeltas(an) : null), [an]);
+  /*
+   * 고른 설계로 굴린 미리보기 — 고르면 0.25초 뒤 100판씩 나눠 600판(약 2초)을 굴리고 다 되면 바꾼다(한 번에 굴리면 화면이 멈춘다).
+   * 200판에서 먼저 보여 주면 600판과 12%p 까지 달랐다 — 그동안은 앞 숫자를 흐리게 둔다(busy)
+   */
+  const [pv, setPv] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!engine) return undefined;
+    setBusy(true);
+    const plan = planOfSides(sides, conds);
+    let acc, n = 0, id;
+    const step = () => {
+      acc = planRun(engine.home, engine.away, plan, n, n + 100, acc); n += 100;
+      if (n < 600) id = setTimeout(step, 0);
+      else { setPv(planSummary(acc)); setBusy(false); }
+    };
+    id = setTimeout(step, 250);
+    return () => clearTimeout(id);
+  }, [engine, sides, conds]);
   const [foeOpen, setFoeOpen] = useState(false); // 상대 타순 창
 
   return (
     <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 420px', gridTemplateRows: 'minmax(0,1fr)' }}>
       {/* 라커 문법(잘린 모서리 · 네온 테두리 · 라벨) — 드래프트 화면에는 이 CSS 가 없어서 여기서 함께 올린다 */}
       <UiStyle />
-      {opponent ? <ScoutPanel opponent={opponent} sums={sums} win={win} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
+      {opponent ? <ScoutPanel opponent={opponent} sums={sums} win={engine ? pv?.win ?? null : win} busy={engine && busy} an={an} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
       {foeOpen && opponent && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
         fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock} onFix={onFix}>
-        <SideBlock sides={sides} onPick={pickSide} opponent={opponent} />
+        onStart={() => onStart(planOfSides(sides, conds), card)} startLabel={startLabel} startBlock={startBlock} onFix={onFix}>
+        <SideBlock sides={sides} onPick={pickSide} opponent={opponent} deltas={deltas} />
+        {engine && <CondBlock conds={conds} onToggle={toggleCond} deltas={deltas} />}
+        {engine && <div className="transition-opacity" style={{ opacity: busy && pv ? 0.4 : 1 }}><FlowStrip pv={pv} conds={conds} /></div>}
         {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
       </WarRoom>
     </div>

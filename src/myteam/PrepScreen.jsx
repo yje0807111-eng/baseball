@@ -15,6 +15,7 @@ import { peekNextDuel } from './store.js';
 import { formSeed, oppSeed, applyFormTeam } from './form.js';
 import { capUse } from './rules.js';
 import { CARD_ITEMS, TEAM_BOOST_KO, STAT_KO, cardCount } from './shop.js';
+import { engineTeam } from '../play/matchKit.jsx';
 
 const emblemOf = (name = '') => (/레전드/.test(name) ? 'ui/clubs/legend.webp' : /대표|코리아|프리미어|WBC|올림픽/.test(name) ? 'ui/clubs/korea.webp' : null);
 /** 경기 전 정비 왼쪽 스카우팅에 넘길 상대 — 랭크전 · 토너먼트는 대진에서, 단판은 미리 뽑아 둔 상대에서 */
@@ -60,6 +61,8 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
   /* 예상 승률 — 경기에 나설 두 팀 그대로 엔진으로(내 팀 = 경기용 matchTeamOf, 상대 = 경기와 같은 시리즈 팀 · 몸 상태) */
   const myMatch = useMemo(() => matchTeamOf(mine, ready, []), [mine, ready]);
   const win = useSimWin(myMatch, opp);
+  /* 설계 판 — 경기와 같은 두 팀(엔진용)으로 분석 · 미리보기 */
+  const engine = useMemo(() => (opp ? { home: engineTeam(myMatch), away: engineTeam(opp) } : null), [myMatch, opp]);
   const oppT = useMemo(() => (opp ? oppTeamFor(opp, 0) : null), [opp]);
   const on = ready.filter((p) => !String(p.slot).startsWith('BN'));
   const teamInfo = {
@@ -75,7 +78,7 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
       <TopBar eyebrow={backLabel.replace(/로$/, '')} section={title} team={team} account={loadAccount()} onBack={onBack} />
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
-          <ReadyLocker full team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
+          <ReadyLocker full engine={engine} team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
             sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum, foe: oppT && sumsOf(oppT) }} synergies={stats.t.synergies} teamInfo={teamInfo}
             onCommit={commit}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과` : block ? `조건 불충족 · ${block}` : null} onFix={onLocker}
