@@ -228,10 +228,6 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
                   <b className="whitespace-nowrap rounded-md px-1.5 text-t4 text-white" style={{ background: 'rgba(96,165,250,.3)' }}>{starter.name}</b>
                 </span>
               )}
-              {/* 끄는 중 — 붙을 자리(대상 선수 자리)에 빛 고리 */}
-              {drag?.kind === 'field' && drag.target && (
-                <i className="pointer-events-none absolute h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ ...at(order.lineup.find((y) => y.id === drag.target)?.slot), boxShadow: `0 0 0 2px ${US}, 0 0 28px ${US}88`, background: `${US}14` }} />
-              )}
               {rows.map((x) => {
                 const dragged = drag?.kind === 'field' && drag.id === x.id;
                 const posSlot = dragged ? x.slot : slotOf.get(x.id) || x.slot; // 끄는 선수는 원래 자리 기준으로 옮겨 그린다
