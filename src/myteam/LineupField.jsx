@@ -2,10 +2,10 @@
  * 정비 1단계(라인업) 가운데 — 구장 + 타순(목업 prep-lineup3 1안 '기본 정돈' · 구장 그림 1번, 2026-10-03)
  *  정돈 다섯: ① 두 칸 제목 줄 높이 · 아래 끝 맞춤, 타순 9줄은 구장 높이에 고르게 ② 색은 두 뜻만 — 초록 = 고른 선수, 빨강 = 이탈 감점(평소 흰 · 회색)
  *   ③ 타순은 열 제목 있는 표(선수 · 자리 · 컨 · 파 · 주) ④ 구장 이름표 한 덩어리(번호 안, 너비 120 고정, 지명은 홈 옆 정해진 칸)
- *   ⑤ 바닥 한 줄 — 벤치는 표 아래 띠(고르면 그 자리가 '바꾸기' 띠), 시너지는 미리보기 띠로(ReadyLocker)
+ *   ⑤ 바닥 한 줄 — 벤치는 표 아래 띠, 시너지는 미리보기 띠로(ReadyLocker). 타순 줄은 아주 옅은 선으로 나눔
  *  구장 = 수비(자리 · 이탈 감점 · 마운드에 오늘 선발), 타순 = 공격(컨택 · 파워 · 주력) — 같은 숫자를 두 군데 적지 않는다.
  *  끌기: 구장 선수 → 다른 선수 위(수비 자리 맞바꿈) · 타순 줄 위아래(끼워 넣기) · 벤치 칩 → 줄이나 구장 선수(사람만 바꿈, SquadBoard benchSwap 과 같은 셈)
- *  누르기: 타순 줄 · 구장 선수를 누르면 양쪽이 함께 초록, 아래 띠가 '바꾸기'(벤치 → 사람 · 다른 타자 → 타순)
+ *  누르기: 타순 줄 · 구장 선수를 누르면 양쪽이 함께 초록, 그 줄 아래 '벤치와 바꾸기' 칸이 열림(사람만 바꿈)
  *  lineup-sim: 승률을 바꾸는 건 '자기 자리'(이탈 한 명 −2.3%p)와 타순 — 추천은 적지 않는다(자동 배치 단추만)
  * 구장 그림(public/ui/field/field-1.webp, 힉스필드 GPT Image 2)은 베이스 자리가 정해져 있어 그 좌표(그림 %)로 수비 자리를 셈한다.
  */
@@ -49,7 +49,7 @@ const T = (ms) => (RM ? 0 : ms);
 const SHIFT_MS = T(160), SNAP_MS = T(140), SETTLE_MS = T(200), MAGNET = 72;
 const EASE = 'cubic-bezier(.2,.8,.2,1)';
 
-export default function LineupField({ team, squad, bench, onCommit, starter = null, onPitchers = null }) {
+export default function LineupField({ team, squad, bench, onCommit, starter = null }) {
   const [sel, setSel] = useState(null);
   const [drag, setDrag] = useState(null); // field: { ox, oy, snap, target } · row: { from, to, off, pitch } · bench: { x, y, snap, target }
   const [settle, setSettle] = useState(null); // 놓은 직후 한 그림: { kind, id, ox, oy, go }
@@ -68,11 +68,6 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
     onCommit({ ...team, bench: [...benchAll.map((p) => p.id).filter((id) => id !== b), t],
       order: { ...order, lineup: order.lineup.map((x) => (x.id === t ? { ...x, id: b } : x)), rotation: swap(order.rotation), bullpen: swap(order.bullpen) } });
     setSel(b);
-  };
-  const swapOrder = (a, b) => {
-    const ia = order.lineup.findIndex((x) => x.id === a), ib = order.lineup.findIndex((x) => x.id === b);
-    const next = [...order.lineup]; [next[ia], next[ib]] = [next[ib], next[ia]];
-    save(next);
   };
   const swapSlots = (rowsIn, a, b) => {
     const sa = rowsIn.find((x) => x.id === a)?.slot, sb = rowsIn.find((x) => x.id === b)?.slot;
@@ -213,14 +208,13 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
       <Portrait player={p} w={20} h={26} color="#334155" /><b className="text-t4" style={{ color: W1 }}>{p.name}</b><span className="text-[11px]" style={{ color: W3 }}>{extra}</span>
     </span>
   );
-  const selRow = rows.find((x) => x.id === sel);
 
   return (
     <div ref={rootRef} className="grid min-h-0 flex-1 select-none gap-x-6" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gridTemplateRows: '36px minmax(0,1fr)' }}>
       {/* ① 제목 줄 — 두 칸 같은 높이 */}
       <div className="flex items-center justify-between"><b className="text-t3" style={{ color: W1 }}>수비</b><span className="text-t4" style={{ color: W3 }}>끌어서 자리 바꾸기</span></div>
       <div className="flex items-center justify-between"><b className="text-t3" style={{ color: W1 }}>타순</b>
-        <span className="flex gap-1.5">{onPitchers && <Btn sm onClick={onPitchers}>투수진 · 벤치</Btn>}<Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn></span>
+        <span className="flex gap-1.5"><Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn></span>
       </div>
 
       {/* 구장 — 수비. 그림 비율(2336:1744)을 지키며 칸에 꽉(cqw · cqh) */}
@@ -248,7 +242,7 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
                 onPointerDown={(e) => start(e, 'field', x.id)} onKeyDown={keyPick(() => pickField(x.id))}
                 className={`absolute flex flex-col items-center gap-1 outline-none ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
                 style={{ ...at(posSlot), zIndex: look.z, transform: look.tf, transition: look.tr }}>
-                <Portrait player={x.p} w={36} h={46} color={on ? US : p ? RED : '#334155'} />
+                <Portrait player={x.p} w={46} h={58} color={on ? US : p ? RED : '#334155'} />
                 {/* ④ 이름표 한 덩어리 — 번호 · 이름 · 자리(이탈이면 −N) */}
                 <span className="flex items-center gap-1.5 rounded-md px-1.5 py-[3px]" style={{ width: 120, background: on ? 'rgba(6,40,30,.88)' : 'rgba(8,11,20,.84)', boxShadow: `inset 0 0 0 1px ${ring}${look.lift ? ', 0 10px 26px rgba(0,0,0,.55)' : ''}` }}>
                   <b className="grid h-5 w-5 shrink-0 place-items-center rounded font-display text-[12px]" style={{ background: on ? US : 'rgba(255,255,255,.1)', color: on ? '#0b0f1a' : W1 }}>{x.n}</b>
@@ -269,12 +263,15 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden py-1">
           {rows.map((x, i) => {
             const look = rowLook(i, x.id), on = sel === x.id || dropOn(x.id) || look.lift, p = penaltyAt(x.p, x.slot);
+            const open = sel === x.id && !drag && !settle;
             return (
-              <div key={x.id} role="button" tabIndex={0} data-drop="row" data-id={x.id} aria-pressed={sel === x.id}
+              <React.Fragment key={x.id}>
+              <div role="button" tabIndex={0} data-drop="row" data-id={x.id} aria-pressed={sel === x.id}
                 onPointerDown={(e) => start(e, 'row', x.id)} onKeyDown={keyPick(() => setSel(sel === x.id ? null : x.id))}
-                className={`grid min-h-0 flex-1 items-center gap-3 rounded-lg px-3 outline-none ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
+                className={`grid min-h-0 flex-1 items-center gap-3 px-3 outline-none ${open ? 'rounded-t-lg' : 'rounded-lg'} ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
                 style={{ gridTemplateColumns: TABLE, background: on ? 'rgba(16,185,129,.12)' : look.lift ? 'rgba(20,26,40,.95)' : 'transparent',
-                  boxShadow: on ? `inset 0 0 0 1px ${US}${look.lift ? ', 0 12px 28px rgba(0,0,0,.55)' : ''}` : p ? `inset 2px 0 0 ${RED}` : 'none',
+                  /* 줄 나눔 — 아래쪽 아주 옅은 선(고른 줄 · 들린 줄 · 마지막 줄은 없음) */
+                  boxShadow: on ? `inset 0 0 0 1px ${US}${look.lift ? ', 0 12px 28px rgba(0,0,0,.55)' : ''}` : [p ? `inset 2px 0 0 ${RED}` : '', i < rows.length - 1 ? 'inset 0 -1px 0 rgba(255,255,255,.05)' : ''].filter(Boolean).join(', ') || 'none',
                   position: 'relative', zIndex: look.lift ? 20 : undefined, transform: `translateY(${look.y}px)${look.lift ? ' scale(1.015)' : ''}`, transition: look.tr }}>
                 <b className="font-display text-t2" style={{ color: on ? US : W1 }}>{look.n}</b>
                 <Portrait player={x.p} w={28} h={34} color="#334155" />
@@ -282,22 +279,21 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
                 <span className="text-t4" style={{ color: p ? RED : W2 }}>{POS_KO[x.slot]}{p ? ` −${p}` : ''}</span>
                 {['contact', 'power', 'speed'].map((k) => <b key={k} className="text-right font-display text-t3" style={{ color: st(x.p, k) >= 90 ? W1 : W2 }}>{st(x.p, k)}</b>)}
               </div>
+              {/* 누른 줄 아래 — 벤치 선수와 바꾸기(사람만, 타순 · 자리 그대로) */}
+              {open && (
+                <div className="mb-1 flex shrink-0 flex-wrap items-center gap-1.5 rounded-b-lg px-3 py-2" style={{ background: 'rgba(16,185,129,.06)', boxShadow: `inset 0 0 0 1px ${US}44` }}>
+                  <span className="mr-1 text-t4" style={{ color: W2 }}>벤치와 바꾸기</span>
+                  {benchBats.map((b) => <button key={b.id} type="button" onClick={() => benchSwap(b.id, x.id)} className="hover:brightness-125">{chip(b, POS_KO[b.position] || b.position)}</button>)}
+                  {!benchBats.length && <span className="text-t4" style={{ color: W3 }}>벤치 없음</span>}
+                </div>
+              )}
+              </React.Fragment>
             );
           })}
         </div>
-        {/* ⑤ 아래 띠 — 평소 벤치(끌어서 바꾸기), 고르면 '바꾸기'(벤치 → 사람 · 다른 타자 → 타순) */}
+        {/* ⑤ 아래 띠 — 벤치(끌어서 줄이나 구장 선수 위에 놓으면 바꿈) */}
         <div className="flex h-14 shrink-0 items-center gap-2 overflow-hidden border-t border-white/[0.08] px-3">
-          {selRow && !drag ? (
-            <>
-              <span className="mr-1 shrink-0 text-t4" style={{ color: US }}>{selRow.p.name} 바꾸기</span>
-              {benchBats.map((p) => <button key={p.id} type="button" onClick={() => benchSwap(p.id, selRow.id)} className="shrink-0 hover:brightness-125">{chip(p, '벤치')}</button>)}
-              {rows.filter((y) => y.id !== selRow.id).map((y) => (
-                <button key={y.id} type="button" onClick={() => swapOrder(selRow.id, y.id)} className="shrink-0 rounded-md px-2 py-1 text-t4 hover:brightness-125" style={{ color: W1, background: 'rgba(255,255,255,.04)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
-                  {y.p.name} <span className="text-[11px]" style={{ color: W3 }}>{y.n}번</span>
-                </button>
-              ))}
-            </>
-          ) : (
+          {(
             <>
               <span className="mr-1 shrink-0 text-t4" style={{ color: W3 }}>벤치</span>
               {benchBats.map((p) => (
