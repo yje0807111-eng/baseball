@@ -7,3 +7,4 @@ art-src
 .env*.local
 _choice.json
 _plan.json
+_flow.json
