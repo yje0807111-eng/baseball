@@ -207,12 +207,13 @@ export function aimBonusOf(zone, aim) {
 }
 export const inAim = (zone, aim) => zone != null && !!aim && (aim[1] === 'h' ? zone < 6 : zone >= 3) && (aim[0] === 'i' ? zone % 3 <= 1 : zone % 3 >= 1);
 
-/** 도루 성공 확률: 주자 스피드 vs 포수 수비 — 주력 85 · 포수 85면 72%, 포수 수비 1당 2.5%p(포수가 84~93에 몰려 있어 크게, flow2-sim: 약한 포수 +0.10점 · 센 포수 −0.24점) */
+/** 도루 성공 확률: 주자 스피드 vs 포수 수비 · 투수 견제(안정) — 주력 85 · 포수 85면 72%, 포수 수비 1당 2.5%p(포수가 84~93에 몰려 있어 크게, flow2-sim: 약한 포수 +0.10점 · 센 포수 −0.24점) */
 export function stealOdds(g, from) {
   const runner = g.bases[from];
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
-  return clamp(0.52 + (st(runner, 'speed') - 75) * 0.02 - (st(catcher, 'defense') - 85) * 0.025 - (from === 1 ? 0.08 : 0)
+  const hold = (st(defenseOf(g).pitcher, 'stability', 81) - 81) * 0.008; // 투수 견제 · 퀵모션 — 안정(가운데 81, 59~96 → −0.18~+0.12)
+  return clamp(0.52 + (st(runner, 'speed') - 75) * 0.02 - (st(catcher, 'defense') - 85) * 0.025 - hold - (from === 1 ? 0.08 : 0)
     - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0) + (offenseOf(g).team?.edge?.steal || 0) + (g.wx?.steal || 0), 0.08, 0.95); // edge.steal = 코치진 도루 · wx = 날씨
 }
 
