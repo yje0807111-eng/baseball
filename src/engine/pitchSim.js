@@ -231,6 +231,30 @@ const cornerAt = (edge) => (edge > 0.72 ? 0.07 : edge > 0.4 ? 0 : -0.11);
  * 타자 강한 코스 — 선수 id 로 정해진다(몸쪽 · 바깥 · 높은 공 · 낮은 공 · 고르게). 수싸움 자유 조준 공에만 먹는다
  * (자동 경기 균형은 그대로): 강한 줄 +0.07 · 반대 줄 −0.03
  */
+/*
+ * 타순이 돌수록(Times Through the Order) — 같은 투수를 두 번째 · 세 번째 만나면 타자가 공을 읽는다.
+ * MLB 연구(Tango 등): 피 wOBA 첫 바퀴 .310 · 둘째 .322 · 셋째 .340 안팎. 투수가 이 경기에 상대한 타자 수(bf) 9명마다 한 바퀴,
+ * 둘째 바퀴 구위 −TTO_PEN[1] · 셋째부터 −TTO_PEN[2](AI 1200경기: 선발 셋째 바퀴 피 wOBA +.020). 선발을 몇 바퀴까지 끌고 갈지가 상대 타선 · 우리 불펜에 따라 갈리게(ROADMAP 12)
+ */
+export const TTO_PEN = [0, 2.5, 5];
+export const ttoOf = (side) => TTO_PEN[Math.min(2, Math.floor((side?.bf || 0) / 9))];
+/*
+ * 타자 구종 강약 — 선수 id 로 정해진다(직구 · 휘는 공 · 떨어지는 공 가운데 강한 계열 하나 · 약한 계열 하나, 또는 고르게).
+ * 정비 분석에 '변화구 약한 타자 5명'처럼 보이고, 볼 배합 설계가 상대 타선마다 달라지게(ROADMAP 12).
+ * 강한 계열 공: 맞힘 +FAM_ADJ[0] · 안타 +FAM_ADJ[1] / 약한 계열: 그만큼 −
+ */
+const FAMS = ['F', 'B', 'O'];
+export const FAM_KO = { F: '직구', B: '휘는 공', O: '떨어지는 공' };
+export const FAM_ADJ = [0.03, 0.02];
+export function batterFam(b) {
+  let h = 11; for (const ch of String(b?.id || '')) h = (h * 37 + ch.charCodeAt(0)) >>> 0;
+  const k = h % 8;
+  if (k >= 6) return { strong: null, weak: null };
+  const strong = FAMS[k % 3], weak = FAMS[(k % 3 + 1 + Math.floor(k / 3)) % 3];
+  return { strong, weak };
+}
+export const famAdjOf = (b, type) => { const f = batterFam(b), fam = PITCHES[type]?.fam; return fam && fam === f.strong ? 1 : fam && fam === f.weak ? -1 : 0; };
+
 const HOT_KEYS = ['in', 'out', 'high', 'low', 'even'];
 export function batterHot(b) { let h = 7; for (const ch of String(b?.id || '')) h = (h * 33 + ch.charCodeAt(0)) >>> 0; return HOT_KEYS[h % 5]; }
 export function hotAdjOf(b, zone) {
@@ -247,7 +271,7 @@ export function hitChanceAt(g, zone) {
   const def = defenseOf(g), off = offenseOf(g), b = batterOf(g), p = def.pitcher;
   const pl = platoonOf(b, p);
   const contact = st(b, 'contact') + tb(off, 'bat') + pl, power = st(b, 'power') + tb(off, 'bat') + pl;
-  const stuff = st(p, 'stuff', 80) - fatigue(def) * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
+  const stuff = st(p, 'stuff', 80) - fatigue(def) * 10 - ttoOf(def) + (def.mod?.pitch || 0) + tb(def, 'pit');
   const r = Math.floor(zone / 3), c = zone % 3;
   const corner = cornerAt(Math.max(Math.abs(c - 1), Math.abs(r - 1)) * (2 / 3)), hot = hotAdjOf(b, zone);
   const defAvg = def.team.batters.reduce((n, x) => n + st(x, 'defense'), 0) / def.team.batters.length;
@@ -401,6 +425,7 @@ function score(g, runners) {
 
 function nextBatter(g) {
   offenseOf(g).idx += 1;
+  defenseOf(g).bf = (defenseOf(g).bf || 0) + 1;
   g.balls = 0; g.strikes = 0; g.lastVelo = null; // 완급은 한 타석 안에서만
 }
 
@@ -453,14 +478,14 @@ export function pitch(g, orders = {}) {
       }
     }
     if (def.team.pitchers[def.pitcherIdx + 1]) {
-      def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+      def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0; def.bf = 0;
     }
   }
   /* 체력이 바닥난 투수는 타석이 바뀔 때 알아서 내려간다 — 어느 팀이든 */
   let swapped = null;
   if (!orders.changePitcher && !g.balls && !g.strikes && staminaOf(def) <= (orders.hookAt ?? 0) && def.team.pitchers[def.pitcherIdx + 1]) {
     const out = def.pitcher;
-    def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0;
+    def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0; def.bf = 0;
     swapped = { out, in: def.pitcher };
   }
   /*
@@ -508,7 +533,8 @@ export function pitch(g, orders = {}) {
   const pl = platoonOf(batter, pitcher);
   const contact = st(batter, 'contact') + tb(off, 'bat') + pl;
   const power = st(batter, 'power') + tb(off, 'bat') + pl;
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 - ttoOf(def) + (def.mod?.pitch || 0) + tb(def, 'pit') + p.picked * 30;
+  const fam = famAdjOf(batter, p.type); // 이 타자가 이 계열 공에 강한가(+1) · 약한가(−1)
   /* 구종을 맞히면 크게 붙고, 빗나가면 그만큼 헛돈다 */
   const readX = orders.readBonus ? 1.5 : 1; // 보조(추천 · 퍼센트) 없이 읽은 사람 — 맞혔을 때만 더
   /* 구종 예측 — 딱 맞으면 크게, 계열(직구 · 휘는 공 · 떨어지는 공)만 맞으면 조금 */
@@ -540,7 +566,7 @@ export function pitch(g, orders = {}) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
     else { g.balls += 1; ev.call = 'ball'; }
   } else {
-    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo + holdCost - PITCHES[p.type].whiff - (p.type === 'fast' ? sty.fastWhiff : sty.offWhiff) + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5, 0.35, 0.96);
+    const hitProb = clamp((p.inZone ? 0.864 : 0.604) + (contact - 75) * 0.006 - (stuff - 78) * 0.007 + guessBonus + aimBonus + apprHit + hot + seen - cornerPen - tempo + holdCost - PITCHES[p.type].whiff - (p.type === 'fast' ? sty.fastWhiff : sty.offWhiff) + (orders.bunt ? 0.08 : 0) + (off.mod?.hit || 0) * 0.5 + fam * FAM_ADJ[0], 0.35, 0.96);
     if (g.rng() >= hitProb) { g.strikes += 1; ev.call = 'swinging'; if (orders.bunt && g.strikes >= 3) ev.buntK = true; }
     else if (g.rng() < (orders.bunt ? 0.3 : 0.42 + tempo * 2)) { ev.call = 'foul'; if (g.strikes < 2) g.strikes += 1; else if (orders.bunt) { g.strikes = 3; ev.buntK = true; } }
     else { ev.call = 'inplay'; runs += inPlay(g, ev, batter, pitcher, p, orders, guessBonus + aimBonus * 2 + hot + meat * 2 + seen * 2 - tempo * 2 + TEMPO_PAD); } // 코스를 노려 맞힌 공은 타구 질까지(구종 노림의 두 배)
@@ -561,7 +587,8 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const contact = st(batter, 'contact') + tb(off, 'bat') + pl;
   const power = st(batter, 'power') + tb(off, 'bat') + pl;
   const speed = st(batter, 'speed');
-  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 + (def.mod?.pitch || 0) + tb(def, 'pit');
+  const stuff = st(pitcher, 'stuff', 80) - p.tired * 10 - ttoOf(def) + (def.mod?.pitch || 0) + tb(def, 'pit');
+  const fam = famAdjOf(batter, p.type);
   const defAvg = def.team.batters.reduce((s, x) => s + st(x, 'defense'), 0) / def.team.batters.length;
   let runs = 0;
   nextBatter(g);
@@ -583,7 +610,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
   const appr = approachOf(orders.approach, contact, power, stuff);
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
     const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1);

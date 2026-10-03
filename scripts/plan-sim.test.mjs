@@ -7,7 +7,7 @@ import { test } from 'vitest';
 import { writeFileSync } from 'fs';
 import { AI_SERIES, seriesTeam } from '../src/myteam/aiTeam.js';
 import { engineTeam } from '../src/play/matchKit.jsx';
-import { createGame, pitch, aiPitchingChange, defenseOf, offenseOf, batterOf, penCallsLeft } from '../src/engine/pitchSim.js';
+import { createGame, pitch, aiPitchingChange, defenseOf, offenseOf, batterOf, penCallsLeft, batterFam, repertoireOf, PITCHES } from '../src/engine/pitchSim.js';
 import { tacticOrders } from '../src/engine/tactics.js';
 import { SIDES, DEFAULT_SIDES, planOfSides, scoutTags } from '../src/myteam/strategy.js';
 import { seeded } from '../src/myteam/tournament.js';
@@ -32,10 +32,19 @@ const COND = {
     if (!g.top || g.balls || g.strikes || g.bases[0] || !(g.bases[1] || g.bases[2])) return null;
     return batterOf(g).id === ctx.star ? { ibb: true } : null;
   },
+  /* 선발은 두 바퀴(18타자)까지 — 셋째 바퀴 전에 교체 */
+  hook18: (g) => (g.top && !g.balls && !g.strikes && g.home.pitcherIdx === 0 && (g.home.bf || 0) >= 18 ? { changePitcher: true } : null),
+  /* 볼 배합 — 그 계열 공을 35% 더 */
+  mixF: (g) => mixOf(g, 'F'), mixB: (g) => mixOf(g, 'B'), mixO: (g) => mixOf(g, 'O'),
   /* 8회 이후 뒤지면 노림수 */
   swingBig: (g) => (!g.top && g.inning >= 8 && g.home.runs < g.away.runs ? { approach: 'sellout' } : null),
 };
 
+function mixOf(g, fam) {
+  if (!g.top || g.rng() >= 0.35) return null;
+  const t = repertoireOf(g.home.pitcher).filter((x) => PITCHES[x].fam === fam);
+  return t.length ? { pitchType: t[Math.floor(g.rng() * t.length)] } : null;
+}
 function play(home, away, seed, sides, conds, ctx) {
   const g = createGame({ home, away, rng: seeded(seed) });
   const fine = planOfSides(sides).fine;
@@ -51,9 +60,8 @@ function play(home, away, seed, sides, conds, ctx) {
 
 const N = Number(process.env.PG || 0);
 test.skipIf(!N)('plan sim', () => {
-  const configs = [['기준', DEFAULT_SIDES, []]];
-  for (const s of SIDES) for (const o of s.opts) if (DEFAULT_SIDES[s.key] !== o.id) configs.push([`${s.ko}:${o.ko}`, { ...DEFAULT_SIDES, [s.key]: o.id }, []]);
-  for (const c of Object.keys(COND)) configs.push([`조건:${c}`, DEFAULT_SIDES, [c]]);
+  const configs = [['기준', DEFAULT_SIDES, []], ['마운드:빠른 계투', { ...DEFAULT_SIDES, mound: 'quick' }, []], ['마운드:불펜 총력전', { ...DEFAULT_SIDES, mound: 'allin' }, []],
+    ['조건:closeOut', DEFAULT_SIDES, ['closeOut']], ['선발:두 바퀴', DEFAULT_SIDES, ['hook18']], ['배합:직구', DEFAULT_SIDES, ['mixF']], ['배합:휘는 공', DEFAULT_SIDES, ['mixB']], ['배합:떨어지는 공', DEFAULT_SIDES, ['mixO']]];
   const rows = [];
   for (let i = 0; i < N; i += 1) {
     const r = seeded(i + 4242);
@@ -63,7 +71,11 @@ test.skipIf(!N)('plan sim', () => {
     const star = [...away.batters].sort((a, b) => st(b, 'power') - st(a, 'power'))[0]?.id;
     const res = {};
     for (const [name, sides, conds] of configs) res[name] = play(engineTeam(myT), engineTeam(opT), i + 9000, sides, conds, { star });
-    rows.push({ tags, oppHandL: away.pitchers[0]?.hand === 'L', res });
+    const weak = { F: 0, B: 0, O: 0 }; away.batters.forEach((b) => { const w = batterFam(b).weak; if (w) weak[w] += 1; });
+    const mine = engineTeam(myT), arm = (p) => st(p, 'stuff', 80) + st(p, 'control', 75);
+    const penGap = Math.max(...mine.pitchers.slice(1).map(arm)) - arm(mine.pitchers[0]);
+    const oppBat = away.batters.reduce((n, b) => n + st(b, 'contact') + st(b, 'power'), 0) / away.batters.length / 2;
+    rows.push({ tags, oppHandL: away.pitchers[0]?.hand === 'L', weak, penGap, oppBat, res });
   }
   writeFileSync('_plan.json', JSON.stringify(rows));
 }, 3600000);

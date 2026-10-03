@@ -30,3 +30,22 @@ test('날씨 뽑기 — 모든 날씨가 나온다', () => {
   for (let i = 0; i < 400; i += 1) seen.add(weatherOf(r));
   expect([...seen].sort()).toEqual(Object.keys(WEATHER).sort());
 });
+
+test('타순이 돌수록 — 같은 투수를 세 번째 만나면 구위가 깎인다 · 교체하면 처음부터', async () => {
+  const { ttoOf, TTO_PEN } = await import('../src/engine/pitchSim.js');
+  const g = createGame({ home: team('H'), away: team('A'), rng: seeded(3) });
+  expect(ttoOf(g.home)).toBe(0);
+  g.home.bf = 18;
+  expect(ttoOf(g.home)).toBe(TTO_PEN[2]);
+  pitch(g, { changePitcher: true });
+  expect(g.home.bf).toBeLessThanOrEqual(1);
+});
+
+test('타자 구종 강약 — 약한 계열 공에 덜 맞힌다', async () => {
+  const { batterFam, famAdjOf, PITCHES } = await import('../src/engine/pitchSim.js');
+  const b = { id: 'x1' }; const f = batterFam(b);
+  const weakT = Object.keys(PITCHES).find((t) => PITCHES[t].fam === f.weak), strongT = Object.keys(PITCHES).find((t) => PITCHES[t].fam === f.strong);
+  if (f.weak) { expect(famAdjOf(b, weakT)).toBe(-1); expect(famAdjOf(b, strongT)).toBe(1); }
+  const kinds = new Set(Array.from({ length: 200 }, (_, i) => JSON.stringify(batterFam({ id: `p${i}` }))));
+  expect(kinds.size).toBe(7); // 강 · 약 짝 여섯 + 고르게
+});
