@@ -2,12 +2,12 @@
  * 정비 2단계(경기 흐름) 가운데 — 이닝마다 짜기(목업 prep-innings2 1안 + 5안 기회 기둥 + 7안 손잡이 말풍선, 2026-10-03)
  *  모든 줄이 '왼쪽 이름 칸 + 1~9회' 같은 눈금 — 왼쪽 상대 흐름(파도)과 같은 회. 상대 마운드가 꺼진 회(평균 −2) = 기회 기둥(옅은 초록)
  *  말풍선은 손잡이 왼쪽(막대 끝 안) — 위로 띄우면 상대 마운드 줄을 가린다
- *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 노란 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
+ *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
  *  마운드 한 줄: 선발(손잡이까지) → 계투(+ 로 늘림, 기본 1명) → 마무리(9회). 칸을 누르면 아래에 불펜 줄이 열려 고름
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
  *   투수 사이마다 경계 손잡이 — 계투끼리 · 계투와 마무리 사이를 회 단위로 옮김(rel.ends, 마지막 값 = 마무리 앞 회). 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
- *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 마운드 · 공격 두 줄이 같은 손잡이)
+ *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
  *  공격: 회마다 칸 — 누르면 보통 → 강공 → 짧게 → 기다리기 돌림, 구간 사이 손잡이를 끌면 구간이 늘고 줄음
  *  증강: 노란 핀을 끌거나 칸을 눌러 3~8회
  *  어림 이닝(손잡이 자리): 투구 수 ÷ 16.5 · 타자 수 ÷ 4.3(미리보기 평균 — 85구 ≈ 5.2회) · 이닝은 그대로
@@ -83,9 +83,10 @@ function Lane({ label, sub, h, children, glass, low }) {
   );
 }
 /* 경계 손잡이 — 틈 가운데 가는 선 + 알약. 끄는 동안 초록 */
-function Grip({ x, on, onPointerDown, label }) {
+function Grip({ x, on, onPointerDown, label, role = 'separator', style, children, ...rest }) {
   return (
-    <span onPointerDown={onPointerDown} role="separator" aria-label={label} className="group absolute z-10 flex w-4 -translate-x-1/2 cursor-ew-resize items-center justify-center" style={{ left: x, top: 4, bottom: 4 }}>
+    <span onPointerDown={onPointerDown} role={role} aria-label={label} {...rest} className="group absolute z-10 flex w-4 -translate-x-1/2 cursor-ew-resize items-center justify-center outline-none" style={{ left: x, top: 4, bottom: 4, ...style }}>
+      {children}
       <i className="absolute inset-y-1 w-px transition-colors" style={{ background: on ? US : 'rgba(255,255,255,.10)' }} />
       <i className={`relative block h-5 w-[4px] rounded-full transition-colors ${on ? '' : 'bg-white/30 group-hover:bg-white/70'}`} style={on ? { background: US, boxShadow: `0 0 8px ${US}88` } : null} />
     </span>
@@ -179,11 +180,11 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         <Lane label="우리 마운드" h={72} glass low={low}
           sub={<button type="button" onClick={addMid} disabled={mp.mid.length >= mp.cap} className="rounded-md px-2 py-0.5 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>+ 계투</button>}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 8px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
+          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
             {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
           </span>
           {mp.spans.map((x, k) => {
-            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1, l = k === 0 ? 12 : 5;
+            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1, l = 5;
             return (
               <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
                 style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
@@ -196,12 +197,11 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             <Grip key={`g${k}`} x={pct(x.b)} on={drag?.kind === 'mid' && drag.k === k} label={mp.spans[k + 1].slot === 'close' ? '계투 · 마무리 경계' : `계투 ${k + 1} · ${k + 2} 경계`}
               onPointerDown={(e) => start(e, { kind: 'mid', k, min: k ? x.a : mp.minFirst, max: mp.spans[k + 1].b - 1 })} />
           ))}
-          <span className="absolute z-10 flex -translate-x-1/2 flex-col items-center" style={{ left: pct(exit), top: -8, bottom: -8, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
-            <b className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4" style={{ right: 'calc(100% + 6px)', background: GOLD, color: '#1c1203' }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}</b>
-            <span onPointerDown={(e) => start(e, { kind: 'sp' })} role="slider" aria-label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); }}
-              className="grid h-full w-4 cursor-ew-resize place-items-center rounded-md outline-none" style={{ background: GOLD, boxShadow: '0 0 0 3px rgba(11,15,26,.9)' }}><i className="block h-5 w-[2px] rounded bg-[#1c1203]" /></span>
-          </span>
+          <Grip x={pct(exit)} on={drag?.kind === 'sp'} role="slider" label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
+            onPointerDown={(e) => start(e, { kind: 'sp' })} onKeyDown={(e) => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); }}
+            style={{ transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
+            <b className="pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4 font-bold" style={{ right: 'calc(100% + 4px)', background: 'rgba(11,15,26,.72)', color: W1, boxShadow: `inset 0 0 0 1px ${drag?.kind === 'sp' ? US : 'rgba(255,255,255,.14)'}` }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}</b>
+          </Grip>
         </Lane>
         {pick != null && (
           <div className="ml-[9rem] flex shrink-0 flex-wrap items-center gap-1.5 rounded-lg px-3 py-2" style={{ background: 'rgba(16,185,129,.06)', boxShadow: `inset 0 0 0 1px ${US}44` }}>
