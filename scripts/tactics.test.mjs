@@ -123,3 +123,27 @@ describe('필승조', () => {
     expect(lateOrders(g, ['p3', 'p4', 'p3'])).toBe(null); // 앞서 쓴 투수
   });
 });
+
+describe('이닝별 계획', () => {
+  it('공격은 회마다 성향, 선발은 끊는 기준에서 교체, 그 뒤 회마다 정한 불펜', async () => {
+    const { innOrders } = await import('../src/engine/tactics.js');
+    const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });
+    const inn = { atk: ['base', 'base', 'base', 'base', 'power', 'power', 'contact', 'patience', 'base'], limit: { mode: 'inn', value: 5 }, pens: { 6: 'p4', 7: 'p3' } };
+    Object.assign(g, { inning: 5, top: false });
+    expect(innOrders(g, inn)).toEqual({ approach: 'power' });
+    Object.assign(g, { inning: 8 });
+    expect(innOrders(g, inn)).toEqual({ patience: 1 });
+    Object.assign(g, { inning: 5, top: true, balls: 0, strikes: 0 });
+    expect(innOrders(g, inn)).toEqual({}); // 5회까지는 선발
+    g.inning = 6;
+    expect(innOrders(g, inn)).toEqual({ changePitcher: 'p4' }); // 6회 첫 타석 — 정해 둔 불펜
+    g.home.pitcherIdx = 4; g.home.pitcher = g.home.team.pitchers[4];
+    expect(innOrders(g, inn)).toEqual({}); // 이미 마운드
+    g.inning = 7;
+    expect(innOrders(g, inn)).toEqual({}); // p3 은 앞서 지나간 투수 — 다시 못 부름
+    g.home.pitcherIdx = 0; g.home.pitcher = g.home.team.pitchers[0]; g.inning = 3; g.home.pitches = 90;
+    expect(innOrders(g, { limit: { mode: 'pitch', value: 85 } })).toEqual({ changePitcher: true }); // 투구 수
+    g.home.pitches = 40; g.home.bf = 18;
+    expect(innOrders(g, { limit: { mode: 'bf', value: 18 } })).toEqual({ changePitcher: true }); // 타자 수
+  });
+});

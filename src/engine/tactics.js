@@ -73,9 +73,35 @@ export function lateOrders(g, late) {
   if (!id || g.home.pitcher?.id === id) return null;
   return g.home.team.pitchers.slice(g.home.pitcherIdx + 1).some((p) => p.id === id) ? { changePitcher: id } : null;
 }
-/** 정비 설계 한 번에 — 성향(공격 · 선발 운용 · 볼 배합) + 상황 대응 + 필승조. 경기 화면 · 미리보기가 같은 셈을 쓴다 */
+/*
+ * 이닝별 계획(정비 2단계 '경기 흐름', 2026-10-03) — plan.inn = { atk: [9], limit: { mode, value }, pens: { 회: 투수 id } }
+ *  공격: 우리 공격 회(말)마다 'power' 강공 · 'contact' 짧게 · 'patience' 기다리기 · 'base' 보통(성향 그대로)
+ *  선발: mode 'inn'(그 회까지) · 'pitch'(투구 수) · 'bf'(상대한 타자 수)에 닿으면 새 타석에서 교체 — 다음 투수는 그 회에 정해 둔 불펜(없으면 순서대로)
+ *  불펜: 선발이 내려간 뒤 회마다 정해 둔 투수로(그 회 첫 타석부터, 아직 안 던졌으면). 감독 호출 수엔 안 셈
+ */
+const availOf = (side, id) => side.team.pitchers.slice(side.pitcherIdx + 1).some((p) => p.id === id);
+export function innOrders(g, inn) {
+  if (!inn) return null;
+  const out = {};
+  if (!g.top && g.inning <= 9) {
+    const v = inn.atk?.[g.inning - 1];
+    if (v === 'power' || v === 'contact') out.approach = v;
+    else if (v === 'patience') out.patience = 1;
+  }
+  if (g.top && !g.balls && !g.strikes) {
+    const side = g.home, lim = inn.limit, inning = Math.min(9, g.inning), id = inn.pens?.[inning];
+    if (side.pitcherIdx === 0) {
+      const over = lim && (lim.mode === 'inn' ? g.inning > lim.value : lim.mode === 'pitch' ? side.pitches >= lim.value : (side.bf || 0) >= lim.value);
+      if (over) out.changePitcher = id && availOf(side, id) ? id : true;
+    } else if (id && side.pitcher?.id !== id && availOf(side, id)) out.changePitcher = id;
+  }
+  return out;
+}
+/** 정비 설계 한 번에 — 성향(공격 · 선발 운용 · 볼 배합) + 상황 대응 + 필승조(또는 이닝별 계획). 경기 화면 · 미리보기가 같은 셈을 쓴다 */
 export function planOrders(g, plan = {}, ctx = {}) {
-  return { ...tacticOrders(plan.fine || {}, !g.top, g.rng), ...(condOrders(g, plan.conds || [], ctx) || {}), ...(lateOrders(g, plan.late) || {}) };
+  const base = tacticOrders(plan.fine || {}, !g.top, g.rng);
+  if (plan.inn) { delete base.hookBf; return { ...base, ...(condOrders(g, plan.conds || [], ctx) || {}), ...(innOrders(g, plan.inn) || {}) }; }
+  return { ...base, ...(condOrders(g, plan.conds || [], ctx) || {}), ...(lateOrders(g, plan.late) || {}) };
 }
 
 /** 투수를 내리는 체력 문턱 — 늦게는 바닥까지, 빠르게는 여유 있을 때 */

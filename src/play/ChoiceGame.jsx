@@ -148,7 +148,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
   const sides = my?.plan?.sides || DEFAULT_SIDES;
   const fine = planOfSides(sides).fine;
   /* 정비 설계 — 성향(공격 · 선발 운용 · 볼 배합) 위에 조건 지시(그 상황이 오면 경기가 알아서) */
-  const plan = useMemo(() => ({ fine, conds: my?.plan?.conds || [], late: my?.plan?.late || null }), [my]); // eslint-disable-line react-hooks/exhaustive-deps
+  const plan = useMemo(() => ({ fine, conds: my?.plan?.conds || [], late: my?.plan?.late || null, inn: my?.plan?.inn || null }), [my]); // eslint-disable-line react-hooks/exhaustive-deps
   const stars = useMemo(() => starsOf(away), [away]);
   const tac = (gg) => planOrders(gg, plan, { stars });
   /* 경기 중 증강을 고르는 이닝이 있으면(정비 2단계 증강 시점) 그것이 결정 하나 — 묻는 결정은 하나 줄인다 */

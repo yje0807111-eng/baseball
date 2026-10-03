@@ -141,7 +141,7 @@ export function planOfSides(sides = DEFAULT_SIDES, conds = [], extra = {}) {
     Object.assign(base, o.base);
     Object.assign(fine, o.fine);
   }
-  return { sides: { ...sides }, conds: [...conds], late: extra.late || null, augInn: extra.augInn || null, base, fine };
+  return { sides: { ...sides }, conds: [...conds], late: extra.late || null, augInn: extra.augInn || null, inn: extra.inn || null, base, fine };
 }
 /** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
 const SIDE_COUNTER = {
