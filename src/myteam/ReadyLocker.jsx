@@ -34,6 +34,7 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
 import LineupField from './LineupField.jsx';
+import FlowBoard, { ATK_KO, limitKo, segsOf, exitOf } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
 
@@ -342,66 +343,6 @@ function Stepper({ step, onStep }) {
     </div>
   );
 }
-/* 거울 이닝 — 위는 상대(선발이 내려가는 이닝 · 이닝마다 나올 불펜), 아래는 우리(선발 · 필승조 · 증강 시점). 값은 미리보기 600판 */
-function MirrorLanes({ pv, late, augInn, pens }) {
-  const x = (inn) => `${(Math.min(9, Math.max(0, inn)) / 9) * 100}%`;
-  const Lane = ({ t, c, children }) => (
-    <div className="grid items-center gap-3" style={{ gridTemplateColumns: '5.5rem 1fr' }}>
-      <b className="text-t3" style={{ color: c }}>{t}</b><div className="relative h-11 rounded-lg bg-white/[0.03]">{children}</div>
-    </div>
-  );
-  const nameOf = (id) => pens.find((p) => p.id === id)?.name;
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="grid gap-3" style={{ gridTemplateColumns: '5.5rem 1fr' }}><span /><div className="grid text-center font-display text-t3 text-gray-400" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>{Array.from({ length: 9 }, (_, i) => <span key={i}>{i + 1}회</span>)}</div></div>
-      <Lane t="상대 선발" c="#f87171">{pv && <i className="absolute inset-y-1.5 left-1 rounded-md" style={{ width: `calc(${x(pv.oppExit)} - 6px)`, background: 'rgba(248,113,113,.22)' }} />}</Lane>
-      <Lane t="상대 불펜" c="#f87171">{pv && pv.oppPen.map((nm, i) => nm && i + 1 > pv.oppExit && <span key={i} className="absolute inset-y-1.5 flex items-center justify-center truncate rounded-md px-1 text-t4 text-white" style={{ left: x(i), width: `calc(${x(1)} - 4px)`, background: 'rgba(248,113,113,.14)' }}>{nm}</span>)}</Lane>
-      <i className="my-1 block h-px bg-white/10" />
-      <Lane t="우리 선발" c="#34d399">{pv && <><i className="absolute inset-y-1.5 left-1 rounded-md" style={{ width: `calc(${x(pv.exitInn)} - 6px)`, background: 'linear-gradient(90deg,rgba(52,211,153,.45),rgba(52,211,153,.15))' }} /><i className="absolute inset-y-0 w-[2px]" style={{ left: x(pv.exitInn), background: WARN }} /></>}</Lane>
-      <Lane t="필승조" c="#34d399">{[0, 1, 2].map((i) => <span key={i} className="absolute inset-y-1.5 flex items-center justify-center truncate rounded-md px-1 text-t4 text-white" style={{ left: x(6 + i), width: `calc(${x(1)} - 4px)`, background: 'rgba(96,165,250,.2)' }}>{nameOf(late?.[i]) || pv?.pen[i] || '-'}</span>)}</Lane>
-      <Lane t="증강" c="#a78bfa">{augInn && <span className="absolute top-1/2 grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-t3 font-black" style={{ left: x(augInn - 0.5), background: '#a78bfa', color: '#1c1203' }}>✦</span>}</Lane>
-    </div>
-  );
-}
-/* 필승조 — 7 · 8 · 9회에 던질 투수. 칸을 누르면 아래에 불펜 줄이 열린다 */
-function LatePick({ late, setLate, pens }) {
-  const [open, setOpen] = useState(null);
-  const arm = (p) => Math.round(((p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75)) / 2);
-  return (
-    <div className="flex flex-col gap-2">
-      <Sub>필승조</Sub>
-      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(3,minmax(0,1fr))' }}>
-        {[7, 8, 9].map((inn, i) => { const p = pens.find((x) => x.id === late[i]); return (
-          <button key={inn} type="button" onClick={() => setOpen(open === i ? null : i)} className="mt-cut flex min-h-[3.25rem] items-center gap-2 px-2.5" style={pickStyle(open === i)}>
-            <b className="font-display text-t2" style={{ color: WARN }}>{inn}회</b><b className="truncate text-t3 text-white">{p?.name || '-'}</b><span className="ml-auto font-display text-t3 text-gray-400">{p ? arm(p) : ''}</span>
-          </button>
-        ); })}
-      </div>
-      {open != null && (
-        <div className="flex flex-wrap gap-1">
-          {pens.map((p) => (
-            <button key={p.id} type="button" onClick={() => { setLate(late.map((id, j) => (j === open ? p.id : id === p.id ? late[open] : id))); setOpen(null); }}
-              className="mt-cut flex items-center gap-1.5 px-2.5 py-1.5" style={pickStyle(late[open] === p.id)}>
-              <b className="text-t4 text-white">{p.name}</b><span className="font-display text-t4 text-gray-400">{arm(p)}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-function AugPick({ augInn, setAugInn }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Sub>증강 시점</Sub>
-      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6,minmax(0,1fr))' }}>
-        {[3, 4, 5, 6, 7, 8].map((n) => (
-          <button key={n} type="button" onClick={() => setAugInn(n)} className="mt-cut flex h-11 items-center justify-center font-display text-t2" style={{ ...pickStyle(augInn === n), color: augInn === n ? '#fff' : '#9ca3af' }}>{n}회</button>
-        ))}
-      </div>
-    </div>
-  );
-}
 /*
  * 상황 대응 — 상황마다 하나(첫 칸 = 맡기기). flow-sim 값으로 승률 변화 · 추천:
  *  지친 선발 교체는 우리 선발이 약하면 +2.1 · 강하면 −1.9, 강타자 유인구 · 거르기는 우리 타선이 약하면 +1.9 · +0.4 · 강하면 −1.4 · −2.0
@@ -551,13 +492,29 @@ export default function ReadyLocker({
   const [conds, setConds] = useState(team.plan?.conds || ['close']);
   const pens = useMemo(() => (engine ? engine.home.pitchers.slice(1) : []), [engine]);
   const arm = (p) => (p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75);
-  const [late, setLate] = useState(() => {
+  const [late] = useState(() => {
     const ids = new Set(pens.map((p) => p.id)), saved = team.plan?.late;
     if (saved?.every((id) => ids.has(id))) return saved;
     const top3 = [...pens].sort((x, y) => arm(y) - arm(x)).slice(0, 3); // 가장 센 투수가 9회
     return [top3[2]?.id, top3[1]?.id, top3[0]?.id];
   });
   const [augInn, setAugInn] = useState(team.plan?.augInn || 7);
+  const saved = team.plan?.inn;
+  const [atk, setAtk] = useState(() => (saved?.atk?.length === 9 ? saved.atk : Array(9).fill('base')));
+  const [limit, setLimit] = useState(() => saved?.limit || { mode: 'pitch', value: 95 });
+  const [innPens, setInnPens] = useState(() => {
+    const ids = new Set(pens.map((p) => p.id));
+    if (saved?.pens && Object.values(saved.pens).every((id) => ids.has(id))) return saved.pens;
+    const rest = pens.find((p) => !late.includes(p.id));
+    return { ...(rest ? { 6: rest.id } : {}), 7: late[0], 8: late[1], 9: late[2] };
+  });
+  /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
+  const flowPlan = () => {
+    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, pens: innPens } });
+    Object.assign(p.fine, { swing: '보통', take: '보통' });
+    delete p.fine.appr;
+    return p;
+  };
   const an = useMemo(() => (engine ? planAnalysis(engine.home, engine.away) : null), [engine]);
   const deltas = useMemo(() => (an ? planDeltas(an) : null), [an]);
   /*
@@ -569,7 +526,7 @@ export default function ReadyLocker({
   useEffect(() => {
     if (!engine) return undefined;
     setBusy(true);
-    const plan = planOfSides(sides, conds, { late, augInn });
+    const plan = flowPlan();
     let acc, n = 0, id;
     const step = () => {
       acc = planRun(engine.home, engine.away, plan, n, n + 100, acc); n += 100;
@@ -578,18 +535,19 @@ export default function ReadyLocker({
     };
     id = setTimeout(step, 250);
     return () => clearTimeout(id);
-  }, [engine, sides, conds, late]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [engine, sides, conds, atk, limit, innPens]); // eslint-disable-line react-hooks/exhaustive-deps
   const [foeOpen, setFoeOpen] = useState(false); // 상대 타순 창
 
   const an2 = useMemo(() => (an && engine ? { ...an, spArm: arm(an.sp) / 2, offAvg: engine.home.batters.reduce((n, b) => n + (b.stats?.contact ?? 75) + (b.stats?.power ?? 75), 0) / 18 } : an), [an, engine]); // eslint-disable-line react-hooks/exhaustive-deps
   if (engine && opponent) {
-    const plan = () => planOfSides(sides, conds, { late, augInn });
+    const plan = flowPlan;
     const go = step < 3
       ? <GoBtn step={step} label={`다음 · ${PREP_STEPS[step]} ▶`} onClick={() => setStep(step + 1)} />
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
-    const lateKo = late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ');
-    const sumItems = [['공격', sideOpt('off', sides.off)?.ko], ['선발', sideOpt('mound', sides.mound)?.ko], ['배합', sideOpt('mix', sides.mix)?.ko], ['필승조', lateKo], ['증강', `${augInn}회`], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
+    const atkKo = segsOf(atk).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
+    const penKo = Object.keys(innPens).filter((i) => i > Math.floor(exitOf(limit))).sort((a, b) => a - b).map((i) => pens.find((p) => p.id === innPens[i])?.name).filter(Boolean).join(' · ') || '순서대로';
+    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['증강', `${augInn}회`], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
@@ -602,16 +560,14 @@ export default function ReadyLocker({
           </div>
           {step === 1 && <LineupField team={team} squad={squad} bench={bench} onCommit={onCommit} starter={engine.home.pitchers[0]} />}
           {step === 2 && (
-            <div className="flex min-h-0 flex-col gap-5 overflow-y-auto pr-1">
-              <div className="transition-opacity" style={{ opacity: busy ? 0.5 : 1 }}><MirrorLanes pv={pv} late={late} augInn={augInn} pens={pens} /></div>
-              <div className="grid gap-5" style={{ gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)' }}>
-                <SideBlock sides={sides} onPick={pickSide} opponent={opponent} deltas={deltas} />
-                <div className="flex flex-col gap-5"><LatePick late={late} setLate={setLate} pens={pens} /><AugPick augInn={augInn} setAugInn={setAugInn} /></div>
-              </div>
+            <div className="min-h-0 flex-1 pt-6">
+              <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
+                innPens={innPens} setInnPens={setInnPens} augInn={augInn} setAugInn={setAugInn}
+                mix={sides.mix} mixOpts={SIDES.find((x) => x.key === 'mix').opts.map((o) => [o.id, o.ko])} setMix={(id) => pickSide('mix', id)} />
             </div>
           )}
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
-          {step !== 1 && <span className="min-h-0 flex-1" />}
+          {step === 3 && <span className="min-h-0 flex-1" />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
           {step === 2 && <StepBar go={go} />}
           {step === 3 && <StepBar left={<PlanSum items={sumItems} />} right={<CardChips cards={cards} value={card} onPick={setCard} />} go={go} />}
