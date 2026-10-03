@@ -7,7 +7,7 @@
  *  우리 불펜 vs 상대 불펜   → 2 필승조 · 3 리드 지키기
  * 값: 타선 = 9명 (컨택 + 파워) / 2 평균, 선발 = (구위 + 제구) / 2, 불펜 = 선발 빼고 센 셋 평균. 앞선 쪽만 제 색.
  * ponytail: 타격 · 투구 눈금을 그대로 맞댄다 — 넣을 때 시뮬 득실(점수)로 눈금 맞추기
- *  1 줄다리기   — 가운데 기준에서 앞선 쪽으로 막대가 뻗음
+ *  1 줄다리기   — 상대는 늘 왼쪽 · 우리는 늘 오른쪽, 가운데 기준에서 앞선 쪽으로 막대가 뻗음
  *  2 숫자 · 차이 — 우리 숫자 | 이름 | 상대 숫자, 가운데 차이 칩
  *  3 세 카드    — 맞대결마다 작은 카드, 앞선 쪽 테두리 · 쓰는 단계 번호
  *  4 우세 문구  — 줄마다 '우세 +9' · '열세 −3' 한 마디
@@ -64,15 +64,15 @@ const Num = ({ v, on, c, big }) => <b className={`font-display ${big ? 'text-t1'
 const V = {
   1: ['줄다리기', () => (
     <div className="flex flex-col gap-3.5">
-      <span className="flex justify-between text-t4 font-bold"><span style={{ color: MY }}>우리</span><span style={{ color: C }}>상대</span></span>
+      <span className="flex justify-between text-t4 font-bold"><span style={{ color: C }}>상대</span><span style={{ color: MY }}>우리</span></span>
       {ROWS.map((r) => {
         const w = Math.min(50, Math.abs(r.d) * 4);
         return (
           <div key={r.us} className="flex flex-col gap-1.5">
-            <span className="grid items-baseline" style={{ gridTemplateColumns: '1fr auto 1fr' }}><Num v={r.u} on={r.d > 0} c={MY} /><span className="text-t3 font-bold text-gray-300">{r.ko}</span><span className="text-right"><Num v={r.t} on={r.d < 0} c={C} /></span></span>
+            <span className="grid items-baseline" style={{ gridTemplateColumns: '1fr auto 1fr' }}><Num v={r.t} on={r.d < 0} c={C} /><span className="text-t3 font-bold text-gray-300">{r.ko}</span><span className="text-right"><Num v={r.u} on={r.d > 0} c={MY} /></span></span>
             <span className="relative h-2 rounded-full bg-white/[0.06]">
               <i className="absolute inset-y-[-3px] left-1/2 w-px bg-white/40" />
-              <i className="absolute inset-y-0 rounded-full" style={{ [r.d >= 0 ? 'right' : 'left']: '50%', width: `${w}%`, background: tone(r.d) }} />
+              <i className="absolute inset-y-0 rounded-full" style={{ [r.d >= 0 ? 'left' : 'right']: '50%', width: `${w}%`, background: tone(r.d) }} />
             </span>
           </div>
         );
