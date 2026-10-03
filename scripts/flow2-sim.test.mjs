@@ -21,6 +21,7 @@ const fresh = (g) => !g.balls && !g.strikes;
 
 function play(home, away, seed, cfg) {
   const g = createGame({ home, away, rng: seeded(seed) });
+  const ph = [0, 0, 0]; // 우리 득점 — 초반 · 중반 · 후반(그 묶음에 힘을 주면 그 묶음 득점으로 잡음 적게 잰다)
   const fine = planOfSides({ ...DEFAULT_SIDES, ...(cfg.sides || {}) }).fine;
   let guard = 0;
   while (!g.final && guard++ < 1500) {
@@ -28,9 +29,11 @@ function play(home, away, seed, cfg) {
     if (!g.top) { const ch = aiPitchingChange(g, g.away); if (ch) o = { ...o, changePitcher: ch }; }
     if (cfg.phase && !g.top) { const [a, b] = PHASE[cfg.phase]; if (g.inning >= a && Math.min(g.inning, 9) <= b) o = { ...o, approach: 'power' }; }
     if (cfg.steal && !g.top && fresh(g) && g.bases[0] && !g.bases[1] && st(g.bases[0], 'speed') >= 80) o = { ...o, steal: 0 };
+    const before = g.home.runs, inn = g.inning, bot = !g.top;
     pitch(g, o);
+    if (bot) ph[inn <= 3 ? 0 : inn <= 6 ? 1 : 2] += g.home.runs - before;
   }
-  return g.home.runs > g.away.runs ? 1 : g.home.runs < g.away.runs ? 0 : 0.5;
+  return { w: g.home.runs > g.away.runs ? 1 : g.home.runs < g.away.runs ? 0 : 0.5, ph };
 }
 
 const N = Number(process.env.F2 || 0);
@@ -38,13 +41,16 @@ test.skipIf(!N)('flow2 sim', () => {
   const configs = [['기준', {}], ['공격 힘:초반', { phase: '초반' }], ['공격 힘:중반', { phase: '중반' }], ['공격 힘:후반', { phase: '후반' }],
     ['교체:두 바퀴', { sides: { mound: 'two' } }], ['교체:빠른 계투', { sides: { mound: 'quick' } }], ['도루 적극', { steal: true }],
     ['타격:기다리기', { sides: { off: 'onbase' } }], ['타격:짧게 치기', { sides: { off: 'contact' } }]];
+  const only = process.env.F2C?.split(','); // 고를 묶음만(빠른 되풀이용) — 기준은 늘
+  if (only) configs.splice(1, configs.length, ...configs.slice(1).filter(([k]) => only.some((o) => k.includes(o))));
   const rows = [];
   for (let i = 0; i < N; i += 1) {
     const r = seeded(i + 5151);
     const myT = seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r), opT = seriesTeam(AI_SERIES[Math.floor(r() * AI_SERIES.length)], r);
     const away = engineTeam(opT), mine = engineTeam(myT);
     const res = {};
-    for (const [name, cfg] of configs) res[name] = play(engineTeam(myT), engineTeam(opT), i + 52000, cfg);
+    const runs = {};
+    for (const [name, cfg] of configs) { const x = play(engineTeam(myT), engineTeam(opT), i + 52000, cfg); res[name] = x.w; runs[name] = x.ph; }
     const armOf = (p) => (st(p, 'stuff', 80) + st(p, 'control', 75)) / 2;
     const pen = away.pitchers.slice(1);
     const bats = (t) => t.batters.map((b) => (st(b, 'contact') + st(b, 'power')) / 2);
@@ -54,7 +60,7 @@ test.skipIf(!N)('flow2 sim', () => {
       oppPenStuff: pen.reduce((n, p) => n + st(p, 'stuff', 80), 0) / Math.max(1, pen.length),
       oppCatDef: st(away.catcher, 'defense', 75), oppBat: bats(away).reduce((a, b) => a + b, 0) / 9, oppTop: bats(away).slice(0, 4).reduce((a, b) => a + b, 0) / 4,
       myPow: mine.batters.reduce((n, b) => n + st(b, 'power'), 0) / 9, mySpeed: mine.batters.reduce((n, b) => n + st(b, 'speed'), 0) / 9,
-      myGap: (myPen[0] ?? 0) - armOf(mine.pitchers[0]), res,
+      myGap: (myPen[0] ?? 0) - armOf(mine.pitchers[0]), res, runs,
     });
   }
   writeFileSync('_flow2.json', JSON.stringify(rows));

@@ -207,12 +207,12 @@ export function aimBonusOf(zone, aim) {
 }
 export const inAim = (zone, aim) => zone != null && !!aim && (aim[1] === 'h' ? zone < 6 : zone >= 3) && (aim[0] === 'i' ? zone % 3 <= 1 : zone % 3 >= 1);
 
-/** 도루 성공 확률: 주자 스피드 vs 포수 수비 */
+/** 도루 성공 확률: 주자 스피드 vs 포수 수비 — 주력 85 · 포수 85면 72%, 포수 수비 1당 2.5%p(포수가 84~93에 몰려 있어 크게, flow2-sim: 약한 포수 +0.10점 · 센 포수 −0.24점) */
 export function stealOdds(g, from) {
   const runner = g.bases[from];
   if (!runner || g.bases[from + 1]) return 0;
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
-  return clamp(0.42 + (st(runner, 'speed') - 70) * 0.02 - (st(catcher, 'defense') - 70) * 0.01 - (from === 1 ? 0.08 : 0)
+  return clamp(0.52 + (st(runner, 'speed') - 75) * 0.02 - (st(catcher, 'defense') - 85) * 0.025 - (from === 1 ? 0.08 : 0)
     - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0) + (offenseOf(g).team?.edge?.steal || 0) + (g.wx?.steal || 0), 0.08, 0.95); // edge.steal = 코치진 도루 · wx = 날씨
 }
 
@@ -296,14 +296,16 @@ export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) *
 /*
  * 타격 접근법(강공 · 밀어치기) — 선수 · 상대를 탄다(전엔 고정값이라 밀어치기는 손해인 적이 없고 강공은 이득인 적이 없었다,
  * choice-sim 600결정 2026-10-01).
- *  강공: 파워가 상대 구위를 넘을수록 홈런 ↑, 못 미치면 헛스윙만 ↑ (pe = (파워 − 구위)/10, −1.5~1.5)
- *  밀어치기: 맞힘이 좋을수록 덜 헛돈다. 대가 = 홈런 · 2루타 ↓ (병살 ↓ 는 그대로)
+ *  강공: 상대 구위가 약할수록(그리고 파워가 셀수록) 홈런 ↑, 센 투수에겐 헛스윙만 ↑ (pe = ((파워 − 75) + (77 − 구위) × 1.5)/10, −1.5~1.5)
+ *  밀어치기: 상대 구위가 셀수록(그리고 맞힘이 좋을수록) 덜 헛돈다. 대가 = 홈런 · 2루타 ↓ (병살 ↓ 는 그대로)
+ *  → 정비 2단계 '공격 힘' · '짧게 치기'가 상대 투수에 따라 갈리게(flow2-sim 2026-10-03: 초반 강공 = 약한 선발 상대 +0.23점 · 센 선발 −0.23점,
+ *    짧게 치기 = 약한 선발 −0.08 · 센 선발 +0.29). 상대 구위 쪽을 1.5배로 — 예전엔 우리 파워로만 갈렸다
  */
 export function approachOf(approach, contact, power, stuff) {
-  if (approach === 'power') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.06 + 0.035 * pe, hit: -0.02, hr: Math.max(-0.02, 0.025 + 0.045 * pe), dbl: 0.03 }; }
+  if (approach === 'power') { const pe = clamp(((power - 75) + (77 - stuff) * 1.5) / 10, -1.5, 1.5); return { whiff: -0.03 + 0.035 * pe, hit: -0.01, hr: Math.max(-0.02, 0.02 + 0.045 * pe), dbl: 0.03 }; }
   /* 노림수: 한 방만 노린다 — 헛스윙 크게 ↑ · 홈런 ↑(파워가 구위를 넘을수록 더). 뒤질 때 값어치, 앞설 때 손해 */
   if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.05 + 0.02 * pe, hit: -0.03, hr: Math.max(0.04, 0.1 + 0.03 * pe), dbl: 0.04 }; }
-  if (approach === 'contact') { const ce = clamp((contact - 75) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.045, dbl: -0.09 }; }
+  if (approach === 'contact') { const ce = clamp(((contact - 75) + (stuff - 77) * 1.5) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.03, dbl: -0.06 }; }
   return { whiff: 0, hit: 0, hr: 0, dbl: 0 };
 }
 
@@ -561,11 +563,11 @@ export function pitch(g, orders = {}) {
   g.lastVelo = p.velo;
   if (tempo) ev.tempo = tempo;
 
-  // 스윙 여부
+  // 스윙 여부 — 기다리기(patience)는 볼에 덜 휘두르는(−0.11) 대신 존 공도 더 지켜본다(−0.12): 제구 나쁜 투수에게 이득(+0.56점) · 좋은 투수에겐 손해(−0.08, flow2-sim)
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
-  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.13 : 0), 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.09 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
+  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.12 : 0), 0, 0.92);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.11 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
