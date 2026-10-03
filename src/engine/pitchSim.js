@@ -323,9 +323,12 @@ function choosePitch(g, pitcher, order) {
   /* 난수 하나로 배합에서 한 구종(예전과 같은 횟수) */
   let acc = 0, drawn = 'fast';
   for (const [t, v] of Object.entries(mix)) { acc += v; if (r < acc) { drawn = t; break; } drawn = t; }
-  const type = order?.pitchType ? fitType(pitcher, order.pitchType) : drawn;
+  /* 설계 '볼 배합'(mixFam) — 그 계열 공 가운데 하나를 찍은 것과 같다(덜 던지던 공이면 그만큼 힘이 빠진다) */
+  const fams = order?.mixFam && !order.pitchType ? repertoireOf(pitcher).filter((t) => PITCHES[t].fam === order.mixFam) : [];
+  const forced = order?.pitchType || (fams.length ? fams[Math.floor(g.rng() * fams.length)] : null);
+  const type = forced ? fitType(pitcher, forced) : drawn;
   /* 구종을 찍어 승부하면 그 투수가 자주 쓰는 공일수록 힘이 실린다 (주무기 +, 안 쓰던 공 −) */
-  const picked = order?.pitchType && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
+  const picked = forced && !order.noPick ? (mix[type] ?? 0.2) - 0.33 : 0;
   const tired = fatigue(defenseOf(g));
   const control = st(pitcher, 'control', 75) - tired * 12 + (defenseOf(g).mod?.pitch || 0) + tb(defenseOf(g), 'pit') + (g.wx?.ctl || 0);
   /*
@@ -483,7 +486,9 @@ export function pitch(g, orders = {}) {
   }
   /* 체력이 바닥난 투수는 타석이 바뀔 때 알아서 내려간다 — 어느 팀이든 */
   let swapped = null;
-  if (!orders.changePitcher && !g.balls && !g.strikes && staminaOf(def) <= (orders.hookAt ?? 0) && def.team.pitchers[def.pitcherIdx + 1]) {
+  /* 설계 '두 바퀴 교체'(hookBf) — 선발이 그만큼 타자를 상대했으면 새 타석에서 내린다(감독 호출 수엔 안 셈) */
+  const bfHook = orders.hookBf && def.pitcherIdx === 0 && (def.bf || 0) >= orders.hookBf;
+  if (!orders.changePitcher && !g.balls && !g.strikes && (staminaOf(def) <= (orders.hookAt ?? 0) || bfHook) && def.team.pitchers[def.pitcherIdx + 1]) {
     const out = def.pitcher;
     def.pitcherIdx += 1; def.pitcher = def.team.pitchers[def.pitcherIdx]; def.pitches = 0; def.bf = 0;
     swapped = { out, in: def.pitcher };

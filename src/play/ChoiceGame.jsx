@@ -11,7 +11,7 @@ import { teamFlag, flagByKey } from '../myteam/teamArt.js';
 import { myBanner } from '../myteam/store.js';
 import { artId } from '../data/artAlias.js';
 import { winProb as stateWin, simWinProb, withPrior } from '../engine/winProb.js';
-import { tacticOrders } from '../engine/tactics.js';
+import { tacticOrders, condOrders, starOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 import { DEFAULT_SIDES, planOfSides, sideOpt } from '../myteam/strategy.js';
 import {
@@ -147,7 +147,10 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
   const redraw = () => force((v) => v + 1);
   const sides = my?.plan?.sides || DEFAULT_SIDES;
   const fine = planOfSides(sides).fine;
-  const tac = (gg) => tacticOrders(fine, !gg.top, gg.rng);
+  /* 정비 설계 — 성향(공격 · 선발 운용 · 볼 배합) 위에 조건 지시(그 상황이 오면 경기가 알아서) */
+  const conds = my?.plan?.conds || [];
+  const star = useMemo(() => starOf(away), [away]);
+  const tac = (gg) => ({ ...tacticOrders(fine, !gg.top, gg.rng), ...(condOrders(gg, conds, { star }) || {}) });
   const prior = useMemo(() => simWinProb(home, away), [home, away]);
   const winProb = (gg) => withPrior(stateWin(gg), gg, prior);
   const wpRef = useRef([prior]);
@@ -260,7 +263,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
         if (fresh && wantsChoice(g, stops)) {
           stops.push({ inning: g.inning, top: g.top });
           setAsked(stops.length);
-          const cs = choiceCards(g, { plan: tac, planKo: (g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('def', sides.def)?.ko] : [sideOpt('off', sides.off)?.ko]).filter(Boolean).join(' · '), fatigue });
+          const cs = choiceCards(g, { plan: tac, planKo: (g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('mix', sides.mix)?.ko] : [sideOpt('off', sides.off)?.ko]).filter(Boolean).join(' · '), fatigue });
           setCards(cs); setPicked(null); setPhase('choice'); redraw();
           const got = await new Promise((res) => { waitRef.current = res; });
           if (!alive()) return;

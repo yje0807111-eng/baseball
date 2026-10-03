@@ -5598,7 +5598,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setLogOpen(false);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
-    const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides } } : {});
+    const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides, conds: planRef.current.conds || [] } } : {});
     const liveMy = makeMy(owned);
     setLiveTeams({ my: liveMy, opp, makeMy, augments: owned, aug: makeAugmentRuntime({ augments: owned, my: liveMy, opp, record }) });
     runIdRef.current += 1;

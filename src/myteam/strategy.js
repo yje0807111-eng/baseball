@@ -99,14 +99,26 @@ export const SIDES = [
       { id: 'speed', ko: '기동력', main: '진루 ↑', fx: { up: ['진루 ↑', '병살 ↓'], dn: [] }, tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
       { id: 'onbase', ko: '기다리기', main: '볼넷 ↑', fx: { up: ['볼넷 ↑'], dn: ['삼진 ↑', '장타 ↓'] }, tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
     ] },
-  { key: 'mound', en: 'Mound', ko: '마운드', color: '#f87171', dials: ['hook', 'duel', 'mix'],
+  /*
+   * 선발 운용(ROADMAP 12 · plan-sim 6,000경기) — 답이 내 팀 구성에 따라 갈린다: 불펜이 선발보다 약하면 길게,
+   * 훨씬 세면 빠른 계투(−4.3 ~ +4.7%p). 타순이 돌수록 선발이 맞는다(엔진 ttoOf). 불펜 총력전 · 아끼기는 빠른 계투 · 길게와 겹쳐 뺐다
+   */
+  { key: 'mound', en: 'Mound', ko: '선발 운용', color: '#f87171', dials: ['hook'],
     opts: [
-      { id: 'long', ko: '선발 길게', main: '교체 ↓', fx: { up: ['교체 ↓'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게', duel: '보통', mix: '보통' } },
-      { id: 'quick', ko: '빠른 계투', main: '지친 투수 ↓', fx: { up: ['지친 투수 ↓'], dn: ['불펜 소모 ↑'] }, tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '보통', mix: '보통' } },
-      { id: 'allin', ko: '불펜 총력전', main: '볼넷 ↓', fx: { up: ['볼넷 ↓'], dn: ['불펜 소모 ↑'] }, tip: '불펜 총동원', base: { pit: '빠른 계투' }, fine: { hook: '빠르게', duel: '정면', mix: '공격' } },
-      { id: 'save', ko: '불펜 아끼기', main: '불펜 소모 ↓', fx: { up: ['불펜 소모 ↓'], dn: ['볼넷 ↑'] }, tip: '후반 대비', base: { pit: '아끼기' }, fine: { hook: '늦게', duel: '회피', mix: '안전' } },
+      { id: 'long', ko: '선발 길게', main: '세 바퀴까지', fx: { up: ['교체 ↓'], dn: [] }, tip: '끝까지 맡기기', base: { pit: '길게' }, fine: { hook: '늦게' } },
+      { id: 'two', ko: '두 바퀴 교체', main: '18타자', fx: { up: ['셋째 바퀴 ↓'], dn: ['불펜 소모 ↑'] }, tip: '타순 두 바퀴에서 불펜', base: { pit: '빠른 계투' }, fine: { hook: '보통', hookBf: 18 } },
+      { id: 'quick', ko: '빠른 계투', main: '위기면 바로', fx: { up: ['지친 투수 ↓'], dn: ['불펜 소모 ↑'] }, tip: '위기면 바로', base: { pit: '빠른 계투' }, fine: { hook: '빠르게' } },
     ] },
-  { key: 'def', en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
+  /* 볼 배합 — 상대 타선이 약한 계열(엔진 batterFam)을 노린다. 우리 선발에게 그 계열 공이 없으면 효과 없음 */
+  { key: 'mix', en: 'Mix', ko: '볼 배합', color: '#a78bfa', dials: [],
+    opts: [
+      { id: 'mix', ko: '섞기', main: '투수 배합대로', fx: { up: [], dn: [] }, tip: '투수 배합대로', base: {}, fine: {} },
+      { id: 'F', ko: '직구 위주', main: '직구 ↑', fx: { up: ['직구 ↑'], dn: [] }, tip: '직구 약한 타선', base: {}, fine: { mixFam: 'F' } },
+      { id: 'B', ko: '휘는 공 위주', main: '휘는 공 ↑', fx: { up: ['휘는 공 ↑'], dn: [] }, tip: '휘는 공 약한 타선', base: {}, fine: { mixFam: 'B' } },
+      { id: 'O', ko: '떨어지는 공 위주', main: '떨어지는 공 ↑', fx: { up: ['떨어지는 공 ↑'], dn: [] }, tip: '떨어지는 공 약한 타선', base: {}, fine: { mixFam: 'O' } },
+    ] },
+  /* 수비 갈래는 정비에서 뺐다(plan-sim: 승률 변화가 잡음 ±1 안) — 값은 늘 정상 수비 */
+  { key: 'def', hidden: true, en: 'Defense', ko: '수비', color: '#60a5fa', dials: ['guard', 'hold'],
     opts: [
       { id: 'std', ko: '정상 수비', main: '', fx: { up: [], dn: [] }, tip: '제자리 수비', base: { run: '보통' }, fine: { guard: '정석', hold: '보통' } },
       { id: 'deep', ko: '외야 후진', main: '장타 ↓', fx: { up: ['장타 ↓'], dn: ['단타 ↑'] }, tip: '장타 방지', base: { run: '신중' }, fine: { guard: '깊게', hold: '느슨' } },
@@ -114,13 +126,13 @@ export const SIDES = [
       { id: 'tight', ko: '주자 견제', main: '도루 ↓', fx: { up: ['도루 ↓', '진루 ↓'], dn: ['피안타 ↑'] }, tip: '도루 저지', base: { run: '보통' }, fine: { guard: '정석', hold: '바짝' } },
     ] },
 ];
-export const DEFAULT_SIDES = { off: 'big', mound: 'long', def: 'std' };
+export const DEFAULT_SIDES = { off: 'big', mound: 'long', mix: 'mix', def: 'std' };
 export const sideOpt = (key, id) => {
   const s = SIDES.find((x) => x.key === key);
   return s?.opts.find((o) => o.id === id) || s?.opts[0];
 };
 /** 세 갈래가 잡아 주는 값. 세부 눈금을 손으로 만지는 판은 없앴다 — 갈래 하나가 눈금 여럿을 함께 정한다 */
-export function planOfSides(sides = DEFAULT_SIDES) {
+export function planOfSides(sides = DEFAULT_SIDES, conds = []) {
   const base = { ...DEFAULT_PLAN.base };
   const fine = { ...DEFAULT_PLAN.fine };
   for (const s of SIDES) {
@@ -128,7 +140,7 @@ export function planOfSides(sides = DEFAULT_SIDES) {
     Object.assign(base, o.base);
     Object.assign(fine, o.fine);
   }
-  return { sides: { ...sides }, base, fine };
+  return { sides: { ...sides }, conds: [...conds], base, fine };
 }
 /** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
 const SIDE_COUNTER = {
@@ -136,11 +148,7 @@ const SIDE_COUNTER = {
   '선발 이닝 짧음': ['onbase', 'big'],
   '수비 탄탄': ['big'],
   '도루 저지 약함': ['speed'],
-  '한 방 없음': ['long', 'in'],
-  '장타 위험': ['deep', 'allin'],
-  '발 빠른 타선': ['tight', 'quick'],
-  '컨택 강함': ['long', 'deep'],
-  '좌타 다수': ['allin', 'quick'],
+  /* 선발 운용 · 볼 배합의 추천은 정비 화면이 엔진으로 잰 승률 변화로 단다(이 표는 공격 갈래만) */
 };
 export function sideReasons(opponent) {
   const out = {};

@@ -60,3 +60,17 @@ test('경기 중 팀 바꾸기(증강) — 불러 둔 불펜 · 대타는 그대
   expect(g.home.pitcher.stats.stuff).toBe(99);
   expect(g.home.team.pitchers.slice(g.home.pitcherIdx + 1).map((p) => p.id)).not.toContain('HP3');
 });
+
+test('설계 — 두 바퀴(hookBf)면 선발이 18타자에서 내려가고, 볼 배합(mixFam)이면 그 계열 공이 는다', async () => {
+  const { PITCHES } = await import('../src/engine/pitchSim.js');
+  const t = () => ({ ...team('H'), pitchers: Array.from({ length: 4 }, (_, i) => man(`HP${i}`)) });
+  const g = createGame({ home: t(), away: team('A'), rng: seeded(6) });
+  g.home.bf = 18; pitch(g, { hookBf: 18 });
+  expect(g.home.pitcherIdx).toBe(1);
+  expect(penCallsLeftOf(g)).toBe(2); // 감독 호출로 안 센다
+  const h = createGame({ home: t(), away: team('A'), rng: seeded(7) });
+  let fam = 0, n = 0;
+  for (let i = 0; i < 300 && !h.final; i += 1) { const ev = pitch(h, h.top ? { mixFam: 'B' } : {}); if (ev?.pitch && ev.top) { n += 1; if (PITCHES[ev.pitch.type].fam === 'B') fam += 1; } }
+  expect(fam / n).toBeGreaterThan(0.5);
+});
+function penCallsLeftOf(g) { return 2 - (g.home.penCalls || 0); }

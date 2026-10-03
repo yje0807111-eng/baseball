@@ -284,7 +284,7 @@ function SideBlock({ sides, onPick, opponent }) {
   const reasons = sideReasons(opponent);
   return (
     <div className="flex shrink-0 flex-col gap-5">
-      {SIDES.map((g) => (
+      {SIDES.filter((g) => !g.hidden).map((g) => (
         <div key={g.key} className="flex flex-col gap-2">
           <Sub>{g.ko}</Sub>
           <div className="grid grid-cols-2 gap-1">

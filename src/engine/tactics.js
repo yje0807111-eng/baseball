@@ -6,6 +6,7 @@
  *
  * 성향이니 매 공 똑같이 내지 않는다 — 눈금이 센 쪽일수록 자주 낸다.
  */
+import { penCallsLeft, batterOf } from './pitchSim.js';
 
 /** 눈금 세 단계를 -1 · 0 · +1 로 */
 const LEVEL = {
@@ -18,6 +19,43 @@ const LEVEL = {
   hold: { 느슨: -1, 보통: 0, 바짝: 1 },
 };
 export const levelOf = (fine = {}, key) => LEVEL[key]?.[fine[key]] ?? 0;
+
+/** 볼 배합 설계가 공에 실리는 비율 — plan-sim(2026-10-03)과 같은 35% */
+export const MIX_SHARE = 0.35;
+
+/*
+ * 조건 지시 — 정비에서 미리 걸어 두면 그 상황에 경기가 알아서(OOTP 의 '경기 시점 × 점수' 전략처럼). 두 칸까지.
+ * plan-sim 6,000경기: 7회 이후 리드면 센 불펜 +3.5%p · 나머지는 상대 · 상황 따라 ±1 안쪽.
+ * ctx: { star: 상대 최고 장타자 id }
+ */
+export const COND_MAX = 2;
+export const CONDITIONS = [
+  { id: 'close', ko: '7회 이후 1~2점 리드', act: '가장 센 불펜' },
+  { id: 'walk', ko: '득점권 · 상대 최고 장타자', act: '거르기' },
+  { id: 'swing', ko: '8회 이후 뒤짐', act: '노림수' },
+  { id: 'steal', ko: '1루 주자 주력 85+', act: '도루' },
+];
+const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;
+const armOf = (p) => stOf(p, 'stuff', 80) + stOf(p, 'control', 75);
+export function condOrders(g, conds = [], ctx = {}) {
+  if (!conds.length) return null;
+  const fresh = !g.balls && !g.strikes, mineBat = !g.top;
+  for (const c of conds) {
+    if (c === 'close' && !mineBat && fresh && g.inning >= 7) {
+      const lead = g.home.runs - g.away.runs;
+      if (lead < 1 || lead > 2 || penCallsLeft(g.home) <= 0) continue;
+      const pen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1);
+      const best = pen.reduce((a, b) => (!a || armOf(b) > armOf(a) ? b : a), null);
+      if (best && armOf(best) > armOf(g.home.pitcher)) return { changePitcher: best.id, call: true };
+    }
+    if (c === 'walk' && !mineBat && fresh && !g.bases[0] && (g.bases[1] || g.bases[2]) && batterOf(g)?.id === ctx.star) return { ibb: true };
+    if (c === 'swing' && mineBat && g.inning >= 8 && g.home.runs < g.away.runs) return { approach: 'sellout' };
+    if (c === 'steal' && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= 85) return { steal: 0 };
+  }
+  return null;
+}
+/** 상대 최고 장타자 — 조건 '거르기'의 대상 */
+export const starOf = (team) => [...(team?.batters || [])].sort((a, b) => stOf(b, 'power') - stOf(a, 'power'))[0]?.id || null;
 
 /** 투수를 내리는 체력 문턱 — 늦게는 바닥까지, 빠르게는 여유 있을 때 */
 export const hookAt = (fine = {}) => [0, 8, 20][levelOf(fine, 'hook') + 1];
@@ -52,6 +90,8 @@ export function tacticOrders(fine = {}, mineBat = true, rng = Math.random) {
     const guard = levelOf(fine, 'guard');
     if (guard) out.guard = guard;
     out.hookAt = hookAt(fine); // 내 투수를 언제 내릴지
+    if (fine.hookBf) out.hookBf = fine.hookBf; // 선발 두 바퀴 교체
+    if (fine.mixFam && rng() < MIX_SHARE) out.mixFam = fine.mixFam; // 볼 배합 — 그 계열 공을 더
   }
   return out;
 }

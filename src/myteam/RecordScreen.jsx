@@ -146,7 +146,7 @@ function TeamChips({ d }) {
         <SynIcon s={{ ...s, tiers: Array(s.tiers) }} w={22} />{s.name}<small className="font-display font-medium text-gray-400">{s.level}/{s.tiers}</small>
       </span>
     )),
-    d.sides ? SIDES.map((s) => {
+    d.sides ? SIDES.filter((s) => !s.hidden).map((s) => {
       const o = s.opts.find((x) => x.id === d.sides[s.key]);
       return o ? <span key={s.key} className={chip} style={ring(s.color)}><small className="font-medium text-gray-400">{s.ko}</small>{o.ko}</span> : null;
     }) : [],

@@ -15,8 +15,8 @@ const games = (n, fn) => {
   }
 };
 
-test('한 경기 결정 — 팽팽한 경기는 9~10번 · 넘지 않음 · 7회 이후 몫 · 기운 경기는 줄고 기운 뒤엔 안 묻는다', () => {
-  const counts = [], late = [], close = [], decidedAsk = [];
+test('한 경기 결정 — 팽팽한 경기는 CHOICES 가까이 · 넘지 않음 · 7회 이후 몫 · 기운 경기는 줄고 기운 뒤엔 안 묻는다', () => {
+  const counts = [], late = [], close = [], closeLate = [], decidedAsk = [];
   games(80, (g) => {
     const asked = [];
     let guard = 0;
@@ -26,16 +26,17 @@ test('한 경기 결정 — 팽팽한 경기는 9~10번 · 넘지 않음 · 7회
       pitch(g, ch ? { changePitcher: ch } : {});
     }
     counts.push(asked.length); late.push(asked.filter((a) => a.inning >= 7).length);
-    if (Math.abs(g.home.runs - g.away.runs) <= 2) close.push(asked.length);
+    if (Math.abs(g.home.runs - g.away.runs) <= 2) { close.push(asked.length); closeLate.push(asked.filter((a) => a.inning >= 7).length); }
   });
   const mean = counts.reduce((a, b) => a + b, 0) / counts.length;
   const closeMean = close.reduce((a, b) => a + b, 0) / close.length;
-  console.log('결정 수', { mean, closeMean, min: Math.min(...counts), max: Math.max(...counts), late: late.reduce((a, b) => a + b, 0) / late.length });
-  expect(closeMean).toBeGreaterThan(8.5);
+  console.log('결정 수', { mean, closeMean, closeLate: closeLate.reduce((a, b) => a + b, 0) / closeLate.length, min: Math.min(...counts), max: Math.max(...counts), late: late.reduce((a, b) => a + b, 0) / late.length });
+  expect(closeMean).toBeGreaterThan(CHOICES - 0.8);
   expect(mean).toBeLessThan(closeMean);
   expect(decidedAsk).toEqual([]);
   expect(Math.max(...counts)).toBeLessThanOrEqual(CHOICES);
-  expect(late.reduce((a, b) => a + b, 0) / late.length).toBeGreaterThanOrEqual(CHOICE_LATE - 1.5);
+  /* 팽팽한 경기는 7회 이후 몫을 거의 다 쓴다 */
+  expect(closeLate.reduce((a, b) => a + b, 0) / closeLate.length).toBeGreaterThanOrEqual(CHOICE_LATE - 0.5);
 });
 
 test('카드 — 정비 작전이 맨 앞 · 넷까지 · 숫자 · 대가', () => {

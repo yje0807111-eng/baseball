@@ -10,12 +10,13 @@ import { seeded } from '../engine/rng.js';
 import { winProb } from '../engine/winProb.js';
 import { penCostOf } from '../myteam/fatigue.js';
 
-export const CHOICES = 10; // 한 경기 결정 수(목표)
-export const CHOICE_LATE = 3; // 7회 이후 몫 — 6회까지는 CHOICES − CHOICE_LATE 번까지
+/* 결정은 진짜 승부처 몇 번만(ROADMAP 12, 2026-10-03) — 흐름은 정비 설계가 맡고, 경기 중엔 가장 무거운 순간에만 묻는다. 전엔 10번 */
+export const CHOICES = 4; // 한 경기 결정 수(목표)
+export const CHOICE_LATE = 2; // 7회 이후 몫 — 6회까지는 CHOICES − CHOICE_LATE 번까지
 export const CHOICE_MS = 15000; // 작전 고르기
 export const DETAIL_MS = 10000; // 구종 · 코스(펼침)
 export const DECIDED = 0.06; // 승률이 이 밖(6% 아래 · 94% 위)이면 기운 경기 — 묻지 않는다
-export const CHOICE_MARK = 0.09; // 승부처 무게 문턱(일정에 따라 0.5 ~ 1.6배, 두 반 이닝 넘게 뒤처지면 문턱 없이)
+export const CHOICE_MARK = 0.16; // 승부처 무게 문턱(일정보다 앞서면 1.6배 · 뒤처지면 0.6배 · 한 번 넘게 뒤처지면 0.35배)
 
 const st = (p, k, d = 70) => p?.stats?.[k] ?? d;
 const pct = (x) => `${Math.round(x * 100)}%`;
@@ -37,9 +38,7 @@ export function wantsChoice(g, asked = []) {
   if (wp < DECIDED || wp > 1 - DECIDED) return false;
   const half = (g.inning - 1) * 2 + (g.top ? 0 : 1);
   const ahead = asked.length - (CHOICES * half) / 18;
-  /* 크게 벌어진 경기는 무게가 낮아 멈출 자리가 없다 — 일정보다 2번 넘게 뒤처지면 문턱 없이(한 경기 10번 약속) */
-  if (ahead < -2) return true;
-  const mark = CHOICE_MARK * (ahead > 1 ? 1.6 : ahead < -1 ? 0.5 : 1) * (g.inning >= 9 ? 0.6 : 1);
+  const mark = CHOICE_MARK * (ahead > 0.5 ? 1.6 : ahead < -1 ? 0.35 : ahead < -0.5 ? 0.6 : 1) * (g.inning >= 9 ? 0.6 : 1);
   return leverage(g) >= mark;
 }
 
