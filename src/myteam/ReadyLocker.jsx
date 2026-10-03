@@ -33,6 +33,7 @@ function WinBar({ win, c }) {
 }
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
+import LineupField from './LineupField.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
 
@@ -513,6 +514,7 @@ export default function ReadyLocker({
   const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
   /* 정비 3단계 — 상황 대응(기본: 7회 이후 리드면 센 불펜) · 필승조 · 증강 시점 */
   const [step, setStep] = useState(1);
+  const [classic, setClassic] = useState(false); // 1단계 — 투수진 · 벤치를 고칠 땐 예전 판(SquadBoard)으로
   const [conds, setConds] = useState(team.plan?.conds || ['close']);
   const pens = useMemo(() => (engine ? engine.home.pitchers.slice(1) : []), [engine]);
   const arm = (p) => (p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75);
@@ -563,7 +565,9 @@ export default function ReadyLocker({
             <div className="ml-auto flex w-[19rem] flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>{pv ? <WinBar win={pv.win} c="#f87171" /> : <span className="h-9 animate-pulse rounded-lg bg-white/[0.04]" />}</div>
             <span className="flex items-baseline gap-2"><Sub>팀 종합</Sub><b className="font-display text-t1 font-extrabold leading-none" style={{ color: US }}>{teamInfo.ovr}</b></span>
           </div>
-          {step === 1 && <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />}
+          {step === 1 && (classic
+            ? <div className="flex min-h-0 flex-1 flex-col gap-2"><span><Btn sm onClick={() => setClassic(false)}>← 구장</Btn></span><SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} /></div>
+            : <LineupField team={team} squad={squad} bench={bench} onCommit={onCommit} starter={engine.home.pitchers[0]} onPitchers={() => setClassic(true)} footer={<SynergyRow synergies={synergies} />} />)}
           {step === 2 && (
             <div className="flex min-h-0 flex-col gap-5 overflow-y-auto pr-1">
               <div className="transition-opacity" style={{ opacity: busy ? 0.5 : 1 }}><MirrorLanes pv={pv} late={late} augInn={augInn} pens={pens} /></div>
@@ -574,7 +578,7 @@ export default function ReadyLocker({
             </div>
           )}
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
-          <span className="min-h-0 flex-1" />
+          {step !== 1 && <span className="min-h-0 flex-1" />}
           <PreviewBar pv={pv} busy={busy} foot={foot}
             items={[['증강', `${augInn}회`, '#a78bfa'], ['필승조', late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ')], ['상황 대응', conds.length]]}
             cards={cards && <CardBlock cards={cards} value={card} onPick={setCard} />} />
