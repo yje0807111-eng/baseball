@@ -80,13 +80,24 @@ export function lateOrders(g, late) {
  *  불펜: 선발이 내려간 뒤 회마다 정해 둔 투수로(그 회 첫 타석부터, 아직 안 던졌으면). 감독 호출 수엔 안 셈
  *  slots = [[아웃, 투수 id], ...] 가 있으면 회 대신 아웃 단위 — 지금 자리(아웃 = (회−1)×3 + 아웃 수)에 닿은 마지막 투수(8회 1아웃부터 마무리 등)
  */
+/*
+ * 공격 높이(정비 2단계 그래프) — 0 강공 · 1 보통 · 2 짧게 · 3 기다리기, 칸 사이 값은 타석마다 섞음(2.3 = 짧게 70% · 기다리기 30%)
+ *  어느 쪽인지는 타석 번호로 정함(황금비 수열 — 고르게 퍼지고 한 타석 안에선 바뀌지 않음, 경기 난수는 안 씀)
+ *  예전 계획(이름)도 그대로 읽음
+ */
+const ATK_LV = ['power', 'base', 'contact', 'patience'];
+export function atkAt(v, u) {
+  if (typeof v !== 'number') return v;
+  const lo = Math.floor(v + 1e-9), f = v - lo;
+  return ATK_LV[Math.min(3, f > 1e-6 && u < f ? lo + 1 : lo)];
+}
 const slotAt = (slots, g) => { const pos = (Math.min(9, g.inning) - 1) * 3 + (g.outs || 0); let id = null; for (const [from, pid] of slots) if (from <= pos) id = pid; return id; };
 const availOf = (side, id) => side.team.pitchers.slice(side.pitcherIdx + 1).some((p) => p.id === id);
 export function innOrders(g, inn) {
   if (!inn) return null;
   const out = {};
   if (!g.top && g.inning <= 9) {
-    const v = inn.atk?.[g.inning - 1];
+    const v = atkAt(inn.atk?.[g.inning - 1], ((g.home.idx || 0) * 0.6180339887 + g.inning * 0.137) % 1);
     if (v === 'power' || v === 'contact') out.approach = v;
     else if (v === 'patience') out.patience = 1;
   }

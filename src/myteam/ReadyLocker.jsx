@@ -34,7 +34,7 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
 import LineupField from './LineupField.jsx';
-import FlowBoard, { ATK_KO, limitKo, segsOf, exitOf, moundPlan } from './FlowBoard.jsx';
+import FlowBoard, { ATK_KO, ATK_LV, atkLvOf, limitKo, segsOf, exitOf, moundPlan } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
 
@@ -500,7 +500,7 @@ export default function ReadyLocker({
   });
   const [augInn] = useState(team.plan?.augInn || 7); // 증강 시점 — 판에서 뺌, 저장된 값 · 7회 그대로
   const saved = team.plan?.inn;
-  const [atk, setAtk] = useState(() => (saved?.atk?.length === 9 ? saved.atk : Array(9).fill('base')));
+  const [atk, setAtk] = useState(() => (saved?.atk?.length === 9 ? saved.atk.map(atkLvOf) : Array(9).fill(1))); // 높이 0~3(1 = 보통)
   const [limit, setLimit] = useState(() => saved?.limit || { mode: 'pitch', value: 95 });
   /* 마운드 — 계투 1명 + 마무리(가장 센 투수). 저장된 계획이 있으면 그대로 */
   const [rel, setRel] = useState(() => {
@@ -545,7 +545,7 @@ export default function ReadyLocker({
       ? <GoBtn step={step} label={`다음 · ${PREP_STEPS[step]} ▶`} onClick={() => setStep(step + 1)} />
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
-    const atkKo = segsOf(atk).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
+    const atkKo = segsOf(atk.map((v) => ATK_LV[Math.round(atkLvOf(v))])).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
     const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
     const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
     const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];

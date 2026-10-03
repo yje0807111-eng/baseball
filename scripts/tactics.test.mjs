@@ -146,6 +146,13 @@ describe('이닝별 계획', () => {
     g.home.pitches = 40; g.home.bf = 18;
     expect(innOrders(g, { limit: { mode: 'bf', value: 18 } })).toEqual({ changePitcher: true }); // 타자 수
   });
+  it('공격 높이 사이 값 — 타석마다 비율대로 섞음', async () => {
+    const { atkAt } = await import('../src/engine/tactics.js');
+    expect(atkAt(0, 0.9)).toBe('power');
+    expect(atkAt('contact', 0.5)).toBe('contact'); // 예전 이름
+    const n = Array.from({ length: 100 }, (_, i) => atkAt(2.3, (i * 0.6180339887) % 1)).filter((x) => x === 'patience').length;
+    expect(n).toBeGreaterThanOrEqual(28); expect(n).toBeLessThanOrEqual(32); // 기다리기 30%
+  });
   it('아웃 단위 교체 지점 — 8회 1아웃부터 마무리', async () => {
     const { innOrders } = await import('../src/engine/tactics.js');
     const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });

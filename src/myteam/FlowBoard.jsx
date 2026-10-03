@@ -10,7 +10,10 @@
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
  *  공격 그래프(목업 prep-attack2 1 + 4안): 높이 = 스윙 크기(위부터 강공 · 보통 · 짧게 · 기다리기), 회 가운데 점 하나 + 부드러운 선
- *   회 위를 끌며 지나가면 마우스 높이대로 회마다 점이 찍힘(건너뛴 회도 같은 높이로 채움), 끄는 동안 '6회 강공' 칩. 점에서 ↑ ↓ 로도 바꿈
+ *   값은 0~3 높이(0.1 단위) — 칸 사이는 두 성향을 타석마다 섞음(엔진 atkAt). 네 칸 가까이(±0.15)는 칸에 붙음 — 순수 값을 쉽게
+ *   회 위를 끌며 지나가면 마우스 높이대로 회마다 점이 찍힘(건너뛴 회도 같은 높이로 채움), 끄는 동안 '6회 강공 70 · 보통 30' 칩. 점에서 ↑ ↓ 로 0.1씩
+ *   아래 스타일 단추 — 누르면 아홉 회 값이 0.24초 동안 그 모양으로 미끄러져 바뀜(드문 동작 · 0.3초 안, 애니메이션 줄이기면 바로).
+ *    창이 가려져 프레임이 멈춰도 끝 값은 타이머로 맞춤. 지금 값이 그 스타일과 같으면 단추 초록
  *   뒤에 상대 마운드 흐름을 점선으로 겹침 — 위로 갈수록 상대가 약한 회(기회), 우리 선을 그 회에 올리는 그림
  *  증강 시점은 이 판에서 뺌(저장된 값 · 기본 7회 그대로)
  *  어림 이닝(손잡이 자리): 투구 수 ÷ 16.5 · 타자 수 ÷ 4.3(미리보기 평균 — 85구 ≈ 5.2회) · 이닝은 그대로
@@ -18,6 +21,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { Portrait } from './ui.jsx';
+import { reducedMotion } from '../ui/motion.jsx';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
@@ -34,6 +38,27 @@ const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
 const curveOf = (ys) => { let d = `M0,${ys[0]} L${gx(0)},${ys[0]}`; for (let i = 1; i < 9; i += 1) { const mx = (gx(i - 1) + gx(i)) / 2; d += ` C${mx},${ys[i - 1]} ${mx},${ys[i]} ${gx(i)},${ys[i]}`; } return `${d} L900,${ys[8]}`; };
 const dotC = (v) => (v === 'base' ? '#cbd5e1' : ATK_C[v]);
+/*
+ * 공격 스타일 — 높이 9개(0 강공 · 1 보통 · 2 짧게 · 3 기다리기)
+ *  상대 흐름 따라: 상대 마운드가 약한 회일수록 강공, 센 회일수록 짧게 · 기다리기 쪽(0 ~ 2.4) — 미리보기 값이 없으면 보통
+ */
+const r1 = (v) => Math.round(v * 10) / 10;
+export const ATK_STYLES = [
+  ['보통', () => Array(9).fill(1)],
+  ['상대 흐름 따라', (opp) => (opp ? opp.map((n) => r1(n * 2.4)) : Array(9).fill(1))],
+  ['초반 기다리기', () => [3, 3, 2.5, 1.5, 1, 1, 1, 1, 1]],
+  ['후반 몰아치기', () => [1, 1, 1, 1, 1, 0.7, 0.3, 0, 0]],
+  ['한 방', () => Array(9).fill(0)],
+  ['짧게 맞히기', () => Array(9).fill(2)],
+];
+/* 높이 값 — 예전 이름도 받음 */
+export const atkLvOf = (v) => (typeof v === 'number' ? v : Math.max(0, ATK_LV.indexOf(v)));
+const lvC = (lv) => dotC(ATK_LV[Math.round(lv)]);
+/* '강공' · '강공 70 · 보통 30' */
+export const atkKoOf = (v) => {
+  const lv = atkLvOf(v), lo = Math.floor(lv + 1e-9), f = Math.round((lv - lo) * 10) * 10;
+  return f ? `${ATK_KO[ATK_LV[lo]]} ${100 - f} · ${ATK_KO[ATK_LV[lo + 1]]} ${f}` : ATK_KO[ATK_LV[lo]];
+};
 export const LIMIT = {
   inn: { ko: '이닝', min: 1, max: 9, step: 1, unit: '회까지', per: 1 },
   pitch: { ko: '투구 수', min: 40, max: 120, step: 5, unit: '구', per: 16.5 },
@@ -124,13 +149,14 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
   /* ── 끌기: 레인 너비로 회를 잰다 ── */
   const innAt = (clientX) => { const r = laneRef.current?.getBoundingClientRect(); if (!r) return 0; return Math.max(0, Math.min(9, ((clientX - r.left) / r.width) * 9)); };
   const latest = useRef({});
-  /* 그리기 — 회는 가로 자리, 높이는 네 칸 중 가까운 칸. 지난 회 ~ 지금 회를 같은 높이로(빨리 끌어 건너뛴 회도) */
+  /* 그리기 — 회는 가로 자리, 높이는 0.1 단위(네 칸 가까이는 칸에 붙음). 지난 회 ~ 지금 회를 같은 높이로(빨리 끌어 건너뛴 회도) */
   const paintAt = (cx, cy, d) => {
     const r = graphRef.current?.getBoundingClientRect(); if (!r) return;
     const i = Math.max(0, Math.min(8, Math.floor(((cx - r.left) / r.width) * 9)));
-    const lv = Math.max(0, Math.min(3, Math.round((((cy - r.top) / r.height) * GH - GPAD) / ((GH - GPAD * 2) / 3))));
+    const raw = Math.max(0, Math.min(3, (((cy - r.top) / r.height) * GH - GPAD) / ((GH - GPAD * 2) / 3)));
+    const lv = Math.abs(raw - Math.round(raw)) < 0.15 ? Math.round(raw) : Math.round(raw * 10) / 10;
     const S = latest.current, base = d.cur || S.atk, next = [...base];
-    for (let k = Math.min(d.last ?? i, i); k <= Math.max(d.last ?? i, i); k += 1) next[k] = ATK_LV[lv];
+    for (let k = Math.min(d.last ?? i, i); k <= Math.max(d.last ?? i, i); k += 1) next[k] = lv;
     Object.assign(d, { last: i, i, lv, cur: next });
     if (next.some((v, k) => v !== base[k])) S.setAtk(next);
     setDrag({ ...d });
@@ -169,11 +195,28 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     setPick(at);
   };
   const canAdd = mp.mid.length < mp.cap && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id));
-  const nudge = (i, dir) => { const n = [...atk]; n[i] = ATK_LV[Math.max(0, Math.min(3, ATK_LV.indexOf(atk[i]) + dir))]; setAtk(n); };
+  const nudge = (i, dir) => { const n = [...atk]; n[i] = Math.max(0, Math.min(3, Math.round((atkLvOf(atk[i]) + dir * 0.1) * 10) / 10)); setAtk(n); };
   /* 상대 마운드 흐름 — 셀수록 아래(약한 회 = 위 = 기회) */
   const lo = known.length ? Math.min(...known) : 0, hi = known.length ? Math.max(...known) : 1;
   const oppYs = INN.map((i) => GPAD + (((mound[i - 1] ?? avg) - lo) / (hi - lo || 1)) * (GH - GPAD * 2));
-  const atkYs = atk.map((v) => gy(ATK_LV.indexOf(v)));
+  const atkYs = atk.map((v) => gy(atkLvOf(v)));
+  const oppNorm = known.length ? INN.map((i) => ((mound[i - 1] ?? avg) - lo) / (hi - lo || 1)) : null;
+  /* 스타일 적용 — 지금 값에서 목표 값으로 0.24초 미끄럼(ease-out) */
+  const tween = useRef({ raf: 0, timer: 0 });
+  useEffect(() => () => { cancelAnimationFrame(tween.current.raf); clearTimeout(tween.current.timer); }, []);
+  const applyStyle = (target) => {
+    cancelAnimationFrame(tween.current.raf); clearTimeout(tween.current.timer);
+    if (reducedMotion()) { setAtk(target); return; }
+    const from = atk.map(atkLvOf), t0 = performance.now(), D = 240;
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / D), e = 1 - (1 - k) ** 3;
+      setAtk(k < 1 ? from.map((v, i) => v + (target[i] - v) * e) : target);
+      if (k < 1) tween.current.raf = requestAnimationFrame(tick);
+    };
+    tween.current.raf = requestAnimationFrame(tick);
+    tween.current.timer = setTimeout(() => { cancelAnimationFrame(tween.current.raf); setAtk(target); }, D + 80);
+  };
+  const styleOn = (target) => target.every((v, i) => Math.abs(v - atkLvOf(atk[i])) < 0.05);
   const step = (dir) => setLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) });
   const setMode = (mode) => setLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) });
 
@@ -267,13 +310,31 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
               <path d={curveOf(atkYs)} fill="none" stroke="#e5e7eb" strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             </svg>
             {atk.map((v, i) => (
-              <button key={i} type="button" aria-label={`${i + 1}회 공격 ${ATK_KO[v]}`} onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); nudge(i, e.key === 'ArrowUp' ? -1 : 1); } }}
+              <button key={i} type="button" aria-label={`${i + 1}회 공격 ${atkKoOf(v)}`} onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); nudge(i, e.key === 'ArrowUp' ? -1 : 1); } }}
                 className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                style={{ left: pct(i + 0.5), top: gy(ATK_LV.indexOf(v)), background: dotC(v), boxShadow: '0 0 0 3px rgba(11,15,26,.9)' }} />
+                style={{ left: pct(i + 0.5), top: gy(atkLvOf(v)), background: lvC(atkLvOf(v)), boxShadow: '0 0 0 3px rgba(11,15,26,.9)' }} />
             ))}
             {drag?.kind === 'draw' && drag.i != null && (
-              <b className="pointer-events-none absolute z-20 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4" style={{ left: pct(drag.i + 0.5), top: gy(drag.lv) - 34, background: 'rgba(11,15,26,.88)', color: W1, boxShadow: `inset 0 0 0 1px ${dotC(ATK_LV[drag.lv])}` }}>{drag.i + 1}회 {ATK_KO[ATK_LV[drag.lv]]}</b>
+              <b className="pointer-events-none absolute z-20 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4" style={{ left: pct(drag.i + 0.5), top: gy(drag.lv) - 34, background: 'rgba(11,15,26,.88)', color: W1, boxShadow: `inset 0 0 0 1px ${lvC(drag.lv)}` }}>{drag.i + 1}회 {atkKoOf(drag.lv)}</b>
             )}
+          </span>
+        </div>
+        <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
+          <span />
+          <span className="flex flex-wrap gap-1.5">
+            {ATK_STYLES.map(([ko, make]) => {
+              const target = make(oppNorm), on = styleOn(target);
+              return (
+                <button key={ko} type="button" onClick={() => applyStyle(target)} aria-pressed={on}
+                  className="flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors hover:bg-white/[0.06]"
+                  style={{ background: on ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.09)'}` }}>
+                  <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="h-4 w-12 shrink-0" aria-hidden="true">
+                    <path d={curveOf(target.map(gy))} fill="none" stroke={on ? US : '#9ca3af'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                  </svg>
+                  <b className="whitespace-nowrap text-t4" style={{ color: on ? '#fff' : W2 }}>{ko}</b>
+                </button>
+              );
+            })}
           </span>
         </div>
       </div>
