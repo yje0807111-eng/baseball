@@ -32,15 +32,30 @@ const SPOT = {
 };
 const at = (k) => ({ left: `${SPOT[k][0]}%`, top: `${SPOT[k][1]}%` });
 const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
-const inRect = (r, x, y) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
 const Hand = ({ h }) => <b className="text-t4" style={{ color: h === 'L' ? GOLD : h === 'S' ? '#c4b5fd' : '#7dd3fc' }}>{h === 'L' ? '좌' : h === 'S' ? '양' : '우'}</b>;
 const Num = ({ v }) => <b className="font-display text-t3" style={{ color: v >= 90 ? GOLD : v >= 80 ? '#e5e7eb' : DIM }}>{v}</b>;
 const Pen = ({ n }) => (n ? <b className="whitespace-nowrap rounded-full px-2 text-t4" style={{ color: '#0b0f1a', background: RED }}>이탈 −{n}</b> : null);
 const Sub = ({ children, right }) => <div className="flex shrink-0 items-center justify-between"><span className="text-t3 font-bold text-gray-300">{children}</span>{right}</div>;
 
+/*
+ * 끌기 손맛(2026-10-03 다시) — 비교: Trello · Notion 줄 끌기(잡은 카드가 포인터에 붙고 나머지가 미끄러져 자리를 비움),
+ * FC 온라인 포메이션 편집(자리 가까이 가면 그 자리에 붙음). 시간은 Material 작은 구성 요소 이동 150~200ms 기준:
+ *  잡기    — 잡은 카드가 들림(줄 1.02 · 구장 1.06배 + 그림자), 포인터를 그대로 따라감(지연 없음)
+ *  타순    — 나머지 줄이 한 칸씩 미끄러져(160ms) 놓일 자리를 비워 둠, 번호도 미리 바뀜
+ *  구장    — 다른 선수 72px 안에 들어오면 그 자리로 끌려가 붙고(140ms) 그 선수는 내 원래 자리로 비켜 섬(180ms)
+ *  벤치    — 떠 있는 칩이 포인터를 따라가다 줄 · 구장 선수 위에 오면 그 가운데로 붙음(140ms)
+ *  놓기    — 붙은 자리에 그대로 안착(튀지 않게 그 한 그림만 전환 끔), 빈 데 놓으면 원래 자리로 돌아감(200ms)
+ *  '애니메이션 줄이기'면 시간을 모두 0
+ */
+const RM = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const T = (ms) => (RM ? 0 : ms);
+const SHIFT_MS = T(160), SNAP_MS = T(140), SETTLE_MS = T(200), MAGNET = 72;
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
+
 export default function LineupField({ team, squad, bench, onCommit, starter = null, onPitchers = null, footer = null }) {
   const [sel, setSel] = useState(null);
-  const [drag, setDrag] = useState(null); // { kind: 'field' | 'row' | 'bench', id, dx, dy, x, y, target, to }
+  const [drag, setDrag] = useState(null); // field: { ox, oy, snap, target } · row: { from, to, off, pitch } · bench: { x, y, snap, target }
+  const [settle, setSettle] = useState(null); // 놓은 직후 한 그림: { kind, id, ox, oy, go }
   const dragRef = useRef(null);
   const rootRef = useRef(null);
   const order = squadOrder(squad, bench, team.order);
@@ -70,44 +85,74 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
     if (sel && sel !== id) { save(swapSlots(order.lineup, sel, id)); setSel(null); } else setSel(sel === id ? null : id);
   };
 
-  /* 끄는 동안 보여 줄 모습 — 구장은 대상과 자리를 바꾼 모습, 타순은 끼워 넣은 순서 */
-  const shownLineup = drag?.kind === 'row' && drag.to != null ? move(order.lineup, drag.from, drag.to)
-    : drag?.kind === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : order.lineup;
-  const rows = shownLineup.map((x, i) => ({ ...x, p: byId.get(x.id), n: i + 1 })).filter((x) => x.p);
-  const fieldRows = (drag?.kind === 'field' ? order.lineup : shownLineup).map((x) => ({ ...x, p: byId.get(x.id), n: order.lineup.findIndex((y) => y.id === x.id) + 1 })).filter((x) => x.p);
+  const rows = order.lineup.map((x, i) => ({ ...x, p: byId.get(x.id), n: i + 1 })).filter((x) => x.p);
+  /* 구장 미리보기 — 붙은 대상은 내 원래 자리로 비켜 선다 */
+  const fieldLineup = drag?.kind === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : order.lineup;
+  const slotOf = new Map(fieldLineup.map((x) => [x.id, x.slot]));
 
-  /* ── 끌기: 누른 곳 기록 → 5px 넘게 움직이면 끌기 시작, 놓으면 저장. 칸 위치는 누른 순간에 잰다 ── */
+  /* 놓은 직후 — 한 그림은 전환 없이 그 자리에 두고, 다음 그림에 원래 자리로 미끄러진다(또는 그대로 끝) */
+  useEffect(() => {
+    if (!settle || settle.go) return undefined;
+    let id2;
+    const id1 = requestAnimationFrame(() => { id2 = requestAnimationFrame(() => setSettle((s) => (s ? { ...s, go: true } : s))); });
+    const done = setTimeout(() => setSettle(null), SETTLE_MS + 60);
+    return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); clearTimeout(done); };
+  }, [settle]);
+
+  /* ── 끌기: 누른 곳 기록 → 5px 넘게 움직이면 시작. 칸 위치는 시작할 때(바꾸기 줄을 닫은 뒤) 잰다 ── */
   const latest = useRef({});
   latest.current = { order, save, swapSlots, benchSwap, setSel, sel, pickField };
+  const measure = (d) => {
+    const root = rootRef.current;
+    if (!root) return;
+    const box = (el) => { const r = el.getBoundingClientRect(); return { id: el.dataset.id, r, cx: r.left + r.width / 2, cy: r.top + r.height / 2 }; };
+    d.field = [...root.querySelectorAll('[data-drop="field"]')].map(box);
+    d.rows = [...root.querySelectorAll('[data-drop="row"]')].map(box);
+    d.pitch = d.rows.length > 1 ? d.rows[1].r.top - d.rows[0].r.top : 52;
+    const me = (d.kind === 'row' ? d.rows : d.field).find((c) => c.id === d.id);
+    if (me) d.fix = (d.kind === 'row' ? me.r.top - d.top0 : 0); // 바꾸기 줄이 닫혀 내 줄이 올라간 만큼
+    d.me = me;
+  };
   const start = (e, kind, id) => {
     if (e.button !== 0) return;
-    const root = rootRef.current;
-    const rectsOf = (sel) => [...root.querySelectorAll(sel)].map((el) => ({ id: el.dataset.id, r: el.getBoundingClientRect() }));
-    dragRef.current = { kind, id, x0: e.clientX, y0: e.clientY, moved: false,
-      field: rectsOf('[data-drop="field"]'), rows: rectsOf('[data-drop="row"]'),
+    const el = e.currentTarget;
+    dragRef.current = { kind, id, x0: e.clientX, y0: e.clientY, moved: false, wasSel: sel, top0: el.getBoundingClientRect().top,
       from: kind === 'row' ? order.lineup.findIndex((x) => x.id === id) : null };
   };
   useEffect(() => {
     const onMove = (e) => {
       const d = dragRef.current;
       if (!d) return;
-      if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5) return;
-      d.moved = true;
+      if (!d.moved) {
+        if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 5) return;
+        d.moved = true;
+        if (latest.current.sel) latest.current.setSel(null); // 바꾸기 줄 닫기 — 닫힌 모습에서 잰다
+        d.ready = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => { if (dragRef.current === d) { measure(d); d.ready = true; } }));
+      }
       const dx = e.clientX - d.x0, dy = e.clientY - d.y0;
+      if (!d.ready) { // 재기 전 두 그림(약 30ms) — 칸은 움직이지 않은 채로 재야 해서 들기만 한다(벤치 칩만 포인터를 따라감)
+        if (d.kind === 'bench') setDrag({ kind: 'bench', id: d.id, x: e.clientX, y: e.clientY });
+        else setDrag({ kind: d.kind, id: d.id, ox: 0, oy: 0, off: 0, from: d.from, to: d.from, pitch: 52 });
+        return;
+      }
       if (d.kind === 'field') {
-        const hit = d.field.find((c) => c.id !== d.id && inRect(c.r, e.clientX, e.clientY));
+        const px = d.me.cx + dx, py = d.me.cy + dy;
+        let hit = null, best = MAGNET;
+        d.field.forEach((c) => { if (c.id === d.id) return; const g = Math.hypot(px - c.cx, py - c.cy); if (g < best) { best = g; hit = c; } });
         d.target = hit?.id || null;
-        setDrag({ kind: 'field', id: d.id, dx, dy, target: d.target });
+        setDrag(hit ? { kind: 'field', id: d.id, ox: hit.cx - d.me.cx, oy: hit.cy - d.me.cy, snap: true, target: hit.id }
+          : { kind: 'field', id: d.id, ox: dx, oy: dy, snap: false, target: null });
       } else if (d.kind === 'row') {
-        // 포인터에 가장 가까운 줄 가운데가 새 자리
-        let to = d.from, best = Infinity;
-        d.rows.forEach((c, i) => { const g = Math.abs(e.clientY - (c.r.top + c.r.bottom) / 2); if (g < best) { best = g; to = i; } });
-        d.to = to;
-        setDrag({ kind: 'row', id: d.id, from: d.from, to, dy });
+        const off = dy - (d.fix || 0);
+        const to = Math.max(0, Math.min(d.rows.length - 1, d.from + Math.round(off / d.pitch)));
+        d.to = to; d.off = off;
+        setDrag({ kind: 'row', id: d.id, from: d.from, to, off, pitch: d.pitch });
       } else {
-        const hit = [...d.rows, ...d.field].find((c) => inRect(c.r, e.clientX, e.clientY));
+        const pad = 10;
+        const hit = [...d.rows, ...d.field].find((c) => e.clientX >= c.r.left - pad && e.clientX <= c.r.right + pad && e.clientY >= c.r.top - pad && e.clientY <= c.r.bottom + pad);
         d.target = hit?.id || null;
-        setDrag({ kind: 'bench', id: d.id, x: e.clientX, y: e.clientY, target: d.target });
+        setDrag(hit ? { kind: 'bench', id: d.id, x: hit.cx, y: hit.cy, snap: true, target: hit.id } : { kind: 'bench', id: d.id, x: e.clientX, y: e.clientY, snap: false, target: null });
       }
     };
     const onUp = () => {
@@ -118,23 +163,53 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
       setDrag(null);
       if (!d.moved) { // 누르기
         if (d.kind === 'field') L.pickField(d.id);
-        else if (d.kind === 'row') L.setSel(L.sel === d.id ? null : d.id);
+        else if (d.kind === 'row') L.setSel(d.wasSel === d.id ? null : d.id);
         return;
       }
-      if (d.kind === 'field' && d.target) L.save(L.swapSlots(L.order.lineup, d.id, d.target));
-      else if (d.kind === 'row' && d.to != null && d.to !== d.from) L.save(move(L.order.lineup, d.from, d.to));
-      else if (d.kind === 'bench' && d.target) L.benchSwap(d.id, d.target);
+      if (!d.ready) return;
+      if (d.kind === 'field') {
+        if (d.target) { L.save(L.swapSlots(L.order.lineup, d.id, d.target)); setSettle({ kind: 'field', id: d.id, ox: 0, oy: 0, freeze: [d.id, d.target] }); }
+        else setSettle({ kind: 'field', id: d.id, ox: d.lastX ?? 0, oy: d.lastY ?? 0 });
+      } else if (d.kind === 'row') {
+        const to = d.to ?? d.from;
+        if (to !== d.from) L.save(move(L.order.lineup, d.from, to));
+        setSettle({ kind: 'row', id: d.id, ox: 0, oy: (d.off ?? 0) - (to - d.from) * d.pitch, freezeAll: true });
+      } else if (d.kind === 'bench' && d.target) L.benchSwap(d.id, d.target);
     };
+    const track = (e) => { const d = dragRef.current; if (d?.kind === 'field' && d.moved) { d.lastX = e.clientX - d.x0; d.lastY = e.clientY - d.y0; } };
     const onKey = (e) => { if (e.key === 'Escape' && dragRef.current) { dragRef.current = null; setDrag(null); } };
     window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointermove', track);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('keydown', onKey);
-    return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('keydown', onKey); };
+    return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointermove', track); window.removeEventListener('pointerup', onUp); window.removeEventListener('keydown', onKey); };
   }, []);
   const benchGhost = drag?.kind === 'bench' ? byId.get(drag.id) : null;
   const dropOn = (id) => drag && drag.target === id;
   /* 키보드(누르기만) — 끌기는 포인터로, Enter · Space 는 누르기와 같게 */
   const keyPick = (fn) => (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } };
+
+  /* 타순 줄 한 칸의 모습 — 들린 줄은 포인터에, 사이 줄은 한 칸씩 미끄러짐. 번호도 놓일 순서로 */
+  const rowLook = (i, id) => {
+    if (drag?.kind === 'row') {
+      const { from, to, off, pitch } = drag;
+      if (id === drag.id) return { y: off, lift: true, n: to + 1, tr: 'none' };
+      const shift = from < to && i > from && i <= to ? -pitch : from > to && i >= to && i < from ? pitch : 0;
+      return { y: shift, n: i + 1 + (shift < 0 ? -1 : shift > 0 ? 1 : 0), tr: `transform ${SHIFT_MS}ms ${EASE}` };
+    }
+    if (settle?.kind === 'row') {
+      if (id === settle.id) return { y: settle.go ? 0 : settle.oy, n: i + 1, tr: settle.go ? `transform ${SETTLE_MS}ms ${EASE}` : 'none', lift: !settle.go };
+      return { y: 0, n: i + 1, tr: 'none' };
+    }
+    return { y: 0, n: i + 1, tr: `transform ${SHIFT_MS}ms ${EASE}` };
+  };
+  /* 구장 선수 한 명의 모습 */
+  const fieldLook = (id) => {
+    if (drag?.kind === 'field' && drag.id === id) return { tf: `translate(calc(-50% + ${drag.ox}px), calc(-50% + ${drag.oy}px)) scale(1.06)`, tr: drag.snap ? `transform ${SNAP_MS}ms ${EASE}` : 'none', z: 30, lift: true };
+    if (settle?.kind === 'field' && settle.id === id) return { tf: settle.go ? 'translate(-50%,-50%)' : `translate(calc(-50% + ${settle.ox}px), calc(-50% + ${settle.oy}px))`, tr: settle.go ? `transform ${SETTLE_MS}ms ${EASE}` : 'none', z: 30 };
+    const frozen = settle?.freeze?.includes(id);
+    return { tf: 'translate(-50%,-50%)', tr: frozen ? 'none' : `left 180ms ${EASE}, top 180ms ${EASE}`, z: 1 };
+  };
 
   return (
     <div ref={rootRef} className="flex min-h-0 flex-1 select-none flex-col gap-3">
@@ -153,20 +228,26 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
                   <b className="whitespace-nowrap rounded-md px-1.5 text-t4 text-white" style={{ background: 'rgba(96,165,250,.3)' }}>{starter.name}</b>
                 </span>
               )}
-              {fieldRows.map((x) => {
-                const lifted = drag?.kind === 'field' && drag.id === x.id;
-                const slot = drag?.kind === 'field' && drag.target && !lifted ? (x.id === drag.target ? order.lineup.find((y) => y.id === drag.id)?.slot : x.slot) : x.slot;
-                const on = sel === x.id || dropOn(x.id), pen = penaltyAt(x.p, slot), c = pen ? RED : posC(slot);
+              {/* 끄는 중 — 붙을 자리(대상 선수 자리)에 빛 고리 */}
+              {drag?.kind === 'field' && drag.target && (
+                <i className="pointer-events-none absolute h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full" style={{ ...at(order.lineup.find((y) => y.id === drag.target)?.slot), boxShadow: `0 0 0 2px ${US}, 0 0 28px ${US}88`, background: `${US}14` }} />
+              )}
+              {rows.map((x) => {
+                const dragged = drag?.kind === 'field' && drag.id === x.id;
+                const posSlot = dragged ? x.slot : slotOf.get(x.id) || x.slot; // 끄는 선수는 원래 자리 기준으로 옮겨 그린다
+                const slot = dragged && drag.target ? order.lineup.find((y) => y.id === drag.target)?.slot || x.slot : posSlot; // 붙으면 그 자리 이름 · 이탈 감점을 미리
+                const look = fieldLook(x.id);
+                const on = sel === x.id || dropOn(x.id) || look.lift, pen = penaltyAt(x.p, slot), c = pen ? RED : posC(slot);
                 return (
                   <div key={x.id} role="button" tabIndex={0} data-drop="field" data-id={x.id} aria-pressed={sel === x.id}
                     onPointerDown={(e) => start(e, 'field', x.id)} onKeyDown={keyPick(() => pickField(x.id))}
-                    className="absolute flex -translate-x-1/2 -translate-y-1/2 cursor-grab flex-col items-center gap-1 outline-none"
-                    style={{ width: 132, ...at(slot), zIndex: lifted ? 30 : 1, transform: lifted ? `translate(calc(-50% + ${drag.dx}px), calc(-50% + ${drag.dy}px)) scale(1.06)` : undefined, transition: lifted ? 'none' : 'left .18s var(--fx-out, ease-out), top .18s var(--fx-out, ease-out)' }}>
+                    className={`absolute flex flex-col items-center gap-1 outline-none ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
+                    style={{ width: 132, ...at(posSlot), zIndex: look.z, transform: look.tf, transition: look.tr }}>
                     <span className="relative flex shrink-0" style={{ filter: on ? `drop-shadow(0 0 10px ${US})` : undefined }}>
                       <Portrait player={x.p} w={38} h={48} color={on ? US : c} />
                       <b className="absolute -left-2 -top-2 grid h-6 w-6 place-items-center rounded-full font-display text-t4" style={{ background: on ? US : '#0b0f1a', color: on ? '#0b0f1a' : GOLD, boxShadow: `inset 0 0 0 1.5px ${on ? US : GOLD}` }}>{x.n}</b>
                     </span>
-                    <span className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: on ? 'rgba(6,40,30,.8)' : 'rgba(11,15,26,.72)', boxShadow: `inset 0 0 0 1px ${on ? US : `${c}66`}`, backdropFilter: 'blur(6px)' }}>
+                    <span className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: on ? 'rgba(6,40,30,.8)' : 'rgba(11,15,26,.72)', boxShadow: `inset 0 0 0 1px ${on ? US : `${c}66`}${look.lift ? ', 0 10px 26px rgba(0,0,0,.55)' : ''}`, backdropFilter: 'blur(6px)' }}>
                       <b className="whitespace-nowrap text-t4 text-white">{x.p.name}</b>
                       <span className="text-[11px]" style={{ color: c }}>{POS_KO[slot]}</span>
                       {slot !== 'DH' && <b className="font-display text-t4" style={{ color: st(x.p, 'defense') >= 85 ? '#fff' : DIM }}>{st(x.p, 'defense')}</b>}
@@ -179,16 +260,18 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
           </div>
         </div>
         {/* 타순 — 공격 */}
-        <div className="flex min-h-0 flex-col gap-1 overflow-y-auto pr-1">
+        <div className="flex min-h-0 flex-col gap-1 overflow-y-auto overflow-x-hidden px-1">
           <Sub right={<span className="flex gap-1.5">{onPitchers && <Btn sm onClick={onPitchers}>투수진 · 벤치</Btn>}<Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn></span>}>타순</Sub>
-          {rows.map((x) => {
-            const on = sel === x.id || dropOn(x.id), lifted = drag?.kind === 'row' && drag.id === x.id, pen = penaltyAt(x.p, x.slot);
+          {rows.map((x, i) => {
+            const look = rowLook(i, x.id), on = sel === x.id || dropOn(x.id) || look.lift, pen = penaltyAt(x.p, x.slot);
             return (
               <React.Fragment key={x.id}>
                 <div role="button" tabIndex={0} data-drop="row" data-id={x.id} aria-pressed={sel === x.id}
                   onPointerDown={(e) => start(e, 'row', x.id)} onKeyDown={keyPick(() => setSel(sel === x.id ? null : x.id))}
-                  className="mt-cut grid shrink-0 cursor-grab items-center gap-3 px-3 py-[7px] outline-none" style={{ ...cut(8), gridTemplateColumns: '1.6rem 2.2rem minmax(0,1fr) auto 10rem', background: on || lifted ? 'rgba(16,185,129,.14)' : 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on || lifted ? US : pen ? `${RED}66` : 'rgba(255,255,255,.06)'}${lifted ? ', 0 8px 24px rgba(0,0,0,.45)' : ''}`, position: 'relative', zIndex: lifted ? 5 : undefined }}>
-                  <b className="font-display text-t2" style={{ color: on ? US : GOLD }}>{x.n}</b>
+                  className={`mt-cut grid shrink-0 items-center gap-3 px-3 py-[7px] outline-none ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
+                  style={{ ...cut(8), gridTemplateColumns: '1.6rem 2.2rem minmax(0,1fr) auto 10rem', background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on ? US : pen ? `${RED}66` : 'rgba(255,255,255,.06)'}${look.lift ? ', 0 12px 28px rgba(0,0,0,.55)' : ''}`,
+                    position: 'relative', zIndex: look.lift ? 20 : undefined, transform: `translateY(${look.y}px)${look.lift ? ' scale(1.02)' : ''}`, transition: look.tr }}>
+                  <b className="font-display text-t2" style={{ color: on ? US : GOLD }}>{look.n}</b>
                   <Portrait player={x.p} w={30} h={38} color={posC(x.slot)} />
                   <span className="flex min-w-0 items-center gap-2"><b className="truncate text-t3 text-white">{x.p.name}</b><Hand h={x.p.hand} /><span className="text-t4" style={{ color: posC(x.slot) }}>{POS_KO[x.slot]}</span></span>
                   <Pen n={pen} />
@@ -229,9 +312,10 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
         <span className="flex-1" />
         {footer}
       </div>
-      {/* 벤치에서 끄는 칩 — 포인터를 따라간다 */}
+      {/* 벤치에서 끄는 칩 — 포인터를 따라가다 놓을 칸 위에선 그 가운데로 붙는다 */}
       {benchGhost && (
-        <span className="pointer-events-none fixed z-50 flex items-center gap-2 rounded-lg px-2.5 py-1.5" style={{ left: drag.x + 8, top: drag.y + 8, background: 'rgba(6,40,30,.9)', boxShadow: `inset 0 0 0 1.5px ${US}, 0 10px 28px rgba(0,0,0,.5)` }}>
+        <span className="pointer-events-none fixed z-50 flex items-center gap-2 rounded-lg px-2.5 py-1.5"
+          style={{ left: 0, top: 0, transform: `translate(${drag.x}px, ${drag.y}px) translate(-50%, -50%) scale(1.04)`, transition: drag.snap ? `transform ${SNAP_MS}ms ${EASE}` : 'none', background: 'rgba(6,40,30,.92)', boxShadow: `inset 0 0 0 1.5px ${US}, 0 12px 30px rgba(0,0,0,.55)` }}>
           <Portrait player={benchGhost} w={24} h={30} color={US} /><b className="text-t4 text-white">{benchGhost.name}</b>
         </span>
       )}
