@@ -446,23 +446,24 @@ function SitBlock({ conds, setConds, an }) {
     </div>
   );
 }
-/* 미리보기 기둥 — 늘 보인다: 예상 승률 · 흐름 한 줄 · 준비 카드 · 다음 */
-function PreviewCol({ pv, busy, children, foot }) {
+/*
+ * 미리보기 띠 — 가운데 · 오른쪽을 한 판으로 합쳐(2026-10-03) 판 아래 한 줄에: 선발 이닝 · 고른 설계 · 준비 카드 · 다음.
+ * 예상 승률은 판 머리(단계 줄 오른쪽)에. 600판이 다 쌓이기 전엔 흐리게(busy)
+ */
+function PreviewBar({ pv, busy, items, cards, foot }) {
+  const Item = ({ k, v, c = '#fff' }) => <span className="flex shrink-0 flex-col gap-0.5"><span className="text-t4 text-gray-400">{k}</span><b className="max-w-[15rem] truncate text-t3" style={{ color: c }}>{v}</b></span>;
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-5 p-5" style={{ ...cut(20), '--a': '#38bdf8' }}>
-      <p className="mt-lab" style={{ '--a': '#38bdf8' }}>미리보기</p>
-      <div className="flex flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
-        {pv ? <WinBar win={pv.win} c="#f87171" /> : <span className="h-10 animate-pulse rounded-lg bg-white/[0.04]" />}
+    <div className="flex shrink-0 items-center gap-6 border-t border-white/[0.08] pt-4">
+      <div className="flex items-center gap-6 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
+        <Item k="우리 선발" v={pv ? `${pv.exitInn.toFixed(1)}회까지` : '-'} />
+        <Item k="상대 선발" v={pv ? `${pv.oppExit.toFixed(1)}회까지` : '-'} />
       </div>
-      {pv && (
-        <div className="flex flex-col gap-1.5 text-t3 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
-          <span className="flex justify-between"><span className="text-gray-400">우리 선발</span><b className="text-white">{pv.exitInn.toFixed(1)}회까지</b></span>
-          <span className="flex justify-between"><span className="text-gray-400">상대 선발</span><b className="text-white">{pv.oppExit.toFixed(1)}회까지</b></span>
-        </div>
-      )}
-      {children}
-      <div className="mt-auto flex shrink-0 flex-col gap-2">{foot}</div>
-    </aside>
+      <i className="block h-8 w-px shrink-0 bg-white/10" />
+      {items.map(([k, v, c]) => <Item key={k} k={k} v={v} c={c} />)}
+      <span className="min-w-0 flex-1" />
+      {cards && <div className="w-[24rem] shrink-0">{cards}</div>}
+      <div className="w-[20rem] shrink-0">{foot}</div>
+    </div>
   );
 }
 
@@ -553,11 +554,15 @@ export default function ReadyLocker({
       : startBlock && onFix ? <Btn lg pri data-sfx="nav" a="#f87171" style={cut(12)} onClick={onFix}>라커에서 정리 ▶</Btn>
         : <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={() => onStart(plan(), card)}>{startLabel}</Btn>;
     return (
-      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
+      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
         <OppPanel opponent={opponent} engine={engine} step={step} pv={pv} busy={busy} />
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(20), '--a': US }}>
-          <div className="flex shrink-0 items-center gap-4"><Stepper step={step} onStep={setStep} /><span className="ml-auto flex items-baseline gap-2"><Sub>팀 종합</Sub><b className="font-display text-t1 font-extrabold leading-none" style={{ color: US }}>{teamInfo.ovr}</b></span></div>
+          <div className="flex shrink-0 items-center gap-6">
+            <Stepper step={step} onStep={setStep} />
+            <div className="ml-auto flex w-[19rem] flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>{pv ? <WinBar win={pv.win} c="#f87171" /> : <span className="h-9 animate-pulse rounded-lg bg-white/[0.04]" />}</div>
+            <span className="flex items-baseline gap-2"><Sub>팀 종합</Sub><b className="font-display text-t1 font-extrabold leading-none" style={{ color: US }}>{teamInfo.ovr}</b></span>
+          </div>
           {step === 1 && <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />}
           {step === 2 && (
             <div className="flex min-h-0 flex-col gap-5 overflow-y-auto pr-1">
@@ -569,16 +574,11 @@ export default function ReadyLocker({
             </div>
           )}
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
+          <span className="min-h-0 flex-1" />
+          <PreviewBar pv={pv} busy={busy} foot={foot}
+            items={[['증강', `${augInn}회`, '#a78bfa'], ['필승조', late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ')], ['상황 대응', conds.length]]}
+            cards={cards && <CardBlock cards={cards} value={card} onPick={setCard} />} />
         </section>
-        <PreviewCol pv={pv} busy={busy} foot={foot}>
-          <div className="flex flex-col gap-1.5 text-t3">
-            <span className="flex justify-between"><span className="text-gray-400">증강</span><b style={{ color: '#a78bfa' }}>{augInn}회</b></span>
-            <span className="flex justify-between gap-3"><span className="shrink-0 text-gray-400">필승조</span><b className="truncate text-white">{late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ')}</b></span>
-            <span className="flex justify-between"><span className="text-gray-400">상황 대응</span><b className="text-white">{conds.length}</b></span>
-          </div>
-          <Rule />
-          {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
-        </PreviewCol>
       </div>
     );
   }
