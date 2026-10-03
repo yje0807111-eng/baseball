@@ -102,8 +102,10 @@ const SpCard = () => (
  *  6 바꾸기 열림  — 고른 타자 아래 바꿀 후보(같은 자리 벤치 · 다른 타자) 줄이 열림
  *  7 좌우 바꿈    — 타순 왼쪽 · 구장 오른쪽(읽는 순서 = 타순 먼저)
  *  8 구장 꾸밈    — 잔디 · 흙 · 베이스 · 마운드를 그린 구장 + 유리 이름표
+ *  9 2 + 4 + 6    — 짝 강조 + 마운드 선발 + 바꾸기 줄(고른 안), ?fancy=1 이면 구장 그림
  */
 const SEL = LINE[2];
+const FANCY = new URLSearchParams(location.search).has('fancy');
 const Bar = ({ v, c }) => <span className="relative block h-1.5 w-14 rounded-full bg-white/[0.08]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${Math.max(6, Math.min(100, ((v - 55) / 55) * 100))}%`, background: c }} /></span>;
 function Diamond({ plate = 'face', sel = null, mound = false, fancy = false }) {
   return (
@@ -244,6 +246,31 @@ const CENTER = {
       <Foot />
     </div>
   )],
+  9: ['2 + 4 + 6', () => {
+    const cands = [...BENCH, ...LINE.filter((x) => x !== SEL).slice(0, 3).map((x) => x.b)];
+    return (
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div className="grid min-h-0 flex-1 gap-6" style={{ gridTemplateColumns: '1fr 1.05fr' }}>
+          <div className="flex min-h-0 flex-col gap-2"><Head2 l="수비 · 오늘 선발" /><div className="min-h-0 flex-1"><Diamond sel={SEL} mound fancy={FANCY} /></div></div>
+          <div className="flex min-h-0 flex-col gap-1">
+            <Head2 l="타순" r={<Btn t="자동 배치" />} />
+            {LINE.map((x) => (
+              <React.Fragment key={x.b.id}>
+                <Row x={x} sel={x === SEL} />
+                {x === SEL && (
+                  <div className="mx-3 flex flex-wrap items-center gap-1.5 rounded-b-lg px-3 py-2" style={{ background: 'rgba(16,185,129,.06)', boxShadow: `inset 0 0 0 1px ${US}44` }}>
+                    <span className="mr-1 text-t4 text-gray-400">바꾸기</span>
+                    {cands.map((p) => <span key={p.id} className="flex items-center gap-1.5 rounded-md bg-white/[0.05] px-2 py-1"><Portrait player={p} w={18} h={22} color={US} /><b className="text-t4 text-white">{p.name}</b><span className="text-[11px] text-gray-500">{BENCH.includes(p) ? '벤치' : `${LINE.find((y) => y.b === p)?.order}번`}</span></span>)}
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-4"><Sub>벤치</Sub><Bench /></div>
+      </div>
+    );
+  }],
   8: ['구장 꾸밈', () => (
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="grid min-h-0 flex-1 gap-6" style={{ gridTemplateColumns: '1fr 1.05fr' }}>
