@@ -5,7 +5,7 @@
  *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 노란 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
  *  마운드 한 줄: 선발(손잡이까지) → 계투(+ 로 늘림, 기본 1명) → 마무리(9회). 칸을 누르면 아래에 불펜 줄이 열려 고름
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
- *   계투 사이 경계는 끌어서 회 단위로 옮김(rel.ends). 마무리는 9회 고정
+ *   투수 사이마다 경계 손잡이 — 계투끼리 · 계투와 마무리 사이를 회 단위로 옮김(rel.ends, 마지막 값 = 마무리 앞 회). 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 마운드 · 공격 두 줄이 같은 손잡이)
  *  공격: 회마다 칸 — 누르면 보통 → 강공 → 짧게 → 기다리기 돌림, 구간 사이 손잡이를 끌면 구간이 늘고 줄음
@@ -49,11 +49,11 @@ export function moundPlan(rel, exit) {
   let at = F, even = F - 1;
   mid.forEach((id, k) => {
     even += Math.floor(room / mid.length) + (k < room % mid.length ? 1 : 0);
-    const end = k === mid.length - 1 ? 8 : Math.max(k ? at : minFirst, Math.min(8 - (mid.length - 1 - k), rel.ends?.[k] ?? even));
+    const end = Math.max(k ? at : minFirst, Math.min(8 - (mid.length - 1 - k), rel.ends?.[k] ?? even));
     for (let i = at; i <= end; i += 1) pens[i] = id;
     spans.push({ slot: k, id, a: at, b: end }); at = end + 1;
   });
-  if (rel.close) { pens[9] = rel.close; spans.push({ slot: 'close', id: rel.close, a: 9, b: 9 }); }
+  if (rel.close) { for (let i = at; i <= 9; i += 1) pens[i] = rel.close; spans.push({ slot: 'close', id: rel.close, a: at, b: 9 }); }
   const first = spans[0]?.id;
   if (first) for (let i = 1; i < F; i += 1) pens[i] = first;
   return { F, room, cap: 9 - minFirst, minFirst, mid, spans, pens };
@@ -192,8 +192,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
               </button>
             );
           })}
-          {mp.spans.slice(0, -1).map((x, k) => typeof mp.spans[k + 1].slot === 'number' && (
-            <Grip key={`g${k}`} x={pct(x.b)} on={drag?.kind === 'mid' && drag.k === k} label={`계투 ${k + 1} · ${k + 2} 경계`}
+          {mp.spans.slice(0, -1).map((x, k) => (
+            <Grip key={`g${k}`} x={pct(x.b)} on={drag?.kind === 'mid' && drag.k === k} label={mp.spans[k + 1].slot === 'close' ? '계투 · 마무리 경계' : `계투 ${k + 1} · ${k + 2} 경계`}
               onPointerDown={(e) => start(e, { kind: 'mid', k, min: k ? x.a : mp.minFirst, max: mp.spans[k + 1].b - 1 })} />
           ))}
           <span className="absolute z-10 flex -translate-x-1/2 flex-col items-center" style={{ left: pct(exit), top: -8, bottom: -8, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>

@@ -12,6 +12,7 @@ describe('정비 2단계 이닝 판', () => {
     // 끈 경계 — a 6회만 · b 7~8회, 너무 멀리 끌면 뒤 계투 한 회는 남김, 선발이 늘면 앞 계투 쪽으로 눌러 담음
     expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6] }, 5.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a6-6', 'b7-8', 'c9-9']);
     expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [8] }, 5.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a6-7', 'b8-8', 'c9-9']);
+    expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6, 7] }, 5.2).pens).toMatchObject({ 6: 'a', 7: 'b', 8: 'c', 9: 'c' }); // 마무리 8회부터
     expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6] }, 6.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a7-7', 'b8-8', 'c9-9']);
   });
   it('계투 · 마무리 고르기 — 다른 자리에 있으면 서로 바꿈', () => {
