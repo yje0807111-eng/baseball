@@ -6,3 +6,4 @@ art-src
 .env.local
 .env*.local
 _choice.json
+_plan.json
