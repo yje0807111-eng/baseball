@@ -106,20 +106,48 @@ const SpCard = () => (
  */
 const SEL = LINE[2];
 const FANCY = new URLSearchParams(location.search).has('fancy');
+/*
+ * 구장 그림(힉스필드 GPT Image 2, 2026-10-03 · 2336 × 1744, public/ui/field/field-1~4.webp) — ?field=1~4
+ * AI 그림은 베이스 자리가 장마다 조금씩 달라 장마다 베이스 좌표(그림 % — 홈 · 1루 · 2루 · 3루)를 재 두고, 수비 자리는 그 좌표에서 셈한다.
+ * 그림은 어둡게(밝기 .72) + 가장자리 비네트로 깔고, 이름표는 유리판 — 글자가 묻히지 않게.
+ */
+const FIELD = Number(new URLSearchParams(location.search).get('field') || 0);
+const BASES = {
+  1: { h: [50, 89], b1: [67.3, 65.8], b2: [50, 47.2], b3: [32.8, 65.8] },
+  2: { h: [50, 90], b1: [69.4, 65.8], b2: [50, 45], b3: [30.6, 65.8] },
+  3: { h: [50, 93.3], b1: [69.8, 66.7], b2: [50, 46.2], b3: [30.1, 66.7] },
+  4: { h: [50, 90], b1: [70.8, 64.5], b2: [50, 42.5], b3: [29.3, 64.5] },
+};
+const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+function spotsOf(B) {
+  const up = (p, d) => [p[0], p[1] - d];
+  return {
+    C: [B.h[0], B.h[1] + 2], '1B': [B.b1[0] + 3, B.b1[1] - 1], '3B': [B.b3[0] - 3, B.b3[1] - 1],
+    '2B': up(lerp(B.b2, B.b1, 0.55), 15), SS: up(lerp(B.b2, B.b3, 0.55), 15),
+    LF: [B.b3[0] - 9, B.b2[1] - 24], CF: [50, B.b2[1] - 33], RF: [B.b1[0] + 9, B.b2[1] - 24],
+    DH: [91, 92], P: [50, (B.h[1] + B.b2[1]) / 2 - 2],
+  };
+}
 const Bar = ({ v, c }) => <span className="relative block h-1.5 w-14 rounded-full bg-white/[0.08]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${Math.max(6, Math.min(100, ((v - 55) / 55) * 100))}%`, background: c }} /></span>;
-function Diamond({ plate = 'face', sel = null, mound = false, fancy = false }) {
+function Diamond({ plate = 'face', sel = null, mound = false, fancy = false, img = 0 }) {
+  const P = img ? spotsOf(BASES[img]) : { ...XY, P: [50, 66] };
+  const at = (k) => ({ left: `${P[k][0]}%`, top: `${P[k][1]}%` });
   return (
-    <div className="relative h-full w-full">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+    <div className="relative mx-auto h-full" style={img ? { aspectRatio: '2336 / 1744', maxWidth: '100%' } : { width: '100%' }}>
+      {img ? <>
+        <img src={`ui/field/field-${img}.webp`} alt="" className="absolute inset-0 h-full w-full rounded-2xl object-cover" style={{ filter: 'brightness(.72) saturate(.9)' }} />
+        <i className="pointer-events-none absolute inset-0 rounded-2xl" style={{ background: 'radial-gradient(ellipse at 50% 60%, transparent 45%, rgba(5,8,15,.75) 100%)' }} />
+      </> : null}
+      {!img && <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
         {fancy && <defs><radialGradient id="grass" cx="50%" cy="90%" r="90%"><stop offset="0" stopColor="#1f6b45" stopOpacity=".55" /><stop offset="1" stopColor="#0c3a26" stopOpacity=".25" /></radialGradient></defs>}
         <path d="M50 96 L94 52 Q50 -14 6 52 Z" fill={fancy ? 'url(#grass)' : 'rgba(52,211,153,.07)'} stroke="rgba(255,255,255,.14)" strokeWidth=".4" />
         {fancy && <path d="M50 96 L76 66 Q50 30 24 66 Z" fill="rgba(180,120,70,.18)" />}
         <path d="M50 92 L70 68 L50 46 L30 68 Z" fill={fancy ? 'rgba(31,107,69,.45)' : 'rgba(251,191,36,.07)'} stroke="rgba(255,255,255,.3)" strokeWidth=".4" />
         {fancy && [[50, 92], [70, 68], [50, 46], [30, 68]].map(([x, y], i) => <rect key={i} x={x - 1.1} y={y - 1.1} width="2.2" height="2.2" fill="#f8fafc" transform={`rotate(45 ${x} ${y})`} />)}
         {(fancy || mound) && <circle cx="50" cy="68" r="2.6" fill="rgba(180,120,70,.5)" />}
-      </svg>
+      </svg>}
       {mound && (
-        <span className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5" style={{ left: '50%', top: '66%' }}>
+        <span className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5" style={at('P')}>
           <Portrait player={SP} w={40} h={50} color="#60a5fa" />
           <b className="whitespace-nowrap rounded-md px-1.5 text-t4 text-white" style={{ background: 'rgba(96,165,250,.25)' }}>{SP.name}</b>
         </span>
@@ -127,14 +155,14 @@ function Diamond({ plate = 'face', sel = null, mound = false, fancy = false }) {
       {LINE.map((x) => {
         const on = sel === x, pen = offPen(x), c = pen ? RED : posC(x.slot);
         return (
-          <span key={x.b.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1" style={{ width: 132, left: `${XY[x.slot][0]}%`, top: `${XY[x.slot][1]}%` }}>
+          <span key={x.b.id} className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1" style={{ width: 132, ...at(x.slot) }}>
             {plate === 'face' && (
               <span className="relative flex shrink-0" style={{ filter: on ? `drop-shadow(0 0 10px ${US})` : undefined }}>
-                <Portrait player={x.b} w={46} h={58} color={on ? US : c} />
+                <Portrait player={x.b} w={img ? 38 : 46} h={img ? 48 : 58} color={on ? US : c} />
                 <b className="absolute -left-2 -top-2 grid h-6 w-6 place-items-center rounded-full font-display text-t4" style={{ background: on ? US : '#0b0f1a', color: on ? '#0b0f1a' : GOLD, boxShadow: `inset 0 0 0 1.5px ${on ? US : GOLD}` }}>{x.order}</b>
               </span>
             )}
-            <span className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: fancy ? 'rgba(11,15,26,.72)' : on ? `${US}26` : 'rgba(11,15,26,.6)', boxShadow: `inset 0 0 0 1px ${on ? US : `${c}66`}`, backdropFilter: fancy ? 'blur(6px)' : undefined }}>
+            <span className="flex items-center gap-1.5 rounded-lg px-2 py-1" style={{ background: fancy || img ? (on ? 'rgba(6,40,30,.8)' : 'rgba(11,15,26,.72)') : on ? `${US}26` : 'rgba(11,15,26,.6)', boxShadow: `inset 0 0 0 1px ${on ? US : `${c}66`}`, backdropFilter: fancy || img ? 'blur(6px)' : undefined }}>
               {plate !== 'face' && <b className="font-display text-t3" style={{ color: GOLD }}>{x.order}</b>}
               <b className="whitespace-nowrap text-t4 text-white">{x.b.name}</b>
               <span className="text-[11px]" style={{ color: c }}>{POS_KO[x.slot]}</span>
@@ -251,7 +279,7 @@ const CENTER = {
     return (
       <div className="flex min-h-0 flex-1 flex-col gap-4">
         <div className="grid min-h-0 flex-1 gap-6" style={{ gridTemplateColumns: '1fr 1.05fr' }}>
-          <div className="flex min-h-0 flex-col gap-2"><Head2 l="수비 · 오늘 선발" /><div className="min-h-0 flex-1"><Diamond sel={SEL} mound fancy={FANCY} /></div></div>
+          <div className="flex min-h-0 flex-col gap-2"><Head2 l="수비 · 오늘 선발" /><div className="min-h-0 flex-1"><Diamond sel={SEL} mound fancy={FANCY} img={FIELD} /></div></div>
           <div className="flex min-h-0 flex-col gap-1">
             <Head2 l="타순" r={<Btn t="자동 배치" />} />
             {LINE.map((x) => (
