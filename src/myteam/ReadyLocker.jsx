@@ -498,7 +498,7 @@ export default function ReadyLocker({
     const top3 = [...pens].sort((x, y) => arm(y) - arm(x)).slice(0, 3); // 가장 센 투수가 9회
     return [top3[2]?.id, top3[1]?.id, top3[0]?.id];
   });
-  const [augInn, setAugInn] = useState(team.plan?.augInn || 7);
+  const [augInn] = useState(team.plan?.augInn || 7); // 증강 시점 — 판에서 뺌, 저장된 값 · 7회 그대로
   const saved = team.plan?.inn;
   const [atk, setAtk] = useState(() => (saved?.atk?.length === 9 ? saved.atk : Array(9).fill('base')));
   const [limit, setLimit] = useState(() => saved?.limit || { mode: 'pitch', value: 95 });
@@ -548,7 +548,7 @@ export default function ReadyLocker({
     const atkKo = segsOf(atk).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
     const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
     const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
-    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['증강', `${augInn}회`], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
+    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
@@ -563,7 +563,7 @@ export default function ReadyLocker({
           {step === 2 && (
             <div className="min-h-0 flex-1 pt-6">
               <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
-                rel={rel} setRel={setRel} augInn={augInn} setAugInn={setAugInn}
+                rel={rel} setRel={setRel}
                 mix={sides.mix} mixOpts={SIDES.find((x) => x.key === 'mix').opts.map((o) => [o.id, o.ko])} setMix={(id) => pickSide('mix', id)} />
             </div>
           )}
