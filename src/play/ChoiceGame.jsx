@@ -11,7 +11,7 @@ import { teamFlag, flagByKey } from '../myteam/teamArt.js';
 import { myBanner } from '../myteam/store.js';
 import { artId } from '../data/artAlias.js';
 import { winProb as stateWin, simWinProb, withPrior } from '../engine/winProb.js';
-import { tacticOrders, condOrders, starOf } from '../engine/tactics.js';
+import { planOrders, starsOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 import { DEFAULT_SIDES, planOfSides, sideOpt } from '../myteam/strategy.js';
 import {
@@ -148,9 +148,11 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
   const sides = my?.plan?.sides || DEFAULT_SIDES;
   const fine = planOfSides(sides).fine;
   /* 정비 설계 — 성향(공격 · 선발 운용 · 볼 배합) 위에 조건 지시(그 상황이 오면 경기가 알아서) */
-  const conds = my?.plan?.conds || [];
-  const star = useMemo(() => starOf(away), [away]);
-  const tac = (gg) => ({ ...tacticOrders(fine, !gg.top, gg.rng), ...(condOrders(gg, conds, { star }) || {}) });
+  const plan = useMemo(() => ({ fine, conds: my?.plan?.conds || [], late: my?.plan?.late || null }), [my]); // eslint-disable-line react-hooks/exhaustive-deps
+  const stars = useMemo(() => starsOf(away), [away]);
+  const tac = (gg) => planOrders(gg, plan, { stars });
+  /* 경기 중 증강을 고르는 이닝이 있으면(정비 2단계 증강 시점) 그것이 결정 하나 — 묻는 결정은 하나 줄인다 */
+  const maxChoices = CHOICES - (midPickInnings.some((i) => i > 1) ? 1 : 0);
   const prior = useMemo(() => simWinProb(home, away), [home, away]);
   const winProb = (gg) => withPrior(stateWin(gg), gg, prior);
   const wpRef = useRef([prior]);
@@ -260,7 +262,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
         const fresh = !g.balls && !g.strikes;
         const wpBefore = winProb(g);
         let plan = tac, card = null, detail = null;
-        if (fresh && wantsChoice(g, stops)) {
+        if (fresh && wantsChoice(g, stops, maxChoices)) {
           stops.push({ inning: g.inning, top: g.top });
           setAsked(stops.length);
           const cs = choiceCards(g, { plan: tac, planKo: (g.top ? [sideOpt('mound', sides.mound)?.ko, sideOpt('mix', sides.mix)?.ko] : [sideOpt('off', sides.off)?.ko]).filter(Boolean).join(' · '), fatigue });
@@ -366,7 +368,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
       <div className="relative flex h-full flex-col px-10 pb-8 pt-6">
         <header className="flex items-center gap-4">
           <button type="button" onClick={leave} aria-label="나가기" className="mt-cut grid h-10 w-10 place-items-center bg-white/[0.07] text-t2 text-gray-200 hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
-          <b className="rounded-full px-3 py-1 font-display text-t3" style={{ background: 'rgba(251,191,36,.14)', color: '#fde68a', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.4)' }}>결정 {asked} / {CHOICES}</b>
+          <b className="rounded-full px-3 py-1 font-display text-t3" style={{ background: 'rgba(251,191,36,.14)', color: '#fde68a', boxShadow: 'inset 0 0 0 1px rgba(251,191,36,.4)' }}>결정 {asked} / {maxChoices}</b>
           <Chip t={g.wx.ko} c={SKY} />
           <Chip t={`불펜 호출 ${penCallsLeft(g.home)} / ${PEN_CALLS}`} c="#94a3b8" />
           <span className="ml-auto">

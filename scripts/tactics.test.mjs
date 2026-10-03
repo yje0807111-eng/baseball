@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tacticOrders, levelOf, hookAt } from '../src/engine/tactics.js';
+import { tacticOrders, levelOf, hookAt, lateOrders } from '../src/engine/tactics.js';
 import { planOfSides, DEFAULT_SIDES } from '../src/myteam/strategy.js';
 import { createGame, pitch, staminaOf } from '../src/engine/pitchSim.js';
 
@@ -104,5 +104,22 @@ describe('정비 계획이 경기로', () => {
     const p = planOfSides({ ...DEFAULT_SIDES, off: 'speed' });
     expect(p.fine.take).toBe('과감');
     expect(p.sides.off).toBe('speed');
+  });
+});
+
+describe('필승조', () => {
+  it('7 · 8 · 9회 초 첫 타석에 고른 투수로 바꾸고, 이미 쓴 투수는 다시 부르지 않는다', () => {
+    const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });
+    const late = ['p3', 'p4', 'p5'];
+    expect(lateOrders(g, late)).toBe(null); // 1회
+    Object.assign(g, { inning: 7, top: true, balls: 0, strikes: 0 });
+    expect(lateOrders(g, late)).toEqual({ changePitcher: 'p3' });
+    g.top = false;
+    expect(lateOrders(g, late)).toBe(null); // 우리 공격
+    Object.assign(g, { inning: 9, top: true });
+    g.home.pitcherIdx = 5; g.home.pitcher = g.home.team.pitchers[5];
+    expect(lateOrders(g, late)).toBe(null); // 이미 마운드
+    g.home.pitcherIdx = 4; g.home.pitcher = g.home.team.pitchers[4];
+    expect(lateOrders(g, ['p3', 'p4', 'p3'])).toBe(null); // 앞서 쓴 투수
   });
 });

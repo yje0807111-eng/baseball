@@ -29,15 +29,15 @@ const handKo = (h) => (h === 'L' ? '좌' : h === 'S' ? '양' : '우');
  * 뒤처지면 내린다. 6회까지 7번(7회 이후 3번 몫). 9회부터는 남은 몫을 쓰게 문턱을 더 낮춘다.
  * asked: 이미 멈춘 자리 [{ inning, top }]
  */
-export function wantsChoice(g, asked = []) {
-  if (g.final || g.balls || g.strikes || asked.length >= CHOICES) return false;
+export function wantsChoice(g, asked = [], max = CHOICES) {
+  if (g.final || g.balls || g.strikes || asked.length >= max) return false;
   if (asked.some((a) => a.inning === g.inning && a.top === g.top)) return false;
-  if (g.inning <= 6 && asked.length >= CHOICES - CHOICE_LATE) return false;
+  if (g.inning <= 6 && asked.length >= max - CHOICE_LATE) return false;
   /* 기운 경기 — 승률 6% 아래 · 94% 위면 고를 것이 승패를 바꾸지 못한다. 10번을 채우려 묻지 않는다(2026-10-02) */
   const wp = winProb(g);
   if (wp < DECIDED || wp > 1 - DECIDED) return false;
   const half = (g.inning - 1) * 2 + (g.top ? 0 : 1);
-  const ahead = asked.length - (CHOICES * half) / 18;
+  const ahead = asked.length - (max * half) / 18;
   const mark = CHOICE_MARK * (ahead > 0.5 ? 1.6 : ahead < -1 ? 0.35 : ahead < -0.5 ? 0.6 : 1) * (g.inning >= 9 ? 0.6 : 1);
   return leverage(g) >= mark;
 }

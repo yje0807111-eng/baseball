@@ -4,7 +4,7 @@
  * 칸마다 붙는 승률 변화(planDeltas)는 plan-sim 6,000경기의 그룹 값 — 판마다 n판을 더 굴리면 정비 화면이 수십 초 멈춘다.
  */
 import { createGame, pitch, aiPitchingChange, batterFam, repertoireOf, PITCHES } from '../engine/pitchSim.js';
-import { tacticOrders, condOrders, starOf } from '../engine/tactics.js';
+import { planOrders, starsOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 
 const copy = (t) => ({ ...t, batters: [...t.batters], pitchers: [...t.pitchers], bench: [...(t.bench || [])] });
@@ -15,27 +15,31 @@ export const armOf = (p) => (st(p, 'stuff', 80) + st(p, 'control', 75)) / 2;
  * 고른 설계로 판을 굴려 쌓는다 — from ~ to 번째 판(시드 i+1). 한 판이 바뀌면 그 뒤 난수가 다 갈려 판끼리 견줘도 잡음이 크다
  * (160판이면 승률 ±5%p 안팎) — 정비 화면은 100판씩 나눠 600판까지 쌓으며 숫자를 다듬는다(planSummary)
  */
-export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exitSum: 0, byInn: { 7: {}, 8: {}, 9: {} } }) {
-  const fine = plan?.fine || {}, conds = plan?.conds || [], star = starOf(away);
+export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exitSum: 0, oppExitSum: 0, byInn: { 7: {}, 8: {}, 9: {} }, oppInn: {} }) {
+  const stars = starsOf(away);
   for (let i = from; i < to; i += 1) {
     const g = createGame({ home: copy(home), away: copy(away), rng: seeded(i + 1) });
-    let guard = 0, out = null;
+    let guard = 0, out = null, oppOut = null;
     while (!g.final && guard++ < 1500) {
-      let o = { ...tacticOrders(fine, !g.top, g.rng), ...(condOrders(g, conds, { star }) || {}) };
+      let o = planOrders(g, plan || {}, { stars });
       if (!g.top) { const ch = aiPitchingChange(g, g.away); if (ch) o = { ...o, changePitcher: ch }; }
       pitch(g, o);
       if (out == null && g.home.pitcherIdx > 0) out = g.inning - (g.top ? 1 : 0.5);
       if (g.top && acc.byInn[g.inning] && g.home.pitcherIdx > 0) { const nm = g.home.pitcher.name; acc.byInn[g.inning][nm] = (acc.byInn[g.inning][nm] || 0) + 1; }
+      if (oppOut == null && g.away.pitcherIdx > 0) oppOut = g.inning - (g.top ? 1 : 0.5);
+      if (!g.top && g.inning <= 9 && g.away.pitcherIdx > 0) { const m = (acc.oppInn[g.inning] ||= {}); m[g.away.pitcher.name] = (m[g.away.pitcher.name] || 0) + 1; }
     }
+    acc.oppExitSum += oppOut ?? 9;
     acc.w += g.winner === 'home' ? 1 : g.winner === 'away' ? 0 : 0.5;
     acc.exitSum += out ?? 9; acc.games += 1;
   }
   return acc;
 }
-/** 쌓은 판 → { win(%), exitInn(선발이 내려간 평균 이닝), pen: [7 · 8 · 9회에 가장 자주 던진 불펜], games } */
+/** 쌓은 판 → { win(%), exitInn(선발이 내려간 평균 이닝), pen: [7 · 8 · 9회 불펜], oppExit(상대 선발), oppPen: [1~9회 상대 불펜], games } */
 export function planSummary(acc) {
   const top = (m) => Object.entries(m).sort((x, y) => y[1] - x[1])[0]?.[0] || null;
-  return { win: Math.round((acc.w / acc.games) * 100), exitInn: acc.exitSum / acc.games, pen: [7, 8, 9].map((k) => top(acc.byInn[k])), games: acc.games };
+  return { win: Math.round((acc.w / acc.games) * 100), exitInn: acc.exitSum / acc.games, pen: [7, 8, 9].map((k) => top(acc.byInn[k])), games: acc.games,
+    oppExit: acc.oppExitSum / acc.games, oppPen: Array.from({ length: 9 }, (_, i) => top(acc.oppInn[i + 1] || {})) };
 }
 export const planPreview = (home, away, plan, n = 200) => planSummary(planRun(home, away, plan, 0, n));
 

@@ -132,7 +132,8 @@ export const sideOpt = (key, id) => {
   return s?.opts.find((o) => o.id === id) || s?.opts[0];
 };
 /** 세 갈래가 잡아 주는 값. 세부 눈금을 손으로 만지는 판은 없앴다 — 갈래 하나가 눈금 여럿을 함께 정한다 */
-export function planOfSides(sides = DEFAULT_SIDES, conds = []) {
+/** extra: { late: [7 · 8 · 9회 투수 id], augInn: 경기 중 증강 이닝(3~8) } — 정비 2단계 */
+export function planOfSides(sides = DEFAULT_SIDES, conds = [], extra = {}) {
   const base = { ...DEFAULT_PLAN.base };
   const fine = { ...DEFAULT_PLAN.fine };
   for (const s of SIDES) {
@@ -140,7 +141,7 @@ export function planOfSides(sides = DEFAULT_SIDES, conds = []) {
     Object.assign(base, o.base);
     Object.assign(fine, o.fine);
   }
-  return { sides: { ...sides }, conds: [...conds], base, fine };
+  return { sides: { ...sides }, conds: [...conds], late: extra.late || null, augInn: extra.augInn || null, base, fine };
 }
 /** 상대 약점 → 되치는 갈래 { 갈래id: [약점, ...] } */
 const SIDE_COUNTER = {

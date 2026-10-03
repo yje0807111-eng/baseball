@@ -175,7 +175,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
       /* 랭크전: 경기가 시작됐다고 시즌에 적어 둔다 — 도중에 창을 닫아도 다음에 이 시드로 결과를 확정한다(경기 화면과 같은 틱에 — 끊긴 경기 정리가 헷갈리지 않게) */
       if (prep.kind === 'ranked') { saveRanked({ ...season, live: { seed, at: new Date().toISOString() } }); refresh(); }
       setMatch({ my, opp, kind: prep.kind, makeMy, seed, ghost, fatigue: team.pitchFatigue || {}, card: spent ? card.id : null, aug: makeAugmentRuntime({ augments: owned, my, opp, record, oppAugments: oppOwned }), rebuildOpp,
-        openPick: augOptions([], env).length > 0, tag: prep.tag || null });
+        openPick: augOptions([], env).length > 0, tag: prep.tag || null, augInn: plan?.augInn || null });
       setView('play');
     };
     /* 경기 화면이 먼저 뜨고 그 위로 인트로 → 인트로가 끝나 갈 때 경기 증강(1회 · midPick) — 예전엔 정비 화면 위에서 먼저 물었다 */
@@ -318,7 +318,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   }
   if (view === 'play' && match) {
     return screen(<>{augOverlay}<ChoiceGame my={match.my} opp={match.opp} seed={match.seed} fatigue={match.fatigue} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
-      aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
+      aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...(match.augInn ? [match.augInn] : MATCH_AUG_INNINGS)] : []} onMidPick={midPick} intro={{ tag: match.tag }}
       onExit={() => { setMatch(null); setView('lobby'); }} /></>);
   }
   /* 갈 곳이 없으면(대진표·시즌이 없는데 그 화면을 불렀다면) 로비로 */
