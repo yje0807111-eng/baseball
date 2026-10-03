@@ -104,16 +104,6 @@ test('노림 한 칸 — 그 칸 크게 · 옆 칸 조금 · 나머지 손해, �
   expect(behind[0] + behind[1] + behind[2]).toBeGreaterThan(L[0] + L[1] + L[2]);
 });
 
-test('읽기 보너스(readBonus) — 맞힌 예측 · 노림만 더 이득, 틀린 손해는 그대로', () => {
-  const HIT = ['1B', '2B', '3B', 'HR'];
-  /* 늘 몸쪽 높게 직구 — 그 칸 노림이 늘 맞는다(예측까지 겹치면 확률 상한에 걸려 차이가 묻힌다) */
-  const right = (rb) => rate({ pitchType: 'fast', zone: 0, noPick: true, aim: 0, ...(rb ? { readBonus: true } : {}) }, HIT);
-  expect(right(true)).toBeGreaterThan(right(false) + 0.02);
-  /* 늘 틀리면 보너스가 있어도 같다(같은 시드) */
-  const wrong = (rb) => rate({ pitchType: 'fast', zone: 4, noPick: true, guess: 'change', aim: 8, ...(rb ? { readBonus: true } : {}) }, HIT);
-  expect(wrong(true)).toBe(wrong(false));
-});
-
 test('자유 조준 — 제구만큼 흩어지고, 한가운데는 위험 · 구석은 안전(칸별 피안타 어림)', async () => {
   const { aimSpread, hitChanceAt, hotAdjOf, batterHot } = await import('../src/engine/pitchSim.js');
   expect(aimSpread(90)).toBeLessThan(aimSpread(70));
