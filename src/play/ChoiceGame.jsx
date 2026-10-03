@@ -15,7 +15,7 @@ import { planOrders, starsOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 import { DEFAULT_SIDES, planOfSides, sideOpt } from '../myteam/strategy.js';
 import {
-  createGame, pitch, weatherOf, batterOf, pitcherOf, offenseOf, defenseOf, staminaOf, replaceTeam, aiPitchingChange, playOut, RESULT_LABEL, PITCHES, hitChanceAt, penCallsLeft, PEN_CALLS,
+  createGame, pitch, weatherOf, batterOf, pitcherOf, offenseOf, defenseOf, staminaOf, replaceTeam, aiPitchingChange, aiRunOrders, playOut, RESULT_LABEL, PITCHES, hitChanceAt, penCallsLeft, PEN_CALLS,
 } from '../engine/pitchSim.js';
 import { engineTeam, buildResult, Scoreboard, shortTeam } from './matchKit.jsx';
 import { situationOf, zoneKo, locOf, batSide } from './duel.js';
@@ -258,6 +258,9 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
             pending = { changePitcher: change };
             if (next) note(halfKo(g), `상대 투수 교체 · ${next.name}`, OPP);
           }
+        } else {
+          const run = aiRunOrders(g); // 상대 공격 주루 — 빠른 1루 주자 도루
+          if (run) pending = { ...pending, ...run };
         }
         const fresh = !g.balls && !g.strikes;
         const wpBefore = winProb(g);

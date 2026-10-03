@@ -3,7 +3,7 @@
  * 경기 화면(ChoiceGame)과 같은 운용: 우리 쪽은 설계(성향 + 조건 지시) · 엔진 교체 문턱만, 상대만 AI 투수 교체.
  * 칸마다 붙는 승률 변화(planDeltas)는 plan-sim 6,000경기의 그룹 값 — 판마다 n판을 더 굴리면 정비 화면이 수십 초 멈춘다.
  */
-import { createGame, pitch, aiPitchingChange, batterFam, repertoireOf, PITCHES } from '../engine/pitchSim.js';
+import { createGame, pitch, aiPitchingChange, aiRunOrders, batterFam, repertoireOf, PITCHES } from '../engine/pitchSim.js';
 import { planOrders, starsOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 
@@ -23,6 +23,7 @@ export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exit
     while (!g.final && guard++ < 1500) {
       let o = planOrders(g, plan || {}, { stars });
       if (!g.top) { const ch = aiPitchingChange(g, g.away); if (ch) o = { ...o, changePitcher: ch }; }
+      else { const run = aiRunOrders(g); if (run) o = { ...o, ...run }; } // 상대 공격 주루(도루)
       pitch(g, o);
       if (out == null && g.home.pitcherIdx > 0) out = g.inning - (g.top ? 1 : 0.5);
       if (g.top && acc.byInn[g.inning] && g.home.pitcherIdx > 0) { const nm = g.home.pitcher.name; acc.byInn[g.inning][nm] = (acc.byInn[g.inning][nm] || 0) + 1; }

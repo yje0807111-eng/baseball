@@ -780,14 +780,24 @@ function nextArm(side) {
   return pick ? pick.id : true;
 }
 
-/** 지금 상태에서 끝까지 — 양 팀 모두 AI 투수 교체 · orderFn(g) 지시. 도중에 나간 경기를 마무리할 때도 쓴다 */
+/*
+ * AI 공격 주루 — 1루 주자 주력 85+ · 2루 빔 · 새 타석이면 35% 도루(2026-10-03, 전엔 AI 공격이 도루를 안 해 '견제'가 늘 손해였다).
+ * flow3-sim: 이 도루를 켜면 우리 '견제'가 빠른 주자 많은 상대에게 +0.7%p. 성공률은 stealOdds(주력 vs 우리 포수)
+ */
+export const AI_STEAL = { speed: 85, rate: 0.35 };
+export function aiRunOrders(g) {
+  if (g.final || g.balls || g.strikes || !g.bases[0] || g.bases[1]) return null;
+  return st(g.bases[0], 'speed') >= AI_STEAL.speed && g.rng() < AI_STEAL.rate ? { steal: 0 } : null;
+}
+
+/** 지금 상태에서 끝까지 — 양 팀 모두 AI 투수 교체 · 주루 · orderFn(g) 지시. 도중에 나간 경기를 마무리할 때도 쓴다 */
 export function playOut(g, orderFn = () => ({})) {
   let guard = 0;
   while (!g.final && guard++ < 1500) {
     const def = defenseOf(g);
     // 자동 투수 교체: AI 감독 판단(팀 usage)
     const change = aiPitchingChange(g, def);
-    pitch(g, { ...(change ? { changePitcher: change } : {}), ...orderFn(g) });
+    pitch(g, { ...(change ? { changePitcher: change } : {}), ...(aiRunOrders(g) || {}), ...orderFn(g) });
   }
   return g;
 }
