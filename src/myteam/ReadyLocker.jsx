@@ -34,7 +34,7 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
-import { CONDITIONS, COND_MAX } from '../engine/tactics.js';
+
 import { pitchMix, repertoireOf, PITCHES } from '../engine/pitchSim.js';
 import { planRun, planSummary, planAnalysis, planDeltas } from './planSim.js';
 import { Btn, UiStyle, Pop, FxChips } from './ui.jsx';
@@ -149,7 +149,7 @@ function MoundGap({ an }) {
   );
 }
 
-function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = false }) {
+function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = false, step = 0, oppPen = null, stars = null }) {
   const ros = opponent.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall);
@@ -183,7 +183,17 @@ function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = fa
         </div>
       )}
       <Rule />
-      {an ? <><WeakBars an={an} c={c} /><Rule /><MoundGap an={an} /></> : <>
+      {an ? <>
+        {step === 2 && oppPen ? (
+          <div className="flex shrink-0 flex-col gap-2"><Sub>상대 불펜</Sub>
+            {oppPen.slice(0, 4).map((p) => <div key={p.id} className="flex items-baseline gap-2"><b className="min-w-0 flex-1 truncate text-t3 text-white">{p.name}</b><span className="font-display text-t2" style={{ color: ((p.stats?.stuff ?? 80) + (p.stats?.control ?? 75)) / 2 < 78 ? '#34d399' : '#e2e8f0' }}>{Math.round(((p.stats?.stuff ?? 80) + (p.stats?.control ?? 75)) / 2)}</span></div>)}
+          </div>
+        ) : step === 3 && stars ? (
+          <div className="flex shrink-0 flex-col gap-2"><Sub>상대 강타자</Sub>
+            {stars.map((p) => <div key={p.id} className="flex items-baseline gap-2"><b className="min-w-0 flex-1 truncate text-t3 text-white">{p.name}</b><span className="text-t4 text-gray-400">파워</span><b className="font-display text-t2 text-white">{p.stats?.power}</b></div>)}
+          </div>
+        ) : <WeakBars an={an} c={c} />}
+        <Rule /><MoundGap an={an} /></> : <>
       <div className="flex shrink-0 flex-col gap-2.5">
         <Sub>경계 타자</Sub>
         {watch.map((p) => (
@@ -361,41 +371,152 @@ function SideBlock({ sides, onPick, opponent, deltas = null }) {
   );
 }
 
-/** 조건 지시 — 두 칸까지. 그 상황이 오면 경기가 알아서(tactics condOrders) */
-function CondBlock({ conds, onToggle, deltas = null }) {
+/*
+ * ───── 정비 3단계(ROADMAP 13 · mockups/prep-steps 4안 거울 이닝 + 8안 미리보기 기둥) ─────
+ * 왼쪽은 늘 상대 분석(단계마다 강조: 1 상대 선발 · 타선 약점 / 2 상대 불펜 / 3 상대 강타자), 가운데는 단계 판, 오른쪽은 늘 미리보기 기둥
+ * (예상 승률 · 경기 흐름 · 준비 카드 · 다음). 1 라인업 → 2 경기 흐름(선발 운용 · 볼 배합 · 공격 · 필승조 · 증강 시점) → 3 상황 대응 → 경기 시작.
+ */
+export const PREP_STEPS = ['라인업', '경기 흐름', '상황 대응'];
+function Stepper({ step, onStep }) {
   return (
-    <div className="flex shrink-0 flex-col gap-2">
-      <div className="flex items-baseline justify-between"><Sub>조건 지시</Sub><span className="font-display text-t3 text-gray-400">{conds.length} / {COND_MAX}</span></div>
-      <div className="grid grid-cols-2 gap-1">
-        {CONDITIONS.map((c) => {
-          const on = conds.includes(c.id), full = !on && conds.length >= COND_MAX, d = deltas?.cond?.[c.id];
-          return (
-            <button key={c.id} type="button" disabled={full} onClick={() => onToggle(c.id)} aria-pressed={on}
-              className="mt-cut flex min-h-[3.25rem] flex-col justify-center gap-0.5 px-2.5 py-1.5 text-left disabled:opacity-35" style={pickStyle(on)}>
-              <span className="flex items-baseline gap-1.5"><b className="truncate text-t4" style={{ color: on ? '#fff' : '#9ca3af' }}>{c.ko}</b>{d != null && Math.abs(d) >= 0.5 && <b className="ml-auto shrink-0 font-display text-t4" style={{ color: d > 0 ? '#34d399' : '#f87171' }}>{pct(d)}</b>}</span>
-              <b className="text-t4" style={{ color: on ? '#7dd3fc' : '#6b7280' }}>→ {c.act}</b>
+    <div className="flex items-center gap-3">
+      {PREP_STEPS.map((t, i) => {
+        const n = i + 1, on = n === step, done = n < step;
+        return (
+          <React.Fragment key={t}>
+            <button type="button" onClick={() => onStep(n)} className="flex items-center gap-2.5" aria-current={on ? 'step' : undefined}>
+              <b className="grid h-9 w-9 place-items-center rounded-full font-display text-t2" style={{ background: on ? WARN : done ? 'rgba(52,211,153,.22)' : 'rgba(255,255,255,.06)', color: on ? '#1c1203' : done ? '#34d399' : '#9ca3af' }}>{done ? '✓' : n}</b>
+              <b className="text-t3" style={{ color: on ? '#fff' : '#9ca3af' }}>{t}</b>
             </button>
-          );
-        })}
+            {n < 3 && <i className="block h-px w-10 bg-white/15" />}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+/* 거울 이닝 — 위는 상대(선발이 내려가는 이닝 · 이닝마다 나올 불펜), 아래는 우리(선발 · 필승조 · 증강 시점). 값은 미리보기 600판 */
+function MirrorLanes({ pv, late, augInn, pens }) {
+  const x = (inn) => `${(Math.min(9, Math.max(0, inn)) / 9) * 100}%`;
+  const Lane = ({ t, c, children }) => (
+    <div className="grid items-center gap-3" style={{ gridTemplateColumns: '5.5rem 1fr' }}>
+      <b className="text-t3" style={{ color: c }}>{t}</b><div className="relative h-11 rounded-lg bg-white/[0.03]">{children}</div>
+    </div>
+  );
+  const nameOf = (id) => pens.find((p) => p.id === id)?.name;
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="grid gap-3" style={{ gridTemplateColumns: '5.5rem 1fr' }}><span /><div className="grid text-center font-display text-t3 text-gray-400" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>{Array.from({ length: 9 }, (_, i) => <span key={i}>{i + 1}회</span>)}</div></div>
+      <Lane t="상대 선발" c="#f87171">{pv && <i className="absolute inset-y-1.5 left-1 rounded-md" style={{ width: `calc(${x(pv.oppExit)} - 6px)`, background: 'rgba(248,113,113,.22)' }} />}</Lane>
+      <Lane t="상대 불펜" c="#f87171">{pv && pv.oppPen.map((nm, i) => nm && i + 1 > pv.oppExit && <span key={i} className="absolute inset-y-1.5 flex items-center justify-center truncate rounded-md px-1 text-t4 text-white" style={{ left: x(i), width: `calc(${x(1)} - 4px)`, background: 'rgba(248,113,113,.14)' }}>{nm}</span>)}</Lane>
+      <i className="my-1 block h-px bg-white/10" />
+      <Lane t="우리 선발" c="#34d399">{pv && <><i className="absolute inset-y-1.5 left-1 rounded-md" style={{ width: `calc(${x(pv.exitInn)} - 6px)`, background: 'linear-gradient(90deg,rgba(52,211,153,.45),rgba(52,211,153,.15))' }} /><i className="absolute inset-y-0 w-[2px]" style={{ left: x(pv.exitInn), background: WARN }} /></>}</Lane>
+      <Lane t="필승조" c="#34d399">{[0, 1, 2].map((i) => <span key={i} className="absolute inset-y-1.5 flex items-center justify-center truncate rounded-md px-1 text-t4 text-white" style={{ left: x(6 + i), width: `calc(${x(1)} - 4px)`, background: 'rgba(96,165,250,.2)' }}>{nameOf(late?.[i]) || pv?.pen[i] || '-'}</span>)}</Lane>
+      <Lane t="증강" c="#a78bfa">{augInn && <span className="absolute top-1/2 grid h-8 w-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-t3 font-black" style={{ left: x(augInn - 0.5), background: '#a78bfa', color: '#1c1203' }}>✦</span>}</Lane>
+    </div>
+  );
+}
+/* 필승조 — 7 · 8 · 9회에 던질 투수. 칸을 누르면 아래에 불펜 줄이 열린다 */
+function LatePick({ late, setLate, pens }) {
+  const [open, setOpen] = useState(null);
+  const arm = (p) => Math.round(((p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75)) / 2);
+  return (
+    <div className="flex flex-col gap-2">
+      <Sub>필승조</Sub>
+      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(3,minmax(0,1fr))' }}>
+        {[7, 8, 9].map((inn, i) => { const p = pens.find((x) => x.id === late[i]); return (
+          <button key={inn} type="button" onClick={() => setOpen(open === i ? null : i)} className="mt-cut flex min-h-[3.25rem] items-center gap-2 px-2.5" style={pickStyle(open === i)}>
+            <b className="font-display text-t2" style={{ color: WARN }}>{inn}회</b><b className="truncate text-t3 text-white">{p?.name || '-'}</b><span className="ml-auto font-display text-t3 text-gray-400">{p ? arm(p) : ''}</span>
+          </button>
+        ); })}
+      </div>
+      {open != null && (
+        <div className="flex flex-wrap gap-1">
+          {pens.map((p) => (
+            <button key={p.id} type="button" onClick={() => { setLate(late.map((id, j) => (j === open ? p.id : id === p.id ? late[open] : id))); setOpen(null); }}
+              className="mt-cut flex items-center gap-1.5 px-2.5 py-1.5" style={pickStyle(late[open] === p.id)}>
+              <b className="text-t4 text-white">{p.name}</b><span className="font-display text-t4 text-gray-400">{arm(p)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+function AugPick({ augInn, setAugInn }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Sub>증강 시점</Sub>
+      <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(6,minmax(0,1fr))' }}>
+        {[3, 4, 5, 6, 7, 8].map((n) => (
+          <button key={n} type="button" onClick={() => setAugInn(n)} className="mt-cut flex h-11 items-center justify-center font-display text-t2" style={{ ...pickStyle(augInn === n), color: augInn === n ? '#fff' : '#9ca3af' }}>{n}회</button>
+        ))}
       </div>
     </div>
   );
 }
-
-/** 경기 흐름 줄 — 고른 설계로 굴린 값: 선발이 내려가는 이닝까지 초록 막대 · 7 · 8 · 9회에 가장 자주 던진 불펜 · 조건 지시가 걸리는 구간 */
-function FlowStrip({ pv, conds }) {
-  if (!pv) return <div className="h-[4.5rem] shrink-0 animate-pulse rounded-lg bg-white/[0.04]" />;
-  const x = (inn) => `${(Math.min(9, Math.max(0, inn)) / 9) * 100}%`;
+/*
+ * 상황 대응 — 상황마다 하나(첫 칸 = 맡기기). flow-sim 값으로 승률 변화 · 추천:
+ *  지친 선발 교체는 우리 선발이 약하면 +2.1 · 강하면 −1.9, 강타자 유인구 · 거르기는 우리 타선이 약하면 +1.9 · +0.4 · 강하면 −1.4 · −2.0
+ */
+const SITUATIONS = [
+  { id: 'close', side: '수비', ko: '7회 이후 1~2점 리드', opts: [['그대로', null], ['가장 센 불펜', 'close']] },
+  { id: 'tired', side: '수비', ko: '선발 체력 30 아래 · 주자 있음', opts: [['맡기기', null], ['교체', 'tired']] },
+  { id: 'star', side: '수비', ko: '득점권 · 상대 강타자', opts: [['승부', null], ['유인구', 'chase'], ['거르기', 'walk']] },
+  { id: 'n1', side: '공격', ko: '무사 1루', opts: [['강공', null], ['히트앤런', 'hnr']] },
+];
+const sitDelta = (an, cond) => {
+  const spWeak = an ? an.spArm < 80 : false, offWeak = an ? an.offAvg < 82 : false;
+  return { close: 3.4, tired: spWeak ? 2.1 : -1.9, chase: offWeak ? 1.9 : -1.4, walk: offWeak ? 0.4 : -2.0, hnr: 0.5 }[cond] ?? 0;
+};
+function SitBlock({ conds, setConds, an }) {
   return (
-    <div className="flex shrink-0 flex-col gap-1.5">
-      <div className="flex items-baseline justify-between"><Sub>경기 흐름</Sub><span className="text-t4 text-gray-400">선발 {pv.exitInn.toFixed(1)}회까지</span></div>
-      <div className="grid text-center font-display text-t4 text-gray-500" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>{Array.from({ length: 9 }, (_, i) => <span key={i}>{i + 1}</span>)}</div>
-      <div className="relative h-5 rounded bg-white/[0.04]">
-        <i className="absolute inset-y-0 left-0 rounded" style={{ width: x(pv.exitInn), background: 'linear-gradient(90deg,rgba(52,211,153,.5),rgba(52,211,153,.2))' }} />
-        {pv.pen.map((nm, i) => nm && <b key={i} className="absolute inset-y-0 flex items-center justify-center truncate px-0.5 text-[11px] text-white" style={{ left: x(6 + i), width: x(1) }}>{nm}</b>)}
-      </div>
-      {conds.includes('close') && <div className="relative h-1.5"><i className="absolute inset-y-0 rounded-full" style={{ left: x(6), right: 0, background: '#38bdf8' }} /></div>}
+    <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
+      {SITUATIONS.map((s) => {
+        const cur = s.opts.find(([, c]) => c && conds.includes(c))?.[1] ?? null;
+        const best = s.opts.map(([, c]) => [c, c ? sitDelta(an, c) : 0]).sort((x, y) => y[1] - x[1])[0];
+        return (
+          <div key={s.id} className="mt-cut flex flex-col gap-2.5 p-4" style={{ ...cut(10), background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+            <span className="flex items-center gap-2">
+              <b className="rounded px-1.5 text-t4" style={{ color: s.side === '공격' ? '#34d399' : '#7dd3fc', boxShadow: `inset 0 0 0 1px ${s.side === '공격' ? '#34d39966' : '#7dd3fc66'}` }}>{s.side}</b>
+              <b className="truncate text-t2 text-white">{s.ko}</b>
+            </span>
+            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${s.opts.length},minmax(0,1fr))` }}>
+              {s.opts.map(([ko, c]) => {
+                const on = cur === c, d = c ? sitDelta(an, c) : 0, rec = best[1] > 0.5 && best[0] === c;
+                return (
+                  <button key={ko} type="button" aria-pressed={on} onClick={() => setConds([...conds.filter((x) => !s.opts.some(([, k]) => k === x)), ...(c ? [c] : [])])}
+                    className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(on), color: on ? '#fff' : '#9ca3af' }}>
+                    {ko}
+                    <b className="font-display text-t4" style={{ color: Math.abs(d) < 0.5 ? '#6b7280' : d > 0 ? '#34d399' : '#f87171' }}>{Math.abs(d) < 0.05 ? '±0' : pct(d)}</b>
+                    {rec && <b className="absolute right-1 top-1 rounded px-1 text-[11px] leading-[15px]" style={{ color: WARN, boxShadow: `inset 0 0 0 1px ${WARN}88` }}>추천</b>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
+  );
+}
+/* 미리보기 기둥 — 늘 보인다: 예상 승률 · 흐름 한 줄 · 준비 카드 · 다음 */
+function PreviewCol({ pv, busy, children, foot }) {
+  return (
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-5 p-5" style={{ ...cut(20), '--a': '#38bdf8' }}>
+      <p className="mt-lab" style={{ '--a': '#38bdf8' }}>미리보기</p>
+      <div className="flex flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
+        {pv ? <WinBar win={pv.win} c="#f87171" /> : <span className="h-10 animate-pulse rounded-lg bg-white/[0.04]" />}
+      </div>
+      {pv && (
+        <div className="flex flex-col gap-1.5 text-t3 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
+          <span className="flex justify-between"><span className="text-gray-400">우리 선발</span><b className="text-white">{pv.exitInn.toFixed(1)}회까지</b></span>
+          <span className="flex justify-between"><span className="text-gray-400">상대 선발</span><b className="text-white">{pv.oppExit.toFixed(1)}회까지</b></span>
+        </div>
+      )}
+      {children}
+      <div className="mt-auto flex shrink-0 flex-col gap-2">{foot}</div>
+    </aside>
   );
 }
 
@@ -443,8 +564,20 @@ export default function ReadyLocker({
   const [sides, setSides] = useState(team.plan?.sides || DEFAULT_SIDES);
   const pickSide = (key, id) => setSides((v) => ({ ...v, [key]: id }));
   const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
-  const [conds, setConds] = useState(team.plan?.conds || []);
-  const toggleCond = (id) => setConds((v) => (v.includes(id) ? v.filter((x) => x !== id) : v.length >= COND_MAX ? v : [...v, id]));
+  /* 정비 3단계 — 상황 대응(기본: 7회 이후 리드면 센 불펜) · 필승조 · 증강 시점 */
+  const [step, setStep] = useState(1);
+  const [conds, setConds] = useState(team.plan?.conds || ['close']);
+  const pens = useMemo(() => (engine ? engine.home.pitchers.slice(1) : []), [engine]);
+  const arm = (p) => (p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75);
+  const [late, setLate] = useState(() => {
+    const ids = new Set(pens.map((p) => p.id)), saved = team.plan?.late;
+    if (saved?.every((id) => ids.has(id))) return saved;
+    const top3 = [...pens].sort((x, y) => arm(y) - arm(x)).slice(0, 3); // 가장 센 투수가 9회
+    return [top3[2]?.id, top3[1]?.id, top3[0]?.id];
+  });
+  const [augInn, setAugInn] = useState(team.plan?.augInn || 7);
+  const oppPen = useMemo(() => (engine ? [...engine.away.pitchers.slice(1).filter((p) => p.position !== 'SP')].sort((x, y) => arm(y) - arm(x)) : null), [engine]); // eslint-disable-line react-hooks/exhaustive-deps
+  const stars = useMemo(() => (engine ? [...engine.away.batters].sort((x, y) => (y.stats?.power ?? 0) - (x.stats?.power ?? 0)).slice(0, 3) : null), [engine]);
   const an = useMemo(() => (engine ? planAnalysis(engine.home, engine.away) : null), [engine]);
   const deltas = useMemo(() => (an ? planDeltas(an) : null), [an]);
   /*
@@ -456,7 +589,7 @@ export default function ReadyLocker({
   useEffect(() => {
     if (!engine) return undefined;
     setBusy(true);
-    const plan = planOfSides(sides, conds);
+    const plan = planOfSides(sides, conds, { late, augInn });
     let acc, n = 0, id;
     const step = () => {
       acc = planRun(engine.home, engine.away, plan, n, n + 100, acc); n += 100;
@@ -465,24 +598,60 @@ export default function ReadyLocker({
     };
     id = setTimeout(step, 250);
     return () => clearTimeout(id);
-  }, [engine, sides, conds]);
+  }, [engine, sides, conds, late]); // eslint-disable-line react-hooks/exhaustive-deps
   const [foeOpen, setFoeOpen] = useState(false); // 상대 타순 창
 
+  const an2 = useMemo(() => (an && engine ? { ...an, spArm: arm(an.sp) / 2, offAvg: engine.home.batters.reduce((n, b) => n + (b.stats?.contact ?? 75) + (b.stats?.power ?? 75), 0) / 18 } : an), [an, engine]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (engine && opponent) {
+    const plan = () => planOfSides(sides, conds, { late, augInn });
+    const foot = step < 3
+      ? <Btn lg pri data-sfx="nav" a={US} style={cut(12)} onClick={() => setStep(step + 1)}>다음 · {PREP_STEPS[step]} ▶</Btn>
+      : startBlock && onFix ? <Btn lg pri data-sfx="nav" a="#f87171" style={cut(12)} onClick={onFix}>라커에서 정리 ▶</Btn>
+        : <Btn lg pri data-sfx="nav" a={US} disabled={!!startBlock} style={{ ...cut(12), ...(startBlock ? { opacity: 0.45, pointerEvents: 'none' } : null) }} onClick={() => onStart(plan(), card)}>{startLabel}</Btn>;
+    return (
+      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
+        <UiStyle />
+        <ScoutPanel opponent={opponent} sums={sums} win={null} an={an} step={step} oppPen={oppPen} stars={stars} onLineup={() => setFoeOpen(true)} />
+        {foeOpen && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
+        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(20), '--a': US }}>
+          <div className="flex shrink-0 items-center gap-4"><Stepper step={step} onStep={setStep} /><span className="ml-auto flex items-baseline gap-2"><Sub>팀 종합</Sub><b className="font-display text-t1 font-extrabold leading-none" style={{ color: US }}>{teamInfo.ovr}</b></span></div>
+          {step === 1 && <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />}
+          {step === 2 && (
+            <div className="flex min-h-0 flex-col gap-5 overflow-y-auto pr-1">
+              <div className="transition-opacity" style={{ opacity: busy ? 0.5 : 1 }}><MirrorLanes pv={pv} late={late} augInn={augInn} pens={pens} /></div>
+              <div className="grid gap-5" style={{ gridTemplateColumns: 'minmax(0,1.4fr) minmax(0,1fr)' }}>
+                <SideBlock sides={sides} onPick={pickSide} opponent={opponent} deltas={deltas} />
+                <div className="flex flex-col gap-5"><LatePick late={late} setLate={setLate} pens={pens} /><AugPick augInn={augInn} setAugInn={setAugInn} /></div>
+              </div>
+            </div>
+          )}
+          {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
+        </section>
+        <PreviewCol pv={pv} busy={busy} foot={foot}>
+          <div className="flex flex-col gap-1.5 text-t3">
+            <span className="flex justify-between"><span className="text-gray-400">증강</span><b style={{ color: '#a78bfa' }}>{augInn}회</b></span>
+            <span className="flex justify-between gap-3"><span className="shrink-0 text-gray-400">필승조</span><b className="truncate text-white">{late.map((id) => pens.find((p) => p.id === id)?.name || '-').join(' · ')}</b></span>
+            <span className="flex justify-between"><span className="text-gray-400">상황 대응</span><b className="text-white">{conds.length}</b></span>
+          </div>
+          <Rule />
+          {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
+        </PreviewCol>
+      </div>
+    );
+  }
   return (
     <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 420px', gridTemplateRows: 'minmax(0,1fr)' }}>
       {/* 라커 문법(잘린 모서리 · 네온 테두리 · 라벨) — 드래프트 화면에는 이 CSS 가 없어서 여기서 함께 올린다 */}
       <UiStyle />
-      {opponent ? <ScoutPanel opponent={opponent} sums={sums} win={engine ? pv?.win ?? null : win} busy={engine && busy} an={an} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
+      {opponent ? <ScoutPanel opponent={opponent} sums={sums} win={win} onLineup={() => setFoeOpen(true)} /> : <RosterPanel squad={squad} cap={teamInfo.cap} />}
       {foeOpen && opponent && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
 
       <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit}
         fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />
 
       <WarRoom team={teamInfo} autoFilled={autoFilled}
-        onStart={() => onStart(planOfSides(sides, conds), card)} startLabel={startLabel} startBlock={startBlock} onFix={onFix}>
-        <SideBlock sides={sides} onPick={pickSide} opponent={opponent} deltas={deltas} />
-        {engine && <CondBlock conds={conds} onToggle={toggleCond} deltas={deltas} />}
-        {engine && <div className="transition-opacity" style={{ opacity: busy && pv ? 0.4 : 1 }}><FlowStrip pv={pv} conds={conds} /></div>}
+        onStart={() => onStart(planOfSides(sides), card)} startLabel={startLabel} startBlock={startBlock} onFix={onFix}>
+        <SideBlock sides={sides} onPick={pickSide} opponent={opponent} />
         {cards && <CardBlock cards={cards} value={card} onPick={setCard} />}
       </WarRoom>
     </div>
