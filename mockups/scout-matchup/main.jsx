@@ -1,5 +1,6 @@
 /*
  * 상대 판 공통 머리 — 맞대결 세 줄 목업 (/mockups/scout-matchup/?p=1 → 1~4안, ?p=2 → 5~8안, 실제 크기 340 × 806)
+ * (10-03 고침) 같은 것끼리 맞댄다 — 타선 vs 타선 · 선발 vs 선발 · 불펜 vs 불펜(눈금이 같아 그대로 견줄 수 있다).
  * 머리 = 구단 한 줄 + 맞대결 세 줄. 세 단계의 결정이 모두 이 셋 가운데 하나에 달려 있다(plan-sim · flow-sim):
  *  우리 타선 vs 상대 선발   → 1 라인업(타순)
  *  우리 선발 vs 상대 타선   → 2 선발 운용 · 볼 배합
@@ -41,9 +42,9 @@ const PAGE = Number(new URLSearchParams(location.search).get('p') || 1);
 const cut = (c) => ({ '--c': `${c}px` });
 /* 맞대결 세 줄 — [우리 이름, 우리 값, 상대 이름, 상대 값, 쓰는 단계, 우리 얼굴, 상대 얼굴] */
 const ROWS = [
-  { us: '우리 타선', u: avg(ME.batters, bat), them: '상대 선발', t: Math.round(arm(OP.pitchers[0])), step: '1', up: topBat(ME), tp: OP.pitchers[0] },
-  { us: '우리 선발', u: Math.round(arm(ME.pitchers[0])), them: '상대 타선', t: avg(OP.batters, bat), step: '2', up: ME.pitchers[0], tp: topBat(OP) },
-  { us: '우리 불펜', u: avg(pen3(ME), arm), them: '상대 불펜', t: avg(pen3(OP), arm), step: '2 · 3', up: pen3(ME)[0], tp: pen3(OP)[0] },
+  { us: '우리 타선', u: avg(ME.batters, bat), them: '상대 타선', t: avg(OP.batters, bat), step: '1', up: topBat(ME), tp: topBat(OP), ko: '타선' },
+  { us: '우리 선발', u: Math.round(arm(ME.pitchers[0])), them: '상대 선발', t: Math.round(arm(OP.pitchers[0])), step: '2', up: ME.pitchers[0], tp: OP.pitchers[0], ko: '선발' },
+  { us: '우리 불펜', u: avg(pen3(ME), arm), them: '상대 불펜', t: avg(pen3(OP), arm), step: '2 · 3', up: pen3(ME)[0], tp: pen3(OP)[0], ko: '불펜' },
 ].map((r) => ({ ...r, d: r.u - r.t }));
 const sign = (d) => `${d > 0 ? '+' : d < 0 ? '−' : '±'}${Math.abs(d)}`;
 const tone = (d) => (d > 0 ? MY : d < 0 ? C : '#94a3b8');
@@ -63,11 +64,12 @@ const Num = ({ v, on, c, big }) => <b className={`font-display ${big ? 'text-t1'
 const V = {
   1: ['줄다리기', () => (
     <div className="flex flex-col gap-3.5">
+      <span className="flex justify-between text-t4 font-bold"><span style={{ color: MY }}>우리</span><span style={{ color: C }}>상대</span></span>
       {ROWS.map((r) => {
         const w = Math.min(50, Math.abs(r.d) * 4);
         return (
           <div key={r.us} className="flex flex-col gap-1.5">
-            <span className="flex items-baseline justify-between text-t4"><span className="text-gray-300">{r.us} <Num v={r.u} on={r.d > 0} c={MY} /></span><span className="text-gray-300"><Num v={r.t} on={r.d < 0} c={C} /> {r.them}</span></span>
+            <span className="grid items-baseline" style={{ gridTemplateColumns: '1fr auto 1fr' }}><Num v={r.u} on={r.d > 0} c={MY} /><span className="text-t3 font-bold text-gray-300">{r.ko}</span><span className="text-right"><Num v={r.t} on={r.d < 0} c={C} /></span></span>
             <span className="relative h-2 rounded-full bg-white/[0.06]">
               <i className="absolute inset-y-[-3px] left-1/2 w-px bg-white/40" />
               <i className="absolute inset-y-0 rounded-full" style={{ [r.d >= 0 ? 'right' : 'left']: '50%', width: `${w}%`, background: tone(r.d) }} />
