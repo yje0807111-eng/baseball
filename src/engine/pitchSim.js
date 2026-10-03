@@ -306,7 +306,8 @@ export function approachOf(approach, contact, power, stuff) {
   if (approach === 'power') { const pe = clamp(((power - 75) + (77 - stuff) * 1.5) / 10, -1.5, 1.5); return { whiff: -0.03 + 0.035 * pe, hit: -0.01, hr: Math.max(-0.02, 0.02 + 0.045 * pe), dbl: 0.03 }; }
   /* 노림수: 한 방만 노린다 — 헛스윙 크게 ↑ · 홈런 ↑(파워가 구위를 넘을수록 더). 뒤질 때 값어치, 앞설 때 손해 */
   if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.05 + 0.02 * pe, hit: -0.03, hr: Math.max(0.04, 0.1 + 0.03 * pe), dbl: 0.04 }; }
-  if (approach === 'contact') { const ce = clamp(((contact - 75) + (stuff - 77) * 1.5) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.015 + 0.02 * ce, hr: -0.03, dbl: -0.06 }; }
+  // 짧게(contact) — 장타를 깎고(홈런 −0.05 · 2루타 −0.08) 맞힘은 상대 구위에 따라: 구위 약한 투수에겐 손해(−3.3%p) · 센 투수에겐 이득(+1.9%p, style-sim)
+  if (approach === 'contact') { const ce = clamp(((contact - 75) + (stuff - 77) * 1.5) / 10, -1.5, 1.5); return { whiff: 0.035 + 0.025 * ce, hit: 0.005 + 0.025 * ce, hr: -0.05, dbl: -0.08 }; }
   return { whiff: 0, hit: 0, hr: 0, dbl: 0 };
 }
 
@@ -564,11 +565,11 @@ export function pitch(g, orders = {}) {
   g.lastVelo = p.velo;
   if (tempo) ev.tempo = tempo;
 
-  // 스윙 여부 — 기다리기(patience)는 볼에 덜 휘두르는(−0.11) 대신 존 공도 더 지켜본다(−0.12): 제구 나쁜 투수에게 이득(+0.56점) · 좋은 투수에겐 손해(−0.08, flow2-sim)
+  // 스윙 여부 — 기다리기(patience)는 볼에 덜 휘두르는(−0.12) 대신 존 공도 더 지켜본다(−0.16): 제구 나쁜 투수에게 이득(+3.7%p) · 좋은 투수에겐 손해(−1.6%p, style-sim 모두 기다리기)
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
-  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.12 : 0), 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.11 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
+  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.16 : 0), 0, 0.92);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.12 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }

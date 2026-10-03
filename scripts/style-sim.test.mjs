@@ -46,7 +46,7 @@ test.skipIf(!N)('style sim', () => {
     const lo = Math.min(...known), hi = Math.max(...known);
     const opp = pv.oppMound.map((v) => ((v ?? avg) - lo) / (hi - lo || 1));
     const res = {};
-    for (const [ko, make] of ATK_STYLES) {
+    for (const [ko, make] of [...ATK_STYLES, ['모두 기다리기', () => Array(9).fill(3)]]) { // 모두 기다리기 — 기다리기만 따로 재려고(단추엔 없음)
       let w = 0, runs = 0;
       for (let k = 0; k < G; k += 1) { const x = play(engineTeam(myT), engineTeam(opT), i * 1000 + k + 90000, planOf(make(opp))); w += x.w; runs += x.r; }
       res[ko] = { w: w / G, r: runs / G };
