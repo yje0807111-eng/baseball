@@ -78,7 +78,9 @@ export function lateOrders(g, late) {
  *  공격: 우리 공격 회(말)마다 'power' 강공 · 'contact' 짧게 · 'patience' 기다리기 · 'base' 보통(성향 그대로)
  *  선발: mode 'inn'(그 회까지) · 'pitch'(투구 수) · 'bf'(상대한 타자 수)에 닿으면 새 타석에서 교체 — 다음 투수는 그 회에 정해 둔 불펜(없으면 순서대로)
  *  불펜: 선발이 내려간 뒤 회마다 정해 둔 투수로(그 회 첫 타석부터, 아직 안 던졌으면). 감독 호출 수엔 안 셈
+ *  slots = [[아웃, 투수 id], ...] 가 있으면 회 대신 아웃 단위 — 지금 자리(아웃 = (회−1)×3 + 아웃 수)에 닿은 마지막 투수(8회 1아웃부터 마무리 등)
  */
+const slotAt = (slots, g) => { const pos = (Math.min(9, g.inning) - 1) * 3 + (g.outs || 0); let id = null; for (const [from, pid] of slots) if (from <= pos) id = pid; return id; };
 const availOf = (side, id) => side.team.pitchers.slice(side.pitcherIdx + 1).some((p) => p.id === id);
 export function innOrders(g, inn) {
   if (!inn) return null;
@@ -89,7 +91,7 @@ export function innOrders(g, inn) {
     else if (v === 'patience') out.patience = 1;
   }
   if (g.top && !g.balls && !g.strikes) {
-    const side = g.home, lim = inn.limit, inning = Math.min(9, g.inning), id = inn.pens?.[inning];
+    const side = g.home, lim = inn.limit, id = inn.slots ? slotAt(inn.slots, g) : inn.pens?.[Math.min(9, g.inning)];
     if (side.pitcherIdx === 0) {
       const over = lim && (lim.mode === 'inn' ? g.inning > lim.value : lim.mode === 'pitch' ? side.pitches >= lim.value : (side.bf || 0) >= lim.value);
       if (over) out.changePitcher = id && availOf(side, id) ? id : true;

@@ -146,4 +146,16 @@ describe('이닝별 계획', () => {
     g.home.pitches = 40; g.home.bf = 18;
     expect(innOrders(g, { limit: { mode: 'bf', value: 18 } })).toEqual({ changePitcher: true }); // 타자 수
   });
+  it('아웃 단위 교체 지점 — 8회 1아웃부터 마무리', async () => {
+    const { innOrders } = await import('../src/engine/tactics.js');
+    const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });
+    const inn = { limit: { mode: 'inn', value: 6 }, slots: [[0, 'p2'], [22, 'p5']] };
+    g.home.pitcherIdx = 2; g.home.pitcher = g.home.team.pitchers[2];
+    Object.assign(g, { inning: 8, top: true, balls: 0, strikes: 0, outs: 0 });
+    expect(innOrders(g, inn)).toEqual({}); // 8회 무사 — 계투 그대로
+    g.outs = 1;
+    expect(innOrders(g, inn)).toEqual({ changePitcher: 'p5' }); // 1아웃 뒤 첫 타석
+    g.home.pitcherIdx = 0; g.home.pitcher = g.home.team.pitchers[0]; Object.assign(g, { inning: 7, outs: 0 });
+    expect(innOrders(g, inn)).toEqual({ changePitcher: 'p2' }); // 선발 6회까지 — 7회 첫 타석에 첫 계투
+  });
 });

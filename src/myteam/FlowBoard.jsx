@@ -6,7 +6,7 @@
  *  마운드 한 줄: 선발(손잡이까지) → 계투(기본 1명) → 마무리(9회). 칸을 누르면 아래에 교체 줄 — 왼쪽 '교체' · 불펜 · 오른쪽 추가 · 빼기
  *   추가 = 누른 투수 바로 뒤(마무리를 눌렀으면 마무리 앞)에 안 쓴 투수 중 가장 센 투수, 줄은 새 칸으로 넘어가 바로 고를 수 있게
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
- *   투수 사이마다 경계 손잡이 — 계투끼리 · 계투와 마무리 사이를 회 단위로 옮김(rel.ends, 마지막 값 = 마무리 앞 회). 마무리 기본 9회
+ *   투수 사이마다 경계 손잡이 — 한 아웃씩 옮김(rel.cuts), 끄는 동안 위에 '8회 1아웃' 칩. 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
  *  공격: 회마다 칸 — 누르면 보통 → 강공 → 짧게 → 기다리기 돌림, 구간 사이 손잡이를 끌면 구간이 늘고 줄음
@@ -35,29 +35,28 @@ export const exitOf = (limit) => Math.max(0.5, Math.min(9, limit.value / LIMIT[l
 export const limitKo = (limit) => (limit.mode === 'inn' ? `${limit.value}회까지` : `${limit.value}${LIMIT[limit.mode].unit}`);
 const pct = (inn) => `${(inn / 9) * 100}%`;
 /*
- * 마운드 계획 — rel = { mid: [계투 id], close: 마무리 id } → 엔진 pens(회 → id)
- *  첫 계투 회 F = 선발 어림 이닝 다음 회. F ~ 8회를 계투가 앞에서부터 고르게 나눔(남는 회는 앞 투수가 한 회 더)
- *  자리(9 − F)보다 계투가 많으면 들어가는 만큼만. 1회 ~ F−1 은 첫 투수로 채워 둠 — 선발이 계획보다 일찍 내려가도 그 투수가 받게
+ * 마운드 계획(아웃 단위) — rel = { mid: [계투 id], close: 마무리 id, cuts: [계투마다 끝 아웃] } → 칸(spans) · 엔진 slots([[시작 아웃, id]])
+ *  아웃 = (회−1)×3 + 아웃 수, 0 ~ 27. 경계 손잡이는 한 아웃씩(8회 1아웃부터 마무리 · 4아웃 세이브 등)
+ *  기본(cuts 없음): 선발 어림 다음 회 F ~ 8회를 계투가 회 단위로 고르게, 마무리 9회
+ *  첫 계투는 선발 어림 뒤 한 회(3아웃) 넘게, 나머지는 한 회 이상 — 칸이 손톱만 해지지 않게. 들어갈 자리보다 많은 계투는 숨음
+ *  slots 첫 칸은 0부터 — 선발이 계획보다 일찍 내려가도 첫 계투가 받게
  */
+export const outKo = (o) => `${Math.floor(o / 3) + 1}회 ${o % 3 ? `${o % 3}아웃` : '시작'}`;
 export function moundPlan(rel, exit) {
-  const F = Math.floor(exit) + 1;
-  if (F > 9) return { F, room: 0, cap: 0, minFirst: 9, mid: [], spans: [], pens: {} };
-  // 첫 계투는 선발이 거의 다 던진 회만 맡지 않게 — 선발 어림 + 0.5회 넘는 회까지(칸이 손톱만 해지지 않게)
-  const minFirst = Math.min(8, Math.max(F, Math.ceil(exit + 0.5)));
-  const room = 9 - F;
-  const mid = (rel.mid || []).slice(0, 9 - minFirst);
-  const pens = {}, spans = [];
-  let at = F, even = F - 1;
+  const F = Math.floor(exit) + 1, E = exit * 3;
+  const minFirst = Math.ceil(E - 1e-9) + 3;
+  const cap = F > 9 || minFirst > 24 ? 0 : 1 + Math.floor((24 - minFirst) / 3);
+  const mid = (rel.mid || []).slice(0, cap);
+  const n = mid.length, room = 9 - F, spans = [];
+  let even = F - 1;
   mid.forEach((id, k) => {
-    even += Math.floor(room / mid.length) + (k < room % mid.length ? 1 : 0);
-    const end = Math.max(k ? at : minFirst, Math.min(8 - (mid.length - 1 - k), rel.ends?.[k] ?? even));
-    for (let i = at; i <= end; i += 1) pens[i] = id;
-    spans.push({ slot: k, id, a: at, b: end }); at = end + 1;
+    even += Math.floor(room / n) + (k < room % n ? 1 : 0);
+    const lo = k ? spans[k - 1].b + 3 : minFirst, hi = 24 - 3 * (n - 1 - k);
+    spans.push({ slot: k, id, a: k ? spans[k - 1].b : E, b: Math.max(lo, Math.min(hi, rel.cuts?.[k] ?? even * 3)) });
   });
-  if (rel.close) { for (let i = at; i <= 9; i += 1) pens[i] = rel.close; spans.push({ slot: 'close', id: rel.close, a: at, b: 9 }); }
-  const first = spans[0]?.id;
-  if (first) for (let i = 1; i < F; i += 1) pens[i] = first;
-  return { F, room, cap: 9 - minFirst, minFirst, mid, spans, pens };
+  if (rel.close && F <= 9) spans.push({ slot: 'close', id: rel.close, a: n ? spans[n - 1].b : E, b: 27 });
+  const slots = spans.map((x, k) => [k ? x.a : 0, x.id]);
+  return { F, cap, minFirst, mid, spans, slots };
 }
 /* 계투 · 마무리 고르기 — 이미 다른 자리에 있는 투수면 서로 바꿈 */
 export function pickRel(rel, slot, id) {
@@ -130,10 +129,10 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
       } else if (d.kind === 'seg') { // 구간 사이 — 왼쪽 구간 끝 회를 옮긴다(이웃 구간 안에서)
         const b = Math.max(d.min, Math.min(d.max, Math.round(x)));
         if (b !== d.b) { const next = [...S.atk]; for (let i = d.min; i <= d.max + 1; i += 1) next[i - 1] = i <= b ? d.lv : d.rv; d.b = b; S.setAtk(next); }
-      } else if (d.kind === 'mid') { // 계투 경계 — 회 끝에 딱, 앞뒤 계투가 한 회는 남게
-        const b = Math.max(d.min, Math.min(d.max, Math.round(x)));
-        const ends = S.mp.spans.filter((z) => typeof z.slot === 'number').map((z) => z.b);
-        if (ends[d.k] !== b) { ends[d.k] = b; S.setRel({ ...S.rel, ends }); }
+      } else if (d.kind === 'mid') { // 투수 경계 — 한 아웃씩, 앞뒤 투수가 한 회는 남게
+        const b = Math.max(d.min, Math.min(d.max, Math.round(x * 3)));
+        const cuts = S.mp.spans.filter((z) => typeof z.slot === 'number').map((z) => z.b);
+        if (cuts[d.k] !== b) { cuts[d.k] = b; S.setRel({ ...S.rel, cuts }); }
       } else if (d.kind === 'aug') {
         const v = Math.max(3, Math.min(8, Math.floor(x) + 1));
         S.setAugInn(v);
@@ -150,7 +149,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0];
     if (!p) return;
     const at = pick === 'close' ? mp.mid.length : pick + 1;
-    setRel({ ...rel, mid: [...rel.mid.slice(0, at), p.id, ...rel.mid.slice(at)], ends: [] });
+    setRel({ ...rel, mid: [...rel.mid.slice(0, at), p.id, ...rel.mid.slice(at)], cuts: [] });
     setPick(at);
   };
   const canAdd = mp.mid.length < mp.cap && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id));
@@ -192,18 +191,20 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
           </span>
           {mp.spans.map((x, k) => {
-            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1, l = 5;
+            const p = byId.get(x.id), on = pick === x.slot, a = x.a / 3, l = 5;
             return (
               <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
-                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
                 {p && <Portrait player={p} w={24} h={30} color="#334155" />}
                 <span className="flex min-w-0 flex-col items-start leading-tight"><span className="truncate text-[11px]" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>
               </button>
             );
           })}
           {mp.spans.slice(0, -1).map((x, k) => (
-            <Grip key={`g${k}`} x={pct(x.b)} on={drag?.kind === 'mid' && drag.k === k} label={mp.spans[k + 1].slot === 'close' ? '계투 · 마무리 경계' : `계투 ${k + 1} · ${k + 2} 경계`}
-              onPointerDown={(e) => start(e, { kind: 'mid', k, min: k ? x.a : mp.minFirst, max: mp.spans[k + 1].b - 1 })} />
+            <Grip key={`g${k}`} x={pct(x.b / 3)} on={drag?.kind === 'mid' && drag.k === k} label={mp.spans[k + 1].slot === 'close' ? '계투 · 마무리 경계' : `계투 ${k + 1} · ${k + 2} 경계`}
+              onPointerDown={(e) => start(e, { kind: 'mid', k, min: k ? x.a + 3 : mp.minFirst, max: mp.spans[k + 1].b - 3 })}>
+              {drag?.kind === 'mid' && drag.k === k && <b className="pointer-events-none absolute -top-7 whitespace-nowrap rounded-md px-2 py-0.5 text-t4 font-bold" style={{ background: 'rgba(11,15,26,.85)', color: W1, boxShadow: `inset 0 0 0 1px ${US}` }}>{outKo(x.b)}</b>}
+            </Grip>
           ))}
           <Grip x={pct(exit)} on={drag?.kind === 'sp'} role="slider" label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
             onPointerDown={(e) => start(e, { kind: 'sp' })} onKeyDown={(e) => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); }}
@@ -224,7 +225,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             })}
             <span className="ml-auto flex gap-1.5">
               <button type="button" onClick={addMid} disabled={!canAdd} className="rounded-md px-3 py-1 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>추가</button>
-              <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick), ends: [] }); setPick(null); }} disabled={pick === 'close' || rel.mid.length < 2}
+              <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick), cuts: [] }); setPick(null); }} disabled={pick === 'close' || rel.mid.length < 2}
                 className="rounded-md px-3 py-1 text-t4 font-bold disabled:opacity-30" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>
             </span>
           </div>

@@ -1,19 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { moundPlan, pickRel, segsOf, exitOf } from '../src/myteam/FlowBoard.jsx';
+import { moundPlan, outKo, pickRel, segsOf, exitOf } from '../src/myteam/FlowBoard.jsx';
 
 describe('정비 2단계 이닝 판', () => {
-  it('마운드 — 선발 다음 회 ~ 8회를 계투가 나누고 9회 마무리, 앞 회는 첫 계투로', () => {
-    const r = moundPlan({ mid: ['a', 'b'], close: 'c' }, 5.8); // 6 · 7 · 8회 → a 6~7 · b 8
-    expect(r.pens).toEqual({ 1: 'a', 2: 'a', 3: 'a', 4: 'a', 5: 'a', 6: 'a', 7: 'a', 8: 'b', 9: 'c' });
+  it('마운드(아웃 단위) — 선발 다음 회 ~ 8회를 계투가 나누고 9회 마무리, 첫 칸은 0아웃부터', () => {
+    const ends = (r) => r.spans.map((x) => `${x.id}:${x.b}`).join(' ');
+    const r = moundPlan({ mid: ['a', 'b'], close: 'c' }, 5.8); // 6 · 7 · 8회 → a 6~7 · b 8 · c 9
+    expect(ends(r)).toBe('a:21 b:24 c:27');
+    expect(r.slots).toEqual([[0, 'a'], [21, 'b'], [24, 'c']]);
     expect(moundPlan({ mid: ['a', 'b'], close: 'c' }, 7).mid).toEqual(['a']); // 자리 1 — 넘치는 계투는 숨음
-    expect(moundPlan({ mid: ['a'], close: 'c' }, 8.4).pens[9]).toBe('c');
+    expect(moundPlan({ mid: ['a'], close: 'c' }, 8.4).slots).toEqual([[0, 'c']]); // 계투 자리 없음 — 마무리만
     expect(moundPlan({ mid: ['a'], close: 'c' }, 9).spans).toEqual([]);
-    expect(moundPlan({ mid: ['a', 'b', 'c', 'd'], close: 'e' }, 4.7).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a5-6', 'b7-7', 'c8-8', 'e9-9']); // 4.7회 — 첫 계투 5~6회, 자리 3
-    // 끈 경계 — a 6회만 · b 7~8회, 너무 멀리 끌면 뒤 계투 한 회는 남김, 선발이 늘면 앞 계투 쪽으로 눌러 담음
-    expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6] }, 5.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a6-6', 'b7-8', 'c9-9']);
-    expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [8] }, 5.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a6-7', 'b8-8', 'c9-9']);
-    expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6, 7] }, 5.2).pens).toMatchObject({ 6: 'a', 7: 'b', 8: 'c', 9: 'c' }); // 마무리 8회부터
-    expect(moundPlan({ mid: ['a', 'b'], close: 'c', ends: [6] }, 6.2).spans.map((x) => `${x.id}${x.a}-${x.b}`)).toEqual(['a7-7', 'b8-8', 'c9-9']);
+    expect(ends(moundPlan({ mid: ['a', 'b', 'c', 'd'], close: 'e' }, 4.7))).toBe('a:18 b:21 c:24 e:27'); // 첫 계투 5~6회, 자리 3
+    // 끈 경계(아웃) — 한 회는 남김, 마무리 8회 1아웃부터
+    expect(ends(moundPlan({ mid: ['a', 'b'], close: 'c', cuts: [19] }, 5.2))).toBe('a:19 b:24 c:27');
+    expect(ends(moundPlan({ mid: ['a', 'b'], close: 'c', cuts: [24] }, 5.2))).toBe('a:21 b:24 c:27');
+    expect(moundPlan({ mid: ['a', 'b'], close: 'c', cuts: [19, 22] }, 5.2).slots).toEqual([[0, 'a'], [19, 'b'], [22, 'c']]);
+    expect(outKo(22)).toBe('8회 1아웃');
   });
   it('계투 · 마무리 고르기 — 다른 자리에 있으면 서로 바꿈', () => {
     expect(pickRel({ mid: ['a', 'b'], close: 'c' }, 'close', 'a')).toEqual({ mid: ['c', 'b'], close: 'a' });

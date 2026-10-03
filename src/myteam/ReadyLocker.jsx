@@ -510,7 +510,7 @@ export default function ReadyLocker({
   });
   /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
   const flowPlan = () => {
-    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, pens: moundPlan(rel, exitOf(limit)).pens, rel } });
+    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
     Object.assign(p.fine, { swing: '보통', take: '보통' });
     delete p.fine.appr;
     return p;
