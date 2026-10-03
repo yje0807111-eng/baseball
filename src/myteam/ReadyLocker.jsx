@@ -32,10 +32,10 @@ function WinBar({ win, c }) {
   );
 }
 import SquadBoard from './SquadBoard.jsx';
+import OppPanel from './OppPanel.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags } from './strategy.js';
 
-import { pitchMix, repertoireOf, PITCHES } from '../engine/pitchSim.js';
 import { planRun, planSummary, planAnalysis, planDeltas } from './planSim.js';
 import { Btn, UiStyle, Pop, FxChips } from './ui.jsx';
 import { posColor } from './teamColor.js';
@@ -108,48 +108,7 @@ function Versus({ sums, c }) {
 }
 
 /** 왼쪽 — 오늘 상대: 선발 · 경계 타자 · 전력 비교. 타순은 단추로 */
-/* 설계 분석 조각 — 상대 선발 구종 막대 · 타선 구종 약점 · 우리 선발과 가장 센 불펜 */
-const FAMS = [['F', '직구'], ['B', '휘는 공'], ['O', '떨어지는 공']];
-const PITCH_C = ['#f87171', '#a78bfa', '#2dd4bf', '#60a5fa', '#fbbf24'];
-function MixBar({ p }) {
-  const mix = pitchMix(p), rep = repertoireOf(p);
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="flex h-2 overflow-hidden rounded-full">{rep.map((t, i) => <i key={t} className="block h-full" style={{ width: `${(mix[t] || 0) * 100}%`, background: PITCH_C[i % 5] }} />)}</span>
-      <span className="flex flex-wrap gap-x-3 text-t4 text-gray-400">{rep.map((t, i) => <span key={t}><i className="mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: PITCH_C[i % 5] }} />{PITCHES[t].name} {Math.round((mix[t] || 0) * 100)}%</span>)}</span>
-    </div>
-  );
-}
-function WeakBars({ an, c }) {
-  return (
-    <div className="flex shrink-0 flex-col gap-2.5">
-      <Sub>타선 구종 약점</Sub>
-      {FAMS.map(([k, ko]) => (
-        <div key={k} className="grid items-center gap-3" style={{ gridTemplateColumns: '7.5rem 1fr 1.5rem' }}>
-          <span className="whitespace-nowrap text-t3 text-gray-300">{ko} 약함</span>
-          <span className="relative h-1.5 rounded-full bg-white/[0.07]"><i className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${(an.weak[k] / 9) * 100}%`, background: c }} /></span>
-          <b className="text-right font-display text-t2 text-white">{an.weak[k]}</b>
-        </div>
-      ))}
-    </div>
-  );
-}
-function MoundGap({ an }) {
-  const g = an.gap, tone = g >= 0 ? US : '#f87171';
-  return (
-    <div className="flex shrink-0 flex-col gap-2">
-      <Sub>우리 마운드</Sub>
-      <div className="flex items-center gap-2 text-t3">
-        <span className="min-w-0 truncate"><span className="text-gray-400">선발 </span><b className="text-white">{an.sp?.name}</b></span>
-        <span className="text-gray-500">·</span>
-        <span className="min-w-0 truncate"><span className="text-gray-400">불펜 최고 </span><b className="text-white">{an.best?.name || '-'}</b></span>
-        <b className="ml-auto font-display text-t1 leading-none" style={{ color: tone }}>{g >= 0 ? '+' : ''}{g}</b>
-      </div>
-    </div>
-  );
-}
-
-function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = false, step = 0, oppPen = null, stars = null }) {
+function ScoutPanel({ opponent, sums, win = null, onLineup }) {
   const ros = opponent.roster || [];
   const bats = ros.filter((p) => p.type === 'batter');
   const pits = [...ros.filter((p) => p.type === 'pitcher')].sort((a, b) => b.overall - a.overall);
@@ -179,21 +138,9 @@ function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = fa
             <b className="font-display text-t2" style={{ color: c }}>{ace.overall}</b>
           </div>
           <span className="text-t4 text-gray-400">구위 {ace.stats.stuff} · 제구 {ace.stats.control}</span>
-          {an && <MixBar p={ace} />}
         </div>
       )}
       <Rule />
-      {an ? <>
-        {step === 2 && oppPen ? (
-          <div className="flex shrink-0 flex-col gap-2"><Sub>상대 불펜</Sub>
-            {oppPen.slice(0, 4).map((p) => <div key={p.id} className="flex items-baseline gap-2"><b className="min-w-0 flex-1 truncate text-t3 text-white">{p.name}</b><span className="font-display text-t2" style={{ color: ((p.stats?.stuff ?? 80) + (p.stats?.control ?? 75)) / 2 < 78 ? '#34d399' : '#e2e8f0' }}>{Math.round(((p.stats?.stuff ?? 80) + (p.stats?.control ?? 75)) / 2)}</span></div>)}
-          </div>
-        ) : step === 3 && stars ? (
-          <div className="flex shrink-0 flex-col gap-2"><Sub>상대 강타자</Sub>
-            {stars.map((p) => <div key={p.id} className="flex items-baseline gap-2"><b className="min-w-0 flex-1 truncate text-t3 text-white">{p.name}</b><span className="text-t4 text-gray-400">파워</span><b className="font-display text-t2 text-white">{p.stats?.power}</b></div>)}
-          </div>
-        ) : <WeakBars an={an} c={c} />}
-        <Rule /><MoundGap an={an} /></> : <>
       <div className="flex shrink-0 flex-col gap-2.5">
         <Sub>경계 타자</Sub>
         {watch.map((p) => (
@@ -206,10 +153,9 @@ function ScoutPanel({ opponent, sums, win = null, onLineup, an = null, busy = fa
       </div>
       <Rule />
       {sums && <Versus sums={sums} c={c} />}
-      </>}
       {/* 예상 승률 — 내 쪽 초록 · 상대 쪽 상대 색 */}
       {win != null && (
-        <div className="flex shrink-0 flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>
+        <div className="flex shrink-0 flex-col gap-1.5 transition-opacity" style={{ opacity: 1 }}>
           <WinBar win={win} c={c} />
         </div>
       )}
@@ -576,8 +522,6 @@ export default function ReadyLocker({
     return [top3[2]?.id, top3[1]?.id, top3[0]?.id];
   });
   const [augInn, setAugInn] = useState(team.plan?.augInn || 7);
-  const oppPen = useMemo(() => (engine ? [...engine.away.pitchers.slice(1).filter((p) => p.position !== 'SP')].sort((x, y) => arm(y) - arm(x)) : null), [engine]); // eslint-disable-line react-hooks/exhaustive-deps
-  const stars = useMemo(() => (engine ? [...engine.away.batters].sort((x, y) => (y.stats?.power ?? 0) - (x.stats?.power ?? 0)).slice(0, 3) : null), [engine]);
   const an = useMemo(() => (engine ? planAnalysis(engine.home, engine.away) : null), [engine]);
   const deltas = useMemo(() => (an ? planDeltas(an) : null), [an]);
   /*
@@ -611,8 +555,7 @@ export default function ReadyLocker({
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr) 340px', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
-        <ScoutPanel opponent={opponent} sums={sums} win={null} an={an} step={step} oppPen={oppPen} stars={stars} onLineup={() => setFoeOpen(true)} />
-        {foeOpen && <FoeLineup opponent={opponent} onClose={() => setFoeOpen(false)} />}
+        <OppPanel opponent={opponent} engine={engine} step={step} pv={pv} busy={busy} />
         <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(20), '--a': US }}>
           <div className="flex shrink-0 items-center gap-4"><Stepper step={step} onStep={setStep} /><span className="ml-auto flex items-baseline gap-2"><Sub>팀 종합</Sub><b className="font-display text-t1 font-extrabold leading-none" style={{ color: US }}>{teamInfo.ovr}</b></span></div>
           {step === 1 && <SquadBoard team={team} squad={squad} bench={bench} sel={sel} onSelect={setSel} onCommit={onCommit} fitSlots={!full} compact railW={264} footer={<SynergyRow synergies={synergies} />} />}

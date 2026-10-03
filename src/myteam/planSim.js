@@ -3,7 +3,7 @@
  * 경기 화면(ChoiceGame)과 같은 운용: 우리 쪽은 설계(성향 + 조건 지시) · 엔진 교체 문턱만, 상대만 AI 투수 교체.
  * 칸마다 붙는 승률 변화(planDeltas)는 plan-sim 6,000경기의 그룹 값 — 판마다 n판을 더 굴리면 정비 화면이 수십 초 멈춘다.
  */
-import { createGame, pitch, aiPitchingChange, aiRunOrders, batterFam, repertoireOf, PITCHES } from '../engine/pitchSim.js';
+import { createGame, pitch, aiPitchingChange, aiRunOrders, batterFam, repertoireOf, PITCHES, staminaOf, ttoOf } from '../engine/pitchSim.js';
 import { planOrders, starsOf } from '../engine/tactics.js';
 import { seeded } from '../engine/rng.js';
 
@@ -15,12 +15,17 @@ export const armOf = (p) => (st(p, 'stuff', 80) + st(p, 'control', 75)) / 2;
  * 고른 설계로 판을 굴려 쌓는다 — from ~ to 번째 판(시드 i+1). 한 판이 바뀌면 그 뒤 난수가 다 갈려 판끼리 견줘도 잡음이 크다
  * (160판이면 승률 ±5%p 안팎) — 정비 화면은 100판씩 나눠 600판까지 쌓으며 숫자를 다듬는다(planSummary)
  */
-export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exitSum: 0, oppExitSum: 0, byInn: { 7: {}, 8: {}, 9: {} }, oppInn: {} }) {
+export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exitSum: 0, oppExitSum: 0, byInn: { 7: {}, 8: {}, 9: {} }, oppInn: {}, mound: Array(9).fill(0), moundN: Array(9).fill(0) }) {
   const stars = starsOf(away);
   for (let i = from; i < to; i += 1) {
     const g = createGame({ home: copy(home), away: copy(away), rng: seeded(i + 1) });
     let guard = 0, out = null, oppOut = null;
     while (!g.final && guard++ < 1500) {
+      /* 상대 흐름(정비 2단계 파도) — 우리 새 타석마다 상대 투수의 실제 힘: (구위+제구)/2 − 지침(체력 50 아래부터 최대 −11) − 타순 바퀴 */
+      if (!g.top && g.inning <= 9 && !g.balls && !g.strikes) {
+        const side = g.away, stam = staminaOf(side), k = g.inning - 1;
+        acc.mound[k] += armOf(side.pitcher) - (stam < 50 ? ((50 - stam) / 50) * 11 : 0) - ttoOf(side); acc.moundN[k] += 1;
+      }
       let o = planOrders(g, plan || {}, { stars });
       if (!g.top) { const ch = aiPitchingChange(g, g.away); if (ch) o = { ...o, changePitcher: ch }; }
       else { const run = aiRunOrders(g); if (run) o = { ...o, ...run }; } // 상대 공격 주루(도루)
@@ -36,11 +41,12 @@ export function planRun(home, away, plan, from, to, acc = { w: 0, games: 0, exit
   }
   return acc;
 }
-/** 쌓은 판 → { win(%), exitInn(선발이 내려간 평균 이닝), pen: [7 · 8 · 9회 불펜], oppExit(상대 선발), oppPen: [1~9회 상대 불펜], games } */
+/** 쌓은 판 → { win(%), exitInn(선발이 내려간 평균 이닝), pen: [7 · 8 · 9회 불펜], oppExit(상대 선발), oppPen: [1~9회 상대 불펜], oppMound: [1~9회 상대 마운드 힘], games } */
 export function planSummary(acc) {
   const top = (m) => Object.entries(m).sort((x, y) => y[1] - x[1])[0]?.[0] || null;
   return { win: Math.round((acc.w / acc.games) * 100), exitInn: acc.exitSum / acc.games, pen: [7, 8, 9].map((k) => top(acc.byInn[k])), games: acc.games,
-    oppExit: acc.oppExitSum / acc.games, oppPen: Array.from({ length: 9 }, (_, i) => top(acc.oppInn[i + 1] || {})) };
+    oppExit: acc.oppExitSum / acc.games, oppPen: Array.from({ length: 9 }, (_, i) => top(acc.oppInn[i + 1] || {})),
+    oppMound: acc.mound.map((v, i) => (acc.moundN[i] ? v / acc.moundN[i] : null)) };
 }
 export const planPreview = (home, away, plan, n = 200) => planSummary(planRun(home, away, plan, 0, n));
 
