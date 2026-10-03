@@ -2,6 +2,7 @@
  * 공격 스타일 시뮬(정비 2단계 그래프 아래 단추) — 스타일마다 '보통'과 견준 승률 · 득점, 상대 선발 제구 · 구위에 따라 갈리나
  *  같은 대진 · 같은 시드끼리 견준다(우리 = 홈). 선발 95구 · 위기 교체 늦게 · 상황 대응 센 불펜 — 정비 판 기본과 같게
  *  '상대 흐름 따라'는 그 대진 미리보기(30판) 상대 마운드로 만든다 — 정비 판과 같은 셈
+ * 기준은 '기본형'(모두 보통)
  * 무거워서 평소엔 건너뛴다: ST=120 npx vitest run scripts/style-sim.test.mjs → _style.json
  */
 import { test } from 'vitest';
@@ -43,7 +44,7 @@ test.skipIf(!N)('style sim', () => {
     const mine = engineTeam(myT), away = engineTeam(opT);
     const pv = planSummary(planRun(mine, away, planOf(Array(9).fill(1)), 0, 30));
     const known = pv.oppMound.filter((v) => v != null), avg = known.reduce((a, b) => a + b, 0) / known.length;
-    const lo = Math.min(...known), hi = Math.max(...known);
+    const mid0 = (Math.min(...known) + Math.max(...known)) / 2, span = Math.max(6, Math.max(...known) - Math.min(...known)), lo = mid0 - span / 2, hi = mid0 + span / 2; // 정비 판과 같은 셈(폭 최소 6)
     const opp = pv.oppMound.map((v) => ((v ?? avg) - lo) / (hi - lo || 1));
     const res = {};
     for (const [ko, make] of [...ATK_STYLES, ['모두 기다리기', () => Array(9).fill(3)]]) { // 모두 기다리기 — 기다리기만 따로 재려고(단추엔 없음)

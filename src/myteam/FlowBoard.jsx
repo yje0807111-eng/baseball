@@ -32,26 +32,44 @@ const LEAD = '9rem';
 export const ATK_KO = { base: '보통', power: '강공', contact: '짧게', patience: '기다리기' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
-const GH = 180, GPAD = 22;
+const GH = 156, GPAD = 20; // 스타일 단추 세 줄이 들어가게 180 → 156
 const gy = (lv) => GPAD + (lv * (GH - GPAD * 2)) / 3;
 const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
 const curveOf = (ys) => { let d = `M0,${ys[0]} L${gx(0)},${ys[0]}`; for (let i = 1; i < 9; i += 1) { const mx = (gx(i - 1) + gx(i)) / 2; d += ` C${mx},${ys[i - 1]} ${mx},${ys[i]} ${gx(i)},${ys[i]}`; } return `${d} L900,${ys[8]}`; };
 const dotC = (v) => (v === 'base' ? '#cbd5e1' : ATK_C[v]);
 /*
- * 공격 스타일 — 높이 9개(0 강공 · 1 보통 · 2 짧게 · 3 기다리기)
- *  이름은 야구 말로 짧게(2026-10-03): 정석 = 모두 보통 · 빈틈 공략 = 상대 흐름 따라 · 탐색전 = 초반 기다리기 · 뒷심 = 후반 몰아치기 · 빅볼 = 모두 강공 · 끊어 치기 = 모두 짧게
- *  빈틈 공략: 상대 마운드가 약한 회일수록 강공, 센 회일수록 짧게 · 기다리기 쪽(0 ~ 2.4) — 미리보기 값이 없으면 보통
+ * 공격 스타일 — 높이 9개(0 강공 · 1 보통 · 2 짧게 · 3 기다리기). 여섯 갈래 × 2~3개, 이름은 '~형'(FC 온라인 전술 이름처럼 한눈에)
+ *  기본 · 상대 맞춤 · 초반 탐색 · 후반 공격 · 안타 · 장타 — 갈래 = 단추 한 열(맨 위가 대표)
+ *  상대 맞춤 셋은 미리보기 상대 마운드(0 = 가장 약한 회 ~ 1 = 가장 센 회)로 만든다 — 미리보기 값이 없으면 기본형
+ *   상대 맞춤형: 약할수록 강공 · 셀수록 짧게 · 기다리기 쪽(0 ~ 2.4) / 약점 집중형: 가장 약한 세 회만 강공 / 강약 조절형: 약한 1/3 강공 · 센 1/3 짧게
+ *  득실(style-sim, ROADMAP 13): 안타 쪽 ↔ 상대 구위 셀수록 이득, 장타 쪽 ↔ 구위 약할수록 이득, 초반 탐색(기다리기) ↔ 제구 나쁠수록 이득
  */
 const r1 = (v) => Math.round(v * 10) / 10;
-export const ATK_STYLES = [
-  ['정석', () => Array(9).fill(1)],
-  ['빈틈 공략', (opp) => (opp ? opp.map((n) => r1(n * 2.4)) : Array(9).fill(1))],
-  ['탐색전', () => [3, 3, 2.5, 1.5, 1, 1, 1, 1, 1]],
-  ['뒷심', () => [1, 1, 1, 1, 1, 0.7, 0.3, 0, 0]],
-  ['빅볼', () => Array(9).fill(0)],
-  ['끊어 치기', () => Array(9).fill(2)],
+const fill = (v) => Array(9).fill(v);
+const byOpp = (fn) => (opp) => (opp ? fn(opp) : fill(1));
+const weakest = (opp, n) => new Set(opp.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]).slice(0, n).map(([, i]) => i));
+export const ATK_GROUPS = [
+  ['기본', [['기본형', () => fill(1)], ['신중형', () => fill(1.5)]]],
+  ['상대 맞춤', [
+    ['상대 맞춤형', byOpp((opp) => opp.map((n) => r1(n * 2.4)))],
+    ['약점 집중형', byOpp((opp) => { const w = weakest(opp, 3); return opp.map((_, i) => (w.has(i) ? 0 : 1)); })],
+    ['강약 조절형', byOpp((opp) => opp.map((n) => (n < 0.34 ? 0 : n > 0.66 ? 2 : 1)))],
+  ]],
+  ['초반 탐색', [
+    ['초반 탐색형', () => [3, 3, 2.5, 1.5, 1, 1, 1, 1, 1]],
+    ['투구 수 공략형', () => [3, 3, 3, 3, 3, 1, 1, 1, 1]],
+    ['탐색 후 공격형', () => [3, 3, 3, 0.5, 0.5, 0.5, 1, 1, 1]],
+  ]],
+  ['후반 공격', [
+    ['후반 공격형', () => [1, 1, 1, 1, 1, 0.7, 0.3, 0, 0]],
+    ['막판 승부형', () => [1, 1, 1, 1, 1, 1, 1, 0, 0]],
+    ['중반 승부형', () => [1, 1, 1, 0, 0, 0, 1, 1, 1]],
+  ]],
+  ['안타', [['안타형', () => fill(2)], ['출루형', () => fill(2.5)], ['초반 안타형', () => [2, 2, 2, 1, 1, 1, 1, 1, 1]]]],
+  ['장타', [['장타형', () => fill(0)], ['적극형', () => fill(0.5)], ['선제 공격형', () => [0, 0, 0, 1, 1, 1, 1, 1, 1]]]],
 ];
+export const ATK_STYLES = ATK_GROUPS.flatMap(([, list]) => list);
 /* 높이 값 — 예전 이름도 받음 */
 export const atkLvOf = (v) => (typeof v === 'number' ? v : Math.max(0, ATK_LV.indexOf(v)));
 const lvC = (lv) => dotC(ATK_LV[Math.round(lv)]);
@@ -198,7 +216,9 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
   const canAdd = mp.mid.length < mp.cap && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id));
   const nudge = (i, dir) => { const n = [...atk]; n[i] = Math.max(0, Math.min(3, Math.round((atkLvOf(atk[i]) + dir * 0.1) * 10) / 10)); setAtk(n); };
   /* 상대 마운드 흐름 — 셀수록 아래(약한 회 = 위 = 기회) */
-  const lo = known.length ? Math.min(...known) : 0, hi = known.length ? Math.max(...known) : 1;
+  // 폭은 최소 6 — 상대 마운드가 고르면(77~79 등) 파도 · 상대 맞춤 스타일이 작은 차이를 부풀리지 않게
+  const mid0 = known.length ? (Math.min(...known) + Math.max(...known)) / 2 : 0, span = known.length ? Math.max(6, Math.max(...known) - Math.min(...known)) : 1;
+  const lo = mid0 - span / 2, hi = mid0 + span / 2;
   const oppYs = INN.map((i) => GPAD + (((mound[i - 1] ?? avg) - lo) / (hi - lo || 1)) * (GH - GPAD * 2));
   const atkYs = atk.map((v) => gy(atkLvOf(v)));
   const oppNorm = known.length ? INN.map((i) => ((mound[i - 1] ?? avg) - lo) / (hi - lo || 1)) : null;
@@ -322,20 +342,24 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         </div>
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
           <span />
-          <span className="flex flex-wrap gap-1.5">
-            {ATK_STYLES.map(([ko, make]) => {
-              const target = make(oppNorm), on = styleOn(target);
-              return (
-                <button key={ko} type="button" onClick={() => applyStyle(target)} aria-pressed={on}
-                  className="flex items-center gap-2 rounded-md px-3 py-1.5 transition-colors hover:bg-white/[0.06]"
-                  style={{ background: on ? 'rgba(16,185,129,.12)' : 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.09)'}` }}>
-                  <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="h-4 w-12 shrink-0" aria-hidden="true">
-                    <path d={curveOf(target.map(gy))} fill="none" stroke={on ? US : '#9ca3af'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                  </svg>
-                  <b className="whitespace-nowrap text-t4" style={{ color: on ? '#fff' : W2 }}>{ko}</b>
-                </button>
-              );
-            })}
+          <span className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
+            {ATK_GROUPS.map(([group, list]) => (
+              <span key={group} className="flex min-w-0 flex-col gap-1">
+                {list.map(([ko, make], k) => {
+                  const target = make(oppNorm), on = styleOn(target);
+                  return (
+                    <button key={ko} type="button" onClick={() => applyStyle(target)} aria-pressed={on}
+                      className="flex min-w-0 items-center gap-2 rounded-md px-2.5 py-1 transition-colors hover:bg-white/[0.06]"
+                      style={{ background: on ? 'rgba(16,185,129,.12)' : k ? 'rgba(255,255,255,.015)' : 'rgba(255,255,255,.04)', boxShadow: `inset 0 0 0 1px ${on ? US : k ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}` }}>
+                      <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="h-3.5 w-10 shrink-0" aria-hidden="true">
+                        <path d={curveOf(target.map(gy))} fill="none" stroke={on ? US : k ? '#6b7280' : '#9ca3af'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      </svg>
+                      <b className="truncate text-t4" style={{ color: on ? '#fff' : k ? W2 : W1 }}>{ko}</b>
+                    </button>
+                  );
+                })}
+              </span>
+            ))}
           </span>
         </div>
       </div>
