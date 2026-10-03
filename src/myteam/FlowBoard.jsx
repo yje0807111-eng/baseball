@@ -3,7 +3,8 @@
  *  모든 줄이 '왼쪽 이름 칸 + 1~9회' 같은 눈금 — 왼쪽 상대 흐름(파도)과 같은 회. 상대 마운드가 꺼진 회(평균 −2) = 기회 기둥(옅은 초록)
  *  말풍선은 손잡이 왼쪽(막대 끝 안) — 위로 띄우면 상대 마운드 줄을 가린다
  *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 노란 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
- *  불펜: 선발 손잡이 뒤 회마다 칸 — 누르면 아래에 불펜 줄이 열려 고름
+ *  마운드 한 줄: 선발(손잡이까지) → 계투(+ 로 늘림, 기본 1명) → 마무리(9회). 칸을 누르면 아래에 불펜 줄이 열려 고름
+ *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
  *  공격: 회마다 칸 — 누르면 보통 → 강공 → 짧게 → 기다리기 돌림, 구간 사이 손잡이를 끌면 구간이 늘고 줄음
  *  증강: 노란 핀을 끌거나 칸을 눌러 3~8회
  *  어림 이닝(손잡이 자리): 투구 수 ÷ 16.5 · 타자 수 ÷ 4.3(미리보기 평균 — 85구 ≈ 5.2회) · 이닝은 그대로
@@ -14,6 +15,7 @@ import { Portrait } from './ui.jsx';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
+const armOf = (p) => Math.round((st(p, 'stuff', 80) + st(p, 'control', 75)) / 2);
 const US = '#10b981', GOLD = '#fbbf24', W1 = '#e5e7eb', W2 = '#9ca3af', W3 = '#6b7280', SPB = '#60a5fa';
 const INN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const LEAD = '9rem';
@@ -28,19 +30,43 @@ export const LIMIT = {
 export const exitOf = (limit) => Math.max(0.5, Math.min(9, limit.value / LIMIT[limit.mode].per));
 export const limitKo = (limit) => (limit.mode === 'inn' ? `${limit.value}회까지` : `${limit.value}${LIMIT[limit.mode].unit}`);
 const pct = (inn) => `${(inn / 9) * 100}%`;
-/* 불펜 고르기 — 한 투수는 한 번만 올라온다: 떨어진 회에 이미 있으면 서로 바꿈, 바로 옆 회면 이어 던지기로 둠 */
-export const pickPen = (pens, inn, id) => {
-  const next = { ...pens };
-  for (const k of Object.keys(next)) if (next[k] === id && Math.abs(k - inn) > 1) { if (pens[inn]) next[k] = pens[inn]; else delete next[k]; }
-  next[inn] = id;
-  return next;
-};
+/*
+ * 마운드 계획 — rel = { mid: [계투 id], close: 마무리 id } → 엔진 pens(회 → id)
+ *  첫 계투 회 F = 선발 어림 이닝 다음 회. F ~ 8회를 계투가 앞에서부터 고르게 나눔(남는 회는 앞 투수가 한 회 더)
+ *  자리(9 − F)보다 계투가 많으면 들어가는 만큼만. 1회 ~ F−1 은 첫 투수로 채워 둠 — 선발이 계획보다 일찍 내려가도 그 투수가 받게
+ */
+export function moundPlan(rel, exit) {
+  const F = Math.floor(exit) + 1;
+  if (F > 9) return { F, room: 0, mid: [], spans: [], pens: {} };
+  const room = 9 - F;
+  const mid = (rel.mid || []).slice(0, room);
+  const pens = {}, spans = [];
+  let at = F;
+  mid.forEach((id, k) => {
+    const n = Math.floor(room / mid.length) + (k < room % mid.length ? 1 : 0);
+    for (let i = 0; i < n; i += 1) pens[at + i] = id;
+    spans.push({ slot: k, id, a: at, b: at + n - 1 }); at += n;
+  });
+  if (rel.close) { pens[9] = rel.close; spans.push({ slot: 'close', id: rel.close, a: 9, b: 9 }); }
+  const first = spans[0]?.id;
+  if (first) for (let i = 1; i < F; i += 1) pens[i] = first;
+  return { F, room, mid, spans, pens };
+}
+/* 계투 · 마무리 고르기 — 이미 다른 자리에 있는 투수면 서로 바꿈 */
+export function pickRel(rel, slot, id) {
+  const mid = [...rel.mid]; let close = rel.close;
+  const cur = slot === 'close' ? close : mid[slot];
+  const j = mid.indexOf(id);
+  if (j >= 0) mid[j] = cur; else if (close === id) close = cur;
+  if (slot === 'close') close = id; else mid[slot] = id;
+  return { mid: mid.filter(Boolean), close };
+}
 export const segsOf =(atk) => atk.reduce((acc, v, i) => { const last = acc[acc.length - 1]; if (last && last.v === v) last.b = i + 1; else acc.push({ a: i + 1, b: i + 1, v }); return acc; }, []);
 
 function Lane({ label, sub, h, children, glass, low }) {
   return (
     <div className="grid items-stretch" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)`, minHeight: h, flexGrow: h >= 56 ? 1 : 0, maxHeight: h >= 56 ? h * 1.6 : undefined }}>
-      <span className="flex flex-col justify-center pr-3"><b className="text-t3" style={{ color: W1 }}>{label}</b>{sub && <span className="text-[11px]" style={{ color: W3 }}>{sub}</span>}</span>
+      <span className="flex flex-col items-start justify-center gap-1 pr-3"><b className="text-t3" style={{ color: W1 }}>{label}</b>{sub && (typeof sub === 'string' ? <span className="text-[11px]" style={{ color: W3 }}>{sub}</span> : sub)}</span>
       <span className="relative block rounded-lg" style={glass ? { background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' } : null}>
         <span className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
           {INN.map((i) => <i key={i} style={{ borderLeft: i > 1 ? '1px solid rgba(255,255,255,.05)' : 'none', background: low?.[i - 1] ? 'rgba(16,185,129,.07)' : 'transparent' }} />)}
@@ -56,8 +82,8 @@ const Seg = ({ opts, on, onPick }) => (
   </span>
 );
 
-export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit, setLimit, innPens, setInnPens, augInn, setAugInn, mix, mixOpts, setMix }) {
-  const [pickInn, setPickInn] = useState(null); // 불펜 고르는 회
+export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit, setLimit, rel, setRel, augInn, setAugInn, mix, mixOpts, setMix }) {
+  const [pick, setPick] = useState(null); // 고르는 자리 — 계투 번호 또는 'close'
   const [drag, setDrag] = useState(null); // { kind: 'sp' | 'seg' | 'aug', ... }
   const laneRef = useRef(null);
   const dragRef = useRef(null);
@@ -67,7 +93,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
   const low = INN.map((i) => mound[i - 1] != null && mound[i - 1] <= avg - 2);
   const L = LIMIT[limit.mode];
   const exit = exitOf(limit);
-  const firstPen = Math.min(9, Math.floor(exit) + 1);
+  const mp = moundPlan(rel, exit);
   const byId = new Map(pens.map((p) => [p.id, p]));
   const segs = segsOf(atk);
 
@@ -97,6 +123,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     window.addEventListener('pointerup', onUp);
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
   }, []);
+  /* + 계투 — 안 쓴 투수 중 가장 센 투수를 보이는 계투 맨 뒤(마무리 앞)에 */
+  const addMid = () => { const used = new Set([...rel.mid, rel.close]); const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0]; if (p) setRel({ ...rel, mid: [...mp.mid, p.id, ...rel.mid.slice(mp.mid.length)] }); };
   const cycle = (i) => { const next = [...atk]; next[i - 1] = ATK_CYCLE[(ATK_CYCLE.indexOf(atk[i - 1]) + 1) % ATK_CYCLE.length]; setAtk(next); };
   const step = (dir) => setLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) });
   const setMode = (mode) => setLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) });
@@ -129,11 +157,22 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
           </span>
         </Lane>
         <i className="block h-px shrink-0 bg-white/[0.07]" />
-        <Lane label="우리 선발" sub="손잡이로 어디까지" h={64} glass low={low}>
+        <Lane label="우리 마운드" h={72} glass low={low}
+          sub={<button type="button" onClick={addMid} disabled={mp.mid.length >= mp.room} className="rounded-md px-2 py-0.5 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>+ 계투</button>}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span className="absolute flex items-center gap-2 rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 8px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
+          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 8px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
             {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
           </span>
+          {mp.spans.map((x, k) => {
+            const p = byId.get(x.id), on = pick === x.slot, a = k === 0 ? exit : x.a - 1;
+            return (
+              <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
+                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + 10px)`, width: `calc(${pct(x.b - a)} - 13px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                {p && <Portrait player={p} w={24} h={30} color="#334155" />}
+                <span className="flex min-w-0 flex-col items-start leading-tight"><span className="truncate text-[11px]" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>
+              </button>
+            );
+          })}
           <span className="absolute z-10 flex -translate-x-1/2 flex-col items-center" style={{ left: pct(exit), top: -8, bottom: -8, transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
             <b className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4" style={{ right: 'calc(100% + 6px)', background: GOLD, color: '#1c1203' }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}</b>
             <span onPointerDown={(e) => start(e, { kind: 'sp' })} role="slider" aria-label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
@@ -141,25 +180,18 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
               className="grid h-full w-4 cursor-ew-resize place-items-center rounded-md outline-none" style={{ background: GOLD, boxShadow: '0 0 0 3px rgba(11,15,26,.9)' }}><i className="block h-5 w-[2px] rounded bg-[#1c1203]" /></span>
           </span>
         </Lane>
-        <Lane label="불펜" sub="칸을 눌러 고르기" h={64} glass low={low}>
-          {INN.filter((i) => i >= firstPen).map((i) => {
-            const p = byId.get(innPens[i]);
-            return (
-              <button key={i} type="button" onClick={() => setPickInn(pickInn === i ? null : i)} className="absolute flex items-center justify-center gap-1.5 rounded-md px-1"
-                style={{ top: 6, bottom: 6, left: `calc(${pct(i - 1)} + 3px)`, width: `calc(${pct(1)} - 6px)`, background: pickInn === i ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${pickInn === i ? US : 'rgba(255,255,255,.1)'}` }}>
-                {p ? <><Portrait player={p} w={24} h={30} color="#334155" /><span className="truncate text-[11px]" style={{ color: W1 }}>{p.name}</span></> : <span className="text-[11px]" style={{ color: W3 }}>순서대로</span>}
-              </button>
-            );
-          })}
-        </Lane>
-        {pickInn && (
+        {pick != null && (
           <div className="ml-[9rem] flex shrink-0 flex-wrap items-center gap-1.5 rounded-lg px-3 py-2" style={{ background: 'rgba(16,185,129,.06)', boxShadow: `inset 0 0 0 1px ${US}44` }}>
-            <span className="mr-1 text-t4" style={{ color: W2 }}>{pickInn}회</span>
-            {pens.map((p) => (
-              <button key={p.id} type="button" onClick={() => { setInnPens(pickPen(innPens, pickInn, p.id)); setPickInn(null); }} className="flex items-center gap-1.5 rounded-md px-2 py-1 hover:brightness-125" style={{ background: innPens[pickInn] === p.id ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.04)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
-                <Portrait player={p} w={18} h={22} color="#334155" /><b className="text-t4" style={{ color: W1 }}>{p.name}</b><span className="font-display text-[11px]" style={{ color: W3 }}>{Math.round((st(p, 'stuff', 80) + st(p, 'control', 75)) / 2)}</span>
-              </button>
-            ))}
+            <span className="mr-1 text-t4" style={{ color: W2 }}>{pick === 'close' ? '마무리' : `계투 ${pick + 1}`}</span>
+            {pens.map((p) => {
+              const on = (pick === 'close' ? rel.close : rel.mid[pick]) === p.id;
+              return (
+                <button key={p.id} type="button" onClick={() => { setRel(pickRel(rel, pick, p.id)); setPick(null); }} className="flex items-center gap-1.5 rounded-md px-2 py-1 hover:brightness-125" style={{ background: on ? 'rgba(16,185,129,.18)' : 'rgba(255,255,255,.04)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+                  <Portrait player={p} w={18} h={22} color="#334155" /><b className="text-t4" style={{ color: W1 }}>{p.name}</b><span className="font-display text-[11px]" style={{ color: W3 }}>{armOf(p)}</span>
+                </button>
+              );
+            })}
+            {pick !== 'close' && rel.mid.length > 1 && <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick) }); setPick(null); }} className="ml-auto rounded-md px-2 py-1 text-t4" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>}
           </div>
         )}
         <Lane label="공격" sub="눌러 바꾸고 끝을 끌기" h={56} glass low={low}>

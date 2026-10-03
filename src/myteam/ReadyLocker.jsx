@@ -34,7 +34,7 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
 import LineupField from './LineupField.jsx';
-import FlowBoard, { ATK_KO, limitKo, segsOf, exitOf } from './FlowBoard.jsx';
+import FlowBoard, { ATK_KO, limitKo, segsOf, exitOf, moundPlan } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
 
@@ -502,15 +502,15 @@ export default function ReadyLocker({
   const saved = team.plan?.inn;
   const [atk, setAtk] = useState(() => (saved?.atk?.length === 9 ? saved.atk : Array(9).fill('base')));
   const [limit, setLimit] = useState(() => saved?.limit || { mode: 'pitch', value: 95 });
-  const [innPens, setInnPens] = useState(() => {
-    const ids = new Set(pens.map((p) => p.id));
-    if (saved?.pens && Object.values(saved.pens).every((id) => ids.has(id))) return saved.pens;
-    const rest = pens.find((p) => !late.includes(p.id));
-    return { ...(rest ? { 6: rest.id } : {}), 7: late[0], 8: late[1], 9: late[2] };
+  /* 마운드 — 계투 1명 + 마무리(가장 센 투수). 저장된 계획이 있으면 그대로 */
+  const [rel, setRel] = useState(() => {
+    const ids = new Set(pens.map((p) => p.id)), sr = saved?.rel;
+    if (sr && ids.has(sr.close) && sr.mid?.every((id) => ids.has(id))) return sr;
+    return { mid: [late[1]].filter(Boolean), close: late[2] };
   });
   /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
   const flowPlan = () => {
-    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, pens: innPens } });
+    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, pens: moundPlan(rel, exitOf(limit)).pens, rel } });
     Object.assign(p.fine, { swing: '보통', take: '보통' });
     delete p.fine.appr;
     return p;
@@ -535,7 +535,7 @@ export default function ReadyLocker({
     };
     id = setTimeout(step, 250);
     return () => clearTimeout(id);
-  }, [engine, sides, conds, atk, limit, innPens]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [engine, sides, conds, atk, limit, rel]); // eslint-disable-line react-hooks/exhaustive-deps
   const [foeOpen, setFoeOpen] = useState(false); // 상대 타순 창
 
   const an2 = useMemo(() => (an && engine ? { ...an, spArm: arm(an.sp) / 2, offAvg: engine.home.batters.reduce((n, b) => n + (b.stats?.contact ?? 75) + (b.stats?.power ?? 75), 0) / 18 } : an), [an, engine]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -546,7 +546,8 @@ export default function ReadyLocker({
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
     const atkKo = segsOf(atk).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
-    const penKo = Object.keys(innPens).filter((i) => i > Math.floor(exitOf(limit))).sort((a, b) => a - b).map((i) => pens.find((p) => p.id === innPens[i])?.name).filter(Boolean).join(' · ') || '순서대로';
+    const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
+    const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
     const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['증강', `${augInn}회`], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
@@ -562,7 +563,7 @@ export default function ReadyLocker({
           {step === 2 && (
             <div className="min-h-0 flex-1 pt-6">
               <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
-                innPens={innPens} setInnPens={setInnPens} augInn={augInn} setAugInn={setAugInn}
+                rel={rel} setRel={setRel} augInn={augInn} setAugInn={setAugInn}
                 mix={sides.mix} mixOpts={SIDES.find((x) => x.key === 'mix').opts.map((o) => [o.id, o.ko])} setMix={(id) => pickSide('mix', id)} />
             </div>
           )}
