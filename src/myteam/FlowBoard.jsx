@@ -3,7 +3,8 @@
  *  모든 줄이 '왼쪽 이름 칸 + 1~9회' 같은 눈금 — 왼쪽 상대 흐름(파도)과 같은 회. 상대 마운드가 꺼진 회(평균 −2) = 기회 기둥(옅은 초록)
  *  말풍선은 손잡이 왼쪽(막대 끝 안) — 위로 띄우면 상대 마운드 줄을 가린다
  *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
- *  마운드 한 줄: 선발(손잡이까지) → 계투(+ 로 늘림, 기본 1명) → 마무리(9회). 칸을 누르면 아래에 불펜 줄이 열려 고름
+ *  마운드 한 줄: 선발(손잡이까지) → 계투(기본 1명) → 마무리(9회). 칸을 누르면 아래에 교체 줄 — 왼쪽 '교체' · 불펜 · 오른쪽 추가 · 빼기
+ *   추가 = 누른 투수 바로 뒤(마무리를 눌렀으면 마무리 앞)에 안 쓴 투수 중 가장 센 투수, 줄은 새 칸으로 넘어가 바로 고를 수 있게
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
  *   투수 사이마다 경계 손잡이 — 계투끼리 · 계투와 마무리 사이를 회 단위로 옮김(rel.ends, 마지막 값 = 마무리 앞 회). 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
@@ -144,7 +145,15 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     return () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); };
   }, []);
   /* + 계투 — 안 쓴 투수 중 가장 센 투수를 보이는 계투 맨 뒤(마무리 앞)에 */
-  const addMid = () => { const used = new Set([...rel.mid, rel.close]); const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0]; if (p) setRel({ ...rel, mid: [...mp.mid, p.id, ...rel.mid.slice(mp.mid.length)], ends: [] }); };
+  const addMid = () => {
+    const used = new Set([...rel.mid, rel.close]);
+    const p = [...pens].filter((x) => !used.has(x.id)).sort((x, y) => armOf(y) - armOf(x))[0];
+    if (!p) return;
+    const at = pick === 'close' ? mp.mid.length : pick + 1;
+    setRel({ ...rel, mid: [...rel.mid.slice(0, at), p.id, ...rel.mid.slice(at)], ends: [] });
+    setPick(at);
+  };
+  const canAdd = mp.mid.length < mp.cap && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id));
   const cycle = (i) => { const next = [...atk]; next[i - 1] = ATK_CYCLE[(ATK_CYCLE.indexOf(atk[i - 1]) + 1) % ATK_CYCLE.length]; setAtk(next); };
   const step = (dir) => setLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) });
   const setMode = (mode) => setLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) });
@@ -177,8 +186,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
           </span>
         </Lane>
         <i className="block h-px shrink-0 bg-white/[0.07]" />
-        <Lane label="우리 마운드" h={72} glass low={low}
-          sub={<button type="button" onClick={addMid} disabled={mp.mid.length >= mp.cap} className="rounded-md px-2 py-0.5 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>+ 계투</button>}>
+        <Lane label="우리 마운드" h={72} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
           <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
             {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
@@ -205,7 +213,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         </Lane>
         {pick != null && (
           <div className="ml-[9rem] flex shrink-0 flex-wrap items-center gap-1.5 rounded-lg px-3 py-2" style={{ background: 'rgba(16,185,129,.06)', boxShadow: `inset 0 0 0 1px ${US}44` }}>
-            <span className="mr-1 text-t4" style={{ color: W2 }}>{pick === 'close' ? '마무리' : `계투 ${pick + 1}`}</span>
+            <span className="mr-1 text-t4" style={{ color: W2 }}>교체</span>
             {pens.map((p) => {
               const on = (pick === 'close' ? rel.close : rel.mid[pick]) === p.id;
               return (
@@ -214,7 +222,11 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
                 </button>
               );
             })}
-            {pick !== 'close' && rel.mid.length > 1 && <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick), ends: [] }); setPick(null); }} className="ml-auto rounded-md px-2 py-1 text-t4" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>}
+            <span className="ml-auto flex gap-1.5">
+              <button type="button" onClick={addMid} disabled={!canAdd} className="rounded-md px-3 py-1 text-t4 font-bold disabled:opacity-30" style={{ color: US, boxShadow: `inset 0 0 0 1px ${US}66` }}>추가</button>
+              <button type="button" onClick={() => { setRel({ ...rel, mid: rel.mid.filter((_, i) => i !== pick), ends: [] }); setPick(null); }} disabled={pick === 'close' || rel.mid.length < 2}
+                className="rounded-md px-3 py-1 text-t4 font-bold disabled:opacity-30" style={{ color: '#f87171', boxShadow: 'inset 0 0 0 1px rgba(248,113,113,.4)' }}>빼기</button>
+            </span>
           </div>
         )}
         <Lane label="공격" sub="눌러 바꾸고 끝을 끌기" h={56} glass low={low}>
