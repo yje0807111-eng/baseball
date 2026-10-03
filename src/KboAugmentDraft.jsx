@@ -6099,6 +6099,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
             if (!options.length) return null;
             return new Promise((resolve) => { midPickRef.current = resolve; setChoice({ kind: 'augment', inning, options }); });
           }}
+          exitTo={gaunt && !gaunt.done ? '구단 정복' : tourMode ? '대진표' : '정비'}
           onFinish={finishLive} onExit={() => { setLiveTeams(null); setPhase(gaunt && !gaunt.done ? 'gauntlet' : tourMode ? 'bracket' : 'ready'); }} />
       )}
       <HighlightToast toast={toast} />

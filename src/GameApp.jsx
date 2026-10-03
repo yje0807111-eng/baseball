@@ -319,7 +319,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   if (view === 'play' && match) {
     return screen(<>{augOverlay}<ChoiceGame my={match.my} opp={match.opp} seed={match.seed} fatigue={match.fatigue} autoOnExit={match.kind === 'ranked'} onFinish={finishMatch}
       aug={match.aug} rebuildMy={match.makeMy} rebuildOpp={match.rebuildOpp} midPickInnings={match.aug ? [...(match.openPick ? [1] : []), ...MATCH_AUG_INNINGS] : []} onMidPick={midPick} intro={{ tag: match.tag }}
-      onExit={() => { const kind = match.kind; setMatch(null); if (kind === 'tourney') setView('bracket'); else if (kind === 'ranked') setView('ranked'); else toModes('duel'); }} /></>);
+      onExit={() => { setMatch(null); setView('lobby'); }} /></>);
   }
   /* 갈 곳이 없으면(대진표·시즌이 없는데 그 화면을 불렀다면) 로비로 */
   return <ToLobby go={() => setView('lobby')} />;

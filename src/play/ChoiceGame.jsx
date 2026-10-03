@@ -22,6 +22,8 @@ import { situationOf, zoneKo, locOf, batSide } from './duel.js';
 import { wantsChoice, choiceCards, planOrder, pitchesFor, CHOICES, CHOICE_MS, DETAIL_MS } from './choice.js';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+/** '로비로' · '구단 정복으로' — 받침(ㄹ 빼고) 있으면 '으로' */
+const ro = (w) => { const j = (w.charCodeAt(w.length - 1) - 0xac00) % 28; return `${w}${j > 0 && j !== 8 ? '으로' : '로'}`; };
 const MY = '#34d399', OPP = '#f87171', GOLD = '#fbbf24', SKY = '#38bdf8';
 const TONE = { good: MY, bad: OPP, info: '#94a3b8' };
 /* 진행 박자 — 타석 하나 0.15초, 점수 · 홈런 · 교체 같은 줄은 0.5초 머문다(눈에 걸리게). 결과 카드 2.2초(누르면 넘김) */
@@ -30,15 +32,16 @@ const face = (p) => `url(cards/${encodeURIComponent(artId(p?.id || ''))}.webp), 
 const HIT = new Set(['1B', '2B', '3B', 'HR', 'BH']);
 
 /** 시간 막대 — 창이 가려진 동안은 줄지 않는다. 다 되면 onEnd 한 번 */
-function Timer({ ms, onEnd, w = 320, extra = false, k }) {
+function Timer({ ms, onEnd, w = 320, extra = false, k, paused = false }) {
   const [left, setLeft] = useState(ms);
   const done = useRef(false);
+  const hold = useRef(paused); hold.current = paused; // 나가기 묻는 동안 멈춤
   useEffect(() => {
     done.current = false; setLeft(ms);
     let last = performance.now();
     const id = setInterval(() => {
       const now = performance.now(), dt = now - last; last = now;
-      if (document.hidden) return;
+      if (document.hidden || hold.current) return;
       setLeft((v) => {
         const n = Math.max(0, v - dt);
         if (n === 0 && !done.current) { done.current = true; setTimeout(onEnd, 0); }
@@ -131,7 +134,7 @@ function Detail({ g, card, pick, setPick, onGo, timer }) {
   );
 }
 
-export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, aug = null, rebuildMy = null, rebuildOpp = null, midPickInnings = [], onMidPick = null, seed = null, autoOnExit = false, intro = null }) {
+export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, aug = null, rebuildMy = null, rebuildOpp = null, midPickInnings = [], onMidPick = null, seed = null, autoOnExit = false, intro = null, exitTo = '로비' }) {
   const home = useMemo(() => engineTeam(my), [my]);
   const away = useMemo(() => engineTeam(opp), [opp]);
   const gameRef = useRef(null);
@@ -188,11 +191,15 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
     playOut(g, tac);
     redraw(); handOver();
   };
+  /*
+   * 나가기 — 경기 중 ← 는 바로 나가지 않고 한 번 묻는다(FC 온라인 · 9이닝스 경기 중 나가기 확인 · Apple HIG 되돌릴 수 없는 일은 확인).
+   * 묻는 동안 시간 막대 · 경기 진행을 멈춘다. 기본 단추는 '계속'(Esc 도 계속). 랭크전은 기록이 남아야 해서 남은 경기를 자동으로 끝낸다.
+   */
   const [leaving, setLeaving] = useState(false);
+  const pausedRef = useRef(false); pausedRef.current = leaving;
   const leave = () => {
     if (g.final) { if (!handOver()) onExit?.(); return; }
-    if (autoOnExit) { setLeaving(true); return; }
-    onExit?.();
+    setLeaving(true);
   };
 
   /* 고르기 — 카드(정비 작전이면 바로) · 펼침이 필요하면 펼친 뒤 '이 작전으로'. 시간이 다 되면 정비 작전 */
@@ -207,6 +214,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
   const timeout = () => { const done = waitRef.current; waitRef.current = null; const n = now.current; done?.(n.phase === 'detail' && n.picked ? { card: n.picked, detail: n.pick } : null); };
   useEffect(() => {
     const key = (e) => {
+      if (leaving) return; // 나가기 묻는 동안 숫자 · Enter 로 고르지 않음
       if (phase === 'choice') { const c = cards[Number(e.key) - 1]; if (c) choose(c); }
       if (phase === 'detail' && e.key === 'Enter') confirm();
       if (phase === 'result' && (e.key === 'Enter' || e.key === ' ')) resultWait.current?.();
@@ -221,6 +229,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
   useEffect(() => {
     let stop = false;
     const alive = () => !stop && aliveRef.current;
+    const hold = async () => { while (pausedRef.current && alive()) await sleep(100); }; // 나가기 묻는 동안 다음 타석으로 안 넘어감
     (async () => {
       if (!introDone.current) await new Promise((res) => { introWait.current = res; });
       else await sleep(600);
@@ -285,6 +294,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
           setPhase('result'); redraw();
           await Promise.race([sleep(RESULT_MS), new Promise((res) => { resultWait.current = res; })]);
           resultWait.current = null;
+          await hold();
           if (!alive()) return;
           setResult(null); setPhase('run');
         } else {
@@ -292,6 +302,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
           if (big) note(halfKo({ inning: ev.inning, top: ev.top }), `${ev.batter?.name || ''} ${RESULT_LABEL[ev.result] || ''}${scored ? ` · ${scored}점` : ''} · ${g.away.runs} : ${g.home.runs}`, ev.top ? OPP : MY);
           redraw();
           await sleep(big ? NOTE_MS : PA_MS);
+          await hold();
         }
         /* 반 이닝이 넘어갔으면: 증강 보정 → 7회 증강 → 다음 반 이닝 보정 */
         if (g.inning !== half.inning || g.top !== half.top || g.final) {
@@ -331,7 +342,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
       </div>
     </div>
   );
-  const timer = (ms, extra, k) => <Timer ms={ms} extra={extra} onEnd={timeout} k={k} />;
+  const timer = (ms, extra, k) => <Timer ms={ms} extra={extra} onEnd={timeout} k={k} paused={leaving} />;
 
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200" onContextMenu={(e) => e.preventDefault()}>
@@ -341,10 +352,12 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
       <div className="absolute inset-0 bg-[#05080f]/70" />
       {introOn && <MatchIntro away={introTeam(away, false)} home={introTeam(home, true)} tag={intro?.tag} onHandoff={() => { introDone.current = true; introWait.current?.(); }} onDone={() => setIntroOn(false)} />}
       {leaving && (
-        <Pop eyebrow="나가기" title="남은 경기 자동 진행" a={GOLD} width={460} onClose={() => setLeaving(false)}
-          actions={<><button type="button" className="mt-btn" onClick={() => setLeaving(false)}>계속</button><button type="button" className="mt-btn pri min-w-[180px]" style={{ '--a': GOLD }} onClick={() => { setLeaving(false); autoFinish(); }}>자동으로 끝내기</button></>}>
-          <p className="text-t3 text-gray-300">지금 점수에서 끝까지 · 결과 확정</p>
-        </Pop>
+        <Pop eyebrow="일시 정지" title={autoOnExit ? '자동 진행으로 끝내기' : `${ro(exitTo)} 나가기`} a={GOLD} width={460} onClose={() => setLeaving(false)}
+          sub={autoOnExit ? '랭크전 기록 · 남은 경기 결과 확정' : '이 경기 기록 없음'}
+          actions={<>
+            <button type="button" className="mt-btn" style={{ color: '#fca5a5' }} onClick={() => { setLeaving(false); if (autoOnExit) autoFinish(); else onExit?.(); }}>{autoOnExit ? '자동 진행' : '나가기'}</button>
+            <button type="button" className="mt-btn pri min-w-[160px]" style={{ '--a': GOLD }} onClick={() => setLeaving(false)}>계속</button>
+          </>} />
       )}
 
       <div className="relative flex h-full flex-col px-10 pb-8 pt-6">
