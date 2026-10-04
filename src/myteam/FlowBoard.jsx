@@ -14,7 +14,7 @@
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
  *  다듬기(목업 prep-flow4 2 + 5안, 2026-10-04): 우리 마운드 얇게(80 → 52 → 여유 있게 62, 공격 사이 경계선, 얼굴 · 이름 · 수치 한 줄, 마무리 칸은 이름만) · 아낀 높이로 그래프 200 → 272
  *   그래프는 유리 판(잘린 모서리 · 위아래 옅은 빛) 안에 — 기본 스윙 선 기준 채움(위 = 풀스윙 쪽 주황 · 아래 = 신중한 쪽 보라), 선 아래 옅은 빛 한 겹
- *   스타일 단추는 테두리 없이 글자 + 미니 곡선(고른 것만 초록 바탕) — 그래프보다 눈에 덜 띄게
+ *   스타일 단추는 옅은 바탕 · 테두리 단추 + 미니 곡선(고른 것만 초록) — 글자만이면 누르는 단추로 안 보여서 되돌림, 그래프 252 → 236
  *  공격 그래프(목업 prep-attack2 1 + 4안): 높이 = 스윙 크기(위부터 강공 · 보통 · 짧게 · 기다리기), 회 가운데 점 하나 + 부드러운 선
  *   값은 0~3 높이(0.1 단위) — 칸 사이는 두 성향을 타석마다 섞음(엔진 atkAt). 네 칸 가까이(±0.15)는 칸에 붙음 — 순수 값을 쉽게
  *   회 위를 끌며 지나가면 마우스 높이대로 회마다 점이 찍힘(건너뛴 회도 같은 높이로 채움), 끄는 동안 '6회 강공 70 · 보통 30' 칩. 점에서 ↑ ↓ 로 0.1씩
@@ -39,7 +39,7 @@ const LEAD = '9rem';
 export const ATK_KO = { base: '기본 스윙', power: '풀스윙', contact: '짧은 스윙', patience: '신중한 스윙' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
-const GH = 252, GPAD = 26; // 마운드가 얇아진 만큼 200 → 272 → 마운드 줄 52 → 62 · 경계선 몫으로 252
+const GH = 236, GPAD = 26; // 마운드가 얇아진 만큼 200 → 272 → 마운드 줄 52 → 62 · 경계선 몫으로 252
 const gy = (lv) => GPAD + (lv * (GH - GPAD * 2)) / 3;
 const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
@@ -362,15 +362,15 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         </div>
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
           <span />
-          <span className="grid gap-x-3 gap-y-0.5" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
+          <span className="grid gap-x-2" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
             {ATK_GROUPS.map(([group, list]) => (
-              <span key={group} className="flex min-w-0 flex-col">
+              <span key={group} className="flex min-w-0 flex-col gap-1">
                 {list.map(([ko, make], k) => {
                   const target = make(oppNorm), on = styleOn(target);
                   return (
                     <button key={ko} type="button" onClick={() => applyStyle(target)} aria-pressed={on}
-                      className="flex min-w-0 items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.05]"
-                      style={{ background: on ? 'rgba(16,185,129,.14)' : 'transparent' }}>
+                      className="flex min-w-0 items-center gap-2 rounded-md px-2.5 py-1.5 transition-colors hover:bg-white/[0.07]"
+                      style={{ background: on ? 'rgba(16,185,129,.14)' : 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.08)'}` }}>
                       <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="h-3.5 w-10 shrink-0" aria-hidden="true">
                         <path d={curveOf(target.map(gy))} fill="none" stroke={on ? US : k ? '#6b7280' : '#9ca3af'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
                       </svg>
