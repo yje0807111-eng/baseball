@@ -157,12 +157,29 @@ function traitsOf(away) {
     pen: { who: '불펜', l: '뒷문 약함', r: '뒷문 강함', at: pos(mean(pen3(away), arm), 71, 91) },
   };
 }
+/* 상대 마운드 회마다 — 가운데 판에 있던 줄을 상대 판으로(목업 prep-flow3 7안). 기회(평균 −2 아래)는 초록, 가운데 그래프 기둥과 같은 셈 */
+function MoundCells({ mound }) {
+  const known = (mound || []).filter((v) => v != null);
+  const avg = known.length ? known.reduce((a, b) => a + b, 0) / known.length : 0;
+  return (
+    <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
+      {Array.from({ length: 9 }, (_, i) => {
+        const v = mound?.[i], low = v != null && v <= avg - 2;
+        return (
+          <span key={i} className="flex flex-col items-center rounded-md py-1" style={{ background: v == null ? 'rgba(255,255,255,.03)' : low ? 'rgba(16,185,129,.14)' : `rgba(167,139,250,${Math.max(0.08, Math.min(0.42, 0.1 + (v - avg + 6) / 34))})` }}>
+            <span className="text-[10px] text-gray-500">{i + 1}</span><b className="font-display text-[12px]" style={{ color: low ? '#10b981' : '#e5e7eb' }}>{v == null ? '' : Math.round(v)}</b>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
 function StepFlow({ away, pv, busy, c }) {
   const T = traitsOf(away);
   return (
     <div className="flex min-h-0 flex-col gap-3">
       <Sub>상대 흐름</Sub>
-      <div className="transition-opacity" style={{ opacity: busy ? 0.45 : 1 }}><Wave mound={pv?.oppMound} c={c} /></div>
+      <div className="flex flex-col gap-2 transition-opacity" style={{ opacity: busy ? 0.45 : 1 }}><Wave mound={pv?.oppMound} c={c} /><MoundCells mound={pv?.oppMound} /></div>
       <Rule />
       <Sub>상대 성향</Sub>
       <div className="flex flex-col gap-3">{[T.type, T.inn, T.pen, T.batType, T.spd, T.cat].map((t) => <Gauge key={t.who + t.l} t={t} c={c} />)}</div>

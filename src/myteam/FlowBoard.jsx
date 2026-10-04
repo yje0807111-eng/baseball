@@ -2,7 +2,9 @@
  * 정비 2단계(경기 흐름) 가운데 — 이닝마다 짜기(목업 prep-innings2 1안 + 5안 기회 기둥 + 7안 손잡이 말풍선, 2026-10-03)
  *  모든 줄이 '왼쪽 이름 칸 + 1~9회' 같은 눈금 — 왼쪽 상대 흐름(파도)과 같은 회. 상대 마운드가 꺼진 회(평균 −2) = 기회 기둥(옅은 초록)
  *  말풍선은 손잡이 왼쪽(막대 끝 안) — 위로 띄우면 상대 마운드 줄을 가린다
- *  투수 카드: 오늘 선발 · 끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
+ *  정돈(목업 prep-flow3 7안, 2026-10-04): 선발 카드 걷어냄 → 맨 위 도구 띠 한 줄(끊는 기준 · 값 − + | 볼 배합) — 투수 쪽 설정을 한곳에
+ *   상대 마운드 줄은 왼쪽 상대 판(OppPanel 2단계 흐름 아래 1~9회 칸)으로. 우리 마운드 칸 안에 투수 수치(선발 구위 · 제구 · 체력, 불펜 구위 · 제구)
+ *  끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
  *  마운드 한 줄: 선발(손잡이까지) → 계투(기본 1명) → 마무리(9회). 칸을 누르면 아래에 교체 줄 — 왼쪽 '교체' · 불펜 · 오른쪽 추가 · 빼기
  *   추가 = 누른 투수 바로 뒤(마무리를 눌렀으면 마무리 앞)에 안 쓴 투수 중 가장 센 투수, 줄은 새 칸으로 넘어가 바로 고를 수 있게
  *   선발을 당기면 계투 자리가 늘고, 늘리면 넘치는 계투는 숨음(다시 당기면 그대로 나옴)
@@ -32,7 +34,7 @@ const LEAD = '9rem';
 export const ATK_KO = { base: '보통', power: '강공', contact: '짧게', patience: '기다리기' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
-const GH = 156, GPAD = 20; // 스타일 단추 세 줄이 들어가게 180 → 156
+const GH = 200, GPAD = 24; // 상대 마운드 줄 · 선발 카드가 빠져 156 → 200
 const gy = (lv) => GPAD + (lv * (GH - GPAD * 2)) / 3;
 const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
@@ -144,6 +146,11 @@ function Grip({ x, on, onPointerDown, label, role = 'separator', style, children
     </span>
   );
 }
+/* 투수 수치 한 줄 — 선발 구위 · 제구 · 체력, 불펜은 구위 · 제구(한 회 칸에 들어가게) */
+const STAT3 = [['구위', 'stuff', 80], ['제구', 'control', 75], ['체력', 'stamina', 90]], STAT2 = STAT3.slice(0, 2);
+const PStats = ({ p, keys }) => (
+  <span className="truncate whitespace-nowrap text-[12px]" style={{ color: W3 }}>{keys.map(([ko, k, d], i) => <React.Fragment key={k}>{i ? ' · ' : ''}{ko} <b className="font-display" style={{ color: W1 }}>{st(p, k, d)}</b></React.Fragment>)}</span>
+);
 const Seg = ({ opts, on, onPick }) => (
   <span className="inline-flex rounded-lg p-0.5" style={{ background: 'rgba(255,255,255,.04)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
     {opts.map(([id, ko]) => <button key={id} type="button" onClick={() => onPick(id)} className="rounded-md px-3 py-1 text-t4 font-bold" style={id === on ? { background: 'rgba(255,255,255,.12)', color: '#fff' } : { color: W2 }}>{ko}</button>)}
@@ -243,19 +250,17 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
 
   return (
     <div className="flex h-full min-h-0 select-none flex-col gap-3">
-      {/* 투수 카드 — 오늘 선발 · 끊는 기준 */}
-      <div className="mt-cut flex shrink-0 items-center gap-4 px-4 py-3" style={{ ...cut(12), background: 'rgba(96,165,250,.06)', boxShadow: 'inset 0 0 0 1px rgba(96,165,250,.28)' }}>
-        {starter && <Portrait player={starter} w={40} h={50} color="#334155" />}
-        <span className="flex flex-col"><span className="text-t4" style={{ color: W3 }}>오늘 선발</span><b className="text-t2" style={{ color: W1 }}>{starter?.name}</b><span className="text-[11px]" style={{ color: W3 }}>체력 {st(starter, 'stamina', 90)} · 구위 {st(starter, 'stuff', 80)}</span></span>
-        <span className="ml-auto flex items-center gap-3">
-          <span className="text-t4" style={{ color: W2 }}>끊는 기준</span>
-          <Seg opts={Object.entries(LIMIT).map(([k, v]) => [k, v.ko])} on={limit.mode} onPick={setMode} />
-          <span className="flex items-center gap-1">
-            <button type="button" onClick={() => step(-1)} className="grid h-8 w-8 place-items-center rounded-md text-t3" style={{ color: W1, background: 'rgba(255,255,255,.06)' }} aria-label="줄이기">−</button>
-            <b className="w-24 text-center font-display text-t1" style={{ color: W1 }}>{limitKo(limit)}</b>
-            <button type="button" onClick={() => step(1)} className="grid h-8 w-8 place-items-center rounded-md text-t3" style={{ color: W1, background: 'rgba(255,255,255,.06)' }} aria-label="늘리기">+</button>
-          </span>
+      {/* 도구 띠 — 끊는 기준 | 볼 배합 */}
+      <div className="flex shrink-0 items-center gap-3 rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,.025)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
+        <span className="text-t4" style={{ color: W2 }}>끊는 기준</span>
+        <Seg opts={Object.entries(LIMIT).map(([k, v]) => [k, v.ko])} on={limit.mode} onPick={setMode} />
+        <span className="flex items-center gap-1">
+          <button type="button" onClick={() => step(-1)} className="grid h-8 w-8 place-items-center rounded-md text-t3" style={{ color: W1, background: 'rgba(255,255,255,.06)' }} aria-label="줄이기">−</button>
+          <b className="w-24 text-center font-display text-t2" style={{ color: W1 }}>{limitKo(limit)}</b>
+          <button type="button" onClick={() => step(1)} className="grid h-8 w-8 place-items-center rounded-md text-t3" style={{ color: W1, background: 'rgba(255,255,255,.06)' }} aria-label="늘리기">+</button>
         </span>
+        <span className="ml-auto text-t4" style={{ color: W2 }}>볼 배합</span>
+        <Seg opts={mixOpts} on={mix} onPick={setMix} />
       </div>
       {/* 회 머리 */}
       <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
@@ -263,16 +268,11 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <Lane label="상대 마운드" h={44} low={low}>
-          <span className="absolute grid gap-1 transition-opacity" style={{ inset: 4, gridTemplateColumns: 'repeat(9,1fr)', opacity: busy ? 0.45 : 1 }}>
-            {INN.map((i) => { const v = mound[i - 1]; return <span key={i} className="grid place-items-center rounded-md font-display text-t4" style={{ background: v == null ? 'rgba(255,255,255,.03)' : low[i - 1] ? 'rgba(16,185,129,.16)' : `rgba(167,139,250,${Math.max(0.08, Math.min(0.5, 0.1 + (v - avg + 6) / 30))})`, color: low[i - 1] ? US : W1 }}>{v == null ? '' : Math.round(v)}</span>; })}
-          </span>
-        </Lane>
-        <i className="block h-px shrink-0 bg-white/[0.07]" />
-        <Lane label="우리 마운드" h={72} glass low={low}>
+        <Lane label="우리 마운드" h={80} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
           <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
-            {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}<b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b>
+            {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}
+            <span className="flex min-w-0 flex-col gap-0.5"><b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} /></span>
           </span>
           {mp.spans.map((x, k) => {
             const p = byId.get(x.id), on = pick === x.slot, a = x.a / 3, l = 5;
@@ -280,7 +280,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
               <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
                 style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
                 {p && <Portrait player={p} w={24} h={30} color="#334155" />}
-                <span className="flex min-w-0 flex-col items-start leading-tight"><span className="truncate text-[11px]" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>
+                <span className="flex min-w-0 flex-col items-start gap-0.5 leading-tight"><span className="flex items-center gap-1.5"><span className="truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>{p && <PStats p={p} keys={STAT2} />}</span>
               </button>
             );
           })}
@@ -362,10 +362,6 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             ))}
           </span>
         </div>
-      </div>
-      <div className="flex shrink-0 items-center justify-end gap-3">
-        <span className="text-t4" style={{ color: W2 }}>볼 배합</span>
-        <Seg opts={mixOpts} on={mix} onPick={setMix} />
       </div>
     </div>
   );
