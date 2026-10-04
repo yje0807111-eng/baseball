@@ -10,13 +10,12 @@
  */
 import React from 'react';
 import { alertsOf, lvOf, LV } from './OppPanel.jsx';
-import { moundPlan, exitOf, ATK_LV, atkLvOf } from './FlowBoard.jsx';
+import { moundPlan, exitOf } from './FlowBoard.jsx';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const US = '#10b981', GOLD = '#fbbf24', RED = '#f87171', W1 = '#e5e7eb', W2 = '#9ca3af', W3 = '#6b7280', SPB = '#60a5fa';
 const ORG = '#f59e0b', SKY = '#38bdf8', VIO = '#a78bfa';
-const LVC = { power: ORG, base: '#cbd5e1', contact: SKY, patience: VIO };
 const INN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const SIT_IDS = ['rispPow', 'rispCon', 'rispPat', 'steal', 'pitchZone'];
 const ZONES = [
@@ -64,27 +63,39 @@ function Zone({ z, chip, value, onPick }) {
 }
 /* 경기 계획표 — 마운드(선발 · 계투 · 마무리) · 공격 높이 점 */
 const PA_INN = 4.2;
-function PlanTable({ starter, pens, rel, limit, atk, batters = [] }) {
+/*
+ * 경기 계획표(목업 prep-plan 3안 전광판 + 5안 역할 표시, 2026-10-04) — 마운드 · 타순 두 줄(공격 줄은 2단계 그래프에 있어 뺌)
+ *  회 머리 = 야구장 전광판(검은 칸 · 주황 '1회', 기회 회는 초록 — 2단계 그래프 기둥과 같은 셈: 상대 마운드 평균 −2 아래)
+ *  마운드 막대에 선발 · 계투 · 마무리 표시, 타순 칸도 전광판 칸(주황 번호 + 이름)
+ */
+const BOARD = '#05070c';
+function PlanTable({ starter, pens, rel, limit, batters = [], mound = [] }) {
   const exit = exitOf(limit), mp = moundPlan(rel, exit), byId = new Map(pens.map((p) => [p.id, p]));
-  const segs = [[0, exit, starter, SPB], ...mp.spans.map((x) => [x.a / 3, x.b / 3, byId.get(x.id), x.slot === 'close' ? GOLD : '#94a3b8'])];
+  const segs = [[0, exit, starter, SPB, '선발'], ...mp.spans.map((x) => [x.a / 3, x.b / 3, byId.get(x.id), x.slot === 'close' ? GOLD : '#94a3b8', x.slot === 'close' ? '마무리' : '계투'])];
+  const known = mound.filter((v) => v != null), avg = known.length ? known.reduce((x, y) => x + y, 0) / known.length : 0;
+  const low = INN.map((i) => mound[i - 1] != null && mound[i - 1] <= avg - 2);
   return (
-    <div className="mt-cut flex shrink-0 flex-col gap-3 p-4" style={{ ...cut(12), background: 'linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+    <div className="mt-cut flex shrink-0 flex-col gap-3 p-4" style={{ ...cut(12), background: 'linear-gradient(180deg, rgba(8,10,16,.9), rgba(14,18,28,.85))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
       <b className="text-t3" style={{ color: W1 }}>경기 계획</b>
-      <div className="grid items-center" style={{ gridTemplateColumns: '6rem repeat(9,minmax(0,1fr))', rowGap: 10 }}>
-        <span />{INN.map((i) => <b key={i} className="text-center font-display text-t4" style={{ color: W2 }}>{i}회</b>)}
-        <span className="text-t4" style={{ color: W2 }}>마운드</span>
-        <span className="relative block" style={{ gridColumn: 'span 9', height: 24 }}>
-          {segs.map(([a, b, p, c]) => b > a && (
-            <span key={`${a}`} className="absolute flex items-center overflow-hidden whitespace-nowrap rounded px-2 text-[12px] font-bold"
-              style={{ left: `calc(${(a / 9) * 100}% + 1px)`, width: `calc(${((b - a) / 9) * 100}% - 2px)`, top: 0, bottom: 0, background: `${c}33`, color: W1 }}>{p?.name}</span>
+      <div className="grid items-center" style={{ gridTemplateColumns: '5.5rem repeat(9,minmax(0,1fr))', rowGap: 8 }}>
+        <span />
+        {INN.map((i) => (
+          <b key={i} className="mx-1 grid place-items-center rounded py-1 font-display text-t3"
+            style={{ background: BOARD, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)', color: low[i - 1] ? '#34d399' : GOLD, textShadow: `0 0 8px ${low[i - 1] ? '#34d39966' : '#fbbf2466'}` }}>{i}회</b>
+        ))}
+        <span className="text-t4 font-bold" style={{ color: W2 }}>마운드</span>
+        <span className="relative block" style={{ gridColumn: 'span 9', height: 28 }}>
+          {segs.map(([a, b, p, c, role]) => b > a && (
+            <span key={`${a}`} className="absolute flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-full px-3 text-[12px] font-bold"
+              style={{ left: `calc(${(a / 9) * 100}% + 4px)`, width: `calc(${((b - a) / 9) * 100}% - 8px)`, top: 0, bottom: 0, background: `linear-gradient(90deg, ${c}40, ${c}18)`, boxShadow: `inset 0 0 0 1px ${c}55`, color: W1 }}>
+              <span className="text-[10px] font-bold" style={{ color: c }}>{role}</span>{p?.name}
+            </span>
           ))}
         </span>
-        <span className="text-t4" style={{ color: W2 }}>공격</span>
-        {atk.map((v, i) => <span key={i} className="grid place-items-center"><i className="block h-2.5 w-2.5 rounded-full" style={{ background: LVC[ATK_LV[Math.round(atkLvOf(v))]] }} /></span>)}
-        <span className="text-t4" style={{ color: W2 }}>타순</span>
-        {INN.map((i) => { const k = Math.floor((i - 1) * PA_INN) % 9, b = batters[k]; return (
-          <span key={i} className="mx-0.5 flex min-w-0 items-center justify-center gap-1 rounded px-1 py-0.5" style={{ background: 'rgba(255,255,255,.04)' }}>
-            <b className="font-display text-[11px]" style={{ color: W3 }}>{k + 1}</b><span className="truncate text-[12px] font-bold" style={{ color: W1 }}>{b?.name}</span>
+        <span className="text-t4 font-bold" style={{ color: W2 }}>타순</span>
+        {INN.map((i) => { const k = Math.floor((i - 1) * PA_INN) % 9, bt = batters[k]; return (
+          <span key={i} className="mx-1 flex min-w-0 items-center justify-center gap-1.5 rounded py-1" style={{ background: BOARD }}>
+            <b className="font-display text-[11px]" style={{ color: GOLD }}>{k + 1}</b><span className="truncate text-[12px] font-bold" style={{ color: W1 }}>{bt?.name}</span>
           </span>
         ); })}
       </div>
@@ -92,7 +103,7 @@ function PlanTable({ starter, pens, rel, limit, atk, batters = [] }) {
   );
 }
 
-export default function SitBoard({ conds, setConds, engine, starter, pens, rel, limit, atk }) {
+export default function SitBoard({ conds, setConds, engine, starter, pens, rel, limit, mound }) {
   const alerts = alertsOf(engine.home, engine.away);
   const chipOf = (z) => {
     if (z.link === 'sp') return spChip(engine.away.pitchers[0]);
@@ -103,7 +114,7 @@ export default function SitBoard({ conds, setConds, engine, starter, pens, rel, 
   const pickIn = (z, id) => setConds([...conds.filter((c) => !z.opts.some(([k]) => k === c)), ...(id ? [id] : [])]);
   return (
     <div className="flex min-h-0 flex-col gap-4">
-      <PlanTable starter={starter} pens={pens} rel={rel} limit={limit} atk={atk} batters={engine.home.batters} />
+      <PlanTable starter={starter} pens={pens} rel={rel} limit={limit} batters={engine.home.batters} mound={mound} />
       <div className="grid gap-4" style={{ gridTemplateColumns: 'minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr)' }}>
         {ZONES.map((z) => <Zone key={z.id} z={z} chip={chipOf(z)} value={z.opts.find(([k]) => k && conds.includes(k))?.[0] ?? null} onPick={(id) => pickIn(z, id)} />)}
       </div>

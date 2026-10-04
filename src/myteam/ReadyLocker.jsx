@@ -514,7 +514,7 @@ export default function ReadyLocker({
                 rel={rel} setRel={setRel} />
             </div>
           )}
-          {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} starter={engine.home.pitchers[0]} pens={pens} rel={rel} limit={limit} atk={atk} />}
+          {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} starter={engine.home.pitchers[0]} pens={pens} rel={rel} limit={limit} mound={pv?.oppMound} />}
           {step === 3 && <span className="min-h-0 flex-1" />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
           {step === 2 && <StepBar back={<BackBtn onClick={() => setStep(1)} />} go={go} />}
