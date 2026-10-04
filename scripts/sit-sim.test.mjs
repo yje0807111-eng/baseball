@@ -84,6 +84,8 @@ test.skipIf(!N)('sit sim', () => {
       oppCatDef: st(away.catcher, 'defense', 85), mySpeed: Math.max(...mine.batters.map((b) => st(b, 'speed'))),
       myContact: mine.batters.reduce((n, b) => n + st(b, 'contact'), 0) / 9,
       closer: st(opPens[0], 'stuff', 80), myBench: (mine.bench || []).reduce((m, b) => Math.max(m, bat(b)), 0) - mine.batters.reduce((n, b) => n + bat(b), 0) / 9,
+      stealRisk: (() => { const fast = [...away.batters].sort((a, b) => st(b, 'speed') - st(a, 'speed'))[0], cat = mine.catcher || mine.batters.find((b) => b.position === 'C'); return 0.52 + (st(fast, 'speed') - 75) * 0.02 - (st(cat, 'defense', 85) - 85) * 0.025 - (st(mine.pitchers[0], 'stability', 81) - 81) * 0.008; })(), // 도루 위험(경보와 같은 셈)
+      starContact: top3.reduce((n, b) => n + st(b, 'contact'), 0) / 3,
       myGap: (myPens[0] ?? 0) - arm(mine.pitchers[0]), mySpStam: st(mine.pitchers[0], 'stamina', 90),
       res,
     });

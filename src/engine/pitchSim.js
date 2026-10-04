@@ -214,7 +214,7 @@ export function stealOdds(g, from) {
   const catcher = defenseOf(g).team.catcher || defenseOf(g).team.batters.find((p) => p.position === 'C');
   const hold = (st(defenseOf(g).pitcher, 'stability', 81) - 81) * 0.008; // 투수 견제 · 퀵모션 — 안정(가운데 81, 59~96 → −0.18~+0.12)
   return clamp(0.52 + (st(runner, 'speed') - 75) * 0.02 - (st(catcher, 'defense') - 85) * 0.025 - hold - (from === 1 ? 0.08 : 0)
-    - (g.hold || 0) * 0.08 + (offenseOf(g).mod?.steal || 0) + (offenseOf(g).team?.edge?.steal || 0) + (g.wx?.steal || 0), 0.08, 0.95); // edge.steal = 코치진 도루 · wx = 날씨
+    - (g.hold || 0) * 0.14 + (offenseOf(g).mod?.steal || 0) + (offenseOf(g).team?.edge?.steal || 0) + (g.wx?.steal || 0), 0.08, 0.95); // edge.steal = 코치진 도루 · wx = 날씨
 }
 
 /*
@@ -464,7 +464,7 @@ export function tempoOf(prev, velo, guessHit = 0) {
   return +(TEMPO_MAX * k * (dv > 0 ? 1 : 0.6) * (1 - guessHit)).toFixed(4);
 }
 
-const HOLD_COST = 0.012; // 작전 '주자 견제' 의 대가
+const HOLD_COST = 0.018; // 작전 '주자 견제' 의 대가 — 도루 −14%p(예전 −8) 대신 타자 승부가 흐트러짐(예전 0.012, sit-sim 2026-10-04)
 /** 공 하나. 결과 이벤트를 돌려주고 g 를 갱신한다 */
 export function pitch(g, orders = {}) {
   if (g.final) return null;
@@ -585,6 +585,12 @@ export function pitch(g, orders = {}) {
     if (g.strikes >= 3) { ev.result = 'K'; g.outs += 1; nextBatter(g); }
     else if (g.balls >= 4) { ev.result = 'BB'; runs += score(g, forceWalk(g, batter)); nextBatter(g); }
   }
+  /* 히트앤런 헛스윙 — 뛰던 1루 주자는 도루가 된다(성공률 그대로): 컨택 낮은 타자면 손해(sit-sim 2026-10-04) */
+  if (orders.hitAndRun && ev.call === 'swinging' && g.outs < 3 && g.bases[0] && !g.bases[1]) {
+    const ok = g.rng() < stealOdds(g, 0);
+    ev.steal = { from: 0, runner: g.bases[0], ok, hnr: true };
+    if (ok) { g.bases[1] = g.bases[0]; g.bases[0] = null; } else { g.bases[0] = null; g.outs += 1; }
+  }
   endHalfIfNeeded(g);
   return wrap(g, ev, runs);
 }
@@ -619,12 +625,12 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
   const appr = approachOf(orders.approach, contact, power, stuff);
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * 0.012 + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * (g.guard < 0 ? 0.03 : 0.012) + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1);
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1) * (g.guard < 0 ? 0.9 : 1); // 외야 후진 — 담장 앞에서 잡는 타구
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
-    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * 0.12 + appr.dbl, 0.06, 0.38);
+    const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * (g.guard < 0 ? 0.14 : 0.12) + appr.dbl, 0.06, 0.38); // 외야 후진 −0.14(예전 −0.12) · 앞 안타 +0.03 · 홈런 ×0.9 — 장타자에게만 이득(sit-sim 2026-10-04)
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;
