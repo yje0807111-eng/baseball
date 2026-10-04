@@ -12,7 +12,7 @@
  *   투수 사이마다 경계 손잡이 — 한 아웃씩 옮김(rel.cuts), 끄는 동안 위에 '8회 1아웃' 칩. 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
- *  다듬기(목업 prep-flow4 2 + 5안, 2026-10-04): 우리 마운드 얇게(80 → 52, 얼굴 · 이름 · 수치 한 줄, 마무리 칸은 이름만) · 아낀 높이로 그래프 200 → 272
+ *  다듬기(목업 prep-flow4 2 + 5안, 2026-10-04): 우리 마운드 얇게(80 → 52 → 여유 있게 62, 공격 사이 경계선, 얼굴 · 이름 · 수치 한 줄, 마무리 칸은 이름만) · 아낀 높이로 그래프 200 → 272
  *   그래프는 유리 판(잘린 모서리 · 위아래 옅은 빛) 안에 — 기본 스윙 선 기준 채움(위 = 풀스윙 쪽 주황 · 아래 = 신중한 쪽 보라), 선 아래 옅은 빛 한 겹
  *   스타일 단추는 테두리 없이 글자 + 미니 곡선(고른 것만 초록 바탕) — 그래프보다 눈에 덜 띄게
  *  공격 그래프(목업 prep-attack2 1 + 4안): 높이 = 스윙 크기(위부터 강공 · 보통 · 짧게 · 기다리기), 회 가운데 점 하나 + 부드러운 선
@@ -39,7 +39,7 @@ const LEAD = '9rem';
 export const ATK_KO = { base: '기본 스윙', power: '풀스윙', contact: '짧은 스윙', patience: '신중한 스윙' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
-const GH = 272, GPAD = 26; // 마운드가 얇아진 만큼 200 → 272
+const GH = 252, GPAD = 26; // 마운드가 얇아진 만큼 200 → 272 → 마운드 줄 52 → 62 · 경계선 몫으로 252
 const gy = (lv) => GPAD + (lv * (GH - GPAD * 2)) / 3;
 const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
@@ -130,7 +130,7 @@ export const segsOf =(atk) => atk.reduce((acc, v, i) => { const last = acc[acc.l
 
 function Lane({ label, sub, h, children, glass, low }) {
   return (
-    <div className="grid items-stretch" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)`, minHeight: h, flexGrow: h >= 56 ? 1 : 0, maxHeight: h >= 56 ? h * 1.6 : undefined }}>
+    <div className="grid items-stretch" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)`, height: h }}>
       <span className="flex flex-col items-start justify-center gap-1 pr-3"><b className="text-t3" style={{ color: W1 }}>{label}</b>{sub && (typeof sub === 'string' ? <span className="text-[11px]" style={{ color: W3 }}>{sub}</span> : sub)}</span>
       <span className="relative block rounded-lg" style={glass ? { background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' } : null}>
         <span className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
@@ -271,18 +271,18 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <Lane label="우리 마운드" h={52} glass low={low}>
+        <Lane label="우리 마운드" h={62} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 5, bottom: 5, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
-            {starter && <Portrait player={starter} w={24} h={30} color="#334155" />}
+          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
+            {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}
             <b className="shrink-0 text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} />
           </span>
           {mp.spans.map((x, k) => {
             const p = byId.get(x.id), on = pick === x.slot, a = x.a / 3, l = 5;
             return (
               <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1.5"
-                style={{ top: 5, bottom: 5, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
-                {p && <Portrait player={p} w={22} h={28} color="#334155" />}
+                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                {p && <Portrait player={p} w={28} h={35} color="#334155" />}
                 <span className="shrink-0 truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>
                 {x.slot === 'close' ? <span className="shrink-0 text-[10px]" style={{ color: GOLD }}>마무리</span> : p && <PStats p={p} keys={STAT2} />}
               </button>
@@ -318,6 +318,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             </span>
           </div>
         )}
+        {/* 마운드 · 공격 경계 — 두 구역이 붙어 보이지 않게 선 하나 + 여백 */}
+        <i className="my-1.5 block h-px shrink-0 bg-white/[0.09]" />
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)`, height: GH }}>
           <span className="relative block pr-3">
             <b className="absolute text-t3" style={{ left: 0, top: 0, color: W1 }}>공격</b>

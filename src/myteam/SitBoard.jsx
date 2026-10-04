@@ -5,7 +5,8 @@
  *   주자 · 빠른 1루 주자 — 그대로 · 도루 우선(steal) ↔ 상대 포수(왼쪽 경보 '도루 기회')
  *   투수 · 경기 운영 — 기본 · 맞혀 잡기(pitchZone) ↔ 상대 파워(왼쪽 경보 '장타 위험') · 선발 무너질 때 자동 교체(tired, 늘 켬 — 고를 칸 아님)
  *  구역 머리 오른쪽 칩 = 왼쪽 상대 판의 같은 값(경보 · 상대 선발) — 어디를 볼지만, 답은 주지 않음
- *  경기 계획표 = 1 · 2단계에서 정한 것(마운드 · 공격 높이)을 회 한 줄로 — 마지막 점검, 손대려면 위 단계로
+ *  경기 계획표 = 1 · 2단계에서 정한 것(마운드 · 공격 높이 · 타순)을 회 한 줄로 — 마지막 점검, 손대려면 위 단계로
+ *   타순 줄 = 그 회 선두 타자 어림(한 회 타석 4.2 — ponytail: 고정 어림, 미리보기 타석 수를 받으면 그걸로)
  */
 import React from 'react';
 import { alertsOf, lvOf, LV } from './OppPanel.jsx';
@@ -62,7 +63,8 @@ function Zone({ z, chip, value, onPick }) {
   );
 }
 /* 경기 계획표 — 마운드(선발 · 계투 · 마무리) · 공격 높이 점 */
-function PlanTable({ starter, pens, rel, limit, atk }) {
+const PA_INN = 4.2;
+function PlanTable({ starter, pens, rel, limit, atk, batters = [] }) {
   const exit = exitOf(limit), mp = moundPlan(rel, exit), byId = new Map(pens.map((p) => [p.id, p]));
   const segs = [[0, exit, starter, SPB], ...mp.spans.map((x) => [x.a / 3, x.b / 3, byId.get(x.id), x.slot === 'close' ? GOLD : '#94a3b8'])];
   return (
@@ -79,6 +81,12 @@ function PlanTable({ starter, pens, rel, limit, atk }) {
         </span>
         <span className="text-t4" style={{ color: W2 }}>공격</span>
         {atk.map((v, i) => <span key={i} className="grid place-items-center"><i className="block h-2.5 w-2.5 rounded-full" style={{ background: LVC[ATK_LV[Math.round(atkLvOf(v))]] }} /></span>)}
+        <span className="text-t4" style={{ color: W2 }}>타순</span>
+        {INN.map((i) => { const k = Math.floor((i - 1) * PA_INN) % 9, b = batters[k]; return (
+          <span key={i} className="mx-0.5 flex min-w-0 items-center justify-center gap-1 rounded px-1 py-0.5" style={{ background: 'rgba(255,255,255,.04)' }}>
+            <b className="font-display text-[11px]" style={{ color: W3 }}>{k + 1}</b><span className="truncate text-[12px] font-bold" style={{ color: W1 }}>{b?.name}</span>
+          </span>
+        ); })}
       </div>
     </div>
   );
@@ -95,7 +103,7 @@ export default function SitBoard({ conds, setConds, engine, starter, pens, rel, 
   const pickIn = (z, id) => setConds([...conds.filter((c) => !z.opts.some(([k]) => k === c)), ...(id ? [id] : [])]);
   return (
     <div className="flex min-h-0 flex-col gap-4">
-      <PlanTable starter={starter} pens={pens} rel={rel} limit={limit} atk={atk} />
+      <PlanTable starter={starter} pens={pens} rel={rel} limit={limit} atk={atk} batters={engine.home.batters} />
       <div className="grid gap-4" style={{ gridTemplateColumns: 'minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr)' }}>
         {ZONES.map((z) => <Zone key={z.id} z={z} chip={chipOf(z)} value={z.opts.find(([k]) => k && conds.includes(k))?.[0] ?? null} onPick={(id) => pickIn(z, id)} />)}
       </div>
