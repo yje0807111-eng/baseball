@@ -11,6 +11,7 @@
 import React from 'react';
 import { alertsOf, lvOf, LV } from './OppPanel.jsx';
 import { moundPlan, exitOf } from './FlowBoard.jsx';
+import { Portrait } from './ui.jsx';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
@@ -64,41 +65,58 @@ function Zone({ z, chip, value, onPick }) {
 /* 경기 계획표 — 마운드(선발 · 계투 · 마무리) · 공격 높이 점 */
 const PA_INN = 4.2;
 /*
- * 경기 계획표(목업 prep-plan 3안 전광판 + 5안 역할 표시, 2026-10-04) — 마운드 · 타순 두 줄(공격 줄은 2단계 그래프에 있어 뺌)
- *  회 머리 = 야구장 전광판(검은 칸 · 주황 '1회', 기회 회는 초록 — 2단계 그래프 기둥과 같은 셈: 상대 마운드 평균 −2 아래)
- *  마운드 막대에 선발 · 계투 · 마무리 표시, 타순 칸도 전광판 칸(주황 번호 + 이름)
+ * 경기 계획표 — 2단계 판과 같은 조각으로(2026-10-04): 전광판(검은 칸 · 주황)은 1 · 2단계 유리 판 결에서 벗어나 되돌림
+ *  회 머리 = 2단계와 같은 'n회' + 기회 회 초록 · 아래 '기회'(상대 마운드 평균 −2 아래)
+ *  마운드 줄 = 2단계 마운드 줄과 같은 유리 레인(회 눈금 · 기회 기둥) · 선발 파란 막대 · 계투 유리 칸 · 마무리 금색 글자, 얼굴 사진
+ *  타순 줄 = 같은 레인 안에 회마다 선두 타자(번호 + 얼굴 + 이름)
  */
-const BOARD = '#05070c';
+const LEAD_W = '6.5rem';
+function Lane({ label, h, low, children }) {
+  return (
+    <div className="grid items-stretch" style={{ gridTemplateColumns: `${LEAD_W} minmax(0,1fr)`, height: h }}>
+      <span className="flex items-center pr-3"><b className="text-t3" style={{ color: W1 }}>{label}</b></span>
+      <span className="relative block rounded-lg" style={{ background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
+        <span className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
+          {INN.map((i) => <i key={i} style={{ borderLeft: i > 1 ? '1px solid rgba(255,255,255,.05)' : 'none', background: low[i - 1] ? 'rgba(16,185,129,.07)' : 'transparent' }} />)}
+        </span>
+        {children}
+      </span>
+    </div>
+  );
+}
 function PlanTable({ starter, pens, rel, limit, batters = [], mound = [] }) {
   const exit = exitOf(limit), mp = moundPlan(rel, exit), byId = new Map(pens.map((p) => [p.id, p]));
-  const segs = [[0, exit, starter, SPB, '선발'], ...mp.spans.map((x) => [x.a / 3, x.b / 3, byId.get(x.id), x.slot === 'close' ? GOLD : '#94a3b8', x.slot === 'close' ? '마무리' : '계투'])];
+  const segs = [[0, exit, starter, 'sp'], ...mp.spans.map((x) => [x.a / 3, x.b / 3, byId.get(x.id), x.slot === 'close' ? 'close' : 'mid'])];
   const known = mound.filter((v) => v != null), avg = known.length ? known.reduce((x, y) => x + y, 0) / known.length : 0;
   const low = INN.map((i) => mound[i - 1] != null && mound[i - 1] <= avg - 2);
   return (
-    <div className="mt-cut flex shrink-0 flex-col gap-3 p-4" style={{ ...cut(12), background: 'linear-gradient(180deg, rgba(8,10,16,.9), rgba(14,18,28,.85))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
+    <div className="mt-cut flex shrink-0 flex-col gap-2 p-4" style={{ ...cut(12), background: 'linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
       <b className="text-t3" style={{ color: W1 }}>경기 계획</b>
-      <div className="grid items-center" style={{ gridTemplateColumns: '5.5rem repeat(9,minmax(0,1fr))', rowGap: 8 }}>
+      <div className="grid" style={{ gridTemplateColumns: `${LEAD_W} minmax(0,1fr)` }}>
         <span />
-        {INN.map((i) => (
-          <b key={i} className="mx-1 grid place-items-center rounded py-1 font-display text-t3"
-            style={{ background: BOARD, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)', color: low[i - 1] ? '#34d399' : GOLD, textShadow: `0 0 8px ${low[i - 1] ? '#34d39966' : '#fbbf2466'}` }}>{i}회</b>
-        ))}
-        <span className="text-t4 font-bold" style={{ color: W2 }}>마운드</span>
-        <span className="relative block" style={{ gridColumn: 'span 9', height: 28 }}>
-          {segs.map(([a, b, p, c, role]) => b > a && (
-            <span key={`${a}`} className="absolute flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-full px-3 text-[12px] font-bold"
-              style={{ left: `calc(${(a / 9) * 100}% + 4px)`, width: `calc(${((b - a) / 9) * 100}% - 8px)`, top: 0, bottom: 0, background: `linear-gradient(90deg, ${c}40, ${c}18)`, boxShadow: `inset 0 0 0 1px ${c}55`, color: W1 }}>
-              <span className="text-[10px] font-bold" style={{ color: c }}>{role}</span>{p?.name}
-            </span>
-          ))}
-        </span>
-        <span className="text-t4 font-bold" style={{ color: W2 }}>타순</span>
-        {INN.map((i) => { const k = Math.floor((i - 1) * PA_INN) % 9, bt = batters[k]; return (
-          <span key={i} className="mx-1 flex min-w-0 items-center justify-center gap-1.5 rounded py-1" style={{ background: BOARD }}>
-            <b className="font-display text-[11px]" style={{ color: GOLD }}>{k + 1}</b><span className="truncate text-[12px] font-bold" style={{ color: W1 }}>{bt?.name}</span>
-          </span>
-        ); })}
+        <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
+      <Lane label="마운드" h={50} low={low}>
+        {segs.map(([a, b, p, role]) => b > a && (
+          <span key={`${a}`} className="absolute flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-md px-2"
+            style={{ top: 5, bottom: 5, left: `calc(${(a / 9) * 100}% + 4px)`, width: `calc(${((b - a) / 9) * 100}% - 8px)`, background: role === 'sp' ? `linear-gradient(90deg, ${SPB}66, ${SPB}22)` : 'rgba(255,255,255,.05)', boxShadow: role === 'sp' ? 'none' : 'inset 0 0 0 1px rgba(255,255,255,.1)' }}>
+            {p && <Portrait player={p} w={26} h={32} color="#334155" />}
+            <b className="truncate text-t4" style={{ color: W1 }}>{p?.name}</b>
+            {role === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}
+          </span>
+        ))}
+      </Lane>
+      <Lane label="타순" h={44} low={low}>
+        <span className="absolute inset-0 grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
+          {INN.map((i) => { const k = Math.floor((i - 1) * PA_INN) % 9, bt = batters[k]; return (
+            <span key={i} className="flex min-w-0 items-center justify-center gap-1.5 px-1">
+              <b className="font-display text-[11px]" style={{ color: W3 }}>{k + 1}</b>
+              {bt && <Portrait player={bt} w={20} h={25} color="#334155" />}
+              <span className="truncate text-[12px] font-bold" style={{ color: W1 }}>{bt?.name}</span>
+            </span>
+          ); })}
+        </span>
+      </Lane>
     </div>
   );
 }
