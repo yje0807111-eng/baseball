@@ -32,7 +32,7 @@ const SPOT = {
 const at = (k) => ({ left: `${SPOT[k][0]}%`, top: `${SPOT[k][1]}%` });
 const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
 const hand = (h) => (h === 'L' ? '좌' : h === 'S' ? '양' : '우');
-const TABLE = '2rem 2.2rem minmax(0,1fr) 4.6rem repeat(3,2.8rem)'; // 번호 · 얼굴 · 선수 · 자리 · 컨 · 파 · 주
+const TABLE = '2rem 2.2rem minmax(0,1fr) 4.6rem repeat(3,2.8rem)'; // 번호 · 얼굴 · 선수 · 자리 · 컨택 · 파워 · 주루
 
 /*
  * 끌기 손맛(2026-10-03 다시) — 비교: Trello · Notion 줄 끌기(잡은 카드가 포인터에 붙고 나머지가 미끄러져 자리를 비움),
@@ -212,7 +212,7 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
   return (
     <div ref={rootRef} className="grid min-h-0 flex-1 select-none gap-x-6" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gridTemplateRows: '36px minmax(0,1fr)' }}>
       {/* ① 제목 줄 — 두 칸 같은 높이 */}
-      <div className="flex items-center justify-between"><b className="text-t3" style={{ color: W1 }}>수비</b><span className="text-t4" style={{ color: W3 }}>끌어서 자리 바꾸기</span></div>
+      <div className="flex items-center justify-between"><b className="text-t3" style={{ color: W1 }}>수비</b></div>
       <div className="flex items-center justify-between"><b className="text-t3" style={{ color: W1 }}>타순</b>
         <span className="flex gap-1.5"><Btn sm onClick={() => onCommit({ ...team, order: autoArrange(squad, bench, team.pitchFatigue) })} disabled={!squad.length}>자동 배치</Btn></span>
       </div>
@@ -258,7 +258,7 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
       {/* 타순 — 공격. ③ 열 제목 있는 표, 9줄은 칸 높이에 고르게 */}
       <div className="flex min-h-0 flex-col">
         <div className="grid h-7 shrink-0 items-center gap-3 border-b border-white/[0.08] px-3 text-t4" style={{ gridTemplateColumns: TABLE, color: W3 }}>
-          <span /><span /><span>선수</span><span>자리</span><span className="text-right">컨</span><span className="text-right">파</span><span className="text-right">주</span>
+          <span /><span /><span>선수</span><span>자리</span><span className="text-right">컨택</span><span className="text-right">파워</span><span className="text-right">주루</span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden py-1">
           {rows.map((x, i) => {
