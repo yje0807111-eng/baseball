@@ -32,7 +32,8 @@ const armOf = (p) => Math.round((st(p, 'stuff', 80) + st(p, 'control', 75)) / 2)
 const US = '#10b981', GOLD = '#fbbf24', W1 = '#e5e7eb', W2 = '#9ca3af', W3 = '#6b7280', SPB = '#60a5fa';
 const INN = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const LEAD = '9rem';
-export const ATK_KO = { base: '보통', power: '강공', contact: '짧게', patience: '기다리기' };
+// 화면 이름 — 높이(스윙 크기)가 한눈에: 풀스윙 · 기본 스윙 · 짧은 스윙 · 신중한 스윙(공 고르기). 엔진 이름(power · base · contact · patience)은 그대로
+export const ATK_KO = { base: '기본 스윙', power: '풀스윙', contact: '짧은 스윙', patience: '신중한 스윙' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
 const GH = 200, GPAD = 24; // 상대 마운드 줄 · 선발 카드가 빠져 156 → 200

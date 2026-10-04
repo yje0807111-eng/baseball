@@ -553,7 +553,7 @@ export default function ReadyLocker({
       ? <GoBtn step={step} label={`다음 · ${PREP_STEPS[step]} ▶`} onClick={() => setStep(step + 1)} />
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
-    const atkKo = segsOf(atk.map((v) => ATK_LV[Math.round(atkLvOf(v))])).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
+    const atkKo = segsOf(atk.map((v) => ATK_LV[Math.round(atkLvOf(v))])).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '기본 스윙';
     const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
     const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
     const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
