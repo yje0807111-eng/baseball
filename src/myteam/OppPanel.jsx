@@ -195,7 +195,7 @@ function StepFlow({ away, pv, busy, c }) {
  * ponytail: 높음 문턱(막대 66%)은 어림 — 쓰다 치우치면 AI 팀 3등분으로
  */
 const stealP = (runner, catcher, pitcher) => Math.max(0.08, Math.min(0.95, 0.52 + (st(runner, 'speed') - 75) * 0.02 - (st(catcher, 'defense', 85) - 85) * 0.025 - (st(pitcher, 'stability', 81) - 81) * 0.008));
-function alertsOf(home, away) {
+export function alertsOf(home, away) {
   const msp = home.pitchers[0], osp = away.pitchers[0];
   const myCat = home.catcher || home.batters.find((b) => b.position === 'C'), opCat = away.catcher || away.batters.find((b) => b.position === 'C');
   const slug = [...away.batters].sort((a, b) => st(b, 'power') - st(a, 'power')).slice(0, 3);
@@ -208,8 +208,8 @@ function alertsOf(home, away) {
     { ko: '도루 기회', kind: 'chance', at: myFast[0] ? pos(stealP(myFast[0], opCat, osp) * 100, 40, 100) : 4 },
   ];
 }
-const LV = { risk: ['낮음', '보통', '높음'], chance: ['작음', '보통', '큼'] };
-const lvOf = (a) => (a.at >= 66 ? 2 : a.at >= 40 ? 1 : 0);
+export const LV = { risk: ['낮음', '보통', '높음'], chance: ['작음', '보통', '큼'] };
+export const lvOf = (a) => (a.at >= 66 ? 2 : a.at >= 40 ? 1 : 0);
 const alertC = (a) => (a.kind === 'chance' ? [DIM, '#a7f3d0', MY][lvOf(a)] : [DIM, GOLD, RED][lvOf(a)]);
 function AlertGauge({ a }) {
   return (

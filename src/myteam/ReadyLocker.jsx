@@ -34,11 +34,12 @@ function WinBar({ win, c }) {
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
 import LineupField from './LineupField.jsx';
-import FlowBoard, { ATK_KO, ATK_LV, atkLvOf, limitKo, segsOf, exitOf, moundPlan } from './FlowBoard.jsx';
+import SitBoard, { SIT_IDS } from './SitBoard.jsx';
+import FlowBoard, { atkLvOf, exitOf, moundPlan } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
 
-import { planRun, planSummary, planAnalysis, planDeltas } from './planSim.js';
+import { planRun, planSummary } from './planSim.js';
 import { Btn, UiStyle, Pop, FxChips } from './ui.jsx';
 import { posColor } from './teamColor.js';
 import { FORM_OF } from './form.js';
@@ -344,51 +345,6 @@ function Stepper({ step, onStep }) {
   );
 }
 /*
- * 상황 대응 — 상황마다 하나(첫 칸 = 맡기기). flow-sim 값으로 승률 변화 · 추천:
- *  지친 선발 교체는 우리 선발이 약하면 +2.1 · 강하면 −1.9, 강타자 유인구 · 거르기는 우리 타선이 약하면 +1.9 · +0.4 · 강하면 −1.4 · −2.0
- */
-const SITUATIONS = [
-  { id: 'close', side: '수비', ko: '7회 이후 1~2점 리드', opts: [['그대로', null], ['가장 센 불펜', 'close']] },
-  { id: 'tired', side: '수비', ko: '선발 체력 30 아래 · 주자 있음', opts: [['맡기기', null], ['교체', 'tired']] },
-  { id: 'star', side: '수비', ko: '득점권 · 상대 강타자', opts: [['승부', null], ['유인구', 'chase'], ['거르기', 'walk']] },
-  { id: 'n1', side: '공격', ko: '무사 1루', opts: [['그대로', null], ['히트앤런', 'hnr']] },
-];
-const sitDelta = (an, cond) => {
-  const spWeak = an ? an.spArm < 80 : false, offWeak = an ? an.offAvg < 82 : false;
-  return { close: 3.4, tired: spWeak ? 2.1 : -1.9, chase: offWeak ? 1.9 : -1.4, walk: offWeak ? 0.4 : -2.0, hnr: 0.5 }[cond] ?? 0;
-};
-function SitBlock({ conds, setConds, an }) {
-  return (
-    <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>
-      {SITUATIONS.map((s) => {
-        const cur = s.opts.find(([, c]) => c && conds.includes(c))?.[1] ?? null;
-        const best = s.opts.map(([, c]) => [c, c ? sitDelta(an, c) : 0]).sort((x, y) => y[1] - x[1])[0];
-        return (
-          <div key={s.id} className="mt-cut flex flex-col gap-2.5 p-4" style={{ ...cut(10), background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
-            <span className="flex items-center gap-2">
-              <b className="rounded px-1.5 text-t4" style={{ color: s.side === '공격' ? '#34d399' : '#7dd3fc', boxShadow: `inset 0 0 0 1px ${s.side === '공격' ? '#34d39966' : '#7dd3fc66'}` }}>{s.side}</b>
-              <b className="truncate text-t2 text-white">{s.ko}</b>
-            </span>
-            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${s.opts.length},minmax(0,1fr))` }}>
-              {s.opts.map(([ko, c]) => {
-                const on = cur === c, d = c ? sitDelta(an, c) : 0, rec = best[1] > 0.5 && best[0] === c;
-                return (
-                  <button key={ko} type="button" aria-pressed={on} onClick={() => setConds([...conds.filter((x) => !s.opts.some(([, k]) => k === x)), ...(c ? [c] : [])])}
-                    className="mt-cut relative flex min-h-[3.25rem] flex-col items-center justify-center gap-0.5 py-1.5 text-t3 font-bold" style={{ ...pickStyle(on), color: on ? '#fff' : '#9ca3af' }}>
-                    {ko}
-                    <b className="font-display text-t4" style={{ color: Math.abs(d) < 0.5 ? '#6b7280' : d > 0 ? '#34d399' : '#f87171' }}>{Math.abs(d) < 0.05 ? '±0' : pct(d)}</b>
-                    {rec && <b className="absolute right-1 top-1 rounded px-1 text-[11px] leading-[15px]" style={{ color: WARN, boxShadow: `inset 0 0 0 1px ${WARN}88` }}>추천</b>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-/*
  * 판 아래 띠(목업 prep-bottom 1안 + 8안 단추, 2026-10-03) — 늘 필요한 건 단추 하나. 단계마다 그 단계에서 쓰는 것만:
  *  1 라인업 = 시너지(출전 명단에 따라 바뀜) / 2 경기 흐름 = 단추만(선발 이닝 · 증강 · 필승조는 가운데에 다 보임)
  *  3 상황 대응 = 고른 설계 한 줄 요약(경기 전 마지막 확인) + 준비 카드(가진 것만). 예상 승률은 판 머리에
@@ -422,28 +378,19 @@ function StepBar({ left = null, right = null, back = null, go }) {
     </div>
   );
 }
-/* 3단계 요약 — 공격 · 선발 · 배합 · 필승조 · 증강 · 상황 */
-const COND_KO = { close: '센 불펜', tired: '지친 선발 교체', chase: '유인구', walk: '거르기', hnr: '히트앤런', swing: '풀스윙', steal: '도루' };
-function PlanSum({ items }) {
-  return (
-    <span className="flex min-w-0 items-center gap-5">
-      {items.map(([k, v]) => <span key={k} className="flex min-w-0 flex-col"><span className="text-[11px] text-gray-500">{k}</span><b className="truncate text-t3 text-gray-100">{v}</b></span>)}
-    </span>
-  );
-}
-/* 준비 카드 — 가진 것만, 하나도 없으면 칸째 없음 */
+/* 준비 카드 — 아래 띠 '◀ 이전 · 경기 시작' 왼쪽 아이템 칸(목업 prep-step3c): 그림 · 남은 장 수, 고른 것만 초록 테두리. 가진 것만, 하나도 없으면 칸째 없음 */
 function CardChips({ cards, value, onPick }) {
   const own = (cards || []).filter((c) => c.n > 0);
   if (!own.length) return null;
   return (
-    <span className="flex shrink-0 items-center gap-1.5">
-      <span className="mr-1 text-t4 text-gray-500">준비 카드</span>
+    <span className="flex shrink-0 items-center gap-2">
+      <span className="mr-1 text-[11px] font-bold text-gray-500">준비 카드</span>
       {own.map((c) => {
         const on = value === c.id;
         return (
-          <button key={c.id} type="button" onClick={() => onPick(on ? null : c.id)} aria-pressed={on} title={c.effect}
-            className="mt-cut flex h-10 items-center gap-2 px-3" style={pickStyle(on)}>
-            <b className="text-t4" style={{ color: on ? '#fff' : '#cbd5e1' }}>{c.name}</b><span className="font-display text-t4 text-gray-500">{c.n}</span>
+          <button key={c.id} type="button" onClick={() => onPick(on ? null : c.id)} aria-pressed={on} aria-label={`${c.name} · ${c.effect}`} title={`${c.name} · ${c.effect}`} className="relative">
+            <span className="mt-cut block h-12 w-12 overflow-hidden bg-cover bg-center transition-[filter]" style={{ ...cut(8), backgroundImage: `url(ui/shop/${c.id}.webp)`, boxShadow: `inset 0 0 0 ${on ? 2 : 1}px ${on ? US : 'rgba(255,255,255,.14)'}`, filter: on ? 'none' : 'saturate(.6) brightness(.85)' }} />
+            <b className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-[#0b0f1a] font-display text-[10px] text-gray-200" style={{ boxShadow: '0 0 0 1px rgba(255,255,255,.2)' }}>{c.n}</b>
           </button>
         );
       })}
@@ -497,7 +444,7 @@ export default function ReadyLocker({
   const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
   /* 정비 3단계 — 상황 대응(기본: 7회 이후 리드면 센 불펜) · 필승조 · 증강 시점 */
   const [step, setStep] = useState(1);
-  const [conds, setConds] = useState(team.plan?.conds || ['close']);
+  const [conds, setConds] = useState(() => (team.plan?.conds || []).filter((c) => SIT_IDS.includes(c))); // 3단계 '우선' 고르기만(예전 센 불펜 · 유인구 등은 버림)
   const pens = useMemo(() => (engine ? engine.home.pitchers.slice(1) : []), [engine]);
   const arm = (p) => (p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75);
   const [late] = useState(() => {
@@ -518,13 +465,11 @@ export default function ReadyLocker({
   });
   /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
   const flowPlan = () => {
-    const p = planOfSides({ ...sides, mound: 'long', mix: 'mix' }, conds, { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
+    const p = planOfSides({ ...sides, mound: 'long', mix: 'mix' }, [...conds, 'tired'], { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
     Object.assign(p.fine, { swing: '보통', take: '보통' });
     delete p.fine.appr;
     return p;
   };
-  const an = useMemo(() => (engine ? planAnalysis(engine.home, engine.away) : null), [engine]);
-  const deltas = useMemo(() => (an ? planDeltas(an) : null), [an]);
   /*
    * 고른 설계로 굴린 미리보기 — 고르면 0.25초 뒤 100판씩 나눠 600판(약 2초)을 굴리고 다 되면 바꾼다(한 번에 굴리면 화면이 멈춘다).
    * 200판에서 먼저 보여 주면 600판과 12%p 까지 달랐다 — 그동안은 앞 숫자를 흐리게 둔다(busy)
@@ -546,17 +491,12 @@ export default function ReadyLocker({
   }, [engine, sides, conds, atk, limit, rel]); // eslint-disable-line react-hooks/exhaustive-deps
   const [foeOpen, setFoeOpen] = useState(false); // 상대 타순 창
 
-  const an2 = useMemo(() => (an && engine ? { ...an, spArm: arm(an.sp) / 2, offAvg: engine.home.batters.reduce((n, b) => n + (b.stats?.contact ?? 75) + (b.stats?.power ?? 75), 0) / 18 } : an), [an, engine]); // eslint-disable-line react-hooks/exhaustive-deps
   if (engine && opponent) {
     const plan = flowPlan;
     const go = step < 3
       ? <GoBtn step={step} label={`다음 · ${PREP_STEPS[step]} ▶`} onClick={() => setStep(step + 1)} />
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
-    const atkKo = segsOf(atk.map((v) => ATK_LV[Math.round(atkLvOf(v))])).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '기본 스윙';
-    const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
-    const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
-    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
@@ -574,11 +514,11 @@ export default function ReadyLocker({
                 rel={rel} setRel={setRel} />
             </div>
           )}
-          {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
+          {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} starter={engine.home.pitchers[0]} pens={pens} rel={rel} limit={limit} atk={atk} />}
           {step === 3 && <span className="min-h-0 flex-1" />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
           {step === 2 && <StepBar back={<BackBtn onClick={() => setStep(1)} />} go={go} />}
-          {step === 3 && <StepBar left={<PlanSum items={sumItems} />} right={<CardChips cards={cards} value={card} onPick={setCard} />} back={<BackBtn onClick={() => setStep(2)} />} go={go} />}
+          {step === 3 && <StepBar right={<CardChips cards={cards} value={card} onPick={setCard} />} back={<BackBtn onClick={() => setStep(2)} />} go={go} />}
         </section>
       </div>
     );

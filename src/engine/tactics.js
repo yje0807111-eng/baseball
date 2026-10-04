@@ -36,18 +36,28 @@ export const CONDITIONS = [
   { id: 'walk', ko: '득점권 · 상대 강타자', act: '거르기' },
   { id: 'hnr', ko: '무사 1루', act: '히트앤런' },
   { id: 'swing', ko: '8회 이후 뒤짐', act: '풀스윙' },
-  { id: 'steal', ko: '1루 주자 주력 85+', act: '도루' },
+  { id: 'steal', ko: '1루 주자 주력 80+', act: '도루' },
+  /* 3단계 '우선' 고르기(2026-10-04, sit-sim) — 상대에 따라 갈린 것만 */
+  { id: 'rispPow', ko: '득점권 기회', act: '홈런 우선' }, // 풀스윙 — 상대 선발 구위 약하면 +1.0 · 강하면 −1.6
+  { id: 'rispCon', ko: '득점권 기회', act: '안타 우선' }, // 짧은 스윙 — 구위 약하면 −0.2 · 강하면 +1.7
+  { id: 'rispPat', ko: '득점권 기회', act: '출루 우선' }, // 신중한 스윙 — 제구 좋으면 −0.8
+  { id: 'pitchZone', ko: '경기 운영', act: '맞혀 잡기' }, // 존 안 35% — 상대 파워 낮으면 +1.9 · 높으면 −0.6
 ];
 const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const armOf = (p) => stOf(p, 'stuff', 80) + stOf(p, 'control', 75);
 export function condOrders(g, conds = [], ctx = {}) {
   if (!conds.length) return null;
+  const out = {}; // 걸린 대응을 모두 합침(같은 지시는 앞에 고른 것) — 득점권 타격 · 도루처럼 한 타석에 둘이 걸릴 수 있다
+  for (const c of conds) { const x = condOne(g, c, ctx); if (x) for (const k of Object.keys(x)) if (!(k in out)) out[k] = x[k]; }
+  return Object.keys(out).length ? out : null;
+}
+function condOne(g, c, ctx) {
   const fresh = !g.balls && !g.strikes, mineBat = !g.top, risp = !g.bases[0] && (g.bases[1] || g.bases[2]);
   const star = ctx.stars ? ctx.stars.has(batterOf(g)?.id) : batterOf(g)?.id === ctx.star;
-  for (const c of conds) {
+  {
     if (c === 'close' && !mineBat && fresh && g.inning >= 7) {
       const lead = g.home.runs - g.away.runs;
-      if (lead < 1 || lead > 2 || penCallsLeft(g.home) <= 0) continue;
+      if (lead < 1 || lead > 2 || penCallsLeft(g.home) <= 0) return null;
       const pen = g.home.team.pitchers.slice(g.home.pitcherIdx + 1);
       const best = pen.reduce((x, y) => (!x || armOf(y) > armOf(x) ? y : x), null);
       if (best && armOf(best) > armOf(g.home.pitcher)) return { changePitcher: best.id, call: true };
@@ -57,7 +67,12 @@ export function condOrders(g, conds = [], ctx = {}) {
     if (c === 'chase' && !mineBat && risp && star && g.rng() < 0.6) return { zone: 'chase' };
     if (c === 'hnr' && mineBat && fresh && g.outs === 0 && g.bases[0] && !g.bases[1]) return { hitAndRun: true };
     if (c === 'swing' && mineBat && g.inning >= 8 && g.home.runs < g.away.runs) return { approach: 'sellout' };
-    if (c === 'steal' && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= 85) return { steal: 0 };
+    if (c === 'steal' && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= 80) return { steal: 0 };
+    const rispAny = g.bases[1] || g.bases[2];
+    if (c === 'rispPow' && mineBat && rispAny) return { approach: 'power' };
+    if (c === 'rispCon' && mineBat && rispAny) return { approach: 'contact' };
+    if (c === 'rispPat' && mineBat && rispAny) return { patience: 1 };
+    if (c === 'pitchZone' && !mineBat && g.rng() < 0.35) return { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] };
   }
   return null;
 }
@@ -113,7 +128,7 @@ export function innOrders(g, inn) {
 /** 정비 설계 한 번에 — 성향(공격 · 선발 운용 · 볼 배합) + 상황 대응 + 필승조(또는 이닝별 계획). 경기 화면 · 미리보기가 같은 셈을 쓴다 */
 export function planOrders(g, plan = {}, ctx = {}) {
   const base = tacticOrders(plan.fine || {}, !g.top, g.rng);
-  if (plan.inn) { delete base.hookBf; return { ...base, ...(condOrders(g, plan.conds || [], ctx) || {}), ...(innOrders(g, plan.inn) || {}) }; }
+  if (plan.inn) { delete base.hookBf; return { ...base, ...(innOrders(g, plan.inn) || {}), ...(condOrders(g, plan.conds || [], ctx) || {}) }; } // 상황 대응이 이닝 계획 위(득점권 타격 · 지친 선발 교체)
   return { ...base, ...(condOrders(g, plan.conds || [], ctx) || {}), ...(lateOrders(g, plan.late) || {}) };
 }
 
