@@ -12,6 +12,9 @@
  *   투수 사이마다 경계 손잡이 — 한 아웃씩 옮김(rel.cuts), 끄는 동안 위에 '8회 1아웃' 칩. 마무리 기본 9회
  *  경계 손잡이(Grip) — 칸 사이 틈에 가는 선 + 작은 알약만(평소 흐리게, 올리면 밝게, 끄는 동안 초록). 잡는 폭은 16px
  *   (간트 · 피그마 분할선처럼 평소엔 안 보이다시피 — 선발 끝 · 투수 사이 · 공격 구간 모두 같은 손잡이, 선발 끝만 값 말풍선)
+ *  다듬기(목업 prep-flow4 2 + 5안, 2026-10-04): 우리 마운드 얇게(80 → 52, 얼굴 · 이름 · 수치 한 줄, 마무리 칸은 이름만) · 아낀 높이로 그래프 200 → 272
+ *   그래프는 유리 판(잘린 모서리 · 위아래 옅은 빛) 안에 — 기본 스윙 선 기준 채움(위 = 풀스윙 쪽 주황 · 아래 = 신중한 쪽 보라), 선 아래 옅은 빛 한 겹
+ *   스타일 단추는 테두리 없이 글자 + 미니 곡선(고른 것만 초록 바탕) — 그래프보다 눈에 덜 띄게
  *  공격 그래프(목업 prep-attack2 1 + 4안): 높이 = 스윙 크기(위부터 강공 · 보통 · 짧게 · 기다리기), 회 가운데 점 하나 + 부드러운 선
  *   값은 0~3 높이(0.1 단위) — 칸 사이는 두 성향을 타석마다 섞음(엔진 atkAt). 네 칸 가까이(±0.15)는 칸에 붙음 — 순수 값을 쉽게
  *   회 위를 끌며 지나가면 마우스 높이대로 회마다 점이 찍힘(건너뛴 회도 같은 높이로 채움), 끄는 동안 '6회 강공 70 · 보통 30' 칩. 점에서 ↑ ↓ 로 0.1씩
@@ -36,7 +39,7 @@ const LEAD = '9rem';
 export const ATK_KO = { base: '기본 스윙', power: '풀스윙', contact: '짧은 스윙', patience: '신중한 스윙' };
 const ATK_C = { base: W3, power: '#f59e0b', contact: '#38bdf8', patience: '#a78bfa' };
 export const ATK_LV = ['power', 'base', 'contact', 'patience']; // 그래프 높이 — 위부터
-const GH = 200, GPAD = 24; // 상대 마운드 줄 · 선발 카드가 빠져 156 → 200
+const GH = 272, GPAD = 26; // 마운드가 얇아진 만큼 200 → 272
 const gy = (lv) => GPAD + (lv * (GH - GPAD * 2)) / 3;
 const gx = (i) => i * 100 + 50; // viewBox 900 기준 회 가운데
 /* 왼쪽 상대 흐름과 같은 곡선 — 회 사이 가로 접선 베지어 */
@@ -268,19 +271,20 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <Lane label="우리 마운드" h={80} glass low={low}>
+        <Lane label="우리 마운드" h={52} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
-            {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}
-            <span className="flex min-w-0 flex-col gap-0.5"><b className="truncate text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} /></span>
+          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 5, bottom: 5, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
+            {starter && <Portrait player={starter} w={24} h={30} color="#334155" />}
+            <b className="shrink-0 text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} />
           </span>
           {mp.spans.map((x, k) => {
             const p = byId.get(x.id), on = pick === x.slot, a = x.a / 3, l = 5;
             return (
-              <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1"
-                style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
-                {p && <Portrait player={p} w={24} h={30} color="#334155" />}
-                <span className="flex min-w-0 flex-col items-start gap-0.5 leading-tight"><span className="flex items-center gap-1.5"><span className="truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>{x.slot === 'close' && <span className="text-[10px]" style={{ color: GOLD }}>마무리</span>}</span>{p && <PStats p={p} keys={STAT2} />}</span>
+              <button key={x.slot} type="button" onClick={() => setPick(on ? null : x.slot)} className="absolute flex items-center justify-center gap-1.5 overflow-hidden rounded-md px-1.5"
+                style={{ top: 5, bottom: 5, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, background: on ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 1px ${on ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                {p && <Portrait player={p} w={22} h={28} color="#334155" />}
+                <span className="shrink-0 truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>
+                {x.slot === 'close' ? <span className="shrink-0 text-[10px]" style={{ color: GOLD }}>마무리</span> : p && <PStats p={p} keys={STAT2} />}
               </button>
             );
           })}
@@ -319,16 +323,18 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
             <b className="absolute text-t3" style={{ left: 0, top: 0, color: W1 }}>공격</b>
             {ATK_LV.map((v, lv) => <span key={v} className="absolute flex -translate-y-1/2 items-center gap-1.5" style={{ right: 12, top: gy(lv) }}><span className="text-[11px]" style={{ color: W2 }}>{ATK_KO[v]}</span><i className="block h-1.5 w-1.5 rounded-full" style={{ background: dotC(v) }} /></span>)}
           </span>
-          <span ref={graphRef} onPointerDown={drawStart} className="relative block cursor-crosshair touch-none rounded-lg" style={{ background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
+          <span ref={graphRef} onPointerDown={drawStart} className="mt-cut relative block cursor-crosshair touch-none" style={{ ...cut(10), background: 'linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012))', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08)' }}>
             <span className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>
               {INN.map((i) => <i key={i} style={{ borderLeft: i > 1 ? '1px solid rgba(255,255,255,.05)' : 'none', background: low[i - 1] ? 'rgba(16,185,129,.07)' : 'transparent' }} />)}
             </span>
-            {ATK_LV.map((v, lv) => <i key={v} className="pointer-events-none absolute left-0 right-0 h-px" style={{ top: gy(lv), background: 'rgba(255,255,255,.06)' }} />)}
+            {ATK_LV.map((v, lv) => <i key={v} className="pointer-events-none absolute left-0 right-0 h-px" style={{ top: gy(lv), background: lv === 1 ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.05)' }} />)}
             <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full">
-              <defs><linearGradient id="atkFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f59e0b" stopOpacity=".26" /><stop offset="1" stopColor="#f59e0b" stopOpacity="0" /></linearGradient></defs>
+              <defs><clipPath id="atkUp"><rect x="0" y="0" width="900" height={gy(1)} /></clipPath><clipPath id="atkDn"><rect x="0" y={gy(1)} width="900" height={GH} /></clipPath></defs>
               {known.length > 0 && <path d={curveOf(oppYs)} fill="none" stroke="#a78bfa" strokeOpacity=".55" strokeWidth="1.5" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" style={{ opacity: busy ? 0.4 : 1 }} />}
-              <path d={`${curveOf(atkYs)} L900,${GH} L0,${GH} Z`} fill="url(#atkFill)" />
-              <path d={curveOf(atkYs)} fill="none" stroke="#e5e7eb" strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={`${curveOf(atkYs)} L900,${gy(1)} L0,${gy(1)} Z`} fill="rgba(245,158,11,.22)" clipPath="url(#atkUp)" />
+              <path d={`${curveOf(atkYs)} L900,${gy(1)} L0,${gy(1)} Z`} fill="rgba(167,139,250,.2)" clipPath="url(#atkDn)" />
+              <path d={curveOf(atkYs)} fill="none" stroke="#f8fafc" strokeOpacity=".16" strokeWidth="8" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+              <path d={curveOf(atkYs)} fill="none" stroke="#e5e7eb" strokeWidth="2.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
             </svg>
             {atk.map((v, i) => (
               <button key={i} type="button" aria-label={`${i + 1}회 공격 ${atkKoOf(v)}`} onKeyDown={(e) => { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); nudge(i, e.key === 'ArrowUp' ? -1 : 1); } }}
@@ -342,19 +348,19 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
         </div>
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
           <span />
-          <span className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
+          <span className="grid gap-x-3 gap-y-0.5" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
             {ATK_GROUPS.map(([group, list]) => (
-              <span key={group} className="flex min-w-0 flex-col gap-1">
+              <span key={group} className="flex min-w-0 flex-col">
                 {list.map(([ko, make], k) => {
                   const target = make(oppNorm), on = styleOn(target);
                   return (
                     <button key={ko} type="button" onClick={() => applyStyle(target)} aria-pressed={on}
-                      className="flex min-w-0 items-center gap-2 rounded-md px-2.5 py-1 transition-colors hover:bg-white/[0.06]"
-                      style={{ background: on ? 'rgba(16,185,129,.12)' : k ? 'rgba(255,255,255,.015)' : 'rgba(255,255,255,.04)', boxShadow: `inset 0 0 0 1px ${on ? US : k ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.1)'}` }}>
+                      className="flex min-w-0 items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-white/[0.05]"
+                      style={{ background: on ? 'rgba(16,185,129,.14)' : 'transparent' }}>
                       <svg viewBox={`0 0 900 ${GH}`} preserveAspectRatio="none" className="h-3.5 w-10 shrink-0" aria-hidden="true">
                         <path d={curveOf(target.map(gy))} fill="none" stroke={on ? US : k ? '#6b7280' : '#9ca3af'} strokeWidth="2" vectorEffect="non-scaling-stroke" />
                       </svg>
-                      <b className="truncate text-t4" style={{ color: on ? '#fff' : k ? W2 : W1 }}>{ko}</b>
+                      <b className="truncate text-[12px]" style={{ color: on ? '#fff' : k ? W3 : W2 }}>{ko}</b>
                     </button>
                   );
                 })}
