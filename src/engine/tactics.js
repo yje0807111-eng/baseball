@@ -42,6 +42,9 @@ export const CONDITIONS = [
   { id: 'rispCon', ko: '득점권 기회', act: '안타 우선' }, // 짧은 스윙 — 구위 약하면 −0.2 · 강하면 +1.7
   { id: 'rispPat', ko: '득점권 기회', act: '출루 우선' }, // 신중한 스윙 — 제구 좋으면 −0.8
   { id: 'pitchZone', ko: '경기 운영', act: '맞혀 잡기' }, // 존 안 35% — 상대 파워 낮으면 +1.9 · 높으면 −0.6
+  /* 세분화(2026-10-04, sit2-sim): 도루 문턱 85 · 90(위험 다이얼), 맞혀 잡기 '교타자만'(Con · 파워 80 아래) · '초반만'(E · 1~3회) — 둘은 겹쳐 붙음(pitchZoneConE) */
+  { id: 'steal85', ko: '1루 주자 주력 85+', act: '도루' }, { id: 'steal90', ko: '1루 주자 주력 90+', act: '도루' },
+  { id: 'pitchZoneCon', ko: '경기 운영', act: '맞혀 잡기 · 교타자만' }, { id: 'pitchZoneE', ko: '경기 운영', act: '맞혀 잡기 · 초반만' }, { id: 'pitchZoneConE', ko: '경기 운영', act: '맞혀 잡기 · 교타자만 · 초반만' },
 ];
 const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const armOf = (p) => stOf(p, 'stuff', 80) + stOf(p, 'control', 75);
@@ -67,12 +70,17 @@ function condOne(g, c, ctx) {
     if (c === 'chase' && !mineBat && risp && star && g.rng() < 0.6) return { zone: 'chase' };
     if (c === 'hnr' && mineBat && fresh && g.outs === 0 && g.bases[0] && !g.bases[1]) return { hitAndRun: true };
     if (c === 'swing' && mineBat && g.inning >= 8 && g.home.runs < g.away.runs) return { approach: 'sellout' };
-    if (c === 'steal' && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= 80) return { steal: 0 };
+    const stealMin = c === 'steal' ? 80 : c === 'steal85' ? 85 : c === 'steal90' ? 90 : 0;
+    if (stealMin && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= stealMin) return { steal: 0 };
     const rispAny = g.bases[1] || g.bases[2];
     if (c === 'rispPow' && mineBat && rispAny) return { approach: 'power' };
     if (c === 'rispCon' && mineBat && rispAny) return { approach: 'contact' };
     if (c === 'rispPat' && mineBat && rispAny) return { patience: 1 };
-    if (c === 'pitchZone' && !mineBat && g.rng() < 0.35) return { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] };
+    if (c.startsWith('pitchZone') && !mineBat) {
+      if (c.includes('Con') && stOf(batterOf(g), 'power') >= 80) return null; // 교타자만 — 장타자에겐 존 안으로 안 넣음
+      if (c.endsWith('E') && g.inning > 3) return null; // 초반만
+      if (g.rng() < 0.35) return { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] };
+    }
   }
   return null;
 }
