@@ -518,7 +518,7 @@ export default function ReadyLocker({
   });
   /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
   const flowPlan = () => {
-    const p = planOfSides({ ...sides, mound: 'long' }, conds, { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
+    const p = planOfSides({ ...sides, mound: 'long', mix: 'mix' }, conds, { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
     Object.assign(p.fine, { swing: '보통', take: '보통' });
     delete p.fine.appr;
     return p;
@@ -556,7 +556,7 @@ export default function ReadyLocker({
     const atkKo = segsOf(atk.map((v) => ATK_LV[Math.round(atkLvOf(v))])).filter((x) => x.v !== 'base').map((x) => `${ATK_KO[x.v]} ${x.a === x.b ? x.a : `${x.a}~${x.b}`}회`).join(' · ') || '보통';
     const mp = moundPlan(rel, exitOf(limit)), nm = (id) => pens.find((p) => p.id === id)?.name;
     const penKo = [...mp.mid.map(nm), rel.close && `${nm(rel.close)}(마무리)`].filter(Boolean).join(' · ') || '없음';
-    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['배합', sideOpt('mix', sides.mix)?.ko], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
+    const sumItems = [['공격', atkKo], ['선발', limitKo(limit)], ['불펜', penKo], ['상황', conds.map((c) => COND_KO[c] || c).join(' · ') || '없음']];
     return (
       <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
@@ -571,8 +571,7 @@ export default function ReadyLocker({
           {step === 2 && (
             <div className="min-h-0 flex-1 pt-6">
               <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
-                rel={rel} setRel={setRel}
-                mix={sides.mix} mixOpts={SIDES.find((x) => x.key === 'mix').opts.map((o) => [o.id, o.ko])} setMix={(id) => pickSide('mix', id)} />
+                rel={rel} setRel={setRel} />
             </div>
           )}
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}

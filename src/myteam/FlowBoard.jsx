@@ -2,7 +2,8 @@
  * 정비 2단계(경기 흐름) 가운데 — 이닝마다 짜기(목업 prep-innings2 1안 + 5안 기회 기둥 + 7안 손잡이 말풍선, 2026-10-03)
  *  모든 줄이 '왼쪽 이름 칸 + 1~9회' 같은 눈금 — 왼쪽 상대 흐름(파도)과 같은 회. 상대 마운드가 꺼진 회(평균 −2) = 기회 기둥(옅은 초록)
  *  말풍선은 손잡이 왼쪽(막대 끝 안) — 위로 띄우면 상대 마운드 줄을 가린다
- *  정돈(목업 prep-flow3 7안, 2026-10-04): 선발 카드 걷어냄 → 맨 위 도구 띠 한 줄(끊는 기준 · 값 − + | 볼 배합) — 투수 쪽 설정을 한곳에
+ *  정돈(목업 prep-flow3 7안, 2026-10-04): 선발 카드 걷어냄 → 맨 위 도구 띠 한 줄(끊는 기준 · 값 − +)
+ *   볼 배합은 뺌(mix-sim: 섞기보다 나은 게 거의 없음 · 상대 타선 약한 계열로 골라도 ±0 — 늘 섞기)
  *   상대 마운드 줄은 왼쪽 상대 판(OppPanel 2단계 흐름 아래 1~9회 칸)으로. 우리 마운드 칸 안에 투수 수치(선발 구위 · 제구 · 체력, 불펜 구위 · 제구)
  *  끊는 기준(이닝 · 투구 수 · 타자 수) · 값(− +). 선발 막대 끝 손잡이를 끌어도 값이 바뀐다(말풍선에 값 · 어림 이닝)
  *  마운드 한 줄: 선발(손잡이까지) → 계투(기본 1명) → 마무리(9회). 칸을 누르면 아래에 교체 줄 — 왼쪽 '교체' · 불펜 · 오른쪽 추가 · 빼기
@@ -157,7 +158,7 @@ const Seg = ({ opts, on, onPick }) => (
   </span>
 );
 
-export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit, setLimit, rel, setRel, mix, mixOpts, setMix }) {
+export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit, setLimit, rel, setRel }) {
   const [pick, setPick] = useState(null); // 고르는 자리 — 계투 번호 또는 'close'
   const [drag, setDrag] = useState(null); // { kind: 'sp' | 'mid' | 'draw', ... }
   const laneRef = useRef(null);
@@ -259,8 +260,6 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
           <b className="w-24 text-center font-display text-t2" style={{ color: W1 }}>{limitKo(limit)}</b>
           <button type="button" onClick={() => step(1)} className="grid h-8 w-8 place-items-center rounded-md text-t3" style={{ color: W1, background: 'rgba(255,255,255,.06)' }} aria-label="늘리기">+</button>
         </span>
-        <span className="ml-auto text-t4" style={{ color: W2 }}>볼 배합</span>
-        <Seg opts={mixOpts} on={mix} onPick={setMix} />
       </div>
       {/* 회 머리 */}
       <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
