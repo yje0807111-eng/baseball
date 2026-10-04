@@ -251,7 +251,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
 
   return (
     <div className="flex h-full min-h-0 select-none flex-col gap-3">
-      {/* 도구 띠 — 끊는 기준 | 볼 배합 */}
+      {/* 도구 띠 — 끊는 기준 */}
       <div className="flex shrink-0 items-center gap-3 rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,.025)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
         <span className="text-t4" style={{ color: W2 }}>끊는 기준</span>
         <Seg opts={Object.entries(LIMIT).map(([k, v]) => [k, v.ko])} on={limit.mode} onPick={setMode} />
