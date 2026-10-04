@@ -404,13 +404,21 @@ function GoBtn({ step, label, onClick, danger = false, disabled = false }) {
     </button>
   );
 }
-function StepBar({ left = null, right = null, go }) {
+/* 이전 — 다음 단추 왼쪽에 작게(2 · 3단계). 단계 머리 Stepper 를 눌러도 되지만 손이 가는 자리(오른쪽 아래)에 하나 더 */
+function BackBtn({ onClick }) {
+  return (
+    <button type="button" data-sfx="nav" onClick={onClick}
+      className="flex h-12 shrink-0 items-center gap-1.5 rounded-lg px-4 text-t3 font-bold text-gray-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+      style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)' }}>◀ 이전</button>
+  );
+}
+function StepBar({ left = null, right = null, back = null, go }) {
   return (
     <div className="flex min-h-[64px] shrink-0 items-center gap-6 border-t border-white/[0.08] pt-3">
       {left}
       <span className="min-w-0 flex-1" />
       {right}
-      {go}
+      <span className="flex shrink-0 items-center gap-2">{back}{go}</span>
     </div>
   );
 }
@@ -570,8 +578,8 @@ export default function ReadyLocker({
           {step === 3 && <SitBlock conds={conds} setConds={setConds} an={an2} />}
           {step === 3 && <span className="min-h-0 flex-1" />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
-          {step === 2 && <StepBar go={go} />}
-          {step === 3 && <StepBar left={<PlanSum items={sumItems} />} right={<CardChips cards={cards} value={card} onPick={setCard} />} go={go} />}
+          {step === 2 && <StepBar back={<BackBtn onClick={() => setStep(1)} />} go={go} />}
+          {step === 3 && <StepBar left={<PlanSum items={sumItems} />} right={<CardChips cards={cards} value={card} onPick={setCard} />} back={<BackBtn onClick={() => setStep(2)} />} go={go} />}
         </section>
       </div>
     );
