@@ -77,7 +77,7 @@ export const ATK_STYLES = ATK_GROUPS.flatMap(([, list]) => list);
 /* 높이 값 — 예전 이름도 받음 */
 export const atkLvOf = (v) => (typeof v === 'number' ? v : Math.max(0, ATK_LV.indexOf(v)));
 const lvC = (lv) => dotC(ATK_LV[Math.round(lv)]);
-/* '강공' · '강공 70 · 보통 30' */
+/* '풀스윙' · '풀스윙 70 · 기본 스윙 30' */
 export const atkKoOf = (v) => {
   const lv = atkLvOf(v), lo = Math.floor(lv + 1e-9), f = Math.round((lv - lo) * 10) * 10;
   return f ? `${ATK_KO[ATK_LV[lo]]} ${100 - f} · ${ATK_KO[ATK_LV[lo + 1]]} ${f}` : ATK_KO[ATK_LV[lo]];

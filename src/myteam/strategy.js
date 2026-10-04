@@ -94,10 +94,10 @@ export function recommend(opponent) {
 export const SIDES = [
   { key: 'off', en: 'Offense', ko: '공격', color: '#34d399', dials: ['swing', 'take'],
     opts: [
-      { id: 'big', ko: '강공', main: '장타 ↑', fx: { up: ['장타 ↑'], dn: [] }, tip: '한 방 노리기', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
-      { id: 'contact', ko: '짧게 치기', main: '삼진 ↓', fx: { up: ['삼진 ↓', '병살 ↓'], dn: [] }, tip: '맞혀 나가기', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통', appr: 'contact' } },
+      { id: 'big', ko: '풀스윙', main: '장타 ↑', fx: { up: ['장타 ↑'], dn: [] }, tip: '한 방 노리기', base: { bat: '강공' }, fine: { swing: '과감', take: '보통' } },
+      { id: 'contact', ko: '짧은 스윙', main: '삼진 ↓', fx: { up: ['삼진 ↓', '병살 ↓'], dn: [] }, tip: '맞혀 나가기', base: { bat: '기동력' }, fine: { swing: '보통', take: '보통', appr: 'contact' } },
       { id: 'speed', ko: '기동력', main: '진루 ↑', fx: { up: ['진루 ↑', '병살 ↓'], dn: [] }, tip: '한 베이스 더', base: { bat: '기동력' }, fine: { swing: '보통', take: '과감' } },
-      { id: 'onbase', ko: '기다리기', main: '볼넷 ↑', fx: { up: ['볼넷 ↑'], dn: ['삼진 ↑', '장타 ↓'] }, tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
+      { id: 'onbase', ko: '신중한 스윙', main: '볼넷 ↑', fx: { up: ['볼넷 ↑'], dn: ['삼진 ↑', '장타 ↓'] }, tip: '공 많이 보기', base: { bat: '짜내기' }, fine: { swing: '신중', take: '안전' } },
     ] },
   /*
    * 선발 운용(ROADMAP 12 · plan-sim 6,000경기) — 답이 내 팀 구성에 따라 갈린다: 불펜이 선발보다 약하면 길게,

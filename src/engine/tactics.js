@@ -35,7 +35,7 @@ export const CONDITIONS = [
   { id: 'chase', ko: '득점권 · 상대 강타자', act: '유인구' },
   { id: 'walk', ko: '득점권 · 상대 강타자', act: '거르기' },
   { id: 'hnr', ko: '무사 1루', act: '히트앤런' },
-  { id: 'swing', ko: '8회 이후 뒤짐', act: '노림수' },
+  { id: 'swing', ko: '8회 이후 뒤짐', act: '풀스윙' },
   { id: 'steal', ko: '1루 주자 주력 85+', act: '도루' },
 ];
 const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;

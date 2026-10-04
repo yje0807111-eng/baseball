@@ -351,7 +351,7 @@ const SITUATIONS = [
   { id: 'close', side: '수비', ko: '7회 이후 1~2점 리드', opts: [['그대로', null], ['가장 센 불펜', 'close']] },
   { id: 'tired', side: '수비', ko: '선발 체력 30 아래 · 주자 있음', opts: [['맡기기', null], ['교체', 'tired']] },
   { id: 'star', side: '수비', ko: '득점권 · 상대 강타자', opts: [['승부', null], ['유인구', 'chase'], ['거르기', 'walk']] },
-  { id: 'n1', side: '공격', ko: '무사 1루', opts: [['강공', null], ['히트앤런', 'hnr']] },
+  { id: 'n1', side: '공격', ko: '무사 1루', opts: [['그대로', null], ['히트앤런', 'hnr']] },
 ];
 const sitDelta = (an, cond) => {
   const spWeak = an ? an.spArm < 80 : false, offWeak = an ? an.offAvg < 82 : false;
@@ -423,7 +423,7 @@ function StepBar({ left = null, right = null, back = null, go }) {
   );
 }
 /* 3단계 요약 — 공격 · 선발 · 배합 · 필승조 · 증강 · 상황 */
-const COND_KO = { close: '센 불펜', tired: '지친 선발 교체', chase: '유인구', walk: '거르기', hnr: '히트앤런', swing: '노림수', steal: '도루' };
+const COND_KO = { close: '센 불펜', tired: '지친 선발 교체', chase: '유인구', walk: '거르기', hnr: '히트앤런', swing: '풀스윙', steal: '도루' };
 function PlanSum({ items }) {
   return (
     <span className="flex min-w-0 items-center gap-5">
