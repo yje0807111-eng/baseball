@@ -647,7 +647,8 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * (g.guard < 0 ? 0.03 : 0.012) + (g.infieldIn ? 0.03 : 0) + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
-    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1) * (g.guard < 0 ? 0.9 : 1); // 외야 후진 — 담장 앞에서 잡는 타구
+    // 존 안으로 찍은 공(정면 승부 · 맞혀 잡기)은 파워 72 넘는 타자에게 홈런 ↑(1당 +0.004) — 장타자에겐 손해(sit-sim 2026-10-04)
+    const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0) + (typeof orders.zone === 'number' ? Math.max(0, power - 72) * 0.004 : 0), 0.01, 0.5) * (g.wx?.hr ?? 1) * (g.guard < 0 ? 0.9 : 1); // 외야 후진 — 담장 앞에서 잡는 타구
     const tri = clamp(0.015 + (speed - 75) * 0.002, 0, 0.06);
     const dbl = clamp(0.18 + (power - 70) * 0.004 + (g.guard || 0) * (g.guard < 0 ? 0.14 : 0.12) + appr.dbl, 0.06, 0.38); // 외야 후진 −0.14(예전 −0.12) · 앞 안타 +0.03 · 홈런 ×0.9 — 장타자에게만 이득(sit-sim 2026-10-04)
     const r = g.rng();

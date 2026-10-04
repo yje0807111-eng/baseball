@@ -37,6 +37,13 @@ const EXTRA = {
   dashUp: (g) => (!g.top && g.bases.some(Boolean) ? { dash: 1 } : null), // 주자 득점 우선
   dashDn: (g) => (!g.top && g.bases.some(Boolean) ? { dash: -1 } : null), // 주자 안전 우선
   infIn: (g) => (g.top && g.bases[2] && g.outs < 2 ? { infieldIn: true } : null), // 3루 주자 · 1사 이하 전진 수비
+  /* 수비 넓히기(2026-10-04) — 상대 강타자 셋만이 아니라 타선 전체 · 조건 넓게 */
+  deepAll: (g) => (g.top ? { guard: -1 } : null), // 외야 후진 — 모든 타자
+  deepPow: (g) => (g.top && st(batterOf(g), 'power') >= 80 ? { guard: -1 } : null), // 외야 후진 — 파워 80+
+  chaseRisp: (g) => (g.top && risp(g) && g.rng() < 0.6 ? { zone: 'chase' } : null), // 득점권이면 누구든 유인구
+  pitchK: (g) => (g.top && g.rng() < 0.2 ? { zone: 'chase' } : null), // 투수 삼진 우선 — 늘 빼는 공 섞기
+  pitchZone: (g) => (g.top && g.rng() < 0.35 ? { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] } : null), // 투수 맞혀 잡기 — 존 안으로
+  holdAll: (g) => (g.top && g.bases[0] && !g.bases[1] ? { hold: 1 } : null), // 1루 주자면 누구든 견제
   ph: (g) => {
     if (g.top || !fresh(g) || g.inning < 8 || lead(g) >= 0 || lead(g) < -2) return null;
     const b = batterOf(g), sub = (g.home.team.bench || []).filter((p) => bat(p) > bat(b) + 2).sort((x, y) => bat(y) - bat(x))[0];
@@ -70,7 +77,10 @@ test.skipIf(!N)('sit sim', () => {
     ['외야 후진', { extra: 'deep' }], ['견제', { extra: 'hold' }], ['유인구', { conds: ['chase'] }], ['거르기', { conds: ['walk'] }],
     ['도루', { extra: 'steal' }], ['히트앤런', { conds: ['hnr'] }], ['풀스윙', { conds: ['swing'] }], ['대타', { extra: 'ph' }],
     ['홈런 우선', { extra: 'rispPow' }], ['안타 우선', { extra: 'rispCon' }], ['출루 우선', { extra: 'rispPat' }], ['번트', { extra: 'bunt' }],
-    ['득점 우선', { extra: 'dashUp' }], ['안전 우선', { extra: 'dashDn' }], ['전진 수비', { extra: 'infIn' }]];
+    ['득점 우선', { extra: 'dashUp' }], ['안전 우선', { extra: 'dashDn' }], ['전진 수비', { extra: 'infIn' }],
+    ['외야 후진 전체', { extra: 'deepAll' }], ['외야 후진 파워80', { extra: 'deepPow' }], ['유인구 득점권', { extra: 'chaseRisp' }], ['삼진 우선', { extra: 'pitchK' }], ['맞혀 잡기', { extra: 'pitchZone' }], ['견제 전체', { extra: 'holdAll' }]];
+  const only = process.env.SIC?.split(','); // 고를 것만(되풀이용) — 기준은 늘
+  if (only) configs.splice(1, configs.length, ...configs.slice(1).filter(([k]) => only.includes(k)));
   const rows = [];
   for (let i = 0; i < N; i += 1) {
     const r = seeded(i + 9191);
@@ -95,6 +105,8 @@ test.skipIf(!N)('sit sim', () => {
       myContact: mine.batters.reduce((n, b) => n + st(b, 'contact'), 0) / 9,
       closer: st(opPens[0], 'stuff', 80), myBench: (mine.bench || []).reduce((m, b) => Math.max(m, bat(b)), 0) - mine.batters.reduce((n, b) => n + bat(b), 0) / 9,
       stealRisk: (() => { const fast = [...away.batters].sort((a, b) => st(b, 'speed') - st(a, 'speed'))[0], cat = mine.catcher || mine.batters.find((b) => b.position === 'C'); return 0.52 + (st(fast, 'speed') - 75) * 0.02 - (st(cat, 'defense', 85) - 85) * 0.025 - (st(mine.pitchers[0], 'stability', 81) - 81) * 0.008; })(), // 도루 위험(경보와 같은 셈)
+      oppPow: away.batters.reduce((n, b) => n + st(b, 'power'), 0) / 9, oppSpeed: away.batters.reduce((n, b) => n + st(b, 'speed'), 0) / 9,
+      mySpCtl: st(mine.pitchers[0], 'control', 75), mySpStuff: st(mine.pitchers[0], 'stuff', 80),
       oppSpStuff: st(away.pitchers[0], 'stuff', 80), oppSpCtl: st(away.pitchers[0], 'control', 75),
       myPow: mine.batters.reduce((n, b) => n + st(b, 'power'), 0) / 9, mySpeedAvg: mine.batters.reduce((n, b) => n + st(b, 'speed'), 0) / 9,
       oppDef: away.batters.reduce((n, b) => n + st(b, 'defense'), 0) / 9, oppContact: away.batters.reduce((n, b) => n + st(b, 'contact'), 0) / 9,
