@@ -369,15 +369,33 @@ function choosePitch(g, pitcher, order) {
   return { type, zone, inZone: isIn, velo, tired, picked, corner, ...(!isIn && order?.zone === 'chase' && order.band ? { band: order.band } : {}) };
 }
 
+/*
+ * 2루 주자 단타 홈 쇄도(2026-10-04, sit-sim) — 확률은 그 주자 주력으로(예전엔 타자 주력을 썼다)
+ *  기본 0.55 + (주력 − 70) × 0.01 − 견제 · 안전 우선(dash −1)이면 −0.15(안 돌림)
+ *  득점 우선(dash +1)이면 +0.2 더 돌리는데, 그 몫은 접전 — 살 확률 0.45 + (주력 − 75) × 0.02 − (상대 수비 평균 − 75) × 0.015, 못 살면 홈 아웃
+ *  예전엔 dash 가 확률만 올리고 대가가 없어 늘 +1.2 이득이었다
+ */
+const sendHome = (g, r, extra) => {
+  const dash = extra.dash || 0;
+  const base = clamp(0.55 + (st(r, 'speed') - 70) * 0.01 - (extra.holdPen || 0) - (dash < 0 ? 0.15 : 0), 0.15, 0.95);
+  const u = g.rng();
+  if (u < base) return 'safe';
+  if (dash > 0 && u < base + 0.2) {
+    const defs = defenseOf(g).team.batters;
+    const defAvg = defs.reduce((n, b) => n + st(b, 'defense'), 0) / Math.max(1, defs.length);
+    return g.rng() < clamp(0.45 + (st(r, 'speed') - 75) * 0.02 - (defAvg - 75) * 0.015, 0.1, 0.9) ? 'safe' : 'out';
+  }
+  return 'hold';
+};
 function advance(g, n, batter, extra = {}) {
-  // n 루씩 진루(4 = 홈런). extra.scoreFrom2 · scoreFrom1: 추가 진루 확률
+  // n 루씩 진루(4 = 홈런). extra.dash · holdPen: 2루 주자 홈 쇄도(sendHome), scoreFrom1: 1루 주자 2루타 때 홈까지
   const scored = [];
   const next = [null, null, null];
   for (let i = 2; i >= 0; i--) {
     const r = g.bases[i];
     if (!r) continue;
     let to = i + n;
-    if (n === 1 && i === 1 && g.rng() < (extra.scoreFrom2 ?? 0.6)) to = 3;
+    if (n === 1 && i === 1) { const sent = extra.dash != null || extra.holdPen != null ? sendHome(g, r, extra) : g.rng() < (extra.scoreFrom2 ?? 0.6) ? 'safe' : 'hold'; if (sent === 'safe') to = 3; else if (sent === 'out') { g.outs += 1; continue; } }
     if (n === 1 && i === 0 && extra.hitAndRun) to = 2;
     if (n === 2 && i === 0 && g.rng() < (extra.scoreFrom1 ?? 0.4)) to = 3;
     if (to >= 3) scored.push(r);
@@ -514,6 +532,7 @@ export function pitch(g, orders = {}) {
   /* 수비가 정한 값 — 주자 묶기는 도루 성공률이, 수비 위치는 타구 처리가 본다 */
   g.hold = orders.hold || 0;
   g.guard = orders.guard || 0;
+  g.infieldIn = !!orders.infieldIn; // 전진 수비(3루 주자 · 1사 이하) — 땅볼 실점 ↓ · 내야 빠지는 안타 ↑
   const pitcher = def.pitcher, batter = batterOf(g);
   const ev = { inning: g.inning, top: g.top, batter, pitcher, orders, ...(swapped ? { swapped } : {}), before: { outs: g.outs, balls: g.balls, strikes: g.strikes, bases: [...g.bases] } };
   let runs = 0;
@@ -625,7 +644,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
   const appr = approachOf(orders.approach, contact, power, stuff);
-  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * (g.guard < 0 ? 0.03 : 0.012) + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
+  const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * (g.guard < 0 ? 0.03 : 0.012) + (g.infieldIn ? 0.03 : 0) + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;
     const hr = clamp(0.03 + (power - 65) * 0.0075 + (p.zone === 4 ? 0.04 : 0) - (ev.tempo || 0) * 0.5 + appr.hr + (off.mod?.hr || 0), 0.01, 0.5) * (g.wx?.hr ?? 1) * (g.guard < 0 ? 0.9 : 1); // 외야 후진 — 담장 앞에서 잡는 타구
@@ -634,7 +653,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
     const r = g.rng();
     const kind = r < hr ? 'HR' : r < hr + tri ? '3B' : r < hr + tri + dbl ? '2B' : '1B';
     ev.result = kind;
-    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, scoreFrom2: 0.55 + (speed - 70) * 0.01 + (orders.dash || 0) * 0.12 - (g.hold || 0) * 0.1 }));
+    return score(g, advance(g, { '1B': 1, '2B': 2, '3B': 3, HR: 4 }[kind], batter, { hitAndRun: orders.hitAndRun, dash: orders.dash || 0, holdPen: (g.hold || 0) * 0.1 }));
   }
 
   // 아웃
@@ -653,7 +672,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   if (g.outs < 3) {
     // 땅볼 진루: 선행 주자 한 칸씩(1루 주자는 병살이 아니면 2루로)
     const moved = [null, g.bases[0], g.bases[1]];
-    const scored = g.bases[2] && g.outs < 3 && g.rng() < 0.5 ? [g.bases[2]] : [];
+    const scored = g.bases[2] && g.outs < 3 && g.rng() < (g.infieldIn ? 0.2 : 0.5) ? [g.bases[2]] : []; // 전진 수비면 홈에서 막음
     if (!scored.length && g.bases[2]) moved[2] = moved[2] || g.bases[2];
     g.bases = moved;
     runs += score(g, scored);

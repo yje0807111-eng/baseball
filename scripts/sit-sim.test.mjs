@@ -29,6 +29,14 @@ const EXTRA = {
   deep: (g, c) => (g.top && c.stars.has(batterOf(g)?.id) ? { guard: -1 } : null),
   hold: (g) => (g.top && g.bases[0] && !g.bases[1] && st(g.bases[0], 'speed') >= 85 ? { hold: 1 } : null),
   steal: (g) => (!g.top && fresh(g) && g.bases[0] && !g.bases[1] && st(g.bases[0], 'speed') >= 80 ? { steal: 0 } : null),
+  /* 새 구성(2026-10-04) — 타자 · 주자 · 야수 '우선' 고르기 */
+  rispPow: (g) => (!g.top && (g.bases[1] || g.bases[2]) ? { approach: 'power' } : null), // 득점권 홈런 우선
+  rispCon: (g) => (!g.top && (g.bases[1] || g.bases[2]) ? { approach: 'contact' } : null), // 득점권 안타 우선
+  rispPat: (g) => (!g.top && (g.bases[1] || g.bases[2]) ? { patience: 1 } : null), // 득점권 출루 우선
+  bunt: (g) => (!g.top && fresh(g) && g.outs === 0 && g.bases[0] && !g.bases[1] ? { bunt: true } : null), // 무사 1루 진루 우선(번트)
+  dashUp: (g) => (!g.top && g.bases.some(Boolean) ? { dash: 1 } : null), // 주자 득점 우선
+  dashDn: (g) => (!g.top && g.bases.some(Boolean) ? { dash: -1 } : null), // 주자 안전 우선
+  infIn: (g) => (g.top && g.bases[2] && g.outs < 2 ? { infieldIn: true } : null), // 3루 주자 · 1사 이하 전진 수비
   ph: (g) => {
     if (g.top || !fresh(g) || g.inning < 8 || lead(g) >= 0 || lead(g) < -2) return null;
     const b = batterOf(g), sub = (g.home.team.bench || []).filter((p) => bat(p) > bat(b) + 2).sort((x, y) => bat(y) - bat(x))[0];
@@ -60,7 +68,9 @@ const N = Number(process.env.SI || 0), G = Number(process.env.SIG || 4);
 test.skipIf(!N)('sit sim', () => {
   const configs = [['기준', {}], ['센 불펜', { conds: ['close'] }], ['지친 선발 교체', { conds: ['tired'] }],
     ['외야 후진', { extra: 'deep' }], ['견제', { extra: 'hold' }], ['유인구', { conds: ['chase'] }], ['거르기', { conds: ['walk'] }],
-    ['도루', { extra: 'steal' }], ['히트앤런', { conds: ['hnr'] }], ['풀스윙', { conds: ['swing'] }], ['대타', { extra: 'ph' }]];
+    ['도루', { extra: 'steal' }], ['히트앤런', { conds: ['hnr'] }], ['풀스윙', { conds: ['swing'] }], ['대타', { extra: 'ph' }],
+    ['홈런 우선', { extra: 'rispPow' }], ['안타 우선', { extra: 'rispCon' }], ['출루 우선', { extra: 'rispPat' }], ['번트', { extra: 'bunt' }],
+    ['득점 우선', { extra: 'dashUp' }], ['안전 우선', { extra: 'dashDn' }], ['전진 수비', { extra: 'infIn' }]];
   const rows = [];
   for (let i = 0; i < N; i += 1) {
     const r = seeded(i + 9191);
@@ -85,6 +95,9 @@ test.skipIf(!N)('sit sim', () => {
       myContact: mine.batters.reduce((n, b) => n + st(b, 'contact'), 0) / 9,
       closer: st(opPens[0], 'stuff', 80), myBench: (mine.bench || []).reduce((m, b) => Math.max(m, bat(b)), 0) - mine.batters.reduce((n, b) => n + bat(b), 0) / 9,
       stealRisk: (() => { const fast = [...away.batters].sort((a, b) => st(b, 'speed') - st(a, 'speed'))[0], cat = mine.catcher || mine.batters.find((b) => b.position === 'C'); return 0.52 + (st(fast, 'speed') - 75) * 0.02 - (st(cat, 'defense', 85) - 85) * 0.025 - (st(mine.pitchers[0], 'stability', 81) - 81) * 0.008; })(), // 도루 위험(경보와 같은 셈)
+      oppSpStuff: st(away.pitchers[0], 'stuff', 80), oppSpCtl: st(away.pitchers[0], 'control', 75),
+      myPow: mine.batters.reduce((n, b) => n + st(b, 'power'), 0) / 9, mySpeedAvg: mine.batters.reduce((n, b) => n + st(b, 'speed'), 0) / 9,
+      oppDef: away.batters.reduce((n, b) => n + st(b, 'defense'), 0) / 9, oppContact: away.batters.reduce((n, b) => n + st(b, 'contact'), 0) / 9,
       starContact: top3.reduce((n, b) => n + st(b, 'contact'), 0) / 3,
       myGap: (myPens[0] ?? 0) - arm(mine.pitchers[0]), mySpStam: st(mine.pitchers[0], 'stamina', 90),
       res,
