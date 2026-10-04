@@ -91,6 +91,16 @@ export const LIMIT = {
   bf: { ko: '타자 수', min: 9, max: 36, step: 1, unit: '타자', per: 4.3 },
 };
 export const exitOf = (limit) => Math.max(0.5, Math.min(9, limit.value / LIMIT[limit.mode].per));
+/*
+ * 계투가 n명이면 선발은 8 − n 회까지만 — 계투 · 마무리마다 한 회(3아웃) 칸은 늘 남게(넓히다 숨지 않게, 2026-10-04)
+ *  선발 손잡이 · − + · 기준 바꾸기 · 계투 추가 모두 이 문턱으로 눌러 담음(투구 · 타자 수는 단위 아래로 내림)
+ */
+export const fitLimit = (limit, n) => {
+  const L = LIMIT[limit.mode], max = Math.max(1, 8 - n);
+  if (exitOf(limit) <= max + 1e-9) return limit;
+  const v = limit.mode === 'inn' ? max : Math.floor((max * L.per) / L.step) * L.step;
+  return { ...limit, value: Math.max(L.min, v) };
+};
 export const limitKo = (limit) => (limit.mode === 'inn' ? `${limit.value}회까지` : `${limit.value}${LIMIT[limit.mode].unit}`);
 const pct = (inn) => `${(inn / 9) * 100}%`;
 /*
@@ -202,7 +212,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
       if (d.kind === 'sp') { // 값으로 — 이닝은 회 끝에 딱, 투구 · 타자 수는 단위에 맞춰
         const raw = S.limit.mode === 'inn' ? Math.round(x) : Math.round((x * S.L.per) / S.L.step) * S.L.step;
         const v = Math.max(S.L.min, Math.min(S.L.max, raw));
-        if (v !== S.limit.value) S.setLimit({ ...S.limit, value: v });
+        const fit = fitLimit({ ...S.limit, value: v }, S.rel.mid.length);
+        if (fit.value !== S.limit.value) S.setLimit(fit);
       } else if (d.kind === 'draw') {
         S.paintAt(e.clientX, e.clientY, d);
       } else if (d.kind === 'mid') { // 투수 경계 — 한 아웃씩, 앞뒤 투수가 한 회는 남게
@@ -223,9 +234,10 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     if (!p) return;
     const at = pick === 'close' ? mp.mid.length : pick + 1;
     setRel({ ...rel, mid: [...rel.mid.slice(0, at), p.id, ...rel.mid.slice(at)], cuts: [] });
+    setLimit(fitLimit(limit, rel.mid.length + 1)); // 자리가 모자라면 선발을 당겨 새 계투에도 한 회
     setPick(at);
   };
-  const canAdd = mp.mid.length < mp.cap && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id));
+  const canAdd = rel.mid.length < 7 && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id)); // 계투 7명까지(선발 1회 · 계투 7 · 마무리 1)
   const nudge = (i, dir) => { const n = [...atk]; n[i] = Math.max(0, Math.min(3, Math.round((atkLvOf(atk[i]) + dir * 0.1) * 10) / 10)); setAtk(n); };
   /* 상대 마운드 흐름 — 셀수록 아래(약한 회 = 위 = 기회) */
   // 폭은 최소 6 — 상대 마운드가 고르면(77~79 등) 파도 · 상대 맞춤 스타일이 작은 차이를 부풀리지 않게
@@ -250,8 +262,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     tween.current.timer = setTimeout(() => { cancelAnimationFrame(tween.current.raf); setAtk(target); }, D + 80);
   };
   const styleOn = (target) => target.every((v, i) => Math.abs(v - atkLvOf(atk[i])) < 0.05);
-  const step = (dir) => setLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) });
-  const setMode = (mode) => setLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) });
+  const step = (dir) => setLimit(fitLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) }, rel.mid.length));
+  const setMode = (mode) => setLimit(fitLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) }, rel.mid.length));
 
   return (
     <div className="flex h-full min-h-0 select-none flex-col gap-3">
