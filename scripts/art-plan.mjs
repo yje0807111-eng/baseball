@@ -21,6 +21,7 @@ const TEAM = {
   한화: ['Hanwha Eagles', 'bright orange'], 빙그레: ['Binggrae Eagles', 'bright orange'], 현대: ['Hyundai Unicorns', 'teal'],
   우리: ['Woori Heroes', 'magenta pink'], 히어로즈: ['Seoul Heroes', 'magenta pink'], 넥센: ['Nexen Heroes', 'magenta pink'], 키움: ['Kiwoom Heroes', 'magenta pink'],
   NC: ['NC Dinos', 'sky blue'], KT: ['KT Wiz', 'scarlet red'],
+  삼미: ['Sammi Superstars', 'electric blue'], 청보: ['Chungbo Pintos', 'sky blue'], 태평양: ['Pacific Dolphins', 'teal'], 쌍방울: ['Ssangbangwool Raiders', 'scarlet red'],
 };
 const EVENT = {
   '1998-bangkok': '1998 Bangkok Asian Games', '2000-sydney': '2000 Sydney Olympics', '2002-busan': '2002 Busan Asian Games',
