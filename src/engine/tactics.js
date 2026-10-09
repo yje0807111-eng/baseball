@@ -141,10 +141,17 @@ export function innOrders(g, inn) {
   if (g.top && !g.balls && !g.strikes) {
     const side = g.home, lim = inn.limit, id = inn.slots ? slotAt(inn.slots, g) : inn.pens?.[Math.min(9, g.inning)];
     const tired = staminaOf(side) <= 0; // 엔진이 알아서 내리기 전에 여기서
+    /*
+     * planSlot = 계획표가 마지막으로 맡긴 칸의 투수. 칸이 바뀔 때만 계획표가 끼어든다 — 감독이 경기 중에 직접 부른 불펜을
+     *  다음 타자에서 계획표가 도로 바꾸던 것(2026-10-09 랭크전: 임정호 3구 1아웃 만에 차명석). 직접 부르면 그 칸은 그 투수 몫
+     */
     if (side.pitcherIdx === 0) {
       const over = tired || (lim && (lim.mode === 'inn' ? g.inning > lim.value : lim.mode === 'pitch' ? side.pitches >= lim.value : (side.bf || 0) >= lim.value));
-      if (over) out.changePitcher = planNext(g, inn);
-    } else if ((id && side.pitcher?.id !== id && availOf(side, id)) || tired) out.changePitcher = planNext(g, inn);
+      if (over) { out.changePitcher = planNext(g, inn); side.planSlot = id; }
+    } else {
+      if (side.planSlot === undefined) side.planSlot = id; // 선발을 감독이 직접 내림
+      if ((id && id !== side.planSlot && side.pitcher?.id !== id && availOf(side, id)) || tired) { out.changePitcher = planNext(g, inn); side.planSlot = id; }
+    }
   }
   return out;
 }

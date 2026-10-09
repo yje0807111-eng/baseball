@@ -187,6 +187,16 @@ describe('이닝별 계획', () => {
     g.home.pitcherIdx = 2; g.home.pitcher = g.home.team.pitchers[2]; g.home.pitches = 31; g.inning = 7; // 구원 75 − 45 = 30구
     expect(innOrders(g, inn)).toEqual({ changePitcher: 'p3' }); // 계획에 없는 투수 먼저 — 마무리(p5)는 아낌
   });
+  it('감독이 직접 부른 불펜은 계획표가 도로 바꾸지 않음 — 칸이 바뀔 때만', async () => {
+    const { innOrders } = await import('../src/engine/tactics.js');
+    const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });
+    const inn = { limit: { mode: 'pitch', value: 95 }, slots: [[0, 'p2'], [22, 'p5']] };
+    g.home.pitcherIdx = 1; g.home.pitcher = g.home.team.pitchers[1]; g.home.pitches = 3; // 3회에 감독이 p1 을 부름(계획표 첫 칸 p2 는 아직 남음 — 예전엔 여기서 p2 로 도로 바꿈)
+    Object.assign(g, { inning: 3, top: true, balls: 0, strikes: 0, outs: 1 });
+    expect(innOrders(g, inn)).toEqual({});
+    Object.assign(g, { inning: 8, outs: 1 }); // 8회 1아웃 — 마무리 칸
+    expect(innOrders(g, inn)).toEqual({ changePitcher: 'p5' });
+  });
   it('상황 대응 지친 선발 교체도 계획표 투수로', async () => {
     const { planOrders } = await import('../src/engine/tactics.js');
     const g = createGame({ home: team('H'), away: team('A'), rng: () => 0.5 });
