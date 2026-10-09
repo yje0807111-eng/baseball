@@ -516,7 +516,6 @@ export default function ReadyLocker({
             </div>
           )}
           {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} />}
-          {step === 3 && <span className="min-h-0 flex-1" />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
           {step === 2 && <StepBar back={<BackBtn onClick={() => setStep(1)} />} go={go} />}
           {step === 3 && <StepBar right={<CardChips cards={cards} value={card} onPick={setCard} />} back={<BackBtn onClick={() => setStep(2)} />} go={go} />}
