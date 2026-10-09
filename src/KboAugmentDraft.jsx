@@ -5355,8 +5355,9 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     return () => clearInterval(id);
   }, [live, phase, choice, liveMine]);
   useEffect(() => {
-    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고, 알림을 띄운 뒤 남은 라운드를 한 번에 넘긴다 */
-    if (!live || phase !== 'draft' || choice || Live.isDone(live)) { skipAt.current = null; return undefined; }
+    /* 캡을 다 써 더 데려올 수 없으면 이번 바퀴까지만 보고, 알림을 띄운 뒤 남은 라운드를 한 번에 넘긴다
+     *  알림은 여기서도 지운다 — 1초 안에 드래프트가 끝나 화면이 넘어가면 지우는 타이머가 취소돼 정비 · 결과 · 구단 정복 화면에 계속 떠 있었다(2026-10-09) */
+    if (!live || phase !== 'draft' || choice || Live.isDone(live)) { skipAt.current = null; setSkipNote(false); return undefined; }
     if (skipAt.current == null) {
       if (!Live.cannotPickMore(live)) return undefined;
       const lap = Live.CLUB_COUNT;
