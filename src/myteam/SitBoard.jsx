@@ -9,13 +9,15 @@
  *     선발 무너질 때 자동 교체(tired, 늘 켬 — 고를 칸 아님)
  *  세부는 큰 고르기가 '그대로 · 기본'이면 흐리게(눌러도 안 바뀜) — 고른 세부는 기억해 두었다가 다시 켤 때 그대로
  *  오른쪽 칩 = 왼쪽 상대 판의 같은 값(경보 · 상대 선발) — 어디를 볼지만, 답은 주지 않음
- *  고르기 설명 = 득실 한 줄씩(이득 초록 · 손해 빨강, '장타 확률 증가'처럼 — 화살표 ↑ ↓ 는 좋은지 나쁜지 헷갈려서, 2026-10-09)
+ *  고르기 설명 = 득실 한 줄씩(이득 초록 · 손해 빨강) — 오늘 상대로 엔진이 잰 '이전 → 이후'(목업 prep-fx 2안 · sitFx.js, 2026-10-09)
+ *   손으로 적던 문구('홈런 우선 = 삼진 증가')가 엔진 실측(±0)과 어긋나 바꿈. 재는 동안은 '재는 중'
  *  아래 = 타순 두 줄(목업 prep-step3e 2안, 2026-10-09) — 우리 · 상대 9명 얼굴 + 꼬리표. 지금 고른 설정에 걸리는 꼬리표만 색이 켜짐
  *   우리: 주력 80+ → '주력 n'(도루 문턱 위면 켜짐) · 파워 85+ '파워'(홈런 우선) 또는 컨택 85+ '컨택'(안타 우선)
  *   상대: 파워 80+ '파워' · 아래 '교타'(정면 승부 — 교타자만이면 교타만 켜짐)
  *  (판 절반이 비던 자리 — FC 온라인 개인 전술 · FM 선수 지시처럼 지시 옆에 '누구에게 걸리는지')
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { sitOddsLater, batFx, zoneFx, stealFx } from './sitFx.js';
 import { alertsOf, lvOf, LV } from './OppPanel.jsx';
 import { Portrait } from './ui.jsx';
 
@@ -26,8 +28,14 @@ const STEAL = ['steal', 'steal85', 'steal90'];
 const ZONE = ['pitchZone', 'pitchZoneCon', 'pitchZoneE', 'pitchZoneConE'];
 export const SIT_IDS = ['rispPow', 'rispCon', 'rispPat', ...STEAL, ...ZONE];
 /* 설명 = [[글, 1 이득 · -1 손해 · 0 그대로]] */
-const BAT = [[null, '그대로', null, [['정비 계획대로', 0]]], ['rispPow', '홈런 우선', ORG, [['장타 확률 증가', 1], ['삼진 확률 증가', -1]]], ['rispCon', '안타 우선', SKY, [['안타 확률 증가', 1], ['장타 확률 감소', -1]]], ['rispPat', '출루 우선', VIO, [['볼넷 확률 증가', 1], ['루킹 삼진 증가', -1]]]];
 const FX_C = { 1: '#34d399', '-1': RED, 0: W3 };
+const pc = (x) => `${(x * 100).toFixed(1)}%`;
+const WAIT = [['재는 중', 0]];
+/* 잰 득실 → 설명 줄: '홈런 3.6% → 5.1%'(이전은 회색) · 도루는 '도루 성공 95%' */
+const lines = (list) => (list ? (list.length ? list.map((e) => [e.abs != null ? `${e.ko} ${Math.round(e.abs * 100)}%` : <>{e.ko} <span style={{ color: W3 }}>{pc(e.base)}</span> → {pc(e.after)}</>, e.good ? 1 : -1]) : [['차이 작음', 0]]) : WAIT);
+/* 한 번 잰 대진은 다시 재지 않음(2 ↔ 3단계 오가기) */
+let memo = { key: '', odds: null };
+const keyOf = (e) => [e.home.batters, e.away.batters].map((l) => l.map((p) => p.id).join(',')).concat(e.home.pitchers[0]?.id, e.away.pitchers[0]?.id).join('|');
 /* 타자 줄 칩 — 상대 선발 구위 · 제구 중 치우친 것 하나 */
 const spChip = (sp) => {
   const s = st(sp, 'stuff', 80), c = st(sp, 'control', 75);
@@ -52,7 +60,7 @@ function Opts({ opts, value, onPick }) {
             className="flex min-w-0 flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/[0.06]"
             style={{ background: on ? `${col}1f` : 'rgba(255,255,255,.025)', boxShadow: `inset 0 0 0 1px ${on ? col : 'rgba(255,255,255,.08)'}` }}>
             <span className="flex items-center gap-1.5"><i className="block h-2 w-2 rounded-full" style={{ background: c || 'rgba(255,255,255,.3)' }} /><b className="truncate text-t4" style={{ color: on ? '#fff' : W2 }}>{ko}</b></span>
-            <span className="flex flex-col">{fx.map(([t, d]) => <span key={t} className="truncate text-[12px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
+            <span className="flex flex-col">{fx.map(([t, d], k) => <span key={k} className="truncate text-[12px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
           </button>
         );
       })}
@@ -100,6 +108,13 @@ function Row({ side, ko, sit, h = 80, main, sub, chips }) {
 }
 
 export default function SitBoard({ conds, setConds, engine }) {
+  const key = keyOf(engine);
+  const [odds, setOdds] = useState(() => (memo.key === key ? memo.odds : null));
+  useEffect(() => {
+    if (memo.key === key) { setOdds(memo.odds); return undefined; }
+    setOdds(null);
+    return sitOddsLater(engine.home, engine.away, (o) => { memo = { key, odds: o }; setOdds(o); });
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const alerts = alertsOf(engine.home, engine.away);
   const alertChip = (ko) => { const a = alerts.find((x) => x.ko === ko); return a && lvOf(a) >= 1 ? [a.ko, LV[a.kind][lvOf(a)], a.kind === 'chance' ? US : lvOf(a) === 2 ? RED : GOLD] : null; };
   const has = (ids) => ids.find((c) => conds.includes(c)) ?? null;
@@ -127,16 +142,16 @@ export default function SitBoard({ conds, setConds, engine }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <Row side="공격" ko="타자" sit="득점권 기회"
-        main={<Opts opts={BAT} value={bat} onPick={(id) => swap(['rispPow', 'rispCon', 'rispPat'], id)} />}
+        main={<Opts opts={[[null, '그대로', null, [['정비 계획대로', 0]]], ...[['rispPow', '홈런 우선', ORG], ['rispCon', '안타 우선', SKY], ['rispPat', '출루 우선', VIO]].map(([id, ko, c]) => [id, ko, c, lines(odds && batFx(odds, id))])]} value={bat} onPick={(id) => swap(['rispPow', 'rispCon', 'rispPat'], id)} />}
         chips={<Chip l={spChip(engine.away.pitchers[0])} />} />
       <i className="block h-px shrink-0 bg-white/[0.07]" />
       <Row side="공격" ko="주자" sit="빠른 1루 주자"
-        main={<Opts opts={[[null, '그대로', null, [['뛰지 않음', 0]]], ['run', '도루 우선', US, [['진루 확률 증가', 1], ['도루 실패 아웃', -1]]]]} value={stealOn ? 'run' : null} onPick={(id) => swap(STEAL, id ? thr : null)} />}
+        main={<Opts opts={[[null, '그대로', null, [['뛰지 않음', 0]]], ['run', '도루 우선', US, lines(stealFx(engine.home, engine.away, { steal: 80, steal85: 85, steal90: 90 }[stealOn || thr]))]]} value={stealOn ? 'run' : null} onPick={(id) => swap(STEAL, id ? thr : null)} />}
         sub={<Seg label="누가 뛰나" opts={[['steal', '주력 80+'], ['steal85', '주력 85+'], ['steal90', '주력 90+']]} on={thr} onPick={pickThr} dim={!stealOn} />}
         chips={<Chip l={alertChip('도루 기회')} />} />
       <i className="block h-px shrink-0 bg-white/[0.07]" />
       <Row side="수비" ko="투수" sit="경기 운영" h={96}
-        main={<Opts opts={[[null, '기본', null, [['투수 배합대로', 0]]], ['pit', '정면 승부', SPB, [['볼넷 확률 감소', 1], ['장타 확률 증가', -1]]]]} value={zoneOn ? 'pit' : null} onPick={(id) => swap(ZONE, id ? zoneId() : null)} />}
+        main={<Opts opts={[[null, '기본', null, [['투수 배합대로', 0]]], ['pit', '정면 승부', SPB, lines(odds && zoneFx(odds, engine.away, who === 'Con'))]]} value={zoneOn ? 'pit' : null} onPick={(id) => swap(ZONE, id ? zoneId() : null)} />}
         sub={<>
           <Seg label="누구에게" opts={[['', '모든 타자'], ['Con', '교타자만']]} on={who} onPick={pickWho} dim={!zoneOn} />
           <Seg label="언제" opts={[['', '경기 내내'], ['E', '초반만']]} on={when} onPick={pickWhen} dim={!zoneOn} />
