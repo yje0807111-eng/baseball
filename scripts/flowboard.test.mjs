@@ -26,6 +26,8 @@ describe('정비 2단계 이닝 판', () => {
       expect(moundPlan({ mid, close: 'c' }, exitOf(lim)).mid.length).toBe(n);
     }
     expect(fitLimit({ mode: 'inn', value: 5 }, 1)).toEqual({ mode: 'inn', value: 5 }); // 자리 있으면 그대로
+    expect(fitLimit({ mode: 'pitch', value: 95 }, 2, 67).value).toBe(65); // 체력 67구 선발 — 기준도 그 아래로
+    expect(fitLimit({ mode: 'inn', value: 6 }, 2, 67).value).toBe(4);
   });
   it('계투 · 마무리 고르기 — 다른 자리에 있으면 서로 바꿈', () => {
     expect(pickRel({ mid: ['a', 'b'], close: 'c' }, 'close', 'a')).toEqual({ mid: ['c', 'b'], close: 'a' });

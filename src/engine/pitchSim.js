@@ -290,6 +290,8 @@ export function hitChanceAt(g, zone) {
  */
 const armLimit = (side) =>
   Math.max(20, (95 + (st(side.pitcher, 'stamina', 90) - 90) - (side.pitcherIdx ? 45 : 0) + (side.team.usage?.fatigueGrace || 0)) * (side.wxArm ?? 1));
+/** 경기 전에 보는 공 수 한계(증강 · 날씨 빼고) — 정비 2단계 선발 끊는 기준의 끝 */
+export const pitchCap = (p, relief = false) => Math.max(20, 95 + (st(p, 'stamina', 90) - 90) - (relief ? 45 : 0));
 
 /** 남은 체력 0~100 — 화면에 뜨는 그 값. 0 이면 더는 못 던진다 */
 export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) * 100, 0, 100);

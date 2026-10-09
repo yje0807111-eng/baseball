@@ -28,6 +28,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Portrait } from './ui.jsx';
 import { reducedMotion } from '../ui/motion.jsx';
+import { pitchCap } from '../engine/pitchSim.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
@@ -94,13 +95,16 @@ export const exitOf = (limit) => Math.max(0.5, Math.min(9, limit.value / LIMIT[l
 /*
  * 계투가 n명이면 선발은 8 − n 회까지만 — 계투 · 마무리마다 한 회(3아웃) 칸은 늘 남게(넓히다 숨지 않게, 2026-10-04)
  *  선발 손잡이 · − + · 기준 바꾸기 · 계투 추가 모두 이 문턱으로 눌러 담음(투구 · 타자 수는 단위 아래로 내림)
+ *  cap = 선발 체력이 허락하는 공 수(pitchCap) — 넘게 잡으면 엔진이 그 전에 내려 계획과 경기가 어긋났다(2026-10-09)
  */
-export const fitLimit = (limit, n) => {
-  const L = LIMIT[limit.mode], max = Math.max(1, 8 - n);
+export const fitLimit = (limit, n, cap = Infinity) => {
+  const L = LIMIT[limit.mode], max = Math.max(1, Math.min(8 - n, cap / LIMIT.pitch.per));
   if (exitOf(limit) <= max + 1e-9) return limit;
-  const v = limit.mode === 'inn' ? max : Math.floor((max * L.per) / L.step) * L.step;
+  const v = limit.mode === 'inn' ? Math.floor(max) : Math.floor((max * L.per) / L.step) * L.step;
   return { ...limit, value: Math.max(L.min, v) };
 };
+/* 고른 기준(저장)은 그대로 두고 화면 · 경기에서만 오늘 선발 체력에 맞춤 — 다음 경기 선발이 길게 던질 수 있으면 원래 값으로 */
+export const effLimit = (limit, n, starter) => fitLimit(limit, n, starter ? pitchCap(starter) : Infinity);
 export const limitKo = (limit) => (limit.mode === 'inn' ? `${limit.value}회까지` : `${limit.value}${LIMIT[limit.mode].unit}`);
 const pct = (inn) => `${(inn / 9) * 100}%`;
 /*
@@ -172,7 +176,7 @@ const Seg = ({ opts, on, onPick }) => (
   </span>
 );
 
-export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit, setLimit, rel, setRel }) {
+export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit: want, setLimit, rel, setRel }) {
   const [pick, setPick] = useState(null); // 고르는 자리 — 계투 번호 또는 'close'
   const [drag, setDrag] = useState(null); // { kind: 'sp' | 'mid' | 'draw', ... }
   const laneRef = useRef(null);
@@ -182,7 +186,10 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
   const known = mound.filter((v) => v != null);
   const avg = known.length ? known.reduce((a, b) => a + b, 0) / known.length : 0;
   const low = INN.map((i) => mound[i - 1] != null && mound[i - 1] <= avg - 2);
+  const cap = starter ? pitchCap(starter) : Infinity;
+  const limit = fitLimit(want, rel.mid.length, cap);
   const L = LIMIT[limit.mode];
+  const atCap = fitLimit({ ...limit, value: limit.value + L.step }, 0, cap).value <= limit.value;
   const exit = exitOf(limit);
   const mp = moundPlan(rel, exit);
   const byId = new Map(pens.map((p) => [p.id, p]));
@@ -202,7 +209,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     if (next.some((v, k) => v !== base[k])) S.setAtk(next);
     setDrag({ ...d });
   };
-  latest.current = { limit, L, atk, setAtk, setLimit, rel, setRel, mp, paintAt };
+  latest.current = { cap, limit, L, atk, setAtk, setLimit, rel, setRel, mp, paintAt };
   const drawStart = (e) => { if (e.button !== 0) return; e.preventDefault(); const d = { kind: 'draw', last: null }; dragRef.current = d; paintAt(e.clientX, e.clientY, d); };
   const start = (e, d) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); dragRef.current = d; setDrag(d); };
   useEffect(() => {
@@ -212,7 +219,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
       if (d.kind === 'sp') { // 값으로 — 이닝은 회 끝에 딱, 투구 · 타자 수는 단위에 맞춰
         const raw = S.limit.mode === 'inn' ? Math.round(x) : Math.round((x * S.L.per) / S.L.step) * S.L.step;
         const v = Math.max(S.L.min, Math.min(S.L.max, raw));
-        const fit = fitLimit({ ...S.limit, value: v }, S.rel.mid.length);
+        const fit = fitLimit({ ...S.limit, value: v }, S.rel.mid.length, S.cap);
         if (fit.value !== S.limit.value) S.setLimit(fit);
       } else if (d.kind === 'draw') {
         S.paintAt(e.clientX, e.clientY, d);
@@ -234,7 +241,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     if (!p) return;
     const at = pick === 'close' ? mp.mid.length : pick + 1;
     setRel({ ...rel, mid: [...rel.mid.slice(0, at), p.id, ...rel.mid.slice(at)], cuts: [] });
-    setLimit(fitLimit(limit, rel.mid.length + 1)); // 자리가 모자라면 선발을 당겨 새 계투에도 한 회
+    setLimit(fitLimit(limit, rel.mid.length + 1, cap)); // 자리가 모자라면 선발을 당겨 새 계투에도 한 회
     setPick(at);
   };
   const canAdd = rel.mid.length < 7 && pens.some((x) => x.id !== rel.close && !rel.mid.includes(x.id)); // 계투 7명까지(선발 1회 · 계투 7 · 마무리 1)
@@ -262,8 +269,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
     tween.current.timer = setTimeout(() => { cancelAnimationFrame(tween.current.raf); setAtk(target); }, D + 80);
   };
   const styleOn = (target) => target.every((v, i) => Math.abs(v - atkLvOf(atk[i])) < 0.05);
-  const step = (dir) => setLimit(fitLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) }, rel.mid.length));
-  const setMode = (mode) => setLimit(fitLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) }, rel.mid.length));
+  const step = (dir) => setLimit(fitLimit({ ...limit, value: Math.max(L.min, Math.min(L.max, limit.value + dir * L.step)) }, rel.mid.length, cap));
+  const setMode = (mode) => setLimit(fitLimit({ mode, value: Math.max(LIMIT[mode].min, Math.min(LIMIT[mode].max, Math.round((exit * LIMIT[mode].per) / LIMIT[mode].step) * LIMIT[mode].step)) }, rel.mid.length, cap));
 
   return (
     <div className="flex h-full min-h-0 select-none flex-col gap-3">
@@ -309,7 +316,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit,
           <Grip x={pct(exit)} on={drag?.kind === 'sp'} role="slider" label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
             onPointerDown={(e) => start(e, { kind: 'sp' })} onKeyDown={(e) => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); }}
             style={{ transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
-            <b className="pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4 font-bold" style={{ right: 'calc(100% + 4px)', background: 'rgba(11,15,26,.72)', color: W1, boxShadow: `inset 0 0 0 1px ${drag?.kind === 'sp' ? US : 'rgba(255,255,255,.14)'}` }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}</b>
+            <b className="pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4 font-bold" style={{ right: 'calc(100% + 4px)', background: 'rgba(11,15,26,.72)', color: W1, boxShadow: `inset 0 0 0 1px ${drag?.kind === 'sp' ? US : 'rgba(255,255,255,.14)'}` }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}{atCap && cap < Infinity ? ' · 체력 한계' : ''}</b>
           </Grip>
         </Lane>
         {pick != null && (

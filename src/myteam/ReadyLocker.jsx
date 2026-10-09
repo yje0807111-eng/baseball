@@ -35,7 +35,7 @@ import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
 import LineupField from './LineupField.jsx';
 import SitBoard, { SIT_IDS } from './SitBoard.jsx';
-import FlowBoard, { atkLvOf, exitOf, moundPlan } from './FlowBoard.jsx';
+import FlowBoard, { atkLvOf, exitOf, moundPlan, effLimit } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
 
@@ -465,7 +465,8 @@ export default function ReadyLocker({
   });
   /* 이닝별 계획이 공격 · 선발을 맡는다 — '보통' 회는 성향 없이, 선발은 끊는 기준까지(위기 교체 늦게) */
   const flowPlan = () => {
-    const p = planOfSides({ ...sides, mound: 'long', mix: 'mix' }, [...conds, 'tired'], { late, augInn, inn: { atk, limit, slots: moundPlan(rel, exitOf(limit)).slots, rel } });
+    const lim = effLimit(limit, rel.mid.length, engine.home.pitchers[0]);
+    const p = planOfSides({ ...sides, mound: 'long', mix: 'mix' }, [...conds, 'tired'], { late, augInn, inn: { atk, limit: lim, slots: moundPlan(rel, exitOf(lim)).slots, rel } });
     Object.assign(p.fine, { swing: '보통', take: '보통' });
     delete p.fine.appr;
     return p;

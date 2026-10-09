@@ -116,6 +116,20 @@ export function atkAt(v, u) {
 }
 const slotAt = (slots, g) => { const pos = (Math.min(9, g.inning) - 1) * 3 + (g.outs || 0); let id = null; for (const [from, pid] of slots) if (from <= pos) id = pid; return id; };
 const availOf = (side, id) => side.team.pitchers.slice(side.pitcherIdx + 1).some((p) => p.id === id);
+/*
+ * 계획표가 고르는 다음 투수 — 지금 자리(아웃)의 칸 투수 → 계획에 없는 투수 → 뒤 칸 투수. 계획이 없으면 true(팀 순서상 다음)
+ *  선발을 내리는 길이 셋(끊는 기준 · 체력 바닥 · 상황 대응 '지친 선발')인데 뒤 둘이 팀 순서상 다음을 불러
+ *  마무리가 5회에 한 타자만 던지고 빠지는 일이 생겼다(2026-10-09 한 판 점검) — 셋 모두 이리로
+ */
+export function planNext(g, inn) {
+  const side = g.home, id = inn?.slots ? slotAt(inn.slots, g) : inn?.pens?.[Math.min(9, g.inning)];
+  if (id && side.pitcher?.id !== id && availOf(side, id)) return id;
+  const planned = new Set(inn?.slots ? inn.slots.map((x) => x[1]) : Object.values(inn?.pens || {}));
+  if (!planned.size) return true;
+  const pos = (Math.min(9, g.inning) - 1) * 3 + (g.outs || 0);
+  return side.team.pitchers.slice(side.pitcherIdx + 1).find((p) => !planned.has(p.id))?.id
+    ?? (inn.slots || []).find(([from, pid]) => from > pos && availOf(side, pid))?.[1] ?? true;
+}
 export function innOrders(g, inn) {
   if (!inn) return null;
   const out = {};
@@ -126,17 +140,23 @@ export function innOrders(g, inn) {
   }
   if (g.top && !g.balls && !g.strikes) {
     const side = g.home, lim = inn.limit, id = inn.slots ? slotAt(inn.slots, g) : inn.pens?.[Math.min(9, g.inning)];
+    const tired = staminaOf(side) <= 0; // 엔진이 알아서 내리기 전에 여기서
     if (side.pitcherIdx === 0) {
-      const over = lim && (lim.mode === 'inn' ? g.inning > lim.value : lim.mode === 'pitch' ? side.pitches >= lim.value : (side.bf || 0) >= lim.value);
-      if (over) out.changePitcher = id && availOf(side, id) ? id : true;
-    } else if (id && side.pitcher?.id !== id && availOf(side, id)) out.changePitcher = id;
+      const over = tired || (lim && (lim.mode === 'inn' ? g.inning > lim.value : lim.mode === 'pitch' ? side.pitches >= lim.value : (side.bf || 0) >= lim.value));
+      if (over) out.changePitcher = planNext(g, inn);
+    } else if ((id && side.pitcher?.id !== id && availOf(side, id)) || tired) out.changePitcher = planNext(g, inn);
   }
   return out;
 }
 /** 정비 설계 한 번에 — 성향(공격 · 선발 운용 · 볼 배합) + 상황 대응 + 필승조(또는 이닝별 계획). 경기 화면 · 미리보기가 같은 셈을 쓴다 */
 export function planOrders(g, plan = {}, ctx = {}) {
   const base = tacticOrders(plan.fine || {}, !g.top, g.rng);
-  if (plan.inn) { delete base.hookBf; return { ...base, ...(innOrders(g, plan.inn) || {}), ...(condOrders(g, plan.conds || [], ctx) || {}) }; } // 상황 대응이 이닝 계획 위(득점권 타격 · 지친 선발 교체)
+  if (plan.inn) {
+    delete base.hookBf;
+    const c = condOrders(g, plan.conds || [], ctx) || {}; // 상황 대응이 이닝 계획 위(득점권 타격 · 지친 선발 교체)
+    if (c.changePitcher === true) c.changePitcher = planNext(g, plan.inn); // 지친 선발 — 다음 투수는 계획표에서
+    return { ...base, ...(innOrders(g, plan.inn) || {}), ...c };
+  }
   return { ...base, ...(condOrders(g, plan.conds || [], ctx) || {}), ...(lateOrders(g, plan.late) || {}) };
 }
 
