@@ -4967,9 +4967,11 @@ export function ReadyScreen({ roster, buff = 0, autoFilled = 0, opponent = null,
   const d = (a, b) => Math.round(a - b);
   const oppT = useMemo(() => (opponent ? oppTeamFor(opponent, oppBuff) : null), [opponent, oppBuff]);
   const win = useSimWin(now.t, oppT);
+  /* 정비 3단계(라인업 · 경기 흐름 · 상황 대응) — 내 팀 경기와 같은 판. 엔진용 두 팀을 넘기면 ReadyLocker 가 3단계로 그린다(2026-10-09) */
+  const engine = useMemo(() => (oppT ? { home: engineTeam(now.t), away: engineTeam(oppT) } : null), [now.t, oppT]);
 
   return (
-    <ReadyLocker
+    <ReadyLocker engine={engine}
       team={team} squad={roster} bench={benchIds} synergies={now.t.synergies} opponent={opponent} autoFilled={autoFilled}
       win={win}
       sums={{ bat: now.batSum, def: now.defSum, pit: now.pitSum, foe: oppT && sumsOf(oppT) }}
@@ -5599,7 +5601,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setLogOpen(false);
     // 효과형 증강은 고르는 순간부터 능력치 · 투수 운용을 바꾼다 (상대 · 전적을 보는 증강까지)
     const env = teamEnv(opp, record);
-    const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides, conds: planRef.current.conds || [] } } : {});
+    const makeMy = (augs) => Object.assign(buildTeam(myClub, fillRoster(roster), buff, augs, env), planRef.current ? { plan: { sides: planRef.current.sides, conds: planRef.current.conds || [], late: planRef.current.late || null, augInn: planRef.current.augInn || null, inn: planRef.current.inn || null } } : {}); // 정비 3단계 계획 전부(내 팀 경기 matchTeamOf 와 같게)
     const liveMy = makeMy(owned);
     setLiveTeams({ my: liveMy, opp, makeMy, augments: owned, aug: makeAugmentRuntime({ augments: owned, my: liveMy, opp, record }) });
     runIdRef.current += 1;
