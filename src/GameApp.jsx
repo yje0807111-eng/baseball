@@ -62,7 +62,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
   const openTourney = (size, fresh) => {
     if (fresh || !tournament || tournament.size !== size) {
-      saveTournament(makeTournament({ size, myName: account.team?.name, cup }));
+      saveTournament(makeTournament({ size, myName: account.team?.name, cup, myTeam: account.team }));
       if (cup !== 'open') bumpWeek('cup'); // 주간 과제: 조건부 대회 열기
     }
     refresh();

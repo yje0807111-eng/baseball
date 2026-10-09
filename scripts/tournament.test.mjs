@@ -109,3 +109,18 @@ test('팀 보정(buff)이 경기 엔진에 들어간다: +6 팀이 같은 팀을
   }
   expect(w / (w + l)).toBeGreaterThan(0.55);
 }, 60000);
+
+test('일반 토너먼트 대진 — 구단 시즌만 · 내 팀을 주면 비슷한 전력끼리 첫판(2026-10-09)', async () => {
+    const { makeTournament, entrantsFor, CLUB_SERIES, playStrength, teamOf } = await import('../src/myteam/tournament.js');
+    const { starterSquad } = await import('../src/myteam/starter.js');
+    const { buildMyTeam } = await import('../src/myteam/match.js');
+    const ids = new Set(CLUB_SERIES.map((s) => s.id));
+    expect(entrantsFor('k1', 31).every((e) => ids.has(e.seriesId))).toBe(true);
+    const myTeam = { name: '나', squad: starterSquad('s1') };
+    const t = makeTournament({ size: 16, key: 'k2', myTeam });
+    expect(t.entrants.length).toBe(16);
+    const me = t.entrants.findIndex((e) => e.me), opp = t.entrants[me ^ 1];
+    const mine = playStrength(buildMyTeam(myTeam)), strengths = t.entrants.filter((e) => !e.me).map((e) => playStrength(teamOf(e)));
+    const gap = Math.abs(playStrength(teamOf(opp)) - mine), avgGap = strengths.reduce((a, s) => a + Math.abs(s - mine), 0) / strengths.length;
+    expect(gap).toBeLessThan(avgGap + 3); // 첫 상대는 평균보다 가까운 전력(흔들림 6 몫)
+});

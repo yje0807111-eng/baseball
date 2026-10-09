@@ -26,10 +26,15 @@ export const hashKey = hash;
 export const OWNERS = ['홈런왕', '불펜장인', '도루머신', '직관러', '야구덕후', '9회말2아웃', '끝내기', '에이스', '포수리드', '타격왕', '무실점', '클러치', '번트장인', '골든글러브', '신인왕', '명승부'];
 export const ownerOf = (rng) => `${OWNERS[Math.floor(rng() * OWNERS.length)]}${Math.floor(rng() * 90) + 10}`;
 
-/** 참가 AI 팀 n개: 서로 다른 시리즈 (서버가 생기면 여기서 유저 팀 스냅샷을 먼저 넣고, 모자라는 자리만 AI 로 채운다) */
+/*
+ * 참가 AI 팀 n개: 서로 다른 구단 시즌(서버가 생기면 여기서 유저 팀 스냅샷을 먼저 넣고, 모자라는 자리만 AI 로 채운다)
+ *  레전드 · 국가대표는 뺌(2026-10-09, 토너먼트 1,500번 시뮬): 스타터(전력 75.8)가 레전드(중앙 94.7)를 만날 확률 10% · 이길 확률 1%,
+ *  국가대표(85.2)에겐 10% — 첫 대회에 1 : 20 같은 판이 났다. 그런 팀은 조건이 붙은 대회 몫
+ */
+export const CLUB_SERIES = AI_SERIES.filter((s) => s.kind !== 'national' && !/^legend/.test(s.id));
 export function entrantsFor(key, n) {
   const rng = seeded(hash(`tourney:${key}`));
-  const pool = [...AI_SERIES];
+  const pool = [...CLUB_SERIES];
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   return Array.from({ length: n }, (_, i) => {
     const series = pool[i % pool.length];
@@ -43,11 +48,21 @@ export function entrantsFor(key, n) {
   });
 }
 
-/** 새 대진: size 강 · 내 자리는 무작위(meAt 으로 정할 수 있다). others 를 주면(드래프트 모드) 그 팀들로 채운다 */
-export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), others = null, meAt = null, cup = 'open' } = {}) {
-  const list = others || entrantsFor(key, size - 1);
+/*
+ * 새 대진: size 강. others 를 주면(드래프트 모드) 그 팀들로 채운다(자리는 부르는 쪽이 정함).
+ *  myTeam 을 주면 드래프트처럼 비슷한 전력끼리 첫판(seedByStrength) — 16강 탈락 72 → 62%, 첫 상대 전력 78.8 → 76.4(같은 시뮬)
+ */
+export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), others = null, meAt = null, cup = 'open', myTeam = null } = {}) {
+  let list = others || entrantsFor(key, size - 1);
   const rng = seeded(hash(`tourney:${key}:me`));
-  const at = meAt ?? Math.floor(rng() * size);
+  let at = meAt;
+  if (!others && myTeam?.squad && at == null) {
+    const me = { id: 'me' }, mine = playStrength(buildMyTeam(myTeam));
+    const order = seedByStrength([...list, me], (e) => (e === me ? mine : playStrength(teamOf(e))), rng);
+    at = order.indexOf(me);
+    list = order.filter((e) => e !== me);
+  }
+  at ??= Math.floor(rng() * size);
   const entrants = [...list.slice(0, at), { id: 'me', name: myName, owner: '나', me: true }, ...list.slice(at, size - 1)];
   return { key, size, entrants, round: 0, winners: [], results: [], done: false, place: null, claimed: false, cup };
 }
