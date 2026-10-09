@@ -14,7 +14,7 @@ describe('정비 3단계 고르기 득실 — 엔진 실측', () => {
     const ms = performance.now() - t0;
     expect(ms).toBeLessThan(3000);
     const pow = batFx(odds, 'rispPow'), pat = batFx(odds, 'rispPat'), zone = zoneFx(odds, away, false);
-    expect(pow[0].ko).toBe('득점'); // 득점권 고르기는 득점이 맨 앞
+    expect(pow[0].ko).toBe('기대 득점'); // 득점권 고르기는 남은 이닝 득점이 맨 앞
     expect(pow.find((e) => e.ko === '홈런')).toMatchObject({ good: true });
     expect(pat.find((e) => e.ko === '볼넷')).toMatchObject({ good: true });
     expect(zone.find((e) => e.ko === '볼넷')).toMatchObject({ good: true });

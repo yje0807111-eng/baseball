@@ -32,7 +32,8 @@ const FX_C = { 1: '#34d399', '-1': RED, 0: W3 };
 const pc = (x) => `${(x * 100).toFixed(1)}%`;
 const WAIT = [['재는 중', 0]];
 /* 잰 득실 → 설명 줄: '홈런 3.6% → 5.1%'(이전은 회색) · 도루는 '도루 성공 95%' */
-const lines = (list) => (list ? (list.length ? list.map((e) => [e.abs != null ? `${e.ko} ${Math.round(e.abs * 100)}%` : <>{e.ko} <span style={{ color: W3 }}>{pc(e.base)}</span> → {pc(e.after)}</>, e.good ? 1 : -1]) : [['차이 작음', 0]]) : WAIT);
+const num = (e, x) => (e.runs ? `${x.toFixed(2)}점` : pc(x));
+const lines = (list) => (list ? (list.length ? list.map((e) => [e.abs != null ? `${e.ko} ${Math.round(e.abs * 100)}%` : <>{e.ko} <span style={{ color: W3 }}>{num(e, e.base)}</span> → {num(e, e.after)}</>, e.good ? 1 : -1]) : [['차이 작음', 0]]) : WAIT);
 /* 한 번 잰 대진은 다시 재지 않음(2 ↔ 3단계 오가기) */
 let memo = { key: '', odds: null };
 const keyOf = (e) => [e.home.batters, e.away.batters].map((l) => l.map((p) => p.id).join(',')).concat(e.home.pitchers[0]?.id, e.away.pitchers[0]?.id).join('|');

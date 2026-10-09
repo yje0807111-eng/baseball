@@ -5,27 +5,40 @@
  *  보이는 득실 = 안타 · 홈런 · 볼넷 · 삼진 가운데 이득 · 손해에서 가장 크게 움직인 것 하나씩(3% 안쪽은 뺌)
  *  N = 1500 — 400번은 정면 승부가 흔들렸다(안타 −16% 등, 1500번은 세 대진 모두 볼넷 ↓ · 홈런 소폭 ↑로 일정). 한 번 재는 데 약 0.7초라 나눠 잰다(sitOddsLater)
  */
-import { createGame, stealOdds } from '../engine/pitchSim.js';
-import { oddsOf } from '../play/choice.js';
+import { createGame, stealOdds, pitch } from '../engine/pitchSim.js';
+import { oddsOf, cloneGame } from '../play/choice.js';
 import { seeded } from '../engine/rng.js';
 
-const N = 1500;
+const N = 1500, NI = 400;
+/*
+ * 남은 이닝 득점 — 득점권일 때만 order(3단계 득점권 고르기와 같은 규칙). '그 타석 득점'은 볼넷 값을 못 셌다
+ *  (2루 주자 볼넷은 다음 타자에게 넘김 — 출루 우선이 늘 손해로 보였다, ROADMAP 13)
+ */
+function innRuns(g, order) {
+  let sum = 0;
+  for (let i = 0; i < NI; i += 1) {
+    const c = cloneGame(g, seeded(7001 + i)), r0 = c.home.runs; let guard = 0;
+    while (!c.final && !c.top && guard++ < 400) pitch(c, c.bases[1] || c.bases[2] ? order : {});
+    sum += c.home.runs - r0;
+  }
+  return { xr: sum / NI };
+}
 const copy = (t) => ({ ...t, batters: [...t.batters], pitchers: [...t.pitchers], bench: [...(t.bench || [])] });
 const zoneIn = (g) => (g.rng() < 0.35 ? { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] } : {}); // tactics condOrders pitchZone 과 같음
 export const BAT_ORDERS = { rispPow: { approach: 'power' }, rispCon: { approach: 'contact' }, rispPat: { patience: 1 } };
 
-/* 잴 일 54개(타자 9 × 4 · 상대 9 × 2) — 하나 약 13ms */
+/* 잴 일 90개(타자 9 × 4 × 타석 · 이닝 · 상대 9 × 2) */
 function jobs(home, away) {
-  const one = (top, i, order) => () => {
+  const one = (top, i, order, inn = false) => () => {
     const g = createGame({ home: copy(home), away: copy(away), rng: seeded(31 + i) });
     if (top) { Object.assign(g, { top: true, inning: 3, outs: 1, bases: [null, null, null] }); g.away.idx = i; }
     else { Object.assign(g, { top: false, inning: 5, outs: 1, bases: [null, g.home.team.batters[(i + 8) % 9], null] }); g.home.idx = i; }
-    return oddsOf(g, order, N);
+    return inn ? innRuns(g, order) : oddsOf(g, order, N);
   };
   const out = { bat: Array.from({ length: 9 }, () => ({})), pit: Array.from({ length: 9 }, () => ({})) }, list = [];
   for (let i = 0; i < 9; i += 1) {
-    list.push([out.bat[i], 'base', one(false, i, () => ({}))]);
-    for (const [k, o] of Object.entries(BAT_ORDERS)) list.push([out.bat[i], k, one(false, i, () => o)]);
+    list.push([out.bat[i], 'base', one(false, i, () => ({}))], [out.bat[i], 'baseX', one(false, i, {}, true)]);
+    for (const [k, o] of Object.entries(BAT_ORDERS)) list.push([out.bat[i], k, one(false, i, () => o)], [out.bat[i], k + 'X', one(false, i, o, true)]);
     list.push([out.pit[i], 'base', one(true, i, () => ({}))], [out.pit[i], 'zone', one(true, i, zoneIn)]);
   }
   return { out, list };
@@ -60,7 +73,7 @@ export function topFx(from, to, mine = true) {
   return [all.find((e) => e.good), all.find((e) => !e.good)].filter(Boolean);
 }
 /*
- * 득점권 고르기 — 맨 앞은 늘 '득점'(그 타석에 점수가 날 확률), 다음은 안타 · 홈런 · 볼넷 · 삼진 가운데 가장 크게 움직인 것
+ * 득점권 고르기 — 맨 앞은 늘 '기대 득점'(2루 · 1아웃부터 그 이닝 끝까지 낼 점수), 다음은 안타 · 홈런 · 볼넷 · 삼진 가운데 가장 크게 움직인 것
  *  득점을 안 보이면 안타 우선(센 선발 상대 득점 +16%)이 '홈런 감소'만 보여 손해처럼 읽혔다(ROADMAP 13, 2026-10-09)
  */
 export const batFx = (odds, id) => {
@@ -68,7 +81,8 @@ export const batFx = (odds, id) => {
   const rel = (e) => (e.base ? (e.after - e.base) / e.base : 0);
   const other = KEYS.map(([ko, k, up]) => ({ ko, base: from[k], after: to[k], good: (to[k] - from[k]) * up > 0 }))
     .filter((e) => Math.abs(rel(e)) >= 0.03).sort((x, y) => Math.abs(rel(y)) - Math.abs(rel(x)))[0];
-  return [{ ko: '득점', base: from.run, after: to.run, good: to.run >= from.run }, ...(other ? [other] : [])];
+  const x0 = avg(odds.bat.map((x) => x.baseX)).xr, x1 = avg(odds.bat.map((x) => x[id + 'X'])).xr;
+  return [{ ko: '기대 득점', base: x0, after: x1, good: x1 >= x0, runs: true }, ...(other ? [other] : [])];
 };
 /** 정면 승부 — 교타자만이면 파워 80 아래 타자만 */
 export function zoneFx(odds, away, conOnly) {
