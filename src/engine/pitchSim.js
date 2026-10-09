@@ -485,6 +485,17 @@ export function tempoOf(prev, velo, guessHit = 0) {
 }
 
 const HOLD_COST = 0.018; // 작전 '주자 견제' 의 대가 — 도루 −14%p(예전 −8) 대신 타자 승부가 흐트러짐(예전 0.012, sit-sim 2026-10-04)
+/*
+ * 신중한 스윙(patience) — 존 공을 덜 치는 몫 · 볼에 덜 휘두르는 몫 · 2스트라이크에서 존 공을 참는 비율(1 = 그대로)
+ *  ctl · ctlZ = 상대 제구로 몫을 바꿈(2026-10-09): 예전엔 어느 상대든 득점권 출루 우선이 손해(경기 −1.6%p),
+ *  2단계 9회 내내 신중한 스윙은 갈림 없이 ±0. 볼 몫은 제구 낮을수록 ↑(ctl), 존 공 보내는 몫은 제구 높을수록 ↑(ctlZ)
+ *  3,000경기(제구 세 구간): 9회 내내 −0.5(낮음 +6.7 · 높음 −4.0) · 득점권 출루 우선 +0.8(낮음 +2.7 · 높음 −0.1). 2S 안 참기는 늘 이득(+5)이라 뺌
+ */
+export const PATIENCE = { zone: 0.16, chase: 0.12, twoStrike: 1, ctl: 0.06, ctlZ: 0.04 };
+/* 상대 제구에 따라 볼에 덜 휘두르는 몫을 키우고 줄임 — 제구 78 가운데, ctl 이 1당 몫(제구 낮을수록 참는 값어치 ↑) */
+const patX = (pitcher) => clamp(1 + (78 - st(pitcher, 'control', 75)) * PATIENCE.ctl, 0.2, 1.8);
+/* 존 공을 보내는 몫은 거꾸로 — 제구 좋은 투수에겐 더 보내 스트라이크를 먹음 */
+const patZ = (pitcher) => clamp(1 - (78 - st(pitcher, 'control', 75)) * PATIENCE.ctlZ, 0.2, 1.8);
 /** 공 하나. 결과 이벤트를 돌려주고 g 를 갱신한다 */
 export function pitch(g, orders = {}) {
   if (g.final) return null;
@@ -586,11 +597,11 @@ export function pitch(g, orders = {}) {
   g.lastVelo = p.velo;
   if (tempo) ev.tempo = tempo;
 
-  // 스윙 여부 — 기다리기(patience)는 볼에 덜 휘두르는(−0.12) 대신 존 공도 더 지켜본다(−0.16): 제구 나쁜 투수에게 이득(+3.7%p) · 좋은 투수에겐 손해(−1.6%p, style-sim 모두 기다리기)
+  // 스윙 여부 — 신중한 스윙(patience)은 볼에 덜 휘두르는(−0.12) 대신 존 공도 더 지켜본다(−0.16) — 둘 다 상대 제구로 키우고 줄임(PATIENCE)
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
-  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? 0.16 : 0), 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? 0.12 : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
+  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? PATIENCE.zone * (g.strikes >= 2 ? PATIENCE.twoStrike : 1) * patZ(pitcher) : 0), 0, 0.92);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? PATIENCE.chase * patX(pitcher) : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
