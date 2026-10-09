@@ -59,7 +59,17 @@ export function topFx(from, to, mine = true) {
     .filter((e) => Math.abs(rel(e)) >= 0.03).sort((x, y) => Math.abs(rel(y)) - Math.abs(rel(x)));
   return [all.find((e) => e.good), all.find((e) => !e.good)].filter(Boolean);
 }
-export const batFx = (odds, id) => topFx(avg(odds.bat.map((x) => x.base)), avg(odds.bat.map((x) => x[id])));
+/*
+ * 득점권 고르기 — 맨 앞은 늘 '득점'(그 타석에 점수가 날 확률), 다음은 안타 · 홈런 · 볼넷 · 삼진 가운데 가장 크게 움직인 것
+ *  득점을 안 보이면 안타 우선(센 선발 상대 득점 +16%)이 '홈런 감소'만 보여 손해처럼 읽혔다(ROADMAP 13, 2026-10-09)
+ */
+export const batFx = (odds, id) => {
+  const from = avg(odds.bat.map((x) => x.base)), to = avg(odds.bat.map((x) => x[id]));
+  const rel = (e) => (e.base ? (e.after - e.base) / e.base : 0);
+  const other = KEYS.map(([ko, k, up]) => ({ ko, base: from[k], after: to[k], good: (to[k] - from[k]) * up > 0 }))
+    .filter((e) => Math.abs(rel(e)) >= 0.03).sort((x, y) => Math.abs(rel(y)) - Math.abs(rel(x)))[0];
+  return [{ ko: '득점', base: from.run, after: to.run, good: to.run >= from.run }, ...(other ? [other] : [])];
+};
 /** 정면 승부 — 교타자만이면 파워 80 아래 타자만 */
 export function zoneFx(odds, away, conOnly) {
   const rows = odds.pit.filter((_, i) => !conOnly || (away.batters[i]?.stats?.power ?? 75) < 80);
