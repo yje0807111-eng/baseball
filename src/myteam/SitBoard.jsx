@@ -5,7 +5,7 @@
  *   타자 · 득점권 기회 — 그대로 · 홈런 우선 · 안타 우선 · 출루 우선(rispPow · rispCon · rispPat) ↔ 상대 선발 구위 · 제구
  *     (아웃 · 점수로 나눠도 정답이 같아 하나로 둠)
  *   주자 · 빠른 1루 주자 — 그대로 · 도루 우선 + 누가 뛰나 주력 80+ · 85+ · 90+(steal · steal85 · steal90, 위험 다이얼) ↔ 상대 포수
- *   투수 · 경기 운영 — 기본 · 맞혀 잡기 + 누구에게(모든 타자 · 교타자만) · 언제(경기 내내 · 초반만) → pitchZone[Con][E] ↔ 상대 파워 · 우리 선발 제구
+ *   투수 · 경기 운영 — 기본 · 정면 승부(경기 중 결정 카드와 같은 이름, 2026-10-09 맞혀 잡기에서 바꿈) + 누구에게(모든 타자 · 교타자만) · 언제(경기 내내 · 초반만) → pitchZone[Con][E] ↔ 상대 파워 · 우리 선발 제구
  *     선발 무너질 때 자동 교체(tired, 늘 켬 — 고를 칸 아님)
  *  세부는 큰 고르기가 '그대로 · 기본'이면 흐리게(눌러도 안 바뀜) — 고른 세부는 기억해 두었다가 다시 켤 때 그대로
  *  오른쪽 칩 = 왼쪽 상대 판의 같은 값(경보 · 상대 선발) — 어디를 볼지만, 답은 주지 않음
@@ -106,7 +106,7 @@ export default function SitBoard({ conds, setConds, engine }) {
         chips={<Chip l={alertChip('도루 기회')} />} />
       <i className="block h-px shrink-0 bg-white/[0.07]" />
       <Row side="수비" ko="투수" sit="경기 운영" h={96}
-        main={<Opts opts={[[null, '기본', null, '투수 배합대로'], ['pit', '맞혀 잡기', SPB, '볼넷 ↓ · 장타 위험']]} value={zoneOn ? 'pit' : null} onPick={(id) => swap(ZONE, id ? zoneId() : null)} />}
+        main={<Opts opts={[[null, '기본', null, '투수 배합대로'], ['pit', '정면 승부', SPB, '존 안으로 · 볼넷 ↓ · 장타 위험']]} value={zoneOn ? 'pit' : null} onPick={(id) => swap(ZONE, id ? zoneId() : null)} />}
         sub={<>
           <Seg label="누구에게" opts={[['', '모든 타자'], ['Con', '교타자만']]} on={who} onPick={pickWho} dim={!zoneOn} />
           <Seg label="언제" opts={[['', '경기 내내'], ['E', '초반만']]} on={when} onPick={pickWhen} dim={!zoneOn} />

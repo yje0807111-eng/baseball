@@ -4,6 +4,7 @@
  *  근거: FC 온라인 개인 전술 · Football Manager 선수 지시 · OOTP 도루 설정 — 지시 옆에 '누구에게 걸리는지'(선수 얼굴 · 능력치)를 같이 보여 줌
  *  1 아래 3열 대상 선수 · 2 아래 타순 두 줄(얼굴 + 꼬리표) · 3 오른쪽 대상 열 · 4 리허설(300경기 득실)
  *  5 대상 둘 + 리허설 · 6 준비 카드 선반 · 7 세 줄 크게(판 높이에 맞춰 늘림) · 8 타순 한 줄 + 준비 카드 선반
+ *  9 ~ 12 = 2안 정리(한 줄 = 한 설정의 대상 · 켜진 선수만 밝게 · 꼬리표 대신 수치 하나): 9 얼굴 카드 + 색 띠 · 10 둥근 얼굴 · 11 유리 레인 + 수치 막대 · 12 대상만 크게
  */
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -89,11 +90,11 @@ function Runners({ ctx, rows = 9 }) {
     </Box>
   );
 }
-/* 3열 — 상대 타순(맞혀 잡기 대상) */
+/* 3열 — 상대 타순(정면 승부 대상) */
 function OppOrder({ ctx, rows = 9 }) {
   return (
     <Box className="flex-1">
-      <Head ko="상대 타순" right={ctx.zone ? <Tag c={SPB}>맞혀 잡기 · {ctx.conOnly ? '교타자만' : '모든 타자'}</Tag> : <Tag c={W3} on={false}>기본</Tag>} />
+      <Head ko="상대 타순" right={ctx.zone ? <Tag c={SPB}>정면 승부 · {ctx.conOnly ? '교타자만' : '모든 타자'}</Tag> : <Tag c={W3} on={false}>기본</Tag>} />
       <div className="flex min-h-0 flex-1 flex-col justify-between">
         {OPP.batters.slice(0, rows).map((p, i) => {
           const [t, c] = powTag(p), on = ctx.zone && (!ctx.conOnly || t === '교타');
@@ -134,7 +135,7 @@ const oppTags = (ctx) => (p) => { const [t, c] = powTag(p); return [[t, c, !!ctx
 
 /* 리허설 — 이 설정으로 300경기(목업 값) */
 function Rehearsal() {
-  const rows = [['타자 · 안타 우선', 0.6, SKY], ['주자 · 도루 85+', 0.4, US], ['투수 · 맞혀 잡기 · 교타자만', -0.3, SPB]];
+  const rows = [['타자 · 안타 우선', 0.6, SKY], ['주자 · 도루 85+', 0.4, US], ['투수 · 정면 승부 · 교타자만', -0.3, SPB]];
   return (
     <Box className="flex-1">
       <Head ko="이 설정 · 300경기" right={<span className="text-[11px]" style={{ color: W3 }}>기본과 견줌</span>} />
@@ -184,6 +185,104 @@ function Shelf({ compact }) {
   );
 }
 
+/* ───── 2안 정리(9 ~ 12) — 한 줄 = 한 설정의 대상. 켜진 선수만 밝게, 꼬리표 대신 수치 한 개 ───── */
+const runOn = (ctx) => (p) => !!ctx.thr && st(p, 'speed') >= ctx.thr;
+const zoneOn = (ctx) => (p) => !!ctx.zone && (!ctx.conOnly || st(p, 'power') < 80);
+const ROWS = (ctx) => [
+  { key: 'run', team: ME, ko: '도루', sub: ctx.thr ? `주력 ${ctx.thr}+` : '그대로', on: runOn(ctx), stat: 'speed', statKo: '주력', c: US, thr: ctx.thr },
+  { key: 'zone', team: OPP, ko: '정면 승부', sub: ctx.zone ? (ctx.conOnly ? '교타자만' : '모든 타자') : '기본', on: zoneOn(ctx), stat: 'power', statKo: '파워', c: SPB, thr: ctx.zone && ctx.conOnly ? 80 : null },
+];
+const RowHead = ({ r, n, w = '8.5rem' }) => (
+  <span className="flex shrink-0 flex-col justify-center gap-1" style={{ width: w }}>
+    <span className="text-[12px]" style={{ color: W3 }}>{r.team === ME ? '우리 타순' : '상대 타순'}</span>
+    <b className="text-t3" style={{ color: W1 }}>{r.ko}</b>
+    <span className="flex items-center gap-1.5"><i className="block h-1.5 w-1.5 rounded-full" style={{ background: n ? r.c : W3 }} /><b className="text-[12px]" style={{ color: n ? r.c : W3 }}>{n ? `${n}명` : r.sub}</b></span>
+  </span>
+);
+/* 9 — 얼굴 카드 + 아래 색 띠(켜진 선수), 나머지 흐리게 */
+function Clean9({ ctx }) {
+  return (
+    <Box className="flex-1 justify-around gap-3" pad="px-5 py-4">
+      {ROWS(ctx).map((r, k) => { const n = r.team.batters.filter(r.on).length; return (
+        <React.Fragment key={r.key}>
+          {k > 0 && <i className="block h-px shrink-0 bg-white/[0.06]" />}
+          <div className="flex min-h-0 items-center gap-4">
+            <RowHead r={r} n={n} />
+            <div className="grid flex-1 gap-2.5" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>
+              {r.team.batters.slice(0, 9).map((p, i) => { const on = r.on(p); return (
+                <span key={p.id} className="flex min-w-0 flex-col items-center gap-1.5" style={{ opacity: on || !n ? 1 : 0.38 }}>
+                  <span className="relative flex shrink-0 overflow-hidden rounded-md"><Portrait player={p} w={58} h={72} color={on ? r.c : '#334155'} /><i className="absolute inset-x-0 bottom-0 block h-1" style={{ background: on ? r.c : 'transparent' }} /></span>
+                  <span className="flex w-full items-baseline justify-center gap-1"><span className="font-display text-[11px]" style={{ color: W3 }}>{i + 1}</span><b className="truncate text-t4" style={{ color: W1 }}>{p.name}</b></span>
+                  <b className="font-display text-t4" style={{ color: on ? r.c : W3 }}>{r.statKo} {st(p, r.stat)}</b>
+                </span>
+              ); })}
+            </div>
+          </div>
+        </React.Fragment>
+      ); })}
+    </Box>
+  );
+}
+/* 10 — 둥근 얼굴 줄(테두리 고리만) */
+function Clean10({ ctx }) {
+  return (
+    <Box className="flex-1 justify-around gap-3" pad="px-5 py-4">
+      {ROWS(ctx).map((r) => { const n = r.team.batters.filter(r.on).length; return (
+        <div key={r.key} className="flex items-center gap-4">
+          <RowHead r={r} n={n} />
+          <div className="grid flex-1" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))' }}>
+            {r.team.batters.slice(0, 9).map((p) => { const on = r.on(p); return (
+              <span key={p.id} className="flex min-w-0 flex-col items-center gap-1.5" style={{ opacity: on || !n ? 1 : 0.38 }}>
+                <span className="flex shrink-0 rounded-full p-[3px]" style={{ boxShadow: `0 0 0 2px ${on ? r.c : 'rgba(255,255,255,.1)'}`, background: on ? `${r.c}22` : 'transparent' }}><Portrait player={p} w={60} h={60} round /></span>
+                <b className="w-full truncate text-center text-t4" style={{ color: W1 }}>{p.name}</b>
+                <span className="font-display text-[12px]" style={{ color: on ? r.c : W3 }}>{st(p, r.stat)}</span>
+              </span>
+            ); })}
+          </div>
+        </div>
+      ); })}
+    </Box>
+  );
+}
+/* 11 — 작은 얼굴 + 수치 막대(문턱 선) — 2단계 레인과 같은 유리 줄 */
+function Clean11({ ctx }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {ROWS(ctx).map((r) => { const n = r.team.batters.filter(r.on).length; return (
+        <div key={r.key} className="grid min-h-0 flex-1 items-stretch" style={{ gridTemplateColumns: '9rem minmax(0,1fr)' }}>
+          <RowHead r={r} n={n} w="9rem" />
+          <span className="grid items-center gap-2 rounded-lg px-3 py-2" style={{ gridTemplateColumns: 'repeat(9,minmax(0,1fr))', background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
+            {r.team.batters.slice(0, 9).map((p) => { const on = r.on(p), v = st(p, r.stat); return (
+              <span key={p.id} className="flex min-w-0 flex-col gap-1.5" style={{ opacity: on || !n ? 1 : 0.38 }}>
+                <span className="flex items-center gap-2"><Portrait player={p} w={34} h={42} color={on ? r.c : '#334155'} /><span className="flex min-w-0 flex-col"><b className="truncate text-t4" style={{ color: W1 }}>{p.name}</b><b className="font-display text-[12px]" style={{ color: on ? r.c : W3 }}>{r.statKo} {v}</b></span></span>
+                <span className="relative block h-1 rounded-full" style={{ background: 'rgba(255,255,255,.07)' }}><i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${Math.max(4, (v - 50) * 2)}%`, background: on ? r.c : 'rgba(255,255,255,.22)' }} />{r.thr && <i className="absolute -top-1 block h-3 w-px" style={{ left: `${(r.thr - 50) * 2}%`, background: GOLD }} />}</span>
+              </span>
+            ); })}
+          </span>
+        </div>
+      ); })}
+    </div>
+  );
+}
+/* 12 — 켜진 선수만 크게 모아 보임(왼쪽부터), 나머지는 아래 이름 줄 */
+function Clean12({ ctx }) {
+  return (
+    <div className="grid min-h-0 flex-1 gap-4" style={{ gridTemplateColumns: '1fr 1fr' }}>
+      {ROWS(ctx).map((r) => { const list = r.team.batters.slice(0, 9), on = list.filter(r.on), off = list.filter((p) => !r.on(p)); return (
+        <Box key={r.key} className="gap-3" pad="px-5 py-4">
+          <span className="flex items-center gap-3"><b className="text-t3" style={{ color: W1 }}>{r.ko}</b><span className="text-[12px]" style={{ color: W3 }}>{r.team === ME ? '우리 타순' : '상대 타순'} · {r.sub}</span><b className="ml-auto font-display text-t2" style={{ color: on.length ? r.c : W3 }}>{on.length}<span className="text-t4" style={{ color: W3 }}> / 9</span></b></span>
+          <div className="grid min-h-0 flex-1 content-start gap-2.5" style={{ gridTemplateColumns: 'repeat(5,minmax(0,1fr))' }}>
+            {on.map((p) => (
+              <span key={p.id} className="flex min-w-0 flex-col items-center gap-1"><Portrait player={p} w={64} h={80} color={r.c} /><b className="w-full truncate text-center text-t4" style={{ color: W1 }}>{p.name}</b><b className="font-display text-[12px]" style={{ color: r.c }}>{r.statKo} {st(p, r.stat)}</b></span>
+            ))}
+          </div>
+          {off.length > 0 && <span className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/[0.06] pt-2 text-[12px]" style={{ color: W3 }}>{off.map((p) => <span key={p.id}>{p.name} {st(p, r.stat)}</span>)}</span>}
+        </Box>
+      ); })}
+    </div>
+  );
+}
+
 const VARIANTS = {
   1: ['아래 3열 대상 선수', (ctx) => <div className="flex min-h-0 flex-1 gap-4"><OurOrder ctx={ctx} /><Runners ctx={ctx} /><OppOrder ctx={ctx} /></div>],
   2: ['아래 타순 두 줄', (ctx) => <Box className="flex-1 gap-3"><Strip team={ME} label="우리" tags={ourTags(ctx)} /><i className="block h-px shrink-0 bg-white/[0.07]" /><Strip team={OPP} label="상대" tags={oppTags(ctx)} /></Box>],
@@ -193,6 +292,10 @@ const VARIANTS = {
   6: ['준비 카드 선반', () => <Shelf />],
   7: ['세 줄 크게', null],
   8: ['타순 한 줄 + 준비 카드', (ctx) => <><Box className="flex-1"><Strip team={OPP} label="상대" tags={oppTags(ctx)} /></Box><Shelf compact /></>],
+  9: ['2안 정리 · 얼굴 카드 + 색 띠', (ctx) => <Clean9 ctx={ctx} />],
+  10: ['2안 정리 · 둥근 얼굴', (ctx) => <Clean10 ctx={ctx} />],
+  11: ['2안 정리 · 유리 레인 + 수치 막대', (ctx) => <Clean11 ctx={ctx} />],
+  12: ['2안 정리 · 대상만 크게', (ctx) => <Clean12 ctx={ctx} />],
 };
 
 function Center() {

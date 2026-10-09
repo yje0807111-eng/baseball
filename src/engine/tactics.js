@@ -41,10 +41,10 @@ export const CONDITIONS = [
   { id: 'rispPow', ko: '득점권 기회', act: '홈런 우선' }, // 풀스윙 — 상대 선발 구위 약하면 +1.0 · 강하면 −1.6
   { id: 'rispCon', ko: '득점권 기회', act: '안타 우선' }, // 짧은 스윙 — 구위 약하면 −0.2 · 강하면 +1.7
   { id: 'rispPat', ko: '득점권 기회', act: '출루 우선' }, // 신중한 스윙 — 제구 좋으면 −0.8
-  { id: 'pitchZone', ko: '경기 운영', act: '맞혀 잡기' }, // 존 안 35% — 상대 파워 낮으면 +1.9 · 높으면 −0.6
+  { id: 'pitchZone', ko: '경기 운영', act: '정면 승부' }, // 존 안 35% — 상대 파워 낮으면 +1.9 · 높으면 −0.6
   /* 세분화(2026-10-04, sit2-sim): 도루 문턱 85 · 90(위험 다이얼), 맞혀 잡기 '교타자만'(Con · 파워 80 아래) · '초반만'(E · 1~3회) — 둘은 겹쳐 붙음(pitchZoneConE) */
   { id: 'steal85', ko: '1루 주자 주력 85+', act: '도루' }, { id: 'steal90', ko: '1루 주자 주력 90+', act: '도루' },
-  { id: 'pitchZoneCon', ko: '경기 운영', act: '맞혀 잡기 · 교타자만' }, { id: 'pitchZoneE', ko: '경기 운영', act: '맞혀 잡기 · 초반만' }, { id: 'pitchZoneConE', ko: '경기 운영', act: '맞혀 잡기 · 교타자만 · 초반만' },
+  { id: 'pitchZoneCon', ko: '경기 운영', act: '정면 승부 · 교타자만' }, { id: 'pitchZoneE', ko: '경기 운영', act: '정면 승부 · 초반만' }, { id: 'pitchZoneConE', ko: '경기 운영', act: '정면 승부 · 교타자만 · 초반만' },
 ];
 const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const armOf = (p) => stOf(p, 'stuff', 80) + stOf(p, 'control', 75);
