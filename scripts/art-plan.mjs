@@ -1,10 +1,12 @@
-// 카드 그림 계획 (유니폼 레퍼런스 방식): 같은 팀·시즌 선수는 같은 유니폼 레퍼런스 그림을 입혀 옷을 통일한다.
+// 카드 그림 계획 (유니폼 레퍼런스 방식): 같은 구단 · 같은 유니폼 시기 선수는 같은 유니폼 레퍼런스 그림을 입혀 옷을 통일한다.
+//  시즌마다 따로 만들면 안 된다 — 선수 그림은 앞뒤 시즌이 빌려 쓰니(art-alias) 같은 로스터에 유니폼이 섞인다(2026-10-11, uniform-eras.mjs)
 // 사용법: node scripts/art-plan.mjs
-//   → art-src/uniform-plan.json  [{ key, label, players, prompt }]  팀·시즌(국가대표는 대회)마다 유니폼 레퍼런스 1장
+//   → art-src/uniform-plan.json  [{ key, label, players, prompt }]  구단 · 유니폼 시기(국가대표는 대회)마다 유니폼 레퍼런스 1장 — key 는 '구단-대표 시즌'
 //   → art-src/plan.json          [{ id, uniform, prompt }]           카드가 없는 선수. 생성할 때 uniform 레퍼런스를 Image 1 로 넣는다
 import { readdirSync, readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { refYearOf } from './uniform-eras.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const seriesDir = join(root, 'src', 'data', 'series');
@@ -46,24 +48,38 @@ const POSES = {
 };
 const POS_WORD = { SP: 'starting pitcher', RP: 'relief pitcher', C: 'catcher', '1B': 'first baseman', '2B': 'second baseman', '3B': 'third baseman', SS: 'shortstop', OF: 'outfielder', DH: 'designated hitter' };
 
+/* 구단(시리즈 id 의 구단 부분) → 시즌들 { year, cards, hasRef } — 시기의 대표 기준 그림을 고를 때 본다 */
+const seriesList = readdirSync(seriesDir).filter((f) => f.endsWith('.json')).sort().map((file) => JSON.parse(readFileSync(join(seriesDir, file), 'utf8').replace(/^﻿/, '')));
+const clubOf = (s) => /^\d{4}-(.+)$/.exec(s.id)?.[1];
+const clubSeasons = new Map();
+for (const s of seriesList) {
+  const club = clubOf(s);
+  if (!club || s.kind === 'national' || !s.players.length) continue;
+  const year = Number(s.id.slice(0, 4));
+  const cards = s.players.filter((p) => existsSync(join(cardsDir, `${s.id}_${safeId(p.personId)}.webp`))).length;
+  if (!clubSeasons.has(club)) clubSeasons.set(club, []);
+  clubSeasons.get(club).push({ year, cards, hasRef: existsSync(join(root, 'art-src', 'uniforms', `${safeId(s.players[0].team)}-${year}.png`)) });
+}
+
 const uniforms = new Map();
 const plan = [];
 const unknown = new Set();
-for (const file of readdirSync(seriesDir).filter((f) => f.endsWith('.json')).sort()) {
-  const s = JSON.parse(readFileSync(join(seriesDir, file), 'utf8').replace(/^﻿/, ''));
+for (const s of seriesList) {
   const national = s.kind === 'national';
   s.players.forEach((p, i) => {
     const id = `${s.id}_${safeId(p.personId)}`;
     if (existsSync(join(cardsDir, `${id}.webp`))) return;
     if (!national && !TEAM[p.team]) { unknown.add(p.team); return; }
-    const key = national ? s.id : `${safeId(p.team)}-${p.year}`;
+    /* 유니폼은 그 시기의 대표 시즌 것(같은 시기면 어느 해 선수든 같은 key) — 선수 설명(label)은 제 시즌 그대로 */
+    const refYear = national ? null : refYearOf(clubOf(s), Number(p.year), clubSeasons.get(clubOf(s)));
+    const key = national ? s.id : `${safeId(p.team)}-${refYear}`;
     const label = national ? `South Korea national team at the ${EVENT[s.id] || s.title}` : `${p.year} ${TEAM[p.team][0]}`;
     if (!uniforms.has(key)) {
       const what = national
         ? `the South Korea national baseball team uniform worn at the ${EVENT[s.id] || s.title}`
-        : `the ${label} home uniform exactly as worn in the ${p.year} KBO season`;
+        : `the ${refYear} ${TEAM[p.team][0]} home uniform exactly as worn in the ${refYear} KBO season`;
       uniforms.set(key, {
-        key, label, players: 0,
+        key, label: national ? label : `${refYear} ${TEAM[p.team][0]}`, players: 0,
         prompt: `Uniform reference sheet, semi-realistic digital painting in collectible trading card style: ${what}. Show the home jersey front view, the jersey back view without name or number, and the baseball cap from the front and from the side, neatly arranged with no mannequin and no person. Accurate team colors, chest lettering, trim and piping, sleeve patch and cap logo for that season. Flat deep navy (#0b1220) background, even soft light. No faces, no other text.`,
       });
     }

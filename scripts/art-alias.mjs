@@ -8,35 +8,11 @@
  *  - 아래 UNIFORM_BREAKS 에 적은 해에 옷이 바뀌었으면 그 해를 넘어 빌리지 않는다.
  *  - 가장 가까운 시즌의 그림을 쓴다(같으면 앞 시즌). 옷이 바뀐 해를 모르는 구단은 MAX_REACH 시즌까지만.
  *
- * 옷이 바뀐 해를 알게 되면 UNIFORM_BREAKS 에 적고 다시 돌린다:  node scripts/art-alias.mjs
+ * 옷이 바뀐 해를 알게 되면 scripts/uniform-eras.mjs 의 UNIFORM_BREAKS 에 적고 다시 돌린다:  node scripts/art-alias.mjs
  */
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 
-/**
- * 구단 → 새 홈 유니폼을 입기 시작한 해. 이 해를 사이에 두고는 그림을 빌리지 않는다.
- * 출처: 나무위키 각 구단 '/유니폼' 문서 (2026-09 확인). 홈 유니폼 기준, 원정 · 이벤트는 뺐다.
- * 등번호 광택 같은 눈에 안 띄는 변경은 넣지 않았고, 모자 · 가슴 마크처럼 카드에 보이는 변경은 넣었다.
- */
-const UNIFORM_BREAKS = {
-  samsung: [1983, 1984, 1989, 1995, 2008, 2016, 2024],
-  lotte: [1993, 2003, 2018, 2023],
-  mbc: [1983, 1984, 1986],
-  lg: [1994, 2002, 2006, 2008, 2017],
-  binggrae: [1986],
-  hanwha: [1999, 2003, 2007, 2015, 2025],
-  ob: [1983, 1992], // 1992 — 빨간 OB BEARS → 금색 Bears(그림 기준, 2026-10-11 유니폼 통일 때 나눔)
-  doosan: [2002, 2010, 2025],
-  haitai: [1986, 1996],
-  kia: [2010, 2012, 2017, 2021, 2023],
-  sk: [2002, 2006, 2015, 2019],
-  ssg: [2022, 2023, 2024],
-  nc: [2012, 2016, 2019, 2022, 2025],
-  kt: [2017, 2020, 2021, 2024],
-  heroes: [2009],
-  nexen: [2012, 2013, 2016, 2018],
-  kiwoom: [2025],
-  ssangbangwool: [1996],
-};
+import { UNIFORM_BREAKS } from './uniform-eras.mjs'; // 구단 → 새 홈 유니폼을 입기 시작한 해(기준 그림 고르기 art-plan 과 같이 씀)
 const MAX_GAP = 2; // 이어서 뛴 것으로 보는 시즌 사이 간격
 /* 옷이 바뀐 해를 조사하지 못한 구단(현대 · 태평양 · 삼미 · 청보)은 멀리 빌리지 않는다 */
 const MAX_REACH = 3;
