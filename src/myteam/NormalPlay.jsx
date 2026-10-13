@@ -7,6 +7,7 @@ import { roundsOf, finishOf, meIndex } from './tournament.js';
 import { AI_SERIES, duelSeriesTeam, seriesName, DUEL_SUB } from './aiTeam.js';
 import { applyFormTeam, oppSeed } from './form.js';
 import { saveNextDuel, peekNextDuel } from './store.js';
+import { duelPower, pickDuel } from './duel.js';
 import { artId } from '../data/artAlias.js';
 import { CUPS, cupOf, cupMult, cupIssue } from './cups.js';
 import { statOf, statPct } from './teamColor.js';
@@ -102,10 +103,10 @@ function roadOf(size) {
   });
 }
 
-/** 다음 단판 상대 — 한 번 뽑아 두고 경기도 이 상대로 치른다 (경기가 끝나면 다시 뽑힌다) */
-function nextDuel() {
+/** 다음 단판 상대 — 내 전력과 비슷한 팀에서 한 번 뽑아 두고 경기도 이 상대로 치른다 (경기가 끝나면 다시 뽑힌다) */
+function nextDuel(team) {
   const pinned = AI_SERIES.find((x) => x.id === peekNextDuel()); // 저장된 값을 바로 읽는다 (화면 상태는 늦게 따라오므로)
-  const series = pinned || AI_SERIES[Math.floor(Math.random() * AI_SERIES.length)];
+  const series = pinned || pickDuel(duelPower(team)); // 내 전력과 비슷한 팀에서(duel.js)
   if (!pinned) saveNextDuel(series.id);
   const t = duelSeriesTeam(series);
   const bats = t.roster.filter((p) => p.type === 'batter');
@@ -279,7 +280,7 @@ export function normalPanels({ account, format = 'single', onFormat, cup = 'open
   const cupId = t ? t.cup || 'open' : cup; // 진행 중이면 그 판의 조건, 아니면 고른 조건
   const fin = single ? null : finishOf(format, cupId);
   const cupWhy = single ? null : cupIssue(cupId, team);
-  const duel = single ? nextDuel() : null;
+  const duel = single ? nextDuel(team) : null;
 
   const main = single
     ? <SingleHero team={team} squad={squad} ready={ready} issues={issues} onLocker={onLocker} oppName={duel?.name} />

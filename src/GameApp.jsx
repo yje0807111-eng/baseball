@@ -54,7 +54,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const shopFrom = useRef(null); // 상점 ← 는 온 곳으로 — 라커 아이템 탭에서 왔으면 그 탭으로
   const openLocker = (tab = null) => { lockerTab.current = tab; shopFrom.current = null; setView('locker'); };
 
-  /* 단판: 정비 화면 → 무작위 팀과 한 경기 */
+  /* 단판: 정비 화면 → 전력이 비슷한 팀과 한 경기(duel.js) */
   const openDuel = () => {
     setPrep({ kind: 'duel', tag: '일반 대결 · 단판', sub: DUEL_SUB, title: '경기 전 정비', startLabel: '경기 시작 ▶', back: () => toModes('duel') });
     setView('prep');
