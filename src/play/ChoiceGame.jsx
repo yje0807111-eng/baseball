@@ -31,11 +31,15 @@ const PA_MS = 150, NOTE_MS = 500, RESULT_MS = 2200;
 const face = (p) => `url(cards/${encodeURIComponent(artId(p?.id || ''))}.webp), url(profiles/${encodeURIComponent(artId(p?.id || ''))}.webp), url(ui/mt/silhouette-player.webp)`;
 const HIT = new Set(['1B', '2B', '3B', 'HR', 'BH']);
 
-/**
- * 남은 시간 — 머리의 칩 하나로는 눈에 안 들어와서, 화면 맨 위 가장자리에도 같은 값으로 띠를 깐다.
- * 고르는 곳(가운데 아래 카드)을 보고 있어도 주변 시야에 걸린다. 창이 가려진 동안은 줄지 않는다.
- */
-function Timer({ ms, onEnd, w = 320, extra = '', k, paused = false }) {
+/* 막바지 긴박감 — 화면 가장자리가 붉게 물들며 점점 빨리 뛴다. 시계를 안 보고 있어도 걸린다 */
+const URGENT_MS = 12000; // 남은 12초부터
+const UrgStyle = () => <style>{`
+  @keyframes cgUrg{0%,100%{opacity:var(--u)}50%{opacity:calc(var(--u) * .3)}}
+  @keyframes cgRing{0%,100%{filter:brightness(1)}50%{filter:brightness(calc(1 + var(--u) * .5))}}
+`}</style>;
+
+/** 시간 막대 — 창이 가려진 동안은 줄지 않는다. 다 되면 onEnd 한 번 */
+function Timer({ ms, onEnd, onUrg, w = 320, extra = '', k, paused = false }) {
   const [left, setLeft] = useState(ms);
   const done = useRef(false);
   const hold = useRef(paused); hold.current = paused; // 나가기 묻는 동안 멈춤
@@ -53,21 +57,29 @@ function Timer({ ms, onEnd, w = 320, extra = '', k, paused = false }) {
     }, 100);
     return () => clearInterval(id);
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
-  const low = left < Math.min(10000, ms * 0.34); // 남은 1/3 (최대 10초)부터 빨강
-  const pct = (left / ms) * 100;
-  const c = low ? OPP : GOLD;
+  const low = left < 5000;
+  const urg = Math.max(0, Math.min(1, (URGENT_MS - left) / URGENT_MS));
+  const sent = useRef(-1);
+  useEffect(() => { // 0.05 칸으로만 알린다 — 100ms 마다 다시 그리면 카드가 덜그럭거린다
+    const step = Math.round(urg * 20) / 20;
+    if (step !== sent.current) { sent.current = step; onUrg?.(step); }
+  }, [urg]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
-      {/* 화면 맨 위 가장자리 — 카드를 보고 있어도 줄어드는 게 보인다 */}
-      <i className="pointer-events-none fixed inset-x-0 top-0 z-50 block h-1.5"
-        style={{ width: `${pct}%`, background: c, boxShadow: `0 0 16px ${c}`, transition: 'width .1s linear' }} />
-      <span className="mt-cut flex items-center gap-3 px-3 py-1.5" style={{ '--c': '8px', background: `${c}1c`, boxShadow: `inset 0 0 0 1px ${c}66` }}>
+      {/* 화면 가장자리가 붉게 물들며 점점 빨리 뛴다 (2.2초 → 0.3초) */}
+      {urg > 0 && (
+        <>
+          <UrgStyle />
+          <i aria-hidden="true" className="pointer-events-none fixed inset-0 z-50 block"
+            style={{ '--u': 0.25 + urg * 0.75, background: 'radial-gradient(108% 78% at 50% 50%, transparent 24%, rgba(220,38,38,.92) 100%)',
+              animation: `cgUrg ${(2.2 - urg * 1.9).toFixed(2)}s ease-in-out infinite` }} />
+        </>
+      )}
+      <span className="flex items-center gap-3">
         <span className="relative h-2.5 overflow-hidden rounded-full bg-white/10" style={{ width: w }}>
-          <i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${pct}%`, background: c, boxShadow: `0 0 12px ${c}`, transition: 'width .1s linear' }} />
+          <i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${(left / ms) * 100}%`, background: low ? OPP : GOLD, boxShadow: `0 0 12px ${low ? OPP : GOLD}`, transition: 'width .1s linear' }} />
         </span>
-        <b className={`w-[5.2rem] whitespace-nowrap text-right font-display text-t1 tabular-nums${low ? ' animate-pulse' : ''}`} style={{ color: low ? OPP : '#fde68a' }}>
-          {(left / 1000).toFixed(1)}<small className="ml-0.5 text-t4 opacity-70">초</small>
-        </b>
+        <b className="w-10 font-display text-t2 tabular-nums" style={{ color: low ? OPP : '#fde68a' }}>{(left / 1000).toFixed(1)}</b>
         {extra && <b className="rounded-full bg-sky-400/15 px-2 py-0.5 font-display text-t3 text-sky-300">{extra}</b>}
       </span>
     </>
@@ -75,13 +87,19 @@ function Timer({ ms, onEnd, w = 320, extra = '', k, paused = false }) {
 }
 const Chip = ({ t, c }) => <span className="rounded-full px-2.5 py-0.5 text-t4 font-bold" style={{ color: c, background: `${c}1f`, boxShadow: `inset 0 0 0 1px ${c}55` }}>{t}</span>;
 
-/** 선택 카드 — 이름 · 큰 숫자 · 이유 칩 · 대가(빨강). 정비 작전엔 '시간 끝' */
-function Card({ c, i, on, dim, onPick }) {
+/** 선택 카드 — 이름 · 큰 숫자 · 이유 칩 · 대가(빨강). 정비 작전엔 '시간 끝'. urg 가 오르면 판이 붉게 물들고 테두리가 더 빨리 뛴다 */
+function Card({ c, i, on, dim, urg = 0, onPick }) {
+  const hot = !on && urg > 0;
   return (
     <button type="button" onClick={onPick} disabled={dim}
       className="relative flex flex-col gap-3 rounded-[20px] p-5 text-left transition"
-      style={{ background: on ? 'linear-gradient(180deg,rgba(251,191,36,.16),rgba(251,191,36,.04))' : 'rgba(10,14,24,.8)', backdropFilter: 'blur(14px)',
-        boxShadow: on ? `inset 0 0 0 2px ${GOLD}, 0 18px 40px -16px rgba(251,191,36,.6)` : 'inset 0 0 0 1px rgba(255,255,255,.1), 0 14px 34px -18px rgba(0,0,0,.9)', opacity: dim ? 0.35 : 1 }}>
+      style={{ background: on ? 'linear-gradient(180deg,rgba(251,191,36,.16),rgba(251,191,36,.04))'
+          : `color-mix(in srgb, rgba(153,27,27,.92) ${Math.round(urg * 78)}%, rgba(10,14,24,.8))`,
+        backdropFilter: 'blur(14px)', transition: 'background .4s linear, box-shadow .4s linear',
+        ...(hot ? { '--u': urg, animation: `cgRing ${(2.2 - urg * 1.9).toFixed(2)}s ease-in-out infinite` } : null),
+        boxShadow: on ? `inset 0 0 0 2px ${GOLD}, 0 18px 40px -16px rgba(251,191,36,.6)`
+          : `inset 0 0 0 ${hot ? 2 : 1}px color-mix(in srgb, ${OPP} ${Math.round(urg * 100)}%, rgba(255,255,255,.1)), 0 14px 34px -18px rgba(0,0,0,.9)`,
+        opacity: dim ? 0.35 : 1 }}>
       <span className="flex items-center gap-3">
         <b className="font-display text-t3 text-gray-500">{i + 1}</b>
         {c.who && <Portrait player={c.who} w={40} h={40} round t={c.arm ? MY : MY} />}
@@ -213,6 +231,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
    * 묻는 동안 시간 막대 · 경기 진행을 멈춘다. 기본 단추는 '계속'(Esc 도 계속). 랭크전은 기록이 남아야 해서 남은 경기를 자동으로 끝낸다.
    */
   const [leaving, setLeaving] = useState(false);
+  const [urg, setUrg] = useState(0); // 고를 시간이 끝나 가는 정도(0~1) — Timer 가 올려 준다
   const pausedRef = useRef(false); pausedRef.current = leaving;
   const leave = () => {
     if (g.final) { if (!handOver()) onExit?.(); return; }
@@ -362,7 +381,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
       </div>
     </div>
   );
-  const timer = (ms, extra, k) => <Timer ms={ms} extra={extra} onEnd={timeout} k={k} paused={leaving} />;
+  const timer = (ms, extra, k) => <Timer ms={ms} extra={extra} onEnd={timeout} onUrg={setUrg} k={k} paused={leaving} />;
 
   return (
     <div className="fixed inset-0 z-40 select-none overflow-hidden bg-[#05080f] text-gray-200" onContextMenu={(e) => e.preventDefault()}>
@@ -407,7 +426,7 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
             <div className="mt-auto flex items-end gap-4">
               <div className="grid flex-1 grid-cols-2 gap-3">
                 {(phase === 'detail' ? [picked, cards[0]] : cards).map((c, i) => (
-                  <Card key={c.k} c={c} i={cards.indexOf(c)} on={phase === 'detail' && c === picked} dim={phase === 'detail' && c !== picked} onPick={() => choose(c)} />
+                  <Card key={c.k} c={c} i={cards.indexOf(c)} on={phase === 'detail' && c === picked} dim={phase === 'detail' && c !== picked} urg={urg} onPick={() => choose(c)} />
                 ))}
               </div>
               {phase === 'detail' && picked && <Detail g={g} card={picked} pick={pick} setPick={setPick} onGo={confirm} timer={null} />}

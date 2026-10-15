@@ -1297,6 +1297,9 @@ export async function runSimulation({
    UI — 다크 스포츠 대시보드 (Tailwind)
    ════════════════════════════════════════════════════════════════════ */
 
+/* 내 차례 막바지로 치는 구간(초) — 이 안에서 선반 판이 점점 붉어지고 빛이 빨라진다 */
+const URGENT_FROM = 15;
+
 export const KEYFRAMES = `
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes toast { 0% { opacity: 0; transform: scale(1.25); } 12% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.97) translateY(-12px); } }
@@ -1558,24 +1561,32 @@ export const KEYFRAMES = `
 .ui-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 40%, rgba(124,58,237,.22), transparent 70%), radial-gradient(120% 90% at 50% 38%, rgba(7,9,19,.45), rgba(5,6,14,.94) 78%); }
 .ui-bg.soft::after { background: radial-gradient(120% 90% at 50% 40%, rgba(5,8,15,.15), rgba(5,8,15,.8) 80%); }
 /* 중계 그래픽 묶음 → HUD 판: 컷 코너 유리 판 + 브래킷 프레임 + 왼쪽 위 라벨 */
-.bc-grp { --c: 22px; --a: #10b981; position: relative; padding: 34px 12px 12px; border-radius: 22px; background: linear-gradient(180deg,rgba(30,26,56,.74),rgba(10,9,22,.86)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); clip-path: inset(0 round 22px); }
+/* --urg(0~1): 내 차례가 끝나 갈수록 올라간다. 보라 판이 붉게 물들고(배경) 빛이 더 빨리 뛴다(--beat) */
+.bc-grp { --c: 22px; --a: #10b981; --urg: 0; --hot: color-mix(in srgb, #ef4444 calc(var(--urg) * 100%), var(--me, #e879f9));
+  position: relative; padding: 34px 12px 12px; border-radius: 22px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, rgba(127,29,29,.88) calc(var(--urg) * 72%), rgba(30,26,56,.74)),
+    color-mix(in srgb, rgba(60,8,8,.92) calc(var(--urg) * 72%), rgba(10,9,22,.86)));
+  transition: background .5s linear;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.9); clip-path: inset(0 round 22px); }
 .bc-grp::after { content: ""; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: inherit; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 1px rgba(245,210,122,.3); }
 /* 판 모서리 장식 — 왼쪽 위 · 오른쪽 아래 금빛 괄호(내 차례 빛은 ::before 가 쓰므로 이름표 뒤에 단다) */
 .bc-grp > .bc-label::after { content: ""; position: absolute; left: -13px; top: -3px; width: 24px; height: 24px; border: 2px solid #f5d27a; border-right: 0; border-bottom: 0; border-radius: 12px 0 0 0; opacity: .85; filter: drop-shadow(0 0 5px rgba(245,210,122,.6)); pointer-events: none; }
 /* 라이브: 내 차례면 선반 판 위로 내 색 빛이 차오르고, 차례가 끝나면 같은 속도로 잦아든다 */
 /* 숨쉬는 빛은 그림자 세기로만 준다 — 투명도는 켜고 끄는 전환에만 쓰여야 뚝 끊기지 않는다 */
 @keyframes myTurnPulse {
-  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 45%, transparent), 0 0 18px -10px var(--me, #e879f9); }
-  50% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 75%, transparent), 0 0 34px -4px var(--me, #e879f9); }
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hot) 45%, transparent), 0 0 18px -10px var(--hot); }
+  50% { box-shadow: inset 0 0 0 2px var(--hot), 0 0 calc(34px + var(--urg) * 30px) -4px var(--hot); }
 }
 .bc-grp::before {
   content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: 0;
   transition: opacity .5s ease;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--me, #e879f9) 12%, transparent), transparent 62%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--me, #e879f9) 55%, transparent), 0 0 30px -6px var(--me, #e879f9);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hot) calc(12% + var(--urg) * 16%), transparent), transparent 62%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hot) 55%, transparent), 0 0 30px -6px var(--hot);
   clip-path: inherit;
 }
-.bc-grp.myturn::before { opacity: 1; animation: myTurnPulse 2.4s ease-in-out infinite .5s; }
+/* 뛰는 간격은 --beat 가 정한다: 느긋할 땐 2.4초, 끝나 갈수록 0.3초까지 빨라진다 */
+.bc-grp.myturn::before { opacity: 1; animation: myTurnPulse var(--beat, 2.4s) ease-in-out infinite .5s; }
 @media (prefers-reduced-motion: reduce) { .bc-grp.myturn::before { animation: none; } }
 .bc-label { position: absolute; z-index: 8; left: 20px; top: 10px; display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans KR', 'Malgun Gothic', sans-serif !important; font-size:14px; font-weight: 700; color: var(--a, #10b981); }
 .bc-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
@@ -1660,18 +1671,7 @@ export const KEYFRAMES = `
 .dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
 .dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
-.dr-clock { display: inline-flex; align-items: center; gap: 7px; margin-left: 10px; padding: 3px 9px;
-  background: color-mix(in srgb, var(--t) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 50%, transparent);
-  clip-path: polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px); }
-.dr-clock > b { min-width: 30px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); line-height: 1; }
-.dr-clock > b > small { font-size: 11px; opacity: .7; margin-left: 1px; }
-.dr-clock > i { display: block; width: 54px; height: 5px; background: rgba(255,255,255,.12); }
-.dr-clock > i > span { display: block; height: 100%; background: var(--t); box-shadow: 0 0 9px var(--t); transition: width .9s linear; }
-/* 내 차례 — 눈에 걸려야 한다. 칩이 커지고 꽉 찬다 */
-.dr-clock.mine { padding: 5px 12px; background: var(--t); box-shadow: 0 0 20px -4px var(--t); }
-.dr-clock.mine > b { font-size: 24px; color: #05080f; }
-.dr-clock.mine > i { width: 74px; height: 6px; background: rgba(5,8,15,.3); }
-.dr-clock.mine > i > span { background: #05080f; box-shadow: none; }
+.dr-clock { width: 34px; margin-left: 8px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); }
 .dr-pc { position: relative; display: flex; align-items: center; justify-content: center; width: 72px; height: 24px; padding: 0 8px 0 14px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
   background: rgba(255,255,255,.05); transition: background .3s ease, box-shadow .3s ease; }
@@ -1684,8 +1684,8 @@ export const KEYFRAMES = `
 /* 내 차례가 온 순간 — 칩이 한 번 커지며 환해졌다 돌아온다 */
 .dr-pc.now.me { animation: drMe .7s var(--fx-out) both; }
 @keyframes drMe { 35% { transform: scale(1.22); filter: brightness(1.7); } } /* 칩은 모양대로 잘려 있어 빛 테두리 대신 밝기로 */
-.dr-clock.low { --t: #f87171; animation: drTick .35s var(--fx-out); }
-@keyframes drTick { 40% { transform: scale(1.12); } }
+.dr-clock.low { color: #f87171; animation: drTick .35s var(--fx-out); }
+@keyframes drTick { 40% { transform: scale(1.3); } }
 @media (prefers-reduced-motion: reduce) { .dr-pc.now.me, .dr-clock.low { animation: none; } }
 .dr-pc.now > i { opacity: .16; } /* 지금 차례 칩: 엠블럼 무늬가 글자를 가리지 않게 옅게 */
 .dr-pc.now > b { font-size:12px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
@@ -2765,7 +2765,7 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
 function TurnOrder({ live, clock, hold = false }) {
   const me = Live.myIndex(live);
   const mineNow = Live.currentClub(live) === me && !hold;
-  const low = mineNow && clock <= 10; // 40초로 늘어나 5초는 너무 늦다
+  const low = mineNow && clock <= 5; // 그 앞의 경고는 선반 판이 붉어지며 맡는다
   // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다).
   // 다만 바퀴가 넘어갔으면 기다리지 않는다 — 보드가 바뀌는 순간 새 순서를 보여 줘야 한다
   const sameLap = Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
@@ -2787,13 +2787,8 @@ function TurnOrder({ live, clock, hold = false }) {
           </span>
         );
       })}
-      {/* 내 차례면 칩이 커지고 막대가 줄어든다. 남은 10초: 붉게 · 초마다 한 번 톡(깜빡이지 않음) */}
-      <span key={low ? clock : 'n'} className={`dr-clock ${mineNow ? 'mine' : ''} ${low ? 'low' : ''}`}
-        style={{ '--t': live.clubs[Live.currentClub(live)].color }}
-        aria-label={mineNow ? `내 차례 — 남은 시간 ${clock}초` : undefined}>
-        <i aria-hidden="true"><span style={{ width: `${(clock / Live.PICK_SECONDS) * 100}%` }} /></i>
-        <b>{clock}<small>초</small></b>
-      </span>
+      {/* 남은 5초: 붉게 · 초마다 한 번 톡(깜빡이지 않음) */}
+      <b key={low ? clock : 'n'} className={`dr-clock ${low ? 'low' : ''}`} style={{ '--t': live.clubs[Live.currentClub(live)].color }}>{clock}s</b>
     </div>
   );
 }
@@ -5044,6 +5039,8 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
      선반 빛 · 카드 테두리 같은 화면 표시도 띠와 같은 박자로 켜져야 눈이 따라간다 */
   const holdTurn = !!live && gone.size > 0 && Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
   const myTurnLit = !live || (holdTurn ? Live.clubAt(live.pick - 1, live.order) === liveMine : myTurn);
+  /* 내 차례 막바지 긴박감(0~1) — 남은 15초부터 올라간다. 선반 판이 붉게 물들고 빛이 더 빨리 뛴다 */
+  const urgency = live && myTurn && !holdTurn ? Math.max(0, Math.min(1, (URGENT_FROM - clock) / URGENT_FROM)) : 0;
   /* 효과음: 선반에 새 보드가 깔릴 때(드래프트 시작 · 라운드 · 새로고침 · 시리즈 지정권) — 카드가 0.025초 간격으로 올라오는 동안
      딜링 톡 8번(0.05초 간격, 점점 작게 · 대진표와 같은 소리). 카드가 자리 잡는 때(+0.12초)부터 */
   useEffect(() => {
@@ -5829,7 +5826,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
               )}
               {/* 시리즈 묶음: 한 줄 머리 + 선수 카드 (중계 그래픽 판) */}
               <div className={`bc-grp lg:!px-1.5 ${live && myTurnLit ? 'myturn' : ''}`}
-                style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color } : {}) } : undefined}>
+                style={series ? { '--a': SERIES_NEON[series.kind], ...(live ? { '--me': live.clubs[liveMine].color, '--urg': urgency, '--beat': `${(2.4 - urgency * 2.1).toFixed(2)}s` } : {}) } : undefined}>
                 <span className="bc-label font-display">영입 후보</span>
               {series && (
                 /* 시리즈 머리: 윤곽선 연도 워터마크 · 종류 · 팀명(네온 밑줄) · 한 줄 설명 태그 | 선반 보기 전환 · 새로고침 */
