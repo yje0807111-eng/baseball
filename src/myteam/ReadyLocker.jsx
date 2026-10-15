@@ -37,7 +37,7 @@ import StageBg, { GLASS } from './StageBg.jsx';
 import { flagByKey, teamFlag } from './teamArt.js';
 import { myBanner } from './store.js';
 import LineupField from './LineupField.jsx';
-import SitBoard, { SIT_IDS } from './SitBoard.jsx';
+import SitBoard, { isSit } from './SitBoard.jsx';
 import FlowBoard, { atkLvOf, exitOf, moundPlan, effLimit } from './FlowBoard.jsx';
 import { SynergyTip } from '../KboAugmentDraft.jsx';
 import { SIDES, DEFAULT_SIDES, planOfSides, sideReasons, scoutTags, sideOpt } from './strategy.js';
@@ -455,7 +455,8 @@ export default function ReadyLocker({
   const [card, setCard] = useState(null); // 이번 경기에 쓸 준비 카드 id
   /* 정비 3단계 — 상황 대응(기본: 7회 이후 리드면 센 불펜) · 필승조 · 증강 시점 */
   const [step, setStep] = useState(1);
-  const [conds, setConds] = useState(() => (team.plan?.conds || []).filter((c) => SIT_IDS.includes(c))); // 3단계 '우선' 고르기만(예전 센 불펜 · 유인구 등은 버림)
+  const [conds, setConds] = useState(() => (team.plan?.conds || []).filter(isSit)); // 정도 '@n' 붙은 것 포함
+  const [sitProg, setSitProg] = useState({ act: 1, done: 0 }); // 3단계 차례(SitBoard) — 단계를 오가도 그대로, 투수 '설정 완료' 뒤에 경기 시작 // 3단계 '우선' 고르기만(예전 센 불펜 · 유인구 등은 버림)
   const pens = useMemo(() => (engine ? engine.home.pitchers.slice(1) : []), [engine]);
   const arm = (p) => (p?.stats?.stuff ?? 80) + (p?.stats?.control ?? 75);
   const [late] = useState(() => {
@@ -508,7 +509,7 @@ export default function ReadyLocker({
     const go = step < 3
       ? <GoBtn step={step} label={`다음 · ${PREP_STEPS[step]} ▶`} onClick={() => setStep(step + 1)} />
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
-        : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
+        : <GoBtn step={3} label={startLabel} disabled={!!startBlock || sitProg.done < 3} onClick={() => onStart(plan(), card)} />;
     return (
       <div className="relative isolate grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
@@ -530,7 +531,7 @@ export default function ReadyLocker({
                 rel={rel} setRel={setRel} />
             </div>
           )}
-          {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} />}
+          {step === 3 && <SitBoard conds={conds} setConds={setConds} engine={engine} prog={sitProg} setProg={setSitProg} />}
           {step === 1 && <StepBar left={<SynergyRow synergies={synergies} compact />} go={go} />}
           {step === 2 && <StepBar back={<BackBtn onClick={() => setStep(1)} />} go={go} />}
           {step === 3 && <StepBar right={<CardChips cards={cards} value={card} onPick={setCard} />} back={<BackBtn onClick={() => setStep(2)} />} go={go} />}

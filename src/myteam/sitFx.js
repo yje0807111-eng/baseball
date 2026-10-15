@@ -76,23 +76,31 @@ export function topFx(from, to, mine = true) {
  * 득점권 고르기 — 맨 앞은 늘 '기대 득점'(2루 · 1아웃부터 그 이닝 끝까지 낼 점수), 다음은 안타 · 홈런 · 볼넷 · 삼진 가운데 가장 크게 움직인 것
  *  득점을 안 보이면 안타 우선(센 선발 상대 득점 +16%)이 '홈런 감소'만 보여 손해처럼 읽혔다(ROADMAP 13, 2026-10-09)
  */
-export const batFx = (odds, id) => {
-  const from = avg(odds.bat.map((x) => x.base)), to = avg(odds.bat.map((x) => x[id]));
+/*
+ * 정도(amp, SIT_AMP) — 보통에서 잰 차이에 곱함(정도마다 다시 재면 5배 걸림)
+ * ponytail: 선형 근사 — 아주 강하게(1.6)에서 실제와 어긋나면 정도별로 jobs 를 더 잰다
+ */
+const scale = (from, to, amp) => { const o = {}; for (const k of Object.keys(to)) o[k] = from[k] + (to[k] - from[k]) * amp; return o; };
+export const batFx = (odds, id, amp = 1) => {
+  const from = avg(odds.bat.map((x) => x.base)), to = scale(from, avg(odds.bat.map((x) => x[id])), amp);
   const rel = (e) => (e.base ? (e.after - e.base) / e.base : 0);
   const other = KEYS.map(([ko, k, up]) => ({ ko, base: from[k], after: to[k], good: (to[k] - from[k]) * up > 0 }))
     .filter((e) => Math.abs(rel(e)) >= 0.03).sort((x, y) => Math.abs(rel(y)) - Math.abs(rel(x)))[0];
-  const x0 = avg(odds.bat.map((x) => x.baseX)).xr, x1 = avg(odds.bat.map((x) => x[id + 'X'])).xr;
+  const x0 = avg(odds.bat.map((x) => x.baseX)).xr, x1 = x0 + (avg(odds.bat.map((x) => x[id + 'X'])).xr - x0) * amp;
   return [{ ko: '기대 득점', base: x0, after: x1, good: x1 >= x0, runs: true }, ...(other ? [other] : [])];
 };
 /** 정면 승부 — 교타자만이면 파워 80 아래 타자만 */
-export function zoneFx(odds, away, conOnly) {
+export function zoneFx(odds, away, conOnly, amp = 1) {
   const rows = odds.pit.filter((_, i) => !conOnly || (away.batters[i]?.stats?.power ?? 75) < 80);
-  return rows.length ? topFx(avg(rows.map((x) => x.base)), avg(rows.map((x) => x.zone)), false) : [];
+  if (!rows.length) return [];
+  const from = avg(rows.map((x) => x.base));
+  return topFx(from, scale(from, avg(rows.map((x) => x.zone)), amp), false);
 }
 /** 도루 — 문턱 위 주자들의 성공 확률(경기 중 결정 카드와 같은 stealOdds) */
+export const stealP = (home, away, r) => { const g = createGame({ home: copy(home), away: copy(away), rng: seeded(3) }); Object.assign(g, { top: false, inning: 5, outs: 0, bases: [r, null, null] }); return stealOdds(g, 0); };
 export function stealFx(home, away, thr) {
   const runners = home.batters.filter((p) => (p.stats?.speed ?? 75) >= thr);
   if (!runners.length) return [];
-  const p = runners.reduce((a, r) => { const g = createGame({ home: copy(home), away: copy(away), rng: seeded(3) }); Object.assign(g, { top: false, inning: 5, outs: 0, bases: [r, null, null] }); return a + stealOdds(g, 0) / runners.length; }, 0);
+  const p = runners.reduce((a, r) => a + stealP(home, away, r) / runners.length, 0);
   return [{ ko: '도루 성공', abs: p, good: true }, { ko: '실패 아웃', abs: 1 - p, good: false }];
 }

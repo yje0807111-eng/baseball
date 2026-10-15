@@ -12,7 +12,7 @@
  *   타자 stats: contact · power · speed · defense   투수 stats: stuff · control · stability
  * orders (공격 측 지시, 없으면 자동):
  *   { steal: 0|1 (1루→2루 | 2루→3루), bunt: true, hitAndRun: true, guess: PITCHES 의 키(직구 · 투심 · 커터 · 슬라이더 · 커브 · 체인지업 · 포크),
- *     patience: 1 (공을 고른다), dash: -1|1 (주루를 덜·더 본다),
+ *     patience: 1 (공을 고른다 — 숫자면 그만큼 세게, 0.4~1.6), amp: 접근법 득실 배율(approachOf), dash: -1|1 (주루를 덜·더 본다),
  *     aim: 0~8 (노림 한 칸 — 맞으면 크게 · 옆 칸이면 조금) | 'ih'|'oh'|'il'|'ol' (네 칸 묶음), approach: 'power'|'contact' (강공 · 밀어치기),
  *     drag: true (bunt 와 함께 — 기습번트), readBonus: true (보조 없이 읽었다 — 구종 예측 · 코스 노림이 맞았을 때 이득 ×1.5, 틀린 손해는 그대로) }
  * orders (수비 측 지시):
@@ -304,7 +304,9 @@ export const staminaOf = (side) => clamp(100 - (side.pitches / armLimit(side)) *
  *  → 정비 2단계 '공격 힘' · '짧게 치기'가 상대 투수에 따라 갈리게(flow2-sim 2026-10-03: 초반 강공 = 약한 선발 상대 +0.23점 · 센 선발 −0.23점,
  *    짧게 치기 = 약한 선발 −0.08 · 센 선발 +0.29). 상대 구위 쪽을 1.5배로 — 예전엔 우리 파워로만 갈렸다
  */
-export function approachOf(approach, contact, power, stuff) {
+/* amp = 정비 3단계 '정도'(아주 약하게 0.4 ~ 아주 강하게 1.6, 보통 1) — 득실을 통째로 키우고 줄임 */
+export function approachOf(approach, contact, power, stuff, amp = 1) {
+  if (amp !== 1) { const o = approachOf(approach, contact, power, stuff); for (const k of Object.keys(o)) o[k] *= amp; return o; }
   if (approach === 'power') { const pe = clamp(((power - 75) + (77 - stuff) * 1.5) / 10, -1.5, 1.5); return { whiff: -0.03 + 0.035 * pe, hit: -0.01, hr: Math.max(-0.02, 0.02 + 0.045 * pe), dbl: 0.03 }; }
   /* 노림수: 한 방만 노린다 — 헛스윙 크게 ↑ · 홈런 ↑(파워가 구위를 넘을수록 더). 뒤질 때 값어치, 앞설 때 손해 */
   if (approach === 'sellout') { const pe = clamp((power - stuff) / 10, -1.5, 1.5); return { whiff: -0.05 + 0.02 * pe, hit: -0.03, hr: Math.max(0.04, 0.1 + 0.03 * pe), dbl: 0.04 }; }
@@ -591,7 +593,7 @@ export function pitch(g, orders = {}) {
   /* 노림 코스가 맞으면 붙고, 틀리면 조금 헛돈다. 강공은 덜 맞히고 · 밀어치기는 더 맞힌다 */
   const aimRaw = p.inZone ? aimBonusOf(p.zone, orders.aim) : 0;
   const aimBonus = aimRaw > 0 ? aimRaw * readX : aimRaw;
-  const apprHit = approachOf(orders.approach, contact, power, stuff).whiff;
+  const apprHit = approachOf(orders.approach, contact, power, stuff, orders.amp).whiff;
   const sty = styleOf(pitcher), tempo = tempoOf(g.lastVelo, p.velo, guessHit) * sty.tempoX;
   const holdCost = g.hold > 0 && (g.bases[0] || g.bases[1]) ? HOLD_COST * g.hold : 0; // 주자 견제에 신경 쓰면 타자 승부가 조금 흐트러진다
   g.lastVelo = p.velo;
@@ -600,8 +602,8 @@ export function pitch(g, orders = {}) {
   // 스윙 여부 — 신중한 스윙(patience)은 볼에 덜 휘두르는(−0.12) 대신 존 공도 더 지켜본다(−0.16) — 둘 다 상대 제구로 키우고 줄임(PATIENCE)
   let swing;
   if (orders.bunt || orders.hitAndRun) swing = true;
-  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? PATIENCE.zone * (g.strikes >= 2 ? PATIENCE.twoStrike : 1) * patZ(pitcher) : 0), 0, 0.92);
-  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? PATIENCE.chase * patX(pitcher) : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
+  else if (p.inZone) swing = g.rng() < clamp(0.66 + g.strikes * 0.08 - (orders.patience ? PATIENCE.zone * orders.patience * (g.strikes >= 2 ? PATIENCE.twoStrike : 1) * patZ(pitcher) : 0), 0, 0.92);
+  else swing = g.rng() < clamp(0.24 - (contact - 70) * 0.006 + g.strikes * 0.1 + (orders.guess === p.type ? -0.05 : 0) - (orders.patience ? PATIENCE.chase * orders.patience * patX(pitcher) : 0) + chaseAdj, p.xy ? 0.04 : 0.06, p.xy ? 0.62 : 0.55);
 
   if (!swing) {
     if (p.inZone) { g.strikes += 1; ev.call = 'called'; }
@@ -656,7 +658,7 @@ function inPlay(g, ev, batter, pitcher, p, orders, guessBonus) {
   }
 
   /* 과감하게 붙어 서면 안타를 덜 맞는 대신, 빠진 타구가 멀리 간다 */
-  const appr = approachOf(orders.approach, contact, power, stuff);
+  const appr = approachOf(orders.approach, contact, power, stuff, orders.amp);
   const hit = clamp((0.33 + (contact - 75) * 0.005 + (power - 75) * 0.002 - (stuff - 78) * 0.004 - (defAvg - 75) * 0.003 - (g.guard || 0) * (g.guard < 0 ? 0.03 : 0.012) + (g.infieldIn ? 0.03 : 0) + guessBonus * 0.5 + (p.inZone ? 0.02 : -0.06) + appr.hit + fam * FAM_ADJ[1] + (off.mod?.hit || 0)) * (off.mod?.hitMul ?? 1), 0.1, 0.62);
   if (g.rng() < hit) {
     off.hits += 1;

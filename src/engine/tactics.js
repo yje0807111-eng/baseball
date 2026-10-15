@@ -44,9 +44,13 @@ export const CONDITIONS = [
   { id: 'pitchZone', ko: '경기 운영', act: '정면 승부' }, // 존 안 35% — 상대 파워 낮으면 +1.9 · 높으면 −0.6
   /* 세분화(2026-10-04, sit2-sim): 도루 문턱 85 · 90(위험 다이얼), 맞혀 잡기 '교타자만'(Con · 파워 80 아래) · '초반만'(E · 1~3회) — 둘은 겹쳐 붙음(pitchZoneConE) */
   { id: 'steal85', ko: '1루 주자 주력 85+', act: '도루' }, { id: 'steal90', ko: '1루 주자 주력 90+', act: '도루' },
+  /* 정도(2026-10-15, mockups/sit-tune) — 3단계 고르기 뒤에 '@1'~'@5'(아주 약하게 ~ 아주 강하게, 없으면 보통 3). 문자열 그대로 흘러 계획 경로는 안 바뀜 */
   { id: 'pitchZoneCon', ko: '경기 운영', act: '정면 승부 · 교타자만' }, { id: 'pitchZoneE', ko: '경기 운영', act: '정면 승부 · 초반만' }, { id: 'pitchZoneConE', ko: '경기 운영', act: '정면 승부 · 교타자만 · 초반만' },
 ];
 const stOf = (p, k, d = 75) => p?.stats?.[k] ?? d;
+/* 정도 배율 — 타격 득실 · 신중함 · 정면 승부 존 안 비율(보통 35%)에 곱함 */
+export const SIT_AMP = [0.4, 0.7, 1, 1.3, 1.6];
+export const sitLv = (c) => +String(c).split('@')[1] || 3;
 const armOf = (p) => stOf(p, 'stuff', 80) + stOf(p, 'control', 75);
 export function condOrders(g, conds = [], ctx = {}) {
   if (!conds.length) return null;
@@ -54,7 +58,8 @@ export function condOrders(g, conds = [], ctx = {}) {
   for (const c of conds) { const x = condOne(g, c, ctx); if (x) for (const k of Object.keys(x)) if (!(k in out)) out[k] = x[k]; }
   return Object.keys(out).length ? out : null;
 }
-function condOne(g, c, ctx) {
+function condOne(g, c0, ctx) {
+  const c = String(c0).split('@')[0], lv = sitLv(c0), amp = SIT_AMP[lv - 1];
   const fresh = !g.balls && !g.strikes, mineBat = !g.top, risp = !g.bases[0] && (g.bases[1] || g.bases[2]);
   const star = ctx.stars ? ctx.stars.has(batterOf(g)?.id) : batterOf(g)?.id === ctx.star;
   {
@@ -71,15 +76,17 @@ function condOne(g, c, ctx) {
     if (c === 'hnr' && mineBat && fresh && g.outs === 0 && g.bases[0] && !g.bases[1]) return { hitAndRun: true };
     if (c === 'swing' && mineBat && g.inning >= 8 && g.home.runs < g.away.runs) return { approach: 'sellout' };
     const stealMin = c === 'steal' ? 80 : c === 'steal85' ? 85 : c === 'steal90' ? 90 : 0;
-    if (stealMin && mineBat && fresh && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= stealMin) return { steal: 0 };
+    /* 도루 정도 = 언제 뛰나 — 1 · 2 = 첫 공에 40% · 70%, 3 = 첫 공(예전과 같음), 4 = 1구 뒤까지, 5 = 2스트라이크 전까지 */
+    const when = lv <= 3 ? fresh && (lv === 3 || g.rng() < amp) : lv === 4 ? g.balls + g.strikes <= 1 : g.strikes < 2;
+    if (stealMin && mineBat && when && g.bases[0] && !g.bases[1] && stOf(g.bases[0], 'speed') >= stealMin) return { steal: 0 };
     const rispAny = g.bases[1] || g.bases[2];
-    if (c === 'rispPow' && mineBat && rispAny) return { approach: 'power' };
-    if (c === 'rispCon' && mineBat && rispAny) return { approach: 'contact' };
-    if (c === 'rispPat' && mineBat && rispAny) return { patience: 1 };
+    if (c === 'rispPow' && mineBat && rispAny) return { approach: 'power', amp };
+    if (c === 'rispCon' && mineBat && rispAny) return { approach: 'contact', amp };
+    if (c === 'rispPat' && mineBat && rispAny) return { patience: amp };
     if (c.startsWith('pitchZone') && !mineBat) {
       if (c.includes('Con') && stOf(batterOf(g), 'power') >= 80) return null; // 교타자만 — 장타자에겐 존 안으로 안 넣음
       if (c.endsWith('E') && g.inning > 3) return null; // 초반만
-      if (g.rng() < 0.35) return { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] };
+      if (g.rng() < 0.35 * amp) return { zone: [4, 1, 3, 5, 7][Math.floor(g.rng() * 5)] };
     }
   }
   return null;
