@@ -13,6 +13,7 @@ import { emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
 import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
 import { axesOf, Hex } from '../myteam/MatchPreview.jsx';
+import StageBg from '../myteam/StageBg.jsx';
 
 /*
  * 원정길을 마지막으로 본 모습 — 결과 화면을 거쳐 다시 열려도 '지난 자리 → 새 자리'로 움직이게 기억해 둔다.
@@ -107,11 +108,8 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0, win = null }) {
   );
   return (
     <section className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-7" style={{ '--c': '20px', '--a': r.color }}>
-      {/* 무대 배경(mockups/stage-bg 2안) — 밤 구장을 흑백으로 깔고 왼쪽은 내 색 · 오른쪽은 상대 색으로 반반 물들임(중계 매치업 그래픽).
-          막대가 놓이는 아래는 어둡게 — 숫자가 읽히게 */}
-      <span className="pointer-events-none absolute inset-0 bg-cover" style={{ backgroundImage: 'url(ui/stadium.webp)', backgroundPosition: 'center 60%', filter: 'grayscale(1) brightness(.75)', opacity: 0.5 }} aria-hidden="true" />
-      <span className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(100deg, ${me.color || '#e879f9'}52 0%, ${me.color || '#e879f9'}14 46%, ${r.color}14 54%, ${r.color}55 100%)`, mixBlendMode: 'color' }} aria-hidden="true" />
-      <span className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(100deg, ${me.color || '#e879f9'}2e, transparent 45%, transparent 55%, ${r.color}2e), linear-gradient(180deg, transparent 40%, rgba(5,8,15,.85))` }} aria-hidden="true" />
+      {/* 무대 배경(mockups/stage-bg 2안) — 정비 화면과 같은 조각 */}
+      <StageBg me={me.color || '#e879f9'} opp={r.color} />
       <div className="relative flex items-baseline gap-3">
         <p className="ui-lab font-display" style={{ '--a': r.color }}>{label}</p>
         <b className="text-t2 font-black text-white">{r.name}</b>

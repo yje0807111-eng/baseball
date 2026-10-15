@@ -7,6 +7,8 @@
  */
 import React from 'react';
 import { Portrait } from './ui.jsx';
+import { teamFlag } from './teamArt.js';
+import { GLASS } from './StageBg.jsx';
 import { pitchMix, repertoireOf, PITCHES, styleOf } from '../engine/pitchSim.js';
 
 const cut = (c) => ({ '--c': `${c}px` });
@@ -23,15 +25,21 @@ const Sub = ({ children, right }) => <span className="flex items-baseline justif
 /* ───── 머리 — 칸 막대 ───── */
 function Head({ opponent, home, away, c }) {
   const ros = opponent.roster || [];
+  const fl = teamFlag(opponent.name);
+  const emb = opponent.emblem || (fl ? `ui/clubs/${fl.key}.webp` : null);
   const ovr = ros.length ? Math.round(mean(ros, (p) => p.overall)) : 0;
   const rows = [['타선', mean(away.batters, bat), mean(home.batters, bat)], ['선발', arm(away.pitchers[0]), arm(home.pitchers[0])], ['불펜', mean(pen3(away), arm), mean(pen3(home), arm)]]
     .map(([ko, t, u]) => ({ ko, t: Math.round(t), u: Math.round(u), d: Math.round(u) - Math.round(t) }));
   return (
     <>
-      <div className="flex shrink-0 items-center gap-2.5">
-        {opponent.emblem && <span className="block h-8 w-8 shrink-0 bg-contain bg-center bg-no-repeat" style={{ backgroundImage: `url(${opponent.emblem})` }} />}
-        <b className="min-w-0 flex-1 truncate text-t2 font-black text-white">{opponent.name}</b>
-        <b className="font-display text-t1 font-extrabold leading-none" style={{ color: c }}>{ovr}</b>
+      {/* 머리 띠(mockups/prep-look 2A) — 상대 엠블럼 크게 · 구단 색 띠 · 이름 · 종합. 엠블럼이 없는 시즌 팀은 구단 이름으로 찾은 그림 */}
+      <div className="-mx-5 -mt-5 flex shrink-0 items-center gap-3.5 px-5 pb-3.5 pt-5" style={{ background: `linear-gradient(90deg, ${c}59, transparent)` }}>
+        {emb && <span className="block h-[84px] w-[84px] shrink-0 rounded-full bg-[#0b1220] bg-cover" style={{ backgroundImage: `url(${emb})`, backgroundPosition: 'center 26%', boxShadow: `0 0 0 3px ${c}, 0 0 26px -4px ${c}` }} />}
+        <span className="grid min-w-0 flex-1 gap-1">
+          <p className="mt-lab" style={{ '--a': c }}>오늘 상대</p>
+          <b className="truncate text-t2 font-black text-white">{opponent.name}</b>
+          <b className="font-display text-t1 font-extrabold leading-none" style={{ color: c }}>종합 {ovr}</b>
+        </span>
       </div>
       <Rule />
       <div className="flex shrink-0 flex-col gap-3">
@@ -235,8 +243,7 @@ function StepSit({ home, away, c }) {
 export default function OppPanel({ opponent, engine, step, pv = null, busy = false }) {
   const c = opponent.color || '#60a5fa';
   return (
-    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3.5 overflow-hidden p-5" style={{ ...cut(20), '--a': c }}>
-      <p className="mt-lab" style={{ '--a': c }}>오늘 상대</p>
+    <aside className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-3.5 overflow-hidden p-5" style={{ ...cut(20), '--a': c, background: GLASS }}>
       <Head opponent={opponent} home={engine.home} away={engine.away} c={c} />
       <Rule />
       {step === 1 && <StepLineup away={engine.away} pv={pv} />}

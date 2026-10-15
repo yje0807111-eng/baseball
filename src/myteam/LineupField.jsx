@@ -220,8 +220,9 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
       {/* 구장 — 수비. 그림 비율(2336:1744)을 지키며 칸에 꽉(cqw · cqh) */}
       <div className="relative min-h-0" style={{ containerType: 'size' }}>
         <div className="absolute inset-0 m-auto" style={{ width: 'min(100cqw, 133.94cqh)', height: 'min(100cqh, 74.66cqw)' }}>
-          <img src="ui/field/field-1.webp" alt="" draggable={false} className="absolute inset-0 h-full w-full rounded-2xl object-cover" style={{ filter: 'brightness(.66) saturate(.85)' }} />
-          <i className="pointer-events-none absolute inset-0 rounded-2xl" style={{ background: 'radial-gradient(ellipse at 50% 60%, transparent 45%, rgba(5,8,15,.8) 100%)' }} />
+          <img src="ui/field/field-1.webp" alt="" draggable={false} className="absolute inset-0 h-full w-full rounded-2xl object-cover" style={{ filter: 'brightness(.74) saturate(.9)' }} />
+          {/* 조명 비네트(mockups/prep-look 3C) — 가운데 내야에 조명 빛, 가장자리는 어둡게 */}
+          <i className="pointer-events-none absolute inset-0 rounded-2xl" style={{ background: 'radial-gradient(60% 65% at 50% 52%, rgba(255,250,220,.12), transparent 60%), radial-gradient(ellipse at 50% 60%, transparent 45%, rgba(5,8,15,.82) 100%)' }} />
           {/* 지명 칸 — 홈 오른쪽 정해진 자리 */}
           <span className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-lg" style={{ ...at('DH'), width: 132, height: 84, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.12)', background: 'rgba(5,8,15,.35)' }} />
           {starter && (

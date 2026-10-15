@@ -33,6 +33,9 @@ function WinBar({ win, c }) {
 }
 import SquadBoard from './SquadBoard.jsx';
 import OppPanel from './OppPanel.jsx';
+import StageBg, { GLASS } from './StageBg.jsx';
+import { flagByKey, teamFlag } from './teamArt.js';
+import { myBanner } from './store.js';
 import LineupField from './LineupField.jsx';
 import SitBoard, { SIT_IDS } from './SitBoard.jsx';
 import FlowBoard, { atkLvOf, exitOf, moundPlan, effLimit } from './FlowBoard.jsx';
@@ -327,20 +330,27 @@ function SideBlock({ sides, onPick, opponent, deltas = null }) {
  */
 export const PREP_STEPS = ['라인업', '경기 흐름', '상황 대응'];
 function Stepper({ step, onStep }) {
+  /* 단계 띠(mockups/prep-look 4A) — 구단 정복 원정길처럼 회색 길 위로 금빛이 지금 단계까지 차오른다. 지난 단계 ✓ · 지금 금빛 · 남은 단계 흐림 */
+  const n = PREP_STEPS.length;
   return (
-    <div className="flex items-center gap-3">
-      {PREP_STEPS.map((t, i) => {
-        const n = i + 1, on = n === step, done = n < step;
-        return (
-          <React.Fragment key={t}>
-            <button type="button" onClick={() => onStep(n)} className="flex items-center gap-2.5" aria-current={on ? 'step' : undefined}>
-              <b className="grid h-9 w-9 place-items-center rounded-full font-display text-t2" style={{ background: on ? WARN : done ? 'rgba(52,211,153,.22)' : 'rgba(255,255,255,.06)', color: on ? '#1c1203' : done ? '#34d399' : '#9ca3af' }}>{done ? '✓' : n}</b>
-              <b className="text-t3" style={{ color: on ? '#fff' : '#9ca3af' }}>{t}</b>
+    <div className="relative w-[27rem] shrink-0">
+      <span className="absolute left-[2.6rem] right-[2.6rem] top-[17px] h-[3px] rounded-full bg-white/[0.12]" aria-hidden="true">
+        <i className="block h-full rounded-full transition-[width] duration-500 ease-out" style={{ width: `${((step - 1) / (n - 1)) * 100}%`, background: 'linear-gradient(90deg,#b7832a,#f5d27a)', boxShadow: '0 0 10px #f5d27a' }} />
+      </span>
+      <div className="relative flex justify-between">
+        {PREP_STEPS.map((t, i) => {
+          const k = i + 1, on = k === step, done = k < step;
+          return (
+            <button key={t} type="button" onClick={() => onStep(k)} className="flex w-[5.2rem] flex-col items-center gap-1" aria-current={on ? 'step' : undefined}>
+              <b className="grid h-9 w-9 place-items-center rounded-full font-display text-t2"
+                style={on ? { background: '#f5d27a', color: '#1c1203', boxShadow: '0 0 16px rgba(245,210,122,.7)' }
+                  : done ? { background: 'linear-gradient(180deg,#e3b24a,#b7832a)', color: '#1c1203' }
+                    : { background: '#1f2937', color: '#9ca3af', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.15)' }}>{done ? '✓' : k}</b>
+              <small className="whitespace-nowrap text-t4 font-bold" style={{ color: on ? '#fde68a' : done ? '#d6b25e' : '#6b7280' }}>{t}</small>
             </button>
-            {n < 3 && <i className="block h-px w-10 bg-white/15" />}
-          </React.Fragment>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -499,10 +509,14 @@ export default function ReadyLocker({
       : startBlock && onFix ? <GoBtn step={3} danger label="라커에서 정리 ▶" onClick={onFix} />
         : <GoBtn step={3} label={startLabel} disabled={!!startBlock} onClick={() => onStart(plan(), card)} />;
     return (
-      <div className="grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
+      <div className="relative isolate grid min-h-0 flex-1 gap-3" style={{ gridTemplateColumns: '340px minmax(0,1fr)', gridTemplateRows: 'minmax(0,1fr)' }}>
         <UiStyle />
+        {/* 화면 배경(mockups/prep-look 1A) — 구단 정복 무대와 같은 반반 물들임(왼쪽 내 배너 색 · 오른쪽 상대 색). 판은 조금 비쳐 보이게 */}
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-[#05080f]" aria-hidden="true">
+          <StageBg me={flagByKey(myBanner())?.color || '#e879f9'} opp={opponent.color || teamFlag(opponent.name)?.color || '#60a5fa'} bottom={0.6} />
+        </div>
         <OppPanel opponent={opponent} engine={engine} step={step} pv={pv} busy={busy} />
-        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(20), '--a': US }}>
+        <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col gap-4 p-5" style={{ ...cut(20), '--a': US, background: GLASS }}>
           <div className="flex shrink-0 items-center gap-6">
             <Stepper step={step} onStep={setStep} />
             <div className="ml-auto flex w-[19rem] flex-col gap-1.5 transition-opacity" style={{ opacity: busy ? 0.4 : 1 }}>{pv ? <WinBar win={pv.win} c="#f87171" /> : <span className="h-9 animate-pulse rounded-lg bg-white/[0.04]" />}</div>
