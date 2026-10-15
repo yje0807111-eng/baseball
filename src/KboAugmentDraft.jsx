@@ -2894,7 +2894,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
       </span>
       {/* 테두리(선택 초록 · 시너지 강조 하늘)는 무채색 필터 밖에 둬서 잠긴 카드도 고른 표시가 보이게 */}
       <span className={`pointer-events-none absolute inset-0 transition-[border-color,box-shadow] duration-300 ${selected || focus === 'on' || (need && !takenClub) ? 'border-2' : 'border'}`}
-        style={{ borderRadius: '7% / 4.7%', borderColor: selected ? '#34d399' : focus === 'on' ? '#38bdf8' : need && !takenClub ? 'rgba(52,211,153,.8)' : hot && myColor ? `${myColor}b3` : takenClub ? `${takenClub.color}66` : 'rgba(255,255,255,.1)',
+        style={{ borderRadius: '7% / 4.7%', borderColor: selected ? '#34d399' : focus === 'on' ? '#38bdf8' : need && !takenClub ? 'rgba(52,211,153,.8)' : takenClub ? /* 내 차례 · 자리 찬(벤치행) 카드는 평소 테두리 — 강조는 빈 자리 초록 하나만(TFT 상점: 올라가는 카드만 빛남). 내 차례는 순번 시계 · 붉어지는 판이 알림 */ `${takenClub.color}66` : 'rgba(255,255,255,.1)',
           boxShadow: need && !takenClub && !selected ? 'inset 0 0 16px -4px rgba(52,211,153,.6)' : 'none' }} />
       {/* 라이브에서 다른 구단이 데려간 카드: 선수는 작은 글씨로 올라가고 아래 이름 자리를 구단이 가져간다.
           회색 필터가 걸린 사진 바깥에 그려야 구단 색이 죽지 않는다 */}
