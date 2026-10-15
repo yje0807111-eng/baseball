@@ -363,9 +363,8 @@ function Stepper({ step, onStep }) {
 function GoBtn({ step, label, onClick, danger = false, disabled = false }) {
   return (
     <button type="button" data-sfx="nav" onClick={onClick} disabled={disabled}
-      className="mt-cut flex h-12 shrink-0 items-center gap-3 px-6 transition-[filter] hover:brightness-110 disabled:opacity-45"
-      style={{ ...cut(12), minWidth: 288, justifyContent: 'center', background: danger ? 'linear-gradient(180deg,#fca5a5,#dc2626)' : 'linear-gradient(180deg,#fcd34d,#d97706)', color: '#1c1203', boxShadow: '0 6px 18px rgba(217,119,6,.25)' }}>
-      <span className="flex gap-1" aria-hidden="true">{[1, 2, 3].map((i) => <i key={i} className="block h-1.5 rounded-full" style={{ width: i === step ? 16 : 6, background: i <= step ? '#1c1203' : 'rgba(28,18,3,.3)' }} />)}</span>
+      className={`mt-btn pri h-12 shrink-0 gap-3 px-6 ${danger ? 'warn' : ''}`} style={{ minWidth: 288 }}>
+      <span className="flex gap-1" aria-hidden="true">{[1, 2, 3].map((i) => <i key={i} className="block h-1.5 rounded-full" style={{ width: i === step ? 16 : 6, background: i <= step ? (danger ? '#fca5a5' : '#f5d27a') : 'rgba(255,255,255,.22)' }} />)}</span>
       <b className="text-t2 font-black">{label}</b>
     </button>
   );

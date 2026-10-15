@@ -1583,9 +1583,6 @@ export const KEYFRAMES = `
 .ui-btn:not(.pri):hover:not(:disabled) { color: #fff; background: rgba(245,210,122,.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); } /* 금빛 테두리 · 옅은 금빛 바탕 (주 단추는 따로) */
 .ui-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #38bdf8; }
 .ui-btn:disabled { opacity: .4; cursor: not-allowed; }
-.ui-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }
-.ui-btn.pri:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
-.ui-btn.pri:focus-visible { box-shadow: inset 0 0 0 2px #05080f; }
 .ui-btn.sm { --c: 10px; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size:14px; }
 .ui-btn.lg { min-height: 64px; } /* 큰 단추(화면당 하나) — mt-btn.lg 와 같은 64 */
 .ui-chip { --c: 999px; display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size:12px; font-weight: 600; color: #cbd5e1; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a, #94a3b8) 40%, transparent); }

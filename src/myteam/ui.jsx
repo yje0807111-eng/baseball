@@ -34,9 +34,7 @@ export const UiStyle = () => (
     .mt-btn:not(.pri):hover:not(:disabled) { color:#fff; background:rgba(245,210,122,.1); box-shadow:inset 0 1px 0 rgba(255,255,255,.12), inset 0 0 0 1px rgba(245,210,122,.5), 0 8px 20px -10px rgba(245,210,122,.5); }
     .mt-btn:disabled { opacity:.4; cursor:not-allowed; }
     /* 단추 세 단계(Apple HIG 44pt · M3 48dp 이상) — 큰 64(화면당 하나) · 보통 48 · 작은 40. ui-btn(KboAugmentDraft KEYFRAMES)과 같은 값 */
-    /* 주 단추 — 금빛(게임의 '누르는 곳'). 판 색(--a)은 상태 색으로만 쓴다 */
-    .mt-btn.pri { color:#1a1408; font-weight:800; background:linear-gradient(180deg,#fbe7a8,#e3b24a 55%,#b7832a); box-shadow:0 10px 26px -8px rgba(227,178,74,.65), inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.2); }
-    .mt-btn.pri:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); }
+    /* 주 단추(.pri) 모양은 index.css '메인 단추' 한 곳(mt-btn · ui-btn 같이) */
     .mt-btn.lg { min-height:64px; border-radius:16px; font-size:18px; }
     /* 게임 결 조각 — 장식 머리줄(양옆 금빛 선) · 레벨 보석 · 빛줄기 · 빛 알갱이 · 도장 */
     .mt-hd { display:flex; align-items:center; gap:12px; font-size:12px; font-weight:800; color:#f5d27a; }

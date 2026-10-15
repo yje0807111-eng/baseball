@@ -140,10 +140,9 @@ function Table({ title, statKo, colKo, rows, next }) {
     </div>
   );
 }
-/* 줄 오른쪽 아래 단추 — 아래 띠 '다음'(GoBtn)과 같은 금빛, 작게 */
+/* 줄 오른쪽 아래 단추 — 아래 띠 '다음'(GoBtn)과 같은 메인 단추(.pri), 작게 */
 const Next = ({ label, onClick }) => (
-  <button type="button" data-sfx="nav" onClick={onClick} className="mt-cut flex h-11 items-center px-6 text-t3 font-black transition-[filter] hover:brightness-110"
-    style={{ '--c': '10px', background: 'linear-gradient(180deg,#fcd34d,#d97706)', color: '#1c1203', boxShadow: '0 6px 18px rgba(217,119,6,.25)' }}>{label}</button>
+  <button type="button" data-sfx="nav" onClick={onClick} className="mt-btn pri h-11 px-6 text-t3 font-black">{label}</button>
 );
 /* 접힌 줄 — 고른 값 한 줄(누르면 펼침) · 잠긴 줄은 흐리게 */
 function Fold({ side, ko, sit, value, done, locked, onOpen }) {

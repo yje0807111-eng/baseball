@@ -76,19 +76,35 @@ body { overscroll-behavior: none; }
   .fx-pop, .fx-flip, .fx-rise { animation: none !important; }
 }
 
-/* 주 단추(금빛) 마우스 올림 — 밝아지며 살짝 뜨고, 빛 한 줄이 왼쪽에서 오른쪽으로 지나간다(게임 단추 광택).
-   전에는 일반 단추 hover 규칙이 금빛 바탕을 덮어 검게 보였다 */
-.mt-btn.pri, .ui-btn.pri { position: relative; overflow: hidden; }
-.mt-btn.pri::after, .ui-btn.pri::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .5) 48%, transparent 66%);
-  transform: translateX(-130%);
+/*
+ * 메인 단추(.pri — 화면당 하나: 플레이 · 정비 · 다음 · 경기 시작 · 받기 등, mockups/main-btn E안, 2026-10-15)
+ *  짙은 바탕 + 금빛 빛이 테두리를 따라 돎(4초 한 바퀴) + 바닥에서 올라오는 옅은 금빛. 글자는 흰색
+ *  비교: 발로란트 PLAY · 원신 강조 단추(테두리 빛 흐름) — 금빛 판을 통째로 칠하던 예전보다 판 · 표 사이에서 덜 튀고, 누를 곳은 빛으로 읽힘
+ *  마우스 올림 = 한 바퀴 1.6초로 빨라지고 바깥 빛이 커짐 · 살짝 뜸. 꺼짐 = 빛 멈춤 · 회색 테두리. 동작 줄이기면 돌지 않음
+ *  mt-btn(내 팀 화면 · ui.jsx) · ui-btn(드래프트 · KboAugmentDraft) 둘 다 여기 하나로 — 예전엔 금빛 세 가지가 섞여 있었다
+ *  .warn = 막힘 알림 단추(라커에서 정리) — 빨간 빛
+ */
+@property --pri-ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes pri-spin { to { --pri-ang: 360deg; } }
+.mt-btn.pri, .ui-btn.pri { position: relative; isolation: isolate; color: #fff; font-weight: 800; background: linear-gradient(180deg, #1d1a2b, #0e0c16); box-shadow: 0 10px 30px -12px rgba(245, 190, 80, .6); }
+.ui-btn.pri.ui-cut { clip-path: none; border-radius: min(var(--c), 22px); } /* 잘라 내면 바깥 빛이 잘림 — 둥근 모서리로 */
+.mt-btn.pri::before, .ui-btn.pri::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: conic-gradient(from var(--pri-ang), #6b4a12 0deg, #ffe7a3 60deg, #6b4a12 120deg, #3a2a0e 200deg, #6b4a12 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: pri-spin 4s linear infinite;
 }
-.mt-btn.pri:hover:not(:disabled)::after, .ui-btn.pri:hover:not(:disabled)::after { transform: translateX(130%); transition: transform .7s var(--fx-out); }
-.mt-btn.pri:hover:not(:disabled), .ui-btn.pri:hover:not(:disabled) {
-  box-shadow: 0 14px 30px -8px rgba(227, 178, 74, .8), inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -2px 0 rgba(0, 0, 0, .2);
-}
-@media (prefers-reduced-motion: reduce) { .mt-btn.pri::after, .ui-btn.pri::after { display: none; } }
+.mt-btn.pri::after, .ui-btn.pri::after { content: ''; position: absolute; inset: 2px; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 140% at 50% 120%, rgba(245, 190, 80, .28), transparent 60%); }
+.mt-btn.pri:hover:not(:disabled), .ui-btn.pri:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 36px -10px rgba(245, 190, 80, .85); }
+.mt-btn.pri:hover:not(:disabled)::before, .ui-btn.pri:hover:not(:disabled)::before { animation-duration: 1.6s; }
+.mt-btn.pri:focus-visible, .ui-btn.pri:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+.mt-btn.pri:disabled, .ui-btn.pri:disabled { opacity: .7; color: #6b7280; box-shadow: none; }
+.mt-btn.pri:disabled::before, .ui-btn.pri:disabled::before { animation: none; background: rgba(255, 255, 255, .12); }
+.mt-btn.pri:disabled::after, .ui-btn.pri:disabled::after { display: none; }
+.mt-btn.pri.warn::before, .ui-btn.pri.warn::before { background: conic-gradient(from var(--pri-ang), #7f1d1d 0deg, #fca5a5 60deg, #7f1d1d 120deg, #450a0a 200deg, #7f1d1d 360deg); }
+.mt-btn.pri.warn::after, .ui-btn.pri.warn::after { background: radial-gradient(120% 140% at 50% 120%, rgba(248, 113, 113, .3), transparent 60%); }
+.mt-btn.pri.warn, .ui-btn.pri.warn { box-shadow: 0 10px 30px -12px rgba(248, 113, 113, .6); }
+@media (prefers-reduced-motion: reduce) { .mt-btn.pri::before, .ui-btn.pri::before { animation: none; } }
 
 /* 빛 가루 (motion.jsx Burst) */
 .fx-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 5; }
@@ -123,7 +139,7 @@ body { overscroll-behavior: none; }
 /* 화살표 톡 (순위 ▲) */
 .fx-bump { display: inline-block; animation: fx-bump .5s cubic-bezier(.2, .9, .25, 1.4) var(--d, 0ms) both; }
 @keyframes fx-bump { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 100% { opacity: 1; transform: none; } }
-/* 주 단추가 처음 나올 때 광택 한 번 — 누를 곳 알리기 */
+/* 처음 나올 때 광택 한 번 — 누를 곳 알리기(주 단추 .pri 에는 쓰지 않음: ::after 가 바닥 빛) */
 .fx-sheen-once::after { animation: fx-sheen .8s var(--fx-out) var(--d, 0ms) both; }
 @keyframes fx-sheen { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
 /* 건너뛰기 — 결과 연출 중 누르면 모두 끝 상태로 */
