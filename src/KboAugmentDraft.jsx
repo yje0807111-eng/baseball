@@ -5366,7 +5366,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setCp(cpParam > 0 ? cpParam : Math.max(0, SALARY_CAP - r.reduce((s, p) => s + p.cost, 0))); // ?cp=300 으로 잔여 CP를 정해 정비 화면 교체를 시험한다
     setSeries(null);
     if (demo === 'gauntlet') { // 라이브 판을 끝까지 자동으로 돌려 구단 정복 탑만 바로 본다
-      let s0 = Live.createLive({ cap: match.cap, series: mode.series, myEmblem: Live.bannerEmblem(myBanner()) });
+      let s0 = Live.createLive({ cap: match.cap, series: mode.series, weigh: mode.id === 'mix' ? Live.seriesWeight : null, myEmblem: Live.bannerEmblem(myBanner()) });
       let g = 0;
       while (!Live.isDone(s0) && g++ < Live.CLUB_COUNT * ROSTER_SIZE + 10) s0 = Live.pick(s0, Live.autoPick(s0), { auto: true });
       setLive(s0); setRoster(fillRoster(Live.myRoster(s0))); setGaunt(Gaunt.makeGauntlet(s0)); setPhase('gauntlet');
@@ -5862,7 +5862,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     setTickets(withDraftTickets(draftTickets()));
     setSeriesPick(false);
     const liveNow = cfg.live ? Live.createLive({
-      cap: cfg.cap, series: m.series,
+      cap: cfg.cap, series: m.series, weigh: m.id === 'mix' ? Live.seriesWeight : null, // 전체 믹스만 요즘 해 · 아는 구단 쪽으로
       myName: me?.team?.name || me?.nick || myClub,
       myShort: me?.nick,
       myColor: flagByKey(banner)?.color || '#e879f9',

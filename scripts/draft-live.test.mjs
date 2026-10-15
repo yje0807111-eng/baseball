@@ -190,3 +190,12 @@ test('AI 난이도 — 쉬움 · 보통 · 강함 순서로 상대 일곱 구단
   expect(easy).toBeLessThan(normal);
   expect(normal).toBeLessThan(hard);
 });
+
+test('전체 믹스 무게 — 요즘 해 · 아는 구단이 더 자주', async () => {
+  const { seriesWeight } = await import('../src/draft/live.js');
+  const w = (id, year, kind = 'team') => seriesWeight({ id, year, kind });
+  expect(w('2020-lg', 2020)).toBeGreaterThan(w('2003-lg', 2003));
+  expect(w('2003-lg', 2003)).toBeGreaterThan(w('1995-lg', 1995));
+  expect(w('1995-haitai', 1995)).toBeGreaterThan(w('1995-ssangbangwool', 1995));
+  expect(w('2008-beijing', 2008, 'national')).toBeGreaterThan(w('2008-lg', 2008));
+});

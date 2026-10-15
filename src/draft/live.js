@@ -93,6 +93,24 @@ export const emblemOf = (key) => `ui/clubs/${key}.webp`;
 /** 프로필 배너 키 → 내 카드에 뜰 그림. 고른 배너가 없으면 드림팀 그림 */
 export const bannerEmblem = (key) => emblemOf(key || 'dream');
 
+/*
+ * 전체 믹스 시리즈 무게 — 고르게 섞으면 413개 중 2000년 전이 34%라 운이 나쁘면 옛 시즌만 줄줄이 나온다.
+ * 요즘 사람이 아는 해 · 구단 쪽으로 기울인다(뽑기 게임이 현역 · 인지도 높은 카드를 더 자주 내는 것과 같은 결).
+ *  해: 2015~ ×1.4 · 2008~ ×1.2 · 2000~ ×1 · 1990~ ×0.7 · 그 전 ×0.5
+ *  없어진 지 오래인 구단(삼미 · 청보 · 태평양 · 쌍방울 · MBC · 빙그레) ×0.7 — 해태 · 현대 · OB 처럼 왕조로 기억되는 구단은 그대로
+ *  레전드 · 국가대표 묶음 ×1.3(아는 이름이 모여 있음)
+ *  600판 시뮬(보드 20개): 2000년 전 32 → 18% · 2015~ 31 → 42% · 옛 시즌 3연속 나오는 판 37 → 8% · 옛 시즌이 절반 넘는 판 7.5 → 0%
+ */
+const FADED = new Set(['sammi', 'chungbo', 'taepyungyang', 'ssangbangwool', 'mbc', 'binggrae']);
+export function seriesWeight(s) {
+  const y = s.year || 0;
+  const era = !y ? 1 : y >= 2015 ? 1.4 : y >= 2008 ? 1.2 : y >= 2000 ? 1 : y >= 1990 ? 0.7 : 0.5;
+  const club = s.kind === 'team' && FADED.has(String(s.id).split('-').slice(1).join('-')) ? 0.7 : 1;
+  const known = s.kind === 'legend' || s.kind === 'national' ? 1.3 : 1;
+  return era * club * known;
+}
+/** 무게 있는 섞기(Efraimidis–Spirakis) — 무게가 클수록 앞에 올 확률이 크다. 겹치지 않게 뽑는 것은 그대로 */
+const weightedShuffle = (a, rng, weigh) => a.map((x) => ({ x, k: rng() ** (1 / Math.max(1e-6, weigh(x))) })).sort((p, q) => q.k - p.k).map((o) => o.x);
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
 /** 시리즈를 보드 한 판(18명)으로 추린다. 포지션은 BOARD_MIX 만큼 먼저 채우고, 모자란 자리는 남은 선수로 메운다 */
@@ -126,7 +144,7 @@ export function clubAt(pick, order) {
 }
 
 /** 새 판. myName 구단이 order 어딘가에 섞여 들어간다(추첨) */
-export function createLive({ myName = '내 팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, clubs: clubCount = null, firstPick = false, ai = 'normal', rng = Math.random } = {}) {
+export function createLive({ myName = '내 팀', myShort = null, myColor = '#e879f9', myEmblem = null, cap = SALARY_CAP, series = DRAFT_SERIES, weigh = null, clubs: clubCount = null, firstPick = false, ai = 'normal', rng = Math.random } = {}) {
   const grades = GRADE_ORDERS[ai] || GRADE_ORDERS.normal;
   // 상대 구단은 실제 구단 중에서 판마다 새로 뽑는다 — 그해 선수가 모자라면 수를 줄인다
   const count = clubCount || clubsFor(series);
@@ -143,7 +161,7 @@ export function createLive({ myName = '내 팀', myShort = null, myColor = '#e87
   // 보드는 라운드마다 하나씩 — 모드에 시리즈가 모자라면 다시 섞어 이어 붙인다 (이미 나간 선수는 그대로 잠겨 있다)
   const usable = series.filter((s) => s.players.length);
   const pool = [];
-  while (pool.length < boardCount() && usable.length) pool.push(...shuffle(usable, rng).slice(0, boardCount() - pool.length));
+  while (pool.length < boardCount() && usable.length) pool.push(...(weigh ? weightedShuffle(usable, rng, weigh) : shuffle(usable, rng)).slice(0, boardCount() - pool.length)); // 전체 믹스는 무게(seriesWeight)
   const boards = pool.map((x) => sampleBoard(x, rng)); // 18명이 넘는 시리즈는 포지션을 고루 섞어 18명으로
   return {
     cap,
