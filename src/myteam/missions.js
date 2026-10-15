@@ -1,6 +1,6 @@
 /*
  * 주간 과제 — 주(월요일 시작, 현지 시각)마다 셋. 셋을 다 하면 보너스.
- * 과제는 '하던 대로 하면 채워지는 것'과 '이번 주에 해 볼 것'을 섞는다 — 새 기능(조건부 대회 · 기념 카드 · 특가 · 증강 · 승부처 지시)으로 이끈다.
+ * 과제는 '하던 대로 하면 채워지는 것'과 '이번 주에 해 볼 것'을 섞는다 — 새 기능(기념 카드 · 특가 · 증강 · 승부처 지시)으로 이끈다.
  * 기록은 account.week = { key, counts: { 사건: 수 }, claimed: [과제 id], bonus: bool }. 주가 바뀌면 새로.
  */
 export const MISSIONS = [
@@ -8,7 +8,6 @@ export const MISSIONS = [
   { id: 'games8', ko: '경기 8번', ev: 'game', goal: 8, gold: 300 },
   { id: 'gain10', ko: '내 지시로 승률 +10%p 경기', ev: 'gain10', goal: 1, gold: 400 },
   { id: 'aug10', ko: '증강 10장 고르기', ev: 'aug', goal: 10, gold: 0, ticket: 1 }, // 증강 과제는 증강 강화권으로
-  { id: 'cup', ko: '조건부 대회 열기', ev: 'cup', goal: 1, gold: 500 },
   { id: 'tour8', ko: '토너먼트 8강 이상', ev: 'tour8', goal: 1, gold: 500 },
   { id: 'memento', ko: '드래프트 기념 카드 받기', ev: 'memento', goal: 1, gold: 500 },
   { id: 'deal', ko: '오늘의 특가 영입', ev: 'deal', goal: 1, gold: 300 },

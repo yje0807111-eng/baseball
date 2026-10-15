@@ -52,7 +52,7 @@ export function entrantsFor(key, n) {
  * 새 대진: size 강. others 를 주면(드래프트 모드) 그 팀들로 채운다(자리는 부르는 쪽이 정함).
  *  myTeam 을 주면 드래프트처럼 비슷한 전력끼리 첫판(seedByStrength) — 16강 탈락 72 → 62%, 첫 상대 전력 78.8 → 76.4(같은 시뮬)
  */
-export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), others = null, meAt = null, cup = 'open', myTeam = null } = {}) {
+export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), others = null, meAt = null, myTeam = null } = {}) {
   let list = others || entrantsFor(key, size - 1);
   const rng = seeded(hash(`tourney:${key}:me`));
   let at = meAt;
@@ -64,7 +64,7 @@ export function makeTournament({ size = 32, myName = '내 팀', key = newKey(), 
   }
   at ??= Math.floor(rng() * size);
   const entrants = [...list.slice(0, at), { id: 'me', name: myName, owner: '나', me: true }, ...list.slice(at, size - 1)];
-  return { key, size, entrants, round: 0, winners: [], results: [], done: false, place: null, claimed: false, cup };
+  return { key, size, entrants, round: 0, winners: [], results: [], done: false, place: null, claimed: false };
 }
 
 /**

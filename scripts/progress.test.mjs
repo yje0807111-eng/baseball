@@ -84,6 +84,6 @@ describe('주간 과제', () => {
     expect(store.claimWeekBonus()).toBeNull();
   });
   it('과제 목록의 사건은 모두 어딘가에서 센다', () => {
-    expect(new Set(MISSIONS.map((m) => m.ev))).toEqual(new Set(['win', 'game', 'gain10', 'aug', 'cup', 'tour8', 'memento', 'deal']));
+    expect(new Set(MISSIONS.map((m) => m.ev))).toEqual(new Set(['win', 'game', 'gain10', 'aug', 'tour8', 'memento', 'deal']));
   });
 });

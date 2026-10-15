@@ -93,7 +93,7 @@ function Tree({ t, oppIdx, reveal, fresh = null }) {
 /** rewards: 골드 보상 표시 (드래프트 모드 토너먼트는 보상 없음) */
 export default function TournamentBracket({ t, myTeam, title, onBack, onPlay, onClaim, onRestart, rewards = true, playLabel = '정비 ▶' }) {
   const size = t.size || 32;
-  const ROUNDS = roundsOf(size), FINISH = finishOf(size, t.cup);
+  const ROUNDS = roundsOf(size), FINISH = finishOf(size);
   const { COL } = GEO[size] || GEO[32];
   const me = meIndex(t);
   const opp = myOpponent(t);

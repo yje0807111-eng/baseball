@@ -407,7 +407,7 @@ export function claimDex(series) {
 }
 
 /* ───── 주간 과제: 사건을 센다 · 보상을 받는다 (missions.js) ───── */
-/** 사건 수 올리기 — ev: win · game · gain10 · aug · cup · tour8 · memento · deal */
+/** 사건 수 올리기 — ev: win · game · gain10 · aug · tour8 · memento · deal */
 export function bumpWeek(ev, n = 1) {
   const a = read();
   if (!a?.nick || !(n > 0)) return null;
@@ -485,7 +485,7 @@ export function addHistory(entry) {
 function withTournamentReward(a) {
   const t = a?.tournament;
   if (!t?.done || t.claimed) return a;
-  const gold = finishOf(t.size, t.cup)[t.place]?.gold || 0; // 조건부 대회면 배수까지
+  const gold = finishOf(t.size)[t.place]?.gold || 0;
   return { ...a, gold: Math.max(0, goldOf(a) + gold), tournament: { ...t, claimed: true, reward: { gold } } };
 }
 function withRankedReward(a) {

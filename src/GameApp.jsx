@@ -20,7 +20,6 @@ import { oppSeed, applyFormTeam } from './myteam/form.js';
 import { gameDetail } from './myteam/gameDetail.js';
 import { MATCH_AUG_INNINGS, envOf, augOptions, aiAugPick, augsForHistory } from './myteam/matchAug.js';
 import { ChoiceOverlay, KEYFRAMES, makeAugmentRuntime, rerollAugmentAt, applyAugsTo } from './KboAugmentDraft.jsx';
-import { cupOf, cupIssue } from './myteam/cups.js';
 import MatchResult from './play/MatchResult.jsx';
 import { missionState } from './myteam/missions.js';
 
@@ -40,7 +39,6 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   const [match, setMatch] = useState(null); // 경기 중인 두 팀 { my, opp, kind: 'duel' | 'tourney' | 'ranked' }
   const [after, setAfter] = useState(null); // 경기 결과 화면 { res, my, opp, context, tally, next, nextLabel }
   const [prep, setPrep] = useState(null); // 경기 전 정비 { kind, sub, title, startLabel, back }
-  const [cup, setCup] = useState('open'); // 새 토너먼트에 걸 조건 (cups.js)
   const [augPick, setAugPick] = useState(null); // 증강 고르기 창 { options, free, inning, onPick }
   const ownedRef = useRef([]); // 이번 경기에서 고른 증강 (정비 끝 1장 + 7회 1장)
   const envRef = useRef(null); // 이번 상대(matchAug.envOf) — 켜질 수 없는 증강을 후보에서 뺀다
@@ -62,22 +60,19 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
   /* 토너먼트: fresh 면 새 대진을 열어 저장, 아니면 진행 중인 대진표로 */
   const openTourney = (size, fresh) => {
     if (fresh || !tournament || tournament.size !== size) {
-      saveTournament(makeTournament({ size, myName: account.team?.name, cup, myTeam: account.team }));
-      if (cup !== 'open') bumpWeek('cup'); // 주간 과제: 조건부 대회 열기
+      saveTournament(makeTournament({ size, myName: account.team?.name, myTeam: account.team }));
     }
     refresh();
     setView('bracket');
   };
   const openTourneyPrep = () => {
     const r = roundsOf(tournament.size)[tournament.round];
-    const c = cupOf(tournament.cup);
-    setPrep({ kind: 'tourney', tag: `토너먼트 · ${r.ko}`, sub: `토너먼트 · ${r.ko}${c.id !== 'open' ? ` · ${c.ko}` : ''}`, title: `${r.ko} 경기 전 정비`, startLabel: '경기 시작 ▶', back: () => setView('bracket'),
-      block: cupIssue(tournament.cup, account.team) });
+    setPrep({ kind: 'tourney', tag: `토너먼트 · ${r.ko}`, sub: `토너먼트 · ${r.ko}`, title: `${r.ko} 경기 전 정비`, startLabel: '경기 시작 ▶', back: () => setView('bracket') });
     setView('prep');
   };
   const claimTourney = () => {
     if (!tournament?.done) return;
-    claimTournament(finishOf(tournament.size, tournament.cup)[tournament.place]);
+    claimTournament(finishOf(tournament.size)[tournament.place]);
     refresh();
   };
 
@@ -296,7 +291,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(
       <KboAugmentDraft onExit={() => { setPlayTab(null); setView('lobby'); }} normalView={playTab} onNormalView={setPlayTab}
         normal={[
-          normalPanels({ account, format, onFormat: setFormat, cup, onCup: setCup, onPlay: openDuel, onTourney: openTourney, onLocker: () => openLocker() }),
+          normalPanels({ account, format, onFormat: setFormat, onPlay: openDuel, onTourney: openTourney, onLocker: () => openLocker() }),
           rankedPanels({ account, onOpen: openRanked, onLocker: () => openLocker() }),
         ]} />,
     );
@@ -313,7 +308,7 @@ export default function GameApp({ account, setAccount, view, setView, playTab, s
     return screen(<RankedHub s={season} account={account} onBack={() => toModes('ranked')} onPlay={openRankedPrep} onClaim={claimSeason} onNewSeason={newSeason} />);
   }
   if (view === 'prep' && prep) {
-    return screen(<>{augOverlay}<PrepScreen team={account.team} kind={prep.kind} onLocker={() => openLocker()} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} block={prep.block} onStart={startFromPrep} onBack={prep.back}
+    return screen(<>{augOverlay}<PrepScreen team={account.team} kind={prep.kind} onLocker={() => openLocker()} onSaved={refresh} sub={prep.sub} title={prep.title} startLabel={prep.startLabel} onStart={startFromPrep} onBack={prep.back}
       backLabel={prep.kind === 'duel' ? '플레이로' : prep.kind === 'ranked' ? '순위표로' : '대진표로'} /></>);
   }
   if (view === 'play' && match) {
