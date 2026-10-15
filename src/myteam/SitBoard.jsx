@@ -16,15 +16,12 @@
  *   상대: 파워 80+ '파워' · 아래 '교타'(정면 승부 — 교타자만이면 교타만 켜짐)
  *  (판 절반이 비던 자리 — FC 온라인 개인 전술 · FM 선수 지시처럼 지시 옆에 '누구에게 걸리는지')
  * 차례로 열기(2026-10-15) — 타자 → 주자 → 투수. 처음엔 타자만 펼침, 고르면('그대로' 포함) 다음 줄이 열리고 펼쳐짐.
- *  세 줄 모두 펼쳐 두고(접으면 판이 비어 보여 2026-10-15 되돌림) 아직 차례가 아닌 줄만 흐리게 잠김 · 지금 줄은 금빛 테두리(누르면 그 줄 기준으로 아래 칩)
- *  아래는 타순 두 줄(카드 5 · 4 · 이름 / 능력치 / 기록) — 지금 펼친 줄에 맞춰 바뀜. 주자는 '도루 우선'이면 누가 뛰나까지 골라야 투수 줄로:
- *   타자 = 우리 파워 · 컨택(고른 쪽 강조) + 상대 선발 / 주자 = 우리 주력(문턱 넘으면 강조) + 상대 포수 / 투수 = 상대 파워 · 컨택(정면 승부 대상 강조) + 우리 선발
+ *  지난 줄은 한 줄로 접혀 고른 값만(누르면 다시 펼침), 아직 안 열린 줄은 흐리게 잠김. 단계 고르기(FC 온라인 전술 설정 마법사 · 하스스톤 덱 만들기 결)
+ *  주자는 '도루 우선'이면 누가 뛰나까지 골라야 투수 줄로. 아래 타순 줄은 뺌(2026-10-15) — 펼친 줄 하나만 보이고 나머지는 한 줄로 접힘
  */
 import React, { useEffect, useState } from 'react';
 import { sitOddsLater, batFx, zoneFx, stealFx } from './sitFx.js';
 import { alertsOf, lvOf, LV } from './OppPanel.jsx';
-import { Portrait } from './ui.jsx';
-import { seasonRecord } from './traits.js';
 
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const US = '#10b981', GOLD = '#fbbf24', RED = '#f87171', W1 = '#e5e7eb', W2 = '#9ca3af', W3 = '#6b7280', SPB = '#60a5fa';
@@ -58,15 +55,15 @@ const Auto = ({ ko }) => <span className="flex items-center gap-1.5 whitespace-n
 /* 큰 고르기 — 색 점 + 이름 + 결과 한 줄 */
 function Opts({ opts, value, onPick }) {
   return (
-    <span className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>{/* 두 칸씩 두 줄(넷이면 2×2) — 칸이 넓어 득실 두 줄이 다 보이게 */}
+    <span className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${opts.length},minmax(0,1fr))` }}>
       {opts.map(([id, ko, c, fx]) => {
         const on = value === id, col = c || '#cbd5e1';
         return (
           <button key={ko} type="button" aria-pressed={on} onClick={() => onPick(id)}
-            className="flex min-h-[4.75rem] min-w-0 flex-col items-start justify-center gap-1 rounded-lg px-4 py-3 text-left transition-colors hover:bg-white/[0.06]"
+            className="flex min-w-0 flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/[0.06]"
             style={{ background: on ? `${col}1f` : 'rgba(255,255,255,.025)', boxShadow: `inset 0 0 0 1px ${on ? col : 'rgba(255,255,255,.08)'}` }}>
-            <span className="flex items-center gap-1.5"><i className="block h-2 w-2 rounded-full" style={{ background: c || 'rgba(255,255,255,.3)' }} /><b className="truncate text-t3" style={{ color: on ? '#fff' : W2 }}>{ko}</b></span>
-            <span className="flex flex-col">{fx.map(([t, d], k) => <span key={k} className="truncate text-[13px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
+            <span className="flex items-center gap-1.5"><i className="block h-2 w-2 rounded-full" style={{ background: c || 'rgba(255,255,255,.3)' }} /><b className="truncate text-t4" style={{ color: on ? '#fff' : W2 }}>{ko}</b></span>
+            <span className="flex flex-col">{fx.map(([t, d], k) => <span key={k} className="truncate text-[12px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
           </button>
         );
       })}
@@ -85,45 +82,24 @@ function Seg({ label, opts, on, onPick, dim }) {
   );
 }
 /* 한 줄 — 왼쪽 이름 칸 + 유리 레인(고르기 · 세부 · 칩) */
-/*
- * 타순 — 카드 9장을 두 줄(5 · 4)로, 칸마다 이름 · 능력치 줄(tags) · 기록 줄(sub). 넓어진 칸에 펼친 줄에 맞는 설명을 더 자세히.
- *  tags/sub = [[글, 색, 켜짐]] — 켜진 줄의 색으로 카드 테두리. lead = 왼쪽 핵심 칩(상대 선발 · 상대 포수 · 우리 선발)
- */
-function Strip({ team, label, tags, sub = () => [], lead }) {
-  const Line = ({ list }) => <span className="flex gap-2 whitespace-nowrap text-[12px] font-bold">{list.map(([t, c, on]) => <span key={t} style={{ color: on ? c : W3 }}>{t}</span>)}</span>;
+/* 접힌 줄 — 고른 값 한 줄(누르면 펼침) · 잠긴 줄은 흐리게 */
+function Fold({ side, ko, sit, value, locked, onOpen }) {
   return (
-    <div className="grid shrink-0 gap-1.5" style={{ gridTemplateColumns: '9rem repeat(5,minmax(0,1fr))' }}>
-      <span className="row-span-2 flex flex-col justify-center gap-1.5 pr-2"><b className="text-t3" style={{ color: W1 }}>{label}</b>{lead}</span>
-      {team.batters.slice(0, 9).map((p, i) => {
-        const tg = tags(p), sb = sub(p);
-        const hit = [...tg, ...sb].find(([, , on]) => on);
-        return (
-          <span key={p.id} className="flex min-w-0 items-center gap-2 rounded-lg px-2 py-1.5" style={{ background: hit ? 'rgba(255,255,255,.06)' : 'rgba(255,255,255,.025)', boxShadow: `inset 0 0 0 1px ${hit ? `${hit[1]}88` : 'rgba(255,255,255,.06)'}` }}>
-            <b className="w-3 shrink-0 text-center font-display text-[12px]" style={{ color: W3 }}>{i + 1}</b>
-            <Portrait player={p} w={30} h={37} />
-            <span className="grid min-w-0 gap-0.5 leading-tight">
-              <b className="truncate text-t4" style={{ color: W1 }}>{p.name} <small className="text-[11px] font-medium" style={{ color: W3 }}>{p.position}</small></b>
-              <Line list={tg} />
-              {sb.length > 0 && <Line list={sb} />}
-            </span>
-          </span>
-        );
-      })}
-    </div>
+    <button type="button" disabled={locked} onClick={onOpen} className="grid items-center text-left transition-opacity" style={{ gridTemplateColumns: '9rem minmax(0,1fr)', opacity: locked ? 0.35 : 1 }}>
+      <span className="flex items-center gap-2 pr-3"><Side side={side} /><b className="text-t3" style={{ color: W1 }}>{ko}</b></span>
+      <span className="flex h-11 items-center gap-3 rounded-lg px-3" style={{ background: 'rgba(255,255,255,.025)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
+        <span className="text-[12px]" style={{ color: W3 }}>{sit}</span>
+        {locked ? <span className="text-[12px]" style={{ color: W3 }}>앞 줄 고른 뒤</span> : <b className="text-t4" style={{ color: W1 }}>{value}</b>}
+        {!locked && <span className="ml-auto text-[12px]" style={{ color: W2 }}>바꾸기 ▾</span>}
+      </span>
+    </button>
   );
 }
-/* 줄 왼쪽 핵심 칩 — 얼굴 없이 이름 · 수치 두 개 */
-const Lead = ({ ko, p, vals, tone }) => p && (
-  <span className="flex flex-col gap-0.5 rounded-md px-2 py-1 text-[11px]" style={{ background: 'rgba(255,255,255,.04)', boxShadow: `inset 0 0 0 1px ${tone || 'rgba(255,255,255,.1)'}` }}>
-    <span style={{ color: W3 }}>{ko} <b style={{ color: W1 }}>{p.name}</b></span>
-    <span className="font-bold" style={{ color: W2 }}>{vals}</span>
-  </span>
-);
-function Row({ side, ko, sit, h = 80, main, sub, chips, locked = false, on = false, onFocus }) {
+function Row({ side, ko, sit, h = 80, main, sub, chips }) {
   return (
-    <div onPointerDownCapture={locked ? undefined : onFocus} className="grid items-stretch transition-opacity" style={{ gridTemplateColumns: '9rem minmax(0,1fr)', opacity: locked ? 0.3 : 1, pointerEvents: locked ? 'none' : undefined }} aria-disabled={locked || undefined}>
+    <div className="grid items-stretch" style={{ gridTemplateColumns: '9rem minmax(0,1fr)' }}>
       <span className="flex flex-col justify-center gap-1 pr-3"><span className="flex items-center gap-2"><Side side={side} /><b className="text-t2" style={{ color: W1 }}>{ko}</b></span><span className="text-[12px]" style={{ color: W3 }}>{sit}</span></span>
-      <span className="flex items-center gap-5 rounded-lg px-3 py-2.5" style={{ minHeight: h, background: 'rgba(255,255,255,.03)', boxShadow: `inset 0 0 0 1px ${on ? 'rgba(245,210,122,.45)' : 'rgba(255,255,255,.07)'}` }}>
+      <span className="flex items-center gap-5 rounded-lg px-3 py-2.5" style={{ minHeight: h, background: 'rgba(255,255,255,.03)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07)' }}>
         <span className="min-w-0 flex-1">{main}</span>
         {sub && <span className="flex shrink-0 flex-col gap-2">{sub}</span>}
         <span className="flex w-40 shrink-0 flex-col items-end gap-2">{chips}</span>
@@ -159,47 +135,30 @@ export default function SitBoard({ conds, setConds, engine }) {
   const pickWhen = (t) => { setWhen(t); if (zoneOn) swap(ZONE, zoneId(who, t)); };
   const thrN = { steal: 80, steal85: 85, steal90: 90 }[stealOn];
   const conOnly = zoneOn?.includes('Con');
-  const theirs = (p) => {
-    const pw = st(p, 'power'), ct = st(p, 'contact'), conHitter = ct > pw;
-    return [[`파워 ${pw}`, RED, !!zoneOn && (!conOnly || !conHitter)], [`컨택 ${ct}`, SPB, !!zoneOn && (!conOnly || conHitter)]];
-  };
+
   /* 차례로 열기 — open = 열린 줄 수(1 타자 · 2 주자 · 3 투수), act = 펼친 줄 */
   const [open, setOpen] = useState(1);
   const [act, setAct] = useState(1);
   const next = (k) => { if (k < 3) { setOpen((o) => Math.max(o, k + 1)); setAct(k + 1); } };
-  /* 아래 타순 — 펼친 줄에 맞춰 */
-  const sp = engine.away.pitchers[0], mySp = engine.home.pitchers[0];
-  const oppC = engine.away.batters.find((p) => p.position === 'C');
-  const batTags = (p) => [[`파워 ${st(p, 'power')}`, ORG, bat === 'rispPow' && st(p, 'power') >= 85], [`컨택 ${st(p, 'contact')}`, SKY, (bat === 'rispCon' || bat === 'rispPat') && st(p, 'contact') >= 85]];
-  const runTags = (p) => [[`주력 ${st(p, 'speed')}`, US, !!stealOn && st(p, 'speed') >= thrN]];
-  /* 기록 줄 — 시즌 기록(없으면 빈칸). 타자 = 고른 쪽(홈런 · 타율 · 출루율), 주자 = 도루, 투수 = 상대 홈런 · 타율 */
-  const rec = (p) => seasonRecord(p);
-  const r3 = (v) => (v == null ? '-' : v.toFixed(3).slice(1));
-  const batSub = (p) => { const r = rec(p); return [[`${r.hr ?? '-'}홈런`, ORG, bat === 'rispPow'], [`타율 ${r3(r.avg)}`, SKY, bat === 'rispCon'], [`출루 ${r3(r.obp)}`, VIO, bat === 'rispPat']]; };
-  const runSub = (p) => { const r = rec(p); return [[`도루 ${r.sb ?? '-'}`, US, !!stealOn && (r.sb ?? 0) >= 20]]; };
-  const pitSub = (p) => { const r = rec(p); return [[`${r.hr ?? '-'}홈런`, RED, !!zoneOn && (r.hr ?? 0) >= 20], [`타율 ${r3(r.avg)}`, SPB, !!zoneOn && (r.avg ?? 0) >= 0.3]]; };
+  const batKo = { rispPow: '홈런 우선', rispCon: '안타 우선', rispPat: '출루 우선' }[bat] || '그대로';
+  const runKo = stealOn ? `도루 우선 · 주력 ${thrN}+` : '그대로';
+  const pitKo = zoneOn ? `정면 승부 · ${conOnly ? '교타자만' : '모든 타자'} · ${zoneOn.endsWith('E') ? '초반만' : '경기 내내'}` : '기본';
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <Row side="공격" ko="타자" sit="득점권 기회" on={act === 1} onFocus={() => setAct(1)}
+      {act !== 1 ? <Fold side="공격" ko="타자" sit="득점권 기회" value={batKo} onOpen={() => setAct(1)} /> : <Row side="공격" ko="타자" sit="득점권 기회"
         main={<Opts opts={[[null, '그대로', null, [['정비 계획대로', 0]]], ...[['rispPow', '홈런 우선', ORG], ['rispCon', '안타 우선', SKY], ['rispPat', '출루 우선', VIO]].map(([id, ko, c]) => [id, ko, c, lines(odds && batFx(odds, id))])]} value={bat} onPick={(id) => { swap(['rispPow', 'rispCon', 'rispPat'], id); next(1); }} />}
-        chips={<Chip l={spChip(engine.away.pitchers[0])} />} />
-      <Row side="공격" ko="주자" sit="빠른 1루 주자" locked={open < 2} on={act === 2} onFocus={() => setAct(2)}
+        chips={<Chip l={spChip(engine.away.pitchers[0])} />} />}
+      {act !== 2 ? <Fold side="공격" ko="주자" sit="빠른 1루 주자" value={runKo} locked={open < 2} onOpen={() => setAct(2)} /> : <Row side="공격" ko="주자" sit="빠른 1루 주자"
         main={<Opts opts={[[null, '그대로', null, [['뛰지 않음', 0]]], ['run', '도루 우선', US, lines(stealFx(engine.home, engine.away, { steal: 80, steal85: 85, steal90: 90 }[stealOn || thr]))]]} value={stealOn ? 'run' : null} onPick={(id) => { swap(STEAL, id ? thr : null); if (!id) next(2); }} />}
         sub={<Seg label="누가 뛰나" opts={[['steal', '주력 80+'], ['steal85', '주력 85+'], ['steal90', '주력 90+']]} on={thr} onPick={pickThr} dim={!stealOn} />}
-        chips={<Chip l={alertChip('도루 기회')} />} />
-      <Row side="수비" ko="투수" sit="경기 운영" locked={open < 3} on={act === 3} onFocus={() => setAct(3)} h={96}
+        chips={<Chip l={alertChip('도루 기회')} />} />}
+      {act !== 3 ? <Fold side="수비" ko="투수" sit="경기 운영" value={pitKo} locked={open < 3} onOpen={() => setAct(3)} /> : <Row side="수비" ko="투수" sit="경기 운영" h={96}
         main={<Opts opts={[[null, '기본', null, [['투수 배합대로', 0]]], ['pit', '정면 승부', SPB, lines(odds && zoneFx(odds, engine.away, who === 'Con'))]]} value={zoneOn ? 'pit' : null} onPick={(id) => swap(ZONE, id ? zoneId() : null)} />}
         sub={<>
           <Seg label="누구에게" opts={[['', '모든 타자'], ['Con', '교타자만']]} on={who} onPick={pickWho} dim={!zoneOn} />
           <Seg label="언제" opts={[['', '경기 내내'], ['E', '초반만']]} on={when} onPick={pickWhen} dim={!zoneOn} />
         </>}
-        chips={<><Chip l={alertChip('장타 위험')} /><Auto ko="선발 무너질 때 · 자동 교체" /></>} />
-      {/* 아래 — 펼친 줄에 맞춘 타순 + 핵심 칩. 판 아래에 붙여 고르는 칸(2×2)과 화면을 나눠 씀 */}
-      <div className="mt-auto rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,.02)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
-        {act === 1 && <Strip team={engine.home} label="우리 타순" tags={batTags} sub={batSub} lead={<Lead ko="상대 선발" p={sp} vals={`구위 ${st(sp, 'stuff', 80)} · 제구 ${st(sp, 'control', 75)}`} tone={spChip(sp)?.[2] ? `${spChip(sp)[2]}88` : null} />} />}
-        {act === 2 && <Strip team={engine.home} label="우리 타순" tags={runTags} sub={runSub} lead={<Lead ko="상대 포수" p={oppC} vals={`수비 ${st(oppC, 'defense')}`} />} />}
-        {act === 3 && <Strip team={engine.away} label="상대 타순" tags={theirs} sub={pitSub} lead={<Lead ko="우리 선발" p={mySp} vals={`구위 ${st(mySp, 'stuff', 80)} · 제구 ${st(mySp, 'control', 75)}`} />} />}
-      </div>
+        chips={<><Chip l={alertChip('장타 위험')} /><Auto ko="선발 무너질 때 · 자동 교체" /></>} />}
     </div>
   );
 }
