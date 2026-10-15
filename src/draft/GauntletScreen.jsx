@@ -9,7 +9,7 @@
  */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
-import { GRADES, emblemOf, bannerEmblem } from './live.js';
+import { emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
 import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
 import { axesOf, Hex } from '../myteam/MatchPreview.jsx';
@@ -26,8 +26,6 @@ import BgmButton from '../audio/BgmButton.jsx';
 
 const GOLD = '#f5d27a';
 const WIN = '#34d399', LOSE = '#f87171';
-const GRADE_COLOR = { weak: '#94a3b8', plain: '#38bdf8', solid: '#f59e0b', ace: '#ef4444' };
-const TRAIT_KO = { power: '한 방', mound: '마운드', value: '가성비', defense: '수비', balance: '균형' };
 const KEYS = [['bat', '타격'], ['pit', '마운드'], ['def', '수비'], ['str', '전력']];
 const show = (k, v) => (k === 'str' ? Number(v).toFixed(1) : v);
 /* 막대 — 62~90 을 0~100% 로(팀 수치가 모이는 폭) */
@@ -101,6 +99,13 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0 }) {
   const d = Math.round(((me.stats.bat - r.bat) + (me.stats.pit - r.pit) + (me.stats.def - r.def)) / 3 * 10) / 10;
   const verdict = d >= 1.5 ? ['우세', WIN] : d <= -1.5 ? ['열세', LOSE] : ['접전', GOLD];
   const losses = res.filter((x) => !x.win).length;
+  /* 상대 강점 · 약점 — 여섯 축(파워 · 컨택 · 주루 · 수비 · 선발 · 불펜)에서 상대 − 나 가 가장 큰 축 · 가장 작은 축 */
+  const edge = (() => {
+    const mine = axesOf(me.roster || []), theirs = axesOf(r.roster || []);
+    if (!theirs.length || !mine.length) return null;
+    const gap = theirs.map(([k, v], i) => [k, v - mine[i][1]]).sort((x, y) => y[1] - x[1]);
+    return { hi: gap[0][0], lo: gap[gap.length - 1][0] };
+  })();
   const side = (src, name, ring) => (
     <span className="grid justify-items-center gap-3">
       <Emb src={src} size={208} ring={ring} />
@@ -121,13 +126,22 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0 }) {
           {side(myEmb, me.short || me.name, me.color || '#e879f9')}
           <span className="grid justify-items-center gap-3">
             <b className="font-display text-[84px] font-extrabold italic leading-none text-[#c7ced8]">VS</b>
-            <b className="rounded-lg px-3 py-1 text-t2 font-black" style={{ color: verdict[1], background: `${verdict[1]}1f`, boxShadow: `inset 0 0 0 1px ${verdict[1]}88` }}>
-              {verdict[0]} {d > 0 ? '+' : ''}{d}
-            </b>
-            <span className="flex gap-1.5">
-              {r.grade && <b className="rounded px-2 text-t4 font-bold" style={{ color: GRADE_COLOR[r.grade], boxShadow: `inset 0 0 0 1px ${GRADE_COLOR[r.grade]}88` }}>{GRADES[r.grade]?.ko}</b>}
-              {TRAIT_KO[r.trait] && <b className="rounded px-2 text-t4 font-bold text-[#cbd5e1]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.2)' }}>{TRAIT_KO[r.trait]}</b>}
-              {buff !== 0 && !r.me && <b className="rounded px-2 text-t4 font-bold" style={{ color: buff > 0 ? LOSE : WIN, boxShadow: `inset 0 0 0 1px ${buff > 0 ? LOSE : WIN}88` }}>{buff > 0 ? '강함' : '쉬움'} {buff > 0 ? '+' : ''}{buff}</b>}
+            {/* 판정 판(mockups/verdict-plate A) — 위 판정 · 가는 선 · 아래 상대 강점 · 약점(여섯 축을 내 팀과 견줘 가장 앞선 · 가장 뒤처진 축) */}
+            <span className="grid min-w-[13rem] justify-items-center gap-2 rounded-[22px] px-5 pb-3 pt-3.5"
+              style={{ background: 'linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))', backdropFilter: 'blur(10px)',
+                boxShadow: `inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 1px ${verdict[1]}73, 0 0 34px -12px ${verdict[1]}, 0 16px 34px -14px rgba(0,0,0,.8)` }}>
+              <span className="flex items-baseline gap-2" style={{ color: verdict[1] }}>
+                <b className="text-[26px] font-black leading-none">{verdict[0]}</b>
+                <b className="font-display text-[30px] font-extrabold leading-none">{d > 0 ? '+' : ''}{d}</b>
+              </span>
+              <i className="block h-px w-full" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)' }} />
+              {edge && (
+                <span className="flex items-center gap-2.5 whitespace-nowrap text-t3 font-bold">
+                  <span className="text-[#8b97a6]">강점 <b style={{ color: LOSE }}>{edge.hi}</b></span>
+                  <i className="block h-[3px] w-[3px] rounded-full bg-[#6b7280]" />
+                  <span className="text-[#8b97a6]">약점 <b style={{ color: WIN }}>{edge.lo}</b></span>
+                </span>
+              )}
             </span>
           </span>
           {side(r.key ? emblemOf(r.key) : bannerEmblem(null), r.short, r.color)}
