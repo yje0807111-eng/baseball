@@ -199,3 +199,12 @@ test('전체 믹스 무게 — 요즘 해 · 아는 구단이 더 자주', async
   expect(w('1995-haitai', 1995)).toBeGreaterThan(w('1995-ssangbangwool', 1995));
   expect(w('2008-beijing', 2008, 'national')).toBeGreaterThan(w('2008-lg', 2008));
 });
+
+test('전체 믹스 — 옛 시즌 셋 연달아 없음', async () => {
+  const { noOldRun } = await import('../src/draft/live.js');
+  const y = (...ys) => ys.map((year, i) => ({ id: String(i), year }));
+  const out = noOldRun(y(1985, 1990, 1995, 1988, 2010, 2020));
+  const old = out.map((x) => x.year < 2000);
+  expect(old.some((o, i) => i >= 2 && o && old[i - 1] && old[i - 2])).toBe(false);
+  expect(out).toHaveLength(6);
+});

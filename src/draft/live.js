@@ -99,7 +99,7 @@ export const bannerEmblem = (key) => emblemOf(key || 'dream');
  *  해: 2015~ ×1.4 · 2008~ ×1.2 · 2000~ ×1 · 1990~ ×0.7 · 그 전 ×0.5
  *  없어진 지 오래인 구단(삼미 · 청보 · 태평양 · 쌍방울 · MBC · 빙그레) ×0.7 — 해태 · 현대 · OB 처럼 왕조로 기억되는 구단은 그대로
  *  레전드 · 국가대표 묶음 ×1.3(아는 이름이 모여 있음)
- *  600판 시뮬(보드 20개): 2000년 전 32 → 18% · 2015~ 31 → 42% · 옛 시즌 3연속 나오는 판 37 → 8% · 옛 시즌이 절반 넘는 판 7.5 → 0%
+ *  600판 시뮬(보드 20개): 2000년 전 32 → 18% · 2015~ 31 → 42% · 옛 시즌 3연속 나오는 판 37 → 8%(+ noOldRun 으로 0%) · 옛 시즌이 절반 넘는 판 7.5 → 0%
  */
 const FADED = new Set(['sammi', 'chungbo', 'taepyungyang', 'ssangbangwool', 'mbc', 'binggrae']);
 export function seriesWeight(s) {
@@ -111,6 +111,21 @@ export function seriesWeight(s) {
 }
 /** 무게 있는 섞기(Efraimidis–Spirakis) — 무게가 클수록 앞에 올 확률이 크다. 겹치지 않게 뽑는 것은 그대로 */
 const weightedShuffle = (a, rng, weigh) => a.map((x) => ({ x, k: rng() ** (1 / Math.max(1e-6, weigh(x))) })).sort((p, q) => q.k - p.k).map((o) => o.x);
+/** 옛 시즌(2000년 전)이 둘 연달아 나왔으면 다음 칸은 뒤에서 가장 가까운 요즘 시즌과 맞바꾼다 — 줄줄이 옛 시즌만 나오는 판을 막는다(제자리에서 바꿈) */
+const isOld = (x) => !!x.year && x.year < 2000;
+export function noOldRun(pool) {
+  for (let i = 2; i < pool.length; i++) {
+    if (!(isOld(pool[i]) && isOld(pool[i - 1]) && isOld(pool[i - 2]))) continue;
+    const j = pool.findIndex((x, k) => k > i && !isOld(x));
+    if (j >= 0) { [pool[i], pool[j]] = [pool[j], pool[i]]; continue; }
+    // 뒤에 요즘 시즌이 없으면(끝에 옛 시즌만 남음) 이 칸을 앞쪽 요즘 시즌 둘 사이로 옮긴다
+    const k = pool.findIndex((x, q) => q > 0 && q < i - 2 && !isOld(pool[q - 1]) && !isOld(x));
+    if (k < 0) break;
+    pool.splice(k, 0, pool.splice(i, 1)[0]);
+    i = 1; // 옮긴 뒤 처음부터 다시 본다(길이 20이라 가볍다)
+  }
+  return pool;
+}
 const shuffle = (a, rng) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
 /** 시리즈를 보드 한 판(18명)으로 추린다. 포지션은 BOARD_MIX 만큼 먼저 채우고, 모자란 자리는 남은 선수로 메운다 */
@@ -162,6 +177,7 @@ export function createLive({ myName = '내 팀', myShort = null, myColor = '#e87
   const usable = series.filter((s) => s.players.length);
   const pool = [];
   while (pool.length < boardCount() && usable.length) pool.push(...(weigh ? weightedShuffle(usable, rng, weigh) : shuffle(usable, rng)).slice(0, boardCount() - pool.length)); // 전체 믹스는 무게(seriesWeight)
+  if (weigh) noOldRun(pool); // 전체 믹스: 옛 시즌(2000년 전) 셋 연달아 없게
   const boards = pool.map((x) => sampleBoard(x, rng)); // 18명이 넘는 시리즈는 포지션을 고루 섞어 18명으로
   return {
     cap,
