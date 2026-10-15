@@ -139,6 +139,16 @@ export const LEGEND_SERIES = {
 export const DRAFT_SERIES = [LEGEND_SERIES, ...SERIES];
 export const ALL_PLAYERS = DRAFT_SERIES.flatMap((s) => s.players);
 
+/* 구단 이름 — 시리즈의 franchise 키로 찾는다. 옛 이름(OB · 해태 · 빙그레 …) 시즌도 같은 키로 묶여 있다 */
+export const FRANCHISE_KO = {
+  DOOSAN: '두산 베어스', LOTTE: '롯데 자이언츠', KIA: 'KIA 타이거즈', SAMSUNG: '삼성 라이온즈', LG: 'LG 트윈스',
+  HANWHA: '한화 이글스', SSG: 'SSG 랜더스', HYUNDAI: '현대 유니콘스', KIWOOM: '키움 히어로즈',
+  NC: 'NC 다이노스', KT: 'KT 위즈', SSANGBANGWOOL: '쌍방울 레이더스',
+};
+/* 구단 모드를 열 최소 시리즈 수 = 보드 수(ROSTER_SIZE 20 ÷ LAPS_PER_BOARD 1). 이보다 적으면 한 판에 같은 시즌이 되풀이된다.
+   ROSTER_SIZE 는 이 줄보다 아래에 있어 숫자로 적는다 — 둘이 어긋나면 모드 수가 달라진다 */
+const FRANCHISE_MIN_SERIES = 20;
+
 /* 드래프트 모드: 첫 화면에서 고르는 시리즈 묶음. 드래프트·상대 AI 모두 그 모드의 시리즈만 쓴다. cap 은 기본 샐러리 캡 */
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
@@ -157,11 +167,20 @@ export const DRAFT_MODES = [
     .sort((a, b) => b - a)
     .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1560,
       desc: `${y}년 구단 로스터만 나오는 모드`, filter: (x) => x.year === y && x.kind === 'team' })),
+  // 구단별: 한 구단의 모든 시즌(옛 이름 포함)과 그 구단 레전드. 보드 20개를 중복 없이 깔 수 있는 구단만 (NC 14 · KT 12 · 쌍방울 9 는 뺐다)
+  ...[...new Set(DRAFT_SERIES.map((x) => x.franchise).filter(Boolean))]
+    .map((fr) => ({ fr, count: DRAFT_SERIES.filter((x) => x.franchise === fr).length }))
+    .filter(({ count }) => count >= FRANCHISE_MIN_SERIES)
+    .sort((a, b) => b.count - a.count || a.fr.localeCompare(b.fr))
+    .map(({ fr }) => ({ id: `club-${fr}`, group: 'club', franchise: fr, name: FRANCHISE_KO[fr] || fr,
+      en: fr.charAt(0) + fr.slice(1).toLowerCase(), neon: teamFlag(FRANCHISE_KO[fr] || fr)?.color || '#a3e635', tag: 'CLUB', cap: 1560,
+      desc: `${FRANCHISE_KO[fr] || fr} 시즌만 나오는 모드`, filter: (x) => x.franchise === fr })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
   return { ...m, series, players: series.flatMap((s) => s.players) };
 });
 export const YEAR_MODES = DRAFT_MODES.filter((m) => m.group === 'year');
+export const CLUB_MODES = DRAFT_MODES.filter((m) => m.group === 'club');
 /** 모드 화면의 AI 난이도 → 상대 팀 능력치 보정 (경기 엔진: 타자 컨택·파워 · 투수 구위·제구에 더함) */
 export const AI_BUFF = { easy: -3, normal: 0, hard: 3 };
 /** 드래프트 토너먼트 구단 팀 전력 보정 상한: 모드 전체 AI 드래프트 팀과 엔진 전력이 벌어진 만큼 경기에서만 더하거나 뺀다 */
@@ -399,7 +418,8 @@ function topFranchises(roster) {
 const BEIJING_2008 = DRAFT_SERIES.find((s) => s.id === '2008-beijing')?.players.map(personKey) || [];
 const PREMIER12_2015 = DRAFT_SERIES.find((s) => s.id === '2015-premier12')?.players.map(personKey) || [];
 const tier = (need, effect, bonus) => ({ need, effect, bonus });
-const story = (id, name, cond, names, tiers) => ({ id, kind: 'story', name, cond, names, tiers, members: (r) => personMembers(r, names) });
+/* club: 그 구단 이야기라는 꼬리표 (구단 모드에서 남길지 가리는 데 쓴다). 국가대표 이야기는 비워 둔다 */
+const story = (id, name, cond, names, tiers, club = null) => ({ id, kind: 'story', name, cond, names, tiers, club, members: (r) => personMembers(r, names) });
 const build = (id, name, cond, members, tiers) => ({ id, kind: 'build', name, cond, tiers, members });
 /* 프랜차이즈의 기억: 인원은 가장 큰 구단 한 곳의 크기로 세고(동률 구단 선수는 모두 혜택), 조건 문구에 그 구단 이름을 보여준다 */
 const FRANCHISE_EXTRA = {
@@ -418,36 +438,36 @@ export const SYNERGIES = [
   story('cleanup', '클린업 트리오', '이승엽·이대호·김동주 중 2명', ['이승엽', '이대호', '김동주'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })]),
   story('skMound', 'SK 왕조 마운드', '김광현·정우람·정대현 (2008 선발·셋업·마무리)', ['김광현', '정우람', '정대현'], [
     tier(2, '투수 +2', { pit: 2 }), tier(3, '투수 +3', { pit: 3 }),
-  ]),
-  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +2', { bat: 2, pit: 2 })]),
-  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택·주루 +8', { contact: 8, speed: 8 })]),
-  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })]),
-  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })]),
-  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })]),
-  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '투수 +5 · 파워·컨택 +5', { pit: 5, power: 5, contact: 5 })]),
-  story('changeup', '체인지업 전수', '구대성 · 류현진 (2006 한화)', ['구대성', '류현진'], [tier(2, '투수 +3', { pit: 3 })]),
+  ], 'SSG'),
+  story('haitai', '해태 왕조의 원투', '선동열 · 이종범', ['선동열', '이종범'], [tier(2, '능력치 +2', { bat: 2, pit: 2 })], 'KIA'),
+  story('tableSetter', '국민 테이블세터', '이용규 · 정근우', ['이용규', '정근우'], [tier(2, '컨택·주루 +8', { contact: 8, speed: 8 })], 'HANWHA'),
+  story('nexen14', '2014 넥센 핵타선', '박병호·강정호·서건창 중 2명', ['박병호', '강정호', '서건창'], [tier(2, '파워·컨택 +6', { power: 6, contact: 6 })], 'KIWOOM'),
+  story('skBattery', 'SK 왕조 배터리', '김광현 · 박경완', ['김광현', '박경완'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })], 'SSG'),
+  story('doosanBattery', '22승 배터리', '니퍼트 · 양의지', ['니퍼트', '양의지'], [tier(2, '안정·수비 +6', { stability: 6, defense: 6 })], 'DOOSAN'),
+  story('samsungDuo', '삼성 왕조의 투타', '오승환 · 이승엽', ['오승환', '이승엽'], [tier(2, '투수 +5 · 파워·컨택 +5', { pit: 5, power: 5, contact: 5 })], 'SAMSUNG'),
+  story('changeup', '체인지업 전수', '구대성 · 류현진 (2006 한화)', ['구대성', '류현진'], [tier(2, '투수 +3', { pit: 3 })], 'HANWHA'),
   story('premier12', '프리미어12 초대 우승', '2015 대표팀 멤버', PREMIER12_2015, [
     tier(3, '능력치 +1', { bat: 1, pit: 1 }), tier(5, '능력치 +3', { bat: 3, pit: 3 }),
   ]),
   story('beijingFinal', '베이징 결승전', '류현진 · 정대현 (선발과 병살 마무리)', ['류현진', '정대현'], [tier(2, '투수 +3', { pit: 3 })]),
   story('doosanMound', '2016 두산 마운드', '니퍼트·정재훈·이현승 (선발·셋업·마무리)', ['니퍼트', '정재훈', '이현승'], [
     tier(2, '투수 +2', { pit: 2 }), tier(3, '투수 +3', { pit: 3 }),
-  ]),
+  ], 'DOOSAN'),
   story('lotte10', '2010 롯데 폭격', '이대호·홍성흔·강민호·손아섭·전준우', ['이대호', '홍성흔', '강민호', '손아섭', '전준우'], [
     tier(2, '파워·컨택 +3', { power: 3, contact: 3 }), tier(3, '파워·컨택 +5', { power: 5, contact: 5 }),
-  ]),
+  ], 'LOTTE'),
   story('samsung14', '통합 4연패', '최형우·박석민·나바로·채태인·박해민', ['최형우', '박석민', '나바로', '채태인', '박해민'], [
     tier(2, '파워·컨택 +2', { power: 2, contact: 2 }), tier(3, '파워·컨택 +4', { power: 4, contact: 4 }),
-  ]),
+  ], 'SAMSUNG'),
   story('nc20', 'NC 창단 첫 우승', '양의지·나성범·박민우·알테어·루친스키', ['양의지', '나성범', '박민우', '알테어', '루친스키'], [
     tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
-  ]),
+  ], 'NC'),
   story('lg23', 'LG 29년의 한', '오지환·김현수·박해민·홍창기·오스틴', ['오지환', '김현수', '박해민', '홍창기', '오스틴'], [
     tier(2, '컨택 +3', { contact: 3 }), tier(3, '컨택 +5 · 수비 +3', { contact: 5, defense: 3 }),
-  ]),
+  ], 'LG'),
   story('kia24', 'KIA V12', '김도영·최형우·양현종·나성범·소크라테스', ['김도영', '최형우', '양현종', '나성범', '소크라테스'], [
     tier(2, '능력치 +2', { bat: 2, pit: 2 }), tier(3, '능력치 +3', { bat: 3, pit: 3 }),
-  ]),
+  ], 'KIA'),
   // ── 팀 구성 (인원이 늘면 단계가 오른다)
   build('power', '홈런 군단', '파워형 타자 (파워가 컨택보다 5+)', (r) => battersOf(r).filter(slugger), [
     tier(4, '파워 +2', { power: 2 }), tier(5, '파워 +4', { power: 4 }), tier(6, '파워 +7', { power: 7 }),
@@ -499,9 +519,26 @@ export const SYNERGIES = [
   ]),
 ];
 
+/**
+ * 구단 모드에서 뺄 시너지 id — 판에 아예 없는 것으로 둔다.
+ *  · 프랜차이즈의 기억: 한 구단만 뽑으니 늘 최고 단계가 된다 (모두가 받으니 균형은 그대로지만 고를 거리가 아니다)
+ *  · 다른 구단 이야기: 그 구단 선수가 없어 채울 수 없다
+ *  · 국가대표 이야기(베이징 · 프리미어12 등): 그 구단 선수만으로 첫 단계를 채울 수 있으면 남긴다
+ */
+export function offSynergiesOf(mode) {
+  if (mode?.group !== 'club') return [];
+  const pool = new Set(mode.players.map(personKey));
+  const reach = (s) => s.names.filter((n) => pool.has(n)).length >= s.tiers[0].need;
+  return SYNERGIES.filter((s) => (s.id === 'franchise'
+    || (s.kind === 'story' && (s.club ? s.club !== mode.franchise : !reach(s))))).map((s) => s.id);
+}
+/* 이번 판에서 뺀 시너지 — 판은 한 번에 하나뿐이라 모듈에 둔다. 드래프트를 시작할 때 넣고 모드 화면으로 나올 때 비운다 */
+let OFF_SYNERGIES = new Set();
+export const setOffSynergies = (ids = []) => { OFF_SYNERGIES = new Set(ids); };
+
 /** 시너지 현황: level(넘은 단계 수) · cur(채운 칸, 최종 단계에서 멈춤) · top(최종 단계 인원) · 지금 단계의 effect/bonus */
 export function checkSynergies(roster) {
-  return SYNERGIES.map((s) => {
+  return SYNERGIES.filter((s) => !OFF_SYNERGIES.has(s.id)).map((s) => {
     const extra = s.id === 'franchise' ? FRANCHISE_EXTRA : s.condOf ? { count: (r) => s.members(r).length, condOf: s.condOf } : null;
     const members = s.members(roster);
     const count = extra ? extra.count(roster) : members.length;
@@ -5666,6 +5703,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
 
   const newDraft = () => {
     runIdRef.current += 1;
+    setOffSynergies([]); // 모드 화면에서는 시너지를 다시 전부 보여 준다
     setPhase('mode'); setPicked(null); setChoice(null); setToast(null); setModal(null); // 모드 화면으로 돌아가 다시 고른다 (기록은 모드 화면에 남겨 둔다)
   };
 
@@ -5673,6 +5711,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
   const startDraft = (id, cfg) => {
     const m = DRAFT_MODES.find((x) => x.id === id);
     runIdRef.current += 1;
+    setOffSynergies(offSynergiesOf(m)); // 구단 모드는 프랜차이즈의 기억과 다른 구단 이야기를 빼고 돈다
     setModeId(id); setMatch(cfg);
     mementoDone.current = new Set(); setMemento(null);
     setRoster([]); setPicked(null); setReleased([]); setRound(1); setAutoFilled(0); setPosFilter(null); setCp(cfg.cap); setRerolls(START_REROLLS); setBuff(0); setAugments([]);
