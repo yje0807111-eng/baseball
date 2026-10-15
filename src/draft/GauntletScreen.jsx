@@ -119,8 +119,8 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0, win = null }) {
           {side(myEmb, me.short || me.name, me.color || '#e879f9')}
           <span className="grid justify-items-center gap-3">
             <b className="font-display text-[84px] font-extrabold italic leading-none text-[#c7ced8]">VS</b>
-            {/* 판정 판(mockups/verdict-plate A) — 위 판정 · 가는 선 · 아래 예상 승률 */}
-            <span className="grid min-w-[13rem] justify-items-center gap-2 rounded-[22px] px-5 pb-3 pt-3.5"
+            {/* 판정 판(mockups/verdict-plate A · verdict-win A) — 위 판정 · 가는 선 · 우리 : 상대 승률(가운데) · 초록 | 빨강 막대(정비 화면과 같은 결) */}
+            <span className="grid w-[16rem] justify-items-center gap-2.5 rounded-[22px] px-5 pb-4 pt-3.5"
               style={{ background: 'linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))', backdropFilter: 'blur(10px)',
                 boxShadow: `inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 1px ${verdict[1]}73, 0 0 34px -12px ${verdict[1]}, 0 16px 34px -14px rgba(0,0,0,.8)` }}>
               <span className="flex items-baseline gap-2" style={{ color: verdict[1] }}>
@@ -129,8 +129,16 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0, win = null }) {
               </span>
               <i className="block h-px w-full" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)' }} />
               {/* 예상 승률 — 정비 화면과 같은 셈(useSimWin: 엔진 시뮬). 세는 동안은 '…' */}
-              <span className="flex items-baseline gap-2 whitespace-nowrap text-t3 font-bold text-[#8b97a6]">
-                예상 승률 <b className="font-display text-t1 text-white">{win == null ? '…' : `${win}%`}</b>
+              <span className="flex items-baseline gap-2 whitespace-nowrap font-display text-[24px] font-extrabold leading-none" aria-label={win == null ? '예상 승률 계산 중' : `예상 승률 ${win}% 대 ${100 - win}%`}>
+                <b style={{ color: WIN }}>{win == null ? '…' : `${win}%`}</b>
+                <small className="text-t3 text-[#6b7280]">:</small>
+                <b style={{ color: LOSE }}>{win == null ? '…' : `${100 - win}%`}</b>
+              </span>
+              <span className="flex h-2 w-full overflow-hidden rounded-full bg-white/[0.08]">
+                {win != null && <>
+                  <i className="block h-full" style={{ width: `${win}%`, background: `linear-gradient(90deg,#0e9f6e,${WIN})` }} />
+                  <i className="block h-full" style={{ width: `${100 - win}%`, background: `linear-gradient(90deg,${LOSE},#dc2626)`, boxShadow: 'inset 2px 0 0 #0b0f1a' }} />
+                </>}
               </span>
             </span>
           </span>
