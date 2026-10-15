@@ -2059,7 +2059,7 @@ export const KEYFRAMES = `
 .mt-gh b { order: 1; font-size:12px; color: #cbd5e1; }
 .mt-gh em { order: 3; font-style: normal; font-size:12px; color: #6b7280; }
 .mt-rec table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.mt-rec th { height: 22px; padding: 0 4px; font-size:12px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
+.mt-rec th { height: 22px; padding: 0 4px; white-space: nowrap; font-size:12px; font-weight: 500; color: #6b7280; text-align: right; box-shadow: inset 0 -1px 0 rgba(148,163,184,.2); }
 .mt-rec td { height: 29px; padding: 0 4px; font-size:14px; text-align: right; color: #d1d5db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 -1px 0 rgba(148,163,184,.07); }
 .mt-rec tbody tr:last-child td { box-shadow: none; }
 .mt-rec .l { text-align: left; }
@@ -3322,7 +3322,7 @@ function MyTeamPanel({ roster, mode, cap, selectedSlot, onTap }) {
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t}</button>
         ))}
       </div>
-      <div className="mt-body" role="tabpanel">
+      <div className="mt-body syn-scroll" role="tabpanel">
         {tab === 'team' ? <TeamReport roster={roster} mode={mode} cap={cap} /> : <RecordCards roster={roster} selectedSlot={selectedSlot} onTap={onTap} />}
       </div>
     </div>
