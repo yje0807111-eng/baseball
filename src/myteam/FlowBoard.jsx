@@ -28,7 +28,7 @@
  *  마운드 줄 아래 불펜 판 — 불펜 투수 전부를 카드로 늘어놓고 끌어서 놓기(드래프트 라인업 · 9이닝스 불펜 교체처럼):
  *   카드 → 마운드 칸 = 그 자리와 바꿈(이미 다른 자리면 서로 바꿈) · 카드 → 칸 사이 틈(끄는 동안만 보이는 초록 홈) = 그 자리에 계투 추가
  *   마운드 칸 → 불펜 판 = 빼기(계투만, 한 명은 남김) · 칸 → 다른 칸 = 서로 바꿈. 끌지 않고 누르면 예전처럼 칸 고르기 → 카드 누르기
- *  손잡이는 잡는 폭 24px · 손잡이 알약을 늘 보이게(끌 수 있는 곳이 바로 보이게). 마운드 묶음(줄 72 + 판) ≈ 공격 그래프 높이(GH 190)
+ *  손잡이는 잡는 폭 24px · 손잡이 알약을 늘 보이게(끌 수 있는 곳이 바로 보이게). 불펜은 칩 줄(공격 스타일 단추 결) — 대신 마운드 줄을 112 로 높게
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { Portrait } from './ui.jsx';
@@ -62,25 +62,31 @@ const r1 = (v) => Math.round(v * 10) / 10;
 const fill = (v) => Array(9).fill(v);
 const byOpp = (fn) => (opp) => (opp ? fn(opp) : fill(1));
 const weakest = (opp, n) => new Set(opp.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]).slice(0, n).map(([, i]) => i));
+/*
+ * 열 다섯(2026-10-15) — 플레이어가 고르기 쉽게 '어떤 타격인가'로 묶음: 안타 · 신중 · 기본 · 적극 · 장타. 열 맨 위가 그 열의 대표(아홉 회 같은 높이),
+ *  아래는 같은 결의 변형(초반만 · 후반만 · 상대 맞춤 등). 이름 · 값은 그대로 — 자리만 옮김
+ */
 export const ATK_GROUPS = [
-  ['기본', [['기본형', () => fill(1)], ['신중형', () => fill(1.5)]]],
-  ['상대 맞춤', [
-    ['상대 맞춤형', byOpp((opp) => opp.map((n) => r1(n * 2.4)))],
-    ['약점 집중형', byOpp((opp) => { const w = weakest(opp, 3); return opp.map((_, i) => (w.has(i) ? 0 : 1)); })],
-    ['강약 조절형', byOpp((opp) => opp.map((n) => (n < 0.34 ? 0 : n > 0.66 ? 2 : 1)))],
-  ]],
-  ['초반 탐색', [
+  ['안타', [['안타형', () => fill(2)], ['초반 안타형', () => [2, 2, 2, 1, 1, 1, 1, 1, 1]]]],
+  ['신중', [
+    ['신중형', () => fill(1.5)], ['출루형', () => fill(2.5)],
     ['초반 탐색형', () => [3, 3, 2.5, 1.5, 1, 1, 1, 1, 1]],
     ['투구 수 공략형', () => [3, 3, 3, 3, 3, 1, 1, 1, 1]],
     ['탐색 후 공격형', () => [3, 3, 3, 0.5, 0.5, 0.5, 1, 1, 1]],
   ]],
-  ['후반 공격', [
+  ['기본', [
+    ['기본형', () => fill(1)],
+    ['상대 맞춤형', byOpp((opp) => opp.map((n) => r1(n * 2.4)))],
+    ['강약 조절형', byOpp((opp) => opp.map((n) => (n < 0.34 ? 0 : n > 0.66 ? 2 : 1)))],
+  ]],
+  ['적극', [
+    ['적극형', () => fill(0.5)],
+    ['약점 집중형', byOpp((opp) => { const w = weakest(opp, 3); return opp.map((_, i) => (w.has(i) ? 0 : 1)); })],
+    ['중반 승부형', () => [1, 1, 1, 0, 0, 0, 1, 1, 1]],
     ['후반 공격형', () => [1, 1, 1, 1, 1, 0.7, 0.3, 0, 0]],
     ['막판 승부형', () => [1, 1, 1, 1, 1, 1, 1, 0, 0]],
-    ['중반 승부형', () => [1, 1, 1, 0, 0, 0, 1, 1, 1]],
   ]],
-  ['안타', [['안타형', () => fill(2)], ['출루형', () => fill(2.5)], ['초반 안타형', () => [2, 2, 2, 1, 1, 1, 1, 1, 1]]]],
-  ['장타', [['장타형', () => fill(0)], ['적극형', () => fill(0.5)], ['선제 공격형', () => [0, 0, 0, 1, 1, 1, 1, 1, 1]]]],
+  ['장타', [['장타형', () => fill(0)], ['선제 공격형', () => [0, 0, 0, 1, 1, 1, 1, 1, 1]]]],
 ];
 export const ATK_STYLES = ATK_GROUPS.flatMap(([, list]) => list);
 /* 높이 값 — 예전 이름도 받음 */
@@ -301,10 +307,10 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
         <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <Lane label="우리 마운드" h={72} glass low={low}>
+        <Lane label="우리 마운드" h={112} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
           <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
-            {starter && <Portrait player={starter} w={30} h={38} color="#334155" />}
+            {starter && <Portrait player={starter} w={42} h={52} color="#334155" />}
             <b className="shrink-0 text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} />
           </span>
           {mp.spans.map((x, k) => {
@@ -314,7 +320,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
                 onClick={() => { if (dragRef.current?.kind === 'eat') return; setPick(on ? null : x.slot); }} className="absolute flex cursor-grab items-center justify-center gap-1.5 overflow-hidden rounded-md px-1.5"
                 style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, opacity: drag?.kind === 'pen' && drag.from === 'lane' && drag.slot === x.slot ? 0.35 : 1,
                   background: on || drag?.target === `slot:${x.slot}` ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 ${drag?.target === `slot:${x.slot}` ? 2 : 1}px ${on || drag?.target === `slot:${x.slot}` ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
-                {p && <Portrait player={p} w={28} h={35} color="#334155" />}
+                {p && <Portrait player={p} w={38} h={47} color="#334155" />}
                 <span className="shrink-0 truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>
                 {x.slot === 'close' ? <span className="shrink-0 text-[10px]" style={{ color: GOLD }}>마무리</span> : p && <PStats p={p} keys={STAT2} />}
               </button>
@@ -339,19 +345,20 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
         {/* 불펜 판 — 불펜 투수 전부(쓰는 자리 표시). 끌어서 마운드 칸 · 칸 사이에 놓기, 칸을 여기로 끌어 빼기. 칸을 고른 뒤 누르면 그 자리와 바꿈 */}
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
           <span className="flex flex-col justify-center gap-1 pr-3"><b className="text-t3" style={{ color: W1 }}>불펜</b><span className="text-[11px]" style={{ color: W3 }}>끌어서 교체</span></span>
-          <div data-drop="pool" className="grid gap-1.5 rounded-lg p-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(4, pens.length)}, minmax(0,1fr))`, height: 108,
-            background: drag?.target === 'pool' ? 'rgba(248,113,113,.08)' : 'rgba(255,255,255,.02)', boxShadow: `inset 0 0 0 1px ${drag?.target === 'pool' ? 'rgba(248,113,113,.5)' : 'rgba(255,255,255,.06)'}` }}>
+          <div data-drop="pool" className="flex min-h-[2.75rem] flex-wrap content-center gap-1.5 rounded-lg p-1.5"
+            style={{ background: drag?.target === 'pool' ? 'rgba(248,113,113,.08)' : 'rgba(255,255,255,.02)', boxShadow: `inset 0 0 0 1px ${drag?.target === 'pool' ? 'rgba(248,113,113,.5)' : 'rgba(255,255,255,.06)'}` }}>
+            {/* 칩 — 공격 스타일 단추와 같은 결(얼굴 · 이름 · 자리 또는 구위 · 제구). 쓰는 투수는 흐리게 */}
             {pens.map((p) => {
               const k = rel.mid.indexOf(p.id), role = rel.close === p.id ? '마무리' : k >= 0 ? (k < mp.mid.length ? `계투 ${k + 1}` : '대기') : null;
               const lifted = drag?.kind === 'pen' && drag.id === p.id;
               return (
                 <button key={p.id} type="button" onPointerDown={(e) => penDown(e, { id: p.id, from: 'pool' })}
                   onClick={() => { if (dragRef.current?.kind === 'eat' || pick == null) return; setRel(pickRel(rel, pick, p.id)); setPick(null); }}
-                  className="flex min-w-0 cursor-grab flex-col items-center justify-center gap-1 rounded-md px-1 py-1.5 hover:brightness-125"
-                  style={{ opacity: lifted ? 0.35 : role ? 0.62 : 1, background: role ? 'rgba(255,255,255,.03)' : 'rgba(255,255,255,.06)', boxShadow: `inset 0 0 0 1px ${role === '마무리' ? `${GOLD}88` : role ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.14)'}` }}>
-                  <Portrait player={p} w={30} h={36} color="#334155" />
-                  <b className="max-w-full truncate text-[12px]" style={{ color: W1 }}>{p.name}</b>
-                  <span className="whitespace-nowrap text-[10px]" style={{ color: role === '마무리' ? GOLD : role ? US : W3 }}>{role || `구위 ${st(p, 'stuff', 80)} · 제구 ${st(p, 'control', 75)}`}</span>
+                  className="flex cursor-grab items-center gap-1.5 rounded-md py-1 pl-1 pr-2.5 hover:brightness-125"
+                  style={{ opacity: lifted ? 0.35 : role ? 0.6 : 1, background: role ? 'rgba(255,255,255,.03)' : 'rgba(255,255,255,.06)', boxShadow: `inset 0 0 0 1px ${role === '마무리' ? `${GOLD}88` : role ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.14)'}` }}>
+                  <Portrait player={p} w={20} h={24} color="#334155" />
+                  <b className="whitespace-nowrap text-[12px]" style={{ color: W1 }}>{p.name}</b>
+                  <span className="whitespace-nowrap font-display text-[11px]" style={{ color: role === '마무리' ? GOLD : role ? US : W3 }}>{role || armOf(p)}</span>
                 </button>
               );
             })}
@@ -398,6 +405,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
           <span className="grid gap-x-2" style={{ gridTemplateColumns: `repeat(${ATK_GROUPS.length}, minmax(0,1fr))` }}>
             {ATK_GROUPS.map(([group, list]) => (
               <span key={group} className="flex min-w-0 flex-col gap-1">
+                <small className="px-1 text-[11px] font-bold" style={{ color: W3 }}>{group}</small>
                 {list.map(([ko, make], k) => {
                   const target = make(oppNorm), on = styleOn(target);
                   return (
