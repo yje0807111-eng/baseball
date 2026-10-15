@@ -38,7 +38,7 @@ import { recordCells, playerTraits } from './myteam/traits.js';
    ════════════════════════════════════════════════════════════════════ */
 
 /* ───────────── 1. 규칙 상수 ───────────── */
-export const SALARY_CAP = 1560; // 자리 20개 × 약 78 CP
+export const SALARY_CAP = 1500; // 자리 20개 × 약 75 CP — 모든 모드 같은 값(고르는 칸 없음)
 export const FOREIGN_LIMIT = 3;
 export const SLOT_LIMITS = { SP: 1, RP: 4, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 3, DH: 1 };
 export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리
@@ -153,19 +153,19 @@ const FRANCHISE_MIN_SERIES = 20;
 export const DRAFT_MODES = [
   { id: 'legend', group: 'special', rules: ['전원 레전드', '캡 없음'], name: '올타임 레전드', en: 'All-Time Legends', neon: '#fbbf24', tag: 'HARD', cap: 1580,
     desc: '레전드 시리즈만 나오는 모드', filter: (s) => s.kind === 'legend' },
-  { id: 'champ', group: 'special', rules: ['각 시즌 우승팀', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: 1560,
+  { id: 'champ', group: 'special', rules: ['각 시즌 우승팀', '왕조 로스터'], name: '가을의 왕조', en: 'Champions', neon: '#ff5a67', tag: 'NORMAL', cap: SALARY_CAP,
     desc: '역대 한국시리즈 우승 팀만 나오는 모드', filter: (s) => s.champion },
-  { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: 1560,
+  { id: 'recent', group: 'basic', name: '최근 시즌', en: '2021 – 2026', neon: '#38e1ff', tag: 'NEW', cap: SALARY_CAP,
     desc: '2021년부터 올해까지 구단 시즌만 나오는 모드', filter: (s) => s.kind === 'team' && s.year >= 2021 },
   { id: 'national', group: 'special', rules: ['국가대표만', '대회별 버전'], name: '태극마크', en: 'Team Korea', neon: '#60a5fa', tag: 'NORMAL', cap: 1270,
     desc: 'WBC·올림픽·프리미어12 국가대표만 나오는 모드', filter: (s) => s.kind === 'national' },
-  { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: 1560,
+  { id: 'mix', group: 'basic', name: '전체 믹스', en: 'All Series', neon: '#10b981', tag: 'CLASSIC', cap: SALARY_CAP,
     desc: '가진 시리즈 전체에서 무작위로 열리는 기본 모드', filter: () => true },
   // 연도별 시즌: 그해 구단 시즌이 둘 이상인 해마다 하나씩 (국가대표는 태극마크 모드에서만)
   ...[...new Set(DRAFT_SERIES.filter((x) => x.year && x.kind === 'team').map((x) => x.year))]
     .filter((y) => DRAFT_SERIES.filter((x) => x.year === y && x.kind === 'team').length >= 2)
     .sort((a, b) => b - a)
-    .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: 1560,
+    .map((y) => ({ id: `y${y}`, group: 'year', year: y, name: `${y} 시즌`, en: `Season ${y}`, neon: '#a3e635', tag: 'SEASON', cap: SALARY_CAP,
       desc: `${y}년 구단 로스터만 나오는 모드`, filter: (x) => x.year === y && x.kind === 'team' })),
   // 구단별: 한 구단의 모든 시즌(옛 이름 포함)과 그 구단 레전드. 보드 20개를 중복 없이 깔 수 있는 구단만 (NC 14 · KT 12 · 쌍방울 9 는 뺐다)
   ...[...new Set(DRAFT_SERIES.map((x) => x.franchise).filter(Boolean))]
@@ -173,7 +173,7 @@ export const DRAFT_MODES = [
     .filter(({ count }) => count >= FRANCHISE_MIN_SERIES)
     .sort((a, b) => b.count - a.count || a.fr.localeCompare(b.fr))
     .map(({ fr }) => ({ id: `club-${fr}`, group: 'club', franchise: fr, name: FRANCHISE_KO[fr] || fr,
-      en: fr.charAt(0) + fr.slice(1).toLowerCase(), neon: teamFlag(FRANCHISE_KO[fr] || fr)?.color || '#a3e635', tag: 'CLUB', cap: 1560,
+      en: fr.charAt(0) + fr.slice(1).toLowerCase(), neon: teamFlag(FRANCHISE_KO[fr] || fr)?.color || '#a3e635', tag: 'CLUB', cap: SALARY_CAP,
       desc: `${FRANCHISE_KO[fr] || fr} 시즌만 나오는 모드`, filter: (x) => x.franchise === fr })),
 ].map((m) => {
   const series = DRAFT_SERIES.filter(m.filter);
@@ -4696,11 +4696,10 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const [clubId, setClubId] = useState(firstMode.group === 'club' ? firstMode.id : CLUB_MODES[0]?.id);
   const modeId = view === 'year' ? yearId : view === 'club' ? clubId : play ? null : view;
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
-  const [cap, setCap] = useState(mode.cap);
+  const cap = mode.cap; // 샐러리 캡은 하나(SALARY_CAP) — 고르는 칸 없음
   const [ai, setAi] = useState('normal');
   const aug = SEASON_AUGMENTS; // 시즌 증강은 늘 있다
   const [format, setFormat] = useState('single'); // 단판 · 16 · 32강
-  useEffect(() => { setCap(mode.cap); }, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const tickets = ticketsOf(mode);
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
   const special = mode.group === 'special';
@@ -4786,8 +4785,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
             <div>
               {/* 베이직은 여덟 구단이 같이 뽑고 구단 정복으로, 특별은 혼자 자유 영입 뒤 단판 · 토너먼트 */}
               <SettingRow label="드래프트 방식" fixed={special ? '자유 영입' : '같이 뽑기'} />
-              <SettingRow label="샐러리 캡" options={[mode.cap - 100, mode.cap, mode.cap + 100]} value={cap} onChange={setCap}
-                fixed={special ? '없음' : null} />
+              <SettingRow label="샐러리 캡" fixed={special ? '없음' : `${SALARY_CAP.toLocaleString()} CP`} />
               <SettingRow label="AI 난이도" options={['easy', 'normal', 'hard']} labels={{ easy: '쉬움', normal: '보통', hard: '어려움' }} value={ai} onChange={setAi} />
               <SettingRow label="경기 방식" options={['single', 16, 32]} labels={{ single: '단판', 16: '16강', 32: '32강' }} value={format} onChange={setFormat}
                 fixed={special ? null : '구단 정복'} />
@@ -4842,7 +4840,7 @@ const RULE_TABS = [
     ] },
   { id: 'draft', label: '드래프트',
     icon: <><rect x="4" y="5" width="7" height="10" rx="1" /><rect x="13" y="9" width="7" height="10" rx="1" /><path d="M7.5 18v2M16.5 5V3" /></>,
-    facts: [[ROSTER_SIZE, '라운드'], [SALARY_CAP, 'CP 캡 ±100'], [Live.BOARD_SIZE, '보드 선수'], [`${Live.PICK_SECONDS}초`, '내 차례']],
+    facts: [[ROSTER_SIZE, '라운드'], [SALARY_CAP, 'CP 캡'], [Live.BOARD_SIZE, '보드 선수'], [`${Live.PICK_SECONDS}초`, '내 차례']],
     flow: ['보드 한 시리즈', '순번대로 1명씩', '먼저 뽑으면 끝'],
     groups: [
       { t: '영입가', b: <>
