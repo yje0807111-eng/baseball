@@ -1872,6 +1872,10 @@ export const KEYFRAMES = `
 .pk .mc-syn svg { width: 5cqw; height: 5cqw; margin-right: .4cqw; }
 .pk .mc-syn i { width: 2cqw; height: 3.6cqw; }
 .pk .mc-syn em { font-size: max(12px, 3.6cqw); }
+/* 고른 선수 카드 — 시너지 칸이 오른쪽 위라 아이콘은 그 아래(오른쪽 맞춤) */
+.pk .mc-sy { top: 5cqw; bottom: auto; right: 4cqw; gap: 1.2cqw; }
+.pk .mc-sy.lift { top: 15cqw; }
+.pk .mc-sy .sy-ico { width: 10cqw; height: 8.7cqw; }
 .mc-syn b { margin-left: 1cqw; font-size: max(12px, 3.6cqw); font-weight: 700; color: #a7f3d0; white-space: nowrap; }
 .pk-chips { position: absolute; left: 6cqw; right: 6cqw; bottom: 50cqw; display: flex; flex-wrap: wrap; gap: 1.2cqw; }
 .pk-chips span { padding: .8cqw 2.2cqw; border-radius: 999px; font-size: max(12px, 3.4cqw); font-weight: 700; line-height: 1.1; background: rgba(5,8,15,.72); }
@@ -2642,7 +2646,7 @@ const PK_FS = { SP: 4.4, DH: 4.1 };
  * owned: 내 라인업 선수로 볼 때 { eff: 선 자리·시너지까지 반영한 능력치, slotLabel } — 수치 옆 변화량, 받은 시너지·원래 포지션 칩, 코스트 대신 자리 이름.
  * hint: 영입하면 채우는 시너지 { s, after }
  */
-export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null, cost = null }) {
+export function PlayerCard({ player, reason, shaking, onSelect, style, owned = null, hint = null, ups = null, cost = null }) {
   const locked = !!reason;
   const art = useArt(player);
   const acc = neonOf(player);
@@ -2680,6 +2684,7 @@ export function PlayerCard({ player, reason, shaking, onSelect, style, owned = n
             })}
           </dl>
           {hint && <SynergyPips {...hint} named />}
+          {ups?.length > 0 && <SynUps list={ups} lift={!!hint} />}
           {owned && (eff.synergyBoost?.length > 0 || eff.naturalPosition) && (
             <span className="pk-chips">
               {eff.synergyBoost?.map((n) => <span key={n} className="sy">▲ {n}</span>)}
@@ -6147,7 +6152,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                       )}
                       {picked ? (
                         <div key={`pick-${picked.id}`} className="pk-face pkf-in">
-                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} cost={costNow(picked)} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} style={{ animation: 'none' }} />
+                          <PlayerCard player={picked} reason={pickedReason} shaking={shake === picked.id} cost={costNow(picked)} onSelect={() => setPicked(null)} hint={pickedReason ? null : hintFor(picked)} ups={pickedReason ? null : upsFor(picked)} style={{ animation: 'none' }} />
                         </div>
                       ) : inspected ? (
                         <div key={`own-${inspected.player.id}`} className="pk-face pkf-in">
