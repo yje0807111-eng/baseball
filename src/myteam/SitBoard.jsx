@@ -58,15 +58,15 @@ const Auto = ({ ko }) => <span className="flex items-center gap-1.5 whitespace-n
 /* 큰 고르기 — 색 점 + 이름 + 결과 한 줄 */
 function Opts({ opts, value, onPick }) {
   return (
-    <span className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${opts.length},minmax(0,1fr))` }}>
+    <span className="grid gap-2" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))' }}>{/* 두 칸씩 두 줄(넷이면 2×2) — 칸이 넓어 득실 두 줄이 다 보이게 */}
       {opts.map(([id, ko, c, fx]) => {
         const on = value === id, col = c || '#cbd5e1';
         return (
           <button key={ko} type="button" aria-pressed={on} onClick={() => onPick(id)}
-            className="flex min-w-0 flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/[0.06]"
+            className="flex min-h-[4.75rem] min-w-0 flex-col items-start justify-center gap-1 rounded-lg px-4 py-3 text-left transition-colors hover:bg-white/[0.06]"
             style={{ background: on ? `${col}1f` : 'rgba(255,255,255,.025)', boxShadow: `inset 0 0 0 1px ${on ? col : 'rgba(255,255,255,.08)'}` }}>
-            <span className="flex items-center gap-1.5"><i className="block h-2 w-2 rounded-full" style={{ background: c || 'rgba(255,255,255,.3)' }} /><b className="truncate text-t4" style={{ color: on ? '#fff' : W2 }}>{ko}</b></span>
-            <span className="flex flex-col">{fx.map(([t, d], k) => <span key={k} className="truncate text-[12px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
+            <span className="flex items-center gap-1.5"><i className="block h-2 w-2 rounded-full" style={{ background: c || 'rgba(255,255,255,.3)' }} /><b className="truncate text-t3" style={{ color: on ? '#fff' : W2 }}>{ko}</b></span>
+            <span className="flex flex-col">{fx.map(([t, d], k) => <span key={k} className="truncate text-[13px] font-bold" style={{ color: FX_C[d], opacity: on ? 1 : 0.75 }}>{t}</span>)}</span>
           </button>
         );
       })}
@@ -210,8 +210,8 @@ export default function SitBoard({ conds, setConds, engine }) {
           <Seg label="언제" opts={[['', '경기 내내'], ['E', '초반만']]} on={when} onPick={pickWhen} dim={!zoneOn} />
         </>}
         chips={<><Chip l={alertChip('장타 위험')} /><Auto ko="선발 무너질 때 · 자동 교체" /></>} />}
-      {/* 아래 — 펼친 줄에 맞춘 타순 한 줄 + 핵심 칩(고르는 줄 바로 밑 — 보며 고르게) */}
-      <div className="mt-1 rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,.02)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
+      {/* 아래 — 펼친 줄에 맞춘 타순 + 핵심 칩. 판 아래에 붙여 고르는 칸(2×2)과 화면을 나눠 씀 */}
+      <div className="mt-auto rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,.02)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.06)' }}>
         {act === 1 && <Strip team={engine.home} label="우리 타순" tags={batTags} sub={batSub} lead={<Lead ko="상대 선발" p={sp} vals={`구위 ${st(sp, 'stuff', 80)} · 제구 ${st(sp, 'control', 75)}`} tone={spChip(sp)?.[2] ? `${spChip(sp)[2]}88` : null} />} />}
         {act === 2 && <Strip team={engine.home} label="우리 타순" tags={runTags} sub={runSub} lead={<Lead ko="상대 포수" p={oppC} vals={`수비 ${st(oppC, 'defense')}`} />} />}
         {act === 3 && <Strip team={engine.away} label="상대 타순" tags={theirs} sub={pitSub} lead={<Lead ko="우리 선발" p={mySp} vals={`구위 ${st(mySp, 'stuff', 80)} · 제구 ${st(mySp, 'control', 75)}`} />} />}
