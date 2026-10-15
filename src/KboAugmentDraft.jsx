@@ -1660,7 +1660,18 @@ export const KEYFRAMES = `
 .dr-toggle[aria-pressed="true"] .tr::after { left: 12px; }
 .dr-div { width: 1px; height: 18px; background: rgba(255,255,255,.14); }
 .dr-order { display: flex; align-items: center; pointer-events: none; }
-.dr-clock { width: 34px; margin-left: 8px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size:14px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); }
+.dr-clock { display: inline-flex; align-items: center; gap: 7px; margin-left: 10px; padding: 3px 9px;
+  background: color-mix(in srgb, var(--t) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 50%, transparent);
+  clip-path: polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px); }
+.dr-clock > b { min-width: 30px; text-align: right; font-family: 'Saira Condensed', sans-serif; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--t); line-height: 1; }
+.dr-clock > b > small { font-size: 11px; opacity: .7; margin-left: 1px; }
+.dr-clock > i { display: block; width: 54px; height: 5px; background: rgba(255,255,255,.12); }
+.dr-clock > i > span { display: block; height: 100%; background: var(--t); box-shadow: 0 0 9px var(--t); transition: width .9s linear; }
+/* 내 차례 — 눈에 걸려야 한다. 칩이 커지고 꽉 찬다 */
+.dr-clock.mine { padding: 5px 12px; background: var(--t); box-shadow: 0 0 20px -4px var(--t); }
+.dr-clock.mine > b { font-size: 24px; color: #05080f; }
+.dr-clock.mine > i { width: 74px; height: 6px; background: rgba(5,8,15,.3); }
+.dr-clock.mine > i > span { background: #05080f; box-shadow: none; }
 .dr-pc { position: relative; display: flex; align-items: center; justify-content: center; width: 72px; height: 24px; padding: 0 8px 0 14px; margin-left: -12px;
   clip-path: polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);
   background: rgba(255,255,255,.05); transition: background .3s ease, box-shadow .3s ease; }
@@ -1673,8 +1684,8 @@ export const KEYFRAMES = `
 /* 내 차례가 온 순간 — 칩이 한 번 커지며 환해졌다 돌아온다 */
 .dr-pc.now.me { animation: drMe .7s var(--fx-out) both; }
 @keyframes drMe { 35% { transform: scale(1.22); filter: brightness(1.7); } } /* 칩은 모양대로 잘려 있어 빛 테두리 대신 밝기로 */
-.dr-clock.low { color: #f87171; animation: drTick .35s var(--fx-out); }
-@keyframes drTick { 40% { transform: scale(1.3); } }
+.dr-clock.low { --t: #f87171; animation: drTick .35s var(--fx-out); }
+@keyframes drTick { 40% { transform: scale(1.12); } }
 @media (prefers-reduced-motion: reduce) { .dr-pc.now.me, .dr-clock.low { animation: none; } }
 .dr-pc.now > i { opacity: .16; } /* 지금 차례 칩: 엠블럼 무늬가 글자를 가리지 않게 옅게 */
 .dr-pc.now > b { font-size:12px; font-weight: 900; letter-spacing: -.01em; color: #05080f; text-shadow: 0 1px 2px rgba(255,255,255,.35); font-variant-numeric: tabular-nums; }
@@ -2754,7 +2765,7 @@ function DraftMeta({ round, cp, cap, capAfter, inline = false }) {
 function TurnOrder({ live, clock, hold = false }) {
   const me = Live.myIndex(live);
   const mineNow = Live.currentClub(live) === me && !hold;
-  const low = mineNow && clock <= 5;
+  const low = mineNow && clock <= 10; // 40초로 늘어나 5초는 너무 늦다
   // hold: 방금 지명된 카드가 아직 엠블럼에 덮여 있는 동안 (띠도 그 구단에 머문다).
   // 다만 바퀴가 넘어갔으면 기다리지 않는다 — 보드가 바뀌는 순간 새 순서를 보여 줘야 한다
   const sameLap = Live.lapOf(live.pick, live.order.length) === Live.lapOf(Math.max(0, live.pick - 1), live.order.length);
@@ -2776,8 +2787,13 @@ function TurnOrder({ live, clock, hold = false }) {
           </span>
         );
       })}
-      {/* 남은 5초: 붉게 · 초마다 한 번 톡(깜빡이지 않음) */}
-      <b key={low ? clock : 'n'} className={`dr-clock ${low ? 'low' : ''}`} style={{ '--t': live.clubs[Live.currentClub(live)].color }}>{clock}s</b>
+      {/* 내 차례면 칩이 커지고 막대가 줄어든다. 남은 10초: 붉게 · 초마다 한 번 톡(깜빡이지 않음) */}
+      <span key={low ? clock : 'n'} className={`dr-clock ${mineNow ? 'mine' : ''} ${low ? 'low' : ''}`}
+        style={{ '--t': live.clubs[Live.currentClub(live)].color }}
+        aria-label={mineNow ? `내 차례 — 남은 시간 ${clock}초` : undefined}>
+        <i aria-hidden="true"><span style={{ width: `${(clock / Live.PICK_SECONDS) * 100}%` }} /></i>
+        <b>{clock}<small>초</small></b>
+      </span>
     </div>
   );
 }

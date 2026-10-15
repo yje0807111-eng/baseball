@@ -1,7 +1,7 @@
 /*
  * 선택 경기 화면(mockups/choice-game 3안 '대결 무대') — 경기 화면(일반 · 랭크 · 토너먼트 · 드래프트). 결과는 matchKit buildResult.
- * 흐름: 진행(이닝 점수판 + 지나간 일 한 줄씩, 타석마다 PA_MS) → 결정(두 선수 카드가 마주 보고 아래 2×2 카드, 15초)
- *   → 구종 · 코스가 필요한 작전이면 그 자리에서 펼침(+10초) → 그 타석을 계획대로 한 번에 → 결과 카드(RESULT_MS, 누르면 넘김) → 다시 진행.
+ * 흐름: 진행(이닝 점수판 + 지나간 일 한 줄씩, 타석마다 PA_MS) → 결정(두 선수 카드가 마주 보고 아래 2×2 카드, CHOICE_MS)
+ *   → 구종 · 코스가 필요한 작전이면 그 자리에서 펼침(DETAIL_MS) → 그 타석을 계획대로 한 번에 → 결과 카드(RESULT_MS, 누르면 넘김) → 다시 진행.
  * 시간이 다 되면 정비 작전. 창이 가려지면 시간도 멈춘다. 판단(멈출 자리 · 카드 · 타석 계획)은 play/choice.js.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -31,8 +31,11 @@ const PA_MS = 150, NOTE_MS = 500, RESULT_MS = 2200;
 const face = (p) => `url(cards/${encodeURIComponent(artId(p?.id || ''))}.webp), url(profiles/${encodeURIComponent(artId(p?.id || ''))}.webp), url(ui/mt/silhouette-player.webp)`;
 const HIT = new Set(['1B', '2B', '3B', 'HR', 'BH']);
 
-/** 시간 막대 — 창이 가려진 동안은 줄지 않는다. 다 되면 onEnd 한 번 */
-function Timer({ ms, onEnd, w = 320, extra = false, k, paused = false }) {
+/**
+ * 남은 시간 — 머리의 칩 하나로는 눈에 안 들어와서, 화면 맨 위 가장자리에도 같은 값으로 띠를 깐다.
+ * 고르는 곳(가운데 아래 카드)을 보고 있어도 주변 시야에 걸린다. 창이 가려진 동안은 줄지 않는다.
+ */
+function Timer({ ms, onEnd, w = 320, extra = '', k, paused = false }) {
   const [left, setLeft] = useState(ms);
   const done = useRef(false);
   const hold = useRef(paused); hold.current = paused; // 나가기 묻는 동안 멈춤
@@ -50,15 +53,24 @@ function Timer({ ms, onEnd, w = 320, extra = false, k, paused = false }) {
     }, 100);
     return () => clearInterval(id);
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
-  const low = left < 5000;
+  const low = left < Math.min(10000, ms * 0.34); // 남은 1/3 (최대 10초)부터 빨강
+  const pct = (left / ms) * 100;
+  const c = low ? OPP : GOLD;
   return (
-    <span className="flex items-center gap-3">
-      <span className="relative h-2.5 overflow-hidden rounded-full bg-white/10" style={{ width: w }}>
-        <i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${(left / ms) * 100}%`, background: low ? OPP : GOLD, boxShadow: `0 0 12px ${low ? OPP : GOLD}`, transition: 'width .1s linear' }} />
+    <>
+      {/* 화면 맨 위 가장자리 — 카드를 보고 있어도 줄어드는 게 보인다 */}
+      <i className="pointer-events-none fixed inset-x-0 top-0 z-50 block h-1.5"
+        style={{ width: `${pct}%`, background: c, boxShadow: `0 0 16px ${c}`, transition: 'width .1s linear' }} />
+      <span className="mt-cut flex items-center gap-3 px-3 py-1.5" style={{ '--c': '8px', background: `${c}1c`, boxShadow: `inset 0 0 0 1px ${c}66` }}>
+        <span className="relative h-2.5 overflow-hidden rounded-full bg-white/10" style={{ width: w }}>
+          <i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${pct}%`, background: c, boxShadow: `0 0 12px ${c}`, transition: 'width .1s linear' }} />
+        </span>
+        <b className={`w-[5.2rem] whitespace-nowrap text-right font-display text-t1 tabular-nums${low ? ' animate-pulse' : ''}`} style={{ color: low ? OPP : '#fde68a' }}>
+          {(left / 1000).toFixed(1)}<small className="ml-0.5 text-t4 opacity-70">초</small>
+        </b>
+        {extra && <b className="rounded-full bg-sky-400/15 px-2 py-0.5 font-display text-t3 text-sky-300">{extra}</b>}
       </span>
-      <b className="w-10 font-display text-t2 tabular-nums" style={{ color: low ? OPP : '#fde68a' }}>{(left / 1000).toFixed(1)}</b>
-      {extra && <b className="rounded-full bg-sky-400/15 px-2 py-0.5 font-display text-t3 text-sky-300">+10</b>}
-    </span>
+    </>
   );
 }
 const Chip = ({ t, c }) => <span className="rounded-full px-2.5 py-0.5 text-t4 font-bold" style={{ color: c, background: `${c}1f`, boxShadow: `inset 0 0 0 1px ${c}55` }}>{t}</span>;
@@ -375,8 +387,8 @@ export default function ChoiceGame({ my, opp, onFinish, onExit, fatigue = {}, au
           <Chip t={g.wx.ko} c={SKY} />
           <Chip t={`불펜 호출 ${penCallsLeft(g.home)} / ${PEN_CALLS}`} c="#94a3b8" />
           <span className="ml-auto">
-            {phase === 'choice' && timer(CHOICE_MS, false, `c${asked}`)}
-            {phase === 'detail' && timer(DETAIL_MS, true, `d${asked}`)}
+            {phase === 'choice' && timer(CHOICE_MS, '', `c${asked}`)}
+            {phase === 'detail' && timer(DETAIL_MS, '구종 · 코스', `d${asked}`)}
             {phase === 'run' && <b className="rounded-full px-3 py-1 font-display text-t3" style={{ background: 'rgba(56,189,248,.14)', color: '#7dd3fc' }}>▶▶ 진행</b>}
           </span>
         </header>
