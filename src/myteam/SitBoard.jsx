@@ -206,8 +206,9 @@ export default function SitBoard({ conds, setConds, engine, prog, setProg }) {
 
   /* 차례 — prog = { act: 펼친 줄(0 = 다 접힘), done: 끝낸 줄 수 } */
   const { act, done } = prog;
-  const next = (k) => setProg(done >= 3 ? { act: 0, done } : { act: k < 3 ? k + 1 : 0, done: Math.max(done, k) });
-  const nextKo = (k) => (done >= 3 ? '확인 ✓' : k === 1 ? '다음 · 주자 ▶' : k === 2 ? '다음 · 투수 ▶' : '설정 완료 ✓');
+  /* 타자 · 주자 = 늘 다음 줄을 펼침(다 끝낸 뒤 고치러 와도), 투수 = 셋 다 접힘 */
+  const next = (k) => setProg({ act: k < 3 ? k + 1 : 0, done: Math.max(done, k) });
+  const nextKo = (k) => (k === 1 ? '다음 · 주자 ▶' : k === 2 ? '다음 · 투수 ▶' : '설정 완료 ✓');
   const lvKo = (k, on) => (on ? ` · ${LVK[lvs[k] - 1]}` : '');
   const batKo = ({ rispPow: '홈런 우선', rispCon: '안타 우선', rispPat: '출루 우선' }[bat] || '그대로') + lvKo(1, bat);
   const runKo = (stealOn ? `도루 우선 · 주력 ${thrN}+` : '그대로') + lvKo(2, stealOn);
