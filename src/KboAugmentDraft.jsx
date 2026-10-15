@@ -2161,6 +2161,10 @@ export const KEYFRAMES = `
 .sd-stp .nx { color: #10b981; animation: synNx 1.6s ease-in-out infinite; }
 @keyframes synNx { 0%, 100% { opacity: .35; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(16,185,129,.8); } }
 @media (prefers-reduced-motion: reduce) { .sd-stp .nx { animation: none; } }
+.sy-wrap { display: grid; flex: none; } .sy-wrap > .sy-ico { grid-area: 1 / 1; }
+.sd-row .sy-wrap .sy-ico.sy-to { animation: synTo 1.6s ease-in-out infinite; }
+@keyframes synTo { 0%, 100% { opacity: 0; } 50% { opacity: .75; } }
+@media (prefers-reduced-motion: reduce) { .sd-row .sy-wrap .sy-ico.sy-to { animation: none; opacity: .5; } }
 .sd-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .sd-tx b { font-size:14px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sd-row.on .sd-tx b { color: #fff; }
@@ -3672,9 +3676,11 @@ function synPeople(s, after, candidate) {
     : [...s.members.map((m) => ({ key: m.id, player: m, st: 'in' })), ...(candKey && !mine.has(candKey) ? [{ key: 'cand', player: candidate, st: 'cd' }] : [])];
   return people.sort((a, b) => rank[a.st] - rank[b.st]).map((p) => ({ ...p, name: p.player?.name || p.key.replace(/\(.*\)$/, '') }));
 }
-const SynIcon = ({ id }) => (
-  <span className="sy-ico" aria-hidden="true"><i style={{ WebkitMaskImage: `url(${SYN_ICON(id)})`, maskImage: `url(${SYN_ICON(id)})` }} /></span>
-);
+/* to = 영입하면 바뀔 등급 — 그 색 아이콘을 위에 겹쳐 희미하게 일렁임(단계 숫자 .nx 초록 깜빡과 같은 1.6초) */
+const SynIcon = ({ id, to = null }) => {
+  const ico = (cls) => <span className={`sy-ico ${cls}`} aria-hidden="true"><i style={{ WebkitMaskImage: `url(${SYN_ICON(id)})`, maskImage: `url(${SYN_ICON(id)})` }} /></span>;
+  return to == null ? ico('') : <span className="sy-wrap">{ico('')}{ico(`sy-to sy${to}`)}</span>;
+};
 function SynFace({ p }) {
   const bust = useBust(p.player, '260%');
   return <span className={`sd-pf ${p.st}`}><i style={bust || undefined} /><small>{p.name}</small></span>;
@@ -3715,7 +3721,7 @@ function SynergyDock({ roster, candidate, focusId, onFocus, onOpenAll }) {
                 className={`sd-row sy${synTier(s)} ${s.active ? 'on' : ''} ${focusId === s.id ? 'fo' : ''} ${hover?.id === s.id ? 'hv' : ''} ${synergyGrows(s, a) ? 'gr' : ''} ${dim ? 'dim' : ''}`}
                 onMouseEnter={(e) => show(s.id, e.currentTarget)} onFocus={(e) => show(s.id, e.currentTarget)} onBlur={() => setHover(null)}
                 onClick={() => onFocus(s.id)}>
-                <SynIcon id={s.id} />
+                <SynIcon id={s.id} to={a && synTier(a) !== synTier(s) ? synTier(a) : null} />
                 <span className="sd-tx">
                   <b>{s.name}</b>
                   <span className="sd-stp font-display">{s.tiers.map((t, k) => <React.Fragment key={t.need}>{k > 0 && <i>›</i>}<span className={k < s.level ? 'ok' : a && k < a.level ? 'nx' : ''}>{t.need}</span></React.Fragment>)}</span>
