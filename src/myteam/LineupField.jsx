@@ -18,6 +18,13 @@ const cut = (c) => ({ '--c': `${c}px` });
 const st = (p, k, d = 75) => p?.stats?.[k] ?? d;
 const US = '#10b981', RED = '#f87171';
 const W1 = '#e5e7eb', W2 = '#9ca3af', W3 = '#6b7280'; // 평소 글자 — 진함 · 보통 · 흐림
+/*
+ * 타순 능력치(mockups/order-calm G · H · I) — 무채색에 금빛 하나만. 색 대신 밝기 · 굵기로:
+ *  G 90↑ 밝고 굵게 · 80대 보통 · 그 아래 흐리게 · 100↑ 만 금빛 / H 숫자 아래 2px 막대(길이 = 능력치), 칸마다 팀 1위만 금빛 막대
+ */
+const GOLD = '#f5d27a';
+const statTone = (v) => (v >= 100 ? { color: GOLD, textShadow: '0 0 8px rgba(245,210,122,.45)' } : v >= 90 ? { color: '#fff', fontWeight: 800 } : v >= 80 ? { color: '#cbd5e1' } : { color: W3 });
+const statLen = (v) => Math.max(8, Math.min(100, ((v - 50) / 60) * 100));
 const POS_KO = { C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', LF: '좌익수', CF: '중견수', RF: '우익수', DH: '지명', OF: '외야수', SP: '선발', RP: '불펜' };
 /* 그림 1번의 베이스(그림 %) → 수비 자리. 2루수 · 유격수는 잔디 쪽으로 올려 1 · 3루 이름표와 겹치지 않게, 지명은 홈 오른쪽 칸 */
 const B = { h: [50, 89], b1: [67.3, 65.8], b2: [50, 47.2], b3: [32.8, 65.8] };
@@ -32,7 +39,7 @@ const SPOT = {
 const at = (k) => ({ left: `${SPOT[k][0]}%`, top: `${SPOT[k][1]}%` });
 const move = (arr, from, to) => { const a = [...arr]; const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; };
 const hand = (h) => (h === 'L' ? '좌' : h === 'S' ? '양' : '우');
-const TABLE = '2rem 2.2rem minmax(0,1fr) 4.6rem repeat(3,2.8rem)'; // 번호 · 얼굴 · 선수 · 자리 · 컨택 · 파워 · 주루
+const TABLE = '2rem 2.4rem minmax(0,1fr) 4.6rem repeat(3,2.8rem)'; // 번호 · 얼굴 · 선수 · 자리 · 컨택 · 파워 · 주루
 
 /*
  * 끌기 손맛(2026-10-03 다시) — 비교: Trello · Notion 줄 끌기(잡은 카드가 포인터에 붙고 나머지가 미끄러져 자리를 비움),
@@ -78,6 +85,7 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
   };
 
   const rows = order.lineup.map((x, i) => ({ ...x, p: byId.get(x.id), n: i + 1 })).filter((x) => x.p);
+  const best = ['contact', 'power', 'speed'].map((k) => Math.max(...rows.map((r) => st(r.p, k)))); // H 칸마다 팀 1위(금빛 막대)
   /* 구장 미리보기 — 붙은 대상은 내 원래 자리로 비켜 선다 */
   const fieldLineup = drag?.kind === 'field' && drag.target ? swapSlots(order.lineup, drag.id, drag.target) : order.lineup;
   const slotOf = new Map(fieldLineup.map((x) => [x.id, x.slot]));
@@ -269,16 +277,26 @@ export default function LineupField({ team, squad, bench, onCommit, starter = nu
               <React.Fragment key={x.id}>
               <div role="button" tabIndex={0} data-drop="row" data-id={x.id} aria-pressed={sel === x.id}
                 onPointerDown={(e) => start(e, 'row', x.id)} onKeyDown={keyPick(() => setSel(sel === x.id ? null : x.id))}
-                className={`grid min-h-0 flex-1 items-center gap-3 px-3 outline-none ${open ? 'rounded-t-lg' : 'rounded-lg'} ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
-                style={{ gridTemplateColumns: TABLE, background: on ? 'rgba(16,185,129,.12)' : look.lift ? 'rgba(20,26,40,.95)' : 'transparent',
-                  /* 줄 나눔 — 아래쪽 아주 옅은 선(고른 줄 · 들린 줄 · 마지막 줄은 없음) */
-                  boxShadow: on ? `inset 0 0 0 1px ${US}${look.lift ? ', 0 12px 28px rgba(0,0,0,.55)' : ''}` : [p ? `inset 2px 0 0 ${RED}` : '', i < rows.length - 1 ? 'inset 0 -1px 0 rgba(255,255,255,.05)' : ''].filter(Boolean).join(', ') || 'none',
+                className={`my-[2px] grid min-h-0 flex-1 items-center gap-3 px-3 outline-none ${open ? 'rounded-t-xl' : 'rounded-xl'} ${look.lift ? 'cursor-grabbing' : 'cursor-grab'}`}
+                style={{ gridTemplateColumns: TABLE, background: on ? 'rgba(16,185,129,.12)' : look.lift ? 'rgba(20,26,40,.95)' : 'rgba(255,255,255,.035)',
+                  /* I 줄 깊이 — 줄마다 옅은 유리 바탕 + 가는 테두리(선 대신 줄 사이 틈으로 나눔) */
+                  boxShadow: on ? `inset 0 0 0 1px ${US}${look.lift ? ', 0 12px 28px rgba(0,0,0,.55)' : ''}` : [p ? `inset 2px 0 0 ${RED}` : '', 'inset 0 0 0 1px rgba(255,255,255,.05)'].filter(Boolean).join(', '),
                   position: 'relative', zIndex: look.lift ? 20 : undefined, transform: `translateY(${look.y}px)${look.lift ? ' scale(1.015)' : ''}`, transition: look.tr }}>
-                <b className="font-display text-t2" style={{ color: on ? US : W1 }}>{look.n}</b>
-                <Portrait player={x.p} w={28} h={34} color="#334155" />
+                <b className="font-display text-t1 leading-none" style={{ color: on ? US : W1 }}>{look.n}</b>
+                <Portrait player={x.p} w={32} h={38} color="#334155" />
                 <span className="flex min-w-0 items-center gap-2"><b className="truncate text-t3" style={{ color: W1 }}>{x.p.name}</b><span className="text-t4" style={{ color: W3 }}>{hand(x.p.hand)}</span></span>
                 <span className="text-t4" style={{ color: p ? RED : W2 }}>{POS_KO[x.slot]}{p ? ` −${p}` : ''}</span>
-                {['contact', 'power', 'speed'].map((k) => <b key={k} className="text-right font-display text-t3" style={{ color: st(x.p, k) >= 90 ? W1 : W2 }}>{st(x.p, k)}</b>)}
+                {['contact', 'power', 'speed'].map((k, ki) => {
+                  const v = st(x.p, k), top = v === best[ki];
+                  return (
+                    <span key={k} className="flex flex-col items-end gap-1">
+                      <b className="font-display text-t3 leading-none" style={statTone(v)}>{v}</b>
+                      <span className="block h-[2px] w-[2.4rem] overflow-hidden rounded-full bg-white/[0.08]">
+                        <i className="block h-full rounded-full" style={{ width: `${statLen(v)}%`, background: top ? GOLD : 'rgba(255,255,255,.55)', boxShadow: top ? `0 0 6px ${GOLD}` : 'none' }} />
+                      </span>
+                    </span>
+                  );
+                })}
               </div>
               {/* 누른 줄 아래 — 벤치 선수와 바꾸기(사람만, 타순 · 자리 그대로) */}
               {open && (
