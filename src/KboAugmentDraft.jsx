@@ -5978,7 +5978,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
       )}
       {phase === 'gauntlet' && gaunt && (
         <GauntletScreen gaunt={gaunt}
-          me={{ name: live ? live.clubs[Live.myIndex(live)].name : myClub, short: live ? live.clubs[Live.myIndex(live)].short : '나', color: live ? live.clubs[Live.myIndex(live)].color : null, emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster) }}
+          me={{ name: live ? live.clubs[Live.myIndex(live)].name : myClub, short: live ? live.clubs[Live.myIndex(live)].short : '나', color: live ? live.clubs[Live.myIndex(live)].color : null, emblem: Live.bannerEmblem(myBanner()), stats: Gaunt.teamStats(roster), roster }}
           onBack={() => setPhase('ready')} onExit={newDraft} oppBuff={AI_BUFF[match.ai] || 0}
           onPlay={() => setPhase('ready')} />
       )}

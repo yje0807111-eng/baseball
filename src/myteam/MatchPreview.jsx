@@ -62,7 +62,7 @@ const sideOf = (a, b) => (a > b ? ME : a < b ? OPP : FLAT);
 const angOf = (i, n) => (Math.PI * 2 * i) / n - Math.PI / 2;
 
 /** 두 팀을 겹쳐 그리는 육각 레이더 */
-function Hex({ rows, r = 64, pad = 22 }) {
+export function Hex({ rows, r = 64, pad = 22 }) {
   const n = rows.length;
   const S = (r + pad) * 2, c = S / 2;
   const at = (i, rad) => [c + Math.cos(angOf(i, n)) * rad, c + Math.sin(angOf(i, n)) * rad];
