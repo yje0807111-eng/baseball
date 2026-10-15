@@ -127,6 +127,10 @@ const pct = (inn) => `${(inn / 9) * 100}%`;
  *  slots 첫 칸은 0부터 — 선발이 계획보다 일찍 내려가도 첫 계투가 받게
  */
 export const outKo = (o) => `${Math.floor(o / 3) + 1}회 ${o % 3 ? `${o % 3}아웃` : '시작'}`;
+/* 맡는 구간 글자 — a ~ b 아웃. 시작은 '6회'(회 시작) 또는 '6회 1아웃', 끝은 b 가 회 끝이면 '8회', 아니면 '6회 1아웃' */
+const startKo = (o) => `${Math.floor(o / 3) + 1}회${o % 3 ? ` ${o % 3}아웃` : ''}`;
+const endKo = (o) => (o % 3 ? `${Math.floor(o / 3) + 1}회 ${o % 3}아웃` : `${o / 3}회`);
+export const spanKo = (a0, b0) => { const a = Math.round(a0), b = Math.round(b0), s0 = startKo(a), e = endKo(b); if (s0 === e) return e; if (a % 3 && b === (Math.floor(a / 3) + 1) * 3) return `${s0} 뒤`; return `${a % 3 ? s0 : `${Math.floor(a / 3) + 1}`}~${e}`; }; // '8회 1아웃 뒤' — 같은 회 끝까지
 export function moundPlan(rel, exit) {
   const F = Math.floor(exit) + 1, E = exit * 3;
   const minFirst = Math.ceil(E - 1e-9) + 3;
@@ -174,6 +178,29 @@ function Grip({ x, on, onPointerDown, label, role = 'separator', style, children
       {children}
       <i className="absolute inset-y-1 w-px transition-colors" style={{ background: on ? US : 'rgba(255,255,255,.18)' }} />
       <i className={`relative block h-7 w-[6px] rounded-full transition-colors ${on ? '' : 'bg-white/60 group-hover:bg-white'}`} style={on ? { background: US, boxShadow: `0 0 8px ${US}88` } : { boxShadow: '0 0 0 2px rgba(11,15,26,.9)' }} />
+    </span>
+  );
+}
+/*
+ * 투수 운용 칸 속(mockups/mound-lane B안) — 위: 얼굴 · 이름 · 수치, 오른쪽 위 역할 글자 / 가운데: 맡는 구간 / 바닥: 체력 막대.
+ *  선발 막대 = 체력이 허락하는 공 수(pitchCap, 120구 = 끝) · 금빛 눈금 = 끊는 지점. 불펜 막대 = 체력. 좁은 칸(한 회 남짓)은 수치 · 구간을 뺌
+ */
+function SegBody({ p, role, rc, keys, range, bar, tick = null, small = false }) {
+  return (
+    <span className="relative flex min-w-0 flex-1 flex-col justify-between px-2.5 pb-2.5 pt-2">
+      <b className="absolute right-2 top-1.5 text-[11px] font-extrabold" style={{ color: rc }}>{role}</b>
+      <span className={`flex min-w-0 items-center gap-2 ${small ? 'mt-3.5' : 'pr-10'}`}>{/* 좁은 칸은 역할 글자 아래로 — 이름이 안 잘리게 */}
+        {p && <Portrait player={p} w={small ? 30 : 38} h={small ? 37 : 47} color="#334155" />}
+        <span className="grid min-w-0 gap-0.5">
+          <b className="truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</b>
+          {!small && p && <PStats p={p} keys={keys} />}
+        </span>
+      </span>
+      {!small && <span className="truncate font-display text-t4 font-bold" style={{ color: '#cbd5e1' }}>{range}</span>}
+      <span className="relative block h-[4px] rounded-full bg-white/10">
+        <i className="absolute inset-y-0 left-0 block rounded-full" style={{ width: `${bar}%`, background: rc }} />
+        {tick != null && <i className="absolute -top-[3px] block h-[10px] w-[2px] rounded" style={{ left: `${tick}%`, background: '#f5d27a', boxShadow: '0 0 6px #f5d27a' }} />}
+      </span>
     </span>
   );
 }
@@ -312,22 +339,21 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
       <div className="flex min-h-0 flex-1 flex-col gap-2">
         <Lane label="투수 운용" h={112} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span data-drop={rotation ? 'sp' : undefined} onClick={() => rotation && setPick(pick === 'sp' ? null : 'sp')} className={`absolute flex items-center gap-2 overflow-hidden rounded-md px-2 ${rotation ? 'cursor-pointer' : ''}`}
+          <span data-drop={rotation ? 'sp' : undefined} onClick={() => rotation && setPick(pick === 'sp' ? null : 'sp')} className={`absolute flex overflow-hidden rounded-md ${rotation ? 'cursor-pointer' : ''}`}
             style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)',
               boxShadow: drag?.target === 'sp' || pick === 'sp' ? `inset 0 0 0 2px ${US}` : 'none' }}>
-            {starter && <Portrait player={starter} w={42} h={52} color="#334155" />}
-            <b className="shrink-0 text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} />
+            <SegBody p={starter} role="선발" rc={SPB} keys={STAT3} range={`${spanKo(0, Math.round(exit * 3))}${limit.mode !== 'inn' ? ` · ${limitKo(limit)}` : ''}`}
+              bar={cap < Infinity ? Math.min(100, (cap / 120) * 100) : st(starter, 'stamina', 90)} tick={Math.min(100, ((exit * LIMIT.pitch.per) / 120) * 100)} />
           </span>
           {mp.spans.map((x, k) => {
             const p = byId.get(x.id), on = pick === x.slot, a = x.a / 3, l = 5;
             return (
               <button key={x.slot} type="button" data-drop={`slot:${x.slot}`} onPointerDown={(e) => penDown(e, { id: x.id, from: 'lane', slot: x.slot })}
-                onClick={() => { if (dragRef.current?.kind === 'eat') return; setPick(on ? null : x.slot); }} className="absolute flex cursor-grab items-center justify-center gap-1.5 overflow-hidden rounded-md px-1.5"
+                onClick={() => { if (dragRef.current?.kind === 'eat') return; setPick(on ? null : x.slot); }} className="absolute flex cursor-grab overflow-hidden rounded-md text-left"
                 style={{ top: 6, bottom: 6, left: `calc(${pct(a)} + ${l}px)`, width: `calc(${pct(x.b / 3 - a)} - ${l + 5}px)`, opacity: drag?.kind === 'pen' && drag.from === 'lane' && drag.slot === x.slot ? 0.35 : 1,
-                  background: on || drag?.target === `slot:${x.slot}` ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 ${drag?.target === `slot:${x.slot}` ? 2 : 1}px ${on || drag?.target === `slot:${x.slot}` ? US : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
-                {p && <Portrait player={p} w={38} h={47} color="#334155" />}
-                <span className="shrink-0 truncate text-t4 font-bold" style={{ color: W1 }}>{p?.name || '-'}</span>
-                {x.slot === 'close' ? <span className="shrink-0 text-[10px]" style={{ color: GOLD }}>마무리</span> : p && <PStats p={p} keys={STAT2} />}
+                  background: on || drag?.target === `slot:${x.slot}` ? 'rgba(16,185,129,.16)' : 'rgba(255,255,255,.05)', boxShadow: `inset 0 0 0 ${drag?.target === `slot:${x.slot}` ? 2 : 1}px ${on || drag?.target === `slot:${x.slot}` ? US : x.slot === 'close' ? `${GOLD}88` : 'rgba(255,255,255,.1)'}`, transition: drag ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1), width .16s cubic-bezier(.2,.8,.2,1)' }}>
+                {p && <SegBody p={p} role={x.slot === 'close' ? '마무리' : `계투 ${x.slot + 1}`} rc={x.slot === 'close' ? GOLD : '#94a3b8'} keys={STAT2}
+                  range={spanKo(x.a, x.b)} bar={Math.min(100, st(p, 'stamina', 60))} small={x.b - x.a < 4} />}
               </button>
             );
           })}
@@ -344,7 +370,6 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
           <Grip x={pct(exit)} on={drag?.kind === 'sp'} role="slider" label="선발 끊는 지점" aria-valuenow={limit.value} tabIndex={0}
             onPointerDown={(e) => start(e, { kind: 'sp' })} onKeyDown={(e) => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); }}
             style={{ transition: drag?.kind === 'sp' ? 'none' : 'left .16s cubic-bezier(.2,.8,.2,1)' }}>
-            <b className="pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-t4 font-bold" style={{ right: 'calc(100% + 4px)', background: 'rgba(11,15,26,.72)', color: W1, boxShadow: `inset 0 0 0 1px ${drag?.kind === 'sp' ? US : 'rgba(255,255,255,.14)'}` }}>{limitKo(limit)}{limit.mode !== 'inn' ? ` · 약 ${exit.toFixed(1)}회` : ''}{atCap && cap < Infinity ? ' · 체력 한계' : ''}</b>
           </Grip>
         </Lane>
         {/* 불펜 판 — 불펜 투수 전부(쓰는 자리 표시). 끌어서 마운드 칸 · 칸 사이에 놓기, 칸을 여기로 끌어 빼기. 칸을 고른 뒤 누르면 그 자리와 바꿈 */}
