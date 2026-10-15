@@ -340,8 +340,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
         <Lane label="투수 운용" h={112} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
           <span data-drop={rotation ? 'sp' : undefined} onClick={() => rotation && setPick(pick === 'sp' ? null : 'sp')} className={`absolute flex overflow-hidden rounded-md ${rotation ? 'cursor-pointer' : ''}`}
-            style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)',
-              boxShadow: drag?.target === 'sp' || pick === 'sp' ? `inset 0 0 0 2px ${US}` : 'none' }}>
+            style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}2e, ${SPB}0d)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)',
+              boxShadow: drag?.target === 'sp' || pick === 'sp' ? `inset 0 0 0 2px ${US}` : `inset 0 0 0 1px ${SPB}40` }}>{/* 선발 칸 — 파랑은 옅게(66 → 2e) · 가는 테두리로 구분 */}
             <SegBody p={starter} role="선발" rc={SPB} keys={STAT3} range={`${spanKo(0, Math.round(exit * 3))}${limit.mode !== 'inn' ? ` · ${limitKo(limit)}` : ''}`}
               bar={cap < Infinity ? Math.min(100, (cap / 120) * 100) : st(starter, 'stamina', 90)} tick={Math.min(100, ((exit * LIMIT.pitch.per) / 120) * 100)} />
           </span>
