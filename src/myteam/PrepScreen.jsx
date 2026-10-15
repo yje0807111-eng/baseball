@@ -50,7 +50,9 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
   /* 배치만 바뀌는 내 팀 — 능력치(컨디션 · 코치 · 피로)는 화면에만 얹고, 저장은 배치(order) · 벤치만 */
   const [mine, setMine] = useState(team);
   const shown = useMemo(() => todaySquad(mine, seed), [mine, seed]);
-  const { ready } = useMemo(() => readyRoster(mine, seed), [mine, seed]);
+  /* 선발 바꾸기 — 정비 2단계에서 로테이션 투수를 고르면 이 경기만 그 투수(덜 쉬었으면 피로가 그대로 · 경기 뒤 피로는 실제 선발에 쌓임) */
+  const [spPick, setSpPick] = useState(null);
+  const { ready, starter, rotation } = useMemo(() => readyRoster(mine, seed, spPick), [mine, seed, spPick]);
   const stats = useMemo(() => readyStats(ready, 0), [ready]);
   const commit = (next) => {
     const t = { ...mine, order: next.order || mine.order, bench: next.bench || mine.bench || [] };
@@ -78,7 +80,7 @@ export default function PrepScreen({ team, kind = 'duel', title, sub, startLabel
       <TopBar eyebrow={backLabel.replace(/로$/, '')} section={title} team={team} account={loadAccount()} onBack={onBack} />
       <main className="relative grid w-full gap-3 px-1.5 py-3 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-5 lg:min-h-0">
-          <ReadyLocker full engine={engine} team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
+          <ReadyLocker full engine={engine} rotation={{ list: rotation.map((p) => ({ p, rest: (mine.pitchFatigue || {})[p.id]?.rest || 0 })), pick: starter?.id, onPick: setSpPick }} team={{ ...mine, squad: shown }} squad={shown} bench={mine.bench || []} opponent={opp} win={win}
             sums={{ bat: stats.batSum, def: stats.defSum, pit: stats.pitSum, foe: oppT && sumsOf(oppT) }} synergies={stats.t.synergies} teamInfo={teamInfo}
             onCommit={commit}
             startBlock={capUse(team).over ? `CP ${capUse(team).over.toLocaleString()} 초과` : null} onFix={onLocker}

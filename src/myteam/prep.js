@@ -25,14 +25,16 @@ export function todaySquad(team, formSeed = 0) {
 
 /**
  * 라커 배치 → 경기 명단. ready = 엔트리 전원(나서는 선수는 자리 · 타순, 나머지는 BN*), rest = [] (예전 호출과 맞추려 남긴다)
- * starter = 오늘 선발
+ * starter = 오늘 선발 — pick(정비 화면에서 고른 로테이션 투수 id)이 로테이션 안이면 그 투수, 아니면 차례(쉰 투수 먼저)
+ * rotation = 로테이션 투수(오늘 몸 상태 반영) — 정비 화면 선발 바꾸기 후보
  */
-export function readyRoster(team, formSeed = 0) {
+export function readyRoster(team, formSeed = 0, pick = null) {
   const fatigue = team.pitchFatigue || {};
   const squad = todaySquad(team, formSeed);
   const o = squadOrder(squad, team.bench || [], team.order || {});
   const byId = new Map(squad.map((p) => [p.id, p]));
-  const starter = pickStarter(o.rotation.map((id) => byId.get(id)).filter(Boolean), fatigue);
+  const rotation = o.rotation.map((id) => byId.get(id)).filter(Boolean);
+  const starter = rotation.find((p) => p.id === pick) || pickStarter(rotation, fatigue);
   const put = new Map();
   o.lineup.forEach((x, i) => put.set(x.id, { slot: GAME_SLOT[x.slot] || x.slot, batOrder: i }));
   if (starter) put.set(starter.id, { slot: 'SP' });
@@ -45,7 +47,7 @@ export function readyRoster(team, formSeed = 0) {
     bn += 1;
     return { ...clean, slot: `BN${bn}` };
   });
-  return { ready, rest: [], starter };
+  return { ready, rest: [], starter, rotation };
 }
 
 /** 경기용 팀: 엔트리 전원을 드래프트 규칙(buildTeam)으로 — BN 자리는 경기에 안 나선다 */

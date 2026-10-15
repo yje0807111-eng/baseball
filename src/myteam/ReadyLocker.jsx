@@ -446,6 +446,7 @@ export default function ReadyLocker({
   full = false, // 내 팀 경기: 라커 배치 그대로(로테이션 5 · 불펜 8 · 벤치) — 드래프트는 20자리 판(fitSlots)
   win = null, // 예상 승률(%) — 상대가 있을 때
   engine = null, // { home, away } 엔진용 두 팀 — 넘기면 설계 판(분석 · 승률 변화 · 조건 지시 · 흐름 줄)
+  rotation = null, // { list: [{ p, rest }], pick, onPick } — 내 팀 경기만: 경기 흐름에서 선발을 로테이션 투수로 바꾸기
 }) {
   const [sel, setSel] = useState(null);
   /* 작전 — 세 갈래. 고른 계획은 경기의 첫 전술이 된다 */
@@ -525,7 +526,7 @@ export default function ReadyLocker({
           {step === 1 && <LineupField team={team} squad={squad} bench={bench} onCommit={onCommit} starter={engine.home.pitchers[0]} />}
           {step === 2 && (
             <div className="min-h-0 flex-1 pt-6">
-              <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
+              <FlowBoard pv={pv} busy={busy} starter={engine.home.pitchers[0]} pens={pens} rotation={rotation} atk={atk} setAtk={setAtk} limit={limit} setLimit={setLimit}
                 rel={rel} setRel={setRel} />
             </div>
           )}

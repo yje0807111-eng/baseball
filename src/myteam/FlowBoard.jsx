@@ -28,6 +28,7 @@
  *  마운드 줄 아래 불펜 판 — 불펜 투수 전부를 카드로 늘어놓고 끌어서 놓기(드래프트 라인업 · 9이닝스 불펜 교체처럼):
  *   카드 → 마운드 칸 = 그 자리와 바꿈(이미 다른 자리면 서로 바꿈) · 카드 → 칸 사이 틈(끄는 동안만 보이는 초록 홈) = 그 자리에 계투 추가
  *   마운드 칸 → 불펜 판 = 빼기(계투만, 한 명은 남김) · 칸 → 다른 칸 = 서로 바꿈. 끌지 않고 누르면 예전처럼 칸 고르기 → 카드 누르기
+ *   선발(내 팀 경기만): 로테이션 칩(파랑 · 덜 쉬면 '휴식 n')을 선발 칸에 — 이 경기만 그 투수, 불펜은 선발 칸에 못 놓음. 줄 이름 '투수 운용'
  *  손잡이는 잡는 폭 24px · 손잡이 알약을 늘 보이게(끌 수 있는 곳이 바로 보이게). 불펜은 칩 줄(공격 스타일 단추 결) — 대신 마운드 줄을 112 로 높게
  */
 import React, { useEffect, useRef, useState } from 'react';
@@ -182,7 +183,7 @@ const PStats = ({ p, keys }) => (
   <span className="truncate whitespace-nowrap text-[12px]" style={{ color: W3 }}>{keys.map(([ko, k, d], i) => <React.Fragment key={k}>{i ? ' · ' : ''}{ko} <b className="font-display" style={{ color: W1 }}>{st(p, k, d)}</b></React.Fragment>)}</span>
 );
 
-export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit: want, setLimit, rel, setRel }) {
+export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit: want, setLimit, rel, setRel, rotation = null }) {
   const [pick, setPick] = useState(null); // 고르는 자리 — 계투 번호 또는 'close'
   const [drag, setDrag] = useState(null); // { kind: 'sp' | 'mid' | 'draw', ... }
   const laneRef = useRef(null);
@@ -224,6 +225,8 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
     if (!target) return;
     const S = latest.current, r = S.rel;
     const [kind, arg] = target.split(':');
+    if (d.from === 'rot') { if (kind === 'sp') S.rotation?.onPick(d.id); return; } // 로테이션 칩은 선발 칸에만
+    if (kind === 'sp') return; // 불펜은 선발 칸에 못 놓음(선발은 로테이션 투수만)
     if (kind === 'slot') { const slot = arg === 'close' ? 'close' : Number(arg); if (d.from !== 'lane' || d.slot !== slot) S.setRel({ ...pickRel(r, slot, d.id), cuts: [] }); return; }
     if (kind === 'ins') {
       const at = Number(arg);
@@ -237,7 +240,7 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
     }
     if (kind === 'pool' && d.from === 'lane' && d.slot !== 'close' && r.mid.length > 1) S.setRel({ ...r, mid: r.mid.filter((id) => id !== d.id), cuts: [] });
   };
-  latest.current = { cap, limit, L, atk, setAtk, setLimit, rel, setRel, mp, paintAt, dropPen };
+  latest.current = { cap, limit, L, atk, setAtk, setLimit, rel, setRel, mp, paintAt, dropPen, rotation };
   const penDown = (e, d) => { if (e.button !== 0) return; dragRef.current = { kind: 'pen', ...d, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, moved: false }; };
   const drawStart = (e) => { if (e.button !== 0) return; e.preventDefault(); const d = { kind: 'draw', last: null }; dragRef.current = d; paintAt(e.clientX, e.clientY, d); };
   const start = (e, d) => { if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); dragRef.current = d; setDrag(d); };
@@ -307,9 +310,11 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
         <span className="grid" style={{ gridTemplateColumns: 'repeat(9,1fr)' }}>{INN.map((i) => <span key={i} className="flex flex-col items-center"><b className="font-display text-t3" style={{ color: low[i - 1] ? US : W2 }}>{i}회</b><span className="text-[10px]" style={{ color: US, visibility: low[i - 1] ? 'visible' : 'hidden' }}>기회</span></span>)}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2">
-        <Lane label="우리 마운드" h={112} glass low={low}>
+        <Lane label="투수 운용" h={112} glass low={low}>
           <span ref={laneRef} className="absolute inset-0" />
-          <span className="absolute flex items-center gap-2 overflow-hidden rounded-md px-2" style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)' }}>
+          <span data-drop={rotation ? 'sp' : undefined} onClick={() => rotation && setPick(pick === 'sp' ? null : 'sp')} className={`absolute flex items-center gap-2 overflow-hidden rounded-md px-2 ${rotation ? 'cursor-pointer' : ''}`}
+            style={{ top: 6, bottom: 6, left: 4, width: `calc(${pct(exit)} - 9px)`, background: `linear-gradient(90deg, ${SPB}66, ${SPB}22)`, transition: drag?.kind === 'sp' ? 'none' : 'width .16s cubic-bezier(.2,.8,.2,1)',
+              boxShadow: drag?.target === 'sp' || pick === 'sp' ? `inset 0 0 0 2px ${US}` : 'none' }}>
             {starter && <Portrait player={starter} w={42} h={52} color="#334155" />}
             <b className="shrink-0 text-t4" style={{ color: W1 }}>{starter?.name}</b><PStats p={starter} keys={STAT3} />
           </span>
@@ -344,9 +349,21 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
         </Lane>
         {/* 불펜 판 — 불펜 투수 전부(쓰는 자리 표시). 끌어서 마운드 칸 · 칸 사이에 놓기, 칸을 여기로 끌어 빼기. 칸을 고른 뒤 누르면 그 자리와 바꿈 */}
         <div className="grid shrink-0" style={{ gridTemplateColumns: `${LEAD} minmax(0,1fr)` }}>
-          <span className="flex flex-col justify-center gap-1 pr-3"><b className="text-t3" style={{ color: W1 }}>불펜</b><span className="text-[11px]" style={{ color: W3 }}>끌어서 교체</span></span>
+          <span className="flex flex-col justify-center gap-1 pr-3"><b className="text-t3" style={{ color: W1 }}>{rotation ? '선발 · 불펜' : '불펜'}</b><span className="text-[11px]" style={{ color: W3 }}>끌어서 교체</span></span>
           <div data-drop="pool" className="flex min-h-[2.75rem] flex-wrap content-center gap-1.5 rounded-lg p-1.5"
             style={{ background: drag?.target === 'pool' ? 'rgba(248,113,113,.08)' : 'rgba(255,255,255,.02)', boxShadow: `inset 0 0 0 1px ${drag?.target === 'pool' ? 'rgba(248,113,113,.5)' : 'rgba(255,255,255,.06)'}` }}>
+            {/* 선발 후보 — 로테이션 투수(오늘 선발 빼고). 선발 칸에 끌어 놓거나 선발 칸을 누른 뒤 누르기. 덜 쉰 투수는 '휴식 n' */}
+            {rotation && rotation.list.filter((x) => x.p.id !== rotation.pick).map(({ p, rest }) => (
+              <button key={`r${p.id}`} type="button" onPointerDown={(e) => penDown(e, { id: p.id, from: 'rot' })}
+                onClick={() => { if (dragRef.current?.kind === 'eat' || pick !== 'sp') return; rotation.onPick(p.id); setPick(null); }}
+                className="flex cursor-grab items-center gap-1.5 rounded-md py-1 pl-1 pr-2.5 hover:brightness-125"
+                style={{ opacity: drag?.kind === 'pen' && drag.id === p.id ? 0.35 : 1, background: `${SPB}1a`, boxShadow: `inset 0 0 0 1px ${SPB}66` }}>
+                <Portrait player={p} w={20} h={24} color="#334155" />
+                <b className="whitespace-nowrap text-[12px]" style={{ color: W1 }}>{p.name}</b>
+                <span className="whitespace-nowrap text-[11px]" style={{ color: rest > 0 ? '#f87171' : SPB }}>{rest > 0 ? `휴식 ${rest}` : '선발 가능'}</span>
+              </button>
+            ))}
+            {rotation && <i className="mx-1 block h-6 w-px self-center bg-white/15" aria-hidden="true" />}
             {/* 칩 — 공격 스타일 단추와 같은 결(얼굴 · 이름 · 자리 또는 구위 · 제구). 쓰는 투수는 흐리게 */}
             {pens.map((p) => {
               const k = rel.mid.indexOf(p.id), role = rel.close === p.id ? '마무리' : k >= 0 ? (k < mp.mid.length ? `계투 ${k + 1}` : '대기') : null;
@@ -365,9 +382,9 @@ export default function FlowBoard({ pv, busy, starter, pens, atk, setAtk, limit:
           </div>
         </div>
         {/* 끄는 투수 — 포인터를 따라 다니는 작은 칩 */}
-        {drag?.kind === 'pen' && byId.get(drag.id) && (
+        {drag?.kind === 'pen' && (byId.get(drag.id) || rotation?.list.find((x) => x.p.id === drag.id)) && (
           <span className="pointer-events-none fixed z-50 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-lg px-2 py-1" style={{ left: drag.x, top: drag.y, background: 'rgba(11,15,26,.92)', boxShadow: `inset 0 0 0 1.5px ${US}, 0 10px 24px rgba(0,0,0,.6)` }}>
-            <Portrait player={byId.get(drag.id)} w={22} h={27} color="#334155" /><b className="text-t4" style={{ color: W1 }}>{byId.get(drag.id).name}</b>
+            {(() => { const dp = byId.get(drag.id) || rotation.list.find((x) => x.p.id === drag.id).p; return <><Portrait player={dp} w={22} h={27} color="#334155" /><b className="text-t4" style={{ color: W1 }}>{dp.name}</b></>; })()}
           </span>
         )}
         {/* 마운드 · 공격 경계 — 두 구역이 붙어 보이지 않게 선 하나 + 여백 */}
