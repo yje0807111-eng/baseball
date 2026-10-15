@@ -7,8 +7,8 @@
  * 아래 판 배치는 mockups/conquest-main 1안(2026-10-15) — 구장 판은 뺐다(상대 수비 위치는 정비 화면에서).
  * 배치를 고른 까닭(2026-09-26): 옛 탑은 여덟 칸마다 수치 다섯을 반복해 숫자 40개가 한꺼번에 보였고, 다음 상대 · 진행도 · 보상이 묻혔다.
  */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { fillRoster, POS_LABEL } from '../KboAugmentDraft.jsx';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { fillRoster, POS_LABEL, buildTeam, useSimWin } from '../KboAugmentDraft.jsx';
 import { emblemOf, bannerEmblem } from './live.js';
 import { currentRung, isCleared, myPos, record } from './gauntlet.js';
 import { Count, Burst, reducedMotion } from '../ui/motion.jsx';
@@ -92,20 +92,13 @@ function Stop({ r, i, mine, now, cleared, sel, res, emblem, onPick, mid = false,
  * 다음 상대 무대(mockups/conquest-main 1안) — 하스스톤 던전 런처럼 두 엠블럼을 크게 마주 세우고 아래 전력 막대.
  * 원정길에서 다른 구단을 누르면 그 구단과 견준다(정비는 늘 다음 상대와).
  */
-function Stage({ me, myEmb, r: r0, label, res, buff = 0 }) {
+function Stage({ me, myEmb, r: r0, label, res, buff = 0, win = null }) {
   /* AI 난이도 보정 — 경기에서 상대 타격 · 마운드에 더해지는 만큼 비교에도 */
   const r = buff && !r0.me ? { ...r0, bat: r0.bat + buff, pit: r0.pit + buff } : r0;
   /* 판정은 막대 셋(타격 · 마운드 · 수비) 차이의 평균 — 보이는 막대와 같은 잣대 */
   const d = Math.round(((me.stats.bat - r.bat) + (me.stats.pit - r.pit) + (me.stats.def - r.def)) / 3 * 10) / 10;
   const verdict = d >= 1.5 ? ['우세', WIN] : d <= -1.5 ? ['열세', LOSE] : ['접전', GOLD];
   const losses = res.filter((x) => !x.win).length;
-  /* 상대 강점 · 약점 — 여섯 축(파워 · 컨택 · 주루 · 수비 · 선발 · 불펜)에서 상대 − 나 가 가장 큰 축 · 가장 작은 축 */
-  const edge = (() => {
-    const mine = axesOf(me.roster || []), theirs = axesOf(r.roster || []);
-    if (!theirs.length || !mine.length) return null;
-    const gap = theirs.map(([k, v], i) => [k, v - mine[i][1]]).sort((x, y) => y[1] - x[1]);
-    return { hi: gap[0][0], lo: gap[gap.length - 1][0] };
-  })();
   const side = (src, name, ring) => (
     <span className="grid justify-items-center gap-3">
       <Emb src={src} size={208} ring={ring} />
@@ -126,7 +119,7 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0 }) {
           {side(myEmb, me.short || me.name, me.color || '#e879f9')}
           <span className="grid justify-items-center gap-3">
             <b className="font-display text-[84px] font-extrabold italic leading-none text-[#c7ced8]">VS</b>
-            {/* 판정 판(mockups/verdict-plate A) — 위 판정 · 가는 선 · 아래 상대 강점 · 약점(여섯 축을 내 팀과 견줘 가장 앞선 · 가장 뒤처진 축) */}
+            {/* 판정 판(mockups/verdict-plate A) — 위 판정 · 가는 선 · 아래 예상 승률 */}
             <span className="grid min-w-[13rem] justify-items-center gap-2 rounded-[22px] px-5 pb-3 pt-3.5"
               style={{ background: 'linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))', backdropFilter: 'blur(10px)',
                 boxShadow: `inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 1px ${verdict[1]}73, 0 0 34px -12px ${verdict[1]}, 0 16px 34px -14px rgba(0,0,0,.8)` }}>
@@ -135,13 +128,10 @@ function Stage({ me, myEmb, r: r0, label, res, buff = 0 }) {
                 <b className="font-display text-[30px] font-extrabold leading-none">{d > 0 ? '+' : ''}{d}</b>
               </span>
               <i className="block h-px w-full" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)' }} />
-              {edge && (
-                <span className="flex items-center gap-2.5 whitespace-nowrap text-t3 font-bold">
-                  <span className="text-[#8b97a6]">강점 <b style={{ color: LOSE }}>{edge.hi}</b></span>
-                  <i className="block h-[3px] w-[3px] rounded-full bg-[#6b7280]" />
-                  <span className="text-[#8b97a6]">약점 <b style={{ color: WIN }}>{edge.lo}</b></span>
-                </span>
-              )}
+              {/* 예상 승률 — 정비 화면과 같은 셈(useSimWin: 엔진 시뮬). 세는 동안은 '…' */}
+              <span className="flex items-baseline gap-2 whitespace-nowrap text-t3 font-bold text-[#8b97a6]">
+                예상 승률 <b className="font-display text-t1 text-white">{win == null ? '…' : `${win}%`}</b>
+              </span>
             </span>
           </span>
           {side(r.key ? emblemOf(r.key) : bannerEmblem(null), r.short, r.color)}
@@ -211,6 +201,10 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
   const sel = gaunt.tower.find((r) => r.club === selClub) || cur || gaunt.tower[at];
   /* 무대에 세울 구단 — 원정길에서 누른 남의 구단, 아니면 다음 상대(내 칸을 누르면 다음 상대 그대로) */
   const view = (sel && !sel.me ? sel : cur) || null;
+  /* 예상 승률 — 경기와 같은 두 팀(내 팀은 증강 보정까지 · 상대는 AI 난이도 보정까지)으로 엔진 시뮬 */
+  const myT = useMemo(() => buildTeam('내 팀', me.roster || [], me.buff || 0), [me.roster, me.buff]);
+  const oppT = useMemo(() => (view && !view.me ? buildTeam(view.name, fillRoster(view.roster), oppBuff) : null), [view, oppBuff]);
+  const win = useSimWin(myT, oppT);
   const resOf = (club) => gaunt.results.filter((x) => x.club === club);
   /* 금빛 선 — 첫 칸 가운데에서 내 칸 가운데까지(끝까지 가면 보상 칸까지) */
   const stops = gaunt.tower.length + 1;
@@ -315,7 +309,7 @@ export default function GauntletScreen({ gaunt, me, onPlay, onBack, onExit = onB
         {/* 왼쪽 큰 무대 = 다음 상대(원정길에서 누른 구단이면 그 구단) · 오른쪽 = 육각 판 · 경계 선수 · 정비 */}
         {cur ? (
           <>
-            <Stage me={me} myEmb={myEmb} r={view} res={resOf(view.club)} buff={oppBuff}
+            <Stage me={me} myEmb={myEmb} r={view} res={resOf(view.club)} buff={oppBuff} win={win}
               label={view.club === cur.club ? '다음 상대' : isCleared(gaunt, gaunt.tower.indexOf(view)) ? '통과한 구단' : '남은 구단'} />
             <Side me={me} r={view} onPlay={onPlay} onNext={view.club === cur.club ? null : () => setSelClub(null)} />
           </>
