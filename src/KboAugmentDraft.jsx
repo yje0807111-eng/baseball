@@ -1818,6 +1818,13 @@ export const KEYFRAMES = `
 /* 시너지 칸 (선반 카드 오른쪽 위) */
 @keyframes mcPip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 /* 선반 카드: 얼굴을 가리지 않게 오른쪽 아래 — CP 줄 오른쪽 */
+/* 시너지 칸 위 아이콘 줄(SynUps) — 칸이 있으면 그 위(lift), 없으면 칸 자리. 금 = 켜짐(반짝) · 은 = 다음 단계 */
+.mc-sy { position: absolute; z-index: 5; right: 5cqw; bottom: 8cqw; display: flex; gap: 2cqw; }
+.mc-sy.lift { bottom: 22cqw; }
+.mc-sy .sy-ico { width: 15cqw; height: 13cqw; }
+.mc-sy .new { --fr: linear-gradient(160deg, #fde68a, #c08a0e); --bd: #fef3c7; --gc: #1c1402; animation: synShine 1.6s ease-in-out infinite; }
+.mc-sy .up { --fr: linear-gradient(160deg, #eef2f6, #8d99a6); --bd: #f8fafc; --gc: #0f172a; }
+@media (prefers-reduced-motion: reduce) { .mc-sy .new { animation: none; } }
 .mc-syn { position: absolute; z-index: 5; right: 5cqw; bottom: 8cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; border-radius: 999px; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.4); }
 .mc-syn svg { width: 8cqw; height: 8cqw; margin-right: .6cqw; color: #6ee7b7; }
 .mc-syn i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
@@ -2741,6 +2748,16 @@ const synGain = (s, after) => (after && after.level > s.level ? (s.level ? 'up' 
  * 선반 카드 오른쪽 아래 시너지 칸(얼굴을 가리지 않게 CP 줄 오른쪽): 목록(도크)의 단계 칸을 축소한 것.
  * 흰 칸 = 이미 채움(최종 단계면 초록), 하늘 칸 = 이 선수가 들어오면 채울 칸(깜빡), 최종 단계를 넘어 추가 혜택이면 +N
  */
+/** 선반 카드 시너지 칸 위 아이콘(최대 3) — 금(반짝) = 영입하면 켜짐 · 은 = 다음 단계. TFT 상점 카드 결 */
+function SynUps({ list, lift }) {
+  return (
+    <span className={`mc-sy ${lift ? 'lift' : ''}`} aria-label={list.map(({ s, g }) => `${s.name} ${g === 'new' ? '켜짐' : '단계 ↑'}`).join(', ')}>
+      {list.slice(0, 3).map(({ s, g }) => (
+        <span key={s.id} className={`sy-ico ${g}`} title={`${s.name} · 영입하면 ${g === 'new' ? '켜짐' : '다음 단계'}`}><i style={{ WebkitMaskImage: `url(${SYN_ICON(s.id)})`, maskImage: `url(${SYN_ICON(s.id)})` }} /></span>
+      ))}
+    </span>
+  );
+}
 function SynergyPips({ s, after, named = false }) {
   const stage = Math.min(s.level, s.tiers.length - 1);
   const from = stage > 0 ? s.tiers[stage - 1].need : 0;
@@ -2837,7 +2854,7 @@ function TurnOrder({ live, clock, hold = false }) {
   );
 }
 
-function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, focus, onPick, onSign, style, leaving = false, need = false }) {
+function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = false, hot = false, myColor = null, selected, hint, ups, focus, onPick, onSign, style, leaving = false, need = false }) {
   const art = useArt(player);
   const acc = neonOf(player);
   const locked = !!reason;
@@ -2855,6 +2872,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
         {hint && <SynergyPips {...hint} />}
+        {ups?.length > 0 && <SynUps list={ups} lift={!!hint} />}
         {(
           <>
             <span className="mc-pos"><em>{POS_SHORT[player.position] || player.position}</em></span>
@@ -5880,6 +5898,11 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const [top] = sortSynergies(growsFor(player).filter((s) => s.cur > 0));
     return top ? { s: top, after: after.get(top.id) } : null;
   };
+  /** 선반 카드 위 아이콘: 영입하면 켜지거나(new) 다음 단계로 오르는(up) 시너지만 — 인원만 느는 건 아래 시너지 칸이 보여 줌 */
+  const upsFor = (player) => {
+    const after = previewSynergies(roster, player);
+    return sortSynergies(growsFor(player)).map((s) => ({ s, g: synGain(s, after.get(s.id)) })).filter((x) => x.g !== 'add').sort((a, b) => (a.g === 'new' ? 0 : 1) - (b.g === 'new' ? 0 : 1));
+  };
   const previewTarget = picked && !pickedReason ? picked : null;
 
   /* 방출: 영입가 절반 환급 · 동일인 재영입 금지 · 드래프트 중에만 */
@@ -6093,7 +6116,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
                   {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurnLit && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
-                    hint={lockOf(p) ? null : hintFor(p)} need={!lockOf(p) && needPos.has(p.position)}
+                    hint={lockOf(p) ? null : hintFor(p)} ups={lockOf(p) ? null : upsFor(p)} need={!lockOf(p) && needPos.has(p.position)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
