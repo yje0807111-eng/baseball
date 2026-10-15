@@ -1,21 +1,23 @@
-/* 화면 맞춤 — 태블릿·휴대폰 가로에서도 데스크톱 배치를 그대로 본다.
+/* 화면 맞춤 — 어느 화면에서든 데스크톱 배치를 그대로 본다 (노트북 · 태블릿 · 휴대폰 가로).
  *
  * 이 게임의 배치는 넓은 화면을 전제로 짜여 있다 (좌 17rem · 우 24rem 3단, h-dvh 한 화면).
- * 태블릿은 폭도 좁고 무엇보다 세로가 납작해서, 같은 배치를 그대로 그리면 잘린다.
+ * 좁거나 납작한 화면에 그대로 그리면 글자가 줄바꿈되고 아래가 잘린다.
  * 그래서 화면이 최소치(FIT_W × FIT_H)보다 작으면 "배치는 최소치대로 크게 잡고,
  * 그려진 결과를 화면 크기에 맞춰 줄여" 보여준다. 비율은 기기 화면 그대로라 여백이 안 생긴다.
  *
  *   1순위 — <meta name="viewport"> 의 width 를 키운다. 축소는 브라우저가 알아서 하고
  *           미디어 쿼리(lg:)·vh 단위까지 넓은 화면 기준으로 맞아떨어진다.
- *   2순위 — iframe 안처럼 meta viewport 가 무시되는 곳에서는 CSS zoom 으로 줄인다.
- *           터치 기기에서만 쓴다 — 데스크톱 작은 창은 지금까지 하던 대로 둔다.
+ *           휴대폰 · 태블릿 브라우저만 이 값을 본다.
+ *   2순위 — meta viewport 를 보지 않는 곳(데스크톱 브라우저 · iframe 안)에서는 CSS zoom 으로 줄인다.
+ *           맥북처럼 가로 1700 이 안 되는 노트북이 여기에 걸린다 — 손으로 브라우저를 축소하지 않아도 된다.
  *
  * 너무 작다 싶으면 아래 두 값만 바꾸면 된다. 키우면 더 많이 보이고 글씨는 작아진다. */
-const FIT_W = 1440; // 3단 배치가 답답하지 않은 최소 폭
+/* 배치가 깨지지 않는 최소 폭 — 라커 윗줄 탭(영입 · 내 선수 · 보관함 · 감독·코치 · 아이템)과
+   선수 줄 능력치 넉 칸이 1700 아래에서 줄바꿈된다. 1700 에서 1920 과 같고 1680 부터 무너진다(재서 정한 값) */
+const FIT_W = 1700;
 const FIT_H = 860;  // 한 화면 배치가 잘리지 않는 최소 높이
 
 const BASE = 'width=device-width, initial-scale=1';
-const COARSE = '(pointer: coarse)';
 
 /* 기기 화면 비율은 그대로 두고, 가로·세로 모두 최소치를 넘기는 배치 크기 */
 function stageOf(w, h) {
@@ -62,9 +64,10 @@ export default function fitScreen() {
       meta.content = `width=${stage.w}`;
       frame(() => {
         // meta viewport 가 먹히지 않는 자리(iframe 등)인지 재서 확인한다
+        // meta 를 본 곳이면 브라우저가 알아서 줄여 준다. 보지 않은 곳(데스크톱 · iframe)만 zoom 으로 줄인다
         const took = Math.abs(document.documentElement.clientWidth - stage.w) <= 2;
-        if (!took && window.matchMedia(COARSE).matches) zoom(root, stage, view);
-        else unzoom(root);
+        if (took) unzoom(root);
+        else zoom(root, stage, view);
         width = window.innerWidth;
         setTimeout(() => { busy = false; }, 300);
       });

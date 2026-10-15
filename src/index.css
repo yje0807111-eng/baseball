@@ -13,6 +13,7 @@ body { overscroll-behavior: none; }
    맞춤 배치 높이(--fit-h)를 따라야 줄인 만큼 아래가 비거나 잘리지 않는다 */
 .fit-zoom .h-dvh { height: var(--fit-h); }
 .fit-zoom .min-h-dvh, .fit-zoom .min-h-screen { min-height: var(--fit-h); }
+.fit-zoom .max-h-\[88vh\] { max-height: calc(var(--fit-h) * .88); }
 @media (min-width: 1024px) {
   .fit-zoom .lg\:h-dvh { height: var(--fit-h); }
   .fit-zoom .lg\:min-h-0 { min-height: 0; }

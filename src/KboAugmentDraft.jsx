@@ -4726,7 +4726,8 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
 
       <div className="relative grid min-h-0 flex-1 gap-4 px-6 pb-6 pt-4 lg:grid-cols-[17rem_minmax(0,1fr)_24rem] lg:grid-rows-[minmax(0,1fr)]" style={{ '--a': acc }}>
         {/* 사이드 네비 */}
-        <nav className="ui-cut ui-frame ui-glass flex min-h-0 flex-col gap-2 p-3" style={{ '--c': '20px', viewTransitionName: 'mode-nav' }} aria-label="플레이 모드">
+        {/* 칸이 열 개를 넘으면 납작한 화면에서 아래가 잘린다 — 넘치면 네비 안에서 구른다 */}
+        <nav className="ui-cut ui-frame ui-glass syn-scroll flex min-h-0 flex-col gap-2 overflow-y-auto p-3" style={{ '--c': '20px', viewTransitionName: 'mode-nav' }} aria-label="플레이 모드">
           {NAV.map((g) => (
             <React.Fragment key={g.group}>
               <p className="ui-lab font-display px-1 pt-1" style={{ '--a': g.items[0].neon }}>{g.group}</p>
