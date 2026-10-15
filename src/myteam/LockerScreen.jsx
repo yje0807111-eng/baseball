@@ -79,7 +79,8 @@ function StaffFace({ m, size = 50 }) {
 }
 const effTags = (rules) => rules.map((x, i) => ({ k: `${x.who || x.team}-${x.stat || ''}-${i}`, c: EFF_COLOR[ruleCat(x)], desc: ruleDesc(x), ...ruleText(x) }));
 const POS_FULL = { SP: '선발 투수', RP: '불펜 투수', C: '포수', '1B': '1루수', '2B': '2루수', '3B': '3루수', SS: '유격수', OF: '외야수', DH: '지명타자' };
-const ROW_COLS = '56px 64px 230px repeat(4,minmax(0,1fr)) 84px 124px 92px';
+/* 좁은 화면에서 먼저 주는 순서: 이름 칸 → 값 칸 → 능력치 칸(76px 아래로는 글자가 겹쳐 더 줄이지 않는다) */
+const ROW_COLS = '56px 64px minmax(132px,230px) repeat(4,minmax(76px,1fr)) minmax(70px,84px) minmax(96px,124px) minmax(78px,92px)';
 const GOLD = '#fde047';
 const WARN = '#fbbf24';
 
@@ -169,9 +170,10 @@ function PlayerRow({ p, on, action, blocked, onPick, onAct, stored = false, pric
         const c = statOf(k, v);
         return (
           <span key={k} className="flex min-w-0 flex-col gap-1 rounded-xl bg-white/[0.04] px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,.05)]">
-            <span className="flex items-baseline justify-between">
-              <span className="text-t4 text-gray-400">{label}</span>
-              <b className="font-display text-t2 leading-none" style={{ color: c.num }}>{v}</b>
+            {/* 칸이 좁아지면 글자를 쪼개는 대신(구/위) 숫자가 이름 아래로 내려간다 */}
+            <span className="flex flex-wrap items-baseline justify-between gap-x-1">
+              <span className="whitespace-nowrap text-t4 text-gray-400">{label}</span>
+              <b className="whitespace-nowrap font-display text-t2 leading-none" style={{ color: c.num }}>{v}</b>
             </span>
             <i className="relative block h-1 overflow-hidden rounded-full bg-white/[0.08]">
               <b className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${statPct(v)}%`, background: c.bar }} />
@@ -662,9 +664,9 @@ function EntryBox({ squad, lim, issues }) {
   return (
     <div ref={ref} className="relative">
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
-        className="mt-cut flex items-center gap-5 px-4 py-1.5 hover:bg-white/[0.06]" style={{ ...cut(12), background: open ? 'rgba(255,255,255,.08)' : undefined }}>
-        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-400">엔트리</small><b className="font-display text-t2" style={{ color: ec }}>{squad.length} / {lim.size}</b></span>
-        <span className="flex flex-col items-end leading-tight"><small className="text-t4 text-gray-400">외국인</small><b className="font-display text-t2 text-white">{fc} / {lim.foreign}</b></span>
+        className="mt-cut flex shrink-0 items-center gap-[clamp(0.6rem,1.2vw,1.25rem)] px-3 py-1.5 hover:bg-white/[0.06]" style={{ ...cut(12), background: open ? 'rgba(255,255,255,.08)' : undefined }}>
+        <span className="flex flex-col items-end whitespace-nowrap leading-tight"><small className="text-t4 text-gray-400">엔트리</small><b className="font-display text-t2" style={{ color: ec }}>{squad.length} / {lim.size}</b></span>
+        <span className="flex flex-col items-end whitespace-nowrap leading-tight"><small className="text-t4 text-gray-400">외국인</small><b className="font-display text-t2 text-white">{fc} / {lim.foreign}</b></span>
       </button>
       {open && (
         <div className="mt-cut mt-glass absolute right-0 top-[calc(100%+8px)] z-40 w-[320px] p-4" style={{ ...cut(18), background: 'rgba(10,15,26,.96)' }}>
@@ -917,7 +919,7 @@ export default function LockerScreen({ account, onSave, onBack, onShop, initialT
       {rulesOpen && <LockerRules onClose={() => setRulesOpen(false)} />}
 
       <div className="relative grid min-h-0 flex-1 gap-5 px-7 pb-6 pt-2"
-        style={{ gridTemplateColumns: 'minmax(0,1fr) 460px', gridTemplateRows: 'minmax(0,1fr)' }}>
+        style={{ gridTemplateColumns: 'minmax(0,1fr) clamp(380px,26vw,460px)', gridTemplateRows: 'minmax(0,1fr)' }}>
 
         {tab === 'scout' && (
           <section className="mt-cut mt-frame mt-glass flex min-h-0 flex-col p-5" style={cut(22)}>
