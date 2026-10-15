@@ -1821,6 +1821,14 @@ export const KEYFRAMES = `
 /* 시너지 칸 (선반 카드 오른쪽 위) */
 @keyframes mcPip { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 /* 선반 카드: 얼굴을 가리지 않게 오른쪽 아래 — CP 줄 오른쪽 */
+/* 카드 시너지 아이콘 줄(TFT 상점 카드처럼 전부) — 금(반짝) = 처음 켜짐 · 은 = 다음 단계 · 파랑 = 인원만 +1. 카드가 좁아(약 100px) 글자 배지는 두지 않음 */
+.mc-sy { position: absolute; z-index: 5; right: 5cqw; bottom: 6.5cqw; display: flex; gap: 2cqw; }
+.mc-sy > span { position: relative; }
+.mc-sy .sy-ico { width: 15cqw; height: 13cqw; }
+.mc-sy .new { --fr: linear-gradient(160deg, #fde68a, #c08a0e); --bd: #fef3c7; --gc: #1c1402; animation: synShine 1.6s ease-in-out infinite; }
+.mc-sy .up { --fr: linear-gradient(160deg, #eef2f6, #8d99a6); --bd: #f8fafc; --gc: #0f172a; }
+.mc-sy .add { --fr: linear-gradient(160deg, #0c4a6e, #082f49); --bd: #7dd3fc; --gc: #7dd3fc; }
+@media (prefers-reduced-motion: reduce) { .mc-sy .new { animation: none; } }
 .mc-syn { position: absolute; z-index: 5; right: 5cqw; bottom: 8cqw; display: flex; align-items: center; gap: 1.2cqw; padding: 2cqw 2.4cqw; border-radius: 999px; line-height: 1; background: rgba(5,8,15,.8); box-shadow: inset 0 0 0 1px rgba(52,211,153,.4); }
 .mc-syn svg { width: 8cqw; height: 8cqw; margin-right: .6cqw; color: #6ee7b7; }
 .mc-syn i { width: 3.2cqw; height: 5.5cqw; background: rgba(255,255,255,.25); transform: skewX(-12deg); }
@@ -2145,6 +2153,14 @@ export const KEYFRAMES = `
 .sd-row.on { background: rgba(255,255,255,.04); }
 .sd-row.on .sy-ico { animation: synShine 3s ease-in-out infinite; }
 @keyframes synShine { 50% { filter: brightness(1.22); } }
+/* 후보를 고르면: 닿는 줄은 위 '영입 시' 묶음으로, 나머지는 어둡게(TFT 특성 추적기). 영입하면 켜질 단계 숫자는 초록으로 천천히 깜빡 */
+.sd-sep { display: flex; align-items: center; gap: 8px; margin: 4px 4px 3px; font-size: 12px; font-weight: 700; color: #6b7280; }
+.sd-sep::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,.08); }
+.sd-row.dim { opacity: .35; }
+.sd-row.dim:hover, .sd-row.dim.hv { opacity: .8; }
+.sd-stp .nx { color: #10b981; animation: synNx 1.6s ease-in-out infinite; }
+@keyframes synNx { 0%, 100% { opacity: .35; } 50% { opacity: 1; text-shadow: 0 0 8px rgba(16,185,129,.8); } }
+@media (prefers-reduced-motion: reduce) { .sd-stp .nx { animation: none; } }
 .sd-tx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .sd-tx b { font-size:14px; font-weight: 600; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sd-row.on .sd-tx b { color: #fff; }
@@ -2734,6 +2750,25 @@ const POS_SHORT = { SP: '선발', RP: '불펜', C: '포수', '1B': '1루', '2B':
  * 선반 카드 오른쪽 아래 시너지 칸(얼굴을 가리지 않게 CP 줄 오른쪽): 목록(도크)의 단계 칸을 축소한 것.
  * 흰 칸 = 이미 채움(최종 단계면 초록), 하늘 칸 = 이 선수가 들어오면 채울 칸(깜빡), 최종 단계를 넘어 추가 혜택이면 +N
  */
+/** 영입하면 그 시너지가 — new 처음 켜짐 · up 다음 단계 · add 인원만 늘어남 */
+const synGain = (s, after) => (after && after.level > s.level ? (s.level ? 'up' : 'new') : 'add');
+const GAIN_KO = { new: '켜짐', up: '↑', add: '+1' };
+/** 카드 아래 이 선수가 닿는 시너지 아이콘 전부(최대 3) */
+function SynIcons({ list }) {
+  return (
+    <span className="mc-sy" aria-label={list.map(({ s, after }) => `${s.name} ${GAIN_KO[synGain(s, after)]}`).join(', ')}>
+      {list.slice(0, 3).map(({ s, after }) => {
+        const g = synGain(s, after);
+        return (
+          <span key={s.id}>
+            <span className={`sy-ico ${g}`}><i style={{ WebkitMaskImage: `url(${SYN_ICON(s.id)})`, maskImage: `url(${SYN_ICON(s.id)})` }} /></span>
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 function SynergyPips({ s, after, named = false }) {
   const stage = Math.min(s.level, s.tiers.length - 1);
   const from = stage > 0 ? s.tiers[stage - 1].need : 0;
@@ -2847,7 +2882,7 @@ function MiniCard({ player, reason, takenClub, gone = false, keepAfterGone = fal
         <span className="mc-sh" />
         <span className="mc-tb" />
         <span className="mc-ov font-display tabular-nums">{player.overall}</span>
-        {hint && <SynergyPips {...hint} />}
+        {hint?.length > 0 && <SynIcons list={hint} />}
         {(
           <>
             <span className="mc-pos"><em>{POS_SHORT[player.position] || player.position}</em></span>
@@ -3670,18 +3705,25 @@ function SynergyDock({ roster, candidate, focusId, onFocus, onOpenAll }) {
         <button type="button" onClick={onOpenAll}>전체 보기</button>
       </div>
       <ul className="sd-list syn-scroll">
-        {list.map((s) => {
+        {(() => {
+          if (!after) return list.map((s) => ({ s }));
+          const rank = { new: 0, up: 1, add: 2 };
+          const gro = list.filter((s) => synergyGrows(s, after.get(s.id))).sort((a, b) => rank[synGain(a, after.get(a.id))] - rank[synGain(b, after.get(b.id))]);
+          const rest = list.filter((s) => !gro.includes(s));
+          return [...(gro.length ? [{ sep: '영입 시' }] : []), ...gro.map((s) => ({ s })), ...(gro.length && rest.length ? [{ sep: '나머지' }] : []), ...rest.map((s) => ({ s, dim: gro.length > 0 }))];
+        })().map(({ s, sep, dim }) => {
+          if (sep) return <li key={`sep-${sep}`} className="sd-sep" aria-hidden="true">{sep}</li>;
           const a = after?.get(s.id);
           return (
             <li key={s.id}>
               <button type="button" aria-expanded={focusId === s.id}
-                className={`sd-row sy${synTier(s)} ${s.active ? 'on' : ''} ${focusId === s.id ? 'fo' : ''} ${hover?.id === s.id ? 'hv' : ''} ${synergyGrows(s, a) ? 'gr' : ''}`}
+                className={`sd-row sy${synTier(s)} ${s.active ? 'on' : ''} ${focusId === s.id ? 'fo' : ''} ${hover?.id === s.id ? 'hv' : ''} ${synergyGrows(s, a) ? 'gr' : ''} ${dim ? 'dim' : ''}`}
                 onMouseEnter={(e) => show(s.id, e.currentTarget)} onFocus={(e) => show(s.id, e.currentTarget)} onBlur={() => setHover(null)}
                 onClick={() => onFocus(s.id)}>
                 <SynIcon id={s.id} />
                 <span className="sd-tx">
                   <b>{s.name}</b>
-                  <span className="sd-stp font-display">{s.tiers.map((t, k) => <React.Fragment key={t.need}>{k > 0 && <i>›</i>}<span className={k < s.level ? 'ok' : ''}>{t.need}</span></React.Fragment>)}</span>
+                  <span className="sd-stp font-display">{s.tiers.map((t, k) => <React.Fragment key={t.need}>{k > 0 && <i>›</i>}<span className={k < s.level ? 'ok' : a && k < a.level ? 'nx' : ''}>{t.need}</span></React.Fragment>)}</span>
                 </span>
                 <span className="sd-fr font-display tabular-nums">{synCount(s, a)}</span>
               </button>
@@ -5860,6 +5902,12 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
     const after = previewSynergies(roster, player);
     return synergyNow.filter((s) => !(phase === 'draft' && DRAFT_HIDDEN.has(s.id)) && synergyGrows(s, after.get(s.id)));
   };
+  /** 선반 카드 아이콘: 이 선수가 닿는 시너지 전부 [{ s, after }] — 처음 켜짐 → 다음 단계 → 인원만 순 */
+  const hintsFor = (player) => {
+    const after = previewSynergies(roster, player);
+    const rank = { new: 0, up: 1, add: 2 };
+    return sortSynergies(growsFor(player)).map((s) => ({ s, after: after.get(s.id) })).sort((a, b) => rank[synGain(a.s, a.after)] - rank[synGain(b.s, b.after)]);
+  };
   /** 카드의 시너지 칸 표시: 이 선수가 채우는 진행 중 시너지 중 목록 정렬 기준으로 가장 위의 것 하나 ({ s, after }) */
   const hintFor = (player) => {
     const after = previewSynergies(roster, player);
@@ -6079,7 +6127,7 @@ export default function KboAugmentDraft({ onExit, normal, normalView = null, onN
                   {/* 감춘 카드도 지우지 않고 빈 칸만 덮어씌운다 — 다시 켤 때 등장 효과가 돌지 않는다 */}
                   {hiddenCard(p) && <span className="mc-slot absolute inset-0" aria-hidden="true" />}
                   <MiniCard player={p} reason={lockOf(p)} gone={gone.has(p.id)} keepAfterGone={shelfFilter === 'all'} hot={!!live && myTurnLit && !lockOf(p)} myColor={live ? live.clubs[liveMine].color : null} takenClub={live ? (Live.takenBy(live, p) != null ? live.clubs[Live.takenBy(live, p)] : null) : null} selected={picked?.id === p.id}
-                    hint={lockOf(p) ? null : hintFor(p)} need={!lockOf(p) && needPos.has(p.position)}
+                    hint={lockOf(p) ? null : hintsFor(p)} need={!lockOf(p) && needPos.has(p.position)}
                     focus={focused ? (synergyGrows(focused, previewSynergies(roster, p).get(focused.id)) ? 'on' : 'off') : null}
                     onPick={(pl) => setPicked((cur) => (cur?.id === pl.id ? null : pl))} leaving={!!shelfLeaving?.has(p.id)}
                     // 더블클릭: 영입할 수 있으면 곧바로 영입, 잠긴 카드(마감 교체 등)는 PICK 에 올려 버튼으로 고르게
