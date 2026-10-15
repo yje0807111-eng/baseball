@@ -38,7 +38,7 @@ import { recordCells, playerTraits } from './myteam/traits.js';
    ════════════════════════════════════════════════════════════════════ */
 
 /* ───────────── 1. 규칙 상수 ───────────── */
-export const SALARY_CAP = 1500; // 자리 20개 × 약 75 CP — 모든 모드 같은 값(고르는 칸 없음)
+export const SALARY_CAP = 1600; // 자리 20개 × 약 80 CP(시세 중앙 78) — 모든 모드 같은 값(고르는 칸 없음). AI 300판: 90↑ 9명 · 60 CP↓ 10명
 export const FOREIGN_LIMIT = 3;
 export const SLOT_LIMITS = { SP: 1, RP: 4, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 3, DH: 1 };
 export const BENCH_SIZE = 6; // 예비: 포지션을 가리지 않는 자리

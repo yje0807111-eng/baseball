@@ -19,7 +19,7 @@ export const clubsFor = (series = [], roster = ROSTER_SIZE) => {
   return Math.max(4, Math.min(CLUB_COUNT, Math.floor((players * 0.9) / Math.max(1, roster))));
 };
 export const LAPS_PER_BOARD = 1;    // 보드 하나를 도는 바퀴 수 — 8구단이 한 바퀴 돌면 선수가 남아 있어도 다음 시리즈로
-export const PICK_SECONDS = 40;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick)
+export const PICK_SECONDS = 30;     // 한 픽 제한 시간 (화면이 재고, 넘기면 autoPick) — 판이 붉어지기 시작하는 15초(URGENT_FROM) 전에 15초 여유
 export const BOARD_SIZE = 18;       // 보드에 까는 선수 수 — 실제 구단 시리즈 한 팀과 같은 수
 /* 보드 포지션 구성: 구단 시즌 373개의 평균(SP 4.0 · RP 3.9 · C 1.8 · 내야 4.4 · OF 3.5 · DH 0.5)에 맞춘 것.
    선수가 18명보다 많은 시리즈에서 이 구성대로 뽑으면 어느 보드든 한 팀을 꾸릴 만큼 자리가 고루 나온다 */
