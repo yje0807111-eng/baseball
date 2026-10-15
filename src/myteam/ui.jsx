@@ -142,7 +142,8 @@ export const UiStyle = () => (
     .mt-grp::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
     /* 위 탭 — 알약 틀 안에 고른 탭만 떠오른다 */
     .mt-tabs { display:flex; align-items:stretch; gap:2px; height:100%; }
-    .mt-tab { position:relative; display:flex; align-items:center; padding:0 22px; font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
+    /* 좁아지면 글자를 세로로 쪼개는 대신(영/입) 좌우 여백이 먼저 줄어든다. 탭은 늘 다섯 개 다 보인다 */
+    .mt-tab { position:relative; display:flex; flex:0 0 auto; align-items:center; white-space:nowrap; padding:0 clamp(9px,1.15vw,22px); font-size:18px; font-weight:800; color:#8b93a4; transition:color .2s; }
     .mt-tab:hover { color:#e5e7eb; }
     .mt-tab .n { margin-left:7px; font-family:'Saira Condensed',sans-serif; font-size:14px; font-weight:700; color:#6b7280; }
     .mt-tab.on .n { color:#fbe7a8; }
@@ -321,7 +322,7 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
   const cost = squad.reduce((s, p) => s + (p.cost || 0), 0) + Object.values(team?.staff || {}).reduce((s, x) => s + (x?.cost || 0), 0);
   const over = cost > cap;
   return (
-    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-5 bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-7" style={{ viewTransitionName: 'mt-topbar' }}>
+    <header className="relative z-10 flex h-[4.75rem] shrink-0 items-center gap-[clamp(0.7rem,1.15vw,1.25rem)] bg-[linear-gradient(180deg,rgba(5,8,15,.8),rgba(5,8,15,0))] px-[clamp(1rem,2vw,1.75rem)]" style={{ viewTransitionName: 'mt-topbar' }}>
       {/* 랭크전 · 대진표 · 정비처럼 라커 CSS 를 안 올린 화면에서도 같은 모양 — 같은 style 이 두 번 있어도 그대로 */}
       <UiStyle />
       {onBack && (
@@ -329,14 +330,15 @@ export const TopBar = ({ section = '메인', eyebrow = '레전드 드래프트',
           className="mt-cut grid h-11 w-11 place-items-center bg-white/[0.07] text-t2 text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] hover:bg-white/[0.12]" style={{ '--c': '12px' }}>←</button>
       )}
       <div className="shrink-0 leading-none">
-        <p className="text-t4 font-bold text-gray-400">{eyebrow}</p>
+        <p className="whitespace-nowrap text-t4 font-bold text-gray-400">{eyebrow}</p>
         <h1 className="mt-1 whitespace-nowrap text-t1 font-black leading-none text-white">{section}</h1>
       </div>
       {steps && <span className="h-9 w-px shrink-0 bg-white/10" aria-hidden="true" />}
-      {steps && <div className="flex h-full min-w-0 items-stretch">{steps}</div>}
-      <div className="ml-auto flex items-center gap-6">
+      {steps && <div className="flex h-full shrink-0 items-stretch">{steps}</div>}
+      <div className="ml-auto flex min-w-0 items-center gap-[clamp(0.7rem,1.4vw,1.5rem)] [&>*]:shrink-0">
         {team && (
-          <div className="mt-cut mt-glass w-64 px-4 py-2" style={{ '--c': '14px', opacity: !over && cost < cap * CAP_LOUD ? 0.7 : 1 }}>
+          /* 남은 캡 — 자리가 모자라면 글씨가 들어갈 만큼까지만 줄어든다 (줄바꿈은 하지 않는다) */
+          <div className="mt-cut mt-glass w-64 min-w-[9.5rem] !shrink whitespace-nowrap px-4 py-2" style={{ '--c': '14px', opacity: !over && cost < cap * CAP_LOUD ? 0.7 : 1 }}>
             <div className="flex items-baseline justify-between">
               <span className="text-t4 font-bold text-gray-400">남은 캡</span>
               {/* 남은 캡: 처음엔 가득 차 있고 영입할수록 줄어든다 */}

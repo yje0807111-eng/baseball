@@ -152,9 +152,10 @@ function SingleHero({ team, squad, ready, issues, onLocker, oppName }) {
       <UiStyle />
       <div className="ui-cut relative min-h-0 flex-1 overflow-hidden bg-cover" style={{ '--c': '14px', backgroundImage: 'url(ui/broadcast-field.webp)', backgroundPosition: 'center 60%' }}>
         <span className="absolute inset-0" style={{ background: 'linear-gradient(90deg,#05080f,rgba(5,8,15,.55) 45%,rgba(5,8,15,.1))' }} />
-        <div className="absolute bottom-6 left-7">
+        {/* 오른쪽 끝을 묶어 두고 글씨도 판 너비를 따라간다 — 팀 이름이 길면 좁은 화면에서 판 밖으로 나갔다 */}
+        <div className="absolute bottom-6 left-7 right-7">
           <p className="ui-lab font-display">다음 경기</p>
-          <p className="mt-1 text-5xl font-black text-white">{team.name || '내 팀'} <span className="font-display text-gray-400">vs</span> {oppName || '무작위 팀'}</p>
+          <p className="mt-1 text-[clamp(1.75rem,2.55vw,3rem)] font-black leading-tight text-white">{team.name || '내 팀'} <span className="font-display text-gray-400">vs</span> {oppName || '무작위 팀'}</p>
           <p className="mt-2 font-display text-t2" style={{ color: ready ? G : '#fde047' }}>
             {ready ? `팀 종합 ${st.ovr}` : issues[0]}
           </p>
