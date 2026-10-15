@@ -4531,6 +4531,100 @@ function YearHero({ mode, acc }) {
   );
 }
 
+/* 구단 고르개 — 구단 색 점과 이름 한 줄. 시즌이 많은 구단부터(CLUB_MODES 순서) */
+function ClubPicker({ clubId, onPick }) {
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="구단">
+      {CLUB_MODES.map((m) => {
+        const on = m.id === clubId;
+        return (
+          <button key={m.id} type="button" role="radio" aria-checked={on} onClick={() => onPick(m.id)}
+            title={`${m.name} · ${m.series.length} 시리즈`}
+            className={`ui-cut flex items-center gap-1.5 px-3 py-1 font-display text-t3 ${on ? 'font-bold text-[#05080f]' : 'text-gray-400 hover:text-white'}`}
+            style={{ '--c': '5px', background: on ? m.neon : 'rgba(255,255,255,.06)' }}>
+            <span className="block rounded-full" style={{ width: 5, height: 5, background: on ? '#05080f' : m.neon }} />
+            {m.name}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * 그 구단 역대 대표 선수 n명 — 자리마다 가장 좋은 한 명을 먼저 추리고 그중 상위 n명.
+ * 45시즌을 종합으로만 줄 세우면 종합이 높게 나오는 마무리 투수만 남아 구단 얼굴이 되지 않는다
+ */
+function clubStars(list, n) {
+  const seen = new Set();
+  const best = new Map();
+  list.flatMap((x) => x.players).sort((a, b) => b.overall - a.overall).forEach((p) => {
+    if (best.has(p.position) || seen.has(personKey(p))) return;
+    best.set(p.position, p);
+    seen.add(personKey(p));
+  });
+  return [...best.values()].sort((a, b) => b.overall - a.overall).slice(0, n);
+}
+
+/* 구단 판 — 연도별(YearHero)과 같은 틀: 왼쪽에 구단 카드와 시즌 티켓, 오른쪽에 역대 얼굴.
+   주인공 카드는 그 구단 레전드 시리즈, 작은 티켓은 옛 이름까지 전 시즌 */
+function ClubHero({ mode, acc }) {
+  const list = mode.series;
+  const flag = teamFlag(mode.name);
+  const champs = list.filter((x) => x.champion).length;
+  const seasons = list.filter((x) => x.kind === 'team');
+  const span = seasons.map((x) => x.year).filter(Boolean);
+  const people = useMemo(() => new Set(mode.players.map(personKey)).size, [mode.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const tickets = ticketsOf(mode);
+  const hero = list.find((x) => x.kind === 'legend');
+  const heroT = tickets.find((t) => t.key === hero?.id);
+  const restT = tickets.filter((t) => t.key !== hero?.id).sort((a, b) => (b.year || 0) - (a.year || 0));
+  const [one, ...more] = clubStars(list, 7);
+  return (
+    <>
+      {/* 구단 상징이 연기 속에서 떠오르는 배경 — 글자가 놓이는 왼쪽 아래만 어둡게 (연도별 판과 같은 겹) */}
+      {flag && (
+        <React.Fragment key={flag.key}>
+          <span className="pointer-events-none absolute inset-0 animate-[swap_.4s_ease-out_both] bg-cover bg-center" style={{ zIndex: 0, backgroundImage: `url(ui/teams/bg-${flag.key}.webp)`, opacity: 0.6 }} />
+          <span className="pointer-events-none absolute inset-0" style={{ zIndex: 0, background: `linear-gradient(90deg,rgba(5,8,15,.92) 8%,rgba(5,8,15,.4) 55%,rgba(5,8,15,.12)), linear-gradient(0deg,rgba(5,8,15,.8),rgba(5,8,15,0) 45%), radial-gradient(60% 80% at 20% 75%, ${flag.color}2e, transparent 70%)` }} />
+        </React.Fragment>
+      )}
+      <div key={mode.id} className="relative z-10 grid min-h-0 flex-1 animate-[swap_.4s_ease-out_both] gap-5" style={{ gridTemplateColumns: '392px minmax(0,1fr)' }}>
+        <div className="ui-cut ui-frame ui-glass mt-4 flex min-h-0 flex-col p-4" style={{ '--c': '14px', '--a': acc }}>
+          <span className="flex items-center gap-2">
+            {champs > 0 && (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.85 }}>
+                <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" /><path d="M17 5h3v2a3 3 0 0 1-3 3" /><path d="M7 5H4v2a3 3 0 0 0 3 3" />
+                <path d="M12 14v3" /><path d="M9 20.5h6" /><path d="M10 17.5h4l1 3H9l1-3Z" />
+              </svg>
+            )}
+            <b className="font-display text-t3 tracking-[0.25em]" style={{ color: champs > 0 ? '#fcd34d' : acc }}>
+              {champs > 0 ? `한국시리즈 우승 ${champs}회` : '한국시리즈 우승 없음'}
+            </b>
+          </span>
+          <b className="mt-2 block text-5xl font-black leading-none text-white">{mode.name}</b>
+          <span className="mt-2 block text-t3 text-gray-300">{`${Math.min(...span)} – ${Math.max(...span)} · 시즌 ${seasons.length} · 인물 ${people}명`}</span>
+          {heroT && <div className="mt-4 shrink-0" style={{ height: 176 }}><SeriesTicket t={heroT} acc={acc} /></div>}
+          <p className="ui-lab font-display" style={{ '--a': acc }}>시즌 {seasons.length}</p>
+          <div className="syn-scroll mt-1.5 grid min-h-0 gap-1.5 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gridAutoRows: '82px' }}>
+            {restT.map((t) => <SeriesTicket key={t.key} t={t} acc={acc} sm />)}
+          </div>
+        </div>
+        {/* 오른쪽 — 역대 얼굴 하나를 크게, 나머지는 그 옆으로 한 줄 */}
+        <div className="flex min-h-0 flex-col justify-end pb-1">
+          <p className="ui-lab font-display" style={{ '--a': acc }}>역대 최고 선수</p>
+          <div className="mt-1.5 flex items-end gap-1.5">
+            {one && <YearBig p={one} w={212} h={248} />}
+            <div className="grid min-w-0 flex-1 gap-1.5" style={{ gridTemplateColumns: `repeat(${Math.max(1, more.length)},minmax(0,1fr))` }}>
+              {more.map((p) => <YearFace key={personKey(p)} p={p} w="100%" h={168} />)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 function SeriesTicket({ t, acc, sm = false, fit = false }) {
   const art = useArt(t.star);
   return (
@@ -4592,14 +4686,15 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const plays = normal || [];
   const firstMode = DRAFT_MODES.find((m) => m.id === initialMode) || DRAFT_MODES[0];
   const specialIds = DRAFT_MODES.filter((m) => m.group === 'special').map((m) => m.id);
-  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · 특별 모드 id)
+  // normalView: 처음 열 탭 — 플레이 탭(duel · ranked) 또는 드래프트 탭(mix · recent · year · club · 특별 모드 id)
   const openAt = (v) => (v === 'special' ? specialIds[0] : v); // 예전에 묶어 두던 '특별 모드' 칸은 첫 특별 모드로
   const [view, setView] = useState(plays.length
-    ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'special', ...specialIds].includes(normalView)) ? openAt(normalView) : plays[0].key)
-    : (firstMode.group === 'year' ? 'year' : firstMode.id));
+    ? (normalView && (plays.some((x) => x.key === normalView) || ['mix', 'recent', 'year', 'club', 'special', ...specialIds].includes(normalView)) ? openAt(normalView) : plays[0].key)
+    : (firstMode.group === 'year' ? 'year' : firstMode.group === 'club' ? 'club' : firstMode.id));
   const play = plays.find((x) => x.key === view) || null;
   const [yearId, setYearId] = useState(firstMode.group === 'year' ? firstMode.id : YEAR_MODES[0]?.id);
-  const modeId = view === 'year' ? yearId : play ? null : view;
+  const [clubId, setClubId] = useState(firstMode.group === 'club' ? firstMode.id : CLUB_MODES[0]?.id);
+  const modeId = view === 'year' ? yearId : view === 'club' ? clubId : play ? null : view;
   const mode = DRAFT_MODES.find((m) => m.id === modeId) || firstMode;
   const [cap, setCap] = useState(mode.cap);
   const [ai, setAi] = useState('normal');
@@ -4610,12 +4705,14 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
   const specials = DRAFT_MODES.filter((m) => m.group === 'special');
   const special = mode.group === 'special';
   const yearMode = DRAFT_MODES.find((m) => m.id === yearId);
+  const clubMode = DRAFT_MODES.find((m) => m.id === clubId);
   const NAV = [
     ...(plays.length ? [{ group: '내 팀', items: plays.map(({ key, label, sub, img, neon }) => ({ key, label, sub, img, neon })) }] : []),
     { group: '드래프트', items: [
       { key: 'mix', label: '전체 믹스', sub: `${DRAFT_MODES.find((m) => m.id === 'mix').series.length} 시리즈 · 무작위`, img: 'modes/mix.webp', neon: '#10b981' },
       { key: 'recent', label: '최근 시즌', sub: '2021 – 2026', img: 'modes/recent.webp', neon: '#38e1ff' },
       { key: 'year', label: '연도별 시즌', sub: `${YEAR_MODES.length}개 시즌 · 한 해 고르기`, img: 'modes/recent.webp', neon: '#a3e635' },
+      { key: 'club', label: '구단별', sub: `${CLUB_MODES.length}개 구단 · 한 구단 고르기`, img: `ui/teams/flag-${teamFlag(clubMode?.name || '')?.key || 'legend'}.webp`, neon: clubMode?.neon || '#f0abfc' },
     ] },
     { group: '특별 모드', items: specials.map((m) => ({ key: m.id, label: m.name, sub: m.rules.join(' · '), img: `modes/${m.id}.webp`, neon: m.neon })) },
   ];
@@ -4661,7 +4758,7 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
         {play ? play.main : (
           <section key={view} className="ui-cut ui-frame ui-glass relative flex min-h-0 flex-col overflow-hidden p-5 animate-[swap_.35s_ease-out_both]" style={{ '--c': '20px' }}>
             <div className="relative z-10 flex flex-wrap items-baseline gap-3">
-              <p className="ui-lab font-display">{special ? '모드 규칙' : view === 'year' ? '시즌 고르기' : '나오는 시리즈'}</p>
+              <p className="ui-lab font-display">{special ? '모드 규칙' : view === 'year' ? '시즌 고르기' : view === 'club' ? '구단 고르기' : '나오는 시리즈'}</p>
               {special && (
                 <span className="flex flex-wrap gap-1.5">
                   {mode.rules.map((r) => <span key={r} className="ui-cut px-2 py-0.5 text-t4 font-bold text-[#05080f]" style={{ '--c': '4px', background: mode.neon }}>{r}</span>)}
@@ -4672,7 +4769,10 @@ function ModeSelect({ initialMode, record, onStart, onExit, normal, normalView =
               )}
             </div>
             {view === 'year' && <div className="relative z-10"><YearPicker yearId={yearId} onPick={setYearId} /></div>}
-            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" /> : <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />}
+            {view === 'club' && <div className="relative z-10"><ClubPicker clubId={clubId} onPick={setClubId} /></div>}
+            {view === 'year' ? <YearHero mode={mode} acc="#a3e635" />
+              : view === 'club' ? <ClubHero mode={mode} acc={mode.neon} />
+                : <BasicHero mode={mode} tickets={tickets} acc={mode.neon} />}
           </section>
         )}
 

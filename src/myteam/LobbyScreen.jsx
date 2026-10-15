@@ -49,7 +49,7 @@ function MatchDay({ onPlay }) {
   const modes = [
     { tab: 'duel', name: '일반 대결', sub: '단판 · 토너먼트', c: '#10b981', img: 'ui/broadcast-field.webp' },
     { tab: 'ranked', name: '랭크전', sub: '정규시즌 · 등급', c: '#a78bfa', img: 'ui/stadium.webp' },
-    { tab: 'mix', name: '드래프트', sub: '특정 시즌 · 전체 믹스', c: '#38e1ff', img: 'modes/mix.webp' },
+    { tab: 'mix', name: '드래프트', sub: '구단별 · 연도별 · 전체 믹스', c: '#38e1ff', img: 'modes/mix.webp' },
     { tab: 'special', name: '특별 모드', sub: '규칙이 다른 세 모드', c: '#fbbf24', img: 'modes/legend.webp' },
   ];
   return (
